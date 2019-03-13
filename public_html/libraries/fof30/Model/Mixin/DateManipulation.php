@@ -10,6 +10,8 @@ namespace FOF30\Model\Mixin;
 use FOF30\Date\Date;
 use FOF30\Model\DataModel;
 
+defined('_JEXEC') or die;
+
 /**
  * Trait for date manipulations commonly used in models
  */

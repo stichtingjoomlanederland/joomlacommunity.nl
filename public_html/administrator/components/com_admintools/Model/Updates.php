@@ -660,7 +660,7 @@ ENDBODY;
 
 		$content = <<< XML
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="3.3.0" type="package" method="upgrade">
+<extension version="3.8.0" type="package" method="upgrade">
     <name>Admin Tools package</name>
     <author>Nicholas K. Dionysopoulos</author>
     <creationDate>2016-06-01</creationDate>

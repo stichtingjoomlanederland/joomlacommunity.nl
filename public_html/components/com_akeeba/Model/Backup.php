@@ -7,6 +7,9 @@
 
 namespace Akeeba\Backup\Site\Model;
 
+// Protect from unauthorized access
+defined('_JEXEC') or die();
+
 use Akeeba\Backup\Admin\Model\Backup as AdminModel;
 
 class Backup extends AdminModel

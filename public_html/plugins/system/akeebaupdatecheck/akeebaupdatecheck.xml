@@ -12,11 +12,13 @@
 	<authorUrl>http://www.akeebabackup.com</authorUrl>
 	<copyright>Copyright (c)2006-2019 Nicholas K. Dionysopoulos</copyright>
 	<license>GNU General Public License version 3, or later</license>
-	<creationDate>2011-05-26</creationDate>
-	<version>1.1</version>
+	<creationDate>2019-03-12</creationDate>
+	<version>6.4.1</version>
 	<description>PLG_AKEEBAUPDATECHECK_XML_DESCRIPTION</description>
 	<files>
 		<filename plugin="akeebaupdatecheck">akeebaupdatecheck.php</filename>
+		<filename>.htaccess</filename>
+		<filename>web.config</filename>
 	</files>
 	<languages folder="language">
 		<language tag="en-GB">en-GB/en-GB.plg_system_akeebaupdatecheck.ini</language>

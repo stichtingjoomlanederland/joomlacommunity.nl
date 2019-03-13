@@ -12,6 +12,7 @@
         <drivers>
             <driver>postgres</driver>
             <driver>postgresql</driver>
+            <driver>pgsql</driver>
         </drivers>
     </meta>
 

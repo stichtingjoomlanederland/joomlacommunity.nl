@@ -6,7 +6,10 @@
  */
 
 namespace FOF30\Utils;
+
 use FOF30\Container\Container;
+
+defined('_JEXEC') or die;
 
 /**
  * Dynamic user to user group assignment.

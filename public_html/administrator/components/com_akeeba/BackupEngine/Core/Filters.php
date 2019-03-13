@@ -93,7 +93,7 @@ class Filters extends BaseObject
 					continue;
 				}
 
-				// Some hosts copy .ini and .php files, renaming them (ie foobar.1.php)
+				// Some hosts copy .json and .php files, renaming them (ie foobar.1.php)
 				// We need to exclude them, otherwise we'll get a fatal error for declaring the same class twice
 				$bare_name = $file->getBasename('.php');
 
@@ -171,7 +171,7 @@ class Filters extends BaseObject
 					continue;
 				}
 
-				// Some hosts copy .ini and .php files, renaming them (ie foobar.1.php)
+				// Some hosts copy .json and .php files, renaming them (ie foobar.1.php)
 				// We need to exclude them, otherwise we'll get a fatal error for declaring the same class twice
 				$bare_name = strtolower($file->getBasename('.php'));
 
@@ -194,8 +194,8 @@ class Filters extends BaseObject
 					continue;
 				}
 
-				// Make sure the INI file also exists
-				if ( !file_exists($folder . '/' . $bare_name . '.ini'))
+				// Make sure the JSON file also exists
+				if ( !file_exists($folder . '/' . $bare_name . '.json'))
 				{
 					continue;
 				}

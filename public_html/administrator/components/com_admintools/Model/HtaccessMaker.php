@@ -253,6 +253,7 @@ class HtaccessMaker extends ServerConfigMaker
 			'libwww-perl',
 			'Go!Zilla',
 			'TurnitinBot',
+			'sqlmap',
 		),
 
 		// == Server protection ==

@@ -32,7 +32,14 @@ $uriBase = rtrim(JUri::base(), '/');
             <?php endif; ?>
         <?php endif; ?>
 
-        <a href="index.php?option=com_admintools&view=SEOAndLinkTools" class="akeeba-action--teal">
+	    <?php if ($this->isPro): ?>
+		<a href="index.php?option=com_admintools&view=TempSuperUsers" class="akeeba-action--teal">
+			<span class="akion-clock"></span>
+		    <?php echo \JText::_('COM_ADMINTOOLS_TITLE_TEMPSUPERUSERS'); ?>
+		</a>
+		<?php endif; ?>
+
+		<a href="index.php?option=com_admintools&view=SEOAndLinkTools" class="akeeba-action--teal">
             <span class="akion-link"></span>
             <?php echo \JText::_('COM_ADMINTOOLS_TITLE_SEOANDLINK'); ?>
         </a>

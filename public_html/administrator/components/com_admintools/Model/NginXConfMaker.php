@@ -242,6 +242,7 @@ class NginXConfMaker extends ServerConfigMaker
 			'libwww-perl',
 			'Go!Zilla',
 			'TurnitinBot',
+			'sqlmap',
 		),
 		// Block common exploits
 		'blockcommon'         => 1,

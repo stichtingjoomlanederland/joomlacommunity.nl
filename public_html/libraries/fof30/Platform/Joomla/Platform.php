@@ -13,9 +13,11 @@ use FOF30\Date\Date;
 use FOF30\Date\DateDecorator;
 use FOF30\Input\Input;
 use FOF30\Platform\Base\Platform as BasePlatform;
+use JApplicationCli;
 use JApplicationCms;
 use JApplicationWeb;
 use JCache;
+use JFactory;
 use Joomla\Registry\Registry;
 use JUri;
 
@@ -106,22 +108,28 @@ class Platform extends BasePlatform
 	/**
 	 * Main function to detect if we're running in a CLI environment and we're admin
 	 *
-	 * @return  array  isCLI and isAdmin. It's not an associative array, so we can use list.
+	 * @return  array  isCLI and isAdmin. It's not an associative array, so we can use list().
 	 */
 	protected function isCliAdmin()
 	{
 		if (is_null(static::$isCLI) && is_null(static::$isAdmin))
 		{
+			static::$isCLI   = false;
+			static::$isAdmin = false;
+
 			try
 			{
-				if (is_null(\JFactory::$application))
+				if (is_null(JFactory::$application))
 				{
 					static::$isCLI = true;
+					static::$isAdmin = false;
+
+					return [static::$isCLI, static::$isAdmin];
 				}
 				else
 				{
-					$app = \JFactory::getApplication();
-					static::$isCLI = $app instanceof \Exception || $app instanceof \JApplicationCli;
+					$app           = JFactory::getApplication();
+					static::$isCLI = $app instanceof \Exception || $app instanceof JApplicationCli;
 				}
 			}
 			catch (\Exception $e)
@@ -131,11 +139,25 @@ class Platform extends BasePlatform
 
 			if (static::$isCLI)
 			{
-				static::$isAdmin = false;
+				return [static::$isCLI, static::$isAdmin];
 			}
-			else
+
+			try
 			{
-				static::$isAdmin = !\JFactory::$application ? false : \JFactory::getApplication()->isAdmin();
+				$app = JFactory::getApplication();
+			}
+			catch (Exception $e)
+			{
+				return [static::$isCLI, static::$isAdmin];
+			}
+
+			if (method_exists($app, 'isAdmin'))
+			{
+				static::$isAdmin = $app->isAdmin();
+			}
+			elseif (method_exists($app, 'isClient'))
+			{
+				static::$isAdmin = $app->isClient('administrator');
 			}
 		}
 
@@ -156,8 +178,8 @@ class Platform extends BasePlatform
 			'public' => JPATH_SITE,
 			'media'  => JPATH_SITE . '/media',
 			'admin'  => JPATH_ADMINISTRATOR,
-			'tmp'    => \JFactory::getConfig()->get('tmp_path'),
-			'log'    => \JFactory::getConfig()->get('log_path')
+			'tmp'    => JFactory::getConfig()->get('tmp_path'),
+			'log'    => JFactory::getConfig()->get('log_path')
 		);
 	}
 
@@ -201,7 +223,7 @@ class Platform extends BasePlatform
 	 */
 	public function getTemplate($params = false)
 	{
-		return \JFactory::getApplication()->getTemplate($params);
+		return JFactory::getApplication()->getTemplate($params);
 	}
 
 	/**
@@ -350,7 +372,7 @@ class Platform extends BasePlatform
 			return new \JUser();
 		}
 
-		return \JFactory::getUser($id);
+		return JFactory::getUser($id);
 	}
 
 	/**
@@ -368,7 +390,7 @@ class Platform extends BasePlatform
 		{
 			try
 			{
-				$document = \JFactory::getDocument();
+				$document = JFactory::getDocument();
 			}
 			catch (\Exception $exc)
 			{
@@ -398,7 +420,7 @@ class Platform extends BasePlatform
 				$time = time();
 			}
 
-			$coreObject = \JFactory::getDate($time, $tzOffest);
+			$coreObject = JFactory::getDate($time, $tzOffest);
 
 			return new DateDecorator($coreObject);
 		}
@@ -415,7 +437,7 @@ class Platform extends BasePlatform
 	 */
 	public function getLanguage()
 	{
-		return \JFactory::getLanguage();
+		return JFactory::getLanguage();
 	}
 
 	/**
@@ -425,7 +447,7 @@ class Platform extends BasePlatform
 	 */
 	public function getDbo()
 	{
-		return \JFactory::getDbo();
+		return JFactory::getDbo();
 	}
 
 	/**
@@ -460,7 +482,7 @@ class Platform extends BasePlatform
 			return $ret;
 		}
 
-		$app = \JFactory::getApplication();
+		$app = JFactory::getApplication();
 
 		if (method_exists($app, 'getUserState'))
 		{
@@ -537,7 +559,7 @@ class Platform extends BasePlatform
 				return \JEventDispatcher::getInstance()->trigger($event, $data);
 			}
 
-			return \JFactory::getApplication()->triggerEvent($event, $data);
+			return JFactory::getApplication()->triggerEvent($event, $data);
 		}
 		else
 		{
@@ -562,7 +584,7 @@ class Platform extends BasePlatform
 			return true;
 		}
 
-		$ret = \JFactory::getUser()->authorise($action, $assetname);
+		$ret = JFactory::getUser()->authorise($action, $assetname);
 
 		// Work around Joomla returning null instead of false in some cases.
 		return $ret ? true : false;
@@ -685,7 +707,7 @@ class Platform extends BasePlatform
 		if (is_null($this->_cache) || $force)
 		{
 			// Try to get data from Joomla!'s cache
-			$cache = \JFactory::getCache('fof', '');
+			$cache = JFactory::getCache('fof', '');
 			$this->_cache = $cache->get('cache', 'fof');
 
 			\JLoader::import('joomla.registry.registry');
@@ -717,7 +739,7 @@ class Platform extends BasePlatform
 		// Get the Registry object of our cached data
 		$registry = $this->getCacheObject();
 
-		$cache = \JFactory::getCache('fof', '');
+		$cache = JFactory::getCache('fof', '');
 
 		return $cache->store($registry, 'cache', 'fof');
 	}
@@ -734,7 +756,7 @@ class Platform extends BasePlatform
 	public function clearCache()
 	{
 		$false = false;
-		$cache = \JFactory::getCache('fof', '');
+		$cache = JFactory::getCache('fof', '');
 		$cache->store($false, 'cache', 'fof');
 	}
 
@@ -747,7 +769,7 @@ class Platform extends BasePlatform
 	 */
 	public function getConfig()
 	{
-		return \JFactory::getConfig();
+		return JFactory::getConfig();
 	}
 
 	/**
@@ -770,7 +792,7 @@ class Platform extends BasePlatform
 		// if we're in Joomla 2.5.18+ or 3.2.1+
 		if ($response->status != \JAuthentication::STATUS_SUCCESS && method_exists('JUserHelper', 'verifyPassword'))
 		{
-			$db = \JFactory::getDbo();
+			$db = JFactory::getDbo();
 			$query = $db->getQuery(true)
 				->select('id, password')
 				->from('#__users')
@@ -788,7 +810,9 @@ class Platform extends BasePlatform
 					$response->email = $user->email;
 					$response->fullname = $user->name;
 
-					if (\JFactory::getApplication()->isAdmin())
+					list($isCli, $isAdmin) = $this->isCliAdmin();
+
+					if ($isAdmin)
 					{
 						$response->language = $user->getParam('admin_language');
 					}
@@ -831,7 +855,7 @@ class Platform extends BasePlatform
 	public function logoutUser()
 	{
 		\JLoader::import('joomla.user.authentication');
-		$app = \JFactory::getApplication();
+		$app = JFactory::getApplication();
 		$user = $this->getUser();
 		$options = array('remember' => false);
 		$parameters = array(
@@ -991,7 +1015,7 @@ class Platform extends BasePlatform
 	 */
 	public function setHeader($name, $value, $replace = false)
 	{
-		\JFactory::getApplication()->setHeader($name, $value, $replace);
+		JFactory::getApplication()->setHeader($name, $value, $replace);
 	}
 
 	/**
@@ -1003,7 +1027,7 @@ class Platform extends BasePlatform
 	 */
 	public function sendHeaders()
 	{
-		\JFactory::getApplication()->sendHeaders();
+		JFactory::getApplication()->sendHeaders();
 	}
 
 	/**
@@ -1018,7 +1042,7 @@ class Platform extends BasePlatform
 		// Necessary workaround for broken System - Page Cache plugin in Joomla! 3.7.0
 		$this->bugfixJoomlaCachePlugin();
 
-		\JFactory::getApplication()->close($code);
+		JFactory::getApplication()->close($code);
 	}
 
 	/**
@@ -1038,7 +1062,7 @@ class Platform extends BasePlatform
 		// Necessary workaround for broken System - Page Cache plugin in Joomla! 3.7.0
 		$this->bugfixJoomlaCachePlugin();
 
-		$app = \JFactory::getApplication();
+		$app = JFactory::getApplication();
 
 		if (class_exists('JApplicationCms') && class_exists('JApplicationWeb')
 			&& ($app instanceof JApplicationCms)

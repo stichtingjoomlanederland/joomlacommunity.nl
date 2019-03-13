@@ -34,8 +34,11 @@ class AtsystemFeatureShield404 extends AtsystemFeatureAbstract
 
 	public function onAfterInitialise()
 	{
-		// Set the JError handler for E_ERROR to be the class' handleError method.
-		JError::setErrorHandling(E_ERROR, 'callback', array('AtsystemFeatureShield404', 'handleError'));
+		// Joomla 3: Set the JError handler for E_ERROR to be the class' handleError method.
+		if (class_exists('JError'))
+		{
+			JError::setErrorHandling(E_ERROR, 'callback', array('AtsystemFeatureShield404', 'handleError'));
+		}
 
 		// Register the previously defined exception handler so we can forward errors to it
 		self::$previousExceptionHandler = set_exception_handler(array('AtsystemFeatureShield404', 'handleException'));

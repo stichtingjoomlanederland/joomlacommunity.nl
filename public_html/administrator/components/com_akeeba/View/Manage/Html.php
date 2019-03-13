@@ -306,7 +306,7 @@ JS;
 	{
 		/** @var Statistics $model */
 		$model           = $this->getModel();
-		$id              = $model->getState('id', 0);
+		$id              = $model->getState('id', 0, 'int');
 		$record          = Platform::getInstance()->get_statistics($id);
 		$this->record    = $record;
 		$this->record_id = $id;

@@ -178,6 +178,7 @@ class Transfer extends Controller
 		$result = (object)[
 			'status'    => true,
 			'message'   => '',
+			'ignorable' => false,
 		];
 
 		/** @var \Akeeba\Backup\Admin\Model\Transfer $model */
@@ -188,11 +189,20 @@ class Transfer extends Controller
 			$config = $model->getFtpConfig();
 			$model->initialiseUpload($config);
 		}
+		catch (TransferIgnorableError $e)
+		{
+			$result = (object) [
+				'status'    => false,
+				'message'   => $e->getMessage(),
+				'ignorable' => true,
+			];
+		}
 		catch (Exception $e)
 		{
 			$result = (object)[
 				'status'    => false,
 				'message'   => $e->getMessage(),
+				'ignorable' => false,
 			];
 		}
 

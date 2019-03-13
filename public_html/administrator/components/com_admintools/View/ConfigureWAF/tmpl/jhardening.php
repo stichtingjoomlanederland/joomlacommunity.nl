@@ -6,6 +6,7 @@
  */
 
 /** @var Akeeba\AdminTools\Admin\View\ConfigureWAF\Html    $this */
+
 use Akeeba\AdminTools\Admin\Helper\Params;
 use Akeeba\AdminTools\Admin\Helper\Select;
 
@@ -257,4 +258,83 @@ elseif ($userParams->get('useractivation') == 0)
 	</label>
 
     <textarea id="blockedemaildomains" name="blockedemaildomains" rows="5"><?php echo $this->escape($this->wafconfig['blockedemaildomains']); ?></textarea>
+</div>
+
+<h4><?php echo JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_HEAD') ?></h4>
+
+<div class="akeeba-form-group">
+    <label
+            for="disableobsoleteadmins"
+            rel="akeeba-sticky-tooltip"
+            data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS'); ?>"
+            data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS'); ?>
+    </label>
+
+	<?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'disableobsoleteadmins', $this->wafconfig['disableobsoleteadmins']); ?>
+</div>
+
+<div class="akeeba-form-group">
+    <label
+            for="disableobsoleteadmins_freq"
+            rel="akeeba-sticky-tooltip"
+            data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_FREQ'); ?>"
+            data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_FREQ_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_FREQ'); ?>
+    </label>
+
+    <input class="akeeba-input-mini" type="text" size="5" name="disableobsoleteadmins_freq"
+           value="<?php echo $this->escape($this->wafconfig['disableobsoleteadmins_freq']); ?>"/>
+</div>
+
+<div class="akeeba-form-group">
+    <label
+            for="disableobsoleteadmins_groups"
+            rel="akeeba-sticky-tooltip"
+            data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_GROUPS'); ?>"
+            data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_GROUPS_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_GROUPS'); ?>
+    </label>
+
+	<?php echo JHtml::_('access.usergroup', 'disableobsoleteadmins_groups[]', $this->wafconfig['disableobsoleteadmins_groups'], [
+		'multiple' => true, 'size' => 5,
+	], true) ?>
+</div>
+
+<div class="akeeba-form-group">
+    <label
+            for="disableobsoleteadmins_maxdays"
+            rel="akeeba-sticky-tooltip"
+            data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_MAXDAYS'); ?>"
+            data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_MAXDAYS_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_MAXDAYS'); ?>
+    </label>
+
+    <input class="akeeba-input-mini" type="text" size="5" name="disableobsoleteadmins_maxdays"
+           value="<?php echo $this->escape($this->wafconfig['disableobsoleteadmins_maxdays']); ?>"/>
+</div>
+
+<div class="akeeba-form-group">
+    <label for="disableobsoleteadmins_action"
+           rel="akeeba-sticky-tooltip"
+           data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_ACTION'); ?>"
+           data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_ACTION_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_ACTION'); ?>
+    </label>
+
+	<?php echo Select::disableObsoleteAdminsAction('disableobsoleteadmins_action', array(), $this->wafconfig['disableobsoleteadmins_action']); ?>
+</div>
+
+<div class="akeeba-form-group">
+    <label
+            for="disableobsoleteadmins_protected"
+            rel="akeeba-sticky-tooltip"
+            data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_PROTECTED'); ?>"
+            data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_PROTECTED_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_PROTECTED'); ?>
+    </label>
+
+    <?php echo Select::backendUsers('disableobsoleteadmins_protected[]', [
+	    'multiple' => true, 'size' => 10, 'class' => 'advancedSelect'
+    ], $this->wafconfig['disableobsoleteadmins_protected']) ?>
 </div>

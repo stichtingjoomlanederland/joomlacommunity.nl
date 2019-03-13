@@ -173,11 +173,6 @@ class ControlPanel extends Model
 
 		$dbInstaller->updateSchema();
 
-		// Let's check and fix common tables, too
-		/** @var Stats $statsModel */
-		$statsModel = $this->container->factory->model('Stats')->tmpInstance();
-		$statsModel->checkAndFixCommonTables();
-
 		// And finally remove the flag if everything went fine
 		$params->set('updatedb', null);
 		$params->save();

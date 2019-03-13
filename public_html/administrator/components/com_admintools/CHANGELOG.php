@@ -1,4 +1,13 @@
 <?php die() ?>
+Admin Tools 5.3.0
+================================================================================
++ Protection of all component and plugin folders against direct web access
++ Disable access to backend users who haven't logged in for a long time (gh-188)
++ Updated default list of blocked User Agents
++ Joomla! 4 alpha 7 compatibility
+~ Added PHP malware samples in the PHP File Change Scanner
+# [LOW] Failed Login log entries would be deleted on upgrade even if they don't contained plaintext passwords
+
 Admin Tools 5.2.1
 ================================================================================
 + Mark All as Safe button in the PHP File Change Scanner report viewer

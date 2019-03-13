@@ -14,6 +14,8 @@ use FOF30\Container\Container;
 use FOF30\Date\Date;
 use JUser;
 
+defined('_JEXEC') or die;
+
 /**
  * A helper class to wrangle timezones, as used by Joomla!.
  *

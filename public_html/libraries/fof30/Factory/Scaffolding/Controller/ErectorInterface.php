@@ -9,6 +9,8 @@ namespace FOF30\Factory\Scaffolding\Controller;
 
 use FOF30\Controller\DataController;
 
+defined('_JEXEC') or die;
+
 /**
  * Interface ErectorInterface
  * @package FOF30\Factory\Scaffolding\Controller

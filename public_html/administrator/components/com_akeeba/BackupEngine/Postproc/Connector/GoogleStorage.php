@@ -176,7 +176,7 @@ class GoogleStorage
 	/**
 	 * Returns a pre-calculated JWT assertion which you need to retrieve an access token from Google. If the assertion
 	 * does not exist it will be calculated.
-	 *.
+	 *
 	 * @param   string  $serviceAccountEmail  The Google Cloud Service Account (fake) email address
 	 * @param   string  $privateKey           The Google Cloud Service Account private key in PEM format
 	 *
@@ -224,7 +224,7 @@ class GoogleStorage
 		return $this->jwtAssertion;
 	}
 
-/**
+	/**
 	 * List all buckets under the user's account
 	 *
 	 * @param   string  $project_id  A valid API project identifier
@@ -434,8 +434,14 @@ class GoogleStorage
 			self::uploadUrl .
 			'b/' . $bucket . '/o?uploadType=resumable';
 
+		/**
+		 * IMPORTANT! Despite the Google API docs claiming that all paths need to have special characters URL-encoded,
+		 *            this is NOT the case for resumable uploads *even when POSTing the filename in a JSON payload*. You
+		 *            need to pass it raw to json_encode and let the JSON encoder escape it. This is completely against
+		 *            the documentation and completely different to literally every other API call!
+		 */
 		$json = json_encode(array(
-			'name' => $this->normalizePath($path)
+			'name' => $path
 		));
 
 		$response = $this->fetch('POST', $relativeUrl, array(
@@ -897,6 +903,13 @@ class GoogleStorage
 			if (in_array($chars, $safeChars))
 			{
 				$ret .= $char;
+
+				continue;
+			}
+
+			if ($char == ' ')
+			{
+				$ret .= '%20';
 
 				continue;
 			}

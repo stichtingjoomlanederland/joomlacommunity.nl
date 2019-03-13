@@ -40,44 +40,9 @@ class Timer extends BaseObject
 		$this->start_time = $this->microtime_float();
 
 		// Get configured max time per step and bias
-		$configuration = Factory::getConfiguration();
+		$configuration        = Factory::getConfiguration();
 		$config_max_exec_time = $configuration->get('akeeba.tuning.max_exec_time', 14);
-		$bias = $configuration->get('akeeba.tuning.run_time_bias', 75) / 100;
-
-		// Get PHP's maximum execution time (our upper limit)
-		/**
-		 * if(@function_exists('ini_get'))
-		 * {
-		 * $php_max_exec_time = @ini_get("maximum_execution_time");
-		 * if ( (!is_numeric($php_max_exec_time)) || ($php_max_exec_time == 0) ) {
-		 * // If we have no time limit, set a hard limit of about 10 seconds
-		 * // (safe for Apache and IIS timeouts, verbose enough for users)
-		 * $php_max_exec_time = 14;
-		 * }
-		 * }
-		 * else
-		 * {
-		 * // If ini_get is not available, use a rough default
-		 * $php_max_exec_time = 14;
-		 * }
-		 *
-		 * // Apply an arbitrary correction to counter CMS load time
-		 * $php_max_exec_time--;
-		 *
-		 * // Apply bias
-		 * $php_max_exec_time = $php_max_exec_time * $bias;
-		 * $config_max_exec_time = $config_max_exec_time * $bias;
-		 *
-		 * // Use the most appropriate time limit value
-		 * if( $config_max_exec_time > $php_max_exec_time )
-		 * {
-		 * $this->max_exec_time = $php_max_exec_time;
-		 * }
-		 * else
-		 * {
-		 * $this->max_exec_time = $config_max_exec_time;
-		 * }
-		 * /**/
+		$bias                 = $configuration->get('akeeba.tuning.run_time_bias', 75) / 100;
 
 		$this->max_exec_time = $config_max_exec_time * $bias;
 	}

@@ -69,7 +69,7 @@ class Dispatcher extends AdminDispatcher
 		$lang->load('lib_fof30', JPATH_SITE, 'en-GB', true, true);
 		$lang->load('lib_fof30', JPATH_SITE, null, true, false);
 
-		// Laod the version file
+		// Load the version file
 		@include_once($this->container->backEndPath . '/version.php');
 
 		if (!defined('ADMINTOOLS_VERSION'))
@@ -101,6 +101,9 @@ class Dispatcher extends AdminDispatcher
 			$input->set('option', 'com_admintools');
 			$input->set('view', 'Blocks');
 			$input->set('task', 'browse');
+			$input->set('format', 'html');
+			$input->set('layout', null);
+			$input->set('tmpl', null);
 
 			return;
 		}
@@ -120,6 +123,9 @@ class Dispatcher extends AdminDispatcher
 			$input = JFactory::getApplication()->input;
 			$input->set('view', 'FileScanner');
 			$input->set('task', $task);
+			$input->set('format', 'raw');
+			$input->set('layout', null);
+			$input->set('tmpl', null);
 
 			return;
 		}

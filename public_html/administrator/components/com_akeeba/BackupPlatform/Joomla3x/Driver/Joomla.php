@@ -63,6 +63,10 @@ class Joomla extends BaseObject
 					$driver = 'postgresql';
 					break;
 
+				case 'pgsql':
+					$driver = 'pgsql';
+					break;
+
 				case 'pdomysql':
 					$driver = 'pdomysql';
 					break;

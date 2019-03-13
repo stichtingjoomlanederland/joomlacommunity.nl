@@ -399,7 +399,7 @@ class Transfer extends Model
 		// Can I run Kickstart and my extra script?
 		try
 		{
-			$this->checkRemoteServerEnvironment();
+			$this->checkRemoteServerEnvironment($config['force']);
 		}
 		catch (Exception $e)
 		{
@@ -941,9 +941,11 @@ class Transfer extends Model
 	/**
 	 * Check if the remote server environment matches our expectations.
 	 *
+	 * @param   bool    $forced     Are we forcing the transfer? If so some checks are ignored
+	 *
 	 * @throws  Exception
 	 */
-	private function checkRemoteServerEnvironment()
+	private function checkRemoteServerEnvironment($forced)
 	{
 		$baseUrl = $this->container->platform->getSessionVar('transfer.url', '', 'akeeba');
 
@@ -990,17 +992,21 @@ class Transfer extends Model
 			throw new RuntimeException(JText::_('COM_AKEEBA_TRANSFER_ERR_CANNOTRUNKICKSTART'));
 		}
 
-		// Does the server have enough disk space?
-		$freeSpace = $data['freeSpace'];
-
-		$requiredSize = $this->getApproximateSpaceRequired();
-
-		if ($requiredSize['size'] > $freeSpace)
+		// Disk space check could be ignored since some hosts return the wrong value for the available disk space
+		if (!$forced)
 		{
-			$unit	 = array('b', 'KB', 'MB', 'GB', 'TB', 'PB');
-			$freeSpaceString = @round($freeSpace / pow(1024, ($i = floor(log($freeSpace, 1024)))), 2) . ' ' . $unit[$i];
+			// Does the server have enough disk space?
+			$freeSpace = $data['freeSpace'];
 
-			throw new RuntimeException(JText::sprintf('COM_AKEEBA_TRANSFER_ERR_NOTENOUGHSPACE', $freeSpaceString, $requiredSize['string']));
+			$requiredSize = $this->getApproximateSpaceRequired();
+
+			if ($requiredSize['size'] > $freeSpace)
+			{
+				$unit	 = array('b', 'KB', 'MB', 'GB', 'TB', 'PB');
+				$freeSpaceString = @round($freeSpace / pow(1024, ($i = floor(log($freeSpace, 1024)))), 2) . ' ' . $unit[$i];
+
+				throw new TransferIgnorableError(JText::sprintf('COM_AKEEBA_TRANSFER_ERR_NOTENOUGHSPACE', $requiredSize['string'], $freeSpaceString));
+			}
 		}
 
 		// Can I write to remote files?

@@ -7,6 +7,8 @@
 
 namespace FOF30\Factory\Scaffolding\Layout;
 
+defined('_JEXEC') or die;
+
 /**
  * Erects a scaffolding XML for read views
  *

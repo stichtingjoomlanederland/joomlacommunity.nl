@@ -70,7 +70,7 @@ class Html extends BaseView
 		$model      = $this->getModel();
 		$this->logs = $model->getLogList();
 
-		$tag = $model->getState('tag');
+		$tag = $model->getState('tag', '', 'string');
 
 		if (empty($tag))
 		{

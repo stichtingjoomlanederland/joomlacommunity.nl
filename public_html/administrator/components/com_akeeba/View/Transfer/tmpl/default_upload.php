@@ -19,6 +19,10 @@ defined('_JEXEC') or die();
 	</header>
 
 	<div class="akeeba-block--failure" style="display: none" id="akeeba-transfer-upload-error">
+        <p id="akeeba-transfer-upload-error-body">MESSAGE</p>
+        <a href="index.php?option=com_akeeba&view=Transfer&force=1" class="akeeba-btn--orange" style="display:none" id="akeeba-transfer-upload-error-force">
+			<?php echo JText::_('COM_AKEEBA_TRANSFER_ERR_OVERRIDE'); ?>
+        </a>
 	</div>
 
 	<div id="akeeba-transfer-upload-area-upload" style="display: none">

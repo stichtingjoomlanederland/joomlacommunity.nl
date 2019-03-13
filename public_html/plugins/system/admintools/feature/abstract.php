@@ -417,4 +417,52 @@ class AtsystemFeatureAbstract
 
 		return $consent == 1;
 	}
+
+	/**
+	 * Does any of the groups in the list have backend privileges?
+	 *
+	 * @param   array  $groups  List of user group IDs
+	 *
+	 * @return  bool
+	 *
+	 * @since   5.3.0
+	 */
+	protected function hasAdminGroup($groups)
+	{
+		if (empty($groups))
+		{
+			return false;
+		}
+
+		foreach ($groups as $group)
+		{
+			if ($this->isBackendAccessGroup($group))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Does a group have login access to the site's backend?
+	 *
+	 * @param   int  $group  The user group ID
+	 *
+	 * @return  bool  True if it's a user with backend login access
+	 *
+	 * @since   5.3.0
+	 */
+	protected function isBackendAccessGroup($group)
+	{
+		// First try to see if the group has explicit backend login privileges
+		if (JAccess::checkGroup($group, 'core.login.admin', 1))
+		{
+			return true;
+		}
+
+		// If not, is it a Super Admin (ergo inherited privileges)?
+		return (bool) JAccess::checkGroup($group, 'core.admin', 1);
+	}
 }

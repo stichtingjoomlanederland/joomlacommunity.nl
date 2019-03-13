@@ -9,6 +9,8 @@ namespace FOF30\Factory\Scaffolding\Layout;
 
 use FOF30\Model\DataModel;
 
+defined('_JEXEC') or die;
+
 /**
  * Erects a scaffolding XML for browse views
  *

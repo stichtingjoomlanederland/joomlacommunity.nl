@@ -359,6 +359,7 @@ class Googlestoragejson extends Base
 
 		$hasJsonConfig = false;
 		$jsonConfig    = trim($config->get('engine.postproc.googlestoragejson.jsoncreds', ''));
+		$jsonConfig    = $this->fixStoredJSON($jsonConfig);
 
 		if (!empty($jsonConfig))
 		{
@@ -395,12 +396,51 @@ class Googlestoragejson extends Base
 
 		if (!$hasJsonConfig)
 		{
-			$this->config = array();
+			$this->config = [];
 			$this->setWarning('You have not provided a valid Google Cloud JSON configuration (googlestorage.json) in the configuration page. As a result I cannot upload anything to Google Storage. Please fix this issue and try backing up again.');
 
 			return false;
 		}
 
 		return true;
+	}
+
+	/**
+	 * The Google JSON API file has the string literal "\n" inside the Private Key. However, the INI parser will
+	 * unescape this into a newline character. This causes a newline character to appear inside a string literal in the
+	 * JSON file, therefore rendering the JSON invalid.
+	 *
+	 * Before Akeeba Engine 6.3.4 we used to deal with that by using the PHP INI parser in INI_SCANNER_NORMAL mode.
+	 * However, this caused some problems, e.g. with the sequence \$ being squashed to $. The correct solution is using
+	 * INI_SCANNER_RAW. However, this does not expand \n in values which is something we need elsewhere in the Engine.
+	 *
+	 * We needed to do this because before 6.3.4 if your server had disabled parse_ini_string our PHP-based parser would
+	 * yield different results than calling PHP's parse_ini_file(). This also meant that on these hosts Google Storage
+	 * JSON API was broken.
+	 *
+	 * The only solution is having this method which recodes the private key in a way that the JSON is valid and the
+	 * private key is also usable with Google's API.
+	 *
+	 * @param   string  $jsonConfig
+	 *
+	 * @return  string
+	 */
+	private function fixStoredJSON($jsonConfig)
+	{
+		// Remove all newlines
+		$jsonConfig = str_replace("\n", '', $jsonConfig);
+
+		// Extract the private key
+		$startPos = strpos($jsonConfig, '-----BEGIN PRIVATE KEY-----');
+		$endPos   = strpos($jsonConfig, '-----END PRIVATE KEY-----') + 25;
+		$pk       = substr($jsonConfig, $startPos, $endPos - $startPos);
+
+		// Recode the private key
+		$innerPK = trim(substr($pk, 27, -25));
+		$innerPK = implode("\\n", str_split($innerPK, 64));
+		$pk   = "-----BEGIN PRIVATE KEY-----\\n" . $innerPK ."\\n-----END PRIVATE KEY-----";
+
+		// Assemble a usable JSON string
+		return rtrim(substr($jsonConfig, 0, $startPos)) . $pk . ltrim(substr($jsonConfig, $endPos));
 	}
 }

@@ -55,7 +55,7 @@ class Html extends BaseView
 		$model = $this->getModel();
 
 		// Add custom submenus
-		$task    = $model->getState('browse_task', 'normal');
+		$task    = $model->getState('browse_task', 'normal', 'cmd');
 		$toolbar = $this->container->toolbar;
 
 		$toolbar->appendLink(

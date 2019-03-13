@@ -35,7 +35,7 @@ class Raw extends BaseView
 	{
 		/** @var Log $model */
 		$model = $this->getModel();
-		$tag   = $model->getState('tag');
+		$tag   = $model->getState('tag', '', 'string');
 
 		if (empty($tag))
 		{

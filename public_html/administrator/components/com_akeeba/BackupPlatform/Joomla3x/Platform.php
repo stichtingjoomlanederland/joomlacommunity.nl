@@ -95,10 +95,10 @@ class Joomla3x extends BasePlatform
 	 *
 	 * @return  bool  True if everything was read properly
 	 */
-	public function load_configuration($profile_id = null)
+	public function load_configuration($profile_id = null, $reset = true)
 	{
 		// Load the configuration
-		parent::load_configuration($profile_id);
+		parent::load_configuration($profile_id, $reset);
 
 		// If there is no embedded installer or the wrong embedded installer is selected, fix it automatically
 		$config = Factory::getConfiguration();
@@ -111,6 +111,8 @@ class Joomla3x extends BasePlatform
 			$config->set('akeeba.advanced.embedded_installer', 'angie');
 			$config->setProtectedKeys($protectedKeys);
 		}
+
+		return true;
 	}
 
 	/**

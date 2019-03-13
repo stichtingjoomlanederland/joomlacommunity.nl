@@ -123,16 +123,17 @@ class SecureSettings
 	/**
 	 * Encrypts the settings using the automatically detected preferred algorithm
 	 *
-	 * @param $settingsINI string The raw settings INI string
+	 * @param   $rawSettings  string  The raw settings string
+	 * @param   $key          string  The encryption key. Set to NULL to automatically find the key.
 	 *
-	 * @return string The encrypted data to store in the database
+	 * @return  string  The encrypted data to store in the database
 	 */
-	public function encryptSettings($settingsINI, $key = null)
+	public function encryptSettings($rawSettings, $key = null)
 	{
 		// Do we really support encryption?
 		if (!$this->supportsEncryption())
 		{
-			return $settingsINI;
+			return $rawSettings;
 		}
 
 		// Does any of the preferred encryption engines exist?
@@ -140,7 +141,7 @@ class SecureSettings
 
 		if (empty($encryption))
 		{
-			return $settingsINI;
+			return $rawSettings;
 		}
 
 		// Do we have a non-empty key to begin with?
@@ -151,12 +152,12 @@ class SecureSettings
 
 		if (empty($key))
 		{
-			return $settingsINI;
+			return $rawSettings;
 		}
 
 		if ($encryption == 'AES128')
 		{
-			$encrypted = Factory::getEncryption()->AESEncryptCBC($settingsINI, $key);
+			$encrypted = Factory::getEncryption()->AESEncryptCBC($rawSettings, $key);
 
 			if (empty($encrypted))
 			{
@@ -165,22 +166,22 @@ class SecureSettings
 			else
 			{
 				// Note: CBC returns the encrypted data as a binary string and requires Base 64 encoding
-				$settingsINI = '###AES128###' . base64_encode($encrypted);
+				$rawSettings = '###AES128###' . base64_encode($encrypted);
 			}
 		}
 
 		if ($encryption == 'CTR128')
 		{
-			$encrypted = Factory::getEncryption()->AESEncryptCtr($settingsINI, $key, 128);
+			$encrypted = Factory::getEncryption()->AESEncryptCtr($rawSettings, $key, 128);
 
 			if (!empty($encrypted))
 			{
 				// Note: CTR returns the encrypted data readily encoded in Base 64
-				$settingsINI = '###CTR128###' . $encrypted;
+				$rawSettings = '###CTR128###' . $encrypted;
 			}
 		}
 
-		return $settingsINI;
+		return $rawSettings;
 	}
 
 	/**

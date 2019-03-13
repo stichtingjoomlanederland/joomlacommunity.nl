@@ -317,7 +317,20 @@ abstract class AtsystemUtilRescueurl
 			}
 			else
 			{
-				static::$isAdmin = !\JFactory::$application ? false : \JFactory::getApplication()->isAdmin();
+				$app = \JFactory::$application;
+
+				if (!$app)
+				{
+					static::$isAdmin = false;
+				}
+				elseif (method_exists($app, 'isClient'))
+				{
+					static::$isAdmin = $app->isClient('admin');
+				}
+				elseif (method_exists($app, 'isAdmin'))
+				{
+					static::$isAdmin = $app->isAdmin();
+				}
 			}
 		}
 

@@ -9,6 +9,8 @@ namespace FOF30\Factory\Scaffolding\View;
 
 use FOF30\View\DataView\Html;
 
+defined('_JEXEC') or die;
+
 /**
  * @package FOF30\Factory\Scaffolding
  *

@@ -32,7 +32,7 @@ class Html extends BaseView
 		/** @var Restore $model */
 		$model = $this->getModel();
 
-		$this->id              = $model->getState('id');
+		$this->id              = $model->getState('id', '', 'int');
 		$this->ftpparams       = $this->getFTPParams();
 		$this->extractionmodes = $this->getExtractionModes();
 

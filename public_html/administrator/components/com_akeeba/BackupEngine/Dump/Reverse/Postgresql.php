@@ -297,7 +297,7 @@ class Postgresql extends NativeMysql
 
 				$line .= ($oColumn->is_nullable == 'YES') ? 'NULL ' : 'NOT NULL ';
 
-				if (!empty($default))
+				if (isset($default))
 				{
 					$line .= ' DEFAULT ' . $default;
 				}
@@ -740,8 +740,36 @@ class Postgresql extends NativeMysql
 		}
 	}
 
-    protected function setAutoIncrementInfo()
-    {
-        // Does nothing, there is no way to know if the table has an autoincrement field in PostgreSQL
-    }
+	/**
+	 * Try to find an auto_increment field for the table being currently backed up and populate the
+	 * $this->table_autoincrement table. Updates $this->table_autoincrement.
+	 *
+	 * @return  void
+	 *
+	 * @throws  \Akeeba\Engine\Driver\QueryException
+	 */
+	protected function setAutoIncrementInfo()
+	{
+		$this->table_autoincrement = [
+			'table' => $this->nextTable,
+			'field' => null,
+			'value' => null,
+		];
+
+		$db    = $this->getDB();
+		$query = $db->getQuery(true);
+
+		$query->select($db->qn('column_name'))
+			->from('information_schema.columns')
+			->where('table_name=' . $db->q($this->nextTable), 'AND')
+			->where("column_default LIKE '%nextval%'");
+
+		$keyInfo = $db->setQuery($query)->loadAssoc();
+
+		if (!empty($keyInfo))
+		{
+			$columnName                         = $keyInfo['column_name'];
+			$this->table_autoincrement['field'] = $columnName;
+		}
+	}
 }

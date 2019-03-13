@@ -23,28 +23,6 @@ use JUri;
 class UsageStatistics extends Model
 {
 	/**
-	 * Make sure the #__akeeba_common table exists or create it from scratch
-	 *
-	 * @return  $this
-	 */
-	public function checkAndFixCommonTables()
-	{
-		// Install or update database
-		try
-		{
-
-		}
-		catch (\Exception $e)
-		{
-			$container   = $this->container;
-			$dbInstaller = new Installer($container->db, $container->backEndPath . '/sql/common');
-			$dbInstaller->updateSchema();
-		}
-
-		return $this;
-	}
-
-	/**
 	 * Get an existing unique site ID or create a new one
 	 *
 	 * @return  string
@@ -87,19 +65,6 @@ class UsageStatistics extends Model
 		{
 			return false;
 		}
-
-		// Do not collect statistics on localhost
-		// -- Actually, using Akeeba Backup on localhost is a perfectly legitimate use case
-/*		if (
-			(strpos(JUri::root(), 'localhost') !== false) ||
-			(strpos(JUri::root(), '127.0.0.1') !== false)
-		)
-		{
-			return false;
-		}*/
-
-		// Make sure the common tables are installed
-		$this->checkAndFixCommonTables();
 
 		// Make sure there is a site ID set
 		$siteId    = $this->getSiteId();

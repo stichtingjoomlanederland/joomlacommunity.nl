@@ -7,6 +7,8 @@
 
 use FOF30\Utils\ArrayHelper;
 
+defined('_JEXEC') or die;
+
 /**
  * Custom JHtml (HTMLHelper) class. Offers selects compatible with Akeeba Frontend Framework (FEF)
  *

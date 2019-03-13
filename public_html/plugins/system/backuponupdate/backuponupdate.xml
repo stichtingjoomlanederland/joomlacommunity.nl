@@ -12,11 +12,13 @@
 	<authorUrl>http://www.akeebabackup.com</authorUrl>
 	<copyright>Copyright (c)2006-2019 Nicholas K. Dionysopoulos</copyright>
 	<license>GNU General Public License version 3, or later</license>
-	<creationDate>2013-08-13</creationDate>
-	<version>3.7</version>
+	<creationDate>2019-03-12</creationDate>
+	<version>6.4.1</version>
 	<description>PLG_SYSTEM_BACKUPONUPDATE_XML_DESCRIPTION</description>
 	<files>
 		<filename plugin="backuponupdate">backuponupdate.php</filename>
+		<filename>.htaccess</filename>
+		<filename>web.config</filename>
 		<folder>tmpl</folder>
 	</files>
 	<languages folder="language">

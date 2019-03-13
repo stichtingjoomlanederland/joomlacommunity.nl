@@ -18,21 +18,6 @@ use JUri;
 class Stats extends Model
 {
 	/**
-	 * Make sure the #__akeeba_common table exists or create it from scratch
-	 *
-	 * @return $this
-	 */
-	public function checkAndFixCommonTables()
-	{
-		// Install or update database
-		$dbInstaller = new Installer($this->container->db, JPATH_ADMINISTRATOR . '/components/com_admintools/sql/common');
-
-		$dbInstaller->updateSchema();
-
-		return $this;
-	}
-
-	/**
 	 * Get an existing unique site ID or create a new one
 	 *
 	 * @return string
@@ -69,18 +54,6 @@ class Stats extends Model
 	 */
 	public function collectStatistics($useIframe)
 	{
-		// Do not collect statistics on localhost
-		if (
-			(strpos(JUri::root(), 'localhost') !== false) ||
-			(strpos(JUri::root(), '127.0.0.1') !== false)
-		)
-		{
-			return false;
-		}
-
-		// Make sure the common tables are installed
-		$this->checkAndFixCommonTables();
-
 		// Make sure there is a site ID set
 		$siteId = $this->getSiteId();
 

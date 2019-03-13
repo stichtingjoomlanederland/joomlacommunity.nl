@@ -176,7 +176,7 @@ class Response
 		$this->_body = $body;
 
 		// Version
-		if (!preg_match('|^\d\.\d$|', $version))
+		if (!preg_match('/^\d(\.\d)?$/', $version))
 		{
 			throw new Http('No valid HTTP version was passed: ' . $version);
 		}

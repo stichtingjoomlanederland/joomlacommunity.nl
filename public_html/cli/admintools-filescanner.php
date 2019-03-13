@@ -9,7 +9,7 @@
 define('_JEXEC', 1);
 
 // Setup and import the base CLI script
-$minphp = '5.4.0';
+$minphp = '5.6.0';
 $curdir = __DIR__;
 
 require_once __DIR__ . '/../administrator/components/com_admintools/assets/cli/base.php';

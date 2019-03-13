@@ -39,7 +39,7 @@ class Html extends BaseView
 		$model = $this->getModel();
 
 		$this->directory = '';
-		$directory = $model->getState('directory', '');
+		$directory = $model->getState('directory', '', 'path');
 
 		if (empty($directory))
 		{
@@ -57,7 +57,7 @@ class Html extends BaseView
 		/** @var Discover $model */
 		$model = $this->getModel();
 
-		$directory = $model->getState('directory', '');
+		$directory = $model->getState('directory', '', 'path');
 		$this->setLayout('discover');
 
 		$files = $model->getFiles();

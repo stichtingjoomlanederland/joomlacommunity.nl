@@ -9,9 +9,9 @@ defined('_JEXEC') or die();
 
 JDEBUG ? define('AKEEBADEBUG', 1) : null;
 
-if (version_compare(PHP_VERSION, '5.4.0', 'lt'))
+if (version_compare(PHP_VERSION, '5.6.0', 'lt'))
 {
-	// Minimum PHP requierment not met; pretend this component does not exist
+	// Minimum PHP requirement not met; pretend this component does not exist
 	throw new RuntimeException(JText::_('JLIB_APPLICATION_ERROR_COMPONENT_NOT_FOUND'), 404);
 }
 

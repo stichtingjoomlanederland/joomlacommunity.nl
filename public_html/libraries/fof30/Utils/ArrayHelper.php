@@ -7,6 +7,8 @@
 
 namespace FOF30\Utils;
 
+defined('_JEXEC') or die;
+
 /**
  * ArrayHelper is an array utility class for doing all sorts of odds and ends with arrays.
  *

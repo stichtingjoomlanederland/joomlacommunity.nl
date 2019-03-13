@@ -10,6 +10,9 @@
 
 namespace Psr\Log;
 
+// Protection against direct access
+defined('AKEEBAENGINE') or die();
+
 /**
  * Describes a logger-aware instance
  */

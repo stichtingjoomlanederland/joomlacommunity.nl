@@ -10,6 +10,8 @@ namespace FOF30\Factory\Scaffolding\Model;
 use FOF30\Container\Container;
 use FOF30\Factory\Magic\ModelFactory;
 
+defined('_JEXEC') or die;
+
 /**
  * Scaffolding Builder
  *

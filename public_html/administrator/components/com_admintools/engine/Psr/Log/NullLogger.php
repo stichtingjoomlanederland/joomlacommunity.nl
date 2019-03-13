@@ -10,6 +10,9 @@
 
 namespace Psr\Log;
 
+// Protection against direct access
+defined('AKEEBAENGINE') or die();
+
 /**
  * This Logger can be used to avoid conditional log calls
  *

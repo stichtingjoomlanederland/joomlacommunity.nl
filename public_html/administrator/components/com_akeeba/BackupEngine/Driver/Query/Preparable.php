@@ -10,6 +10,9 @@
 
 namespace Akeeba\Engine\Driver\Query;
 
+// Protection against direct access
+defined('AKEEBAENGINE') or die();
+
 /**
  * Database Query Preparable Interface.
  *

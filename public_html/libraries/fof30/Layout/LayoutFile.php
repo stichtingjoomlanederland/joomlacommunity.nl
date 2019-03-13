@@ -70,8 +70,13 @@ class LayoutFile extends JLayoutFile
 
 			reset($files);
 
-			while ((list(, $fileName) = each($files)) && is_null($this->fullPath))
+			foreach ($files as $fileName)
 			{
+				if (!is_null($this->fullPath))
+				{
+					break;
+				}
+
 				$r              = $filesystem->pathFind($possiblePaths, $fileName);
 				$this->fullPath = $r === false ? null : $r;
 			}

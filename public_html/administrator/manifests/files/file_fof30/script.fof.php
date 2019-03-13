@@ -179,6 +179,24 @@ class file_fof30InstallerScript
 		// Clear op-code caches
 		$this->clearOpcodeCaches();
 
+		// Remove the XML manifest files for older versions (3.0 to 3.3.x)
+		$files = [
+			JPATH_ROOT . '/libraries/fof30/lib_fof30.xml',
+			JPATH_ROOT . '/administrator/manifests/libraries/lib_fof30.xml',
+		];
+
+		array_walk($files, function($file) {
+			if (!file_exists($file) || !is_file($file))
+			{
+				return;
+			}
+
+			if (!@unlink($file))
+			{
+				JFile::delete($file);
+			}
+		});
+
 		// Get the extension ID of the FOF library package
 		$libID = $this->getOldFOF3LibraryExtensionID();
 

@@ -5,7 +5,7 @@
   ~ @license   GNU General Public License version 3, or later
   -->
 
-<extension version="2.5.0" type="plugin" group="system" method="upgrade">
+<extension version="3.8.0" type="plugin" group="system" method="upgrade">
 	<name>PLG_SYSTEM_ATOOLSJUPDATECHECK</name>
 	<author>Nicholas K. Dionysopoulos</author>
 	<authorEmail>nicholas@dionysopoulos.me</authorEmail>
@@ -17,6 +17,8 @@
 	<description>PLG_SYSTEM_ATOOLSJUPDATECHECK_XML_DESCRIPTION</description>
 	<files>
 		<filename plugin="atoolsjupdatecheck">atoolsjupdatecheck.php</filename>
+		<filename>.htaccess</filename>
+		<filename>web.config</filename>
 	</files>
 	<languages folder="language">
 		<language tag="en-GB">en-GB/en-GB.plg_system_atoolsjupdatecheck.ini</language>

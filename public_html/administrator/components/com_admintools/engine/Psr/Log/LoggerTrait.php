@@ -10,6 +10,9 @@
 
 namespace Psr\Log;
 
+// Protection against direct access
+defined('AKEEBAENGINE') or die();
+
 /**
  * This is a simple Logger trait that classes unable to extend AbstractLogger
  * (because they extend another class, etc) can include.

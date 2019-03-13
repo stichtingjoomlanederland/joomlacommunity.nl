@@ -77,7 +77,7 @@ class Html extends BaseView
 		$this->current_part = $part;
 
 		// Render the progress bar
-		$step     = $model->getState('step', 1) + 1;
+		$step     = $model->getState('step', 1, 'int') + 1;
 
 		$script = <<<JS
 

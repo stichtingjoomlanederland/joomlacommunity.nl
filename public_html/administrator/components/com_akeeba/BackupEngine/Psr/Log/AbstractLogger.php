@@ -10,6 +10,9 @@
 
 namespace Psr\Log;
 
+// Protection against direct access
+defined('AKEEBAENGINE') or die();
+
 /**
  * This is a simple Logger implementation that other Loggers can inherit from.
  *

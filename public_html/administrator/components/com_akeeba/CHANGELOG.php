@@ -1,4 +1,20 @@
 <?php die();?>
+Akeeba Backup 6.4.1
+================================================================================
+~ Joomla! 4 alpha 7 compatibility
++ Support for PDO PostgreSQL database driver (this code was submitted by a third party developer)
++ Allow Site Transfer Wizard to ignore free disk space requirements
++ Added BackupID in the failed backups email notifications
+# [HIGH] Upload to Azure: incompatible with HTTP/2
+
+Akeeba Backup 6.4.0
+================================================================================
++ Protection of all component and plugin folders against direct web access
+# [HIGH] Google Storage JSON API could not download files when the path or filename contained spaces
+# [HIGH] Google Storage would create large files with %2F in the filename instead of using subdirectories (the Google API documentation was, unfortunately, instructing us to do something wrong)
+# [LOW] Some character combinations in configuration values (e.g. \$) could get changed or removed upon saving
+# [LOW] Google Storage would not work on hosts which disable parse_ini_string()
+
 Akeeba Backup 6.3.3
 ================================================================================
 + Added new Stockholm region for Amazon S3 post-processing engine

@@ -107,9 +107,9 @@ CSS;
 		$this->done    = $done;
 		$this->percent = $percent;
 
-		$this->id   = $model->getState('id');
-		$this->part = $model->getState('part');
-		$this->frag = $model->getState('frag');
+		$this->id   = $model->getState('id', 0, 'int');
+		$this->part = $model->getState('part', 0, 'int');
+		$this->frag = $model->getState('frag', 0, 'int');
 
 		// Render the progress bar
 		$script = <<<JS

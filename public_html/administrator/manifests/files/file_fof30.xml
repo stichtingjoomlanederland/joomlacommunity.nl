@@ -24,13 +24,13 @@ fail gracefully instead of causing your site to crash and burn.
 		<b>WARNING</b>: This is NOT a duplicate of the FOF library already installed with Joomla!. It is a different version used by other extensions on your site. Do NOT uninstall either FOF package. If you do you will break your site.
 		]]>
 	</description>
-	<creationDate>2019-01-07</creationDate>
+	<creationDate>2019-03-12</creationDate>
 	<author>Nicholas K. Dionysopoulos / Akeeba Ltd</author>
 	<authorEmail>nicholas@akeebabackup.com</authorEmail>
 	<authorUrl>https://www.akeebabackup.com</authorUrl>
 	<copyright>(C)2010-2017 Nicholas K. Dionysopoulos</copyright>
 	<license>GNU GPLv2 or later</license>
-	<version>3.4.0</version>
+	<version>3.4.2</version>
 	<packager>Akeeba Ltd</packager>
 	<packagerurl>https://www.AkeebaBackup.com/download.html</packagerurl>
 
@@ -69,6 +69,8 @@ fail gracefully instead of causing your site to crash and burn.
 			<file>LICENSE.txt</file>
 			<file>include.php</file>
 			<file>version.txt</file>
+			<file>.htaccess</file>
+			<file>web.config</file>
 		</files>
 		<files folder="fof/language/en-GB" target="language/en-GB">
 			<file>en-GB.lib_fof30.ini</file>

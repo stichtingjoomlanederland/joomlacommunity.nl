@@ -59,6 +59,12 @@ class ConfigureWAF extends Controller
 			$data = $this->input->getData();
 		}
 
+		// Chosen is pretty bad; it removes the entire field from the request when it's empty :(
+		if (!array_key_exists('disableobsoleteadmins_protected', $data))
+		{
+			$data['disableobsoleteadmins_protected'] = [];
+		}
+
 		$model->saveConfig($data);
 
 		$this->setRedirect('index.php?option=com_admintools&view=WebApplicationFirewall', JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_CONFIGSAVED'));
