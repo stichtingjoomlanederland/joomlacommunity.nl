@@ -106,9 +106,16 @@ class RSFormProMappings
 		switch ($row->method) {
 			case RSFP_MAPPINGS_INSERT:
 				$query->clear();
-				$query->insert($db->qn($table))
-					->columns($fields)
-					->values(implode(',', $values));
+				$query->insert($db->qn($table));
+
+				if (!empty($fields))
+                {
+                    $query->columns($fields);
+                }
+                if (!empty($values))
+                {
+                    $query->values(implode(',', $values));
+                }
 			break;
 			case RSFP_MAPPINGS_REPLACE:
 				$query = 'REPLACE INTO '.$db->qn($table).' SET ';

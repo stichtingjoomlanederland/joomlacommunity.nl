@@ -9,14 +9,14 @@ defined('_JEXEC') or die('Restricted access');
 
 class RsformControllerConditions extends RsformController
 {
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		
 		$this->registerTask('apply', 'save');
 	}
 	
-	function save()
+	public function save()
 	{
 		// Check for request forgeries
 		JSession::checkToken() or jexit('Invalid Token');
@@ -27,43 +27,56 @@ class RsformControllerConditions extends RsformController
 		
 		// Save
 		$cid = $model->save();
-		
-		$link = $cid ? 'index.php?option=com_rsform&view=conditions&layout=edit&cid='.$cid.'&formId='.$formId.'&tmpl=component' : 'index.php?option=com_rsform&view=conditions&layout=edit&formId='.$formId.'&tmpl=component';
-		$msg  = $cid ? JText::_('RSFP_CONDITION_SAVED') : JText::_('RSFP_CONDITION_ERROR');
-		
-		if ($task == 'save')
-			$link .= '&close=1';
-		
+
+        $link = 'index.php?option=com_rsform&view=conditions&layout=edit&formId=' . $formId . '&tmpl=component';
+
+		if ($cid)
+        {
+            $link .= '&cid=' . $cid;
+            $msg = JText::_('RSFP_CONDITION_SAVED');
+        }
+        else
+        {
+            $msg = JText::_('RSFP_CONDITION_ERROR');
+        }
+
+        if ($task == 'save')
+        {
+            $link .= '&close=1';
+        }
+
 		$this->setRedirect($link, $msg);
 	}
 	
-	function remove()
+	public function remove()
 	{
 		$model  = $this->getModel('conditions');
 		$formId = $model->getFormId();
+		$app    = JFactory::getApplication();
 		
 		$model->remove();
 		
-		JFactory::getApplication()->input->set('view', 'forms');
-		JFactory::getApplication()->input->set('layout', 'edit_conditions');
-		JFactory::getApplication()->input->set('tmpl', 'component');
-		JFactory::getApplication()->input->set('formId', $formId);
+		$app->input->set('view', 'forms');
+        $app->input->set('layout', 'edit_conditions');
+        $app->input->set('tmpl', 'component');
+        $app->input->set('formId', $formId);
 		
 		parent::display();
 		jexit();
 	}
 	
-	function showConditions()
+	public function showConditions()
 	{
 		$model  = $this->getModel('conditions');
 		$formId = $model->getFormId();
-		
-		JFactory::getApplication()->input->set('view', 'forms');
-		JFactory::getApplication()->input->set('layout', 'edit_conditions');
-		JFactory::getApplication()->input->set('tmpl', 'component');
-		JFactory::getApplication()->input->set('formId', $formId);
+        $app    = JFactory::getApplication();
+
+        $app->input->set('view', 'forms');
+        $app->input->set('layout', 'edit_conditions');
+        $app->input->set('tmpl', 'component');
+        $app->input->set('formId', $formId);
 		
 		parent::display();
-		exit();
+        jexit();
 	}
 }

@@ -6,17 +6,12 @@
 */
 
 defined('_JEXEC') or die('Restricted access');
+
+JText::script('ERROR');
+JText::script('RSFP_WHATS_FORM_TITLE_VALIDATION');
+JText::script('RSFP_SUBMISSION_REDIRECT_WHERE_VALIDATION');
 ?>
 <script type="text/javascript">
-	function changeLayout(layout)
-	{
-		document.getElementById('FormLayoutImage').src = 'components/com_rsform/assets/images/layouts/' + layout + '.gif';
-		document.getElementById('FormLayoutXHTML').style.display = 'none';
-		
-		if (layout.indexOf('xhtml') != -1 || layout == 'responsive')
-			document.getElementById('FormLayoutXHTML').style.display = '';
-	}
-	
 	function changeAdminEmail(value)
 	{
 		if (value == 1)
@@ -66,19 +61,24 @@ defined('_JEXEC') or die('Restricted access');
 			
 			jQuery(form.FormTitle).removeClass('rs_error_field');
 			jQuery(form.ReturnUrl).removeClass('rs_error_field');
-			
+
+            var messages = {"error": []};
 			if (form.FormTitle.value.length == 0)
 			{
-				alert('<?php echo JText::_('RSFP_WHATS_FORM_TITLE_VALIDATION', true); ?>');
+                messages.error.push(Joomla.JText._('RSFP_WHATS_FORM_TITLE_VALIDATION'));
 				jQuery(form.FormTitle).addClass('rs_error_field');
-				return;
 			}
 			if (form.SubmissionAction.value == 'redirect' && form.ReturnUrl.value.length == 0)
 			{
-				alert('<?php echo JText::_('RSFP_SUBMISSION_REDIRECT_WHERE_VALIDATION', true); ?>');
+                messages.error.push(Joomla.JText._('RSFP_SUBMISSION_REDIRECT_WHERE_VALIDATION'));
 				jQuery(form.ReturnUrl).addClass('rs_error_field');
-				return;
 			}
+
+			if (messages.error.length > 0)
+            {
+                Joomla.renderMessages(messages);
+                return;
+            }
 			
 			Joomla.submitform(task);
 		}
@@ -99,21 +99,20 @@ defined('_JEXEC') or die('Restricted access');
 			<tr>
 				<td width="350" style="width: 350px;" align="right" class="key"><?php echo JText::_('RSFP_WHATS_FORM_LAYOUT'); ?></td>
 				<td class="com-rsform-css-fix">
-					<label for="formLayoutResponsive" class="radio inline"><input type="radio" id="formLayoutResponsive" name="FormLayout" value="responsive" onclick="changeLayout(this.value)"/> <?php echo JText::_('RSFP_LAYOUT_RESPONSIVE');?></label>
-					<label for="formLayoutBootstrap2" class="radio inline"><input type="radio" id="formLayoutBootstrap2" name="FormLayout" value="bootstrap2" onclick="changeLayout(this.value)" checked="checked" /> <?php echo JText::_('RSFP_LAYOUT_BOOTSTRAP2');?></label>
-					<label for="formLayoutBootstrap3" class="radio inline"><input type="radio" id="formLayoutBootstrap3" name="FormLayout" value="bootstrap3" onclick="changeLayout(this.value)"/> <?php echo JText::_('RSFP_LAYOUT_BOOTSTRAP3');?></label>
-					<label for="formLayoutBootstrap4" class="radio inline"><input type="radio" id="formLayoutBootstrap4" name="FormLayout" value="bootstrap4" onclick="changeLayout(this.value)"/> <?php echo JText::_('RSFP_LAYOUT_BOOTSTRAP4');?></label>
-					<label for="formLayoutUikit" class="radio inline"><input type="radio" id="formLayoutUikit" name="FormLayout" value="uikit" onclick="changeLayout(this.value)"/> <?php echo JText::_('RSFP_LAYOUT_UIKIT');?></label>
-					<label for="formLayoutUikit3" class="radio inline"><input type="radio" id="formLayoutUikit3" name="FormLayout" value="uikit3" onclick="changeLayout(this.value)"/> <?php echo JText::_('RSFP_LAYOUT_UIKIT3');?></label>
-					<label for="formLayoutFoundation" class="radio inline"><input type="radio" id="formLayoutFoundation" name="FormLayout" value="foundation" onclick="changeLayout(this.value)"/> <?php echo JText::_('RSFP_LAYOUT_FOUNDATION');?></label>
+                    <?php if ($this->layouts['html5Layouts']) { ?>
+                        <?php foreach ($this->layouts['html5Layouts'] as $i => $layout) { ?>
+                            <div class="rsform_layout_box">
+                                <label for="formLayout<?php echo ucfirst($layout); ?>" class="radio">
+                                    <input type="radio" id="formLayout<?php echo ucfirst($layout); ?>" name="FormLayout" value="<?php echo $layout; ?>" <?php if ($i == 0) { ?> checked<?php } ?>/> <?php echo JText::_('RSFP_LAYOUT_'.str_replace('-', '_', $layout)); ?>
+                                </label>
+                                <?php echo JHtml::image('com_rsform/admin/layouts/' . $layout . '.gif', JText::_('RSFP_LAYOUT_'.str_replace('-', '_', $layout)), 'width="175"', true); ?>
+                            </div>
+                        <?php } ?>
+                    <?php } ?>
 				</td>
 			</tr>
 			<tr>
-				<td><?php echo JText::_('RSFP_WHATS_FORM_LAYOUT_DESC'); ?></td>
-				<td><img src="components/com_rsform/assets/images/layouts/bootstrap2.gif" id="FormLayoutImage" width="175"/></td>
-			</tr>
-			<tr id="FormLayoutXHTML">
-				<td colspan="2"><?php echo JText::_('RSFP_WHATS_FORM_LAYOUT_XHTML'); ?></td>
+				<td colspan="2"><?php echo JText::_('RSFP_WHATS_FORM_LAYOUT_DESC'); ?></td>
 			</tr>
 			<tr>
 				<td width="350" style="width: 350px;" align="right" class="key"><?php echo JText::_('RSFP_WANT_SCROLL_TO_THANK_YOU_MESSAGE'); ?></td>

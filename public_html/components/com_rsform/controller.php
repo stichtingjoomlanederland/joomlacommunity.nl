@@ -232,7 +232,7 @@ class RsformController extends JControllerLegacy
             {
                 require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/submissions.php';
 
-                RSFormProSubmissionsHelper::deleteSubmissions($submission->SubmissionId);
+                RSFormProSubmissionsHelper::deleteSubmissions($submission->SubmissionId, true);
 
                 $app->triggerEvent('rsfp_f_onSubmissionDeletion', array(array('SubmissionId' => $submission->SubmissionId, 'hash' => $hash)));
                 $app->enqueueMessage(JText::_('COM_RSFORM_SUBMISSION_DELETED'));

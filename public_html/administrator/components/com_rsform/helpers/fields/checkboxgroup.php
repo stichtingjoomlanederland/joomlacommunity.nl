@@ -144,6 +144,11 @@ class RSFormProFieldCheckboxGroup extends RSFormProFieldMultiple
 		} else {
 			$output .= $this->start.implode($this->glue, $parsed).$this->end;
 		}
+
+        if ($max = (int) $this->getProperty('MAXSELECTIONS'))
+        {
+            $this->addScriptDeclaration("RSFormPro.limitSelections({$this->formId}, '{$id}', {$max});");
+        }
 		
 		return $output;
 	}

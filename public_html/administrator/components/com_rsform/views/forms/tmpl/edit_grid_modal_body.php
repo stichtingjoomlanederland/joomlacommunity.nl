@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die;
 ?>
-<div id="template-manager-folder" class="container-fluid">
+<div class="container-fluid">
 	<div class="row-fluid text-center">
 		<div class="rsfp-column-option span3">
 			<div class="span12 rsfp-column-color"></div>

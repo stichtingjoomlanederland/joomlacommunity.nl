@@ -162,7 +162,12 @@ class RSFormProField
 			
 			if (!isset($focused[$this->formId]))
 			{
-				$return['autofocus'] = '';
+                $formOptions = RSFormProHelper::getForm($this->formId);
+                if (!$formOptions->ScrollToError)
+                {
+                    $return['autofocus'] = '';
+                }
+
 				$focused[$this->formId] = true;
 			}
         }

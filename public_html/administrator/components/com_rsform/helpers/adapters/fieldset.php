@@ -8,15 +8,20 @@
 defined('_JEXEC') or die('Restricted access');
 
 class RSFieldset {
-	public function startFieldset($legend='', $class='adminform form-horizontal') {
-		?>
-		<fieldset class="<?php echo $class; ?>">
-		<?php if ($legend) { ?>
-		<h3 class="rsfp-legend"><?php echo $legend; ?></h3>
-		<?php }
+	public function startFieldset($legend = '', $class = 'adminform form-horizontal', $display = true) {
+        $return = '<fieldset class="' . $class . '">';
+        if ($legend) {
+            $return .= '<h3 class="rsfp-legend">' . $legend . '</h3>';
+        }
+
+        if ($display) {
+            echo $return;
+        } else {
+            return $return;
+        }
 	}
 	
-	public function showField($label, $input, $attribs=array()) {
+	public function showField($label, $input, $attribs = array(), $display = true) {
 		$class 	= '';
 		$id 	= '';
 		
@@ -26,24 +31,30 @@ class RSFieldset {
 		if (isset($attribs['id'])) {
 			$id = ' id="'.$this->escape($attribs['id']).'"';
 		}
-		?>
-		<div class="control-group<?php echo $class; ?>"<?php echo $id; ?>>
-			<?php if ($label) { ?>
-			<div class="control-label">
-				<?php echo $label; ?>
-			</div>
-			<?php } ?>
-			<div<?php if ($label) { ?> class="controls"<?php } ?>>
-				<?php echo $input; ?>
-			</div>
-		</div>
-		<?php
+
+        $return = '<div class="control-group' . $class . '"' . $id . '>';
+
+        if ($label) {
+            $return .= '<div class="control-label">' . $label . '</div>';
+        }
+        $return .= '<div' . ( $label ? ' class="controls"' : '' ) . '>' . $input . '</div>';
+        $return .= '</div>';
+
+        if ($display) {
+            echo $return;
+        } else {
+            return $return;
+        }
 	}
 	
-	public function endFieldset() {
-		?>
-		</fieldset>
-		<?php
+	public function endFieldset($display = true) {
+        $return = '</fieldset>';
+
+        if ($display) {
+            echo $return;
+        } else {
+            return $return;
+        }
 	}
 	
 	protected function escape($text) {

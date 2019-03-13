@@ -9,13 +9,6 @@ defined('_JEXEC') or die('Restricted access');
 
 class RsformModelFormajax extends JModelLegacy
 {
-	public function __construct()
-	{
-		parent::__construct();
-
-		$this->_db = JFactory::getDbo();
-	}
-
 	public static function sortFields($a,$b)
 	{
 		if ($a->Ordering == $b->Ordering) return 0;
@@ -49,14 +42,19 @@ class RsformModelFormajax extends JModelLegacy
 			'attributes' 	=> array()
 		);
 		$data = $this->getComponentData();
-		$formId = JFactory::getApplication()->input->getInt('formId');
 
 		$general		= array('NAME','CAPTION','LABEL','DEFAULTVALUE','ITEMS','TEXT','DESCRIPTION','COMPONENTTYPE');
 		$validations	= array('REQUIRED','VALIDATIONRULE','VALIDATIONMESSAGE','VALIDATIONEXTRA', 'VALIDATIONDATE');
 
 		$componentId = $this->getComponentId();
 		$componentType = $this->getComponentType();
-		$results = $this->_getList("SELECT * FROM #__rsform_component_type_fields WHERE ComponentTypeId='".$componentType."' ORDER BY Ordering ASC");
+
+		$query = $db->getQuery(true)
+            ->select('*')
+            ->from($db->qn('#__rsform_component_type_fields'))
+            ->where($db->qn('ComponentTypeId') . ' = ' . $db->q($componentType))
+            ->order($db->qn('Ordering') . ' ' . $db->escape('asc'));
+		$results = $db->setQuery($query)->loadObjectList();
 
 		$translatable = RSFormProHelper::getTranslatableProperties();
 
@@ -66,9 +64,7 @@ class RsformModelFormajax extends JModelLegacy
 				$results[$i]->Ordering = 1001;
 		}
 
-		usort($results, array('RsformModelFormajax', 'sortFields'));
-
-		$taborder = 1;
+		usort($results, array($this, 'sortFields'));
 
 		foreach ($results as $result)
 		{
@@ -81,6 +77,7 @@ class RsformModelFormajax extends JModelLegacy
 
 			switch ($result->FieldType)
 			{
+				case 'color':
 				case 'textbox':
 				{
 					if ($componentId > 0)
@@ -96,15 +93,14 @@ class RsformModelFormajax extends JModelLegacy
 					}
 
 					$additional = '';
-					if ($result->FieldName == 'FILESIZE'){
-						$additional = 'onkeyup="this.value=this.value.replace(/[^0-9]/g, \'\');"';
-					}
 
 					if ($result->Properties != ''){
 						$additional .= ' data-properties="'. $result->Properties .'"';
 					}
 
-					$field->body .= '<input type="text" id="'.$field->name.'" name="param['.$field->name.']" value="'.RSFormProHelper::htmlEscape($value).'" '.$additional.' class="rsform_inp" />';
+					$type = $result->FieldType == 'textbox' ? 'text' : 'color';
+
+					$field->body .= '<input type="' . $type . '" id="'.$field->name.'" name="param['.$field->name.']" value="'.RSFormProHelper::htmlEscape($value).'" '.$additional.' class="rsform_inp" />';
 				}
 					break;
 
@@ -161,7 +157,12 @@ class RsformModelFormajax extends JModelLegacy
 						$additional .= ' size="5" multiple="multiple"';
 					}
 
-					$field->body .= '<select name="param['.$field->name.']'.($result->FieldType == 'selectmultiple' ? '[]' : '').'" '. $additional .' id="'.$field->name.'" onchange="changeValidation(this);">';
+					if (in_array($field->name, array('VALIDATIONRULE', 'VALIDATIONMULTIPLE')))
+                    {
+                        $additional .=  'onchange="changeValidation(this);"';
+                    }
+
+					$field->body .= '<select name="param['.$field->name.']'.($result->FieldType == 'selectmultiple' ? '[]' : '').'" '. $additional .' id="'.$field->name.'">';
 
 					if (!isset($data[$field->name]))
 						$data[$field->name] = '';
@@ -175,9 +176,9 @@ class RsformModelFormajax extends JModelLegacy
 					$result->FieldValues = str_replace("\r", '', $result->FieldValues);
 					$items = RSFormProHelper::isCode($result->FieldValues);
 					$items = explode("\n",$items);
-					foreach($items as $item)
+					foreach ($items as $item)
 					{
-						$buf = explode('|',$item);
+						$buf = explode('|', $item, 2);
 
 						$option_value = $buf[0];
 						$option_shown = count($buf) == 1 ? $buf[0] : $buf[1];
@@ -207,35 +208,6 @@ class RsformModelFormajax extends JModelLegacy
 
 				case 'hiddenparam':
 					$field->body = '<input type="hidden" id="'.$field->name.'" name="param['.$field->name.']" value="'.RSFormProHelper::htmlEscape($result->FieldValues).'" />';
-					break;
-
-				case 'emailattach':
-				{
-					if (!isset($data[$field->name]))
-						$data[$field->name] = '';
-
-					$values = (trim($data[$field->name]) != '') ? explode(',',$data[$field->name]) : array();
-
-					$db->setQuery("SELECT id, subject FROM #__rsform_emails WHERE `type` = 'additional' AND formId = ".$formId." ");
-					$emails = $db->loadObjectList();
-
-					$field->body .= '<select name="param['.$field->name.'][]" id="'.$field->name.'" onchange="changeValidation(this);" multiple="multiple" size="5" style="width:414px">';
-					$field->body .= '<option '.($componentId > 0 && in_array('useremail',$values) ? 'selected="selected"' : '').' value="useremail">'.RSFormProHelper::htmlEscape(JText::_('RSFP_COMP_ATTACH_UEMAIL')).'</option>';
-					$field->body .= '<option '.($componentId > 0 && in_array('adminemail',$values) ? 'selected="selected"' : '').' value="adminemail">'.RSFormProHelper::htmlEscape(JText::_('RSFP_COMP_ATTACH_AEMAIL')).'</option>';
-					$field->body .= '<optgroup label="'.RSFormProHelper::htmlEscape(JText::_('RSFP_COMP_ATTACH_ADEMAIL')).'">';
-
-					if (!empty($emails))
-					{
-						foreach ($emails as $email)
-						{
-							$field->body .= '<option '.($componentId > 0 && in_array($email->id,$values) ? 'selected="selected"' : '').' value="'.$email->id.'">'.RSFormProHelper::htmlEscape($email->subject).'</option>';
-						}
-					}
-
-					$field->body .= '</optgroup>';
-					$field->body .= '</select>';
-
-				}
 					break;
 			}
 

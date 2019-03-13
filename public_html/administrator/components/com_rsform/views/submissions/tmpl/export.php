@@ -7,36 +7,31 @@
 
 defined('_JEXEC') or die('Restricted access');
 JHtml::_('behavior.tooltip');
+JText::script('ERROR');
+JText::script('RSFP_EXPORT_PLEASE_SELECT');
 ?>
 <script type="text/javascript">
     Joomla.submitbutton = function(task)
     {
-        var totalHeaders = <?php echo count($this->previewArray); ?>;
-
         if (task == 'submissions.export.task')
         {
-            var isChecked = false;
-            for (var i=1; i<=totalHeaders; i++)
-                if (document.getElementById('header' + i).checked)
-                {
-                    isChecked = true;
-                    break;
-                }
+            var isChecked = jQuery('input[id^=header]:checked').length > 0;
 
-            if (isChecked)
-                Joomla.submitform(task);
-            else
-                alert('<?php echo JText::_('RSFP_EXPORT_PLEASE_SELECT', true); ?>');
+            if (!isChecked)
+            {
+                var messages = {"error": []};
+                messages.error.push(Joomla.JText._('RSFP_EXPORT_PLEASE_SELECT'));
+                Joomla.renderMessages(messages);
+                return false;
+            }
         }
-        else
-            Joomla.submitform(task);
+
+        Joomla.submitform(task);
     };
 
     function updateCSVPreview()
     {
-        <?php if ($this->exportType != 'csv') { ?>
-        return;
-        <?php } ?>
+        <?php if ($this->exportType == 'csv') { ?>
         var form = document.adminForm;
         var headersPre = document.getElementById('headersPre');
         var rowPre = document.getElementById('rowPre');
@@ -44,9 +39,9 @@ JHtml::_('behavior.tooltip');
         var enclosure = form.ExportFieldEnclosure.value;
         var totalHeaders = <?php echo count($this->previewArray); ?>;
 
-        var headers = new Array();
-        var previewArray = new Array();
-        var orderArray = new Array();
+        var headers = [];
+        var previewArray = [];
+        var orderArray = [];
 
         for (var i=1; i<=totalHeaders; i++)
             if (document.getElementById('header' + i).checked)
@@ -83,6 +78,7 @@ JHtml::_('behavior.tooltip');
         }
 
         rowPre.innerHTML = previewArray.join(delimiter);
+        <?php } ?>
     }
 
     function toggleCheckColumns()
@@ -99,6 +95,10 @@ JHtml::_('behavior.tooltip');
 
 <form action="index.php?option=com_rsform" method="post" id="adminForm" name="adminForm">
 	<?php
+    if ($this->exportType == 'csv') {
+        // prepare the content
+        echo $this->loadTemplate('preview');
+    }
 	// add the tab title
 	$this->tabs->addTitle(JText::_('RSFP_EXPORT_SELECT_FIELDS'), 'export-fields');
 	// prepare the content
@@ -112,15 +112,6 @@ JHtml::_('behavior.tooltip');
 	$content = $this->loadTemplate('options');
 	// add the tab content
 	$this->tabs->addContent($content);
-	
-	if ($this->exportType == 'csv') {
-		// add the tab title
-		$this->tabs->addTitle(JText::_('RSFP_PREVIEW'), 'export-preview');
-		// prepare the content
-		$content = $this->loadTemplate('preview');
-		// add the tab content
-		$this->tabs->addContent($content);
-	}
 	
 	// render tabs
 	$this->tabs->render();

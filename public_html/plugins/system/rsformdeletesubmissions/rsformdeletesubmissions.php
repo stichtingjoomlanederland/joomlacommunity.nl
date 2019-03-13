@@ -65,4 +65,26 @@ class plgSystemRsformdeletesubmissions extends JPlugin
 			}
 		}
     }
+
+    public function onPreprocessMenuItems($context, &$items, $params, $enabled)
+    {
+        $user = JFactory::getUser();
+
+        foreach ($items as $i => $item)
+        {
+            if ($item->element == 'com_rsform')
+            {
+                if (
+                    ($item->title == 'COM_RSFORM_MANAGE_FORMS' && !$user->authorise('forms.manage', 'com_rsform')) ||
+                    ($item->title == 'COM_RSFORM_MANAGE_SUBMISSIONS' && !$user->authorise('submissions.manage', 'com_rsform')) ||
+                    ($item->title == 'COM_RSFORM_MANAGE_DIRECTORY_SUBMISSIONS' && !$user->authorise('directory.manage', 'com_rsform')) ||
+                    ($item->title == 'COM_RSFORM_CONFIGURATION' && !$user->authorise('core.admin', 'com_rsform')) ||
+                    ($item->title == 'COM_RSFORM_BACKUP_RESTORE' && !$user->authorise('backuprestore.manage', 'com_rsform'))
+                )
+                {
+                    unset($items[$i]);
+                }
+            }
+        }
+    }
 }

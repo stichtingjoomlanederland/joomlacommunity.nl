@@ -112,6 +112,29 @@ class RSFormProFieldFileUpload extends RSFormProField
 		// Upload File
 		if (JFile::upload($actualFile['tmp_name'], $file, false, (bool) RSFormProHelper::getConfig('allow_unsafe')))
 		{
+		    if ($this->getProperty('ACCEPTEDFILESIMAGES', false))
+            {
+                $newWidth  = (int) $this->getProperty('THUMBSIZE', 220);
+                $quality   = (int) $this->getProperty('THUMBQUALITY', 75);
+                $image     = imagecreatefromstring(file_get_contents($file));
+
+                if (is_resource($image))
+                {
+                    $image = imagescale($image, $newWidth);
+                    if (is_resource($image))
+                    {
+                        $thumbFile = JFile::stripExt($file) . '.jpg';
+
+                        // Delete old file, we no longer need it
+                        JFile::delete($file);
+
+                        imagejpeg($image, $thumbFile, $quality);
+
+                        unset($image);
+                    }
+                }
+            }
+
 			// Trigger Event - onBeforeStoreSubmissions
 			JFactory::getApplication()->triggerEvent('rsfp_f_onAfterFileUpload', array(array('formId' => $this->formId, 'fieldname' => $this->name, 'file' => $file, 'name' => $prefix . $actualFile['name'])));
 

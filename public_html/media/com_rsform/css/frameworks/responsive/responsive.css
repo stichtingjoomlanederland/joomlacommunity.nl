@@ -246,7 +246,6 @@
 .formResponsive input[type="radio"],
 .formResponsive input[type="checkbox"] {
     padding-left: 18px;
-    float: left;
     margin-right: 5px;
 }
 
@@ -257,8 +256,7 @@
 .formResponsive .formControls label {
     min-height: 18px;
     margin: 3px 5px 3px 0;
-    float: left;
-    padding: 0px;
+    padding: 0;
 }
 
 .formResponsive input[type="button"],

@@ -294,6 +294,7 @@ class RsformModelSubmissions extends JModelLegacy
 	
 	public function getTemplate() {
 		$app 		= JFactory::getApplication();
+		$db 		= JFactory::getDbo();
 		$Itemid		= $this->getItemId();
 		$has_suffix = JFactory::getConfig()->get('sef') && JFactory::getConfig()->get('sef_suffix');
 		$layout 	= $app->input->getCmd('layout', 'default');
@@ -302,6 +303,13 @@ class RsformModelSubmissions extends JModelLegacy
 		$template_module      = $this->params->def('template_module', '');
 		$template_formdatarow = $this->params->def('template_formdatarow', '');
 		$template_formdetail  = $this->params->def('template_formdetail', '');
+
+        $query = $db->getQuery(true)
+            ->select('*')
+            ->from($db->qn('#__rsform_forms'))
+            ->where($db->qn('FormId') . ' = ' . $db->q($this->params->get('formId')));
+
+        $form = $db->setQuery($query)->loadObject();
 		
 		if ($layout == 'default') {
 			$formdata 		= '';
@@ -310,7 +318,8 @@ class RsformModelSubmissions extends JModelLegacy
 			$pagination 	= $this->getPagination();
 			
 			$i = 0;
-			foreach ($submissions as $SubmissionId => $submission) {
+			foreach ($submissions as $SubmissionId => $submission)
+			{
 				list($replace, $with) = $this->getReplacements($submission['UserId']);
 				
 				$pdf_link = JRoute::_('index.php?option=com_rsform&view=submissions&layout=view&cid='.$SubmissionId.'&format=pdf'.$Itemid);
@@ -335,13 +344,13 @@ class RsformModelSubmissions extends JModelLegacy
 					// PDF links
 					'{detailspdf}'			 => '<a href="'.$pdf_link.'">',
 					'{detailspdf_link}'		 => $pdf_link,
-					'{global:formid}'		 => $submission['FormId'],
-					// Payment Status
-					'{_STATUS:value}'		 => isset($submission['SubmissionValues']['_STATUS']) ? JText::_('RSFP_PAYPAL_STATUS_'.$submission['SubmissionValues']['_STATUS']['Value']) : ''
+					'{global:formid}'		 => $submission['FormId']
 				);
 				
 				$replace = array_merge($replace, array_keys($replacements));
 				$with 	 = array_merge($with, array_values($replacements));
+
+                $app->triggerEvent('rsfp_onAfterCreatePlaceholders', array(array('form' => &$form, 'placeholders' => &$replace, 'values' => &$with, 'submission' => $this->convertSubmissionObject($submission, $SubmissionId))));
 				
 				foreach ($headers as $header) {
 					if (!isset($submission['SubmissionValues'][$header]['Value']))
@@ -459,4 +468,28 @@ class RsformModelSubmissions extends JModelLegacy
 		
 		return !empty($itemid) ? '&Itemid='.$itemid : '';
 	}
+
+	private function convertSubmissionObject($submission, $SubmissionId)
+    {
+        $obj = new stdClass();
+        $obj->SubmissionId = $SubmissionId;
+        $obj->values = array();
+
+        foreach ($submission as $key => $value)
+        {
+            if ($key == 'SubmissionValues')
+            {
+                foreach ($value as $fieldName => $fieldProperties)
+                {
+                    $obj->values[$fieldName] = $fieldProperties['Value'];
+                }
+            }
+            else
+            {
+                $obj->{$key} = $value;
+            }
+        }
+
+        return $obj;
+    }
 }

@@ -8,8 +8,8 @@
 defined('_JEXEC') or die('Restricted access');
 
 JHtml::_('jquery.ui', array('core', 'sortable'));
-JFactory::getDocument()->addScript(JUri::root(true).'/administrator/components/com_rsform/assets/js/jquery.ui.resizable.js');
-JFactory::getDocument()->addStylesheet(JUri::root(true).'/administrator/components/com_rsform/assets/css/jquery.ui.resizable.css');
+JHtml::script('com_rsform/admin/jquery.ui.resizable.js', array('relative' => true, 'version' => 'auto'));
+JHtml::stylesheet('com_rsform/admin/jquery.ui.resizable.css', array('relative' => true, 'version' => 'auto'));
 
 JText::script('RSFP_ROW_OPTIONS');
 JText::script('RSFP_ADD_NEW_ROW');
@@ -60,7 +60,7 @@ $this->loadTemplate('grid_modal_body'));
 						<input type="hidden" value="<?php echo $field->id; ?>" />
                         <div class="btn-group pull-right">
                             <button type="button" class="btn btn-small" onclick="displayTemplate('<?php echo $field->type_id; ?>','<?php echo $field->id; ?>');"><?php echo JText::_('RSFP_EDIT'); ?></button>
-						    <button type="button" class="btn btn-small btn-danger" onclick="if (confirm('<?php echo $this->escapeJS(JText::sprintf('RSFP_REMOVE_COMPONENT_CONFIRM', $field->name)); ?>')) removeComponent('<?php echo $this->form->FormId; ?>','<?php echo $field->id; ?>');"><?php echo JText::_('RSFP_DELETE'); ?></button>
+						    <button type="button" class="btn btn-small btn-danger" onclick="if (confirm(Joomla.JText._('RSFP_REMOVE_COMPONENT_CONFIRM').replace('%s', '<?php echo $this->escape($field->name); ?>'))) removeComponent('<?php echo $this->form->FormId; ?>','<?php echo $field->id; ?>');"><?php echo JText::_('RSFP_DELETE'); ?></button>
                         </div>
 					</div>
 				<?php } ?>
@@ -92,7 +92,7 @@ $this->loadTemplate('grid_modal_body'));
 			<input type="hidden" value="<?php echo $field->id; ?>" />
             <div class="btn-group pull-right">
                 <button type="button" class="btn btn-small" onclick="displayTemplate('<?php echo $field->type_id; ?>','<?php echo $field->id; ?>');"><?php echo JText::_('RSFP_EDIT'); ?></button>
-                <button type="button" class="btn btn-small btn-danger" onclick="if (confirm('<?php echo $this->escapeJS(JText::sprintf('RSFP_REMOVE_COMPONENT_CONFIRM', $field->name)); ?>')) removeComponent('<?php echo $this->form->FormId; ?>','<?php echo $field->id; ?>');"><?php echo JText::_('RSFP_DELETE'); ?></button>
+                <button type="button" class="btn btn-small btn-danger" onclick="if (confirm(Joomla.JText._('RSFP_REMOVE_COMPONENT_CONFIRM').replace('%s', '<?php echo $this->escape($field->name); ?>'))) removeComponent('<?php echo $this->form->FormId; ?>','<?php echo $field->id; ?>');"><?php echo JText::_('RSFP_DELETE'); ?></button>
             </div>
 		</div>
 		<?php } ?>

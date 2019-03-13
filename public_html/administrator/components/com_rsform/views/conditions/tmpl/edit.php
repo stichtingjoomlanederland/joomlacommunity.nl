@@ -6,18 +6,22 @@
 */
 
 defined('_JEXEC') or die('Restricted access');
+
+JText::script('RSFP_CONDITION_PLEASE_ADD_OPTIONS');
+JText::script('RSFP_CONDITION_IS');
+JText::script('RSFP_CONDITION_IS_NOT');
 ?>
 <script type="text/javascript">
 if (window.opener && window.opener.showConditions)
 	window.opener.showConditions(<?php echo $this->formId; ?>);
 	
 <?php if ($this->close) { ?>
-rsform_close_box();
+window.close();
 <?php } ?>
 
 function rsform_add_condition() {
 	<?php if (!$this->optionFields) { ?>
-	alert('<?php echo JText::_('RSFP_CONDITION_PLEASE_ADD_OPTIONS', true); ?>');
+	alert(Joomla.JText._('RSFP_CONDITION_PLEASE_ADD_OPTIONS'));
 	<?php } else { ?>
 	var new_condition = jQuery('<p>');
 	
@@ -30,8 +34,10 @@ function rsform_add_condition() {
 	fields.name = 'detail_component_id[]';
 	fields.setAttribute('name', 'detail_component_id[]');
 	fields.onchange = rsform_change_field;
+
+	var option;
 	<?php foreach ($this->optionFields as $field) { ?>
-	var option 		= document.createElement('option');
+	option 		    = document.createElement('option');
 	option.value 	= '<?php echo $field->ComponentId; ?>';
 	option.text 	= '<?php echo addslashes($field->ComponentName); ?>';
 	fields.options.add(option);
@@ -40,13 +46,15 @@ function rsform_add_condition() {
 	// operator
 	var operator = document.createElement('select');
 	operator.name = 'operator[]';
-	var option 		= document.createElement('option');
+
+	option 		    = document.createElement('option');
 	option.value 	= 'is';
-	option.text 	= '<?php echo JText::_('RSFP_CONDITION_IS', true); ?>';
+	option.text 	= Joomla.JText._('RSFP_CONDITION_IS');
 	operator.options.add(option);
-	var option 		= document.createElement('option');
+
+	option 		    = document.createElement('option');
 	option.value 	= 'is_not';
-	option.text 	= '<?php echo JText::_('RSFP_CONDITION_IS_NOT', true); ?>';
+	option.text 	= Joomla.JText._('RSFP_CONDITION_IS_NOT');
 	operator.options.add(option);
 	
 	// values
@@ -57,7 +65,7 @@ function rsform_add_condition() {
 	{
 		for (var i=0; i<selected_values.length; i++)
 		{
-			var option 		= document.createElement('option');
+			option 		    = document.createElement('option');
 			option.value	= selected_values[i].value;
 			option.text		= selected_values[i].text;
 			values.options.add(option);
@@ -65,8 +73,7 @@ function rsform_add_condition() {
 	}
 	
 	// remove button
-	
-	remove = jQuery('<a>', {
+	var remove = jQuery('<a>', {
 		'href': 'javascript:void(0);'
 	}).append('<a class="btn btn-danger btn-mini" href="javascript:void(0);"><i class="rsficon rsficon-remove"></i></a>').click(function() {
 		jQuery(this).parent('p').remove();
@@ -107,10 +114,6 @@ function rsform_change_field() {
 		}
 	}
 }
-
-function rsform_close_box() {
-	window.close();
-}
 </script>
 
 <style type="text/css">
@@ -119,13 +122,15 @@ function rsform_close_box() {
 }
 </style>
 
-<p><?php echo JText::sprintf('RSFP_YOU_ARE_EDITING_CONDITIONS_IN', $this->escape($this->lang)); ?></p>
+<?php if (!RSFormProHelper::getConfig('global.disable_multilanguage')) { ?>
+    <p><?php echo JText::sprintf('RSFP_YOU_ARE_EDITING_CONDITIONS_IN', $this->escape($this->lang)); ?></p>
+<?php } ?>
 <form name="adminForm" id="adminForm" method="post" action="index.php">
 	<div id="rsform_conditions">
 	<p>
 		<button class="btn btn-success pull-left" onclick="Joomla.submitform('apply');" type="button"><?php echo JText::_('JAPPLY'); ?></button>
 		<button class="btn btn-success pull-left" onclick="Joomla.submitform('save');" type="button"><?php echo JText::_('JSAVE'); ?></button>
-		<button class="btn pull-left" onclick="rsform_close_box();" type="button"><?php echo JText::_('JCANCEL'); ?></button>
+		<button class="btn pull-left" onclick="window.close();" type="button"><?php echo JText::_('JCANCEL'); ?></button>
 	</p>
 	<p><br /><br /></p>
 	<span class="rsform_clear_both"></span>

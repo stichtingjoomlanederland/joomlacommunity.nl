@@ -10,6 +10,7 @@ if (typeof RSFormPro != 'object') {
 RSFormPro.Forms = {};
 RSFormPro.Editors = {};
 RSFormPro.scrollToError = false;
+RSFormPro.usePositioning = false;
 
 /* Handle HTML5 form fields validation for the forms without AjaxValidation enabled */
 RSFormPro.setHTML5Validation = function (formId, isDisabledSubmit, errorClasses, totalPages) {
@@ -525,7 +526,7 @@ RSFormPro.resetValues = function(items) {
 	catch (err) {}
 
 	RSFormPro.resettingValues = false;
-}
+};
 
 RSFormPro.triggerEvent = function(element, type) {
 	try {
@@ -546,7 +547,7 @@ RSFormPro.triggerEvent = function(element, type) {
 			element.fireEvent("on" + event.eventType, event);
 		}
 	} catch (e) {}
-}
+};
 
 RSFormPro.isChecked = function(formId, name, value) {
 	var isChecked 	= false;
@@ -695,7 +696,47 @@ RSFormPro.showCounter = function(element, id) {
 	}
 	
 	document.getElementById('rsfp-counter-' + id).innerText = result;
-}
+};
+
+RSFormPro.limitSelections = function(formId, field, max) {
+    RSFormProUtils.addEvent(window, 'load', function() {
+        var fields = RSFormPro.getFieldsByName(formId, field);
+        var objects = [];
+        var i;
+        var tagName;
+
+        if (!fields || !fields.length) {
+            return;
+        }
+
+        for (i = 0; i < fields.length; i++) {
+            tagName = fields[i].tagName || fields[i].nodeName;
+            tagName = tagName.toUpperCase();
+
+            if (tagName === 'INPUT' && fields[i].type && fields[i].type.toUpperCase() === 'CHECKBOX' && !fields[i].disabled) {
+                objects.push(fields[i]);
+            }
+        }
+
+        if (!objects.length) {
+            return;
+        }
+
+        function limitSelections() {
+            var values = RSFormProUtils.getChecked(objects);
+            RSFormProUtils.remAttr(objects, 'disabled');
+            if (values && values.length > 0 && values.length >= max) {
+                RSFormProUtils.setAttr(RSFormProUtils.getUnchecked(objects), 'disabled', true);
+            }
+		}
+
+        for (i = 0; i < objects.length; i++) {
+            RSFormProUtils.addEvent(objects[i], 'change', limitSelections);
+        }
+
+        limitSelections();
+    });
+};
 
 /*HTML5 simulators*/
 
@@ -854,6 +895,60 @@ RSFormPro.Conditions = {
 					RSFormProUtils.addEvent(element, 'change', function() {
 						fnCondition();
 					});
+				}
+			}
+		}
+	},
+	run: function(condition) {
+		var formId = condition.form_id,
+            conditions = [],
+            items = [],
+			detail, isChecked, displayValue, match;
+
+		if (typeof condition.details === 'object')
+		{
+			for (var i = 0; i < condition.details.length; i++)
+			{
+				detail = condition.details[i];
+                isChecked = RSFormPro.isChecked(formId, detail.ComponentName, detail.value);
+                conditions.push(isChecked === (detail.operator === 'is'));
+			}
+
+			if (parseInt(condition.block) === 1)
+			{
+				items = RSFormPro.getBlock(formId, RSFormProUtils.getAlias(condition.ComponentName));
+			}
+			else
+			{
+				items = RSFormPro.getFieldsByName(formId, condition.ComponentName);
+			}
+
+			if (items.length > 0)
+			{
+				if (condition.condition === 'all')
+				{
+                    // && conditions need all elements of the Array to be true -> no false in Array
+                    match = conditions.indexOf(false) === -1;
+				}
+				else
+				{
+                    // || conditions need only one element to be true -> one true in array
+					match = conditions.indexOf(true) > -1;
+				}
+
+                if (match)
+                {
+                    displayValue = condition.action === 'show' ? '' : 'none';
+                }
+                else
+                {
+                    displayValue = condition.action === 'show' ? 'none' : '';
+                }
+
+				RSFormProUtils.setDisplay(items, displayValue);
+                if (displayValue === 'none')
+				{
+					RSFormPro.resetValues(RSFormPro.getFieldsByName(formId, condition.ComponentName));
 				}
 			}
 		}
@@ -1371,7 +1466,7 @@ RSFormPro.Ajax = {
 				}
 				return success;
 			}
-		}
+		};
 
 		return false;
 	},
@@ -1464,9 +1559,51 @@ var RSFormProUtils = {
 	},
 	setDisplay: function (items, value) {
 		for (var i = 0; i < items.length; i++) {
-			items[i].style.display = value;
+			if (!RSFormPro.usePositioning) {
+				items[i].style.display = value;
+			} else {
+				value === 'none' ? RSFormProUtils.addClass(items[i], 'formHidden') : RSFormProUtils.removeClass(items[i], 'formHidden');
+			}
 		}
 	},
+	setAttr: function (items, attr, value) {
+        for (var i = 0; i < items.length; i++) {
+            items[i].setAttribute(attr, value);
+        }
+	},
+    remAttr: function (items, attr) {
+        for (var i = 0; i < items.length; i++) {
+            items[i].removeAttribute(attr);
+        }
+    },
+	getChecked: function (items) {
+		var elements = [];
+		var element, tagName;
+        for (var i = 0; i < items.length; i++) {
+        	element = items[i];
+            tagName = element.tagName || element.nodeName;
+
+            if (tagName == 'INPUT' && element.type && element.type.toUpperCase() == 'CHECKBOX' && element.checked == true) {
+				elements.push(element);
+			}
+        }
+
+        return elements;
+	},
+    getUnchecked: function (items) {
+        var elements = [];
+        var element, tagName;
+        for (var i = 0; i < items.length; i++) {
+            element = items[i];
+            tagName = element.tagName || element.nodeName;
+
+            if (tagName == 'INPUT' && element.type && element.type.toUpperCase() == 'CHECKBOX' && !element.checked) {
+                elements.push(element);
+            }
+        }
+
+        return elements;
+    },
 	getAlias: function(str) {
 		str = str.replace(/\-/g, ' ');
 

@@ -15,7 +15,7 @@ defined('_JEXEC') or die('Restricted access'); ?>
 		<label for="formLayout<?php echo ucfirst($layout); ?>" class="radio">
 			<input type="radio" id="formLayout<?php echo ucfirst($layout); ?>" name="jform[ViewLayoutName]" value="<?php echo $layout; ?>" onclick="saveDirectoryLayoutName('<?php echo $this->formId; ?>', this.value);" <?php if ($this->directory->ViewLayoutName == $layout) { ?>checked="checked"<?php } ?> /> <?php echo JText::_('RSFP_LAYOUT_'.str_replace('-', '_', $layout));?><br/>
 		</label>
-		<img src="components/com_rsform/assets/images/layouts/<?php echo $layout; ?>.gif" width="175"/>
+		<?php echo JHtml::image('com_rsform/admin/layouts/' . $layout . '.gif', JText::_('RSFP_LAYOUT_'.str_replace('-', '_', $layout)), 'width="175"', true); ?>
 	</div>
 	<?php } ?>
 	<span class="rsform_clear_both"></span>

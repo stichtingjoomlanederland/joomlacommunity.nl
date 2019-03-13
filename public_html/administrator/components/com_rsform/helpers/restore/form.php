@@ -466,13 +466,12 @@ class RSFormProRestoreForm
 					foreach ($directory->fields->children() as $field) {
 						// check for the component ID
 						$componentId = (string) $field->componentId;
-						if (!is_numeric($componentId)) {
-							if (isset($this->fields[$componentId])) {
-								$componentId = $this->fields[$componentId];
-							}
-						} else {
-							$componentId = (int) $componentId;
+						
+						if (isset($this->fields[$componentId])) {
+							$componentId = $this->fields[$componentId];
 						}
+						
+						$componentId = (int) $componentId;
 						
 						if (is_int($componentId)) {
 							$query = $this->db->getQuery(true);

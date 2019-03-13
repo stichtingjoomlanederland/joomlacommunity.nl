@@ -206,30 +206,26 @@ class RsformModelDirectory extends JModelLegacy
 		$orderingFields	  	= $input->get('dirorder',array(),'array');
 
 		// empty
-		$db->setQuery('DELETE FROM '.$db->qn('#__rsform_directory_fields').' WHERE '.$db->qn('formId').' = '.(int) $table->formId.'');
+        $query = $db->getQuery(true)
+            ->delete($db->qn('#__rsform_directory_fields'))
+            ->where($db->qn('formId') . ' = ' . $db->q($table->formId));
+
+		$db->setQuery($query);
 		$db->execute();
 
 		foreach ($fields as $field) {
-			$viewable		= (int) in_array($field->FieldId, $listingFields);
-			$searchable		= (int) in_array($field->FieldId, $searchableFields);
-			$editable		= (int) in_array($field->FieldId, $editableFields);
-			$indetails		= (int) in_array($field->FieldId, $detailsFields);
-			$incsv			= (int) in_array($field->FieldId, $csvFields);
-			$ordering		= $orderingFields[array_search($field->FieldId, $cids)];
+			$object = (object) array(
+			    'formId'        => $table->formId,
+			    'componentId'   => $field->FieldId,
+                'viewable'      => (int) in_array($field->FieldId, $listingFields),
+                'searchable'    => (int) in_array($field->FieldId, $searchableFields),
+                'editable'      => (int) in_array($field->FieldId, $editableFields),
+                'indetails'     => (int) in_array($field->FieldId, $detailsFields),
+                'incsv'         => (int) in_array($field->FieldId, $csvFields),
+                'ordering'      => $orderingFields[array_search($field->FieldId, $cids)]
+            );
 
-			$values = array(
-				"`formId`='".$table->formId."'",
-				"`componentId`='".$field->FieldId."'",
-				"`viewable`='".$viewable."'",
-				"`searchable`='".$searchable."'",
-				"`editable`='".$editable."'",
-				"`indetails`='".$indetails."'",
-				"`incsv`='".$incsv."'",
-				"`ordering`='".$ordering."'"
-			);
-
-			$db->setQuery("INSERT INTO #__rsform_directory_fields SET ".implode(", ", $values));
-			$db->execute();
+			$db->insertObject('#__rsform_directory_fields', $object);
 		}
 
 		return true;
@@ -426,14 +422,24 @@ class RsformModelDirectory extends JModelLegacy
 		if ($pks) {
 			$pks = array_map('intval', $pks);
 
-			$this->_db->setQuery("DELETE FROM #__rsform_directory WHERE formId IN (".implode(',',$pks).")");
+			$query = $this->_db->getQuery(true)
+                ->delete('#__rsform_directory')
+                ->where($this->_db->qn('formId') . ' IN (' . implode(',', $this->_db->q($pks)) . ')');
+			$this->_db->setQuery($query);
 			$this->_db->execute();
 
-			$this->_db->setQuery("DELETE FROM #__rsform_directory_fields WHERE formId IN (".implode(',',$pks).")");
+            $query = $this->_db->getQuery(true)
+                ->delete('#__rsform_directory_fields')
+                ->where($this->_db->qn('formId') . ' IN (' . implode(',', $this->_db->q($pks)) . ')');
+            $this->_db->setQuery($query);
 			$this->_db->execute();
 
-			$this->_db->setQuery("DELETE FROM #__rsform_emails WHERE formId IN (".implode(',',$pks).") AND `type` = 'directory'");
-			$this->_db->execute();
+            $query = $this->_db->getQuery(true)
+                ->delete('#__rsform_emails')
+                ->where($this->_db->qn('formId') . ' IN (' . implode(',', $this->_db->q($pks)) . ')')
+                ->where($this->_db->qn('type') . ' = ' . $this->_db->q('directory'));
+            $this->_db->setQuery($query);
+            $this->_db->execute();
 		}
 
 		return true;

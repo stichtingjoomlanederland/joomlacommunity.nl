@@ -11,16 +11,122 @@ require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/rsform.php';
 
 abstract class RSFormProSubmissionsHelper
 {
-    public static function deleteSubmissions($cid)
+    public static function getSubmission($cid, $withValues = true)
+    {
+        $db = JFactory::getDbo();
+
+        // Load submission
+        $query = $db->getQuery(true);
+        $query->select('*')
+            ->from($db->qn('#__rsform_submissions'))
+            ->where($db->qn('SubmissionId').'='.$db->q($cid));
+        $submission = $db->setQuery($query)->loadObject();
+        if (empty($submission)) {
+            return false;
+        }
+
+        // Get submission values
+        if ($withValues)
+        {
+            $submission->values = array();
+            $query->clear()
+                ->select($db->qn('FieldName'))
+                ->select($db->qn('FieldValue'))
+                ->from($db->qn('#__rsform_submission_values'))
+                ->where($db->qn('SubmissionId').'='.$db->q($cid));
+            if ($submissionValues = $db->setQuery($query)->loadObjectList()) {
+                foreach ($submissionValues as $value) {
+                    $submission->values[$value->FieldName] = $value->FieldValue;
+                }
+            }
+        }
+
+        return $submission;
+    }
+
+    public static function deleteSubmissions($cid, $sendDeletionEmail = false)
     {
         $db     = JFactory::getDbo();
+        $query  = $db->getQuery(true);
         $cid    = array_map('intval', (array) $cid);
+
+        if ($sendDeletionEmail && count($cid) == 1)
+        {
+            $SubmissionId = $cid[0];
+            // Get replacements
+            list($placeholders, $values) = RSFormProHelper::getReplacements($SubmissionId);
+
+            // Get form ID from placeholders
+            $formId = $values[array_search('{global:formid}', $placeholders)];
+
+            // Get language
+            $lang = $values[array_search('{global:language}', $placeholders)];
+
+            // Load form
+            $query
+                ->select(array('DeletionEmailTo', 'DeletionEmailCC', 'DeletionEmailBCC', 'DeletionEmailFrom', 'DeletionEmailReplyTo', 'DeletionEmailFromName', 'DeletionEmailText', 'DeletionEmailSubject', 'DeletionEmailMode'))
+                ->from($db->qn('#__rsform_forms'))
+                ->where($db->qn('FormId') . ' = ' . $db->q($formId));
+            $form = $db->setQuery($query)->loadObject();
+
+            // Get translation
+            if (empty($lang))
+            {
+                $lang = RSFormProHelper::getCurrentLanguage($formId);
+            }
+
+            if ($translations = RSFormProHelper::getTranslations('forms', $formId, $lang)) {
+                foreach ($translations as $field => $value) {
+                    if (isset($form->{$field})) {
+                        $form->{$field} = $value;
+                    }
+                }
+            }
+
+            // RSForm! Pro Scripting - Deletion Email Text
+            if (strpos($form->DeletionEmailText, '{/if}') !== false)
+            {
+                require_once dirname(__FILE__).'/scripting.php';
+                RSFormProScripting::compile($form->DeletionEmailText, $placeholders, $values);
+            }
+
+            // Create email
+            $deletionEmail = array(
+                'to' => str_replace($placeholders, $values, $form->DeletionEmailTo),
+                'cc' => str_replace($placeholders, $values, $form->DeletionEmailCC),
+                'bcc' => str_replace($placeholders, $values, $form->DeletionEmailBCC),
+                'from' => str_replace($placeholders, $values, $form->DeletionEmailFrom),
+                'replyto' => str_replace($placeholders, $values, $form->DeletionEmailReplyTo),
+                'fromName' => str_replace($placeholders, $values, $form->DeletionEmailFromName),
+                'text' => str_replace($placeholders, $values, $form->DeletionEmailText),
+                'subject' => str_replace($placeholders, $values, $form->DeletionEmailSubject),
+                'mode' => $form->DeletionEmailMode
+            );
+
+            if (strpos($deletionEmail['cc'], ',') !== false)
+            {
+                $deletionEmail['cc'] = explode(',', $deletionEmail['cc']);
+            }
+            if (strpos($deletionEmail['bcc'], ',') !== false)
+            {
+                $deletionEmail['bcc'] = explode(',', $deletionEmail['bcc']);
+            }
+
+            JFactory::getApplication()->triggerEvent('rsfp_beforeDeletionEmail', array(array('form' => &$form, 'placeholders' => &$placeholders, 'values' => &$values, 'submissionId' => $SubmissionId, 'userEmail'=> &$deletionEmail)));
+
+            if ($deletionEmail['to'])
+            {
+                $recipients = explode(',', $deletionEmail['to']);
+
+                RSFormProHelper::sendMail($deletionEmail['from'], $deletionEmail['fromName'], $recipients, $deletionEmail['subject'], $deletionEmail['text'], $deletionEmail['mode'], !empty($deletionEmail['cc']) ? $deletionEmail['cc'] : null, !empty($deletionEmail['bcc']) ? $deletionEmail['bcc'] : null, null, !empty($deletionEmail['replyto']) ? $deletionEmail['replyto'] : '');
+            }
+        }
 
         // Delete files
         static::deleteSubmissionFiles($cid);
 
         // Delete submissions
-        $query = $db->getQuery(true)
+        $query->clear()
             ->delete($db->qn('#__rsform_submissions'))
             ->where($db->qn('SubmissionId') . ' IN (' . implode(',', $cid) . ')');
         $db->setQuery($query)

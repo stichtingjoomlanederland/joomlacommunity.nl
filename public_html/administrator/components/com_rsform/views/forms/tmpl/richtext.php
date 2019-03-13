@@ -16,7 +16,7 @@ defined('_JEXEC') or die('Restricted access');
 	<span class="rsform_clear_both"></span>
 
 	<fieldset>
-		<h3 class="rsfp-legend"><?php echo JText::_('RSFP_EDITING_TEXT'); ?> <small><?php echo JText::sprintf('RSFP_YOU_ARE_EDITING_IN_SHORT', $this->lang); ?></small></h3>
+		<h3 class="rsfp-legend"><?php echo JText::_('RSFP_EDITING_TEXT'); ?><?php if (!RSFormProHelper::getConfig('global.disable_multilanguage')) { ?> <small><?php echo JText::sprintf('RSFP_YOU_ARE_EDITING_IN_SHORT', $this->lang); ?></small><?php } ?></h3>
 
 	<?php if ($this->noEditor) { ?>
 		<textarea cols="70" rows="10" style="width: 500px; height: 320px;" class="rs_textarea" name="<?php echo $this->editorName; ?>"><?php echo RSFormProHelper::htmlEscape($this->editorText); ?></textarea>

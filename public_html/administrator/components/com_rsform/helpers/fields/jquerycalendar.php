@@ -50,6 +50,40 @@ class RSFormProFieldJqueryCalendar extends RSFormProField
 		
 		if (!empty($hidden[$hiddenName])) {
 			$hiddenValue = preg_replace('#[^0-9\/\s\:]+#i', '', $hidden[$hiddenName]);
+		} else {
+			if (!empty($value)) {
+				// Let's allow the 'now' keyword
+				if (strtolower($value) == 'now')
+				{
+					$value = JFactory::getDate('now')->format($format);
+				}
+				if (JFactory::getLanguage()->getTag() != 'en-GB')
+				{
+					require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/calendar.php';
+
+					$value = RSFormProCalendar::fixValue($value, $format);
+				}
+				// Try to create a date to see if it's valid
+				$date = JFactory::getDate()->createFromFormat($format, $value);
+				if ($date !== false)
+				{
+					$hiddenDateFormat = 'm/d/Y';
+					if ($this->getProperty('TIMEPICKER', 'NO')) {
+						// in case the user leaves the input empty and save the settings
+						$timepickerformat = trim($this->getProperty('TIMEPICKERFORMAT', 'H:i'));
+						if (empty($timepickerformat)) {
+							$timepickerformat = 'H:i';
+						}
+						$hiddenDateFormat .= ' '.$timepickerformat;
+					}
+					$hiddenValue = $date->format($hiddenDateFormat);
+				}
+				else
+				{
+					$value = '';
+					$hiddenValue = '';
+				}
+			}
 		}
 		
 		// set the calendar script

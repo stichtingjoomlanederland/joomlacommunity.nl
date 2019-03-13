@@ -32,60 +32,62 @@ class RsformModelRsform extends JModelLegacy
 		/* $button = array(
 				'access', 'id', 'link', 'target', 'onclick', 'title', 'image', 'alt', 'text'
 			); */
-		
+
+		$user = JFactory::getUser();
+
 		$buttons = array(
 			array(
 				'link' 		=> JRoute::_('index.php?option=com_rsform&view=forms'),
-				'image' 	=> 'components/com_rsform/assets/images/forms.png',
+				'image' 	=> JHtml::image('com_rsform/admin/forms.png', '', null, true, 1),
 				'text' 		=> JText::_('RSFP_MANAGE_FORMS'),
-				'access' 	=> true,
+				'access' 	=> $user->authorise('forms.manage', 'com_rsform'),
 				'target' 	=> ''
 			),
 			array(
 				'link' 		=> JRoute::_('index.php?option=com_rsform&view=submissions'),
-				'image' 	=> 'components/com_rsform/assets/images/viewdata.png',
+				'image' 	=> JHtml::image('com_rsform/admin/viewdata.png', '', null, true, 1),
 				'text' 		=> JText::_('RSFP_MANAGE_SUBMISSIONS'),
-				'access' 	=> true,
+                'access' 	=> $user->authorise('submissions.manage', 'com_rsform'),
 				'target' 	=> ''
 			),
 			array(
 				'link' 		=> JRoute::_('index.php?option=com_rsform&view=directory'),
-				'image' 	=> 'components/com_rsform/assets/images/directory.png',
+				'image' 	=> JHtml::image('com_rsform/admin/directory.png', '', null, true, 1),
 				'text' 		=> JText::_('RSFP_MANAGE_DIRECTORY_SUBMISSIONS'),
-				'access' 	=> true,
+                'access' 	=> $user->authorise('directory.manage', 'com_rsform'),
 				'target' 	=> ''
 			),
 			array(
 				'link' 		=> JRoute::_('index.php?option=com_rsform&view=backuprestore'),
-				'image' 	=> 'components/com_rsform/assets/images/backup.png',
+				'image' 	=> JHtml::image('com_rsform/admin/backup.png', '', null, true, 1),
 				'text' 		=> JText::_('RSFP_BACKUP_RESTORE'),
-				'access' 	=> true,
+                'access' 	=> $user->authorise('backuprestore.manage', 'com_rsform'),
 				'target' 	=> ''
 			),
 			array(
 				'link' 		=> JRoute::_('index.php?option=com_rsform&view=configuration'),
-				'image' 	=> 'components/com_rsform/assets/images/config.png',
+				'image' 	=> JHtml::image('com_rsform/admin/config.png', '', null, true, 1),
 				'text' 		=> JText::_('RSFP_CONFIGURATION'),
-				'access' 	=> true,
+                'access' 	=> $user->authorise('core.admin', 'com_rsform'),
 				'target' 	=> ''
 			),
 			array(
 				'link' 		=> 'https://www.rsjoomla.com/support/documentation/rsform-pro/plugins-and-modules.html',
-				'image' 	=> 'components/com_rsform/assets/images/samples.png',
+				'image' 	=> JHtml::image('com_rsform/admin/samples.png', '', null, true, 1),
 				'text' 		=> JText::_('RSFP_PLUGINS'),
 				'access' 	=> true,
 				'target' 	=> '_blank'
 			),
 			array(
 				'link' 		=> 'https://www.rsjoomla.com/support/documentation/rsform-pro.html',
-				'image' 	=> 'components/com_rsform/assets/images/docs.png',
+				'image' 	=> JHtml::image('com_rsform/admin/docs.png', '', null, true, 1),
 				'text' 		=> JText::_('RSFP_USER_GUIDE'),
 				'access' 	=> true,
 				'target' 	=> '_blank'
 			),
 			array(
 				'link' 		=> 'https://www.rsjoomla.com/support.html',
-				'image' 	=> 'components/com_rsform/assets/images/support.png',
+				'image' 	=> JHtml::image('com_rsform/admin/support.png', '', null, true, 1),
 				'text' 		=> JText::_('RSFP_SUPPORT'),
 				'access' 	=> true,
 				'target' 	=> '_blank'

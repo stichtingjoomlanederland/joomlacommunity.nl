@@ -12,39 +12,47 @@ JFormHelper::loadFieldClass('list');
 class JFormFieldForms extends JFormFieldList
 {
 	protected $type = 'Forms';
-	
-	protected function getOptions() {
-		// Initialize variables.
-		$options = array();
-		
-		$directory = (string) $this->element['directory'] == 'true' || (string) $this->element['directory'] == '1';
-		
-		$db 	= JFactory::getDbo();
-		$query 	= $db->getQuery(true);
-		$query->select($db->qn('FormId'))
-			  ->select($db->qn('FormTitle'))
-			  ->select($db->qn('FormName'))
-			  ->from($db->qn('#__rsform_forms'));
-		
-		if ($directory) {
-			$subquery = $db->getQuery(true);
-			$subquery->select($db->qn('formId'))
-				->from($db->qn('#__rsform_directory'));
-			
-			$query->where('FormId IN ('.$subquery.')');
-		}
-		$db->setQuery($query);
-		
-		$forms = $db->loadObjectList();
-		foreach ($forms as $form) {
-			$tmp = JHtml::_('select.option', $form->FormId, sprintf('(%d) %s', $form->FormId, $form->FormName));
 
-			// Add the option object to the result set.
-			$options[] = $tmp;
-		}
+    protected function getOptions()
+    {
+        $app        = JFactory::getApplication();
+        $db         = JFactory::getDbo();
+        $sortColumn = $app->getUserState('com_rsform.forms.filter_order', 'FormId');
+        $sortOrder  = $app->getUserState('com_rsform.forms.filter_order_Dir', 'ASC');
+        $options    = array();
 
-		reset($options);
-		
-		return $options;
-	}
+        $query = $db->getQuery(true)
+            ->select($db->qn('FormId'))
+            ->select($db->qn('FormTitle'))
+            ->select($db->qn('Lang'))
+            ->from($db->qn('#__rsform_forms'))
+            ->order($db->qn($sortColumn) . ' ' . $db->escape($sortOrder));
+        if ($results = $db->setQuery($query)->loadObjectList())
+        {
+            foreach ($results as $result)
+            {
+                $lang = RSFormProHelper::getCurrentLanguage($result->FormId);
+
+                if ($lang != $result->Lang)
+                {
+                    if ($translations = RSFormProHelper::getTranslations('forms', $result->FormId, $lang))
+                    {
+                        foreach ($translations as $field => $value)
+                        {
+                            if (isset($result->$field))
+                            {
+                                $result->$field = $value;
+                            }
+                        }
+                    }
+                }
+
+                $options[] = JHtml::_('select.option', $result->FormId, sprintf('(%d) %s', $result->FormId, $result->FormTitle));
+            }
+        }
+
+        reset($options);
+
+        return $options;
+    }
 }

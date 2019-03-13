@@ -10,6 +10,11 @@ defined('_JEXEC') or die('Restricted access');
 class RsformViewDirectory extends JViewLegacy
 {
 	public function display($tpl = null) {
+        if (!JFactory::getUser()->authorise('directory.manage', 'com_rsform'))
+        {
+            throw new Exception(JText::_('COM_RSFORM_NOT_AUTHORISED_TO_USE_THIS_SECTION'));
+        }
+
 		// set title
 		JToolbarHelper::title('RSForm! Pro', 'rsform');
 		
@@ -19,8 +24,14 @@ class RsformViewDirectory extends JViewLegacy
 			JToolbarHelper::apply('directory.apply');
 			JToolbarHelper::save('directory.save');
 			JToolbarHelper::cancel('directory.cancel');
-			
-			JToolbarHelper::custom('directory.cancelform', 'previous', 'previous', JText::_('RSFP_BACK_TO_FORM'), false);
+
+            $this->user = JFactory::getUser();
+
+            if ($this->user->authorise('forms.manage', 'com_rsform'))
+            {
+                JToolbarHelper::spacer();
+                JToolbarHelper::custom('directory.cancelform', 'previous', 'previous', JText::_('RSFP_BACK_TO_FORM'), false);
+            }
 			
 			$this->directory	= $this->get('Directory');
 			$this->formId		= JFactory::getApplication()->input->getInt('formId',0);
@@ -65,8 +76,25 @@ class RsformViewDirectory extends JViewLegacy
 	
 	public function getStatus($formId) {
 		$db = JFactory::getDbo();
-		
-		$db->setQuery("SELECT COUNT(formId) FROM #__rsform_directory WHERE formId = ".(int) $formId." ");
-		return $db->loadResult();
+		$query = $db->getQuery(true)
+            ->select($db->qn('formId'))
+            ->from($db->qn('#__rsform_directory'))
+            ->where($db->qn('formId') . ' = ' . $db->q($formId));
+
+		return $db->setQuery($query)->loadResult();
 	}
+
+	public function getHeaderLabel($field)
+    {
+        JFactory::getApplication()->triggerEvent('rsfp_bk_onGetHeaderLabel', array(&$field->FieldName, $this->formId));
+
+        $staticHeaders = RSFormProHelper::getDirectoryStaticHeaders();
+
+        if ($field->componentId < 0 && isset($staticHeaders[$field->componentId]))
+        {
+            return JText::sprintf('RSFP_DIRECTORY_SUBMISSION_HEADER', $field->FieldName);
+        }
+
+        return $field->FieldName;
+    }
 }

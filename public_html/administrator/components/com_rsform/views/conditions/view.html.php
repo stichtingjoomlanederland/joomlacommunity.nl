@@ -10,7 +10,12 @@ defined('_JEXEC') or die('Restricted access');
 class RsformViewConditions extends JViewLegacy
 {
 	public function display($tpl = null)
-	{		
+	{
+        if (!JFactory::getUser()->authorise('forms.manage', 'com_rsform'))
+        {
+            throw new Exception(JText::_('COM_RSFORM_NOT_AUTHORISED_TO_USE_THIS_SECTION'));
+        }
+
 		$lists 			= array();
 		$condition		= $this->get('condition');
 		$allFields 		= $this->get('allFields');

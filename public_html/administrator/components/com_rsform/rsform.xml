@@ -7,7 +7,7 @@
 	<authorUrl>www.rsjoomla.com</authorUrl>
 	<copyright>(C) 2007-2018 www.rsjoomla.com</copyright>
 	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license> 
-	<version>2.0.15</version>
+	<version>2.1.2</version>
 	<description>COM_RSFORM_INSTALL_DESC</description>
 	<scriptfile>script.rsform.php</scriptfile>
 
@@ -83,7 +83,6 @@
 			  <menu view="directory">COM_RSFORM_MANAGE_DIRECTORY_SUBMISSIONS</menu>
 			  <menu view="configuration">COM_RSFORM_CONFIGURATION</menu>
 			  <menu view="backuprestore">COM_RSFORM_BACKUP_RESTORE</menu>
-			  <menu view="updates">COM_RSFORM_UPDATES</menu>
 		</submenu>
 		
 		<files folder="admin">			
@@ -95,6 +94,7 @@
 			<folder>sql</folder>
 			<folder>tables</folder>
 			<folder>views</folder>
+			<filename>access.xml</filename>
 			<filename>admin.rsform.php</filename>
 			<filename>config.xml</filename>
 			<filename>controller.php</filename>

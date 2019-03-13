@@ -98,7 +98,7 @@ class RsformModelConditions extends JModelLegacy
                     'componentId' 		=> $optionField->ComponentId,
                     'data' 				=> $properties[$optionField->ComponentId],
                     'value' 			=> array(),
-                    'invalid' 			=> array()
+                    'invalid' 			=> false
                 );
                 $field = new RSFormProFieldMultiple($config);
 

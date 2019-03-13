@@ -1,20 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form>  
 	<fieldset name="configuration" label="RSFP_CONFIG">
-		<field name="global.codemirror" type="radio" class="btn-group" description="RSFP_ENABLE_SYNTAX_HIGHLIGHTING_DESC" label="RSFP_ENABLE_SYNTAX_HIGHLIGHTING" size="1" >
+		<field name="global.codemirror" type="radio" class="btn-group" description="RSFP_ENABLE_SYNTAX_HIGHLIGHTING_DESC" label="RSFP_ENABLE_SYNTAX_HIGHLIGHTING">
 			<option value="0">JNO</option>
 			<option value="1">JYES</option>
 		</field>
 		<field name="global.date_mask" type="text" description="RSFP_GLOBAL_DATE_MASK_DESC" label="RSFP_GLOBAL_DATE_MASK" size="70" />
 		<field name="google.api_key" type="text" description="RSFP_GOOGLE_API_KEY_DESC" label="RSFP_GOOGLE_API_KEY" size="70" />
+		<field name="global.disable_multilanguage" type="radio" class="btn-group" description="COM_RSFORM_DISABLE_MULTILANGUAGE_DESC" label="COM_RSFORM_DISABLE_MULTILANGUAGE" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+	</fieldset>
+	<fieldset name="defaults" label="COM_RSFORM_DEFAULTS" addfieldpath="/administrator/components/com_rsform/models/fields">
+		<field name="global.default_layout" type="formlayouts" default="responsive" description="COM_RSFORM_DEFAULT_LAYOUT_DESC" label="COM_RSFORM_DEFAULT_LAYOUT" />
+		<field name="global.default_load_layout_framework" type="radio" class="btn-group" description="COM_RSFORM_DEFAULT_LOAD_LAYOUT_FRAMEWORK_DESC" label="COM_RSFORM_DEFAULT_LOAD_LAYOUT_FRAMEWORK" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
 	</fieldset>
 	<fieldset name="security" label="RSFP_SECURITY">
-		<field name="global.filtering" type="list" description="RSFP_GLOBAL_XSS_FILTER_DESC" label="RSFP_GLOBAL_XSS_FILTER" size="1" >
+		<field name="global.filtering" type="list" description="RSFP_GLOBAL_XSS_FILTER_DESC" label="RSFP_GLOBAL_XSS_FILTER">
 			<option value="joomla">RSFP_XSS_USE_JOOMLA</option>
 			<option value="rsform">RSFP_XSS_USE_RSFORM</option>
 			<option value="none">RSFP_XSS_NO_FILTERING</option>
 		</field>
-		<field name="allow_unsafe" type="radio" class="btn-group" description="RSFP_ALLOW_UNSAFE_DESC" label="RSFP_ALLOW_UNSAFE" default="0" size="1" >
+		<field name="allow_unsafe" type="radio" class="btn-group" description="RSFP_ALLOW_UNSAFE_DESC" label="RSFP_ALLOW_UNSAFE" default="0">
 			<option value="0">JNO</option>
 			<option value="1">JYES</option>
 		</field>

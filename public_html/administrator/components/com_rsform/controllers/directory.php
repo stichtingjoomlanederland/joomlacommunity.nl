@@ -16,15 +16,19 @@ class RsformControllerDirectory extends RsformController
 	}
 
 	public function manage() {
-		JFactory::getApplication()->input->set('view', 'directory');
-		JFactory::getApplication()->input->set('layout', 'default');
+        $app = JFactory::getApplication();
+
+		$app->input->set('view', 'directory');
+        $app->input->set('layout', 'default');
 		
 		parent::display();
 	}
 	
 	public function edit() {
-		JFactory::getApplication()->input->set('view', 	'directory');
-		JFactory::getApplication()->input->set('layout', 	'edit');
+        $app = JFactory::getApplication();
+
+		$app->input->set('view', 	'directory');
+		$app->input->set('layout', 	'edit');
 		
 		parent::display();
 	}
@@ -34,15 +38,27 @@ class RsformControllerDirectory extends RsformController
 		$cids	= JFactory::getApplication()->input->get('cid',array(),'array');
 		$formId	= JFactory::getApplication()->input->getInt('formId',0);
 		
-		foreach ($cids as $key => $order) {
-			$db->setQuery("SELECT componentId FROM #__rsform_directory_fields WHERE ComponentId='".$key."' AND `formId` = '".$formId."'");
-			if (!$db->loadResult()) {
-				$db->setQuery("INSERT INTO #__rsform_directory_fields SET ComponentId='".$key."', `formId` = '".$formId."', `ordering` = '".$order."' ");
-				$db->execute();
-			}
-			
-			$db->setQuery("UPDATE #__rsform_directory_fields SET `ordering`='".$order."' WHERE ComponentId='".$key."' AND `formId` = '".$formId."' ");
-			$db->execute();
+		foreach ($cids as $key => $order)
+		{
+		    $object = (object) array(
+		        'componentId' => $key,
+                'formId'      => $formId,
+                'ordering'    => $order
+            );
+
+		    $query = $db->getQuery(true)
+                ->select($db->qn('componentId'))
+                ->from($db->qn('#__rsform_directory_fields'))
+                ->where($db->qn('componentId') . ' = ' . $db->q($key))
+                ->where($db->qn('formId') . ' = ' . $db->q($formId));
+		    if ($db->setQuery($query)->loadResult())
+            {
+                $db->updateObject('#__rsform_directory_fields', $object, array('componentId', 'formId'));
+            }
+            else
+            {
+                $db->insertObject('#__rsform_directory_fields', $object);
+            }
 		}
 		
 		echo 'Ok';
@@ -54,18 +70,33 @@ class RsformControllerDirectory extends RsformController
 		$cids	= JFactory::getApplication()->input->get('cid',array(),'array');
 		$formId	= JFactory::getApplication()->input->getInt('formId',0);
 		
-		foreach ($cids as $key => $val) {
-			$db->setQuery("SELECT componentId FROM #__rsform_directory_fields WHERE ComponentId='".$key."' AND `formId` = '".$formId."'");
-			if ($db->loadResult()) {
-				$db->setQuery("UPDATE #__rsform_directory_fields SET `indetails`='".$val."' WHERE ComponentId='".$key."' AND `formId` = '".$formId."' ");
-				$db->execute();
-			} else {
-				$db->setQuery("SELECT MAX(ordering) FROM #__rsform_directory_fields WHERE `formId` = '".$formId."'");
-				$ordering = (int) $db->loadResult() + 1;
-				
-				$db->setQuery("INSERT INTO #__rsform_directory_fields SET `indetails`='".$val."', ComponentId='".$key."', `formId` = '".$formId."', `ordering` = '".$ordering."' ");
-				$db->execute();
-			}
+		foreach ($cids as $key => $val)
+		{
+            $object = (object) array(
+                'componentId'   => $key,
+                'formId'        => $formId,
+                'indetails'     => $val
+            );
+
+            $query = $db->getQuery(true)
+                ->select($db->qn('componentId'))
+                ->from($db->qn('#__rsform_directory_fields'))
+                ->where($db->qn('componentId') . ' = ' . $db->q($key))
+                ->where($db->qn('formId') . ' = ' . $db->q($formId));
+            if ($db->setQuery($query)->loadResult())
+            {
+                $db->updateObject('#__rsform_directory_fields', $object, array('componentId', 'formId'));
+            }
+            else
+            {
+                $query->clear()
+                    ->select('MAX( '  . $db->qn('ordering') . ')')
+                    ->from($db->qn('#__rsform_directory_fields'))
+                    ->where($db->qn('formId') . ' = ' . $db->q($formId));
+                $object->ordering = (int) $db->setQuery($query)->loadResult() + 1;
+
+                $db->insertObject('#__rsform_directory_fields', $object);
+            }
 		}
 		
 		echo 'Ok';
@@ -110,49 +141,85 @@ class RsformControllerDirectory extends RsformController
 	}
 	
 	public function changeAutoGenerateLayout() {
-		$formId 		= JFactory::getApplication()->input->getInt('formId');
-		$ViewLayoutName = JFactory::getApplication()->input->get('ViewLayoutName');
-		$db 			= JFactory::getDbo();
+        $app            = JFactory::getApplication();
+        $db 			= JFactory::getDbo();
+		$formId 		= $app->input->getInt('formId');
+		$name           = $app->input->get('ViewLayoutName');
+		$status         = $app->input->getInt('status');
+
+		$query = $db->getQuery(true)
+            ->select($db->qn('formId'))
+            ->from($db->qn('#__rsform_directory'))
+            ->where($db->qn('formId') . ' = ' . $db->q($formId));
+
+		$object = (object) array(
+		    'formId'                 => $formId,
+            'ViewLayoutAutogenerate' => $status,
+            'ViewLayoutName'         => $name
+        );
 		
-		$db->setQuery('SELECT COUNT('.$db->qn('formId').') FROM '.$db->qn('#__rsform_directory').' WHERE '.$db->qn('formId').' = '.(int) $formId.' ');
-		if (!$db->loadResult()) {
-			$db->setQuery('INSERT INTO '.$db->qn('#__rsform_directory').' SET '.$db->qn('formId').' = '.(int) $formId.' ');
-			$db->execute();
+		$db->setQuery($query);
+		if (!$db->loadResult())
+		{
+		    $db->insertObject('#__rsform_directory', $object);
 		}
-		
-		$db->setQuery("UPDATE #__rsform_directory SET `ViewLayoutAutogenerate` = ABS(ViewLayoutAutogenerate-1), `ViewLayoutName`='".$db->escape($ViewLayoutName)."' WHERE `formId` = '".$formId."'");
-		$db->execute();
+		else
+        {
+            $db->updateObject('#__rsform_directory', $object, array('formId'));
+        }
 		
 		jexit();
 	}
 	
 	public function saveName() {
-		$formId = JFactory::getApplication()->input->getInt('formId');
-		$name   = JFactory::getApplication()->input->get('ViewLayoutName');
-		$db     = JFactory::getDbo();
-		
-		$db->setQuery('SELECT COUNT('.$db->qn('formId').') FROM '.$db->qn('#__rsform_directory').' WHERE '.$db->qn('formId').' = '.(int) $formId.' ');
-		if (!$db->loadResult()) {
-			$db->setQuery('INSERT INTO '.$db->qn('#__rsform_directory').' SET '.$db->qn('formId').' = '.(int) $formId.' ');
-			$db->execute();
-		}
-		
-		$db->setQuery("UPDATE #__rsform_directory SET ViewLayoutName='".$db->escape($name)."' WHERE formId='".$formId."'");
-		$db->execute();
+        $app    = JFactory::getApplication();
+        $db     = JFactory::getDbo();
+		$formId = $app->input->getInt('formId');
+		$name   = $app->input->get('ViewLayoutName');
+
+        $query = $db->getQuery(true)
+            ->select($db->qn('formId'))
+            ->from($db->qn('#__rsform_directory'))
+            ->where($db->qn('formId') . ' = ' . $db->q($formId));
+
+        $object = (object) array(
+            'formId'         => $formId,
+            'ViewLayoutName' => $name
+        );
+
+        $db->setQuery($query);
+        if (!$db->loadResult())
+        {
+            $db->insertObject('#__rsform_directory', $object);
+        }
+        else
+        {
+            $db->updateObject('#__rsform_directory', $object, array('formId'));
+        }
 		
 		jexit();
 	}
 	
 	public function generate() {
 		$db 	= JFactory::getDbo();
-		$formId = JFactory::getApplication()->input->getInt('formId');
-		$layout = JFactory::getApplication()->input->getCmd('layoutName');
-		
-		$db->setQuery('SELECT COUNT('.$db->qn('formId').') FROM '.$db->qn('#__rsform_directory').' WHERE '.$db->qn('formId').' = '.(int) $formId.' ');
-		if (!$db->loadResult()) {
-			$db->setQuery('INSERT INTO '.$db->qn('#__rsform_directory').' SET '.$db->qn('formId').' = '.(int) $formId.' ');
-			$db->execute();
-		}
+		$app    = JFactory::getApplication();
+		$formId = $app->input->getInt('formId');
+		$layout = $app->input->getCmd('layoutName');
+
+        $query = $db->getQuery(true)
+            ->select($db->qn('formId'))
+            ->from($db->qn('#__rsform_directory'))
+            ->where($db->qn('formId') . ' = ' . $db->q($formId));
+
+        $object = (object) array(
+            'formId' => $formId,
+        );
+
+        $db->setQuery($query);
+        if (!$db->loadResult())
+        {
+            $db->insertObject('#__rsform_directory', $object);
+        }
 		
 		$model = $this->getModel('directory');
 		$model->getDirectory();

@@ -52,7 +52,7 @@ defined('_JEXEC') or die('Restricted access');
 			<tr class="row<?php echo $k; ?>">
 				<td><input type="checkbox" onchange="updateCSVPreview();" name="ExportComponent[<?php echo $header; ?>]" id="header<?php echo $i; ?>" value="<?php echo $header; ?>" <?php echo $this->isHeaderEnabled($header, 0) ? 'checked="checked"' : ''; ?> /></td>
 				<td><label for="header<?php echo $i; ?>">
-					<?php if ($header == '_STATUS') echo JText::_('RSFP_PAYMENT_STATUS'); elseif ($header == '_ANZ_STATUS') echo JText::_('RSFP_ANZ_STATUS'); else echo $header; ?>
+					<?php echo $this->getHeaderLabel($header); ?>
 				</label></td>
 				<td><input type="text" onkeyup="updateCSVPreview();" style="text-align: center" name="ExportOrder[<?php echo $header; ?>]" value="<?php echo $i; ?>" size="3" /></td>
 			</tr>

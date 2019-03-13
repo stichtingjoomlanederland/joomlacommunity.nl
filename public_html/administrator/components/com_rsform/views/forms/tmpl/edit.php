@@ -7,7 +7,14 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-JFactory::getDocument()->addScript(JUri::root(true).'/administrator/components/com_rsform/assets/js/forms.js');
+JHtml::script('com_rsform/admin/forms.js', array('relative' => true, 'version' => 'auto'));
+JText::script('ERROR');
+JText::script('RSFP_SPECIFY_FORM_NAME');
+JText::script('RSFP_COMP_FIELD_VALIDATIONEXTRAREGEX');
+JText::script('RSFP_COMP_FIELD_VALIDATIONEXTRASAMEAS');
+JText::script('RSFP_COMP_FIELD_VALIDATIONEXTRA');
+JText::script('RSFP_REMOVE_COMPONENT_CONFIRM');
+JText::script('RSFP_AUTOGENERATE_LAYOUT_WARNING_SURE');
 ?>
 	<form action="index.php?option=com_rsform&amp;task=forms.edit&amp;formId=<?php echo $this->form->FormId; ?>" method="post" name="adminForm" id="adminForm">
 		<?php
@@ -20,11 +27,13 @@ JFactory::getDocument()->addScript(JUri::root(true).'/administrator/components/c
 		),
 		$this->loadTemplate('modal_body'));
 		?>
-		<span><?php echo $this->lists['Languages']; ?></span>
-		<span><?php echo JText::sprintf('RSFP_YOU_ARE_EDITING_IN', $this->lang, RSFormProHelper::translateIcon()); ?></span>
+        <?php if (!RSFormProHelper::getConfig('global.disable_multilanguage')) { ?>
+            <span><?php echo $this->lists['Languages']; ?></span>
+            <span><?php echo JText::sprintf('RSFP_YOU_ARE_EDITING_IN', $this->lang, RSFormProHelper::translateIcon()); ?></span>
+        <?php } ?>
 
 		<div id="rsform_container">
-			<div id="state" style="display: none;"><img src="components/com_rsform/assets/images/load.gif" alt="<?php echo JText::_('RSFP_PROCESSING'); ?>" /><?php echo JText::_('RSFP_PROCESSING'); ?></div>
+			<div id="state" style="display: none;"><?php echo JHtml::image('com_rsform/admin/load.gif', JText::_('RSFP_PROCESSING'), null, true); ?><?php echo JText::_('RSFP_PROCESSING'); ?></div>
 
 			<ul id="rsform_maintabs">
 				<li><a href="javascript: void(0);" id="components" class="btn"><span class="rsficon rsficon-grid"></span><span class="inner-text"><?php echo JText::_('RSFP_COMPONENTS_TAB_TITLE'); ?></span></a></li>
@@ -50,9 +59,11 @@ JFactory::getDocument()->addScript(JUri::root(true).'/administrator/components/c
 					<li><a href="javascript: void(0);" id="useremails"><span class="rsficon rsficon-envelope-o"></span><span class="inner-text"><?php echo JText::_('RSFP_USER_EMAILS'); ?></span></a></li>
 					<li><a href="javascript: void(0);" id="adminemails"><span class="rsficon rsficon-envelope"></span><span class="inner-text"><?php echo JText::_('RSFP_ADMIN_EMAILS'); ?></span></a></li>
 					<li><a href="javascript: void(0);" id="emails"><span class="rsficon rsficon-envelope-square"></span><span class="inner-text"><?php echo JText::_('RSFP_FORM_EMAILS'); ?></span></a></li>
+                    <li><a href="javascript: void(0);" id="deletionemail"><span class="rsficon rsficon-bell"></span><span class="inner-text"><?php echo JText::_('COM_RSFORM_FORM_DELETION_EMAIL'); ?></span></a></li>
 					<?php $this->triggerEvent('rsfp_bk_onAfterShowFormEmailsTabsTab'); ?>
 					<li class="rsform_navtitle"><?php echo JText::_('RSFP_SCRIPTS_TAB'); ?></li>
 					<li><a href="javascript: void(0);" id="scripts"><span class="rsficon rsficon-code"></span><span class="inner-text"><?php echo JText::_('RSFP_FORM_SCRIPTS'); ?></span></a></li>
+                    <li><a href="javascript: void(0);" id="beforescripts"><span class="rsficon rsficon-code"></span><span class="inner-text"><?php echo JText::_('RSFP_FORM_BEFORE_SCRIPTS'); ?></span></a></li>
 					<li><a href="javascript: void(0);" id="emailscripts"><span class="rsficon rsficon-file-code-o"></span><span class="inner-text"><?php echo JText::_('RSFP_EMAIL_SCRIPTS'); ?></span></a></li>
 					<?php $this->triggerEvent('rsfp_bk_onAfterShowFormScriptsTabsTab'); ?>
 					<li class="rsform_navtitle"><?php echo JText::_('RSFP_EXTRAS_TAB'); ?></li>
@@ -93,10 +104,16 @@ JFactory::getDocument()->addScript(JUri::root(true).'/administrator/components/c
 					<div id="emailsdiv">
 						<?php echo $this->loadTemplate('emails'); ?>
 					</div><!-- emails -->
+                    <div id="deletionemaildiv">
+                        <?php echo $this->loadTemplate('deletionemail'); ?>
+                    </div><!-- emails -->
 					<?php $this->triggerEvent('rsfp_bk_onAfterShowFormEmailsTabs'); ?>
 					<div id="scriptsdiv">
 						<?php echo $this->loadTemplate('scripts'); ?>
 					</div><!-- scripts -->
+                    <div id="beforescriptsdiv">
+                        <?php echo $this->loadTemplate('beforescripts'); ?>
+                    </div><!-- scripts -->
 					<div id="emailscriptsdiv">
 						<?php echo $this->loadTemplate('emailscripts'); ?>
 					</div><!-- emailscripts -->
@@ -162,16 +179,7 @@ JFactory::getDocument()->addScript(JUri::root(true).'/administrator/components/c
 			{
 				window.open('<?php echo JUri::root(); ?>index.php?option=com_rsform&view=rsform&formId=<?php echo $this->form->FormId; ?>');
 			}
-			else if (pressbutton == 'components.copy' || pressbutton == 'components.duplicate')
-			{
-				if (form.boxchecked.value == 0)
-				{
-					alert('<?php echo addslashes(JText::sprintf('RSFP_PLEASE_MAKE_SELECTION_TO', JText::_('RSFP_COPY'))); ?>');
-					return;
-				}
-				Joomla.submitform(pressbutton);
-			}
-			else if (pressbutton == 'components.remove' || pressbutton == 'components.publish' || pressbutton == 'components.unpublish' || pressbutton == 'components.save')
+			else if (pressbutton == 'components.remove' || pressbutton == 'components.publish' || pressbutton == 'components.unpublish' || pressbutton == 'components.save' || pressbutton == 'submissions.back' || pressbutton == 'forms.directory')
 			{
 				Joomla.submitform(pressbutton);
 			}
@@ -184,8 +192,13 @@ JFactory::getDocument()->addScript(JUri::root(true).'/administrator/components/c
 				}
 				
 				// do field validation
-				if (document.getElementById('FormName').value == '') {
-					alert('<?php echo JText::_('RSFP_SPECIFY_FORM_NAME', true);?>');
+				if (document.getElementById('FormName').value == '')
+				{
+                    jQuery("#properties").click();
+                    jQuery("#editform").click();
+                    var messages = {"error": []};
+                    messages.error.push(Joomla.JText._('RSFP_SPECIFY_FORM_NAME'));
+                    Joomla.renderMessages(messages);
 				} else {
 					if (RSFormPro.$('#properties').hasClass('btn-primary')) {
 						document.getElementById('tabposition').value = 1;
@@ -194,77 +207,6 @@ JFactory::getDocument()->addScript(JUri::root(true).'/administrator/components/c
 				}
 			}
 		};
-		
-		function validateEmailFields() {
-			var fields = [
-				'UserEmailFrom', 'UserEmailTo', 'UserEmailReplyTo', 'UserEmailCC', 'UserEmailBCC',
-				'AdminEmailFrom', 'AdminEmailTo', 'AdminEmailReplyTo', 'AdminEmailCC', 'AdminEmailBCC'
-			];
-			
-			var result = true;
-			var fieldName, field, fieldValue, values, value, match;
-			var pattern = /{.*?}/g;
-			
-			for (var i = 0; i < fields.length; i++) {
-				// Grab field name from array
-				fieldName 	= fields[i];
-				field 		= document.getElementById(fieldName);
-				// Grab value
-				fieldValue 	= field.value;
-				
-				RSFormPro.$(field).removeClass('rs_error_field');
-				
-				// Something's been typed in
-				if (fieldValue.length > 0) {
-					// Check for multiple values
-					values = fieldValue.split(',');
-					
-					for (var v = 0; v < values.length; v++) {
-						value = values[v].replace(/^\s+|\s+$/gm,'');
-						
-						// Has placeholder
-						hasPlaceholder = value.indexOf('{') > -1 && value.indexOf('}') > -1;
-						
-						// Defaults to false, the code below will actually check the placeholder
-						wrongPlaceholder = false;
-						
-						// Let's take into account multiple placeholders
-						if (hasPlaceholder) {
-							do {
-								match = pattern.exec(value);
-								if (match && typeof match[0] != 'undefined') {
-									// Wrong placeholder
-									if (RSFormPro.Placeholders.indexOf(match[0]) == -1) {
-										wrongPlaceholder = true;
-									}
-								}
-							} while (match);
-						}
-						
-						// Not an email
-						notAnEmail = !hasPlaceholder && value.indexOf('@') == -1;
-						// A situation where we have a wrong delimiter thus ending up in multiple @ addresses
-						wrongDelimiter = !hasPlaceholder && (value.match(/@/g) || []).length > 1;
-						
-						if (wrongPlaceholder || notAnEmail || wrongDelimiter) {
-							// Switch to the correct tab only on the first error
-							if (result == true) {
-								RSFormPro.$('#properties').click();
-								if (fieldName.indexOf('User') > -1) {
-									RSFormPro.$('#useremails').click();
-								} else {
-									RSFormPro.$('#adminemails').click();
-								}
-							}
-							RSFormPro.$(field).addClass('rs_error_field');
-							result = false;
-						}
-					}
-				}
-			}
-			
-			return result;
-		}
 
 		function listItemTask(cb, task)
 		{
@@ -344,27 +286,6 @@ JFactory::getDocument()->addScript(JUri::root(true).'/administrator/components/c
 			}
 		}
 
-		function orderMapping(mp, task)
-		{
-			if (task == 'orderdown' || task == 'orderup')
-			{
-				var table = RSFormPro.$('#mappingTable');
-				currentRow = RSFormPro.$(document.getElementById(mp)).parent().parent();
-				if (task == 'orderdown')
-				{
-					try { currentRow.insertAfter(currentRow.next()); }
-					catch (dnd_e) { }
-				}
-				if (task == 'orderup')
-				{
-					try { currentRow.insertBefore(currentRow.prev()); }
-					catch (dnd_e) { }
-				}
-
-				tidyOrderMp(true);
-			}
-		}
-
 		function saveorder(num, task)
 		{
 			tidyOrder(true);
@@ -381,83 +302,12 @@ JFactory::getDocument()->addScript(JUri::root(true).'/administrator/components/c
 			return quickfields;
 		}
 
-		function enableAttachFile(value)
-		{
-			if (value == 1)
-			{
-				document.getElementById('rsform_select_file').style.display = '';
-				document.getElementById('UserEmailAttachFile').disabled = false;
-			}
-			else
-			{
-				document.getElementById('rsform_select_file').style.display = 'none';
-				document.getElementById('UserEmailAttachFile').disabled = true;
-			}
-		}
-
 		function enableEmailMode(type, value)
 		{
 			var opener = type == 'User' ? 'UserEmailText' : 'AdminEmailText';
 			var id = type == 'User' ? 'rsform_edit_user_email' : 'rsform_edit_admin_email';
-			// HTML
-			if (value == 1)
-			{
-				document.getElementById(id).setAttribute('onclick', "openRSModal('index.php?option=com_rsform&task=richtext.show&opener=" + opener + "&formId=<?php echo $this->form->FormId; ?>&tmpl=component')");
-			}
-			// Text
-			else
-			{
-				document.getElementById(id).setAttribute('onclick', "openRSModal('index.php?option=com_rsform&task=richtext.show&opener=" + opener + "&formId=<?php echo $this->form->FormId; ?>&tmpl=component&noEditor=1')");
-			}
-		}
 
-		function enableThankyou(value)
-		{
-			if (value == 1)
-			{
-				document.getElementById('showContinueContainer').style.display = 'table-row';
-				document.getElementById('systemMessageContainer').style.display = 'none';
-
-				if (document.getElementById('ScrollToThankYou0').checked)
-				{
-					document.getElementById('thankyouMessagePopupContainer').style.display = 'table-row';
-				}
-			}
-			else
-			{
-				document.getElementById('showContinueContainer').style.display = 'none';
-				document.getElementById('systemMessageContainer').style.display = 'table-row';
-				
-				document.getElementById('thankyouMessagePopupContainer').style.display = 'none';
-			}
-		}
-		
-		function enableThankyouPopup(value)
-		{
-			if (value == 0)
-			{
-				if (document.getElementById('ShowThankyou1').checked)
-				{
-					document.getElementById('thankyouMessagePopupContainer').style.display = 'table-row';
-				}
-			}
-			else
-			{
-				if (document.getElementById('ShowThankyou1').checked)
-				{
-					document.getElementById('thankyouMessagePopupContainer').style.display = 'none';
-				}
-			}
-		}
-
-		function RStranslateText(thetext)
-		{
-			if (thetext == 'regex')
-				return '<?php echo JText::_('RSFP_COMP_FIELD_VALIDATIONEXTRAREGEX', true); ?>';
-			else if (thetext == 'sameas')
-				return '<?php echo JText::_('RSFP_COMP_FIELD_VALIDATIONEXTRASAMEAS', true); ?>';
-			else
-				return '<?php echo JText::_('RSFP_COMP_FIELD_VALIDATIONEXTRA', true); ?>';
+            document.getElementById(id).setAttribute('onclick', "openRSModal('index.php?option=com_rsform&task=richtext.show&opener=" + opener + "&formId=<?php echo $this->form->FormId; ?>&tmpl=component" + (value < 1 ? '&noEditor=1' : '') + "')");
 		}
 
 		toggleQuickAdd();

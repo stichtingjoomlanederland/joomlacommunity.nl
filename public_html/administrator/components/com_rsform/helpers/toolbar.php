@@ -15,12 +15,27 @@ abstract class RSFormProToolbarHelper
 		
 		// add toolbar entries
 		// overview
-		self::addEntry('MANAGE_FORMS', 'index.php?option=com_rsform&view=forms', $view == 'forms');
-		self::addEntry('MANAGE_SUBMISSIONS', 'index.php?option=com_rsform&view=submissions', $view == 'submissions');
-		self::addEntry('MANAGE_DIRECTORY_SUBMISSIONS', 'index.php?option=com_rsform&view=directory', $view == 'directory');
-		self::addEntry('CONFIGURATION', 'index.php?option=com_rsform&view=configuration', $view == 'configuration');
-		self::addEntry('BACKUP_RESTORE', 'index.php?option=com_rsform&view=backuprestore', $view == 'backuprestore');
-		self::addEntry('UPDATES', 'index.php?option=com_rsform&view=updates', $view == 'updates');
+        $user = JFactory::getUser();
+        if ($user->authorise('forms.manage', 'com_rsform'))
+        {
+            self::addEntry('MANAGE_FORMS', 'index.php?option=com_rsform&view=forms', $view == 'forms');
+        }
+        if ($user->authorise('submissions.manage', 'com_rsform'))
+        {
+            self::addEntry('MANAGE_SUBMISSIONS', 'index.php?option=com_rsform&view=submissions', $view == 'submissions');
+        }
+        if ($user->authorise('directory.manage', 'com_rsform'))
+        {
+            self::addEntry('MANAGE_DIRECTORY_SUBMISSIONS', 'index.php?option=com_rsform&view=directory', $view == 'directory');
+        }
+        if ($user->authorise('core.admin', 'com_rsform'))
+        {
+            self::addEntry('CONFIGURATION', 'index.php?option=com_rsform&view=configuration', $view == 'configuration');
+        }
+        if ($user->authorise('backuprestore.manage', 'com_rsform'))
+        {
+            self::addEntry('BACKUP_RESTORE', 'index.php?option=com_rsform&view=backuprestore', $view == 'backuprestore');
+        }
 	}
 	
 	protected static function addEntry($lang_key, $url, $default = false) {

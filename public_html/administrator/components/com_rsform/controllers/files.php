@@ -28,9 +28,9 @@ class RsformControllerFiles extends RsformController
 		$file 	= $model->getUploadFile();
 		
 		if ($result) {
-			$msg = sprintf('Successfully uploaded %s!', $file);
+			$msg = JText::sprintf('COM_RSFORM_SUCCESSFULLY_UPLOADED', $file);
 		} else {
-			$msg = sprintf('Failed to upload %s in %s', $file, $folder);
+            $msg = JText::sprintf('COM_RSFORM_FAILED_TO_UPLOAD_IN', $file, $folder);
 		}
 		
 		$this->setRedirect('index.php?option=com_rsform&controller=files&task=display&folder='.urlencode($folder).'&tmpl=component', $msg);

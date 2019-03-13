@@ -15,34 +15,29 @@ $mainframe = JFactory::getApplication();
 		<tr>
 			<th></th>
 			<th align="center" class="center">
-				<label class="checkbox inline" for="dirviewablecheck"><b><?php echo JText::_('RSFP_SUBM_DIR_LISTING'); ?></b> <input type="checkbox" id="dirviewablecheck" onclick="rsfp_SelectAll('dirviewable')" title="<?php echo JText::_('JGLOBAL_CHECK_ALL'); ?>" /> </label>
+				<label class="checkbox inline" for="dirviewablecheck"><b><?php echo JText::_('RSFP_SUBM_DIR_LISTING'); ?></b> <input type="checkbox" id="dirviewablecheck" onclick="dirSelectAll('dirviewable')" title="<?php echo JText::_('JGLOBAL_CHECK_ALL'); ?>" /> </label>
 			</th>
 			<th align="center" class="center">
-				<label class="checkbox inline" for="dirsearchablecheck"><b><?php echo JText::_('RSFP_SUBM_DIR_SEARCHABLE'); ?></b><input type="checkbox" id="dirsearchablecheck" onclick="rsfp_SelectAll('dirsearchable')" title="<?php echo JText::_('JGLOBAL_CHECK_ALL'); ?>" /> </label>
+				<label class="checkbox inline" for="dirsearchablecheck"><b><?php echo JText::_('RSFP_SUBM_DIR_SEARCHABLE'); ?></b><input type="checkbox" id="dirsearchablecheck" onclick="dirSelectAll('dirsearchable')" title="<?php echo JText::_('JGLOBAL_CHECK_ALL'); ?>" /> </label>
 			</th>
 			<th align="center" class="center">
-				<label class="checkbox inline" for="direditablecheck"><b><?php echo JText::_('RSFP_SUBM_DIR_EDITABLE'); ?></b><input type="checkbox" id="direditablecheck" onclick="rsfp_SelectAll('direditable')" title="<?php echo JText::_('JGLOBAL_CHECK_ALL'); ?>" /> </label>
+				<label class="checkbox inline" for="direditablecheck"><b><?php echo JText::_('RSFP_SUBM_DIR_EDITABLE'); ?></b><input type="checkbox" id="direditablecheck" onclick="dirSelectAll('direditable')" title="<?php echo JText::_('JGLOBAL_CHECK_ALL'); ?>" /> </label>
 			</th>
 			<th align="center" class="center">
-				<label class="checkbox inline" for="dirindetailscheck"><b><?php echo JText::_('RSFP_SUBM_DIR_IN_DETAILS'); ?></b><input type="checkbox" id="dirindetailscheck" onclick="rsfp_SelectAll('dirindetails')" onchange="rsfp_autogenerate();" title="<?php echo JText::_('JGLOBAL_CHECK_ALL'); ?>" /> </label>
+				<label class="checkbox inline" for="dirindetailscheck"><b><?php echo JText::_('RSFP_SUBM_DIR_IN_DETAILS'); ?></b><input type="checkbox" id="dirindetailscheck" onclick="dirSelectAll('dirindetails')" onchange="dirAutoGenerate();" title="<?php echo JText::_('JGLOBAL_CHECK_ALL'); ?>" /> </label>
 			</th>
 			<th align="center" class="center">
-				<label class="checkbox inline" for="dirincsvcheck"><b><?php echo JText::_('RSFP_SUBM_DIR_IN_CSV'); ?></b><input type="checkbox" id="dirincsvcheck" onclick="rsfp_SelectAll('dirincsv')" title="<?php echo JText::_('JGLOBAL_CHECK_ALL'); ?>" /> </label>
+				<label class="checkbox inline" for="dirincsvcheck"><b><?php echo JText::_('RSFP_SUBM_DIR_IN_CSV'); ?></b><input type="checkbox" id="dirincsvcheck" onclick="dirSelectAll('dirincsv')" title="<?php echo JText::_('JGLOBAL_CHECK_ALL'); ?>" /> </label>
 			</th>
 		</tr>
 	</thead>
 	<?php
 	foreach ($this->fields as $field) {
-	$mainframe->triggerEvent('rsfp_on_b_ManageDirectoriesDecideEditable', array(&$field));
-
+	    $mainframe->triggerEvent('rsfp_on_b_ManageDirectoriesDecideEditable', array(&$field));
 	?>
 	<tr>
 		<td width="15%" nowrap="nowrap" align="right">
-			<?php if ($field->componentId < 0) { ?>
-				<?php echo JText::sprintf('RSFP_DIRECTORY_SUBMISSION_HEADER', $field->FieldName); ?>
-			<?php } else { ?>
-				<?php echo $field->FieldName; ?>
-			<?php } ?>
+			<?php echo $this->escape($this->getHeaderLabel($field)); ?>
 			<input type="hidden" name="dirorder[]" value="<?php echo $field->ordering; ?>" />
 			<input type="hidden" name="dircid[]" value="<?php echo $field->FieldId; ?>" />
 		</td>
@@ -60,7 +55,7 @@ $mainframe = JFactory::getApplication();
 			<?php } ?>
 		</td>
 		<td align="center" class="center">
-			<input type="checkbox" name="dirindetails[]" onchange="rsfp_autogenerate();" <?php echo $field->indetails ? 'checked="checked"' : ''; ?> value="<?php echo $field->FieldId; ?>" />
+			<input type="checkbox" name="dirindetails[]" onchange="dirAutoGenerate();" <?php echo $field->indetails ? 'checked="checked"' : ''; ?> value="<?php echo $field->FieldId; ?>" />
 		</td>
 		<td align="center" class="center">
 			<input type="checkbox" name="dirincsv[]" <?php echo $field->incsv ? 'checked="checked"' : ''; ?> value="<?php echo $field->FieldId; ?>" />

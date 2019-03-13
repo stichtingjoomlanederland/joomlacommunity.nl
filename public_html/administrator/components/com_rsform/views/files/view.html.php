@@ -11,6 +11,11 @@ class RsformViewFiles extends JViewLegacy
 {
 	public function display($tpl = null)
 	{
+        if (!JFactory::getUser()->authorise('forms.manage', 'com_rsform'))
+        {
+            throw new Exception(JText::_('COM_RSFORM_NOT_AUTHORISED_TO_USE_THIS_SECTION'));
+        }
+
 		$this->canUpload 	= $this->get('canUpload');
 		$this->files 		= $this->get('files');
 		$this->folders 		= $this->get('folders');
