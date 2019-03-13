@@ -1,4 +1,83 @@
 <?php die() ?>
+Admin Tools 5.3.0
+================================================================================
++ Protection of all component and plugin folders against direct web access
++ Disable access to backend users who haven't logged in for a long time (gh-188)
++ Updated default list of blocked User Agents
++ Joomla! 4 alpha 7 compatibility
+~ Added PHP malware samples in the PHP File Change Scanner
+# [LOW] Failed Login log entries would be deleted on upgrade even if they don't contained plaintext passwords
+
+Admin Tools 5.2.1
+================================================================================
++ Mark All as Safe button in the PHP File Change Scanner report viewer
+# [MEDIUM] Super User list not cleared on deactivating the Monitor Super Users feature, requiring you to edit every Super User added in the meantime after re-enabling the feature
+# [LOW] Fixed a fatal error if a security exception is triggered in the backend while using HTML templates
+# [LOW] PHP File Change Scanner page: Possible Threats column included "Marked as Safe" files.
+# [LOW] PHP File Change Scanner, Examine file view: pressing Cancel took you to a page with no records displayed
+
+Admin Tools 5.2.0
+================================================================================
++ Referrer Policy option for web.config Maker
++ Referrer Policy option for NginX Conf Maker
++ Rescue URL will tell you if you are using the wrong email address
++ Administrator IP whitelist, Never Block these IPs: you can now add dynamic IP domain names instead of IPs by prefixing them with @.
+~ "Disable editing backend users' properties" will now let Joomla! 3.9 privacy consent to go through
+~ "Forbid frontend Super Administrator login" will now let Joomla! 3.9 privacy consent to go through
+~ Detect if the GeoIP Provider plugin was installed and then deleted but not uninstalled.
+~ Cosmetic improvements to the PHP File Change Scanner progress modal
+# [HIGH] NginX Conf Maker rules removed URL queries from requests without index.php in them
+# [MEDIUM] Feature Monitor Critical Files was not working
+# [MEDIUM] Monitor specific files feature was working only with the last item of the list
+# [LOW] PHP 7.3 warning in the Control Panel page
+# [LOW] URL Redirection required you to enter the subdirectory path when your site is located in a subdirectory instead of a path relative to the site's root URL. This made redirections non-portable.
+# [LOW] Fixed JavaScript issues when Content-Security-Policy header is missing the unsafe-eval value
+# [LOW] Missing filtering option in the Security Exception Logs page
+
+Admin Tools 5.1.4
+================================================================================
++ PHPShield feature now will block additional stream wrappers
+- Remove IP workarounds "recommended setting" notice due to high rate of false detections
+~ Removed legacy menu params that could cause issues with future versions of Joomla! (3.9 and later)
+~ web.config Maker: add automatic dynamic compression of XML, XHTML and RSS documents
+# [MEDIUM] The feature to check for leaked passwords was enabled for every user group, ignoring the settings
+# [MEDIUM] HTTP Referer Policy language strings were untranslated because of the use of an extra "R" in the code
+# [LOW] User re-activation email always displays the username as "Guest"
+# [LOW] Options requiring .htaccess support shown to IIS and NginX users
+# [LOW] web.config Maker: "Remove Apache and PHP version signature" causes a server error
+
+Admin Tools 5.1.3
+================================================================================
+# [HIGH] IP Workarounds were always enabled
+# [LOW] Control Panel graphs do not display on Safari due to Safari's quirky JavaScript date parsing
+# [LOW] Admin Tools proposed secret URL parameter may start with a number
+# [LOW] Prevent a security exception when the secret param is used and we're explicitly logging out
+
+Admin Tools 5.1.2
+================================================================================
+! .htaccess Maker's front-end protection causes 403 errors (regression introduced in 5.1.1)
+
+Admin Tools 5.1.1
+================================================================================
+# [HIGH] .htaccess Maker's front-end protection breaks sites using SEF URLs without URL rewrite, causing all URLs to report a 403 Forbidden error
+# [MEDIUM] Fixed file scanning when file is inaccessible due to open_basedir restrictions
+# [LOW] Grant access to robots.txt file when .htaccess Maker is used
+
+Admin Tools 5.1.0
+================================================================================
++ Added feature to manually unblock a specific IP
++ Added option to choose if Admin Tools should write the log file or not (required by GDPR)
++ Added option to allow only specific email domains during user registration
++ Added feature to check if user password is inside any dictionary of leaked passwords. This feature is disabled by default.
+- Removed the option to log failed passwords. This could be a security risk since the information is stored unencrypted in the security exceptions database table.
+~ Changed the debug log file type to .php. READ THE DOCUMENTATION. This may have implications on your host.
+# [HIGH] .htaccess Maker does not block access to static media files for front-end directories which are not listed under "Frontend directories where file type exceptions are allowed"
+# [MEDIUM] Critical Files Monitor feature was not enabled due to a SQL error
+# [MEDIUM] Missing reason for Critical Files Monitor inside WAF Email Templates configuration
+# [MEDIUM] Fixed blocking non authorized IPs in Emergency Offline Mode
+# [LOW] Fixed default values for 404 Shield feature
+# [LOW] Copy doesn't work in Redirect URL
+
 Admin Tools 5.0.2
 ================================================================================
 # [HIGH] .htaccess Maker causes 500 error on Apache 2.4 if mod_filter is not loaded and you enable the "Automatically compress static resources" feature

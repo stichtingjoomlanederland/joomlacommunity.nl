@@ -22,6 +22,8 @@ class RsformControllerMappings extends RsformController
 			'password' 	 => $input->get('password', '', 'raw'),
 			'database'   => $input->get('database', '', 'raw')
 		);
+
+		$html = '';
 		
 		try {
 			$tables = $model->getTables($config);
@@ -41,9 +43,7 @@ class RsformControllerMappings extends RsformController
 				$html = '<table class="admintable">
 							<tr>
 								<td width="160" style="width: 160px;" align="right" class="key">'.JText::_('RSFP_FORM_MAPPINGS_TABLE').'</td>
-								<td>
-									'.JHtml::_('select.genericlist',  $mtables, 'table', 'class="inputbox" onchange="mpColumns(this.value)"', 'value', 'text').'
-								<img id="mappingloader2" src="'.JUri::root(true).'/administrator/components/com_rsform/assets/images/loading.gif" style="vertical-align: middle; display: none;" /></td>
+								<td>' . JHtml::_('select.genericlist',  $mtables, 'table', 'class="inputbox" onchange="mpColumns(this.value)"', 'value', 'text') . JHtml::image('com_rsform/admin/loading.gif', '', 'id="mappingloader2" style="vertical-align: middle; display: none;"',true) . '</td>
 							</tr>
 						</table>';
 			}

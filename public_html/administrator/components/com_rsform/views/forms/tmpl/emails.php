@@ -10,18 +10,20 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <form method="post" action="index.php?option=com_rsform" name="adminForm" id="adminForm" class="com-rsform-padding">
 <p>
-	<button class="btn btn-success pull-left" type="button" onclick="submitform('emails.apply');"><?php echo JText::_('JAPPLY'); ?></button>
-	<button class="btn btn-success pull-left" type="button" onclick="submitform('emails.save');"><?php echo JText::_('JSAVE'); ?></button>
+	<button class="btn btn-success pull-left" type="button" onclick="Joomla.submitbutton('emails.apply');"><?php echo JText::_('JAPPLY'); ?></button>
+	<button class="btn btn-success pull-left" type="button" onclick="Joomla.submitbutton('emails.save');"><?php echo JText::_('JSAVE'); ?></button>
 	<button class="btn pull-left" type="button" onclick="window.close();"><?php echo JText::_('JCANCEL'); ?></button>
 </p>
 <span class="rsform_clear_both"></span>
 <fieldset class="form-horizontal">
 <h3 class="rsfp-legend"><?php echo JText::_('RSFP_FORM_EMAILS_NEW'); ?></h3>
-<?php if ($this->row->id) { ?>
-	<span><?php echo $this->lists['Languages']; ?></span><span><?php echo JText::sprintf('RSFP_YOU_ARE_EDITING_IN', $this->lang, RSFormProHelper::translateIcon()); ?></span>
-<?php } else { ?>
-	<?php echo JText::sprintf('RSFP_YOU_ARE_EDITING_IN', $this->lang, RSFormProHelper::translateIcon()); ?>
-<?php } ?>
+    <?php if (!RSFormProHelper::getConfig('global.disable_multilanguage')) { ?>
+        <?php if ($this->row->id) { ?>
+            <span><?php echo $this->lists['Languages']; ?></span><span><?php echo JText::sprintf('RSFP_YOU_ARE_EDITING_IN', $this->lang, RSFormProHelper::translateIcon()); ?></span>
+        <?php } else { ?>
+            <?php echo JText::sprintf('RSFP_YOU_ARE_EDITING_IN', $this->lang, RSFormProHelper::translateIcon()); ?>
+        <?php } ?>
+    <?php } ?>
 <h3 class="rsfp-legend"><?php echo JText::_('RSFP_EMAILS_LEGEND_SENDER'); ?></h3>
 <table width="100%" class="com-rsform-table-props">
 	<tr>

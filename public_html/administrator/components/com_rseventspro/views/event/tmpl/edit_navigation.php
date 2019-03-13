@@ -9,9 +9,15 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 <ul id="rsepro-edit-menu" class="nav nav-tabs">
 	<li><a href="javascript:void(0);" data-toggle="modal" data-target="#rsepro-edit-event-photo" class="center" onclick="rsepro_reset_frame();"><?php echo $this->loadTemplate('icon'); ?></a></li>
 	
-	<li class="active"><a href="javascript:void(0);" data-target="#rsepro-edit-tab1" data-toggle="tab"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TAB_CREATE'); ?> <span class="fa fa-flag"></span></a></li>
+	<?php if ($this->item->completed) { ?>
+	<li><a href="javascript:void(0);" data-target="#rsepro-edit-tabd" data-toggle="tab"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TAB_DASHBOARD'); ?> <span class="fa fa-tachometer"></span></a></li>
+	<?php } ?>
+	
+	<li class="<?php if (!$this->tab) echo 'active'; ?>"><a href="javascript:void(0);" data-target="#rsepro-edit-tab1" data-toggle="tab"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TAB_CREATE'); ?> <span class="fa fa-flag"></span></a></li>
 	
 	<li><a href="javascript:void(0);" data-target="#rsepro-edit-tab2" data-toggle="tab"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TAB_CATEGORIES'); ?> <span class="fa fa-tag"></span></a></li>
+	
+	<li class="rsepro-hide"<?php echo $this->item->rsvp ? ' style="display:block;"' : ''; ?>><a href="javascript:void(0);" data-target="#rsepro-edit-tabrsvp" data-toggle="tab"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TAB_RSVP'); ?>  <span class="fa fa-calendar"></span></a></li>
 	
 	<li class="rsepro-hide"<?php echo $this->item->registration ? ' style="display:block;"' : ''; ?>><a href="javascript:void(0);" data-target="#rsepro-edit-tab3" data-toggle="tab"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TAB_REGISTRATION'); ?>  <span class="fa fa-calendar"></span></a></li>
 	
@@ -19,7 +25,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	
 	<?php if ($this->tickets) { ?>
 	<?php foreach ($this->tickets as $ticket) { ?>
-	<li class="rsepro-ticket rsepro-hide"<?php echo $this->item->registration ? ' style="display:block;"' : ''; ?> id="ticket_<?php echo $ticket->id; ?>"><a href="javascript:void(0);" data-target="#rsepro-edit-ticket<?php echo $ticket->id; ?>" data-toggle="tab"><?php echo $ticket->name; ?></a></li>
+	<li class="rsepro-ticket rsepro-hide"<?php echo $this->item->registration ? ' style="display:block;"' : ''; ?> id="ticket_<?php echo $ticket->id; ?>"><a href="javascript:void(0);" data-target="#rsepro-edit-ticket<?php echo $ticket->id; ?>" data-toggle="tab"><?php echo $ticket->name; ?> <span class="fa fa-ticket"></span></a></li>
 	<?php }} ?>
 	
 	<?php JFactory::getApplication()->triggerEvent('rsepro_addMenuOptionRegistration'); ?>

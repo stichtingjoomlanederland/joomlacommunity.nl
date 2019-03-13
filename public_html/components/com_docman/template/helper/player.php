@@ -30,11 +30,6 @@ class ComDocmanTemplateHelperPlayer extends ComFilesTemplateHelperPlayer
             $html = $this->_renderVimeo($document);
         }
 
-        // Bypass leads plugin on players
-        if ($this->getObject('manager')->getClass('plg:docman.leads')) {
-            $document->download_link .= (strpos($document->download_link, '?') === false ? '?' : '&').'download=1';
-        }
-
         if ($this->_isAudio($document)) {
             $html = $this->_renderAudio($document);
         }
@@ -85,12 +80,21 @@ class ComDocmanTemplateHelperPlayer extends ComFilesTemplateHelperPlayer
      */
     protected function _getYoutubeId($document)
     {
-        $url = parse_url($document->storage->path, PHP_URL_QUERY);
+        $url = parse_url($document->storage->path);
 
-        parse_str($url, $result);
+        if ($url)
+        {
+            if ($url['host'] === 'youtu.be') {
+                return trim($url['path'], '/');
+            }
+            elseif (isset($url['query']))
+            {
+                parse_str($url['query'], $result);
 
-        if (array_key_exists('v', $result)) {
-            return $result['v'];
+                if (array_key_exists('v', $result)) {
+                    return $result['v'];
+                }
+            }
         }
 
         return '';

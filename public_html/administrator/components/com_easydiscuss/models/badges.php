@@ -1,55 +1,26 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
 defined('_JEXEC') or die('Restricted access');
 
 require_once dirname( __FILE__ ) . '/model.php';
 
 class EasyDiscussModelBadges extends EasyDiscussAdminModel
 {
-	/**
-	 * Blogs data array
-	 *
-	 * @var array
-	 */
 	public $_data = null;
-
-	/**
-	 * Pagination object
-	 *
-	 * @var object
-	 */
 	public $_pagination = null;
-
-	/**
-	 * Configuration data
-	 *
-	 * @var int	Total number of rows
-	 **/
 	public $_total;
-
-	/**
-	 * Parent ID
-	 *
-	 * @var integer
-	 */
 	public $_parent	= null;
-	public $_isaccept	= null;
+	public $_isaccept = null;
 
-	/**
-	 * Constructor
-	 *
-	 * @since 1.5
-	 */
 	public function __construct()
 	{
 		parent::__construct();
@@ -86,6 +57,32 @@ class EasyDiscussModelBadges extends EasyDiscussAdminModel
 		}
 
 		return true;
+	}
+
+	/**
+	 * Determine whether this user have any badges or not
+	 *
+	 * @since	4.1.2
+	 * @access	public
+	 */
+	public function hasUserBadges($userId)
+	{
+		if (!$userId) {
+			return false;
+		}
+
+		$db = $this->db;
+
+		$query = "select count(1) from `#__discuss_badges_users` as a";
+		$query .= " inner join `#__discuss_badges` as b on a.badge_id = b.id";
+		$query .= " where a.`published` = 1";
+		$query .= " and a.`user_id` = " . $db->Quote($userId);
+		$query .= " and b.`published` = 1";
+
+		$db->setQuery($query);
+		$result = $db->loadColumn();
+
+		return $result ? true : false;
 	}
 
 	/**
@@ -159,56 +156,53 @@ class EasyDiscussModelBadges extends EasyDiscussAdminModel
 		return $query;
 	}
 
-	public function _buildQueryWhere( $exclusion = false )
+	public function _buildQueryWhere($exclusion = false)
 	{
-		$db				= DiscussHelper::getDBO();
+		$db	= ED::db();
 
-		$filter_state	= $this->app->getUserStateFromRequest( 'com_easydiscuss.badges.filter_state', 'filter_state', '', 'word' );
-		$search			= $this->app->getUserStateFromRequest( 'com_easydiscuss.badges.search', 'search', '', 'string' );
-		$search			= $db->getEscaped( trim(JString::strtolower( $search ) ) );
+		$filter_state = $this->app->getUserStateFromRequest('com_easydiscuss.badges.filter_state', 'filter_state', '', 'word');
+		$search	= $this->app->getUserStateFromRequest('com_easydiscuss.badges.search', 'search', '', 'string');
+		$search = $db->getEscaped(trim(JString::strtolower($search)));
 
 		$where = array();
 
-		if ( $filter_state )
-		{
-			if ( $filter_state == 'P' )
-			{
-				$where[] = $db->nameQuote( 'a.published' ) . '=' . $db->Quote( '1' );
-			}
-			else if ($filter_state == 'U' )
-			{
-				$where[] = $db->nameQuote( 'a.published' ) . '=' . $db->Quote( '0' );
+		if ($filter_state) {
+
+			if ($filter_state == 'published') {
+				$where[] = $db->nameQuote('a.published') . '=' . $db->Quote('1');
+
+			} else if ($filter_state == 'unpublished') {
+				$where[] = $db->nameQuote('a.published') . '=' . $db->Quote('0');
 			}
 		}
 
-		if ($search)
-		{
+		if ($search) {
 			$where[] = ' LOWER( a.title ) LIKE \'%' . $search . '%\' ';
 		}
 
-		$exclusion	= trim( $exclusion );
+		$exclusion	= trim($exclusion);
 
-		if( $exclusion )
-		{
-			$exclusion 	= explode( ',' , $exclusion );
+		if ($exclusion) {
 
-			$query	= ' a.' . $db->nameQuote( 'id' ) . ' NOT IN(';
+			$exclusion = explode(',', $exclusion);
 
-			for( $i = 0; $i < count( $exclusion); $i++ )
-			{
-				$query	.= $db->Quote( $exclusion[ $i ] );
+			$query = ' a.' . $db->nameQuote( 'id' ) . ' NOT IN(';
 
-				if( next( $exclusion ) !== false )
-				{
-					$query	.= ',';
+			for ($i = 0; $i < count($exclusion); $i++) {
+
+				$query .= $db->Quote($exclusion[$i]);
+
+				if (next($exclusion) !== false) {
+					$query .= ',';
 				}
 			}
-			$query 	.= ')';
 
-			$where[]	= $query;
+			$query .= ')';
+
+			$where[] = $query;
 		}
 
-		$where 		= count( $where ) ? ' WHERE ' . implode( ' AND ', $where ) : '' ;
+		$where = count($where) ? ' WHERE ' . implode(' AND ', $where) : '';
 
 		return $where;
 	}
@@ -291,7 +285,7 @@ class EasyDiscussModelBadges extends EasyDiscussAdminModel
 	public function getBadgesByCommand($command, $userId)
 	{
 		$db = $this->db;
-		
+
 		$query = array();
 
 		$query[] = 'SELECT * from `#__discuss_badges`';

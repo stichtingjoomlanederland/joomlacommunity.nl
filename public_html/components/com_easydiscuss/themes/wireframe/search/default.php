@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="ed-search-results t-lg-mt--lg">
 
-	<?php echo $this->output('site/search/inputs', array('query' => $query, 'tagFilters' => $tagFilters, 'catFilters' => $catFilters)); ?>
+	<?php echo $this->output('site/search/inputs', array('query' => $query, 'tagFilters' => $tagFilters, 'catFilters' => $catFilters, 'postTypes' => $postTypes)); ?>
 
 	<?php if ($posts) { ?>
 		<div role="alert" class="o-alert o-alert--info">

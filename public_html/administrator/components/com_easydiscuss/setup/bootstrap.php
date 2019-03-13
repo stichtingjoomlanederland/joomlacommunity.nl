@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -18,27 +18,21 @@ jimport('joomla.filesystem.folder');
 $app = JFactory::getApplication();
 $input = $app->input;
 
-// Ensure that the Joomla sections don't appear.
 $input->set('tmpl', 'component');
 
-// Determines if the current mode is re-install
 $reinstall = $input->get('reinstall', false, 'bool') || $input->get('install', false, 'bool');
-
-// If the mode is update, we need to get the latest version
 $update = $input->get('update', false, 'bool');
-
-// Determines if we are now in developer mode.
 $developer = $input->get('developer', false, 'bool');
 
 ############################################################
 #### Constants
 ############################################################
 $path = dirname(__FILE__);
-define('ED_EXTENSION', 'easydiscuss');
+
+define('ED_IDENTIFIER', 'com_easydiscuss');
 define('ED_PACKAGES', $path . '/packages');
 define('ED_CONFIG', $path . '/config');
 define('ED_THEMES', $path . '/themes');
-define('ED_LIB', $path . '/libraries');
 define('ED_CONTROLLERS', $path . '/controllers');
 define('ED_SERVER', 'https://stackideas.com');
 define('ED_VERIFIER', 'https://stackideas.com/updater/verify');
@@ -47,6 +41,10 @@ define('ED_SETUP_URL', JURI::base() . 'components/com_easydiscuss/setup');
 define('ED_TMP', $path . '/tmp');
 define('ED_BETA', false);
 define('ED_KEY', 'be5367700e2f4d3d834bb8803ab67f56');
+define('ED_INSTALLER', 'full');
+
+// Only when ED_PACKAGE is running on full package, the ED_PACKAGE should contain the zip's filename
+define('ED_PACKAGE', 'com_easydiscuss_4.1.5_component_pro.zip');
 
 // If this is in developer mode, we need to set the session
 if ($developer) {
@@ -98,6 +96,14 @@ if (!empty($controller)) {
 	return $controller->execute();
 }
 
+// Get the current version
+$contents = JFile::read(JPATH_ROOT. '/administrator/components/com_easydiscuss/easydiscuss.xml');
+$parser = simplexml_load_string($contents);
+
+$version = $parser->xpath('version');
+$version = (string) $version[0];
+
+define('ED_HASH', md5($version));
 
 ############################################################
 #### Initialization

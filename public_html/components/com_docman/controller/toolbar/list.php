@@ -28,7 +28,7 @@ class ComDocmanControllerToolbarList extends ComKoowaControllerToolbarActionbar
         if($this->getController()->canDelete() && in_array($layout, array('table', 'gallery'))) {
             $data = array(
                 'csrf_token' => $this->getObject('user')->getSession()->getToken(),
-                '_action' => 'delete'
+                '_method' => 'delete'
             );
 
             $this->addCommand('delete', array(

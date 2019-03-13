@@ -8,6 +8,15 @@
 
 class ComDocmanViewFilesHtml extends ComDocmanViewHtml
 {
+    protected function _initialize(KObjectConfig $config)
+    {
+        $config->append([
+            'decorator'  => $config->layout === 'select' ? 'koowa' : 'joomla'
+        ]);
+
+        parent::_initialize($config);
+    }
+
     protected function _fetchData(KViewContext $context)
     {
         $context->data->tag_count      = $this->getObject('com://admin/docman.model.tags')->count();

@@ -3,6 +3,7 @@
 	left: -20000px;
 	top: -20000px;
 	opacity: 0;
+	visibility: hidden;
 }
 
 .formRed

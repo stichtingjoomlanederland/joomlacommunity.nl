@@ -24,6 +24,34 @@ abstract class modRseventsProCategories {
 		}
 	}
 	
+	public static function getCategoriesBlocks($params) {
+		$items	= array();
+		$cols	= (int) $params->get('columns', 1);
+		
+		if ($categories = modRseventsProCategories::getCategories($params)) {
+			
+			$startLevel = reset($categories)->getParent()->level;
+			
+			foreach ($categories as $category) {
+				$items[] = $category;
+				
+				modRseventsProCategories::getChildren($items, $category, $startLevel, $params);
+			}
+		}
+		
+		return array_chunk($items, $cols);
+	}
+	
+	public static function getChildren(&$items, $category, $startLevel, $params) {
+		if ($params->get('show_children', 0) && (($params->get('maxlevel', 0) == 0) || ($params->get('maxlevel') >= ($category->level - $startLevel))) && count($category->getChildren())) {
+			foreach ($category->getChildren() as $child) {
+				$items[] = $child;
+				
+				modRseventsProCategories::getChildren($items, $child, $startLevel, $params);
+			}
+		}
+	}	
+	
 	public static function getCount($id, $params) {
 		$cache = JFactory::getCache('mod_rseventspro_categories');
 		$cache->setCaching($params->get('use_cache', 1));

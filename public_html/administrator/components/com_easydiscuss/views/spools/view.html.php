@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -19,9 +19,10 @@ class EasyDiscussViewSpools extends EasyDiscussAdminView
 	{
 		$this->checkAccess('discuss.manage.spools');
 
-		// Set the page attributes
-		$this->title('COM_EASYDISCUSS_SPOOLS_TITLE');
-		$this->desc('COM_EASYDISCUSS_SPOOLS_DESC');
+		$this->setHeading('COM_EASYDISCUSS_SPOOLS_TITLE', 'COM_EASYDISCUSS_SPOOLS_DESC');
+
+		JToolbarHelper::deleteList();
+		JToolBarHelper::custom('purge','purge','icon-32-unpublish.png', 'COM_EASYDISCUSS_SPOOLS_PURGE_ALL_BUTTON', false);
 
 		$model = ED::model('Spools');
 		$mails = $model->getData();
@@ -34,7 +35,7 @@ class EasyDiscussViewSpools extends EasyDiscussAdminView
 		if ($mails) {
 			foreach ($mails as &$mail) {
 				$date = ED::date($mail->created);
-				$mail->date = $date->toSql();
+				$mail->date = $date->display(JText::_('DATE_FORMAT_LC5'));
 			}
 		}
 
@@ -66,22 +67,5 @@ class EasyDiscussViewSpools extends EasyDiscussAdminView
 
 		echo $contents;
 		exit;
-	}
-
-	/**
-	 * Registers the toolbar
-	 *
-	 * @since	4.0
-	 * @access	public
-	 */
-	public function registerToolbar()
-	{
-		JToolBarHelper::title( JText::_( 'COM_EASYDISCUSS_SPOOLS_TITLE' ), 'spools' );
-
-		JToolBarHelper::custom( 'home', 'arrow-left', '', JText::_( 'COM_EASYDISCUSS_TOOLBAR_HOME' ), false);
-		JToolBarHelper::divider();
-		JToolbarHelper::deleteList();
-		JToolBarHelper::divider();
-		JToolBarHelper::custom('purge','purge','icon-32-unpublish.png', 'COM_EASYDISCUSS_SPOOLS_PURGE_ALL_BUTTON', false);
 	}
 }

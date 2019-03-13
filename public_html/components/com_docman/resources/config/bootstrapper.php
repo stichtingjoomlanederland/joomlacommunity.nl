@@ -6,6 +6,11 @@
  * @link        http://www.joomlatools.com
  */
 
+$config = array();
+if(file_exists(Koowa::getInstance()->getRootPath().'/joomlatools-config/docman.php')) {
+    $config = (array) include Koowa::getInstance()->getRootPath().'/joomlatools-config/docman.php';
+}
+
 return array(
 
     'aliases'    => array(
@@ -62,6 +67,9 @@ return array(
                 'com://admin/docman.job.scans',
                 'com://admin/docman.job.files'
             )
+        ),
+        'com://admin/docman.model.behavior.taggable' => array(
+            'strict' => isset($config['tags']['strict']) ? $config['tags']['strict'] : false
         ),
 
         'com://site/docman.model.categories' => array(

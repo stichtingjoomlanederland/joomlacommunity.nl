@@ -26,28 +26,35 @@ JText::script('RSFP_HIDE_LEGACY_LAYOUTS');
 		<?php } ?>
 	});
 </script>
+<?php if ($this->layouts['classicLayouts'] || $this->layouts['xhtmlLayouts']) { ?>
 <button class="btn btn-mini btn-warning" type="button" id="rsform_show_legacy_btn"><?php echo $this->hasLegacyLayout ? JText::_('RSFP_HIDE_LEGACY_LAYOUTS') : JText::_('RSFP_SHOW_LEGACY_LAYOUTS'); ?></button>
 <fieldset id="rsform_legacy_layouts">
 	<h3 class="rsfp-legend"><?php echo JText::_('RSFP_CLASSIC_LAYOUTS'); ?></h3>
-	<?php foreach ($this->layouts['classicLayouts'] as $layout) { ?>
-		<div class="rsform_layout_box">
-			<label for="formLayout<?php echo ucfirst($layout); ?>" class="radio">
-				<input type="radio" id="formLayout<?php echo ucfirst($layout); ?>" name="FormLayoutName" value="<?php echo $layout; ?>" onclick="saveLayoutName('<?php echo $this->form->FormId; ?>', this.value, true);" <?php if ($this->form->FormLayoutName == $layout) { ?>checked="checked"<?php } ?> /><?php echo JText::_('RSFP_LAYOUT_'.$layout);?><br/>
-			</label>
-			<img src="components/com_rsform/assets/images/layouts/<?php echo $layout; ?>.gif" width="175"/>
-		</div>
+    <?php if ($this->layouts['classicLayouts']) { ?>
+        <?php foreach ($this->layouts['classicLayouts'] as $layout) { ?>
+            <div class="rsform_layout_box">
+                <label for="formLayout<?php echo ucfirst($layout); ?>" class="radio">
+                    <input type="radio" id="formLayout<?php echo ucfirst($layout); ?>" name="FormLayoutName" value="<?php echo $layout; ?>" onclick="saveLayoutName('<?php echo $this->form->FormId; ?>', this.value, true);" <?php if ($this->form->FormLayoutName == $layout) { ?>checked="checked"<?php } ?> /><?php echo JText::_('RSFP_LAYOUT_'.$layout);?><br/>
+                </label>
+                <?php echo JHtml::image('com_rsform/admin/layouts/' . $layout . '.gif', JText::_('RSFP_LAYOUT_'.str_replace('-', '_', $layout)), 'width="175"', true); ?>
+            </div>
+        <?php } ?>
 	<?php } ?>
-	<?php foreach ($this->layouts['xhtmlLayouts'] as $layout) { ?>
-		<div class="rsform_layout_box">
-			<label for="formLayout<?php echo ucfirst($layout); ?>" class="radio">
-				<input type="radio" id="formLayout<?php echo ucfirst($layout); ?>" name="FormLayoutName" value="<?php echo $layout; ?>" onclick="saveLayoutName('<?php echo $this->form->FormId; ?>', this.value, true);" <?php if ($this->form->FormLayoutName == $layout) { ?>checked="checked"<?php } ?> /><?php echo JText::_('RSFP_LAYOUT_'.str_replace('-', '_', $layout));?><br/>
-			</label>
-			<img src="components/com_rsform/assets/images/layouts/<?php echo $layout; ?>.gif" width="175"/>
-		</div>
-	<?php } ?>
+    <?php if ($this->layouts['xhtmlLayouts']) { ?>
+        <?php foreach ($this->layouts['xhtmlLayouts'] as $layout) { ?>
+            <div class="rsform_layout_box">
+                <label for="formLayout<?php echo ucfirst($layout); ?>" class="radio">
+                    <input type="radio" id="formLayout<?php echo ucfirst($layout); ?>" name="FormLayoutName" value="<?php echo $layout; ?>" onclick="saveLayoutName('<?php echo $this->form->FormId; ?>', this.value, true);" <?php if ($this->form->FormLayoutName == $layout) { ?>checked="checked"<?php } ?> /><?php echo JText::_('RSFP_LAYOUT_'.str_replace('-', '_', $layout));?><br/>
+                </label>
+                <?php echo JHtml::image('com_rsform/admin/layouts/' . $layout . '.gif', JText::_('RSFP_LAYOUT_'.str_replace('-', '_', $layout)), 'width="175"', true); ?>
+            </div>
+        <?php } ?>
+    <?php } ?>
 	<span class="rsform_clear_both"></span>
 </fieldset>
+<?php } ?>
 
+<?php if ($this->layouts['html5Layouts']) { ?>
 <fieldset>
 	<h3 class="rsfp-legend"><?php echo JText::_('RSFP_HTML5_LAYOUTS'); ?></h3>
 	<?php foreach ($this->layouts['html5Layouts'] as $layout) { ?>
@@ -55,11 +62,12 @@ JText::script('RSFP_HIDE_LEGACY_LAYOUTS');
 			<label for="formLayout<?php echo ucfirst($layout); ?>" class="radio">
 				<input type="radio" id="formLayout<?php echo ucfirst($layout); ?>" name="FormLayoutName" value="<?php echo $layout; ?>" onclick="saveLayoutName('<?php echo $this->form->FormId; ?>', this.value);" <?php if ($this->form->FormLayoutName == $layout) { ?>checked="checked"<?php } ?> /><?php echo JText::_('RSFP_LAYOUT_'.str_replace('-', '_', $layout));?><br/>
 			</label>
-			<img src="components/com_rsform/assets/images/layouts/<?php echo $layout; ?>.gif" width="175"/><br/>
+			<?php echo JHtml::image('com_rsform/admin/layouts/' . $layout . '.gif', JText::_('RSFP_LAYOUT_'.str_replace('-', '_', $layout)), 'width="175"', true); ?><br/>
 		</div>
 	<?php } ?>
 	<span class="rsform_clear_both"></span>
 </fieldset>
+<?php } ?>
 
 <fieldset>
 	<h3 class="rsfp-legend"><?php echo JText::_('RSFP_FORM_HTML_LAYOUT_OPTIONS'); ?></h3>
@@ -89,7 +97,7 @@ JText::script('RSFP_HIDE_LEGACY_LAYOUTS');
 				<table width="98%" style="clear:both;">
 					<tr>
 						<td>
-							<textarea rows="20" cols="75" style="width:100%;" class="codemirror-html" name="FormLayout" id="formLayout" <?php echo $this->form->FormLayoutAutogenerate ? 'readonly="readonly"' : '';?>><?php echo $this->escape($this->form->FormLayout); ?></textarea>
+							<?php echo RSFormProHelper::showEditor('FormLayout', $this->form->FormLayout, array('classes' => 'rs_100', 'id' => 'formLayout', 'syntax' => 'html', 'readonly' => $this->form->FormLayoutAutogenerate)); ?>
 						</td>
 					</tr>
 				</table>

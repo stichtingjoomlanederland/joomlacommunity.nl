@@ -47,11 +47,6 @@ class ComFilesModelEntityContainer extends KModelEntityRow
 		return $data;
 	}
 
-	public function getAdapter($type, array $config = array())
-	{
-		return $this->getObject('com:files.adapter.'.$type, $config);
-	}
-
     /**
      * Finds the maximum possible upload size based on a few different INI settings
      *

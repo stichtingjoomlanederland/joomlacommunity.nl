@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -94,8 +94,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="db-sidebar">
 				<div class="db-version">
 					<div class="checking-updates" data-version-checks>
-						<div class="o-flag">
-							<div class="o-flag__image o-flag--top">
+						<div class="o-media o-media--top">
+							<div class="o-media__image">
 								<div class="db-version__icon">
 									<i class="fa fa-cog"></i>
 									<i class="fa fa-thumbs-down"></i>
@@ -103,7 +103,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 								</div>
 								
 							</div>
-							<div class="o-flag__body">
+							<div class="o-media__body">
 								<div class="o-grid">
 									<div class="o-grid__cell">
 										<b class="checking">
@@ -129,9 +129,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 											<div class="text-muted latest-version"><?php echo JText::_('COM_EASYDISCUSS_DASHBOARD_LATEST_VERSION');?>: <span data-online-version></span></div>
 										</div>
 									</div>
-									<div class="requires-updating">
-										<div class="o-grid__cell o-grid__cell--auto-size">
-											<a href="<?php echo JURI::root();?>administrator/index.php?option=com_easydiscuss&setup=true&update=true" class="btn btn-default btn-sm"><?php echo JText::_('COM_EASYDISCUSS_UPDATE_NOW');?></a>
+									<div class="o-grid__cell o-grid__cell--auto-size">
+										<div class="requires-updating">
+											<a href="<?php echo JURI::root();?>administrator/index.php?option=com_easydiscuss&controller=system&task=upgrade" class="btn btn-primary btn-sm"><?php echo JText::_('COM_EASYDISCUSS_UPDATE_NOW');?></a>
 										</div>
 									</div>
 								</div>

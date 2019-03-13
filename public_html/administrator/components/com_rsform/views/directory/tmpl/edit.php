@@ -6,7 +6,9 @@
 */
 
 defined('_JEXEC') or die('Restricted access');
-JHtml::_('behavior.keepalive'); ?>
+JHtml::_('behavior.keepalive');
+JHtml::script('com_rsform/admin/directory.js', array('relative' => true, 'version' => 'auto'));
+?>
 
 <form action="index.php?option=com_rsform" method="post" name="adminForm" id="adminForm" enctype="multipart/form-data">
 	
@@ -16,7 +18,7 @@ JHtml::_('behavior.keepalive'); ?>
 	<br />
 	
 	<div id="rsform_container">
-		<div id="state" style="display: none;"><img src="components/com_rsform/assets/images/load.gif" alt="<?php echo JText::_('RSFP_PROCESSING'); ?>" /><?php echo JText::_('RSFP_PROCESSING'); ?></div>
+		<div id="state" style="display: none;"><?php echo JHtml::image('com_rsform/admin/load.gif', JText::_('RSFP_PROCESSING'), null, true); ?><?php echo JText::_('RSFP_PROCESSING'); ?></div>
 		
 		<div id="rsform_tab3">
 			<ul class="rsform_leftnav" id="rsform_secondleftnav">
@@ -71,193 +73,13 @@ JHtml::_('behavior.keepalive'); ?>
 </form>
 
 <script type="text/javascript">
-RSFormPro.$(document).ready(function(){
-	RSFormPro.$('#rsform_tab3').formTabs(<?php echo $this->tab; ?>);
-	RSFormPro.$('#dirSubmissionsTable tbody').tableDnD({
+jQuery(document).ready(function(){
+	jQuery('#rsform_tab3').formTabs(<?php echo $this->tab; ?>);
+	jQuery('#dirSubmissionsTable tbody').tableDnD({
 		onDragClass: 'rsform_dragged',
         onDragStop: function (table, row) {
 			tidyOrderDir();
 		}
 	});
 });
-
-RSFormPro.$.formTabs = {
-	tabTitles: {},
-	tabContents: {},
-	
-	build: function (startindex) {
-		this.each(function (index, el) {
-			var tid = RSFormPro.$(el).attr('id');
-			RSFormPro.$.formTabs.grabElements(el,tid);
-			RSFormPro.$.formTabs.makeTitlesClickable(tid);
-			RSFormPro.$.formTabs.setAllContentsInactive(tid);
-			RSFormPro.$.formTabs.setTitleActive(startindex,tid);
-			RSFormPro.$.formTabs.setContentActive(startindex,tid);
-		});
-	},
-	
-	grabElements: function(el,tid) {
-		var children = RSFormPro.$(el).children();
-		children.each(function(index, child) {			
-			if (index == 0)
-				RSFormPro.$.formTabs.tabTitles[tid] = RSFormPro.$(child).find('a');
-			else if (index == 1)
-				RSFormPro.$.formTabs.tabContents[tid] = RSFormPro.$(child).children();
-		});
-	},
-	
-	setAllTitlesInactive: function (tid) {
-		this.tabTitles[tid].each(function(index, title) {
-			RSFormPro.$(title).removeClass('active');
-		});
-	},
-	
-	setTitleActive: function (index,tid) {
-		index = parseInt(index);
-		if (tid == 'rsform_tab3') document.getElementById('ptab').value = index;
-		RSFormPro.$(this.tabTitles[tid][index]).addClass('active');
-	},
-	
-	setAllContentsInactive: function (tid) {
-		this.tabContents[tid].each(function(index, content) {
-			RSFormPro.$(content).hide();
-		});
-	},
-	
-	setContentActive: function (index,tid) {
-		index = parseInt(index);
-		RSFormPro.$(this.tabContents[tid][index]).show();
-	},
-	
-	makeTitlesClickable: function (tid) {
-		this.tabTitles[tid].each(function(index, title) {
-			RSFormPro.$(title).click(function () {
-				RSFormPro.$.formTabs.setAllTitlesInactive(tid);
-				RSFormPro.$.formTabs.setTitleActive(index,tid);
-				
-				RSFormPro.$.formTabs.setAllContentsInactive(tid);
-				RSFormPro.$.formTabs.setContentActive(index,tid);
-			});
-		});
-	}
-}
-
-RSFormPro.$.fn.extend({
-	formTabs: RSFormPro.$.formTabs.build
-});
-
-	
-function toggleOrderSpansDir() {
-	var table = jQuery('#dirSubmissionsTable tbody tr');
-	var k = 0;
-	
-	for (i=0; i<table.length; i++) {
-		jQuery(table[i]).removeClass('row0');
-		jQuery(table[i]).removeClass('row1');
-		jQuery(table[i]).addClass('row' + k);
-		k = 1 - k;
-	}
-}
-
-function tidyOrderDir() {
-	stateLoading();
-
-	var params = new Array();
-	var orders = document.getElementsByName('dirorder[]');
-	var cids = document.getElementsByName('dircid[]');
-	var formId = document.getElementById('formId').value;
-	
-	for (i=0; i<orders.length; i++) {
-		params.push('cid[' + cids[i].value + ']=' + parseInt(i + 1));
-		orders[i].value = i + 1;
-	}
-	
-	params.push('formId='+formId);
-	
-	toggleOrderSpansDir();
-	
-	xml=buildXmlHttp();
-
-	var url = 'index.php?option=com_rsform&task=directory.save.ordering&randomTime=' + Math.random();
-	xml.open("POST", url, true);
-	
-	params = params.join('&');
-	
-	//Send the proper header information along with the request
-	xml.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-
-	xml.send(params);
-	xml.onreadystatechange=function()
-	{
-		if(xml.readyState==4)
-		{
-			var autogenerate = document.getElementsByName('jform[ViewLayoutAutogenerate]');
-			for (var i=0;i<autogenerate.length;i++)
-				if (autogenerate[i].value == 1 && autogenerate[i].checked)
-					generateDirectoryLayout(formId, 'no');
-			
-			stateDone();
-		}
-	}
-}
-
-function rsfp_autogenerate() {
-	stateLoading();
-	
-	var params = [];
-	var cids = document.getElementsByName('dirindetails[]');
-	var formId = document.getElementById('formId').value;
-	
-	for (i=0; i<cids.length; i++) {
-		if (cids[i].checked)
-			params.push('cid[' + cids[i].value + ']=1');
-		else
-			params.push('cid[' + cids[i].value + ']=0');
-	}
-	
-	params.push('formId='+formId);
-	
-	xml=buildXmlHttp();
-
-	var url = 'index.php?option=com_rsform&task=directory.save.details&randomTime=' + Math.random();
-	xml.open("POST", url, true);
-	
-	params = params.join('&');
-	
-	//Send the proper header information along with the request
-	xml.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-
-	xml.send(params);
-	xml.onreadystatechange=function()
-	{
-		if(xml.readyState==4)
-		{
-			var autogenerate = document.getElementsByName('jform[ViewLayoutAutogenerate]');
-			for (var i=0;i<autogenerate.length;i++)
-				if (autogenerate[i].value == 1 && autogenerate[i].checked)
-					generateDirectoryLayout(formId, 'no');
-			
-			stateDone();
-		}
-	}
-}
-
-function rsfp_SelectAll(what) {
-	$$('input[name='+what+'[]]').each(function (el) {
-		if ($(what+'check').checked) {
-			if (!el.checked)
-				el.checked = true;
-		} else {
-			if (el.checked)
-				el.checked = false;
-		}
-	});
-}
-
-function toggleQuickAddDirectory() {
-	var what = 'none';
-	if (document.getElementById('QuickAdd1').style.display == 'none')
-		what = '';
-	document.getElementById('QuickAdd1').style.display = what; 
-}
 </script>

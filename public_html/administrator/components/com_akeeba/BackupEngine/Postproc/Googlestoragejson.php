@@ -1,9 +1,9 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  */
@@ -78,23 +78,13 @@ class Googlestoragejson extends Base
 		$basename          = empty($upload_as) ? basename($absolute_filename) : $upload_as;
 		$this->remote_path = $directory . '/' . $basename;
 
-		// Do not use multipart uploads when in an immediate post-processing step,
-		// i.e. we are uploading a part right after its creation
-		if ($this->chunked)
-		{
-			// Retrieve engine configuration data
-			$config = Factory::getConfiguration();
+		// Check if the size of the file is compatible with chunked uploading
+		clearstatcache();
+		$totalSize   = filesize($absolute_filename);
+		$isBigEnough = $this->chunked ? ($totalSize > $this->chunk_size) : false;
 
-			$immediateEnabled = $config->get('engine.postproc.common.after_part', 0);
-
-			if ($immediateEnabled)
-			{
-				$this->chunked = false;
-			}
-		}
-
-		// Are we already processing a multipart upload?
-		if ($this->chunked)
+		// Chunked uploads if the feature is enabled and the file is at least as big as the chunk size.
+		if ($this->chunked && $isBigEnough)
 		{
 			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Using chunked upload, part size {$this->chunk_size}");
 
@@ -162,8 +152,6 @@ class Googlestoragejson extends Base
 			}
 
 			// Are we done uploading?
-			clearstatcache();
-			$totalSize  = filesize($absolute_filename);
 			$nextOffset = $offset + $this->chunk_size - 1;
 
 			if (isset($result['name']) || ($nextOffset > $totalSize))
@@ -187,7 +175,7 @@ class Googlestoragejson extends Base
 		{
 			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Performing simple upload.");
 
-			$result = $this->connector->upload($this->bucket, $this->remote_path, $absolute_filename);
+			$result = $this->connector->simpleUpload($this->bucket, $this->remote_path, $absolute_filename);
 		}
 		catch (\Exception $e)
 		{
@@ -371,6 +359,7 @@ class Googlestoragejson extends Base
 
 		$hasJsonConfig = false;
 		$jsonConfig    = trim($config->get('engine.postproc.googlestoragejson.jsoncreds', ''));
+		$jsonConfig    = $this->fixStoredJSON($jsonConfig);
 
 		if (!empty($jsonConfig))
 		{
@@ -407,12 +396,51 @@ class Googlestoragejson extends Base
 
 		if (!$hasJsonConfig)
 		{
-			$this->config = array();
+			$this->config = [];
 			$this->setWarning('You have not provided a valid Google Cloud JSON configuration (googlestorage.json) in the configuration page. As a result I cannot upload anything to Google Storage. Please fix this issue and try backing up again.');
 
 			return false;
 		}
 
 		return true;
+	}
+
+	/**
+	 * The Google JSON API file has the string literal "\n" inside the Private Key. However, the INI parser will
+	 * unescape this into a newline character. This causes a newline character to appear inside a string literal in the
+	 * JSON file, therefore rendering the JSON invalid.
+	 *
+	 * Before Akeeba Engine 6.3.4 we used to deal with that by using the PHP INI parser in INI_SCANNER_NORMAL mode.
+	 * However, this caused some problems, e.g. with the sequence \$ being squashed to $. The correct solution is using
+	 * INI_SCANNER_RAW. However, this does not expand \n in values which is something we need elsewhere in the Engine.
+	 *
+	 * We needed to do this because before 6.3.4 if your server had disabled parse_ini_string our PHP-based parser would
+	 * yield different results than calling PHP's parse_ini_file(). This also meant that on these hosts Google Storage
+	 * JSON API was broken.
+	 *
+	 * The only solution is having this method which recodes the private key in a way that the JSON is valid and the
+	 * private key is also usable with Google's API.
+	 *
+	 * @param   string  $jsonConfig
+	 *
+	 * @return  string
+	 */
+	private function fixStoredJSON($jsonConfig)
+	{
+		// Remove all newlines
+		$jsonConfig = str_replace("\n", '', $jsonConfig);
+
+		// Extract the private key
+		$startPos = strpos($jsonConfig, '-----BEGIN PRIVATE KEY-----');
+		$endPos   = strpos($jsonConfig, '-----END PRIVATE KEY-----') + 25;
+		$pk       = substr($jsonConfig, $startPos, $endPos - $startPos);
+
+		// Recode the private key
+		$innerPK = trim(substr($pk, 27, -25));
+		$innerPK = implode("\\n", str_split($innerPK, 64));
+		$pk   = "-----BEGIN PRIVATE KEY-----\\n" . $innerPK ."\\n-----END PRIVATE KEY-----";
+
+		// Assemble a usable JSON string
+		return rtrim(substr($jsonConfig, 0, $startPos)) . $pk . ltrim(substr($jsonConfig, $endPos));
 	}
 }

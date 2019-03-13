@@ -132,7 +132,7 @@ class RseventsproModelGroup extends JModelAdmin
 					$option = array();
 				}
 				
-				array_map('intval',$option);
+				$option = array_map('intval',$option);
 				$excludes = array_merge($excludes, $option);
 			}
 		}
@@ -167,7 +167,7 @@ class RseventsproModelGroup extends JModelAdmin
 					$option = array();
 				}
 				
-				array_map('intval',$option);
+				$option = array_map('intval',$option);
 				$used = array_merge($used, $option);
 			}
 		}

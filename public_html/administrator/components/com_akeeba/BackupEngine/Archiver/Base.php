@@ -1,12 +1,11 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
- *
  */
 
 namespace Akeeba\Engine\Archiver;
@@ -326,7 +325,7 @@ abstract class Base extends BaseObject
 					}
 
 					$packages[] = $langPack;
-					$totalSize += (int) @filesize($langPack);
+					$totalSize += (int) @filesize($filePath);
 				}
 
 				if (count($packages) < $index)
@@ -417,7 +416,7 @@ abstract class Base extends BaseObject
 				$packages             = $installerDescriptors[$embedded_installer]['package'];
 				$packages             = explode(',', $packages);
 				$pathPrefix           = Platform::getInstance()->get_installer_images_path() . '/';
-				$langPacks            = $installerDescriptors[$embedded_installer]['languages'];
+				$langPacks            = $installerDescriptors[$embedded_installer]['language'];
 				$langPacks            = explode(',', $langPacks);
 
 				foreach ($langPacks as $langPack)

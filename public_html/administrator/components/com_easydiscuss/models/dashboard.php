@@ -35,15 +35,15 @@ class EasyDiscussModelDashboard extends EasyDiscussAdminModel
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getTotalPosts()
 	{
 		$db = ED::db();
 
-		$query	= 'SELECT COUNT(1) FROM `#__discuss_posts` WHERE ' . $db->nameQuote('parent_id') . ' = ' . $db->Quote('0');
+		$query	= 'SELECT COUNT(1) FROM `#__discuss_thread`';
 		$db->setQuery($query);
-		
+
 		return $db->loadResult();
 	}
 
@@ -53,7 +53,7 @@ class EasyDiscussModelDashboard extends EasyDiscussAdminModel
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getTotalReplies()
 	{
@@ -70,25 +70,28 @@ class EasyDiscussModelDashboard extends EasyDiscussAdminModel
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getTotalSolved()
 	{
 		$db = ED::db();
 
-		$query	= 'SELECT COUNT(1) FROM `#__discuss_posts` WHERE ' . $db->nameQuote('parent_id') . ' = ' . $db->Quote('0') . ' AND ' . $db->nameQuote('isresolve') . ' = ' . $db->Quote('1');
+		$query = "select count(1) from `#__discuss_thread` as a";
+		$query .= " where " . $db->nameQuote('a.published') . " = " . $db->Quote('1');
+		$query .= " and " . $db->nameQuote('a.isresolve') . " = " . $db->Quote('1');
+
 		$db->setQuery($query);
-		
+
 		return $db->loadResult();
 	}
 
 	/**
-	 * 
+	 *
 	 *
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getTotalTags()
 	{
@@ -105,7 +108,7 @@ class EasyDiscussModelDashboard extends EasyDiscussAdminModel
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getTotalCategories()
 	{
@@ -123,7 +126,7 @@ class EasyDiscussModelDashboard extends EasyDiscussAdminModel
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getPostsGraph($isQuestion = true)
 	{
@@ -161,7 +164,7 @@ class EasyDiscussModelDashboard extends EasyDiscussAdminModel
 			}
 
 			$query = implode(' ', $query);
-			
+
 			$db->setQuery($query);
 			$total = $db->loadResult();
 
@@ -179,7 +182,7 @@ class EasyDiscussModelDashboard extends EasyDiscussAdminModel
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getPostsPie()
 	{
@@ -215,7 +218,7 @@ class EasyDiscussModelDashboard extends EasyDiscussAdminModel
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getMonthPie()
 	{
@@ -258,7 +261,7 @@ class EasyDiscussModelDashboard extends EasyDiscussAdminModel
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getCategoryPie()
 	{

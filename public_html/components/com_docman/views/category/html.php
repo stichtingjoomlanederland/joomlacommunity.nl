@@ -8,6 +8,15 @@
 
 class ComDocmanViewCategoryHtml extends ComDocmanViewHtml
 {
+    protected function _initialize(KObjectConfig $config)
+    {
+        $config->append([
+            'decorator'  => $config->layout === 'form' ? 'koowa' : 'joomla'
+        ]);
+
+        parent::_initialize($config);
+    }
+
     protected function _fetchData(KViewContext $context)
     {
         parent::_fetchData($context);

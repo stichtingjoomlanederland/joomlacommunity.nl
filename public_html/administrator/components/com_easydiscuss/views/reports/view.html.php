@@ -1,15 +1,15 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
 require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
 
@@ -19,9 +19,9 @@ class EasyDiscussViewReports extends EasyDiscussAdminView
 	{
 		$this->checkAccess('discuss.manage.reports');
 
-		// Set page attributes
-		$this->title('COM_EASYDISCUSS_REPORTS_TITLE');
-		$this->desc('COM_EASYDISCUSS_REPORTS_DESC');
+		$this->setHeading('COM_EASYDISCUSS_REPORTS_TITLE', 'COM_EASYDISCUSS_REPORTS_DESC');
+		JToolbarHelper::publishList();
+		JToolbarHelper::unpublishList();
 
 		$filter_state = $this->getUserState('com_easydiscuss.reports.filter_state', 'filter_state', '*', 'word');
 
@@ -82,8 +82,6 @@ class EasyDiscussViewReports extends EasyDiscussAdminView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function preview()
 	{
@@ -112,23 +110,5 @@ class EasyDiscussViewReports extends EasyDiscussAdminView
 		echo $theme->output('admin/reports/reasons');
 
 		exit;
-	}
-
-	/**
-	 * Register the toolbar for reports view
-	 *
-	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
-	 */
-	public function registerToolbar()
-	{
-		JToolBarHelper::title( JText::_( 'COM_EASYDISCUSS_REPORTS' ), 'reports' );
-
-		JToolBarHelper::custom( 'home', 'arrow-left', '', JText::_( 'COM_EASYDISCUSS_TOOLBAR_HOME' ), false);
-		JToolBarHelper::divider();
-		JToolbarHelper::publishList();
-		JToolbarHelper::unpublishList();
 	}
 }

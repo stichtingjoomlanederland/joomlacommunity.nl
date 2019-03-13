@@ -7,18 +7,9 @@
 
 defined('_JEXEC') or die('Restricted access');
 JHtml::_('behavior.tooltip');
+
+JText::script('COM_RSFORM_ARE_YOU_SURE_YOU_WANT_TO_CLEAR');
 ?>
-
-<script type="text/javascript">
-function submitbutton(task)
-{
-	if (task == 'forms.copy' && document.adminForm.boxchecked.value == 0)
-		return alert('<?php echo JText::sprintf( 'RSFP_PLEASE_MAKE_SELECTION_TO', JText::_('RSFP_COPY')); ?>');
-	submitform(task);
-}
-
-Joomla.submitbutton = submitbutton;
-</script>
 
 <form action="index.php?option=com_rsform" method="post" name="adminForm" id="adminForm">
 	<div id="j-sidebar-container" class="span2">
@@ -34,7 +25,9 @@ Joomla.submitbutton = submitbutton;
 			<th class="title"><?php echo JHtml::_('grid.sort', JText::_('RSFP_FORM_TITLE'), 'FormTitle', $this->sortOrder, $this->sortColumn, 'forms.manage'); ?></th>
 			<th class="title"><?php echo JHtml::_('grid.sort', JText::_('RSFP_FORM_NAME'), 'FormName', $this->sortOrder, $this->sortColumn, 'forms.manage'); ?></th>
 			<th width="1%" nowrap="nowrap" class="title"><?php echo JHtml::_('grid.sort', JText::_('RSFP_PUBLISHED'), 'Published', $this->sortOrder, $this->sortColumn, 'forms.manage'); ?></th>
+            <?php if ($this->user->authorise('submissions.manage', 'com_rsform')) { ?>
 			<th width="1%" nowrap="nowrap" class="title"><?php echo JText::_('RSFP_SUBMISSIONS'); ?></th>
+            <?php } ?>
 			<th class="title"><?php echo JText::_('RSFP_TOOLS'); ?></th>
 			<th class="title" width="1%" nowrap="nowrap"><?php echo JText::_('RSFP_LAST_LANGUAGE'); ?></th>
 			<th width="1%" nowrap="nowrap" class="title"><?php echo JHtml::_('grid.sort', JText::_('RSFP_FORM_ID'), 'FormId', $this->sortOrder, $this->sortColumn, 'forms.manage'); ?></th>
@@ -54,11 +47,13 @@ Joomla.submitbutton = submitbutton;
 			<td><a href="index.php?option=com_rsform&amp;view=forms&amp;layout=edit&amp;formId=<?php echo $row->FormId; ?>"><?php echo !empty($row->FormTitle) ? $row->FormTitle : '<em>'.JText::_('RSFP_FORM_DEFAULT_TITLE').'</em>'; ?></a></td>
 			<td><?php echo $row->FormName; ?></td>
 			<td width="1%" nowrap="nowrap" align="center"><?php echo JHtml::_('jgrid.published', $row->published, $i, 'forms.'); ?></td>
+            <?php if ($this->user->authorise('submissions.manage', 'com_rsform')) { ?>
 			<td width="1%" nowrap="nowrap">
 				<span class="<?php echo RSFormProHelper::getTooltipClass(); ?>" title="<?php echo JText::sprintf('RSFP_TODAY_SUBMISSIONS', $row->_todaySubmissions); ?>"><a href="index.php?option=com_rsform&amp;view=submissions&amp;formId=<?php echo $row->FormId; ?>"><i class="rsficon rsficon-calendar"></i> <?php echo $row->_todaySubmissions; ?></a></span>
 				<span class="<?php echo RSFormProHelper::getTooltipClass(); ?>" title="<?php echo JText::sprintf('RSFP_MONTH_SUBMISSIONS', $row->_monthSubmissions); ?>"><a href="index.php?option=com_rsform&amp;view=submissions&amp;formId=<?php echo $row->FormId; ?>"><i class="rsficon rsficon-calendar"></i> <?php echo $row->_monthSubmissions; ?></a></span>
 				<span class="<?php echo RSFormProHelper::getTooltipClass(); ?>" title="<?php echo JText::sprintf('RSFP_ALL_SUBMISSIONS', $row->_allSubmissions); ?>"><a href="index.php?option=com_rsform&amp;view=submissions&amp;formId=<?php echo $row->FormId; ?>"><i class="rsficon rsficon-calendar"></i> <?php echo $row->_allSubmissions; ?></a></span>
 			</td>
+            <?php } ?>
 			<td align="center" nowrap="nowrap">
 				<a class="btn" href="<?php echo JUri::root(); ?>index.php?option=com_rsform&amp;view=rsform&amp;formId=<?php echo $row->FormId; ?>" target="_blank"><span class="rsficon rsficon-eye rsficon-green"></span> <?php echo JText::_('RSFP_PREVIEW'); ?></a>
 				<div class="btn-group">
@@ -70,7 +65,9 @@ Joomla.submitbutton = submitbutton;
 						<?php } else { ?>
 						<li><a href="index.php?option=com_rsform&amp;task=forms.menuadd.backend&amp;formId=<?php echo $row->FormId; ?>"><span class="rsficon rsficon-plus-circle rsficon-green"></span>  <?php echo JText::_('LINK_TO_BACKEND_MENU'); ?></a></li>
 						<?php } ?>
-						<li><a href="index.php?option=com_rsform&amp;task=submissions.clear&amp;formId=<?php echo $row->FormId; ?>" onclick="return (confirm('<?php echo JText::_('RSFP_ARE_YOU_SURE_DELETE', true); ?>'));"><span class="rsficon rsficon-times-circle-o rsficon-red"></span>  <?php echo JText::_('RSFP_CLEAR_SUBMISSIONS'); ?></a></li>
+                        <?php if ($this->user->authorise('submissions.manage', 'com_rsform')) { ?>
+						<li><a href="index.php?option=com_rsform&amp;task=submissions.clear&amp;formId=<?php echo $row->FormId; ?>&amp;<?php echo JSession::getFormToken(); ?>=1" onclick="return (confirm(Joomla.JText._('COM_RSFORM_ARE_YOU_SURE_YOU_WANT_TO_CLEAR')));"><span class="rsficon rsficon-times-circle-o rsficon-red"></span>  <?php echo JText::_('RSFP_CLEAR_SUBMISSIONS'); ?></a></li>
+                        <?php } ?>
 					</ul>
 				</div>
 			</td>

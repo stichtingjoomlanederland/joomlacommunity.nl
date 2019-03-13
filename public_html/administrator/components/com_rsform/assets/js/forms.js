@@ -773,12 +773,12 @@ RSFormPro.Grid = {
 					
 					// If layout auto-generation is enabled, grab it from the request
 					if (document.getElementById('FormLayoutAutogenerate1').checked == true) {
-						var hasCodeMirror = typeof window.codemirror_html != 'undefined' && typeof window.codemirror_html.formLayout != 'undefined';
+						var hasCodeMirror = typeof Joomla.editors.instances['formLayout'] != 'undefined';
 
 						jQuery('#formLayout').val(response);
-
-						if (hasCodeMirror) {
-							window.codemirror_html.formLayout.setValue(response);
+						if (hasCodeMirror)
+						{
+							Joomla.editors.instances['formLayout'].setValue(response);
 						}
 					}
 				}

@@ -102,9 +102,9 @@ class KHttpMessageHeaders extends KObjectArray
         $key = strtr(strtolower($key), '_', '-');
 
         if ($replace === true || !isset($this[$key])) {
-            $this->_data[$key] = (array) $values;
+            $this->_data[$key] = array($values);
         } else {
-            $this->_data[$key] = array_merge($this->_data[$key], (array) $values);
+            $this->_data[$key] = array_merge($this->_data[$key], array($values));
         }
 
         return $this;
@@ -136,18 +136,6 @@ class KHttpMessageHeaders extends KObjectArray
     public function has($key)
     {
         return array_key_exists(strtr(strtolower($key), '_', '-'), $this->_data);
-    }
-
-    /**
-     * Returns true if the given HTTP header contains the given value.
-     *
-     * @param string $key   The HTTP header name
-     * @param string $value The HTTP value
-     * @return Boolean true if the value is contained in the header, false otherwise
-     */
-    public function contains($key, $value)
-    {
-        return in_array($value, $this->get($key, null, false));
     }
 
     /**
@@ -186,24 +174,48 @@ class KHttpMessageHeaders extends KObjectArray
 
         ksort($headers);
 
+        //Method to implode header parameters
+        $implode = function($parameters)
+        {
+            $results = array();
+            foreach ($parameters as $key => $parameter)
+            {
+                if(!is_numeric($key))
+                {
+                    //Parameters
+                    if(is_array($parameter))
+                    {
+                        $modifiers = array();
+                        foreach($parameter as $k => $v) {
+                            $modifiers[] = $k.'='.$v;
+                        }
+
+                        $results[] = $key.';'.implode($modifiers, ',');
+                    }
+                    else $results[] = $key.'='.$parameter;
+                }
+                else $results[] = $parameter;
+            }
+
+            return $value = implode($results, ', ');
+        };
+
+        //Serialise the headers to a string
         foreach ($headers as $name => $values)
         {
-            $value   = '';
             $name    = implode('-', array_map('ucfirst', explode('-', $name)));
             $results = array();
 
-            foreach ($values as $key => $value)
+            foreach($values as $value)
             {
-                if(is_numeric($key)) {
+                if(is_array($value)) {
+                    $results[] = $implode($value);
+                }  else {
                     $results[] = $value;
-                } else {
-                    $results[] = $key.'='.$value;
                 }
-
-                $value = implode($results, '; ');
             }
 
-            if ($value) {
+            if ($value = implode($results, ', ')) {
                 $content .= sprintf("%s %s\r\n", $name.':', $value);
             }
         }

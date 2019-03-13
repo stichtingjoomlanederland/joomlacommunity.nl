@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -173,11 +173,6 @@ class ControlPanel extends Model
 
 		$dbInstaller->updateSchema();
 
-		// Let's check and fix common tables, too
-		/** @var Stats $statsModel */
-		$statsModel = $this->container->factory->model('Stats')->tmpInstance();
-		$statsModel->checkAndFixCommonTables();
-
 		// And finally remove the flag if everything went fine
 		$params->set('updatedb', null);
 		$params->save();
@@ -235,82 +230,6 @@ class ControlPanel extends Model
 		}
 
 		return false;
-	}
-
-	/**
-	 * Removed the current IP from all the "block" lists
-	 *
-	 * @param	string	$externalIp	Additional IP address to check
-	 *
-	 * @return  void
-	 */
-	public function unblockMyIP($externalIp = null)
-	{
-		// First let's get the current IP of the user
-		$ipList[] = $this->getVisitorIP();
-
-		if ($externalIp)
-		{
-			$ipList[] = $externalIp;
-		}
-
-		/** @var AutoBannedAddresses $autoban */
-		$autoban = $this->container->factory->model('AutoBannedAddresses')->tmpInstance();
-
-		/** @var IPAutoBanHistories $history */
-		$history = $this->container->factory->model('IPAutoBanHistories')->tmpInstance();
-
-		/** @var BlacklistedAddresses $black */
-		$black = $this->container->factory->model('BlacklistedAddresses')->tmpInstance();
-
-		/** @var SecurityExceptions $log */
-		$log = $this->container->factory->model('SecurityExceptions')->tmpInstance();
-
-		$db  = $this->container->db;
-
-		// Let's delete all the IP. We are going to directly use the database since it would be faster
-		// than loading the record and then deleting it
-		foreach ($ipList as $ip)
-		{
-			$autoban->reset()->setState('ip', $ip);
-			$history->reset()->setState('ip', $ip);
-			$black->reset()->setState('ip', $ip);
-			$log->reset()->setState('ip', $ip);
-
-			if (count($autoban->get(true)))
-			{
-				$query = $db->getQuery(true)
-							->delete($db->qn('#__admintools_ipautoban'))
-							->where($db->qn('ip') . ' = ' . $db->q($ip));
-				$db->setQuery($query)->execute();
-			}
-
-			if (count($history->get(true)))
-			{
-				$query = $db->getQuery(true)
-							->delete($db->qn('#__admintools_ipautobanhistory'))
-							->where($db->qn('ip') . ' = ' . $db->q($ip));
-				$db->setQuery($query)->execute();
-			}
-
-			if (count($black->get(true)))
-			{
-				$query = $db->getQuery(true)
-							->delete($db->qn('#__admintools_ipblock'))
-							->where($db->qn('ip') . ' = ' . $db->q($ip));
-				$db->setQuery($query)->execute();
-			}
-
-			// I have to delete the log of security exceptions, too. Otherwise at the next check the user will be
-			// banned once again
-			if (count($log->get(true)))
-			{
-				$query = $db->getQuery(true)
-							->delete($db->qn('#__admintools_log'))
-							->where($db->qn('ip') . ' = ' . $db->q($ip));
-				$db->setQuery($query)->execute();
-			}
-		}
 	}
 
 	/**
@@ -607,5 +526,48 @@ class ControlPanel extends Model
 		}
 
 		return null;
+	}
+
+	/**
+	 * Delete old log files (with a .log extension) always. If the logging feature is disabled (either the text debug
+	 * log or logging in general) also delete the .php log files.
+	 *
+	 * @since  5.1.0
+	 */
+	public function deleteOldLogs()
+	{
+		$logpath = \JFactory::getConfig()->get('log_path');
+		$files   = [
+			$logpath . DIRECTORY_SEPARATOR . 'admintools_breaches.log',
+			$logpath . DIRECTORY_SEPARATOR . 'admintools_breaches.log.1',
+		];
+
+		$WAFparams = Storage::getInstance();
+		$textLogs  = $WAFparams->getValue('logfile', 0);
+		$allLogs   = $WAFparams->getValue('logbreaches', 1);
+
+		if (!$textLogs || !$allLogs)
+		{
+			$files = array_merge($files, [
+				$logpath . DIRECTORY_SEPARATOR . 'admintools_breaches.php',
+				$logpath . DIRECTORY_SEPARATOR . 'admintools_breaches.1.php',
+
+			]);
+		}
+
+		foreach ($files as $file)
+		{
+			if (!@file_exists($file))
+			{
+				continue;
+			}
+
+			if (@unlink($file))
+			{
+				continue;
+			}
+
+			\JFile::delete($file);
+		}
 	}
 }

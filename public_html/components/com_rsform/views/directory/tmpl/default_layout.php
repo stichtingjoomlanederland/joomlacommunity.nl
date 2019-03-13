@@ -6,8 +6,11 @@
 */
 
 defined('_JEXEC') or die('Restricted access'); 
+
 $listOrder	= $this->escape($this->filter_order);
-$listDirn	= $this->escape($this->filter_order_Dir); ?>
+$listDirn	= $this->escape($this->filter_order_Dir);
+JText::script('RSFP_SUBM_DIR_DELETE_SURE');
+?>
 <table class="table table-condensed table-striped category directoryTable">
 	<thead>
 		<tr>
@@ -42,7 +45,7 @@ $listDirn	= $this->escape($this->filter_order_Dir); ?>
 				</a>
 				<?php } ?>
                 <?php if (RSFormProHelper::canDelete($this->params->get('formId'), $item->SubmissionId)) { ?>
-                    <a onclick="return confirm('<?php echo JText::_('RSFP_SUBM_DIR_DELETE_SURE', true); ?>');" class="<?php echo $this->tooltipClass; ?> directoryDelete" title="<?php echo RSFormProHelper::getTooltipText(JText::_('RSFP_SUBM_DIR_DELETE')); ?>" href="<?php echo JRoute::_('index.php?option=com_rsform&controller=directory&task=delete&id='.$item->SubmissionId); ?>">
+                    <a onclick="return confirm(Joomla.JText._('RSFP_SUBM_DIR_DELETE_SURE'));" class="<?php echo $this->tooltipClass; ?> directoryDelete" title="<?php echo RSFormProHelper::getTooltipText(JText::_('RSFP_SUBM_DIR_DELETE')); ?>" href="<?php echo JRoute::_('index.php?option=com_rsform&controller=directory&task=delete&id='.$item->SubmissionId); ?>">
                         <?php echo JHtml::_('image', 'com_rsform/delete.png', JText::sprintf('COM_RSFORM_DELETE_SUBMISSION_ALT', $item->SubmissionId), null, true); ?>
                     </a>
                 <?php } ?>

@@ -237,40 +237,53 @@ class RseventsproModelSettings extends JModelAdmin
 	 * @since	1.6
 	 */
 	public function savetoken() {
-		$db		= $this->getDbo();
-		$query	= $db->getQuery(true);
-		$config	= $this->getConfig();
-		$token	= JFactory::getApplication()->input->getString('access_token');
+		$db			 = $this->getDbo();
+		$query		 = $db->getQuery(true);
+		$config		 = $this->getConfig();
+		$redirectURI = JRoute::_('index.php?option=com_rseventspro&task=settings.savetoken', false, true);
+		$token		 = false;
 		
-		if (empty($token)) {
-			$this->setError(JText::_('COM_RSEVENTSPRO_FACEBOOK_NO_CONNECTION'));
-			return false;
-		}
+		require_once JPATH_SITE.'/components/com_rseventspro/helpers/facebook/autoload.php';
 		
-		try {			
-			require_once JPATH_SITE.'/components/com_rseventspro/helpers/facebook/autoload.php';
-		
+		try {
 			$facebook = new Facebook\Facebook(array(
 				'app_id' => $config->facebook_appid,
 				'app_secret' => $config->facebook_secret,
-				'default_graph_version' => 'v2.6',
-				'default_access_token' => $token
+				'default_graph_version' => 'v2.10'
 			));
 			
-			$oAuth2Client	= $facebook->getOAuth2Client();
-			$accessToken	= $oAuth2Client->getLongLivedAccessToken($token);
-			$token			= $accessToken->getValue();
-		} catch (Facebook\Exceptions\FacebookSDKException $e) {}
+			$helper = $facebook->getRedirectLoginHelper();
+			$token	= $helper->getAccessToken($redirectURI);
+			
+			if (isset($token)) {
+				if (!$token->isLongLived()) {
+					$oAuth2Client	= $facebook->getOAuth2Client();
+					$token			= $oAuth2Client->getLongLivedAccessToken($token);
+				}
+				
+				$token	= $token->getValue();
+			}
+		} catch (Exception $e) {
+			JFactory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+		}
 		
-		$query->clear()
-			->update($db->qn('#__rseventspro_config'))
-			->set($db->qn('value').' = '.$db->q(trim($token)))
-			->where($db->qn('name').' = '.$db->q('facebook_token'));
+		if ($token) {
+			$query->clear()
+				->update($db->qn('#__rseventspro_config'))
+				->set($db->qn('value').' = '.$db->q(trim($token)))
+				->where($db->qn('name').' = '.$db->q('facebook_token'));
+			
+			$db->setQuery($query);
+			$db->execute();
+			
+			return true;
+		}
 		
-		$db->setQuery($query);
-		$db->execute();
+		if ($error = JFactory::getApplication()->input->getString('error_message')) {
+			JFactory::getApplication()->enqueueMessage($error, 'error');
+		}
 		
-		return true;
+		return false;
 	}
 	
 	/**
@@ -374,5 +387,32 @@ class RseventsproModelSettings extends JModelAdmin
 		}
 		
 		return $query;
+	}
+	
+	public function getLogin() {
+		$config 	 = $this->getConfig();
+		$redirectURI = JRoute::_('index.php?option=com_rseventspro&task=settings.savetoken', false, true);
+		
+		if ($config->facebook_appid && $config->facebook_secret) {
+			try {
+				require_once JPATH_SITE.'/components/com_rseventspro/helpers/facebook/autoload.php';
+				
+				$facebook = new Facebook\Facebook(array(
+					'app_id' => $config->facebook_appid,
+					'app_secret' => $config->facebook_secret,
+					'default_graph_version' => 'v2.10'
+				));
+				
+				$helper = $facebook->getRedirectLoginHelper();
+				$permissions = array('user_events', 'manage_pages');
+
+				return $helper->getLoginUrl($redirectURI, $permissions);
+				
+			} catch (Exception $e) {
+				JFactory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+			}
+		}
+		
+		return false;
 	}
 }

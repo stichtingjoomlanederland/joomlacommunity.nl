@@ -33,9 +33,11 @@ class KTemplateHelperUi extends KTemplateHelperAbstract
             'type'    => $identifier->type,
             'styles' => array(),
         ))->append(array(
+            'k_ui_container' => ($config->domain === 'admin' || $config->domain === '') && $config->type === 'com'
+        ))->append(array(
             'wrapper_class' => array(
                 // Only add k-ui-container for top-level component templates
-                ($config->domain === 'admin' || $config->domain === '') && $config->type === 'com' ? 'k-ui-container' : '',
+                ($config->k_ui_container ? 'k-ui-container'.($config->debug ? '' : ' k-no-css-errors') : ''),
                 'k-ui-namespace',
                 $identifier->type.'_'.$identifier->package
             ),
@@ -115,6 +117,7 @@ class KTemplateHelperUi extends KTemplateHelperAbstract
         $html = '';
 
         $html .= $this->getTemplate()->helper('behavior.modernizr', $config->toArray());
+        $html .= $this->getTemplate()->helper('behavior.kodekitui', $config->toArray());
 
         if (($config->domain === 'admin' || $config->domain === '')  && !KTemplateHelperBehavior::isLoaded('admin.js')) {
             // Make sure jQuery is always loaded right before admin.js, helps when wrapping components
@@ -133,14 +136,6 @@ class KTemplateHelperUi extends KTemplateHelperAbstract
         }
 
         $html .= $this->getTemplate()->helper('behavior.koowa', $config->toArray());
-
-        if (!KTemplateHelperBehavior::isLoaded('k-js-enabled'))
-        {
-            $html .= '<script data-inline type="text/javascript">(function() {var el = document.documentElement; var cl = "k-js-enabled"; if (el.classList) { el.classList.add(cl); }else{ el.className += " " + cl;}})()</script>';
-
-            KTemplateHelperBehavior::setLoaded('k-js-enabled');
-        }
-
 
         return $html;
     }

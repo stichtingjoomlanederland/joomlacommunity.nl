@@ -62,6 +62,13 @@
 				<option value="1">JYES</option>
 				<option value="0">JNO</option>
 			</field>
+			<field name="search_by" type="list" default="exact" label="SEARCH_DOCUMENTS_BY" description="SEARCH_DOCUMENTS_BY_DESCRIPTION"
+				   showon="show_document_search:1"
+			>
+				<option value="exact">SEARCH_DOCUMENTS_BY_EXACT</option>
+				<option value="any">SEARCH_DOCUMENTS_BY_ANY</option>
+				<option value="all">SEARCH_DOCUMENTS_BY_ALL</option>
+			</field>
 			<field name="show_category_filter" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_CATEGORY_FILTER" description="SHOW_CATEGORY_FILTER_DESCRIPTION"
 				   showon="show_document_search:1"
 			>
@@ -81,6 +88,12 @@
 				<option value="0">JNO</option>
 			</field>
 			<field name="show_owner_filter" type="radio" class="btn-group btn-group-yesno" default="0" label="SHOW_OWNER_FILTER" description="SHOW_OWNER_FILTER_DESCRIPTION"
+				   showon="show_document_search:1"
+			>
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_content_filter" type="radio" class="btn-group btn-group-yesno" default="0" label="SHOW_CONTENT_FILTER" description="SHOW_CONTENT_FILTER_DESCRIPTION"
 				   showon="show_document_search:1"
 			>
 				<option value="1">JYES</option>
@@ -156,6 +169,11 @@
 				<option value="0">JNO</option>
 			</field>
 			<field name="track_downloads" type="radio" class="btn-group btn-group-yesno" default="1" label="TRACK_DOWNLOADS" description="TRACK_DOWNLOADS_DESCRIPTION">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_player" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_PLAYER" description="SHOW_PLAYER_DESCRIPTION"
+				   showon="force_download:0">
 				<option value="1">JYES</option>
 				<option value="0">JNO</option>
 			</field>

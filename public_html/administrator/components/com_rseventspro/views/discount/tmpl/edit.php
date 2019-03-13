@@ -59,6 +59,16 @@ JHtml::_('behavior.keepalive'); ?>
 					<label for="jform_discounttype_1" class="inline radio"><?php echo JText::_('COM_RSEVENTSPRO_DISCOUNT_APPLY_DIFFERENT_2'); ?></label>
 				</td>
 			</tr>
+			<?php if (rseventsproHelper::isCart('1.1.9')) { ?>
+			<tr>
+				<td>
+					<input type="radio" name="jform[discounttype]" value="2" id="jform_discounttype_2" <?php echo $this->item->discounttype == 2 ? 'checked="checked"' : ''; ?> /> 
+					<label for="jform_discounttype_2" class="inline radio"><?php echo JText::_('COM_RSEVENTSPRO_CART_APPLY_CART_1'); ?></label> 
+					<?php echo $this->form->getInput('cart_tickets'); ?>
+					<label for="jform_discounttype_2" class="inline radio"><?php echo JText::_('COM_RSEVENTSPRO_CART_APPLY_CART_2'); ?></label>
+				</td>
+			</tr>
+			<?php } ?>
 			<tr>
 				<td>
 					<?php echo $this->form->getInput('total'); ?>

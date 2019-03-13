@@ -229,9 +229,9 @@ var _ = self.Prism = {
 					}
 
 					var from = match.index - 1 + lookbehindLength,
-					    match = match[0].slice(lookbehindLength),
-					    len = match.length,
-					    to = from + len,
+						match = match[0].slice(lookbehindLength),
+						len = match.length,
+						to = from + len,
 						before = str.slice(0, from + 1),
 						after = str.slice(to + 1);
 
@@ -328,8 +328,8 @@ if (!self.document) {
 	// In worker
 	self.addEventListener('message', function(evt) {
 		var message = JSON.parse(evt.data),
-		    lang = message.language,
-		    code = message.code;
+			lang = message.language,
+			code = message.code;
 
 		self.postMessage(JSON.stringify(_.tokenize(code, _.languages[lang])));
 		self.close();
@@ -754,48 +754,48 @@ Prism.hooks.add('wrap', function(env) {
 });
 ;
 Prism.languages.http = {
-    'request-line': {
-        pattern: /^(POST|GET|PUT|DELETE|OPTIONS)\b\shttps?:\/\/\S+\sHTTP\/[0-9.]+/g,
-        inside: {
-            // HTTP Verb
-            property: /^\b(POST|GET|PUT|DELETE|OPTIONS)\b/g,
-            // Path or query argument
-            'attr-name': /:\w+/g
-        }
-    },
-    'response-status': {
-        pattern: /^HTTP\/1.[01] [0-9]+.*/g,
-        inside: {
-            // Status, e.g. 200 OK
-            property: /[0-9]+[A-Z\s-]+$/g
-        }
-    },
-    // HTTP header name
-    keyword: /^[\w-]+:(?=.+)/gm
+	'request-line': {
+		pattern: /^(POST|GET|PUT|DELETE|OPTIONS)\b\shttps?:\/\/\S+\sHTTP\/[0-9.]+/g,
+		inside: {
+			// HTTP Verb
+			property: /^\b(POST|GET|PUT|DELETE|OPTIONS)\b/g,
+			// Path or query argument
+			'attr-name': /:\w+/g
+		}
+	},
+	'response-status': {
+		pattern: /^HTTP\/1.[01] [0-9]+.*/g,
+		inside: {
+			// Status, e.g. 200 OK
+			property: /[0-9]+[A-Z\s-]+$/g
+		}
+	},
+	// HTTP header name
+	keyword: /^[\w-]+:(?=.+)/gm
 };
 
 // Create a mapping of Content-Type headers to language definitions
 var httpLanguages = {
-    'application/json': Prism.languages.javascript,
-    'application/xml': Prism.languages.markup,
-    'text/xml': Prism.languages.markup,
-    'text/html': Prism.languages.markup
+	'application/json': Prism.languages.javascript,
+	'application/xml': Prism.languages.markup,
+	'text/xml': Prism.languages.markup,
+	'text/html': Prism.languages.markup
 };
 
 // Insert each content type parser that has its associated language
 // currently loaded.
 for (var contentType in httpLanguages) {
-    if (httpLanguages[contentType]) {
-        var options = {};
-        options[contentType] = {
-            pattern: new RegExp('(content-type:\\s*' + contentType + '[\\w\\W]*?)\\n\\n[\\w\\W]*', 'gi'),
-            lookbehind: true,
-            inside: {
-                rest: httpLanguages[contentType]
-            }
-        };
-        Prism.languages.insertBefore('http', 'keyword', options);
-    }
+	if (httpLanguages[contentType]) {
+		var options = {};
+		options[contentType] = {
+			pattern: new RegExp('(content-type:\\s*' + contentType + '[\\w\\W]*?)\\n\\n[\\w\\W]*', 'gi'),
+			lookbehind: true,
+			inside: {
+				rest: httpLanguages[contentType]
+			}
+		};
+		Prism.languages.insertBefore('http', 'keyword', options);
+	}
 }
 ;
 /**

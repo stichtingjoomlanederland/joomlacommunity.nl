@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2018 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -65,40 +65,36 @@ class RSFormProValidations
 		return true;
 	}
 	
-	public static function email($email,$extra=null,$data=null)
+	public static function email($email, $extra = null, $data = null)
 	{
 		jimport('joomla.mail.helper');
 
 		return JMailHelper::isEmailAddress($email);
 	}
 	
-	public static function emaildns($email,$extra=null,$data=null)
+	public static function emaildns($email, $extra = null, $data = null)
 	{
 		// Check if it's an email address format
 		if (!self::email($email,$extra,$data))
-			return false;
-
-		list($user, $domain) = explode('@', $email, 2);
-		
-		// checkdnsrr for PHP < 5.3.0
-		if (!function_exists('checkdnsrr') && function_exists('exec') && is_callable('exec'))
 		{
-			@exec('nslookup -type=MX '.escapeshellcmd($domain), $output);
-			foreach($output as $line)
-				if (preg_match('/^'.preg_quote($domain).'/',$line))
-					return true;
-			
 			return false;
 		}
 		
-		// fallback method...
+		// Fallback if we don't have these
 		if (!function_exists('checkdnsrr') || !is_callable('checkdnsrr'))
+		{
 			return true;
+		}
 		
-		return checkdnsrr($domain, substr(PHP_OS, 0, 3) == 'WIN' ? 'A' : 'MX');
+		// IDN convert
+		$email = JStringPunycode::emailToPunycode($email);
+		list($user, $domain) = explode('@', $email, 2);
+
+		// Does this domain have a mail exchange record?
+		return checkdnsrr($domain . '.', 'MX');
 	}
 
-	public static function uniquefield($value, $extra=null, $data=null)
+	public static function uniquefield($value, $extra = null, $data = null)
 	{
 		$db 	= JFactory::getDbo();
 		$app	= JFactory::getApplication();
@@ -305,6 +301,13 @@ class RSFormProValidations
 		
 		return true;
 	}
+
+	public static function iban($value, $extra = null, $data = null)
+    {
+        require_once __DIR__ . '/iban.php';
+        $iban = new RSFormIBAN($value);
+        return $iban->validate();
+    }
 	
 	protected static function luhn($value) {
 		$sum = 0;

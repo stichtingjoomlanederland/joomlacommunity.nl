@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -77,7 +77,7 @@ class Html extends BaseView
 		$this->current_part = $part;
 
 		// Render the progress bar
-		$step     = $model->getState('step', 1) + 1;
+		$step     = $model->getState('step', 1, 'int') + 1;
 
 		$script = <<<JS
 

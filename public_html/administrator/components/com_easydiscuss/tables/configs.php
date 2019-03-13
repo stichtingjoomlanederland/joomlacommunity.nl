@@ -1,51 +1,31 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-defined('_JEXEC') or die('Restricted access');
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
 ED::import('admin:/tables/table');
 
 class DiscussConfigs extends EasyDiscussTable
 {
-	/*
-	 * The key of the current config
-	 * @var string
-	 */
 	public $name = null;
-
-	/*
-	 * Raw parameters values.
-	 * @var string
-	 */
 	public $params	= null;
 
-
-	/**
-	 * Constructor for this class.
-	 *
-	 * @return
-	 * @param object $db
-	 */
-	public function __construct(& $db )
+	public function __construct(&$db)
 	{
-		parent::__construct( '#__discuss_configs' , 'name' , $db );
+		parent::__construct('#__discuss_configs', 'name', $db);
 	}
 
-	/**
-	 * Save the configuration
-	 **/
-	public function store( $key = 'config' )
+	public function store($key = 'config')
 	{
-		$db		= DiscussHelper::getDBO();
+		$db = ED::getDBO();
 
 		$query	= 'SELECT COUNT(*) FROM ' . $db->nameQuote( '#__discuss_configs') . ' '
 				. 'WHERE ' . $db->nameQuote( 'name' ) . '=' . $db->Quote( $key );
@@ -53,15 +33,14 @@ class DiscussConfigs extends EasyDiscussTable
 
 		$exists	= ( $db->loadResult() > 0 ) ? true : false;
 
-		$data			= new stdClass();
-		$data->name		= $this->name;
-		$data->params	= trim( $this->params );
+		$data = new stdClass();
+		$data->name = $this->name;
+		$data->params = trim($this->params);
 
-		if( $exists )
-		{
-			return $db->updateObject( '#__discuss_configs' , $data , 'name' );
+		if ($exists) {
+			return $db->updateObject('#__discuss_configs', $data, 'name');
 		}
 
-		return $db->insertObject( '#__discuss_configs' , $data );
+		return $db->insertObject('#__discuss_configs', $data);
 	}
 }

@@ -70,7 +70,9 @@ defined('KOOWA') or die; ?>
                                 </fieldset>
                             </div><!-- .k-container__main -->
 
+                            <!-- Other information -->
                             <div class="k-container__sub">
+
                                 <fieldset class="k-form-block">
 
                                     <div class="k-form-block__header">
@@ -97,7 +99,6 @@ defined('KOOWA') or die; ?>
                                             </ul>
                                         </div>
                                     </div>
-
 
                                 </fieldset>
 
@@ -133,11 +134,9 @@ defined('KOOWA') or die; ?>
                                         </div>
                                     </div>
 
-
                                 </fieldset>
 
-
-                            </div>
+                            </div><!-- .k-container__sub -->
 
                         </div><!-- .k-container -->
 

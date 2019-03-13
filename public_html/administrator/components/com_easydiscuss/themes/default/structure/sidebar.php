@@ -27,20 +27,17 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 			<?php if ($menu->childs) { ?>
 				<a href="javascript:void(0);" data-sidebar-link>
-					<i class="fa <?php echo $menu->icon; ?>"></i> 
-					<span><?php echo $menu->title;?></span>
+					<i class="fa <?php echo $menu->icon; ?>"></i><span><?php echo $menu->title;?></span>
 				</a>
 
 				<?php if ($menu->childs) { ?>
 				<ul class="dropdown-menu" data-sidebar-child>
 					<?php foreach ($menu->childs as $child) { ?>
 					<li class="<?php echo $child->class;?>">
-						<a href="<?php echo $child->link; ?>" class="xtoggle-btn ">
+						<a href="<?php echo $child->link; ?>">
 							<span>
 								<?php echo $child->title;?>
 							</span>
-
-							
 						</a>
 						<?php if (isset($child->counter) && $child->counter) { ?>
 						<span class=" badge pull-right "><?php echo $child->counter;?></span>
@@ -51,7 +48,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<?php } ?>
 
 			<?php } else { ?>
-				<a href="<?php echo $menu->link; ?>"><i class="fa <?php echo $menu->icon; ?>"></i> <?php echo $menu->title;?></a>
+				<a href="<?php echo $menu->link; ?>"><i class="fa <?php echo $menu->icon; ?>"></i><span><?php echo $menu->title;?></span></a>
 			<?php } ?>
 		</li>
 	<?php } ?>

@@ -24,6 +24,7 @@ class RseventsproViewRseventspro extends JViewLegacy
 		$this->comments		= $this->get('Comments');
 		$this->buttons		= $this->get('Buttons');
 		$this->statistics	= $this->get('Statistics');
+		$this->total		= $this->get('Totals');
 		
 		$this->addToolBar();
 		parent::display($tpl);

@@ -7,13 +7,13 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_cards` (
   `card_fname` varchar(255) NOT NULL DEFAULT '',
   `card_lname` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_config` (
   `name` varchar(255) NOT NULL DEFAULT '',
   `value` text NOT NULL,
   PRIMARY KEY (`name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_confirmed` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -21,12 +21,12 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_confirmed` (
   `code` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `ids` (`ids`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_countries` (
   `name` varchar(255) NOT NULL DEFAULT '',
   UNIQUE KEY `name` (`name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_coupons` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_coupons` (
   `action` tinyint(1) NOT NULL DEFAULT '0',
   `groups` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_coupon_codes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_coupon_codes` (
   `used` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `idc` (`idc`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_discounts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -67,13 +67,14 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_discounts` (
   `discounttype` tinyint(2) NOT NULL DEFAULT '0',
   `same_tickets` int(11) NOT NULL DEFAULT '0',
   `different_tickets` int(11) NOT NULL DEFAULT '0',
+  `cart_tickets` int(3) NOT NULL DEFAULT '0',
   `total` tinyint(2) NOT NULL DEFAULT '0',
   `totalvalue` float NOT NULL DEFAULT '0',
   `payment` tinyint(2) NOT NULL DEFAULT '0',
   `paymentvalue` varchar(255) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_emails` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -85,7 +86,7 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_emails` (
   `subject` varchar(255) NOT NULL DEFAULT '',
   `message` text NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_events` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -156,13 +157,21 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_events` (
   `timezone` varchar(255) NOT NULL DEFAULT '',
   `aspectratio` tinyint(1) NOT NULL DEFAULT '0',
   `itemid` int(11) NOT NULL DEFAULT '0',
+  `rsvp` tinyint(2) NOT NULL DEFAULT '0',
+  `rsvp_quota` int(11) NOT NULL DEFAULT '0',
+  `rsvp_guests` tinyint(2) NOT NULL DEFAULT '0',
+  `rsvp_start` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `rsvp_end` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `rsvp_going` tinyint(2) NOT NULL DEFAULT '0',
+  `rsvp_interested` tinyint(2) NOT NULL DEFAULT '0',
+  `rsvp_notgoing` tinyint(2) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `location` (`location`),
   KEY `owner` (`owner`),
   KEY `completed` (`completed`),
   KEY `published` (`published`),
   KEY `published_2` (`published`, `completed`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_files` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -171,7 +180,7 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_files` (
   `location` varchar(255) NOT NULL DEFAULT '',
   `permissions` varchar(6) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_groups` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -196,8 +205,10 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_groups` (
   `can_change_options` tinyint(1) NOT NULL DEFAULT '0',
   `event` text NOT NULL,
   `restricted_categories` text NOT NULL,
+  `can_select_speakers` tinyint(2) NOT NULL DEFAULT '1',
+  `can_add_speaker` tinyint(2) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_locations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -211,7 +222,7 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_locations` (
   `ordering` int(11) NOT NULL DEFAULT '0',
   `published` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_payments` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -222,7 +233,37 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_payments` (
   `redirect` varchar(550) NOT NULL DEFAULT '',
   `published` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `#__rseventspro_rating` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ide` int(11) NOT NULL DEFAULT '0',
+  `value` int(11) NOT NULL DEFAULT '0',
+  `ip` varchar(50) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`),
+  KEY `ide` (`ide`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `#__rseventspro_reports` (
+  `id` INT NOT NULL AUTO_INCREMENT, 
+  `ide` INT NOT NULL DEFAULT '0',
+  `idu` INT NOT NULL DEFAULT '0',
+  `ip` VARCHAR(15) NOT NULL DEFAULT '',
+  `text` TEXT NOT NULL,
+  PRIMARY KEY (`id`), 
+  INDEX (`ide`, `idu`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `#__rseventspro_rsvp_users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ide` int(11) NOT NULL DEFAULT '0',
+  `uid` int(11) NOT NULL DEFAULT '0',
+  `date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `rsvp` varchar(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`),
+  KEY `ide` (`ide`),
+  KEY `uid` (`uid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_rules` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -232,14 +273,29 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_rules` (
   `rule` int(11) NOT NULL DEFAULT '0',
   `mid` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `#__rseventspro_speakers` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL DEFAULT '',
+  `description` text NOT NULL,
+  `image` varchar(255) NOT NULL DEFAULT '',
+  `email` varchar(255) NOT NULL DEFAULT '',
+  `url` varchar(255) NOT NULL DEFAULT '',
+  `facebook` varchar(255) NOT NULL DEFAULT '',
+  `twitter` varchar(255) NOT NULL DEFAULT '',
+  `linkedin` varchar(255) NOT NULL DEFAULT '',
+  `phone` varchar(255) NOT NULL DEFAULT '',
+  `published` tinyint(2) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_sync` (
   `id` varchar(150) NOT NULL DEFAULT '',
   `ide` int(11) NOT NULL DEFAULT '0',
   `from` varchar(50) NOT NULL DEFAULT '',
   KEY `id` (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_sync_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -250,18 +306,18 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_sync_log` (
   `name` varchar(255) NOT NULL DEFAULT '',
   `imported` int(2) NOT NULL DEFAULT '0',
   `message` varchar(255) NOT NULL DEFAULT '',
-  `page` int(2) NOT NULL DEFAULT '0',
+  `page` varchar(255) NOT NULL DEFAULT '',
   `from` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `eid` (`eid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_tags` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL DEFAULT '',
   `published` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_taxonomy` (
   `type` varchar(50) NOT NULL DEFAULT '',
@@ -269,7 +325,7 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_taxonomy` (
   `id` int(11) NOT NULL DEFAULT '0',
   `extra` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`type`,`ide`,`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_tickets` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -283,11 +339,13 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_tickets` (
   `groups` text NOT NULL,
   `attach` tinyint(1) NOT NULL DEFAULT '0',
   `layout` longtext NOT NULL,
+  `from` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `to` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
   `order` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `ide` (`ide`),
   KEY `price` (`price`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_tmp` (
   `hash` varchar(32) NOT NULL DEFAULT '',
@@ -296,7 +354,7 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_tmp` (
   `new` int(11) NOT NULL DEFAULT '0',
   UNIQUE KEY `hash` (`hash`,`table`,`old`),
   KEY `new` (`new`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -325,7 +383,7 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_users` (
   `hash` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `ide` (`ide`,`idu`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_user_info` (
   `id` int(11) NOT NULL,
@@ -333,7 +391,7 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_user_info` (
   `description` text NOT NULL,
   `image` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_user_tickets` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -342,7 +400,7 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_user_tickets` (
   `quantity` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `ids` (`ids`,`idt`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_user_seats` (
   `id` INT NOT NULL AUTO_INCREMENT, 
@@ -351,17 +409,7 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_user_seats` (
   `seat` INT NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`), 
   INDEX (`ids`, `idt`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `#__rseventspro_reports` (
-  `id` INT NOT NULL AUTO_INCREMENT, 
-  `ide` INT NOT NULL DEFAULT '0',
-  `idu` INT NOT NULL DEFAULT '0',
-  `ip` VARCHAR(15) NOT NULL DEFAULT '',
-  `text` TEXT NOT NULL,
-  PRIMARY KEY (`id`), 
-  INDEX (`ide`, `idu`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 
 INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES(1, 'en-GB', 'registration', 1, 1, 0, 'Registration to {EventName}', '<p>Hello {user},</p>\r\n<p>You have been subscribed to {EventName} that will start on {EventStartDate}.</p>');
@@ -376,6 +424,9 @@ INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mod
 INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES(10, 'en-GB', 'notify_me', 1, 1, 0, 'You have a new subscription for {EventName} from {SubscriberName}!', '<p>Hello {OwnerName},</p>\r\n<p>a new subscription to your event {EventName} has been made.</p>\r\n<p><strong>Subscriber info:</strong></p>\r\n<ul>\r\n<li>Date: {SubscribeDate}</li>\r\n<li>Username: {SubscriberUsername}</li>\r\n<li>Name: {SubscriberName}</li>\r\n<li>Email: {SubscriberEmail}</li>\r\n<li>IP: {SubscriberIP}</li>\r\n</ul>\r\n<p><strong>Payment related info (if available):</strong></p>\r\n<ul>\r\n<li>Gateway: {PaymentGateway}</li>\r\n<li>Tickets: {TicketInfo}</li>\r\n<li>Total: {TicketsTotal}</li>\r\n<li>Discount: {TicketsDiscount}</li>\r\n</ul>');
 INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES('', 'en-GB', 'report', 0, 1, 0, 'New report for {EventName}', '<p>Hello,</p>\r\n<p>A new report for <strong>{EventName}</strong> has been added. Here are the details for this report:</p>\r\n<p>User: {ReportUser}</p>\r\n<p>IP: {ReportIP}</p>\r\n<p>Message: {ReportMessage}</p>');
 INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES('', 'en-GB', 'approval', 1, 1, 0, 'Your event ''{EventName}'' has been approved.', '<p>Hello {Owner},</p>\r\n<p>Your event {EventName} has been approved by one of our staff members. You can view your event by clicking <a href="{EventLink}">here</a>.</p>');
+INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES('', 'en-GB', 'rsvpgoing', 1, 1, 0, 'Going to {EventName}', '<p>Hello {user},</p>\r\n<p>Thank you for your participation to <strong>{EventName}</strong> that will start on {EventStartDate}.</p>');
+INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES('', 'en-GB', 'rsvpinterested', 1, 1, 0, 'Interested in going to {EventName}', '<p>Hello {user},</p>\r\n<p>Thank you for your interest in the <strong>{EventName}</strong> event. We hope to see you at this event.</p>\r\n<p>A quick reminder: this event starts on {EventStartDate} and ends on {EventEndDate}.</p>');
+INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES('', 'en-GB', 'rsvpnotgoing', 1, 1, 0, 'Not going to {EventName}', '<p>Hello {user},</p>\r\n<p>We are sorry to see that you cannot come to the <strong>{EventName}</strong> event. Hope you will change your mind.</p>');
 
 
 INSERT IGNORE INTO `#__rseventspro_locations` (`id`, `name`, `url`, `address`, `description`, `coordinates`, `gallery_tags`, `ordering`, `published`) VALUES(1, 'RSEvents!Pro Location', 'http://www.rsjoomla.com', 'Colorado, USA', '<p>This is the location description.</p>', '39.5500507,-105.7820674', '', 0, 1);
@@ -452,7 +503,6 @@ INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('incomplete_
 INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('archive_check', '');
 INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('modal', '0');
 INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('payment_paypal', '0');
-INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('barcode', 'C39');
 INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('jsactivity', '1');
 INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('hideyear', '0');
 INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('postreminder_hash', '2437ec0d9cd9392705cd34c09a3a73c5');
@@ -466,7 +516,6 @@ INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES ('report_to'
 INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES ('report_to_owner', '1');
 INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES ('featured', '0');
 INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES ('color', '0');
-INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('barcode_prefix', 'RST-');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('facebook_pages', '');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('seats_width', '1280');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('seats_height', '800');
@@ -511,6 +560,11 @@ INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('user_icon_
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('facebook_expired', '1');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('facebook_profile', '1');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('facebook_check_owner_profile', '1');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('facebook_recurring', '1');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('filter_from', 'events');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('filter_condition', 'is');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('speaker_icon_width', '100');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('speaker_icon_height', '150');
 
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Afghanistan');
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Akrotiri');

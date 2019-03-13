@@ -46,7 +46,7 @@ class ComFilesDatabaseValidatorNode extends KCommandHandlerAbstract
 			return false;
 		}
 
-		$dest_adapter = $entity->getContainer()->getAdapter($entity->getIdentifier()->name, array(
+		$dest_adapter = $this->getObject(sprintf('com:files.adapter.%s', $entity->getIdentifier()->name), array(
 			'path' => $entity->destination_fullpath
 		));
 

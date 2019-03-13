@@ -47,11 +47,11 @@ RSFormPro.jQueryCalendar = {
 		var forms = Object.keys(RSFormPro.jQueryCalendar.calendarsData);
 		
 		if (countForms > 0) {
-			for(var i = 0; i < countForms; i++) {
+			for (var i = 0; i < countForms; i++) {
 				var formId = forms[i];
 				var calendarsIds = Object.keys(RSFormPro.jQueryCalendar.calendarsData[formId]);
 				
-				for(j = 0; j < calendarsIds.length; j++) {
+				for (var j = 0; j < calendarsIds.length; j++) {
 					RSFormPro.jQueryCalendar.initCalendar(formId, calendarsIds[j], RSFormPro.jQueryCalendar.calendarsData[formId][calendarsIds[j]].config);
 				}
 			}
@@ -292,7 +292,7 @@ RSFormPro.jQueryCalendar = {
 						var currentMaxTime = this.getOptions('maxTime');
 						
 						// need the time Line
-						var timeLine = RSFormPro.jQueryCalendar.gerenateTimeLine(ct, currentMinTime, currentMaxTime, step);
+						var timeLine = RSFormPro.jQueryCalendar.generateTimeLine(ct, currentMinTime, currentMaxTime, step);
 		
 						var checkDate = RSFormPro.jQueryCalendar.checkSelected(this, selectedDate, currentMinTime, currentMaxTime, step, timeLine);
 						if (checkDate != selectedDate) {
@@ -426,7 +426,7 @@ RSFormPro.jQueryCalendar = {
 						var currentMaxTime = this.getOptions('maxTime');
 						
 						// need the time Line
-						var timeLine = RSFormPro.jQueryCalendar.gerenateTimeLine(ct, currentMinTime, currentMaxTime, step);
+						var timeLine = RSFormPro.jQueryCalendar.generateTimeLine(ct, currentMinTime, currentMaxTime, step);
 						
 						var checkDate = RSFormPro.jQueryCalendar.checkSelected(this, selectedDate, currentMinTime, currentMaxTime, step, timeLine);
 						if (checkDate != selectedDate) {
@@ -565,9 +565,10 @@ RSFormPro.jQueryCalendar = {
 	},
 	
 	// recontruct the timeLine form the datetimepicker.js
-	gerenateTimeLine: function(selected, minTime, maxTime, step) {
+	generateTimeLine: function(selected, minTime, maxTime, step) {
 		var now = new Date(selected.getTime());
 		var dateFormat = now.dateFormat('MM/DD/YYYY');
+		var i, j;
 		
 		var minTimeDate = RSFormPro.jQueryCalendar.stringToDate(dateFormat, false);
 		var maxTimeDate = RSFormPro.jQueryCalendar.stringToDate(dateFormat, false);

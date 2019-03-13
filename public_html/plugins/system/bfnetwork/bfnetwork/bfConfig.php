@@ -1,9 +1,10 @@
 <?php
 /**
- * @package   Blue Flame Network (bfNetwork)
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
- * @link      https://myJoomla.com/
+ *
+ * @see      https://myJoomla.com/
+ *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
  * bfNetwork is free software: you can redistribute it and/or modify
@@ -19,7 +20,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see http://www.gnu.org/licenses/
  */
-
 header('Cache-Control: no-cache, must-revalidate');
 header('Expires: Mon, 08 Mar 1978 05:00:00 GMT'); // Phil Taylor's Birthday and Time :-)
 header('Content-type: application/json');
@@ -27,14 +27,14 @@ header('Content-type: application/json');
 // buffer it!
 ob_start();
 
-$isWin = (substr(PHP_OS, 0, 3) == 'WIN');
-$sep = $isWin ? ';' : ':';
-@ini_set('include_path', dirname(__FILE__) . $sep . ini_get('include_path'));
+$isWin = ('WIN' == substr(PHP_OS, 0, 3));
+$sep   = $isWin ? ';' : ':';
+@ini_set('include_path', dirname(__FILE__).$sep.ini_get('include_path'));
 
 // Allow persistent overide of the config\
 
 require 'bfPreferences.php';
-$preferences = new bfPreferences ();
+$preferences = new bfPreferences();
 $preferences = $preferences->getPreferences();
 
 if (!defined('_BF_LOG')) {
@@ -46,13 +46,13 @@ if (!defined('_BF_LOG')) {
 @ini_set('default_socket_timeout', 300);
 
 // Set timezone
-date_default_timezone_set("UTC"); // Should be "UTC"!
+date_default_timezone_set('UTC'); // Should be "UTC"!
 
 // Attempt to ensure we can access the internet on crap configured hosts
 @ini_set('allow_url_fopen', 1);
 
 // Get time limits
-define('_BF_ORIGINAL_TIME_LIMIT', @ini_get("max_execution_time"));
+define('_BF_ORIGINAL_TIME_LIMIT', @ini_get('max_execution_time'));
 
 // Set memory limits - Yes I know 1024M is a large, but hey ;-)
 define('_BF_ORIGINAL_MEMORY_LIMIT', @ini_set('memory_limit', '1024M'));
@@ -61,13 +61,13 @@ define('_BF_ORIGINAL_MEMORY_LIMIT', @ini_set('memory_limit', '1024M'));
 define('_BF_ORIGINAL_DISPLAY_ERRORS', @ini_set('display_errors', 0));
 
 // Debug mode - never enable this on a live site! default: FALSE
-define('_BF_API_DEBUG', FALSE); //should always be  FALSE
+define('_BF_API_DEBUG', false); //should always be  FALSE
 
 // NEVER EVER DEFINE THIS AS TRUE ON A LIVE SITE - WILL leak all replies as non-encrypted!
-define('_BF_API_REPLY_DEBUG_NEVER_ENABLE_THIS_EVER_WILL_LEAK_CONFIDENTIAL_INFO_IN_RESPONSES', FALSE); //should always be FALSE
+define('_BF_API_REPLY_DEBUG_NEVER_ENABLE_THIS_EVER_WILL_LEAK_CONFIDENTIAL_INFO_IN_RESPONSES', false); //should always be FALSE
 
 // used in bfAuditor    default: FALSE
-define('_BF_CONFIG_RESET_STATE_ON_UPGRADE', FALSE);
+define('_BF_CONFIG_RESET_STATE_ON_UPGRADE', false);
 
 // used in bfAuditor    default: 0, 10, 20
 define('_BF_CONFIG_FILES_TIMER_ONE', 0);
@@ -89,7 +89,7 @@ define('_BF_CONFIG_ERROR_RESUME_RETRY_LIMIT', 5);
 
 /**
  * Ok so I know we are using a raw request here... but we want to configure the defaults, log and timer BEFORE
- * we decrypt the encrypted request
+ * we decrypt the encrypted request.
  *
  * we DONT so anything based on the unencrypted data apart from set hardcoded values - there is nothing that can
  * be hacked here,
@@ -99,7 +99,7 @@ $allowedValues = array(
     'FIVE_SECOND_TIMEOUT',
     'SNAIL',
     'DEFAULT',
-    'FAST'
+    'FAST',
 );
 
 if (!array_key_exists('SPEED', $_REQUEST)
@@ -214,7 +214,7 @@ switch ($_REQUEST['SPEED']) {
         define('_BF_CONFIG_DEEPSCAN_TIMER_TWO', 5);
         break;
 
-    case 'DEFAULT';
+    case 'DEFAULT':
     default:
         @ini_set('max_execution_time', 60);
 

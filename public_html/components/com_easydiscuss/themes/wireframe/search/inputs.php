@@ -33,7 +33,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<input type="text" placeholder="<?php echo JText::_('COM_EASYDISCUSS_SEARCH_PLACEHOLDER_ENTER_TAG'); ?>" value="<?php echo $tagLabels; ?>" data-search-tags-label />
 
 		</div>
-		<div class="o-col">
+		<div class="o-col t-lg-pr--md t-xs-pr--no">
 			<div class="ed-search-results-choices__title"><?php echo JText::_('COM_EASYDISCUSS_SEARCH_FILTER_BY_CATEGORY');?></div>
 			<?php
 				$catLabels = '';
@@ -45,6 +45,18 @@ defined('_JEXEC') or die('Unauthorized Access');
 			?>
 			<input type="text" placeholder="<?php echo JText::_('COM_EASYDISCUSS_SEARCH_PLACEHOLDER_ENTER_CATEGORY'); ?>" value="<?php echo $catLabels; ?>" data-search-categories-label />
 		</div>
+
+		<?php if ($postTypes) { ?>
+		<div class="o-col t-lg-pr--md t-xs-pr--no">
+			<div class="ed-search-results-choices__title"><?php echo JText::_('COM_EASYDISCUSS_SEARCH_FILTER_BY_TYPES');?></div>
+			<div class="ed-filter-select-group">
+				<div class="o-select-group">
+					<?php echo $this->output('site/ask/post.types', array('selected' => $postTypeValue)); ?>
+					<div class="o-select-group__drop"></div>
+				</div>
+			</div>
+		</div>
+		<?php } ?>
 	</div>
 
 	<div class="hide" data-tags-container>

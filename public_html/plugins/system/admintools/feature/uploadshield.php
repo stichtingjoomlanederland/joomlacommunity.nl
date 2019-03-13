@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -52,6 +52,7 @@ class AtsystemFeatureUploadshield extends AtsystemFeatureAbstract
 		}
 
 		$extraInfo = '';
+
 		foreach ($filesHash as $key => $temp_descriptor)
 		{
 			if (is_array($temp_descriptor) && !array_key_exists('tmp_name', $temp_descriptor))
@@ -116,6 +117,8 @@ class AtsystemFeatureUploadshield extends AtsystemFeatureAbstract
 						// 1. Null byte check
 						if (strstr($intendedName, "\u0000"))
 						{
+							$extraInfo .= "Block reason: null byte\n";
+
 							$this->exceptionsHandler->blockRequest('uploadshield', null, $extraInfo);
 
 							return;
@@ -128,6 +131,8 @@ class AtsystemFeatureUploadshield extends AtsystemFeatureAbstract
 						// 2a. File extension is .php
 						if ((count($explodedName) > 1) && (strtolower($explodedName[0]) == 'php'))
 						{
+							$extraInfo .= "Block reason: file extension is .php\n";
+
 							$this->exceptionsHandler->blockRequest('uploadshield', null, $extraInfo);
 
 							return;
@@ -136,6 +141,8 @@ class AtsystemFeatureUploadshield extends AtsystemFeatureAbstract
 						// 2a. File extension is php.xxx
 						if ((count($explodedName) > 2) && (strtolower($explodedName[1]) == 'php'))
 						{
+							$extraInfo .= "Block reason: file extension is in the form of .php.xxx\n";
+
 							$this->exceptionsHandler->blockRequest('uploadshield', null, $extraInfo);
 
 							return;
@@ -144,6 +151,8 @@ class AtsystemFeatureUploadshield extends AtsystemFeatureAbstract
 						// 2b. File extensions is php.xxx.yyy
 						if ((count($explodedName) > 3) && (strtolower($explodedName[2]) == 'php'))
 						{
+							$extraInfo .= "Block reason: file extension is in the form of .php.xxx.yyy\n";
+
 							$this->exceptionsHandler->blockRequest('uploadshield', null, $extraInfo);
 
 							return;
@@ -171,6 +180,18 @@ class AtsystemFeatureUploadshield extends AtsystemFeatureAbstract
 								// Do we have a regular PHP tag?
 								if (stristr($buffer, '<?php'))
 								{
+									$extraInfo .= "Block reason: file contains PHP open tag\n";
+
+									$this->exceptionsHandler->blockRequest('uploadshield', null, $extraInfo);
+
+									return;
+								}
+
+								// Do we have a (possibly concealed) PHAR file?
+								if (strstr($buffer, '__HALT_COMPILER'))
+								{
+									$extraInfo .= "Block reason: file is a possibly concealed PHAR file\n";
+
 									$this->exceptionsHandler->blockRequest('uploadshield', null, $extraInfo);
 
 									return;
@@ -182,6 +203,8 @@ class AtsystemFeatureUploadshield extends AtsystemFeatureAbstract
 									// ...do I have a short tag?
 									if (strstr($buffer, '<?'))
 									{
+										$extraInfo .= "Block reason: file contains PHP short tag\n";
+
 										$this->exceptionsHandler->blockRequest('uploadshield', null, $extraInfo);
 
 										return;
@@ -189,18 +212,16 @@ class AtsystemFeatureUploadshield extends AtsystemFeatureAbstract
 								}
 
 								// Keep the last 4 bytes of data to make sure we can catch partial strings.
-								$data = substr($data, -4);
+								$data = substr($data, -14);
 
 								// WARNING: Do NOT try seek to an earlier position! Here's how it all works.
 								//
 								// We just need to keep the last four bytes in $data so we can append the next 128Kb.
 								// This way if the start of the tag is in the previous block and the rest is in the next
-								// 128Kb block we can still scan it. The value 4 is not random. <?php is 5 characters
+								// 128Kb block we can still scan it. The value 14 is not random. __HALT_COMPILER is 15 characters
 								// and the longest string we're trying to detect. If it existed in this block we'd have
 								// already found it and blocked it. Therefore the only possibility is that this block
-								// ended in <, <?, <?p or <?ph with the rest of the string (?php, php, hp or p
-								// respectively) being present in the next block. The longest of these partial strings
-								// is "<?ph" which is FOUR characters.
+								// ended in any of the first 14 characters of that substring.
 								//
 								// Do NOT seek to an earlier file position. It would be a rather silly thing to do.
 							}

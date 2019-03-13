@@ -1,10 +1,8 @@
 <?php
 /**
- * @package AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license GNU General Public License version 3, or later
- *
- * @since 1.3
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 defined('KICKSTART') or die;
@@ -88,6 +86,7 @@ class AKFeatureTransfer
 		$frag      = isset($_GET['frag']) ? $_GET['frag'] : 0;
 		$fragSize  = isset($_GET['fragSize']) ? $_GET['fragSize'] : 1048576;
 		$data      = isset($_POST['data']) ? $_POST['data'] : '';
+		$dataFile  = isset($_GET['dataFile']) ? $_GET['dataFile'] : '';
 
 		// We need a file
 		if (empty($file))
@@ -140,7 +139,14 @@ class AKFeatureTransfer
 			);
 		}
 
-		// We need some data
+		// If a data file was given, read it to memory
+		if (empty($data) && !empty($dataFile))
+		{
+			// Do not remove the basename(). It makes sure we won't try to read a file outside our directory.
+			$data = @file_get_contents(__DIR__ . '/' . basename($dataFile));
+		}
+
+		// We need some data to write, yes?
 		if (empty($data))
 		{
 			return array(

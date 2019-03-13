@@ -1,13 +1,11 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
- *
- *
  */
 
 namespace Akeeba\Engine\Postproc\Connector;
@@ -32,7 +30,14 @@ class OneDrive
 	 */
 	protected $refreshToken = '';
 
-	/**
+    /**
+     * Download ID to use with the helper URL
+     *
+     * @var string
+     */
+    private $dlid = '';
+
+    /**
 	 * The root URL for the OneDrive API, ref http://onedrive.github.io/README.htm
 	 */
 	protected $rootUrl = 'https://api.onedrive.com/v1.0/';
@@ -60,13 +65,15 @@ class OneDrive
 	/**
 	 * Public constructor
 	 *
-	 * @param   string $accessToken  The access token for accessing OneDrive
-	 * @param   string $refreshToken The refresh token for getting new access tokens for OneDrive
+	 * @param   string  $accessToken   The access token for accessing OneDrive
+	 * @param   string  $refreshToken  The refresh token for getting new access tokens for OneDrive
+	 * @param   string  $dlid          The AkeebaBackup.com Download ID, used whenever you try to refresh the token
 	 */
-	public function __construct($accessToken, $refreshToken)
+	public function __construct($accessToken, $refreshToken, $dlid)
 	{
 		$this->accessToken  = $accessToken;
 		$this->refreshToken = $refreshToken;
+		$this->dlid         = $dlid;
 	}
 
 	/**
@@ -112,12 +119,7 @@ class OneDrive
 			return $response;
 		}
 
-		$refreshUrl = $this->getRefreshUrl();
-
-		$refreshResponse = $this->fetch('GET', $refreshUrl);
-
-		$this->refreshToken = $refreshResponse['refresh_token'];
-		$this->accessToken = $refreshResponse['access_token'];
+		$refreshResponse = $this->refreshToken();
 
 		return array_merge($response, $refreshResponse);
 	}
@@ -251,11 +253,12 @@ class OneDrive
 	/**
 	 * Get a signed download URL for the remote file with the specified relative path to Drive's root
 	 *
-	 * @param   string  $path  Relative path to Drive's root
+	 * @param   string  $path   Relative path to Drive's root
+	 * @param   bool    $retry  Should I try to refresh the token and retry getting a URL if getting the URL fails?
 	 *
 	 * @return  string  Signed URL to download the file's contents
 	 */
-	public function getSignedUrl($path)
+	public function getSignedUrl($path, $retry = true)
 	{
 		$relativeUrl = $this->normalizeDrivePath($path, 'content');
 
@@ -271,12 +274,20 @@ class OneDrive
 
 		foreach ($lines as $line)
 		{
-			if (strpos($line, 'Location: ') === 0)
+			if (stripos($line, 'Location: ') === 0)
 			{
 				list($header, $location) = explode(': ', $line, 2);
 
 				return $location . '?access_token=' . $this->accessToken;
 			}
+		}
+
+		// Hm, we seem to have failed. This probably means that we need to refresh the tokens. Should I?
+		if ($retry)
+		{
+			$this->refreshToken();
+
+			return $this->getSignedUrl($path, false);
 		}
 
 		throw new \RuntimeException('Could not get the download URL', 500);
@@ -550,7 +561,7 @@ class OneDrive
 	 *
 	 * @throws  \RuntimeException
 	 *
-	 * @return  array
+	 * @return  array|string
 	 */
 	protected function fetch($method, $relativeUrl, array $additional = array(), $explicitPost = null)
 	{
@@ -780,6 +791,23 @@ class OneDrive
 	}
 
 	/**
+	 * Refresh the access token.
+	 *
+	 * @return array|string  The result coming from OneDrive
+	 */
+	public function refreshToken()
+	{
+		$refreshUrl = $this->getRefreshUrl();
+
+		$refreshResponse = $this->fetch('GET', $refreshUrl);
+
+		$this->refreshToken = $refreshResponse['refresh_token'];
+		$this->accessToken  = $refreshResponse['access_token'];
+
+		return $refreshResponse;
+	}
+
+	/**
 	 * Returns an fully qualified, authenticated URL from a relative URL
 	 *
 	 * @param   string $relativeUrl The URL to apply
@@ -836,6 +864,6 @@ class OneDrive
 	 */
 	protected function getRefreshUrl()
 	{
-		return self::helperUrl . '?refresh_token=' . urlencode($this->refreshToken);
+		return self::helperUrl . '?refresh_token=' . urlencode($this->refreshToken) . '&dlid=' . $this->dlid;
 	}
 }

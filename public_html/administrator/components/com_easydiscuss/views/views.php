@@ -246,6 +246,28 @@ class EasyDiscussAdminView extends EasyDiscussViewParent
 	}
 
 	/**
+	 * Allows caller to set the header title in the structure layout.
+	 *
+	 * @since	2.1.0
+	 * @access	public
+	 */
+	public function setHeading($title, $description = '')
+	{
+		// Set the title in Joomla as well
+		JToolBarHelper::title(JText::_('COM_EASYDISCUSS_DASHBOARD'));
+
+		$this->panelTitle = JText::_($title);
+
+		if ($description) {
+			$this->panelDescription = JText::_($description);
+			return;
+		}
+
+
+		$this->panelDescription = JText::_($title . '_DESC');
+	}
+
+	/**
 	 * Allows caller to set the title
 	 *
 	 * @since	4.0

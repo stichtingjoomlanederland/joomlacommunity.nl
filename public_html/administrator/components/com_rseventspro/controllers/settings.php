@@ -90,11 +90,7 @@ class RseventsproControllerSettings extends JControllerLegacy
 			$this->setMessage($model->getError(), 'error');
 			$this->setRedirect('index.php?option=com_rseventspro&view=settings');
 		} else {
-			echo '<script type="text/javascript">';
-			echo 'window.opener.location = \''.addslashes(JRoute::_('index.php?option=com_rseventspro&view=settings&fb=1',false)).'\';';
-			echo 'window.close();';
-			echo '</script>';
-			JFactory::getApplication()->close();
+			$this->setRedirect(JRoute::_('index.php?option=com_rseventspro&view=settings&fb=1',false));
 		}
 	}
 	

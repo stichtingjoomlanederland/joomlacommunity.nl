@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<access component="com_rsform">
+	<section name="component">
+		<action name="core.admin" title="JACTION_ADMIN" description="JACTION_ADMIN_COMPONENT_DESC" />
+		<action name="core.manage" title="JACTION_MANAGE" description="JACTION_MANAGE_COMPONENT_DESC" />
+		<action name="forms.manage" title="COM_RSFORM_FORMS_MANAGE_PERMISSION" description="COM_RSFORM_FORMS_MANAGE_PERMISSION_DESC" />
+		<action name="directory.manage" title="COM_RSFORM_DIRECTORY_MANAGE_PERMISSION" description="COM_RSFORM_DIRECTORY_MANAGE_PERMISSION_DESC" />
+		<action name="submissions.manage" title="COM_RSFORM_SUBMISSIONS_MANAGE_PERMISSION" description="COM_RSFORM_SUBMISSIONS_MANAGE_PERMISSION_DESC" />
+		<action name="backuprestore.manage" title="COM_RSFORM_BACKUP_RESTORE_MANAGE_PERMISSION" description="COM_RSFORM_BACKUP_RESTORE_MANAGE_PERMISSION_DESC" />
+	</section>
+</access>

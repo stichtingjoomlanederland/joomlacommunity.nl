@@ -44,6 +44,14 @@
 				<option value="1">JYES</option>
 				<option value="0">JNO</option>
 			</field>
+			
+			<field name="columns" showon="hierarchy:0" type="list" default="" label="COM_RSEVENTSPRO_COLUMNS" description="COM_RSEVENTSPRO_COLUMNS_DESC">
+				<option value="1">COM_RSEVENTSPRO_COLUMNS_1</option>
+				<option value="2">COM_RSEVENTSPRO_COLUMNS_2</option>
+				<option value="3">COM_RSEVENTSPRO_COLUMNS_3</option>
+				<option value="4">COM_RSEVENTSPRO_COLUMNS_4</option>
+			</field>
+			
 		</fieldset>
 	</fields>
 </metadata>

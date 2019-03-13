@@ -55,7 +55,7 @@ JText::script('RSFP_JSON_DECODING_ERROR');
 </form>
 
 <script type="text/javascript">
-function submitbutton(task)
+Joomla.submitbutton = function(task)
 {
 	if (task == 'backup.start') {
 		if (document.adminForm.boxchecked.value == 0) {
@@ -73,6 +73,4 @@ function submitbutton(task)
 	
 	Joomla.submitform(task);
 }
-
-Joomla.submitbutton = submitbutton;
 </script>

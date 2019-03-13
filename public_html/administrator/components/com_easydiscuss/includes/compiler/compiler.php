@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -46,8 +46,6 @@ class EasyDiscussCompiler extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function compile($minify = true, $force = false, $isBuild = false)
 	{
@@ -74,8 +72,6 @@ class EasyDiscussCompiler extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getFileName($version, $prefix = '')
 	{
@@ -95,8 +91,6 @@ class EasyDiscussCompiler extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getVersion($isBuild = false)
 	{
@@ -121,8 +115,6 @@ class EasyDiscussCompiler extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getContents($folders, $exclusion = array())
 	{
@@ -181,8 +173,6 @@ class EasyDiscussCompiler extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function files($version, $force = false)
 	{
@@ -242,8 +232,6 @@ class EasyDiscussCompiler extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function attach()
 	{
@@ -284,10 +272,13 @@ class EasyDiscussCompiler extends EasyDiscuss
 			$script = $this->createScriptTag($uri);
 
 			// We need to define this to fix joomla in subfolder issue
-			$siteConfig = $this->createScriptBlock('window.ed_site = "' . JURI::root() . '";');
-			
-			$this->doc->addCustomTag($siteConfig);
-			$this->doc->addCustomTag($script);
+			$siteConfig = $this->createScriptBlock($this->getConfiguration());
+
+			// Ensure that document type is under html
+			if ($this->doc->getType() == 'html') {
+				$this->doc->addCustomTag($siteConfig);
+				$this->doc->addCustomTag($script);
+			}
 
 			return;
 		}
@@ -296,15 +287,18 @@ class EasyDiscussCompiler extends EasyDiscuss
 		if ($this->config->get('system_environment') == 'development') {
 
 			// On development mode we need to insert discuss_site to fix subfolder issues in requirejs
-			$siteConfig = $this->createScriptBlock('window.ed_site = "' . JURI::root() . '";');
+			$siteConfig = $this->createScriptBlock($this->getConfiguration());
 
 			// Only in development mode we should load the require.js separately
 			$requirejs = $this->createScriptTag($this->base . '/vendors/require.js');
 			$core = $this->createScriptTag($this->base . '/' . $path . '/core.js');
 
-			$this->doc->addCustomTag($siteConfig);
-			$this->doc->addCustomTag($requirejs);
-			$this->doc->addCustomTag($core);
+			// Ensure that document type is under html
+			if ($this->doc->getType() == 'html') {
+				$this->doc->addCustomTag($siteConfig);
+				$this->doc->addCustomTag($requirejs);
+				$this->doc->addCustomTag($core);
+			}
 		}
 	}
 
@@ -313,8 +307,6 @@ class EasyDiscussCompiler extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function createScriptTag($path)
 	{
@@ -326,11 +318,39 @@ class EasyDiscussCompiler extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function createScriptBlock($contents = '')
 	{
-		return '<script type="text/javascript">' . $contents . '</script>';
+		ob_start();
+?>
+<!--googleoff: index-->
+<script type="text/javascript">
+<?php echo $contents;?>
+</script>
+<!--googleon: index-->
+<?php
+		$contents = ob_get_contents();
+		ob_end_clean();
+
+		return $contents;
+	}
+
+	/**
+	 * Generates EasyDiscuss dependencies
+	 *
+	 * @since	4.2.0
+	 * @access	public
+	 */
+	public function getConfiguration()
+	{
+ob_start();
+?>
+window.ed_site = "<?php echo JURI::root();?>";
+window.ed_mobile = <?php echo (ED::responsive()->isMobile()) ? 'true' : 'false'; ?>;
+<?php
+$contents = ob_get_contents();
+ob_end_clean();
+
+		return $contents;
 	}
 }

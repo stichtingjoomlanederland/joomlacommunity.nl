@@ -46,8 +46,29 @@ ed.require(['edq', 'easydiscuss', 'jquery.scrollto'], function($, EasyDiscuss) {
 		});
 	});
 
+	var saveState = $.Deferred();
+
 	submitButton.on('click', function() {
-		submitPost(this);
+		var deferredObjects = [];
+		var element = this;
+
+		$(document).trigger('onSubmitPost', [deferredObjects]);
+
+		if (deferredObjects.length <= 0) {
+			saveState.resolve();
+		} else {
+			$.when.apply(null, deferredObjects) 
+				.done(function() {
+					saveState.resolve();
+				})
+				.fail(function() {
+					saveState.reject();
+				});
+		}
+
+		saveState.done(function() {
+			submitPost(element);
+		});
 	});
 
 	function submitPost(element, action) {
@@ -72,8 +93,6 @@ ed.require(['edq', 'easydiscuss', 'jquery.scrollto'], function($, EasyDiscuss) {
 		title.parent().removeClass('has-error');
 
 		if (title.val() == '' || title.val().length < minimumTitle) {
-
-			// Add error
 			title.parent().addClass('has-error');
 			alertError.removeAttr('hidden');
 
@@ -87,6 +106,22 @@ ed.require(['edq', 'easydiscuss', 'jquery.scrollto'], function($, EasyDiscuss) {
 
 			return false;
 		}
+
+		<?php if ($this->config->get('main_post_title_limit')) { ?>
+		var maxCharacters = <?php echo $this->config->get('main_post_title_chars'); ?>;
+			
+		if (title.val().length > maxCharacters) {
+			title.parent().addClass('has-error');
+			alertError.removeAttr('hidden');
+
+			alertError.html('<?php echo JText::sprintf("COM_ED_POST_TITLE_EXCEEDED_LIMIT", $this->config->get('main_post_title_chars')); ?>');
+
+			$(document).scrollTo(alertError);
+
+			return false;
+		}
+		<?php } ?>
+		
 
 		var category = $('#category_id');
 

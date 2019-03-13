@@ -21,20 +21,6 @@ class ComDocmanDispatcherHttp extends ComKoowaDispatcherHttp
         parent::_initialize($config);
     }
 
-    protected function _setResponse(KDispatcherContextInterface $context)
-    {
-        $request = $context->getRequest();
-        $view    = $request->getQuery()->view;
-        $layout  = $request->getQuery()->layout;
-
-        if (in_array($view, ['config', 'script', 'doclink', 'upload', 'document', 'category'])
-            || ($view === 'files' && $layout === 'select')) {
-            $request->getHeaders()->set('X-Flush-Response', 1);
-        }
-
-        parent::_setResponse($context);
-    }
-
     public function getRequest()
     {
         $request = parent::getRequest();

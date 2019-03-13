@@ -1,9 +1,10 @@
 <?php
 /**
- * @package   Blue Flame Network (bfNetwork)
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
- * @link      https://myJoomla.com/
+ *
+ * @see      https://myJoomla.com/
+ *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
  * bfNetwork is free software: you can redistribute it and/or modify
@@ -28,22 +29,21 @@ require 'bfEncrypt.php';
  */
 final class bfTools
 {
-
     /**
      * We pass the command to run as a simple integer in our encrypted
      * request this is mainly to speed up the decryption process, plus its a
-     * single digit(or 2) rather than a huge string to remember :-)
+     * single digit(or 2) rather than a huge string to remember :-).
      */
     private $_methods = array(
-        1 => 'getCoreHashFailedFileList',
-        2 => 'downloadfile',
-        3 => 'restorefile',
-        4 => 'getSuspectContentFileList',
-        5 => 'deleteFile',
-        6 => 'checkFTPLayer',
-        7 => 'disableFTPLayer',
-        8 => 'checkNewDBCredentials',
-        9 => 'testDbCredentials',
+        1  => 'getCoreHashFailedFileList',
+        2  => 'downloadfile',
+        3  => 'restorefile',
+        4  => 'getSuspectContentFileList',
+        5  => 'deleteFile',
+        6  => 'checkFTPLayer',
+        7  => 'disableFTPLayer',
+        8  => 'checkNewDBCredentials',
+        9  => 'testDbCredentials',
         10 => 'getFolderPermissions',
         11 => 'setFolderPermissions',
         12 => 'getHiddenFolders',
@@ -97,7 +97,18 @@ final class bfTools
         60 => 'getJoomlaLogTmpConfig',
         61 => 'getActivityLog',
         62 => 'getBFPluginStatus',
-        63 => 'getMD5PasswordUsers'
+        63 => 'getMD5PasswordUsers',
+        64 => 'getSessionGCStatus',
+        65 => 'setSessionGCStatus',
+        66 => 'get2FAPlugins',
+        67 => 'enable2FAPlugins',
+        68 => 'setLogTmpPaths',
+        69 => 'removeLiveSite',
+        70 => 'getConfiguredLiveSite',
+        71 => 'getSEFConfig',
+        72 => 'setSEFConfig',
+        73 => 'getAdminFilterFixed',
+        74 => 'setAdminFilterFixed',
     );
 
     private $fluffFiles = array(
@@ -157,24 +168,26 @@ final class bfTools
         '/images/sampledata/parks/landscape/800px_cradle_mountain_seen_from_barn_bluff.jpg',
         '/images/sampledata/parks/landscape/800px_ormiston_pound.jpg',
         '/images/sampledata/parks/landscape/800px_pinnacles_western_australia.jpg',
-        '/images/sampledata/parks/parks.gif'
+        '/images/sampledata/parks/parks.gif',
     );
 
     /**
-     * Pointer to the Joomla Database Object
+     * Pointer to the Joomla Database Object.
+     *
      * @var JDatabaseMysql
      */
     private $_db;
 
     /**
-     * Incoming decrypted vars from the request
+     * Incoming decrypted vars from the request.
+     *
      * @var stdClass
      */
     private $_dataObj;
 
     /**
      * PHP 5 Constructor,
-     * I inject the request to the object
+     * I inject the request to the object.
      *
      * @param stdClass $dataObj
      */
@@ -191,31 +204,28 @@ final class bfTools
     }
 
     /**
-     * I'm the controller - I run methods based on the request integer
+     * I'm the controller - I run methods based on the request integer.
      */
     public function run()
     {
         if (property_exists($this->_dataObj, 'c')) {
-
-            $c = ( int )$this->_dataObj->c;
+            $c = (int) $this->_dataObj->c;
             if (array_key_exists($c, $this->_methods)) {
-                bfLog::log('Calling methd ' . $this->_methods [$c]);
+                bfLog::log('Calling methd '.$this->_methods[$c]);
                 // call the right method
-                $this->{$this->_methods [$c]} ();
+                $this->{$this->_methods[$c]} ();
             } else {
-
                 // Die if an unknown function
-                bfEncrypt::reply('error', 'No Such method #err1 - ' . $c);
+                bfEncrypt::reply('error', 'No Such method #err1 - '.$c);
             }
         } else {
-
             // Die if an unknown function
             bfEncrypt::reply('error', 'No Such method #err2');
         }
     }
 
     /**
-     * Check several EOL files for security patches
+     * Check several EOL files for security patches.
      */
     public function eolsecuritystatus()
     {
@@ -223,14 +233,15 @@ final class bfTools
 
         /**
          * Joomla 1,5 & 2.5 Series
-         * [20151201] - Core - Remote Code Execution Vulnerability
+         * [20151201] - Core - Remote Code Execution Vulnerability.
+         *
          * @see    http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-8562
          * @secure md5 debug.php    Joomla 2.5.x    54a2f22406d8ee4b281d1a4543cb072b
          * @secure md5 session.php  Joomla 2.5.x    e9ac6f13100536eefa9241191c85c4b0
          * @secure md5 session.php  Joomla 1.5.x    63651a22d38b69f66959199955c5490c
          */
-        $file = JPATH_BASE . '/libraries/joomla/session/session.php';
-        $file2 = JPATH_BASE . '/plugins/system/debug/debug.php';
+        $file  = JPATH_BASE.'/libraries/joomla/session/session.php';
+        $file2 = JPATH_BASE.'/plugins/system/debug/debug.php';
 
         if (file_exists($file)) {
             $data['CVE20158562']['session'] = md5_file($file);
@@ -245,11 +256,12 @@ final class bfTools
         }
 
         /**
-         * Joomla 1,5.xxx
+         * Joomla 1,5.xxx.
+         *
          * @see    http://joomlacode.org/gf/project/joomla/tracker/?action=TrackerItemEdit&tracker_item_id=31626
          * @secure md5 media.php 3de2ea3338d49956b5dabf3a3fa1200d
          */
-        $file = JPATH_BASE . '/administrator/components/com_media/helpers/media.php';
+        $file = JPATH_BASE.'/administrator/components/com_media/helpers/media.php';
 
         if (file_exists($file)) {
             $data['fileupload_15']['media'] = md5_file($file);
@@ -258,11 +270,12 @@ final class bfTools
         }
 
         /**
-         * Joomla 1.5.xxx
+         * Joomla 1.5.xxx.
+         *
          * @see    http://joomlacode.org/gf/project/joomla/tracker/?action=TrackerItemEdit&tracker_item_id=31626
          * @secure md5 file.php 0eabdf91e2c7a26493eeb3dbe7a3fb39
          */
-        $file = JPATH_BASE . '/libraries/joomla/filesystem/file.php';
+        $file = JPATH_BASE.'/libraries/joomla/filesystem/file.php';
 
         if (file_exists($file)) {
             $data['fileupload_15']['file'] = md5_file($file);
@@ -271,63 +284,59 @@ final class bfTools
         }
 
         bfEncrypt::reply('success', array(
-            'data' => $data
+            'data' => $data,
         ));
     }
 
     public function applyeolpatch()
     {
-        $i = 0;
+        $i            = 0;
         $filesToPatch = array();
 
         if (preg_match('/^1\.5/', JVERSION)) {
-
             $filesToPatch[] = array(
-                'source' => 'https://cdn.myjoomla.com/public/patchfile/1',
-                'destination' => JPATH_BASE . '/libraries/joomla/filesystem/file.php'
+                'source'      => 'https://cdn.myjoomla.com/public/patchfile/1',
+                'destination' => JPATH_BASE.'/libraries/joomla/filesystem/file.php',
             );
             $filesToPatch[] = array(
-                'source' => 'https://cdn.myjoomla.com/public/patchfile/2',
-                'destination' => JPATH_BASE . '/administrator/components/com_media/helpers/media.php'
+                'source'      => 'https://cdn.myjoomla.com/public/patchfile/2',
+                'destination' => JPATH_BASE.'/administrator/components/com_media/helpers/media.php',
             );
             $filesToPatch[] = array(
-                'source' => 'https://cdn.myjoomla.com/public/patchfile/3',
-                'destination' => JPATH_BASE . '/libraries/joomla/session/session.php'
+                'source'      => 'https://cdn.myjoomla.com/public/patchfile/3',
+                'destination' => JPATH_BASE.'/libraries/joomla/session/session.php',
             );
-
-        } else if (preg_match('/^2\.5/', JVERSION)) {
-
+        } elseif (preg_match('/^2\.5/', JVERSION)) {
             $filesToPatch[] = array(
-                'source' => 'https://cdn.myjoomla.com/public/patchfile/4',
-                'destination' => JPATH_BASE . '/libraries/joomla/session/session.php'
+                'source'      => 'https://cdn.myjoomla.com/public/patchfile/4',
+                'destination' => JPATH_BASE.'/libraries/joomla/session/session.php',
             );
             $filesToPatch[] = array(
-                'source' => 'https://cdn.myjoomla.com/public/patchfile/5',
-                'destination' => JPATH_BASE . '/plugins/system/debug/debug.php'
+                'source'      => 'https://cdn.myjoomla.com/public/patchfile/5',
+                'destination' => JPATH_BASE.'/plugins/system/debug/debug.php',
             );
         }
 
         foreach ($filesToPatch as $fileToPatch) {
-
             $source = base64_decode(file_get_contents($fileToPatch['source']));
 
             if (!is_writable($fileToPatch['destination'])) {
                 bfEncrypt::reply('error', array(
-                    'msg' => 'File NOT patched as it is unwritable: ' . $fileToPatch['destination']
+                    'msg' => 'File NOT patched as it is unwritable: '.$fileToPatch['destination'],
                 ));
             }
 
             if (!$source) {
                 bfEncrypt::reply('error', array(
-                    'msg' => 'File NOT patched as no source for it: ' . $fileToPatch['destination']
+                    'msg' => 'File NOT patched as no source for it: '.$fileToPatch['destination'],
                 ));
             }
 
             if (file_put_contents($fileToPatch['destination'], $source)) {
-                $i++;
+                ++$i;
             } else {
                 bfEncrypt::reply('error', array(
-                    'msg' => 'File NOT patched - no idea why :-( we coult not write to the file '
+                    'msg' => 'File NOT patched - no idea why :-( we coult not write to the file ',
                 ));
             }
 
@@ -335,65 +344,62 @@ final class bfTools
         }
 
         bfEncrypt::reply('success', array(
-            'msg' => $i . ' File(s) patched!'
+            'msg' => $i.' File(s) patched!',
         ));
     }
 
     /**
-     * Method to delete a named file when we know its id
+     * Method to delete a named file when we know its id.
      */
     private function deleteFile()
     {
-
         // Get the filewithpath based on the id
-        $this->_db->setQuery('SELECT filewithpath from bf_files WHERE id = ' . ( int )$this->_dataObj->file_id);
+        $this->_db->setQuery('SELECT filewithpath from bf_files WHERE id = '.(int) $this->_dataObj->file_id);
         $filewithpath = $this->_db->loadResult();
 
         // check that the file we got form the database matches to the path we think it should be
         if ($this->_dataObj->filewithpath != $filewithpath) {
             bfEncrypt::reply('failure', array(
-                'msg' => 'File Not matching: ' . $this->_dataObj->filewithpath . ' !== ' . $filewithpath
+                'msg' => 'File Not matching: '.$this->_dataObj->filewithpath.' !== '.$filewithpath,
             ));
         }
 
         // If the file doesnt exist then remove from cache and reply
-        if (!file_exists(JPATH_BASE . $filewithpath)) {
-            $this->_db->setQuery("DELETE FROM bf_files WHERE id = " . ( int )$this->_dataObj->file_id);
+        if (!file_exists(JPATH_BASE.$filewithpath)) {
+            $this->_db->setQuery('DELETE FROM bf_files WHERE id = '.(int) $this->_dataObj->file_id);
             $this->_db->query();
             bfEncrypt::reply('failure', array(
-                'msg' => 'File doesn\'t exist: ' . $filewithpath
+                'msg' => 'File doesn\'t exist: '.$filewithpath,
             ));
         }
 
         // Attempt to force deletion
-        if (!is_writable(JPATH_BASE . $filewithpath)) {
-            @chmod(JPATH_BASE . $filewithpath, 0777);
+        if (!is_writable(JPATH_BASE.$filewithpath)) {
+            @chmod(JPATH_BASE.$filewithpath, 0777);
         }
 
         // delete the file, making sure we prefix with a path
-        if (@unlink(JPATH_BASE . $filewithpath)) {
-            $this->_db->setQuery("DELETE FROM bf_files WHERE id = " . ( int )$this->_dataObj->file_id);
+        if (@unlink(JPATH_BASE.$filewithpath)) {
+            $this->_db->setQuery('DELETE FROM bf_files WHERE id = '.(int) $this->_dataObj->file_id);
             $this->_db->query();
 
             // File deleted - say yes
             bfEncrypt::reply('success', array(
-                'msg' => 'File deleted: ' . $filewithpath
+                'msg' => 'File deleted: '.$filewithpath,
             ));
         } else {
-
             // File deleted - say no
             bfEncrypt::reply('failure', array(
-                'msg' => 'File Not Deleted: ' . $filewithpath
+                'msg' => 'File Not Deleted: '.$filewithpath,
             ));
         }
     }
 
     /**
-     * I delete a folder
+     * I delete a folder.
      */
     private function deleteFolder()
     {
-
         // Require more complex methods for dealing with files
         require 'bfFilesystem.php';
 
@@ -404,75 +410,70 @@ final class bfTools
         $type = $this->_dataObj->type;
 
         // switch on type
-        if ($type == 'hidden') {
-
+        if ('hidden' == $type) {
             // get the folders cache id
             $folder_id = $this->_dataObj->fid;
 
             // init
-            $msgToReturn = array();
-            $msgToReturn ['deleted_files'] = 0;
-            $msgToReturn ['deleted_folders'] = 0;
-            $msgToReturn ['left'] = 0;
+            $msgToReturn                    = array();
+            $msgToReturn['deleted_files']   = 0;
+            $msgToReturn['deleted_folders'] = 0;
+            $msgToReturn['left']            = 0;
 
             // Do we want to delete all hidden folders?
-            if ($folder_id == 'ALL') { // All meaning all hidden folders, not ALL folders in our db!!
-
-                $this->_dataObj->ls = 0;
+            if ('ALL' == $folder_id) { // All meaning all hidden folders, not ALL folders in our db!!
+                $this->_dataObj->ls    = 0;
                 $this->_dataObj->limit = 999999999;
 
                 // get all the hidden folders
-                $folders = $this->getHiddenFolders(TRUE);
-                bfLog::log('Deleting this many folders : ' . count($folders));
+                $folders = $this->getHiddenFolders(true);
+                bfLog::log('Deleting this many folders : '.count($folders));
 
                 // foreach hidden folder, delete that hidden folder recursivly
                 foreach ($folders as $folder) {
-
                     // delete recursive
-                    bfLog::log('Deleting folder: ' . JPATH_BASE . $folder->folderwithpath);
-                    $msg = Bf_Filesystem::deleteRecursive(JPATH_BASE . $folder->folderwithpath, TRUE, $msg);
+                    bfLog::log('Deleting folder: '.JPATH_BASE.$folder->folderwithpath);
+                    $msg = Bf_Filesystem::deleteRecursive(JPATH_BASE.$folder->folderwithpath, true, $msg);
 
-                    $this->_db->setQuery('DELETE FROM bf_folders WHERE folderwithpath LIKE "' . $folder->folderwithpath . '%"');
+                    $this->_db->setQuery('DELETE FROM bf_folders WHERE folderwithpath LIKE "'.$folder->folderwithpath.'%"');
                     $this->_db->loadResult();
-                    $this->_db->setQuery('DELETE FROM bf_files WHERE filewithpath LIKE "' . $folder->folderwithpath . '%"');
+                    $this->_db->setQuery('DELETE FROM bf_files WHERE filewithpath LIKE "'.$folder->folderwithpath.'%"');
                     $this->_db->loadResult();
 
                     // oh dear we failed
-                    if ($msg ['result'] == 'failure') {
-                        $msgToReturn = array();
-                        $msgToReturn ['deleted_files'] = count(@$msg ['deleted_files']);
-                        $msgToReturn ['deleted_folders'] = count(@$msg ['deleted_folders']);
-                        $msgToReturn ['left'] = $this->getHiddenFolders(TRUE);
+                    if ('failure' == $msg['result']) {
+                        $msgToReturn                    = array();
+                        $msgToReturn['deleted_files']   = count(@$msg['deleted_files']);
+                        $msgToReturn['deleted_folders'] = count(@$msg['deleted_folders']);
+                        $msgToReturn['left']            = $this->getHiddenFolders(true);
 
                         // send back the error message
                         bfEncrypt::reply('failure', array(
-                            'msg' => 'Problem!: ' . json_encode($msgToReturn)
+                            'msg' => 'Problem!: '.json_encode($msgToReturn),
                         ));
                     }
                 }
-
             } else {
-
                 // select the folder to delete
-                $this->_db->setQuery('SELECT folderwithpath FROM bf_folders WHERE id = ' . ( int )$folder_id);
+                $this->_db->setQuery('SELECT folderwithpath FROM bf_folders WHERE id = '.(int) $folder_id);
                 $folderwithpath = $this->_db->loadResult();
 
                 // if the folder is not there
                 if (!$folderwithpath) {
                     bfEncrypt::reply('failure', array(
-                        'msg' => 'Folder Not Found #msg2#: ' . $folderwithpath
+                        'msg' => 'Folder Not Found #msg2#: '.$folderwithpath,
                     ));
                 }
 
-                $msg = Bf_Filesystem::deleteRecursive(JPATH_BASE . $folderwithpath, TRUE, $msg);
+                $msg = Bf_Filesystem::deleteRecursive(JPATH_BASE.$folderwithpath, true, $msg);
             }
 
             // if we deleted some folders
-            if (count($msg ['deleted_folders'])) {
-                foreach ($msg ['deleted_folders'] as $folder) {
+            if (count($msg['deleted_folders'])) {
+                foreach ($msg['deleted_folders'] as $folder) {
                     $fwp = str_replace('//', '/', str_replace(JPATH_BASE, '', $folder));
 
-                    $sql = "DELETE FROM bf_folders where folderwithpath = '" . $fwp . "'";
+                    $sql = "DELETE FROM bf_folders where folderwithpath = '".$fwp."'";
 
                     $this->_db->setQuery($sql);
                     $this->_db->query();
@@ -480,24 +481,24 @@ final class bfTools
             }
 
             // if we deleted some files
-            if (count($msg ['deleted_files'])) {
-                foreach ($msg ['deleted_files'] as $file) {
+            if (count($msg['deleted_files'])) {
+                foreach ($msg['deleted_files'] as $file) {
                     $fwp = str_replace('//', '/', str_replace(JPATH_BASE, '', $file));
 
-                    $sql = "DELETE FROM bf_files where filewithpath = '" . $fwp . "'";
+                    $sql = "DELETE FROM bf_files where filewithpath = '".$fwp."'";
                     $this->_db->setQuery($sql);
                     $this->_db->query();
                 }
             }
 
             // reply back with our warning or success message
-            $msgToReturn = array();
-            $msgToReturn ['deleted_files'] = count($msg ['deleted_files']);
-            $msgToReturn ['deleted_folders'] = count($msg ['deleted_folders']);
-            $msgToReturn ['left'] = count($this->getHiddenFolders(TRUE));
+            $msgToReturn                    = array();
+            $msgToReturn['deleted_files']   = count($msg['deleted_files']);
+            $msgToReturn['deleted_folders'] = count($msg['deleted_folders']);
+            $msgToReturn['left']            = count($this->getHiddenFolders(true));
 
             bfEncrypt::reply('success', array(
-                'msg' => json_encode($msgToReturn)
+                'msg' => json_encode($msgToReturn),
             ));
         }
 
@@ -511,12 +512,12 @@ final class bfTools
             }
 
             foreach ($installationFolders as $folderwithpath) {
-                bfLog::log('Deleting folder: ' . $folderwithpath);
-                $msg = Bf_Filesystem::deleteRecursive(JPATH_BASE . $folderwithpath, TRUE, $msg);
+                bfLog::log('Deleting folder: '.$folderwithpath);
+                $msg = Bf_Filesystem::deleteRecursive(JPATH_BASE.$folderwithpath, true, $msg);
             }
 
             bfEncrypt::reply('success', array(
-                'msg' => 'ok'
+                'msg' => 'ok',
             ));
         }
     }
@@ -526,10 +527,10 @@ final class bfTools
      *
      * @return array|mixed
      */
-    private function getHiddenFolders($internal = FALSE)
+    private function getHiddenFolders($internal = false)
     {
-        $limitstart = ( int )$this->_dataObj->ls;
-        $limit = ( int )$this->_dataObj->limit;
+        $limitstart = (int) $this->_dataObj->ls;
+        $limit      = (int) $this->_dataObj->limit;
 
         if (!$limitstart) {
             $limitstart = 0;
@@ -537,10 +538,10 @@ final class bfTools
         if (!$limit) {
             $limit = '9999999999999999';
         }
-        $this->_db->setQuery('SELECT * FROM bf_folders WHERE folderwithpath LIKE "%/.%" LIMIT ' . ( int )$limitstart . ', ' . $limit);
+        $this->_db->setQuery('SELECT * FROM bf_folders WHERE folderwithpath LIKE "%/.%" LIMIT '.(int) $limitstart.', '.$limit);
         $folders = $this->_db->loadObjectList();
 
-        if ($internal === TRUE) {
+        if (true === $internal) {
             return $folders;
         }
 
@@ -549,53 +550,53 @@ final class bfTools
 
         bfEncrypt::reply('success', array(
             'files' => $folders,
-            'total' => $count
+            'total' => $count,
         ));
     }
 
     /**
-     * Function taken from Akeeba filesystem.php
+     * Function taken from Akeeba filesystem.php.
      *
      * Akeeba Engine
      * The modular PHP5 site backup engine
      *
      * @copyright Copyright (c)2009 Nicholas K. Dionysopoulos
      * @license   GNU GPL version 3 or, at your option, any later version
-     * @package   akeebaengine
+     *
      * @version   Id: scanner.php 158 2010-06-10 08:46:49Z nikosdion
      */
     private function getFolders($folder)
     {
-
         // Initialize variables
-        $arr = array();
-        $false = FALSE;
+        $arr   = array();
+        $false = false;
 
         $folder = trim($folder);
 
-        if (!is_dir($folder) && !is_dir($folder . DIRECTORY_SEPARATOR) || is_link($folder . DIRECTORY_SEPARATOR) || is_link($folder) || !$folder)
+        if (!is_dir($folder) && !is_dir($folder.DIRECTORY_SEPARATOR) || is_link($folder.DIRECTORY_SEPARATOR) || is_link($folder) || !$folder) {
             return $false;
+        }
 
-        if (@file_exists($folder . DIRECTORY_SEPARATOR . '.myjoomla.ignore.folder')) {
+        if (@file_exists($folder.DIRECTORY_SEPARATOR.'.myjoomla.ignore.folder')) {
             return array();
         }
 
         $handle = @opendir($folder);
-        if ($handle === FALSE) {
-            $handle = @opendir($folder . DIRECTORY_SEPARATOR);
+        if (false === $handle) {
+            $handle = @opendir($folder.DIRECTORY_SEPARATOR);
         }
         // If directory is not accessible, just return FALSE
-        if ($handle === FALSE) {
+        if (false === $handle) {
             return $false;
         }
 
-        while ((($file = @readdir($handle)) !== FALSE)) {
-            if (($file != '.') && ($file != '..') && (trim($file) != NULL)) {
-                $ds = ($folder == '') || ($folder == DIRECTORY_SEPARATOR) || (@substr($folder, -1) == DIRECTORY_SEPARATOR) || (@substr($folder, -1) == DIRECTORY_SEPARATOR) ? '' : DIRECTORY_SEPARATOR;
-                $dir = trim($folder . $ds . $file);
+        while ((false !== ($file = @readdir($handle)))) {
+            if (('.' != $file) && ('..' != $file) && (null != trim($file))) {
+                $ds    = ('' == $folder) || (DIRECTORY_SEPARATOR == $folder) || (DIRECTORY_SEPARATOR == @substr($folder, -1)) || (DIRECTORY_SEPARATOR == @substr($folder, -1)) ? '' : DIRECTORY_SEPARATOR;
+                $dir   = trim($folder.$ds.$file);
                 $isDir = @is_dir($dir);
                 if ($isDir) {
-                    $arr [] = $this->cleanupFileFolderName(str_replace(JPATH_BASE, '', $folder . DIRECTORY_SEPARATOR . $file));
+                    $arr[] = $this->cleanupFileFolderName(str_replace(JPATH_BASE, '', $folder.DIRECTORY_SEPARATOR.$file));
                 }
             }
         }
@@ -605,7 +606,7 @@ final class bfTools
     }
 
     /**
-     * Clean up a string, a path name
+     * Clean up a string, a path name.
      *
      * @param string $str
      *
@@ -617,21 +618,21 @@ final class bfTools
         $str = str_replace('///', '/', $str);
         $str = str_replace('//', '/', $str);
         $str = str_replace('\\/', '/', $str);
-        $str = str_replace("\\t", '/t', $str);
+        $str = str_replace('\\t', '/t', $str);
         $str = str_replace("\/", '/', $str);
 
         return addslashes($str);
     }
 
     /**
-     * I get the number of core files that failed the hash checking
+     * I get the number of core files that failed the hash checking.
      */
     private function getCoreHashFailedFileList()
     {
         // set up the limit and limit start for the SQL
-        $limitstart = ( int )$this->_dataObj->ls;
-        $limit = ( int )$this->_dataObj->limit;
-        $this->_db->setQuery('SELECT id, filewithpath, filemtime, fileperms FROM bf_files WHERE hashfailed = 1 LIMIT ' . $limitstart . ', ' . $limit);
+        $limitstart = (int) $this->_dataObj->ls;
+        $limit      = (int) $this->_dataObj->limit;
+        $this->_db->setQuery('SELECT id, filewithpath, filemtime, fileperms FROM bf_files WHERE hashfailed = 1 LIMIT '.$limitstart.', '.$limit);
 
         // Get the files from the cache
         $files = $this->_db->loadObjectList();
@@ -643,22 +644,21 @@ final class bfTools
         // send back the totals
         bfEncrypt::reply('success', array(
             'files' => $files,
-            'total' => $count
+            'total' => $count,
         ));
     }
 
     /**
-     * I get list of database tables that begin with bak_
+     * I get list of database tables that begin with bak_.
      */
     private function deleteBakTables()
     {
-        $tables = $this->getBakTables(TRUE);
+        $tables = $this->getBakTables(true);
 
         // for all the bak tables
         foreach ($tables as $table) {
-
             // compose the sql query
-            $this->_db->setQuery("DROP TABLE " . $table[0]);
+            $this->_db->setQuery('DROP TABLE '.$table[0]);
 
             // delete the bak_tables
             $this->_db->query();
@@ -669,14 +669,14 @@ final class bfTools
         // send back the totals
         bfEncrypt::reply('success', array(
             'tables' => $tables,
-            'total' => $count
+            'total'  => $count,
         ));
     }
 
     /**
-     * I get list of database tables that begin with bak_
+     * I get list of database tables that begin with bak_.
      */
-    private function getBakTables($internal = FALSE)
+    private function getBakTables($internal = false)
     {
         // Get the database name
         $config = JFactory::getApplication();
@@ -689,7 +689,7 @@ final class bfTools
         $tables = $this->_db->loadRowList();
 
         // return array if we are internally calling this method
-        if ($internal === TRUE) {
+        if (true === $internal) {
             return $tables;
         }
 
@@ -699,19 +699,30 @@ final class bfTools
         // send back the totals
         bfEncrypt::reply('success', array(
             'tables' => $tables,
-            'total' => $count
+            'total'  => $count,
         ));
     }
 
     /**
-     * Get a list of folders with 777 permissions
+     * get the value of the $live_site var from configuration.php.
+     */
+    private function getConfiguredLiveSite()
+    {
+        // send back the totals
+        bfEncrypt::reply('success', array(
+            'live_site' => JFactory::getApplication()->getCfg('live_site', ''),
+        ));
+    }
+
+    /**
+     * Get a list of folders with 777 permissions.
      */
     private function getFolderPermissions()
     {
         // set up the limit and the limitstart SQL
-        $limitstart = ( int )$this->_dataObj->ls;
-        $limit = ( int )$this->_dataObj->limit;
-        $this->_db->setQuery('SELECT `id`, `folderwithpath`, `folderinfo` from bf_folders WHERE folderinfo IN ("777", "351", "311") LIMIT ' . $limitstart . ', ' . $limit);
+        $limitstart = (int) $this->_dataObj->ls;
+        $limit      = (int) $this->_dataObj->limit;
+        $this->_db->setQuery('SELECT `id`, `folderwithpath`, `folderinfo` from bf_folders WHERE folderinfo IN ("777", "351", "311") LIMIT '.$limitstart.', '.$limit);
 
         // get the files
         $files = $this->_db->loadObjectList();
@@ -723,19 +734,19 @@ final class bfTools
         // send back the totals
         bfEncrypt::reply('success', array(
             'files' => $files,
-            'total' => $count
+            'total' => $count,
         ));
     }
 
     /**
-     * Get a list of files with 777 permissions
+     * Get a list of files with 777 permissions.
      */
     private function getFilePermissions()
     {
         // set up the limit and the limitstart SQL
-        $limitstart = ( int )$this->_dataObj->ls;
-        $limit = ( int )$this->_dataObj->limit;
-        $this->_db->setQuery('SELECT id, filewithpath, fileperms from bf_files WHERE fileperms = "0777" OR fileperms = "777" LIMIT ' . ( int )$limitstart . ', ' . $limit);
+        $limitstart = (int) $this->_dataObj->ls;
+        $limit      = (int) $this->_dataObj->limit;
+        $this->_db->setQuery('SELECT id, filewithpath, fileperms from bf_files WHERE fileperms = "0777" OR fileperms = "777" LIMIT '.(int) $limitstart.', '.$limit);
 
         // get the files
         $files = $this->_db->loadObjectList();
@@ -747,49 +758,49 @@ final class bfTools
         // send back the totals
         bfEncrypt::reply('success', array(
             'files' => $files,
-            'total' => $count
+            'total' => $count,
         ));
     }
 
     /**
-     * Set the permissions on files that have 777 perms to be 644
+     * Set the permissions on files that have 777 perms to be 644.
      */
     private function setFilePermissions()
     {
-        $fixed = 0;
+        $fixed  = 0;
         $errors = 0;
 
         $this->_db->setQuery('SELECT id, filewithpath from bf_files WHERE fileperms = "0777" OR fileperms = "777"');
         $files = $this->_db->loadObjectList();
         foreach ($files as $file) {
-            if (@chmod(JPATH_BASE . $file->filewithpath, 0644)) {
-                $fixed++;
-                $this->_db->setQuery('UPDATE bf_files SET fileperms = "0644" WHERE id = "' . ( int )$file->id . '"');
+            if (@chmod(JPATH_BASE.$file->filewithpath, 0644)) {
+                ++$fixed;
+                $this->_db->setQuery('UPDATE bf_files SET fileperms = "0644" WHERE id = "'.(int) $file->id.'"');
                 $this->_db->query();
             } else {
-                $errors++;
+                ++$errors;
             }
         }
 
         $this->_db->setQuery('SELECT count(*) FROM bf_folders WHERE folderinfo LIKE "%777%"');
         $folders_777 = $this->_db->LoadResult();
 
-        $res = new stdClass ();
-        $res->errors = $errors;
-        $res->fixed = $fixed;
+        $res           = new stdClass();
+        $res->errors   = $errors;
+        $res->fixed    = $fixed;
         $res->leftover = $folders_777;
 
         bfEncrypt::reply('success', $res);
     }
 
     /**
-     * Return the list of files that have been flagged as containing mail commands or text
+     * Return the list of files that have been flagged as containing mail commands or text.
      */
     private function getUploaderFileList()
     {
         // make sure we only retrieve a small dataset
-        $limitstart = ( int )$this->_dataObj->ls;
-        $sort = $this->_dataObj->s;
+        $limitstart = (int) $this->_dataObj->ls;
+        $sort       = $this->_dataObj->s;
 
         if (!$sort) {
             $sort = 'filewithpath';
@@ -799,17 +810,17 @@ final class bfTools
             die('Invalid Sort');
         }
 
-        if ($sort == 'filemtime') {
+        if ('filemtime' == $sort) {
             $sort = 'filemtime DESC';
         }
 
-        $limit = ( int )$this->_dataObj->limit;
+        $limit = (int) $this->_dataObj->limit;
 
         // Set the query
         $this->_db->setQuery('SELECT id, iscorefile, filewithpath, filemtime, fileperms, `size`, iscorefile from bf_files
                                 WHERE uploader = 1
-                                ORDER BY ' . $sort . '
-                                LIMIT ' . ( int )$limitstart . ', ' . $limit);
+                                ORDER BY '.$sort.'
+                                LIMIT '.(int) $limitstart.', '.$limit);
 
         // Get an object list of files
         $files = $this->_db->loadObjectList();
@@ -821,32 +832,32 @@ final class bfTools
         // Only show files that still exist on the hard drive
         $existingFiles = array();
         foreach ($files as $k => $file) {
-            if (file_exists(JPATH_BASE . $file->filewithpath)) {
+            if (file_exists(JPATH_BASE.$file->filewithpath)) {
                 $existingFiles[] = $file;
             } else {
                 $this->_db->setQuery(sprintf('DELETE FROM bf_files WHERE filewithpath = "%s"',
                     $file->filewithpath));
                 $this->_db->query();
 
-                $count--;
+                --$count;
             }
         }
 
         // return an encrypted reply
         bfEncrypt::reply('success', array(
             'files' => $existingFiles,
-            'total' => $count
+            'total' => $count,
         ));
     }
 
     /**
-     * Return the list of files that have been flagged as containing mail commands or text
+     * Return the list of files that have been flagged as containing mail commands or text.
      */
     private function getMailerFileList()
     {
         // make sure we only retrieve a small dataset
-        $limitstart = ( int )$this->_dataObj->ls;
-        $sort = $this->_dataObj->s;
+        $limitstart = (int) $this->_dataObj->ls;
+        $sort       = $this->_dataObj->s;
 
         if (!$sort) {
             $sort = 'filewithpath';
@@ -856,17 +867,17 @@ final class bfTools
             die('Invalid Sort');
         }
 
-        if ($sort == 'filemtime') {
+        if ('filemtime' == $sort) {
             $sort = 'filemtime DESC';
         }
 
-        $limit = ( int )$this->_dataObj->limit;
+        $limit = (int) $this->_dataObj->limit;
 
         // Set the query
         $this->_db->setQuery('SELECT id, iscorefile, filewithpath, filemtime, fileperms, `size`, iscorefile from bf_files
                                 WHERE mailer = 1
-                                ORDER BY ' . $sort . '
-                                LIMIT ' . ( int )$limitstart . ', ' . $limit);
+                                ORDER BY '.$sort.'
+                                LIMIT '.(int) $limitstart.', '.$limit);
 
         // Get an object list of files
         $files = $this->_db->loadObjectList();
@@ -878,21 +889,21 @@ final class bfTools
         // Only show files that still exist on the hard drive
         $existingFiles = array();
         foreach ($files as $k => $file) {
-            if (file_exists(JPATH_BASE . $file->filewithpath)) {
+            if (file_exists(JPATH_BASE.$file->filewithpath)) {
                 $existingFiles[] = $file;
             } else {
                 $this->_db->setQuery(sprintf('DELETE FROM bf_files WHERE filewithpath = "%s"',
                     $file->filewithpath));
                 $this->_db->query();
 
-                $count--;
+                --$count;
             }
         }
 
         // return an encrypted reply
         bfEncrypt::reply('success', array(
             'files' => $existingFiles,
-            'total' => $count
+            'total' => $count,
         ));
     }
 
@@ -904,8 +915,8 @@ final class bfTools
     private function getSuspectContentFileList()
     {
         // make sure we only retrieve a small dataset
-        $limitstart = ( int )$this->_dataObj->ls;
-        $sort = $this->_dataObj->s;
+        $limitstart = (int) $this->_dataObj->ls;
+        $sort       = $this->_dataObj->s;
 
         if (!$sort) {
             $sort = 'filewithpath';
@@ -915,43 +926,43 @@ final class bfTools
             die('Invalid Sort');
         }
 
-        if ($sort == 'filemtime') {
+        if ('filemtime' == $sort) {
             $sort = 'filemtime DESC';
         }
 
-        $limit = ( int )$this->_dataObj->limit;
+        $limit = (int) $this->_dataObj->limit;
 
         // Set the query
         $this->_db->setQuery('SELECT id, iscorefile, filewithpath, filemtime, fileperms, `size`, iscorefile, currenthash from bf_files
-                                WHERE suspectcontent = 1
-                                ORDER BY ' . $sort . '
-                                LIMIT ' . ( int )$limitstart . ', ' . $limit);
+                                WHERE suspectcontent = 1 OR hacked = 1
+                                ORDER BY '.$sort.'
+                                LIMIT '.(int) $limitstart.', '.$limit);
 
         // Get an object list of files
         $files = $this->_db->loadObjectList();
 
         // see how many files there are in total without a limit
-        $this->_db->setQuery('SELECT count(*) from bf_files WHERE suspectcontent = 1');
+        $this->_db->setQuery('SELECT count(*) from bf_files WHERE suspectcontent = 1 OR hacked = 1');
         $count = $this->_db->loadResult();
 
         // Only show files that still exist on the hard drive
         $existingFiles = array();
         foreach ($files as $k => $file) {
-            if (file_exists(JPATH_BASE . $file->filewithpath)) {
+            if (file_exists(JPATH_BASE.$file->filewithpath)) {
                 $existingFiles[] = $file;
             } else {
                 $this->_db->setQuery(sprintf('DELETE FROM bf_files WHERE filewithpath = "%s"',
                     $file->filewithpath));
                 $this->_db->query();
 
-                $count--;
+                --$count;
             }
         }
 
         // return an encrypted reply
         bfEncrypt::reply('success', array(
             'files' => $existingFiles,
-            'total' => $count
+            'total' => $count,
         ));
     }
 
@@ -963,8 +974,8 @@ final class bfTools
     private function getNonCoreFileList()
     {
         // make sure we only retrieve a small dataset
-        $limitstart = ( int )$this->_dataObj->ls;
-        $sort = $this->_dataObj->s;
+        $limitstart = (int) $this->_dataObj->ls;
+        $sort       = $this->_dataObj->s;
 
         if (!$sort) {
             $sort = 'filewithpath';
@@ -974,17 +985,17 @@ final class bfTools
             die('Invalid Sort');
         }
 
-        if ($sort == 'filemtime') {
+        if ('filemtime' == $sort) {
             $sort = 'filemtime DESC';
         }
 
-        $limit = ( int )$this->_dataObj->limit;
+        $limit = (int) $this->_dataObj->limit;
 
         // Set the query
         $this->_db->setQuery('SELECT id, iscorefile, filewithpath, filemtime, fileperms, `size`, iscorefile from bf_files
                                 WHERE iscorefile IS NULL
-                                ORDER BY ' . $sort . '
-                                LIMIT ' . ( int )$limitstart . ', ' . $limit);
+                                ORDER BY '.$sort.'
+                                LIMIT '.(int) $limitstart.', '.$limit);
 
         // Get an object list of files
         $files = $this->_db->loadObjectList();
@@ -996,21 +1007,21 @@ final class bfTools
         // Only show files that still exist on the hard drive
         $existingFiles = array();
         foreach ($files as $k => $file) {
-            if (file_exists(JPATH_BASE . $file->filewithpath)) {
+            if (file_exists(JPATH_BASE.$file->filewithpath)) {
                 $existingFiles[] = $file;
             } else {
                 $this->_db->setQuery(sprintf('DELETE FROM bf_files WHERE filewithpath = "%s"',
                     $file->filewithpath));
                 $this->_db->query();
 
-                $count--;
+                --$count;
             }
         }
 
         // return an encrypted reply
         bfEncrypt::reply('success', array(
             'files' => $existingFiles,
-            'total' => $count
+            'total' => $count,
         ));
     }
 
@@ -1019,9 +1030,8 @@ final class bfTools
      *
      * @return array|mixed
      */
-    private function getInstallationFolders($internal = FALSE)
+    private function getInstallationFolders($internal = false)
     {
-
         $folders = $this->getFolders(JPATH_BASE);
         foreach ($folders as $folder) {
             if (preg_match('/installation|installation.old|docs\/installation|install|installation.bak|installation.old|installation.backup|installation.delete/i', $folder)) {
@@ -1031,7 +1041,7 @@ final class bfTools
 
         bfEncrypt::reply('success', array(
             'files' => $installationFolders,
-            'total' => count($installationFolders)
+            'total' => count($installationFolders),
         ));
     }
 
@@ -1040,10 +1050,10 @@ final class bfTools
      *
      * @return array|mixed
      */
-    private function getRecentlyModified($internal = FALSE)
+    private function getRecentlyModified($internal = false)
     {
-        $limitstart = ( int )$this->_dataObj->ls;
-        $limit = ( int )$this->_dataObj->limit;
+        $limitstart = (int) $this->_dataObj->ls;
+        $limit      = (int) $this->_dataObj->limit;
         if (!$limitstart) {
             $limitstart = 0;
         }
@@ -1051,20 +1061,20 @@ final class bfTools
             $limit = '9999999999999999';
         }
 
-        $sql = "SELECT * FROM bf_files WHERE filemtime > '" . strtotime('-3 days', time()) . "' ORDER BY filemtime DESC LIMIT " . ( int )$limitstart . ', ' . $limit;
+        $sql = "SELECT * FROM bf_files WHERE filemtime > '".strtotime('-3 days', time())."' ORDER BY filemtime DESC LIMIT ".(int) $limitstart.', '.$limit;
         $this->_db->setQuery($sql);
         $files = $this->_db->LoadObjectList();
 
-        if ($internal === TRUE) {
+        if (true === $internal) {
             return $files;
         }
 
-        $this->_db->setQuery("SELECT count(*) FROM bf_files WHERE filemtime > '" . strtotime('-3 days', time()) . "'");
+        $this->_db->setQuery("SELECT count(*) FROM bf_files WHERE filemtime > '".strtotime('-3 days', time())."'");
         $count = $this->_db->loadResult();
 
         bfEncrypt::reply('success', array(
             'files' => $files,
-            'total' => $count
+            'total' => $count,
         ));
     }
 
@@ -1073,10 +1083,10 @@ final class bfTools
      *
      * @return array|mixed
      */
-    private function getHtaccessFiles($internal = FALSE)
+    private function getHtaccessFiles($internal = false)
     {
-        $limitstart = ( int )$this->_dataObj->ls;
-        $limit = ( int )$this->_dataObj->limit;
+        $limitstart = (int) $this->_dataObj->ls;
+        $limit      = (int) $this->_dataObj->limit;
         if (!$limitstart) {
             $limitstart = 0;
         }
@@ -1084,11 +1094,11 @@ final class bfTools
             $limit = '9999999999999999';
         }
 
-        $sql = "SELECT * FROM bf_files WHERE filewithpath LIKE '%/.htaccess' ORDER BY filewithpath DESC LIMIT " . ( int )$limitstart . ', ' . $limit;
+        $sql = "SELECT * FROM bf_files WHERE filewithpath LIKE '%/.htaccess' ORDER BY filewithpath DESC LIMIT ".(int) $limitstart.', '.$limit;
         $this->_db->setQuery($sql);
         $files = $this->_db->LoadObjectList();
 
-        if ($internal === TRUE) {
+        if (true === $internal) {
             return $files;
         }
 
@@ -1097,7 +1107,7 @@ final class bfTools
 
         bfEncrypt::reply('success', array(
             'files' => $files,
-            'total' => $count
+            'total' => $count,
         ));
     }
 
@@ -1106,10 +1116,10 @@ final class bfTools
      *
      * @return array|mixed
      */
-    private function getLargefiles($internal = FALSE)
+    private function getLargefiles($internal = false)
     {
-        $limitstart = ( int )$this->_dataObj->ls;
-        $limit = ( int )$this->_dataObj->limit;
+        $limitstart = (int) $this->_dataObj->ls;
+        $limit      = (int) $this->_dataObj->limit;
         if (!$limitstart) {
             $limitstart = 0;
         }
@@ -1117,20 +1127,20 @@ final class bfTools
             $limit = '9999999999999999';
         }
 
-        $sql = 'SELECT * FROM bf_files WHERE SIZE > 2097152 ORDER BY filemtime DESC LIMIT ' . ( int )$limitstart . ', ' . $limit;
+        $sql = 'SELECT * FROM bf_files WHERE SIZE > 2097152 ORDER BY filemtime DESC LIMIT '.(int) $limitstart.', '.$limit;
         $this->_db->setQuery($sql);
         $files = $this->_db->LoadObjectList();
 
-        if ($internal === TRUE) {
+        if (true === $internal) {
             return $files;
         }
 
         $this->_db->setQuery('SELECT COUNT(*) FROM bf_files WHERE SIZE > 2097152');
-        $count = (int)$this->_db->loadResult();
+        $count = (int) $this->_db->loadResult();
 
         bfEncrypt::reply('success', array(
             'files' => $files,
-            'total' => $count
+            'total' => $count,
         ));
     }
 
@@ -1139,10 +1149,10 @@ final class bfTools
      *
      * @return array|mixed
      */
-    private function getArchivefiles($internal = FALSE)
+    private function getArchivefiles($internal = false)
     {
-        $limitstart = ( int )$this->_dataObj->ls;
-        $limit = ( int )$this->_dataObj->limit;
+        $limitstart = (int) $this->_dataObj->ls;
+        $limit      = (int) $this->_dataObj->limit;
         if (!$limitstart) {
             $limitstart = 0;
         }
@@ -1151,31 +1161,31 @@ final class bfTools
         }
 
         $sql = 'SELECT * FROM bf_files WHERE
-		filewithpath LIKE "%.zip"
-		OR filewithpath LIKE "%.tar"
-		OR filewithpath LIKE "%.tar.gz"
-		OR filewithpath LIKE "%.bz2"
-		OR filewithpath LIKE "%.gzip"
-		OR filewithpath LIKE "%.bzip2" ORDER BY filemtime DESC LIMIT ' . ( int )$limitstart . ', ' . $limit;
+        filewithpath LIKE "%.zip"
+        OR filewithpath LIKE "%.tar"
+        OR filewithpath LIKE "%.tar.gz"
+        OR filewithpath LIKE "%.bz2"
+        OR filewithpath LIKE "%.gzip"
+        OR filewithpath LIKE "%.bzip2" ORDER BY filemtime DESC LIMIT '.(int) $limitstart.', '.$limit;
         $this->_db->setQuery($sql);
         $files = $this->_db->LoadObjectList();
 
-        if ($internal === TRUE) {
+        if (true === $internal) {
             return $files;
         }
 
         $this->_db->setQuery('SELECT count(*) FROM bf_files WHERE
-		filewithpath LIKE "%.zip"
-		OR filewithpath LIKE "%.tar"
-		OR filewithpath LIKE "%.tar.gz"
-		OR filewithpath LIKE "%.bz2"
-		OR filewithpath LIKE "%.gzip"
-		OR filewithpath LIKE "%.bzip2"');
-        $count = (int)$this->_db->loadResult();
+        filewithpath LIKE "%.zip"
+        OR filewithpath LIKE "%.tar"
+        OR filewithpath LIKE "%.tar.gz"
+        OR filewithpath LIKE "%.bz2"
+        OR filewithpath LIKE "%.gzip"
+        OR filewithpath LIKE "%.bzip2"');
+        $count = (int) $this->_db->loadResult();
 
         bfEncrypt::reply('success', array(
             'files' => $files,
-            'total' => $count
+            'total' => $count,
         ));
     }
 
@@ -1184,10 +1194,10 @@ final class bfTools
      *
      * @return array|mixed
      */
-    private function getPhpinwrongplace($internal = FALSE)
+    private function getPhpinwrongplace($internal = false)
     {
-        $limitstart = ( int )$this->_dataObj->ls;
-        $limit = ( int )$this->_dataObj->limit;
+        $limitstart = (int) $this->_dataObj->ls;
+        $limit      = (int) $this->_dataObj->limit;
         if (!$limitstart) {
             $limitstart = 0;
         }
@@ -1195,19 +1205,19 @@ final class bfTools
             $limit = '9999999999999999';
         }
 
-        $sql = 'SELECT * FROM bf_files AS b WHERE filewithpath REGEXP "^/images/.*\.php$" ORDER BY filemtime DESC LIMIT ' . ( int )$limitstart . ', ' . $limit;
+        $sql = 'SELECT * FROM bf_files AS b WHERE filewithpath REGEXP "^/images/.*\.php$" ORDER BY filemtime DESC LIMIT '.(int) $limitstart.', '.$limit;
         $this->_db->setQuery($sql);
         $files = $this->_db->LoadObjectList();
 
-        if ($internal === TRUE) {
+        if (true === $internal) {
             return $files;
         }
 
-        $count = (int)count($files);
+        $count = (int) count($files);
 
         bfEncrypt::reply('success', array(
             'files' => $files,
-            'total' => $count
+            'total' => $count,
         ));
     }
 
@@ -1216,10 +1226,10 @@ final class bfTools
      *
      * @return array|mixed
      */
-    private function getTmpfiles($internal = FALSE)
+    private function getTmpfiles($internal = false)
     {
-        $limitstart = ( int )$this->_dataObj->ls;
-        $limit = ( int )$this->_dataObj->limit;
+        $limitstart = (int) $this->_dataObj->ls;
+        $limit      = (int) $this->_dataObj->limit;
         if (!$limitstart) {
             $limitstart = 0;
         }
@@ -1228,27 +1238,27 @@ final class bfTools
         }
 
         $sql = 'SELECT * FROM bf_files WHERE
-		filewithpath LIKE "/tmp%"
-		AND
-				filewithpath != "/tmp/index.html"
-		ORDER BY filemtime DESC LIMIT ' . ( int )$limitstart . ', ' . $limit;
+        filewithpath LIKE "/tmp%"
+        AND
+                filewithpath != "/tmp/index.html"
+        ORDER BY filemtime DESC LIMIT '.(int) $limitstart.', '.$limit;
         $this->_db->setQuery($sql);
         $files = $this->_db->LoadObjectList();
 
-        if ($internal === TRUE) {
+        if (true === $internal) {
             return $files;
         }
 
         $this->_db->setQuery('SELECT count(*) FROM bf_files WHERE
-		filewithpath LIKE "/tmp%"
-		AND
-				filewithpath != "/tmp/index.html"
-		ORDER BY filemtime');
-        $count = (int)$this->_db->loadResult();
+        filewithpath LIKE "/tmp%"
+        AND
+                filewithpath != "/tmp/index.html"
+        ORDER BY filemtime');
+        $count = (int) $this->_db->loadResult();
 
         bfEncrypt::reply('success', array(
             'files' => $files,
-            'total' => $count
+            'total' => $count,
         ));
     }
 
@@ -1257,15 +1267,14 @@ final class bfTools
         require 'bfFilesystem.php';
 
         foreach ($this->fluffFiles as $file) {
-
             // ensure we are based correctly
-            $fileWithPath = JPATH_BASE . $file;
+            $fileWithPath = JPATH_BASE.$file;
 
             // Remove File.
             unlink($fileWithPath);
         }
 
-        $this->getFlufffiles(TRUE);
+        $this->getFlufffiles(true);
     }
 
     /**
@@ -1273,16 +1282,15 @@ final class bfTools
      *
      * @return array|mixed
      */
-    private function getFlufffiles($internal = FALSE)
+    private function getFlufffiles($internal = false)
     {
-        $files = array();
-        $files['present'] = array();
+        $files               = array();
+        $files['present']    = array();
         $files['notpresent'] = array();
 
         foreach ($this->fluffFiles as $file) {
-
             // ensure we are based correctly
-            $fileWithPath = JPATH_BASE . $file;
+            $fileWithPath = JPATH_BASE.$file;
 
             // determine if the file is present or not
             if (@file_exists($fileWithPath)) { //@ to avoid any nasty warnings
@@ -1294,7 +1302,7 @@ final class bfTools
 
         bfEncrypt::reply('success', array(
             'total' => count($files['present']),
-            'files' => $files
+            'files' => $files,
         ));
     }
 
@@ -1303,10 +1311,10 @@ final class bfTools
      *
      * @return array|mixed
      */
-    private function getRenamedToHide($internal = FALSE)
+    private function getRenamedToHide($internal = false)
     {
-        $limitstart = ( int )$this->_dataObj->ls;
-        $limit = ( int )$this->_dataObj->limit;
+        $limitstart = (int) $this->_dataObj->ls;
+        $limit      = (int) $this->_dataObj->limit;
         if (!$limitstart) {
             $limitstart = 0;
         }
@@ -1315,30 +1323,30 @@ final class bfTools
         }
 
         $sql = 'SELECT * FROM bf_files WHERE
-								filewithpath LIKE "%.backup%"
-								OR
-								filewithpath LIKE "%.bak%"
-								OR
-								filewithpath LIKE "%.old%"
-								ORDER BY filemtime DESC LIMIT ' . ( int )$limitstart . ', ' . $limit;
+                                filewithpath LIKE "%.backup%"
+                                OR
+                                filewithpath LIKE "%.bak%"
+                                OR
+                                filewithpath LIKE "%.old%"
+                                ORDER BY filemtime DESC LIMIT '.(int) $limitstart.', '.$limit;
         $this->_db->setQuery($sql);
         $files = $this->_db->LoadObjectList();
 
-        if ($internal === TRUE) {
+        if (true === $internal) {
             return $files;
         }
 
         $this->_db->setQuery('SELECT count(*) FROM bf_files WHERE
-								filewithpath LIKE "%.backup%"
-								OR
-								filewithpath LIKE "%.bak%"
-								OR
-								filewithpath LIKE "%.old%"');
+                                filewithpath LIKE "%.backup%"
+                                OR
+                                filewithpath LIKE "%.bak%"
+                                OR
+                                filewithpath LIKE "%.old%"');
         $count = $this->_db->loadResult();
 
         bfEncrypt::reply('success', array(
             'files' => $files,
-            'total' => $count
+            'total' => $count,
         ));
     }
 
@@ -1346,32 +1354,31 @@ final class bfTools
     {
         require 'bfFilesystem.php';
 
-        $filesAndFolders = Bf_Filesystem::readDirectory(JPATH_ROOT . '/tmp', '.', TRUE);
+        $filesAndFolders = Bf_Filesystem::readDirectory(JPATH_ROOT.'/tmp', '.', true);
 
         foreach ($filesAndFolders as $pointer) {
-
-            $pointer = JPATH_ROOT . '/tmp/' . $pointer;
+            $pointer = JPATH_ROOT.'/tmp/'.$pointer;
 
             if (is_dir($pointer)) {
-                bfLog::log('Deleting ' . $pointer);
-                Bf_Filesystem::deleteRecursive($pointer, TRUE);
+                bfLog::log('Deleting '.$pointer);
+                Bf_Filesystem::deleteRecursive($pointer, true);
             } else {
-                bfLog::log('Deleting ' . $pointer);
+                bfLog::log('Deleting '.$pointer);
                 unlink($pointer);
             }
         }
 
-        file_put_contents(JPATH_ROOT . '/tmp/index.html', '<html><body bgcolor="#FFFFFF"></body></html> ');
+        file_put_contents(JPATH_ROOT.'/tmp/index.html', '<html><body bgcolor="#FFFFFF"></body></html> ');
 
         $sql = 'DELETE FROM bf_files WHERE
-		          filewithpath LIKE "/tmp%"
-		            AND
-				  filewithpath != "/tmp/index.html"';
+                  filewithpath LIKE "/tmp%"
+                    AND
+                  filewithpath != "/tmp/index.html"';
         $this->_db->setQuery($sql);
         $this->_db->query();
 
         bfEncrypt::reply('success', array(
-            'res' => TRUE
+            'res' => true,
         ));
     }
 
@@ -1380,11 +1387,10 @@ final class bfTools
      *
      * @return array|mixed
      */
-    private function getDotfiles($internal = FALSE)
+    private function getDotfiles($internal = false)
     {
-
-        $limitstart = ( int )$this->_dataObj->ls;
-        $limit = ( int )$this->_dataObj->limit;
+        $limitstart = (int) $this->_dataObj->ls;
+        $limit      = (int) $this->_dataObj->limit;
         if (!$limitstart) {
             $limitstart = 0;
         }
@@ -1392,11 +1398,11 @@ final class bfTools
             $limit = '9999999999999999';
         }
 
-        $sql = "SELECT * FROM bf_files WHERE filewithpath LIKE \"%/.%\" ORDER BY filemtime DESC LIMIT " . ( int )$limitstart . ', ' . $limit;
+        $sql = 'SELECT * FROM bf_files WHERE filewithpath LIKE "%/.%" ORDER BY filemtime DESC LIMIT '.(int) $limitstart.', '.$limit;
         $this->_db->setQuery($sql);
         $files = $this->_db->LoadObjectList();
 
-        if ($internal === TRUE) {
+        if (true === $internal) {
             return $files;
         }
 
@@ -1405,7 +1411,7 @@ final class bfTools
 
         bfEncrypt::reply('success', array(
             'files' => $files,
-            'total' => $count
+            'total' => $count,
         ));
     }
 
@@ -1418,10 +1424,10 @@ final class bfTools
      *
      * @return mixed
      */
-    private function getZerobyteFiles($internal = FALSE)
+    private function getZerobyteFiles($internal = false)
     {
-        $limitstart = ( int )$this->_dataObj->ls;
-        $limit = ( int )$this->_dataObj->limit;
+        $limitstart = (int) $this->_dataObj->ls;
+        $limit      = (int) $this->_dataObj->limit;
         if (!$limitstart) {
             $limitstart = 0;
         }
@@ -1429,11 +1435,11 @@ final class bfTools
             $limit = '9999999999999999';
         }
 
-        $sql = "SELECT * FROM bf_files WHERE size = 0 ORDER BY filemtime DESC LIMIT " . ( int )$limitstart . ', ' . $limit;
+        $sql = 'SELECT * FROM bf_files WHERE size = 0 ORDER BY filemtime DESC LIMIT '.(int) $limitstart.', '.$limit;
         $this->_db->setQuery($sql);
         $files = $this->_db->LoadObjectList();
 
-        if ($internal === TRUE) {
+        if (true === $internal) {
             return $files;
         }
 
@@ -1442,12 +1448,12 @@ final class bfTools
 
         bfEncrypt::reply('success', array(
             'files' => $files,
-            'total' => $count
+            'total' => $count,
         ));
     }
 
     /**
-     * Restore core files from a trusted source
+     * Restore core files from a trusted source.
      *
      * This source (corefiles.myjoomla.io) is checked hourly for integrity, if you are concerned about MITM Attacks, well, if your server
      * is compromised enough for a MITM Attack then you have bigger issues, plus this is how Joomla updates happen
@@ -1455,30 +1461,28 @@ final class bfTools
      */
     private function restoreAllMissingFiles()
     {
-        $url = 'https://corefiles.myjoomla.io/%s%s?raw';
-        $restored = 0;
+        $url         = 'https://corefiles.myjoomla.io/%s%s?raw';
+        $restored    = 0;
         $notRestored = 0;
 
         // Crappy Servers Alert!
         @set_time_limit(3600);
 
-        $files = $this->getMissingCoreFiles(TRUE);
+        $files = $this->getMissingCoreFiles(true);
         foreach ($files as $file) {
-
             $downloadUrl = sprintf($url, JVERSION, $file->filewithpath);
 
-            $restoreToFile = JPATH_BASE . $file->filewithpath;
+            $restoreToFile = JPATH_BASE.$file->filewithpath;
 
             // check folder and path to folder exists
             $folder = dirname($restoreToFile);
             if (!file_exists($folder)) {
-                @mkdir($folder, 0755, TRUE);
+                @mkdir($folder, 0755, true);
             }
 
             $content = file_get_contents($downloadUrl);
 
             if ($content && file_exists($folder) && file_put_contents($restoreToFile, $content)) {
-
                 // Set correct permissions @ for crappy servers
                 @chmod($restoreToFile, 0644);
 
@@ -1486,29 +1490,29 @@ final class bfTools
                 $sql = "INSERT INTO `bf_files` 
                 (`id`, `filewithpath`, `fileperms`, `filemtime`, `toggler`, `currenthash`, `lasthash`, `iscorefile`, `hashfailed`, `hashchanged`, `hacked`, `suspectcontent`, `falsepositive`, `mailer`, `uploader`, `encrypted`, `queued`, `size`)
                 VALUES
-	            (NULL, '%s', '0644', '%s', NULL, '%s', '%s', 1, NULL, NULL, NULL, 0, NULL, NULL, NULL, 0, 0, %s)";
+                (NULL, '%s', '0644', '%s', NULL, '%s', '%s', 1, NULL, NULL, NULL, 0, NULL, NULL, NULL, 0, 0, %s)";
 
                 $sql = sprintf($sql, $file->filewithpath, time(), md5_file($restoreToFile), md5_file($restoreToFile), filesize($restoreToFile));
                 $this->_db->setQuery($sql);
                 $this->_db->query();
 
-                $restored++;
+                ++$restored;
             } else {
-                $notRestored++;
+                ++$notRestored;
             }
         }
 
         bfEncrypt::reply('success', array(
-            'total' => count($files),
-            'restored' => $restored,
+            'total'       => count($files),
+            'restored'    => $restored,
             'notrestored' => $notRestored,
         ));
     }
 
-    private function getMissingCoreFiles($internal = FALSE)
+    private function getMissingCoreFiles($internal = false)
     {
-        $limitstart = ( int )$this->_dataObj->ls;
-        $limit = ( int )$this->_dataObj->limit;
+        $limitstart = (int) $this->_dataObj->ls;
+        $limit      = (int) $this->_dataObj->limit;
         if (!$limitstart) {
             $limitstart = 0;
         }
@@ -1582,20 +1586,26 @@ final class bfTools
                     AND filewithpath != '/images/sampledata/parks/landscape/800px_pinnacles_western_australia.jpg'
                     AND filewithpath != '/images/sampledata/parks/parks.gif' ORDER BY filewithpath DESC ";
 
-        $limitIt = "LIMIT " . ( int )$limitstart . ', ' . $limit;
-        $this->_db->setQuery("SELECT * " . $sql . $limitIt);
+        $limitIt = 'LIMIT '.(int) $limitstart.', '.$limit;
+        $this->_db->setQuery('SELECT * '.$sql.$limitIt);
         $files = $this->_db->LoadObjectList();
 
-        if ($internal === TRUE) {
+        foreach ($files as $k => $file) {
+            if (file_exists(JPATH_BASE.$file->filewithpath)) {
+                unset($files[$k]);
+            }
+        }
+
+        if (true === $internal) {
             return $files;
         }
 
-        $this->_db->setQuery("SELECT count(*) " . $sql . $limitIt);
+        $this->_db->setQuery('SELECT count(*) '.$sql.$limitIt);
         $count = $this->_db->loadResult();
 
         bfEncrypt::reply('success', array(
             'files' => $files,
-            'total' => $count
+            'total' => $count,
         ));
     }
 
@@ -1612,13 +1622,12 @@ final class bfTools
         $files = $this->_db->LoadObjectList();
 
         $filesDeleted = array();
-        $count = 0;
+        $count        = 0;
 
         foreach ($files as $file) {
-
-            $fullFilePath = JPATH_BASE . $file->filewithpath;
+            $fullFilePath = JPATH_BASE.$file->filewithpath;
             if (@unlink($fullFilePath)) {
-                $count++;
+                ++$count;
                 $filesDeleted[] = $file->filewithpath;
 
                 $sql = sprintf('DELETE FROM bf_files WHERE filewithpath = " % s"', $file->filewithpath);
@@ -1629,7 +1638,7 @@ final class bfTools
 
         bfEncrypt::reply('success', array(
             'files' => $filesDeleted,
-            'total' => $count
+            'total' => $count,
         ));
     }
 
@@ -1638,11 +1647,10 @@ final class bfTools
      *
      * @return array|mixed
      */
-    private function getEncrypted($internal = FALSE)
+    private function getEncrypted($internal = false)
     {
-
-        $limitstart = ( int )$this->_dataObj->ls;
-        $limit = ( int )$this->_dataObj->limit;
+        $limitstart = (int) $this->_dataObj->ls;
+        $limit      = (int) $this->_dataObj->limit;
         if (!$limitstart) {
             $limitstart = 0;
         }
@@ -1650,20 +1658,20 @@ final class bfTools
             $limit = '9999999999999999';
         }
 
-        $sql = "SELECT * FROM bf_files WHERE encrypted = 1 ORDER BY filemtime DESC LIMIT " . ( int )$limitstart . ', ' . $limit;
+        $sql = 'SELECT * FROM bf_files WHERE encrypted = 1 ORDER BY filemtime DESC LIMIT '.(int) $limitstart.', '.$limit;
         $this->_db->setQuery($sql);
         $files = $this->_db->LoadObjectList();
 
-        if ($internal === TRUE) {
+        if (true === $internal) {
             return $files;
         }
 
-        $this->_db->setQuery("SELECT count(*) FROM bf_files WHERE encrypted = 1");
+        $this->_db->setQuery('SELECT count(*) FROM bf_files WHERE encrypted = 1');
         $count = $this->_db->loadResult();
 
         bfEncrypt::reply('success', array(
             'files' => $files,
-            'total' => $count
+            'total' => $count,
         ));
     }
 
@@ -1672,20 +1680,18 @@ final class bfTools
      *
      * @return JUser|mixed|object
      */
-    private function getUser($internal = FALSE)
+    private function getUser($internal = false)
     {
-
-
         switch ($this->_dataObj->searchfield) {
-            case 'username' :
+            case 'username':
                 $sql = "SELECT * FROM #__users WHERE username = '%s'";
                 $sql = sprintf($sql, $this->_dataObj->searchvalue);
                 $this->_db->setQuery($sql);
                 $row = $this->_db->loadObject();
                 break;
-            case 'id' :
-                $row = new JUser ();
-                $row->load(( int )$this->_dataObj->searchvalue);
+            case 'id':
+                $row = new JUser();
+                $row->load((int) $this->_dataObj->searchvalue);
                 break;
         }
 
@@ -1694,13 +1700,202 @@ final class bfTools
             $row->password = '**REMOVED**';
         }
 
-        if ($internal === TRUE) {
+        if (true === $internal) {
             return $row;
         }
 
         bfEncrypt::reply('success', array(
-            'user' => $row
+            'user' => $row,
         ));
+    }
+
+    /**
+     * remove £live_site from the configuration.php.
+     *
+     * @throws exception Exception
+     */
+    private function removeLiveSite()
+    {
+        // Require more complex methods for dealing with files
+        require 'bfFilesystem.php';
+
+        try {
+            $config = JFactory::getConfig();
+
+            if (version_compare(JVERSION, '3.0', 'ge')) {
+                $config->set('live_site', '');
+            } else {
+                $config->setValue('config.live_site', '');
+            }
+
+            $newConfig = $config->toString('PHP', array(
+                'class'      => 'JConfig',
+                'closingtag' => false,
+            ));
+
+            // On some occasions, Joomla! 1.6 ignores the configuration and
+            // produces "class c". Let's fix this!
+            $newConfig = str_replace('class c {', 'class JConfig {', $newConfig);
+            $newConfig = str_replace('namespace c;', '', $newConfig);
+
+            // Try to write out the configuration.php
+            $filename = JPATH_ROOT.DIRECTORY_SEPARATOR.'configuration.php';
+            $result   = Bf_Filesystem::_write($filename, $newConfig);
+            if (false !== $result) {
+                bfEncrypt::reply('success', array());
+            } else {
+                bfEncrypt::reply(bfReply::ERROR, array(
+                    'msg' => 'Could Not Save Config',
+                ));
+            }
+        } catch (Exception $e) {
+            bfEncrypt::reply(bfReply::ERROR, array(
+                'msg' => $e->getMessage(),
+            ));
+        }
+    }
+
+    /**
+     * set the log_path and tmp_path to sane defaults.
+     *
+     * @throws exception Exception
+     */
+    private function setLogTmpPaths()
+    {
+        // Require more complex methods for dealing with files
+        require 'bfFilesystem.php';
+
+        try {
+            // sane and recommended defaults
+            $logpath = JPATH_ROOT.DIRECTORY_SEPARATOR.'administrator/logs';
+            $tmpath  = JPATH_ROOT.DIRECTORY_SEPARATOR.'tmp';
+
+            // force creation and set sane permissions
+            @mkdir($logpath);
+            @mkdir($tmpath);
+            @chmod($logpath, 0755);
+            @chmod($tmpath, 0755);
+
+            $config = JFactory::getConfig();
+
+            if (version_compare(JVERSION, '3.0', 'ge')) {
+                $config->set('log_path', $logpath);
+                $config->set('tmp_path', $tmpath);
+            } else {
+                $config->setValue('config.log_path', $logpath);
+                $config->setValue('config.tmp_path', $tmpath);
+            }
+
+            $newConfig = $config->toString('PHP', array(
+                'class'      => 'JConfig',
+                'closingtag' => false,
+            ));
+
+            // On some occasions, Joomla! 1.6 ignores the configuration and
+            // produces "class c". Let's fix this!
+            $newConfig = str_replace('class c {', 'class JConfig {', $newConfig);
+            $newConfig = str_replace('namespace c;', '', $newConfig);
+
+            // Try to write out the configuration.php
+            $filename = JPATH_ROOT.DIRECTORY_SEPARATOR.'configuration.php';
+            $result   = Bf_Filesystem::_write($filename, $newConfig);
+            if (false !== $result) {
+                bfEncrypt::reply('success', array(
+                    'log_path'    => $logpath,
+                    'tmp_path'    => $tmpath,
+                    'config_file' => $filename,
+                ));
+            } else {
+                bfEncrypt::reply(bfReply::ERROR, array(
+                    'msg' => 'Could Not Save Config',
+                ));
+            }
+        } catch (Exception $e) {
+            bfEncrypt::reply(bfReply::ERROR, array(
+                'msg' => $e->getMessage(),
+            ));
+        }
+    }
+
+    /**
+     * Get the settings for the SEF from Joomla Global Config.
+     *
+     * public $sef = '1';
+     * public $sef_rewrite = '0';
+     * public $sef_suffix = '0';
+     */
+    private function getSEFConfig()
+    {
+        $config = JFactory::getConfig();
+
+        if (version_compare(JVERSION, '3.0', 'ge')) {
+            $data = array(
+                'sef'         => $config->get('sef'),
+                'sef_rewrite' => $config->get('sef_rewrite'),
+                'sef_suffix'  => $config->get('sef_suffix'),
+            );
+        } else {
+            $data = array(
+                'sef'         => $config->getValue('config.sef'),
+                'sef_rewrite' => $config->getValue('config.sef_rewrite'),
+                'sef_suffix'  => $config->getValue('config.sef_suffix'),
+            );
+        }
+
+        bfEncrypt::reply('success', $data);
+    }
+
+    /**
+     * Enable SEF and SEF Rewrite.
+     */
+    private function setSEFConfig()
+    {
+        // Require more complex methods for dealing with files
+        require 'bfFilesystem.php';
+
+        try {
+            $config = JFactory::getConfig();
+
+            // Our sane defaults
+            $sef         = 1;
+            $sef_rewrite = 1;
+            $sef_suffix  = 0;
+
+            if (version_compare(JVERSION, '3.0', 'ge')) {
+                $config->set('sef', $sef);
+                $config->set('sef_rewrite', $sef_rewrite);
+                $config->set('sef_suffix', $sef_suffix);
+            } else {
+                $config->setValue('config.sef', $sef);
+                $config->setValue('config.sef_rewrite', $sef_rewrite);
+                $config->setValue('config.sef_suffix', $sef_suffix);
+            }
+
+            $newConfig = $config->toString('PHP', array(
+                'class'      => 'JConfig',
+                'closingtag' => false,
+            ));
+
+            // On some occasions, Joomla! 1.6 ignores the configuration and
+            // produces "class c". Let's fix this!
+            $newConfig = str_replace('class c {', 'class JConfig {', $newConfig);
+            $newConfig = str_replace('namespace c;', '', $newConfig);
+
+            // Try to write out the configuration.php
+            $filename = JPATH_ROOT.DIRECTORY_SEPARATOR.'configuration.php';
+            $result   = Bf_Filesystem::_write($filename, $newConfig);
+            if (false !== $result) {
+                bfEncrypt::reply('success', $this->getSEFConfig());
+            } else {
+                bfEncrypt::reply(bfReply::ERROR, array(
+                    'msg' => 'Could Not Save Config',
+                ));
+            }
+        } catch (Exception $e) {
+            bfEncrypt::reply(bfReply::ERROR, array(
+                'msg' => $e->getMessage(),
+            ));
+        }
     }
 
     /**
@@ -1708,19 +1903,16 @@ final class bfTools
      */
     private function setDbPrefix()
     {
-
         // Require more complex methods for dealing with files
         require 'bfFilesystem.php';
-
 
         $prefix = $this->_dataObj->prefix;
         try {
             $prefix = $this->_validateDbPrefix($prefix);
 
             /**
-             * Performs the actual schema change
+             * Performs the actual schema change.
              *
-             * @package   AdminTools
              * @copyright Copyright (c)2010-2011 Nicholas K. Dionysopoulos
              * @license   GNU General Public License version 3, or later
              *
@@ -1732,13 +1924,13 @@ final class bfTools
             $config = JFactory::getConfig();
             if (version_compare(JVERSION, '3.0', 'ge')) {
                 $oldprefix = $config->get('dbprefix', '');
-                $dbname = $config->get('db', '');
+                $dbname    = $config->get('db', '');
             } else {
                 $oldprefix = $config->getValue('config.dbprefix', '');
-                $dbname = $config->getValue('config.db', '');
+                $dbname    = $config->getValue('config.db', '');
             }
 
-            $db = $this->_db;
+            $db  = $this->_db;
             $sql = "SHOW TABLES WHERE `Tables_in_{$dbname}` like '{$oldprefix}%'";
             $db->setQuery($sql);
 
@@ -1748,25 +1940,24 @@ final class bfTools
                 $oldTables = $db->loadResultArray();
             }
 
-            if (empty ($oldTables)) {
-                throw new Exception ('Could not find any tables with the old prefix to change to the new prefix');
+            if (empty($oldTables)) {
+                throw new Exception('Could not find any tables with the old prefix to change to the new prefix');
             }
 
             foreach ($oldTables as $table) {
-                $newTable = $prefix . substr($table, strlen($oldprefix));
-                $sql = "RENAME TABLE `$table` TO `$newTable`";
+                $newTable = $prefix.substr($table, strlen($oldprefix));
+                $sql      = "RENAME TABLE `$table` TO `$newTable`";
                 $db->setQuery($sql);
                 if (!$db->query()) {
                     // Something went wrong; I am pulling the plug and hope for
                     // the best
-                    throw new Exception ('Something went wrong; I am pulling the plug and hope for the best - Contact our support URGENTLY');
+                    throw new Exception('Something went wrong; I am pulling the plug and hope for the best - Contact our support URGENTLY');
                 }
             }
 
             /**
-             * Updates the configuration.php file with the given prefix
+             * Updates the configuration.php file with the given prefix.
              *
-             * @package   AdminTools
              * @copyright Copyright (c)2010-2011 Nicholas K. Dionysopoulos
              * @license   GNU General Public License version 3, or later
              *
@@ -1789,8 +1980,8 @@ final class bfTools
             }
 
             $newConfig = $config->toString('PHP', array(
-                'class' => 'JConfig',
-                'closingtag' => false
+                'class'      => 'JConfig',
+                'closingtag' => false,
             ));
 
             // On some occasions, Joomla! 1.6 ignores the configuration and
@@ -1805,20 +1996,20 @@ final class bfTools
             }
 
             // Try to write out the configuration.php
-            $filename = JPATH_ROOT . DIRECTORY_SEPARATOR . 'configuration.php';
-            $result = Bf_Filesystem::_write($filename, $newConfig);
-            if ($result !== FALSE) {
+            $filename = JPATH_ROOT.DIRECTORY_SEPARATOR.'configuration.php';
+            $result   = Bf_Filesystem::_write($filename, $newConfig);
+            if (false !== $result) {
                 bfEncrypt::reply('success', array(
-                    'prefix' => $prefix
+                    'prefix' => $prefix,
                 ));
             } else {
                 bfEncrypt::reply(bfReply::ERROR, array(
-                    'msg' => 'Could Not Save Config'
+                    'msg' => 'Could Not Save Config',
                 ));
             }
         } catch (Exception $e) {
             bfEncrypt::reply(bfReply::ERROR, array(
-                'msg' => $e->getMessage()
+                'msg' => $e->getMessage(),
             ));
         }
     }
@@ -1829,22 +2020,20 @@ final class bfTools
      * an underscore and must not alrady exist in the current database. It must
      * also not be jos_ or bak_.
      *
-     * @package   AdminTools
      * @copyright Copyright (c)2010-2011 Nicholas K. Dionysopoulos
      *
      * @param $prefix string
      *                The prefix to check
      *
      * @throws exception
+     *
      * @return string bool validated prefix or false if the prefix is invalid
      */
     private function _validateDbPrefix($prefix)
     {
-
-
         // Check that the prefix is not jos_ or bak_
-        if (($prefix == 'jos_') || ($prefix == 'bak_')) {
-            throw new exception ('Cannot be a standard prefix like jos_ or bak_');
+        if (('jos_' == $prefix) || ('bak_' == $prefix)) {
+            throw new exception('Cannot be a standard prefix like jos_ or bak_');
         }
 
         // Check that we're not trying to reuse the same prefix
@@ -1855,24 +2044,24 @@ final class bfTools
             $oldprefix = $config->getValue('config.dbprefix', '');
         }
         if ($prefix == $oldprefix) {
-            throw new exception ('Cannot be the same as existing prefix');
+            throw new exception('Cannot be the same as existing prefix');
         }
 
         // Check the length
         $pLen = strlen($prefix);
         if (($pLen < 4) || ($pLen > 6)) {
-            throw new exception ('Prefix must be between 4 and 6 chars');
+            throw new exception('Prefix must be between 4 and 6 chars');
         }
 
         // Check that the prefix ends with an underscore
-        if (substr($prefix, -1) != '_') {
-            throw new exception ('Prefix must end with an underscore');
+        if ('_' != substr($prefix, -1)) {
+            throw new exception('Prefix must end with an underscore');
         }
 
         // Check that the part before the underscore is lowercase letters
         $valid = preg_match('/[\w]_/i', $prefix);
-        if ($valid === 0) {
-            throw new exception ('Prefix must be all lowercase');
+        if (0 === $valid) {
+            throw new exception('Prefix must be all lowercase');
         }
 
         // Turn the prefix into lowercase
@@ -1898,12 +2087,12 @@ final class bfTools
             $realCount = 0;
             foreach ($existing_tables as $check) {
                 if (substr($check, 0, $pLen) == $prefix) {
-                    $realCount++;
+                    ++$realCount;
                     break;
                 }
             }
             if ($realCount) {
-                throw new exception ('Prefix already exists in the database');
+                throw new exception('Prefix already exists in the database');
             }
         }
 
@@ -1911,21 +2100,22 @@ final class bfTools
     }
 
     /**
+     * Update details of a user, including a hashed password.
      *
+     * @todo Not sure this is ever called anymore (April 2018)
      */
     private function setUser()
     {
-        $email = $this->_dataObj->email;
-        $pass = $this->_dataObj->password;
+        $email    = $this->_dataObj->email;
+        $pass     = $this->_dataObj->password;
         $username = $this->_dataObj->username;
-        $where = $this->_dataObj->where;
+        $where    = $this->_dataObj->where;
 
         if (!$email || !$pass || !$username || !$where) {
             bfEncrypt::reply('failure', array(
-                'msg' => 'Not all required parts set'
+                'msg' => 'Not all required parts set',
             ));
         }
-
 
         $sql = 'UPDATE #__users SET username="%s", password="%s", email ="%s" WHERE %s';
         $sql = sprintf($sql, $username, $pass, $email, $where);
@@ -1933,7 +2123,7 @@ final class bfTools
         $id = $this->_db->query();
 
         bfEncrypt::reply('success', array(
-            'usersaved' => $id
+            'usersaved' => $id,
         ));
     }
 
@@ -1942,10 +2132,10 @@ final class bfTools
      *
      * @return array|mixed
      */
-    private function getErrorLogs($internal = FALSE)
+    private function getErrorLogs($internal = false)
     {
-        $limitstart = ( int )$this->_dataObj->ls;
-        $limit = ( int )$this->_dataObj->limit;
+        $limitstart = (int) $this->_dataObj->ls;
+        $limit      = (int) $this->_dataObj->limit;
 
         if (!$limitstart) {
             $limitstart = 0;
@@ -1954,11 +2144,11 @@ final class bfTools
             $limit = '9999999999999999'; //pah
         }
 
-        $sql = "SELECT * FROM bf_files WHERE filewithpath LIKE '%error_log' ORDER BY filemtime DESC LIMIT " . ( int )$limitstart . ', ' . $limit;
+        $sql = "SELECT * FROM bf_files WHERE filewithpath LIKE '%error_log' ORDER BY filemtime DESC LIMIT ".(int) $limitstart.', '.$limit;
         $this->_db->setQuery($sql);
         $files = $this->_db->LoadObjectList();
 
-        if ($internal === TRUE) {
+        if (true === $internal) {
             return $files;
         }
 
@@ -1967,29 +2157,29 @@ final class bfTools
 
         bfEncrypt::reply('success', array(
             'files' => $files,
-            'total' => $count
+            'total' => $count,
         ));
     }
 
     /**
-     * Save the robots.txt file
+     * Save the robots.txt file.
      */
     private function saveRobotsFile()
     {
-        if (file_put_contents(JPATH_BASE . '/robots.txt', base64_decode($this->_dataObj->filecontents))) {
+        if (file_put_contents(JPATH_BASE.'/robots.txt', base64_decode($this->_dataObj->filecontents))) {
             bfEncrypt::reply('success', array(
-                'msg' => 'File saved!'
+                'msg' => 'File saved!',
             ));
         } else {
             bfEncrypt::reply('error', array(
-                'msg' => 'File could not be saved!'
+                'msg' => 'File could not be saved!',
             ));
         }
     }
 
     /**
      * ok ok I know this looks bad, it probably is, but this allows a subscriber to edit a file on
-     * myJoomla.com and then save the contents back to myJoomla.com
+     * myJoomla.com and then save the contents back to myJoomla.com.
      *
      * In order to get to this method a lot of security jumps have to have gone through already
      *
@@ -1997,114 +2187,118 @@ final class bfTools
      */
     private function saveFile()
     {
-        if (!is_writable(JPATH_BASE . $this->_dataObj->filename)) {
+        require 'bfFilesystem.php';
+
+        if (file_exists(JPATH_BASE.$this->_dataObj->filename) && !is_writable(JPATH_BASE.$this->_dataObj->filename)) {
             bfEncrypt::reply('error', array(
-                'msg' => 'File not saved - as file is unwritable!'
+                'msg' => 'File not saved - as file is unwritable!',
             ));
         }
 
-        if (!file_exists(JPATH_BASE . $this->_dataObj->filename)) {
-            bfEncrypt::reply('error', array(
-                'msg' => 'File not saved - as file doesnt already exist to overwrite!'
-            ));
+        if (!file_exists(dirname(JPATH_BASE.$this->_dataObj->filename))) {
+            if (!@mkdir(dirname(JPATH_BASE.$this->_dataObj->filename), 0755, true)) {
+                bfEncrypt::reply('error', array(
+                    'msg' => 'File not saved - could not create folder paths!',
+                ));
+            }
         }
 
         $content = base64_decode($this->_dataObj->filecontents);
 
         if (!$content) {
             bfEncrypt::reply('error', array(
-                'msg' => 'File not saved - as no content sent to save into the file!'
+                'msg' => 'File not saved - as no content sent to save into the file!',
             ));
         }
 
-        if (@file_put_contents(JPATH_BASE . $this->_dataObj->filename, $content)) {
+        if (@Bf_Filesystem::_write(JPATH_BASE.$this->_dataObj->filename, $content)) {
             bfEncrypt::reply('success', array(
-                'msg' => 'File saved!'
+                'msg' => 'File saved!',
             ));
         } else {
             bfEncrypt::reply('error', array(
-                'msg' => 'No idea why, but file content could not be saved to ' . JPATH_BASE . $this->_dataObj->filename
+                'msg' => 'No idea why, but file content could not be saved to '.JPATH_BASE.$this->_dataObj->filename,
             ));
         }
     }
 
+    /**
+     * get the contents of the robots.txt only if it exists in the cache tables.
+     */
     private function getRobotsFile()
     {
         $this->_db->setQuery('SELECT id from bf_files WHERE filewithpath = "/robots.txt"');
         $id = $this->_db->loadResult();
         if (!$id) {
-            $obj = new stdclass ();
-            $obj->filename = '';
-            $obj->filemd5 = md5('');
+            $obj               = new stdclass();
+            $obj->filename     = '';
+            $obj->filemd5      = md5('');
             $obj->filewithpath = '';
             $obj->filecontents = base64_encode('Could not load content for your own security, run a full audit before attempting to edit file content with myJoomla.com');
-            $obj->filesize = 0;
-            $obj->basepath = JPATH_BASE;
-            $obj->writeable = 0;
+            $obj->filesize     = 0;
+            $obj->basepath     = JPATH_BASE;
+            $obj->writeable    = 0;
 
             bfEncrypt::reply('success', array(
-                'file' => $obj
+                'file' => $obj,
             ));
         }
         $this->downloadfile($id);
     }
 
     /**
-     *
+     * @param null $file_id
      */
-    private function downloadfile($file_id = NULL)
+    private function downloadfile($file_id = null)
     {
-        if (NULL === $file_id) {
-            $file_id = ( int )$this->_dataObj->f;
+        if (null === $file_id) {
+            $file_id = (int) $this->_dataObj->f;
         }
 
-        $this->_db->setQuery('SELECT filewithpath from bf_files WHERE id = ' . $file_id);
+        $this->_db->setQuery('SELECT filewithpath from bf_files WHERE id = '.$file_id);
 
-        $filename = $this->_db->loadResult();
-        $filewithpath = JPATH_BASE . $filename;
+        $filename     = $this->_db->loadResult();
+        $filewithpath = JPATH_BASE.$filename;
 
         if (file_exists($filewithpath)) {
-            $contents = file_get_contents($filewithpath);
+            $contents              = file_get_contents($filewithpath);
             $contentsbase64_encode = base64_encode($contents);
-            $obj = new stdclass ();
-            $obj->filename = $filename;
-            $obj->filemd5 = md5($contents);
-            $obj->filewithpath = $filewithpath;
-            $obj->filecontents = $contentsbase64_encode;
-            $obj->filesize = filesize($filewithpath);
-            $obj->basepath = JPATH_BASE;
-            $obj->writeable = is_writable($filewithpath);
+            $obj                   = new stdclass();
+            $obj->filename         = $filename;
+            $obj->filemd5          = md5($contents);
+            $obj->filewithpath     = $filewithpath;
+            $obj->filecontents     = $contentsbase64_encode;
+            $obj->filesize         = filesize($filewithpath);
+            $obj->basepath         = JPATH_BASE;
+            $obj->writeable        = is_writable($filewithpath);
 
             bfEncrypt::reply('success', array(
-                'file' => $obj
+                'file' => $obj,
             ));
         } else {
             bfEncrypt::reply('error', array(
-                'msg' => 'File No Longer Exists!'
+                'msg' => 'File No Longer Exists!',
             ));
         }
     }
 
-    /**
-     *
-     */
     private function restorefile()
     {
         // Require more complex methods for dealing with files
         require 'bfFilesystem.php';
 
         // get the cached data on the file
-        $this->_db->setQuery('SELECT filewithpath FROM bf_files WHERE id = ' . $this->_dataObj->fileid);
+        $this->_db->setQuery('SELECT filewithpath FROM bf_files WHERE id = '.$this->_dataObj->fileid);
         $file_to_restore_nopath = $this->_db->loadResult();
-        $file_to_restore = JPATH_BASE . $file_to_restore_nopath;
+        $file_to_restore        = JPATH_BASE.$file_to_restore_nopath;
 
         $new_file_contents = base64_decode($this->_dataObj->filecontents);
-        $new_md5 = md5($new_file_contents);
+        $new_md5           = md5($new_file_contents);
         if ($new_md5 !== $this->_dataObj->md5) {
             bfEncrypt::reply('failure', 'MD5 Check 1 Failed');
         }
 
-        $this->_db->setQuery('SELECT hash FROM bf_core_hashes WHERE filewithpath = "' . $file_to_restore_nopath . '"');
+        $this->_db->setQuery('SELECT hash FROM bf_core_hashes WHERE filewithpath = "'.$file_to_restore_nopath.'"');
         $core_md5 = $this->_db->loadResult();
         if ($core_md5 !== $this->_dataObj->md5) {
             bfEncrypt::reply('failure', 'MD5 Check 2 Failed');
@@ -2118,97 +2312,84 @@ final class bfTools
             bfEncrypt::reply('failure', 'MD5 Check 3 Failed');
         }
 
-        $this->_db->setQuery("UPDATE bf_files SET suspectcontent = 0 , hashfailed = 0 where filewithpath = '" . $file_to_restore_nopath . "'");
+        $this->_db->setQuery("UPDATE bf_files SET suspectcontent = 0 , hashfailed = 0 where filewithpath = '".$file_to_restore_nopath."'");
         $this->_db->query();
 
         bfEncrypt::reply('success', 'Restored OK');
     }
 
-    /**
-     *
-     */
     private function checkFTPLayer()
     {
-
-        $config = JFactory::getApplication();
-        $ftp_pass = $config->getCfg('ftp_pass', '');
-        $ftp_user = $config->getCfg('ftp_user', '');
+        $config     = JFactory::getApplication();
+        $ftp_pass   = $config->getCfg('ftp_pass', '');
+        $ftp_user   = $config->getCfg('ftp_user', '');
         $ftp_enable = $config->getCfg('ftp_enable', '');
-        $ftp_host = $config->getCfg('ftp_host', '');
-        $ftp_root = $config->getCfg('ftp_root', '');
-        if ($ftp_pass || $ftp_user || $ftp_enable == '1' || $ftp_host || $ftp_root) {
+        $ftp_host   = $config->getCfg('ftp_host', '');
+        $ftp_root   = $config->getCfg('ftp_root', '');
+        if ($ftp_pass || $ftp_user || '1' == $ftp_enable || $ftp_host || $ftp_root) {
             bfEncrypt::reply('success', 1);
         } else {
             bfEncrypt::reply('success', 0);
         }
     }
 
-    /**
-     *
-     */
     private function disableFTPLayer()
     {
+        $config      = JFactory::getApplication();
+        $config_file = JPATH_BASE.'/configuration.php';
 
-
-        $config = JFactory::getApplication();
-        $config_file = JPATH_BASE . '/configuration.php';
-
-        $ftp_pass = $config->getCfg('ftp_pass', '');
-        $ftp_user = $config->getCfg('ftp_user', '');
+        $ftp_pass   = $config->getCfg('ftp_pass', '');
+        $ftp_user   = $config->getCfg('ftp_user', '');
         $ftp_enable = $config->getCfg('ftp_enable', '');
-        $ftp_host = $config->getCfg('ftp_host', '');
-        $ftp_root = $config->getCfg('ftp_root', '');
+        $ftp_host   = $config->getCfg('ftp_host', '');
+        $ftp_root   = $config->getCfg('ftp_root', '');
 
-        $config_txt = file_get_contents(JPATH_BASE . '/configuration.php');
+        $config_txt = file_get_contents(JPATH_BASE.'/configuration.php');
         $config_txt = str_replace("\$ftp_enable = '1';", "\$ftp_enable = '0';", $config_txt);
-        $config_txt = str_replace("\$ftp_pass = '" . $ftp_pass . "';", "\$ftp_pass = '';", $config_txt);
-        $config_txt = str_replace("\$ftp_user = '" . $ftp_user . "';", "\$ftp_user = '';", $config_txt);
-        $config_txt = str_replace("\$ftp_host = '" . $ftp_host . "';", "\$ftp_host = '';", $config_txt);
-        $config_txt = str_replace("\$ftp_root = '" . $ftp_root . "';", "\$ftp_root = '';", $config_txt);
+        $config_txt = str_replace("\$ftp_pass = '".$ftp_pass."';", "\$ftp_pass = '';", $config_txt);
+        $config_txt = str_replace("\$ftp_user = '".$ftp_user."';", "\$ftp_user = '';", $config_txt);
+        $config_txt = str_replace("\$ftp_host = '".$ftp_host."';", "\$ftp_host = '';", $config_txt);
+        $config_txt = str_replace("\$ftp_root = '".$ftp_root."';", "\$ftp_root = '';", $config_txt);
 
         @chmod($config_file, 0777);
         if (file_put_contents($config_file, $config_txt)) {
             @chmod($config_file, 0644);
             bfEncrypt::reply('success', 1);
         } else {
-            bfEncrypt::reply('failure', 'Could not write configuration.php to ' . $config_file);
+            bfEncrypt::reply('failure', 'Could not write configuration.php to '.$config_file);
         }
     }
 
-    /**
-     *
-     */
     private function setFolderPermissions()
     {
-        $fixed = 0;
+        $fixed  = 0;
         $errors = 0;
-
 
         $this->_db->setQuery('SELECT id, folderwithpath from bf_folders WHERE folderinfo = "777"');
         $folders = $this->_db->loadObjectList();
         foreach ($folders as $folder) {
-            if (@chmod(JPATH_BASE . $folder->folderwithpath, 0755)) {
-                $fixed++;
-                $this->_db->setQuery('UPDATE bf_folders SET folderinfo = "755" WHERE id = "' . ( int )$folder->id . '" AND folderinfo = "777"');
+            if (@chmod(JPATH_BASE.$folder->folderwithpath, 0755)) {
+                ++$fixed;
+                $this->_db->setQuery('UPDATE bf_folders SET folderinfo = "755" WHERE id = "'.(int) $folder->id.'" AND folderinfo = "777"');
                 $this->_db->query();
             } else {
-                $errors++;
+                ++$errors;
             }
         }
 
         $this->_db->setQuery('SELECT count(*) FROM bf_folders WHERE folderinfo LIKE "%777%"');
         $folders_777 = $this->_db->LoadResult();
 
-        $res = new stdClass ();
-        $res->errors = $errors;
-        $res->fixed = $fixed;
+        $res           = new stdClass();
+        $res->errors   = $errors;
+        $res->fixed    = $fixed;
         $res->leftover = $folders_777;
 
         bfEncrypt::reply('success', $res);
     }
 
     /**
-     * I do some sanity checks then enable .htaccess
+     * I do some sanity checks then enable .htaccess.
      */
     private function setHtaccess()
     {
@@ -2217,67 +2398,64 @@ final class bfTools
 
         // init bfDatabase
 
-
         // To
-        $htaccess = JPATH_BASE . DIRECTORY_SEPARATOR . '.htaccess';
+        $htaccess = JPATH_BASE.DIRECTORY_SEPARATOR.'.htaccess';
 
         // From
-        $htaccesstxt = JPATH_BASE . DIRECTORY_SEPARATOR . 'htaccess.txt';
+        $htaccesstxt = JPATH_BASE.DIRECTORY_SEPARATOR.'htaccess.txt';
 
         $res = new stdClass();
         if (file_exists($htaccess)) {
             $res->result = 'ERROR';
-            $res->msg = '.htaccess file already exists!';
+            $res->msg    = '.htaccess file already exists!';
             bfEncrypt::reply(bfReply::SUCCESS, $res);
         }
 
         if (!file_exists($htaccesstxt)) {
             $res->result = 'ERROR';
-            $res->msg = 'htaccess.txt file not found, cannot proceed';
+            $res->msg    = 'htaccess.txt file not found, cannot proceed';
             bfEncrypt::reply(bfReply::SUCCESS, $res);
         }
 
         // Test we are on apache
         if (!preg_match('/Apache|LiteSpeed/i', $_SERVER['SERVER_SOFTWARE'])) {
             $res->result = 'ERROR';
-            $res->msg = 'Server reported its not running Apache/LiteSpeed, but is running ' . $_SERVER['SERVER_SOFTWARE'];
+            $res->msg    = 'Server reported its not running Apache/LiteSpeed, but is running '.$_SERVER['SERVER_SOFTWARE'];
             bfEncrypt::reply(bfReply::SUCCESS, $res);
         }
 
         $didItWork = Bf_Filesystem::_write($htaccess, file_get_contents($htaccesstxt));
 
-        if ($didItWork == FALSE) {
+        if (false == $didItWork) {
             $res->result = 'ERROR';
-            $res->msg = 'Could not copy htaccess.txt to .htaccess';
+            $res->msg    = 'Could not copy htaccess.txt to .htaccess';
             bfEncrypt::reply(bfReply::SUCCESS, $res);
         }
 
         $res->result = 'SUCCESS';
-        $res->msg = '.htaccess enabled! - Go and test your site!';
+        $res->msg    = '.htaccess enabled! - Go and test your site!';
         bfEncrypt::reply(bfReply::SUCCESS, $res);
     }
 
     /**
-     * I set the new database credentials in /configuration.php after some testing
+     * I set the new database credentials in /configuration.php after some testing.
      */
     private function setDbCredentials()
     {
         // Require more complex methods for dealing with files
         require 'bfFilesystem.php';
 
-
         $password = $this->_dataObj->p;
-        $user = $this->_dataObj->u;
+        $user     = $this->_dataObj->u;
 
-        $res = $this->testDbCredentials(TRUE);
-        if ($res->result == 'error') {
+        $res = $this->testDbCredentials(true);
+        if ('error' == $res->result) {
             bfEncrypt::reply(bfReply::ERROR, $res);
         }
         /**
          * Updates the configuration.php file with the given prefix
-         * (some code from below)
+         * (some code from below).
          *
-         * @package   AdminTools
          * @copyright Copyright (c)2010-2011 Nicholas K. Dionysopoulos
          * @license   GNU General Public License version 3, or later
          *
@@ -2289,13 +2467,13 @@ final class bfTools
         // Load the configuration and replace the db prefix
         $config = JFactory::getConfig();
         if (version_compare(JVERSION, '3.0', 'ge')) {
-            $olduser = $config->get('user');
+            $olduser     = $config->get('user');
             $oldpassword = $config->get('password');
-            $host = $config->get('host');
+            $host        = $config->get('host');
         } else {
-            $olduser = $config->getValue('config.user');
+            $olduser     = $config->getValue('config.user');
             $oldpassword = $config->getValue('configpassword');
-            $host = $config->getValue('host');
+            $host        = $config->getValue('host');
         }
 
         if (version_compare(JVERSION, '3.0', 'ge')) {
@@ -2307,7 +2485,7 @@ final class bfTools
         }
 
         $newConfig = $config->toString('PHP', 'config', array(
-            'class' => 'JConfig'
+            'class' => 'JConfig',
         ));
 
         // On some occasions, Joomla! 1.6 ignores the configuration and
@@ -2315,27 +2493,27 @@ final class bfTools
         $newConfig = str_replace('class c {', 'class JConfig {', $newConfig);
 
         // Try to write out the configuration.php
-        $filename = JPATH_ROOT . DIRECTORY_SEPARATOR . 'configuration.php';
-        $result = Bf_Filesystem::_write($filename, $newConfig);
+        $filename = JPATH_ROOT.DIRECTORY_SEPARATOR.'configuration.php';
+        $result   = Bf_Filesystem::_write($filename, $newConfig);
 
         // reconnect db! to use new credentials
-        $newConnectionOptions['user'] = $user;
+        $newConnectionOptions['user']     = $user;
         $newConnectionOptions['password'] = $password;
-        $newConnectionOptions['host'] = $host;
+        $newConnectionOptions['host']     = $host;
 
         // make new db connection
         $db = JDatabase::getInstance($newConnectionOptions);
         $db->setQuery('SHOW DATABASES  where `Database` NOT IN ("test", "information_schema", "mysql")');
         $dbs_visible = count($db->loadObjectList());
 
-        if ($result !== FALSE) {
+        if (false !== $result) {
             bfEncrypt::reply('success', array(
-                'msg' => 'Config saved!',
-                'dbs_visible' => $dbs_visible
+                'msg'         => 'Config saved!',
+                'dbs_visible' => $dbs_visible,
             ));
         } else {
             bfEncrypt::reply(bfReply::ERROR, array(
-                'msg' => 'Could Not Save Config'
+                'msg' => 'Could Not Save Config',
             ));
         }
     }
@@ -2345,17 +2523,16 @@ final class bfTools
      *
      * @return stdClass
      */
-    private function testDbCredentials($internal = FALSE)
+    private function testDbCredentials($internal = false)
     {
         try {
-
             $config = JFactory::getApplication();
 
             $pass = $this->_dataObj->p;
             $user = $this->_dataObj->u;
 
             $host = $config->getCfg('host', '');
-            $db = $config->getCfg('db', '');
+            $db   = $config->getCfg('db', '');
 
             if (function_exists('mysql_connect')) {
                 $link = @mysql_connect($host, $user, $pass);
@@ -2363,136 +2540,125 @@ final class bfTools
                 $link = @mysqli_connect($host, $user, $pass);
             }
 
-            $msg = new stdClass ();
+            $msg = new stdClass();
 
             if (!$link) {
                 if (function_exists('mysql_connect')) {
-                    $msg->msg = trim(mysql_error() . ' Could not connect to mysql server with supplied credentials');
+                    $msg->msg = trim(mysql_error().' Could not connect to mysql server with supplied credentials');
                 } else {
-                    $msg->msg = trim(mysqli_error() . ' Could not connect to mysql server with supplied credentials');
+                    $msg->msg = trim(mysqli_error().' Could not connect to mysql server with supplied credentials');
                 }
                 $msg->result = 'error';
-                if ($internal === TRUE) {
+                if (true === $internal) {
                     return $msg;
                 }
                 bfEncrypt::reply('success', $msg);
             }
 
             if (function_exists('mysql_connect')) {
-
                 if (!@mysql_select_db($db, $link)) {
-                    $msg->msg = trim(mysql_error() . ' Mysql User exists, but has no access to the database');
+                    $msg->msg    = trim(mysql_error().' Mysql User exists, but has no access to the database');
                     $msg->result = 'error';
-                    if ($internal === TRUE) {
+                    if (true === $internal) {
                         return $msg;
                     }
                     bfEncrypt::reply('success', $msg);
                 }
-
             } else {
-
                 if (!@mysqli_select_db($link, $db)) {
-                    $msg->msg = trim(mysqli_error() . ' Mysql User exists, but has no access to the database');
+                    $msg->msg    = trim(mysqli_error().' Mysql User exists, but has no access to the database');
                     $msg->result = 'error';
-                    if ($internal === TRUE) {
+                    if (true === $internal) {
                         return $msg;
                     }
                     bfEncrypt::reply('success', $msg);
                 }
-
             }
 
             $msg->result = 'success';
-            if ($internal === TRUE) {
+            if (true === $internal) {
                 return $msg;
             }
 
             bfEncrypt::reply('success', $msg);
-
         } catch (Exception $e) {
-
-            bfEncrypt::reply('error', 'exception: ' . $e->getMessage());
+            bfEncrypt::reply('error', 'exception: '.$e->getMessage());
         }
     }
 
-    /**
-     *
-     */
     private function getUpdatesCount()
     {
         require 'bfUpdates.php';
 
-        $bfUpdates = new bfUpdates ();
+        $bfUpdates = new bfUpdates();
 
         bfEncrypt::reply('success', array(
-            'count' => $bfUpdates->getupdates(TRUE)
+            'count' => $bfUpdates->getupdates(true),
         ));
-
     }
 
-    /**
-     *
-     */
     private function getUpdatesDetail()
     {
         require 'bfUpdates.php';
 
-        $bfUpdates = new bfUpdates ();
-        $updates = $bfUpdates->getupdates();
+        $bfUpdates = new bfUpdates();
+        $updates   = $bfUpdates->getupdates();
 
         bfEncrypt::reply('success', array(
             'current_joomla_version' => JVERSION,
-            'availableUpdates' => $updates['updates'],
-            'updateSites' => $updates['sites']
+            'availableUpdates'       => $updates['updates'],
+            'updateSites'            => $updates['sites'],
         ));
     }
 
     /**
-     * Fix Db Schema version in the db
+     * Fix Db Schema version in the db.
+     *
      * @since 20130929
      */
     private function fixDbSchema()
     {
-        require JPATH_ADMINISTRATOR . '/components/com_installer/models/database.php';
+        require JPATH_ADMINISTRATOR.'/components/com_installer/models/database.php';
         $model = new InstallerModelDatabase();
         $model->fix();
 
         $changeSet = $model->getItems();
         bfEncrypt::reply('success', array(
-            'latest' => $changeSet->getSchema(),
-            'current' => $model->getSchemaVersion(),
-            'schema_errors' => $model->getItems()->check()
+            'latest'        => $changeSet->getSchema(),
+            'current'       => $model->getSchemaVersion(),
+            'schema_errors' => $model->getItems()->check(),
         ));
     }
 
     /**
-     * Return the DB schema
+     * Return the DB schema.
+     *
      * @since 20130929
      */
     private function getDbSchemaVersion()
     {
-        require JPATH_ADMINISTRATOR . '/components/com_installer/models/database.php';
-        $model = new InstallerModelDatabase();
+        require JPATH_ADMINISTRATOR.'/components/com_installer/models/database.php';
+        $model     = new InstallerModelDatabase();
         $changeSet = $model->getItems();
         bfEncrypt::reply('success', array(
-            'latest' => $changeSet->getSchema(),
-            'current' => $model->getSchemaVersion(),
+            'latest'        => $changeSet->getSchema(),
+            'current'       => $model->getSchemaVersion(),
             'schema_errors' => $model->getItems()
-                ->check()
+                ->check(),
         ));
     }
 
     private function checkGoogleFile()
     {
-        $found = FALSE;
+        $found = false;
         $files = scandir(JPATH_BASE);
         foreach ($files as $file) {
             if (preg_match('/google.*\.html/', $file)) {
-                $found = TRUE;
+                $found = true;
             }
         }
         bfEncrypt::reply('success', array(
-            'found' => $found
+            'found' => $found,
         ));
     }
 
@@ -2502,7 +2668,7 @@ final class bfTools
     }
 
     /**
-     * Generic function for updating the configuration.php file
+     * Generic function for updating the configuration.php file.
      *
      * @param $param string
      * @param $value string|int
@@ -2512,10 +2678,10 @@ final class bfTools
         // Require more complex methods for dealing with files
         require 'bfFilesystem.php';
 
-        if ($type == 'int') {
-            if ($value == "true") {
+        if ('int' == $type) {
+            if ('true' == $value) {
                 $value = 1;
-            } else if ($value == "false") {
+            } elseif ('false' == $value) {
                 $value = 0;
             } else {
                 $value = 0;
@@ -2527,11 +2693,11 @@ final class bfTools
         if (version_compare(JVERSION, '3.0', 'ge')) {
             $config->set($param, $value);
         } else {
-            $config->setValue('config.' . $param, $value);
+            $config->setValue('config.'.$param, $value);
         }
 
         $newConfig = $config->toString('PHP', array(
-            'class' => 'JConfig'
+            'class' => 'JConfig',
         ));
 
         /**
@@ -2542,21 +2708,18 @@ final class bfTools
         $newConfig = str_replace('namespace c;', '', $newConfig);
 
         // Set the correct location of the file
-        $filename = JPATH_ROOT . DIRECTORY_SEPARATOR . 'configuration.php';
+        $filename = JPATH_ROOT.DIRECTORY_SEPARATOR.'configuration.php';
 
         // Try to write out the configuration.php
         $result = Bf_Filesystem::_write($filename, $newConfig);
 
-        if ($result !== FALSE) {
-
+        if (false !== $result) {
             bfEncrypt::reply('success', array(
-                $param => $value
+                $param => $value,
             ));
-
         } else {
-
             bfEncrypt::reply(bfReply::ERROR, array(
-                'msg' => 'Could Not Save Config value for ' . $param
+                'msg' => 'Could Not Save Config value for '.$param,
             ));
         }
     }
@@ -2569,14 +2732,14 @@ final class bfTools
     private function getOfflineStatus()
     {
         bfEncrypt::reply('success', array(
-            'offline' => JFactory::getApplication()->getCfg('offline')
+            'offline' => JFactory::getApplication()->getCfg('offline'),
         ));
     }
 
     private function getCacheStatus()
     {
         bfEncrypt::reply('success', array(
-            'caching' => JFactory::getApplication()->getCfg('caching')
+            'caching' => JFactory::getApplication()->getCfg('caching'),
         ));
     }
 
@@ -2589,19 +2752,19 @@ final class bfTools
 
         $app = JFactory::getApplication('Myjoomla');
 
-        // Load system plugins to give better support for commercial plugins
-        JPluginHelper::importPlugin( 'system' );
+        // Support crappy extensions like OSMap that implement their own license manager via plugins
+        JPluginHelper::importPlugin('system');
 
         // init reply to myJoomla.com
-        $result = array();
+        $result             = array();
         $result['messages'] = array();
 
         // which row in the _updates table should we use
-        $this->_db->setQuery('SELECT update_id from #__updates WHERE extension_id = "' . $this->_dataObj->eid . '"');
+        $this->_db->setQuery('SELECT update_id from #__updates WHERE extension_id = "'.$this->_dataObj->eid.'"');
         $extension_row_id = $this->_db->loadResult();
 
         // Do the update
-        $ext = new bfExtensions();
+        $ext              = new bfExtensions();
         $result['result'] = $ext->doUpdate($extension_row_id);
 
         // Grab any error messages
@@ -2610,8 +2773,8 @@ final class bfTools
 
         // translate messages
         $lang = JFactory::getLanguage();
-        $lang->load('com_installer', JPATH_ADMINISTRATOR, 'en-GB', TRUE);
-        $lang->load('lib_joomla', JPATH_ADMINISTRATOR, 'en-GB', TRUE);
+        $lang->load('com_installer', JPATH_ADMINISTRATOR, 'en-GB', true);
+        $lang->load('lib_joomla', JPATH_ADMINISTRATOR, 'en-GB', true);
 
         if (count($result['messages'])) {
             foreach ($result['messages'] as &$msg) {
@@ -2620,14 +2783,13 @@ final class bfTools
         }
 
         bfEncrypt::reply('success', array(
-            'result' => $result
+            'result' => $result,
         ));
     }
 
     private function checkAkeebaOutputDirectory()
     {
         try {
-
             // If using PHP 5.2 then ABORT as Akeeba stuff needs newer PHP version
             if (version_compare(PHP_VERSION, '5.3.0', '<')) {
                 throw new Exception('PHP version below 5.3.0 so Akeeba Will Not Work!');
@@ -2636,12 +2798,12 @@ final class bfTools
             }
 
             // Check Akeeba Installed - Prerequisite
-            if (!file_exists(JPATH_SITE . '/libraries/f0f/include.php')
-                || !file_exists(JPATH_SITE . '/administrator/components/com_akeeba/engine/Factory.php')
-                || !file_exists(JPATH_SITE . '/administrator/components/com_akeeba/engine/serverkey.php')
+            if (!file_exists(JPATH_SITE.'/libraries/f0f/include.php')
+                || !file_exists(JPATH_SITE.'/administrator/components/com_akeeba/engine/Factory.php')
+                || !file_exists(JPATH_SITE.'/administrator/components/com_akeeba/engine/serverkey.php')
             ) {
                 bfEncrypt::reply('success', array(
-                    'paths' => array()
+                    'paths' => array(),
                 ));
             }
 
@@ -2651,10 +2813,10 @@ final class bfTools
                 define('AKEEBAENGINE', 1);
             }
 
-            require_once JPATH_SITE . '/libraries/f0f/include.php';
-            require_once JPATH_SITE . '/administrator/components/com_akeeba/engine/Factory.php';
+            require_once JPATH_SITE.'/libraries/f0f/include.php';
+            require_once JPATH_SITE.'/administrator/components/com_akeeba/engine/Factory.php';
 
-            $serverKeyFile = JPATH_BASE . '/administrator/components/com_akeeba/engine/serverkey.php';
+            $serverKeyFile = JPATH_BASE.'/administrator/components/com_akeeba/engine/serverkey.php';
             if (!defined('AKEEBA_SERVERKEY') && file_exists($serverKeyFile)) {
                 include $serverKeyFile;
             }
@@ -2664,37 +2826,31 @@ final class bfTools
 
             // for each profile
             foreach ($profileList as $config) {
-
                 // if encrypted
-                if (substr($config->configuration, 0, 12) == '###AES128###') {
-
+                if ('###AES128###' == substr($config->configuration, 0, 12)) {
                     $php53 = new bfPHPFiveThreePlusOnly();
 
                     $config->configuration = $php53->getAkeebaConfig($config->configuration);
-
                 }
 
                 // Convert ini to useable array
-                $data = parse_ini_string($config->configuration, TRUE);
+                $data = parse_ini_string($config->configuration, true);
 
                 // find the folder
                 $dir = $data['akeeba']['basic.output_directory'];
 
                 $returnData[] = array('path' => $dir,
-                    'is_writable' => is_writable($dir),
-                    'file_exists' => file_exists($dir));
+                    'is_writable'            => is_writable($dir),
+                    'file_exists'            => file_exists($dir), );
             }
 
             bfEncrypt::reply('success', array(
-                'paths' => $returnData
+                'paths' => $returnData,
             ));
-
         } catch (Exception $e) {
-
             bfEncrypt::reply('error', array(
-                'msg' => $e->getMessage()
+                'msg' => $e->getMessage(),
             ));
-
         }
     }
 
@@ -2708,11 +2864,11 @@ final class bfTools
         $data = array(
             'log_path' => $config->get('log_path'),
             'tmp_path' => $config->get('tmp_path'),
-            'base' => JPATH_BASE
+            'base'     => JPATH_BASE,
         );
 
         bfEncrypt::reply('success', array(
-            'paths' => $data
+            'paths' => $data,
         ));
     }
 
@@ -2725,8 +2881,8 @@ final class bfTools
         $inst = bfActivitylog::getInstance();
         $inst->ensureTableCreated();
 
-        $limitstart = ( int )$this->_dataObj->ls;
-        $limit = ( int )$this->_dataObj->limit;
+        $limitstart = (int) $this->_dataObj->ls;
+        $limit      = (int) $this->_dataObj->limit;
 
         if (!$limitstart) {
             $limitstart = 0;
@@ -2735,7 +2891,7 @@ final class bfTools
             $limit = '100';
         }
 
-        $this->_db->setQuery('SELECT * from bf_activitylog ORDER by id DESC LIMIT ' . $limitstart . ', ' . $limit);
+        $this->_db->setQuery('SELECT * from bf_activitylog ORDER by id DESC LIMIT '.$limitstart.', '.$limit);
         $rows = $this->_db->loadObjectList();
         bfEncrypt::reply('success', $rows ? $rows : array());
     }
@@ -2743,11 +2899,11 @@ final class bfTools
     private function getBFPluginStatus()
     {
         switch ($this->_dataObj->action) {
-            case "enable":
+            case 'enable':
                 $this->_db->setQuery('UPDATE  #__extensions SET enabled = 1 WHERE element = "bfnetwork"');
                 $this->_db->query();
                 break;
-            case "disable":
+            case 'disable':
                 $this->_db->setQuery('UPDATE  #__extensions SET enabled = 0 WHERE element = "bfnetwork"');
                 $this->_db->query();
                 break;
@@ -2764,10 +2920,91 @@ final class bfTools
         $result = $this->_db->loadObjectList();
         bfEncrypt::reply('success', $result);
     }
+
+    /**
+     * Check the session gc plugin in Joomla 3.
+     */
+    private function setSessionGCStatus()
+    {
+        $this->_db->setQuery("update #__extensions set enabled = 1 where name = 'plg_system_sessiongc'");
+        $this->_db->query();
+
+        bfEncrypt::reply('success', array(
+            'status' => $this->getSessionGCStatus(),
+        ));
+    }
+
+    /**
+     * Check the session gc plugin in Joomla 3.
+     */
+    private function getSessionGCStatus()
+    {
+        $res = 2;
+
+        // Session GC
+        $this->_db->setQuery("select count(*) from #__extensions where name = 'plg_system_sessiongc'");
+        $hasSessionGcPlugin = $this->_db->LoadResult();
+
+        if ($hasSessionGcPlugin) {
+            $this->_db->setQuery("select enabled from #__extensions where name = 'plg_system_sessiongc'");
+            $res = $this->_db->LoadResult();
+        }
+
+        bfEncrypt::reply('success', array(
+            'status' => $res,
+        ));
+    }
+
+    /**
+     * Get the 2FA plugins.
+     */
+    private function enable2FAPlugins()
+    {
+        $this->_db->setQuery("UPDATE `#__extensions` SET enabled = 1 WHERE `folder` = 'twofactorauth'");
+        $this->_db->LoadResult();
+
+        $this->get2FAPlugins();
+    }
+
+    /**
+     * Get the 2FA plugins.
+     */
+    private function get2FAPlugins()
+    {
+        $this->_db->setQuery("SELECT * FROM `#__extensions` WHERE `folder` = 'twofactorauth'");
+        $res = $this->_db->loadObjectList();
+
+        bfEncrypt::reply('success', $res);
+    }
+
+    /**
+     * Load filters from com_config without using a helper.
+     */
+    private function getAdminFilterFixed()
+    {
+        $this->_db->setQuery("SELECT `params` from #__extensions WHERE element = 'com_config'");
+        $params = json_decode($this->_db->LoadResult());
+
+        bfEncrypt::reply('success', $params->filters->{7});
+    }
+
+    /**
+     * set filters from com_config without using a helper.
+     */
+    private function setAdminFilterFixed()
+    {
+        $this->_db->setQuery("SELECT `params` from #__extensions WHERE `element` = 'com_config'");
+        $params                            = json_decode($this->_db->LoadResult());
+        $params->filters->{7}->filter_type = 'BL';
+        $this->_db->setQuery(sprintf("UPDATE #__extensions set `params` = '%s' WHERE `element` = 'com_config'", json_encode($params)));
+        $this->_db->query();
+
+        return $this->getAdminFilterFixed();
+    }
 }
 
 // init this class
-$securityController = new bfTools ($dataObj);
+$securityController = new bfTools($dataObj);
 
 // Run the tool method
 $securityController->run();

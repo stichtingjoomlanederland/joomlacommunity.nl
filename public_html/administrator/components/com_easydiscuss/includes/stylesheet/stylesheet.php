@@ -30,16 +30,15 @@ class EasyDiscussStylesheet extends EasyDiscuss
 	 */
 	public function attach()
 	{
-		// RTL support
-		$lang = JFactory::getLanguage();
-		$rtl = $lang->isRTL();
+		$themeName = ED::themes()->getName();
+		$rtl = $this->isRTL();
 
 		if ($rtl && $this->location == 'site') {
-			$themeName = ED::themes()->getName();
 
 			// check if site is now runing on production or not.
 			$filename = 'style-rtl';
-			if ($this->config->get('system_environment') == 'production') {
+
+			if (!$this->isDevelopment()) {
 				$filename .= '.min';
 			}
 
@@ -56,14 +55,6 @@ class EasyDiscussStylesheet extends EasyDiscuss
 		$this->doc->addStyleSheet($uri);
 
 		if ($this->location == 'site') {
-
-			// @TODO:
-			// 1. Check for template overrides
-			// 2. Check settings to see if easydiscuss css files should be rendered at all
-
-			// @TODO: During production mode, nothing should be executed at all. Just attach the css to the document.
-
-
 			$this->attachCustomCss();
 		}
 	}
@@ -71,19 +62,20 @@ class EasyDiscussStylesheet extends EasyDiscuss
 	/**
 	 * if there is a custom.css overriding, we need to attach this custom.css file.
 	 *
-	 * @since	4.0
+	 * @since	3.0.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	private function attachCustomCss()
 	{
 		$path = JPATH_ROOT . '/templates/' . $this->app->getTemplate() . '/html/com_easydiscuss/css/custom.css';
+		$exists = JFile::exists($path);
 
-		if (JFile::exists($path)) {
-			$customURI = JURI::root() . 'templates/' . $this->app->getTemplate() . '/html/com_easydiscuss/css/custom.css';
-			$this->doc->addStyleSheet($customURI);
+		if (!$exists) {
+			return;
 		}
+
+		$customURI = JURI::root() . 'templates/' . $this->app->getTemplate() . '/html/com_easydiscuss/css/custom.css';
+		$this->doc->addStyleSheet($customURI);
 	}
 
 	/**
@@ -113,20 +105,36 @@ class EasyDiscussStylesheet extends EasyDiscuss
 	{
 		// Allow caller to specify a different stylesheet to compile
 		if (is_null($theme)) {
-			$theme = $this->config->get('layout_site_theme');
+			$theme = ED::themes()->getName();
 		}
 
 		$options = array(
 					'source' => DISCUSS_MEDIA . '/themes/' . $theme . '/less/style.less',
 					'output' => DISCUSS_MEDIA . '/themes/' . $theme . '/css/style.css',
-					'compressed' => DISCUSS_MEDIA . '/themes/' . $theme . '/css/style.min.css'
+					'compressed' => DISCUSS_MEDIA . '/themes/' . $theme . '/css/style.min.css',
+					'compressed_rtl' => DISCUSS_MEDIA . '/themes/' . $theme . '/css/style-rtl.min.css',
 				);
 
 		// For production mode, we simply just include the minified css file. Don't render anything else
 		// Request compiler to compile less files
-		if (!defined('ED_CLI') && $this->config->get('system_environment') == 'production') {
-			return ED::assets()->toUri($options['compressed']);
+		if (!defined('ED_CLI') && !$this->isDevelopment()) {
+			$rtl = $this->isRTL();
+			$url = $options['compressed'];
+
+			if ($rtl) {
+				$url = $options['compressed_rtl'];
+			}
+
+			$url = str_ireplace(DISCUSS_MEDIA, rtrim(JURI::root(), '/') . '/media/com_easydiscuss', $url);
+
+			// Hash version to avoid cache
+			$hash = md5(ED::getLocalVersion());
+
+			$url = $url . '?' . $hash . '=1';
+
+			return $url;
 		}
+
 
 		// Compile
 		$less = ED::less();
@@ -174,13 +182,28 @@ class EasyDiscussStylesheet extends EasyDiscuss
 		$options = array(
 					'source' => DISCUSS_MEDIA . '/themes/admin/less/style.less',
 					'output' => DISCUSS_MEDIA . '/themes/admin/css/style.css',
-					'compressed' => DISCUSS_MEDIA . '/themes/admin/css/style.min.css'
+					'compressed' => DISCUSS_MEDIA . '/themes/admin/css/style.min.css',
+					'compressed_rtl' => DISCUSS_MEDIA . '/themes/admin/css/style-rtl.min.css'
 				);
 
 		// For production mode, we simply just include the minified css file. Don't render anything else
 		// Request compiler to compile less files
-		if (!defined('ED_CLI') && $this->config->get('system_environment') == 'production') {
-			return ED::assets()->toUri($options['compressed']);
+		if (!defined('ED_CLI') && !$this->isDevelopment()) {
+			$rtl = $this->isRTL();
+			$url = $options['compressed'];
+
+			if ($rtl) {
+				$url = $options['compressed_rtl'];
+			}
+
+			$url = str_ireplace(DISCUSS_MEDIA, rtrim(JURI::root(), '/') . '/media/com_easydiscuss', $url);
+
+			// Hash version to avoid cache
+			$hash = md5(ED::getLocalVersion());
+
+			$url = $url . '?' . $hash . '=1';
+
+			return $url;
 		}
 
 		$result = $less->compileStylesheet($options);
@@ -211,5 +234,30 @@ class EasyDiscussStylesheet extends EasyDiscuss
 
 		// Here we assume that the process was successful
 		return $result->out_uri;
+	}
+
+	/**
+	 * Determines if the site is in RTL mode
+	 *
+	 * @since	4.2.0
+	 * @access	public
+	 */
+	public function isRTL()
+	{
+		$lang = JFactory::getLanguage();
+		$rtl = $lang->isRTL();
+
+		return $rtl;
+	}
+
+	/**
+	 * Determines if the site is under development mode
+	 *
+	 * @since	4.2.0
+	 * @access	public
+	 */
+	public function isDevelopment()
+	{
+		return $this->config->get('system_environment') == 'development';
 	}
 }

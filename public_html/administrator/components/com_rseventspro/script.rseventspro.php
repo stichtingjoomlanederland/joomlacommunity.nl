@@ -36,16 +36,23 @@ class com_rseventsproInstallerScript
 		$db->setQuery('SELECT '.$db->qn('extension_id').' FROM '.$db->qn('#__extensions').' WHERE '.$db->qn('element').' = '.$db->q('rseventspro').' AND '.$db->qn('folder').' = '.$db->q('installer').' AND '.$db->qn('type').' = '.$db->q('plugin').' LIMIT 1');
 		$plg_id = $db->loadResult();
 		if ($plg_id) $installer->uninstall('plugin', $plg_id);
+		
+		$db->setQuery('SELECT '.$db->qn('extension_id').' FROM '.$db->qn('#__extensions').' WHERE '.$db->qn('element').' = '.$db->q('rseventspro').' AND '.$db->qn('folder').' = '.$db->q('provacy').' AND '.$db->qn('type').' = '.$db->q('plugin').' LIMIT 1');
+		$priv_id = $db->loadResult();
+		if ($priv_id) $installer->uninstall('plugin', $priv_id);
 	}
 	
 	// Install - Update process
 	public function installprocess($type, $parent) {
-		$db		= JFactory::getDbo();
-		
-		// Install the updater plugin
+		$db	= JFactory::getDbo();
 		$installer = new JInstaller();
+		
 		$installer->install($parent->getParent()->getPath('source').'/other/plg_installer');
 		$db->setQuery('UPDATE '.$db->qn('#__extensions').' SET '.$db->qn('enabled').' = 1 WHERE '.$db->qn('element').' = '.$db->q('rseventspro').' AND '.$db->qn('type').' = '.$db->q('plugin').' AND '.$db->qn('folder').' = '.$db->q('installer'));
+		$db->execute();
+		
+		$installer->install($parent->getParent()->getPath('source').'/other/plg_rseventsproprivacy');
+		$db->setQuery('UPDATE '.$db->qn('#__extensions').' SET '.$db->qn('enabled').' = 1 WHERE '.$db->qn('element').' = '.$db->q('rseventspro').' AND '.$db->qn('type').' = '.$db->q('plugin').' AND '.$db->qn('folder').' = '.$db->q('privacy'));
 		$db->execute();
 		
 		
@@ -896,6 +903,91 @@ class com_rseventsproInstallerScript
 				$db->execute();
 			}
 			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_tickets` WHERE `Field` = 'from'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_tickets` ADD `from` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `layout`");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_tickets` WHERE `Field` = 'to'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_tickets` ADD `to` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `from`");
+				$db->execute();
+			}
+			
+			try {			
+				$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_discounts` WHERE `Field` = 'cart_tickets'");
+				if (!$db->loadResult()) {
+					$db->setQuery("ALTER TABLE `#__rseventspro_discounts` ADD `cart_tickets` INT(3) NOT NULL DEFAULT '0' AFTER `different_tickets`");
+					$db->execute();
+				}
+			} catch (Exception $e) {}
+			
+			// Set enable option to the notification emails
+			$token = false;
+			$db->setQuery("SELECT `value` FROM `#__rseventspro_config` WHERE name = 'facebook_appid'");
+			if ($fbappid = $db->loadResult()) {
+				if ($fbappid == '340486642645761') {
+					$db->setQuery("UPDATE `#__rseventspro_config` SET `value` = '' WHERE name = 'facebook_appid'");
+					$db->execute();
+					$token = true;
+				}
+			}
+			
+			$db->setQuery("SELECT `value` FROM `#__rseventspro_config` WHERE name = 'facebook_secret'");
+			if ($fbsecret = $db->loadResult()) {
+				if ($fbsecret == 'fea413f9a085e01555de0e93848c2c4a') {
+					$db->setQuery("UPDATE `#__rseventspro_config` SET `value` = '' WHERE name = 'facebook_secret'");
+					$db->execute();
+					$token = true;
+				}
+			}
+			
+			if ($token) {
+				$db->setQuery("UPDATE `#__rseventspro_config` SET `value` = '' WHERE name = 'facebook_token'");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW TABLES LIKE '".$db->getPrefix()."rseventspro_sync_log'");
+			if ($db->loadResult()) {
+				$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_sync_log` WHERE `Field` = 'page'");
+				if ($columns = $db->loadObject()) {
+					if (strtolower($columns->Type) == 'int(2)') {
+						$db->setQuery("ALTER TABLE `#__rseventspro_sync_log` CHANGE `page` `page` VARCHAR(255) NOT NULL DEFAULT ''");
+						$db->execute();
+					}
+				}
+			}
+			
+			
+			$updateData = array();
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'rsvp', 'type' => 'TINYINT(2)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'rsvp_quota', 'type' => 'INT(11)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'rsvp_guests', 'type' => 'TINYINT(2)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'rsvp_start', 'type' => 'DATETIME', 'default' => '0000-00-00 00:00:00');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'rsvp_end', 'type' => 'DATETIME', 'default' => '0000-00-00 00:00:00');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'rsvp_going', 'type' => 'TINYINT(2)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'rsvp_interested', 'type' => 'TINYINT(2)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'rsvp_notgoing', 'type' => 'TINYINT(2)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'event_ended', 'type' => 'TEXT');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'event_full', 'type' => 'TEXT');
+			$updateData[] = array('table' => '#__rseventspro_groups', 'field' => 'can_select_speakers', 'type' => 'TINYINT(2)', 'default' => '1');
+			$updateData[] = array('table' => '#__rseventspro_groups', 'field' => 'can_add_speaker', 'type' => 'TINYINT(2)', 'default' => '0');
+			
+			foreach ($updateData as $data) {
+				$checkQuery = 'SHOW COLUMNS FROM '.$db->qn($data['table']).' WHERE '.$db->qn('Field').' = '.$db->q($data['field']);
+				$updateQuery = 'ALTER TABLE '.$db->qn($data['table']).' ADD '.$db->qn($data['field']).' '.$data['type'].' NOT NULL';
+				
+				if (isset($data['default'])) $updateQuery .= " DEFAULT '".$data['default']."'";
+				if (isset($data['after'])) $updateQuery .= ' AFTER '.$db->q($data['after']);
+				
+				$db->setQuery($checkQuery);
+				if (!$db->loadResult()) {
+					$db->setQuery($updateQuery);
+					$db->execute();
+				}
+			}
+			
 			// Run queries
 			$sqlfile = JPATH_ADMINISTRATOR.'/components/com_rseventspro/install.mysql.sql';
 			$buffer = file_get_contents($sqlfile);
@@ -919,6 +1011,18 @@ class com_rseventsproInstallerScript
 						throw new Exception(JText::sprintf('JLIB_INSTALLER_ERROR_SQL_ERROR', $db->stderr(true)), 1);
 					}
 				}
+			}
+			
+			// Add old rating to the new rating table
+			$db->setQuery("SELECT * FROM `#__rseventspro_taxonomy` WHERE `type` = 'rating'");
+			if ($ratings = $db->loadObjectList()) {
+				foreach ($ratings as $rating) {
+					$db->setQuery('INSERT INTO `#__rseventspro_rating` SET `ide` = '.$db->q($rating->ide).', `value` = '.$db->q($rating->id).', `ip` = '.$db->q($rating->extra));
+					$db->execute();
+				}
+				
+				$db->setQuery("DELETE FROM `#__rseventspro_taxonomy` WHERE `type` = 'rating'");
+				$db->execute();
 			}
 		}
 		
@@ -1031,9 +1135,9 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.11.5</h2>
+	<h2>Changelog v1.12.2</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> Entering coordinates would freeze the window due to recent changes in the Google Maps API.</li>
+		<li><span class="version-upgraded">Upg</span> Calendar layout speed improvements.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>
@@ -1084,19 +1188,23 @@ class com_rseventsproInstallerScript
 		$lang		= JFactory::getLanguage();
 		
 		$plugins = array(
-			'rsepropdf' => '1.11',
-			'rsfprseventspro' => '1.5.0',
-			'rsepro2co' => '1.1',
-			'rseproanzegate' => '1.2',
-			'rseproauthorize' => '1.2',
-			'rseproeway' => '1.5',
-			'rseproideal' => '1.5',
-			'rsepromygate' => '1.1',
-			'rsepropaypal' => '1.2',
-			'rseprovmerchant' => '1.2',
-			'rseprostripe' => '1.1',
-			'rseprooffline' => '1.2',
-			'rseventspro' => '1.1'
+			'content' => array(
+				'rseventspro' => '1.1'
+			),
+			'system' => array(
+				'rsepropdf' => '1.13',
+				'rsfprseventspro' => '1.5.0',
+				'rsepro2co' => '1.1',
+				'rseproanzegate' => '1.2',
+				'rseproauthorize' => '1.2',
+				'rseproeway' => '1.5',
+				'rseproideal' => '1.5',
+				'rsepromygate' => '1.1',
+				'rsepropaypal' => '1.2',
+				'rseprovmerchant' => '1.2',
+				'rseprostripe' => '1.1',
+				'rseprooffline' => '1.3'
+			)
 		);
 		
 		// Check plugins version
@@ -1104,9 +1212,10 @@ class com_rseventsproInstallerScript
 			foreach ($installed as $plugin) {
 				$file = JPATH_SITE.'/plugins/'.$plugin->folder.'/'.$plugin->element.'/'.$plugin->element.'.xml';
 				if (file_exists($file)) {
-					$xml = file_get_contents($file);
+					$xml		= file_get_contents($file);
+					$version	= $plugins[$plugin->folder][$plugin->element];
 					
-					if ($this->checkVersion($xml, $plugins[$plugin->element], '>') || strpos($xml, '<extension') === false) {
+					if ($this->checkVersion($xml, $version, '>') || strpos($xml, '<extension') === false) {
 						$lang->load($plugin->element, JPATH_ADMINISTRATOR);
 						$this->disableExtension($plugin->extension_id);
 						$messages[] = 'Please update the plugin "'.JText::_($plugin->name).'" manually.';
@@ -1188,12 +1297,17 @@ class com_rseventsproInstallerScript
 	
 	protected function getPlugins($plugins) {
 		$db			= JFactory::getDbo();
-		$elements	= array_keys($plugins);
+		$folders	= array_keys($plugins);
+		$elements	= array();
+		
+		foreach ($folders as $folder) {
+			$elements = array_merge($elements , array_keys($plugins[$folder]));
+		}
 		
 		$query = $db->getQuery(true)->select('*')
 			->from('#__extensions')
 			->where($db->qn('type').'='.$db->q('plugin'))
-			->where($db->qn('folder').' IN ('.$this->quoteImplode(array('search', 'system')).')')
+			->where($db->qn('folder').' IN ('.$this->quoteImplode($folders).')')
 			->where($db->qn('element').' IN ('.$this->quoteImplode($elements).')');
 		$db->setQuery($query);
 		

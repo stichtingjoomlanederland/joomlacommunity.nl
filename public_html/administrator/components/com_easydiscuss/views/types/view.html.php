@@ -28,6 +28,9 @@ class EasyDiscussViewTypes extends EasyDiscussAdminView
 
 		$model = ED::model('PostTypes', true);
 
+		// lets check if the lft and rgt column are correct or not.
+		$model->verifyOrdering();
+
 		// Get a list of post types
 		$types = $model->getTypes();
 		$pagination = $model->getPagination();
@@ -35,7 +38,7 @@ class EasyDiscussViewTypes extends EasyDiscussAdminView
 		$state = $this->getUserState('types.filter_state', 'filter_state', '*', 'word');
 
 		// Ordering
-		$order = $this->getUserState('types.filter_order', 'filter_order', 'id', 'cmd');
+		$order = $this->getUserState('types.filter_order', 'filter_order', 'lft', 'cmd');
 		$orderDirection = $this->getUserState('types.filter_order_Dir', 'filter_order_Dir', '', 'word');
 
 		$browse = $this->input->get('browse', 0,' int');

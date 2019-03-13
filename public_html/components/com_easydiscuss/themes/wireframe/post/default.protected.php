@@ -120,6 +120,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php } ?>
 				</li>
 
+				<?php if ($this->config->get('layout_badges_in_post') && $post->getOwner()->hasUserBadges()) { ?>
+				<li>
+					<?php echo ED::badges()->getPostHtml($post->getOwner()->id); ?>					
+				</li>
+				<?php } ?>
+
 				<?php if ($post->isAnonymous() && $this->isSiteAdmin) { ?>
 				<li>
 					<span><?php echo JText::_('COM_EASYDISCUSS_POSTED_ANONYMOUSLY');?>

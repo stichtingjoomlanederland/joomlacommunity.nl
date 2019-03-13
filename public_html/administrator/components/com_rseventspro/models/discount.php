@@ -51,6 +51,7 @@ class RseventsproModelDiscount extends JModelAdmin
 			$item->usage = empty($item->usage) ? '' : (int) $item->usage;
 			$item->same_tickets = empty($item->same_tickets) ? '' : (int) $item->same_tickets;
 			$item->different_tickets = empty($item->different_tickets) ? '' : (int) $item->different_tickets;
+			$item->cart_tickets = empty($item->cart_tickets) ? '' : (int) $item->cart_tickets;
 			$item->totalvalue = empty($item->totalvalue) ? '' : (float) $item->totalvalue;
 		}
 		

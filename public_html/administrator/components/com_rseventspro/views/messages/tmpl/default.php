@@ -15,7 +15,7 @@ JHtml::_('behavior.keepalive'); ?>
 			<?php echo JHtmlSidebar::render(); ?>
 		</div>
 		<div id="j-main-container" class="span10 j-main-container">
-			<table class="adminlist table table-striped">
+			<table class="table table-striped">
 				<thead>
 					<th><?php echo JText::_('COM_RSEVENTSPRO_CONF_EMAIL_TYPE'); ?></th>
 				</thead>
@@ -58,6 +58,23 @@ JHtml::_('behavior.keepalive'); ?>
 					</tr>
 					<tr>
 						<td><a class="<?php echo rseventsproHelper::tooltipClass(); ?>" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_CONF_EMAIL_APPROVAL_INFO')); ?>" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=message&type=approval'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_CONF_EMAIL_APPROVAL_EMAIL'); ?></a></td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<table class="table table-striped">
+				<thead>
+					<th><?php echo JText::_('COM_RSEVENTSPRO_CONF_EMAIL_RSVP'); ?></th>
+				</thead>
+				<tbody>
+					<tr>
+						<td><a href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=message&type=rsvpgoing'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_MESSAGE_RSVPGOING'); ?></a></td>
+					</tr>
+					<tr>
+						<td><a href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=message&type=rsvpinterested'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_MESSAGE_RSVPINTERESTED'); ?></a></td>
+					</tr>
+					<tr>
+						<td><a href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=message&type=rsvpnotgoing'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_MESSAGE_RSVPNOTGOING'); ?></a></td>
 					</tr>
 				</tbody>
 			</table>

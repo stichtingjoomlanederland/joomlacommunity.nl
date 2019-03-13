@@ -1,13 +1,8 @@
 <?php
 /**
- * Akeeba Strapper
- *
- * A handy distribution of namespaced jQuery and Bootstrap 2.3.4
- *
- * THIS IS LEGACY CODE. SUPPORT FOR AKEEBA STRAPPER WILL BE DROPPED IN DECEMBER 31ST, 2015.
- *
- * @copyright Copyright (c)2017-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU General Public License version 2 or later
+ *  @package     AkeebaFEF
+ *  @copyright   Copyright (c)2017-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ *  @license     GNU General Public License version 3, or later
  */
 
 // Protect from unauthorized access
@@ -33,22 +28,35 @@ class AkeebaFEFHelper
 	 */
 	public static $tag = null;
 
+	/**
+	 * Is FEF already loaded?
+	 *
+	 * @var  bool
+	 */
 	public static $loaded = false;
 
 	/**
 	 * Loads Akeeba Frontend Framework, both CSS and JS
 	 *
-	 * @return void
+	 * @param   bool  $withReset  Should I also load the CSS reset for the FEF container?
+	 *
+	 * @return  void
 	 */
-	public static function load()
+	public static function load($withReset = true)
 	{
 		if (self::$loaded)
 		{
 			return;
 		}
 
+		if ($withReset)
+		{
+			self::loadCSS('fef/reset.min.css');
+		}
+
 		self::loadCSS('fef/style.min.css');
 		self::loadJS('fef/tabs.min.js');
+		self::loadJS('fef/dropdown.min.js');
 
 		self::$loaded = true;
 	}
@@ -81,7 +89,7 @@ class AkeebaFEFHelper
 				'version'     => self::getMediaVersion(),
 				'relative'    => true,
 				'detectDebug' => true,
-			], true, false, false, true);
+			], false, false, false, true);
 		}
 		// Joomla! 3.7 is broken. We have to use the new method AND MAKE SURE $attribs IS NOT EMPTY.
 		else
@@ -90,7 +98,7 @@ class AkeebaFEFHelper
 				'version'       => self::getMediaVersion(),
 				'relative'      => true,
 				'detectDebug'   => true,
-				'framework'     => true,
+				'framework'     => false,
 				'pathOnly'      => false,
 				'detectBrowser' => true,
 			], [

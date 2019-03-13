@@ -65,6 +65,24 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 					</select>
 				</div>
 			</div>
+			
+			<div class="control-group">
+				<div class="control-label">
+					<label for="tickets_<?php echo $ticket->id; ?>_from"><?php echo JText::_('COM_RSEVENTSPRO_TICKET_AVAILABLE_FROM'); ?></label>
+				</div>
+				<div class="controls">
+					<?php echo JHTML::_('rseventspro.rscalendar', 'tickets['.$ticket->id.'][from]', $ticket->from); ?>
+				</div>
+			</div>
+			
+			<div class="control-group">
+				<div class="control-label">
+					<label for="tickets_<?php echo $ticket->id; ?>_to"><?php echo JText::_('COM_RSEVENTSPRO_TICKET_AVAILABLE_UNTIL'); ?></label>
+				</div>
+				<div class="controls">
+					<?php echo JHTML::_('rseventspro.rscalendar', 'tickets['.$ticket->id.'][to]', $ticket->to); ?>
+				</div>
+			</div>
 
 			<div class="control-group">
 				<div class="control-label">

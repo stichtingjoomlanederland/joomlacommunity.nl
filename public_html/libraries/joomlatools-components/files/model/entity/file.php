@@ -15,7 +15,7 @@
  */
 class ComFilesModelEntityFile extends ComFilesModelEntityNode implements KCommandCallbackDelegate
 {
-	public static $image_extensions = array('jpg', 'jpeg', 'gif', 'png', 'tiff', 'tif', 'bmp');
+	public static $image_extensions = array('jpg', 'jpeg', 'gif', 'png', 'bmp');
 
 	public function __construct(KObjectConfig $config)
     {
@@ -49,10 +49,13 @@ class ComFilesModelEntityFile extends ComFilesModelEntityNode implements KComman
 
 	protected function _downsizeImage(KDatabaseContext $context)
     {
-        $parameters = $this->getContainer()->getParameters();
+        if ($container = $this->getContainer())
+        {
+            $parameters = $container->getParameters();
 
-        if ($size = $parameters['maximum_image_size']) {
-            $this->resize($size);
+            if ($size = $parameters['maximum_image_size']) {
+                $this->resize($size);
+            }
         }
     }
 
@@ -73,7 +76,8 @@ class ComFilesModelEntityFile extends ComFilesModelEntityNode implements KComman
                     $thumbnail = $this->getObject('com:files.model.entity.thumbnail',
                         array(
                             'data' => array(
-                                'dimension' => array('width' => $width, 'height' => 0),
+                                'overwrite' => true,
+                                'dimension' => array('width' => $width, 'height' => $width),
                                 'name'      => $this->name,
                                 'folder'    => $this->folder,
                                 'container' => $this->getContainer()->slug,
@@ -81,7 +85,7 @@ class ComFilesModelEntityFile extends ComFilesModelEntityNode implements KComman
                             )
                         ));
 
-                    $thumbnail->generate(true);
+                    $thumbnail->save();
                 }
             }
         }
@@ -148,7 +152,7 @@ class ComFilesModelEntityFile extends ComFilesModelEntityNode implements KComman
             $size = $this->_adapter->getImageSize();
 
             if ($size !== false) {
-                return $size[0];
+                return $size['width'];
             }
         }
 
@@ -162,7 +166,7 @@ class ComFilesModelEntityFile extends ComFilesModelEntityNode implements KComman
             $size = $this->_adapter->getImageSize();
 
             if ($size !== false) {
-                return $size[1];
+                return $size['height'];
             }
         }
 

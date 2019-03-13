@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -15,30 +15,9 @@ jimport('joomla.filesystem.file');
 
 class EasyDiscussThemes extends EasyDiscuss
 {
-	/**
-	 * Stores the template variables
-	 * @var	Array
-	 */
 	public $vars = array();
-
-	/**
-	 * Theme params
-	 * @var	bool
-	 */
 	public $params = null;
-
-	/**
-	 * Determines if this view is for the admin view
-	 *
-	 * @param	object
-	 */
 	public $admin = false;
-
-	/**
-	 * Holds the current view object
-	 *
-	 * @param	object
-	 */
 	public $view = null;
 
 	public function __construct($overrideTheme = null, $options = array())
@@ -78,77 +57,14 @@ class EasyDiscussThemes extends EasyDiscuss
 	}
 
 	/**
-	 * Allows caller to set a custom theme
+	 * Escapes a string
 	 *
-	 * @since	4.0
+	 * @since	5.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public function setCategoryTheme($theme)
+	public function escape($val)
 	{
-		$this->categoryTheme = $theme;
-	}
-
-	/**
-	 * Resolves a given namespace to the appropriate path
-	 *
-	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
-	 */
-	public function resolve($namespace='', $checkOverridden = true)
-	{
-		$parts = explode('/', $namespace);
-		$location = $parts[0];
-		$path = '';
-		$extension = '.php';
-
-		// Remove the first porition from the exploded parts since we don't need this
-		unset($parts[0]);
-
-		// For admin theme files
-		if ($location == 'admin') {
-			$path = DISCUSS_ADMIN_THEMES . '/default/' . implode('/', $parts);
-
-			return $path;
-		}
-
-		// For site theme folders
-		// Implode the parts back to form the namespace
-		$namespace = implode('/', $parts);
-
-		// Get the default template from frontend
-		$defaultJoomlaTemplate = ED::getCurrentTemplate();
-
-		if ($checkOverridden) {
-			// Overriden Theme
-			$path = JPATH_ROOT . '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/' . $namespace;
-			$exists = JFile::exists($path . $extension);
-
-			if ($exists) {
-				return $path;
-			}
-		}
-
-		// Current Theme
-		$path = DISCUSS_THEMES . '/' . $this->theme . '/' . $namespace;
-		$exists = JFile::exists($path . $extension);
-
-		if (!$exists) {
-
-			// lets fall back to wireframe theme
-			$path = DISCUSS_THEMES . '/' . $this->defaultTheme . '/' . $namespace;
-			$exists = JFile::exists($path . $extension);
-
-			if (! $exists) {
-				return JError::raiseError(500, JText::sprintf('The file you requested for does not exists, %1$s', $path . $extension));
-			}
-
-		}
-
-		return $path;
+		return ED::string()->escape($val);
 	}
 
 	/**
@@ -200,8 +116,6 @@ class EasyDiscussThemes extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getDirection()
 	{
@@ -214,8 +128,6 @@ class EasyDiscussThemes extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function toJSON()
 	{
@@ -224,14 +136,6 @@ class EasyDiscussThemes extends EasyDiscuss
 		return $output;
 	}
 
-	/**
-	 *
-	 *
-	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
-	 */
 	public function getNouns($text , $count , $includeCount = false )
 	{
 		return ED::string()->getNoun($text, $count, $includeCount);
@@ -243,16 +147,62 @@ class EasyDiscussThemes extends EasyDiscuss
 	}
 
 	/**
-	 * Sets a variable on the template
+	 * Determines if this is a mobile layout
 	 *
-	 * @since	4.0
+	 * @since	4.2.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public function set($name, $value)
+	public function isMobile()
 	{
-		$this->vars[$name] = $value;
+		static $mobile = null;
+
+		if (is_null($mobile)) {
+			$mobile = ED::responsive()->isMobile();
+		}
+
+		return $mobile;
+	}
+
+	/**
+	 * Determines if this is a mobile layout
+	 *
+	 * @since	4.2.0
+	 * @access	public
+	 */
+	public function isTablet()
+	{
+		static $tablet = null;
+
+		if (is_null($tablet)) {
+			$tablet = ED::responsive()->isTablet();
+		}
+
+		return $tablet;
+	}
+
+	/**
+	 * Returns the class for related devices.
+	 *
+	 * @since	2.2
+	 * @access	public
+	 */
+	public function responsiveClass()
+	{
+		static $loaded = false;
+
+		if (!$loaded) {
+			$loaded = 'is-desktop';
+
+			if ($this->isMobile()) {
+				$loaded = 'is-mobile';
+			}
+
+			if ($this->isTablet()) {
+				$loaded = 'is-tablet';
+			}
+		}
+
+		return $loaded;
 	}
 
 	/**
@@ -260,8 +210,6 @@ class EasyDiscussThemes extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getName()
 	{
@@ -273,8 +221,6 @@ class EasyDiscussThemes extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function output($namespace, $vars = array(), $extension = 'php')
 	{
@@ -368,14 +314,11 @@ class EasyDiscussThemes extends EasyDiscuss
 		}
 	}
 
-
 	/**
 	 * Template helper
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string		The name of the method.
-	 * @return	mixed
 	 */
 	public function html($namespace)
 	{
@@ -414,15 +357,84 @@ class EasyDiscussThemes extends EasyDiscuss
 	}
 
 	/**
-	 * Escapes a string
+	 * Resolves a given namespace to the appropriate path
 	 *
-	 * @since	5.0
+	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public function escape($val)
+	public function resolve($namespace='', $checkOverridden = true)
 	{
-		return ED::string()->escape($val);
+		$parts = explode('/', $namespace);
+		$location = $parts[0];
+		$path = '';
+		$extension = '.php';
+
+		// Remove the first porition from the exploded parts since we don't need this
+		unset($parts[0]);
+
+		// For admin theme files
+		if ($location == 'admin') {
+			$path = DISCUSS_ADMIN_THEMES . '/default/' . implode('/', $parts);
+
+			return $path;
+		}
+
+		// For site theme folders
+		// Implode the parts back to form the namespace
+		$namespace = implode('/', $parts);
+
+		// Get the default template from frontend
+		$defaultJoomlaTemplate = ED::getCurrentTemplate();
+
+		if ($checkOverridden) {
+			// Overriden Theme
+			$path = JPATH_ROOT . '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/' . $namespace;
+			$exists = JFile::exists($path . $extension);
+
+			if ($exists) {
+				return $path;
+			}
+		}
+
+		// Current Theme
+		$path = DISCUSS_THEMES . '/' . $this->theme . '/' . $namespace;
+		$exists = JFile::exists($path . $extension);
+
+		if (!$exists) {
+
+			// lets fall back to wireframe theme
+			$path = DISCUSS_THEMES . '/' . $this->defaultTheme . '/' . $namespace;
+			$exists = JFile::exists($path . $extension);
+
+			if (! $exists) {
+				return JError::raiseError(500, JText::sprintf('The file you requested for does not exists, %1$s', $path . $extension));
+			}
+
+		}
+
+		return $path;
 	}
+
+	/**
+	 * Sets a variable on the template
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function set($name, $value)
+	{
+		$this->vars[$name] = $value;
+	}
+
+	/**
+	 * Allows caller to set a custom theme
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function setCategoryTheme($theme)
+	{
+		$this->categoryTheme = $theme;
+	}
+
 }

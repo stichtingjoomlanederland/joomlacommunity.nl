@@ -57,6 +57,16 @@
 	<field name="ticketsconfig" type="hidden" />
 	<field name="featured" type="hidden" />
 	<field name="itemid" type="hidden" />
+	<field name="rsvp" type="hidden" />
+	<field name="rsvp_quota" type="hidden" />
+	<field name="rsvp_guests" type="hidden" />
+	<field name="rsvp_start" type="hidden" />
+	<field name="rsvp_end" type="hidden" />
+	<field name="rsvp_going" type="hidden" />
+	<field name="rsvp_interested" type="hidden" />
+	<field name="rsvp_notgoing" type="hidden" />
+	<field name="event_ended" type="hidden" />
+	<field name="event_full" type="hidden" />
 	
 	<field name="created" type="hidden" filter="unset" />
 	<field name="icon" type="hidden" filter="unset" />

@@ -199,6 +199,45 @@ class RSEvent
 	}
 	
 	/**
+	 * Method to get Event speakers
+	 *
+	 * @return   array  List of speakers
+	 *
+	 */
+	 public function speakers() {
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true);
+		
+		$query->clear()
+			->select($db->qn('id', 'value'))->select($db->qn('name', 'text'))
+			->from($db->qn('#__rseventspro_speakers'))
+			->where($db->qn('published').' = 1')
+			->order($db->qn('name').' ASC');
+		$db->setQuery($query);
+		return $db->loadObjectList();
+	 }
+	 
+	/**
+	 * Method to get Event speakers
+	 *
+	 * @return   array  List of speakers
+	 *
+	 */
+	 public function getSpeakers() {
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true);
+		
+		$query->clear()
+			->select($db->qn('id'))
+			->from($db->qn('#__rseventspro_taxonomy'))
+			->where($db->qn('type').' = '.$db->q('speaker'))
+			->where($db->qn('ide').' = '.$this->id);
+		
+		$db->setQuery($query);
+		return $db->loadColumn();
+	 }
+	
+	/**
 	 * Method to get Event meta keywords
 	 *
 	 * @return   array  List of selected meta keywords
@@ -733,6 +772,8 @@ class RSEvent
 		self::savegroups($table->id);
 		// Save tags
 		self::savetags($table->id);
+		// Save speakers
+		self::savespeakers($table->id);
 		// Save categories
 		self::savecategories($table->id);
 		// Save files
@@ -884,6 +925,39 @@ class RSEvent
 	}
 	
 	/**
+	 * Method to save event speakers.
+	 *
+	 * @return   void
+	 *
+	 */
+	protected function savespeakers($id) {
+		$db			= JFactory::getDbo();
+		$query		= $db->getQuery(true);
+		$speakers	= JFactory::getApplication()->input->get('speakers',array(),'array');
+		
+		$query->clear()
+			->delete($db->qn('#__rseventspro_taxonomy'))
+			->where($db->qn('type').' = '.$db->q('speaker'))
+			->where($db->qn('ide').' = '.(int) $id);
+		
+		$db->setQuery($query);
+		$db->execute();
+		
+		if (!empty($speakers)) {
+			foreach($speakers as $speaker) {
+				$query->clear()
+					->insert($db->qn('#__rseventspro_taxonomy'))
+					->set($db->qn('type').' = '.$db->q('speaker'))
+					->set($db->qn('ide').' = '.(int) $id)
+					->set($db->qn('id').' = '.(int) $speaker);
+				
+				$db->setQuery($query);
+				$db->execute();
+			}
+		}
+	}
+	
+	/**
 	 * Method to save event categories.
 	 *
 	 * @return   void
@@ -1026,6 +1100,8 @@ class RSEvent
 	protected function savetickets($id) {
 		$db	  		= JFactory::getDbo();
 		$tickets	= JFactory::getApplication()->input->get('tickets',array(),'array');
+		$tzoffset	= rseventsproHelper::getTimezone();
+		$nulldate	= $db->getNullDate();
 		
 		if (!empty($tickets)) {
 			foreach ($tickets as $tid => $ticket) {
@@ -1044,6 +1120,9 @@ class RSEvent
 					} catch (Exception $e) {}
 				} else $ticket->groups = '';
 				
+				$ticket->from = !empty($ticket->from) && $ticket->from != $nulldate ? JFactory::getDate($ticket->from, $tzoffset)->toSql() : $nulldate;
+				$ticket->to = !empty($ticket->to) && $ticket->to != $nulldate ? JFactory::getDate($ticket->to, $tzoffset)->toSql() : $nulldate;
+				
 				$db->updateObject('#__rseventspro_tickets', $ticket, 'id');
 			}
 		}
@@ -1058,7 +1137,6 @@ class RSEvent
 	protected function savecoupons($id) {
 		$db			= JFactory::getDbo();
 		$query		= $db->getQuery(true);
-		$config		= JFactory::getConfig();
 		$tzoffset	= rseventsproHelper::getTimezone();
 		$nulldate	= $db->getNullDate();
 		$coupons	= JFactory::getApplication()->input->get('coupons',array(),'array');
@@ -1096,7 +1174,7 @@ class RSEvent
 						// Get the ids of all codes
 						$db->setQuery($query);
 						$codeids = $db->loadColumn();
-						if ($codeids) array_map('intval',$codeids);
+						if ($codeids) $codeids = array_map('intval',$codeids);
 						$ids = array();
 						
 						foreach ($codes as $code) {
@@ -1123,7 +1201,7 @@ class RSEvent
 						$remove = array_diff($codeids, $ids);
 						
 						if (!empty($remove)) {
-							array_map('intval',$remove);
+							$remove = array_map('intval',$remove);
 							$query->clear()
 								->delete()
 								->from($db->qn('#__rseventspro_coupon_codes'))

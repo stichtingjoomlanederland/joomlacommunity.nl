@@ -1,32 +1,15 @@
 <?php
 /**
- *  @package AkeebaBackup
- *  @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
- *  @license GNU General Public License version 3, or later
- *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- *  --
- *
- *  Command-line script to schedule the File Alteration Monitor check
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 // Define ourselves as a parent file
 define('_JEXEC', 1);
 
 // Setup and import the base CLI script
-$minphp = '5.4.0';
+$minphp = '5.6.0';
 $curdir = __DIR__;
 
 require_once __DIR__ . '/../administrator/components/com_akeeba/Master/Cli/Base.php';

@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -20,13 +20,6 @@ defined('_JEXEC') or die;
 	</label>
 
     <?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'ipworkarounds', $this->wafconfig['ipworkarounds']); ?>
-
-    <div class="help-block">
-        <?php echo \JText::_('COM_ADMINTOOLS_CONFIGUREWAF_IPWORKAROUNDS_RECOMMENDED'); ?>
-        <span class="akeeba-label--grey" id="ipWorkaroundsRecommendedSetting">
-            <?php echo \JText::_('COM_ADMINTOOLS_CONFIGUREWAF_IPWORKAROUNDS_RECOMMENDED_WAIT'); ?>
-        </span>
-    </div>
 </div>
 
 <div class="akeeba-form-group">

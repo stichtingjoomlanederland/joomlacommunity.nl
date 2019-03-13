@@ -35,11 +35,15 @@ class RscommentsModelComments extends JModelLegacy
 		// Get pagination request variables 
 		$limit 		= $jinput->getInt('limit', $pagination); 
 		$limitstart = $jinput->getInt('limitstart', 0); 
+		
 		// In case limit has been changed, adjust it 
 		$limitstart = ($limit != 0 ? (floor($limitstart / $limit) * $limit) : 0); 
 		
 		$this->setState('rscomments.comments.limit', $limit);
 		$this->setState('rscomments.comments.limitstart', $limitstart);
+		
+		$this->limit = JFactory::getConfig()->get('list_limit');
+		$this->limitstart = JFactory::getApplication()->input->getInt('limitstart',0);
 	}
 	
 	// Build commenting levels
@@ -109,7 +113,7 @@ class RscommentsModelComments extends JModelLegacy
 		} else {
 			$commentIds = array_slice(array_keys($this->_data), $jinput->getInt('limitstart'), $this->getState('rscomments.comments.limit'));
 		}
-		ArrayHelper::toInteger($commentIds);
+		$commentIds = ArrayHelper::toInteger($commentIds);
 		
 		if (empty($commentIds)) {
 			return $return_comments;
@@ -148,8 +152,8 @@ class RscommentsModelComments extends JModelLegacy
 	// Get commenting pagination
 	public function getPagination() {
 		if (empty($this->_pagination)) {
-			require_once JPATH_SITE.'/components/com_rscomments/helpers/pagination.php';
-			$this->_pagination = new RSPagination($this->getTotal(), $this->getState('rscomments.comments.limitstart'), $this->getState('rscomments.comments.limit'),$this->_option,$this->_id,$this->_template,$this->_overwrite);
+			jimport('joomla.html.pagination');
+			$this->_pagination = new JPagination($this->getTotal(), $this->getState('rscomments.comments.limitstart'), $this->getState('rscomments.comments.limit'));
 		}
 		
 		return $this->_pagination;
@@ -320,6 +324,7 @@ class RscommentsModelComments extends JModelLegacy
 		$db				= JFactory::getDbo();
 		$query			= $db->getQuery(true);
 		$permissions	= RSCommentsHelper::getPermissions();
+		$ip				= md5(RSCommentsHelper::getIp(true, true));
 		
 		if (!isset($permissions['vote_comments'])) {
 			return false;
@@ -332,13 +337,13 @@ class RscommentsModelComments extends JModelLegacy
 				->select($db->qn('IdVote'))
 				->from($db->qn('#__rscomments_votes'))
 				->where($db->qn('IdComment').' = '.$db->q($id))
-				->where($db->qn('ip').' = '.$db->q(RSCommentsHelper::getIp(true)));
+				->where($db->qn('ip').' = '.$db->q($ip));
 		} else {
 			$query->clear()
 				->select($db->qn('IdVote'))
 				->from($db->qn('#__rscomments_votes'))
 				->where($db->qn('IdComment').' = '.$db->q($id))
-				->where('('.$db->qn('ip').' = '.$db->q(RSCommentsHelper::getIp(true)).' OR '.$db->qn('uid').' = '.$db->q($user->get('id')).')');
+				->where('('.$db->qn('ip').' = '.$db->q($ip).' OR '.$db->qn('uid').' = '.$db->q($user->get('id')).')');
 		}
 		
 		$db->setQuery($query);
@@ -349,7 +354,7 @@ class RscommentsModelComments extends JModelLegacy
 				->insert($db->qn('#__rscomments_votes'))
 				->set($db->qn('IdComment').' = '.$db->q($id))
 				->set($db->qn('uid').' = '.$db->q($user->get('id')))
-				->set($db->qn('ip').' = '.$db->q(RSCommentsHelper::getIp(true)))
+				->set($db->qn('ip').' = '.$db->q($ip))
 				->set($db->qn('value').' = '.$db->q($state));
 			
 			$db->setQuery($query);
@@ -477,7 +482,7 @@ class RscommentsModelComments extends JModelLegacy
 		$user			= JFactory::getUser();
 		$jinput			= $app->input;
 		$jform			= $jinput->get('jform', array(), 'array');
-		$ip				= RSCommentsHelper::getIp(true);
+		$ip				= RSCommentsHelper::getIp(true, true);
 		$return			= array();
 		
 		$return['success']	= true;
@@ -488,13 +493,9 @@ class RscommentsModelComments extends JModelLegacy
 		if (!$row->bind($jform)) {
 			$return['errors'][] = $row->getError();
 		}
-
-		if (empty($row->ip)) {
-			$row->ip = $ip;
-		}
 		
 		// Check for flood commenting
-		if (!RSCommentsHelper::flood($row->ip) && (isset($permissions['flood_control']) && $permissions['flood_control']) && empty($row->IdComment)) {
+		if (!RSCommentsHelper::flood($ip) && (isset($permissions['flood_control']) && $permissions['flood_control']) && empty($row->IdComment)) {
 			$return['errors'][] = addslashes(JText::sprintf('COM_RSCOMMENTS_WAIT_FOR_COMMENT',intval($config->flood_interval)));
 		}
 
@@ -560,17 +561,21 @@ class RscommentsModelComments extends JModelLegacy
 		}
 		
 		// Check for name validation
-		if (empty($row->name)) {
+		if (empty($row->name) && !$config->anonymous) {
 			$return['errors'][] = JText::_('COM_RSCOMMENTS_NO_NAME',true);
 			$return['fields'][] = 'name';
 		}
 		
 		// Check for email validation
+		if (!$config->anonymous) {
+			if (empty($row->email)) {
+				$return['errors'][] = JText::_('COM_RSCOMMENTS_NO_EMAIL',true);
+				$return['fields'][] = 'email';
+			}
+		}
+		
 		if (!empty($row->email) && !JMailHelper::isEmailAddress($row->email)) {
 			$return['errors'][] = JText::_('COM_RSCOMMENTS_NO_VALID_EMAIL',true);
-			$return['fields'][] = 'email';
-		} elseif(empty($row->email)) {
-			$return['errors'][] = JText::_('COM_RSCOMMENTS_NO_EMAIL',true);
 			$return['fields'][] = 'email';
 		}
 		
@@ -592,29 +597,21 @@ class RscommentsModelComments extends JModelLegacy
 		if (isset($permissions['captcha']) && $permissions['captcha']) {
 			if ($config->captcha == 0) {
 				require_once JPATH_SITE.'/components/com_rscomments/helpers/securimage/securimage.php';
+				$hash = md5($jform['obj_option'].$jform['obj_id']);
 				$captcha_image = new JSecurImage();
-				$valid = $captcha_image->check($jform['captcha'],'form');
+				$valid = $captcha_image->check($jform['captcha'],'form'.$hash);
 				if (!$valid) {
 					$return['errors'][] = JText::_('COM_RSCOMMENTS_INVALID_CAPTCHA',true);
 					$return['fields'][] = 'captcha';
 				}
-			} elseif ($config->captcha == 1) {
-				require_once JPATH_SITE.'/components/com_rscomments/helpers/recaptcha/recaptchalib.php';
-				$privatekey = $config->rec_private;
-
-				$response = RSCommentsReCAPTCHA::checkAnswer($privatekey, RSCommentsHelper::getIp(true), @$jinput->getString('recaptcha_challenge_field'), @$jinput->getString('recaptcha_response_field'));
-				if ($response === false || !$response->is_valid) {
-					$return['errors'][] = JText::_('COM_RSCOMMENTS_INVALID_CAPTCHA',true);
-				}
 			} else {
 				try {
 					$response = $jinput->get('g-recaptcha-response', '', 'raw');
-					$ip		  = RSCommentsHelper::getIp(true);
 					$secretKey= $config->recaptcha_new_secret_key;
 					
 					jimport('joomla.http.factory');
 					$http = JHttpFactory::getHttp();
-					if ($request = $http->get('https://www.google.com/recaptcha/api/siteverify?secret='.urlencode($secretKey).'&response='.urlencode($response).'&remoteip='.urlencode($ip))) {
+					if ($request = $http->get('https://www.google.com/recaptcha/api/siteverify?secret='.urlencode($secretKey).'&response='.urlencode($response).'&remoteip='.urlencode($_SERVER['REMOTE_ADDR']))) {
 						$json = json_decode($request->body);
 					}
 				} catch (Exception $e) {
@@ -631,6 +628,12 @@ class RscommentsModelComments extends JModelLegacy
 		if (RSCommentsHelper::getConfig('enable_website_field') && $row->website != '' && !RSCommentsHelper::checkURL($row->website)) {
 			$return['errors'][] = JText::_('COM_RSCOMMENTS_INVALID_WEBSITE', true);
 			$return['fields'][] = 'website';
+		}
+		
+		// Check for consent
+		if (RSCommentsHelper::getConfig('consent') && empty($jform['rsc_consent'])) {
+			$return['errors'][] = JText::_('COM_RSCOMMENTS_CONSENT_ERROR', true);
+			$return['fields'][] = 'consent';
 		}
 		
 		if (count($return['errors']) > 0) {
@@ -702,11 +705,15 @@ class RscommentsModelComments extends JModelLegacy
 		$row->id 		= $jform['obj_id'];
 
 		if ($jform['IdComment'] == 0 || empty($jform['IdComment']) || ($IdComment != '' && !empty($row->file))) {
-			$row->uid 		= $user->get('id');
+			$row->uid 		= $config->anonymous ? 0 : $user->get('id');
 			$row->ip 		= RSCommentsHelper::getIp(true);
+			$row->hash 		= md5(RSCommentsHelper::getIp(true, true));
+			$row->sid		= JFactory::getSession()->getId();
 			$row->date 		= JFactory::getDate()->toSql();
 			$row->published = (isset($permissions['autopublish']) && $permissions['autopublish']) ? 1 : 0;
 		}
+		
+		$row->anonymous = (int) $config->anonymous;
 		
 		if (!empty($jform['IdComment'])) {
 			$row->modified_by = JFactory::getUser()->get('id');
@@ -745,15 +752,31 @@ class RscommentsModelComments extends JModelLegacy
 		if ((isset($jform['subscribe_thread']) && $jform['subscribe_thread'] && $config->show_subcription_checkbox == 1) || $auto_subscribe_thread) {
 			// Autosubscribe user
 			if (!empty($user->id)) {
-				$app->input->set('opt', $jform['obj_option']);
-				$app->input->set('id', $jform['obj_id']);
-				$this->subscribe();
+				if ($config->anonymous) {
+					if (trim($jform['email']) == trim($user->email)) {
+						$app->input->set('opt', $jform['obj_option']);
+						$app->input->set('id', $jform['obj_id']);
+						$this->subscribe();
+					} else {
+						$app->input->set('theoption', $jform['obj_option']);
+						$app->input->set('theid', $jform['obj_id']);
+						$app->input->set('name', $jform['name']);
+						$app->input->set('email', $jform['email']);
+						$this->subscribeuser();
+					}
+				} else {
+					$app->input->set('opt', $jform['obj_option']);
+					$app->input->set('id', $jform['obj_id']);
+					$this->subscribe();
+				}
 			} else {
-				$app->input->set('theoption', $jform['obj_option']);
-				$app->input->set('theid', $jform['obj_id']);
-				$app->input->set('name', $jform['name']);
-				$app->input->set('email', $jform['email']);
-				$this->subscribeuser();
+				if ($jform['email']) {
+					$app->input->set('theoption', $jform['obj_option']);
+					$app->input->set('theid', $jform['obj_id']);
+					$app->input->set('name', $jform['name']);
+					$app->input->set('email', $jform['email']);
+					$this->subscribeuser();
+				}
 			}
 		}
 		
@@ -774,8 +797,17 @@ class RscommentsModelComments extends JModelLegacy
 				$preview 	= '<a href="'.JURI::root().base64_decode($row->url).'" target="_blank">'.JURI::root().base64_decode($row->url).'</a>'; 
 				$comment 	= RSCommentsHelper::parseComment($row->comment,$permissions);
 				$comment 	= RSCommentsEmoticons::cleanText($comment);
-				$username	= empty($user->username) ? JText::_('COM_RSCOMMENTS_GUEST') : $user->username;
-				$uemail		= empty($user->id) ? $row->email : $user->email;
+				$uemail		= $row->email;
+				
+				if ($config->anonymous) {
+					if (trim($jform['email']) == trim($user->email)) {
+						$username = $user->username;
+					} else {
+						$username = JText::_('COM_RSCOMMENTS_ANONYMOUS');
+					}
+				} else {
+					$username = empty($user->username) ? JText::_('COM_RSCOMMENTS_GUEST') : $user->username;
+				}
 				
 				$replace = array('{username}', '{email}', '{ip}', '{link}', '{message}');
 				$with = array($username, $uemail, $row->ip, $preview, $comment);
@@ -815,6 +847,11 @@ class RscommentsModelComments extends JModelLegacy
 				$db->setQuery($query);
 				$subscribers = $db->loadObjectList();
 
+				$name = $row->name;
+				if ($row->anonymous) {
+					$name = empty($name) ? JText::_('COM_RSCOMMENTS_ANONYMOUS') : $name;
+				}
+				
 				if (!empty($subscribers)) {
 					foreach($subscribers as $subscriber) {
 						$hash				= md5($subscriber->email.$subscriber->option.$subscriber->id);
@@ -822,7 +859,7 @@ class RscommentsModelComments extends JModelLegacy
 						$preview 			= '<a href="'.JURI::root().base64_decode($row->url).'" target="_blank">'.JURI::root().base64_decode($row->url).'</a>'; 
 						$unsubscribelink 	= '<a href="'.JURI::root().'index.php?option=com_rscomments&task=comments.unsubscribeemail&opt='.$row->option.'&id='.$row->id.'&uemail='.urlencode($subscriber->email).'&hash='.$hash.'&redirect_url='.$row->url.'">'.JURI::root().'index.php?option=com_rscomments&task=comments.unsubscribeemail&opt='.$row->option.'&id='.$row->id.'&uemail='.$subscriber->email.'&hash='.$hash.'&redirect_url='.$row->url.'</a>';
 						$replace 			= array('{name}','{author}','{message}','{link}','{unsubscribelink}');
-						$with 	 			= array($subscriber->name,'"'.$row->name.'"',RSCommentsHelper::parseComment($row->comment,$permissions),$preview,$unsubscribelink);
+						$with 	 			= array($subscriber->name,'"'.$name.'"',RSCommentsHelper::parseComment($row->comment,$permissions),$preview,$unsubscribelink);
 						$msg 	 			= str_replace($replace,$with,$msg);
 						$msg 	 			= html_entity_decode($msg,ENT_COMPAT,'UTF-8');
 						
@@ -952,23 +989,14 @@ class RscommentsModelComments extends JModelLegacy
 					$data['success'] = false;
 					$data['message'] = JText::_('COM_RSCOMMENTS_INVALID_CAPTCHA',true);
 				}
-			} else if ($config->captcha == 1) {
-				require_once JPATH_SITE.'/components/com_rscomments/helpers/recaptcha/recaptchalib.php';
-				
-				$response = RSCommentsReCAPTCHA::checkAnswer($config->rec_private, RSCommentsHelper::getIp(true), @$input->getString('recaptcha_challenge_field'), @$input->getString('recaptcha_response_field'));
-				if ($response === false || !$response->is_valid) {
-					$data['success'] = false;
-					$data['message'] = JText::_('COM_RSCOMMENTS_INVALID_CAPTCHA',true);
-				}
 			} else {
 				try {
 					$response = $input->get('g-recaptcha-response', '', 'raw');
-					$ip		  = RSCommentsHelper::getIp(true);
 					$secretKey= $config->recaptcha_new_secret_key;
 					
 					jimport('joomla.http.factory');
 					$http = JHttpFactory::getHttp();
-					if ($request = $http->get('https://www.google.com/recaptcha/api/siteverify?secret='.urlencode($secretKey).'&response='.urlencode($response).'&remoteip='.urlencode($ip))) {
+					if ($request = $http->get('https://www.google.com/recaptcha/api/siteverify?secret='.urlencode($secretKey).'&response='.urlencode($response).'&remoteip='.urlencode($_SERVER['REMOTE_ADDR']))) {
 						$json = json_decode($request->body);
 					}
 				} catch (Exception $e) {
@@ -1036,5 +1064,49 @@ class RscommentsModelComments extends JModelLegacy
 		}
 		
 		return $data;
+	}
+	
+	public function getUserCommentsQuery() {
+		$db 	= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		$user	= JFactory::getUser();
+		$sid	= JFactory::getSession()->getId();
+		
+		$query->select('*')
+			->from($db->qn('#__rscomments_comments'));
+		
+		if ($user->get('guest')) {
+			$query->where($db->qn('sid').' = '.$db->q($sid));
+		} else {
+			$query->where('('.$db->qn('uid').' = '.$db->q($user->get('id')).' OR '.$db->qn('sid').' = '.$db->q($sid).')');
+		}
+		
+		$query->order($db->qn('date').' DESC');
+		
+		return $query;
+	}
+	
+	public function getUserCommentsTotal() {
+		$db 	= JFactory::getDbo();
+		$query	= $this->getUserCommentsQuery();
+		
+		$db->setQuery($query);
+		$db->execute();
+		return $db->getNumRows();
+	}
+	
+	// Get user's comments
+	public function getUserComments() {
+		$db 	= JFactory::getDbo();
+		$query	= $this->getUserCommentsQuery();
+		
+		$db->setQuery($query, $this->limitstart, $this->limit);
+		return $db->loadObjectList();
+	}
+	
+	public function getUserCommentsPagination() {
+		jimport('joomla.html.pagination');
+		
+		return new JPagination($this->getUserCommentsTotal(), $this->limitstart, $this->limit);
 	}
 }

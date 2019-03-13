@@ -1,25 +1,25 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<extension type="package" version="3.8" method="upgrade">
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="package" version="3.9" method="upgrade">
 	<name>Nederlands (nl-NL) taalpakket</name>
 	<packagename>nl-NL</packagename>
-	<version>3.8.6.1</version>
-	<creationDate>Maart 2018</creationDate>
+	<version>3.9.4.1</version>
+	<creationDate>Maart 2019</creationDate>
 	<author>Dutch Translation Team</author>
 	<authorEmail>taal@joomlacommunity.nl</authorEmail>
-	<authorUrl>http://joomlacode.org/gf/project/nederlands/</authorUrl>
-	<copyright>Copyright (C) 2005 - 2018 Open Source Matters, Inc. All rights reserved.</copyright>
+	<authorUrl>https://joomlacommunity.nl</authorUrl>
+	<copyright>Copyright (C) 2005 - 2019 Dutch Translation Team en Open Source Matters. All rights reserved.</copyright>
 	<license>https://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
 	<url>https://github.com/joomla/joomla-cms</url>
-	<packager>Joomla! Project</packager>
-	<packagerurl>www.joomla.org</packagerurl>
+	<packager>Dutch Translation Team</packager>
+	<packagerurl>https://joomlacommunity.nl</packagerurl>
 	<description><![CDATA[Nederlands taalpakket]]></description>
 	<blockChildUninstall>true</blockChildUninstall>
 	<files>
-		<folder type="language" client="site" id="nl-NL">site_nl-NL</folder>
-		<folder type="language" client="administrator" id="nl-NL">admin_nl-NL</folder>
+		<folder type="language" client="site" id="nl-NL">language/nl-NL</folder>
+		<folder type="language" client="administrator" id="nl-NL">administrator/language/nl-NL</folder>
 	</files>
 	<updateservers>
-		<server type="collection" priority="1" name="Accredited Joomla! Translations">
+		<server type="collection" priority="1" name="Geaccrediteerde Joomla! vertalingen">
 			https://update.joomla.org/language/translationlist_3.xml
 		</server>
 	</updateservers>

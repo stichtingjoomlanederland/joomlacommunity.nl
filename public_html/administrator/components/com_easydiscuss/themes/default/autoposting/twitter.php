@@ -29,6 +29,33 @@ defined('_JEXEC') or die('Unauthorized Access');
 								<?php echo $this->html('form.boolean', 'main_autopost_twitter', $this->config->get('main_autopost_twitter')); ?>
 							</div>
 						</div>
+
+						<div class="form-group">
+							<div class="col-md-5 control-label">
+								<?php echo $this->html('form.label', 'COM_ED_TWITTER_AUTOPOST_OAUTH_CALLBACK_URL'); ?>
+							</div>
+							<div class="col-md-7">
+								<p>Effective <b>June 12th</b>, Twitter has enforced <a href="https://twittercommunity.com/t/action-required-sign-in-with-twitter-users-must-whitelist-callback-urls/105342" target="_blank">Callback URLs to be whitelisted</a>. You will need to copy the links below and add it under the valid Callback URLs section of the Twitter app.</p>
+								<?php 
+								$i = 1;
+								foreach ($oauthURIs as $oauthURI) { ?>
+									<div class="input-group mb-10">
+										<input type="text" id="oauth-uri-<?php echo $i?>" data-oauthuri-input name="main_autopost_twitter_oauth_callback" class="form-control" value="<?php echo $oauthURI;?>" size="60" style="pointer-events:none;" />
+										<span class="input-group-btn" 
+											data-oauthuri-button
+											data-original-title="<?php echo JText::_('COM_ED_COPY_TOOLTIP')?>"
+											data-placement="bottom"
+											data-ed-provide="tooltip"
+										>
+											<a href="javascript:void(0);" class="btn btn-default">
+												<i class="fa fa-copy"></i>
+											</a>
+										</span>
+									</div>
+								<?php $i++; } ?>
+							</div>
+						</div>
+
 						<div class="form-group">
 							<div class="col-md-5 control-label">
 								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_AUTOPOST_TWITTER_CONSUMER_KEY'); ?>

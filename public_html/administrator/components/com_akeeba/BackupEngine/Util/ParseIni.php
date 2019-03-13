@@ -1,12 +1,11 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
- *
  */
 
 namespace Akeeba\Engine\Util;
@@ -14,6 +13,17 @@ namespace Akeeba\Engine\Util;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
+/**
+ * A utility class to parse INI files.
+ *
+ * This is marked deprecated since Akeeba Engine 6.4.1. The configuration of the engine is no longer stored as INI data.
+ * Moreover, we will be migrating away from the current INI files used for defining engine and GUI configuration
+ * parameters.
+ *
+ * @package     Akeeba\Engine\Util
+ *
+ * @deprecated  6.4.1
+ */
 abstract class ParseIni
 {
 	/**
@@ -22,15 +32,18 @@ abstract class ParseIni
 	 * allow them to discern between the innocuous parse_ini_file and the potentially dangerous ini_set, leading them to
 	 * disable the former and let the latter enabled.
 	 *
-	 * @param    string  $file              The file to process
-	 * @param    bool    $process_sections  True to also process INI sections
+	 * @param   string  $file              The file name or raw INI data to process
+	 * @param   bool    $process_sections  True to also process INI sections
+	 * @param   bool    $rawdata           Is this raw INI data? False when $file is a filepath.
+	 * @param   bool    $forcePHP          Should I force the use of the pure-PHP INI file parser?
 	 *
 	 * @return   array    An associative array of sections, keys and values
 	 */
-	public static function parse_ini_file($file, $process_sections, $rawdata = false)
+	public static function parse_ini_file($file, $process_sections = false, $rawdata = false, $forcePHP = false)
 	{
 		/**
-		 * WARNING: DO NOT USE INI_SCANNER_RAW IN THE parse_ini_string / parse_ini_file FUNCTION CALLS
+		 * WARNING: DO NOT USE INI_SCANNER_RAW IN THE parse_ini_string / parse_ini_file FUNCTION CALLS WITHOUT POST-
+		 *          PROCESSING!
 		 *
 		 * Sometimes we need to save data which is either multiline or has double quotes in the Engine's
 		 * configuration. For this reason we have to manually escape \r, \n, \t and \" in
@@ -39,6 +52,20 @@ abstract class ParseIni
 		 * original form. As a result we end up with broken data which cause various problems, the most visible
 		 * of which is that Google Storage integration is broken since the JSON data included in the config is
 		 * now unparseable.
+		 *
+		 * However, not using raw mode introduces other problems. For example, the sequence \$ is converted to $ because
+		 * it's assumed to be an escaped dollar sign. Things like $foo are addressed as variable interpolation, i.e.
+		 * "This is ${foo} wrong" results in "This is  wrong" because $foo is considered as an interpolated variable.
+		 *
+		 * The solution to that is to use raw mode to parse the INI files and THEN unescape the variables. However, we
+		 * cannot simply use stripslashes/stripcslashes because we could end up replacing more than we should (unlike
+		 * addcslashes we cannot specify a list of escaped characters to consider). We have to do a slower string
+		 * replace instead.
+		 *
+		 * The next problem to consider is that when $process_sections is true some of the values generated are arrays
+		 * or even nested arrays. If you try to string replace on them hilarity ensues. Therefore we have the recursive
+		 * unescape method which takes care of that. To make things faster and maintain the array keys we use array_map
+		 * to apply recursiveUnescape to the array.
 		 */
 
 		if ($rawdata)
@@ -49,7 +76,7 @@ abstract class ParseIni
 			}
 
 			// !!! VERY IMPORTANT !!! Read the warning above before touching this line
-			return parse_ini_string($file, $process_sections);
+			return array_map([__CLASS__, 'recursiveUnescape'], parse_ini_string($file, $process_sections, INI_SCANNER_RAW));
 		}
 
 		if (!function_exists('parse_ini_file'))
@@ -58,7 +85,24 @@ abstract class ParseIni
 		}
 
 		// !!! VERY IMPORTANT !!! Read the warning above before touching this line
-		return parse_ini_file($file, $process_sections);
+		return array_map([__CLASS__, 'recursiveUnescape'], parse_ini_file($file, $process_sections, INI_SCANNER_RAW));
+	}
+
+	/**
+	 * Recursively unescape values which have been escaped by Akeeba\Engine\Configuration::dumpObject().
+	 *
+	 * @param   string|array  $value
+	 *
+	 * @return  string|array  Unescaped result
+	 */
+	static function recursiveUnescape($value)
+	{
+		if (is_array($value))
+		{
+			return array_map([__CLASS__, 'recursiveUnescape'], $value);
+		}
+
+		return str_replace(['\r', '\n', '\t', '\"'], ["\r", "\n", "\t", '"'], $value);
 	}
 
 	/**

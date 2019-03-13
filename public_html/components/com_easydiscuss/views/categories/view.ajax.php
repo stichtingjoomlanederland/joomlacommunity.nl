@@ -47,7 +47,7 @@ class EasyDiscussViewCategories extends EasyDiscussView
 
 		// If user trying to access this category page but he didn't get allowed, show error.
 		if (!$activeCategory->canAccess()) {
-			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_CATEGORY_NOT_ALLOWED'));
+			return $this->ajax->reject(JText::_('COM_ED_CATEGORY_NOT_ALLOWED'));
 		}
 
 		// determine if we should retrive posts from it sub categories or not.

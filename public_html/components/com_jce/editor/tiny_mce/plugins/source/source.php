@@ -1,16 +1,52 @@
 <?php
 
 /**
- * @copyright 	Copyright (c) 2009-2017 Ryan Demmer. All rights reserved
- * @license   	GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * @copyright     Copyright (c) 2009-2019 Ryan Demmer. All rights reserved
+ * @license       GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * JCE is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses
  */
-defined('_JEXEC') or die('RESTRICTED');
+require_once WF_EDITOR_LIBRARIES . '/classes/plugin.php';
 
-require_once dirname(__FILE__).'/classes/source.php';
+final class WFSourcePlugin extends WFEditorPlugin
+{
+    public function __construct($config = array())
+    {
+        // Call parent
+        parent::__construct();
 
-$plugin = new WFSourcePlugin();
-$plugin->execute();
+        $language = JFactory::getLanguage();
+        $language->load('WF_pro', JPATH_SITE);
+    }
+
+    public function display()
+    {
+        $document = WFDocument::getInstance();
+
+        $view = $this->getView();
+
+        $view->addTemplatePath(WF_EDITOR_PLUGIN . '/tmpl');
+
+        $document->setTitle(JText::_('WF_' . strtoupper($this->getName() . '_TITLE')));
+
+        $theme = $this->getParam('source.theme', 'codemirror');
+
+        $document->addScript(array('jquery.min'), 'jquery');
+        $document->addScript(array('plugin.min.js'));
+
+        $document->addScript(array('editor.min.js', 'format.min.js'), 'plugins');
+        $document->addStyleSheet(array('editor.min.css'), 'plugins');
+        $document->addStyleSheet(array('plugin.min.css'), 'libraries');
+
+        $document->addScript(array('components/com_jce/editor/tiny_mce/plugins/source/js/codemirror/codemirror.min'), 'joomla');
+        $document->addStyleSheet(array(
+            'components/com_jce/editor/tiny_mce/plugins/source/css/codemirror/codemirror.min',
+            'components/com_jce/editor/tiny_mce/plugins/source/css/codemirror/theme/' . $theme,
+        ), 'joomla');
+
+        // keep as ltr for source code
+        $document->setDirection('ltr');
+    }
+}

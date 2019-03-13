@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -242,6 +242,7 @@ class NginXConfMaker extends ServerConfigMaker
 			'libwww-perl',
 			'Go!Zilla',
 			'TurnitinBot',
+			'sqlmap',
 		),
 		// Block common exploits
 		'blockcommon'         => 1,
@@ -311,6 +312,8 @@ class NginXConfMaker extends ServerConfigMaker
 		'encutf8'             => 0,
 		// Send ETag
 		'etagtype'            => -1,
+		// Referrer policy
+		'referrerpolicy'	  => 'unsafe-url',
 		// Tighten NginX security settings
 		'nginxsecurity'       => 1,
 		// Set maximum client body size to 1G
@@ -808,6 +811,15 @@ add_header Timing-Allow-Origin "*";
 END;
 		}
 
+		if ($config->referrerpolicy !== '-1')
+		{
+			$nginxConf .= <<<END
+## Referrer-policy
+add_header Referrer-Policy "{$config->referrerpolicy}";
+
+END;
+		}
+
 		if ($config->notracetrack == 1)
 		{
 			$nginxConf .= <<<END
@@ -1100,10 +1112,10 @@ location = $rewritebaseSlash/administrator/index.php {
 	break;
 }
 location ~* ^$rewritebaseSlash/administrator$ {
-	return 301 $rewritebaseSlash/administrator/index.php;
+	return 301 $rewritebaseSlash/administrator/index.php?\$args;
 }
 location ~* ^$rewritebaseSlash/administrator/$ {
-	return 301 $rewritebaseSlash/administrator/index.php;
+	return 301 $rewritebaseSlash/administrator/index.php?\$args;
 }
 
 # Disable access to everything else.
@@ -1144,7 +1156,7 @@ END;
 				$nginxConf .= <<<END
 # Allow access to the front-end index.php file
 location ~* ^$rewritebaseSlash/$ {
-	return 301 $rewritebaseSlash/index.php;
+	return 301 $rewritebaseSlash/index.php?\$args;
 }
 location ^$rewritebaseSlash/index.php$ {
 	$fastcgi_pass_block
@@ -1157,7 +1169,7 @@ END;
 			$nginxConf .= <<<END
 # Allow access to /
 location ~* ^$rewritebaseSlash/$ {
-	return 301 $rewritebaseSlash/index.php;
+	return 301 $rewritebaseSlash/index.php?\$args;
 }
 
 # Disable access to everything else.

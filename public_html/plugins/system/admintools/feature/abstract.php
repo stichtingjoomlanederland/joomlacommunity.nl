@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -11,6 +11,7 @@ use Akeeba\AdminTools\Admin\Helper\Storage;
 use FOF30\Container\Container;
 use FOF30\Date\Date;
 use Joomla\CMS\Application\BaseApplication;
+use Joomla\Registry\Registry;
 
 class AtsystemFeatureAbstract
 {
@@ -357,5 +358,111 @@ class AtsystemFeatureAbstract
 		}
 
 		return $this->timestamps[$pk];
+	}
+
+	/**
+	 * Is the Joomla! 3.9 privacy suite's consent management enabled?
+	 *
+	 * @return  bool
+	 *
+	 * @since   5.2.0
+	 */
+	protected function isJoomlaPrivacyEnabled()
+	{
+		// Joomla privacy suite is only available since verison 3.9.0.
+		if (version_compare(JVERSION, '3.9.0', 'lt'))
+		{
+			return false;
+		}
+
+		// Is the plugin enabled?
+		return JPluginHelper::isEnabled('system', 'privacyconsent');
+	}
+
+	/**
+	 * Has the user consented to the Privacy Policy?
+	 *
+	 * @param   JUser  $user
+	 *
+	 * @return  bool
+	 *
+	 * @since   5.2.0
+	 */
+	protected function hasUserConsented($user)
+	{
+		/**
+		 * Joomla privacy suite is only available since verison 3.9.0. To make Admin Tools work as expected, older
+		 * versions need to report that consent is given (therefore no special handling is required of the user)
+		 */
+		if (version_compare(JVERSION, '3.9.0', 'lt'))
+		{
+			return true;
+		}
+
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true)
+			->select($db->qn('state'))
+			->from($db->qn('#__privacy_consents'))
+			->where($db->qn('user_id') . ' = ' . $db->q($user->id))
+			->order($db->qn('created') . ' DESC');
+
+		try
+		{
+			$consent = $db->setQuery($query, 0, 1)->loadResult();
+		}
+		catch (Exception $e)
+		{
+			$consent = 0;
+		}
+
+		return $consent == 1;
+	}
+
+	/**
+	 * Does any of the groups in the list have backend privileges?
+	 *
+	 * @param   array  $groups  List of user group IDs
+	 *
+	 * @return  bool
+	 *
+	 * @since   5.3.0
+	 */
+	protected function hasAdminGroup($groups)
+	{
+		if (empty($groups))
+		{
+			return false;
+		}
+
+		foreach ($groups as $group)
+		{
+			if ($this->isBackendAccessGroup($group))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Does a group have login access to the site's backend?
+	 *
+	 * @param   int  $group  The user group ID
+	 *
+	 * @return  bool  True if it's a user with backend login access
+	 *
+	 * @since   5.3.0
+	 */
+	protected function isBackendAccessGroup($group)
+	{
+		// First try to see if the group has explicit backend login privileges
+		if (JAccess::checkGroup($group, 'core.login.admin', 1))
+		{
+			return true;
+		}
+
+		// If not, is it a Super Admin (ergo inherited privileges)?
+		return (bool) JAccess::checkGroup($group, 'core.admin', 1);
 	}
 }

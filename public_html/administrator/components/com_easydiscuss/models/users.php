@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,7 +11,7 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-require_once dirname( __FILE__ ) . '/model.php';
+require_once dirname(__FILE__) . '/model.php';
 
 class EasyDiscussModelUsers extends EasyDiscussAdminModel
 {
@@ -23,10 +23,8 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 	{
 		parent::__construct();
 
-
 		$mainframe	= JFactory::getApplication();
-
-		$limit		= $mainframe->getUserStateFromRequest( 'com_easydiscuss.users.limit', 'limit', $mainframe->getCfg('list_limit'), 'int');
+		$limit = $mainframe->getUserStateFromRequest('com_easydiscuss.users.limit', 'limit', $mainframe->getCfg('list_limit'), 'int');
 		$limitstart	= JRequest::getVar('limitstart', 0, '', 'int');
 
 		$this->setState('limit', $limit);
@@ -842,8 +840,6 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
 	public function resetPoints()
 	{
@@ -854,4 +850,52 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 		$db->query();
 	}
 
+
+	/**
+     * Retrieve user profile data for GDPR
+     *
+     * @since   4.1
+     * @access  public
+     */
+	public function getProfileDataGDPR($options = array())
+	{
+		$db = ED::db();
+
+		$userId = isset($options['userid']) ? $options['userid'] : null; 
+		$limit = isset($options['limit']) ? $options['limit'] : 20;
+		$exclusion = isset($options['exclusion']) ? $options['exclusion'] : array();
+
+		if ($exclusion && !is_array($exclusion)) {
+			$exclusion = ED::makeArray($exclusion);
+		}
+
+		$query = 'SELECT a.`id`, a.`nickname`, a.`description`, a.`params`, a.`points`, a.`location`, a.`signature`'; 
+		$query .= ' FROM `#__discuss_users` AS a';
+		$query .= ' WHERE a.`id` = ' . $db->Quote($userId);
+
+		if ($exclusion) {
+			$query .= ' AND a.`id` NOT IN (' . implode(',', $exclusion) . ')';
+		}
+
+		$query .= ' LIMIT ' . $limit;
+
+		$db->setQuery($query);
+		$results = $db->loadObjectList();
+
+		if (!$results) {
+			return $results;
+		}
+
+		$extraDetails = array();
+
+		if ($results) {
+			foreach ($results as $row) {
+				$user = ED::user($row->id);
+
+				$extraDetails[] = $user;
+			}
+		}
+
+		return $extraDetails;
+	}
 }

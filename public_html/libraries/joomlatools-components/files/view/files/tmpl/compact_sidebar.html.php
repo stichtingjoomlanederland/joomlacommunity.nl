@@ -11,6 +11,7 @@ defined('KOOWA') or die;
 $can_upload = isset(parameters()->config['can_upload']) ? parameters()->config['can_upload'] : true;
 ?>
 
+
 <div class="k-sidebar-left k-js-sidebar-left">
 
     <div class="k-sidebar-item k-sidebar-item--flex">

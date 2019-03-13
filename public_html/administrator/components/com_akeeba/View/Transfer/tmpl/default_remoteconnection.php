@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -147,6 +147,28 @@ defined('_JEXEC') or die();
 					</button>
 					-->
             </div>
+
+			<!-- Chunk method -->
+			<div class="akeeba-form-group">
+				<label for="akeeba-transfer-chunkmode">
+			        <?php echo JText::_('COM_AKEEBA_TRANSFER_LBL_TRANSFERMODE'); ?>
+				</label>
+				<?php echo \JHtml::_('select.genericlist', $this->chunkOptions, 'akeeba-transfer-chunkmode', array(), 'value', 'text', $this->chunkMode, 'akeeba-transfer-chunkmode'); ?>
+				<p class="akeeba-help-text">
+			        <?php echo JText::_('COM_AKEEBA_TRANSFER_LBL_TRANSFERMODE_INFO'); ?>
+				</p>
+			</div>
+
+			<!-- Chunk size -->
+			<div class="akeeba-form-group">
+				<label for="akeeba-transfer-chunksize">
+			        <?php echo JText::_('COM_AKEEBA_TRANSFER_LBL_CHUNKSIZE'); ?>
+				</label>
+				<?php echo \JHtml::_('select.genericlist', $this->chunkSizeOptions, 'akeeba-transfer-chunksize', array(), 'value', 'text', $this->chunkSize, 'akeeba-transfer-chunksize'); ?>
+				<p class="akeeba-help-text">
+			        <?php echo JText::_('COM_AKEEBA_TRANSFER_LBL_CHUNKSIZE_INFO'); ?>
+				</p>
+			</div>
 
             <div class="akeeba-form-group" id="akeeba-transfer-ftp-passive-container">
                 <label for="akeeba-transfer-ftp-passive" >

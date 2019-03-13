@@ -90,6 +90,7 @@ class RsformModelConditions extends JModelLegacy
             {
                 // Some cleanup
                 $optionField->ComponentName = $optionField->PropertyValue;
+                $optionField->items = array();
                 unset($optionField->PropertyValue);
 
                 $config = array(
@@ -97,13 +98,12 @@ class RsformModelConditions extends JModelLegacy
                     'componentId' 		=> $optionField->ComponentId,
                     'data' 				=> $properties[$optionField->ComponentId],
                     'value' 			=> array(),
-                    'invalid' 			=> array()
+                    'invalid' 			=> false
                 );
                 $field = new RSFormProFieldMultiple($config);
 
                 if ($items = $field->getItems())
                 {
-                    $optionField->items = array();
                     foreach ($items as $item)
                     {
 						$item = new RSFormProFieldItem($item);

@@ -75,6 +75,9 @@ class RseventsproModelEvent extends JModelAdmin
 			if (empty($item->itemid)) 
 				$item->itemid = '';
 			
+			if (empty($item->rsvp_quota)) 
+				$item->rsvp_quota = '';
+			
 			if (empty($item->repeat_end) || $item->repeat_end == $db->getNullDate()) 
 				$item->repeat_end = '';
 			
@@ -94,6 +97,12 @@ class RseventsproModelEvent extends JModelAdmin
 				
 			if (empty($item->late_fee_start) || $item->late_fee_start == $db->getNullDate()) 
 				$item->late_fee_start = '';
+				
+			if (empty($item->rsvp_start) || $item->rsvp_start == $db->getNullDate()) 
+				$item->rsvp_start = '';
+					
+			if (empty($item->rsvp_end) || $item->rsvp_end == $db->getNullDate()) 
+				$item->rsvp_end = '';
 				
 			if (empty($item->repeat_type)) 
 				$item->repeat_type = 1;
@@ -292,8 +301,7 @@ class RseventsproModelEvent extends JModelAdmin
 			
 			$query->clear()
 				->delete()
-				->from($db->qn('#__rseventspro_taxonomy'))
-				->where($db->qn('type').' = '.$db->q('rating'))
+				->from($db->qn('#__rseventspro_rating'))
 				->where($db->qn('ide').' IN ('.implode(',',$pks).')');
 			
 			$db->setQuery($query);
@@ -603,7 +611,7 @@ class RseventsproModelEvent extends JModelAdmin
 		$name		= JFile::stripExt($icon);
 		
 		if ($folders = JFolder::folders($thumbs)) {
-			array_map('intval',$folders);
+			$folders = array_map('intval',$folders);
 			
 			foreach ($folders as $folder) {
 				if (file_exists($thumbs.$folder.'/'.md5($folder.$name).'.'.$extension)) {
@@ -746,7 +754,7 @@ class RseventsproModelEvent extends JModelAdmin
 	public function featured($pks, $value = 0) {
 		// Sanitize the ids.
 		$pks = (array) $pks;
-		array_map('intval',$pks);
+		$pks = array_map('intval',$pks);
 
 		if (empty($pks)) {
 			$this->setError(JText::_('JERROR_NO_ITEMS_SELECTED'));
@@ -774,7 +782,7 @@ class RseventsproModelEvent extends JModelAdmin
 	public function batchProcess($pks) {
 		// Sanitize the ids.
 		$pks = (array) $pks;
-		array_map('intval',$pks);
+		$pks = array_map('intval',$pks);
 		
 		$batch	 = JFactory::getApplication()->input->get('batch',array(),'array');
 		$all	 = isset($batch['all']) ? $batch['all'] : 0;
@@ -852,7 +860,7 @@ class RseventsproModelEvent extends JModelAdmin
 			
 			// Update categories
 			if (!empty($categories)) {
-				array_map('intval',$categories);
+				$categories = array_map('intval',$categories);
 				
 				if ($all) {
 					if ($type == 'r') {

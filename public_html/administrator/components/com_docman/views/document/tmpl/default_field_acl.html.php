@@ -33,4 +33,3 @@ defined('KOOWA') or die; ?>
     </p>
 </div>
 <? endif; ?>
-

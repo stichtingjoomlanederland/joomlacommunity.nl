@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -636,7 +636,7 @@ ENDBODY;
 			            $db->q(1) . ',' .
 			            $db->q(1) . ',' .
 			            $db->q(0) . ',' .
-			            $db->q('{"name":"Akeeba Backup package","type":"package","creationDate":"2016-04-21","author":"Nicholas K. Dionysopoulos","copyright":"Copyright (c)2006-2017 Akeeba Ltd \/ Nicholas K. Dionysopoulos","authorEmail":"","authorUrl":"","version":"' . $this->version . '","description":"Akeeba Backup installation package, for updating from version 4.x only","group":"","filename":"pkg_akeeba"}') . ',' .
+			            $db->q('{"name":"Akeeba Backup package","type":"package","creationDate":"2016-04-21","author":"Nicholas K. Dionysopoulos","copyright":"Copyright (c)2006-2019 Akeeba Ltd \/ Nicholas K. Dionysopoulos","authorEmail":"","authorUrl":"","version":"' . $this->version . '","description":"Akeeba Backup installation package, for updating from version 4.x only","group":"","filename":"pkg_akeeba"}') . ',' .
 			            $db->q('{}') . ',' .
 			            $db->q('') . ',' .
 			            $db->q('') . ',' .
@@ -671,7 +671,7 @@ ENDBODY;
 
 		$content = <<< XML
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="3.3.0" type="package" method="upgrade">
+<extension version="3.8.0" type="package" method="upgrade">
     <name>Akeeba Backup package</name>
     <author>Nicholas K. Dionysopoulos</author>
     <creationDate>2016-04-20</creationDate>
@@ -680,7 +680,7 @@ ENDBODY;
     <url>https://www.akeebabackup.com</url>
     <packager>Akeeba Ltd</packager>
     <packagerurl>https://www.akeebabackup.com</packagerurl>
-    <copyright>Copyright (c)2006-2017 Akeeba Ltd / Nicholas K. Dionysopoulos</copyright>
+    <copyright>Copyright (c)2006-2019 Akeeba Ltd / Nicholas K. Dionysopoulos</copyright>
     <license>GNU GPL v3 or later</license>
     <description>Akeeba Backup installation package v.revD5C5D46</description>
 

@@ -1,27 +1,27 @@
 <?php
 /**
-* @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
-* @license		GNU/GPL, see LICENSE.php
+* @package      EasyDiscuss
+* @copyright    Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Unauthorized Access');
+defined('_JEXEC') or die('Restricted access');
 
-if( !class_exists( 'OAuthException' ) )
+if (!class_exists('EDOAuthException'))
 {
 	/* Generic exception class
 	 */
-	class OAuthException extends Exception
+	class EDOAuthException extends Exception
 	{
-	  // pass
+		// pass
 	}
 }
 
-class OAuthConsumer
+class EDOAuthConsumer
 {
 	public $key;
 	public $secret;
@@ -37,7 +37,7 @@ class OAuthConsumer
 	}
 }
 
-class OAuthToken {
+class EDOAuthToken {
 	// access tokens and request tokens
 	public $key;
 	public $secret;
@@ -57,9 +57,9 @@ class OAuthToken {
 	 */
 	function to_string() {
 		return "oauth_token=" .
-					 OAuthUtil::urlencode_rfc3986($this->key) .
+					 EDOAuthUtil::urlencode_rfc3986($this->key) .
 					 "&oauth_token_secret=" .
-					 OAuthUtil::urlencode_rfc3986($this->secret);
+					 EDOAuthUtil::urlencode_rfc3986($this->secret);
 	}
 
 	function __toString() {
@@ -71,7 +71,7 @@ class OAuthToken {
  * A class for implementing a Signature Method
  * See section 9 ("Signing Requests") in the spec
  */
-abstract class OAuthSignatureMethod {
+abstract class EDOAuthSignatureMethod {
 	/**
 	 * Needs to return the name of the Signature Method (ie HMAC-SHA1)
 	 * @return string
@@ -81,9 +81,9 @@ abstract class OAuthSignatureMethod {
 	/**
 	 * Build up the signature
 	 * NOTE: The output of this function MUST NOT be urlencoded.
-	 * the encoding is handled in OAuthRequest when the final
+	 * the encoding is handled in EDOAuthRequest when the final
 	 * request is serialized
-	 * @param OAuthRequest $request
+	 * @param EDOAuthRequest $request
 	 * @param OAuthConsumer $consumer
 	 * @param OAuthToken $token
 	 * @return string
@@ -92,7 +92,7 @@ abstract class OAuthSignatureMethod {
 
 	/**
 	 * Verifies that a given signature is correct
-	 * @param OAuthRequest $request
+	 * @param EDOAuthRequest $request
 	 * @param OAuthConsumer $consumer
 	 * @param OAuthToken $token
 	 * @param string $signature
@@ -111,7 +111,7 @@ abstract class OAuthSignatureMethod {
  * character (ASCII code 38) even if empty.
  *   - Chapter 9.2 ("HMAC-SHA1")
  */
-class OAuthSignatureMethod_HMAC_SHA1 extends OAuthSignatureMethod {
+class EDOAuthSignatureMethod_HMAC_SHA1 extends EDOAuthSignatureMethod {
 	function get_name() {
 		return "HMAC-SHA1";
 	}
@@ -125,7 +125,7 @@ class OAuthSignatureMethod_HMAC_SHA1 extends OAuthSignatureMethod {
 			($token) ? $token->secret : ""
 		);
 
-		$key_parts = OAuthUtil::urlencode_rfc3986($key_parts);
+		$key_parts = EDOAuthUtil::urlencode_rfc3986($key_parts);
 		$key = implode('&', $key_parts);
 
 		return base64_encode(hash_hmac('sha1', $base_string, $key, true));
@@ -137,7 +137,7 @@ class OAuthSignatureMethod_HMAC_SHA1 extends OAuthSignatureMethod {
  * over a secure channel such as HTTPS. It does not use the Signature Base String.
  *   - Chapter 9.4 ("PLAINTEXT")
  */
-class OAuthSignatureMethod_PLAINTEXT extends OAuthSignatureMethod {
+class EDOAuthSignatureMethod_PLAINTEXT extends EDOAuthSignatureMethod {
 	public function get_name() {
 		return "PLAINTEXT";
 	}
@@ -149,7 +149,7 @@ class OAuthSignatureMethod_PLAINTEXT extends OAuthSignatureMethod {
 	 *   - Chapter 9.4.1 ("Generating Signatures")
 	 *
 	 * Please note that the second encoding MUST NOT happen in the SignatureMethod, as
-	 * OAuthRequest handles this!
+	 * EDOAuthRequest handles this!
 	 */
 	public function build_signature($request, $consumer, $token) {
 		$key_parts = array(
@@ -157,7 +157,7 @@ class OAuthSignatureMethod_PLAINTEXT extends OAuthSignatureMethod {
 			($token) ? $token->secret : ""
 		);
 
-		$key_parts = OAuthUtil::urlencode_rfc3986($key_parts);
+		$key_parts = EDOAuthUtil::urlencode_rfc3986($key_parts);
 		$key = implode('&', $key_parts);
 		$request->base_string = $key;
 
@@ -173,7 +173,7 @@ class OAuthSignatureMethod_PLAINTEXT extends OAuthSignatureMethod {
  * specification.
  *   - Chapter 9.3 ("RSA-SHA1")
  */
-abstract class OAuthSignatureMethod_RSA_SHA1 extends OAuthSignatureMethod {
+abstract class EDOAuthSignatureMethod_RSA_SHA1 extends EDOAuthSignatureMethod {
 	public function get_name() {
 		return "RSA-SHA1";
 	}
@@ -232,20 +232,18 @@ abstract class OAuthSignatureMethod_RSA_SHA1 extends OAuthSignatureMethod {
 	}
 }
 
-class OAuthRequest {
+class EDOAuthRequest {
 	protected $parameters;
 	protected $http_method;
 	protected $http_url;
 	// for debug purposes
 	public $base_string;
-	public $fsockScheme='ssl://';
-	public $fsockPort='443';
 	public static $version = '1.0';
 	public static $POST_INPUT = 'php://input';
 
 	function __construct($http_method, $http_url, $parameters=NULL) {
 		$parameters = ($parameters) ? $parameters : array();
-		$parameters = array_merge( OAuthUtil::parse_parameters(parse_url($http_url, PHP_URL_QUERY)), $parameters);
+		$parameters = array_merge(EDOAuthUtil::parse_parameters(parse_url($http_url, PHP_URL_QUERY)), $parameters);
 		$this->parameters = $parameters;
 		$this->http_method = $http_method;
 		$this->http_url = $http_url;
@@ -272,10 +270,10 @@ class OAuthRequest {
 		// parsed parameter-list
 		if (!$parameters) {
 			// Find request headers
-			$request_headers = OAuthUtil::get_headers();
+			$request_headers = EDOAuthUtil::get_headers();
 
 			// Parse the query-string to find GET parameters
-			$parameters = OAuthUtil::parse_parameters($_SERVER['QUERY_STRING']);
+			$parameters = EDOAuthUtil::parse_parameters($_SERVER['QUERY_STRING']);
 
 			// It's a POST request of the proper content-type, so parse POST
 			// parameters and add those overriding any duplicates from GET
@@ -284,7 +282,7 @@ class OAuthRequest {
 					&& strstr($request_headers['Content-Type'],
 										 'application/x-www-form-urlencoded')
 					) {
-				$post_data = OAuthUtil::parse_parameters(
+				$post_data = EDOAuthUtil::parse_parameters(
 					file_get_contents(self::$POST_INPUT)
 				);
 				$parameters = array_merge($parameters, $post_data);
@@ -293,7 +291,7 @@ class OAuthRequest {
 			// We have a Authorization-header with OAuth data. Parse the header
 			// and add those overriding any duplicates from GET or POST
 			if (isset($request_headers['Authorization']) && substr($request_headers['Authorization'], 0, 6) == 'OAuth ') {
-				$header_parameters = OAuthUtil::split_header(
+				$header_parameters = EDOAuthUtil::split_header(
 					$request_headers['Authorization']
 				);
 				$parameters = array_merge($parameters, $header_parameters);
@@ -301,7 +299,7 @@ class OAuthRequest {
 
 		}
 
-		return new OAuthRequest($http_method, $http_url, $parameters);
+		return new EDOAuthRequest($http_method, $http_url, $parameters);
 	}
 
 	/**
@@ -309,16 +307,16 @@ class OAuthRequest {
 	 */
 	public static function from_consumer_and_token($consumer, $token, $http_method, $http_url, $parameters=NULL) {
 		$parameters = ($parameters) ?  $parameters : array();
-		$defaults = array("oauth_version" => OAuthRequest::$version,
-											"oauth_nonce" => OAuthRequest::generate_nonce(),
-											"oauth_timestamp" => OAuthRequest::generate_timestamp(),
+		$defaults = array("oauth_version" => EDOAuthRequest::$version,
+											"oauth_nonce" => EDOAuthRequest::generate_nonce(),
+											"oauth_timestamp" => EDOAuthRequest::generate_timestamp(),
 											"oauth_consumer_key" => $consumer->key);
 		if ($token)
 			$defaults['oauth_token'] = $token->key;
 
 		$parameters = array_merge($defaults, $parameters);
 
-		return new OAuthRequest($http_method, $http_url, $parameters);
+		return new EDOAuthRequest($http_method, $http_url, $parameters);
 	}
 
 	public function set_parameter($name, $value, $allow_duplicates = true) {
@@ -362,7 +360,7 @@ class OAuthRequest {
 			unset($params['oauth_signature']);
 		}
 
-		return OAuthUtil::build_http_query($params);
+		return EDOAuthUtil::build_http_query($params);
 	}
 
 	/**
@@ -379,7 +377,7 @@ class OAuthRequest {
 			$this->get_signable_parameters()
 		);
 
-		$parts = OAuthUtil::urlencode_rfc3986($parts);
+		$parts = EDOAuthUtil::urlencode_rfc3986($parts);
 
 		return implode('&', $parts);
 	}
@@ -426,7 +424,7 @@ class OAuthRequest {
 	 * builds the data one would send in a POST request
 	 */
 	public function to_postdata() {
-		return OAuthUtil::build_http_query($this->parameters);
+		return EDOAuthUtil::build_http_query($this->parameters);
 	}
 
 	/**
@@ -434,8 +432,8 @@ class OAuthRequest {
 	 */
 	public function to_header($realm=null) {
 		$first = true;
-	if($realm) {
-			$out = 'Authorization: OAuth realm="' . OAuthUtil::urlencode_rfc3986($realm) . '"';
+	if ($realm) {
+			$out = 'Authorization: OAuth realm="' . EDOAuthUtil::urlencode_rfc3986($realm) . '"';
 			$first = false;
 		} else
 			$out = 'Authorization: OAuth';
@@ -444,12 +442,12 @@ class OAuthRequest {
 		foreach ($this->parameters as $k => $v) {
 			if (substr($k, 0, 5) != "oauth") continue;
 			if (is_array($v)) {
-				throw new OAuthException('Arrays not supported in headers');
+				throw new EDOAuthException('Arrays not supported in headers');
 			}
 			$out .= ($first) ? ' ' : ',';
-			$out .= OAuthUtil::urlencode_rfc3986($k) .
+			$out .= EDOAuthUtil::urlencode_rfc3986($k) .
 							'="' .
-							OAuthUtil::urlencode_rfc3986($v) .
+							EDOAuthUtil::urlencode_rfc3986($v) .
 							'"';
 			$first = false;
 		}
@@ -494,7 +492,7 @@ class OAuthRequest {
 	}
 }
 
-class OAuthServer {
+class EDOAuthServer {
 	protected $timestamp_threshold = 300; // in seconds, five minutes
 	protected $version = '1.0';             // hi blaine
 	protected $signature_methods = array();
@@ -577,7 +575,7 @@ class OAuthServer {
 			$version = '1.0';
 		}
 		if ($version !== $this->version) {
-			throw new OAuthException("OAuth version '$version' not supported");
+			throw new EDOAuthException("OAuth version '$version' not supported");
 		}
 		return $version;
 	}
@@ -586,19 +584,19 @@ class OAuthServer {
 	 * figure out the signature with some defaults
 	 */
 	private function get_signature_method($request) {
-		$signature_method = $request instanceof OAuthRequest
+		$signature_method = $request instanceof EDOAuthRequest
 				? $request->get_parameter("oauth_signature_method")
 				: NULL;
 
 		if (!$signature_method) {
 			// According to chapter 7 ("Accessing Protected Ressources") the signature-method
 			// parameter is required, and we can't just fallback to PLAINTEXT
-			throw new OAuthException('No signature method parameter. This parameter is required');
+			throw new EDOAuthException('No signature method parameter. This parameter is required');
 		}
 
 		if (!in_array($signature_method,
 									array_keys($this->signature_methods))) {
-			throw new OAuthException(
+			throw new EDOAuthException(
 				"Signature method '$signature_method' not supported " .
 				"try one of the following: " .
 				implode(", ", array_keys($this->signature_methods))
@@ -611,17 +609,17 @@ class OAuthServer {
 	 * try to find the consumer for the provided request's consumer key
 	 */
 	private function get_consumer($request) {
-		$consumer_key = $request instanceof OAuthRequest
+		$consumer_key = $request instanceof EDOAuthRequest
 				? $request->get_parameter("oauth_consumer_key")
 				: NULL;
 
 		if (!$consumer_key) {
-			throw new OAuthException("Invalid consumer key");
+			throw new EDOAuthException("Invalid consumer key");
 		}
 
 		$consumer = $this->data_store->lookup_consumer($consumer_key);
 		if (!$consumer) {
-			throw new OAuthException("Invalid consumer");
+			throw new EDOAuthException("Invalid consumer");
 		}
 
 		return $consumer;
@@ -631,7 +629,7 @@ class OAuthServer {
 	 * try to find the token for the provided request's token key
 	 */
 	private function get_token($request, $consumer, $token_type="access") {
-		$token_field = $request instanceof OAuthRequest
+		$token_field = $request instanceof EDOAuthRequest
 				 ? $request->get_parameter('oauth_token')
 				 : NULL;
 
@@ -639,7 +637,7 @@ class OAuthServer {
 			$consumer, $token_type, $token_field
 		);
 		if (!$token) {
-			throw new OAuthException("Invalid $token_type token: $token_field");
+			throw new EDOAuthException("Invalid $token_type token: $token_field");
 		}
 		return $token;
 	}
@@ -650,10 +648,10 @@ class OAuthServer {
 	 */
 	private function check_signature($request, $consumer, $token) {
 		// this should probably be in a different method
-		$timestamp = $request instanceof OAuthRequest
+		$timestamp = $request instanceof EDOAuthRequest
 				? $request->get_parameter('oauth_timestamp')
 				: NULL;
-		$nonce = $request instanceof OAuthRequest
+		$nonce = $request instanceof EDOAuthRequest
 				? $request->get_parameter('oauth_nonce')
 				: NULL;
 
@@ -671,7 +669,7 @@ class OAuthServer {
 		);
 
 		if (!$valid_sig) {
-			throw new OAuthException("Invalid signature");
+			throw new EDOAuthException("Invalid signature");
 		}
 	}
 
@@ -679,15 +677,15 @@ class OAuthServer {
 	 * check that the timestamp is new enough
 	 */
 	private function check_timestamp($timestamp) {
-		if( ! $timestamp )
-			throw new OAuthException(
+		if (! $timestamp)
+			throw new EDOAuthException(
 				'Missing timestamp parameter. The parameter is required'
 			);
 
 		// verify that timestamp is recentish
 		$now = time();
 		if (abs($now - $timestamp) > $this->timestamp_threshold) {
-			throw new OAuthException(
+			throw new EDOAuthException(
 				"Expired timestamp, yours $timestamp, ours $now"
 			);
 		}
@@ -697,8 +695,8 @@ class OAuthServer {
 	 * check that the nonce is not repeated
 	 */
 	private function check_nonce($consumer, $token, $nonce, $timestamp) {
-		if( ! $nonce )
-			throw new OAuthException(
+		if (! $nonce)
+			throw new EDOAuthException(
 				'Missing nonce parameter. The parameter is required'
 			);
 
@@ -710,13 +708,13 @@ class OAuthServer {
 			$timestamp
 		);
 		if ($found) {
-			throw new OAuthException("Nonce already used: $nonce");
+			throw new EDOAuthException("Nonce already used: $nonce");
 		}
 	}
 
 }
 
-class OAuthDataStore {
+class EDOAuthDataStore {
 	function lookup_consumer($consumer_key) {
 		// implement me
 	}
@@ -742,10 +740,10 @@ class OAuthDataStore {
 
 }
 
-class OAuthUtil {
+class EDOAuthUtil {
 	public static function urlencode_rfc3986($input) {
 	if (is_array($input)) {
-		return array_map(array('OAuthUtil', 'urlencode_rfc3986'), $input);
+		return array_map(array('EDOAuthUtil', 'urlencode_rfc3986'), $input);
 	} else if (is_scalar($input)) {
 		return str_replace(
 			'+',
@@ -774,7 +772,7 @@ class OAuthUtil {
 		$params = array();
 		if (preg_match_all('/('.($only_allow_oauth_parameters ? 'oauth_' : '').'[a-z_-]*)=(:?"([^"]*)"|([^,]*))/', $header, $matches)) {
 			foreach ($matches[1] as $i => $h) {
-				$params[$h] = OAuthUtil::urldecode_rfc3986(empty($matches[3][$i]) ? $matches[4][$i] : $matches[3][$i]);
+				$params[$h] = EDOAuthUtil::urldecode_rfc3986(empty($matches[3][$i]) ? $matches[4][$i] : $matches[3][$i]);
 			}
 			if (isset($params['realm'])) {
 				unset($params['realm']);
@@ -807,9 +805,9 @@ class OAuthUtil {
 			// otherwise we don't have apache and are just going to have to hope
 			// that $_SERVER actually contains what we need
 			$out = array();
-			if( isset($_SERVER['CONTENT_TYPE']) )
+			if (isset($_SERVER['CONTENT_TYPE']))
 				$out['Content-Type'] = $_SERVER['CONTENT_TYPE'];
-			if( isset($_ENV['CONTENT_TYPE']) )
+			if (isset($_ENV['CONTENT_TYPE']))
 				$out['Content-Type'] = $_ENV['CONTENT_TYPE'];
 
 			foreach ($_SERVER as $key => $value) {
@@ -832,7 +830,7 @@ class OAuthUtil {
 	// This function takes a input like a=b&a=c&d=e and returns the parsed
 	// parameters like this
 	// array('a' => array('b','c'), 'd' => 'e')
-	public static function parse_parameters( $input ) {
+	public static function parse_parameters($input) {
 		if (!isset($input) || !$input) return array();
 
 		$pairs = explode('&', $input);
@@ -840,8 +838,8 @@ class OAuthUtil {
 		$parsed_parameters = array();
 		foreach ($pairs as $pair) {
 			$split = explode('=', $pair, 2);
-			$parameter = OAuthUtil::urldecode_rfc3986($split[0]);
-			$value = isset($split[1]) ? OAuthUtil::urldecode_rfc3986($split[1]) : '';
+			$parameter = EDOAuthUtil::urldecode_rfc3986($split[0]);
+			$value = isset($split[1]) ? EDOAuthUtil::urldecode_rfc3986($split[1]) : '';
 
 			if (isset($parsed_parameters[$parameter])) {
 				// We have already recieved parameter(s) with this name, so add to the list
@@ -865,8 +863,8 @@ class OAuthUtil {
 		if (!$params) return '';
 
 		// Urlencode both keys and values
-		$keys = OAuthUtil::urlencode_rfc3986(array_keys($params));
-		$values = OAuthUtil::urlencode_rfc3986(array_values($params));
+		$keys = EDOAuthUtil::urlencode_rfc3986(array_keys($params));
+		$values = EDOAuthUtil::urlencode_rfc3986(array_values($params));
 		$params = array_combine($keys, $values);
 
 		// Parameters are sorted by name, using lexicographical byte value ordering.

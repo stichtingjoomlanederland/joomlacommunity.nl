@@ -1,12 +1,11 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
- *
  */
 
 namespace Akeeba\Engine\Util\Transfer;
@@ -276,16 +275,22 @@ class Sftp implements TransferInterface, RemoteResourceInterface
 	 *
 	 * @param   string  $localFilename   The full path to the local file
 	 * @param   string  $remoteFilename  The full path to the remote file
+	 * @param   bool    $useExceptions   Throw an exception instead of returning "false" on connection error.
 	 *
 	 * @return  boolean  True on success
 	 */
-	public function upload($localFilename, $remoteFilename)
+	public function upload($localFilename, $remoteFilename, $useExceptions = true)
 	{
 		$fp = @fopen("ssh2.sftp://{$this->sftpHandle}/$remoteFilename", 'w');
 
 		if ($fp === false)
 		{
-            throw new \RuntimeException("Could not open remote SFTP file $remoteFilename for writing");
+			if ($useExceptions)
+			{
+				throw new \RuntimeException("Could not open remote SFTP file $remoteFilename for writing");
+			}
+
+			return false;
 		}
 
 		$localFp = @fopen($localFilename, 'rb');
@@ -294,7 +299,12 @@ class Sftp implements TransferInterface, RemoteResourceInterface
 		{
 			fclose($fp);
 
-            throw new \RuntimeException("Could not open local file $localFilename for reading");
+			if ($useExceptions)
+			{
+				throw new \RuntimeException("Could not open local file $localFilename for reading");
+			}
+
+			return false;
 		}
 
 		while (!feof($localFp))
@@ -307,7 +317,12 @@ class Sftp implements TransferInterface, RemoteResourceInterface
 				fclose($fp);
 				fclose($localFp);
 
-                throw new \RuntimeException("An error occurred while copying file $localFilename to $remoteFilename");
+				if ($useExceptions)
+				{
+					throw new \RuntimeException("An error occurred while copying file $localFilename to $remoteFilename");
+				}
+
+				return false;
 			}
 		}
 
@@ -348,12 +363,13 @@ class Sftp implements TransferInterface, RemoteResourceInterface
 	/**
 	 * Download a remote file into a local file
 	 *
-	 * @param   string  $remoteFilename
-	 * @param   string  $localFilename
+	 * @param   string  $remoteFilename  The remote file path to download from
+	 * @param   string  $localFilename   The local file path to download to
+	 * @param   bool    $useExceptions   Throw an exception instead of returning "false" on connection error.
 	 *
 	 * @return  boolean  True on success
 	 */
-	public function download($remoteFilename, $localFilename)
+	public function download($remoteFilename, $localFilename, $useExceptions = true)
 	{
 		$fp = @fopen("ssh2.sftp://{$this->sftpHandle}/$remoteFilename", 'r');
 

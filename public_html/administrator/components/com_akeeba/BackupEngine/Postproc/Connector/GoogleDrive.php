@@ -1,13 +1,11 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
- *
- *
  */
 
 namespace Akeeba\Engine\Postproc\Connector;
@@ -36,7 +34,14 @@ class GoogleDrive
 	 */
 	private $refreshToken = '';
 
-	/**
+    /**
+     * Download ID to use with the helper URL
+     *
+     * @var string
+     */
+    private $dlid = '';
+
+    /**
 	 * The root URL for the Google Drive v3 API
 	 */
 	const rootUrl = 'https://www.googleapis.com/drive/v3/';
@@ -69,13 +74,15 @@ class GoogleDrive
 	/**
 	 * Public constructor
 	 *
-	 * @param   string $accessToken  The access token for accessing OneDrive
-	 * @param   string $refreshToken The refresh token for getting new access tokens for OneDrive
+	 * @param   string  $accessToken   The access token for accessing OneDrive
+	 * @param   string  $refreshToken  The refresh token for getting new access tokens for OneDrive
+	 * @param   string  $dlid          The AkeebaBackup.com Download ID, used whenever you try to refresh the token
 	 */
-	public function __construct($accessToken, $refreshToken)
+	public function __construct($accessToken, $refreshToken, $dlid)
 	{
 		$this->accessToken  = $accessToken;
 		$this->refreshToken = $refreshToken;
+		$this->dlid         = $dlid;
 	}
 
 	/**
@@ -121,7 +128,7 @@ class GoogleDrive
 			return $response;
 		}
 
-		$refreshUrl = self::helperUrl . '?refresh_token=' . urlencode($this->refreshToken);
+		$refreshUrl = self::helperUrl . '?refresh_token=' . urlencode($this->refreshToken) . '&dlid=' . $this->dlid;
 
 		$refreshResponse = $this->fetch('GET', $refreshUrl);
 
@@ -148,26 +155,62 @@ class GoogleDrive
 	}
 
 	/**
+	 * Get a list of Google Team Drives as an array of ID => Team Drive Name. If there are no team drives or the account
+	 * does not support team drives you will receive an empty list.
+	 *
+	 * @return  array  See https://developers.google.com/drive/api/v3/reference/teamdrives/list
+	 */
+	public function getTeamDrives()
+	{
+		$ret         = array();
+		$relativeUrl = 'teamdrives';
+		$result      = $this->fetch('GET', $relativeUrl);
+
+		if (!isset($result['teamDrives']) || empty($result['teamDrives']))
+		{
+			return $ret;
+		}
+
+		foreach ($result['teamDrives'] as $drive)
+		{
+			$ret[$drive['id']] = $drive['name'];
+		}
+
+		return $ret;
+	}
+
+	/**
 	 * Get the raw listing of a folder
 	 *
-	 * @param   string  $parentId   The parent folder Id (default: 'root')
-	 * @param   string  $search     Additional search criteria to apply, see https://developers.google.com/drive/v3/web/search-parameters
-	 * @param   int     $pageSize   The pagination size, default 100
-	 * @param   string  $pageToken  The page continuation token from a previous request
-	 * @param   string  $orderBy    Ordering for the results, defaults to "folder,name" (folders first, then sort by name ascending)
+	 * @param   string  $parentId     The parent folder Id (default: 'root')
+	 * @param   string  $search       Additional search criteria to apply, see https://developers.google.com/drive/v3/web/search-parameters
+	 * @param   int     $pageSize     The pagination size, default 100
+	 * @param   string  $pageToken    The page continuation token from a previous request
+	 * @param   string  $orderBy      Ordering for the results, defaults to "folder,name" (folders first, then sort by name ascending)
+	 * @param   string  $teamDriveID  The ID of the Google Team Drive. Empty means we should use the personal Drive (default).
 	 *
 	 * @return  array  See https://developers.google.com/drive/v3/reference/files/list
 	 */
-	public function getRawContents($parentId = 'root', $search = null, $pageSize = 100, $pageToken = null, $orderBy = 'folder,name')
+	public function getRawContents($parentId = 'root', $search = null, $pageSize = 100, $pageToken = null, $orderBy = 'folder,name', $teamDriveID = '')
 	{
 		$params = array(
-			'orderBy'   => $orderBy,
-			'pageSize'  => $pageSize,
-			'pageToken' => $pageToken,
-			'q'         => '',
-			'spaces'    => 'drive',
-			'fields'    => 'files(fileExtension,id,kind,mimeType,name,parents,size,spaces,starred),nextPageToken'
+			'supportsTeamDrives' => 'true',
+			'orderBy'            => $orderBy,
+			'pageSize'           => $pageSize,
+			'pageToken'          => $pageToken,
+			'q'                  => '',
+			'spaces'             => 'drive',
+			'fields'             => 'files(fileExtension,id,kind,mimeType,name,parents,size,spaces,starred),nextPageToken',
 		);
+
+		if (!empty($teamDriveID))
+		{
+			$params = array_merge($params, array(
+				'corpora'               => 'teamDrive',
+				'includeTeamDriveItems' => 'true',
+				'teamDriveId'           => $teamDriveID,
+			));
+		}
 
 		if (empty($pageToken))
 		{
@@ -204,17 +247,18 @@ class GoogleDrive
 	/**
 	 * Get the processed listing of a folder
 	 *
-	 * @param   string  $parentId   The parent folder Id (default: 'root')
-	 * @param   string  $search     Additional search criteria to apply, see https://developers.google.com/drive/v3/web/search-parameters
-	 * @param   int     $pageSize   The pagination size, default 100
-	 * @param   string  $pageToken  The page continuation token from a previous request
-	 * @param   string  $orderBy    Ordering for the results, defaults to "folder,name" (folders first, then sort by name ascending)
+	 * @param   string  $parentId     The parent folder Id (default: 'root')
+	 * @param   string  $search       Additional search criteria to apply, see https://developers.google.com/drive/v3/web/search-parameters
+	 * @param   int     $pageSize     The pagination size, default 100
+	 * @param   string  $pageToken    The page continuation token from a previous request
+	 * @param   string  $orderBy      Ordering for the results, defaults to "folder,name" (folders first, then sort by name ascending)
+	 * @param   string  $teamDriveID  The ID of the Google Team Drive. Empty means we should use the personal Drive (default).
 	 *
 	 * @return  array  Two arrays under keys folders and files. Each array's key is the file/folder name. For the values see above.
 	 */
-	public function listContents($parentId = 'root', $search = null, $pageSize = 100, $pageToken = null, $orderBy = 'folder,name')
+	public function listContents($parentId = 'root', $search = null, $pageSize = 100, $pageToken = null, $orderBy = 'folder,name', $teamDriveID = '')
 	{
-		$result = $this->getRawContents($parentId, $search, $pageSize, $pageToken, $orderBy);
+		$result = $this->getRawContents($parentId, $search, $pageSize, $pageToken, $orderBy, $teamDriveID);
 
 		$return = array(
 			'files' => array(),
@@ -252,23 +296,24 @@ class GoogleDrive
 	/**
 	 * Try to get the ID for a file.
 	 *
-	 * @param   $path           string  Human readable path to the file
-	 * @param   $createFolders  bool    Should I create the enclosing folders if they do not exist?
+	 * @param   string  $path           Human readable path to the file
+	 * @param   bool    $createFolders  Should I create the enclosing folders if they do not exist?
+	 * @param   string  $teamDriveID    The ID of the Google Team Drive. Empty means we should use the personal Drive (default).
 	 *
 	 * @return  null|string     Null if the file doesn't exist (but the path does), the ID otherwise
 	 *
 	 * @throws  \RuntimeException  When the path does not exist
 	 */
-	public function getIdForFile($path, $createFolders = false)
+	public function getIdForFile($path, $createFolders = false, $teamDriveID = '')
 	{
 		$parentPath = dirname($path);
 		$fileName   = basename($path);
 		$parentPath = trim($parentPath, '/');
-		$parentId   = 'root';
+		$parentId   = empty($teamDriveID) ? 'root' : $teamDriveID;
 
 		if (!empty($parentPath))
 		{
-			$parentId = $this->getIdForFolder($parentPath, $createFolders);
+			$parentId = $this->getIdForFolder($parentPath, $createFolders, $teamDriveID);
 		}
 
 		if (is_null($parentId))
@@ -278,7 +323,7 @@ class GoogleDrive
 
 		// Try to find the last part
 		$search = 'name = \'' . str_replace('\'', '\\\'', $fileName) . '\'';
-		$results = $this->getRawContents($parentId, $search, 1);
+		$results = $this->getRawContents($parentId, $search, 1, null, 'folder,name', $teamDriveID);
 
 		if (empty($results['files']))
 		{
@@ -293,25 +338,26 @@ class GoogleDrive
 	 *
 	 * @param   string  $path           Human readable path to the folder
 	 * @param   bool    $createFolders  Should I create any missing folders?
+	 * @param   string  $teamDriveID    The ID of the Google Team Drive. Empty means we should use the personal Drive (default).
 	 *
 	 * @return  null|string  Null if the folder doesn't exist, the ID of the folder otherwise
 	 */
-	public function getIdForFolder($path, $createFolders = false)
+	public function getIdForFolder($path, $createFolders = false, $teamDriveID = '')
 	{
 		if (empty($path))
 		{
-			return 'root';
+			return empty($teamDriveID) ? 'root' : $teamDriveID;
 		}
 
 		$folders = explode('/', $path);
-		$parentId = 'root';
+		$parentId = empty($teamDriveID) ? 'root' : $teamDriveID;
 
 		foreach ($folders as $folder)
 		{
 			// Search for a folder by the name $folder that has a parent $parentId
 			$search = 'name = \'' . str_replace('\'', '\\\'', $folder) . '\'' .
 				' and mimeType = \'application/vnd.google-apps.folder\'';
-			$results = $this->getRawContents($parentId, $search, 1);
+			$results = $this->getRawContents($parentId, $search, 1, null, 'folder,name', $teamDriveID);
 
 			// If found, set $parentId to this folder's ID
 			if (!empty($results['files']))
@@ -329,6 +375,23 @@ class GoogleDrive
 
 			// Not found, but we're asked to create the missing folders
 			$parentId = $this->createFolder($parentId, $folder);
+
+			/**
+			 * Welcome to Google Insanity. Let me be your guide.
+			 *
+			 * If the folder does not exist we ask the Google Drive API to create it. If we try to use files.list to
+			 * check if the folder is there the API returns the folder we just created. However, if we try to upload a
+			 * new file into it the folder is reported as being non-existent and Google Drive tries to create a new
+			 * folder with the same name. The problem is that we reasonably expect that our file is uploaded in the
+			 * folder we created, not some a different folder with the same name and different file ID. This discrepancy
+			 * causes uploads to fail.
+			 *
+			 * If I wait one second the same things happens. Two seconds? Same story. Three seconds? Well, this is
+			 * interesting. If I wait THREE (3) seconds after I've created the folder then everything works as expected.
+			 * Google Drive sees the folder we created and does use it during upload. So please do NOT remove this sleep
+			 * or everything breaks. Peace.
+			 */
+			sleep(3);
 		}
 
 		return $parentId;
@@ -360,7 +423,7 @@ class GoogleDrive
 JSON;
 
 		$contentLength = strlen($jsonDocument);
-		$result = $this->fetch('POST', 'files?fields=id', array('headers' => array(
+		$result = $this->fetch('POST', 'files?supportsTeamDrives=true&fields=id', array('headers' => array(
 			'Content-Type: application/json; charset="utf-8"',
 			'Content-Length: ' . $contentLength
 		)), $jsonDocument);
@@ -382,7 +445,9 @@ JSON;
 	{
 		try
 		{
-			$result = $this->fetch('DELETE', 'files/' . $fileId);
+			$result = $this->fetch('DELETE', 'files/' . $fileId, array(
+				'supportsTeamDrives' => 'true'
+			));
 		}
 		catch (\Exception $e)
 		{
@@ -406,7 +471,8 @@ JSON;
 	public function download($fileId, $localFile)
 	{
 		$this->fetch('GET', "files/$fileId?alt=media", array(
-			'file' => $localFile
+			'supportsTeamDrives' => 'true',
+			'file'               => $localFile,
 		));
 	}
 
@@ -445,7 +511,7 @@ JSON;
 				'Content-Length: ' . $filesize,
 			)
 		);
-		$response = $this->fetch('POST', self::uploadUrl . 'files?uploadType=media', $additional);
+		$response = $this->fetch('POST', self::uploadUrl . 'files?uploadType=media&supportsTeamDrives=true', $additional);
 
 		if (!isset($response['id']))
 		{
@@ -462,12 +528,13 @@ JSON;
 }
 JSON;
 		$additional = array(
-			'headers' => array(
+			'headers'            => array(
 				'Content-Type: application/json',
-			)
+			),
+			'supportsTeamDrives' => 'true',
 		);
 
-		$patchResponse = $this->fetch('PATCH', 'files/' . $fileId . '?addParents=' . $folderId, $additional, $jsonDocument);
+		$patchResponse = $this->fetch('PATCH', 'files/' . $fileId . '?&supportsTeamDrives=true&addParents=' . $folderId, $additional, $jsonDocument);
 
 		return $patchResponse;
 	}
@@ -481,6 +548,8 @@ JSON;
 	 * @param   string  $mimeType    The MIME type of the file. Defaults to application/octet-stream.
 	 *
 	 * @return  string|null  The upload URL for the session, null if the upload session wasn't created
+	 *
+	 * @see https://developers.google.com/drive/api/v3/resumable-upload
 	 */
 	public function createUploadSession($folderId, $localFile, $remoteName = null, $mimeType = 'application/octet-stream')
 	{
@@ -496,7 +565,7 @@ JSON;
 
 		$explicitPost = json_encode($explicitPost);
 
-		$response = $this->fetch('POST', self::uploadUrl . 'files?uploadType=resumable', array(
+		$response = $this->fetch('POST', self::uploadUrl . 'files?supportsTeamDrives=true&uploadType=resumable', array(
 			'headers' => array(
 				'Content-Type: application/json',
 				'Content-Length: ' . strlen($explicitPost),
@@ -528,7 +597,7 @@ JSON;
 
 			list($header, $value) = explode(": ", $line);
 
-			if ($header != 'Location')
+			if (strtolower($header) != 'location')
 			{
 				continue;
 			}
@@ -548,6 +617,8 @@ JSON;
 	 * @param   int     $length      Chunk size in bytes, default 10Mb, must NOT be over 60Mb!  MUST be a multiple of 320Kb.
 	 *
 	 * @return  array  The upload information, see https://developers.google.com/drive/v3/reference/files#resource-representations
+	 *
+	 * @see https://developers.google.com/drive/api/v3/resumable-upload
 	 */
 	public function uploadPart($sessionUrl, $localFile, $from = 0, $length = 10485760)
 	{
@@ -565,10 +636,11 @@ JSON;
 		$range = "$from-$to/$totalSize";
 
 		$additional = array(
-			'headers' => array(
+			'headers'            => array(
 				'Content-Length: ' . $contentLength,
-				'Content-Range: bytes ' . $range
-			)
+				'Content-Range: bytes ' . $range,
+			),
+			'supportsTeamDrives' => 'true',
 		);
 
 		$fp = @fopen($localFile, 'rb');
@@ -588,16 +660,21 @@ JSON;
 	/**
 	 * Upload a file using multipart uploads. Useful for files over 100Mb and up to 2Gb.
 	 *
-	 * @param   string  $path       Relative path in the Drive
-	 * @param   string  $localFile  Absolute filesystem path of the source file
-	 * @param   int     $partSize   Part size in bytes, default 10Mb
-	 * @param   string  $mimeType   The MIME type of the uploaded file, defaults to application/octet-stream
+	 * @param   string  $path         Relative path in the Drive
+	 * @param   string  $localFile    Absolute filesystem path of the source file
+	 * @param   int     $partSize     Part size in bytes, default 10Mb
+	 * @param   string  $mimeType     The MIME type of the uploaded file, defaults to application/octet-stream
+	 * @param   string  $teamDriveID  The ID of the Google Team Drive. Empty means we should use the personal Drive (default).
 	 *
 	 * @return  array  See https://developers.google.com/drive/v3/reference/files#resource-representations
+	 *
+	 * @throws \Exception
+	 *
+	 * @see https://developers.google.com/drive/api/v3/resumable-upload
 	 */
-	public function resumableUpload($path, $localFile, $partSize = 10485760, $mimeType = 'application/octet-stream')
+	public function resumableUpload($path, $localFile, $partSize = 10485760, $mimeType = 'application/octet-stream', $teamDriveID = '')
 	{
-		list($fileName, $folderId) = $this->preprocessUploadPath($path);
+		list($fileName, $folderId) = $this->preprocessUploadPath($path, $teamDriveID);
 
 		$sessionUrl = $this->createUploadSession($folderId, $localFile, $fileName, $mimeType);
 		$from = 0;
@@ -621,26 +698,33 @@ JSON;
 	 * the entire file has been uploaded. If you want to implement staggered uploads use the createUploadSession and
 	 * uploadPart methods.
 	 *
-	 * @param   string  $path       The remote path relative to Drive root
-	 * @param   string  $localFile  The absolute local filesystem path
-	 * @param   int     $partSize   Part size in bytes, default 10Mb
-	 * @param   string  $mimeType   The MIME type of the uploaded file, defaults to application/octet-stream
+	 * @param   string  $path         The remote path relative to Drive root
+	 * @param   string  $localFile    The absolute local filesystem path
+	 * @param   int     $partSize     Part size in bytes, default 10Mb
+	 * @param   string  $mimeType     The MIME type of the uploaded file, defaults to application/octet-stream
+	 * @param   string  $teamDriveID  The ID of the Google Team Drive. Empty means we should use the personal Drive (default).
 	 *
 	 * @return  array  See https://developers.google.com/drive/v3/reference/files#resource-representations
+	 *
+	 * @throws \Exception
 	 */
-	public function upload($path, $localFile, $partSize = 10485760, $mimeType = 'application/octet-stream')
+	public function upload($path, $localFile, $partSize = 10485760, $mimeType = 'application/octet-stream', $teamDriveID = '')
 	{
 		clearstatcache();
 		$filesize = @filesize($localFile);
 
-		// Bigger than 5Mb: use resumable uploads with default (10Mb) parts
-		if ($filesize > 5242880)
+		/**
+		 * Google Drive has a hard limit of 5MB for simple uploads. If the file is bigger than 5MB **OR** bigger than
+		 * the part size (whatever is smaller) **THEN** we have to use resumable uploads.
+		 */
+		$smallestSizeForSinglePartUpload = min(5242880, $partSize);
+		if ($filesize > $smallestSizeForSinglePartUpload)
 		{
-			return $this->resumableUpload($path, $localFile, $partSize, $mimeType);
+			return $this->resumableUpload($path, $localFile, $partSize, $mimeType, $teamDriveID);
 		}
 
 		// Smaller files, use simple upload
-		list($fileName, $folderId) = $this->preprocessUploadPath($path);
+		list($fileName, $folderId) = $this->preprocessUploadPath($path, $teamDriveID);
 
 		return $this->simpleUpload($folderId, $localFile, $fileName, $mimeType);
 	}
@@ -699,6 +783,12 @@ JSON;
 
 		// Get the default options array
 		$options = $this->defaultOptions;
+
+		// Some broken cURL versions cause an error. Forcing HTTP/1.1 seems to be fixing it.
+		if (defined('CURLOPT_HTTP_VERSION') && defined('CURL_HTTP_VERSION_1_1'))
+		{
+			$options[CURLOPT_HTTP_VERSION] = CURL_HTTP_VERSION_1_1;
+		}
 
 		// Do I have explicit cURL options to add?
 		if (isset($additional['curl-options']) && is_array($additional['curl-options']))
@@ -900,29 +990,30 @@ JSON;
 	 * Converts a human readable path into a folder ID and directory name. If any folder in the path does not exist it
 	 * will be created. If a file by the same name already exists in the folder it will be deleted.
 	 *
-	 * @param   string  $path  The human readable path to the file
+	 * @param   string  $path         The human readable path to the file
+	 * @param   string  $teamDriveID  The ID of the Google Team Drive. Empty means we should use the personal Drive (default).
 	 *
 	 * @return  array  array($fileName, $folderId)
 	 *
 	 * @throws \Exception
 	 */
-	public function preprocessUploadPath($path)
+	public function preprocessUploadPath($path, $teamDriveID = '')
 	{
 		// Get the folder and file name
 		$folderName = dirname($path);
 		$fileName   = basename($path);
 		$folderName = trim($folderName, '/');
-		$folderId   = 'root';
+		$folderId   = empty($teamDriveID) ? 'root' : $teamDriveID;
 
 		// Find or create the folder
 		if (!empty($folderName))
 		{
-			$folderId = $this->getIdForFolder($folderName, true);
+			$folderId = $this->getIdForFolder($folderName, true, $teamDriveID);
 		}
 
 		// If I have a file by the same name in this directory, kill it
 		$search  = 'name = \'' . str_replace('\'', '\\\'', $fileName) . '\'';
-		$results = $this->getRawContents($folderId, $search, 1);
+		$results = $this->getRawContents($folderId, $search, 1, null, 'folder,name', $teamDriveID);
 
 		if (!empty($results['files']))
 		{

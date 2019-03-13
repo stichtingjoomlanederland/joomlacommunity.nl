@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -27,8 +27,6 @@ class EasyDiscussControllerAutoposting extends EasyDiscussController
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function save()
 	{
@@ -52,6 +50,15 @@ class EasyDiscussControllerAutoposting extends EasyDiscussController
 			$post['main_autopost_' . $type . '_page_id'] = '';
 		}
 
+		if (!isset($post['main_autopost_linkedin_company_id']) && $type == 'linkedin') {
+			$post['main_autopost_linkedin_company_id'] = '';
+		}
+
+		// If doesn't select any scope permission then store it as empty
+		if (!isset($post['main_autopost_facebook_scope_permissions'])) {
+			$post['main_autopost_facebook_scope_permissions'] = '';
+		}
+
 		$options = array();
 
 		foreach ($post as $key => $value) {
@@ -72,14 +79,19 @@ class EasyDiscussControllerAutoposting extends EasyDiscussController
 	 * This is the first step of authorization request to oauth providers.
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return	
+	 * @access	public	
 	 */
 	public function request()
 	{
 		// Get the oauth type
 		$type = $this->input->get('type', '', 'cmd');
+
+		if ($type == 'linkedin') {
+			$client = ED::oauth()->getClient('LinkedIn');
+			$url = $client->getAuthorizeURL();
+
+			return $this->app->redirect($url); 
+		}
 
 		// Get the oauth client
 		$client = ED::oauth()->getClient($type);
@@ -129,8 +141,6 @@ class EasyDiscussControllerAutoposting extends EasyDiscussController
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function revoke()
 	{
@@ -165,8 +175,6 @@ class EasyDiscussControllerAutoposting extends EasyDiscussController
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function grant()
 	{

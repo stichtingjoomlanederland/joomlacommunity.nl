@@ -7,6 +7,7 @@
  */
 defined('KOOWA') or die; ?>
 
+
 <div class="k-table-container">
     <div class="k-table">
 

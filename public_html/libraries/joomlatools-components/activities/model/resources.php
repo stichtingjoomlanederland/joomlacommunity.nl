@@ -24,7 +24,8 @@ class ComActivitiesModelResources extends KModelDatabase
              ->insert('package', 'cmd')
              ->insert('name', 'cmd')
              ->insert('resource_id', 'string')
-             ->insert('title', 'string');
+             ->insert('title', 'string')
+             ->insert('package_name', 'cmd');
     }
 
     protected function _buildQueryWhere(KDatabaseQueryInterface $query)
@@ -51,6 +52,26 @@ class ComActivitiesModelResources extends KModelDatabase
 
         if ($title = $state->title) {
             $query->where('tbl.title LIKE :title')->bind(array('title' => '%' . $title . '%'));
+        }
+
+        if ($package_name = (array) $state->package_name)
+        {
+            $conditions = array();
+
+            $i = 0;
+
+            foreach ($package_name as $value)
+            {
+                $conditions[] = "(tbl.package = :package{$i} AND tbl.name = :name{$i})";
+
+                list($package, $name) = explode('.', $value);
+
+                $query->bind(array("package{$i}" => $package, "name{$i}" => $name));
+
+                $i++;
+            }
+
+            $query->where('(' . implode(' OR ', $conditions) . ')');
         }
     }
 }

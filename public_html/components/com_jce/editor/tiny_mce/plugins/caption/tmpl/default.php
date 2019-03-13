@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @copyright    Copyright (c) 2009-2017 Ryan Demmer. All rights reserved
+ * @copyright    Copyright (c) 2009-2019 Ryan Demmer. All rights reserved
  * @license    GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * JCE is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -18,25 +18,25 @@ $tabs = WFTabs::getInstance();
     <?php $tabs->render(); ?>
 
     <div id="preview" class="uk-placeholder">
-      <h3><?php echo WFText::_('WF_LABEL_PREVIEW'); ?></h3>
+      <h3><?php echo JText::_('WF_LABEL_PREVIEW'); ?></h3>
         <figure id="caption">
           <img id="caption_image" src="<?php echo $plugin->image('sample.jpg', 'plugins'); ?>" alt="Preview" />
           <figcaption id="caption_text"></figcaption>
         </figure>
-        <p><?php echo WFText::_('WF_LOREM_IPSUM'); ?></p>
+        <p><?php echo JText::_('WF_LOREM_IPSUM'); ?></p>
     </div>
 
     <!-- Token -->
-    <input type="hidden" id="token" name="<?php echo WFToken::getToken(); ?>" value="1"/>
+    <input type="hidden" id="token" name="<?php echo JSession::getFormToken(); ?>" value="1"/>
 </form>
 <div class="actionPanel">
     <button class="button" id="insert">
-        <?php echo WFText::_('WF_LABEL_INSERT') ?>
+        <?php echo JText::_('WF_LABEL_INSERT') ?>
     </button>
     <button class="button" id="help">
-        <?php echo WFText::_('WF_LABEL_HELP') ?>
+        <?php echo JText::_('WF_LABEL_HELP') ?>
     </button>
     <button class="button" id="cancel">
-        <?php echo WFText::_('WF_LABEL_CANCEL') ?>
+        <?php echo JText::_('WF_LABEL_CANCEL') ?>
     </button>
 </div>

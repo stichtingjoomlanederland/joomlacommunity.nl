@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -133,6 +133,7 @@ class Configuration extends Controller
 	{
 		/** @var \Akeeba\Backup\Admin\Model\Configuration $model */
 		$model = $this->getModel();
+		$model->setState('isCurl', $this->input->get('isCurl', 0, 'int'));
 		$model->setState('host', $this->input->get('host', '', 'raw', 2));
 		$model->setState('port', $this->input->get('port', 21, 'int'));
 		$model->setState('user', $this->input->get('user', '', 'raw', 2));
@@ -140,6 +141,7 @@ class Configuration extends Controller
 		$model->setState('initdir', $this->input->get('initdir', '', 'raw', 2));
 		$model->setState('usessl', $this->input->get('usessl', '', 'raw', 2) == 'true');
 		$model->setState('passive', $this->input->get('passive', '', 'raw', 2) == 'true');
+		$model->setState('passive_mode_workaround', $this->input->get('passive_mode_workaround', '', 'raw', 2) == 'true');
 
 		try
 		{
@@ -165,6 +167,7 @@ class Configuration extends Controller
 	{
 		/** @var \Akeeba\Backup\Admin\Model\Configuration $model */
 		$model = $this->getModel();
+		$model->setState('isCurl', $this->input->get('isCurl', 0, 'int'));
 		$model->setState('host', $this->input->get('host', '', 'raw', 2));
 		$model->setState('port', $this->input->get('port', 21, 'int'));
 		$model->setState('user', $this->input->get('user', '', 'raw', 2));

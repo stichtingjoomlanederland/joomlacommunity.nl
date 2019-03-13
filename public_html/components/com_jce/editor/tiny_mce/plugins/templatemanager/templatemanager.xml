@@ -1,12 +1,12 @@
 <?xml version="1.0" ?>
-<install version="2.0" type="plugin" plugin="templatemanager" editable="1" core="0" row="4">
+<extension version="3.4" type="plugin" group="jce" method="upgrade">
 	<name>WF_TEMPLATEMANAGER_TITLE</name>
-	<version>2.6.26</version>
-	<creationDate>31-01-2018</creationDate>
+	<version>2.7.2</version>
+	<creationDate>09-03-2019</creationDate>
 	<author>Ryan Demmer</author>
 	<authorEmail>info@joomlacontenteditor.net</authorEmail>
-	<authorUrl>http://www.joomlacontenteditor.net/</authorUrl>
-	<copyright>Copyright (C) 2006 - 2018 Ryan Demmer. All rights reserved</copyright>
+	<authorUrl>https://www.joomlacontenteditor.net/</authorUrl>
+	<copyright>Copyright (C) 2006 - 2019 Ryan Demmer. All rights reserved</copyright>
 	<license>GNU/GPL Version 2 or later - http://www.gnu.org/licenses/gpl-2.0.html</license>
 	<description>WF_TEMPLATEMANAGER_DESC</description>
 	<icon>templatemanager</icon>
@@ -19,61 +19,61 @@
 		<folder>img</folder>
 		<folder>js</folder>
 	</files>
-	<params group="standard">
-		<param name="dir" type="text" default="" size="50" label="WF_PARAM_DIRECTORY" description="WF_PARAM_DIRECTORY_DESC"/>
-		<param name="max_size" class="upload_size" max="" type="text" default="" label="WF_PARAM_UPLOAD_SIZE" description="WF_PARAM_UPLOAD_SIZE_DESC" />
-		<param name="extensions" type="extension" class="extensions" default="html=html,htm,txt" label="WF_PARAM_EXTENSIONS" description="WF_PARAM_EXTENSIONS_DESC" />
-		<param name="name" type="filesystem" default="" label="WF_PARAM_FILESYSTEM" description="WF_PARAM_FILESYSTEM_DESC" />
-	</params>
-	<params group="advanced">
-		<param name="content_url" type="browser" size="50" default="" data-filter="html,htm,txt" label="WF_TEMPLATEMANAGER_CONTENT_URL" description="WF_TEMPLATEMANAGER_CONTENT_URL_DESC" />
-		<param name="replace_values" type="textarea" rows="5" cols="50" default="" label="WF_TEMPLATEMANAGER_REPLACEMENT_VALUES" description="WF_TEMPLATEMANAGER_REPLACEMENT_VALUES_DESC" />
-		<param name="selected_content_classes" type="text" size="100" default="" label="WF_TEMPLATEMANAGER_CONTENT_CLASSES" description="WF_TEMPLATEMANAGER_CONTENT_CLASSES_DESC"/>
-		<param name="cdate_classes" type="text" size="100" default="cdate creationdate" label="WF_TEMPLATEMANAGER_CREATION_DATE_CLASSES" description="WF_TEMPLATEMANAGER_CREATION_DATE_CLASSES_DESC"/>
-		<param name="mdate_classes" type="text" size="100" default="mdate modifieddate" label="WF_TEMPLATEMANAGER_MODIFIED_DATE_CLASSES" description="WF_TEMPLATEMANAGER_MODIFIED_DATE_CLASSES_DESC"/>
-		<param name="cdate_format" type="text" size="100" default="%m/%d/%Y : %H:%M:%S" label="WF_TEMPLATEMANAGER_CREATION_DATE_FORMAT" description="WF_TEMPLATEMANAGER_CREATION_DATE_FORMAT_DESC"/>
-		<param name="mdate_format" type="text" size="100" default="%m/%d/%Y : %H:%M:%S" label="WF_TEMPLATEMANAGER_MODIFIED_DATE_FORMAT" description="WF_TEMPLATEMANAGER_MODIFIED_DATE_FORMAT_DESC"/>
-	</params>
-	<params group="access">
-        <param name="upload" type="radio" default="1" label="WF_PARAM_UPLOAD" description="WF_PARAM_UPLOAD_DESC">
-            <option value="1">WF_OPTION_YES</option>
-            <option value="0">WF_OPTION_NO</option>
-		</param>
-		<param name="folder_new" type="radio" default="1" label="WF_PARAM_FOLDER_CREATE" description="WF_PARAM_FOLDER_CREATE_DESC">
-           <option value="1">WF_OPTION_YES</option>
-            <option value="0">WF_OPTION_NO</option>
-		</param>
-		<param name="folder_delete" type="radio" default="1" label="WF_PARAM_FOLDER_DELETE" description="WF_PARAM_FOLDER_DELETE_DESC">
-            <option value="1">WF_OPTION_YES</option>
-            <option value="0">WF_OPTION_NO</option>
-		</param>
-		<param name="folder_rename" type="radio" default="1" label="WF_PARAM_FOLDER_RENAME" description="WF_PARAM_FOLDER_RENAME_DESC">
-            <option value="1">WF_OPTION_YES</option>
-            <option value="0">WF_OPTION_NO</option>
-		</param>
-		<param name="folder_move" type="radio" default="1" label="WF_PARAM_FOLDER_PASTE" description="WF_PARAM_FOLDER_PASTE_DESC">
-            <option value="1">WF_OPTION_YES</option>
-            <option value="0">WF_OPTION_NO</option>
-		</param>
-		<param name="file_delete" type="radio" default="1" label="WF_PARAM_FILE_DELETE" description="WF_PARAM_FILE_DELETE_DESC">
-            <option value="1">WF_OPTION_YES</option>
-            <option value="0">WF_OPTION_NO</option>
-		</param>
-		<param name="file_rename" type="radio" default="1" label="WF_PARAM_FILE_RENAME" description="WF_PARAM_FILE_RENAME_DESC">
-            <option value="1">WF_OPTION_YES</option>
-            <option value="0">WF_OPTION_NO</option>
-		</param>
-		<param name="file_move" type="radio" default="1" label="WF_PARAM_FILE_PASTE" description="WF_PARAM_FILE_PASTE_DESC">
-            <option value="1">WF_OPTION_YES</option>
-            <option value="0">WF_OPTION_NO</option>
-		</param>
-    </params>
+	<fields name="templatemanager">
+		<fieldset name="config">
+			<field name="dir" type="text" default="" size="50" label="WF_PARAM_DIRECTORY" description="WF_PARAM_DIRECTORY_DESC"/>
+			<field name="max_size" class="input-small" hint="1024" max="" type="uploadmaxsize" step="128" label="WF_PARAM_UPLOAD_SIZE" description="WF_PARAM_UPLOAD_SIZE_DESC" />
+			<field name="extensions" type="extension" class="extensions" default="html=html,htm,txt" label="WF_PARAM_EXTENSIONS" description="WF_PARAM_EXTENSIONS_DESC" />
+			<field name="name" type="filesystem" default="" label="WF_PARAM_FILESYSTEM" description="WF_PARAM_FILESYSTEM_DESC" />
+
+			<field name="content_url" type="browser" size="50" default="" data-filter="html,htm,txt" label="WF_TEMPLATEMANAGER_CONTENT_URL" description="WF_TEMPLATEMANAGER_CONTENT_URL_DESC" />
+			<field name="replace_values" type="textarea" rows="5" cols="50" default="" label="WF_TEMPLATEMANAGER_REPLACEMENT_VALUES" description="WF_TEMPLATEMANAGER_REPLACEMENT_VALUES_DESC" />
+			<field name="selected_content_classes" type="text" size="100" default="" label="WF_TEMPLATEMANAGER_CONTENT_CLASSES" description="WF_TEMPLATEMANAGER_CONTENT_CLASSES_DESC"/>
+			<field name="cdate_classes" type="text" size="100" default="cdate creationdate" label="WF_TEMPLATEMANAGER_CREATION_DATE_CLASSES" description="WF_TEMPLATEMANAGER_CREATION_DATE_CLASSES_DESC"/>
+			<field name="mdate_classes" type="text" size="100" default="mdate modifieddate" label="WF_TEMPLATEMANAGER_MODIFIED_DATE_CLASSES" description="WF_TEMPLATEMANAGER_MODIFIED_DATE_CLASSES_DESC"/>
+			<field name="cdate_format" type="text" size="100" default="%m/%d/%Y : %H:%M:%S" label="WF_TEMPLATEMANAGER_CREATION_DATE_FORMAT" description="WF_TEMPLATEMANAGER_CREATION_DATE_FORMAT_DESC"/>
+			<field name="mdate_format" type="text" size="100" default="%m/%d/%Y : %H:%M:%S" label="WF_TEMPLATEMANAGER_MODIFIED_DATE_FORMAT" description="WF_TEMPLATEMANAGER_MODIFIED_DATE_FORMAT_DESC"/>
+
+			<field name="upload" type="yesno" default="1" label="WF_PARAM_UPLOAD" description="WF_PARAM_UPLOAD_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="folder_new" type="yesno" default="1" label="WF_PARAM_FOLDER_CREATE" description="WF_PARAM_FOLDER_CREATE_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="folder_delete" type="yesno" default="1" label="WF_PARAM_FOLDER_DELETE" description="WF_PARAM_FOLDER_DELETE_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="folder_rename" type="yesno" default="1" label="WF_PARAM_FOLDER_RENAME" description="WF_PARAM_FOLDER_RENAME_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="folder_move" type="yesno" default="1" label="WF_PARAM_FOLDER_PASTE" description="WF_PARAM_FOLDER_PASTE_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="file_delete" type="yesno" default="1" label="WF_PARAM_FILE_DELETE" description="WF_PARAM_FILE_DELETE_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="file_rename" type="yesno" default="1" label="WF_PARAM_FILE_RENAME" description="WF_PARAM_FILE_RENAME_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="file_move" type="yesno" default="1" label="WF_PARAM_FILE_PASTE" description="WF_PARAM_FILE_PASTE_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+		</fieldset>
+	</fields>
 	<languages>
-		<language tag="en-GB">en-GB.com_jce_templatemanager.ini</language>
+		<language tag="en-GB">en-GB.WF_templatemanager.ini</language>
 	</languages>
 	<help>
 		<topic key="templatemanager.about" title="WF_TEMPLATEMANAGER_HELP_ABOUT" />
 		<topic key="templatemanager.interface" title="WF_TEMPLATEMANAGER_HELP_INTERFACE" />
 		<topic key="templatemanager.save" title="WF_TEMPLATEMANAGER_HELP_CREATE" />
 	</help>
-</install>
+</extension>

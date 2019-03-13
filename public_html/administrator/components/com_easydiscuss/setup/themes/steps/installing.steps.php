@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -12,51 +12,71 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <li class="pending" data-progress-sql>
-	<b class="split__title">
+	<div class="progress-icon">
+		<i class="icon-radio-unchecked"></i>
+	</div>
+	<div class="split__title">
 		<?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_INITIALIZING_DB' );?>
-	</b>
+	</div>
 	<span class="progress-state text-info"><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_INITIALIZING');?></span>
-	<div class="notes"></div>
 </li>
+
 <li class="pending" data-progress-admin>
-	<b class="split__title">
+	<div class="progress-icon">
+		<i class="icon-radio-unchecked"></i>
+	</div>
+	<div class="split__title">
 		<?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_INITIALIZING_ADMIN');?>
-	</b>
+	</div>
 	<span class="progress-state text-info"><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_INITIALIZING');?></span>
-	<div class="notes"></div>
 </li>
+
 <li class="pending" data-progress-site>
-	<b class="split__title">
+	<div class="progress-icon">
+		<i class="icon-radio-unchecked"></i>
+	</div>
+	<div class="split__title">
 		<?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_INITIALIZING_SITE');?>
-	</b>
+	</div>
 	<span class="progress-state text-info"><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_INITIALIZING');?></span>
-	<div class="notes"></div>
 </li>
+
 <li class="pending" data-progress-languages>
-	<b class="split__title">
+	<div class="progress-icon">
+		<i class="icon-radio-unchecked"></i>
+	</div>
+	<div class="split__title">
 		<?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_INITIALIZING_LANGUAGES');?>
-	</b>
+	</div>
 	<span class="progress-state text-info"><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_INITIALIZING');?></span>
-	<div class="notes"></div>
 </li>
+
 <li class="pending" data-progress-media>
-	<b class="split__title">
+	<div class="progress-icon">
+		<i class="icon-radio-unchecked"></i>
+	</div>
+	<div class="split__title">
 		<?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_INITIALIZING_MEDIA');?>
-	</b>
+	</div>
 	<span class="progress-state text-info"><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_INITIALIZING');?></span>
-	<div class="notes"></div>
 </li>
+
 <li class="pending" data-progress-syncdb>
-	<b class="split__title">
+	<div class="progress-icon">
+		<i class="icon-radio-unchecked"></i>
+	</div>
+	<div class="split__title">
 		<?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_INITIALIZING_DB_SYNCHRONIZATION');?>
-	</b>
+	</div>
 	<span class="progress-state text-info"><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_INITIALIZING');?></span>
-	<div class="notes"></div>
 </li>
+
 <li class="pending" data-progress-postinstall>
-	<b class="split__title">
+	<div class="progress-icon">
+		<i class="icon-radio-unchecked"></i>
+	</div>
+	<div class="split__title">
 		<?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_POST_INSTALLATION_CLEANUP');?>
-	</b>
+	</div>
 	<span class="progress-state text-info"><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_INITIALIZING');?></span>
-	<div class="notes"></div>
 </li>

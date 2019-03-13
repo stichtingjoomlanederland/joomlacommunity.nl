@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS `#__rscomments_comments` (
   `comment` text NOT NULL,
   `uid` int(5) NOT NULL DEFAULT '0',
   `ip` varchar(15) NOT NULL DEFAULT '',
+  `hash` varchar(32) NOT NULL DEFAULT '',
+  `sid` varchar(255) NOT NULL DEFAULT '',
   `date` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00', 
   `modified_by` int(11) NOT NULL DEFAULT '0',
   `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -17,6 +19,7 @@ CREATE TABLE IF NOT EXISTS `#__rscomments_comments` (
   `file` varchar(255) NOT NULL DEFAULT '',
   `location` varchar(255) NOT NULL DEFAULT '',
   `coordinates` varchar(255) NOT NULL DEFAULT '',
+  `anonymous` tinyint(2) NOT NULL DEFAULT '0',
   `published` int(2) NOT NULL DEFAULT '0',
   PRIMARY KEY (`IdComment`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
@@ -43,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `#__rscomments_votes` (
   `IdVote` int(5) NOT NULL AUTO_INCREMENT,
   `IdComment` int(15) NOT NULL DEFAULT '0',
   `uid` int(5) NOT NULL DEFAULT '0',
-  `ip` varchar(15) NOT NULL DEFAULT '',
+  `ip` varchar(32) NOT NULL DEFAULT '',
   `value` enum('positive','negative') NOT NULL DEFAULT 'positive',
   PRIMARY KEY (`IdVote`),
   KEY `IdComment` (`IdComment`)

@@ -1,19 +1,25 @@
 <?php
+/**
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
+ */
+
 defined('_JEXEC') or die();
 /**
  * @package    AkeebaBackup
  * @subpackage backuponupdate
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright  Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license    GNU General Public License version 3, or later
  *
- * @since      5.4.1
+ * @since      6.4.1
  *
  * This file contains the CSS for rendering the status (footer) icon for the Backup on Update plugin. The icon is only
  * rendered in the administrator backend of the site.
  *
  * You can override this file WITHOUT overwriting it. Copy this file into:
  *
- * administrator/templates/YOUR_TEMPLATE/html/plg_system_backuponupdate/default.css.php
+ * administrator/templates/YOUR_TEMPLATE/html/plg_system_backuponupdate/joomla4.css.php
  *
  * where YOUR_TEMPLATE is the folder of the administrator template you are using. Modify that copy. It will be loaded
  * instead of the file in plugins/system/backuponupdate.
@@ -25,10 +31,10 @@ defined('_JEXEC') or die();
 	font-family: "Akeeba Products for Joomla Status";
 	font-style: normal;
 	font-weight: normal;
-	src: url("../media/com_akeeba/fonts/akeeba/Akeeba-Products.eot?") format("eot"), url("../media/com_akeeba/fonts/akeeba/Akeeba-Products.svg#Akeeba_Products") format("svg"), url("../media/com_akeeba/fonts/akeeba/Akeeba-Products.ttf") format("truetype"), url("../media/com_akeeba/fonts/akeeba/Akeeba-Products.woff") format("woff");
+	src: url("../media/com_akeeba/fonts/akeeba/Akeeba-Products.woff") format("woff");
 }
 
-span.fa-akeebastatus:before
+span.fa-akbou:before
 {
 	display: inline-block;
 	font-family: 'Akeeba Products for Joomla Status';
@@ -38,11 +44,21 @@ span.fa-akeebastatus:before
 	-webkit-font-smoothing: antialiased;
 	position: relative;
 	-moz-osx-font-smoothing: grayscale;
-	color: #ffffff;
+	color: var(--primary-dark);
 	background: transparent;
 }
 
-span[class*=fa-akeebastatus]:before
+span[class*=fa-akbou]:before
 {
 	content: 'B';
+}
+
+span.fa-akbou-active:before
+{
+	color: var(--primary-dark);
+}
+
+span.fa-akbou-inactive:before
+{
+	color: var(--warning);
 }

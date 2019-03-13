@@ -107,4 +107,23 @@ class ComFilesFilterPath extends KFilterAbstract implements KFilterTraversable
 
         return $value;
     }
+
+    /**
+     * Encode a value
+     *
+     * @param mixed $value Value to be encoded
+     * @return string
+     */
+    public function encode($value)
+    {
+        $value = $this->sanitize($value);
+
+        $parts = explode('/', $value);
+
+        foreach ($parts as &$part) {
+            $part = rawurlencode($part);
+        }
+
+        return implode('/', $parts);
+    }
 }

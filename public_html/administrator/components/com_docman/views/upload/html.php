@@ -12,7 +12,8 @@ class ComDocmanViewUploadHtml extends ComDocmanViewHtml
     {
         $config->append(array(
             'layout'     => 'default',
-            'auto_fetch' => false
+            'auto_fetch' => false,
+            'decorator'  => 'koowa'
         ));
 
         if (!JFactory::getApplication()->isAdmin()) {

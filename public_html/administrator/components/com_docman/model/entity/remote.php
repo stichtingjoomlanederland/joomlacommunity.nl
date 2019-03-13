@@ -10,7 +10,9 @@ class ComDocmanModelEntityRemote extends KModelEntityAbstract
 {
     public function getPropertyExtension()
     {
-        return pathinfo($this->path, PATHINFO_EXTENSION);
+        $path = parse_url($this->path, PHP_URL_PATH);
+
+        return pathinfo($path, PATHINFO_EXTENSION);
     }
 
     public function getPropertyFilename()

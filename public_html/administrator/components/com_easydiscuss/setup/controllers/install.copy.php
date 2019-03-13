@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -18,10 +18,8 @@ class EasyDiscussControllerInstallCopy extends EasyDiscussSetupController
 	/**
 	 * Responsible to copy the necessary files over.
 	 *
-	 * @since	5.0
+	 * @since	4.2.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function execute()
 	{
@@ -43,7 +41,7 @@ class EasyDiscussControllerInstallCopy extends EasyDiscussSetupController
 		}
 
 		// Extract the admin folder
-		$state = JArchive::extract($archivePath, $path);
+		$state = $this->extractArchive($archivePath, $path);
 
 		if (!$state) {
 			$this->setInfo(JText::sprintf('COM_EASYDISCUSS_INSTALLATION_COPY_ERROR_UNABLE_EXTRACT', $type), false);
@@ -58,6 +56,12 @@ class EasyDiscussControllerInstallCopy extends EasyDiscussSetupController
 
 		// Construct the target path first.
 		if ($type == 'admin' || $type == 'site') {
+
+			// Cleanup admin folders when installing
+			if ($type == 'admin') {
+				$this->cleanupAdmin();
+			}
+
 			$target = $type == 'site' ? JPATH_ROOT : JPATH_ADMINISTRATOR;
 			$target .= '/components/com_easydiscuss';
 		}
@@ -122,9 +126,40 @@ class EasyDiscussControllerInstallCopy extends EasyDiscussSetupController
 			$totalFolders++;
 		}
 
-
 		$result = $this->getResultObj(JText::sprintf('COM_EASYDISCUSS_INSTALLATION_COPY_FILES_SUCCESS', $totalFiles, $totalFolders), true);
 
 		return $this->output($result);
+	}
+
+	/**
+	 * Cleanup admin folder for older residue
+	 *
+	 * @since	4.2.0
+	 * @access	public
+	 */
+	public function cleanupAdmin()
+	{
+		jimport('joomla.filesystem.folder');
+		
+		$folders = array(
+						'/components/com_easydiscuss/controllers',
+						'/components/com_easydiscuss/elements',
+						'/components/com_easydiscuss/includes',
+						'/components/com_easydiscuss/models',
+						'/components/com_easydiscuss/tables',
+						'/components/com_easydiscuss/themes',
+						'/components/com_easydiscuss/views'
+					);
+
+		foreach ($folders as $folder) {
+			$path = JPATH_ADMINISTRATOR . $folder;
+			$exists = JFolder::exists($path);
+			
+			if ($exists) {
+				JFolder::delete($path);
+			}
+		}
+
+		return;
 	}
 }

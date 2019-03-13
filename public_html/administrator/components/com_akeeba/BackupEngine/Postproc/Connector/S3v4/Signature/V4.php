@@ -1,9 +1,9 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  */
@@ -77,7 +77,7 @@ class V4 extends Signature
 		 * http://s3-eu-west-1.amazonaws.com/example instead of http://example.amazonaws.com/ for all authenticated URLs
 		 */
 		$region   = $this->request->getConfiguration()->getRegion();
-		$hostname = $this->kot($region);
+		$hostname = $this->getPresignedHostnameForRegion($region);
 		$this->request->setHeader('Host', $hostname);
 
 		// Set the expiration time in seconds
@@ -129,8 +129,8 @@ class V4 extends Signature
 		$signatureDate = new \DateTime($headers['Date']);
 
 		$credentialScope = $signatureDate->format('Ymd') . '/' .
-		                   $this->request->getConfiguration()->getRegion() . '/' .
-		                   's3/aws4_request';
+			$this->request->getConfiguration()->getRegion() . '/' .
+			's3/aws4_request';
 
 		/**
 		 * If the Expires header is set up we're pre-signing a download URL. The string to sign is a bit
@@ -143,10 +143,16 @@ class V4 extends Signature
 			$gmtDate = clone $signatureDate;
 			$gmtDate->setTimezone(new \DateTimeZone('GMT'));
 
-			$parameters['X-Amz-Algorithm'] = "AWS4-HMAC-SHA256";
-			$parameters['X-Amz-Credential'] = $this->request->getConfiguration()->getAccess() . '/' . $credentialScope;
-			$parameters['X-Amz-Date'] = $gmtDate->format('Ymd\THis\Z');
-			$parameters['X-Amz-Expires'] = sprintf('%u', $headers['Expires']);
+			$parameters['X-Amz-Algorithm']      = "AWS4-HMAC-SHA256";
+			$parameters['X-Amz-Credential']     = $this->request->getConfiguration()->getAccess() . '/' . $credentialScope;
+			$parameters['X-Amz-Date']           = $gmtDate->format('Ymd\THis\Z');
+			$parameters['X-Amz-Expires']        = sprintf('%u', $headers['Expires']);
+			$token                              = $this->request->getConfiguration()->getToken();
+
+			if (!empty($token))
+			{
+				$parameters['x-amz-security-token'] = $token;
+			}
 
 			unset($headers['Expires']);
 			unset($headers['Date']);
@@ -178,11 +184,13 @@ class V4 extends Signature
 
 			if ($amazonIsBraindead && ($lowercaseHeaderName == 'content-length'))
 			{
-				// No, it doesn't look daft. It is. But somehow Amazon requires me to do it and only on some servers.
-				// Yeah, I had the same "WHAT THE...?!" reaction myself, thank you very much.
-				// I wasted an entire day on this. And then you wonder why I write my own connector libraries
-				// instead of pulling something through Composer, huh? Because the official library doesn't deal with
-				// this, that's why.
+				/**
+				 * I know it looks crazy. It is. Somehow Amazon requires me to do this and only on _some_ servers, mind
+				 * you. This is something undocumented and which is not covered by their official SDK. I had to write
+				 * my own library because of that and the official SDK's inability to upload large files without using
+				 * at least as much memory as the file itself (which doesn't fly well for files around 2Gb, let me tell
+				 * you that!).
+				 */
 				$v = "$v,$v";
 			}
 
@@ -266,11 +274,11 @@ class V4 extends Signature
 
 		// Calculate the canonical request
 		$canonicalRequest = $verb . "\n" .
-		                    $canonicalURI . "\n" .
-		                    $canonicalQueryString . "\n" .
-		                    $canonicalHeaders . "\n" .
-		                    $signedHeaders . "\n" .
-		                    $requestPayloadHash;
+			$canonicalURI . "\n" .
+			$canonicalQueryString . "\n" .
+			$canonicalHeaders . "\n" .
+			$signedHeaders . "\n" .
+			$requestPayloadHash;
 
 		$hashedCanonicalRequest = hash('sha256', $canonicalRequest);
 
@@ -283,16 +291,16 @@ class V4 extends Signature
 		}
 
 		$stringToSign = "AWS4-HMAC-SHA256\n" .
-		                $headers['Date'] . "\n" .
-		                $credentialScope . "\n" .
-		                $hashedCanonicalRequest;
+			$headers['Date'] . "\n" .
+			$credentialScope . "\n" .
+			$hashedCanonicalRequest;
 
 		if ($isPresignedURL)
 		{
 			$stringToSign = "AWS4-HMAC-SHA256\n" .
-			                $parameters['X-Amz-Date'] . "\n" .
-			                $credentialScope . "\n" .
-			                $hashedCanonicalRequest;
+				$parameters['X-Amz-Date'] . "\n" .
+				$credentialScope . "\n" .
+				$hashedCanonicalRequest;
 		}
 
 		// ========== Step 3: Calculate the signature ==========
@@ -305,9 +313,9 @@ class V4 extends Signature
 		// See http://docs.aws.amazon.com/general/latest/gr/sigv4-add-signature-to-request.html
 
 		$authorization = 'AWS4-HMAC-SHA256 Credential=' .
-		                 $this->request->getConfiguration()->getAccess() . '/' . $credentialScope . ', ' .
-		                 'SignedHeaders=' . $signedHeaders . ', ' .
-		                 'Signature=' . $signature;
+			$this->request->getConfiguration()->getAccess() . '/' . $credentialScope . ', ' .
+			'SignedHeaders=' . $signedHeaders . ', ' .
+			'Signature=' . $signature;
 
 		// For presigned URLs we only return the Base64-encoded signature without the AWS format specifier and the
 		// public access key.
@@ -344,7 +352,14 @@ class V4 extends Signature
 		return str_replace('+', '%20', urlencode($string));
 	}
 
-	private function kot($region)
+	/**
+	 * Get the correct hostname for the given AWS region
+	 *
+	 * @param   string  $region
+	 *
+	 * @return  string
+	 */
+	private function getPresignedHostnameForRegion($region)
 	{
 		$endpoint = 's3.amazonaws.com';
 
@@ -352,7 +367,7 @@ class V4 extends Signature
 		{
 			$region = 'external-1';
 		}
-		elseif ($region == 'cn-north-1')
+		elseif (substr($region, 0, 3) == 'cn-')
 		{
 			$endpoint = 'amazonaws.com.cn';
 

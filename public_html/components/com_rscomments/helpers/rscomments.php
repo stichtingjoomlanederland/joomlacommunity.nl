@@ -134,8 +134,9 @@ abstract class RSCommentsHelper
 	}
 	
 	// Get user IP address
-	public static function getIP($check_for_proxy = false) {
-		$ip = $_SERVER['REMOTE_ADDR'];
+	public static function getIP($check_for_proxy = false, $force = false) {
+		$store	= RSCommentsHelper::getConfig('store_ip');
+		$ip		= JFactory::getApplication()->input->server->get('REMOTE_ADDR');
 
 		if ($check_for_proxy) {
 			$headers = array('HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'HTTP_VIA', 'HTTP_X_COMING_FROM', 'HTTP_COMING_FROM');
@@ -144,7 +145,7 @@ abstract class RSCommentsHelper
 					$ip = $_SERVER[$header];
 		}
 
-		return $ip;
+		return $force ? $ip : ($store ? $ip : '0.0.0.0');
 	}
 	
 	// Routing function
@@ -252,8 +253,8 @@ abstract class RSCommentsHelper
 
 		// URL
 		$nofollow = $config->no_follow ? 'rel="nofollow"' : '';
-		$patterns[] = '/(\[url=)(.+)(\])(.+)(\[\/url\])/i';
-		$replacements[] = (isset($permissions['bb_url']) && $permissions['bb_url']) ? '<a href="\\2" '.$nofollow.'>\\4</a>' : '\\2';
+		$patterns[] = '/\[url=(.+?)\](.+?)\[\/url\]/i';
+		$replacements[] = (isset($permissions['bb_url']) && $permissions['bb_url']) ? '<a href="\\1" '.$nofollow.'>\\2</a>' : '\\2';
 		
 		$patterns[] = '/\[url\]([ a-zA-Z0-9\:\/\-\?\&\.\=\_\~\#\']*)\[\/url\]/i';
 		$replacements[] = (isset($permissions['bb_url']) && $permissions['bb_url']) ? '<a href="\\1" '.$nofollow.'>\\1</a>' : '\\1';
@@ -437,7 +438,7 @@ abstract class RSCommentsHelper
 		}
 		
 		if ($config->enable_smiles == 1) {
-			$smileys = array('<a href="javascript:void(0);" onclick="rsc_show_emoticons(this);" class="rsc_emoti_on btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_EMOTICONS')).'"><i class="rsc_emoti_on fa fa-smile-o"></i></a>');
+			$smileys = array('<a href="javascript:void(0);" data-rsc-task="emoticons" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_EMOTICONS')).'"><i class="fa fa-smile-o"></i></a>');
 			$icons = array_merge($icons, $smileys);
 			
 		}
@@ -450,45 +451,45 @@ abstract class RSCommentsHelper
 		$bbcode = array();
 		
 		if (isset($permissions['bb_bold']) && $permissions['bb_bold']) {
-			$bbcode[] = '<a href="javascript:void(0);" onclick="rsc_addTags(\'[b]\',\'[/b]\',\'rsc_comment\');" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_BOLD')).'"><i class="fa fa-bold"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="bold" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_BOLD')).'"><i class="fa fa-bold"></i></a>';
 		}
 		
 		if (isset($permissions['bb_italic']) && $permissions['bb_italic']) {
-			$bbcode[] = '<a href="javascript:void(0);" onclick="rsc_addTags(\'[i]\',\'[/i]\',\'rsc_comment\');" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ITALIC')).'"><i class="fa fa-italic"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="italic" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ITALIC')).'"><i class="fa fa-italic"></i></a>';
 		}
 		
 		if (isset($permissions['bb_underline']) && $permissions['bb_underline']) {
-			$bbcode[] = '<a href="javascript:void(0);" onclick="rsc_addTags(\'[u]\',\'[/u]\',\'rsc_comment\');" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_UNDERLINE')).'"><i class="fa fa-underline"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="underline" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_UNDERLINE')).'"><i class="fa fa-underline"></i></a>';
 		}
 		
 		if (isset($permissions['bb_stroke']) && $permissions['bb_stroke']) {
-			$bbcode[] = '<a href="javascript:void(0);" onclick="rsc_addTags(\'[s]\',\'[/s]\',\'rsc_comment\');" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_STROKE')).'"><i class="fa fa-strikethrough"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="stroke" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_STROKE')).'"><i class="fa fa-strikethrough"></i></a>';
 		}
 		
 		if (isset($permissions['bb_quote']) && $permissions['bb_quote']) {
-			$bbcode[] = '<a href="javascript:void(0);" onclick="rsc_addTags(\'[quote]\',\'[/quote]\',\'rsc_comment\');" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_QUOTE')).'"><i class="fa fa-quote-right"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="quote" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_QUOTE')).'"><i class="fa fa-quote-right"></i></a>';
 		}
 		
 		if (isset($permissions['bb_lists']) && $permissions['bb_lists']) {
-			$bbcode[] = '<a href="javascript:void(0);" onclick="rsc_createList(\'[LIST=1]\',\'[/LIST]\',\'rsc_comment\');" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ORDERED')).'"><i class="fa fa-list-ul"></i></a>';
-			$bbcode[] = '<a href="javascript:void(0);" onclick="rsc_createList(\'[LIST]\',\'[/LIST]\',\'rsc_comment\');" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_UNORDERED')).'"><i class="fa fa-list-ol"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="list" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_UNORDERED')).'"><i class="fa fa-list-ul"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="olist" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ORDERED')).'"><i class="fa fa-list-ol"></i></a>';
 		}
 		
 		if (isset($permissions['bb_image']) && $permissions['bb_image']) {
-			$bbcode[] = '<a href="javascript:void(0);" onclick="rsc_createImage(\'rsc_comment\',\''.JText::_('COM_RSCOMMENTS_ADD_IMAGE',true).'\');" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ADD_IMAGE')).'"><i class="fa fa-picture-o"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="image" data-rsc-text="'.htmlentities(JText::_('COM_RSCOMMENTS_ADD_IMAGE'), ENT_COMPAT, 'UTF-8').'" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ADD_IMAGE')).'"><i class="fa fa-picture-o"></i></a>';
 		}
 		
 		if (isset($permissions['bb_url']) && $permissions['bb_url']) {
-			$bbcode[] = '<a href="javascript:void(0);" onclick="rsc_createUrl(\'rsc_comment\',\''.JText::_('COM_RSCOMMENTS_ADD_URL',true).'\');" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ADD_URL')).'"><i class="fa fa-link"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="url" data-rsc-text="'.htmlentities(JText::_('COM_RSCOMMENTS_ADD_URL'), ENT_COMPAT, 'UTF-8').'" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ADD_URL')).'"><i class="fa fa-link"></i></a>';
 		}
 		
 		if (isset($permissions['bb_code']) && $permissions['bb_code']) {
-			$bbcode[] = '<a href="javascript:void(0);" onclick="rsc_addTags(\'[code]\',\'[/code]\',\'rsc_comment\');" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ADD_CODE')).'"><i class="fa fa-code"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="code" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ADD_CODE')).'"><i class="fa fa-code"></i></a>';
 		}
 		
 		if (isset($permissions['bb_videos']) && $permissions['bb_videos']) {
-			$bbcode[] = '<a href="javascript:void(0);" onclick="rsc_addTags(\'[youtube]\',\'[/youtube]\',\'rsc_comment\');" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ADD_YOUTUBE')).'"><i class="fa fa-youtube"></i></a>';
-			$bbcode[] = '<a href="javascript:void(0);" onclick="rsc_addTags(\'[vimeo]\',\'[/vimeo]\',\'rsc_comment\');" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ADD_VIMEO')).'"><i class="fa fa-vimeo"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="youtube" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ADD_YOUTUBE')).'"><i class="fa fa-youtube"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="vimeo" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ADD_VIMEO')).'"><i class="fa fa-vimeo"></i></a>';
 		}
 		
 		return $bbcode;
@@ -623,8 +624,14 @@ abstract class RSCommentsHelper
 		$config	= RSCommentsHelper::getConfig();
 		
 		if ($comment->uid == 0) {
-			$name		= (isset($permissions['show_emails']) && $permissions['show_emails']) ? '<a href="mailto:'.$comment->email.'">'.$comment->name.'</a>' : $comment->name;
-			$cleanname	= $comment->name;
+			$cleanname = $comment->name;
+			
+			if ($comment->anonymous) {
+				$cleanname = empty($cleanname) ? JText::_('COM_RSCOMMENTS_ANONYMOUS') : $cleanname;
+			}
+			
+			$name		= (isset($permissions['show_emails']) && $permissions['show_emails']) ? '<a href="mailto:'.$comment->email.'">'.$cleanname.'</a>' : $cleanname;
+			
 		} else {
 			$user = JFactory::getUser($comment->uid);
 			
@@ -761,15 +768,16 @@ abstract class RSCommentsHelper
 		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);
 		$user	= JFactory::getUser();
+		$sid	= JFactory::getSession()->getId();
 		
 		if ($user->guest) {
-			$query->select($db->qn('ip'))
+			$query->select($db->qn('sid'))
 				  ->from($db->qn('#__rscomments_comments'))
 				  ->where($db->qn('IdComment').' = '.(int) $id);
 			$db->setQuery($query);
-			$ip = $db->loadResult();
+			$csid = $db->loadResult();
 			
-			return ($ip == $_SERVER['REMOTE_ADDR']);
+			return $csid == $sid;
 		} else {
 			$query->select($db->qn('uid'))
 				  ->from($db->qn('#__rscomments_comments'))
@@ -835,7 +843,7 @@ abstract class RSCommentsHelper
 		$query->clear()
 			->select('COUNT('.$db->qn('IdComment').')')
 			->from($db->qn('#__rscomments_comments'))
-			->where($db->qn('ip').' = '.$db->q($ip))
+			->where($db->qn('hash').' = '.$db->q(md5($ip)))
 			->where($db->q(JFactory::getDate()->toSql()).' < DATE_ADD('.$db->qn('date').', INTERVAL '.(int) $config->flood_interval.' SECOND)');
 		
 		$db->setQuery($query);
@@ -984,6 +992,7 @@ abstract class RSCommentsHelper
 		$view->permissions	= $permissions;
 		$view->disable		= $view->user->get('id') != 0 ? 'disabled="disabled"' : '';
 		$view->root			= $uri->toString(array('scheme','host'));
+		$view->hash			= md5($option.$id);
 		
 		return $view->loadTemplate();
 	}
@@ -1022,49 +1031,53 @@ abstract class RSCommentsHelper
 		// Load language file
 		JFactory::getLanguage()->load('com_rscomments');
 		RSCommentsHelper::loadLang();
-
-		$template = is_null($template) ? RSCommentsHelper::getTemplate() : $template;
+		
 		$position = RSCommentsHelper::getConfig('comment_form_position');
 		
-		$return  = '<div class="rscomments">';
+		$return  = '<div class="rscomments" data-rsc-id="'.$id.'" data-rsc-option="'.$option.'">';
 		
 		if ($global = RSCommentsHelper::getMessage('global')) {
 			$return .= $global;
 		}
 		
 		if ($position) {
-			$return .= '<div id="rscomments-comment-form">'."\n".RSCommentsHelper::displayForm($option, $id, $override)."\n".'</div>';
+			$return .= '<div class="rscomments-comment-form">'."\n".RSCommentsHelper::displayForm($option, $id, $override)."\n".'</div>';
 		}
 		
-		$return .= RSCommentsHelper::showComments($option, $id, $template, $container, $override)."\n";
+		$return .= RSCommentsHelper::showComments($option, $id, null, $container, $override)."\n";
 		
 		if (!$position) {
-			$return .= '<div id="rscomments-comment-form">'."\n".RSCommentsHelper::displayForm($option, $id, $override)."\n".'</div>';
+			$return .= '<div class="rscomments-comment-form">'."\n".RSCommentsHelper::displayForm($option, $id, $override)."\n".'</div>';
 		}
 
-		$return .= RSCommentsHelper::initScripts($option, $id)."\n";
+		$return .= RSCommentsHelper::initScripts()."\n";
 		$return .= '</div>';
+		
+		JFactory::getSession()->clear('com_rscomments.IdComment');
 		
 		return $return;
 	}
 	
-	public static function initScripts($option, $id) {
-		require_once JPATH_SITE.'/components/com_rscomments/helpers/tooltip.php';
+	public static function initScripts() {
+		static $show;
 		
-		$view = new JViewLegacy(array(
-			'name' => 'rscomments',
-			'layout' => 'default',
-			'base_path' => JPATH_SITE.'/components/com_rscomments'
-		));
+		if (!isset($show)) {
 		
-		$view->addTemplatePath(JPATH_THEMES . '/' . JFactory::getApplication()->getTemplate() . '/html/com_rscomments/' . $view->getName());
-		
-		$view->theoption	= $option;
-		$view->id			= $id;
-		$view->config		= RSCommentsHelper::getConfig();
-		$view->user			= JFactory::getUser();
-		
-		return $view->loadTemplate('init');
+			require_once JPATH_SITE.'/components/com_rscomments/helpers/tooltip.php';
+			
+			$view = new JViewLegacy(array(
+				'name' => 'rscomments',
+				'layout' => 'default',
+				'base_path' => JPATH_SITE.'/components/com_rscomments'
+			));
+			
+			$view->addTemplatePath(JPATH_THEMES . '/' . JFactory::getApplication()->getTemplate() . '/html/com_rscomments/' . $view->getName());
+			$view->config = RSCommentsHelper::getConfig();
+			
+			$show = true;
+			
+			return $view->loadTemplate('init');
+		}
 	}
 	
 	public static function showComments($option, $id, $template, $container, $override, $tpl = null, $IdComment = null) {
@@ -1113,6 +1126,7 @@ abstract class RSCommentsHelper
 		$view->permissions	= $permissions;
 		$view->template		= $template;
 		$view->root			= $uri->toString(array('scheme','host'));
+		$view->hash			= md5($option.$id);
 		
 		$commentsClass 	= new RSCommentsModelComments($id, $option, $config->nr_comments, $template, $override, $IdComment);
 		$pagination  	= $commentsClass->getPagination();
@@ -1126,233 +1140,9 @@ abstract class RSCommentsHelper
 		return $view->loadTemplate($tpl);
 	}
 	
-	// Method to show a specific comment 
-	// This is only used on Joomla 2.5
+	// DEPRECATED - Method to show a specific comment 
 	public static function showComment($comment,$template,$ThreadClosed) {
-		$uri 			= JURI::getInstance();
-		$root			= $uri->toString(array('scheme','host'));
-		$db 			= JFactory::getDbo();
-		$query			= $db->getQuery(true);
-		$user 			= JFactory::getUser();
-		$config			= RSCommentsHelper::getConfig();
-		$permissions	= self::getPermissions();
-		$layout 		= file_get_contents(JPATH_SITE.'/components/com_rscomments/designs/'.$template.'/'.$template.'.html');
-		$newu 			= JFactory::getUser($comment->uid);
-		$avatar 		= RSCommentsHelper::getAvatar($newu->id,$comment->email);
-		$classsuffix	= !empty($avatar) ? '_on' : '_off';
-		$usersocialpage = RSCommentsHelper::getUserSocialLink($newu->id,$newu->name);
-		$commentName	= RSCommentsHelper::name($comment, $permissions);
-		
-		RSCommentsHelper::loadLang();
-		
-		$pos = (int) self::getPositiveVotes($comment->IdComment);
-		$neg = (int) self::getNegativeVotes($comment->IdComment);
-		
-		if (!empty($avatar) && !empty($usersocialpage)) {
-			$avatar = '<a href="'.$usersocialpage.'">'.$avatar.'</a>';
-		}
-		
-		//set the website 
-		$website = ($config->enable_website_field == 1 && !empty($comment->website)) ? '<a class="rsc_website" href="'.$comment->website.'" '.($config->nofollow_rel == 1 ? 'rel="nofollow"' : '').' target="_blank" title="'.JText::_('COM_RSCOMMENTS_WEBSITE').'">'.JText::_('COM_RSCOMMENTS_WEBSITE').'</a>' : '';
-		
-		//set the subject
-		$subject = ($config->enable_title_field == 1) ? '<span id="rscsubject'.$comment->IdComment.'">'.$comment->subject.'</span>' : '';
-		
-		//set the date
-		$date = RSCommentsHelper::showDate($comment->date);
-		$date = '<time itemprop="commentTime" datetime="'.RSCommentsHelper::showDate($comment->date,'Y-m-d H:i:s').'">'.$date.'</time>';
-		
-		//parse the comment
-		$comment->comment = RSCommentsHelper::parseComment($comment->comment,$permissions);
-		
-		//set the comment
-		$commenttext = '';
-		
-		$negativeComment = isset($config->negative_count) && $config->negative_count && $neg >= $config->negative_count;
-		
-		if ($negativeComment) {
-			$commenttext .= '<span id="chidden'.$comment->IdComment.'" class="rsc_comment_box">'.JText::_('COM_RSCOMMENTS_COMMENT_HIDDEN').' <a href="javascript:void(0);" onclick="rsc_view(\''.$comment->IdComment.'\')">'.JText::_('COM_RSCOMMENTS_COMMENT_HIDDEN_LINK').'</a></span>';
-		}
-		
-		$extraOptions = $negativeComment ? 'style="display: none; opacity: 0.7;"' : '';
-		$commenttext .=  '<span id="c'.$comment->IdComment.'" class="rsc_comment_box" '.$extraOptions.' itemprop="commentText">'.$comment->comment.'</span>';
-		
-		
-		$commenttext .= '<div class="rsc_buttons_container">';
-		
-		if ($comment->published) {
-			// show reply button (default value = 1 )
-			if (!empty($permissions['enable_reply']) && !$ThreadClosed)
-				$commenttext .= '<span class="rsc_reply" onclick="rsc_reply(\''.$comment->IdComment.'\')"><a href="javascript:void(0);" title="'.JText::_('COM_RSCOMMENTS_REPLY').'">'.JText::_('COM_RSCOMMENTS_REPLY').'</a></span>';
-
-			if(isset($permissions['new_comments']) && $permissions['new_comments'] && !$ThreadClosed)
-				$commenttext .=  '<span class="rsc_rq" onclick="rsc_quote(\''.$commentName['cleanname'].'\',\''.$comment->IdComment.'\');" ><a href="javascript:void(0);" >'.JText::_('COM_RSCOMMENTS_COMMENT_QUOTE').'</a></span>';
-		}
-		
-		$commenttext .= '</div> <!-- .rsc_buttons_container --> <span class="rsc_clear">&nbsp;</span>';
-		
-		if (isset($config->enable_modified) && $config->enable_modified) {
-			if (!empty($comment->modified) && $comment->modified != $db->getNullDate()) {
-				$commenttext .= '<div class="rsc_modified">';
-				$commenttext .= JText::sprintf('COM_RSCOMMENTS_LAST_MODIFIED_ON',RSCommentsHelper::showDate($comment->modified));
-				$modified_by = $comment->modified_by ? JFactory::getUser($comment->modified_by)->get('name') : JText::_('COM_RSCOMMENTS_GUEST');
-				$commenttext .= JText::sprintf('COM_RSCOMMENTS_LAST_MODIFIED_BY',$modified_by);
-				$commenttext .= '</div>';
-			}
-		}
-		
-		$commenttext .= '<div id="rscomments-reply-'.$comment->IdComment.'" class="rsc_comment_box_form"></div>';
-		
-		$replace = array(
-				'{authorname}',
-				'{AuthorName}',
-				'{comment}',
-				'{Comment}',
-				'{avatar}',
-				'{Avatar}',
-				'{AuthorWebsite}',
-				'{authorwebsite}',
-				'{subject}',
-				'{Subject}',
-				'{date}',
-				'{Date}',
-				'{usersocialpage}',
-				'{UserSocialPage}',
-				'{ClassSuffix}',
-				'{classsuffix}'
-				);
-		$with 	 = array(
-				'<span id="rscname'.$comment->IdComment.'" itemprop="creator" itemscope itemtype="http://schema.org/Person"><span itemprop="name">'.$commentName['name'].'</span></span>',
-				'<span id="rscname'.$comment->IdComment.'" itemprop="creator" itemscope itemtype="http://schema.org/Person"><span itemprop="name">'.$commentName['name'].'</span></span>',
-				$commenttext,
-				$commenttext,
-				$avatar,
-				$avatar,
-				$website,
-				$website,
-				$subject,
-				$subject,
-				$date,
-				$date,
-				$usersocialpage,
-				$usersocialpage,
-				$classsuffix,
-				$classsuffix
-				);
-
-		//set the ip button
-		if (isset($permissions['view_ip']) && $permissions['view_ip']) {
-			$replace[] = '{authorip}';
-			$replace[] = '{AuthorIP}';
-			
-			$with[] = '<a href="http://www.db.ripe.net/whois?searchtext='.$comment->ip.'" target="_blank" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_IP_ADDRESS'),$comment->ip).'" class="'.RSTooltip::tooltipClass().'"><i class="fa fa-home"></i></a>'; 
-			$with[] = '<a href="http://www.db.ripe.net/whois?searchtext='.$comment->ip.'" target="_blank" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_IP_ADDRESS'),$comment->ip).'" class="'.RSTooltip::tooltipClass().'"><i class="fa fa-home"></i></a>'; 
-		} else { $replace[] = '{authorip}'; $with[] = ''; $replace[] = '{AuthorIP}'; $with[] = '';}
-		
-		// Own comment?
-		$ip 		= $_SERVER['REMOTE_ADDR'];
-		$ownComment = false;
-		if ($user->guest) {
-			$ownComment = $comment->ip == $ip;
-		} else {
-			$ownComment = $comment->uid == $user->id;
-		}
-		
-		//set the edit button
-		
-		if (((isset($permissions['edit_own_comment']) && $permissions['edit_own_comment']) && $ownComment && !$ThreadClosed) || (isset($permissions['edit_comments']) && $permissions['edit_comments'] && !$ThreadClosed)) {
-			$replace[] = '{editcomment}';
-			$replace[] = '{EditComment}';
-			
-			$with[] = '<a class="'.RSTooltip::tooltipClass().'" href="javascript:void(0);" onclick="rsc_edit(\''.$comment->IdComment.'\');" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_EDIT_COMMENT')).'"><i class="fa fa-pencil"></i></a>'; 
-			$with[] = '<a class="'.RSTooltip::tooltipClass().'" href="javascript:void(0);" onclick="rsc_edit(\''.$comment->IdComment.'\');" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_EDIT_COMMENT')).'"><i class="fa fa-pencil"></i></a>'; 
-		} else { $replace[] = '{editcomment}'; $with[] = ''; $replace[] = '{EditComment}'; $with[] = '';}
-		
-		//set the delete button
-		if (((isset($permissions['delete_own_comment']) && $permissions['delete_own_comment']) && $ownComment) || (isset($permissions['delete_comments']) && $permissions['delete_comments'])) {
-			$replace[] = '{deletecomment}'; 
-			$replace[] = '{DeleteComment}'; 
-
-			$with[] = '<a class="'.RSTooltip::tooltipClass().'" href="javascript:void(0);" onclick="rsc_delete_fn(\''.JText::_('COM_RSCOMMENTS_DELETE_COMMENT_CONFIRM',true).'\',\''.$comment->IdComment.'\');return false;" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_DELETE_COMMENT')).'"><i class="fa fa-trash"></i></a>'; 
-			$with[] = '<a class="'.RSTooltip::tooltipClass().'" href="javascript:void(0);" onclick="rsc_delete_fn(\''.JText::_('COM_RSCOMMENTS_DELETE_COMMENT_CONFIRM',true).'\',\''.$comment->IdComment.'\');return false;" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_DELETE_COMMENT')).'"><i class="fa fa-trash"></i></a>';
-		} else { $replace[] = '{deletecomment}'; $with[] = '';$replace[] = '{DeleteComment}'; $with[] = ''; }
-		
-		//set the publish/unpublish button
-		if (isset($permissions['publish_comments']) && $permissions['publish_comments']) {
-			$publish = ($comment->published == 1) ? 'fa fa-minus-circle' : 'fa fa-check'; 
-			$function = ($comment->published == 1) ? 'rsc_unpublish(\''.$comment->IdComment.'\')' : 'rsc_publish(\''.$comment->IdComment.'\')'; 
-			$message = ($comment->published == 1) ? JText::_('COM_RSCOMMENTS_UNPUBLISH') : JText::_('COM_RSCOMMENTS_PUBLISH');
-			$replace[] = '{publishcomment}'; 
-			$replace[] = '{PublishComment}'; 
-			$with[] = '<span id="rsc_publish'.$comment->IdComment.'"><a class="'.RSTooltip::tooltipClass().'" href="javascript:void(0);" onclick="'.$function.'" title="'.RSTooltip::tooltipText($message).'"><i class="'.$publish.'"></i></a></span>'; 
-			$with[] = '<span id="rsc_publish'.$comment->IdComment.'"><a class="'.RSTooltip::tooltipClass().'" href="javascript:void(0);" onclick="'.$function.'" title="'.RSTooltip::tooltipText($message).'"><i class="'.$publish.'"></i></a></span>'; 
-		} else { $replace[] = '{publishcomment}'; $with[] = '';$replace[] = '{PublishComment}'; $with[] = ''; }
-		
-		//set the vote buttons
-		$enablevoting 	= ($config->enable_votes == 1) ? true : false; 
-		
-		if($enablevoting) {
-			$positive = '<a class="'.RSTooltip::tooltipClass().'" href="javascript:void(0);" onclick="rsc_pos(\''.$comment->IdComment.'\');" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_GOOD_COMMENT')).'"><i class="fa fa-thumbs-up"></i></a> ';
-			$negative = '<a class="'.RSTooltip::tooltipClass().'" href="javascript:void(0);" onclick="rsc_neg(\''.$comment->IdComment.'\');" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_BAD_COMMENT')).'"><i class="fa fa-thumbs-down"></i></a>';
-			
-			if(isset($permissions['vote_comments']) && $permissions['vote_comments']) {
-				$replace[] = '{vote}';
-				$replace[] = '{Vote}';
-				$voted = RSCommentsHelper::voted($comment->IdComment);
-				
-				if(empty($voted)){
-					$with[] = '<span id="rsc_voting'.$comment->IdComment.'">'.$positive.$negative.'</span>';
-					$with[] = '<span id="rsc_voting'.$comment->IdComment.'">'.$positive.$negative.'</span>';
-				} else {
-					$with[] = ($pos - $neg) > 0 ? '<i class="fa fa-thumbs-up"></i> <span class="rsc_green">'.($pos - $neg).'</span>' : '<i class="fa fa-thumbs-down"></i> <span class="rsc_red">'.($pos - $neg).'</span>'; 
-					$with[] = ($pos - $neg) > 0 ? '<i class="fa fa-thumbs-up"></i> <span class="rsc_green">'.($pos - $neg).'</span>' : '<i class="fa fa-thumbs-down"></i> <span class="rsc_red">'.($pos - $neg).'</span>'; 
-				}
-			} else {
-				$replace[] = '{vote}'; 
-				$replace[] = '{Vote}'; 
-				$with[] = ($pos - $neg) > 0 ? '<i class="fa fa-thumbs-up"></i> <span class="rsc_green">'.($pos - $neg).'</span>' : '<i class="fa fa-thumbs-down"></i> <span class="rsc_red">'.($pos - $neg).'</span>'; 
-				$with[] = ($pos - $neg) > 0 ? '<i class="fa fa-thumbs-up"></i> <span class="rsc_green">'.($pos - $neg).'</span>' : '<i class="fa fa-thumbs-down"></i> <span class="rsc_red">'.($pos - $neg).'</span>'; 
-			}
-		} else {
-			$replace[] = '{vote}';
-			$replace[] = '{Vote}';
-			$with[] = ''; 
-			$with[] = ''; 
-		}
-		
-		$replace[] = '{attachement}';
-		$replace[] = '{Attachment}';
-		$replace[] = '{attachment}';
-
-		if (!empty($comment->file)) {
-			$with[] = '<a href="'.RSCommentsHelper::route('index.php?option=com_rscomments&task=download&id='.$comment->IdComment,false).'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ATTACHMENT')).'" class="'.RSTooltip::tooltipClass().'"><i class="fa fa-file"></i> '.$comment->file.'</a>';
-			$with[] = '<a href="'.RSCommentsHelper::route('index.php?option=com_rscomments&task=download&id='.$comment->IdComment,false).'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ATTACHMENT')).'" class="'.RSTooltip::tooltipClass().'"><i class="fa fa-file"></i> '.$comment->file.'</a>';
-			$with[] = '<a href="'.RSCommentsHelper::route('index.php?option=com_rscomments&task=download&id='.$comment->IdComment,false).'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ATTACHMENT')).'" class="'.RSTooltip::tooltipClass().'"><i class="fa fa-file"></i> '.$comment->file.'</a>';
-		} else {
-			$with[] = ''; $with[] = ''; $with[] = ''; 
-		}
-		
-		if ($config->enable_reports) {
-			$report	 = '';
-			
-			$report .= '<a class="'.RSTooltip::tooltipClass().'" onclick="rscomments_show_report('.(int) $comment->IdComment.');" href="javascript:void(0)" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_REPORT_COMMENT')).'">';
-			$report .= '<i class="fa fa-flag"></i>';
-			$report .= '</a>';
-		
-			$replace[]  = '{report}';
-			$with[] = $report;
-		}
-		
-		$replace[] = '{location}';
-		
-		if ($config->enable_location && !empty($comment->location)) {
-			$locationlink = $comment->coordinates ? 'https://www.google.com/maps/place/'.$comment->coordinates : 'javascript: void(0)';
-			$with[] = '<a href="'.$locationlink.'" target="_blank" class="'.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText($comment->location).'"><i class="rscomm-meta-icon fa fa-map-marker"></i></a>';
-		} else {
-			$with[] = '';
-		}
-		
-		return str_replace($replace, $with, $layout);
+		return '';
 	}
 	
 	// Check if the current user has voted
@@ -1360,19 +1150,20 @@ abstract class RSCommentsHelper
 		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);
 		$user	= JFactory::getUser();
+		$ip		= md5(RSCommentsHelper::getIp(true, true));
 		
 		if ($user->get('guest')) {
 			$query->clear()
 				->select($db->qn('IdVote'))
 				->from($db->qn('#__rscomments_votes'))
 				->where($db->qn('IdComment').' = '.(int) $id)
-				->where($db->qn('ip').' = '.$db->q(RSCommentsHelper::getIp(true)));
+				->where($db->qn('ip').' = '.$db->q($ip));
 		} else {
 			$query->clear()
 				->select($db->qn('IdVote'))
 				->from($db->qn('#__rscomments_votes'))
 				->where($db->qn('IdComment').' = '.(int) $id)
-				->where('('.$db->qn('ip').' = '.$db->q(RSCommentsHelper::getIp(true)).' OR '.$db->qn('uid').' = '.(int) $user->get('id').')');
+				->where('('.$db->qn('ip').' = '.$db->q($ip).' OR '.$db->qn('uid').' = '.(int) $user->get('id').')');
 		}
 		
 		$db->setQuery($query);
@@ -1503,28 +1294,36 @@ abstract class RSCommentsHelper
 			
 			if ($config->enable_location) {
 				$doc->addScript('https://maps.google.com/maps/api/js'.(isset($config->map_key) ? '?key='.$config->map_key : ''));
-				JHtml::script('com_rscomments/jquery.map.js', array('relative' => true, 'version' => 'auto'));
+			}
+			
+			if ($config->modal == 2) {
+				JHtml::script('com_rscomments/jquery.magnific-popup.min.js', array('relative' => true, 'version' => 'auto'));
+				JHtml::stylesheet('com_rscomments/magnific-popup.css', array('relative' => true, 'version' => 'auto'));
 			}
 			
 			JHtml::script('com_rscomments/site.js', array('relative' => true, 'version' => 'auto'));
 			JHtml::stylesheet('com_rscomments/site.css', array('relative' => true, 'version' => 'auto'));
 			
-			if (isset($permissions['captcha']) && $permissions['captcha']) {
-				if ($config->captcha == 2) {
-					$doc->addScript('https://www.google.com/recaptcha/api.js?render=explicit&amp;hl='.JFactory::getLanguage()->getTag());
-					$doc->addScriptDeclaration("
-						RSCommentsReCAPTCHAv2.loaders.push(function(){
-							grecaptcha.render('rsc-g-recaptcha', {
-								'sitekey': '".htmlentities($config->recaptcha_new_site_key, ENT_QUOTES, 'UTF-8')."',
-								'theme': '".htmlentities($config->recaptcha_new_theme, ENT_QUOTES, 'UTF-8')."',
-								'type': '".htmlentities($config->recaptcha_new_type, ENT_QUOTES, 'UTF-8')."'
-							});
-						});
-					");
-				}
-			}
-			
 			$loaded = true;
+		}
+	}
+	
+	public static function loadRecaptcha($hash) {
+		$config = RSCommentsHelper::getConfig();
+		$permissions = RSCommentsHelper::getPermissions();
+		$doc = JFactory::getDocument();
+		
+		if ($config->captcha == 2) {
+			$doc->addScript('https://www.google.com/recaptcha/api.js?render=explicit&amp;hl='.JFactory::getLanguage()->getTag());
+			$doc->addScriptDeclaration("RSCommentsReCAPTCHAv2.loaders.push(function(){
+	var id = grecaptcha.render('rsc-g-recaptcha-".$hash."', {
+		'sitekey': '".htmlentities($config->recaptcha_new_site_key, ENT_QUOTES, 'UTF-8')."',
+		'theme': '".htmlentities($config->recaptcha_new_theme, ENT_QUOTES, 'UTF-8')."',
+		'type': '".htmlentities($config->recaptcha_new_type, ENT_QUOTES, 'UTF-8')."'
+	});
+	RSCommentsReCAPTCHAv2.ids['$hash'] = id;
+});
+");
 		}
 	}
 	

@@ -1,299 +1,308 @@
 [
-    {
-        "action": "add_reply",
-        "group": "post",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_ADD_REPLY_DESC",
-        "published": 1,
-        "default" : 1,
-        "public": 1,
-        "id": 1
-    },
-    {
-        "action": "add_question",
-        "group": "post",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_ADD_QUESTION_DESC",
-        "published": 1,
-        "default" : 1,
-        "public": 1,
-        "id": 2
-    },
-    {
-        "action": "add_attachment",
-        "group": "post",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_ADD_ATTACHMENT_DESC",
-        "published": 1,
-        "default" : 1,
-        "public": 1,
-        "id": 3
-    },
-    {
-        "action": "add_tag",
-        "group": "tags",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_ADD_TAG_DESC",
-        "published": 1,
-        "default" : 1,
-        "public": 1,
-        "id": 4
-    },
-    {
-        "action": "edit_reply",
-        "group": "moderation",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_EDIT_REPLY_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 5
-    },
-    {
-        "action": "delete_reply",
-        "group": "moderation",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_DELETE_REPLY_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 6
-    },
-    {
-        "action": "mark_answered",
-        "group": "post",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_MARK_ANSWERED_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 7
-    },
-    {
-        "action": "lock_discussion",
-        "group": "moderation",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_LOCK_DISCUSSION_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 8
-    },
-    {
-        "action": "edit_question",
-        "group": "moderation",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_EDIT_QUESTION_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 9
-    },
-    {
-        "action": "delete_question",
-        "group": "moderation",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_DELETE_QUESTION_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 10
-    },
-    {
-        "action": "delete_attachment",
-        "group": "moderation",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_DELETE_ATTACHMENT_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 11
-    },
-    {
-        "action": "add_comment",
-        "group": "comments",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_ADD_COMMENT_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 1,
-        "id": 12
-    },
-    {
-        "action": "delete_comment",
-        "group": "moderation",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_DELETE_COMMENT_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 13
-    },
-    {
-        "action": "feature_post",
-        "group": "moderation",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_FEATURE_POST_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 14
-    },
-    {
-        "action": "send_report",
-        "group": "post",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_SEND_REPORT_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 1,
-        "id": 15
-    },
-    {
-        "action": "mark_on_hold",
-        "group": "status",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_MARK_ON_HOLD_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 16
-    },
-    {
-        "action": "mark_accepted",
-        "group": "status",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_MARK_ACCEPTED_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 17
-    },
-    {
-        "action": "mark_working_on",
-        "group": "status",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_MARK_WORKING_ON_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 18
-    },
-    {
-        "action": "mark_rejected",
-        "group": "status",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_MARK_REJECTED_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 19
-    },
-    {
-        "action": "mark_no_status",
-        "group": "status",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_MARK_NO_STATUS_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 20
-    },
-    {
-        "action": "edit_branch",
-        "group": "moderation",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_EDIT_BRANCH_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 21
-    },
-    {
-        "action": "show_signature",
-        "group": "profile",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_SHOW_SIGNATURE_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 1,
-        "id": 22
-    },
-    {
-        "action": "delete_own_question",
-        "group": "post",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_DELETE_OWN_QUESTION_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 23
-    },
-    {
-        "action": "delete_own_replies",
-        "group": "post",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_DELETE_OWN_REPLIES_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 24
-    },
-    {
-        "action": "edit_own_reply",
-        "group": "post",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_EDIT_OWN_REPLIES_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 25
-    },
-    {
-        "action": "edit_own_question",
-        "group": "post",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_EDIT_OWN_QUESTION_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 26
-    },
-    {
-        "action": "ban_user",
-        "group": "moderation",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_BAN_USER_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 27
-    },
-    {
-        "action": "vote_discussion",
-        "group": "post",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_VOTE_DISCUSSION_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 28
-    },
-    {
-        "action": "delete_own_comment",
-        "group": "comments",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_EDIT_OWN_COMMENT_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 29
-    },
-    {
-        "action": "allow_privatemessage",
-        "group": "profile",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_ALLOW_PRIVATEMESSAGE_DESC",
-        "published": 1,
-        "default" : 1,
-        "public": 0,
-        "id": 30
-    },
-    {
-        "action": "manage_holiday",
-        "group": "moderation",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_MANAGE_HOLIDAY_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 31
-    },
-    {
-        "action": "board_statistics",
-        "group": "profile",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_EXCLUDE_FRONTEND_STATISTICS_DESC",
-        "published": 1,
-        "default" : 1,
-        "public": 1,
-        "id": 32
-    },
-    {
-        "action": "manage_pending",
-        "group": "moderation",
-        "desc": "COM_EASYDISCUSS_ACL_OPTION_MANAGE_PENDING_DESC",
-        "published": 1,
-        "default" : 0,
-        "public": 0,
-        "id": 33
-    }
+	{
+		"action": "add_reply",
+		"group": "post",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_ADD_REPLY_DESC",
+		"published": 1,
+		"default" : 1,
+		"public": 1,
+		"id": 1
+	},
+	{
+		"action": "add_question",
+		"group": "post",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_ADD_QUESTION_DESC",
+		"published": 1,
+		"default" : 1,
+		"public": 1,
+		"id": 2
+	},
+	{
+		"action": "add_attachment",
+		"group": "post",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_ADD_ATTACHMENT_DESC",
+		"published": 1,
+		"default" : 1,
+		"public": 1,
+		"id": 3
+	},
+	{
+		"action": "add_tag",
+		"group": "tags",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_ADD_TAG_DESC",
+		"published": 1,
+		"default" : 1,
+		"public": 1,
+		"id": 4
+	},
+	{
+		"action": "edit_reply",
+		"group": "moderation",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_EDIT_REPLY_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 5
+	},
+	{
+		"action": "delete_reply",
+		"group": "moderation",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_DELETE_REPLY_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 6
+	},
+	{
+		"action": "mark_answered",
+		"group": "post",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_MARK_ANSWERED_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 7
+	},
+	{
+		"action": "lock_discussion",
+		"group": "moderation",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_LOCK_DISCUSSION_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 8
+	},
+	{
+		"action": "edit_question",
+		"group": "moderation",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_EDIT_QUESTION_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 9
+	},
+	{
+		"action": "delete_question",
+		"group": "moderation",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_DELETE_QUESTION_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 10
+	},
+	{
+		"action": "delete_attachment",
+		"group": "moderation",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_DELETE_ATTACHMENT_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 11
+	},
+	{
+		"action": "add_comment",
+		"group": "comments",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_ADD_COMMENT_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 1,
+		"id": 12
+	},
+	{
+		"action": "delete_comment",
+		"group": "moderation",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_DELETE_COMMENT_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 13
+	},
+	{
+		"action": "feature_post",
+		"group": "moderation",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_FEATURE_POST_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 14
+	},
+	{
+		"action": "send_report",
+		"group": "post",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_SEND_REPORT_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 1,
+		"id": 15
+	},
+	{
+		"action": "mark_on_hold",
+		"group": "status",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_MARK_ON_HOLD_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 16
+	},
+	{
+		"action": "mark_accepted",
+		"group": "status",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_MARK_ACCEPTED_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 17
+	},
+	{
+		"action": "mark_working_on",
+		"group": "status",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_MARK_WORKING_ON_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 18
+	},
+	{
+		"action": "mark_rejected",
+		"group": "status",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_MARK_REJECTED_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 19
+	},
+	{
+		"action": "mark_no_status",
+		"group": "status",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_MARK_NO_STATUS_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 20
+	},
+	{
+		"action": "edit_branch",
+		"group": "moderation",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_EDIT_BRANCH_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 21
+	},
+	{
+		"action": "show_signature",
+		"group": "profile",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_SHOW_SIGNATURE_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 1,
+		"id": 22
+	},
+	{
+		"action": "delete_own_question",
+		"group": "post",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_DELETE_OWN_QUESTION_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 23
+	},
+	{
+		"action": "delete_own_replies",
+		"group": "post",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_DELETE_OWN_REPLIES_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 24
+	},
+	{
+		"action": "edit_own_reply",
+		"group": "post",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_EDIT_OWN_REPLIES_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 25
+	},
+	{
+		"action": "edit_own_question",
+		"group": "post",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_EDIT_OWN_QUESTION_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 26
+	},
+	{
+		"action": "ban_user",
+		"group": "moderation",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_BAN_USER_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 27
+	},
+	{
+		"action": "vote_discussion",
+		"group": "post",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_VOTE_DISCUSSION_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 28
+	},
+	{
+		"action": "delete_own_comment",
+		"group": "comments",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_EDIT_OWN_COMMENT_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 29
+	},
+	{
+		"action": "allow_privatemessage",
+		"group": "profile",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_ALLOW_PRIVATEMESSAGE_DESC",
+		"published": 1,
+		"default" : 1,
+		"public": 0,
+		"id": 30
+	},
+	{
+		"action": "manage_holiday",
+		"group": "moderation",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_MANAGE_HOLIDAY_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 31
+	},
+	{
+		"action": "board_statistics",
+		"group": "profile",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_EXCLUDE_FRONTEND_STATISTICS_DESC",
+		"published": 1,
+		"default" : 1,
+		"public": 1,
+		"id": 32
+	},
+	{
+		"action": "manage_pending",
+		"group": "moderation",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_MANAGE_PENDING_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 33
+	},
+	{
+		"action": "create_tag",
+		"group": "tags",
+		"desc": "COM_ED_ACL_OPTION_CREATE_TAG",
+		"published": 1,
+		"default" : 1,
+		"public": 0,
+		"id": 34
+	}
 ]

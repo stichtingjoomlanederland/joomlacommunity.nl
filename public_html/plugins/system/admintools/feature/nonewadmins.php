@@ -1,9 +1,11 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
+
+use Joomla\CMS\User\User;
 
 defined('_JEXEC') or die;
 
@@ -35,7 +37,6 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 		$input  = $this->input;
 		$option = $input->getCmd('option', '');
 		$task   = $input->getCmd('task', '');
-		$gid    = $input->getInt('gid', 0);
 
 		if ($option != 'com_users' && $option != 'com_admin')
 		{
@@ -44,9 +45,17 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 
 		$jform = $this->input->get('jform', array(), 'array');
 
-		$allowedTasks = array('save', 'apply', 'user.apply', 'user.save', 'user.save2new', 'profile.apply', 'profile.save');
+		$filteredTasks = array(
+			'save',
+			'apply',
+			'user.apply',
+			'user.save',
+			'user.save2new',
+			'profile.apply',
+			'profile.save',
+		);
 
-		if (!in_array($task, $allowedTasks))
+		if (!in_array($task, $filteredTasks))
 		{
 			return;
 		}
@@ -59,53 +68,62 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 
 		$groups = array();
 
-		if(isset($jform['groups']))
+		if (isset($jform['groups']))
 		{
 			$groups = $jform['groups'];
 		}
 
-		$user = $this->container->platform->getUser((int)$jform['id']);
+		$user = $this->container->platform->getUser((int) $jform['id']);
 
 		// Sometimes $user->groups is null... let's be 100% sure that we loaded all the groups of the user
-		if(empty($user->groups))
+		if (empty($user->groups))
 		{
 			$user->groups = JUserHelper::getUserGroups($user->id);
 		}
 
-		if (!empty($user->groups))
+		$makingNewAdmin = $this->hasAdminGroup($groups);
+		$isAdmin        = $this->hasAdminGroup($user->groups);
+		$isFrontend     = $this->container->platform->isFrontend();
+
+		if (!$isAdmin && !$makingNewAdmin)
 		{
-			foreach ($user->groups as $title => $gid)
-			{
-				if (!in_array($gid, $groups))
-				{
-					$groups[] = $gid;
-				}
-			}
+			return;
 		}
 
-		$isAdmin = $this->hasAdminGroup($groups);
+		/**
+		 * In the frontend we only stop requests which are trying to make a new admin. This lets execution fall through
+		 * to onUserBeforeSave where we can check for Joomla! 3.9+ user consent changes.
+		 */
+		$newUser = array_merge($jform);
 
-		if ($isAdmin)
+		if (array_key_exists('params', $newUser))
 		{
-			// Get the correct reason (was the user being created in front- or back-end)?
-			$reason = $this->container->platform->isBackend() ? 'nonewadmins' : 'nonewfrontendadmins';
+			$newUser['params'] = json_encode($newUser['params']);
+		}
 
-			// Log and autoban security exception
-			$extraInfo = "Submitted JForm Variables :\n";
-			$extraInfo .= print_r($jform, true);
-			$extraInfo .= "\n";
+		if ($isFrontend && !$makingNewAdmin && $this->allowEdit($user))
+		{
+			return;
+		}
 
-			// Display the error only if the user should be really blocked (ie we're not in the Whitelist)
-			if ($this->exceptionsHandler->logAndAutoban($reason, $extraInfo))
-			{
-				// Throw an exception to prevent Joomla! processing this form
-				$jlang = JFactory::getLanguage();
-				$jlang->load('joomla', JPATH_ROOT, 'en-GB', true);
-				$jlang->load('joomla', JPATH_ROOT, $jlang->getDefault(), true);
-				$jlang->load('joomla', JPATH_ROOT, null, true);
+		// Get the correct reason (was the user being created in front- or back-end)?
+		$reason = $this->container->platform->isBackend() ? 'nonewadmins' : 'nonewfrontendadmins';
 
-				throw new Exception(JText::_('JGLOBAL_AUTH_ACCESS_DENIED'), '403');
-			}
+		// Log and autoban security exception
+		$extraInfo = "Submitted JForm Variables :\n";
+		$extraInfo .= print_r($jform, true);
+		$extraInfo .= "\n";
+
+		// Display the error only if the user should be really blocked (ie we're not in the Whitelist)
+		if ($this->exceptionsHandler->logAndAutoban($reason, $extraInfo))
+		{
+			// Throw an exception to prevent Joomla! processing this form
+			$jlang = JFactory::getLanguage();
+			$jlang->load('joomla', JPATH_ROOT, 'en-GB', true);
+			$jlang->load('joomla', JPATH_ROOT, $jlang->getDefault(), true);
+			$jlang->load('joomla', JPATH_ROOT, null, true);
+
+			throw new Exception(JText::_('JGLOBAL_AUTH_ACCESS_DENIED'), '403');
 		}
 	}
 
@@ -121,122 +139,57 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 	 */
 	public function onUserBeforeSave($oldUser, $isNew, $data)
 	{
+		// Only applies to admin users.
 		$isAdmin = $this->hasAdminGroup($data['groups']);
 
-		if ($isAdmin)
+		if (!$isAdmin)
 		{
-			if ($oldUser instanceof JUser)
-			{
-				$oldUser = $oldUser->getProperties();
-			}
+			return;
+		}
 
-			// If edited fields are in the whitelist, we should allow the edit
-			if ($this->allowEdit($oldUser, $data))
-			{
-				return;
-			}
+		$user = JFactory::getUser($data['id']);
 
-			// Get the correct reason (was the user being created in front- or back-end)?
-			$reason = $this->container->platform->isBackend() ? 'nonewadmins' : 'nonewfrontendadmins';
+		// We are allowed to edit the profile of a user without active consent
+		if (!$isNew && $this->allowEdit($user))
+		{
+			return;
+		}
 
-			// Log and autoban security exception
-			$extraInfo = "User Data Variables :\n";
-			$extraInfo .= print_r($data, true);
-			$extraInfo .= "\n";
+		// Get the correct reason (was the user being created in front- or back-end)?
+		$reason = $this->container->platform->isBackend() ? 'nonewadmins' : 'nonewfrontendadmins';
 
-			// Display the error only if the user should be really blocked (ie we're not in the Whitelist)
-			if ($this->exceptionsHandler->logAndAutoban($reason, $extraInfo))
-			{
-				// Throw an exception to prevent Joomla! processing this form
-				$jlang = JFactory::getLanguage();
-				$jlang->load('joomla', JPATH_ROOT, 'en-GB', true);
-				$jlang->load('joomla', JPATH_ROOT, $jlang->getDefault(), true);
-				$jlang->load('joomla', JPATH_ROOT, null, true);
+		// Log and autoban security exception
+		$extraInfo = "User Data Variables :\n";
+		$extraInfo .= print_r($data, true);
+		$extraInfo .= "\n";
 
-				throw new Exception(JText::_('JGLOBAL_AUTH_ACCESS_DENIED'), '403');
-			}
+		// Display the error only if the user should be really blocked (ie we're not in the Whitelist)
+		if ($this->exceptionsHandler->logAndAutoban($reason, $extraInfo))
+		{
+			// Throw an exception to prevent Joomla! processing this form
+			$jlang = JFactory::getLanguage();
+			$jlang->load('joomla', JPATH_ROOT, 'en-GB', true);
+			$jlang->load('joomla', JPATH_ROOT, $jlang->getDefault(), true);
+			$jlang->load('joomla', JPATH_ROOT, null, true);
+
+			throw new Exception(JText::_('JGLOBAL_AUTH_ACCESS_DENIED'), '403');
 		}
 	}
 
 	/**
-	 * Changed fields are in the whitelist? If so I should allow the edit, even if we're dealing with a Super User
+	 * Is this a user who has not yet consented to the privacy policy?
 	 *
-	 * @param   array   $oldUser    Old user details
-	 * @param   array   $newUser    New user details
+	 * @param   JUser|User $user
 	 *
 	 * @return  bool    Am I allowed to edit this user?
 	 */
-	private function allowEdit($oldUser, $newUser)
+	private function allowEdit($user)
 	{
-		$fieldlist = array('id', 'name', 'username', 'email', 'password', 'block', 'sendEmail', 'registerDate',
-							'lastvisitDate', 'activation', 'params', 'lastResetTime', 'resetCount', 'otpKey', 'otep', 'requireReset');
-
-		$whitelist  = array('lastvisitDate', 'block', 'otpKey', 'otep', 'activation');
-
-		// If all edited fields are inside the whitelist, we should allow the edit
-		foreach ($newUser as $field => $new_value)
+		if (!$this->isJoomlaPrivacyEnabled())
 		{
-			// Some fields are created on the fly by Joomla, so we can ignore any changes to them
-			if (!in_array($field, $fieldlist))
-			{
-				continue;
-			}
-
-			// mhm... the new field is not inside the original user. This should never happen, but let's be safe
-			// than sorry and block the request
-			// DO NOT USE ISSET since some keys could be initialized to NULL
-			if (!array_key_exists($field, $oldUser))
-			{
-				return false;
-			}
-
-			$old_value = $oldUser[$field];
-
-			// New and old value are different, change detected!
-			if ($old_value != $new_value)
-			{
-				// Am I really allowed to change this field?
-				if (!in_array($field, $whitelist))
-				{
-					return false;
-				}
-			}
+			return false;
 		}
 
-		// If I'm here, it means that I can really edit this user (field in whitelist or no changes at all)
-		return true;
-	}
-
-	/**
-	 * Does any of the groups in the list have backend privileges
-	 *
-	 * @param   array  $groups
-	 *
-	 * @return  bool
-	 */
-	private function hasAdminGroup($groups)
-	{
-		$isAdmin = false;
-
-		if (!empty($groups))
-		{
-			foreach ($groups as $group)
-			{
-				// First try to see if the group has explicit backend login privileges
-				$backend = JAccess::checkGroup($group, 'core.login.admin', 1);
-
-				// If not, is it a Super Admin (ergo inherited privileges)?
-				if (is_null($backend))
-				{
-					$backend = JAccess::checkGroup($group, 'core.admin', 1);
-				}
-
-				$isAdmin |= $backend;
-			}
-
-			return $isAdmin;
-		}
-
-		return $isAdmin;
+		return !$this->hasUserConsented($user);
 	}
 }

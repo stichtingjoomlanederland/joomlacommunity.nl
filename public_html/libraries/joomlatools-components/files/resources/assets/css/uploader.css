@@ -1,9 +1,5 @@
 /* ========================================================================== Uploader ========================================================================== */
 /** A single and multi file uploader */
-/* ========================================================================== Tools ========================================================================== */
-/* These file do not produce any CSS code on their own */
-@-webkit-keyframes progress-bar-stripes { from { background-position: 40px 0; }
-  to { background-position: 0 0; } }
 
 @keyframes progress-bar-stripes { from { background-position: 40px 0; }
   to { background-position: 0 0; } }
@@ -16,7 +12,7 @@
 
 .progress-striped .bar { background-color: #149bdf; background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent); background-size: 40px 40px; }
 
-.progress.active .bar { -webkit-animation: progress-bar-stripes 2s linear infinite; animation: progress-bar-stripes 2s linear infinite; }
+.progress.active .bar { animation: progress-bar-stripes 2s linear infinite; }
 
 .progress-danger .bar, .progress .bar-danger { background-color: #dd514c; background-image: linear-gradient(to bottom, #ee5f5b, #c43c35); background-repeat: repeat-x; filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffee5f5b', endColorstr='#ffc43c35', GradientType=0); }
 
@@ -37,13 +33,11 @@
 /* Variables ========================================================================== */
 /* The parent container ========================================================================== */
 /** 1. Content-box so we don't get weird 1pixel jump error on IE (IE10 as well) 2. Hide overflowing content like messages and info */
-.k-upload { box-sizing: content-box; /* 1 */ overflow: hidden; /* 2 */ background: white; color: #555; border: 1px solid #ccc; border-radius: 3px; margin-bottom: 20px; min-height: 60px; transition: all 0.2s ease-in-out; max-width: 100%; /* Loading message on top */ /* Hide loading message on initializing */ /** Inline styling - modals 1. Reset border-radius to fit in parent view 2. High z-index to set upload on top of the rest */ /* Border box size everything inside */ }
+.k-upload { box-sizing: content-box; /* 1 */ overflow: hidden; /* 2 */ background: white; color: #555; border: 1px solid #ccc; border-radius: 3px; margin-bottom: 20px; min-height: 60px; transition: all 0.2s ease-in-out; max-width: 100%; -ms-flex: 0 0 auto; flex: 0 0 auto; /* Loading message on top */ /* Hide loading message on initializing */ /** Inline styling - modals 1. Reset border-radius to fit in parent view 2. High z-index to set upload on top of the rest */ /* Border box size everything inside */ }
 
 .k-upload:after { position: absolute; top: 0; right: 0; bottom: 0; left: 0; display: block; content: "Loading..."; background: white; z-index: 9; text-align: left; padding: 0 15px; line-height: 60px; transition: all 0.4s ease-in-out; }
 
 [dir="rtl"] .k-upload:after { text-align: right; }
-
-@media (min-width: 300px) and (min-height: 391px) { .k-flexbox .k-upload, .k-flexboxlegacy .k-upload { -webkit-box-flex: 0; -ms-flex: 0 0 auto; flex: 0 0 auto; } }
 
 .k-upload.is-initialized:after { z-index: -2; opacity: 0; }
 
@@ -63,9 +57,7 @@
 .k-upload--custom .k-upload__info__content { max-height: none; /* 4 */ }
 
 /** Flexing uploader Uploader that grows and shrinks with it's parent warning: you do need to have set up flexbox parents properly */
-.k-upload--flex { margin: 0; min-height: 244px; }
-
-@media (min-width: 300px) and (min-height: 391px) { .k-flexbox .k-upload--flex, .k-flexboxlegacy .k-upload--flex { -webkit-box-flex: 1; -ms-flex: 1 1 auto; flex: 1 1 auto; } }
+.k-upload--flex { margin: 0; min-height: 244px; -ms-flex: 1 1 auto; flex: 1 1 auto; }
 
 /* Uploader animations ========================================================================== */
 /** 1. Position relative for `top` to work properly 2. By default hide overflowing content 3. Smooth transitions */

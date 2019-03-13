@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -49,14 +49,13 @@ class AtsystemFeatureCriticalfiles extends AtsystemFeatureAbstract
 
 			$filesToSave[$relPath] = $curInfo;
 
-			// If the file was not present before continue with the next file
-			if (!array_key_exists($relPath, $loadedFiles))
-			{
-				continue;
-			}
-
 			// Did the file change?
-			$oldInfo = $loadedFiles[$relPath];
+			$oldInfo = null;
+
+			if (isset($loadedFiles[$relPath]))
+			{
+				$oldInfo = $loadedFiles[$relPath];
+			}
 
 			if ($oldInfo !== $curInfo)
 			{
@@ -71,7 +70,9 @@ class AtsystemFeatureCriticalfiles extends AtsystemFeatureAbstract
 			 $this->save($filesToSave);
 		}
 
-		if (!empty($alteredFiles))
+		// Send out the email only if we have some altered files AND we have some previous data (otherwise we will scary
+		// the user as soon as they enable the feature)
+		if (!empty($alteredFiles) && $loadedFiles)
 		{
 			$this->sendEmail($alteredFiles);
 		}

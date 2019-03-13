@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright    Copyright (c) 2009-2017 Ryan Demmer. All rights reserved
+ * @copyright    Copyright (c) 2009-2019 Ryan Demmer. All rights reserved
  * @copyright   Copyright (C) 2005 - 2012 Open Source Matters, Inc. All rights reserved
  * @license    GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * JCE is free software. This version may have been modified pursuant
@@ -12,7 +12,7 @@
  */
 defined('_JEXEC') or die;
 
-require_once dirname(__FILE__) . '/imagick/filter.php';
+require_once dirname(__FILE__).'/imagick/filter.php';
 
 /**
  * Class to manipulate an image.
@@ -21,13 +21,11 @@ class WFImageImagick
 {
     /**
      * @var resource The image resource handle
-     *
      */
     protected $handle;
 
     /**
      * @var string The source image path
-     *
      */
     protected $path = null;
 
@@ -116,7 +114,6 @@ class WFImageImagick
      * Method to return the path.
      *
      * @return string
-     *
      */
     public function getPath()
     {
@@ -190,7 +187,7 @@ class WFImageImagick
             $watermark = new ImagickDraw();
             $watermark->setFontSize((int) $options->font_size);
 
-            $options->font_color = '#' . preg_replace('#[^a-z0-9]+#i', '', $options->font_color);
+            $options->font_color = '#'.preg_replace('#[^a-z0-9]+#i', '', $options->font_color);
 
             if ($options->opacity > 1) {
                 $options->opacity = $options->opacity / 100;
@@ -620,13 +617,13 @@ class WFImageImagick
         $type = strtolower(preg_replace('#[^A-Z0-9_]#i', '', $type));
 
         // load the filter
-        require_once dirname(__FILE__) . '/imagick/filters/' . $type . '.php';
+        require_once dirname(__FILE__).'/imagick/filters/'.$type.'.php';
 
         // Verify that the filter type exists.
-        $className = 'WFImageImagickFilter' . ucfirst($type);
+        $className = 'WFImageImagickFilter'.ucfirst($type);
 
         if (!class_exists($className)) {
-            throw new RuntimeException('The ' . ucfirst($type) . ' image filter is not available.');
+            throw new RuntimeException('The '.ucfirst($type).' image filter is not available.');
         }
 
         // Instantiate the filter object.
@@ -634,7 +631,7 @@ class WFImageImagick
 
         // Verify that the filter type is valid.
         if (!($instance instanceof WFImageImagickFilter)) {
-            throw new RuntimeException('The ' . ucfirst($type) . ' image filter is not valid.');
+            throw new RuntimeException('The '.ucfirst($type).' image filter is not valid.');
         }
 
         return $instance;

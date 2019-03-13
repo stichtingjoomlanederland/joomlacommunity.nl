@@ -2,8 +2,6 @@ if (typeof RSFormPro != 'object') {
 	var RSFormPro = {};
 }
 
-RSFormPro.initCodeMirror = false;
-
 RSFormPro.$ = jQuery;
 
 function initRSFormPro() {
@@ -31,8 +29,6 @@ function initRSFormPro() {
 			}
 		});
 	});
-
-	jQuery("#rsform_tab2").hide();
 
 	jQuery("#properties").click(function () {
 		jQuery("#rsform_tab2").show();
@@ -324,19 +320,18 @@ function changeDirectoryAutoGenerateLayout(formId, value) {
 			if (value == 1) {
 				document.getElementById('rsform_layout_msg').style.display = 'none';
 				document.getElementById('ViewLayout').readOnly = true;
-				if (typeof(window.codemirror_html) != 'undefined') {
-					if (typeof(window.codemirror_html.ViewLayout) != 'undefined') {
-						window.codemirror_html.ViewLayout.setOption('readOnly', true);
-					}
+				
+				if (typeof Joomla.editors.instances['ViewLayout'] != 'undefined')
+				{
+					Joomla.editors.instances['ViewLayout'].setOption('readOnly', true);
 				}
 			}
 			else {
 				document.getElementById('rsform_layout_msg').style.display = '';
 				document.getElementById('ViewLayout').readOnly = false;
-				if (typeof(window.codemirror_html) != 'undefined') {
-					if (typeof(window.codemirror_html.ViewLayout) != 'undefined') {
-						window.codemirror_html.ViewLayout.setOption('readOnly', false);
-					}
+				if (typeof Joomla.editors.instances['ViewLayout'] != 'undefined')
+				{
+					Joomla.editors.instances['ViewLayout'].setOption('readOnly', false);
 				}
 			}
 
@@ -390,7 +385,7 @@ function changeFormAutoGenerateLayout(formId, value) {
 	};
 
 	RSFormPro.$.post(url, data, function (response, status, jqXHR) {
-		var hasCodeMirror = typeof window.codemirror_html != 'undefined' && typeof window.codemirror_html.formLayout != 'undefined';
+		var hasCodeMirror = typeof Joomla.editors.instances['formLayout'] != 'undefined';
 
 		value = Boolean(parseInt(value));
 
@@ -398,7 +393,7 @@ function changeFormAutoGenerateLayout(formId, value) {
 		jQuery('#formLayout').prop('readonly', value);
 
 		if (hasCodeMirror) {
-			window.codemirror_html.formLayout.setOption('readOnly', value);
+			Joomla.editors.instances['formLayout'].setOption('readOnly', value);
 		}
 
 		stateDone();
@@ -422,12 +417,12 @@ function generateLayout(formId, alert) {
 	};
 
 	RSFormPro.$.post(url, data, function (response, status, jqXHR) {
-		var hasCodeMirror = typeof window.codemirror_html != 'undefined' && typeof window.codemirror_html.formLayout != 'undefined';
+		var hasCodeMirror = typeof Joomla.editors.instances['formLayout'] != 'undefined';
 
 		jQuery('#formLayout').val(response);
-
-		if (hasCodeMirror) {
-			window.codemirror_html.formLayout.setValue(response);
+		if (hasCodeMirror)
+		{
+			Joomla.editors.instances['formLayout'].setValue(response);
 		}
 
 		stateDone();
@@ -449,10 +444,9 @@ function generateDirectoryLayout(formId, alert) {
 	xml.onreadystatechange = function () {
 		if (xml.readyState == 4) {
 			document.getElementById('ViewLayout').value = xml.responseText;
-			if (typeof(window.codemirror_html) != 'undefined') {
-				if (typeof(window.codemirror_html.ViewLayout) != 'undefined') {
-					window.codemirror_html.ViewLayout.setValue(xml.responseText);
-				}
+			if (typeof Joomla.editors.instances['ViewLayout'] != 'undefined')
+			{
+				Joomla.editors.instances['ViewLayout'].setValue(xml.responseText);
 			}
 			stateDone();
 		}
@@ -1078,75 +1072,6 @@ function updateemails(fid, type) {
 	xmlHttp.send(params);
 }
 
-function initCodeMirror() {
-	if (!RSFormPro.initCodeMirror || typeof(CodeMirror) == 'undefined')
-		return false;
-
-	var codemirrors = [];
-	codemirrors['js'] = jQuery('.codemirror-js');
-	codemirrors['css'] = jQuery('.codemirror-css');
-	codemirrors['php'] = jQuery('.codemirror-php');
-	codemirrors['html'] = jQuery('.codemirror-html');
-
-	// js
-	for (var i = 0; i < codemirrors['js'].length; i++) {
-		CodeMirror.fromTextArea(codemirrors['js'][i], {
-			lineNumbers   : true,
-			matchBrackets : true,
-			mode          : "text/html",
-			indentUnit    : 4,
-			indentWithTabs: true,
-			enterMode     : "keep",
-			tabMode       : "shift"
-		});
-	}
-
-	// css
-	for (var i = 0; i < codemirrors['css'].length; i++) {
-		var editor = CodeMirror.fromTextArea(codemirrors['css'][i], {
-			lineNumbers   : true,
-			matchBrackets : true,
-			mode          : "text/html",
-			indentUnit    : 4,
-			indentWithTabs: true,
-			enterMode     : "keep",
-			tabMode       : "shift"
-		});
-	}
-
-	// php
-	for (var i = 0; i < codemirrors['php'].length; i++) {
-		CodeMirror.fromTextArea(codemirrors['php'][i], {
-			lineNumbers   : true,
-			matchBrackets : true,
-			mode          : "application/x-httpd-php-open",
-			indentUnit    : 4,
-			indentWithTabs: true,
-			enterMode     : "keep",
-			tabMode       : "shift"
-		});
-	}
-
-	// html
-	if (codemirrors['html'].length > 0) {
-		window.codemirror_html = {};
-	}
-	for (var i = 0; i < codemirrors['html'].length; i++) {
-		var codeMirrorType = jQuery(codemirrors['html'][i]).attr('id');
-		window.codemirror_html[codeMirrorType] = CodeMirror.fromTextArea(codemirrors['html'][i], {
-			lineNumbers   : true,
-			matchBrackets : true,
-			mode          : "text/html",
-			indentUnit    : 4,
-			indentWithTabs: true,
-			enterMode     : "keep",
-			tabMode       : "shift",
-			matchTags     : {bothTags: true},
-			readOnly      : jQuery(codemirrors['html'][i]).attr('readonly')
-		});
-	}
-}
-
 function conditionDelete(formid, cid) {
 	stateLoading();
 
@@ -1398,5 +1323,4 @@ RSFormPro.Post.deleteField = function () {
 	jQuery(this).parents('tr').remove();
 };
 
-jQuery(document).ready(initCodeMirror);
 jQuery(document).ready(initRSFormPro);

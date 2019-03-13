@@ -27,6 +27,7 @@ class EasyDiscussViewTags extends EasyDiscussView
 
 		// Determines if we should display a single tag result.
 		$id = $this->input->get('id', 0, 'int');
+		$sort = $this->input->get('sort', 'title', 'string');
 
 		if ($id) {
 			return $this->tag($tmpl);
@@ -36,12 +37,12 @@ class EasyDiscussViewTags extends EasyDiscussView
 		$limit = DISCUSS_TAGS_LIMIT;
 
 		$model = ED::model("Tags");
-		$tags = $model->getTagCloud($limit, '', 'asc', '', true);
+		$tags = $model->getTagCloud($limit, $sort, 'asc', '', true);
 		$pagination = $model->getPagination();
 
 		$this->set('tags', $tags);
 		$this->set('pagination', $pagination);
-
+		$this->set('activeSort', $sort);
 
 		parent::display('tags/default');
 	}

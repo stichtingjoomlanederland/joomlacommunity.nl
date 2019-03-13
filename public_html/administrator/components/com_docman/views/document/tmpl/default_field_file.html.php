@@ -37,12 +37,14 @@ defined('KOOWA') or die; ?>
 <? /* Load uploader scripts out of Vue.js container */ ?>
 <?= helper('com:files.uploader.scripts'); ?>
 
+
 <div class="k-upload__buttons k-upload__buttons--right js-more-button" style="display: none" <?= JFactory::getApplication()->isAdmin() || $document->canPerform('manage') ? 'data-enabled="1"' : '' ?>>
     <a href="<?= route('option=com_docman&view=files&layout=select&folder=&file=&callback=Docman.onSelectFile'); ?>"
        class="mfp-iframe k-upload__text-button"
        data-k-modal="<?= htmlentities(json_encode(array('mainClass' => 'koowa_dialog_modal'))) ?>"
     ><?= translate('Select existing file') ?></a>
 </div>
+
 
 <div class="k-form-group k-js-document-file">
     <label><?= translate('File settings'); ?></label>

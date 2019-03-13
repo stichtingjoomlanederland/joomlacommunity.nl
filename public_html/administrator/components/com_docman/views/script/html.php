@@ -11,7 +11,8 @@ class ComDocmanViewScriptHtml extends ComKoowaViewHtml
     protected function _initialize(KObjectConfig $config)
     {
         $config->append(array(
-            'auto_fetch' => false
+            'auto_fetch' => false,
+            'decorator'  => 'koowa'
         ));
 
         parent::_initialize($config);

@@ -44,6 +44,9 @@ class EasyDiscussModelPostsTags extends EasyDiscussAdminModel
 				$query .= ' WHERE b.`post_id` IN (' . implode(',', $ids) . ')';
 			}
 
+			$query .= ' AND a.`published`=' . $db->Quote( 1 );
+
+
 			$db->setQuery( $query );
 			$result = $db->loadObjectList();
 

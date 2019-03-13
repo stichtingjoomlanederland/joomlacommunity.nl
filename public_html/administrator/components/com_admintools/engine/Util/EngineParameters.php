@@ -1,12 +1,11 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
- *
  */
 
 namespace Akeeba\Engine\Util;
@@ -24,7 +23,7 @@ use Akeeba\Engine\Platform;
 class EngineParameters
 {
 	/**
-	 * Holds the known paths holding INI definitions of engines, installers and configuration gui elements
+	 * Holds the known paths holding JSON definitions of engines, installers and configuration gui elements
 	 *
 	 * @var  array
 	 */
@@ -41,48 +40,49 @@ class EngineParameters
 	/** @var array Cache of the installers known to this object */
 	protected $installer_list = array();
 
-	/** @var array Holds the parsed scripting.ini contents */
+	/** @var array Holds the parsed scripting.json contents */
 	public $scripting = null;
 
 	/** @var string The currently active scripting type */
 	protected $activeType = null;
 
 	/**
-	 * Loads the scripting.ini and returns an array with the domains, the scripts and
+	 * Loads the scripting.json and returns an array with the domains, the scripts and
 	 * the raw data
 	 *
-	 * @return  array  The parsed scripting.ini. Array keys: domains, scripts, data
+	 * @return  array  The parsed scripting.json. Array keys: domains, scripts, data
 	 */
 	public function loadScripting()
 	{
 		if (empty($this->scripting))
 		{
-			$ini_file_name = Factory::getAkeebaRoot() . '/Core/scripting.ini';
+			$jsonPath = Factory::getAkeebaRoot() . '/Core/scripting.json';
 
-			if (@file_exists($ini_file_name))
+			if (@file_exists($jsonPath))
 			{
-				$raw_data = ParseIni::parse_ini_file($ini_file_name, false);
-				$domain_keys = explode('|', $raw_data['volatile.akeebaengine.domains']);
+				$rawData = file_get_contents($jsonPath);
+				$rawScriptingData = empty($rawData) ? [] : json_decode($rawData, true);
+				$domain_keys = explode('|', $rawScriptingData['volatile.akeebaengine.domains']);
 				$domains = array();
 
 				foreach ($domain_keys as $key)
 				{
 					$record = array(
-						'domain' => $raw_data['volatile.domain.' . $key . '.domain'],
-						'class'  => $raw_data['volatile.domain.' . $key . '.class'],
-						'text'   => $raw_data['volatile.domain.' . $key . '.text']
+						'domain' => $rawScriptingData['volatile.domain.' . $key . '.domain'],
+						'class'  => $rawScriptingData['volatile.domain.' . $key . '.class'],
+						'text'   => $rawScriptingData['volatile.domain.' . $key . '.text']
 					);
 					$domains[$key] = $record;
 				}
 
-				$script_keys = explode('|', $raw_data['volatile.akeebaengine.scripts']);
+				$script_keys = explode('|', $rawScriptingData['volatile.akeebaengine.scripts']);
 				$scripts = array();
 
 				foreach ($script_keys as $key)
 				{
 					$record = array(
-						'chain' => explode('|', $raw_data['volatile.scripting.' . $key . '.chain']),
-						'text'  => $raw_data['volatile.scripting.' . $key . '.text']
+						'chain' => explode('|', $rawScriptingData['volatile.scripting.' . $key . '.chain']),
+						'text'  => $rawScriptingData['volatile.scripting.' . $key . '.text']
 					);
 					$scripts[$key] = $record;
 				}
@@ -90,7 +90,7 @@ class EngineParameters
 				$this->scripting = array(
 					'domains' => $domains,
 					'scripts' => $scripts,
-					'data'    => $raw_data
+					'data'    => $rawScriptingData
 				);
 			}
 			else
@@ -342,16 +342,14 @@ class EngineParameters
 					continue;
 				}
 
-				// PHP 5.3.5 and earlier do not support getExtension
-				// if ($file->getExtension() !== 'ini')
-				if (substr($file->getBasename(), -4) != '.ini')
+				if ($file->getExtension() !== 'json')
 				{
 					continue;
 				}
 
-				$bare_name = ucfirst($file->getBasename('.ini'));
+				$bare_name = ucfirst($file->getBasename('.json'));
 
-				// Some hosts copy .ini and .php files, renaming them (ie foobar.1.php)
+				// Some hosts copy .json and .php files, renaming them (ie foobar.1.php)
 				// We need to exclude them, otherwise we'll get a fatal error for declaring the same class twice
 				if (preg_match('/[^A-Za-z0-9]/', $bare_name))
 				{
@@ -361,7 +359,7 @@ class EngineParameters
 				$information = array();
 				$parameters = array();
 
-				$this->parseEngineINI($file->getRealPath(), $information, $parameters);
+				$this->parseEngineJSON($file->getRealPath(), $information, $parameters);
 
 				$this->engine_list[$engine_type][lcfirst($bare_name)] = array
 				(
@@ -375,7 +373,7 @@ class EngineParameters
 	}
 
 	/**
-	 * Parses the GUI INI files and returns an array of groups and their data
+	 * Parses the GUI JSON files and returns an array of groups and their data
 	 *
 	 * @return  array
 	 */
@@ -409,7 +407,7 @@ class EngineParameters
 				continue;
 			}
 
-			$allINIs = array();
+			$allJSONFiles = array();
 			$di = new \DirectoryIterator($path);
 
 			/** @var \DirectoryIterator $file */
@@ -421,32 +419,31 @@ class EngineParameters
 				}
 
 				// PHP 5.3.5 and earlier do not support getExtension
-				// if ($file->getExtension() !== 'ini')
-				if (substr($file->getBasename(), -4) != '.ini')
+				if ($file->getExtension() !== 'json')
 				{
 					continue;
 				}
 
-				$allINIs[] = $file->getRealPath();
+				$allJSONFiles[] = $file->getRealPath();
 			}
 
-			if (empty($allINIs))
+			if (empty($allJSONFiles))
 			{
 				continue;
 			}
 
 			// Sort GUI files alphabetically
-			asort($allINIs);
+			asort($allJSONFiles);
 
 			// Include each GUI def file
-			foreach ($allINIs as $filename)
+			foreach ($allJSONFiles as $filename)
 			{
 				$information = array();
 				$parameters = array();
 
-				$this->parseInterfaceINI($filename, $information, $parameters);
+				$this->parseInterfaceJSON($filename, $information, $parameters);
 
-				// This effectively skips non-GUI INIs (e.g. the scripting INI)
+				// This effectively skips non-GUI JSONs (e.g. the scripting JSON)
 				if (!empty($information['description']))
 				{
 					if (!isset($information['merge']))
@@ -492,8 +489,8 @@ class EngineParameters
 				continue;
 			}
 
-			// Store INI names in temp array because we'll sort based on filename (GUI order IS IMPORTANT!!)
-			$allINIs = array();
+			// Store JSON names in temp array because we'll sort based on filename (GUI order IS IMPORTANT!!)
+			$allJSONFiles = array();
 
 			$di = new \DirectoryIterator($path);
 
@@ -506,30 +503,29 @@ class EngineParameters
 				}
 
 				// PHP 5.3.5 and earlier do not support getExtension
-				// if ($file->getExtension() !== 'ini')
-				if (substr($file->getBasename(), -4) != '.ini')
+				if ($file->getExtension() !== 'json')
 				{
 					continue;
 				}
 
-				$allINIs[] = $file->getRealPath();
+				$allJSONFiles[] = $file->getRealPath();
 			}
 
-			if (empty($allINIs))
+			if (empty($allJSONFiles))
 			{
 				continue;
 			}
 
 			// Sort filter files alphabetically
-			asort($allINIs);
+			asort($allJSONFiles);
 
 			// Include each filter def file
-			foreach ($allINIs as $filename)
+			foreach ($allJSONFiles as $filename)
 			{
 				$information = array();
 				$parameters = array();
 
-				$this->parseInterfaceINI($filename, $information, $parameters);
+				$this->parseInterfaceJSON($filename, $information, $parameters);
 
 				if (!array_key_exists('03.filters', $this->gui_list))
 				{
@@ -554,7 +550,7 @@ class EngineParameters
 	}
 
 	/**
-	 * Parses the installer INI files and returns an array of installers and their data
+	 * Parses the installer JSON files and returns an array of installers and their data
 	 *
 	 * @param   boolean $forDisplay If true only returns the information relevant for displaying the GUI
 	 *
@@ -603,13 +599,13 @@ class EngineParameters
 				}
 
 				// PHP 5.3.5 and earlier do not support getExtension
-				// if ($file->getExtension() !== 'ini')
-				if (substr($file->getBasename(), -4) != '.ini')
+				if ($file->getExtension() !== 'json')
 				{
 					continue;
 				}
 
-				$data = ParseIni::parse_ini_file($file->getRealPath(), true);
+				$rawData = file_get_contents($file->getRealPath());
+				$data = empty($rawData) ? [] : json_decode($rawData, true);
 
 				if ($forDisplay)
 				{
@@ -745,7 +741,7 @@ class EngineParameters
 		$json_array['gui'] = array();
 		$groupdefs = $this->getGUIGroups();
 
-		foreach ($groupdefs as $group_ini => $definition)
+		foreach ($groupdefs as $groupKey => $definition)
 		{
 			$group_name = '';
 
@@ -812,18 +808,18 @@ class EngineParameters
 	}
 
 	/**
-	 * Parses an engine INI file returning two arrays, one with the general information
+	 * Parses an engine JSON file returning two arrays, one with the general information
 	 * of that engine and one with its configuration variables' definitions
 	 *
-	 * @param string $inifile     Absolute path to engine INI file
-	 * @param array  $information [out] The engine information hash array
-	 * @param array  $parameters  [out] The parameters hash array
+	 * @param   string  $jsonPath     Absolute path to engine JSON file
+	 * @param   array   $information  [out] The engine information hash array
+	 * @param   array   $parameters   [out] The parameters hash array
 	 *
-	 * @return bool True if the file was loaded
+	 * @return  bool  True if the file was loaded
 	 */
-	public function parseEngineINI($inifile, &$information, &$parameters)
+	public function parseEngineJSON($jsonPath, &$information, &$parameters)
 	{
-		if (!file_exists($inifile))
+		if (!file_exists($jsonPath))
 		{
 			return false;
 		}
@@ -835,9 +831,10 @@ class EngineParameters
 
 		$parameters = array();
 
-		$inidata = ParseIni::parse_ini_file($inifile, true);
+		$rawData = file_get_contents($jsonPath);
+		$jsonData = empty($rawData) ? [] : json_decode($rawData, true);
 
-		foreach ($inidata as $section => $data)
+		foreach ($jsonData as $section => $data)
 		{
 			if (is_array($data))
 			{
@@ -872,31 +869,32 @@ class EngineParameters
 	}
 
 	/**
-	 * Parses a graphical interface INI file returning two arrays, one with the general
+	 * Parses a graphical interface JSON file returning two arrays, one with the general
 	 * information of that configuration section and one with its configuration variables'
 	 * definitions.
 	 *
-	 * @param string $inifile     Absolute path to engine INI file
-	 * @param array  $information [out] The GUI information hash array
-	 * @param array  $parameters  [out] The parameters hash array
+	 * @param   string  $jsonPath     Absolute path to engine JSON file
+	 * @param   array   $information  [out] The GUI information hash array
+	 * @param   array   $parameters   [out] The parameters hash array
 	 *
 	 * @return bool True if the file was loaded
 	 */
-	public function parseInterfaceINI($inifile, &$information, &$parameters)
+	public function parseInterfaceJSON($jsonPath, &$information, &$parameters)
 	{
-		if (!file_exists($inifile))
+		if (!file_exists($jsonPath))
 		{
 			return false;
 		}
 
-		$information = array(
-			'description' => ''
-		);
+		$information = [
+			'description' => '',
+		];
 
-		$parameters = array();
-		$inidata = ParseIni::parse_ini_file($inifile, true);
+		$parameters = [];
+		$rawData    = file_get_contents($jsonPath);
+		$jsonData   = empty($rawData) ? [] : json_decode($rawData, true);
 
-		foreach ($inidata as $section => $data)
+		foreach ($jsonData as $section => $data)
 		{
 			if (is_array($data))
 			{
@@ -914,13 +912,13 @@ class EngineParameters
 				if (substr($section, 0, 1) != '_')
 				{
 					// Parse parameters
-					$newparam = array(
+					$newparam = [
 						'title'       => '',
 						'description' => '',
 						'type'        => 'string',
 						'default'     => '',
 						'protected'   => 0,
-					);
+					];
 
 					foreach ($data as $key => $value)
 					{

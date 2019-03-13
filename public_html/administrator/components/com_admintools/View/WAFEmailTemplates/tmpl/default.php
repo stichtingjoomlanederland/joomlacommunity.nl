@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
-* Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -55,7 +55,7 @@ $this->getContainer()->template->addJSInline($js);
 				<input type="checkbox" name="toggle" value="" onclick="Joomla.checkAll(this);"/>
 			</th>
 			<th style="width: 130px;">
-				<?php echo \JHtml::_('grid.sort', 'COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_REASON_SELECT', 'reason', $this->order_Dir, $this->order, 'browse'); ?>
+				<?php echo \JHtml::_('grid.sort', 'COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_REASON', 'reason', $this->order_Dir, $this->order, 'browse'); ?>
 			</th>
 			<th>
 				<?php echo \JHtml::_('grid.sort', 'COM_ADMINTOOLS_WAFEMAILTEMPLATES_FIELD_SUBJECT_LBL', 'subject', $this->order_Dir, $this->order, 'browse'); ?>

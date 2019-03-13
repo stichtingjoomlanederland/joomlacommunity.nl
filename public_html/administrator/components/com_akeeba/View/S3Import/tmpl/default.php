@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -54,7 +54,7 @@ $this->getContainer()->template->addJSInline($js);
 
 			<?php if (empty($this->buckets)): ?>
                 <div class="akeeba-form-group">
-                    <button class="akeeba-btn--primary" type="submit" onclick="ak_s3import_resetroot(); return false;">
+                    <button class="akeeba-btn--primary" type="submit" onclick="ak_s3import_resetroot();">
                         <span class="akion-wifi"></span>
 						<?php echo \JText::_('COM_AKEEBA_S3IMPORT_LABEL_CONNECT'); ?>
                     </button>
@@ -65,7 +65,7 @@ $this->getContainer()->template->addJSInline($js);
                 </div>
 
                 <div class="akeeba-form-group">
-                    <button class="akeeba-btn--primary" type="submit" onclick="ak_s3import_resetroot(); return false;">
+                    <button class="akeeba-btn--primary" type="submit" onclick="ak_s3import_resetroot();">
                         <span class="akion-folder"></span>
 						<?php echo \JText::_('COM_AKEEBA_S3IMPORT_LABEL_CHANGEBUCKET'); ?>
                     </button>

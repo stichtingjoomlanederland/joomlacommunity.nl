@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -18,7 +18,8 @@ class EasyDiscussViewRanks extends EasyDiscussAdminView
 	public function display($tpl = null)
 	{
 		$this->checkAccess('discuss.manage.ranks');
-
+		
+		JToolBarHelper::apply('save');
 
 		$model = ED::model('Ranks', true);
 		$ranks = $model->getRanks();
@@ -32,14 +33,5 @@ class EasyDiscussViewRanks extends EasyDiscussAdminView
 		$this->set('ranks', $ranks);
 
 		parent::display('ranks/default');
-	}
-
-	public function registerToolbar()
-	{
-		JToolBarHelper::title( JText::_( 'COM_EASYDISCUSS_RANKING' ), 'ranks' );
-
-		JToolBarHelper::custom( 'home', 'arrow-left', '', JText::_( 'COM_EASYDISCUSS_TOOLBAR_HOME' ), false);
-		JToolBarHelper::divider();
-		JToolBarHelper::custom( 'save','save.png','save_f2.png', JText::_( 'COM_EASYDISCUSS_SAVE_BUTTON' ) , false);
 	}
 }

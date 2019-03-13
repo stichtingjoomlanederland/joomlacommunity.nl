@@ -64,7 +64,7 @@
 			ratingElements.removeClass('fa-star-o').removeClass('fa-star').addClass('fa-star-o');
 			
 			for(var x = 0; x < initial_rating; x++) {
-				ratingElements[x].removeClass('fa-star-o').addClass('fa-star');
+				jQuery(ratingElements[x]).removeClass('fa-star-o').addClass('fa-star');
 			}
 		});
 	};

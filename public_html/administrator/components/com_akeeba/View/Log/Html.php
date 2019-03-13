@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -70,7 +70,7 @@ class Html extends BaseView
 		$model      = $this->getModel();
 		$this->logs = $model->getLogList();
 
-		$tag = $model->getState('tag');
+		$tag = $model->getState('tag', '', 'string');
 
 		if (empty($tag))
 		{

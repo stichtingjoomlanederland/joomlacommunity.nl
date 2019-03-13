@@ -16,6 +16,9 @@
 	<field name="report_subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
 	<field name="approval_subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
 	<field name="notify_me_unsubscribe_subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
+	<field name="rsvpgoing_subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
+	<field name="rsvpinterested_subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
+	<field name="rsvpnotgoing_subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
 	
 	<field name="registration_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
 	<field name="activation_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
@@ -30,6 +33,9 @@
 	<field name="report_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
 	<field name="approval_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
 	<field name="notify_me_unsubscribe_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
+	<field name="rsvpgoing_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
+	<field name="rsvpinterested_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
+	<field name="rsvpnotgoing_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
 	
 	<field name="registration_mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_MODE" description="COM_RSEVENTSPRO_MESSAGES_MODE_DESC" default="1">
 		<option value="0">TEXT</option>
@@ -80,6 +86,18 @@
 		<option value="1">HTML</option>
 	</field>
 	<field name="notify_me_unsubscribe_mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_MODE" description="COM_RSEVENTSPRO_MESSAGES_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+	<field name="rsvpgoing_mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_MODE" description="COM_RSEVENTSPRO_MESSAGES_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+	<field name="rsvpinterested_mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_MODE" description="COM_RSEVENTSPRO_MESSAGES_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+	<field name="rsvpnotgoing_mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_MODE" description="COM_RSEVENTSPRO_MESSAGES_MODE_DESC" default="1">
 		<option value="0">TEXT</option>
 		<option value="1">HTML</option>
 	</field>

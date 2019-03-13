@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     FOF
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL version 2 or later
  */
 
@@ -23,6 +23,7 @@ use FOF30\Model\DataModel\Exception\NoItemsFound;
 use FOF30\Model\DataModel\Exception\NoTableColumns;
 use FOF30\Model\DataModel\Exception\RecordNotLoaded;
 use FOF30\Model\DataModel\Exception\SpecialColumnMissing;
+use FOF30\Model\DataModel\Relation\Exception\RelationNotFound;
 use FOF30\Model\DataModel\RelationManager;
 use FOF30\Utils\ArrayHelper;
 
@@ -379,10 +380,12 @@ class DataModel extends Model implements \JTableInterface
 			$this->_trackAssets = true;
 		}
 
+		/**
 		if ($this->_trackAssets && array_key_exists($access_field, $this->knownFields) && !($this->getState($access_field, null)))
 		{
 			$this->$access_field = (int) $this->container->platform->getConfig()->get('access');
 		}
+		**/
 
 		$assetKey = $this->container->componentName . '.' . strtolower($container->inflector->singularize($this->getName()));
 		$this->setAssetKey($assetKey);
@@ -1043,6 +1046,53 @@ class DataModel extends Model implements \JTableInterface
 		}
 
 		return $fields;
+	}
+
+	/**
+	 * Returns the qualified foreign model name, in the format "componentName.modelName", for the specified model
+	 * field. First it checks the relations you have defined. If none is found it will try to parse the field name as
+	 * following the componentName_modelName_id naming convention (FOF best practice and recommendation).
+	 *
+	 * This feature is used by the Blade compiler.
+	 *
+	 * @param   string  $fieldName  The field name for which we'll get a foreign model name
+	 *
+	 * @return  string
+	 */
+	public function getForeignModelNameFor($fieldName)
+	{
+		// First look for a local field mapped in a relationship
+		try
+		{
+			$relationMap  = $this->getRelationFields();
+			$relationName = array_search($fieldName, $relationMap);
+
+			if ($relationName !== false)
+			{
+				$model     = $this->relationManager->getRelation($relationName)->getForeignModel();
+				$component = $model->getContainer()->componentName;
+				$modelName = $model->getName();
+
+				return "$component.$modelName";
+			}
+		}
+		catch (RelationNotFound $e)
+		{
+			// Bummer. The relation cannot be found. I will fall back to parsing the field name.
+		}
+
+		// Do I have a field following the componentName_modelName_id format?
+		$parts = explode('_', $fieldName);
+		if ((substr($fieldName, -3) != '_id') || (count($parts) < 3))
+		{
+			throw new \RuntimeException("Cannot determine the foreign model for local field '$fieldName'; it does not follow the expected component_model_id convention.");
+		}
+
+		$fieldName = substr($fieldName, 0, -3);
+		list($component, $modelName) = explode('_', $fieldName, 2);
+		$modelName = $this->container->inflector->camelize($modelName);
+
+		return "$component.$modelName";
 	}
 
 	/**

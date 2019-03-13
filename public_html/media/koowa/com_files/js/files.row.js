@@ -63,6 +63,8 @@ Files.File = new Class({
 		
 		this.size = new Files.Filesize(this.metadata.size);
 		this.filetype = Files.getFileType(this.metadata.extension);
+
+		this.client_cache = false;
 	},
 	getModifiedDate: function(formatted) {
         if (this.metadata.modified_date) {
@@ -85,7 +87,7 @@ Files.File = new Class({
 				url: Files.app.createRoute({view: 'file', folder: that.folder, name: that.name}),
 				method: 'post',
 				data: {
-					'_action': 'delete',
+					'_method': 'delete',
 					'csrf_token': Files.token
 				},
 				onSuccess: function(response) {
@@ -209,7 +211,7 @@ Files.Folder = new Class({
 				url: Files.app.createRoute({view: 'folder', folder: Files.app.getPath(), name: that.name}),
 				method: 'post',
 				data: {
-					'_action': 'delete',
+					'_method': 'delete',
 					'csrf_token': Files.token
 				},
 				onSuccess: function(response) {

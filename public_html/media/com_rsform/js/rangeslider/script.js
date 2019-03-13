@@ -9,7 +9,7 @@ if (!Object.keys) Object.keys = function(o) {
   var k=[],p;
   for (p in o) if (Object.prototype.hasOwnProperty.call(o,p)) k.push(p);
   return k;
-}
+};
 
 RSFormPro.ionSlider = {
 	sliders:  {},
@@ -28,11 +28,11 @@ RSFormPro.ionSlider = {
 		var forms = Object.keys(RSFormPro.ionSlider.slidersData);
 		
 		if (countForms > 0) {
-			for(i = 0; i < countForms; i++) {
+			for (i = 0; i < countForms; i++) {
 				var formId = forms[i];
 				var slidersIds = Object.keys(RSFormPro.ionSlider.slidersData[formId]);
 				
-				for(j = 0; j < slidersIds.length; j++) {
+				for (var j = 0; j < slidersIds.length; j++) {
 					RSFormPro.ionSlider.initSlider(formId, slidersIds[j], RSFormPro.ionSlider.slidersData[formId][slidersIds[j]].config);
 				}
 			}
@@ -46,9 +46,9 @@ RSFormPro.ionSlider = {
 		
 		if (typeof RSFormPro.ionSlider.sliders[formId][sliderName] == 'undefined') {
 			// initiate the object
-			RSFormPro.ionSlider.sliders[formId][sliderName] = {}
+			RSFormPro.ionSlider.sliders[formId][sliderName] = {};
 			RSFormPro.ionSlider.sliders[formId][sliderName].slider = jQuery('#rs-range-slider'+sliderId);
 			RSFormPro.ionSlider.sliders[formId][sliderName].slider.ionRangeSlider(config);
 		}
-	},
-}
+	}
+};

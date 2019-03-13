@@ -21,6 +21,7 @@ if (file_exists(JPATH_SITE.'/components/com_rseventspro/helpers/rseventspro.php'
 	$counter	= $params->get('counter',0);
 	$remove		= $params->get('remove',0);
 	$list		= modRseventsProCategories::getCategories($params);
+	$columns	= $params->get('columns', 1);
 
 	// Get the Itemid
 	$itemid = $params->get('itemid');

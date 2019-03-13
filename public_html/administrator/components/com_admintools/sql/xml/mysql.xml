@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ @package   admintools
+  ~ @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+  ~ @license   GNU General Public License version 3, or later
+  -->
+
 <schema>
 	<!-- Metadata -->
 	<meta>
@@ -367,8 +373,8 @@ SELECT COUNT(*) FROM `#__admintools_waftemplates` WHERE `reason` = 'adminloginfa
 			<query><![CDATA[
 INSERT INTO `#__admintools_waftemplates` (`reason`, `language`, `subject`, `template`, `enabled`, `email_num`, `email_numfreq`, `email_freq`, `created_on`, `created_by`, `modified_on`, `modified_by`)
 VALUES
-	('adminloginfail', '*', 'Failed administrator login for user [USER] on [SITENAME]', '<div style=\"background-color: #e0e0e0; padding: 10px 20px;\">\r\n<div style=\"background-color: #f9f9f9; border-radius: 10px; padding: 5px 10px;\">\r\n<p>Hello,</p>\r\n<p>We would like to notify you that user <strong>[USER]</strong> did <strong>not</strong> log in successfully to the administrator back-end area of your site, [SITENAME]. <span style=\"font-size: 12.1599998474121px; line-height: 15.8079996109009px;\">Further information:</span></p>\r\n<p style=\"font-size: 12.1599998474121px; line-height: 15.8079996109009px;\">Username: [USER]<br />IP address: [IP] ([LOOKUP])<br />Country*: [COUNTRY]<br />Continent*: [CONTINENT]<br />Browser User Agent string: [UA]</p>\r\n<p style=\"font-size: 12.1599998474121px; line-height: 15.8079996109009px;\">* Country and continent information availability and accuracy depend on the GeoIP database installed on your site.</p>\r\n<p>If this is expected you need to do nothing about it. If you suspect a hacking attempt, please log in to your site\'s back-end immediately and activate Admin Tools\' Emergency Off-Line mode at once.</p>\r\n<p>Best regards,</p>\r\n<p>The [SITENAME] team</p>\r\n</div>\r\n<p style=\"font-size: x-small; color: #667;\">You are receiving this automatic email message because you are an administrator in <em>[SITENAME]</em>. <span style=\"line-height: 1.3em;\">Do not reply to this email, it\'s sent from an unmonitored email address.</span></p>', 1, 5, 1, 'hour', '2015-07-27 13:52:45', 800, '2015-07-27 13:58:31', 800),
-	('adminloginsuccess', '*', 'User [USER] logged in on [SITENAME] administrator area', '<div style=\"background-color: #e0e0e0; padding: 10px 20px;\">\r\n<div style=\"background-color: #f9f9f9; border-radius: 10px; padding: 5px 10px;\">\r\n<p style=\"font-size: 12.1599998474121px; line-height: 15.8079996109009px;\">Hello,</p>\r\n<p>We would like to notify you that user [USER] has just logged in to the administrator back-end area of your site, [SITENAME]. Further information:</p>\r\n<p>Username: [USER]<br />IP address: [IP] ([LOOKUP])<br />Country*: [COUNTRY]<br />Continent*: [CONTINENT]<br />Browser User Agent string: [UA]</p>\r\n<p>* Country and continent information availability and accuracy depend on the GeoIP database installed on your site.</p>\r\n<p>If this is expected you need to do nothing about it. If you suspect a hacking attempt, please log in to your site\'s back-end immediately and activate Admin Tools\' Emergency Off-Line mode at once.</p>\r\n<p style=\"font-size: 12.1599998474121px; line-height: 15.8079996109009px;\">Best regards,</p>\r\n<p style=\"font-size: 12.1599998474121px; line-height: 15.8079996109009px;\">The [SITENAME] team</p>\r\n</div>\r\n<p style=\"font-size: x-small; color: #667;\">You are receiving this automatic email message because you are an administrator in <em>[SITENAME]</em>. <span style=\"line-height: 1.3em;\">Do not reply to this email, it\'s sent from an unmonitored email address.</span></p>', 1, 5, 1, 'hour', '2015-07-27 13:58:08', 800, '0000-00-00 00:00:00', 0),
+	('adminloginfail', '*', 'Failed administrator login for user [USER] on [SITENAME]', '<div style=\"background-color: #e0e0e0; padding: 10px 20px;\">\r\n<div style=\"background-color: #f9f9f9; border-radius: 10px; padding: 5px 10px;\">\r\n<p>Hello,</p>\r\n<p>We would like to notify you that user <strong>[USER]</strong> did <strong>not</strong> log in successfully to the administrator back-end area of your site, [SITENAME]. <span style=\"font-size: 12.1599998474121px; line-height: 15.8079996109009px;\">Further information:</span></p>\r\n<p style=\"font-size: 12.1599998474121px; line-height: 15.8079996109009px;\">Username: [USER]<br />IP address: [IP] ([LOOKUP])<br />Country*: [COUNTRY]<br />Continent*: [CONTINENT]<br />Browser User Agent string: [UA]</p>\r\n<p style=\"font-size: 12.1599998474121px; line-height: 15.8079996109009px;\">* Country and continent information availability and accuracy depend on the GeoIP database installed on your site.</p>\r\n<p>If this is expected you do not need to do anything about it. If you suspect a hacking attempt, please log in to your site\'s back-end immediately and activate Admin Tools\' Emergency Off-Line mode at once.</p>\r\n<p>Best regards,</p>\r\n<p>The [SITENAME] team</p>\r\n</div>\r\n<p style=\"font-size: x-small; color: #667;\">You are receiving this automatic email message because you are an administrator in <em>[SITENAME]</em>. <span style=\"line-height: 1.3em;\">Do not reply to this email, it\'s sent from an unmonitored email address.</span></p>', 1, 5, 1, 'hour', '2015-07-27 13:52:45', 800, '2015-07-27 13:58:31', 800),
+	('adminloginsuccess', '*', 'User [USER] logged in on [SITENAME] administrator area', '<div style=\"background-color: #e0e0e0; padding: 10px 20px;\">\r\n<div style=\"background-color: #f9f9f9; border-radius: 10px; padding: 5px 10px;\">\r\n<p style=\"font-size: 12.1599998474121px; line-height: 15.8079996109009px;\">Hello,</p>\r\n<p>We would like to notify you that user [USER] has just logged in to the administrator back-end area of your site, [SITENAME]. Further information:</p>\r\n<p>Username: [USER]<br />IP address: [IP] ([LOOKUP])<br />Country*: [COUNTRY]<br />Continent*: [CONTINENT]<br />Browser User Agent string: [UA]</p>\r\n<p>* Country and continent information availability and accuracy depend on the GeoIP database installed on your site.</p>\r\n<p>If this is expected you do not need to do anything about it. If you suspect a hacking attempt, please log in to your site\'s back-end immediately and activate Admin Tools\' Emergency Off-Line mode at once.</p>\r\n<p style=\"font-size: 12.1599998474121px; line-height: 15.8079996109009px;\">Best regards,</p>\r\n<p style=\"font-size: 12.1599998474121px; line-height: 15.8079996109009px;\">The [SITENAME] team</p>\r\n</div>\r\n<p style=\"font-size: x-small; color: #667;\">You are receiving this automatic email message because you are an administrator in <em>[SITENAME]</em>. <span style=\"line-height: 1.3em;\">Do not reply to this email, it\'s sent from an unmonitored email address.</span></p>', 1, 5, 1, 'hour', '2015-07-27 13:58:08', 800, '0000-00-00 00:00:00', 0),
 	('ipautoban', '*', 'Automatic IP blocking notification for [IP] on [SITENAME]', '<div style=\"background-color: #e0e0e0; padding: 10px 20px;\">\r\n<div style=\"background-color: #f9f9f9; border-radius: 10px; padding: 5px 10px;\">\r\n<p style=\"font-size: 12.1599998474121px; line-height: 15.8079996109009px;\">Hello,</p>\r\n<p>We would like to notify you that the IP address [IP] is now blocked from accessing your site, [SITENAME]<span style=\"font-size: 12.1599998474121px; line-height: 15.8079996109009px;\">, with the following details:</span></p>\r\n<p style=\"font-size: 12.1599998474121px; line-height: 15.8079996109009px;\">IP Address: [IP] (IP Lookup: [LOOKUP])<br />Reason: [REASON]<br />Banned until: [UNTIL]</p>\r\n<p>If this is your own IP address and you can no longer access your site please <a href=\"http://akee.ba/lockedout\">follow our instructions</a> to temporarily disable Admin Tools\' Web Application Firewall and clear the automatic IP ban.</p>\r\n<p style=\"font-size: 12.1599998474121px; line-height: 15.8079996109009px;\">Best regards,</p>\r\n<p style=\"font-size: 12.1599998474121px; line-height: 15.8079996109009px;\">The [SITENAME] team</p>\r\n</div>\r\n<p style=\"font-size: x-small; color: #667;\">You are receiving this automatic email message because you are an administrator in <em>[SITENAME]</em>. <span style=\"line-height: 1.3em;\">Do not reply to this email, it\'s sent from an unmonitored email address.</span></p>', 1, 5, 1, 'hour', '2015-07-27 14:20:00', 800, '0000-00-00 00:00:00', 0);
 			]]></query>
 		</action>
@@ -510,7 +516,7 @@ VALUES('criticalfiles', '*', 'Critical file modified on [SITENAME]', '<div style
 <p>We would like to notify you that one or more critical files have been modified on your site, [SITENAME]. The list of files modified on your site is as follows:</p>
 [INFO]
 <h3>Should I be worried?</h3>
-<p>Critical files, in the context of this email, are the files most usually targeted by hackers upon successful hacking of a site. These files can also be modified for legitimate reasons, for example when you save your site's Global Configuration or when you update Joomla! or one of its templates.</p>
+<p>Critical files, in the context of this email, are the files most usually targeted by hackers upon successful hacking of a site. These files can also be modified for legitimate reasons, for example when you save your site\'s Global Configuration or when you update Joomla! or one of its templates.</p>
 <p>You should NOT worry if you received this email after you, or another administrator you trust, performed any of the following changes on your site:</p>
 <ul>
 	<li>Restored the site from a backup</li>
@@ -579,7 +585,7 @@ VALUES('rescueurl', '*', 'Rescue URL requested on [SITENAME] for [USER]', '<div 
 <h3>I have no idea why I''m receiving this email</h3>
 <p>Look under "What is the Rescue URL" further down. You <strong>DO NOT</strong> need to take any action and you <strong>DO NOT</strong> need to worry.</p>
 <h3>Who requested the Rescue URL?</h3>
-<p>Username: [USER]<br />IP Address: <a href="[LOOKUP]" rel="alternate">[IP]<br /></a>Country: [COUNTRY]<br />Continent: [CONTINENT]<br />User Agent: [UA]</p>
+<p>Username: [USER]<br />IP Address: [IP] ([LOOKUP])</a><br />Country: [COUNTRY]<br />Continent: [CONTINENT]<br />User Agent: [UA]</p>
 <p> </p>
 <h3>What is the Rescue URL?</h3>
 <p>Sometimes an overzealous Admin Tools configuration can result in accidentally blocking you, a Super User from the site. Normally that would require you to rename the file of Admin Tools'' system plugin to unblock yourself. This is a bit complicated and susceptible to errors.</p>
@@ -609,5 +615,37 @@ ALTER TABLE `#__admintools_log` CHANGE `url` `url` varchar(10240) DEFAULT NULL;
 			]]></query>
 		</action>
 
+
+		<!-- WAF Email Template for Critical Files Monitoring-->
+		<action table="#__admintools_waftemplates" canfail="1">
+			<condition type="equals" value="0"><![CDATA[
+SELECT COUNT(*) FROM `#__admintools_waftemplates` WHERE `reason` = 'criticalfiles_global';
+			]]></condition>
+			<query><![CDATA[
+INSERT INTO `#__admintools_waftemplates`
+(`reason`, `language`, `subject`, `template`, `enabled`, `email_num`, `email_numfreq`, `email_freq`, `created_on`, `created_by`, `modified_on`, `modified_by`)
+VALUES('criticalfiles_global', '*', 'Critical file modified on [SITENAME]', '<div style="background-color: #e0e0e0; padding: 10px 20px;">
+<div style="background-color: #f9f9f9; border-radius: 10px; padding: 5px 10px;">
+<p>Hello,</p>
+<p>We would like to notify you that one or more critical files that you decided to monitor have been modified on your site, [SITENAME]. The list of files modified on your site is as follows:</p>
+[INFO]
+<p>If this message was not sent to you as the result of such a desirable and expected change please review your site immediately as this would be an indication of hacking activity.</p>
+<p>Best regards,</p>
+<p>The [SITENAME] team</p>
+</div>
+</div>', 1, 0, 0, '', '2017-04-05 13:15:00', 800, '2017-04-05 13:15:00', 800);
+			]]></query>
+		</action>
+
+		<action table="#__admintools_tempsupers" canfail="0">
+			<condition type="missing" value=""/>
+			<query><![CDATA[
+CREATE TABLE `#__admintools_tempsupers` (
+  `user_id` bigint(20) NOT NULL,
+  `expiration` datetime NOT NULL,
+  PRIMARY KEY (`user_id`)
+) DEFAULT COLLATE utf8_general_ci
+			]]></query>
+		</action>
 	</sql>
 </schema>

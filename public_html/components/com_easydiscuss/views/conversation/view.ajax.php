@@ -210,6 +210,7 @@ class EasyDiscussViewConversation extends EasyDiscussView
 
 		// Get the recipient id
 		$userId = $this->input->get('id', 0, 'int');
+		$previousContents = $this->input->get('contents', '', 'raw');
 
 		// Do not allow guests to access here.
 		if (!$this->my->id || !$userId) {
@@ -220,6 +221,7 @@ class EasyDiscussViewConversation extends EasyDiscussView
 		$recipient = ED::profile($userId);
 
 		$theme->set('recipient', $recipient);
+		$theme->set('previousContents', $previousContents);
 		$contents = $theme->output('site/conversations/dialogs/compose');
 
 		return $this->ajax->resolve($contents);

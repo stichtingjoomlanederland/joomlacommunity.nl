@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -96,35 +96,30 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php } ?>
 
 					<td style="text-align:left;">
-						<?php if (empty($parentId)) { ?>
-							<?php if ($browse) { ?>
-								<a href="javascript:void(0);" onclick="parent.<?php echo $browseFunction; ?>('<?php echo $post->id;?>','<?php echo addslashes($this->escape($post->getTitle()));?>');"><?php echo $post->getTitle();?></a>
-							<?php } else { ?>
-								<a href="<?php echo $post->editLink; ?>"><?php echo $post->title; ?></a>
-							<?php } ?>
+						<?php if ($browse) { ?>
+							<a href="javascript:void(0);" onclick="parent.<?php echo $browseFunction; ?>('<?php echo $post->id;?>','<?php echo addslashes($this->escape($post->getTitle()));?>');"><?php echo $post->getTitle();?></a>
 						<?php } else { ?>
-							<?php echo $post->title; ?>
+							<a href="<?php echo $post->editLink; ?>"><?php echo $post->title; ?></a>
+						<?php } ?>
+
+						<?php if ($this->config->get('main_password_protection') && $post->password) { ?>
+							<i class="fa fa-key text-muted ml-5" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_THIS_POST_PASSWORD_PROTECTED' , true);?>"></i>
 						<?php } ?>
 
 						<div style="font-size: 11px;">
-							<?php echo JText::_('COM_EASYDISCUSS_IP_ADDRESS');?>: <?php echo $post->ip;?>
+							<span style="padding-right: 5px;border-right: 1px solid #d7d7d7;">
+								<?php echo JText::_('COM_ED_ALIAS');?>: <?php echo $post->alias;?>
+							</span>
+
+							<span style="padding-left: 6px;">
+								<?php echo JText::_('COM_EASYDISCUSS_IP_ADDRESS');?>: <?php echo $post->ip;?>
+							</span>
 
 							<?php if ($post->isLocked()) { ?>
-								&middot; <?php echo JText::_('COM_EASYDISCUSS_LOCKED'); ?>
+								&middot; <i class="icon-lock text-muted"></i><?php echo JText::_('COM_EASYDISCUSS_LOCKED'); ?>
 							<?php } ?>
+
 						</div>
-
-						<?php if ($this->config->get('main_password_protection') && $post->password) { ?>
-							<span rel="ed-tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_THIS_POST_PASSWORD_PROTECTED' , true);?>">
-								<i class="icon-lock"></i>
-							</span>
-						<?php } ?>
-
-						<?php if (!empty($parentId)) { ?>
-							<p>
-								<?php echo $post->content; ?>
-							</p>
-						<?php } ?>
 					</td>
 
 					<td class="center">
@@ -155,7 +150,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 						<td class="center">
 							<?php if ($post->user_id && $post->user_id != '0') {?>
-								<a href="index.php?option=com_easydiscuss&amp;view=user&amp;task=edit&amp;id=<?php echo $post->user_id;?>"><?php echo $post->getOwner()->getName(); ?></a>
+								<a href="index.php?option=com_easydiscuss&view=users&layout=form&task=edit&id=<?php echo $post->user_id;?>"><?php echo $post->getOwner()->getName(); ?></a>
 							<?php } else { ?>
 								<?php echo $post->poster_name; ?>
 								&lt;<a href="mailto:<?php echo $post->poster_email;?>" target="_blank"><?php echo $post->poster_email; ?></a>&gt;

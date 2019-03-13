@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -20,8 +20,6 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function display($tpl = null)
 	{
@@ -36,8 +34,6 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function facebook($tpl = null)
 	{
@@ -92,12 +88,24 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 
 		$authorizationURL = 'index.php?option=com_easydiscuss&controller=autoposting&task=request&type=facebook';
 
+		// retrieve Facebook oauth valid URIs
+		$oauthURIs = ED::oauth()->getOauthRedirectURI();
+
+		// Retrieve Facebook scopes permission
+		$selectedScopePermissions = $this->config->get('main_autopost_facebook_scope_permissions');
+
+		if ($selectedScopePermissions) {
+			$selectedScopePermissions = explode(',', $selectedScopePermissions);
+		}
+
+		$this->set('oauthURIs', $oauthURIs);
 		$this->set('authorizationURL', $authorizationURL);
 		$this->set('associated', $associated);
 		$this->set('groups', $groups);
 		$this->set('storedGroups', $storedGroups);
 		$this->set('pages', $pages);
 		$this->set('storedPages', $storedPages);
+		$this->set('selectedScopePermissions', $selectedScopePermissions);
 
 		parent::display('autoposting/facebook');
 	}
@@ -106,9 +114,7 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 	 * Renders the twitter auto posting form
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return	
+	 * @access	public	
 	 */
 	public function twitter($tpl = null)
 	{
@@ -133,8 +139,11 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 
 		$authorizationURL = 'index.php?option=com_easydiscuss&controller=autoposting&task=request&type=twitter';
 
+		$oauthURIs = ED::oauth()->getOauthRedirectURI('twitter');
+
 		$this->set('authorizationURL', $authorizationURL);
 		$this->set('associated', $associated);
+		$this->set('oauthURIs', $oauthURIs);
 
 		parent::display('autoposting/twitter');
 	}
@@ -143,9 +152,7 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 	 * Renders the twitter auto posting form
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return	
+	 * @access	public	
 	 */
 	public function linkedin($tpl = null)
 	{
@@ -184,10 +191,13 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 			}
 		}
 
+		$oauthURIs = ED::oauth()->getOauthRedirectURI('linkedin');
+
 		$this->set('storedCompanies', $storedCompanies);
 		$this->set('companies', $companies);
 		$this->set('authorizationURL', $authorizationURL);
 		$this->set('associated', $associated);
+		$this->set('oauthURIs', $oauthURIs);
 
 		parent::display('autoposting/linkedin');
 	}
@@ -197,8 +207,6 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function telegram($tpl = null)
 	{
@@ -215,9 +223,7 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 	 * Renders the slack auto posting settings form
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return	
+	 * @access	public	
 	 */
 	public function slack($tpl = null)
 	{
@@ -234,9 +240,7 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 	 * Renders the wunderlist auto posting settings form
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return	
+	 * @access	public	
 	 */
 	public function wunderlist($tpl = null)
 	{
@@ -287,9 +291,7 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 	 * Fetch Facebook groups
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return	
+	 * @access	public	
 	 */
 	public function getFacebookGroup($client, $token)
 	{
@@ -310,9 +312,7 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 	 * Fetch Facebook groups
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return	
+	 * @access	public	
 	 */
 	 public function getFacebookPage($client, $token)
 	 {

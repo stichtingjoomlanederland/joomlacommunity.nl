@@ -7,12 +7,14 @@
  */
 defined('KOOWA') or die; ?>
 
+
 <?= helper('behavior.bootstrap', array('javascript' => true, 'css' => true)) ?>
 <?= helper('ui.load', array('styles' => false)) ?>
 
 <ktml:script src="media://com_docman/js/admin/script.js" />
 
 <ktml:style src="media://koowa/com_migrator/css/migrator.css" />
+
 
 <script type="text/javascript">
 
@@ -24,6 +26,7 @@ defined('KOOWA') or die; ?>
     Docman.base_url = '<?= route('view=script&format=json&script='.$script, true, false); ?>';
     Docman.jobs = <?= json_encode($jobs) ?>;
 </script>
+
 
 <div class="k-migrator-container">
     <div class="migrator">

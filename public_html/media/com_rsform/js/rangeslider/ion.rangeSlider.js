@@ -412,7 +412,15 @@
             }
 
             if (options && options.values && options.values.length) {
+                if (val[0])
+                {
+                    val[0] = String(val[0]);
+                }
                 config.from = val[0] && options.values.indexOf(val[0]);
+                if (val[1])
+                {
+                    val[1] = String(val[1]);
+                }
                 config.to = val[1] && options.values.indexOf(val[1]);
             } else {
                 config.from = val[0] && +val[0];
@@ -1354,24 +1362,8 @@
                     this.$cache.input.trigger("change");
                     this.$cache.input.trigger("input");
 					
-					try {
-						var event; // The custom event that will be created
-						if (document.createEvent) {
-							event = document.createEvent("HTMLEvents");
-							event.initEvent("change", true, true);
-						} else {
-							event = document.createEventObject();
-							event.eventType = "change";
-						}
-
-						event.eventName = "change";
-
-						if (document.createEvent) {
-							this.$cache.input[0].dispatchEvent(event);
-						} else {
-							this.$cache.input[0].fireEvent("on" + event.eventType, event);
-						}
-					} catch (e) {}
+					RSFormPro.triggerEvent(this.$cache.input[0], 'change');
+					RSFormPro.triggerEvent(this.$cache.input[0], 'input');
                 }
 
                 this.old_from = this.result.from;

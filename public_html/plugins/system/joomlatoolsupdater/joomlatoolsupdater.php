@@ -28,6 +28,8 @@ class PlgSystemJoomlatoolsupdater extends JPlugin
             return;
         }
 
+        $headers['Referer'] = JURI::root();
+
         $extension = $matches[1];
 
         if (array_key_exists($extension, static::$_extensions)) {

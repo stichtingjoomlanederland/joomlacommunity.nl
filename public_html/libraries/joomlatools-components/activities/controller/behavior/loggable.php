@@ -18,6 +18,13 @@
 class ComActivitiesControllerBehaviorLoggable extends KControllerBehaviorAbstract
 {
     /**
+     * Behavior enabled state
+     *
+     * @var bool
+     */
+    protected $_enabled;
+
+    /**
      * Logger queue.
      *
      * @var KObjectQueue
@@ -35,6 +42,8 @@ class ComActivitiesControllerBehaviorLoggable extends KControllerBehaviorAbstrac
 
         // Create the logger queue
         $this->__queue = $this->getObject('lib:object.queue');
+
+        $this->_enabled = $config->enabled;
 
         // Attach the loggers
         $loggers = KObjectConfig::unbox($config->loggers);
@@ -59,6 +68,7 @@ class ComActivitiesControllerBehaviorLoggable extends KControllerBehaviorAbstrac
     protected function _initialize(KObjectConfig $config)
     {
         $config->append(array(
+            'enabled'  => true,
             'priority' => self::PRIORITY_LOWEST,
             'loggers'  => array(),
         ));
@@ -80,21 +90,46 @@ class ComActivitiesControllerBehaviorLoggable extends KControllerBehaviorAbstrac
      */
     final public function execute(KCommandInterface $command, KCommandChainInterface $chain)
     {
-        $action = $command->getName();
-
-        foreach($this->__queue as $logger)
+        if ($this->_enabled)
         {
-            if (in_array($action, $logger->getActions()))
-            {
-                $object = $logger->getActivityObject($command);
+            $action = $command->getName();
 
-                if ($object instanceof KModelEntityInterface)
+            foreach($this->__queue as $logger)
+            {
+                if (in_array($action, $logger->getActions()))
                 {
-                    $subject = $logger->getActivitySubject($command);
-                    $logger->log($action, $object, $subject);
+                    $object = $logger->getActivityObject($command);
+
+                    if ($object instanceof KModelEntityInterface)
+                    {
+                        $subject = $logger->getActivitySubject($command);
+                        $logger->log($action, $object, $subject);
+                    }
                 }
             }
         }
+    }
+
+    /**
+     * Enables logging
+     *
+     * @return ComActivitiesControllerBehaviorLoggable
+     */
+    public function enableLogging()
+    {
+        $this->_enabled = true;
+        return $this;
+    }
+
+    /**
+     * Disables logging
+     *
+     * @return ComActivitiesControllerBehaviorLoggable
+     */
+    public function disableLogging()
+    {
+        $this->_enabled = false;
+        return $this;
     }
 
     /**

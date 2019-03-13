@@ -1,14 +1,14 @@
 <?php
 
 /**
- * @copyright 	Copyright (c) 2009-2017 Ryan Demmer. All rights reserved
+ * @copyright 	Copyright (c) 2009-2019 Ryan Demmer. All rights reserved
  * @license   	GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * JCE is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses
  */
-defined('_JEXEC') or die('RESTRICTED');
+defined('JPATH_PLATFORM') or die;
 
 jimport('joomla.filesystem.folder');
 jimport('joomla.filesystem.file');
@@ -30,11 +30,11 @@ class WFImageEditor extends JObject
     }
 
     private function getOptions()
-    {       
+    {
         return array(
             'preferImagick' => $this->get('prefer_imagick', true),
             'removeExif' => $this->get('remove_exif', false),
-            'resampleImage' => $this->get('resample_image', true)
+            'resampleImage' => $this->get('resample_image', false),
         );
     }
 
@@ -162,6 +162,39 @@ class WFImageEditor extends JObject
 
             unset($image);
         }
+
+        return $file;
+    }
+
+    public function setQuality($file, $quality)
+    {
+        $ext = strtolower(JFile::getExt($file));
+        $options = $this->getOptions();
+
+        $image = new WFImage($file, $options);
+
+        switch ($ext) {
+            case 'jpg':
+            case 'jpeg':
+                $quality = intval($quality);
+
+                if ($this->get('ftp', 0)) {
+                    @JFile::write($file, $image->toString($ext, array('quality' => $quality)));
+                } else {
+                    $image->toFile($file, $ext, array('quality' => $quality));
+                }
+
+                break;
+            default:
+                if ($this->get('ftp', 0)) {
+                    @JFile::write($file, $image->toString($ext, array('quality' => $quality)));
+                } else {
+                    $image->toFile($file, $ext, array('quality' => $quality));
+                }
+                break;
+        }
+
+        unset($image);
 
         return $file;
     }

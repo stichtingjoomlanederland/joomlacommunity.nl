@@ -43,6 +43,9 @@
  * @link http://github.com/chrisboulton/php-diff
  */
 
+// Protect from unauthorized access
+defined('_JEXEC') or die();
+
 class Diff
 {
 	/**

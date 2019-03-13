@@ -73,7 +73,7 @@ class RSFormProFieldPassword extends RSFormProField
 		if ($maxlength) {
 			$html .= ' maxlength="'.(int) $maxlength.'"';
 		}
-		// Maxlength
+		// Placeholder
 		if (!empty($placeholder)) {
 			$html .= ' placeholder="'.$placeholder.'"';
 		}

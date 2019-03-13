@@ -23,8 +23,8 @@ class RsformViewRsform extends JViewLegacy
 		$this->version	= (string) new RSFormProVersion();
 		
 		$this->sidebar	= $this->get('SideBar');
-		
-		JFactory::getDocument()->addStyleSheet(JUri::root(true).'/administrator/components/com_rsform/assets/css/dashboard.css?v=' . $this->version);
+
+        JHtml::stylesheet('com_rsform/admin/dashboard.css', array('relative' => true, 'version' => 'auto'));
 		
 		parent::display($tpl);
 	}

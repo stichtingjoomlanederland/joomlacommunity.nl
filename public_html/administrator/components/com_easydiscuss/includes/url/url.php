@@ -20,7 +20,7 @@ class EasyDiscussUrl extends EasyDiscuss
 
 		preg_match_all($pattern, $tmp, $matches);
 
-		$targetBlank = $config->get('main_link_new_window') ? ' target="_blank"' : '';
+		$targetBlank = $config->get('main_link_new_window') ? ' target="_blank" rel="noreferrer"' : '';
 
 		if (!isset($matches[0]) || !is_array($matches[0])) {
 			return;

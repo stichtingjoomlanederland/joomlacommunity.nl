@@ -16,6 +16,13 @@
  */
 class ComTagsDatabaseBehaviorTaggable extends KDatabaseBehaviorAbstract
 {
+    protected function _initialize(KObjectConfig $config)
+    {
+        $config->append(array('strict' => false));
+
+        parent::_initialize($config);
+    }
+
     /**
      * Get a list of tags
      *
@@ -48,9 +55,21 @@ class ComTagsDatabaseBehaviorTaggable extends KDatabaseBehaviorAbstract
         {
             $package = $this->getMixer()->getIdentifier()->package;
 
-            $query->join($package.'_tags_relations AS tags_relations', 'tags_relations.row = tbl.uuid');
-            $query->join($package.'_tags AS tags', 'tags.tag_id = tags_relations.tag_id');
-            $query->where('tags.slug IN :tag');
+
+            if ($this->getConfig()->strict)
+            {
+                $tags = KObjectConfig::unbox($this->getConfig()->tags);
+
+                for ($i = 0; $i < count($tags); $i++) {
+                    $query->join("{$package}_tags_relations AS tags_relations{$i}", "tags_relations{$i}.row = tbl.uuid")
+                          ->join("{$package}_tags AS tags{$i}", "tags{$i}.tag_id = tags_relations{$i}.tag_id", 'INNER')
+                          ->where("tags{$i}.slug = :tag{$i}")
+                          ->bind(array("tag{$i}" => $tags[$i]));
+                }
+            }
+            else $query->join($package . '_tags_relations AS tags_relations', 'tags_relations.row = tbl.uuid')
+                      ->join($package . '_tags AS tags', 'tags.tag_id = tags_relations.tag_id')
+                      ->where('tags.slug IN :tag');
         }
     }
 }

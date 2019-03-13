@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -190,7 +190,8 @@ class EasyDiscussString extends EasyDiscuss
 	public function detectNames($text, $exclude = array())
 	{
 		$extendedlatinPattern = "\\x{0c0}-\\x{0ff}\\x{100}-\\x{1ff}\\x{180}-\\x{27f}";
-		$pattern = '/@[' . $extendedlatinPattern .'A-Za-z0-9][' . $extendedlatinPattern . 'A-Za-z0-9_\-\.\s\,\&]+/ui';
+		$arabicPattern = "\\x{600}-\\x{6FF}";
+		$pattern = '/@[' . $extendedlatinPattern . $arabicPattern .'A-Za-z0-9][' . $extendedlatinPattern . $arabicPattern . 'A-Za-z0-9_\-\.\s\,\&]+/ui';
 
 		$text = $this->unhtmlentities($text);
 
@@ -292,8 +293,7 @@ class EasyDiscussString extends EasyDiscuss
 
 		preg_match_all($pattern, $text, $matches);
 
-		$targetBlank = $config->get('main_link_new_window') ? ' target="_blank"' : '';
-		$noFollow = $config->get('main_link_rel_nofollow') ? ' rel="nofollow"' : '';
+		$linkAttr = ED::getLinkAttributes();
 
 		// Do not proceed if there are no links to process
 		if (!isset($matches[0]) || !is_array($matches[0]) || empty($matches[0])) {
@@ -315,7 +315,6 @@ class EasyDiscussString extends EasyDiscuss
 		// We need to separate the link with and without protocols to avoid conflict when there are similar url present in the content.
 		if ($tmplinks) {
 			foreach($tmplinks as $link) {
-
 				if (stristr( $link , 'http://' ) === false && stristr( $link , 'https://' ) === false && stristr( $link , 'ftp://' ) === false ) {
 					$linksWithoutProtocols[] = $link;
 				} else if (stristr( $link , 'http://' ) !== false || stristr( $link , 'https://' ) !== false || stristr( $link , 'ftp://' ) === false ) {
@@ -334,14 +333,13 @@ class EasyDiscussString extends EasyDiscuss
 		if ($linksWithProtocols) {
 			$linksWithProtocols = array_unique($linksWithProtocols);
 
-			foreach($linksWithProtocols as $link) {
-
+			foreach ($linksWithProtocols as $link) {
 				$mypattern = '[EDWURL' . $idx . ']';
-				$replacePattern = '@' . $skipPattern . '|(' . $link . ')@i';
+
+				$tmpLink = JString::str_ireplace('@', '\@', preg_quote($link));
+				$replacePattern = '@' . $skipPattern . '|(' . $tmpLink . ')@i';
 
 				$text = preg_replace($replacePattern, $mypattern, $text);
-
-				// $text = str_ireplace($link, $mypattern, $text);
 
 				$obj = new stdClass();
 				$obj->index = $idx;
@@ -361,7 +359,8 @@ class EasyDiscussString extends EasyDiscuss
 
 			foreach($linksWithoutProtocols as $link) {
 				$mypattern = '[EDWOURL' . $idx . ']';
-				$replacePattern = '@' . $skipPattern . '|(' . $link . ')@i';
+				$tmpLink = JString::str_ireplace('@', '\@', preg_quote($link));
+				$replacePattern = '@' . $skipPattern . '|(' . $tmpLink . ')@i';
 
 				$text = preg_replace($replacePattern, $mypattern, $text);
 
@@ -388,7 +387,7 @@ class EasyDiscussString extends EasyDiscuss
 			$text = JString::str_ireplace('&amp;', '&', $text);
 
 			// Use preg_replace to only replace if the URL doesn't has <a> tag
-			$text = preg_replace($patternReplace, '<a href="\0" ' . $targetBlank . $noFollow . '>\0</a>', $text);
+			$text = preg_replace($patternReplace, '<a href="\0" ' . $linkAttr . '>\0</a>', $text);
 		}
 
 		return $text;

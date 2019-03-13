@@ -44,9 +44,9 @@ class RSFormProGridResponsive extends RSFormProGrid
 				// Start a new row
 				$html[] = "\t".'<div class="formRow">';
 				
-				foreach ($row->columns as $column_index => $fields)
+				foreach ($row['columns'] as $column_index => $fields)
 				{
-					$size = $row->sizes[$column_index];
+					$size = $row['sizes'][$column_index];
 					
 					$html[] = "\t"."\t".'<div class="formSpan' . (int) $size . '">';
 					
@@ -118,13 +118,18 @@ class RSFormProGridResponsive extends RSFormProGrid
 			$block = $this->getBlock($data->ComponentName);
 			
 			$html[] = "\t"."\t"."\t".'<div class="rsform-block rsform-block-' . $block . $placeholders['error'] . '">';
-				$label = "\t"."\t"."\t"."\t".'<div class="formControlLabel">';
+				$label = "\t"."\t"."\t"."\t".'<label class="formControlLabel"';
+				if (!in_array($data->ComponentTypeId, array(RSFORM_FIELD_CHECKBOXGROUP, RSFORM_FIELD_RADIOGROUP, RSFORM_FIELD_BIRTHDAY)))
+				{
+					$label .= ' for="' . $data->ComponentName . '"';
+				}
+				$label .= '>';
 				$label .= $placeholders['caption'];
                 if ($data->Required && $this->requiredMarker)
 				{
 					$label .= '<strong class="formRequired">' . $this->requiredMarker . '</strong>';
 				}
-				$label .= '</div>';
+				$label .= '</label>';
 				$html[] = $label;
 				
 				$html[] = "\t"."\t"."\t"."\t".'<div class="formControls">';

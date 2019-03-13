@@ -355,6 +355,11 @@ class ComDocmanModelEntityDocument extends KModelEntityRow
         return in_array(strtolower($this->extension), static::$extension_type_map['image']);
     }
 
+    public function isPreviewableImage()
+    {
+        return $this->isImage() && in_array($this->extension, self::$viewable_extensions);
+    }
+
     public function isVideo()
     {
         return in_array(strtolower($this->extension), static::$extension_type_map['video']);
@@ -362,7 +367,8 @@ class ComDocmanModelEntityDocument extends KModelEntityRow
 
     public function isYoutube()
     {
-        if (strpos($this->storage->path, 'youtube.com/watch') === false) {
+        if (strpos($this->storage->path, 'youtube.com/watch') === false
+            && strpos($this->storage->path, 'youtu.be') === false) {
             return false;
         }
 
@@ -434,24 +440,6 @@ class ComDocmanModelEntityDocument extends KModelEntityRow
         }
 
         return $result;
-    }
-
-    /**
-    * Determine if the content type is viewable in a browser
-    * If so, return if it is audio video, image, executable, or document.
-    *
-    * @return string | false
-    */
-    public function getViewableType()
-    {
-        if (
-              in_array($this->extension, self::$viewable_extensions) ||
-              in_array($this->extension, self::$image_extensions)
-        ) {
-            return $this->getPropertyKind();
-        }
-
-        return false;
     }
 
     /**

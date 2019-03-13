@@ -1,8 +1,8 @@
 <?php
 /**
-* @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
-* @license		GNU/GPL, see LICENSE.php
+* @package      EasyDiscuss
+* @copyright    Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -13,12 +13,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussControllerSettings extends EasyDiscussController
 {
-    public function __construct()
-    {
-        parent::__construct();
+	public function __construct()
+	{
+		parent::__construct();
 
-        $this->checkAccess('discuss.manage.settings');
-    }
+		$this->checkAccess('discuss.manage.settings');
+	}
 
 	/**
 	 * Saves the settings
@@ -58,6 +58,10 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 				$value = $this->input->get($index, '', 'raw');
 			}
 
+			if ($index == 'main_tnctext') {
+				$value = $this->input->get($index, '', 'raw');
+			}
+
 			// We need to decode arrays into comma separated values
 			if (is_array($value)) {
 				$post[$index] = implode(',', $value);
@@ -69,9 +73,6 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 
 		// Reset the settings for layout_featuredpost_style to always use from configuration.ini
 		$post['layout_featuredpost_style'] = ED::getDefaultConfigValue('layout_featuredpost_style', 0);
-
-		// For terms and conditions, we want to allow html codes
-		$post['main_tnctext'] = $this->input->get('main_tnctext', '', 'raw');
 
 		if ($layout == 'general') {
 			// we need to reset the settings for work schedule days due to the use of checkbox
@@ -223,25 +224,5 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 		// Unset the token
 		$token = ED::getToken();
 		unset($post['token']);
-	}
-
-	private function _store()
-	{
-		$mainframe	= JFactory::getApplication();
-
-		$message	= '';
-		$type		= 'success';
-
-		if( JRequest::getMethod() == 'POST' )
-		{
-
-		}
-		else
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_FORM_METHOD');
-			$type		= 'error';
-		}
-
-		return array( 'message' => $message , 'type' => $type);
 	}
 }

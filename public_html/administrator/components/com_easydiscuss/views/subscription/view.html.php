@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -22,7 +22,7 @@ class EasyDiscussViewSubscription extends EasyDiscussAdminView
 		// Set page properties
 		$this->title('COM_EASYDISCUSS_SUBSCRIPTION');
 
-		JToolBarHelper::title(JText::_('COM_EASYDISCUSS_SUBSCRIPTION'), 'subscriptions');
+		JToolbarHelper::addNew();
 		JToolbarHelper::deleteList();
 
 		$filter = $this->getUserState('subscription.filter', 'filter', 'site', 'word');
@@ -60,10 +60,8 @@ class EasyDiscussViewSubscription extends EasyDiscussAdminView
 	{
 		$this->checkAccess('discuss.manage.subscriptions');		
 
-		// Set page properties
-		$this->title('COM_EASYDISCUSS_SUBSCRIPTION_FORM');
+		$this->setHeading('COM_EASYDISCUSS_SUBSCRIPTION_FORM');
 
-		JToolBarHelper::title(JText::_('COM_EASYDISCUSS_SUBSCRIPTION'), 'subscriptions');
 		JToolbarHelper::apply();
 		JToolbarHelper::save();
 		JToolBarHelper::cancel();

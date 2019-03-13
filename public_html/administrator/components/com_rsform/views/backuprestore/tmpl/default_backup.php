@@ -40,7 +40,7 @@ defined('_JEXEC') or die('Restricted access');
 	$field = $this->form->getField('name');
 	$this->field->showField($field->label, $field->input);
 	
-	$this->field->showField('', '<button id="backupButton" class="btn btn-primary" type="button" onclick="submitbutton(\'backup.start\')">'.JText::_('RSFP_BACKUP_GENERATE').'</button>', array('class' => 'form-actions'));
+	$this->field->showField('', '<button id="backupButton" class="btn btn-primary" type="button" onclick="Joomla.submitbutton(\'backup.start\')">'.JText::_('RSFP_BACKUP_GENERATE').'</button>', array('class' => 'form-actions'));
 	
 	$this->field->endFieldset();
 	?>

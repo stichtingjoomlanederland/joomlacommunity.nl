@@ -1,12 +1,11 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
- *
  */
 
 namespace Akeeba\Engine\Archiver;
@@ -201,7 +200,7 @@ class Jpa extends BaseArchiver
 
 		if (function_exists('chmod'))
 		{
-			@chmod($this->_dataFileName, 0755);
+			@chmod($this->_dataFileName, 0644);
 		}
 	}
 
@@ -397,7 +396,7 @@ class Jpa extends BaseArchiver
 		 * permissions after reading its contents PHP segfaults.
 		 */
 		// Get file permissions
-		$perms = 0755;
+		$perms = 0644;
 
 		if (!$isVirtual)
 		{

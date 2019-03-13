@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -20,8 +20,6 @@ class EasyDiscussViewUsers extends EasyDiscussAdminView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function display($tpl = null)
 	{
@@ -69,11 +67,133 @@ class EasyDiscussViewUsers extends EasyDiscussAdminView
 		$this->set('pagination', $pagination);
 		$this->set('browse', $browse);
 		$this->set('browsefunction', $browseFunction);
-
 		$this->set('order', $order);
 		$this->set('orderDirection', $orderDirection);
 
 		parent::display('users/default');
+	}
+
+	public function form($tpl = null)
+	{
+		$this->checkAccess('discuss.manage.users');
+
+		// Initialise variables
+		$config = ED::config();
+
+		$id = $this->input->get('id', 0, 'int');
+
+		$profile = ED::user($id);
+
+		$this->setHeading('COM_ED_EDITING_USER');
+
+		JToolBarHelper::apply();
+		JToolBarHelper::save();
+		JToolBarHelper::cancel();
+
+		$userparams	= json_decode($profile->get('params'));
+		$siteDetails = json_decode($profile->get('site'));
+
+		$userparams = ED::getRegistry($userparams);
+		$siteDetails = ED::getRegistry($siteDetails);
+
+		$avatarIntegration = $config->get('layout_avatarIntegration', 'default');
+
+		$user = JFactory::getUser($id);
+		$isNew = ($user->id == 0) ? true : false;
+
+		$badges = $profile->getBadges();
+
+		$model = ED::model('Badges');
+		$history = $model->getBadgesHistory($profile->id);
+
+		$params = $user->getParameters(true);
+
+		// Badge id's that are assigned to the user.
+		$badgeIds = '';
+
+		for ($i = 0; $i < count($badges); $i++) {
+			$badgeIds .= $badges[$i]->id;
+
+			if (next($badges) !== false) {
+				$badgeIds .= ',';
+			}
+
+			$badgeUser = ED::table('BadgesUsers');
+			$badgeUser->loadByUser($id, $badges[$i]->id);
+
+			$badges[$i]->reference_id = $badgeUser->id;
+			$badges[$i]->custom = $badgeUser->custom;
+		}
+
+		// Get active tab
+		$active = $this->input->get('active', 'account', 'word');
+
+		if ($this->config->get('layout_avatar')) {
+			$maxSizeInMB = (int) $this->config->get( 'main_upload_maxsize', 0 );
+		}
+
+		// Get editor for signature.
+		$opt = array('defaults', $profile->getSignature(true));
+		$composer = ED::composer($opt);
+
+		$this->set('maxSizeInMB', $maxSizeInMB);
+		$this->set('active', $active);
+		$this->set('badgeIds', $badgeIds);
+		$this->set('badges', $badges);
+		$this->set('history', $history);
+		$this->set('config', $config);
+		$this->set('profile', $profile);
+		$this->set('user', $user);
+		$this->set('isNew', $isNew);
+		$this->set('params', $params);
+		$this->set('avatarIntegration', $avatarIntegration);
+		$this->set('userparams', $userparams);
+		$this->set('siteDetails', $siteDetails);
+		$this->set('composer', $composer);
+
+		parent::display('user/default');
+	}
+
+	/**
+	 * Renders a list of pending users
+	 *
+	 * @since	4.1
+	 * @access	public
+	 */
+	public function downloads()
+	{
+		$this->checkAccess('discuss.manage.users');
+
+		$this->setHeading('COM_ED_DOWNLOAD_REQUESTS');
+
+		JToolbarHelper::deleteList('', 'removeRequest');
+		JToolBarHelper::custom('purgeAll','purgeAll','icon-32-unpublish.png', 'COM_EASYDISCUSS_SPOOLS_PURGE_ALL_BUTTON', false);
+
+		// Get the user's model.
+		$model = ED::model('Download');
+		$requests = $model->getRequests();
+		$pagination = $model->getPagination();
+
+		$this->set('requests', $requests);
+		$this->set('pagination', $pagination);
+
+		parent::display('users/downloads/default');
+	}
+
+	/**
+	 * Allows viewer to download data from backend
+	 *
+	 * @since	4.1
+	 * @access	public
+	 */
+	public function downloadData()
+	{
+		$id = $this->input->get('id', 0, 'int');
+
+		$table = ED::table('Download');
+		$table->load($id);
+
+		return $table->showArchiveDownload();
 	}
 
 	public function getGroupTitle($user_id)
@@ -86,7 +206,12 @@ class EasyDiscussViewUsers extends EasyDiscussAdminView
 
 		$db->setQuery($sql);
 		$result = $db->loadResultArray();
-		return nl2br( implode("\n", $result) );
+
+		if (count($result) > 1) {
+			return JText::_('Multiple Groups');
+		}
+
+		return nl2br(implode("\n", $result));
 	}
 
 	public function getTotalTopicCreated($userId)

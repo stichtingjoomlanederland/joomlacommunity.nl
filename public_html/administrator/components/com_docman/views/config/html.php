@@ -8,6 +8,15 @@
 
 class ComDocmanViewConfigHtml extends ComDocmanViewHtml
 {
+    protected function _initialize(KObjectConfig $config)
+    {
+        $config->append([
+            'decorator' => 'koowa'
+        ]);
+
+        parent::_initialize($config);
+    }
+
     protected function _fetchData(KViewContext $context)
     {
         $context->data->upload_max_filesize = ComFilesModelEntityContainer::getServerUploadLimit();

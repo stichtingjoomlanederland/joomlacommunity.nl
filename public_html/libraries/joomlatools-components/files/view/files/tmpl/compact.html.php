@@ -38,7 +38,8 @@ window.addEvent('domready', function() {
 
                     return Files.app.tree.filterData(response);
                 }
-            }
+            },
+            thumbnails: <?= json_encode($thumbnails ?: ($container->getParameters()->thumbnails ?: true)) ?>
         },
         app = new Class({
             Extends: Files.Compact.App

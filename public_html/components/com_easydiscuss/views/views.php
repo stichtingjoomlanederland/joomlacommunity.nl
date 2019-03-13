@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -13,13 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 jimport('joomla.application.component.view');
 
-if (ED::getJoomlaVersion() >= '3.0') {
-	class EasyDiscussParentView extends JViewLegacy { }
-} else {
-	class EasyDiscussParentView extends JView { }
-}
-
-class EasyDiscussView extends EasyDiscussParentView
+class EasyDiscussView extends JViewLegacy
 {
 	/**
 	 * Main definitions for view should be here
@@ -109,6 +103,9 @@ class EasyDiscussView extends EasyDiscussParentView
 			// Initialize whatever that is necessary
 			ED::init('site');
 
+			// Render custom css
+			$this->renderCustomCss();
+
 			// If integrations with ES conversations is enabled, we need to render it's scripts
 			$easysocial = ED::easysocial();
 			
@@ -165,7 +162,8 @@ class EasyDiscussView extends EasyDiscussParentView
 
 			// Only work for Easysocial 2.0. 
 			// Only display if there is no cluster header.
-			if ($view == 'post' && $this->config->get('integration_easysocial_mini_header', true) && $easysocial->exists() && !$easysocial->isLegacy() && !$clusterHeader) {
+			if ($view == 'post' && $this->config->get('integration_easysocial_mini_header', true) && $easysocial->exists() && !$easysocial->isLegacy() && !$clusterHeader && !$post->isAnonymous()) {
+
 				ES::initialize();
 
 				$user = ES::user($post->getOwner()->id);
@@ -198,6 +196,24 @@ class EasyDiscussView extends EasyDiscussParentView
 	}
 
 	/**
+	 * Renders custom css on the page
+	 *
+	 * @since	4.2.0
+	 * @access	public
+	 */
+	public function renderCustomCss()
+	{
+		// Render the custom styles
+		$theme = ED::themes();
+		$customCss = $theme->output('site/structure/css');
+
+		// This custom css doesn't need to render on the composer page
+		$customCss = ED::minifyCSS($customCss);
+
+		$this->doc->addCustomTag($customCss);
+	}
+
+	/**
 	 * Generate a canonical tag on the header of the page
 	 *
 	 * @since	4.0
@@ -206,7 +222,7 @@ class EasyDiscussView extends EasyDiscussParentView
 	public function canonical($url, $route = true)
 	{
 		if ($route) {
-			$url = EDR::_($url, false, null, false, true);
+			$url = EDR::getRoutedURL($url, true, true);
 		}
 		
 		$this->doc->addHeadLink($this->escape($url), 'canonical');

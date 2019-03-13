@@ -1,9 +1,10 @@
 <?php
 /**
- * @package   Blue Flame Network (bfNetwork)
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
- * @link      https://myJoomla.com/
+ *
+ * @see      https://myJoomla.com/
+ *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
  * bfNetwork is free software: you can redistribute it and/or modify
@@ -20,7 +21,6 @@
  * along with this package.  If not, see http://www.gnu.org/licenses/
  */
 /**
- * @package    AkeebaCMSUpdate
  * @copyright  Copyright (c)2010-2014 Nicholas K. Dionysopoulos
  * @license    GNU General Public License version 3, or later
  *
@@ -39,17 +39,17 @@
  */
 
 /**
- * A download adapter using the cURL PHP integration
+ * A download adapter using the cURL PHP integration.
  */
 class AcuDownloadAdapterCurl extends AcuDownloadAdapterAbstract implements AcuDownloadInterface
 {
     public function __construct()
     {
         $this->priority              = 110;
-        $this->supportsFileSize      = TRUE;
-        $this->supportsChunkDownload = TRUE;
-        $this->name                  = 'c' . 'u' . 'r' . 'l';
-        $this->isSupported           = function_exists('c' . 'u' . 'r' . 'l' . '_init') && function_exists('c' . 'u' . 'r' . 'l' . '_exec') && function_exists('c' . 'u' . 'r' . 'l' . '_close');
+        $this->supportsFileSize      = true;
+        $this->supportsChunkDownload = true;
+        $this->name                  = 'c'.'u'.'r'.'l';
+        $this->isSupported           = function_exists('c'.'u'.'r'.'l'.'_init') && function_exists('c'.'u'.'r'.'l'.'_exec') && function_exists('c'.'u'.'r'.'l'.'_close');
     }
 
     /**
@@ -62,15 +62,15 @@ class AcuDownloadAdapterCurl extends AcuDownloadAdapterAbstract implements AcuDo
      * If this class' supportsChunkDownload returns false you should assume
      * that the $from and $to parameters will be ignored.
      *
-     * @param   string  $url  The remote file's URL
-     * @param   integer $from Byte range to start downloading from. Use null for start of file.
-     * @param   integer $to   Byte range to stop downloading. Use null to download the entire file ($from is ignored)
+     * @param string $url  The remote file's URL
+     * @param int    $from Byte range to start downloading from. Use null for start of file.
+     * @param int    $to   Byte range to stop downloading. Use null to download the entire file ($from is ignored)
      *
-     * @return  string  The raw file data retrieved from the remote URL.
+     * @return string the raw file data retrieved from the remote URL
      *
-     * @throws  Exception  A generic exception is thrown on error
+     * @throws Exception A generic exception is thrown on error
      */
-    public function downloadAndReturn($url, $from = NULL, $to = NULL, $nofollow = FALSE)
+    public function downloadAndReturn($url, $from = null, $to = null, $nofollow = false)
     {
         $ch = curl_init();
 
@@ -101,11 +101,11 @@ class AcuDownloadAdapterCurl extends AcuDownloadAdapterAbstract implements AcuDo
         if (!@curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1) && !$nofollow) {
             // Safe Mode is enabled. We have to fetch the headers and
             // parse any redirections present in there.
-            curl_setopt($ch, CURLOPT_AUTOREFERER, TRUE);
-            curl_setopt($ch, CURLOPT_FAILONERROR, TRUE);
-            curl_setopt($ch, CURLOPT_HEADER, TRUE);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+            curl_setopt($ch, CURLOPT_FAILONERROR, true);
+            curl_setopt($ch, CURLOPT_HEADER, true);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
@@ -120,7 +120,7 @@ class AcuDownloadAdapterCurl extends AcuDownloadAdapterAbstract implements AcuDo
             $lines = explode("\n", $data);
 
             foreach ($lines as $line) {
-                if (substr($line, 0, 9) == "Location:") {
+                if ('Location:' == substr($line, 0, 9)) {
                     $newURL = trim(substr($line, 9));
                 }
             }
@@ -128,7 +128,7 @@ class AcuDownloadAdapterCurl extends AcuDownloadAdapterAbstract implements AcuDo
             if ($url != $newURL) {
                 return $this->downloadAndReturn($newURL);
             } else {
-                return $this->downloadAndReturn($newURL, NULL, NULL, TRUE);
+                return $this->downloadAndReturn($newURL, null, null, true);
             }
         } else {
             @curl_setopt($ch, CURLOPT_MAXREDIRS, 20);
@@ -138,24 +138,23 @@ class AcuDownloadAdapterCurl extends AcuDownloadAdapterAbstract implements AcuDo
             }
         }
 
-
         $result = curl_exec($ch);
 
         $errno       = curl_errno($ch);
         $errmsg      = curl_error($ch);
         $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-        if ($result === FALSE) {
-            $error = JText::sprintf('COM_CMSUPDATE_ERR_LIB_' . 'C' . 'U' . 'R' . 'L' . '_ERROR' . $errmsg, $errno, $errmsg);
+        if (false === $result) {
+            $error = JText::sprintf('COM_CMSUPDATE_ERR_LIB_'.'C'.'U'.'R'.'L'.'_ERROR'.$errmsg, $errno, $errmsg);
         } elseif ($http_status > 299) {
-            $result = FALSE;
+            $result = false;
             $errno  = $http_status;
             $error  = JText::sprintf('COM_CMSUPDATE_ERR_LIB_HTTPERROR', $http_status);
         }
 
         curl_close($ch);
 
-        if ($result === FALSE) {
+        if (false === $result) {
             throw new Exception($error, $errno);
         } else {
             return $result;
@@ -163,11 +162,11 @@ class AcuDownloadAdapterCurl extends AcuDownloadAdapterAbstract implements AcuDo
     }
 
     /**
-     * Get the size of a remote file in bytes
+     * Get the size of a remote file in bytes.
      *
-     * @param   string $url The remote file's URL
+     * @param string $url The remote file's URL
      *
-     * @return  integer  The file size, or -1 if the remote server doesn't support this feature
+     * @return int The file size, or -1 if the remote server doesn't support this feature
      */
     public function getFileSize($url)
     {
@@ -176,27 +175,27 @@ class AcuDownloadAdapterCurl extends AcuDownloadAdapterAbstract implements AcuDo
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_NOBODY, TRUE);
-        curl_setopt($ch, CURLOPT_HEADER, TRUE);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        @curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+        curl_setopt($ch, CURLOPT_NOBODY, true);
+        curl_setopt($ch, CURLOPT_HEADER, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        @curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
         $data = curl_exec($ch);
         curl_close($ch);
 
         if ($data) {
-            $content_length = "unknown";
-            $status         = "unknown";
+            $content_length = 'unknown';
+            $status         = 'unknown';
 
             if (preg_match("/^HTTP\/1\.[01] (\d\d\d)/", $data, $matches)) {
-                $status = (int)$matches[1];
+                $status = (int) $matches[1];
             }
 
             if (preg_match("/Content-Length: (\d+)/", $data, $matches)) {
-                $content_length = (int)$matches[1];
+                $content_length = (int) $matches[1];
             }
 
-            if ($status == 200 || ($status > 300 && $status <= 308)) {
+            if (200 == $status || ($status > 300 && $status <= 308)) {
                 $result = $content_length;
             }
         }

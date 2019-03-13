@@ -19,8 +19,8 @@ class RsformModelFiles extends JModelLegacy
 		jimport('joomla.filesystem.path');
 		
 		$this->_folder = JPATH_SITE;
-		
-		$folder = JRequest::getVar('folder');
+
+		$folder = JFactory::getApplication()->input->getString('folder');
 		if (is_dir($folder)) {
 			$folder = rtrim($folder, '\\/');
 			$this->_folder = $folder;
@@ -86,12 +86,13 @@ class RsformModelFiles extends JModelLegacy
 	}
 	
 	public function upload() {
-		$files = JRequest::get('files');
-		$upload = $files['upload'];
-		if (!$files['error'])
-			return JFile::upload($upload['tmp_name'], $this->getCurrent().'/'.JFile::getName($upload['name']), false, true);
-		else
-			return false;
+	    $upload = JFactory::getApplication()->input->files->get('upload');
+		if (!$upload['error'])
+		{
+            return JFile::upload($upload['tmp_name'], $this->getCurrent() . '/' . JFile::getName($upload['name']), false, true);
+        }
+
+		return false;
 	}
 	
 	public function getCanUpload() {
@@ -99,8 +100,7 @@ class RsformModelFiles extends JModelLegacy
 	}
 	
 	public function getUploadFile() {
-		$files  = JRequest::get('files');
-		$upload = $files['upload'];
+        $upload = JFactory::getApplication()->input->files->get('upload');
 		
 		return JFile::getName($upload['name']);
 	}

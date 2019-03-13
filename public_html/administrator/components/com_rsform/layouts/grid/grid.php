@@ -30,7 +30,7 @@ class RSFormProGrid
 		$this->showFormTitle 	= $showFormTitle;
 		$this->components 		= $this->getComponents();
 		
-		$data = json_decode($data);
+		$data = json_decode($data, true);
 		if (is_array($data) && isset($data[0], $data[1]))
 		{
 			$this->rows   = $data[0];
@@ -44,7 +44,7 @@ class RSFormProGrid
 			{
 				$length++;
 				
-				foreach ($row->columns as $fields)
+				foreach ($row['columns'] as $fields)
 				{
 					foreach ($fields as $field)
 					{
@@ -91,7 +91,13 @@ class RSFormProGrid
 		$data = RSFormProHelper::getComponentProperties($components);
 		foreach ($components as $component)
 		{
-			$component->Required = in_array($component->ComponentTypeId, RSFormProHelper::$captchaFields) || isset($data[$component->ComponentId], $data[$component->ComponentId]['REQUIRED']) && $data[$component->ComponentId]['REQUIRED'] == 'YES';
+			$component->Required = isset($data[$component->ComponentId], $data[$component->ComponentId]['REQUIRED']) && $data[$component->ComponentId]['REQUIRED'] == 'YES';
+
+            if (in_array($component->ComponentTypeId, RSFormProHelper::$captchaFields))
+            {
+                // Invisible Captchas should not display a Required Marker
+                $component->Required = isset($data[$component->ComponentId]) && in_array('INVISIBLE', $data[$component->ComponentId], true) ? false : true;
+            }
 		}
 		
 		return $components;
@@ -120,7 +126,7 @@ class RSFormProGrid
 
 		foreach ($this->rows as $row)
 		{
-			foreach ($row->columns as $column => $fields)
+			foreach ($row['columns'] as $column => $fields)
 			{
 				foreach ($fields as $field)
 				{

@@ -17,6 +17,8 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('can_download'), $this->form->getInput('can_download')); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('can_upload'), $this->form->getInput('can_upload')); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('can_change_options'), $this->form->getInput('can_change_options')); ?>
+	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('can_select_speakers'), $this->form->getInput('can_select_speakers')); ?>
+	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('can_add_speaker'), $this->form->getInput('can_add_speaker')); ?>
 	<?php echo JHtml::_('rsfieldset.end'); ?>
 </div>
 <div class="span6 rswidth-50 rsfltlft">

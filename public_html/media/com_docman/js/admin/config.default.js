@@ -51,7 +51,7 @@ kQuery(function($) {
         $('<input type="hidden" name="maximum_size" />').val(value).appendTo($('.k-js-form-controller'));
     };
 
-    $('.k-js-form-controller').on('koowa:beforeApply', evt).on('koowa:beforeSave', evt);
+    $('.k-js-form-controller').on('k:beforeApply', evt).on('k:beforeSave', evt);
 
     $('#advanced-permissions-toggle').on('click', function(e){
         e.preventDefault();

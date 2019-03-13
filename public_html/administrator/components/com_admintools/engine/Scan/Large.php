@@ -1,11 +1,11 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * The PHP-only site backup engine
+ *
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
- *
  */
 
 namespace Akeeba\Engine\Scan;
@@ -41,13 +41,15 @@ class Large extends Base
 {
 	public function &getFiles($folder, &$position)
 	{
-		$result = $this->scanFolder($folder, $position, false, $threshold_key = 'file', $threshold_default = 100);
+		$result = $this->scanFolder($folder, $position, false, 'file', 100);
+
 		return $result;
 	}
 
 	public function &getFolders($folder, &$position)
 	{
-		$result = $this->scanFolder($folder, $position);
+		$result = $this->scanFolder($folder, $position, true, 'dir', 50);
+
 		return $result;
 	}
 
@@ -99,6 +101,26 @@ class Large extends Base
 
 		while ($di->valid())
 		{
+			/**
+			 * If the directory entry is a link pointing somewhere outside the allowed directories per open_basedir we
+			 * will get a RuntimeException (tested on PHP 5.3 onwards). Catching it lets us report the link as
+			 * unreadable without suffering a PHP Fatal Error.
+			 */
+			try {
+				$di->isLink();
+			}
+			catch (\RuntimeException $e)
+			{
+				if (!in_array($di->getFilename(), array('.', '..')))
+				{
+					$this->setWarning(sprintf("Link %s is inaccessible. Check the open_basedir restrictions in your server's PHP configuration", $di->getPathname()));
+				}
+
+				$di->next();
+
+				continue;
+			}
+
 			if ($di->isDot())
 			{
 				$di->next();

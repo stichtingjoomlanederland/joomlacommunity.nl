@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -27,12 +27,12 @@ class EasyDiscussSetupController
 		$this->input = $this->app->input;
 	}
 
-	protected function data( $key , $value )
+	protected function data($key, $value)
 	{
-		$obj 		= new stdClass();
-		$obj->$key	= $value;
+		$obj = new stdClass();
+		$obj->$key = $value;
 
-		$this->result[] 	= $obj;
+		$this->result[] = $obj;
 	}
 
 	public function setInfo($message, $state = true, $args = array())
@@ -106,8 +106,6 @@ class EasyDiscussSetupController
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getJoomlaVersion()
 	{
@@ -157,8 +155,6 @@ class EasyDiscussSetupController
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function engine()
 	{
@@ -173,13 +169,31 @@ class EasyDiscussSetupController
 	}
 
 	/**
+	 * method to extract zip file in installation part
+	 *
+	 * @since	4.2
+	 * @access	public
+	 */
+	public function extractArchive($destination, $extracted)
+	{
+		if (JVERSION < 4.0) {
+			$state = JArchive::extract($destination, $extracted);
+
+			return $state;
+		}
+
+		// Joomla 4 method of extracting archive
+		$archive = new Joomla\Archive\Archive();
+		$state = $archive->extract($destination, $extracted);
+
+		return $state;
+	}
+
+	/**
 	 * Loads the previous version that was installed
 	 *
-	 * @since	1.0
+	 * @since	4.0
 	 * @access	public
-	 * @param	string	The key to save
-	 * @param	mixed	The data to save
-	 * @return
 	 */
 	public function getInstalledVersion()
 	{
@@ -197,12 +211,10 @@ class EasyDiscussSetupController
 	}
 
 	/**
-	 * get a configuration item
+	 * Get a configuration item
 	 *
-	 * @since	1.0
+	 * @since	4.2.0
 	 * @access	public
-	 * @param	string	The key of the version type
-	 * @return
 	 */
 	public function getPreviousVersion($versionType)
 	{
@@ -225,8 +237,6 @@ class EasyDiscussSetupController
 	 *
 	 * @since	1.2
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function isDevelopment()
 	{
@@ -239,7 +249,7 @@ class EasyDiscussSetupController
 	/**
 	 * Saves a configuration item
 	 *
-	 * @since	1.0
+	 * @since	4.2.0
 	 * @access	public
 	 */
 	public function updateConfig($key, $value)

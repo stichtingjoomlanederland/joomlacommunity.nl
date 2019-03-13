@@ -55,7 +55,7 @@ defined('_JEXEC') or die('Restricted access');
 		<?php if ($acl->allowed('add_reply')) { ?>
 			<?php include dirname(__FILE__) . '/default.form.php'; ?>
 		<?php } else if (!$my->id && !$acl->allowed('add_reply')) { ?>
-			<?php echo  ED::getLoginForm('COM_EASYDISCUSS_PLEASE_LOGIN_TO_REPLY', base64_encode(EBR::getRoutedURL('index.php?option=com_easyblog&view=entry&id=' . $article->id, false, true))); ?>
+			<?php echo  ED::getLoginForm('COM_EASYDISCUSS_PLEASE_LOGIN_TO_REPLY', base64_encode(EDR::getRoutedURL('index.php?option=com_content&view=article&id=' . $article->id, false, true))); ?>
 		<?php } ?>
 	<?php } ?>
 

@@ -15,6 +15,7 @@ $config = ED::config();
 $app = JFactory::getApplication();
 
 $cron = $app->input->get('cron', false, 'bool');
+$crondata = $app->input->get('crondata', false, 'bool');
 $task = $app->input->get('task', '', 'cmd');
 
 if ($task == 'cron' || $cron) {
@@ -35,6 +36,12 @@ if ($task == 'cron' || $cron) {
 	ED::maintenance()->run();
 
 	echo 'Cronjob Processed.';
+	exit;
+}
+
+if ($crondata) {
+	$msg = ED::cron()->executeDownload();
+	echo $msg;
 	exit;
 }
 

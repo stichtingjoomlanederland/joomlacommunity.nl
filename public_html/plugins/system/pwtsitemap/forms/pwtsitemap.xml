@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fields name="params">
+		<fieldset name="pwtsitemap">
+			<field
+					name="addtohtmlsitemap"
+					type="radio"
+					class="btn-group btn-group-yesno"
+					label="PLG_SYSTEM_PWTSITEMAP_ADDTOHTMLSITEMAP_LABEL"
+					description="PLG_SYSTEM_PWTSITEMAP_ADDTOHTMLSITEMAP_DESC"
+					default="1"
+			>
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+
+			<field
+				name="addtoxmlsitemap"
+				type="radio"
+				class="btn-group btn-group-yesno"
+				label="PLG_SYSTEM_PWTSITEMAP_ADDTOXMLSITEMAP_LABEL"
+				description="PLG_SYSTEM_PWTSITEMAP_ADDTOXMLSITEMAP_DESC"
+				default="1"
+			>
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+		</fieldset>
+	</fields>
+</form>

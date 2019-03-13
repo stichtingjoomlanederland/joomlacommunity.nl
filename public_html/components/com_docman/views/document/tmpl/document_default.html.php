@@ -166,8 +166,10 @@ defined('KOOWA') or die; ?>
 
     
     <? // Render audio/video player ?>
-    <? if(!$params->force_download): ?>
+    <? if(!$params->force_download && $params->show_player): ?>
+    <p>
         <?= $player = helper('player.render', array('document' => $document)) ?>
+    </p>
     <? endif; ?>
 
 

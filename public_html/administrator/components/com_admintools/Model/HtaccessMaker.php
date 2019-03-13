@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -63,6 +63,8 @@ class HtaccessMaker extends ServerConfigMaker
 		'utf8charset'         => 1,
 		// Send ETag
 		'etagtype'            => 'default',
+		// Referrer policy
+		'referrerpolicy'	  => 'unsafe-url',
 
 		// == Basic security ==
 		// Disable directory listings
@@ -251,6 +253,7 @@ class HtaccessMaker extends ServerConfigMaker
 			'libwww-perl',
 			'Go!Zilla',
 			'TurnitinBot',
+			'sqlmap',
 		),
 
 		// == Server protection ==
@@ -287,7 +290,6 @@ class HtaccessMaker extends ServerConfigMaker
 		// Allow direct access to these files
 		'exceptionfiles'      => array(
 			"administrator/components/com_akeeba/restore.php",
-			"administrator/components/com_admintools/restore.php",
 			"administrator/components/com_joomlaupdate/restore.php"
 		),
 		// Allow direct access, except .php files, to these directories
@@ -927,6 +929,7 @@ END;
 		if ($config->phpeaster == 1)
 		{
 			$htaccess .= <<<END
+## Disable PHP Easter Eggs
 RewriteCond %{QUERY_STRING} \=PHP[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12} [NC]
 RewriteRule .* - [F]
 
@@ -938,10 +941,9 @@ END;
 			$bedirs  = implode('|', $config->bepexdirs);
 			$betypes = implode('|', $config->bepextypes);
 			$htaccess .= <<<END
-## Back-end protection
+#### Back-end protection
 RewriteRule ^administrator/?$ - [L]
 RewriteRule ^administrator/index\.(php|html?)$ - [L]
-RewriteRule ^administrator/index[23]\.php$ - [L]
 RewriteRule ^administrator/($bedirs)/.*\.($betypes)$ - [L]
 RewriteRule ^administrator/ - [F]
 
@@ -953,7 +955,30 @@ END;
 			$fedirs  = implode('|', $config->fepexdirs);
 			$fetypes = implode('|', $config->fepextypes);
 			$htaccess .= <<<END
-## Allow limited access for certain Joomla! system directories with client-accessible content
+#### Front-end protection
+
+END;
+
+			if ($config->backendprot != 1)
+			{
+				/**
+				 * When we have frontend protection enabled BUT backend protection disabled, the "Disallow access to all
+				 * other front-end folders" and the "Disallow access to all other front-end files" rules will also block
+				 * access to the administrator directory. Therefore we need to explicitly allow it _before_ we apply the
+				 * front-end protection
+				 */
+				$htaccess .= <<< HTACCESS
+## Prevent administrator access from being blocked by the front-end protection
+RewriteRule ^administrator$ - [L]
+RewriteRule ^administrator/ - [L]
+
+HTACCESS;
+
+			}
+
+
+			$htaccess .= <<<END
+## Allow limited access for certain directories with client-accessible content
 RewriteRule ^($fedirs)/.*\.($fetypes)$ - [L]
 RewriteRule ^($fedirs)/ - [F]
 ## Disallow front-end access for certain Joomla! system directories (unless access to their files is allowed above)
@@ -961,9 +986,13 @@ RewriteRule ^includes/js/ - [L]
 RewriteRule ^(cache|includes|language|logs|log|tmp)/ - [F]
 RewriteRule ^(configuration\.php|CONTRIBUTING\.md|htaccess\.txt|joomla\.xml|LICENSE\.txt|phpunit\.xml|README\.txt|web\.config\.txt) - [F]
 
-## Disallow access to rogue PHP files throughout the site, unless they are explicitly allowed
+## Explicitly allow access to the site's index.php main entry point file
+RewriteRule ^index.php(/.*){0,1}$ - [L]
+## Explicitly allow access to the site's robots.txt file
+RewriteRule ^robots.txt$ - [L]
+
+## Disallow access to all other PHP files throughout the site, unless they are explicitly allowed
 RewriteCond %{REQUEST_FILENAME} (\.php)$
-RewriteCond %{REQUEST_FILENAME} !(/index[23]?\.php)$
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule (.*\.php)$ - [F]
 
@@ -973,10 +1002,26 @@ END;
 		if ($config->leftovers == 1)
 		{
 			$htaccess .= <<<END
-## Disallow access to htaccess.txt, php.ini and configuration.php-dist
-RewriteRule ^(htaccess\.txt|configuration\.php-dist|php\.ini)$ - [F]
+## Disallow access to htaccess.txt, php.ini, .user.ini and configuration.php-dist
+RewriteRule ^(htaccess\.txt|configuration\.php-dist|php\.ini|\.user\.ini)$ - [F]
 
 END;
+		}
+
+		if ($config->frontendprot == 1)
+		{
+			$htaccess .= <<<END
+# Disallow access to all other front-end folders
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteCond %{REQUEST_URI} !^/
+RewriteRule .* - [F]
+
+# Disallow access to all other front-end files
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule !^index.php$ - [F]
+
+END;
+
 		}
 
 		if ($config->clickjacking == 1)
@@ -1095,6 +1140,18 @@ END;
 <IfModule mod_headers.c>
 	Header $action Access-Control-Allow-Origin "*"
 	Header $action Timing-Allow-Origin "*"
+</IfModule>
+
+END;
+		}
+
+		if ($config->referrerpolicy !== '-1')
+		{
+			$action = version_compare($apacheVersion, '2.0', 'ge') ? 'always set' : 'set';
+			$htaccess .= <<<END
+## Referrer-policy
+<IfModule mod_headers.c>
+	Header $action Referrer-Policy "{$config->referrerpolicy}"
 </IfModule>
 
 END;

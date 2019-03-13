@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -107,9 +107,9 @@ CSS;
 		$this->done    = $done;
 		$this->percent = $percent;
 
-		$this->id   = $model->getState('id');
-		$this->part = $model->getState('part');
-		$this->frag = $model->getState('frag');
+		$this->id   = $model->getState('id', 0, 'int');
+		$this->part = $model->getState('part', 0, 'int');
+		$this->frag = $model->getState('frag', 0, 'int');
 
 		// Render the progress bar
 		$script = <<<JS

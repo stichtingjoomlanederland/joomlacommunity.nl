@@ -123,7 +123,7 @@ class ComDocmanDispatcherBehaviorRoutable extends KControllerBehaviorAbstract
                 // Work-around the bug here: http://joomlacode.org/gf/project/joomla/tracker/?action=TrackerItemEdit&tracker_item_id=28249
                 JFactory::getSession()->set('com.files.fix.the.session.bug', microtime(true));
 
-                return false;
+                $this->send();
             }
         }
     }

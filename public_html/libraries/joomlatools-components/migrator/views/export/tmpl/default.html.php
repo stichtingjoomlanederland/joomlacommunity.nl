@@ -23,7 +23,7 @@ defined('KOOWA') or die; ?>
 
     JoomlatoolsMigrator.token    = '<?= $token; ?>';
     JoomlatoolsMigrator.base_url = '<?= route('view=export&format=json', true, false); ?>';
-    JoomlatoolsMigrator.export_url = '<?= route('view=export&format=raw', true, false); ?>';
+    JoomlatoolsMigrator.export_url = '<?= route('view=export&format=binary', true, false); ?>';
     JoomlatoolsMigrator.exporters = <?= json_encode($exporters) ?>;
 </script>
 <script type="text/javascript">

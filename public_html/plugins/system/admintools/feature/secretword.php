@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -64,10 +64,18 @@ class AtsystemFeatureSecretword extends AtsystemFeatureAbstract
 
 			if (($option == 'com_login') && ($task == 'logout') && $loggingMeOut)
 			{
-				$input = $this->app->input;
-				$method = $input->getMethod();
+				$input          = $this->app->input;
+				$method         = $input->getMethod();
+				$return_encoded = base64_encode('index.php?' . urlencode($password));
 
-				$input->$method->set('return', base64_encode('index.php?' . urlencode($password)));
+				/**
+				 * Since Joomla! 3.8.9 the per-method input is case sensitive. We will try using both lower and upper
+				 * case (e.g. post and POST) to ensure backwards and forwards compatibility.
+				 */
+				foreach (array(strtolower($method), strtoupper($method)) as $m)
+				{
+					$input->$m->set('return', $return_encoded);
+				}
 			}
 		}
 	}

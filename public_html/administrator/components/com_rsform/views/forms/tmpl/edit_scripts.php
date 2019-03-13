@@ -9,12 +9,12 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <h3 class="rsfp-legend"><?php echo JText::_('RSFP_SCRIPTS_DISPLAY'); ?></h3>
 <p class="alert alert-info"><?php echo JText::_('RSFP_SCRIPTS_DISPLAY_DESC'); ?></p>
-<textarea class="rs_textarea codemirror-php rs_100" rows="20" cols="75" name="ScriptDisplay" id="ScriptDisplay"><?php echo $this->escape($this->form->ScriptDisplay);?></textarea>
+<?php echo RSFormProHelper::showEditor('ScriptDisplay', $this->form->ScriptDisplay, array('classes' => 'rs_100', 'syntax' => 'php')); ?>
 
 <h3 class="rsfp-legend"><?php echo JText::_('RSFP_SCRIPTS_PROCESS'); ?></h3>
 <p class="alert alert-info"><?php echo JText::_('RSFP_SCRIPTS_PROCESS_DESC'); ?></p>
-<textarea class="rs_textarea codemirror-php rs_100" rows="20" cols="75" name="ScriptProcess" id="ScriptProcess"><?php echo $this->escape($this->form->ScriptProcess);?></textarea>
+<?php echo RSFormProHelper::showEditor('ScriptProcess', $this->form->ScriptProcess, array('classes' => 'rs_100', 'syntax' => 'php')); ?>
 
 <h3 class="rsfp-legend"><?php echo JText::_('RSFP_SCRIPTS_PROCESS2'); ?></h3>
 <p class="alert alert-info"><?php echo JText::_('RSFP_SCRIPTS_PROCESS2_DESC'); ?></p>
-<textarea class="rs_textarea codemirror-php rs_100" rows="20" cols="75" name="ScriptProcess2" id="ScriptProcess2"><?php echo $this->escape($this->form->ScriptProcess2);?></textarea>
+<?php echo RSFormProHelper::showEditor('ScriptProcess2', $this->form->ScriptProcess2, array('classes' => 'rs_100', 'syntax' => 'php')); ?>

@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -216,7 +216,6 @@ class QuickStart extends Model
 			'allowsitetemplate'       => 0,
 			'trackfailedlogins'       => $state,
 			'use403view'              => 0,
-			'showpwonloginfailure'    => 1,
 			'iplookup'                => 'ip-lookup.net/index.php?ip={ip}',
 			'iplookupscheme'          => 'http',
 			'saveusersignupip'        => $state,

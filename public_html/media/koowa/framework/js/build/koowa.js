@@ -1419,15 +1419,15 @@ Koowa.Controller = Koowa.Class.extend({
         return this;
     },
     on: function(type, fn){
-        return this.form.on('koowa:'+type, fn);
+        return this.form.on('k:'+type, fn);
     },
 
     off: function(type, fn){
-        return this.form.off('koowa:'+type, fn);
+        return this.form.off('k:'+type, fn);
     },
 
     trigger: function(type, args){
-        var event = $.Event('koowa:'+type);
+        var event = $.Event('k:'+type);
         this.form.trigger(event, args);
         return !event.isDefaultPrevented();
     },
@@ -1592,12 +1592,21 @@ Koowa.Controller.Grid = Koowa.Controller.extend({
  * Controller class specialized for forms, extends Koowa.Controller
  */
 Koowa.Controller.Form = Koowa.Controller.extend({
+    _actionDelete: function(context) {
+        context.method = 'delete';
+
+        return this._actionDefault(context);
+    },
     _actionDefault: function(context){
         if (context.validate && !this.trigger('validate', [context])) {
             return false;
         }
 
         this.form.append($('<input/>', {name: '_action', type: 'hidden', value: context.action}));
+
+        if (context.method) {
+            this.form.append($('<input/>', {name: '_method', type: 'hidden', value: context.method}));
+        }
 
         this.trigger('submit', [context]);
         this.form.submit();

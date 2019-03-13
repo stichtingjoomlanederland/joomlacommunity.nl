@@ -1,17 +1,43 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 /** @var Akeeba\AdminTools\Admin\View\ConfigureWAF\Html    $this */
+
 use Akeeba\AdminTools\Admin\Helper\Params;
 use Akeeba\AdminTools\Admin\Helper\Select;
 
 defined('_JEXEC') or die;
 
 ?>
+<div class="akeeba-form-group">
+    <label
+            for="leakedpwd"
+            rel="akeeba-sticky-tooltip"
+            data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_LEAKEDPWD'); ?>"
+            data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_LEAKEDPWD_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_LEAKEDPWD'); ?>
+    </label>
+
+	<?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'leakedpwd', $this->wafconfig['leakedpwd']); ?>
+</div>
+
+<div class="akeeba-form-group">
+    <label
+            for="leakedpwd"
+            rel="akeeba-sticky-tooltip"
+            data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_LEAKEDPWD_GROUPS'); ?>"
+            data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_LEAKEDPWD_GROUPS_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_LEAKEDPWD_GROUPS'); ?>
+    </label>
+
+	<?php echo JHtml::_('access.usergroup', 'leakedpwd_groups[]', $this->wafconfig['leakedpwd_groups'], ['multiple' => true, 'size' => 5], false)?>
+
+</div>
+
 <div class="akeeba-form-group">
 	<label for="nonewadmins"
 		   rel="akeeba-sticky-tooltip"
@@ -76,6 +102,17 @@ defined('_JEXEC') or die;
     </label>
 
     <?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'criticalfiles', $this->wafconfig['criticalfiles']); ?>
+</div>
+
+<div class="akeeba-form-group">
+    <label for="criticalfiles_global"
+           rel="akeeba-sticky-tooltip"
+           data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CRITICALFILES_GLOBAL'); ?>"
+           data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CRITICALFILES_GLOBAL_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CRITICALFILES_GLOBAL'); ?>
+    </label>
+
+	<textarea id="criticalfiles_global" name="criticalfiles_global" rows="5"><?php echo $this->escape($this->wafconfig['criticalfiles_global'])?></textarea>
 </div>
 
 <div class="akeeba-form-group">
@@ -190,6 +227,28 @@ elseif ($userParams->get('useractivation') == 0)
 </div>
 
 <div class="akeeba-form-group">
+    <label
+            for="filteremailregistration"
+            rel="akeeba-sticky-tooltip"
+            data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_FILTER_REGISTRATION'); ?>"
+            data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_FILTER_REGISTRATION_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_FILTER_REGISTRATION'); ?>
+    </label>
+
+    <?php
+	    $checked_1 = $this->wafconfig['filteremailregistration'] == 'allow' ? '' : 'checked ';
+	    $checked_2 = $this->wafconfig['filteremailregistration'] == 'block' ? 'checked ' : '';
+    ?>
+
+    <div class="akeeba-toggle">
+        <input type="radio" class="radio-allow" name="filteremailregistration" <?php echo $checked_2 ?> id="filteremailregistration-2" value="allow">
+        <label for="filteremailregistration-2" class="green"><?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_FILTER_REGISTRATION_ALLOW') ?></label>
+        <input type="radio" class="radio-block" name="filteremailregistration" <?php echo $checked_1 ?> id="filteremailregistration-1" value="block">
+        <label for="filteremailregistration-1" class="red"><?php echo JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_FILTER_REGISTRATION_BLOCK') ?></label>
+    </div>
+</div>
+
+<div class="akeeba-form-group">
 	<label
 		   for="blockedemaildomains"
 		   rel="akeeba-sticky-tooltip"
@@ -199,4 +258,83 @@ elseif ($userParams->get('useractivation') == 0)
 	</label>
 
     <textarea id="blockedemaildomains" name="blockedemaildomains" rows="5"><?php echo $this->escape($this->wafconfig['blockedemaildomains']); ?></textarea>
+</div>
+
+<h4><?php echo JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_HEAD') ?></h4>
+
+<div class="akeeba-form-group">
+    <label
+            for="disableobsoleteadmins"
+            rel="akeeba-sticky-tooltip"
+            data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS'); ?>"
+            data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS'); ?>
+    </label>
+
+	<?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'disableobsoleteadmins', $this->wafconfig['disableobsoleteadmins']); ?>
+</div>
+
+<div class="akeeba-form-group">
+    <label
+            for="disableobsoleteadmins_freq"
+            rel="akeeba-sticky-tooltip"
+            data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_FREQ'); ?>"
+            data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_FREQ_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_FREQ'); ?>
+    </label>
+
+    <input class="akeeba-input-mini" type="text" size="5" name="disableobsoleteadmins_freq"
+           value="<?php echo $this->escape($this->wafconfig['disableobsoleteadmins_freq']); ?>"/>
+</div>
+
+<div class="akeeba-form-group">
+    <label
+            for="disableobsoleteadmins_groups"
+            rel="akeeba-sticky-tooltip"
+            data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_GROUPS'); ?>"
+            data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_GROUPS_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_GROUPS'); ?>
+    </label>
+
+	<?php echo JHtml::_('access.usergroup', 'disableobsoleteadmins_groups[]', $this->wafconfig['disableobsoleteadmins_groups'], [
+		'multiple' => true, 'size' => 5,
+	], true) ?>
+</div>
+
+<div class="akeeba-form-group">
+    <label
+            for="disableobsoleteadmins_maxdays"
+            rel="akeeba-sticky-tooltip"
+            data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_MAXDAYS'); ?>"
+            data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_MAXDAYS_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_MAXDAYS'); ?>
+    </label>
+
+    <input class="akeeba-input-mini" type="text" size="5" name="disableobsoleteadmins_maxdays"
+           value="<?php echo $this->escape($this->wafconfig['disableobsoleteadmins_maxdays']); ?>"/>
+</div>
+
+<div class="akeeba-form-group">
+    <label for="disableobsoleteadmins_action"
+           rel="akeeba-sticky-tooltip"
+           data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_ACTION'); ?>"
+           data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_ACTION_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_ACTION'); ?>
+    </label>
+
+	<?php echo Select::disableObsoleteAdminsAction('disableobsoleteadmins_action', array(), $this->wafconfig['disableobsoleteadmins_action']); ?>
+</div>
+
+<div class="akeeba-form-group">
+    <label
+            for="disableobsoleteadmins_protected"
+            rel="akeeba-sticky-tooltip"
+            data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_PROTECTED'); ?>"
+            data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_PROTECTED_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DISABLEOBSOLETEADMINS_PROTECTED'); ?>
+    </label>
+
+    <?php echo Select::backendUsers('disableobsoleteadmins_protected[]', [
+	    'multiple' => true, 'size' => 10, 'class' => 'advancedSelect'
+    ], $this->wafconfig['disableobsoleteadmins_protected']) ?>
 </div>

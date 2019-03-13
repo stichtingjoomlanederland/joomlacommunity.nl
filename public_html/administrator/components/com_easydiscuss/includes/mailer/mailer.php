@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -31,13 +31,14 @@ class EasyDiscussMailer extends EasyDiscuss
 	}
 
 
-	public static function notifyAdministrators($data, $excludes = array(), $notifyAdmins = false, $notifyModerators = false)
+	public static function notifyAdministrators($data, $excludes = array(), $notifyAdmins = false, $notifyModerators = false, $onlyRetrieveEmails = false)
 	{
 		// Get and unique emails from admins, custom admins,
 		// category moderators and custom category moderators
+		$emails = array();
 
 		if (!$notifyAdmins && !$notifyModerators) {
-			return;
+			return $emails;
 		}
 
 		$catId = isset($data['cat_id']) ? $data['cat_id'] : null;
@@ -46,6 +47,11 @@ class EasyDiscussMailer extends EasyDiscuss
 
 		if (count($emails) > 0 && count($excludes) > 0) {
 			$emails = array_diff($emails, $excludes);
+		}
+
+		// Only want to retrieve a list of administrator and moderator email
+		if ($onlyRetrieveEmails && !empty($emails)) {
+			return $emails;
 		}
 
 		if (!empty($emails)) {
@@ -66,20 +72,20 @@ class EasyDiscussMailer extends EasyDiscuss
 	 * @since	4.0.13
 	 * @access	public
 	 */
-	public static function notifySubscribers($data, $excludes = array())
+	public static function notifySubscribers($data, $excludes = array(), $aclType = DISCUSS_CATEGORY_ACL_ACTION_VIEW)
 	{
 		// Store all the sent emails
 		$emailSent = array();
 
 		// Notify site subscribers
-		$siteSubscribers = self::getSubscribers('site', 0, $data['cat_id'], array(), $excludes);
+		$siteSubscribers = self::getSubscribers('site', 0, $data['cat_id'], array(), $excludes, $aclType);
 
 		foreach ($siteSubscribers as $subscriber) {
 			$emailSent[] = $subscriber->email;
 		}
 
 		// Notify category subscribers
-		$catSubscribers = self::getSubscribers('category', $data['cat_id'], $data['cat_id'], '', $excludes);
+		$catSubscribers = self::getSubscribers('category', $data['cat_id'], $data['cat_id'], '', $excludes, $aclType);
 
 		foreach ($catSubscribers as $subscriber) {
 			$emailSent[] = $subscriber->email;
@@ -120,9 +126,9 @@ class EasyDiscussMailer extends EasyDiscuss
 		return $emailSent;
 	}
 
-	public static function notifyThreadSubscribers($data, $excludes = array())
+	public static function notifyThreadSubscribers($data, $excludes = array(), $aclType = DISCUSS_CATEGORY_ACL_ACTION_VIEW)
 	{
-		$subscribers = self::getSubscribers('post', $data['post_id'], $data['cat_id'], array(), $excludes);
+		$subscribers = self::getSubscribers('post', $data['post_id'], $data['cat_id'], array(), $excludes, $aclType);
 
 		self::_saveQueue($subscribers, $data);
 
@@ -172,15 +178,43 @@ class EasyDiscussMailer extends EasyDiscuss
 	 */
 	public static function notifyThreadParticipants($data, $excludes = array())
 	{
-		$excludes = array_unique($excludes);
-		$participants = self::_getParticipants($data['post_id']);
+		$config = ED::config();
+		$db = ED::db();
+		$adminsEmails = array();
 
-		//need to do some exclusion here.
-		if (count($excludes) > 0) {
+		// Need to exclude this for prevent send duplicate email to the same user with the new reply notification
+		if ($config->get('notify_admin_onreply') || $config->get('notify_moderator_onreply')) {
+
+			// retrieve site super admin
+			$query = 'SELECT `email` FROM `#__users`';
+
+			if (ED::getJoomlaVersion() >= '1.6') {
+
+				$saUsersIds	= ED::getSAUsersIds();
+				$query .= ' WHERE id IN (' . implode(',', $saUsersIds) . ')';
+			} else {
+				$query .= ' WHERE LOWER( `usertype` ) = ' . $db->Quote('super administrator');
+			}
+
+			$query .= ' AND `sendEmail` = ' . $db->Quote('1');
+			$db->setQuery($query);
+
+			$adminsEmails = $db->loadResultArray();
+		}
+
+		// merge with the admin and excludes emails
+		$excludes = array_merge($adminsEmails, $excludes);
+
+		// make it unique email
+		$excludes = array_unique($excludes);
+		$participants = self::_getParticipants($data['post_id'], $data['cat_id']);
+
+		// need to do some exclusion here.
+		if ($excludes && count($excludes) > 0) {
 			$participants = array_diff($participants, $excludes);
 		}
 
-		if (count($participants) > 0) {
+		if ($participants && count($participants) > 0) {
 
 			$participants = array_unique($participants);
 
@@ -188,14 +222,17 @@ class EasyDiscussMailer extends EasyDiscuss
 				self::_storeQueue($part, $data);
 			}
 		}
+
 		return $participants;
 	}
 
-	public static function _getParticipants($postId)
+	public static function _getParticipants($postId, $catId)
 	{
 		$db = ED::db();
 
 		$emails = array();
+		$participants = array();
+		$excludes = array();
 
 		if (empty($postId)) {
 			return $emails;
@@ -203,7 +240,7 @@ class EasyDiscussMailer extends EasyDiscuss
 
 		$my = JFactory::getUser();
 
-		$query = 'SELECT a.`poster_email`, b.`email`';
+		$query = 'SELECT DISTINCT a.`poster_email`, b.`email`, a.`user_id`';
 		$query .= ' FROM `#__discuss_posts` AS a';
 		$query .= '  LEFT JOIN `#__users` AS b ON a.`user_id` = b.`id`';
 		$query .= ' WHERE (a.`parent_id` = ' . $db->Quote( $postId ) . ' OR a.`id` = ' . $db->Quote( $postId ) .')';
@@ -213,17 +250,40 @@ class EasyDiscussMailer extends EasyDiscuss
 		}
 
 		$db->setQuery($query);
-		$result = $db->loadObjectList();
+		$results = $db->loadObjectList();
 
-		if (count($result) > 0) {
+		// if this thread has participants
+		if (count($results) > 0) {
 
-			foreach ($result as $item) {
+			foreach ($results as $item) {
 				$emails[] = (empty($item->email)) ? $item->poster_email : $item->email;
+
+				$obj = new stdClass();
+				$obj->id = $item->user_id;
+				$obj->email = (empty($item->email)) ? $item->poster_email : $item->email;
+
+				$participants[] = $obj;
+			}
+
+			$catModel = ED::model('Category');
+
+			// retrieve a list of participant user id
+			foreach ($participants as $participant) {
+
+				$userId = (int) $participant->id;
+
+				// this will return a list of disallowed category id which this user id doesn't have permission to access post reply
+				$disallowed = $catModel->getDisallowedCategories($userId, DISCUSS_CATEGORY_ACL_ACTION_VIEWREPLY);
+
+				// assign to this excludes variable if those participant user doesn't have permission to access post reply
+				if (in_array($catId, $disallowed)) {
+					$excludes[] = $participant->email;
+				}
 			}
 		}
 
-		// Ensure that they are always unique.
-		$emails = array_unique($emails);
+		// Exclude those participants user who do not have permission to access post reply
+		$emails = array_diff($emails, $excludes);
 
 		return $emails;
 	}
@@ -269,6 +329,14 @@ class EasyDiscussMailer extends EasyDiscuss
 			$category = ED::table('Category');
 			$category->load($data['cat_id']);
 			$groups = $category->getViewableGroups();
+
+			// when there is nothing return, this mean
+			// there is no jooml user group that can view posts
+			// from this category. If that is the case,
+			// we dont have to process further. #573
+			if (!$groups) {
+				return;
+			}
 
 			$query .= ' AND b.`group_id` IN(' . implode(',', $groups) . ')';
 		}
@@ -401,7 +469,11 @@ class EasyDiscussMailer extends EasyDiscuss
 
 			$admins = $db->loadResultArray();
 
-			$customAdmins = explode(',' , $config->get('notify_custom'));
+			$siteCustomMods = $config->get('notify_custom');
+
+			if ($siteCustomMods) {
+				$customAdmins = explode(',' , $siteCustomMods);
+			}
 		}
 
 		if ($notifyModerators) {
@@ -411,25 +483,34 @@ class EasyDiscussMailer extends EasyDiscuss
 
 			if ($catId) {
 				$category = ED::category($catId);
-				$customMods = explode(',', $category->getParam('cat_notify_custom'));
+
+				$customMods = array();
+				$catCustomMods = $category->getParam('cat_notify_custom');
+
+				if (!empty($catCustomMods)) {
+					$customMods = explode(',', $category->getParam('cat_notify_custom'));
+				}
 			}
 		}
 
-		$emails =  array_unique(array_merge($admins, $customAdmins, $mods, $customMods));
+		$emails = array_unique(array_merge($admins, $customAdmins, $mods, $customMods));
 
 		return $emails;
 	}
 
 	/**
 	 * Get subscribers according to type
+	 *
+	 * @since	4.0
+	 * @access	public
 	 */
-	public static function getSubscribers($type, $cid, $categoryId, $params = array(), $excludes = array())
+	public static function getSubscribers($type, $cid, $categoryId, $params = array(), $excludes = array(), $aclType = DISCUSS_CATEGORY_ACL_ACTION_VIEW)
 	{
 		$db = ED::db();
 
 		$query	= 'SELECT `content_id` FROM `#__discuss_category_acl_map`';
 		$query	.= ' WHERE `category_id` = ' . $db->Quote($categoryId);
-		$query	.= ' AND `acl_id` = ' . $db->Quote(DISCUSS_CATEGORY_ACL_ACTION_VIEW);
+		$query	.= ' AND `acl_id` = ' . $db->Quote($aclType);
 		$query	.= ' AND `type` = ' . $db->Quote('group');
 
 		$db->setQuery($query);
@@ -458,8 +539,10 @@ class EasyDiscussMailer extends EasyDiscuss
 			$db->setQuery($query);
 			$aclItems  = $db->loadObjectList();
 
+			$guestGroupId = JComponentHelper::getParams('com_users')->get('guest_usergroup');
+
 			// Now get the guest subscribers
-			if (in_array('1', $categoryGrps) || in_array('0', $categoryGrps)) {
+			if (in_array('1', $categoryGrps) || in_array($guestGroupId, $categoryGrps)) {
 				$query	= 'SELECT * FROM `#__discuss_subscription` AS ds';
 				$query	.= ' WHERE ds.`interval` = ' . $db->Quote('instant');
 				$query	.= ' AND ds.`type` = ' . $db->Quote($type);
@@ -471,6 +554,7 @@ class EasyDiscussMailer extends EasyDiscuss
 			}
 
 			$result = array_merge($aclItems, $nonAclItems);
+
 		} else {
 			$query	= 'SELECT * FROM `#__discuss_subscription` '
 					. ' WHERE `type` = ' . $db->Quote( $type )
@@ -499,11 +583,13 @@ class EasyDiscussMailer extends EasyDiscuss
 			$result = $db->loadObjectList();
 		}
 
-		//lets run another checking to ensure the emails doesnt exists in exclude array
+		// lets run another checking to ensure the emails doesnt exists in exclude array
 		$finalResult = array();
+
 		if (count($excludes) > 0 && count($result) > 0) {
 			foreach ($result as $item) {
 				$email = $item->email;
+
 				if (!in_array($email, $excludes)) {
 					$finalResult[] = $item;
 				}
@@ -539,7 +625,6 @@ class EasyDiscussMailer extends EasyDiscuss
 
 		// Modify the from name to the user that generated this activity
 		if ($config->get('notify_modify_from') && isset($data['senderObject']) && $data['senderObject']) {
-
 			return $data['senderObject']->user->email;
 		}
 
@@ -695,13 +780,13 @@ class EasyDiscussMailer extends EasyDiscuss
 	}
 
 	/**
-     * Trim email content before send
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Trim email content before send
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
 	public function trimEmail($content)
 	{
 		if ($this->config->get('layout_editor') != 'bbcode') {
@@ -727,13 +812,13 @@ class EasyDiscussMailer extends EasyDiscuss
 	}
 
 	/**
-     * Truncate email content
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Truncate email content
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
 	public function truncate($content)
 	{
 		// Convert HTML entities to characters e.g. &lt;br&gt; => <br>
@@ -748,21 +833,21 @@ class EasyDiscussMailer extends EasyDiscuss
 	}
 
 	/**
-     * Get email moderation link
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Get email moderation link
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
 	public function getModerationLink($approveURL, $rejectURL)
 	{
 		$content  = '<div style="display:inline-block;width:100%;padding:20px;border-top:1px solid #ccc;padding:20px 0 10px;margin-top:20px;line-height:19px;color:#555;font-family:\'Lucida Grande\',Tahoma,Arial;font-size:12px;text-align:left">';
-        $content .= '<a href="' . $approveURL . '" style="display:inline-block;padding:5px 15px;background:#fc0;border:1px solid #caa200;border-bottom-color:#977900;color:#534200;text-shadow:0 1px 0 #ffe684;font-weight:bold;box-shadow:inset 0 1px 0 #ffe064;-moz-box-shadow:inset 0 1px 0 #ffe064;-webkit-box-shadow:inset 0 1px 0 #ffe064;border-radius:2px;moz-border-radius:2px;-webkit-border-radius:2px;text-decoration:none!important">' . JText::_('COM_EASYDISCUSS_EMAIL_APPROVE_POST') . '</a>';
-        $content .= ' ' . JText::_('COM_EASYDISCUSS_OR') . ' <a href="' . $rejectURL . '" style="color:#477fda">' . JText::_('COM_EASYDISCUSS_REJECT') . '</a>';
-        $content .= '</div>';
+		$content .= '<a href="' . $approveURL . '" style="display:inline-block;padding:5px 15px;background:#fc0;border:1px solid #caa200;border-bottom-color:#977900;color:#534200;text-shadow:0 1px 0 #ffe684;font-weight:bold;box-shadow:inset 0 1px 0 #ffe064;-moz-box-shadow:inset 0 1px 0 #ffe064;-webkit-box-shadow:inset 0 1px 0 #ffe064;border-radius:2px;moz-border-radius:2px;-webkit-border-radius:2px;text-decoration:none!important">' . JText::_('COM_EASYDISCUSS_EMAIL_APPROVE_POST') . '</a>';
+		$content .= ' ' . JText::_('COM_EASYDISCUSS_OR') . ' <a href="' . $rejectURL . '" style="color:#477fda">' . JText::_('COM_EASYDISCUSS_REJECT') . '</a>';
+		$content .= '</div>';
 
-        return $content;
+		return $content;
 	}
 
 	/**
@@ -822,5 +907,16 @@ class EasyDiscussMailer extends EasyDiscuss
 				self::_storeQueue($email, $data);
 			}
 		}
-	}	
+	}
+
+	/**
+	 * Public layer to call _prepareBody proctected function
+	 *
+	 * @since	4.1
+	 * @access	public
+	 */
+	public function generateEmailBody($data)
+	{
+		return $this->_prepareBody($data);
+	}
 }

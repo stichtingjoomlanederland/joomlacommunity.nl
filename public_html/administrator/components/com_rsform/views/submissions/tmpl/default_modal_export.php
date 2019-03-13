@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die;
 ?>
-<div id="template-manager-folder" class="container-fluid">
+<div class="container-fluid">
 	<div class="row-fluid">
 		<div class="span12">
 			<p class="text-center">

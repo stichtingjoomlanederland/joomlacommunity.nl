@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -30,12 +30,13 @@ class AtsystemFeatureBlockemaildomains extends AtsystemFeatureAbstract
 			return false;
 		}
 
-
 		return true;
 	}
 
 	public function onUserBeforeSave($olduser, $isnew, $user)
 	{
+		$allowed = false;
+		$block   = ($this->cparams->getValue('filteremailregistration', 'block') == 'block');
 		$domains = $this->cparams->getValue('blockedemaildomains', '');
 
 		$domains = str_replace("\r", "\n", $domains);
@@ -44,8 +45,8 @@ class AtsystemFeatureBlockemaildomains extends AtsystemFeatureAbstract
 
 		foreach ($domains as $domain)
 		{
-			// The user used a blocked domain, let's prevent
-			if (strpos($user['email'], trim($domain)) !== false)
+			// Block specific domains and we have a match
+			if ($block && (stripos($user['email'], trim($domain)) !== false))
 			{
 				// Load the component's administrator translation files
 				$jlang = JFactory::getLanguage();
@@ -55,6 +56,24 @@ class AtsystemFeatureBlockemaildomains extends AtsystemFeatureAbstract
 
 				throw new Exception(JText::sprintf('COM_ADMINTOOLS_ERR_BLOCKEDEMAILDOMAINS', $domain));
 			}
+
+			// Allow only specific domains and the user is using a domain that is NOT in the list
+			if (!$block && (stripos($user['email'], trim($domain)) !== false))
+			{
+				// Let's raise the flag to mark that we got a match
+				$allowed = true;
+			}
+		}
+
+		// If I have to allow only specific email domains and we didn't have a match, let's block the registration
+		if (!$block && !$allowed)
+		{
+			$jlang = JFactory::getLanguage();
+			$jlang->load('com_admintools', JPATH_ADMINISTRATOR, 'en-GB', true);
+			$jlang->load('com_admintools', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
+			$jlang->load('com_admintools', JPATH_ADMINISTRATOR, null, true);
+
+			throw new Exception(JText::sprintf('COM_ADMINTOOLS_ERR_BLOCKEDEMAILDOMAINS', $user['email']));
 		}
 
 		return true;

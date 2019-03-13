@@ -70,6 +70,14 @@
 		<option value="0">JNO</option>
 	</field>
 	<field name="restricted_categories" type="category" extension="com_rseventspro" published="1" label="COM_RSEVENTSPRO_GROUP_RESTRICTED_CATEGORIES" description="COM_RSEVENTSPRO_GROUP_RESTRICTED_CATEGORIES_DESC" multiple="multiple" />
+	<field name="can_select_speakers" type="radio" class="btn-group" label="COM_RSEVENTSPRO_GROUP_CAN_SELECT_SPEAKERS" default="1">
+		<option value="1">JYES</option>
+		<option value="0">JNO</option>
+	</field>
+	<field name="can_add_speaker" type="radio" class="btn-group" label="COM_RSEVENTSPRO_GROUP_CAN_ADD_SPEAKER" default="0">
+		<option value="1">JYES</option>
+		<option value="0">JNO</option>
+	</field>
 	
 	<fields name="event">
 		<field name="enable_rating" type="radio" class="btn-group" label="COM_RSEVENTSPRO_ENABLE_EVENT_RATING" description="" default="1">

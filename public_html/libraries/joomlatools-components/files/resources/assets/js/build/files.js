@@ -2066,6 +2066,20 @@ Files.Filesize.prototype.humanize = function() {
     return (i === 0 || size % 1 === 0 ? size : size.toFixed(2)) + ' ' + Koowa.translate(this.units[i]);
 };
 
+Files.urlEncoder = function(value)
+{
+    value = encodeURI(value);
+
+    var replacements = {'\\?': '%3F', '#': '%23'}
+
+    for(var key in replacements)
+    {   var regexp = new RegExp(key, 'g');
+        value = value.replace(regexp, replacements[key]);
+    }
+
+    return value;
+};
+
 Files.FileTypes = {};
 Files.FileTypes.map = {
 	'audio': ['aif','aiff','alac','amr','flac','ogg','m3u','m4a','mid','mp3','mpa','wav','wma'],
@@ -2315,6 +2329,7 @@ Files.Grid = new Class({
             }
 
             var target = event.target;
+
             if (target.get('tag') === 'a' || target.get('tag') === 'input') {
                 return;
             }
@@ -2322,6 +2337,10 @@ Files.Grid = new Class({
             if (target.get('tag') === 'i' && target.hasClass('icon-download')) {
                 return;
             }
+
+            if (target.get('tag') === 'span' && target.getParent().get('tag') === 'a') {
+            	return;
+			}
 
             var node = target.getParent('.files-node-shadow') || target.getParent('.files-node');
 
@@ -2610,22 +2629,28 @@ Files.Grid = new Class({
 
 		this.renew();
 
-		// footable
-		var $footable = kQuery('.k-js-responsive-table');
-
-		if (this.layout === 'details') {
-
-			$footable.footable({
-				toggleSelector: '.footable-toggle',
-				breakpoints: {
-					phone: 400,
-					tablet: 600,
-					desktop: 800
-				}
-			});
-		}
+		this.setFootable();
 
 		this.fireEvent('afterRender');
+	},
+	setFootable: function() {
+        var $footable = kQuery('.k-js-responsive-table');
+
+        if ($footable.length && this.layout === 'details')
+        {
+			if (!$footable.hasClass('footable'))
+			{
+				$footable.footable({
+					toggleSelector: '.footable-toggle',
+					breakpoints: {
+						phone: 400,
+						tablet: 600,
+						desktop: 800
+					}
+				});
+			}
+			else $footable.trigger('footable_redraw');
+        }
 	},
 	renderObject: function(object, position) {
 		position = position || 'alphabetical';
@@ -2799,6 +2824,8 @@ Files.Grid = new Class({
     },
     unspin: function(){
 		this.spinner_container.addClass('k-is-hidden');
+		kodekitUI.gallery();
+		kodekitUI.sidebarToggle();
     },
     /**
      * Updates the active state on the switchers
@@ -3143,6 +3170,8 @@ Files.File = new Class({
 		
 		this.size = new Files.Filesize(this.metadata.size);
 		this.filetype = Files.getFileType(this.metadata.extension);
+
+		this.client_cache = false;
 	},
 	getModifiedDate: function(formatted) {
         if (this.metadata.modified_date) {
@@ -3165,7 +3194,7 @@ Files.File = new Class({
 				url: Files.app.createRoute({view: 'file', folder: that.folder, name: that.name}),
 				method: 'post',
 				data: {
-					'_action': 'delete',
+					'_method': 'delete',
 					'csrf_token': Files.token
 				},
 				onSuccess: function(response) {
@@ -3289,7 +3318,7 @@ Files.Folder = new Class({
 				url: Files.app.createRoute({view: 'folder', folder: Files.app.getPath(), name: that.name}),
 				method: 'post',
 				data: {
-					'_action': 'delete',
+					'_method': 'delete',
 					'csrf_token': Files.token
 				},
 				onSuccess: function(response) {
@@ -3675,6 +3704,7 @@ Files.App = new Class({
         root_path: '',
         root_text: 'Root folder',
         cookie: {
+            name: null,
             path: '/'
         },
         persistent: true,
@@ -3809,7 +3839,11 @@ Files.App = new Class({
 
         this.fireEvent('onInitialize', this);
 
-        if (this.options.persistent && this.options.container) {
+        if (this.options.cookie.name) {
+            this.cookie = this.options.cookie.name;
+        }
+
+        if (this.cookie === null && this.options.persistent && this.options.container) {
             var container = typeof this.options.container === 'string' ? this.options.container : this.options.container.slug;
             this.cookie = 'com.files.container.'+container;
         }
@@ -3861,7 +3895,7 @@ Files.App = new Class({
     setState: function() {
         this.fireEvent('beforeSetState');
 
-        if (this.cookie) {
+        if (this.cookie && this.options.persistent) {
             var state = Cookie.read(this.cookie+'.state'),
                 obj   = JSON.decode(state, true);
 
@@ -4238,6 +4272,7 @@ Files.App = new Class({
 
                     this.container.removeClass('k-'+remove).addClass('k-'+layout);
                     kQuery('#files-grid-container').removeClass('k-'+remove+'-container').addClass('k-'+layout+'-container');
+                    kQuery('#files-paginator-container').removeClass('k-'+remove+'-pagination').addClass('k-'+layout+'-pagination');
                 }
 
                 if (key) {
@@ -4249,13 +4284,17 @@ Files.App = new Class({
 
                 if (that.grid) {
                     that.setThumbnails();
+                    kodekitUI.gallery();
                 }
             },
             onSetState: function(state) {
                 this.state.set(state);
 
                 this.navigate();
-            }.bind(this)
+            }.bind(this),
+            onAfterInsertRows: function() {
+                this.setFootable();
+            }
         });
         this.grid = new Files.Grid(this.options.grid.element, opts);
 
@@ -4482,15 +4521,14 @@ Files.App = new Class({
 
         var nodes = this.grid.nodes,
             that = this;
-        if (nodes.getLength()) {
-            nodes.each(function(node) {
-                if (node.filetype !== 'image') {
-                    return;
-                }
-                var name = node.name;
-
+        if (nodes.getLength())
+        {
+            nodes.each(function(node)
+            {
                 var img = node.element.getElement('img.image-thumbnail');
-                if (img) {
+
+                if (img)
+                {
                     img.addEvent('load', function(){
                         this.addClass('loaded');
                     });
@@ -4498,7 +4536,9 @@ Files.App = new Class({
                     var source = Files.blank_image;
 
                     if (node.thumbnail) {
-                        source = Files.sitebase + '/' + node.thumbnail.relative_path;
+                        source = Files.sitebase + '/' + node.encodePath(node.thumbnail.relative_path, Files.urlEncoder);
+                    } else if (node.download_link) {
+                        source = node.download_link;
                     }
 
                     img.set('src', source);
@@ -4671,7 +4711,9 @@ Files.Attachments.App = new Class({
                 copy.render('attachments').inject(that.preview);
 
                 if (copy.file.thumbnail) {
-                    that.preview.getElement('img').set('src', Files.sitebase + '/' + copy.file.thumbnail.relative_path).show();
+                    that.preview.getElement('img').set('src', Files.sitebase + '/' + row.encodePath(copy.file.thumbnail.relative_path, Files.urlEncoder)).show();
+                } else if (copy.file.type == 'image') {
+                    that.preview.getElement('img').set('src', that.createRoute({view: 'file', format: 'html', name: copy.file.name, routed: 1}));
                 }
 
                 that.grid.selected = row.name;
@@ -4819,13 +4861,23 @@ if (!Files) var Files = {};
                         }
                     }
 
-                    if (row.type == 'image') {
+                    if (row.type == 'image')
+                    {
                         var image = row.element.getElement('img');
+
                         if (image) {
 
-                            var setThumbnail = function(thumbnail)
+                            var setThumbnail = function(row)
                             {
-                                image.set('src', Files.sitebase + '/' + thumbnail.relative_path).addClass('loaded').removeClass('loading');
+                                var source = Files.blank_image;
+
+                                if (row.thumbnail) {
+                                    source = Files.sitebase + '/' + row.encodePath(row.thumbnail.relative_path, Files.urlEncoder);
+                                } else if (row.download_link) {
+                                    source = row.download_link;
+                                }
+
+                                image.set('src', source).addClass('loaded').removeClass('loading');
 
                                 /* @TODO We probably do not need this anymore? Layouts have changed and these elements/classes no longer exist */
                                 var element = row.element.getElement('.files-node');
@@ -4835,15 +4887,7 @@ if (!Files) var Files = {};
                                 }
                             };
 
-                            if (!row.thumbnail)
-                            {
-                                row.getThumbnail(function (response) {
-                                    if (response.entities[0].thumbnail) {
-                                        setThumbnail(response.entities[0].thumbnail);
-                                    }
-                                });
-                            }
-                            else setThumbnail(row.thumbnail);
+                            setThumbnail(row);
 
                             /* @TODO Test if this is necessary: This is for the thumb margins to recalculate */
                             window.fireEvent('resize');

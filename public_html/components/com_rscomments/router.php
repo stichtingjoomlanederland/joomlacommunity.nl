@@ -36,9 +36,15 @@ class RscommentsRouter extends JComponentRouterBase {
 				case 'subscribeuser':	$segments[] = 'subscribeuser';	break;
 				case 'openthread':		$segments[] = 'openthread';		break;
 				case 'closethread':		$segments[] = 'closethread';	break;
+				case 'report':			$segments[] = 'report';			break;
+				case 'mycomments':		$segments[] = 'mycomments';		break;
 				
-				case 'report':
-					$segments[] = 'report';
+				case 'removecomment':
+					$segments[] = 'remove-comment';
+					if (isset($query['id'])) {
+						$segments[] = $query['id'];
+						unset($query['id']);
+					}
 				break;
 				
 				case 'subscribe':
@@ -169,6 +175,11 @@ class RscommentsRouter extends JComponentRouterBase {
 				$query['tmpl'] = 'component';
 			break;
 			
+			case 'mycomments':
+				$query['task'] = 'mycomments';
+				$query['tmpl'] = 'component';
+			break;
+			
 			case 'approve':
 				$query['task'] = 'approve';
 				
@@ -179,6 +190,14 @@ class RscommentsRouter extends JComponentRouterBase {
 			
 			case 'delete':
 				$query['task'] = 'delete';
+				
+				if (isset($segments[1])) {
+					$query['id'] = (int) $segments[1];
+				}
+			break;
+			
+			case 'remove-comment':
+				$query['task'] = 'removecomment';
 				
 				if (isset($segments[1])) {
 					$query['id'] = (int) $segments[1];

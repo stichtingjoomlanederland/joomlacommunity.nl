@@ -419,7 +419,7 @@ class EasyDiscussModelConversation extends EasyDiscussAdminModel
 	 * @param	int		The current user id of the viewer.
 	 *
 	 */
-	public function getMessages($conversationId, $userId, $viewAll = false, $count = false)
+	public function getMessages($conversationId, $userId, $viewAll = false, $count = false, $userMessageOnly = false)
 	{
 		$db = $this->db;
 		$config = ED::config();
@@ -433,6 +433,10 @@ class EasyDiscussModelConversation extends EasyDiscussAdminModel
 				. 'ON b.' . $db->nameQuote( 'message_id' ) . ' = a.' . $db->nameQuote( 'id' ) . ' '
 				. 'WHERE a.' . $db->nameQuote( 'conversation_id' ) . ' = ' . $db->Quote( $conversationId ) . ' '
 				. 'AND b.' . $db->nameQuote( 'user_id' ) . ' = ' . $db->Quote( $userId );
+
+		if ($userMessageOnly) {
+			$query .= ' AND a.' . $db->nameQuote('created_by') . ' = ' . $db->Quote($userId);
+		}
 
 		// @rule: Messages ordering.
 		// @TODO: respect ordering settings.
@@ -708,5 +712,52 @@ class EasyDiscussModelConversation extends EasyDiscussAdminModel
 			$conversation->intro = $intro;
 			$conversation->lapsed = ED::date()->getLapsedTime($conversation->lastreplied);
 		}
+	}
+
+	/**
+	 * Method to get conversation data for GDPR purpose
+	 *
+	 * @since	4.1.0
+	 * @access	public
+	 */
+	public function getConversationGDPR($options)
+	{
+		$db = $this->db;
+
+		$userId = isset($options['userId']) ? $options['userId'] : false;
+		$limit = isset($options['limit']) ? $options['limit'] : false;
+		$exclude = isset($options['exclude']) ? $options['exclude'] : false;
+
+		$query = 'SELECT a.*,b.' . $db->nameQuote('message') . ',c.' . $db->nameQuote('isread');
+		$query .= ' FROM ' . $db->nameQuote('#__discuss_conversations') . ' AS a ';
+		$query .= ' INNER JOIN ' . $db->nameQuote('#__discuss_conversations_message') . ' AS b ';
+		$query .= ' ON a.' . $db->nameQuote('id') . ' = b.' . $db->nameQuote('conversation_id');
+		$query .= ' INNER JOIN ' . $db->nameQuote('#__discuss_conversations_message_maps') . ' AS c ';
+		$query .= ' ON c.' . $db->nameQuote('message_id') . ' = b.' . $db->nameQuote('id');
+
+		$query .= ' WHERE c.' . $db->nameQuote('user_id') . ' = ' . $db->Quote($userId);
+		$query .= ' AND b.' . $db->nameQuote('created_by') . ' = ' . $db->Quote($userId);
+
+		if ($exclude) {
+			$query .= ' AND a.`id` NOT IN(' . implode(',', $exclude) . ')';
+		}
+
+		$query .= ' GROUP BY b.' . $db->nameQuote('conversation_id');
+		$query .= ' ORDER BY a.' . $db->nameQuote('lastreplied') . ' DESC';
+		$query .= ' LIMIT 0,' . $limit;
+
+		$db->setQuery($query);
+
+		$result = $db->loadObjectList();
+		$conversations = array();
+
+		if ($result) {
+			foreach ($result as $conversation) {
+				$conversation = ED::conversation($conversation);
+				$conversations[] = $conversation;
+			}
+		}
+
+		return $conversations;
 	}
 }

@@ -9,6 +9,7 @@
 defined('KOOWA') or die;
 ?>
 
+
 <div class="k-sidebar-right k-js-sidebar-right">
 
     <div class="k-sidebar-item">
@@ -22,4 +23,5 @@ defined('KOOWA') or die;
             <div id="insert-button-container"></div>
         </div>
     </div>
+
 </div><!-- .k-sidebar-right -->

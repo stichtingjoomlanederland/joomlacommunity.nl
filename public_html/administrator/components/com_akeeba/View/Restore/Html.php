@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -32,7 +32,7 @@ class Html extends BaseView
 		/** @var Restore $model */
 		$model = $this->getModel();
 
-		$this->id              = $model->getState('id');
+		$this->id              = $model->getState('id', '', 'int');
 		$this->ftpparams       = $this->getFTPParams();
 		$this->extractionmodes = $this->getExtractionModes();
 
@@ -89,7 +89,6 @@ class Html extends BaseView
 
 	private function loadCommonJavascript()
 	{
-		$this->addJavascriptFile('media://com_akeeba/js/Encryption.min.js');
 		$this->addJavascriptFile('media://com_akeeba/js/Configuration.min.js');
 		$this->addJavascriptFile('media://com_akeeba/js/Restore.min.js');
 

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @copyright 	Copyright (c) 2009-2017 Ryan Demmer. All rights reserved
+ * @copyright 	Copyright (c) 2009-2019 Ryan Demmer. All rights reserved
  * @license   	GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * JCE is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -52,13 +52,13 @@ class WFPopupsExtension_Jcemediabox
             'width' => 600,
             'album' => '#jcemediabox_popup_group',
             'multiple' => '#jcemediabox_popup_title,#jcemediabox_popup_caption',
-            'attribute' => $wf->getParam('popups.jcemediabox.attribute', 'data-mediabox'),
-            'popup_group' => $wf->getParam('popups.jcemediabox.popup_group', ''),
-            'popup_icon' => $wf->getParam('popups.jcemediabox.popup_icon', 1),
-            'popup_icon_position' => $wf->getParam('popups.jcemediabox.popup_icon_position', ''),
-            'popup_autopopup' => $wf->getParam('popups.jcemediabox.popup_autopopup', ''),
-            'popup_hide' => $wf->getParam('popups.jcemediabox.popup_hide', 0),
-            'popup_mediatype' => $wf->getParam('popups.jcemediabox.popup_mediatype', ''),
+            'attribute' => $wf->getParam('jcemediabox.attribute', 'data-mediabox'),
+            'popup_group' => $wf->getParam('jcemediabox.popup_group', ''),
+            'popup_icon' => $wf->getParam('jcemediabox.popup_icon', 1),
+            'popup_icon_position' => $wf->getParam('jcemediabox.popup_icon_position', ''),
+            'popup_autopopup' => $wf->getParam('jcemediabox.popup_autopopup', ''),
+            'popup_hide' => $wf->getParam('jcemediabox.popup_hide', 0),
+            'popup_mediatype' => $wf->getParam('jcemediabox.popup_mediatype', ''),
         );
     }
 
@@ -66,7 +66,7 @@ class WFPopupsExtension_Jcemediabox
     {
         $wf = WFEditorPlugin::getInstance();
 
-        if (JPluginHelper::isEnabled('system', 'jcemediabox') && $wf->getParam('popups.jcemediabox.enable', 1) == 1) {
+        if ((JPluginHelper::isEnabled('system', 'jcemediabox') || JPluginHelper::isEnabled('system', 'wf_lightcase')) && $wf->getParam('jcemediabox.enable', 1) == 1) {
             return true;
         }
 

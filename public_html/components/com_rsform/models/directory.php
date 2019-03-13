@@ -31,7 +31,7 @@ class RsformModelDirectory extends JModelLegacy
         }
 
         $this->getFields();
-        parent::__construct();
+        parent::__construct($config);
     }
 
     /**
@@ -201,12 +201,12 @@ class RsformModelDirectory extends JModelLegacy
             foreach ($items as $i => $item) {
                 foreach ($uploadFields as $field) {
                     if (isset($item->$field)) {
-                        $item->$field = '<a href="' . JRoute::_('index.php?option=com_rsform&task=submissions.view.file&hash=' . md5($item->SubmissionId . $secret . $field)) . '">' . htmlspecialchars(JFile::getName($item->$field)) . '</a>';
+                        $item->$field = '<a href="' . JRoute::_('index.php?option=com_rsform&task=submissions.view.file&hash=' . md5($item->SubmissionId . $secret . $field)) . '">' . RSFormProHelper::htmlEscape(JFile::getName($item->$field)) . '</a>';
                     }
                 }
                 foreach ($multipleFields as $field) {
                     if (isset($item->$field)) {
-                        $item->$field = str_replace("\n", $multipleSeparator, htmlentities($item->$field, ENT_COMPAT, 'utf-8'));
+                        $item->$field = str_replace("\n", $multipleSeparator, RSFormProHelper::htmlEscape($item->$field));
                     }
                 }
                 $items[$i] = $item;
@@ -218,10 +218,9 @@ class RsformModelDirectory extends JModelLegacy
 
     public function getAdditionalUnescaped()
     {
-
         $unescapedFields = array();
-        $mainframe = JFactory::getApplication();
-        $mainframe->triggerEvent('rsfp_b_onManageDirectoriesCreateUnescapedFields', array(array('fields' => & $unescapedFields, 'formId' => $this->params->get('formId'))));
+
+        JFactory::getApplication()->triggerEvent('rsfp_b_onManageDirectoriesCreateUnescapedFields', array(array('fields' => & $unescapedFields, 'formId' => $this->params->get('formId'))));
 
         return $unescapedFields;
 
@@ -258,8 +257,8 @@ class RsformModelDirectory extends JModelLegacy
         }
 
         // Grab submission
-        $this->_db->setQuery("SELECT * FROM #__rsform_submissions WHERE SubmissionId='" . $cid . "'");
-        $submission = $this->_db->loadObject();
+        require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/submissions.php';
+        $submission = RSFormProSubmissionsHelper::getSubmission($cid, false);
 
         // Submission doesn't exist
         if (!$submission) {
@@ -331,69 +330,21 @@ class RsformModelDirectory extends JModelLegacy
 
     public function delete($id)
     {
-        $db = JFactory::getDbo();
-
-        $query = $db->getQuery(true)
-            ->select($db->qn('SubmissionId'))
-            ->select($db->qn('FormId'))
-            ->from($db->qn('#__rsform_submissions'))
-            ->where($db->qn('SubmissionId') . ' = ' . $db->q($id));
-        $db->setQuery($query);
-        if ($submission = $db->loadObject())
-        {
-            // If we have upload fields
-            if ($fields = RSFormProHelper::componentExists($submission->FormId, RSFORM_FIELD_FILEUPLOAD))
-            {
-                // Delete files first
-                foreach ($fields as $field)
-                {
-                    $query->clear()
-                        ->select($db->qn('FieldValue'))
-                        ->from($db->qn('#__rsform_submission_values'))
-                        ->where($db->qn('SubmissionId') . ' = ' . $db->q($submission->SubmissionId) )
-                        ->where($db->qn('FieldName') . ' = ' . $db->q($field) )
-                        ->where($db->qn('FieldValue') . ' != ' . $db->q($field) );
-
-                    if ($files = $db->setQuery($query)->loadColumn())
-                    {
-                        jimport('joomla.filesystem.file');
-
-                        foreach ($files as $file)
-                        {
-                            if (file_exists($file) && is_file($file))
-                            {
-                                JFile::delete($file);
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Remove the submission
-            $query->clear()
-                ->delete($db->qn('#__rsform_submissions'))
-                ->where($db->qn('SubmissionId') . ' = ' . $db->q($submission->SubmissionId));
-            $db->setQuery($query);
-            $db->execute();
-
-            // Remove the values
-            $query->clear()
-                ->delete($db->qn('#__rsform_submission_values'))
-                ->where($db->qn('SubmissionId') . ' = ' . $db->q($submission->SubmissionId));
-            $db->setQuery($query);
-            $db->execute();
-        }
+        require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/submissions.php';
+        RSFormProSubmissionsHelper::deleteSubmissions($id, true);
     }
 
 	public function save() {
 		jimport('joomla.filesystem.file');
 		jimport('joomla.filesystem.folder');
 
-		$cid    	= JFactory::getApplication()->input->getInt('id');
-		$form   	= JRequest::getVar('form', array(), 'post', 'none', JREQUEST_ALLOWRAW);
-		$static   	= JRequest::getVar('formStatic', array(), 'post', 'none', JREQUEST_ALLOWRAW);
-		$formId 	= JFactory::getApplication()->input->getInt('formId');
-		$files  	= JRequest::getVar('form', array(), 'files', 'none', JREQUEST_ALLOWRAW);
+		$app        = JFactory::getApplication();
+		$db         = JFactory::getDbo();
+		$cid    	= $app->input->getInt('id');
+        $formId 	= $app->input->getInt('formId');
+        $form       = $app->input->post->get('form', array(), 'array');
+        $static     = $app->input->post->get('formStatic', array(), 'array');
+        $files      = $app->input->files->get('form', array(), 'array');
 		$validation = RSFormProHelper::validateForm($formId, 'directory', $cid);
 
 		if (!empty($validation)) {
@@ -418,43 +369,53 @@ class RsformModelDirectory extends JModelLegacy
 		$this->_app->triggerEvent('rsfp_f_onBeforeDirectorySave', array(array('SubmissionId'=>&$cid,'formId'=>$formId,'post'=>&$form)));
 
 		// Handle file uploads first
-		if (!empty($files['error']))
-		foreach ($files['error'] as $field => $error)
+		if (!empty($files))
 		{
-			if (!in_array($field, $allowed) || $error) {
-				continue;
-			}
+            foreach ($files as $field => $file)
+            {
+                if (!in_array($field, $allowed) || $file['error'])
+                {
+                    continue;
+                }
 
-			// The above $validation should suffice
-			$this->_db->setQuery("SELECT FieldValue FROM #__rsform_submission_values WHERE FieldName='".$this->_db->escape($field)."' AND SubmissionId='".$cid."' LIMIT 1");
-			$original = $this->_db->loadResult();
+                // The above $validation should suffice
+                $query = $db->getQuery(true)
+                    ->select($db->qn('FieldValue'))
+                    ->from($db->qn('#__rsform_submission_values'))
+                    ->where($db->qn('FieldName') . ' = ' . $db->q($field))
+                    ->where($db->qn('SubmissionId') . ' = ' . $db->q($cid));
 
-			// Prefix
-			$componentId 	= RSFormProHelper::getComponentId($field, $formId);
-			$data 			= RSFormProHelper::getComponentProperties($componentId);
-			$prefix 		= uniqid('').'-';
-			if (isset($data['PREFIX']) && strlen(trim($data['PREFIX'])) > 0)
-				$prefix = RSFormProHelper::isCode($data['PREFIX']);
+                $original = $db->setQuery($query)->loadResult();
 
-			// Path
-			$realpath = realpath($data['DESTINATION'].DIRECTORY_SEPARATOR);
-			if (substr($realpath, -1) != DIRECTORY_SEPARATOR)
-				$realpath .= DIRECTORY_SEPARATOR;
+                // Prefix
+                $componentId = RSFormProHelper::getComponentId($field, $formId);
+                $data = RSFormProHelper::getComponentProperties($componentId);
+                $prefix = uniqid('') . '-';
+                if (isset($data['PREFIX']) && strlen(trim($data['PREFIX'])) > 0)
+                    $prefix = RSFormProHelper::isCode($data['PREFIX']);
 
-			// Filename
-			$file = $realpath.$prefix.$files['name'][$field];
+                // Path
+                $realpath = realpath($data['DESTINATION'] . DIRECTORY_SEPARATOR);
+                if (substr($realpath, -1) != DIRECTORY_SEPARATOR)
+                    $realpath .= DIRECTORY_SEPARATOR;
 
-			// Upload File
-			if (JFile::upload($files['tmp_name'][$field], $file, false, (bool) RSFormProHelper::getConfig('allow_unsafe')) && $file != $original) {
-				// Remove the original file to save up space
-				if (file_exists($original) && is_file($original)) {
-					JFile::delete($original);
-				}
+                // Filename
+                $path = $realpath . $prefix . $file['name'];
 
-				// Add to db (submission value)
-				$form[$field] = $file;
-			}
-		}
+                // Upload File
+                if ($file != $original && JFile::upload($file['tmp_name'], $path, false, (bool) RSFormProHelper::getConfig('allow_unsafe')))
+                {
+                    // Remove the original file to save up space
+                    if (file_exists($original) && is_file($original))
+                    {
+                        JFile::delete($original);
+                    }
+
+                    // Add to db (submission value)
+                    $form[$field] = $path;
+                }
+            }
+        }
 
 		// Update fields
 		foreach ($form as $field => $value)

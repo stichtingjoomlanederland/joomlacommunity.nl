@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -63,6 +63,9 @@ class ControlPanel extends Controller
 		// Update the magic parameters
 		$model->updateMagicParameters();
 
+		// Delete the old log files if logging is disabled
+		$model->deleteOldLogs();
+
 		// Refresh the update site definitions if required. Also takes into account any change of the Download ID
 		// in the Options.
 		/** @var Updates $updateModel */
@@ -103,10 +106,25 @@ class ControlPanel extends Controller
 			}
 		}
 
+		$url = 'index.php?option=com_admintools';
+
+		/**
+		 * Sanity check.
+		 *
+		 * We had a case where the user deleted the plugin files but did not uninstall the plugin. Therefore he saw the
+		 * message to update the database, clicked on the button and got an error page because the plugin (therefore,
+		 * the AkeebaGeoipProvider class) did not really exist on his site.
+		 */
+		if (!class_exists('AkeebaGeoipProvider'))
+		{
+			$message = JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_GEOIPPLUGINMISSING');
+			$this->setRedirect($url, $message, 'error');
+
+			return;
+		}
+
 		$geoip  = new AkeebaGeoipProvider();
 		$result = $geoip->updateDatabase();
-
-		$url = 'index.php?option=com_admintools';
 
 		$customRedirect = $this->input->getBase64('returnurl', '');
 		$customRedirect = empty($customRedirect) ? '' : base64_decode($customRedirect);
@@ -183,12 +201,15 @@ ENDRESULT;
 
 	public function unblockme()
 	{
-		$externalIP = $this->input->getString('ip', '');
+		$unblockIP[] = $this->input->getString('ip', '');
 
 		/** @var \Akeeba\AdminTools\Admin\Model\ControlPanel $model */
 		$model = $this->getModel();
+		$unblockIP[] = $model->getVisitorIP();
 
-		$model->unblockMyIP($externalIP);
+		/** @var \Akeeba\AdminTools\Admin\Model\UnblockIP $unblockModel */
+		$unblockModel = $this->container->factory->model('UnblockIP')->tmpInstance();
+		$unblockModel->unblockIP($unblockIP);
 
 		$this->setRedirect('index.php?option=com_admintools', JText::_('COM_ADMINTOOLS_CONTROLPANEL_IP_UNBLOCKED'));
 	}

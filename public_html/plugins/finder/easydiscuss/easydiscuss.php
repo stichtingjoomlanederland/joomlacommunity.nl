@@ -132,7 +132,7 @@ class plgFinderEasyDiscuss extends FinderIndexerAdapter
 		}
 
 		// $item->route	= $item->url;
-		$item->route = EDR::_($item->url);
+		$item->route = EDR::_($item->url, true, null, false);
 		$item->route = $this->removeAdminSegment($item->route);
 
 		$item->path = FinderIndexerHelper::getContentPath($item->route);
@@ -253,7 +253,7 @@ class plgFinderEasyDiscuss extends FinderIndexerAdapter
 		$engine = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php';
 
 		if (!JFile::exists($engine)) {
-		    return false;
+			return false;
 		}
 
 		require_once($engine);

@@ -155,6 +155,31 @@ class KTemplateHelperBehavior extends KTemplateHelperAbstract
     }
 
     /**
+     * Loads KUI initialize
+     *
+     * @param array|KObjectConfig $config
+     * @return string
+     */
+    public function kodekitui($config = array())
+    {
+        $config = new KObjectConfigJson($config);
+        $config->append(array(
+            'debug' => false
+        ));
+
+        $html = '';
+
+        if (!static::isLoaded('kodekitui'))
+        {
+            $html = '<ktml:script src="assets://js/'.($config->debug ? 'build/' : 'min/').'kui-initialize.js" />';
+
+            static::setLoaded('kodekitui');
+        }
+
+        return $html;
+    }
+
+    /**
      * Loads jQuery under a global variable called kQuery.
      *
      * If debug config property is set, an uncompressed version will be included.
@@ -243,6 +268,30 @@ class KTemplateHelperBehavior extends KTemplateHelperAbstract
             $html .= '<ktml:script src="assets://js/'.($config->debug ? 'build/' : 'min/').'jquery.magnific-popup.js" />';
 
             static::setLoaded('modal');
+        }
+
+        if(!static::isLoaded('modal-select2-fix'))
+        {
+            $html .= "<script>
+
+                // WORKAROUND FOR ISSUE: #873
+
+                kQuery(function($)
+                {
+                    $.magnificPopup.instance._onFocusIn = function(e)
+                    {
+                        // Do nothing if target element is select2 input
+                        if( $(e.target).hasClass('select2-search__field') ) {
+                            return true;
+                        }
+            
+                        // Else call parent method
+                        $.magnificPopup.proto._onFocusIn.call(this,e);
+                    };
+                });
+            </script>";
+
+            static::setLoaded('modal-select2-fix');
         }
 
         $options   = (string)$config->options;
@@ -378,7 +427,7 @@ class KTemplateHelperBehavior extends KTemplateHelperAbstract
 
             $html .= "<script>
             kQuery(function($){
-                $('$config->selector').on('koowa:validate', function(event){
+                $('$config->selector').on('k:validate', function(event){
                     if(!$(this).valid() || $(this).validate().pendingRequest !== 0) {
                         event.preventDefault();
                     }
@@ -745,13 +794,10 @@ class KTemplateHelperBehavior extends KTemplateHelperAbstract
             'id'      => 'datepicker-'.$config->name,
             'options_callback' => null,
             'options' => array(
-                'todayBtn' => 'linked',
-                'todayHighlight' => true,
+                'todayBtn' => false,
+                'clearBtn' => false,
                 'language' => 'en-GB',
-                'autoclose' => true, //Same as singleClick in previous js plugin,
-                'keyboardNavigation' => false, //To allow editing timestamps,
-                //'orientation' => 'auto left', //popover arrow set to point at the datepicker icon,
-                //'parentEl' => false //this feature breaks if a parent el is position: relative;
+                'autoclose' => true,
             )
         ));
 
@@ -813,7 +859,7 @@ class KTemplateHelperBehavior extends KTemplateHelperAbstract
                 {
                     $html .= "<script>
                         kQuery(function($){
-                            $('.k-js-form-controller').on('koowa:submit', function() {
+                            $('.k-js-form-controller').on('k:submit', function() {
                                 var element = kQuery('#".$config->id."'),
                                     picker  = element.data('kdatepicker'),
                                     offset  = $config->offset_seconds;
@@ -835,7 +881,7 @@ class KTemplateHelperBehavior extends KTemplateHelperAbstract
                 $config->format
             );
 
-            $html .= '<div class="k-input-group     date     " data-date-format="'.$format.'" id="'.$config->id.'">';
+            $html .= '<div class="k-input-group date" data-date-format="'.$format.'" id="'.$config->id.'">';
             $html .= '<input class="k-form-control" type="text" name="'.$config->name.'" value="'.$value.'"  '.$attribs.' />';
             $html .= '<span class="k-input-group__button input-group-btn">';
             $html .= '<button type="button" class="k-button k-button--default     btn     ">';
@@ -857,10 +903,14 @@ class KTemplateHelperBehavior extends KTemplateHelperAbstract
     {
         $html = '';
 
-        if (!static::isLoaded('calendar'))
-        {
-            $html .= '<ktml:script src="assets://js/'.($config->debug ? 'build/' : 'min/').'koowa.datepicker.js" />';
+        if (!static::isLoaded('calendar')) {
+            $html .= '<ktml:script src="assets://js/' . ($config->debug ? 'build/' : 'min/') . 'koowa.datepicker.js" />';
 
+            static::setLoaded('calendar');
+        }
+
+        if (!static::isLoaded('calendar-locale'))
+        {
             $locale = array(
                 'days'  =>  array('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'),
                 'daysShort' => array('Sun','Mon','Tue','Wed','Thu','Fri','Sat','Sun'),
@@ -884,7 +934,7 @@ class KTemplateHelperBehavior extends KTemplateHelperAbstract
             }(kQuery));
             </script>';
 
-            static::setLoaded('calendar');
+            static::setLoaded('calendar-locale');
         }
 
         return $html;

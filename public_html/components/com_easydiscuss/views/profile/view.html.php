@@ -74,8 +74,10 @@ class EasyDiscussViewProfile extends EasyDiscussView
 			}
 		}
 
+		$tabTitle = JText::_('COM_EASYDISCUSS_PROFILE_TAB_' . strtoupper($viewType));
+
 		// Set the page properties
-		$pageTitle = JText::sprintf('COM_EASYDISCUSS_PROFILE_PAGE_TITLE', $profile->getName(), $viewType);
+		$pageTitle = JText::sprintf('COM_EASYDISCUSS_PROFILE_PAGE_TITLE', $profile->getName(), $tabTitle);
 		$this->setPathway(JText::_($profile->getName()));
 
 		// Attach gmaps api
@@ -120,9 +122,9 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		if ($viewType == 'assigned') {
 			$assignedModel = ED::model('Assigned');
 			$posts = $assignedModel->getPosts($profile->id);
- 		}
+		}
 
- 		if ($viewType == 'favourites') {
+		if ($viewType == 'favourites') {
 
 			$options = array(
 				'userId' => $profile->id,
@@ -147,6 +149,7 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		if ($easyblogExists && $this->config->get('integrations_easyblog_profile')) {
 			$bloggerModel = EB::model('Blogger');
 			$blogCount = $bloggerModel->getTotalBlogCreated($profile->id);
+			$tabTitle = JText::_('COM_EASYDISCUSS_PROFILE_TAB_EASYBLOG');
 		}
 
 		// Komento
@@ -250,8 +253,8 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		}
 
 		//load porfile info and auto save into table if user is not already exist in discuss's user table.
-		$userparams = new JRegistry($this->profile->get('params'));
-		$siteDetails = new JRegistry($this->profile->get('site'));
+		$userparams = new JRegistry($this->profile->params);
+		$siteDetails = new JRegistry($this->profile->site);
 
 		// Get configured max size
 		$configMaxSize = $this->config->get('main_upload_maxsize', 0);
@@ -340,5 +343,41 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		$text = $text1 . ' - ' . $text2;
 
 		return $text;
+	}
+
+	/**
+	 * GDPR download
+	 *
+	 * @since	4.1.0
+	 * @access	public
+	 */
+	public function download()
+	{
+		// Unauthorized users should not be allowed to access this page.
+		ED::requireLogin();
+
+		if (!$this->config->get('main_userdownload')) {
+			$this->setMessage('COM_ES_RESTRICTED_AREA_DESC', 'error');
+			$this->info->set($this->getMessage());
+			$redirect = EDR::_('view=profile&layout=edit', false);
+			return $this->redirect($redirect);
+		}
+
+		// Set page properties
+		ED::setPageTitle('COM_ED_PAGE_TITLE_GDPR_DOWNLOAD');
+
+		if (! EDR::isCurrentActiveMenu('profile', 0, 'id', 'edit')) {
+			$this->setPathway(JText::_('COM_EASYDISCUSS_PROFILE'), EDR::_('index.php?option=com_easydiscuss&view=profile&id=' . $this->my->id));
+		}
+
+		$this->setPathway(JText::_('COM_ED_PAGE_TITLE_GDPR_DOWNLOAD'));
+
+		// Check if this user has any download request or not
+		$download = ED::table('Download');
+		$download->load(array('userid' => $this->my->id));
+
+		$this->set('download', $download);
+
+		return parent::display('user/download/default');
 	}
 }

@@ -107,18 +107,55 @@ class RsformControllerForms extends RsformController
 		{
 			$title = JText::_('RSFP_FORM_DEFAULT_TITLE');
 		}
+
+		if ($component = JComponentHelper::getComponent('com_rsform'))
+		{
+			$componentId = $component->id;
+		}
 		
-		// Get the extension ID for com_rsform
-		$query = $db->getQuery(true)
-			->select($db->qn('extension_id'))
-			->from($db->qn('#__extensions'))
-			->where($db->qn('type') . ' = ' . $db->q('component'))
-			->where($db->qn('element') . ' = ' . $db->q('com_rsform'));
-		$componentId = $db->setQuery($query)->loadResult();
+		JTable::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_menus/tables');
 		
-		// Add it to the backend menu
-		$db->setQuery("INSERT INTO `#__menu` (`id`, `menutype`, `title`, `alias`, `note`, `path`, `link`, `type`, `published`, `parent_id`, `level`, `component_id`, `checked_out`, `checked_out_time`, `browserNav`, `access`, `img`, `template_style_id`, `params`, `lft`, `rgt`, `home`, `language`, `client_id`) VALUES('', 'main', '".$db->escape($title)."', '".$db->escape($title)."', '', 'rsform', 'index.php?option=com_rsform&view=forms&layout=show&formId=".$formId."', 'component', 0, 1, 1, ".(int) $componentId.", 0, '0000-00-00 00:00:00', 0, 1, 'class:component', 0, '', 0, 0, 0, '', 1)");
-		$db->execute();
+		$table = JTable::getInstance('Menu', 'MenusTable');
+		$data = array(
+			'menutype' 		=> 'main',
+			'title'			=> trim($title),
+			'alias'			=> JFilterOutput::stringURLSafe(trim($title)),
+			'link'			=> 'index.php?option=com_rsform&view=forms&layout=show&formId=' . $formId,
+			'component_id' 	=> $componentId,
+			'type'			=> 'component',
+			'published' 	=> 1,
+			'parent_id' 	=> 1,
+			'img'			=> 'class:component',
+			'home'			=> 0,
+			'path'			=> '',
+			'params'		=> '',
+			'client_id'		=> 1
+		);
+		
+		try
+		{
+			$table->setLocation(1, 'last-child');
+		}
+		catch (InvalidArgumentException $e)
+		{
+			if (class_exists('JLog'))
+			{
+				JLog::add($e->getMessage(), JLog::WARNING, 'jerror');
+			}
+
+			$app->enqueueMessage($e->getMessage(), 'error');
+			$app->redirect('index.php?option=com_rsform&view=forms');
+			return false;
+		}
+		
+		if (!$table->bind($data) || !$table->check() || !$table->store())
+		{
+			$app->enqueueMessage($table->getError(), 'error');
+			$app->redirect('index.php?option=com_rsform&view=forms');
+			return false;
+		}
+		
+		$table->rebuild(1);
 		
 		// Mark this form as added
 		$query = $db->getQuery(true)
@@ -147,11 +184,22 @@ class RsformControllerForms extends RsformController
 		}
 		
 		// Remove from menu
+		JTable::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_menus/tables');
+		
+		$table = JTable::getInstance('Menu', 'MenusTable');
 		$query = $db->getQuery(true)
-			->delete($db->qn('#__menu'))
+			->select($db->qn('id'))
+			->from($db->qn('#__menu'))
 			->where($db->qn('client_id') . ' = ' . $db->q(1))
 			->where($db->qn('link') . ' = ' . $db->q('index.php?option=com_rsform&view=forms&layout=show&formId=' . $formId));
-		$db->setQuery($query)->execute();
+		if ($ids = $db->setQuery($query)->loadColumn())
+		{
+			foreach ($ids as $id)
+			{
+				$table->delete($id);
+				$table->rebuild(1);
+			}
+		}
 		
 		// Mark this form as removed
 		$query = $db->getQuery(true)
@@ -211,7 +259,11 @@ class RsformControllerForms extends RsformController
 		$row->FormName = JFilterOutput::stringURLSafe($row->FormTitle);
 		$row->FormLayoutName = $session->get('com_rsform.wizard.FormLayout');		
 		if (empty($row->FormLayoutName))
-			$row->FormLayoutName = 'responsive';
+		{
+		    $rsformConfig = RSFormProConfig::getInstance();
+            $row->FormLayoutName = $rsformConfig->get('global.default_layout', 'responsive');
+            $row->LoadFormLayoutFramework = $rsformConfig->get('global.default_load_layout_framework', 1);
+        }
 		
 		$AdminEmail = $session->get('com_rsform.wizard.AdminEmail');
 		if ($AdminEmail)
@@ -391,8 +443,7 @@ class RsformControllerForms extends RsformController
 	}
 	
 	public function delete() {
-		$db 	= JFactory::getDbo();
-		$model 	= $this->getModel('submissions');
+		$db = JFactory::getDbo();
 		
 		// Get the selected items
 		$cid = JFactory::getApplication()->input->get('cid', array(), 'array');
@@ -492,11 +543,26 @@ class RsformControllerForms extends RsformController
 				  ->where($db->qn('form_id').' = '.$db->q($formId));
 			$db->setQuery($query)->execute();
 			
-			$db->setQuery("DELETE FROM `#__menu` WHERE `path` = 'rsform' AND link = 'index.php?option=com_rsform&view=forms&layout=show&formId=".$formId."' ");
-			$db->execute();		
+			// Remove from menu
+			JTable::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_menus/tables');
+			
+			$table = JTable::getInstance('Menu', 'MenusTable');
+			$query = $db->getQuery(true)
+				->select($db->qn('id'))
+				->from($db->qn('#__menu'))
+				->where($db->qn('client_id') . ' = ' . $db->q(1))
+				->where($db->qn('link') . ' = ' . $db->q('index.php?option=com_rsform&view=forms&layout=show&formId=' . $formId));
+			if ($ids = $db->setQuery($query)->loadColumn())
+			{
+				foreach ($ids as $id)
+				{
+					$table->delete($id);
+					$table->rebuild(1);
+				}
+			}
 
-			$model->deleteSubmissionFiles($formId);
-			$model->deleteSubmissions($formId);
+            require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/submissions.php';
+			RSFormProSubmissionsHelper::deleteAllSubmissions($formId);
 			
 			// Trigger Event - onFormDelete
 			JFactory::getApplication()->triggerEvent('rsfp_onFormDelete', array(
@@ -575,10 +641,14 @@ class RsformControllerForms extends RsformController
 			
 			// copy language
 			$db->setQuery("SELECT * FROM #__rsform_translations WHERE `reference`='forms' AND `form_id`='".$formId."'");
-			if ($translations = $db->loadObjectList()) {
-				foreach ($translations as $translation) {
-					$db->setQuery("INSERT INTO #__rsform_translations SET `form_id`='".$newFormId."', `lang_code`='".$db->escape($translation->lang_code)."', `reference`='forms', `reference_id`='".$db->escape($translation->reference_id)."', `value`='".$db->escape($translation->value)."'");
-					$db->execute();
+			if ($translations = $db->loadObjectList())
+			{
+				foreach ($translations as $translation)
+				{
+				    $translation->id = null;
+				    $translation->form_id = $newFormId;
+
+                    $db->insertObject('#__rsform_translations', $translation);
 				}
 			}
 			
@@ -594,6 +664,34 @@ class RsformControllerForms extends RsformController
 					
 					$emailRelations[$email->id] = $new_email->id;
 				}
+
+                // Copy language
+                $query = $db->getQuery(true)
+                    ->select('*')
+                    ->from($db->qn('#__rsform_translations'))
+                    ->where($db->qn('form_id') . ' = ' . $db->q($formId))
+                    ->where($db->qn('reference') . ' = ' . $db->q('emails'));
+				if ($translatedEmails = $db->setQuery($query)->loadObjectList())
+                {
+                    foreach ($translatedEmails as $translatedEmail) {
+
+                        list($oldEmailId, $property) = explode('.', $translatedEmail->reference_id, 2);
+
+                        if (!isset($emailRelations[$oldEmailId])) {
+                            continue;
+                        }
+
+                        $emailTranslation = (object) array(
+                            'form_id'       => $newFormId,
+                            'lang_code'     => $translatedEmail->lang_code,
+                            'reference'     => 'emails',
+                            'reference_id'  => $emailRelations[$oldEmailId] . '.' . $property,
+                            'value'         => $translatedEmail->value
+                        );
+
+                        $db->insertObject('#__rsform_translations', $emailTranslation);
+                    }
+                }
 			}
 			
 			// copy mappings
@@ -706,7 +804,7 @@ class RsformControllerForms extends RsformController
 			// Rebuild Grid Layout
             if (!empty($copy->GridLayout))
             {
-                $data   = json_decode($copy->GridLayout);
+                $data   = json_decode($copy->GridLayout, true);
                 $rows 	= array();
                 $hidden	= array();
 
@@ -719,24 +817,25 @@ class RsformControllerForms extends RsformController
 
                 if ($rows)
                 {
-                    foreach ($rows as $row_index => $row)
+                    foreach ($rows as $row_index => &$row)
                     {
-                        foreach ($row->columns as $column_index => $fields)
+                        foreach ($row['columns'] as $column_index => $fields)
                         {
                             foreach ($fields as $position => $id)
                             {
                                 if (isset($componentRelations[$id]))
                                 {
-                                    $row->columns[$column_index][$position] = $componentRelations[$id];
+                                    $row['columns'][$column_index][$position] = $componentRelations[$id];
                                 }
                                 else
                                 {
                                     // Field doesn't exist, remove it from grid
-                                    unset($row->columns[$column_index][$position]);
+                                    unset($row['columns'][$column_index][$position]);
                                 }
                             }
                         }
                     }
+					unset($row);
                 }
 
                 if ($hidden)
@@ -879,7 +978,7 @@ class RsformControllerForms extends RsformController
 		$layout = $app->input->getString('GridLayout');
 		$model	= $this->getModel('forms');
 		
-		$data = json_decode($layout);
+		$data = json_decode($layout, true);
 		
 		if (is_array($data) && isset($data[0], $data[1]))
 		{
@@ -889,7 +988,7 @@ class RsformControllerForms extends RsformController
 			$flat = array();
 			foreach ($rows as $row)
 			{
-				foreach ($row->columns as $column => $fields)
+				foreach ($row['columns'] as $column => $fields)
 				{
 					foreach ($fields as $field)
 					{

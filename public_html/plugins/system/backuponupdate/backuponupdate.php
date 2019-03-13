@@ -1,52 +1,14 @@
 <?php
 /**
- * @package    AkeebaBackup
- * @subpackage backuponupdate
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license    GNU General Public License version 3, or later
- *
- * @since      3.3
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 defined('_JEXEC') or die();
 
-if (!version_compare(PHP_VERSION, '5.4.0', '>='))
+if (!version_compare(PHP_VERSION, '5.6.0', '>='))
 {
 	return;
-}
-
-// Why, oh why, are you people using eAccelerator? Seriously, what's wrong with you, people?!
-if (function_exists('eaccelerator_info'))
-{
-	$isBrokenCachingEnabled = true;
-
-	if (function_exists('ini_get') && !ini_get('eaccelerator.enable'))
-	{
-		$isBrokenCachingEnabled = false;
-	}
-
-	if ($isBrokenCachingEnabled)
-	{
-		/**
-		 * I know that this define seems pointless since I am returning. This means that we are exiting the file and
-		 * the plugin class isn't defined, so Joomla cannot possibly use it.
-		 *
-		 * LOL. That is how PHP works. Not how that OBSOLETE, BROKEN PILE OF ROTTING BYTES called eAccelerator mangles
-		 * your code.
-		 *
-		 * That disgusting piece of bit rot will exit right after the return statement below BUT it will STILL define
-		 * the class. That's right. It ignores ALL THE CODE between here and the class declaration and parses the
-		 * class declaration o_O  Therefore the only way to actually NOT load the  plugin when you are using it on
-		 * a server where an indescribable character posing as a sysadmin has installed and enabled eAccelerator is to
-		 * define a constant and use it to return from the constructor method, therefore forcing PHP to return null
-		 * instead of an object. This prompts Joomla to not do anything with the plugin.
-		 */
-		if (!defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
-		{
-			define('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN', 3245);
-		}
-
-		return;
-	}
 }
 
 // Make sure Akeeba Backup is installed

@@ -7,50 +7,20 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/fields/bootstrap3/textbox.php';
+require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/fields/gmaps.php';
 
-class RSFormProFieldBootstrap3GMaps extends RSFormProFieldBootstrap3Textbox
+class RSFormProFieldBootstrap3GMaps extends RSFormProFieldGMaps
 {
-	public function getFormInput() {
-		$id				= $this->getId();
-		$componentId	= $this->getProperty('componentId');
-		$mapWidth  		= $this->getProperty('MAPWIDTH', '450px');
-		$mapHeight 		= $this->getProperty('MAPHEIGHT', '300px');
-		$geoLocation 	= $this->getProperty('GEOLOCATION', 'NO');
-
-		// Get the textbox input
-		$textbox = parent::getFormInput();
-		
-		$html = '<div'.
-				' id="rsform-map'.$this->componentId.'"'.
-				' class="rsformMaps"'.
-				' style="width: '.$this->escape($mapWidth).'; height: '.$this->escape($mapHeight).';"></div>'.
-				'<br />';
-		
-		if ($geoLocation) {
-			$html .= '<span style="position:relative;">'.
-					 $textbox.
-					 '<ul'.
-					 ' id="rsform_geolocation'.$this->componentId.'"'.
-					 ' class="rsform-map-geolocation"'.
-					 ' style="display: none;"></ul>'.
-					 '</span>';
-		} else {
-			$html .= $textbox;
-		}
-		
-		//add the gmaps script
-		$this->generateMap();
-
-		return $html;
-	}
-	
 	// @desc Overridden here because we need autocomplete set to off
 	public function getAttributes() {
 		$attr = parent::getAttributes();
 		if (!isset($attr['autocomplete'])) {
 			$attr['autocomplete'] = 'off';
 		}
+		if (strlen($attr['class'])) {
+			$attr['class'] .= ' ';
+		}
+		$attr['class'] .= 'form-control';
 		
 		return $attr;
 	}

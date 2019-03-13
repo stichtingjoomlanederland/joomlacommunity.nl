@@ -44,14 +44,6 @@ class com_rsformInstallerScript
 		$this->runSQL('directory.sql');
 		$this->runSQL('directory_fields.sql');
 		
-		// Disable error reporting
-		$query = $db->getQuery(true);
-		$query->update('#__rsform_config')
-			  ->set($db->quoteName('SettingValue').'='.$db->quote(0))
-			  ->where($db->quoteName('SettingName').'='.$db->quote('global.debug.mode'));
-		$db->setQuery($query);
-		$db->execute();
-		
 		// #__rsform_forms updates
 		$columns = $db->getTableColumns('#__rsform_forms');
 		if (!isset($columns['UserEmailAttach'])) {
@@ -161,6 +153,10 @@ class com_rsformInstallerScript
 			$db->setQuery("ALTER TABLE `#__rsform_forms` ADD `KeepIP` TINYINT( 1 ) NOT NULL DEFAULT '1' AFTER `Keepdata`");
 			$db->execute();
 		}
+        if (!isset($columns['DeleteSubmissionsAfter'])) {
+            $db->setQuery("ALTER TABLE `#__rsform_forms` ADD `DeleteSubmissionsAfter` INT( 11 ) NOT NULL DEFAULT '0' AFTER `KeepIP`");
+            $db->execute();
+        }
 		if (!isset($columns['Backendmenu'])) {
 			$db->setQuery("ALTER TABLE `#__rsform_forms` ADD `Backendmenu` TINYINT( 1 ) NOT NULL");
 			$db->execute();
@@ -205,7 +201,59 @@ class com_rsformInstallerScript
 			$db->setQuery("ALTER TABLE #__rsform_forms ADD `GridLayout` MEDIUMTEXT NOT NULL AFTER `FormLayout`");
 			$db->execute();
 		}
-		
+        if (!isset($columns['DeletionEmailText']))
+        {
+            $db->setQuery("ALTER TABLE #__rsform_forms ADD `DeletionEmailText` text NOT NULL AFTER `AdminEmailMode`");
+            $db->execute();
+        }
+        if (!isset($columns['DeletionEmailTo']))
+        {
+            $db->setQuery("ALTER TABLE #__rsform_forms ADD `DeletionEmailTo` text NOT NULL AFTER `DeletionEmailText`");
+            $db->execute();
+        }
+        if (!isset($columns['DeletionEmailCC']))
+        {
+            $db->setQuery("ALTER TABLE #__rsform_forms ADD  `DeletionEmailCC` varchar(255) NOT NULL AFTER `DeletionEmailTo`");
+            $db->execute();
+        }
+        if (!isset($columns['DeletionEmailBCC']))
+        {
+            $db->setQuery("ALTER TABLE #__rsform_forms ADD `DeletionEmailBCC` varchar(255) NOT NULL AFTER `DeletionEmailCC`");
+            $db->execute();
+        }
+        if (!isset($columns['DeletionEmailFrom']))
+        {
+            $db->setQuery("ALTER TABLE #__rsform_forms ADD `DeletionEmailFrom` varchar(255) NOT NULL default '' AFTER `DeletionEmailBCC`");
+            $db->execute();
+        }
+        if (!isset($columns['DeletionEmailReplyTo']))
+        {
+            $db->setQuery("ALTER TABLE #__rsform_forms ADD `DeletionEmailReplyTo` varchar(255) NOT NULL AFTER `DeletionEmailFrom`");
+            $db->execute();
+        }
+        if (!isset($columns['DeletionEmailFromName']))
+        {
+            $db->setQuery("ALTER TABLE #__rsform_forms ADD `DeletionEmailFromName` varchar(255) NOT NULL default '' AFTER `DeletionEmailReplyTo`");
+            $db->execute();
+        }
+        if (!isset($columns['DeletionEmailSubject']))
+        {
+            $db->setQuery("ALTER TABLE #__rsform_forms ADD `DeletionEmailSubject` varchar(255) NOT NULL default '' AFTER `DeletionEmailFromName`");
+            $db->execute();
+        }
+        if (!isset($columns['DeletionEmailMode']))
+        {
+            $db->setQuery("ALTER TABLE #__rsform_forms ADD `DeletionEmailMode` tinyint(4) NOT NULL default '1' AFTER `DeletionEmailSubject`");
+            $db->execute();
+        }
+        if (!isset($columns['ScriptBeforeDisplay'])) {
+            $db->setQuery("ALTER TABLE #__rsform_forms ADD `ScriptBeforeDisplay` TEXT NOT NULL AFTER `ScriptProcess2`");
+            $db->execute();
+        }
+        if (!isset($columns['ScriptBeforeValidation'])) {
+            $db->setQuery("ALTER TABLE #__rsform_forms ADD `ScriptBeforeValidation` TEXT NOT NULL AFTER `ScriptBeforeDisplay`");
+            $db->execute();
+        }
 		if ($columns['FormLayout'] == 'text') {
 			$db->setQuery("ALTER TABLE `#__rsform_forms` CHANGE `FormLayout` `FormLayout` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
 			$db->execute();
@@ -229,14 +277,14 @@ class com_rsformInstallerScript
 		if (!$columns['SettingName']->Key) {
 			// remove duplicates
 			$query = $db->getQuery(true);
-			$query->select($db->quoteName('SettingName'))->from('#__rsform_config');
+			$query->select($db->qn('SettingName'))->from('#__rsform_config');
 			$db->setQuery($query);
 			$results = $db->loadColumn();
 			
 			$counts = array_count_values($results);
 			foreach ($counts as $key => $num) {
 				if ($num > 1) {
-					$db->setQuery("DELETE FROM #__rsform_config WHERE ".$db->quoteName('SettingName').'='.$db->quote($key)." LIMIT ".($num-1));
+					$db->setQuery("DELETE FROM #__rsform_config WHERE ".$db->qn('SettingName').'='.$db->q($key)." LIMIT ".($num-1));
 					$db->execute();
 				}
 			}
@@ -290,9 +338,9 @@ class com_rsformInstallerScript
 		// #__rsform_component_type_fields updates
 		$query = $db->getQuery(true);
 		$query->update('#__rsform_component_type_fields')
-			  ->set($db->quoteName('FieldType').'='.$db->quote('textarea'))
-			  ->where($db->quoteName('FieldName').'='.$db->quote('DEFAULTVALUE'))
-			  ->where($db->quoteName('ComponentTypeId').'='.$db->quote(1));
+			  ->set($db->qn('FieldType').'='.$db->q('textarea'))
+			  ->where($db->qn('FieldName').'='.$db->q('DEFAULTVALUE'))
+			  ->where($db->qn('ComponentTypeId').'='.$db->q(1));
 		$db->setQuery($query);
 		$db->execute();
 
@@ -439,7 +487,7 @@ class com_rsformInstallerScript
 				}
 			}
 			
-			// change the ComponentTypeId from the imange button to the submit one
+			// change the ComponentTypeId from the image button to the submit one
 			$db->setQuery("UPDATE `#__rsform_components` SET `ComponentTypeId` = 13 WHERE `ComponentTypeId` = 12");
 			$db->execute();
 			
@@ -590,9 +638,9 @@ class com_rsformInstallerScript
 	}
 	
 	public function uninstall($parent) {
-		$plg_installer_id = 0;
-		
 		$db = JFactory::getDbo();
+
+		// Uninstall the Installer - RSForm! Pro Plugin
 		$query = $db->getQuery(true);
 		$query->select($db->qn('extension_id'))
 			  ->from($db->qn('#__extensions'))
@@ -607,6 +655,22 @@ class com_rsformInstallerScript
 			$installer = new JInstaller();
 			$installer->uninstall('plugin', $plg_installer_id, 1);
 		}
+
+		// Uninstall the System - RSForm! Pro Delete Submissions Plugin
+        $query = $db->getQuery(true);
+        $query->select($db->qn('extension_id'))
+            ->from($db->qn('#__extensions'))
+            ->where($db->qn('element').'='.$db->q('rsformdeletesubmissions'))
+            ->where($db->qn('type').'='.$db->q('plugin'))
+            ->where($db->qn('folder').'='.$db->q('system'));
+        $db->setQuery($query);
+        $plg_installer_id = (int) $db->loadResult();
+
+        if (!empty($plg_installer_id)) {
+            // Get a new installer
+            $installer = new JInstaller();
+            $installer->uninstall('plugin', $plg_installer_id, 1);
+        }
 	}
 	
 	public function preflight($type, $parent) {
@@ -626,11 +690,6 @@ class com_rsformInstallerScript
 			$app->enqueueMessage('Please upgrade to at least Joomla! 3.7.0 before continuing!', 'error');
 			return false;
 		}
-		
-		if (version_compare(PHP_VERSION, '5.3.10', '<'))
-		{
-			$app->enqueueMessage('Your PHP version is too old ('.PHP_VERSION.'). Even though RSForm! Pro will work, we cannot guarantee this version of PHP will be fully supported. Please consider updating to a newer version of PHP.', 'warning');
-		}
 
 		// Flag to check if we should set 'Load Layout Framework' to 'Yes' for 'Responsive' layout forms now that front.css is missing responsive declarations
 		if ($type == 'update' && !file_exists(JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/formlayouts/responsive.php'))
@@ -648,26 +707,27 @@ class com_rsformInstallerScript
 		
 		$this->source = $parent->getParent()->getPath('source');
 		
-		// Get a new installer
-		$installer = new JInstaller();
-		
 		$db = JFactory::getDbo();
 		
 		$messages = array(
-			'lib_tcpdf' 	=> false,
-			'plg_installer' => false,
-			'plugins' 		=> array(),
-			'modules' 		=> array()
+			'lib_tcpdf' 					=> false,
+			'plg_installer' 				=> false,
+			'plg_rsformdeletesubmissions' 	=> false,
+			'plugins' 						=> array(),
+			'modules' 						=> array()
 		);
 		// update plugins, modules as necessary
 		
 		// Check if we don't have TCPDF installed.
+        $installer = new JInstaller();
 		if (is_dir(JPATH_SITE.'/libraries/tcpdf')) {
 			$messages['lib_tcpdf'] = 'skip';
 		} elseif ($installer->install($this->source.'/other/lib_tcpdf')) {
 			$messages['lib_tcpdf'] = true;
 		}
 		
+		// Get a new installer
+		$installer = new JInstaller();
 		if ($installer->install($this->source.'/other/plg_installer')) {
 			$query = $db->getQuery(true);
 			$query->update('#__extensions')
@@ -681,106 +741,22 @@ class com_rsformInstallerScript
 			$messages['plg_installer'] = true;
 		}
 		
-		$this->checkPlugins($messages);
+		// Get a new installer
+		$installer = new JInstaller();
+		if ($installer->install($this->source.'/other/plg_rsformdeletesubmissions')) {
+			$query = $db->getQuery(true);
+			$query->update('#__extensions')
+				  ->set($db->qn('enabled').'='.$db->q(1))
+				  ->where($db->qn('element').'='.$db->q('rsformdeletesubmissions'))
+				  ->where($db->qn('type').'='.$db->q('plugin'))
+				  ->where($db->qn('folder').'='.$db->q('system'));
+			$db->setQuery($query);
+			$db->execute();
+			
+			$messages['plg_rsformdeletesubmissions'] = true;
+		}
 		
 		$this->showInstallMessage($messages);
-	}
-	
-	protected function checkPlugins(&$messages) {
-		$plugins = array(
-			'rsfpakismet',
-			'rsfpconstantcontact',
-			'rsform',
-			'rsfpdotmailer',
-			'rsfpewaypayment',
-			'rsfpgoogle',
-			'rsfpmailchimp',
-			'rsfppagseguropayment',
-			'rsfppdf',
-			'rsfprecaptcha',
-			'rsfprecaptchav2',
-			'rsfprseventspro',
-			'rsform',
-			'rsfpregistration',
-			'rsfprsmail',
-			'rsfpsalesforce',
-			'rsfpvtiger',
-			'rsfpzohocrm',
-			'rsfppaypal',
-			'rsfpofflinepayment',
-			'rsfppayment',
-			'rsfpfeedback'
-		);
-		
-		if ($installed = $this->getPlugins($plugins)) {
-			// need to update old plugins
-			foreach ($installed as $plugin) {
-				$file = JPATH_SITE.'/plugins/'.$plugin->folder.'/'.$plugin->element.'/'.$plugin->element.'.xml';
-				if (file_exists($file)) {
-					$xml = file_get_contents($file);
-					$oldVersion = true;
-					if (preg_match('/<version>(.*?)<\/version>/', $xml, $match)) {
-						$version = $match[1];
-						if (version_compare($version, '1.51.0', '>=')) {
-							$oldVersion = false;
-						}
-					}
-					if (strpos($xml, '<extension') === false || $oldVersion) {
-						$this->disableExtension($plugin->extension_id);
-						
-						$status = 'warning';
-						$text	= 'Disabled';
-						
-						if ($plugin->element == 'rsfpfeedback') {
-							$status = 'not-ok';
-							$text 	= 'No longer needed, please uninstall!';
-						}
-
-						JFactory::getLanguage()->load('plg_'.$plugin->folder.'_'.$plugin->element.'.sys', JPATH_ADMINISTRATOR);
-
-						$messages['plugins'][] = (object) array(
-							'name' 		=> JText::_($plugin->name),
-							'status' 	=> $status,
-							'text'		=> $text
-						);
-					}
-				}
-			}
-		}
-		
-		$modules = array(
-			'mod_rsform',
-			'mod_rsform_feedback',
-			'mod_rsform_list'
-		);
-		
-		if ($installed = $this->getModules($modules)) {
-			foreach ($installed as $module) {
-				$file = JPATH_SITE.'/modules/'.$module->element.'/'.$module->element.'.xml';
-				if (file_exists($file)) {
-					$xml = file_get_contents($file);
-					if (strpos($xml, '<install') !== false) {
-						$this->disableExtension($module->extension_id);
-						
-						$messages['modules'][] = (object) array(
-							'name' 		=> $module->name,
-							'status' 	=> 'warning',
-							'text'		=> 'Disabled'
-						);
-					}
-				}
-			}
-		}
-	}
-	
-	protected function disableExtension($extension_id) {
-		$db = JFactory::getDbo();
-		$query = $db->getQuery(true);
-		$query->update('#__extensions')
-			  ->set($db->quoteName('enabled').'='.$db->quote(0))
-			  ->where($db->quoteName('extension_id').'='.$db->quote($extension_id));
-		$db->setQuery($query);
-		$db->execute();
 	}
 	
 	protected function runSQL($file) {
@@ -818,52 +794,6 @@ class com_rsformInstallerScript
 	
 	protected function escape($string) {
 		return htmlentities($string, ENT_COMPAT, 'utf-8');
-	}
-	
-	protected function getPlugins($element) {
-		$db 	= JFactory::getDbo();
-		$query 	= $db->getQuery(true);
-		$one	= false;
-		if (!is_array($element)) {
-			$element = array($element);
-			$one = true;
-		}
-		
-		$query->select('*')
-			  ->from('#__extensions')
-			  ->where($db->quoteName('type').'='.$db->quote('plugin'))
-			  ->where($db->quoteName('folder').' IN ('.$this->quoteImplode(array('content', 'system')).')')
-			  ->where($db->quoteName('element').' IN ('.$this->quoteImplode($element).')');
-		$db->setQuery($query);
-		
-		return $one ? $db->loadObject() : $db->loadObjectList();
-	}
-	
-	protected function getModules($element) {
-		$db 	= JFactory::getDbo();
-		$query 	= $db->getQuery(true);
-		$one	= false;
-		if (!is_array($element)) {
-			$element = array($element);
-			$one = true;
-		}
-		
-		$query->select('*')
-			  ->from('#__extensions')
-			  ->where($db->quoteName('type').'='.$db->quote('module'))
-			  ->where($db->quoteName('element').' IN ('.$this->quoteImplode($element).')');
-		$db->setQuery($query);
-		
-		return $one ? $db->loadObject() : $db->loadObjectList();
-	}
-	
-	protected function quoteImplode($array) {
-		$db = JFactory::getDbo();
-		foreach ($array as $k => $v) {
-			$array[$k] = $db->quote($v);
-		}
-		
-		return implode(',', $array);
 	}
 	
 	protected function showInstallMessage($messages=array()) {
@@ -960,39 +890,16 @@ class com_rsformInstallerScript
 			<b class="install-not-ok">Error installing!</b>
 			<?php } ?>
 		</p>
-		<?php if ($messages['plugins']) { ?>
-			<?php if (!$isUpdateScreen) { ?>
-			<p class="big-warning"><b>Warning!</b> The following plugins have been temporarily disabled to prevent any errors being shown on your website. Please <a href="http://www.rsjoomla.com/downloads.html" target="_blank">download the latest versions</a> from your account and update your installation before enabling them. <a class="com-rsform-button" target="_blank" href="https://www.rsjoomla.com/support/documentation/rsform-pro/frequently-asked-questions/installing-rsformpro-version-151-causing-pluginmodules-issues.html">More information</a></p>
+		<p>System - RSForm! Pro Delete Submissions Plugin ...
+			<?php if ($messages['plg_rsformdeletesubmissions']) { ?>
+			<b class="install-ok">Installed</b>
 			<?php } else { ?>
-				<?php $app->enqueueMessage('RSForm! Pro: The following plugins have been temporarily disabled to prevent any errors being shown on your website. Please download the latest versions from your account and update your installation before enabling them. <a target="_blank" href="https://www.rsjoomla.com/support/documentation/rsform-pro/frequently-asked-questions/installing-rsformpro-version-151-causing-pluginmodules-issues.html">More information</a>', 'warning'); ?>
+			<b class="install-not-ok">Error installing!</b>
 			<?php } ?>
-			<?php foreach ($messages['plugins'] as $plugin) { ?>
-			<p><?php echo $this->escape($plugin->name); ?> ...
-				<b class="install-<?php echo $plugin->status; ?>"><?php echo $plugin->text; ?></b>
-			</p>
-			<?php if ($isUpdateScreen) { ?>
-				<?php $app->enqueueMessage($this->escape($plugin->name).' <b>'.$plugin->text.'</b>', 'warning'); ?>
-			<?php } ?>
-			<?php } ?>
-		<?php } ?>
-		<?php if ($messages['modules']) { ?>
-			<?php if (!$isUpdateScreen) { ?>
-			<p class="big-warning"><b>Warning!</b> The following modules have been temporarily disabled to prevent any errors being shown on your website. Please <a href="http://www.rsjoomla.com/downloads.html" target="_blank">download the latest versions</a> from your account and update your installation before enabling them.</p>
-			<?php } else { ?>
-			<?php $app->enqueueMessage('RSForm! Pro: The following modules have been temporarily disabled to prevent any errors being shown on your website. Please download the latest versions from your account and update your installation before enabling them. <a target="_blank" href="https://www.rsjoomla.com/support/documentation/rsform-pro/frequently-asked-questions/installing-rsformpro-version-151-causing-pluginmodules-issues.html">More information</a>', 'warning'); ?>
-			<?php } ?>
-			<?php foreach ($messages['modules'] as $module) { ?>
-			<p><?php echo $this->escape($module->name); ?> ...
-				<b class="install-<?php echo $module->status; ?>"><?php echo $module->text; ?></b>
-			</p>
-			<?php if ($isUpdateScreen) { ?>
-				<?php $app->enqueueMessage($this->escape($module->name).' <b>'.$module->text.'</b>', 'warning'); ?>
-			<?php } ?>
-			<?php } ?>
-		<?php } ?>
-		<h2>Changelog v2.0.8</h2>
+		</p>
+		<h2>Changelog v2.1.2</h2>
 		<ul class="version-history">
-            <li><span class="version-fixed">Fix</span> Multiple Products (Payment Plugin) were not working with Conditional Fields.</li>
+            <li><span class="version-fixed">Fix</span> Multiple items were not showing up correctly when editing a submission.</li>
 		</ul>
 		<a class="btn btn-large btn-primary" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="btn" href="https://www.rsjoomla.com/support/documentation/rsform-pro.html" target="_blank">Read the RSForm! Pro User Guide</a>

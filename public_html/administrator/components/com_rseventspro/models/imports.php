@@ -6,6 +6,9 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
+use Joomla\String\StringHelper;
+use Joomla\CMS\Application\ApplicationHelper;
+
 class RseventsproModelImports extends JModelLegacy
 {
 	protected $_tz = 0;
@@ -40,8 +43,13 @@ class RseventsproModelImports extends JModelLegacy
 		if (file_exists(JPATH_ADMINISTRATOR.'/components/com_jevents/jevents.php'))
 			$items['jevents'] = true;
 		
-		if (file_exists(JPATH_ADMINISTRATOR.'/components/com_jcalpro/jcalpro.xml'))
-			$items['jcalpro'] = true;
+		if (file_exists(JPATH_ADMINISTRATOR.'/components/com_jcalpro/jcalpro.xml')) {
+			$xml = file_get_contents(JPATH_ADMINISTRATOR.'/components/com_jcalpro/jcalpro.xml');
+			
+			if ($this->checkVersion($xml, '4.3.18', '<=')) {
+				$items['jcalpro'] = true;
+			}
+		}
 		
 		if (file_exists(JPATH_ADMINISTRATOR.'/components/com_ohanah/ohanah.php'))
 			$items['ohanah'] = true;
@@ -161,7 +169,7 @@ class RseventsproModelImports extends JModelLegacy
 			
 			$thecategories = array();
 			if (!empty($categories)) {
-				array_map('intval',$categories);
+				$categories = array_map('intval',$categories);
 				$categories = array_unique($categories);
 				
 				foreach ($categories as $category) {
@@ -597,7 +605,7 @@ class RseventsproModelImports extends JModelLegacy
 		
 		$condition = false;
 		if (!empty($jevcategories)) {
-			array_map('intval',$jevcategories);
+			$jevcategories = array_map('intval',$jevcategories);
 			$jevcategories = array_unique($jevcategories);
 			$condition = true;
 			$condition = " AND id IN (".implode(',',$jevcategories).") ";
@@ -738,118 +746,150 @@ class RseventsproModelImports extends JModelLegacy
 		$db = JFactory::getDbo();
 		$query = $db->getQuery(true);
 		
-		// Get categories
+		$tmplocations 	= array();
+		$tmpcategories 	= array();
+		$counter		= 0;
+		
+		// Check for events
 		$query->clear()
-			->select($db->qn('cat_id'))->select($db->qn('cat_name'))->select($db->qn('description'))
-			->select($db->qn('color'))->select($db->qn('published'))
-			->from($db->qn('#__jcalpro2_categories'));
+			->select($db->qn('id'))->select($db->qn('title'))->select($db->qn('description'))->select($db->qn('start_date'))->select($db->qn('duration_type'))
+			->select($db->qn('location'))->select($db->qn('end_date'))->select($db->qn('published'))->select($db->qn('created_by'))
+			->from($db->qn('#__jcalpro_events'));
 		
 		$db->setQuery($query);
-		$categories = $db->loadObjectList();
-		
-		if (empty($categories)) {
-			$this->setError(JText::_('COM_RSEVENTSPRO_IMPORT_NO_DATA'));
-			return false;
-		}
-		
-		// Add the default JCalPro location
-		$query->clear()
-			->insert($db->qn('#__rseventspro_locations'))
-			->set($db->qn('name').' = '.$db->q('JCalPro'))
-			->set($db->qn('published').' = 1');
-		
-		$db->setQuery($query);
-		$db->execute();
-		$idlocation = $db->insertid();
-		
-		$events = array();
-		
-		// Prepare events
-		if (!empty($categories)) {
-			foreach ($categories as $category) {
-				// Check if the category has events
-				$query->clear()
-					->select('COUNT(extid)')
-					->from($db->qn('#__jcalpro2_events'))
-					->where($db->qn('cat').' = '.(int) $category->cat_id);
+		if ($events = $db->loadObjectList()) {
+			$eIDs = array();
+			$lIDs = array();
+			foreach ($events as $event) {
+				$eIDs[] = $event->id;
+				$lIDs[] = $event->location;
+			}
+			
+			// Get available location IDs
+			$lIDs = array_map('intval', $lIDs);
+			$lIDs = array_unique($lIDs);
+			
+			// Get available event IDs
+			$eIDs = array_map('intval', $eIDs);
+			$eIDs = array_unique($eIDs);
+			
+			// Get locations
+			$query->clear()
+				->select($db->qn('id'))->select($db->qn('title'))->select($db->qn('address'))->select($db->qn('city'))->select($db->qn('state'))
+				->select($db->qn('postal_code'))->select($db->qn('country'))->select($db->qn('latitude'))->select($db->qn('longitude'))->select($db->qn('published'))
+				->from($db->qn('#__jcalpro_locations'))
+				->where($db->qn('id').' IN ('.implode(',',$lIDs).')');
+			$db->setQuery($query);
+			$locations = $db->loadObjectList();
+			
+			// Get available categories
+			$query->clear()
+				->select($db->qn('c.id'))->select($db->qn('c.title'))
+				->select($db->qn('c.description'))->select($db->qn('c.published'))
+				->from($db->qn('#__categories','c'))
+				->join('LEFT', $db->qn('#__jcalpro_event_categories','jc').' ON '.$db->qn('c.id').' = '.$db->qn('jc.category_id'))
+				->where($db->qn('c.extension').' = '.$db->q('com_jcalpro'))
+				->where($db->qn('jc.event_id').' IN ('.implode(',', $eIDs).')')
+				->group($db->qn('c.id'));
+			$db->setQuery($query);
+			$categories = $db->loadObjectList();
+			
+			// Store the new categories and locations
+			if ($locations) {
+				foreach ($locations as $location) {
+					$address = $location->address;
+					if (!empty($location->postal_code)) $address .= ', '.$location->postal_code;
+					if (!empty($location->city)) $address .= ', '.$location->city;
+					if (!empty($location->state)) $address .= ', '.$location->state;
+					if (!empty($location->country)) $address .= ', '.$location->country;
 					
-				$db->setQuery($query);
-				$count = $db->loadResult();
-				
-				if (!$count) continue;
-				
-				// Create the category
-				$data = array();
-				$data['published'] = $category->published;
-				$data['title'] = $category->cat_name;
-				$data['description'] = $category->description;
-				$data['parent_id'] = 1;
-				$registry = new JRegistry;
-				$registry->loadArray(array('color' => $category->color));
-				$data['params'] = $registry->toString();
-				
-				$category_id = $this->_savecategory($data);
-				
-				// Get the event details
-				$query->clear()
-					->select($db->qn('owner_id'))->select($db->qn('title'))->select($db->qn('description'))->select($db->qn('start_date'))
-					->select($db->qn('end_date'))->select($db->qn('published'))
-					->from($db->qn('#__jcalpro2_events'))
-					->where($db->qn('cat').' = '.(int) $category->cat_id);
-				
-				$db->setQuery($query);
-				$jcevents = $db->loadObjectList();
-				
-				// Add JCalPro events to the $events container
-				foreach ($jcevents as $event) {
-					$eventcontainer = new stdClass();
-					$eventcontainer->name = $event->title;
-					$eventcontainer->description = $event->description;
-					$eventcontainer->location = $idlocation;
-					$eventcontainer->start = $event->start_date;
-					$eventcontainer->end = $event->end_date;
-					$eventcontainer->published = $event->published;
-					$eventcontainer->owner = $event->owner_id;
+					$data = array();
+					$data['name'] = $location->title;
+					$data['address'] = $address;
+					$data['published'] = $location->published;
 					
-					$events[$category_id][] = $eventcontainer;
+					if ($location->latitude && $location->longitude) {
+						try {
+							$data['coordinates'] = rseventsproHelper::checkCoordinates($location->latitude.','.$location->longitude);
+						} catch (Exception $e) {
+							$data['coordinates'] = '';
+						}
+					}
+					
+					$newlocation = $this->_savelocation($data);
+					$tmplocations[$location->id] = $newlocation;
 				}
 			}
-		}
-		
-		$counter = 0;
-		
-		// Parse JCalPro events
-		if (!empty($events)) {
-			foreach ($events as $category => $event) {
-				foreach ($event as $theevent) {
+			
+			if ($categories) {
+				foreach ($categories as $category) {
 					$data = array();
-					$data['name'] = $theevent->name;
-					$data['description'] = $theevent->description;
-					$data['location'] = $theevent->location;
-					$data['start'] = $theevent->start;
-					$data['end'] = $theevent->end;
-					$data['published'] = $theevent->published;
-					$data['owner'] = $theevent->owner;
-					$data['completed'] = 1;
+					$data['published'] = $category->published;
+					$data['title'] = $category->title;
+					$data['description'] = $category->description;
+					$data['parent_id'] = 1;
 					
-					if ($idevent = $this->_saveevent($data)) {
+					$newcategory = $this->_savecategory($data);
+					$tmpcategories[$category->id] = $newcategory;
+				}
+			}
+			
+			// Add events
+			foreach ($events as $event) {
+				$array = array();
+				$query->clear()
+					->select($db->qn('category_id'))
+					->from($db->qn('#__jcalpro_event_categories'))
+					->where($db->qn('event_id').' = '.(int) $event->id);
+				
+				$db->setQuery($query);
+				$ecategories = $db->loadColumn();
+				$ecategories = array_map('intval',$ecategories);
+				
+				if (!empty($ecategories)) {
+					foreach ($ecategories as $cat) {
+						$array[] = $tmpcategories[$cat];
+					}
+				}
+				
+				$data = array();
+				$data['name'] = $event->title;
+				$data['description'] = $event->description;
+				$data['location'] = $tmplocations[$event->location];
+				$data['start'] = $event->start_date;
+				$data['end'] = $event->end_date;
+				$data['published'] = $event->published;
+				$data['owner'] = $event->created_by;
+				$data['completed'] = 1;
+				
+				if ($event->duration_type == 0 || $event->duration_type == 2) {
+					$data['allday'] = 1;
+					$data['end'] = $db->getNullDate();
+				}
+				
+				if ($idevent = $this->_saveevent($data)) {
+					foreach ($array as $cat) {
 						$query->clear()
 							->insert($db->qn('#__rseventspro_taxonomy'))
 							->set($db->qn('type').' = '.$db->q('category'))
-							->set($db->qn('id').' = '.(int) $category)
+							->set($db->qn('id').' = '.(int) $cat)
 							->set($db->qn('ide').' = '.(int) $idevent);
 						
 						$db->setQuery($query);
 						$db->execute();
-						
-						$counter++;
 					}
+					
+					$counter++;
 				}
 			}
+		} else {
+			$this->setError(JText::_('COM_RSEVENTSPRO_IMPORT_NO_DATA'));
+			return false;
 		}
 		
-		if ($counter)
+		if ($counter) {
 			return $counter;
+		}
 		
 		$this->setError(JText::_('COM_RSEVENTSPRO_IMPORT_NO_DATA'));
 		return false;
@@ -902,7 +942,7 @@ class RseventsproModelImports extends JModelLegacy
 		$locations = $db->loadColumn();
 		
 		if (!empty($locations)) {
-			array_map('intval',$locations);
+			$locations = array_map('intval',$locations);
 			$locations = array_unique($locations);
 			
 			foreach ($locations as $location) {
@@ -943,7 +983,7 @@ class RseventsproModelImports extends JModelLegacy
 		$categories = $db->loadColumn();
 		
 		if (!empty($categories)) {
-			array_map('intval',$categories);
+			$categories = array_map('intval',$categories);
 			$categories = array_unique($categories);
 			
 			foreach ($categories as $category) {
@@ -981,7 +1021,7 @@ class RseventsproModelImports extends JModelLegacy
 				
 				$db->setQuery($query);
 				$ecategories = $db->loadColumn();
-				array_map('intval',$ecategories);
+				$ecategories = array_map('intval',$ecategories);
 				
 				if (!empty($ecategories))
 					foreach ($ecategories as $cat)
@@ -1127,7 +1167,7 @@ class RseventsproModelImports extends JModelLegacy
 		$categories = $db->loadColumn();
 		
 		if (!empty($categories)) {
-			array_map('intval',$categories);
+			$categories = array_map('intval',$categories);
 			$categories = array_unique($categories);
 			
 			foreach ($categories as $category) {
@@ -1213,24 +1253,26 @@ class RseventsproModelImports extends JModelLegacy
 		
 		// Get events
 		$query->clear()
-			->select($db->qn('ohanah_event_id'))->select($db->qn('ohanah_category_id'))->select($db->qn('title'))->select($db->qn('description'))
-			->select($db->qn('date'))->select($db->qn('start_time'))->select($db->qn('end_date'))->select($db->qn('end_time'))->select($db->qn('created_by'))
-			->select($db->qn('enabled'))->select($db->qn('ohanah_venue_id'))->select($db->qn('end_time_enabled'))
+			->select($db->qn('ohanah_event_id'))->select($db->qn('ohanah_category_id'))->select($db->qn('ohanah_venue_id'))
+			->select($db->qn('title'))->select($db->qn('description'))->select($db->qn('created_by'))
 			->from($db->qn('#__ohanah_events'));
 		
 		$db->setQuery($query);
 		$events = $db->loadObjectList();
 		
-		if (!empty($events)) {
+		if ($events) {
+			// Get locations
 			$query->clear()
-				->select($db->qn('ohanah_venue_id'))->select($db->qn('title'))->select($db->qn('description'))
-				->select($db->qn('address'))->select($db->qn('latitude'))->select($db->qn('longitude'))
-				->select($db->qn('enabled'))
+				->select($db->qn('ohanah_venue_id'))->select($db->qn('name'))->select($db->qn('description'))
+				->select($db->qn('address_1'))->select($db->qn('address_2'))->select($db->qn('city'))->select($db->qn('state'))
+				->select($db->qn('zipcode'))->select($db->qn('country'))
+				->select($db->qn('latitude'))->select($db->qn('longitude'))->select($db->qn('enabled'))
 				->from($db->qn('#__ohanah_venues'));
 			
 			$db->setQuery($query);
 			$locations = $db->loadObjectList();
 			
+			// Get categories
 			$query->clear()
 				->select($db->qn('ohanah_category_id'))->select($db->qn('title'))
 				->select($db->qn('enabled'))->select($db->qn('description'))
@@ -1239,6 +1281,7 @@ class RseventsproModelImports extends JModelLegacy
 			$db->setQuery($query);
 			$categories = $db->loadObjectList();
 			
+			// Store the Ohanah locations
 			$thelocations = array();
 			if (!empty($locations)) {
 				foreach ($locations as $location) {
@@ -1250,11 +1293,12 @@ class RseventsproModelImports extends JModelLegacy
 					$db->setQuery($query);
 					if ($db->loadResult()) {
 						// IMPORT locations
-						$coodinates = !empty($location->latitude) && !empty($location->longitude) ? $location->latitude.','.$location->longitude : '';
+						$coordinates = !empty($location->latitude) && !empty($location->longitude) ? $location->latitude.','.$location->longitude : '';
+						$address = $location->address_1.(!empty($location->address_2) ? ' '.$location->address_2 : '').(!empty($location->city) ? ', '.$location->city : '').(!empty($location->state) ? ', '.$location->state : '').(!empty($location->zipcode) ? ', '.$location->zipcode : '').(!empty($location->country) ? ', '.$location->country : '');
 						
 						$data = array();
-						$data['name'] = $location->title;
-						$data['address'] = $location->address;
+						$data['name'] = $location->name;
+						$data['address'] = $address;
 						$data['description'] = $location->description;
 						$data['published'] = $location->enabled;
 						$data['coordinates'] = $coordinates;
@@ -1288,35 +1332,61 @@ class RseventsproModelImports extends JModelLegacy
 				}
 			}
 			
-			if (!empty($events)) {
-				foreach ($events as $event) {
-					// IMPORT events
-					$startDate	= $event->date.' '.$event->start_time;
-					$endDate	= $event->end_date.' '.$event->end_time;					
-					$start		= JFactory::getDate($startDate, rseventsproHelper::getTimezone());
-					$end		= JFactory::getDate($endDate, rseventsproHelper::getTimezone());
-					
-					$data = array();
-					$data['name'] = $event->title;
-					$data['description'] = $event->description;
-					$data['location'] = $thelocations[$event->ohanah_venue_id];
-					$data['start'] = $start->format('Y-m-d H:i:s');
-					$data['end'] = $end->format('Y-m-d H:i:s');
-					$data['published'] = $event->enabled;
-					$data['owner'] = $event->created_by;
-					$data['completed'] = 1;
-					
-					if ($idevent = $this->_saveevent($data)) {
-						$query->clear()
-							->insert($db->qn('#__rseventspro_taxonomy'))
-							->set($db->qn('type').' = '.$db->q('category'))
-							->set($db->qn('id').' = '.(int) $thecategories[$event->ohanah_category_id])
-							->set($db->qn('ide').' = '.(int) $idevent);
-					
-						$db->setQuery($query);
-						$db->execute();
+			// Some events dont need a category ID
+			$query->clear()
+				->select('COUNT(ohanah_event_id)')
+				->from($db->qn('#__ohanah_events'))
+				->where($db->qn('ohanah_category_id').' = 0');
+			$db->setQuery($query);
+			if ((int) $db->loadResult()) {
+				$data = array();
+				$data['published'] = 1;
+				$data['title'] = 'Ohanah Uncategorised';
+				$data['description'] = '';
+				$data['parent_id'] = 1;
+				
+				$newcategory = $this->_savecategory($data);
+				$thecategories[0] = $newcategory;
+			}
+			
+			foreach ($events as $event) {
+				// Get event dates
+				$query->clear()
+					->select($db->qn('start'))->select($db->qn('end'))
+					->select($db->qn('timezone'))->select($db->qn('all_day'))->select($db->qn('enabled'))
+					->from($db->qn('#__ohanah_dates'))
+					->where($db->qn('ohanah_event_id').' = '.$db->q($event->ohanah_event_id));
+				$db->setQuery($query);
+				
+				if ($dates = $db->loadObjectList()) {
+					foreach ($dates as $date) {
+						// IMPORT events
+						$data = array();
+						$data['name'] = $event->title;
+						$data['description'] = $event->description;
+						$data['location'] = $thelocations[$event->ohanah_venue_id];
+						$data['start'] = $date->start;
+						$data['end'] = $date->all_day ? $db->getNullDate() : $date->end;
+						$data['published'] = $date->enabled;
+						$data['owner'] = $event->created_by;
+						$data['completed'] = 1;
 						
-						$counter++;
+						if ($date->all_day) {
+							$data['allday'] = 1;
+						}
+						
+						if ($idevent = $this->_saveevent($data)) {
+							$query->clear()
+								->insert($db->qn('#__rseventspro_taxonomy'))
+								->set($db->qn('type').' = '.$db->q('category'))
+								->set($db->qn('id').' = '.(int) $thecategories[$event->ohanah_category_id])
+								->set($db->qn('ide').' = '.(int) $idevent);
+						
+							$db->setQuery($query);
+							$db->execute();
+							
+							$counter++;
+						}
 					}
 				}
 			}
@@ -1582,6 +1652,15 @@ class RseventsproModelImports extends JModelLegacy
 			return $catID;
 		} else {
 			$table = JTable::getInstance('Category', 'RseventsproTable');
+			$alias = ApplicationHelper::stringURLSafe($data['title']);
+			
+			while ($table->load(array('alias' => $alias, 'parent_id' => 1, 'extension' => 'com_rseventspro'))) {
+				$alias = StringHelper::increment($alias, 'dash');
+			}
+			
+			$data['alias'] = $alias;
+			
+			$table = JTable::getInstance('Category', 'RseventsproTable');
 			$table->setLocation($data['parent_id'], 'last-child');
 			$table->save($data);
 			$table->rebuildPath($table->id);
@@ -1599,9 +1678,21 @@ class RseventsproModelImports extends JModelLegacy
 	 *	@return boolean
 	 */
 	protected function _savelocation($data) {
-		$table = JTable::getInstance('Location', 'RseventsproTable');
-		$table->save($data);
-		return $table->id;
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true)->select($db->qn('id'))->from($db->qn('#__rseventspro_locations'));
+		
+		foreach ($data as $key => $value) {
+			$query->where($db->qn($key).' = '.$db->q($value));
+		}
+		
+		$db->setQuery($query);
+		if ($locationID = (int) $db->loadResult()) {
+			return $locationID;
+		} else {
+			$table = JTable::getInstance('Location', 'RseventsproTable');
+			$table->save($data);
+			return $table->id;
+		}
 	}
 	
 	/**
@@ -1637,6 +1728,11 @@ class RseventsproModelImports extends JModelLegacy
 				->update($db->qn('#__rseventspro_events'))
 				->set($db->qn('options').' = '.$db->q($defaultOptions))
 				->where($db->qn('id').' = '.(int) $eid);
+				
+			if ($data['end'] == $db->getNullDate()) {
+				$query->set($db->qn('end').' = '.$db->q($db->getNullDate()));
+			}
+			
 			$db->setQuery($query);
 			$db->execute();
 			
@@ -1726,5 +1822,14 @@ class RseventsproModelImports extends JModelLegacy
 		}
 		
 		return $date;
+	}
+	
+	protected function checkVersion($string, $version, $operator = '>') {
+		preg_match('#<version>(.*?)<\/version>#is',$string,$match);
+		if (isset($match) && isset($match[1])) {
+			return version_compare($version,$match[1],$operator);
+		}
+		
+		return false;
 	}
 }

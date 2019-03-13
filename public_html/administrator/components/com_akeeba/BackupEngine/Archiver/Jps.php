@@ -1,12 +1,11 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
- *
  */
 
 namespace Akeeba\Engine\Archiver;
@@ -251,7 +250,7 @@ class Jps extends BaseArchiver
 		// Change the permissions of the file
 		if (function_exists('chmod'))
 		{
-			@chmod($this->_dataFileName, 0755);
+			@chmod($this->_dataFileName, 0644);
 		}
 	}
 
@@ -633,7 +632,7 @@ class Jps extends BaseArchiver
 		$storedName .= ($isDir) ? "/" : "";
 
 		// Get file permissions
-		$perms = $isVirtual ? 0755 : @fileperms($sourceNameOrData);
+		$perms = $isVirtual ? 0644 : @fileperms($sourceNameOrData);
 
 		// Get file type
 		$fileType = 1;

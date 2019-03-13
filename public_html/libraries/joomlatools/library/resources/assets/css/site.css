@@ -3,10 +3,6 @@
 /* Bootstrap 3.x variables and mixins (select2 bootstrap styling uses BS 3) */
 /* Site variables and mixins */
 /* Kodekit tools */
-/* ==========================================================================
-   Tools
-   ========================================================================== */
-/* These file do not produce any CSS code on their own */
 /* Outside of the k-ui-namespace scope */
 /* Magnific Popup CSS */
 .mfp-bg {
@@ -39,7 +35,6 @@
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px;
-    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05); }
     .mfp-wrap .well blockquote {
       border-color: #ddd;
@@ -211,7 +206,7 @@ button::-moz-focus-inner {
   padding: 0;
   width: 90px;
   height: 110px;
-  -webkit-tap-highlight-color: transparent; }
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0); }
 
 .mfp-arrow:active {
   margin-top: -54px; }
@@ -497,45 +492,16 @@ img.mfp-img {
       max-height: 100% !important; } }
 
 /* Datepicker
-   ========================================================================== */
-/**
- * Datepicker for Bootstrap
- *
- * Copyright 2012 Stefan Petre
- * Improvements by Andrew Rowls
- * Licensed under the Apache License v2.0
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- */
-/*
-Datepicker
-
-markup:
-<div class="k-form-group">
-    <label>Date</label>
-    <div class="k-input-group">
-        <input class="k-form-control" type="text" />
-        <span class="k-input-group__button">
-            <button type="button" class="k-button k-button--default k-js-datepicker">
-                <sg-insert>2.12-44</sg-insert>
-                <span class="k-visually-hidden">Calendar</span>
-            </button>
-        </span>
-    </div>
-</div>
-
-Styleguide 2.5
-
-*/
+     ========================================================================== */
 .datepicker {
   direction: ltr;
   /**
-   * Inline display inside a table presents some problems with
-   * border and background colors.
-   */
+     * Inline display inside a table presents some problems with
+     * border and background colors.
+     */
   /* Basic styling for calendar-week cells */ }
   .datepicker.datepicker-inline {
-    width: 220px; }
+    width: 224px; }
   .datepicker.datepicker-rtl {
     direction: rtl; }
     .datepicker.datepicker-rtl table tr td span {
@@ -626,8 +592,8 @@ Styleguide 2.5
     background-color: transparent; }
   .datepicker table tr td {
     /**
-     * 1. Add last
-     */
+       * 1. Add last
+       */
     /* Thank bootstrap 2.0 for this selector... */ }
     .datepicker table tr td.day:hover {
       background: #eeeeee;
@@ -1219,7 +1185,8 @@ Styleguide 2.5
 /*! Select2 Bootstrap Theme v0.1.0-beta.9 | MIT License | github.com/select2/select2-bootstrap-theme */
 .select2-container--bootstrap {
   display: block;
-  /*------------------------------------*      #COMMON STYLES
+  /*------------------------------------*\
+      #COMMON STYLES
   \*------------------------------------*/
   /**
    * Search field in the Select2 dropdown.
@@ -1243,7 +1210,8 @@ Styleguide 2.5
    * @see https://select2.github.io/examples.html#disabled
    * @see http://getbootstrap.com/css/#forms-control-disabled
    */
-  /*------------------------------------*      #DROPDOWN
+  /*------------------------------------*\
+      #DROPDOWN
   \*------------------------------------*/
   /**
    * Dropdown border color and box-shadow.
@@ -1251,9 +1219,11 @@ Styleguide 2.5
   /**
    * Limit the dropdown height.
    */
-  /*------------------------------------*      #SINGLE SELECT2
+  /*------------------------------------*\
+      #SINGLE SELECT2
   \*------------------------------------*/
-  /*------------------------------------*    #MULTIPLE SELECT2
+  /*------------------------------------*\
+    #MULTIPLE SELECT2
   \*------------------------------------*/
   /**
    * Address Bootstrap control sizing classes
@@ -1264,10 +1234,10 @@ Styleguide 2.5
    * @see http://getbootstrap.com/css/#forms-control-sizes
    */
   /* 1 */
-  /*------------------------------------*    #RTL SUPPORT
+  /*------------------------------------*\
+    #RTL SUPPORT
   \*------------------------------------*/ }
   .select2-container--bootstrap .select2-selection {
-    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
     background-color: #fff;
     border: 1px solid #ccc;
@@ -1278,7 +1248,6 @@ Styleguide 2.5
     .select2-container--bootstrap .select2-selection.form-control {
       border-radius: 4px; }
   .select2-container--bootstrap .select2-search--dropdown .select2-search__field {
-    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
     background-color: #fff;
     border: 1px solid #ccc;
@@ -1353,7 +1322,6 @@ Styleguide 2.5
     line-height: 1.428571429;
     white-space: nowrap; }
   .select2-container--bootstrap.select2-container--focus .select2-selection, .select2-container--bootstrap.select2-container--open .select2-selection {
-    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
     transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s 180ms cubic-bezier(0.2, 0.57, 0.44, 0.83);
     -webkit-backface-visibility: hidden;
@@ -1383,10 +1351,9 @@ Styleguide 2.5
     font-weight: bold;
     margin-right: 10px; }
     .select2-container--bootstrap .select2-selection__clear:hover {
-      color: #333; }
+      color: #222222; }
   .select2-container--bootstrap.select2-container--disabled .select2-selection {
     border-color: #ccc;
-    -webkit-box-shadow: none;
     box-shadow: none; }
   .select2-container--bootstrap.select2-container--disabled .select2-selection,
   .select2-container--bootstrap.select2-container--disabled .select2-search__field {
@@ -1398,13 +1365,11 @@ Styleguide 2.5
   .select2-container--bootstrap.select2-container--disabled .select2-selection--multiple .select2-selection__choice__remove {
     display: none; }
   .select2-container--bootstrap .select2-dropdown {
-    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
     border-color: #66afe9;
     overflow-x: hidden;
     margin-top: -1px; }
     .select2-container--bootstrap .select2-dropdown--above {
-      -webkit-box-shadow: 0px -6px 12px rgba(0, 0, 0, 0.175);
       box-shadow: 0px -6px 12px rgba(0, 0, 0, 0.175);
       margin-top: 1px; }
   .select2-container--bootstrap .select2-results > .select2-results__options {
@@ -1490,7 +1455,7 @@ Styleguide 2.5
       font-weight: bold;
       margin-right: 3px; }
       .select2-container--bootstrap .select2-selection--multiple .select2-selection__choice__remove:hover {
-        color: #333; }
+        color: #222222; }
     .select2-container--bootstrap .select2-selection--multiple .select2-selection__clear {
       margin-top: 6px; }
   .select2-container--bootstrap .select2-selection--single.input-sm,
@@ -1622,7 +1587,8 @@ Styleguide 2.5
       margin-left: 2px;
       margin-right: auto; }
 
-/*------------------------------------*  #ADDITIONAL GOODIES
+/*------------------------------------*\
+  #ADDITIONAL GOODIES
 \*------------------------------------*/
 /**
  * Address Bootstrap's validation states
@@ -1640,7 +1606,6 @@ Styleguide 2.5
 
 .has-warning .select2-container--focus .select2-selection,
 .has-warning .select2-container--open .select2-selection {
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #c0a16b;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #c0a16b;
   border-color: #66512c; }
 
@@ -1655,7 +1620,6 @@ Styleguide 2.5
 
 .has-error .select2-container--focus .select2-selection,
 .has-error .select2-container--open .select2-selection {
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ce8483;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ce8483;
   border-color: #843534; }
 
@@ -1670,7 +1634,6 @@ Styleguide 2.5
 
 .has-success .select2-container--focus .select2-selection,
 .has-success .select2-container--open .select2-selection {
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #67b168;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #67b168;
   border-color: #2b542c; }
 
@@ -1756,7 +1719,7 @@ Styleguide 2.5
 
 /* Icons */
 /* Custom icon font
-   ========================================================================== */
+     ========================================================================== */
 @font-face {
   font-family: "k-icons";
   src: url("..//k-icons/k-icons.eot");
@@ -1765,10 +1728,10 @@ Styleguide 2.5
   font-style: normal; }
 
 /**
- * Use SVG
- *
- * Always use SVG on touch / mobile
- */
+   * Use SVG
+   *
+   * Always use SVG on touch / mobile
+   */
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
   @font-face {
     font-family: "k-icons";
@@ -1794,11 +1757,11 @@ Styleguide 2.5
     line-height: 1; }
 
 /**
- * Icon classes
- *
- * Creating a class name for each individual icon to be used in markup like:
- * <span class="k-icon-circle"></span>
- */
+   * Icon classes
+   *
+   * Creating a class name for each individual icon to be used in markup like:
+   * <span class="k-icon-circle"></span>
+   */
 .k-icon-account-login:before {
   content: ""; }
   [dir="rtl"] .k-icon-account-login:before {
@@ -2702,297 +2665,10 @@ Styleguide 2.5
   content: ""; }
 
 /* Icons
-   ========================================================================== */
-/*
-Icons
-
-Open iconic icons: https://useiconic.com/open/
-
-.k-icon-account-login - Account login
-.k-icon-account-logout - Account logout
-.k-icon-action-redo - Action redo
-.k-icon-action-undo - Action undo
-.k-icon-align-center - Align center
-.k-icon-align-left - Align left
-.k-icon-align-right - Align right
-.k-icon-aperture - Aperture
-.k-icon-arrow-bottom - Arrow bottom
-.k-icon-arrow-circle-bottom - Arrow circle bottom
-.k-icon-arrow-circle-left - Arrow circle left
-.k-icon-arrow-circle-right - Arrow circle right
-.k-icon-arrow-circle-top - Arrow circle top
-.k-icon-arrow-left - Arrow left
-.k-icon-arrow-right - Arrow right
-.k-icon-arrow-thick-bottom - Arrow thick bottom
-.k-icon-arrow-thick-left - Arrow thick left
-.k-icon-arrow-thick-right - Arrow think right
-.k-icon-arrow-thick-top - Arrow thick top
-.k-icon-arrow-top - Arrow top
-.k-icon-audio-spectrum - Audio spectrum
-.k-icon-audio - Audio
-.k-icon-badge - Badge
-.k-icon-ban - Ban
-.k-icon-bar-chart - Bar chart
-.k-icon-basket - Basket
-.k-icon-battery-empty - Battery empty
-.k-icon-battery-full - Battery full
-.k-icon-beaker - Beaker
-.k-icon-bell - Bell
-.k-icon-bluetooth - Bluetooth
-.k-icon-bold - Bold
-.k-icon-bolt - Bolt
-.k-icon-book - Book
-.k-icon-bookmark - Bookmark
-.k-icon-box - Box
-.k-icon-briefcase - Briefcase
-.k-icon-british-pound - British pound
-.k-icon-browser - Browser
-.k-icon-brush - Brush
-.k-icon-bug - Bug
-.k-icon-bullhorn - Bullhorn
-.k-icon-calculator - Calculator
-.k-icon-calendar - Calendar
-.k-icon-camera-slr - Camera SLR
-.k-icon-caret-bottom - Caret bottom
-.k-icon-caret-left - Caret left
-.k-icon-caret-right - Caret right
-.k-icon-caret-top - Caret top
-.k-icon-cart - Cart
-.k-icon-chat - Chat
-.k-icon-check - Check
-.k-icon-chevron-bottom - Chevron bottom
-.k-icon-chevron-left - Chevron left
-.k-icon-chevron-right - Chevron right
-.k-icon-chevron-top - Chevron top
-.k-icon-circle-check - Circle check
-.k-icon-circle-x - Circle X
-.k-icon-clipboard - Clipboard
-.k-icon-clock - Clock
-.k-icon-cloud-download - Cloud download
-.k-icon-cloud-upload - Cloud upload
-.k-icon-cloud - Cloud
-.k-icon-cloudy - Cloudy
-.k-icon-code - Code
-.k-icon-cog - Cog
-.k-icon-collapse-down - Collapse down
-.k-icon-collapse-left - Collapse left
-.k-icon-collapse-right - Collapse right
-.k-icon-collapse-up - Collapse up
-.k-icon-command - Command
-.k-icon-comment-square - Comment square
-.k-icon-compass - Compass
-.k-icon-contrast - Contrast
-.k-icon-copywriting - Copywriting
-.k-icon-credit-card - Credit card
-.k-icon-crop - Crop
-.k-icon-dashboard - Dashboard
-.k-icon-data-transfer-download - Data transfer download
-.k-icon-data-transfer-upload - Data transfer upload
-.k-icon-delete - Delete
-.k-icon-dial - Dial
-.k-icon-document - Document
-.k-icon-dollar - Dollar
-.k-icon-double-quote-sans-left - Double quote sans left
-.k-icon-double-quote-sans-right - Double quote sans right
-.k-icon-double-quote-serif-left - Double quote serif left
-.k-icon-double-quote-serif-right - Double quote serif right
-.k-icon-droplet - Droplet
-.k-icon-eject - Eject
-.k-icon-elevator - Elevator
-.k-icon-ellipses - Ellipsis
-.k-icon-envelope-closed - Envelope closed
-.k-icon-envelope-open - Envelope open
-.k-icon-euro - Euro
-.k-icon-excerpt - Excerpt
-.k-icon-expand-down - Expand down
-.k-icon-expand-left - Expand left
-.k-icon-expand-right - Expand right
-.k-icon-expand-up - Expand up
-.k-icon-external-link - External link
-.k-icon-eye - Eye
-.k-icon-eyedropper - Eyedropper
-.k-icon-file - File
-.k-icon-fire - Fire
-.k-icon-flag - Flag
-.k-icon-flash - Flash
-.k-icon-folder - folder
-.k-icon-fork - Fork
-.k-icon-fullscreen-enter - Fullscreen enter
-.k-icon-fullscreen-exit - Fullscreen exit
-.k-icon-globe - Globe
-.k-icon-graph - Graph
-.k-icon-grid-four-up - Grid four up
-.k-icon-grid-three-up - Grid three up
-.k-icon-grid-two-up - Grid two up
-.k-icon-hard-drive - Hard drive
-.k-icon-header - Header
-.k-icon-headphones - Headphones
-.k-icon-heart - Heart
-.k-icon-home - Home
-.k-icon-image - Image
-.k-icon-inbox - Inbox
-.k-icon-infinity - Infinity
-.k-icon-info - Info
-.k-icon-italic - Italic
-.k-icon-justify-center - Justify center
-.k-icon-justify-left - Justify left
-.k-icon-justify-right - Justify right
-.k-icon-key - Key
-.k-icon-laptop - Laptop
-.k-icon-layers - Layers
-.k-icon-lightbulb - lightbulb
-.k-icon-link-broken - Link broken
-.k-icon-link-intact - Link intact
-.k-icon-list-rich - List rich
-.k-icon-list - List
-.k-icon-location - Location
-.k-icon-lock-locked - Lock locked
-.k-icon-lock-unlocked - Lock unlocked
-.k-icon-loop-circular - Circular
-.k-icon-loop-square - Square
-.k-icon-loop - Loop
-.k-icon-magnifying-glass - Magnifying glass
-.k-icon-map-marker - Map marker
-.k-icon-map - Map
-.k-icon-media-pause - Media pause
-.k-icon-media-play - Media play
-.k-icon-media-record - Media record
-.k-icon-media-skip-backward - Media skip backward
-.k-icon-media-skip-forward - Media skip forward
-.k-icon-media-step-backward - Media step backward
-.k-icon-media-step-forward - Media step forward
-.k-icon-media-stop - Media stop
-.k-icon-medical-cross - Medical cross
-.k-icon-menu - Menu
-.k-icon-microphone - Microphone
-.k-icon-minus - Minus
-.k-icon-monitor - Monitor
-.k-icon-moon - Moon
-.k-icon-move - Move
-.k-icon-musical-note - Musical note
-.k-icon-paperclip - Paperclip
-.k-icon-pencil - Pencil
-.k-icon-people - People
-.k-icon-person - Person
-.k-icon-phone - Phone
-.k-icon-pie-chart - Pie chart
-.k-icon-pin - Pin
-.k-icon-play-circle - Play circle
-.k-icon-plus - Plus
-.k-icon-power-standby - power standby
-.k-icon-print - Print
-.k-icon-project - Project
-.k-icon-pulse - Pulse
-.k-icon-puzzle-piece - Puzzle piece
-.k-icon-question-mark - Question mark
-.k-icon-rain - Rain
-.k-icon-random - Random
-.k-icon-reload - Reload
-.k-icon-resize-both - Resize both
-.k-icon-resize-height - Resize height
-.k-icon-resize-width - Resize width
-.k-icon-rss-alt - RSS alt
-.k-icon-rss - RSS
-.k-icon-script - Script
-.k-icon-share-boxed - Share boxed
-.k-icon-share - Share
-.k-icon-shield - Shield
-.k-icon-signal - Signal
-.k-icon-signpost - Signpost
-.k-icon-sort-ascending - Sort ascending
-.k-icon-sort-descending - Sort descending
-.k-icon-spreadsheet - Spreadsheet
-.k-icon-star - Star
-.k-icon-sun - Sun
-.k-icon-tablet - Tablet
-.k-icon-tag - Tag
-.k-icon-tags - Tags
-.k-icon-target - Target
-.k-icon-task - Task
-.k-icon-terminal - Terminal
-.k-icon-text - Text
-.k-icon-thumb-down - Thumb down
-.k-icon-thumb-up - Thumb up
-.k-icon-timer - Timer
-.k-icon-transfer - Transfer
-.k-icon-trash - Trash
-.k-icon-underline - Underline
-.k-icon-vertical-align-bottom - Vertical align bottom
-.k-icon-vertical-align-center - Vertical align center
-.k-icon-vertical-align-top - Vertical align top
-.k-icon-video - Video
-.k-icon-volume-high - Volume high
-.k-icon-volume-low - Volume low
-.k-icon-volume-off - Volume off
-.k-icon-warning - Warning
-.k-icon-wifi - Wifi
-.k-icon-wrench - Wrench
-.k-icon-x - X
-.k-icon-yen - Yen
-.k-icon-zoom-in - Zoom in
-.k-icon-zoom-out - Zoom out
-
-markup:
-<span class="{$modifiers}" aria-hidden="true"></span>
-
-sg-wrapper:
-<div style="font-size: 16px;"><sg-wrapper-content/></div>
-
-Styleguide 2.12
-
-*/
+     ========================================================================== */
 /**
-Extra icons
-
-Extra icons that we added on top of open iconic
-
-.k-icon-close - Close
-.k-icon-disabled - Disabled
-.k-icon-document-archive - Archive
-.k-icon-document-audio - Audio
-.k-icon-document-default - Default
-.k-icon-document-document - Document
-.k-icon-document-folder - Folder
-.k-icon-document-image - Image
-.k-icon-document-pdf - PDF
-.k-icon-document-spreadsheet - Spreadsheet
-.k-icon-document-video - Video
-.k-icon-documents - Documents
-.k-icon-enabled - Enabled
-.k-icon-filter - Filter
-.k-icon-folder-closed - Folder closed
-.k-icon-folder-opened - Folder opened
-.k-icon-menu-closed - Menu closed
-.k-icon-menu-opened - Menu opened
-.k-icon-open - Open
-
-markup:
-<span class="{$modifiers}" aria-hidden="true"></span>
-
-sg-wrapper:
-<div style="font-size: 16px;"><sg-wrapper-content/></div>
-
-Styleguide 2.12.1
-
-*/
-/*
-Icon colors
-
-Give your icons more meaning by giving them a color
-
-.k-icon--accent - Accent color
-.k-icon--success - Success color
-.k-icon--error - Error color
-
-markup:
-<span class="k-icon-home {$modifiers}" aria-hidden="true"></span>
-
-sg-wrapper:
-<div style="font-size: 16px;"><sg-wrapper-content/></div>
-
-Styleguide 2.12.2
-
-*/
+   * Icon colors
+   */
 .k-icon--accent {
   color: #3071a9; }
 
@@ -3002,28 +2678,9 @@ Styleguide 2.12.2
 .k-icon--error {
   color: #c0392b; }
 
-/*
-Icon sizes
-
-Different sizes for icons
-
-.k-icon--size-tiny - 10px
-.k-icon--size-small - 13px
-.k-icon--size-default - 16px
-.k-icon--size-medium - 24px
-.k-icon--size-large - 32px
-.k-icon--size-xlarge - 48px
-.k-icon--size-huge - 64px
-
-markup:
-<span class="k-icon-document-default {$modifiers}" aria-hidden="true"></span>
-
-sg-wrapper:
-<div><sg-wrapper-content/></div>
-
-Styleguide 2.12.3
-
-*/
+/**
+   * Icon sizes
+   */
 .k-icon--size-tiny {
   font-size: 10px; }
 
@@ -3047,41 +2704,27 @@ Styleguide 2.12.3
 
 .k-icon-text-item {
   display: inline-block;
+  font-size: inherit !important;
   line-height: 20px;
   vertical-align: middle;
-  font-size: inherit !important;
-  margin-right: 5px; }
+  margin-right: 4px; }
 
 /**
- * Custom background image icons
- *
- * Make sure that custom icons get background-size cover so they fit their container nicely
- */
+   * Custom background image icons
+   *
+   * Make sure that custom icons get background-size cover so they fit their container nicely
+   */
 [class^="k-icon-document-"]:before,
 [class*=" k-icon-document-"]:before {
   background-size: cover; }
 
 /* Tooltips */
 /* Tooltip
-   ========================================================================== */
-/*
-Tooltips
-
-markup:
-<a href="javascript:void(0)" class="k-js-tooltip" data-toggle="tooltip" data-original-title="Tooltip">Tooltip on top</a>
-
-sg-wrapper:
-<p style="margin: 30px 0;">
-    <sg-wrapper-content/>
-</p>
-
-Styleguide 2.25
-
-*/
+     ========================================================================== */
 /**
- * 1. Our parent element can be arbitrary since tooltips are by default inserted as a sibling of their target element.
- *    So reset our font and text properties to avoid inheriting weird values.
- */
+   * 1. Our parent element can be arbitrary since tooltips are by default inserted as a sibling of their target element.
+   *    So reset our font and text properties to avoid inheriting weird values.
+   */
 .k-tooltip {
   position: absolute;
   z-index: 1070;
@@ -3105,17 +2748,19 @@ Styleguide 2.25
     padding: 0 5px; }
 
 /**
- * Wrapper for the tooltip content
- */
+   * Wrapper for the tooltip content
+   */
 .k-tooltip__inner {
-  max-width: 260px;
-  padding: 3px 8px;
+  max-width: 264px;
+  padding: 4px 8px;
   color: white;
   text-align: center;
   background-color: black;
   border-radius: 4px; }
 
-/* Arrows */
+/**
+   * Arrows
+   */
 .k-tooltip__arrow {
   position: absolute;
   width: 0;
@@ -3183,157 +2828,14 @@ Styleguide 2.25
 .k-ui-namespace {
   /* Border-box size everything */
   /* Responsive tables */
-  /*
-Responsive table
-
-- Add the `.k-js-responsive-table` class to the `<table>`
-- Use [data-hide="phone/tablet/desktop"] on `<th>` to hide cell on different screen sizes
-- Set [data-toggle="true"] and add a `.k-table-data--toggle` class to an empty cell
-
-markup:
-<div class="k-table-container">
-    <div class="k-table">
-        <table class="k-js-responsive-table">
-        <thead>
-            <tr>
-                <th width="1%" data-hide="phone">
-                    <sg-insert>2.12-161</sg-insert>
-                    <span class="k-visually-hidden">Move icon</sg-insert>
-                </th>
-                <th width="1%" class="k-table-data--form">
-                    <input type="checkbox" />
-                </th>
-                <th data-toggle="true" class="k-table-data--toggle"></th>
-                <th>
-                    Title
-                </th>
-                <th data-hide="phone,tablet">
-                    Category
-                </th>
-                <th data-hide="phone,tablet,desktop">
-                    Downloads
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>
-                    <sg-insert>2.21.9</sg-insert>
-                </td>
-                <td class="k-table-data--form">
-                    <input type="checkbox" />
-                </td>
-                <td class="k-table-data--toggle"></td>
-                <td class="k-table-data--ellipsis">
-                    <a href="javascript:void(0)">Title</a>
-                </td>
-                <td>
-                    Category
-                </td>
-                <td>
-                    12
-                </td>
-            </tr>
-        </tbody>
-        </table>
-    </div>
-</div>
-
-Styleguide 2.21.11
-
-*/
+  /* Responsive table
+     ========================================================================== */
   /* Pagination */
-  /*
-Table pagination
-
-- Put right below `.k-table` container and inside `.k-table-container` container
-
-markup:
-<div class="k-table-pagination">
-    <div class="k-pagination">
-        <div class="k-pagination__limit">
-            <select class="k-form-control">
-                <option value="5">5</option>
-                <option value="10" selected>10</option>
-                <option value="15">15</option>
-            </select>
-        </div>
-        <ul class="k-pagination__pages">
-            <li class="k-is-active">
-                <span>1</span>
-            </li>
-            <li>
-                <a href="javascript:void(0)">2</a>
-            </li>
-            <li>
-                <a href="javascript:void(0)">3</a>
-            </li>
-            <li>
-                <a href="javascript:void(0)">4</a>
-            </li>
-            <li>
-                <a href="javascript:void(0)">5</a>
-            </li>
-            <li>
-                <a href="javascript:void(0)">»</a>
-            </li>
-        </ul>
-    </div>
-</div>
-
-Styleguide 2.21.1
-
-*/
-  /**
- * 1. Faking a bottom border, this shadow will disappear when pagination is positioned to bottom
- */
+  /* Pagination */
   /* File select input */
-  /*
-Styled file input
-
-markup:
-<div class="k-file-input-container">
-    <div class="k-file-input">
-        <input class="k-js-file-input" type="file" id="input-[5.1]-2" data-multiple-caption="{count} files selected" multiple />
-        <label for="input-[5.1]-2">
-            <span class="k-file-input__button">
-                <sg-insert>2.12-62</sg-insert>
-                Choose a file&hellip;
-            </span>
-            <span class="k-file-input__files"></span>
-        </label>
-    </div>
-</div>
-
-Styleguide 2.9.9
-
-*/
+  /* Styled file input */
   /* Tree
-   ========================================================================== */
-  /*
-Tree
-
-markup:
-<div class="k-tree" id="k-jqtree"></div>
-<script type="text/javascript" defer>
-(function($k-) {
-    $k-(document).ready(function () {
-        new Koowa.Tree('#k-jqtree', {
-            "data": [
-                {"label":"Main category","id":4},
-                {"label":"Sub category 1","id":5,"parent":4},
-                {"label":"Sub category 2","id":6,"parent":4},
-                {"label":"Deeper category","id":7,"parent":6},
-                {"label":"Sub category 3","id":8,"parent":4}
-            ]
-        });
-    });
-});
-</script>
-
-Styleguide 2.26
-
-*/
+     ========================================================================== */
   /* ==========================================================================
    Select2
    ========================================================================== */
@@ -3343,287 +2845,169 @@ Styleguide 2.26
    *
    * Loading last so we have the biggest chance of 'winning' specificity wars without using !important
    */
+  /* Dynamic content holder
+     ========================================================================== */
   /**
- * Adding class three times so we win over most other classes without using
- * !important. Most selectors are max three long e.g.:
- * `.some.longer[css=selector]` will still lose from `.selector.selector.selector`
- * since we load this file last
- */
-  /*
-Dynamic content holder
-
-Add `<script>` and other hidden content (like modals) inside this div so the elements won't be in the way for flexbox
-
-markup:
-<div class="k-dynamic-content-holder">...</div>
-
-Styleguide 6.1
-
-*/
-  /*
-Hidden
-
-Hide content in a non-accessible way. Content is hidden for everybody including screenreaders
-
-markup:
-<div class="k-hidden">...</div>
-
-Styleguide 6.2
-
-*/
-  /*
-Loader
-
-CSS only loading animation.
-- Falls back to `Loading...` on non capable browsers
-- Add `k-hidden` class to the element when items are done loading
-
-.k-loader--small - Small
-.k-loader--medium - Medium
-.k-loader--large - Large
-
-markup:
-<span class="k-loader {$modifiers}">Loading...</span>
-
-sg-wrapper:
-<div>
-    <sg-wrapper-content/>
-</div>
-
-Styleguide 6.3
-
-*/
-  /*
-Loader container
-
-Cover it's entire parent (the parent with an `absolute` or `relative` position)
-- Add `k-hidden` class to the element when items are done loading
-
-markup:
-<div class="k-loader-container">
-    <span class="k-loader k-loader--large">Loading...</span>
-</div>
-
-sg-wrapper:
-<div style="position:relative;">
-    <p>Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Donec sed odio dui. Maecenas sed diam eget risus varius blandit sit amet non magna. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sed odio dui.</p>
-    <p>Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit. Maecenas sed diam eget risus varius blandit sit amet non magna. Maecenas sed diam eget risus varius blandit sit amet non magna.</p>
-    <p>Cras justo odio, dapibus ac facilisis in, egestas eget quam. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Donec ullamcorper nulla non metus auctor fringilla. Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-    <sg-wrapper-content/>
-</div>
-
-Styleguide 6.3.1
-
-*/
-  /*
-No margin
-
-Remove all margins from an element
-
-markup:
-<div class="k-no-margin">...</div>
-
-Styleguide 6.4
-
-*/
-  /*
-No transition
-
-Disable all transitions
-
-markup:
-<div class="k-no-transition">...</div>
-
-Styleguide 6.5
-
-*/
-  /*
-No wrap
-
-Nowrap element
-
-markup:
-<div class="k-no-wrap">...</div>
-
-Styleguide 6.6
-
-*/
-  /*
-Visually hidden
-
-Hide the content in an accessible way. Content is hidden for viewers but not for screenreaders
-
-markup:
-<div class="k-visually-hidden">...</div>
-
-Styleguide 6.7
-
-*/
-  /*
-Visually shown
-
-Show content that have the visually-hidden class
-- Use as @extend for items that are already extending `.k-visually-hidden`
-- Try not to use `.k-visually-hidden` and `.k-visually-shown` classes together if possible.
-
-markup:
-<div class="k-visually-shown">...</div>
-
-Styleguide 6.8
-
-*/
-  /*
-Ratio content
-
-markup:
-<div class="k-ratio-block k-ratio-block--16-to-9">
-    <div class="k-loader"></div>
-    <img class="k-ratio-block__body" src="{image source}" alt="{alternative text}" />
-</div>
-<div class="k-ratio-block k-ratio-block--16-to-9">
-    <div class="k-ratio-block__body">
-        <div class="k-ratio-block__centered">
-            ...
-        </div>
-    </div>
-</div>
-<div class="k-ratio-block k-ratio-block--16-to-9">
-    <div class="k-ratio-block__body">
-        <div class="k-ratio-block__centered">
-            <p>Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec ullamcorper nulla non metus auctor fringilla. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Vestibulum id ligula porta felis euismod semper.</p>
-        </div>
-    </div>
-</div>
-
-sg-wrapper:
-<div style="width: 280px">
-    <sg-wrapper-content/>
-</div>
-
-Styleguide 6.9
-
-*/
-  /*
-Colors
-
-markup:
-<div class="k-color-error">...</div>
-
-*/
-  /*
-Content block
-
-Element with a bottom margin except when item itself is a last-child
-
-markup:
-<div class="k-content-block">...</div>
-
-*/
-  /*
-Relative positioned element
-
-Could be useful to add to parnet sof absolutely positioned items
-
-markup:
-<div class="k-no-transition">...</div>
-
-*/
-  /*
-Flexing boxes
-
-DO or don't flexing children. USeful inside flexing containers on elemtns that have no pre-defined styling for flexbox
-
-markup:
-<div class="k-dont-flex">...</div>
-<div class="k-do-flex">...</div>
-
-*/
-  /*
-Hide elements for touch enabled devices
-
-markup:
-<div class="k-no-transition">...</div>
-
-*/
-  /*
-Text overflow
-
-markup:
-<div class="k-ellipsis">
-  <div class="k-ellipsis__item"></div>
-</div>
-
-*/
-  /*
-"Cover all" link
-
-Use a psuedo element inside the `<a>` to vover the entire parent.
-- This way we don't have to make a the parent element a link.
-- Downside: You can't select the text anymore, but this could also be used to your advantage
-
-markup:
-<div class="k-link-coverall">...</div>
-
-*/
-  /*
-"On-top" links
-
-Use inside the same parent as the above "coverall" link to place this link on top of the psuedo element
-
-markup:
-<div class="k-link-ontop">...</div>
-
-*/
-  /*
-This or that
-
-Line items up next to each other
-
-markup:
-<div class="k-this-or-that">...</div>
-
-*/
+   * Add `<script>` and other hidden content (like modals) inside this div so the elements won't be in the way for flexbox
+   */
+  /* Hidden
+     ========================================================================== */
   /**
- * Component animations
- *
- * Mainly used for tooltips right now
- *
- * We don't use the `.opacity()` mixin here since it causes a bug with text
- * fields in IE7-8. Source: https://github.com/twbs/bootstrap/pull/3552.
- */
+   * Hide content in a non-accessible way. Content is hidden for everybody including screenreaders
+   */
+  /* Loader
+     ========================================================================== */
+  /**
+   * Cover it's entire parent (the parent with an `absolute` or `relative` position)
+   * - Add `k-hidden` class to the element when items are done loading
+   */
+  /**
+   * Loader
+   * CSS only loading animation.
+   * Falls back to `Loading...` on non capable browsers
+   * Add `k-hidden` class to the element when items are done loading
+   */
+  /**
+   * Container styling for buttons and tabs
+   *
+   * 1. Inherit for pseudo element (and for loader)
+   * 2. "Hide" element itself by giving scaling down to 0.001
+   * 3. Cover parent by scaling up to 1000
+   * 4. Top to reset elements own height and margin
+   */
+  /* No margin
+     ========================================================================== */
+  /* No transition
+     ========================================================================== */
+  /* No wrap
+     ========================================================================== */
+  /* Visually hidden
+     ========================================================================== */
+  /**
+   * Hide the content in an accessible way. Content is hidden for viewers but not for screenreaders
+   */
+  /* Visually shown
+     ========================================================================== */
+  /**
+   * Show content that have the visually-hidden class
+   * Use as @extend for items that are already extending `.k-visually-hidden`
+   * Try not to use `.k-visually-hidden` and `.k-visually-shown` classes together if possible.
+   */
+  /* Ratio content
+     ========================================================================== */
+  /* Color
+     ========================================================================== */
+  /* Content block
+     ========================================================================== */
+  /**
+   * Element with a bottom margin except when item itself is a last-child
+   */
+  /**
+   * Top margin except for first-child
+   */
+  /* Position
+     ========================================================================== */
+  /**
+   * Static positioned element
+   */
+  /**
+   * Relative positioned element
+   */
+  /**
+   * Absolute positioned element
+   */
+  /**
+   * Fixed positioned element
+   */
+  /**
+   * Sticky positioned element
+   *
+   * Has top: 0; to ensure sticky works
+   */
+  /* Flexing
+     ========================================================================== */
+  /**
+   * DO or don't flexing children. USeful inside flexing containers on elemtns that have no pre-defined styling for flexbox
+   */
+  /**
+   * Start at different breakpoints
+   */
+  /* Touch events
+     ========================================================================== */
+  /**
+   * Hide elements for touch enabled devices
+   */
+  /* Ellipsis
+     ========================================================================== */
+  /**
+   * Text overflow
+   */
+  /* Cover all
+     ========================================================================== */
+  /**
+   * "Cover all" link
+   *
+   * Use a pseudo element inside the `<a>` to vover the entire parent.
+   * - This way we don't have to make a the parent element a link.
+   * - Downside: You can't select the text anymore, but this could also be used to your advantage
+   */
+  /**
+   * "On-top" links
+   *
+   * Use inside the same parent as the above "coverall" link to place this link on top of the pseudo element
+   */
+  /* This or that
+     ========================================================================== */
+  /**
+   * Line items up next to each other
+   */
+  /**
+   * Component animations
+   *
+   * Used for Bootstrap tooltips
+   */
   /* Hamburger
-   ========================================================================== */
+     ========================================================================== */
   /**
- * Animated hamburger button
- *
- * 1. Hide when JS is disabled, we don't need a toggle when there's no JS
- * 2. Show when JS is enabled
- * 3. Hide when the sidebar is visible
- */
-  /* Button styling */
+   * Animated hamburger button
+   *
+   * 1. Hide when JS is disabled, we don't need a toggle when there's no JS
+   * 2. Show when JS is enabled
+   * 3. Hide when the sidebar is visible
+   */
   /**
- * Left button
- *
- * We don't need RTLstyling here since we're calculating the icons to be in the middle
- */
-  /* Transform hamburger into a cross when the sidebar is opened */
+   * Button
+   */
   /**
- * Right button
- *
- * We don't need RTLstyling here since we're calculating the icons to be in the middle
- */
-  /* Transform "i" into a cross when the sidebar is opened */ }
+   * Button styling
+   */
+  /**
+   * Left button
+   *
+   * We don't need RTLstyling here since we're calculating the icons to be in the middle
+   */
+  /**
+   * Transform hamburger into a cross when the sidebar is opened
+   */
+  /**
+   * Right button
+   *
+   * We don't need RTLstyling here since we're calculating the icons to be in the middle
+   */
+  /**
+   * Transform "i" into a cross when the sidebar is opened
+   */ }
   .k-ui-namespace, .k-ui-namespace *, .k-ui-namespace *:before, .k-ui-namespace *:after {
     box-sizing: border-box; }
   .k-ui-namespace .footable.breakpoint {
     /**
-   * Reset padding, and re-set them on individual divs
-   */
+     * Reset padding, and re-set them on individual divs
+     */
     /**
-   * 1. Just like table cells
-   * 2. Almost as tall as the main table rows
-   * 3. Same spacing as on table cells
-   */
+     * 1. Just like table cells
+     * 2. Almost as tall as the main table rows
+     * 3. Same spacing as on table cells
+     */
     /* Hide toggle button for sub headings */ }
     .k-ui-namespace .footable.breakpoint .footable-toggle {
       content: " ";
@@ -3631,7 +3015,7 @@ markup:
       width: 20px;
       height: 20px;
       line-height: 18px;
-      border: 1px solid #a2a2a2;
+      border: 1px solid #a2a1a1;
       border-radius: 50%;
       text-align: center;
       vertical-align: middle; }
@@ -3641,12 +3025,14 @@ markup:
         width: 10px;
         height: 10px;
         margin: 4px;
-        color: #a2a2a2;
+        color: #a2a1a1;
         font-size: 10px;
         line-height: 1.3em;
         transform: rotate(-90deg);
         transition: all 180ms cubic-bezier(0.2, 0.57, 0.44, 0.83);
         -webkit-backface-visibility: hidden; }
+        [dir="rtl"] .k-ui-namespace .footable.breakpoint .footable-toggle:after {
+          transform: rotate(90deg); }
     .k-ui-namespace .footable.breakpoint tr.k-is-selected .footable-toggle {
       border-color: white; }
       .k-ui-namespace .footable.breakpoint tr.k-is-selected .footable-toggle:after {
@@ -3656,7 +3042,7 @@ markup:
     .k-ui-namespace .footable.breakpoint tr.footable-detail-show .footable-toggle:after {
       transform: rotate(0deg); }
     .k-ui-namespace .footable.breakpoint .footable-row-detail-row {
-      margin-bottom: 7px; }
+      margin-bottom: 6px; }
       .k-ui-namespace .footable.breakpoint .footable-row-detail-row:before, .k-ui-namespace .footable.breakpoint .footable-row-detail-row:after {
         display: table;
         content: " "; }
@@ -3670,48 +3056,35 @@ markup:
     .k-ui-namespace .footable.breakpoint .footable-row-detail-value {
       position: relative;
       /* 1 */
-      min-height: 29px;
+      min-height: 30px;
       /* 2 */
-      padding: 7px 7px;
+      padding: 6px 8px;
       /* 3 */ }
     .k-ui-namespace .footable.breakpoint th .footable-toggle {
       display: none; }
-  .k-ui-namespace .k-table-pagination {
-    padding: 7px;
-    background: #fbfbfb;
-    border-top: 1px solid gainsboro;
-    box-shadow: 0 1px 0 gainsboro;
-    /* 1 */
-    /* Flexbox */ }
-    @media (min-width: 300px) and (min-height: 391px) {
-      .k-flexbox .k-ui-namespace .k-table-pagination,
-      .k-flexboxlegacy .k-ui-namespace .k-table-pagination {
-        flex: 0 0 auto; } }
   .k-ui-namespace .k-pagination {
+    display: flex;
+    justify-content: flex-start;
+    align-content: center;
     /**
-   * Pagination contents
-   *
-   * 1. Align vertically
-   */
+     * Pagination
+     *
+     * 1. Remove list-style and block-level defaults
+     * 2. Collapse white-space
+     */
     /**
-   * Pagination
-   *
-   * 1. Remove list-style and block-level defaults
-   * 2. Collapse white-space
-   */
-    /* Limit */ }
-    .k-ui-namespace .k-pagination .k-pagination__limit,
+     * Limit
+     */ }
     .k-ui-namespace .k-pagination .k-pagination__pages {
-      display: inline-block;
-      /* 1 */
-      vertical-align: middle;
-      /* 1 */ }
-    .k-ui-namespace .k-pagination .k-pagination__pages {
-      padding-left: 0;
+      padding: 0;
       margin: 0;
       border-radius: 4px;
-      /* Override for rtl ul-ol-li styling */
-      /* Contents */ }
+      /**
+       * Override for rtl ul-ol-li styling
+       */
+      /**
+       * Contents
+       */ }
       [dir="rtl"] .k-ui-namespace .k-pagination .k-pagination__pages {
         padding: 0; }
       .k-ui-namespace .k-pagination .k-pagination__pages > li {
@@ -3723,8 +3096,8 @@ markup:
           position: relative;
           float: left;
           /* 2 */
-          padding: 5px 10px;
-          line-height: 20px;
+          padding: 6px 12px;
+          line-height: 18px;
           text-decoration: none;
           color: #3071a9;
           background-color: white;
@@ -3776,26 +3149,36 @@ markup:
       height: 32px;
       width: auto;
       margin: 0;
-      margin-right: 7px; }
+      margin-right: 8px; }
       [dir="rtl"] .k-ui-namespace .k-pagination select {
         margin-right: auto;
-        margin-left: 7px; }
+        margin-left: 8px; }
   .k-ui-namespace .k-file-input {
     position: relative;
     display: inline-block;
     /* The original file input select */
-    /* The button */
-    /* Selected files container */ }
+    /**
+     * The button
+     */
+    /**
+     * Selected files container
+     */ }
     .k-ui-namespace .k-file-input input {
       /**
-     * 1. Style only when JS is enabled / addEventlistener is available
-     *    We want to show it regularly when we don't have addEventListener for usability sake
-     * 2. Hide the label by default and only show it when addEventListener is available (e.g. when file input is hidden)
-     * 3. Display label when file input is hidden
-     */
-      /* Styling the label, holding both the button and the selected files container */
-      /* Focus state */
-      /* Hover / focus state */ }
+       * 1. Style only when JS is enabled / addEventlistener is available
+       *    We want to show it regularly when we don't have addEventListener for usability sake
+       * 2. Hide the label by default and only show it when addEventListener is available (e.g. when file input is hidden)
+       * 3. Display label when file input is hidden
+       */
+      /**
+       * Styling the label, holding both the button and the selected files container
+       */
+      /**
+       * Focus state
+       */
+      /**
+       * Hover / focus state
+       */ }
       .k-eventlistener .k-ui-namespace .k-file-input input {
         position: absolute;
         top: 0;
@@ -3826,14 +3209,14 @@ markup:
         color: #3071a9;
         padding: 0;
         text-align: center; }
-      .k-ui-namespace .k-file-input input:focus, .k-ui-namespace .k-file-input input.has-focus {
+      .k-ui-namespace .k-file-input input:focus, .k-ui-namespace .k-file-input input.k-has-focus {
         outline: none; }
-        .k-ui-namespace .k-file-input input:focus + label, .k-ui-namespace .k-file-input input.has-focus + label {
+        .k-ui-namespace .k-file-input input:focus + label, .k-ui-namespace .k-file-input input.k-has-focus + label {
           outline: 1px dotted #000;
           outline: -webkit-focus-ring-color auto 5px; }
-      .k-ui-namespace .k-file-input input:focus, .k-ui-namespace .k-file-input input.has-focus, .k-ui-namespace .k-file-input input.has-drop-focus, .k-ui-namespace .k-file-input input:hover {
+      .k-ui-namespace .k-file-input input:focus, .k-ui-namespace .k-file-input input.k-has-focus, .k-ui-namespace .k-file-input input.k-has-drop-focus, .k-ui-namespace .k-file-input input:hover {
         cursor: pointer; }
-        .k-ui-namespace .k-file-input input:focus + label .k-file-input__button, .k-ui-namespace .k-file-input input:focus + label .k-file-input__button:hover, .k-ui-namespace .k-file-input input:focus + label .k-file-input__button:focus, .k-ui-namespace .k-file-input input.has-focus + label .k-file-input__button, .k-ui-namespace .k-file-input input.has-focus + label .k-file-input__button:hover, .k-ui-namespace .k-file-input input.has-focus + label .k-file-input__button:focus, .k-ui-namespace .k-file-input input.has-drop-focus + label .k-file-input__button, .k-ui-namespace .k-file-input input.has-drop-focus + label .k-file-input__button:hover, .k-ui-namespace .k-file-input input.has-drop-focus + label .k-file-input__button:focus, .k-ui-namespace .k-file-input input:hover + label .k-file-input__button, .k-ui-namespace .k-file-input input:hover + label .k-file-input__button:hover, .k-ui-namespace .k-file-input input:hover + label .k-file-input__button:focus {
+        .k-ui-namespace .k-file-input input:focus + label .k-file-input__button, .k-ui-namespace .k-file-input input:focus + label .k-file-input__button:hover, .k-ui-namespace .k-file-input input:focus + label .k-file-input__button:focus, .k-ui-namespace .k-file-input input.k-has-focus + label .k-file-input__button, .k-ui-namespace .k-file-input input.k-has-focus + label .k-file-input__button:hover, .k-ui-namespace .k-file-input input.k-has-focus + label .k-file-input__button:focus, .k-ui-namespace .k-file-input input.k-has-drop-focus + label .k-file-input__button, .k-ui-namespace .k-file-input input.k-has-drop-focus + label .k-file-input__button:hover, .k-ui-namespace .k-file-input input.k-has-drop-focus + label .k-file-input__button:focus, .k-ui-namespace .k-file-input input:hover + label .k-file-input__button, .k-ui-namespace .k-file-input input:hover + label .k-file-input__button:hover, .k-ui-namespace .k-file-input input:hover + label .k-file-input__button:focus {
           background-color: #255681; }
     .k-ui-namespace .k-file-input .k-file-input__button {
       display: block;
@@ -3854,9 +3237,9 @@ markup:
       user-select: none;
       margin-bottom: 0;
       border-radius: 6px;
-      font-size: 18px;
-      line-height: 23px;
-      padding: 7px 14px; }
+      font-size: 17px;
+      line-height: 24px;
+      padding: 8px 16px; }
     .k-ui-namespace .k-file-input .k-file-input__files {
       width: 100%;
       height: 20px;
@@ -3948,8 +3331,9 @@ markup:
   .k-ui-namespace .koowa_header--bottom_margin {
     margin-bottom: 10px; }
   .k-ui-namespace .k-tree {
-    margin: 7px 0;
-    overflow: auto; }
+    margin: 4px 0;
+    overflow: auto;
+    display: flex; }
     .k-ui-namespace .k-tree:before, .k-ui-namespace .k-tree:after {
       display: table;
       content: " "; }
@@ -3958,9 +3342,9 @@ markup:
     .k-ui-namespace .k-tree:last-child {
       margin-bottom: 0; }
     .k-ui-namespace .k-tree .jqtree-element {
-      padding: 0 7px 0 20px; }
+      padding: 0 12px 0 16px; }
       [dir="rtl"] .k-ui-namespace .k-tree .jqtree-element {
-        padding: 0 20px 0 7px; }
+        padding: 0 16px 0 12px; }
       .k-ui-namespace .k-tree .jqtree-element:hover, .k-ui-namespace .k-tree .jqtree-element:focus {
         background: white; }
     .k-ui-namespace .k-tree > .jqtree-tree {
@@ -3969,7 +3353,7 @@ markup:
       .k-ui-namespace .k-tree > .jqtree-tree > .jqtree_common > .jqtree-element {
         padding-left: 15px; }
         [dir="rtl"] .k-ui-namespace .k-tree > .jqtree-tree > .jqtree_common > .jqtree-element {
-          padding-left: 7px;
+          padding-left: 12px;
           padding-right: 15px; }
     .k-ui-namespace .k-tree .jqtree-selected > .jqtree-element {
       background: #3071a9;
@@ -3977,18 +3361,19 @@ markup:
     .k-ui-namespace .k-tree .jqtree-selected:hover > .jqtree-element {
       background: #2d699d; }
   .k-ui-namespace .k-sidebar-item .k-tree > .jqtree-tree > .jqtree-folder .jqtree-element {
-    padding-left: 15px; }
+    padding-left: 16px; }
     [dir="rtl"] .k-ui-namespace .k-sidebar-item .k-tree > .jqtree-tree > .jqtree-folder .jqtree-element {
-      padding-left: 7px;
-      padding-right: 15px; }
+      padding-left: 12px;
+      padding-right: 16px; }
   .k-ui-namespace .jqtree-tree {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border: none;
+    background: transparent;
+    flex-grow: 1;
     /* Reset default ul li styling */ }
-    .k-ui-namespace .jqtree-tree:before, .k-ui-namespace .jqtree-tree:after {
-      display: table;
-      content: " "; }
-    .k-ui-namespace .jqtree-tree:after {
-      clear: both; }
-    .k-ui-namespace .jqtree-tree, .k-ui-namespace .jqtree-tree ul {
+    .k-ui-namespace .jqtree-tree ul {
       margin: 0;
       padding: 0;
       list-style: none;
@@ -3996,13 +3381,16 @@ markup:
       background: transparent;
       float: left;
       min-width: 100%; }
-      .k-ui-namespace .jqtree-tree:before, .k-ui-namespace .jqtree-tree:after, .k-ui-namespace .jqtree-tree ul:before, .k-ui-namespace .jqtree-tree ul:after {
+      .k-ui-namespace .jqtree-tree ul:before, .k-ui-namespace .jqtree-tree ul:after {
         display: table;
         content: " "; }
-      .k-ui-namespace .jqtree-tree:after, .k-ui-namespace .jqtree-tree ul:after {
+      .k-ui-namespace .jqtree-tree ul:after {
         clear: both; }
-      [dir="rtl"] .k-ui-namespace .jqtree-tree, .k-ui-namespace .jqtree-tree ul {
-        float: right; }
+    [dir="rtl"] .k-ui-namespace .jqtree-tree.jqtree-tree {
+      padding: 0; }
+    [dir="rtl"] .k-ui-namespace .jqtree-tree, [dir="rtl"] .k-ui-namespace .jqtree-tree ul {
+      float: right;
+      padding: 0; }
   .k-ui-namespace .jqtree-folder:before, .k-ui-namespace .jqtree-folder:after {
     display: table;
     content: " "; }
@@ -4022,7 +3410,7 @@ markup:
       background: transparent; }
     .k-ui-namespace .jqtree-element .jqtree-toggler {
       height: 0;
-      padding-top: 26px;
+      padding-top: 28px;
       overflow: hidden;
       color: inherit; }
   .k-ui-namespace .jqtree-whitespace,
@@ -4031,16 +3419,16 @@ markup:
   .k-ui-namespace .jqtree-title {
     display: inline-block;
     font-size: 13px;
-    line-height: 26px;
-    height: 26px;
+    line-height: 28px;
+    height: 28px;
     vertical-align: middle; }
   .k-ui-namespace .jqtree-whitespace,
   .k-ui-namespace .jqtree-toggler,
   .k-ui-namespace .jqtree-icon {
-    width: 26px;
+    width: 28px;
     text-align: center; }
   .k-ui-namespace .jqtree-icon:before {
-    line-height: 26px; }
+    line-height: 28px; }
   .k-ui-namespace .k-tree li li .jqtree-whitespace + .jqtree_common:not(.jqtree-toggler) {
     position: relative; }
     .k-ui-namespace .k-tree li li .jqtree-whitespace + .jqtree_common:not(.jqtree-toggler):after {
@@ -4049,16 +3437,16 @@ markup:
       content: " ";
       width: 6px;
       height: 6px;
-      border-left: 1px solid #aaa;
+      border-left: 1px solid;
       border-bottom: 1px solid #aaa;
       top: 50%;
       margin-top: -3px;
-      left: -16px; }
+      left: -17px; }
       [dir="rtl"] .k-ui-namespace .k-tree li li .jqtree-whitespace + .jqtree_common:not(.jqtree-toggler):after {
         border-left: none;
         border-right: 1px solid #aaa;
         left: auto;
-        right: -16px; }
+        right: -17px; }
   .k-ui-namespace .jqtree-toggler {
     position: relative; }
     .k-ui-namespace .jqtree-toggler:before {
@@ -4184,23 +3572,38 @@ markup:
   .k-ui-namespace .k-hidden.k-hidden.k-hidden,
   .k-ui-namespace .k-is-hidden.k-is-hidden.k-is-hidden {
     display: none; }
+  .k-ui-namespace .k-loader-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 5;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; }
+    .k-cssanimations.k-boxshadow .k-ui-namespace .k-loader-container .k-loader {
+      color: #3071a9;
+      left: 0; }
   .k-cssanimations.k-boxshadow .k-ui-namespace .k-loader {
     display: inline-block;
-    color: #3071a9;
     font-size: 5px;
-    margin: 0 auto 2em;
+    margin: 0 1.5em 2em;
     position: relative;
     text-indent: -9999em;
     vertical-align: middle;
-    /* Sizes */ }
+    /**
+       * Sizes
+       */ }
     .k-cssanimations.k-boxshadow .k-ui-namespace .k-loader, .k-cssanimations.k-boxshadow .k-ui-namespace .k-loader:before, .k-cssanimations.k-boxshadow .k-ui-namespace .k-loader:after {
       border-radius: 50%;
       width: 1em;
       height: 1em;
       animation-fill-mode: both;
-      animation: k-loader 1.61s infinite ease-in-out; }
-    .k-cssanimations.k-boxshadow .k-ui-namespace .k-loader {
-      left: 1.25em; }
+      animation: k-loader 1.61s infinite ease-in-out;
+      backface-visibility: visible; }
     .k-cssanimations.k-boxshadow .k-ui-namespace .k-loader:before {
       left: -1.25em;
       animation-delay: -0.20125s; }
@@ -4227,20 +3630,76 @@ markup:
     box-shadow: 0 1em 0 0; } }
   [dir="rtl"] .k-ui-namespace .k-loader {
     transform: scaleX(-1); }
-  .k-ui-namespace .k-loader-container {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 5;
-    background: rgba(255, 255, 255, 0.8);
-    display: flex;
-    align-items: center; }
-    .k-cssanimations.k-boxshadow .k-ui-namespace .k-loader-container .k-loader {
-      left: 0; }
+  .k-ui-namespace .k-button .k-loader-container,
+  .k-ui-namespace .k-tabs .k-loader-container {
+    background: inherit;
+    /* 1 */
+    color: inherit;
+    /* 1 */
+    border-radius: inherit;
+    /* 1 */
+    display: block;
+    text-align: center;
+    transform: scale(0.001);
+    /* 2 */
+    transform-origin: 50% 50%; }
+    .k-ui-namespace .k-button .k-loader-container:before,
+    .k-ui-namespace .k-tabs .k-loader-container:before {
+      position: absolute;
+      content: " ";
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background: inherit;
+      /* 1 */
+      opacity: 0.75;
+      transform: scale(1000);
+      /* 3 */
+      transform-origin: 50% 50%;
+      border-radius: inherit; }
+    .k-cssanimations.k-boxshadow .k-ui-namespace .k-button .k-loader-container .k-loader, .k-cssanimations.k-boxshadow
+    .k-ui-namespace .k-tabs .k-loader-container .k-loader {
+      color: inherit;
+      transform: scale(1000);
+      transform-origin: 50% 50%;
+      top: -1000em;
+      /* 4 */ }
+      .k-cssanimations.k-boxshadow .k-ui-namespace .k-button .k-loader-container .k-loader:nth-child(n), .k-cssanimations.k-boxshadow
+      .k-ui-namespace .k-tabs .k-loader-container .k-loader:nth-child(n) {
+        margin-left: 1.5em;
+        margin-right: 1.5em; }
+  .k-ui-namespace .k-button .k-loader:first-child,
+  .k-ui-namespace .k-tabs .k-loader:first-child {
+    margin-right: 3em; }
+  .k-ui-namespace .k-button .k-loader:not(first-child),
+  .k-ui-namespace .k-tabs .k-loader:not(first-child) {
+    margin-left: 3em; }
+  .k-ui-namespace .k-button .k-loader:last-child,
+  .k-ui-namespace .k-tabs .k-loader:last-child {
+    margin-right: 1.5em;
+    margin-left: 3em; }
   .k-ui-namespace .k-no-margin.k-no-margin.k-no-margin {
     margin: 0; }
+  .k-ui-namespace .k-no-margin-horizontal.k-no-margin-horizontal.k-no-margin-horizontal {
+    margin-right: 0;
+    margin-left: 0; }
+  .k-ui-namespace .k-no-margin-vertical.k-no-margin-vertical.k-no-margin-vertical {
+    margin-top: 0;
+    margin-bottom: 0; }
+  .k-ui-namespace .k-no-margin-top.k-no-margin-top.k-no-margin-top {
+    margin-top: 0; }
+  .k-ui-namespace .k-no-margin-bottom.k-no-margin-bottom.k-no-margin-bottom {
+    margin-bottom: 0; }
+  html:not([dir=rtl]) .k-no-margin-right.k-no-margin-right.k-no-margin-right {
+    margin-right: 0; }
+  [dir="rtl"] .k-ui-namespace .k-no-margin-right.k-no-margin-right.k-no-margin-right {
+    margin-left: 0; }
+  html:not([dir=rtl]) .k-no-margin-left.k-no-margin-left.k-no-margin-left {
+    margin-left: 0; }
+  [dir="rtl"] .k-ui-namespace .k-no-margin-left.k-no-margin-left.k-no-margin-left {
+    margin-right: 0; }
   .k-ui-namespace .k-no-transition.k-no-transition.k-no-transition {
     transition: none; }
   .k-ui-namespace .k-no-wrap.k-no-wrap.k-no-wrap {
@@ -4326,10 +3785,26 @@ markup:
       display: flex;
       justify-content: center;
       align-items: center; }
+  .k-ui-namespace .k-color-type {
+    color: #222222; }
+  .k-ui-namespace .k-color-base {
+    color: #2c3e50; }
+  .k-ui-namespace .k-color-accent {
+    color: #3071a9; }
+  .k-ui-namespace .k-color-success {
+    color: #27ae60; }
+  .k-ui-namespace .k-color-neutral {
+    color: #3498db; }
+  .k-ui-namespace .k-color-warning {
+    color: #e67e22; }
   .k-ui-namespace .k-color-error {
     color: #c0392b; }
+  .k-ui-namespace .k-color-inherit {
+    color: inherit; }
+  .k-ui-namespace .k-color-white {
+    color: white; }
   .k-ui-namespace .k-content-block {
-    margin-bottom: 1.5em; }
+    margin-bottom: 16px; }
     .k-ui-namespace .k-content-block:last-child {
       margin-bottom: 0; }
   .k-ui-namespace .k-content-block--small {
@@ -4337,23 +3812,50 @@ markup:
     .k-ui-namespace .k-content-block--small:last-child {
       margin-bottom: 0; }
   .k-ui-namespace .k-content-block-top {
-    margin-top: 1.5em; }
+    margin-top: 16px; }
     .k-ui-namespace .k-content-block-top:first-child {
       margin-top: 0; }
   .k-ui-namespace .k-content-block-top--small {
     margin-top: 1em; }
     .k-ui-namespace .k-content-block-top--small:first-child {
       margin-top: 0; }
+  .k-ui-namespace .k-position-static {
+    position: static; }
   .k-ui-namespace .k-position-relative {
     position: relative; }
-  @media (min-width: 300px) and (min-height: 391px) {
-    .k-flexbox .k-ui-namespace .k-dont-flex.k-dont-flex.k-dont-flex,
-    .k-flexboxlegacy .k-ui-namespace .k-dont-flex.k-dont-flex.k-dont-flex {
+  .k-ui-namespace .k-position-absolute {
+    position: absolute; }
+  .k-ui-namespace .k-position-fixed {
+    position: fixed; }
+  .k-ui-namespace .k-position-sticky {
+    position: sticky;
+    top: 0; }
+  .k-ui-namespace .k-flexbox.k-flexbox.k-flexbox {
+    display: flex; }
+  .k-ui-namespace .k-flexbox-column.k-flexbox-column.k-flexbox-column {
+    flex-direction: column; }
+  .k-ui-namespace .k-dont-flex.k-dont-flex.k-dont-flex {
+    flex: 0 0 auto; }
+  .k-ui-namespace .k-do-flex.k-do-flex.k-do-flex {
+    flex: 1 1 auto; }
+  @media screen and (min-width: 600px) {
+    .k-ui-namespace .k-flexbox-from-beta.k-flexbox-from-beta.k-flexbox-from-beta {
+      display: flex; }
+    .k-ui-namespace .k-flexbox-column-from-beta.k-flexbox-column-from-beta.k-flexbox-column-from-beta {
+      flex-direction: column; }
+    .k-ui-namespace .k-do-flex-from-beta.k-do-flex-from-beta.k-do-flex-from-beta {
+      flex: 1 1 auto; }
+    .k-ui-namespace .k-dont-flex-from-beta.k-dont-flex-from-beta.k-dont-flex-from-beta {
       flex: 0 0 auto; } }
-  @media (min-width: 300px) and (min-height: 391px) {
-    .k-flexbox .k-ui-namespace .k-do-flex.k-do-flex.k-do-flex,
-    .k-flexboxlegacy .k-ui-namespace .k-do-flex.k-do-flex.k-do-flex {
-      flex: 1 1 auto; } }
+  @media screen and (min-width: 768px) {
+    .k-ui-namespace .k-flexbox-from-charlie.k-flexbox-from-charlie.k-flexbox-from-charlie {
+      display: flex; }
+    .k-ui-namespace .k-flexbox-column-from-charlie.k-flexbox-column-from-charlie.k-flexbox-column-from-charlie {
+      flex-direction: column; }
+    .k-ui-namespace .k-do-flex-from-charlie.k-do-flex-from-charlie.k-do-flex-from-charlie {
+      flex: 1 1 auto; }
+    .k-ui-namespace .k-dont-flex-from-charlie.k-dont-flex-from-charlie.k-dont-flex-from-charlie {
+      flex: 0 0 auto; } }
   .k-touchevents .k-ui-namespace .k-touchevents-hidden {
     display: none !important; }
   .k-ui-namespace .k-ellipsis {
@@ -4383,76 +3885,65 @@ markup:
     z-index: 1; }
   .k-ui-namespace .k-this-or-that {
     display: inline-block;
-    margin-right: 7px;
+    margin-right: 4px;
     vertical-align: middle; }
     [dir="rtl"] .k-ui-namespace .k-this-or-that {
       margin-right: 0;
-      margin-left: 7px; }
+      margin-left: 4px; }
   .k-ui-namespace .fade {
     opacity: 0;
     transition: opacity 0.5s cubic-bezier(0.2, 0.57, 0.44, 0.83);
     -webkit-backface-visibility: hidden; }
     .k-ui-namespace .fade.in {
       opacity: 1; }
-  .k-ui-namespace .collapse {
-    display: none; }
-    .k-ui-namespace .collapse.in {
-      display: block; }
-  .k-ui-namespace tr.collapse.in {
-    display: table-row; }
-  .k-ui-namespace tbody.collapse.in {
-    display: table-row-group; }
-  .k-ui-namespace .collapsing {
-    position: relative;
-    height: 0;
-    overflow: hidden;
-    transition: opacity 0.5s cubic-bezier(0.2, 0.57, 0.44, 0.83);
-    -webkit-backface-visibility: hidden; }
-  .k-ui-namespace .k-off-canvas-menu-toggle {
-    position: relative;
-    z-index: 10;
-    float: left;
+  .k-ui-namespace .k-off-canvas-toggle-holder {
     display: none;
-    /* 1 */
-    width: 33px;
-    height: 33px;
-    padding: 0;
-    border: none;
-    border-radius: 3px;
-    margin: 10px;
-    background: #3071a9;
-    color: white;
-    /* Set proper margins */ }
-    [dir="rtl"] .k-ui-namespace .k-off-canvas-menu-toggle {
-      left: auto;
-      float: right; }
-    .k-js-enabled .k-ui-namespace .k-off-canvas-menu-toggle {
+    /* 1 */ }
+    .k-js-enabled .k-ui-namespace .k-off-canvas-toggle-holder {
       display: block;
       /* 2 */ }
       @media screen and (min-width: 768px) {
-        .k-js-enabled .k-ui-namespace .k-off-canvas-menu-toggle--left {
+        .k-js-enabled .k-ui-namespace .k-off-canvas-toggle-holder--left.k-off-canvas-toggle-holder {
           display: none;
           /* 3 */ } }
       @media screen and (min-width: 600px) {
-        .k-js-enabled .k-ui-namespace .k-off-canvas-menu-toggle--right {
+        .k-js-enabled .k-ui-namespace .k-off-canvas-toggle-holder--right.k-off-canvas-toggle-holder {
           display: none;
           /* 3 */ } }
-    .k-ui-namespace .k-off-canvas-menu-toggle.k-off-canvas-menu-toggle--left {
+  .k-ui-namespace .k-off-canvas-toggle {
+    position: relative;
+    z-index: 10;
+    float: left;
+    min-width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 3px;
+    margin: 8px 8px 7px;
+    background: #3071a9;
+    color: white;
+    font-size: 13px;
+    /**
+     * Set proper margins
+     */ }
+    [dir="rtl"] .k-ui-namespace .k-off-canvas-toggle {
+      left: auto;
+      float: right; }
+    .k-ui-namespace .k-off-canvas-toggle.k-off-canvas-toggle--left {
       margin-right: 0; }
-      [dir="rtl"] .k-ui-namespace .k-off-canvas-menu-toggle.k-off-canvas-menu-toggle--left {
+      [dir="rtl"] .k-ui-namespace .k-off-canvas-toggle.k-off-canvas-toggle--left {
         margin-right: 10px;
         margin-left: 0; }
-    .k-ui-namespace .k-off-canvas-menu-toggle.k-off-canvas-menu-toggle--right {
+    .k-ui-namespace .k-off-canvas-toggle.k-off-canvas-toggle--right {
       margin-left: 0; }
-      [dir="rtl"] .k-ui-namespace .k-off-canvas-menu-toggle.k-off-canvas-menu-toggle--right {
+      [dir="rtl"] .k-ui-namespace .k-off-canvas-toggle.k-off-canvas-toggle--right {
         margin-left: 10px;
         margin-right: 0; }
-  .k-ui-namespace .k-off-canvas-menu-toggle--left .k-toggle-button-bar1,
-  .k-ui-namespace .k-off-canvas-menu-toggle--left .k-toggle-button-bar2,
-  .k-ui-namespace .k-off-canvas-menu-toggle--left .k-toggle-button-bar3,
-  .k-ui-namespace .k-off-canvas-menu-toggle--right .k-toggle-button-bar1,
-  .k-ui-namespace .k-off-canvas-menu-toggle--right .k-toggle-button-bar2,
-  .k-ui-namespace .k-off-canvas-menu-toggle--right .k-toggle-button-bar3 {
+  .k-ui-namespace .k-off-canvas-toggle--left .k-toggle-button-bar1,
+  .k-ui-namespace .k-off-canvas-toggle--left .k-toggle-button-bar2,
+  .k-ui-namespace .k-off-canvas-toggle--left .k-toggle-button-bar3,
+  .k-ui-namespace .k-off-canvas-toggle--right .k-toggle-button-bar1,
+  .k-ui-namespace .k-off-canvas-toggle--right .k-toggle-button-bar2,
+  .k-ui-namespace .k-off-canvas-toggle--right .k-toggle-button-bar3 {
     position: absolute;
     display: block;
     background: white;
@@ -4460,53 +3951,53 @@ markup:
     border-radius: 3px;
     transition: 0.3s 180ms cubic-bezier(0.2, 0.57, 0.44, 0.83);
     -webkit-backface-visibility: hidden; }
-  .k-ui-namespace .k-off-canvas-menu-toggle--left .k-toggle-button-bar1,
-  .k-ui-namespace .k-off-canvas-menu-toggle--left .k-toggle-button-bar2,
-  .k-ui-namespace .k-off-canvas-menu-toggle--left .k-toggle-button-bar3 {
+  .k-ui-namespace .k-off-canvas-toggle--left .k-toggle-button-bar1,
+  .k-ui-namespace .k-off-canvas-toggle--left .k-toggle-button-bar2,
+  .k-ui-namespace .k-off-canvas-toggle--left .k-toggle-button-bar3 {
     left: 9px;
     width: 15px;
     height: 3px; }
-  .k-ui-namespace .k-off-canvas-menu-toggle--left .k-toggle-button-bar1 {
+  .k-ui-namespace .k-off-canvas-toggle--left .k-toggle-button-bar1 {
     top: 9px; }
-  .k-ui-namespace .k-off-canvas-menu-toggle--left .k-toggle-button-bar2 {
+  .k-ui-namespace .k-off-canvas-toggle--left .k-toggle-button-bar2 {
     top: 15px; }
-  .k-ui-namespace .k-off-canvas-menu-toggle--left .k-toggle-button-bar3 {
+  .k-ui-namespace .k-off-canvas-toggle--left .k-toggle-button-bar3 {
     top: 21px; }
-  .k-ui-namespace .k-show-left-menu .k-off-canvas-menu-toggle--left .k-toggle-button-bar1 {
+  .k-ui-namespace .k-show-left-menu .k-off-canvas-toggle--left .k-toggle-button-bar1 {
     top: 15px;
     transform: rotate(135deg); }
-  .k-ui-namespace .k-show-left-menu .k-off-canvas-menu-toggle--left .k-toggle-button-bar2 {
+  .k-ui-namespace .k-show-left-menu .k-off-canvas-toggle--left .k-toggle-button-bar2 {
     opacity: 0;
     transform: scale(0); }
-  .k-ui-namespace .k-show-left-menu .k-off-canvas-menu-toggle--left .k-toggle-button-bar3 {
+  .k-ui-namespace .k-show-left-menu .k-off-canvas-toggle--left .k-toggle-button-bar3 {
     top: 15px;
     transform: rotate(-135deg); }
-  .k-ui-namespace .k-off-canvas-menu-toggle--right .k-toggle-button-bar1,
-  .k-ui-namespace .k-off-canvas-menu-toggle--right .k-toggle-button-bar2,
-  .k-ui-namespace .k-off-canvas-menu-toggle--right .k-toggle-button-bar3 {
-    left: 14px; }
-  .k-ui-namespace .k-off-canvas-menu-toggle--right .k-toggle-button-bar1 {
+  .k-ui-namespace .k-off-canvas-toggle--right .k-toggle-button-bar1,
+  .k-ui-namespace .k-off-canvas-toggle--right .k-toggle-button-bar2,
+  .k-ui-namespace .k-off-canvas-toggle--right .k-toggle-button-bar3 {
+    left: 13px; }
+  .k-ui-namespace .k-off-canvas-toggle--right .k-toggle-button-bar1 {
     width: 5px;
     height: 5px;
     top: 8px; }
-  .k-ui-namespace .k-off-canvas-menu-toggle--right .k-toggle-button-bar2,
-  .k-ui-namespace .k-off-canvas-menu-toggle--right .k-toggle-button-bar3 {
+  .k-ui-namespace .k-off-canvas-toggle--right .k-toggle-button-bar2,
+  .k-ui-namespace .k-off-canvas-toggle--right .k-toggle-button-bar3 {
     width: 5px;
     height: 10px;
-    top: 15px; }
-  .k-ui-namespace .k-show-right-menu .k-off-canvas-menu-toggle--right .k-toggle-button-bar1 {
+    top: 14px; }
+  .k-ui-namespace .k-show-right-menu .k-off-canvas-toggle--right .k-toggle-button-bar1 {
     opacity: 0;
     transform: scale(0); }
-  .k-ui-namespace .k-show-right-menu .k-off-canvas-menu-toggle--right .k-toggle-button-bar2 {
+  .k-ui-namespace .k-show-right-menu .k-off-canvas-toggle--right .k-toggle-button-bar2 {
     top: 9px;
-    left: 15px;
+    left: 14px;
     height: 15px;
     transform: rotate(135deg);
     opacity: 1;
     width: 3px; }
-  .k-ui-namespace .k-show-right-menu .k-off-canvas-menu-toggle--right .k-toggle-button-bar3 {
+  .k-ui-namespace .k-show-right-menu .k-off-canvas-toggle--right .k-toggle-button-bar3 {
     top: 9px;
-    left: 15px;
+    left: 14px;
     transform: rotate(-135deg);
     height: 15px;
     width: 3px; }

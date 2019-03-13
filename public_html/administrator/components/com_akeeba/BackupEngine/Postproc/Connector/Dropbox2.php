@@ -1,13 +1,11 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
- *
- *
  */
 
 namespace Akeeba\Engine\Postproc\Connector;
@@ -34,7 +32,14 @@ class Dropbox2
 	 */
 	private $accessToken = '';
 
-	/**
+    /**
+     * Download ID to use with the helper URL
+     *
+     * @var string
+     */
+    private $dlid = '';
+
+    /**
 	 * The root URL for the Dropbox RPC API, ref https://www.dropbox.com/developers/documentation/http
 	 */
 	const rootUrl = 'https://api.dropboxapi.com/2/';
@@ -67,11 +72,13 @@ class Dropbox2
 	/**
 	 * Public constructor
 	 *
-	 * @param   string   $accessToken   The access token for accessing Dropbox
+	 * @param   string  $accessToken  The access token for accessing Dropbox
+	 * @param   string  $dlid         The AkeebaBackup.com Download ID, used whenever you try to refresh the token
 	 */
-	public function __construct($accessToken)
+	public function __construct($accessToken, $dlid)
 	{
 		$this->accessToken = $accessToken;
+		$this->dlid        = $dlid;
 	}
 
 	/**

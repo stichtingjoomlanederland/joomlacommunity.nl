@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -35,10 +35,10 @@ defined('_JEXEC') or die('Restricted access');
                 <tr>
                     <td>
                         <p style="text-align:left;">
-                            <?php echo JText::_( 'COM_EASYDISCUSS_EMAILS_HELLO' ); ?>
+                            <?php echo JText::_('COM_EASYDISCUSS_EMAILS_HELLO'); ?>
                         </p>
                         <p style="text-align:left;">
-                            <?php echo JText::sprintf('COM_EASYDISCUSS_EMAILS_YOU_CREATED_NEW_DISCUSSION_NOTIFICATION'); ?>
+                            <?php echo $emailIntro; ?>
                         </p>
                     </td>
                 </tr>

@@ -52,6 +52,8 @@ var ticket_limit_<?php echo $ticket->id; ?> = <?php echo (int) rseventsproHelper
 <div id="rsepro_wrapper">
 	<?php $left = 10; $top = 10; ?>
 	<?php foreach ($this->tickets as $ticket) { ?>
+	<?php $checkticket = rseventsproHelper::checkticket($ticket->id); ?>
+	<?php if ($checkticket == -1) continue; ?>
 	<?php $style = empty($ticket->position) ? 'top: '.$top.'px; left: '.$left.'px;' : rseventsproHelper::parseStyle($ticket->position); ?>
 	<?php $price = $ticket->price ? rseventsproHelper::currency($ticket->price) : JText::_('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 	<?php $selected = rseventsproHelper::getSelectedSeats($ticket->id); ?>

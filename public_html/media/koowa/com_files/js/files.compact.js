@@ -12,7 +12,7 @@ Files.Compact = {};
 Files.Compact.App = new Class({
 	Extends: Files.App,
 	Implements: [Events, Options],
-    cookie: false,
+    cookie: null,
 	options: {
         persistent: false,
 		types: ['file', 'image'],
@@ -25,7 +25,6 @@ Files.Compact.App = new Class({
             }
         },
 		grid: {
-			cookie: false,
 			layout: 'compact',
 			batch_delete: false
 		},
@@ -43,6 +42,7 @@ Files.Compact.App = new Class({
 
 		this.editor = this.options.editor;
 		this.preview = document.id(this.options.preview);
+
 	},
 	setPaginator: function() {
 	},
@@ -65,8 +65,6 @@ Files.Compact.App = new Class({
 				copy.render('compact').inject(that.preview);
 
 				that.preview.getElement('img').set('src', copy.image).show();
-
-				kQuery('.off-canvas-menu-toggle-holder--right').trigger('click')
 			},
 			'onClickFile': function(e) {
 				var target = document.id(e.target),
@@ -81,8 +79,6 @@ Files.Compact.App = new Class({
 				that.preview.empty();
 
 				copy.render('compact').inject(that.preview);
-
-				kQuery('.off-canvas-menu-toggle-holder--right').trigger('click')
 			},
 			onAfterRender: function() {
 				this.setState(that.state.data);

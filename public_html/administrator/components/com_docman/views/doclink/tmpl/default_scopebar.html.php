@@ -11,9 +11,6 @@ defined('KOOWA') or die; ?>
 <!-- Scopebar -->
 <div class="k-scopebar k-js-scopebar">
 
-    <!-- Filters -->
-    <div class="k-scopebar__item k-scopebar__item--fluid"></div>
-
     <!-- Search -->
     <div class="js-search-container k-scopebar__item k-scopebar__item--search">
         <?= helper('grid.search', array('submit_on_clear' => false)) ?>

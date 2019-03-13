@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -11,9 +11,13 @@ namespace Akeeba\Backup\Admin\Model;
 defined('_JEXEC') or die();
 
 use Akeeba\Engine\Archiver\Directftp;
+use Akeeba\Engine\Archiver\Directftpcurl;
 use Akeeba\Engine\Archiver\Directsftp;
+use Akeeba\Engine\Archiver\Directsftpcurl;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
+use Akeeba\Engine\Util\Transfer\FtpCurl;
+use Akeeba\Engine\Util\Transfer\SftpCurl;
 use FOF30\Model\Model;
 use JText;
 use JUri;
@@ -77,6 +81,14 @@ class Configuration extends Model
 			throw new RuntimeException(JText::_('COM_AKEEBA_CONFIG_FTPTEST_BADPREFIX'), 500);
 		}
 
+		// Special case for cURL transport
+		if ($this->getState('isCurl'))
+		{
+			$this->testFtpCurl();
+
+			return;
+		}
+
 		// Perform the FTP connection test
 		$test = new Directftp();
 		$test->initialize('', $config);
@@ -86,6 +98,29 @@ class Configuration extends Model
 		{
 			throw new RuntimeException($errorMessage, 500);
 		}
+	}
+
+	/**
+	 * Test the connection to a remote FTP server using cURL transport
+	 *
+	 * @throws  RuntimeException
+	 */
+	private function testFtpCurl()
+	{
+		$options = array(
+			'host'        => $this->getState('host'),
+			'port'        => $this->getState('port'),
+			'username'    => $this->getState('user'),
+			'password'    => $this->getState('pass'),
+			'directory'   => $this->getState('initdir'),
+			'usessl'      => $this->getState('usessl'),
+			'passive'     => $this->getState('passive'),
+			'passive_fix' => $this->getState('passive_mode_workaround'),
+		);
+
+		$sftpTransfer = new FtpCurl($options);
+
+		$sftpTransfer->connect();
 	}
 
 	/**
@@ -111,6 +146,14 @@ class Configuration extends Model
 			throw new RuntimeException(JText::_('COM_AKEEBA_CONFIG_SFTPTEST_BADPREFIX'), 500);
 		}
 
+		// Special case for cURL transport
+		if ($this->getState('isCurl'))
+		{
+			$this->testSftpCurl();
+
+			return;
+		}
+
 		// Perform the FTP connection test
 		$test = new Directsftp();
 		$test->initialize('', $config);
@@ -121,6 +164,28 @@ class Configuration extends Model
 		{
 			throw new RuntimeException($errorMessage[0], 500);
 		}
+	}
+
+	/**
+	 * Test the connection to a remote SFTP server using cURL transport
+	 *
+	 * @throws  RuntimeException
+	 */
+	private function testSftpCurl()
+	{
+		$options = array(
+			'host'       => $this->getState('host'),
+			'port'       => $this->getState('port'),
+			'username'   => $this->getState('user'),
+			'password'   => $this->getState('pass'),
+			'directory'  => $this->getState('initdir'),
+			'privateKey' => $this->getState('privkey'),
+			'publicKey'  => $this->getState('pubkey')
+		);
+
+		$this->sftpTransfer = new SftpCurl($options);
+
+		$this->sftpTransfer->connect();
 	}
 
 	/**

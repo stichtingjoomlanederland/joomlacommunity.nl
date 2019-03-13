@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -57,6 +57,12 @@ class ConfigureWAF extends Controller
 		else
 		{
 			$data = $this->input->getData();
+		}
+
+		// Chosen is pretty bad; it removes the entire field from the request when it's empty :(
+		if (!array_key_exists('disableobsoleteadmins_protected', $data))
+		{
+			$data['disableobsoleteadmins_protected'] = [];
 		}
 
 		$model->saveConfig($data);

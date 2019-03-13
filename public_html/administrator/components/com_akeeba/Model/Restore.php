@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -211,7 +211,23 @@ class Restore extends Model
 	'kickstart.jps.password' => '$password'
 ENDDATA;
 
-		if ($procengine == 'ftp')
+		/**
+		 * Should I enable the “Delete everything before extraction” option?
+		 *
+		 * This requires TWO conditions to be true:
+		 *
+		 * 1. The application-level configuration option showDeleteOnRestore was enabled to show the option to the user
+		 * 2. The user has enabled this option (the Controller sets it in the zapbefore model variable)
+		 */
+		$shownDeleteOnRestore = $this->container->params->get('showDeleteOnRestore', 0) == 1;
+
+		if ($shownDeleteOnRestore && ($this->getState('zapbefore', 0, 'int') == 1))
+		{
+			$data .= ",\n\t'kickstart.setup.zapbefore' => '1'";
+		}
+
+		// If we're using the FTP or Hybrid engine we need to set up the FTP parameters
+		if (in_array($procengine, array('ftp', 'hybrid')))
 		{
 			$ftp_host = $this->getState('ftp_host', '');
 			$ftp_port = $this->getState('ftp_port', '21');

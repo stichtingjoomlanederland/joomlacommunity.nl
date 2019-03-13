@@ -12,16 +12,22 @@
 		"childs":
 		[
 			{
-				"title": "COM_EASYDISCUSS_SIDEBAR_SETTINGS_ANTISPAM",
-				"url":
-				{
-					"layout"    : "antispam"
-				}
-			},
-			{
 				"title": "COM_EASYDISCUSS_SIDEBAR_GENERAL",
 				"url": {
 					"layout": "general"
+				}
+			},
+			{
+				"title": "COM_ED_SIDEBAR_COMPOSER",
+				"url": {
+					"layout": "composer"
+				}
+			},
+			{
+				"title": "COM_EASYDISCUSS_SIDEBAR_SETTINGS_ANTISPAM",
+				"url":
+				{
+					"layout": "antispam"
 				}
 			},
 			{
@@ -37,49 +43,60 @@
 				}
 			},
 			{
-				"title": "COM_EASYDISCUSS_SIDEBAR_LOCATION",
+				"title": "COM_EASYDISCUSS_SIDEBAR_SETTINGS_LAYOUT",
 				"url": {
-					"layout": "location"
+					"layout": "layout"
 				}
 			},
 			{
-				"title": "COM_EASYDISCUSS_SIDEBAR_SETTINGS_TABS",
+				"title": "COM_EASYDISCUSS_SIDEBAR_SETTINGS_NOTIFICATIONS",
+				"url":  {
+					"layout": "notifications"
+				}
+			},
+			{
+				"title": "COM_EASYDISCUSS_SIDEBAR_SETTINGS_INTEGRATIONS",
 				"url": {
-					"layout": "tabs"
+					"layout": "integrations"
 				}
 			},
 			{
-				"title"     : "COM_EASYDISCUSS_SIDEBAR_SETTINGS_LAYOUT",
-				"url"       :
-				{
-					"layout"    : "layout"
-				}
-			},
-			{
-				"title"     : "COM_EASYDISCUSS_SIDEBAR_SETTINGS_NOTIFICATIONS",
-				"url"       : 
-				{
-					"layout"    : "notifications"
-				}
-			},
-			{
-				"title"     : "COM_EASYDISCUSS_SIDEBAR_SETTINGS_INTEGRATIONS",
-				"url"       :
-				{
-					"layout"    : "integrations"
-				}
-			},
-			{
-				"title"     : "COM_EASYDISCUSS_SIDEBAR_SETTINGS_SOCIAL_INTEGRATIONS",
-				"url"       :
-				{
+				"title": "COM_EASYDISCUSS_SIDEBAR_SETTINGS_SOCIAL_INTEGRATIONS",
+				"url": {
 					"layout"    : "social"
 				}
 			},
 			{
-				"title": "COM_EASYDISCUSS_SIDEBAR_SETTINGS_ADVANCED",
+				"title": "COM_ED_SIDEBAR_SETTINGS_ATTACHMENTS",
+				"url":  {
+					"layout" : "attachments"
+				}
+			},
+			{
+				"title": "COM_ED_SIDEBAR_WORK_SCHEDULE",
 				"url": {
-					"layout": "system"
+					"layout": "work"
+				}
+			}
+		]
+	},
+	{
+		"access": "discuss.manage.themes",
+		"title": "COM_EASYDISCUSS_SIDEBAR_THEMES",
+		"view": "themes",
+		"icon": "fa-paint-brush",
+		"childs": 
+		[
+			{
+				"title": "COM_EASYDISCUSS_SIDEBAR_THEMES",
+				"url": {
+					"layout": ""
+				}
+			},
+			{
+				"title": "COM_ED_SIDEBAR_CUSTOM_CSS",
+				"url": {
+					"layout": "custom"
 				}
 			}
 		]
@@ -172,7 +189,21 @@
 		"access": "discuss.manage.users",
 		"title": "COM_EASYDISCUSS_SIDEBAR_USERS",
 		"view": "users",
-		"icon": "fa-users"
+		"icon": "fa-users",
+		"childs": [
+			{
+				"title": "COM_EASYDISCUSS_SIDEBAR_USERS",
+				"url": {
+					"layout": ""
+				}
+			},
+			{
+				"title": "COM_ED_SIDEBAR_USERS_DOWNLOADS",
+				"url": {
+					"layout": "downloads"
+				}
+			}
+		]
 	},
 	{
 		"access": "discuss.manage.roles",
@@ -209,14 +240,14 @@
 				"url": {
 					"layout": ""
 				}
-			},          
+			},
 			{
 				"title": "COM_EASYDISCUSS_SIDEBAR_BADGES_MASS_ASSIGN",
 				"url": {
 					"layout": "assign"
 				}
-			}            
-		]        
+			}
+		]
 	},
 	{
 		"access": "discuss.manage.types",
@@ -253,12 +284,6 @@
 		"title": "COM_EASYDISCUSS_SIDEBAR_CUSTOMFIELDS",
 		"view": "customfields",
 		"icon": "fa-table"
-	},
-	{
-		"access": "discuss.manage.themes",
-		"title": "COM_EASYDISCUSS_SIDEBAR_THEMES",
-		"view": "themes",
-		"icon": "fa-paint-brush"
 	},
 	{
 		"access": "discuss.manage.languages",
@@ -307,27 +332,6 @@
 				"title": "COM_EASYDISCUSS_SIDEBAR_MIGRATORS_DISCUSSIONS",
 				"url": {
 					"layout": "discussions"
-				}
-			}
-		]
-	},
-	{
-		"access": "discuss.manage.maintenance",
-		"title": "COM_EASYDISCUSS_SIDEBAR_MAINTENANCE",
-		"view": "maintenance",
-		"icon": "fa-database",
-		"childs":
-		[
-			{
-				"title": "COM_EASYDISCUSS_SIDEBAR_MAINTENANCE_SCRIPTS",
-				"url": {
-					"layout": "scripts"
-				}
-			},
-			{
-				"title": "COM_EASYDISCUSS_SIDEBAR_MAINTENANCE_DATABASE",
-				"url": {
-					"layout": "database"
 				}
 			}
 		]

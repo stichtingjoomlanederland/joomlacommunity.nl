@@ -1,12 +1,16 @@
 
 $(document).ready(function(){
+
+	$('.hasTooltip').tooltip();
+	
 	loading = $('[data-installation-loading]'),
 	submit = $('[data-installation-submit]'),
 	retry = $('[data-installation-retry]'),
 	form = $('[data-installation-form]'),
 	completed = $('[data-installation-completed]'),
 	source = $('[data-source]'),
-	installAddons = $('[data-installation-install-addons]');
+	installAddons = $('[data-installation-install-addons]'),
+	steps = $('[data-installation-steps]');
 });
 
 var ed = {
@@ -20,7 +24,7 @@ var ed = {
 		"controller": "install"
 	},
 	ajaxUrl: "<?php echo JURI::root();?>administrator/index.php?option=com_easydiscuss&ajax=1",
-
+	
 	ajax: function(task, properties, callback) {
 
 		var prop = $.extend(ed.options, properties);
@@ -61,10 +65,22 @@ var ed = {
 			});
 		},
 
+		runScript: function(script) {
+			// Run the maintenace scripts
+			return $.ajax({
+				type: 'POST',
+				url: ed.ajaxUrl + '&controller=maintenance&task=execute',
+				data: {
+					script: script
+				}
+			});
+		},
+
 		retrieveList: function() {
 
 			var progress = $('[data-addons-progress]');
 			var selection = $('[data-addons-container]');
+			var syncProgress = $('[data-sync-progress]');
 
 			// Show loading
 			loading.removeClass('hide');
@@ -77,11 +93,14 @@ var ed = {
 				// Hide the retrieving message
 				$('[data-addons-retrieving]').addClass('hide');
 
-
 				loading.addClass('hide');
 				installAddons.removeClass('hide');
 
 				selection.html(result.html);
+
+				// Get files for maintenance
+				var scripts = result.scripts;
+				var maintenanceMsg = result.maintenanceMsg;
 
 				// Set the submit
 				installAddons.on('click', function() {
@@ -91,6 +110,7 @@ var ed = {
 
 					// Show the installation progress
 					progress.removeClass('hide');
+					syncProgress.removeClass('hide');
 
 					// Install the selected items
 					var modules = [];
@@ -113,6 +133,77 @@ var ed = {
 					var each = 100 / total;
 					var progressBar = $('[data-progress-bar]');
 					var progressBarResult = $('[data-progress-bar-result]');
+
+					var totalScripts = scripts.length;
+					var eachScript = 100 / totalScripts;
+					var syncProgressBar = $('[data-sync-progress-bar]');
+					var syncProgressBarResult = $('[data-sync-progress-bar-result]');
+
+					var runMaintenance = function() {
+
+						var frame = $('[data-progress-execscript]');
+
+						frame.addClass('active')
+							.removeClass('pending');
+
+						var item = $('<li>');
+						item.addClass('text-success').html(maintenanceMsg);
+
+						$('[data-progress-execscript-items]').append(item);
+
+						var scriptIndex = 0,
+							dfd = $.Deferred();
+
+						var runNextScript = function() {
+							if (scripts[scriptIndex] == undefined) {
+
+								$.ajax({
+									type: 'POST',
+									url: ed.ajaxUrl + '&controller=maintenance&task=finalize'
+								}).done(function(result) {
+									var item = $('<li>');
+									item.addClass('text-success').html(result.message);
+									$('[data-progress-execscript-items]').append(item);
+
+									$('[data-progress-execscript]')
+										.find('.progress-state')
+										.html(result.stateMessage)
+										.addClass('text-success')
+										.removeClass('text-info');
+								});
+
+								dfd.resolve();
+								return;
+							}
+
+							ed.addons
+								.runScript(scripts[scriptIndex])
+								.done(function(data) {
+									scriptIndex++;
+
+									// update the progress bar here
+									var currentWidth = parseInt(syncProgressBar[0].style.width);
+									var percentage = Math.round(currentWidth + eachScript);
+									
+									syncProgressBar.css('width', percentage + '%');
+									syncProgressBarResult.html(percentage + '%');
+
+									var item = $('<li>'),
+										className = data.state ? 'text-success' : 'text-error';
+
+									item.addClass(className).html(data.message);
+
+									$('[data-progress-execscript-items]').append(item);
+
+									runNextScript();
+								});
+
+						};
+
+						runNextScript();
+
+						return dfd;
+					};
 
 					var installModules = function() {
 
@@ -148,7 +239,6 @@ var ed = {
 						return dfd;
 					};
 
-
 					var installPlugins = function() {
 
 						var pluginIndex = 0;
@@ -173,7 +263,7 @@ var ed = {
 									var percentage = Math.round(currentWidth + each) + '%';
 
 									$('[data-progress-active-message]').html(data.message);
-
+										
 									// Update the width of the progress bar
 									progressBar.css('width', percentage);
 
@@ -187,7 +277,7 @@ var ed = {
 						installNextPlugin();
 
 						return dfd;
-					}
+					};
 
 					// Show loading indicator
 					loading.removeClass('hide');
@@ -196,20 +286,28 @@ var ed = {
 					// Install Modules
 					installModules().done(function() {
 						installPlugins().done(function() {
-
-							// When everything is done, update the submit button
-							loading.addClass('hide');
-							submit.removeClass('hide');
-
+							
 							// Show complete
 							$('[data-progress-active-message]').addClass('hide');
 							$('[data-progress-complete-message]').removeClass('hide');
 							$('[data-progress-bar]').css('width', '100%');
 							$('[data-progress-bar-result]').html('100%');
 
-							submit.on('click', function() {
-								form.submit();
-							});
+							runMaintenance().done(function() {
+
+								// When everything is done, update the submit button
+								loading.addClass('hide');
+								submit.removeClass('hide');
+
+								$('[data-sync-progress-active-message]').addClass('hide');
+								$('[data-sync-progress-complete-message]').removeClass('hide');
+								$('[data-sync-progress-bar]').css('width', '100%');
+								$('[data-sync-progress-bar-result]').html('100%');
+
+								submit.on('click', function() {
+									form.submit();
+								});
+							})
 						});
 					});
 				});
@@ -222,6 +320,8 @@ var ed = {
 
 		showRetry: function(step) {
 
+			steps.addClass('error');
+
 			retry
 				.data('retry-step', step)
 				.removeClass('hide');
@@ -233,9 +333,11 @@ var ed = {
 			loading.addClass('hide');
 		},
 
-		extract: function(packageName) {
+		extract: function() {
 
-			ed.ajax('extract', {"package": packageName}, function(result) {
+			ed.installation.setActive('data-progress-extract');
+			
+			ed.ajax('extract', {}, function(result) {
 
 				// Update the progress
 				ed.installation.update('data-progress-extract', result, '10%');
@@ -255,6 +357,8 @@ var ed = {
 
 		download: function() {
 
+			ed.installation.setActive('data-progress-download');
+
 			ed.ajax('download', {}, function(result) {
 
 				// Set the progress
@@ -273,7 +377,7 @@ var ed = {
 		},
 
 		runSQL: function() {
-
+			
 			// Install the SQL stuffs
 			ed.installation.setActive('data-progress-sql');
 
@@ -299,7 +403,7 @@ var ed = {
 
 			// Run the ajax calls now
 			ed.ajax('copy', {"type": "admin"}, function(result) {
-
+				
 				// Update the progress
 				ed.installation.update('data-progress-admin', result, '20%');
 
@@ -313,11 +417,11 @@ var ed = {
 		},
 
 		installSite : function() {
-
+			
 			// Install the admin stuffs
 			ed.installation.setActive('data-progress-site');
 
-			ed.ajax('copy' , { "type" : "site" }, function(result) {
+			ed.ajax('copy', { "type" : "site" }, function(result) {
 
 
 				// Update the progress
@@ -337,9 +441,9 @@ var ed = {
 			ed.installation.setActive('data-progress-languages');
 
 			ed.ajax('copy', {"type": "languages"}, function(result) {
-
+				
 				// Set the progress
-				ed.installation.update( 'data-progress-languages' , result , '30%');
+				ed.installation.update('data-progress-languages', result, '30%');
 
 				if (!result.state) {
 					ed.installation.showRetry('installLanguages');
@@ -350,15 +454,15 @@ var ed = {
 			});
 
 		},
-
+		
 		installMedia : function() {
-
+			
 			// Install the admin stuffs
 			ed.installation.setActive('data-progress-media');
 
 			ed.ajax('copy', {"type": "media"}, function(result) {
 				// Set the progress
-				ed.installation.update( 'data-progress-media' , result , '35%');
+				ed.installation.update('data-progress-media', result, '35%');
 
 				if (!result.state) {
 					ed.installation.showRetry('installMedia');
@@ -387,14 +491,14 @@ var ed = {
 		},
 
 		postInstall : function() {
-
+			
 			// Perform post installation stuffs here
 			ed.installation.setActive('data-progress-postinstall');
 
 			ed.ajax('post', {}, function(result) {
-
+				
 				// Set the progress
-				ed.installation.update('data-progress-postinstall' , result , '100%');
+				ed.installation.update('data-progress-postinstall', result, '100%');
 
 				if (!result.state) {
 					ed.installation.showRetry('postInstall');
@@ -424,6 +528,13 @@ var ed = {
 		update: function(element, obj, progress) {
 			var className = obj.state ? ' text-success' : ' text-error',
 				stateMessage = obj.state ? 'Success' : 'Failed';
+				stateIcon = obj.state ? 'icon-checkmark text-success' : 'icon-warning text-error';
+
+			// Update the icon
+			$('[' + element + ']')
+				.find('.progress-icon > i')
+				.removeClass('loader')
+				.addClass(stateIcon);
 
 			// Update the state
 			$('[' + element + ']')
@@ -439,108 +550,13 @@ var ed = {
 				.removeClass('text-info')
 				.addClass(className);
 
-			// Update the progress
-			if (obj.state) {
-				ed.installation.updateProgress(progress);
-			}
-		},
-
-		updateProgress	: function( percentage )
-		{
-			$( '[data-progress-bar]' ).css( 'width' , percentage );
-			$( '[data-progress-bar-result]' ).html( percentage );
+			$('[' + element + ']').removeClass('is-loading');
 		},
 
 		setActive: function(item) {
-			$( '[data-progress-active-message]' ).html( $( '[' + item + ']' ).find( '.split__title' ).html() + ' ...' );
-			$( '[' + item + ']' ).removeClass( 'pending' ).addClass( 'active' );
-		}
-	},
-	maintenance: {
-
-		init: function() {
-			// Initializes the installation process.
-			ed.maintenance.update();
-		},
-
-		update: function() {
-
-			var frame = $('[data-progress-execscript]');
-
-			frame.addClass('active')
-				.removeClass('pending');
-
-			$.ajax({
-				type: 'POST',
-				url: ed.ajaxUrl + '&controller=maintenance&task=getScripts'
-			}).done(function(result){
-
-				var item = $('<li>');
-				item.addClass('text-success').html(result.message);
-
-				$('[data-progress-execscript-items]').append(item);
-
-				ed.maintenance.runScript(result.scripts, 0);
-			});
-		},
-
-		runScript: function(scripts, index) {
-
-			if (scripts[index] === undefined) {
-				// If the logics come here, means we are done with running scripts
-
-				// run script completed. lets update the scriptversion
-				$.ajax({
-					type: 'POST',
-					url: ed.ajaxUrl + '&controller=maintenance&task=finalize'
-				}).done(function(result) {
-					var item = $('<li>');
-					item.addClass('text-success').html(result.message);
-					$('[data-progress-execscript-items]').append(item);
-
-					$( '[data-progress-execscript]' )
-						.find( '.progress-state' )
-						.html( result.stateMessage )
-						.addClass( 'text-success' )
-						.removeClass( 'text-info' );
-
-					ed.maintenance.complete();
-				});
-
-				return true;
-			}
-
-			// Run the maintenace scripts
-			$.ajax({
-				type: 'POST',
-				url: ed.ajaxUrl + '&controller=maintenance&task=execute',
-				data: {
-					script: scripts[index]
-				}
-			})
-			.always(function(result) {
-
-				var item = $('<li>'),
-					className	= result.state ? 'text-success' : 'text-error';
-
-				item.addClass(className).html(result.message);
-
-				$('[data-progress-execscript-items]').append(item);
-
-				ed.maintenance.runScript(scripts, ++index);
-			});
-		},
-
-		complete: function() {
-			$('[data-installation-loading]').hide();
-			$('[data-installation-submit]').show();
-
-			var form = $('[data-installation-form]');
-
-			// Bind the submit button
-			$('[data-installation-submit]').on('click', function() {
-				form.submit();
-			});
+			$('[data-progress-active-message]').html($('[' + item + ']').find('.split__title').html() + ' ...');
+			$('[' + item + ']').removeClass('pending').addClass('active is-loading');
+			$('[' + item + ']').find('.progress-icon > i') .removeClass('icon-radio-unchecked') .addClass('loader');
 		}
 	}
 }

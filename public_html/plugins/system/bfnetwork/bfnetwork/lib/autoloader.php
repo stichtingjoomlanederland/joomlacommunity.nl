@@ -1,9 +1,10 @@
 <?php
 /**
- * @package   Blue Flame Network (bfNetwork)
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
- * @link      https://myJoomla.com/
+ *
+ * @see      https://myJoomla.com/
+ *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
  * bfNetwork is free software: you can redistribute it and/or modify
@@ -20,7 +21,6 @@
  * along with this package.  If not, see http://www.gnu.org/licenses/
  */
 /**
- * @package    AkeebaCMSUpdate
  * @copyright  Copyright (c)2010-2014 Nicholas K. Dionysopoulos
  * @license    GNU General Public License version 3, or later
  *
@@ -39,33 +39,33 @@
  */
 
 /**
- * The main class autoloader for the Akeeba CMS Update library
+ * The main class autoloader for the Akeeba CMS Update library.
  */
 class AcuAutoloader
 {
     /**
-     * An instance of this autoloader
+     * An instance of this autoloader.
      *
-     * @var   AcuAutoloader
+     * @var AcuAutoloader
      */
-    public static $autoloader = NULL;
+    public static $autoloader = null;
 
     /**
-     * The path to the ACU library's root directory
+     * The path to the ACU library's root directory.
      *
-     * @var   string
+     * @var string
      */
-    public static $acuPath = NULL;
+    public static $acuPath = null;
 
     /**
-     * Initialise this autoloader
+     * Initialise this autoloader.
      *
-     * @return  AcuAutoloader
+     * @return AcuAutoloader
      */
     public static function init()
     {
-        if (self::$autoloader == NULL) {
-            self::$autoloader = new self;
+        if (null == self::$autoloader) {
+            self::$autoloader = new self();
         }
 
         return self::$autoloader;
@@ -82,16 +82,14 @@ class AcuAutoloader
     }
 
     /**
-     * The actual autoloader
+     * The actual autoloader.
      *
-     * @param   string $class_name The name of the class to load
-     *
-     * @return  void
+     * @param string $class_name The name of the class to load
      */
     public function autoload_acu_core($class_name)
     {
         // Make sure the class has a FOF prefix
-        if (substr($class_name, 0, 3) != 'Acu') {
+        if ('Acu' != substr($class_name, 0, 3)) {
             return;
         }
 
@@ -104,7 +102,7 @@ class AcuAutoloader
         $class = explode('_', $class);
 
         // First try finding in structured directory format (preferred)
-        $path = self::$acuPath . '/' . implode('/', $class) . '.php';
+        $path = self::$acuPath.'/'.implode('/', $class).'.php';
 
         if (@file_exists($path)) {
             include_once $path;
@@ -112,10 +110,10 @@ class AcuAutoloader
 
         // Then try the duplicate last name structured directory format (not recommended)
 
-        if (!class_exists($class_name, FALSE)) {
+        if (!class_exists($class_name, false)) {
             reset($class);
             $lastPart = end($class);
-            $path     = self::$acuPath . '/' . implode('/', $class) . '/' . $lastPart . '.php';
+            $path     = self::$acuPath.'/'.implode('/', $class).'/'.$lastPart.'.php';
 
             if (@file_exists($path)) {
                 include_once $path;

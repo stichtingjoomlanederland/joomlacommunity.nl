@@ -35,6 +35,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	<ul class="unstyled rsepro-events-ul">
 		<?php foreach ($this->created as $createdEvent) { ?>
 		<li>
+			<?php if ($createdEvent->published == 2) echo JText::_('COM_RSEVENTSPRO_ARCHIVED').' '; ?>
 			<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($createdEvent->id, $createdEvent->name), false, $createdEvent->itemid); ?>">
 				<?php echo $createdEvent->name; ?>
 			</a>
@@ -49,6 +50,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	<ul class="unstyled rsepro-events-ul">
 		<?php foreach ($this->joined as $joinedEvent) { ?>
 		<li>
+			<?php if ($joinedEvent->published == 2) echo JText::_('COM_RSEVENTSPRO_ARCHIVED').' '; ?>
 			<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($joinedEvent->id, $joinedEvent->name), false, $joinedEvent->itemid); ?>">
 				<?php echo $joinedEvent->name; ?>
 			</a>

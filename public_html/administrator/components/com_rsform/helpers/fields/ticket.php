@@ -100,7 +100,7 @@ class RSFormProFieldTicket extends RSFormProFieldHidden
 	public function processBeforeStore($submissionId, &$post, &$files) {
 		if (!isset($post[$this->name]))
 		{
-			return false;
+			return;
 		}
 
 		$value = $post[$this->name];

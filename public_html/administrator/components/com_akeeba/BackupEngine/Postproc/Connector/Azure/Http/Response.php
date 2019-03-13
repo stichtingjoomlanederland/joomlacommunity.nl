@@ -1,5 +1,14 @@
 <?php
 /**
+ * Akeeba Engine
+ * The PHP-only site backup engine
+ *
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU GPL version 3 or, at your option, any later version
+ * @package   akeebaengine
+ */
+
+/**
  * Copyright (c) 2009, RealDolmen
  * All rights reserved.
  *
@@ -167,7 +176,7 @@ class Response
 		$this->_body = $body;
 
 		// Version
-		if (!preg_match('|^\d\.\d$|', $version))
+		if (!preg_match('/^\d(\.\d)?$/', $version))
 		{
 			throw new Http('No valid HTTP version was passed: ' . $version);
 		}

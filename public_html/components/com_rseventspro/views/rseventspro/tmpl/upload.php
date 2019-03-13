@@ -143,6 +143,7 @@ RSEventsPro.Crop = {
 	<input type="hidden" name="id" value="<?php echo $this->item->id; ?>" />
 </form>
 
+<?php if ($this->item->icon) { ?>
 <script type="text/javascript">
 	var objImagePreloader = new Image();
 	objImagePreloader.onload = function() {
@@ -153,3 +154,4 @@ RSEventsPro.Crop = {
 	};
 	objImagePreloader.src = '<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/events/<?php echo $this->item->icon; ?>';
 </script>
+<?php } ?>

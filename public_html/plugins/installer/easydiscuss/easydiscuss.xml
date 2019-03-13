@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.1" type="plugin" group="installer" method="upgrade">
+	<name>Installer - EasyDiscuss</name>
+	<version>4.2.0</version>
+	<creationDate>26th May 2018</creationDate>
+	<author>Stack Ideas Sdn Bhd</author>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>https://stackideas.com</authorUrl>
+	<copyright>Copyright 2009 - 2018 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
+	<license>GPL License v2</license>
+	<description>
+		Perform updates for EasyDiscuss
+	</description>
+	<files folder="easydiscuss">
+		<filename plugin="easydiscuss">easydiscuss.php</filename>
+	</files>
+</extension>

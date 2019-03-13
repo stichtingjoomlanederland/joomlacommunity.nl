@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="2.5.0" type="plugin" group="system" method="upgrade">
-	<name>System - Admin Tools Joomla! Update Email</name>
+<!--
+  ~ @package   admintools
+  ~ @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+  ~ @license   GNU General Public License version 3, or later
+  -->
+
+<extension version="3.8.0" type="plugin" group="system" method="upgrade">
+	<name>PLG_SYSTEM_ATOOLSJUPDATECHECK</name>
 	<author>Nicholas K. Dionysopoulos</author>
 	<authorEmail>nicholas@dionysopoulos.me</authorEmail>
 	<authorUrl>http://www.akeebabackup.com</authorUrl>
-	<copyright>Copyright (c)2010-2018 Nicholas K. Dionysopoulos</copyright>
+	<copyright>Copyright (c)2010-2019 Nicholas K. Dionysopoulos</copyright>
 	<license>GNU General Public License version 3, or later</license>
 	<creationDate>2011-05-26</creationDate>
 	<version>1.0</version>
-	<description>PLG_ATOOLSJUPDATECHECK_DESCRIPTION</description>
+	<description>PLG_SYSTEM_ATOOLSJUPDATECHECK_XML_DESCRIPTION</description>
 	<files>
 		<filename plugin="atoolsjupdatecheck">atoolsjupdatecheck.php</filename>
+		<filename>.htaccess</filename>
+		<filename>web.config</filename>
 	</files>
 	<languages folder="language">
 		<language tag="en-GB">en-GB/en-GB.plg_system_atoolsjupdatecheck.ini</language>

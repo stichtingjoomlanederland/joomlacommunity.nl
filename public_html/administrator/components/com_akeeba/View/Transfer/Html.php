@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -53,11 +53,23 @@ class Html extends BaseView
 	/** @var   array  Available transfer options, for use by JHTML */
 	public $transferOptions = [];
 
+	/** @var   array  Available chunk options, for use by JHTML */
+	public $chunkOptions = array();
+
+	/** @var   array  Available chunk size options, for use by JHTML */
+	public $chunkSizeOptions = array();
+
 	/** @var   bool  Do I have supported but firewalled methods? */
 	public $hasFirewalledMethods = false;
 
 	/** @var   string  Currently selected transfer option */
 	public $transferOption = 'manual';
+
+	/** @var   string  Currently selected chunk option */
+	public $chunkMode = 'chunked';
+
+	/** @var   string  Currently selected chunk size */
+	public $chunkSize = 5242880;
 
 	/** @var   string  FTP/SFTP host name */
 	public $ftpHost = '';
@@ -109,6 +121,8 @@ class Html extends BaseView
 		$this->newSiteUrlResult = $this->container->platform->getSessionVar('transfer.url_status', '', 'akeeba');
 		$this->ftpSupport       = $this->container->platform->getSessionVar('transfer.ftpsupport', null, 'akeeba');
 		$this->transferOption   = $this->container->platform->getSessionVar('transfer.transferOption', null, 'akeeba');
+		$this->chunkMode        = $this->container->platform->getSessionVar('transfer.chunkMode', 'chunked', 'akeeba');
+		$this->chunkSize        = $this->container->platform->getSessionVar('transfer.chunkSize', 5242880, 'akeeba');
 		$this->ftpHost          = $this->container->platform->getSessionVar('transfer.ftpHost', null, 'akeeba');
 		$this->ftpPort          = $this->container->platform->getSessionVar('transfer.ftpPort', null, 'akeeba');
 		$this->ftpUsername      = $this->container->platform->getSessionVar('transfer.ftpUsername', null, 'akeeba');
@@ -140,6 +154,8 @@ class Html extends BaseView
 		}
 
 		$this->transferOptions = $this->getTransferMethodOptions();
+		$this->chunkOptions     = $this->getChunkOptions();
+		$this->chunkSizeOptions = $this->getChunkSizeOptions();
 
 		/*
 		foreach ($this->ftpSupport['firewalled'] as $method => $isFirewalled)
@@ -212,6 +228,44 @@ JS;
 		}
 
 		$options[] = JHtml::_('select.option', 'manual', JText::_('COM_AKEEBA_TRANSFER_LBL_TRANSFERMETHOD_MANUALLY'));
+
+		return $options;
+	}
+
+	/**
+	 * Returns the JHTML options for a chunk methods drop-down
+	 *
+	 * @return   array
+	 */
+	private function getChunkOptions()
+	{
+		$options = array();
+
+		$options[] = array('value' => 'chunked', 'text' => JText::_('COM_AKEEBA_TRANSFER_LBL_TRANSFERMODE_CHUNKED'));
+		$options[] = array('value' => 'post', 'text' => JText::_('COM_AKEEBA_TRANSFER_LBL_TRANSFERMODE_POST'));
+
+		return $options;
+	}
+
+	/**
+	 * Returns the JHTML options for a chunk size drop-down
+	 *
+	 * @return   array
+	 */
+	private function getChunkSizeOptions()
+	{
+		$options    = array();
+		$multiplier = 1048576;
+
+		$options[] = array('value' => 0.5 * $multiplier, 'text' => '512 KB');
+		$options[] = array('value' => 1 * $multiplier, 'text' => '1 MB');
+		$options[] = array('value' => 2 * $multiplier, 'text' => '2 MB');
+		$options[] = array('value' => 5 * $multiplier, 'text' => '5 MB');
+		$options[] = array('value' => 10 * $multiplier, 'text' => '10 MB');
+		$options[] = array('value' => 20 * $multiplier, 'text' => '20 MB');
+		$options[] = array('value' => 30 * $multiplier, 'text' => '30 MB');
+		$options[] = array('value' => 50 * $multiplier, 'text' => '50 MB');
+		$options[] = array('value' => 100 * $multiplier, 'text' => '100 MB');
 
 		return $options;
 	}

@@ -28,6 +28,40 @@ defined('_JEXEC') or die('Unauthorized Access');
 								<?php echo $this->html('form.boolean', 'main_autopost_linkedin', $this->config->get('main_autopost_linkedin')); ?>
 							</div>
 						</div>
+
+						<div class="form-group" data-linkedin-api>
+							<div class="col-md-5 control-label">
+								<?php echo $this->html('form.label', 'COM_ED_FB_AUTOPOST_OAUTH_REDIRECT_URI'); ?>
+							</div>
+
+							<div class="col-md-7">
+								<p>Effective <b>May 18th, 2018</b>, LinkedIn has <a href="https://developer.linkedin.com/docs/guide/v2/compliance/release-notes#2018-04-11" target="_blank">announced</a> that V1 Company Pages API will no longer work with OAuth 1.0. It is recommended for all apps to switchover OAuth 2.0 authentication before then. You will need to copy the links below and add it under the Authorized Redirect URLs section of the LinkedIn app.</p>
+							<?php
+							if (EDR::isSefEnabled()) {
+								$i = 1;
+								foreach ($oauthURIs as $oauthURI) { ?>
+								<div class="input-group mb-10">
+									<input type="text" id="oauth-uri-<?php echo $i?>" data-oauthuri-input name="integrations_linkedin_oauth_redirect_uri" class="form-control" value="<?php echo $oauthURI;?>" size="60" style="pointer-events:none;" />
+									<span class="input-group-btn" 
+										data-oauthuri-button
+										data-original-title="<?php echo JText::_('COM_ED_COPY_TOOLTIP')?>"
+										data-placement="bottom"
+										data-eb-provide="tooltip"
+									>
+										<a href="javascript:void(0);" class="btn btn-default">
+											<i class="fa fa-copy"></i>
+										</a>
+									</span>
+								</div>
+								<?php $i++; } ?>
+							<?php } else { ?>
+							<div style="margin:15px 0 8px 0;border: 1px dashed #FC595B;padding: 20px;color: #FC595B;">
+								<b>Note:</b> It seems like your site Search Engine Friendly (SEF) is disabled. In order to use LinkedIn as autoposting medium, you must first enable the SEF of your site.
+							</div>
+							<?php } ?>
+							</div>
+						</div>
+
 						<div class="form-group">
 							<div class="col-md-5 control-label">
 								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_AUTOPOST_LINKEDIN_CLIENT_ID'); ?>

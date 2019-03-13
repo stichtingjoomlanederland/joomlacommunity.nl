@@ -37,7 +37,7 @@ class RSFormProFormLayoutResponsive extends RSFormProFormLayout
     {
         return
             '<div class="formResponsive">'.
-                '<button type="button" class="rsform-submit-button" name="continue" onclick="'.$goto.'">'.JText::_('RSFP_THANKYOU_BUTTON').'</button>'.
+                '<button type="button" class="rsform-submit-button rsform-thankyou-button" name="continue" onclick="'.$goto.'">'.JText::_('RSFP_THANKYOU_BUTTON').'</button>'.
             '</div>';
     }
 }

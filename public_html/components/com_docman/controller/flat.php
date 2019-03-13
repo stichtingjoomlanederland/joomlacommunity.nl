@@ -15,7 +15,7 @@ class ComDocmanControllerFlat extends ComKoowaControllerModel
         if ($this->isDispatched())
         {
             $this->addBehavior('com://site/docman.controller.behavior.filterable', array(
-                'vars' => array('sort')
+                'vars' => ['sort', 'search_by']
             ));
         }
     }

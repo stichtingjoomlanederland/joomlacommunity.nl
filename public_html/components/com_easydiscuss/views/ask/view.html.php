@@ -239,10 +239,6 @@ class EasyDiscussViewAsk extends EasyDiscussView
 		$this->set('tags', $tags);
 		$this->set('priorities', $priorities);
 		$this->set('redirect', $redirect);
-
-		// $this->set('reference', $reference);
-		// $this->set('referenceId', $referenceId);
-		// $this->set('isEditMode', $editing);
 		$this->set('composer', $composer);
 		$this->set('attachments', $attachments);
 		$this->set('editor', $editor);

@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -84,14 +84,14 @@ class Html extends BaseView
 		$model = $this->getModel();
 
 		// Pass the data from the model to the view template
-		$this->folder =					$model->getState('folder');
-		$this->folder_raw =				$model->getState('folder_raw');
-		$this->parent =					$model->getState('parent');
-		$this->exists =					$model->getState('exists');
-		$this->inRoot =					$model->getState('inRoot');
-		$this->openbasedirRestricted =	$model->getState('openbasedirRestricted');
-		$this->writable =				$model->getState('writable');
-		$this->subfolders =				$model->getState('subfolders');
-		$this->breadcrumbs =			$model->getState('breadcrumbs');
+		$this->folder                = $model->getState('folder', '', 'path');
+		$this->folder_raw            = $model->getState('folder_raw', '', 'path');
+		$this->parent                = $model->getState('parent', '', 'path');
+		$this->exists                = $model->getState('exists', 0, 'boolean');
+		$this->inRoot                = $model->getState('inRoot', 0, 'boolean');
+		$this->openbasedirRestricted = $model->getState('openbasedirRestricted', 0, 'boolean');
+		$this->writable              = $model->getState('writable', 0, 'boolean');
+		$this->subfolders            = $model->getState('subfolders');
+		$this->breadcrumbs           = $model->getState('breadcrumbs');
 	}
 }

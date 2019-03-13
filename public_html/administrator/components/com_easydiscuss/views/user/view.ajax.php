@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,9 +9,9 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once DISCUSS_ADMIN_ROOT . '/views/views.php';
+require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
 
 class EasyDiscussViewUser extends EasyDiscussAdminView
 {
@@ -50,13 +50,11 @@ class EasyDiscussViewUser extends EasyDiscussAdminView
 	}
 
 	/**
-     * Add user's badge custom message
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Add user's badge custom message
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function customMessage()
 	{
 		$badgeId = $this->input->get('badgeId');
@@ -69,25 +67,23 @@ class EasyDiscussViewUser extends EasyDiscussAdminView
 
 		// Load the user's badge
 		$badge = ED::table('BadgesUsers');
-        $badge->loadByUser($userId, $badgeId);
+		$badge->loadByUser($userId, $badgeId);
 
 		$badge->custom = $customMessage;
 		$state = $badge->store();
-        
-        if ($state) {
-            return $this->ajax->resolve(true, JText::_('COM_EASYDISCUSS_USER_BADGE_CUSTOM_MESSAGE'));
-        }
+		
+		if ($state) {
+			return $this->ajax->resolve(true, JText::_('COM_EASYDISCUSS_USER_BADGE_CUSTOM_MESSAGE'));
+		}
 		return $this->ajax->reject(false, 'error');
 	}
 
 	/**
-     * Delete user's badge
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Delete user's badge
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function deleteBadge()
 	{
 		$userId = $this->input->get('userId');
@@ -107,13 +103,11 @@ class EasyDiscussViewUser extends EasyDiscussAdminView
 	}
 
 	/**
-     * Remove user's avatar
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Remove user's avatar
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function removeAvatar()
 	{
 		$userId	= $this->input->get('userid');

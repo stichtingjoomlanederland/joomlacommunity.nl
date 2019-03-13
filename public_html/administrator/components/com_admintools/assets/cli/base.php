@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -23,7 +23,7 @@ if (function_exists('error_reporting'))
 // Minimum PHP version check
 if (!isset($minphp))
 {
-	$minphp = '5.4.0';
+	$minphp = '5.6.0';
 }
 
 if (version_compare(PHP_VERSION, $minphp, 'lt'))

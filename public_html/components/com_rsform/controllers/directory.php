@@ -59,7 +59,13 @@ class RsformControllerDirectory extends RsformController
 		list($multipleSeparator, $uploadFields, $multipleFields, $secret) = RSFormProHelper::getDirectoryFormProperties($formId);
 		
 		// Get submissions
-		$db->setQuery("SELECT * FROM #__rsform_submissions WHERE FormId='".(int) $formId."' AND SubmissionId IN (".implode(',', $cids).")");
+        $query = $db->getQuery(true);
+        $query->select('*')
+            ->from($db->qn('#__rsform_submissions'))
+            ->where($db->qn('FormId') . ' = ' . $db->q($formId))
+            ->where($db->qn('SubmissionId') . ' IN (' . implode(',', $db->q($cids)) . ')');
+
+		$db->setQuery($query);
 		$submissions = $db->loadObjectList('SubmissionId');
 		
 		// Get values
@@ -101,6 +107,8 @@ class RsformControllerDirectory extends RsformController
 			
 			$submissions[$item->SubmissionId]->values[$item->FieldName] = $item->FieldValue;
 		}
+
+		$app->triggerEvent('rsfp_f_onDownloadCSV', array(&$submissions, $formId));
 		
 		$enclosure = '"';
 		$delimiter = ',';

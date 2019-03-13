@@ -1,7 +1,7 @@
 {
     "name": "joomlatools/framework-tags",
     "type": "joomlatools-extension",
-    "license": "GPLv3",
+    "license": "GPL-3.0-only",
     "description": "A reusable component for tags management",
     "keywords": [
         "joomla",

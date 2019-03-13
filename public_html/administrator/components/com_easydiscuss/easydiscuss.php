@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -13,7 +13,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 require_once(__DIR__ . '/setup.php');
 
-// Include the main engine file
 require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
 
 jimport('joomla.filesystem.file');
@@ -28,6 +27,9 @@ ED::ajax()->process();
 $app = JFactory::getApplication();
 $input = $app->input;
 $task = $input->get('task', 'display', 'cmd');
+
+// Check for environment changes
+ED::checkEnvironment();
 
 // We treat the view as the controller. Load other controller if there is any.
 $controller = $input->get('controller', '', 'cmd');

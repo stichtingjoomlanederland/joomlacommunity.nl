@@ -504,6 +504,11 @@ class JoomlatoolsInstallerHelper
             apc_clear_cache();
             apc_clear_cache('user');
         }
+
+        // Clear OPcache
+        if (function_exists('opcache_reset')) {
+            @opcache_reset();
+        }
     }
 
     protected function _deleteOldFiles($node)

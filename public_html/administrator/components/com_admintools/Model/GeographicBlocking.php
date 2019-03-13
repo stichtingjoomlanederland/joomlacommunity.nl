@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -195,7 +195,13 @@ class GeographicBlocking extends Model
 			$result = $db->loadResult();
 		}
 
-		return ($result != 0);
+		/**
+		 * Double check. We make sure that BOTH Joomla reports the plugin installed AND the actual file is present. This
+		 * defends against the case where the user installs the plugin, deletes its files (ARGH!), then clicks on the
+		 * “Update GeoIP database” button, gets a (predictable) error page and files a support request wondering why it
+		 * happened.
+		 */
+		return ($result != 0) && @file_exists(JPATH_PLUGINS . '/system/akgeoip/lib/akgeoip.php');
 	}
 
 	/**

@@ -1,15 +1,15 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
 
@@ -81,7 +81,7 @@ defined('_JEXEC') or die('Restricted access');
 						<?php if ($browse) { ?>
 							<a href="javascript:void(0);" onclick="parent.<?php echo $browsefunction; ?>('<?php echo $user->id;?>','<?php echo addslashes($this->escape($user->name));?>','<?php echo $prefix; ?>');"><?php echo $user->name;?></a>
 						<?php } else { ?>
-							<a href="index.php?option=com_easydiscuss&view=user&id=<?php echo $user->id;?>"><?php echo $user->name;?></a>
+							<a href="index.php?option=com_easydiscuss&view=users&layout=form&id=<?php echo $user->id;?>"><?php echo $user->name;?></a>
 						<?php } ?>
 					</td>
 					<td class="center">

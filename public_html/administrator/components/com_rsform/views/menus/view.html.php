@@ -19,7 +19,6 @@ class RsformViewMenus extends JViewLegacy
         JHtmlSidebar::addEntry(JText::_('COM_RSFORM_MANAGE_SUBMISSIONS'), 'index.php?option=com_rsform&task=submissions.manage');
         JHtmlSidebar::addEntry(JText::_('COM_RSFORM_CONFIGURATION'), 'index.php?option=com_rsform&task=configuration.edit');
         JHtmlSidebar::addEntry(JText::_('COM_RSFORM_BACKUP_RESTORE'), 'index.php?option=com_rsform&task=backup.restore');
-        JHtmlSidebar::addEntry(JText::_('COM_RSFORM_UPDATES'), 'index.php?option=com_rsform&task=updates.manage');
         JHtmlSidebar::addEntry(JText::_('COM_RSFORM_PLUGINS'), 'index.php?option=com_rsform&task=goto.plugins');
 		
 		$this->formId 		= JFactory::getApplication()->input->getInt('formId');

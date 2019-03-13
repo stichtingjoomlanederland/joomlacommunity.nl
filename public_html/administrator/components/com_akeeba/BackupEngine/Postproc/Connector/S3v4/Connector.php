@@ -1,9 +1,9 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  */
@@ -106,10 +106,10 @@ class Connector
 
 			if (is_object($response->body) && ($response->body instanceof \SimpleXMLElement) && (strpos($input->getSize(), ',') === false))
 			{
-				// For some reason, trying to single part upload files on some hosts comes back with am
+				// For some reason, trying to single part upload files on some hosts comes back with an inexplicable
 				// error from Amazon that we need to set Content-Length:5242880,5242880 instead of
 				// Content-Length:5242880 which is AGAINST Amazon's documentation. In this case we pass the header
-				// 'workaround-braindead-error-from-amazon' and retry.
+				// 'workaround-braindead-error-from-amazon' and retry. Uh, OK?
 				if (isset($response->body->CanonicalRequest))
 				{
 					$amazonsCanonicalRequest = (string)$response->body->CanonicalRequest;
@@ -434,7 +434,7 @@ class Connector
 		}
 
 		if ($response->hasBody() && isset($response->body->IsTruncated) &&
-		    ((string)$response->body->IsTruncated == 'false')
+			((string)$response->body->IsTruncated == 'false')
 		)
 		{
 			return $results;
@@ -766,10 +766,10 @@ class Connector
 
 			if (is_object($response->body) && ($response->body instanceof \SimpleXMLElement) && (strpos($input->getSize(), ',') === false))
 			{
-				// For some reason, trying to multipart upload files on some hosts comes back with an
+				// For some moronic reason, trying to multipart upload files on some hosts comes back with a crazy
 				// error from Amazon that we need to set Content-Length:5242880,5242880 instead of
 				// Content-Length:5242880 which is AGAINST Amazon's documentation. In this case we pass the header
-				// 'workaround-braindead-error-from-amazon' and retry.
+				// 'workaround-braindead-error-from-amazon' and retry. Whatever.
 				if (isset($response->body->CanonicalRequest))
 				{
 					$amazonsCanonicalRequest = (string)$response->body->CanonicalRequest;

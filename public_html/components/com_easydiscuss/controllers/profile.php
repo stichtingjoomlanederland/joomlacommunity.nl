@@ -263,7 +263,7 @@ class EasyDiscussControllerProfile extends EasyDiscussController
 		if (!$validEmail) {
 			$message = JText::_('COM_EASYDISCUSS_INVALID_EMAIL_ADDRESS');
 			ED::setMessage($message, DISCUSS_QUEUE_ERROR);
-			return false;			
+			return false;
 		}
 
 		if (!empty($post['password'])) {
@@ -278,7 +278,7 @@ class EasyDiscussControllerProfile extends EasyDiscussController
 			if (empty($post['password2'])) {
 				$message = JText::_('COM_EASYDISCUSS_PROFILE_PASSWORD_NOT_MATCH');
 				ED::setMessage($message, DISCUSS_QUEUE_ERROR);
-				return false;				
+				return false;
 			}
 		}
 
@@ -371,6 +371,45 @@ class EasyDiscussControllerProfile extends EasyDiscussController
 
 		return true;
 	}
+
+	/**
+	 * Submit request to download information
+	 *
+	 * @since	4.1.0
+	 * @access	public
+	 */
+	public function download()
+	{
+		// Check for request forgeries
+		ED::checkToken();
+
+		// Ensure that the user is logged in
+		if (!$this->my->id) {
+			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_PLEASE_LOGIN_INFO'));
+		}
+
+		$table = ED::table('download');
+		$exists = $table->load(array('userid' => $this->my->id));
+
+		if ($exists) {
+			return JError::raiseError(500, JText::_('COM_ED_GDPR_DOWNLOAD_ERROR_MULTIPLE_REQUEST'));
+		}
+
+		$params = array();
+
+		$table->userid = $this->my->id;
+		$table->state = DISCUSS_DOWNLOAD_REQ_NEW;
+		$table->params = json_encode($params);
+		$table->created = ED::date()->toSql();
+		$table->store();
+
+		$redirect = EDR::_('view=profile&layout=download', false);
+
+		$message = JText::_('COM_ED_GDPR_REQUEST_DATA_SUCCESS');
+		ED::setMessageQueue($message , DISCUSS_QUEUE_SUCCESS);
+
+		return $this->app->redirect($redirect);
+	}
 }
 
 
@@ -430,5 +469,4 @@ class EasyDiscussModelProfileEx extends UsersModelProfile
 
 		return true;
 	}
-
 }

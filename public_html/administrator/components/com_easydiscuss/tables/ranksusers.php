@@ -1,9 +1,9 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
-* Komento is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -38,7 +38,7 @@ class DiscussRanksUsers extends EasyDiscussTable
 		if (!isset($users[$id])) {
 			
 			if ($byUserId) {
-				$db = DiscussHelper::getDBO();
+				$db = ED::db();
 				$query = 'SELECT * FROM `#__discuss_ranks_users` WHERE `user_id` = ' . $db->Quote($id);
 				$query .= ' ORDER BY `created` DESC LIMIT 1';
 
@@ -74,5 +74,32 @@ class DiscussRanksUsers extends EasyDiscussTable
 		}
 
 		return true;
+	}
+
+	/**
+	 * Delete the user rank data
+	 *
+	 * @since	4.0.23
+	 * @access	public
+	 */
+	public function delete($userId = '')
+	{
+		$db = ED::db();
+
+		// if retrieve the user id, mean have to delete all the rank data based on this user id
+		if ($userId) {
+
+			$query = 'DELETE FROM ' . $db->quoteName('#__discuss_ranks_users');
+			$query .= ' WHERE ' . $db->quoteName('user_id') . ' = ' . $db->Quote($userId);
+
+			$db->setQuery($query);
+			$state = $db->Query();
+
+       		return $state;
+		}
+
+   		$state = parent::delete();
+
+		return $state;
 	}
 }

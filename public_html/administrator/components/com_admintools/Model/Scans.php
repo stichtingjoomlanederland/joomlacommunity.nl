@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -114,7 +114,8 @@ class Scans extends DataModel
 		            ))
 		            ->from($db->qn('#__admintools_scanalerts'))
 		            ->where($db->qn('scan_id') . ' IN (' . $ids . ')')
-		            ->where('(' . $db->qn('threat_score') . ' > ' . $db->q('0') . ')')
+		            ->where($db->qn('threat_score') . ' > ' . $db->q('0'))
+		            ->where($db->qn('acknowledged') . ' = ' . $db->q('0'))
 		            ->group($db->qn('scan_id'));
 
 		$suspiciousstats = $db->setQuery($query)->loadObjectList();

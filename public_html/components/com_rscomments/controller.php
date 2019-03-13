@@ -12,12 +12,13 @@ class RscommentsController extends JControllerLegacy
 	// Main constructor
 	public function __construct() {
 		parent::__construct();
-		require_once JPATH_SITE.'/components/com_rscomments/helpers/securimage/securimage.php';
 		JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_rscomments/tables');
 	}
 	
 	// Load captcha image
 	public function captcha() {
+		require_once JPATH_SITE.'/components/com_rscomments/helpers/securimage/securimage.php';
+		
 		ob_end_clean();
 		$captcha	= new JSecurImage();
 		$config		= RSCommentsHelper::getConfig();
@@ -63,7 +64,14 @@ class RscommentsController extends JControllerLegacy
 		$terms = $db->loadResult();
 
 		if ($config->terms && $terms != '') {
+			echo '<div class="rscomments-white-popup">';
 			echo $terms;
+			
+			if ($config->modal == 2) {
+				echo '<div class="text-right"><a href="javascript:void(0)" class="btn btn-primary" onclick="RSComments.agree();">'.JText::_('COM_RSCOMMENTS_I_AGREE').'</a> <a href="javascript:void(0)" onclick="jQuery.magnificPopup.close();" class="btn">'.JText::_('COM_RSCOMMENTS_CLOSE').'</a></div>';
+			}
+			
+			echo '</div>';
 		}
 		
 		JFactory::getApplication()->close();
@@ -78,6 +86,9 @@ class RscommentsController extends JControllerLegacy
 		));
 		
 		$view->addTemplatePath(JPATH_THEMES . '/' . JFactory::getApplication()->getTemplate() . '/html/com_rscomments/' . $view->getName());
+		
+		$view->config	= RSCommentsHelper::getConfig();
+		
 		echo $view->loadTemplate();
 	}
 	
@@ -91,18 +102,57 @@ class RscommentsController extends JControllerLegacy
 		
 		$view->addTemplatePath(JPATH_THEMES . '/' . JFactory::getApplication()->getTemplate() . '/html/com_rscomments/' . $view->getName());
 		
+		RSCommentsHelper::loadRecaptcha('report');
+		
 		$view->config	= RSCommentsHelper::getConfig();
 		$view->root 	= JURI::getInstance()->toString(array('scheme','host'));
 		
 		echo $view->loadTemplate();
 	}
 	
+	// Show a list of the user's comments
+	public function mycomments() {
+		$view = new JViewLegacy(array(
+			'name' => 'rscomments',
+			'layout' => 'mycomments',
+			'base_path' => JPATH_SITE.'/components/com_rscomments'
+		));
+		
+		$view->addTemplatePath(JPATH_THEMES . '/' . JFactory::getApplication()->getTemplate() . '/html/com_rscomments/' . $view->getName());
+		$model 				= $this->getModel('Comments');
+		
+		$view->setModel($model);
+		
+		$view->config		= RSCommentsHelper::getConfig();
+		$view->root 		= JURI::getInstance()->toString(array('scheme','host'));
+		$view->pagination	= $model->getUserCommentsPagination();
+		$view->comments		= $model->getUserComments();		
+		$view->permissions	= RSCommentsHelper::getPermissions();		
+		$view->user			= JFactory::getUser();
+		$view->sid			= JFactory::getSession()->getId();
+		
+		echo $view->loadTemplate();
+	}
+	
+	public function removecomment() {
+		$model	= $this->getModel('Comments');
+		$return	= $model->remove(JFactory::getApplication()->input->getInt('id'));
+		
+		if (isset($return['error'])) {
+			JFactory::getApplication()->enqueueMessage($return['error'], 'error');
+		} else {
+			JFactory::getApplication()->enqueueMessage(JText::_('COM_RSCOMMENTS_COMMENT_REMOVED'));
+		}
+		
+		$this->setRedirect(JRoute::_('index.php?option=com_rscomments&task=mycomments&tmpl=component', false));
+	}
+	
 	// Show the upload form
 	public function upload() {
 		echo '<form name="frameform" id="frameform" action="'.JRoute::_('index.php?option=com_rscomments&task=uploadfile').'" method="post" enctype="multipart/form-data">';
 		echo '<input type="file" name="file" size="40" />';
-		echo '<input type="hidden" name="root" id="root" value="" />';
-		echo '<input type="hidden" name="url_captcha" id="url_captcha" value="" />';
+		echo '<input type="hidden" name="rsc_id" id="rsc_id" value="" />';
+		echo '<input type="hidden" name="rsc_option" id="rsc_option" value="" />';
 		echo '</form>';
 		JFactory::getApplication()->close();
 	}
@@ -124,8 +174,8 @@ class RscommentsController extends JControllerLegacy
 		$config 	= RSCommentsHelper::getConfig();
 		$file 		= $app->input->files->get('file');
 		$IdComment	= $session->get('com_rscomments.IdComment','');
-		$root		= $app->input->getString('root');
-		$captcha	= $app->input->getString('url_captcha');
+		$id			= $app->input->getInt('rsc_id');
+		$option		= $app->input->getString('rsc_option');
 		
 		if (!$config->enable_upload) 
 			return;
@@ -133,9 +183,8 @@ class RscommentsController extends JControllerLegacy
 		jimport('joomla.filesystem.file');
 		$uploadFolder = JPATH_SITE.'/components/com_rscomments/assets/files/';
 
-		$valid 					= true;
-		$successfully_uploaded 	= '';
-		$msg					= '';
+		$valid 	= true;
+		$msg	= '';
 
 		if (!empty($file) && empty($file['error'])) {
 			$src		= $file['tmp_name'];
@@ -207,16 +256,17 @@ class RscommentsController extends JControllerLegacy
 				} else { $msg = JText::sprintf('COM_RSCOMMENTS_ERROR_SIZE',$max); $valid = false; }
 			} else { $msg = JText::sprintf('COM_RSCOMMENTS_ERROR_EXTENSION',implode(', ',$extensions)); $valid = false; }
 		}
-
+		
 		echo '<form name="frameform" id="frameform" action="'.JRoute::_('index.php?option=com_rscomments&task=uploadfile').'" method="post" enctype="multipart/form-data">';
-		echo '<input type="file" name="file" size="40" />'.$successfully_uploaded;
-		echo '<input type="hidden" name="root" id="root" value="" />';
-		echo '<input type="hidden" name="url_captcha" id="url_captcha" value="" />';
+		echo '<input type="file" name="file" size="40" />';
+		echo '<input type="hidden" name="rsc_id" id="rsc_id" value="" />';
+		echo '<input type="hidden" name="rsc_option" id="rsc_option" value="" />';
 		echo '</form>';
-
+		
 		if ($valid) {
 			echo "<script type=\"text/javascript\">
-				window.parent.rsc_save('".$root."','".$captcha."');
+				var object = window.parent.jQuery('.rscomments[data-rsc-id=\"".$id."\"][data-rsc-option=\"".$option."\"]').find('[data-rsc-task=\"validate\"]')[0];
+				window.parent.RSComments.save(object);
 			</script>";
 		} else {
 			if($msg != ''){
@@ -224,18 +274,13 @@ class RscommentsController extends JControllerLegacy
 			<script type=\"text/javascript\">
 				alert('".$msg."');
 
-				if (window.parent.jQuery('#rscommentsForm').find('#submit_captcha').length) {
-					window.parent.jQuery('#rscommentsForm').find('#submit_captcha').val('');
-					window.parent.jQuery('#rscommentsForm').find('#rscomments-refresh-captcha').click();
+				if (window.parent.jQuery('.rscomments[data-rsc-id=\"".$id."\"][data-rsc-option=\"".$option."\"]').find('.rscomments-refresh-captcha').length) {
+					window.parent.jQuery('.rscomments[data-rsc-id=\"".$id."\"][data-rsc-option=\"".$option."\"]').find('.rscomments-refresh-captcha').click();
 				}
 				
-				if (window.parent.jQuery('#rscommentsForm').find('#recaptcha_response_field').length) {
-					window.parent.jQuery('#rscommentsForm').find('#recaptcha_response_field').val('');
-					window.parent.Recaptcha.reload();
-				}
-				
-				if (window.parent.jQuery('#rscommentsForm').find('.g-recaptcha-response').length) {
-					window.parent.grecaptcha.reset();
+				if (window.parent.jQuery('.rscomments[data-rsc-id=\"".$id."\"][data-rsc-option=\"".$option."\"]').find('.g-recaptcha-response').length) {
+					var cid = window.parent.jQuery('.rscomments[data-rsc-id=\"".$id."\"][data-rsc-option=\"".$option."\"]').find('.g-recaptcha-response').parents('div[id^=\"rsc-g-recaptcha-\"]').prop('id').replace('rsc-g-recaptcha-', '');
+					window.parent.grecaptcha.reset(window.parent.RSCommentsReCAPTCHAv2.ids[cid]);
 				}
 			</script>";
 			}

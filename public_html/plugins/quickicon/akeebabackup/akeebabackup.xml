@@ -1,17 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ @package   akeebabackup
+  ~ @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+  ~ @license   GNU General Public License version 3, or later
+  -->
+
 <extension version="2.5" type="plugin" group="quickicon" method="upgrade">
 	<name>plg_quickicon_akeebabackup</name>
 	<author>Nicholas K. Dionysopoulos</author>
 	<authorEmail>nicholas@akeebabackup.com</authorEmail>
 	<authorUrl>http://www.akeebabackup.com</authorUrl>
-	<copyright>Copyright (c)2006-2017 Nicholas K. Dionysopoulos</copyright>
+	<copyright>Copyright (c)2006-2019 Nicholas K. Dionysopoulos</copyright>
 	<license>GNU General Public License version 3, or later</license>
-	<creationDate>2012-09-26</creationDate>
-	<version>1.0</version>
+	<creationDate>2019-03-12</creationDate>
+	<version>6.4.1</version>
 	<description>PLG_QUICKICON_AKEEBABACKUP_XML_DESCRIPTION</description>
 	<files>
 		<filename plugin="akeebabackup">akeebabackup.php</filename>
 		<filename>index.html</filename>
+		<filename>.htaccess</filename>
+		<filename>web.config</filename>
 	</files>
 	<languages folder="language">
 		<language tag="en-GB">en-GB/en-GB.plg_quickicon_akeebabackup.ini</language>

@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 	Copyright (c) 2009-2017 Ryan Demmer. All rights reserved
- * @license   	GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * @copyright     Copyright (c) 2009-2019 Ryan Demmer. All rights reserved
+ * @license       GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * JCE is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
@@ -46,7 +46,15 @@ abstract class WFMimeType
         'application/mbox' => 'mbox',
         'application/mediaservercontrol+xml' => 'mscml',
         'application/mp4' => 'mp4s',
-        'application/msword' => 'doc dot ppt xls docx pptx ppsx xlsx sldx potx xltx dotx xlsm',
+        'application/msword' => 'doc dot ppt xls xlsm dotx docx pptx xlsx ppsx sldx potx xltx',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.template' => 'dotx',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation' => 'pptx',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx',
+        'application/vnd.openxmlformats-officedocument.presentationml.slideshow' => 'ppsx',
+        'application/vnd.openxmlformats-officedocument.presentationml.slide' => 'sldx',
+        'application/vnd.openxmlformats-officedocument.presentationml.template' => 'potx',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.template' => 'xltx',
         'application/mxf' => 'mxf',
         'application/octet-stream' => 'bin dms lha lrf lzh so iso dmg dist distz pkg bpk dump elc deploy',
         'application/oda' => 'oda',
@@ -328,7 +336,7 @@ abstract class WFMimeType
         'application/vnd.openxmlformats-officedocument.presentationml.template' => 'potx',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.template' => 'xltx',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx dotx',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.template' => 'dotx',
         'application/vnd.osgi.dp' => 'dp',
         'application/vnd.palm' => 'pdb pqa oprc',
@@ -675,6 +683,23 @@ abstract class WFMimeType
         return null;
     }
 
+    private static function isSupported($extension)
+    {
+        // get mimetype array
+        $mimes = self::getMimes();
+
+        $supported = false;
+
+        foreach(array_values($mimes) as $mime) {
+            if (in_array($extension, explode(' ', $mime))) {
+                $supported = true;
+                break;
+            }
+        };
+
+        return $supported;
+    }
+
     /**
      * Check file mime type.
      *
@@ -684,10 +709,15 @@ abstract class WFMimeType
      *
      * @return bool
      */
-    public function check($name, $path)
+    public static function check($name, $path)
     {
         $extension = strtolower(substr($name, strrpos($name, '.') + 1));
         $mimetype = null;
+
+        // if the extension is allowed, but no mimetype reference is found, let it through...
+        if (self::isSupported($extension) === false) {
+            return true;
+        }
 
         if (function_exists('finfo_open')) {
             if (!$finfo = new finfo(FILEINFO_MIME_TYPE)) {

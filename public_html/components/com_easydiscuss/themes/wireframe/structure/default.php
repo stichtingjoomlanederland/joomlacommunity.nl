@@ -1,8 +1,8 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -13,29 +13,16 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <?php echo $jsToolbar; ?>
 
-<script type="text/javascript">
-document.addEventListener('DOMContentLoaded', function(){
-	if (window.innerWidth < 640 && window.innerWidth > 481) {
-		var wrapper = document.querySelectorAll('.ed-responsive');
-		for(var i = 0; i < wrapper.length; i++) {
-			wrapper[i].classList.add('w640');
-		}
-	}
-	if (window.innerWidth < 480 ) {
-		var wrapper = document.querySelectorAll('.ed-responsive');
-		for(var i = 0; i < wrapper.length; i++) {
-			wrapper[i].classList.add('w480');
-		}
-	}
-});
-</script>
 <div id="ed" class="type-component
 	ed-responsive
 	<?php echo $categoryClass;?>
 	<?php echo $suffix; ?>
 	<?php echo 'view-' . $view; ?>
 	<?php echo 'layout-' . $layout; ?>
-	<?php echo $rtl ? ' is-rtl' : '';?>"
+	<?php echo $rtl ? ' is-rtl' : '';?>
+	<?php echo $this->responsiveClass();?>
+	"
+
 	data-ed-wrapper
 >
 	<?php if ($miniheader) { ?>
@@ -50,10 +37,6 @@ document.addEventListener('DOMContentLoaded', function(){
 
 	<?php if ($this->config->get('main_copyright_link_back')) { ?>
 		<?php echo DISCUSS_POWERED_BY; ?>
-	<?php } ?>
-
-	<?php if (JRequest::getVar('tmpl') != 'component') { ?>
-		<?php echo ED::profiler()->html();?>
 	<?php } ?>
 
 	<input type="hidden" class="easydiscuss-token" value="<?php echo ED::getToken();?>" data-ed-token />

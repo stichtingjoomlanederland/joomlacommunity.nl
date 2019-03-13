@@ -28,7 +28,7 @@ $(function() {
                 csrf_token: JoomlatoolsMigrator.token
             },
             headers: {
-                'X-Requested-With': 'xmlhttprequest'
+                'X-Requested-With': 'XMLHttpRequest'
             },
             filters : [
                 {title : "Zip files", extensions : "zip"}

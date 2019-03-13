@@ -64,10 +64,11 @@ $listDirn	= $this->escape($this->state->get('list.direction', 'DESC')); ?>
 						</td>
 						
 						<td align="center" class="center">
-							<span class="<?php echo RSTooltip::tooltipClass(); ?>" title="<?php echo RSTooltip::tooltipText($item->email.'<br />'.JText::sprintf('COM_RSCOMMENTS_AUTHOR_INFO_NAME',$item->name).'<br/>'.JText::sprintf('COM_RSCOMMENTS_AUTHOR_INFO_SITE',$item->website).'<br/>'.JText::sprintf('COM_RSCOMMENTS_AUTHOR_INFO_IP',str_replace(':','&#058;',$item->ip))); ?>">
-								<a href="mailto:<?php echo $item->email; ?>">
-									<i class="fa fa-info-circle"></i> <?php echo $item->name; ?>
-								</a>
+							<?php $name = $item->anonymous ? ($item->name ? $item->name : JText::_('COM_RSCOMMENTS_ANONYMOUS')) : $item->name; ?>
+							<span class="<?php echo RSTooltip::tooltipClass(); ?>" title="<?php echo RSTooltip::tooltipText($item->email.'<br />'.JText::sprintf('COM_RSCOMMENTS_AUTHOR_INFO_NAME',$name).'<br/>'.JText::sprintf('COM_RSCOMMENTS_AUTHOR_INFO_SITE',$item->website).'<br/>'.JText::sprintf('COM_RSCOMMENTS_AUTHOR_INFO_IP',str_replace(':','&#058;',$item->ip))); ?>">
+								<?php if ($item->email) { ?><a href="mailto:<?php echo $item->email; ?>"><?php } ?>
+									<i class="fa fa-info-circle"></i> <?php echo $name; ?>
+								<?php if ($item->email) { ?></a><?php } ?>
 							</span>
 						</td>
 						

@@ -9,9 +9,16 @@ defined('_JEXEC') or die('Restricted access');
 
 class RsformViewSubmissions extends JViewLegacy
 {
+    protected $previewArray = array();
+    protected $staticHeaders = array();
+    protected $headers = array();
+
 	public function display($tpl = null)
 	{
-		$mainframe = JFactory::getApplication();
+        if (!JFactory::getUser()->authorise('submissions.manage', 'com_rsform'))
+        {
+            throw new Exception(JText::_('COM_RSFORM_NOT_AUTHORISED_TO_USE_THIS_SECTION'));
+        }
 		
 		JToolbarHelper::title('RSForm! Pro','rsform');
 		
@@ -27,20 +34,18 @@ class RsformViewSubmissions extends JViewLegacy
 			$this->formId = $this->get('formId');
 			$this->headers = $this->get('headers');
 			$this->staticHeaders = $this->get('staticHeaders');
-			
-			$previewArray = array();
+
 			$i = 0;
 			foreach ($this->staticHeaders as $header)
 			{
 				$i++;
-				$previewArray[] = 'Value '.$i;
+				$this->previewArray[] = 'Value '.$i;
 			}
 			foreach ($this->headers as $header)
 			{
 				$i++;
-				$previewArray[] = 'Value '.$i;
+				$this->previewArray[] = 'Value '.$i;
 			}
-			$this->previewArray = $previewArray;
 			
 			$this->formTitle = $this->get('formTitle');
 			$this->exportSelected = $this->get('exportSelected');
@@ -48,27 +53,72 @@ class RsformViewSubmissions extends JViewLegacy
 			$this->exportAll = $this->exportSelectedCount == 0;
 			$this->exportType = $this->get('exportType');
 			$this->exportFile = $this->get('exportFile');
-			
-			$formTitle = $this->get('formTitle');
-			JToolbarHelper::title('RSForm! Pro <small>['.JText::sprintf('RSFP_EXPORTING', $this->exportType, $formTitle).']</small>','rsform');
+
+			JToolbarHelper::title('RSForm! Pro <small>['.JText::sprintf('RSFP_EXPORTING', $this->exportType, $this->formTitle).']</small>','rsform');
 			
 			// tabs
 			$this->tabs = $this->get('RSTabs');
 		}
+        elseif ($layout == 'import')
+        {
+            JToolbarHelper::custom('submissions.importtask', 'archive', 'archive', JText::_('COM_RSFORM_IMPORT_SUBMISSIONS'), false);
+            JToolbarHelper::spacer();
+            JToolbarHelper::cancel('submissions.manage');
+
+            $this->formId = $this->get('formId');
+            $this->headers = $this->get('headers');
+            $this->staticHeaders = $this->get('staticHeaders');
+            $this->formTitle = $this->get('formTitle');
+            $this->previewData = $this->get('previewImportData');
+            $this->countHeaders = $this->previewData ? count(reset($this->previewData)) : 0;
+
+            $options = array(
+                JHtml::_('select.option', '', JText::_('COM_RSFORM_IMPORT_IGNORE'))
+            );
+            foreach ($this->staticHeaders as $header)
+            {
+                $options[] = JHtml::_('select.option', $header);
+            }
+            foreach ($this->headers as $header)
+            {
+                $options[] = JHtml::_('select.option', $header);
+            }
+            $this->options = JHtml::_('select.options', $options);
+
+            JToolbarHelper::title('RSForm! Pro <small>['.JText::sprintf('COM_RSFORM_IMPORTING', $this->formTitle).']</small>','rsform');
+        }
 		elseif ($layout == 'exportprocess')
 		{
-			$this->limit = 500;
-			$this->total = $this->get('exportTotal');
-			$this->file = JFactory::getApplication()->input->getCmd('ExportFile');
-			$this->exportType = JFactory::getApplication()->input->getCmd('exportType');
-			$this->formId	= $this->get('FormId');
-			
-			$formTitle = $this->get('formTitle');
-			JToolbarHelper::title('RSForm! Pro <small>['.JText::sprintf('RSFP_EXPORTING', $this->exportType, $formTitle).']</small>','rsform');
-			
+			$this->limit        = 500;
+			$this->total        = $this->get('exportTotal');
+			$this->file         = JFactory::getApplication()->input->getCmd('ExportFile');
+			$this->exportType   = JFactory::getApplication()->input->getCmd('exportType');
+			$this->formId	    = $this->get('FormId');
+
+			JToolbarHelper::title('RSForm! Pro <small>['.JText::sprintf('RSFP_EXPORTING', $this->exportType, $this->get('formTitle')).']</small>','rsform');
+
 			JToolbarHelper::custom('submissions.cancelform', 'previous', 'previous', JText::_('RSFP_BACK_TO_FORM'), false);
 			JToolbarHelper::custom('submissions.back', 'database', 'database', JText::_('RSFP_SUBMISSIONS'), false);
-		}
+        }
+        elseif ($layout == 'importprocess')
+        {
+            $this->limit    = 500;
+            $this->total    = $this->get('importTotal');
+            $this->formId	= $this->get('FormId');
+
+            JToolbarHelper::title('RSForm! Pro <small>['.JText::sprintf('COM_RSFORM_IMPORTING', $this->get('formTitle')).']</small>','rsform');
+
+            JToolbarHelper::custom('submissions.cancelform', 'previous', 'previous', JText::_('RSFP_BACK_TO_FORM'), false);
+            JToolbarHelper::custom('submissions.back', 'database', 'database', JText::_('RSFP_SUBMISSIONS'), false);
+        }
+        elseif ($layout == 'import')
+        {
+            $this->limit    = 500;
+            $this->formId   = $this->get('FormId');
+
+            JToolbarHelper::custom('submissions.cancelform', 'previous', 'previous', JText::_('RSFP_BACK_TO_FORM'), false);
+            JToolbarHelper::custom('submissions.back', 'database', 'database', JText::_('RSFP_SUBMISSIONS'), false);
+        }
 		elseif ($layout == 'edit')
 		{
 			JToolbarHelper::custom('submission.export.pdf', 'archive', 'archive', JText::_('RSFP_EXPORT_PDF'), false);
@@ -87,10 +137,18 @@ class RsformViewSubmissions extends JViewLegacy
 		}
 		else
 		{
-			JToolbarHelper::modal('exportModal', 'icon-archive icon white', 'RSFP_EXPORT');
-			JToolbarHelper::custom('submissions.cancelform', 'previous', 'previous', JText::_('RSFP_BACK_TO_FORM'), false);
-			JToolbarHelper::spacer();
-			JToolbarHelper::custom('submissions.resend', 'mail', 'mail', JText::_('RSFP_RESEND_EMAILS'), false);
+		    $this->user = JFactory::getUser();
+
+            if ($this->user->authorise('forms.manage', 'com_rsform'))
+            {
+                JToolbarHelper::custom('submissions.cancelform', 'previous', 'previous', JText::_('RSFP_BACK_TO_FORM'), false);
+                JToolbarHelper::spacer();
+            }
+
+			JToolbarHelper::custom('submissions.resend', 'mail', 'mail', JText::_('RSFP_RESEND_EMAILS'), true);
+            JToolbarHelper::modal('exportModal', 'icon-archive icon white', 'RSFP_EXPORT');
+            JToolbarHelper::modal('importModal', 'icon-upload icon white', 'COM_RSFORM_IMPORT_SUBMISSIONS');
+            JToolbarHelper::spacer();
 			JToolbarHelper::editList('submissions.edit', JText::_('JTOOLBAR_EDIT'));
 			JToolbarHelper::deleteList(JText::_('RSFP_ARE_YOU_SURE_DELETE'), 'submissions.delete', JText::_('JTOOLBAR_DELETE'));
 			JToolbarHelper::spacer();
@@ -98,9 +156,8 @@ class RsformViewSubmissions extends JViewLegacy
 			
 			$forms = $this->get('forms');
 			$formId = $this->get('formId');
-		
-			$formTitle = $this->get('formTitle');
-			JToolbarHelper::title('RSForm! Pro <small>['.$formTitle.']</small>','rsform');
+
+			JToolbarHelper::title('RSForm! Pro <small>['.$this->get('formTitle').']</small>','rsform');
 			
 			$this->form = RSFormProHelper::getForm($formId);
 		
@@ -130,7 +187,7 @@ class RsformViewSubmissions extends JViewLegacy
 		parent::display($tpl);
 	}
 	
-	function isHeaderEnabled($header, $static=0)
+	public function isHeaderEnabled($header, $static=0)
 	{
 		if (!isset($this->headersEnabled))
 			$this->headersEnabled = $this->get('headersEnabled');
@@ -144,6 +201,13 @@ class RsformViewSubmissions extends JViewLegacy
 		
 		return in_array($header, $this->headersEnabled->{$array});
 	}
+
+	public function getHeaderLabel($header)
+    {
+        JFactory::getApplication()->triggerEvent('rsfp_bk_onGetHeaderLabel', array(&$header, $this->formId));
+
+        return $header;
+    }
 	
 	protected function addToolbar() {
 		static $called;

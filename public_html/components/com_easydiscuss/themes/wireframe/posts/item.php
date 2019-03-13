@@ -1,8 +1,8 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -164,25 +164,36 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<div class="o-row">
 			<?php if (!$post->isAnonymous()) { ?>
 				<div class="o-col-sm">
-					<div class="o-flag">
-						<div class="o-flag__image o-flag--top">
-							<?php echo $this->html('user.avatar', $post->getOwner(), array('rank' => true, 'status' => true)); ?>
-						</div>
-						<div class="o-flag__body">
-							<div class="">
-								<a href="<?php echo $post->getOwner()->getLink();?>" class="ed-user-name"><?php echo $post->getOwner()->getName();?></a>
-								<?php if($this->config->get('layout_profile_roles') && $post->getOwner()->getRole() ) { ?>
-									<span class="ed-user-role-label o-label o-label--<?php echo $post->getOwner()->getRoleLabelClassname()?>"><?php echo $post->getOwner()->getRole(); ?></span>
-								<?php } ?>
-							</div>
+					<div class="o-grid">
+						<div class="o-grid__cell o-grid__cell--auto-size t-lg-pr--md t-xs-pb--md">
+							<div class="o-flag">
+								<div class="o-flag__image o-flag--top">
+									<?php echo $this->html('user.avatar', $post->getOwner(), array('rank' => true, 'status' => true)); ?>
+								</div>
+								<div class="o-flag__body">
+									<div class="">
+										<a href="<?php echo $post->getOwner()->getLink();?>" class="ed-user-name"><?php echo $post->getOwner()->getName();?></a>
+										<?php if($this->config->get('layout_profile_roles') && $post->getOwner()->getRole() ) { ?>
+											<span class="ed-user-role-label o-label o-label--<?php echo $post->getOwner()->getRoleLabelClassname()?>"><?php echo $post->getOwner()->getRole(); ?></span>
+										<?php } ?>
+									</div>
 
-							<?php if( $this->config->get('main_ranking')){ ?>
-							<div class="ed-user-rank"><?php echo $this->escape(ED::getUserRanks($post->getOwner()->id)); ?></div>
-							<?php } ?>
+									<?php if( $this->config->get('main_ranking')){ ?>
+									<div class="ed-user-rank"><?php echo $this->escape(ED::getUserRanks($post->getOwner()->id)); ?></div>
+									<?php } ?>
+								</div>
+							</div>
 						</div>
+
+						<?php if ($this->config->get('layout_badges_in_post') && $post->getOwner()->hasUserBadges()) { ?>
+						<div class="o-grid__cell o-grid__cell--auto-size o-grid__cell--center t-lg-pr--md">
+							<?php echo ED::badges()->getPostHtml($post->getOwner()->id); ?>
+						</div>
+						<?php } ?>
 					</div>
 				</div>
 			<?php } ?>
+			
 			<?php if ($post->isAnonymous()) { ?>
 				<div class="o-col-sm">
 					<div class="o-flag">
@@ -200,11 +211,17 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="o-col-sm">
 				<ol class="g-list-inline g-list-inline--dashed pull-right ed-post-meta-cat">
 					<li><a href="<?php echo $post->getCategory()->getPermalink();?>" class=""><?php echo JText::_($post->getCategory()->title);?></a></li>
+
 					<?php if ($post->hasAttachments()) { ?>
-					<li><i class="fa fa-file"></i></li>
+					<li>
+						<i class="fa fa-file" data-ed-provide="tooltip" data-title="<?php echo JText::_('COM_ED_HAS_ATTACHMENTS');?>"></i>
+					</li>
 					<?php } ?>
+
 					<?php if ($post->hasPolls()) { ?>
-					<li><i class="fa fa-bar-chart"></i></li>
+					<li>
+						<i class="fa fa-pie-chart" data-ed-provide="tooltip" data-title="<?php echo JText::_('COM_ED_HAS_POLL');?>"></i>
+					</li>
 					<?php } ?>
 				</ol>
 			</div>

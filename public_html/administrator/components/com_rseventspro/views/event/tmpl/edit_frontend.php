@@ -8,37 +8,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 $eventOptions = $this->eventClass->getEventOptions(); ?>
 
 <div class="row-fluid">
-	<div class="span4">
-		<legend><?php echo JText::_('COM_RSEVENTSPRO_SHARING_OPTIONS'); ?></legend>
-		
-		<div class="control-group">
-			<label class="checkbox">
-				<input type="checkbox" name="jform[options][enable_rating]" value="1" <?php echo (isset($eventOptions['enable_rating']) && $eventOptions['enable_rating'] == 1) ? 'checked="checked"' : ''; ?> />
-				<?php echo JText::_('COM_RSEVENTSPRO_ENABLE_EVENT_RATING'); ?>
-			</label>
-			
-			<label class="checkbox">
-				<input type="checkbox" name="jform[options][enable_fb_like]" value="1" <?php echo (isset($eventOptions['enable_fb_like']) && $eventOptions['enable_fb_like'] == 1) ? 'checked="checked"' : ''; ?> />
-				<?php echo JText::_('COM_RSEVENTSPRO_ENABLE_FACEBOOK_LIKE'); ?>
-			</label>
-			
-			<label class="checkbox">
-				<input type="checkbox" name="jform[options][enable_twitter]" value="1" <?php echo (isset($eventOptions['enable_twitter']) && $eventOptions['enable_twitter'] == 1) ? 'checked="checked"' : ''; ?> />
-				<?php echo JText::_('COM_RSEVENTSPRO_ENABLE_TWITTER'); ?>
-			</label>
-			
-			<label class="checkbox">
-				<input type="checkbox" name="jform[options][enable_gplus]" value="1" <?php echo (isset($eventOptions['enable_gplus']) && $eventOptions['enable_gplus'] == 1) ? 'checked="checked"' : ''; ?> />
-				<?php echo JText::_('COM_RSEVENTSPRO_ENABLE_GOOGLEPLUS'); ?>
-			</label>
-			
-			<label class="checkbox">
-				<input type="checkbox" name="jform[options][enable_linkedin]" value="1" <?php echo (isset($eventOptions['enable_linkedin']) && $eventOptions['enable_linkedin'] == 1) ? 'checked="checked"' : ''; ?> />
-				<?php echo JText::_('COM_RSEVENTSPRO_ENABLE_LINKEDIN'); ?>
-			</label>
-		</div>
-	</div>
-	
+
 	<div class="span4">
 		<legend><?php echo JText::_('COM_RSEVENTSPRO_EVENT_OPTIONS_DETAIL'); ?></legend>
 		
@@ -148,6 +118,41 @@ $eventOptions = $this->eventClass->getEventOptions(); ?>
 				<?php echo JText::_('COM_RSEVENTSPRO_SHOW_PRINT'); ?>
 			</label>
 			
+			<label class="checkbox">
+				<input type="checkbox" name="jform[options][show_counter]" value="1" <?php echo (isset($eventOptions['show_counter']) && $eventOptions['show_counter'] == 1) ? 'checked="checked"' : ''; ?> />
+				<span class="hasTooltip" title="<?php echo JText::_('COM_RSEVENTSPRO_SHOW_COUNTER_DESC'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_COUNTER'); ?></span>
+			</label>
+			
+			<label class="checkbox">
+				<input type="checkbox" name="jform[options][counter_utc]" value="1" <?php echo (isset($eventOptions['counter_utc']) && $eventOptions['counter_utc'] == 1) ? 'checked="checked"' : ''; ?> />
+				<span class="hasTooltip" title="<?php echo JText::_('COM_RSEVENTSPRO_COUNTER_UTC_DESC'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_COUNTER_UTC'); ?></span>
+			</label>
+			
+			<label class="checkbox">
+				<input type="checkbox" name="jform[options][enable_rating]" value="1" <?php echo (isset($eventOptions['enable_rating']) && $eventOptions['enable_rating'] == 1) ? 'checked="checked"' : ''; ?> />
+				<?php echo JText::_('COM_RSEVENTSPRO_ENABLE_EVENT_RATING'); ?>
+			</label>
+			
+			<label class="checkbox">
+				<input type="checkbox" name="jform[options][enable_fb_like]" value="1" <?php echo (isset($eventOptions['enable_fb_like']) && $eventOptions['enable_fb_like'] == 1) ? 'checked="checked"' : ''; ?> />
+				<?php echo JText::_('COM_RSEVENTSPRO_ENABLE_FACEBOOK_LIKE'); ?>
+			</label>
+			
+			<label class="checkbox">
+				<input type="checkbox" name="jform[options][enable_twitter]" value="1" <?php echo (isset($eventOptions['enable_twitter']) && $eventOptions['enable_twitter'] == 1) ? 'checked="checked"' : ''; ?> />
+				<?php echo JText::_('COM_RSEVENTSPRO_ENABLE_TWITTER'); ?>
+			</label>
+			
+			<label class="checkbox">
+				<input type="checkbox" name="jform[options][enable_gplus]" value="1" <?php echo (isset($eventOptions['enable_gplus']) && $eventOptions['enable_gplus'] == 1) ? 'checked="checked"' : ''; ?> />
+				<?php echo JText::_('COM_RSEVENTSPRO_ENABLE_GOOGLEPLUS'); ?>
+			</label>
+			
+			<label class="checkbox">
+				<input type="checkbox" name="jform[options][enable_linkedin]" value="1" <?php echo (isset($eventOptions['enable_linkedin']) && $eventOptions['enable_linkedin'] == 1) ? 'checked="checked"' : ''; ?> />
+				<?php echo JText::_('COM_RSEVENTSPRO_ENABLE_LINKEDIN'); ?>
+			</label>
+			
 		</div>
 	</div>
 	
@@ -215,6 +220,27 @@ $eventOptions = $this->eventClass->getEventOptions(); ?>
 				<?php echo JText::_('COM_RSEVENTSPRO_SHOW_ICON'); ?>
 			</label>
 			
+		</div>
+	</div>
+	
+	<div class="span4">
+		<legend><?php echo JText::_('COM_RSEVENTSPRO_EVENT_MESSAGES'); ?></legend>
+		
+		<div class="control-group">
+			<div class="control-label">
+				<label for="jform_event_ended"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_ENDED'); ?></label>
+			</div>
+			<div class="controls">
+				<textarea class="span10" name="jform[event_ended]" id="jform_event_ended" rows="5"><?php echo $this->escape($this->item->event_ended); ?></textarea>
+			</div>
+		</div>
+		<div class="control-group">
+			<div class="control-label">
+				<label for="jform_event_full"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_FULL'); ?></label>
+			</div>
+			<div class="controls">
+				<textarea class="span10" name="jform[event_full]" id="jform_event_full" rows="5"><?php echo $this->escape($this->item->event_full); ?></textarea>
+			</div>
 		</div>
 	</div>
 </div>

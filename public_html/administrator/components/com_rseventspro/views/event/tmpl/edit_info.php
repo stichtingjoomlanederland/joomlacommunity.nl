@@ -61,23 +61,36 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 		<?php $alldaychecked = $this->item->allday ? 'checked="checked"' : ''; ?>
 		<input type="checkbox" id="jform_allday" name="jform[allday]" value="1" <?php echo $alldaychecked; ?> /> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_ALL_DAY'); ?>
 	</label>
+</div>
 
-	<?php if (empty($this->item->parent)) { ?>
+<?php if (empty($this->item->parent)) { ?>
+<div class="control-group">
 	<label class="checkbox">
 		<?php $recurringchecked = $this->item->recurring ? 'checked="checked"' : ''; ?>
 		<input type="checkbox" id="jform_recurring" name="jform[recurring]" value="1" <?php echo $recurringchecked; ?> /> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_RECURRING'); ?>
 		<small class="text-info" style="display: <?php echo $this->item->recurring ? 'inline-block' : 'none'; ?>"><i class="fa fa-lightbulb-o"></i> <?php echo JText::sprintf('COM_RSEVENTSPRO_EVENT_RECURING_TIMES','<span id="rs_repeating_event_total">'.$this->eventClass->getChild().'</span>'); ?></small>
 	</label>
-	<?php } ?>
+</div>
+<?php } ?>
 	
+<div class="control-group">
 	<label class="checkbox">
 		<?php $commentschecked = $this->item->comments ? 'checked="checked"' : ''; ?>
 		<input type="checkbox" id="jform_comments" name="jform[comments]" value="1" <?php echo $commentschecked; ?> /> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_ENABLE_COMMENTS'); ?>
 	</label>
+</div>
 
-	<label class="checkbox">
-		<?php $registrationchecked = $this->item->registration ? 'checked="checked"' : ''; ?>
-		<input type="checkbox" id="jform_registration" name="jform[registration]" value="1" <?php echo $registrationchecked; ?> /> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_ENABLE_REGISTRATION'); ?>
+<div class="control-group">
+	<label class="checkbox<?php echo $this->item->rsvp ? ' muted' : ''; ?>" id="jform_registration_label">
+		<?php $registrationOptions = $this->item->registration ? 'checked="checked"' : ($this->item->rsvp ? 'disabled="disabled"' : ''); ?>
+		<input type="checkbox" id="jform_registration" name="jform[registration]" value="1" <?php echo $registrationOptions; ?> /> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_ENABLE_REGISTRATION'); ?>
+	</label>
+</div>
+	
+<div class="control-group">
+	<label class="checkbox<?php echo $this->item->registration ? ' muted' : ''; ?>" id="jform_rsvp_label">
+		<?php $rsvpOptions = $this->item->rsvp ? 'checked="checked"' : ($this->item->registration ? 'disabled="disabled"' : ''); ?>
+		<input type="checkbox" id="jform_rsvp" name="jform[rsvp]" value="1" <?php echo $rsvpOptions; ?> /> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_ENABLE_RSVP'); ?>
 	</label>
 </div>
 
@@ -105,6 +118,14 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 				</div>
 				<div class="control-group">
 					<div class="control-label">
+						<label for="location_URL"><?php echo JText::_('COM_RSEVENTSPRO_LOCATION_URL'); ?></label>
+					</div>
+					<div class="controls">
+						<input class="span10" type="text" value="" id="location_URL" name="location_URL" />
+					</div>
+				</div>
+				<div class="control-group">
+					<div class="control-label">
 						<label for="location_description"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_LOCATION_DESCRIPTION'); ?></label>
 					</div>
 					<div class="controls">
@@ -128,6 +149,17 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 			</div>
 		</div>
 		
+	</div>
+</div>
+
+<div class="control-group">
+	<div class="control-label">
+		<label for="speakers"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_SPEAKERS'); ?></label>
+	</div>
+	<div class="controls">
+		<select name="speakers[]" id="speakers" multiple="multiple" class="rsepro-chosen">
+			<?php echo JHtml::_('select.options', $this->eventClass->speakers(),'value','text',$this->eventClass->getSpeakers()); ?>
+		</select>
 	</div>
 </div>
 

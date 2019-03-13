@@ -23,6 +23,7 @@ Files.App = new Class({
         root_path: '',
         root_text: 'Root folder',
         cookie: {
+            name: null,
             path: '/'
         },
         persistent: true,
@@ -157,7 +158,11 @@ Files.App = new Class({
 
         this.fireEvent('onInitialize', this);
 
-        if (this.options.persistent && this.options.container) {
+        if (this.options.cookie.name) {
+            this.cookie = this.options.cookie.name;
+        }
+
+        if (this.cookie === null && this.options.persistent && this.options.container) {
             var container = typeof this.options.container === 'string' ? this.options.container : this.options.container.slug;
             this.cookie = 'com.files.container.'+container;
         }
@@ -209,7 +214,7 @@ Files.App = new Class({
     setState: function() {
         this.fireEvent('beforeSetState');
 
-        if (this.cookie) {
+        if (this.cookie && this.options.persistent) {
             var state = Cookie.read(this.cookie+'.state'),
                 obj   = JSON.decode(state, true);
 
@@ -586,6 +591,7 @@ Files.App = new Class({
 
                     this.container.removeClass('k-'+remove).addClass('k-'+layout);
                     kQuery('#files-grid-container').removeClass('k-'+remove+'-container').addClass('k-'+layout+'-container');
+                    kQuery('#files-paginator-container').removeClass('k-'+remove+'-pagination').addClass('k-'+layout+'-pagination');
                 }
 
                 if (key) {
@@ -597,13 +603,17 @@ Files.App = new Class({
 
                 if (that.grid) {
                     that.setThumbnails();
+                    kodekitUI.gallery();
                 }
             },
             onSetState: function(state) {
                 this.state.set(state);
 
                 this.navigate();
-            }.bind(this)
+            }.bind(this),
+            onAfterInsertRows: function() {
+                this.setFootable();
+            }
         });
         this.grid = new Files.Grid(this.options.grid.element, opts);
 
@@ -830,15 +840,14 @@ Files.App = new Class({
 
         var nodes = this.grid.nodes,
             that = this;
-        if (nodes.getLength()) {
-            nodes.each(function(node) {
-                if (node.filetype !== 'image') {
-                    return;
-                }
-                var name = node.name;
-
+        if (nodes.getLength())
+        {
+            nodes.each(function(node)
+            {
                 var img = node.element.getElement('img.image-thumbnail');
-                if (img) {
+
+                if (img)
+                {
                     img.addEvent('load', function(){
                         this.addClass('loaded');
                     });
@@ -846,7 +855,9 @@ Files.App = new Class({
                     var source = Files.blank_image;
 
                     if (node.thumbnail) {
-                        source = Files.sitebase + '/' + node.thumbnail.relative_path;
+                        source = Files.sitebase + '/' + node.encodePath(node.thumbnail.relative_path, Files.urlEncoder);
+                    } else if (node.download_link) {
+                        source = node.download_link;
                     }
 
                     img.set('src', source);

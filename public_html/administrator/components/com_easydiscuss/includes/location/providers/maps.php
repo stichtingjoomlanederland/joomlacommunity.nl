@@ -13,52 +13,62 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussLocationMaps
 {
-    protected $queries = array(
-                                'latlng' => '',
-                                'address' => '',
-                                'key' => ''
-                        );
+	protected $queries = array(
+								'latlng' => '',
+								'address' => '',
+								'key' => ''
+						);
 
-    public $url = 'https://maps.googleapis.com/maps/api/geocode/json';
+	public $url = 'https://maps.googleapis.com/maps/api/geocode/json';
 
-    public function setCoordinates($lat, $lng)
-    {
-        return $this->setQuery('latlng', $lat . ',' . $lng);
-    }
+	public function setCoordinates($lat, $lng)
+	{
+		return $this->setQuery('latlng', $lat . ',' . $lng);
+	}
 
-    public function setSearch($search = '')
-    {
-        return $this->setQuery('address', $search);
-    }
+	public function setSearch($search = '')
+	{
+		return $this->setQuery('address', $search);
+	}
 
-    public function geocode($address)
-    {
-        $address = urlencode($address);
+	public function geocode($address)
+	{
+		$address = urlencode($address);
 
-        $connector = ED::connector();
-        $connector->setMethod('GET');
-        $connector->addUrl($this->url . '?address=' . $address);
-        $connector->execute();
+		$config = ED::config();
+		$key = $config->get('main_location_gmaps_key');
 
-        $result = $connector->getResult();
+		// form the url
+		$url = $this->url . '?key=' . $key;
+		if ($config->get("main_location_language")) {
+			$url .= '&language=' . $config->get("main_location_language");
+		}
+		$url .= '&address=' . $address;
 
-        $result = json_decode($result);
+		$connector = ED::connector();
+		$connector->setMethod('GET');
+		$connector->addUrl($url);
+		$connector->execute();
 
-        $venues = array();
+		$result = $connector->getResult();
 
-        foreach ($result->results as $row) {
-            $obj = new stdClass();
-            $obj->latitude = $row->geometry->location->lat;
-            $obj->longitude = $row->geometry->location->lng;
-            $obj->name = $row->address_components[0]->long_name;
-            $obj->address = $row->formatted_address;
-            $obj->formatted_address = $obj->address;
-            $obj->fulladdress = $row->formatted_address;
-            $obj->reloadmap = true;
+		$result = json_decode($result);
 
-            $venues[] = $obj;
-        }
+		$venues = array();
 
-        return $venues;
-    }
+		foreach ($result->results as $row) {
+			$obj = new stdClass();
+			$obj->latitude = $row->geometry->location->lat;
+			$obj->longitude = $row->geometry->location->lng;
+			$obj->name = $row->address_components[0]->long_name;
+			$obj->address = $row->formatted_address;
+			$obj->formatted_address = $obj->address;
+			$obj->fulladdress = $row->formatted_address;
+			$obj->reloadmap = true;
+
+			$venues[] = $obj;
+		}
+
+		return $venues;
+	}
 }

@@ -29,7 +29,7 @@ $button_size   = 'btn-'.(isset($button_size) ? $button_size : 'small');
             'url'    => (string)helper('route.document',array('entity' => $document), true, false),
             'params' => array(
                 'csrf_token' => object('user')->getSession()->getToken(),
-                '_action'    => 'delete',
+                '_method'    => 'delete',
                 '_referrer'  => base64_encode((string) object('request')->getUrl())
             )
         );
@@ -50,7 +50,8 @@ $button_size   = 'btn-'.(isset($button_size) ? $button_size : 'small');
             data-url="<?= escape($data['url']) ?>"
             data-params="<?= escape(json_encode($data['params'])) ?>"
             data-prompt="<?= escape(translate('You will not be able to bring this item back if you delete it. Would you like to continue?')) ?>"
-           >
+            data-document="<?= $document->uuid ?>"
+            >
             <?= translate('Delete') ?>
         </a>
     <? endif ?>

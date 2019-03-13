@@ -33,14 +33,16 @@ class EasyDiscussViewProfile extends EasyDiscussView
 
 		$profile = ED::user($profileId);
 
+		$tabTitle = JText::_('COM_EASYDISCUSS_PROFILE_TAB_' . strtoupper($type));
+
 		// Append page title.
-		$pageTitle = JText::sprintf('COM_EASYDISCUSS_PROFILE_PAGE_TITLE', $profile->getName(), $type);
+		$pageTitle = JText::sprintf('COM_EASYDISCUSS_PROFILE_PAGE_TITLE', $profile->getName(), $tabTitle);
 
 		if ($type == 'easyblog') {
 			$helperFile = JPATH_ADMINISTRATOR . '/components/com_easyblog/includes/easyblog.php';
 
 			if (!$this->easyblog()) {
-				$contents = JText::_( 'COM_EASYDISCUSS_EASYBLOG_DOES_NOT_EXIST' );
+				$contents = JText::_('COM_EASYDISCUSS_EASYBLOG_DOES_NOT_EXIST');
 			} else {
 				$blogModel = EB::model('Blog');
 				$blogs = $blogModel->getBlogsBy('blogger', $profileId);
@@ -58,8 +60,9 @@ class EasyDiscussViewProfile extends EasyDiscussView
 					$contents .= $theme->output('site/profile/simple.item');
 				}
 			}
-
-			$this->ajax->resolve($contents, $pagination, JText::_('COM_EASYDISCUSS_EMPTY_LIST'));
+		
+			$tabTitle = JText::_('COM_EASYDISCUSS_PROFILE_TAB_EASYBLOG');
+			$this->ajax->resolve($contents, $pagination, $pageTitle);
 			return $this->ajax->send();
 		}
 
@@ -109,7 +112,7 @@ class EasyDiscussViewProfile extends EasyDiscussView
 			$pagination = $model->getPagination();
 		}
 
- 		if ($type == 'favourites') {
+		if ($type == 'favourites') {
 
 			$options = array(
 				'userId' => $profileId,
@@ -181,22 +184,21 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		return true;
 	}
 
-	public function filter( $viewtype = 'user-post', $profileId = null)
+	public function filter($viewtype = 'user-post', $profileId = null)
 	{
-		$ajax		= new Disjax();
-		$mainframe	= JFactory::getApplication();
-		$config		= DiscussHelper::getConfig();
-		$acl		= DiscussHelper::getHelper( 'ACL' );
+		$ajax = new Disjax();
+		$mainframe = JFactory::getApplication();
+		$config = DiscussHelper::getConfig();
+		$acl = DiscussHelper::getHelper('ACL');
 
-		$sort		= 'latest';
-		$data		= null;
-		$pagination	= null;
-		$model		= ED::model('Posts');
-		$tagsModel	= ED::model( 'Tags' );
+		$sort = 'latest';
+		$data = null;
+		$pagination = null;
+		$model = ED::model('Posts');
+		$tagsModel = ED::model('Tags');
 
 
-		switch( $viewtype )
-		{
+		switch ($viewtype) {
 			case 'user-achievements':
 
 				$profile = ED::user($profileId);
@@ -205,89 +207,77 @@ class EasyDiscussViewProfile extends EasyDiscussView
 				break;
 
 			case 'user-tags':
-				$data	= $tagsModel->getTagCloud( '' , '' , '' , $profileId );
+				$data = $tagsModel->getTagCloud('', '', '', $profileId);
 				break;
 
 			case 'user-replies':
-				$data		= $model->getRepliesFromUser( $profileId, 'lastreplied' );
-				$pagination	= $model->getPagination();
-				DiscussHelper::formatPost( $data );
+				$data = $model->getRepliesFromUser($profileId, 'lastreplied');
+				$pagination = $model->getPagination();
+				DiscussHelper::formatPost($data);
 				break;
 
 			case 'user-unresolved':
-				$data	= $model->getUnresolvedFromUser( $profileId );
-				$pagination	= $model->getPagination();
-				DiscussHelper::formatPost( $data );
+				$data = $model->getUnresolvedFromUser($profileId);
+				$pagination = $model->getPagination();
+				DiscussHelper::formatPost($data);
 
 				break;
 
 			case 'user-post':
 			default:
 
-				if( is_null($profileId) )
-				{
+				if (is_null($profileId)) {
 					break;
 				}
 
-				$model		= ED::model('Posts');
-				$data		= $model->getPostsBy( 'user' , $profileId );
-				$data		= DiscussHelper::formatPost($data);
-				$pagination	= $model->getPagination();
+				$model = ED::model('Posts');
+				$data = $model->getPostsBy('user', $profileId);
+				$data = DiscussHelper::formatPost($data);
+				$pagination = $model->getPagination();
 				break;
 		}
 
 		// replace the content
-		$content	= '';
-		$tpl		= new DiscussThemes();
+		$content = '';
+		$tpl = new DiscussThemes();
 
-		$tpl->set( 'profileId' , $profileId );
+		$tpl->set('profileId', $profileId);
 
-		if( $viewtype == 'user-post' || $viewtype == 'user-replies' || $viewtype == 'user-unresolved')
-		{
-			$nextLimit		= DiscussHelper::getListLimit();
-			if( $nextLimit >= $pagination->total )
-			{
-				// $ajax->remove( 'dc_pagination' );
-				$ajax->assign( $viewtype . ' #dc_pagination', '' );
+		if ($viewtype == 'user-post' || $viewtype == 'user-replies' || $viewtype == 'user-unresolved') {
+			$nextLimit = DiscussHelper::getListLimit();
+			if ($nextLimit >= $pagination->total) {
+				$ajax->assign($viewtype . ' #dc_pagination', '');
 			}
 
-			$tpl->set( 'posts'		, $data );
-			$content	= $tpl->fetch( 'main.item.php' );
+			$tpl->set('posts', $data);
+			$content = $tpl->fetch('main.item.php');
 
-			$ajax->assign( $viewtype . ' #dc_list' , $content );
+			$ajax->assign($viewtype . ' #dc_list', $content);
 
 			//reset the next start limi
-			$ajax->value( 'pagination-start' , $nextLimit );
+			$ajax->value('pagination-start', $nextLimit);
 
-			if( $nextLimit < $pagination->total )
-			{
+			if ($nextLimit < $pagination->total) {
 				$filterArr  = array();
-				$filterArr['viewtype'] 		= $viewtype;
-				$filterArr['id'] 			= $profileId;
-				$ajax->assign( $viewtype . ' #dc_pagination', $pagination->getPagesLinks('profile', $filterArr, true) );
+				$filterArr['viewtype'] = $viewtype;
+				$filterArr['id'] = $profileId;
+				$ajax->assign($viewtype . ' #dc_pagination', $pagination->getPagesLinks('profile', $filterArr, true));
 			}
-		}
-		else if( $viewtype == 'user-tags' )
-		{
-			$tpl->set( 'tagCloud'		, $data );
-			$content	= $tpl->fetch( 'tags.item.php' );
+		} else if($viewtype == 'user-tags') {
+			$tpl->set('tagCloud', $data);
+			$content = $tpl->fetch('tags.item.php');
 
-			$ajax->assign( 'discuss-tag-list' , $content );
-		}
-		else if( $viewtype == 'user-achievements' )
-		{
-			$tpl->set( 'badges'		, $data );
-			$content	= $tpl->fetch( 'users.achievements.list.php' );
-			$ajax->assign( 'user-achievements' , $content );
+			$ajax->assign('discuss-tag-list' , $content);
+
+		} else if ($viewtype == 'user-achievements') {
+			$tpl->set('badges', $data);
+			$content = $tpl->fetch('users.achievements.list.php');
+			$ajax->assign('user-achievements' , $content);
 		}
 
-		$ajax->script( 'discuss.spinner.hide( "profile-loading" );' );
-
-
-		//$ajax->assign( 'sort-wrapper' , $sort );
-		//$ajax->script( 'EasyDiscuss.$("#pagination-filter").val("'.$viewtype.'");');
-		$ajax->script( 'EasyDiscuss.$("#' . $viewtype . '").show();');
-		$ajax->script( 'EasyDiscuss.$("#' . $viewtype. ' #dc_pagination").show();');
+		$ajax->script('discuss.spinner.hide("profile-loading");');
+		$ajax->script('EasyDiscuss.$("#' . $viewtype . '").show();');
+		$ajax->script('EasyDiscuss.$("#' . $viewtype. ' #dc_pagination").show();');
 
 		$ajax->send();
 	}
@@ -324,7 +314,7 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		$height = $this->input->get('h');
 
 		if (is_null($x1) && is_null($y1) && is_null($width) && is_null($height)) {
-			return $this->ajax->reject( JText::_('COM_EASYDISCUSS_AVATAR_UNABLE_TO_CROP'));
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_AVATAR_UNABLE_TO_CROP'));
 		}
 
 		$image = ED::simpleimage();
@@ -389,28 +379,28 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		// check for existance
 		$db = ED::db();
 		$query	= 'SELECT `alias` FROM `#__discuss_users` WHERE `alias` = ' . $db->quote($alias) . ' '
-				. 'AND ' . $db->nameQuote( 'id' ) . '!=' . $db->Quote( $this->my->id );
-		$db->setQuery( $query );
+				. 'AND ' . $db->nameQuote('id') . '!=' . $db->Quote($this->my->id);
+		$db->setQuery($query);
 
 		$exists = $db->loadResult();
 
-        $message = JText::_('COM_EASYDISCUSS_ALIAS_AVAILABLE');
+		$message = JText::_('COM_EASYDISCUSS_ALIAS_AVAILABLE');
 
-        if ($exists) {
-        	$message = JText::_('COM_EASYDISCUSS_ALIAS_NOT_AVAILABLE');
-        }
+		if ($exists) {
+			$message = JText::_('COM_EASYDISCUSS_ALIAS_NOT_AVAILABLE');
+		}
 
 		return $this->ajax->resolve($exists, $message);
 	}
 
 	/**
-     * Mark all post as read
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Mark all post as read
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
 	public function ajaxMarkAllRead()
 	{
 		if ($this->my->guest) {
@@ -436,13 +426,13 @@ class EasyDiscussViewProfile extends EasyDiscussView
 	}
 
 	/**
-     * show user mini header in popbox style
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * show user mini header in popbox style
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
 	public function popbox()
 	{
 		$id = $this->input->get('id', 0, 'int');
@@ -461,4 +451,30 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		return $this->ajax->resolve($contents);
 	}
 
+
+	/**
+	 * show user mini header in popbox style
+	 *
+	 * @since	4.1.0
+	 * @access	public
+	 */
+	public function confirmDownload()
+	{
+		$userId = $this->my->id;
+
+		$table = ED::table('download');
+		$table->load(array('userid' => $userId));
+		$state = $table->getState();
+
+		$email = $this->my->email;
+		$emailPart = explode('@', $email);
+		$email = JString::substr($emailPart[0], 0, 2) . '****' . JString::substr($emailPart[0], -1) . '@' . $emailPart[1];
+
+		$theme = ED::themes();
+		$theme->set('userId', $userId);
+		$theme->set('email', $email);
+		$output = $theme->output('site/user/dialogs/gdpr.confirm');
+
+		return $this->ajax->resolve($output);
+	}
 }

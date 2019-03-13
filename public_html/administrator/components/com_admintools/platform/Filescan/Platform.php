@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -62,109 +62,79 @@ class Filescan extends BasePlatform
 	 *
 	 * @return    bool    True if everything was read properly
 	 */
-	public function load_configuration($profile_id = null)
+	public function load_configuration($profile_id = null, $reset = true)
 	{
-		// Load the database class
-		$db = Factory::getDatabase($this->get_platform_database_options());
+		// Load the configuration overrides from the database
+		parent::load_configuration($profile_id, false);
 
-		// Initialize the registry
-		$registry = Factory::getConfiguration();
+		$registry         = Factory::getConfiguration();
+		$allowedOverrides = [
+			'akeeba.basic.clientsidewait',
+			'akeeba.basic.file_extensions',
+			'akeeba.basic.exclude_folders',
+			'akeeba.basic.exclude_files',
+			'akeeba.tuning.min_exec_time',
+			'akeeba.tuning.max_exec_time',
+			'akeeba.tuning.run_time_bias',
+		];
+		$overrides        = [];
+
+		foreach ($allowedOverrides as $key)
+		{
+			$v = $registry->get($key, null, false);
+
+			if (is_null($v))
+			{
+				continue;
+			}
+
+			$overrides[$key] = $v;
+		}
+
+		// Re-initialize the registry and load the default engine configuration from the JSON file
 		$registry->reset();
 
-		// 1) Load the INI format local configuration dump:
-
-		$filename = realpath(dirname(__FILE__) . '/Config/config.ini');
-		$ini_data_local = file_get_contents($filename);
+		$filename      = realpath(dirname(__FILE__) . '/Config/config.json');
+		$jsonLocalData = file_get_contents($filename);
 
 		// Configuration found. Convert to array format.
-		$ini_data_local = ParseIni::parse_ini_file_php($ini_data_local, true, true);
-		$ini_data       = array();
+		$jsonLocalData = json_decode($jsonLocalData, true);
+		$configData    = [];
 
-		foreach ($ini_data_local as $section => $row)
+		foreach ($jsonLocalData as $section => $row)
 		{
-			if (!empty($row))
+			$row = $this->arrayToRegistryDefinitions($row);
+
+			if (is_array($row) && !empty($row))
 			{
 				foreach ($row as $key => $value)
 				{
-					$ini_data["$section.$key"] = $value;
+					$configData["$section.$key"] = $value;
 				}
 			}
 		}
 
-		unset($ini_data_local);
+		unset($jsonLocalData);
 
 		// Import the configuration array
 		$protected_keys = $registry->getProtectedKeys();
 		$registry->resetProtectedKeys();
-		$registry->mergeArray($ini_data, false, false);
+		$registry->mergeArray($configData, false, false);
 		$registry->setProtectedKeys($protected_keys);
 
-		// 2) Load the INI format local configuration dump off the database:
-		$db = Factory::getDatabase($this->get_platform_database_options());
-		$sql = $db->getQuery(true)
-				  ->select($db->qn('configuration'))
-				  ->from($db->qn($this->tableNameProfiles))
-				  ->where($db->qn('id') . ' = ' . $db->q(1));
-
-		$db->setQuery($sql);
-		$ini_data_local = $db->loadResult();
-
-		if (empty($ini_data_local) || is_null($ini_data_local))
+		// Apply configuration overrides from the database
+		if (!empty($overrides))
 		{
-			// No configuration was saved yet - store the defaults
-			$this->save_configuration($profile_id);
+			$protected_keys = $registry->getProtectedKeys();
+			$registry->resetProtectedKeys();
+
+			foreach ($overrides as $k => $v)
+			{
+				$registry->set($k, $v);
+			}
+
+			$registry->setProtectedKeys($protected_keys);
 		}
-		else
-		{
-			// Configuration found. Convert to array format.
-			if (function_exists('get_magic_quotes_runtime'))
-			{
-				if (@get_magic_quotes_runtime())
-				{
-					$ini_data_local = stripslashes($ini_data_local);
-				}
-			}
-			// Decrypt the data if required
-			$ini_data_local = Factory::getSecureSettings()->decryptSettings($ini_data_local);
-			$ini_data_local = ParseIni::parse_ini_file_php($ini_data_local, true, true);
-
-			$ini_data = array();
-			foreach ($ini_data_local as $section => $row)
-			{
-				if (is_array($row) && !empty($row))
-				{
-					foreach ($row as $key => $value)
-					{
-						$ini_data["$section.$key"] = $value;
-					}
-				}
-			}
-
-			unset($ini_data_local);
-
-			$allowedOverrides = array(
-				'akeeba.basic.clientsidewait',
-				'akeeba.basic.file_extensions',
-				'akeeba.basic.exclude_folders',
-				'akeeba.basic.exclude_files',
-				'akeeba.tuning.min_exec_time',
-				'akeeba.tuning.max_exec_time',
-				'akeeba.tuning.run_time_bias',
-			);
-
-			foreach ($allowedOverrides as $key)
-			{
-				if (isset($ini_data[$key]))
-				{
-					$registry->setKeyProtection($key, false);
-					$registry->set($key, $ini_data[$key]);
-					$registry->setKeyProtection($key, true);
-				}
-			}
-		}
-
-		$registry->activeProfile = 1;
-
 
 		// Apply config overrides
 		if (is_array($this->configOverrides) && !empty($this->configOverrides))

@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -10,7 +10,7 @@ defined('_JEXEC') or die;
 /**
  * You need to set the following variables:
  *
- * $minphp = '5.4.0'; // Minimum PHP version required for your script
+ * $minphp = '5.6.0'; // Minimum PHP version required for your script
  * $curdir = __DIR__; // Path to your script file
  */
 
@@ -23,7 +23,7 @@ if (function_exists('error_reporting'))
 // Minimum PHP version check
 if (!isset($minphp))
 {
-	$minphp = '5.4.0';
+	$minphp = '5.6.0';
 }
 
 if (version_compare(PHP_VERSION, $minphp, 'lt'))

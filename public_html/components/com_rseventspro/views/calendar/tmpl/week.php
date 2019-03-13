@@ -160,38 +160,7 @@ $count = count($this->events); ?>
 <?php } ?>
 
 <?php if ($this->config->timezone) { ?>
-<div id="timezoneModal" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true">
-	<div class="modal-header">
-		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-		<h3><?php echo JText::_('COM_RSEVENTSPRO_CHANGE_TIMEZONE'); ?></h3>
-	</div>
-	<div class="modal-body">
-		<form method="post" action="<?php echo htmlentities(JUri::getInstance(), ENT_COMPAT, 'UTF-8'); ?>" id="timezoneForm" name="timezoneForm" class="form-horizontal">
-			<div class="control-group">
-				<div class="control-label">
-					<label><?php echo JText::_('COM_RSEVENTSPRO_DEFAULT_TIMEZONE'); ?></label>
-				</div>
-				<div class="controls">
-					<span class="btn disabled"><?php echo $this->timezone; ?></span>
-				</div>
-			</div>
-			<div class="control-group">
-				<div class="control-label">
-					<label for="timezone"><?php echo JText::_('COM_RSEVENTSPRO_SELECT_TIMEZONE'); ?></label>
-				</div>
-				<div class="controls">
-					<?php echo JHtml::_('rseventspro.timezones','timezone'); ?>
-				</div>
-			</div>
-			<input type="hidden" name="task" value="timezone" />
-			<input type="hidden" name="return" value="<?php echo $this->timezoneReturn; ?>" />
-		</form>
-	</div>
-	<div class="modal-footer">
-		<button class="btn" data-dismiss="modal" aria-hidden="true"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
-		<button class="btn btn-primary" type="button" onclick="document.timezoneForm.submit();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button>
-	</div>
-</div>
+<?php echo rseventsproHelper::timezoneModal(); ?>
 <?php } ?>
 
 <script type="text/javascript">

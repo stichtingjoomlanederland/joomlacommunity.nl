@@ -1,12 +1,8 @@
 <?php
 /**
- * Akeeba Engine
- * The modular PHP5 site backup engine
- *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
- * @package   akeebaengine
- *
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Platform;
@@ -99,10 +95,10 @@ class Joomla3x extends BasePlatform
 	 *
 	 * @return  bool  True if everything was read properly
 	 */
-	public function load_configuration($profile_id = null)
+	public function load_configuration($profile_id = null, $reset = true)
 	{
 		// Load the configuration
-		parent::load_configuration($profile_id);
+		parent::load_configuration($profile_id, $reset);
 
 		// If there is no embedded installer or the wrong embedded installer is selected, fix it automatically
 		$config = Factory::getConfiguration();
@@ -115,6 +111,8 @@ class Joomla3x extends BasePlatform
 			$config->set('akeeba.advanced.embedded_installer', 'angie');
 			$config->setProtectedKeys($protectedKeys);
 		}
+
+		return true;
 	}
 
 	/**
@@ -260,6 +258,11 @@ class Joomla3x extends BasePlatform
 						$root = './';
 					}
 				}
+			}
+
+			if (!in_array(substr($root, -1), ['/', '\\']))
+			{
+				$root .= DIRECTORY_SEPARATOR;
 			}
 		}
 
@@ -693,13 +696,13 @@ class Joomla3x extends BasePlatform
 		{
 			$releaseDate = new Date(AKEEBA_DATE);
 
-			if (time() - $releaseDate->toUnix() > 7776000)
+			if (time() - $releaseDate->toUnix() > 10368000)
 			{
 				if ( !isset($ret['warnings']))
 				{
 					$ret['warnings'] = array();
 					$ret['warnings'] = array_merge($ret['warnings'], array(
-						'Your version of Akeeba Backup is more than 90 days old and most likely already out of date. Please check if a newer version is published and install it.'
+						'Your version of Akeeba Backup is more than 120 days old and most likely already out of date. Please check if a newer version is published and install it.'
 					));
 				}
 			}
@@ -717,7 +720,7 @@ class Joomla3x extends BasePlatform
 				}
 
 				$ret['warnings'] = array_merge($ret['warnings'], array(
-					'Your site\'s root is using a UNC path (e.g. \\SERVER\path\to\root). PHP has known bugs which may',
+					'Your site\'s root is using a UNC path (e.g. \\\\SERVER\\path\\to\\root). PHP has known bugs which may',
 					'prevent it from working properly on a site like this. Please take a look at',
 					'https://bugs.php.net/bug.php?id=40163 and https://bugs.php.net/bug.php?id=52376. As a result your',
 					'backup may fail.'

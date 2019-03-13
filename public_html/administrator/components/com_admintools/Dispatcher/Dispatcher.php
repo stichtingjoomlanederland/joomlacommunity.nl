@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -32,6 +32,7 @@ class Dispatcher extends \FOF30\Dispatcher\Dispatcher
             'adminpw'            => 'AdminPassword',
             'badwords'           => 'BadWords',
             'badword'            => 'BadWords',
+            'cpanel'             => 'ControlPanel',
             'cleantmp'           => 'CleanTempDirectory',
             'dbchcol'            => 'ChangeDBCollation',
             'dbtools'            => 'DatabaseTools',

@@ -1,12 +1,11 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
- *
  */
 
 namespace Akeeba\Engine\Postproc;
@@ -28,8 +27,8 @@ class Cloudfiles extends Base
 	 */
 	public function __construct()
 	{
-		$this->can_delete = true;
-		$this->can_download_to_file = true;
+		$this->can_delete              = true;
+		$this->can_download_to_file    = true;
 		$this->can_download_to_browser = false;
 	}
 
@@ -50,6 +49,10 @@ class Cloudfiles extends Base
 			return false;
 		}
 
+		/** @var  string  $username */
+		/** @var  string  $apikey */
+		/** @var  string  $container */
+		/** @var  string  $directory */
 		extract($settings);
 
 		// Calculate relative remote filename
@@ -65,6 +68,9 @@ class Cloudfiles extends Base
 
 		// Do I have authorisation options already stored in the volatile settings?
 		$options = Factory::getConfiguration()->get('volatile.postproc.cloudfiles.options', array(), false);
+		$options = array_merge(array(
+			'container' => $container
+		), $options);
 
 		try
 		{
@@ -81,9 +87,9 @@ class Cloudfiles extends Base
 			// Upload the file
 			Factory::getLog()->log(LogLevel::DEBUG, 'Uploading ' . basename($absolute_filename));
 			$input = array(
-				'file'	=> $absolute_filename
+				'file' => $absolute_filename
 			);
-			$cf->putObject($input, $container, $filename, 'application/octet-stream');
+			$cf->putObject($input, $filename, 'application/octet-stream');
 		}
 		catch (\Exception $e)
 		{
@@ -107,20 +113,24 @@ class Cloudfiles extends Base
 			return false;
 		}
 
+		/** @var  string  $username */
+		/** @var  string  $apikey */
+		/** @var  string  $container */
+		/** @var  string  $directory */
 		extract($settings);
 
 		try
 		{
 			Factory::getLog()->log(LogLevel::DEBUG, 'Authenticating to CloudFiles');
 			// Create the API connector object
-			$cf = new ConnectorCloudfiles($username, $apikey);
+			$cf = new ConnectorCloudfiles($username, $apikey, $settings);
 
 			// Authenticate
 			$cf->authenticate();
 
 			// Delete the file
 			Factory::getLog()->log(LogLevel::DEBUG, 'Deleting ' . $path);
-			$cf->deleteObject($container, $path);
+			$cf->deleteObject($path);
 		}
 		catch (\Exception $e)
 		{
@@ -141,18 +151,20 @@ class Cloudfiles extends Base
 			return false;
 		}
 
+		/** @var  string  $username */
+		/** @var  string  $apikey */
+		/** @var  string  $container */
+		/** @var  string  $directory */
 		extract($settings);
 
 		try
 		{
 			Factory::getLog()->log(LogLevel::DEBUG, 'Authenticating to CloudFiles');
 			// Create the API connector object
-			$cf = new ConnectorCloudfiles($username, $apikey);
+			$cf = new ConnectorCloudfiles($username, $apikey, $settings);
 
 			// Authenticate
 			$cf->authenticate();
-
-			Factory::getLog()->log(LogLevel::DEBUG, 'Checking that container «' . $container . '» exists');
 
 			// Do we need to set a range header?
 			$headers = array();
@@ -183,7 +195,7 @@ class Cloudfiles extends Base
 			}
 
 			Factory::getLog()->log(LogLevel::DEBUG, 'Downloading ' . $remotePath);
-			$cf->downloadObject($container, $remotePath, $fp, $headers);
+			$cf->downloadObject($remotePath, $fp, $headers);
 
 			@fclose($fp);
 		}
@@ -202,13 +214,13 @@ class Cloudfiles extends Base
 	 *
 	 * @return array|bool
 	 */
-	protected function  _getEngineSettings()
+	protected function _getEngineSettings()
 	{
 		// Retrieve engine configuration data
 		$config = Factory::getConfiguration();
 
-		$username = trim($config->get('engine.postproc.cloudfiles.username', ''));
-		$apikey = trim($config->get('engine.postproc.cloudfiles.apikey', ''));
+		$username  = trim($config->get('engine.postproc.cloudfiles.username', ''));
+		$apikey    = trim($config->get('engine.postproc.cloudfiles.apikey', ''));
 		$container = $config->get('engine.postproc.cloudfiles.container', 0);
 		$directory = $config->get('volatile.postproc.directory', null);
 
@@ -239,12 +251,12 @@ class Cloudfiles extends Base
 			return false;
 		}
 
-        if(!function_exists('curl_init'))
-        {
-            $this->setWarning('cURL is not enabled, please enable it in order to post-process your archives');
+		if (!function_exists('curl_init'))
+		{
+			$this->setWarning('cURL is not enabled, please enable it in order to post-process your archives');
 
-            return false;
-        }
+			return false;
+		}
 
 		// Fix the directory name, if required
 		if (!empty($directory))
@@ -262,10 +274,10 @@ class Cloudfiles extends Base
 		$config->set('volatile.postproc.directory', $directory);
 
 		return array(
-			'username'    => $username,
-			'apikey'      => $apikey,
-			'container'   => $container,
-			'directory'   => $directory,
+			'username'  => $username,
+			'apikey'    => $apikey,
+			'container' => $container,
+			'directory' => $directory,
 		);
 	}
 }

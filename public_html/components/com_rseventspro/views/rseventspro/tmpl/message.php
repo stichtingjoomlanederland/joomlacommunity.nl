@@ -15,11 +15,17 @@ jimport('joomla.html.editor'); ?>
 			<div class="control-label">
 				<label><?php echo JText::_('COM_RSEVENTSPRO_SEND_MESSAGE_TO'); ?></label>
 			</div>
-			<div class="controls">
+			<div class="controls" id="messageContainer">
 				<div class="span4">
 					<input type="checkbox" id="denied" name="jform[denied]" value="1" /> <label for="denied" id="d_option" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SEND_MESSAGE_DENIED'); ?></label> <br />
 					<input type="checkbox" id="pending" name="jform[pending]" value="1" /> <label for="pending" id="p_option" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SEND_MESSAGE_PENDING'); ?></label> <br />
 					<input type="checkbox" id="accepted" name="jform[accepted]" value="1" /> <label for="accepted" id="a_option" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SEND_MESSAGE_ACCEPTED'); ?></label>
+					<?php if ($this->event->rsvp) { ?>
+					<hr>
+					<input type="checkbox" id="notgoing" name="jform[notgoing]" value="1" /> <label for="notgoing" id="ng_option" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_RSVP_NOT_GOING'); ?></label> <br />
+					<input type="checkbox" id="interested" name="jform[interested]" value="1" /> <label for="interested" id="i_option" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_RSVP_INTERESTED'); ?></label> <br />
+					<input type="checkbox" id="going" name="jform[going]" value="1" /> <label for="going" id="g_option" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_RSVP_GOING'); ?></label>
+					<?php } ?>
 				</div>
 				
 				<div class="span8">

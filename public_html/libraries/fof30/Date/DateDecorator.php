@@ -1,12 +1,13 @@
 <?php
 /**
  * @package     FOF
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL version 2 or later
  */
 
 namespace FOF30\Date;
 
+use DateInterval;
 use DateTime;
 use JDatabaseDriver;
 
@@ -60,14 +61,29 @@ class DateDecorator extends Date
 
 	public function __call($name, $arguments)
 	{
-		$availableMethods = array('add', 'sub', 'modify');
-
-		if (in_array($name, $availableMethods) || method_exists($this->decorated, $name))
+		if (method_exists($this->decorated, $name))
 		{
 			return call_user_func_array(array($this->decorated, $name), $arguments);
 		}
 
 		throw new \InvalidArgumentException("JDate object does not have a $name method");
+	}
+
+	public function sub($interval)
+	{
+		// Note to self: ignore phpStorm; we must NOT use a typehint for $interval
+		return $this->decorated->sub($interval);
+	}
+
+	public function add($interval)
+	{
+		// Note to self: ignore phpStorm; we must NOT use a typehint for $interval
+		return $this->decorated->add($interval);
+	}
+
+	public function modify($modify)
+	{
+		return $this->decorated->modify($modify);
 	}
 
 	public function __toString()

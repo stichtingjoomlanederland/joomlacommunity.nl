@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -320,7 +320,7 @@ class DiscussProfile extends EasyDiscussTable
 
 			$items[$key] = EDR::_('view=profile&layout=edit');
 
-			if ($config->get('layout_avatarLinking') && $field['editProfileLink']) {
+			if ($config->get('layout_avatarLinking') && (isset($field['editProfileLink']) && $field['editProfileLink']))  {
 				$items[$key] = $field['editProfileLink'];
 			}
 		}
@@ -388,8 +388,39 @@ class DiscussProfile extends EasyDiscussTable
 		return true;
 	}
 
-	public function addPoint($point)
+	/**
+	 * Method to add point
+	 *
+	 * @since	4.1.3
+	 * @access	public
+	 */
+	public function addPoint($point, $isUndoVote = false, $isVotedBefore = false, $offsetPoint = false)
 	{
+		// if this is undo vote process
+		if ($isUndoVote) {
+
+			// convert positive value to negative in order to deduct user point
+			if ($point > 0) {
+				$point = -$point;
+			} else {
+				// Convert point to negative value
+				$point = abs($point);
+			}
+
+		// if the system detected this user changing their vote
+		// for example :
+		// 1. User upvote first then system add 10 point to this him.
+		// 2. User decide to downvote then system have to minus his 10 point and another 10 point for that downvote point rule limit
+		} elseif (!$isUndoVote && $isVotedBefore) {
+
+			if ($offsetPoint !== false) {
+				// now we offset user's point based on previos action.
+				$this->points += $offsetPoint;
+			}
+
+			// $point = $point * 2;
+		}
+
 		$this->points += $point;
 	}
 
@@ -398,8 +429,6 @@ class DiscussProfile extends EasyDiscussTable
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getName($default = '')
 	{
@@ -883,13 +912,13 @@ class DiscussProfile extends EasyDiscussTable
 	}
 
 	/**
-     * Get number of unresolved posts
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Get number of unresolved posts
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
 	public function getNumTopicUnresolved()
 	{
 		static $cache = array();
@@ -1076,7 +1105,7 @@ class DiscussProfile extends EasyDiscussTable
 
 		if (!isset($cache[$this->id])) {
 			$model = ED::model('Subscribe');
-			$results = $model->getTotalSubscriptions($this->id) ? $model->getTotalSubscriptions($this->id) : '0';
+			$results = $model->getTotalSubscriptions($this->id);
 
 			$cache[$this->id] = 0;
 
@@ -1194,11 +1223,11 @@ class DiscussProfile extends EasyDiscussTable
 	}
 
 	/**
-     * Determines if the user is blocked
-     *
-     * @since   4.0.15
-     * @access  public
-     */
+	 * Determines if the user is blocked
+	 *
+	 * @since   4.0.15
+	 * @access  public
+	 */
 	public function isBlocked()
 	{
 		$db	= ED::db();
@@ -1247,6 +1276,31 @@ class DiscussProfile extends EasyDiscussTable
 		return $loaded[$this->id];
 	}
 
+	/**
+	 * Determine whether this user have any badges or not
+	 *
+	 * @since	4.1.2
+	 * @access	public
+	 */
+	public function hasUserBadges()
+	{
+		static $loaded = array();
+
+		if (!$this->id) {
+			return false;
+		}
+
+		if (!isset($loaded[$this->id])) {
+
+			$model = ED::model('Badges');
+			$result = $model->hasUserBadges($this->id);
+
+			$loaded[$this->id] = $result;
+		}
+
+		return $loaded[$this->id];
+	}
+
 	public function getTotalBadges()
 	{
 		$db		= ED::db();
@@ -1276,7 +1330,7 @@ class DiscussProfile extends EasyDiscussTable
 		$db		= ED::db();
 		$query	= 'UPDATE ' . $db->nameQuote( '#__discuss_users' )
 				. ' SET ' . $db->nameQuote('points') . ' = ' . $db->Quote(0)
-   				. ' WHERE ' . $db->nameQuote('id') . '=' . $db->Quote($this->id);
+				. ' WHERE ' . $db->nameQuote('id') . '=' . $db->Quote($this->id);
 		$db->setQuery($query);
 		$db->query();
 	}
@@ -1304,13 +1358,22 @@ class DiscussProfile extends EasyDiscussTable
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getPoints()
 	{
 		if (ED::aup()->exists()) {
 			return ED::aup()->getUserPoints($this->id);
+		}
+
+		if (ED::easysocial()->exists()) {
+
+			$esUserPoint = ED::easysocial()->getUserPoints($this->id);
+
+			if ($esUserPoint === false) {
+				return $this->points;
+			}
+			
+			return $esUserPoint;
 		}
 
 		return $this->points;

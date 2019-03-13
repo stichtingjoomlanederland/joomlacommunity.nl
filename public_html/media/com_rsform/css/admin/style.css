@@ -1,0 +1,795 @@
+.com-rsform-table-props tr {
+    height: 35px;
+}
+td.key {
+    width: 25%;
+    padding-right: 1%;
+}
+td.components {
+    width: 200px;
+}
+td.components a.component {
+    display: block;
+    width: 200px;
+    height: 20px;
+    border-top: 1px solid #d8d8d8;
+    border-bottom: 1px solid #fff;
+    border-right: 1px solid #d8d8d8;
+    padding-left: 25px;
+    padding-top: 2px;
+    background-position: 2px 2px;
+}
+td.components a.component:hover {
+    background-position: 3px 3px;
+}
+table.componentForm {
+    width: 226px;
+    background: #FFF;
+    border-right: 1px solid #d8d8d8;
+}
+.wide {
+    width: 200px;
+}
+textarea.hidden {
+    display: none;
+}
+span.selected {
+    text-decoration: underline;
+}
+div.loading {
+    background: #FFFFFF url(../../images/admin/load.gif) no-repeat top left;
+    padding: 10px;
+    padding-left: 40px;
+}
+span.loading-small {
+    background: url(../../images/admin/ajax-loader.gif) no-repeat;
+    width: 16px;
+    height: 16px;
+    position: absolute;
+}
+div.progressWrapper {
+    width: 100%;
+    border: 1px solid #cccccc;
+}
+div.progressBar {
+    color: white;
+    background: green;
+    width: 50px;
+    text-align: center;
+    padding: 2px;
+}
+#idVALIDATIONEXTRA {
+    display: none;
+}
+.showVALIDATIONEXTRA {
+    display: block !important;
+}
+.hideVALIDATIONEXTRA {
+    display: none !important;
+}
+.rsform_ok {
+    color: green;
+}
+table.adminrsform {
+    border: solid 1px #d5d5d5;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+    margin-top: -10px;
+}
+table.adminrsform th {
+    font-size: 11px;
+    padding: 6px 2px 4px 4px;
+    text-align: left;
+    height: 25px;
+    color: #000;
+    background-repeat: repeat;
+}
+table.adminrsform td {
+    padding: 3px;
+}
+#state {
+    background: #fff;
+    font-weight: bold;
+    position: absolute;
+    z-index: 999;
+    top: 5px;
+    right: 5px;
+    line-height: 35px;
+    height: 35px;
+    padding: 1px;
+    border: solid 1px #c7c7c7;
+    color: #707070;
+}
+#state img {
+    vertical-align: middle;
+}
+.rsform_dragged td {
+    background: #E7FFCC !important;
+}
+.rsform_dropped td {
+    background: red !important;
+}
+div.rsform_layout_box {
+    width: 185px;
+    margin: 5px;
+    padding: 2px;
+    float: left;
+}
+#formLayout {
+    width: 800px;
+    height: 450px;
+}
+#columnsContainer,
+.dropdownContainer {
+    position: relative;
+}
+#columnsDiv,
+.dropdownContainer div {
+    position: absolute;
+    background: #F9F9F9;
+    border: solid 1px #c7c7c7;
+    padding: 5px;
+    display: none;
+    top: 0;
+    left: 0;
+    z-index: 999;
+}
+#columnsDiv {
+    right: 0;
+    left: auto;
+}
+#columnsDiv #columnsInnerDiv {
+    overflow-y: auto;
+    padding: 0 20px 0 0;
+}
+.dropdownContainer div {
+    padding: 0;
+}
+.dropdownContainer div a {
+    display: block;
+    padding: 6px;
+}
+.dropdownContainer div a:hover {
+    color: #fff;
+    background: #c7c7c7;
+    text-decoration: none;
+}
+#previewExportDiv {
+    margin-bottom: 20px;
+}
+#previewExportDiv pre {
+    color: #000;
+}
+tr.rsform_page td {
+    border-bottom: dashed 2px #000 !important;
+}
+#quickFieldsDiv {
+    display: none;
+}
+#QuickAdd1,
+#QuickAdd2,
+#QuickAdd3,
+#QuickAdd4,
+#QuickAdd5 {
+    width: 200px;
+}
+a.folder {
+    background: url(../../images/admin/icon-16-folder.png) no-repeat;
+    padding-left: 20px;
+    display: block;
+    float: left;
+    margin-right: 10px;
+}
+a.file {
+    background: url(../../images/admin/icon-16-file.png) no-repeat;
+    padding-left: 20px;
+    display: block;
+    float: left;
+    margin-right: 10px;
+}
+#rsform_container {
+    position: relative;
+    min-height: 900px;
+    height: auto !important;
+}
+#rsform_container a {
+    color: #3d3d3d;
+    text-decoration: none;
+}
+#rsform_container a.btn {
+    color: #3d3d3d;
+    border-radius: 0;
+}
+#rsform_maintabs a.btn {
+    padding: 0;
+}
+#rsform_container a.btn-primary {
+    color: #ffffff;
+}
+ul#rsform_maintabs li {
+    float: left;
+}
+ul#rsform_maintabs li a {
+    width: 250px;
+    height: 45px;
+    display: block;
+    line-height: 45px;
+}
+ul#rsform_maintabs li a span.rsficon {
+    float: left;
+    display: block;
+    line-height: 45px;
+    margin-left: 10px;
+}
+ul#rsform_maintabs {
+    list-style: none;
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 10px;
+    margin-left: 0;
+    padding: 0;
+}
+ul#rsform_firstleftnav {
+    width: 250px;
+    margin: 0 -100% 0 0;
+}
+ul#rsform_firstleftnav li a:before {
+    font-family: 'rsformicons';
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 30px;
+    content: "\f0da";
+    position: absolute;
+    right: 5px;
+}
+ul#rsform_firstleftnav li a.rsform_loading_btn:before {
+    font-family: 'rsformicons';
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 30px;
+    content: "\f110";
+    position: absolute;
+    right: 5px;
+    font-size: 16px;
+    -webkit-animation: rsicon-spin 2s infinite linear;
+    animation: rsicon-spin 2s infinite linear;
+}
+ul#rsform_firstleftnav li a.active {
+    background: #f9f9f9 !important;
+}
+ul.rsform_leftnav {
+    list-style: none;
+    float: left;
+    padding: 0;
+}
+ul.rsform_leftnav li {
+    float: none;
+    line-height: 30px;
+    font-size: 11px;
+}
+ul.rsform_leftnav li a {
+    height: 30px;
+    background: #F2F0F0;
+    border-bottom: 1px solid #C4C4C4;
+    width: 250px;
+    display: block;
+    position: relative;
+}
+ul.rsform_leftnav li:last-child a {
+    border-bottom: none;
+}
+ul.rsform_leftnav li a span.rsficon {
+    height: 30px;
+    padding-left: 5px;
+    margin-right: 5px;
+    font-size: 18px;
+    line-height: 28px;
+    display: block;
+    float: left;
+    text-align: center;
+    width: 20px;
+}
+ul.rsform_leftnav li a span.inner-text {
+    line-height: 28px;
+}
+.btn span.rsficon {
+    font-size: 16px;
+    margin-right: 4px;
+    float: left;
+    display: block;
+    line-height: 16px;
+}
+ul.rsform_leftnav li a:hover {
+    height: 30px;
+    background: #f9f9f9;
+}
+ul.rsform_leftnav li.rsform_navtitle {
+    background: #2384d3;
+    font-weight: bold;
+    text-indent: 12px;
+    color: #fff;
+}
+div#componentscontent {
+    margin-left: 250px;
+    padding: 10px;
+    overflow: auto;
+}
+ul#rsform_secondleftnav {
+    width: 250px;
+    margin: 0 -100% 0 0;
+}
+ul#rsform_secondleftnav li a.active {
+    background: #f9f9f9;
+}
+div#propertiescontent {
+    margin-left: 250px;
+    border: 1px solid #e7e7e7;
+    padding: 10px;
+    background: #f9f9f9;
+    position: relative;
+}
+#editModal .form-horizontal  {
+	padding: 10px;
+}
+#rsform_tab1 {
+    position: relative;
+}
+.rsform_inp {
+    display: block;
+    margin-top: 5px;
+    border: 1px solid #dbdbdb;
+    padding: 5px;
+    width: 400px;
+}
+.rsform_txtarea {
+    display: block;
+    margin-top: 5px;
+    border: 1px solid #dbdbdb;
+    padding: 5px;
+    width: 400px;
+    height: 80px;
+}
+.rsform_align_middle {
+    vertical-align: middle;
+}
+.rsform_clear_both {
+    display: block;
+    clear: both;
+    width: 100%;
+    height: 1px;
+    font-size: 1px;
+    line-height: 1px;
+    background: none;
+}
+#calculationsdiv {
+    min-height: 600px;
+}
+button.pull-left {
+    margin-right: 5px;
+}
+table#componentPreview tr:first-child td.order > span:first-child,
+table#componentPreview tr:last-child td.order > span + span,
+table#mappingTable tr:first-child td.order > span:first-child,
+table#mappingTable tr:last-child td.order > span + span {
+    visibility: hidden;
+}
+.table-align-middle td {
+    vertical-align: middle;
+}
+table#componentPreview .preview-checkbox-inline label,
+table#componentPreview .preview-checkbox-inline input,
+table#componentPreview .preview-checkbox label,
+table#componentPreview .preview-checkbox input,
+table#componentPreview .preview-radio-inline label,
+table#componentPreview .preview-radio-inline input,
+table#componentPreview .preview-radio label,
+table#componentPreview .preview-radio input {
+    float: left;
+}
+table#componentPreview .preview-checkbox-inline label,
+table#componentPreview .preview-checkbox label,
+table#componentPreview .preview-radio-inline label,
+table#componentPreview .preview-radio label {
+    display: inline-block;
+    margin-left: 5px;
+}
+table#componentPreview .preview-radio-inline label,
+table#componentPreview .preview-checkbox-inline label {
+    margin-right: 5px;
+}
+table#componentPreview .preview-radio input,
+table#componentPreview .preview-checkbox input {
+    clear: left;
+}
+.rsfp-dropdown-list-container {
+    display: inline-block;
+    position: relative;
+}
+.rsfp-dropdown-list-container .placeholders-input-append {
+    color: #FFF;
+    background-color: #2384D3;
+    border: 1px solid #e2e1e1;
+    height: 29px;
+    border-left: none;
+    width: 35px;
+}
+.rsfp-dropdown-list-container ul {
+    position: absolute;
+    top: 26px;
+    right: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    width: 376px;
+    padding: 5px 0;
+    margin: 2px 0 0;
+    list-style: none;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 0 0 6px 6px;
+    -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    -webkit-background-clip: padding-box;
+    -moz-background-clip: padding;
+    background-clip: padding-box;
+    max-height: 250px;
+    overflow-y: auto;
+}
+.rsfp-dropdown-list-container ul li {
+    position: relative;
+}
+.rsfp-dropdown-list-container ul li a {
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: normal;
+    line-height: 18px;
+    color: #333;
+    white-space: nowrap;
+    transition: all .1s ease-in-out;
+}
+.rsfp-dropdown-list-container ul li a:hover,
+#rsform_container .rsfp-dropdown-list-container ul li a:hover {
+    text-decoration: none;
+    background-color: #2384D3;
+    color: #FFF;
+    transition: all .1s ease-in-out;
+}
+.rsfp-legend {
+    display: block;
+    width: 100%;
+    padding: 0;
+    margin-bottom: 18px;
+    font-size: 19.5px;
+    font-weight: normal;
+    line-height: 36px;
+    color: #333;
+    border-bottom: 1px solid #e5e5e5;
+}
+/*Widths*/
+
+.rs_100 {
+    width: 100% !important;
+}
+.rs_75 {
+    width: 75% !important;
+}
+.rs_50 {
+    width: 50% !important;
+}
+.rs_40 {
+    width: 40% !important;
+}
+.rs_35 {
+    width: 35% !important;
+}
+.rs_30 {
+    width: 30% !important;
+}
+.rs_25 {
+    width: 25% !important;
+}
+.rs_20 {
+    width: 20% !important;
+}
+.rs_15 {
+    width: 15% !important;
+}
+.rs_10 {
+    width: 10% !important;
+}
+.rs_5 {
+    width: 5% !important;
+}
+.rs_inp,
+#dateFrom,
+#dateTo {
+    padding: 4px 6px;
+    border: 1px solid #e2e1e1;
+    border-radius: 5px 0 0 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    width: 90%;
+    font-size: 14px;
+    margin: 0 !important;
+}
+.rs_textarea {
+    padding: 7px 5px;
+    min-height: 220px;
+    font-size: 13px;
+    font-family: Arial, Helvetica, sans-serif !important;
+    border: 1px solid #e2e1e1;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    box-sizing: border-box;
+}
+textarea.rs_textarea:focus {
+    background-color: #fff;
+}
+.rs_error {
+    background-color: #FFDFDF;
+    border: 1px solid #FF6F6F;
+    padding: 7px;
+    display: block;
+    width: 94%;
+}
+.rs_success {
+    background-color: #CFFFDA;
+    border: 1px solid #4FFF77;
+    padding: 7px;
+    display: block;
+    width: 94%;
+}
+.rs_error_field,
+.rs_inp.rs_error_field {
+    background-color: #FFDFDF;
+    border: 1px solid #FF6F6F;
+}
+.calendar {
+    line-height: 12px;
+}
+@media (max-width: 480px) {
+    #search.rs_10 {
+        width: 100% !important;
+    }
+}
+#rsfpmappingWhere > table .rs_inp {
+    width: 81%;
+}
+
+/* Grid Layout CSS */
+
+.rsfp-column-option {
+	padding: 10px;
+	border: solid 1px #ddd;
+}
+
+.rsfp-column-option:hover {
+	border: solid 1px #c0c0c0;
+}
+
+.rsfp-column-color {
+	background: #2384d3;
+	height: 50px;
+	margin-bottom: 20px;
+}
+
+.rsfp-grid-field {
+	border: solid 1px #b3b3b3;
+	background-color: #fff;
+	padding: 19px;
+	cursor: move;
+	margin: 20px;
+}
+
+.rsfp-grid-field:hover {
+	box-shadow: 0 2px 8px 0 rgba(0,0,0,.3);
+}
+
+.rsfp-grid-field-unsortable {
+	cursor: initial;
+}
+
+.rsfp-grid-field-unsortable:hover {
+	box-shadow: initial;
+}
+
+.rsfp-grid-row {
+	border: solid 1px #b3b3b3;
+	background-color: #eee;
+	padding: 2% 1%;
+	width: 98%;
+	display: inline-block;
+	margin-bottom: 20px;
+}
+
+.rsfp-grid-row:hover {
+	box-shadow: 0 2px 8px 0 rgba(0,0,0,.3);
+}
+
+.rsfp-grid-row:after {
+	clear: both;
+}
+
+.rsfp-grid-row [class*="rsfp-grid-column"] {
+	display: block;
+	width: 100%;
+	min-height: 28px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	float: left;
+	margin-left: 2.1276595744681%;
+	border: solid 1px #b3b3b3;
+}
+.rsfp-grid-row [class*="rsfp-grid-column"]:first-child {
+	margin-left: 0;
+}
+.rsfp-grid-row .rsfp-grid-column12 {
+	width: 100%;
+}
+.rsfp-grid-row .rsfp-grid-column11 {
+	width: 91.489361702128%;
+}
+.rsfp-grid-row .rsfp-grid-column10 {
+	width: 82.978723404255%;
+}
+.rsfp-grid-row .rsfp-grid-column9 {
+	width: 74.468085106383%;
+}
+.rsfp-grid-row .rsfp-grid-column8 {
+	width: 65.957446808511%;
+}
+.rsfp-grid-row .rsfp-grid-column7 {
+	width: 57.446808510638%;
+}
+.rsfp-grid-row .rsfp-grid-column6 {
+	width: 48.936170212766%;
+}
+.rsfp-grid-row .rsfp-grid-column5 {
+	width: 40.425531914894%;
+}
+.rsfp-grid-row .rsfp-grid-column4 {
+	width: 31.914893617021%;
+}
+.rsfp-grid-row .rsfp-grid-column3 {
+	width: 23.404255319149%;
+}
+.rsfp-grid-row .rsfp-grid-column2 {
+	width: 14.893617021277%;
+}
+.rsfp-grid-row .rsfp-grid-column1 {
+	width: 6.3829787234043%;
+}
+
+.rsfp-grid-row h3 {
+	text-align: center;
+}
+
+.rsfp-grid-row-placeholder {
+	border: 2px dashed #cccccc;
+	padding: 19px;
+	margin-bottom: 20px;
+	height: 40px;
+}
+
+.rsfp-grid-field-placeholder {
+	border: 2px dashed #cccccc;
+	padding: 19px;
+	margin: 20px;
+}
+
+.rsfp-grid-page-container {
+	border-bottom: dashed 2px #000;
+}
+
+.rsfp-grid-unpublished-field {
+	background-color: #f3f3f3;
+	color: #909090;
+}
+
+.rsfp-row-controls {
+	margin-top: 20px;
+	text-align: right;
+}
+
+#rsfp-grid-hidden-container {
+	border: solid 1px #b3b3b3;
+}
+
+#rsfp-grid-loader {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	background: #f9f9f9;
+	color: #fff;
+	z-index: 1001;
+}
+
+#rsfp-grid-loader .spinner {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translateX(-50%);
+	color: #fff;
+	z-index: 1002;
+	width: 100px;
+	height: 80px;
+	text-align: center;
+	font-size: 10px;
+}
+
+#rsfp-grid-loader .spinner > div {
+  background-color: #185b91;
+  height: 100%;
+  width: 7px;
+  display: inline-block;
+  -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+  animation: sk-stretchdelay 1.2s infinite ease-in-out;
+}
+
+#rsfp-grid-loader .spinner .rect2 {
+  -webkit-animation-delay: -1.1s;
+  animation-delay: -1.1s;
+}
+
+#rsfp-grid-loader .spinner .rect3 {
+  -webkit-animation-delay: -1.0s;
+  animation-delay: -1.0s;
+}
+
+#rsfp-grid-loader .spinner .rect4 {
+  -webkit-animation-delay: -0.9s;
+  animation-delay: -0.9s;
+}
+
+#rsfp-grid-loader .spinner .rect5 {
+  -webkit-animation-delay: -0.8s;
+  animation-delay: -0.8s;
+}
+
+@-webkit-keyframes sk-stretchdelay {
+  0%, 40%, 100% { -webkit-transform: scaleY(0.4) }  
+  20% { -webkit-transform: scaleY(1.0) }
+}
+
+@keyframes sk-stretchdelay {
+  0%, 40%, 100% { 
+    transform: scaleY(0.4);
+    -webkit-transform: scaleY(0.4);
+  }  20% { 
+    transform: scaleY(1.0);
+    -webkit-transform: scaleY(1.0);
+  }
+}
+
+#rsform-btn-inline .btn-wrapper {
+	display: inline-block;
+	margin: 0 5px 0 0;
+}
+
+#columnsDiv label {
+	display: block;
+}
+
+#rsform-btn-inline .rsform-calendar-field {
+	margin-right: 35px;
+}
+
+#rsform-btn-inline .rsform-calendar-field .input-append {
+	margin-bottom: 0;
+}

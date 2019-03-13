@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<altauserpoints>
+	<component>com_easydiscuss</component>
+	<rules>
+		<rule>
+			<name>Accept Reply as Answer</name>
+			<description>This rule add points if user accept a reply as answer</description>
+			<plugin_function>plgaup_easydiscuss_accept_reply</plugin_function>
+			<fixed_points>true</fixed_points>
+			<display_message>1</display_message>
+			<email_notification>1</email_notification>
+		</rule>
+		<rule>
+			<name>Delete Comment</name>
+			<description>This rule remove points from the user if their comment is deleted</description>
+			<plugin_function>plgaup_easydiscuss_delete_comment</plugin_function>
+			<fixed_points>true</fixed_points>
+			<display_message>1</display_message>
+			<email_notification>1</email_notification>
+		</rule>
+
+		<rule>
+			<name>Delete Discussion</name>
+			<description>This rule remove points if the discussion the user has created was deleted</description>
+			<plugin_function>plgaup_easydiscuss_delete_discussion</plugin_function>
+			<fixed_points>true</fixed_points>
+			<display_message>1</display_message>
+			<email_notification>1</email_notification>
+		</rule>
+
+		<rule>
+			<name>Delete Reply</name>
+			<description>This rule remove points if a user reply is deleted</description>
+			<plugin_function>plgaup_easydiscuss_delete_reply</plugin_function>
+			<fixed_points>true</fixed_points>
+			<display_message>1</display_message>
+			<email_notification>1</email_notification>
+		</rule>
+
+		<rule>
+			<name>First profile picture update</name>
+			<description>This rule adds points for the user when they changed their profile picture the first time</description>
+			<plugin_function>plgaup_easydiscuss_new_avatar</plugin_function>
+			<fixed_points>true</fixed_points>
+			<display_message>1</display_message>
+			<email_notification>1</email_notification>
+		</rule>
+
+		<rule>
+			<name>New Comment</name>
+			<description>This rule add points to the user if they commented on a reply</description>
+			<plugin_function>plgaup_easydiscuss_new_comment</plugin_function>
+			<fixed_points>true</fixed_points>
+			<display_message>1</display_message>
+			<email_notification>1</email_notification>
+		</rule>
+
+		<rule>
+			<name>Create New Discussion</name>
+			<description>This rule add points if user creates a new discussion via EasyDiscuss</description>
+			<plugin_function>plgaup_easydiscuss_new_discussion</plugin_function>
+			<fixed_points>true</fixed_points>
+			<display_message>1</display_message>
+			<email_notification>1</email_notification>
+		</rule>
+
+		<rule>
+			<name>Create New Reply</name>
+			<description>This rule add points if user replies to any discussion</description>
+			<plugin_function>plgaup_easydiscuss_new_reply</plugin_function>
+			<fixed_points>true</fixed_points>
+			<display_message>1</display_message>
+			<email_notification>1</email_notification>
+		</rule>
+
+		<rule>
+			<name>Answer Vote Down</name>
+			<description>This rule remove points if accepted answer is voted down</description>
+			<plugin_function>plgaup_easydiscuss_answer_vote_down</plugin_function>
+			<fixed_points>true</fixed_points>
+			<display_message>1</display_message>
+			<email_notification>1</email_notification>
+		</rule>
+		<rule>
+			<name>Answer Vote Up</name>
+			<description>This rule add points if accepted answer is voted up</description>
+			<plugin_function>plgaup_easydiscuss_answer_vote_up</plugin_function>
+			<fixed_points>true</fixed_points>
+			<display_message>1</display_message>
+			<email_notification>1</email_notification>
+		</rule>
+
+		<rule>
+			<name>Question Vote Down</name>
+			<description>This rule remove points if question is voted down</description>
+			<plugin_function>plgaup_easydiscuss_question_vote_down</plugin_function>
+			<fixed_points>true</fixed_points>
+			<display_message>1</display_message>
+			<email_notification>1</email_notification>
+		</rule>
+		<rule>
+			<name>Question Vote Up</name>
+			<description>This rule add points if question is voted up</description>
+			<plugin_function>plgaup_easydiscuss_question_vote_up</plugin_function>
+			<fixed_points>true</fixed_points>
+			<display_message>1</display_message>
+			<email_notification>1</email_notification>
+		</rule>
+
+		<rule>
+			<name>Update Profile Picture</name>
+			<description>This rule adds points for the user when they updates their profile picture</description>
+			<plugin_function>plgaup_easydiscuss_update_avatar</plugin_function>
+			<fixed_points>true</fixed_points>
+			<display_message>1</display_message>
+			<email_notification>1</email_notification>
+		</rule>
+		<rule>
+			<name>View Discussion</name>
+			<description>This rule add points if user view discussion via EasyDiscuss</description>
+			<plugin_function>plgaup_easydiscuss_view_discussion</plugin_function>
+			<fixed_points>true</fixed_points>
+			<display_message>1</display_message>
+			<email_notification>1</email_notification>
+		</rule>
+	</rules>
+</altauserpoints>

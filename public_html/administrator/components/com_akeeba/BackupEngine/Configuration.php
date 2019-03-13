@@ -1,12 +1,11 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
- *
  */
 
 namespace Akeeba\Engine;
@@ -354,11 +353,9 @@ class Configuration
 					continue;
 				}
 
-				// PHP 5.3.5 and earlier do not support getExtension
-				// if ($file->getExtension() == 'ini')
-				if (substr($file->getBasename(), -4) == '.ini')
+				if ($file->getExtension() == 'json')
 				{
-					$this->mergeEngineINI($file->getRealPath());
+					$this->mergeEngineJSON($file->getRealPath());
 				}
 			}
 		}
@@ -395,26 +392,27 @@ class Configuration
 	}
 
 	/**
-	 * Merges an INI-style file into the registry. Its sections are registry paths,
-	 * keys are appended to the section-defined paths and then set equal to the
+	 * Merges a JSON file into the registry. Its top level keys are registry paths,
+	 * child keys are appended to the section-defined paths and then set equal to the
 	 * values. If noOverride is set, only non set or null values will be applied.
-	 * Sections beginning with an underscore will be ignored.
+	 * Top level keys beginning with an underscore will be ignored.
 	 *
-	 * @param   string  $inifile    The full path to the INI file to load
+	 * @param   string  $jsonPath   The full path to the INI file to load
 	 * @param   boolean $noOverride [optional] Do not override pre-set values.
 	 *
 	 * @return  boolean  True on success
 	 */
-	public function mergeINI($inifile, $noOverride = false)
+	public function mergeJSON($jsonPath, $noOverride = false)
 	{
-		if (!file_exists($inifile))
+		if (!file_exists($jsonPath))
 		{
 			return false;
 		}
 
-		$inidata = ParseIni::parse_ini_file($inifile, true);
+		$rawData = file_get_contents($jsonPath);
+		$jsonData = empty($rawData) ? [] : json_decode($rawData, true);
 
-		foreach ($inidata as $rootkey => $rootvalue)
+		foreach ($jsonData as $rootkey => $rootvalue)
 		{
 			if (!is_array($rootvalue))
 			{
@@ -447,26 +445,27 @@ class Configuration
 	}
 
 	/**
-	 * Merges an engine INI file to the configuration. Each section defines a full
-	 * registry path (section.subsection.key). It searches each section for the
-	 * key named "default" and merges its value to the configuration. The other keys
+	 * Merges an engine JSON file to the configuration. Each top level key defines a full
+	 * registry path (section.subsection.key). It searches each top level key for the
+	 * child key named "default" and merges its value to the configuration. The other keys
 	 * are simply ignored.
 	 *
-	 * @param   string $inifile    The absolute path to an INI file
-	 * @param   bool   $noOverride [optional] If true, values from the INI will not override the configuration
+	 * @param   string  $jsonPath    The absolute path to an JSON file
+	 * @param   bool    $noOverride  [optional] If true, values from the JSON file will not override the configuration
 	 *
 	 * @return  boolean  True on success
 	 */
-	public function mergeEngineINI($inifile, $noOverride = false)
+	public function mergeEngineJSON($jsonPath, $noOverride = false)
 	{
-		if (!file_exists($inifile))
+		if (!file_exists($jsonPath))
 		{
 			return false;
 		}
 
-		$inidata = ParseIni::parse_ini_file($inifile, true);
+		$rawData = file_get_contents($jsonPath);
+		$jsonData = empty($rawData) ? [] : json_decode($rawData, true);
 
-		foreach ($inidata as $section => $nodes)
+		foreach ($jsonData as $section => $nodes)
 		{
 			if (is_array($nodes))
 			{
@@ -531,15 +530,18 @@ class Configuration
 	}
 
 	/**
-	 * Exports the current registry snapshot as an INI file. Each namespace is
-	 * placed in a section of its own.
+	 * Exports the current registry snapshot as a JSON-encoded object. Each namespace is a property of the top-level
+	 * JSON object.
 	 *
-	 * @return   string  INI representation of the registry
+	 * @return  string  The JSON-encoded representation of the registry
+	 *
+	 * @since   6.4.1
 	 */
-	public function exportAsINI()
+	public function exportAsJSON()
 	{
-		$inidata = '';
+		$forJSON = [];
 		$namespaces = $this->getNameSpaces();
+
 		foreach ($namespaces as $namespace)
 		{
 			if ($namespace == 'volatile')
@@ -547,45 +549,11 @@ class Configuration
 				continue;
 			}
 
-			$inidata .= "[$namespace]\n";
-			$ns = $this->registry[$namespace]['data'];
-			$inidata .= $this->dumpObject($ns);
+			$forJSON[$namespace] = $this->registry[$namespace]['data'];
 		}
 
-		return $inidata;
-	}
+		return json_encode($forJSON, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_FORCE_OBJECT | JSON_PRETTY_PRINT);
 
-	/**
-	 * Internal function to dump an object as INI-formatted data
-	 *
-	 * @param   object $object The object to dump
-	 * @param   string $prefix [optional] The prefix to use for the exported data
-	 *
-	 * @return  string
-	 */
-	private function dumpObject($object, $prefix = '')
-	{
-		$data = '';
-		$vars = get_object_vars($object);
-
-		foreach ($vars as $key => $value)
-		{
-			if (!is_object($value))
-			{
-				if (is_array($value))
-				{
-					$value = '###json###' . json_encode($value);
-				}
-				$data .= (empty($prefix) ? '' : $prefix . '.') . $key .
-					'="' . addcslashes($value, "\n\r\t\"") . "\"\n";
-			}
-			else
-			{
-				$data .= $this->dumpObject($value, (empty($prefix) ? '' : $prefix . '.') . $key);
-			}
-		}
-
-		return $data;
 	}
 
 	/**

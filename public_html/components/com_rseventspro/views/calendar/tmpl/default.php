@@ -6,7 +6,15 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); 
 $nofollow = $this->params->get('nofollow',0) ? 'rel="nofollow"' : ''; 
-JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
+JText::script('COM_RSEVENTSPRO_GLOBAL_FREE');
+
+$showWeek		= $this->params->get('week', 1) == 1;
+$showDetails	= $this->params->get('details', 1) == 1;
+$showFullName	= $this->params->get('fullname', 0);
+$limit			= (int) $this->params->get('limit', 3);
+$showSearch		= $this->params->get('search', 1);
+$showColors		= $this->params->get('colors', 0);
+?>
 
 <script type="text/javascript">
 	var rseproMask 		= '<?php echo $this->escape($this->mask); ?>';
@@ -23,7 +31,7 @@ JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 
 <form method="post" action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&view=calendar'); ?>" name="adminForm" id="adminForm">
 
-	<?php if ($this->params->get('search',1)) { ?>
+	<?php if ($showSearch) { ?>
 	<div class="rsepro-filter-container">
 		<div class="navbar" id="rsepro-navbar">
 			<div class="navbar-inner">
@@ -35,7 +43,7 @@ JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 				<div class="nav-collapse collapse rsepro-navbar-responsive-collapse">
 					<ul class="nav">
 						<li id="rsepro-filter-from" class="dropdown">
-							<a data-toggle="dropdown" class="dropdown-toggle" href="#" rel="events"><span><?php echo JText::_('COM_RSEVENTSPRO_FILTER_NAME'); ?></span> <i class="caret"></i></a>
+							<a data-toggle="dropdown" class="dropdown-toggle" href="#" rel="<?php echo $this->config->filter_from; ?>"><span><?php echo rseventsproHelper::getFilterText($this->config->filter_from); ?></span> <i class="caret"></i></a>
 							<ul class="dropdown-menu">
 								<?php foreach ($this->get('filteroptions') as $option) { ?>
 								<?php if (!$this->maxPrice && $option->value == 'price') continue; ?>
@@ -44,7 +52,7 @@ JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 							</ul>
 						</li>
 						<li id="rsepro-filter-condition" class="dropdown">
-							<a data-toggle="dropdown" class="dropdown-toggle" href="#" rel="is"><span><?php echo JText::_('COM_RSEVENTSPRO_FILTER_CONDITION_IS'); ?></span> <i class="caret"></i></a>
+							<a data-toggle="dropdown" class="dropdown-toggle" href="#" rel="<?php echo $this->config->filter_condition; ?>"><span><?php echo rseventsproHelper::getFilterText($this->config->filter_condition); ?></span> <i class="caret"></i></a>
 							<ul class="dropdown-menu">
 								<?php foreach ($this->get('filterconditions') as $option) { ?>
 								<li><a href="javascript:void(0);" rel="<?php echo $option->value; ?>"><?php echo $option->text; ?></a></li>
@@ -198,7 +206,7 @@ JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 			</caption>
 			<thead>
 				<tr>
-					<?php if ($this->params->get('week',1) == 1) { ?>
+					<?php if ($showWeek) { ?>
 					<th class="week">
 						<div class="hidden-desktop hidden-tablet"><?php echo JText::_('COM_RSEVENTSPRO_CALENDAR_WEEK_SHORT'); ?></div>
 						<div class="hidden-phone"><?php echo JText::_('COM_RSEVENTSPRO_CALENDAR_WEEK'); ?></div>
@@ -217,7 +225,7 @@ JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 				<?php $unixdate = JFactory::getDate($day->unixdate); ?>
 				<?php if ($day->day == $this->calendar->weekstart) { ?>
 					<tr>
-						<?php if ($this->params->get('week',1) == 1) { ?>
+						<?php if ($showWeek) { ?>
 						<td class="week">
 							<a <?php echo $nofollow; ?> href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&view=calendar&layout=week&date='.$unixdate->format('m-d-Y')); ?>"><?php echo $day->week; ?></a>
 						</td>
@@ -238,19 +246,23 @@ JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 							
 							<?php if (!empty($day->events)) { ?>
 							
-							<?php if ($this->params->get('details',1) == 1) { ?>
-								<ul class="rsepro-calendar-events<?php echo $this->params->get('fullname',0) ? ' rsepro-full-name' : ''; ?>">
-								<?php $j = 0; ?>
-								<?php $limit = (int) $this->params->get('limit',3); ?>
-								<?php $count = count($day->events); ?>
-								<?php foreach ($day->events as $event) { ?>
-								<?php if ($limit > 0 && $j >= $limit) break; ?>
-								<?php $evcolor = $this->getColour($event); ?>
-								<?php $full = rseventsproHelper::eventisfull($event); ?>
-								<?php $style = empty($evcolor) ? 'border-left: 3px solid #809FFF;' : 'border-left: 3px solid '.$evcolor; ?>
-								<?php $style = $this->params->get('colors',0) ? 'style="'.$style.'"' : ''; ?>
+							<?php if ($showDetails) { ?>
+								<ul class="rsepro-calendar-events<?php echo $showFullName ? ' rsepro-full-name' : ''; ?>">
+								<?php
+									$j = 0;
+									$count = count($day->events);
+									foreach ($day->events as $event) {
+										if ($limit > 0 && $j >= $limit) break;
+										$style = '';
+										if ($showColors) {
+											$evcolor = $this->getColour($event);
+											$style = empty($evcolor) ? 'style="border-left: 3px solid #809FFF;"' : 'style="border-left: 3px solid '.$evcolor.'"';
+										}
+										
+										$full = rseventsproHelper::eventisfull($event);
+								?>
 									<li class="event" <?php echo $style; ?>>
-										<a <?php echo $nofollow; ?> data-toggle="popover" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event,$this->calendar->events[$event]->name),false,rseventsproHelper::itemid($event)); ?>" class="rsttip rse_event_link <?php echo $full ? ' rs_event_full' : ''; ?>" <?php if ($this->params->get('color',0)) { ?> style="color:<?php echo $this->getColour($event); ?>;" <?php } ?> data-content="<?php echo rseventsproHelper::calendarTooltip($event); ?>" title="<?php echo $this->escape($this->calendar->events[$event]->name); ?>">
+										<a <?php echo $nofollow; ?> href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event,$this->calendar->events[$event]->name),false,rseventsproHelper::itemid($event)); ?>" class="rsttip rse_event_link <?php echo $full ? ' rs_event_full' : ''; ?>" data-content="<?php echo rseventsproHelper::calendarTooltip($event); ?>" title="<?php echo $this->escape($this->calendar->events[$event]->name); ?>">
 											<i class="fa fa-calendar"></i>
 											<span class="event-name"><?php echo $this->escape($this->calendar->events[$event]->name); ?></span>
 										</a>
@@ -297,43 +309,12 @@ JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 </form>
 
 <?php if ($this->config->timezone) { ?>
-<div id="timezoneModal" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true">
-	<div class="modal-header">
-		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-		<h3><?php echo JText::_('COM_RSEVENTSPRO_CHANGE_TIMEZONE'); ?></h3>
-	</div>
-	<div class="modal-body">
-		<form method="post" action="<?php echo htmlentities(JUri::getInstance(), ENT_COMPAT, 'UTF-8'); ?>" id="timezoneForm" name="timezoneForm" class="form-horizontal">
-			<div class="control-group">
-				<div class="control-label">
-					<label><?php echo JText::_('COM_RSEVENTSPRO_DEFAULT_TIMEZONE'); ?></label>
-				</div>
-				<div class="controls">
-					<span class="btn disabled"><?php echo $this->timezone; ?></span>
-				</div>
-			</div>
-			<div class="control-group">
-				<div class="control-label">
-					<label for="timezone"><?php echo JText::_('COM_RSEVENTSPRO_SELECT_TIMEZONE'); ?></label>
-				</div>
-				<div class="controls">
-					<?php echo JHtml::_('rseventspro.timezones','timezone'); ?>
-				</div>
-			</div>
-			<input type="hidden" name="task" value="timezone" />
-			<input type="hidden" name="return" value="<?php echo $this->timezoneReturn; ?>" />
-		</form>
-	</div>
-	<div class="modal-footer">
-		<button class="btn" data-dismiss="modal" aria-hidden="true"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
-		<button class="btn btn-primary" type="button" onclick="document.timezoneForm.submit();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button>
-	</div>
-</div>
+<?php echo rseventsproHelper::timezoneModal(); ?>
 <?php } ?>
 
 <script type="text/javascript">
 	jQuery(document).ready(function(){
-		<?php if ($this->params->get('details',1) == 1 && !$this->params->get('fullname',0)) { ?>
+		<?php if ($showDetails && !$showFullName) { ?>
 		jQuery('.rsepro-calendar-events a').each(function() {
 			var elem = jQuery(this);
 			elem.on({
@@ -348,7 +329,7 @@ JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 		<?php } ?>
 		jQuery('.rsttip').popover({trigger: 'hover', animation: false, html : true, placement : 'bottom' });
 		
-		<?php if ($this->params->get('search',1)) { ?>
+		<?php if ($showSearch) { ?>
 		var options = {};
 		options.condition = '.rsepro-filter-operator';
 		options.events = [{'#rsepro-filter-from' : 'rsepro_select'}];

@@ -48,12 +48,29 @@ class EasyDiscussRatings extends EasyDiscuss
 		$score = $ratings->ratings;
 		$total = $ratings->total;
 
+		$ratingSchemaValue = $score;
+		$ratingSchemaTotal = $total;
+		$ratingSchemaHasValue = true;
+		$ratingSchemaHasTotal = true;
+
+		// set a default rating total value for schema purpose
+		if (!$total) {
+			$ratingSchemaValue = 1;
+			$ratingSchemaTotal = 0;
+			$ratingSchemaHasValue = false;
+			$ratingSchemaHasTotal = false;			
+		}
+
 		$theme = ED::themes();
 		$theme->set('voted', $voted);
 		$theme->set('post', $post);
 		$theme->set('score', $score);
 		$theme->set('total', $total);
 		$theme->set('locked', $locked);
+		$theme->set('ratingSchemaValue', $ratingSchemaValue);
+		$theme->set('ratingSchemaTotal', $ratingSchemaTotal);
+		$theme->set('ratingSchemaHasValue', $ratingSchemaHasValue);
+		$theme->set('ratingSchemaHasTotal', $ratingSchemaHasTotal);
 
 		$output = $theme->output('site/ratings/form');
 

@@ -24,6 +24,10 @@ class ComFilesViewFilesHtml extends ComKoowaViewHtml
 	{
 		$config->auto_fetch = false;
 
+        $config->append([
+            'decorator'  => $config->layout === 'select' ? 'koowa' : 'joomla'
+        ]);
+
 		parent::_initialize($config);
 	}
 
@@ -97,10 +101,14 @@ class ComFilesViewFilesHtml extends ComKoowaViewHtml
 
         $state->config = $config->toArray();
 
-		$context->data->sitebase  = trim(JURI::root(), '/');
+        $context->data->sitebase  = trim(JURI::root(), '/');
         $context->data->token     = $this->getObject('user')->getSession()->getToken();
-		$context->data->container = $container;
+        $context->data->container = $container;
         $context->data->debug     = KClassLoader::getInstance()->isDebug();
+
+        $query = $this->getUrl()->getQuery(true);
+
+        $context->data->thumbnails = isset($query['thumbnails']) ? $query['thumbnails'] : null;
 
 		parent::_fetchData($context);
 

@@ -27,38 +27,10 @@ defined('_JEXEC') or die('Restricted access');
 				</div>
 
 				<div class="form-horizontal">
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_TOOLBAR'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo JText::_('COM_EASYDISCUSS_EASYSOCIAL_TOOLBAR_DESC');?>
-						</div>
-					</div>
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_LINK_TO_EASYSOCIAL_PROFILE'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_toolbar_profile', $this->config->get('integration_easysocial_toolbar_profile')); ?>
-						</div>
-					</div>
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_POPBOX_AVATAR'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_popbox', $this->config->get('integration_easysocial_popbox')); ?>
-						</div>
-					</div>
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_MINI_HEADER'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_mini_header', $this->config->get('integration_easysocial_mini_header')); ?>
-						</div>
-					</div>
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_toolbar', 'COM_ED_SETTINGS_INTEGRATIONS_EASYSOCIAL_TOOLBAR'); ?>
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_toolbar_profile', 'COM_EASYDISCUSS_LINK_TO_EASYSOCIAL_PROFILE'); ?>
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_popbox', 'COM_EASYDISCUSS_EASYSOCIAL_POPBOX_AVATAR'); ?>
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_mini_header', 'COM_EASYDISCUSS_EASYSOCIAL_MINI_HEADER'); ?>
 				</div>
 			</div>
 		</div>
@@ -68,69 +40,13 @@ defined('_JEXEC') or die('Restricted access');
 
 			<div class="panel-body">
 				<div class="form-horizontal">
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFY_NEW_DISCUSSION'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_notify_create', $this->config->get('integration_easysocial_notify_create')); ?>
-						</div>
-					</div>
-
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFY_NEW_REPLY'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_notify_reply', $this->config->get('integration_easysocial_notify_reply')); ?>
-						</div>
-					</div>
-
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFY_NEW_COMMENT'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_notify_comment', $this->config->get('integration_easysocial_notify_comment')); ?>
-						</div>
-					</div>
-
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFY_ACCEPTED_ANSWER'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_notify_accepted', $this->config->get('integration_easysocial_notify_accepted')); ?>
-						</div>
-					</div>
-
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFY_LIKES'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_notify_likes', $this->config->get('integration_easysocial_notify_likes')); ?>
-						</div>
-					</div>
-
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFY_VOTES'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_notify_vote', $this->config->get('integration_easysocial_notify_vote')); ?>
-						</div>
-					</div>
-
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFY_MENTIONS'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_notify_mentions', $this->config->get('integration_easysocial_notify_mentions')); ?>
-						</div>
-					</div>					
-
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_notify_create', 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFY_NEW_DISCUSSION'); ?>
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_notify_reply', 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFY_NEW_REPLY'); ?>
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_notify_comment', 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFY_NEW_COMMENT'); ?>
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_notify_accepted', 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFY_ACCEPTED_ANSWER'); ?>
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_notify_likes', 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFY_LIKES'); ?>
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_notify_vote', 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFY_VOTES'); ?>
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_notify_mentions', 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFY_MENTIONS'); ?>
 				</div>
 			</div>
 		</div>
@@ -142,14 +58,7 @@ defined('_JEXEC') or die('Restricted access');
 
 			<div class="panel-body">
 				<div class="form-horizontal">
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_USE_POINTS_INTEGRATIONS'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_points', $this->config->get('integration_easysocial_points')); ?>
-						</div>
-					</div>
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_points', 'COM_EASYDISCUSS_EASYSOCIAL_USE_POINTS_INTEGRATIONS'); ?>
 				</div>
 			</div>
 		</div>
@@ -159,14 +68,7 @@ defined('_JEXEC') or die('Restricted access');
 
 			<div class="panel-body">
 				<div class="form-horizontal">
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_LINK_TO_EASYSOCIAL_MEMBERS'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_members', $this->config->get('integration_easysocial_members')); ?>
-						</div>
-					</div>
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_members', 'COM_EASYDISCUSS_LINK_TO_EASYSOCIAL_MEMBERS'); ?>
 				</div>
 			</div>
 		</div>
@@ -176,14 +78,7 @@ defined('_JEXEC') or die('Restricted access');
 
 			<div class="panel-body">
 				<div class="form-horizontal">
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_LINK_TO_EASYSOCIAL_MESSAGING'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_messaging', $this->config->get('integration_easysocial_messaging')); ?>
-						</div>
-					</div>
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_messaging', 'COM_EASYDISCUSS_LINK_TO_EASYSOCIAL_MESSAGING'); ?>
 				</div>
 			</div>
 		</div>
@@ -194,96 +89,17 @@ defined('_JEXEC') or die('Restricted access');
 
 			<div class="panel-body">
 				<div class="form-horizontal">
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_ACTIVITY_STREAM_NEW_DISCUSSION'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_activity_new_question', $this->config->get('integration_easysocial_activity_new_question')); ?>
-						</div>
-					</div>
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_ACTIVITY_STREAM_REPLY_DISCUSSION'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_activity_reply_question', $this->config->get('integration_easysocial_activity_reply_question')); ?>
-						</div>
-					</div>
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_activity_new_question', 'COM_EASYDISCUSS_EASYSOCIAL_ACTIVITY_STREAM_NEW_DISCUSSION'); ?>
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_activity_reply_question', 'COM_EASYDISCUSS_EASYSOCIAL_ACTIVITY_STREAM_REPLY_DISCUSSION'); ?>
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_activity_comment', 'COM_EASYDISCUSS_EASYSOCIAL_ACTIVITY_STREAM_COMMENTS'); ?>
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_activity_likes', 'COM_EASYDISCUSS_EASYSOCIAL_ACTIVITY_LIKE_QUESTION'); ?>
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_activity_ranks', 'COM_EASYDISCUSS_EASYSOCIAL_ACTIVITY_UPGRADE_RANK'); ?>
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_activity_favourite', 'COM_EASYDISCUSS_EASYSOCIAL_ACTIVITY_FAVORITE_POST'); ?>
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_activity_accepted', 'COM_EASYDISCUSS_EASYSOCIAL_ACTIVITY_REPLY_ACCEPTED_ANSWER'); ?>
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_activity_vote', 'COM_EASYDISCUSS_EASYSOCIAL_ACTIVITY_VOTE_POST'); ?>
 
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_ACTIVITY_STREAM_COMMENTS'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_activity_comment', $this->config->get('integration_easysocial_activity_comment')); ?>
-						</div>
-					</div>
-
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_ACTIVITY_LIKE_QUESTION'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_activity_likes', $this->config->get('integration_easysocial_activity_likes')); ?>
-						</div>
-					</div>
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_ACTIVITY_UPGRADE_RANK'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_activity_ranks', $this->config->get('integration_easysocial_activity_ranks')); ?>
-						</div>
-					</div>
-
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_ACTIVITY_FAVORITE_POST'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_activity_favourite', $this->config->get('integration_easysocial_activity_favourite')); ?>
-						</div>
-					</div>
-
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_ACTIVITY_REPLY_ACCEPTED_ANSWER'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_activity_accepted', $this->config->get('integration_easysocial_activity_accepted')); ?>
-						</div>
-					</div>
-
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_ACTIVITY_VOTE_POST'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_activity_vote', $this->config->get('integration_easysocial_activity_vote')); ?>
-						</div>
-					</div>
-
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_JOMSOCIAL_ACTIVITY_CONTENT_LENGTH'); ?>
-						</div>
-						<div class="col-md-6">
-							<input type="text" class="form-control form-control-sm text-center" name="integration_easysocial_activity_content_length" value="<?php echo $this->config->get('integration_easysocial_activity_content_length');?>" />
-							<?php echo JText::_('COM_EASYDISCUSS_CHARACTERS'); ?>
-						</div>
-					</div>
-
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_JOMSOCIAL_ACTIVITY_TITLE_LENGTH'); ?>
-						</div>
-						<div class="col-md-6">
-							<input type="text" class="form-control form-control-sm text-center" name="integration_easysocial_activity_title_length" value="<?php echo $this->config->get('integration_easysocial_activity_title_length');?>" />
-							<?php echo JText::_('COM_EASYDISCUSS_CHARACTERS'); ?>
-						</div>
-					</div>
-
+					<?php echo $this->html('settings.textbox', 'integration_easysocial_activity_content_length', 'COM_EASYDISCUSS_JOMSOCIAL_ACTIVITY_CONTENT_LENGTH', '', array('postfix' => 'COM_EASYDISCUSS_CHARACTERS', 'size' => 9), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'integration_easysocial_activity_title_length', 'COM_EASYDISCUSS_JOMSOCIAL_ACTIVITY_TITLE_LENGTH', '', array('postfix' => 'COM_EASYDISCUSS_CHARACTERS', 'size' => 9), '', 'form-control-sm text-center'); ?>
 				</div>
 			</div>
 		</div>

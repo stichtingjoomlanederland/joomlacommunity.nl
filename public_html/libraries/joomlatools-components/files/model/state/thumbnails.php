@@ -17,6 +17,14 @@ class ComFilesModelStateThumbnails extends KModelState
 {
     protected $_source_file;
 
+    public function __construct(KObjectConfig $config)
+    {
+        parent::__construct($config);
+
+        $this->insert('version', 'cmd')
+             ->insert('source', 'url');
+    }
+
     public function set($name, $value = null)
     {
         if ($name == 'source')
@@ -25,10 +33,10 @@ class ComFilesModelStateThumbnails extends KModelState
                 $this->_source_file = null; // Reset source file if source gets changed
             }
 
-            $parts = explode('://', $value);
+            $parts = $this->getObject('com:files.model.state.parser.url')->parse($value);
 
-            $this->set('name', basename($parts[1]) . '.jpg');
-            $this->set('folder', dirname($parts[1]));
+            $this->set('name', basename($parts->path) . '.jpg');
+            $this->set('folder', trim(dirname($parts->path), '/'));
         }
 
         return parent::set($name, $value);
@@ -52,15 +60,9 @@ class ComFilesModelStateThumbnails extends KModelState
 
     public function getSourceFile()
     {
-        if ($this->has('source') && !$this->_source_file)
+        if (!$this->_source_file && ($source = $this->get('source')))
         {
-            $parts = explode('://', $this->get('source'));
-
-            $file = $this->getObject('com:files.model.files')
-                         ->container($parts[0])
-                         ->folder(dirname($parts[1]))
-                         ->name(basename($parts[1]))
-                         ->fetch();
+            $file = $this->getObject('com:files.model.files')->uri($source)->fetch();
 
             if (!$file->isNew()) {
                 $this->_source_file = $file;

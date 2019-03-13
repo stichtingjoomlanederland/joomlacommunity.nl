@@ -50,7 +50,7 @@ class RscommentsControllerComments extends JControllerLegacy
 		
 		if($task == 'subscribe') {
 			$msg = $row ? JText::_('COM_RSCOMMENTS_SUBSCRIBED') : JText::_('COM_RSCOMMENTS_ALREADY_SUBSCRIBED');
-			$function = 'rsc_unsubscribe(\''.$id.'\',\''.$option.'\')';
+			$function = 'data-rsc-task="unsubscribe"';
 			$text = JText::_('COM_RSCOMMENTS_UNSUBSCRIBE');
 		} else {
 			$msg = $row ? JText::_('COM_RSCOMMENTS_UNSUBSCRIBED') : JText::_('COM_RSCOMMENTS_ALREADY_UNSUBSCRIBED');
@@ -61,12 +61,12 @@ class RscommentsControllerComments extends JControllerLegacy
 				$app->redirect(JURI::root().base64_decode(JRoute::_($redirect_url)),$msg);
 			}
 			
-			$function = 'rsc_subscribe(\''.$id.'\',\''.$option.'\')';
+			$function = 'data-rsc-task="subscribe"';
 			$text = JText::_('COM_RSCOMMENTS_SUBSCRIBE');
 		}
 		
 		$return['message'] = $msg;
-		$return['html'] = '<a class="'.RSTooltip::tooltipClass().'" href="javascript:void(0);" onclick="'.$function.'" title="'.RSTooltip::tooltipText($text).'"><i class="fa fa-envelope"></i> '.$text.'</a>';
+		$return['html'] = '<a class="'.RSTooltip::tooltipClass().'" href="javascript:void(0);" '.$function.' title="'.RSTooltip::tooltipText($text).'"><i class="fa fa-envelope"></i> '.$text.'</a>';
 		
 		echo json_encode($return);
 		$app->close();
@@ -150,10 +150,10 @@ class RscommentsControllerComments extends JControllerLegacy
 		$model->publish($id, $value);
 		
 		$publish 	= ($value == 1) ? 'fa-minus-circle' : 'fa-check';
-		$function 	= ($value == 1) ? 'rsc_unpublish(\''.$id.'\')' : 'rsc_publish(\''.$id.'\')'; 
+		$function 	= ($value == 1) ? ' data-rsc-task="unpublish"' : ' data-rsc-task="publish"'; 
 		$message 	= ($value == 1) ? JText::_('COM_RSCOMMENTS_UNPUBLISH') : JText::_('COM_RSCOMMENTS_PUBLISH');
 		
-		$return['message'] = '<a class="'.RSTooltip::tooltipClass().'" href="javascript:void(0);" onclick="'.$function.'" title="'.RSTooltip::tooltipText($message).'"><i class="rscomm-meta-icon fa '.$publish.'"></i></a>';
+		$return['message'] = '<a class="'.RSTooltip::tooltipClass().'" href="javascript:void(0);"'.$function.' title="'.RSTooltip::tooltipText($message).'"><i class="rscomm-meta-icon fa '.$publish.'"></i></a>';
 		
 		echo json_encode($return);
 		$app->close();
@@ -242,17 +242,17 @@ class RscommentsControllerComments extends JControllerLegacy
 		
 		if($task == 'openthread') {
 			$msg		= $return['message'];
-			$function	= $return['status'] ? 'rsc_close(\''.$id.'\',\''.$option.'\',\''.$override.'\');' : 'rsc_open(\''.$id.'\',\''.$option.'\',\''.$override.'\')';
+			$function	= $return['status'] ? 'data-rsc-task="close"' : 'data-rsc-task="open"';
 			$text		= JText::_('COM_RSCOMMENTS_CLOSE_THREAD');
 		} else {
 			$msg		= $return['message'];
-			$function	= $return['status'] ? 'rsc_open(\''.$id.'\',\''.$option.'\',\''.$override.'\');' : 'rsc_close(\''.$id.'\',\''.$option.'\',\''.$override.'\')';
+			$function	= $return['status'] ? 'data-rsc-task="open"' : 'data-rsc-task="close"';
 			$text		= JText::_('COM_RSCOMMENTS_OPEN_THREAD');
 		}
 		
 		$response['status']		= $return['status'];
 		$response['message']	= $msg;
-		$response['link']		= '<a class="'.RSTooltip::tooltipClass().'" href="javascript:void(0);" onclick="'.$function.'" title="'.RSTooltip::tooltipText($text).'"><i class="fa fa-tag"></i> '.$text.'</a>';
+		$response['link']		= '<a class="'.RSTooltip::tooltipClass().'" href="javascript:void(0);" '.$function.' data-rsc-override="'.$override.'" title="'.RSTooltip::tooltipText($text).'"><i class="fa fa-tag"></i> '.$text.'</a>';
 		$response['form']		= RSCommentsHelper::displayForm($option, $id, $override);
 		
 		echo json_encode($response);

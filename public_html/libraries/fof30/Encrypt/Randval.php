@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     FOF
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL version 2 or later
  */
 
@@ -196,4 +196,39 @@ class Randval implements RandvalInterface
 
 		return substr($randomStr, 0, $length);
 	}
+
+	/**
+	 * Return a randomly generated password using safe characters (a-z, A-Z, 0-9).
+	 *
+	 * @param   int  $length  How many characters long should the password be. Default is 64.
+	 *
+	 * @return  string
+	 *
+	 * @since   3.3.2
+	 */
+	public function getRandomPassword($length = 64)
+	{
+		$salt     = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+		$base     = strlen($salt);
+		$makepass = '';
+
+		/*
+		 * Start with a cryptographic strength random string, then convert it to
+		 * a string with the numeric base of the salt.
+		 * Shift the base conversion on each character so the character
+		 * distribution is even, and randomize the start shift so it's not
+		 * predictable.
+		 */
+		$random  = $this->generate($length + 1);
+		$shift   = ord($random[0]);
+
+		for ($i = 1; $i <= $length; ++$i)
+		{
+			$makepass .= $salt[($shift + ord($random[$i])) % $base];
+			$shift    += ord($random[$i]);
+		}
+
+		return $makepass;
+	}
+
 }

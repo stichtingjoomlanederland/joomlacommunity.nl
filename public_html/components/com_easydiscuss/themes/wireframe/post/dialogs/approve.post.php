@@ -43,7 +43,7 @@ defined('_JEXEC') or die('Restricted access');
 		</form>
 	</content>
 	<buttons>
-		<button data-close-button type="button" class="btn btn-default btn-sm"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CANCEL'); ?></button>
-		<button data-submit-button type="button" class="btn btn-success btn-sm"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_APPROVE_REPLY'); ?></button>
+		<button data-close-button type="button" class="btn btn-default"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CANCEL'); ?></button>
+		<button data-submit-button type="button" class="btn btn-primary"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_APPROVE_REPLY'); ?></button>
 	</buttons>
 </dialog>

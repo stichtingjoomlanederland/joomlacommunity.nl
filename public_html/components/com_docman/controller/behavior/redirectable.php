@@ -86,9 +86,7 @@ class ComDocmanControllerBehaviorRedirectable extends KControllerBehaviorAbstrac
         }
 
         //Rewrite the url for when downloading
-        if($this->getRequest()->isDownload()) {
-            $url = $this->_rewriteUrl($url);
-        }
+        $url = $this->_rewriteUrl($url);
 
         $context->response->setRedirect($url);
     }
@@ -131,6 +129,10 @@ class ComDocmanControllerBehaviorRedirectable extends KControllerBehaviorAbstrac
      */
     protected function _rewriteDropboxUrl($url)
     {
+        if (strpos($url, 'dl=') === false) {
+            $url .= strpos($url, '?') === false ? '?dl=1' : '&dl=1';
+        }
+
         //Switch out dl=0 for dl=1
         return str_replace('dl=0', 'dl=1', $url);
     }
@@ -166,9 +168,16 @@ class ComDocmanControllerBehaviorRedirectable extends KControllerBehaviorAbstrac
 
         if($id = $this->_getGoogleId($url_path))
         {
+
             foreach(array('presentation','document','spreadsheets') as $type)
             {
                 $segments = explode("/", $url_path);
+
+                // Do not rewrite it for copy URLs
+                // See: https://www.makeuseof.com/tag/make-copy-trick-sharing-google-drive-documents/
+                if (count($segments) && in_array($segments[count($segments)-1], ['copy', 'preview', 'pubhtml'])) {
+                    return $url;
+                }
 
                 if(in_array($type, $segments))
                 {

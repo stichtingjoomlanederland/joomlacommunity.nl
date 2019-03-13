@@ -12,6 +12,7 @@ class ComMigratorViewExportHtml extends ComKoowaViewHtml
     protected function _initialize(KObjectConfig $config)
     {
         $config->append(array(
+            'decorator'  => 'koowa',
             'auto_fetch' => false
         ));
 

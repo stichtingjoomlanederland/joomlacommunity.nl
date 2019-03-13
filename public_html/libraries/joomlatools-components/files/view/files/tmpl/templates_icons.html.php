@@ -8,6 +8,7 @@
  */
 defined('KOOWA') or die( 'Restricted access' ); ?>
 
+
 <textarea style="display: none" id="file_preview">
 <div class="k-ui-namespace k-small-inline-modal-holder mfp-hide extension-[%=metadata.extension%]">
     <div class="k-inline-modal">
@@ -47,12 +48,21 @@ defined('KOOWA') or die( 'Restricted access' ); ?>
 <textarea style="display: none" id="icons_folder">
     <div class="k-gallery__item k-gallery__item--folder files-node files-folder">
         <div class="k-card k-card--rounded js-navigate-folder">
-            <div class="k-card__body">
-                <label class="k-card__section">
-                    <input type="checkbox" class="files-select" value="" />
-                    <a href="javascript:void(0)" class="navigate">[%=name%]</a>
-                </label>
-            </div>
+            <a href="javascript:void(0)" class="k-card__body navigate">
+                <div class="k-card__section k-card__section--small-spacing">
+                    <div class="k-ratio-block k-ratio-block--4-to-3">
+                        <div class="k-ratio-block__body">
+                            <div class="k-ratio-block__centered">
+                                <span class="k-icon-document-folder k-icon--size-xlarge k-icon--accent extension-label"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            <label class="k-card__caption k-card__caption--overflow">
+                <input type="checkbox" class="files-select" value="" />
+                [%=name%]
+            </label>
         </div>
     </div>
 </textarea>
@@ -65,9 +75,9 @@ defined('KOOWA') or die( 'Restricted access' ); ?>
             extension = name.substr(name.lastIndexOf('.')+1).toLowerCase();
 
             kQuery.each(Files.icon_map, function(key, value) {
-            if (kQuery.inArray(extension, value) !== -1) {
-            icon = key;
-            }
+                    if (kQuery.inArray(extension, value) !== -1) {
+                    icon = key;
+                }
             });
             %]
             <a href="javascript:void(0)"
@@ -78,7 +88,11 @@ defined('KOOWA') or die( 'Restricted access' ); ?>
                     <div class="k-ratio-block k-ratio-block--4-to-3">
                         <div class="k-ratio-block__body">
                             <div class="k-ratio-block__centered">
+                            [% if (type == 'image') { %]
+                                <img class="image-thumbnail [%= client_cache ? 'loaded' : '' %]" src="" alt="[%=name%]" border="0" />
+                            [% } else { %]
                                 <span class="k-icon-document-[%=icon%] k-icon--size-large k-icon--accent extension-label"></span>
+                            [% }%]
                             </div>
                         </div>
                     </div>
@@ -104,7 +118,7 @@ defined('KOOWA') or die( 'Restricted access' ); ?>
                     <div class="k-ratio-block k-ratio-block--4-to-3">
                         <div class="k-ratio-block__body">
                             <div class="k-ratio-block__centered">
-                            [% if (typeof thumbnail === 'object') { %]
+                            [% if (type == 'image') { %]
                                 <img class="image-thumbnail [%= client_cache ? 'loaded' : '' %]" src="" alt="[%=name%]" border="0" />
                             [% } else { %]
                                 <span class="k-icon-document-image k-icon--size-large k-icon--accent"></span>

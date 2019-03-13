@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -306,7 +306,7 @@ JS;
 	{
 		/** @var Statistics $model */
 		$model           = $this->getModel();
-		$id              = $model->getState('id', 0);
+		$id              = $model->getState('id', 0, 'int');
 		$record          = Platform::getInstance()->get_statistics($id);
 		$this->record    = $record;
 		$this->record_id = $id;

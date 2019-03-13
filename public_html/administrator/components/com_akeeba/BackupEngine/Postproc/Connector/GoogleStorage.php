@@ -1,13 +1,11 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
- *
- *
  */
 
 namespace Akeeba\Engine\Postproc\Connector;
@@ -178,7 +176,7 @@ class GoogleStorage
 	/**
 	 * Returns a pre-calculated JWT assertion which you need to retrieve an access token from Google. If the assertion
 	 * does not exist it will be calculated.
-	 *.
+	 *
 	 * @param   string  $serviceAccountEmail  The Google Cloud Service Account (fake) email address
 	 * @param   string  $privateKey           The Google Cloud Service Account private key in PEM format
 	 *
@@ -226,7 +224,7 @@ class GoogleStorage
 		return $this->jwtAssertion;
 	}
 
-/**
+	/**
 	 * List all buckets under the user's account
 	 *
 	 * @param   string  $project_id  A valid API project identifier
@@ -390,11 +388,6 @@ class GoogleStorage
 		clearstatcache();
 		$filesize = @filesize($localFile);
 
-		if ($filesize > 104857600)
-		{
-			// throw new \RuntimeException("File size too big for simpleUpload ($filesize bigger than 100Mb).", 500);
-		}
-
 		// Get the relative URL
 		$relativeUrl =
 			self::uploadUrl .
@@ -431,19 +424,25 @@ class GoogleStorage
 		clearstatcache();
 		$filesize = @filesize($localFile);
 
-		if ($filesize < 5242880)
-		{
-			throw new \RuntimeException("File size too small for resumable upload ($filesize smaller than 5Mb).", 500);
-		}
+//		if ($filesize < 10485760)
+//		{
+//			throw new \RuntimeException("File size too small for resumable upload ($filesize smaller than 10MB).", 500);
+//		}
 
 		// Get the relative URL
 		$relativeUrl =
 			self::uploadUrl .
 			'b/' . $bucket . '/o?uploadType=resumable';
 
-		$json = json_encode([
+		/**
+		 * IMPORTANT! Despite the Google API docs claiming that all paths need to have special characters URL-encoded,
+		 *            this is NOT the case for resumable uploads *even when POSTing the filename in a JSON payload*. You
+		 *            need to pass it raw to json_encode and let the JSON encoder escape it. This is completely against
+		 *            the documentation and completely different to literally every other API call!
+		 */
+		$json = json_encode(array(
 			'name' => $path
-		]);
+		));
 
 		$response = $this->fetch('POST', $relativeUrl, array(
 			'headers'         => array(
@@ -462,7 +461,7 @@ class GoogleStorage
 
 		foreach ($lines as $line)
 		{
-			if (strpos($line, 'Location: ') === 0)
+			if (stripos($line, 'Location: ') === 0)
 			{
 				list($header, $location) = explode(': ', $line, 2);
 
@@ -479,13 +478,13 @@ class GoogleStorage
 	 * @param   string  $sessionUrl  The upload session URL, see createUploadSession
 	 * @param   string  $localFile   Absolute filesystem path of the source file
 	 * @param   int     $from        Starting byte to begin uploading, default is 0 (start of file)
-	 * @param   int     $length      Chunk size in bytes, default 5Mb.
+	 * @param   int     $length      Chunk size in bytes, default 1MB.
 	 *
 	 * @return  array  Empty while the upload is incomplete, upload information when complete
 	 *
 	 * @see  https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
 	 */
-	public function uploadPart($sessionUrl, $localFile, $from = 0, $length = 5242880)
+	public function uploadPart($sessionUrl, $localFile, $from = 0, $length = 1048576)
 	{
 		clearstatcache();
 		$totalSize = filesize($localFile);
@@ -528,11 +527,11 @@ class GoogleStorage
 	 * @param   string  $bucket     The bucket containing the path
 	 * @param   string  $path       Relative path in the Drive
 	 * @param   string  $localFile  Absolute filesystem path of the source file
-	 * @param   int     $partSize   Part size in bytes, default 10Mb, must NOT be over 60Mb! MUST be a multiple of 320Kb.
+	 * @param   int     $partSize   Part size in bytes, default 1MB.
 	 *
 	 * @return  array  File metadata
 	 */
-	public function resumableUpload($bucket, $path, $localFile, $partSize = 5242880)
+	public function resumableUpload($bucket, $path, $localFile, $partSize = 1048576)
 	{
 		$sessionUrl = $this->createUploadSession($bucket, $path, $localFile);
 		$from       = 0;
@@ -560,16 +559,17 @@ class GoogleStorage
 	 * @param   string  $bucket     The bucket containing the path
 	 * @param   string  $path       The remote path relative to Drive root
 	 * @param   string  $localFile  The absolute local filesystem path
+	 * @param   int     $partSize   The part size for resumable upload. Default 1MB.
 	 *
-	 * @return  array  See http://onedrive.github.io/items/upload_put.htm
+	 * @return  array
 	 */
-	public function upload($bucket, $path, $localFile)
+	public function upload($bucket, $path, $localFile, $partSize = 1048576)
 	{
 		clearstatcache();
 		$filesize = @filesize($localFile);
 
 		// Bigger than 100Mb: use resumable uploads with default (10Mb) parts
-		if ($filesize > 5242880)
+		if ($filesize > $partSize)
 		{
 			return $this->resumableUpload($bucket, $path, $localFile);
 		}
@@ -903,6 +903,13 @@ class GoogleStorage
 			if (in_array($chars, $safeChars))
 			{
 				$ret .= $char;
+
+				continue;
+			}
+
+			if ($char == ' ')
+			{
+				$ret .= '%20';
 
 				continue;
 			}

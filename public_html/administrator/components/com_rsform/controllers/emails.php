@@ -9,63 +9,80 @@ defined('_JEXEC') or die('Restricted access');
 
 class RsformControllerEmails extends RsformController
 {
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		
 		$this->registerTask('apply', 'save');
-		
-		$this->_db = JFactory::getDbo();
 	}
 	
-	function save()
+	public function save()
 	{
+	    $app    = JFactory::getApplication();
 		$model	= $this->getModel('forms');
 		$row	= $model->saveemail();
-		$type	= JFactory::getApplication()->input->getCmd('type','additional');
+		$type	= $app->input->getCmd('type', 'additional');
 		
 		if ($this->getTask() == 'apply')
-			return $this->setRedirect('index.php?option=com_rsform&task=forms.emails&type='.$type.'&cid='.$row->id.'&formId='.$row->formId.'&tmpl=component&update=1');
-		
-		$document = JFactory::getDocument();
-		$document->addScriptDeclaration('window.opener.updateemails('.$row->formId.',\''.JFactory::getApplication()->input->getCmd('type','additional').'\');window.close();');
+        {
+            return $this->setRedirect('index.php?option=com_rsform&task=forms.emails&type='.$type.'&cid='.$row->id.'&formId='.$row->formId.'&tmpl=component&update=1');
+        }
+
+        JFactory::getDocument()->addScriptDeclaration("window.opener.updateemails({$row->formId}, '{$type}');window.close();");
 	}
 	
-	function remove()
+	public function remove()
 	{
 		$db		= JFactory::getDbo();
-		$cid	= JFactory::getApplication()->input->getInt('cid');
-		$formId = JFactory::getApplication()->input->getInt('formId');
-		$type	= JFactory::getApplication()->input->getCmd('type','additional');
+        $app    = JFactory::getApplication();
+		$cid	= $app->input->getInt('cid');
+		$formId = $app->input->getInt('formId');
+		$type	= $app->input->getCmd('type','additional');
 		$view	= $type == 'additional' ? 'forms' : 'directory';
 		
 		if ($cid)
 		{
-			$db->setQuery("DELETE FROM #__rsform_emails WHERE id = ".$cid." ");
+		    $query = $db->getQuery(true)
+                ->delete($db->qn('#__rsform_emails'))
+                ->where($db->qn('id') . ' = ' . $db->q($cid));
+			$db->setQuery($query);
 			$db->execute();
-			$db->setQuery("DELETE FROM #__rsform_translations WHERE reference_id IN ('".$cid.".fromname','".$cid.".subject','".$cid.".message') ");
+
+			$references = array(
+                $cid . '.fromname',
+                $cid . '.subject',
+                $cid . '.message'
+            );
+
+			// Delete translations
+            $query->clear()
+                ->delete($db->qn('#__rsform_translations'))
+                ->where($db->qn('reference') . ' = ' . $db->q('emails'))
+                ->where($db->qn('reference_id') . ' IN (' . implode(',', $db->q($references)) . ')');
+			$db->setQuery($query);
 			$db->execute();
 		}
 		
-		JFactory::getApplication()->input->set('view', $view);
-		JFactory::getApplication()->input->set('layout', 'edit_emails');
-		JFactory::getApplication()->input->set('tmpl', 'component');
-		JFactory::getApplication()->input->set('formId', $formId);
-		JFactory::getApplication()->input->set('type', $type);
+		$app->input->set('view', $view);
+		$app->input->set('layout', 'edit_emails');
+		$app->input->set('tmpl', 'component');
+		$app->input->set('formId', $formId);
+		$app->input->set('type', $type);
 		
 		parent::display();
 		jexit();
 	}
 	
-	function update()
+	public function update()
 	{
-		$formId = JFactory::getApplication()->input->getInt('formId');
-		$view	= JFactory::getApplication()->input->getCmd('type','additional') == 'additional' ? 'forms' : 'directory';
+        $app    = JFactory::getApplication();
+		$formId = $app->input->getInt('formId');
+		$view	= $app->input->getCmd('type', 'additional') == 'additional' ? 'forms' : 'directory';
 		
-		JFactory::getApplication()->input->set('view', $view);
-		JFactory::getApplication()->input->set('layout', 'edit_emails');
-		JFactory::getApplication()->input->set('tmpl', 'component');
-		JFactory::getApplication()->input->set('formId', $formId);
+		$app->input->set('view', $view);
+		$app->input->set('layout', 'edit_emails');
+		$app->input->set('tmpl', 'component');
+		$app->input->set('formId', $formId);
 		
 		parent::display();
 		jexit();

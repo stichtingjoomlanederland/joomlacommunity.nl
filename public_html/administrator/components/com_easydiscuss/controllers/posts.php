@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -522,7 +522,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		}
 
 
-		$message = JText::_('COM_EASYDISCUSS_POSTS_LOCKED');
+		$message = JText::_('COM_EASYDISCUSS_POSTS_UNLOCKED');
 		ED::setMessage($message, DISCUSS_QUEUE_SUCCESS);
 
 		$this->app->redirect($redirect);	

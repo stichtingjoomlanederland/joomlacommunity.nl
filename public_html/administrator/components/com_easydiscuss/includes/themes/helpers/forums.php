@@ -19,7 +19,7 @@ class EasyDiscussThemesHelperForums
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public static function stats()
 	{
@@ -52,7 +52,7 @@ class EasyDiscussThemesHelperForums
 
 
 		$postModel = ED::model('Posts');
-		$totalPosts	= $postModel->getTotal();
+		$totalPosts	= $postModel->getTotalThread();
 
 		$resolvedPosts = $postModel->getTotalResolved();
 		$unresolvedPosts = $postModel->getUnresolvedCount();

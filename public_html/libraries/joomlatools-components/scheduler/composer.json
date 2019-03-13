@@ -1,7 +1,7 @@
 {
     "name": "joomlatools/framework-scheduler",
     "type": "joomlatools-extension",
-    "license": "GPLv3",
+    "license": "GPL-3.0-only",
     "description": "A reusable component for task scheduling",
     "keywords": [
         "joomla",

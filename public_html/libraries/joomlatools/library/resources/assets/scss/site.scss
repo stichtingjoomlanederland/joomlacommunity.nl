@@ -15,14 +15,14 @@
 
 /* Outside of the k-ui-namespace scope */
 @import "site/modal";
-@import "../../../../../../../../kodekit-ui/src/scss/admin/molecules/datepicker";
+@import "../../../../../../../../kodekit-ui/src/scss/admin/3rdparty/datepicker";
 
 @import "../../../../../../../../kodekit-ui/node_modules/select2/src/scss/core";
 @import "../../../../../../../../kodekit-ui/node_modules/select2-bootstrap-theme/src/select2-bootstrap";
 
 /* Icons */
-@import "../../../../../../../../kodekit-ui/src/scss/admin/utilities/k-icons";
-@import "../../../../../../../../kodekit-ui/src/scss/admin/molecules/icons";
+@import "../../../../../../../../kodekit-ui/src/scss/admin/generated/k-icons";
+@import "../../../../../../../../kodekit-ui/src/scss/admin/molecules/icon";
 
 /* Tooltips */
 @import "../../../../../../../../kodekit-ui/src/scss/admin/molecules/tooltip";
@@ -37,7 +37,7 @@
   }
 
   /* Responsive tables */
-  @import "../../../../../../../../kodekit-ui/src/scss/admin/molecules/responsive-table";
+  @import "../../../../../../../../kodekit-ui/src/scss/admin/3rdparty/footable";
 
   /* Pagination */
   @import "../../../../../../../../kodekit-ui/src/scss/admin/molecules/pagination";
@@ -47,7 +47,7 @@
 
   @import "site/anchor";
   @import "site/header";
-  @import "../../../../../../../../kodekit-ui/src/scss/admin/molecules/tree";
+  @import "../../../../../../../../kodekit-ui/src/scss/admin/3rdparty/jqtree";
   @import "site/select2";
   @import "site/table";
   @import "site/toolbar";
@@ -59,7 +59,23 @@
    * Loading last so we have the biggest chance of 'winning' specificity wars without using !important
    */
 
-  @import "../../../../../../../../kodekit-ui/src/scss/admin/utilities/utilities";
-  @import "../../../../../../../../kodekit-ui/src/scss/admin/utilities/component-animations";
-  @import "../../../../../../../../kodekit-ui/src/scss/admin/utilities/hamburger";
+  @import "../../../../../../../../kodekit-ui/src/scss/admin/utilities/dynamic-content-holder";
+  @import "../../../../../../../../kodekit-ui/src/scss/admin/utilities/hidden";
+  @import "../../../../../../../../kodekit-ui/src/scss/admin/molecules/loader";
+  @import "../../../../../../../../kodekit-ui/src/scss/admin/utilities/no-margin";
+  @import "../../../../../../../../kodekit-ui/src/scss/admin/utilities/no-transition";
+  @import "../../../../../../../../kodekit-ui/src/scss/admin/utilities/no-wrap";
+  @import "../../../../../../../../kodekit-ui/src/scss/admin/utilities/visually-hidden";
+  @import "../../../../../../../../kodekit-ui/src/scss/admin/utilities/visually-shown";
+  @import "../../../../../../../../kodekit-ui/src/scss/admin/utilities/ratio-content";
+  @import "../../../../../../../../kodekit-ui/src/scss/admin/utilities/color";
+  @import "../../../../../../../../kodekit-ui/src/scss/admin/utilities/content-block";
+  @import "../../../../../../../../kodekit-ui/src/scss/admin/utilities/position";
+  @import "../../../../../../../../kodekit-ui/src/scss/admin/utilities/flexing";
+  @import "../../../../../../../../kodekit-ui/src/scss/admin/utilities/touchevent";
+  @import "../../../../../../../../kodekit-ui/src/scss/admin/utilities/ellipsis";
+  @import "../../../../../../../../kodekit-ui/src/scss/admin/utilities/coverall";
+  @import "../../../../../../../../kodekit-ui/src/scss/admin/utilities/this-or-that";
+  @import "../../../../../../../../kodekit-ui/src/scss/admin/utilities/component-animation";
+  @import "../../../../../../../../kodekit-ui/src/scss/admin/molecules/hamburger";
 }

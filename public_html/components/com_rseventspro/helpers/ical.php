@@ -16,7 +16,7 @@ class RSEventsProiCal {
 	protected static $instances = array();
 	
 	public function __construct($ids) {
-		array_map('intval',$ids);
+		$ids = array_map('intval',$ids);
 		
 		self::$ids = $ids;
 	}

@@ -27,6 +27,7 @@ class RseventsproViewSettings extends JViewLegacy
 			$this->config		= $this->get('Config');
 			$this->social		= $this->get('Social');
 			$this->fieldsets	= $this->form->getFieldsets();
+			$this->login		= $this->get('Login');
 			
 			require_once JPATH_SITE.'/components/com_rseventspro/helpers/google.php';
 			$google = new RSEPROGoogle;

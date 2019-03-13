@@ -39,11 +39,6 @@ JHtml::_('behavior.formvalidator'); ?>
 		jQuery('#jform_user_avatar').trigger('liszt:updated');
 		jQuery('#jform_event_comment').trigger('liszt:updated');
 	});
-	
-	function fconnect() {
-		url = 'https://graph.facebook.com/oauth/authorize?client_id=<?php echo $this->config->facebook_appid; ?>&type=user_agent&display=popup&scope=<?php echo urlencode('user_events,manage_pages'); ?>&redirect_uri=https://www.rsjoomla.com/frseventspro/index.php?to=<?php echo base64_encode(JURI::root().'administrator/index.php?option=com_rseventspro&task=settings.savetoken'); ?>';
-		window.open(url,"","top=250,left=250,width=500,height=400,menubar=no,scrollbars=no,status=no,titlebar=no,toolbar=no,location=no");
-	}
 </script>
 
 <form action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=settings'); ?>" method="post" name="adminForm" id="adminForm" class="form-validate form-horizontal" autocomplete="off" enctype="multipart/form-data">

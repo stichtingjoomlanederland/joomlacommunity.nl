@@ -42,6 +42,7 @@ class JFormFieldEvents extends JFormFieldList
 		
 		$query->select($db->qn('id'))
 			->select($db->qn('name'))
+			->select($db->qn('start'))
 			->from($db->qn('#__rseventspro_events'))
 			->where($db->qn('registration').' = '.$db->q(1))
 			->where($db->qn('published').' = '.$db->q(1))

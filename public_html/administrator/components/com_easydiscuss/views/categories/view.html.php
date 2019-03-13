@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -57,7 +57,7 @@ class EasyDiscussViewCategories extends EasyDiscussAdminView
 			$category->bind($row);
 
 			$category->depth = $row->depth;
-			$category->count = $model->getUsedCount($category->id, false, true);
+			$category->count = $model->getUsedCount($category->id, false);
 			$category->child_count = $model->getChildCount($category->id);
 
 			$category->link = 'index.php?option=com_easydiscuss&view=categories&layout=form&id='. $category->id;

@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -311,16 +311,8 @@ class Html extends BaseView
 		// Pro version, control panel graphs (only if we enabled them in config options)
 		if (defined('ADMINTOOLS_PRO') && ADMINTOOLS_PRO && $this->showstats)
 		{
-			// Load CSS
-			$this->addCssFile('admin://components/com_admintools/media/css/jquery.jqplot.min.css');
-
 			// Load JavaScript
-			$this->addJavascriptFile('admin://components/com_admintools/media/js/jquery.jqplot.min.js');
-			$this->addJavascriptFile('admin://components/com_admintools/media/js/jqplot.highlighter.min.js');
-			$this->addJavascriptFile('admin://components/com_admintools/media/js/jqplot.dateAxisRenderer.min.js');
-			$this->addJavascriptFile('admin://components/com_admintools/media/js/jqplot.barRenderer.min.js');
-			$this->addJavascriptFile('admin://components/com_admintools/media/js/jqplot.pieRenderer.min.js');
-			$this->addJavascriptFile('admin://components/com_admintools/media/js/jqplot.hermite.min.js');
+			$this->addJavascriptFile('admin://components/com_admintools/media/js/Chart.bundle.min.js');
 			$this->addJavascriptFile('admin://components/com_admintools/media/js/cpanelgraphs.min.js');
 		}
 
@@ -367,7 +359,7 @@ JS;
 			switch ($type)
 			{
 				case '=':
-					continue;
+					continue 2;
 					break;
 
 				case '+':

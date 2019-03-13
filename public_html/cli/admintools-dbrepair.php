@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -9,7 +9,7 @@
 define('_JEXEC', 1);
 
 // Setup and import the base CLI script
-$minphp = '5.4.0';
+$minphp = '5.6.0';
 $curdir = __DIR__;
 
 require_once __DIR__ . '/../administrator/components/com_admintools/assets/cli/base.php';

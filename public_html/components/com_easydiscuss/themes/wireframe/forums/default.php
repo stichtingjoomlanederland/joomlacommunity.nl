@@ -1,15 +1,15 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="ed-forums">
 	<?php if ($activeCategory) { ?>
@@ -54,12 +54,12 @@ defined('_JEXEC') or die('Restricted access');
 
 						<div class="o-col-sm"></div>
 
-						<div class="o-col-sm ed-forum-item__col-avatar t-text--center">
+						<div class="o-col-sm ed-forum-item__col-avatar t-text--center o-col--top">
 							<div>
 								<?php echo JText::_('COM_EASYDISCUSS_FORUMS_POSTED_BY'); ?>
 							</div>
 						</div>
-						<div class="o-col-sm ed-forum-item__col-avatar t-text--center">
+						<div class="o-col-sm ed-forum-item__col-avatar t-text--center o-col--top">
 							<div>
 								<?php echo JText::_('COM_EASYDISCUSS_FORUMS_LAST_REPLY'); ?>
 							</div>
@@ -81,21 +81,30 @@ defined('_JEXEC') or die('Restricted access');
 					<?php } ?>
 				</div>
 				<div class="ed-forum__ft">
-					<?php if ($thread->posts && $this->my->id) { ?>
-					<a href="<?php echo EDR::_('view=categories&layout=listings&category_id=' . $thread->category->id . '&filter=unread'); ?>">
-						<?php echo JText::_('COM_ED_VIEW_UNREAD_POSTS') ; ?> &rarr;
-					</a>
-					&nbsp;
-					<?php } ?>
+					<?php if ($thread->category->container || ($thread->posts && $this->my->id)) { ?>
+					<ol class="t-lg-pull-left g-list-inline g-list-inline--dashed">
+						<?php if (!$thread->category->container) { ?>
+						<li>
+							<a href="<?php echo EDR::getCategoryRoute($thread->category->id); ?>">
+								<?php echo $thread->posts ? JText::_('COM_EASYDISCUSS_FORUMS_VIEW_ALL_POST') : JText::_('COM_EASYDISCUSS_FORUMS_VIEW_CATEGORY') ; ?>
+							</a>
+						</li>
+						<?php } ?>
 
-					<?php if (!$thread->category->container) { ?>
-					<a href="<?php echo EDR::getCategoryRoute($thread->category->id); ?>">
-						<?php echo $thread->posts ? JText::_('COM_EASYDISCUSS_FORUMS_VIEW_ALL_POST') : JText::_('COM_EASYDISCUSS_FORUMS_VIEW_CATEGORY') ; ?> &rarr;
-					</a>
+						<?php if ($thread->posts && $this->my->id) { ?>
+						<li>
+							<a href="<?php echo EDR::_('view=categories&layout=listings&category_id=' . $thread->category->id . '&filter=unread'); ?>">
+								<?php echo JText::_('COM_ED_VIEW_UNREAD_POSTS') ; ?>
+							</a>
+						</li>
+						<?php } ?>
+					</ol>
 					<?php } ?>
 
 					<?php if ($thread->posts) { ?>
-					<span class="pull-right"><?php echo JText::sprintf('COM_EASYDISCUSS_FORUMS_COUNT_POST', count($thread->posts), $thread->category->getTotalPosts()); ?></span>
+					<div class="t-lg-pull-right">
+						<?php echo JText::sprintf('COM_EASYDISCUSS_FORUMS_COUNT_POST', count($thread->posts), $thread->category->getTotalPosts()); ?>
+					</div>
 					<?php } ?>
 				</div>
 			</div>

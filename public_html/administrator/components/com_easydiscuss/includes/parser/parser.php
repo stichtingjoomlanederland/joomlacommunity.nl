@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -46,11 +46,14 @@ class EasyDiscussParser extends EasyDiscuss
 						 '/\[quote\](.*?)\[\/quote\]/ims',
 						 '/\[left\](.*?)\[\/left\]/ims',
 						 '/\[center\](.*?)\[\/center\]/ims',
-						 '/\[right\](.*?)\[\/right\]/ims'
+						 '/\[right\](.*?)\[\/right\]/ims',
+						 '/\[ul\](.*?)\[\/ul\]/ims',
+						 '/\[ol\](.*?)\[\/ol\]/ims',
+						 '/\[li\](.*?)\[\/li\]/ims'
 		);
 
 		// And replace them by...
-		$bbcodeReplace = array(	
+		$bbcodeReplace = array(
 						 '<strong>\1</strong>',
 						 '<em>\1</em>',
 						 '<u>\1</u>',
@@ -59,7 +62,10 @@ class EasyDiscussParser extends EasyDiscuss
 						 '<blockquote>\1</blockquote>',
 						 '<p style="text-align: left;">\1</p>',
 						 '<p style="text-align: center;">\1</p>',
-						 '<p style="text-align: right;">\1</p>'
+						 '<p style="text-align: right;">\1</p>',
+						 '<ul>\1</ul>',
+						 '<ol>\1</ol>',
+						 '<li>\1</li>'
 		);
 
 		// @rule: Replace URL links.
@@ -130,6 +136,18 @@ class EasyDiscussParser extends EasyDiscuss
 		// we need to inject max-width 100% for image tag
 		$content = str_ireplace('src="', 'max-width="100%" style="max-width:100%" src="', $content);
 
+		return $content;
+	}
+
+	/**
+	 * Inject width attribute into bbcode image tag in email content.
+	 *
+	 * @since	4.1
+	 * @access	public
+	 */
+	public function normliseBBCode($content)
+	{
+		$content = JString::str_ireplace('class="bb-smiley"', 'class="bb-smiley" width="20"', $content);
 		return $content;
 	}
 
@@ -308,10 +326,9 @@ class EasyDiscussParser extends EasyDiscuss
 				$url = 'http://' . $url;
 			}
 
-			$targetBlank = $this->config->get('main_link_new_window') ? ' target="_blank"' : '';
-			$noFollow = $this->config->get('main_link_rel_nofollow') ? ' rel="nofollow"' : '';
+			$linkAttr = ED::getLinkAttributes();
 
-			$text = str_ireplace($urlTags[$i], '<a href="' . $url . '"' . $targetBlank . $noFollow .'>' . $titles[$i] . '</a>', $text);
+			$text = str_ireplace($urlTags[$i], '<a href="' . $url . '"' . $linkAttr .'>' . $titles[$i] . '</a>', $text);
 		}
 
 		return $text;
@@ -630,16 +647,16 @@ class EasyDiscussParser extends EasyDiscuss
 
 		if (isset($matches[1]) && count($matches[1]) > 0) {
 
-			for ($i = 0; $i < count($matches[1]); $i++) {
+			// To prevent duplicate matched value
+			$uniqueMatched = array_unique($matches[1]);
 
-				$imgPath = $matches[1][$i];
-
+			foreach ($uniqueMatched as $imgPath) {
 				if ($imgPath[0] == '/') {
 					$base =	rtrim(JURI::root(), '/');
 				}
 
 				// Check whether this is valid img link with the http protocol
-				// Replace the domain name into imaga path
+				// Replace the domain name into image path
 				if (JString::strpos($imgPath , 'http://') === false && JString::strpos($imgPath, 'https://') === false) {
 					$content = str_replace($imgPath, $base . $imgPath, $content);
 				}

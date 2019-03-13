@@ -1,9 +1,10 @@
 <?php
 /**
- * @package   Blue Flame Network (bfNetwork)
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
- * @link      https://myJoomla.com/
+ *
+ * @see      https://myJoomla.com/
+ *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
  * bfNetwork is free software: you can redistribute it and/or modify
@@ -20,7 +21,6 @@
  * along with this package.  If not, see http://www.gnu.org/licenses/
  */
 /**
- * @package    AkeebaCMSUpdate
  * @copyright  Copyright (c)2010-2014 Nicholas K. Dionysopoulos
  * @license    GNU General Public License version 3, or later
  *
@@ -39,21 +39,21 @@
  */
 
 /**
- * A download adapter using URL fopen() wrappers
+ * A download adapter using URL fopen() wrappers.
  */
 class AcuDownloadAdapterFopen extends AcuDownloadAdapterAbstract implements AcuDownloadInterface
 {
     public function __construct()
     {
         $this->priority              = 100;
-        $this->supportsFileSize      = FALSE;
-        $this->supportsChunkDownload = TRUE;
+        $this->supportsFileSize      = false;
+        $this->supportsChunkDownload = true;
         $this->name                  = 'fopen';
 
         // If we are not allowed to use ini_get, we assume that URL fopen is
         // disabled.
         if (!function_exists('ini_get')) {
-            $this->isSupported = FALSE;
+            $this->isSupported = false;
         } else {
             $this->isSupported = ini_get('allow_url_fopen');
         }
@@ -69,15 +69,15 @@ class AcuDownloadAdapterFopen extends AcuDownloadAdapterAbstract implements AcuD
      * If this class' supportsChunkDownload returns false you should assume
      * that the $from and $to parameters will be ignored.
      *
-     * @param   string  $url  The remote file's URL
-     * @param   integer $from Byte range to start downloading from. Use null for start of file.
-     * @param   integer $to   Byte range to stop downloading. Use null to download the entire file ($from is ignored)
+     * @param string $url  The remote file's URL
+     * @param int    $from Byte range to start downloading from. Use null for start of file.
+     * @param int    $to   Byte range to stop downloading. Use null to download the entire file ($from is ignored)
      *
-     * @return  string  The raw file data retrieved from the remote URL.
+     * @return string the raw file data retrieved from the remote URL
      *
-     * @throws  Exception  A generic exception is thrown on error
+     * @throws Exception A generic exception is thrown on error
      */
-    public function downloadAndReturn($url, $from = NULL, $to = NULL)
+    public function downloadAndReturn($url, $from = null, $to = null)
     {
         if (empty($from)) {
             $from = 0;
@@ -94,27 +94,32 @@ class AcuDownloadAdapterFopen extends AcuDownloadAdapterAbstract implements AcuD
             unset($temp);
         }
 
-
         if (!(empty($from) && empty($to))) {
             $options = array(
                 'http' => array(
                     'method' => 'GET',
-                    'header' => "Range: bytes=$from-$to\r\n"
-                )
+                    'header' => "Range: bytes=$from-$to\r\n",
+                ), 'ssl' => array(
+                    'verify_peer'      => false, // FFS!!! CRAP SERVERS
+                    'verify_peer_name' => false, // FFS!!! CRAP SERVERS
+                ),
             );
             $context = stream_context_create($options);
-            $result  = @file_get_contents($url, FALSE, $context, $from - $to + 1);
+            $result  = @file_get_contents($url, false, $context, $from - $to + 1);
         } else {
             $options = array(
                 'http' => array(
                     'method' => 'GET',
-                )
+                ), 'ssl' => array(
+                    'verify_peer'      => false, // FFS!!! CRAP SERVERS
+                    'verify_peer_name' => false, // FFS!!! CRAP SERVERS
+                ),
             );
             $context = stream_context_create($options);
-            $result  = @file_get_contents($url, FALSE, $context);
+            $result  = @file_get_contents($url, false, $context);
         }
 
-        if ($result === FALSE) {
+        if (false === $result) {
             $error = JText::sprintf('COM_CMSUPDATE_ERR_LIB_FOPEN_ERROR');
             throw new Exception($error, 1);
         } else {

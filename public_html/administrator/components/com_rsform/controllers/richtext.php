@@ -14,14 +14,14 @@ class RsformControllerRichtext extends RsformController
 		parent::__construct();
 		
 		$this->registerTask('apply', 'save');
-		
-		$this->_db = JFactory::getDbo();
 	}
 	
 	public function show()
 	{
-		JFactory::getApplication()->input->set('view', 	'forms');
-		JFactory::getApplication()->input->set('layout', 	'richtext');
+        $app = JFactory::getApplication();
+
+		$app->input->set('view',    'forms');
+        $app->input->set('layout',  'richtext');
 		
 		parent::display();
 	}
@@ -37,7 +37,7 @@ class RsformControllerRichtext extends RsformController
 
 		$model->getForm();
 		$lang = $model->getLang();
-		if ($model->_form->Lang != $lang)
+		if ($model->_form->Lang != $lang && !RSFormProHelper::getConfig('global.disable_multilanguage'))
 		{
 			$model->saveFormRichtextTranslation($formId, $opener, $value, $lang);
 		}
@@ -64,8 +64,9 @@ class RsformControllerRichtext extends RsformController
 	
 	public function preview()
 	{
-		$formId = JFactory::getApplication()->input->getInt('formId');
-		$opener = JFactory::getApplication()->input->getCmd('opener');
+	    $app    = JFactory::getApplication();
+		$formId = $app->input->getInt('formId');
+		$opener = $app->input->getCmd('opener');
 		
 		$db = JFactory::getDbo();
 

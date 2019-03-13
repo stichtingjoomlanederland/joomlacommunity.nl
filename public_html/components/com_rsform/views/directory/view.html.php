@@ -17,9 +17,12 @@ class RsformViewDirectory extends JViewLegacy
 		$this->layout		= $this->getLayout();
 		$this->directory	= $this->get('Directory');
 		$this->tooltipClass = RSFormProHelper::getTooltipClass();
+		$this->url          = JUri::getInstance();
+
+        JHtml::script('com_rsform/directory.js', array('relative' => true, 'version' => 'auto'));
 		
 		if ($this->layout == 'view') {
-            JHtml::stylesheet('com_rsform/directory.css', array('relative' => true));
+            JHtml::stylesheet('com_rsform/directory.css', array('relative' => true, 'version' => 'auto'));
 			
 			$this->template  = $this->get('template');
             $this->id		 = $this->app->input->getInt('id',0);
@@ -37,7 +40,7 @@ class RsformViewDirectory extends JViewLegacy
 			$this->app->getPathway()->addItem(JText::_('RSFP_SUBM_DIR_VIEW'), '');
 		} elseif ($this->layout == 'edit') {
 			if (RSFormProHelper::canEdit($this->params->get('formId'),$this->app->input->getInt('id',0))) {
-                JHtml::stylesheet('com_rsform/directory.css', array('relative' => true));
+                JHtml::stylesheet('com_rsform/directory.css', array('relative' => true, 'version' => 'auto'));
 				$this->fields		= $this->get('EditFields');
 			} else {
 				$this->app->redirect(JUri::root());
@@ -61,7 +64,9 @@ class RsformViewDirectory extends JViewLegacy
 
 			$this->filter_search    = $this->get('Search');
 			$this->filter_order     = $this->get('ListOrder');
-			$this->filter_order_Dir = $this->get('ListDirn');			
+			$this->filter_order_Dir = $this->get('ListDirn');
+
+			$this->url->delVar('start');
 			
 			// Add custom CSS and JS
 			if ($this->directory->JS)
@@ -156,7 +161,6 @@ class RsformViewDirectory extends JViewLegacy
 	}
 	
 	public function pdfLink($id) {
-		$app		= JFactory::getApplication();
 		$has_suffix = JFactory::getConfig()->get('sef') && JFactory::getConfig()->get('sef_suffix');
 		$pdf_link = JRoute::_('index.php?option=com_rsform&view=directory&layout=view&id='.$id.'&format=pdf');
 		if ($has_suffix) {

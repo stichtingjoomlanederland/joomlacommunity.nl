@@ -75,10 +75,8 @@ class KTemplateEngineMarkdown extends KTemplateEngineAbstract
     {
         if(!$this->_source)
         {
-            $locator = $this->getObject('template.locator.factory')->createLocator($url);
-
             //Locate the template
-            if (!$file = $locator->locate($url)) {
+            if (!$file = $this->getObject('template.locator.factory')->locate($url)) {
                 throw new InvalidArgumentException(sprintf('The template "%s" cannot be located.', $url));
             }
 
@@ -112,18 +110,18 @@ class KTemplateEngineMarkdown extends KTemplateEngineAbstract
      */
     public function loadString($source)
     {
-        $file = crc32($source);
+        $name = crc32($source);
 
-        if(!$this->_source = $this->isCached($file))
+        if(!$file = $this->isCached($name))
         {
             //Compile the template
-            if(!$source = $this->_compile($source)) {
+            if(!$this->_source = $this->_compile($source)) {
                 throw new RuntimeException(sprintf('The template content cannot be compiled.'));
             }
 
-            $this->cache($file, $source);
-            $this->_source = $source;
+            $this->cache($name, $this->_source);
         }
+        else  $this->_source = file_get_contents($file);
 
         return $this;
     }

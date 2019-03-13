@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -244,7 +244,7 @@ ENDHTML;
 		$htaccess = <<<ENDHTACCESS
 RewriteEngine On
 $rewriteBase
-RewriteCond %{REMOTE_HOST}        !$ip
+RewriteCond %{REMOTE_ADDR}        !$ip
 RewriteCond %{REQUEST_URI}        !offline\.html
 RewriteCond %{REQUEST_URI}        !(\.png|\.jpg|\.gif|\.jpeg|\.bmp|\.swf|\.css|\.js)$
 RewriteRule (.*)                  offline.html    [R=307,L]

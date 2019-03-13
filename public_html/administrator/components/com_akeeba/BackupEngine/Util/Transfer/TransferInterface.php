@@ -1,12 +1,11 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
- *
  */
 
 namespace Akeeba\Engine\Util\Transfer;
@@ -53,10 +52,11 @@ interface TransferInterface
 	 *
 	 * @param   string  $localFilename   The full path to the local file
 	 * @param   string  $remoteFilename  The full path to the remote file
+	 * @param   bool    $useExceptions   Throw an exception instead of returning "false" on connection error.
 	 *
 	 * @return  boolean  True on success
 	 */
-	public function upload($localFilename, $remoteFilename);
+	public function upload($localFilename, $remoteFilename, $useExceptions = true);
 
 	/**
 	 * Read the contents of a remote file into a string
@@ -70,12 +70,13 @@ interface TransferInterface
 	/**
 	 * Download a remote file into a local file
 	 *
-	 * @param   string  $remoteFilename
-	 * @param   string  $localFilename
+	 * @param   string  $remoteFilename  The remote file path to download from
+	 * @param   string  $localFilename   The local file path to download to
+	 * @param   bool    $useExceptions   Throw an exception instead of returning "false" on connection error.
 	 *
 	 * @return  boolean  True on success
 	 */
-	public function download($remoteFilename, $localFilename);
+	public function download($remoteFilename, $localFilename, $useExceptions = true);
 
 	/**
 	 * Delete a remote file

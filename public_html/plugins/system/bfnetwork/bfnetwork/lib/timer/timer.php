@@ -1,9 +1,10 @@
 <?php
 /**
- * @package   Blue Flame Network (bfNetwork)
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
- * @link      https://myJoomla.com/
+ *
+ * @see      https://myJoomla.com/
+ *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
  * bfNetwork is free software: you can redistribute it and/or modify
@@ -20,7 +21,6 @@
  * along with this package.  If not, see http://www.gnu.org/licenses/
  */
 /**
- * @package    AkeebaCMSUpdate
  * @copyright  Copyright (c)2010-2014 Nicholas K. Dionysopoulos
  * @license    GNU General Public License version 3, or later
  *
@@ -47,31 +47,31 @@ class AcuTimer
     /**
      * Maximum execution time allowance per step.
      *
-     * @var  integer
+     * @var int
      */
-    private $max_exec_time = NULL;
+    private $max_exec_time = null;
 
     /**
      * Minimum execution time per step.
      *
-     * @var  integer
+     * @var int
      */
-    private $min_exec_time = NULL;
+    private $min_exec_time = null;
 
     /**
-     * Timestamp of execution start
+     * Timestamp of execution start.
      *
-     * @var  integer
+     * @var int
      */
-    private $start_time = NULL;
+    private $start_time = null;
 
     /**
      * Public constructor, creates the timer object and calculates the
      * execution time limits.
      *
-     * @param   array $params The configuration parameters for the timer
+     * @param array $params The configuration parameters for the timer
      *
-     * @return  AcuTimer
+     * @return AcuTimer
      */
     public function __construct($params = array())
     {
@@ -99,9 +99,9 @@ class AcuTimer
 
         // Get PHP's maximum execution time (our upper limit)
         if (@function_exists('ini_get')) {
-            $php_max_exec_time = @ini_get("maximum_execution_time");
+            $php_max_exec_time = @ini_get('maximum_execution_time');
 
-            if ((!is_numeric($php_max_exec_time)) || ($php_max_exec_time == 0)) {
+            if ((!is_numeric($php_max_exec_time)) || (0 == $php_max_exec_time)) {
                 // If we have no time limit, set a hard limit of about 10 seconds
                 // (safe for Apache and IIS timeouts, verbose enough for users)
                 $php_max_exec_time = 14;
@@ -127,9 +127,7 @@ class AcuTimer
     }
 
     /**
-     * Wake-up function to reset internal timer when we get unserialized
-     *
-     * @return  void
+     * Wake-up function to reset internal timer when we get unserialized.
      */
     public function __wakeup()
     {
@@ -138,9 +136,9 @@ class AcuTimer
     }
 
     /**
-     * Gets the number of seconds left, before we hit the "must stop" threshold
+     * Gets the number of seconds left, before we hit the "must stop" threshold.
      *
-     * @return  float  The time left in decimal seconds
+     * @return float The time left in decimal seconds
      */
     public function getTimeLeft()
     {
@@ -151,7 +149,7 @@ class AcuTimer
      * Gets the time elapsed since object creation/unserialization, effectively how
      * long you have been processing data since you instantiated AcuTimer.
      *
-     * @return  float  The number of elapsed time in decimal seconds
+     * @return float The number of elapsed time in decimal seconds
      */
     public function getRunningTime()
     {
@@ -159,15 +157,15 @@ class AcuTimer
     }
 
     /**
-     * Returns the current timestamp in decimal seconds
+     * Returns the current timestamp in decimal seconds.
      *
-     * @return  float  Current timestamp in decimal seconds
+     * @return float Current timestamp in decimal seconds
      */
     private function microtime_float()
     {
-        list($usec, $sec) = explode(" ", microtime());
+        list($usec, $sec) = explode(' ', microtime());
 
-        return ((float)$usec + (float)$sec);
+        return (float) $usec + (float) $sec;
     }
 
     /**
@@ -175,19 +173,17 @@ class AcuTimer
      * processing to make sure that it doesn't take less time than the
      * minimum execution time. This is used to avoid being blocked by
      * overzealous server protection solutions.
-     *
-     * @return  void
      */
     public function enforce_min_exec_time()
     {
         // Try to get a sane value for PHP's maximum_execution_time INI parameter
         if (@function_exists('ini_get')) {
-            $php_max_exec = @ini_get("maximum_execution_time");
+            $php_max_exec = @ini_get('maximum_execution_time');
         } else {
             $php_max_exec = 10;
         }
 
-        if (($php_max_exec == "") || ($php_max_exec == 0)) {
+        if (('' == $php_max_exec) || (0 == $php_max_exec)) {
             $php_max_exec = 10;
         }
 
@@ -235,8 +231,6 @@ class AcuTimer
 
     /**
      * Reset the timer. It should only be used in CLI mode!
-     *
-     * @return  void
      */
     public function resetTime()
     {

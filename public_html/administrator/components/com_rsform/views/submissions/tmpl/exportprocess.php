@@ -19,6 +19,6 @@ defined('_JEXEC') or die('Restricted access');
 
 <script type="text/javascript">
 jQuery(document).ready(function(){
-	exportProcess(0,<?php echo $this->limit; ?>,<?php echo $this->total;?>);
+	exportProcess(0, <?php echo $this->limit; ?>, <?php echo $this->total;?>);
 });
 </script>

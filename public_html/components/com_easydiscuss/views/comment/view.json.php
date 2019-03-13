@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,7 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
 require_once(DISCUSS_ROOT . '/views/views.php');
 require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/akismet/akismet.php');
@@ -26,20 +26,20 @@ class EasyDiscussViewComment extends EasyDiscussView
 	 */
 	public function save()
 	{
-        // Get the user object
-        $rest = ED::rest();
-        $user = $rest->getUser();
+		// Get the user object
+		$rest = ED::rest();
+		$user = $rest->getUser();
 
-        // Get the post object
-        $id = $this->input->get('id','','int');
-        $post = ED::post($id);
+		// Get the post object
+		$id = $this->input->get('id','','int');
+		$post = ED::post($id);
 
-        // Ensure that the viewer can view the post
-        if (!$post->canView($this->my->id) || !$id) {
-            return $rest->error('COM_EASYDISCUSS_SYSTEM_POST_NOT_FOUND');
-        }
+		// Ensure that the viewer can view the post
+		if (!$post->canView($this->my->id) || !$id) {
+			return $rest->error('COM_EASYDISCUSS_SYSTEM_POST_NOT_FOUND');
+		}
 
-        // Get the post access
+		// Get the post access
 		$access = $post->getAccess();
 		
 		// Test if the user is allowed to add comment or not.
@@ -50,9 +50,9 @@ class EasyDiscussViewComment extends EasyDiscussView
 		// Get the content
 		$message = $this->input->get('content','', 'string');
 
-        if (!$message) {
-        	return $rest->error('COM_EASYDISCUSS_COMMENT_IS_EMPTY');
-        }
+		if (!$message) {
+			return $rest->error('COM_EASYDISCUSS_COMMENT_IS_EMPTY');
+		}
 
 		// Build up comment object.
 		$data = new stdClass();

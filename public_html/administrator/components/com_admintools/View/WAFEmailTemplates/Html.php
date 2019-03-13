@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -45,7 +45,7 @@ class Html extends BaseView
 
 		// Construct the array of sorting fields
 		$this->sortFields = array(
-			'reason' 	 		=> JText::_('COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_REASON_SELECT'),
+			'reason' 	 		=> JText::_('COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_REASON'),
 			'subject' 	 		=> JText::_('COM_ADMINTOOLS_WAFEMAILTEMPLATES_FIELD_SUBJECT_LBL'),
 			'enabled' 	 		=> JText::_('JPUBLISHED'),
 			'language' 	 		=> JText::_('COM_ADMINTOOLS_COMMON_LANGUAGE'),

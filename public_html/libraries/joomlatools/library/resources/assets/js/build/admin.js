@@ -12719,45 +12719,6 @@ module.exports = '1.3.4';
 
 },{}]},{},[11]);
 
-/*
-	By Osvaldas Valutis, www.osvaldas.info
-	Available for use under the MIT License
-*/
-
-( function ( document, window, index )
-{
-	var inputs = document.querySelectorAll('.k-js-file-input');
-	Array.prototype.forEach.call( inputs, function( input )
-	{
-		var label	 = input.nextElementSibling,
-			labelVal = label.innerHTML;
-
-		input.addEventListener('change', function( e )
-		{
-			var fileName = '';
-			if( this.files && this.files.length > 1 )
-				fileName = ( this.getAttribute('data-multiple-caption') || '' ).replace( '{count}', this.files.length );
-			else
-				fileName = e.target.value.split( '\\' ).pop();
-
-			if( fileName )
-				label.querySelector('.k-file-input__files').innerHTML = fileName;
-			else
-				label.innerHTML = labelVal;
-		});
-
-		// Add class for drop hover
-		input.ondragover = function(ev) { this.classList.add('has-drop-focus'); };
-		input.ondragleave = function(ev) { this.classList.remove('has-drop-focus'); };
-		input.ondragend = function(ev) { this.classList.remove('has-drop-focus'); };
-		input.ondrop = function(ev) { this.classList.remove('has-drop-focus'); };
-
-		// Firefox bug fix
-		input.addEventListener('focus', function(){ input.classList.add('has-focus'); });
-		input.addEventListener('blur', function(){ input.classList.remove('has-focus'); });
-	});
-}( document, window, 0 ));
-
 /* ============================================================
  * bootstrap-dropdown.js v2.3.2
  * http://getbootstrap.com/2.3.2/javascript.html#dropdowns
@@ -12966,7 +12927,8 @@ module.exports = '1.3.4';
 
   , show: function () {
       var $this = this.element
-        , $ul = $this.closest('ul:not(.k-dropdown__menu)')
+        , $ul = $this.parent().parent('ul:not(.k-dropdown__menu)')
+        , $tbody = $this.parent().parent().parent('tbody')
         , selector = $this.attr('data-target')
         , previous
         , $target
@@ -12978,8 +12940,15 @@ module.exports = '1.3.4';
       }
 
       if ( $this.parent('li').hasClass('k-is-active') ) return
+      if ( $this.parent().parent('tr').hasClass('k-is-active') ) return
 
-      previous = $ul.find('.k-is-active:last a')[0]
+      if ($this.parent('li')) {
+          previous = $ul.find('.k-is-active:last a')[0]
+      }
+
+      if ($this.parent('td')) {
+          previous = $tbody.find('.k-is-active:last a')[0]
+      }
 
       e = $.Event('show', {
         relatedTarget: previous
@@ -12991,7 +12960,13 @@ module.exports = '1.3.4';
 
       $target = $(selector)
 
-      this.activate($this.parent('li'), $ul)
+      if ($this.parent('li')[0]) {
+          this.activate($this.parent('li'), $ul)
+      }
+      if ($this.parent().parent('tr')[0]) {
+          this.activate($this.parent().parent('tr'), $tbody)
+      }
+
       this.activate($target, $target.parent(), function () {
         $this.trigger({
           type: 'shown'
@@ -16378,6 +16353,162 @@ $(function() {
 
 }( window.kQuery ));
 
+/*
+ * Konami-JS ~
+ * :: Now with support for touch events and multiple instances for
+ * :: those situations that call for multiple easter eggs!
+ * Code: https://github.com/snaptortoise/konami-js
+ * Examples: http://www.snaptortoise.com/konami-js
+ * Copyright (c) 2009 George Mandis (georgemandis.com, snaptortoise.com)
+ * Version: 1.4.5 (3/2/2016)
+ * Licensed under the MIT License (http://opensource.org/licenses/MIT)
+ * Tested in: Safari 4+, Google Chrome 4+, Firefox 3+, IE7+, Mobile Safari 2.2.1 and Dolphin Browser
+ */
+
+var Konami = function (callback) {
+    var konami = {
+        addEvent: function (obj, type, fn, ref_obj) {
+            if (obj.addEventListener)
+                obj.addEventListener(type, fn, false);
+            else if (obj.attachEvent) {
+                // IE
+                obj["e" + type + fn] = fn;
+                obj[type + fn] = function () {
+                    obj["e" + type + fn](window.event, ref_obj);
+                };
+                obj.attachEvent("on" + type, obj[type + fn]);
+            }
+        },
+        input: "",
+        pattern: "38384040373937396665",
+        load: function (link) {
+            this.addEvent(document, "keydown", function (e, ref_obj) {
+                if (ref_obj) konami = ref_obj; // IE
+                konami.input += e ? e.keyCode : event.keyCode;
+                if (konami.input.length > konami.pattern.length)
+                    konami.input = konami.input.substr((konami.input.length - konami.pattern.length));
+                if (konami.input == konami.pattern) {
+                    konami.code(link);
+                    konami.input = "";
+                    e.preventDefault();
+                    return false;
+                }
+            }, this);
+            this.iphone.load(link);
+        },
+        code: function (link) {
+            window.location = link
+        },
+        iphone: {
+            start_x: 0,
+            start_y: 0,
+            stop_x: 0,
+            stop_y: 0,
+            tap: false,
+            capture: false,
+            orig_keys: "",
+            keys: ["UP", "UP", "DOWN", "DOWN", "LEFT", "RIGHT", "LEFT", "RIGHT", "TAP", "TAP"],
+            code: function (link) {
+                konami.code(link);
+            },
+            load: function (link) {
+                this.orig_keys = this.keys;
+                konami.addEvent(document, "touchmove", function (e) {
+                    if (e.touches.length == 1 && konami.iphone.capture == true) {
+                        var touch = e.touches[0];
+                        konami.iphone.stop_x = touch.pageX;
+                        konami.iphone.stop_y = touch.pageY;
+                        konami.iphone.tap = false;
+                        konami.iphone.capture = false;
+                        konami.iphone.check_direction();
+                    }
+                });
+                konami.addEvent(document, "touchend", function (evt) {
+                    if (konami.iphone.tap == true) konami.iphone.check_direction(link);
+                }, false);
+                konami.addEvent(document, "touchstart", function (evt) {
+                    konami.iphone.start_x = evt.changedTouches[0].pageX;
+                    konami.iphone.start_y = evt.changedTouches[0].pageY;
+                    konami.iphone.tap = true;
+                    konami.iphone.capture = true;
+                });
+            },
+            check_direction: function (link) {
+                x_magnitude = Math.abs(this.start_x - this.stop_x);
+                y_magnitude = Math.abs(this.start_y - this.stop_y);
+                x = ((this.start_x - this.stop_x) < 0) ? "RIGHT" : "LEFT";
+                y = ((this.start_y - this.stop_y) < 0) ? "DOWN" : "UP";
+                result = (x_magnitude > y_magnitude) ? x : y;
+                result = (this.tap == true) ? "TAP" : result;
+
+                if (result == this.keys[0]) this.keys = this.keys.slice(1, this.keys.length);
+                if (this.keys.length == 0) {
+                    this.keys = this.orig_keys;
+                    this.code(link);
+                }
+            }
+        }
+    };
+
+    typeof callback === "string" && konami.load(callback);
+    if (typeof callback === "function") {
+        konami.code = callback;
+        konami.load();
+    }
+
+    return konami;
+};
+
+/*
+	By Osvaldas Valutis, www.osvaldas.info
+	Available for use under the MIT License
+*/
+
+(function($) {
+
+    $.fn.kfileinput = function() {
+
+        return this.each(function () {
+            var $input = $(this),
+                data = $input.data('kfileinput');
+
+            if (!data) {
+                $input.data('kfileinput', true);
+
+                var input    = $input[0],
+					label	 = input.nextElementSibling,
+                    labelVal = label.innerHTML;
+
+                input.addEventListener('change', function( e )
+                {
+                    var fileName = '';
+                    if( this.files && this.files.length > 1 )
+                        fileName = ( this.getAttribute('data-multiple-caption') || '' ).replace( '{count}', this.files.length );
+                    else
+                        fileName = e.target.value.split( '\\' ).pop();
+
+                    if( fileName )
+                        label.querySelector('.k-file-input__files').innerHTML = fileName;
+                    else
+                        label.innerHTML = labelVal;
+                });
+
+                // Add class for drop hover
+                input.ondragover = function(ev) { this.classList.add('k-has-drop-focus'); };
+                input.ondragleave = function(ev) { this.classList.remove('k-has-drop-focus'); };
+                input.ondragend = function(ev) { this.classList.remove('k-has-drop-focus'); };
+                input.ondrop = function(ev) { this.classList.remove('k-has-drop-focus'); };
+
+                // Firefox bug fix
+                input.addEventListener('focus', function(){ input.classList.add('k-has-focus'); });
+                input.addEventListener('blur', function(){ input.classList.remove('k-has-focus'); });
+            }
+        });
+    };
+
+})(kQuery);
+
+
 /*!
  * jQuery.tabbable 1.0 - Simple utility for selecting the next / previous ':tabbable' element.
  * https://github.com/marklagendijk/jQuery.tabbable
@@ -16528,14 +16659,20 @@ $(function() {
                 position: 'left',
                 menuExpandedClass: 'k-show-left-menu',
                 openedClass: 'k-is-opened',
+                transitionClass: 'k-is-transitioning',
                 noTransitionClass: 'k-no-transition',
                 wrapper: $(element).parent(),
                 container: $('.container'),
                 menuToggle: [],
                 expandedWidth: $(element).outerWidth(),
                 offCanvasOverlay: 'k-off-canvas-overlay',
+                offCanvasOverlayPosition: 'after',
                 ariaControls: null,
-                opacity: .75
+                opacity: .75,
+                onBeforeToggleOpen: function() {},
+                onAfterToggleOpen: function() {},
+                onBeforeToggleClose: function() {},
+                onAfterToggleClose: function() {}
             },
             plugin = this;
 
@@ -16550,6 +16687,7 @@ $(function() {
                 position = plugin.settings.position,
                 menuExpandedClass = plugin.settings.menuExpandedClass,
                 openedClass = plugin.settings.openedClass,
+                transitionClass = plugin.settings.noTransitionClass,
                 noTransitionClass = plugin.settings.noTransitionClass,
                 wrapper = plugin.settings.wrapper,
                 container = plugin.settings.container,
@@ -16558,7 +16696,8 @@ $(function() {
                 expandedWidth = menu.outerWidth(),
                 offCanvasOverlay = $('.' + plugin.settings.offCanvasOverlay),
                 transitionDuration = Math.round(parseFloat(container.css('transition-duration')) * 1000),
-                transitionElements = plugin.settings.transitionElements || plugin.settings.container,
+                transitionElements = plugin.settings.transitionElements,
+                languageDirection = $('html').attr('dir'),
                 timeout;
 
             // Set proper menuExpandedClass if not set manually
@@ -16571,14 +16710,27 @@ $(function() {
                 wrapper = $('html, body');
             }
 
+            // Set transitionElements
+            if ( plugin.settings.transitionElements == null) {
+                transitionElements = container;
+            }
+
             // Create overlay wrapper
-            $.each(transitionElements, function() {
-                if ($(this).find('.' + plugin.settings.offCanvasOverlay)[0] == undefined) {
-                    $(this).append('<div class="' + plugin.settings.offCanvasOverlay + '">');
-                    var newOverlay = $('.' + plugin.settings.offCanvasOverlay);
-                    $.extend(offCanvasOverlay, newOverlay);
-                }
-            });
+            function addOverlay() {
+                $.each(transitionElements, function() {
+                    if ($(this).find('.' + plugin.settings.offCanvasOverlay)[0] == undefined) {
+                        if ( plugin.settings.offCanvasOverlayPosition !== 'after' ) {
+                            $(this).prepend('<div class="' + plugin.settings.offCanvasOverlay + '">');
+                        } else {
+                            $(this).append('<div class="' + plugin.settings.offCanvasOverlay + '">');
+                        }
+                        var newOverlay = $('.' + plugin.settings.offCanvasOverlay);
+                        $.extend(offCanvasOverlay, newOverlay);
+                    }
+                });
+            }
+
+            addOverlay();
 
             function tabToggle(menu) {
                 // When tabbing on toggle button
@@ -16618,22 +16770,42 @@ $(function() {
                 // Clear the timeout when user clicks open menu
                 clearTimeout(timeout);
 
+                // Add class to body
+                $('body').addClass(plugin.settings.transitionClass);
+
+                // Function to run before toggling
+                plugin.settings.onBeforeToggleOpen();
+
+                addOverlay();
+
                 // Set to expanded for accessibility
                 menuToggle.attr({'aria-expanded': 'true'});
 
                 // Add classes and CSS to the wrapper
                 // All styling in CSS comes from this parent element
-                wrapper.addClass(menuExpandedClass + ' ' + openedClass + '-' + position);
+                wrapper.addClass(menuExpandedClass + ' ' + openedClass);
 
                 // Enable tabbing within menu
                 timeout = setTimeout(function() {
                     tabToggle(menu);
+
+                    // Remove class from body
+                    $('body').removeClass(plugin.settings.transitionClass);
+
+                    // Function to run after toggling
+                    plugin.settings.onAfterToggleOpen();
                 }, transitionDuration);
             }
 
             function closeMenu() {
                 // Clear the timeout when user clicks close menu
                 clearTimeout(timeout);
+
+                // Add class to body
+                $('body').addClass(plugin.settings.transitionClass);
+
+                // Function to run before toggling
+                plugin.settings.onBeforeToggleOpen();
 
                 // Set to collapsed for accessibility
                 menuToggle.attr({'aria-expanded': 'false'});
@@ -16643,14 +16815,20 @@ $(function() {
 
                 // Remove style and class when transition has ended, so the menu stays visible on closing
                 timeout = setTimeout(function() {
-                    wrapper.removeClass(openedClass + '-' + position);
+                    wrapper.removeClass(openedClass);
+
+                    // Remove class from body
+                    $('body').removeClass(plugin.settings.transitionClass);
+
+                    // Function to run after toggling
+                    plugin.settings.onAfterToggleOpen();
                 }, transitionDuration);
             }
 
             function toggleMenu(menu, event) {
                 // Close other menu when opened
-                if ( wrapper.is('[class*="'+openedClass+'"]') && !wrapper.is('[class*="'+openedClass+'-'+position+'"]') ) {
-                    var brother = wrapper.find('button[class^="k-off-canvas-menu-toggle"]').not(menuToggle);
+                if ( wrapper.is('[class*="'+openedClass+'"]') && !wrapper.is('[class*="'+openedClass+'"]') ) {
+                    var brother = wrapper.find('button[class^="k-off-canvas-toggle"]').not(menuToggle);
                     brother.trigger('click');
                 }
                 // Decide wether to open or close the menu
@@ -16671,7 +16849,7 @@ $(function() {
                 });
 
                 // Toggle button:
-                menuToggle.click(function(event) {
+                menuToggle.off().click(function(event) {
                     if ( menuToggle.is(':visible') ) {
                         toggleMenu(menu, event);
                     }
@@ -16680,14 +16858,11 @@ $(function() {
                 // Close menu by clicking anywhere
                 wrapper.click(function(event){
                     if ( wrapper.hasClass(menuExpandedClass) ) {
-                        event.stopPropagation();
-                        closeMenu();
+                        if ( event.target == $('.'+plugin.settings.offCanvasOverlay)[0] ) {
+                            event.stopPropagation();
+                            closeMenu();
+                        }
                     }
-                });
-
-                // Don't close the menu when clicked on sidemenu
-                menu.click(function(event){
-                    event.stopPropagation();
                 });
 
                 // Close menu if esc keydown and menu is open and set focus to toggle button
@@ -16726,14 +16901,20 @@ $(function() {
                     (position == 'right' && newPos >= -(expandedWidth) && newPos <= 25);
             }
 
+            // Return if language == RTL
+            if ( languageDirection != 'ltr' ) return;
+
             function onTouchStart(e) {
 
-                if(!wrapper.hasClass(menuExpandedClass)) {
+                if (!wrapper.hasClass(menuExpandedClass)) {
                     return;
                 }
 
                 // Set started to true (used by touchend)
                 started = true;
+
+                // Add class to body
+                $('body').addClass(plugin.settings.transitionClass);
 
                 // Get original starting point
                 pageX = e.originalEvent.touches[0].pageX;
@@ -16756,10 +16937,10 @@ $(function() {
                 overlayOpacity = plugin.settings.opacity;
 
                 // Add class to remove transition for 1-to-1 touch movement
-                $.each(transitionElements, function() {
+                $.each(transitionElements, function () {
                     $(this).addClass(noTransitionClass);
                 });
-                $.each(offCanvasOverlay, function() {
+                $.each(offCanvasOverlay, function () {
                     $(this).addClass(noTransitionClass);
                 });
 
@@ -16769,7 +16950,7 @@ $(function() {
 
             function onTouchMove(e) {
 
-                if(!wrapper.hasClass(menuExpandedClass)) {
+                if (!wrapper.hasClass(menuExpandedClass)) {
                     return;
                 }
 
@@ -16791,22 +16972,22 @@ $(function() {
 
                     var opacity = (overlayOpacity / expandedWidth) * Math.abs(newPos);
 
-                    if(!inBounds(newPos))
+                    if (!inBounds(newPos))
                         return;
 
                     // translate immediately 1-to-1
-                    $.each(transitionElements, function() {
-                        if ( !$(this).hasClass('k-title-bar--mobile') ) {
+                    $.each(transitionElements, function () {
+                        if (!$(this).hasClass('k-title-bar--mobile')) {
                             $(this).css({
-                                '-webkit-transform' : 'translate(' + newPos + 'px, 0)',
-                                '-moz-transform'    : 'translate(' + newPos + 'px, 0)',
-                                '-ms-transform'     : 'translate(' + newPos + 'px, 0)',
-                                '-o-transform'      : 'translate(' + newPos + 'px, 0)',
-                                'transform'         : 'translate(' + newPos + 'px, 0)'
+                                '-webkit-transform': 'translate(' + newPos + 'px, 0)',
+                                '-moz-transform': 'translate(' + newPos + 'px, 0)',
+                                '-ms-transform': 'translate(' + newPos + 'px, 0)',
+                                '-o-transform': 'translate(' + newPos + 'px, 0)',
+                                'transform': 'translate(' + newPos + 'px, 0)'
                             });
                         }
                     });
-                    $.each(offCanvasOverlay, function() {
+                    $.each(offCanvasOverlay, function () {
                         $(this).css('opacity', opacity);
                     });
 
@@ -16814,15 +16995,18 @@ $(function() {
                 }
             }
 
-            function onTouchEnd(e){
+            function onTouchEnd(e) {
 
                 // Escape if invalid start:
-                if(!started)
+                if (!started)
                     return;
 
                 // Escape if Menu is closed
-                if(!wrapper.hasClass(menuExpandedClass))
+                if (!wrapper.hasClass(menuExpandedClass))
                     return;
+
+                // Remove class from body
+                $('body').removeClass(plugin.settings.transitionClass);
 
                 var newPos = position == 'left' ? start.startingX + deltaX
                     : deltaX - ($(window).width() - start.startingX);
@@ -16833,16 +17017,19 @@ $(function() {
                 // if not scrolling vertically
                 if (!isScrolling) {
 
-                    $.each(transitionElements, function() {
+                    $.each(transitionElements, function () {
                         container.removeAttr('style').removeClass(noTransitionClass);
                         $('.k-js-title-bar').removeAttr('style').removeClass(noTransitionClass);
                     });
-                    $.each(offCanvasOverlay, function() {
+                    $.each(offCanvasOverlay, function () {
                         $(this).removeAttr('style').removeClass(noTransitionClass);
+                        if (plugin.settings.transitionElements !== undefined) {
+                            plugin.settings.transitionElements.removeAttr('style').removeClass(noTransitionClass);
+                        }
                     });
 
-                    if ( ( position == 'left' && ( absNewPos <= (expandedWidth * 0.66) || newPos <= 0 ) ) ||
-                        ( position == 'right' && ( absNewPos <= (expandedWidth * 0.66) || newPos >= 0 ) ) ) {
+                    if (( position == 'left' && ( absNewPos <= (expandedWidth * 0.66) || newPos <= 0 ) ) ||
+                        ( position == 'right' && ( absNewPos <= (expandedWidth * 0.66) || newPos >= 0 ) )) {
                         closeMenu();
                     } else {
                         openMenu(menu);
@@ -16879,134 +17066,223 @@ $(function() {
     }
 
 })(kQuery);
-/*
- * Konami-JS ~
- * :: Now with support for touch events and multiple instances for
- * :: those situations that call for multiple easter eggs!
- * Code: https://github.com/snaptortoise/konami-js
- * Examples: http://www.snaptortoise.com/konami-js
- * Copyright (c) 2009 George Mandis (georgemandis.com, snaptortoise.com)
- * Version: 1.4.5 (3/2/2016)
- * Licensed under the MIT License (http://opensource.org/licenses/MIT)
- * Tested in: Safari 4+, Google Chrome 4+, Firefox 3+, IE7+, Mobile Safari 2.2.1 and Dolphin Browser
+
+/**
+ * Sidebar off-canvas toggles
  */
 
-var Konami = function (callback) {
-    var konami = {
-        addEvent: function (obj, type, fn, ref_obj) {
-            if (obj.addEventListener)
-                obj.addEventListener(type, fn, false);
-            else if (obj.attachEvent) {
-                // IE
-                obj["e" + type + fn] = fn;
-                obj[type + fn] = function () {
-                    obj["e" + type + fn](window.event, ref_obj);
-                }
-                obj.attachEvent("on" + type, obj[type + fn]);
-            }
-        },
-        input: "",
-        pattern: "38384040373937396665",
-        load: function (link) {
-            this.addEvent(document, "keydown", function (e, ref_obj) {
-                if (ref_obj) konami = ref_obj; // IE
-                konami.input += e ? e.keyCode : event.keyCode;
-                if (konami.input.length > konami.pattern.length)
-                    konami.input = konami.input.substr((konami.input.length - konami.pattern.length));
-                if (konami.input == konami.pattern) {
-                    konami.code(link);
-                    konami.input = "";
-                    e.preventDefault();
-                    return false;
-                }
-            }, this);
-            this.iphone.load(link);
-        },
-        code: function (link) {
-            window.location = link
-        },
-        iphone: {
-            start_x: 0,
-            start_y: 0,
-            stop_x: 0,
-            stop_y: 0,
-            tap: false,
-            capture: false,
-            orig_keys: "",
-            keys: ["UP", "UP", "DOWN", "DOWN", "LEFT", "RIGHT", "LEFT", "RIGHT", "TAP", "TAP"],
-            code: function (link) {
-                konami.code(link);
-            },
-            load: function (link) {
-                this.orig_keys = this.keys;
-                konami.addEvent(document, "touchmove", function (e) {
-                    if (e.touches.length == 1 && konami.iphone.capture == true) {
-                        var touch = e.touches[0];
-                        konami.iphone.stop_x = touch.pageX;
-                        konami.iphone.stop_y = touch.pageY;
-                        konami.iphone.tap = false;
-                        konami.iphone.capture = false;
-                        konami.iphone.check_direction();
-                    }
-                });
-                konami.addEvent(document, "touchend", function (evt) {
-                    if (konami.iphone.tap == true) konami.iphone.check_direction(link);
-                }, false);
-                konami.addEvent(document, "touchstart", function (evt) {
-                    konami.iphone.start_x = evt.changedTouches[0].pageX;
-                    konami.iphone.start_y = evt.changedTouches[0].pageY;
-                    konami.iphone.tap = true;
-                    konami.iphone.capture = true;
-                });
-            },
-            check_direction: function (link) {
-                x_magnitude = Math.abs(this.start_x - this.stop_x);
-                y_magnitude = Math.abs(this.start_y - this.stop_y);
-                x = ((this.start_x - this.stop_x) < 0) ? "RIGHT" : "LEFT";
-                y = ((this.start_y - this.stop_y) < 0) ? "DOWN" : "UP";
-                result = (x_magnitude > y_magnitude) ? x : y;
-                result = (this.tap == true) ? "TAP" : result;
-
-                if (result == this.keys[0]) this.keys = this.keys.slice(1, this.keys.length);
-                if (this.keys.length == 0) {
-                    this.keys = this.orig_keys;
-                    this.code(link);
-                }
-            }
-        }
-    }
-
-    typeof callback === "string" && konami.load(callback);
-    if (typeof callback === "function") {
-        konami.code = callback;
-        konami.load();
-    }
-
-    return konami;
-};
 (function($) {
 
-    $(document).ready(function () {
+    kodekitUI.ajaxloading = function() {
 
-        // Variables
-        var $footable = $('.k-js-responsive-table'),
-            $sidebarToggle = $('.k-js-sidebar-toggle-item'),
-            $scopebar = $('.k-js-scopebar'),
-            resizeTimer,
-            resizeClass = 'k-is-resizing';
+        var ajaxLink = $('[data-ajax-target]');
+        if ( ajaxLink.length ) {
 
-        // Sidebar
-        if ($('.k-js-title-bar, .k-js-toolbar').length && $('.k-js-wrapper').length && $('.k-js-content').length)
-        {
-            var toggle_button = '<div class="k-off-canvas-menu-toggle-holder"><button class="k-off-canvas-menu-toggle" type="button">' +
-                    '<span class="k-toggle-button-bar1"></span>' +
-                    '<span class="k-toggle-button-bar2"></span>' +
-                    '<span class="k-toggle-button-bar3"></span>' +
-                    '</button></div>',
-                sidebar_left  = $('.k-js-sidebar-left'),
+            $('.k-ui-container').on('click', ajaxLink, function(event) {
+
+                // Variables
+                var $target = event.target,
+                    href = $target.href,
+                    ajaxTarget = $($target).attr('data-ajax-target'),
+                    activeClass = 'k-is-active';
+
+                if ( !ajaxTarget ) return;
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                // Find the 'active' element
+                var getActiveElement = function(element) {
+                    for ( ; element && element !== document; element = element.parentNode ) {
+                        if ( $(element).parent().find('.'+activeClass).length ) return element;
+                    }
+                    return null;
+                };
+                var $activeElement = getActiveElement($target);
+
+                // Remove class from siblings and add class to current item
+                $($activeElement).parent().children('.'+activeClass).removeClass(activeClass);
+                $($activeElement).addClass(activeClass);
+
+                // Load
+                // warning: <script> will get stripped from content
+                $('#'+ajaxTarget).load(href + ' #'+ajaxTarget+' > :first-child', function(responseTxt, statusTxt, xhr) {
+
+                    // Success
+                    if(statusTxt == "success") {
+
+                        // Trigger close sidebar click when changing menu items
+                        if ( $('.k-js-wrapper').hasClass('k-show-left-menu') ) {
+                            $('.k-off-canvas-toggle--left').trigger('click');
+                        }
+
+                        // Flat text page values
+                        var pageHead = responseTxt.split('<head>')[1].split('</head>')[0],
+                            pageTitle = pageHead.split('<title>')[1].split('</title>')[0];
+
+                        // Trigger loaded code
+                        kodekitUI.loaded(responseTxt, statusTxt, xhr, pageHead, pageTitle);
+
+                    }
+
+                    // Error
+                    if(statusTxt == "error") {
+                        console.error("Error: " + xhr.status + ": " + xhr.statusText);
+                    }
+
+                });
+
+            });
+
+        }
+
+    };
+
+})(kQuery);
+
+/**
+ * Sidebar off-canvas toggles
+ */
+
+(function($) {
+
+    kodekitUI.dragger = function() {
+
+        var middlepane = document.querySelector(".k-js-middlepane");
+        if (middlepane !== null && document.querySelector('.k-pane-resizer') == undefined) {
+            var middlepaneResizer = document.createElement("div");
+            middlepaneResizer.className = "k-pane-resizer";
+            middlepane.appendChild(middlepaneResizer);
+            middlepaneResizer.addEventListener("mousedown", initDrag, false);
+            var startW, startWidth, newWidth, direction;
+        }
+
+        function initDrag(e) {
+            startW = e.clientX;
+            startWidth = parseInt(document.defaultView.getComputedStyle(middlepane).width, 10);
+            direction = document.documentElement.getAttribute('dir') || 'ltr';
+            document.documentElement.addEventListener("mousemove", doDrag, false);
+            document.documentElement.addEventListener("mouseup", stopDrag, false);
+        }
+
+        function doDrag(e) {
+            document.getElementsByClassName('k-ui-container')[0].classList.add("k-is-unresponsive");
+            if ( direction == 'ltr' ) {
+                newWidth = (startWidth + e.clientX - startW);
+            } else {
+                newWidth = (startWidth - (e.clientX - startW));
+            }
+            if (newWidth <= 221) {
+                newWidth = 221;
+            }
+            middlepane.style.width = newWidth + "px";
+            middlepane.style.minWidth = newWidth + "px";
+            middlepane.style.maxWidth = newWidth + "px";
+        }
+
+        function stopDrag(e) {
+            document.documentElement.removeEventListener("mousemove", doDrag, false);
+            document.documentElement.removeEventListener("mouseup", stopDrag, false);
+            document.getElementsByClassName('k-ui-container')[0].classList.remove("k-is-unresponsive");
+            middlepane.removeAttribute('style');
+
+            var width;
+
+            if ( direction == 'ltr' ) {
+                width = startWidth + e.clientX - startW;
+            } else {
+                width = (startWidth - (e.clientX - startW));
+            }
+            if (width <= 221) {
+                width = 221;
+            }
+
+            kodekitUI.createCookie("kodekitUI.middlepanewidth", width);
+            kodekitUI.setCSS(
+                '@media screen and (min-width: 1024px) {' +
+                '.k-ui-container .k-content-area .k-content:not(:last-child) {' +
+                'min-width:'+width+'px;' +
+                'width:'+width+'px;' +
+                'max-width:'+width+'px;' +
+                '}' +
+                '}'
+            );
+            window.dispatchEvent(new Event('resize'));
+        }
+    };
+
+})(kQuery);
+
+/**
+ * Gallery
+ */
+
+(function($) {
+
+    kodekitUI.gallery = function() {
+
+        var $gallery = $('.k-gallery');
+        if ( $gallery.length ) {
+
+            // variables
+            var galleryItems = $gallery[0].querySelector('.k-gallery__items'),
+                galleryMaxWidth = parseInt(((window.getComputedStyle(galleryItems, null).getPropertyValue('content')).split('"')[1]), 10),
+                galleryEventTimeout;
+
+            // Throttle window resize function for better performance
+            var resizeThrottler = function() {
+                if (!galleryEventTimeout) {
+                    galleryEventTimeout = setTimeout(function() {
+                        galleryEventTimeout = null; // Reset timeout
+                        // Walk through all galleries
+                        setWidth();
+                    }, 200);
+                }
+            };
+
+            // Set Width
+            var setWidth = function() {
+                var galleryWidth = parseFloat($gallery.width()),
+                    items = Math.ceil(galleryWidth / galleryMaxWidth);
+                $gallery.attr('data-gallery-items', items - 1);
+            };
+
+
+            // Run on default
+            setWidth();
+
+            // Run on window resize
+            window.addEventListener( 'resize', resizeThrottler );
+
+        }
+
+    };
+
+})(kQuery);
+
+/**
+ * Sidebar off-canvas toggles
+ */
+
+(function($) {
+
+    kodekitUI.sidebarToggle = function() {
+
+        if ($('.k-js-title-bar, .k-js-toolbar').length && $('.k-js-wrapper').length && $('.k-js-content').length) {
+
+            // Vars
+            var sidebar_left  = $('.k-js-sidebar-left'),
                 sidebar_right = $('.k-js-sidebar-right');
 
             function addOffCanvasButton(element, position) {
+
+                var toggle_button_content = element.attr('data-toggle-button-content') || '<span class="k-toggle-button-bar1"></span><span class="k-toggle-button-bar2"></span><span class="k-toggle-button-bar3"></span>';
+                var toggle_button = '<div class="k-off-canvas-toggle-holder">' +
+                    '<button class="k-off-canvas-toggle" type="button">' +
+                    toggle_button_content +
+                    '</button>' +
+                    '</div>';
+
                 // Variables
                 var kContainer = '.k-ui-container',
                     container = element.closest(kContainer),
@@ -17014,14 +17290,23 @@ var Konami = function (callback) {
                     toolbar = container.find('.k-js-toolbar'),
                     wrapper = container.find('.k-js-wrapper'),
                     content = container.find('.k-js-content'),
+                    contentArea = container.find('.k-js-content-area'),
+                    page = container.find('.k-js-page'),
                     component = container.find('.k-js-component'),
-                    toggle = container.find('.k-off-canvas-menu-toggle--' + position),
+                    toggle = container.find('.k-off-canvas-toggle--' + position),
                     $toggle = $(toggle_button),
                     $toggleButton = null,
-                    transitionElements = content;
+                    transitionElements;
 
                 // Add proper class to toggle buttons
-                $toggle.addClass('k-off-canvas-menu-toggle-holder--' + position).children('button').addClass('k-off-canvas-menu-toggle--' + position);
+                $toggle.addClass('k-off-canvas-toggle-holder--' + position).children('button').addClass('k-off-canvas-toggle--' + position);
+
+                var offcanvascontainer = content;
+                transitionElements = content;
+                if ( contentArea.length ) {
+                    offcanvascontainer = contentArea;
+                    transitionElements = contentArea;
+                }
 
                 // Add toggle buttons
                 if (toggle.length === 0) {
@@ -17040,15 +17325,22 @@ var Konami = function (callback) {
                         transitionElements = component;
                     }
 
-                    $toggleButton = $('.k-off-canvas-menu-toggle--' + position);
+                    $toggleButton = $('.k-off-canvas-toggle--' + position);
 
                     // Initialize the offcanvas plugin
                     element.offCanvasMenu({
                         menuToggle: $toggleButton,
+                        openedClass: 'k-is-opened-' + position,
                         wrapper: wrapper,
-                        container: content,
+                        container: offcanvascontainer,
                         position: position,
-                        transitionElements: transitionElements
+                        offCanvasOverlay: 'k-off-canvas-overlay-' + position,
+                        transitionElements: transitionElements,
+                        onBeforeToggleOpen: function() {
+                            if ( $('.k-show-subcontent-area').length ) {
+                                $('.k-js-subcontent-toggle').trigger('click');
+                            }
+                        }
                     });
                 }
             }
@@ -17065,150 +17357,85 @@ var Konami = function (callback) {
                 if ( ( sidebarLeftTree.length || sidebarLeftList.length ) ) {
                     sidebarLeftTree.on('click', '.jqtree-title', function() {
                         if ( $('.k-js-wrapper').hasClass('k-is-opened-left') ) {
-                            $('.k-off-canvas-menu-toggle--left').trigger('click');
+                            $('.k-off-canvas-toggle--left').trigger('click');
                         }
                     });
                     sidebarLeftList.on('click', 'a', function() {
                         if ( $('.k-js-wrapper').hasClass('k-is-opened-left') ) {
-                            $('.k-off-canvas-menu-toggle--left').trigger('click');
+                            $('.k-off-canvas-toggle--left').trigger('click');
                         }
                     });
                 }
+
+
             }
 
             if (sidebar_right.length) {
+
                 // Add button for right sidebar
                 $.each(sidebar_right, function() {
                     addOffCanvasButton($(this), 'right');
                 });
 
-
                 // Open right sidebar on selecting items in table
+                // Only for tables with .k-js-with-sidebar class
                 // Only apply to actual `<a>` elements
-                $('.k-table-container table').on('click', 'a', function(event) {
+                $('.k-table-container table.k-js-with-sidebar').off().on('click', 'a', function(event) {
+
                     // stopPropagation for all links except for those with `.navigate` class
                     if ( !$(this).hasClass('navigate') ) {
                         event.stopPropagation();
                     }
+
+                    // Return if subcontent is present
+                    if ($(this).closest('.k-content').siblings('.k-subcontent').length) return;
+
                     // Only apply if parent is a `<td>` (so not a `<th>`)
                     if ($(this).parents('td').length > 0) {
-                        $('.k-off-canvas-menu-toggle--right').trigger('click');
+                        $('.k-off-canvas-toggle--right').trigger('click');
                     }
+
+                });
+
+                // Open subcontent on clicking TD
+                $('.k-table-container table.k-js-with-sidebar tbody').off().on('click', 'tr', function(event) {
+                    // Return if click to select class is added to table
+                    if ( $(this).closest('table').hasClass('k-js-click-to-select')) return;
+
+                    // Return if subcontent is present
+                    if ($(this).closest('.k-content').siblings('.k-subcontent').length) return;
+
+                    // Return if target is anchor
+                    if ( event.target.nodeName === 'A') return;
+                    if ( event.target.nodeName === 'INPUT') return;
+
+                    // Stop row select action
+                    event.stopPropagation();
+
+                    // Trigger click anchor
+                    $(this).find('a').trigger('click');
+
                 });
             }
         }
+    };
 
+})(kQuery);
 
+/**
+ * Filter and search toggle buttons in the scopebar
+ */
 
-        // Initiate responsive top menu
+(function($) {
 
-        // Menu itself
-        var $menu = $('#k-js-menu');
+    var eventsAttached = false;
 
-        // See if it exists
-        if ($menu.length) {
+    kodekitUI.scopebarToggles = function() {
 
-            // Variables
-            var $menuItem = $('#k-js-menu > ul > li > a'),
-                menuClass = 'has-open-menu',
-                submenuClass = 'has-open-submenu';
+        var $scopebar = $('.k-js-scopebar');
+        if ($scopebar.length) {
 
-            var toggle_button = '<button type="button" id="k-js-menu-toggle" class="menu-toggle" title="Menu toggle" aria-label="Menu toggle">Menu</button>';
-            var offcanvasoverlay = '<div class="k-off-canvas-overlay"></div>';
-
-            // Append toggle button and overlay
-            $menu.parent().append($(toggle_button));
-            $('.k-js-wrapper').append($(offcanvasoverlay));
-
-            // Off canvas
-            $menu.offCanvasMenu({
-                menuToggle: $('#k-js-menu-toggle'),
-                position: 'right',
-                container: $('.k-wrapper'),
-                expandedWidth: '276',
-                wrapper: $('.k-ui-container')
-            });
-
-            // Click a menu item
-            function clickMenuItem($element) {
-                $element.on('click', function(event) {
-                    if (!$(this).next('ul').length) return;
-                    event.preventDefault();
-                    if ( $menu.hasClass(menuClass) && $(this).hasClass(submenuClass) ) {
-                        closeMenu();
-                    } else {
-                        openMenuItem($(this));
-                    }
-                });
-            }
-
-            // Open a menu item
-            function openMenuItem($element) {
-                if ( $menu.hasClass(menuClass) && $(this).hasClass(submenuClass) ) {
-                    closeMenu();
-                } else {
-                    $('.' + submenuClass).removeClass(submenuClass);
-                    $element.addClass(submenuClass);
-                    $menu.addClass(menuClass);
-                }
-            }
-
-            // Hover a menu item
-            function hoverMenuItem() {
-                $menuItem.on('mouseover', function(event) {
-                    // Only on desktop
-                    if ( $('.k-menu-container').css('z-index') >= 9 ) {
-                        event.preventDefault();
-                        if ( $menu.hasClass(menuClass) ) {
-                            $menu.find('.' + submenuClass).blur();
-                            openMenuItem($(this));
-                        }
-                    }
-                });
-            }
-
-            // Close all items
-            function closeMenu() {
-                $menu.removeClass(menuClass).find('.' + submenuClass).removeClass(submenuClass);
-            }
-
-            // Initiate
-            clickMenuItem($menuItem);
-            hoverMenuItem();
-
-            // On clicking next to the menu
-            $(document).mouseup(function(e) {
-                var $navigationList = $('.k-menu-container__nav > ul');
-
-                // if the target of the click isn't the container nor a descendant of the container
-                if (!$navigationList.is(e.target) && $navigationList.has(e.target).length === 0)
-                {
-                    closeMenu();
-                }
-            });
-
-            // On ESC key
-            $(document).keyup(function(e) {
-                if (e.keyCode === 27) {
-                    closeMenu();
-                }
-            });
-        }
-
-        // Footable
-        $footable.footable({
-            toggleSelector: '.footable-toggle',
-            breakpoints: {
-                phone: 400,
-                tablet: 600,
-                desktop: 800
-            }
-        });
-
-        // Filter and search toggle buttons in the scopebar
-        if ( $scopebar.length ) {
-
-            $.each($scopebar, function() {
+            $.each($scopebar, function () {
 
                 var $this = $(this),
                     $scopebarFilters = $this.find('.k-scopebar__item--filters'),
@@ -17216,12 +17443,12 @@ var Konami = function (callback) {
                     scopebarToggleClass = '.k-scopebar__item--toggle-buttons',
                     scopebarToggleButtonContainer = '<div class="k-scopebar__item k-scopebar__item--toggle-buttons"></div>';
 
-                if ( !$this.find(scopebarToggleClass).length ) {
+                if (!$this.find(scopebarToggleClass).length) {
                     $this.prepend(scopebarToggleButtonContainer);
                 }
                 var toggleButtons = $this.find(scopebarToggleClass);
 
-                if ( $scopebarFilters.length && !$this.find('.k-toggle-scopebar-filters').length ) {
+                if ($scopebarFilters.length && !$this.find('.k-toggle-scopebar-filters').length) {
                     toggleButtons.prepend('<button type="button" class="k-scopebar__button k-toggle-scopebar-filters k-js-toggle-filters">' +
                         '<span class="k-icon-filter" aria-hidden="true">' +
                         '<span class="k-visually-hidden">Filters toggle</span>' +
@@ -17229,7 +17456,7 @@ var Konami = function (callback) {
                         '</button>');
                 }
 
-                if ( $scopebarSearch.length && !$this.find('.k-toggle-scopebar-search').length ) {
+                if ($scopebarSearch.length && !$this.find('.k-toggle-scopebar-search').length) {
 
                     toggleButtons.prepend('<button type="button" class="k-scopebar__button k-toggle-scopebar-search k-js-toggle-search">' +
                         '<span class="k-icon-magnifying-glass" aria-hidden="true">' +
@@ -17243,232 +17470,516 @@ var Konami = function (callback) {
                 }
             });
 
-            // Toggle search
-            $('.k-js-toggle-filters').on('click', function() {
-                $(this).parent().siblings('.k-scopebar__item--filters').slideToggle('fast');
-            });
+            if (!eventsAttached) {
+                eventsAttached = true;
 
-            $('.k-js-toggle-search').on('click', function() {
-                $(this).parent().siblings('.k-scopebar__item--search').slideToggle('fast');
-            });
+                // Toggle search
+                $(document).on('click.koowa', '.k-js-toggle-filters', function() {
+                    $(event.target).parents('.k-js-scopebar').find('.k-scopebar__item--filters').slideToggle('fast');
+                });
+
+                $(document).on('click.koowa', '.k-js-toggle-search', function() {
+                    $(event.target).parents('.k-js-scopebar').find('.k-scopebar__item--search').slideToggle('fast');
+                });
+            }
         }
 
-        // Select2
+    };
+
+})(kQuery);
+
+// Subcontent toggle
+
+(function($) {
+
+    kodekitUI.subcontentToggle = function() {
+
+        // Sub content itself
+        var $subcontent = $('.k-js-subcontent');
+
+        // See if it exists
+        if ($subcontent.length) {
+
+            var $contentChild = $('.k-content-area__child'),
+                subcontentButtonContent = $subcontent.attr('data-toggle-button-content') || '<span class="k-icon-chevron-left" aria-hidden="true"></span>',
+                toggle_button = '<button type="button" class="k-button k-button--default k-subcontent-toggle k-js-subcontent-toggle" title="Subcontent toggle" aria-label="Subcontent toggle">' + subcontentButtonContent + '</button>',
+                toggle = $contentChild.find('.k-js-subcontent-toggle'),
+                $toggle = $(toggle_button),
+                $toggleButton = null;
+
+            // Append toggle button and overlay
+            if ( toggle.length === 0 ) {
+                $contentChild.prepend($toggle);
+            }
+
+            $toggleButton = $('.k-js-subcontent-toggle');
+
+            // Off canvas
+            $subcontent.offCanvasMenu({
+                menuToggle: $toggleButton,
+                menuExpandedClass: 'k-show-subcontent-area',
+                openedClass: 'k-is-opened-subcontent',
+                position: 'right',
+                container: $contentChild,
+                expandedWidth: '276',
+                offCanvasOverlay: 'k-off-canvas-overlay-subcontent',
+                offCanvasOverlayPosition: 'before',
+                wrapper: $('.k-js-content-area')
+            });
+
+
+            // Open right sidebar on selecting items in table
+            // Only for tables with .k-js-with-subcontent class
+            // Only apply to actual `<a>` elements
+            $('.k-table-container table.k-js-with-subcontent a').off().on('click', function (event) {
+                // Only apply if parent is a `<td>` (so not a `<th>`)
+                if ($(this).parents('td').length > 0) {
+                    var target = $(this)[0].closest('.k-content-area__child');
+                    var targetToggle = $(target).find('.k-js-subcontent-toggle');
+
+                    // Wait at least 2 frames to make sure actions are not attached simultaneously
+                    setTimeout(function () {
+                        targetToggle.trigger('click');
+                    }, 32);
+                }
+            });
+
+            // Open subcontent on clicking TD
+            $('.k-table-container table.k-js-with-subcontent tbody').off().on('click', 'tr', function (event) {
+                // Return if click to select class is added to table
+                if ($(this).closest('table').hasClass('k-js-click-to-select')) return;
+
+                // Return if target is anchor
+                if (event.target.nodeName === 'A') return;
+                if (event.target.nodeName === 'INPUT') return;
+
+                // Stop row select action
+                event.preventDefault();
+                event.stopPropagation();
+
+                // Trigger click anchor (but wait for ajax)
+                $(this).find('a').trigger('click');
+            });
+
+        }
+
+    };
+
+
+})(kQuery);
+
+// Top navigation
+
+(function($) {
+
+    $.fn.ktopnavigation = function() {
+
+        return this.each(function() {
+            var $menu = $( this ),
+                data = $menu.data('ktopnavigation');
+
+            if (!data) {
+                $menu.data('ktopnavigation', true);
+
+                // Variables
+                var $menuItem = $menu.find('> ul > li > a'),
+                    menuClass = 'has-open-menu',
+                    submenuClass = 'has-open-submenu',
+                    menuContent = $menu.attr('data-toggle-button-content') || 'Menu';
+
+                // Append toggle button
+                if ($menu.parent().find('#k-js-top-navigation-toggle').length === 0) {
+                    $menu.parent().append($('<button type="button" id="k-js-top-navigation-toggle" class="k-top-navigation-toggle" title="Menu toggle" aria-label="Menu toggle">'+menuContent+'</button>'));
+                }
+
+                // Off canvas
+                $menu.offCanvasMenu({
+                    menuToggle: $('#k-js-top-navigation-toggle'),
+                    menuExpandedClass: 'k-show-top-menu',
+                    openedClass: 'k-is-opened-top',
+                    position: 'right',
+                    container: $('.k-js-wrapper'),
+                    expandedWidth: '276',
+                    offCanvasOverlay: 'k-off-canvas-overlay-top',
+                    wrapper: $('.k-ui-container')
+                });
+
+                // Open a menu item
+                function openMenuItem($element) {
+                    if ( $menu.hasClass(menuClass) && $(this).hasClass(submenuClass) ) {
+                        closeMenu();
+                    } else {
+                        $('.' + submenuClass).removeClass(submenuClass);
+                        $element.addClass(submenuClass);
+                        $menu.addClass(menuClass);
+                    }
+                }
+
+                // Close all items
+                function closeMenu() {
+                    $menu.removeClass(menuClass).find('.' + submenuClass).removeClass(submenuClass);
+                }
+
+                // Click a menu item
+                // Parent items are not navigatable just like in any other OS
+                // Add your own JS to make sure links are clickable anyway
+                $menuItem.on('click', function(event) {
+                    if (!$(this).next('ul').length) return;
+
+                    event.preventDefault();
+                    if ( $menu.hasClass(menuClass) && $(this).hasClass(submenuClass) ) {
+                        closeMenu();
+                    } else {
+                        openMenuItem($(this));
+                    }
+                });
+
+                // Click child item
+                $menu.on('click', 'ul li ul li a', function() {
+                    closeMenu();
+                });
+
+                // Hover a menu item
+                $menuItem.on('mouseover', function(event) {
+                    // Only on desktop
+                    if ( $('.k-top-container').css('z-index') >= 11) {
+                        event.preventDefault();
+                        if ( $menu.hasClass(menuClass) ) {
+                            $menu.find('.' + submenuClass).blur();
+                            openMenuItem($(this));
+                        }
+                    }
+                });
+
+                // On clicking next to the menu
+                $(document).mouseup(function(e) {
+                    var $navigationList = $menu.children('ul');
+
+                    // if the target of the click isn't the container nor a descendant of the container
+                    if (!$navigationList.is(e.target) && $navigationList.has(e.target).length === 0)
+                    {
+                        if ( $menu.hasClass(menuClass) ) {
+                            closeMenu();
+                        }
+                    }
+                });
+
+                // On ESC key
+                $(document).keyup(function(e) {
+                    if (e.keyCode === 27) {
+                        closeMenu();
+                    }
+                });
+            }
+
+        });
+    };
+
+})(kQuery);
+
+(function($) {
+
+    var tabsOverflowClass = 'k-has-tabs-overflow',
+        tabsOverflowLeftClass = 'k-has-tabs-left-overflow',
+        tabsOverflowRightClass = 'k-has-tabs-right-overflow',
+        tabsScrollAmount = 0.8,
+        tabsAnimationSpeed = 400;
+
+    // Calculate wether there is a scrollable area and apply classes accordingly
+    function tabsCalculateScroll($scroller, $tabs, $tabsWrapper) {
+
+        if (!$scroller.length) return;
+
+        // Variables
+        var tabsWidth = $tabs.outerWidth(),
+            scrollerWidth = $scroller.innerWidth(),
+            scrollLeft = $scroller.scrollLeft();
+
+        // Show / hide buttons
+        if (tabsWidth > scrollerWidth) {
+            $tabsWrapper.addClass(tabsOverflowClass);
+        } else {
+            $tabsWrapper.removeClass(tabsOverflowClass);
+        }
+
+        // "Activate" left button
+        if ((tabsWidth > scrollerWidth) && (scrollLeft > 0)) {
+            $tabsWrapper.addClass(tabsOverflowLeftClass);
+        }
+
+        // "Activate" right button
+        if ((tabsWidth > scrollerWidth)) {
+            $tabsWrapper.addClass(tabsOverflowRightClass);
+        }
+
+        // "Deactivate" left button
+        if ((tabsWidth <= scrollerWidth) || (scrollLeft <= 0)) {
+            $tabsWrapper.removeClass(tabsOverflowLeftClass);
+        }
+
+        // "Deactivate" right button
+        if ((tabsWidth <= scrollerWidth) || (scrollLeft >= (tabsWidth - scrollerWidth))) {
+            $tabsWrapper.removeClass(tabsOverflowRightClass);
+        }
+    }
+
+
+    // Calculate the amount of scrolling to do
+    function calculateScroll(direction, $scroller, $tabs) {
+
+        // Variables
+        var tabsWidth = $tabs.outerWidth(),
+            scrollerWidth = $scroller.innerWidth(),
+            scrollLeft = $scroller.scrollLeft(),
+            scroll;
+
+        // Left button (scroll to right)
+        if ( direction === 'prev') {
+            scroll = scrollLeft - (scrollerWidth * tabsScrollAmount);
+            if (scroll < 0 ) {
+                scroll = 0;
+            }
+        }
+
+        // Right button (scroll to left)
+        if ( direction === 'next') {
+            scroll = scrollLeft + (scrollerWidth * tabsScrollAmount);
+            if (scroll > (tabsWidth - scrollerWidth) ) {
+                scroll = tabsWidth - scrollerWidth;
+            }
+        }
+
+        // Animate the scroll
+        $scroller.animate({
+            scrollLeft: scroll
+        }, tabsAnimationSpeed);
+    }
+
+    // Scroll active tab into screen
+    function scrollToTab(element, $scroller, $tabs) {
+        if (element.parent('li').parent('ul').parent().hasClass('k-js-tabs-scroller')) {
+            var positionLeft = element.parent().position().left,
+                positionRight = positionLeft + element.parent().outerWidth(),
+                parentPaddingLeft = parseInt($tabs.css('padding-left'), 10),
+                parentPaddingRight = parseInt($tabs.css('padding-right'), 10),
+                scrollerOffset = $scroller.scrollLeft(),
+                scrollerWidth = $scroller.innerWidth(),
+                scroll;
+
+            // When item falls of on the right side
+            if ( positionRight > (scrollerOffset + scrollerWidth) ) {
+                scroll = scrollerOffset + ((positionRight - (scrollerWidth + scrollerOffset)) + (parentPaddingRight * 2));
+            }
+
+            // When item falls of on the left side
+            if ( positionLeft < scrollerOffset ) {
+                scroll = scrollerOffset - ((scrollerOffset - positionLeft) + (parentPaddingLeft * 2));
+            }
+
+            // Animate the scroll
+            $scroller.animate({
+                scrollLeft: scroll
+            }, tabsAnimationSpeed);
+        }
+    }
+
+
+    $.fn.ktabscroller = function() {
+        return this.each(function() {
+            var $scroller = $(this),
+                data = $scroller.data('ktabscroller');
+
+            if (!data) {
+                $scroller.data('ktabscroller', true);
+
+                // Variables
+                var $tabs = $scroller.find('.k-js-tabs'),
+                    $tabsWrapper = $scroller.parent('.k-js-tabs-wrapper'),
+                    resizeTimer;
+
+                // Append buttons
+                if (!$tabsWrapper.children('.k-tabs-scroller-prev').length) {
+                    $tabsWrapper.prepend('<button type="button" class="k-tabs-scroller-prev"><span class="k-icon-chevron-left"></span><span class="k-visually-hidden">Scroll left</span></button>');
+                }
+                if (!$tabsWrapper.children('.k-tabs-scroller-next').length) {
+                    $tabsWrapper.append('<button type="button" class="k-tabs-scroller-next"><span class="k-icon-chevron-right"></span><span class="k-visually-hidden">Scroll right</span></button>');
+                }
+
+                // Run 250ms after document ready
+                // 1. To make sure tabs are loaded
+                // 2. To display users that tabs are scrollable
+                setTimeout(function() {
+                    tabsCalculateScroll($scroller, $tabs, $tabsWrapper);
+
+                    $tabsWrapper.on('click', '.k-tabs-scroller-prev', function() {
+                        calculateScroll('prev', $scroller, $tabs);
+                    });
+                    $tabsWrapper.on('click', '.k-tabs-scroller-next', function() {
+                        calculateScroll('next', $scroller, $tabs);
+                    });
+
+                    // Scroll to active tab after buttons have loaded
+                    setTimeout(function() {
+                        scrollToTab($scroller.find('.k-is-active a'), $scroller, $tabs);
+                    }, tabsAnimationSpeed);
+                }, 200);
+
+                // When clicking tabs
+                $tabsWrapper.on('click', 'li a', function() {
+                    scrollToTab($(this), $scroller, $tabs);
+                });
+
+                // Run on scrolling the tab container
+                $scroller.on('scroll', function() {
+                    // Throttle
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(function() {
+                        tabsCalculateScroll($scroller, $tabs, $tabsWrapper);
+                    }, 200);
+                });
+
+                // Run on window resize
+                $(window).on('resize', function() {
+                    // Throttle
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(function() {
+                        tabsCalculateScroll($scroller, $tabs, $tabsWrapper);
+                    }, 200);
+                });
+            }
+        });
+    };
+
+})(kQuery);
+
+(function($) {
+
+
+    /**
+     * Footable
+     */
+    kodekitUI.initializeFootable = function() {
+        $('.k-js-responsive-table').removeClass('footable footable-loaded').footable({
+            toggleSelector: '.footable-toggle',
+            breakpoints: {
+                phone: 400,
+                tablet: 600,
+                desktop: 800
+            }
+        });
+    };
+
+
+    /**
+     * Select 2
+     */
+    kodekitUI.initializeSelect2 = function() {
         $('.k-js-select2').select2({
             theme: "bootstrap"
         });
+    };
 
-        // Datepicker
+
+    /**
+     * Datepicker
+     */
+    kodekitUI.initializeDatepicker = function datepicker() {
         $('.k-js-datepicker').kdatepicker();
+    };
 
-        // Magnific
-        $('.k-js-image-modal').magnificPopup({type:'image'});
-        $('.k-js-inline-modal').magnificPopup({type:'inline'});
-        $('.k-js-iframe-modal').magnificPopup({type:'iframe'});
 
-        // Tooltips
+    /**
+     * Magnific popup
+     */
+    kodekitUI.initializeModal = function() {
+        $('.k-js-image-modal').magnificPopup({type: 'image'});
+        $('.k-js-inline-modal').magnificPopup({type: 'inline'});
+        $('.k-js-iframe-modal').magnificPopup({type: 'iframe'});
+    };
+
+
+    /**
+     * Tooltip
+     */
+
+    kodekitUI.initializeTooltip = function() {
         $('.k-js-tooltip').ktooltip({
             animation: true,
             placement: 'top',
-            delay: { show: 200, hide: 50 },
+            delay: {show: 200, hide: 50},
             container: '.k-ui-container'
         });
+    };
 
-        // Sidebar block toggle (e.g. quick filters)
-        if ( $sidebarToggle.length ) {
-            var toggle = $('<div class="k-sidebar-item__toggle"><span class="k-visually-hidden">Toggle</span></div>');
+    kodekitUI.initializeNavigation = function() {
+        $('.k-js-top-navigation').ktopnavigation();
+    };
 
-            $sidebarToggle.addClass('k-sidebar-item--toggle').find('.k-sidebar-item__header').append(toggle);
+    kodekitUI.initializeFileinput = function() {
+        $('.k-js-file-input').kfileinput();
+    };
 
-            $sidebarToggle.on('click', '.k-sidebar-item__toggle', function(event) {
-                $(this).toggleClass('k-is-active').parent().next().slideToggle(180);
-            });
-        }
+    kodekitUI.initializeTabscroller = function() {
+        $('.k-js-tabs-scroller').ktabscroller();
+    };
 
-        // Konami
+    /**
+     * Load functions
+     *
+     * Quick function to run all functions
+     * Use on:
+     * - Page load
+     * - AJAX change
+     * - On other DOM changes when needed
+     */
+    if (typeof kodekitUI.loadFunctions === 'undefined') {
+        kodekitUI.loadFunctions = function() {
+
+            /**
+             * Local functions
+             */
+            kodekitUI.initializeFootable();
+            kodekitUI.initializeSelect2();
+            kodekitUI.initializeDatepicker();
+            kodekitUI.initializeModal();
+            kodekitUI.initializeTooltip();
+            kodekitUI.initializeNavigation();
+            kodekitUI.initializeFileinput();
+            kodekitUI.initializeTabscroller();
+
+            /**
+             * Global kodekitUI functions
+             */
+            kodekitUI.sidebarToggle();
+            kodekitUI.scopebarToggles();
+            kodekitUI.subcontentToggle();
+            kodekitUI.gallery();
+            kodekitUI.dragger();
+        };
+    }
+
+
+    $(document).ready(function () {
+
+        /**
+         * Konami
+         * Not needed to reload since we're targeting html element which won't change
+         */
         new Konami(function() {
             $('html, .k-ui-container').css({
-                'font-family': 'Comic Sans MS',
-                'font-size': '20px',
-                'line-height': '30px'
-            }).addClass('konami');
+                'font-family': 'Comic Sans MS'
+            });
         });
 
-        // Styleguide tree
-        new Koowa.Tree('#k-jqtree', {
-            "data": [
-                {"label":"Main category","id":4},
-                {"label":"Sub category 1","id":5,"parent":4},
-                {"label":"Sub category 2","id":6,"parent":4},
-                {"label":"Deeper category","id":7,"parent":6},
-                {"label":"Sub category 3","id":8,"parent":4}
-            ]
-        });
 
-        // Tabs scroller
-        var $tabsScroller = $('.k-js-tabs-scroller'),
-            tabsOverflowClass = 'k-has-tabs-overflow',
-            tabsOverflowLeftClass = 'k-has-tabs-left-overflow',
-            tabsOverflowRightClass = 'k-has-tabs-right-overflow',
-            tabsScrollAmount = 0.8,
-            tabsAnimationSpeed = 400;
+        /**
+         * Window resize
+         */
+        var resizeTimer,
+            resizeClass = 'k-is-resizing';
 
-        // Calculate wether there is a scrollable area and apply classes accordingly
-        function tabsCalculateScroll() {
-
-            if (!$tabsScroller.length) return;
-
-            // Variables
-            var tabsWidth = $tabs.outerWidth(),
-                scrollerWidth = $tabsScroller.innerWidth(),
-                scrollLeft = $tabsScroller.scrollLeft();
-
-            // Show / hide buttons
-            if (tabsWidth > scrollerWidth) {
-                $tabsWrapper.addClass(tabsOverflowClass);
-            } else {
-                $tabsWrapper.removeClass(tabsOverflowClass);
-            }
-
-            // "Activate" left button
-            if ((tabsWidth > scrollerWidth) && (scrollLeft > 0)) {
-                $tabsWrapper.addClass(tabsOverflowLeftClass);
-            }
-
-            // "Activate" right button
-            if ((tabsWidth > scrollerWidth)) {
-                $tabsWrapper.addClass(tabsOverflowRightClass);
-            }
-
-            // "Deactivate" left button
-            if ((tabsWidth <= scrollerWidth) || (scrollLeft <= 0)) {
-                $tabsWrapper.removeClass(tabsOverflowLeftClass);
-            }
-
-            // "Deactivate" right button
-            if ((tabsWidth <= scrollerWidth) || (scrollLeft >= (tabsWidth - scrollerWidth))) {
-                $tabsWrapper.removeClass(tabsOverflowRightClass);
-            }
-        }
-
-        // Only run if scroller exists
-        if ( $tabsScroller.length ) {
-
-            // Variables
-            var $tabs = $('.k-js-tabs'),
-                $tabsWrapper = $('.k-js-tabs-wrapper');
-
-            // Append buttons
-            $tabsWrapper.prepend('<button type="button" class="k-tabs-scroller-prev"><span class="k-icon-chevron-left"></span><span class="k-visually-hidden">Scroll left</span></button>');
-            $tabsWrapper.append('<button type="button" class="k-tabs-scroller-next"><span class="k-icon-chevron-right"></span><span class="k-visually-hidden">Scroll right</span></button>');
-
-            // Clicking left and right buttons
-            function tabsScrollButtonClick() {
-
-                // Buttons
-                var $tabsPrev = $('.k-tabs-scroller-prev'),
-                    $tabsNext = $('.k-tabs-scroller-next');
-
-                // Prev
-                $tabsPrev.on('click', function() {
-                    calculateScroll('prev');
-                });
-
-                // Next
-                $tabsNext.on('click', function() {
-                    calculateScroll('next');
-                });
-            }
-
-            // Calculate the amount of scrolling to do
-            function calculateScroll(direction) {
-
-                // Variables
-                var tabsWidth = $tabs.outerWidth(),
-                    scrollerWidth = $tabsScroller.innerWidth(),
-                    scrollLeft = $tabsScroller.scrollLeft(),
-                    scroll;
-
-                // Left button (scroll to right)
-                if ( direction == 'prev') {
-                    scroll = scrollLeft - (scrollerWidth * tabsScrollAmount);
-                    if (scroll < 0 ) {
-                        scroll = 0;
-                    }
-                }
-
-                // Right button (scroll to left)
-                if ( direction == 'next') {
-                    scroll = scrollLeft + (scrollerWidth * tabsScrollAmount);
-                    if (scroll > (tabsWidth - scrollerWidth) ) {
-                        scroll = tabsWidth - scrollerWidth;
-                    }
-                }
-
-                // Animate the scroll
-                $tabsScroller.animate({
-                    scrollLeft: scroll
-                }, tabsAnimationSpeed);
-            }
-
-            // Scroll active tab into screen
-            function scrollToTab(element) {
-                if (element.parent('li').parent('ul').parent().hasClass('k-js-tabs-scroller')) {
-                    var positionLeft = element.parent().position().left,
-                        positionRight = positionLeft + element.parent().outerWidth(),
-                        parentPaddingLeft = parseInt($tabs.css('padding-left'), 10),
-                        parentPaddingRight = parseInt($tabs.css('padding-right'), 10),
-                        scrollerOffset = $tabsScroller.scrollLeft(),
-                        scrollerWidth = $tabsScroller.innerWidth(),
-                        scroll;
-
-                    // When item falls of on the right side
-                    if ( positionRight > (scrollerOffset + scrollerWidth) ) {
-                        scroll = scrollerOffset + ((positionRight - (scrollerWidth + scrollerOffset)) + (parentPaddingRight * 2));
-                    }
-
-                    // When item falls of on the left side
-                    if ( positionLeft < scrollerOffset ) {
-                        scroll = scrollerOffset - ((scrollerOffset - positionLeft) + (parentPaddingLeft * 2));
-                    }
-
-                    // Animate the scroll
-                    $tabsScroller.animate({
-                        scrollLeft: scroll
-                    }, tabsAnimationSpeed);
-                }
-            }
-
-            // Run 500ms after document ready
-            // 1. To make sure tabs are loaded
-            // 2. To display users that tabs are scrollable
-            setTimeout(function() {
-                tabsCalculateScroll();
-                tabsScrollButtonClick();
-
-                // Scroll to active tab after buttons have loaded
-                setTimeout(function() {
-                    scrollToTab($tabsScroller.find('.k-is-active a'));
-                }, tabsAnimationSpeed);
-            }, 500);
-
-            // When clicking tabs
-            $tabs.on('click', 'li a', function() {
-                scrollToTab($(this));
-            });
-
-            // Run on scrolling the tab container
-            $tabsScroller.on('scroll', function() {
-                // Throttle
-                clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(function() {
-                    tabsCalculateScroll();
-                }, 200);
-            });
-        }
-
-        // On window resize
         $(window).on('resize', function() {
+
             // Add class to body when resizing so we can add styling to the page
             $('body').addClass(resizeClass);
 
@@ -17479,11 +17990,33 @@ var Konami = function (callback) {
                 // Remove the class when resize is done
                 $('body').removeClass(resizeClass);
 
-                // Run tabs scroll function
-                tabsCalculateScroll();
-
             }, 200);
         });
+
+
+        /**
+         * Tab change
+         * Run code on tab change
+         */
+        $('a[data-k-toggle="tab"]').on('shown', function (e) {
+            kodekitUI.initializeFootable();
+        });
+
+
+        /**
+         * Run functions DOM loaded
+         */
+        kodekitUI.loadFunctions();
+
+        /**
+         * Load "ajaxloading" only once to make sure events are not fire multiple times
+         */
+        kodekitUI.ajaxloading();
+        kodekitUI.loaded = function(responseTxt, statusTxt, xhr, pageHead, pageTitle) {
+            kodekitUI.loadFunctions();
+
+        };
+
 
     });
 

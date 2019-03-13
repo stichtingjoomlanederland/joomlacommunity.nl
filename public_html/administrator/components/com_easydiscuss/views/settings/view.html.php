@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -25,101 +25,117 @@ class EasyDiscussViewSettings extends EasyDiscussAdminView
 	{
 		$this->checkAccess('discuss.manage.settings');
 
-		// Determines which layout that we should show currently.
 		$layout = $this->getLayout();
+		$activeTab = $this->input->get('active', '', 'default');
+
+		// Build the namespace
+		$namespace = 'settings/' . $layout . '/default';
 
 		if ($layout == 'default') {
-			$layout = 'general';
+			return $this->app->redirect('index.php?option=com_easydiscuss&view=settings&layout=general');
 		}
 
 		// Set the title and the description of the page
-		$title = JText::_('COM_EASYDISCUSS_SETTINGS_' . strtoupper($layout) . '_TITLE');
-		$desc = JText::_('COM_EASYDISCUSS_SETTINGS_' . strtoupper($layout) . '_DESC');
-
-		$this->title($title);
-		$this->desc($desc);
+		$this->setHeading('COM_EASYDISCUSS_SETTINGS_' . strtoupper($layout) . '_TITLE', 'COM_EASYDISCUSS_SETTINGS_' . strtoupper($layout) . '_DESC');
 
 		JToolBarHelper::apply();
 
 		// Get the tabs
-		$contents = $this->getContents($layout);
+		$tabs = $this->getTabs($layout);
 
-		$this->set('contents', $contents);
+		$this->set('tabs', $tabs);
+		$this->set('activeTab', $activeTab);
+		$this->set('config', $this->config);
+		$this->set('layout', $layout);
+		$this->set('namespace', $namespace);
 
-		parent::display('settings/wrapper');
+		return parent::display('settings/form');
+
+		// $contents = $this->getContents($layout);
+
+		// $this->set('contents', $contents);
+
+		// parent::display('settings/wrapper');
 	}
 
-	/**
-	 * Renders the tabs
-	 *
-	 * @since	4.0
-	 * @access	public
-	 */
-	public function getContents($layout)
+	public function getTabs($layout)
 	{
-		$path = DISCUSS_ADMIN_ROOT . '/themes/default/settings/' . $layout;
+		$path = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/themes/default/settings/' . $layout;
 
 		$files = JFolder::files($path, '.php');
 		$tabs = array();
+		
+		// Get the current active tab
+		$active = $this->input->get('active', '', 'cmd');
+
+		if (!$files) {
+			return false;
+		}
 
 		foreach ($files as $file) {
 
+			// If a user upgrades from 5.0 or any prior versions, we shouldn't get the default.php
 			if ($file == 'default.php') {
 				continue;
 			}
 
-			if ($layout == 'social' && $file == 'social.buttons.php') {
-				continue;
+			$fileName = $file;
+			$file = str_ireplace('.php', '', $file);
+
+			$tab = new stdClass();
+			$tab->id = str_ireplace(array(' ', '.', '#', '_'), '-', strtolower($file));
+			$tab->title = JText::_('COM_EASYDISCUSS_SETTINGS_TAB_' . strtoupper($tab->id));
+			$tab->file = $path . '/' . $fileName;
+			$tab->active = ($file == 'general' && !$active) || $active === $tab->id;
+
+			// Get the contents of the tab now
+			$theme = ED::themes();
+
+			$defaultSAId = ED::getDefaultSAIds();
+			$joomlaVersion = ED::getJoomlaVersion();
+			$joomlaGroups = ED::getJoomlaUserGroups();
+
+			$theme->set('defaultSAId', $defaultSAId);
+			$theme->set('joomlaVersion', $joomlaVersion);
+			$theme->set('joomlaGroups', $joomlaGroups);
+
+			if ($layout == 'email') {
+				$categories = $this->getCategories();
+				$theme->set('categories', $categories);
 			}
 
-			$tab = str_ireplace('.php', '', $file);
-			$tabs[$file] = $tab;
+			// Comments settings
+			if (method_exists($this, $layout)) {
+				$this->$layout($theme);
+			}
+
+			$tab->contents = $theme->output('admin/settings/' . strtolower($layout) . '/' . $file);
+
+			$tabs[$tab->id] = $tab;
 		}
 
-		// We need to sort the tabs to ensure that general.php should always be the first item.
-		usort($tabs, array($this, "resortTabs"));
+		// Sort items manually. Always place "General" as the first item
+		if (isset($tabs['general'])) {
+		
+			$general = $tabs['general'];
 
-		$defaultSAId = ED::getDefaultSAIds();
-		$joomlaVersion = ED::getJoomlaVersion();
-		$joomlaGroups = ED::getJoomlaUserGroups();
+			unset($tabs['general']);
 
-		// Get the active tab
-		$active = $this->input->get('active', '', 'string');
-		$active = str_ireplace('ed-', '', $active);
+			array_unshift($tabs, $general);
 
-		$theme = ED::themes();
+		} else {
+			// First tab should always be highlighted
+			$firstIndex = array_keys($tabs);
+			$firstIndex = $firstIndex[0];
 
-		$theme->set('active', $active);
-		$theme->set('layout', $layout);
-		$theme->set('tabs', $tabs);
-		$theme->set('defaultSAId', $defaultSAId);
-		$theme->set('joomlaVersion', $joomlaVersion);
-		$theme->set('joomlaGroups', $joomlaGroups);
-		$theme->set('layout', $layout);
-
-		if ($layout == 'email') {
-			$categories = $this->getCategories();
-			$theme->set('categories', $categories);
+			if ($active) {
+				$tabs[$firstIndex]->active = $active === $tabs[$firstIndex]->id;
+			} else {
+				$tabs[$firstIndex]->active = true;
+			}
 		}
 
-		$output = $theme->output('admin/settings/contents');
-
-		return $output;
-	}
-
-	/**
-	 * Resort the tabs
-	 *
-	 * @since	4.0
-	 * @access	public
-	 */
-	public function resortTabs($a, $b)
-	{
-		if ($a == 'general' || $a == 'features') {
-			return 0;
-		}
-
-		return $a > $b;
+		return $tabs;
 	}
 
 	public function getCategories()

@@ -1,12 +1,11 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
- *
  */
 
 namespace Akeeba\Engine\Postproc;
@@ -63,6 +62,20 @@ class Amazons3 extends Base
 	protected $volatileKeyPrefix = 'volatile.postproc.amazons3.';
 
 	/**
+	 * HTTP headers. Used when trying to fetch the S3 credentials from an EC2 instance's attached role.
+	 *
+	 * @var  array
+	 */
+	protected $headers = array();
+
+	/**
+	 * Cached copy of the S3 credentials provisioned by the EC2 instance's attached role.
+	 *
+	 * @var  null|array
+	 */
+	protected $provisionedCredentials = null;
+
+	/**
 	 * Initialise the class, setting its capabilities
 	 */
 	public function __construct()
@@ -90,10 +103,10 @@ class Amazons3 extends Base
 		$akeebaConfig = Factory::getConfiguration();
 
 		// Load multipart information from temporary storage
-		$this->uploadId   = $akeebaConfig->get($this->volatileKeyPrefix . 'uploadId', null);
+		$this->uploadId = $akeebaConfig->get($this->volatileKeyPrefix . 'uploadId', null);
 
 		// Get the configuration parameters
-		$engineConfig = $this->getEngineConfiguration();
+		$engineConfig     = $this->getEngineConfiguration();
 		$bucket           = $engineConfig['bucket'];
 		$disableMultipart = $engineConfig['disableMultipart'];
 		$storageType      = $engineConfig['rrs'];
@@ -112,7 +125,7 @@ class Amazons3 extends Base
 		// The very first time we deal with the directory we need to process it.
 		if ($processDirectory)
 		{
-			if ( !empty($directory))
+			if (!empty($directory))
 			{
 				$directory = str_replace('\\', '/', $directory);
 				$directory = rtrim($directory, '/');
@@ -143,7 +156,7 @@ class Amazons3 extends Base
 		// Calculate relative remote filename
 		$remoteKey = empty($upload_as) ? basename($absolute_filename) : $upload_as;
 
-		if ( !empty($directory) && ($directory != '/'))
+		if (!empty($directory) && ($directory != '/'))
 		{
 			$remoteKey = $directory . '/' . $remoteKey;
 		}
@@ -154,13 +167,13 @@ class Amazons3 extends Base
 		// Create the S3 client instance
 		$s3Client = $this->getS3Client();
 
-		if ( !is_object($s3Client))
+		if (!is_object($s3Client))
 		{
 			return false;
 		}
 
 		// Are we already processing a multipart upload or asked to perform a multipart upload?
-		if ( !empty($this->uploadId) || !$disableMultipart)
+		if (!empty($this->uploadId) || !$disableMultipart)
 		{
 			$this->partNumber = $akeebaConfig->get($this->volatileKeyPrefix . 'partNumber', null);
 			$this->eTags      = $akeebaConfig->get($this->volatileKeyPrefix . 'eTags', '{}');
@@ -283,7 +296,7 @@ class Amazons3 extends Base
 			return false;
 		}
 
-		return $s3Client->getAuthenticatedURL($bucket, $remotePath, 10);
+		return $s3Client->getAuthenticatedURL($bucket, $remotePath, 10, true);
 	}
 
 	/**
@@ -319,6 +332,10 @@ class Amazons3 extends Base
 
 				case 2:
 					$headers['X-Amz-Storage-Class'] = 'STANDARD_IA';
+					break;
+
+				case 3:
+					$headers['X-Amz-Storage-Class'] = 'ONEZONE_IA';
 					break;
 			}
 		}
@@ -457,6 +474,10 @@ class Amazons3 extends Base
 				case 2:
 					$headers['X-Amz-Storage-Class'] = 'STANDARD_IA';
 					break;
+
+				case 3:
+					$headers['X-Amz-Storage-Class'] = 'ONEZONE_IA';
+					break;
 			}
 		}
 
@@ -562,6 +583,11 @@ class Amazons3 extends Base
 		$configuration = new Configuration($accessKey, $secretKey, $signatureMethod, $region);
 		$configuration->setSSL($useSSL);
 
+		if (!empty($config['token']))
+		{
+			$configuration->setToken($config['token']);
+		}
+
 		if ($customEndpoint)
 		{
 			$configuration->setEndpoint($customEndpoint);
@@ -588,9 +614,10 @@ class Amazons3 extends Base
 	{
 		$akeebaConfig = Factory::getConfiguration();
 
-		return array(
+		$config = array(
 			'accessKey'        => $akeebaConfig->get('engine.postproc.amazons3.accesskey', ''),
 			'secretKey'        => $akeebaConfig->get('engine.postproc.amazons3.secretkey', ''),
+			'token'            => '',
 			'useSSL'           => $akeebaConfig->get('engine.postproc.amazons3.usessl', 0),
 			'customEndpoint'   => $akeebaConfig->get('engine.postproc.amazons3.customendpoint', ''),
 			'signatureMethod'  => $akeebaConfig->get('engine.postproc.amazons3.signature', 'v2'),
@@ -600,5 +627,239 @@ class Amazons3 extends Base
 			'directory'        => $akeebaConfig->get('engine.postproc.amazons3.directory', null),
 			'rrs'              => $akeebaConfig->get('engine.postproc.amazons3.rrs', null),
 		);
+
+		// No access and secret key? Try to fetch from the EC2 configuration
+		if (empty($config['accessKey']) && empty($config['secretKey']))
+		{
+			Factory::getLog()->debug("There is no configured Access and Secret key. I will try to provision these credentials automatically. This only works when your site runs inside an EC2 instance and you have attached an IAM Role to it which allows access to the configured bucket.");
+			$config = $this->provisionCredentials($config);
+		}
+
+		return $config;
+	}
+
+	/**
+	 * Try to automatically provision the S3 credentials. The credentials are searched in the following places (the
+	 * first one to be found wins):
+	 *
+	 * - The provisionedCredentials volatile key for this post-processing engine
+	 * - The provisionedCredentials property
+	 * - Querying the EC2 instance we are running under (assuming we run under an EC2 instance)
+	 *
+	 * If the cached provisionedCredentials have expired new ones will be fetched by querying the metadata of the
+	 * underlying EC2 instance.
+	 *
+	 * If no provisioned credentials are found, the returned $config array is identical to the input, presumably lacking
+	 * access and secret keys to connect to S3.
+	 *
+	 * @param   array  $config
+	 *
+	 * @return  array
+	 */
+	protected function provisionCredentials(array $config)
+	{
+		// First, try to fetch credentials from the volatile engine configuration
+		$akeebaConfig                 = Factory::getConfiguration();
+		$this->provisionedCredentials = $akeebaConfig->get($this->volatileKeyPrefix . 'provisionedCredentials', $this->provisionedCredentials);
+
+		// I must fetch new credentials if I don't have any provisioned credentials
+		$mustFetchCredentials = !is_array($this->provisionedCredentials) || empty($this->provisionedCredentials);
+
+		if (!$mustFetchCredentials)
+		{
+			Factory::getLog()->debug('Cached S3 credentials were found');
+		}
+
+		// I must fetch new credentials if the provisioned credentials have already expired
+		if (!$mustFetchCredentials && is_array($this->provisionedCredentials) && isset($this->provisionedCredentials['expires']) && !empty($this->provisionedCredentials['expires']))
+		{
+			$mustFetchCredentials = ($this->provisionedCredentials['expires'] + 30) < time();
+
+			if ($mustFetchCredentials)
+			{
+				Factory::getLog()->debug('The cached S3 credentials are about to or have already expired.');
+			}
+		}
+
+		if ($mustFetchCredentials)
+		{
+			Factory::getLog()->debug('Attempting to retrieve S3 credentials from the underlying EC2 instance (if the site is running inside an EC2 instance)');
+
+			try
+			{
+				$this->provisionedCredentials = $this->getEC2RoleCredentials();
+				$akeebaConfig->set($this->volatileKeyPrefix . 'provisionedCredentials', $this->provisionedCredentials);
+			}
+			catch (\RuntimeException $e)
+			{
+				Factory::getLog()->debug("No Amazon S3 credentials found and I got the following error retrieving them from the EC2 instance's role: " . $e->getMessage());
+
+				return $config;
+			}
+		}
+
+		Factory::getLog()->debug('Applying provisioned S3 credentials');
+
+		$config['accessKey'] = $this->provisionedCredentials['access'];
+		$config['secretKey'] = $this->provisionedCredentials['secret'];
+		$config['token']     = $this->provisionedCredentials['token'];
+
+		return $config;
+	}
+
+	/**
+	 * Attempt to retrieve the Amazon S3 credentials from the attached Amazon EC2 instance role.
+	 *
+	 * This will only work if you are running Akeeba Engine in an Amazon EC2 instance with an attached role. The
+	 * attached role must give access to the Amazon S3 bucket you have specified in the configuration of this post-
+	 * processing engine.
+	 *
+	 * @return  array (access, secret, expiration)
+	 */
+	private function getEC2RoleCredentials()
+	{
+		$hasCurl = function_exists('curl_init') && function_exists('curl_exec') && function_exists('curl_close');
+
+		if (!$hasCurl)
+		{
+			throw new \RuntimeException('The PHP cURL module is not activated or installed on this server.');
+		}
+
+		$roleName = $this->getURL('http://169.254.169.254/latest/meta-data/iam/security-credentials/');
+
+		if (empty($roleName))
+		{
+			throw new \RuntimeException("Could not find an attached IAM Role on this EC2 instance or we are not running on an EC2 instance.");
+		}
+
+		Factory::getLog()->debug("Getting S3 credentials from EC2 attached IAM Role ‘{$roleName}’.");
+
+		$credentialsDocument = $this->getURL('http://169.254.169.254/latest/meta-data/iam/security-credentials/' . $roleName);
+		$result              = @json_decode($credentialsDocument, true);
+
+		if (is_null($result) || empty($result))
+		{
+			throw new \RuntimeException("Cannot retrieve credentials from IAM role $roleName");
+		}
+
+		if (!array_key_exists('Code', $result) || ($result['Code'] != 'Success'))
+		{
+			throw new \RuntimeException("Querying the IAM role did not return a successful result.");
+		}
+
+		$keys = array('AccessKeyId', 'AccessKeyId', 'Expiration', 'Token');
+
+		foreach ($keys as $key)
+		{
+			if (!array_key_exists($key, $result))
+			{
+				throw new \RuntimeException("Cannot find key ‘{$key}’ in EC2 metadata document. Automatic provisioning of S3 credentials is not possible.");
+			}
+		}
+
+		try
+		{
+			$expiresOn = new \DateTime($result['Expiration']);
+			$expires   = $expiresOn->getTimestamp();
+		}
+		catch (\Exception $e)
+		{
+			Factory::getLog()->debug('Could not determine the expiration time of the automatically provisioned credentials. Assuming an expiration period of 10 minutes (minimum expiration period).');
+
+			$expires = time() + 600;
+		}
+
+		return array(
+			'access'  => $result['AccessKeyId'],
+			'secret'  => $result['SecretAccessKey'],
+			'token'   => $result['Token'],
+			'expires' => $expires,
+		);
+	}
+
+	/**
+	 * Returns the contents of a URL. We use this internally to fetch the Amazon S3 credentials from the attached
+	 * Amazon EC2 instance role.
+	 *
+	 * @param   string  $url  The URL to fetch
+	 *
+	 * @return  string  The contents of the URL
+	 */
+	private function getURL($url)
+	{
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_AUTOREFERER, 1);
+		curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		@curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+		curl_setopt($ch, CURLOPT_SSLVERSION, 0);
+		curl_setopt($ch, CURLOPT_CAINFO, AKEEBA_CACERT_PEM);
+		curl_setopt($ch, CURLOPT_HEADERFUNCTION, array($this, 'reponseHeaderCallback'));
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 1);
+
+		$result = curl_exec($ch);
+
+		$errno       = curl_errno($ch);
+		$errmsg      = curl_error($ch);
+		$error       = '';
+		$http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+		if ($result === false)
+		{
+			$error = sprintf("(cURL Error %u) %s", $errno, $errmsg);
+		}
+		elseif (($http_status >= 300) && ($http_status <= 399) && isset($this->headers['location']) && !empty($this->headers['location']))
+		{
+			return $this->getURL($this->headers['location']);
+		}
+		elseif ($http_status > 399)
+		{
+			$errno = $http_status;
+			$error = sprintf('HTTP %u error', $http_status);
+		}
+
+		curl_close($ch);
+
+		if ($result === false)
+		{
+			throw new \RuntimeException($error, $errno);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Handles the HTTP headers returned by cURL.
+	 *
+	 * @param   resource  $ch    cURL resource handle (unused)
+	 * @param   string    $data  Each header line, as returned by the server
+	 *
+	 * @return  int  The length of the $data string
+	 */
+	protected function reponseHeaderCallback(&$ch, &$data)
+	{
+		$strlen = strlen($data);
+
+		if (($strlen) <= 2)
+		{
+			return $strlen;
+		}
+
+		$testForHTTP = substr($data, 0, 4);
+
+		if (strtoupper($testForHTTP) == 'HTTP')
+		{
+			return $strlen;
+		}
+
+		list($header, $value) = explode(': ', trim($data), 2);
+
+		$this->headers[strtolower($header)] = $value;
+
+		return $strlen;
 	}
 }

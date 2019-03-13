@@ -1,26 +1,25 @@
 <?php
 /**
  * Akeeba Kickstart
+ * A JSON-powered archive extraction tool
  *
- * An archive extraction script for ZIP, JPA and JPS archives.
- *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
+ * @package     kickstart
  */
 
 /**
  * Akeeba Kickstart
  * A JSON-powered archive extraction tool
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /*
     Akeeba Kickstart - The server-side archive extraction wizard
-    Copyright (C) 2008-2017  Nicholas K. Dionysopoulos / AkeebaBackup.com
+    Copyright (C) 2008-2019  Nicholas K. Dionysopoulos / AkeebaBackup.com
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -36,11 +35,23 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define('KICKSTART', 1);
-define('VERSION', '5.4.2');
-define('KICKSTARTPRO', '0');
 // Uncomment the following line to enable Kickstart's debug mode
 //define('KSDEBUG', 1);
+
+// =====================================================================================================================
+// DO NOT MODIFY BELOW THIS LINE
+// =====================================================================================================================
+define('KICKSTART', 1);
+
+if (!defined('VERSION'))
+{
+	define('VERSION', '6.0.1');
+}
+
+if (!defined('KICKSTARTPRO'))
+{
+	define('KICKSTARTPRO', '0');
+}
 
 // Used during development
 if (!defined('KSDEBUG') && isset($_SERVER) && isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'local.web') !== false))
@@ -99,7 +110,7 @@ if (!isset($_SERVER['REQUEST_URI']))
 		{
 			$_SERVER['HTTP_REQUEST_URI'] = $_SERVER['PHP_SELF'];
 		}
-		if ($_SERVER['QUERY_STRING'])
+		if (isset($_SERVER['QUERY_STRING']) && !empty($_SERVER['QUERY_STRING']))
 		{
 			$_SERVER['HTTP_REQUEST_URI'] .= '?' . $_SERVER['QUERY_STRING'];
 		}
@@ -121,61 +132,129 @@ if (is_file($cacertpem))
 }
 unset($cacertpem);
 
-// Loads other PHP files containing extra Kickstart features
-$dh = @opendir(KSROOTDIR);
-if ($dh === false)
+/**
+ * Loads other PHP files containing extra Kickstart features. You can do all sorts of tricks such as injecting HTML
+ * and CSS code (see AKFeatureGeorgeWSpecialEdition), adding AJAX task handlers (see AKFeatureURLImport) etc.
+ *
+ * Feature files must follow one of the following naming conventions:
+ *
+ * - kickstart.SOMETHING.php
+ * - script_basename.SOMETHING.php
+ *
+ * where script_basename is the base name of Kickstart's PHP file. If you have renamed kickstart.php to foobar.php this
+ * means that feature files must be named foobar.SOMETHING.php.
+ *
+ * The file must contain a class whose name starts with "AKFeature". The rest of the name is irrelevant and does not
+ * have to follow a convention. It is, however, prudent to name the class using something similar to the filename it is
+ * stored in to preserve your sanity and avoid potential conflicts.
+ *
+ * The class is instantiated ONLY ONCE, when the first call to callExtraFeature() is made. Its methods are called using
+ * callExtraFeature() from Kickstart's (non-user-modifiable) code.
+ */
+function importKickstartFeatures($directory, $prefixes = array('kickstart'))
 {
-	return;
+	$dh = @opendir($directory);
+
+	if ($dh === false)
+	{
+		return;
+	}
+
+	// Make sure the prefixes include 'kickstart' and our basename
+	if (!in_array('kickstart', $prefixes))
+	{
+		$prefixes[] = 'kickstart';
+	}
+
+	$selfBasename = basename(defined('KSSELFNAME') ? KSSELFNAME : basename(__FILE__), '.php');
+
+	if (!in_array($selfBasename, $prefixes))
+	{
+		$prefixes[] = $selfBasename;
+	}
+
+	// Loop all files in the directory
+	while ($filename = readdir($dh))
+	{
+		if (in_array($filename, array('.', '..')))
+		{
+			continue;
+		}
+
+		if (!is_file($directory . '/' . $filename))
+		{
+			continue;
+		}
+
+		// Feature files must be prefixed with one of the prefixes.
+		$found = false;
+
+		foreach ($prefixes as $prefix)
+		{
+			if (substr($filename, 0, strlen($prefix) + 1) == ($prefix . '.'))
+			{
+				$found = true;
+				break;
+			}
+		}
+
+		if (!$found)
+		{
+			continue;
+		}
+
+		if (substr($filename, -4) != '.php')
+		{
+			continue;
+		}
+
+		/**
+		 * We have to ignore files which are just the prefix and a .php extension (because one of these scripts is the
+		 * currently executing script).
+		 */
+		foreach ($prefixes as $prefix)
+		{
+			if ($filename == ($prefix . '.php'))
+			{
+				continue 2;
+			}
+		}
+
+		// Op-code busting before loading the feature (in case it's self-modifying)
+		if (function_exists('opcache_invalidate'))
+		{
+			opcache_invalidate($directory . '/' . $filename);
+		}
+
+		if (function_exists('apc_compile_file'))
+		{
+			apc_compile_file($directory . '/' . $filename);
+		}
+
+		if (function_exists('wincache_refresh_if_changed'))
+		{
+			wincache_refresh_if_changed(array($directory . '/' . $filename));
+		}
+
+		if (function_exists('xcache_asm'))
+		{
+			xcache_asm($directory . '/' . $filename);
+		}
+
+		include_once $directory . '/' . $filename;
+	}
 }
-while ($filename = readdir($dh))
-{
-	if (in_array($filename, array('.', '..')))
-	{
-		continue;
-	}
-	if (!is_file($filename))
-	{
-		continue;
-	}
-	if (substr($filename, 0, 10) != 'kickstart.')
-	{
-		continue;
-	}
-	if (substr($filename, -4) != '.php')
-	{
-		continue;
-	}
-	if ($filename == 'kickstart.php')
-	{
-		continue;
-	}
-	if (function_exists('opcache_invalidate'))
-	{
-		opcache_invalidate($filename);
-	}
-	if (function_exists('apc_compile_file'))
-	{
-		apc_compile_file($filename);
-	}
-	if (function_exists('wincache_refresh_if_changed'))
-	{
-		wincache_refresh_if_changed(array($filename));
-	}
-	if (function_exists('xcache_asm'))
-	{
-		xcache_asm($filename);
-	}
-	include_once $filename;
-}
+
+// Import Kickstart features from the top level directory
+importKickstartFeatures(KSROOTDIR);
 
 /**
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 define('_AKEEBA_RESTORATION', 1);
@@ -315,10 +394,9 @@ function debugMsg($msg)
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /**
@@ -594,10 +672,9 @@ abstract class AKAbstractObject
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /**
@@ -922,7 +999,7 @@ abstract class AKAbstractPart extends AKAbstractObject
 	 */
 	function detach(AKAbstractPartObserver $obs)
 	{
-		delete($this->observers["$obs"]);
+		unset($this->observers["$obs"]);
 	}
 
 	/**
@@ -967,10 +1044,9 @@ abstract class AKAbstractPart extends AKAbstractObject
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /**
@@ -1382,7 +1458,8 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
 						$this->notify($message);
 					}
 					$this->runState = AK_STATE_NOFILE;
-					continue;
+
+					break;
 			}
 		}
 
@@ -1702,10 +1779,9 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /**
@@ -1772,10 +1848,9 @@ abstract class AKAbstractPostproc extends AKAbstractObject
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /**
@@ -1794,10 +1869,9 @@ abstract class AKAbstractPartObserver
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /**
@@ -1930,10 +2004,9 @@ class AKPostprocDirect extends AKAbstractPostproc
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /**
@@ -2505,10 +2578,9 @@ class AKPostprocFTP extends AKAbstractPostproc
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /**
@@ -3150,10 +3222,9 @@ class AKPostprocSFTP extends AKAbstractPostproc
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /**
@@ -3912,10 +3983,9 @@ class AKPostprocHybrid extends AKAbstractPostproc
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /**
@@ -4703,10 +4773,9 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /**
@@ -5032,10 +5101,9 @@ class AKUnarchiverZIP extends AKUnarchiverJPA
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /**
@@ -5924,10 +5992,9 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /**
@@ -5944,7 +6011,7 @@ class AKCoreTimer extends AKAbstractObject
 	/**
 	 * Public constructor, creates the timer object and calculates the execution time limits
 	 *
-	 * @return AECoreTimer
+	 * @return  void
 	 */
 	public function __construct()
 	{
@@ -6070,11 +6137,13 @@ class AKCoreTimer extends AKAbstractObject
 
 		// Get current running time
 		$elapsed_time = $this->getRunningTime() * 1000;
+		$minexectime = 1000.0 * $minexectime;
 
 		// Only run a sleep delay if we haven't reached the minexectime execution time
 		if (($minexectime > $elapsed_time) && ($elapsed_time > 0))
 		{
 			$sleep_msec = $minexectime - $elapsed_time;
+
 			if (function_exists('usleep'))
 			{
 				usleep(1000 * $sleep_msec);
@@ -6095,10 +6164,6 @@ class AKCoreTimer extends AKAbstractObject
 				$sleep_sec = ceil($sleep_msec / 1000);
 				sleep($sleep_sec);
 			}
-		}
-		elseif ($elapsed_time > 0)
-		{
-			// No sleep required, even if user configured us to be able to do so.
 		}
 	}
 
@@ -6123,10 +6188,9 @@ class AKCoreTimer extends AKAbstractObject
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /**
@@ -6229,10 +6293,807 @@ class AKUtilsLister extends AKAbstractObject
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
+ */
+
+/**
+ * A filesystem zapper - removes all files and folders under a root
+ */
+class AKUtilsZapper extends AKAbstractPart
+{
+	/** @var array Directories left to be deleted */
+	private $directory_list;
+
+	/** @var array Files left to be deleted */
+	private $file_list;
+
+	/**
+	 * Have we finished scanning all subdirectories of the current directory?
+	 *
+	 * @var   boolean
+	 */
+	private $done_subdir_scanning = false;
+
+	/**
+	 * Have we finished scanning all files of the current directory?
+	 *
+	 * @var   boolean
+	 */
+	private $done_file_scanning = true;
+
+	/**
+	 * Is the current directory completely excluded?
+	 *
+	 * @var boolean
+	 */
+	private $excluded_folder = false;
+
+	/** @var   integer  How many files have been processed in the current step */
+	private $processed_files_counter;
+
+	/** @var   string  Current directory being scanned */
+	private $current_directory;
+
+	/** @var   string  Current root directory being processed */
+	private $root = '';
+
+	/** @var   integer  Total files to process */
+	private $total_files = 0;
+
+	/** @var   integer  Total files already processed */
+	private $done_files = 0;
+
+	/** @var   integer  Total folders to process */
+	private $total_folders = 0;
+
+	/** @var   integer  Total folders already processed */
+	private $done_folders = 0;
+
+	/** @var array Absolute filesystem patterns to never delete (e.g. /var/www/html/*.jpa) */
+	private $excluded = array();
+
+	/** @var bool Are we in a dry-run? */
+	private $dryRun = false;
+
+	/**
+	 * Implements the _prepare() abstract method
+	 *
+	 * Configuration parameters:
+	 *
+	 * root      The root under which we are going to be deleting files
+	 * excluded  Absolute filesystem patterns to never delete (e.g. /var/www/html/*.jpa)
+	 *
+	 * @return  void
+	 */
+	protected function _prepare()
+	{
+		debugMsg(__CLASS__ . " :: Starting _prepare()");
+
+		$defaultExcluded = $this->getDefaultExclusions();
+
+		$parameters = array_merge(array(
+			'root'     => rtrim(AKFactory::get('kickstart.setup.destdir'), '/' . DIRECTORY_SEPARATOR),
+			'excluded' => $defaultExcluded,
+            'dryRun'   => AKFactory::get('kickstart.setup.dryrun', false)
+		), $this->_parametersArray);
+
+		$this->root                 = $parameters['root'];
+		$this->excluded             = $parameters['excluded'];
+		$this->directory_list[]     = $this->root;
+		$this->done_subdir_scanning = true;
+		$this->done_file_scanning   = true;
+		$this->total_files          = 0;
+		$this->done_files           = 0;
+		$this->total_folders        = 0;
+		$this->done_folders         = 0;
+		$this->dryRun               = $parameters['dryRun'];
+
+		if (empty($this->root))
+		{
+			$error = "The folder to delete was not specified.";
+
+			debugMsg(__CLASS__ . " :: " . $error);
+			$this->setError($error);
+
+			return;
+		}
+
+		if (!is_dir($this->root))
+		{
+			$error = sprintf("Folder %s does not exist", $this->root);
+
+			debugMsg(__CLASS__ . " :: " . $error);
+			$this->setError($error);
+
+			return;
+		}
+
+		$this->setState('prepared');
+
+		debugMsg(__CLASS__ . " :: prepared");
+	}
+
+	protected function _run()
+	{
+		if ($this->getState() == 'postrun')
+		{
+			debugMsg(__CLASS__ . " :: Already finished");
+			$this->setStep("-");
+			$this->setSubstep("");
+
+			return true;
+		}
+
+		// If I'm done scanning files and subdirectories and there are no more files to pack get the next
+		// directory. This block is triggered in the first step in a new root.
+		if (empty($this->file_list) && $this->done_subdir_scanning && $this->done_file_scanning)
+		{
+			$this->progressMarkFolderDone();
+
+			if (!$this->getNextDirectory())
+			{
+			    $this->setState('postrun');
+				return true;
+			}
+		}
+
+		// If I'm not done scanning for files and the file list is empty then scan for more files
+		if (!$this->done_file_scanning && empty($this->file_list))
+		{
+			$this->scanFiles();
+		}
+		// If I have files left, delete them
+		elseif (!empty($this->file_list))
+		{
+			$this->delete_files();
+		}
+		// If I'm not done scanning subdirectories, go ahead and scan some more of them
+		elseif (!$this->done_subdir_scanning)
+		{
+			$this->scanSubdirs();
+		}
+
+		// Do I have an error?
+		if ($this->getError())
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Implements the _finalize() abstract method
+	 *
+	 */
+	protected function _finalize()
+	{
+		// No finalization is required
+		$this->setState('finished');
+	}
+
+	// ============================================================================================
+	// PRIVATE METHODS
+	// ============================================================================================
+
+	/**
+	 * Gets the next directory to scan from the stack. It also applies folder
+	 * filters (directory exclusion, subdirectory exclusion, file exclusion),
+	 * updating the operation toggle properties of the class.
+	 *
+	 * @return   boolean  True if we found a directory, false if the directory
+	 *                    stack is empty. It also returns true if the folder is
+	 *                    filtered (we are told to skip it)
+	 */
+	private function getNextDirectory()
+	{
+		// Reset the file / folder scanning positions
+		$this->done_file_scanning   = false;
+		$this->done_subdir_scanning = false;
+		$this->excluded_folder      = false;
+
+		if (count($this->directory_list) == 0)
+		{
+			// No directories left to scan
+			return false;
+		}
+
+		// Get and remove the last entry from the $directory_list array
+		$this->current_directory = array_pop($this->directory_list);
+		$this->setStep($this->current_directory);
+		$this->processed_files_counter = 0;
+
+		// Apply directory exclusion filters
+		if ($this->isFiltered($this->current_directory))
+		{
+			debugMsg("Skipping directory " . $this->current_directory);
+			$this->done_subdir_scanning = true;
+			$this->done_file_scanning   = true;
+			$this->excluded_folder      = true;
+
+			return true;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Try to delete some files from the $file_list
+	 *
+	 * @return   boolean   True if there were files deleted , false otherwise
+	 *                     (empty filelist or fatal error)
+	 */
+	protected function delete_files()
+	{
+		// Get a reference to the archiver and the timer classes
+		$timer = AKFactory::getTimer();
+
+		// Normal file removal loop; we keep on processing the file list, removing files as we go.
+		if (count($this->file_list) == 0)
+		{
+			// No files left to pack. Return true and let the engine loop
+			$this->progressMarkFolderDone();
+
+			return true;
+		}
+
+		debugMsg("Deleting files");
+
+		$numberOfFiles = 0;
+		$postProc = AKFactory::getPostProc();
+
+		while ((count($this->file_list) > 0))
+		{
+			$file = @array_shift($this->file_list);
+
+			$numberOfFiles++;
+
+			// Remove the file
+            $this->setSubstep($file);
+            $this->notify((object) array(
+                'type' => 'deleteFile',
+                'file' => $file
+            ));
+
+            if (!$this->dryRun)
+            {
+                $postProc->unlink($file);
+            }
+
+			// Mark a done file
+			$this->progressMarkFileDone();
+
+			if ($this->getError())
+			{
+				return false;
+			}
+
+			// I am running out of time.
+			if ($timer->getTimeLeft() <= 0)
+			{
+				return true;
+			}
+		}
+
+		// True if we have more files, false if we're done packing
+		return (count($this->file_list) > 0);
+	}
+
+	protected function progressAddFile()
+	{
+		$this->total_files++;
+	}
+
+	protected function progressMarkFileDone()
+	{
+		$this->done_files++;
+	}
+
+	protected function progressAddFolder()
+	{
+		$this->total_folders++;
+	}
+
+	protected function progressMarkFolderDone()
+	{
+        debugMsg("Deleting directory " . $this->current_directory);
+
+        $this->setSubstep($this->current_directory);
+        $this->notify((object) array(
+            'type' => 'deleteFolder',
+            'file' => $this->current_directory
+        ));
+
+        if (!$this->dryRun)
+        {
+            /**
+             * The scanner goes from shallow to deep directory. However this means that when it scans
+             * <root>/foo/bar/baz/bat
+             * it will only be able to remove the 'bat' directory, thus leaving foo/bar/baz on the disk. The following
+             * method will check if the directory is a subdirectory of the site root and work its way up the tree until
+             * it finds the site root. Therefore it will end up deleting the parent folders as well.
+             */
+            $this->deleteParentFolders($this->current_directory);
+        }
+	}
+
+	/**
+	 * Returns the site root, the translated site root and the translated current directory
+	 *
+	 * @return array
+	 */
+	protected function getCleanDirectoryComponents()
+	{
+		$root            = $this->root;
+		$translated_root = $root;
+		$dir             = TrimTrailingSlash($this->current_directory);
+
+		if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN')
+		{
+			$translated_root = TranslateWinPath($translated_root);
+			$dir             = TranslateWinPath($dir);
+		}
+
+		if (substr($dir, 0, strlen($translated_root)) == $translated_root)
+		{
+			$dir = substr($dir, strlen($translated_root));
+		}
+		elseif (in_array(substr($translated_root, -1), array('/', '\\')))
+		{
+			$new_translated_root = rtrim($translated_root, '/\\');
+
+			if (substr($dir, 0, strlen($new_translated_root)) == $new_translated_root)
+			{
+				$dir = substr($dir, strlen($new_translated_root));
+			}
+		}
+
+		if (substr($dir, 0, 1) == '/')
+		{
+			$dir = substr($dir, 1);
+		}
+
+		return array($root, $translated_root, $dir);
+	}
+
+	/**
+	 * Steps the subdirectory scanning of the current directory
+	 *
+	 * @return  boolean  True on success, false on fatal error
+	 */
+	protected function scanSubdirs()
+	{
+		$lister = new AKUtilsLister();
+
+		list($root, $translated_root, $dir) = $this->getCleanDirectoryComponents();
+
+		debugMsg("Scanning directories of " . $this->current_directory);
+
+		// Get subdirectories
+		$subdirectories = $lister->getFolders($this->current_directory);
+
+		// Error propagation
+		$this->propagateFromObject($lister);
+
+		// Error control
+		if ($this->getError())
+		{
+			return false;
+		}
+
+		// Start adding the subdirectories
+		if (!empty($subdirectories) && is_array($subdirectories))
+		{
+			// Treat symlinks to directories as simple symlink files
+			foreach ($subdirectories as $subdirectory)
+			{
+				if (is_link($subdirectory))
+				{
+					// Symlink detected; apply directory filters to it
+					if (empty($dir))
+					{
+						$dirSlash = $dir;
+					}
+					else
+					{
+						$dirSlash = $dir . '/';
+					}
+
+					$check = $dirSlash . basename($subdirectory);
+					debugMsg("Directory symlink detected: $check");
+
+					if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN')
+					{
+						$check = TranslateWinPath($check);
+					}
+
+					$check = $translated_root . '/' . $check;
+
+					// Check for excluded symlinks
+					if ($this->isFiltered($check))
+					{
+						debugMsg("Skipping directory symlink " . $check);
+
+						continue;
+					}
+
+					debugMsg('Adding folder symlink: ' . $check);
+
+					$this->file_list[] = $subdirectory;
+					$this->progressAddFile();
+				}
+
+				$this->directory_list[] = $subdirectory;
+				$this->progressAddFolder();
+			}
+		}
+
+		$this->done_subdir_scanning = true;
+
+		return true;
+	}
+
+	/**
+	 * Steps the files scanning of the current directory
+	 *
+	 * @return  boolean  True on success, false on fatal error
+	 */
+	protected function scanFiles()
+	{
+		$lister = new AKUtilsLister();
+
+		list($root, $translated_root, $dir) = $this->getCleanDirectoryComponents();
+
+		debugMsg("Scanning files of " . $this->current_directory);
+		$this->processed_files_counter = 0;
+
+		// Get file listing
+		$fileList = $lister->getFiles($this->current_directory);
+
+		// Error propagation
+		$this->propagateFromObject($lister);
+
+		// Error control
+		if ($this->getError())
+		{
+			return false;
+		}
+
+		// Do I have an unreadable directory?
+		if (($fileList === false))
+		{
+			$this->setWarning('Unreadable directory ' . $this->current_directory);
+
+			$this->done_file_scanning = true;
+
+			return true;
+		}
+
+		// Directory was readable, process the file list
+		if (is_array($fileList) && !empty($fileList))
+		{
+			// Add required trailing slash to $dir
+			if (!empty($dir))
+			{
+				$dir .= '/';
+			}
+
+			// Scan all directory entries
+			foreach ($fileList as $fileName)
+			{
+				$check = $dir . basename($fileName);
+
+				if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN')
+				{
+					$check = TranslateWinPath($check);
+				}
+
+				$check        = $translated_root . '/' . $check;
+				$skipThisFile = $this->isFiltered($check);
+
+				if ($skipThisFile)
+				{
+					debugMsg("Skipping file $fileName");
+
+					continue;
+				}
+
+				$this->file_list[] = $fileName;
+				$this->processed_files_counter++;
+				$this->progressAddFile();
+			}
+		}
+
+		$this->done_file_scanning = true;
+
+		return true;
+	}
+
+	/**
+	 * Is a file or folder filtered (protected from deletion)
+	 *
+	 * @param   string  $fileOrFolder
+	 *
+	 * @return  bool
+	 */
+	private function isFiltered($fileOrFolder)
+	{
+		foreach ($this->excluded as $pattern)
+		{
+			if (fnmatch($pattern, $fileOrFolder))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get the default exceptions from deletion
+	 *
+	 * @return  array
+	 */
+	private function getDefaultExclusions()
+	{
+		$ret     = array();
+		$destDir = AKFactory::get('kickstart.setup.destdir');
+
+		/**
+		 * Exclude Kickstart / restore.php itself. Otherwise it'd crash!
+		 */
+		$myName = defined('KSSELFNAME') ? KSSELFNAME : basename(__FILE__);
+		$ret[] = KSROOTDIR . '/' . $myName;
+
+		/**
+		 * Cheat: exclude the directory used in development (see source/buildscripts/kickstart_test.php)
+		 *
+		 * This directory contains the non-concatenated source code for Kickstart. We need to keep it protected.
+		 */
+		if (defined('MINIBUILD') && (MINIBUILD != $destDir))
+		{
+			$ret[] = TranslateWinPath(MINIBUILD);
+		}
+
+		/**
+		 * Exclude the backup archive directory if it's not the site's root. This prevents mindlessly deleting all your
+		 * backups before you restore from a previous backup which might not be the one you actually wanted. I will call
+		 * this feature "clumsy-proofing".
+		 */
+		$backupArchive   = AKFactory::get('kickstart.setup.sourcefile');
+		$backupDirectory = AKFactory::get('kickstart.setup.sourcepath');
+		$backupDirectory = empty($backupDirectory) ? dirname($backupArchive) : $backupDirectory;
+
+		if ($backupDirectory != $destDir)
+		{
+			$ret[] = TranslateWinPath($backupDirectory);
+		}
+
+		/**
+		 * Exclude the backup archive files
+		 *
+		 * This obviously only makes sense when the backup archives are stored in the extraction target folder which is
+		 * the most common use of Kickstart. In this case the backups folder is not excluded above.
+		 */
+		$plainBackupName = basename($backupArchive, '.jpa');
+		$plainBackupName = basename($plainBackupName, '.jps');
+		$plainBackupName = basename($plainBackupName, '.zip');
+		$ret[]           = TranslateWinPath($backupDirectory . '/' . $plainBackupName) . '.*';
+
+		/**
+		 * Exclude Kickstart language files. Only applies in Kickstart mode.
+		 */
+		if (defined('KICKSTART'))
+		{
+			$langDir        = defined('KSLANGDIR') ? KSLANGDIR : KSROOTDIR;
+            $iniFilePattern = basename(KSSELFNAME, '.php') . '.*.ini';
+
+			if ($langDir != KSROOTDIR)
+            {
+                $ret[] = KSLANGDIR;
+            }
+
+            $ret[]   = $langDir . '/' . $iniFilePattern;
+            $ret[]   = KSROOTDIR . '/' . $iniFilePattern;
+		}
+
+		/**
+		 * Exclude Kickstart resources (cacert.pem). Only applies in Kickstart mode.
+		 */
+		if (defined('KICKSTART'))
+		{
+			$ret[] = TranslateWinPath(KSROOTDIR . '/cacert.pem');
+		}
+
+		// Exclude the Kickstart temporary directory, if one is used by the post-processing engine
+		$postProc = AKFactory::getPostProc();
+		$tempDir  = $postProc->getTempDir();
+
+		if (!empty($tempDir) && (realpath($tempDir) != realpath($destDir)))
+		{
+			$ret[] = TranslateWinPath($tempDir);
+		}
+
+		/**
+		 * Exclude the configured Skipped Files ('kickstart.setup.skipfiles'). Also exclude the various restoration.php
+		 * files if we are in restore.php mode and the files are present. These are required for the integrated
+		 * restoration to actually work :)
+		 */
+		$skippedFiles = AKFactory::get('kickstart.setup.skipfiles', array(
+			basename(__FILE__), 'kickstart.php', 'abiautomation.ini', 'htaccess.bak', 'php.ini.bak',
+			'cacert.pem',
+		));
+
+		if (!defined('KICKSTART'))
+		{
+			// In restore.php mode we have to exclude the various restoration.php files
+			$skippedFiles = array_merge(array(
+				// Akeeba Backup for Joomla!
+				'administrator/components/com_akeeba/restoration.php',
+				// Joomla! Update
+				'administrator/components/com_joomlaupdate/restoration.php',
+				// Akeeba Backup for WordPress
+				'wp-content/plugins/akeebabackupwp/app/restoration.php',
+				'wp-content/plugins/akeebabackupcorewp/app/restoration.php',
+				'wp-content/plugins/akeebabackup/app/restoration.php',
+				'wp-content/plugins/akeebabackupwpcore/app/restoration.php',
+				// Akeeba Solo
+				'app/restoration.php',
+			), $skippedFiles);
+		}
+
+		foreach ($skippedFiles as $file)
+		{
+			$checkFile = $destDir . '/' . $file;
+
+			if (file_exists($checkFile))
+			{
+				$ret[] = TranslateWinPath($checkFile);
+			}
+		}
+
+		/**
+		 * Exclude .htaccess if the stealth feature is enabled. Otherwise we'd unset the stealth mode.
+		 */
+		if (AKFactory::get('kickstart.stealth.enable'))
+		{
+			$ret[] = $destDir . '/.htaccess';
+		}
+
+		// Remove any duplicate lines
+        $ret = array_unique($ret);
+
+		return $ret;
+	}
+
+    /**
+     * Recursively delete an empty folder and any of its empty parent folders.
+     *
+     * @param   string  $folder  The folder to deletes
+     */
+	private function deleteParentFolders($folder)
+    {
+        // Don't try to delete an empty folder or the filesystem root
+        if (empty($folder) || ($folder == '/'))
+        {
+            return;
+        }
+
+        $folder = TranslateWinPath($folder);
+        $root   = TranslateWinPath($this->root);
+
+        // Don't try to delete the site's root
+        if ($folder === $root)
+        {
+            return;
+        }
+
+        // Delete the leaf folder
+        $postProc = AKFactory::getPostProc();
+        $postProc->rmdir($folder);
+
+        // If the leaf folder is not under the site's root don't delete its parents
+        if (strpos($folder, $root) !== 0)
+        {
+            return;
+        }
+
+        // Get and recursively delete the parent folder
+        $this->deleteParentFolders(dirname($folder));
+    }
+}
+
+/**
+ * Runs the Zapper and returns a status table. The Zapper only runs if the feature is enabled (kickstart.setup.zapbefore
+ * is 1) and there are more Zapper steps to run (its state is not postrun). If any of these conditions is not met we
+ * return boolean false.
+ *
+ * @param   AKAbstractPartObserver  $observer  Optional observer to attack to the Zapper instance
+ *
+ * @return  bool|array  Boolean false or a status array
+ */
+function runZapper(AKAbstractPartObserver $observer = null)
+{
+	// This method should only run in restore.php mode or when we have Kickstart Professional.
+	$isKickstart = defined('KICKSTART');
+	$isPro       = defined('KICKSTARTPRO') ? KICKSTARTPRO : false;
+	$isDebug     = defined('KSDEBUG') ? KSDEBUG : false;
+
+	if ($isKickstart && (!$isPro && !$isDebug))
+	{
+		return false;
+	}
+
+	// Is the feature enabled?
+    $enabled = AKFactory::get('kickstart.setup.zapbefore', 0);
+
+    if (!$enabled)
+    {
+        return false;
+    }
+
+    // Do I still have work to do?
+    $zapper = AKFactory::getZapper();
+
+    if ($zapper->getState() == 'finished')
+    {
+        return false;
+    }
+
+    // Attach the observer
+    if (is_object($observer))
+    {
+        $zapper->attach($observer);
+    }
+
+    // Run a step, create and return a status array
+	$timer = AKFactory::getTimer();
+
+    while ($timer->getTimeLeft() > 0)
+    {
+	    $ret = $zapper->tick();
+
+	    if ($ret['Error'] != '')
+	    {
+	    	break;
+	    }
+    }
+
+    $retArray = array(
+        'status'  => true,
+        'message' => null,
+        'done' => false,
+    );
+
+    if ($ret['Error'] != '')
+    {
+        $retArray['status']  = false;
+        $retArray['done']    = true;
+        $retArray['message'] = $ret['Error'];
+    }
+    else
+    {
+        $retArray['files']    = 0;
+        $retArray['bytesIn']  = 0;
+        $retArray['bytesOut'] = 0;
+        $retArray['factory']  = AKFactory::serialize();
+        $retArray['lastfile'] = 'Deleting: ' . $zapper->getSubstep();
+    }
+
+	$timer->enforce_min_exec_time();
+
+    return $retArray;
+}
+
+/**
+ * Akeeba Restore
+ * A JSON-powered JPA, JPS and ZIP archive extraction library
+ *
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license     GNU GPL v2 or - at your option - any later version
+ * @package     kickstart
  */
 
 /**
@@ -6315,9 +7176,9 @@ class AKText extends AKAbstractObject
 		'BTN_TESTSFTPCON'                 => 'Test SFTP connection',
 		'BTN_GOTOSTART'                   => 'Start over',
 		'FINE_TUNE'                       => 'Fine tune',
-		'BTN_SHOW_FINE_TUNE'              => 'Show advanced options (for experts)',
 		'MIN_EXEC_TIME'                   => 'Minimum execution time:',
 		'MAX_EXEC_TIME'                   => 'Maximum execution time:',
+		'TIME_SETTINGS_HELP'              => "Increase the minimum to 3 if you get AJAX errors. Increase the maximum to 10 for faster extraction, decrease back to 5 if you get AJAX errors. Try minimum 5, maximum 1 (not a typo!) if you keep getting AJAX errors.",
 		'SECONDS_PER_STEP'                => 'seconds per step',
 		'EXTRACT_FILES'                   => 'Extract files',
 		'BTN_START'                       => 'Start',
@@ -6331,6 +7192,7 @@ class AKText extends AKAbstractObject
 		'WARNINGS'                        => 'Extraction Warnings',
 		'ERROR_OCCURED'                   => 'An error occurred',
 		'STEALTH_MODE'                    => 'Stealth mode',
+		'STEALTH_MODE_HELP'               => 'When enabled, only visitors from your IP address will be able to see the site until the restoration is complete. Everyone else will be redirected to and only see the URL above. Your server must see the real IP of the visitor (this is controlled by your host, not you or us).',
 		'STEALTH_URL'                     => 'HTML file to show to web visitors',
 		'ERR_NOT_A_JPS_FILE'              => 'The file is not a JPA archive',
 		'ERR_INVALID_JPS_PASSWORD'        => 'The password you gave is wrong or the archive is corrupt',
@@ -6352,9 +7214,13 @@ class AKText extends AKAbstractObject
 		'CONFIG_UI_SFTPBROWSER_TITLE'     => 'SFTP Directory Browser',
 		'ERR_COULD_NOT_OPEN_ARCHIVE_PART' => 'Could not open archive part file %s for reading. Check that the file exists, is readable by the web server and is not in a directory made out of reach by chroot, open_basedir restrictions or any other restriction put in place by your host.',
 		'RENAME_FILES'                    => 'Rename server configuration files',
+		'RENAME_FILES_HELP'               => 'Renames .htaccess, web.config, php.ini and .user.ini contained in the archive while extracting. Files are renamed with a .bak extension. The file names are restored when you click on Clean Up.',
 		'RESTORE_PERMISSIONS'             => 'Restore file permissions',
+		'RESTORE_PERMISSIONS_HELP'        => 'Applies the file permissions (but NOT file ownership) which was stored at backup time. Only works with JPA and JPS archives. Does not work on Windows (PHP does not offer such a feature).',
 		'EXTRACT_LIST'                    => 'Files to extract',
 		'EXTRACT_LIST_HELP'               => 'Enter a file path such as <code>images/cat.png</code> or shell pattern such as <code>images/*.png</code> on each line. Only files matching this list will be written to disk. Leave empty to extract everything (default).',
+		'ZAPBEFORE'                       => 'Delete everything before extraction',
+		'ZAPBEFORE_HELP'                  => 'Tries to delete all existing files and folders under the directory where Kickstart is stored before extracting the backup archive. It DOES NOT take into account which files and folders exist in the backup archive. Files and folders deleted by this feature CAN NOT be recovered. <strong>WARNING! THIS MAY DELETE FILES AND FOLDERS WHICH DO NOT BELONG TO YOUR SITE. USE WITH EXTREME CAUTION. BY ENABLING THIS FEATURE YOU ASSUME ALL RESPONSIBILITY AND LIABILITY.</strong>',
 	);
 
 	/**
@@ -6399,7 +7265,10 @@ class AKText extends AKAbstractObject
 		{
 			$dirname = KSROOTDIR;
 		}
-		$basename = basename(__FILE__, '.php') . '.ini';
+
+		$myName = defined('KSSELFNAME') ? KSSELFNAME : basename(__FILE__);
+		$basename = basename($myName, '.php') . '.ini';
+
 		if (empty($lang))
 		{
 			$lang = $this->language;
@@ -6779,10 +7648,9 @@ class AKText extends AKAbstractObject
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /**
@@ -7080,16 +7948,24 @@ class AKFactory
 		return self::getClassInstance('AKCoreTimer');
 	}
 
+	/**
+	 * Get an instance of the filesystem zapper
+	 *
+	 * @return AKUtilsZapper
+	 */
+	public static function &getZapper()
+	{
+		return self::getClassInstance('AKUtilsZapper');
+	}
 }
 
 /**
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /**
@@ -7126,10 +8002,9 @@ interface AKEncryptionAESAdapterInterface
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /**
@@ -7214,10 +8089,9 @@ abstract class AKEncryptionAESAdapterAbstract
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 class Mcrypt extends AKEncryptionAESAdapterAbstract implements AKEncryptionAESAdapterInterface
@@ -7316,10 +8190,9 @@ class Mcrypt extends AKEncryptionAESAdapterAbstract implements AKEncryptionAESAd
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 class OpenSSL extends AKEncryptionAESAdapterAbstract implements AKEncryptionAESAdapterInterface
@@ -7421,10 +8294,9 @@ class OpenSSL extends AKEncryptionAESAdapterAbstract implements AKEncryptionAESA
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /**
@@ -8095,10 +8967,9 @@ class AKEncryptionAES
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /**
@@ -8160,6 +9031,28 @@ function masterSetup()
 			return false;
 		}
 
+		/**
+		 * If the setup file was created more than 1.5 hours ago we can assume that it's stale and someone forgot to
+		 * remove it from the server. This hinders brute force attacks against the Kickstart password. Even a simple
+		 * 8 character simple alphanum (a-z, 0-9) password yields over 2.8e12. Assuming a very fast server which can
+		 * serve 100 requests to restore.php per second and an easy to attack password requiring going over just 1% of
+		 * the search space it'd still take over 282 million seconds to brute force it. Our limit is more than 4 orders
+		 * of magnitude lower than this best practical case scenario, giving us adequate protection against all but the
+		 * luckiest attacker (spoiler alert: the mathematics of probabilities say you're not gonna get lucky).
+		 *
+		 * It is still advisable to remove the restoration.php file once you are done with the extraction. This check
+		 * here is only meant as a failsafe in case of a server error during the extraction and subsequent lack of user
+		 * action to remove the restoration.php file from their server.
+		 */
+		$setupFieCreationTime = filectime($setupFile);
+
+		if (abs(time() - $setupFieCreationTime) > 5400)
+		{
+			AKFactory::set('kickstart.enabled', false);
+
+			return false;
+		}
+
 		// Load restoration.php. It creates a global variable named $restoration_setup
 		require_once $setupFile;
 
@@ -8202,6 +9095,35 @@ function masterSetup()
 
 	// Reinitialize $ini_data
 	$ini_data = null;
+
+	/**
+	 * August 2018. Some third party developer with a dubious skill level (or complete lack thereof) wrote a piece of
+	 * code which uses restore.php with an empty password (and never deleted the restoration.php file he created).
+	 * According to his code comments he did this because he couldn't figure out how to make encrypted requests work,
+	 * DESPITE THE FACT that com_joomlaupdate (part of Joomla! itself) has working code which does EXACTLY THAT. >:-o
+	 *
+	 * As a result of his actions all sites running his software have a massive vulnerability inflicted upon them. An
+	 * attacker can absuse the (unlocked) restore.php to upload and install any arbitrary code in a ZIP archive,
+	 * possibly overwriting core code. Discovering this problem takes a few seconds and there is code which is doing
+	 * exactly that published years ago (during the active maintenance period of Joomla! 3.4, that long ago).
+	 *
+	 * This bit of code here detects an empty password and disables restore.php. His badly written software fails to
+	 * execute and, most importantly, the unlucky users of his software will no longer have a remote code upload /
+	 * remote code execution vulnerability on their sites.
+	 *
+	 * Remember, people, if you can't be bothered to take web application security seriously DO NOT SELL WEB SOFTWARE
+	 * FOR A LIVING. There are other honest jobs you can do which don't involve using a computer in a dangerous and
+	 * irresponsible manner.
+	 */
+	$password = AKFactory::get('kickstart.security.password', null);
+
+	if (empty($password) || (trim($password) == '') || (strlen(trim($password)) < 10))
+	{
+		AKFactory::set('kickstart.enabled', false);
+
+		return false;
+	}
+
 
 	// ------------------------------------------------------------
 	// 2. Explode JSON parameters into $_REQUEST scope
@@ -8273,7 +9195,7 @@ function masterSetup()
 	 * side cryptography does NOT protect you against an attacker (see
 	 * https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2011/august/javascript-cryptography-considered-harmful/).
 	 * Moreover, sending a plaintext password is safer than relying on client-side encryption for authentication as it
-	 * reoves the possibility of an attacker inferring the contents of the authentication key (password) in a relatively
+	 * removes the possibility of an attacker inferring the contents of the authentication key (password) in a relatively
 	 * easy and automated manner.
 	 */
 	if (!empty($password))
@@ -8361,10 +9283,9 @@ function masterSetup()
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 // Mini-controller for restore.php
@@ -8421,13 +9342,13 @@ if (!defined('KICKSTART'))
 		switch ($task)
 		{
 			case 'ping':
-				// ping task - realy does nothing!
+				// ping task - really does nothing!
 				$timer = AKFactory::getTimer();
 				$timer->enforce_min_exec_time();
 				break;
 
 			/**
-			 * There are two separate steps here since we were using an inefficient restoration intialization method in
+			 * There are two separate steps here since we were using an inefficient restoration initialization method in
 			 * the past. Now both startRestore and stepRestore are identical. The difference in behavior depends
 			 * exclusively on the calling Javascript. If no serialized factory was passed in the request then we start a
 			 * new restoration. If a serialized factory was passed in the request then the restoration is resumed. For
@@ -8437,6 +9358,21 @@ if (!defined('KICKSTART'))
 			 */
 			case 'startRestore':
 			case 'stepRestore':
+				/**
+				 * First try to run the filesystem zapper (remove all existing files and folders). If the Zapper is
+				 * disabled or has already finished running we will get a FALSE result. Otherwise it's a status array
+				 * which we can pass directly back to the caller.
+				 */
+				$ret = runZapper();
+
+				// If the Zapper had a step to run we stop here and return its status array to the caller.
+				if ($ret !== false)
+				{
+					$retArray = array_merge($retArray, $ret);
+
+					break;
+				}
+
 				$engine   = AKFactory::getUnarchiver(); // Get the engine
 				$observer = new RestorationObserver(); // Create a new observer
 				$engine->attach($observer); // Attach the observer
@@ -8466,6 +9402,9 @@ if (!defined('KICKSTART'))
 					$retArray['done']     = false;
 					$retArray['factory']  = AKFactory::serialize();
 				}
+
+				$timer = AKFactory::getTimer();
+				$timer->enforce_min_exec_time();
 				break;
 
 			case 'finalizeRestore':
@@ -8527,7 +9466,7 @@ if (!defined('KICKSTART'))
 					}
 					if (function_exists('wincache_refresh_if_changed'))
 					{
-						wincache_refresh_if_changed(array($filename));
+						wincache_refresh_if_changed([$filename]);
 					}
 					if (function_exists('xcache_asm'))
 					{
@@ -8639,10 +9578,9 @@ function recursive_remove_directory($directory)
  * Akeeba Kickstart
  * A JSON-powered archive extraction tool
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 class AKKickstartUtils
 {
@@ -8850,10 +9788,9 @@ class AKKickstartUtils
  * Akeeba Kickstart
  * A JSON-powered archive extraction tool
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 class ExtractionObserver extends AKAbstractPartObserver
 {
@@ -8906,10 +9843,9 @@ class ExtractionObserver extends AKAbstractPartObserver
  * Akeeba Kickstart
  * A JSON-powered archive extraction tool
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 function callExtraFeature($method = null, array $params = array())
@@ -8956,11 +9892,35 @@ function callExtraFeature($method = null, array $params = array())
  * Akeeba Kickstart
  * A JSON-powered archive extraction tool
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
+
+/**
+ * Removes trailing slash or backslash from a pathname
+ *
+ * @param   string  $path  The path to treat
+ *
+ * @return  string  The path without the trailing slash/backslash
+ */
+function TrimTrailingSlash($path)
+{
+	$newpath = $path;
+
+	if (substr($path, strlen($path) - 1, 1) == '\\')
+	{
+		$newpath = substr($path, 0, strlen($path) - 1);
+	}
+
+	if (substr($path, strlen($path) - 1, 1) == '/')
+	{
+		$newpath = substr($path, 0, strlen($path) - 1);
+	}
+
+	return $newpath;
+}
+
 
 function TranslateWinPath($p_path)
 {
@@ -9325,10 +10285,9 @@ ENDHTACCESS;
  * Akeeba Kickstart
  * A JSON-powered archive extraction tool
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 function echoCSS()
@@ -9505,8 +10464,9 @@ label {
 .help {
 	width: 60%;
 	margin-left: 30%;
+	margin-bottom: 1.5em;
 	font-size: small;
-	color: #333;
+	color: #888;
 }
 
 input:focus, input:hover {
@@ -9916,1256 +10876,2666 @@ CSS;
  * Akeeba Kickstart
  * A JSON-powered archive extraction tool
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 function echoHeadJavascript()
 {
 	?>
-	<script type="text/javascript" language="javascript">
-		var akeeba_debug = <?php echo defined('KSDEBUG') ? 'true' : 'false' ?>;
-		var sftp_path    = '<?php echo TranslateWinPath(defined('KSROOTDIR') ? KSROOTDIR : dirname(__FILE__)); ?>/';
-		var isJoomla     = true;
+    <script type="text/javascript" language="javascript">
+		var akeeba = {};
 
-		/**
-		 * Returns the version of Internet Explorer or a -1
-		 * (indicating the use of another browser).
-		 *
-		 * @return   integer  MSIE version or -1
-		 */
-		function getInternetExplorerVersion()
-		{
-			var rv = -1; // Return value assumes failure.
-			if (navigator.appName == 'Microsoft Internet Explorer')
-			{
-				var ua = navigator.userAgent;
-				var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-				if (re.exec(ua) != null)
-				{
-					rv = parseFloat(RegExp.$1);
-				}
-			}
-			return rv;
-		}
-
-		$(document).ready(function ()
-		{
-			// Hide 2nd Page
-			$('#page2').css('display', 'none');
-
-			// Translate the GUI
-			translateGUI();
-
-			// Hook interaction handlers
-			$(document).keyup(closeLightbox);
-			$('#kickstart\\.procengine').change(onChangeProcengine);
-			$('#kickstart\\.setup\\.sourcepath').change(onArchiveListReload);
-			$('#reloadArchives').click(onArchiveListReload);
-			$('#checkFTPTempDir').click(oncheckFTPTempDirClick);
-			$('#resetFTPTempDir').click(onresetFTPTempDir);
-			$('#browseFTP').click(onbrowseFTP);
-			$('#testFTP').click(onTestFTPClick);
-			$('#gobutton').click(onStartExtraction);
-			$('#runInstaller').click(onRunInstallerClick);
-			$('#runCleanup').click(onRunCleanupClick);
-			$('#gotoSite').click(function (event)
-			{
-				window.open('index.php', 'finalstepsite');
-				window.close();
-			});
-			$('#gotoAdministrator').click(function (event)
-			{
-				window.open('administrator/index.php', 'finalstepadmin');
-				window.close();
-			});
-			$('#gotoStart').click(onGotoStartClick);
-			$('#showFineTune').click(function ()
-			{
-				$('#fine-tune-holder').show();
-				$(this).hide();
-			});
-
-			// Reset the progress bar
-			setProgressBar(0);
-
-			// Show warning
-			var msieVersion = getInternetExplorerVersion();
-			if ((msieVersion != -1) && (msieVersion <= 8.99))
-			{
-				$('#ie7Warning').css('display', 'block');
-			}
-			if (!akeeba_debug)
-			{
-				$('#preextraction').css('display', 'block');
-				$('#fade').css('display', 'block');
-			}
-
-			// Trigger change, so we avoid problems if the user refreshes the page
-			$('#kickstart\\.procengine').change();
-		});
-
-		var translation = {
+		var akeeba_debug     = <?php echo defined('KSDEBUG') ? 'true' : 'false' ?>;
+		var akeeba_pro       = <?php echo KICKSTARTPRO ? 1 : 0 ?>;
+		var sftp_path        = '<?php echo TranslateWinPath(defined('KSROOTDIR') ? KSROOTDIR : dirname(__FILE__)); ?>/';
+		var akeeba_ajax_url  = '<?php echo defined('KSSELFNAME') ? KSSELFNAME : basename(__FILE__); ?>';
+		var default_temp_dir = '<?php echo addcslashes(AKKickstartUtils::getPath(), '\\\'"') ?>';
+		var translation      = {
 			<?php echoTranslationStrings(); ?>
+		};
+		var isJoomla         = true;
+
+/*
+ * Akeeba Kickstart
+ * A JSON-powered archive extraction tool
+ *
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license     GNU GPL v2 or - at your option - any later version
+ * @package     kickstart
+ */
+
+
+/*
+ *	https://raw.githubusercontent.com/douglascrockford/JSON-js/master/json2.js
+ *  2016-05-01
+ *  Public Domain.
+ *  NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
+ *  See http://www.JSON.org/js.html
+ */
+// Create a JSON object only if one does not already exist. We create the
+// methods in a closure to avoid creating global variables.
+
+if (typeof JSON !== "object")
+{
+	JSON = {};
+}
+
+(function ()
+{
+	"use strict";
+
+	var rx_one       = /^[\],:{}\s]*$/;
+	var rx_two       = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
+	var rx_three     = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
+	var rx_four      = /(?:^|:|,)(?:\s*\[)+/g;
+	var rx_escapable = /[\\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+	var rx_dangerous = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+
+	function f(n)
+	{
+		// Format integers to have at least two digits.
+		return n < 10
+			? "0" + n
+			: n;
+	}
+
+	function this_value()
+	{
+		return this.valueOf();
+	}
+
+	if (typeof Date.prototype.toJSON !== "function")
+	{
+
+		Date.prototype.toJSON = function ()
+		{
+
+			return isFinite(this.valueOf())
+				? this.getUTCFullYear() + "-" +
+				f(this.getUTCMonth() + 1) + "-" +
+				f(this.getUTCDate()) + "T" +
+				f(this.getUTCHours()) + ":" +
+				f(this.getUTCMinutes()) + ":" +
+				f(this.getUTCSeconds()) + "Z"
+				: null;
+		};
+
+		Boolean.prototype.toJSON = this_value;
+		Number.prototype.toJSON  = this_value;
+		String.prototype.toJSON  = this_value;
+	}
+
+	var gap;
+	var indent;
+	var meta;
+	var rep;
+
+
+	function quote(string)
+	{
+
+// If the string contains no control characters, no quote characters, and no
+// backslash characters, then we can safely slap some quotes around it.
+// Otherwise we must also replace the offending characters with safe escape
+// sequences.
+
+		rx_escapable.lastIndex = 0;
+		return rx_escapable.test(string)
+			? "\"" + string.replace(rx_escapable, function (a)
+		{
+			var c = meta[a];
+			return typeof c === "string"
+				? c
+				: "\\u" + ("0000" + a.charCodeAt(0).toString(16)).slice(-4);
+		}) + "\""
+			: "\"" + string + "\"";
+	}
+
+
+	function str(key, holder)
+	{
+
+// Produce a string from holder[key].
+
+		var i;          // The loop counter.
+		var k;          // The member key.
+		var v;          // The member value.
+		var length;
+		var mind  = gap;
+		var partial;
+		var value = holder[key];
+
+// If the value has a toJSON method, call it to obtain a replacement value.
+
+		if (value && typeof value === "object" &&
+			typeof value.toJSON === "function")
+		{
+			value = value.toJSON(key);
 		}
 
-		var akeeba_ajax_url                  = '<?php echo defined('KSSELFNAME') ? KSSELFNAME : basename(__FILE__); ?>';
-		var akeeba_error_callback            = onGenericError;
-		var akeeba_restoration_stat_inbytes  = 0;
-		var akeeba_restoration_stat_outbytes = 0;
-		var akeeba_restoration_stat_files    = 0;
-		var akeeba_restoration_stat_total    = 0;
-		var akeeba_factory                   = null;
+// If we were called with a replacer function, then call the replacer to
+// obtain a replacement value.
 
-		var akeeba_ftpbrowser_host      = null;
-		var akeeba_ftpbrowser_port      = 21;
-		var akeeba_ftpbrowser_username  = null;
-		var akeeba_ftpbrowser_password  = null;
-		var akeeba_ftpbrowser_passive   = 1;
-		var akeeba_ftpbrowser_ssl       = 0;
-		var akeeba_ftpbrowser_directory = '';
-
-		var akeeba_sftpbrowser_host      = null;
-		var akeeba_sftpbrowser_port      = 21;
-		var akeeba_sftpbrowser_username  = null;
-		var akeeba_sftpbrowser_password  = null;
-		var akeeba_sftpbrowser_pubkey    = null;
-		var akeeba_sftpbrowser_privkey   = null;
-		var akeeba_sftpbrowser_directory = '';
-
-		function translateGUI()
+		if (typeof rep === "function")
 		{
-			$('*').each(function (i, e)
-			{
-				transKey = $(e).text();
-				if (array_key_exists(transKey, translation))
+			value = rep.call(holder, key, value);
+		}
+
+// What happens next depends on the value's type.
+
+		switch (typeof value)
+		{
+			case "string":
+				return quote(value);
+
+			case "number":
+
+// JSON numbers must be finite. Encode non-finite numbers as null.
+
+				return isFinite(value)
+					? String(value)
+					: "null";
+
+			case "boolean":
+			case "null":
+
+// If the value is a boolean or null, convert it to a string. Note:
+// typeof null does not produce "null". The case is included here in
+// the remote chance that this gets fixed someday.
+
+				return String(value);
+
+// If the type is "object", we might be dealing with an object or an array or
+// null.
+
+			case "object":
+
+// Due to a specification blunder in ECMAScript, typeof null is "object",
+// so watch out for that case.
+
+				if (!value)
 				{
-					$(e).html(translation[transKey]);
+					return "null";
 				}
-			});
+
+// Make an array to hold the partial results of stringifying this object value.
+
+				gap += indent;
+				partial = [];
+
+// Is the value an array?
+
+				if (Object.prototype.toString.apply(value) === "[object Array]")
+				{
+
+// The value is an array. Stringify every element. Use null as a placeholder
+// for non-JSON values.
+
+					length = value.length;
+					for (i = 0; i < length; i += 1)
+					{
+						partial[i] = str(i, value) || "null";
+					}
+
+// Join all of the elements together, separated with commas, and wrap them in
+// brackets.
+
+					v   = partial.length === 0
+						? "[]"
+						: gap
+							? "[\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "]"
+							: "[" + partial.join(",") + "]";
+					gap = mind;
+					return v;
+				}
+
+// If the replacer is an array, use it to select the members to be stringified.
+
+				if (rep && typeof rep === "object")
+				{
+					length = rep.length;
+					for (i = 0; i < length; i += 1)
+					{
+						if (typeof rep[i] === "string")
+						{
+							k = rep[i];
+							v = str(k, value);
+							if (v)
+							{
+								partial.push(quote(k) + (
+									gap
+										? ": "
+										: ":"
+								) + v);
+							}
+						}
+					}
+				}
+				else
+				{
+
+// Otherwise, iterate through all of the keys in the object.
+
+					for (k in value)
+					{
+						if (Object.prototype.hasOwnProperty.call(value, k))
+						{
+							v = str(k, value);
+							if (v)
+							{
+								partial.push(quote(k) + (
+									gap
+										? ": "
+										: ":"
+								) + v);
+							}
+						}
+					}
+				}
+
+// Join all of the member texts together, separated with commas,
+// and wrap them in braces.
+
+				v   = partial.length === 0
+					? "{}"
+					: gap
+						? "{\n" + gap + partial.join(",\n" + gap) + "\n" + mind + "}"
+						: "{" + partial.join(",") + "}";
+				gap = mind;
+				return v;
 		}
+	}
 
-		function trans(key)
+// If the JSON object does not yet have a stringify method, give it one.
+
+	if (typeof JSON.stringify !== "function")
+	{
+		meta           = {    // table of character substitutions
+			"\b": "\\b",
+			"\t": "\\t",
+			"\n": "\\n",
+			"\f": "\\f",
+			"\r": "\\r",
+			"\"": "\\\"",
+			"\\": "\\\\"
+		};
+		JSON.stringify = function (value, replacer, space)
 		{
-			if (array_key_exists(key, translation))
-			{
-				return translation[key];
-			}
-			else
-			{
-				return key;
-			}
-		}
 
-		function array_key_exists(key, search)
+// The stringify method takes a value and an optional replacer, and an optional
+// space parameter, and returns a JSON text. The replacer can be a function
+// that can replace values, or an array of strings that will select the keys.
+// A default replacer method can be provided. Use of the space parameter can
+// produce text that is more easily readable.
+
+			var i;
+			gap    = "";
+			indent = "";
+
+// If the space parameter is a number, make an indent string containing that
+// many spaces.
+
+			if (typeof space === "number")
+			{
+				for (i = 0; i < space; i += 1)
+				{
+					indent += " ";
+				}
+
+// If the space parameter is a string, it will be used as the indent string.
+
+			}
+			else if (typeof space === "string")
+			{
+				indent = space;
+			}
+
+// If there is a replacer, it must be a function or an array.
+// Otherwise, throw an error.
+
+			rep = replacer;
+			if (replacer && typeof replacer !== "function" &&
+				(typeof replacer !== "object" ||
+					typeof replacer.length !== "number"))
+			{
+				throw new Error("JSON.stringify");
+			}
+
+// Make a fake root object containing our value under the key of "".
+// Return the result of stringifying the value.
+
+			return str("", {"": value});
+		};
+	}
+
+
+// If the JSON object does not yet have a parse method, give it one.
+
+	if (typeof JSON.parse !== "function")
+	{
+		JSON.parse = function (text, reviver)
 		{
-			if (!search || (search.constructor !== Array && search.constructor !== Object))
+
+// The parse method takes a text and an optional reviver function, and returns
+// a JavaScript value if the text is a valid JSON text.
+
+			var j;
+
+			function walk(holder, key)
 			{
-				return false;
+
+// The walk method is used to recursively walk the resulting structure so
+// that modifications can be made.
+
+				var k;
+				var v;
+				var value = holder[key];
+				if (value && typeof value === "object")
+				{
+					for (k in value)
+					{
+						if (Object.prototype.hasOwnProperty.call(value, k))
+						{
+							v = walk(value, k);
+							if (v !== undefined)
+							{
+								value[k] = v;
+							}
+							else
+							{
+								delete value[k];
+							}
+						}
+					}
+				}
+				return reviver.call(holder, key, value);
 			}
-			return key in search;
-		}
 
-		function empty(mixed_var)
-		{
-			var key;
 
-			if (mixed_var === "" ||
-				mixed_var === 0 ||
-				mixed_var === "0" ||
-				mixed_var === null ||
-				mixed_var === false ||
-				typeof mixed_var === 'undefined'
+// Parsing happens in four stages. In the first stage, we replace certain
+// Unicode characters with escape sequences. JavaScript handles many characters
+// incorrectly, either silently deleting them, or treating them as line endings.
+
+			text                   = String(text);
+			rx_dangerous.lastIndex = 0;
+			if (rx_dangerous.test(text))
+			{
+				text = text.replace(rx_dangerous, function (a)
+				{
+					return "\\u" +
+						("0000" + a.charCodeAt(0).toString(16)).slice(-4);
+				});
+			}
+
+// In the second stage, we run the text against regular expressions that look
+// for non-JSON patterns. We are especially concerned with "()" and "new"
+// because they can cause invocation, and "=" because it can cause mutation.
+// But just to be safe, we want to reject all unexpected forms.
+
+// We split the second stage into 4 regexp operations in order to work around
+// crippling inefficiencies in IE's and Safari's regexp engines. First we
+// replace the JSON backslash pairs with "@" (a non-JSON character). Second, we
+// replace all simple value tokens with "]" characters. Third, we delete all
+// open brackets that follow a colon or comma or that begin the text. Finally,
+// we look to see that the remaining characters are only whitespace or "]" or
+// "," or ":" or "{" or "}". If that is so, then the text is safe for eval.
+
+			if (
+				rx_one.test(
+					text
+						.replace(rx_two, "@")
+						.replace(rx_three, "]")
+						.replace(rx_four, "")
+				)
 			)
 			{
-				return true;
+
+// In the third stage we use the eval function to compile the text into a
+// JavaScript structure. The "{" operator is subject to a syntactic ambiguity
+// in JavaScript: it can begin a block or an object literal. We wrap the text
+// in parens to eliminate the ambiguity.
+
+				j = eval("(" + text + ")");
+
+// In the optional fourth stage, we recursively walk the new structure, passing
+// each name/value pair to a reviver function for possible transformation.
+
+				return (typeof reviver === "function")
+					? walk({"": j}, "")
+					: j;
 			}
 
-			if (typeof mixed_var == 'object')
+// If the text is not JSON parseable, then a SyntaxError is thrown.
+
+			throw new SyntaxError("JSON.parse");
+		};
+	}
+}());
+
+
+/*
+ * Akeeba Kickstart
+ * A JSON-powered archive extraction tool
+ *
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license     GNU GPL v2 or - at your option - any later version
+ * @package     kickstart
+ */
+
+/**
+ * Returns the version of Internet Explorer or a -1
+ * (indicating the use of another browser).
+ *
+ * @return   integer  MSIE version or -1
+ */
+function getInternetExplorerVersion()
+{
+	var rv = -1; // Return value assumes failure.
+	if (navigator.appName == "Microsoft Internet Explorer")
+	{
+		var ua = navigator.userAgent;
+		var re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+		if (re.exec(ua) != null)
+		{
+			rv = parseFloat(RegExp.$1);
+		}
+	}
+	return rv;
+}
+
+function resolvePath(filename)
+{
+	filename  = filename.replace("\/\/g", "\/");
+	var parts = filename.split("/");
+	var out   = [];
+
+	for (var i = 0; i < parts.length; i++)
+	{
+		var part = parts[i];
+
+		if (part === ".")
+		{
+			continue;
+		}
+
+		if (part === "..")
+		{
+			out.pop();
+
+			continue;
+		}
+
+		out.push(part);
+	}
+
+	return out.join("/");
+}
+
+/*
+ * Courtesy of PHPjs -- http://phpjs.org
+ * @license GPL, version 2
+ */
+
+function version_compare(v1, v2, operator)
+{
+	// BEGIN REDUNDANT
+	this.php_js     = this.php_js || {};
+	this.php_js.ENV = this.php_js.ENV || {};
+	// END REDUNDANT
+	// Important: compare must be initialized at 0.
+	var i           = 0,
+		x           = 0,
+		compare     = 0,
+		// vm maps textual PHP versions to negatives so they're less than 0.
+		// PHP currently defines these as CASE-SENSITIVE. It is important to
+		// leave these as negatives so that they can come before numerical versions
+		// and as if no letters were there to begin with.
+		// (1alpha is < 1 and < 1.1 but > 1dev1)
+		// If a non-numerical value can't be mapped to this table, it receives
+		// -7 as its value.
+		vm          = {
+			'dev':   -6,
+			'alpha': -5,
+			'a':     -5,
+			'beta':  -4,
+			'b':     -4,
+			'RC':    -3,
+			'rc':    -3,
+			'#':     -2,
+			'p':     -1,
+			'pl':    -1
+		},
+		// This function will be called to prepare each version argument.
+		// It replaces every _, -, and + with a dot.
+		// It surrounds any nonsequence of numbers/dots with dots.
+		// It replaces sequences of dots with a single dot.
+		//    version_compare('4..0', '4.0') == 0
+		// Important: A string of 0 length needs to be converted into a value
+		// even less than an unexisting value in vm (-7), hence [-8].
+		// It's also important to not strip spaces because of this.
+		//   version_compare('', ' ') == 1
+		prepVersion = function (v)
+		{
+			v = ('' + v).replace(/[_\-+]/g, '.');
+			v = v.replace(/([^.\d]+)/g, '.$1.').replace(/\.{2,}/g, '.');
+			return (!v.length ? [-8] : v.split('.'));
+		},
+		// This converts a version component to a number.
+		// Empty component becomes 0.
+		// Non-numerical component becomes a negative number.
+		// Numerical component becomes itself as an integer.
+		numVersion  = function (v)
+		{
+			return !v ? 0 : (isNaN(v) ? vm[v] || -7 : parseInt(v, 10));
+		};
+	v1              = prepVersion(v1);
+	v2              = prepVersion(v2);
+	x               = Math.max(v1.length, v2.length);
+	for (i = 0; i < x; i++)
+	{
+		if (v1[i] == v2[i])
+		{
+			continue;
+		}
+		v1[i] = numVersion(v1[i]);
+		v2[i] = numVersion(v2[i]);
+		if (v1[i] < v2[i])
+		{
+			compare = -1;
+			break;
+		}
+		else if (v1[i] > v2[i])
+		{
+			compare = 1;
+			break;
+		}
+	}
+	if (!operator)
+	{
+		return compare;
+	}
+
+	// Important: operator is CASE-SENSITIVE.
+	// "No operator" seems to be treated as less than
+	// Any other values seem to make the function return null.
+	switch (operator)
+	{
+		case '>':
+		case 'gt':
+			return (compare > 0);
+		case '>=':
+		case 'ge':
+			return (compare >= 0);
+		case '<=':
+		case 'le':
+			return (compare <= 0);
+		case '==':
+		case '=':
+		case 'eq':
+			return (compare === 0);
+		case '<>':
+		case '!=':
+		case 'ne':
+			return (compare !== 0);
+		case '':
+		case '<':
+		case 'lt':
+			return (compare < 0);
+		default:
+			return null;
+	}
+}
+
+function is_array(mixed_var)
+{
+	var key         = "";
+	var getFuncName = function (fn)
+	{
+		var name = (/\W*function\s+([\w\$]+)\s*\(/).exec(fn);
+		if (!name)
+		{
+			return "(Anonymous)";
+		}
+		return name[1];
+	};
+
+	if (!mixed_var)
+	{
+		return false;
+	}
+
+	// BEGIN REDUNDANT
+	this.php_js     = this.php_js || {};
+	this.php_js.ini = this.php_js.ini || {};
+	// END REDUNDANT
+
+	if (typeof mixed_var === "object")
+	{
+
+		if (this.php_js.ini["phpjs.objectsAsArrays"] &&  // Strict checking for being a JavaScript array (only check this way if
+											 // call ini_set('phpjs.objectsAsArrays', 0) to disallow objects as arrays)
+			(
+				(this.php_js.ini["phpjs.objectsAsArrays"].local_value.toLowerCase &&
+					this.php_js.ini["phpjs.objectsAsArrays"].local_value.toLowerCase() === "off") ||
+				parseInt(this.php_js.ini["phpjs.objectsAsArrays"].local_value, 10) === 0)
+		)
+		{
+			return mixed_var.hasOwnProperty("length") && // Not non-enumerable because of being on parent class
+				!mixed_var.propertyIsEnumerable("length") && // Since is own property, if not enumerable, it must be a
+															 // built-in function
+				getFuncName(mixed_var.constructor) !== "String"; // exclude String()
+		}
+
+		if (mixed_var.hasOwnProperty)
+		{
+			for (key in mixed_var)
 			{
-				for (key in mixed_var)
+				// Checks whether the object has the specified property
+				// if not, we figure it's not an object in the sense of a php-associative-array.
+				if (false === mixed_var.hasOwnProperty(key))
 				{
 					return false;
 				}
-				return true;
 			}
+		}
 
+		// Read discussion at: http://kevin.vanzonneveld.net/techblog/article/javascript_equivalent_for_phps_is_array/
+		return true;
+	}
+
+	return false;
+}
+
+function array_key_exists(key, search)
+{
+	if (!search || (search.constructor !== Array && search.constructor !== Object))
+	{
+		return false;
+	}
+	return key in search;
+}
+
+function basename(path, suffix)
+{
+	var b = path.replace(/^.*[\/\\]/g, "");
+	if (typeof(suffix) == "string" && b.substr(b.length - suffix.length) == suffix)
+	{
+		b = b.substr(0, b.length - suffix.length);
+	}
+	return b;
+}
+
+function number_format(number, decimals, dec_point, thousands_sep)
+{
+	var n = number, c = isNaN(decimals = Math.abs(decimals)) ? 2 : decimals;
+	var d = dec_point == undefined ? "," : dec_point;
+	var t = thousands_sep == undefined ? "." : thousands_sep, s = n < 0 ? "-" : "";
+	var i = parseInt(n = Math.abs(+n || 0).toFixed(c)) + "", j = (j = i.length) > 3 ? j % 3 : 0;
+
+	return s + (j ? i.substr(0, j) + t : "") + i.substr(j)
+		.replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
+}
+
+function size_format(filesize)
+{
+	if (filesize >= 1073741824)
+	{
+		filesize = number_format(filesize / 1073741824, 2, ".", "") + " GB";
+	}
+	else
+	{
+		if (filesize >= 1048576)
+		{
+			filesize = number_format(filesize / 1048576, 2, ".", "") + " MB";
+		}
+		else
+		{
+			filesize = number_format(filesize / 1024, 2, ".", "") + " KB";
+		}
+	}
+	return filesize;
+}
+
+/**
+ * Checks if a variable is empty. From the php.js library.
+ */
+function empty(mixed_var)
+{
+	var key;
+
+	if (mixed_var === "" ||
+		mixed_var === 0 ||
+		mixed_var === "0" ||
+		mixed_var === null ||
+		mixed_var === false ||
+		typeof mixed_var === "undefined"
+	)
+	{
+		return true;
+	}
+
+	if (typeof mixed_var == "object")
+	{
+		for (key in mixed_var)
+		{
 			return false;
 		}
+		return true;
+	}
 
-		function is_array(mixed_var)
+	return false;
+}
+
+function ltrim(str, charlist)
+{
+	// Strips whitespace from the beginning of a string
+	//
+	// version: 1008.1718
+	// discuss at: http://phpjs.org/functions/ltrim    // +   original by: Kevin van Zonneveld
+	// (http://kevin.vanzonneveld.net) +      input by: Erkekjetter +   improved by: Kevin van Zonneveld
+	// (http://kevin.vanzonneveld.net) +   bugfixed by: Onno Marsman *     example 1: ltrim('    Kevin van Zonneveld
+	// ');    // *     returns 1: 'Kevin van Zonneveld    '
+	charlist = !charlist ? " \\s\u00A0" : (charlist + "").replace(/([\[\]\(\)\.\?\/\*\{\}\+\$\^\:])/g, "$1");
+	var re   = new RegExp("^[" + charlist + "]+", "g");
+	return (str + "").replace(re, "");
+}
+
+function array_shift(inputArr)
+{
+	// http://kevin.vanzonneveld.net
+	// +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+	// +   improved by: Martijn Wieringa
+	// %        note 1: Currently does not handle objects
+	// *     example 1: array_shift(['Kevin', 'van', 'Zonneveld']);
+	// *     returns 1: 'Kevin'
+
+	var props                                                  = false,
+		shift = undefined, pr = "", allDigits = /^\d$/, int_ct = -1,
+		_checkToUpIndices                                      = function (arr, ct, key)
 		{
-			var key         = '';
-			var getFuncName = function (fn)
+			// Deal with situation, e.g., if encounter index 4 and try to set it to 0, but 0 exists later in loop (need
+			// to increment all subsequent (skipping current key, since we need its value below) until find unused)
+			if (arr[ct] !== undefined)
 			{
-				var name = (/\W*function\s+([\w\$]+)\s*\(/).exec(fn);
-				if (!name)
+				var tmp = ct;
+				ct += 1;
+				if (ct === key)
 				{
-					return '(Anonymous)';
+					ct += 1;
 				}
-				return name[1];
-			};
-
-			if (!mixed_var)
-			{
-				return false;
+				ct      = _checkToUpIndices(arr, ct, key);
+				arr[ct] = arr[tmp];
+				delete arr[tmp];
 			}
-
-			// BEGIN REDUNDANT
-			this.php_js     = this.php_js || {};
-			this.php_js.ini = this.php_js.ini || {};
-			// END REDUNDANT
-
-			if (typeof mixed_var === 'object')
-			{
-
-				if (this.php_js.ini['phpjs.objectsAsArrays'] &&  // Strict checking for being a JavaScript array (only check this way if call ini_set('phpjs.objectsAsArrays', 0) to disallow objects as arrays)
-					(
-					(this.php_js.ini['phpjs.objectsAsArrays'].local_value.toLowerCase &&
-					this.php_js.ini['phpjs.objectsAsArrays'].local_value.toLowerCase() === 'off') ||
-					parseInt(this.php_js.ini['phpjs.objectsAsArrays'].local_value, 10) === 0)
-				)
-				{
-					return mixed_var.hasOwnProperty('length') && // Not non-enumerable because of being on parent class
-						!mixed_var.propertyIsEnumerable('length') && // Since is own property, if not enumerable, it must be a built-in function
-						getFuncName(mixed_var.constructor) !== 'String'; // exclude String()
-				}
-
-				if (mixed_var.hasOwnProperty)
-				{
-					for (key in mixed_var)
-					{
-						// Checks whether the object has the specified property
-						// if not, we figure it's not an object in the sense of a php-associative-array.
-						if (false === mixed_var.hasOwnProperty(key))
-						{
-							return false;
-						}
-					}
-				}
-
-				// Read discussion at: http://kevin.vanzonneveld.net/techblog/article/javascript_equivalent_for_phps_is_array/
-				return true;
-			}
-
-			return false;
-		}
-
-		function resolvePath(filename)
-		{
-			filename  = filename.replace('\/\/g', '\/');
-			var parts = filename.split('/');
-			var out   = [];
-
-			$.each(parts, function (i, part)
-			{
-				if (part == '.') return;
-				if (part == '..')
-				{
-					out.pop();
-					return;
-				}
-				out.push(part);
-			});
-
-			return out.join('/');
-		}
-
-		/**
-		 * Performs an AJAX request and returns the parsed JSON output.
-		 * The global akeeba_ajax_url is used as the AJAX proxy URL.
-		 * If there is no errorCallback, the global akeeba_error_callback is used.
-		 * @param data An object with the query data, e.g. a serialized form
-		 * @param successCallback A function accepting a single object parameter, called on success
-		 * @param errorCallback A function accepting a single string parameter, called on failure
-		 */
-		function doAjax(data, successCallback, errorCallback)
-		{
-			var structure =
-			    {
-				    type:    "POST",
-				    url:     akeeba_ajax_url,
-				    cache:   false,
-				    data:    data,
-				    timeout: 600000,
-				    success: function (msg)
-				             {
-					             // Initialize
-					             var junk    = null;
-					             var message = "";
-
-					             // Get rid of junk before the data
-					             var valid_pos = msg.indexOf('###');
-					             if (valid_pos == -1)
-					             {
-						             // Valid data not found in the response
-						             msg = 'Invalid AJAX data received:<br/>' + msg;
-						             if (errorCallback == null)
-						             {
-							             if (akeeba_error_callback != null)
-							             {
-								             akeeba_error_callback(msg);
-							             }
-						             }
-						             else
-						             {
-							             errorCallback(msg);
-						             }
-						             return;
-					             }
-					             else if (valid_pos != 0)
-					             {
-						             // Data is prefixed with junk
-						             junk    = msg.substr(0, valid_pos);
-						             message = msg.substr(valid_pos);
-					             }
-					             else
-					             {
-						             message = msg;
-					             }
-					             message = message.substr(3); // Remove triple hash in the beginning
-
-					             // Get of rid of junk after the data
-					             var valid_pos = message.lastIndexOf('###');
-					             message       = message.substr(0, valid_pos); // Remove triple hash in the end
-
-					             try
-					             {
-						             var data = eval('(' + message + ')');
-					             }
-					             catch (err)
-					             {
-						             var msg = err.message + "\n<br/>\n<pre>\n" + message + "\n</pre>";
-						             if (errorCallback == null)
-						             {
-							             if (akeeba_error_callback != null)
-							             {
-								             akeeba_error_callback(msg);
-							             }
-						             }
-						             else
-						             {
-							             errorCallback(msg);
-						             }
-						             return;
-					             }
-
-					             // Call the callback function
-					             successCallback(data);
-				             },
-				    error:   function (Request, textStatus, errorThrown)
-				             {
-					             var message = '<strong>AJAX Loading Error</strong><br/>HTTP Status: ' + Request.status + ' (' + Request.statusText + ')<br/>';
-					             message     = message + 'Internal status: ' + textStatus + '<br/>';
-					             message     = message + 'XHR ReadyState: ' + Request.readyState + '<br/>';
-					             message     = message + 'Raw server response:<br/>' + Request.responseText;
-					             if (errorCallback == null)
-					             {
-						             if (akeeba_error_callback != null)
-						             {
-							             akeeba_error_callback(message);
-						             }
-					             }
-					             else
-					             {
-						             errorCallback(message);
-					             }
-				             }
-			    };
-			$.ajax(structure);
-		}
-
-		function onChangeProcengine(event)
-		{
-			if ($('#kickstart\\.procengine').val() == 'direct')
-			{
-				$('#ftp-options').hide('fast');
-			}
-			else
-			{
-				$('#ftp-options').show('fast');
-			}
-
-			if ($('#kickstart\\.procengine').val() == 'sftp')
-			{
-				$('#ftp-ssl-passive').hide('fast');
-
-				if ($('#kickstart\\.ftp\\.dir').val() == '')
-				{
-					$('#kickstart\\.ftp\\.dir').val(sftp_path);
-				}
-
-				$('#testFTP').html(trans('BTN_TESTSFTPCON'))
-			}
-			else
-			{
-				$('#ftp-ssl-passive').show('fast');
-				$('#testFTP').html(trans('BTN_TESTFTPCON'))
-			}
-		}
-
-		function closeLightbox(event)
-		{
-			var closeMe = false;
-
-			if ((event == null) || (event == undefined))
-			{
-				closeMe = true;
-			}
-			else if (event.keyCode == '27')
-			{
-				closeMe = true;
-			}
-
-			if (closeMe)
-			{
-				document.getElementById('preextraction').style.display = 'none';
-				document.getElementById('genericerror').style.display  = 'none';
-				document.getElementById('fade').style.display          = 'none';
-				$(document).unbind('keyup', closeLightbox);
-			}
-		}
-
-		function onGenericError(msg)
-		{
-			$('#genericerrorInner').html(msg);
-			$('#genericerror').css('display', 'block');
-			$('#fade').css('display', 'block');
-			$(document).keyup(closeLightbox);
-		}
-
-		function setProgressBar(percent)
-		{
-			var newValue = 0;
-
-			if (percent <= 1)
-			{
-				newValue = 100 * percent;
-			}
-			else
-			{
-				newValue = percent;
-			}
-
-			$('#progressbar-inner').css('width', percent + '%');
-		}
-
-		function oncheckFTPTempDirClick(event)
-		{
-			var data = {
-				'task': 'checkTempdir',
-				'json': JSON.stringify({
-					'kickstart.ftp.tempdir': $('#kickstart\\.ftp\\.tempdir').val()
-				})
-			};
-
-			doAjax(data, function (ret)
-			{
-				var key = ret.status ? 'FTP_TEMPDIR_WRITABLE' : 'FTP_TEMPDIR_UNWRITABLE';
-				alert(trans(key));
-			});
-		}
-
-		function onTestFTPClick(event)
-		{
-			var type = 'ftp';
-
-			if ($('#kickstart\\.procengine').val() == 'sftp')
-			{
-				type = 'sftp';
-			}
-
-			var data = {
-				'task': 'checkFTP',
-				'json': JSON.stringify({
-					'type':                  type,
-					'kickstart.ftp.host':    $('#kickstart\\.ftp\\.host').val(),
-					'kickstart.ftp.port':    $('#kickstart\\.ftp\\.port').val(),
-					'kickstart.ftp.ssl':     $('#kickstart\\.ftp\\.ssl').is(':checked'),
-					'kickstart.ftp.passive': $('#kickstart\\.ftp\\.passive').is(':checked'),
-					'kickstart.ftp.user':    $('#kickstart\\.ftp\\.user').val(),
-					'kickstart.ftp.pass':    $('#kickstart\\.ftp\\.pass').val(),
-					'kickstart.ftp.dir':     $('#kickstart\\.ftp\\.dir').val(),
-					'kickstart.ftp.tempdir': $('#kickstart\\.ftp\\.tempdir').val()
-				})
-			};
-			doAjax(data, function (ret)
-			{
-				if (type == 'ftp')
-				{
-					var key = ret.status ? 'FTP_CONNECTION_OK' : 'FTP_CONNECTION_FAILURE';
-				}
-				else
-				{
-					var key = ret.status ? 'SFTP_CONNECTION_OK' : 'SFTP_CONNECTION_FAILURE';
-				}
-
-
-				alert(trans(key) + "\n\n" + (ret.status ? '' : ret.message));
-			});
-		}
-
-		function onbrowseFTP()
-		{
-			if ($('#kickstart\\.procengine').val() != 'sftp')
-			{
-				akeeba_ftpbrowser_host      = $('#kickstart\\.ftp\\.host').val();
-				akeeba_ftpbrowser_port      = $('#kickstart\\.ftp\\.port').val();
-				akeeba_ftpbrowser_username  = $('#kickstart\\.ftp\\.user').val();
-				akeeba_ftpbrowser_password  = $('#kickstart\\.ftp\\.pass').val();
-				akeeba_ftpbrowser_passive   = $('#kickstart\\.ftp\\.passive').is(':checked');
-				akeeba_ftpbrowser_ssl       = $('#kickstart\\.ftp\\.ssl').is(':checked');
-				akeeba_ftpbrowser_directory = $('#kickstart\\.ftp\\.dir').val();
-
-				var akeeba_onbrowseFTP_callback = function (path)
-				{
-					var charlist = ('/').replace(/([\[\]\(\)\.\?\/\*\{\}\+\$\^\:])/g, '$1');
-					var re       = new RegExp('^[' + charlist + ']+', 'g');
-					path         = '/' + (path + '').replace(re, '');
-					$('#kickstart\\.ftp\\.dir').val(path);
-				};
-
-				akeeba_ftpbrowser_hook(akeeba_onbrowseFTP_callback);
-			}
-			else
-			{
-				akeeba_sftpbrowser_host      = $('#kickstart\\.ftp\\.host').val();
-				akeeba_sftpbrowser_port      = $('#kickstart\\.ftp\\.port').val();
-				akeeba_sftpbrowser_username  = $('#kickstart\\.ftp\\.user').val();
-				akeeba_sftpbrowser_password  = $('#kickstart\\.ftp\\.pass').val();
-				akeeba_sftpbrowser_directory = $('#kickstart\\.ftp\\.dir').val();
-
-				var akeeba_postprocsftp_callback = function (path)
-				{
-					var charlist = ('/').replace(/([\[\]\(\)\.\?\/\*\{\}\+\$\^\:])/g, '$1');
-					var re       = new RegExp('^[' + charlist + ']+', 'g');
-					path         = '/' + (path + '').replace(re, '');
-					$('#kickstart\\.ftp\\.dir').val(path);
-				};
-
-				akeeba_sftpbrowser_hook(akeeba_postprocsftp_callback);
-			}
-		}
-
-		akeeba_ftpbrowser_hook = function (callback)
-		{
-			var ftp_dialog_element = $("#ftpdialog");
-			var ftp_callback       = function ()
-			{
-				callback(akeeba_ftpbrowser_directory);
-				ftp_dialog_element.dialog("close");
-			};
-
-			ftp_dialog_element.css('display', 'block');
-			ftp_dialog_element.removeClass('ui-state-error');
-			ftp_dialog_element.dialog({
-				autoOpen:  false,
-				title:     trans('CONFIG_UI_FTPBROWSER_TITLE'),
-				draggable: false,
-				height:    500,
-				width:     500,
-				modal:     true,
-				resizable: false,
-				buttons:   {
-					"OK":     ftp_callback,
-					"Cancel": function ()
-					          {
-						          ftp_dialog_element.dialog("close");
-					          }
-				}
-			});
-
-			$('#ftpBrowserErrorContainer').css('display', 'none');
-			$('#ftpBrowserFolderList').html('');
-			$('#ak_crumbs').html('');
-
-			ftp_dialog_element.dialog('open');
-
-			if (empty(akeeba_ftpbrowser_directory)) akeeba_ftpbrowser_directory = '';
-
-			var data = {
-				'task': 'ftpbrowse',
-				'json': JSON.stringify({
-					'host':      akeeba_ftpbrowser_host,
-					'port':      akeeba_ftpbrowser_port,
-					'username':  akeeba_ftpbrowser_username,
-					'password':  akeeba_ftpbrowser_password,
-					'passive':   (akeeba_ftpbrowser_passive ? 1 : 0),
-					'ssl':       (akeeba_ftpbrowser_ssl ? 1 : 0),
-					'directory': akeeba_ftpbrowser_directory
-				})
-			};
-
-			// Do AJAX call and Render results
-			doAjax(
-				data,
-				function (data)
-				{
-					if (data.error != false)
-					{
-						// An error occurred
-						$('#ftpBrowserError').html(trans(data.error));
-						$('#ftpBrowserErrorContainer').css('display', 'block');
-						$('#ftpBrowserFolderList').css('display', 'none');
-						$('#ak_crumbs').css('display', 'none');
-					}
-					else
-					{
-						// Create the interface
-						$('#ftpBrowserErrorContainer').css('display', 'none');
-
-						// Display the crumbs
-						if (!empty(data.breadcrumbs))
-						{
-							$('#ak_crumbs').css('display', 'block');
-							$('#ak_crumbs').html('');
-							var relativePath = '/';
-
-							akeeba_ftpbrowser_addcrumb(trans('UI-ROOT'), '/', callback);
-
-							$.each(data.breadcrumbs, function (i, crumb)
-							{
-								relativePath += '/' + crumb;
-
-								akeeba_ftpbrowser_addcrumb(crumb, relativePath, callback);
-							});
-						}
-						else
-						{
-							$('#ak_crumbs').hide();
-						}
-
-						// Display the list of directories
-						if (!empty(data.list))
-						{
-							$('#ftpBrowserFolderList').show();
-
-							$.each(data.list, function (i, item)
-							{
-								akeeba_ftpbrowser_create_link(data.directory + '/' + item, item, $('#ftpBrowserFolderList'), callback);
-							});
-						}
-						else
-						{
-							$('#ftpBrowserFolderList').css('display', 'none');
-						}
-					}
-				},
-				function (message)
-				{
-					$('#ftpBrowserError').html(message);
-					$('#ftpBrowserErrorContainer').css('display', 'block');
-					$('#ftpBrowserFolderList').css('display', 'none');
-					$('#ak_crumbs').css('display', 'none');
-				}
-			);
+			return ct;
 		};
 
-		/**
-		 * Creates a directory link for the FTP browser UI
-		 */
-		function akeeba_ftpbrowser_create_link(path, label, container, callback)
-		{
-			var row  = $(document.createElement('tr'));
-			var cell = $(document.createElement('td')).appendTo(row);
 
-			var myElement = $(document.createElement('a'))
-				.text(label)
-				.click(function ()
-				{
-					akeeba_ftpbrowser_directory = resolvePath(path);
-					akeeba_ftpbrowser_hook(callback);
-				})
-				.appendTo(cell);
-			row.appendTo($(container));
+	if (inputArr.length === 0)
+	{
+		return null;
+	}
+	if (inputArr.length > 0)
+	{
+		return inputArr.shift();
+	}
+}
+
+function trim(str, charlist)
+{
+	var whitespace, l = 0, i = 0;
+	str += "";
+
+	if (!charlist)
+	{
+		// default list
+		whitespace =
+			" \n\r\t\f\x0b\xa0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000";
+	}
+	else
+	{
+		// preg_quote custom list
+		charlist += "";
+		whitespace = charlist.replace(/([\[\]\(\)\.\?\/\*\{\}\+\$\^\:])/g, "$1");
+	}
+
+	l = str.length;
+	for (i = 0; i < l; i++)
+	{
+		if (whitespace.indexOf(str.charAt(i)) === -1)
+		{
+			str = str.substring(i);
+			break;
 		}
+	}
 
-		/**
-		 * Adds a breadcrumb to the FTP browser
-		 */
-		function akeeba_ftpbrowser_addcrumb(crumb, relativePath, callback, last)
+	l = str.length;
+	for (i = l - 1; i >= 0; i--)
+	{
+		if (whitespace.indexOf(str.charAt(i)) === -1)
 		{
-			if (empty(last)) last = false;
-			var li = $(document.createElement('li'));
+			str = str.substring(0, i + 1);
+			break;
+		}
+	}
 
-			$(document.createElement('a'))
-				.html(crumb)
-				.click(function (e)
+	return whitespace.indexOf(str.charAt(0)) === -1 ? str : "";
+}
+
+function array_merge()
+{
+	// Merges elements from passed arrays into one array
+	//
+	// version: 1103.1210
+	// discuss at: http://phpjs.org/functions/array_merge
+	// +   original by: Brett Zamir (http://brett-zamir.me)
+	// +   bugfixed by: Nate
+	// +   input by: josh
+	// +   bugfixed by: Brett Zamir (http://brett-zamir.me)
+	// *     example 1: arr1 = {"color": "red", 0: 2, 1: 4}
+	// *     example 1: arr2 = {0: "a", 1: "b", "color": "green", "shape": "trapezoid", 2: 4}
+	// *     example 1: array_merge(arr1, arr2)
+	// *     returns 1: {"color": "green", 0: 2, 1: 4, 2: "a", 3: "b", "shape": "trapezoid", 4: 4}
+	// *     example 2: arr1 = []
+	// *     example 2: arr2 = {1: "data"}
+	// *     example 2: array_merge(arr1, arr2)
+	// *     returns 2: {0: "data"}
+	var args   = Array.prototype.slice.call(arguments),
+		retObj = {},
+		k, j   = 0,
+		i      = 0,
+		retArr = true;
+
+	for (i = 0; i < args.length; i++)
+	{
+		if (!(args[i] instanceof Array))
+		{
+			retArr = false;
+			break;
+		}
+	}
+
+	if (retArr)
+	{
+		retArr = [];
+		for (i = 0; i < args.length; i++)
+		{
+			retArr = retArr.concat(args[i]);
+		}
+		return retArr;
+	}
+	var ct = 0;
+
+	for (i = 0, ct = 0; i < args.length; i++)
+	{
+		if (args[i] instanceof Array)
+		{
+			for (j = 0; j < args[i].length; j++)
+			{
+				retObj[ct++] = args[i][j];
+			}
+		}
+		else
+		{
+			for (k in args[i])
+			{
+				if (args[i].hasOwnProperty(k))
 				{
-					akeeba_ftpbrowser_directory = relativePath;
-					akeeba_ftpbrowser_hook(callback);
-
-					if (e.preventDefault)
+					if (parseInt(k, 10) + "" === k)
 					{
-						e.preventDefault();
+						retObj[ct++] = args[i][k];
 					}
 					else
 					{
-						e.returnValue = false;
+						retObj[k] = args[i][k];
 					}
-				})
-				.appendTo(li);
+				}
+			}
+		}
+	}
+	return retObj;
+}
 
-			if (!last)
+function array_diff(arr1)
+{ // eslint-disable-line camelcase
+	//  discuss at: http://locutus.io/php/array_diff/
+	// original by: Kevin van Zonneveld (http://kvz.io)
+	// improved by: Sanjoy Roy
+	//  revised by: Brett Zamir (http://brett-zamir.me)
+	//   example 1: array_diff(['Kevin', 'van', 'Zonneveld'], ['van', 'Zonneveld'])
+	//   returns 1: {0:'Kevin'}
+
+	var retArr = {};
+	var argl   = arguments.length;
+	var k1     = "";
+	var i      = 1;
+	var k      = "";
+	var arr    = {};
+
+	arr1keys: for (k1 in arr1)
+	{
+		for (i = 1; i < argl; i++)
+		{
+			arr = arguments[i];
+			for (k in arr)
 			{
-				$(document.createElement('span'))
-					.text('/')
-					.addClass('divider')
-					.appendTo(li);
+				if (arr[k] === arr1[k1])
+				{
+					// If it reaches here, it was found in at least one array, so try next value
+					continue arr1keys;
+				}
+			}
+			retArr[k1] = arr1[k1];
+		}
+	}
+
+	return retArr;
+}
+
+//=============================================================================
+// Object.keys polyfill
+//=============================================================================
+
+// From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
+if (!Object.keys)
+{
+	Object.keys = (function () {
+		"use strict";
+		var hasOwnProperty  = Object.prototype.hasOwnProperty,
+			hasDontEnumBug  = !({toString: null}).propertyIsEnumerable("toString"),
+			dontEnums       = [
+				"toString",
+				"toLocaleString",
+				"valueOf",
+				"hasOwnProperty",
+				"isPrototypeOf",
+				"propertyIsEnumerable",
+				"constructor"
+			],
+			dontEnumsLength = dontEnums.length;
+
+		return function (obj) {
+			if (typeof obj !== "object" && (typeof obj !== "function" || obj === null))
+			{
+				throw new TypeError("Object.keys called on non-object");
 			}
 
-			li.appendTo('#ak_crumbs');
-		}
+			var result = [], prop, i;
 
-		// FTP browser function
-		akeeba_sftpbrowser_hook = function (callback)
-		{
-			var sftp_dialog_element = $("#ftpdialog");
-			var sftp_callback       = function ()
+			for (prop in obj)
 			{
-				callback(akeeba_sftpbrowser_directory);
-				sftp_dialog_element.dialog("close");
-			};
-
-			sftp_dialog_element.css('display', 'block');
-			sftp_dialog_element.removeClass('ui-state-error');
-			sftp_dialog_element.dialog({
-				autoOpen:  false,
-				'title':   trans('CONFIG_UI_SFTPBROWSER_TITLE'),
-				draggable: false,
-				height:    500,
-				width:     500,
-				modal:     true,
-				resizable: false,
-				buttons:   {
-					"OK":     sftp_callback,
-					"Cancel": function ()
-					          {
-						          sftp_dialog_element.dialog("close");
-					          }
-				}
-			});
-
-			$('#ftpBrowserErrorContainer').css('display', 'none');
-			$('#ftpBrowserFolderList').html('');
-			$('#ak_crumbs').html('');
-
-			sftp_dialog_element.dialog('open');
-
-			if (empty(akeeba_sftpbrowser_directory)) akeeba_sftpbrowser_directory = '';
-
-			var data = {
-				'task': 'sftpbrowse',
-				'json': JSON.stringify({
-					'host':      akeeba_sftpbrowser_host,
-					'port':      akeeba_sftpbrowser_port,
-					'username':  akeeba_sftpbrowser_username,
-					'password':  akeeba_sftpbrowser_password,
-					'directory': akeeba_sftpbrowser_directory
-				})
-			};
-
-			doAjax(
-				data,
-				function (data)
+				if (hasOwnProperty.call(obj, prop))
 				{
-					if (data.error != false)
-					{
-						// An error occurred
-						$('#ftpBrowserError').html(data.error);
-						$('#ftpBrowserErrorContainer').css('display', 'block');
-						$('#ftpBrowserFolderList').css('display', 'none');
-						$('#ak_crumbs').css('display', 'none');
-					}
-					else
-					{
-						// Create the interface
-						$('#ftpBrowserErrorContainer').css('display', 'none');
-
-						// Display the crumbs
-						if (!empty(data.breadcrumbs))
-						{
-							$('#ak_crumbs').css('display', 'block');
-							$('#ak_crumbs').html('');
-							var relativePath = '/';
-
-							akeeba_sftpbrowser_addcrumb(trans('UI-ROOT'), '/', callback);
-
-							$.each(data.breadcrumbs, function (i, crumb)
-							{
-								relativePath += '/' + crumb;
-
-								akeeba_sftpbrowser_addcrumb(crumb, relativePath, callback);
-							});
-						}
-						else
-						{
-							$('#ftpBrowserCrumbs').css('display', 'none');
-						}
-
-						// Display the list of directories
-						if (!empty(data.list))
-						{
-							$('#ftpBrowserFolderList').css('display', 'block');
-
-							$.each(data.list, function (i, item)
-							{
-								akeeba_sftpbrowser_create_link(data.directory + '/' + item, item, $('#ftpBrowserFolderList'), callback);
-							});
-						}
-						else
-						{
-							$('#ftpBrowserFolderList').css('display', 'none');
-						}
-					}
-				},
-				function (message)
-				{
-					$('#ftpBrowserError').html(message);
-					$('#ftpBrowserErrorContainer').css('display', 'block');
-					$('#ftpBrowserFolderList').css('display', 'none');
-					$('#ftpBrowserCrumbs').css('display', 'none');
+					result.push(prop);
 				}
-			);
+			}
+
+			if (hasDontEnumBug)
+			{
+				for (i = 0; i < dontEnumsLength; i++)
+				{
+					if (hasOwnProperty.call(obj, dontEnums[i]))
+					{
+						result.push(dontEnums[i]);
+					}
+				}
+			}
+			return result;
 		};
+	}());
+}
 
-		/**
-		 * Creates a directory link for the SFTP browser UI
-		 */
-		function akeeba_sftpbrowser_create_link(path, label, container, callback)
-		{
-			var row  = $(document.createElement('tr'));
-			var cell = $(document.createElement('td')).appendTo(row);
+/*
+ * Akeeba Kickstart
+ * A JSON-powered archive extraction tool
+ *
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license     GNU GPL v2 or - at your option - any later version
+ * @package     kickstart
+ */
 
-			var myElement = $(document.createElement('a'))
-				.text(label)
-				.click(function ()
+akeeba.System = {};
+
+akeeba.System.documentReady = function (callback, context)
+{
+};
+
+akeeba.System.notification = {
+	hasDesktopNotification: false,
+	iconURL:                ''
+};
+akeeba.System.params       = {
+	AjaxURL:               '',
+	errorCallback:         onGenericError,
+	password:              '',
+	errorDialogId:         'errorDialog',
+	errorDialogMessageId:  'errorDialogPre'
+};
+
+/**
+ * An extremely simple error handler, dumping error messages to screen
+ *
+ * @param  error  The error message string
+ */
+akeeba.System.defaultErrorHandler = function (error)
+{
+	alert("An error has occurred\n" + error);
+};
+
+akeeba.System.params.errorCallback = onGenericError;
+
+/**
+ * Performs an AJAX request and returns the parsed JSON output.
+ * akeeba.System.params.AjaxURL is used as the AJAX proxy URL.
+ * If there is no errorCallback, the global akeeba.System.params.errorCallback is used.
+ *
+ * @param  data             An object with the query data, e.g. a serialized form
+ * @param  successCallback  A function accepting a single object parameter, called on success
+ * @param  errorCallback    A function accepting a single string parameter, called on failure
+ * @param  useCaching       Should we use the cache?
+ * @param  timeout          Timeout before cancelling the request (default 60s)
+ */
+akeeba.System.doAjax = function (data, successCallback, errorCallback, useCaching, timeout)
+{
+	if (useCaching == null)
+	{
+		useCaching = true;
+	}
+
+	// We always want to burst the cache
+	var now                = new Date().getTime() / 1000;
+	var s                  = parseInt(now, 10);
+	data._cacheBustingJunk = Math.round((now - s) * 1000) / 1000;
+
+	if (timeout == null)
+	{
+		timeout = 600000;
+	}
+
+	var structure =
+			{
+				type:    "POST",
+				url:     akeeba.System.params.AjaxURL,
+				cache:   false,
+				data:    data,
+				timeout: timeout,
+				success: function (msg)
 				{
-					akeeba_sftpbrowser_directory = resolvePath(path);
-					akeeba_sftpbrowser_hook(callback);
-				})
-				.appendTo(cell);
-			row.appendTo($(container));
-		}
+					// Initialize
+					var message = "";
 
-		/**
-		 * Adds a breadcrumb to the SFTP browser
-		 */
-		function akeeba_sftpbrowser_addcrumb(crumb, relativePath, callback, last)
-		{
-			if (empty(last)) last = false;
-			var li = $(document.createElement('li'));
+					// Get rid of junk before the data
+					var valid_pos = msg.indexOf('###');
 
-			$(document.createElement('a'))
-				.html(crumb)
-				.click(function (e)
-				{
-					akeeba_sftpbrowser_directory = relativePath;
-					akeeba_sftpbrowser_hook(callback);
-
-					if (e.preventDefault)
+					if (valid_pos === -1)
 					{
-						e.preventDefault();
+						// Valid data not found in the response
+						msg = akeeba.System.sanitizeErrorMessage(msg);
+						msg = 'Invalid AJAX data: ' + msg;
+
+						if (errorCallback == null)
+						{
+							if (akeeba.System.params.errorCallback != null)
+							{
+								akeeba.System.params.errorCallback(msg);
+							}
+						}
+						else
+						{
+							errorCallback(msg);
+						}
+
+						return;
+					}
+					else if (valid_pos !== 0)
+					{
+						// Data is prefixed with junk
+						message = msg.substr(valid_pos);
 					}
 					else
 					{
-						e.returnValue = false;
+						message = msg;
 					}
-				})
-				.appendTo(li);
 
-			if (!last)
-			{
-				$(document.createElement('span'))
-					.text('/')
-					.addClass('divider')
-					.appendTo(li);
-			}
+					message = message.substr(3); // Remove triple hash in the beginning
 
-			li.appendTo('#ak_crumbs');
-		}
+					// Get of rid of junk after the data
+					valid_pos = message.lastIndexOf('###');
+					message   = message.substr(0, valid_pos); // Remove triple hash in the end
 
-		function onStartExtraction()
-		{
-			$('#page1').hide('fast');
-			$('#page2').show('fast');
+					try
+					{
+						var data = JSON.parse(message);
+					}
+					catch (err)
+					{
+						message = akeeba.System.sanitizeErrorMessage(message);
+						msg     = err.message + "\n<br/>\n<pre>\n" + message + "\n</pre>";
 
-			$('#currentFile').text('');
+						if (errorCallback == null)
+						{
+							if (akeeba.System.params.errorCallback != null)
+							{
+								akeeba.System.params.errorCallback(msg);
+							}
+						}
+						else
+						{
+							errorCallback(msg);
+						}
 
-			akeeba_error_callback = errorHandler;
+						return;
+					}
 
-			var data = {
-				'task': 'startExtracting',
-				'json': JSON.stringify({
-					'kickstart.setup.sourcepath':     $('#kickstart\\.setup\\.sourcepath').val(),
-					'kickstart.setup.sourcefile':     $('#kickstart\\.setup\\.sourcefile').val(),
-					'kickstart.jps.password':         $('#kickstart\\.jps\\.password').val(),
-					'kickstart.tuning.min_exec_time': $('#kickstart\\.tuning\\.min_exec_time').val(),
-					'kickstart.tuning.max_exec_time': $('#kickstart\\.tuning\\.max_exec_time').val(),
-					'kickstart.stealth.enable':       $('#kickstart\\.stealth\\.enable').is(':checked'),
-					'kickstart.stealth.url':          $('#kickstart\\.stealth\\.url').val(),
-					'kickstart.tuning.run_time_bias': 75,
-					'kickstart.setup.restoreperms':   $('#kickstart\\.restorepermissions\\.enable').is(':checked'),
-					'kickstart.setup.dryrun':         0,
-					'kickstart.setup.ignoreerrors':   $('#kickstart\\.setup\\.ignoreerrors').is(':checked'),
-					'kickstart.enabled':              1,
-					'kickstart.security.password':    '',
-					'kickstart.setup.renameback':     $('#kickstart\\.setup\\.renameback').is(':checked'),
-					'kickstart.procengine':           $('#kickstart\\.procengine').val(),
-					'kickstart.ftp.host':             $('#kickstart\\.ftp\\.host').val(),
-					'kickstart.ftp.port':             $('#kickstart\\.ftp\\.port').val(),
-					'kickstart.ftp.ssl':              $('#kickstart\\.ftp\\.ssl').is(':checked'),
-					'kickstart.ftp.passive':          $('#kickstart\\.ftp\\.passive').is(':checked'),
-					'kickstart.ftp.user':             $('#kickstart\\.ftp\\.user').val(),
-					'kickstart.ftp.pass':             $('#kickstart\\.ftp\\.pass').val(),
-					'kickstart.ftp.dir':              $('#kickstart\\.ftp\\.dir').val(),
-					'kickstart.ftp.tempdir':          $('#kickstart\\.ftp\\.tempdir').val(),
-					'kickstart.setup.extract_list':   $('#kickstart\\.setup\\.extract_list').val()
-				})
+					// Call the callback function
+					successCallback(data);
+				},
+				error:   function (Request, textStatus, errorThrown)
+				{
+					var text    = Request.responseText ? Request.responseText : '';
+					var message = '<strong>AJAX Loading Error</strong><br/>HTTP Status: ' + Request.status +
+						' (' + Request.statusText + ')<br/>';
+
+					message = message + 'Internal status: ' + textStatus + '<br/>';
+					message = message + 'XHR ReadyState: ' + Request.readyState + '<br/>';
+					message = message + 'Raw server response:<br/>' + akeeba.System.sanitizeErrorMessage(text);
+
+					if (errorCallback == null)
+					{
+						if (akeeba.System.params.errorCallback != null)
+						{
+							akeeba.System.params.errorCallback(message);
+						}
+					}
+					else
+					{
+						errorCallback(message);
+					}
+				}
 			};
-			doAjax(data, function (ret)
-			{
-				processRestorationStep(ret);
-			});
-		}
 
-		function processRestorationStep(data)
+	if (useCaching)
+	{
+		akeeba.Ajax.enqueue(structure);
+	}
+	else
+	{
+		akeeba.Ajax.ajax(structure);
+	}
+};
+
+/**
+ * Sanitize a message before displaying it in an error dialog. Some servers return an HTML page with DOM modifying
+ * JavaScript when they block the backup script for any reason (usually with a 5xx HTTP error code). Displaying the
+ * raw response in the error dialog has the side-effect of killing our backup resumption JavaScript or even completely
+ * destroy the page, making backup restart impossible.
+ *
+ * @param {string} msg The message to sanitize
+ *
+ * @returns {string}
+ */
+akeeba.System.sanitizeErrorMessage = function (msg)
+{
+	if (msg.indexOf("<script") > -1)
+	{
+		msg = "(HTML containing script tags)";
+	}
+
+	return msg;
+};
+
+/**
+ * Get and set data to elements. Use:
+ * akeeba.System.data.set(element, property, value)
+ * akeeba.System.data.get(element, property, defaultValue)
+ *
+ * On modern browsers (minimum IE 11, Chrome 8, FF 6, Opera 11, Safari 6) this will use the data-* attributes of the
+ * elements where possible. On old browsers it will use an internal cache and manually apply data-* attributes.
+ */
+akeeba.System.data = (function ()
+{
+	var lastId = 0,
+		store  = {};
+
+	return {
+		set: function (element, property, value)
 		{
-			// Look for errors
-			if (!data.status)
+			// IE 11, modern browsers
+			if (element.dataset)
 			{
-				errorHandler(data.message);
+				element.dataset[property] = value;
+
+				if (value == null)
+				{
+					delete element.dataset[property];
+				}
+
 				return;
 			}
 
-			// Propagate warnings to the GUI
-			if (!empty(data.Warnings))
+			// IE 8 to 10, old browsers
+			var id;
+
+			if (element.myCustomDataTag === undefined)
 			{
-				$.each(data.Warnings, function (i, item)
-				{
-					$('#warnings').append(
-						$(document.createElement('div'))
-							.html(item)
-					);
-					$('#warningsBox').show('fast');
-				});
+				id                      = lastId++;
+				element.myCustomDataTag = id;
 			}
 
-			// Parse total size, if exists
-			if (array_key_exists('totalsize', data))
+			if (typeof(store[id]) === 'undefined')
 			{
-				if (is_array(data.filelist))
-				{
-					akeeba_restoration_stat_total = 0;
-					$.each(data.filelist, function (i, item)
-					{
-						akeeba_restoration_stat_total += item[1];
-					});
-				}
-				akeeba_restoration_stat_outbytes = 0;
-				akeeba_restoration_stat_inbytes  = 0;
-				akeeba_restoration_stat_files    = 0;
+				store[id] = {};
 			}
 
-			// Update GUI
-			akeeba_restoration_stat_inbytes += data.bytesIn;
-			akeeba_restoration_stat_outbytes += data.bytesOut;
-			akeeba_restoration_stat_files += data.files;
-			var percentage = 0;
-			if (akeeba_restoration_stat_total > 0)
+			// Store the value in the internal cache...
+			store[id][property] = value;
+
+			// ...and the DOM
+
+			// Convert the property to dash-format
+			var dataAttributeName = 'data-' + property.split(/(?=[A-Z])/).join('-').toLowerCase();
+
+			if (element.setAttribute)
 			{
-				percentage = 100 * akeeba_restoration_stat_inbytes / akeeba_restoration_stat_total;
-				if (percentage < 0)
+				element.setAttribute(dataAttributeName, value);
+			}
+
+			if (value == null)
+			{
+				// IE 8 throws an exception on "delete"
+				try
 				{
-					percentage = 0;
+					delete store[id][property];
+					element.removeAttribute(dataAttributeName);
 				}
-				else if (percentage > 100)
+				catch (e)
 				{
-					percentage = 100;
+					store[id][property] = null;
 				}
 			}
-			if (data.done) percentage = 100;
-			setProgressBar(percentage);
-			$('#currentFile').text(data.lastfile);
+		},
 
-			if (!empty(data.factory)) akeeba_factory = data.factory;
-
-			post = {
-				'task': 'continueExtracting',
-				'json': JSON.stringify({factory: akeeba_factory})
-			};
-
-			if (!data.done)
+		get: function (element, property, defaultValue)
+		{
+			// IE 11, modern browsers
+			if (element.dataset)
 			{
-				doAjax(post, function (ret)
+				if (typeof(element.dataset[property]) === 'undefined')
 				{
-					processRestorationStep(ret);
-				});
+					element.dataset[property] = defaultValue;
+				}
+
+				return element.dataset[property];
+			}
+			// IE 8 to 10, old browsers
+
+			if (typeof(defaultValue) === 'undefined')
+			{
+				defaultValue = null;
+			}
+
+			// Make sure we have an internal storage
+			if (typeof(store[element.myCustomDataTag]) === 'undefined')
+			{
+				store[element.myCustomDataTag] = {};
+			}
+
+			// Convert the property to dash-format
+			var dataAttributeName = 'data-' + property.split(/(?=[A-Z])/).join('-').toLowerCase();
+
+			// data-* attributes have precedence
+			if (typeof(element[dataAttributeName]) !== 'undefined')
+			{
+				store[element.myCustomDataTag][property] = element[dataAttributeName];
+			}
+
+			// No data-* attribute and no stored value? Use the default.
+			if (typeof(store[element.myCustomDataTag][property]) === 'undefined')
+			{
+				this.set(element, property, defaultValue);
+			}
+
+			// Return the value of the data
+			return store[element.myCustomDataTag][property];
+		}
+	};
+}());
+
+/**
+ * Adds an event listener to an element
+ *
+ * @param element
+ * @param eventName
+ * @param listener
+ */
+akeeba.System.addEventListener = function (element, eventName, listener)
+{
+	// Allow the passing of an element ID string instead of the DOM elem
+	if (typeof element === "string")
+	{
+		element = document.getElementById(element);
+	}
+
+	if (element == null)
+	{
+		return;
+	}
+
+	if (typeof element !== 'object')
+	{
+		return;
+	}
+
+	// Handles the listener in a way that returning boolean false will cancel the event propagation
+	function listenHandler(e)
+	{
+		var ret = listener.apply(this, arguments);
+
+		if (ret === false)
+		{
+			if (e.stopPropagation())
+			{
+				e.stopPropagation();
+			}
+
+			if (e.preventDefault)
+			{
+				e.preventDefault();
 			}
 			else
 			{
-				$('#page2a').hide('fast');
-				$('#extractionComplete').show('fast');
-
-				$('#runInstaller').css('display', 'inline-block');
+				e.returnValue = false;
 			}
 		}
 
-		function onGotoStartClick(event)
+		return (ret);
+	}
+
+	// Equivalent of listenHandler for IE8
+	function attachHandler()
+	{
+		// Normalize the target of the event –– PhpStorm detects this as an error
+		// window.event.target = window.event.srcElement;
+
+		var ret = listener.call(element, window.event);
+
+		if (ret === false)
 		{
-			$('#page2').hide('fast');
-			$('#error').hide('fast');
-			$('#page1').show('fast');
+			window.event.returnValue  = false;
+			window.event.cancelBubble = true;
 		}
 
-		function onRunInstallerClick(event)
+		return (ret);
+	}
+
+	if (element.addEventListener)
+	{
+		element.addEventListener(eventName, listenHandler, false);
+
+		return;
+	}
+
+	element.attachEvent("on" + eventName, attachHandler);
+};
+
+/**
+ * Remove an event listener from an element
+ *
+ * @param element
+ * @param eventName
+ * @param listener
+ */
+akeeba.System.removeEventListener = function (element, eventName, listener)
+{
+	// Allow the passing of an element ID string instead of the DOM elem
+	if (typeof element === "string")
+	{
+		element = document.getElementById(element);
+	}
+
+	if (element == null)
+	{
+		return;
+	}
+
+	if (typeof element !== 'object')
+	{
+		return;
+	}
+
+	if (element.removeEventListener)
+	{
+		element.removeEventListener(eventName, listener);
+
+		return;
+	}
+
+	element.detachEvent("on" + eventName, listener);
+};
+
+akeeba.System.triggerEvent = function (element, eventName)
+{
+	if (typeof element === 'undefined')
+	{
+		return;
+	}
+
+	if (element === null)
+	{
+		return;
+	}
+
+	// Allow the passing of an element ID string instead of the DOM elem
+	if (typeof element === "string")
+	{
+		element = document.getElementById(element);
+	}
+
+	if (typeof element !== 'object')
+	{
+		return;
+	}
+
+	if (!(element instanceof Element))
+	{
+		return;
+	}
+
+	// Use jQuery and be done with it!
+	if (typeof window.jQuery === 'function')
+	{
+		window.jQuery(element).trigger(eventName);
+
+		return;
+	}
+
+	// Internet Explorer way
+	if (document.fireEvent && (typeof window.Event === 'undefined'))
+	{
+		element.fireEvent('on' + eventName);
+
+		return;
+	}
+
+	// This works on Chrome and Edge but not on Firefox. Ugh.
+	var event = document.createEvent("Event");
+	event.initEvent(eventName, true, true);
+	element.dispatchEvent(event);
+};
+
+// document.ready equivalent from https://github.com/jfriend00/docReady/blob/master/docready.js
+(function (funcName, baseObj)
+{
+	funcName = funcName || "documentReady";
+	baseObj  = baseObj || akeeba.System;
+
+	var readyList                   = [];
+	var readyFired                  = false;
+	var readyEventHandlersInstalled = false;
+
+	// Call this when the document is ready. This function protects itself against being called more than once.
+	function ready()
+	{
+		if (!readyFired)
 		{
-			var windowReference = window.open('installation/index.php', 'installer');
-			if (!windowReference.opener)
+			// This must be set to true before we start calling callbacks
+			readyFired = true;
+
+			for (var i = 0; i < readyList.length; i++)
 			{
-				windowReference.opener = this.window;
+				/**
+				 * If a callback here happens to add new ready handlers, this function will see that it already
+				 * fired and will schedule the callback to run right after this event loop finishes so all handlers
+				 * will still execute in order and no new ones will be added to the readyList while we are
+				 * processing the list.
+				 */
+				readyList[i].fn.call(window, readyList[i].ctx);
 			}
-			$('#runCleanup').css('display', 'inline-block');
-			$('#runInstaller').hide('fast');
+
+			// Allow any closures held by these functions to free
+			readyList = [];
+		}
+	}
+
+	/**
+	 * Solely for the benefit of Internet Explorer
+	 */
+	function readyStateChange()
+	{
+		if (document.readyState === "complete")
+		{
+			ready();
+		}
+	}
+
+	/**
+	 * This is the one public interface:
+	 *
+	 * akeeba.System.documentReady(fn, context);
+	 *
+	 * @param   callback   The callback function to execute when the document is ready.
+	 * @param   context    Optional. If present, it will be passed as an argument to the callback.
+	 */
+	//
+	//
+	//
+	baseObj[funcName] = function (callback, context)
+	{
+		// If ready() has already fired, then just schedule the callback to fire asynchronously
+		if (readyFired)
+		{
+			setTimeout(function ()
+			{
+				callback(context);
+			}, 1);
+
+			return;
 		}
 
-		function onRunCleanupClick(event)
-		{
-			post = {
-				'task': 'isJoomla',
-				// Passing the factory preserves the renamed files array
-				'json': JSON.stringify({factory: akeeba_factory})
-			};
+		// Add the function and context to the queue
+		readyList.push({fn: callback, ctx: context});
 
-			doAjax(post, function (ret)
-			{
-				isJoomla = ret;
-				onRealRunCleanupClick();
-			});
+		/**
+		 * If the document is already ready, schedule the ready() function to run immediately.
+		 *
+		 * Note: IE is only safe when the readyState is "complete", other browsers are safe when the readyState is
+		 * "interactive"
+		 */
+		if (document.readyState === "complete" || (!document.attachEvent && document.readyState === "interactive"))
+		{
+			setTimeout(ready, 1);
+
+			return;
 		}
 
-		function onRealRunCleanupClick()
+		// If the handlers are already installed just quit
+		if (readyEventHandlersInstalled)
 		{
-			post = {
-				'task': 'cleanUp',
-				// Passing the factory preserves the renamed files array
-				'json': JSON.stringify({factory: akeeba_factory})
-			};
+			return;
+		}
 
-			doAjax(post, function (ret)
+		// We don't have event handlers installed, install them
+		readyEventHandlersInstalled = true;
+
+		// -- We have an addEventListener method in the document, this is a modern browser.
+
+		if (document.addEventListener)
+		{
+			// Prefer using the DOMContentLoaded event
+			document.addEventListener("DOMContentLoaded", ready, false);
+
+			// Our backup is the window's "load" event
+			window.addEventListener("load", ready, false);
+
+			return;
+		}
+
+		// -- Most likely we're stuck with an ancient version of IE
+
+		// Our primary method of activation is the onreadystatechange event
+		document.attachEvent("onreadystatechange", readyStateChange);
+
+		// Our backup is the windows's "load" event
+		window.attachEvent("onload", ready);
+	}
+})("documentReady", akeeba.System);
+
+akeeba.System.addClass = function (element, newClasses)
+{
+	if (!element || !element.className)
+	{
+		return;
+	}
+
+	var currentClasses = element.className.split(' ');
+
+	if ((typeof newClasses) === 'string')
+	{
+		newClasses = newClasses.split(' ');
+	}
+
+	currentClasses = array_merge(currentClasses, newClasses);
+
+	element.className = '';
+
+	for (property in currentClasses)
+	{
+		if (currentClasses.hasOwnProperty(property))
+		{
+			element.className += currentClasses[property] + ' ';
+		}
+	}
+
+	if (element.className.trim)
+	{
+		element.className = element.className.trim();
+	}
+};
+
+akeeba.System.removeClass = function (element, oldClasses)
+{
+	if (!element || !element.className)
+	{
+		return;
+	}
+
+	var currentClasses = element.className.split(' ');
+
+	if ((typeof oldClasses) === 'string')
+	{
+		oldClasses = oldClasses.split(' ');
+	}
+
+	currentClasses = array_diff(currentClasses, oldClasses);
+
+	element.className = '';
+
+	for (property in currentClasses)
+	{
+		if (currentClasses.hasOwnProperty(property))
+		{
+			element.className += currentClasses[property] + ' ';
+		}
+	}
+
+	if (element.className.trim)
+	{
+		element.className = element.className.trim();
+	}
+};
+
+akeeba.System.hasClass = function (element, aClass)
+{
+	if (!element || !element.className)
+	{
+		return;
+	}
+
+	var currentClasses = element.className.split(' ');
+
+	for (i = 0; i < currentClasses.length; i++)
+	{
+		if (currentClasses[i] === aClass)
+		{
+			return true;
+		}
+	}
+
+	return false;
+};
+
+akeeba.System.toggleClass = function(element, aClass)
+{
+	if (akeeba.System.hasClass(element, aClass))
+	{
+		akeeba.System.removeClass(element, aClass);
+
+		return;
+	}
+
+	akeeba.System.addClass(element, aClass);
+};
+
+
+/*
+ * Akeeba Kickstart
+ * A JSON-powered archive extraction tool
+ *
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license     GNU GPL v2 or - at your option - any later version
+ * @package     kickstart
+ */
+
+/**
+ * An AJAX abstraction layer for use with Akeeba software
+ */
+akeeba.Ajax = {
+	// Maps nonsense HTTP status codes to what should actually be returned
+	xhrSuccessStatus: {
+		// File protocol always yields status code 0, assume 200
+		0: 200,
+		// Support: IE <=9 only. Sometimes IE returns 1223 when it should be 204
+		1223: 204
+	},
+	// Used for chained AJAX: each request will be launched once the previous one is done (successfully or not)
+	requestArray: [],
+	processingQueue: false
+};
+
+/**
+ * Performs an asynchronous AJAX request. Mostly compatible with jQuery 1.5+ calling conventions, or at least the
+ * subset
+ * of the features we used in our software.
+ *
+ * The parameters can be
+ * method        string      HTTP method (GET, POST, PUT, ...). Default: POST.
+ * url        string      URL to access over AJAX. Required.
+ * timeout    int         Request timeout in msec. Default: 600,000 (ten minutes)
+ * data        object      Data to send to the AJAX URL. Default: empty
+ * success    function    function(string responseText, string responseStatus, XMLHttpRequest xhr)
+ * error        function    function(XMLHttpRequest xhr, string errorType, Exception e)
+ * beforeSend    function    function(XMLHttpRequest xhr, object parameters) You can modify xhr, not parameters. Return
+ * false to abort the request.
+ *
+ * @param   url         {string}  URL to send the AJAX request to
+ * @param   parameters  {object}  Configuration parameters
+ */
+akeeba.Ajax.ajax = function (url, parameters)
+{
+	// Handles jQuery 1.0 calling style of .ajax(parameters), passing the URL as a property of the parameters object
+	if (typeof(parameters) === "undefined")
+	{
+		parameters = url;
+		url        = parameters.url;
+	}
+
+	// Get the parameters I will use throughout
+	var method          = (typeof(parameters.type) === "undefined") ? "POST" : parameters.type;
+	method              = method.toUpperCase();
+	var data            = (typeof(parameters.data) === "undefined") ? {} : parameters.data;
+	var sendData        = null;
+	var successCallback = (typeof(parameters.success) === "undefined") ? null : parameters.success;
+	var errorCallback   = (typeof(parameters.error) === "undefined") ? null : parameters.error;
+
+	// === Cache busting
+	var cache = (typeof(parameters.cache) === "undefined") ? false : parameters.url;
+
+	if (!cache)
+	{
+		var now                = new Date().getTime() / 1000;
+		var s                  = parseInt(now, 10);
+		data._cacheBustingJunk = Math.round((now - s) * 1000) / 1000;
+	}
+
+	// === Interpolate the data
+	if ((method === "POST") || (method === "PUT"))
+	{
+		sendData = this.interpolateParameters(data);
+	}
+	else
+	{
+		url += url.indexOf("?") === -1 ? "?" : "&";
+		url += this.interpolateParameters(data);
+	}
+
+	// === Get the XHR object
+	var xhr = new XMLHttpRequest();
+	xhr.open(method, url);
+
+	// === Handle POST / PUT data
+	if ((method === "POST") || (method === "PUT"))
+	{
+		xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	}
+
+	// --- Set the load handler
+	xhr.onload = function (event)
+	{
+		var status         = akeeba.Ajax.xhrSuccessStatus[xhr.status] || xhr.status;
+		var statusText     = xhr.statusText;
+		var isBinaryResult = (xhr.responseType || "text") !== "text" || typeof xhr.responseText !== "string";
+		var responseText   = isBinaryResult ? xhr.response : xhr.responseText;
+		var headers        = xhr.getAllResponseHeaders();
+
+		if (status === 200)
+		{
+			if (successCallback != null)
 			{
-				$('#runCleanup').hide('fast');
-				$('#gotoSite').css('display', 'inline-block');
-				if (isJoomla)
+				akeeba.Ajax.triggerCallbacks(successCallback, responseText, statusText, xhr);
+			}
+
+			return;
+		}
+
+		if (errorCallback)
+		{
+			akeeba.Ajax.triggerCallbacks(errorCallback, xhr, "error", null);
+		}
+	};
+
+	// --- Set the error handler
+	xhr.onerror = function (event)
+	{
+		if (errorCallback)
+		{
+			akeeba.Ajax.triggerCallbacks(errorCallback, xhr, "error", null);
+		}
+	};
+
+	// IE 8 is a pain the butt
+	if (window.attachEvent && !window.addEventListener)
+	{
+		xhr.onreadystatechange = function ()
+		{
+			if (this.readyState === 4)
+			{
+				var status = akeeba.Ajax.xhrSuccessStatus[this.status] || this.status;
+
+				if (status >= 200 && status < 400)
 				{
-					$('#gotoAdministrator').css('display', 'inline-block');
+					// Success!
+					xhr.onload();
 				}
 				else
 				{
-					$('#gotoAdministrator').css('display', 'none');
+					xhr.onerror();
 				}
-				$('#gotoPostRestorationRroubleshooting').css('display', 'block');
-			});
+			}
+		};
+	}
 
-		}
-
-		function errorHandler(msg)
+	// --- Set the timeout handler
+	xhr.ontimeout = function ()
+	{
+		if (errorCallback)
 		{
-			$('#errorMessage').html(msg);
-			$('#error').show('fast');
+			akeeba.Ajax.triggerCallbacks(errorCallback, xhr, "timeout", null);
 		}
+	};
 
-		function onresetFTPTempDir(event)
+	// --- Set the abort handler
+	xhr.onabort = function ()
+	{
+		if (errorCallback)
 		{
-			$('#kickstart\\.ftp\\.tempdir').val('<?php echo addcslashes(AKKickstartUtils::getPath(), '\\\'"') ?>');
+			akeeba.Ajax.triggerCallbacks(errorCallback, xhr, "abort", null);
 		}
+	};
 
-		function onArchiveListReload()
+	// --- Apply the timeout before running the request
+	var timeout = (typeof(parameters.timeout) === "undefined") ? 600000 : parameters.timeout;
+
+	if (timeout > 0)
+	{
+		xhr.timeout = timeout;
+	}
+
+	// --- Call the beforeSend event handler. If it returns false the request is canceled.
+	if (typeof(parameters.beforeSend) !== "undefined")
+	{
+		if (parameters.beforeSend(xhr, parameters) === false)
 		{
-			post = {
-				'task': 'listArchives',
-				'json': JSON.stringify({path: $('#kickstart\\.setup\\.sourcepath').val()})
+			return;
+		}
+	}
+
+	xhr.send(sendData);
+};
+
+/**
+ * Adds an AJAX request to the request queue and begins processing the queue if it's not already started. The request
+ * queue is a FIFO buffer. Each request will be executed as soon as the one preceeding it has completed processing
+ * (successfully or otherwise).
+ *
+ * It's the same syntax as .ajax() with the difference that the request is queued instead of executed right away.
+ *
+ * @param   url         {string}  The URL to send the request to
+ * @param   parameters  {object}  Configuration parameters
+ */
+akeeba.Ajax.enqueue = function (url, parameters)
+{
+	// Handles jQuery 1.0 calling style of .ajax(parameters), passing the URL as a property of the parameters object
+	if (typeof(parameters) === "undefined")
+	{
+		parameters = url;
+		url        = parameters.url;
+	}
+
+	parameters.url = url;
+	akeeba.Ajax.requestArray.push(parameters);
+
+	akeeba.Ajax.processQueue();
+};
+
+/**
+ * Converts a simple object containing query string parameters to a single, escaped query string
+ *
+ * @param    object   {object}  A plain object containing the query parameters to pass
+ * @param    prefix   {string}  Prefix for array-type parameters
+ *
+ * @returns  {string}
+ *
+ * @access  private
+ */
+akeeba.Ajax.interpolateParameters = function (object, prefix)
+{
+	prefix            = prefix || "";
+	var encodedString = "";
+
+	for (var prop in object)
+	{
+		if (object.hasOwnProperty(prop))
+		{
+			if (encodedString.length > 0)
+			{
+				encodedString += "&";
 			}
 
-			doAjax(post, function (ret)
+			if (typeof object[prop] !== "object")
 			{
-				$('#sourcefileContainer').html(ret);
-			});
-		}
-
-		/**
-		 * Akeeba Kickstart Update Check
-		 */
-
-		var akeeba_update  = {version: '0'};
-		var akeeba_version = '5.4.2';
-
-		function version_compare(v1, v2, operator)
-		{
-			// BEGIN REDUNDANT
-			this.php_js     = this.php_js || {};
-			this.php_js.ENV = this.php_js.ENV || {};
-			// END REDUNDANT
-			// Important: compare must be initialized at 0.
-			var i           = 0,
-			    x           = 0,
-			    compare     = 0,
-			    // vm maps textual PHP versions to negatives so they're less than 0.
-			    // PHP currently defines these as CASE-SENSITIVE. It is important to
-			    // leave these as negatives so that they can come before numerical versions
-			    // and as if no letters were there to begin with.
-			    // (1alpha is < 1 and < 1.1 but > 1dev1)
-			    // If a non-numerical value can't be mapped to this table, it receives
-			    // -7 as its value.
-			    vm          = {
-				    'dev':   -6,
-				    'alpha': -5,
-				    'a':     -5,
-				    'beta':  -4,
-				    'b':     -4,
-				    'RC':    -3,
-				    'rc':    -3,
-				    '#':     -2,
-				    'p':     -1,
-				    'pl':    -1
-			    },
-			    // This function will be called to prepare each version argument.
-			    // It replaces every _, -, and + with a dot.
-			    // It surrounds any nonsequence of numbers/dots with dots.
-			    // It replaces sequences of dots with a single dot.
-			    //    version_compare('4..0', '4.0') == 0
-			    // Important: A string of 0 length needs to be converted into a value
-			    // even less than an unexisting value in vm (-7), hence [-8].
-			    // It's also important to not strip spaces because of this.
-			    //   version_compare('', ' ') == 1
-			    prepVersion = function (v)
-			    {
-				    v = ('' + v).replace(/[_\-+]/g, '.');
-				    v = v.replace(/([^.\d]+)/g, '.$1.').replace(/\.{2,}/g, '.');
-				    return (!v.length ? [-8] : v.split('.'));
-			    },
-			    // This converts a version component to a number.
-			    // Empty component becomes 0.
-			    // Non-numerical component becomes a negative number.
-			    // Numerical component becomes itself as an integer.
-			    numVersion  = function (v)
-			    {
-				    return !v ? 0 : (isNaN(v) ? vm[v] || -7 : parseInt(v, 10));
-			    };
-			v1              = prepVersion(v1);
-			v2              = prepVersion(v2);
-			x               = Math.max(v1.length, v2.length);
-			for (i = 0; i < x; i++)
-			{
-				if (v1[i] == v2[i])
+				if (prefix === "")
 				{
-					continue;
+					encodedString += encodeURIComponent(prop) + "=" + encodeURIComponent(object[prop]);
 				}
-				v1[i] = numVersion(v1[i]);
-				v2[i] = numVersion(v2[i]);
-				if (v1[i] < v2[i])
+				else
 				{
-					compare = -1;
-					break;
+					encodedString += encodeURIComponent(prefix) + "[" + encodeURIComponent(prop) + "]=" + encodeURIComponent(object[prop]);
 				}
-				else if (v1[i] > v2[i])
-				{
-					compare = 1;
-					break;
-				}
-			}
-			if (!operator)
-			{
-				return compare;
+
+				continue;
 			}
 
-			// Important: operator is CASE-SENSITIVE.
-			// "No operator" seems to be treated as less than
-			// Any other values seem to make the function return null.
-			switch (operator)
-			{
-				case '>':
-				case 'gt':
-					return (compare > 0);
-				case '>=':
-				case 'ge':
-					return (compare >= 0);
-				case '<=':
-				case 'le':
-					return (compare <= 0);
-				case '==':
-				case '=':
-				case 'eq':
-					return (compare === 0);
-				case '<>':
-				case '!=':
-				case 'ne':
-					return (compare !== 0);
-				case '':
-				case '<':
-				case 'lt':
-					return (compare < 0);
-				default:
-					return null;
-			}
+			// Objects need special handling
+			encodedString += akeeba.Ajax.interpolateParameters(object[prop], prop);
 		}
+	}
+	return encodedString;
+};
 
-		function checkUpdates()
+/**
+ * Goes through a list of callbacks and calls them in succession. Accepts a variable number of arguments.
+ */
+akeeba.Ajax.triggerCallbacks = function ()
+{
+	// converts arguments to real array
+	var args         = Array.prototype.slice.call(arguments);
+	var callbackList = args.shift();
+
+	if (typeof(callbackList) === "function")
+	{
+		return callbackList.apply(null, args);
+	}
+
+	if (callbackList instanceof Array)
+	{
+		for (var i = 0; i < callbackList.length; i++)
 		{
-			var structure =
-			    {
-				    type:        "GET",
-				    url:         'http://query.yahooapis.com/v1/public/yql',
-				    data:        {
-					    <?php if(KICKSTARTPRO): ?>
-					    q:        'SELECT * FROM xml WHERE url="http://nocdn.akeebabackup.com/updates/kickstart.xml"',
-					    <?php else: ?>
-					    q:        'SELECT * FROM xml WHERE url="http://nocdn.akeebabackup.com/updates/kickstartpro.xml"',
-					    <?php endif; ?>
-					    format:   'json',
-					    callback: 'updatesCallback'
-				    },
-				    cache:       true,
-				    crossDomain: true,
-				    jsonp:       'updatesCallback',
-				    timeout:     15000
-			    };
-			$.ajax(structure);
+			var callBack = callbackList[i];
+
+			if (callBack.apply(null, args) === false)
+			{
+				return false;
+			}
+		}
+	}
+
+	return null;
+};
+
+/**
+ * This helper function triggers the request queue processing using a short (50 msec) timer. This prevents a long
+ * function nesting which could cause some browser to abort processing.
+ *
+ * @access  private
+ */
+akeeba.Ajax.processQueueHelper = function ()
+{
+	akeeba.Ajax.processingQueue = false;
+
+	setTimeout("akeeba.Ajax.processQueue();", 50);
+};
+
+/**
+ * Processes the request queue
+ *
+ * @access  private
+ */
+akeeba.Ajax.processQueue = function ()
+{
+	// If I don't have any more requests reset and return
+	if (!akeeba.Ajax.requestArray.length)
+	{
+		akeeba.Ajax.processingQueue = false;
+		return;
+	}
+
+	// If I am already processing an AJAX request do nothing (I will be called again when the request completes)
+	if (akeeba.Ajax.processingQueue)
+	{
+		return;
+	}
+
+	// Extract the URL from the parameters
+	var parameters = akeeba.Ajax.requestArray.shift();
+	var url        = parameters.url;
+
+	/**
+	 * Add our queue processing helper to the top of the success and error callback function stacks, ensuring that we
+	 * will process the next request in the queue as soon as the previous one completes (successfully or not)
+	 */
+	var successCallback = (typeof(parameters.success) === "undefined") ? [] : parameters.success;
+	var errorCallback   = (typeof(parameters.error) === "undefined") ? [] : parameters.error;
+
+	if ((typeof(successCallback) !== "object") || !(successCallback instanceof Array))
+	{
+		successCallback = [successCallback];
+	}
+
+	if ((typeof(errorCallback) !== "object") || !(errorCallback instanceof Array))
+	{
+		errorCallback = [errorCallback];
+	}
+
+	successCallback.unshift(akeeba.Ajax.processQueueHelper);
+	errorCallback.unshift(akeeba.Ajax.processQueueHelper);
+
+	parameters.success = successCallback;
+	parameters.error   = errorCallback;
+
+	// Mark the queue as currently being processed, blocking further requests until this one completes
+	akeeba.Ajax.processingQueue = true;
+
+	// Perform the actual request
+	akeeba.Ajax.ajax(url, parameters);
+};
+
+
+/*
+ * Akeeba Kickstart
+ * A JSON-powered archive extraction tool
+ *
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license     GNU GPL v2 or - at your option - any later version
+ * @package     kickstart
+ */
+
+function translateGUI()
+{
+	var allElements = document.querySelectorAll('*');
+
+	for (var i = 0; i < allElements.length; i++)
+	{
+		var e = allElements[i];
+
+		if (typeof e.innerHTML === "undefined")
+		{
+			continue;
 		}
 
-		function updatesCallback(msg)
-		{
-			$.each(msg.query.results.updates.update, function (i, el)
-			{
-				var myUpdate = {
-					'version': el.version,
-					'infourl': el.infourl['content'],
-					'dlurl':   el.downloads.downloadurl.content
-				}
-				if (version_compare(myUpdate.version, akeeba_update.version, 'ge'))
-				{
-					akeeba_update = myUpdate;
-				}
-			});
+		transKey = e.innerHTML;
 
-			if (version_compare(akeeba_update.version, akeeba_version, 'gt'))
+		if (!array_key_exists(transKey, translation))
+		{
+			continue;
+		}
+
+		e.innerHTML = translation[transKey];
+	}
+}
+
+function trans(key)
+{
+	if (array_key_exists(key, translation))
+	{
+		return translation[key];
+	}
+
+	return key;
+}
+
+/*
+ * Akeeba Kickstart
+ * A JSON-powered archive extraction tool
+ *
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license     GNU GPL v2 or - at your option - any later version
+ * @package     kickstart
+ */
+
+var akeeba_error_callback            = onGenericError;
+var akeeba_restoration_stat_inbytes  = 0;
+var akeeba_restoration_stat_outbytes = 0;
+var akeeba_restoration_stat_files    = 0;
+var akeeba_restoration_stat_total    = 0;
+var akeeba_factory                   = null;
+var akeeba_next_step_post            = null;
+
+var akeeba_ftpbrowser_modal     = null;
+var akeeba_ftpbrowser_host      = null;
+var akeeba_ftpbrowser_port      = 21;
+var akeeba_ftpbrowser_username  = null;
+var akeeba_ftpbrowser_password  = null;
+var akeeba_ftpbrowser_passive   = 1;
+var akeeba_ftpbrowser_ssl       = 0;
+var akeeba_ftpbrowser_directory = "";
+
+var akeeba_sftpbrowser_host      = null;
+var akeeba_sftpbrowser_port      = 21;
+var akeeba_sftpbrowser_username  = null;
+var akeeba_sftpbrowser_password  = null;
+var akeeba_sftpbrowser_pubkey    = null;
+var akeeba_sftpbrowser_privkey   = null;
+var akeeba_sftpbrowser_directory = "";
+
+akeeba.System.documentReady(function () {
+	// Hide 2nd Page
+	document.getElementById("page2").style.display = "none";
+
+	// Translate the GUI
+	translateGUI();
+
+	// Hook interaction handlers
+	akeeba.System.addEventListener(document, "keyup", closeLightbox);
+	akeeba.System.addEventListener(document.getElementById("kickstart.procengine"), "change", onChangeProcengine);
+	akeeba.System.addEventListener(document.getElementById("kickstart.setup.sourcepath"), "change", onArchiveListReload);
+	akeeba.System.addEventListener(document.getElementById("reloadArchives"), "click", onArchiveListReload);
+	akeeba.System.addEventListener(document.getElementById("checkFTPTempDir"), "click", oncheckFTPTempDirClick);
+	akeeba.System.addEventListener(document.getElementById("resetFTPTempDir"), "click", onresetFTPTempDir);
+	akeeba.System.addEventListener(document.getElementById("testFTP"), "click", onTestFTPClick);
+	akeeba.System.addEventListener(document.getElementById("gobutton_top"), "click", onStartExtraction);
+	akeeba.System.addEventListener(document.getElementById("gobutton"), "click", onStartExtraction);
+	akeeba.System.addEventListener(document.getElementById("gobutton"), "click", onStartExtraction);
+	akeeba.System.addEventListener(document.getElementById("runCleanup"), "click", onRunCleanupClick);
+	akeeba.System.addEventListener(document.getElementById("runInstaller"), "click", onRunInstallerClick);
+	akeeba.System.addEventListener(document.getElementById("gotoStart"), "click", onGotoStartClick);
+
+	akeeba.System.addEventListener(document.getElementById("gotoSite"), "click", function (event)
+	{
+		window.open("index.php", "finalstepsite");
+		window.close();
+	});
+
+	akeeba.System.addEventListener(document.getElementById("gotoAdministrator"), "click", function (event)
+	{
+		window.open("administrator/index.php", "finalstepadmin");
+		window.close();
+	});
+
+	// Reset the progress bar
+	setProgressBar(0);
+
+	// Show IE warning
+	var msieVersion = getInternetExplorerVersion();
+	if ((msieVersion !== -1) && (msieVersion < 10))
+	{
+		document.getElementById("ie7Warning").style.display = "block";
+	}
+
+	if (!akeeba_debug)
+	{
+		document.getElementById("preextraction").style.display = "block";
+		document.getElementById("fade").style.display          = "block";
+	}
+
+	// Trigger change, so we avoid problems if the user refreshes the page
+	akeeba.System.triggerEvent(document.getElementById("kickstart.procengine", "change"));
+});
+
+
+/*
+ * Akeeba Kickstart
+ * A JSON-powered archive extraction tool
+ *
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license     GNU GPL v2 or - at your option - any later version
+ * @package     kickstart
+ */
+
+/**
+ * Generic error handler
+ *
+ * @param   {string}  msg  Error message to display
+ */
+function onGenericError(msg)
+{
+	document.getElementById("genericerrorInner").innerHTML = msg;
+	document.getElementById("genericerror").style.display  = "block";
+	document.getElementById("fade").style.display          = "block";
+
+	akeeba.System.addEventListener(document, "keyup", closeLightbox());
+}
+
+/**
+ * Set the progress bar to a specific percentage
+ *
+ * @param   {int}  percent  Percentage (or float 0.0 to 1.0) to display in the progress bar.
+ */
+function setProgressBar(percent)
+{
+	var newValue = percent;
+
+	if (percent <= 1)
+	{
+		newValue = 100 * percent;
+	}
+
+	document.getElementById("progressbar-inner").style.width = newValue + "%";
+}
+
+/**
+ * Close the lightbox
+ *
+ * @param   {KeyboardEvent|MouseEvent}  event
+ */
+function closeLightbox(event)
+{
+	var closeMe = false;
+
+	if ((event == null) || (event === undefined))
+	{
+		closeMe = true;
+	}
+	else if (event.keyCode == "27")
+	{
+		closeMe = true;
+	}
+
+	if (!closeMe)
+	{
+		return;
+	}
+
+	document.getElementById("preextraction").style.display = "none";
+	document.getElementById("genericerror").style.display  = "none";
+	document.getElementById("fade").style.display          = "none";
+
+	akeeba.System.removeEventListener(document, "keyup", closeLightbox);
+}
+
+
+/*
+ * Akeeba Kickstart
+ * A JSON-powered archive extraction tool
+ *
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license     GNU GPL v2 or - at your option - any later version
+ * @package     kickstart
+ */
+
+/**
+ * Event handler for changing the Archive directory.
+ */
+function onArchiveListReload()
+{
+	post = {
+		'task': 'listArchives',
+		'json': JSON.stringify({
+			path: document.getElementById('kickstart\.setup\.sourcepath').value
+		})
+	};
+
+	akeeba.System.doAjax(post, function (ret)
+	{
+		document.getElementById('sourcefileContainer').innerHTML = ret;
+	});
+}
+
+/**
+ * Event handler for switching the Write To File method
+ *
+ * @param   {Event}  event
+ */
+function onChangeProcengine(event)
+{
+	var elProcEngine = document.getElementById("kickstart.procengine");
+	var procEngine   = elProcEngine.value;
+	var elFtpOptions = document.getElementById("ftp-options");
+	var elPassive    = document.getElementById("ftp-ssl-passive");
+	var elTestBtn    = document.getElementById("testFTP");
+
+	// Only hide the (S)FTP options when using direct file writes
+	elFtpOptions.style.display = (procEngine === "direct") ? "none" : "block";
+
+	// Set up the interface for a plain FTP or Hybrid extraction engine
+	elPassive.style.display = "block";
+	elTestBtn.innerHTML     = trans("BTN_TESTFTPCON");
+
+	// If the SFTP engine is selected I need to make some interface changes
+	if (procEngine === "sftp")
+	{
+		// Insert the SFTP path if none is currently specified
+		var elFtpDir = document.getElementById("kickstart.ftp.dir");
+
+		if (elFtpDir.value === "")
+		{
+			elFtpDir.value = sftp_path;
+		}
+
+		// Hide the passive mode (it's an FTP-only thing) and change the button label.
+		elPassive.style.display = "none";
+		elTestBtn.innerHTML     = trans("BTN_TESTSFTPCON");
+	}
+}
+
+/**
+ * Event handler for the Check button next to the Temporary Directory
+ *
+ * @param   {MouseEvent}  event
+ */
+function oncheckFTPTempDirClick(event)
+{
+	var data = {
+		'task': 'checkTempdir',
+		'json': JSON.stringify({
+			'kickstart.ftp.tempdir': document.getElementById('kickstart\.ftp.tempdir').value
+		})
+	};
+
+	akeeba.System.doAjax(data, function (ret)
+	{
+		var key = ret.status ? 'FTP_TEMPDIR_WRITABLE' : 'FTP_TEMPDIR_UNWRITABLE';
+
+		alert(trans(key));
+	});
+}
+
+/**
+ * Event handler for the Reset button next to the Temporary Directory
+ *
+ * @param   {MouseEvent}  event
+ */
+function onresetFTPTempDir(event)
+{
+	document.getElementById('kickstart\.ftp\.tempdir').value = default_temp_dir;
+}
+
+/**
+ * Event handler for the Test FTP Connection button
+ *
+ * @param   {MouseEvent}  event
+ */
+function onTestFTPClick(event)
+{
+	var type = 'ftp';
+
+	if (document.getElementById('kickstart.procengine').value === 'sftp')
+	{
+		type = 'sftp';
+	}
+
+	var data = {
+		'task': 'checkFTP',
+		'json': JSON.stringify({
+			'type':                  type,
+			'kickstart.ftp.host':    document.getElementById('kickstart.ftp.host').value,
+			'kickstart.ftp.port':    document.getElementById('kickstart.ftp.port').value,
+			'kickstart.ftp.ssl':     document.getElementById('kickstart.ftp.ssl').checked,
+			'kickstart.ftp.passive': document.getElementById('kickstart.ftp.passive').checked,
+			'kickstart.ftp.user':    document.getElementById('kickstart.ftp.user').value,
+			'kickstart.ftp.pass':    document.getElementById('kickstart.ftp.pass').value,
+			'kickstart.ftp.dir':     document.getElementById('kickstart.ftp.dir').value,
+			'kickstart.ftp.tempdir': document.getElementById('kickstart.ftp.tempdir').value
+		})
+	};
+
+	akeeba.System.doAjax(data, function (ret)
+	{
+		var key = ret.status ? 'FTP_CONNECTION_OK' : 'FTP_CONNECTION_FAILURE';
+
+		if (type === 'sftp')
+		{
+			key = ret.status ? 'SFTP_CONNECTION_OK' : 'SFTP_CONNECTION_FAILURE';
+		}
+
+
+		alert(trans(key) + "\n\n" + (ret.status ? '' : ret.message));
+	});
+}
+
+/*
+ * Akeeba Kickstart
+ * A JSON-powered archive extraction tool
+ *
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license     GNU GPL v2 or - at your option - any later version
+ * @package     kickstart
+ */
+
+/**
+ * Generic error handler
+ *
+ * @param   {string}  msg  The error message to display
+ */
+function errorHandler(msg)
+{
+	document.getElementById("errorMessage").innerHTML = msg;
+	document.getElementById("error").style.display    = "block";
+}
+
+/**
+ * Initialize the archive extraction
+ */
+function onStartExtraction()
+{
+	document.getElementById("page1").style.display   = "none";
+	document.getElementById("page2").style.display   = "block";
+	document.getElementById("currentFile").innerText = "";
+
+	akeeba_error_callback = errorHandler;
+
+	var zapBefore = 0;
+	var elZap     = document.getElementById("kickstart\.setup\.zapbefore");
+
+	if (elZap !== null)
+	{
+		zapBefore = elZap.checked;
+	}
+
+	var elRestorePermissions = document.getElementById("kickstart\.setup\.restoreperms");
+	var restorePermissions   = false;
+
+	if (elRestorePermissions !== null)
+	{
+		elRestorePermissions.checked;
+	}
+
+	akeeba_next_step_post = {
+		"task": "startExtracting",
+		"json": JSON.stringify({
+			"kickstart.setup.sourcepath": document.getElementById("kickstart\.setup\.sourcepath").value,
+			"kickstart.setup.sourcefile": document.getElementById("kickstart\.setup\.sourcefile").value,
+			"kickstart.jps.password": document.getElementById("kickstart\.jps\.password").value,
+			"kickstart.tuning.min_exec_time": document.getElementById("kickstart\.tuning\.min_exec_time").value,
+			"kickstart.tuning.max_exec_time": document.getElementById("kickstart\.tuning\.max_exec_time").value,
+			"kickstart.stealth.enable": document.getElementById("kickstart\.stealth\.enable").checked,
+			"kickstart.stealth.url": document.getElementById("kickstart\.stealth\.url").value,
+			"kickstart.setup.zapbefore": zapBefore,
+			"kickstart.tuning.run_time_bias": 75,
+			"kickstart.setup.restoreperms": restorePermissions,
+			"kickstart.setup.dryrun": 0,
+			"kickstart.setup.ignoreerrors": document.getElementById("kickstart\.setup\.ignoreerrors").checked,
+			"kickstart.enabled": 1,
+			"kickstart.security.password": "",
+			"kickstart.setup.renameback": document.getElementById("kickstart\.setup\.renameback").checked,
+			"kickstart.procengine": document.getElementById("kickstart\.procengine").value,
+			"kickstart.ftp.host": document.getElementById("kickstart\.ftp\.host").value,
+			"kickstart.ftp.port": document.getElementById("kickstart\.ftp\.port").value,
+			"kickstart.ftp.ssl": document.getElementById("kickstart\.ftp\.ssl").checked,
+			"kickstart.ftp.passive": document.getElementById("kickstart\.ftp\.passive").checked,
+			"kickstart.ftp.user": document.getElementById("kickstart\.ftp\.user").value,
+			"kickstart.ftp.pass": document.getElementById("kickstart\.ftp\.pass").value,
+			"kickstart.ftp.dir": document.getElementById("kickstart\.ftp\.dir").value,
+			"kickstart.ftp.tempdir": document.getElementById("kickstart\.ftp\.tempdir").value,
+			"kickstart.setup.extract_list": document.getElementById("kickstart\.setup\.extract_list").value
+		})
+	};
+
+	setTimeout(runNextExtractionStep, 10);
+}
+
+/**
+ * Runs an extraction step.
+ *
+ * We call it through setTimeout to avoid crashing the JS due to stack exhaustion after a long list of chained function
+ * calls.
+ */
+function runNextExtractionStep()
+{
+	akeeba.System.doAjax(akeeba_next_step_post, function (ret)
+	{
+		processRestorationStep(ret);
+	});
+}
+
+/**
+ * AJAX callback whenever a restoration step runs
+ *
+ * @param   {object}  data
+ */
+function processRestorationStep(data)
+{
+	// Look for errors
+	if (!data.status)
+	{
+		errorHandler(data.message);
+
+		return;
+	}
+
+	// Propagate warnings to the GUI
+	if (!empty(data.Warnings))
+	{
+		var elWarnings    = document.getElementById("warnings");
+		var elWarningsBox = document.getElementById("warningsBox");
+
+		for (var i = 0; i < data.Warnings.length; i++)
+		{
+			var item         = data.Warnings[i];
+			var elWarningRow = document.createElement("div");
+
+			elWarningRow.innerHTML = item;
+			elWarnings.appendChild(elWarningRow);
+			elWarningsBox.style.display = "block";
+		}
+	}
+
+	// Parse total size, if exists
+	if (array_key_exists("totalsize", data))
+	{
+		if (is_array(data.filelist))
+		{
+			akeeba_restoration_stat_total = 0;
+
+			for (var j = 0; j < data.filelist.length; j++)
 			{
-				notifyAboutUpdates();
+				var statItem = data.filelist[j];
+				akeeba_restoration_stat_total += statItem[1];
 			}
 		}
 
-		function notifyAboutUpdates()
+		akeeba_restoration_stat_outbytes = 0;
+		akeeba_restoration_stat_inbytes  = 0;
+		akeeba_restoration_stat_files    = 0;
+	}
+
+	// Update GUI
+	akeeba_restoration_stat_inbytes += data.bytesIn;
+	akeeba_restoration_stat_outbytes += data.bytesOut;
+	akeeba_restoration_stat_files += data.files;
+
+	var percentage = 0;
+
+	if (akeeba_restoration_stat_total > 0)
+	{
+		percentage = 100 * akeeba_restoration_stat_inbytes / akeeba_restoration_stat_total;
+		percentage = Math.max(0, percentage);
+		percentage = Math.min(percentage, 100);
+	}
+
+	if (data.done)
+	{
+		percentage = 100;
+	}
+
+	setProgressBar(percentage);
+
+	document.getElementById("currentFile").innerText = data.lastfile;
+
+	if (!empty(data.factory))
+	{
+		akeeba_factory = data.factory;
+	}
+
+	if (!data.done)
+	{
+		akeeba_next_step_post = {
+			"task": "continueExtracting",
+			"json": JSON.stringify({factory: akeeba_factory})
+		};
+
+		setTimeout(runNextExtractionStep, 10);
+
+		return;
+	}
+
+	document.getElementById("page2a").style.display             = "none";
+	document.getElementById("extractionComplete").style.display = "block";
+	document.getElementById("runInstaller").style.display       = "inline-block";
+}
+
+
+/*
+ * Akeeba Kickstart
+ * A JSON-powered archive extraction tool
+ *
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license     GNU GPL v2 or - at your option - any later version
+ * @package     kickstart
+ */
+
+function onGotoStartClick(event)
+{
+	document.getElementById("page2").style.display = "none";
+	document.getElementById("error").style.display = "none";
+	document.getElementById("page1").style.display = "block";
+}
+
+function onRunInstallerClick(event)
+{
+	var windowReference = window.open("installation/index.php", "installer");
+
+	if (!windowReference.opener)
+	{
+		windowReference.opener = this.window;
+	}
+
+	document.getElementById("runCleanup").style.display   = "inline-block";
+	document.getElementById("runInstaller").style.display = "none";
+}
+
+function onRunCleanupClick(event)
+{
+	post = {
+		"task": "isJoomla",
+		// Passing the factory preserves the renamed files array
+		"json": JSON.stringify({factory: akeeba_factory})
+	};
+
+	akeeba.System.doAjax(post, function (ret)
+	{
+		isJoomla = ret;
+		onRealRunCleanupClick();
+	});
+}
+
+function onRealRunCleanupClick()
+{
+	post = {
+		"task": "cleanUp",
+		// Passing the factory preserves the renamed files array
+		"json": JSON.stringify({factory: akeeba_factory})
+	};
+
+	akeeba.System.doAjax(post, function (ret)
+	{
+		document.getElementById("runCleanup").style.display                         = "none";
+		document.getElementById("gotoSite").style.display                           = "inline-block";
+		document.getElementById("gotoAdministrator").style.display                  = "none";
+		document.getElementById("gotoPostRestorationRroubleshooting").style.display = "block";
+
+		if (isJoomla)
 		{
-			$('#update-version').text(akeeba_update.version);
-			$('#update-dlnow').attr('href', akeeba_update.dlurl);
-			$('#update-whatsnew').attr('href', akeeba_update.infourl);
-			$('#update-notification').show('slow');
+			document.getElementById("gotoAdministrator").style.display = "inline-block";
 		}
+	});
+}
+
+
 
 		<?php callExtraFeature('onExtraHeadJavascript'); ?>
-	</script>
+    </script>
 	<?php
 }
 
@@ -11173,10 +13543,9 @@ function echoHeadJavascript()
  * Akeeba Kickstart
  * A JSON-powered archive extraction tool
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 function echoTranslationStrings()
@@ -11201,22 +13570,6 @@ function echoPage()
 		<style type="text/css" media="all" rel="stylesheet">
 			<?php echoCSS();?>
 		</style>
-		<?php if (@file_exists('jquery.min.js')): ?>
-			<script type="text/javascript" src="jquery.min.js"></script>
-		<?php else: ?>
-			<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-		<?php endif; ?>
-		<?php if (@file_exists('json2.min.js')): ?>
-			<script type="text/javascript" src="json2.min.js"></script>
-		<?php else: ?>
-			<script type="text/javascript" src="//yandex.st/json2/2011-10-19/json2.min.js"></script>
-		<?php endif; ?>
-		<?php if (@file_exists('jquery-ui.min.js')): ?>
-			<script type="text/javascript" src="jquery-ui.min.js"></script>
-		<?php else: ?>
-			<script type="text/javascript"
-			        src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
-		<?php endif; ?>
 		<?php echoHeadJavascript(); ?>
 	</head>
 	<body>
@@ -11267,7 +13620,7 @@ function echoPage()
 		<div id="header">
 			<div class="title">
 				<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAACXBIWXMAAAHFAAABxQG6eNsrAAAA/0lEQVRIx+WVUQ2DMBCGv01B5wAHYw4qARxMwiQgYQ6YAyRMAjgAB+CgezmSSwOjZfRplzSXNE2/3t1/V/hXuwMjkKcC5ICTNQImBaRVEAfUKdLkFlaWMorDo8lUHXIvsvEoyEMubFai21TaOQByVeqaFWVUPewRkEz5FqjEa+Aus3KpAfqVojsvjXYtdacVSA8MAgqRaSd+AMrYzt6zgmriv3zaeNS08MhNiD5UArcvoA64AE+1FySEYiF0I939Fj/3iFVFd6F9g1KU33yNGiX+JDYCbmIkXHm1sd6YX/pT7pKF3VYrSB87fc8RZyfgJX5I8WEVsfn+5fs1/LV9AHnjYQzAbyUrAAAAAElFTkSuQmCC" alt="Akeeba Kickstart logo">
-				Akeeba Kickstart <?php echo $edition ?> 5.4.2
+				Akeeba Kickstart <?php echo $edition ?> 6.0.1
 			</div>
 		</div>
 
@@ -11321,7 +13674,11 @@ function echoPage()
 						<label for="kickstart.jps.password">JPS_PASSWORD</label>
 						<span class="field"><input type="password" id="kickstart.jps.password" value=""/></span>
 					</div>
-				</div>
+                    <div class="area-container">
+                        <label for="gobutton_top"></label>
+                        <span id="gobutton_top" class="button" style="padding: 0.5em 2em; margin: 0;">BTN_START</span>
+                    </div>
+                </div>
 
 				<div class="clr"></div>
 
@@ -11388,30 +13745,35 @@ function echoPage()
 				<div class="step3">
 					<div class="circle">3</div>
 					<h2>FINE_TUNE</h2>
-					<div style="text-align: center;">
-						<span id="showFineTune" class="button bluebutton loprofile"
-						      style="margin: 0">BTN_SHOW_FINE_TUNE</span>
-					</div>
-					<div id="fine-tune-holder" class="area-container" style="display: none">
+					<div id="fine-tune-holder" class="area-container">
 						<label for="kickstart.tuning.min_exec_time">MIN_EXEC_TIME</label>
 						<span class="field"><input type="text" id="kickstart.tuning.min_exec_time" value="1"/></span>
 						<span>SECONDS_PER_STEP</span><br/>
 						<label for="kickstart.tuning.max_exec_time">MAX_EXEC_TIME</label>
 						<span class="field"><input type="text" id="kickstart.tuning.max_exec_time" value="5"/></span>
 						<span>SECONDS_PER_STEP</span><br/>
+                        <div class="help">TIME_SETTINGS_HELP</div>
 
 						<label for="kickstart.stealth.enable">STEALTH_MODE</label>
 						<span class="field"><input type="checkbox" id="kickstart.stealth.enable"/></span><br/>
 						<label for="kickstart.stealth.url">STEALTH_URL</label>
 						<span class="field"><input type="text" id="kickstart.stealth.url" value=""/></span><br/>
+                        <div class="help">STEALTH_MODE_HELP</div>
 
-						<label for="kickstart.setup.renameback">RENAME_FILES</label>
+                        <?php if (defined('KICKSTARTPRO') && KICKSTARTPRO): ?>
+                        <label for="kickstart.setup.zapbefore">ZAPBEFORE</label>
+                        <span class="field"><input type="checkbox" id="kickstart.setup.zapbefore"/></span><br/>
+                        <div class="help">ZAPBEFORE_HELP</div>
+                        <?php endif; ?>
+
+                        <label for="kickstart.setup.renameback">RENAME_FILES</label>
 						<span class="field"><input type="checkbox" id="kickstart.setup.renameback"
 						                           checked="checked"/></span><br/>
+                        <div class="help">RENAME_FILES_HELP</div>
 
 						<label for="kickstart.setup.restoreperms">RESTORE_PERMISSIONS</label>
 						<span class="field"><input type="checkbox" id="kickstart.setup.restoreperms"/></span><br/>
-
+                        <div class="help">RESTORE_PERMISSIONS_HELP</div>
 
                         <label for="kickstart.setup.extract_list">EXTRACT_LIST</label>
                         <span class="field"><textarea id="kickstart.setup.extract_list" rows="5" cols="50"></textarea></span><br/>
@@ -11425,28 +13787,13 @@ function echoPage()
 					<div class="circle">4</div>
 					<h2>EXTRACT_FILES</h2>
 					<div class="area-container">
-						<span></span>
+                        <label for="gobutton"></label>
 						<span id="gobutton" class="button">BTN_START</span>
 					</div>
-				</div>
+                </div>
 
 				<div class="clr"></div>
 
-			</div>
-
-			<div id="ftpdialog" style="display:none;">
-				<p class="instructions alert alert-info">FTPBROWSER_LBL_INSTRUCTIONS</p>
-				<div class="error alert alert-error" id="ftpBrowserErrorContainer">
-					<h3>FTPBROWSER_LBL_ERROR</h3>
-					<p id="ftpBrowserError"></p>
-				</div>
-				<ul id="ak_crumbs" class="breadcrumb"></ul>
-				<div class="row-fluid">
-					<div class="span12">
-						<table id="ftpBrowserFolderList" class="table table-striped">
-						</table>
-					</div>
-				</div>
 			</div>
 		</div>
 
@@ -11521,10 +13868,9 @@ function echoPage()
  * Akeeba Kickstart
  * A JSON-powered archive extraction tool
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /**
@@ -11570,10 +13916,6 @@ function removeKickstartFiles(AKAbstractPostproc $postProc)
 
 	// Delete cacert.pem
 	$postProc->unlink('cacert.pem');
-
-	// Delete jquery.min.js and json2.min.js
-	$postProc->unlink('jquery.min.js');
-	$postProc->unlink('json2.min.js');
 }
 
 /**
@@ -11714,10 +14056,9 @@ function rollbackAutomaticRenames(AKAbstractUnarchiver $unarchiver, AKAbstractPo
  * Akeeba Kickstart
  * A JSON-powered archive extraction tool
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /**
@@ -11897,6 +14238,45 @@ class CLIExtractionObserver extends ExtractionObserver
 
 }
 
+class CLIDeletionObserver extends ExtractionObserver
+{
+	public static $silent = false;
+
+	public function update($object, $message)
+	{
+		if (self::$silent)
+		{
+			return;
+		}
+
+		if (!is_object($message))
+		{
+			return;
+		}
+
+		if (!array_key_exists('type', get_object_vars($message)))
+		{
+			return;
+		}
+
+		switch ($message->type)
+        {
+            case 'setup':
+                echo "I will delete existing files and folders\n";
+                break;
+
+            case 'deleteFile':
+                echo "DELETE FILE  : $message->file\n";
+                break;
+
+            case 'deleteFolder':
+                echo "DELETE FOLDER: $message->file\n";
+                break;
+        }
+	}
+
+}
+
 /**
  * Routes the Kickstart CLI application
  */
@@ -11909,7 +14289,7 @@ function kickstart_application_cli()
 	if (!$silent)
 	{
 		echo <<< BANNER
-Akeeba Kickstart CLI 5.4.2
+Akeeba Kickstart CLI 6.0.1
 Copyright (c) 2008-$year Akeeba Ltd / Nicholas K. Dionysopoulos
 -------------------------------------------------------------------------------
 Akeeba Kickstart is Free Software, distributed under the terms of the GNU General
@@ -11931,6 +14311,7 @@ BANNER;
 		echo <<< HOWTOUSE
 Usage: {$argv[0]} archive.jpa [output_path] [--password=yourPassword]
          [--silent] [--permissions] [--dry-run] [--ignore-errors]
+         [--delete-before]
          [--extract=<pattern>[,<pattern>...]]
 
 
@@ -11978,6 +14359,8 @@ BANNER;
 	AKFactory::set('kickstart.setup.dryrun', AKCliParams::hasOption('dry-run'));
 	// Ignore errors?
 	AKFactory::set('kickstart.setup.ignoreerrors', AKCliParams::hasOption('ignore-errors'));
+	// Delete all files and folders before extraction?
+	AKFactory::set('kickstart.setup.zapbefore', AKCliParams::hasOption('delete-before'));
 	// Which files should I extract?
 	AKFactory::set('kickstart.setup.extract_list', AKCliParams::getOption('extract', '', true));
 	// Do not rename any files (this is the CLI...)
@@ -12016,7 +14399,23 @@ BANNER;
 
 	while (!$retArray['done'])
 	{
-		$unarchiver->tick();
+	    $timer = AKFactory::getTimer();
+	    $timer->resetTime();
+
+        /**
+         * First try to run the filesystem zapper (remove all existing files and folders). If the Zapper is
+         * disabled or has already finished running we will get a FALSE result. Otherwise it's a status array
+         * which we can pass directly back to the caller.
+         */
+        $ret = runZapper(new CLIDeletionObserver());
+
+        // If the Zapper had a step to run we stop here and return its status array to the caller.
+        if ($ret !== false)
+        {
+            continue;
+        }
+
+        $unarchiver->tick();
 		$ret = $unarchiver->getStatusArray();
 
 		if ($ret['Error'] != '')
@@ -12090,10 +14489,9 @@ BANNER;
  * Akeeba Kickstart
  * A JSON-powered archive extraction tool
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 /**
@@ -12231,7 +14629,22 @@ function kickstart_application_web()
 					}
 				}
 
-				$engine   = AKFactory::getUnarchiver(); // Get the engine
+                /**
+                 * First try to run the filesystem zapper (remove all existing files and folders). If the Zapper is
+                 * disabled or has already finished running we will get a FALSE result. Otherwise it's a status array
+                 * which we can pass directly back to the caller.
+                 */
+                $ret = runZapper();
+
+                // If the Zapper had a step to run we stop here and return its status array to the caller.
+                if ($ret !== false)
+                {
+                	$retArray = array_merge($retArray, $ret);
+
+                    break;
+                }
+
+                $engine   = AKFactory::getUnarchiver(); // Get the engine
 				$observer = new ExtractionObserver(); // Create a new observer
 				$engine->attach($observer); // Attach the observer
 				$engine->tick();
@@ -12268,7 +14681,10 @@ function kickstart_application_web()
 				}
 
 				$retArray['Warnings'] = $ret['Warnings'];
-				$retArray['lastfile'] = $observer->lastFile;
+				$retArray['lastfile'] = empty($observer->lastFile) ? 'Extracting, please wait...' : $observer->lastFile;
+
+				$timer = AKFactory::getTimer();
+				$timer->enforce_min_exec_time();
 			}
 			break;
 
@@ -12398,10 +14814,9 @@ function kickstart_application_web()
  * Akeeba Kickstart
  * A JSON-powered archive extraction tool
  *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
+ * @package     kickstart
  */
 
 // Register additional feature classes
@@ -12436,370 +14851,3 @@ else
 {
 	kickstart_application_web();
 }
-
-/**
- * Akeeba Kickstart
- * A JSON-powered archive extraction tool
- *
- * @copyright Copyright (c)2008-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
- */
-
-/**
- * This is an Easter Egg feature. Run Kickstart as kickstart.php?george and a hideous orange template with the font face
- * everyone loves to hate will burn your eyes out of their socket. HAHAHAHAHA!
- */
-class AKFeatureGeorgeWSpecialEdition
-{
-	/**
-	 * Echoes extra CSS to the head of the page
-	 */
-	public function onExtraHeadCSS()
-	{
-		if (!isset($_REQUEST['george']))
-		{
-			return;
-		}
-
-		echo <<< CSS
-html {
-    background: #FFA500;
-}
-
-body {
-	font-family: "Comic Sans MS";
-}
-
-#header {
-	background: #FFA500;
-	color: red;
-	font-weight: bold;
-}
-
-#footer {
-	color: #333;
-	background: #FFA500;
-}
-
-#footer a {
-	color: #f33;
-}
-
-h2 {
-	background: #FFA500;
-	color: #993300;
-}
-
-.button:active {
-	border: 1px solid #FFA500;
-}
-
-.ui-button {
-    font-family: "Comic Sans MS";
-}
-
-.ribbon-box {
-   width:100%;
-   height:400px;
-   margin-top: -4.5em;
-   right: 5px;
-   position: absolute;
-   pointer-events: none;
-}
-.ribbon {
-   position: absolute;
-   right: -5px; top: -5px;
-   z-index: 1;
-   overflow: hidden;
-   width: 450px; height: 450px;
-   text-align: right;
-}
-.ribbon span {
-   font-size: 12pt;
-   color: red;
-   text-transform: uppercase;
-   text-align: center;
-   font-weight: bold;
-   line-height: 20px;
-   transform: rotate(45deg);
-   -webkit-transform: rotate(45deg); /* Needed for Safari */
-   width: 300px; display: block;
-   background: #FFA500;
-   background: linear-gradient(#FFA500 0%, #FFA500 100%);
-   position: absolute;
-   border: thin solid firebrick;
-   top: 80px;
-   right: -55px;
-   box-shadow: yellow 1px 1px 20px;
-   text-shadow: 1px 1px 2px white;
-}
-CSS;
-
-	}
-
-	public function onExtraHeadJavascript()
-	{
-		if (!isset($_REQUEST['george']))
-		{
-			return;
-		}
-
-		echo <<< JS
-// Matrix effect from http://thecodeplayer.com/walkthrough/matrix-rain-animation-html5-canvas-javascript
-var c = null;
-var ctx = null;
-
-//japanese characters - taken from the unicode charset
-var japanese = "あいうえおかきくけこさしすせそがぎぐげごぱぴぷぺぽ";
-//converting the string into an array of single characters
-japanese = japanese.split("");
-
-var font_size = 14;
-var columns = 0; //number of columns for the rain
-//an array of drops - one per column
-var drops = [];
-
-//drawing the characters
-function draw()
-{
-	//Black BG for the canvas
-	//translucent BG to show trail
-	ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-	ctx.fillRect(0, 0, c.width, c.height);
-
-	ctx.fillStyle = "#0F0"; //green text
-	ctx.font = font_size + "px Arial";
-
-	//looping over drops
-	for(var i = 0; i < drops.length; i++)
-	{
-		//a random japanese character to print
-		var text = japanese[Math.floor(Math.random()*japanese.length)];
-		//x = i*font_size, y = value of drops[i]*font_size
-		ctx.fillText(text, i*font_size, drops[i]*font_size);
-
-		//sending the drop back to the top randomly after it has crossed the screen
-		//adding a randomness to the reset to make the drops scattered on the Y axis
-		if(drops[i]*font_size > c.height && Math.random() > 0.975)
-			drops[i] = 0;
-
-		//incrementing Y coordinate
-		drops[i]++;
-	}
-}
-
-/*
- * Konami Code Javascript Object
- * 1.3.0, 7 March 2014
- *
- * Using the Konami code, easily configure an Easter Egg for your page or any element on the page.
- *
- * Options:
- * - code : set your own custom code, takes array of keycodes / default is original Konami code
- * - cheat : the function to call when the proper sequence is entered
- * - elem : the element to set the instance on
- *
- * Copyright 2013 - 2014 Kurtis Kemple, http://kurtiskemple.com
- * Released under the MIT License
- */
-
-var KONAMI = function ( options ) {
-	var elem, ret, defaults, keycode, config, cache;
-
-	// set the default code,function, and element
-	defaults = {
-		code : [38,38,40,40,37,39,37,39,66,65],
-		cheat : null,
-		elem : window
-	};
-
-	// build our return object
-	ret = {
-
-		/**
-		 * handles the initialization of the KONAMI instance
-		 *
-		 * @param  {object} options the config to pass in to the instance
-		 * @return {none}
-		 * @method  init
-		 * @public
-		 */
-		init : function ( options ) {
-			cache = [], config = {};
-
-			if ( options ) {
-
-				for ( var key in defaults ) {
-
-					if ( defaults.hasOwnProperty( key ) ) {
-
-						if ( !options[ key ] ) {
-
-							config[ key ] = defaults[ key ];
-						} else {
-
-							config[ key ] = options[ key ];
-						}
-					}
-				}
-			} else {
-
-				config = defaults;
-			}
-
-			ret.bind( config.elem, 'keyup', ret.konami );
-		},
-
-		/**
-		 * handles disassembling of the instance
-		 *
-		 * @return {none}
-		 * @method  destroy
-		 * @public
-		 */
-		destroy : function () {
-			ret.unbind( config.elem, 'keyup', ret.konami );
-			cache = config = null;
-		},
-
-		/**
-		 * handles adding events to elements
-		 *
-		 * @param   {elem}     elem  DOM element to attach to
-		 * @param   {string}   evt   the event type to bind to
-		 * @param   {Function} fn    the function to bind
-		 * @return  {none}
-		 * @method  bind
-		 * @private
-		 */
-		bind : function ( elem, evt, fn ) {
-			if ( elem.addEventListener ) {
-
-				elem.addEventListener( evt, fn, false );
-			} else if ( elem.attachEvent ) {
-
-				elem.attachEvent( 'on'+ evt, function( e ) {
-					fn( e || window.event );
-				});
-			}
-		},
-
-		/**
-		 * handles removing events from elements
-		 *
-		 * @param   {elem}     elem DOM element to remove from
-		 * @param   {string}   evt  the event type to unbind
-		 * @param   {Function} fn   the function to unbind
-		 * @return  {none}
-		 * @method  unbind
-		 * @private
-		 */
-		unbind : function ( elem, evt, fn ) {
-			if ( elem.removeEventListener ) {
-
-				elem.removeEventListener( evt, fn, false );
-			} else if ( elem.detachEvent ) {
-
-				elem.detachEvent( 'on' + evt, function( e ) {
-					fn( e || window.event );
-				});
-			}
-		},
-
-		/**
-		 * handles the business logic for checking for valid konami code
-		 *
-		 * @param   {object} e the event object
-		 * @return  {none}
-		 * @method  konami
-		 * @private
-		 */
-		konami : function( e ) {
-			keycode = e.keyCode || e.which;
-
-			if ( config.code.length > cache.push( keycode ) ) {
-
-				return;
-			}
-
-			if ( config.code.length < cache.length ) {
-
-				cache.shift();
-			}
-
-			if ( config.code.toString() !== cache.toString() ) {
-
-				return;
-			}
-
-			config.cheat();
-		}
-	};
-
-	ret.init( options );
-	return ret;
-};
-
-var options = {
-	cheat : function() {
-		c = document.createElement('canvas');
-		window.jQuery('html').html('').append(c);
-		window.jQuery(c).attr('id', 'c');
-
-		//making the canvas full screen
-		c.height = window.innerHeight;
-		c.width = window.innerWidth;
-		c.left = 0;
-		c.top = 0;
-
-		ctx = c.getContext("2d");
-		columns = c.width/font_size; //number of columns for the rain
-
-		p1 = document.getElementById('page1');
-		window.jQuery(p1).hide();
-
-		//x below is the x coordinate
-		//1 = y co-ordinate of the drop(same for every drop initially)
-		for(var x = 0; x < columns; x++)
-			drops[x] = 1;
-
-		setInterval(draw, 33);
-	}
-};
-
-var konamiCode = new KONAMI( options );
-
-JS;
-
-	}
-
-	/**
-	 * Echoes extra HTML on page 1 of Kickstart
-	 */
-	public function onPage1()
-	{
-		if (!isset($_REQUEST['george']))
-		{
-			return;
-		}
-
-		echo <<< HTML
-<div class="ribbon-box">
-	<div class="ribbon">
-		<span>George W. Edition</span>
-	</div>
-</div>
-HTML;
-
-	}
-
-	/**
-	 * Outputs HTML to be shown before Step 1's archive selection pane
-	 */
-	public function onPage1Step1()
-	{
-	}
-}
-

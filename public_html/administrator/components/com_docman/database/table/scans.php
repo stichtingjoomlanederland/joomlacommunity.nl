@@ -13,7 +13,11 @@ class ComDocmanDatabaseTableScans extends KDatabaseTableAbstract
         $config->append(array(
             'behaviors' => array(
                 'lib:database.behavior.creatable',
-                'lib:database.behavior.modifiable'
+                'lib:database.behavior.modifiable',
+                'lib:database.behavior.parameterizable'
+            ),
+            'filters'   => array(
+                'parameters' => array('json'),
             )
         ));
 

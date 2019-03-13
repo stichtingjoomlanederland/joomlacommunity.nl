@@ -23,8 +23,7 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
 	<?php } ?>
 		<div class="ed-ask__hd">
-			<input type="text" name="title" placeholder="<?php echo JText::_('COM_EASYDISCUSS_POST_TITLE_EXAMPLE', true);?>"
-				class="form-control input-lg ed-ask__input-title"
+			<input type="text" name="title" placeholder="<?php echo JText::_('COM_EASYDISCUSS_POST_TITLE_EXAMPLE', true);?>" class="form-control input-lg ed-ask__input-title"
 				autocomplete="off"
 				data-ed-post-title
 				data-minimum-title="<?php echo $minimumTitle;?>"
@@ -147,13 +146,15 @@ defined('_JEXEC') or die('Restricted access');
 
 				<?php if ($captcha->enabled() && !$post->id) { ?>
 				<div class="ed-editor-widget t-lg-mt--xl" data-ed-captcha-form>
+					<?php if (!$captcha->isInvisible()) { ?>
 					<div class="ed-editor-widget__title">
 						<?php echo JText::_('COM_EASYDISCUSS_CAPTCHA_TITLE'); ?>
 					</div>
 					<div class="ed-editor-widget__note">
 						<?php echo JText::_('COM_EASYDISCUSS_CAPTCHA_INFO'); ?>
 					</div>
-
+					<?php } ?>
+					
 					<?php echo $captcha->html();?>
 				</div>
 				<?php } ?>

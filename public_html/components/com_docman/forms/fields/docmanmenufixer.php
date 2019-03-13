@@ -52,7 +52,8 @@ class JFormFieldDocmanmenufixer extends JFormField
                         "#jform_params_show_document_tags",
                         "#jform_params_show_document_created_by",
                         "#jform_params_show_document_description",
-                        "#jform_params_show_document_modified"
+                        "#jform_params_show_document_modified",
+                        "#jform_params_show_player"
                     ],
                     "gallery:download": [
                         "#jform_params_show_document_tags",
@@ -63,7 +64,11 @@ class JFormFieldDocmanmenufixer extends JFormField
                         "#jform_params_show_document_filename",
                         "#jform_params_show_document_size",
                         "#jform_params_show_document_hits",
-                        "#jform_params_show_document_extension"
+                        "#jform_params_show_document_extension",
+                        "#jform_params_show_player"
+                    ],
+                    "default:download": [
+                        "#jform_params_show_player"
                     ]
                 };
             

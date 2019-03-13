@@ -180,7 +180,7 @@ class RseventsproModelEvents extends JModelLegacy
 						->having('CONCAT(\',\', GROUP_CONCAT('.$this->_db->qn('c.title').'), \',\') NOT LIKE '.$this->_db->q('%'.$value.'%'));
 					$this->_db->setQuery($subquery);
 					if ($eventids = $this->_db->loadColumn()) {
-						array_map('intval',$eventids);
+						$eventids = array_map('intval',$eventids);
 						$where[] = $this->_db->qn('e.id').' IN ('.implode(',',$eventids).')';
 					}
 				} else {
@@ -205,7 +205,7 @@ class RseventsproModelEvents extends JModelLegacy
 						->having('CONCAT(\',\', GROUP_CONCAT('.$this->_db->qn('t.name').'), \',\') NOT LIKE '.$this->_db->q('%'.$value.'%'));
 					$this->_db->setQuery($subquery);
 					if ($eventids = $this->_db->loadColumn()) {
-						array_map('intval',$eventids);
+						$eventids = array_map('intval',$eventids);
 						$where[] = $this->_db->qn('e.id').' IN ('.implode(',',$eventids).')';
 					}
 				} else {
@@ -354,7 +354,7 @@ class RseventsproModelEvents extends JModelLegacy
 		
 		$this->_db->setQuery($query);
 		if ($events = $this->_db->loadColumn()) {
-			array_map('intval',$events);
+			$events = array_map('intval',$events);
 			return $events;
 		}
 		
@@ -487,7 +487,7 @@ class RseventsproModelEvents extends JModelLegacy
 		$ongoing = $this->_db->loadColumn();
 		if (!empty($ongoing)) {
 			$exclude = array_merge($ongoing,array());
-			array_map('intval',$exclude);
+			$exclude = array_map('intval',$exclude);
 		}
 		
 		$query = $this->_db->getQuery(true);
@@ -541,12 +541,12 @@ class RseventsproModelEvents extends JModelLegacy
 		$thisweek = $this->_db->loadColumn();
 		if (!empty($ongoing)) {
 			$exclude = array_merge($ongoing,array());
-			array_map('intval',$exclude);
+			$exclude = array_map('intval',$exclude);
 		}
 		
 		if (!empty($thisweek)) {
 			$exclude = array_merge($exclude,$thisweek);
-			array_map('intval',$exclude);
+			$exclude = array_map('intval',$exclude);
 		}
 		
 		$query = $this->_db->getQuery(true);
@@ -604,17 +604,17 @@ class RseventsproModelEvents extends JModelLegacy
 		$thismonth = $this->_db->loadColumn();
 		if (!empty($ongoing)) {
 			$exclude = array_merge($ongoing,array());
-			array_map('intval',$exclude);
+			$exclude = array_map('intval',$exclude);
 		}
 		
 		if (!empty($thisweek)) {
 			$exclude = array_merge($exclude,$thisweek);
-			array_map('intval',$exclude);
+			$exclude = array_map('intval',$exclude);
 		}
 		
 		if (!empty($thismonth)) {
 			$exclude = array_merge($exclude,$thismonth);
-			array_map('intval',$exclude);
+			$exclude = array_map('intval',$exclude);
 		}
 		
 		$query = $this->_db->getQuery(true);

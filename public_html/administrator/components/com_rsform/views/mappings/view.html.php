@@ -11,6 +11,11 @@ class RsformViewMappings extends JViewLegacy
 {
 	public function display( $tpl = null )
 	{
+        if (!JFactory::getUser()->authorise('forms.manage', 'com_rsform'))
+        {
+            throw new Exception(JText::_('COM_RSFORM_NOT_AUTHORISED_TO_USE_THIS_SECTION'));
+        }
+
 		$model 			= $this->getModel('mappings');
 		$this->formId   = JFactory::getApplication()->input->getInt('formId');
 		$this->fields   = $this->get('quickFields');
@@ -66,30 +71,33 @@ class RsformViewMappings extends JViewLegacy
 		
 		// Tables
 		$lists['tables'] = JHtml::_('select.genericlist',  $mtables, 'table', 'class="inputbox" onchange="mpColumns(this.value)"', 'value', 'text', $this->mapping->table);
-		
+
 		// Assing lists
 		$this->lists = $lists;
 
-		$version 	= new RSFormProVersion();
-		$v 			= (string) $version;
+        JHtml::script('com_rsform/admin/placeholders.js', array('relative' => true, 'version' => 'auto'));
 
-		RSFormProAssets::addScript(JUri::root(true).'/administrator/components/com_rsform/assets/js/placeholders.js?v='.$v);
-
-		$displayPlaceholders = array(
-			'{global:username}',
-			'{global:userid}',
-			'{global:useremail}',
-			'{global:fullname}',
-			'{global:mailfrom}',
-			'{global:fromname}',
-			'{global:submissionid}',
-			'{global:sitename}',
-			'{global:siteurl}',
-			'{global:userip}',
-			'{global:date_added}'
-		);
+        $displayPlaceholders = array(
+            '{last_insert_id}',
+            '{global:username}',
+            '{global:userid}',
+            '{global:useremail}',
+            '{global:fullname}',
+            '{global:userip}',
+            '{global:date_added}',
+            '{global:sitename}',
+            '{global:siteurl}',
+            '{global:confirmation}',
+            '{global:deletion}',
+            '{global:submissionid}',
+            '{global:submission_id}',
+            '{global:mailfrom}',
+            '{global:fromname}',
+            '{global:formid}',
+            '{global:language}',
+        );
 		
-		foreach($this->fields as $fields){
+		foreach ($this->fields as $fields){
 			$displayPlaceholders = array_merge($displayPlaceholders, $fields['display']);
 		};
 

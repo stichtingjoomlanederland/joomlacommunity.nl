@@ -4428,15 +4428,18 @@ a.thumbnail.active {
 .alert-success .alert-link {
   color: #2b542c;
 }
-.alert-info {
+.alert-info,
+.alert-message {
   background-color: #d9edf7;
   border-color: #bce8f1;
   color: #31708f;
 }
-.alert-info hr {
+.alert-info hr,
+.alert-message hr {
   border-top-color: #a6e1ec;
 }
-.alert-info .alert-link {
+.alert-info .alert-link,
+.alert-message .alert-link {
   color: #245269;
 }
 .alert-warning {

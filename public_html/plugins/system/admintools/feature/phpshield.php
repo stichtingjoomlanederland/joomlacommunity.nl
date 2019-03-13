@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -44,14 +44,14 @@ class AtsystemFeaturePhpshield extends AtsystemFeatureAbstract
 	}
 
 	/**
-	 * PHP wrapper inclusion block. If any query string parameter starts with the php:// string it will be blocked
+	 * File stream wrapper block. If any query string parameter starts with stream wrapper string it will be blocked
 	 */
 	public function onAfterInitialise()
 	{
 		$hashes = array('get', 'post');
-		// Block every request that contain the php:// wrapper, such as
-		// http://localhost/ex1.php?page=php://filter/convert.base64-encode/resource=PAGE
-		$pattern = 'php://';
+		// Block every request that contain a potentially malicious stream wrapper, except the "standard" ones
+		// (file, ftp, http, data) For example http://localhost/ex1.php?page=php://filter/convert.base64-encode/resource=PAGE
+		$patterns = array('php://', 'zlib://', 'bzip2://', 'zip://', 'glob://', 'phar://', 'ssh2://', 'rar://', 'ogg://', 'expect://');
 
 		foreach ($hashes as $hash)
 		{
@@ -65,13 +65,16 @@ class AtsystemFeaturePhpshield extends AtsystemFeatureAbstract
 				continue;
 			}
 
-			if ($this->match_array_and_scan($pattern, $allVars))
+			foreach ($patterns as $pattern)
 			{
-				$extraInfo = "Hash      : $hash\n";
-				$extraInfo .= "Variables :\n";
-				$extraInfo .= print_r($allVars, true);
-				$extraInfo .= "\n";
-				$this->exceptionsHandler->blockRequest('phpshield', null, $extraInfo);
+				if ($this->match_array_and_scan($pattern, $allVars))
+				{
+					$extraInfo = "Hash      : $hash\n";
+					$extraInfo .= "Variables :\n";
+					$extraInfo .= print_r($allVars, true);
+					$extraInfo .= "\n";
+					$this->exceptionsHandler->blockRequest('phpshield', null, $extraInfo);
+				}
 			}
 		}
 	}

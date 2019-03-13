@@ -1,14 +1,11 @@
-ed.require(['edq','bootstrap.colorpicker'], function($) {
+ed.require(['edq'], function($) {
 
-    $.Joomla('submitbutton', function(action) {
+	$.Joomla('submitbutton', function(action) {
+		if (action == 'cancel') {
+			window.location.href = '<?php echo JURI::root();?>administrator/index.php?option=com_easydiscuss&view=priorities';
+			return;
+		}
 
-        if (action == 'cancel') {
-            window.location.href = '<?php echo JURI::root();?>administrator/index.php?option=com_easydiscuss&view=priorities';
-            return;
-        }
-
-        $.Joomla('submitform', [action]);
-    });
-
-	$('[data-ed-priority-colorpicker]').colorpicker();
+		$.Joomla('submitform', [action]);
+	});
 });

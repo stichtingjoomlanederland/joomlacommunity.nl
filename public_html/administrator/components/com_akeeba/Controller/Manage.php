@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -77,15 +77,6 @@ class Manage extends Controller
 			$this->setRedirect(JUri::base() . 'index.php?option=com_akeeba&view=Manage', JText::_('COM_AKEEBA_BUADMIN_ERROR_INVALIDDOWNLOAD'), 'error');
 
 			return;
-		}
-
-		// For a certain unmentionable browser -- Thank you, Nooku, for the tip
-		if (function_exists('ini_get') && function_exists('ini_set'))
-		{
-			if (ini_get('zlib.output_compression'))
-			{
-				ini_set('zlib.output_compression', 'Off');
-			}
 		}
 
 		// Remove php's time limit

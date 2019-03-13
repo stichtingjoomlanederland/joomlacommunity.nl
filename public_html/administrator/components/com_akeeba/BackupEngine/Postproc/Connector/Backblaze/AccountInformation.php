@@ -1,11 +1,9 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * This is Akeeba Engine's RackSpace CloudFiles API implementation
- *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  */
@@ -22,30 +20,38 @@ defined('AKEEBAENGINE') or die();
  *
  * @property-read  string  accountId                Backblaze account ID
  * @property-read  string  authorizationToken       Temporary authorization token
+ * @property-read  Allowed allowed                  Backblaze account ID
  * @property-read  string  apiUrl                   API URL for everything except download operations
  * @property-read  string  downloadUrl              API URL for download operations
  * @property-read  string  recommendedPartSize      Recommended part size, in bytes
  * @property-read  string  absoluteMinimumPartSize  Minimum possible part size, in bytes
+ * @property-read  string  minimumPartSize          DEPRECATED: This field will always have the same value as recommendedPartSize.
  */
 class AccountInformation
 {
+	/** @var  string  Minimum possible part size, in bytes */
+	private $absoluteMinimumPartSize;
+
 	/** @var  string  Backblaze account ID */
 	private $accountId;
 
-	/** @var  string  Temporary authorization token */
-	private $authorizationToken;
+	/** @var  Allowed  An object describing what we are allowed to do with the current ID and key pair */
+	private $allowed;
 
 	/** @var  string  API URL for everything except download operations */
 	private $apiUrl;
 
+	/** @var  string  Temporary authorization token */
+	private $authorizationToken;
+
 	/** @var  string  API URL for download operations */
 	private $downloadUrl;
 
+	/** @var  string  DEPRECATED: Alias of recommendedPartSize */
+	private $minimumPartSize;
+
 	/** @var  string  Recommended part size, in bytes */
 	private $recommendedPartSize;
-
-	/** @var  string  Minimum possible part size, in bytes */
-	private $absoluteMinimumPartSize;
 
 	/** @var  int     This object is valid until this UNIX timestamp */
 	private $validTo;
@@ -67,10 +73,27 @@ class AccountInformation
 
 		foreach ($data as $key => $value)
 		{
+			if ($key == 'allowed')
+			{
+				$this->allowed = new Allowed($value);
+
+				continue;
+			}
+
 			if (property_exists($this, $key))
 			{
 				$this->$key = $value;
 			}
+		}
+
+		if (is_null($this->allowed))
+		{
+			$this->allowed = new Allowed(array());
+		}
+
+		if (empty($this->minimumPartSize))
+		{
+			$this->minimumPartSize = $this->recommendedPartSize;
 		}
 	}
 

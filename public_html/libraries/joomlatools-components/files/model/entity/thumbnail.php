@@ -59,11 +59,16 @@ class ComFilesModelEntityThumbnail extends ComFilesModelEntityFile
 
     public function setAdapter()
     {
-        $this->_adapter = $this->getContainer()->getAdapter('file', array(
-            'path' => $this->getContainer()->fullpath.'/'.($this->folder ? $this->folder.'/' : '').$this->name
-        ));
+        $path = '/' . ($this->folder ? $this->folder . '/' : '') . $this->name;
 
-        // Check if we should
+        if ($container = $this->getContainer()) {
+            $path = $container->fullpath . $path;
+        } else {
+            $path = $this->uri ?: $path;
+        }
+
+        $this->_adapter = $this->getObject('com:files.adapter.file', array('path' => $path));
+
         $this->_regenerate();
 
         unset($this->_data['fullpath']);
@@ -76,7 +81,10 @@ class ComFilesModelEntityThumbnail extends ComFilesModelEntityFile
     {
         $result = false;
 
-        if ($this->_adapter && $this->_adapter->exists() && $this->source)
+        $source = $this->source;
+
+        // Only regenerate local sources ...we don't want to calculate dimensions on external sources.
+        if ($this->_adapter && $this->_adapter->exists() && $source && $source->isImage() && $source->isLocal())
         {
             $current_size = @getimagesize($this->fullpath);
 
@@ -95,10 +103,12 @@ class ComFilesModelEntityThumbnail extends ComFilesModelEntityFile
     {
 		@ini_set('memory_limit', '256M');
 
-    	if (($source = $this->source) && $this->_canGenerate())
+    	if ($this->_canGenerate())
 		{
             try
             {
+                $source = $this->source;
+
                 $imagine = new \Imagine\Gd\Imagine();
                 $image   = $imagine->open($source->fullpath);
 
@@ -143,11 +153,15 @@ class ComFilesModelEntityThumbnail extends ComFilesModelEntityFile
         {
             if ($source = $this->source)
             {
-                if ($str = $source->thumbnail_string ? $source->thumbnail_string : $this->generate())
+                if ($str = $this->generate())
                 {
-                    $folder = $this->getContainer()->getAdapter('folder', array(
-                        'path' => $this->getContainer()->fullpath.'/'.($this->folder ? $this->folder.'/' : '')
-                    ));
+                    $path = '/' . ($this->folder ? $this->folder . '/' : '');
+
+                    if ($container = $this->getContainer()) {
+                        $path = $container->fullpath . $path;
+                    }
+
+                    $folder = $this->getObject('com:files.adapter.folder', array('path' => $path));
 
                     if (!$folder->exists()) {
                         $folder->create();
@@ -192,10 +206,12 @@ class ComFilesModelEntityThumbnail extends ComFilesModelEntityFile
         }
 
         if (!$value instanceof ComFilesModelEntityFile) {
-            throw new RuntimeException('Wrong class type for source');
+            throw new RuntimeException('Wrong type for source');
         }
 
-        if ($value->isNew()) throw new RuntimeException('Source cannot be a new entity');
+        if ($value->isNew()) {
+            throw new RuntimeException('Source cannot be a new entity');
+        }
 
         return $value;
     }
@@ -253,7 +269,7 @@ class ComFilesModelEntityThumbnail extends ComFilesModelEntityFile
 
             $ratio = $info[0] / $info[1];
 
-            if (!$this->crop && !empty($dimension['height']) && !empty($dimension['weight']))
+            if (!$this->crop && !empty($dimension['height']) && !empty($dimension['width']))
             {
                 $dimension_ratio = $dimension['height'] / $dimension['width'];
 
@@ -294,15 +310,13 @@ class ComFilesModelEntityThumbnail extends ComFilesModelEntityFile
      */
     protected function _canGenerate()
     {
-        $result = false;
+        $result = true;
 
         // Multiplier to take into account memory consumed by the Image Processing Library.
         $tweak_factor  = 6;
 
-        if ($source = $this->source)
+        if (($source = $this->source) && ($info = @getimagesize($source->fullpath)))
         {
-            $info = @getimagesize($source->fullpath);
-
             $channels      = isset($info['channels']) ? $info['channels'] : 4;
             $bits          = isset($info['bits']) ? $info['bits'] : 8;
             $source_memory = ceil($info[0] * $info[1] * $bits * $channels / 8 * $tweak_factor);
@@ -312,8 +326,9 @@ class ComFilesModelEntityThumbnail extends ComFilesModelEntityFile
             // We assume the same amount of bits and channels as source.
             $thumb_memory = ceil($dimension['width'] * $dimension ['height'] * $bits * $channels / 8 * $tweak_factor);
 
-            //If memory is limited
             $limit = ini_get('memory_limit');
+
+            // Check if memory is limited (-1 => Unlimited)
             if ($limit != '-1')
             {
                 $limit = self::convertToBytes($limit);
@@ -322,11 +337,10 @@ class ComFilesModelEntityThumbnail extends ComFilesModelEntityFile
                 // Leave 16 megs for the rest of the request
                 $available_memory -= 16777216;
 
-                if ($source_memory + $thumb_memory < $available_memory) {
-                    $result = true;
+                if ($source_memory + $thumb_memory > $available_memory) {
+                    $result = false;
                 }
             }
-            else $result = true;
         }
 
         return $result;

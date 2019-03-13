@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -44,7 +44,9 @@ class ScanAlerts extends DataController
 	protected function onAfterCancel()
 	{
 		/** @var \Akeeba\AdminTools\Admin\Model\ScanAlerts $item */
-		$item = $this->getModel()->find();
+		$item = $this->getModel()->savestate(false);
+
+		$this->getIDsFromRequest($item, true);
 		$this->redirect .= '&scan_id=' . (int)$item->scan_id;
 
 		return true;
@@ -67,6 +69,27 @@ class ScanAlerts extends DataController
 	public function delete()
 	{
 		throw new \Exception(JText::_('JLIB_APPLICATION_ERROR_ACCESS_FORBIDDEN'), 403);
+	}
+
+	public function markallsafe()
+	{
+		$scan_id = $this->input->getInt('scan_id', 0);
+
+		if (!empty($scan_id))
+		{
+			/** @var \Akeeba\AdminTools\Admin\Model\ScanAlerts $model */
+			$model = $this->getModel();
+			$model->markAllSafe($scan_id);
+		}
+
+		$url = $this->input->getString('returnurl', '');
+
+		if (empty($url))
+		{
+			$url = base64_encode('index.php?option=com_admintools&view=ScanAlerts&scan_id=' . $scan_id);
+		}
+
+		$this->setRedirect(base64_decode($url));
 	}
 
 	protected function onBeforePublish()

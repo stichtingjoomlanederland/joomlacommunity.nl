@@ -1,63 +1,48 @@
-ed.require(['edq', 'chosen'], function($) {
+ed.require(['edq', 'select2'], function($) {
 
-    var selector = $('[data-ed-tags-select]');
+	var selector = $('[data-ed-tags-select]');
+	selector.select2({
+		tags: <?php echo ($this->acl->allowed('add_tag')) ? 'true' : 'false' ?>,
+		maximumSelectionLength: 10,
+		createTag: function(params) {
+			<?php if (!$this->acl->allowed('create_tag')) { ?>
+				return null;
+			<?php } ?>
 
-    var checkCount = function(n) {
-        var count = $('[data-ed-tags-list] .chosen-choices .search-choice').length;
+			return {
+				"id": params.term,
+				"text": params.term
+			}
+		}
+	});
 
-        $('[data-ed-used-tags]').html(count);
-    };
+	var checkCount = function(n) {
+		var count = $('[data-ed-tags-list] .select2-selection__choice').length;
 
-    // Checks if a tag already exist in the list
-    var tagExists = function(tag) {
-        var selected = [];
+		$('[data-ed-used-tags]').html(count);
+	};
 
-        selector
-            .children(':selected')
-            .each(function() {
-                var val = $(this).val();
+	// Checks if a tag already exist in the list
+	var tagExists = function(tag) {
+		var selected = [];
 
-                if (val == "") {
-                    return;
-                }
+		selector
+			.children(':selected')
+			.each(function() {
+				var val = $(this).val();
 
-                selected.push($(this).val());
-            });
+				if (val == "") {
+					return;
+				}
 
-        var exists = $.inArray(tag, selected);
+				selected.push($(this).val());
+			});
 
-        return exists !== -1;
-    }
+		var exists = $.inArray(tag, selected);
 
-    selector.chosen({
-        no_results_text: "<?php echo JText::_('COM_EASYDISCUSS_NO_RESULTS', true);?>",
-        max_selected_options: <?php echo $this->config->get('max_tags_allowed');?>
-    });
+		return exists !== -1;
+	}
 
-    // Bind chosen tags
-    selector.on('change', checkCount);
-
-    <?php if ($this->acl->allowed('add_tag')) { ?>
-    // Bind the search field so user's can add custom tags that don't exist.
-    $('.search-field').bind('keyup', function(e) {
-
-        var code = e.keyCode ? e.keyCode : e.which;
-
-        // User hit the enter key
-        if (code == 13) {
-            var tag = $('.search-field :input').val();
-
-            // Check if the tag really exists first.
-            if (tagExists(tag)) {
-                return;
-            }
-
-            $('[data-ed-tags-select]').append('<option value="' + tag + '" selected="selected">' + tag + '</option>');
-            $('[data-ed-tags-select]').trigger('chosen:updated');
-            
-            // Update the counter
-            checkCount();
-        }
-    });
-    <?php } ?>
+	// Bind chosen tags
+	selector.on('change', checkCount);
 });

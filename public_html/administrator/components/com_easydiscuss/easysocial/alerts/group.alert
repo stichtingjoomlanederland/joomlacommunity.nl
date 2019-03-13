@@ -1,15 +1,32 @@
-// These alert rules are for core features
 [
 	{
 		"extension" : "com_easydiscuss",
 		"element" : "easydiscuss",
-
-		"rule" : "discussion.create",
-
+		"rule" : "group.create",
 		"value" :
 		{
 			"email" : true,
-			"system" : true			
+			"system" : true
+		}
+	},
+	{
+		"extension" : "com_easydiscuss",
+		"element" : "easydiscuss",
+		"rule" : "group.comment",
+		"value" :
+		{
+			"email" : false,
+			"system" : true
+		}
+	},
+	{
+		"extension" : "com_easydiscuss",
+		"element" : "easydiscuss",
+		"rule" : "group.likes",
+		"value" :
+		{
+			"email" : false,
+			"system" : true
 		}
 	}
 ]

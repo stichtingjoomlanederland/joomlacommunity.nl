@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -18,8 +18,6 @@ class EasyDiscussModules extends EasyDiscuss
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
 	public function format($posts)
 	{
@@ -51,8 +49,6 @@ class EasyDiscussModules extends EasyDiscuss
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
 	public function getData($options = array())
 	{
@@ -89,27 +85,27 @@ class EasyDiscussModules extends EasyDiscuss
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
-	public function getReturnURL($params, $isLogged=false)
+	public function getReturnURL($params, $isLogged = false)
 	{
 		$type = empty($isLogged) ? 'login' : 'logout';
 
-		if ($itemid = $params->get($type)) {
-			$menu = JFactory::getApplication()->getMenu();
-			$item = $menu->getItem($itemid);
+		$itemId = $params->get($type);
 
+		// Default to stay on the same page.
+		$return = EDR::getCurrentURI();
+
+		if ($itemId) {
+
+			$menu = JFactory::getApplication()->getMenu();
+			$item = $menu->getItem($itemId);
+			
 			if ($item) {
-				$url = $item->link . '&Itemid=' . $itemid;
-			} else {
-                $url = JUri::getInstance()->toString();
+				$return = $item->link . '&Itemid=' . $itemId;
 			}
-		} else {
-			$url = 'index.php?option=com_easydiscuss';
 		}
 
-		return base64_encode($url);
+		return base64_encode($return);
 	}
 
 	/**
@@ -117,8 +113,6 @@ class EasyDiscussModules extends EasyDiscuss
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
 	public function getLoginStatus()
 	{

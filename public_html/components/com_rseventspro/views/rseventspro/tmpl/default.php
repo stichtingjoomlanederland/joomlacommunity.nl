@@ -43,6 +43,11 @@ JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 	<?php JFactory::getApplication()->triggerEvent('rsepro_showCartIcon'); ?>
 	<?php $rss = $this->params->get('rss',1); ?>
 	<?php $ical = $this->params->get('ical',1); ?>
+	
+	<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscriptions'); ?>" class="<?php echo rseventsproHelper::tooltipClass(); ?>" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_USER_SUBSCRIPTIONS')); ?>">
+		<i class="fa fa-user"></i>
+	</a>
+	
 	<?php if ($rss || $ical || $this->config->timezone) { ?>
 	<?php if ($this->config->timezone) { ?>
 	<a href="#timezoneModal" data-toggle="modal" class="<?php echo rseventsproHelper::tooltipClass(); ?> rsepro-timezone" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_CHANGE_TIMEZONE')); ?>">
@@ -77,7 +82,7 @@ JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 				<div class="nav-collapse collapse rsepro-navbar-responsive-collapse">
 					<ul class="nav">
 						<li id="rsepro-filter-from" class="dropdown">
-							<a data-toggle="dropdown" class="dropdown-toggle" href="#" rel="events"><span><?php echo JText::_('COM_RSEVENTSPRO_FILTER_NAME'); ?></span> <i class="caret"></i></a>
+							<a data-toggle="dropdown" class="dropdown-toggle" href="#" rel="<?php echo $this->config->filter_from; ?>"><span><?php echo rseventsproHelper::getFilterText($this->config->filter_from); ?></span> <i class="caret"></i></a>
 							<ul class="dropdown-menu">
 								<?php foreach ($this->get('filteroptions') as $option) { ?>
 								<?php if (!$this->maxPrice && $option->value == 'price') continue; ?>
@@ -86,7 +91,7 @@ JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 							</ul>
 						</li>
 						<li id="rsepro-filter-condition" class="dropdown">
-							<a data-toggle="dropdown" class="dropdown-toggle" href="#" rel="is"><span><?php echo JText::_('COM_RSEVENTSPRO_FILTER_CONDITION_IS'); ?></span> <i class="caret"></i></a>
+							<a data-toggle="dropdown" class="dropdown-toggle" href="#" rel="<?php echo $this->config->filter_condition; ?>"><span><?php echo rseventsproHelper::getFilterText($this->config->filter_condition); ?></span> <i class="caret"></i></a>
 							<ul class="dropdown-menu">
 								<?php foreach ($this->get('filterconditions') as $option) { ?>
 								<li><a href="javascript:void(0);" rel="<?php echo $option->value; ?>"><?php echo $option->text; ?></a></li>
@@ -348,38 +353,7 @@ JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 <?php } ?>
 
 <?php if ($this->config->timezone) { ?>
-<div id="timezoneModal" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true">
-	<div class="modal-header">
-		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-		<h3><?php echo JText::_('COM_RSEVENTSPRO_CHANGE_TIMEZONE'); ?></h3>
-	</div>
-	<div class="modal-body">
-		<form method="post" action="<?php echo htmlentities(JUri::getInstance(), ENT_COMPAT, 'UTF-8'); ?>" id="timezoneForm" name="timezoneForm" class="form-horizontal">
-			<div class="control-group">
-				<div class="control-label">
-					<label><?php echo JText::_('COM_RSEVENTSPRO_DEFAULT_TIMEZONE'); ?></label>
-				</div>
-				<div class="controls">
-					<span class="btn disabled"><?php echo $this->timezone; ?></span>
-				</div>
-			</div>
-			<div class="control-group">
-				<div class="control-label">
-					<label for="timezone"><?php echo JText::_('COM_RSEVENTSPRO_SELECT_TIMEZONE'); ?></label>
-				</div>
-				<div class="controls">
-					<?php echo JHtml::_('rseventspro.timezones','timezone'); ?>
-				</div>
-			</div>
-			<input type="hidden" name="task" value="timezone" />
-			<input type="hidden" name="return" value="<?php echo $this->timezoneReturn; ?>" />
-		</form>
-	</div>
-	<div class="modal-footer">
-		<button class="btn" data-dismiss="modal" aria-hidden="true"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
-		<button class="btn btn-primary" type="button" onclick="document.timezoneForm.submit();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button>
-	</div>
-</div>
+<?php echo rseventsproHelper::timezoneModal(); ?>
 <?php } ?>
 
 <script type="text/javascript">	

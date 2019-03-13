@@ -1,17 +1,17 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
-jimport( 'joomla.application.component.view');
+jimport('joomla.application.component.view');
 
 require_once(DISCUSS_ROOT . '/views/views.php');
 
@@ -721,9 +721,23 @@ class EasyDiscussViewPost extends EasyDiscussView
 		// For contents, we need to get the raw data.
 		$data['content'] = $this->input->get('dc_content', '', 'raw');
 
+		$parentId = $this->input->get('parent_id', 0, 'int');
+
 		// Load the post library
 		$post = ED::post();
 		$post->bind($data);
+
+		if ($parentId) {
+			$threadPost = ED::post($parentId);
+
+			if (!$threadPost->canReply() || $threadPost->isLocked()) {
+				$output['message'] = JText::_('COM_ED_REPLY_NOT_ALLOWED');
+				$output['type'] = 'error';
+
+				echo $this->showJsonContents($output);
+				return false;
+			}
+		}
 
 		// check the reply validate is it pass or not
 		$valid = $post->validate($data, 'replying');
@@ -766,7 +780,7 @@ class EasyDiscussViewPost extends EasyDiscussView
 		$post->seq = $question->getTotalReplies();
 
 		// Get site details that are associated with the post.
-		$siteDetails = $post->getSiteDetails();        
+		$siteDetails = $post->getSiteDetails();
 
 		// Get the output so we can append the reply into the list of replies
 		$namespace = $post->isPending() ? 'default.reply.item.moderation' : 'default.reply.item';
@@ -950,10 +964,14 @@ class EasyDiscussViewPost extends EasyDiscussView
 	{
 		$element = $this->input->get('editorName', '', 'word');
 		$caretPosition = $this->input->get('caretPosition', '', 'int');
+		$contents = $this->input->get('contents', '', 'raw');
+		$dialogRecipient = $this->input->get('dialogRecipient', 0, 'int');
 
 		$theme = ED::themes();
 		$theme->set('element', $element);
 		$theme->set('caretPosition', $caretPosition);
+		$theme->set('contents', $contents);
+		$theme->set('dialogRecipient', $dialogRecipient);
 
 		$output = $theme->output('site/composer/dialogs/video');
 
@@ -972,10 +990,14 @@ class EasyDiscussViewPost extends EasyDiscussView
 	{
 		$element = $this->input->get('editorName', '', 'word');
 		$caretPosition = $this->input->get('caretPosition', '', 'int');
+		$contents = $this->input->get('contents', '', 'raw');
+		$dialogRecipient = $this->input->get('dialogRecipient', 0, 'int');
 
 		$theme = ED::themes();
 		$theme->set('element', $element);
 		$theme->set('caretPosition', $caretPosition);
+		$theme->set('contents', $contents);
+		$theme->set('dialogRecipient', $dialogRecipient);
 
 		$output = $theme->output('site/composer/dialogs/photo');
 
@@ -994,10 +1016,14 @@ class EasyDiscussViewPost extends EasyDiscussView
 	{
 		$element = $this->input->get('editorName', '', 'word');
 		$caretPosition = $this->input->get('caretPosition', '', 'int');
+		$contents = $this->input->get('contents', '', 'raw');
+		$dialogRecipient = $this->input->get('dialogRecipient', 0, 'int');
 
 		$theme = ED::themes();
 		$theme->set('element', $element);
 		$theme->set('caretPosition', $caretPosition);
+		$theme->set('contents', $contents);
+		$theme->set('dialogRecipient', $dialogRecipient);
 
 		$output = $theme->output('site/composer/dialogs/link');
 
@@ -1125,7 +1151,7 @@ class EasyDiscussViewPost extends EasyDiscussView
 				$sendNotti = false;
 			}
 
-			$state = $assignment->store(); 
+			$state = $assignment->store();
 
 			if (!$state) {
 				return $this->ajax->reject('COM_EASYDISCUSS_ASSIGN_MODERATORS_SHOW_STORING_FAILED');

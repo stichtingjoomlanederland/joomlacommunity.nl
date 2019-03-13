@@ -79,6 +79,7 @@ class ComDocmanViewListHtml extends ComDocmanViewHtml
         {
             $document_category = $has_filter ? $filter->category : $category->id;
             $document_category_children = $filter->category ? true : false;
+            $search_contents = $filter->search_contents === null ? true : $filter->search_contents;
 
             // Needs to come from request as category model does not have a status state
             $status = $this->getObject('request')->query->status;
@@ -98,6 +99,8 @@ class ComDocmanViewListHtml extends ComDocmanViewHtml
                 ->created_on_from($filter->created_on_from)
                 ->created_on_to($filter->created_on_to)
                 ->search($filter->search)
+                ->search_by($params->search_by)
+                ->search_contents($search_contents)
                 ->tag($filter->tag)
                 ->category($document_category)
                 ->category_children($document_category_children)
@@ -144,6 +147,13 @@ class ComDocmanViewListHtml extends ComDocmanViewHtml
         if (count($tags) === 1) {
             $menu->params->set('show_tag_filter', false);
             $menu->params->set('show_document_tags', false);
+        }
+
+        if (!$this->getObject('com://admin/docman.model.entity.config')->connectAvailable()) {
+            $menu->params->set('show_content_filter', false);
+        }
+        elseif ($filter->search_contents === null) {
+            $filter->search_contents = true;
         }
 
         // pre-select the current category if possible
@@ -203,6 +213,12 @@ class ComDocmanViewListHtml extends ComDocmanViewHtml
         if ($this->getName() === $this->getActiveMenu()->query['view'])
         {
             $category = $this->getModel()->fetch();
+            $slug     = isset($this->getActiveMenu()->query['slug']) ? $this->getActiveMenu()->query['slug'] : null;
+
+            if (!$category->isNew() && $category->slug !== $slug) {
+                $this->getParameters()->def('page_heading', $category->title);
+                $this->getParameters()->def('page_title',   $category->title);
+            }
 
             if ($category->isNew() && $this->getParameters()->show_page_heading) {
                 $this->getParameters()->show_category_title = false;

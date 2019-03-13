@@ -129,15 +129,15 @@ ed.require(['edq', 'easydiscuss', 'site/vendors/gmaps', 'selectize', self.getGma
 	// If the post has a location we need to render the map
 	renderMap("<?php echo $post->latitude;?>", "<?php echo $post->longitude;?>");
 	<?php } ?>
-	
+
 	autoDetectButton.on('click', function() {
-	
+
 	autoDetectButton.html('<i class="fa fa-spinner"></i>');
 		navigator.geolocation.getCurrentPosition(function(position) {
 
 			var latitude = position.coords.latitude;
 			var longitude = position.coords.longitude;
-			
+
 			geocoder.geocode({
 				location: new google.maps.LatLng(latitude, longitude)
 			}, function(result) {
@@ -197,7 +197,7 @@ ed.require(['edq', 'easydiscuss', 'site/vendors/gmaps', 'selectize', self.getGma
 
 			// Set has location
 			addressInput.parents('[data-ed-location-form]').addClass('has-location');
-			
+
 			// Render the map
 			if (reloadMap) {
 				renderMap(lat, lng);
@@ -215,6 +215,7 @@ ed.require(['edq', 'easydiscuss', 'site/vendors/gmaps', 'selectize', self.getGma
 				"address": query
 			}).done(function(locations) {
 				callback(locations);
+
 			});
 		},
 		render: {
@@ -229,6 +230,11 @@ ed.require(['edq', 'easydiscuss', 'site/vendors/gmaps', 'selectize', self.getGma
 					'</span>' +
 				'</div>';
 			}
+		},
+		score: function (search) {
+			return function(item) {
+				return 1;
+			};
 		}
 	});
 

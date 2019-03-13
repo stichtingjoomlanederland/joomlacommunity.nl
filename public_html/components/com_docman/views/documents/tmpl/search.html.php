@@ -64,8 +64,23 @@ defined('KOOWA') or die; ?>
                     class="form-control input-block-level"
                     type="search"
                     name="<?= !empty($filter_group) ? $filter_group.'[search]' : 'search' ?>"
-                    value="<?= $filter->search ?>" />
+                    value="<?= escape($filter->search) ?>" />
             </div>
+
+            <? if ($params->show_content_filter): ?>
+                <div class="k-form-group">
+                    <label class="control-label"><?= translate('Search in') ?></label>
+                    <?= helper('listbox.optionlist', array(
+                        'name' => !empty($filter_group) ? $filter_group.'[search_contents]' : 'search_contents',
+                        'select2'   => true,
+                        'selected' => $filter->search_contents,
+                        'options' => [
+                            ['value' => 0, 'label' => translate('Document title and description')],
+                            ['value' => 1, 'label' => translate('Document contents, title, and description')],
+                        ]
+                    )); ?>
+                </div>
+            <? endif ?>
 
             <? if ($params->get('show_category_filter', 1)): ?>
                 <div class="form-group">

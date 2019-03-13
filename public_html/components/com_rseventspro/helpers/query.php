@@ -212,7 +212,7 @@ class RSEventsProQuery
 		
 		// Filter events with the menu item categories filter
 		if (!empty($categories)) {
-			array_map('intval',$categories);
+			$categories = array_map('intval',$categories);
 			$groups		= implode(',', $user->getAuthorisedViewLevels());
 			$catwhere	= 'AND '.$db->qn('c.access').' IN ('.$groups.')';
 			
@@ -225,14 +225,14 @@ class RSEventsProQuery
 		
 		// Filter events with the menu item tags filter
 		if (!empty($tags)) {
-			array_map('intval',$tags);
+			$tags = array_map('intval',$tags);
 			
 			$where[] = ' AND '.$db->qn('e.id').' IN (SELECT '.$db->qn('tx.ide').' FROM '.$db->qn('#__rseventspro_taxonomy','tx').' LEFT JOIN '.$db->qn('#__rseventspro_tags','t').' ON '.$db->qn('t.id').' = '.$db->qn('tx.id').' WHERE '.$db->qn('t.id').' IN ('.implode(',',$tags).') AND '.$db->qn('tx.type').' = '.$db->q('tag').')';
 		}
 		
 		// Filter events with the menu item locations filter
 		if (!empty($locations)) {
-			array_map('intval',$locations);
+			$locations = array_map('intval',$locations);
 			
 			$where[] = ' AND '.$db->qn('e.location').' IN ('.implode(',',$locations).')';
 		}

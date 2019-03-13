@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -71,6 +71,11 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
         <span class="akion-close-circled"></span>
         <?php echo \JText::_('COM_ADMINTOOLS_TITLE_IPAUTOBANHISTORY'); ?>
 	</a>
+
+    <a href="index.php?option=com_admintools&view=UnblockIP" class="akeeba-action--orange">
+        <span class="akion-unlocked"></span>
+		<?php echo \JText::_('COM_ADMINTOOLS_TITLE_UNBLOCKIP'); ?>
+    </a>
 
 	<a href="index.php?option=com_admintools&view=WAFEmailTemplates" class="akeeba-action--grey">
         <span class="akion-email"></span>

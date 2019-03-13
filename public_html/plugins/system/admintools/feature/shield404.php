@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -26,7 +26,7 @@ class AtsystemFeatureShield404 extends AtsystemFeatureAbstract
 	public function isEnabled()
 	{
 		// Assign those values to our static variables so we can reference to them in the static context
-		static::$blockedUrls = $this->cparams->getValue('404shield', '');
+		static::$blockedUrls = $this->cparams->getValue('404shield', "wp-admin.php\nwp-login.php\nwp-content/*\nwp-admin/*");
 		static::$exceptionHandler = $this->exceptionsHandler;
 
 		return ($this->cparams->getValue('404shield_enable', 1));
@@ -34,8 +34,11 @@ class AtsystemFeatureShield404 extends AtsystemFeatureAbstract
 
 	public function onAfterInitialise()
 	{
-		// Set the JError handler for E_ERROR to be the class' handleError method.
-		JError::setErrorHandling(E_ERROR, 'callback', array('AtsystemFeatureShield404', 'handleError'));
+		// Joomla 3: Set the JError handler for E_ERROR to be the class' handleError method.
+		if (class_exists('JError'))
+		{
+			JError::setErrorHandling(E_ERROR, 'callback', array('AtsystemFeatureShield404', 'handleError'));
+		}
 
 		// Register the previously defined exception handler so we can forward errors to it
 		self::$previousExceptionHandler = set_exception_handler(array('AtsystemFeatureShield404', 'handleException'));

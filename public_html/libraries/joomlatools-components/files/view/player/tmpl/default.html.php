@@ -9,6 +9,7 @@
 defined('KOOWA') or die;
 ?>
 
+
 <?= helper('behavior.koowa'); ?>
 
 <ktml:style src="assets://files/css/plyr.css" />
@@ -56,6 +57,3 @@ defined('KOOWA') or die;
         });
     });
 </script>
-
-
-

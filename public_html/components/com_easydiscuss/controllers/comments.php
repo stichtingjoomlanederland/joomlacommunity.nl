@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,7 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
 require_once(__DIR__ . '/controller.php');
 
@@ -25,8 +25,6 @@ class EasydiscussControllerComments extends EasyDiscussController
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function convert()
 	{
@@ -63,18 +61,26 @@ class EasydiscussControllerComments extends EasyDiscussController
 			$post = ED::post($parent->id);
 		}
 
+		$content = $comment->comment;
+
+		$editor = $this->config->get('layout_editor');
+
+		if ($editor != 'bbcode') {
+			$content = nl2br($content);
+		}
+
 		// For contents, we need to get the raw data.
-        $data['content'] = $comment->comment;
-        $data['parent_id'] = $post->id;
-        $data['user_id'] = $comment->user_id;
+		$data['content'] = $content;
+		$data['parent_id'] = $post->id;
+		$data['user_id'] = $comment->user_id;
 
-        // Load the post library
-        $post = ED::post();
-        $post->bind($data);
+		// Load the post library
+		$post = ED::post();
+		$post->bind($data);
 
-        // Try to save the post now
-        $state = $post->save();
-		
+		// Try to save the post now
+		$state = $post->save();
+
 		// Throws error if the store process hits error
 		if (!$state) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_COMMENTS_ERROR_SAVING_REPLY'), 'error');

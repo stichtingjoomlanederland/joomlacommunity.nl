@@ -1,9 +1,9 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  */
@@ -61,7 +61,7 @@ class Onedrive extends Base
 	 *
 	 * @param   array   $params  Passed by the backup extension, used for the callback URI
 	 *
-	 * @return  boolean  False on failure, redirects on success
+	 * @return  void  Redirects on success
 	 */
 	public function oauthOpen($params = array())
 	{
@@ -70,6 +70,7 @@ class Onedrive extends Base
 		$url = $this->getOAuth2HelperUrl();
 		$url .= (strpos($url, '?') !== false) ? '&' : '?';
 		$url .= 'callback=' . urlencode($callback);
+		$url .= '&dlid=' . Platform::getInstance()->get_platform_configuration_option('update_dlid', '');
 
 		Platform::getInstance()->redirect($url);
 	}
@@ -128,21 +129,6 @@ HTML;
 		$basename = empty($upload_as) ? basename($absolute_filename) : $upload_as;
 		$this->remote_path = $directory . '/' . $basename;
 
-		// Do not use multipart uploads when in an immediate post-processing step,
-		// i.e. we are uploading a part right after its creation
-		if ($this->chunked)
-		{
-			// Retrieve engine configuration data
-			$config = Factory::getConfiguration();
-
-			$immediateEnabled = $config->get('engine.postproc.common.after_part', 0);
-
-			if ($immediateEnabled)
-			{
-				$this->chunked = false;
-			}
-		}
-
 		// Have I already made sure the remote directory exists?
 		$haveCheckedRemoteDirectory = $config->get('volatile.engine.postproc.' . $this->settingsKey . '.check_directory', 0);
 
@@ -165,9 +151,15 @@ HTML;
 		// Get the remote file's pathname
 		$remotePath = trim($directory, '/') . '/' . basename($absolute_filename);
 
-		// Are we already processing a multipart upload?
-		if ($this->chunked)
+		// Check if the size of the file is compatible with chunked uploading
+		clearstatcache();
+		$totalSize   = filesize($absolute_filename);
+		$isBigEnough = $this->chunked ? ($totalSize > $this->chunk_size) : false;
+
+		// Chunked uploads if the feature is enabled and the file is at least as big as the chunk size.
+		if ($this->chunked && $isBigEnough)
 		{
+			// Are we already processing a multipart upload?
 			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Using chunked upload, part size {$this->chunk_size}");
 
 			$offset = $config->get('volatile.engine.postproc.' . $this->settingsKey . '.offset', 0);
@@ -242,8 +234,6 @@ HTML;
 			}
 
 			// Are we done uploading?
-			clearstatcache();
-			$totalSize = filesize($absolute_filename);
 			$nextOffset = $offset + $this->chunk_size - 1;
 
 			if (isset($result['name']) || ($nextOffset > $totalSize))
@@ -270,7 +260,7 @@ HTML;
 			$this->onedrive->delete($remotePath, false);
 
 			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Performing simple upload");
-			$result = $this->onedrive->upload($remotePath, $absolute_filename);
+			$result = $this->onedrive->simpleUpload($remotePath, $absolute_filename);
 		}
 		catch (\Exception $e)
 		{
@@ -409,12 +399,12 @@ HTML;
 		// Retrieve engine configuration data
 		$config = Factory::getConfiguration();
 
-		$access_token = trim($config->get('engine.postproc.' . $this->settingsKey . '.access_token', ''));
+		$access_token  = trim($config->get('engine.postproc.' . $this->settingsKey . '.access_token', ''));
 		$refresh_token = trim($config->get('engine.postproc.' . $this->settingsKey . '.refresh_token', ''));
 
-		$this->chunked = $config->get('engine.postproc.' . $this->settingsKey . '.chunk_upload', true);
+		$this->chunked    = $config->get('engine.postproc.' . $this->settingsKey . '.chunk_upload', true);
 		$this->chunk_size = $config->get('engine.postproc.' . $this->settingsKey . '.chunk_upload_size', 10) * 1024 * 1024;
-		$this->directory = $config->get('volatile.postproc.directory', null);
+		$this->directory  = $config->get('volatile.postproc.directory', null);
 
 		if (empty($this->directory))
 		{
@@ -429,12 +419,12 @@ HTML;
 			return false;
 		}
 
-        if(!function_exists('curl_init'))
-        {
-            $this->setWarning('cURL is not enabled, please enable it in order to post-process your archives');
+		if (!function_exists('curl_init'))
+		{
+			$this->setWarning('cURL is not enabled, please enable it in order to post-process your archives');
 
-            return false;
-        }
+			return false;
+		}
 
 		// Fix the directory name, if required
 		if (!empty($this->directory))
@@ -451,7 +441,17 @@ HTML;
 		$this->directory = Factory::getFilesystemTools()->replace_archive_name_variables($this->directory);
 		$config->set('volatile.postproc.directory', $this->directory);
 
-		$this->onedrive = $this->getConnectorInstance($access_token, $refresh_token);
+		// Get Download ID
+		$dlid = Platform::getInstance()->get_platform_configuration_option('update_dlid', '');
+
+		if (empty($dlid))
+		{
+			$this->setWarning('You must enter your Download ID in the application configuration before using the “Upload to OneDrive” feature.');
+
+			return false;
+		}
+
+		$this->onedrive = $this->getConnectorInstance($access_token, $refresh_token, $dlid);
 
 		// Validate the tokens
 		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Validating the OneDrive tokens");
@@ -496,12 +496,13 @@ HTML;
 	 *
 	 * @param   string  $access_token
 	 * @param   string  $refresh_token
+	 * @param   string  $dlid
 	 *
 	 * @return  ConnectorOneDrive
 	 */
-	protected function getConnectorInstance($access_token, $refresh_token)
+	protected function getConnectorInstance($access_token, $refresh_token, $dlid)
 	{
-		return new ConnectorOneDrive($access_token, $refresh_token);
+		return new ConnectorOneDrive($access_token, $refresh_token, $dlid);
 	}
 
 	/**

@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ @package   akeebabackup
+  ~ @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+  ~ @license   GNU General Public License version 3, or later
+  -->
+
 <schema>
     <!-- Metadata -->
     <meta>
@@ -6,6 +12,7 @@
         <drivers>
             <driver>postgres</driver>
             <driver>postgresql</driver>
+            <driver>pgsql</driver>
         </drivers>
     </meta>
 

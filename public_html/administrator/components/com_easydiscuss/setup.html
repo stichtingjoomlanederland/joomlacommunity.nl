@@ -1,0 +1,53 @@
+<style type="text/css">
+table{ border-collapse: separate !important; }
+div#si-installer * { -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
+div#si-installer { width: 860px; }
+div#si-installer .clearfix,
+div#si-installer .box-hd,
+div#si-installer .box-bd { clear:none; display:block; }
+div#si-installer .clearfix:after,
+div#si-installer .box-hd,
+div#si-installer .box-bd { content:"";display:table;clear:both; }
+div#si-installer .box { background: #F9FAFC; border: 1px solid #DEE3E9; padding: 0px; margin-bottom: 20px; color: #777; border-radius: 3px;}
+div#si-installer .box-hd,
+div#si-installer .box-bd { width:100%; }
+div#si-installer .box-hd { background: #2c3e50; color: #fff; padding: 16px 18px; border-radius: 3px 3px 0 0; }
+div#si-installer .box-hd .si-title { float: left; font-size: 22px; line-height: 24px; }
+div#si-installer .box-hd .si-logo { float: right; margin-right: 10px; }
+div#si-installer .box-hd .si-logo img { vertical-align: bottom; }
+div#si-installer .box-hd .si-social { float: right; }
+div#si-installer .box-bd { padding: 16px !important; background: #fff; }
+div#si-installer .box-bd > p { font-size: 13px; line-height: 24px; }
+div#si-installer h1.si-title { font-size: 18px; line-height: 24px; color: #2c3e50; margin: 0 0 30px; }
+div#si-installer .btn-install { color: #FFF; font-size: 13px; font-weight: 700; padding: 10px 16px; background-color: #27ae60; border: 0; }
+div#si-installer .actions { margin-top: 30px; text-align: left !important; }
+</style>
+
+
+<div id="si-installer">
+	<div class="box">
+		<div class="box-hd">
+			<div class="si-title">
+				<img src="<?php echo JURI::root();?>/administrator/components/com_easydiscuss/setup/assets/images/logo.png" width="32" />&nbsp; EasyDiscuss
+			</div>
+
+			<div class="si-logo">
+				<a href="https://stackideas.com" target="_blank">
+					<img src="https://stackideas.cachefly.net/templates/delta/images/stackideas-icon.png" width="32" />
+				</a>
+			</div>
+		</div>
+
+		<div class="box-bd">
+			<h1 class="si-title">Thank You for your recent purchase of EasyDiscuss!</h1>
+			<p>
+				Thank you for your recent purchase of EasyDiscuss, the best forum extension for Joomla! Before you are able to access EasyDiscuss, you will need to proceed with the Initial Setup.
+			</p>
+
+			<div class="actions">
+				<a href="<?php echo JURI::root();?>administrator/index.php?option=com_easydiscuss&amp;setup=true" class="btn btn-success btn-install">Continue with Installation &raquo;</a>
+			</div>
+			<div style="clear:both;"></div>
+		</div>
+	</div>
+</div>

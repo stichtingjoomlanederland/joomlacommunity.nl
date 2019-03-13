@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -210,9 +210,9 @@ class Html extends BaseView
 		$default_description = $this->getDefaultDescription();
 
 		// Load data from the model state
-		$backup_description  = $model->getState('description', $default_description);
-		$comment             = $model->getState('comment', '');
-		$returnurl           = $model->getState('returnurl');
+		$backup_description  = $model->getState('description', $default_description, 'string');
+		$comment             = $model->getState('comment', '', 'html');
+		$returnurl           = $model->getState('returnurl', '');
 
 		// Only allow non-empty, internal URLs for the redirection
 		if (empty($returnurl))
@@ -250,7 +250,7 @@ class Html extends BaseView
 		$this->useIFRAME                    = $engineConfiguration->get('akeeba.basic.useiframe', 0) == 1;
 		$this->returnURL                    = $returnurl;
 		$this->unwriteableOutput            = $unwritableOutput;
-		$this->autoStart                    = $model->getState('autostart');
+		$this->autoStart                    = $model->getState('autostart', 0, 'boolean');
 		$this->desktopNotifications         = $this->container->params->get('desktop_notifications', '0') ? 1 : 0;
 		$this->autoResume                   = $engineConfiguration->get('akeeba.advanced.autoresume', 1);
 		$this->autoResumeTimeout            = $engineConfiguration->get('akeeba.advanced.autoresume_timeout', 10);

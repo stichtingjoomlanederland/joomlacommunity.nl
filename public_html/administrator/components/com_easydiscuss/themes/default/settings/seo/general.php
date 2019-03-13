@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -16,13 +16,29 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<div class="panel">
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_SEO_ADVANCED'); ?>
 
-			<div id="option01" class="panel-body">
+			<div class="panel-body">
 				<div class="form-horizontal">
+					<?php echo $this->html('settings.toggle', 'main_sef_unicode', 'COM_EASYDISCUSS_MAIN_SEO_ALLOW_UNICODE_ALIAS'); ?>
+
 					<div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_MAIN_SEO_ROUTING_BEHAVIOR'); ?>
-                        </div>
-                        <div class="col-md-7">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_MAIN_SEO_USER_PERMALINK_FORMAT'); ?>
+						</div>
+						<div class="col-md-7">
+							<select name="main_sef_user">
+								<option value="default"<?php echo $this->config->get('main_sef_user') == 'default' ? ' selected="selected"' : '';?>><?php echo JText::_('COM_EASYDISCUSS_MAIN_SEO_DEFAULT'); ?></option>
+								<option value="username"<?php echo $this->config->get('main_sef_user') == 'username' ? ' selected="selected"' : '';?>><?php echo JText::_('COM_EASYDISCUSS_MAIN_SEO_USERNAME'); ?></option>
+								<option value="realname"<?php echo $this->config->get('main_sef_user') == 'realname' ? ' selected="selected"' : '';?>><?php echo JText::_('COM_EASYDISCUSS_MAIN_SEO_REALNAME'); ?></option>
+							</select>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_MAIN_SEO_ROUTING_BEHAVIOR'); ?>
+						</div>
+						
+						<div class="col-md-7">
 							<div class="ed-radio">
 								<input type="radio" value="currentactive" id="main_routing1" name="main_routing"<?php echo $this->config->get('main_routing') == 'currentactive' ? ' checked="checked"' : '';?>>
 								<label for="main_routing1">
@@ -56,36 +72,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 	</div>
 
 	<div class="col-md-6">
-		<div class="panel">
-			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_SEO_GENERAL'); ?>
-
-			<div class="panel-body">
-				<div class="form-horizontal">
-					<div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_MAIN_SEO_ALLOW_UNICODE_ALIAS'); ?>
-                        </div>
-                        <div class="col-md-7">
-							<?php echo $this->html('form.boolean', 'main_sef_unicode', $this->config->get('main_sef_unicode')); ?>
-						</div>
-					</div>
-
-					<div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_MAIN_SEO_USER_PERMALINK_FORMAT'); ?>
-                        </div>
-                        <div class="col-md-7">
-							<select name="main_sef_user">
-								<option value="default"<?php echo $this->config->get('main_sef_user') == 'default' ? ' selected="selected"' : '';?>><?php echo JText::_('COM_EASYDISCUSS_MAIN_SEO_DEFAULT'); ?></option>
-								<option value="username"<?php echo $this->config->get('main_sef_user') == 'username' ? ' selected="selected"' : '';?>><?php echo JText::_('COM_EASYDISCUSS_MAIN_SEO_USERNAME'); ?></option>
-								<option value="realname"<?php echo $this->config->get('main_sef_user') == 'realname' ? ' selected="selected"' : '';?>><?php echo JText::_('COM_EASYDISCUSS_MAIN_SEO_REALNAME'); ?></option>
-							</select>
-						</div>
-					</div>
-					
-				</div>
-			</div>
-		</div>
 
 		<div class="panel">
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_SEO_POST_PERMALINK'); ?>
@@ -94,8 +80,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<div class="form-horizontal">
 					<div class="form-group">
 						<div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_WORKFLOW_SEF_FORMAT'); ?>
-                        </div>
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_WORKFLOW_SEF_FORMAT'); ?>
+						</div>
 		
 
 						<div class="col-md-7">

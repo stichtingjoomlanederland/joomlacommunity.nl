@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -10,18 +10,19 @@ defined('_JEXEC') or die();
 
 /** @var  $this  \Akeeba\Backup\Admin\View\Backup\Html */
 $escapedDefaultDescription = addslashes($this->defaultDescription);
-$escapedDescription = addslashes(empty($this->description) ? $this->defaultDescription : $this->description);
-$escapedComment = addslashes($this->comment);
-$escapedAngiePassword = addslashes($this->ANGIEPassword);
-$escapedJpsKey = $this->showJPSPassword ? addslashes($this->jpsPassword) : '';
-$autoResume = (int)$this->autoResume;
-$autoResumeTimeout = (int)$this->autoResumeTimeout;
-$autoResumeRetries = (int)$this->autoResumeRetries;
-$maxExecTime = (int)$this->maxExecutionTime;
-$runtimeBias = (int)$this->runtimeBias;
-$escapedJuriBase = addslashes(JUri::base());
-$escapedDomains = addcslashes($this->domains, "'\\");
-$useIframe = $this->useIFRAME ? 'true' : 'false';
+$escapedDescription        = addslashes(empty($this->description) ? $this->defaultDescription : $this->description);
+$escapedComment            = addslashes($this->comment);
+$escapedAngiePassword      = addslashes($this->ANGIEPassword);
+$escapedJpsKey             = $this->showJPSPassword ? addslashes($this->jpsPassword) : '';
+$autoResume                = (int) $this->autoResume;
+$autoResumeTimeout         = (int) $this->autoResumeTimeout;
+$autoResumeRetries         = (int) $this->autoResumeRetries;
+$maxExecTime               = (int) $this->maxExecutionTime;
+$runtimeBias               = (int) $this->runtimeBias;
+$escapedJuriBase           = addslashes(JUri::base());
+$escapedDomains            = addcslashes($this->domains, "'\\");
+$escapedReturnURL          = addcslashes($this->returnURL, "'\\");
+$useIframe                 = $this->useIFRAME ? 'true' : 'false';
 $innerJS = <<< JS
 	// Initialization
 	akeeba.Backup.defaultDescription = "$escapedDefaultDescription";
@@ -36,7 +37,7 @@ $innerJS = <<< JS
 	akeeba.Backup.resume.maxRetries = $autoResumeRetries;
 
 	// The return URL
-	akeeba.Backup.returnUrl = '{$this->returnURL}';
+	akeeba.Backup.returnUrl = '{$escapedReturnURL}';
 
 	// Used as parameters to start_timeout_bar()
 	akeeba.Backup.maxExecutionTime = $maxExecTime;
@@ -90,7 +91,7 @@ else
 	akeeba.System.addEventListener(document.getElementById('backup-default'), 'click', akeeba.Backup.restoreDefaultOptions);
 
 	// Work around Safari which ignores autocomplete=off (FOR CRYING OUT LOUD!)
-	setTimeout('akeeba.Backup.restoreCurrentOptions();', 500);
+	setTimeout(akeeba.Backup.restoreCurrentOptions, 500);
 
 JS;
 }

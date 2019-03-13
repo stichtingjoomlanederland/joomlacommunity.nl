@@ -1,0 +1,331 @@
+/**
+ * @package    PwtAcl
+ *
+ * @author     Sander Potjer - Perfect Web Team <extensions@perfectwebteam.com>
+ * @copyright  Copyright (C) 2011 - [year] Perfect Web Team. All rights reserved.
+ * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ * @link       https://extensions.perfectwebteam.com/pwt-acl
+ */
+.page-title .icon-pwtacl {
+  background-image: url('../images/pwt-acl.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 105px;
+  height: 35px;
+  position: relative;
+  margin-bottom: -10px;
+  margin-right: 5px !important;
+}
+.well.groups,
+.well.users {
+  min-height: 500px;
+  padding-bottom: 0;
+}
+.well.groups .dataTables_wrapper,
+.well.users .dataTables_wrapper {
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 10px;
+}
+.well.groups .dataTables_wrapper .dataTables_length,
+.well.users .dataTables_wrapper .dataTables_length {
+  float: left;
+  height: 30px;
+  margin-top: 4px;
+}
+.well.groups .dataTables_wrapper .dataTables_length select,
+.well.users .dataTables_wrapper .dataTables_length select {
+  margin: 0 5px 0 0;
+  width: 50px;
+  float: left;
+}
+.well.groups .dataTables_wrapper .dataTables_filter input,
+.well.users .dataTables_wrapper .dataTables_filter input {
+  width: 96%;
+}
+.well.groups .dataTables_wrapper .dataTables_paginate,
+.well.users .dataTables_wrapper .dataTables_paginate {
+  float: right;
+  text-align: right;
+  height: 20px;
+  margin-top: 7px;
+}
+.well.groups .dataTables_paginate a,
+.well.users .dataTables_paginate a {
+  background: none repeat scroll 0 0 #FFF;
+  border: 1px solid #CCC;
+  text-decoration: none;
+  margin: 0 0 0 5px;
+  border-radius: 4px 4px 4px 4px;
+  line-height: 18px;
+  padding: 4px 14px;
+  vertical-align: middle;
+}
+.well.groups .dataTables_paginate a:hover,
+.well.users .dataTables_paginate a:hover {
+  background: none repeat scroll 0 0 #E8F6FE;
+  border: 1px solid #AAA;
+  cursor: pointer;
+  text-decoration: none;
+}
+table#pwtacl thead {
+  background-color: #f0f0f0;
+  border-bottom: 1px solid #CCCCCC;
+}
+table#pwtacl thead th {
+  text-align: center;
+  font-weight: normal;
+  font-size: 12px;
+}
+table#pwtacl thead .border-left {
+  border-left-color: #AAA;
+}
+table#pwtacl tr.odd td {
+  background: #f9f9f9;
+}
+table#pwtacl tr td.title {
+  overflow: hidden;
+  white-space: nowrap;
+}
+table#pwtacl tr td.title .icons {
+  float: left;
+}
+table#pwtacl tr td.title.trashed a {
+  color: #AAA;
+}
+table#pwtacl tr td.no-action {
+  background: #F0F0F0;
+}
+table#pwtacl tr td.action {
+  text-align: center;
+  padding: 0;
+  font-size: 18px;
+  vertical-align: middle;
+}
+table#pwtacl tr td.action.edit {
+  cursor: pointer;
+}
+table#pwtacl tr td.core-login-site,
+table#pwtacl tr td.core-admin,
+table#pwtacl tr td.core-create,
+table#pwtacl tr td.assetid,
+table#pwtacl tr td.border-left {
+  border-left-color: #AAA;
+}
+table#pwtacl tr td.border-right {
+  border-right: 1px solid #AAA;
+}
+table#pwtacl tr td.padding-small {
+  padding: 5px 4px;
+}
+table#pwtacl tr td.padding-none {
+  padding: 0;
+}
+table#pwtacl .large-icon {
+  margin-right: 0;
+}
+table#pwtacl .table-additional {
+  border: none;
+  margin-bottom: 0;
+  border-bottom: 1px solid #AAA;
+  border-top: 1px solid #AAA;
+}
+table#pwtacl .table-additional tr,
+table#pwtacl .table-additional td {
+  border-left: none;
+  border-radius: 0;
+}
+table#pwtacl .table-additional tr.border-left,
+table#pwtacl .table-additional td.border-left {
+  border-left: 1px solid #AAA;
+}
+table#pwtacl .additional {
+  display: none;
+}
+table#pwtacl .powered-by-pwtacl {
+  float: right;
+  display: inline-table;
+  font-size: 18px;
+}
+table#pwtacl .icon-lock:before {
+  color: #942A25;
+}
+table#legend tr {
+  border-bottom: 5px solid #F0F0F0;
+}
+table#legend .legend-icon {
+  background: #f9f9f9;
+  text-align: center;
+}
+table#legend .legend-title {
+  padding-left: 10px;
+}
+table#legend .icon-lock:before {
+  color: #942A25;
+}
+.action.allowed {
+  background-color: #378137 !important;
+}
+.action.allowed [class^="icon-"]:before {
+  color: #fff;
+}
+.action.denied {
+  background-color: #942A25 !important;
+}
+.action.denied [class^="icon-"]:before {
+  color: #fff;
+}
+.action.conflict {
+  background-color: #FFFFCF !important;
+}
+.diagnostics .progress {
+  margin: 20px 0 0 0;
+  height: 25px;
+  background: #fff;
+}
+.diagnostics .accordion-group {
+  margin-bottom: 5px;
+}
+.diagnostics .accordion-heading .badge {
+  text-align: center;
+}
+.diagnostics .icon-ok.icon-white {
+  margin: 0;
+}
+.diagnostics .icon-ok.icon-white::before {
+  color: #fff;
+}
+.diagnostics .quickscan {
+  padding-right: 14px;
+}
+.diagnostics .quickscan.quickscan-issues {
+  background-color: #fcf8e3;
+  border: 1px solid #faebcc;
+  color: #8a6d3b;
+}
+.diagnostics .quickscan.quickscan-issues legend {
+  color: #8a6d3b;
+  border-bottom-color: #faebcc;
+  font-weight: 700;
+}
+.diagnostics .quickscan.quickscan-noissues {
+  background-color: #dff0d8;
+  border-color: #d6e9c6;
+  color: #3c763d;
+}
+.diagnostics .quickscan.quickscan-noissues legend {
+  color: #3c763d;
+  border-bottom-color: #d6e9c6;
+  font-weight: 700;
+}
+.diagnostics .typeofchange {
+  display: block;
+  text-align: center;
+}
+.diagnostics .js-results-table {
+  margin-top: 14px;
+}
+.diagnostics .accordion-heading {
+  background: #e6e6e6;
+}
+.diagnostics .accordion-heading h3 {
+  margin: 6px 0;
+}
+.diagnostics .accordion-heading small {
+  color: #555;
+}
+.diagnostics .accordion-heading a {
+  text-decoration: none;
+}
+.diagnostics .accordion-heading .badge-warning {
+  margin-right: 5px;
+}
+.diagnostics .accordion-inner {
+  background: #F0F0F0;
+}
+.diagnostics .accordion-inner .alert {
+  margin-bottom: 0;
+}
+.diagnostics .completed {
+  border-color: #d6e9c6;
+}
+.diagnostics .completed .accordion-heading {
+  background-color: #dff0d8;
+  color: #3c763d;
+}
+.diagnostics .nopointer {
+  cursor: default;
+}
+.sidebar-content {
+  padding: 0 14px;
+}
+.sidebar-content .nav-list {
+  padding: 0;
+}
+.sidebar-content .action {
+  line-height: 24px;
+  padding-left: 3px;
+}
+.sidebar-content .allowed,
+.sidebar-content .denied {
+  color: #fff;
+}
+.js-stools {
+  margin-bottom: 10px;
+}
+.com_pwtacl header.header {
+  background-image: url('../images/pwt-bg.jpg');
+  background-size: cover;
+}
+.com_pwtacl header.header .icon-pwtimage {
+  background-image: url('../images/pwt-acl.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 115px;
+  height: 35px;
+  position: relative;
+  margin-bottom: -10px;
+  margin-right: 5px !important;
+}
+.com_pwtacl .pwt-extensions {
+  font-size: 1.05em;
+  line-height: 130%;
+}
+.com_pwtacl .pwt-extensions p:last-child {
+  margin-bottom: 0;
+}
+.com_pwtacl .pwt-extensions .pwt-heading {
+  margin: 20px 0 8px;
+  font-size: 1.2em;
+  font-weight: 700;
+}
+.com_pwtacl .pwt-extensions .pwt-section {
+  margin-bottom: 16px;
+}
+.com_pwtacl .pwt-extensions .pwt-section:last-child {
+  margin-bottom: 0;
+}
+.com_pwtacl .pwt-extensions .pwt-section--border-top {
+  border-top: 1px solid #CCC;
+  padding-top: 16px;
+}
+.com_pwtacl .pwt-extensions .pwt-extension-logo {
+  max-height: 75px;
+}
+.com_pwtacl .pwt-extensions .btn-group-justified {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+}
+.com_pwtacl .pwt-extensions .btn-group-justified > .btn,
+.com_pwtacl .pwt-extensions .btn-group-justified > .btn-group {
+  display: table-cell;
+  float: none;
+  width: 1%;
+}
+.com_pwtacl .pwt-extensions .btn-group-justified > .btn .btn,
+.com_pwtacl .pwt-extensions .btn-group-justified > .btn-group .btn {
+  width: 100%;
+}
+/*# sourceMappingURL=pwtacl.css.map */

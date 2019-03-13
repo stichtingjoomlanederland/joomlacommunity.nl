@@ -70,9 +70,9 @@ if (!class_exists('DiscussTwitterOAuth')){
 		 */
 		function __construct($consumer_key, $consumer_secret, $oauth_token = NULL, $oauth_token_secret = NULL) {
 			$this->sha1_method = new OAuthSignatureMethod_HMAC_SHA1();
-			$this->consumer = new OAuthConsumer($consumer_key, $consumer_secret);
+			$this->consumer = new EDOAuthConsumer($consumer_key, $consumer_secret);
 			if (!empty($oauth_token) && !empty($oauth_token_secret)) {
-				$this->token = new OAuthConsumer($oauth_token, $oauth_token_secret);
+				$this->token = new EDOAuthConsumer($oauth_token, $oauth_token_secret);
 			} else {
 				$this->token = NULL;
 			}
@@ -97,7 +97,7 @@ if (!class_exists('DiscussTwitterOAuth')){
 			}
 			$request = $this->oAuthRequest($this->requestTokenURL(), 'GET', $parameters);
 			$token = OAuthUtil::parse_parameters($request);
-			$this->token = new OAuthConsumer($token['oauth_token'], $token['oauth_token_secret']);
+			$this->token = new EDOAuthConsumer($token['oauth_token'], $token['oauth_token_secret']);
 			return $token;
 		}
 
@@ -133,7 +133,7 @@ if (!class_exists('DiscussTwitterOAuth')){
 			}
 			$request = $this->oAuthRequest($this->accessTokenURL(), 'GET', $parameters);
 			$token = OAuthUtil::parse_parameters($request);
-			$this->token = new OAuthConsumer($token['oauth_token'], $token['oauth_token_secret']);
+			$this->token = new EDOAuthConsumer($token['oauth_token'], $token['oauth_token_secret']);
 
 			return $token;
 		}
@@ -154,7 +154,7 @@ if (!class_exists('DiscussTwitterOAuth')){
 			$parameters['x_auth_mode'] = 'client_auth';
 			$request = $this->oAuthRequest($this->accessTokenURL(), 'POST', $parameters);
 			$token = OAuthUtil::parse_parameters($request);
-			$this->token = new OAuthConsumer($token['oauth_token'], $token['oauth_token_secret']);
+			$this->token = new EDOAuthConsumer($token['oauth_token'], $token['oauth_token_secret']);
 			return $token;
 		}
 

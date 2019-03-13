@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -17,9 +17,7 @@ class EasyDiscussOauth extends EasyDiscuss
 	 * New way to retrieve the oauth client
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return	
+	 * @access	public	
 	 */
 	public function getClient($type)
 	{
@@ -52,9 +50,7 @@ class EasyDiscussOauth extends EasyDiscuss
 	 * Creates a new oauth client object
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return	
+	 * @access	public	
 	 */
 	public function createClient($type = '', $api = '', $secret = '', $callback = '')
 	{
@@ -74,4 +70,30 @@ class EasyDiscussOauth extends EasyDiscuss
 
 		return $client;
 	}
+
+	/**
+	 * Method to show Facebook oauth redirect URI for backend
+	 *
+	 * @since   4.0.23
+	 * @access  public
+	 */
+	public function getOauthRedirectURI($type = 'facebook')
+	{
+		$callbackUri = array();
+
+		if ($type == 'facebook') {
+			$callbackUri[] = rtrim(JURI::root(), '/') . '/administrator/index.php?option=com_easydiscuss&controller=autoposting&task=grant&type=facebook';
+		}
+
+		if ($type == 'linkedin') {
+			$callbackUri[] = EDR::getRoutedUrl('index.php?option=com_easydiscuss&view=auth&layout=linkedin', true, true, true, true);
+		}
+
+		if ($type == 'twitter') {
+			$callbackUri[] = rtrim(JURI::root(), '/') . '/administrator/index.php';
+			$callbackUri[] = rtrim(JURI::root(), '/') . '/index.php';
+		}
+
+		return $callbackUri;
+	}	
 }

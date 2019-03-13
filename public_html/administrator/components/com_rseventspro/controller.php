@@ -223,6 +223,20 @@ class RseventsproController extends JControllerLegacy
 				$data->groups = '';
 			}
 			
+			if (!empty($data->from) && $data->from != $db->getNullDate()) {
+				$start = JFactory::getDate($data->from, rseventsproHelper::getTimezone());
+				$data->from = $start->format('Y-m-d H:i:s');
+			} else {
+				$data->from = $db->getNullDate();
+			}
+			
+			if (!empty($data->to) && $data->to != $db->getNullDate()) {
+				$end = JFactory::getDate($data->to, rseventsproHelper::getTimezone());
+				$data->to = $end->format('Y-m-d H:i:s');
+			} else {
+				$data->to = $db->getNullDate();
+			}
+			
 			$data->layout = '';
 			$data->price = (float) $data->price;
 			$data->seats = (int) $data->seats;

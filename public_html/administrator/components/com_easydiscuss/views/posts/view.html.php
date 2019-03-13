@@ -96,7 +96,7 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 				$post->editLink = 'index.php?option=com_easydiscuss&view=post&layout=edit&id=' . $post->id;
 
 				// Format the display date
-				$post->displayDate = ED::date($post->created)->toSql();
+				$post->displayDate = ED::date($post->created)->display(JText::_('DATE_FORMAT_LC5'));
 
 				// display only safe content.
 				$post->content = strip_tags($post->content);

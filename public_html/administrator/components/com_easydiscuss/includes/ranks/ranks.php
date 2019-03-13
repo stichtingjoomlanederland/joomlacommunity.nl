@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyBlog is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -44,12 +44,13 @@ class EasyDiscussRanks extends EasyDiscuss
 				$curUserScore = 0;
 			} else {
 
-				$curUserScore = $user->points;
-
 				// We need to respect if user integrated with ES's point
-				if ($this->config->get('integration_easysocial_points')) {
-					$esLib = ED::easysocial();
-					$curUserScore = ED::easysocial()->getUserPoints($userId);
+				$esUserPoint = ED::easysocial()->getUserPoints($userId);
+
+				if ($esUserPoint === false) {
+					$curUserScore = $user->points;
+				} else {
+					$curUserScore = $esUserPoint;
 				}
 			}
 		}

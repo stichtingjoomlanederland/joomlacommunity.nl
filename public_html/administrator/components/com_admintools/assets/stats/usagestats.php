@@ -1,8 +1,8 @@
 <?php
 /**
- * @package		Usagestats
- * @copyright Copyright (c)2014-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license		GNU GPL version 3 or later
+ * @package     Usagestats
+ * @copyright   Copyright (c)2014-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license     GNU GPL version 3 or later
  */
 
 class AkeebaUsagestats
@@ -12,7 +12,7 @@ class AkeebaUsagestats
     /** @var array Associative array of data being sent */
     private $data = array();
     /** @var string Remote url to upload the stats */
-    private $remoteUrl = 'http://abrandnewsite.com/index.php';
+    private $remoteUrl = 'https://abrandnewsite.com/index.php';
 
     public function setSiteId($siteId)
     {

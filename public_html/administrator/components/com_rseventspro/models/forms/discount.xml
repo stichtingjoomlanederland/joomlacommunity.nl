@@ -19,10 +19,11 @@
 	<field name="events" type="events" label="COM_RSEVENTSPRO_DISCOUNT_EVENTS" multiple="multiple" description="COM_RSEVENTSPRO_DISCOUNT_EVENTS_DESC" />
 	<field name="groups" type="groups" label="COM_RSEVENTSPRO_DISCOUNT_GROUPS" multiple="multiple" description="COM_RSEVENTSPRO_DISCOUNT_GROUPS_DESC" />
 	
-	<field name="same_tickets" type="text" class="input-mini" size="5" />
-	<field name="different_tickets" type="text" class="input-mini" size="5" />
+	<field name="same_tickets" type="text" class="input-mini center" size="5" />
+	<field name="different_tickets" type="text" class="input-mini center" size="5" />
+	<field name="cart_tickets" type="text" class="input-mini center" size="5" />
 	<field name="total" type="checkbox" default="0" />
-	<field name="totalvalue" type="text" class="input-mini" size="5" />
+	<field name="totalvalue" type="text" class="input-mini center" size="5" />
 	<field name="payment" type="checkbox" default="0" />
 	<field name="paymentvalue" type="rspayments" size="1" shownone="false" />
 	

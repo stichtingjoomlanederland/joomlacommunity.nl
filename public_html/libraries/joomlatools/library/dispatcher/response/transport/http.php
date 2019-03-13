@@ -66,14 +66,12 @@ class KDispatcherResponseTransportHttp extends KDispatcherResponseTransportAbstr
      */
     public function sendContent(KDispatcherResponseInterface $response)
     {
-        //Make sure the output buffers are cleared
-        $level = ob_get_level();
-        while($level > 0) {
-            ob_end_clean();
-            $level--;
+        //Make sure we do not have body content for 204, 205 and 305 status codes
+        $codes = array(KHttpResponse::NO_CONTENT, KHttpResponse::NOT_MODIFIED, KHttpResponse::RESET_CONTENT);
+        if (!in_array($response->getStatusCode(), $codes)) {
+            echo $response->getStream()->toString();
         }
 
-        echo $response->getStream()->toString();
         return $this;
     }
 
@@ -92,12 +90,6 @@ class KDispatcherResponseTransportHttp extends KDispatcherResponseTransportAbstr
     public function send(KDispatcherResponseInterface $response)
     {
         $request = $response->getRequest();
-
-        //Make sure we do not have body content for 204, 205 and 305 status codes
-        $codes = array(KHttpResponse::NO_CONTENT, KHttpResponse::NOT_MODIFIED, KHttpResponse::RESET_CONTENT);
-        if (in_array($response->getStatusCode(), $codes)) {
-            $response->setContent(null);
-        }
 
         //Remove location header if we are not redirecting and the status code is not 201
         if(!$response->isRedirect() && $response->getStatusCode() !== KHttpResponse::CREATED)
@@ -118,10 +110,16 @@ class KDispatcherResponseTransportHttp extends KDispatcherResponseTransportAbstr
             }
         }
 
-
         //Add file related information if we are serving a file
         if($response->isDownloadable())
         {
+            //Make sure the output buffers are cleared
+            $level = ob_get_level();
+            while($level > 0) {
+                ob_end_clean();
+                $level--;
+            }
+
             //Last-Modified header
             if($time = $response->getStream()->getTime(KFilesystemStreamInterface::TIME_MODIFIED)) {
                 $response->setLastModified($time);
@@ -147,37 +145,32 @@ class KDispatcherResponseTransportHttp extends KDispatcherResponseTransportAbstr
                     $filename = str_replace('#', '_', $filename);
                 }
 
-                $disposition = array('filename' => '"'.$filename.'"');
+                $directives = array('filename' => '"'.$filename.'"');
 
-                // IE7 and 8 accepts percent encoded file names as the filename value
+                // IE accepts percent encoded file names as the filename value
                 // Other browsers (except Safari) use filename* header starting with UTF-8''
                 $encoded_name = rawurlencode($filename);
 
                 if($encoded_name !== $filename)
                 {
-                    if (preg_match('/(?i)MSIE [4-8]/i', $user_agent)) {
-                        $disposition['filename'] = '"'.$encoded_name.'"';
+                    if (preg_match('/(?:\b(MS)?IE\s+|\bTrident\/7\.0;.*\s+rv:)(\d+)/i', $user_agent)) {
+                        $directives['filename'] = '"'.$encoded_name.'"';
                     }
                     elseif (!stripos($user_agent, 'AppleWebkit')) {
-                        $disposition['filename*'] = 'UTF-8\'\''.$encoded_name;
+                        $directives['filename*'] = 'UTF-8\'\''.$encoded_name;
                     }
                 }
 
-                //Disposition header
-                array_unshift($disposition, $response->isAttachable() ? 'attachment' : 'inline');
+                $disposition = $response->isAttachable() ? 'attachment' : 'inline';
 
-                $response->headers->set('Content-Disposition', $disposition);
+                //Disposition header
+                $response->headers->set('Content-Disposition', [$disposition => $directives]);
             }
 
             //Force a download by the browser by setting the disposition to 'attachment'.
             if($response->isAttachable()) {
                 $response->setContentType('application/octet-stream');
             }
-        }
-
-        //Add Last-Modified header if not present
-        if(!$response->headers->has('Last-Modified')) {
-            $response->setLastModified(new DateTime('now'));
         }
 
         //Add Content-Length if not present
@@ -190,11 +183,31 @@ class KDispatcherResponseTransportHttp extends KDispatcherResponseTransportAbstr
             $response->headers->remove('Content-Length');
         }
 
+        //Set Content-Type if not present
+        if(!$response->headers->has('Content-Type')) {
+            $response->setContentType($request->getFormat(true));
+        }
+
+        //Set cache-control header to most conservative value.
+        $cache_control = (array) $response->headers->get('Cache-Control', null, false);
+        if (empty($cache_control) || !$request->isCacheable()) {
+            $response->headers->set('Cache-Control', array('private', 'no-cache', 'no-store'));
+        }
+
+        //Validate the response if it's cacheable and a request etag if defined
+        if($response->isCacheable() && !$response->isStale())
+        {
+            if ($etags = $request->getEtags())
+            {
+                if(in_array($response->getEtag(), $etags) || in_array('*', $etags)) {
+                    $response->setStatus(KHttpResponse::NOT_MODIFIED);
+                }
+            }
+        }
+
         //Modifies the response so that it conforms to the rules defined for a 304 status code.
         if($response->getStatusCode() == KHttpResponse::NOT_MODIFIED)
         {
-            $response->setContent(null);
-
             $headers = array(
                 'Allow',
                 'Content-Encoding',
@@ -208,18 +221,6 @@ class KDispatcherResponseTransportHttp extends KDispatcherResponseTransportAbstr
             //Remove headers that MUST NOT be included with 304 Not Modified responses
             foreach ($headers as $header) {
                 $response->headers->remove($header);
-            }
-        }
-
-        //Calculates or modifies the cache-control header to a sensible, conservative value.
-        $cache_control = (array) $response->headers->get('Cache-Control', null, false);
-
-        if (empty($cache_control))
-        {
-            if(!$response->isCacheable()) {
-                $response->headers->set('Cache-Control', 'no-cache');
-            } else {
-                $response->headers->set('Cache-Control', array('private', 'must-revalidate'));
             }
         }
 

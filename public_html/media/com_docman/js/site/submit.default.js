@@ -66,12 +66,41 @@ kQuery(function($) {
                 return false;
             }
 
+            if (typeof Joomla !== 'undefined' && typeof Joomla.editors !== 'undefined'
+                && typeof Joomla.editors.instances !== 'undefined'
+                && typeof Joomla.editors.instances['description'] !== 'undefined') {
+                var editor = Joomla.editors.instances['description'];
+                if (typeof editor.onSave === 'function') {
+                    editor.onSave();
+                }
+
+                if (typeof editor.save === 'function') {
+                    editor.save();
+                }
+
+                var value = '';
+
+                if (typeof editor.getValue === 'function') {
+                    value = editor.getValue();
+                } else {
+                    value = $('#description').val();
+                }
+
+                this.form.append($('<input/>', {name: 'description', type: 'hidden',
+                    value: value
+                }));
+
+                // turn off you have unsaved changes feature of TinyMCE
+                window.onbeforeunload = null;
+            }
+
             this.form.append($('<input/>', {name: '_action', type: 'hidden', value: context.action}));
 
             var uploader = uploader_el.uploader('instance'),
-                params = this.form.serializeArray();
+                params = this.form.serializeArray(),
+                action = this.form.attr('action');
 
-            uploader.options.url = this.form.attr('action')+'?format=json';
+            uploader.options.url = action+(action.indexOf('?') === -1 ? '?' : '&')+'format=json';
             uploader.uploader.bind('FileUploaded', function(up, file, result) {
                 if (result.status === 201 && typeof result.response === 'object') {
                     window.location = result.response.redirect;

@@ -27,13 +27,14 @@ defined('KOOWA') or die; ?>
 <ktml:script src="media://com_docman/js/admin/ordering.js"/>
 <? endif; ?>
 
+
 <!-- Wrapper -->
 <div class="k-wrapper k-js-wrapper">
 
     <!-- Title when sidebar is invisible -->
     <ktml:toolbar type="titlebar" title="COM_DOCMAN_SUBMENU_CATEGORIES" mobile>
 
-        <!-- Overview -->
+    <!-- Content wrapper -->
     <div class="k-content-wrapper">
 
         <!-- Sidebar -->

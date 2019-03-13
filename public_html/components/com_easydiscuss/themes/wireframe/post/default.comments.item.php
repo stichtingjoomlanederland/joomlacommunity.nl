@@ -19,13 +19,13 @@ defined('_JEXEC') or die('Unauthorized Access');
 
         <div class="o-flag__body">
             <div class="ed-comment-item__content">
-				<?php echo nl2br($comment->comment); ?>
+				<?php echo $comment->comment; ?>
 			</div>
             <div class="ed-comment-item__action">
                 <ol class="g-list-inline g-list-inline--delimited">
                     <li data-breadcrumb="·"><a href="<?php echo $comment->creator->getLink();?>">S<?php echo $comment->creator->getName(); ?></a></li>
                     <li data-breadcrumb="·"><?php echo $comment->duration; ?></li>
-					
+
 					<?php if ($comment->canConvert()) { ?>
                     	<li data-breadcrumb="·"><a href="javascript:void(0);" data-comment-convert-link><?php echo JText::_('COM_EASYDISCUSS_CONVERT_THIS_COMMENT_TO_REPLY'); ?></a></li>
 					<?php } ?>

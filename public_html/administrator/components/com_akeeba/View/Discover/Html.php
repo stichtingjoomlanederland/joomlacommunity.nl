@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -39,7 +39,7 @@ class Html extends BaseView
 		$model = $this->getModel();
 
 		$this->directory = '';
-		$directory = $model->getState('directory', '');
+		$directory = $model->getState('directory', '', 'path');
 
 		if (empty($directory))
 		{
@@ -57,7 +57,7 @@ class Html extends BaseView
 		/** @var Discover $model */
 		$model = $this->getModel();
 
-		$directory = $model->getState('directory', '');
+		$directory = $model->getState('directory', '', 'path');
 		$this->setLayout('discover');
 
 		$files = $model->getFiles();

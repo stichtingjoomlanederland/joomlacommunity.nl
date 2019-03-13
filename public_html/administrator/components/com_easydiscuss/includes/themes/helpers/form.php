@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -13,6 +13,66 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussThemesHelperForm
 {
+	/**
+	 * Renders a colour picker input
+	 *
+	 * @since	4.2.0
+	 * @access	public
+	 */
+	public static function colorpicker($name, $value = '', $revert = '')
+	{
+		static $script = null;
+
+		$loadScript = false;
+		
+		if (is_null($script)) {
+			$loadScript = true;
+			$script = true;
+		}
+
+		JHTML::_('behavior.colorpicker');
+
+		$theme = ED::themes();
+		$theme->set('loadScript', $loadScript);
+		$theme->set('name', $name);
+		$theme->set('value', $value);
+		$theme->set('revert', $revert);
+
+		$output = $theme->output('admin/html/form/colorpicker');
+
+		return $output;
+	}
+
+	/**
+	 * Floating label with input form
+	 *
+	 * @since	4.1.0
+	 * @access	public
+	 */
+	public static function floatinglabel($label, $name, $type = 'textbox', $value = '')
+	{
+		// This currently only supports textbox and password
+		$supported = array('textbox', 'password');
+
+		if (!in_array($type, $supported)) {
+			return "";
+		}
+
+		$label = JText::_($label);
+		$id = 'ed-' . str_ireplace(array('.'), '', $name);
+
+		$theme = ED::themes();
+		$theme->set('type', $type);
+		$theme->set('value', $value);
+		$theme->set('label', $label);
+		$theme->set('name', $name);
+		$theme->set('id', $id);
+
+		$output = $theme->output('site/helpers/form/' . __FUNCTION__);
+
+		return $output;
+	}
+
 	/**
 	 * Renders a standard hidden input set for a form
 	 *
@@ -115,7 +175,7 @@ class EasyDiscussThemesHelperForm
 		$theme->set('label', $label);
 		$theme->set('desc', $desc);
 
-		return $theme->output('admin/html/form.label');
+		return $theme->output('admin/html/form/label');
 	}
 
 	/**
@@ -123,16 +183,19 @@ class EasyDiscussThemesHelperForm
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
-	public static function textarea($name, $value = '')
+	public static function textarea($name, $value = '', $rows = null)
 	{
+		if (is_null($rows)) {
+			$rows = 5;
+		}
+
 		$theme = ED::themes();
 		$theme->set('name', $name);
 		$theme->set('value', $value);
+		$theme->set('rows', $rows);
 
-		$output = $theme->output('admin/html/form.textarea');
+		$output = $theme->output('admin/html/form/textarea');
 
 		return $output;
 	}
@@ -143,13 +206,25 @@ class EasyDiscussThemesHelperForm
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function textbox($name, $value = '', $placeholder = '', $class = '')
+	public static function textbox($name, $value = '', $placeholder = '', $class = '', $options = array())
 	{
 		if ($placeholder) {
 			$placeholder = JText::_($placeholder);
 		}
 		
+		if (isset($options['class'])) {
+			$class = $options['class'];
+		}
+
+		$attributes = '';
+
+		if (isset($options['attr'])) {
+			$attributes = $options['attr'];
+		}
+
+
 		$theme = ED::themes();
+		$theme->set('attributes', $attributes);
 		$theme->set('name', $name);
 		$theme->set('value', $value);
 		$theme->set('class', $class);
@@ -317,6 +392,41 @@ class EasyDiscussThemesHelperForm
 	}
 
 	/**
+	 * Renders a simple password input
+	 *
+	 * @since   4.1.0
+	 * @access  public
+	 */
+	public static function password($name, $id = null, $value = '', $options = array())
+	{
+		$class = 'form-control';
+		$placeholder = '';
+		$attributes = '';
+
+		if (isset($options['attr']) && $options['attr']) {
+			$attributes = $options['attr'];
+		}
+
+		if (isset($options['class']) && $options['class']) {
+			$class = $options['class'];
+		}
+
+		if (isset($options['placeholder']) && $options['placeholder']) {
+			$placeholder = JText::_($options['placeholder']);
+		}
+
+		$theme = ED::themes();
+		$theme->set('attributes', $attributes);
+		$theme->set('name', $name);
+		$theme->set('id', $id);
+		$theme->set('value', $value);
+		$theme->set('class', $class);
+		$theme->set('placeholder', $placeholder);
+
+		return $theme->output('site/helpers/form/password');
+	}
+
+	/**
 	 * Renders the user group form
 	 *
 	 * @since	4.0
@@ -384,5 +494,28 @@ class EasyDiscussThemesHelperForm
 		$output = $theme->output('admin/html/form.languages');
 
 		return $output;
-	}	
+	}
+
+	/**
+	 * Displays dropdown list for the Facebook scopes permission
+	 *
+	 * @since	4.1.4
+	 * @access	public
+	 */
+	public static function scopes($name, $id, $selected = null)
+	{
+		// Get the list of Facebook scope permission
+		$scopes = array('publish_pages', 'manage_pages', 'publish_to_groups');
+		$scopes = array_combine($scopes, $scopes);
+
+		$theme = ED::themes();
+		$theme->set('name', $name);
+		$theme->set('scopes', $scopes);
+		$theme->set('id', $id);
+		$theme->set('selected', $selected);
+
+		$output = $theme->output('admin/html/form.scopes');
+
+		return $output;
+	}			
 }

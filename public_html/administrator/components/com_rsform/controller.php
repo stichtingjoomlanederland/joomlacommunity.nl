@@ -14,24 +14,19 @@ class RsformController extends JControllerLegacy
 		parent::__construct();
 
 		JHtml::_('behavior.framework');
-
-		$version 	= new RSFormProVersion();
-		$v 			= (string) $version;
-		$doc 		= JFactory::getDocument();
-
 		JHtml::_('jquery.framework');
-		$doc->addScript(JUri::root(true).'/administrator/components/com_rsform/assets/js/placeholders.js?v='.$v);
-		$doc->addScript(JUri::root(true).'/administrator/components/com_rsform/assets/js/script.js?v='.$v);
-		$doc->addScript(JUri::root(true).'/administrator/components/com_rsform/assets/js/jquery.tag-editor.js?v='.$v);
-		$doc->addScript(JUri::root(true).'/administrator/components/com_rsform/assets/js/jquery.caret.min.js?v='.$v);
-		$doc->addScript(JUri::root(true).'/administrator/components/com_rsform/assets/js/validation.js?v='.$v);
-		$doc->addScript(JUri::root(true).'/administrator/components/com_rsform/assets/js/tablednd.js?v='.$v);
-		$doc->addScript(JUri::root(true).'/administrator/components/com_rsform/assets/js/jquery.scrollto.js?v='.$v);
 
-		$doc->addStyleSheet(JUri::root(true).'/administrator/components/com_rsform/assets/css/style.css?v='.$v);
-		$doc->addStyleSheet(JUri::root(true).'/administrator/components/com_rsform/assets/css/jquery.tag-editor.css?v='.$v);
-		// load the font
-		$doc->addStyleSheet(JUri::root(true).'/administrator/components/com_rsform/assets/css/fonts/rsicons.css?v='.$v);
+        JHtml::script('com_rsform/admin/placeholders.js', array('relative' => true, 'version' => 'auto'));
+        JHtml::script('com_rsform/admin/script.js', array('relative' => true, 'version' => 'auto'));
+        JHtml::script('com_rsform/admin/jquery.tag-editor.js', array('relative' => true, 'version' => 'auto'));
+        JHtml::script('com_rsform/admin/jquery.caret.min.js', array('relative' => true, 'version' => 'auto'));
+        JHtml::script('com_rsform/admin/validation.js', array('relative' => true, 'version' => 'auto'));
+        JHtml::script('com_rsform/admin/tablednd.js', array('relative' => true, 'version' => 'auto'));
+        JHtml::script('com_rsform/admin/jquery.scrollto.js', array('relative' => true, 'version' => 'auto'));
+
+        JHtml::stylesheet('com_rsform/admin/style.css', array('relative' => true, 'version' => 'auto'));
+        JHtml::stylesheet('com_rsform/admin/jquery.tag-editor.css', array('relative' => true, 'version' => 'auto'));
+        JHtml::stylesheet('com_rsform/admin/rsicons.css', array('relative' => true, 'version' => 'auto'));
 	}
 
 	public function mappings()

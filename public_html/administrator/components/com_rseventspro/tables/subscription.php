@@ -56,7 +56,7 @@ class RseventsproTableSubscription extends JTable
 		if (!$this->id) {
 			$this->date = JFactory::getDate()->toSql();
 			$this->verification = md5($this->ide.$this->name);
-			$this->ip = $_SERVER['REMOTE_ADDR'];
+			$this->ip = rseventsproHelper::getIP();
 			$this->lang = JFactory::getLanguage()->getTag();
 			
 			if (rseventsproHelper::getConfig('create_user') == 2) {

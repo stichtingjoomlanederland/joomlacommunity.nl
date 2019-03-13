@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -67,5 +67,83 @@ class Profiles extends DataController
 
 		// Redirect back to the main page
 		$this->setRedirect('index.php?option=com_akeeba&view=Profiles', $message, $messageType);
+	}
+
+	/**
+	 * Enable the Quick Icon for a record
+	 *
+	 * @since   6.1.2
+	 * @throws  \Exception
+	 */
+	public function quickicon_publish()
+	{
+		$this->setQuickIcon(1);
+	}
+
+	/**
+	 * Disable the Quick Icon for a record
+	 *
+	 * @since   6.1.2
+	 * @throws  \Exception
+	 */
+	public function quickicon_unpublish()
+	{
+		$this->setQuickIcon(0);
+	}
+
+	/**
+	 * Sets the Quick Icon status for the record.
+	 *
+	 * @param   int|bool  $published  Should this profile have a Quick Icon?
+	 *
+	 * @return  void
+	 * @throws  \Exception
+	 *
+	 * @since   6.1.2
+	 */
+	private function setQuickIcon($published)
+	{
+		// CSRF prevention
+		$this->csrfProtection();
+
+		/** @var \Akeeba\Backup\Admin\Model\Profiles $model */
+		$model = $this->getModel()->savestate(false);
+		$ids   = $this->getIDsFromRequest($model, false);
+		$error = false;
+
+		try
+		{
+			$status = true;
+
+			foreach ($ids as $id)
+			{
+				$model->find($id);
+				$model->save([
+					'quickicon' => $published ? 1 : 0
+				]);
+			}
+		}
+		catch (\Exception $e)
+		{
+			$status = false;
+			$error  = $e->getMessage();
+		}
+
+		// Redirect
+		if ($customURL = $this->input->getBase64('returnurl', ''))
+		{
+			$customURL = base64_decode($customURL);
+		}
+
+		$url = !empty($customURL) ? $customURL : 'index.php?option=' . $this->container->componentName . '&view=' . $this->container->inflector->pluralize($this->view) . $this->getItemidURLSuffix();
+
+		if (!$status)
+		{
+			$this->setRedirect($url, $error, 'error');
+		}
+		else
+		{
+			$this->setRedirect($url);
+		}
 	}
 }

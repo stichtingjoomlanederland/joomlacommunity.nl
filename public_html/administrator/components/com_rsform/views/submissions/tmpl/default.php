@@ -8,25 +8,6 @@
 defined('_JEXEC') or die('Restricted access');
 ?>
 <script type="text/javascript">
-Joomla.submitbutton = function(task)
-{
-	if (task == 'submissions.resend')
-	{
-		if (document.adminForm.boxchecked.value == 0)
-		{
-			alert('<?php echo addslashes(JText::sprintf('RSFP_PLEASE_MAKE_SELECTION_TO', JText::_('RSFP_RESEND'))); ?>');
-		}
-		else
-		{
-			Joomla.submitform(task);
-		}
-	}
-	else
-	{
-		Joomla.submitform(task);
-	}
-};
-
 function toggleCheckColumns()
 {
 	var tocheck = document.getElementById('checkColumns').checked;
@@ -53,9 +34,7 @@ function resetForm()
 // Export Modal
 $modalData = array(
 	'selector'	=> 'exportModal',
-	'params'	=> array(
-		'title'		=> JText::_('RSFP_CHOOSE_EXPORT_FORMAT')
-	),
+	'params'	=> array('title' => JText::_('RSFP_CHOOSE_EXPORT_FORMAT')),
 	'body'		=> $this->loadTemplate('modal_export')
 );
 echo JLayoutHelper::render('joomla.modal.main', $modalData);
@@ -99,8 +78,8 @@ echo JLayoutHelper::render('joomla.modal.main', $modalData);
 				<?php } ?>
 				<?php foreach ($this->headers as $header) { ?>
 					<label for="column<?php echo $i; ?>" class="checkbox">
-					<input type="checkbox" <?php echo $this->isHeaderEnabled($header, 0) ? 'checked="checked"' : ''; ?> name="columns[]" value="<?php echo $this->escape($header); ?>" id="column<?php echo $i; ?>" /> 
-					<?php if ($header == '_STATUS') echo JText::_('RSFP_PAYMENT_STATUS'); elseif ($header == '_ANZ_STATUS') echo JText::_('RSFP_ANZ_STATUS'); else echo $header; ?>
+					<input type="checkbox" <?php echo $this->isHeaderEnabled($header, 0) ? 'checked="checked"' : ''; ?> name="columns[]" value="<?php echo $this->escape($header); ?>" id="column<?php echo $i; ?>" />
+                        <?php echo $this->getHeaderLabel($header); ?>
 					</label>
 					<?php $i++; ?>
 				<?php } ?>
@@ -110,14 +89,6 @@ echo JLayoutHelper::render('joomla.modal.main', $modalData);
 			</div>
 		</div>
 	</div>
-
-	<table class="adminform">
-		<tr>
-			<td nowrap="nowrap">
-				
-			</td>
-		</tr>
-	</table>
 	
 	<div style="overflow: auto;">
 	<table class="adminlist table table-striped" id="articleList">
@@ -130,8 +101,7 @@ echo JLayoutHelper::render('joomla.modal.main', $modalData);
 			<?php } ?>
 			<?php foreach ($this->headers as $header) { ?>
 			<th <?php echo !$this->isHeaderEnabled($header, 0) ? 'style="display: none"' : ''; ?> class="title">
-				<?php if ($header == '_STATUS') $htitle = JText::_('RSFP_PAYMENT_STATUS'); elseif ($header == '_ANZ_STATUS') $htitle = JText::_('RSFP_ANZ_STATUS'); else $htitle = $header; ?>
-				<?php echo JHtml::_('grid.sort', $htitle, $header, $this->sortOrder, $this->sortColumn, 'submissions.manage'); ?>
+				<?php echo JHtml::_('grid.sort', $this->getHeaderLabel($header), $header, $this->sortOrder, $this->sortColumn, 'submissions.manage'); ?>
 			</th>
 			<?php } ?>
 		</tr>
@@ -188,6 +158,15 @@ echo JLayoutHelper::render('joomla.modal.main', $modalData);
 		</tr>
 	</tfoot>
 	</table>
+        <?php
+        // Import Modal
+        $modalData = array(
+            'selector'	=> 'importModal',
+            'params'	=> array('title' => JText::_('COM_RSFORM_IMPORT_SUBMISSIONS')),
+            'body'		=> $this->loadTemplate('modal_import')
+        );
+        echo JLayoutHelper::render('joomla.modal.main', $modalData);
+        ?>
 	</div>
 
 	<input type="hidden" name="filter_order" value="<?php echo $this->sortColumn; ?>" />

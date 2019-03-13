@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -49,11 +49,6 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 		if (!empty($user))
 		{
 			$extraInfo = 'Username: ' . $user;
-
-			if ($this->cparams->getValue('showpwonloginfailure', 1))
-			{
-				$extraInfo = 'Username: ' . $user . ' -- Password: ' . $pass;
-			}
 		}
 
 		$this->exceptionsHandler->logAndAutoban('loginfailure', $user, $extraInfo);
@@ -202,6 +197,7 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 
 			$tokens = $this->exceptionsHandler->getEmailVariables('', [
 				'[ACTIVATE]' => '<a href="' . $activate . '">' . $activate . '</a>',
+				'[USER]'     => $user->username . ' (' . $user->name . ' <' . $user->email . '>)',
 			]);
 
 			$subject = str_replace(array_keys($tokens), array_values($tokens), $subject);

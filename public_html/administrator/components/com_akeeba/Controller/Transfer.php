@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -98,6 +98,8 @@ class Transfer extends Controller
 		$ftpPassive     = $this->input->getInt('passive', 1);
 		$ftpPassiveFix  = $this->input->getInt('passive_fix', 1);
 		$ftpDirectory   = $this->input->get('directory', '', 'raw', 2);
+		$chunkMode      = $this->input->getCmd('chunkMode', 'chunked');
+		$chunkSize      = $this->input->getInt('chunkSize', '5242880');
 
 		// Fix the port if it's missing
 		if (empty($ftpPort))
@@ -133,6 +135,8 @@ class Transfer extends Controller
 		$this->container->platform->setSessionVar('transfer.ftpDirectory', $ftpDirectory, 'akeeba');
 		$this->container->platform->setSessionVar('transfer.ftpPassive', $ftpPassive ? 1 : 0, 'akeeba');
 		$this->container->platform->setSessionVar('transfer.ftpPassiveFix', $ftpPassiveFix ? 1 : 0, 'akeeba');
+		$this->container->platform->setSessionVar('transfer.chunkMode', $chunkMode, 'akeeba');
+		$this->container->platform->setSessionVar('transfer.chunkSize', $chunkSize, 'akeeba');
 
 		/** @var \Akeeba\Backup\Admin\Model\Transfer $model */
 		$model = $this->getModel();
@@ -174,6 +178,7 @@ class Transfer extends Controller
 		$result = (object)[
 			'status'    => true,
 			'message'   => '',
+			'ignorable' => false,
 		];
 
 		/** @var \Akeeba\Backup\Admin\Model\Transfer $model */
@@ -184,11 +189,20 @@ class Transfer extends Controller
 			$config = $model->getFtpConfig();
 			$model->initialiseUpload($config);
 		}
+		catch (TransferIgnorableError $e)
+		{
+			$result = (object) [
+				'status'    => false,
+				'message'   => $e->getMessage(),
+				'ignorable' => true,
+			];
+		}
 		catch (Exception $e)
 		{
 			$result = (object)[
 				'status'    => false,
 				'message'   => $e->getMessage(),
+				'ignorable' => false,
 			];
 		}
 

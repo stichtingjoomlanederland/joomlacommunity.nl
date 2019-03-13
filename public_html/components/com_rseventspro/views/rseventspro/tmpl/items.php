@@ -18,4 +18,6 @@ else if ($this->tmpl == 'subscribers')
 	echo $this->loadTemplate('subscribers');
 else if ($this->tmpl == 'search')
 	echo $this->loadTemplate('search');
+else if ($this->tmpl == 'rsvp')
+	echo $this->loadTemplate('rsvp');
 echo 'RS_DELIMITER1';

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -18,7 +18,6 @@ class EasyDiscussFacebook extends Facebook
 	public $key = null;
 	public $secret = null;
 	public $callback = null;
-
 	public $userAccessToken = null;
 
 	public function __construct($key = '', $secret = '', $callback = '')
@@ -52,8 +51,6 @@ class EasyDiscussFacebook extends Facebook
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getCallbackUrl()
 	{
@@ -65,8 +62,6 @@ class EasyDiscussFacebook extends Facebook
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getRequestToken()
 	{
@@ -82,8 +77,6 @@ class EasyDiscussFacebook extends Facebook
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getVerifier()
 	{
@@ -97,15 +90,17 @@ class EasyDiscussFacebook extends Facebook
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getAuthorizationURL()
 	{
-		$scopes = array('publish_actions', 'manage_pages', 'publish_pages', 'user_managed_groups');
-		$scopes = implode(',', $scopes);
+		$config = ED::config();
+		$scopes = $config->get('main_autopost_facebook_scope_permissions');
 
-		$url = 'https://facebook.com/dialog/oauth?scope=' . $scopes . '&client_id=' . $this->key . '&redirect_uri=' . urlencode($this->callback) . '&response_type=code&display=popup';
+		$redirect = $this->callback;
+		$redirect = urlencode($redirect);
+
+		$url = 'https://facebook.com/dialog/oauth?scope=' . $scopes . '&client_id=' . $this->key . '&redirect_uri=' . $redirect . '&response_type=code&display=popup';
+
 		return $url;
 	}
 
@@ -114,8 +109,6 @@ class EasyDiscussFacebook extends Facebook
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getAccessTokens($token, $secret, $verifier)
 	{
@@ -155,8 +148,6 @@ class EasyDiscussFacebook extends Facebook
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function share(EasyDiscussPost $post)
 	{
@@ -236,8 +227,6 @@ class EasyDiscussFacebook extends Facebook
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getContentObject(EasyDiscussPost $post)
 	{
@@ -287,8 +276,6 @@ class EasyDiscussFacebook extends Facebook
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function setAccess($access)
 	{
@@ -302,8 +289,6 @@ class EasyDiscussFacebook extends Facebook
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function revokeApp()
 	{
@@ -322,8 +307,6 @@ class EasyDiscussFacebook extends Facebook
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getGroups()
 	{
@@ -348,8 +331,6 @@ class EasyDiscussFacebook extends Facebook
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getPages()
 	{
