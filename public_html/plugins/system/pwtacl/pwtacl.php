@@ -3,7 +3,7 @@
  * @package    PwtAcl
  *
  * @author     Sander Potjer - Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2011 - 2018 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2011 - 2019 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
@@ -274,7 +274,8 @@ class PlgSystemPwtacl extends JPlugin
 		// Remove category links from output in case of no access
 		if (($aclCategoryManager) && (!Factory::getUser()->authorise('core.manage', 'com_categories')))
 		{
-			$buffer = preg_replace("/<a.*?com_categories.*?>(.*?)<\/a>/", "", $this->app->getBody());
+			$buffer = preg_replace("/<a class=\"hasTooltip\".*?com_categories.*?>(.*?)<\/a>/", "$1", $this->app->getBody());
+			$buffer = preg_replace("/<a.*?com_categories.*?>(.*?)<\/a>/", "", $buffer);
 			$this->app->setBody($buffer);
 		}
 	}
@@ -351,7 +352,7 @@ class PlgSystemPwtacl extends JPlugin
 
 			// Append the Download ID from component options
 			$separator = strpos($url, '?') !== false ? '&' : '?';
-			$url       .= $separator . 'key=' . $downloadId;
+			$url       .= $separator . 'key=' . trim($downloadId);
 		}
 
 		// Append domain to url if not set yet

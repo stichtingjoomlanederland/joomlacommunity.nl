@@ -11,6 +11,7 @@ jQuery(document).ready(function ($) {
     jQuery('.js--start').on('click', function (e) {
         jQuery('.js--start').addClass('disabled').attr('disabled', 'disabled');
         jQuery('.progress').removeClass('hidden');
+        var timeout = parseInt($(this).attr('data-timeout'));
 
         diagnostics(1);
 
@@ -64,7 +65,7 @@ jQuery(document).ready(function ($) {
                     if (step <= 14) {
                         setTimeout(function () {
                             diagnostics(step);
-                        }, 50)
+                        }, timeout)
                     } else {
                         jQuery('.completed').removeClass('hidden');
                         jQuery('.progress').removeClass('active').removeClass('progress-striped');

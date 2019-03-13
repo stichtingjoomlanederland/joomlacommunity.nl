@@ -3,7 +3,7 @@
  * @package    PwtAcl
  *
  * @author     Sander Potjer - Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2011 - 2018 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2011 - 2019 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
@@ -149,29 +149,29 @@ class Pkg_PwtAclInstallerScript
 
 		$extensionId = $db->setQuery($query)->loadResult();
 
-		// Special behaviour for ACL Manager to copy the settings
-		if ($element == 'pkg_aclmanager' || $element == 'com_aclmanager')
-		{
-			// Get settings for com_aclmanager
-			$query = $db->getQuery(true)
-				->select('params')
-				->from($db->quoteName('#__extensions'))
-				->where($db->quoteName('element') . ' = ' . $db->quote('com_aclmanager'));
-
-			$params = $db->setQuery($query)->loadResult();
-
-			// Store settings for com_pwtacl
-			$query = $db->getQuery(true)
-				->update($db->quoteName('#__extensions'))
-				->set($db->quoteName('params') . ' = ' . $db->quote($params))
-				->where($db->quoteName('element') . ' = ' . $db->quote('com_pwtacl'));
-
-			$db->setQuery($query)->execute();
-		}
-
 		// We found an extension, lets remove it
 		if ($extensionId)
 		{
+			// Special behaviour for ACL Manager to copy the settings first
+			if ($element == 'pkg_aclmanager' || $element == 'com_aclmanager')
+			{
+				// Get settings for com_aclmanager
+				$query = $db->getQuery(true)
+					->select('params')
+					->from($db->quoteName('#__extensions'))
+					->where($db->quoteName('element') . ' = ' . $db->quote('com_aclmanager'));
+
+				$params = $db->setQuery($query)->loadResult();
+
+				// Store settings for com_pwtacl
+				$query = $db->getQuery(true)
+					->update($db->quoteName('#__extensions'))
+					->set($db->quoteName('params') . ' = ' . $db->quote($params))
+					->where($db->quoteName('element') . ' = ' . $db->quote('com_pwtacl'));
+
+				$db->setQuery($query)->execute();
+			}
+
 			// We can now remove the extension
 			$installer = Installer::getInstance();
 			$installer->uninstall($type, $extensionId);

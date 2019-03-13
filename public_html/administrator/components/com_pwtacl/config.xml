@@ -1,102 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
-    <fieldset
-            name="update"
-    >
+	<fieldset
+		name="update"
+	>
 
-        <field
-                name="downloadid"
-                type="text"
-                default=""
-                size="30"
-                label="COM_PWTACL_OPTIONS_DOWNLOADID"
-                description="COM_PWTACL_OPTIONS_DOWNLOADID_DESC"
-        />
+		<field
+			name="downloadid"
+			type="text"
+			default=""
+			size="30"
+			label="COM_PWTACL_OPTIONS_DOWNLOADID"
+			description="COM_PWTACL_OPTIONS_DOWNLOADID_DESC"
+		/>
 
-    </fieldset>
+	</fieldset>
 
-    <fieldset
-            name="enhanced_acl"
-            label="COM_PWTACL_OPTIONS_ENHANCED_ACL"
-            description="COM_PWTACL_OPTIONS_ENHANCED_ACL_DESC"
-    >
+	<fieldset
+		name="enhanced_acl"
+		label="COM_PWTACL_OPTIONS_ENHANCED_ACL"
+		description="COM_PWTACL_OPTIONS_ENHANCED_ACL_DESC"
+	>
 
-        <field
-                name="acl_categorymanager"
-                type="radio"
-                class="btn-group"
-                default="0"
-                label="COM_PWTACL_OPTIONS_ACL_CATEGORYMANAGER"
-                description="COM_PWTACL_OPTIONS_ACL_CATEGORYMANAGER_DESC">
-            <option value="0">JNO</option>
-            <option value="1">JYES</option>
-        </field>
+		<field
+			name="acl_categorymanager"
+			type="radio"
+			class="btn-group"
+			default="0"
+			label="COM_PWTACL_OPTIONS_ACL_CATEGORYMANAGER"
+			description="COM_PWTACL_OPTIONS_ACL_CATEGORYMANAGER_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
 
-        <field
-                name="acl_onlyallowed"
-                type="radio"
-                class="btn-group"
-                default="1"
-                label="COM_PWTACL_OPTIONS_ACL_EDITABLE_ONLY_ARTICLES"
-                description="COM_PWTACL_OPTIONS_ACL_EDITABLE_ONLY_ARTICLES_DESC">
-            <option value="0">JNO</option>
-            <option value="1">JYES</option>
-        </field>
+		<field
+			name="acl_onlyallowed"
+			type="radio"
+			class="btn-group"
+			default="1"
+			label="COM_PWTACL_OPTIONS_ACL_EDITABLE_ONLY_ARTICLES"
+			description="COM_PWTACL_OPTIONS_ACL_EDITABLE_ONLY_ARTICLES_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
 
-        <field
-                name="acl_contacts_only_editable"
-                type="radio"
-                class="btn-group"
-                default="1"
-                label="COM_PWTACL_OPTIONS_ACL_EDITABLE_ONLY_CONTACTS"
-                description="COM_PWTACL_OPTIONS_ACL_EDITABLE_ONLY_CONTACTS_DESC">
-            <option value="0">JNO</option>
-            <option value="1">JYES</option>
-        </field>
+		<field
+			name="acl_contacts_only_editable"
+			type="radio"
+			class="btn-group"
+			default="1"
+			label="COM_PWTACL_OPTIONS_ACL_EDITABLE_ONLY_CONTACTS"
+			description="COM_PWTACL_OPTIONS_ACL_EDITABLE_ONLY_CONTACTS_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
 
-        <field
-                name="acl_modules_only_editable"
-                type="radio"
-                class="btn-group"
-                default="1"
-                label="COM_PWTACL_OPTIONS_ACL_EDITABLE_ONLY_MODULES"
-                description="COM_PWTACL_OPTIONS_ACL_EDITABLE_ONLY_MODULES_DESC">
-            <option value="0">JNO</option>
-            <option value="1">JYES</option>
-        </field>
+		<field
+			name="acl_modules_only_editable"
+			type="radio"
+			class="btn-group"
+			default="1"
+			label="COM_PWTACL_OPTIONS_ACL_EDITABLE_ONLY_MODULES"
+			description="COM_PWTACL_OPTIONS_ACL_EDITABLE_ONLY_MODULES_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
 
-    </fieldset>
+	</fieldset>
 
-    <fieldset
-            name="options"
-            label="JOPTIONS"
-    >
-        <field
-                name="diagnostics_controlpanel"
-                type="radio"
-                class="btn-group"
-                default="1"
-                label="COM_PWTACL_OPTIONS_DIAGNOSTICS_CONTROLPANEL"
-                description="COM_PWTACL_OPTIONS_DIAGNOSTICS_CONTROLPANEL_DESC">
-            <option value="0">JNO</option>
-            <option value="1">JYES</option>
-        </field>
-    </fieldset>
+	<fieldset
+		name="options"
+		label="JOPTIONS"
+	>
+		<field
+			name="diagnostics_controlpanel"
+			type="radio"
+			class="btn-group"
+			default="1"
+			label="COM_PWTACL_OPTIONS_DIAGNOSTICS_CONTROLPANEL"
+			description="COM_PWTACL_OPTIONS_DIAGNOSTICS_CONTROLPANEL_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
 
-    <fieldset
-            name="permissions"
-            label="JCONFIG_PERMISSIONS_LABEL"
-            description="JCONFIG_PERMISSIONS_DESC"
-    >
+		<field
+			name="diagnostics_timeout"
+			type="text"
+			default="50"
+			size="30"
+			label="COM_PWTACL_OPTIONS_DIAGNOSTICS_TIMEOUT"
+			description="COM_PWTACL_OPTIONS_DIAGNOSTICS_TIMEOUT_DESC"
+			filter="integer"
+		/>
+	</fieldset>
 
-        <field
-                name="rules"
-                type="rules"
-                label="JCONFIG_PERMISSIONS_LABEL"
-                class="inputbox"
-                filter="rules"
-                component="com_pwtacl"
-                section="component"
-        />
-    </fieldset>
+	<fieldset
+		name="permissions"
+		label="JCONFIG_PERMISSIONS_LABEL"
+		description="JCONFIG_PERMISSIONS_DESC"
+	>
+
+		<field
+			name="rules"
+			type="rules"
+			label="JCONFIG_PERMISSIONS_LABEL"
+			class="inputbox"
+			filter="rules"
+			component="com_pwtacl"
+			section="component"
+		/>
+	</fieldset>
 </config>
