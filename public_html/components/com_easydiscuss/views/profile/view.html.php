@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -97,13 +97,16 @@ class EasyDiscussViewProfile extends EasyDiscussView
 
 		$badges = $profile->getBadges();
 
+		$posts = false;
+		$totalPostsCount = false;
+
 		if ($viewType == 'replies') {
 			$posts	= $postsModel->getRepliesFromUser($profile->id, 'lastreplied');
 		}
 
 		if ($viewType == 'unresolved') {
 			$posts	= $postsModel->getUnresolvedFromUser($profile->id);
-			$pagination = $postsModel->getPagination();
+			$paginationModel = $postsModel->getPagination();
 		}
 
 		if ($viewType == 'questions') {
@@ -116,7 +119,7 @@ class EasyDiscussViewProfile extends EasyDiscussView
 			}
 
 			$posts = $postsModel->getDiscussions($options);
-			$pagination = $postsModel->getPagination();
+			$paginationModel = $postsModel->getPagination();
 		}
 
 		if ($viewType == 'assigned') {
@@ -135,10 +138,45 @@ class EasyDiscussViewProfile extends EasyDiscussView
 			$posts = $postsModel->getDiscussions($options);
 		}
 
-		$posts = ED::formatPost($posts);
+		$contents = '';
+
+		if ($viewType == 'komento') {
+			if (!$this->komentoExists()) {
+				$contents = JText::_('COM_EASYDISCUSS_KOMENTO_DOES_NOT_EXIST');
+			} else {
+				$commentsModel = KT::model('comments');
+
+				$options = array(
+					'sort' => 'latest',
+					'userid' => $id,
+					'threaded' => 0,
+					'limit' => ED::getListLimit(),
+					'limitstart' => false
+				);
+
+				$comments = $commentsModel->getComments('all', 'all', $options);
+				$comments = KT::formatter('comment', $comments);
+
+				foreach($comments as &$comment) {
+					$theme = ED::themes();
+					$theme->set('item', $comment);
+					$contents .= $theme->output('site/profile/komento.item');
+				}
+			}
+
+			// Construct the pagination
+			$limitstart = (int) $commentsModel->getState('limitstart');
+			$limit = (int) $commentsModel->getState('limit');
+			$totalPostsCount = (int) $commentsModel->_total;
+			$paginationModel = ED::pagination($totalPostsCount, $limitstart, $limit);
+		}
+
+		if ($posts) {
+			$posts = ED::formatPost($posts);
+		}
 
 		$filterArr = array('viewtype' => $viewType, "id" => $profile->id);
-		$paginationModel = $postsModel->getPagination();
+		$paginationModel = isset($paginationModel) ? $paginationModel : $postsModel->getPagination();
 		$pagination	= $paginationModel->getPagesLinks('profile', $filterArr, true);
 
 		// Check for integrations
@@ -169,7 +207,7 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		$tabsText = $this->getTabsTitle($viewType);
 
 		// Get the post count based on the current view type.
-		$tabsPostsCount = $profile->getPostsNumCount($viewType);
+		$tabsPostsCount = $totalPostsCount ? $totalPostsCount : $profile->getPostsNumCount($viewType);
 
 		// Combine the text to form a title.
 		$tabsTitle = $tabsText . ' (' . $tabsPostsCount . ')';
@@ -188,6 +226,7 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		$this->set('sort', $sort);
 		$this->set('pagination', $pagination);
 		$this->set('posts', $posts);
+		$this->set('contents', $contents);
 		$this->set('badges', $badges);
 		$this->set('favPosts', $favPosts);
 		$this->set('profile', $profile);
@@ -234,7 +273,6 @@ class EasyDiscussViewProfile extends EasyDiscussView
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @return
 	 */
 	public function edit($tmpl = null)
 	{

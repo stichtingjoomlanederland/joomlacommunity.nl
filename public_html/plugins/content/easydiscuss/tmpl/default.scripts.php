@@ -1,8 +1,8 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
+ * @package     EasyDiscuss
+ * @copyright   Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+ * @license     GNU/GPL, see LICENSE.php
  *
  * EasyDiscuss is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -213,7 +213,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
         var counterEle = $(this).siblings(counter.selector);
 
-        EasyDiscuss.ajax('site.views.votes.add', {
+        EasyDiscuss.ajax('site/views/votes/add', {
             'id': id,
             'type': direction
         }).done(function(total) {

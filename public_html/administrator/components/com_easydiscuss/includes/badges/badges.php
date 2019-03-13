@@ -62,7 +62,7 @@ class EasyDiscussBadges extends EasyDiscuss
 				$notification = ED::table('Notifications');
 
 				$notification->bind(array(
-						'title' => JText::sprintf('COM_EASYDISCUSS_NEW_BADGE_NOTIFICATION_TITLE', $badge->title),
+						'title' => JText::sprintf('COM_EASYDISCUSS_NEW_BADGE_NOTIFICATION_TITLE', JText::_($badge->title)),
 						'cid' => $badge->id,
 						'type' => DISCUSS_NOTIFICATIONS_BADGE,
 						'target' => $userId,

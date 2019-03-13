@@ -25,7 +25,7 @@ EasyDiscuss.ready(function($){
 		button.hide();
 
 		EasyDiscuss.ajax(
-			'admin.views.migrators.communitypolls',
+			'admin/views/migrators/communitypolls',
 			{},
 			{
 				updateLog: function(message){
@@ -43,7 +43,7 @@ EasyDiscuss.ready(function($){
 
 		var current = !items ? 'done' : items.shift();
 
-		EasyDiscuss.ajax( 'admin.views.migrators.communitypollsPostItem' , {
+		EasyDiscuss.ajax( 'admin/views/migrators/communitypollsPostItem' , {
 			"current"	: current,
 			"items"		: items
 		},
@@ -80,7 +80,7 @@ EasyDiscuss.ready(function($){
 		{
 			// There's no more category to import
 			EasyDiscuss.ajax(
-				'admin.views.migrators.communitypollsCategoryItem',
+				'admin/views/migrators/communitypollsCategoryItem',
 				{},
 				{
 					updateLog: function(message)
@@ -107,7 +107,7 @@ EasyDiscuss.ready(function($){
 
 		// Migrate category items.
 		EasyDiscuss.ajax(
-			'admin.views.migrators.communitypollsCategoryItem',
+			'admin/views/migrators/communitypollsCategoryItem',
 			{
 				'current'		: current,
 				'categories'	: items

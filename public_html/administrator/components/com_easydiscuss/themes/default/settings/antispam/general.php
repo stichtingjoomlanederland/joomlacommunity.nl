@@ -45,4 +45,16 @@ defined('_JEXEC') or die('Unauthorized Access');
 			</div>
 		</div>
 	</div>
+	<div class="col-md-6">
+		<div class="panel">
+			<?php echo $this->html('panel.head', 'COM_ED_CLEANTALK_INTEGRATIONS'); ?>
+
+			<div class="panel-body">
+				<div class="form-horizontal">
+					<?php echo $this->html('settings.toggle', 'antispam_cleantalk', 'COM_ED_CLEANTALK_INTEGRATIONS'); ?>
+					<?php echo $this->html('settings.textbox', 'antispam_cleantalk_key', 'COM_ED_CLEANTALK_API_KEY'); ?>
+				</div>
+			</div>
+		</div>
+	</div>	
 </div>

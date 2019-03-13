@@ -11,5 +11,10 @@
 		<description><![CDATA[COM_EASYDISCUSS_MENU_SUBMIT_LAYOUT_DESC]]></description>
 		<params>
 		</params>
-	</state>		
+	</state>
+	<fields name="request">
+		<fieldset name="request" addfieldpath="/administrator/components/com_easydiscuss/elements/fields">
+			<field name="category" type="modal_categories" label="COM_EASYDISCUSS_SELECT_CATEGORY" description="COM_ED_SELECT_CATEGORY_DESC" />
+		</fieldset>
+	</fields>
 </metadata>
