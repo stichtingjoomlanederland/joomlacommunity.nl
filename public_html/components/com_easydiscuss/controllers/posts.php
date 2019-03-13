@@ -760,13 +760,10 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		ED::checkToken();
 
 		$data = $this->input->getArray('post');
-
 		$data['content'] = $this->input->get('dc_content', '', 'raw');
 
-		// var_dump($data['id']);exit;
-
 		// Check if the post data is valid
-		if ( !isset($data['id']) || !$data['id']) {
+		if (!isset($data['id']) || !$data['id']) {
 			ED::setMessage( JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'), 'error');
 			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=index', false));
 		}

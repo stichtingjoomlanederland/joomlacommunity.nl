@@ -183,17 +183,21 @@ defined('_JEXEC') or die('Unauthorized Access');
 						<?php echo $this->output('site/profile/item', array('post' => $post)); ?>
 					<?php } ?>
 				 <?php } ?>
+
+				<?php if ($contents) { ?>
+					<?php echo $contents; ?>
+				<?php } ?>
 				</div>
 				
 				 <div class="is-empty">
-					<div class="o-empty o-empty--bordered <?php echo $posts? 't-hidden' : ''?>" data-list-empty>
+					<div class="o-empty o-empty--bordered <?php echo $posts || $contents ? 't-hidden' : ''?>" data-list-empty>
 						<div class="o-empty__content">
 							<i class="o-empty__icon fa fa-book"></i>
 							<div class="o-empty__text" data-list-empty-text>
 								<?php echo JText::_('COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST');?>
 							</div>
 						</div>
-					</div>     
+					</div>
 				 </div>
 
 				<div class="" data-profile-pagination>

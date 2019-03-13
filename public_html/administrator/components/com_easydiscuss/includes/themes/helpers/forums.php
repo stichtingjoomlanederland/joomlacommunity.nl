@@ -24,32 +24,16 @@ class EasyDiscussThemesHelperForums
 	public static function stats()
 	{
 		$config = ED::config();
-		$allowed = true;
+		$acl = ED::acl();
+		$allowed = false;
 
-		$disallowedGroups = $config->get('main_exclude_frontend_statistics');
-
-		if (!$config->get('main_frontend_statistics')) {
-			return;
+		if ($config->get('layout_board_stats') && $acl->allowed('board_statistics')){
+			$allowed = true;
 		}
-
-		if (!empty($disallowedGroups)) {
-
-			//Remove whitespace
-			$disallowedGroups = trim($disallowedGroups);
-			$disallowedGroups = explode(',', $disallowedGroups);
-
-			$my = JFactory::getUser();
-			$groups = $my->groups;
-
-			$result = array_intersect($groups, $disallowedGroups);
-
-			$allowed = !$result ? true : false;
-		}
-
+		
 		if (!$allowed) {
 			return;
 		}
-
 
 		$postModel = ED::model('Posts');
 		$totalPosts	= $postModel->getTotalThread();

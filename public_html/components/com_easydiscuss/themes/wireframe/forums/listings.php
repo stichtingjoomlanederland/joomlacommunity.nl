@@ -37,6 +37,4 @@ defined('_JEXEC') or die('Restricted access');
 	<?php } ?>
 </div>
 
-<?php if ($this->config->get('layout_board_stats') && $this->acl->allowed('board_statistics')) { ?>
-	<?php echo $this->html('forums.stats'); ?>
-<?php } ?>
+<?php echo $this->html('forums.stats'); ?>

@@ -75,7 +75,8 @@ class EasyDiscussViewProfile extends EasyDiscussView
 				$options = array(
 					'sort' => 'latest',
 					'userid' => $profileId,
-					'threaded' => 0
+					'threaded' => 0,
+					'limit' => ED::getListLimit()
 				);
 
 				$comments = $commentsModel->getComments('all', 'all', $options);
@@ -89,7 +90,20 @@ class EasyDiscussViewProfile extends EasyDiscussView
 				}
 			}
 
-			$pagination = $commentsModel->getPagination();
+			$limitstart = (int) $commentsModel->getState('limitstart');
+			$limit = (int) $commentsModel->getState('limit');
+			$total = (int) $commentsModel->_total;
+
+			$pagination = ED::pagination($total, $limitstart, $limit);
+
+			if ($pagination) {
+				$filterArr = array();
+				$filterArr['viewtype'] = $type;
+				$filterArr['id'] = $profileId;
+
+				$pagination = $pagination->getPagesLinks('profile', $filterArr, true);
+			}
+
 			$this->ajax->resolve($contents, $pagination, JText::_('COM_EASYDISCUSS_EMPTY_LIST'));
 			return $this->ajax->send();
 		}

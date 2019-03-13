@@ -14,6 +14,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 class EasyDiscussPost extends EasyDiscuss
 {
 	private $post = null;
+	private $thread = null;
 	private $original = null;
 	private $akismet = null;
 
@@ -97,6 +98,28 @@ class EasyDiscussPost extends EasyDiscuss
 			// When cache doesn't exist, try to load the post
 			if (!$cacheExists && $post != 0) {
 				$this->post->load($post);
+			}
+
+
+			// lets load thread table to get the summary data
+			if ($this->post->thread_id) {
+
+				$cacheThreadExists = ED::cache()->exists($this->post->thread_id, 'thread');
+
+				if (!$cacheThreadExists) {
+
+					$this->thread = ED::table('Thread');
+					$this->thread->load($this->post->thread_id);
+
+					ED::cache()->set($this->thread, 'thread');
+				} else {
+					$this->thread = ED::cache()->get($this->post->thread_id, 'thread');
+				}
+
+				$this->num_replies = $this->thread->num_replies;
+				$this->likeCnt = $this->thread->num_likes;
+				$this->attachments_cnt = $this->thread->num_attachments;
+				$this->totalFavourites = $this->thread->num_fav;
 			}
 		}
 
@@ -1131,6 +1154,12 @@ class EasyDiscussPost extends EasyDiscuss
 			return false;
 		}
 
+		// Check for Cleantalk
+		if (!$this->cleantalk()) {
+			$this->setError('COM_ED_CLEANTALK_SPAM_DETECTED');
+			return false;
+		}
+
 		// if this reply submitted by guest
 		if (!$this->my->id) {
 
@@ -1290,6 +1319,12 @@ class EasyDiscussPost extends EasyDiscuss
 			}
 		}
 
+		// Check for Cleantalk
+		if (!$this->cleantalk(true)) {
+			$this->setError('COM_ED_CLEANTALK_SPAM_DETECTED');
+			return false;
+		}
+
 		return true;
 	}
 
@@ -1410,7 +1445,7 @@ class EasyDiscussPost extends EasyDiscuss
 
 			return true;
 
-		} elseif($this->isReply()) {
+		} elseif ($this->isReply()) {
 			$replyState = $this->validateReply($data, $options);
 
 			return $replyState;
@@ -1451,6 +1486,28 @@ class EasyDiscussPost extends EasyDiscuss
 		return true;
 	}
 
+	/**
+	 * Cleantalk Validation
+	 *
+	 * @since   4.1.6
+	 * @access  public
+	 */
+	public function cleantalk($isQuestion = false)
+	{
+		// Ensure that cleantalk access key configured
+		if (!$this->config->get('antispam_cleantalk') || !$this->config->get('antispam_cleantalk_key')) {
+			return true;
+		}
+
+		$cleantalk = ED::cleantalk();
+		$isSpam = $cleantalk->contentValidate($this->post, $isQuestion);
+
+		if ($isSpam) {
+			return false;
+		}
+
+		return true;
+	}
 
 	/**
 	 * Determines if this post can be accepted as an answer for a discussion
@@ -2029,10 +2086,22 @@ class EasyDiscussPost extends EasyDiscuss
 		static $_cache = array();
 
 		if (!isset($_cache[$this->thread_id])) {
-			$thread = ED::table('Thread');
-			$thread->load($this->thread_id);
+			// $thread = ED::table('Thread');
+			// $thread->load($this->thread_id);
 
-			$_cache[$this->thread_id] = $thread->islock;
+			$cacheThreadExists = ED::cache()->exists($this->thread_id, 'thread');
+
+			if (!$cacheThreadExists) {
+
+				$this->thread = ED::table('Thread');
+				$this->thread->load($this->thread_id);
+
+				ED::cache()->set($this->thread, 'thread');
+			} else {
+				$this->thread = ED::cache()->get($this->thread_id, 'thread');
+			}
+
+			$_cache[$this->thread_id] = $this->thread->islock;
 		}
 
 		return $_cache[$this->thread_id];
@@ -3102,6 +3171,7 @@ class EasyDiscussPost extends EasyDiscuss
 				$items[$this->post->id] = $this->post->num_replies;
 
 			} else {
+
 				$model = ED::model('Posts');
 				$items[$this->post->id] = $model->getTotalReplies($this->post->id);
 			}
@@ -5063,9 +5133,6 @@ class EasyDiscussPost extends EasyDiscuss
 			$this->app->redirect(EDR::getAskRoute($this->getCategory()->id, false));
 			return $this->app->close();
 		}
-
-		// dump('done...');
-		// exit;
 
 		// This allows us to perform necessary logics after the post is really saved.
 		$this->postSave();

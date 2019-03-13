@@ -33,7 +33,7 @@ class EasyDiscussHistory extends EasyDiscuss
 		$activity->set('command', $command);
 		$activity->set('user_id', $userId);
 		$activity->set('title', $title);
-		$activity->set('created', ED::date()->toSql());
+		$activity->set('created', ED::date()->display('Y-m-d H:i:s'));
 		$activity->set('content_id', $content_id);
 
 		return $activity->store();

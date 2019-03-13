@@ -28,7 +28,7 @@ class EasyDiscussCache extends EasyDiscuss
 	private $like = array();
 	private $poll = array();
 
-	private $types = array('post', 'category', 'tag', 'repliesCount', 'attachmentCount', 'pollsCount');
+	private $types = array('post', 'category', 'tag', 'thread', 'repliesCount', 'attachmentCount', 'pollsCount');
 
 	public function cachePosts($items, $options = array())
 	{
