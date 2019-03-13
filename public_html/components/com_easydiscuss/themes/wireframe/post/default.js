@@ -214,7 +214,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 		var counterEle = $(this).siblings(counter.selector);
 
-		EasyDiscuss.ajax('site.views.votes.add', {
+		EasyDiscuss.ajax('site/views/votes/add', {
 			'id': id,
 			'type': direction
 		}).done(function(total) {

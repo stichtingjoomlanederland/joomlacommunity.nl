@@ -8,7 +8,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 			var badgeId = $(this).data('id');
 			var element = $(this).parents('li');
 
-			EasyDiscuss.ajax('admin.views.user.deleteBadge', {
+			EasyDiscuss.ajax('admin/views/user/deleteBadge', {
 				"badgeId" : badgeId,
 				"userId" : userId
 			}).done(function(state, message) {
@@ -31,7 +31,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 		var element = $(this).parents('li');
 		var customMessage = element.find('#customMessage').val();
 
-		EasyDiscuss.ajax('admin.views.user.customMessage', {
+		EasyDiscuss.ajax('admin/views/user/customMessage', {
 			"badgeId" : badgeId,
 			"customMessage" : customMessage,
 			"userId" : userId

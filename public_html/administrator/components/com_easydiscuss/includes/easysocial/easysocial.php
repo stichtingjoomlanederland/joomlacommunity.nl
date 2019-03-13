@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -223,9 +223,9 @@ class EasyDiscussEasySocial extends EasyDiscuss
 
 		// Since all the "rule" in EasyDiscuss is prepended with discuss. , we need to remove it
 		$rule 		= str_ireplace('easydiscuss.' , '' , $rule);
-		$creator 	= Foundry::user($creatorId);
+		$creator 	= ES::user($creatorId);
 
-		$points		= Foundry::points();
+		$points		= ES::points();
 
 		if ($rule == 'new.comment') {
 			$params	= $points->getParams('new.comment', 'com_easydiscuss');
@@ -433,9 +433,9 @@ class EasyDiscussEasySocial extends EasyDiscuss
 			return;
 		}
 
-		$stream 	= Foundry::stream();
+		$stream 	= ES::stream();
 		$template 	= $stream->getTemplate();
-		$actor 		= Foundry::user();
+		$actor 		= ES::user();
 
 		$obj 			= new stdClass();
 		$obj->post		= $post;
@@ -468,7 +468,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 			return;
 		}
 
-		$stream 	= Foundry::stream();
+		$stream 	= ES::stream();
 		$template 	= $stream->getTemplate();
 
 		$obj 			= new stdClass();
@@ -520,33 +520,42 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	/**
 	 * Creates a new stream for accepted items
 	 *
-	 * @since	1.0
+	 * @since	3.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function acceptedStream($post , $question)
 	{
-		if(!$this->exists() || !$this->config->get('integration_easysocial_activity_accepted'))
-		{
+		if (!$this->exists() || !$this->config->get('integration_easysocial_activity_accepted')) {
 			return;
 		}
 
-		$stream 	= Foundry::stream();
-		$template 	= $stream->getTemplate();
+		$stream = ES::stream();
+		$template = $stream->getTemplate();
 
-		$obj 			= new stdClass();
-		$obj->post		= $post;
-		$obj->question	= $question;
+		$obj = new stdClass();
+		$obj->post = $post;
+		$obj->question = $question;
+
+		$contextType = 'discuss';
+
+		$esClusterType = array('event', 'group');
+		$contribution = $question->getDiscussionContribution();
+
+		if ($contribution) {
+			if (in_array($contribution->type, $esClusterType)) {
+				$template->setCluster($contribution->id, $contribution->type);
+				$contextType = 'easydiscuss';
+			}
+		}
 
 		// Get the stream template
-		$template->setActor($post->user_id , SOCIAL_TYPE_USER);
-		$template->setContext($post->id , 'discuss' , $obj);
+		$template->setActor($post->user_id, SOCIAL_TYPE_USER);
+		$template->setContext($post->id, $contextType, $obj);
 
 		$template->setVerb('accepted');
 
 		$template->setPublicStream('core.view');
-		$state 	= $stream->add($template);
+		$state = $stream->add($template);
 
 		return $state;
 	}
@@ -566,11 +575,11 @@ class EasyDiscussEasySocial extends EasyDiscuss
 			return;
 		}
 
-		$stream 	= Foundry::stream();
+		$stream 	= ES::stream();
 		$template 	= $stream->getTemplate();
 
 		// The actor should always be the person that is voting.
-		$my 		= Foundry::user();
+		$my 		= ES::user();
 
 		// Get the stream template
 		$template->setActor($my->id , SOCIAL_TYPE_USER);
@@ -1138,7 +1147,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 			return;
 		}
 
-		$stream = Foundry::stream();
+		$stream = ES::stream();
 
 		if ($cluster) {
 			// If group post, delete the group app stream instead.
