@@ -76,29 +76,14 @@ class RSFormProHelper
 	}
 
 	public static function getTooltipText($title, $content='') {
-		static $version;
-		if (!$version) {
-			$version = new JVersion();
-		}
-
-		if ($version->isCompatible('3.1.2')) {
-			return JHtml::tooltipText($title, $content, 0, 0);
-		} else {
-			return $title.'::'.$content;
-		}
+		return JHtml::tooltipText($title, $content, 0, 0);
 	}
 
 	public static function getTooltipClass() {
 		static $class = false;
 		if (!$class) {
-			$version = new JVersion();
-			if ($version->isCompatible('3.1.2')) {
-				JHtml::_('bootstrap.tooltip');
-				$class = 'hasTooltip';
-			} else {
-				JHtml::_('behavior.tooltip');
-				$class = 'hasTip';
-			}
+			JHtml::_('bootstrap.tooltip');
+			$class = 'hasTooltip';
 		}
 
 		return $class;

@@ -897,9 +897,9 @@ class com_rsformInstallerScript
 			<b class="install-not-ok">Error installing!</b>
 			<?php } ?>
 		</p>
-		<h2>Changelog v2.1.2</h2>
+		<h2>Changelog v2.1.4</h2>
 		<ul class="version-history">
-            <li><span class="version-fixed">Fix</span> Multiple items were not showing up correctly when editing a submission.</li>
+            <li><span class="version-fixed">Fix</span> When setting 'Allow Only Images' to 'Yes' the generated placeholders pointed to a non-existent file.</li>
 		</ul>
 		<a class="btn btn-large btn-primary" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="btn" href="https://www.rsjoomla.com/support/documentation/rsform-pro.html" target="_blank">Read the RSForm! Pro User Guide</a>

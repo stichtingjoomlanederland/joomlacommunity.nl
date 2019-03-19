@@ -6,7 +6,7 @@
 */
 
 defined('_JEXEC') or die('Restricted access');
-JHtml::_('behavior.tooltip');
+JHtml::_('bootstrap.tooltip');
 JText::script('ERROR');
 JText::script('RSFP_EXPORT_PLEASE_SELECT');
 ?>

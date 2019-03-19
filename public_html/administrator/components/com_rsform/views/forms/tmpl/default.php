@@ -6,7 +6,7 @@
 */
 
 defined('_JEXEC') or die('Restricted access');
-JHtml::_('behavior.tooltip');
+JHtml::_('bootstrap.tooltip');
 
 JText::script('COM_RSFORM_ARE_YOU_SURE_YOU_WANT_TO_CLEAR');
 ?>
