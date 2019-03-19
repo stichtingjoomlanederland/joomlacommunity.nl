@@ -28,6 +28,11 @@ if ($params->get('tag_id') != null)
 
 		$class[] = 'item-' . $item->id;
 
+		if ($item->home)
+        {
+            $class[] = 'item--home';
+        }
+
 		if ($item->id == $active_id)
 		{
 			$class[] = 'current';
