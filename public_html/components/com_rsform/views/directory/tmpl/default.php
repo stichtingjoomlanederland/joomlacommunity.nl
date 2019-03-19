@@ -7,8 +7,8 @@
 
 defined('_JEXEC') or die('Restricted access');
 $listOrder	= $this->escape($this->filter_order);
-$listDirn	= $this->escape($this->filter_order_Dir); 
-JHtml::_('behavior.tooltip');
+$listDirn	= $this->escape($this->filter_order_Dir);
+JHtml::_('bootstrap.tooltip');
 
 JText::script('RSFP_SUBM_DIR_PLEASE_SELECT_AT_LEAST_ONE');
 ?>

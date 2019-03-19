@@ -84,9 +84,9 @@ class Html extends BaseView
 		$model = $this->getModel();
 
 		// Pass the data from the model to the view template
-		$this->folder                = $model->getState('folder', '', 'path');
-		$this->folder_raw            = $model->getState('folder_raw', '', 'path');
-		$this->parent                = $model->getState('parent', '', 'path');
+		$this->folder                = $model->getState('folder', '', 'string');
+		$this->folder_raw            = $model->getState('folder_raw', '', 'string');
+		$this->parent                = $model->getState('parent', '', 'string');
 		$this->exists                = $model->getState('exists', 0, 'boolean');
 		$this->inRoot                = $model->getState('inRoot', 0, 'boolean');
 		$this->openbasedirRestricted = $model->getState('openbasedirRestricted', 0, 'boolean');

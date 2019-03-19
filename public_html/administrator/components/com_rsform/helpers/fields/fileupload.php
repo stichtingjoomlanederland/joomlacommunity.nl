@@ -112,7 +112,7 @@ class RSFormProFieldFileUpload extends RSFormProField
 		// Upload File
 		if (JFile::upload($actualFile['tmp_name'], $file, false, (bool) RSFormProHelper::getConfig('allow_unsafe')))
 		{
-		    if ($this->getProperty('ACCEPTEDFILESIMAGES', false))
+		    if ($this->getProperty('ACCEPTEDFILESIMAGES', false) && function_exists('imagecreatefromstring'))
             {
                 $newWidth  = (int) $this->getProperty('THUMBSIZE', 220);
                 $quality   = (int) $this->getProperty('THUMBQUALITY', 75);
@@ -129,6 +129,8 @@ class RSFormProFieldFileUpload extends RSFormProField
                         JFile::delete($file);
 
                         imagejpeg($image, $thumbFile, $quality);
+
+                        $file = $thumbFile;
 
                         unset($image);
                     }

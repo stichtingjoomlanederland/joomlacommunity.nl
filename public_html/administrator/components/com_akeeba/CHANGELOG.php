@@ -1,4 +1,13 @@
 <?php die();?>
+Akeeba Backup 6.4.2.1
+================================================================================
+! Backup over CLI was broken (the previous fix didn't cover another, less common, failure reason)
+
+Akeeba Backup 6.4.2
+================================================================================
+! Backup over CLI was broken
+# [HIGH] Path browser does not work on Windows
+
 Akeeba Backup 6.4.1
 ================================================================================
 ~ Joomla! 4 alpha 7 compatibility

@@ -638,6 +638,7 @@ class RsformModelForms extends JModelLegacy
 		unset($form->Thankyou);
 		unset($form->UserEmailText);
 		unset($form->AdminEmailText);
+		unset($form->DeletionEmailText);
 		unset($form->ErrorMessage);
 
 		if (!isset($post['FormLayoutAutogenerate']))

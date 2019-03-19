@@ -232,35 +232,58 @@ abstract class Base implements PlatformInterface
 		}
 		else
 		{
-			$databaseData = $secureSettings->decryptSettings($databaseData);
-			$migrated = false;
+			$databaseData        = $secureSettings->decryptSettings($databaseData);
+			$isMigrationRequired = false; // Do I have to migrate the data from INI to JSON
+			$corruptedINI        = false; // Is the INI data corrupted?
 
 			// Handle legacy, INI-encoded data
 			if (ProfileMigration::looksLikeIni($databaseData))
 			{
-				$databaseData = ProfileMigration::convertINItoJSON($databaseData);
-				$migrated = true;
+				$isMigrationRequired = true;
+				$corruptedINI        = strpos($databaseData, '[akeeba]') === false;
+				$databaseData        = ProfileMigration::convertINItoJSON($databaseData);
 			}
+
+			// Detect corrupt JSON data
+			$corruptedJSON = strpos($databaseData, '"akeeba"') === false;
 
 			// Did the decryption fail and we were asked to throw an exception?
 			if ($this->decryptionException && !$noData)
 			{
-				// No decrypted data
-				if (empty($databaseData))
+				// The decryption failed, it returned empty data
+				if (!$isMigrationRequired && empty($databaseData))
 				{
-					throw new DecryptionException;
+					throw new DecryptionException(
+						$this->translate('COM_AKEEBA_CONFIG_ERR_DECRYPTION') .
+						"\nAdditional info: Empty data after decryption."
+					);
 				}
 
-				// Corrupt data detection -- INI data
-				if ($migrated && !strstr($databaseData, '[akeeba]'))
+				// We tried to migrate but the INI data is corrupt
+				if ($isMigrationRequired && $corruptedINI)
 				{
-					throw new DecryptionException;
+					throw new DecryptionException(
+						$this->translate('COM_AKEEBA_CONFIG_ERR_DECRYPTION') .
+						"\nAdditional info: old format INI data was corrupt and could not be migrated to JSON."
+					);
 				}
 
-				// Corrupt data detection -- JSON data
-				if (!$migrated && !strstr($databaseData, '"akeeba"'))
+				// We tried to migrate but the resulting JSON data is corrupt
+				if ($isMigrationRequired && $corruptedJSON)
 				{
-					throw new DecryptionException;
+					throw new DecryptionException(
+						$this->translate('COM_AKEEBA_CONFIG_ERR_DECRYPTION') .
+						"\nAdditional info: JSON data was corrupt after migrating it from INI data."
+					);
+				}
+
+				// We decrypted something but it does not look like JSON. Wrong encryption key?
+				if ($corruptedJSON)
+				{
+					throw new DecryptionException(
+						$this->translate('COM_AKEEBA_CONFIG_ERR_DECRYPTION') .
+						"\nAdditional info: configuration JSON data was corrupt after decryption."
+					);
 				}
 			}
 
