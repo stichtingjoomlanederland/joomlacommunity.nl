@@ -1,3 +1,29 @@
 .ed-forum {
   background-color: @white;
 }
+
+img {
+  max-width: 100%;
+}
+
+@media (max-width: 992px) {
+  .o-grid__cell--auto-size {
+    flex: 1 0 100%;
+  }
+
+ .o-tabs {
+   text-align: left;
+   height: 28px;
+   overflow: hidden;
+   display: block;
+   transition: transition(width 0.2s, height 0.3s ease-in-out);;
+
+   &:hover {
+     height: 108px;
+   }
+ }
+
+ .o-tabs__item {
+   display: block;
+ }
+}
