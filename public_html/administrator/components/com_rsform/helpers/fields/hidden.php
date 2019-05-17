@@ -12,18 +12,18 @@ require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/field.php';
 class RSFormProFieldHidden extends RSFormProField
 {
 	// backend preview
-	public function getPreviewInput() {
+	public function getPreviewInput()
+	{
         $value 		= (string) $this->getProperty('DEFAULTVALUE', '');
-		$txt	 	= JText::_('RSFP_HIDDEN_FIELD_PLACEHOLDER');
 		$codeIcon   = RSFormProHelper::getIcon('hidden');
 
-        if ($this->hasCode($value)) {
-            $txt        = JText::_('RSFP_PHP_CODE_PLACEHOLDER');
+        if ($this->hasCode($value))
+        {
+            $value      = JText::_('RSFP_PHP_CODE_PLACEHOLDER');
             $codeIcon   = RSFormProHelper::getIcon('php');
         }
 
-		$html = '<td>&nbsp;</td><td>'.$codeIcon.$txt.'</td>';
-		return $html;
+        return $codeIcon . '<small>' . $this->escape($value) . '</small>';
 	}
 	
 	// functions used for rendering in front view

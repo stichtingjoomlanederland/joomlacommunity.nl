@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
  *
  * @see      https://myJoomla.com/

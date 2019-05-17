@@ -20,7 +20,7 @@ class RSEventsProStatistics
 	 *
 	 * @var    array
 	 */
-	protected static $types = array();
+	protected $types = array();
 	
 	/**
 	 * Class constructor

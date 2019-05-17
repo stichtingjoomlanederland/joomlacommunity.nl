@@ -8,18 +8,18 @@
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses
  */
-class WFImgmanager_ExtPluginConfig
+class WFImgmanager_extPluginConfig
 {
     public static function getConfig(&$settings)
     {
-        require_once __DIR__.'/imgmanager_ext.php';
+        require_once __DIR__ . '/imgmanager_ext.php';
 
         // set plugin
         JFactory::getApplication()->input->set('plugin', 'imgmanager_ext');
 
         $plugin = new WFImgManager_ExtPlugin();
 
-        if ($plugin->getParam('inline_upload', $plugin->getParam('dragdrop_upload', 1, 0), 0)) {
+        if ($plugin->getParam('inline_upload', 1)) {
             $settings['imgmanager_ext_upload'] = array(
                 'max_size' => $plugin->getParam('max_size', 1024),
                 'filetypes' => $plugin->getFileTypes(),

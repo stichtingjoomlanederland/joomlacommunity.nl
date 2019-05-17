@@ -56,7 +56,7 @@ class RsformControllerDirectory extends RsformController
 			}
 		}
 
-		list($multipleSeparator, $uploadFields, $multipleFields, $secret) = RSFormProHelper::getDirectoryFormProperties($formId);
+		list($multipleSeparator, $uploadFields, $multipleFields, $textareaFields, $secret) = RSFormProHelper::getDirectoryFormProperties($formId);
 		
 		// Get submissions
         $query = $db->getQuery(true);
@@ -147,13 +147,23 @@ class RsformControllerDirectory extends RsformController
 					}
 				}
 				
-				$row[] = $value;
+				$row[] = $this->fixValue($value);
 			}
 			
 			echo $enclosure.implode($enclosure.$delimiter.$enclosure, str_replace($enclosure, $enclosure.$enclosure, $row)).$enclosure."\n";
 		}
 		
 		$app->close();
+	}
+
+	protected function fixValue($string)
+	{
+		if (strlen($string) && in_array($string[0], array('=', '+', '-', '@')))
+		{
+			$string = ' ' . $string;
+		}
+
+		return $string;
 	}
 	
 	public function save() {

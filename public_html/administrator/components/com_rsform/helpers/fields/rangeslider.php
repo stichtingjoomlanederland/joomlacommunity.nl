@@ -14,14 +14,9 @@ class RSFormProFieldRangeSlider extends RSFormProField
 	protected $customId;
 	
 	// backend preview
-	public function getPreviewInput() {
-		$type  	= $this->getProperty('SLIDERTYPE', 'SINGLE');
-		$caption 	= $this->getProperty('CAPTION','');
-		$codeIcon	= RSFormProHelper::getIcon('rangeSlider');
-		
-		$html = '<td>'.$caption.'</td><td>'.$codeIcon.' '.JText::_('RSFP_COMP_FVALUE_'.$type).'</td>';
-		
-		return $html;
+	public function getPreviewInput()
+	{
+		return RSFormProHelper::getIcon('rangeSlider') . ' ' . JText::_('RSFP_COMP_FVALUE_' . $this->getProperty('SLIDERTYPE', 'SINGLE'));
 	}
 	
 	// functions used for rendering in front view

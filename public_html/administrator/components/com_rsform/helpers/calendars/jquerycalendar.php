@@ -125,6 +125,17 @@ class RSFormProJQueryCalendar
 			$extras['maxTime'] = $maxTime;
 		}
 
+		if (!empty($allowDates)) {
+			$allowDates = str_replace("\r\n", "\n", $allowDates);
+			$allowDates = explode("\n", $allowDates);
+
+			$extras['allowDates'] = $allowDates;
+		}
+
+		if (!empty($allowDateRe)) {
+			$extras['allowDateRe'] = $allowDateRe;
+		}
+
 		// Set the time step (Ex: 5, 10, 15, 30 minutes)
 		if (!empty($timeStep)) {
 			$extras['step'] = $timeStep;

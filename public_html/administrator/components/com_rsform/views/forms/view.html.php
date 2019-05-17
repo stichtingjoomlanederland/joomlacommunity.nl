@@ -66,6 +66,8 @@ class RsformViewForms extends JViewLegacy
 			$this->tab 		   = JFactory::getApplication()->input->getInt('tab', 0);
 			$this->form 	   = $this->get('form');
 			$this->form_post   = $this->get('formPost');
+			$this->show_previews = RSFormProHelper::getConfig('global.grid_show_previews');
+			$this->show_caption  = RSFormProHelper::getConfig('global.grid_show_caption');
 
 			$this->hasSubmitButton = $this->get('hasSubmitButton');
 
@@ -126,8 +128,6 @@ class RsformViewForms extends JViewLegacy
 
 			// layouts
 			$this->layouts = RSFormProHelper::getFormLayouts($this->formId);
-
-			$this->hasLegacyLayout = in_array($this->form->FormLayoutName, array_merge($this->layouts['classicLayouts'], $this->layouts['xhtmlLayouts']));
 
 			foreach($this->quickfields as $fields){
 				$displayPlaceholders = array_merge($displayPlaceholders, $fields['display']);
@@ -481,5 +481,22 @@ class RsformViewForms extends JViewLegacy
 		}
 		
 		return array($rows, $hidden);
+	}
+
+	protected function adjustPreview($preview)
+	{
+		if (preg_match_all('/<td(.*?)>(.*?)<\/td>/is', $preview, $matches, PREG_SET_ORDER))
+		{
+			if (isset($matches[1]))
+			{
+				$preview = '<div' . $matches[1][1] . '>' . $matches[1][2] . '</div>';
+			}
+		}
+		else
+		{
+			$preview = '<div>' . $preview . '</div>';
+		}
+
+		return $preview;
 	}
 }

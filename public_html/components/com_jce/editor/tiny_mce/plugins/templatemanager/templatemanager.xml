@@ -1,8 +1,8 @@
 <?xml version="1.0" ?>
 <extension version="3.4" type="plugin" group="jce" method="upgrade">
 	<name>WF_TEMPLATEMANAGER_TITLE</name>
-	<version>2.7.2</version>
-	<creationDate>09-03-2019</creationDate>
+	<version>2.7.13</version>
+	<creationDate>07-05-2019</creationDate>
 	<author>Ryan Demmer</author>
 	<authorEmail>info@joomlacontenteditor.net</authorEmail>
 	<authorUrl>https://www.joomlacontenteditor.net/</authorUrl>
@@ -24,9 +24,9 @@
 			<field name="dir" type="text" default="" size="50" label="WF_PARAM_DIRECTORY" description="WF_PARAM_DIRECTORY_DESC"/>
 			<field name="max_size" class="input-small" hint="1024" max="" type="uploadmaxsize" step="128" label="WF_PARAM_UPLOAD_SIZE" description="WF_PARAM_UPLOAD_SIZE_DESC" />
 			<field name="extensions" type="extension" class="extensions" default="html=html,htm,txt" label="WF_PARAM_EXTENSIONS" description="WF_PARAM_EXTENSIONS_DESC" />
-			<field name="name" type="filesystem" default="" label="WF_PARAM_FILESYSTEM" description="WF_PARAM_FILESYSTEM_DESC" />
+			<field name="filesystem" type="filesystem" default="" label="WF_PARAM_FILESYSTEM" description="WF_PARAM_FILESYSTEM_DESC" />
 
-			<field name="content_url" type="browser" size="50" default="" data-filter="html,htm,txt" label="WF_TEMPLATEMANAGER_CONTENT_URL" description="WF_TEMPLATEMANAGER_CONTENT_URL_DESC" />
+			<field name="content_url" type="media" size="30" mediatype="html,htm,txt" default="" label="WF_TEMPLATEMANAGER_CONTENT_URL" description="WF_TEMPLATEMANAGER_CONTENT_URL_DESC" />
 			<field name="replace_values" type="textarea" rows="5" cols="50" default="" label="WF_TEMPLATEMANAGER_REPLACEMENT_VALUES" description="WF_TEMPLATEMANAGER_REPLACEMENT_VALUES_DESC" />
 			<field name="selected_content_classes" type="text" size="100" default="" label="WF_TEMPLATEMANAGER_CONTENT_CLASSES" description="WF_TEMPLATEMANAGER_CONTENT_CLASSES_DESC"/>
 			<field name="cdate_classes" type="text" size="100" default="cdate creationdate" label="WF_TEMPLATEMANAGER_CREATION_DATE_CLASSES" description="WF_TEMPLATEMANAGER_CREATION_DATE_CLASSES_DESC"/>
@@ -34,6 +34,8 @@
 			<field name="cdate_format" type="text" size="100" default="%m/%d/%Y : %H:%M:%S" label="WF_TEMPLATEMANAGER_CREATION_DATE_FORMAT" description="WF_TEMPLATEMANAGER_CREATION_DATE_FORMAT_DESC"/>
 			<field name="mdate_format" type="text" size="100" default="%m/%d/%Y : %H:%M:%S" label="WF_TEMPLATEMANAGER_MODIFIED_DATE_FORMAT" description="WF_TEMPLATEMANAGER_MODIFIED_DATE_FORMAT_DESC"/>
 
+			<field type="heading" label="WF_PROFILES_PLUGINS_ACCESS" />
+			
 			<field name="upload" type="yesno" default="1" label="WF_PARAM_UPLOAD" description="WF_PARAM_UPLOAD_DESC">
 				<option value="1">JYES</option>
 				<option value="0">JNO</option>

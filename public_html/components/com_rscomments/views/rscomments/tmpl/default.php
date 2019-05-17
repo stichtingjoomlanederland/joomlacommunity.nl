@@ -15,6 +15,7 @@ defined('_JEXEC') or die('Restricted access'); ?>
 		</div>
 	</div>
 	<div class="pull-right">
+		<?php if ($this->config->enable_usercomments) { ?>
 		<span class="rsc_my_comments">
 			<?php if ($this->config->modal == 2) { ?>
 			<a class="mycomments-modal <?php echo RSTooltip::tooltipClass(); ?>" href="<?php echo JRoute::_('index.php?option=com_rscomments&task=mycomments&tmpl=component', false); ?>" title="<?php echo RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_MY_COMMENTS_DESC')); ?>">
@@ -24,7 +25,7 @@ defined('_JEXEC') or die('Restricted access'); ?>
 				<i class="fa fa-comments"></i> <?php echo JText::_('COM_RSCOMMENTS_MY_COMMENTS'); ?>
 			</a>
 		</span>
-	
+		<?php } ?>
 	<?php
 		if ($this->config->enable_subscription) {
 			if (RSCommentsHelper::isSubscribed($this->id, $this->theoption)) {

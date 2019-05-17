@@ -14,11 +14,9 @@ class RSFormProFieldGMaps extends RSFormProFieldTextbox
 	static $mapScript = false;
 
 	// backend preview
-	public function getPreviewInput() {
-		$caption 	= $this->getProperty('CAPTION','');
-		$codeIcon	= RSFormProHelper::getIcon('gmaps');
-		$html = '<td>'.$caption.'</td><td>'.$codeIcon.'</td>';
-		return $html;
+	public function getPreviewInput()
+	{
+		return RSFormProHelper::getIcon('gmaps');
 	}
 	
 	// functions used for rendering in front view

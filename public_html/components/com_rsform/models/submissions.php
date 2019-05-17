@@ -246,38 +246,13 @@ class RsformModelSubmissions extends JModelLegacy
 		return $this->replacements;
 	}
 	
-	public function getComponents() {
-		$this->_db->setQuery("SELECT c.ComponentTypeId, p.ComponentId, p.PropertyName, p.PropertyValue FROM #__rsform_components c LEFT JOIN #__rsform_properties p ON (c.ComponentId=p.ComponentId) WHERE c.FormId='".$this->formId."' AND c.Published='1' AND p.PropertyName IN ('NAME', 'WYSIWYG')");
-		$components = $this->_db->loadObjectList();
-		$this->uploadFields   = array();
-		$this->multipleFields = array();
-		$this->textareaFields = array();
-		
-		foreach ($components as $component)
-		{
-			// Upload fields
-			if ($component->ComponentTypeId == RSFORM_FIELD_FILEUPLOAD)
-			{
-				$this->uploadFields[] = $component->PropertyValue;
-			}
-			// Multiple fields
-			elseif (in_array($component->ComponentTypeId, array(RSFORM_FIELD_SELECTLIST, RSFORM_FIELD_CHECKBOXGROUP)))
-			{
-				$this->multipleFields[] = $component->PropertyValue;
-			}
-			// Textarea fields
-			elseif ($component->ComponentTypeId == RSFORM_FIELD_TEXTAREA)
-			{
-				if ($component->PropertyName == 'WYSIWYG' && $component->PropertyValue == 'NO')
-					$this->textareaFields[] = $component->ComponentId;
-			}
-		}
-		
-		if (!empty($this->textareaFields))
-		{
-			$this->_db->setQuery("SELECT p.PropertyValue FROM #__rsform_components c LEFT JOIN #__rsform_properties p ON (c.ComponentId=p.ComponentId) WHERE c.ComponentId IN (".implode(',', $this->textareaFields).")");
-			$this->textareaFields = $this->_db->loadColumn();
-		}
+	public function getComponents()
+	{
+		$results = RSFormProHelper::getDirectoryFormProperties($this->formId, true);
+
+		$this->uploadFields = $results['uploadFields'];
+		$this->multipleFields = $results['multipleFields'];
+		$this->textareaFields = $results['textareaFields'];
 	}
 	
 	public function getHeaders() {

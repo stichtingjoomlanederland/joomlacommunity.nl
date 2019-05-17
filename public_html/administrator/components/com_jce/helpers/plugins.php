@@ -51,11 +51,19 @@ abstract class JcePluginsHelper
                     if (!is_file(WF_EDITOR_PLUGINS . '/' . $name . '/editor_plugin.js')) {
                         continue;
                     }
+
                     // update attributes
                     $attribs->type = 'plugin';
 
                     $attribs->path = WF_EDITOR_PLUGINS . '/' . $name;
                     $attribs->manifest = WF_EDITOR_PLUGINS . '/' . $name . '/' . $name . '.xml';
+
+                    $attribs->image = '';
+
+                    if (!isset($attribs->class)) {
+                        $attribs->class = '';
+                    }
+
                     // compatability
                     $attribs->name = $name;
                     // pass to array
@@ -79,6 +87,13 @@ abstract class JcePluginsHelper
                             $attribs->type = 'plugin';
                             $attribs->path = WF_EDITOR_PLUGINS . '/' . $name;
                             $attribs->manifest = WF_EDITOR_PLUGINS . '/' . $name . '/' . $name . '.xml';
+
+                            $attribs->image = '';
+
+                            if (!isset($attribs->class)) {
+                                $attribs->class = '';
+                            }
+
                             // compatability
                             $attribs->name = $name;
                             // pass to array
@@ -97,11 +112,12 @@ abstract class JcePluginsHelper
                     continue;
                 }
 
-                // load language
-                $language->load('plg_jce_' . $item->name, JPATH_ADMINISTRATOR);
-
                 // create path
                 $path = JPATH_PLUGINS . '/jce/' . $item->name;
+
+                // load language
+                $language->load('plg_jce_' . $item->name, JPATH_ADMINISTRATOR);
+                $language->load('plg_jce_' . $item->name, $path);
 
                 // get xml file
                 $file = $path . '/' . $item->name . '.xml';
@@ -123,31 +139,47 @@ abstract class JcePluginsHelper
 
                         $name = str_replace('editor-', '', $item->name);
 
-                        $plugins[$name] = new StdClass();
-                        $plugins[$name]->name = $name;
-                        $plugins[$name]->manifest = $file;
+                        $attribs = new StdClass();
+                        $attribs->name = $name;
+                        $attribs->manifest = $file;
 
                         $params = $xml->fields;
 
-                        $plugins[$name]->title = (string)$xml->name;
-                        $plugins[$name]->icon = (string)$xml->icon;
-                        $plugins[$name]->editable = 0;
+                        $attribs->title = (string)$xml->name;
+                        $attribs->icon = (string)$xml->icon;
+                        $attribs->editable = 0;
+
+                        // set default values
+                        $attribs->image = '';
+                        $attribs->class = '';
+
+                        if ($xml->icon->attributes()) {
+                            foreach($xml->icon->attributes() as $key => $value) {
+                                $attribs->$key = $value;
+                            }
+                        }
+
+                        if ($attribs->image) {
+                            $attribs->image = JURI::root(true) . '/' . $attribs->image;
+                        }
 
                         // can't be editable without parameters
                         if ($params && count($params->children())) {
-                            $plugins[$name]->editable = 1;
+                            $attribs->editable = 1;
                         }
 
                         $row = (int)$xml->attributes()->row;
 
-                        $plugins[$name]->row = $row ? $row : 4;
-                        $plugins[$name]->description = (string)$xml->description;
-                        $plugins[$name]->core = 0;
+                        $attribs->row = $row ? $row : 4;
+                        $attribs->description = (string)$xml->description;
+                        $attribs->core = 0;
 
                         // relative path
-                        $plugins[$name]->path = $path;
-                        $plugins[$name]->url = 'plugins/jce/' . $item->name;
-                        $plugins[$name]->type = 'plugin';
+                        $attribs->path = $path;
+                        $attribs->url = 'plugins/jce/' . $item->name;
+                        $attribs->type = 'plugin';
+
+                        $plugins[$name] = $attribs;
                     }
                 }
             }
@@ -161,7 +193,7 @@ abstract class JcePluginsHelper
      *
      * @return array $extensions
      */
-    public static function getExtensions()
+    public static function getExtensions($type = '')
     {
         jimport('joomla.filesystem.folder');
         jimport('joomla.filesystem.file');
@@ -195,7 +227,7 @@ abstract class JcePluginsHelper
                 // set type
                 $object->type = $object->folder;
 
-                $extensions[] = $object;
+                $extensions[$object->type][] = $object;
             }
 
             // get all installed plugins
@@ -230,7 +262,7 @@ abstract class JcePluginsHelper
                     $p->description = '';
 
                     list($p->type, $p->name) = preg_split('/-/', $p->name);
-
+  
                     // create title from name parts, eg: plg_jce_filesystem_joomla
                     $p->title = 'plg_jce_' . $p->type . '_' . $p->name;
 
@@ -244,16 +276,17 @@ abstract class JcePluginsHelper
                     $p->editable = 0;
 
                     // load language
-                    $language->load('plg_jce_' . $p->type . '_' . $p->name, JPATH_ADMINISTRATOR);
                     $language->load('plg_jce_' . $p->type . '-' . $p->name, JPATH_ADMINISTRATOR);
+                    $language->load('plg_jce_' . $p->type . '-' . $p->name, $p->path);
 
-                    $extensions[] = $p;
+                    $extensions[$p->type][] = $p;
                 }
             }
         }
 
-        // reset array
-        $extensions = array_values($extensions);
+        if ($type && isset($extensions[$type])) {
+            return $extensions[$type];
+        }
 
         return $extensions;
     }
@@ -293,10 +326,10 @@ abstract class JcePluginsHelper
                         $profile->rows = implode(';', $rows);
                     }
                 }
+            }
 
-                if (!$profile->store()) {
-                    throw new Exception(JText::_('WF_INSTALLER_PLUGIN_PROFILE_ERROR'));
-                }
+            if (!$profile->store()) {
+                throw new Exception(JText::_('WF_INSTALLER_PLUGIN_PROFILE_ERROR'));
             }
         }
 

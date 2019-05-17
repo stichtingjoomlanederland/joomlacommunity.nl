@@ -124,7 +124,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 						<textarea id="location_description" name="location_description" class="span10"></textarea>
 					</div>
 				</div>
-				<?php if ($this->config->enable_google_maps) { ?>
+				<?php if ($this->config->map) { ?>
 				<div class="control-group">
 					<div class="controls">
 						<div class="rsepro-location-map" id="rsepro-location-map"></div>

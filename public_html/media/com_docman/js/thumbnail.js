@@ -10,9 +10,14 @@
 
 (function($){
 
+    var imageEditor = null;
+
     this.ThumbnailBox = Vue.extend({
         data: function() {
             return {
+                editor: {
+                    site: null,
+                },
                 automatic: {
                     exists: false,
                     enabled: true,
@@ -45,6 +50,14 @@
         },
         mounted: function() {
             var vm = this;
+
+            imageEditor = Docman.ImageEditorFactory.getEditor(null, {
+                'connectToken': this.connect_token,
+                'site': this.editor.site,
+                'onSaveImage': function() {
+                    imageEditor.forceReloadImage(vm.preview_url);
+                }
+            });
 
             this.cache.image  = this.entity.image;
             this.cache.storage_path = this.entity.storage_path;
@@ -79,8 +92,11 @@
 
             if (vm.hasConnectSupport) {
                 window.addEventListener('message', function(event) {
-                    if (event.origin.indexOf('https://static.api.joomlatools') === 0
-                        || event.origin.indexOf('http://33.33.33.58') === 0) {
+                    if (event.origin.indexOf('https://static.api.joomlatools') === 0) {
+
+                        if (!event.data.urls) {
+                            return;
+                        }
 
                         if (typeof $.magnificPopup !== 'undefined' && $.magnificPopup.instance) {
                             $.magnificPopup.close();
@@ -118,9 +134,9 @@
                                 var entity = response.entities[0];
 
                                 vm.$store.commit('setProperty', {image: entity.path});
-                            } else {
-                                vm.web_preview = false;
                             }
+
+                            vm.web_preview = false;
                         }).fail(function() {
                             vm.download_in_progress = false;
                             vm.download_in_progress_error = false;
@@ -135,6 +151,11 @@
         },
         created: function () {},
         methods: {
+            editImage: function() {
+                if (this.hasConnectSupport && this.entity.image) {
+                    imageEditor.loadImage(this.image_container+'://'+this.entity.image);
+                }
+            },
             changeCustom: function() {
                 var vm = this;
 
@@ -169,22 +190,26 @@
                 return this.entity.storage_path.substr(this.entity.storage_path.lastIndexOf('.')+1).toLowerCase();
             },
             preview_url: function() {
+                var result;
+
                 if (this.active === 'none') {
-                    return false;
+                    result = false;
                 }
                 else if (this.active === 'custom' && this.entity.image) {
-                    return this.image_folder+'/'+this.entity.image;
+                    result = this.image_folder+'/'+this.entity.image;
                 }
                 else if (this.active === 'automatic') {
                     if (this.automatic.exists) {
-                        return this.image_folder + '/' + this.automatic.path;
+                        result = this.image_folder + '/' + this.automatic.path;
                     } else if (this.isLocal && this.isImage && this.selected_file) {
-                        return this.links.preview_automatic_image+'&folder='+this.selected_folder+'&name='+this.selected_file;
+                        result = this.links.preview_automatic_image+'&folder='+this.selected_folder+'&name='+this.selected_file;
                     }
                 }
                 else if (this.active === 'web') {
-                    return this.web_preview || (this.entity.image ? this.image_folder+'/'+this.entity.image : false);
+                    result = this.web_preview || (this.entity.image ? this.image_folder+'/'+this.entity.image : false);
                 }
+
+                return result;
             },
             isRemote: function() {
                 return this.entity.storage_type === 'remote';

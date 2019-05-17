@@ -45,7 +45,7 @@ class RseventsproModelEvent extends JModelAdmin
 				->where($db->qn('id').' = '.$item->location);
 			$db->setQuery($query);
 			$location = $db->loadObject();
-			$item->locationname = $location->name;
+			$item->locationname = isset($location->name) ? $location->name : '';
 			
 			// Convert image properties
 			try {
@@ -243,7 +243,7 @@ class RseventsproModelEvent extends JModelAdmin
 			$csv = '';
 			
 			$query->clear()
-				->select($db->qn('e.name'))->select($db->qn('e.start'))->select($db->qn('e.end'))->select($db->qn('e.description'))
+				->select('e.*')
 				->select($db->qn('l.name','locationname'))->select($db->qn('l.address'))
 				->from($db->qn('#__rseventspro_events','e'))
 				->join('left', $db->qn('#__rseventspro_locations','l').' ON '.$db->qn('l.id').' = '.$db->qn('e.location'))
@@ -271,7 +271,7 @@ class RseventsproModelEvent extends JModelAdmin
 					$start	= JFactory::getDate($event->start);
 					$end	= JFactory::getDate($event->end);
 					
-					$csv .= '"'.$name.'","'.$start->toSql().'","'.$end->toSql().'","'.$description.'","'.$url.'","'.$email.'","'.$phone.'","'.$locationname.'","'.$address.'"'."\n";
+					$csv .= '"'.rseventsproHelper::fixValue($name).'","'.rseventsproHelper::fixValue($start->toSql()).'","'.rseventsproHelper::fixValue($end->toSql()).'","'.rseventsproHelper::fixValue($description).'","'.rseventsproHelper::fixValue($url).'","'.rseventsproHelper::fixValue($email).'","'.rseventsproHelper::fixValue($phone).'","'.rseventsproHelper::fixValue($locationname).'","'.rseventsproHelper::fixValue($address).'"'."\n";
 				}
 				
 				$file = 'Events.csv';

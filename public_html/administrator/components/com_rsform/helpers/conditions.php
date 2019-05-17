@@ -77,13 +77,12 @@ class RSFormProConditions
 
     public static function buildJS($formId, $conditions)
     {
-        // Open script tag
-        $script = '<script type="text/javascript">';
-
-        $functions = array();
+    	$script = '';
 
         if ($conditions)
         {
+			$functions = array();
+
             foreach ($conditions as $condition)
             {
                 if ($condition->details)
@@ -120,13 +119,19 @@ class RSFormProConditions
                     $script .= $scriptConditions;
                 }
             }
+
+			if ($functions)
+			{
+				// Open script tag
+				$script = '<script type="text/javascript">' . $script;
+
+				$script .= sprintf('function rsfp_runAllConditions%1$d(){%2$s};RSFormPro.Conditions.delayRun(%1$d);', $formId, implode('();', $functions) . '();');
+				$script .= sprintf('RSFormPro.Conditions.addReset(%d);', $formId);
+
+				// Close script tag
+				$script .= '</script>';
+			}
         }
-
-        $script .= sprintf('function rsfp_runAllConditions%1$d(){%2$s};rsfp_runAllConditions%1$d();', $formId, implode('();', $functions) . '();');
-        $script .= sprintf('RSFormPro.Conditions.addReset(%d);', $formId);
-
-        // Close script tag
-        $script .= '</script>';
 
         return $script;
     }

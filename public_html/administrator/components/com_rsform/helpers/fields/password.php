@@ -12,8 +12,8 @@ require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/field.php';
 class RSFormProFieldPassword extends RSFormProField
 {
 	// backend preview
-	public function getPreviewInput() {
-		$caption 		= $this->getProperty('CAPTION', '');
+	public function getPreviewInput()
+	{
 		$value 			= (string) $this->getProperty('DEFAULTVALUE', '');
 		$rule 			= $this->getProperty('VALIDATIONRULE', 'none');
 		$size  			= $this->getProperty('SIZE', 0);
@@ -29,10 +29,7 @@ class RSFormProFieldPassword extends RSFormProField
 			}
 		}
 		
-		$html = '<td>'.$caption.'</td>'.
-				'<td>'.$codeIcon.'<input type="password" value="'.$this->escape($value).'" size="'.(int) $size.'" '.(!empty($placeholder) ? 'placeholder="'.$this->escape($placeholder).'"' : '').'/></td>';
-		
-		return $html;
+		return $codeIcon . '<input type="password" value="' . $this->escape($value) . '" size="' . (int) $size . '" ' . (!empty($placeholder) ? 'placeholder="' . $this->escape($placeholder) . '"' : '') . '/>';
 	}
 	
 	// functions used for rendering in front view

@@ -3,13 +3,13 @@
     <name>manage.myJoomla.com Secure Plugin</name>
     <author>Blue Flame Digital Solutions Limited.</author>
     <creationDate>2015</creationDate>
-    <copyright>Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017 Blue Flame Digital Solutions Limited. All rights reserved / Phil Taylor.</copyright>
+    <copyright>Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Limited. All rights reserved / Phil Taylor.</copyright>
     <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
     <authorEmail>phil@phil-taylor.com</authorEmail>
     <authorUrl>www.phil-taylor.com</authorUrl>
     <version>n/a</version>
     <description><![CDATA[
-        Your connector is now installed - You do not need to do anything else in your Joomla site, please return to myJoomla.com to continue...
+        Your connector is now installed - You do not need to do anything else in your Joomla site, YOU DO NOT NEED TO PUBLISH THIS PLUGIN! - please return to myJoomla.com to continue...
 	]]></description>
     <files>
         <filename plugin="bfnetwork">bfnetwork.php</filename>

@@ -12,10 +12,9 @@ require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/fields/hidden.p
 class RSFormProFieldTicket extends RSFormProFieldHidden
 {
 	// backend preview
-	public function getPreviewInput() {
-		$codeIcon   = RSFormProHelper::getIcon('support');
-		$html 		= '<td>&nbsp;</td><td>'.$codeIcon.$this->generateString().'</td>';
-		return $html;
+	public function getPreviewInput()
+	{
+		return RSFormProHelper::getIcon('support') . $this->generateString();
 	}
 	
 	// @desc Overridden here because this field generates a value based on its settings

@@ -393,6 +393,16 @@ class RsformControllerSubmissions extends RsformController
 
         $app->close();
     }
+
+    protected function fixValue($string)
+	{
+		if (strlen($string) && in_array($string[0], array('=', '+', '-', '@')))
+		{
+			$string = ' ' . $string;
+		}
+
+		return $string;
+	}
 	
 	public function exportProcess()
 	{
@@ -486,7 +496,7 @@ class RsformControllerSubmissions extends RsformController
 							if (strpos($submission['SubmissionValues'][$header]['Value'],"\n") !== false)
 								$submission['SubmissionValues'][$header]['Value'] = str_replace("\n",' ',$submission['SubmissionValues'][$header]['Value']);
 						}
-						fwrite($handle, $enclosure.(isset($submission['SubmissionValues'][$header]) ? str_replace(array('\\r','\\n','\\t',$enclosure), array("\015","\012","\011",$enclosure.$enclosure), $submission['SubmissionValues'][$header]['Value']) : (isset($submission[$header]) ? $submission[$header] : '')).$enclosure.($header != end($order) ? $delimiter : ""));
+						fwrite($handle, $enclosure.(isset($submission['SubmissionValues'][$header]) ? str_replace(array('\\r','\\n','\\t',$enclosure), array("\015","\012","\011",$enclosure.$enclosure), $this->fixValue($submission['SubmissionValues'][$header]['Value'])) : (isset($submission[$header]) ? $this->fixValue($submission[$header]) : '')).$enclosure.($header != end($order) ? $delimiter : ""));
 					}
 					fwrite($handle, "\n");
 				}
@@ -521,9 +531,9 @@ class RsformControllerSubmissions extends RsformController
 					foreach ($order as $orderId => $header)
 					{
 						if (isset($submission['SubmissionValues'][$header]))
-							$item[$header] = $submission['SubmissionValues'][$header]['Value'];
+							$item[$header] = $this->fixValue($submission['SubmissionValues'][$header]['Value']);
 						elseif (isset($submission[$header]))
-							$item[$header] = $submission[$header];
+							$item[$header] = $this->fixValue($submission[$header]);
 						else
 							$item[$header] = '';
 					}
@@ -570,9 +580,9 @@ class RsformControllerSubmissions extends RsformController
 					foreach ($order as $orderId => $header)
 					{
 						if (isset($submission['SubmissionValues'][$header]))
-							$item[$header] = $submission['SubmissionValues'][$header]['Value'];
+							$item[$header] = $this->fixValue($submission['SubmissionValues'][$header]['Value']);
 						elseif (isset($submission[$header]))
-							$item[$header] = $submission[$header];
+							$item[$header] = $this->fixValue($submission[$header]);
 						else
 							$item[$header] = '';
 					}
@@ -673,7 +683,7 @@ class RsformControllerSubmissions extends RsformController
 						if (is_numeric($item)) {
 							$ods->addCell($orderId, (float) $item, 'float');
 						} else {
-							$ods->addCell($orderId, $item, 'string');
+							$ods->addCell($orderId, $this->fixValue($item), 'string');
 						}
 					}
 					$ods->saveRow();

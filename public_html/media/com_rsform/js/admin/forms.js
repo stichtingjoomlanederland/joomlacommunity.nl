@@ -185,7 +185,7 @@ jQuery.formTabs = {
 			});
 		});
 	}
-}
+};
 
 jQuery.fn.extend({
 	formTabs: jQuery.formTabs.build
@@ -505,11 +505,14 @@ RSFormPro.Grid = {
 	clipboard: [],
 	
 	rightClickMenu: function() {
+		var $menu;
 		if (!this.initialized)
 		{
-			var $menu = jQuery('<ul class="dropdown-menu" id="rsfp-grid-contextmenu">' +
-				  '<li id="rsfp-grid-contextmenu-cut"><a href="#"><span class="icon-scissors"></span><span class="rsfp-text">' + Joomla.JText._('RSFP_GRID_CUT') + '</span></a></li>' +
-				  '<li id="rsfp-grid-contextmenu-paste"><a href="#" class="disabled"><span class="icon-copy"></span><span class="rsfp-text">' + Joomla.JText._('RSFP_GRID_NOTHING_TO_PASTE') + '</span></a></li>' +
+			$menu = jQuery('<ul class="dropdown-menu" id="rsfp-grid-contextmenu">' +
+				  '<li id="rsfp-grid-contextmenu-cut"><a href="#"><i class="icon-scissors"></i><span class="rsfp-text">' + Joomla.JText._('RSFP_GRID_CUT') + '</span></a></li>' +
+				  '<li id="rsfp-grid-contextmenu-paste"><a href="#" class="disabled"><i class="icon-copy"></i><span class="rsfp-text">' + Joomla.JText._('RSFP_GRID_NOTHING_TO_PASTE') + '</span></a></li>' +
+					'<li id="rsfp-grid-contextmenu-separator"><hr /></li>' +
+					'<li id="rsfp-grid-contextmenu-state">' + '<a href="#" class="disabled"><i class="icon-publish"></i><span class="rsfp-text">' + Joomla.JText._('RSFP_GRID_NOTHING_TO_PUBLISH') + '</span></a></li>' +
 				'</ul>');
 
 			jQuery('body').append($menu);
@@ -519,12 +522,13 @@ RSFormPro.Grid = {
 		}
 		else
 		{
-			var $menu = jQuery('#rsfp-grid-contextmenu');
+			$menu = jQuery('#rsfp-grid-contextmenu');
 		}
 		
 		var $cut = $menu.find('#rsfp-grid-contextmenu-cut');
-		var $paste = $menu.find('#rsfp-grid-contextmenu-paste')
-		
+		var $paste = $menu.find('#rsfp-grid-contextmenu-paste');
+		var $state = $menu.find('#rsfp-grid-contextmenu-state');
+
 		// Right clicking on a field should bring up a menu - only fields that are neither hidden fields nor pages.
 		jQuery('.rsfp-grid-row').not('.rsfp-grid-row-unsortable').find('.rsfp-grid-field').not('.rsfp-grid-field-unsortable').off('contextmenu').on('contextmenu', function(e){
 			var $this = jQuery(this);
@@ -543,40 +547,103 @@ RSFormPro.Grid = {
 				// Hide the menu
 				$menu.hide();
 			});
-
-			// Clicking on "Paste" will paste all fields from the clipboard below the current element
-			$paste.off('click').on('click', function(e){
-				e.preventDefault();
-
-				// Loop through all items in the clipboard and show them
-				jQuery(RSFormPro.Grid.clipboard).each(function(index, item){
-					jQuery(item).show();
-				});
-
-				// Add them after the current element
-                $this.after(RSFormPro.Grid.clipboard);
-				
-				// Empty the clipboard
-				RSFormPro.Grid.clipboard = [];
-				
-				// Hide the menu
-				$menu.hide();
-
-				// Save the Grid
-				RSFormPro.Grid.toJson();
-			});
 			
 			// If we don't have anything in the clipboard, the 'Paste' link must be disabled
 			if (RSFormPro.Grid.clipboard.length > 0)
 			{
 				$paste.children('a').removeClass('disabled');
 				$paste.find('.rsfp-text').text(Joomla.JText._('RSFP_GRID_PASTE_ITEMS').replace('%d', RSFormPro.Grid.clipboard.length));
+
+				// Clicking on "Paste" will paste all fields from the clipboard below the current element
+				$paste.off('click').on('click', function(e){
+					e.preventDefault();
+
+					// Loop through all items in the clipboard and show them
+					jQuery(RSFormPro.Grid.clipboard).each(function(index, item){
+						jQuery(item).show();
+					});
+
+					// Add them after the current element
+					$this.after(RSFormPro.Grid.clipboard);
+
+					// Empty the clipboard
+					RSFormPro.Grid.clipboard = [];
+
+					// Hide the menu
+					$menu.hide();
+
+					// Save the Grid
+					RSFormPro.Grid.toJson();
+				});
 			}
 			else
 			{
+				$paste.off('click');
 				$paste.children('a').addClass('disabled');
 				$paste.find('.rsfp-text').text(Joomla.JText._('RSFP_GRID_NOTHING_TO_PASTE'));
 			}
+
+			$state.children('a').removeClass('disabled');
+			if ($this.hasClass('rsfp-grid-unpublished-field'))
+			{
+				$state.find('.rsfp-text').text(Joomla.JText._('RSFP_GRID_UNPUBLISHED'));
+				$state.find('i').attr('class', 'icon-unpublish');
+			}
+			else
+			{
+				$state.find('.rsfp-text').text(Joomla.JText._('RSFP_GRID_PUBLISHED'));
+				$state.find('i').attr('class', 'icon-publish');
+			}
+
+			$state.off('click').on('click', function (e) {
+				e.preventDefault();
+
+				stateLoading();
+
+				var task;
+				var formId = jQuery('#formId').val();
+				var id = $this.find('input[data-rsfpgrid]').val();
+
+				if ($this.hasClass('rsfp-grid-unpublished-field'))
+				{
+					$this.removeClass('rsfp-grid-unpublished-field');
+					task = 'components.publish';
+				}
+				else
+				{
+					$this.addClass('rsfp-grid-unpublished-field');
+					task = 'components.unpublish';
+				}
+
+				var xml = buildXmlHttp();
+				var url = 'index.php?option=com_rsform&task=' + task + '&format=raw&randomTime=' + Math.random();
+
+				xml.open('POST', url, true);
+
+				var params = [
+					'componentId=' + id,
+					'formId=' + formId
+				];
+				params = params.join('&');
+
+				xml.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+				xml.send(params);
+				xml.onreadystatechange = function() {
+					if (xml.readyState === 4)
+					{
+						stateDone();
+
+						if (document.getElementById('FormLayoutAutogenerate1').checked === true)
+						{
+							generateLayout(formId, false);
+						}
+					}
+				};
+
+				// Hide the menu
+				$menu.hide();
+			});
 
 			// Show the menu next to the cursor
 			$menu.css({
@@ -599,6 +666,14 @@ RSFormPro.Grid = {
 
 					// Remove the click event
 					$cut.off('click');
+
+					// The "Publish" link should be disabled since we don't have items
+					$state.children('a').addClass('disabled');
+					$state.find('i').attr('class', 'icon-expired');
+					$state.find('.rsfp-text').text(Joomla.JText._('RSFP_GRID_NOTHING_TO_PUBLISH'));
+
+					// Remove the click event
+					$state.off('click');
 
 					// Clicking on "Paste" should append the clipboard items to this row
 					$paste.off('click').on('click', function(e){
@@ -728,14 +803,14 @@ RSFormPro.Grid = {
 					rows[rowId].columns[columnId] = [];
 					rows[rowId].sizes.push(size);
 					
-					jQuery(column).find('input').each(function(fieldId, input) {
+					jQuery(column).find('input[data-rsfpgrid]').each(function(fieldId, input) {
 						rows[rowId].columns[columnId].push(jQuery(input).val());
 					});
 				}
 			});
 		});
 		
-		jQuery('#rsfp-grid-row-container > .rsfp-grid-row.rsfp-grid-row-unsortable').find('input').each(function(fieldId, input) {
+		jQuery('#rsfp-grid-row-container > .rsfp-grid-row.rsfp-grid-row-unsortable').find('input[data-rsfpgrid]').each(function(fieldId, input) {
 			hidden.push(jQuery(input).val());
 		});
 		
@@ -749,19 +824,6 @@ RSFormPro.Grid = {
 			
 			// Save value to hidden field
 			jQuery('[name=GridLayout]').val(new_val);
-			
-			// Let's reorder fields
-			var table = jQuery('#componentPreview > tbody'),
-				table_rows = table.children('tr');
-			
-			// Remove current rows
-			table.children('tr').remove();
-			
-			// Start reordering based on Grid position
-			jQuery('#rsfp-grid-row-container').find('input').each(function(index, input) {
-				var row = table_rows.find('input#preview-id-' + jQuery(input).val()).parent().parent();
-				table.append(row);
-			});
 			
 			// Send AJAX request
 			jQuery.post(

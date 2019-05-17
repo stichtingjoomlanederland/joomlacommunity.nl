@@ -71,6 +71,7 @@ function rs_clear() {
 		<?php echo JHtml::image('com_rseventspro/loader.gif', '', array(), true); ?> 
 	</div>
 	<?php if ($this->total > $count) { ?>
+		<p id="rsepro_number_events"><?php echo JText::sprintf('COM_RSEVENTSPRO_SHOWING_SUBSCRIBERS','<span>'.$count.'</span>',$this->total); ?></p>
 		<a class="rs_read_more" id="rsepro_loadmore"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_LOAD_MORE'); ?></a>
 	<?php } ?>
 	<span id="total" class="rs_hidden"><?php echo $this->total; ?></span>

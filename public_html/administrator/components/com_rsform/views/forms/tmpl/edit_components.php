@@ -39,10 +39,6 @@ defined('_JEXEC') or die('Restricted access');
 	<input type="hidden" name="componentEditForm" id="componentEditForm" value="-1" />
 
 <div id="componentscontent">
-    <div class="alert alert-info text-center" id="rsform_ordering_msg">
-        <?php echo JText::_('RSFP_ORDERING_FROM_GRID_LAYOUT'); ?><a href="javascript: void();" onclick="jQuery('#properties').click();jQuery('#gridlayout').click();" class="btn btn-primary"><?php echo JText::_('RSFP_GO_TO_ORDERING_GRID_LAYOUT'); ?></a>
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
-    </div>
     <div class="alert alert-error" id="rsform_layout_msg" <?php if ($this->form->FormLayoutAutogenerate) { ?>style="display: none"<?php } ?>>
         <?php echo JText::_('RSFP_AUTOGENERATE_LAYOUT_DISABLED'); ?>
     </div>
@@ -50,60 +46,8 @@ defined('_JEXEC') or die('Restricted access');
         <p><?php echo JHtml::image('com_rsform/admin/submit-help.jpg', JText::_('RSFP_NO_SUBMIT_BUTTON'), 'align="middle"', true); ?></p>
         <p><?php echo JText::_('RSFP_NO_SUBMIT_BUTTON'); ?></p>
     </div>
-	<table border="0" width="100%" class="adminrsform">
-		<tr>
-			<td valign="top" class="componentPreview">
-					<table border="0" id="componentPreview" class="adminlist table table-striped">
-						<thead>
-						<tr>
-							<th class="title" width="1"><input type="hidden" value="-2" name="previewComponentId"/><input type="checkbox" name="toggle" value="" onclick="Joomla.checkAll(this);"/></th>
-							<th class="title"><?php echo JText::_('RSFP_NAME');?></th>
-							<th class="title"><?php echo JText::_('RSFP_CAPTION');?></th>
-							<th class="title"><?php echo JText::_('RSFP_PREVIEW');?></th>
-							<th class="title" width="5">&nbsp;</th>
-							<th class="title" width="5">&nbsp;</th>
-							<th width="150" class="order nowrap center"><span class="pull-left"><?php echo JText::_('Ordering'); ?></span> <?php echo JHtml::_('grid.order',$this->fields); ?></th>
-							<th class="title" width="5"><?php echo JText::_('RSFP_PUBLISHED');?></th>
-							<th class="title" width="5" nowrap="nowrap"><?php echo JText::_('RSFP_COMP_FIELD_REQUIRED');?></th>
-							<th class="title" width="5" nowrap="nowrap"><?php echo JText::_('RSFP_COMP_FIELD_VALIDATIONRULE');?></th>
-						</tr>
-						</thead>
-						<tbody>
-						<?php
-						$i = 0;
-						$k = 0;
-						$n = count($this->fields);
-						// hack to show order down icon
-						$n++;
-						foreach ($this->fields as $field) { ?>
-						<tr class="row<?php echo $k; ?><?php if ($field->type_id == 41) { ?> rsform_page<?php } ?>">
-							<td><input type="hidden" id="preview-id-<?php echo $field->id; ?>" name="previewComponentId" value="<?php echo $field->id; ?>" /><?php echo JHtml::_('grid.id', $i, $field->id); ?></td>
-							<td><?php echo $field->name; ?></td>
-							<?php echo $field->preview; ?>
-							<td align="center"><button type="button" class="btn" onclick="displayTemplate('<?php echo $field->type_id; ?>','<?php echo $field->id; ?>');"><?php echo JText::_('RSFP_EDIT'); ?></button></td>
-							<td align="center"><button type="button" class="btn btn-danger" onclick="if (confirm(Joomla.JText._('RSFP_REMOVE_COMPONENT_CONFIRM').replace('%s', '<?php echo $this->escape($field->name); ?>'))) removeComponent('<?php echo $this->form->FormId; ?>','<?php echo $field->id; ?>');"><?php echo JText::_('RSFP_DELETE'); ?></button></td>
-							<td class="order center">
-								<span><?php echo $this->pagination->orderUpIcon( $i, true, 'orderup', 'Move Up', 'ordering'); ?></span>
-								<span><?php echo $this->pagination->orderDownIcon( $i, $n, true, 'orderdown', 'Move Down', 'ordering' ); ?></span>
-								<input type="text" name="order[]" size="5" value="<?php echo $field->ordering; ?>" disabled="disabled" class="width-20 text-area-order" style="text-align:center" />
-							</td>
-							<td align="center" id="publishcb<?php echo $i; ?>"><?php echo JHtml::_('jgrid.published', $field->published, $i, 'components.'); ?></td>
-							<td align="center" id="requiredcb<?php echo $i; ?>"><?php echo is_bool($field->required) ?
-							JHtml::_('jgrid.state', array(
-								0 => array('setrequired', 'JYES', '', '', false, 'unpublish', 'unpublish'),
-								1 => array('unsetrequired', 'JNO', '', '', false, 'publish', 'publish')
-							), $field->required, $i, 'components.')
-							: '-'; ?></td>
-							<td align="center"><?php echo $field->validation; ?></td>
-						</tr>
-						<?php
-						$i++;
-						$k=1-$k;
-						}
-						?>
-						</tbody>
-					</table>
-			</td>
-		</tr>
-	</table>
+
+	<div id="gridlayoutdiv">
+		<?php echo $this->loadTemplate('grid'); ?>
+	</div><!-- gridlayout -->
 </div>

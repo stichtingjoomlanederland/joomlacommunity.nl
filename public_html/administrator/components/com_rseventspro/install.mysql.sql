@@ -341,6 +341,8 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_tickets` (
   `layout` longtext NOT NULL,
   `from` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
   `to` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `ticketinfo` tinyint(2) NOT NULL DEFAULT '0',
+  `ticketinfolayout` text NOT NULL,
   `order` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `ide` (`ide`),
@@ -433,12 +435,9 @@ INSERT IGNORE INTO `#__rseventspro_locations` (`id`, `name`, `url`, `address`, `
 
 INSERT IGNORE INTO `#__rseventspro_payments` (`id`, `name`, `details`, `tax_type`, `tax_value`, `redirect`, `published`) VALUES(1, 'Wire Transfer', '<p><strong>Bank name:</strong> Your bank name</p>\r\n<p><strong>Bank Address:</strong> your bank address</p>\r\n<p><strong>Bank Account Number:</strong></p>\r\n<p><strong>Swift BIC Number:</strong> <strong>Beneficiary:</strong></p>', 0, 0, '', 1);
 
-INSERT IGNORE INTO `#__rseventspro_groups` (`id`, `name`, `jgroups`, `jusers`, `can_add_locations`, `can_create_categories`, `can_delete_events`, `can_download`, `can_edit_events`, `can_edit_locations`, `can_post_events`, `can_register`, `can_repeat_events`, `can_unsubscribe`, `can_upload`, `event_moderation`, `tag_moderation`, `can_approve_events`, `can_approve_tags`) VALUES(1, 'Public', '{"0":"1"}', '', 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0);
-
 INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('global_code', '');
 INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('global_date', 'F d, Y');
 INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('global_time', 'H:i');
-INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('enable_google_maps', '1');
 INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('google_maps_center', '44.4237437,26.0780860');
 INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('time_format', '0');
 INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('enable_buttons', '1');
@@ -565,6 +564,13 @@ INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('filter_fro
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('filter_condition', 'is');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('speaker_icon_width', '100');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('speaker_icon_height', '150');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('map', 'google');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('openstreet_mapbox_access_token', '');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('openstreet_mapbox_tile_type', 'mapbox.streets');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('openstreet_thunderforest_api_key', '');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('openstreet_thunderforest_tile_type', 'neighbourhood');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('openstreet_esri_tile_type', 'World_Street_Map');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('openstreet_stamen_tile_type', 'terrain');
 
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Afghanistan');
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Akrotiri');

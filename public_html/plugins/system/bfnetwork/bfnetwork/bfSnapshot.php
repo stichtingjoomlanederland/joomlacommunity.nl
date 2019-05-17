@@ -1,9 +1,14 @@
 <?php
-/**
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
+
+/*
+ * @package   bfNetwork
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
  *
- * @see      https://myJoomla.com/
+ * @see       https://myJoomla.guru/
+ * @see       https://myWP.guru/
+ * @see       https://mySites.guru/
+ * @see       https://www.phil-taylor.com/
  *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
@@ -19,7 +24,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see http://www.gnu.org/licenses/
+ *
+ * If you have any questions regarding this code, please contact phil@phil-taylor.com
  */
+
 require 'bfEncrypt.php';
 
 /**
@@ -75,7 +83,7 @@ final class bfSnapshot
             'memory_limit'               => ini_get('memory_limit'),
             'has_installation_folders'   => (int) $this->hasInstallationFolders(),
             'site_debug_enabled'         => (int) $this->config->getCfg('debug') ? 1 : 0,
-            'has_ftp_configured'         => 1 == (int) $this->config->getCfg('ftp_enable') ? 1 : 0,
+            'has_ftp_configured'         => (int) $this->checkFTPLayer(),
             'numberofsuperadmins'        => $this->getNumberOfSuperAdmins(),
             'adminusernames'             => $this->getAdminUserNameCount(),
             'neverloggedinusers'         => $this->getNeverLoggedInUsersCount(),
@@ -85,7 +93,7 @@ final class bfSnapshot
             'cache_enabled'              => $this->config->getCfg('caching', ''),
             'sef_enabled'                => $this->config->getCfg('sef', ''),
             'tmplogfolderswritable'      => (int) $this->hastmplogfolderswritable(),
-            'extensionupdatesavailable'  => $this->hasUpdatesAvailable(),
+            'extensionupdatesavailable'  => null, // Now called in separate job was $this->hasUpdatesAvailable(),
             'defaulttemplateused'        => (int) $this->hasUsedDefaultTemplate(),
             'tpequalsone'                => $this->hastpequalsone(),
             'configsymlinked'            => (is_link(JPATH_BASE.'/configuration.php') ? 1 : 0),
@@ -118,18 +126,238 @@ final class bfSnapshot
             'sessiongcpublished'         => $this->getSessionGCStatus(),
             'twofactorenabled'           => $this->getTwoFactorPluginsEnabled(),
             'adminfilterfixed'           => $this->getAdminFilterFixed(),
+            'plaintextpasswordsfixed'    => $this->getPlaintextpasswordsFixed(),
+            'uploadsettingsfixed'        => $this->getUploadsettingsfixed(),
+            'mailtofrienddisabled'       => $this->getMailtofrienddisabled(),
+            'captchaenabled'             => $this->getCaptchaDetails(),
+            'useractionlogenabled'       => (int) $this->getUseractionlogenabled(),
+            'plgprivacyconsentenabled'   => (int) $this->getPrivacyConsentPluginEnabled(),
+            'useractionlogiplogenabled'  => (int) $this->getActionLogsIPLoggingEnabled(),
+            'systemlogrotationenabled'   => (int) $this->getSystemLogRotationEnabled(),
+            'hasprivacypolicy'           => (int) $this->hasprivacypolicy(),
+            'privacypendingremove'       => (int) $this->getPrivacypendingremove(),
+            'privacycompletedexport'     => (int) $this->getPrivacycompletedexport(),
+            'privacypendingexport'       => (int) $this->getPrivacypendingexport(),
+            'privacycompletedremove'     => (int) $this->getPrivacycompletedremove(),
+            'privacyoverdue'             => (int) $this->getPrivacyoverdue(),
+            'privacyconfirmedremove'     => (int) $this->getPrivacyconfirmedremove(),
+            'privacyconfirmedexport'     => (int) $this->getPrivacyconfirmedexport(),
+            'enablepurge30days'          => (int) $this->getPurge30Days(),
         );
     }
 
     /**
-     * Check how many Two Factor Plugins are enabled.
+     * Get the number of days to delete logs after from the System - User Actions Log.
+     *
+     * @return int
      */
-    public function getTwoFactorPluginsEnabled()
+    public function getPurge30Days()
     {
-        // Session GC
-        $this->db->setQuery("SELECT count(*) FROM `#__extensions` WHERE `folder` = 'twofactorauth' and enabled = 1");
+        if (version_compare(JVERSION, '3.9.0', '<')) {
+            return false;
+        }
+
+        $this->db->setQuery("SELECT params FROM `#__extensions` WHERE `name` = 'PLG_SYSTEM_ACTIONLOGS'");
+
+        $params = $this->db->LoadResult();
+
+        if ('{}' == $params) {
+            return null;
+        }
+
+        $params = json_decode($params);
+
+        return $params->logDeletePeriod;
+    }
+
+    public function getPrivacypendingremove()
+    {
+        if (version_compare(JVERSION, '3.9.0', '<')) {
+            return false;
+        }
+        $this->db->setQuery("select count(*) from #__privacy_requests where status = 0 and request_type = 'remove'");
 
         return $this->db->LoadResult();
+    }
+
+    public function getPrivacyconfirmedremove()
+    {
+        if (version_compare(JVERSION, '3.9.0', '<')) {
+            return false;
+        }
+        $this->db->setQuery("select count(*) from #__privacy_requests where status = 1 and request_type = 'remove'");
+
+        return $this->db->LoadResult();
+    }
+
+    public function getPrivacyconfirmedexport()
+    {
+        if (version_compare(JVERSION, '3.9.0', '<')) {
+            return false;
+        }
+        $this->db->setQuery("select count(*) from #__privacy_requests where status = 1 and request_type = 'export'");
+
+        return $this->db->LoadResult();
+    }
+
+    public function getPrivacycompletedexport()
+    {
+        if (version_compare(JVERSION, '3.9.0', '<')) {
+            return false;
+        }
+        $this->db->setQuery("select count(*) from #__privacy_requests where status = 2 and request_type = 'export'");
+
+        return $this->db->LoadResult();
+    }
+
+    public function getPrivacypendingexport()
+    {
+        if (version_compare(JVERSION, '3.9.0', '<')) {
+            return false;
+        }
+        $this->db->setQuery("select count(*) from #__privacy_requests where status = 0 and request_type = 'export'");
+
+        return $this->db->LoadResult();
+    }
+
+    public function getPrivacycompletedremove()
+    {
+        if (version_compare(JVERSION, '3.9.0', '<')) {
+            return false;
+        }
+        $this->db->setQuery("select count(*) from #__privacy_requests where status = 2 and request_type = 'remove'");
+
+        return $this->db->LoadResult();
+    }
+
+    /**
+     * Get the overdue requests.
+     *
+     * @return bool
+     */
+    public function getPrivacyoverdue()
+    {
+        if (version_compare(JVERSION, '3.9.0', '<')) {
+            return false;
+        }
+        // Load the parameters.
+        $params = \Joomla\CMS\Component\ComponentHelper::getComponent('com_privacy')->getParams();
+        $notify = (int) $params->get('notify', 14);
+        $now    = JFactory::getDate()->toSql();
+        $period = '-'.$notify;
+
+        $query = $this->db->getQuery(true)
+            ->select('COUNT(*)');
+        $query->from($this->db->quoteName('#__privacy_requests'));
+        $query->where($this->db->quoteName('status').' = 1 ');
+        $query->where($query->dateAdd($this->db->quote($now), $period, 'DAY').' > '.$this->db->quoteName('requested_at'));
+        $this->db->setQuery($query);
+
+        return $this->db->LoadResult();
+    }
+
+    /**
+     * Joomla 3.9.0+ Check for system log rotation plugin.
+     *
+     * @return mixed
+     */
+    public function getSystemLogRotationEnabled()
+    {
+        if (version_compare(JVERSION, '3.9.0', '<')) {
+            return false;
+        }
+
+        $this->db->setQuery("SELECT count(*) FROM `#__extensions` WHERE `name` = 'plg_system_logrotation' and enabled = 1");
+
+        return $this->db->LoadResult();
+    }
+
+    /**
+     * Joomla 3.9.0+ Check for action log ip logging enabled.
+     *
+     * @return mixed
+     */
+    public function hasprivacypolicy()
+    {
+        if (version_compare(JVERSION, '3.9.0', '<')) {
+            return false;
+        }
+
+        $this->db->setQuery("SELECT params FROM `#__extensions` WHERE `name` = 'plg_system_privacyconsent'");
+
+        $params = json_decode($this->db->LoadResult());
+
+        return $params->privacy_article > 0 ? 1 : 0;
+    }
+
+    /**
+     * Joomla 3.9.0+ Check for action log ip logging enabled.
+     *
+     * @return mixed
+     */
+    public function getActionLogsIPLoggingEnabled()
+    {
+        if (version_compare(JVERSION, '3.9.0', '<')) {
+            return false;
+        }
+
+        $this->db->setQuery("SELECT params FROM `#__extensions` WHERE `name` = 'com_actionlogs'");
+
+        $params = json_decode($this->db->LoadResult());
+
+        return $params->ip_logging;
+    }
+
+    /**
+     * Joomla 3.9.0+ Check for action log ip logging enabled.
+     *
+     * @return mixed
+     */
+    public function getUseractionlogenabled()
+    {
+        if (version_compare(JVERSION, '3.9.0', '<')) {
+            return false;
+        }
+
+        $this->db->setQuery("SELECT count(*) FROM `#__extensions` WHERE (`name` = 'PLG_ACTIONLOG_JOOMLA' or `name` = 'PLG_SYSTEM_ACTIONLOGS') and enabled = 1");
+
+        return 2 == $this->db->LoadResult() ? 1 : 0;
+    }
+
+    /**
+     * Joomla 3.9.0+ Check for plg_privacy_actionlogs enabled.
+     *
+     * @return mixed
+     */
+    public function getPrivacyConsentPluginEnabled()
+    {
+        if (version_compare(JVERSION, '3.9.0', '<')) {
+            return false;
+        }
+
+        $this->db->setQuery("SELECT count(*) FROM `#__extensions` WHERE `name` = 'plg_system_privacyconsent' and enabled = 1");
+
+        return $this->db->LoadResult();
+    }
+
+    /**
+     * Checks if the FTP Layer is in anyway configured.
+     *
+     * @return bool
+     */
+    private function checkFTPLayer()
+    {
+        $ftp_pass   = $this->config->getCfg('ftp_pass', '');
+        $ftp_user   = $this->config->getCfg('ftp_user', '');
+        $ftp_enable = $this->config->getCfg('ftp_enable', '');
+        $ftp_host   = $this->config->getCfg('ftp_host', '');
+        $ftp_root   = $this->config->getCfg('ftp_root', '');
+
+        if ($ftp_pass || $ftp_user || '1' == $ftp_enable || $ftp_host || $ftp_root) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -414,7 +642,6 @@ require 'bfnetwork/bfPlugin.php';";
      */
     private function getNumberOfSuperAdmins()
     {
-        return;
         if (preg_match('/^1\.5/', $this->version)) {
             $this->db->setQuery('SELECT count(*) FROM #__users WHERE gid = 25');
         } else {
@@ -464,18 +691,6 @@ require 'bfnetwork/bfPlugin.php';";
     private function hastmplogfolderswritable()
     {
         return is_writeable($this->config->getCfg('tmp_path')) && $this->config->getCfg('log_path');
-    }
-
-    private function hasUpdatesAvailable()
-    {
-        set_time_limit(60);
-        ob_start();
-        require 'bfUpdates.php';
-        $upCheck                   = new bfUpdates();
-        $extensionupdatesavailable = $upCheck->getUpdates(true);
-        ob_clean();
-
-        return $extensionupdatesavailable;
     }
 
     /**
@@ -564,7 +779,7 @@ require 'bfnetwork/bfPlugin.php';";
             $folderContents = scandir($folder);
 
             foreach ($folderContents as $file) {
-                if (preg_match('/\.jpa/i', $file)) {
+                if (preg_match('/\.jpa$/i', $file)) {
                     ++$count;
                 }
             }
@@ -899,12 +1114,16 @@ require 'bfnetwork/bfPlugin.php';";
 
     private function getNon2FaAdmins()
     {
-        $this->db->setQuery("select count(*) from #__users as u
+        try {
+            $this->db->setQuery("select count(*) from #__users as u
                               left join #__user_usergroup_map as ugm on ugm.user_id = u.id
                               where (otpKey = \"\"  or otpKey IS NULL)
                              and (ugm.group_id IN (select id from #__usergroups where title= 'Super Users'))");
 
-        return $this->db->loadResult();
+            return $this->db->loadResult();
+        } catch (\Exception $e) {
+            return 0;
+        }
     }
 
     /**
@@ -940,9 +1159,15 @@ require 'bfnetwork/bfPlugin.php';";
         return $res;
     }
 
-    public function getData()
+    /**
+     * Check how many Two Factor Plugins are enabled.
+     */
+    public function getTwoFactorPluginsEnabled()
     {
-        return $this->_data;
+        // Session GC
+        $this->db->setQuery("SELECT count(*) FROM `#__extensions` WHERE `folder` = 'twofactorauth' and enabled = 1");
+
+        return $this->db->LoadResult();
     }
 
     /**
@@ -960,6 +1185,79 @@ require 'bfnetwork/bfPlugin.php';";
         } else {
             return 2;
         }
+    }
+
+    /**
+     * Load sendpassword from params from com_users without using a helper.
+     */
+    public function getPlaintextpasswordsFixed()
+    {
+        $this->db->setQuery("select params from #__extensions where element = 'com_users'");
+        $params = json_decode($this->db->LoadResult());
+
+        return 1 - $params->sendpassword;
+    }
+
+    /**
+     * Load Flash Upload Settings from params from com_media without using a helper.
+     */
+    public function getUploadsettingsfixed()
+    {
+        $this->db->setQuery("select params from #__extensions where element = 'com_media'");
+        $params = json_decode($this->db->LoadResult());
+        if (
+            !preg_match('/swf/ism', $params->upload_extensions)
+            &&
+            !preg_match('/application\/x-shockwave-flash/ism', $params->upload_mime)
+        ) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * Load params from com_content without using a helper.
+     */
+    public function getMailtofrienddisabled()
+    {
+        $this->db->setQuery("select params from #__extensions where element = 'com_content'");
+        $params = json_decode($this->db->LoadResult());
+
+        if (
+            0 == $params->show_email_icon
+        ) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * Get the configuration of the google recaptcha plugin and global config.
+     */
+    private function getCaptchaDetails()
+    {
+        $this->db->setQuery("SELECT count(*) FROM #__extensions WHERE (name ='plg_captcha_recaptcha' or name = 'plg_captcha_recaptcha_invisible') and enabled = 1");
+
+        return 0 != $this->db->loadResult() ? 1 : 0;
+    }
+
+    public function getData()
+    {
+        return $this->_data;
+    }
+
+    private function hasUpdatesAvailable()
+    {
+        set_time_limit(60);
+        ob_start();
+        require 'bfUpdates.php';
+        $upCheck                   = new bfUpdates();
+        $extensionupdatesavailable = $upCheck->getUpdates(true);
+        ob_clean();
+
+        return $extensionupdatesavailable;
     }
 }
 

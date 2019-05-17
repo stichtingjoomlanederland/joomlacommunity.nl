@@ -212,11 +212,17 @@ class RseventsproViewRseventspro extends JViewLegacy
 			$app->triggerEvent('rsepro_addCustomScripts');
 			
 			if (!$tpl) {
-				if (rseventsproHelper::getConfig('enable_google_maps')) {
-					$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry&language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
-					if ($this->document->getType() == 'html') {
-						$this->document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/jquery.map.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
-					}
+				if ($this->config->map && (!empty($this->permissions['can_add_locations']) || $this->admin)) {
+					$mapParams = array(
+						'id' => 'rsepro-location-map',
+						'address' => 'location_address',
+						'coordinates' => 'location_coordinates',
+						'zoom' => (int) $this->config->google_map_zoom,
+						'center' => $this->config->google_maps_center,
+						'markerDraggable' => 'true'
+					);
+					
+					rseventsproMapHelper::loadMap($mapParams);
 				}
 			}
 			
@@ -321,14 +327,30 @@ class RseventsproViewRseventspro extends JViewLegacy
 			
 		} elseif ($layout == 'location') {
 			
-			if (rseventsproHelper::getConfig('enable_google_maps')) {
-				$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry&language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
-				if ($this->document->getType() == 'html') {
-					$this->document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/jquery.map.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
-				}
-			}
-			
 			$this->row = $this->get('location');
+			
+			$marker = array(
+				'title' => $this->row->name,
+				'position' => $this->row->coordinates,
+				'content' => '<div id="content"><h3>'.$this->row->name.'</h3> <br /> '.JText::_('COM_RSEVENTSPRO_LOCATION_ADDRESS',true).': '.$this->row->address.(!empty($this->row->url) ? '<br /><a target="_blank" href="'.$this->row->url.'">'.$this->row->url.'</a>' : '').'</div>'
+			);
+			
+			if ($this->row->marker) $marker['icon'] = rseventsproHelper::showMarker($this->row->marker);
+			
+			$mapParams = array(
+				'id' => 'map-canvas',
+				'locationCoordonates' => $this->row->coordinates,
+				'directionsBtn' => 'rsepro-get-directions',
+				'directionsPanel' => 'rsepro-directions-panel',
+				'directionsFrom' => 'rsepro-directions-from',
+				'directionNoResults' => JText::_('COM_RSEVENTSPRO_DIRECTIONS_NO_RESULT',true),
+				'zoom' => (int) $this->config->google_map_zoom,
+				'center' => $this->config->google_maps_center,
+				'markerDraggable' => 'false',
+				'markers' => array($marker)
+			);
+			
+			rseventsproMapHelper::loadMap($mapParams);
 			
 			//set the pathway
 			$pathway->addItem(JText::_('COM_RSEVENTSPRO_BC_LOCATION'));
@@ -344,12 +366,19 @@ class RseventsproViewRseventspro extends JViewLegacy
 				rseventsproHelper::error(JText::_('COM_RSEVENTSPRO_ERROR_EDIT_LOCATION'), rseventsproHelper::route('index.php?option=com_rseventspro&layout=locations',false));
 			}
 			
-			if (rseventsproHelper::getConfig('enable_google_maps','int')) {
-				$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry&language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
-				if ($this->document->getType() == 'html') {
-					$this->document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/jquery.map.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
-				}
-			}
+			$mapParams = array(
+				'id' => 'map-canvas',
+				'address' => 'jform_address',
+				'coordinates' => 'jform_coordinates',
+				'pinpointBtn' => 'rsepro-pinpoint',
+				'zoom' => (int) $this->config->google_map_zoom,
+				'center' => $this->config->google_maps_center,
+				'markerDraggable' => 'true',
+				'resultsWrapperClass' => 'rsepro-locations-results-wrapper',
+				'resultsClass' => 'rsepro-locations-results'
+			);
+			
+			rseventsproMapHelper::loadMap($mapParams);
 			
 			JHtml::_('rseventspro.chosen','.rschosen');
 			
@@ -372,22 +401,11 @@ class RseventsproViewRseventspro extends JViewLegacy
 			$this->total		= $this->get('totalcategories');
 		
 		} elseif ($layout == 'map') {
-		
-			if (rseventsproHelper::getConfig('enable_google_maps')) {
-				$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry&language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
-				if ($this->document->getType() == 'html') {
-					$this->document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/jquery.map.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
-				}
-			}
 			
 			$filters			= $this->get('filters');
 			$this->columns		= $filters[0];
 			$this->operators	= $filters[1];
 			$this->values		= $filters[2];
-			
-			if (!$this->params->get('enable_radius',0)) {
-				$this->events	= $this->get('eventsmap');
-			}
 			
 			$this->location	= $this->params->get('default_location', 'Statue of Liberty National Monument, New York, NY 10004, United States');
 			$this->radius	= (int) $this->params->get('default_radius', '100');
@@ -409,6 +427,34 @@ class RseventsproViewRseventspro extends JViewLegacy
 			} else {
 				$this->height = (int) $height.'px';
 			}
+			
+			if ($this->params->get('enable_radius', 0)) {
+				$mapParams = array(
+					'id' => 'map-canvas',
+					'zoom' => (int) $this->config->google_map_zoom,
+					'center' => $this->config->google_maps_center,
+					'radiusSearch' => '1',
+					'radiusLocationId' => 'rsepro-location',
+					'radiusValueId' => 'rsepro-radius',
+					'radiusUnitId' => 'rsepro-unit',
+					'radiusLoaderId' => 'rsepro-loader',
+					'radiusBtnId' => 'rsepro-radius-search',
+					'use_geolocation' => (int) $this->params->get('use_geolocation',0),
+					'circleColor' => $this->params->get('circle_color','#ff8080'),
+					'resultsWrapperClass' => 'rsepro-locations-results-wrapper',
+					'resultsClass' => 'rsepro-locations-results'
+				);
+			} else {
+				$mapParams = array(
+					'id' => 'map-canvas',
+					'zoom' => (int) $this->config->google_map_zoom,
+					'center' => $this->config->google_maps_center,
+					'markerDraggable' => 'false',
+					'markers' => rseventsproMapHelper::markers($this->get('eventsmap'))
+				);
+			}
+			
+			rseventsproMapHelper::loadMap($mapParams);
 			
 		} elseif ($layout == 'show' || $layout == 'print') {
 			if (!rseventsproHelper::check(JFactory::getApplication()->input->getInt('id')))	{			
@@ -437,14 +483,6 @@ class RseventsproViewRseventspro extends JViewLegacy
 			if ($layout == 'show') {
 				// Set hits
 				rseventsproHelper::hits($this->event->id);
-				
-				// Load maps
-				if (rseventsproHelper::getConfig('enable_google_maps','int')) {
-					$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry&language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
-					if ($this->document->getType() == 'html') {
-						$this->document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/jquery.map.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
-					}
-				}
 			}
 			
 			$this->options		= rseventsproHelper::options($this->event->id);
@@ -598,8 +636,11 @@ class RseventsproViewRseventspro extends JViewLegacy
 			
 			//set the pathway
 			$theview = isset($menu->query['layout']) ? $menu->query['layout'] : 'rseventspro';
-			if (($menu && $theview != 'show') || !$menu)
-				$pathway->addItem($this->data['event']->name,rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->data['event']->id,$this->data['event']->name),false,rseventsproHelper::itemid($this->data['event']->id)));
+			if (($menu && $theview != 'show') || !$menu) {
+				if (isset($this->data['event']->id) && isset($this->data['event']->name)) {
+					$pathway->addItem($this->data['event']->name,rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->data['event']->id,$this->data['event']->name),false,rseventsproHelper::itemid($this->data['event']->id)));
+				}
+			}
 			
 			$pathway->addItem(JText::_('COM_RSEVENTSPRO_BC_WIRE'));
 			

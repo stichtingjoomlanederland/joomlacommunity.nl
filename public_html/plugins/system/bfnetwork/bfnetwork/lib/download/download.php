@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
  *
  * @see      https://myJoomla.com/
@@ -189,7 +189,7 @@ class AcuDownload
 
             while (($timer->getTimeLeft() > 0) && !$break) {
                 // Do we have to initialize the file?
-                if ($frag == -1) {
+                if (-1 == $frag) {
                     //debugMsg("-- First frag, killing local file");
                     // Currently downloaded size
                     $doneSize = 0;
@@ -301,7 +301,7 @@ class AcuDownload
                 $start = $end;
             }
 
-            if ($frag == -1) {
+            if (-1 == $frag) {
                 $percent = 100;
             } elseif ($doneSize <= 0) {
                 $percent = 0;

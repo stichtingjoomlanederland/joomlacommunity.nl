@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension version="3.9" type="plugin" group="actionlog" method="upgrade">
+	<name>plg_actionlog_dbreplacer</name>
+	<description>PLG_ACTIONLOG_DBREPLACER_DESC</description>
+	<version>6.3.3PRO</version>
+	<creationDate>March 2019</creationDate>
+	<author>Regular Labs (Peter van Westen)</author>
+	<authorEmail>info@regularlabs.com</authorEmail>
+	<authorUrl>https://www.regularlabs.com</authorUrl>
+	<copyright>Copyright © 2018 Regular Labs - All Rights Reserved</copyright>
+	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+
+	<scriptfile>script.install.php</scriptfile>
+
+	<updateservers>
+		<server type="extension" priority="1" name="Regular Labs - DBReplacer ">
+			https://download.regularlabs.com/updates.xml?e=dbreplacer&amp;pro=1&amp;type=.xml
+		</server>
+	</updateservers>
+
+	<files>
+		<filename plugin="dbreplacer">dbreplacer.php</filename>
+		<filename>script.install.helper.php</filename>
+		<folder>language</folder>
+	</files>
+
+	<config>
+		<fields name="params" addfieldpath="/libraries/regularlabs/fields">
+			<fieldset name="basic">
+				<field name="@loadlanguage_regularlabs" type="rl_loadlanguage" extension="plg_system_regularlabs" />
+				<field name="@loadlanguage" type="rl_loadlanguage" extension="plg_actionlog_dbreplacer" />
+				<field name="@license" type="rl_license" extension="DB_REPLACER" />
+				<field name="@version" type="rl_version" extension="DB_REPLACER" />
+				<field name="@dependency" type="rl_dependency"
+					   label="DBR_THE_COMPONENT"
+					   file="/administrator/components/com_dbreplacer/dbreplacer.php" />
+				<field name="@header" type="rl_header"
+					   label="DB_REPLACER"
+					   description="DB_REPLACER_DESC"
+					   url="https://www.regularlabs.com/dbreplacer" />
+
+				<field name="@notice_settings" type="note" class="alert alert-info"
+					   description="DBR_SETTINGS,&lt;a href=&quot;index.php?option=com_dbreplacer&quot; target=&quot;_blank&quot;&gt;,&lt;/a&gt;" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>

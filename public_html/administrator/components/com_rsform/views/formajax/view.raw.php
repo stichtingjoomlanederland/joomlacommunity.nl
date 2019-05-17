@@ -19,13 +19,7 @@ class RsformViewFormajax extends JViewLegacy
 				
 				$this->type_id = $this->get('componentType');
 				$this->componentId = $this->get('componentId');
-				$this->show_save = count($this->fields) > 3;
-			break;
-			
-			case 'component_published':
-			case 'component_required':
-				$this->i = $this->get('i');
-				$this->field = $this->get('component');
+				$this->published = $this->get('published');
 			break;
 		}
 		

@@ -1,12 +1,16 @@
 <?php
 
-/**
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
- * @license GNU General Public License version 3 or later
+/*
+ * @package   bfNetwork
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @license   GNU General Public License version 3 or later
  *
- * @see https://myJoomla.com/
+ * @see       https://myJoomla.guru/
+ * @see       https://myWP.guru/
+ * @see       https://mySites.guru/
+ * @see       https://www.phil-taylor.com/
  *
- * @author Phil Taylor / Blue Flame Digital Solutions Limited.
+ * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
  * bfNetwork is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +24,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see http://www.gnu.org/licenses/
+ *
+ * If you have any questions regarding this code, please contact phil@phil-taylor.com
  */
+
 if (!class_exists('Bf_Zip')) {
     class Bf_Zip extends PclZip
     {
@@ -1504,7 +1511,7 @@ class PclZip
         }
 
         // ----- Look if already done
-        if ($this->magic_quotes_status != -1) {
+        if (-1 != $this->magic_quotes_status) {
             return $v_result;
         }
 
@@ -1579,7 +1586,7 @@ class PclZip
         // ----- Create the Central Dir files header
         for ($i = 0, $v_count = 0; $i < sizeof($v_header_list); ++$i) {
             // ----- Create the file header
-            if ($v_header_list[$i]['status'] == 'ok') {
+            if ('ok' == $v_header_list[$i]['status']) {
                 if (1 != ($v_result = $this->privWriteCentralFileHeader($v_header_list[$i]))) {
                     // ----- Return
                     return $v_result;
@@ -1652,12 +1659,12 @@ class PclZip
 
             // ----- Skip empty file names
             // TBC : Can this be possible ? not checked in DescrParseAtt ?
-            if ($p_filedescr_list[$j]['filename'] == '') {
+            if ('' == $p_filedescr_list[$j]['filename']) {
                 continue;
             }
 
             // ----- Check the filename
-            if (($p_filedescr_list[$j]['type'] != 'virtual_file')
+            if (('virtual_file' != $p_filedescr_list[$j]['type'])
                 && (!file_exists($p_filedescr_list[$j]['filename']))
             ) {
                 PclZip::privErrorLog(PCLZIP_ERR_MISSING_FILE, "File '".$p_filedescr_list[$j]['filename']."' does not exist");
@@ -1669,9 +1676,9 @@ class PclZip
             // or a dir with all its path removed
 //      if (   (is_file($p_filedescr_list[$j]['filename']))
 //          || (   is_dir($p_filedescr_list[$j]['filename'])
-            if (($p_filedescr_list[$j]['type'] == 'file')
-                || ($p_filedescr_list[$j]['type'] == 'virtual_file')
-                || (($p_filedescr_list[$j]['type'] == 'folder')
+            if (('file' == $p_filedescr_list[$j]['type'])
+                || ('virtual_file' == $p_filedescr_list[$j]['type'])
+                || (('folder' == $p_filedescr_list[$j]['type'])
                     && (!isset($p_options[PCLZIP_OPT_REMOVE_ALL_PATH])
                         || !$p_options[PCLZIP_OPT_REMOVE_ALL_PATH]))
             ) {
@@ -2274,7 +2281,7 @@ class PclZip
         }
 
         // ----- Look if something to do
-        if ($this->magic_quotes_status != -1) {
+        if (-1 != $this->magic_quotes_status) {
             return $v_result;
         }
 
@@ -2547,7 +2554,7 @@ class PclZip
         // ----- Create the Central Dir files header
         for ($i = 0, $v_count = 0; $i < sizeof($v_header_list); ++$i) {
             // ----- Create the file header
-            if ($v_header_list[$i]['status'] == 'ok') {
+            if ('ok' == $v_header_list[$i]['status']) {
                 if (1 != ($v_result = $this->privWriteCentralFileHeader($v_header_list[$i]))) {
                     fclose($v_zip_temp_fd);
                     $this->privCloseFd();
@@ -4573,7 +4580,7 @@ class PclZip
                             && ($p_options[PCLZIP_OPT_BY_NAME][$j] == substr($v_header_list[$v_nb_extracted]['stored_filename'], 0, strlen($p_options[PCLZIP_OPT_BY_NAME][$j])))
                         ) {
                             $v_found = true;
-                        } elseif ((($v_header_list[$v_nb_extracted]['external'] & 0x00000010) == 0x00000010) /* Indicates a folder */
+                        } elseif ((0x00000010 == ($v_header_list[$v_nb_extracted]['external'] & 0x00000010)) /* Indicates a folder */
                             && ($v_header_list[$v_nb_extracted]['stored_filename'].'/' == $p_options[PCLZIP_OPT_BY_NAME][$j])
                         ) {
                             $v_found = true;

@@ -49,6 +49,7 @@ $modulo = $columns == 2 ? 1 : ($columns == 3 ? 2 : ($columns == 4 ? 3 : 0)); ?>
 </div>
 
 <?php if ($this->total > $count) { ?>
+	<p id="rsepro_number_events"><?php echo JText::sprintf('COM_RSEVENTSPRO_SHOWING_CATEGORIES','<span>'.$count.'</span>',$this->total); ?></p>
 	<a class="rs_read_more" id="rsepro_loadmore"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_LOAD_MORE'); ?></a>
 <?php } ?>
 

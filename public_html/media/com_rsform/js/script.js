@@ -482,7 +482,6 @@ RSFormPro.resetValues = function(items) {
 							case 'CHECKBOX':
 							case 'RADIO':
 								element.checked = element.defaultChecked;
-								
 								RSFormPro.triggerEvent(element, 'change');
 							break;
 							
@@ -972,6 +971,12 @@ RSFormPro.Conditions = {
 				});
 			}
 		}
+	},
+	delayRun: function(formId) {
+		var func = window["rsfp_runAllConditions" + formId];
+		if (typeof func == "function") {
+			RSFormProUtils.addEvent(window, 'load', func);
+		}
 	}
 };
 
@@ -1246,7 +1251,7 @@ RSFormPro.Ajax = {
 		var submits = [],
 			errorFields = [],
 			success = false,
-			formId = 0,
+			formId = form.elements['form[formId]'].value,
 			ids,
 			totalJSDetectedPages = 0,
 			lastClickedElement,
@@ -1302,8 +1307,101 @@ RSFormPro.Ajax = {
 				continue;
 			}
 
-			if (form.elements[i].name == 'form[formId]') {
-				formId = form.elements[i].value;
+			if (form.elements[i].type == 'file')
+			{
+				if ('files' in form.elements[i])
+				{
+					try
+					{
+
+						if (RSFormPro.usePositioning)
+						{
+							if (form.elements[i].offsetParent !== document.getElementsByTagName('body')[0])
+							{
+								throw 'CONDITIONAL_HIDDEN';
+							}
+						}
+						else
+						{
+							if (form.elements[i].offsetParent === null)
+							{
+								throw 'CONDITIONAL_HIDDEN';
+							}
+						}
+
+						if (form.elements[i].files.length === 0 && form.elements[i].getAttribute('data-rsfp-required') === 'true')
+						{
+							throw 'VALIDATION_ERROR';
+						}
+
+						for (var f = 0; f < form.elements[i].files.length; f++)
+						{
+							var file = form.elements[i].files[f];
+							var maxSize = parseInt(form.elements[i].getAttribute('data-rsfp-size'));
+							if ('size' in file && maxSize > 0)
+							{
+								if (file.size > maxSize)
+								{
+									throw 'VALIDATION_ERROR';
+								}
+							}
+							if ('name' in file)
+							{
+								var exts = form.elements[i].getAttribute('data-rsfp-exts');
+								if (exts)
+								{
+									exts = JSON.parse(exts);
+
+									var ext = file.name.slice((file.name.lastIndexOf(".") - 1 >>> 0) + 2);
+									if (exts.indexOf(ext.toLowerCase()) === -1)
+									{
+										throw 'VALIDATION_ERROR';
+									}
+								}
+							}
+						}
+					}
+					catch (error)
+					{
+						if (error === 'VALIDATION_ERROR')
+						{
+							var parents = RSFormProUtils.getParents(form.elements[i]);
+							var page_number;
+							if (parents.length > 0)
+							{
+								for (var p = 0; p < parents.length; p++)
+								{
+									var parent = parents[p];
+
+									if ('getAttribute' in parent)
+									{
+										var hasId = parents[p].getAttribute('id');
+										var pageId = 'rsform_' + formId + '_page_';
+										if (hasId && hasId.indexOf(pageId) === 0)
+										{
+											page_number = hasId.slice(pageId.length);
+											break;
+										}
+									}
+								}
+							}
+
+							var elementObj = {
+								field: form.elements[i],
+								page: page_number
+							};
+
+							// try to get the componentId
+							var componentId = RSFormPro.HTML5.getComponentId(formId, form.elements[i].getAttribute('id'));
+							if (componentId)
+							{
+								elementObj.componentId = componentId;
+							}
+
+							errorFields.push(elementObj);
+						}
+					}
+				}
 			}
 
 			if (typeof RSFormPro.Editors[form.elements[i].name] == 'function') {
@@ -1313,7 +1411,7 @@ RSFormPro.Ajax = {
 			}
 		}
 
-		errorFields = RSFormPro.HTML5.validation(formId);
+		errorFields = errorFields.concat(RSFormPro.HTML5.validation(formId));
 
 		if (page) {
 			RSFormPro.Ajax.Params.push('page=' + page);
@@ -1618,6 +1716,20 @@ var RSFormProUtils = {
 		str = str.replace(/^\-+|\-+$/g, '');
 
 		return str;
+	},
+	getParents: function(a) {
+		var els = [];
+		while (a) {
+			els.push(a);
+			a = a.parentNode;
+		}
+		// Remove our own element
+		if (els.length > 0)
+		{
+			els.shift()
+		}
+
+		return els;
 	},
 	getElementsByClassName: function (className, tag, elm) {
 		if (document.getElementsByClassName) {

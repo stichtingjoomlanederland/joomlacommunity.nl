@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 	Copyright (c) 2009-2019 Ryan Demmer. All rights reserved
- * @license   	GNU/GPL 3 - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * @copyright     Copyright (c) 2009-2019 Ryan Demmer. All rights reserved
+ * @license       GNU/GPL 3 - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * JCE is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
@@ -60,6 +60,7 @@ class JceController extends JControllerLegacy
         // Get the document object.
         $document = JFactory::getDocument();
         $app = JFactory::getApplication();
+        $user = JFactory::getUser();
 
         JFactory::getLanguage()->load('com_jce', JPATH_ADMINISTRATOR);
 
@@ -68,6 +69,7 @@ class JceController extends JControllerLegacy
         $vFormat = $document->getType();
         $lName = $app->input->get('layout', 'default');
 
+        // legacy front-end popup view
         if ($vName === "popup") {
             // add a view path
             $this->addViewPath(JPATH_SITE . '/components/com_jce/views');
@@ -80,11 +82,22 @@ class JceController extends JControllerLegacy
             return $this;
         }
 
+        $adminViews = array('config', 'profiles', 'profile', 'mediabox');
+
+        if (in_array($vName, $adminViews) && !$user->authorise('core.manage', 'com_jce')) {
+            throw new JAccessExceptionNotallowed(JText::_('JERROR_ALERTNOAUTHOR'), 403);
+        }
+
         // create view
         $view = $this->getView($vName, $vFormat);
 
         // Get and render the view.
         if ($view) {
+
+            if ($vName !== "cpanel" && !$user->authorise('jce.' . $vName, 'com_jce')) {
+                throw new JAccessExceptionNotallowed(JText::_('JERROR_ALERTNOAUTHOR'), 403);
+            }
+
             // Get the model for the view.
             $model = $this->getModel($vName, 'JceModel', array('name' => $vName));
 
@@ -100,7 +113,7 @@ class JceController extends JControllerLegacy
 
             JceHelperAdmin::addSubmenu($vName);
 
-            $document->addStyleSheet('components/com_jce/media/css/global.min.css');
+            $document->addStyleSheet('components/com_jce/media/css/global.min.css', array('version' => WF_VERSION));
 
             $view->display();
         }

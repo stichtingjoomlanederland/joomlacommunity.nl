@@ -12,14 +12,14 @@ class WFFilemanagerPluginConfig
 {
     public static function getConfig(&$settings)
     {
-        require_once __DIR__.'/filemanager.php';
+        require_once __DIR__ . '/filemanager.php';
 
         // set plugin
         JFactory::getApplication()->input->set('plugin', 'filemanager');
 
         $plugin = new WFFileManagerPlugin();
 
-        if ($plugin->getParam('inline_upload', $plugin->getParam('dragdrop_upload', 1, 0), 0)) {
+        if ($plugin->getParam('inline_upload', 1)) {
             $settings['filemanager_upload'] = array(
                 'max_size' => $plugin->getParam('max_size', 1024),
                 'filetypes' => $plugin->getFileTypes(),

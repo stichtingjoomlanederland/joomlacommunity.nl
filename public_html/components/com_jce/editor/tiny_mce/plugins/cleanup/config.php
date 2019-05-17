@@ -37,11 +37,13 @@ class WFCleanupPluginConfig
         $settings['pad_empty_tags'] = $wf->getParam('editor.pad_empty_tags', 1, 1, 'boolean');
 
         // set schema
-        $settings['schema'] = $wf->getParam('editor.schema', 'mixed');
+        $settings['schema'] = $wf->getParam('editor.schema', 'mixed', 'mixed');
 
         if ($settings['schema'] === 'html5') {
             $settings['schema'] = 'html5-strict';
         }
+
+        $settings['validate_styles'] = $wf->getParam('editor.validate_styles', 1, 1, 'boolean', false);
 
         // Get Extended elements
         $settings['extended_valid_elements'] = $wf->getParam('editor.extended_elements', '', '');

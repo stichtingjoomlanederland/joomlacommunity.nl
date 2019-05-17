@@ -12,9 +12,9 @@ require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/field.php';
 class RSFormProFieldTextbox extends RSFormProField
 {
 	// backend preview
-	public function getPreviewInput() {
+	public function getPreviewInput()
+	{
 		$value 		 = (string) $this->getProperty('DEFAULTVALUE', '');
-		$caption 	 = $this->getProperty('CAPTION','');
 		$size 		 = $this->getProperty('SIZE', 0);
 		$placeholder = $this->getProperty('PLACEHOLDER', '');
 		$codeIcon 	 = '';
@@ -23,11 +23,8 @@ class RSFormProFieldTextbox extends RSFormProField
 			$value 		= JText::_('RSFP_PHP_CODE_PLACEHOLDER');
 			$codeIcon	= RSFormProHelper::getIcon('php');
 		}
-		
-		$html = '<td>'.$caption.'</td>';
-		$html .= '<td>'.$codeIcon.'<input type="text" value="'.$this->escape($value).'" size="'.(int) $size.'" '.(!empty($placeholder) ? 'placeholder="'.$this->escape($placeholder).'"' : '').'/></td>';
-		
-		return $html;
+
+		return $codeIcon . '<input type="text" value="'.$this->escape($value).'" size="'.(int) $size.'" '.(!empty($placeholder) ? 'placeholder="'.$this->escape($placeholder).'"' : '').'/>';
 	}
 	
 	// functions used for rendering in front view

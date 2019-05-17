@@ -249,7 +249,8 @@ class RseventsproModelSettings extends JModelAdmin
 			$facebook = new Facebook\Facebook(array(
 				'app_id' => $config->facebook_appid,
 				'app_secret' => $config->facebook_secret,
-				'default_graph_version' => 'v2.10'
+				'default_graph_version' => 'v2.10',
+				'pseudo_random_string_generator' => 'openssl'
 			));
 			
 			$helper = $facebook->getRedirectLoginHelper();
@@ -400,7 +401,8 @@ class RseventsproModelSettings extends JModelAdmin
 				$facebook = new Facebook\Facebook(array(
 					'app_id' => $config->facebook_appid,
 					'app_secret' => $config->facebook_secret,
-					'default_graph_version' => 'v2.10'
+					'default_graph_version' => 'v2.10',
+					'pseudo_random_string_generator' => 'openssl'
 				));
 				
 				$helper = $facebook->getRedirectLoginHelper();

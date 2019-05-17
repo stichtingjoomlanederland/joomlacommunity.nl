@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="component" version="3.7.0" method="upgrade">
 	<name>com_rsform</name>
-	<creationDate>March 2018</creationDate>
+	<creationDate>March 2019</creationDate>
 	<author>RSJoomla!</author>
 	<authorEmail>support@rsjoomla.com</authorEmail>
 	<authorUrl>www.rsjoomla.com</authorUrl>
-	<copyright>(C) 2007-2018 www.rsjoomla.com</copyright>
+	<copyright>(C) 2007-2019 www.rsjoomla.com</copyright>
 	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license> 
-	<version>2.1.4</version>
+	<version>2.2.1</version>
 	<description>COM_RSFORM_INSTALL_DESC</description>
 	<scriptfile>script.rsform.php</scriptfile>
 

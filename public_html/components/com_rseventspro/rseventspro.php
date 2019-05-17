@@ -20,8 +20,6 @@ rseventsproHelper::loadHelper();
 // Set some task that are not available in the front-end
 rseventsproHelper::task();
 
-JFactory::getCache('page')->clean();
-
 $controller	= JControllerLegacy::getInstance('Rseventspro');
 $controller->execute(JFactory::getApplication()->input->get('task'));
 $controller->redirect();

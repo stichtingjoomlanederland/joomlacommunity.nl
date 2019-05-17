@@ -360,6 +360,12 @@ class ComDocmanTemplateHelperBehavior extends ComKoowaTemplateHelperBehavior
                     'preview_automatic_image' => (string)$this->getTemplate()->route('option=com_docman&view=file&container=docman-files&routed=1', false, false)
                 ]
             )
+        ])->append([
+            'options'  => [
+                'editor' => [
+                    'site' => (string)$this->getObject('request')->getSiteUrl()
+                ]
+            ]
         ]);
 
         $html = $this->getTemplate()

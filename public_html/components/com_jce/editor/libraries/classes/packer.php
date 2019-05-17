@@ -147,7 +147,7 @@ class WFPacker extends JObject
             // move external import rules to top
             foreach (array_unique(self::$imports) as $import) {
                 if (strpos($import, '//') !== false) {
-                    $content = '@import url("'.$import.'");'.$content;
+                    $content = '@import url("' . $import . '");' . $content;
                 }
             }
         }
@@ -158,7 +158,7 @@ class WFPacker extends JObject
         $content = trim($content);
 
         // get content hash
-        $hash = md5(implode(' ', array_map('basename', $files)).$content);
+        $hash = md5(implode(' ', array_map('basename', $files)) . $content);
 
         // check for sent etag against hash
         if (!headers_sent() && isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
@@ -171,11 +171,11 @@ class WFPacker extends JObject
         }
 
         // set etag header
-        header('ETag: '.$hash);
+        header('ETag: ' . $hash);
 
         // Generate GZIP'd content
         if ($gzip) {
-            header('Content-Encoding: '.$encoding);
+            header('Content-Encoding: ' . $encoding);
             $content = gzencode($content, 4, FORCE_GZIP);
         }
 
@@ -217,9 +217,12 @@ class WFPacker extends JObject
         // Shortern 6-character hex color codes to 3-character where possible
         //$css = preg_replace('/#([a-f0-9])\\1([a-f0-9])\\2([a-f0-9])\\3/i', '#\1\2\3', $css);
 
-        require_once dirname(__FILE__).'/cssmin.php';
-        $min = new CSSmin(false);
-        $css = $min->run($css);
+        require_once __DIR__ . '/vendor/cssmin/cssmin.php';
+
+        try {
+            $css = CssMin::minify($css);
+        } catch (Exception $e) {
+        }
 
         return trim($css);
     }
@@ -259,7 +262,7 @@ class WFPacker extends JObject
                     }
 
                     // get full path
-                    $path = realpath($this->get('_cssbase').'/'.$match);
+                    $path = realpath($this->get('_cssbase') . '/' . $match);
 
                     // already import, don't repeat!
                     if (in_array($path, self::$imports)) {
@@ -279,18 +282,18 @@ class WFPacker extends JObject
 
     protected function compileLess($string, $path)
     {
-        require_once WF_ADMINISTRATOR.'/classes/lessc.inc.php';
+        require_once __DIR__ . '/vendor/lessphp/lessc.inc.php';
 
         $less = new lessc();
         // add file directory
         $less->addImportDir($path);
         // add joomla media folder
-        $less->addImportDir(JPATH_SITE.'media');
+        $less->addImportDir(JPATH_SITE . '/media');
 
         try {
             return $less->compile($string);
         } catch (Exception $e) {
-            return '/* LESS file could not be compiled due to error - '.$e->getMessage().' */';
+            return '/* LESS file could not be compiled due to error - ' . $e->getMessage() . ' */';
         }
     }
 
@@ -320,7 +323,7 @@ class WFPacker extends JObject
                         $this->set('_cssbase', dirname($file));
 
                         // process import rules
-                        $text = $this->importCss($text, $file).preg_replace(self::IMPORT_RX, '', $text);
+                        $text = $this->importCss($text, $file) . preg_replace(self::IMPORT_RX, '', $text);
                     }
 
                     // store the base path of the current file
@@ -331,7 +334,7 @@ class WFPacker extends JObject
                 }
                 // make sure text ends in a semi-colon;
                 if ($this->getType() == 'javascript') {
-                    $text = rtrim(trim($text), ';').';';
+                    $text = rtrim(trim($text), ';') . ';';
 
                     if ($minify) {
                         $text = $this->jsmin($text);
@@ -349,13 +352,28 @@ class WFPacker extends JObject
     {
         if (isset($data[1])) {
             if (strpos($data[1], '//') === false) {
-                $path = str_replace(JPATH_SITE, '', realpath($this->get('_imgbase').'/'.$data[1]));
+                $path = parse_url($data[1], PHP_URL_PATH);
 
-                if ($path) {
-                    return "url('".JURI::root(true).str_replace('\\', '/', $path)."')";
+                if (empty($path)) {
+                    $path = $data[1];
                 }
 
-                return "url('".$data[1]."')";
+                // get query, if any, eg: ?v=273
+                $query = parse_url($data[1], PHP_URL_QUERY);
+
+                if (empty($query)) {
+                    $query = "";
+                } else {
+                    $query = "?" . $query;
+                }
+
+                $path = str_replace(JPATH_SITE, '', realpath($this->get('_imgbase') . '/' . $path));
+
+                if ($path) {
+                    return "url('" . JURI::root(true) . str_replace('\\', '/', $path) . $query . "')";
+                }
+
+                return "url('" . $data[1] . "')";
             }
 
             return $data[1];

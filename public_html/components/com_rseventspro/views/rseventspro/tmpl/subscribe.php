@@ -11,6 +11,20 @@ JText::script('ERROR');
 $modal = $this->config->modal == 1 || $this->config->modal == 2; ?>
 
 <script type="text/javascript">
+	var rseproTypingTimer;
+	
+	jQuery(document).ready(function() {
+		jQuery('#coupon').keyup(function(){
+			clearTimeout(rseproTypingTimer);
+			
+			if (jQuery('#coupon').val()) {
+				rseproTypingTimer = setTimeout(function() {
+				<?php echo $this->updatefunction; ?>
+				}, 500);
+			}
+		});
+	});
+	
 	<?php if ($this->event->max_tickets) { ?>var maxtickets = parseInt(<?php echo $this->event->max_tickets_amount; ?>);<?php echo "\n"; } ?>
 	<?php if ($this->event->max_tickets) { ?>var usedtickets = parseInt(<?php echo rseventsproHelper::getUsedTickets($this->event->id); ?>);<?php echo "\n"; } ?>
 	var multitickets = <?php echo rseventsproHelper::getConfig('multi_tickets','int').";\n"; ?>
@@ -132,7 +146,7 @@ $modal = $this->config->modal == 1 || $this->config->modal == 2; ?>
 			<label for="coupon"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_PAYMENT_COUPON'); ?></label>
 		</div>
 		<div class="controls">
-			<input type="text" name="coupon" id="coupon" value="" size="40" class="input-large" onkeyup="<?php echo $this->updatefunction; ?>" />
+			<input type="text" name="coupon" id="coupon" value="" size="40" class="input-large" />
 			<a href="javascript:void(0)" onclick="rse_verify_coupon(<?php echo $this->event->id; ?>,document.getElementById('coupon').value)">
 				<i class="fa fa-refresh"></i>
 			</a>
@@ -223,4 +237,4 @@ jQuery(document).ready(function() {
 <?php } ?>
 
 <span id="eventID" style="display:none;"><?php echo $this->event->id; ?></span>
-<?php echo JHtml::_('bootstrap.renderModal', 'rseTicketsModal', array('title' => '&nbsp;', 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=tickets&tmpl=component&id='.rseventsproHelper::sef($this->event->id,$this->event->name)), 'bodyHeight' => 70, 'width' => rseventsproHelper::getConfig('seats_width','int','1280'), 'height' => rseventsproHelper::getConfig('seats_height','int','800') )); ?>
+<?php echo JHtml::_('bootstrap.renderModal', 'rseTicketsModal', array('title' => JText::_('COM_RSEVENTSPRO_SELECT_TICKETS'), 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=tickets&tmpl=component&id='.rseventsproHelper::sef($this->event->id,$this->event->name)), 'bodyHeight' => 70, 'width' => rseventsproHelper::getConfig('seats_width','int','1280'), 'height' => rseventsproHelper::getConfig('seats_height','int','800') )); ?>

@@ -37,19 +37,6 @@ class RseventsproTableLocation extends JTable
 		if (empty($this->id)) {
 			$this->ordering = self::getNextOrder();
 		}
-
-		$jinput = JFactory::getApplication()->input->get('jform',array(),'array');
-		if (isset($jinput['config']) && !empty($jinput['config']['enable_google_maps'])) {
-			$db = JFactory::getDbo();
-			$query = $db->getQuery(true);
-			$query->clear();
-			$query->update($db->qn('#__rseventspro_config'))
-				->set($db->qn('value').' = '.$db->q($jinput['config']['enable_google_maps']))
-				->where($db->qn('name').' = '.$db->q('enable_google_maps'));
-			
-			$db->setQuery($query);
-			$db->execute();
-		}
 		
 		if (isset($this->gallery_tags) && is_array($this->gallery_tags)) {
 			$registry = new JRegistry;

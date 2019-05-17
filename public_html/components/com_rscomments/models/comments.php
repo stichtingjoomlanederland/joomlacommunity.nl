@@ -48,55 +48,60 @@ class RscommentsModelComments extends JModelLegacy
 	
 	// Build commenting levels
 	public function buildDataArray() {
-		$db				= JFactory::getDbo();
-		$query			= $db->getQuery(true);
-		$permissions	= RSCommentsHelper::getPermissions();
-		$config			= RSCommentsHelper::getConfig();
-		$order			= $config->default_order;
-		$levels			= array();
+		static $levels = array();
+		
+		$jconfig	= JFactory::getConfig();
+		$permissions= RSCommentsHelper::getPermissions();
+		$config		= RSCommentsHelper::getConfig();
+		$order		= $config->default_order;
+		$state		= (isset($permissions['publish_comments']) && $permissions['publish_comments']) || RSCommentsHelper::admin() ? '0,1' : '1';
+		$hash		= md5($this->_id.$this->_option.$state.$order);
+		
+		if (empty($levels)) {
+			$options = array(
+				'defaultgroup' => 'com_rscomments',
+				'storage'      => $jconfig->get('cache_handler', ''),
+				'lifetime'     => 900,
+				'caching'      => true,
+				'cachebase'    => $jconfig->get('cache_path', JPATH_SITE . '/cache')
+			);
+
+			$cache	= JCache::getInstance('callback', $options);
+			$levels = $cache->get(array('RscommentsModelComments', 'getLevels'), array($this->_id, $this->_option, $state, $order), $hash);
+		}
+		
+		return $levels;
+	}
+	
+	public static function getLevels($id, $option, $state, $order) {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		$levels	= array();
 		
 		$query->clear()
 			->select($db->qn('IdComment'))->select($db->qn('IdParent'))
 			->from($db->qn('#__rscomments_comments'))
-			->where($db->qn('option').' = '.$db->q($this->_option))
-			->where($db->qn('id').' = '.$db->q($this->_id))
+			->where($db->qn('option').' = '.$db->q($option))
+			->where($db->qn('id').' = '.$db->q($id))
+			->where($db->qn('published').' IN ('.$state.')')
 			->order($db->qn('date').' '.$db->escape($order));
-		
-		if ((isset($permissions['publish_comments']) && $permissions['publish_comments']) || RSCommentsHelper::admin()) {
-			$query->where($db->qn('published').' IN (0,1)');
-		} else {
-			$query->where($db->qn('published').' = 1');
-		}
-		
 		$db->setQuery($query);
+		
 		$tmp = $db->loadObjectList();
-		$this->renderTree($tmp, $tree, $levels);
+		RscommentsModelComments::renderTree($tmp, $levels);
 		
 		return $levels;
 	}
 
-	protected function renderTree($tmp, &$tree = array(), &$levels = array(), $IdParent = 0, $level = 0) {
-		foreach ($tmp as $row) {
+	public static function renderTree($tmp, &$levels = array(), $IdParent = 0, $level = 0) {
+		foreach ($tmp as $i => $row) {
 			if ($row->IdParent == $IdParent) {
 				$levels[$row->IdComment] 	= $level;
-				$tree[$row->IdComment] 		= array();
-				$this->renderTree($tmp, $tree[$row->IdComment], $levels, $row->IdComment, $level+1);
-			}
+				unset($tmp[$i]);
+				
+				RscommentsModelComments::renderTree($tmp, $levels, $row->IdComment, $level+1);
+			 }
 		}
-	}
-
-	protected function renderFlatTree($tree) {
-		$list = array();
-		foreach($tree as $key => $children) {
-			$list[] = $key;
-			if (count($children)) {
-				$tmp_list = $this->renderFlatTree($children);
-				foreach ($tmp_list as $tmp_key)
-					$list[] = $tmp_key;
-			}
-		}
-	
-		return $list;
 	}
 	
 	// Build comments
@@ -395,12 +400,20 @@ class RscommentsModelComments extends JModelLegacy
 		$remove 			= array();
 		$owner 				= RSCommentsHelper::isAuthor($id); 
 		$permissions 		= RSCommentsHelper::getPermissions();
+		$config		 		= RSCommentsHelper::getConfig();
 		$download_folder	= JPATH_SITE.'/components/com_rscomments/assets/files/';
 		
 		if (!(((isset($permissions['delete_own_comment']) && $permissions['delete_own_comment']) && $owner ) || (isset($permissions['delete_comments']) && $permissions['delete_comments'] ))) {
 			return array('error'=> JText::_('COM_RSCOMMENTS_ERROR_DELETE_PERMISSIONS'));
 		}
 
+		$query->clear()
+			->select($db->qn('id'))->select($db->qn('option'))
+			->from($db->qn('#__rscomments_comments'))
+			->where($db->qn('IdComment').' = '.(int) $id);
+		$db->setQuery($query);
+		$commentInfo = $db->loadObject();
+		
 		// select and delete comments children (replies)
 		$query->clear()
 			->select($db->qn('IdComment'))
@@ -446,10 +459,11 @@ class RscommentsModelComments extends JModelLegacy
 		
 		$db->setQuery($query);
 		$db->execute();
-
+		
+		RSCommentsHelper::removeCache($commentInfo->id.$commentInfo->option);
+		
 		return $remove;
 	}
-	
 	
 	// Publis/Unpublish comments 
 	public function publish($id, $publish = 1) {
@@ -788,7 +802,8 @@ class RscommentsModelComments extends JModelLegacy
 		$row->subject = htmlentities($row->subject,ENT_COMPAT,'UTF-8');
 		
 		$row->website = RSCommentsHelper::checkURL($row->website) ? $db->escape($row->website) : '';
-
+		RSCommentsHelper::removeCache($jform['obj_id'].$jform['obj_option']);
+		
 		if ($row->store()) {
 			// Send email notifications
 			if ($config->email_notification && $isNew) {

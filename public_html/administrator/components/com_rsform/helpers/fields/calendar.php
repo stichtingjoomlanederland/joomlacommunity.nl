@@ -14,14 +14,11 @@ class RSFormProFieldCalendar extends RSFormProField
 	protected $customId;
 	
 	// backend preview
-	public function getPreviewInput() {
+	public function getPreviewInput()
+	{
 		$layout  	= $this->getProperty('CALENDARLAYOUT', 'FLAT');
-		$caption 	= $this->getProperty('CAPTION','');
-		$codeIcon	= RSFormProHelper::getIcon('calendar');
 		
-		$html = '<td>'.$caption.'</td><td>'.$codeIcon.' '.JText::_('RSFP_COMP_FVALUE_'.$layout).'</td>';
-		
-		return $html;
+		return RSFormProHelper::getIcon('calendar') . ' ' . JText::_('RSFP_COMP_FVALUE_' . $layout);
 	}
 	
 	// functions used for rendering in front view

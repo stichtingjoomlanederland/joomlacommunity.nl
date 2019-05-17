@@ -13,13 +13,13 @@ defined('_JEXEC') or die;
 ?>
 <?php if (!$this->hasPlugin): ?>
     <div class="akeeba-block--warning">
-        <h3><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_GEOIPPLUGINSTATUS'); ?></h3>
+        <h3><?php echo JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_GEOIPPLUGINSTATUS'); ?></h3>
 
-        <p><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_GEOIPPLUGINMISSING'); ?></p>
+        <p><?php echo JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_GEOIPPLUGINMISSING'); ?></p>
 
         <a class="akeeba-btn--primary" href="https://www.akeebabackup.com/download/akgeoip.html" target="_blank">
             <span class="akion-code-download"></span>
-            <?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_DOWNLOADGEOIPPLUGIN'); ?>
+            <?php echo JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_DOWNLOADGEOIPPLUGIN'); ?>
         </a>
     </div>
 
@@ -27,28 +27,31 @@ defined('_JEXEC') or die;
 <?php endif; ?>
 <?php if ($this->pluginNeedsUpdate): ?>
     <div class="akeeba-block--info">
-        <h3><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_GEOIPPLUGINEXISTS'); ?></h3>
+        <h3><?php echo JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_GEOIPPLUGINEXISTS'); ?></h3>
 
-        <p><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_GEOIPPLUGINCANUPDATE'); ?></p>
+        <p><?php echo JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_GEOIPPLUGINCANUPDATE'); ?></p>
 
         <a class="akeeba-btn--dark--small"
            href="index.php?option=com_admintools&view=ControlPanel&task=updategeoip&returnurl=<?php echo base64_encode('index.php?option=com_admintools&view=GeographicBlocking'); ?>&<?php echo $this->container->platform->getToken(true); ?>=1">
             <span class="akion-refresh"></span>
-            <?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_UPDATEGEOIPDATABASE'); ?>
+            <?php echo JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_UPDATEGEOIPDATABASE'); ?>
         </a>
     </div>
 <?php endif; ?>
 
 <div class="akeeba-block--info">
-    <h3><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_INFOHEAD'); ?></h3>
-	<p><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_INFO'); ?></p>
-	<p class="small"><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_MAXMIND'); ?></p>
+    <h3><?php echo JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_INFOHEAD'); ?></h3>
+	<p>
+        <?php echo JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_INFO'); ?><br/>
+        <?php echo JText::sprintf('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_MYIP', $this->myIP, $this->country, $this->continent)?>
+    </p>
+	<p class="small"><?php echo JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_MAXMIND'); ?></p>
 </div>
 
 <form action="index.php" method="post" name="adminForm" id="adminForm" class="akeeba-form--inline">
 	<div class="akeeba-panel--primary" id="waf-continents">
 		<header class="akeeba-block-header">
-            <h3><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_CONTINENTS'); ?></h3>
+            <h3><?php echo JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_CONTINENTS'); ?></h3>
         </header>
 
 		<?php foreach($this->allContinents as $code => $name): ?>
@@ -64,7 +67,7 @@ defined('_JEXEC') or die;
 
 	<div class="akeeba-panel--primary" id="waf-countries">
 		<header class="akeeba-block-header">
-            <h3><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_COUNTRIES'); ?></h3>
+            <h3><?php echo JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_COUNTRIES'); ?></h3>
         </header>
 
 		<table class="akeeba-table">

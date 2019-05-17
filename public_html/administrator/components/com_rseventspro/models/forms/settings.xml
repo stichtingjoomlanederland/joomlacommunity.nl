@@ -169,6 +169,11 @@
 			<option value="contains">COM_RSEVENTSPRO_FILTER_CONDITION_CONTAINS</option>
 			<option value="notcontain">COM_RSEVENTSPRO_FILTER_CONDITION_NOTCONTAINS</option>
 		</field>
+		
+		<field name="mysubscriptions" type="list" label="COM_RSEVENTSPRO_CONF_MYSUBSCRIPTIONS" description="COM_RSEVENTSPRO_CONF_MYSUBSCRIPTIONS_DESC" default="1">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
 	</fieldset>
 	
 	<fieldset name="moderation" label="COM_RSEVENTSPRO_CONF_MODERATION" description="COM_RSEVENTSPRO_CONF_MODERATION_DESC">
@@ -302,17 +307,51 @@
 	</fieldset>
 	
 	<fieldset name="maps" label="COM_RSEVENTSPRO_CONF_MAPS" description="COM_RSEVENTSPRO_CONF_MAPS_DESC">
-		<field name="enable_google_maps" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_ENABLE_GOOGLE_MAPS" description="COM_RSEVENTSPRO_CONF_ENABLE_GOOGLE_MAPS_DESC" default="1">
+		<field name="map" type="list" default="" label="COM_RSEVENTSPRO_CONF_MAP" description="COM_RSEVENTSPRO_CONF_MAP_DESC">
+			<option value="">COM_RSEVENTSPRO_CONF_MAP_NONE</option>
+			<option value="google">COM_RSEVENTSPRO_CONF_MAP_GOOGLE</option>
+			<option value="openstreetmapbox">COM_RSEVENTSPRO_CONF_MAP_OS_MAPBOX</option>
+			<option value="openstreetthunderforest">COM_RSEVENTSPRO_CONF_MAP_OS_THUNDERFOREST</option>
+			<option value="openstreetesri">COM_RSEVENTSPRO_CONF_MAP_OS_ESRI</option>
+			<option value="openstreetstamen">COM_RSEVENTSPRO_CONF_MAP_OS_STAMEN</option>
+		</field>
+		<field name="google_map_api" showon="map:google" type="text" label="COM_RSEVENTSPRO_CONF_GOOGLE_MAP_API" description="COM_RSEVENTSPRO_CONF_GOOGLE_MAP_API_DESC" size="10" default="" />
+		<field name="google_map_zoom" showon="map:google,openstreetmapbox,openstreetthunderforest,openstreetesri,openstreetstamen" type="text" label="COM_RSEVENTSPRO_CONF_GOOGLE_MAP_ZOOM" description="COM_RSEVENTSPRO_CONF_GOOGLE_MAP_ZOOM_DESC" size="10" default="12" />
+		<field name="google_maps_center" showon="map:google" type="text" label="COM_RSEVENTSPRO_CONF_GOOGLE_MAPS_CENTER" description="COM_RSEVENTSPRO_CONF_GOOGLE_MAPS_CENTER_DESC" size="50" default="39.5500507,-105.7820674" />
+		<field name="google_map_directions" showon="map:google" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_GOOGLE_MAP_DIRECTIONS" description="COM_RSEVENTSPRO_CONF_GOOGLE_MAP_DIRECTIONS_DESC" default="1">
 			<option value="1">JYES</option>
 			<option value="0">JNO</option>
 		</field>
-		<field name="google_map_api" type="text" label="COM_RSEVENTSPRO_CONF_GOOGLE_MAP_API" description="COM_RSEVENTSPRO_CONF_GOOGLE_MAP_API_DESC" size="10" default="" />
-		<field name="google_map_zoom" type="text" label="COM_RSEVENTSPRO_CONF_GOOGLE_MAP_ZOOM" description="COM_RSEVENTSPRO_CONF_GOOGLE_MAP_ZOOM_DESC" size="10" default="12" />
-		<field name="google_maps_center" type="text" label="COM_RSEVENTSPRO_CONF_GOOGLE_MAPS_CENTER" description="COM_RSEVENTSPRO_CONF_GOOGLE_MAPS_CENTER_DESC" size="50" default="39.5500507,-105.7820674" />
-		<field name="google_map_directions" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_GOOGLE_MAP_DIRECTIONS" description="COM_RSEVENTSPRO_CONF_GOOGLE_MAP_DIRECTIONS_DESC" default="1">
-			<option value="1">JYES</option>
-			<option value="0">JNO</option>
-		</field>
+		<field name="openstreet_mapbox_access_token" showon="map:openstreetmapbox" type="text" label="COM_RSEVENTSPRO_MAP_OS_MAPBOX_TOKEN" description="COM_RSEVENTSPRO_MAP_OS_MAPBOX_TOKEN_DESC" />
+        <field name="openstreet_mapbox_tile_type" showon="map:openstreetmapbox" type="list" default="mapbox.streets" label="COM_RSEVENTSPRO_MAP_OS_MAPBOX_TILE_TYPE" description="COM_RSEVENTSPRO_MAP_OS_MAPBOX_TILE_TYPE_DESC">
+            <option value="mapbox.streets">COM_RSEVENTSPRO_MAP_OS_MAPBOX_STREETS</option>
+            <option value="mapbox.dark">COM_RSEVENTSPRO_MAP_OS_MAPBOX_DARK</option>
+            <option value="mapbox.light">COM_RSEVENTSPRO_MAP_OS_MAPBOX_LIGHT</option>
+            <option value="mapbox.outdoors">COM_RSEVENTSPRO_MAP_OS_MAPBOX_OUTDOORS</option>
+            <option value="mapbox.satellite">COM_RSEVENTSPRO_MAP_OS_MAPBOX_SATELLITE</option>
+        </field>
+		<field name="openstreet_thunderforest_api_key" showon="map:openstreetthunderforest" type="text" label="COM_RSEVENTSPRO_MAP_OS_THUNDERFOREST_API_KEY" description="COM_RSEVENTSPRO_MAP_OS_THUNDERFOREST_API_KEY_DESC" />
+        <field name="openstreet_thunderforest_tile_type" showon="map:openstreetthunderforest" type="list" default="neighbourhood" label="COM_RSEVENTSPRO_MAP_OS_THUNDERFOREST_TILE_TYPE" description="COM_RSEVENTSPRO_MAP_OS_THUNDERFOREST_TILE_TYPE_DESC">
+            <option value="neighbourhood">COM_RSEVENTSPRO_MAP_OS_THUNDERFOREST_NEIGHBOURHOOD</option>
+            <option value="cycle">COM_RSEVENTSPRO_MAP_OS_THUNDERFOREST_CYCLE</option>
+            <option value="transport">COM_RSEVENTSPRO_MAP_OS_THUNDERFOREST_TRANSPORT</option>
+            <option value="landscape">COM_RSEVENTSPRO_MAP_OS_THUNDERFOREST_LANDSCAPE</option>
+            <option value="outdoors">COM_RSEVENTSPRO_MAP_OS_THUNDERFOREST_OUTDOORS</option>
+            <option value="transport-dark">COM_RSEVENTSPRO_MAP_OS_THUNDERFOREST_TRANSPORT_DARK</option>
+            <option value="spinal-map">COM_RSEVENTSPRO_MAP_OS_THUNDERFOREST_SPINAL_MAP</option>
+            <option value="pioneer">COM_RSEVENTSPRO_MAP_OS_THUNDERFOREST_PIONEER</option>
+            <option value="mobile-atlas">COM_RSEVENTSPRO_MAP_OS_THUNDERFOREST_MOBILE_ATLAS</option>
+        </field>
+		<field name="openstreet_esri_tile_type" showon="map:openstreetesri" type="list" default="World_Street_Map" label="COM_RSEVENTSPRO_MAP_OS_ESRI_TILE_TYPE" description="COM_RSEVENTSPRO_MAP_OS_ESRI_TILE_TYPE_DESC">
+            <option value="World_Street_Map">COM_RSEVENTSPRO_MAP_OS_ESRI_WORLD_STREET</option>
+            <option value="World_Imagery">COM_RSEVENTSPRO_MAP_OS_ESRI_WORLD_IMAGERY</option>
+            <option value="World_Topo_Map">COM_RSEVENTSPRO_MAP_OS_ESRI_WORLD_TOPO_MAP</option>
+        </field>
+		<field name="openstreet_stamen_tile_type" showon="map:openstreetstamen" type="list" default="terrain" label="COM_RSEVENTSPRO_MAP_OS_STAMEN_TILE_TYPE" description="COM_RSEVENTSPRO_MAP_OS_STAMEN_TILE_TYPE_DESC">
+            <option value="terrain">COM_RSEVENTSPRO_MAP_OS_STAMEN_TERRAIN</option>
+            <option value="toner">COM_RSEVENTSPRO_MAP_OS_STAMEN_TONNER</option>
+            <option value="watercolor">COM_RSEVENTSPRO_MAP_OS_STAMEN_WATERCOLOR</option>
+        </field>
 	</fieldset>
 	
 	<fieldset name="captcha" label="COM_RSEVENTSPRO_CONF_CAPTCHA">

@@ -8,24 +8,6 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 
 <h1><?php echo JText::sprintf('COM_RSEVENTSPRO_EDIT_LOCATION',$this->row->name); ?></h1>
 
-<?php if (rseventsproHelper::getConfig('enable_google_maps','int')) { ?>
-<script type="text/javascript">
-	var rseproeditlocationmap;
-	jQuery(document).ready(function (){
-		rseproeditlocationmap = jQuery('#map-canvas').rsjoomlamap({
-			address: 'jform_address',
-			coordinates: 'jform_coordinates',
-			pinpointBtn: 'rsepro-pinpoint',
-			zoom: <?php echo (int) $this->config->google_map_zoom ?>,
-			center: '<?php echo $this->config->google_maps_center; ?>',
-			markerDraggable: true,
-			resultsWrapperClass: 'rsepro-locations-results-wrapper',
-			resultsClass: 'rsepro-locations-results'
-		});
-	});
-</script>
-<?php } ?>
-
 <form action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=editlocation'); ?>" method="post" name="locationForm" id="locationForm">
 	<div class="control-group">
 		<div class="control-label">
@@ -49,7 +31,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 		</div>
 		<div class="controls">
 			<input type="text" autocomplete="off" id="jform_address" name="jform[address]" value="<?php echo $this->escape($this->row->address); ?>" class="input-large" />
-			<button type="button" style="border:medium none;height:30px;" id="rsepro-pinpoint"><?php echo JText::_('COM_RSEVENTSPRO_LOCATION_PINPOINT'); ?></button>
+			<?php if (rseventsproHelper::getConfig('map')) { ?><button type="button" style="border:medium none;height:30px;" id="rsepro-pinpoint"><?php echo JText::_('COM_RSEVENTSPRO_LOCATION_PINPOINT'); ?></button><?php } ?>
 		</div>
 	</div>
 	
@@ -72,7 +54,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 		</div>
 	</div>
 	
-	<?php if (rseventsproHelper::getConfig('enable_google_maps','int')) { ?>
+	<?php if (rseventsproHelper::getConfig('map')) { ?>
 	<div class="control-group">
 		<div class="controls">
 			<div id="map-canvas" style="width:100%;height: 400px"></div>

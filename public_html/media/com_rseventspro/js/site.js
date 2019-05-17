@@ -307,12 +307,18 @@ function rspagination(tpl,limitstart,ide) {
 		}
 		
 		if (tpl == 'categories') {
+			jQuery('#rsepro_number_events span').text(jQuery('#rs_events_container').children('li[class!="rsepro-month-year"]').length);
+			
 			if ((jQuery('#rs_events_container').children('li[class!="clearfix"]').length) >= parseInt(jQuery('#total').text())) {
 				jQuery('#rsepro_loadmore').css('display','none');
+				jQuery('#rsepro_number_events').css('display','none');
 			}
 		} else {
+			jQuery('#rsepro_number_events span').text(jQuery('#rs_events_container').children('li[class!="rsepro-month-year"]').length);
+			
 			if ((jQuery('#rs_events_container').children('li[class!="rsepro-month-year"]').length) >= parseInt(jQuery('#total').text())) {
 				jQuery('#rsepro_loadmore').css('display','none');
+				jQuery('#rsepro_number_events').css('display','none');
 			}
 		}
 	});

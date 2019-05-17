@@ -121,7 +121,7 @@ class YahooLogger {
      *
      * @param $message The message to log.
      */
-    function debug($message, $object = NULL) {
+    static function debug($message, $object = NULL) {
 
         global $GLOBAL_YAHOO_LOGGER_DEBUG;
         global $GLOBAL_YAHOO_LOGGER_DEBUG_DESTINATION;
@@ -167,7 +167,7 @@ class YahooLogger {
      *
      * @param $message The message to log.
      */
-    function error($message, $object = NULL) {
+    static function error($message, $object = NULL) {
         global $GLOBAL_YAHOO_LOGGER_DEBUG_DESTINATION;
         if($GLOBAL_YAHOO_LOGGER_DEBUG_DESTINATION == "CONSOLE") {
             print("ERROR - $message\n");
@@ -253,7 +253,7 @@ class YahooSession {
     /**
      * @private
      */
-    function YahooSession($consumer, $accessToken, $applicationId)
+    function __construct($consumer, $accessToken, $applicationId)
     {
         $this->consumer = $consumer;
         $this->accessToken = $accessToken;
@@ -385,7 +385,7 @@ class YahooSession {
      *                      instantiate a NativeSessionStore and use that.
      * @return boolean True if a session is present, false otherwise.
      */
-    function hasSession($consumerKey, $consumerSecret, $applicationId = NULL, $sessionStore = NULL, $verifier = NULL)
+    static function hasSession($consumerKey, $consumerSecret, $applicationId = NULL, $sessionStore = NULL, $verifier = NULL)
     {
         if(is_null($sessionStore)) {
             $sessionStore = new NativeSessionStore();
@@ -461,7 +461,7 @@ class YahooSession {
      *                  urlWithCallback is useful for normal <a href>
      *                  tags.
      */
-    function createAuthorizationUrl($consumerKey, $consumerSecret, $callback = NULL, $sessionStore = NULL)
+   static function createAuthorizationUrl($consumerKey, $consumerSecret, $callback = NULL, $sessionStore = NULL)
     {
         global $GLOBAL_YAHOO_SESSION;
 
@@ -540,7 +540,7 @@ class YahooSession {
     /**
      * @private
      */
-    function initSession($consumerKey, $consumerSecret, $applicationId, $redirect, $callback, $sessionStore, $verifier)
+    static function initSession($consumerKey, $consumerSecret, $applicationId, $redirect, $callback, $sessionStore, $verifier)
     {
         global $GLOBAL_YAHOO_SESSION;
 
@@ -703,7 +703,7 @@ class YahooSession {
      * @param[out] $sessionType The session type present, if any.
      * @return boolean True if a session is present, false otherwise.
      */
-    function checkSession(&$sessionType, $sessionStore) {
+   static function checkSession(&$sessionType, $sessionStore) {
         if(array_key_exists("yap_appid", $_POST)) {
             $sessionType = YAHOO_YAP_SESSION_TYPE;
             return true;
@@ -750,7 +750,7 @@ class YahooApplication {
      * @param $consumerKey The consumer key of the application.
      * @param $consumerKeySecret The consumer key secret of the application.
      */
-    function YahooApplication($consumerKey, $consumerKeySecret) {
+    function __construct($consumerKey, $consumerKeySecret) {
         $this->consumer = new OAuthConsumer($consumerKey, $consumerKeySecret);
     }
 
@@ -833,7 +833,7 @@ class YahooUser {
     /**
      * @private
      */
-    function YahooUser($session, $guid, $sessioned) {
+    function __construct($session, $guid, $sessioned) {
         $this->session = $session;
         $this->client = $session->client;
         $this->guid = $guid;
@@ -1295,7 +1295,7 @@ class YahooUser {
  * @private
  */
 class YahooAuthorization {
-    function getRequestToken($consumerKey, $consumerSecret, $callback) {
+   static function getRequestToken($consumerKey, $consumerSecret, $callback) {
         global $YahooConfig;
 
         if(is_null($callback)) {
@@ -1337,7 +1337,7 @@ class YahooAuthorization {
         return $requestToken;
     }
 
-    function createAuthorizationUrl($requestToken) {
+    static function createAuthorizationUrl($requestToken) {
         global $YahooConfig;
 
         if(!is_object($requestToken) || !property_exists($requestToken, "key")) {
@@ -1548,7 +1548,7 @@ class CookieSessionStore {
  */
 class NativeSessionStore {
 
-    function NativeSessionStore() {
+    function __construct() {
       $id = session_id();
       if(empty($id)) {
         session_start();
@@ -1670,7 +1670,7 @@ class OAuthClient {
      * @param $oauthParamsLocation OAUTH_PARAMS_IN_HEADERS or OAUTH_PARAMS_IN_POST_BODY, depending on where you want the OAuth parameters to show up. Optional, defaults to using the headers.
      * @param $signatureMethod OAUTH_SIGNATURE_PLAINTEXT or OAUTH_SIGNATURE_HMAC_SHA1, depending on what request signing mechanism to use. Optional, defaults to HMAC SHA1 signatures.
      */
-    function OAuthClient($consumer, $token = NULL, $oauthParamsLocation = OAUTH_PARAMS_IN_HEADERS, $signatureMethod = OAUTH_SIGNATURE_HMAC_SHA1) {
+    function __construct($consumer, $token = NULL, $oauthParamsLocation = OAUTH_PARAMS_IN_HEADERS, $signatureMethod = OAUTH_SIGNATURE_HMAC_SHA1) {
         $this->consumer = $consumer;
         $this->token = $token;
         $this->oauthParamsLocation = $oauthParamsLocation;
@@ -1902,7 +1902,7 @@ class OAuthClient {
 class YahooHeaderParser {
     var $headers = array();
 
-    function YahooHeaderParser() {
+    function __construct() {
     }
 
     function read($ch, $header) {

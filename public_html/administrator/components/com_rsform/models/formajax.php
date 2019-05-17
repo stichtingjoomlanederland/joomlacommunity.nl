@@ -61,7 +61,9 @@ class RsformModelFormajax extends JModelLegacy
 		foreach ($results as $i => $result)
 		{
 			if ($result->FieldName == 'ADDITIONALATTRIBUTES')
+			{
 				$results[$i]->Ordering = 1001;
+			}
 		}
 
 		usort($results, array($this, 'sortFields'));
@@ -254,22 +256,21 @@ class RsformModelFormajax extends JModelLegacy
 		return $cid;
 	}
 
-	public function getI()
-	{
-		return JFactory::getApplication()->input->getInt('i');
-	}
-
 	public function getComponent()
 	{
-		$componentId = $this->getComponentId();
-		$return 	 = new stdClass();
-		
-		$query = $this->_db->getQuery(true)
-			->select($this->_db->qn('Published'))
-			->from($this->_db->qn('#__rsform_components'))
-			->where($this->_db->qn('ComponentId') . ' = ' . $this->_db->q($componentId));
-		
-		$return->published = $this->_db->setQuery($query)->loadResult();
+		$componentId 		= $this->getComponentId();
+		$return 	 		= new stdClass();
+		$return->published 	= 1;
+
+		if ($componentId)
+		{
+			$query = $this->_db->getQuery(true)
+				->select($this->_db->qn('Published'))
+				->from($this->_db->qn('#__rsform_components'))
+				->where($this->_db->qn('ComponentId') . ' = ' . $this->_db->q($componentId));
+
+			$return->published = $this->_db->setQuery($query)->loadResult();
+		}
 
 		// required?
 		$data = $this->getComponentData();
@@ -324,5 +325,12 @@ class RsformModelFormajax extends JModelLegacy
 		}
 
 		$this->_db->setQuery($query)->execute();
+	}
+
+	public function getPublished()
+	{
+		$component = $this->getComponent();
+
+		return JHtml::_('select.booleanlist', 'Published', '', $component->published);
 	}
 }

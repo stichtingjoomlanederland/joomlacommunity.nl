@@ -496,4 +496,18 @@ interface PlatformInterface
 	 * @return  mixed
 	 */
 	public function getToken($formToken = false, $forceNew = false);
+
+	/**
+	 * Are plugins allowed to run in CLI mode?
+	 *
+	 * @return  bool
+	 */
+	public function isAllowPluginsInCli();
+
+	/**
+	 * Set whether plugins are allowed to run in CLI mode
+	 *
+	 * @param   bool  $allowPluginsInCli
+	 */
+	public function setAllowPluginsInCli($allowPluginsInCli);
 }

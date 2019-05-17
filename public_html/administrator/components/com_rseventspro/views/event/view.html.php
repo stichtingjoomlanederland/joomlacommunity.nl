@@ -99,9 +99,15 @@ class RseventsproViewEvent extends JViewLegacy
 		// Load custom scripts
 		$this->app->triggerEvent('rsepro_addCustomScripts');
 		
-		if ($this->config->enable_google_maps) {
-			$this->document->addScript('https://maps.google.com/maps/api/js?language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
-			JHtml::script('com_rseventspro/jquery.map.js', array('relative' => true, 'version' => 'auto'));
-		}
+		$mapParams = array(
+			'id' => 'rsepro-location-map',
+			'address' => 'location_address',
+			'coordinates' => 'location_coordinates',
+			'zoom' => (int) $this->config->google_map_zoom,
+			'center' => $this->config->google_maps_center,
+			'markerDraggable' => 'true'
+		);
+		
+		rseventsproMapHelper::loadMap($mapParams);
 	}
 }

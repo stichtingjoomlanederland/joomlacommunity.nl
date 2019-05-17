@@ -10,7 +10,6 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('enable_rating','event'), $this->form->getInput('enable_rating','event')); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('enable_fb_like','event'), $this->form->getInput('enable_fb_like','event')); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('enable_twitter','event'), $this->form->getInput('enable_twitter','event')); ?>
-	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('enable_gplus','event'), $this->form->getInput('enable_gplus','event')); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('enable_linkedin','event'), $this->form->getInput('enable_linkedin','event')); ?>
 	<?php echo JHtml::_('rsfieldset.end'); ?>
 </div>

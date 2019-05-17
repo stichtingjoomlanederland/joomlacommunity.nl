@@ -11,11 +11,9 @@ require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/field.php';
 class RSFormProFieldFileUpload extends RSFormProField
 {
 	// backend preview
-	public function getPreviewInput() {
-		
-		$caption	 = $this->getProperty('CAPTION', '');
-		$html = '<td>'.$caption.'</td><td><input type="file" /></td>';
-		return $html;
+	public function getPreviewInput()
+	{
+		return '<input type="file" />';
 	}
 	
 	// functions used for rendering in front view
@@ -49,10 +47,56 @@ class RSFormProFieldFileUpload extends RSFormProField
 				 ' id="'.$this->escape($id).'"';
 		// Additional HTML
 		$html .= $additional;
+
+		$html .= $this->addDataAttributes();
+
 		// Close the tag
 		$html .= ' />';
 		
 		return $html;
+	}
+
+	protected function addDataAttributes()
+	{
+		$html = '';
+
+		if ($this->getProperty('REQUIRED'))
+		{
+			$html .= ' data-rsfp-required="true"';
+		}
+
+		if ($this->getProperty('ACCEPTEDFILESIMAGES'))
+		{
+			$acceptedExts = array('jpg', 'jpeg', 'png', 'gif');
+		}
+		elseif ($exts = $this->getProperty('ACCEPTEDFILES'))
+		{
+			$acceptedExts = RSFormProHelper::explode($exts);
+		}
+		else
+		{
+			$acceptedExts = array();
+		}
+
+		if ($acceptedExts)
+		{
+			array_walk($acceptedExts, array($this, 'cleanExtension'));
+			$html .= ' data-rsfp-exts="' . $this->escape(json_encode($acceptedExts)) . '"';
+		}
+
+		$size = (int) $this->getProperty('FILESIZE');
+
+		if ($size)
+		{
+			$html .= ' data-rsfp-size="' . ($size * 1024) . '"';
+		}
+
+		return $html;
+	}
+
+	public function cleanExtension(&$value, $key = null)
+	{
+		$value = strtolower(trim($value));
 	}
 	
 	// @desc All upload fields should have a 'rsform-upload-box' class for easy styling

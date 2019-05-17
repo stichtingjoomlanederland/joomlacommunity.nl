@@ -75,6 +75,10 @@ class ComDocmanControllerBehaviorThumbnailable extends KControllerBehaviorAbstra
             $this->_regenerate = true;
         }
 
+        if ($data->regenerate_thumbnail_if_automatic && ($item->image === $filename)) {
+            $this->_regenerate = true;
+        }
+
         // None or custom to automatic thumbnail.
         if ($data->automatic_thumbnail && ($data->image !== $filename)) {
             $this->_regenerate = true;

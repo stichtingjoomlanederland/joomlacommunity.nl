@@ -6,6 +6,11 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); 
 
+use Joomla\CMS\Crypt\Cipher\SimpleCipher;
+use Joomla\CMS\Crypt\CipherInterface;
+use Joomla\CMS\Crypt\Crypt;
+use Joomla\CMS\Crypt\Key;
+
 class rseventsproEmails
 {	
 	/*
@@ -966,8 +971,8 @@ class rseventsproEmails
 					for ($i = 1; $i <= $ticket->quantity; $i++) {
 						$code		= md5($ids.$ticket->id.$i);
 						$code		= substr($code,0,4).substr($code,-4);
-						$barcode	= rseventsproHelper::getBarcodeOptions('barcode_prefix', 'RST-').$ids.'-'.$code;
-						$barcode	= in_array(rseventsproHelper::getBarcodeOptions('barcode', 'C39'), array('C39', 'C93')) ? strtoupper($barcode) : $barcode;
+						$barcodetext= rseventsproHelper::getBarcodeOptions('barcode_prefix', 'RST-').$ids.'-'.$code;
+						$barcodetext= in_array(rseventsproHelper::getBarcodeOptions('barcode', 'C39'), array('C39', 'C93')) ? strtoupper($barcodetext) : $barcodetext;
 						$layout		= $ticket->layout;
 						
 						$app->triggerEvent('rseproTicketPDFLayout',array(array('ids' => $ids, 'ide' => $ide, 'layout' => &$layout)));
@@ -980,21 +985,44 @@ class rseventsproEmails
 						if (strpos($layout,'{barcode}') !== FALSE) {
 							jimport('joomla.filesystem.file');
 							require_once JPATH_SITE.'/components/com_rseventspro/helpers/pdf/barcodes.php';
-							$barcodeIMG = new TCPDFBarcode($barcode, rseventsproHelper::getBarcodeOptions('barcode', 'C39'));
+							
+							$barcodeOption = rseventsproHelper::getBarcodeOptions('barcode', 'qrcode');
+							$barcodetype = rseventsproHelper::getBarcodeOptions('barcode_type', 'qrcode');
+							$barcodetexttype = $barcodetext;
+							
+							if ($barcodeOption == 'qrcode') {
+								if ($barcodetype == 'url') {
+									$hash = md5($ids.$ticket->id.$i);
+									$hash = substr_replace($hash, '|'.$ids.'|', 6, 0);
+									$secret = JFactory::getConfig()->get('secret');
+									
+									try {
+										$key	= new Key('simple',$secret, $secret);
+										$crypt	= new \JCrypt(null, $key);
+										$hash	= 'cr'.$crypt->encrypt($hash);
+										$hash	= str_replace(' ', '_', $hash);
+									} catch (Exception $e) {}
+									
+									$barcodetexttype = JUri::root().'index.php?option=com_rseventspro&task=confirm&hash='.$hash;
+								}
+							}
+							
+							$barcodePDF = new TCPDFBarcode($barcodetexttype, $barcodeOption);
+							$size = $barcodeOption == 'qrcode' ? '100px' : '300px';
 							
 							ob_start();
-							$barcodeIMG->getBarcodePNG();
+							$barcodePDF->getBarcodePNG();
 							$thecode = ob_get_contents();
 							ob_end_clean();
 							
-							$file		= JPATH_SITE.'/components/com_rseventspro/assets/barcode/rset-'.md5($barcode).'.png';
-							$files[]	= $file;
-							$upload		= JFile::write($file, $thecode);
-							$output		= $upload ? '<img src="'.$file.'" alt="" />' : '';
-							$layout		= str_replace('{barcode}', $output, $layout);
+							$file = JPATH_SITE.'/components/com_rseventspro/assets/barcode/rset-'.md5($barcodetext).'.png';
+							$upload = JFile::write($file,$thecode);
+							$barcodeHTML = $upload ? '<img src="'.$file.'" alt="" width="'.$size.'" />' : '';
+							
+							$layout = str_replace('{barcode}', $barcodeHTML, $layout);
 						}
 						
-						$layout = str_replace(array('{useremail}', '{barcodetext}'), array($to, $barcode), $layout);
+						$layout = str_replace(array('{useremail}', '{barcodetext}'), array($to, $barcodetext), $layout);
 						
 						$app->triggerEvent('rsepro_activationEmail', array(array('id' => &$ide, 'name' => $ticket->name.' '.$i, 'attachment' => &$attachments, 'layout' => &$layout)));
 					}
@@ -1182,7 +1210,7 @@ class rseventsproEmails
 	*	Create optional placeholders
 	*/
 	
-	protected function createOptionals($id) {
+	protected static function createOptionals($id) {
 		$db		= JFactory::getDBO();
 		$query	= $db->getQuery(true);
 		$id		= (int) $id;

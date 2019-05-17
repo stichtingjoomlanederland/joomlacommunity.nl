@@ -48,9 +48,6 @@ class RseventsproViewSettings extends JViewLegacy
 		
 		JHtml::_('rseventspro.chosen','select');
 		
-		JFactory::getDocument()->addScript('https://maps.google.com/maps/api/js?language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
-		JHtml::script('com_rseventspro/jquery.map.js', array('relative' => true, 'version' => 'auto'));
-		
 		JToolBarHelper::apply('settings.apply');
 		JToolBarHelper::save('settings.save');
 		JToolBarHelper::cancel('settings.cancel');

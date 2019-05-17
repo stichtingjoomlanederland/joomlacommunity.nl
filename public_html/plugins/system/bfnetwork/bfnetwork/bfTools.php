@@ -1,9 +1,14 @@
 <?php
-/**
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
+
+/*
+ * @package   bfNetwork
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
  *
- * @see      https://myJoomla.com/
+ * @see       https://myJoomla.guru/
+ * @see       https://myWP.guru/
+ * @see       https://mySites.guru/
+ * @see       https://www.phil-taylor.com/
  *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
@@ -19,13 +24,19 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see http://www.gnu.org/licenses/
+ *
+ * If you have any questions regarding this code, please contact phil@phil-taylor.com
  */
+
 require 'bfEncrypt.php';
 
 /**
  * If we have got here then we have already passed through decrypting
  * the encrypted header and so we are sure we are now secure and no one
  * else cannot run the code below.
+ *
+ * I'M NOT PROUD OF THIS FILE - it has grown a lot over the years and there are a lot of workarounds so that we can be
+ * fully compatible from Joomla 1.5.0 to the latest Joomla version, and on all the crazy configurations of webservers.
  */
 final class bfTools
 {
@@ -35,80 +46,121 @@ final class bfTools
      * single digit(or 2) rather than a huge string to remember :-).
      */
     private $_methods = array(
-        1  => 'getCoreHashFailedFileList',
-        2  => 'downloadfile',
-        3  => 'restorefile',
-        4  => 'getSuspectContentFileList',
-        5  => 'deleteFile',
-        6  => 'checkFTPLayer',
-        7  => 'disableFTPLayer',
-        8  => 'checkNewDBCredentials',
-        9  => 'testDbCredentials',
-        10 => 'getFolderPermissions',
-        11 => 'setFolderPermissions',
-        12 => 'getHiddenFolders',
-        13 => 'deleteFolder',
-        14 => 'getInstallationFolders',
-        15 => 'getRecentlyModified',
-        16 => 'getFilePermissions',
-        17 => 'setFilePermissions',
-        18 => 'getErrorLogs',
-        19 => 'getEncrypted',
-        20 => 'getUser',
-        21 => 'setUser',
-        22 => 'setDbPrefix',
-        23 => 'setDbCredentials',
-        24 => 'getBakTables',
-        25 => 'deleteBakTables',
-        26 => 'getHtaccessFiles',
-        27 => 'setHtaccess',
-        28 => 'getUpdatesCount',
-        29 => 'getUpdatesDetail',
-        30 => 'getDotfiles',
-        31 => 'getArchivefiles',
-        32 => 'getLargefiles',
-        33 => 'fixDbSchema',
-        34 => 'getDbSchemaVersion',
-        35 => 'checkGoogleFile',
-        36 => 'toggleOnline',
-        37 => 'getOfflineStatus',
-        38 => 'getRobotsFile',
-        39 => 'saveRobotsFile',
-        40 => 'getTmpfiles',
-        41 => 'clearTmpFiles',
-        42 => 'getFlufffiles',
-        43 => 'clearFlufffiles',
-        44 => 'getRenamedToHide',
-        45 => 'getPhpinwrongplace',
-        46 => 'doExtensionUpgrade',
-        47 => 'toggleCache',
-        48 => 'getCacheStatus',
-        49 => 'checkAkeebaOutputDirectory',
-        50 => 'eolsecuritystatus',
-        51 => 'applyeolpatch',
-        52 => 'getMailerFileList',
-        53 => 'getUploaderFileList',
-        54 => 'getNonCoreFileList',
-        55 => 'saveFile',
-        56 => 'getZerobyteFiles',
-        57 => 'deleteZerobyteFiles',
-        58 => 'getMissingCoreFiles',
-        59 => 'restoreAllMissingFiles',
-        60 => 'getJoomlaLogTmpConfig',
-        61 => 'getActivityLog',
-        62 => 'getBFPluginStatus',
-        63 => 'getMD5PasswordUsers',
-        64 => 'getSessionGCStatus',
-        65 => 'setSessionGCStatus',
-        66 => 'get2FAPlugins',
-        67 => 'enable2FAPlugins',
-        68 => 'setLogTmpPaths',
-        69 => 'removeLiveSite',
-        70 => 'getConfiguredLiveSite',
-        71 => 'getSEFConfig',
-        72 => 'setSEFConfig',
-        73 => 'getAdminFilterFixed',
-        74 => 'setAdminFilterFixed',
+        1   => 'getCoreHashFailedFileList',
+        2   => 'downloadfile',
+        3   => 'restorefile',
+        4   => 'getSuspectContentFileList',
+        5   => 'deleteFile',
+        6   => 'checkFTPLayer',
+        7   => 'disableFTPLayer',
+        8   => 'checkNewDBCredentials',
+        9   => 'testDbCredentials',
+        10  => 'getFolderPermissions',
+        11  => 'setFolderPermissions',
+        12  => 'getHiddenFolders',
+        13  => 'deleteFolder',
+        14  => 'getInstallationFolders',
+        15  => 'getRecentlyModified',
+        16  => 'getFilePermissions',
+        17  => 'setFilePermissions',
+        18  => 'getErrorLogs',
+        19  => 'getEncrypted',
+        20  => 'getUser',
+        21  => 'setUser',
+        22  => 'setDbPrefix',
+        23  => 'setDbCredentials',
+        24  => 'getBakTables',
+        25  => 'deleteBakTables',
+        26  => 'getHtaccessFiles',
+        27  => 'setHtaccess',
+        28  => 'getUpdatesCount',
+        29  => 'getUpdatesDetail',
+        30  => 'getDotfiles',
+        31  => 'getArchivefiles',
+        32  => 'getLargefiles',
+        33  => 'fixDbSchema',
+        34  => 'getDbSchemaVersion',
+        35  => 'checkGoogleFile',
+        36  => 'toggleOnline',
+        37  => 'getOfflineStatus',
+        38  => 'getRobotsFile',
+        39  => 'saveRobotsFile',
+        40  => 'getTmpfiles',
+        41  => 'clearTmpFiles',
+        42  => 'getFlufffiles',
+        43  => 'clearFlufffiles',
+        44  => 'getRenamedToHide',
+        45  => 'getPhpinwrongplace',
+        46  => 'doExtensionUpgrade',
+        47  => 'toggleCache',
+        48  => 'getCacheStatus',
+        49  => 'checkAkeebaOutputDirectory',
+        50  => 'eolsecuritystatus',
+        51  => 'applyeolpatch',
+        52  => 'getMailerFileList',
+        53  => 'getUploaderFileList',
+        54  => 'getNonCoreFileList',
+        55  => 'saveFile',
+        56  => 'getZerobyteFiles',
+        57  => 'deleteZerobyteFiles',
+        58  => 'getMissingCoreFiles',
+        59  => 'restoreAllMissingFiles',
+        60  => 'getJoomlaLogTmpConfig',
+        61  => 'getActivityLog',
+        62  => 'getBFPluginStatus',
+        63  => 'getMD5PasswordUsers',
+        64  => 'getSessionGCStatus',
+        65  => 'setSessionGCStatus',
+        66  => 'get2FAPlugins',
+        67  => 'enable2FAPlugins',
+        68  => 'setLogTmpPaths',
+        69  => 'removeLiveSite',
+        70  => 'getConfiguredLiveSite',
+        71  => 'getSEFConfig',
+        72  => 'setSEFConfig',
+        73  => 'getAdminFilterFixed',
+        74  => 'setAdminFilterFixed',
+        75  => 'getPlaintextpasswords',
+        76  => 'setPlaintextpasswords',
+        77  => 'getUploadsettingsfixed',
+        78  => 'setUploadsettingsfixed',
+        79  => 'getMailtofrienddisabled',
+        80  => 'setMailtofrienddisabled',
+        81  => 'getDebugMode',
+        82  => 'setDebugMode',
+        83  => 'getErrorReporting',
+        84  => 'setErrorReporting',
+        85  => 'getTemplatePositionDisplay',
+        86  => 'setTemplatePositionDisplay',
+        87  => 'getCookieSettings',
+        88  => 'setCookieSettings',
+        89  => 'getSQLFiles',
+        90  => 'getCaptchaConfig',
+        91  => 'setCaptchaConfig',
+        92  => 'doExtensionInstallFromUrl',
+        93  => 'getSuperAdmins',
+        94  => 'getGroups',
+        95  => 'getUseractionlogenabled',
+        96  => 'setUseractionlogenabled',
+        97  => 'getPrivacyConsentPluginEnabled',
+        98  => 'setPrivacyConsentPluginEnabled',
+        99  => 'getUseractionlogiplogenabled',
+        100 => 'setUseractionlogiplogenabled',
+        101 => 'getSystemLogRotationEnabled',
+        102 => 'setSystemLogRotationEnabled',
+        103 => 'getPurge30Days',
+        104 => 'setPurge30Days',
+        105 => 'getGzip',
+        106 => 'setGzip',
+        107 => 'getSessionlifetime',
+        108 => 'setSessionlifetime',
+        109 => 'getPHPinifiles',
+        110 => 'getModifiedfilessincelastaudit',
+        111 => 'setAdminHtaccess',
+        112 => 'getAdminHtaccess',
+        113 => 'getUserRegistration',
+        114 => 'setUserRegistration',
+        115 => 'getPostInstallMessages',
     );
 
     private $fluffFiles = array(
@@ -222,6 +274,378 @@ final class bfTools
             // Die if an unknown function
             bfEncrypt::reply('error', 'No Such method #err2');
         }
+    }
+
+    /**
+     * Get the post install messages from a Joomla 3+ site.
+     */
+    public function getPostInstallMessages()
+    {
+        // bail early if we cannot
+        if (!file_exists(JPATH_LIBRARIES.'/fof/include.php')) {
+            bfEncrypt::reply('success', array());
+        }
+
+        // fire up RAD/fof
+        require_once JPATH_LIBRARIES.'/fof/include.php';
+        $model = FOFModel::getTmpInstance('Messages', 'PostinstallModel');
+        $items = $model->getItemList();
+
+        // load language layer to translate strings
+        $lang = JFactory::getLanguage();
+
+        // ensure we only show valid messages
+        $model->onProcessList($items);
+
+        $messages = array();
+
+        // translate and compile the messages
+        foreach ($items as $item) {
+            $lang->load($item->language_extension, JPATH_ADMINISTRATOR, 'en-GB', true);
+            $messages[] = array(
+                'title' => JText::_($item->title_key),
+                'desc'  => JText::_($item->description_key),
+            );
+        }
+
+        bfEncrypt::reply('success', $messages);
+    }
+
+    /**
+     * 113
+     * Get User Registration Enable/Disable status.
+     */
+    public function getUserRegistration()
+    {
+        bfEncrypt::reply('success', array('enabled' => (int) JComponentHelper::getParams('com_users')->get('allowUserRegistration')));
+    }
+
+    /**
+     * 114
+     * Enable User Registration.
+     */
+    public function setUserRegistration()
+    {
+        $this->_db->setQuery("SELECT params FROM `#__extensions` WHERE `name` = 'com_users'");
+
+        $params = \json_decode($this->_db->LoadResult());
+
+        // enabled
+        $params->allowUserRegistration = 0;
+
+        $this->_db->setQuery("UPDATE `#__extensions` set params = '".\json_encode($params)."' WHERE `name` = 'com_users'");
+        $this->_db->query();
+
+        return $this->getUserRegistration();
+    }
+
+    /**
+     * 111
+     * Enable /administrator/.htaccess restriction on apache.
+     */
+    public function setAdminHtaccess()
+    {
+        require 'lib/AdminTools/Model/AdminPassword/AdminPassword.php';
+
+        $p           = new \Akeeba\AdminTools\Admin\Model\AdminPassword();
+        $p->username = $this->_dataObj->u;
+        $p->password = $this->_dataObj->p;
+
+        if (!$p->protect()) {
+            bfEncrypt::reply('error', 'Could not enable administrator .htaccess for some unknown reason :-( ');
+        }
+
+        bfEncrypt::reply('success', array(
+                'enabled'  => 1,
+                'username' => $this->_dataObj->u,
+                'password' => $this->_dataObj->p,
+            )
+        );
+    }
+
+    /**
+     * 112
+     * Enable /administrator/.htaccess restriction on apache.
+     */
+    public function getAdminHtaccess()
+    {
+        require 'lib/AdminTools/Model/AdminPassword/AdminPassword.php';
+
+        $obj = new \Akeeba\AdminTools\Admin\Model\AdminPassword();
+
+        bfEncrypt::reply('success', array(
+                'enabled' => $obj->isLocked(),
+            )
+        );
+    }
+
+    /**
+     * Get the value of $gzip from /configuration.php.
+     */
+    public function getGzip()
+    {
+        bfEncrypt::reply('success', array(
+                'enabled' => JFactory::getApplication()->getCfg('gzip', '0'),
+            )
+        );
+    }
+
+    /**
+     * set the value of $gzip in /configuration.php.
+     */
+    public function setGzip()
+    {
+        return $this->_setConfigParam('gzip', 1, 'int');
+    }
+
+    /**
+     * Get the config for session time.
+     */
+    public function getSessionlifetime()
+    {
+        bfEncrypt::reply('success', array(
+                     'lifetime' => JFactory::getApplication()->getCfg('lifetime', 0),
+                 )
+             );
+    }
+
+    /**
+     * set the session time to a sensibel recommend default.
+     */
+    public function setSessionlifetime()
+    {
+        $this->_setConfigParam('lifetime', 15, 'int');
+    }
+
+    /**
+     * Get the number of days to delete logs after from the System - User Actions Log.
+     *
+     * @return int
+     */
+    public function setPurge30Days()
+    {
+        $this->_db->setQuery("SELECT params FROM `#__extensions` WHERE `name` = 'PLG_SYSTEM_ACTIONLOGS'");
+
+        $params = \json_decode($this->_db->LoadResult());
+
+        // enabled
+        $params->logDeletePeriod = 30;
+
+        $this->_db->setQuery("UPDATE `#__extensions` set params = '".\json_encode($params)."' WHERE `name` = 'PLG_SYSTEM_ACTIONLOGS'");
+        $this->_db->query();
+
+        return $this->getPurge30Days();
+    }
+
+    /**
+     * 109
+     * Gets php.ini and .user.ini files.
+     */
+    private function getPHPinifiles()
+    {
+        // make sure we only retrieve a small dataset
+        $limitstart = (int) $this->_dataObj->ls;
+        $sort       = $this->_dataObj->s;
+
+        if (!$sort) {
+            $sort = 'filewithpath';
+        }
+
+        if (!in_array($sort, array('filewithpath', 'filemtime'))) {
+            die('Invalid Sort');
+        }
+
+        if ('filemtime' == $sort) {
+            $sort = 'filemtime DESC';
+        }
+
+        $limit = (int) $this->_dataObj->limit;
+
+        // Set the query
+        $this->_db->setQuery('SELECT id, iscorefile, filewithpath, filemtime, fileperms, `size`, iscorefile from bf_files
+                                WHERE filewithpath LIKE "%php.ini%" OR filewithpath LIKE "%.user.ini%"
+                                ORDER BY '.$sort.'
+                                LIMIT '.(int) $limitstart.', '.$limit);
+
+        // Get an object list of files
+        $files = $this->_db->loadObjectList();
+
+        // see how many files there are in total without a limit
+        $this->_db->setQuery('SELECT count(*) from bf_files WHERE filewithpath LIKE "%php.ini%" OR filewithpath LIKE "%.user.ini%"');
+        $count = $this->_db->loadResult();
+
+        // Only show files that still exist on the hard drive
+        $existingFiles = array();
+        foreach ($files as $k => $file) {
+            if (file_exists(JPATH_BASE.$file->filewithpath)) {
+                $existingFiles[] = $file;
+            } else {
+                $this->_db->setQuery(sprintf('DELETE FROM bf_files WHERE filewithpath = "%s"',
+                    $file->filewithpath));
+                $this->_db->query();
+
+                --$count;
+            }
+        }
+
+        // return an encrypted reply
+        bfEncrypt::reply('success', array(
+            'files' => $existingFiles,
+            'total' => $count,
+        ));
+    }
+
+    /**
+     * Get the number of days to delete logs after from the System - User Actions Log.
+     *
+     * @return int
+     */
+    public function getPurge30Days()
+    {
+        if (version_compare(JVERSION, '3.9.0', '<')) {
+            return false;
+        }
+
+        $this->_db->setQuery("SELECT params FROM `#__extensions` WHERE `name` = 'PLG_SYSTEM_ACTIONLOGS'");
+
+        $params = $this->_db->LoadResult();
+
+        if ('{}' == $params) {
+            bfEncrypt::reply('success', array(
+                    'days' => null,
+                )
+            );
+        }
+
+        $params = json_decode($params);
+
+        bfEncrypt::reply('success', array(
+                'days' => $params->logDeletePeriod,
+            )
+        );
+    }
+
+    /**
+     * Joomla 3.9.0+ enable system log rotation.
+     *
+     * @return mixed
+     */
+    public function setSystemLogRotationEnabled()
+    {
+        $this->_db->setQuery("UPDATE `#__extensions` set enabled = 1 WHERE `name` = 'plg_system_logrotation'");
+        $this->_db->query();
+
+        return $this->getSystemLogRotationEnabled();
+    }
+
+    /**
+     * Joomla 3.9.0+ check for system log rotation.
+     *
+     * @return mixed
+     */
+    public function getSystemLogRotationEnabled()
+    {
+        $this->_db->setQuery("SELECT count(*) FROM `#__extensions` WHERE `name` = 'plg_system_logrotation' and enabled = 1");
+
+        bfEncrypt::reply('success', array(
+                'enabled' => $this->_db->LoadResult(),
+            )
+        );
+    }
+
+    /**
+     * Joomla 3.9.0+ enable IP logging in user action logging.
+     *
+     * @return mixed
+     */
+    public function setUseractionlogiplogenabled()
+    {
+        $this->_db->setQuery("SELECT params FROM `#__extensions` WHERE `name` = 'com_actionlogs'");
+
+        $params = json_decode($this->_db->LoadResult());
+
+        // enabled
+        $params->ip_logging = 1;
+
+        $this->_db->setQuery("UPDATE `#__extensions` set params = '".json_encode($params)."' WHERE `name` = 'com_actionlogs'");
+        $this->_db->query();
+
+        return $this->getUseractionlogiplogenabled();
+    }
+
+    /**
+     * Joomla 3.9.0+ Check for plg_privacy_actionlogs enabled.
+     *
+     * @return mixed
+     */
+    public function getUseractionlogiplogenabled()
+    {
+        $this->_db->setQuery("SELECT params FROM `#__extensions` WHERE `name` = 'com_actionlogs'");
+
+        $params = json_decode($this->_db->LoadResult());
+
+        bfEncrypt::reply('success', array(
+                'enabled' => $params->ip_logging,
+            )
+        );
+    }
+
+    /**
+     * Joomla 3.9.0+ Check for plg_privacy_actionlogs enabled.
+     *
+     * @return mixed
+     */
+    public function setUseractionlogenabled()
+    {
+        $this->_db->setQuery("UPDATE `#__extensions` set enabled = 1 WHERE `name` = 'PLG_ACTIONLOG_JOOMLA'");
+        $this->_db->query();
+        $this->_db->setQuery("UPDATE `#__extensions` set enabled = 1 WHERE `name` = 'PLG_SYSTEM_ACTIONLOGS'");
+        $this->_db->query();
+
+        return $this->getUseractionlogenabled();
+    }
+
+    /**
+     * Joomla 3.9.0+ Check for plg_privacy_actionlogs enabled.
+     *
+     * @return mixed
+     */
+    public function getUseractionlogenabled()
+    {
+        $this->_db->setQuery("SELECT count(*) FROM `#__extensions` WHERE (`name` = 'PLG_ACTIONLOG_JOOMLA' or `name` = 'PLG_SYSTEM_ACTIONLOGS') and enabled = 1");
+
+        bfEncrypt::reply('success', array(
+                'enabled' => 2 == $this->_db->LoadResult() ? 1 : 0,
+            )
+        );
+    }
+
+    /**
+     * Joomla 3.9.0+ Check for plg_system_privacyconsent enabled.
+     *
+     * @return mixed
+     */
+    public function setPrivacyConsentPluginEnabled()
+    {
+        $this->_db->setQuery("UPDATE `#__extensions` set enabled = 1 WHERE `name` = 'plg_system_privacyconsent'");
+        $this->_db->query();
+
+        return $this->getUseractionlogenabled();
+    }
+
+    /**
+     * Joomla 3.9.0+ Check for plg_system_privacyconsent enabled.
+     *
+     * @return mixed
+     */
+    public function getPrivacyConsentPluginEnabled()
+    {
+        $this->_db->setQuery("SELECT count(*) FROM `#__extensions` WHERE `name` = 'plg_system_privacyconsent' and enabled = 1");
+
+        bfEncrypt::reply('success', array(
+                'enabled' => $this->_db->LoadResult(),
+            )
+        );
     }
 
     /**
@@ -346,6 +770,54 @@ final class bfTools
         bfEncrypt::reply('success', array(
             'msg' => $i.' File(s) patched!',
         ));
+    }
+
+    /**
+     * Load Flash Upload Settings from params from com_media without using a helper. and then remove swf and application/x-shockwave-flash.
+     */
+    public function setUploadsettingsfixed()
+    {
+        $this->_db->setQuery("select params from #__extensions where element = 'com_media'");
+        $params = json_decode($this->_db->LoadResult());
+
+        $items = explode(',', $params->upload_extensions);
+        foreach ($items as $k => $item) {
+            if ('swf' == strtolower(trim($item))) {
+                unset($items[$k]);
+            }
+        }
+        $params->upload_extensions = implode(',', $items);
+
+        $items = explode(',', $params->upload_mime);
+        foreach ($items as $k => $item) {
+            if ('application/x-shockwave-flash' == strtolower(trim($item))) {
+                unset($items[$k]);
+            }
+        }
+        $params->upload_mime = implode(',', $items);
+        $sql                 = sprintf("UPDATE #__extensions set `params` = '%s' WHERE `element` = 'com_media'", json_encode($params));
+        $this->_db->setQuery($sql);
+        $this->_db->query();
+
+        $this->getUploadsettingsfixed();
+    }
+
+    /**
+     * Load Flash Upload Settings from params from com_media without using a helper.
+     */
+    public function getUploadsettingsfixed()
+    {
+        $this->_db->setQuery("select params from #__extensions where element = 'com_media'");
+        $params = json_decode($this->_db->LoadResult());
+        if (
+            !preg_match('/swf/ism', $params->upload_extensions)
+            &&
+            !preg_match('/application\/x-shockwave-flash/ism', $params->upload_mime)
+        ) {
+            bfEncrypt::reply('success', array('uploadsettingsfixed' => 1));
+        } else {
+            bfEncrypt::reply('success', array('uploadsettingsfixed' => 0));
+        }
     }
 
     /**
@@ -933,7 +1405,7 @@ final class bfTools
         $limit = (int) $this->_dataObj->limit;
 
         // Set the query
-        $this->_db->setQuery('SELECT id, iscorefile, filewithpath, filemtime, fileperms, `size`, iscorefile, currenthash from bf_files
+        $this->_db->setQuery('SELECT id, iscorefile, filewithpath, filemtime, fileperms, `size`, iscorefile, hacked, currenthash from bf_files
                                 WHERE suspectcontent = 1 OR hacked = 1
                                 ORDER BY '.$sort.'
                                 LIMIT '.(int) $limitstart.', '.$limit);
@@ -943,6 +1415,72 @@ final class bfTools
 
         // see how many files there are in total without a limit
         $this->_db->setQuery('SELECT count(*) from bf_files WHERE suspectcontent = 1 OR hacked = 1');
+        $count = $this->_db->loadResult();
+
+        // Only show files that still exist on the hard drive
+        $existingFiles = array();
+        foreach ($files as $k => $file) {
+            if (file_exists(JPATH_BASE.$file->filewithpath)) {
+                $existingFiles[] = $file;
+            } else {
+                $this->_db->setQuery(sprintf('DELETE FROM bf_files WHERE filewithpath = "%s"',
+                    $file->filewithpath));
+                $this->_db->query();
+
+                --$count;
+            }
+        }
+
+        // return an encrypted reply
+        bfEncrypt::reply('success', array(
+            'files' => $existingFiles,
+            'total' => $count,
+        ));
+    }
+
+    /**
+     * Get SQL files found.
+     */
+    private function getSQLFiles()
+    {
+        // make sure we only retrieve a small dataset
+        $limitstart = (int) $this->_dataObj->ls;
+        $sort       = $this->_dataObj->s;
+
+        if (!$sort) {
+            $sort = 'filewithpath';
+        }
+
+        if (!in_array($sort, array('filewithpath', 'filemtime'))) {
+            die('Invalid Sort');
+        }
+
+        if ('filemtime' == $sort) {
+            $sort = 'filemtime DESC';
+        }
+
+        $limit = (int) $this->_dataObj->limit;
+
+        // Set the query
+        $this->_db->setQuery('SELECT * FROM bf_files WHERE 
+        (
+        (filewithpath LIKE \'%.sql\' or filewithpath LIKE \'%sql/site.%\')
+        and 
+        (iscorefile = 0 or iscorefile is null)
+        )
+                                ORDER BY '.$sort.'
+                                LIMIT '.(int) $limitstart.', '.$limit);
+
+        // Get an object list of files
+        $files = $this->_db->loadObjectList();
+
+        // see how many files there are in total without a limit
+        $this->_db->setQuery('SELECT count(*)  FROM bf_files WHERE 
+        (
+        (filewithpath LIKE \'%.sql\' or filewithpath LIKE \'%sql/site.%\')
+        and 
+        (iscorefile = 0 or iscorefile is null)
+        )');
         $count = $this->_db->loadResult();
 
         // Only show files that still exist on the hard drive
@@ -1120,14 +1658,22 @@ final class bfTools
     {
         $limitstart = (int) $this->_dataObj->ls;
         $limit      = (int) $this->_dataObj->limit;
+        $order      =  $this->_dataObj->orderby;
+
+        if (!in_array($order, array('filewithpath', 'filemtime', 'size'))) {
+            $order = 'filewithpath';
+        }
+
         if (!$limitstart) {
             $limitstart = 0;
         }
+
         if (!$limit) {
             $limit = '9999999999999999';
         }
 
-        $sql = 'SELECT * FROM bf_files WHERE SIZE > 2097152 ORDER BY filemtime DESC LIMIT '.(int) $limitstart.', '.$limit;
+        $sql = 'SELECT * FROM bf_files WHERE SIZE > 2097152 ORDER BY '.$order.' DESC LIMIT '.(int) $limitstart.', '.$limit;
+
         $this->_db->setQuery($sql);
         $files = $this->_db->LoadObjectList();
 
@@ -1818,34 +2364,6 @@ final class bfTools
     }
 
     /**
-     * Get the settings for the SEF from Joomla Global Config.
-     *
-     * public $sef = '1';
-     * public $sef_rewrite = '0';
-     * public $sef_suffix = '0';
-     */
-    private function getSEFConfig()
-    {
-        $config = JFactory::getConfig();
-
-        if (version_compare(JVERSION, '3.0', 'ge')) {
-            $data = array(
-                'sef'         => $config->get('sef'),
-                'sef_rewrite' => $config->get('sef_rewrite'),
-                'sef_suffix'  => $config->get('sef_suffix'),
-            );
-        } else {
-            $data = array(
-                'sef'         => $config->getValue('config.sef'),
-                'sef_rewrite' => $config->getValue('config.sef_rewrite'),
-                'sef_suffix'  => $config->getValue('config.sef_suffix'),
-            );
-        }
-
-        bfEncrypt::reply('success', $data);
-    }
-
-    /**
      * Enable SEF and SEF Rewrite.
      */
     private function setSEFConfig()
@@ -1896,6 +2414,105 @@ final class bfTools
                 'msg' => $e->getMessage(),
             ));
         }
+    }
+
+    /**
+     * Get the settings for the SEF from Joomla Global Config.
+     *
+     * public $sef = '1';
+     * public $sef_rewrite = '0';
+     * public $sef_suffix = '0';
+     */
+    private function getSEFConfig()
+    {
+        $config = JFactory::getConfig();
+
+        if (version_compare(JVERSION, '3.0', 'ge')) {
+            $data = array(
+                'sef'         => $config->get('sef'),
+                'sef_rewrite' => $config->get('sef_rewrite'),
+                'sef_suffix'  => $config->get('sef_suffix'),
+            );
+        } else {
+            $data = array(
+                'sef'         => $config->getValue('config.sef'),
+                'sef_rewrite' => $config->getValue('config.sef_rewrite'),
+                'sef_suffix'  => $config->getValue('config.sef_suffix'),
+            );
+        }
+
+        bfEncrypt::reply('success', $data);
+    }
+
+    /**
+     * Set Cookie Settings right.
+     */
+    private function setCookieSettings()
+    {
+        // Require more complex methods for dealing with files
+        require 'bfFilesystem.php';
+
+        try {
+            $config = JFactory::getConfig();
+
+            if (version_compare(JVERSION, '3.0', 'ge')) {
+                $config->set('cookie_domain', '');
+                $config->set('cookie_path', '');
+            } else {
+                $config->setValue('config.cookie_domain', '');
+                $config->setValue('config.cookie_path', '');
+            }
+
+            $newConfig = $config->toString('PHP', array(
+                'class'      => 'JConfig',
+                'closingtag' => false,
+            ));
+
+            // On some occasions, Joomla! 1.6 ignores the configuration and
+            // produces "class c". Let's fix this!
+            $newConfig = str_replace('class c {', 'class JConfig {', $newConfig);
+            $newConfig = str_replace('namespace c;', '', $newConfig);
+
+            // Try to write out the configuration.php
+            $filename = JPATH_ROOT.DIRECTORY_SEPARATOR.'configuration.php';
+            $result   = Bf_Filesystem::_write($filename, $newConfig);
+            if (false !== $result) {
+                bfEncrypt::reply('success', $this->getCookieSettings());
+            } else {
+                bfEncrypt::reply(bfReply::ERROR, array(
+                    'msg' => 'Could Not Save Config',
+                ));
+            }
+        } catch (Exception $e) {
+            bfEncrypt::reply(bfReply::ERROR, array(
+                'msg' => $e->getMessage(),
+            ));
+        }
+    }
+
+    /**
+     * Get the settings for the cookie from config.
+     *
+     * public $cookie_domain
+     * public $cookie_path
+     */
+    private function getCookieSettings()
+    {
+        $config = JFactory::getConfig();
+
+        if (version_compare(JVERSION, '3.0', 'ge')) {
+            $data = array(
+                'cookie_domain' => $config->get('cookie_domain'),
+                'cookie_path'   => $config->get('cookie_path'),
+            );
+        } else {
+            $data = array(
+                'cookie_domain' => $config->getValue('config.cookie_domain'),
+                'cookie_path'   => $config->getValue('config.cookie_path'),
+            );
+        }
+
+        bfEncrypt::reply('success', $data);
     }
 
     /**
@@ -2599,10 +3216,14 @@ final class bfTools
 
     private function getUpdatesDetail()
     {
+        @ob_start();
+        @set_time_limit(60);
         require 'bfUpdates.php';
 
         $bfUpdates = new bfUpdates();
         $updates   = $bfUpdates->getupdates();
+
+        @ob_clean();
 
         bfEncrypt::reply('success', array(
             'current_joomla_version' => JVERSION,
@@ -2678,7 +3299,7 @@ final class bfTools
         // Require more complex methods for dealing with files
         require 'bfFilesystem.php';
 
-        if ('int' == $type) {
+        if ('int' == $type && !is_int($value)) {
             if ('true' == $value) {
                 $value = 1;
             } elseif ('false' == $value) {
@@ -2741,6 +3362,18 @@ final class bfTools
         bfEncrypt::reply('success', array(
             'caching' => JFactory::getApplication()->getCfg('caching'),
         ));
+    }
+
+    /**
+     * Install an extension from Url.
+     */
+    private function doExtensionInstallFromUrl()
+    {
+        ob_start();
+        // Load up as much of Joomla as we need
+        require 'bfExtensions.php';
+        $ext = new bfExtensions($this->_dataObj);
+        $ext->installExtensionFromUrl();
     }
 
     private function doExtensionUpgrade()
@@ -2855,7 +3488,56 @@ final class bfTools
     }
 
     /**
-     * return the main configuration.php without sensitive information like passwords.
+     * return a value from the config.
+     */
+    private function getDebugMode()
+    {
+        $config = JFactory::getConfig();
+
+        $data = array(
+            'debug' => $config->get('debug'),
+        );
+
+        bfEncrypt::reply('success', array(
+            'debug' => $data,
+        ));
+    }
+
+    /**
+     * set a value to the config.
+     */
+    private function setDebugMode()
+    {
+        return $this->_setConfigParam('debug', 'false', 'int');
+    }
+
+    /**
+     * return a value from the config.
+     */
+    private function getErrorReporting()
+    {
+        $config = JFactory::getConfig();
+
+        $data = array(
+            'error_reporting' => $config->get('error_reporting'),
+        );
+
+        bfEncrypt::reply('success', array(
+            'error_reporting' => $data,
+        ));
+    }
+
+    /**
+     * set a value to the config.
+     */
+    private function setErrorReporting()
+    {
+        return $this->_setConfigParam('error_reporting', 'none', 'string');
+    }
+
+    /**
+     * return the main configuration.php without sensitive information
+     * like passwords.
      */
     private function getJoomlaLogTmpConfig()
     {
@@ -2872,6 +3554,12 @@ final class bfTools
         ));
     }
 
+    /**
+     * Get the User Actions Log.
+     *
+     * Joomla 3.9.0 implemented a User Action Log which basically replicates what we used to do
+     * So now we load data from their log and not ours :-) Saves duplicating our efforts!
+     */
     private function getActivityLog()
     {
         if (!class_exists('bfActivitylog')) {
@@ -2891,20 +3579,78 @@ final class bfTools
             $limit = '100';
         }
 
-        $this->_db->setQuery('SELECT * from bf_activitylog ORDER by id DESC LIMIT '.$limitstart.', '.$limit);
-        $rows = $this->_db->loadObjectList();
-        bfEncrypt::reply('success', $rows ? $rows : array());
+        if (version_compare(JVERSION, '3.9.0', '>=')) {
+            // Manipulate the base Uri in the Joomla Stack to provide compatibility with some 3pd extensions like ACL Manager!
+            try {
+                $uri = \Joomla\CMS\Uri\Uri::getInstance();
+
+                $reflection   = new \ReflectionClass($uri);
+                $baseProperty = $reflection->getProperty('base');
+                $baseProperty->setAccessible(true);
+                $base           = $baseProperty->getValue();
+                $base['prefix'] = $uri->toString(array('scheme', 'host'));
+                $base['path']   = '/';
+                $baseProperty->setValue($base);
+            } catch (ReflectionException $e) {
+            }
+
+            JLoader::register('ActionlogsModelActionlogs', JPATH_ADMINISTRATOR.'/components/com_actionlogs/models/actionlogs.php');
+            JLoader::register('ActionlogsHelper', JPATH_ADMINISTRATOR.'/components/com_actionlogs/helpers/actionlogs.php');
+
+            $model = JModelLegacy::getInstance('Actionlogs', 'ActionlogsModel', array('ignore_request' => true));
+
+            // Set the Start and Limit
+            $model->setState('list.start', $limitstart);
+            $model->setState('list.limit', $limit);
+            $model->setState('list.ordering', 'a.id');
+            $model->setState('list.direction', 'DESC');
+
+            $rows = $model->getItems();
+
+            // Load all language files needed
+            ActionlogsHelper::loadActionLogPluginsLanguage();
+            $lang = JFactory::getLanguage();
+            $lang->load('com_privacy', JPATH_ADMINISTRATOR, null, false, true);
+            $lang->load('plg_system_actionlogs', JPATH_ADMINISTRATOR, null, false, true);
+            $lang->load('plg_system_privacyconsent', JPATH_ADMINISTRATOR, null, false, true);
+
+            // manipulate data to push to myJoomla.com
+            foreach ($rows as $row) {
+                $row->what   = ActionlogsHelper::getHumanReadableLogMessage($row);
+                $row->ip     = $row->ip_address;
+                $row->when   = $row->log_date;
+                $row->who_id = $row->user_id;
+                $row->source = 'core_user_action_log';
+            }
+        } else {
+            // Before Joomla 3.9.0
+            $this->_db->setQuery('SELECT * from bf_activitylog ORDER by id DESC LIMIT '.$limitstart.', '.$limit);
+            $rows = $this->_db->loadObjectList();
+        }
+
+        bfEncrypt::reply('success', $rows ?: array());
     }
 
+    /**
+     * enable/disable and get status of our plugin.
+     */
     private function getBFPluginStatus()
     {
         switch ($this->_dataObj->action) {
             case 'enable':
-                $this->_db->setQuery('UPDATE  #__extensions SET enabled = 1 WHERE element = "bfnetwork"');
+
+                if (version_compare(JVERSION, '3.9.0', '>=')) {
+                    $this->_db->setQuery("UPDATE `#__extensions` set enabled = 1 WHERE `name` = 'PLG_ACTIONLOG_JOOMLA'");
+                    $this->_db->query();
+                    $this->_db->setQuery("UPDATE `#__extensions` set enabled = 1 WHERE `name` = 'PLG_SYSTEM_ACTIONLOGS'");
+                    $this->_db->query();
+                }
+
+                $this->_db->setQuery('UPDATE `#__extensions` SET enabled = 1 WHERE element = "bfnetwork"');
                 $this->_db->query();
                 break;
             case 'disable':
-                $this->_db->setQuery('UPDATE  #__extensions SET enabled = 0 WHERE element = "bfnetwork"');
+                $this->_db->setQuery('UPDATE `#__extensions` SET enabled = 0 WHERE element = "bfnetwork"');
                 $this->_db->query();
                 break;
         }
@@ -2914,6 +3660,9 @@ final class bfTools
         bfEncrypt::reply('success', $result);
     }
 
+    /**
+     * get the list of users that have a 32 char password hash - e.g md5.
+     */
     private function getMD5PasswordUsers()
     {
         $this->_db->setQuery('SELECT id, username, name, password FROM #__users WHERE CHAR_LENGTH(password) = 32');
@@ -2978,18 +3727,7 @@ final class bfTools
     }
 
     /**
-     * Load filters from com_config without using a helper.
-     */
-    private function getAdminFilterFixed()
-    {
-        $this->_db->setQuery("SELECT `params` from #__extensions WHERE element = 'com_config'");
-        $params = json_decode($this->_db->LoadResult());
-
-        bfEncrypt::reply('success', $params->filters->{7});
-    }
-
-    /**
-     * set filters from com_config without using a helper.
+     * set params from com_config without using a helper.
      */
     private function setAdminFilterFixed()
     {
@@ -3000,6 +3738,218 @@ final class bfTools
         $this->_db->query();
 
         return $this->getAdminFilterFixed();
+    }
+
+    /**
+     * Load params from com_config without using a helper.
+     */
+    private function getAdminFilterFixed()
+    {
+        $this->_db->setQuery("SELECT `params` from #__extensions WHERE element = 'com_config'");
+        $params = json_decode($this->_db->LoadResult());
+
+        bfEncrypt::reply('success', $params->filters->{7});
+    }
+
+    /**
+     * set params from com_config without using a helper.
+     */
+    private function setPlaintextpasswords()
+    {
+        $this->_db->setQuery("SELECT `params` from #__extensions WHERE `element` = 'com_users'");
+        $params               = json_decode($this->_db->LoadResult());
+        $params->sendpassword = '0';
+        $this->_db->setQuery(sprintf("UPDATE #__extensions set `params` = '%s' WHERE `element` = 'com_users'", json_encode($params)));
+        $this->_db->query();
+
+        $this->getPlaintextpasswords();
+    }
+
+    /**
+     * Load params from com_config without using a helper.
+     */
+    private function getPlaintextpasswords()
+    {
+        $this->_db->setQuery("SELECT `params` from #__extensions WHERE element = 'com_users'");
+        $params = json_decode($this->_db->LoadResult());
+
+        bfEncrypt::reply('success', array('sendpassword' => $params->sendpassword));
+    }
+
+    /**
+     * set params from com_content without using a helper.
+     */
+    private function setMailtofrienddisabled()
+    {
+        $this->_db->setQuery("SELECT `params` from #__extensions WHERE `element` = 'com_content'");
+        $params                  = json_decode($this->_db->LoadResult());
+        $params->show_email_icon = '0';
+        $this->_db->setQuery(sprintf("UPDATE #__extensions set `params` = '%s' WHERE `element` = 'com_content'", json_encode($params)));
+        $this->_db->query();
+
+        $this->getMailtofrienddisabled();
+    }
+
+    /**
+     * Load params from com_content without using a helper.
+     */
+    private function getMailtofrienddisabled()
+    {
+        $this->_db->setQuery("SELECT `params` from #__extensions WHERE element = 'com_content'");
+        $params = json_decode($this->_db->LoadResult());
+
+        bfEncrypt::reply('success', array('show_email_icon' => $params->show_email_icon));
+    }
+
+    /**
+     * set params from com_templates without using a helper.
+     */
+    private function setTemplatePositionDisplay()
+    {
+        $this->_db->setQuery("SELECT `params` from #__extensions WHERE `element` = 'com_templates'");
+        $params                             = json_decode($this->_db->LoadResult());
+        $params->template_positions_display = '0';
+        $this->_db->setQuery(sprintf("UPDATE #__extensions set `params` = '%s' WHERE `element` = 'com_templates'", json_encode($params)));
+        $this->_db->query();
+
+        $this->getTemplatePositionDisplay();
+    }
+
+    /**
+     * Load params from com_templates without using a helper.
+     */
+    private function getTemplatePositionDisplay()
+    {
+        $this->_db->setQuery("SELECT `params` from #__extensions WHERE element = 'com_templates'");
+        $params = json_decode($this->_db->LoadResult());
+
+        bfEncrypt::reply('success', array('template_positions_display' => $params->template_positions_display));
+    }
+
+    /**
+     * Get the configuration of the google recaptcha plugin and global config.
+     */
+    private function getCaptchaConfig()
+    {
+        $config = JFactory::getApplication();
+
+        $this->_db->setQuery("SELECT enabled FROM #__extensions WHERE name ='plg_captcha_recaptcha'");
+        $enabled = $this->_db->loadResult();
+
+        $this->_db->setQuery("SELECT params FROM #__extensions WHERE name ='plg_captcha_recaptcha'");
+        $keyed = $this->_db->loadResult();
+
+        bfEncrypt::reply('success', array(
+            'enabled'    => $enabled,
+            'configured' => $config->getCfg('captcha', ''),
+            'keys'       => json_decode($keyed),
+        ));
+    }
+
+    /**
+     * Set the configuration of the google recaptcha plugin and global config.
+     */
+    private function setCaptchaConfig()
+    {
+        $this->_db->setQuery(sprintf("UPDATE #__extensions 
+        SET 
+        enabled = 1,
+        params = '{\"version\":\"2.0\",\"public_key\":\"%s\",\"private_key\":\"%s\",\"theme\":\"clean\",\"theme2\":\"light\",\"size\":\"normal\"}' 
+        WHERE name ='plg_captcha_recaptcha'",
+            $this->_dataObj->site_key,
+            $this->_dataObj->secret_key
+        ));
+        $this->_db->query();
+
+        $this->_setConfigParam('captcha', 'recaptcha', 'string');
+    }
+
+    /**
+     * get the list of ACL Groups.
+     */
+    private function getGroups()
+    {
+        $this->_db->setQuery('select id, title from #__usergroups');
+
+        bfEncrypt::reply('success', array(
+            'groups' => $this->_db->loadObjectList(),
+        ));
+    }
+
+    /**
+     * get the list of super admins.
+     */
+    private function getSuperAdmins()
+    {
+        $this->_db->setQuery('select id, name, username from #__users as u
+                        left join #__user_usergroup_map as m on u.id = m.user_id
+                        where m.group_id = '.(int) $this->_dataObj->groupid);
+
+        bfEncrypt::reply('success', array(
+            'users' => $this->_db->loadObjectList(),
+        ));
+    }
+
+    /**
+     * 110
+     * Identify Files That Existed In Last Audit, And Modified Before This Audit.
+     */
+    private function getModifiedfilessincelastaudit()
+    {
+        $limitstart = (int) $this->_dataObj->ls;
+        $sort       = $this->_dataObj->s;
+
+        if (!$sort) {
+            $sort = 'filewithpath';
+        }
+
+        if (!in_array($sort, array('filewithpath', 'filemtime'))) {
+            die('Invalid Sort');
+        }
+
+        if ('filemtime' === $sort) {
+            $sort = 'filemtime DESC';
+        }
+
+        $limit = (int) $this->_dataObj->limit;
+
+        // Set the query
+        $this->_db->setQuery('SELECT new.id, new.iscorefile, new.filewithpath, new.filemtime, new.fileperms, new.`size`, new.iscorefile from bf_files  as new
+                              LEFT JOIN bf_files_last as old ON old.filewithpath = new.filewithpath
+                              WHERE old.currenthash != new.currenthash
+                              ORDER BY '.$sort.'
+                              LIMIT '.$limitstart.', '.$limit);
+
+        // Get an object list of files
+        $files = $this->_db->loadObjectList();
+
+        // see how many files there are in total without a limit
+        $sql = 'select count(*) from `bf_files` as new
+                  LEFT JOIN bf_files_last as old ON old.filewithpath = new.filewithpath
+                  WHERE old.currenthash != new.currenthash';
+
+        $this->_db->setQuery($sql);
+        $count = $this->_db->loadResult();
+
+        // Only show files that still exist on the hard drive
+        $existingFiles = array();
+        foreach ($files as $k => $file) {
+            if (file_exists(JPATH_BASE.$file->filewithpath)) {
+                $existingFiles[] = $file;
+            } else {
+                $this->_db->setQuery(sprintf('DELETE FROM bf_files WHERE filewithpath = "%s"',
+                    $file->filewithpath));
+                $this->_db->query();
+
+                --$count;
+            }
+        }
+
+        // return an encrypted reply
+        bfEncrypt::reply('success', array(
+            'files' => $existingFiles,
+            'total' => $count,
+        ));
     }
 }
 

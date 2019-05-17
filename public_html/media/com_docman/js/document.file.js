@@ -5,6 +5,8 @@ if (typeof Docman === 'undefined') { //noinspection JSUndeclaredVariable
 }
 
 (function($) {
+    var imageEditor;
+
     var debounce = function(func, wait, immediate) {
         var timeout;
         return function() {
@@ -29,11 +31,26 @@ if (typeof Docman === 'undefined') { //noinspection JSUndeclaredVariable
                     last_file: '',
                     error_message: '',
                     remote_streams: [],
-                    temporary_folder : 'tmp'
+                    temporary_folder : 'tmp',
+                    editor: {},
+                    isEditable: false,
+                    editableFile: null, // This is set to the storage path on existing documents if the initial file (which is already uploaded) is an image.
                 }
             },
             mounted: function () {
                 var vm = this;
+
+                if (this.editor) {
+                    imageEditor = Docman.ImageEditorFactory.getEditor(null, {
+                        'connectToken': vm.editor.connectToken,
+                        'site': vm.editor.site
+                    });
+
+                    if (this.entity.id && this.entity.storage_path && $.inArray(this.entity.extension, ['jpg', 'jpeg', 'png', 'gif', 'bmp']) !== -1) {
+                        this.editableFile = this.entity.storage_path;
+                        this.isEditable   = true;
+                    }
+                }
 
                 if (this.isRemote) {
                     this.last_remote = this.entity.storage_path;
@@ -67,6 +84,17 @@ if (typeof Docman === 'undefined') { //noinspection JSUndeclaredVariable
                         button.show();
                         $('.k-upload__content').after(button);
                     }
+
+                    var imageContainer = $('.k-js-uploader-edit-image-container');
+
+                    imageContainer.click(function(e) {
+                        e.preventDefault();
+
+                        vm.editImage();
+                    });
+
+                    $('.k-upload__content').after(imageContainer);
+
                 }).on('uploader:ready', function() {
                     if (vm.isLocal) {
                         vm.updateSelectedFolder();
@@ -153,6 +181,11 @@ if (typeof Docman === 'undefined') { //noinspection JSUndeclaredVariable
                 entity: 'entity'
             }),
             methods: {
+                editImage: function() {
+                    if (this.isEditable) {
+                        imageEditor.loadImage('docman-files://'+this.editableFile);
+                    }
+                },
                 updateSelectedFile: function() {
                     if (this.selected_file) {
                         var size = this.entity.size;
@@ -206,11 +239,21 @@ if (typeof Docman === 'undefined') { //noinspection JSUndeclaredVariable
                 }
             },
             watch: {
+                isEditable: function(newVal) {
+                    if (newVal) {
+                        $('.k-js-uploader-edit-image-container').show();
+                    } else {
+                        $('.k-js-uploader-edit-image-container').hide();
+                    }
+                },
                 'entity.storage_path': function() {
                     if (this.isLocal) {
                         this.updateExistingFileButtonLink();
                         this.updateSelectedFolder();
+
+                        this.isEditable = (this.entity.storage_path && this.editableFile === this.entity.storage_path);
                     }
+
                 }
             }
         });

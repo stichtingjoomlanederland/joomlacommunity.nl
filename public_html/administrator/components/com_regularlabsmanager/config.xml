@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config addfieldpath="/libraries/regularlabs/fields">
+	<fieldset name="options" label="JOPTIONS">
+		<field name="@loadlanguage" type="rl_loadlanguage" extension="com_regularlabsmanager" />
+		<field name="@block_key_a" type="rl_block" start="1"
+			   label="RLEM_DOWNLOAD_KEY"
+			   description="RLEM_DOWNLOAD_KEY_DESC,&lt;a href=&quot;https://www.regularlabs.com/purchase&quot; target=&quot;_blank&quot;&gt;,&lt;/a&gt;,&lt;a href=&quot;https://www.regularlabs.com/downloads&quot; target=&quot;_blank&quot;&gt;,&lt;/a&gt;" />
+		<field name="key" type="rl_key"
+			   filter="raw"
+			   label="RLEM_DOWNLOAD_KEY"
+		/>
+		<field name="@block_key_b" type="rl_block" end="1" />
+
+		<field name="@block_other_a" type="rl_block" start="1" />
+		<field name="check_data" type="radio" class="btn-group" default="1"
+			   label="RLEM_CHECK_DATA"
+			   description="RLEM_CHECK_DATA_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="hide_notinstalled" type="radio" class="btn-group" default="0"
+			   label="RLEM_HIDE_NOTINSTALLED"
+			   description="RLEM_HIDE_NOTINSTALLED_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="show_key_field" type="radio" class="btn-group" default="1"
+			   label="RLEM_SHOW_KEY_FIELD"
+			   description="RLEM_SHOW_KEY_FIELD_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="show_reinstall_all" type="radio" class="btn-group" default="1"
+			   label="RLEM_SHOW_REINSTALL_ALL"
+			   description="RLEM_SHOW_REINSTALL_ALL_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="show_copyright" type="radio" class="btn-group" default="1"
+			   label="RL_SHOW_COPYRIGHT"
+			   description="RL_SHOW_COPYRIGHT_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="updatesource" type="list" default=""
+			   label="RLEM_UPDATESOURCE"
+			   description="RLEM_UPDATESOURCE_DESC">
+			<option value="">RLEM_UPDATESOURCE_STABLE</option>
+			<option value="dev">RLEM_UPDATESOURCE_DEVELOPMENT</option>
+		</field>
+		<field name="@updatesource_dev" type="note" class="alert alert-warning alert-noclose"
+			   description="RLEM_UPDATESOURCE_DEVELOPMENT_NOTE"
+			   showon="updatesource:dev" />
+		<field name="timeout" type="number" class="input-mini" default="5"
+			   label="RLEM_TIMEOUT"
+			   description="RLEM_TIMEOUT_DESC" />
+		<field name="@block_other_b" type="rl_block" end="1" />
+	</fieldset>
+
+	<fieldset name="RL_ACTIONLOG">
+		<field name="enable_actionlog" type="radio" class="btn-group" default="1"
+			   label="RL_ENABLE_ACTIONLOG"
+			   description="RL_ENABLE_ACTIONLOG_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="actionlog_events" type="checkboxes" multiple="true" default="install,uninstall" checked="install,uninstall"
+			   label="RL_ACTIONLOG_EVENTS"
+			   description="RL_ACTIONLOG_EVENTS_DESC"
+			   showon="enable_actionlog:1">
+			<option value="install">RL_ACTION_INSTALL</option>
+			<option value="uninstall">RL_ACTION_UNINSTALL</option>
+		</field>
+	</fieldset>
+
+	<fieldset name="permissions"
+			  label="JCONFIG_PERMISSIONS_LABEL"
+			  description="JCONFIG_PERMISSIONS_DESC">
+		<field name="rules" type="rules" filter="rules" validate="rules" component="com_regularlabsmanager" section="component"
+			   label="JCONFIG_PERMISSIONS_LABEL">
+			<action name="core.admin" title="JACTION_ADMIN" description="JACTION_ADMIN_COMPONENT_DESC" />
+			<action name="core.manage" title="JACTION_MANAGE" description="JACTION_MANAGE_COMPONENT_DESC" />
+		</field>
+	</fieldset>
+</config>

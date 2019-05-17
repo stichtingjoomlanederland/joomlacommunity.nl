@@ -1,9 +1,14 @@
 <?php
-/**
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
+
+/*
+ * @package   bfNetwork
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
  *
- * @see      https://myJoomla.com/
+ * @see       https://myJoomla.guru/
+ * @see       https://myWP.guru/
+ * @see       https://mySites.guru/
+ * @see       https://www.phil-taylor.com/
  *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
@@ -19,6 +24,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see http://www.gnu.org/licenses/
+ *
+ * If you have any questions regarding this code, please contact phil@phil-taylor.com
  */
 
 /**
@@ -61,6 +68,7 @@ final class bfExtensions
      */
     private $_methods = array(
         1 => 'getExtensions',
+        2 => 'installExtensionFromUrl',
     );
 
     /**
@@ -96,6 +104,70 @@ final class bfExtensions
             // Die if an unknown function
             bfEncrypt::reply('error', 'No Such method #err2');
         }
+    }
+
+    /**
+     * Install an extension from a provided URL.
+     *
+     * Parts of this code are from Joomla CMS, Modified under license.
+     *
+     * @license GNU General Public License version 2 or later; see https://github.com/joomla/joomla-cms/blob/staging/LICENSE.txt
+     * @copyright Copyright (C) 2005 - 2018 Open Source Matters, Inc. All rights reserved.
+     */
+    public function installExtensionFromUrl()
+    {
+        // Get an installer instance.
+        $installer = JInstaller::getInstance();
+
+        // Get the URL of the package to install.
+        $url = $this->_dataObj->url;
+
+        // Download the package at the URL given.
+        $p_file = JInstallerHelper::downloadPackage($url);
+
+        // Was the package downloaded?
+        if ($p_file) {
+            // Unpack the downloaded package file.
+            $package = JInstallerHelper::unpack(JFactory::getConfig()->get('tmp_path').'/'.$p_file, true);
+
+            // Install the package.
+            if (!$installer->install($package['dir'])) {
+                // There was an error installing the package.
+                $msg     = 'There was an error installing the package';
+                $result  = false;
+                $msgType = 'error';
+            } else {
+                // Package installed successfully.
+                $msg     = 'Package installed successfully';
+                $result  = true;
+                $msgType = 'message';
+            }
+
+            // Cleanup the install files.
+            if (!is_file($package['packagefile'])) {
+                $config                 = JFactory::getConfig();
+                $package['packagefile'] = $config->get('tmp_path').'/'.$package['packagefile'];
+            }
+
+            // Cleanup the package file
+            JInstallerHelper::cleanupInstall($package['packagefile'], $package['extractdir']);
+        } else {
+            $result  = false;
+            $msgType = 'error';
+            $msg     = 'Could not download package from URL: '.$url;
+        }
+
+        $res = array(
+            'result'            => $result,
+            'msgType'           => $msgType,
+            'message'           => $msg,
+            'extension_message' => $installer->get('extension_message'),
+            'redirect_url'      => $installer->get('redirect_url'),
+        );
+
+        bfEncrypt::reply($res['result'],
+            $res
+        );
     }
 
     /**
@@ -303,24 +375,24 @@ final class bfExtensions
     private function findManifest($ext)
     {
         $prefixes = array('com_',
-                          'ext_',
-                          'plg_content_',
-                          'plg_system_',
-                          'plg_user_',
-                          'plg_authentication_',
-                          'plg_authentication_',
-                          'plg_captcha_',
-                          'plg_content_',
-                          'plg_editors_',
-                          'plg_editors-xtd_',
-                          'plg_extension_',
-                          'plg_finder_',
-                          'plg_quickicon_',
-                          'plg_search_',
-                          'plg_system_',
-                          'plg_twofactorauth_',
-                          'plg_user_',
-                          'plg_',
+            'ext_',
+            'plg_content_',
+            'plg_system_',
+            'plg_user_',
+            'plg_authentication_',
+            'plg_authentication_',
+            'plg_captcha_',
+            'plg_content_',
+            'plg_editors_',
+            'plg_editors-xtd_',
+            'plg_extension_',
+            'plg_finder_',
+            'plg_quickicon_',
+            'plg_search_',
+            'plg_system_',
+            'plg_twofactorauth_',
+            'plg_user_',
+            'plg_',
         );
 
         if (property_exists($ext, 'element')) {
@@ -420,9 +492,25 @@ final class bfExtensions
      * Updates an extension.
      *
      * @param $extensionId
+     *
+     * @return bool
      */
     public function doUpdate($extensionId)
     {
+        // Manipulate the base Uri in the Joomla Stack to provide compatibility with some 3pd extensions like ACL Manager!
+        try {
+            $uri = \Joomla\CMS\Uri\Uri::getInstance();
+
+            $reflection   = new \ReflectionClass($uri);
+            $baseProperty = $reflection->getProperty('base');
+            $baseProperty->setAccessible(true);
+            $base           = $baseProperty->getValue();
+            $base['prefix'] = $uri->toString(array('scheme', 'host'));
+            $base['path']   = '/';
+            $baseProperty->setValue($base);
+        } catch (ReflectionException $e) {
+        }
+
         require JPATH_BASE.'/administrator/components/com_installer/models/update.php';
 
         $model = new InstallerModelUpdate();

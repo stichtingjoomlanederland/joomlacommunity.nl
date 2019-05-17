@@ -1825,7 +1825,7 @@ class RSFormProHelper
 		eval($form->ScriptDisplay);
 
 		//Trigger Event - onBeforeFormDisplay
-		$mainframe->triggerEvent('rsfp_f_onBeforeFormDisplay', array(array('formLayout'=>&$formLayout,'formId'=>$formId,'formLayoutName' => $layoutName)));
+		$mainframe->triggerEvent('rsfp_f_onBeforeFormDisplay', array(array('formLayout'=>&$formLayout,'formId'=>$formId,'formLayoutName' => $form->FormLayoutName)));
 		return $formLayout;
 	}
 
@@ -3188,34 +3188,68 @@ class RSFormProHelper
 		return $cache[$formId];
 	}
 
-	public static function getDirectoryFormProperties($formId) {
-		$db = JFactory::getDbo();
+	public static function getDirectoryFormProperties($formId, $raw = false)
+	{
+		static $results = array();
 
-		// form multiple separator
-		$db->setQuery("SELECT MultipleSeparator FROM #__rsform_forms WHERE FormId = '".(int) $formId."'");
-		$multipleSeparator = str_replace(array('\n', '\r', '\t'), array("\n", "\r", "\t"), $db->loadResult());
+		if (!isset($results[$formId]))
+		{
+			$results[$formId] = array();
 
-		$uploadFields 	= array();
-		$multipleFields = array();
+			$db = JFactory::getDbo();
 
-		$db->setQuery("SELECT c.ComponentTypeId, p.ComponentId, p.PropertyValue AS FieldName FROM #__rsform_components c LEFT JOIN #__rsform_properties p ON (c.ComponentId=p.ComponentId) WHERE c.FormId='".(int) $formId."' AND c.Published='1' AND p.PropertyName='NAME'");
-		$allFields = $db->loadObjectList();
-		foreach ($allFields as $field) {
-			if ($field->ComponentTypeId == RSFORM_FIELD_FILEUPLOAD) {
-				$uploadFields[] = $field->FieldName;
-			} elseif (in_array($field->ComponentTypeId, array(RSFORM_FIELD_SELECTLIST, RSFORM_FIELD_CHECKBOXGROUP))) {
-				$multipleFields[] = $field->FieldName;
+			// form multiple separator
+			$query = $db->getQuery(true)
+				->select($db->qn('MultipleSeparator'))
+				->from($db->qn('#__rsform_forms'))
+				->where($db->qn('FormId') . ' = ' . $db->q($formId));
+			$results[$formId]['multipleSeparator'] = str_replace(array('\n', '\r', '\t'), array("\n", "\r", "\t"), $db->setQuery($query)->loadResult());
+
+			$query = $db->getQuery(true)
+				->select($db->qn('ComponentId'))
+				->select($db->qn('ComponentTypeId'))
+				->from($db->qn('#__rsform_components'))
+				->where($db->qn('FormId') . ' = ' . $db->q($formId))
+				->order($db->qn('Order') . ' ASC');
+
+			$results[$formId]['uploadFields']	= array();
+			$results[$formId]['multipleFields']	= array();
+			$results[$formId]['textareaFields']	= array();
+
+			if ($components = $db->setQuery($query)->loadObjectList('ComponentId'))
+			{
+				$properties = RSFormProHelper::getComponentProperties(array_keys($components), false);
+				foreach ($properties as $componentId => $data)
+				{
+					// Upload fields
+					if ($components[$componentId]->ComponentTypeId == RSFORM_FIELD_FILEUPLOAD)
+					{
+						$results[$formId]['uploadFields'][] = $data['NAME'];
+					}
+					// Multiple fields
+					elseif (in_array($components[$componentId]->ComponentTypeId, array(RSFORM_FIELD_SELECTLIST, RSFORM_FIELD_CHECKBOXGROUP)) || isset($data['ITEMS']))
+					{
+						$results[$formId]['multipleFields'][] = $data['NAME'];
+					}
+					elseif ($components[$componentId]->ComponentTypeId == RSFORM_FIELD_TEXTAREA)
+					{
+						if (!empty($data['WYSIWYG']) && $data['WYSIWYG'] =='NO')
+						{
+							$results[$formId]['textareaFields'][] = $data['NAME'];
+						}
+					}
+				}
 			}
+
+			$results[$formId]['secret'] = JFactory::getConfig()->get('secret');
 		}
 
-		$config = JFactory::getConfig();
-		$secret = $config->get('secret');
-
-		return array(
-			$multipleSeparator,
-			$uploadFields,
-			$multipleFields,
-			$secret
+		return $raw ? $results[$formId] : array(
+			$results[$formId]['multipleSeparator'],
+			$results[$formId]['uploadFields'],
+			$results[$formId]['multipleFields'],
+			$results[$formId]['textareaFields'],
+			$results[$formId]['secret']
 		);
 	}
 
@@ -3445,9 +3479,12 @@ class RSFormProHelper
 				case 'radioGroup':
 				case 'checkboxGroup':
 				case 'selectList':
+					$options = array();
 					if ($field->type == 'radioGroup') {
 						$data['SIZE'] = 0;
 						$data['MULTIPLE'] = 'NO';
+						$options[] = JHtml::_('select.option', '', JText::_('COM_RSFORM_NO_VALUE'));
+
 					} elseif ($field->type == 'checkboxGroup') {
 						$data['SIZE'] = 5;
 						$data['MULTIPLE'] = 'YES';
@@ -3465,7 +3502,6 @@ class RSFormProHelper
                         'invalid' 			=> in_array($field->id, $validation)
                     ));
 
-                    $options = array();
                     if ($items = $f->getItems())
                     {
                         foreach ($items as $item)
@@ -3588,8 +3624,6 @@ class RSFormProHelper
 	public static function getFormLayouts($formId = 0)
     {
         $layouts = array(
-            'classicLayouts' => array('inline', '2lines', '2colsinline', '2cols2lines'),
-            'xhtmlLayouts' 	 => array('inline-xhtml', '2lines-xhtml'),
             'html5Layouts' 	 => array('responsive', 'bootstrap2', 'bootstrap3', 'bootstrap4', 'uikit', 'uikit3', 'foundation')
         );
 

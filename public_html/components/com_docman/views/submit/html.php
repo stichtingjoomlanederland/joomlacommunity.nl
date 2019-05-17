@@ -35,7 +35,7 @@ class ComDocmanViewSubmitHtml extends ComDocmanViewHtml
             $context->data->categories = $params->get('category_id');
 
             //Get the level so we know whether to count the children or not
-            $level = (count($context->data->categories) == 0) || ($params->get('category_children')) ? null : array(0);
+            $level = empty($context->data->categories) || count($context->data->categories) == 0 || $params->get('category_children') ? null : array(0);
 
             //count the total categories to display.
             $count = $this->getObject('com://site/docman.model.categories')->setState(array(

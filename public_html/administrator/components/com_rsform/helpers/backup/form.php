@@ -389,7 +389,7 @@ class RSFormProBackupForm
 						unset($field->formId);
 						
 						// Special case - static headers
-						if ($field->componentId < 0 && isset($headers[$field->componentId])) {
+						if ($field->componentId < 0) {
 							// Do nothing
 						} else {
 							$field->componentId = isset($this->fields[$field->componentId]) ? $this->fields[$field->componentId] : '';

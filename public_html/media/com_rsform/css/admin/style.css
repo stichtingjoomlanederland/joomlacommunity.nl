@@ -373,8 +373,6 @@ div#propertiescontent {
 button.pull-left {
     margin-right: 5px;
 }
-table#componentPreview tr:first-child td.order > span:first-child,
-table#componentPreview tr:last-child td.order > span + span,
 table#mappingTable tr:first-child td.order > span:first-child,
 table#mappingTable tr:last-child td.order > span + span {
     visibility: hidden;
@@ -382,29 +380,34 @@ table#mappingTable tr:last-child td.order > span + span {
 .table-align-middle td {
     vertical-align: middle;
 }
-table#componentPreview .preview-checkbox-inline label,
-table#componentPreview .preview-checkbox-inline input,
-table#componentPreview .preview-checkbox label,
-table#componentPreview .preview-checkbox input,
-table#componentPreview .preview-radio-inline label,
-table#componentPreview .preview-radio-inline input,
-table#componentPreview .preview-radio label,
-table#componentPreview .preview-radio input {
+.preview-checkbox-inline label,
+.preview-checkbox-inline input,
+.preview-checkbox label,
+.preview-checkbox input,
+.preview-radio-inline label,
+.preview-radio-inline input,
+.preview-radio label,
+.preview-radio input {
     float: left;
 }
-table#componentPreview .preview-checkbox-inline label,
-table#componentPreview .preview-checkbox label,
-table#componentPreview .preview-radio-inline label,
-table#componentPreview .preview-radio label {
+.preview-checkbox-inline label,
+.preview-checkbox label,
+.preview-radio-inline label,
+.preview-radio label {
     display: inline-block;
     margin-left: 5px;
+	/* truncate long strings */
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	max-width: 85%;
 }
-table#componentPreview .preview-radio-inline label,
-table#componentPreview .preview-checkbox-inline label {
+.preview-radio-inline label,
+.preview-checkbox-inline label {
     margin-right: 5px;
 }
-table#componentPreview .preview-radio input,
-table#componentPreview .preview-checkbox input {
+.preview-radio input,
+.preview-checkbox input {
     clear: left;
 }
 .rsfp-dropdown-list-container {
@@ -589,9 +592,13 @@ textarea.rs_textarea:focus {
 .rsfp-grid-field {
 	border: solid 1px #b3b3b3;
 	background-color: #fff;
-	padding: 19px;
+	padding: 10px;
 	cursor: move;
-	margin: 20px;
+	margin: 12px;
+}
+
+.rsfp-grid-field hr {
+	margin: 9px 0;
 }
 
 .rsfp-grid-field:hover {
@@ -606,13 +613,22 @@ textarea.rs_textarea:focus {
 	box-shadow: initial;
 }
 
+.rsfp-grid-check-all {
+	border: solid 1px #b3b3b3;
+	background-color: #eee;
+	padding: 5px 5px;
+	width: 100%;
+	margin-bottom: 15px;
+	box-sizing: border-box;
+}
+
 .rsfp-grid-row {
 	border: solid 1px #b3b3b3;
 	background-color: #eee;
-	padding: 2% 1%;
-	width: 98%;
-	display: inline-block;
+	padding: 1% 1%;
+	width: 100%;
 	margin-bottom: 20px;
+	box-sizing: border-box;
 }
 
 .rsfp-grid-row:hover {
@@ -676,6 +692,7 @@ textarea.rs_textarea:focus {
 
 .rsfp-grid-row h3 {
 	text-align: center;
+	margin: 10px 0;
 }
 
 .rsfp-grid-row-placeholder {
@@ -701,7 +718,7 @@ textarea.rs_textarea:focus {
 }
 
 .rsfp-row-controls {
-	margin-top: 20px;
+	margin-top: 12px;
 	text-align: right;
 }
 
@@ -792,4 +809,35 @@ textarea.rs_textarea:focus {
 
 #rsform-btn-inline .rsform-calendar-field .input-append {
 	margin-bottom: 0;
+}
+
+.rsfp-grid-field .rsfp-preview-freetext {
+	max-height: 100px;
+	overflow-y: scroll;
+}
+
+.rsfp-grid-field input,
+.rsfp-grid-field button,
+.rsfp-grid-field select,
+.rsfp-grid-field textarea {
+	max-width: 90%;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.rsfp-grid-field-name {
+	max-width: 100%;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.rsfp-grid-column1 .rsfp-grid-field-buttons.pull-right {
+	float: none;
+}
+
+.rsfp-grid-column1 .rsfp-grid-field-buttons .btn-small {
+	padding: 1px;
+	font-size: 11px;
 }

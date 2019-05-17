@@ -30,9 +30,18 @@ class RseventsproViewLocation extends JViewLegacy
 		
 		JHtml::_('rseventspro.chosen','select');
 		
-		if ($this->config->enable_google_maps) {
-			JFactory::getDocument()->addScript('https://maps.google.com/maps/api/js?language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
-			JHtml::script('com_rseventspro/jquery.map.js', array('relative' => true, 'version' => 'auto'));
-		}
+		$params = array(
+			'id' => 'map-canvas',
+			'address' => 'jform_address',
+			'coordinates' => 'jform_coordinates',
+			'pinpointBtn' => 'rsepro-pinpoint',
+			'zoom' => (int) $this->config->google_map_zoom,
+			'center' => $this->config->google_maps_center,
+			'markerDraggable' => 'true',
+			'resultsWrapperClass' => 'rsepro-locations-results-wrapper',
+			'resultsClass' => 'rsepro-locations-results'
+		);
+		
+		rseventsproMapHelper::loadMap($params);
 	}
 }

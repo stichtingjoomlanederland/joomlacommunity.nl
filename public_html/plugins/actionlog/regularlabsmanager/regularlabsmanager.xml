@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension version="3.9" type="plugin" group="actionlog" method="upgrade">
+	<name>plg_actionlog_regularlabsmanager</name>
+	<description>PLG_ACTIONLOG_REGULARLABSMANAGER_DESC</description>
+	<version>7.4.2</version>
+	<creationDate>April 2019</creationDate>
+	<author>Regular Labs (Peter van Westen)</author>
+	<authorEmail>info@regularlabs.com</authorEmail>
+	<authorUrl>https://www.regularlabs.com</authorUrl>
+	<copyright>Copyright © 2018 Regular Labs - All Rights Reserved</copyright>
+	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+
+	<scriptfile>script.install.php</scriptfile>
+
+	<updateservers>
+		<server type="extension" priority="1" name="Regular Labs - Extension Manager">
+			https://download.regularlabs.com/updates.xml?e=extensionmanager&amp;type=.xml
+		</server>
+	</updateservers>
+
+	<files>
+		<filename plugin="regularlabsmanager">regularlabsmanager.php</filename>
+		<filename>script.install.helper.php</filename>
+		<folder>language</folder>
+	</files>
+
+	<config>
+		<fields name="params" addfieldpath="/libraries/regularlabs/fields">
+			<fieldset name="basic">
+				<field name="@loadlanguage_regularlabs" type="rl_loadlanguage" extension="plg_system_regularlabs" />
+				<field name="@loadlanguage" type="rl_loadlanguage" extension="plg_actionlog_regularlabsmanager" />
+				<field name="@license" type="rl_license" extension="REGULAR_LABS_EXTENSION_MANAGER" />
+				<field name="@version" type="rl_version" extension="REGULAR_LABS_EXTENSION_MANAGER" />
+				<field name="@dependency" type="rl_dependency"
+					   label="RR_THE_COMPONENT"
+					   file="/administrator/components/com_regularlabsmanager/regularlabsmanager.php" />
+				<field name="@header" type="rl_header"
+					   label="REGULAR_LABS_EXTENSION_MANAGER"
+					   description="REGULAR_LABS_EXTENSION_MANAGER_DESC"
+					   url="https://www.regularlabs.com/extensionmanager" />
+
+				<field name="@notice_settings" type="note" class="alert alert-info"
+					   description="RLEM_SETTINGS,&lt;a href=&quot;index.php?option=com_regularlabsmanager&quot; target=&quot;_blank&quot;&gt;,&lt;/a&gt;" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>

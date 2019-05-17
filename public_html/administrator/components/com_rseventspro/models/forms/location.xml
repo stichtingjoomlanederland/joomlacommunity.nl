@@ -13,12 +13,4 @@
 		<option value="0">JUNPUBLISHED</option>
 	</field>
 	<field name="ordering" type="hidden" filter="unset" />
-	
-	<fields name="config">
-		<field name="enable_google_maps" type="radio" class="btn-group" label="COM_RSEVENTSPRO_LOCATION_ENABLE_MAP" description="COM_RSEVENTSPRO_LOCATION_ENABLE_MAP_DESC" filter="intval" default="0">
-			<option value="1">JYES</option>
-			<option value="0">JNO</option>
-		</field>
-	</fields>
-	
 </form>

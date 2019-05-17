@@ -14,14 +14,12 @@ class RSFormProFieldJqueryCalendar extends RSFormProField
 	protected $customId;
 	
 	// backend preview
-	public function getPreviewInput() {
+	public function getPreviewInput()
+	{
 		$layout  	= $this->getProperty('CALENDARLAYOUT', 'FLAT');
-		$caption 	= $this->getProperty('CAPTION','');
 		$codeIcon	= RSFormProHelper::getIcon('jQueryCalendar');
 		
-		$html = '<td>'.$caption.'</td><td>'.$codeIcon.' '.JText::_('RSFP_COMP_FVALUE_'.$layout).'</td>';
-		
-		return $html;
+		return $codeIcon . ' ' . JText::_('RSFP_COMP_FVALUE_' . $layout);
 	}
 	
 	// functions used for rendering in front view
@@ -98,6 +96,8 @@ class RSFormProFieldJqueryCalendar extends RSFormProField
 			'maxDate' 			 => $this->isCode($this->getProperty('MAXDATEJQ', '')),
 			'minTime' 	 		 => $this->isCode($this->getProperty('MINTIMEJQ', '')),
 			'maxTime' 			 => $this->isCode($this->getProperty('MAXTIMEJQ', '')),
+			'allowDateRe' 		 => $this->getProperty('ALLOWDATERE', ''),
+			'allowDates' 		 => $this->isCode($this->getProperty('ALLOWDATES', '')),
 			'timeStep' 			 => $this->getProperty('TIMESTEP', ''),
 			'validationCalendar' => $this->getProperty('VALIDATIONCALENDAR', ''),
 			'formId' 			 => $this->formId,

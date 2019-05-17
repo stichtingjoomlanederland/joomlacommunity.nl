@@ -44,26 +44,25 @@ jQuery(document).ready(function($) {
 <?php } ?>
 
 <!-- Initialize map -->
-<?php if (!empty($this->options['show_map']) && !empty($event->coordinates) && rseventsproHelper::getConfig('enable_google_maps','int')) { ?>
-<script type="text/javascript">
-var rseproeventmap;
-jQuery(document).ready(function (){
-	rseproeventmap = jQuery('#map-canvas').rsjoomlamap({
-		zoom: <?php echo (int) $this->config->google_map_zoom ?>,
-		center: '<?php echo $this->config->google_maps_center; ?>',
-		markerDraggable: false,
-		markers: [
-			{
-				title : '<?php echo addslashes($event->name); ?>',
-				position: '<?php echo $this->escape($event->coordinates); ?>',
-				<?php if ($event->marker) echo "icon : '".addslashes(rseventsproHelper::showMarker($event->marker))."',\n"; ?>
-				content: '<div id="content"><b><?php echo addslashes($event->name); ?></b> <br /> <?php echo JText::_('COM_RSEVENTSPRO_LOCATION_ADDRESS',true); ?>: <?php echo addslashes($event->address); ?> <?php if (!empty($event->locationlink)) { echo '<br /><a target="_blank" href="'.addslashes($event->locationlink).'">'.addslashes($event->locationlink).'</a>'; } ?></div>'
-			}
-		]
-	});
-});
-</script>
-<?php } ?>
+<?php if (!empty($this->options['show_map']) && !empty($event->coordinates) && rseventsproHelper::getConfig('map')) {
+$marker = array(
+	'title' => $event->name,
+	'position' => $event->coordinates,
+	'content' => '<div id="content"><b>'.$event->name.'</b> <br /> '.JText::_('COM_RSEVENTSPRO_LOCATION_ADDRESS',true).': '.$event->address.(!empty($event->locationlink) ? '<br /><a target="_blank" href="'.$event->locationlink.'">'.$event->locationlink.'</a>' : '').'</div>'
+);
+
+if ($event->marker) $marker['icon'] = rseventsproHelper::showMarker($event->marker);
+
+$mapParams = array(
+	'id' => 'map-canvas',
+	'zoom' => (int) $this->config->google_map_zoom,
+	'center' => $this->config->google_maps_center,
+	'markerDraggable' => 'false',
+	'markers' => array($marker)
+);
+
+rseventsproMapHelper::loadMap($mapParams);
+} ?>
 <!--//end Initialize map-->
 
 <?php JFactory::getApplication()->triggerEvent('rsepro_onBeforeEventDisplay',array(array('event' => &$event, 'categories' => &$categories, 'tags' => &$tags))); ?>
@@ -406,7 +405,7 @@ jQuery(document).ready(function (){
 	</div>
 
 	<!-- FB / Twitter / Gplus sharing -->
-	<?php if (!empty($this->options['enable_fb_like']) || !empty($this->options['enable_twitter']) || !empty($this->options['enable_gplus']) || !empty($this->options['enable_linkedin'])) { ?>
+	<?php if (!empty($this->options['enable_fb_like']) || !empty($this->options['enable_twitter']) || !empty($this->options['enable_linkedin'])) { ?>
 	<div class="rs_clear"></div>
 	<div class="rs_sharing">	
 		<?php if (!empty($this->options['enable_fb_like'])) { ?>
@@ -419,22 +418,6 @@ jQuery(document).ready(function (){
 			<div class="rsepro-social" id="rsep_twitter">
 				<a href="https://twitter.com/share" class="twitter-share-button" data-text="<?php echo $this->escape($event->name); ?>">Tweet</a>
 				<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-			</div>
-		<?php } ?>
-		
-		<?php if (!empty($this->options['enable_gplus'])) { ?>
-			<div class="rsepro-social" id="rsep_gplus">
-				<!-- Place this tag where you want the +1 button to render -->
-				<g:plusone size="medium"></g:plusone>
-
-				<!-- Place this render call where appropriate -->
-				<script type="text/javascript">
-				  (function() {
-					var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-					po.src = 'https://apis.google.com/js/plusone.js';
-					var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-				  })();
-				</script>
 			</div>
 		<?php } ?>
 		
@@ -539,9 +522,26 @@ jQuery(document).ready(function (){
 	<?php } ?>
 
 	<!-- Google maps -->
-	<?php if (!empty($this->options['show_map']) && !empty($event->coordinates) && rseventsproHelper::getConfig('enable_google_maps','int')) { ?>
+	<?php if (!empty($this->options['show_map']) && !empty($event->coordinates) && rseventsproHelper::getConfig('map')) { ?>
 		<div id="map-canvas" style="width: 100%; height: 200px;"></div>
+		
+		<?php if (rseventsproHelper::getConfig('map') == 'google') { ?>
 		<br />
+		<div class="rsepro-map-directions">
+			<a target="_blank" class="hasTooltip" title="<?php echo JText::_('COM_RSEVENTSPRO_DIRECTIONS_CAR'); ?>" href="https://maps.google.com/?saddr=Current+Location&daddr=<?php echo $event->coordinates; ?>&driving">
+				<i class="fa fa-car fa-fw"></i>
+			</a>
+			<a target="_blank" class="hasTooltip" title="<?php echo JText::_('COM_RSEVENTSPRO_DIRECTIONS_BUS'); ?>" href="https://maps.google.com/?saddr=Current+Location&dirflg=r&daddr=<?php echo $event->coordinates; ?>&mode=transit">
+				<i class="fa fa-bus fa-fw"></i> 
+			</a>
+			<a target="_blank" class="hasTooltip" title="<?php echo JText::_('COM_RSEVENTSPRO_DIRECTIONS_WALKING'); ?>" href="https://maps.google.com/?saddr=Current+Location&dirflg=w&daddr=<?php echo $event->coordinates; ?>">
+			  <i class="fa fa-child fa-fw"></i>
+			</a>
+			<a target="_blank" class="hasTooltip" title="<?php echo JText::_('COM_RSEVENTSPRO_DIRECTIONS_BICYCLE'); ?>" href="https://maps.google.com/?saddr=Current+Location&dirflg=b&daddr=<?php echo $event->coordinates; ?>&mode=bicycling">
+				<i class="fa fa-bicycle fa-fw"></i>
+			</a>
+		</div>
+		<?php } ?>
 	<?php } ?>
 	<!--//end Google maps -->
 

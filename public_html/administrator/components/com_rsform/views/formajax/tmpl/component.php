@@ -31,5 +31,15 @@ $count = 0;
 		<?php } ?>
 		</div>
 	<?php } ?>
+	<?php if ($fieldType == 'general') { ?>
+		<div class="form-horizontal">
+			<div class="control-group">
+				<div class="control-label">
+					<label for="Published"><?php echo JText::_('JPUBLISHED'); ?></label>
+				</div>
+				<?php echo $this->published; ?>
+			</div>
+		</div>
+	<?php } ?>
 	<?php if ($fieldType != 'attributes') { ?>{rsfsep}<?php } ?>
 <?php } ?>

@@ -16,6 +16,7 @@ abstract class modRseventsProUpcoming {
 		$subquery	= $db->getQuery(true);
 		$categories	= $params->get('categories','');
 		$locations	= $params->get('locations','');
+		$speakers	= $params->get('speakers','');
 		$tags		= $params->get('tags','');
 		$order		= $params->get('ordering','start');
 		$direction	= $params->get('order','DESC');
@@ -100,6 +101,19 @@ abstract class modRseventsProUpcoming {
 			$locations = array_map('intval',$locations);
 			
 			$query->where($db->qn('e.location').' IN ('.implode(',',$locations).')');
+		}
+		
+		if (!empty($speakers)) {
+			$speakers = array_map('intval',$speakers);
+			
+			$subquery->clear()
+				->select($db->qn('tx.ide'))
+				->from($db->qn('#__rseventspro_taxonomy','tx'))
+				->join('left', $db->qn('#__rseventspro_tags','t').' ON '.$db->qn('t.id').' = '.$db->qn('tx.id'))
+				->where($db->qn('t.id').' IN ('.implode(',',$speakers).')')
+				->where($db->qn('tx.type').' = '.$db->q('speaker'));
+			
+			$query->where($db->qn('e.id').' IN ('.$subquery.')');
 		}
 		
 		$exclude = modRseventsProUpcoming::excludeEvents();

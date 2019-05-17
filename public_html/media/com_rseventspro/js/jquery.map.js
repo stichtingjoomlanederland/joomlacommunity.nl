@@ -98,7 +98,7 @@
 							});
 							
 							if (el.content) {
-								var content = el.content;
+								var content = base.stripslashes(el.content);
 								var infowindow = new google.maps.InfoWindow();
 							
 								google.maps.event.addListener(base.themarker,'click', (function(themarker,content,infowindow) {
@@ -136,7 +136,7 @@
 									}
 									
 									if (el.content) {
-										var content = el.content;
+										var content = base.stripslashes(el.content);
 										var infowindow = new google.maps.InfoWindow();
 									
 										google.maps.event.addListener(base.themarker,'click', (function(themarker,content,infowindow) {
@@ -598,7 +598,7 @@
 			}
 			
 			google.maps.event.addListener(marker, 'click', function() {
-				base.infoWindow.setContent(element.content);
+				base.infoWindow.setContent(base.stripslashes(element.content));
 				base.infoWindow.open(base.map, marker);	
 			});
 			
@@ -696,6 +696,21 @@
 			base.map.setOptions(data);
 		};
 		
+		base.stripslashes = function(str) {
+			return (str + '').replace(/\\(.?)/g, function (s, n1) {
+				switch (n1) {
+					case '\\':
+						return '\\';
+					case '0':
+						return '\u0000';
+					case '':
+						return '';
+					default:
+						return n1;
+				}
+			});
+		};
+		
 		if (typeof google != 'undefined') {
 			base.init();
 		}
@@ -713,7 +728,7 @@
 		pinpointBtn:			null,
 		markers: 				null,
 		zoom: 					5,
-		mapType: 				google.maps.MapTypeId.ROADMAP, // See: https://developers.google.com/maps/documentation/javascript/maptypes#BasicMapTypes
+		mapType: 				google.maps.MapTypeId.ROADMAP,
 		streetViewControl:		false,
 		scrollwheel:			false,
 		zoomControl:			true,

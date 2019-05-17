@@ -32,7 +32,7 @@ class OAuthConsumer {
   var $key;
   var $secret;
 
-  function OAuthConsumer($key, $secret, $callback_url=NULL) {
+  function __construct($key, $secret, $callback_url=NULL) {
     $this->key = $key;
     $this->secret = $secret;
     $this->callback_url = $callback_url;
@@ -52,7 +52,7 @@ class OAuthToken {
    * key = the token
    * secret = the token secret
    */
-  function OAuthToken($key, $secret) {
+  function __construct($key, $secret) {
     $this->key = $key;
     $this->secret = $secret;
   }
@@ -196,7 +196,7 @@ class OAuthRequest {
   var $base_string;
   var $version = '1.0';
 
-  function OAuthRequest($http_method, $http_url, $parameters=NULL) {
+  function __construct($http_method, $http_url, $parameters=NULL) {
     @$parameters or $parameters = array();
     $this->parameters = $parameters;
     $this->http_method = $http_method;
@@ -489,7 +489,7 @@ class OAuthServer {
 
   var $data_store;
 
-  function OAuthServer($data_store) {
+  function __construct($data_store) {
     $this->data_store = $data_store;
   }
 
@@ -706,7 +706,7 @@ class OAuthDataStore {
 class SimpleOAuthDataStore extends OAuthDataStore {
   var $dbh;
 
-  function SimpleOAuthDataStore($path = "oauth.gdbm") {
+  function __construct($path = "oauth.gdbm") {
     $this->dbh = dba_popen($path, 'c', 'gdbm');
   }
 

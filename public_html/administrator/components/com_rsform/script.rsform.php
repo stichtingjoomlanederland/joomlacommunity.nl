@@ -635,6 +635,21 @@ class com_rsformInstallerScript
 			$db->setQuery($query)
 				->execute();
 		}
+
+		// Let's see if we have legacy layouts
+		$layouts = array('inline', '2lines', '2colsinline', '2cols2lines', 'inline-xhtml', '2lines-xhtml');
+		$query = $db->getQuery(true)
+			->select('FormId')
+			->from($db->qn('#__rsform_forms'))
+			->where($db->qn('FormLayoutName') . ' IN (' . implode(',', $db->q($layouts)) . ')');
+		if ($forms = $db->setQuery($query)->loadColumn())
+		{
+			$query = $db->getQuery(true)
+				->update($db->qn('#__rsform_forms'))
+				->set($db->qn('GridLayout') . ' = ' . $db->q(''))
+				->where($db->qn('FormId') . ' IN (' . implode(',', $db->q($forms)) . ')');
+			$db->setQuery($query)->execute();
+		}
 	}
 	
 	public function uninstall($parent) {
@@ -897,9 +912,14 @@ class com_rsformInstallerScript
 			<b class="install-not-ok">Error installing!</b>
 			<?php } ?>
 		</p>
-		<h2>Changelog v2.1.4</h2>
+		<h2>Changelog v2.2.1</h2>
 		<ul class="version-history">
-            <li><span class="version-fixed">Fix</span> When setting 'Allow Only Images' to 'Yes' the generated placeholders pointed to a non-existent file.</li>
+            <li><span class="version-new">New</span> New configuration option: Can show caption instead of field's name.</li>
+            <li><span class="version-upgraded">Upg</span> Hidden Fields now display a preview as well.</li>
+            <li><span class="version-upgraded">Upg</span> File Uploads are now validated by the AJAX validation script.</li>
+            <li><span class="version-fixed">Fix</span> Some field types were incorrectly showing up as required in the grid builder.</li>
+            <li><span class="version-fixed">Fix</span> When exporting submissions in CSV format unescaped user data could allow macros being run.</li>
+            <li><span class="version-fixed">Fix</span> Radio Groups now have a default blank value when editing submissions to prevent assigning wrong values.</li>
 		</ul>
 		<a class="btn btn-large btn-primary" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="btn" href="https://www.rsjoomla.com/support/documentation/rsform-pro.html" target="_blank">Read the RSForm! Pro User Guide</a>

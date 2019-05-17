@@ -42,38 +42,12 @@ function initRSFormPro() {
 		jQuery("#rsform_tab2").hide();
 		jQuery("#properties").removeClass('btn-primary');
 		jQuery("#components").addClass('btn-primary');
+
+		jQuery('#componentscontent').trigger('components.shown');
 	});
 
 	jQuery('[data-placeholders]').rsplaceholder();
 
-}
-
-function legacyOrderingEnable()
-{
-	var $table = jQuery('#componentPreview');
-    $table.find('tbody').tableDnD({
-        onDragClass: 'rsform_dragged',
-        onDragStop : function (table, row) {
-            tidyOrder(true);
-        }
-    });
-
-    $table.find('.order').show();
-
-    RSFormPro.Grid.hide();
-
-    jQuery('#rsform_ordering_msg').hide();
-}
-
-function legacyOrderingDisable()
-{
-    var $table = jQuery('#componentPreview');
-    $table.find('tbody').tableDnDDestroy();
-    $table.find('.order').hide();
-
-    RSFormPro.Grid.show();
-
-    jQuery('#rsform_ordering_msg').show();
 }
 
 jQuery(document).on('renderedMappings', function(){
@@ -114,54 +88,6 @@ function buildXmlHttp() {
 	}
 	return xmlHttp;
 }
-
-function tidyOrder(update_php) {
-	if (!update_php)
-		update_php = false;
-
-	stateLoading();
-
-	var params = [];
-
-	var must_update_php = update_php;
-	var orders = document.getElementsByName('order[]');
-	var cids = document.getElementsByName('cid[]');
-	for (i = 0; i < orders.length; i++) {
-		params.push('cid[' + cids[i].value + ']=' + parseInt(i + 1));
-
-		if (orders[i].value != i + 1)
-			must_update_php = true;
-
-		orders[i].value = i + 1;
-	}
-
-	if (update_php && must_update_php) {
-		xml = buildXmlHttp();
-
-		var url = 'index.php?option=com_rsform&task=components.save.ordering&randomTime=' + Math.random();
-		xml.open("POST", url, true);
-
-		params = params.join('&');
-
-		//Send the proper header information along with the request
-		xml.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-
-		xml.send(params);
-		xml.onreadystatechange = function () {
-			if (xml.readyState == 4) {
-				formId = document.getElementById('formId').value;
-				if (document.getElementById('FormLayoutAutogenerate1').checked == true)
-					generateLayout(formId, false);
-
-				stateDone();
-			}
-		}
-	}
-	else {
-		stateDone();
-	}
-}
-
 
 function tidyOrderMp(update_php) {
 	if (!update_php)
@@ -264,22 +190,12 @@ function removeComponent(formId, componentId) {
 	};
 
 	RSFormPro.$.post(url, data, function (response, status, jqXHR) {
-		// Remove row
-		var table = document.getElementById('componentPreview');
-		var rows = document.getElementsByName('previewComponentId');
-		for (var i = 0; i < rows.length; i++) {
-			if (rows[i].value == componentId) {
-				table.deleteRow(i);
-			}
-		}
-		
+
 		RSFormPro.Grid.deleteField(componentId);
 
 		if (!response.submit) {
 			jQuery('#rsform_submit_button_msg').show();
 		}
-
-		tidyOrder(true);
 
 		stateDone();
 	}, 'json');
@@ -476,7 +392,7 @@ function generateDirectoryLayout(formId, alert) {
 	xml.send(null);
 }
 
-function saveLayoutName(formId, layoutName, isLegacy) {
+function saveLayoutName(formId, layoutName) {
 	stateLoading();
 	xml = buildXmlHttp();
 	xml.open('GET', 'index.php?option=com_rsform&task=layouts.save.name&formId=' + formId + '&randomTime=' + Math.random() + '&formLayoutName=' + layoutName, true);
@@ -488,8 +404,6 @@ function saveLayoutName(formId, layoutName, isLegacy) {
 			stateDone();
 		}
 	};
-
-	isLegacy ?  legacyOrderingEnable() : legacyOrderingDisable();
 }
 
 function saveDirectoryLayoutName(formId, layoutName) {
@@ -1482,6 +1396,14 @@ function enableThankyouPopup(value)
             document.getElementById('thankyouMessagePopupContainer').style.display = 'none';
         }
     }
+}
+
+function enableEmailMode(type, value)
+{
+	var opener = type == 'User' ? 'UserEmailText' : 'AdminEmailText';
+	var id = type == 'User' ? 'rsform_edit_user_email' : 'rsform_edit_admin_email';
+
+	document.getElementById(id).setAttribute('onclick', "openRSModal('index.php?option=com_rsform&task=richtext.show&opener=" + opener + "&formId=<?php echo $this->form->FormId; ?>&tmpl=component" + (value < 1 ? '&noEditor=1' : '') + "')");
 }
 
 RSFormPro.Post = {};

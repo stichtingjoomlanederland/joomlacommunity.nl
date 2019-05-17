@@ -84,7 +84,7 @@ echo JLayoutHelper::render('joomla.modal.main', $modalData);
 					<?php $i++; ?>
 				<?php } ?>
 					</div>
-					<center><button class="btn btn-primary" type="button" onclick="Joomla.submitbutton('submissions.columns')"><?php echo JText::_('Submit'); ?></button></center>
+					<button class="btn btn-primary" type="button" onclick="Joomla.submitbutton('submissions.columns')"><?php echo JText::_('Submit'); ?></button>
 				</div>
 			</div>
 		</div>

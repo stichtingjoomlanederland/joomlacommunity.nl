@@ -28,7 +28,15 @@ defined('KOOWA') or die; ?>
             el: '.k-js-document-file',
             store: $('.k-js-form-controller').data('controller').store,
             data: {
-                remote_streams: <?= json_encode($document->getSchemes()) ?>
+                remote_streams: <?= json_encode($document->getSchemes()) ?>,
+                <? if (object('com://admin/docman.model.entity.config')->connectAvailable()): ?>
+                editor: {
+                    connectToken: '<?= PlgKoowaConnect::generateToken() ?>',
+                    site: '<?= object('request')->getSiteUrl() ?>'
+                }
+                <? else: ?>
+                editor: false
+                <? endif; ?>
             }
         });
     });
@@ -43,6 +51,11 @@ defined('KOOWA') or die; ?>
        class="mfp-iframe k-upload__text-button"
        data-k-modal="<?= htmlentities(json_encode(array('mainClass' => 'koowa_dialog_modal'))) ?>"
     ><?= translate('Select existing file') ?></a>
+</div>
+
+<div class="k-upload__buttons k-upload__buttons--right k-js-uploader-edit-image-container" style="display: none" >
+    <a href="#" class="k-upload__text-button k-js-uploader-edit-image"
+    ><?= translate('Edit image') ?></a>
 </div>
 
 

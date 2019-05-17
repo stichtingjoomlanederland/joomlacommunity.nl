@@ -193,7 +193,7 @@ class RsformModelDirectory extends JModelLegacy
         $mainframe->triggerEvent('rsfp_onAfterManageDirectoriesQuery', array(&$items, $this->params->get('formId')));
         jimport('joomla.filesystem.file');
 
-        list($multipleSeparator, $uploadFields, $multipleFields, $secret) = RSFormProHelper::getDirectoryFormProperties($this->params->get('formId'));
+        list($multipleSeparator, $uploadFields, $multipleFields, $textareaFields, $secret) = RSFormProHelper::getDirectoryFormProperties($this->params->get('formId'));
         $this->uploadFields = $uploadFields;
         $this->multipleFields = $multipleFields;
 

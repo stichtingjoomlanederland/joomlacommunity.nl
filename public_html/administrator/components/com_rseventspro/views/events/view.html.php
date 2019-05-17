@@ -118,7 +118,7 @@ class RseventsproViewEvents extends JViewLegacy
 		JToolBarHelper::custom('events.sync','refresh','refresh',JText::_('COM_RSEVENTSPRO_SYNC'),false);
 		
 		$layout = new JLayoutFile('joomla.toolbar.popup');
-		$dhtml = $layout->render(array('text' => JText::_('JTOOLBAR_BATCH'), 'class' => 'icon-checkbox-partial', 'name' => 'batchevents'));
+		$dhtml = $layout->render(array('text' => JText::_('JTOOLBAR_BATCH'), 'class' => 'icon-checkbox-partial', 'name' => 'batchevents', 'doTask' => ''));
 		JToolbar::getInstance('toolbar')->appendButton('Custom', $dhtml, 'batch');
 		
 		JHtml::script('com_rseventspro/jquery.filter.js', array('relative' => true, 'version' => 'auto'));
