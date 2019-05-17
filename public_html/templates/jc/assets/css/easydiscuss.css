@@ -375,8 +375,8 @@
 }
 #ed {
   /**
-* #GENERIC
-*/
+  * #GENERIC
+  */
   /*
 * - Low-specificity, far-reaching rulesets (e.g. resets).
 */
@@ -1222,12 +1222,12 @@ t-xl-pt--lg = trumps-extralarge-paddingtop--large
 #ed .o-grid__cell--1of3 {
   -ms-flex: none !important;
   flex: none !important;
-  width: 33.3333%!important;
+  width: 33.3333% !important;
 }
 #ed .o-grid__cell--2of3 {
   -ms-flex: none !important;
   flex: none !important;
-  width: 66.3333%!important;
+  width: 66.3333% !important;
 }
 #ed.w480 .o-grid--gutters {
   margin: 0;
@@ -2126,7 +2126,7 @@ fieldset[disabled] #ed .btn-link:focus {
 }
 #ed .o-label {
   display: inline;
-  padding: .2em .6em .2em;
+  padding: 0.2em 0.6em 0.2em;
   font-size: 75%;
   font-weight: bold;
   line-height: 1;
@@ -2134,7 +2134,7 @@ fieldset[disabled] #ed .btn-link:focus {
   text-align: center;
   white-space: nowrap;
   vertical-align: middle;
-  border-radius: .25em;
+  border-radius: 0.25em;
 }
 #ed .o-label:empty {
   display: none;
@@ -2285,7 +2285,7 @@ fieldset[disabled] #ed .btn-link:focus {
   text-decoration: inherit;
   font-size: 72px;
   line-height: 1;
-  opacity: .1;
+  opacity: 0.1;
   content: "\f00c";
 }
 #ed .o-alert__close {
@@ -4682,7 +4682,7 @@ fieldset[disabled] #ed .btn-link:focus {
 }
 #ed pre[class*="language-"] {
   padding: 1em;
-  margin: .5em 0;
+  margin: 0.5em 0;
   overflow: auto;
   border-radius: 0.3em;
 }
@@ -4691,8 +4691,8 @@ fieldset[disabled] #ed .btn-link:focus {
   background: #272822;
 }
 #ed :not(pre) > code[class*="language-"] {
-  padding: .1em;
-  border-radius: .3em;
+  padding: 0.1em;
+  border-radius: 0.3em;
 }
 #ed .token.comment,
 #ed .token.prolog,
@@ -4704,7 +4704,7 @@ fieldset[disabled] #ed .btn-link:focus {
   color: #f8f8f2;
 }
 #ed .namespace {
-  opacity: .7;
+  opacity: 0.7;
 }
 #ed .token.property,
 #ed .token.tag,
@@ -4758,8 +4758,8 @@ fieldset[disabled] #ed .btn-link:focus {
   padding: inherit 0;
   margin-top: 1em;
   /* Same as .prism’s padding-top */
-  background: rgba(153, 122, 102, 0.08);
-  background: linear-gradient(left, rgba(153, 122, 102, 0.1) 70%, rgba(153, 122, 102, 0));
+  background: hsla(24, 20%, 50%, 0.08);
+  background: linear-gradient(left, hsla(24, 20%, 50%, 0.1) 70%, hsla(24, 20%, 50%, 0));
   pointer-events: none;
   line-height: inherit;
   white-space: pre;
@@ -4768,15 +4768,15 @@ fieldset[disabled] #ed .btn-link:focus {
 #ed .line-highlight[data-end]:after {
   content: attr(data-start);
   position: absolute;
-  top: .4em;
-  left: .6em;
+  top: 0.4em;
+  left: 0.6em;
   min-width: 1em;
-  padding: 0 .5em;
-  background-color: rgba(153, 122, 102, 0.4);
-  color: #f5f2f0;
+  padding: 0 0.5em;
+  background-color: hsla(24, 20%, 50%, 0.4);
+  color: hsl(24, 20%, 95%);
   font: bold 65%/1.5 sans-serif;
   text-align: center;
-  vertical-align: .3em;
+  vertical-align: 0.3em;
   border-radius: 999px;
   text-shadow: none;
   box-shadow: 0 1px white;
@@ -4784,7 +4784,7 @@ fieldset[disabled] #ed .btn-link:focus {
 #ed .line-highlight[data-end]:after {
   content: attr(data-end);
   top: auto;
-  bottom: .4em;
+  bottom: 0.4em;
 }
 #ed pre.line-numbers {
   position: relative;
@@ -4881,7 +4881,7 @@ fieldset[disabled] #ed .btn-link:focus {
   right: 0;
   bottom: 0;
   left: 0;
-  opacity: .5;
+  opacity: 0.5;
   background-color: #000000;
   filter: alpha(opacity=50);
 }
@@ -4896,7 +4896,7 @@ fieldset[disabled] #ed .btn-link:focus {
 #ed .cropper-dashed {
   position: absolute;
   display: block;
-  opacity: .5;
+  opacity: 0.5;
   border: 0 dashed #eeeeee;
   filter: alpha(opacity=50);
 }
@@ -4923,7 +4923,7 @@ fieldset[disabled] #ed .btn-link:focus {
   display: block;
   width: 0;
   height: 0;
-  opacity: .75;
+  opacity: 0.75;
   filter: alpha(opacity=75);
 }
 #ed .cropper-center:before {
@@ -4951,7 +4951,7 @@ fieldset[disabled] #ed .btn-link:focus {
   display: block;
   width: 100%;
   height: 100%;
-  opacity: .1;
+  opacity: 0.1;
   filter: alpha(opacity=10);
   top: 0;
   left: 0;
@@ -4962,7 +4962,7 @@ fieldset[disabled] #ed .btn-link:focus {
   display: block;
   width: 100%;
   height: 100%;
-  opacity: .1;
+  opacity: 0.1;
   filter: alpha(opacity=10);
   background-color: #3399ff;
 }
@@ -4973,8 +4973,8 @@ fieldset[disabled] #ed .btn-link:focus {
   width: 5px;
   height: 100%;
   height: 5px;
-  opacity: .1;
-  opacity: .75;
+  opacity: 0.1;
+  opacity: 0.75;
   filter: alpha(opacity=10);
   filter: alpha(opacity=75);
   background-color: #3399ff;
@@ -5407,7 +5407,7 @@ fieldset[disabled] #ed .btn-link:focus {
 }
 #ed .ed-badge--entry .ed-badge__indicator i:before {
   font-size: 180px;
-  opacity: .1;
+  opacity: 0.1;
 }
 #ed .ed-achievers > :not(:first-child) {
   border-top: 1px solid #D5DDE6;
@@ -7646,7 +7646,7 @@ fieldset[disabled] #ed .btn-link:focus {
 }
 #ed .ed-cat-item-meta {
   color: #585858;
-  font-size: .9em;
+  font-size: 0.9em;
 }
 #ed .ed-cat-item-meta a {
   color: #585858;
@@ -8078,7 +8078,7 @@ fieldset[disabled] #ed .btn-link:focus {
   line-height: 1;
 }
 #ed .m-leaderboard__meta {
-  line-height: .5;
+  line-height: 0.5;
 }
 #ed .ed-mod-ask {
   background-color: #ffffff;
@@ -9026,6 +9026,9 @@ fieldset[disabled] #ed .btn-ed-favor.active {
 }
 #ed .ed-forum {
   background-color: #fff;
+}
+#ed img {
+  max-width: 100%;
 }
 #ed .t-lg-p--no {
   padding: 0 !important;
