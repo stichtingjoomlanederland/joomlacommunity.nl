@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 	Copyright (c) 2009-2019 Ryan Demmer. All rights reserved
- * @license   	GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * @copyright     Copyright (c) 2009-2019 Ryan Demmer. All rights reserved
+ * @license       GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * JCE is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
@@ -12,7 +12,7 @@ defined('JPATH_PLATFORM') or die;
 ?>
 <div class="source-editor">
   <div class="uk-navbar uk-navbar-attached">
-    <div class="uk-navbar-content uk-padding-remove">
+    <div class="uk-navbar-content uk-padding-remove uk-margin-small uk-margin-small-top">
         <button class="uk-button" data-action="undo" title="<?php echo JText::_('WF_SOURCE_UNDO', 'Undo'); ?>"><i class="uk-icon uk-icon-undo"></i></button>
         <button class="uk-button" data-action="redo" title="<?php echo JText::_('WF_SOURCE_REDO', 'Redo'); ?>"><i class="uk-icon uk-icon-redo"></i></button>
 
@@ -23,14 +23,14 @@ defined('JPATH_PLATFORM') or die;
 
         <button class="uk-button uk-button-checkbox" data-action="fullscreen" title="<?php echo JText::_('WF_SOURCE_FULLSCREEN', 'Fullscreen'); ?>"><i class="uk-icon uk-icon-fullscreen"></i></button>
     </div>
-    <div class="uk-navbar-content uk-navbar-flip uk-padding-left-remove">
-      <div class="uk-form uk-margin-remove uk-display-inline-block">
+    <div class="uk-navbar-content uk-navbar-flip uk-grid uk-grid-small uk-margin-small-top">
+      <div class="uk-form uk-display-inline-block uk-margin-small">
         <input id="source_search_value" placeholder="<?php echo JText::_('WF_SOURCE_SEARCH', 'Search'); ?>" type="text" />
         <button class="uk-button" data-action="search" title="<?php echo JText::_('WF_SOURCE_SEARCH', 'Search'); ?>"><i class="uk-icon uk-icon-search"></i></button>
         <button class="uk-button" data-action="search-previous" title="<?php echo JText::_('WF_SOURCE_SEARCH_PREV', 'Search Previous'); ?>"><i class="uk-icon uk-icon-search-previous"></i></button>
       </div>
 
-        <div class="uk-form uk-margin-remove uk-display-inline-block">
+        <div class="uk-form uk-display-inline-block uk-margin-top-remove uk-margin-small">
           <input id="source_replace_value" placeholder="<?php echo JText::_('WF_SOURCE_REPLACE', 'Replace'); ?>" type="text" />
           <button class="uk-button" data-action="replace" title="<?php echo JText::_('WF_SOURCE_REPLACE', 'Replace'); ?>"><i class="uk-icon uk-icon-replace"></i></button>
           <button class="uk-button" data-action="replace-all" title="<?php echo JText::_('WF_SOURCE_REPLACE_ALL', 'Replace All'); ?>"><i class="uk-icon uk-icon-replace-all"></i></button>

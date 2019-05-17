@@ -32,19 +32,6 @@ class KHttpResponse extends KHttpMessage implements KHttpResponseInterface
      */
     protected $_status_message;
 
-    /**
-     * The response content type
-     *
-     * @var string Content type
-     */
-    protected $_content_type;
-
-    /**
-     * The response max age
-     *
-     * @var int Max age in seconds
-     */
-    protected $_max_age;
 
     // [Successful 2xx]
     const OK                        = 200;
@@ -250,37 +237,6 @@ class KHttpResponse extends KHttpMessage implements KHttpResponseInterface
     }
 
     /**
-     * Sets the response content type
-     *
-     * @see http://tools.ietf.org/html/rfc2616#section-14.17
-     *
-     * @param string $type Content type
-     * @return KHttpResponse
-     */
-    public function setContentType($type)
-    {
-        if($type)
-        {
-            $this->_content_type = $type;
-            $this->_headers->set('Content-Type', array($type => array('charset' => 'utf-8')));
-        }
-
-        return $this;
-    }
-
-    /**
-     * Retrieves the response content type
-     *
-     * @link http://tools.ietf.org/html/rfc2616#section-14.17
-     *
-     * @return string Character set
-     */
-    public function getContentType()
-    {
-        return $this->_content_type;
-    }
-
-    /**
      * Returns the Date header as a DateTime instance.
      *
      * @link http://tools.ietf.org/html/rfc2616#section-14.18
@@ -441,31 +397,49 @@ class KHttpResponse extends KHttpMessage implements KHttpResponseInterface
      * the next 60 seconds.
      *
      * @link https://tools.ietf.org/html/rfc2616#section-14.9.3
-     * @param integer $max_age The max age of the response in seconds
+     * @param integer $max_age       The number of seconds after which the response should no longer be considered fresh.
+     * @param integer $share_max_age The number of seconds after which the response should no longer be considered fresh by shared caches.
      * @return KHttpResponse
      */
-    public function setMaxAge($max_age)
+    public function setMaxAge($max_age, $shared_max_age = null)
     {
-        $this->_max_age = $max_age;
+        $cache_control = $this->getCacheControl();
+
+        $cache_control['max-age'] = (int) $max_age;
+
+        if(!is_null($shared_max_age) && $shared_max_age > $max_age) {
+            $cache_control['s-maxage'] = (int) $shared_max_age;
+        }
+
+        $this->_headers->set('Cache-Control', $cache_control);
+
         return $this;
     }
 
     /**
      * Get the max age
      *
-     * It returns 0 when no max age can be established.
+     * Returns the number of seconds after the time specified in the response's Date header when the response should no
+     * longer be considered fresh.
+     *
+     * First, it checks for a s-maxage directive, then a max-age directive. It returns null when no maximum age can be
+     * established.
      *
      * @link https://tools.ietf.org/html/rfc2616#section-14.9.3
      * @return integer Number of seconds
      */
     public function getMaxAge()
     {
+        $result = 0;
+
         $cache_control = $this->getCacheControl();
 
         if (isset($cache_control['max-age'])) {
             $result = $cache_control['max-age'];
-        } else {
-            $result = (int) $this->_max_age;
+        }
+
+        if (isset($cache_control['s-maxage'])) {
+            $result = $cache_control['s-maxage'];
         }
 
         return (int) $result;
@@ -487,12 +461,15 @@ class KHttpResponse extends KHttpMessage implements KHttpResponseInterface
 
         foreach ($values as $key => $value)
         {
-            $parts = explode('=', $value);
-
-            if (count($parts) > 1)
+            if(is_string($value))
             {
-                unset($values[$key]);
-                $values[trim($parts[0])] = trim($parts[1]);
+                $parts = explode('=', $value);
+
+                if (count($parts) > 1)
+                {
+                    unset($values[$key]);
+                    $values[trim($parts[0])] = trim($parts[1]);
+                }
             }
         }
 

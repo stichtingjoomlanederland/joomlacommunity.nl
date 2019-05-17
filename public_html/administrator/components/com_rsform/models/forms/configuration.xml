@@ -12,6 +12,16 @@
 			<option value="1">JYES</option>
 		</field>
 	</fieldset>
+	<fieldset name="grid" label="COM_RSFORM_GRID_SETTINGS">
+		<field name="global.grid_show_previews" type="radio" class="btn-group" description="COM_RSFORM_GRID_SHOW_PREVIEWS_DESC" label="COM_RSFORM_GRID_SHOW_PREVIEWS" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="global.grid_show_caption" type="radio" class="btn-group" description="COM_RSFORM_GRID_SHOW_CAPTION_DESC" label="COM_RSFORM_GRID_SHOW_CAPTION" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+	</fieldset>
 	<fieldset name="defaults" label="COM_RSFORM_DEFAULTS" addfieldpath="/administrator/components/com_rsform/models/fields">
 		<field name="global.default_layout" type="formlayouts" default="responsive" description="COM_RSFORM_DEFAULT_LAYOUT_DESC" label="COM_RSFORM_DEFAULT_LAYOUT" />
 		<field name="global.default_load_layout_framework" type="radio" class="btn-group" description="COM_RSFORM_DEFAULT_LOAD_LAYOUT_FRAMEWORK_DESC" label="COM_RSFORM_DEFAULT_LOAD_LAYOUT_FRAMEWORK" default="1">

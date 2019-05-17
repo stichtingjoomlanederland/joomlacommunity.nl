@@ -20,7 +20,7 @@ require_once WF_EDITOR_LIBRARIES . '/classes/extensions/popups.php';
 
 class WFImgManager_ExtPlugin extends WFMediaManager
 {
-    public $_filetypes = 'jpg,jpeg,png,gif';
+    public $_filetypes = 'jpg,jpeg,png,gif,webp';
 
     public function __construct($config = array())
     {
@@ -272,15 +272,12 @@ class WFImgManager_ExtPlugin extends WFMediaManager
             // add trigger properties
             $properties['trigger'] = implode(',', $trigger);
 
-            /*$exif = $this->getExifData($file['id']);
-
-            if (!empty($exif)) {
-            if (!empty($exif['ImageDescription'])) {
-            $properties['caption'] = $exif['ImageDescription'];
-            }
-            }*/
-
-            $result['files'][$i] = array_merge($file, array('classes' => implode(' ', array_merge(explode(' ', $file['classes']), $classes)), 'properties' => array_merge($file['properties'], $properties)));
+            $result['files'][$i] = array_merge($file, 
+                array(
+                    'classes' => implode(' ', array_merge(explode(' ', $file['classes']), $classes)), 
+                    'properties' => array_merge($file['properties'], $properties)
+                )
+            );
         }
     }
 
@@ -314,11 +311,13 @@ class WFImgManager_ExtPlugin extends WFMediaManager
         $path = WFUtility::makePath($browser->getBaseDir(), $relative);
         $dim = @getimagesize($path);
 
-        $dir = WFUtility::makePath(str_replace('\\', '/', dirname($relative)), $this->getParam('thumbnail_folder', 'thumbnails'));
+        $thumbfolder = $this->getParam('thumbnail_folder', '', 'thumbnails');
+
+        $dir = WFUtility::makePath(str_replace('\\', '/', dirname($relative)), $thumbfolder);
         $thumbnail = WFUtility::makePath($dir, $this->getThumbName($relative));
 
-        // Image has a thumbnail prefix
-        if (strpos($relative, $this->getParam('thumbnail_prefix', 'thumb_', false)) === 0) {
+        // Image is a thumbnail
+        if ($relative === $thumbnail) {
             return $relative;
         }
 
@@ -326,6 +325,7 @@ class WFImgManager_ExtPlugin extends WFMediaManager
         if ($dim[0] <= $this->getParam('thumbnail_size', 120) && $dim[1] <= $this->getParam('thumbnail_size', 90)) {
             return $relative;
         }
+
         //check for thumbnails, if exists return the thumbnail url
         if (file_exists(WFUtility::makePath($browser->getBaseDir(), $thumbnail))) {
             return $thumbnail;
@@ -379,39 +379,68 @@ class WFImgManager_ExtPlugin extends WFMediaManager
         return $browser->getResult();
     }
 
+    private function getThumbnailOptions()
+    {
+        $options = array();
+        
+        $values = array(
+            'thumbnail_width'   => 120, 
+            'thumbnail_height'  => 90,
+            'thumbnail_quality' => 80
+        );
+
+        $states = array(
+            'upload_thumbnail' => 1,
+            'upload_thumbnail_state' => 0,
+            'upload_thumbnail_crop' => 0
+        );
+        
+        foreach($values as $key => $default) {
+            $fallback = $this->getParam('editor.upload_' . $key, $default);
+            $value = $this->getParam('imgmanager_ext.' . $key, '', '$');
+
+            // indicates an unset value, so use the global value or default
+            if ($value === '$') {
+                $value = $fallback;
+            }
+
+            $options['upload_' . $key] = $value;
+        }
+
+        foreach($states as $key => $default) {
+            $value = $this->getParam('editor.' . $key, $default);
+            $options[$key] = $this->getParam('imgmanager_ext.' . $key, '');
+
+            // if the value is empty (unset), use the global value or default
+            if ($options[$key] === '') {
+                $options[$key] = $value;
+            }
+        }
+
+        return $options;
+    }
+
     public function getSettings($settings = array())
     {
-        $params = $this->getParams(array('key' => 'imgmanager_ext'));
-
         $settings = array(
             'attributes' => array(
-                'dimensions' => $params->get('attributes_dimensions', 1),
-                'align' => $params->get('attributes_align', 1),
-                'margin' => $params->get('attributes_margin', 1),
-                'border' => $params->get('attributes_border', 1),
+                'dimensions' => $this->getParam('imgmanager_ext.attributes_dimensions', 1),
+                'align' => $this->getParam('imgmanager_ext.attributes_align', 1),
+                'margin' => $this->getParam('imgmanager_ext.attributes_margin', 1),
+                'border' => $this->getParam('imgmanager_ext.attributes_border', 1),
             ),
-            'always_include_dimensions' => $params->get('always_include_dimensions', 0),
-            // Thumbnails
-            'upload_thumbnail' => $params->get('upload_thumbnail', 1),
-            'upload_thumbnail_state' => $params->get('upload_thumbnail_state', 0),
-            'upload_thumbnail_crop' => $params->get('upload_thumbnail_crop', 0),
-            'thumbnail_width' => $params->get('thumbnail_width', 120),
-            'thumbnail_height' => $params->get('thumbnail_height', 90),
-            'thumbnail_quality' => $params->get('thumbnail_quality', 80),
+            'always_include_dimensions' => $this->getParam('imgmanager_ext.always_include_dimensions', 0),
             'can_edit_images' => 1,
+            'thumbnail_width'   => $this->getParam('imgmanager_ext.thumbnail_width', '', 120), 
+            'thumbnail_height'  => $this->getParam('imgmanager_ext.thumbnail_height', '', 90)
         );
 
         return parent::getSettings($settings);
     }
 
     protected function getFileBrowserConfig($config = array())
-    {
-        $config = array(
-            'upload_thumbnail_width' => $this->getParam('thumbnail_width', 120),
-            'upload_thumbnail_height' => $this->getParam('thumbnail_height', 90),
-            'upload_thumbnail_quality' => $this->getParam('thumbnail_quality', 80),
-        );
-
+    {       
+        $config = $this->getThumbnailOptions();
         return parent::getFileBrowserConfig($config);
     }
 }

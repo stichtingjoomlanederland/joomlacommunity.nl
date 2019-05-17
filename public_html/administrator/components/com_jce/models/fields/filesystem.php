@@ -54,6 +54,10 @@ class JFormFieldFilesystem extends JFormField
         // default
         if (empty($value)) {
             $value = array('name' => $this->default);
+        } else {
+            if (!isset($value['name'])) {
+                $value['name'] = $this->default;
+            }
         }
 
         $plugins = $this->getPlugins();
@@ -69,7 +73,7 @@ class JFormFieldFilesystem extends JFormField
         $html .= '<div class="filesystem-options clearfix">';
 
         foreach ($plugins as $plugin) {            
-            $form = JForm::getInstance('plg_jce_' . $plugin->name, $plugin->manifest, array('control' => $this->name . '[' . $plugin->name . ']'), true, '//extension');
+            $form = JForm::getInstance('plg_jce_' . $this->name . '_' . $plugin->name, $plugin->manifest, array('control' => $this->name . '[' . $plugin->name . ']'), true, '//extension');
 
             if ($form) {
                 // get the data for this form, if set
@@ -108,11 +112,7 @@ class JFormFieldFilesystem extends JFormField
         static $plugins;
 
         if (!isset($plugins)) {
-            $items = JcePluginsHelper::getExtensions();
-
-            $plugins = array_filter($items, function($item) {
-                return $item->type === "filesystem";
-            });
+            $plugins = JcePluginsHelper::getExtensions('filesystem');
         }
 
         return $plugins;

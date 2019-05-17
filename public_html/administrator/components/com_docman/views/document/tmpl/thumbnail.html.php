@@ -12,6 +12,7 @@ $options = str_replace('\/', '/', $config->options->toString());
 
 <?= helper('behavior.modal'); ?>
 
+<ktml:script src="media://com_docman/js/image.editor.js" />
 <ktml:script src="media://com_docman/js/thumbnail.js" />
 
 <script>
@@ -76,11 +77,20 @@ kQuery(function($){
                         </div>
                     </div>
                 </div>
+                <div class="k-card__footer" v-show="active === 'automatic' && automatic.exists">
+                    <button v-bind:disabled="!hasConnectSupport" v-on:click.prevent="editImage"
+                            class="k-button k-button--block k-button--default k-button--small" type="button"><?= translate('Edit'); ?></button>
+
+                </div>
                 <div class="k-card__footer" v-show="active === 'custom'">
                     <button v-on:click.prevent="changeCustom" class="k-button k-button--block k-button--default k-button--small" type="button"><?= translate('Change'); ?></button>
+                    <button v-bind:disabled="!hasConnectSupport" v-on:click.prevent="editImage"
+                            class="k-button k-button--block k-button--default k-button--small" type="button"><?= translate('Edit'); ?></button>
+
                 </div>
                 <div class="k-card__footer" v-show="active === 'web'">
-                    <button v-on:click.prevent="openPicker" class="k-button k-button--block k-button--default k-button--small" type="button"><?= translate('Change'); ?></button>
+                    <button v-bind:disabled="!hasConnectSupport" v-on:click.prevent="openPicker" class="k-button k-button--block k-button--default k-button--small" type="button"><?= translate('Change'); ?></button>
+                    <button v-bind:disabled="!hasConnectSupport" v-on:click.prevent="editImage" class="k-button k-button--block k-button--default k-button--small" type="button"><?= translate('Edit'); ?></button>
                 </div>
             </div>
         </div>

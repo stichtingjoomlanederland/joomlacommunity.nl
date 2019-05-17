@@ -1,0 +1,128 @@
+/**
+ * @package         DB Replacer
+ * @version         6.3.3PRO
+ * 
+ * @author          Peter van Westen <info@regularlabs.com>
+ * @link            http://www.regularlabs.com
+ * @copyright       Copyright © 2019 Regular Labs All Rights Reserved
+ * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
+ */
+div.dbr select,
+div.dbr textarea {
+  width: 100%;
+  height: 70px;
+}
+div.dbr textarea {
+  width: 98%;
+}
+div.dbr h4 {
+  margin-top: 0;
+}
+div.dbr div.columns {
+  min-height: 280px;
+}
+div.dbr div.columns select {
+  height: 220px;
+}
+div.dbr .pro textarea {
+  height: 40px;
+}
+div.dbr .pro div.columns {
+  min-height: 360px;
+}
+div.dbr .pro div.columns select {
+  height: 300px;
+}
+div.dbr td.db_value {
+  vertical-align: top;
+  font-family: monospace;
+  font-size: 12px;
+}
+div.dbr table#dbr_results th.ghosted,
+div.dbr table#dbr_results td.ghosted {
+  color: #aaaaaa;
+}
+div.dbr table#dbr_results.hide-inactive th.ghosted,
+div.dbr table#dbr_results.hide-inactive td.ghosted {
+  display: none;
+}
+div.dbr table#dbr_results.hide-inactive th.is_id,
+div.dbr table#dbr_results.hide-inactive td.is_id {
+  display: table-cell;
+}
+div.dbr table#dbr_results td.has_search {
+  background-color: #fcf8e3 !important;
+}
+div.dbr table#dbr_results td > div.cell_content {
+  position: relative;
+}
+div.dbr table#dbr_results .search_string,
+div.dbr table#dbr_results .replace_string {
+  margin: 0 1px;
+  padding: 0 1px;
+}
+div.dbr table#dbr_results .search_string {
+  background-color: #f2dede;
+  border: 1px solid #ebccd1;
+  color: #a94442;
+  text-decoration: line-through;
+}
+div.dbr table#dbr_results .replace_string {
+  background-color: #dff0d8;
+  border: 1px solid #d6e9c6;
+  color: #3c763d;
+}
+div.dbr table#dbr_results .trimmed {
+  display: none;
+  color: #31708f;
+}
+div.dbr table#dbr_results .toggle-trimmed {
+  margin: 0 2px;
+  padding: 0 2px;
+  cursor: pointer;
+  background-color: #d9edf7;
+  border: 1px solid #bce8f1;
+  color: #31708f;
+}
+div.dbr table#dbr_results .toggle-trimmed:before {
+  content: '\2026';
+}
+div.dbr table#dbr_results .toggle-trimmed.hide-trimmed {
+  display: block;
+  position: absolute;
+  left: -17px;
+}
+div.dbr table#dbr_results .toggle-trimmed.hide-trimmed:before {
+  content: '✕';
+}
+div.dbr table#dbr_results .null {
+  font-style: italic;
+  color: #ce8483;
+}
+div.dbr table#dbr_results .replace_string .null {
+  color: #67b168;
+}
+div.dbr table#dbr_results .no-strikethrough {
+  text-decoration: none;
+}
+.icon-48-dbreplacer {
+  background: transparent url(../images/dbreplacer.png) no-repeat 10px 9px !important;
+  padding-left: 183px !important;
+  /* width + 20 */
+}
+/* AP template */
+#ap-wrapper .icon-48-dbreplacer {
+  background: transparent url(../images/dbreplacer.png) no-repeat 10px 13px !important;
+  padding-left: 183px;
+  /* width + 20 */
+  font-size: 22px;
+  color: #000000;
+}
+/* APLite template */
+.ap-main .icon-48-dbreplacer {
+  background: #ffffff url(../images/dbreplacer.png) no-repeat -27px -7px !important;
+  padding-left: 143px !important;
+  /* width - 20 */
+  padding-right: 5px !important;
+  color: #000000 !important;
+}

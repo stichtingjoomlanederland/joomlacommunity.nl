@@ -25,10 +25,10 @@ class RSFormProFieldRadioGroup extends RSFormProFieldMultiple
 	protected $columns = array('VERTICAL2COLUMNS' => 2, 'VERTICAL3COlUMNS' => 3, 'VERTICAL4COLUMNS' => 4, 'VERTICAL6COLUMNS' => 6);
 	
 	// backend preview
-	public function getPreviewInput() {
+	public function getPreviewInput()
+	{
 		$id			= $this->getId();
 		$flow		= $this->getProperty('FLOW', 'HORIZONTAL');
-		$caption 	= $this->getProperty('CAPTION','');
 		
 		// Add the items
 		$parsed = array();
@@ -70,9 +70,7 @@ class RSFormProFieldRadioGroup extends RSFormProFieldMultiple
 			$radiogroup .= $this->start.implode('', $parsed).$this->end;
 		}
 		
-		$html = '<td>'.$caption.'</td><td class="controls formControls preview-radio'.($flow == 'HORIZONTAL' ? '-inline' : '').'">'.$this->codeIcon.$radiogroup.'</td>';
-		
-		return $html;
+		return '<div class="controls formControls preview-radio' . ($flow == 'HORIZONTAL' ? '-inline' : '') . '">'. $this->codeIcon . $radiogroup . '</div>';
 	}
 	
 	// functions used for rendering in front view

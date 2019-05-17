@@ -55,7 +55,7 @@ $end		 = $this->escaped ? addslashes(rseventsproHelper::showdate($event->end,nul
 	<?php if (!$this->single) { ?>
 	<br />
 	<br />
-	<a style="float:right;" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&location='.rseventsproHelper::sef($event->locationid,$event->location),false,$this->itemid);?>">
+	<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&location='.rseventsproHelper::sef($event->locationid,$event->location),false,$this->itemid);?>">
 		<?php echo JText::_('COM_RSEVENTSPRO_VIEW_OTHER_EVENTS',true); ?> 
 	</a>
 	<?php } ?>

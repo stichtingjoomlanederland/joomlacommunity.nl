@@ -1191,3 +1191,19 @@ textarea.invalid {
 	color: #fff;
 	font-size: 15px;
 }
+
+#rsepro_number_events {
+	text-align: center;
+	font-size: 11px;
+	color: #999;
+}
+
+.rsepro-map-directions > a:hover {
+	text-decoration: none;
+}
+.rsepro-map-directions > a {
+	padding: 5px;
+}
+.rsepro-map-directions {
+	text-align: center;
+}

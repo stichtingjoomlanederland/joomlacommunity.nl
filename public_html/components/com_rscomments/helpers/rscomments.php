@@ -1313,7 +1313,7 @@ abstract class RSCommentsHelper
 		$permissions = RSCommentsHelper::getPermissions();
 		$doc = JFactory::getDocument();
 		
-		if ($config->captcha == 2) {
+		if ($config->captcha == 2 && isset($permissions['captcha']) && $permissions['captcha']) {
 			$doc->addScript('https://www.google.com/recaptcha/api.js?render=explicit&amp;hl='.JFactory::getLanguage()->getTag());
 			$doc->addScriptDeclaration("RSCommentsReCAPTCHAv2.loaders.push(function(){
 	var id = grecaptcha.render('rsc-g-recaptcha-".$hash."', {
@@ -1343,11 +1343,13 @@ abstract class RSCommentsHelper
 	}
 	
 	// Clear the cache
-	public static function clearCache() {
-		$cache = JFactory::getCache('com_content');
-		$cache->clean();
-		$cache = JFactory::getCache('page');
-		$cache->clean();
+	public static function clearCache() {		
+		if (RSCommentsHelper::getConfig('cache')) {
+			$cache = JFactory::getCache('com_content');
+			$cache->clean();
+			$cache = JFactory::getCache('page');
+			$cache->clean();
+		}
 	}
 	
 	// Display a human readeable date format
@@ -1460,5 +1462,23 @@ abstract class RSCommentsHelper
 			->where($db->qn('IdComment').' = '.$db->q($id));
 		$db->setQuery($query);
 		return (bool) $db->loadResult();
+	}
+	
+	public static function removeCache($id) {
+		$config = JFactory::getConfig();
+		
+		$options = array(
+			'defaultgroup' => 'com_rscomments',
+			'storage'      => $config->get('cache_handler', ''),
+			'lifetime'     => 900,
+			'caching'      => true,
+			'cachebase'    => $config->get('cache_path', JPATH_SITE . '/cache')
+		);
+		
+		$cache	= JCache::getInstance('callback', $options);
+		$cache->remove(md5($id.'1ASC'));
+		$cache->remove(md5($id.'1DESC'));
+		$cache->remove(md5($id.'0,1ASC'));
+		$cache->remove(md5($id.'0,1DESC'));
 	}
 }

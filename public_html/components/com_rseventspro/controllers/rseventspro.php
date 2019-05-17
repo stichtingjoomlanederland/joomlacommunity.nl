@@ -176,11 +176,6 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		if ($nowunix > $endunix)
 			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)), JText::_('COM_RSEVENTSPRO_ERROR_INVITE_1'));
 		
-		if (rseventsproHelper::getConfig('consent', 'int') && !JFactory::getApplication()->input->getInt('consent')) {
-			JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_CONSENT_INFO'), 'error');
-			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=invite&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)));
-		}
-		
 		$model->invite();
 		
 		JFactory::getApplication()->input->set('tmpl', 'component');

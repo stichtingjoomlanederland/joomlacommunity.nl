@@ -921,6 +921,7 @@ class RseventsproController extends JControllerLegacy
 					}
 					
 				} else {
+					$tax = 0;
 					$plugintaxes = $app->triggerEvent('rsepro_tax',array(array('method'=>&$payment, 'total'=>$total)));
 					
 					if (!empty($plugintaxes))

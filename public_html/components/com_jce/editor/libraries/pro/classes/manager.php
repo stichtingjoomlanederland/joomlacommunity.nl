@@ -267,10 +267,17 @@ class WFMediaManager extends WFMediaManagerBase
         $editor = $this->getImageEditor();
 
         // default values from parameters
-        $resize = (int) $this->getParam('editor.upload_resize_state', 0);
+        $resize = (int) $browser->get('upload_resize_state');
 
-        $resize_width = $this->getParam('editor.resize_width', '640');
-        $resize_height = $this->getParam('editor.resize_height', '480');
+        // get parameter values, allow empty but fallback to system default
+        $resize_width   = $browser->get('upload_resize_width');
+        $resize_height  = $browser->get('upload_resize_height');
+
+        // both values cannot be empty
+        if (empty($resize_width) && empty($resize_height)) {
+            $resize_width   = 640;
+            $resize_height  = 480;
+        }
 
         if (!is_array($resize_width)) {
             $resize_width = explode(',', (string) $resize_width);
@@ -287,13 +294,17 @@ class WFMediaManager extends WFMediaManagerBase
             $file_resize = false;
 
             // Resize options visible
-            if ((bool) $this->getParam('editor.upload_resize', 1)) {
+            if ((bool) $browser->get('upload_resize')) {
                 $resize = $app->input->getInt('upload_resize_state', 0);
+
+                // set empty default values
+                $file_resize_width  = array();
+                $file_resize_height = array();
 
                 foreach (array('resize_width', 'resize_height', 'file_resize_width', 'file_resize_height') as $var) {
                     $$var = $app->input->get('upload_' . $var, array(), 'array');
                     // pass each value through intval
-                    $ $var = array_map('intval', $ $var);
+                    $$var = array_map('intval', $$var);
                 }
 
                 $resize_suffix = $app->input->get('upload_resize_suffix', '', 'STRING');
@@ -343,7 +354,7 @@ class WFMediaManager extends WFMediaManagerBase
             $files = array($file);
 
             if ($resize) {
-                $resize_quality = (int) $this->getParam('editor.resize_quality', 100);
+                $resize_quality = (int) $browser->get('upload_resize_quality', 100);
 
                 $count = max(count($resize_width), count($resize_height));
 
@@ -375,6 +386,10 @@ class WFMediaManager extends WFMediaManagerBase
                             $ext = WFUtility::getExtension($file);
 
                             $suffix = '';
+
+                            if (empty($resize_suffix[$i])) {
+                                $resize_suffix[$i] = '';
+                            }
 
                             // create suffix based on width/height values for images after first
                             if (empty($resize_suffix[$i]) && $i > 0) {
@@ -408,10 +423,10 @@ class WFMediaManager extends WFMediaManagerBase
             }
 
             // default parameter option
-            $watermark = $this->getParam('editor.upload_watermark_state', 0);
+            $watermark = $browser->get('upload_watermark_state');
 
             // option visible so allow user set value
-            if ((bool) $this->getParam('editor.upload_watermark', 0)) {
+            if ((bool) $browser->get('upload_watermark')) {
                 $watermark = $app->input->getInt('upload_watermark_state', 0);
             }
 
@@ -448,15 +463,22 @@ class WFMediaManager extends WFMediaManagerBase
                 }
             }
 
-            $thumbnail = $this->getParam('upload_thumbnail_state', 0);
+            $thumbnail = $browser->get('upload_thumbnail_state');
 
-            $tw = (int) $this->getParam('thumbnail_width', 120);
-            $th = (int) $this->getParam('thumbnail_height', 90);
+            // get parameter values, allow empty but fallback to system default
+            $tw = $browser->get('upload_thumbnail_width');
+            $th = $browser->get('upload_thumbnail_height');
 
-            $crop = $this->getParam('upload_thumbnail_crop', 0);
+            // both values cannot be empty
+            if (empty($tw) && empty($th)) {
+                $tw = 120;
+                $th = 90;
+            }
+
+            $crop = $browser->get('upload_thumbnail_crop');
 
             // Thumbnail options visible
-            if ((bool) $this->getParam('upload_thumbnail', 1)) {
+            if ((bool) $browser->get('upload_thumbnail')) {
                 $thumbnail = $app->input->getInt('upload_thumbnail_state', 0);
 
                 $tw = $app->input->getInt('upload_thumbnail_width');
@@ -468,7 +490,11 @@ class WFMediaManager extends WFMediaManagerBase
 
             if ($thumbnail) {
                 $dim = @getimagesize($file);
-                $tq = $this->getParam('upload_thumbnail_quality', 80, false);
+                $tq = $browser->get('upload_thumbnail_quality');
+
+                // cast values to integer
+                $tw = (int) $tw;
+                $th = (int) $th;
 
                 // need at least one value
                 if ($tw || $th) {
@@ -695,6 +721,7 @@ class WFMediaManager extends WFMediaManagerBase
 
             // load image class
             require_once __DIR__ . '/image/image.php';
+
             // create image
             $image = new WFImage($file, array(
                 'preferImagick' => $this->getParam('editor.prefer_imagick', true),
@@ -830,9 +857,9 @@ class WFMediaManager extends WFMediaManagerBase
         jimport('joomla.filesystem.folder');
         jimport('joomla.filesystem.file');
 
-        $cache_max_size = intval($this->getParam('editor.cache_size', 10, false)) * 1024 * 1024;
-        $cache_max_age = intval($this->getParam('editor.cache_age', 30, false)) * 86400;
-        $cache_max_files = intval($this->getParam('editor.cache_files', 0, false));
+        $cache_max_size = intval($this->getParam('editor.cache_size', 10, 0)) * 1024 * 1024;
+        $cache_max_age = intval($this->getParam('editor.cache_age', 30, 0)) * 86400;
+        $cache_max_files = intval($this->getParam('editor.cache_files', 0, 0));
 
         if ($cache_max_age > 0 || $cache_max_size > 0 || $cache_max_files > 0) {
             $path = $this->getCacheDirectory();
@@ -1115,14 +1142,15 @@ class WFMediaManager extends WFMediaManagerBase
      */
     protected function getThumbName($file)
     {
-        $ext = WFUtility::getExtension($file);
-        $string = $this->getParam($this->getName() . '.thumbnail_prefix', $this->getParam('editor.thumbnail_prefix', 'thumb_$'));
+        $prefix = $this->getParam('thumbnail_prefix', 'thumb_$');
 
-        if (strpos($string, '$') !== false) {
-            return str_replace('$', basename($file, '.' . $ext), $string) . '.' . $ext;
+        $ext = WFUtility::getExtension($file);
+
+        if (strpos($prefix, '$') !== false) {
+            return str_replace('$', basename($file, '.' . $ext), $prefix) . '.' . $ext;
         }
 
-        return (string) basename($file);
+        return (string) $prefix . basename($file);
     }
 
     protected function getThumbDir($file, $create)
@@ -1130,10 +1158,22 @@ class WFMediaManager extends WFMediaManagerBase
         $browser = $this->getFileBrowser();
         $filesystem = $browser->getFileSystem();
 
-        $folder = $this->getParam($this->getName() . '.thumbnail_folder', $this->getParam('editor.thumbnail_folder', 'thumbnails'));
+        // get base directory from editor parameter
+        $baseDir = $this->getParam('editor.thumbnail_folder', '', 'thumbnails');
+        
+        // get directory from plugin parameter, if any (Image Manager Extended)
+        $folder = $this->getParam($this->getName() . '.thumbnail_folder', '', '$$');
 
+        // ugly workaround for parameter issues - a $ or $$ value denotes un unset value, so fallback to global
+        // a user can "unset" the value, if it has been stored as an empty string, by setting the value to $
+        if ($folder === "$" || $folder === "$$") {
+            $folder = $baseDir;
+        }
+
+        // make path relative to source file
         $dir = WFUtility::makePath(dirname($file), $folder);
 
+        // create the folder if it does not exist
         if ($create && !$filesystem->exists($dir)) {
             $filesystem->createFolder(dirname($dir), basename($dir));
         }
@@ -1172,6 +1212,18 @@ class WFMediaManager extends WFMediaManagerBase
 
     protected function getFileBrowserConfig($config = array())
     {
+        $resize_width = $this->getParam('editor.resize_width', '', 640);
+
+        if (!is_array($resize_width)) {
+            $resize_width = explode(',', (string) $resize_width);
+        }
+
+        $resize_height = $this->getParam('editor.resize_height', '', 480);
+
+        if (!is_array($resize_height)) {
+            $resize_height = explode(',', (string) $resize_height);
+        }
+        
         $data = array(
             'view_mode' => $this->getParam('editor.mode', 'list'),
             'can_edit_images' => $this->get('can_edit_images'),
@@ -1179,17 +1231,22 @@ class WFMediaManager extends WFMediaManagerBase
             // Upload
             'upload_resize' => $this->getParam('editor.upload_resize', 1),
             'upload_resize_state' => $this->getParam('editor.upload_resize_state', 0),
-            'upload_resize_width' => (string) $this->getParam('editor.resize_width', '640'),
-            'upload_resize_height' => (string) $this->getParam('editor.resize_height', '480'),
+            // value must be cast as string for javascript processing
+            'upload_resize_width' => $resize_width,
+            // value must be cast as string for javascript processing
+            'upload_resize_height' => $resize_height,
             'upload_resize_quality' => $this->getParam('editor.resize_quality', 100),
             'upload_watermark' => $this->getParam('editor.upload_watermark', 0),
             'upload_watermark_state' => $this->getParam('editor.upload_watermark_state', 0),
-            'upload_thumbnail' => $this->getParam('upload_thumbnail', 1),
-            'upload_thumbnail_state' => $this->getParam('upload_thumbnail_state', 0),
-            'upload_thumbnail_crop' => $this->getParam('upload_thumbnail_crop', 0),
-            'upload_thumbnail_width' => $this->getParam('upload_thumbnail_width', 120),
-            'upload_thumbnail_height' => $this->getParam('upload_thumbnail_height', 90),
-            'upload_thumbnail_quality' => $this->getParam('upload_thumbnail_quality', 80),
+            // thumbnail
+            'upload_thumbnail' => $this->getParam('editor.upload_thumbnail', 1),
+            'upload_thumbnail_state' => $this->getParam('editor.upload_thumbnail_state', 0),
+            'upload_thumbnail_crop' => $this->getParam('editor.upload_thumbnail_crop', 0),
+            // value must be cast as string for javascript processing
+            'upload_thumbnail_width' => (string) $this->getParam('editor.upload_thumbnail_width', '', 120),
+            // value must be cast as string for javascript processing
+            'upload_thumbnail_height' => (string) $this->getParam('editor.upload_thumbnail_height', '', 90),
+            'upload_thumbnail_quality' => $this->getParam('editor.upload_thumbnail_quality', 80),
         );
 
         $config = WFUtility::array_merge_recursive_distinct($data, $config);

@@ -473,7 +473,7 @@ class RSFormProRestoreForm
 						
 						$componentId = (int) $componentId;
 						
-						if (is_int($componentId)) {
+						if (is_int($componentId) && $componentId !== 0) {
 							$query = $this->db->getQuery(true);
 							$query	->insert('#__rsform_directory_fields')
 									->set(array(

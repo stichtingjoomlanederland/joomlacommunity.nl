@@ -34,10 +34,6 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 			<label for="enable_twitter" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_ENABLE_TWITTER'); ?></label>
 		</p>
 		<p>
-			<input type="checkbox" name="batch[options][enable_gplus]" id="enable_gplus" value="1" />
-			<label for="enable_gplus" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_ENABLE_GOOGLEPLUS'); ?></label>
-		</p>
-		<p>
 			<input type="checkbox" name="batch[options][enable_linkedin]" id="enable_linkedin" value="1" />
 			<label for="enable_linkedin" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_ENABLE_LINKEDIN'); ?></label>
 		</p>

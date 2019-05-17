@@ -9,6 +9,7 @@ namespace Akeeba\AdminTools\Admin\View\GeographicBlocking;
 
 defined('_JEXEC') or die;
 
+use Akeeba\AdminTools\Admin\Model\ControlPanel;
 use Akeeba\AdminTools\Admin\Model\GeographicBlocking;
 use FOF30\View\DataView\Html as BaseView;
 
@@ -56,6 +57,27 @@ class Html extends BaseView
 	 */
 	public $pluginNeedsUpdate = false;
 
+	/**
+	 * IP of the user, as reported by the server
+	 *
+	 * @var string
+	 */
+	public $myIP;
+
+	/**
+	 * Detected country for the current user
+	 *
+	 * @var string
+	 */
+	public $country;
+
+	/**
+	 * Detected continent for the current user
+	 *
+	 * @var string
+	 */
+	public $continent;
+
 	protected function onBeforeMain($tpl = null)
 	{
 		/** @var GeographicBlocking $model */
@@ -68,5 +90,26 @@ class Html extends BaseView
 		$this->allCountries      = $model->getAllCountries();
 		$this->hasPlugin         = $model->hasGeoIPPlugin();
 		$this->pluginNeedsUpdate = $model->dbNeedsUpdate();
+
+		/** @var ControlPanel $cpanelModel */
+		$cpanelModel = $this->container->factory->model('ControlPanel');
+		$this->myIP  = $cpanelModel->getVisitorIP();
+
+		if ($this->hasPlugin && class_exists('AkeebaGeoipProvider'))
+		{
+			$geoip     = new \AkeebaGeoipProvider();
+			$this->country   = $geoip->getCountryName($this->myIP);
+			$this->continent = $geoip->getContinent($this->myIP);
+
+			if (empty($this->country))
+			{
+				$this->country = '(unknown country)';
+			}
+
+			if (empty($this->continent))
+			{
+				$this->continent = '(unknown continent)';
+			}
+		}
 	}
 }

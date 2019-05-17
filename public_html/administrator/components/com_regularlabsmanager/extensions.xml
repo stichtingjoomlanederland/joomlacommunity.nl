@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ - name : full extension name
+ - id : extension alias/id, used in html and links (default: lowercase name with only a-z and '-')
+ - element : extension element name, used in database and folders (default: id)
+-->
+<extensions>
+	<extension name="REGULAR_LABS_EXTENSION_MANAGER" id="extensionmanager" element="regularlabsmanager" type="com,plg_actionlog" />
+	<extension name="ADD_TO_MENU" type="mod" />
+	<extension name="ADVANCED_MODULE_MANAGER" element="advancedmodules" type="com,plg_system,plg_actionlog" />
+	<extension name="ADVANCED_TEMPLATE_MANAGER" element="advancedtemplates" type="com,plg_system,plg_actionlog" />
+	<extension name="ARTICLES_ANYWHERE" type="plg_system,plg_editors-xtd" />
+	<extension name="ARTICLES_FIELD" element="articles" type="plg_fields" />
+	<extension name="BETTER_PREVIEW" type="plg_system,plg_editors-xtd" />
+	<extension name="BETTER_TRASH" type="plg_system" />
+	<extension name="CACHE_CLEANER" type="plg_system,mod" />
+	<extension name="CDN_FOR_JOOMLA" type="plg_system" />
+	<extension name="COMPONENTS_ANYWHERE" type="plg_system" />
+	<extension name="CONDITIONAL_CONTENT" type="plg_system" />
+	<extension name="CONTENT_TEMPLATER" type="com,plg_system,plg_editors-xtd,plg_actionlog" />
+	<extension name="DB_REPLACER" type="com,plg_actionlog" />
+	<extension name="DUMMY_CONTENT" type="plg_system,plg_editors-xtd" />
+	<extension name="EMAIL_PROTECTOR" type="plg_system" />
+	<extension name="GEOIP" type="plg_system" />
+	<extension name="IP_LOGIN" type="plg_system" />
+	<extension name="KEYBOARD_SHORTCUTS" type="plg_system" />
+	<extension name="MODALS" type="plg_system,plg_editors-xtd" />
+	<extension name="MODULES_ANYWHERE" type="plg_system,plg_editors-xtd" />
+	<extension name="QUICK_INDEX" type="plg_system" />
+	<extension name="REREPLACER" type="com,plg_system,plg_actionlog" />
+	<extension name="SIMPLE_USER_NOTES" type="plg_system" />
+	<extension name="SLIDERS" type="plg_system,plg_editors-xtd" />
+	<extension name="SNIPPETS" type="com,plg_system,plg_editors-xtd,plg_actionlog" />
+	<extension name="SOURCERER" type="plg_system,plg_editors-xtd" />
+	<extension name="TABS" type="plg_system,plg_editors-xtd" />
+	<extension name="TOOLTIPS" type="plg_system,plg_editors-xtd" />
+	<extension name="WHAT_NOTHING" id="whatnothing" element="whatnothing" type="plg_system" />
+</extensions>

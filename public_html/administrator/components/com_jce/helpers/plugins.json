@@ -75,8 +75,8 @@
         "title": "WF_CONTEXTMENU_TITLE",
         "description": "WF_CONTEXTMENU_DESC",
         "icon": "",
-        "editable": 0,
-        "row": 4,
+        "editable": 1,
+        "row": 0,
         "core": 1
     },
     "directionality": {
@@ -243,8 +243,7 @@
         "icon": "style",
         "editable": 0,
         "row": 4,
-        "core": 1,
-        "class": "list-box"
+        "core": 1
     },
     "styleselect": {
         "title": "WF_STYLESELECT_TITLE",

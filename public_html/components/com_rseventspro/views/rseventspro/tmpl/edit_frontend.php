@@ -143,11 +143,6 @@ $eventOptions = $this->eventClass->getEventOptions(); ?>
 			</label>
 			
 			<label class="checkbox">
-				<input type="checkbox" name="jform[options][enable_gplus]" value="1" <?php echo (isset($eventOptions['enable_gplus']) && $eventOptions['enable_gplus'] == 1) ? 'checked="checked"' : ''; ?> />
-				<?php echo JText::_('COM_RSEVENTSPRO_ENABLE_GOOGLEPLUS'); ?>
-			</label>
-			
-			<label class="checkbox">
 				<input type="checkbox" name="jform[options][enable_linkedin]" value="1" <?php echo (isset($eventOptions['enable_linkedin']) && $eventOptions['enable_linkedin'] == 1) ? 'checked="checked"' : ''; ?> />
 				<?php echo JText::_('COM_RSEVENTSPRO_ENABLE_LINKEDIN'); ?>
 			</label>

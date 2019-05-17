@@ -351,11 +351,11 @@ class RscommentsController extends JControllerLegacy
 		
 		if ($this->checkPermission($id, $hash)) {
 			$query->clear()
-				->select($db->qn('url'))
+				->select($db->qn('id'))->select($db->qn('option'))->select($db->qn('url'))
 				->from($db->qn('#__rscomments_comments'))
 				->where($db->qn('IdComment').' = '.$db->q($id));
 			$db->setQuery($query);
-			$url = $db->loadResult();
+			$comment = $db->loadObject();
 			
 			$query->clear()
 				->update($db->qn('#__rscomments_comments'))
@@ -364,8 +364,10 @@ class RscommentsController extends JControllerLegacy
 			$db->setQuery($query);
 			$db->execute();
 			
+			RSCommentsHelper::removeCache($comment->id.$comment->option);
+			
 			$app->enqueueMessage(JText::_('COM_RSCOMMENTS_COMMENT_APPROVED'));
-			$app->redirect($url ? JURI::root().base64_decode($url).'#rscomment'.$id : JURI::root());
+			$app->redirect($comment->url ? JURI::root().base64_decode($comment->url).'#rscomment'.$id : JURI::root());
 			
 		} else {
 			$app->enqueueMessage(JText::_('COM_RSCOMMENTS_APPROVAL_ERROR'),'error');

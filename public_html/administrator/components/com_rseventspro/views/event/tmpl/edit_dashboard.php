@@ -104,6 +104,13 @@ $guests = rseventsproHelper::getRSVP($this->item->id); ?>
 			</tr>
 			<?php } ?>
 		</tbody>
+		<tfoot>
+			<tr>
+				<td colspan="4" class="center">
+					<a href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=subscriptions&filter_event='.$this->item->id, false); ?>" class="btn btn-primary"><?php echo JText::_('COM_RSEVENTSPRO_VIEW_ALL'); ?></a>
+				</td>
+			</tr>
+		</tfoot>
 	</table>
 	<?php } else { ?>
 	<?php echo JText::_('COM_RSEVENTSPRO_EVENT_DASH_NO_SUBSCRIBERS'); ?>
@@ -128,6 +135,13 @@ $guests = rseventsproHelper::getRSVP($this->item->id); ?>
 			</tr>
 			<?php } ?>
 		</tbody>
+		<tfoot>
+			<tr>
+				<td colspan="4" class="center">
+					<a href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=rsvp&id='.$this->item->id, false); ?>" class="btn btn-primary"><?php echo JText::_('COM_RSEVENTSPRO_VIEW_ALL'); ?></a>
+				</td>
+			</tr>
+		</tfoot>
 	</table>
 	<?php } else { ?>
 	<?php echo JText::_('COM_RSEVENTSPRO_EVENT_DASH_NO_GUESTS'); ?>

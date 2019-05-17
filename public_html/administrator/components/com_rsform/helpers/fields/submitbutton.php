@@ -12,14 +12,14 @@ require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/fields/button.p
 class RSFormProFieldSubmitButton extends RSFormProFieldButton
 {
 	// backend preview
-	public function getPreviewInput() {
-		$caption 	= $this->getProperty('CAPTION', '');
+	public function getPreviewInput()
+	{
 		$reset		= $this->getProperty('RESET', 'NO');
 		$buttonType = $this->getProperty('BUTTONTYPE', 'TYPEINPUT') == 'TYPEBUTTON' ? 'button' : 'input';
 		$label		= $this->getProperty('LABEL', '');
-		$resetLabel		= $this->getProperty('RESETLABEL', '');
-		
-		$html = '<td>'.$caption.'</td><td>';
+		$resetLabel	= $this->getProperty('RESETLABEL', '');
+		$html 		= '';
+
 		if ($buttonType == 'button') {
 			$html .= '<button type="button" class="btn btn-primary">'.$this->escape($label).'</button>';
 		} else {
@@ -32,8 +32,6 @@ class RSFormProFieldSubmitButton extends RSFormProFieldButton
 				$html .= '&nbsp;&nbsp;<input type="reset" class="btn btn-danger" value="'.$this->escape($resetLabel).'"/>';
 			}
 		}
-		
-		$html .= '</td>';
 		
 		return $html;
 	}

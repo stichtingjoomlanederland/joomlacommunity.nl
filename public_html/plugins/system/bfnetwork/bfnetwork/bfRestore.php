@@ -1,9 +1,14 @@
 <?php
-/**
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
+
+/*
+ * @package   bfNetwork
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
  *
- * @see      https://myJoomla.com/
+ * @see       https://myJoomla.guru/
+ * @see       https://myWP.guru/
+ * @see       https://mySites.guru/
+ * @see       https://www.phil-taylor.com/
  *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
@@ -19,6 +24,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see http://www.gnu.org/licenses/
+ *
+ * If you have any questions regarding this code, please contact phil@phil-taylor.com
  */
 
 /**
@@ -278,7 +285,7 @@ if (!class_exists('Akeeba_Services_JSON')) {
          *                                   bubble up with an error, so all return values
          *                                   from encode() should be checked with isError()
          */
-        public function Akeeba_Services_JSON($use = 0)
+        public function __construct($use = 0)
         {
             $this->use = $use;
         }
@@ -590,7 +597,7 @@ if (!class_exists('Akeeba_Services_JSON')) {
         /**
          * reduce a string by removing leading and trailing comments and whitespace.
          *
-         * @param   $str string      string value to strip of comments and whitespace
+         * @param $str string      string value to strip of comments and whitespace
          *
          * @return string string value stripped of comments and whitespace
          */
@@ -3144,7 +3151,7 @@ class AKPostprocSFTP extends AKAbstractPostproc
         $ret = $this->write($this->tempFilename, $remoteName);
 
         // If I got a -1 it means that I wasn't able to open the file, so I have to stop here
-        if ($ret === -1) {
+        if (-1 === $ret) {
             $this->setError(AKText::sprintf('SFTP_COULDNT_UPLOAD', $this->filename));
 
             return false;

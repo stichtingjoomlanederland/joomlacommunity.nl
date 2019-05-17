@@ -147,7 +147,7 @@ class ComDocmanControllerBehaviorRedirectable extends KControllerBehaviorAbstrac
     {
         $url_path  = parse_url($url, PHP_URL_PATH);
 
-        if($id = $this->_getGoogleId($url_path)) {
+        if(stripos($url_path, 'folders/') === false && $id = $this->_getGoogleId($url_path)) {
             $url = 'https://drive.google.com/uc?export=download&id='.$id;
         }
 
@@ -166,7 +166,7 @@ class ComDocmanControllerBehaviorRedirectable extends KControllerBehaviorAbstrac
         $url_path  = parse_url($url, PHP_URL_PATH);
         $file_type = null;
 
-        if($id = $this->_getGoogleId($url_path))
+        if(stripos($url_path, 'folders/') === false && $id = $this->_getGoogleId($url_path))
         {
 
             foreach(array('presentation','document','spreadsheets') as $type)

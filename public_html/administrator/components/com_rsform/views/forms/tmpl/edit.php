@@ -47,7 +47,6 @@ JText::script('RSFP_AUTOGENERATE_LAYOUT_WARNING_SURE');
 				<ul class="rsform_leftnav" id="rsform_secondleftnav">
 					<li class="rsform_navtitle"><?php echo JText::_('RSFP_DESIGN_TAB'); ?></li>
 					<li><a href="javascript: void(0);" id="formlayout"><span class="rsficon rsficon-list-alt"></span><span class="inner-text"><?php echo JText::_('RSFP_FORM_LAYOUT'); ?></span></a></li>
-					<li><a href="javascript: void(0);" id="gridlayout"><span class="rsficon rsficon-gear"></span><span class="inner-text"><?php echo JText::_('RSFP_GRID_LAYOUT'); ?></span></a></li>
 					<li><a href="javascript: void(0);" id="cssandjavascript"><span class="rsficon rsficon-file-code-o"></span><span class="inner-text"><?php echo JText::_('RSFP_CSS_JS'); ?></span></a></li>
 					<?php $this->triggerEvent('rsfp_bk_onAfterShowFormDesignTabsTab'); ?>
 					<li class="rsform_navtitle"><?php echo JText::_('RSFP_FORM_TAB'); ?></li>
@@ -78,9 +77,6 @@ JText::script('RSFP_AUTOGENERATE_LAYOUT_WARNING_SURE');
 					<div id="formlayoutdiv">
 						<?php echo $this->loadTemplate('layout'); ?>
 					</div><!-- formlayout -->
-					<div id="gridlayoutdiv">
-						<?php echo $this->loadTemplate('grid'); ?>
-					</div><!-- gridlayout -->
 					<div id="cssandjavascriptdiv">
 						<?php echo $this->loadTemplate('cssjs'); ?>
 					</div><!-- cssandjavascript -->
@@ -157,12 +153,6 @@ JText::script('RSFP_AUTOGENERATE_LAYOUT_WARNING_SURE');
 			<?php } ?>
 
             $('#rsform_tab2').formTabs(<?php echo $this->tabposition ? $this->tab : 0; ?>);
-
-			<?php if ($this->hasLegacyLayout) { ?>
-            legacyOrderingEnable();
-            <?php } else { ?>
-            legacyOrderingDisable();
-            <?php } ?>
 		});
 
 		Joomla.submitbutton = function(pressbutton)
@@ -210,28 +200,9 @@ JText::script('RSFP_AUTOGENERATE_LAYOUT_WARNING_SURE');
 
 		function listItemTask(cb, task)
 		{
-			if (task == 'orderdown' || task == 'orderup')
-			{
-				var table = RSFormPro.$('#componentPreview');
-				currentRow = RSFormPro.$(document.getElementById(cb)).parent().parent();
-				if (task == 'orderdown')
-				{
-					try { currentRow.insertAfter(currentRow.next()); }
-					catch (dnd_e) { }
-				}
-				if (task == 'orderup')
-				{
-					try { currentRow.insertBefore(currentRow.prev()); }
-					catch (dnd_e) { }
-				}
-
-				tidyOrder(true);
-				return;
-			}
-
 			stateLoading();
 
-			xml=buildXmlHttp();
+			var xml = buildXmlHttp();
 			var url = 'index.php?option=com_rsform&task=' + task + '&format=raw&randomTime=' + Math.random();
 
 			xml.open("POST", url, true);
@@ -286,11 +257,6 @@ JText::script('RSFP_AUTOGENERATE_LAYOUT_WARNING_SURE');
 			}
 		}
 
-		function saveorder(num, task)
-		{
-			tidyOrder(true);
-		}
-
 		function returnQuickFields()
 		{
 			var quickfields = [];
@@ -300,14 +266,6 @@ JText::script('RSFP_AUTOGENERATE_LAYOUT_WARNING_SURE');
 			<?php } ?>
 
 			return quickfields;
-		}
-
-		function enableEmailMode(type, value)
-		{
-			var opener = type == 'User' ? 'UserEmailText' : 'AdminEmailText';
-			var id = type == 'User' ? 'rsform_edit_user_email' : 'rsform_edit_admin_email';
-
-            document.getElementById(id).setAttribute('onclick', "openRSModal('index.php?option=com_rsform&task=richtext.show&opener=" + opener + "&formId=<?php echo $this->form->FormId; ?>&tmpl=component" + (value < 1 ? '&noEditor=1' : '') + "')");
 		}
 
 		toggleQuickAdd();

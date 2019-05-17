@@ -197,49 +197,9 @@ class RsformModelSubmissions extends JModelLegacy
 		}
 	}
 	
-	public function getSpecialFields() {
-		static $called;
-	
-		if (is_null($called)) {
-			$fields = array();
-			$formId = $this->getFormId();
-			
-			$this->_db->setQuery("SELECT c.ComponentTypeId, p.ComponentId, p.PropertyName, p.PropertyValue FROM #__rsform_components c LEFT JOIN #__rsform_properties p ON (c.ComponentId=p.ComponentId) WHERE c.FormId='".$formId."' AND c.Published='1' AND p.PropertyName IN ('NAME', 'WYSIWYG')");
-			$components = $this->_db->loadObjectList();
-			$fields['uploadFields']		= array();		
-			$fields['multipleFields']	= array();		
-			$fields['textareaFields']	= array();		
-
-			foreach ($components as $component)
-			{
-				// Upload fields
-				if ($component->ComponentTypeId == RSFORM_FIELD_FILEUPLOAD)
-				{
-					$fields['uploadFields'][] = $component->PropertyValue;
-				}
-				// Multiple fields
-				elseif (in_array($component->ComponentTypeId, array(RSFORM_FIELD_SELECTLIST, RSFORM_FIELD_CHECKBOXGROUP)))
-				{
-					$fields['multipleFields'][] = $component->PropertyValue;
-				}
-				// Textarea fields
-				elseif ($component->ComponentTypeId == RSFORM_FIELD_TEXTAREA)
-				{
-					if ($component->PropertyName == 'WYSIWYG' && $component->PropertyValue == 'NO')
-						$fields['textareaFields'][] = $component->ComponentId;
-				}
-			}
-			
-			if (!empty($fields['textareaFields']))
-			{
-				$this->_db->setQuery("SELECT p.PropertyValue FROM #__rsform_components c LEFT JOIN #__rsform_properties p ON (c.ComponentId=p.ComponentId) WHERE c.ComponentId IN (".implode(',', $fields['textareaFields']).")");
-				$fields['textareaFields'] = $this->_db->loadColumn();
-			}
-			
-			$called = $fields;
-		}
-		
-		return $called;
+	public function getSpecialFields()
+	{
+		return RSFormProHelper::getDirectoryFormProperties($this->getFormId(), true);
 	}
 	
 	public function getDateTo()
@@ -678,10 +638,13 @@ class RsformModelSubmissions extends JModelLegacy
 						$new_field[1] = str_replace("\n", $form->MultipleSeparator, $value);
 						break;
 					}
+
+					$options = array();
 					
 					if ($field->ComponentTypeName == 'radioGroup') {
 						$data['SIZE'] = 0;
 						$data['MULTIPLE'] = 'NO';
+						$options[] = JHtml::_('select.option', '', JText::_('COM_RSFORM_NO_VALUE'));
 					} elseif ($field->ComponentTypeName == 'checkboxGroup') {
 						$data['SIZE'] = 5;
 						$data['MULTIPLE'] = 'YES';
@@ -699,7 +662,6 @@ class RsformModelSubmissions extends JModelLegacy
                         'invalid' 			=> false
                     ));
 
-                    $options = array();
                     if ($items = $f->getItems())
                     {
                         foreach ($items as $item)

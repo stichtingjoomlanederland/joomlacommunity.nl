@@ -29,7 +29,7 @@ class ComDocmanViewBehaviorPageable extends KViewBehaviorAbstract
         $params = $this->getParameters();
         $menu   = $this->getActiveMenu();
 
-        if (isset($menu->query['layout']) && $menu->query['layout'] === 'table') {
+        if (isset($menu->query['layout']) && $menu->query['layout'] === 'table' && $this->getMixer()->getName() !== 'document') {
             $params->show_document_title = true;
         }
 

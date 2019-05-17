@@ -20,17 +20,16 @@ class RsformControllerComponents extends RsformController
 
 		$this->registerTask('setrequired',   'changerequired');
 		$this->registerTask('unsetrequired', 'changerequired');
-
-		$this->_db = JFactory::getDbo();
 	}
 
 	public function save()
 	{
-		$db = JFactory::getDbo();
-		$app               = JFactory::getApplication();
-		$componentType 	   = $app->input->getInt('COMPONENTTYPE');
-		$componentIdToEdit = $app->input->getInt('componentIdToEdit');
-		$formId 		   = $app->input->getInt('formId');
+		$db 				= JFactory::getDbo();
+		$app               	= JFactory::getApplication();
+		$componentType 	   	= $app->input->getInt('COMPONENTTYPE');
+		$componentIdToEdit 	= $app->input->getInt('componentIdToEdit');
+		$formId 		   	= $app->input->getInt('formId');
+		$published			= $app->input->getInt('Published');
 
         $params = $app->input->post->get('param', array(), 'raw');
 		$params['EMAILATTACH'] = !empty($params['EMAILATTACH']) ? implode(',',$params['EMAILATTACH']) : '';
@@ -51,13 +50,23 @@ class RsformControllerComponents extends RsformController
 		    $component = (object) array(
 		        'FormId'            => $formId,
                 'ComponentTypeId'   => $componentType,
-                'Order'             => $nextOrder
+                'Order'             => $nextOrder,
+				'Published'			=> $published
             );
 
 		    $db->insertObject('#__rsform_components', $component, 'ComponentId');
 
 			$componentIdToEdit = $component->ComponentId;
 			$just_added = true;
+		}
+		else
+		{
+			$component = (object) array(
+				'ComponentId'	=> $componentIdToEdit,
+				'Published'		=> $published
+			);
+
+			$db->updateObject('#__rsform_components', $component, array('ComponentId'));
 		}
 
 		$model = $this->getModel('forms');
@@ -279,7 +288,11 @@ class RsformControllerComponents extends RsformController
 	{
 		$formId = JFactory::getApplication()->input->getInt('formId');
 		$db = JFactory::getDbo();
-		$db->setQuery("SELECT FormId FROM #__rsform_forms WHERE FormId != '".$formId."'");
+		$query = $db->getQuery(true)
+			->select($db->qn('FormId'))
+			->from($db->qn('#__rsform_forms'))
+			->where($db->qn('FormId') . ' != ' . $db->q($formId));
+		$db->setQuery($query);
 		if (!$db->loadResult())
 			return $this->setRedirect('index.php?option=com_rsform&task=forms.edit&formId='.$formId, JText::_('RSFP_NEED_MORE_FORMS'));
 
@@ -341,7 +354,6 @@ class RsformControllerComponents extends RsformController
 	{
 		$model = $this->getModel('formajax');
 		$model->componentsChangeRequired();
-		$componentId = $model->getComponentId();
 
 		JFactory::getApplication()->input->set('view', 'formajax');
 		JFactory::getApplication()->input->set('layout', 'component_required');

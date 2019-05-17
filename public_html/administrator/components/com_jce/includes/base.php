@@ -11,7 +11,6 @@
 defined('JPATH_PLATFORM') or die;
 
 // load constants
-
 require_once __DIR__ . '/constants.php';
 
 // register classes
@@ -48,10 +47,15 @@ JLoader::register('WFFileBrowser', WF_EDITOR_CLASSES . '/browser.php');
 JLoader::register('JcePluginsHelper', WF_ADMINISTRATOR . '/helpers/plugins.php');
 JLoader::register('JceEncryptHelper', WF_ADMINISTRATOR . '/helpers/encrypt.php');
 
+// Defuse
 JLoader::registerNamespace('Defuse\\Crypto', WF_ADMINISTRATOR . '/vendor/Defuse/Crypto', false, false, 'psr4');
+
+// CssMin
+JLoader::registerNamespace('tubalmartin\CssMin', WF_EDITOR_CLASSES . '/vendor/cssmin/src', false, false, 'psr4');
 
 // legacy class for backwards compatability
 JLoader::register('WFText', WF_EDITOR_CLASSES . '/text.php');
+
 // legacy class for backwards compatability
 JLoader::register('WFModelEditor', WF_ADMINISTRATOR . '/models/editor.php');
 

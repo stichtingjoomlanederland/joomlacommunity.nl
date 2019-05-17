@@ -15,7 +15,7 @@ defined('JPATH_PLATFORM') or die;
             <select id="itemtype">
                 <option value="">-- <?php echo JText::_('WF_OPTION_SELECT_TYPE'); ?> --</option>
             </select>
-            <input type="text" disbabled value="<?php echo JText::_('WF_LABEL_LOADING', 'Loading...'); ?>" />
+            <input type="text" disbabled value="<?php echo JText::_('WF_MESSAGE_LOAD', 'Loading...'); ?>" />
         </div>
     </div>
 

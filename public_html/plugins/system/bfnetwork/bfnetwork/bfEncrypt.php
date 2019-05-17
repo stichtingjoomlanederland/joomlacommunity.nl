@@ -1,9 +1,14 @@
 <?php
-/**
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
+
+/*
+ * @package   bfNetwork
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
  *
- * @see      https://myJoomla.com/
+ * @see       https://myJoomla.guru/
+ * @see       https://myWP.guru/
+ * @see       https://mySites.guru/
+ * @see       https://www.phil-taylor.com/
  *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
@@ -19,7 +24,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see http://www.gnu.org/licenses/
+ *
+ * If you have any questions regarding this code, please contact phil@phil-taylor.com
  */
+
 header('X-MYJOOMLA: HIT');
 
 /*
@@ -48,7 +56,7 @@ switch ($_POST['APPLICATION_ENV']) { // Switch from insecure $_POST to a known c
     case'development':
     case 'local':
         $APPLICATION_ENV = 'development';
-        $urlPattern      = 'https://local-manage.myjoomla.com/validate/?%s=%s';
+        $urlPattern      = 'https://nginx/validate/?%s=%s';
         break;
     case 'staging':
         $APPLICATION_ENV = 'staging';
@@ -420,7 +428,13 @@ class bfEncrypt
         ob_clean();
         // ahhh nice and clean again
 
-        $returnJson         = new stdClass();
+        $returnJson = new stdClass();
+
+        // give a helpful hint if auto-login with out of date connector
+        if (bfReply::NEEDSCONNECTORUPGRADE === $result) {
+            $returnJson->HEY_HUMAN = 'If you can read this then you probably need to upgrade your connector - do this by manually running a snapshot and then try again. This is perfectly normal if we have pushed a new connector version and your site has not had chance to auto-update which happens within 24 hours or on first interaction with your snapshot.'; // This is NOT encrypted
+        }
+
         $returnJson->METHOD = 'Encrypted'; // This is NOT encrypted
         $returnJson->RESULT = $result; // This is NOT encrypted
 

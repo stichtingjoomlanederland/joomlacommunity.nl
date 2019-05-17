@@ -47,18 +47,6 @@ JText::script('COM_RSEVENTSPRO_END_REG_BIGGER_THAN_END_ERROR'); ?>
 		jQuery('#rsepro-delete-icon-btn').css('display','none');
 	}
 	
-	<?php if ($this->config->enable_google_maps) { ?>
-	jQuery(document).ready(function (){
-		jQuery('#rsepro-location-map').rsjoomlamap({
-			address: 'location_address',
-			coordinates: 'location_coordinates',
-			zoom: <?php echo (int) $this->config->google_map_zoom ?>,
-			center: '<?php echo $this->config->google_maps_center; ?>',
-			markerDraggable: true
-		});
-	});
-	<?php } ?>
-	
 	function rsepro_scroll(id) {
 		if (jQuery(window).width() < 750) {
 			window.setTimeout(function() {

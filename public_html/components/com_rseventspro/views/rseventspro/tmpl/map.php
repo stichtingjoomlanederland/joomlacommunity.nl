@@ -4,8 +4,7 @@
 * @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
-defined( '_JEXEC' ) or die( 'Restricted access' );
-$locations = is_array($this->events) ? count($this->events) : 0; ?>
+defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 
 <?php if ($this->params->get('show_page_heading', 1)) { ?>
 <?php $title = $this->params->get('page_heading', ''); ?>
@@ -18,64 +17,6 @@ $locations = is_array($this->events) ? count($this->events) : 0; ?>
 		<i class="fa fa-clock-o"></i>
 	</a>
 </div>
-<?php } ?>
-
-<?php if (rseventsproHelper::getConfig('enable_google_maps','int')) { ?>
-<script type="text/javascript">
-var rsepromap;
-jQuery(document).ready(function (){
-	<?php if ($this->params->get('enable_radius', 0)) { ?>
-	rsepromap = jQuery('#map-canvas').rsjoomlamap({
-		zoom:				<?php echo (int) $this->config->google_map_zoom ?>,
-		center:				'<?php echo $this->config->google_maps_center; ?>',
-		radiusSearch:		1,
-		radiusLocationId:	'rsepro-location',
-		radiusValueId:		'rsepro-radius',
-		radiusUnitId:		'rsepro-unit',
-		radiusLoaderId: 	'rsepro-loader',
-		radiusBtnId:	 	'rsepro-radius-search',
-		use_geolocation:	<?php echo (int) $this->params->get('use_geolocation',0); ?>,
-		circleColor:		'<?php echo $this->params->get('circle_color','#ff8080'); ?>',
-		resultsWrapperClass:'rsepro-locations-results-wrapper',
-		resultsClass:		'rsepro-locations-results'
-	});
-	<?php } else { ?>
-	rsepromap = jQuery('#map-canvas').rsjoomlamap({
-		zoom: <?php echo (int) $this->config->google_map_zoom ?>,
-		center: '<?php echo $this->config->google_maps_center; ?>',
-		markerDraggable: false,
-		markers: [
-			<?php 
-				if ($locations) {
-					$i = 0;
-					foreach ($this->events as $location => $events) {
-						if (empty($events)) continue;
-						$event = $events[0];
-						if (empty($event->coordinates) && empty($event->address)) continue;
-						$single = count($events) > 1 ? false : true;
-			?>
-			{
-				title : '<?php echo addslashes($event->name); ?>',
-				position: '<?php echo addslashes($event->coordinates); ?>',
-				address: '<?php echo addslashes($event->address); ?>',
-				<?php if ($event->marker) echo "icon : '".addslashes(rseventsproHelper::showMarker($event->marker))."',\n"; ?>
-				content: '<?php echo rseventsproHelper::locationContent($event, $single); ?>'
-			}
-			
-			<?php 
-				$i++;
-				if ($locations > $i) echo ','; 
-			?>
-			
-			<?php 
-					}
-				}
-			?>
-		]
-	});
-	<?php } ?>
-});
-</script>
 <?php } ?>
 
 <?php if ($this->params->get('search',1)) { ?>
@@ -204,7 +145,7 @@ jQuery(document).ready(function (){
 </div>
 <?php } ?>
 
-<?php if (rseventsproHelper::getConfig('enable_google_maps','int')) { ?>
+<?php if (!empty($this->config->map)) { ?>
 <div id="map-canvas" style="width: <?php echo $this->escape($this->width); ?>; height: <?php echo $this->escape($this->height); ?>"></div>
 <?php if ($this->params->get('enable_radius', 0) && $this->params->get('display_results', 1)) { ?>
 <table id="rsepro-map-results-table" class="table table-striped" style="display: none;">

@@ -6,6 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); 
 require_once JPATH_SITE.'/components/com_rseventspro/helpers/version.php';
+require_once JPATH_SITE.'/components/com_rseventspro/helpers/map.php';
 
 if (!function_exists('mb_strlen')) {
 	function mb_strlen($str, $encoding = 'iso-8859-1') {
@@ -85,9 +86,6 @@ class rseventsproHelper
 	
 	// Load files and scripts
 	public static function loadHelper() {
-		
-		if (version_compare(PHP_VERSION,'5.3.0','>='))
-			error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT);
 		
 		// Load the language
 		rseventsproHelper::loadLang();
@@ -1033,10 +1031,10 @@ class rseventsproHelper
 			$total = $total + $subscription->tax;
 		}
 		
-		$discount			= (int) @$subscription->discount;
-		$tax				= (int) @$subscription->tax;
-		$late				= (int) @$subscription->late_fee;
-		$early				= (int) @$subscription->early_fee;
+		$discount			= (float) @$subscription->discount;
+		$tax				= (float) @$subscription->tax;
+		$late				= (float) @$subscription->late_fee;
+		$early				= (float) @$subscription->early_fee;
 		$ticketstotal		= rseventsproHelper::currency($total);
 		$ticketsdiscount	= rseventsproHelper::currency($discount);
 		$subscriptionTax	= rseventsproHelper::currency($tax);
@@ -1166,18 +1164,18 @@ class rseventsproHelper
 		$subscribers = $db->loadObjectList();
 		
 		if (rseventsproHelper::getConfig('export_headers')) {
-			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_ID').'",';
-			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_NAME').'",';
-			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EMAIL').'",';
-			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EXPORT_HEADER_DATE').'",';
-			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_IP').'",';
-			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_STATE').'",';
-			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_PAYMENT').'",';
-			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EXPORT_HEADER_TICKETS').'",';
-			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EXPORT_HEADER_TICKET_PRICE').'",';
-			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EXPORT_HEADER_TICKET_CODE').'",';
-			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EXPORT_HEADER_TICKET_CONFIRMED').'",';
-			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EXPORT_HEADER_TOTAL').'"';
+			$csv .= '"'.rseventsproHelper::fixValue(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_ID')).'",';
+			$csv .= '"'.rseventsproHelper::fixValue(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_NAME')).'",';
+			$csv .= '"'.rseventsproHelper::fixValue(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EMAIL')).'",';
+			$csv .= '"'.rseventsproHelper::fixValue(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EXPORT_HEADER_DATE')).'",';
+			$csv .= '"'.rseventsproHelper::fixValue(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_IP')).'",';
+			$csv .= '"'.rseventsproHelper::fixValue(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_STATE')).'",';
+			$csv .= '"'.rseventsproHelper::fixValue(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_PAYMENT')).'",';
+			$csv .= '"'.rseventsproHelper::fixValue(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EXPORT_HEADER_TICKETS')).'",';
+			$csv .= '"'.rseventsproHelper::fixValue(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EXPORT_HEADER_TICKET_PRICE')).'",';
+			$csv .= '"'.rseventsproHelper::fixValue(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EXPORT_HEADER_TICKET_CODE')).'",';
+			$csv .= '"'.rseventsproHelper::fixValue(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EXPORT_HEADER_TICKET_CONFIRMED')).'",';
+			$csv .= '"'.rseventsproHelper::fixValue(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EXPORT_HEADER_TOTAL')).'"';
 			
 			if (file_exists(JPATH_SITE.'/components/com_rsform/rsform.php')) {
 				$query = $db->getQuery(true);
@@ -1241,18 +1239,18 @@ class rseventsproHelper
 				}
 				
 				foreach ($tickets as $ticket) { 
-					$csv .= '"'.$db->escape($subscriber->id).'",';
-					$csv .= '"'.$db->escape($subscriber->name).'",';
-					$csv .= '"'.$db->escape($subscriber->email).'",';
-					$csv .= '"'.$db->escape(rseventsproHelper::showdate($subscriber->date,'Y-m-d H:i:s')).'",';
-					$csv .= '"'.$db->escape($subscriber->ip).'",';
-					$csv .= '"'.$db->escape(rseventsproHelper::getStatuses($subscriber->state)).'",';
-					$csv .= '"'.$db->escape(rseventsproHelper::getPayment($subscriber->gateway)).'",';
-					$csv .= '"'.$db->escape($ticket->name).'",';
-					$csv .= '"'.$db->escape(rseventsproHelper::currency($ticket->price)).'",';
-					$csv .= '"'.$db->escape($ticket->code).'",';
-					$csv .= '"'.$db->escape(rseventsproHelper::confirmed($subscriber->id, $ticket->code) ? JText::_('JYES') : JText::_('JNO')).'",';
-					$csv .= '"'.$db->escape(rseventsproHelper::currency($total)).'"';
+					$csv .= '"'.$db->escape(rseventsproHelper::fixValue($subscriber->id)).'",';
+					$csv .= '"'.$db->escape(rseventsproHelper::fixValue($subscriber->name)).'",';
+					$csv .= '"'.$db->escape(rseventsproHelper::fixValue($subscriber->email)).'",';
+					$csv .= '"'.$db->escape(rseventsproHelper::fixValue(rseventsproHelper::showdate($subscriber->date,'Y-m-d H:i:s'))).'",';
+					$csv .= '"'.$db->escape(rseventsproHelper::fixValue($subscriber->ip)).'",';
+					$csv .= '"'.$db->escape(rseventsproHelper::fixValue(rseventsproHelper::getStatuses($subscriber->state))).'",';
+					$csv .= '"'.$db->escape(rseventsproHelper::fixValue(rseventsproHelper::getPayment($subscriber->gateway))).'",';
+					$csv .= '"'.$db->escape(rseventsproHelper::fixValue($ticket->name)).'",';
+					$csv .= '"'.$db->escape(rseventsproHelper::fixValue(rseventsproHelper::currency($ticket->price))).'",';
+					$csv .= '"'.$db->escape(rseventsproHelper::fixValue($ticket->code)).'",';
+					$csv .= '"'.$db->escape(rseventsproHelper::fixValue(rseventsproHelper::confirmed($subscriber->id, $ticket->code) ? JText::_('JYES') : JText::_('JNO'))).'",';
+					$csv .= '"'.$db->escape(rseventsproHelper::fixValue(rseventsproHelper::currency($total))).'"';
 					
 					if ($subscriber->SubmissionId) {
 						if ($submissions = rseventsproHelper::getSubmission($subscriber->SubmissionId)) {
@@ -1400,7 +1398,7 @@ class rseventsproHelper
 					
 					$values[$header] = str_replace(array('\\r','\\n','\\t'), array("\015","\012","\011"),$values[$header]);
 					
-					$data[] = $values[$header];
+					$data[] = rseventsproHelper::fixValue($values[$header]);
 				} else $data[] = '';
 			}
 		}
@@ -1427,6 +1425,10 @@ class rseventsproHelper
 		$db->setQuery($query);
 		$headers = $db->loadColumn();
 		ksort($headers);
+		
+		foreach ($headers as $i => $header) {
+			$headers[$i] = rseventsproHelper::fixValue($header);
+		}
 		
 		return $headers;
 	}
@@ -4097,34 +4099,32 @@ class rseventsproHelper
 		$config		= JFactory::getConfig();
 		$root		= JUri::getInstance()->toString(array('scheme','host'));
 		
-		if (!empty($options['enable_fb_like']) || rseventsproHelper::getConfig('event_comment','int') == 1) {
-			if ($doc->getType() == 'html') {
-				
-				if ($admins = rseventsproHelper::getConfig('facebook_admins')) {
-					$doc->addCustomTag('<meta property="fb:admins" content="'.self::escape($admins).'" />');
-				}
-				if ($app_id = rseventsproHelper::getConfig('facebook_app_id')) {
-					$doc->addCustomTag('<meta property="fb:app_id" content="'.self::escape($app_id).'" />');
-				}
-				
-				$doc->addCustomTag('<meta charset="utf-8">');
-				$doc->addCustomTag('<meta property="og:url" content="'.htmlentities(rseventsproHelper::shareURL($event->id,$event->name,false), ENT_COMPAT, 'UTF-8').'" />');
-				
-				if (!empty($event->description)) {
-					$content = strip_tags($event->description);
-					$content = trim(substr($content,0,255));
-					$content .= ' [...]';
-					$content = str_replace(array("\r","\n"),' ',$content);
-					$doc->addCustomTag('<meta property="og:description" content="'.htmlentities($content,ENT_COMPAT,'UTF-8').'" />');
-				}
-				$doc->addCustomTag('<meta property="og:title" content="'.htmlentities($event->name,ENT_COMPAT,'UTF-8').'" />');
-				$doc->addCustomTag('<meta property="og:type" content="article" />');
-				
-				if (!empty($event->icon)) {
-					$doc->addCustomTag('<meta property="og:image" content="'.rseventsproHelper::thumb($event->id, 250).'" />');
-					$doc->addCustomTag('<meta property="og:image:width" content="250" />');
-					$doc->addCustomTag('<meta property="og:image:height" content="200" />');
-				}
+		if ($doc->getType() == 'html') {
+			if ($admins = rseventsproHelper::getConfig('facebook_admins')) {
+				$doc->setMetaData('fb:admins', self::escape($admins), 'property');
+			}
+			if ($app_id = rseventsproHelper::getConfig('facebook_app_id')) {
+				$doc->setMetaData('fb:app_id', self::escape($app_id), 'property');
+			}
+			
+			$doc->setMetaData('og:url', rseventsproHelper::shareURL($event->id,$event->name,false), 'property');
+			
+			if (!empty($event->description)) {
+				$content = strip_tags($event->description);
+				$content = trim(substr($content,0,255));
+				$content .= ' [...]';
+				$content = str_replace(array("\r","\n"),' ',$content);
+				$doc->setMetaData('og:description', htmlentities($content,ENT_COMPAT,'UTF-8'), 'property');
+			}
+			
+			$doc->setMetaData('og:title', htmlentities($event->name,ENT_COMPAT,'UTF-8'), 'property');
+			$doc->setMetaData('og:type', 'event', 'property');
+			$doc->setMetaData('event:start_time', rseventsproHelper::showdate($event->start,'c'), 'property');
+			
+			if (!empty($event->icon)) {
+				$doc->setMetaData('og:image', rseventsproHelper::thumb($event->id, 250), 'property');
+				$doc->setMetaData('og:image:width', 250, 'property');
+				$doc->setMetaData('og:image:height', 200, 'property');
 			}
 		}
 		
@@ -4929,19 +4929,25 @@ class rseventsproHelper
 							}
 						}
 					} elseif ($cid->discounttype == 2) {
-						// Cart tickets - this will only work when the cart plugin is enabled
-						if (!is_array($id)) {
-							continue;
-						}
-						
+						// Tickets number
 						if ($cid->cart_tickets) {
 							$nr = 0;
+							
+							if (rseventsproHelper::isCart('1.1.9')) {
+								if (!is_array($id)) {
+									continue;
+								}
+							}
 							
 							if (is_array($id)) {
 								foreach ($tickets as $eventID => $thetickets) {
 									foreach ($thetickets as $tid => $quantity) {
 										$nr += (int) $quantity;
 									}
+								}
+							} else {
+								foreach ($tickets as $tid => $quantity) {
+									$nr += (int) $quantity;
 								}
 							}
 							
@@ -5573,7 +5579,7 @@ class rseventsproHelper
 		return array('enable_rating' => 1,
 			'enable_fb_like' => 1,
 			'enable_twitter' => 1,
-			'enable_gplus' => 1,
+			'enable_gplus' => 0,
 			'enable_linkedin' => 1,
 			'start_date' => 1,
 			'start_time' => 1,
@@ -5774,8 +5780,14 @@ class rseventsproHelper
 		$ide	= $input->getInt('id',0);
 		$code	= str_replace(rseventsproHelper::getBarcodeOptions('barcode_prefix', 'RST-'), '', $input->getString('ticket',''));
 		
+		if (!$code) {
+			return false;
+		}
+		
 		// Get subscription ID and ticket code
-		list($ids, $code) = explode('-',$code,2);
+		$parts	= explode('-',$code);
+		$ids	= isset($parts[0]) ? $parts[0] : '';
+		$code	= isset($parts[1]) ? $parts[1] : '';
 		
 		if (empty($ids) || empty($code)) {
 			return JText::_('COM_RSEVENTSPRO_SUBSCRIBER_NOT_FOUND');
@@ -6555,7 +6567,8 @@ class rseventsproHelper
 				'app_id' => $config->facebook_appid,
 				'app_secret' => $config->facebook_secret,
 				'default_graph_version' => 'v2.10',
-				'default_access_token' => $config->facebook_token
+				'default_access_token' => $config->facebook_token,
+				'pseudo_random_string_generator' => 'openssl'
 			));
 			
 			$fbRequest	= $facebook->get('me');
@@ -7226,21 +7239,21 @@ class rseventsproHelper
 		$guests = $db->loadObjectList();
 		
 		if (rseventsproHelper::getConfig('export_headers')) {
-			$csv .= '"'.JText::_('COM_RSEVENTSPRO_RSVP_ID').'",';
-			$csv .= '"'.JText::_('COM_RSEVENTSPRO_RSVP_NAME').'",';
-			$csv .= '"'.JText::_('COM_RSEVENTSPRO_RSVP_EMAIL').'",';
-			$csv .= '"'.JText::_('COM_RSEVENTSPRO_RSVP_EXPORT_HEADER_DATE').'",';
-			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_STATE').'"';
+			$csv .= '"'.rseventsproHelper::fixValue(JText::_('COM_RSEVENTSPRO_RSVP_ID')).'",';
+			$csv .= '"'.rseventsproHelper::fixValue(JText::_('COM_RSEVENTSPRO_RSVP_NAME')).'",';
+			$csv .= '"'.rseventsproHelper::fixValue(JText::_('COM_RSEVENTSPRO_RSVP_EMAIL')).'",';
+			$csv .= '"'.rseventsproHelper::fixValue(JText::_('COM_RSEVENTSPRO_RSVP_EXPORT_HEADER_DATE')).'",';
+			$csv .= '"'.rseventsproHelper::fixValue(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_STATE')).'"';
 			$csv .= "\n";
 		}
 		
 		if (!empty($guests)) {
 			foreach ($guests as $guest) {				 
-				$csv .= '"'.$db->escape($guest->id).'",';
-				$csv .= '"'.$db->escape($guest->name).'",';
-				$csv .= '"'.$db->escape($guest->email).'",';
-				$csv .= '"'.$db->escape(rseventsproHelper::showdate($guest->date,'Y-m-d H:i:s')).'",';
-				$csv .= '"'.$db->escape(rseventsproHelper::RSVPStatus($guest->rsvp)).'"';
+				$csv .= '"'.$db->escape(rseventsproHelper::fixValue($guest->id)).'",';
+				$csv .= '"'.$db->escape(rseventsproHelper::fixValue($guest->name)).'",';
+				$csv .= '"'.$db->escape(rseventsproHelper::fixValue($guest->email)).'",';
+				$csv .= '"'.$db->escape(rseventsproHelper::fixValue(rseventsproHelper::showdate($guest->date,'Y-m-d H:i:s'))).'",';
+				$csv .= '"'.$db->escape(rseventsproHelper::fixValue(rseventsproHelper::RSVPStatus($guest->rsvp))).'"';
 				$csv .= "\n";
 			}
 		}
@@ -7649,5 +7662,13 @@ class rseventsproHelper
 		$html[] = '</form>';
 		
 		return JHtml::_('bootstrap.renderModal', 'timezoneModal', array('title' => JText::_('COM_RSEVENTSPRO_CHANGE_TIMEZONE'), 'bodyHeight' => 30, 'modalWidth' => 30, 'footer' => implode("\n", $footer)), implode("\n", $html));
+	}
+	
+	public static function fixValue($string) {
+		if (strlen($string) && in_array($string[0], array('=', '+', '-', '@'))) {
+			$string = ' ' . $string;
+		}
+		
+		return $string;
 	}
 }

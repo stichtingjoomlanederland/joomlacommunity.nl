@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license GNU General Public License version 3 or later
  *
  * @see https://myJoomla.com/
@@ -3724,8 +3724,8 @@ class Math_BigInteger
      *
      * @return Math_BigInteger
      *
-     * @internal The API for creating random numbers used to be $a->random($min, $max), where $a was a Math_BigInteger object.
-     *           That method is still supported for BC purposes.
+     * @internal the API for creating random numbers used to be $a->random($min, $max), where $a was a Math_BigInteger object.
+     *           That method is still supported for BC purposes
      */
     public function random($arg1, $arg2 = false)
     {

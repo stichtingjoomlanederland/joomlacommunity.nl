@@ -96,7 +96,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	
 	<?php echo JHtml::_('bootstrap.endTab'); ?>
 		
-		<?php JFactory::getApplication()->triggerEvent('rsepro_eventTicketFields', array(array('view' => &$this, 'id' => $ticket->id))); ?>
+		<?php JFactory::getApplication()->triggerEvent('rsepro_eventTicketFields', array(array('view' => &$this, 'id' => $ticket->id, 'ticket' => $ticket))); ?>
 		
 	<?php if (rseventsproHelper::pdf()) { ?>
 	<?php echo JHtml::_('bootstrap.addTab', 'ticket'.$ticket->id, 'layout'.$ticket->id, JText::_('COM_RSEVENTSPRO_TICKET_PDF')); ?>

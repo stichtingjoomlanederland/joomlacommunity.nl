@@ -530,7 +530,10 @@ class Platform extends BasePlatform
 	 */
 	public function importPlugin($type)
 	{
-		if (!$this->isCli())
+		// Should I actually run the plugins?
+		$runPlugins = $this->isAllowPluginsInCli() || !$this->isCli();
+
+		if ($runPlugins)
 		{
 			\JLoader::import('joomla.plugin.helper');
 			\JPluginHelper::importPlugin($type);
@@ -552,17 +555,33 @@ class Platform extends BasePlatform
 	 */
 	public function runPlugins($event, $data)
 	{
-		if (!$this->isCli())
+		// Should I actually run the plugins?
+		$runPlugins = $this->isAllowPluginsInCli() || !$this->isCli();
+
+		if ($runPlugins)
 		{
+			// First, try with JEventDispatcher (Joomla 3.x)
 			if (class_exists('JEventDispatcher'))
 			{
 				return \JEventDispatcher::getInstance()->trigger($event, $data);
 			}
 
-			return JFactory::getApplication()->triggerEvent($event, $data);
+			// If there's no JEventDispatcher try getting JApplication
+			try
+			{
+				$app = JFactory::getApplication();
+			}
+			catch (Exception $e)
+			{
+				// If I can't get JApplication I cannot run the plugins.
+				return array();
+			}
+
+			return $app->triggerEvent($event, $data);
 		}
 		else
 		{
+			// I am not allowed to run plugins
 			return array();
 		}
 	}

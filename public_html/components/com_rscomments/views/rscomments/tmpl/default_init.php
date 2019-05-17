@@ -27,7 +27,7 @@ if ($this->config->enable_reports && $this->config->modal == 1) {
 	echo JHtml::_('bootstrap.renderModal', 'rscomments-report', array('title' => JText::_('COM_RSCOMMENTS_REPORT'), 'url' => $rURL, 'footer' => $footer, 'bodyHeight' => '70'));
 }
 
-if ($this->config->modal == 1) {
+if ($this->config->modal == 1 && $this->config->enable_usercomments) {
 	echo JHtml::_('bootstrap.renderModal', 'rscomments-mycomments', array('title' => JText::_('COM_RSCOMMENTS_MY_COMMENTS'), 'url' => $cURL, 'bodyHeight' => '70'));
 }
 

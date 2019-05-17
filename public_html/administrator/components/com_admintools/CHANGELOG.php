@@ -1,4 +1,12 @@
 <?php die() ?>
+Admin Tools 5.3.1
+================================================================================
++ Display detected IP, country and continent inside the Geoblocking IP feature
+~ Formerly unsupported Pro to Core downgrade with simultaneous version change no longer causes a site crash
+# [MEDIUM] Failed backend login email always reports user as "Guest"
+# [MEDIUM] Rescue mode was always disabled
+# [LOW] Action log plugin would result in untranslated strings displayed in the Latest Actions backend module
+
 Admin Tools 5.3.0
 ================================================================================
 + Protection of all component and plugin folders against direct web access

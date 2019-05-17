@@ -20,6 +20,8 @@ class WFLinkBrowser_Joomlalinks
      */
     public function __construct($options = array())
     {
+        $wf = WFEditorPlugin::getInstance();
+        
         jimport('joomla.filesystem.folder');
         jimport('joomla.filesystem.file');
 
@@ -31,6 +33,10 @@ class WFLinkBrowser_Joomlalinks
         if (!empty($files)) {
             foreach ($files as $file) {
                 $name = basename($file, '.php');
+
+                if (!$this->checkOptionAccess($name)) {
+                    continue;
+                }
 
                 // skip weblinks if it doesn't exist!
                 if ($name === 'weblinks' && !is_file(JPATH_SITE . '/components/com_weblinks/helpers/route.php')) {
@@ -48,6 +54,19 @@ class WFLinkBrowser_Joomlalinks
         }
     }
 
+    protected function checkOptionAccess($option)
+    {
+        $wf = WFEditorPlugin::getInstance();
+        
+        $option = str_replace('com_', '', $option);
+
+        if ($option === "contact") {
+            $option = "contacts";
+        }
+
+        return (int) $wf->getParam('links.joomlalinks.' . $option, 1) === 1;
+    }
+
     public function display()
     {
         // Load css
@@ -58,8 +77,7 @@ class WFLinkBrowser_Joomlalinks
     public function isEnabled()
     {
         $wf = WFEditorPlugin::getInstance();
-
-        return $wf->checkAccess($wf->getName() . '.links.joomlalinks.enable', 1);
+        return (bool) $wf->getParam('links.joomlalinks.enable', 1);
     }
 
     public function getOption()
@@ -84,8 +102,15 @@ class WFLinkBrowser_Joomlalinks
 
     public function getLinks($args)
     {
+        $wf = WFEditorPlugin::getInstance();
+        
         foreach ($this->_adapters as $adapter) {
             if ($adapter->getOption() == $args->option) {
+                
+                if (!$this->checkOptionAccess($args->option)) {
+                    continue;
+                }
+                
                 return $adapter->getLinks($args);
             }
         }

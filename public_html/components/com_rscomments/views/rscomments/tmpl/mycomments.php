@@ -29,11 +29,10 @@ defined('_JEXEC') or die('Restricted access'); ?>
 			<?php } ?>
 		</div>
 	</div>
+	<?php } ?>
 	<div class="pagination center">
 		<?php echo $this->pagination->getPagesLinks(); ?>
 	</div>
-	
-	<?php } ?>
 	<?php } else { ?>
 	<div class="alert alert-info">
 		<?php echo JText::_('COM_RSCOMMENTS_USER_NO_COMMENTS'); ?>

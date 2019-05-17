@@ -108,6 +108,10 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	<?php echo JText::_('COM_RSEVENTSPRO_EVENT_RECURING_INFO'); ?>
 </div>
 
+<div class="alert alert-danger" id="apply_to_all">
+	<?php echo JText::_('COM_RSEVENTSPRO_EVENT_RECURING_WARNING'); ?>
+</div>
+
 <?php if ($this->repeats) { ?>
 <div class="control-group">
 	<div class="control-label">

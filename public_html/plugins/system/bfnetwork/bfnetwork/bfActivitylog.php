@@ -1,9 +1,14 @@
 <?php
-/**
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
+
+/*
+ * @package   bfNetwork
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
  *
- * @see      https://myJoomla.com/
+ * @see       https://myJoomla.guru/
+ * @see       https://myWP.guru/
+ * @see       https://mySites.guru/
+ * @see       https://www.phil-taylor.com/
  *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
@@ -19,7 +24,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see http://www.gnu.org/licenses/
+ *
+ * If you have any questions regarding this code, please contact phil@phil-taylor.com
  */
+
 require_once 'bfPreferences.php';
 
 class bfActivitylog
@@ -58,7 +66,7 @@ class bfActivitylog
     private $table_insert = 'INSERT INTO `bf_activitylog`
                               (`id`, `who`, `who_id`, `what`, `when`, `where`, `where_id`, `ip`, `useragent`, `meta`,`action`) 
                               VALUES 
-                             (NULL, "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", %s, "%s")';
+                             (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)';
 
     /**
      * @var mixed|stdClass
@@ -123,7 +131,16 @@ class bfActivitylog
         }
 
         $sql = sprintf($this->table_insert,
-            $who, $who_id, $what, $when, $where, $where_id, $ip, null, $this->db->quote($meta), $action
+            $this->db->quote($who),
+            $this->db->quote($who_id),
+            $this->db->quote($what),
+            $this->db->quote($when),
+            $this->db->quote($where),
+            $this->db->quote($where_id),
+            $this->db->quote($ip),
+            $this->db->quote(null),
+            $this->db->quote($meta),
+            $this->db->quote($action)
         );
 
         $this->db->setQuery($sql);

@@ -51,7 +51,8 @@ class RSEventsProRecurring {
 			$start = JFactory::getDate($start, rseventsproHelper::getTimezone())->toSql();
 		}
 		
-		list($repeat_end,$repeat_end_time) = explode(' ',$end,2);
+		$parts = explode(' ',$end,2);
+		$repeat_end = isset($parts[0]) ? $parts[0] : '';
 		
 		$start	= new DateTime($start, new DateTimezone('UTC'));
 		$endd	= new DateTime($endd, new DateTimezone('UTC'));

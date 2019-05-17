@@ -51,12 +51,12 @@ class JceViewMediabox extends JViewLegacy
         JToolbarHelper::title(JText::_('WF_MEDIABOX'), 'pictures');
 
         // If not checked out, can save the item.
-        if ($user->authorise('core.config', 'com_jce')) {
-            JToolbarHelper::apply('config.apply');
-            JToolbarHelper::save('config.save');
+        if ($user->authorise('jce.config', 'com_jce')) {
+            JToolbarHelper::apply('mediabox.apply');
+            JToolbarHelper::save('mediabox.save');
         }
 
-        JToolbarHelper::cancel('config.cancel', 'JTOOLBAR_CLOSE');
+        JToolbarHelper::cancel('mediabox.cancel', 'JTOOLBAR_CLOSE');
 
         JToolbarHelper::divider();
         JToolbarHelper::help('WF_MEDIABOX_EDIT');

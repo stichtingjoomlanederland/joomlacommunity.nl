@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.9" type="component" method="upgrade">
+	<name>com_dbreplacer</name>
+	<description>COM_DBREPLACER_DESC</description>
+	<version>6.3.3PRO</version>
+	<creationDate>March 2019</creationDate>
+	<author>Regular Labs (Peter van Westen)</author>
+	<authorEmail>info@regularlabs.com</authorEmail>
+	<authorUrl>https://www.regularlabs.com</authorUrl>
+	<copyright>Copyright © 2018 Regular Labs - All Rights Reserved</copyright>
+	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+
+	<scriptfile>script.install.php</scriptfile>
+
+	<updateservers>
+		<server type="extension" priority="1" name="Regular Labs - DB Replacer">
+			https://download.regularlabs.com/updates.xml?e=dbreplacer&amp;pro=1&amp;type=.xml
+		</server>
+	</updateservers>
+
+	<administration>
+		<menu img="../media/dbreplacer/images/dbreplacer.png">COM_DBREPLACER</menu>
+
+		<files>
+			<filename>dbreplacer.php</filename>
+			<filename>ajax.php</filename>
+			<filename>access.xml</filename>
+			<filename>config.xml</filename>
+			<filename>controller.php</filename>
+			<filename>script.install.helper.php</filename>
+			<folder>language</folder>
+			<folder>models</folder>
+			<folder>views</folder>
+		</files>
+	</administration>
+
+	<media folder="media" destination="dbreplacer">
+		<folder>css</folder>
+		<folder>images</folder>
+		<folder>js</folder>
+		<folder>less</folder>
+	</media>
+</extension>

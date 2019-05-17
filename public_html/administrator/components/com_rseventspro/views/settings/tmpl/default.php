@@ -61,10 +61,6 @@ JHtml::_('behavior.formvalidator'); ?>
 		// render tabs
 		echo $this->tabs->render();
 		?>
-		<div id="mapContainer" style="display: none;">
-			<div id="map_canvas" style="width: 100%; height: 380px; float: left;"></div>
-		</div>
-		
 			<div>
 			<?php echo JHtml::_('form.token'); ?>
 			<input type="hidden" name="task" value="" />

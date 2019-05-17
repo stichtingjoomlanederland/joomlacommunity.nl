@@ -866,12 +866,12 @@ class WFImageGD
 
     public function getType()
     {
-        return $this->type;
+        return self::$type;
     }
 
     public function setType($type)
     {
-        $this->type = $type;
+        self::$type = $type;
     }
 
     public function destroy()

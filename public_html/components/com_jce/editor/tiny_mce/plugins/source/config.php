@@ -22,7 +22,7 @@ class WFSourcePluginConfig
         //$settings['source_selection_match'] = $wf->getParam('source.selection_match', 1, 1, 'boolean');
 
         $settings['source_font_size'] = $wf->getParam('source.font_size', '', '');
-        $settings['source_theme'] = $wf->getParam('source.theme', 'codemirror');
+        $settings['source_theme'] = $wf->getParam('source.theme', 'codemirror', 'codemirror');
 
         $settings['source_validate_content'] = $wf->getParam('source.validate_content', 1, 1, 'boolean');
     }
@@ -31,15 +31,15 @@ class WFSourcePluginConfig
     {
         $wf = WFApplication::getInstance();
 
-        if ($wf->input->getWord('layout') === 'plugin') {
+        if (JFactory::getApplication()->input->getWord('layout') === 'plugin') {
             // return file(s) array
             if ($wf->getParam('editor.compress_css', 0)) {
-                return array(__DIR__.'/css/editor.css');
+                return array(dirname(__DIR__) . '/css/editor.css');
             }
 
             // use document instance
             $document = JFactory::getDocument();
-            $document->addStyleSheet(JURI::root(true).'/components/com_jce/editor/tiny_mce/plugins/source/css/editor.css?version='.$wf->getVersion());
+            $document->addStyleSheet(JURI::root(true) . '/components/com_jce/editor/tiny_mce/plugins/source/css/editor.css?version=' . $wf->getVersion());
         }
     }
 }

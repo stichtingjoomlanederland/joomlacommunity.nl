@@ -1,10 +1,14 @@
 <?php
 
-/**
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
+/*
+ * @package   bfNetwork
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
  *
- * @see      https://myJoomla.com/
+ * @see       https://myJoomla.guru/
+ * @see       https://myWP.guru/
+ * @see       https://mySites.guru/
+ * @see       https://www.phil-taylor.com/
  *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
@@ -20,6 +24,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see http://www.gnu.org/licenses/
+ *
+ * If you have any questions regarding this code, please contact phil@phil-taylor.com
  */
 
 /**
@@ -54,6 +60,11 @@ final class bfAudit
      * @var array
      */
     private $_uploaderIds = array();
+
+    /**
+     * @var array
+     */
+    private $_hackedIds = array();
 
     /**
      * @var array
@@ -226,6 +237,26 @@ final class bfAudit
      * @var
      */
     private $modifiedfilessincelastaudit;
+
+    /**
+     * @var
+     */
+    private $tmp_install_folders;
+
+    /**
+     * @var
+     */
+    private $sqlfilesseen;
+
+    /**
+     * @var
+     */
+    private $admintoolbreaches;
+
+    /**
+     * @var
+     */
+    private $dotunderscorefilesseen;
 
     /**
      * Set up the audit, reading from cached state if needed
@@ -1044,7 +1075,7 @@ final class bfAudit
                 $config->getCfg('fromname'), );
 
             $mailer->setSender($sender);
-            $mailer->addRecipient('2349c0921eafe4877634489202c7d530@inbound.postmarkapp.com');
+            $mailer->addRecipient('AuditMailerTest@myjoomla.io'); // This is not a real mailbox, its a service that reads the body of the email, and lets the myJoomla.com service know the domain name.
             $mailer->setSubject('Audit Mailer Test');
 
             $s        = empty($_SERVER['HTTPS']) ? '' : ('on' == $_SERVER['HTTPS']) ? 's' : '';
@@ -1612,7 +1643,7 @@ final class bfAudit
                 $sql = "SELECT id FROM bf_files
                             WHERE
                                 (
-                                  SIZE < 400000                                 -- 0.4mb Limit
+                                  SIZE < 800000                                 -- 0.4mb Limit
                                 AND
                                   SIZE > 0                                      -- Must have content!
                                 )
@@ -1999,6 +2030,7 @@ final class bfAudit
                     $encrypted  = false;
                     $isUploader = false;
                     $isMailer   = false;
+                    $isHacked   = false;
 
                     $file_extension = strtolower(pathinfo(JPATH_BASE.$file_to_scan->filewithpath, PATHINFO_EXTENSION));
 
@@ -2032,8 +2064,8 @@ final class bfAudit
                         $skip = -7;
                     } elseif ('/administrator/components/com_akeeba/backup/akeeba.json.log' == $file_to_scan->filewithpath) {
                         $skip = -7;
-                    } elseif (filesize(JPATH_BASE.$file_to_scan->filewithpath) > 400000) {
-                        bfLog::log('SKIP: FILE WAS SKIPPED AS OVER 4000000!!! '.$file_to_scan->filewithpath);
+                    } elseif (filesize(JPATH_BASE.$file_to_scan->filewithpath) > 800000) {
+                        bfLog::log('SKIP: FILE WAS SKIPPED AS OVER 8000000!!! '.$file_to_scan->filewithpath);
                         $skip = -1;
                     }
                     if (0 !== $skip) {
@@ -2086,9 +2118,18 @@ final class bfAudit
                                 }
                             }
 
-                            // Test if suspect
-                            bfLog::log('Auditing File: '.$file_to_scan->filewithpath.' - '.$file_to_scan->size.' bytes');
-                            $isSuspect = (preg_match('/'.$pattern.'/ism', $chunk) ? true : false);
+                            //100% Certain if a file matches this regex then its hacked
+                            if (preg_match('/index\.html\.bak\.bak/i', $chunk)) {
+                                $isHacked = true;
+                            } else {
+                                $isHacked = false;
+                            }
+
+                            if (!$isHacked) {
+                                // Test if suspect
+                                bfLog::log('Auditing File: '.$file_to_scan->filewithpath.' - '.$file_to_scan->size.' bytes');
+                                $isSuspect = (preg_match('/'.$pattern.'/ism', $chunk) ? true : false);
+                            }
 
                             // Test If encrypted
                             $regex     = "/OOO000000|if\(!extension_loaded\('ionCube\sLoader'\)\)|<\?php\s@Zend;|This\sfile\swas\sencoded\sby\sthe.*Zend Encoder/i";
@@ -2101,12 +2142,16 @@ final class bfAudit
                     // free up memory
                     unset($chunk);
 
-                    $encrypted == (int) $encrypted;
+                    $encrypted = (int) $encrypted;
                     $isSuspect = (int) $isSuspect;
+                    $isHacked  = (int) $isHacked;
 
                     if ($encrypted && $isSuspect) {
                         bfLog::log(' + isEncrypted/suspect');
                         $this->_encryptedAndSuspectIds[] = $file_to_scan->id;
+                    } elseif ($isHacked) {
+                        bfLog::log(' + isHacked');
+                        $this->_hackedIds[] = $file_to_scan->id;
                     } elseif ($encrypted) {
                         bfLog::log(' + isEncrypted');
                         $this->_encryptedIds[] = $file_to_scan->id;
@@ -2148,6 +2193,7 @@ final class bfAudit
             } else {
                 $this->db->setQuery('SELECT COUNT(*) FROM bf_files WHERE queued = 1');
             }
+
             if (0 == $this->db->loadResult()) {
                 bfLog::log(' ======== deepscancomplete ========');
                 $this->deepscancomplete = true;
@@ -2182,7 +2228,9 @@ final class bfAudit
             $this->_encryptedIds,
             $this->_mailerIds,
             $this->_uploaderIds,
-            $this->_suspectIds);
+            $this->_suspectIds,
+            $this->_hackedIds
+            );
     }
 
     /**
@@ -2290,6 +2338,22 @@ final class bfAudit
                 bfEncrypt::reply(bfReply::ERROR, $this->db->getErrorMsg());
             }
             $this->_uploaderIds = array();
+        }
+
+        bfLog::log(' =Marking this number of files as _hacked = '.count($this->_hackedIds));
+        if (count($this->_hackedIds)) {
+            $sql = 'UPDATE bf_files SET `hacked` = 1, queued = 0  WHERE id IN(%s)';
+            $sql = sprintf($sql, implode(', ', $this->_hackedIds));
+            $this->db->setQuery($sql);
+            if ($this->db->query()) {
+                bfLog::log(' = _hackedIds success = ');
+            } else {
+                bfLog::log('=============================================');
+                bfLog::log($this->db->getErrorMsg().$sql);
+                bfLog::log('=============================================');
+                bfEncrypt::reply(bfReply::ERROR, $this->db->getErrorMsg());
+            }
+            $this->_hackedIds = array();
         }
     }
 
@@ -2464,6 +2528,95 @@ final class bfAudit
         $this->db->setQuery("UPDATE bf_files SET hacked = 1, suspectcontent = 1 WHERE size = '8192029'");
         $this->db->query();
 
+        // flag filenames that are 100% a hack
+
+        // first get a subset to check
+        $this->db->setQuery("select * from bf_files 
+WHERE falsepositive is null 
+AND (iscorefile is null and hashfailed is null)
+AND filewithpath NOT LIKE '%Diff3.php'
+AND filewithpath NOT LIKE '%com_gantry/models/template.php.suspected'
+AND filewithpath NOT LIKE '%tcpdf.php.suspected'
+AND filewithpath NOT LIKE '%favicon_unused.ico'
+AND filewithpath NOT LIKE '%favicon_houven.ico'
+AND filewithpath NOT LIKE '%favicon_master.ico'
+AND filewithpath NOT LIKE '%favicon_joomla.ico'
+AND filewithpath NOT LIKE '%favicon_backup.ico'
+AND
+ (
+filewithpath like '%cache\-%'
+or 
+filewithpath like '%\/\.%\.ico'
+or 
+filewithpath like '%favicon\_%'
+or 
+filewithpath like '%cache\_%'
+or 
+filewithpath like '\/libraries\/joomla\/exporter\.php'
+or 
+filewithpath like '%db\.php'
+or 
+filewithpath like '%sql%\.php%'
+or 
+filewithpath like '%diff%\.php%'
+or 
+filewithpath like '%proxy%\.php%'
+or 
+filewithpath like '%dirs%\.php%'
+or 
+filewithpath like '%start%\.php%'
+or 
+filewithpath like '%\.suspected'
+or 
+filewithpath like '%timezone_tranositions_get%'
+or 
+filewithpath like '%stream_bucketd_make_writeable%'
+or 
+filewithpath like '%countt_chars%'
+or 
+filewithpath like '%variantf_imp%'
+or 
+filewithpath like '%com_contact_info%'
+or 
+filewithpath like '%banner_copys%'
+or 
+filewithpath like '%x\.php'
+or 
+filewithpath like '%cgi\-%'
+or 
+filewithpath like '%backup\-%'
+or 
+filewithpath like '%sort\-%'
+or 
+filewithpath like '%memcache\-%'
+or 
+filewithpath like '%sql\-%'
+or 
+filewithpath like '%reverse\-%'
+or 
+filewithpath like '%conf\-%'
+or 
+filewithpath like '%cache\-%'
+or 
+filewithpath like '%bin\-%'
+or 
+filewithpath like '%utf8\-%'
+)
+");
+        $hacked = $this->db->loadObjectList();
+
+        bfLog::log('hackCheck = count - '.count($hacked));
+
+        foreach ($hacked as $row) {
+            bfLog::log('hackCheck = row - '.$row->filewithpath);
+            // run it though a PHP regex that is very specific on what its looking for as the mysql one is very very dodgy in old mysql versions
+            if (preg_match('!.*\/(cache-[0-9]{2}[a-z]\.php|\.[0-9a-z]{8}\.ico|cache_tpeowiol|1ndex\.php|favicon\_[a-z0-9]{6}\.ico|db[0-9]{2}\.php|cp1251-[0-9a-z]{3}\.php|sql\-[0-9]{2}[a-z]\.php|diff[0-9]{1,2}\.php|proxy[0-9]{1,2}\.php|dirs[0-9]{1,2}\.php|start[0-9]{1,2}\.php|.*\.suspected|libraries\/joomla\/exporter\.php|x\.php|timezone_tranositions_get\.php|cmhiuup\.php|stream_bucketd_make_writeable\.php|countt_chars\.php|variantf_imp\.php|com_contact_info\.php|banner_copys\.php|(cgi|backup|sort|memcache|sql|reverse|conf|cache|bin|utf8)\-([a-z][0-9]*|[0-9]*|[a-z][a-z]|[0-9][a-z]|[a-z][a-z][a-z]|[0-9][a-z][0-9]|[0-9][a-z][a-z]|[a-z][0-9][a-z])\.php$)!', $row->filewithpath)) {
+                bfLog::log('hackCheck = row IS HACKED - '.$row->filewithpath);
+                $this->db->setQuery('UPDATE bf_files SET hacked = 1, suspectcontent = 1 WHERE id = '.$row->id);
+                $this->db->query();
+            }
+        }
+
         // Am I hacked?
         $this->hacked = $this->checkIfHackedSite();
 
@@ -2542,8 +2695,23 @@ final class bfAudit
         $this->uploader = $this->db->LoadResult();
 
         // php.ini files
-        $this->db->setQuery('SELECT COUNT(*) FROM bf_files WHERE filewithpath LIKE "%php.ini%"');
+        $this->db->setQuery('SELECT COUNT(*) FROM bf_files WHERE filewithpath LIKE "%php.ini%" OR filewithpath LIKE "%.user.ini%"');
         $this->phpiniseen = $this->db->LoadResult();
+
+        // look for akeeba sql files
+        $this->db->setQuery('SELECT count(*) FROM bf_files WHERE 
+        (
+        (filewithpath LIKE \'%.sql\' or filewithpath LIKE \'%sql/site.%\')
+        and 
+        (iscorefile = 0 or iscorefile is null)
+        )');
+        $this->sqlfilesseen = $this->db->LoadResult();
+
+        $this->db->setQuery('SELECT count(*) FROM bf_files WHERE filewithpath LIKE \'%DS_Store%\'');
+        $this->dotunderscorefilesseen = $this->db->LoadResult();
+
+        $this->db->setQuery('SELECT count(*) FROM bf_files WHERE filewithpath LIKE \'%admintools_breaches.log%\'');
+        $this->admintoolbreaches = $this->db->LoadResult();
 
         // count of non core files
         $this->db->setQuery('SELECT COUNT(*) FROM bf_files WHERE iscorefile is null');

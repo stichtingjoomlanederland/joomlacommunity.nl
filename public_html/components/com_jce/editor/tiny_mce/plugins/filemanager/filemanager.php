@@ -20,7 +20,7 @@ class WFFileManagerPlugin extends WFMediaManager
      * @var string
      */
 
-    public $_filetypes = 'acrobat=pdf;office=doc,docx,dot,dotx,ppt,pps,pptx,ppsx,xls,xlsx;image=gif,jpeg,jpg,png;archive=zip,tar,gz;video=swf,mov,wmv,avi,flv,mp4,ogv,ogg,webm,mpeg,mpg;audio=wav,mp3,ogg,webm,aiff;openoffice=odt,odg,odp,ods,odf';
+    public $_filetypes = 'acrobat=pdf;office=doc,docx,dot,dotx,ppt,pps,pptx,ppsx,xls,xlsx;image=gif,jpeg,jpg,png,webp;archive=zip,tar,gz;video=swf,mov,wmv,avi,flv,mp4,ogv,ogg,webm,mpeg,mpg;audio=wav,mp3,ogg,webm,aiff;openoffice=odt,odg,odp,ods,odf;text=txt,rtf,md';
 
     public function __construct()
     {

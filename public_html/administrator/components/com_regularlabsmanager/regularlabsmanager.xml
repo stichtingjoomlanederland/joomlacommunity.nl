@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.9" type="component" method="upgrade">
+	<name>com_regularlabsmanager</name>
+	<description>COM_REGULARLABSMANAGER_DESC</description>
+	<version>7.4.2</version>
+	<creationDate>April 2019</creationDate>
+	<author>Regular Labs (Peter van Westen)</author>
+	<authorEmail>info@regularlabs.com</authorEmail>
+	<authorUrl>https://www.regularlabs.com</authorUrl>
+	<copyright>Copyright © 2018 Regular Labs - All Rights Reserved</copyright>
+	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+
+	<scriptfile>script.install.php</scriptfile>
+
+	<updateservers>
+		<server type="extension" priority="1" name="Regular Labs - Extension Manager">
+			https://download.regularlabs.com/updates.xml?e=extensionmanager&amp;type=.xml
+		</server>
+	</updateservers>
+
+	<administration>
+		<menu img="../media/regularlabsmanager/images/regularlabsmanager.png">COM_REGULARLABSMANAGER</menu>
+
+		<files>
+			<filename>regularlabsmanager.php</filename>
+			<filename>config.xml</filename>
+			<filename>controller.php</filename>
+			<filename>extensions.xml</filename>
+			<filename>script.install.helper.php</filename>
+			<folder>controllers</folder>
+			<folder>language</folder>
+			<folder>models</folder>
+			<folder>views</folder>
+		</files>
+	</administration>
+
+	<media folder="media" destination="regularlabsmanager">
+		<folder>css</folder>
+		<folder>images</folder>
+		<folder>js</folder>
+		<folder>less</folder>
+	</media>
+</extension>

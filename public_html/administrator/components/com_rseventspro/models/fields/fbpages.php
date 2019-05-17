@@ -48,7 +48,8 @@ class JFormFieldFbpages extends JFormFieldList
 					'app_id' => $config->facebook_appid,
 					'app_secret' => $config->facebook_secret,
 					'default_graph_version' => 'v2.10',
-					'default_access_token' => $config->facebook_token
+					'default_access_token' => $config->facebook_token,
+					'pseudo_random_string_generator' => 'openssl'
 				));
 				
 				$request	= $facebook->get('me/accounts?fields=id,name&limit=200');

@@ -7,7 +7,7 @@
 	<authorUrl>www.rsjoomla.com</authorUrl>
 	<copyright>(C) 2009-2014 www.rsjoomla.com</copyright>
 	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license> 
-	<version>1.3</version>
+	<version>1.4</version>
 	<description>MOD_RSEVENTSPRO_UPCOMING_DESCRIPTION</description>
 	<scriptfile>script.php</scriptfile>
 	
@@ -82,6 +82,7 @@
 				<field name="categories" type="category" extension="com_rseventspro" default="" label="MOD_RSEVENTSPRO_UPCOMING_EVENTS_CATEGORIES" description="MOD_RSEVENTSPRO_UPCOMING_EVENTS_CATEGORIES_DESC" multiple="multiple" class="rs200 rschosen" />
 				<field name="locations" type="rslocations" default="" label="MOD_RSEVENTSPRO_UPCOMING_EVENTS_LOCATIONS" description="MOD_RSEVENTSPRO_UPCOMING_EVENTS_LOCATIONS_DESC" multiple="multiple" class="rs200 rschosen" show_root="false" />
 				<field name="tags" type="rstags" default="" label="MOD_RSEVENTSPRO_UPCOMING_EVENTS_TAGS" description="MOD_RSEVENTSPRO_UPCOMING_EVENTS_TAGS_DESC" multiple="multiple" class="rs200 rschosen" />
+				<field name="speakers" type="sql" label="MOD_RSEVENTSPRO_UPCOMING_SPEAKERS" multiple="multiple" sql_select="id,name" sql_from="#__rseventspro_speakers" sql_where="published=1" key_field="id" value_field="name" />
 				<field name="choosen" type="rschosen" />
 			</fieldset>
 		</fields>

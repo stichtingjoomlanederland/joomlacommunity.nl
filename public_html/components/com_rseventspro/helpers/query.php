@@ -159,6 +159,7 @@ class RSEventsProQuery
 		$categories	= $this->params->get('categories','');
 		$locations	= $this->params->get('locations','');
 		$tags		= $this->params->get('tags','');
+		$speakers	= $this->params->get('speakers','');
 		$from		= $this->params->get('from','');
 		$to			= $this->params->get('to','');
 		$repeat		= (int) $this->params->get('repeat',1);
@@ -210,6 +211,13 @@ class RSEventsProQuery
 			$where[] = ' AND '.$this->where;
 		}
 		
+		// Filter events with the menu item speakers filter
+		if (!empty($speakers)) {
+			$speakers = array_map('intval',$speakers);
+			
+			$where[] = ' AND '.$db->qn('e.id').' IN (SELECT '.$db->qn('tx.ide').' FROM '.$db->qn('#__rseventspro_taxonomy','tx').' WHERE '.$db->qn('tx.id').' IN ('.implode(',',$speakers).') AND '.$db->qn('tx.type').' = '.$db->q('speaker').')';
+		}
+		
 		// Filter events with the menu item categories filter
 		if (!empty($categories)) {
 			$categories = array_map('intval',$categories);
@@ -227,7 +235,7 @@ class RSEventsProQuery
 		if (!empty($tags)) {
 			$tags = array_map('intval',$tags);
 			
-			$where[] = ' AND '.$db->qn('e.id').' IN (SELECT '.$db->qn('tx.ide').' FROM '.$db->qn('#__rseventspro_taxonomy','tx').' LEFT JOIN '.$db->qn('#__rseventspro_tags','t').' ON '.$db->qn('t.id').' = '.$db->qn('tx.id').' WHERE '.$db->qn('t.id').' IN ('.implode(',',$tags).') AND '.$db->qn('tx.type').' = '.$db->q('tag').')';
+			$where[] = ' AND '.$db->qn('e.id').' IN (SELECT '.$db->qn('tx.ide').' FROM '.$db->qn('#__rseventspro_taxonomy','tx').' WHERE '.$db->qn('tx.id').' IN ('.implode(',',$tags).') AND '.$db->qn('tx.type').' = '.$db->q('tag').')';
 		}
 		
 		// Filter events with the menu item locations filter

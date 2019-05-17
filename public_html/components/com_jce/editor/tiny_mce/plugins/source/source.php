@@ -29,22 +29,31 @@ final class WFSourcePlugin extends WFEditorPlugin
 
         $view->addTemplatePath(WF_EDITOR_PLUGIN . '/tmpl');
 
-        $document->setTitle(JText::_('WF_' . strtoupper($this->getName() . '_TITLE')));
-
         $theme = $this->getParam('source.theme', 'codemirror');
 
-        $document->addScript(array('jquery.min'), 'jquery');
-        $document->addScript(array('plugin.min.js'));
+        $document->addScript(array(
+            'jquery.min'
+        ), 'jquery');
 
-        $document->addScript(array('editor.min.js', 'format.min.js'), 'plugins');
-        $document->addStyleSheet(array('editor.min.css'), 'plugins');
-        $document->addStyleSheet(array('plugin.min.css'), 'libraries');
+        $document->addScript(array(
+            'plugin.min.js'
+        ), 'libraries');
 
-        $document->addScript(array('components/com_jce/editor/tiny_mce/plugins/source/js/codemirror/codemirror.min'), 'joomla');
         $document->addStyleSheet(array(
-            'components/com_jce/editor/tiny_mce/plugins/source/css/codemirror/codemirror.min',
-            'components/com_jce/editor/tiny_mce/plugins/source/css/codemirror/theme/' . $theme,
-        ), 'joomla');
+            'plugin.min.css'
+        ), 'libraries');
+
+        $document->addScript(array(
+            'editor.min',
+            'format.min',
+            'codemirror/codemirror.min'
+        ), 'plugins');
+
+        $document->addStyleSheet(array(
+            'editor.min',
+            'codemirror/codemirror.min',
+            'codemirror/theme/' . $theme,
+        ), 'plugins');
 
         // keep as ltr for source code
         $document->setDirection('ltr');

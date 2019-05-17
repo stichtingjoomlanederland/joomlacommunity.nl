@@ -973,13 +973,15 @@ class com_rseventsproInstallerScript
 			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'event_full', 'type' => 'TEXT');
 			$updateData[] = array('table' => '#__rseventspro_groups', 'field' => 'can_select_speakers', 'type' => 'TINYINT(2)', 'default' => '1');
 			$updateData[] = array('table' => '#__rseventspro_groups', 'field' => 'can_add_speaker', 'type' => 'TINYINT(2)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_tickets', 'field' => 'ticketinfo', 'type' => 'TINYINT(2)', 'default' => '0', 'after' => 'to');
+			$updateData[] = array('table' => '#__rseventspro_tickets', 'field' => 'ticketinfolayout', 'type' => 'TEXT', 'after' => 'ticketinfo');
 			
 			foreach ($updateData as $data) {
 				$checkQuery = 'SHOW COLUMNS FROM '.$db->qn($data['table']).' WHERE '.$db->qn('Field').' = '.$db->q($data['field']);
 				$updateQuery = 'ALTER TABLE '.$db->qn($data['table']).' ADD '.$db->qn($data['field']).' '.$data['type'].' NOT NULL';
 				
 				if (isset($data['default'])) $updateQuery .= " DEFAULT '".$data['default']."'";
-				if (isset($data['after'])) $updateQuery .= ' AFTER '.$db->q($data['after']);
+				if (isset($data['after'])) $updateQuery .= ' AFTER '.$db->qn($data['after']);
 				
 				$db->setQuery($checkQuery);
 				if (!$db->loadResult()) {
@@ -1135,9 +1137,14 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.12.2</h2>
+	<h2>Changelog v1.12.5</h2>
 	<ul class="version-history">
-		<li><span class="version-upgraded">Upg</span> Calendar layout speed improvements.</li>
+		<li><span class="version-new">Add</span> Filter events by speakers in menus and modules.</li>
+		<li><span class="version-new">Add</span> A new option for the global discounts area.</li>
+		<li><span class="version-new">Add</span> Select the map service.</li>
+		<li><span class="version-new">Add</span> Square payment integration.</li>
+		<li><span class="version-new">Add</span> PayFast payment integration.</li>
+		<li><span class="version-fixed">Fix</span> Resolved some errors.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>
@@ -1189,20 +1196,20 @@ class com_rseventsproInstallerScript
 		
 		$plugins = array(
 			'content' => array(
-				'rseventspro' => '1.1'
+				'rseventspro' => '1.2'
 			),
 			'system' => array(
-				'rsepropdf' => '1.13',
-				'rsfprseventspro' => '1.5.0',
+				'rsepropdf' => '1.14',
+				'rsfprseventspro' => '1.51.14',
 				'rsepro2co' => '1.1',
 				'rseproanzegate' => '1.2',
 				'rseproauthorize' => '1.2',
 				'rseproeway' => '1.5',
-				'rseproideal' => '1.5',
+				'rseproideal' => '1.7',
 				'rsepromygate' => '1.1',
 				'rsepropaypal' => '1.2',
 				'rseprovmerchant' => '1.2',
-				'rseprostripe' => '1.1',
+				'rseprostripe' => '1.2',
 				'rseprooffline' => '1.3'
 			)
 		);
@@ -1225,20 +1232,20 @@ class com_rseventsproInstallerScript
 		}
 		
 		$modules = array(
-			'mod_rseventspro_archived' => '1.3',
+			'mod_rseventspro_archived' => '1.4',
 			'mod_rseventspro_attendees' => '1.3',
-			'mod_rseventspro_calendar' => '1.7',
-			'mod_rseventspro_categories' => '1.3',
-			'mod_rseventspro_events' => '1.4',
-			'mod_rseventspro_featured' => '1.3',
-			'mod_rseventspro_location' => '1.2',
+			'mod_rseventspro_calendar' => '1.8',
+			'mod_rseventspro_categories' => '1.4',
+			'mod_rseventspro_events' => '1.6',
+			'mod_rseventspro_featured' => '1.4',
+			'mod_rseventspro_location' => '1.3',
 			'mod_rseventspro_locations' => '1.3',
-			'mod_rseventspro_map' => '1.6',
-			'mod_rseventspro_popular' => '1.3',
+			'mod_rseventspro_map' => '1.9',
+			'mod_rseventspro_popular' => '1.5',
 			'mod_rseventspro_search' => '1.5',
-			'mod_rseventspro_slider' => '1.7',
+			'mod_rseventspro_slider' => '1.7.2',
 			'mod_rseventspro_tags' => '1.1',
-			'mod_rseventspro_upcoming' => '1.2'
+			'mod_rseventspro_upcoming' => '1.4'
 		);
 		
 		// Check modules version

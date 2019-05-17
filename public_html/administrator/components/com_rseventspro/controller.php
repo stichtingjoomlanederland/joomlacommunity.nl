@@ -176,7 +176,7 @@ class RseventsproController extends JControllerLegacy
 	 *
 	 * @return void
 	 */
-	public function savedata() {
+	public static function savedata() {
 		$type	= JFactory::getApplication()->input->get('type');
 		$format	= JFactory::getApplication()->input->get('format');
 		$data	= JFactory::getApplication()->input->get('jform',array(),'array');

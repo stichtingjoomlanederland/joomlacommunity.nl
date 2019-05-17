@@ -48,6 +48,12 @@ class AtsystemFeatureEmailfailedadminlong extends AtsystemFeatureAbstract
 	 */
 	public function onUserLoginFailure($response)
 	{
+		// Do not email about failed logins as a result of an empty username
+		if (!isset($response['username']) || empty($response['username']))
+		{
+			return;
+		}
+
 		// Make sure we don't fire unless someone is still in the login page
 		$user = $this->container->platform->getUser();
 
@@ -83,6 +89,12 @@ class AtsystemFeatureEmailfailedadminlong extends AtsystemFeatureAbstract
 
 		// Construct the replacement table
 		$substitutions = $this->exceptionsHandler->getEmailVariables(JText::_('COM_ADMINTOOLS_WAFEMAILTEMPLATE_REASON_ADMINLOGINFAIL'));
+		/**
+		 * The code above primes the [USER] variable from the current Joomla user object. However, this user object is
+		 * ALWAYS the Guest user since we're not logged in yet. We need to replace it with $response['username'] whcih
+		 * is how Joomla communicates back to plugins the username that failed to log in.
+		 */
+		$substitutions['[USER]'] = $response['username'];
 
 		// Let's get the most suitable email template
 		$template = $this->exceptionsHandler->getEmailTemplate('adminloginfail', true);

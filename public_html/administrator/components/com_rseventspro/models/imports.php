@@ -630,7 +630,7 @@ class RseventsproModelImports extends JModelLegacy
 		
 		foreach ($jecategories as $i => $jecategory) {
 			$registry = new JRegistry;
-			$registry->loadString($jecategory->params);
+			$registry->loadString(isset($jecategory->params) ? $jecategory->params : '');
 			$jecategories[$i]->color = $registry->get('catcolour','');
 		}
 		

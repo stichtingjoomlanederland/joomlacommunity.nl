@@ -92,10 +92,6 @@
 			<option value="0">JNO</option>
 			<option value="1">JYES</option>
 		</field>
-		<field name="enable_gplus" type="radio" class="btn-group" label="COM_RSEVENTSPRO_ENABLE_GOOGLEPLUS" description="" default="1">
-			<option value="0">JNO</option>
-			<option value="1">JYES</option>
-		</field>
 		<field name="enable_linkedin" type="radio" class="btn-group" label="COM_RSEVENTSPRO_ENABLE_LINKEDIN" description="" default="1">
 			<option value="0">JNO</option>
 			<option value="1">JYES</option>
