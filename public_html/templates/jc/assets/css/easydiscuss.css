@@ -9030,6 +9030,25 @@ fieldset[disabled] #ed .btn-ed-favor.active {
 #ed img {
   max-width: 100%;
 }
+@media (max-width: 992px) {
+  #ed .o-grid__cell--auto-size {
+    -ms-flex: 1 0 100%;
+        flex: 1 0 100%;
+  }
+  #ed .o-tabs {
+    text-align: left;
+    height: 28px;
+    overflow: hidden;
+    display: block;
+    transition: transition(width 0.2s, height 0.3s ease-in-out);
+  }
+  #ed .o-tabs:hover {
+    height: 108px;
+  }
+  #ed .o-tabs__item {
+    display: block;
+  }
+}
 #ed .t-lg-p--no {
   padding: 0 !important;
 }
