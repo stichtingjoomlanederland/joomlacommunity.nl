@@ -7,9 +7,15 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
+use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Layout\LayoutHelper;
+use Joomla\CMS\Router\Route;
+
 defined('_JEXEC') or die;
 
-JHtml::addIncludePath(JPATH_COMPONENT . '/helpers');
+HTMLHelper::addIncludePath(JPATH_COMPONENT . '/helpers');
 
 require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
 
@@ -21,20 +27,23 @@ $params  = $this->item->params;
 $images  = json_decode($this->item->images);
 $urls    = json_decode($this->item->urls);
 $canEdit = $params->get('access-edit');
-$user    = JFactory::getUser();
+$user    = Factory::getUser();
 
-if (!empty($images->image_fulltext))
-{
-	$image = 'large';
-}
-elseif (!empty($images->image_intro))
-{
-	$image = 'small';
-}
-else
-{
-	$image = 'none';
-}
+switch (true):
+	case (!empty($images->image_fulltext)):
+		$image = 'large';
+		break;
+	case (!empty($images->image_intro)):
+		$image = 'small';
+		break;
+
+	case ($this->item->parent_alias === 'gebruikersgroepen'):
+		$image = 'large';
+		break;
+
+	default:
+		$image = 'none';
+endswitch;
 
 // Determine if the article information column must be shown or not
 $showArticleInformation = ($params->get('info_block_show_title')) ? ($params->get('show_create_date') || $params->get('show_category') || $params->get('show_author')) : false;
@@ -48,11 +57,19 @@ foreach ($this->item->tags->itemTags as $tag)
 	$joomla3 = ($tag->title == 'joomla3' && $joomla3 === false) ? true : false;
 	$joomla4 = ($tag->title == 'joomla4' && $joomla4 === false) ? true : false;
 }
+
 ?>
 <div class="well <?php echo($image == 'large' ? 'photoheader' : ''); ?>">
-	<?php if ($image == 'large'): ?>
-        <div class="photobox">
-            <img src="<?php echo($images->image_fulltext); ?>"/>
+	<?php if ($image == 'large'):
+		$src = 'templates/' . Factory::getApplication()->getTemplate() . '/images/jc-pattern.png';
+		$class = ' photobox--empty';
+		if ($images->image_fulltext != false) :
+			$src   = $images->image_fulltext;
+			$class = null;
+		endif;
+		?>
+        <div class="photobox<?php echo $class; ?>">
+			<?php echo HTMLHelper::_('image', $src, ''); ?>
         </div>
 	<?php endif; ?>
     <div class="row">
@@ -68,7 +85,7 @@ foreach ($this->item->tags->itemTags as $tag)
                         <div class="article-meta item-datum">
                             <p class="article-meta-label">datum</p>
                             <p>
-                                <time class="post-date"><?php echo JHtml::_('date', $this->item->created, JText::_('j F Y')); ?></time>
+                                <time class="post-date"><?php echo HTMLHelper::_('date', $this->item->created, Text::_('j F Y')); ?></time>
                                 <span class="article-meta-mobile">, </span>
                             </p>
                         </div>
@@ -83,7 +100,7 @@ foreach ($this->item->tags->itemTags as $tag)
                                 </p>
 							<?php else: ?>
                                 <p>
-									<?php echo JHtml::_('link', $profile->getLink(), $profile->user->get('name')); ?>
+									<?php echo HTMLHelper::_('link', $profile->getLink(), $profile->user->get('name')); ?>
                                 </p>
 							<?php endif; ?>
 
@@ -98,7 +115,7 @@ foreach ($this->item->tags->itemTags as $tag)
                             </p>
                             <p>
 								<?php if ($params->get('link_category') && $this->item->catslug) : ?>
-                                    <a href="<?php echo JRoute::_(ContentHelperRoute::getCategoryRoute($this->item->catslug)); ?>">
+                                    <a href="<?php echo Route::_(ContentHelperRoute::getCategoryRoute($this->item->catslug)); ?>">
 										<?php echo $this->escape($this->item->category_title); ?>
                                     </a>
 								<?php else : ?>
@@ -117,7 +134,7 @@ foreach ($this->item->tags->itemTags as $tag)
 							'linkedin' => true,
 							'item'     => $this->item
 						);
-						echo JLayoutHelper::render('template.snippet-share-page', $data);
+						echo LayoutHelper::render('template.snippet-share-page', $data);
 						?>
                     </div>
                 </div>
@@ -129,7 +146,7 @@ foreach ($this->item->tags->itemTags as $tag)
                 <div class="page-header">
 					<?php if ($canEdit) : ?>
                         <div class="edit-buttons">
-							<?php echo JLayoutHelper::render('joomla.content.icons', array('params' => $params, 'item' => $this->item, 'print' => false)); ?>
+							<?php echo LayoutHelper::render('joomla.content.icons', array('params' => $params, 'item' => $this->item, 'print' => false)); ?>
                         </div>
 					<?php endif; ?>
 
@@ -146,7 +163,7 @@ foreach ($this->item->tags->itemTags as $tag)
 					<?php endif; ?>
 
 					<?php if ($this->item->state == 0) : ?>
-                        <span class="label label-warning"><?php echo JText::_('JUNPUBLISHED'); ?></span>
+                        <span class="label label-warning"><?php echo Text::_('JUNPUBLISHED'); ?></span>
 					<?php endif; ?>
                 </div>
                 <div class="item-content">
@@ -163,15 +180,16 @@ foreach ($this->item->tags->itemTags as $tag)
 						'item'     => $this->item,
 						'inline'   => true
 					);
-					echo JLayoutHelper::render('template.snippet-share-page', $data);
+					echo LayoutHelper::render('template.snippet-share-page', $data);
 					?>
                 </div>
 
 				<?php if ($params->get('show_modify_date')) : ?>
                     <div class="articleinfo">
                         <p class="text-muted">
-                            <strong>Gepubliceerd:</strong> <?php echo JHtml::_('date', $this->item->created, JText::_('j F Y')); ?>,
-                            <strong>aangepast:</strong> <?php echo JHtml::_('date', $this->item->modified, JText::_('j F Y')); ?>
+                            <strong>Gepubliceerd:</strong> <?php echo HTMLHelper::_('date', $this->item->created, Text::_('j F Y')); ?>
+                            ,
+                            <strong>aangepast:</strong> <?php echo HTMLHelper::_('date', $this->item->modified, Text::_('j F Y')); ?>
                         </p>
                     </div>
 				<?php endif; ?>
@@ -180,7 +198,7 @@ foreach ($this->item->tags->itemTags as $tag)
     </div>
 
 	<?php if ($params->get('show_author') && empty($this->item->created_by_alias)) : ?>
-		<?php echo JLayoutHelper::render('template.snippet-author', $this->item->created_by); ?>
+		<?php echo LayoutHelper::render('template.snippet-author', $this->item->created_by); ?>
 	<?php endif; ?>
 </div>
 
