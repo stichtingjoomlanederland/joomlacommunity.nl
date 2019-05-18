@@ -7,6 +7,12 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
+use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Layout\LayoutHelper;
+use Joomla\CMS\Router\Route;
+
 defined('_JEXEC') or die;
 
 require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
@@ -18,38 +24,50 @@ $profile->load($this->item->created_by);
 $params = $this->item->params;
 $images = json_decode($this->item->images);
 
-JHtml::addIncludePath(JPATH_COMPONENT . '/helpers/html');
+HTMLHelper::addIncludePath(JPATH_COMPONENT . '/helpers/html');
 $canEdit = $this->item->params->get('access-edit');
 
-if (!empty($images->image_fulltext))
-{
-	$image = 'large';
-}
-elseif (!empty($images->image_intro))
-{
-	$image = 'small';
-}
-else
-{
-	$image = 'none';
-}
+switch (true):
+	case (!empty($images->image_fulltext)):
+		$image = 'large';
+		break;
+	case (!empty($images->image_intro)):
+		$image = 'small';
+		break;
+
+	case ($this->item->parent_alias === 'gebruikersgroepen'):
+		$image = 'large';
+		break;
+
+	default:
+		$image = 'none';
+endswitch;
 
 // Determ if the article information column must be shown or not
 $showArticleInformation = ($params->get('show_create_date') || $params->get('show_category') || $params->get('show_author'));
 
 ?>
 <div class="well <?php echo($image == 'large' ? 'photoheader' : ''); ?>">
-	<?php if ($image == 'large'): ?>
-        <div class="photobox">
-            <img src="<?php echo($images->image_fulltext); ?>"/>
+	<?php if ($image == 'large'):
+		$src = 'templates/' . Factory::getApplication()->getTemplate() . '/images/jc-pattern.png';
+		$class = ' photobox--empty';
+		if ($images->image_fulltext != false) :
+			$src   = $images->image_fulltext;
+			$class = null;
+		endif;
+		?>
+        <div class="photobox<?php echo $class; ?>">
+			<?php echo HTMLHelper::_('image', $src, ''); ?>
         </div>
 	<?php endif; ?>
     <div class="row">
         <div class="col-md-2">
 			<?php if ($image == 'small'): ?>
-                <div class="photoboxsmall<?php if ($images->float_intro == 'right'): ?> logo<?php endif; ?>">
-                    <img src="<?php echo($images->image_intro); ?>"/>
-                </div>
+                <div class="photoboxsmall<?php if ($images->float_intro == 'right'): ?> logo<?php endif; ?>"><?php
+                    $src = $images->image_intro;
+                    $alt = '';
+                    echo HTMLHelper::_('image', $src, $alt);
+                    ?></div>
 			<?php endif; ?>
 
             <div class="item-meta">
@@ -58,7 +76,8 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
                         <div class="article-meta item-datum">
                             <p class="article-meta-label">datum</p>
                             <p>
-                                <time class="post-date"><?php echo JHtml::_('date', $this->item->created, JText::_('j F Y')); ?></time><span class="article-meta-mobile">, </span>
+                                <time class="post-date"><?php echo HTMLHelper::_('date', $this->item->created, Text::_('j F Y')); ?></time>
+                                <span class="article-meta-mobile">, </span>
                             </p>
                         </div>
 					<?php endif; ?>
@@ -67,13 +86,13 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
                         <div class="article-meta auteur-info">
                             <p class="article-meta-label">door</p>
 							<?php if (!empty($this->item->created_by_alias)) : ?>
-                                <p>
-									<?php echo $this->item->created_by_alias; ?>
-                                </p>
+                                <p><?php echo $this->item->created_by_alias; ?></p>
 							<?php else: ?>
-                                <p>
-									<?php echo JHtml::_('link', $profile->getLink(), $profile->user->get('name')); ?>
-                                </p>
+                                <p><?php
+									$href = $profile->getLink();
+									$text = $profile->user->get('name');
+									echo HTMLHelper::_('link', $href, $text);
+									?></p>
 							<?php endif; ?>
 
                         </div>
@@ -85,15 +104,14 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
                                 <span class="article-meta-mobile">in</span>
                                 <span class="article-meta-desktop">categorie</span>
                             </p>
-                            <p>
-								<?php if ($params->get('link_category') && $this->item->catslug) : ?>
-                                    <a href="<?php echo JRoute::_(ContentHelperRoute::getCategoryRoute($this->item->catslug)); ?>">
-										<?php echo $this->escape($this->item->category_title); ?>
-                                    </a>
-								<?php else : ?>
-									<?php echo $this->escape($this->item->category_title); ?>
-								<?php endif; ?>
-                            </p>
+                            <p><?php
+								if ($params->get('link_category') && $this->item->catslug) :
+									$href = Route::_(ContentHelperRoute::getCategoryRoute($this->item->catslug));
+									$text = $this->escape($this->item->category_title);
+									echo HTMLHelper::_('link', $href, $text);
+								else :
+									$this->escape($this->item->category_title);
+								endif; ?></p>
                         </div>
 					<?php endif; ?>
 				<?php endif; ?>
@@ -107,7 +125,7 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
 						'linkedin' => true,
 						'item'     => $this->item
 					);
-					echo JLayoutHelper::render('template.snippet-share-page', $data);
+					echo LayoutHelper::render('template.snippet-share-page', $data);
 					?>
                 </div>
             </div>
@@ -118,24 +136,24 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
                 <div class="page-header">
 					<?php if ($canEdit) : ?>
                         <div class="edit-buttons">
-							<?php echo JLayoutHelper::render('joomla.content.icons', array('params' => $params, 'item' => $this->item, 'print' => false)); ?>
+							<?php echo LayoutHelper::render('joomla.content.icons', array('params' => $params, 'item' => $this->item, 'print' => false)); ?>
                         </div>
 					<?php endif; ?>
 
 					<?php if ($params->get('show_title')) : ?>
-                        <h2>
-							<?php if ($params->get('link_titles') && $params->get('access-view')) : ?>
-                                <a href="<?php echo JRoute::_(ContentHelperRoute::getArticleRoute($this->item->slug, $this->item->catid)); ?>">
-									<?php echo $this->escape($this->item->title); ?>
-                                </a>
-							<?php else : ?>
-								<?php echo $this->escape($this->item->title); ?>
-							<?php endif; ?>
-                        </h2>
-					<?php endif; ?>
+                        <h2><?php
+						if ($params->get('link_titles') && $params->get('access-view')) :
+							$href = Route::_(ContentHelperRoute::getArticleRoute($this->item->slug, $this->item->catid));
+							$text = $this->escape($this->item->title);
+							echo HTMLHelper::_('link', $href, $text);
+						else :
+							echo $this->escape($this->item->title);
+						endif;
+						?>
+                        </h2><?php endif; ?>
 
 					<?php if ($this->item->state == 0) : ?>
-                        <span class="label label-warning"><?php echo JText::_('JUNPUBLISHED'); ?></span>
+                        <span class="label label-warning"><?php echo Text::_('JUNPUBLISHED'); ?></span>
 					<?php endif; ?>
                 </div>
 
@@ -144,7 +162,7 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
                 </div>
 
 				<?php if ($params->get('show_readmore') && $this->item->readmore) :
-					$link = JRoute::_(ContentHelperRoute::getArticleRoute($this->item->slug, $this->item->catid));
+					$link = Route::_(ContentHelperRoute::getArticleRoute($this->item->slug, $this->item->catid));
 					?>
 
                     <a class="btn btn-nieuws" href="<?php echo $link; ?>">
@@ -152,21 +170,21 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
 						<?php if ($readmore = $this->item->alternative_readmore) :
 							echo $readmore;
 							if ($params->get('show_readmore_title', 0) != 0) :
-								echo JHtml::_('string.truncate', ($this->item->title), $params->get('readmore_limit'));
+								echo HTMLHelper::_('string.truncate', ($this->item->title), $params->get('readmore_limit'));
 							endif;
-						elseif ($params->get('show_readmore_title', 0) == 0) :
-							echo JText::sprintf('COM_CONTENT_READ_MORE_TITLE');
+                        elseif ($params->get('show_readmore_title', 0) == 0) :
+							echo Text::sprintf('COM_CONTENT_READ_MORE_TITLE');
 						else :
-							echo JText::_('COM_CONTENT_READ_MORE');
-							echo JHtml::_('string.truncate', ($this->item->title), $params->get('readmore_limit'));
+							echo Text::_('COM_CONTENT_READ_MORE');
+							echo HTMLHelper::_('string.truncate', ($this->item->title), $params->get('readmore_limit'));
 						endif; ?>
 
                     </a>
 
 				<?php endif; ?>
 
-	            <?php // Content is generated by content plugin event "onContentAfterDisplay" ?>
-	            <?php echo $this->item->event->afterDisplayContent; ?>
+				<?php // Content is generated by content plugin event "onContentAfterDisplay" ?>
+				<?php echo $this->item->event->afterDisplayContent; ?>
             </div>
         </div>
     </div>
