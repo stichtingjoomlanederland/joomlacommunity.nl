@@ -9039,6 +9039,15 @@ textarea.invalid {
     height: 427px;
   }
 }
+.photobox--empty {
+  background-color: #E15258;
+}
+@media (min-width: 992px) {
+  .photobox--empty img {
+    width: auto;
+    height: 100%;
+  }
+}
 .photoboxsmall {
   margin-left: -20px;
   margin-top: -20px;
