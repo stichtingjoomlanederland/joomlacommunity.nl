@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -17,7 +17,7 @@ defined('_JEXEC') or die('Restricted access');
                 echo $fileTreeType->display($data['folders'], $data['uploadFolder'], 'currentFolder');
                 ?>
             </div>
-            <div class="acym__file__select__files acym__file__select__area cell grid-x large-up-4 medium-up-3 small-up-2 grid-margin-x">
+            <div class="acym__file__select__files acym__file__select__area cell grid-x large-up-4 medium-up-3 small-up-2 grid-margin-x align-center">
                 <?php
                 if (empty($data['files'])) {
                     echo acym_translation('ACYM_NO_FILE_HERE');
@@ -46,7 +46,7 @@ defined('_JEXEC') or die('Restricted access');
                             <a href="#" class="acym__file__select__add grid-x" mapdata="<?php echo acym_escape($file); ?>">
                                 <?php echo $title; ?>
                                 <div class="cell">
-                                    <img src="<?php echo acym_escape($srcImg); ?>"/>
+                                    <img src="<?php echo acym_escape($srcImg); ?>" alt=""/>
                                 </div>
                             </a>
                         </div>

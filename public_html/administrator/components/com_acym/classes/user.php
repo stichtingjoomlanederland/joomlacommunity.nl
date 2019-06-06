@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -370,7 +370,7 @@ class acymuserClass extends acymClass
         return parent::delete($elements);
     }
 
-    public function save($user)
+    public function save($user, $customFields = null)
     {
         if (empty($user->email) && empty($user->id)) return false;
 
@@ -404,7 +404,13 @@ class acymuserClass extends acymClass
 
             if (empty($user->key)) $user->key = acym_generateKey(14);
 
-            $user->creation_date = date("Y-m-d H:i:s", time());
+            $user->creation_date = date('Y-m-d H:i:s', time());
+        } elseif (!empty($user->confirmed)) {
+            $oldUser = $this->getOneById($user->id);
+            if (!empty($oldUser) && empty($oldUser->confirmed)) {
+                $user->confirmation_date = date('Y-m-d H:i:s', time());
+                $user->confirmation_ip = acym_getIP();
+            }
         }
 
         foreach ($user as $oneAttribute => $value) {
@@ -437,6 +443,11 @@ class acymuserClass extends acymClass
         }
 
         $userID = parent::save($user);
+
+        if (!empty($customFields)) {
+            $fieldClass = acym_get('class.field');
+            $fieldClass->store($customFields, $userID);
+        }
 
         if (empty($user->id)) {
             $user->id = $userID;
@@ -597,12 +608,13 @@ class acymuserClass extends acymClass
 
     public function confirm($userId)
     {
-        $res = acym_query('UPDATE `#__acym_user` SET `confirmed` = 1 WHERE `id` = '.intval($userId).' LIMIT 1');
+        $confirmDate = date('Y-m-d H:i:s', time());
+        $ip = acym_getIP();
+        $res = acym_query('UPDATE `#__acym_user` SET `confirmed` = 1, `confirmation_date` = '.acym_escapeDB($confirmDate).', `confirmation_ip` = '.acym_escapeDB($ip).' WHERE `id` = '.intval($userId).' LIMIT 1');
         if ($res === false) {
             acym_display('Please contact the admin of this website with the error message:<br />'.substr(strip_tags(acym_getDBError()), 0, 200).'...', 'error');
             exit;
         }
-
 
 
         $listIDs = acym_loadResultArray('SELECT `list_id` FROM `#__acym_user_has_list` WHERE `status` = 1 AND `user_id` = '.intval($userId));

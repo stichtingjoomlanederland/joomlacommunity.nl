@@ -1,7 +1,7 @@
 <?php
 /**
  * @package RSForm! Pro
- * @copyright (C) 2007-2014 www.rsjoomla.com
+ * @copyright (C) 2007-2019 www.rsjoomla.com
  * @license GPL, http://www.gnu.org/copyleft/gpl.html
  */
 
@@ -912,7 +912,15 @@ class RSFormProHelper
                     // Check if this is an upload field
                     if ($component->ComponentTypeId == RSFORM_FIELD_FILEUPLOAD)
                     {
-                        $value = '<a href="'.JUri::root().'index.php?option=com_rsform&amp;task=submissions.view.file&amp;hash='.md5($submission->SubmissionId.$secret.$property['NAME']).$Itemid.'">'.basename($submission->values[$property['NAME']]).'</a>';
+                    	// If we have a value, create a link, otherwise no point in doing that
+                    	if (strlen($value))
+						{
+							$value = '<a href="'.JUri::root().'index.php?option=com_rsform&amp;task=submissions.view.file&amp;hash='.md5($submission->SubmissionId.$secret.$property['NAME']).$Itemid.'">'.basename($submission->values[$property['NAME']]).'</a>';
+						}
+						else
+						{
+							$value = '';
+						}
                     }
 
                     // Check if this is a multiple field
@@ -3128,7 +3136,8 @@ class RSFormProHelper
 			-3 => 'Username',
 			-4 => 'UserId',
 			-5 => 'Lang',
-			-6 => 'confirmed'
+			-6 => 'confirmed',
+			-7 => 'SubmissionId'
 		);
 	}
 
@@ -3158,6 +3167,16 @@ class RSFormProHelper
 					$field->FieldCaption = $field->FieldName;
 				}
 
+				// Submission ID is not editable.
+				if ($field->FieldId == '-7')
+				{
+					$allowEdit = false;
+				}
+				else
+				{
+					$allowEdit = true;
+				}
+
 				if (!isset($currentFields[$field->FieldId])) { // field has been added after, add it to the end of the list
 					$currentFields[] = (object) array(
 						'FieldId' 		=> $field->FieldId,
@@ -3171,13 +3190,13 @@ class RSFormProHelper
 						'indetails' 	=> 0,
 						'incsv' 		=> 0,
 						'ordering' 		=> count($currentFields)+1,
-						'allowEdit'     => true,
+						'allowEdit'     => $allowEdit,
 					);
 				} else { // just set the name & id for reference
 					$currentFields[$field->FieldId]->FieldId 		= $field->FieldId;
 					$currentFields[$field->FieldId]->FieldName 		= $field->FieldName;
 					$currentFields[$field->FieldId]->FieldCaption 	= $field->FieldCaption;
-					$currentFields[$field->FieldId]->allowEdit      = true;
+					$currentFields[$field->FieldId]->allowEdit      = $allowEdit;
 				}
 			}
 

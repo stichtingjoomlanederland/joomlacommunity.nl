@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS `#__acym_user` (
     `confirmed` TINYINT(1) NOT NULL DEFAULT 0,
     `key` VARCHAR(255) NULL,
     `automation` VARCHAR(50) NOT NULL,
+    `confirmation_date` DATETIME DEFAULT NULL,
+    `confirmation_ip` VARCHAR(16) DEFAULT NULL,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `email_UNIQUE` (`email` ASC)
 )
@@ -54,6 +56,7 @@ CREATE TABLE IF NOT EXISTS `#__acym_mail` (
     `media_folder` VARCHAR(255) NULL,
     `headers` TEXT NULL,
     `autosave` LONGTEXT NULL,
+    `preheader` VARCHAR(255) NULL,
     PRIMARY KEY (`id`)
 )
     ENGINE =InnoDB

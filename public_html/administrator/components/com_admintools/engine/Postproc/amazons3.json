@@ -55,6 +55,14 @@
         "title": "COM_AKEEBA_S3_SIGNATURE_TITLE",
         "description": "COM_AKEEBA_S3_SIGNATURE_DESCRIPTION"
     },
+    "engine.postproc.amazons3.pathaccess": {
+        "default": "0",
+        "type": "enum",
+        "enumkeys": "COM_AKEEBA_S3_ACCESS_VIRTUALHOST|COM_AKEEBA_S3_ACCESS_PATH",
+        "enumvalues": "0|1",
+        "title": "COM_AKEEBA_S3_ACCESS_TITLE",
+        "description": "COM_AKEEBA_S3_ACCESS_DESCRIPTION"
+    },
     "engine.postproc.amazons3.directory": {
         "default": "\/",
         "type": "string",

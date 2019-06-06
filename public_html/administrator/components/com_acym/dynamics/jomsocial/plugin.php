@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -51,7 +51,7 @@ class plgAcymJomsocial extends acymPlugin
         <script language="javascript" type="text/javascript">
             function applyJomSocial(tagname, element){
                 var string = '{jomsocialfield:' + tagname + '}';
-                setTag(string, $(element));
+                setTag(string, jQuery(element));
             }
         </script>
 
@@ -285,3 +285,4 @@ class plgAcymJomsocial extends acymPlugin
         $tabHelper->display('plugin');
     }
 }
+

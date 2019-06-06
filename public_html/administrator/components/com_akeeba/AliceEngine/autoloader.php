@@ -39,17 +39,15 @@ if (empty($Alice_Class_Map))
 function AliceLoadIfPrefix($class, $prefix, $path)
 {
 	// Find the root path of Akeeba's installation. Static so that we can save some CPU time.
-	static $root;
-	static $platformDirs = array();
+	static $root = null;
+
 	if (empty($root))
 	{
+		$root = __DIR__;
+
 		if (defined('ALICEROOT'))
 		{
 			$root = ALICEROOT;
-		}
-		else
-		{
-			$root = dirname(__FILE__);
 		}
 	}
 

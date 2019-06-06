@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    RSForm! Pro
- * @copyright  (c) 2007 - 2016 RSJoomla!
+ * @copyright  (c) 2007-2019 www.rsjoomla.com
  * @link       https://www.rsjoomla.com
  * @license    GNU General Public License http://www.gnu.org/licenses/gpl-3.0.en.html
  */
@@ -22,7 +22,6 @@ class RSFormProQuickFields
 
 		if (!$done) {
 			// Get field properties first
-			$data	= array();
 			$mainframe = JFactory::getApplication();
 			$formId = JFactory::getApplication()->input->getInt('formId');
 			$db 	= JFactory::getDbo();

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2019 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -83,6 +83,7 @@ class TableRSForm_Forms extends JTable
 	public $AjaxValidation = 0;
 	public $Backendmenu = '';
 	public $ConfirmSubmission = 0;
+	public $ConfirmSubmissionUrl = '';
 	public $Access = '';
 	
 	public $Published = 1;

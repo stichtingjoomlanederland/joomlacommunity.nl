@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2019 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/licenses/gpl-2.0.html
 */
 
@@ -12,6 +12,8 @@ JFormHelper::loadFieldClass('list');
 class JFormFieldDirectories extends JFormFieldList
 {
 	protected $type = 'Directories';
+
+	protected $firstValue;
 	
 	protected function getOptions()
     {
@@ -55,10 +57,38 @@ class JFormFieldDirectories extends JFormFieldList
 
                 $options[] = JHtml::_('select.option', $result->FormId, sprintf('(%d) %s', $result->FormId, $result->FormTitle), 'value', 'text', !in_array($result->FormId, $directories));
             }
+
+            $first = reset($results);
+
+            $this->firstValue = $first->FormId;
         }
 
 		reset($options);
 		
 		return $options;
+	}
+
+	public function getInput()
+	{
+		$html = parent::getInput();
+
+		if ($this->value)
+		{
+			$url = JRoute::_('index.php?option=com_rsform&view=directory&layout=edit&formId=' . $this->value);
+		}
+		elseif ($this->firstValue)
+		{
+			$url = JRoute::_('index.php?option=com_rsform&view=directory&layout=edit&formId=' . $this->firstValue);
+		}
+		else
+		{
+			$url = '#';
+		}
+
+		$html .= ' <a id="directoryLink" target="_blank" href="' . $url . '" class="btn btn-primary">' . JText::_('COM_RSFORM_EDIT_DIRECTORY') . '</a>';
+
+		JFactory::getDocument()->addScriptDeclaration("function generateDirectoryLink() { document.getElementById('directoryLink').setAttribute('href', 'index.php?option=com_rsform&view=directory&layout=edit&formId=' + document.getElementById('{$this->id}').value); }");
+
+		return $html;
 	}
 }

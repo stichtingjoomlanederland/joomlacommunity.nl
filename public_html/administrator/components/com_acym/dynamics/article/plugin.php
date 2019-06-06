@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -122,7 +122,7 @@ class plgAcymArticle extends acymPlugin
         $tabHelper->display('plugin');
     }
 
-    private function displayListing()
+    public function displayListing()
     {
         $this->pageInfo = new stdClass();
         $this->pageInfo->limit = acym_getCMSConfig('list_limit');
@@ -199,6 +199,7 @@ class plgAcymArticle extends acymPlugin
         $return->status = true;
         $return->message = '';
         $this->tags = [];
+        $time = time();
 
         if (empty($tags)) return $return;
 
@@ -222,6 +223,8 @@ class plgAcymArticle extends acymPlugin
             }
 
             $where[] = 'article.state = 1';
+            $where[] = '`publish_up` < '.acym_escapeDB(date('Y-m-d H:i:s', $time - date('Z')));
+            $where[] = '`publish_down` > '.acym_escapeDB(date('Y-m-d H:i:s', $time - date('Z'))).' OR `publish_down` = 0';
 
             $query .= ' WHERE ('.implode(') AND (', $where).')';
 

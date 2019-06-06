@@ -32,8 +32,8 @@ class Db extends Part
 	/** @var DumpBase The current dumper engine used to backup tables */
 	private $dump_engine = null;
 
-	/** @var string The contents of the databases.ini file */
-	private $databases_ini = '';
+	/** @var string The contents of the databases.json file */
+	private $databases_json = '';
 
 	/** @var array An array containing the database definitions of all dumped databases so far */
 	private $dumpedDatabases = array();
@@ -174,29 +174,29 @@ class Db extends Part
 	{
 		$this->setState('finished');
 
-		// If we are in db backup mode, don't create a databases.ini
+		// If we are in db backup mode, don't create a databases.json
 		$configuration = Factory::getConfiguration();
 
 		if (!Factory::getEngineParamsProvider()->getScriptingParameter('db.databasesini', 1))
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Skipping databases.ini");
+			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Skipping databases.json");
 		}
-		// Create the databases.ini contents
+		// Create the databases.json contents
+		// P.A. This still has the old name with the "ini" string. That's for legacy support. Must update it in the future
 		elseif ($this->installerSettings->databasesini)
 		{
-			$this->createDatabasesINI();
+			$this->createDatabasesJSON();
 
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Creating databases.ini");
+			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Creating databases.json");
 
 			// Create a new string
-			$databasesINI = $this->databases_ini;
+			$databasesJSON = json_encode($this->databases_json, JSON_PRETTY_PRINT);
 
-			// BEGIN FIX 1.2 Stable -- databases.ini isn't written on disk
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Writing databases.ini contents");
+			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Writing databases.json contents");
 
 			$archiver = Factory::getArchiverEngine();
 			$virtualLocation = (Factory::getEngineParamsProvider()->getScriptingParameter('db.saveasname', 'normal') == 'short') ? '' : $this->installerSettings->sqlroot;
-			$archiver->addVirtualFile('databases.ini', $virtualLocation, $databasesINI);
+			$archiver->addVirtualFile('databases.json', $virtualLocation, $databasesJSON);
 
 			// Error propagation
 			$this->propagateFromObject($archiver);
@@ -265,13 +265,13 @@ class Db extends Part
 		}
 	}
 
-	protected function createDatabasesINI()
+	protected function createDatabasesJSON()
 	{
-		// caching databases.ini contents
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Creating databases.ini data");
+		// caching databases.json contents
+		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Creating databases.json data");
 
-		// Create a new string
-		$this->databases_ini = '';
+		// Create a new array
+		$this->databases_json = [];
 
 		$blankOutPass = Factory::getConfiguration()->get('engine.dump.common.blankoutpass', 0);
 		$siteRoot     = Factory::getConfiguration()->get('akeeba.platform.newroot', '');
@@ -294,39 +294,31 @@ class Db extends Part
 
 			if ($blankOutPass)
 			{
-				$this->databases_ini .= <<<ENDDEF
-[$section]
-dbtype = "$type"
-dbtech = "$tech"
-dbname = "{$definition['database']}"
-sqlfile = "{$definition['dumpFile']}"
-dbhost = "{$definition['host']}"
-dbuser = ""
-dbpass = ""
-prefix = "{$definition['prefix']}"
-parts = "{$definition['parts']}"
-
-ENDDEF;
-
+				$this->databases_json[$section] = [
+					'dbtype'  => $type,
+					'dbtech'  => $tech,
+					'dbname'  => $definition['database'],
+					'sqlfile' => $definition['dumpFile'],
+					'dbhost'  => $definition['host'],
+					'dbuser'  => "",
+					'dbpass'  => "",
+					'prefix'  => $definition['prefix'],
+					'parts'   => $definition['parts'],
+				];
 			}
 			else
 			{
-				// We have to escape the password
-				$escapedPassword = addcslashes($definition['password'], "\"\\\n\r");
-
-				$this->databases_ini .= <<<ENDDEF
-[$section]
-dbtype = "$type"
-dbtech = "$tech"
-dbname = "{$definition['database']}"
-sqlfile = "{$definition['dumpFile']}"
-dbhost = "{$definition['host']}"
-dbuser = "{$definition['username']}"
-dbpass = "$escapedPassword"
-prefix = "{$definition['prefix']}"
-parts = "{$definition['parts']}"
-
-ENDDEF;
+				$this->databases_json[$section] = [
+					'dbtype'  => $type,
+					'dbtech'  => $tech,
+					'dbname'  => $definition['database'],
+					'sqlfile' => $definition['dumpFile'],
+					'dbhost'  => $definition['host'],
+					'dbuser'  => $definition['username'],
+					'dbpass'  => $definition['password'],
+					'prefix'  => $definition['prefix'],
+					'parts'   => $definition['parts'],
+				];
 			}
 		}
 	}

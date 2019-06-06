@@ -58,9 +58,9 @@ class AliceUtilLogger
 	static function WriteLog($level, $message = '')
 	{
 		static $oldLog = null;
-		static $configuredLoglevel;
-		static $site_root_untranslated;
-		static $site_root;
+		static $configuredLoglevel = null;
+		static $site_root_untranslated = null;
+		static $site_root = null;
 		static $fp = null;
 
 		// Make sure we have a log name
@@ -97,7 +97,7 @@ class AliceUtilLogger
 		{
 			$site_root_untranslated = \Akeeba\Engine\Platform::getInstance()->get_site_root();
 			$site_root              = \Akeeba\Engine\Factory::getFilesystemTools()
-															->TranslateWinPath($site_root_untranslated);
+				->TranslateWinPath($site_root_untranslated);
 		}
 
 		if (empty($configuredLoglevel) or ($level === true))
@@ -126,7 +126,7 @@ class AliceUtilLogger
 
 		if (($configuredLoglevel >= $level) && ($configuredLoglevel != 0))
 		{
-			if ( !defined('AKEEBADEBUG'))
+			if (!defined('AKEEBADEBUG'))
 			{
 				$message = str_replace($site_root_untranslated, "<root>", $message);
 				$message = str_replace($site_root, "<root>", $message);
@@ -154,7 +154,7 @@ class AliceUtilLogger
 				$fp = @fopen(AliceUtilLogger::$logName, "a");
 			}
 
-			if ( !($fp === false))
+			if (!($fp === false))
 			{
 				$result = @fwrite($fp, $string);
 				if ($result === false)

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -75,7 +75,6 @@ class FrontusersController extends acymController
         }
 
         $userClass = acym_get('class.user');
-        $fieldClass = acym_get('class.field');
         if (empty($user->email)) {
             $connectedUser = $userClass->identify(true);
             if (!empty($connectedUser->email)) {
@@ -96,11 +95,10 @@ class FrontusersController extends acymController
             }
             $user->id = $alreadyExists->id;
         } else {
-            $user->creation_date = date("Y-m-d H:i:s");
+            $user->creation_date = acym_date('now', 'Y-m-d H:i:s', false);
         }
 
-        $user->id = $userClass->save($user);
-        empty($customFields) ? : $fieldClass->store($customFields, $user->id);
+        $user->id = $userClass->save($user, $customFields);
 
         $myuser = $userClass->getOneById($user->id);
         if (empty($myuser->id)) {
@@ -220,10 +218,7 @@ class FrontusersController extends acymController
         $mailId = acym_getVar('int', 'mail_id', 0);
         if (!empty($mailId)) {
             $mailClass = acym_get('class.mail');
-            $lists = $mailClass->getAllListsByMailId($mailId);
-            foreach ($lists as $oneList) {
-                $unsubscribeLists[] = $oneList->id;
-            }
+            $unsubscribeLists = array_keys($mailClass->getAllListsByMailId($mailId));
         }
 
         if (empty($unsubscribeLists)) {
@@ -269,9 +264,9 @@ class FrontusersController extends acymController
 
         if ($config->get('confirmation_message', 1)) {
             if ($user->confirmed) {
-                acym_enqueueMessage(acym_translation('ACYM_ALREADY_CONFIRMED'));
+                acym_enqueueNotification(acym_translation('ACYM_ALREADY_CONFIRMED'));
             } else {
-                acym_enqueueMessage(acym_translation('ACYM_SUBSCRIPTION_CONFIRMED'));
+                acym_enqueueNotification(acym_translation('ACYM_SUBSCRIPTION_CONFIRMED'));
             }
         }
 

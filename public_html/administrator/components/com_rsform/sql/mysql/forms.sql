@@ -78,6 +78,7 @@ CREATE TABLE IF NOT EXISTS `#__rsform_forms` (
   `DeleteSubmissionsAfter` int(11) NOT NULL default '0',
   `Backendmenu` tinyint(1) NOT NULL,
   `ConfirmSubmission` tinyint(1) NOT NULL DEFAULT '0',
+  `ConfirmSubmissionUrl` text NOT NULL,
   `Access` varchar(5) NOT NULL,
   PRIMARY KEY  (`FormId`)
 ) DEFAULT CHARSET=utf8;

@@ -1,4 +1,20 @@
 <?php die();?>
+Akeeba Backup 6.5.1
+================================================================================
+! Missing language files in embedded restoration script made restoring sites impossible
+
+Akeeba Backup 6.5.0
+================================================================================
+! Security [LOW]: an XSS issue in the Backup page affecting versions 5.3.0.b1 to 6.4.2.1 inclusive was addressed. Thank you, Mario Korth for reporting it.
+~ Updated Google Drive integration due to deprecation of the old Team Drives APIs
++ Upload to Amazon S3 now supports path-style bucket access for third party endpoints
++ Timing options in the integrated restoration to work around picky servers where the extraction always failed.
++ Show row count for each table in Database Filters page
+# [HIGH] Optional filters were no longer visible
+# [LOW] PostgreSQL: missing indices (thanks @twister65 for the fix!)
+# [LOW] ALICE - Large Directories check had a typo, making it throw false negatives
+# [LOW] The Action Log plugin caused untranslated strings in the Action Log module in the Control Panel page
+
 Akeeba Backup 6.4.2.1
 ================================================================================
 ! Backup over CLI was broken (the previous fix didn't cover another, less common, failure reason)

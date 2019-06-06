@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -329,7 +329,7 @@ class acymlistClass extends acymClass
         if (empty($list->id)) {
             if (empty($list->cms_user_id)) $list->cms_user_id = acym_currentUserId();
 
-            $list->creation_date = date("Y-m-d H:i:s");
+            $list->creation_date = acym_date('now', 'Y-m-d H:i:s', false);
         }
 
         foreach ($list as $oneAttribute => $value) {
@@ -479,5 +479,26 @@ class acymlistClass extends acymClass
 
             $this->save($defaultList);
         }
+    }
+
+
+    public function getTotalSubCount($ids)
+    {
+        acym_arrayToInteger($ids);
+        $query = "SELECT COUNT(DISTINCT hasList.user_id) 
+                    FROM #__acym_user_has_list AS hasList 
+                    JOIN #__acym_user AS user 
+                        ON hasList.user_id = user.id
+                    WHERE hasList.status = 1 
+                        AND user.active = 1 
+                        AND hasList.list_id IN (".implode(',', $ids).")";
+
+
+        $config = acym_config();
+        if ($config->get('require_confirmation', 1) == 1) {
+            $query .= ' AND user.confirmed = 1 ';
+        }
+
+        return intval(acym_loadResult($query));
     }
 }

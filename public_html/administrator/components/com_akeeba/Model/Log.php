@@ -74,7 +74,8 @@ class Log extends Model
 	 */
 	public function getLogList()
 	{
-		$options = array();
+		$origin   = null;
+		$options  = [];
 
 		$list = $this->getLogFiles();
 

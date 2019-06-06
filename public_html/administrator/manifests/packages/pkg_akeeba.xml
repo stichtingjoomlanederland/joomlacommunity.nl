@@ -2,15 +2,15 @@
 <extension version="3.8.0" type="package" method="upgrade">
     <name>Akeeba Backup package</name>
     <author>Nicholas K. Dionysopoulos</author>
-    <creationDate>2019-03-18</creationDate>
+    <creationDate>2019-05-29</creationDate>
     <packagename>akeeba</packagename>
-    <version>6.4.2.1</version>
+    <version>6.5.1</version>
     <url>https://www.akeebabackup.com</url>
     <packager>Akeeba Ltd</packager>
     <packagerurl>https://www.akeebabackup.com</packagerurl>
     <copyright>Copyright (c)2006-2019 Akeeba Ltd / Nicholas K. Dionysopoulos</copyright>
     <license>GNU GPL v3 or later</license>
-    <description>Akeeba Backup installation package v.6.4.2.1</description>
+    <description>Akeeba Backup installation package v.6.5.1</description>
 
     <!-- List of extensions to install -->
     <files>
@@ -29,7 +29,9 @@
         <!-- Plugins: system -->
         <file type="plugin" group="system" id="akeebaupdatecheck">plg_system_akeebaupdatecheck.zip</file>
         <file type="plugin" group="system" id="backuponupdate">plg_system_backuponupdate.zip</file>
-        <file type="plugin" group="system" id="akeebaactionlog">plg_system_akeebaactionlog.zip</file>
+
+        <!-- Plugins: actionlog -->
+        <file type="plugin" group="actionlog" id="akeebabackup">plg_actionlog_akeebabackup.zip</file>
     </files>
 
     <!-- Installation script -->

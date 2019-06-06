@@ -29,7 +29,7 @@ function rs_google_auth() {
 <?php } ?>
 </script>
 
-<form method="post" action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro'); ?>" name="adminForm" id="adminForm" onsubmit="rs_invite();">
+<form method="post" action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro'); ?>" name="rseInviteForm" id="rseInviteForm" onsubmit="rs_invite();">
 	<h3><?php echo JText::sprintf('COM_RSEVENTSPRO_INVITE_FRIENDS',$this->event->name); ?></h3>
 
 	<?php if (!empty($this->config->google_client_id)) { ?><a class="rs_invite_btn" href="javascript:void(0)" onclick="rs_google_auth();"><?php echo JText::_('COM_RSEVENTSPRO_INVITE_FROM_GMAIL'); ?></a><?php } ?> 

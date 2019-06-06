@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -18,7 +18,7 @@ defined('_JEXEC') or die('Restricted access');
 			<button data-task="save" class="cell button medium-shrink small-12 acy_button_submit"><?php echo acym_translation('ACYM_SAVE_EXIT'); ?></button>
 		</div>
 		<div class="cell grid-x grid-margin-x grid-margin-y">
-			<div class="<?php echo in_array($data['field']->id, array(1, 2)) ? '' : 'medium-6 '; ?>cell grid-x acym__fields__edit__field acym__content">
+			<div class="<?php echo in_array($data['field']->id, array(1, 2)) ? '' : 'medium-6 '; ?>cell grid-x acym__fields__edit__field acym__content grid-margin-x">
 				<h1 class="acym__title__listing margin-right-1 cell margin-bottom-1"><?php echo acym_translation('ACYM_CUSTOM_FIELDS'); ?></h1>
 				<label class="large-5 cell"><?php echo acym_translation('ACYM_NAME'); ?>
 					<input required type="text" name="field[name]" value="<?php echo empty($data['field']->name) ? '' : acym_escape($data['field']->name); ?>">

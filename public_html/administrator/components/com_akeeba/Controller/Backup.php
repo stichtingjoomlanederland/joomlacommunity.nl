@@ -12,9 +12,11 @@ defined('_JEXEC') or die();
 
 use Akeeba\Backup\Admin\Controller\Mixin\CustomACL;
 use Akeeba\Backup\Admin\Controller\Mixin\PredefinedTaskList;
+use Akeeba\Backup\Admin\Helper\Utils;
 use Akeeba\Engine\Platform;
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
+use JUri;
 
 /**
  * Backup page controller
@@ -77,6 +79,10 @@ class Backup extends Controller
 		/** @var \Akeeba\Backup\Admin\Model\Backup $model */
 		$model = $this->getModel();
 
+		// Sanitize the return URL
+		$returnUrl = $this->input->get('returnurl', '', 'raw');
+		$returnUrl = Utils::safeDecodeReturnUrl($returnUrl);
+
 		// Push data to the model
 		$model->setState('profile', $this->input->get('profileid', -10, 'int'));
 		$model->setState('description', $this->input->get('description', '', 'string', 2));
@@ -85,7 +91,7 @@ class Backup extends Controller
 		$model->setState('autostart', $autostart);
 		$model->setState('jpskey', $this->input->get('jpskey', '', 'raw', 2));
 		$model->setState('angiekey', $this->input->get('angiekey', '', 'raw', 2));
-		$model->setState('returnurl', $this->input->get('returnurl', '', 'raw', 2));
+		$model->setState('returnurl', $returnUrl);
 		$model->setState('backupid', $this->input->get('backupid', null, 'cmd'));
 	}
 

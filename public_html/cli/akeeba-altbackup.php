@@ -22,7 +22,7 @@ use Akeeba\Engine\Platform;
 /**
  * Akeeba Backup CLI application
  */
-class AkeebaBackupCLI extends AkeebaCliBase
+class AkeebaBackupAltCLI extends AkeebaCliBase
 {
 	/**
 	 * When making HTTPS connections, should we verify the certificate validity and that the hostname matches the one
@@ -497,4 +497,4 @@ ENDTEXT;
 require_once JPATH_ADMINISTRATOR . '/components/com_akeeba/version.php';
 
 // Instanciate and run the application
-AkeebaCliBase::getInstance('AkeebaBackupCLI')->execute();
+AkeebaCliBase::getInstance('AkeebaBackupAltCLI')->execute();

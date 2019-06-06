@@ -135,26 +135,25 @@ class AliceUtilTempvars
 
 		$ret = false;
 
-		switch (self::getStorageEngine())
+		$rawdata = @file_get_contents($storage_filename);
+
+		if ($rawdata === false)
 		{
-			case 'file':
-			default    :
-				$rawdata = @file_get_contents($storage_filename);
-				if ($rawdata === false)
-				{
-					return $ret;
-				}
-				if (strpos($rawdata, "\n") === false)
-				{
-					return $ret;
-				}
-				list($header, $data) = explode("\n", $rawdata);
-				unset($rawdata);
-				unset($header);
-				break;
+			return $ret;
 		}
 
+		if (strpos($rawdata, "\n") === false)
+		{
+			return $ret;
+		}
+
+		list($header, $data) = explode("\n", $rawdata);
+
+		unset($rawdata);
+		unset($header);
+
 		$ret = self::decode($data);
+
 		unset($data);
 
 		return $ret;

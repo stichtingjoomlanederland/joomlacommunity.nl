@@ -51,6 +51,20 @@ class Scans extends DataController
 		return true;
 	}
 
+	protected function onBeforeApplySave(array &$data)
+	{
+		$comment = $this->input->get('comment', null, 'html', 4);
+
+		if (is_null($comment) && isset($data['comment']))
+		{
+			unset($data['comment']);
+		}
+		else
+		{
+			$data['comment'] = $comment;
+		}
+	}
+
 	public function add()
 	{
 		throw new \Exception(JText::_('JLIB_APPLICATION_ERROR_ACCESS_FORBIDDEN'), 403);

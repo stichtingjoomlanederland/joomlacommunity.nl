@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2017 www.rsjoomla.com
+* @copyright (C) 2007-2019 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/licenses/gpl-2.0.html
 */
 
@@ -163,6 +163,10 @@ class com_rsformInstallerScript
 		}
 		if (!isset($columns['ConfirmSubmission'])) {
 			$db->setQuery("ALTER TABLE `#__rsform_forms` ADD `ConfirmSubmission` TINYINT( 1 ) NOT NULL DEFAULT '0'");
+			$db->execute();
+		}
+		if (!isset($columns['ConfirmSubmissionUrl'])) {
+			$db->setQuery("ALTER TABLE `#__rsform_forms` ADD `ConfirmSubmissionUrl` TEXT NOT NULL AFTER `ConfirmSubmission`");
 			$db->execute();
 		}
 		if (!isset($columns['AdditionalEmailsScript'])) {
@@ -599,6 +603,10 @@ class com_rsformInstallerScript
             $db->setQuery("ALTER TABLE `#__rsform_directory` ADD `DeletionGroups` TEXT NOT NULL AFTER `groups`");
             $db->execute();
         }
+		if (!isset($columns['HideEmptyValues'])) {
+			$db->setQuery("ALTER TABLE `#__rsform_directory` ADD `HideEmptyValues` tinyint(1) NOT NULL AFTER `enablecsv`");
+			$db->execute();
+		}
 
 		// #__rsform_posts updates
 		$columns = $db->getTableColumns('#__rsform_posts');
@@ -912,14 +920,22 @@ class com_rsformInstallerScript
 			<b class="install-not-ok">Error installing!</b>
 			<?php } ?>
 		</p>
-		<h2>Changelog v2.2.1</h2>
+		<h2>Changelog v2.2.2</h2>
 		<ul class="version-history">
-            <li><span class="version-new">New</span> New configuration option: Can show caption instead of field's name.</li>
-            <li><span class="version-upgraded">Upg</span> Hidden Fields now display a preview as well.</li>
-            <li><span class="version-upgraded">Upg</span> File Uploads are now validated by the AJAX validation script.</li>
-            <li><span class="version-fixed">Fix</span> Some field types were incorrectly showing up as required in the grid builder.</li>
-            <li><span class="version-fixed">Fix</span> When exporting submissions in CSV format unescaped user data could allow macros being run.</li>
-            <li><span class="version-fixed">Fix</span> Radio Groups now have a default blank value when editing submissions to prevent assigning wrong values.</li>
+            <li><span class="version-new">New</span> Can specify a URL to redirect to after submission confirmation.</li>
+			<li><span class="version-new">New</span> Menu item parameter for the Submissions Directory view to allow displaying only search results instead of the full submissions list.</li>
+			<li><span class="version-new">New</span> Option to hide empty values from the Directory Details Layout.</li>
+			<li><span class="version-new">New</span> Show submissions that match specific values in the Submissions Directory view.</li>
+			<li><span class="version-new">New</span> Added a search input in the Manage Directories area.</li>
+            <li><span class="version-upgraded">Upg</span> Edit Directory when configuring the Submissions - Directory menu item.</li>
+            <li><span class="version-upgraded">Upg</span> Edit Form when configuring the Form or Submissions - View menu items.</li>
+            <li><span class="version-upgraded">Upg</span> Form Title is now shown when editing a Directory.</li>
+            <li><span class="version-upgraded">Upg</span> Bootstrap updated to 4.3.1.</li>
+            <li><span class="version-upgraded">Upg</span> UIkit updated to 3.1.5.</li>
+            <li><span class="version-upgraded">Upg</span> The Submission ID field can now be selected when configuring the Directory.</li>
+            <li><span class="version-upgraded">Upg</span> Backing up or restoring a form with mappings will now adjust the database prefix to the current configuration.</li>
+            <li><span class="version-upgraded">Upg</span> Submissions can now be confirmed from the Manage Submissions area.</li>
+            <li><span class="version-fixed">Fix</span> Conditions were not showing up if 'Disable Multi-Language' was set to Yes and site language was different than the default en-GB.</li>
 		</ul>
 		<a class="btn btn-large btn-primary" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="btn" href="https://www.rsjoomla.com/support/documentation/rsform-pro.html" target="_blank">Read the RSForm! Pro User Guide</a>

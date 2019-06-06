@@ -8,6 +8,9 @@
 namespace Akeeba\Backup\Admin\Helper;
 
 // Protect from unauthorized access
+use Joomla\Filter\InputFilter;
+use JUri;
+
 defined('_JEXEC') or die();
 
 class Utils
@@ -78,5 +81,72 @@ class Utils
 		}
 
 		return addcslashes($string, $extras);
+	}
+
+	/**
+	 * Safely decode a return URL, used in the Backup view.
+	 *
+	 * Return URLs can have two sources:
+	 * - The Backup on Update plugin. In this case the URL is base sixty four encoded and we need to decode it first.
+	 * - A custom backend menu item. In this case the URL is a simple string which does not need decoding.
+	 *
+	 * Further to that, we have to make a few security checks:
+	 * - The URL must be internal, i.e. starts with our site's base URL or index.php (this check is executed by Joomla)
+	 * - It must not contain single quotes, double quotes, lower than or greater than signs (could be used to execute
+	 *   arbitrary JavaScript).
+	 *
+	 * If any of these violations is detected we return an empty string.
+	 *
+	 * @param   ?string  $returnUrl
+	 *
+	 * @return  string
+	 */
+	static function safeDecodeReturnUrl($returnUrl)
+	{
+		// Nulls and non-strings are not allowed
+		if (is_null($returnUrl) || !is_string($returnUrl))
+		{
+			return '';
+		}
+
+		// Make sure it's not an empty string
+		$returnUrl = trim($returnUrl);
+
+		if (empty($returnUrl))
+		{
+			return '';
+		}
+
+		// Decode a base sixty four encoded string.
+		$filter  = new InputFilter();
+		$encoded = $filter->clean($returnUrl, 'base64');
+
+		if (($returnUrl == $encoded) && (strpos($returnUrl, 'index.php') === false))
+		{
+			$possibleReturnUrl = base64_decode($returnUrl);
+
+			if ($possibleReturnUrl !== false)
+			{
+				$returnUrl = $possibleReturnUrl;
+			}
+		}
+
+		// Check if it's an internal URL
+		if (!JUri::isInternal($returnUrl))
+		{
+			return '';
+		}
+
+		$disallowedCharacters = ['"' ,"'", '>', '<'];
+
+		foreach ($disallowedCharacters as $check)
+		{
+			if (strpos($returnUrl, $check) !== false)
+			{
+				return '';
+			}
+		}
+
+		return $returnUrl;
 	}
 }

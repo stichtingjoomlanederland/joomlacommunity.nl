@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2019 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -111,14 +111,6 @@ class RsformViewSubmissions extends JViewLegacy
             JToolbarHelper::custom('submissions.cancelform', 'previous', 'previous', JText::_('RSFP_BACK_TO_FORM'), false);
             JToolbarHelper::custom('submissions.back', 'database', 'database', JText::_('RSFP_SUBMISSIONS'), false);
         }
-        elseif ($layout == 'import')
-        {
-            $this->limit    = 500;
-            $this->formId   = $this->get('FormId');
-
-            JToolbarHelper::custom('submissions.cancelform', 'previous', 'previous', JText::_('RSFP_BACK_TO_FORM'), false);
-            JToolbarHelper::custom('submissions.back', 'database', 'database', JText::_('RSFP_SUBMISSIONS'), false);
-        }
 		elseif ($layout == 'edit')
 		{
 			JToolbarHelper::custom('submission.export.pdf', 'archive', 'archive', JText::_('RSFP_EXPORT_PDF'), false);
@@ -145,7 +137,17 @@ class RsformViewSubmissions extends JViewLegacy
                 JToolbarHelper::spacer();
             }
 
+			$forms = $this->get('forms');
+			$formId = $this->get('formId');
+			$this->form = RSFormProHelper::getForm($formId);
+
 			JToolbarHelper::custom('submissions.resend', 'mail', 'mail', JText::_('RSFP_RESEND_EMAILS'), true);
+
+			if ($this->form->ConfirmSubmission)
+			{
+				JToolbarHelper::custom('submissions.confirm', 'checkmark-2', 'checkmark-2', JText::_('COM_RSFORM_CONFIRM_SUBMISSIONS'), true);
+			}
+
             JToolbarHelper::modal('exportModal', 'icon-archive icon white', 'RSFP_EXPORT');
             JToolbarHelper::modal('importModal', 'icon-upload icon white', 'COM_RSFORM_IMPORT_SUBMISSIONS');
             JToolbarHelper::spacer();
@@ -153,14 +155,9 @@ class RsformViewSubmissions extends JViewLegacy
 			JToolbarHelper::deleteList(JText::_('RSFP_ARE_YOU_SURE_DELETE'), 'submissions.delete', JText::_('JTOOLBAR_DELETE'));
 			JToolbarHelper::spacer();
 			JToolbarHelper::cancel('submissions.cancel', JText::_('JTOOLBAR_CLOSE'));
-			
-			$forms = $this->get('forms');
-			$formId = $this->get('formId');
 
 			JToolbarHelper::title('RSForm! Pro <small>['.$this->get('formTitle').']</small>','rsform');
-			
-			$this->form = RSFormProHelper::getForm($formId);
-		
+
 			$this->headers = $this->get('headers');
 			$this->unescapedFields = $this->get('unescapedFields');
 			$this->staticHeaders = $this->get('staticHeaders');

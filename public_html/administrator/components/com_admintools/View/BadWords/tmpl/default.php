@@ -70,7 +70,7 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
 					<td><?php echo \JHtml::_('grid.id', ++$i, $row->id); ?></td>
 					<td>
 						<a href="<?php echo $edit?>">
-							<?php echo $row->word?>
+							<?php echo $this->escape($row->word) ?>
 						</a>
 					</td>
 				</tr>

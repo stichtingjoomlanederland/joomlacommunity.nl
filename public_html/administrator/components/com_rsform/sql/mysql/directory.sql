@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS `#__rsform_directory` (
   `filename` VARCHAR(255) NOT NULL DEFAULT 'export.pdf',
   `enablepdf` tinyint(1) NOT NULL,
   `enablecsv` tinyint(1) NOT NULL,
+  `HideEmptyValues` tinyint(1) NOT NULL,
   `ViewLayout` longtext NOT NULL,
   `ViewLayoutName` text NOT NULL,
   `ViewLayoutAutogenerate` tinyint(1) NOT NULL,

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -39,6 +39,7 @@ class plgAcymPage extends acymPlugin
                 'name' => 'display',
                 'options' => array(
                     'title' => array('ACYM_TITLE', true),
+                    'image' => array('ACYM_FEATURED_IMAGE', true),
                     'content' => array('ACYM_CONTENT', true),
                 ),
             ),
@@ -180,12 +181,13 @@ class plgAcymPage extends acymPlugin
         $link = $element->guid;
         $varFields['{link}'] = $link;
 
-        $title = $element->post_title;
+        $title = '';
+        if (in_array('title', $tag->display)) $title = $element->post_title;
 
         $afterTitle = '';
 
         $imagePath = '';
-        if (!empty($tag->pict)) {
+        if (in_array('image', $tag->display)) {
             $imageId = get_post_thumbnail_id($tag->id);
             if (!empty($imageId)) {
                 $imagePath = get_the_post_thumbnail_url($tag->id);

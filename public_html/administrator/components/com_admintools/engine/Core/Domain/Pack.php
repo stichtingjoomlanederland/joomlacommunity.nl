@@ -165,35 +165,42 @@ structure. You'll have to restore these files manually!
 
 
 ENDVCONTENT;
-			$registry = Factory::getConfiguration();
-			$counter = 0;
-			$effini = "[eff]\n";
-			$vdir = trim($registry->get('akeeba.advanced.virtual_folder'), '/') . '/';
+			$registry   = Factory::getConfiguration();
+			$counter    = 0;
+			$vdir       = trim($registry->get('akeeba.advanced.virtual_folder'), '/') . '/';
+			$effini     = ['eff' => []];
+
 			foreach ($this->root_definitions as $dir)
 			{
 				$counter++;
+
 				// Skip over the first filter, because it's the site's root
 				if ($counter == 1)
 				{
 					continue;
 				}
 				$test = trim($dir[1]);
+
 				if ($test == '/')
 				{
 					$counter--;
 					continue;
 				}
+
 				$virtualContents .= $dir[1] . "\tis the backup of\t" . $dir[0] . "\n";
 
-				$effini .= '"' . $dir[0] . '"="' . $vdir . $dir[1] . '"'."\n";
+				$effini['eff'][$dir[0]] = $vdir . $dir[1];
 			}
-			// Add the file to our archive
 
+			$effini = json_encode($effini, JSON_PRETTY_PRINT);
+
+			// Add the file to our archive
 			$archiver = Factory::getArchiverEngine();
+
 			if ($counter > 1)
 			{
 				$archiver->addVirtualFile('README.txt', $registry->get('akeeba.advanced.virtual_folder'), $virtualContents);
-				$archiver->addVirtualFile('eff.ini', $this->installerSettings->installerroot, $effini);
+				$archiver->addVirtualFile('eff.json', $this->installerSettings->installerroot, $effini);
 			}
 			else
 			{

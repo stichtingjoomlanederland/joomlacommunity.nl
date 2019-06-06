@@ -80,10 +80,10 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
 						<?php echo $ip ?>
 					</td>
 					<td>
-						<?php echo $reason?>
+						<?php echo $reason ?>
 					</td>
 					<td>
-						<?php echo $until?>
+						<?php echo $until ?>
 					</td>
 				</tr>
 			<?php

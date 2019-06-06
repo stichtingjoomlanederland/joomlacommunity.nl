@@ -325,6 +325,22 @@ class Postgresql extends NativeMysql
 		$allColumns = $dbi->loadObjectList();
 		$rawKeys = array();
 
+		// Get the other keys
+		$keys = $dbi->getTableKeys($table_name);
+
+		if (!empty($keys))
+		{
+			foreach ($keys as $key)
+			{
+				if ($key->isPrimary == 't' || $key->isUnique == 't')
+				{
+					continue;
+				}
+
+				$indexes_sql[] = $key->Query;
+			}
+		}
+
 		if (!empty($allColumns))
 		{
 			foreach ($allColumns as $oColumn)

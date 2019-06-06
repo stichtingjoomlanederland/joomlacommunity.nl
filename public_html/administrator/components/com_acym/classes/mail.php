@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -16,6 +16,8 @@ class acymmailClass extends acymClass
     var $pkey = 'id';
     var $templateNames = array();
     var $checkAreas = true;
+
+    const FIELDS_ENCODING = ['subject'];
 
     public function getMatchingMails($settings)
     {
@@ -92,7 +94,7 @@ class acymmailClass extends acymClass
             $query .= ' ORDER BY mail.'.acym_secureDBColumn($settings['ordering']).' '.acym_secureDBColumn(strtoupper($settings['ordering_sort_order']));
         }
 
-        $results['mails'] = acym_loadObjectList($query, '', $settings['offset'], $settings['mailsPerPage']);
+        $results['mails'] = $this->decode(acym_loadObjectList($query, '', $settings['offset'], $settings['mailsPerPage']));
         $results['total'] = acym_loadResult($queryCount);
 
         $mailsPerStatus = acym_loadObjectList($queryStatus.' GROUP BY type', 'type');
@@ -113,7 +115,7 @@ class acymmailClass extends acymClass
 
     public function getAll()
     {
-        return acym_loadObjectList('SELECT * FROM #__acym_mail');
+        return $this->decode(acym_loadObjectList('SELECT * FROM #__acym_mail'));
     }
 
     public function getOneById($id)
@@ -121,6 +123,8 @@ class acymmailClass extends acymClass
         $mail = acym_loadObject('SELECT * FROM #__acym_mail WHERE id = '.intval($id));
 
         if (!empty($mail)) {
+            $mail = $this->decode($mail);
+
             $tagsClass = acym_get('class.tag');
             $mail->tags = $tagsClass->getAllTagsByElementId('mail', $id);
         }
@@ -133,6 +137,8 @@ class acymmailClass extends acymClass
         $mail = acym_loadObject('SELECT * FROM #__acym_mail WHERE `type` = "notification" AND `name` = '.acym_escapeDB($name));
 
         if (!empty($mail)) {
+            $mail = $this->decode($mail);
+
             $tagsClass = acym_get('class.tag');
             $mail->tags = $tagsClass->getAllTagsByElementId('mail', $mail->id);
         }
@@ -167,7 +173,7 @@ class acymmailClass extends acymClass
 
         $query .= ' ORDER BY id DESC';
 
-        $results['mails'] = acym_loadObjectList($query, $settings['key'], $settings['offset'], $settings['mailsPerPage']);
+        $results['mails'] = $this->decode(acym_loadObjectList($query, $settings['key'], $settings['offset'], $settings['mailsPerPage']));
         $results['total'] = acym_loadResult($queryCount);
 
         return $results;
@@ -203,6 +209,8 @@ class acymmailClass extends acymClass
     public function getAllListsByMailId($id)
     {
         $mail = $this->getOneById($id);
+        if (empty($mail)) return [];
+
         if ('welcome' === $mail->type) {
             $query = 'SELECT * FROM #__acym_list WHERE welcome_id = '.intval($id);
         } else {
@@ -214,7 +222,7 @@ class acymmailClass extends acymClass
         }
 
 
-        return acym_loadObjectList($query);
+        return acym_loadObjectList($query, 'id');
     }
 
     public function save($mail)
@@ -224,9 +232,13 @@ class acymmailClass extends acymClass
             unset($mail->tags);
         }
 
-        if (empty($mail->id) && empty($mail->creator_id)) {
-            $mail->creator_id = acym_currentUserId();
-        }
+        if (empty($mail->id) && empty($mail->creator_id)) $mail->creator_id = acym_currentUserId();
+
+
+        if (empty($mail->id) && empty($mail->creation_date)) $mail->creation_date = acym_date('now', 'Y-m-d H:i:s');
+
+
+        $mail = $this->encode($mail);
 
         $mail->autosave = null;
 
@@ -724,5 +736,73 @@ class acymmailClass extends acymClass
         }
 
         return $result;
+    }
+
+    public function encode($mails = array())
+    {
+        $isArray = true;
+        if (!is_array($mails)) {
+            $mails = [$mails];
+
+            $isArray = false;
+        }
+
+        $return = array_map(array($this, 'utf8Encode'), $mails);
+
+        return $isArray ? $return : $return[0];
+    }
+
+    public function decode($mails = array())
+    {
+        $isArray = true;
+        if (!is_array($mails)) {
+            $mails = [$mails];
+
+            $isArray = false;
+        }
+
+        $return = array_map(array($this, 'utf8Decode'), $mails);
+
+        return $isArray ? $return : $return[0];
+    }
+
+    protected function utf8Decode($mail)
+    {
+        if (!empty($mail)) {
+            foreach (self::FIELDS_ENCODING as $oneField) {
+
+                if (is_array($mail)) {
+                    $value = &$mail[$oneField];
+                } else {
+                    $value = &$mail->$oneField;
+                }
+
+                if (!empty($value)) {
+                    $value = utf8_decode($value);
+                }
+            }
+        }
+
+        return $mail;
+    }
+
+    protected function utf8Encode($mail)
+    {
+        if (!empty($mail)) {
+            foreach (self::FIELDS_ENCODING as $oneField) {
+
+                if (is_array($mail)) {
+                    $value = &$mail[$oneField];
+                } else {
+                    $value = &$mail->$oneField;
+                }
+
+                if (!empty($value)) {
+                    $value = utf8_encode($value);
+                }
+            }
+        }
+
+        return $mail;
     }
 }

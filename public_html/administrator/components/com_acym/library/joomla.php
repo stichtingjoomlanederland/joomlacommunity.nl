@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -881,12 +881,12 @@ function acym_setPageTitle($title)
     $document->setTitle($title);
 }
 
-function acym_enqueueNotification_front($message, $type = 'info', $time = 0)
+function acym_enqueueNotificationFront($message, $type = 'info', $time = 0)
 {
     acym_enqueueMessage($message, $type);
 }
 
-function acym_cmsModal($isIframe, $content, $buttonText, $isButton, $identifier = null, $width = '800', $height = '400')
+function acym_cmsModal($isIframe, $content, $buttonText, $isButton, $modalTitle, $identifier = null, $width = '800', $height = '400')
 {
     JHtml::_('jquery.framework');
     JHtml::_('script', 'system/modal-fields.js', array('version' => 'auto', 'relative' => true));
@@ -900,7 +900,7 @@ function acym_cmsModal($isIframe, $content, $buttonText, $isButton, $identifier 
         'bootstrap.renderModal',
         $identifier,
         array(
-            'title' => acym_translation('ACYM_SELECT_AN_ARTICLE'),
+            'title' => $modalTitle,
             'url' => $content,
             'height' => $height.'px',
             'width' => $width.'px',
@@ -918,7 +918,7 @@ function acym_CMSArticleTitle($id)
     return acym_loadResult('SELECT title FROM #__content WHERE id = '.intval($id));
 }
 
-function acym_getArticleURL($id, $popup, $text)
+function acym_getArticleURL($id, $popup, $text, $titleModal = '')
 {
     if (empty($id)) return '';
 
@@ -938,10 +938,10 @@ function acym_getArticleURL($id, $popup, $text)
     $articleid = $article->id.(empty($article->alias) ? '' : ':'.$article->alias);
 
     $url = ContentHelperRoute::getArticleRoute($articleid, $category);
-
+    
     if ($popup == 1) {
         $url .= (strpos($url, '?') ? '&' : '?').acym_noTemplate();
-        $url = acym_cmsModal(true, acym_route($url), $text, false);
+        $url = acym_cmsModal(true, acym_route($url), $text, false, $titleModal);
     } else {
         $url = '<a title="'.acym_translation($text, true).'" href="'.acym_escape(acym_route($url)).'" target="_blank">'.acym_translation($text).'</a>';
     }

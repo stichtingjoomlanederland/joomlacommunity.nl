@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -23,7 +23,7 @@ defined('_JEXEC') or die('Restricted access');
 		</div>
     <?php } else { ?>
 	<div class="medium-auto cell">
-        <?php echo acym_filterSearch(acym_escape($data["search"]), 'mailchoose_search', 'ACYM_SEARCH_TEMPLATE'); ?>
+        <?php echo acym_filterSearch($data['search'], 'mailchoose_search', 'ACYM_SEARCH_TEMPLATE'); ?>
 	</div>
 
 	<div class="medium-auto cell">
@@ -66,7 +66,17 @@ defined('_JEXEC') or die('Restricted access');
 				<div class="cell acym__templates__pic text-center">
 					<!-- Todo find a better way to pass the step in url when you choose a template in campaigns -->
 					<a href="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl').'&task=edit&step=editEmail&from='.$oneTemplate->id.'&id='.acym_escape($data['campaignID'])); ?>">
-						<img src="<?php echo acym_escape((strpos($oneTemplate->thumbnail, 'default_template_thumbnail') === false && strpos($oneTemplate->thumbnail, 'default_template') === false) ? ACYM_TEMPLATE_THUMBNAILS.$oneTemplate->thumbnail : $oneTemplate->thumbnail); ?>" alt="<?php echo acym_escape($oneTemplate->name); ?>"/>
+						<?php
+						$src = $oneTemplate->thumbnail;
+						if(strpos($oneTemplate->thumbnail, 'default_template') === false){
+                            $src = ACYM_TEMPLATE_THUMBNAILS.$src;
+						}
+
+                        if (!file_exists(str_replace(acym_rootURI(), ACYM_ROOT, $src))) {
+                            $src = ACYM_IMAGES.'default_template_thumbnail.png';
+                        }
+						?>
+						<img src="<?php echo acym_escape($src); ?>" alt="<?php echo acym_escape($oneTemplate->name); ?>"/>
 					</a>
                     <?php
                     if ($oneTemplate->drag_editor) {
@@ -85,7 +95,7 @@ defined('_JEXEC') or die('Restricted access');
                         echo acym_escape($oneTemplate->name);
                         ?>
 					</div>
-					<div class="cell"><?php echo acym_date(acym_escape($oneTemplate->creation_date), 'M. j, Y'); ?></div>
+					<div class="cell"><?php echo acym_date($oneTemplate->creation_date, 'M. j, Y'); ?></div>
 				</div>
 			</div>
         <?php } ?>

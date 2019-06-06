@@ -575,6 +575,9 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			// Migrate profiles if necessary
 			$this->migrateProfiles();
 		}
+
+		// Replace the system plugin with the actionlog plugin for logging user actions
+		$this->switchActionLogPlugins();
 	}
 
 	/**
@@ -1071,6 +1074,109 @@ HTML;
 			{
 				// Do not fail in this case
 			}
+		}
+	}
+
+	private function switchActionLogPlugins()
+	{
+		$db = \Joomla\CMS\Factory::getDbo();
+
+		// Does the plg_system_akeebaactionlog plugin exist? If not, there's nothing to do here.
+		$query = $db->getQuery(true)
+			->select('*')
+			->from('#__extensions')
+			->where($db->qn('type') . ' = ' . $db->q('plugin'))
+			->where($db->qn('folder') . ' = ' . $db->q('system'))
+			->where($db->qn('element') . ' = ' . $db->q('akeebaactionlog'));
+		try
+		{
+			$result = $db->setQuery($query)->loadAssoc();
+
+			if (empty($result))
+			{
+				return;
+			}
+
+			$eid = $result['extension_id'];
+		}
+		catch (Exception $e)
+		{
+			return;
+		}
+
+		// If plg_system_akeebaactionlog is enabled: enable plg_actionlog_akeebabackup
+		if (\Joomla\CMS\Plugin\PluginHelper::isEnabled('system', 'akeebaactionlog'))
+		{
+			$query = $db->getQuery(true)
+				->update($db->qn('#__extensions'))
+				->set($db->qn('enabled') . ' = ' . $db->q(1))
+				->where($db->qn('type') . ' = ' . $db->q('plugin'))
+				->where($db->qn('folder') . ' = ' . $db->q('actionlog'))
+				->where($db->qn('element') . ' = ' . $db->q('akeebabackup'));
+			try
+			{
+				$db->setQuery($query)->execute();
+			}
+			catch (Exception $e)
+			{
+			}
+		}
+
+		// Deactivate plg_system_akeebaactionlog
+		$query = $db->getQuery(true)
+			->update($db->qn('#__extensions'))
+			->set($db->qn('enabled') . ' = ' . $db->q(0))
+			->where($db->qn('type') . ' = ' . $db->q('plugin'))
+			->where($db->qn('folder') . ' = ' . $db->q('system'))
+			->where($db->qn('element') . ' = ' . $db->q('akeebaactionlog'));
+		try
+		{
+			$db->setQuery($query)->execute();
+		}
+		catch (Exception $e)
+		{
+		}
+
+		/**
+		 * Here's a bummer. If you try to uninstall the plg_system_akeebaactionlog plugin Joomla throws a nonsensical
+         * error message about the plugin's XML manifest missing -- after it has already uninstalled the plugin! This
+		 * error causes the package installation to fail which results in the extension being installed BUT the database
+		 * record of the package NOT being present which makes it impossible to uninstall.
+		 *
+		 * So I have to hack my way around it which is ugly but the only viable alternative :(
+		 */
+		try
+		{
+			// Safely delete the row in the extensions table
+			$row = JTable::getInstance('extension');
+			$row->load((int) $eid);
+			$row->delete($eid);
+
+			// Delete the plugin's files
+            $pluginPath = JPATH_PLUGINS . '/system/akeebaactionlog';
+
+			if (is_dir($pluginPath))
+			{
+				JFolder::delete($pluginPath);
+			}
+
+			// Delete the plugin's language files
+			$langFiles = [
+				JPATH_ADMINISTRATOR . '/language/en-GB/en-GB.plg_system_akeebaactionlog.ini',
+				JPATH_ADMINISTRATOR . '/language/en-GB/en-GB.plg_system_akeebaactionlog.sys.ini',
+			];
+
+			foreach ($langFiles as $file)
+			{
+				if (@is_file($file))
+				{
+					JFile::delete($file);
+				}
+			}
+		}
+		catch (Exception $e)
+		{
+			// I tried, I failed. Dear user, do NOT try to enable that old plugin. Bye!
 		}
 	}
 }

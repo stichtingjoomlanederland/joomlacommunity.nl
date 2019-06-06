@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -22,10 +22,10 @@ defined('_JEXEC') or die('Restricted access');
 			</div>
         <?php } else { ?>
 			<div class="grid-x grid-margin-x">
-				<div class="large-auto medium-8 cell">
-                    <?php echo acym_filterSearch(acym_escape($data["search"]), 'campaigns_search', 'ACYM_SEARCH_A_CAMPAIGN_NAME'); ?>
+				<div class="large-3 medium-8 cell">
+                    <?php echo acym_filterSearch($data['search'], 'campaigns_search', 'ACYM_SEARCH_A_CAMPAIGN_NAME'); ?>
 				</div>
-				<div class="large-auto medium-4 cell">
+				<div class="large-3 medium-4 cell">
                     <?php
                     $allTags = new stdClass();
                     $allTags->name = acym_translation('ACYM_ALL_TAGS');
@@ -35,7 +35,7 @@ defined('_JEXEC') or die('Restricted access');
                     echo acym_select($data["allTags"], 'campaigns_tag', acym_escape($data["tag"]), 'class="acym__campaigns__filter__tags"', 'value', 'name');
                     ?>
 				</div>
-				<div class="xxlarge-2 xlarge-1 hide-for-large-only hide-for-medium-only hide-for-small-only cell"></div>
+				<div class="large-auto hide-for-large-only hide-for-medium-only hide-for-small-only cell"></div>
 				<div class="large-shrink medium-6 cell">
 					<button data-task="edit" data-step="chooseTemplate" class="button expanded acy_button_submit"><?php echo acym_translation('ACYM_CREATE_NEW_CAMPAIGN'); ?></button>
 				</div>
@@ -43,43 +43,40 @@ defined('_JEXEC') or die('Restricted access');
             <?php if (empty($data['allCampaigns'])) { ?>
 				<h1 class="cell acym__listing__empty__search__title text-center"><?php echo acym_translation('ACYM_NO_RESULTS_FOUND'); ?></h1>
             <?php } else { ?>
-				<div class="grid-x margin-top-1">
-					<h1 class="shrink acym__title__listing margin-right-1"><?php echo acym_translation('ACYM_CAMPAIGNS'); ?></h1>
-					<div class="cell shrink acym_listing_sorty-by">
-                        <?php echo acym_sortBy(
-                            array(
-                                'id' => strtolower(acym_translation('ACYM_ID')),
-                                'name' => acym_translation('ACYM_NAME'),
-                                'sending_date' => acym_translation('ACYM_SENDING_DATE'),
-                                'creation_date' => acym_translation('ACYM_DATE_CREATED'),
-                                'draft' => acym_translation('ACYM_DRAFT'),
-                                'active' => acym_translation('ACYM_ACTIVE'),
-                                'scheduled' => acym_translation('ACYM_SCHEDULED'),
-                                'sent' => acym_translation('ACYM_SENT'),
-                            ),
-                            "campaigns"
-                        ); ?>
-					</div>
-				</div>
-				<div class="grid-x acym__listing__actions">
-                    <?php
-                    $actions = array('delete' => acym_translation('ACYM_DELETE'), 'duplicate' => acym_translation('ACYM_DUPLICATE'));
-                    echo acym_listingActions($actions);
-                    ?>
-					<div class="medium-auto cell">
+				<div class="cell grid-x margin-top-1">
+					<div class="grid-x acym__listing__actions cell auto">
                         <?php
-                        $options = array(
-                            '' => array('ACYM_ALL', count($data['allCampaigns'])),
-                            'scheduled' => array('ACYM_SCHEDULED', $data['allStatusFilter']->scheduled),
-                            'sent' => array('ACYM_SENT', $data['allStatusFilter']->sent),
-                            'draft' => array('ACYM_DRAFT', $data['allStatusFilter']->draft),
-                        );
-                        echo acym_filterStatus($options, $data["status"], 'campaigns_status');
+                        $actions = array('delete' => acym_translation('ACYM_DELETE'), 'duplicate' => acym_translation('ACYM_DUPLICATE'));
+                        echo acym_listingActions($actions);
                         ?>
+						<div class="medium-auto cell">
+                            <?php
+                            $options = array(
+                                '' => array('ACYM_ALL', count($data['allCampaigns'])),
+                                'scheduled' => array('ACYM_SCHEDULED', $data['allStatusFilter']->scheduled),
+                                'sent' => array('ACYM_SENT', $data['allStatusFilter']->sent),
+                                'draft' => array('ACYM_DRAFT', $data['allStatusFilter']->draft),
+                            );
+                            echo acym_filterStatus($options, $data["status"], 'campaigns_status');
+                            ?>
+						</div>
 					</div>
-					<div class="cell large-auto hide-for-medium-only hide-for-small-only"></div>
-					<div class="cell medium-3 grid-x align-right">
-                        <?php echo acym_switch('campaign_active', 1, acym_translation('ACYM_SHOW_SENDING_PROCESS'), array('id' => 'acym__campaigns__listing__show__action')); ?>
+					<div class="grid-x cell auto">
+						<div class="cell acym_listing_sorty-by">
+                            <?php echo acym_sortBy(
+                                array(
+                                    'id' => strtolower(acym_translation('ACYM_ID')),
+                                    'name' => acym_translation('ACYM_NAME'),
+                                    'sending_date' => acym_translation('ACYM_SENDING_DATE'),
+                                    'creation_date' => acym_translation('ACYM_DATE_CREATED'),
+                                    'draft' => acym_translation('ACYM_DRAFT'),
+                                    'active' => acym_translation('ACYM_ACTIVE'),
+                                    'scheduled' => acym_translation('ACYM_SCHEDULED'),
+                                    'sent' => acym_translation('ACYM_SENT'),
+                                ),
+                                "campaigns"
+                            ); ?>
+						</div>
 					</div>
 				</div>
 				<div class="grid-x acym__listing">
@@ -121,13 +118,15 @@ defined('_JEXEC') or die('Restricted access');
 							<div class="grid-x medium-auto small-11 cell acym__campaign__listing acym__listing__title__container">
 
 								<div class="cell medium-auto small-7 acym__listing__title acym__campaign__title">
-									<a class="cell auto" href="<?php echo acym_escape($campaign->sent) ? acym_completeLink('campaigns&task=edit&step=summary&id=').acym_escape($campaign->id) : acym_completeLink('campaigns&task=edit&step=editEmail&id=').acym_escape($campaign->id); ?>">
+									<a class="cell auto" href="<?php echo acym_completeLink('campaigns&task=edit&step='.($campaign->sent && $campaign->active ? 'summary' : 'editEmail').'&id='.intval($campaign->id)); ?>">
 										<h6 class='acym__listing__title__primary acym_text_ellipsis'>
                                             <?php echo acym_escape($campaign->name); ?>
 										</h6>
 										<p class='acym__listing__title__secondary'>
                                             <?php
-                                            echo !empty($campaign->sending_date) && !($campaign->scheduled && !$campaign->sent) ? acym_translation('ACYM_SENDING_DATE')." : ".acym_date(acym_escape($campaign->sending_date), 'M. j, Y') : "";
+                                            if (!empty($campaign->sending_date) && (!$campaign->scheduled || $campaign->sent)) {
+                                                echo acym_translation('ACYM_SENDING_DATE').' : '.acym_date($campaign->sending_date, 'M. j, Y');
+                                            }
                                             ?>
 										</p>
 									</a>
@@ -152,7 +151,7 @@ defined('_JEXEC') or die('Restricted access');
                                             if (!isset($campaign->subscribers)) $campaign->subscribers = 'x';
                                             echo '<div class="cell acym__campaign__status__status acym__background-color__green"><span>'.acym_translation('ACYM_SENT').' : '.acym_escape($campaign->subscribers).' '.acym_translation('ACYM_RECIPIENTS').'</span></div>';
                                         } else if ($campaign->scheduled && !$campaign->draft) {
-                                            echo '<div class="cell acym__campaign__status__status acym__background-color__orange"><span>'.acym_translation('ACYM_SCHEDULED').' : '.acym_date(acym_escape($campaign->sending_date), 'M. j, Y').'</span></div>';
+                                            echo '<div class="cell acym__campaign__status__status acym__background-color__orange"><span>'.acym_translation('ACYM_SCHEDULED').' : '.acym_date($campaign->sending_date, 'M. j, Y').'</span></div>';
                                             $target = '<div class="acym__campaign__listing__scheduled__stop grid-x cell xlarge-shrink" data-campaignid="'.acym_escape($campaign->id).'"><i class="fa fa-times-circle cell shrink show-for-xlarge"></i><span class="cell xlarge-shrink">'.acym_translation('ACYM_CANCEL_SCHEDULING').'</span></div>';
                                             echo acym_escape($campaign->draft) && !$campaign->active ? '' : '<div class="cell acym__campaign__listing__status__controls"><div class="grid-x text-center"><div class="cell auto"></div>'.acym_tooltip($target, acym_translation("ACYM_STOP_THE_SCHEDULING_AND_SET_CAMPAIGN_AS_DRAFT")).'<div class="cell auto"></div></div></div>';
                                         } else if ($campaign->draft) {

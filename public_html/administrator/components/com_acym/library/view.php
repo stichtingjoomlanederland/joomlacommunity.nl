@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -51,6 +51,7 @@ class acymView
     {
         $name = $this->getName();
         $view = $this->getLayout();
+        $config = acym_config();
         if (method_exists($this, $view)) $this->$view();
 
         $viewFolder = acym_isAdmin() ? ACYM_VIEW : ACYM_VIEW_FRONT;
@@ -66,7 +67,9 @@ class acymView
         $outsideForm = $name == 'mails' && $view == 'edit';
         if ($outsideForm) echo '<form id="acym_form" action="'.acym_completeLink(acym_getVar('cmd', 'ctrl')).'" method="post" name="acyForm" data-abide novalidate>';
 
-        if (acym_getVar('cmd', 'task') != 'ajaxEncoding') echo '<div id="acym_wrapper" class="'.$name.'_'.$view.'">';
+        $class = empty($config->get('small_display', 0)) ? '' : 'acym__wrapper__small';
+
+        if (acym_getVar('cmd', 'task') != 'ajaxEncoding') echo '<div id="acym_wrapper" class="'.$name.'_'.$view.' '.$class.'">';
 
         if (acym_isLeftMenuNecessary()) echo acym_getLeftMenu($name).'<div id="acym_content">';
 

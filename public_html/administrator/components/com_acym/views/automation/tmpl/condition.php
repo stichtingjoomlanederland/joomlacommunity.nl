@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -19,6 +19,10 @@ defined('_JEXEC') or die('Restricted access');
 	<div class="acym__content grid-x cell" id="acym__automation__conditions">
         <?php
         $workflow = acym_get('helper.workflow');
+        if ('[]' == $data['condition']->conditions) {
+            $this->edition = 1;
+            $workflow->disabledAfter = 'condition';
+        }
         echo $workflow->display($this->steps, 'condition', $this->edition);
         ?>
 		<div id="acym__automation__or__example" style="display: none;">
@@ -27,10 +31,6 @@ defined('_JEXEC') or die('Restricted access');
 				<div class="acym__automation__new__or cell grid-x">
 					<div class="cell auto"></div>
 					<i class="material-icons acym__color__red acym__automation__delete__group__condition shrink cell cursor-pointer">close</i>
-				</div>
-				<div class="cell grid-x">
-					<div class="auto cell hide-for-medium-only hide-for-small-only"></div>
-					<span class="cell large-shrink acym__automation__or__total__result"></span>
 				</div>
 				<div class="cell grid-x margin-top-2">
 					<button data-condition-type="" type="button" class="button-secondary button medium-shrink acym__automation__add-condition"><?php echo acym_translation('ACYM_ADD_CONDITION'); ?></button>
@@ -67,8 +67,6 @@ defined('_JEXEC') or die('Restricted access');
 		<div class="cell grid-x acym__automation__condition__container" id="acym__automation__conditions__type__classic" <?php echo $data['type_condition'] == 'classic' ? '' : 'style="display:none;"'; ?>>
 			<input type="hidden" value="<?php echo acym_escape($data['classic_option']); ?>" id="acym__automation__condition__classic__options">
 			<div class="cell grid-x acym__content acym__automation__group__condition" data-condition-number="0">
-				<div class="auto cell hide-for-medium-only hide-for-small-only"></div>
-				<span class="cell large-shrink acym__automation__or__total__result"></span>
 				<div class="cell grid-x acym__automation__one__condition acym__automation__one__condition__classic">
 					<div class="medium-5 cell">
                         <?php echo acym_select($data['classic_name'], 'conditions_name', null, 'class="acym__select acym__automation__select__classic__condition"'); ?>

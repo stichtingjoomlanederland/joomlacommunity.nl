@@ -451,7 +451,7 @@ class EngineParameters
 						$information['merge'] = 0;
 					}
 
-					$group_name = substr(basename($filename), 0, -4);
+					$group_name = substr(basename($filename), 0, -5);
 
 					$def = array(
 						'information' => $information,

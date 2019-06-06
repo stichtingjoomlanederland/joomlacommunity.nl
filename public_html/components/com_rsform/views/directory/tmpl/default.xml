@@ -6,15 +6,19 @@
 		</message>
 	</layout>
 	<config>
-	<fields name="params">
-		<fieldset name="basic" addfieldpath="/administrator/components/com_rsform/models/fields">
-			<field name="formId" type="directories" required="true" default="" label="RSFP_SUBM_DIR_FORM" description="RSFP_SUBM_DIR_FORM" />
+	<fields name="params" addfieldpath="/administrator/components/com_rsform/models/fields">
+		<fieldset name="basic">
+			<field name="formId" type="directories" onchange="generateDirectoryLink();" required="true" default="" label="RSFP_SUBM_DIR_FORM" description="RSFP_SUBM_DIR_FORM" />
 			<field name="lang" type="lang" default="" label="RSFP_SUBM_DIR_LANGUAGE" description="RSFP_SUBM_DIR_LANGUAGE_DESC" />
 			<field name="enable_directory" type="radio" class="btn-group" default="0" label="RSFP_SUBM_DIR_ENABLE_DIRECTORY" description="RSFP_SUBM_DIR_ENABLE_DIRECTORY_DESC">
 				<option value="0">JNO</option>
 				<option value="1">JYES</option>
 			</field>
 			<field name="show_confirmed" type="radio" class="btn-group" default="0" label="RSFP_SUBM_DIR_CONFIRMED" description="RSFP_SUBM_DIR_CONFIRMED_DESC">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="show_filtering_result" type="radio" class="btn-group" default="0" label="COM_RSFORM_SHOW_FILTERING_RESULT" description="COM_RSFORM_SHOW_FILTERING_RESULT_DESC">
 				<option value="0">JNO</option>
 				<option value="1">JYES</option>
 			</field>
@@ -30,6 +34,13 @@
 				<option value="100">100</option>
 				<option value="0">JALL</option>
 			</field>
+		</fieldset>
+		<fieldset name="advanced">
+			<field name="filter_glue" type="list" default="OR" label="COM_RSFORM_FILTER_GLUE" description="COM_RSFORM_FILTER_GLUE_DESC">
+				<option value="OR">COM_RSFORM_OR</option>
+				<option value="AND">COM_RSFORM_AND</option>
+			</field>
+			<field name="filter_values" type="submissionvalues" label="COM_RSFORM_FILTER_VALUES" description="COM_RSFORM_FILTER_VALUES_DESC" />
 		</fieldset>
 	</fields>
 	</config>

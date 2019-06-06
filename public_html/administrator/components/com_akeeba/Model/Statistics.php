@@ -230,33 +230,35 @@ class Statistics extends Model
 	public function notifyFailed()
 	{
 		// Invalidate stale backups
-		Factory::resetState(array(
+		Factory::resetState([
 			'global' => true,
 			'log'    => false,
-			'maxrun' => $this->container->params->get('failure_timeout', 180)
-		));
+			'maxrun' => $this->container->params->get('failure_timeout', 180),
+		]);
 
 		// Get the last execution and search for failed backups AFTER that date
 		$last = $this->getLastCheck();
 
 		// Get failed backups
-		$filters[] = array('field' => 'status', 'operand' => '=', 'value' => 'fail');
-		$filters[] = array('field' => 'origin', 'operand' => '<>', 'value' => 'restorepoint');
-		$filters[] = array('field' => 'backupstart', 'operand' => '>', 'value' => $last);
+		$filters = [
+			['field' => 'status', 'operand' => '=', 'value' => 'fail'],
+			['field' => 'origin', 'operand' => '<>', 'value' => 'restorepoint'],
+			['field' => 'backupstart', 'operand' => '>', 'value' => $last],
+		];
 
-		$failed = Platform::getInstance()->get_statistics_list(array('filters' => $filters));
+		$failed = Platform::getInstance()->get_statistics_list(['filters' => $filters]);
 
 		// Well, everything went ok.
 		if (!$failed)
 		{
-			return array(
-				'message' => array("No need to run: no failed backups or notifications were already sent."),
-				'result'  => true
-			);
+			return [
+				'message' => ["No need to run: no failed backups or notifications were already sent."],
+				'result'  => true,
+			];
 		}
 
 		// Whops! Something went wrong, let's start notifing
-		$superAdmins     = array();
+		$superAdmins     = [];
 		$superAdminEmail = $this->container->params->get('failure_email_address', '');
 
 		if (!empty($superAdminEmail))
@@ -271,17 +273,17 @@ class Statistics extends Model
 
 		if (empty($superAdmins))
 		{
-			return array(
-				'message' => array("WARNING! Failed backup(s) detected, but there are no configured Super Administrators to receive notifications"),
-				'result'  => false
-			);
+			return [
+				'message' => ["WARNING! Failed backup(s) detected, but there are no configured Super Administrators to receive notifications"],
+				'result'  => false,
+			];
 		}
 
-		$failedReport = array();
+		$failedReport = [];
 
 		foreach ($failed as $fail)
 		{
-			$string  = "Description : " . $fail['description'] . "\n";
+			$string = "Description : " . $fail['description'] . "\n";
 			$string .= "Start time  : " . $fail['backupstart'] . "\n";
 			$string .= "Origin      : " . $fail['origin'] . "\n";
 			$string .= "Type        : " . $fail['type'] . "\n";
@@ -353,7 +355,7 @@ ENDBODY;
 			{
 				$mailer = JFactory::getMailer();
 
-				$mailer->setSender(array($mailfrom, $fromname));
+				$mailer->setSender([$mailfrom, $fromname]);
 				$mailer->addRecipient($sa->email);
 				$mailer->setSubject($email_subject);
 				$mailer->setBody($email_body);
@@ -369,13 +371,13 @@ ENDBODY;
 		// the same notification several times
 		$this->updateLastCheck(intval($last));
 
-		return array(
-			'message' => array(
+		return [
+			'message' => [
 				"WARNING! Found " . count($failed) . " failed backup(s)",
-				"Sent " . count($superAdmins) . " notifications"
-			),
-			'result'  => true
-		);
+				"Sent " . count($superAdmins) . " notifications",
+			],
+			'result'  => true,
+		];
 	}
 
 	/**

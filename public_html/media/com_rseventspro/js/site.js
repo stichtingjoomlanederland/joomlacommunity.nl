@@ -608,16 +608,16 @@ function rs_invite() {
 		jQuery('#emails').removeClass('invalid');
 	}
 	
-	if (jQuery('#g-recaptcha-response').length) {
-		if (jQuery('#g-recaptcha-response').val() == '') {
+	if (jQuery('#rseInviteForm #g-recaptcha-response').length) {
+		if (jQuery('#rseInviteForm #g-recaptcha-response').val() == '') {
 			errors.push(Joomla.JText._('COM_RSEVENTSPRO_INVITE_CAPTCHA_ERROR'));
 		}
-	} else if (jQuery('#secret').length) {
-		if (jQuery('#secret').val() == '') {
-			jQuery('#secret').addClass('invalid');
+	} else if (jQuery('#rseInviteForm #secret').length) {
+		if (jQuery('#rseInviteForm #secret').val() == '') {
+			jQuery('#rseInviteForm #secret').addClass('invalid');
 			errors.push(Joomla.JText._('COM_RSEVENTSPRO_INVITE_CAPTCHA_ERROR'));
 		} else {
-			jQuery('#secret').removeClass('invalid');
+			jQuery('#rseInviteForm #secret').removeClass('invalid');
 		}
 	}
 	
@@ -649,10 +649,10 @@ function checkcaptcha() {
 	rse_root = typeof rsepro_root != 'undefined' ? rsepro_root : '';
 	var params = 'task=checkcaptcha';
 	
-	if (jQuery('#g-recaptcha-response').length != 0) {
-		params += '&recaptcha=' + jQuery('#g-recaptcha-response').val();
-	} else if (jQuery('#secret').length != 0) {
-		params += '&secret=' + jQuery('#secret').val();
+	if (jQuery('#rseInviteForm #g-recaptcha-response').length != 0) {
+		params += '&recaptcha=' + jQuery('#rseInviteForm #g-recaptcha-response').val();
+	} else if (jQuery('#rseInviteForm #secret').length != 0) {
+		params += '&secret=' + jQuery('#rseInviteForm #secret').val();
 	}
 	
 	params += '&randomTime='+Math.random();
@@ -668,21 +668,21 @@ function checkcaptcha() {
 		response = response.substring(start, end);
 		
 		if (parseInt(response)) {
-			if (jQuery('#g-recaptcha-response').length != 0) {
-				jQuery('#g-recaptcha-response').prev().removeClass('invalid');
-			} else if (jQuery('#secret').length != 0) {
-				jQuery('#secret').removeClass('invalid');
+			if (jQuery('#rseInviteForm #g-recaptcha-response').length != 0) {
+				jQuery('#rseInviteForm #g-recaptcha-response').prev().removeClass('invalid');
+			} else if (jQuery('#rseInviteForm #secret').length != 0) {
+				jQuery('#rseInviteForm #secret').removeClass('invalid');
 			}
 			
-			document.adminForm.submit();
+			document.rseInviteForm.submit();
 		} else  {
-			if (jQuery('#g-recaptcha-response').length != 0) {
-				jQuery('#g-recaptcha-response').prev().addClass('invalid');
+			if (jQuery('#rseInviteForm #g-recaptcha-response').length != 0) {
+				jQuery('#rseInviteForm #g-recaptcha-response').prev().addClass('invalid');
 				grecaptcha.reset();
-			} else if (jQuery('#secret').length != 0) {
-				jQuery('#secret').addClass('invalid');
+			} else if (jQuery('#rseInviteForm #secret').length != 0) {
+				jQuery('#rseInviteForm #secret').addClass('invalid');
 				reloadCaptcha();
-				jQuery('#secret').val('');
+				jQuery('#rseInviteForm #secret').val('');
 			}
 		}
 	});
@@ -692,7 +692,7 @@ function checkcaptcha() {
  *	Reload captcha
  */	
 function reloadCaptcha() {
-	jQuery('#captcha').prop('src', jQuery('#captcha').prop('src') + '?' + Math.random());
+	jQuery('#rseInviteForm #captcha').prop('src', jQuery('#captcha').prop('src') + '?' + Math.random());
 }
 
 /**

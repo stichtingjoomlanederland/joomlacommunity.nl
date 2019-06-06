@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -15,25 +15,27 @@ defined('_JEXEC') or die('Restricted access');
 		<h1 class="acym__listing__empty__title text-center cell"><?php echo acym_translation('ACYM_DONT_HAVE_STATS_THIS_CAMPAIGN'); ?></a></h1>
     <?php } else { ?>
 		<div class="cell grid-x">
-			<div class="large-3 medium-4 small-12 cell acym_stats_detailed_search">
-                <?php echo acym_filterSearch($data["search"], 'detailed_stats_search', 'ACYM_SEARCH_A_CAMPAIGN_NAME_OR_EMAIL'); ?>
+			<div class="cell grid-x auto">
+				<div class="large-3 medium-4 small-12 cell acym_stats_detailed_search">
+                    <?php echo acym_filterSearch($data["search"], 'detailed_stats_search', 'ACYM_SEARCH_A_CAMPAIGN_NAME_OR_EMAIL'); ?>
+				</div>
+				<div class="large-3 medium-4 small-12 cell acym__stats__campaign-choose">
+				</div>
 			</div>
-			<div class="large-3 medium-4 small-12 cell acym__stats__campaign-choose">
-			</div>
-		</div>
-		<div class="grid-x">
-			<div class="cell">
-                <?php echo acym_sortBy(
-                    array(
-                        'send_date' => acym_translation('ACYM_SEND_DATE'),
-                        'subject' => acym_translation('ACYM_NAME'),
-                        'email' => acym_translation('ACYM_EMAIL'),
-                        'open' => acym_translation('ACYM_MAILS_OPEN'),
-                        'open_date' => acym_translation('ACYM_OPEN_DATE'),
-                        'sent' => acym_translation('ACYM_SENT'),
-                    ),
-                    "detailed_stats"
-                ); ?>
+			<div class="grid-x cell auto">
+				<div class="cell acym_listing_sorty-by">
+                    <?php echo acym_sortBy(
+                        array(
+                            'send_date' => acym_translation('ACYM_SEND_DATE'),
+                            'subject' => acym_translation('ACYM_NAME'),
+                            'email' => acym_translation('ACYM_EMAIL'),
+                            'open' => acym_translation('ACYM_MAILS_OPEN'),
+                            'open_date' => acym_translation('ACYM_OPEN_DATE'),
+                            'sent' => acym_translation('ACYM_SENT'),
+                        ),
+                        "detailed_stats"
+                    ); ?>
+				</div>
 			</div>
 		</div>
 		<div class="grid-x acym__listing cell">
@@ -78,7 +80,7 @@ defined('_JEXEC') or die('Restricted access');
                             } else {
                                 $name = $detailed_stat->name;
                             }
-                            echo acym_tooltip($name, acym_translation('ACYM_SUBJECT').' : '.$detailed_stat->subject);
+                            echo acym_tooltip($name, acym_translation('ACYM_EMAIL_SUBJECT').' : '.$detailed_stat->subject);
 
                             ?>
 						</div>

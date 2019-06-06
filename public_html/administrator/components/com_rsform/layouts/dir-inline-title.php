@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2019 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -26,16 +26,56 @@ foreach ($fields as $field) {
 		$mainframe->triggerEvent('rsfp_b_onManageDirectoriesAfterCreatedPlaceholders', array($field, & $placeholders));
 		
 		if ($i == 0) {
+			if ($hideEmptyValues)
+			{
+				$out .= "\t" . '{if ' . $placeholders['value'] . '}' . "\n";
+			}
+
 			$out .= "\t".'<p class="rsform-main-title rsform-title">'.$placeholders['value'].'</p>'."\n";
+
+			if ($hideEmptyValues)
+			{
+				$out .= "\t" . '{/if}' . "\n";
+			}
 		} elseif ($i == 1) {
+			if ($hideEmptyValues)
+			{
+				$out .= "\t" . '{if ' . $placeholders['value'] . '}' . "\n";
+			}
+
 			$out .= "\t".'<p class="rsform-big-subtitle rsform-title">'.$placeholders['value'].'</p>'."\n";
+
+			if ($hideEmptyValues)
+			{
+				$out .= "\t" . '{/if}' . "\n";
+			}
 		} elseif ($i == 2) {
+			if ($hideEmptyValues)
+			{
+				$out .= "\t" . '{if ' . $placeholders['value'] . '}' . "\n";
+			}
+
 			$out .= "\t".'<p class="rsform-small-subtitle rsform-title">'.$placeholders['value'].'</p>'."\n";
+
+			if ($hideEmptyValues)
+			{
+				$out .= "\t" . '{/if}' . "\n";
+			}
 		} else {
+			if ($hideEmptyValues)
+			{
+				$out .= "\t" . '{if ' . $placeholders['value'] . '}' . "\n";
+			}
+
 			$out .= "\t".'<div class="rsform-table-row">'."\n";
 			$out .= "\t\t".'<div class="rsform-left-col">'.$placeholders['caption'].'</div>'."\n";
 			$out .= "\t\t".'<div class="rsform-right-col">'.$placeholders['value'].'</div>'."\n";
 			$out .= "\t".'</div>'."\n";
+
+			if ($hideEmptyValues)
+			{
+				$out .= "\t" . '{/if}' . "\n";
+			}
 		}
 		$i++;
 	}

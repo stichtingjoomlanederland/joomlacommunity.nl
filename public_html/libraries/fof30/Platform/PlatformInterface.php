@@ -371,11 +371,11 @@ interface PlatformInterface
 	/**
 	 * Adds a message
 	 *
-	 * @param	string	$title
-	 * @param	string	$logText
-	 * @param	string	$extension
+	 * @param   string|array  $title      A title, or an array of additional fields to add to the log entry
+	 * @param   string        $logText    The translation key to the log text
+	 * @param   string        $extension  The name of the extension logging this entry
 	 *
-	 * @return void
+	 * @return  void
 	 */
 	public function logUserAction($title, $logText, $extension);
 

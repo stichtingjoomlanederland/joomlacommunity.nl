@@ -57,9 +57,9 @@ class Status
 	 */
 	public static function &getInstance()
 	{
-		static $instance;
+		static $instance = null;
 
-		if( empty($instance) )
+		if (empty($instance))
 		{
 			$instance = new self();
 		}

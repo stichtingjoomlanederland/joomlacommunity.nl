@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -50,7 +50,8 @@ class MailsController extends acymController
             )
         );
 
-        if ($page > 1 && empty(count($matchingMails['mails']))) {
+        $matchingMailsNb = count($matchingMails['mails']);
+        if ($page > 1 && empty($matchingMailsNb)) {
             acym_setVar('mails_pagination_page', 1);
             $this->listing();
 
@@ -161,6 +162,7 @@ class MailsController extends acymController
                 $mail = new stdClass();
                 $mail->name = '';
                 $mail->subject = '';
+                $mail->preheader = '';
                 $mail->tags = array();
                 $mail->type = '';
                 $mail->body = '';
@@ -264,7 +266,7 @@ class MailsController extends acymController
         $mail->drag_editor = strpos($mail->body, 'acym__wysid__template') === false ? 0 : 1;
         if ($fromAutomation) $mail->type = 'automation';
         if (empty($mail->id)) {
-            $mail->creation_date = date("Y-m-d H:i:s");
+            $mail->creation_date = acym_date('now', 'Y-m-d H:i:s', false);
         }
         $mailID = $mailClass->save($mail);
         if (!empty($mailID)) {
@@ -334,6 +336,7 @@ class MailsController extends acymController
         $type = acym_getVar('string', 'type', 'custom');
         $editor = acym_getVar('string', 'editor');
         $automation = acym_getVar('string', 'automation');
+        $inMailEditor = acym_getVar('boolean', 'inmail');
 
         $mailsPerPage = 12;
         $page = acym_getVar('int', 'pagination_page_ajax', 1);
@@ -362,18 +365,23 @@ class MailsController extends acymController
             }
 
             $return .= '<div class="cell grid-x acym__templates__oneTpl acym__listing__block" id="'.acym_escape($oneTemplate->id).'">
-                <div class="cell acym__templates__pic text-center">
-                    <a href="'.acym_completeLink(acym_getVar('cmd', 'ctrl').'&task=edit&step=editEmail&from='.acym_escape($oneTemplate->id), false, false, true);
-
-            $return .= !empty($this->data['campaignInformation']) ? '&id='.$this->data['campaignInformation'] : '';
+                <div class="cell acym__templates__pic text-center">';
 
             $thumbnail = $oneTemplate->thumbnail;
-            if (strpos($oneTemplate->thumbnail, 'default_template_thumbnail') === false && strpos($oneTemplate->thumbnail, 'default_template') === false) {
+            if (strpos($oneTemplate->thumbnail, 'default_template') === false) {
                 $thumbnail = ACYM_TEMPLATE_THUMBNAILS.$oneTemplate->thumbnail;
             }
-            $return .= '">
-                        <img src="'.acym_escape($thumbnail).'"/>
-                    </a>';
+
+            if ($inMailEditor) {
+                $url = acym_getVar('cmd', 'ctrl').'&task=edit&step=editEmail&from='.intval($oneTemplate->id);
+                if (!empty($this->data['campaignInformation'])) $url .= '&id='.intval($this->data['campaignInformation']);
+                $return .= '<a href="'.acym_completeLink($url, false, false, true).'">';
+            } else {
+                $return .= '<div>';
+            }
+
+            $return .= '<img src="'.acym_escape($thumbnail).'" alt="template thumbnail"/>';
+            $return .= $inMailEditor ? '</a>' : '</div>';
             if ($oneTemplate->drag_editor) {
                 $return .= '<div class="acym__templates__choose__ribbon ribbon">
                                     <div class="acym__templates__choose__ribbon__label acym__color__white acym__background-color__blue">AcyEditor</div>
@@ -386,7 +394,7 @@ class MailsController extends acymController
             $return .= '</div>
                             <div class="cell grid-x acym__templates__footer text-center">
                                 <div class="cell acym__templates__footer__title" title="'.acym_escape($oneTemplate->name).'">'.acym_escape($oneTemplate->name).'</div>
-                                <div class="cell">'.acym_date(acym_escape($oneTemplate->creation_date), 'M. j, Y').'</div>
+                                <div class="cell">'.acym_date($oneTemplate->creation_date, 'M. j, Y').'</div>
                             </div>
                         </div>';
         }
@@ -532,4 +540,66 @@ class MailsController extends acymController
         echo $newImg;
         exit;
     }
+
+    public function deleteMailAutomation()
+    {
+        $mailClass = acym_get('class.mail');
+        $mailId = acym_getVar('int', 'id', 0);
+
+        if (!empty($mailId)) $mailClass->delete($mailId);
+
+
+        exit;
+    }
+
+    public function duplicateMailAutomation()
+    {
+        $mailClass = acym_get('class.mail');
+        $mailId = acym_getVar('int', 'id', 0);
+        $prevMail = acym_getVar('int', 'previousId');
+
+        if (!empty($prevMail)) $mailClass->delete($prevMail);
+
+        if (empty($mailId)) {
+            echo json_encode(['error' => acym_translation_sprintf('ACYM_NOT_FOUND', acym_translation('ACYM_ID'))]);
+            exit;
+        }
+
+        $mail = $mailClass->getOneById($mailId);
+
+        if (empty($mail)) {
+            echo json_encode(['error' => acym_translation_sprintf('ACYM_NOT_FOUND', acym_translation('ACYM_EMAIL'))]);
+            exit;
+        }
+
+        $newMail = new stdClass();
+        $newMail->name = $mail->name.'_copy';
+        $newMail->thumbnail = '';
+        $newMail->type = 'automation';
+        $newMail->drag_editor = $mail->drag_editor;
+        $newMail->library = 0;
+        $newMail->body = $mail->body;
+        $newMail->subject = $mail->subject;
+        $newMail->template = 2;
+        $newMail->from_name = $mail->from_name;
+        $newMail->from_email = $mail->from_email;
+        $newMail->reply_to_name = $mail->reply_to_name;
+        $newMail->reply_to_email = $mail->reply_to_email;
+        $newMail->bcc = $mail->bcc;
+        $newMail->settings = $mail->settings;
+        $newMail->stylesheet = $mail->stylesheet;
+        $newMail->attachments = $mail->attachments;
+        $newMail->headers = $mail->headers;
+
+        $newMail->id = $mailClass->save($newMail);
+
+        if (empty($newMail->id)) {
+            echo json_encode(['error' => acym_translation('ACYM_COULD_NOT_DUPLICATE_EMAIL')]);
+            exit;
+        }
+
+        echo json_encode($newMail);
+        exit;
+    }
 }
+

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -19,9 +19,9 @@ class fileTreeType extends acymClass
             $tree = array_merge($tree, $this->searchChildren($children, $root));
         }
 
-        $treeView = '<div id="displaytree" class="cell"><input disabled type="text" name="currentPath" id="currentPath" value="'.$currentFolder.'"></div>';
+        $treeView = '<div id="displaytree" class="cell"><input disabled type="text" name="currentPath" id="currentPath" value="'.acym_escape($currentFolder).'"></div>';
         $treeView .= '<div class="cell" id="treefile" style="display: none;">'.$this->displayTree($tree, $currentFolder).'</div>';
-        $treeView .= '<input type="hidden" name="'.$nameInput.'" id="'.$nameInput.'" value="'.$currentFolder.'">';
+        $treeView .= '<input type="hidden" name="'.acym_escape($nameInput).'" id="'.acym_escape($nameInput).'" value="'.acym_escape($currentFolder).'">';
 
         return $treeView;
     }
@@ -52,28 +52,35 @@ class fileTreeType extends acymClass
 
     private function displayTree($tree, $pathValue, $path = '')
     {
-        $results = '';
-        if (!empty($tree)) {
-            $results .= '<ul>';
-            foreach ($tree as $key => $treeItem) {
-                $currentPath = (empty($path)) ? $key : $path.'/'.$key;
-                if (strpos($pathValue, $currentPath) !== false) {
-                    $extraClass = ($pathValue == $currentPath) ? 'tree-current' : '';
-                    $icon = 'fa fa-folder-open';
-                } else {
-                    $extraClass = 'tree-closed';
-                    $icon = 'fa fa-folder';
-                }
-
-                if (empty($treeItem)) {
-                    $extraClass .= ' tree-empty';
-                }
-
-                $subTree = $this->displayTree($treeItem, $pathValue, $currentPath);
-                $results .= '<li class="tree-child-item '.$extraClass.'" data-path="'.$currentPath.'"><span class="tree-child-title"><i class="'.$icon.'"></i>'.$key.'</span>'.$subTree.'</li>';
+        if (empty($tree)) return '';
+        $results = '<ul>';
+        foreach ($tree as $key => $treeItem) {
+            if (empty($path)) {
+                $currentPath = $key;
+                $title = '/';
+            } else {
+                $currentPath = rtrim($path, '/').'/'.trim($key, '/').'/';
+                $title = $key;
             }
-            $results .= '</ul>';
+
+            $extraClass = 'tree-closed';
+            $icon = 'fa fa-folder';
+
+            if (strpos($pathValue, $currentPath) !== false) {
+                $extraClass = $pathValue == $currentPath ? 'tree-current' : '';
+                $icon .= '-open';
+            }
+
+            if (empty($treeItem)) $extraClass .= ' tree-empty';
+
+            $subTree = $this->displayTree($treeItem, $pathValue, $currentPath);
+            $results .= '<li class="tree-child-item '.acym_escape($extraClass).'" data-path="'.acym_escape($currentPath).'">
+                            <span class="tree-child-title">
+                                <i class="'.acym_escape($icon).'"></i> '.$title.'
+                            </span>'.$subTree.'
+                        </li>';
         }
+        $results .= '</ul>';
 
         return $results;
     }

@@ -86,7 +86,6 @@ class rseventsproHelper
 	
 	// Load files and scripts
 	public static function loadHelper() {
-		
 		// Load the language
 		rseventsproHelper::loadLang();
 		

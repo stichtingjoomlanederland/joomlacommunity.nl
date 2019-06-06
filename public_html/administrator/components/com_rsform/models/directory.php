@@ -1,7 +1,7 @@
 <?php
 /**
  * @package RSForm! Pro
- * @copyright (C) 2007-2014 www.rsjoomla.com
+ * @copyright (C) 2007-2019 www.rsjoomla.com
  * @license GPL, http://www.gnu.org/copyleft/gpl.html
  */
 
@@ -17,11 +17,17 @@ class RsformModelDirectory extends JModelLegacy
 
 	public $_directory = null;
 
-	public function __construct() {
-		parent::__construct();
+	public function __construct($config = array())
+	{
+		parent::__construct($config);
 
-		$this->_db 		= JFactory::getDbo();
-		$app			= JFactory::getApplication();
+		$this->_db = JFactory::getDbo();
+		$app		= JFactory::getApplication();
+
+		// set the search filter first
+		$filter_search = $app->getUserStateFromRequest('com_rsform.directory.filter_search', 'filter_search', '', 'string');
+		$this->setState('com_rsform.directory.filter_search', $filter_search);
+
 		$this->_query 	= $this->_buildQuery();
 
 		// Get pagination request variables
@@ -35,46 +41,115 @@ class RsformModelDirectory extends JModelLegacy
 		$this->setState('com_rsform.directory.limitstart', $limitstart);
 	}
 
-	public function _buildQuery() {
-		$sortColumn	= $this->getSortColumn();
-		$sortOrder	= $this->getSortOrder();
-		
-		$query = $this->_db->getQuery(true)
-			->select($this->_db->qn('FormId'))
-			->select($this->_db->qn('FormTitle'))
-			->select($this->_db->qn('FormName'))
-			->select($this->_db->qn('Lang'))
-			->from($this->_db->qn('#__rsform_forms'))
-			->order($this->_db->qn($sortColumn) . ' ' . $this->_db->escape($sortOrder));
+	public function _buildQuery()
+	{
+		$filter_search = $this->getState('com_rsform.directory.filter_search');
+		$lang		   = JFactory::getLanguage();
+		$or  = array();
+		$ids = array();
 
-		return (string) $query;
+		// Flag to know if we need translations - no point in doing a join if we're only using the default language.
+		if (RSFormProHelper::getConfig('global.disable_multilanguage'))
+		{
+			$needs_translation = false;
+		}
+		else
+		{
+			// Must check if we've changed the language for some forms (each form has its own remembered language).
+			if ($sessions = JFactory::getSession()->get('com_rsform.form'))
+			{
+				// For each form in the session, we join a specific language and form id.
+				foreach ($sessions as $form => $data)
+				{
+					if (strpos($form, 'formId') === 0 && isset($data->lang))
+					{
+						$id 	= (int) substr($form, strlen('formId'));
+						$ids[] 	= $id;
+						$or[] 	= "(t.lang_code = ".$this->_db->q($data->lang)." AND t.form_id = ".$this->_db->q($id).")";
+					}
+				}
+
+				// Now that we've joined the session forms, we must remove them so they do not show up as duplicates.
+				if ($ids)
+				{
+					$or[] = "(t.lang_code = ".$this->_db->q($lang->getTag())." AND t.form_id NOT IN (".implode(",", $ids)."))";
+				}
+			}
+
+			$needs_translation = $lang->getTag() != $lang->getDefault() || $ids;
+		}
+
+		$query =
+			"SELECT".
+			($needs_translation ? " IFNULL(t.value, FormTitle) AS FormTitle," : " f.FormTitle,").
+			" f.FormId,".
+			" f.FormName,".
+			" f.Lang,".
+			" d.formId as DirectoryFormId".
+			" FROM #__rsform_forms f";
+
+		if ($needs_translation)
+		{
+			$query .=
+				" LEFT JOIN #__rsform_translations t ON".
+				" (".
+				"	f.FormId = t.form_id".
+				"	AND t.reference = 'forms'".
+				"	AND t.reference_id = 'FormTitle'";
+
+			if ($or)
+			{
+				$query .= " AND (".implode(" OR ", $or).")";
+			}
+			else
+			{
+				$query .= " AND t.lang_code = ".$this->_db->q($lang->getTag());
+			}
+
+			$query .= " )";
+		}
+
+		$query .= " LEFT JOIN #__rsform_directory d ON (f.FormId = d.formId)";
+
+		if (!empty($filter_search))
+		{
+			$query .= " HAVING (`FormTitle` LIKE '%".$this->_db->escape($filter_search)."%' OR `FormName` LIKE '%".$this->_db->escape($filter_search)."%')";
+		}
+
+		$query .= " ORDER BY `".$this->getSortColumn()."` ".$this->getSortOrder();
+
+		return $query;
 	}
 
 	public function getForms() {
 		if (empty($this->_data)) {
 			$this->_db->setQuery($this->_query, $this->getState('com_rsform.directory.limitstart'), $this->getState('com_rsform.directory.limit'));
 			$this->_data = $this->_db->loadObjectList();
-			
-			foreach ($this->_data as $form)
-			{
-				$lang = RSFormProHelper::getCurrentLanguage($form->FormId);
-				if ($lang != $form->Lang)
-				{
-					if ($translations = RSFormProHelper::getTranslations('forms', $form->FormId, $lang))
-					{
-						foreach ($translations as $field => $value)
-						{
-							if (isset($form->$field))
-							{
-								$form->$field = $value;
-							}
-						}
-					}
-				}
-			}
 		}
 
 		return $this->_data;
+	}
+
+	public function getFormTitle()
+	{
+		$formId = JFactory::getApplication()->input->getInt('formId');
+
+		$query = $this->_db->getQuery(true)
+			->select($this->_db->qn('FormTitle'))
+			->from($this->_db->qn('#__rsform_forms'))
+			->where($this->_db->qn('FormId') . ' = ' . $this->_db->q($formId));
+		$title = $this->_db->setQuery($query)->loadResult();
+
+		$lang = RSFormProHelper::getCurrentLanguage($formId);
+		if ($translations = RSFormProHelper::getTranslations('forms', $formId, $lang))
+		{
+			if (isset($translations['FormTitle']))
+			{
+				$title = $translations['FormTitle'];
+			}
+		}
+
+		return $title;
 	}
 
 	public function getTotal() {
@@ -120,6 +195,7 @@ class RsformModelDirectory extends JModelLegacy
 		if (!$table->formId) {
 			$table->enablecsv = 0;
 			$table->enablepdf = 0;
+			$table->HideEmptyValues = 0;
 			$table->ViewLayoutAutogenerate = 1;
 			$table->ViewLayoutName = 'dir-inline';
 		}
@@ -270,6 +346,8 @@ class RsformModelDirectory extends JModelLegacy
 		$quickfields  = $this->getQuickFields();
 		$imagefields  = $this->getImagesFields();
 
+		$hideEmptyValues = $this->_directory->HideEmptyValues;
+
 		$out = include $layout;
 
 		if ($out != $this->_directory->ViewLayout && $this->_directory->formId) {
@@ -360,7 +438,7 @@ class RsformModelDirectory extends JModelLegacy
 								$componentPlaceholders['display'][] = '{' . $properties['NAME'] . ':filename}';
 							}
 
-							if ($component->ComponentTypeId == RSFORM_FIELD_SELECTLIST || $component->ComponentTypeId == RSFORM_FIELD_CHECKBOXGROUP || $component->ComponentTypeId == RSFORM_FIELD_RADIOGROUP) {
+							if ($component->ComponentTypeId == RSFORM_FIELD_SELECTLIST || $component->ComponentTypeId == RSFORM_FIELD_CHECKBOXGROUP || $component->ComponentTypeId == RSFORM_FIELD_RADIOGROUP || isset($properties['ITEMS'])) {
 								$componentPlaceholders['display'][] = '{' . $properties['NAME'] . ':text}';
 							}
 
@@ -443,5 +521,24 @@ class RsformModelDirectory extends JModelLegacy
 		}
 
 		return true;
+	}
+
+	public function getFilterBar()
+	{
+		require_once JPATH_COMPONENT.'/helpers/adapters/filterbar.php';
+
+		// Search filter
+		$options['search'] = array(
+			'label' => JText::_('JSEARCH_FILTER'),
+			'value' => $this->getState('com_rsform.directory.filter_search')
+		);
+		$options['reset_button'] = true;
+
+		$options['limitBox'] = $this->getPagination()->getLimitBox();
+		$options['orderDir'] = false;
+
+		$bar = new RSFilterBar($options);
+
+		return $bar;
 	}
 }

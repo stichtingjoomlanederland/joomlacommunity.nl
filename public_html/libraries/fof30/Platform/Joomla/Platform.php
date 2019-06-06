@@ -936,6 +936,15 @@ class Platform extends BasePlatform
 		\JLog::add($message, \JLog::DEBUG, 'fof');
 	}
 
+	/**
+	 * Adds a message
+	 *
+	 * @param   string|array  $title      A title, or an array of additional fields to add to the log entry
+	 * @param   string        $logText    The translation key to the log text
+	 * @param   string        $extension  The name of the extension logging this entry
+	 *
+	 * @return  void
+	 */
 	public function logUserAction($title, $logText, $extension)
 	{
 		static $joomlaModelAdded = false;
@@ -974,6 +983,13 @@ class Platform extends BasePlatform
 			'username' 	  => $user->username,
 			'accountlink' => 'index.php?option=com_users&task=user.edit&id=' . $user->id
 		);
+
+		if (is_array($title))
+		{
+			unset ($message['title']);
+
+			$message = array_merge($message, $title);
+		}
 
 		/** @var \ActionlogsModelActionlog $model **/
 		try

@@ -1137,13 +1137,8 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.12.5</h2>
+	<h2>Changelog v1.12.6</h2>
 	<ul class="version-history">
-		<li><span class="version-new">Add</span> Filter events by speakers in menus and modules.</li>
-		<li><span class="version-new">Add</span> A new option for the global discounts area.</li>
-		<li><span class="version-new">Add</span> Select the map service.</li>
-		<li><span class="version-new">Add</span> Square payment integration.</li>
-		<li><span class="version-new">Add</span> PayFast payment integration.</li>
 		<li><span class="version-fixed">Fix</span> Resolved some errors.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>

@@ -37,7 +37,10 @@ class AliceFactory
 	/** @var array A list of instanciated objects */
 	protected $objectlist = array();
 
-	/** Private constructor makes sure we can't directly instantiate the class */
+	/**
+	 * Private constructor makes sure we can't directly instantiate the class. We cannot make this class abstract
+	 * because we are instantiating it internally.
+	 */
 	private function __construct()
 	{
 	}
@@ -51,11 +54,11 @@ class AliceFactory
 	 */
 	protected static function &getInstance($serialized_data = null)
 	{
-		static $myInstance;
+		static $myInstance = null;
 
-		if ( !is_object($myInstance) || !is_null($serialized_data))
+		if (!is_object($myInstance) || !is_null($serialized_data))
 		{
-			if ( !is_null($serialized_data))
+			if (!is_null($serialized_data))
 			{
 				$myInstance = unserialize($serialized_data);
 			}

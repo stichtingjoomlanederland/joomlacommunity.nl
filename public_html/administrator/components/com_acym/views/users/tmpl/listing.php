@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -9,7 +9,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 ?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
-	<div id="acym__users" class="acym__content">
+	<div id="acym__users" class="acym__content cell">
         <?php if (empty($data['allUsers']) && empty($data['search']) && empty($data['status'])) { ?>
 			<div class="grid-x text-center">
 				<h1 class="cell acym__listing__empty__title"><?php echo acym_translation('ACYM_YOU_DONT_HAVE_ANY_USER'); ?></h1>
@@ -29,28 +29,22 @@ defined('_JEXEC') or die('Restricted access');
 				<div class="medium-2"></div>
 			</div>
         <?php } else { ?>
-			<div class="grid-x grid-margin-x">
+			<div class="grid-x grid-margin-x cell">
 				<div class="large-auto medium-12 cell">
-                    <?php echo acym_filterSearch(acym_escape($data["search"]), 'users_search', 'ACYM_SEARCH_USER'); ?>
+                    <?php echo acym_filterSearch($data['search'], 'users_search', 'ACYM_SEARCH_USER'); ?>
 				</div>
-				<!--todo pour l'instant ca sert à rien les filter, si on veut on pourra décommenter -->
-				<!--<div class="large-shrink medium-4 cell">-->
-				<!--    <button type="button" class="button expanded">-->
-				<!--        echo acym_translation('ACYM_FILTER') -->
-				<!--    </button>-->
-				<!--</div>-->
 				<div class="large-auto show-for-xlarge cell"></div>
-				<div class="large-shrink medium-auto small-6 cell">
+				<div class="large-shrink medium-6 small-12 cell">
 					<button data-task="import" class="button button-secondary expanded acy_button_submit">
                         <?php echo acym_translation('ACYM_IMPORT'); ?>
 					</button>
 				</div>
-				<div class="large-shrink medium-auto small-6 cell">
+				<div class="large-shrink medium-6 small-12 cell">
 					<button type="submit" data-task="export" class="button expanded button-secondary acy_button_submit">
                         <?php echo acym_translation('ACYM_EXPORT'); ?> (<span id="acym__users__listing__number_to_export" data-default="<?php echo strtolower(acym_translation("ACYM_ALL")); ?>"><?php echo strtolower(acym_translation("ACYM_ALL")); ?></span>)
 					</button>
 				</div>
-				<div class="large-shrink medium-auto small-6 cell">
+				<div class="large-shrink medium-6 small-12 cell">
                     <?php echo acym_modal_pagination_lists(
                         acym_translation('ACYM_ADD_TO_LIST').' (<span id="acym__users__listing__number_to_add_to_list">0</span>)',
                         'button button-secondary acym__user__button disabled expanded',
@@ -59,7 +53,7 @@ defined('_JEXEC') or die('Restricted access');
                         'id="acym__users__listing__button--add-to-list"'
                     ); ?>
 				</div>
-				<div class="large-shrink medium-auto small-6 cell">
+				<div class="large-shrink medium-6 small-12 cell">
 					<button data-task="edit" class="button expanded acy_button_submit">
                         <?php echo acym_translation('ACYM_CREATE'); ?>
 					</button>
@@ -68,40 +62,41 @@ defined('_JEXEC') or die('Restricted access');
             <?php if (empty($data['allUsers'])) { ?>
 				<h1 class="cell acym__listing__empty__search__title text-center"><?php echo acym_translation('ACYM_NO_RESULTS_FOUND'); ?></h1>
             <?php } else { ?>
-				<div class="grid-x margin-top-1">
-					<h1 class="shrink acym__title__listing margin-right-1"><?php echo acym_translation('ACYM_USERS'); ?></h1>
-					<div class="cell shrink acym_listing_sorty-by">
-                        <?php echo acym_sortBy(
-                            array(
-                                'id' => strtolower(acym_translation('ACYM_ID')),
-                                'email' => acym_translation('ACYM_EMAIL'),
-                                'name' => acym_translation('ACYM_NAME'),
-                                'creation_date' => acym_translation('ACYM_DATE_CREATED'),
-                                'active' => acym_translation('ACYM_ACTIVE'),
-                                'confirmed' => acym_translation('ACYM_CONFIRMED'),
-                            ),
-                            'users'
-                        ); ?>
-					</div>
-				</div>
-				<div class="grid-x acym__listing__actions">
-                    <?php
-                    $actions = array(
-                        'delete' => acym_translation('ACYM_DELETE'),
-                        'setActive' => acym_translation('ACYM_ENABLE'),
-                        'setInactive' => acym_translation('ACYM_DISABLE'),
-                    );
-                    echo acym_listingActions($actions);
-                    ?>
-					<div class="auto cell">
+				<div class="cell grid-x margin-top-1">
+					<div class="grid-x acym__listing__actions auto cell">
                         <?php
-                        $options = array(
-                            '' => ['ACYM_ALL', $data["userNumberPerStatus"]["all"]],
-                            'active' => ['ACYM_ACTIVE', $data["userNumberPerStatus"]["active"]],
-                            'inactive' => ['ACYM_INACTIVE', $data["userNumberPerStatus"]["inactive"]],
+                        $actions = array(
+                            'delete' => acym_translation('ACYM_DELETE'),
+                            'setActive' => acym_translation('ACYM_ENABLE'),
+                            'setInactive' => acym_translation('ACYM_DISABLE'),
                         );
-                        echo acym_filterStatus($options, $data["status"], 'users_status');
+                        echo acym_listingActions($actions);
                         ?>
+						<div class="auto cell">
+                            <?php
+                            $options = array(
+                                '' => ['ACYM_ALL', $data["userNumberPerStatus"]["all"]],
+                                'active' => ['ACYM_ACTIVE', $data["userNumberPerStatus"]["active"]],
+                                'inactive' => ['ACYM_INACTIVE', $data["userNumberPerStatus"]["inactive"]],
+                            );
+                            echo acym_filterStatus($options, $data["status"], 'users_status');
+                            ?>
+						</div>
+					</div>
+					<div class="grid-x grid-x cell auto">
+						<div class="cell acym_listing_sorty-by">
+                            <?php echo acym_sortBy(
+                                array(
+                                    'id' => strtolower(acym_translation('ACYM_ID')),
+                                    'email' => acym_translation('ACYM_EMAIL'),
+                                    'name' => acym_translation('ACYM_NAME'),
+                                    'creation_date' => acym_translation('ACYM_DATE_CREATED'),
+                                    'active' => acym_translation('ACYM_ACTIVE'),
+                                    'confirmed' => acym_translation('ACYM_CONFIRMED'),
+                                ),
+                                'users'
+                            ); ?>
+						</div>
 					</div>
 				</div>
 				<div class="grid-x acym__listing">
@@ -191,7 +186,7 @@ defined('_JEXEC') or die('Restricted access');
 
 								</div>
 								<p class="acym__listing__text medium-auto hide-for-small-only cell">
-                                    <?php echo acym_date(acym_escape($user->creation_date), 'M. j, Y'); ?>
+                                    <?php echo acym_date($user->creation_date, 'M. j, Y'); ?>
 								</p>
 								<div class="acym__listing__controls acym__users__controls small-1 text-center cell">
                                     <?php

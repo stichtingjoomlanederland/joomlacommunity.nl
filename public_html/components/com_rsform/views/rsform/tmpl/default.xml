@@ -7,7 +7,7 @@
 	</layout>
 	<fields name="request">
 		<fieldset name="request" addfieldpath="/administrator/components/com_rsform/models/fields">
-			<field name="formId" type="forms" default="" label="COM_RSFORM_SELECT_FORM" description="COM_RSFORM_SELECT_FORM_DESC" />
+			<field name="formId" type="forms" default="" label="COM_RSFORM_SELECT_FORM" description="COM_RSFORM_SELECT_FORM_DESC" onchange="generateFormLink();" />
 		</fieldset>
 	</fields>
 </metadata>

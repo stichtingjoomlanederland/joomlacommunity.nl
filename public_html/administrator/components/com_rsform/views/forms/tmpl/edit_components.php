@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2019 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -50,4 +50,6 @@ defined('_JEXEC') or die('Restricted access');
 	<div id="gridlayoutdiv">
 		<?php echo $this->loadTemplate('grid'); ?>
 	</div><!-- gridlayout -->
+
+	<?php $this->triggerEvent('rsfp_bk_onEditFormComponents', array($this)); ?>
 </div>

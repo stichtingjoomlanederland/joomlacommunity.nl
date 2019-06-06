@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -322,7 +322,9 @@ class acymmailerHelper extends acyPHPMailer
                 $this->reportMessage .= " \n\n ".$warnings;
             }
             if ($this->report) {
-                acym_enqueueMessage(preg_replace('#(<br( ?/)?>){2}#', '<br />', nl2br($this->reportMessage)), 'message');
+                if (acym_isAdmin()) {
+                    acym_enqueueMessage(preg_replace('#(<br( ?/)?>){2}#', '<br />', nl2br($this->reportMessage)), 'message');
+                }
             }
         }
 
@@ -438,6 +440,7 @@ class acymmailerHelper extends acyPHPMailer
 
         $this->Subject = $this->defaultMail[$mailId]->subject;
         $this->Body = $this->defaultMail[$mailId]->body;
+        $this->Preheader = $this->defaultMail[$mailId]->preheader;
 
         if ($this->config->get('multiple_part', false)) {
             $this->AltBody = $this->defaultMail[$mailId]->altbody;
@@ -484,6 +487,16 @@ class acymmailerHelper extends acyPHPMailer
             }
         }
 
+        if (!empty($this->Preheader)) {
+            $spacing = '';
+            for ($x = 0; $x < 100; $x++) {
+                $spacing .= "&nbsp;&zwnj;";
+            }
+            if (empty($this->introtext)) {
+                $this->introtext = '';
+            }
+            $this->introtext = '<div style="max-height: 0px; overflow: hidden;">'.$this->Preheader.$spacing.'</div>'.$this->introtext;
+        }
         if (!empty($this->introtext)) {
             $this->Body = $this->introtext.$this->Body;
             $this->AltBody = $this->textVersion($this->introtext).$this->AltBody;

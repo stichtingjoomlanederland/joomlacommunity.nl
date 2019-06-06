@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -21,7 +21,7 @@ defined('_JEXEC') or die('Restricted access');
                     <?php
                     $defaultFields = explode(',', $data['config']->get('export_fields', 'name,email'));
                     foreach ($data['fields'] as $fieldName) {
-                        if ($fieldName == 'id') continue;
+                        if (in_array($fieldName, ['id', 'automation'])) continue;
 
                         $checked = in_array($fieldName, $defaultFields) ? 'checked="checked"' : '';
                         echo '<input '.$checked.' id="checkbox_'.$fieldName.'" class="acym__users__export__export_fields smaller-checkbox" type="checkbox" name="export_fields[]" value="'.$fieldName.'">

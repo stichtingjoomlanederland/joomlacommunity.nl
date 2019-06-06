@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -42,32 +42,32 @@ defined('_JEXEC') or die('Restricted access');
 				</label>
 			</div>
 			<div class="medium-12 cell grid-x acym__content acym__automation__info__trigger margin-top-2">
-				<h6 class="cell acym__content__title__light-blue margin-bottom-2"><?php echo acym_translation('ACYM_CHOOSE_TRIGGER'); ?></h6>
 				<div class="cell grid-x margin-bottom-2" id="acym__automation__info__choose__trigger__type">
 					<input type="hidden" name="type_trigger" value="<?php echo !empty($data['type_trigger']) ? $data['type_trigger'] : 'classic'; ?>" id="acym__automation__trigger__type__input">
 					<div class="cell auto"></div>
-					<p id="acym__automation__info__group" data-trigger-type="classic" class="shrink cell <?php echo((!empty($data['type_trigger']) && $data['type_trigger'] == 'classic') ? 'selected-trigger' : (empty($data['type_trigger']) ? 'selected-trigger' : '')); ?> margin-right-2"><?php echo acym_translation('ACYM_CLASSIC_TRIGGER'); ?></p>
-					<p id="acym__automation__info__one-user" data-trigger-type="user" class="shrink cell <?php echo((!empty($data['type_trigger']) && $data['type_trigger'] == 'user') ? 'selected-trigger' : ''); ?>"><?php echo acym_translation('ACYM_TRIGGER_BASED_ON_USER_ACTIONS'); ?></p>
+					<p id="acym__automation__info__group" data-trigger-type="classic" class="shrink cell <?php echo (!empty($data['type_trigger']) && $data['type_trigger'] == 'classic') ? 'selected-trigger' : (empty($data['type_trigger']) ? 'selected-trigger' : ''); ?> margin-right-2"><?php echo acym_translation('ACYM_CLASSIC_TRIGGER'); ?></p>
+					<p id="acym__automation__info__one-user" data-trigger-type="user" class="shrink cell <?php echo (!empty($data['type_trigger']) && $data['type_trigger'] == 'user') ? 'selected-trigger' : ''; ?>"><?php echo acym_translation('ACYM_TRIGGER_BASED_ON_USER_ACTIONS'); ?></p>
 					<div class="cell auto"></div>
 				</div>
-				<div class="acym__automation__info__choose__trigger cell grid-x grid-margin-x grid-margin-y" id="acym__automation__info__choose__trigger__classic" <?php echo((!empty($data['type_trigger']) && $data['type_trigger'] == 'classic') ? '' : (empty($data['type_trigger']) ? '' : 'style="display: none"')); ?>>
+				<div class="acym__automation__info__choose__trigger cell grid-x grid-margin-x grid-margin-y" id="acym__automation__info__choose__trigger__classic" <?php echo (!empty($data['type_trigger']) && $data['type_trigger'] == 'classic') ? '' : (empty($data['type_trigger']) ? '' : 'style="display: none"'); ?>>
 					<div class="cell large-6 acym__content grid-x acym__automation__draggable">
 						<h6 class="acym__content__title__light-blue"><?php echo acym_translation('ACYM_ALL_TRIGGER'); ?></h6>
 						<div class="cell acym__automation__all-trigger__classic grid-x">
                             <?php foreach ($data['classic'] as $key => $classic) {
-                                echo '<div '.(in_array($key, $data['defaultValues']) ? 'style="display: none"' : '').' class="acym__automation__trigger__droppable__classic margin-top-1 cell" data-trigger="'.$key.'">'.$classic->name.'<span class="acym__automation__trigger__action">'.$classic->option.'</span></div>';
+                                echo '<div '.(in_array($key, $data['defaultValues']) ? 'style="display: none"' : '').' class="acym__automation__trigger__droppable__classic margin-top-1 cell" data-trigger="'.acym_escape($key).'">'.$classic->name.'<span class="acym__automation__trigger__action">'.$classic->option.'</span></div>';
                             } ?>
 						</div>
 					</div>
 
 					<div class="cell large-6 acym__content grid-x acym__automation__droppable__classic">
-						<h6 class="acym__content__title__light-blue cell"><?php echo acym_translation('ACYM_DRAG_YOUR_TRIGGERS'); ?></h6>
+						<h6 class="acym__content__title__light-blue cell"><?php echo acym_translation('ACYM_EXECUTE_AUTOMATION'); ?></h6>
 						<div class="cell acym__automation__user-trigger__classic acym__automation__trigger__sortable">
                             <?php
+                            if (count($data['defaultValues']) < 2) {
+                                echo '<div class="cell margin-top-1 acym__automation__drag-here-text">'.acym_translation('ACYM_DRAG_YOUR_TRIGGERS').'</div>';
+                            }
                             foreach ($data['classic'] as $key => $classic) {
-                                if (!in_array($key, $data['defaultValues'])) {
-                                    continue;
-                                }
+                                if (!in_array($key, $data['defaultValues'])) continue;
                                 ?>
 								<div class="acym__automation__droppable__trigger margin-top-1">
 									<div class="acym__automation__one__trigger">
@@ -77,28 +77,42 @@ defined('_JEXEC') or die('Restricted access');
 									<i data-trigger-show="<?php echo acym_escape($key); ?>" class="material-icons acym__color__red acym__automation__delete__trigger cursor-pointer">close</i>
 								</div>
                                 <?php
-                            } ?>
+                            }
+                            ?>
 						</div>
 					</div>
 				</div>
-				<div class="acym__automation__info__choose__trigger cell grid-x grid-margin-x grid-margin-y" id="acym__automation__info__choose__trigger__user" <?php echo((!empty($data['type_trigger']) && $data['type_trigger'] == 'user') ? '' : 'style="display: none"'); ?>>
+				<div class="acym__automation__info__choose__trigger cell grid-x grid-margin-x grid-margin-y" id="acym__automation__info__choose__trigger__user" <?php echo (!empty($data['type_trigger']) && $data['type_trigger'] == 'user') ? '' : 'style="display: none"'; ?>>
 					<div class="cell large-6 acym__content grid-x acym__automation__draggable">
 						<h6 class="acym__content__title__light-blue"><?php echo acym_translation('ACYM_ALL_TRIGGER'); ?></h6>
 						<div class="cell acym__automation__all-trigger__action grid-x">
-                            <?php foreach ($data['user'] as $key => $triggerUser) {
-                                echo '<div '.(in_array($key, $data['defaultValues']) ? 'style="display: none"' : '').' class="acym__automation__trigger__droppable__action margin-top-1 cell" data-trigger="'.$key.'">'.$triggerUser->name.'<span class="acym__automation__trigger__action">'.$triggerUser->option.'</span></div>';
-                            } ?>
+                            <?php
+                            foreach ($data['user'] as $key => $triggerUser) {
+                                echo '<div '.(in_array($key, $data['defaultValues']) ? 'style="display: none"' : '').' class="acym__automation__trigger__droppable__action margin-top-1 cell" data-trigger="'.acym_escape($key).'">'.$triggerUser->name.'<span class="acym__automation__trigger__action">'.$triggerUser->option.'</span></div>';
+                            }
+                            ?>
 						</div>
 					</div>
 
 					<div class="cell large-6 acym__content grid-x acym__automation__droppable__action">
-						<h6 class="acym__content__title__light-blue cell"><?php echo acym_translation('ACYM_DRAG_YOUR_TRIGGERS'); ?></h6>
+						<h6 class="acym__content__title__light-blue cell"><?php echo acym_translation('ACYM_EXECUTE_AUTOMATION'); ?></h6>
 						<div class="cell acym__automation__user-trigger__action acym__automation__trigger__sortable">
-                            <?php foreach ($data['user'] as $key => $triggerUser) {
-                                if (in_array($key, $data['defaultValues'])) {
-                                    echo '<div class="acym__automation__droppable__trigger margin-top-1"><div class="acym__automation__one__trigger">'.$triggerUser->name.'<span class="acym__automation__trigger__action">'.$triggerUser->option.'</span></div><i data-trigger-show="'.$key.'" class="material-icons acym__color__red acym__automation__delete__trigger cursor-pointer">close</i></div>';
-                                }
-                            } ?>
+                            <?php
+                            if (count($data['defaultValues']) < 2) {
+                                echo '<div class="cell margin-top-1 acym__automation__drag-here-text">'.acym_translation('ACYM_DRAG_YOUR_TRIGGERS').'</div>';
+                            }
+                            foreach ($data['user'] as $key => $triggerUser) {
+                                if (!in_array($key, $data['defaultValues'])) continue;
+                                ?>
+								<div class="acym__automation__droppable__trigger margin-top-1">
+									<div class="acym__automation__one__trigger"><?php echo $triggerUser->name; ?>
+										<span class="acym__automation__trigger__action"><?php echo $triggerUser->option; ?></span>
+									</div>
+									<i data-trigger-show="<?php echo acym_escape($key); ?>" class="material-icons acym__color__red acym__automation__delete__trigger cursor-pointer">close</i>
+								</div>
+                                <?php
+                            }
+                            ?>
 						</div>
 					</div>
 				</div>

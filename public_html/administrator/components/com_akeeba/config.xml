@@ -113,28 +113,6 @@
 			   label="COM_AKEEBA_CONFIG_DOWNLOADID_LABEL"
 			   description="COM_AKEEBA_CONFIG_DOWNLOADID_DESC"/>
 
-		<field name="autoupdateCli" type="list" default="1"
-			   label="COM_AKEEBA_CONFIG_AUTOUPDATE_SETTINGS_LABEL"
-			   description="COM_AKEEBA_CONFIG_AUTOUPDATE_SETTINGS_DESC">
-			<option value="1">COM_AKEEBA_CONFIG_AUTOUPDATE_NOTIFY_UPDATE</option>
-			<option value="2">COM_AKEEBA_CONFIG_AUTOUPDATE_NOTIFY</option>
-			<option value="3">COM_AKEEBA_CONFIG_AUTOUPDATE_UPDATE</option>
-		</field>
-
-		<field name="notificationFreq" type="text" default="1"
-			   label="COM_AKEEBA_CONFIG_NOTIFICATION_FREQ_LABEL"/>
-
-		<field name="notificationTime" type="list" default="day"
-			   label="COM_AKEEBA_CONFIG_NOTIFICATION_TIME_LABEL">
-			<option value="min">COM_AKEEBA_CONFIG_NOTIFICATION_TIME_MIN</option>
-			<option value="hour">COM_AKEEBA_CONFIG_NOTIFICATION_TIME_HOUR</option>
-			<option value="day">COM_AKEEBA_CONFIG_NOTIFICATION_TIME_DAY</option>
-		</field>
-
-		<field name="notificationEmail" type="text" default=""
-			   label="COM_AKEEBA_CONFIG_NOTIFICATION_EMAIL_LABEL"
-			   description="COM_AKEEBA_CONFIG_NOTIFICATION_EMAIL_DESC"/>
-
 		<field name="stats_enabled" type="list" default="1" label="COM_AKEEBA_CONFIG_USAGESTATS_LABEL"
 			   description="COM_AKEEBA_CONFIG_USAGESTATS_DESC">
 			<option value="0">JNO</option>

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -27,7 +27,7 @@ class FileController extends acymController
         $map = acym_getVar('string', 'id');
         acym_setVar('layout', 'select');
 
-        $folders = acym_generateArborescence(array($uploadFolders));
+        $folders = acym_generateArborescence([$uploadFolders]);
 
 
         $uploadedFile = acym_getVar('array', 'uploadedFile', array(), 'files');
@@ -47,7 +47,7 @@ class FileController extends acymController
         if (file_exists($uploadPath)) {
             $files = acym_getFiles($uploadPath);
         }
-        
+
         $data = array(
             'files' => $files,
             'uploadFolder' => $uploadFolder,

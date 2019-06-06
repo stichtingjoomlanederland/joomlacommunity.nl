@@ -508,14 +508,15 @@ class Amazons3 extends Base
 		$config = $this->getEngineConfiguration();
 
 		// Get the configuration parameters
-		$accessKey        = $config['accessKey'];
-		$secretKey        = $config['secretKey'];
-		$useSSL           = $config['useSSL'];
-		$customEndpoint   = $config['customEndpoint'];
-		$signatureMethod  = $config['signatureMethod'];
-		$region           = $config['region'];
-		$disableMultipart = $config['disableMultipart'];
-		$bucket           = $config['bucket'];
+		$accessKey           = $config['accessKey'];
+		$secretKey           = $config['secretKey'];
+		$useSSL              = $config['useSSL'];
+		$customEndpoint      = $config['customEndpoint'];
+		$signatureMethod     = $config['signatureMethod'];
+		$region              = $config['region'];
+		$useLegacyPathAccess = $config['useLegacyPathAccess'];
+		$disableMultipart    = $config['disableMultipart'];
+		$bucket              = $config['bucket'];
 
 		// Required since we're returning by reference
 		$null = null;
@@ -531,7 +532,7 @@ class Amazons3 extends Base
 		// Makes sure the custom endpoint has no protocol and no trailing slash
 		$customEndpoint = trim($customEndpoint);
 
-		if ( !empty($customEndpoint))
+		if (!empty($customEndpoint))
 		{
 			$protoPos = strpos($customEndpoint, ':\\');
 
@@ -564,7 +565,7 @@ class Amazons3 extends Base
 			return $null;
 		}
 
-		if ( !function_exists('curl_init'))
+		if (!function_exists('curl_init'))
 		{
 			$this->setWarning('cURL is not enabled, please enable it in order to post-process your archives');
 
@@ -593,11 +594,20 @@ class Amazons3 extends Base
 			$configuration->setEndpoint($customEndpoint);
 		}
 
-		// If we're dealing with China AWS, we have to use the Legacy Paths
+		// Set path-style vs virtual hosting style access
+		$configuration->setUseLegacyPathStyle($useLegacyPathAccess);
+
+		/**
+		 * If we're dealing with China AWS, we have to use the Legacy Paths.
+		 *
+		 * EDIT: There is no indication that this was ever required. Commenting out.
+		 */
+		/**
 		if ($region == 'cn-north-1')
 		{
 			$configuration->setUseLegacyPathStyle(true);
 		}
+		/**/
 
 		// Create the S3 client instance
 		$s3Client = new Connector($configuration);
@@ -614,19 +624,20 @@ class Amazons3 extends Base
 	{
 		$akeebaConfig = Factory::getConfiguration();
 
-		$config = array(
-			'accessKey'        => $akeebaConfig->get('engine.postproc.amazons3.accesskey', ''),
-			'secretKey'        => $akeebaConfig->get('engine.postproc.amazons3.secretkey', ''),
-			'token'            => '',
-			'useSSL'           => $akeebaConfig->get('engine.postproc.amazons3.usessl', 0),
-			'customEndpoint'   => $akeebaConfig->get('engine.postproc.amazons3.customendpoint', ''),
-			'signatureMethod'  => $akeebaConfig->get('engine.postproc.amazons3.signature', 'v2'),
-			'region'           => $akeebaConfig->get('engine.postproc.amazons3.region', ''),
-			'disableMultipart' => $akeebaConfig->get('engine.postproc.amazons3.legacy', 0),
-			'bucket'           => $akeebaConfig->get('engine.postproc.amazons3.bucket', null),
-			'directory'        => $akeebaConfig->get('engine.postproc.amazons3.directory', null),
-			'rrs'              => $akeebaConfig->get('engine.postproc.amazons3.rrs', null),
-		);
+		$config = [
+			'accessKey'           => $akeebaConfig->get('engine.postproc.amazons3.accesskey', ''),
+			'secretKey'           => $akeebaConfig->get('engine.postproc.amazons3.secretkey', ''),
+			'token'               => '',
+			'useSSL'              => $akeebaConfig->get('engine.postproc.amazons3.usessl', 0),
+			'customEndpoint'      => $akeebaConfig->get('engine.postproc.amazons3.customendpoint', ''),
+			'signatureMethod'     => $akeebaConfig->get('engine.postproc.amazons3.signature', 'v2'),
+			'useLegacyPathAccess' => $akeebaConfig->get('engine.postproc.amazons3.pathaccess', '0') == 1,
+			'region'              => $akeebaConfig->get('engine.postproc.amazons3.region', ''),
+			'disableMultipart'    => $akeebaConfig->get('engine.postproc.amazons3.legacy', 0),
+			'bucket'              => $akeebaConfig->get('engine.postproc.amazons3.bucket', null),
+			'directory'           => $akeebaConfig->get('engine.postproc.amazons3.directory', null),
+			'rrs'                 => $akeebaConfig->get('engine.postproc.amazons3.rrs', null),
+		];
 
 		// No access and secret key? Try to fetch from the EC2 configuration
 		if (empty($config['accessKey']) && empty($config['secretKey']))

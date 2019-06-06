@@ -158,20 +158,20 @@ class GoogleDrive
 	 * Get a list of Google Team Drives as an array of ID => Team Drive Name. If there are no team drives or the account
 	 * does not support team drives you will receive an empty list.
 	 *
-	 * @return  array  See https://developers.google.com/drive/api/v3/reference/teamdrives/list
+	 * @return  array  See https://developers.google.com/drive/api/v3/reference/drives/list
 	 */
 	public function getTeamDrives()
 	{
 		$ret         = array();
-		$relativeUrl = 'teamdrives';
+		$relativeUrl = 'drives';
 		$result      = $this->fetch('GET', $relativeUrl);
 
-		if (!isset($result['teamDrives']) || empty($result['teamDrives']))
+		if (!isset($result['drives']) || empty($result['drives']))
 		{
 			return $ret;
 		}
 
-		foreach ($result['teamDrives'] as $drive)
+		foreach ($result['drives'] as $drive)
 		{
 			$ret[$drive['id']] = $drive['name'];
 		}
@@ -193,23 +193,23 @@ class GoogleDrive
 	 */
 	public function getRawContents($parentId = 'root', $search = null, $pageSize = 100, $pageToken = null, $orderBy = 'folder,name', $teamDriveID = '')
 	{
-		$params = array(
-			'supportsTeamDrives' => 'true',
-			'orderBy'            => $orderBy,
-			'pageSize'           => $pageSize,
-			'pageToken'          => $pageToken,
-			'q'                  => '',
-			'spaces'             => 'drive',
-			'fields'             => 'files(fileExtension,id,kind,mimeType,name,parents,size,spaces,starred),nextPageToken',
-		);
+		$params = [
+			'supportsAllDrives' => 'true',
+			'orderBy'           => $orderBy,
+			'pageSize'          => $pageSize,
+			'pageToken'         => $pageToken,
+			'q'                 => '',
+			'spaces'            => 'drive',
+			'fields'            => 'files(fileExtension,id,kind,mimeType,name,parents,size,spaces,starred),nextPageToken',
+		];
 
 		if (!empty($teamDriveID))
 		{
-			$params = array_merge($params, array(
-				'corpora'               => 'teamDrive',
-				'includeTeamDriveItems' => 'true',
-				'teamDriveId'           => $teamDriveID,
-			));
+			$params = array_merge($params, [
+				'corpora'                   => 'drive',
+				'includeItemsFromAllDrives' => 'true',
+				'driveId'                   => $teamDriveID,
+			]);
 		}
 
 		if (empty($pageToken))
@@ -222,7 +222,7 @@ class GoogleDrive
 		if (!empty($parentId))
 		{
 			$parentIdQuoted = str_replace('\'', '\\\'', $parentId);
-			$searchParam = "'$parentIdQuoted' in parents";
+			$searchParam    = "'$parentIdQuoted' in parents";
 		}
 
 		if ($search)
@@ -260,10 +260,10 @@ class GoogleDrive
 	{
 		$result = $this->getRawContents($parentId, $search, $pageSize, $pageToken, $orderBy, $teamDriveID);
 
-		$return = array(
-			'files' => array(),
-			'folders' => array(),
-		);
+		$return = [
+			'files'   => [],
+			'folders' => [],
+		];
 
 		if (!isset($result['files']) || !count($result['files']))
 		{
@@ -274,20 +274,20 @@ class GoogleDrive
 		{
 			if ($item['mimeType'] == 'application/vnd.google-apps.folder')
 			{
-				$return['folders'][$item['name']] = array(
-					'id' => $item['id'],
-				    'parents' => $item['parents']
-				);
+				$return['folders'][$item['name']] = [
+					'id'      => $item['id'],
+					'parents' => $item['parents'],
+				];
 
 				continue;
 			}
 
-			$return['files'][$item['name']] = array(
-				'id' => $item['id'],
-				'parents' => $item['parents'],
-				'size' => $item['size'],
+			$return['files'][$item['name']] = [
+				'id'            => $item['id'],
+				'parents'       => $item['parents'],
+				'size'          => $item['size'],
 				'fileExtension' => $item['fileExtension'],
-			);
+			];
 		}
 
 		return $return;
@@ -322,7 +322,7 @@ class GoogleDrive
 		}
 
 		// Try to find the last part
-		$search = 'name = \'' . str_replace('\'', '\\\'', $fileName) . '\'';
+		$search  = 'name = \'' . str_replace('\'', '\\\'', $fileName) . '\'';
 		$results = $this->getRawContents($parentId, $search, 1, null, 'folder,name', $teamDriveID);
 
 		if (empty($results['files']))
@@ -349,13 +349,13 @@ class GoogleDrive
 			return empty($teamDriveID) ? 'root' : $teamDriveID;
 		}
 
-		$folders = explode('/', $path);
+		$folders  = explode('/', $path);
 		$parentId = empty($teamDriveID) ? 'root' : $teamDriveID;
 
 		foreach ($folders as $folder)
 		{
 			// Search for a folder by the name $folder that has a parent $parentId
-			$search = 'name = \'' . str_replace('\'', '\\\'', $folder) . '\'' .
+			$search  = 'name = \'' . str_replace('\'', '\\\'', $folder) . '\'' .
 				' and mimeType = \'application/vnd.google-apps.folder\'';
 			$results = $this->getRawContents($parentId, $search, 1, null, 'folder,name', $teamDriveID);
 
@@ -411,7 +411,7 @@ class GoogleDrive
 	 */
 	public function createFolder($parentId, $name)
 	{
-		$folderName = str_replace('"', '\\"', $name);
+		$folderName   = str_replace('"', '\\"', $name);
 		$jsonDocument = <<< JSON
 {
  "name": "$folderName",
@@ -423,10 +423,12 @@ class GoogleDrive
 JSON;
 
 		$contentLength = strlen($jsonDocument);
-		$result = $this->fetch('POST', 'files?supportsTeamDrives=true&fields=id', array('headers' => array(
-			'Content-Type: application/json; charset="utf-8"',
-			'Content-Length: ' . $contentLength
-		)), $jsonDocument);
+		$result        = $this->fetch('POST', 'files?supportsAllDrives=true&fields=id', [
+			'headers' => [
+				'Content-Type: application/json; charset="utf-8"',
+				'Content-Length: ' . $contentLength,
+			],
+		], $jsonDocument);
 
 		return $result['id'];
 	}
@@ -445,9 +447,9 @@ JSON;
 	{
 		try
 		{
-			$result = $this->fetch('DELETE', 'files/' . $fileId, array(
-				'supportsTeamDrives' => 'true'
-			));
+			$result = $this->fetch('DELETE', 'files/' . $fileId, [
+				'supportsAllDrives' => 'true',
+			]);
 		}
 		catch (\Exception $e)
 		{
@@ -470,10 +472,10 @@ JSON;
 	 */
 	public function download($fileId, $localFile)
 	{
-		$this->fetch('GET', "files/$fileId?alt=media", array(
-			'supportsTeamDrives' => 'true',
-			'file'               => $localFile,
-		));
+		$this->fetch('GET', "files/$fileId?alt=media", [
+			'supportsAllDrives' => 'true',
+			'file'              => $localFile,
+		]);
 	}
 
 	/**
@@ -504,14 +506,14 @@ JSON;
 		}
 
 		// First we need to upload the file and get its ID
-		$additional = array(
-			'file'  => $localFile,
-			'headers' => array(
+		$additional = [
+			'file'    => $localFile,
+			'headers' => [
 				'Content-Type: ' . $mimeType,
 				'Content-Length: ' . $filesize,
-			)
-		);
-		$response = $this->fetch('POST', self::uploadUrl . 'files?uploadType=media&supportsTeamDrives=true', $additional);
+			],
+		];
+		$response   = $this->fetch('POST', self::uploadUrl . 'files?uploadType=media&supportsAllDrives=true', $additional);
 
 		if (!isset($response['id']))
 		{
@@ -521,20 +523,20 @@ JSON;
 		$fileId = $response['id'];
 
 		// Now we need to add to the parents list
-		$remoteName = str_replace('"', '\\"', $remoteName);
+		$remoteName   = str_replace('"', '\\"', $remoteName);
 		$jsonDocument = <<< JSON
 {
 	"name": "$remoteName"
 }
 JSON;
-		$additional = array(
-			'headers'            => array(
+		$additional   = [
+			'headers'           => [
 				'Content-Type: application/json',
-			),
-			'supportsTeamDrives' => 'true',
-		);
+			],
+			'supportsAllDrives' => 'true',
+		];
 
-		$patchResponse = $this->fetch('PATCH', 'files/' . $fileId . '?&supportsTeamDrives=true&addParents=' . $folderId, $additional, $jsonDocument);
+		$patchResponse = $this->fetch('PATCH', 'files/' . $fileId . '?&supportsAllDrives=true&addParents=' . $folderId, $additional, $jsonDocument);
 
 		return $patchResponse;
 	}
@@ -556,28 +558,28 @@ JSON;
 		clearstatcache();
 		$filesize = @filesize($localFile);
 
-		$explicitPost = (object)array(
-			'name'  => $remoteName,
-			'parents' => array(
-				$folderId
-			),
-		);
+		$explicitPost = (object) [
+			'name'    => $remoteName,
+			'parents' => [
+				$folderId,
+			],
+		];
 
 		$explicitPost = json_encode($explicitPost);
 
-		$response = $this->fetch('POST', self::uploadUrl . 'files?supportsTeamDrives=true&uploadType=resumable', array(
-			'headers' => array(
+		$response = $this->fetch('POST', self::uploadUrl . 'files?supportsAllDrives=true&uploadType=resumable', [
+			'headers'         => [
 				'Content-Type: application/json',
 				'Content-Length: ' . strlen($explicitPost),
-				'X-Upload-Content-Type: ' .  $mimeType,
-				'X-Upload-Content-Length: ' .  $filesize,
-			),
+				'X-Upload-Content-Type: ' . $mimeType,
+				'X-Upload-Content-Length: ' . $filesize,
+			],
 			'follow-redirect' => false,
-			'no-parse' => true,
-			'curl-options' => array(
+			'no-parse'        => true,
+			'curl-options'    => [
 				CURLOPT_HEADER => true,
-			)
-		), $explicitPost);
+			],
+		], $explicitPost);
 
 		$lines = explode("\r", $response);
 
@@ -624,7 +626,7 @@ JSON;
 	{
 		clearstatcache();
 		$totalSize = filesize($localFile);
-		$to = $from + $length - 1;
+		$to        = $from + $length - 1;
 
 		if ($to > ($totalSize - 1))
 		{
@@ -635,13 +637,13 @@ JSON;
 
 		$range = "$from-$to/$totalSize";
 
-		$additional = array(
-			'headers'            => array(
+		$additional = [
+			'headers'           => [
 				'Content-Length: ' . $contentLength,
 				'Content-Range: bytes ' . $range,
-			),
-			'supportsTeamDrives' => 'true',
-		);
+			],
+			'supportsAllDrives' => 'true',
+		];
 
 		$fp = @fopen($localFile, 'rb');
 
@@ -677,7 +679,7 @@ JSON;
 		list($fileName, $folderId) = $this->preprocessUploadPath($path, $teamDriveID);
 
 		$sessionUrl = $this->createUploadSession($folderId, $localFile, $fileName, $mimeType);
-		$from = 0;
+		$from       = 0;
 
 		while (true)
 		{
@@ -741,7 +743,7 @@ JSON;
 	 *
 	 * @return  array
 	 */
-	protected function fetch($method, $relativeUrl, array $additional = array(), $explicitPost = null)
+	protected function fetch($method, $relativeUrl, array $additional = [], $explicitPost = null)
 	{
 		// Get full URL, if required
 		$url = $relativeUrl;
@@ -801,7 +803,7 @@ JSON;
 		}
 
 		// Set up custom headers
-		$headers = array();
+		$headers = [];
 
 		if (isset($additional['headers']))
 		{
@@ -812,11 +814,11 @@ JSON;
 		// Add the authorization header
 		$headers[] = 'Authorization: Bearer ' . $this->accessToken;
 
-		$options[ CURLOPT_HTTPHEADER ] = $headers;
+		$options[CURLOPT_HTTPHEADER] = $headers;
 
 		// Handle files
 		$file = null;
-		$fp = null;
+		$fp   = null;
 
 		if (isset($additional['file']))
 		{
@@ -827,7 +829,7 @@ JSON;
 		if (!isset($additional['fp']) && !empty($file))
 		{
 			$mode = ($method == 'GET') ? 'wb' : 'rb';
-			$fp = @fopen($file, $mode);
+			$fp   = @fopen($file, $mode);
 		}
 		elseif (isset($additional['fp']))
 		{
@@ -838,10 +840,10 @@ JSON;
 		// Set up additional options
 		if ($method == 'GET' && $fp)
 		{
-			$options[ CURLOPT_RETURNTRANSFER ] = false;
-			$options[ CURLOPT_HEADER ]         = false;
-			$options[ CURLOPT_FILE ]           = $fp;
-			$options[ CURLOPT_BINARYTRANSFER ] = true;
+			$options[CURLOPT_RETURNTRANSFER] = false;
+			$options[CURLOPT_HEADER]         = false;
+			$options[CURLOPT_FILE]           = $fp;
+			$options[CURLOPT_BINARYTRANSFER] = true;
 
 			if (!$expectHttpStatus)
 			{
@@ -850,20 +852,20 @@ JSON;
 		}
 		elseif (($method == 'POST' && !$fp))
 		{
-			$options[ CURLOPT_POST ] = true;
+			$options[CURLOPT_POST] = true;
 
 			if ($explicitPost)
 			{
-				$options[ CURLOPT_POSTFIELDS ] = $explicitPost;
+				$options[CURLOPT_POSTFIELDS] = $explicitPost;
 			}
 			elseif (!empty($additional))
 			{
-				$options[ CURLOPT_POSTFIELDS ] = $additional;
+				$options[CURLOPT_POSTFIELDS] = $additional;
 			}
 		}
 		elseif ($method == 'POST' && $fp)
 		{
-			$options[ CURLOPT_POST ]   = true;
+			$options[CURLOPT_POST] = true;
 
 			$data = '';
 
@@ -872,27 +874,27 @@ JSON;
 				$data .= fread($fp, 1024768);
 			}
 
-			$options[ CURLOPT_POSTFIELDS ] = $data;
+			$options[CURLOPT_POSTFIELDS] = $data;
 		}
 		elseif ($method == 'GET' && !empty($additional))
 		{
 			$extraQuery = http_build_query($additional);
-			$glue = (strpos($url, '?') === false) ? '?' : '&';
-			$url .= $glue . $extraQuery;
+			$glue       = (strpos($url, '?') === false) ? '?' : '&';
+			$url        .= $glue . $extraQuery;
 
 			curl_setopt($ch, CURLOPT_URL, $url);
 		}
 		else // Any other HTTP method, e.g. DELETE
 		{
-			$options[ CURLOPT_CUSTOMREQUEST ] = $method;
+			$options[CURLOPT_CUSTOMREQUEST] = $method;
 
 			if ($explicitPost)
 			{
-				$options[ CURLOPT_POSTFIELDS ] = $explicitPost;
+				$options[CURLOPT_POSTFIELDS] = $explicitPost;
 			}
 			elseif (!empty($additional))
 			{
-				$options[ CURLOPT_POSTFIELDS ] = $additional;
+				$options[CURLOPT_POSTFIELDS] = $additional;
 			}
 		}
 
@@ -907,9 +909,9 @@ JSON;
 
 		// Execute and parse the response
 		//@curl_setopt($ch, CURLOPT_VERBOSE, true);
-		$response = curl_exec($ch);
-		$errNo = curl_errno($ch);
-		$error = curl_error($ch);
+		$response     = curl_exec($ch);
+		$errNo        = curl_errno($ch);
+		$error        = curl_error($ch);
 		$lastHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
 		curl_close($ch);
@@ -940,7 +942,7 @@ JSON;
 		{
 			if ($expectHttpStatus == $lastHttpCode)
 			{
-				return array();
+				return [];
 			}
 		}
 
@@ -951,7 +953,7 @@ JSON;
 
 		// Parse the response
 		$originalResponse = $response;
-		$response = json_decode($response, true);
+		$response         = json_decode($response, true);
 
 		// Did we get invalid JSON data?
 		if (!empty($originalResponse) && !$response)
@@ -960,7 +962,7 @@ JSON;
 		}
 		elseif (empty($originalResponse))
 		{
-			$response = array();
+			$response = [];
 		}
 
 		unset($originalResponse);
@@ -968,7 +970,7 @@ JSON;
 		// Did we get an error response?
 		if (isset($response['error']) && is_array($response['error']))
 		{
-			$error = $response['error']['code'];
+			$error            = $response['error']['code'];
 			$errorDescription = isset($response['error']['message']) ? $response['error']['message'] : 'No error description provided';
 
 			throw new \RuntimeException("Error $error: $errorDescription", 500);
@@ -977,7 +979,7 @@ JSON;
 		// Did we get an error response (from the helper script)?
 		if (isset($response['error']))
 		{
-			$error = $response['error'];
+			$error            = $response['error'];
 			$errorDescription = isset($response['error_description']) ? $response['error_description'] : 'No error description provided';
 
 			throw new \RuntimeException("Error $error: $errorDescription", 500);
@@ -1020,9 +1022,9 @@ JSON;
 			$fileId = $results['files'][0]['id'];
 			$this->delete($fileId, false);
 
-			return array($fileName, $folderId);
+			return [$fileName, $folderId];
 		}
 
-		return array($fileName, $folderId);
+		return [$fileName, $folderId];
 	}
 }

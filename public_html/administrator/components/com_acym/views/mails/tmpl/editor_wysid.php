@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -18,7 +18,7 @@ defined('_JEXEC') or die('Restricted access');
 <div id="acym__wysid__edit" class="cell grid-x">
 	<div class="cell grid-x padding-1 padding-bottom-0">
 		<div class="cell medium-auto hide-for-small-only"></div>
-		<button id="acym__wysid__edit__button" type="button" class="cell button xlarge-3 medium-4 margin-bottom-0"><i class="fa fa-edit" style="vertical-align: middle"></i><?php echo acym_getVar('string', 'ctrl') == 'campaigns' ? acym_translation("ACYM_EDIT_MAIL") : acym_translation("ACYM_EDIT_TEMPLATE"); ?></button>
+		<button id="acym__wysid__edit__button" type="button" class="cell button xlarge-3 medium-4 margin-bottom-0"><i class="fa fa-edit" style="vertical-align: middle"></i><?php echo acym_translation(acym_getVar('string', 'ctrl') == 'campaigns' ? 'ACYM_EDIT_MAIL' : 'ACYM_EDIT_TEMPLATE'); ?></button>
 		<div class="cell medium-auto hide-for-small-only"></div>
 	</div>
 	<div class="cell grid-x">
@@ -326,7 +326,8 @@ defined('_JEXEC') or die('Restricted access');
 					</div>
 					<p class="acym__wysid__right__toolbar__p__open"><?php echo acym_translation("ACYM_CUSTOM_SOCIAL_ICONS"); ?><i class="material-icons">expand_more</i></p>
 					<div class="grid-y acym__wysid__right__toolbar__design--show acym__wysid__right__toolbar__design acym__wysid__right__toolbar__design__social__icons">
-                        <?php $config = acym_config();
+                        <?php
+						$config = acym_config();
                         $socialIcons = json_decode($config->get('social_icons', '{}'), true);
                         foreach ($socialIcons as $social => $iconUrl) {
                             echo '<div class="cell grid-x margin-bottom-2 acym_vcenter acym__wysid__right__toolbar__design__social__icons__one">
@@ -416,7 +417,7 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="grid-x cell">
 				<div class="input-group small-12 cell">
 					<span class="input-group-label"><img draggable="false" class="emoji" alt="🔗" src="<?php echo ACYM_MEDIA_URL; ?>/images/link.svg"></span>
-					<input id="acym__wysid__context__button__link" class="input-group-field" type="text" placeholder="http://my-website.com">
+					<input id="acym__wysid__context__button__link" class="input-group-field" type="text" placeholder="https://my-website.com">
 				</div>
 			</div>
 		</div>
