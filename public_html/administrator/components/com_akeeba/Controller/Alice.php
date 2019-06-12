@@ -84,7 +84,9 @@ class Alice extends Controller
 	 */
 	public function translate()
 	{
-		$return  = array();
+		$temp    = null;
+		$trans   = [];
+		$return  = [];
 		$strings = $this->input->getString('keys', '');
 		$strings = json_decode($strings);
 

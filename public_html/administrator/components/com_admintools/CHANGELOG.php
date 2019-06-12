@@ -1,4 +1,9 @@
 <?php die() ?>
+Admin Tools 5.3.2
+================================================================================
+~ PHP File Change Scanner comment editing now uses the Joomla WYSIWYG editor.
+# [LOW] A Joomla installer bug caused an error message to be displayed when updating from 5.3.0 or earlier.
+
 Admin Tools 5.3.1
 ================================================================================
 + Display detected IP, country and continent inside the Geoblocking IP feature

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -70,19 +70,19 @@ class acymqueueClass extends acymClass
         $results['total'] = acym_loadResult($queryCount);
 
         foreach ($results['elements'] as $i => $oneCampaign) {
-            if (!empty($oneCampaign->campaign)) {
+            if (empty($oneCampaign->campaign)) {
+                $results['elements'][$i]->iscampaign = false;
+                $results['elements'][$i]->lists = acym_translation('ACYM_MAIL_FROM_AUTOMATION_SENT_TO');
+                $results['elements'][$i]->recipients = acym_loadResult('SELECT COUNT(*) FROM #__acym_queue WHERE mail_id = '.intval($oneCampaign->id));
+            } else {
                 $results['elements'][$i]->iscampaign = true;
                 $results['elements'][$i]->lists = acym_loadObjectList(
                     'SELECT l.color, l.name , l.id
-                FROM #__acym_list AS l 
-                JOIN #__acym_mail_has_list AS ml ON ml.list_id = l.id 
-                WHERE ml.mail_id = '.intval($oneCampaign->id)
+                    FROM #__acym_list AS l 
+                    JOIN #__acym_mail_has_list AS ml ON ml.list_id = l.id 
+                    WHERE ml.mail_id = '.intval($oneCampaign->id)
                 );
                 $results['elements'][$i]->recipients = intval($mailStatClass->getTotalSubscribersByMailId($oneCampaign->id));
-            } else {
-                $results['elements'][$i]->iscampaign = false;
-                $results['elements'][$i]->lists = acym_translation('ACYM_MAIL_FROM_AUTOMATION_SENT_TO');
-                $results['elements'][$i]->recipients = acym_loadResult('SELECT total_subscribers FROM #__acym_mail_stat WHERE mail_id = '.intval($oneCampaign->id));
             }
         }
 
@@ -254,7 +254,7 @@ class acymqueueClass extends acymClass
         $query .= ' JOIN #__acym_user AS user ON queue.`user_id` = user.`id` ';
         $query .= ' JOIN #__acym_mail AS mail ON queue.`mail_id` = mail.`id` ';
         $query .= ' LEFT JOIN #__acym_campaign AS campaign ON campaign.`mail_id` = mail.`id` ';
-        $query .= ' WHERE queue.`sending_date` <= '.acym_escapeDB(date('Y-m-d H:i:s')).' AND (campaign.mail_id IS NULL OR (campaign.`active` = 1 AND campaign.`draft` = 0 AND user.active = 1))';
+        $query .= ' WHERE queue.`sending_date` <= '.acym_escapeDB(acym_date('now', 'Y-m-d H:i:s', false)).' AND (campaign.mail_id IS NULL OR (campaign.`active` = 1 AND campaign.`draft` = 0 AND user.active = 1))';
 
         if ($config->get('require_confirmation', 1) == 1) {
             $query .= ' AND (user.confirmed = 1 OR mail.type = "notification")';
@@ -353,5 +353,14 @@ class acymqueueClass extends acymClass
         $priority = $config->get('priority_newsletter', 3);
 
         return acym_query('INSERT IGNORE INTO #__acym_queue VALUES ('.intval($mailId).', '.intval($userId).', '.intval($sendingDate).', '.intval($priority).')');
+    }
+
+    public function unpauseCampaign($campaignId, $active)
+    {
+        if (acym_query('UPDATE #__acym_campaign SET active = '.intval($active).' WHERE id = '.intval($campaignId))) {
+            acym_enqueueNotification(acym_translation($active ? 'ACYM_UNPAUSE_CAMPAIGN_SUCCESSFUL' : 'ACYM_PAUSE_CAMPAIGN_SUCCESSFUL'), "success", 10000);
+        } else {
+            acym_enqueueNotification(acym_translation($active ? 'ACYM_UNPAUSE_CAMPAIGN_FAIL' : 'ACYM_PAUSE_CAMPAIGN_FAIL'), "error", 10000);
+        }
     }
 }

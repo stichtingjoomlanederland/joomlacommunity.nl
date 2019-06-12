@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2019 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/licenses/gpl-2.0.html
 */
 
@@ -12,6 +12,8 @@ JFormHelper::loadFieldClass('list');
 class JFormFieldForms extends JFormFieldList
 {
 	protected $type = 'Forms';
+
+	protected $firstValue;
 
     protected function getOptions()
     {
@@ -49,10 +51,38 @@ class JFormFieldForms extends JFormFieldList
 
                 $options[] = JHtml::_('select.option', $result->FormId, sprintf('(%d) %s', $result->FormId, $result->FormTitle));
             }
+
+			$first = reset($results);
+
+			$this->firstValue = $first->FormId;
         }
 
         reset($options);
 
         return $options;
     }
+
+	public function getInput()
+	{
+		$html = parent::getInput();
+
+		if ($this->value)
+		{
+			$url = JRoute::_('index.php?option=com_rsform&view=forms&layout=edit&formId=' . $this->value);
+		}
+		elseif ($this->firstValue)
+		{
+			$url = JRoute::_('index.php?option=com_rsform&view=forms&layout=edit&formId=' . $this->firstValue);
+		}
+		else
+		{
+			$url = '#';
+		}
+
+		$html .= ' <a id="formLink" target="_blank" href="' . $url . '" class="btn btn-primary">' . JText::_('COM_RSFORM_EDIT_FORM') . '</a>';
+
+		JFactory::getDocument()->addScriptDeclaration("function generateFormLink() { document.getElementById('formLink').setAttribute('href', 'index.php?option=com_rsform&view=forms&layout=edit&formId=' + document.getElementById('{$this->id}').value); }");
+
+		return $html;
+	}
 }

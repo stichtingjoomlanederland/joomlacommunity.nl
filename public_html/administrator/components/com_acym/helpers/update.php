@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -46,7 +46,7 @@ class acymupdateHelper
         $query .= "(5, 'ACYM_MAILBOX_FULL', 5, '((mailbox|mailfolder|storage|quota|space|inbox) *(is)? *(over)? *(exceeded|size|storage|allocation|full|quota|maxi))|status(-code)? *(:|=)? *5.2.2|quota-issue|not *enough.{1,20}space|((over|exceeded|full|exhausted) *(allowed)? *(mail|storage|quota))', '[\"subject\",\"body\"]', '[\"save_message\",\"delete_message\"]', '[\"block_user\"]', 1, 1, 0),";
         $query .= "(6, 'ACYM_BLOCKED_GOOGLE_GROUPS', 6, 'message *rejected *by *Google *Groups', '[\"body\"]', '[\"delete_message\"]', '[]', 1, 1, 0),";
         $query .= "(7, 'ACYM_MAILBOX_DOESNT_EXIST_1', 7, '(Invalid|no such|unknown|bad|des?activated|inactive|unrouteable) *(mail|destination|recipient|user|address|person)|bad-mailbox|inactive-mailbox|not listed in.{1,20}directory|RecipNotFound|(user|mailbox|address|recipients?|host|account|domain) *(is|has been)? *(error|disabled|failed|unknown|unavailable|not *(found|available)|.{1,30}inactiv)|no *mailbox *here|user does.?n.t have.{0,30}account', '[\"subject\",\"body\"]', '[\"save_message\",\"delete_message\"]', '[\"block_user\"]', 1, 1, 0),";
-        $query .= "(8, 'ACYM_MESSAGE_BLOCKED_RECIPIENTS', 8, 'blocked *by|block *list|look(ed)? *like *spam|spam-related|spam *detected| CXBL | CDRBL | IPBL | URLBL |(unacceptable|banned|offensive|filtered|blocked|unsolicited) *(content|message|e?-?mail)|service refused|(status(-code)?|554) *(:|=)? *5.7.1|administratively *denied|blacklisted *IP|policy *reasons|rejected.{1,10}spam|junkmail *rejected|throttling *constraints|exceeded.{1,10}max.{1,40}hour|comply with required standards|421 RP-00|550 SC-00|550 DY-00|550 OU-00', '[\"body\"]', '{\"0\":\"delete_message\",\"1\":\"forward_message\",\"forward_to\":\"''$forwardEmail''\"}', '[]', 1, 1, 0),";
+        $query .= "(8, 'ACYM_MESSAGE_BLOCKED_RECIPIENTS', 8, 'blocked *by|block *list|look(ed)? *like *spam|spam-related|spam *detected| CXBL | CDRBL | IPBL | URLBL |(unacceptable|banned|offensive|filtered|blocked|unsolicited) *(content|message|e?-?mail)|service refused|(status(-code)?|554) *(:|=)? *5.7.1|administratively *denied|blacklisted *IP|policy *reasons|rejected.{1,10}spam|junkmail *rejected|throttling *constraints|exceeded.{1,10}max.{1,40}hour|comply with required standards|421 RP-00|550 SC-00|550 DY-00|550 OU-00', '[\"body\"]', '{\"0\":\"delete_message\",\"1\":\"forward_message\",\"forward_to\":\"".$forwardEmail."\"}', '[]', 1, 1, 0),";
         $query .= "(9, 'ACYM_MAILBOX_DOESNT_EXIST_2', 9, 'status(-code)? *(:|=)? *5.(1.[1-6]|0.0|4.[0123467])|recipient *address *rejected|does *not *like *recipient', '[\"subject\",\"body\"]', '[\"save_message\",\"delete_message\"]', '[\"block_user\"]', 1, 1, 0),";
         $query .= "(10, 'ACYM_DOMAIN_NOT_EXIST', 10, 'No.{1,10}MX *(record|host)|host *does *not *receive *any *mail|bad-domain|connection.{1,10}mail.{1,20}fail|domain.{1,10}not *exist|fail.{1,10}establish *connection', '[\"subject\",\"body\"]', '[\"save_message\",\"delete_message\"]', '[\"block_user\"]', 1, 1, 0),";
         $query .= "(11, 'ACYM_TEMPORARY_FAILURES', 11, 'has.*been.*delayed|delayed *mail|message *delayed|message-expired|temporar(il)?y *(failure|unavailable|disable|offline|unable)|deferred|delayed *([0-9]*) *(hour|minut)|possible *mail *loop|too *many *hops|delivery *time *expired|Action: *delayed|status(-code)? *(:|=)? *4.4.6|will continue to be attempted|unable to deliver in.*Status: 4.4.7', '[\"subject\",\"body\"]', '[\"save_message\",\"delete_message\"]', '[\"block_user\"]', 1, 1, 0),";
@@ -137,11 +137,9 @@ class acymupdateHelper
 
     function installBackLanguages($onlyCode = '')
     {
-        if ('Joomla' != 'Joomla') {
-            return;
-        }
+        if ('Joomla' != 'Joomla') return;
 
-        $menuStrings = array(
+        $menuStrings = [
             'ACYM_USERS',
             'ACYM_CUSTOM_FIELDS',
             'ACYM_LISTS',
@@ -156,25 +154,21 @@ class acymupdateHelper
             'ACYM_MENU_PROFILE_DESC',
             'ACYM_MENU_ARCHIVE',
             'ACYM_MENU_ARCHIVE_DESC',
-        );
+        ];
 
         if (empty($onlyCode)) {
             $siteLanguages = array_keys(acym_getLanguages());
         } else {
-            $siteLanguages = array($onlyCode);
+            $siteLanguages = [$onlyCode];
         }
 
         foreach ($siteLanguages as $code) {
 
             $path = acym_getLanguagePath(ACYM_ROOT, $code).DS.$code.'.com_acym.ini';
-            if (!file_exists($path)) {
-                continue;
-            }
+            if (!file_exists($path)) continue;
 
             $content = file_get_contents($path);
-            if (empty($content)) {
-                continue;
-            }
+            if (empty($content)) continue;
 
 
             $menuFileContent = 'ACYM="AcyMailing 6"'."\r\n";
@@ -182,10 +176,9 @@ class acymupdateHelper
             $menuFileContent .= 'COM_ACYM_CONFIGURATION="AcyMailing 6"'."\r\n";
 
             foreach ($menuStrings as $oneString) {
-                preg_match('#'.$oneString.'="(.*)"#i', $content, $matches);
-                if (empty($matches[1])) {
-                    continue;
-                }
+                preg_match('#[^_]'.$oneString.'="(.*)"#i', $content, $matches);
+                if (empty($matches[1])) continue;
+
                 $menuFileContent .= $oneString.'="'.$matches[1].'"'."\r\n";
             }
 
@@ -210,7 +203,7 @@ class acymupdateHelper
         $names = array('default_template', 'default_template_2');
         foreach ($names as $name) {
             $query = "INSERT INTO `#__acym_mail` (`name`, `creation_date`, `thumbnail`, `drag_editor`, `library`, `type`, `body`, `subject`, `template`, `from_name`, `from_email`, `reply_to_name`, `reply_to_email`, `bcc`, `settings`, `stylesheet`, `attachments`, `creator_id`) VALUES
-                     (".acym_escapeDB(str_replace('_', ' ', $name)).", ".acym_escapeDB(date('Y-m-d H:i:s')).", ".acym_escapeDB(ACYM_IMAGES.'img_template'.DS.$name.'.png').", 1, 1, 'standard', ".acym_escapeDB(str_replace('{acym_media}', ACYM_IMAGES, file_get_contents(ACYM_BACK.'templates'.DS.$name.DS.'content.txt'))).", 'Subject', 1, NULL, NULL, NULL, NULL, NULL, ".acym_escapeDB(file_get_contents(ACYM_BACK.'templates'.DS.$name.DS.'settings.txt')).", '', NULL, 1);";
+                     (".acym_escapeDB(str_replace('_', ' ', $name)).", ".acym_escapeDB(acym_date('now', 'Y-m-d H:i:s', false)).", ".acym_escapeDB(ACYM_IMAGES.'img_template'.DS.$name.'.png').", 1, 1, 'standard', ".acym_escapeDB(str_replace('{acym_media}', ACYM_IMAGES, file_get_contents(ACYM_BACK.'templates'.DS.$name.DS.'content.txt'))).", 'Subject', 1, NULL, NULL, NULL, NULL, NULL, ".acym_escapeDB(file_get_contents(ACYM_BACK.'templates'.DS.$name.DS.'settings.txt')).", '', NULL, 1);";
             acym_query($query);
         }
 

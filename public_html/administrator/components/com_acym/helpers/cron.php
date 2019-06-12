@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -33,7 +33,7 @@ class acymcronHelper
         $time = time();
         $config = acym_config();
 
-        $firstMessage = acym_translation_sprintf('ACYM_CRON_TRIGGERED', acym_getDate(time()));
+        $firstMessage = acym_translation_sprintf('ACYM_CRON_TRIGGERED', acym_date('now', 'd F Y H:i'));
         $this->messages[] = $firstMessage;
         if ($this->report) {
             acym_display($firstMessage, 'info');
@@ -76,6 +76,20 @@ class acymcronHelper
             if ($nbScheduled) {
                 $this->messages[] = acym_translation_sprintf('ACYM_NB_SCHEDULED', $nbScheduled);
                 $this->detailMessages = array_merge($this->detailMessages, $queueClass->messages);
+                $this->processed = true;
+            }
+        }
+
+        if ($config->get('require_confirmation', 1) == 1) {
+            $deletedNb = acym_query(
+                'DELETE `queue`.* 
+                    FROM `#__acym_queue` AS `queue` 
+                    JOIN `#__acym_user` AS `user` ON `queue`.`user_id` = `user`.`id` 
+                    WHERE `user`.`confirmed` = 0 OR `user`.`active` = 0'
+            );
+
+            if (!empty($deletedNb)) {
+                $this->messages[] = acym_translation_sprintf('ACYM_EMAILS_REMOVED_QUEUE_UNCONFIRMED', $deletedNb);
                 $this->processed = true;
             }
         }

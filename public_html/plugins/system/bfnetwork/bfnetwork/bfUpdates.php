@@ -59,8 +59,7 @@ final class bfUpdates
 
         // clear cache and enable disabled sites again
         $db = JFactory::getDbo();
-        $db->setQuery('update #__update_sites SET last_check_timestamp = 0');
-        // $db->setQuery('update #__update_sites SET last_check_timestamp = 0, enabled = 1');
+        $db->setQuery('update #__update_sites SET last_check_timestamp = 0, enabled = 1');
         $db->query();
         $db->setQuery('TRUNCATE #__updates');
         $db->query();

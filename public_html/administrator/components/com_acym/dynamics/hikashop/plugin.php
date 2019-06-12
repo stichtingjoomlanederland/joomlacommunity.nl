@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -201,8 +201,8 @@ class plgAcymHikashop extends acymPlugin
                 'name' => 'flat',
                 'output' => '<input type="text" name="flathikashop_coupon" id="flat" onchange="updateDynamichikashop_coupon();" value="0" class="acym_plugin_text_field" style="display: inline-block;" />
                             '.acym_select($currencies, 'currencyhikashop_coupon', null, 'onchange="updateDynamichikashop_coupon();" style="width: 80px;"'),
-                'js' => 'otherinfo += "| flat:" + $(\'input[name="flathikashop_coupon"]\').val();
-                        otherinfo += "| currency:" + $(\'[name="currencyhikashop_coupon"]\').val();',
+                'js' => 'otherinfo += "| flat:" + jQuery(\'input[name="flathikashop_coupon"]\').val();
+                        otherinfo += "| currency:" + jQuery(\'[name="currencyhikashop_coupon"]\').val();',
             ),
             array(
                 'title' => 'DISCOUNT_PERCENT_AMOUNT',
@@ -839,7 +839,8 @@ class plgAcymHikashop extends acymPlugin
     public function onAcymProcessCondition_hikapurchased(&$query, $options, $num, &$conditionNotValid)
     {
         $this->processConditionFilter_hikapurchased($query, $options, $num);
-        if (empty($query->count())) $conditionNotValid++;
+        $affectedRows = $query->count();
+        if (empty($affectedRows)) $conditionNotValid++;
     }
 
     private function processConditionFilter_hikapurchased(&$query, $options, $num)
@@ -879,7 +880,8 @@ class plgAcymHikashop extends acymPlugin
     public function onAcymProcessCondition_hikareminder(&$query, $options, $num, &$conditionNotValid)
     {
         $this->processConditionFilter_hikareminder($query, $options, $num);
-        if (empty($query->count())) $conditionNotValid++;
+        $affectedRows = $query->count();
+        if (empty($affectedRows)) $conditionNotValid++;
     }
 
     private function processConditionFilter_hikareminder(&$query, $options, $num)
@@ -989,3 +991,4 @@ class plgAcymHikashop extends acymPlugin
         $this->summaryConditionFilters($automationFilter);
     }
 }
+

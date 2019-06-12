@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2019 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -25,6 +25,8 @@ class RsformViewDirectory extends JViewLegacy
 			JToolbarHelper::save('directory.save');
 			JToolbarHelper::cancel('directory.cancel');
 
+			JText::script('RSFP_AUTOGENERATE_LAYOUT_WARNING_SURE');
+
             $this->user = JFactory::getUser();
 
             if ($this->user->authorise('forms.manage', 'com_rsform'))
@@ -43,6 +45,9 @@ class RsformViewDirectory extends JViewLegacy
 			$lists['ViewLayoutAutogenerate'] = RSFormProHelper::renderHTML('select.booleanlist', 'jform[ViewLayoutAutogenerate]', 'onclick="changeDirectoryAutoGenerateLayout('.$this->formId.', this.value);"', $this->directory->ViewLayoutAutogenerate);
 			$lists['enablepdf'] = RSFormProHelper::renderHTML('select.booleanlist', 'jform[enablepdf]', '', $this->directory->enablepdf);
 			$lists['enablecsv'] = RSFormProHelper::renderHTML('select.booleanlist', 'jform[enablecsv]', '', $this->directory->enablecsv);
+			$lists['HideEmptyValues'] = RSFormProHelper::renderHTML('select.booleanlist', 'jform[HideEmptyValues]', 'onchange="saveDirectorySetting(\'HideEmptyValues\', this.value, '  . $this->formId . ');"', $this->directory->HideEmptyValues);
+
+			JToolbarHelper::title('RSForm! Pro <small>['.JText::sprintf('RSFP_EDITING_DIRECTORY', $this->get('formTitle')).']</small>','rsform');
 			
 			$this->lists		= $lists;
 		} elseif ($layout == 'edit_emails') {
@@ -53,6 +58,7 @@ class RsformViewDirectory extends JViewLegacy
 			JToolbarHelper::deleteList('','directory.remove');
 			
 			$this->sidebar		= $this->get('Sidebar');
+			$this->filterbar  	= $this->get('FilterBar');
 			$this->forms		= $this->get('forms');
 			$this->pagination	= $this->get('pagination');
 			$this->sortColumn 	= $this->get('sortColumn');

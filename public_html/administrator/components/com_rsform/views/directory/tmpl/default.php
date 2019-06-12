@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2019 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -14,6 +14,7 @@ JHtml::_('behavior.keepalive'); ?>
 		<?php echo $this->sidebar; ?>
 	</div>
 	<div id="j-main-container" class="span10">
+		<?php echo $this->filterbar->show(); ?>
 		<table class="adminlist table table-striped" id="articleList">
 			<thead>
 				<tr>
@@ -32,13 +33,13 @@ JHtml::_('behavior.keepalive'); ?>
 					<td width="1%" nowrap="nowrap"><?php echo $this->pagination->getRowOffset($i); ?></td>
 					<td width="1%" nowrap="nowrap"><?php echo JHtml::_('grid.id', $i, $row->FormId); ?></td>
 					<td width="1%" nowrap="nowrap">
-						<?php if ($this->getStatus($row->FormId)) { ?>
+						<?php if (!empty($row->DirectoryFormId)) { ?>
 							<span class="badge badge-success"><?php echo JText::_('RSFP_SUBM_DIR_ENABLED'); ?></span>
 						<?php } else { ?>
 							<span class="badge badge-important"><?php echo JText::_('RSFP_SUBM_DIR_DISABLED'); ?></span>
 						<?php } ?>
 					</td>
-					<td><a href="index.php?option=com_rsform&amp;view=directory&amp;layout=edit&amp;formId=<?php echo $row->FormId; ?>"><?php echo !empty($row->FormTitle) ? $row->FormTitle : '<em>no title</em>'; ?></a></td>
+					<td><a href="index.php?option=com_rsform&amp;view=directory&amp;layout=edit&amp;formId=<?php echo $row->FormId; ?>"><?php echo !empty($row->FormTitle) ? $row->FormTitle : '<em>' . JText::_('RSFP_FORM_DEFAULT_TITLE') . '</em>'; ?></a></td>
 					<td><?php echo $row->FormName; ?></td>
 					<td width="1%" nowrap="nowrap"><?php echo $row->FormId; ?></td>
 				</tr>

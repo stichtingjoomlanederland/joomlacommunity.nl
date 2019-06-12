@@ -732,15 +732,6 @@ RSFormPro.Grid = {
 		// Save the layout
 		RSFormPro.Grid.toJson();
 	},
-
-	hide: function() {
-		jQuery('#gridlayout').css('cursor', 'not-allowed');
-
-	},
-
-	show: function() {
-        jQuery('#gridlayout').css('cursor', '');
-	},
 	
 	resize: function(e) {
 		if (e.target == window && RSFormPro.Grid.initialized && jQuery('#gridlayoutdiv').is(':visible')) {
@@ -813,8 +804,10 @@ RSFormPro.Grid = {
 		jQuery('#rsfp-grid-row-container > .rsfp-grid-row.rsfp-grid-row-unsortable').find('input[data-rsfpgrid]').each(function(fieldId, input) {
 			hidden.push(jQuery(input).val());
 		});
-		
-		var old_val = jQuery('[name=GridLayout]').val();
+
+		var gridLayoutInput = jQuery('[name=GridLayout]');
+
+		var old_val = gridLayoutInput.val();
 		var new_val = JSON.stringify([rows, hidden]);
 		
 		if (new_val != old_val)
@@ -823,7 +816,9 @@ RSFormPro.Grid = {
 			stateLoading();
 			
 			// Save value to hidden field
-			jQuery('[name=GridLayout]').val(new_val);
+			gridLayoutInput.val(new_val);
+
+			gridLayoutInput.trigger('gridlayout.changed');
 			
 			// Send AJAX request
 			jQuery.post(

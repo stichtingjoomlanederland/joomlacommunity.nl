@@ -195,13 +195,18 @@ class Restore extends Model
 		// Get the JPS password
 		$password = addslashes($this->getState('jps_key'));
 
+		// Get min / max execution time
+		$min_exec = $this->getState('min_exec', 0, 'int');
+		$max_exec = $this->getState('max_exec', 5, 'int');
+		$bias	  = 75;
+
 		$data = "<?php\ndefined('_AKEEBA_RESTORATION') or die();\n";
 		$data .= '$restoration_setup = array(' . "\n";
 		$data .= <<<ENDDATA
 	'kickstart.security.password' => '{$this->password}',
-	'kickstart.tuning.max_exec_time' => '5',
-	'kickstart.tuning.run_time_bias' => '75',
-	'kickstart.tuning.min_exec_time' => '0',
+	'kickstart.tuning.max_exec_time' => '{$max_exec}',
+	'kickstart.tuning.run_time_bias' => '{$bias}',
+	'kickstart.tuning.min_exec_time' => '{$min_exec}',
 	'kickstart.procengine' => '$procengine',
 	'kickstart.setup.sourcefile' => '{$this->path}',
 	'kickstart.setup.destdir' => '$siteroot',

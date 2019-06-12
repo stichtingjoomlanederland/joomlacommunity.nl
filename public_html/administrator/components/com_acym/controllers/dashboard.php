@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -17,34 +17,38 @@ class DashboardController extends acymController
         parent::__construct();
     }
 
-    function listing()
+    public function listing()
     {
         acym_setVar('layout', 'listing');
         $config = acym_config();
 
-        if ($config->get("migration") == 0 && acym_existsAcyMailing59()) {
+        if ($config->get('migration') == 0 && acym_existsAcyMailing59()) {
 
             acym_setVar("layout", "migrate");
 
-            return parent::display();
-        } else {
-            $newConfig = new stdClass();
-            $newConfig->migration = "1";
-            $config->save($newConfig);
+            parent::display();
+
+            return;
         }
 
+        $newConfig = new stdClass();
+        $newConfig->migration = '1';
+        $config->save($newConfig);
+
         if ($config->get('walk_through') == 1) {
-            !empty(acym_getVar('int', 'step')) ? : acym_setVar("step", "1");
-            !empty(acym_getVar('string', 'task')) ? : acym_setVar("task", "walkThrough");
+            $step = acym_getVar('int', 'step');
+            $task = acym_getVar('string', 'task');
+            if (empty($step)) acym_setVar('step', '1');
+            if (empty($task)) acym_setVar('task', 'walkThrough');
             $this->walkThrough();
 
             return;
         }
+
         $data = array();
         $campaignClass = acym_get('class.campaign');
         $mailStatsClass = acym_get('class.mailstat');
         $urlClickClass = acym_get('class.urlclick');
-        $mailClass = acym_get('class.mail');
         $mails = $mailStatsClass->getAllMailsForStats();
         $data['campaignsScheduled'] = $campaignClass->getCampaignForDashboard();
         $data['dashboard_stats'] = true;
@@ -59,9 +63,8 @@ class DashboardController extends acymController
         $data['mails'] = array();
 
         foreach ($mails as $mail) {
-            if (empty($mail->name) || (empty($mail->id) && $mail->sent != 1)) {
-                continue;
-            }
+            if (empty($mail->name) || (empty($mail->id) && $mail->sent != 1)) continue;
+
             $newMail = new stdClass();
             $newMail->name = $mail->name;
             $newMail->value = $mail->id;
@@ -218,13 +221,12 @@ class DashboardController extends acymController
             $currentHour['click'] = empty($clickHourArray[$one]) ? 0 : $clickHourArray[$one];
             $statsMailSelected->hour[$one.':00'] = $currentHour;
         }
-
         $data['stats_mail_1'] = $statsMailSelected;
 
         parent::display($data);
     }
 
-    function walkThrough()
+    public function walkThrough()
     {
         $step = acym_getVar('int', 'step');
         $config = acym_config();
@@ -275,27 +277,30 @@ class DashboardController extends acymController
         $data['embed_images'] = $config->get('embed_images');
         $data['embed_files'] = $config->get('embed_files');
 
+        $data['small_display'] = $config->get('small_display', 0);
 
-        acym_setVar("layout", "walk_through");
 
-        return parent::display($data);
+        acym_setVar('layout', 'walk_through');
+        parent::display($data);
     }
 
-    function passWalkThrough()
+    public function passWalkThrough()
     {
         $newConfig = new stdClass();
         $config = acym_config();
         $newConfig->walk_through = 0;
+
         if ($config->get('templates_installed') == 0) {
             $updateHelper = acym_get('helper.update');
             $updateHelper->installTemplate();
             $newConfig->templates_installed = 1;
         }
+
         $config->save($newConfig);
         $this->listing();
     }
 
-    function step1()
+    public function step1()
     {
         $information = acym_getVar('array', 'information');
         $forReplyTo = acym_getVar('string', 'use_for_reply_to');
@@ -317,7 +322,7 @@ class DashboardController extends acymController
         $this->walkThrough();
     }
 
-    function step2()
+    public function step2()
     {
         $mailerMethod = acym_getVar('string', 'mailer_method');
         $newConfig = new stdClass();
@@ -348,7 +353,7 @@ class DashboardController extends acymController
         $this->walkThrough();
     }
 
-    function step3()
+    public function step3()
     {
         $serverConfig = acym_getVar('array', 'config');
         $newConfig = new stdClass();
@@ -360,23 +365,24 @@ class DashboardController extends acymController
         $newConfig->use_https = empty($serverConfig['https']) ? 0 : $serverConfig['https'];
         $newConfig->embed_images = empty($serverConfig['images']) ? 0 : $serverConfig['images'];
         $newConfig->embed_files = empty($serverConfig['attachments']) ? 0 : $serverConfig['attachments'];
-        $newConfig->walk_through = 0;
 
-        if ($config->get('templates_installed') == 0) {
-            $updateHelper = acym_get('helper.update');
-            $updateHelper->installTemplate();
-            $newConfig->templates_installed = 1;
-        }
         $config->save($newConfig);
-        $this->listing();
-    }
-
-    function step4()
-    {
         $this->walkThrough();
     }
 
-    function preMigration()
+    public function step4()
+    {
+        $config = acym_config();
+        $newConfig = new stdClass();
+        $serverConfig = acym_getVar('array', 'interface');
+
+        $newConfig->small_display = empty($serverConfig['small_display']) ? 0 : $serverConfig['small_display'];
+
+        $config->save($newConfig);
+        $this->passWalkThrough();
+    }
+
+    public function preMigration()
     {
         $elementToMigrate = acym_getVar("string", "element");
         $helperMigration = acym_get('helper.migration');
@@ -405,7 +411,7 @@ class DashboardController extends acymController
         exit;
     }
 
-    function migrate()
+    public function migrate()
     {
         $elementToMigrate = acym_getVar("string", "element");
         $helperMigration = acym_get('helper.migration');
@@ -435,7 +441,7 @@ class DashboardController extends acymController
         exit;
     }
 
-    function migrationDone()
+    public function migrationDone()
     {
         $config = acym_config();
 
@@ -453,12 +459,12 @@ class DashboardController extends acymController
     {
         $allTables = acym_getTables();
 
-        if (in_array(acym_getPrefix()."acymailing_config", $allTables)) {
-            $queryVersion = "SELECT `value` FROM #__acymailing_config WHERE `namekey` LIKE 'version'";
+        if (in_array(acym_getPrefix().'acymailing_config', $allTables)) {
+            $queryVersion = 'SELECT `value` FROM #__acymailing_config WHERE `namekey` LIKE "version"';
 
             $version = acym_loadResult($queryVersion);
 
-            if (version_compare($version, "5.9.0") >= 0) {
+            if (version_compare($version, '5.9.0') >= 0) {
                 return true;
             }
         }
@@ -474,6 +480,6 @@ class DashboardController extends acymController
 
         $data = array('version' => $version);
 
-        return parent::display($data);
+        parent::display($data);
     }
 }

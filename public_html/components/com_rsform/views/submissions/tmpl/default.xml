@@ -8,7 +8,7 @@
 	<config>
 	<fields name="params">
 		<fieldset name="basic" addfieldpath="/administrator/components/com_rsform/models/fields">
-			<field name="formId" type="forms" default="" label="Form" description="Form" />
+			<field name="formId" type="forms" default="" label="COM_RSFORM_SELECT_FORM" onchange="generateFormLink();" />
 			<field name="lang" type="lang" default="" label="RSFP_SHOW_SUBMISSIONS_LANGUAGE" description="RSFP_SHOW_SUBMISSIONS_LANGUAGE_DESC" />
 			<field name="enable_submissions" type="radio" class="btn-group" default="0" label="RSFP_ENABLE_SUBMISSIONS" description="RSFP_ENABLE_SUBMISSIONS_DESC">
 				<option value="0">JNO</option>

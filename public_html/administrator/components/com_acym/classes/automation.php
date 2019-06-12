@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -175,7 +175,7 @@ class acymautomationClass extends acymClass
         $initialWhere = array('1 = 1');
         $query->removeFlag($action->id);
 
-        if (!empty($action->filters['type_filter'] == 'user')) {
+        if (!empty($action->filters['type_filter']) && $action->filters['type_filter'] == 'user') {
             $initialWhere = array('user.id = '.intval($userTriggeringAction));
         }
 
@@ -234,7 +234,7 @@ class acymautomationClass extends acymClass
         $conditions = json_decode($conditions, true);
         $query = acym_get('class.query');
         $initialWhere = array('1 = 1');
-        if (!empty($conditions['type_condition'] == 'user')) {
+        if (!empty($conditions['type_condition']) && $conditions['type_condition'] == 'user') {
             $initialWhere = array('user.id = '.intval($userTriggeringAction));
         }
         unset($conditions['type_condition']);

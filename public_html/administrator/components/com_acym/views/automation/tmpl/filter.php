@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -89,7 +89,7 @@ defined('_JEXEC') or die('Restricted access');
             <?php if (empty($data['id'])) { ?>
 				<div class="auto cell"></div>
 				<button type="button" class="button button-secondary acy_button_submit medium-shrink cell" data-task="listing"><?php echo acym_translation('ACYM_CANCEL'); ?></button>
-				<button type="button" class="button acy_button_submit medium-shrink cell" data-task="edit" data-step="setFilterMassAction"><?php echo acym_translation('ACYM_SET_ACTIONS'); ?></button>
+				<button type="button" class="button acy_button_submit medium-shrink cell" data-task="edit" data-step="setFilterMassAction"><?php echo acym_translation('ACYM_SAVE_CONTINUE'); ?></button>
             <?php } else { ?>
 				<div class="cell medium-shrink medium-margin-bottom-0 margin-bottom-1 text-left">
                     <?php echo acym_backToListing("automation"); ?>

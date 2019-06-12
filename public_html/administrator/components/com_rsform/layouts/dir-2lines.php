@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2019 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -23,11 +23,21 @@ foreach ($fields as $field) {
 		}
 
 		$mainframe->triggerEvent('rsfp_b_onManageDirectoriesAfterCreatedPlaceholders', array($field, & $placeholders));
-		
+
+		if ($hideEmptyValues)
+		{
+			$out .= "\t" . '{if ' . $placeholders['value'] . '}' . "\n";
+		}
+
 		$out .= "\t".'<div class="rsform-table-item">'."\n";
 		$out .= "\t\t".'<div class="rsform-field-title">'.$placeholders['caption'].'</div>'."\n";
 		$out .= "\t\t".'<div class="rsform-field-value">'.$placeholders['value'].'</div>'."\n";
 		$out .= "\t".'</div>'."\n";
+
+		if ($hideEmptyValues)
+		{
+			$out .= "\t" . '{/if}' . "\n";
+		}
 	}
 }
 

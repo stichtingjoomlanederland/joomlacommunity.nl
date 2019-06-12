@@ -566,6 +566,17 @@ RSFormPro.isChecked = function(formId, name, value) {
 						if (element.type)
 							switch (element.type.toUpperCase())
 							{
+								default:
+									if (!element.name || element.name != 'form[' + name + ']') continue;
+									if (!element.value) continue;
+
+									if (element.value == value)
+									{
+										isChecked = true;
+										break primary_loop;
+									}
+
+									break;
 								case 'RADIO':
 									if (!element.name || element.name != 'form[' + name + ']') continue;
 									if (element.checked == true && element.value == value)

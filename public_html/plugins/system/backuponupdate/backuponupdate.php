@@ -119,7 +119,7 @@ class plgSystemBackuponupdate extends JPlugin
 			$return_url = JUri::base() . 'index.php?option=com_joomlaupdate&task=update.install&is_backed_up=1&'.$jtoken.'=1';
 
 			// Get the redirect URL
-			$redirect_url = JUri::base() . 'index.php?option=com_akeeba&view=Backup&autostart=1&returnurl=' . urlencode($return_url) . '&profileid=' . $profileId . "&$jtoken=1";
+			$redirect_url = JUri::base() . 'index.php?option=com_akeeba&view=Backup&autostart=1&returnurl=' . base64_encode($return_url) . '&profileid=' . $profileId . "&$jtoken=1";
 
 			// Perform the redirection
 			$app = JFactory::getApplication();

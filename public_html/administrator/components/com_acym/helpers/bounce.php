@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -556,7 +556,7 @@ class acymbounceHelper
             if (!empty($this->_message->header->from_email)) {
                 $this->_message->analyseText .= ' '.$this->_message->header->from_email;
             }
-            $this->_display('<b>'.acym_translation('ACYM_SUBJECT').' : '.strip_tags($this->_message->subject).'</b>', false, $maxMessages - $this->_message->messageNB + 1);
+            $this->_display('<b>'.acym_translation('ACYM_EMAIL_SUBJECT').' : '.strip_tags($this->_message->subject).'</b>', false, $maxMessages - $this->_message->messageNB + 1);
 
             preg_match('#AC([0-9]+)Y([0-9]+)BA#i', $this->_message->analyseText, $resultsVars);
             if (!empty($resultsVars[1])) {
@@ -756,7 +756,8 @@ class acymbounceHelper
         }
 
 
-        if ($oneRule->increment_stats && !empty($this->_message->mailid) && !empty($this->mailClass->getOneById($this->_message->mailid))) {
+        $mail = $this->mailClass->getOneById($this->_message->mailid);
+        if ($oneRule->increment_stats && !empty($this->_message->mailid) && !empty($mail)) {
 
             if (empty($this->bounceMessages[$this->_message->mailid])) {
                 $this->bounceMessages[$this->_message->mailid] = array();
@@ -775,7 +776,8 @@ class acymbounceHelper
                 $this->bounceMessages[$this->_message->mailid]['bouncedetails'][$ruleName]++;
             }
 
-            if (!empty($this->_message->userid) && !in_array('delete_user', $oneRule->action_user) && !empty($this->userClass->getOneById($this->_message->userid))) {
+            $user = $this->userClass->getOneById($this->_message->userid);
+            if (!empty($this->_message->userid) && !in_array('delete_user', $oneRule->action_user) && !empty($user)) {
                 $this->bounceMessages[$this->_message->mailid]['userids'][] = intval($this->_message->userid);
                 $this->bounceMessages[$this->_message->mailid]['ruletriggered'][intval($this->_message->userid)] = $oneRule->name.' ['.acym_translation('ACYM_ID').' '.$oneRule->id.']';
             }

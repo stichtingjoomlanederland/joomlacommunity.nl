@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -65,13 +65,12 @@ acym_addScript(
     var ACYM_JOOMLA_MEDIA_IMAGE = "'.ACYM_LIVE.'";'
 );
 
-acym_addScript(false, 'https://code.jquery.com/jquery-1.12.4.min.js');
+JHtml::_('jquery.framework');
 acym_addScript(false, 'https://code.jquery.com/ui/1.11.4/jquery-ui.min.js');
 
 acym_addScript(false, ACYM_JS.'libraries/foundation.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'foundation.min.js'));
 acym_addScript(false, ACYM_JS.'libraries/select2.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'select2.min.js'));
 
-acym_addStyle(false, 'https://fonts.googleapis.com/icon?family=Material+Icons');
 acym_addStyle(false, 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
 
 acym_addStyle(false, ACYM_CSS.'libraries/introjs.min.css?v='.filemtime(ACYM_MEDIA.'css'.DS.'libraries'.DS.'introjs.min.css'));

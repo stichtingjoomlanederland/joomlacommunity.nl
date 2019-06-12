@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2019 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -20,10 +20,10 @@ class RsformModelSubmissions extends JModelLegacy
 	
 	public $export = false;
 	public $rows = 0;
-	
-	public function __construct()
+
+	public function __construct($config = array())
 	{
-		parent::__construct();
+		parent::__construct($config);
 		$this->_db = JFactory::getDbo();
 		// get the previous filters hashes
 		$mainframe = JFactory::getApplication();
@@ -175,8 +175,13 @@ class RsformModelSubmissions extends JModelLegacy
 	
 	public function checkOrderingPossible($field)
 	{
-		$formId = $this->getFormId();
-		$this->_db->setQuery("SELECT SubmissionValueId FROM #__rsform_submission_values WHERE FieldName='".$this->_db->escape($field)."' AND FormId='".$formId."'");
+		$query = $this->_db->getQuery(true)
+			->select($this->_db->qn('SubmissionValueId'))
+			->from($this->_db->qn('#__rsform_submission_values'))
+			->where($this->_db->qn('FieldName') . ' = ' . $this->_db->q($field))
+			->where($this->_db->qn('FormId') . ' = ' . $this->_db->q($this->getFormId()));
+
+		$this->_db->setQuery($query);
 		return $this->_db->loadResult();
 	}
 	
@@ -396,7 +401,13 @@ class RsformModelSubmissions extends JModelLegacy
 		static $found = null;
 		if (is_null($found)) {
 			$formId = $this->getFormId();
-			$this->_db->setQuery("SELECT ConfirmSubmission FROM #__rsform_forms WHERE FormId='".$formId."'");
+
+			$query = $this->_db->getQuery(true)
+				->select($this->_db->qn('ConfirmSubmission'))
+				->from($this->_db->qn('#__rsform_forms'))
+				->where($this->_db->qn('FormId') . ' = ' . $this->_db->q($formId));
+
+			$this->_db->setQuery($query);
 			$found = (bool) $this->_db->loadResult();
 		}
 		return $found;
@@ -901,11 +912,17 @@ class RsformModelSubmissions extends JModelLegacy
 	public function getStaticFields()
 	{
 		$submissionid = $this->getSubmissionId();
+
+		$query = $this->_db->getQuery(true)
+			->select('*')
+			->from($this->_db->qn('#__rsform_submissions'))
+			->where($this->_db->qn('SubmissionId') . ' = ' . $this->_db->q($submissionid));
 		
-		$this->_db->setQuery("SELECT * FROM #__rsform_submissions WHERE SubmissionId='".$submissionid."'");
+		$this->_db->setQuery($query);
 		$submission = $this->_db->loadObject();
 		
-		if ($submission) {
+		if ($submission)
+		{
 			$submission->DateSubmitted = JHtml::_('date', $submission->DateSubmitted, 'Y-m-d H:i:s');
 		}
 		
@@ -940,16 +957,15 @@ class RsformModelSubmissions extends JModelLegacy
 
 	public function getImportTotal()
     {
-        $config     = JFactory::getConfig();
-        $file       = $config->get('tmp_path') . '/' . md5($config->get('secret'));
+        $config = JFactory::getConfig();
+        $file   = $config->get('tmp_path') . '/' . md5($config->get('secret'));
 
         return file_exists($file) ? filesize($file) : 0;
     }
 	
 	public function getLanguages()
 	{
-		$lang 	   = JFactory::getLanguage();
-		$languages = $lang->getKnownLanguages(JPATH_SITE);
+		$languages = JFactory::getLanguage()->getKnownLanguages(JPATH_SITE);
 		
 		$return = array();
 		$return[] = JHtml::_('select.option', '', JText::_('RSFP_SUBMISSIONS_ALL_LANGUAGES'));
@@ -961,8 +977,7 @@ class RsformModelSubmissions extends JModelLegacy
 	
 	public function getLang()
 	{
-		$mainframe = JFactory::getApplication();
-		return $mainframe->getUserStateFromRequest('com_rsform.submissions.lang', 'Language', '');
+		return JFactory::getApplication()->getUserStateFromRequest('com_rsform.submissions.lang', 'Language', '');
 	}
 	
 	public function getRSTabs() {
@@ -1034,4 +1049,15 @@ class RsformModelSubmissions extends JModelLegacy
 
         return $lines;
     }
+
+    public function confirm($cid)
+	{
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true)
+			->update($db->qn('#__rsform_submissions'))
+			->set($db->qn('confirmed') . ' = ' . $db->q(1))
+			->where($db->qn('SubmissionId') . ' IN (' . implode(',', $db->q($cid)) . ')');
+
+		return $db->setQuery($query)->execute();
+	}
 }

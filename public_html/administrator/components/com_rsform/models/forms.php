@@ -1,7 +1,7 @@
 <?php
 /**
  * @package RSForm! Pro
- * @copyright (C) 2007-2014 www.rsjoomla.com
+ * @copyright (C) 2007-2019 www.rsjoomla.com
  * @license GPL, http://www.gnu.org/copyleft/gpl.html
  */
 
@@ -292,8 +292,6 @@ class RsformModelForms extends JModelLegacy
 			}
 		}
 
-		$show_caption = RSFormProHelper::getConfig('global.grid_show_caption');
-
 		foreach ($components as $component)
 		{
 			$data = $properties[$component->ComponentId];
@@ -316,18 +314,25 @@ class RsformModelForms extends JModelLegacy
 			$field->ordering = $component->Order;
 			$field->preview = $this->showPreview($formId, $field->id, $data);
 
-			if ($show_caption)
-			{
-				$field->caption = isset($data['CAPTION']) && strlen($data['CAPTION']) ? $data['CAPTION'] : $field->name;
-			}
+			$field->caption = isset($data['CAPTION']) && strlen($data['CAPTION']) ? $data['CAPTION'] : $field->name;
 
 			if (!empty($data['REQUIRED']))
 			{
+				$field->hasRequired = true;
 				$field->required = $data['REQUIRED'] == 'YES';
 			}
 			else
 			{
 				$field->required = false;
+			}
+
+			if (isset($data['VALIDATIONRULE']) && $data['VALIDATIONRULE'] != 'none')
+			{
+				$field->validation = $data['VALIDATIONRULE'];
+			}
+			elseif (isset($data['VALIDATIONRULE_DATE']) && $data['VALIDATIONRULE_DATE'] != 'none')
+			{
+				$field->validation = $data['VALIDATIONRULE_DATE'];
 			}
 
 			$return[$field->id] = $field;

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -135,7 +135,7 @@ class QueueController extends acymController
 
         $totalSend = acym_getVar('int', 'totalsend', 0);
         if (empty($totalSend)) {
-            $query = 'SELECT COUNT(queue.user_id) FROM #__acym_queue AS queue LEFT JOIN #__acym_campaign AS campaign ON queue.mail_id = campaign.mail_id WHERE (campaign.id IS NULL OR campaign.active = 1) AND queue.sending_date < '.acym_escapeDB(date('Y-m-d H:i:s'));
+            $query = 'SELECT COUNT(queue.user_id) FROM #__acym_queue AS queue LEFT JOIN #__acym_campaign AS campaign ON queue.mail_id = campaign.mail_id WHERE (campaign.id IS NULL OR campaign.active = 1) AND queue.sending_date < '.acym_escapeDB(acym_date('now', 'Y-m-d H:i:s', false));
             if (!empty($mailid)) {
                 $query .= ' AND queue.mail_id = '.intval($mailid);
             }
@@ -182,7 +182,8 @@ class QueueController extends acymController
         $campaignId = acym_getVar("int", "acym__queue__play_pause__campaign_id");
 
         if (!empty($campaignId)) {
-            acym_query('UPDATE #__acym_campaign SET active = '.intval($active).' WHERE id = '.intval($campaignId));
+            $queueClass = acym_get('class.queue');
+            $queueClass->unpauseCampaign($campaignId, $active);
         } else {
             if (!empty($active)) {
                 acym_enqueueNotification(acym_translation("ACYM_ERROR_QUEUE_RESUME"), "error", 10000);

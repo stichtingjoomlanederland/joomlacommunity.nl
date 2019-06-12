@@ -1,7 +1,7 @@
 <?php
 /**
  * @package RSForm! Pro
- * @copyright (C) 2007-2014 www.rsjoomla.com
+ * @copyright (C) 2007-2019 www.rsjoomla.com
  * @license GPL, http://www.gnu.org/copyleft/gpl.html
  */
 
@@ -79,7 +79,7 @@ class RsformViewForms extends JViewLegacy
             $lists['ShowFormTitle'] = $this->renderHTML('select.booleanlist', 'ShowFormTitle', '', $this->form->ShowFormTitle);
             $lists['keepdata'] = $this->renderHTML('select.booleanlist', 'Keepdata', '', $this->form->Keepdata);
             $lists['KeepIP'] = $this->renderHTML('select.booleanlist', 'KeepIP', '', $this->form->KeepIP);
-            $lists['confirmsubmission'] = $this->renderHTML('select.booleanlist', 'ConfirmSubmission', '', $this->form->ConfirmSubmission);
+            $lists['ConfirmSubmission'] = $this->renderHTML('select.booleanlist', 'ConfirmSubmission', '', $this->form->ConfirmSubmission);
             $lists['ShowSystemMessage'] = $this->renderHTML('select.booleanlist', 'ShowSystemMessage', '', $this->form->ShowSystemMessage);
             $lists['ShowThankyou'] = $this->renderHTML('select.booleanlist', 'ShowThankyou', 'onclick="enableThankyou(this.value);"', $this->form->ShowThankyou);
             $lists['ScrollToThankYou'] = $this->renderHTML('select.booleanlist', 'ScrollToThankYou', 'onclick="enableThankyouPopup(this.value);"', $this->form->ScrollToThankYou);
@@ -483,18 +483,28 @@ class RsformViewForms extends JViewLegacy
 		return array($rows, $hidden);
 	}
 
-	protected function adjustPreview($preview)
+	protected function adjustPreview($preview, $useDivs = true)
 	{
 		if (preg_match_all('/<td(.*?)>(.*?)<\/td>/is', $preview, $matches, PREG_SET_ORDER))
 		{
 			if (isset($matches[1]))
 			{
-				$preview = '<div' . $matches[1][1] . '>' . $matches[1][2] . '</div>';
+				if ($useDivs)
+				{
+					$preview = '<div' . $matches[1][1] . '>' . $matches[1][2] . '</div>';
+				}
+				else
+				{
+					$preview = $matches[1][2];
+				}
 			}
 		}
 		else
 		{
-			$preview = '<div>' . $preview . '</div>';
+			if ($useDivs)
+			{
+				$preview = '<div>' . $preview . '</div>';
+			}
 		}
 
 		return $preview;

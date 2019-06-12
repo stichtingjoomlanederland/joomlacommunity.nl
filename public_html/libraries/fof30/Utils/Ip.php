@@ -496,16 +496,16 @@ class Ip
 		// Normally the $_SERVER superglobal is set
 		if (isset($_SERVER))
 		{
-			// Do we have an x-forwarded-for HTTP header (e.g. NginX)?
-			if (self::$allowIpOverrides && array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER))
-			{
-				return $_SERVER['HTTP_X_FORWARDED_FOR'];
-			}
-
 			// Are we under CloudFlare?
 			if (self::$allowIpOverrides && array_key_exists('HTTP_CF_CONNECTING_IP', $_SERVER))
 			{
 				return $_SERVER['HTTP_CF_CONNECTING_IP'];
+			}
+
+			// Do we have an x-forwarded-for HTTP header (e.g. NginX)?
+			if (self::$allowIpOverrides && array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER))
+			{
+				return $_SERVER['HTTP_X_FORWARDED_FOR'];
 			}
 
 			// Are we using Sucuri firewall? They use a custom HTTP header
@@ -538,16 +538,16 @@ class Ip
 			return '';
 		}
 
-		// Do we have an x-forwarded-for HTTP header?
-		if (self::$allowIpOverrides && getenv('HTTP_X_FORWARDED_FOR'))
-		{
-			return getenv('HTTP_X_FORWARDED_FOR');
-		}
-
 		// Are we under CloudFlare?
 		if (self::$allowIpOverrides && getenv('HTTP_CF_CONNECTING_IP'))
 		{
 			return getenv('HTTP_CF_CONNECTING_IP');
+		}
+
+		// Do we have an x-forwarded-for HTTP header?
+		if (self::$allowIpOverrides && getenv('HTTP_X_FORWARDED_FOR'))
+		{
+			return getenv('HTTP_X_FORWARDED_FOR');
 		}
 
 		// Are we using Sucuri firewall? They use a custom HTTP header

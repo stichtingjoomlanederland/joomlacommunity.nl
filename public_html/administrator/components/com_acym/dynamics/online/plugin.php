@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -40,7 +40,7 @@ class plgAcymOnline extends acymPlugin
                     echo 'defaultText["'.$tagname.'"] = "'.$tag['default'].'";';
                 }
                 ?>
-                $('#tr_' + tagName).addClass('selected_row');
+                jQuery('#tr_' + tagName).addClass('selected_row');
                 document.getElementById('acym__popup__online__tagtext').value = defaultText[tagName];
 
                 setOnlineTag();
@@ -48,7 +48,7 @@ class plgAcymOnline extends acymPlugin
 
             function setOnlineTag(){
                 var tag = '{' + selectedTag + '}' + document.getElementById('acym__popup__online__tagtext').value + '{/' + selectedTag + '}';
-                setTag(tag, $('#tr_' + selectedTag));
+                setTag(tag, jQuery('#tr_' + selectedTag));
             }
 
             //-->
@@ -131,3 +131,4 @@ class plgAcymOnline extends acymPlugin
         $this->acympluginHelper->replaceTags($email, $tags);
     }
 }
+

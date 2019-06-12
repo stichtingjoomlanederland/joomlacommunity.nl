@@ -81,11 +81,11 @@ echo $this->loadAnyTemplate('admin:com_admintools/WhitelistedAddresses/feature_w
 					<td><?php echo \JHtml::_('grid.id', ++$i, $row->id); ?></td>
 					<td>
 						<a href="<?php echo $edit?>">
-							<?php echo $row->ip?>
+							<?php echo $this->escape($row->ip) ?>
 						</a>
 					</td>
 					<td>
-						<?php echo $row->description ?>
+						<?php echo $this->escape($row->description) ?>
 					</td>
 				</tr>
 			<?php

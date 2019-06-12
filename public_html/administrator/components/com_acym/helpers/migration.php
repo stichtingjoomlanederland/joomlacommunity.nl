@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -283,6 +283,7 @@ class acymmigrationHelper
 
     public function migrateTemplates($params = array())
     {
+        $mailClass = acym_get('class.mail');
         $result = 0;
 
         $queryGetTemplates = "SELECT `tempid`, `name`, `body`, `styles`, `subject`, `stylesheet`, `fromname`, `fromemail`, `replyname`, `replyemail` FROM #__acymailing_template LIMIT ".intval($params['currentElement']).", ".intval($params['insertPerCalls']);
@@ -291,6 +292,8 @@ class acymmigrationHelper
         if (empty($templates)) return true;
 
         $valuesToInsert = array();
+
+        $templates = $mailClass->encode($templates);
 
         foreach ($templates as $oneTemplate) {
             $oneTemplateStyles = unserialize($oneTemplate->styles);
@@ -531,6 +534,8 @@ class acymmigrationHelper
 
     public function migrateMails($params = array())
     {
+        $mailClass = acym_get('class.mail');
+
         $result = 0;
         $idsMigratedMails = array();
 
@@ -624,6 +629,8 @@ class acymmigrationHelper
                 "stylesheet" => acym_escapeDB($mailStylesheet),
                 "creator_id" => empty($oneMail->userid) ? acym_currentUserId() : intval($oneMail->userid),
             ];
+
+            $mail = $mailClass->encode([$mail])[0];
 
             if ($mailType == "standard") {
                 $stats = acym_loadResult("SELECT COUNT(mailid) FROM #__acymailing_stats WHERE mailid = ".intval($oneMail->mailid));

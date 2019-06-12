@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2019 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -10,8 +10,9 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class RsformControllerDirectory extends RsformController
 {
-	public function __construct() {
-		parent::__construct();
+	public function __construct($config = array())
+	{
+		parent::__construct($config);
 		
 		$this->registerTask('apply', 'save');
 	}

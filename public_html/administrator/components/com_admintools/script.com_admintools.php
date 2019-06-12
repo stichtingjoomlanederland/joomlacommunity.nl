@@ -968,11 +968,47 @@ HTML;
 		{
 		}
 
-		// Uninstall plg_system_admintoolsactionlog
-		JModelLegacy::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_installer/models', 'InstallerModel');
-		/** @var InstallerModelManage|\Joomla\Component\Installer\Administrator\Model\ManageModel $model */
-		$model = JModelLegacy::getInstance('Manage', 'InstallerModel');
-		$model->remove([$eid]);
+		/**
+		 * Here's a bummer. If you try to uninstall the plg_system_admintoolsactionlog plugin Joomla throws a nonsensical
+		 * error message about the plugin's XML manifest missing -- after it has already uninstalled the plugin! This
+		 * error causes the package installation to fail which results in the extension being installed BUT the database
+		 * record of the package NOT being present which makes it impossible to uninstall.
+		 *
+		 * So I have to hack my way around it which is ugly but the only viable alternative :(
+		 */
+		try
+		{
+			// Safely delete the row in the extensions table
+			$row = JTable::getInstance('extension');
+			$row->load((int) $eid);
+			$row->delete($eid);
+
+			// Delete the plugin's files
+			$pluginPath = JPATH_PLUGINS . '/system/admintoolsactionlog';
+
+			if (is_dir($pluginPath))
+			{
+				JFolder::delete($pluginPath);
+			}
+
+			// Delete the plugin's language files
+			$langFiles = [
+				JPATH_ADMINISTRATOR . '/language/en-GB/en-GB.plg_system_admintoolsactionlog.ini',
+				JPATH_ADMINISTRATOR . '/language/en-GB/en-GB.plg_system_admintoolsactionlog.sys.ini',
+			];
+
+			foreach ($langFiles as $file)
+			{
+				if (@is_file($file))
+				{
+					JFile::delete($file);
+				}
+			}
+		}
+		catch (Exception $e)
+		{
+			// I tried, I failed. Dear user, do NOT try to enable that old plugin. Bye!
+		}
 	}
 
 }

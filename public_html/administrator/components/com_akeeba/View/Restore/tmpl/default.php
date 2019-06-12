@@ -151,6 +151,29 @@ $this->getContainer()->template->addJSInline($js);
 		</div>
 	</div>
 
+	<h4><?= \JText::_('COM_AKEEBA_RESTORE_LABEL_TIME_HEAD') ?></h4>
+
+	<div class="akeeba-form-group">
+		<label for="min_exec">
+			<?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_MIN_EXEC'); ?>
+		</label>
+		<input type="number" min="0" max="180" name="min_exec" value="<?= $this->getModel()->getState('min_exec', 0, 'int') ?>"/>
+		<p class="akeeba-help-text">
+			<?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_MIN_EXEC_TIP'); ?>
+		</p>
+	</div>
+	<div class="akeeba-form-group">
+		<label for="max_exec">
+			<?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_MAX_EXEC'); ?>
+		</label>
+		<input type="number" min="0" max="180" name="max_exec" value="<?= $this->getModel()->getState('max_exec', 5, 'int') ?>"/>
+		<p class="akeeba-help-text">
+			<?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_MAX_EXEC_TIP'); ?>
+		</p>
+	</div>
+
+	<hr/>
+
 	<div class="akeeba-form-group--pull-right">
         <div class="akeeba-form-group--actions">
             <button class="akeeba-btn--primary" id="backup-start" onclick="return false;">

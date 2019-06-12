@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -44,7 +44,7 @@ defined('_JEXEC') or die('Restricted access');
         <?php } else { ?>
 			<div class="grid-x grid-margin-x">
 			<div class="large-3 medium-8 cell">
-                <?php echo acym_filterSearch(acym_escape($data["search"]), 'mails_search', 'ACYM_SEARCH_TEMPLATE'); ?>
+                <?php echo acym_filterSearch($data['search'], 'mails_search', 'ACYM_SEARCH_TEMPLATE'); ?>
 			</div>
 			<div class="large-3 medium-4 cell">
                 <?php
@@ -102,31 +102,32 @@ defined('_JEXEC') or die('Restricted access');
             <?php if (empty($data['allMails'])) { ?>
 				<h1 class="cell acym__listing__empty__search__title text-center"><?php echo acym_translation('ACYM_NO_RESULTS_FOUND'); ?></h1>
             <?php } else { ?>
-				<div class="grid-x cell margin-top-1">
-					<h1 class="shrink acym__title__listing margin-right-1"><?php echo acym_translation('ACYM_TEMPLATES'); ?></h1>
-					<div class="cell shrink acym_listing_sorty-by">
-                        <?php echo acym_sortBy(
-                            array(
-                                'id' => strtolower(acym_translation('ACYM_ID')),
-                                'creation_date' => acym_translation('ACYM_DATE_CREATED'),
-                                'name' => acym_translation('ACYM_NAME'),
-                                'type' => acym_translation('ACYM_TYPE'),
-                            ),
-                            'mails'
-                        ); ?>
+				<div class="cell grid-x margin-top-1">
+					<div class="grid-x cell auto">
+						<div class="small-11 cell">
+                            <?php
+                            $options = array(
+                                '' => ['ACYM_ALL', $data['mailNumberPerStatus']['all']],
+                                'standard' => ['ACYM_STANDARD', $data['mailNumberPerStatus']['standard']],
+                                'welcome' => ['ACYM_WELCOME_MAIL', $data['mailNumberPerStatus']['welcome']],
+                                'unsubscribe' => ['ACYM_UNSUBSCRIBE_MAIL', $data['mailNumberPerStatus']['unsubscribe']],
+                            );
+                            echo acym_filterStatus($options, $data["status"], 'mails_status');
+                            ?>
+						</div>
 					</div>
-				</div>
-				<div class="grid-x cell">
-					<div class="small-11 cell">
-                        <?php
-                        $options = array(
-                            '' => ['ACYM_ALL', $data['mailNumberPerStatus']['all']],
-                            'standard' => ['ACYM_STANDARD', $data['mailNumberPerStatus']['standard']],
-                            'welcome' => ['ACYM_WELCOME_MAIL', $data['mailNumberPerStatus']['welcome']],
-                            'unsubscribe' => ['ACYM_UNSUBSCRIBE_MAIL', $data['mailNumberPerStatus']['unsubscribe']],
-                        );
-                        echo acym_filterStatus($options, $data["status"], 'mails_status');
-                        ?>
+					<div class="grid-x cell auto">
+						<div class="cell  acym_listing_sorty-by">
+                            <?php echo acym_sortBy(
+                                array(
+                                    'id' => strtolower(acym_translation('ACYM_ID')),
+                                    'creation_date' => acym_translation('ACYM_DATE_CREATED'),
+                                    'name' => acym_translation('ACYM_NAME'),
+                                    'type' => acym_translation('ACYM_TYPE'),
+                                ),
+                                'mails'
+                            ); ?>
+						</div>
 					</div>
 				</div>
 				<div class="grid-x grid-padding-x grid-padding-y grid-margin-x grid-margin-y xxlarge-up-6 large-up-4 medium-up-3 small-up-1 cell">
@@ -138,18 +139,18 @@ defined('_JEXEC') or die('Restricted access');
 								<div class="cell acym__templates__pic">
                                     <?php
 
-									if(strpos($oneTemplate->thumbnail, 'default_template') === false){
+                                    if (strpos($oneTemplate->thumbnail, 'default_template') === false) {
                                         $src = ACYM_TEMPLATE_THUMBNAILS.$oneTemplate->thumbnail;
-									}else{
+                                    } else {
                                         $src = $oneTemplate->thumbnail;
-									}
+                                    }
 
-									if(!file_exists(str_replace(acym_rootURI(), ACYM_ROOT, $src))){
-										$src = ACYM_IMAGES.'default_template_thumbnail.png';
-									}
-									echo '<img src="'.acym_escape($src).'" alt="'.acym_escape($oneTemplate->name).'"/>';
+                                    if (!file_exists(str_replace(acym_rootURI(), ACYM_ROOT, $src))) {
+                                        $src = ACYM_IMAGES.'default_template_thumbnail.png';
+                                    }
+                                    echo '<img src="'.acym_escape($src).'" alt="'.acym_escape($oneTemplate->name).'"/>';
 
-									?>
+                                    ?>
 								</div>
 								<div class="cell grid-x acym__templates__footer text-center">
 									<div class="cell acym__templates__footer__title" title="<?php echo acym_escape($oneTemplate->name); ?>">
@@ -160,7 +161,7 @@ defined('_JEXEC') or die('Restricted access');
                                         echo acym_escape($oneTemplate->name);
                                         ?>
 									</div>
-									<div class="cell"><?php echo acym_date(acym_escape($oneTemplate->creation_date), 'M. j, Y'); ?></div>
+									<div class="cell"><?php echo acym_date($oneTemplate->creation_date, 'M. j, Y'); ?></div>
 								</div>
 							</a>
 							<div class="text-center cell acym__listing__block__delete acym__background-color__red">

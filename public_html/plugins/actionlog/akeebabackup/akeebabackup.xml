@@ -5,24 +5,24 @@
   ~ @license   GNU General Public License version 3, or later
   -->
 
-<extension version="2.5.0" type="plugin" group="system" method="upgrade">
-	<name>PLG_SYSTEM_AKEEBAACTIONLOG</name>
+<extension version="3.8.0" type="plugin" group="actionlog" method="upgrade">
+	<name>PLG_ACTIONLOG_AKEEBABACKUP</name>
 	<author>Nicholas K. Dionysopoulos</author>
 	<authorEmail>nicholas@dionysopoulos.me</authorEmail>
 	<authorUrl>http://www.akeebabackup.com</authorUrl>
 	<copyright>Copyright (c)2006-2019 Nicholas K. Dionysopoulos</copyright>
 	<license>GNU General Public License version 3, or later</license>
-	<creationDate>2019-03-18</creationDate>
-	<version>6.4.2.1</version>
-	<description>PLG_AKEEBAACTIONLOG_XML_DESCRIPTION</description>
+	<creationDate>2019-05-29</creationDate>
+	<version>6.5.1</version>
+	<description>PLG_ACTIONLOG_AKEEBABACKUP_XML_DESCRIPTION</description>
 	<files>
-		<filename plugin="akeebaactionlog">akeebaactionlog.php</filename>
+		<filename plugin="akeebabackup">akeebabackup.php</filename>
 		<filename>.htaccess</filename>
 		<filename>web.config</filename>
 	</files>
 	<languages folder="language">
-		<language tag="en-GB">en-GB/en-GB.plg_system_akeebaactionlog.ini</language>
-		<language tag="en-GB">en-GB/en-GB.plg_system_akeebaactionlog.sys.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_actionlog_akeebabackup.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_actionlog_akeebabackup.sys.ini</language>
 	</languages>
 
 	<scriptfile>script.php</scriptfile>

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2019 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -448,6 +448,7 @@ class RSFormProRestoreForm
 								$this->db->qn('filename')				.'='.$this->db->q((string) $directory->filename),
 								$this->db->qn('enablepdf')				.'='.$this->db->q((string) $directory->enablepdf),
 								$this->db->qn('enablecsv')				.'='.$this->db->q((string) $directory->enablecsv),
+								$this->db->qn('HideEmptyValues')			.'='.$this->db->q((string) $directory->HideEmptyValues),
 								$this->db->qn('ViewLayout')				.'='.$this->db->q((string) $directory->ViewLayout),
 								$this->db->qn('ViewLayoutName')			.'='.$this->db->q((string) $directory->ViewLayoutName),
 								$this->db->qn('ViewLayoutAutogenerate')	.'='.$this->db->q((string) $directory->ViewLayoutAutogenerate),
@@ -544,11 +545,22 @@ class RSFormProRestoreForm
 	protected function restoreMappings() {
 		// Restore Mappings #__rsform_mappings
 		if (isset($this->xml->mappings)) {
+
+			$defaultDriver 	= JFactory::getConfig()->get('dbtype');
+			$prefix			= JFactory::getConfig()->get('dbprefix');
+
 			foreach ($this->xml->mappings->children() as $mapping) {
 				$driver = (string) $mapping->driver;
 				if (empty($driver)) {
-					$driver = JFactory::getConfig()->get('dbtype');
+					$driver = $defaultDriver;
 				}
+
+				$table = (string) $mapping->table;
+				if (strpos($table, '#__') === 0)
+				{
+					$table = substr_replace($table, $prefix, 0, strlen('#__'));
+				}
+
 				$query = $this->db->getQuery(true);
 				$query	->insert('#__rsform_mappings')
 						->set(array(
@@ -561,7 +573,7 @@ class RSFormProRestoreForm
 								$this->db->qn('password')	.'='.$this->db->q((string) $mapping->password),
 								$this->db->qn('database')	.'='.$this->db->q((string) $mapping->database),
 								$this->db->qn('method')		.'='.$this->db->q((string) $mapping->method),
-								$this->db->qn('table')		.'='.$this->db->q((string) $mapping->table),
+								$this->db->qn('table')		.'='.$this->db->q($table),
 								$this->db->qn('data')		.'='.$this->db->q((string) $mapping->data),
 								$this->db->qn('wheredata')	.'='.$this->db->q((string) $mapping->wheredata),
 								$this->db->qn('extra')		.'='.$this->db->q((string) $mapping->extra),

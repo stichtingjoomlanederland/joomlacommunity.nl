@@ -86,7 +86,6 @@ class rseventsproHelper
 	
 	// Load files and scripts
 	public static function loadHelper() {
-		
 		// Load the language
 		rseventsproHelper::loadLang();
 		
@@ -3213,31 +3212,29 @@ class rseventsproHelper
 		$query	= $db->getQuery(true);
 		$ids	= array();
 		
-		$query->clear()
+		$subquery = $db->getQuery(true)
+			->clear()
 			->select($db->qn('ide'))
 			->from($db->qn('#__rseventspro_taxonomy'))
 			->where($db->qn('type').' = '.$db->q('groups'));
 		
-		$db->setQuery($query);
-		if ($eventids = $db->loadColumn()) {
-			foreach ($eventids as $id) {
-				$query->clear()
-					->select($db->qn('owner'))
-					->from($db->qn('#__rseventspro_events'))
-					->where($db->qn('id').' = '.(int) $id);
-				
-				$db->setQuery($query);
-				$owner = (int) $db->loadResult();
-				
-				if (!rseventsproHelper::canview($id) && $owner != JFactory::getUser()->get('id')) {
+		$query->clear()
+			->select($db->qn('owner'))
+			->select($db->qn('id'))
+			->from($db->qn('#__rseventspro_events'))
+			->where($db->qn('id').' IN ('. (string) $subquery . ')');
+		
+		if ($events = $db->setQuery($query)->loadObjectList()) {
+			foreach ($events as $event) {
+				if (!rseventsproHelper::canview($event->id) && $event->owner != JFactory::getUser()->get('id')) {
 					$ids[] = $id;
 				}
 			}
-			
-			if (!empty($ids)) {
-				$ids = array_map('intval',$ids);
-				$ids = array_unique($ids);
-			}
+		}
+		
+		if (!empty($ids)) {
+			$ids = array_map('intval',$ids);
+			$ids = array_unique($ids);
 		}
 		
 		return $ids;

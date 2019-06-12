@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -16,6 +16,21 @@ defined('_JEXEC') or die('Restricted access');
 	<input type="hidden" id="actions" value="<?php echo acym_escape($data['action']->actions); ?>">
 	<input type="hidden" id="adminAutomation" name="automation_admin" value="<?php echo empty($data['automation']->admin) ? 0 : 1; ?>">
 	<input type="hidden" id="acym__automation__action__number__action" value="0">
+
+	<div style="display: none">
+        <?php
+        $tagClass = acym_get('class.tag');
+        $dataForTemplate = ['allTags' => $tagClass->getAllTagsByType('mail')];
+        echo acym_modal_include(
+            '',
+            ACYM_VIEW.'mails'.DS.'tmpl'.DS.'choose_template_ajax.php',
+            'acym__template__choose__modal',
+            $dataForTemplate,
+            '',
+            'acym__template__choose__modal__listing'
+        );
+        ?>
+	</div>
 
 	<div class="acym__content grid-x cell" id="acym__automation__actions">
         <?php

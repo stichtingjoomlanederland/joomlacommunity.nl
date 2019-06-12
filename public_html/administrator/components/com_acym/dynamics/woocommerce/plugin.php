@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -832,7 +832,8 @@ class plgAcymWoocommerce extends acymPlugin
     public function onAcymProcessCondition_woopurchased(&$query, $options, $num, &$conditionNotValid)
     {
         $this->processConditionFilter_woopurchased($query, $options, $num);
-        if (empty($query->count())) $conditionNotValid++;
+        $affectedRows = $query->count();
+        if (empty($affectedRows)) $conditionNotValid++;
     }
 
     public function onAcymProcessFilter_woopurchased(&$query, $options, $num)
@@ -867,7 +868,8 @@ class plgAcymWoocommerce extends acymPlugin
     public function onAcymProcessCondition_wooreminder(&$query, $options, $num, &$conditionNotValid)
     {
         $this->processConditionFilter_wooreminder($query, $options, $num);
-        if (empty($query->count())) $conditionNotValid++;
+        $affectedRows = $query->count();
+        if (empty($affectedRows)) $conditionNotValid++;
     }
 
     public function onAcymProcessFilter_wooreminder(&$query, $options, $num)

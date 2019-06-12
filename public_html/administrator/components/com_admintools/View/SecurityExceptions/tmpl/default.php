@@ -143,7 +143,7 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/needsipworkaround
 				<tr>
 					<td><?php echo \JHtml::_('grid.id', ++$i, $row->id); ?></td>
 					<td>
-						<?php echo $logdate?>
+						<?php echo $logdate ?>
 					</td>
 					<td>
 						<?php echo $ip ?>
@@ -152,7 +152,7 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/needsipworkaround
 						<?php echo $reason ?>
 					</td>
 					<td>
-						<?php echo $row->url ?>
+						<?php echo $this->escape($row->url) ?>
 					</td>
 				</tr>
 			<?php

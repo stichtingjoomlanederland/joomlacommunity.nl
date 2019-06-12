@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -41,7 +41,7 @@ class plgAcymCbuilder extends acymPlugin
 		<script language="javascript" type="text/javascript">
             function applyCB(tagname, element){
                 var string = '{cbtag:' + tagname + '|info:' + jQuery('input[name="typeinfo"]:checked').val() + '}';
-                setTag(string, $(element));
+                setTag(string, jQuery(element));
             }
 		</script>
 
@@ -130,15 +130,16 @@ class plgAcymCbuilder extends acymPlugin
                     if (!empty($currentCBUser)) {
                         $values->$field = $currentCBUser->getField(substr($field, 6), $oneTag->default, 'html', 'none', 'profile', 0, true);
                     }
-                    if (empty($values->$field) && !empty($fieldObjects[substr($field, 6)]) && $fieldObjects[substr($field, 6)]->type == 'progress') {
-                        $fieldObjects[substr($field, 6)]->decodedParams = json_decode($fieldObjects[substr($field, 6)]->params);
-                        if (!empty($fieldObjects[substr($field, 6)]->decodedParams->prg_fields)) {
-                            $requiredFields = explode('|*|', $fieldObjects[substr($field, 6)]->decodedParams->prg_fields);
+
+                    $fieldName = substr($field, 6);
+                    if (empty($values->$field) && !empty($fieldObjects[$fieldName]) && $fieldObjects[$fieldName]->type == 'progress') {
+                        $fieldObjects[$fieldName]->decodedParams = json_decode($fieldObjects[$fieldName]->params);
+                        if (!empty($fieldObjects[$fieldName]->decodedParams->prg_fields)) {
+                            $requiredFields = explode('|*|', $fieldObjects[$fieldName]->decodedParams->prg_fields);
                             $filled_in = 0;
                             foreach ($fieldObjects as $oneField) {
-                                if (!in_array($oneField->fieldid, $requiredFields) || !in_array($oneField->table, array('#__comprofiler', '#__users'))) {
-                                    continue;
-                                }
+                                if (!in_array($oneField->fieldid, $requiredFields) || !in_array($oneField->table, array('#__comprofiler', '#__users'))) continue;
+
                                 $fieldName = $oneField->name;
                                 if (!empty($currentCBUser->_cbuser->$fieldName)) {
                                     $filled_in++;
@@ -229,7 +230,8 @@ class plgAcymCbuilder extends acymPlugin
     public function onAcymProcessCondition_cbfield(&$query, $options, $num, &$conditionNotValid)
     {
         $this->processConditionFilter_cbfield($query, $options, $num);
-        if (empty($query->count())) $conditionNotValid++;
+        $affectedRows = $query->count();
+        if (empty($affectedRows)) $conditionNotValid++;
     }
 
     public function processConditionFilter_cbfield(&$query, $options, $num)
@@ -282,3 +284,4 @@ class plgAcymCbuilder extends acymPlugin
         $this->summaryConditionFilters($automationFilter);
     }
 }
+

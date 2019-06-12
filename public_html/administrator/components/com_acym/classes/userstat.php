@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -81,12 +81,12 @@ class acymuserStatClass extends acymClass
                             INNER JOIN #__acym_mail as m ON us.mail_id = m.id';
         $where = array();
 
-        if (empty(!$settings['mail_id'])) {
+        if (!empty($settings['mail_id'])) {
             $where[] = 'us.mail_id = '.intval($settings['mail_id']);
         }
 
-        if (empty(!$settings['search'])) {
-            $where[] = '(m.name LIKE '.acym_escapeDB('%'.$settings['search'].'%').' OR u.email LIKE '.acym_escapeDB('%'.$settings['search'].'%').')';
+        if (!empty($settings['search'])) {
+            $where[] = 'm.name LIKE '.acym_escapeDB('%'.$settings['search'].'%').' OR u.email LIKE '.acym_escapeDB('%'.$settings['search'].'%');
         }
 
         if (!empty($where)) {

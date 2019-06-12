@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2019 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -89,6 +89,12 @@ class RsformModelDirectory extends JModelLegacy
         // Check if it's a search.
         $search = $this->getSearch();
 
+        // If 'Show Only Filtering Result' is enabled, don't create a query unless the user searches for something
+        if ($this->params->get('show_filtering_result', 0) && !strlen($search))
+		{
+			return false;
+		}
+
         // Get the SubmissionId
         $query->select($db->qn('s.SubmissionId'))
             ->from($db->qn('#__rsform_submission_values', 'sv'))
@@ -98,18 +104,21 @@ class RsformModelDirectory extends JModelLegacy
             ->order($db->qn($this->getListOrder()) . ' ' . $db->escape($this->getListDirn()));
 
         // Show only confirmed submissions?
-        if ($this->params->get('show_confirmed', 0)) {
+        if ($this->params->get('show_confirmed', 0))
+        {
             $query->where($db->qn('s.confirmed') . '=' . $db->q(1));
         }
 
         // Show only submissions for selected language
-        if ($lang = $this->params->get('lang', '')) {
+        if ($lang = $this->params->get('lang', ''))
+        {
             $query->where($db->qn('s.Lang') . '=' . $db->q($lang));
         }
 
         // Check if we need to show only submissions related to UserId.
         $userId = $this->params->def('userId', 0);
-        if ($userId == 'login') {
+        if ($userId == 'login')
+        {
             // Get only logged in user's submissions
             $user = JFactory::getUser();
 
@@ -119,7 +128,9 @@ class RsformModelDirectory extends JModelLegacy
             }
 
             $query->where($db->qn('s.UserId') . '=' . $db->q($user->get('id')));
-        } elseif ($userId) {
+        }
+        elseif ($userId)
+		{
             // Show only the submissions of these users
             $userIds = explode(',', $userId);
             $userIds = array_map('intval', $userIds);
@@ -127,38 +138,157 @@ class RsformModelDirectory extends JModelLegacy
             $query->where($db->qn('s.UserId') . ' IN (' . implode(',', $userIds) . ')');
         }
 
-        // Iterate through fields to build the query
-        foreach ($fields as $field) {
-            // If the field is viewable or searchable, we need to select() it.
-            if ($field->viewable || $field->searchable) {
-                if ($field->componentId < 0 && isset($headers[$field->componentId])) {
-                    // Static headers.
-                    // Select the value.
-                    if ($field->FieldName == 'confirmed') {
-                        // Make sure we display a text instead of 0 and 1.
-                        $query->select('IF(' . $db->qn('s.confirmed') . ' = ' . $db->q(1) . ', ' . $db->q(JText::_('RSFP_YES')) . ', ' . $db->q(JText::_('RSFP_NO')) . ') AS ' . $db->qn('confirmed'));
-                    } else {
-                        $query->select($db->qn('s.' . $field->FieldName));
-                    }
-                } else {
-                    // Dynamic headers.
-                    // Select the value.
-                    $query->select('GROUP_CONCAT(IF(' . $db->qn('sv.FieldName') . '=' . $db->q($field->FieldName) . ', ' . $db->qn('sv.FieldValue') . ', NULL)) AS ' . $db->qn($field->FieldName));
-                }
+        $needsSelect = array();
+		if ($filters = $this->params->get('filter_values', array()))
+		{
+			$allHaving = array();
+			$glue = $this->params->get('filter_glue', 'OR');
 
-                // If we're searching, add the field to the having() query.
-                if ($search && $field->searchable) {
-                    // DateSubmitted doesn't play well with LIKE
-                    if ($field->FieldId == '-1' && preg_match('#([^0-9\-: ])#', $search)) {
-                        continue;
-                    }
-                    $query->having($db->qn($field->FieldName) . ' LIKE ' . $db->q('%' . $db->escape($search, true) . '%', false), 'OR');
-                }
-            }
-        }
+			if (is_array($filters) && isset($filters['name']) && is_array($filters['name']))
+			{
+				for ($i = 0; $i < count($filters['name']); $i++)
+				{
+					$name = $filters['name'][$i];
+					if (isset($filters['operator'][$i]))
+					{
+						$operator = $filters['operator'][$i];
+					}
+					else
+					{
+						continue;
+					}
+
+					if (isset($filters['value'][$i]))
+					{
+						$value = $filters['value'][$i];
+					}
+					else
+					{
+						continue;
+					}
+
+					if ($this->isValidField($name))
+					{
+						$needsSelect[] = $name;
+						$having = $db->qn($name);
+
+						switch ($operator)
+						{
+							default:
+							case 'is':
+								$having .= ' = ' . $db->q($value);
+								break;
+
+							case 'is_not':
+								$having .= ' != ' . $db->q($value);
+								break;
+
+							case 'contains':
+								$having .= ' LIKE ' . $db->q('%' . $db->escape($value, true) . '%', false);
+								break;
+
+							case 'contains_not':
+								$having .= ' NOT LIKE ' . $db->q('%' . $db->escape($value, true) . '%', false);
+								break;
+
+							case 'starts':
+								$having .= ' LIKE ' . $db->q($db->escape($value, true) . '%', false);
+								break;
+
+							case 'starts_not':
+								$having .= ' NOT LIKE ' . $db->q($db->escape($value, true) . '%', false);
+								break;
+
+							case 'ends':
+								$having .= ' LIKE ' . $db->q('%' . $db->escape($value, true), false);
+								break;
+
+							case 'ends_not':
+								$having .= ' NOT LIKE ' . $db->q('%' . $db->escape($value, true), false);
+								break;
+						}
+
+						$allHaving[] = $having;
+					}
+				}
+			}
+
+			if ($allHaving)
+			{
+				$query->having('(' . implode(' ' . $glue . ' ', $allHaving) . ')', 'AND');
+			}
+		}
+
+        // Iterate through fields to build the query
+		if ($fields)
+		{
+			$allHaving = array();
+			foreach ($fields as $field)
+			{
+				// If the field is viewable or searchable, we need to select() it.
+				if ($field->viewable || $field->searchable || in_array($field->FieldName, $needsSelect))
+				{
+					if ($field->componentId < 0 && isset($headers[$field->componentId]))
+					{
+						// Static headers.
+						// Select the value.
+						if ($field->FieldName == 'confirmed') {
+							// Make sure we display a text instead of 0 and 1.
+							$query->select('IF(' . $db->qn('s.confirmed') . ' = ' . $db->q(1) . ', ' . $db->q(JText::_('RSFP_YES')) . ', ' . $db->q(JText::_('RSFP_NO')) . ') AS ' . $db->qn('confirmed'));
+						} else {
+							$query->select($db->qn('s.' . $field->FieldName));
+						}
+					}
+					else
+					{
+						// Dynamic headers.
+						// Select the value.
+						$query->select('GROUP_CONCAT(IF(' . $db->qn('sv.FieldName') . '=' . $db->q($field->FieldName) . ', ' . $db->qn('sv.FieldValue') . ', NULL)) AS ' . $db->qn($field->FieldName));
+					}
+
+					// If we're searching, add the field to the having() query.
+					if ($search && $field->searchable)
+					{
+						// DateSubmitted doesn't play well with LIKE
+						if ($field->FieldId == '-1' && preg_match('#([^0-9\-: ])#', $search))
+						{
+							continue;
+						}
+
+						$allHaving[] = $db->qn($field->FieldName) . ' LIKE ' . $db->q('%' . $db->escape($search, true) . '%', false);
+					}
+				}
+			}
+
+			if ($allHaving)
+			{
+				$query->having('(' . implode(' OR ', $allHaving) . ')', 'AND');
+			}
+		}
+
+		JFactory::getApplication()->triggerEvent('rsfp_onAfterManageDirectoriesQueryCreated', array(&$query, $this->params->get('formId')));
 
         return $query;
     }
+
+    protected function isValidField($name)
+	{
+		static $fields;
+
+		if ($fields === null)
+		{
+			$fields = RSFormProHelper::getDirectoryStaticHeaders();
+			if ($allFields = RSFormProHelper::getComponents($this->params->get('formId')))
+			{
+				foreach ($allFields as $field)
+				{
+					$fields[] = $field->name;
+				}
+			}
+		}
+
+		return in_array($name, $fields);
+	}
 
     public function setGroupConcatLimit()
     {

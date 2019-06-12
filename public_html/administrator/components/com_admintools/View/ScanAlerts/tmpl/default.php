@@ -33,11 +33,13 @@ JS;
 
 $this->getContainer()->template->addJSInline($js);
 
+$returnUrl = JRoute::_('index.php?option=com_admintools&view=ScanAlerts&id=' . $scan_id);
+
 ?>
 <div class="akeeba-container--50-50">
     <div></div>
     <div>
-        <a href="index.php?option=com_admintools&view=Scans&task=edit&id=<?php echo $scan_id?>" class="akeeba-btn--green--small" style="float:right">
+        <a href="index.php?option=com_admintools&view=Scans&task=edit&id=<?php echo $scan_id?>&returnurl=<?php echo base64_encode($returnUrl)?>" class="akeeba-btn--green--small" style="float:right">
             <span class="icon-pencil"></span>
             <?php echo JText::_('COM_ADMINTOOLS_SCANALERTS_EDIT_COMMENT')?>
         </a>
@@ -48,7 +50,7 @@ $this->getContainer()->template->addJSInline($js);
         <div style="clear: both;"></div>
         <div id="comment" style="display:none">
             <p class="akeeba-panel--information" style="margin:5px 0 0">
-				<?php echo nl2br($scanModel->comment);?>
+				<?php echo $scanModel->comment ?>
             </p>
         </div>
     </div>

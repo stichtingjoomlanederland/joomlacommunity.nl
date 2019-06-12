@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -80,18 +80,6 @@ class acymmailStatClass extends acymClass
         $query .= empty($id) ? '' : ' WHERE `mail_id` = '.intval($id);
 
         return acym_loadObject($query);
-    }
-
-    public function getTotalSubscribersByMailsIs($mailsIds = array())
-    {
-        acym_arrayToInteger($mailsIds);
-        if (empty($mailsIds)) {
-            $mailsIds[] = 0;
-        }
-
-        $result = acym_loadObjectList("SELECT mail_id, total_subscribers FROM #__acym_mail_stat WHERE mail_id IN (".implode(",", $mailsIds).")");
-
-        return $result === null ? 0 : $result;
     }
 
     public function getAllFromMailIds($mailsIds = array())

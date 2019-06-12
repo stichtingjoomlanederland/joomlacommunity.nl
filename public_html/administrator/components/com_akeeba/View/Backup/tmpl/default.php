@@ -80,7 +80,7 @@ defined('_JEXEC') or die();
         <div class="akeeba-hidden-fields-container">
             <input type="hidden" name="option" value="com_akeeba"/>
             <input type="hidden" name="view" value="Backup"/>
-            <input type="hidden" name="returnurl" value="<?php echo $this->returnURL; ?>"/>
+            <input type="hidden" name="returnurl" value="<?php echo $this->escape($this->returnURL) ?>"/>
             <input type="hidden" name="description" id="flipDescription" value=""/>
             <input type="hidden" name="comment" id="flipComment" value=""/>
             <input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1"/>

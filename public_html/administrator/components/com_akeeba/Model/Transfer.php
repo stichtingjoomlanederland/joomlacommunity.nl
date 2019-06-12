@@ -100,9 +100,17 @@ class Transfer extends Model
 
 		$unit	 = array('b', 'KB', 'MB', 'GB', 'TB', 'PB');
 
+		if (version_compare(PHP_VERSION, '5.6.0', 'lt'))
+		{
+			return [
+				'size'   => $approximateSize,
+				'string' => @round($approximateSize / pow(1024, ($i = floor(log($approximateSize, 1024)))), 2) . ' ' . $unit[$i]
+			];
+		}
+
 		return [
 			'size'   => $approximateSize,
-			'string' => @round($approximateSize / pow(1024, ($i = floor(log($approximateSize, 1024)))), 2) . ' ' . $unit[$i]
+			'string' => @round($approximateSize / (1024 ** ($i = floor(log($approximateSize, 1024)))), 2) . ' ' . $unit[$i]
 		];
 	}
 
@@ -1003,7 +1011,7 @@ class Transfer extends Model
 			if ($requiredSize['size'] > $freeSpace)
 			{
 				$unit	 = array('b', 'KB', 'MB', 'GB', 'TB', 'PB');
-				$freeSpaceString = @round($freeSpace / pow(1024, ($i = floor(log($freeSpace, 1024)))), 2) . ' ' . $unit[$i];
+				$freeSpaceString = @round($freeSpace / 1024 ** ($i = floor(log($freeSpace, 1024))), 2) . ' ' . $unit[$i];
 
 				throw new TransferIgnorableError(JText::sprintf('COM_AKEEBA_TRANSFER_ERR_NOTENOUGHSPACE', $requiredSize['string'], $freeSpaceString));
 			}

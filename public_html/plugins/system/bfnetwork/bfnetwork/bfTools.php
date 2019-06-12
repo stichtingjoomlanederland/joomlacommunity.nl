@@ -2806,6 +2806,12 @@ final class bfTools
     {
         require 'bfFilesystem.php';
 
+        if (!$this->_dataObj->filename || !$this->_dataObj->filecontents) {
+            bfEncrypt::reply('error', array(
+                'msg' => 'No file name or file contents were provided!',
+            ));
+        }
+
         if (file_exists(JPATH_BASE.$this->_dataObj->filename) && !is_writable(JPATH_BASE.$this->_dataObj->filename)) {
             bfEncrypt::reply('error', array(
                 'msg' => 'File not saved - as file is unwritable!',

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2019 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -122,6 +122,19 @@ class RsformControllerSubmissions extends RsformController
         }
 		
 		$this->setRedirect('index.php?option=com_rsform&view=submissions&formId='.$formId, JText::_('RSFP_SUBMISSION_MAILS_RESENT'));
+	}
+
+	public function confirm()
+	{
+		$app 	= JFactory::getApplication();
+		$formId = $app->input->getInt('formId');
+		$cid	= $app->input->post->get('cid', array(), 'array');
+		$cid 	= array_map('intval', $cid);
+
+		$model = $this->getModel('submissions');
+		$model->confirm($cid);
+
+		$this->setRedirect('index.php?option=com_rsform&view=submissions&formId=' . $formId, JText::_('COM_RSFORM_SUBMISSIONS_CONFIRMED'));
 	}
 	
 	public function cancel()

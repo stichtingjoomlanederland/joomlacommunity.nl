@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -37,7 +37,7 @@ class AutomationController extends acymController
             $orderingSortOrder = acym_getVar('string', 'automation_ordering_sort_order', 'asc');
 
             $automationsPerPage = acym_getCMSConfig('list_limit', 20);
-            $page = empty(acym_getVar('int', 'automation_pagination_page', 1)) ? 1 : acym_getVar('int', 'automation_pagination_page', 1);
+            $page = acym_getVar('int', 'automation_pagination_page', 1);
 
 
             $automationClass = acym_get('class.automation');
@@ -384,7 +384,7 @@ class AutomationController extends acymController
                         $mail = $mailClass->getOneById($actionObject->actions[$and][$name]['mail_id']);
                         if (!empty($mail)) {
                             $actionObject->actions[$and][$name]['mail_id'] = $mail->id;
-                            $actionObject->actions[$and][$name]['mail_name'] = empty($mail->subject) ? $mail->name : $mail->subject;
+                            $actionObject->actions[$and][$name]['mail_name'] = $mail->name;
                         }
                     }
                 }
@@ -843,7 +843,7 @@ class AutomationController extends acymController
 
                     $stepAutomation = (object)$stepAutomation;
 
-                    return !empty($stepClass->save($stepAutomation)) ? $automationId : false;
+                    return $stepClass->save($stepAutomation);
                 default:
                     return false;
             }

@@ -11,6 +11,7 @@ namespace Akeeba\Backup\Admin\Model;
 defined('_JEXEC') or die();
 
 use Akeeba\Backup\Admin\Model\Mixin\ExclusionFilter;
+use Akeeba\Engine\Driver\Base as EngineDBDriver;
 use Akeeba\Engine\Factory;
 use Exception;
 use FOF30\Container\Container;
@@ -62,6 +63,28 @@ class DatabaseFilters extends Model
 			$table_data = array();
 		}
 
+		$tableMeta = [];
+
+		try
+		{
+			$db->setQuery('SHOW TABLE STATUS');
+
+			$temp = $db->loadAssocList();
+
+			foreach ($temp as $record)
+			{
+				$tableMeta[$db->getAbstract($record['Name'])] = [
+					'engine'      => $record['Engine'],
+					'rows'        => $record['Rows'],
+					'dataLength'  => $record['Data_length'],
+					'indexLength' => $record['Index_length'],
+				];
+			}
+		}
+		catch (Exception $e)
+		{
+		}
+
 		// Process filters
 		$tables = array();
 
@@ -69,7 +92,17 @@ class DatabaseFilters extends Model
 		{
 			foreach ($table_data as $table_name => $table_type)
 			{
-				$status = array();
+				$status = [
+					'engine'      => null,
+					'rows'        => null,
+					'dataLength'  => null,
+					'indexLength' => null,
+				];
+
+				if (array_key_exists($table_name, $tableMeta))
+				{
+					$status = $tableMeta[$table_name];
+				}
 
 				// Add table type
 				$status['type'] = $table_type;
@@ -79,7 +112,7 @@ class DatabaseFilters extends Model
 				$status['tables'] = (!$result) ? 0 : (($byFilter == 'tables') ? 1 : 2);
 
 				// Check dbobject/content filter (skip table data)
-				$result              =  $filters->isFilteredExtended($table_name, $root, 'dbobject', 'content', $byFilter);
+				$result              = $filters->isFilteredExtended($table_name, $root, 'dbobject', 'content', $byFilter);
 				$status['tabledata'] = (!$result) ? 0 : (($byFilter == 'tabledata') ? 1 : 2);
 
 				// We can't filter contents of views, merge tables, black holes, procedures, functions and triggers
@@ -88,7 +121,7 @@ class DatabaseFilters extends Model
 					$status['tabledata'] = 2;
 				}
 
-				$tables[ $table_name ] = $status;
+				$tables[$table_name] = $status;
 			}
 		}
 

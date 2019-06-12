@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -51,9 +51,9 @@ class plgAcymUser extends acymPlugin
                 if(iscf >= 0) string = '{usertag:' + tagname.substr(0, iscf) + '|type:custom'; else string = '{usertag:' + tagname;
 
                 if(tagname.toLowerCase().indexOf('date') >= 0) string += '|type:date';
-                string += '|info:' + $('input[name="typeinfo"]:checked').val() + '}';
+                string += '|info:' + jQuery('input[name="typeinfo"]:checked').val() + '}';
 
-                setTag(string, $('#' + tagname + 'option'));
+                setTag(string, jQuery('#' + tagname + 'option'));
             }
 
             -->
@@ -327,9 +327,8 @@ class plgAcymUser extends acymPlugin
         $conditions['classic']['acy_totaluser']->name = acym_translation('ACYM_NUMBER_OF_USERS');
         $conditions['classic']['acy_totaluser']->option = '<div class="cell shrink acym__automation__inner__text">'.acym_translation('ACYM_THERE_IS').'</div>';
         $conditions['classic']['acy_totaluser']->option .= '<div class="intext_select_automation cell">';
-        $conditions['classic']['acy_totaluser']->option .= acym_select(array('=' => acym_translation('ACYM_EXACTLY'), '>' => acym_translation('ACYM_MORE'), '<' => acym_translation('ACYM_LESS')), 'acym_condition[conditions][__numor__][__numand__][acy_totaluser][operator]', null, 'class="intext_select_automation acym__select"');
+        $conditions['classic']['acy_totaluser']->option .= acym_select(array('=' => acym_translation('ACYM_EXACTLY'), '>' => acym_translation('ACYM_MORE_THAN'), '<' => acym_translation('ACYM_LESS_THAN')), 'acym_condition[conditions][__numor__][__numand__][acy_totaluser][operator]', null, 'class="intext_select_automation acym__select"');
         $conditions['classic']['acy_totaluser']->option .= '</div>';
-        $conditions['classic']['acy_totaluser']->option .= '<div class="cell shrink acym__automation__inner__text">'.acym_translation('ACYM_THAN').'</div>';
         $conditions['classic']['acy_totaluser']->option .= '<input type="number" min="0" class="intext_input_automation cell" name="acym_condition[conditions][__numor__][__numand__][acy_totaluser][number]">';
         $conditions['classic']['acy_totaluser']->option .= '<div class="cell shrink acym__automation__inner__text">'.acym_translation('ACYM_ACYMAILING_USERS').'</div>';
 
@@ -445,7 +444,8 @@ class plgAcymUser extends acymPlugin
             $query->leftjoin['cmsuser'.$num] = '#__usermeta AS cmsuser'.$num.' ON cmsuser'.$num.'.user_id = user.cms_id AND cmsuser'.$num.'.meta_key = "#__capabilities" AND cmsuser'.$num.'.meta_value LIKE '.acym_escapeDB('%'.strlen($options['group']).':"'.$options['group'].'"%');
             $query->where[] = "cmsuser$num.user_id ".$operator;
         }
-        if (empty($query->count())) $conditionNotValid++;
+        $affectedRows = $query->count();
+        if (empty($affectedRows)) $conditionNotValid++;
     }
 
     public function onAcymProcessFilter_acy_group(&$query, $options, $num)
@@ -506,7 +506,8 @@ class plgAcymUser extends acymPlugin
 
             $query->where[] = $query->convertQuery('cmsuser'.$num, $options['field'], $options['operator'], $options['value'], $type);
         }
-        if (empty($query->count())) $conditionNotValid++;
+        $affectedRows = $query->count();
+        if (empty($affectedRows)) $conditionNotValid++;
     }
 
     public function onAcymProcessFilter_acy_cmsfield(&$query, $options, $num)
@@ -569,8 +570,8 @@ class plgAcymUser extends acymPlugin
         }
 
         if (!empty($automationCondition['acy_totaluser'])) {
-            $operators = array('=' => acym_translation('ACYM_EXACTLY'), '>' => acym_translation('ACYM_MORE'), '<' => acym_translation('ACYM_LESS'));
-            $automationCondition = acym_translation('ACYM_THERE_IS').' '.strtolower($operators[$automationCondition['acy_totaluser']['operator']]).' '.strtolower(acym_translation('ACYM_THAN')).' '.$automationCondition['acy_totaluser']['number'].' '.acym_translation('ACYM_ACYMAILING_USERS');
+            $operators = array('=' => acym_translation('ACYM_EXACTLY'), '>' => acym_translation('ACYM_MORE_THAN'), '<' => acym_translation('ACYM_LESS_THAN'));
+            $automationCondition = acym_translation('ACYM_THERE_IS').' '.strtolower($operators[$automationCondition['acy_totaluser']['operator']]).' '.$automationCondition['acy_totaluser']['number'].' '.acym_translation('ACYM_ACYMAILING_USERS');
         }
 
         if (!empty($automationCondition['acy_toss'])) {

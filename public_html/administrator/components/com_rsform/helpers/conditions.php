@@ -16,6 +16,11 @@ class RSFormProConditions
             $lang = RSFormProHelper::getCurrentLanguage();
         }
 
+		if (RSFormProHelper::getConfig('global.disable_multilanguage'))
+		{
+			$lang = JFactory::getLanguage()->getDefault();
+		}
+
         $db = JFactory::getDbo();
 
         $query = $db->getQuery(true)

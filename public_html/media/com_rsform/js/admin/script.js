@@ -110,7 +110,7 @@ function tidyOrderMp(update_php) {
 	}
 
 	if (update_php && must_update_php) {
-		xml = buildXmlHttp();
+		var xml = buildXmlHttp();
 
 		var url = 'index.php?option=com_rsform&task=ordering&controller=mappings&randomTime=' + Math.random();
 		xml.open("POST", url, true);
@@ -247,29 +247,19 @@ function changeDirectoryAutoGenerateLayout(formId, value) {
 	stateLoading();
 	var layouts = document.getElementsByName('jform[ViewLayoutName]');
 	var layoutName = '';
-	for (i = 0; i < layouts.length; i++)
+	for (var i = 0; i < layouts.length; i++)
 		if (layouts[i].checked)
 			layoutName = layouts[i].value;
 
-	xml = buildXmlHttp();
+	var xml = buildXmlHttp();
 	xml.onreadystatechange = function () {
 		if (xml.readyState == 4) {
-			if (value == 1) {
-				document.getElementById('rsform_layout_msg').style.display = 'none';
-				document.getElementById('ViewLayout').readOnly = true;
-				
-				if (typeof Joomla.editors.instances['ViewLayout'] != 'undefined')
-				{
-					Joomla.editors.instances['ViewLayout'].setOption('readOnly', true);
-				}
-			}
-			else {
-				document.getElementById('rsform_layout_msg').style.display = '';
-				document.getElementById('ViewLayout').readOnly = false;
-				if (typeof Joomla.editors.instances['ViewLayout'] != 'undefined')
-				{
-					Joomla.editors.instances['ViewLayout'].setOption('readOnly', false);
-				}
+			document.getElementById('rsform_layout_msg').style.display = value == 1 ? 'none' : '';
+			document.getElementById('ViewLayout').readOnly = value == 1;
+
+			if (typeof Joomla.editors.instances['ViewLayout'] != 'undefined')
+			{
+				Joomla.editors.instances['ViewLayout'].setOption('readOnly', value == 1);
 			}
 
 			stateDone();
@@ -367,17 +357,23 @@ function generateLayout(formId, alert) {
 }
 
 function generateDirectoryLayout(formId, alert) {
-	if (alert != 'no') {
-		var answer = confirm("Pressing the 'Generate layout' button will ERASE your current layout. Are you sure you want to continue?");
-		if (answer == false) return;
+	if (alert != 'no' && !confirm(Joomla.JText._('RSFP_AUTOGENERATE_LAYOUT_WARNING_SURE'))) {
+		return;
 	}
 	var layoutName = 'inline-xhtml';
 	for (var i = 0; i < document.getElementsByName('jform[ViewLayoutName]').length; i++)
+	{
 		if (document.getElementsByName('jform[ViewLayoutName]')[i].checked)
+		{
 			layoutName = document.getElementsByName('jform[ViewLayoutName]')[i].value;
+			break;
+		}
+	}
+
+	var hideEmptyValues = document.getElementsByName('jform[HideEmptyValues]')[1].checked ? 1 : 0;
 
 	stateLoading();
-	xml = buildXmlHttp();
+	var xml = buildXmlHttp();
 	xml.onreadystatechange = function () {
 		if (xml.readyState == 4) {
 			document.getElementById('ViewLayout').value = xml.responseText;
@@ -388,13 +384,29 @@ function generateDirectoryLayout(formId, alert) {
 			stateDone();
 		}
 	};
-	xml.open('GET', 'index.php?option=com_rsform&task=directory.generate&layoutName=' + layoutName + '&formId=' + formId + '&randomTime=' + Math.random(), true);
+	xml.open('GET', 'index.php?option=com_rsform&task=directory.generate&layoutName=' + layoutName + '&formId=' + formId + '&hideEmptyValues=' + hideEmptyValues + '&randomTime=' + Math.random(), true);
 	xml.send(null);
+}
+
+function saveDirectorySetting(settingName, settingValue, formId) {
+	stateLoading();
+	var xml = buildXmlHttp();
+	xml.open('GET', 'index.php?option=com_rsform&task=directory.savesetting&formId=' + formId + '&settingName=' + settingName + '&settingValue=' + settingValue + '&randomTime=' + Math.random(), true);
+	xml.send(null);
+	xml.onreadystatechange = function () {
+		if (xml.readyState == 4) {
+			var autogenerate = document.getElementsByName('jform[ViewLayoutAutogenerate]');
+			for (var i = 0; i < autogenerate.length; i++)
+				if (autogenerate[i].value == 1 && autogenerate[i].checked)
+					generateDirectoryLayout(formId, 'no');
+			stateDone();
+		}
+	}
 }
 
 function saveLayoutName(formId, layoutName) {
 	stateLoading();
-	xml = buildXmlHttp();
+	var xml = buildXmlHttp();
 	xml.open('GET', 'index.php?option=com_rsform&task=layouts.save.name&formId=' + formId + '&randomTime=' + Math.random() + '&formLayoutName=' + layoutName, true);
 	xml.send(null);
 	xml.onreadystatechange = function () {
@@ -408,7 +420,7 @@ function saveLayoutName(formId, layoutName) {
 
 function saveDirectoryLayoutName(formId, layoutName) {
 	stateLoading();
-	xml = buildXmlHttp();
+	var xml = buildXmlHttp();
 	xml.open('GET', 'index.php?option=com_rsform&task=directory.savename&formId=' + formId + '&randomTime=' + Math.random() + '&ViewLayoutName=' + layoutName, true);
 	xml.send(null);
 	xml.onreadystatechange = function () {
@@ -1255,7 +1267,7 @@ function tidyOrderCalculationsDir() {
 
 	params.push('formId=' + formId);
 
-	xml = buildXmlHttp();
+	var xml = buildXmlHttp();
 
 	var url = 'index.php?option=com_rsform&task=forms.save.calculations.ordering&randomTime=' + Math.random();
 	xml.open("POST", url, true);

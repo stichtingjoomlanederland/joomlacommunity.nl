@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2019 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -34,6 +34,12 @@ defined('_JEXEC') or die('Restricted access'); ?>
 		<td width="25%" nowrap="nowrap" align="right" class="key"><?php echo JText::_('RSFP_SUBM_DIR_ENABLE_CSV_SUPPORT'); ?></td>
 		<td>
 			<?php echo $this->lists['enablecsv']; ?>
+		</td>
+	</tr>
+	<tr>
+		<td width="25%" nowrap="nowrap" align="right" class="key"><?php echo JText::_('COM_RSFORM_DIRECTORY_HIDE_EMPTY_VALUES'); ?></td>
+		<td>
+			<?php echo $this->lists['HideEmptyValues']; ?>
 		</td>
 	</tr>
 </table>

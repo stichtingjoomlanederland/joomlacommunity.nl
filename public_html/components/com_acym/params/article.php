@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -55,7 +55,7 @@ class JFormFieldArticle extends JFormField
         $html = '<span class="input-append">';
         $html .= '<input class="input-medium" id="'.$this->id.'_name" type="text" value="'.acym_escape($title).'" disabled="disabled" size="35" />';
         $urlSelect = acym_articleSelectionPage().'&function='.$callback;
-        $html .= acym_cmsModal(true, $urlSelect, 'ACYM_SELECT', true, $modalId);
+        $html .= acym_cmsModal(true, $urlSelect, 'ACYM_SELECT', true, acym_translation('ACYM_SELECT_AN_ARTICLE'), $modalId);
         $html .= '<a id="clear_'.$modalId.'" class="btn hasTooltip" data-toggle="modal" role="button" onclick="toggle_'.$callback.'(0);">'.acym_translation('ACYM_CLEAR').'</a>';
         $html .= '</span>';
 

@@ -238,7 +238,7 @@ class plgQuickiconAkeebabackup extends JPlugin
 		$isJoomla4 = version_compare(JVERSION, '3.999999.999999', 'gt');
 
 		$ret = [
-			'link'  => 'index.php?option=com_akeeba&view=Backup&autostart=1&returnurl=' . urlencode($url) . '&profileid=' . $profileId . "&$token=1",
+			'link'  => 'index.php?option=com_akeeba&view=Backup&autostart=1&returnurl=' . base64_encode($url) . '&profileid=' . $profileId . "&$token=1",
 			'image' => 'akeeba-black',
 			'text'  => JText::_('PLG_QUICKICON_AKEEBABACKUP_OK'),
 			'id'    => 'plg_quickicon_akeebabackup',

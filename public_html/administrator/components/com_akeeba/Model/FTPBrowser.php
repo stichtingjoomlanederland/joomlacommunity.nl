@@ -86,18 +86,18 @@ class FTPBrowser extends Model
 	 */
 	public function getListing()
 	{
-		$dir = $this->directory;
+		$dir   = $this->directory;
 
 		// Parse directory to parts
 		$parsed_dir  = trim($dir, '/');
-		$this->parts = empty($parsed_dir) ? array() : explode('/', $parsed_dir);
+		$this->parts = empty($parsed_dir) ? [] : explode('/', $parsed_dir);
 
 		// Find the path to the parent directory
 		$this->parent_directory = '';
 
-		if (!empty($parts))
+		if (!empty($this->parts))
 		{
-			$copy_of_parts = $parts;
+			$copy_of_parts = $this->parts;
 			array_pop($copy_of_parts);
 
 			$this->parent_directory = '/';
@@ -149,7 +149,7 @@ class FTPBrowser extends Model
 			$this->directory = @ftp_pwd($con);
 
 			$parsed_dir             = trim($this->directory, '/');
-			$this->parts            = empty($parsed_dir) ? array() : explode('/', $parsed_dir);
+			$this->parts            = empty($parsed_dir) ? [] : explode('/', $parsed_dir);
 			$this->parent_directory = $this->directory;
 		}
 

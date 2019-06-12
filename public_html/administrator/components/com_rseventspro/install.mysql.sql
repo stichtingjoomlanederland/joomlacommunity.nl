@@ -571,6 +571,7 @@ INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('openstreet
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('openstreet_thunderforest_tile_type', 'neighbourhood');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('openstreet_esri_tile_type', 'World_Street_Map');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('openstreet_stamen_tile_type', 'terrain');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('mysubscriptions', '1');
 
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Afghanistan');
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Akrotiri');

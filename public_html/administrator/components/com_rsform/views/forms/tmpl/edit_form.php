@@ -1,7 +1,7 @@
 <?php
 /**
  * @package RSForm! Pro
- * @copyright (C) 2007-2014 www.rsjoomla.com
+ * @copyright (C) 2007-2019 www.rsjoomla.com
  * @license GPL, http://www.gnu.org/copyleft/gpl.html
  */
 
@@ -135,7 +135,15 @@ defined('_JEXEC') or die('Restricted access');
                     </tr>
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_CONFIRM_SUBMISSION'); ?></td>
-						<td><?php echo $this->lists['confirmsubmission']; ?></td>
+						<td><?php echo $this->lists['ConfirmSubmission']; ?></td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td><?php echo JText::_('RSFP_CONFIRM_SUBMISSION_DESC'); ?></td>
+					</tr>
+					<tr>
+						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_CONFIRM_SUBMISSION_URL'); ?></td>
+						<td><input name="ConfirmSubmissionUrl" class="rs_inp rs_80" value="<?php echo $this->escape($this->form->ConfirmSubmissionUrl); ?>" size="105" id="ConfirmSubmissionUrl" type="text" /></td>
 					</tr>
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_DISABLE_SUBMIT_BUTTON'); ?></td>

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -40,9 +40,9 @@ class plgAcymSubscription extends acymPlugin
     function textPopup()
     {
         $others = array();
-        $others['unsubscribe'] = array('name' => acym_translation('ACYM_UNSUBSCRIBE_LINK'), 'default' => acym_translation('ACYM_UNSUBSCRIBE', true));
-        $others['confirm'] = array('name' => acym_translation('ACYM_CONFIRM_SUBSCRIPTION_LINK'), 'default' => acym_translation('ACYM_CONFIRM_SUBSCRIPTION', true));
-        $others['subscribe'] = array('name' => acym_translation('ACYM_SUBSCRIBE_LINK'), 'default' => acym_translation('ACYM_SUBSCRIBE', true));
+        $others['unsubscribe'] = array('name' => acym_translation('ACYM_UNSUBSCRIBE_LINK'), 'default' => 'ACYM_UNSUBSCRIBE');
+        $others['confirm'] = array('name' => acym_translation('ACYM_CONFIRM_SUBSCRIPTION_LINK'), 'default' => 'ACYM_CONFIRM_SUBSCRIPTION');
+        $others['subscribe'] = array('name' => acym_translation('ACYM_SUBSCRIBE_LINK'), 'default' => 'ACYM_SUBSCRIBE');
 
         ?>
 		<script language="javascript" type="text/javascript">
@@ -55,37 +55,39 @@ class plgAcymSubscription extends acymPlugin
                 defaultText = [];
                 <?php
                 foreach ($others as $tagname => $tag) {
-                    echo 'defaultText["'.$tagname.'"] = "'.$tag['default'].'";';
+                    echo 'defaultText["'.$tagname.'"] = "'.acym_translation($tag['default'], true).'";';
                 }
                 ?>
-                $('.acym__subscription__subscription').removeClass('selected_row');
-                $('#tr_' + tagName).addClass('selected_row');
-                document.getElementById('acym__popup__subscription__tagtext').value = defaultText[tagName];
+                jQuery('.acym__subscription__subscription').removeClass('selected_row');
+                jQuery('#tr_' + tagName).addClass('selected_row');
+                jQuery('#acym__popup__subscription__tagtext').val(defaultText[tagName]);
                 setSubscriptionTag();
             }
 
             function setSubscriptionTag(){
                 var tag = '{' + selectedTag;
-                var lists = document.getElementById('acym__popup__subscription__listids').innerHTML;
+                var lists = jQuery('#acym__popup__subscription__listids');
 
-                if(selectedTag == 'subscribe' && lists != ''){
-                    tag += "|lists:" + document.getElementById('acym__popup__subscription__listids').innerHTML;
+                if('subscribe' === selectedTag && lists.html() !== ''){
+                    tag += "|lists:" + lists.html();
                 }else{
-                    $('#acym__popup__plugin__subscription__lists__modal').hide();
-                    $('#acym__popup__subscription__listids').html('');
+                    jQuery('#acym__popup__plugin__subscription__lists__modal').hide();
+                    jQuery('#select_lists_zone').hide();
+                    lists.html('');
                 }
 
-                tag += '}' + document.getElementById('acym__popup__subscription__tagtext').value + '{/' + selectedTag + '}';
-                setTag(tag, $('#tr_' + selectedTag));
+                tag += '}' + jQuery('#acym__popup__subscription__tagtext').val() + '{/' + selectedTag + '}';
+                setTag(tag, jQuery('#tr_' + selectedTag));
             }
 
             function displayLists(){
-                $.Modal();
-                $('#acym__popup__plugin__subscription__lists__modal').toggle();
+                jQuery.Modal();
+                jQuery('#acym__popup__plugin__subscription__lists__modal').toggle();
+                jQuery('#select_lists_zone').toggle();
                 openLists = !openLists;
-                $('#acym__popup__subscription__change').on('change', function(){
-                    var lists = JSON.parse($('#acym__modal__lists-selected').val());
-                    $('#acym__popup__subscription__listids').html(lists.join());
+                jQuery('#acym__popup__subscription__change').on('change', function(){
+                    var lists = JSON.parse(jQuery('#acym__modal__lists-selected').val());
+                    jQuery('#acym__popup__subscription__listids').html(lists.join());
                     changeSubscriptionTag('subscribe');
                 });
             }
@@ -107,7 +109,7 @@ class plgAcymSubscription extends acymPlugin
                             <input class="small-9" type="text" name="tagtext" id="acym__popup__subscription__tagtext" onchange="setSubscriptionTag();">
                         </div>
                         <div class="medium-1"></div>
-                        <div id="select_lists_zone" class="grid-x cell medium-6 small-12 acym__listing__title acym__listing__title__dynamics">
+                        <div style="display: none;" id="select_lists_zone" class="grid-x cell medium-6 small-12 acym__listing__title acym__listing__title__dynamics">
                             <p class="shrink" id="acym__popup__subscription__text__list">'.acym_translation('ACYM_LISTS_SELECTED').'</button>
                             <p class="shrink" id="acym__popup__subscription__listids"></p>
                         </div>
@@ -116,7 +118,10 @@ class plgAcymSubscription extends acymPlugin
 					<div class="cell grid-x">';
 
         foreach ($others as $tagname => $tag) {
-            $onclick = $tagname == 'subscribe' ? 'changeSubscriptionTag(\''.$tagname.'\');displayLists();return false;' : 'changeSubscriptionTag(\''.$tagname.'\');';
+            $onclick = "changeSubscriptionTag('".$tagname."');";
+            if ($tagname == 'subscribe') {
+                $onclick .= 'displayLists();return false;';
+            }
             $text .= '<div class="grid-x small-12 cell acym__listing__row acym__listing__row__popup text-left"  onclick="'.$onclick.'" id="tr_'.$tagname.'" ><div class="cell small-12 acym__listing__title acym__listing__title__dynamics">'.$tag['name'].'</div></div>';
         }
         $text .= '</div></div>';
@@ -131,7 +136,7 @@ class plgAcymSubscription extends acymPlugin
 					<div class="cell grid-x">';
 
         foreach ($others as $tagname => $tag) {
-            $text .= '<div class="grid-x medium-12 cell acym__listing__row acym__listing__row__popup text-left" onclick="setTag(\'{list:'.$tagname.'}\', $(this));" id="tr_'.$tagname.'" >
+            $text .= '<div class="grid-x medium-12 cell acym__listing__row acym__listing__row__popup text-left" onclick="setTag(\'{list:'.$tagname.'}\', jQuery(this));" id="tr_'.$tagname.'" >
                         <div class="cell medium-12 small-12 acym__listing__title acym__listing__title__dynamics">'.$tag.'</div>
                       </div>';
         }
@@ -144,7 +149,7 @@ class plgAcymSubscription extends acymPlugin
         $othersMail = array('campaignid', 'subject');
 
         foreach ($othersMail as $tag) {
-            $text .= '<div class="grid-x medium-12 cell acym__listing__row acym__listing__row__popup text-left" onclick="setTag(\'{mail:'.$tag.'}\', $(this));" id="tr_'.$tag.'" >
+            $text .= '<div class="grid-x medium-12 cell acym__listing__row acym__listing__row__popup text-left" onclick="setTag(\'{mail:'.$tag.'}\', jQuery(this));" id="tr_'.$tag.'" >
                         <div class="cell medium-12 small-12 acym__listing__title acym__listing__title__dynamics">'.$tag.'</div>
                       </div>';
         }
@@ -235,8 +240,8 @@ class plgAcymSubscription extends acymPlugin
         }
 
         $mailClass = acym_get('class.mail');
-        $mailLists = $mailClass->getAllListsByMailId($mailid);
-        $userLists = array();
+        $mailLists = array_keys($mailClass->getAllListsByMailId($mailid));
+        $userLists = [];
 
         if (!empty($subid)) {
             $userClass = acym_get('class.user');
@@ -259,8 +264,7 @@ class plgAcymSubscription extends acymPlugin
         }
 
         if (!empty($mailLists)) {
-            $listIds = array_keys($mailLists);
-            $this->lists[$mailid][$subid] = array_shift($listIds);
+            $this->lists[$mailid][$subid] = array_shift($mailLists);
 
             return $this->lists[$mailid][$subid];
         }
@@ -289,13 +293,14 @@ class plgAcymSubscription extends acymPlugin
 
             return $this->lists[$mailid][$subid];
         }
+
+        return 0;
     }
 
     private function _listnames(&$email, &$user, &$parameter)
     {
-        if (empty($user->id)) {
-            return "";
-        }
+        if (empty($user->id)) return '';
+
         $userClass = acym_get('class.user');
         $usersubscription = $userClass->getUserSubscriptionById($user->id);
         $lists = array();
@@ -480,12 +485,11 @@ class plgAcymSubscription extends acymPlugin
         $conditions['classic']['acy_list_all']->name = acym_translation('ACYM_NUMBER_USERS_LIST');
         $conditions['classic']['acy_list_all']->option = '<div class="cell shrink acym__automation__inner__text">'.acym_translation('ACYM_THERE_IS').'</div>';
         $conditions['classic']['acy_list_all']->option .= '<div class="intext_select_automation cell">';
-        $conditions['classic']['acy_list_all']->option .= acym_select(array('=' => acym_translation('ACYM_EXACTLY'), '>' => acym_translation('ACYM_MORE'), '<' => acym_translation('ACYM_LESS')), 'acym_condition[conditions][__numor__][__numand__][acy_list_all][operator]', null, 'class="intext_select_automation acym__select"');
+        $conditions['classic']['acy_list_all']->option .= acym_select(array('>' => acym_translation('ACYM_MORE_THAN'), '<' => acym_translation('ACYM_LESS_THAN'), '=' => acym_translation('ACYM_EXACTLY')), 'acym_condition[conditions][__numor__][__numand__][acy_list_all][operator]', null, 'class="intext_select_automation acym__select"');
         $conditions['classic']['acy_list_all']->option .= '</div>';
-        $conditions['classic']['acy_list_all']->option .= '<div class="cell shrink acym__automation__inner__text">'.acym_translation('ACYM_THAN').'</div>';
         $conditions['classic']['acy_list_all']->option .= '<input type="number" min="0" class="intext_input_automation cell" name="acym_condition[conditions][__numor__][__numand__][acy_list_all][number]">';
         $conditions['classic']['acy_list_all']->option .= '<div class="cell shrink acym__automation__inner__text">'.acym_translation('ACYM_ACYMAILING_USERS').'</div>';
-        $conditions['classic']['acy_list_all']->option .= '<div class="cell grid-x grid-margin-x" style="margin-bottom: 0"><div class="intext_select_automation cell">';
+        $conditions['classic']['acy_list_all']->option .= '<div class="cell grid-x grid-margin-x margin-left-0" style="margin-bottom: 0"><div class="intext_select_automation cell">';
         $conditions['classic']['acy_list_all']->option .= acym_select($list['type'], 'acym_condition[conditions][__numor__][__numand__][acy_list_all][action]', null, 'class="intext_select_automation acym__select"');
         $conditions['classic']['acy_list_all']->option .= '</div>';
         $conditions['classic']['acy_list_all']->option .= '<div class="intext_select_automation cell">';
@@ -586,7 +590,9 @@ class plgAcymSubscription extends acymPlugin
             $status = $options['action'] == 'sub' ? '1' : '0';
             $query->where[] = 'userlist'.$num.'.status = '.intval($status);
         }
-        if (empty($query->count())) $conditionNotValid++;
+
+        $affectedRows = $query->count();
+        if (empty($affectedRows)) $conditionNotValid++;
     }
 
     function onAcymProcessCondition_acy_list_all(&$query, &$options, $num, &$conditionNotValid)
@@ -732,8 +738,8 @@ class plgAcymSubscription extends acymPlugin
 
 
         if (!empty($automationCondition['acy_list_all'])) {
-            $operators = array('=' => acym_translation('ACYM_EXACTLY'), '>' => acym_translation('ACYM_MORE'), '<' => acym_translation('ACYM_LESS'));
-            $finalText = acym_translation('ACYM_THERE_IS').' '.strtolower($operators[$automationCondition['acy_list_all']['operator']]).' '.strtolower(acym_translation('ACYM_THAN')).' '.$automationCondition['acy_list_all']['number'].' '.acym_translation('ACYM_ACYMAILING_USERS');
+            $operators = array('=' => acym_translation('ACYM_EXACTLY'), '>' => acym_translation('ACYM_MORE_THAN'), '<' => acym_translation('ACYM_LESS_THAN'));
+            $finalText = acym_translation('ACYM_THERE_IS').' '.strtolower($operators[$automationCondition['acy_list_all']['operator']]).' '.$automationCondition['acy_list_all']['number'].' '.acym_translation('ACYM_ACYMAILING_USERS');
             $listClass = acym_get('class.list');
             $automationCondition['acy_list_all']['list'] = $listClass->getOneById($automationCondition['acy_list_all']['list']);
             if (empty($automationCondition['acy_list_all']['list'])) {

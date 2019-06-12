@@ -20,10 +20,9 @@ class JFormFieldBackupprofiles extends JFormField
 	/**
 	 * Element name
 	 *
-	 * @access    protected
 	 * @var        string
 	 */
-	var $_name = 'Backupprofiles';
+	protected $name = 'Backupprofiles';
 
 	function getInput()
 	{
@@ -63,6 +62,6 @@ class JFormFieldBackupprofiles extends JFormField
 			array_unshift($objectList, $defaultItem);
 		}
 
-		return JHTML::_('select.genericlist', $objectList, $this->name, 'class="inputbox"', $key, $val, $this->value, $this->id);
+		return JHtml::_('select.genericlist', $objectList, $this->name, 'class="inputbox"', $key, $val, $this->value, $this->id);
 	}
 }

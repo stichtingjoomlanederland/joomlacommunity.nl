@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -26,7 +26,7 @@ class acymheaderHelper
             $doNotRemind = json_decode($config->get('remindme', '[]'));
             foreach ($news->news as $oneNews) {
                 if (!empty($oneNews->name) && $oneNews->name == 'reviews') {
-                    if (!empty($oneNews->published) && ($config->get('install_date') + $oneNews->wait) < time() && !in_array($oneNews->name, $doNotRemind) && version_compare($config->get('version'), $oneNews->version, '>=')) $review = $oneNews;
+                    if (!empty($oneNews->published) && ($config->get('install_date', time()) + $oneNews->wait) < time() && !in_array($oneNews->name, $doNotRemind) && version_compare($config->get('version'), $oneNews->version, '>=')) $review = $oneNews;
                     continue;
                 }
                 if (!empty($latestNews) && strtotime($latestNews->date) > strtotime($oneNews->date)) break;

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2019 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -13,10 +13,10 @@ class RsformModelConditions extends JModelLegacy
 	public $_total  = 0;
 	public $_query  = '';
 	public $_db 	= null;
-	
-	public function __construct()
+
+	public function __construct($config = array())
 	{
-		parent::__construct();
+		parent::__construct($config);
 		$this->_db = JFactory::getDbo();
 	}
 	
@@ -61,7 +61,8 @@ class RsformModelConditions extends JModelLegacy
 		$types 	= array(
             RSFORM_FIELD_SELECTLIST,
             RSFORM_FIELD_CHECKBOXGROUP,
-            RSFORM_FIELD_RADIOGROUP
+            RSFORM_FIELD_RADIOGROUP,
+			RSFORM_FIELD_RANGE_SLIDER
         );
 		
 		$app->triggerEvent('rsfp_bk_onCreateConditionOptionFields', array(array('types' => &$types, 'formId' => $formId)));
@@ -100,6 +101,20 @@ class RsformModelConditions extends JModelLegacy
                     'value' 			=> array(),
                     'invalid' 			=> false
                 );
+
+				// A workaround to allow Range Slider fields
+				if ($optionField->ComponentTypeId == RSFORM_FIELD_RANGE_SLIDER)
+				{
+					if ($config['data']['USEVALUES'] == 'YES')
+					{
+						$config['data']['ITEMS'] = $config['data']['VALUES'];
+					}
+					else
+					{
+						$config['data']['ITEMS'] = implode("\n", range($config['data']['MINVALUE'], $config['data']['MAXVALUE']));
+					}
+				}
+
                 $field = new RSFormProFieldMultiple($config);
 
                 if ($items = $field->getItems())

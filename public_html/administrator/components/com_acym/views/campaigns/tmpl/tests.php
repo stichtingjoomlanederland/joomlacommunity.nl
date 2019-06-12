@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -12,13 +12,13 @@ defined('_JEXEC') or die('Restricted access');
 	<input type="hidden" name="id" value="<?php echo acym_escape($data['id']); ?>">
 	<div class="cell grid-x">
 		<div class="cell medium-auto"></div>
-		<div id="acym__campaigns__tests" class="cell xxlarge-6 large-9 grid-x acym__content">
+		<div id="acym__campaigns__tests" class="cell xxlarge-9 grid-x acym__content">
             <?php
             $workflow = acym_get('helper.workflow');
             echo $workflow->display($this->steps, $this->step, $this->edition);
             ?>
 			<div class="cell grid-x grid-margin-x" id="campaigns_tests_step">
-				<div id="spam_test_zone" class="cell medium-6">
+				<div id="spam_test_zone" class="cell large-5">
 					<h6 class="acym_zone_title"><?php echo acym_translation('ACYM_SAFE_CHECK'); ?></h6>
                     <?php if (!empty($data['upgrade'])) {
                         include(ACYM_VIEW.'dashboard'.DS.'tmpl'.DS.'upgrade.php');
@@ -42,9 +42,9 @@ defined('_JEXEC') or die('Restricted access');
 
                                 <?php
                                 $spamtestRow = '<div class="cell grid-x acym_vcenter" id="check_spam" data-iframe="spamtestpopup">
-                                <div class="cell small-10">'.acym_translation('ACYM_TESTS_SPAM').'</div>
-                                <div class="cell small-2 text-center acym_icon_container"><i></i></div>
-                            </div>';
+													<div class="cell small-10">'.acym_translation('ACYM_TESTS_SPAM').'</div>
+													<div class="cell small-2 text-center acym_icon_container"><i></i></div>
+												</div>';
 
                                 echo acym_modal($spamtestRow, '', 'spamtestpopup', 'data-reveal-larger', '', false);
                                 ?>
@@ -53,8 +53,8 @@ defined('_JEXEC') or die('Restricted access');
 						</div>
                     <?php } ?>
 				</div>
-				<div class="cell medium-1 acym_zone_separator"></div>
-				<div id="send_test_zone" class="cell medium-5">
+				<div class="cell large-1 margin-top-2 acym_zone_separator"></div>
+				<div id="send_test_zone" class="cell large-6">
 					<h6 class="acym_zone_title"><?php echo acym_translation('ACYM_SEND_TEST_TO'); ?></h6>
                     <?php
 

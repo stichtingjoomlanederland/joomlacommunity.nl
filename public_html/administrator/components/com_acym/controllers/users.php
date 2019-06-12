@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -514,8 +514,12 @@ class UsersController extends acymController
 
     public function save()
     {
+        $this->apply(true);
+    }
+
+    public function apply($listing = false)
+    {
         $userClass = acym_get('class.user');
-        $fieldClass = acym_get('class.field');
 
         $userInformation = acym_getVar('array', 'user');
         $userId = acym_getVar('int', 'id');
@@ -537,76 +541,35 @@ class UsersController extends acymController
         }
 
         if (empty($userId)) {
-            if (!empty($userClass->getOneByEmail($user->email))) {
+            $existingUser = $userClass->getOneByEmail($user->email);
+            if (!empty($existingUser)) {
                 acym_enqueueNotification(acym_translation_sprintf('ACYM_X_ALREADY_EXIST', $user->email), 'error', 0);
 
                 $this->edit();
 
                 return;
-            } else {
-                $user->creation_date = date("Y-m-d H:i:s");
-                $userId = $userClass->save($user);
-                empty($customFields) ? : $fieldClass->store($customFields, $userId);
-                acym_setVar('id', $userId);
             }
-        } else {
-            $user->id = $userId;
-            $userClass->save($user);
-            empty($customFields) ? : $fieldClass->store($customFields, $userId);
-        }
 
-        if (!empty($listsToAdd)) {
-            $this->subscribe(true);
-
-            return;
-        }
-
-        $this->listing();
-    }
-
-    public function apply()
-    {
-        $userClass = acym_get('class.user');
-        $fieldClass = acym_get('class.field');
-
-        $userInformation = acym_getVar('array', 'user');
-        $userId = acym_getVar('int', 'id');
-        $listsToAdd = json_decode(acym_getVar('string', 'lists_selected'));
-        $user = new stdClass();
-        $user->name = $userInformation['name'];
-        $user->email = $userInformation['email'];
-        $user->active = $userInformation['active'];
-        $user->confirmed = $userInformation['confirmed'];
-        $customFields = acym_getVar('array', 'customField');
-
-        preg_match('/'.acym_getEmailRegex().'/i', $user->email, $matches);
-
-        if (empty($matches)) {
-            $this->edit();
-            acym_enqueueNotification(acym_translation_sprintf('ACYM_VALID_EMAIL', $user->email), 'error', 0);
-
-            return;
-        }
-
-        if (empty($userId)) {
-            $user->creation_date = date("Y-m-d H:i:s");
-            $userId = $userClass->save($user);
-            empty($customFields) ? : $fieldClass->store($customFields, $userId);
+            $user->creation_date = acym_date('now', 'Y-m-d H:i:s', false);
+            $userId = $userClass->save($user, $customFields);
             acym_setVar('id', $userId);
         } else {
             $user->id = $userId;
-            $userClass->save($user);
-            empty($customFields) ? : $fieldClass->store($customFields, $userId);
+            $userClass->save($user, $customFields);
         }
 
         if (!empty($listsToAdd)) {
-            $this->subscribe();
+            $this->subscribe($listing);
 
             return;
         }
 
 
-        $this->edit();
+        if ($listing) {
+            $this->listing();
+        } else {
+            $this->edit();
+        }
     }
 
     public function deleteOne()

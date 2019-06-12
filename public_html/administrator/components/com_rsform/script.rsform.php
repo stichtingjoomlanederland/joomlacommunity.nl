@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2017 www.rsjoomla.com
+* @copyright (C) 2007-2019 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/licenses/gpl-2.0.html
 */
 
@@ -10,6 +10,8 @@ defined('_JEXEC') or die('Restricted access');
 class com_rsformInstallerScript
 {
 	protected $source;
+
+	protected static $legacy = array('inline', '2lines', '2colsinline', '2cols2lines', 'inline-xhtml', '2lines-xhtml');
 	
 	public function update($parent) {
 		$db = JFactory::getDbo();
@@ -163,6 +165,10 @@ class com_rsformInstallerScript
 		}
 		if (!isset($columns['ConfirmSubmission'])) {
 			$db->setQuery("ALTER TABLE `#__rsform_forms` ADD `ConfirmSubmission` TINYINT( 1 ) NOT NULL DEFAULT '0'");
+			$db->execute();
+		}
+		if (!isset($columns['ConfirmSubmissionUrl'])) {
+			$db->setQuery("ALTER TABLE `#__rsform_forms` ADD `ConfirmSubmissionUrl` TEXT NOT NULL AFTER `ConfirmSubmission`");
 			$db->execute();
 		}
 		if (!isset($columns['AdditionalEmailsScript'])) {
@@ -599,6 +605,10 @@ class com_rsformInstallerScript
             $db->setQuery("ALTER TABLE `#__rsform_directory` ADD `DeletionGroups` TEXT NOT NULL AFTER `groups`");
             $db->execute();
         }
+		if (!isset($columns['HideEmptyValues'])) {
+			$db->setQuery("ALTER TABLE `#__rsform_directory` ADD `HideEmptyValues` tinyint(1) NOT NULL AFTER `enablecsv`");
+			$db->execute();
+		}
 
 		// #__rsform_posts updates
 		$columns = $db->getTableColumns('#__rsform_posts');
@@ -637,11 +647,10 @@ class com_rsformInstallerScript
 		}
 
 		// Let's see if we have legacy layouts
-		$layouts = array('inline', '2lines', '2colsinline', '2cols2lines', 'inline-xhtml', '2lines-xhtml');
 		$query = $db->getQuery(true)
 			->select('FormId')
 			->from($db->qn('#__rsform_forms'))
-			->where($db->qn('FormLayoutName') . ' IN (' . implode(',', $db->q($layouts)) . ')');
+			->where($db->qn('FormLayoutName') . ' IN (' . implode(',', $db->q(self::$legacy)) . ')');
 		if ($forms = $db->setQuery($query)->loadColumn())
 		{
 			$query = $db->getQuery(true)
@@ -769,6 +778,17 @@ class com_rsformInstallerScript
 			$db->execute();
 			
 			$messages['plg_rsformdeletesubmissions'] = true;
+		}
+
+		$messages['legacy'] = false;
+		// Let's see if we have legacy layouts
+		$query = $db->getQuery(true)
+			->select('FormId')
+			->from($db->qn('#__rsform_forms'))
+			->where($db->qn('FormLayoutName') . ' IN (' . implode(',', $db->q(self::$legacy)) . ')');
+		if ($db->setQuery($query)->loadResult() && !file_exists(JPATH_PLUGINS . '/system/rsfplegacylayouts/rsfplegacylayouts.xml'))
+		{
+			$messages['legacy'] = true;
 		}
 		
 		$this->showInstallMessage($messages);
@@ -912,14 +932,15 @@ class com_rsformInstallerScript
 			<b class="install-not-ok">Error installing!</b>
 			<?php } ?>
 		</p>
-		<h2>Changelog v2.2.1</h2>
+		<?php if ($messages['legacy']) { ?>
+			<div class="alert alert-error">
+				<h4>Legacy Layouts</h4>
+				<p>It seems you are still using legacy layouts - they have been removed from RSForm! Pro since they are no longer usable today as they do not provide responsive features.<br>If you still want to keep using them, please install the <a href="https://www.rsjoomla.com/support/documentation/rsform-pro/plugins-and-modules/plugin-legacy-layouts.html" target="_blank">Legacy Layouts Plugin</a>.</p>
+			</div>
+		<?php } ?>
+		<h2>Changelog v2.2.3</h2>
 		<ul class="version-history">
-            <li><span class="version-new">New</span> New configuration option: Can show caption instead of field's name.</li>
-            <li><span class="version-upgraded">Upg</span> Hidden Fields now display a preview as well.</li>
-            <li><span class="version-upgraded">Upg</span> File Uploads are now validated by the AJAX validation script.</li>
-            <li><span class="version-fixed">Fix</span> Some field types were incorrectly showing up as required in the grid builder.</li>
-            <li><span class="version-fixed">Fix</span> When exporting submissions in CSV format unescaped user data could allow macros being run.</li>
-            <li><span class="version-fixed">Fix</span> Radio Groups now have a default blank value when editing submissions to prevent assigning wrong values.</li>
+            <li><span class="version-upgraded">Upg</span> Range Slider can be used in conditions.</li>
 		</ul>
 		<a class="btn btn-large btn-primary" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="btn" href="https://www.rsjoomla.com/support/documentation/rsform-pro.html" target="_blank">Read the RSForm! Pro User Guide</a>

@@ -32,9 +32,9 @@ class AliceCoreDomainChecksFilesystemLargedirectories extends AliceCoreDomainChe
 		$prev_data = '';
 		$buffer    = 65536;
 		$prev_dir  = '';
-		$large_dir = array();
+		$large_dir = [];
 
-		while ( !feof($handle))
+		while (!feof($handle))
 		{
 			$data = $prev_data . fread($handle, $buffer);
 
@@ -69,7 +69,7 @@ class AliceCoreDomainChecksFilesystemLargedirectories extends AliceCoreDomainChe
 			// Let's get all the involved directories
 			preg_match_all('#Scanning files of <root>/(.*)#', $data, $matches);
 
-			if ( !isset($matches[1]) || empty($matches[1]))
+			if (!isset($matches[1]) || empty($matches[1]))
 			{
 				continue;
 			}
@@ -87,18 +87,18 @@ class AliceCoreDomainChecksFilesystemLargedirectories extends AliceCoreDomainChe
 
 				if (count($tmp_matches[0]) > 250)
 				{
-					$large_dir[] = array('position' => $dir, 'elements' => count($tmp_matches[0]));
+					$large_dir[] = ['position' => $dir, 'elements' => count($tmp_matches[0])];
 				}
 			}
 
-			$prev_dir = array_pop($dir);
+			$prev_dir = array_pop($dirs);
 		}
 
 		fclose($handle);
 
 		if ($large_dir)
 		{
-			$errorMsg = array();
+			$errorMsg = [];
 
 			// Let's log all the results
 			foreach ($large_dir as $dir)
@@ -109,7 +109,9 @@ class AliceCoreDomainChecksFilesystemLargedirectories extends AliceCoreDomainChe
 			}
 
 			$this->setResult(-1);
-			$this->setErrLangKey(array('COM_AKEEBA_ALICE_ANALIZE_FILESYSTEM_LARGE_DIRECTORIES_ERROR', "\n".implode("\n", $errorMsg)));
+			$this->setErrLangKey([
+				'COM_AKEEBA_ALICE_ANALIZE_FILESYSTEM_LARGE_DIRECTORIES_ERROR', "\n" . implode("\n", $errorMsg),
+			]);
 			throw new Exception(JText::sprintf('COM_AKEEBA_ALICE_ANALIZE_FILESYSTEM_LARGE_DIRECTORIES_ERROR', '<br/>' . implode('<br/>', $errorMsg)));
 		}
 

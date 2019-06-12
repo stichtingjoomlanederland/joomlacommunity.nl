@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -120,6 +120,15 @@ function acym_dateField($name, $value = '', $class = '')
 function acym_escape($text)
 {
     return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+}
+
+function acym_escapeArrayValues($array)
+{
+    foreach ($array as $key => $one) {
+        $array[$key] = acym_escape($one);
+    }
+
+    return $array;
 }
 
 function acydump($arg, $magic = false)
@@ -758,14 +767,14 @@ function acym_modal($button, $data, $id = null, $attributesModal = '', $attribut
     return $modal;
 }
 
-function acym_modal_include($button, $file, $id, $data, $attributes = '')
+function acym_modal_include($button, $file, $id, $data, $attributes = '', $classModal = "")
 {
     if (empty($id)) {
         $id = 'acymodal_'.rand(1000, 9000);
     }
 
     $modal = '<div data-open="'.acym_escape($id).'">'.$button;
-    $modal .= '<div class="reveal" id="'.acym_escape($id).'" '.$attributes.' data-reveal>';
+    $modal .= '<div class="reveal '.$classModal.'" id="'.acym_escape($id).'" '.$attributes.' data-reveal>';
     ob_start();
     include($file);
     $modal .= ob_get_clean();
@@ -1752,8 +1761,9 @@ function acym_getUpgradeLink($tolevel)
 
 function acym_replaceDate($mydate, $display = false)
 {
-    if (strpos($mydate, '{time}') === false){
-        if(is_numeric($mydate) && $display) return acym_date($mydate, "Y-m-d H:i:s");
+    if (strpos($mydate, '{time}') === false) {
+        if (is_numeric($mydate) && $display) return acym_date($mydate, "Y-m-d H:i:s");
+
         return $mydate;
     }
 
@@ -1999,7 +2009,7 @@ function acym_initModule($params = null)
         $emailCaption = acym_translation('ACYM_EMAIL');
     }
 
-    $js = "	var acymModule = [];
+    $js = " var acymModule = [];
 			acymModule['emailRegex'] = /^".acym_getEmailRegex(true)."$/i;
 			acymModule['NAMECAPTION'] = '".str_replace("'", "\'", $nameCaption)."';
 			acymModule['NAME_MISSING'] = '".str_replace("'", "\'", acym_translation('ACYM_MISSING_NAME'))."';
@@ -2011,12 +2021,15 @@ function acym_initModule($params = null)
 		";
 
     $config = acym_config();
-    $scriptName = acym_addScript(false, ACYM_JS.'module.min.js?v='.str_replace('.', '', $config->get('version')));
-    acym_addScript(true, $js, "text/javascript", false, false, false, array('script_name' => $scriptName));
+    $version = str_replace('.', '', $config->get('version'));
+
+    $scriptName = acym_addScript(false, ACYM_JS.'module.min.js?v='.$version);
+    acym_addScript(true, $js, "text/javascript", false, false, false, ['script_name' => $scriptName]);
+
     if ('wordpress' === ACYM_CMS) {
-        wp_enqueue_style('style_acymailing_module', ACYM_CSS.'module.min.css?v='.str_replace('.', '', $config->get('version')));
+        wp_enqueue_style('style_acymailing_module', ACYM_CSS.'module.min.css?v='.$version);
     } else {
-        acym_addStyle(false, ACYM_CSS.'module.min.css?v='.str_replace('.', '', $config->get('version')));
+        acym_addStyle(false, ACYM_CSS.'module.min.css?v='.$version);
     }
 }
 
@@ -3012,7 +3025,7 @@ function acym_listingActions($actions)
     $defaultAction->disable = true;
 
     array_unshift($actions, $defaultAction);
-    echo acym_select($actions, '', null, 'class="medium-shrink cell margin-right-1"', 'value', 'text', 'listing_actions');
+    return acym_select($actions, '', null, 'class="medium-shrink cell margin-right-1"', 'value', 'text', 'listing_actions');
 }
 
 function acym_switchFilter($switchOptions, $selected, $name, $addClass = '')
@@ -3024,7 +3037,7 @@ function acym_switchFilter($switchOptions, $selected, $name, $addClass = '')
             $class .= ' is-active';
         }
         $class .= ' '.$addClass;
-        $return .= '<button class="'.$class.'" type="'.$value.'">'.acym_translation($text).'</button>';
+        $return .= '<button class="'.acym_escape($class).'" type="button" data-type="'.acym_escape($value).'">'.acym_translation($text).'</button>';
     }
 
     return $return;
@@ -3032,7 +3045,7 @@ function acym_switchFilter($switchOptions, $selected, $name, $addClass = '')
 
 function acym_filterStatus($options, $selected, $name)
 {
-    echo '<input type="hidden" id="acym_filter_status" name="'.$name.'" value="'.$selected.'"/>';
+    $filterStatus = '<input type="hidden" id="acym_filter_status" name="'.acym_escape($name).'" value="'.acym_escape($selected).'"/>';
 
     foreach ($options as $value => $text) {
         $class = 'acym__filter__status clear button secondary';
@@ -3040,8 +3053,10 @@ function acym_filterStatus($options, $selected, $name)
             $class .= ' font-bold acym__status__select';
         }
         $disabled = empty($text[1]) ? ' disabled' : '';
-        echo '<button type="button" status="'.$value.'" class="'.$class.'"'.$disabled.'>'.acym_translation($text[0]).' ('.$text[1].')</button>';
+        $filterStatus .= '<button type="button" status="'.acym_escape($value).'" class="'.acym_escape($class).'"'.$disabled.'>'.acym_translation($text[0]).' ('.$text[1].')</button>';
     }
+
+    return $filterStatus;
 }
 
 function acym_filterSearch($search, $name, $placeholder = 'ACYM_SEARCH', $showClearBtn = true)
@@ -3050,7 +3065,7 @@ function acym_filterSearch($search, $name, $placeholder = 'ACYM_SEARCH', $showCl
         <div class="input-group-button">
             <button class="button acym__search__button hide-for-small-only"><i class="material-icons">search</i></button>
         </div>
-        <input class="input-group-field acym__search-field" type="text" name="'.$name.'" placeholder="'.acym_translation($placeholder).'" value="'.$search.'">';
+        <input class="input-group-field acym__search-field" type="text" name="'.acym_escape($name).'" placeholder="'.acym_escape(acym_translation($placeholder)).'" value="'.acym_escape($search).'">';
     if ($showClearBtn) {
         $searchField .= '<span class="acym__search-clear"><i class="fa fa-close"></i></span>';
     }
@@ -3223,37 +3238,39 @@ function acym_sortBy($options = array(), $listing, $default = "")
 function acym_enqueueNotification($message, $type = 'info', $time = 0)
 {
     if (!acym_isAdmin()) {
-        return acym_enqueueNotification_front($message, $type, 0);
-    }
+        acym_enqueueNotificationFront($message, $type, 0);
 
-    $notification = '';
+        return;
+    }
 
     $logo = 'fa-bell';
 
+    if (!in_array($type, ['success', 'warning', 'error'])) $type = 'info';
+
+    $notification = '<div class="callout acym__callout__'.$type.'"';
+
     if ($type == 'success') {
-        $notification .= '<div class="callout acym__callout__confirm"';
         $logo = 'fa-check-circle';
     } elseif ($type == 'warning') {
-        $notification .= '<div class="callout acym__callout__warning"';
         $logo = 'fa-exclamation-triangle';
     } elseif ($type == 'error') {
-        $notification .= '<div class="callout acym__callout__error"';
         $logo = 'fa-exclamation-circle';
-    } else {
-        $notification .= '<div class="callout acym__callout__information"';
     }
-    $notification .= $time > 0 ? ' callout-timer="'.$time.'" style="display: none"><div class="progress" role="progressbar"><div class="progress-meter" style="width: 0"></div></div>' : ' style="display: none">';
+
+    if ($time > 0) {
+        $notification .= ' callout-timer="'.$time.'" style="display: none"><div class="progress" role="progressbar"><div class="progress-meter" style="width: 0"></div></div>';
+    } else {
+        $notification .= ' style="display: none">';
+    }
 
     if (is_array($message)) {
         $message = implode('<br />', $message);
     }
     $notification .= '<i class="fa '.$logo.'"></i><div class="acym_notification_container">'.$message.'</div><i class="fa fa-close"></i></div>';
 
-    if (empty($_SESSION)) {
-        acym_session();
-    }
+    if (empty($_SESSION)) acym_session();
     if (empty($_SESSION['acynotif'])) {
-        $_SESSION['acynotif'] = array();
+        $_SESSION['acynotif'] = [];
     }
     $_SESSION['acynotif'][] = $notification;
 }
@@ -3324,6 +3341,9 @@ function acym_getJSMessages()
         'ACYM_SESSION_IS_GOING_TO_END',
         'ACYM_CLICKS_OUT_OF',
         'ACYM_OF_CLICKS',
+        'ACYM_ARE_SURE_DUPLICATE_TEMPLATE',
+        'ACYM_NOT_FOUND',
+        'ACYM_EMAIL',
     );
 
     foreach ($keysToLoad as $oneKey) {
@@ -3433,18 +3453,11 @@ function acym_table($name, $component = true)
 function acym_existsAcyMailing59()
 {
     $allTables = acym_getTables();
+    if (!in_array(acym_getPrefix().'acymailing_config', $allTables)) return false;
 
-    if (in_array(acym_getPrefix()."acymailing_config", $allTables)) {
-        $queryVersion = "SELECT `value` FROM #__acymailing_config WHERE `namekey` LIKE 'version'";
+    $version = acym_loadResult('SELECT `value` FROM #__acymailing_config WHERE `namekey` LIKE "version"');
 
-        $version = acym_loadResult($queryVersion);
-
-        if (version_compare($version, "5.9.0") >= 0) {
-            return true;
-        }
-    }
-
-    return false;
+    return version_compare($version, '5.9.0', '>=');
 }
 
 

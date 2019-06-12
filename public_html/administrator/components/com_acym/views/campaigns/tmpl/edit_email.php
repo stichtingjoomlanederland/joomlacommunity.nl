@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -15,7 +15,7 @@ defined('_JEXEC') or die('Restricted access');
 	<input type="hidden" name="editor_headers" value="<?php echo acym_escape($data['mailInformation']->headers); ?>">
 	<div class="grid-x">
 		<div class="cell medium-auto"></div>
-		<div class="cell acym__content xxlarge-6 large-9 acym__editor__area">
+		<div class="cell xxlarge-9 grid-x grid-margin-x acym__content acym__editor__area">
 
             <?php
             $workflow = acym_get('helper.workflow');
@@ -24,13 +24,19 @@ defined('_JEXEC') or die('Restricted access');
             }
             echo $workflow->display($this->steps, $this->step, $this->edition);
             ?>
-			<div class="cell margin-bottom-2">
+			<div class="cell large-6">
 				<label>
                     <?php echo acym_translation('ACYM_CAMPAIGN_NAME'); ?>
 					<input name="mail[name]" type="text" class="acy_required_field" value="<?php echo acym_escape($data['mailInformation']->name); ?>" required>
 				</label>
 			</div>
-			<div class="cell">
+			<div class="cell large-6">
+				<label>
+                    <?php echo acym_translation('ACYM_TAGS'); ?>
+                    <?php echo acym_selectMultiple($data['allTags'], "template_tags", !empty($data['mailInformation']->tags) ? $data['mailInformation']->tags : array(), array('id' => 'acym__tags__field', 'placeholder' => acym_translation('ACYM_ADD_TAGS')), "name", "name"); ?>
+				</label>
+			</div>
+			<div class="cell large-6">
 				<label>
                     <?php echo acym_translation('ACYM_EMAIL_SUBJECT'); ?>
 					<div class="input-group">
@@ -41,10 +47,10 @@ defined('_JEXEC') or die('Restricted access');
 					</div>
 				</label>
 			</div>
-			<div class="cell">
+			<div class="cell large-6">
 				<label>
-                    <?php echo acym_translation('ACYM_TAGS'); ?>
-                    <?php echo acym_selectMultiple($data['allTags'], "template_tags", !empty($data['mailInformation']->tags) ? $data['mailInformation']->tags : array(), array('id' => 'acym__tags__field', 'placeholder' => acym_translation('ACYM_ADD_TAGS')), "name", "name"); ?>
+                    <?php echo acym_tooltip(acym_translation('ACYM_EMAIL_PREHEADER'), acym_translation('ACYM_EMAIL_PREHEADER_DESC')); ?>
+					<input id="acym_preheader_field" name="mail[preheader]" type="text" value="<?php echo acym_escape($data['mailInformation']->preheader); ?>">
 				</label>
 			</div>
 			<div class="cell grid-x" id="acym__campaigns__edit_email__attachments">
@@ -78,7 +84,7 @@ defined('_JEXEC') or die('Restricted access');
                 }
                 ?>
 			</div>
-			<div class="cell margin-bottom-2 margin-top-1">
+			<div class="cell margin-bottom-1 margin-top-1">
 				<a href="javascript:void(0);" id="acym__campaigns__attach__add"><?php echo acym_translation('ACYM_ADD_ATTACHMENT'); ?></a>
                 <?php echo acym_translation_sprintf('ACYM_MAX_UPLOAD', $data['maxupload']); ?>
 			</div>

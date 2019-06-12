@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -26,7 +26,7 @@ defined('_JEXEC') or die('Restricted access');
             <?php } else { ?>
 				<div class="grid-x grid-margin-x">
 					<div class="large-auto cell">
-                        <?php echo acym_filterSearch(acym_escape($data["search"]), 'automation_search', 'ACYM_SEARCH_AUTOMATION'); ?>
+                        <?php echo acym_filterSearch($data['search'], 'automation_search', 'ACYM_SEARCH_AUTOMATION'); ?>
 					</div>
 					<div class="xlarge-auto hide-for-large-only hide-for-medium-only hide-for-small-only cell"></div>
 					<div class="large-shrink medium-6 cell">
@@ -40,37 +40,38 @@ defined('_JEXEC') or die('Restricted access');
                 if (empty($data['allAutomations'])) { ?>
 					<h1 class="cell acym__listing__empty__search__title text-center"><?php echo acym_translation('ACYM_NO_RESULTS_FOUND'); ?></h1>
                 <?php } else { ?>
-					<div class="grid-x margin-top-1">
-						<h1 class="shrink acym__title__listing margin-right-1"><?php echo acym_translation('ACYM_AUTOMATIONS'); ?></h1>
-						<div class="cell shrink acym_listing_sorty-by">
-                            <?php echo acym_sortBy(
-                                array(
-                                    'id' => strtolower(acym_translation('ACYM_ID')),
-                                    "name" => acym_translation('ACYM_NAME'),
-                                    "active" => acym_translation('ACYM_ACTIVE'),
-                                ),
-                                "automation"
-                            ); ?>
-						</div>
-					</div>
-					<div class="grid-x acym__listing__actions">
-                        <?php
-                        $actions = array(
-                            'delete' => acym_translation('ACYM_DELETE'),
-                            'setActive' => acym_translation('ACYM_ENABLE'),
-                            'setInactive' => acym_translation('ACYM_DISABLE'),
-                        );
-                        echo acym_listingActions($actions);
-                        ?>
-						<div class="auto cell">
+					<div class="cell grid-x margin-top-1">
+						<div class="grid-x acym__listing__actions auto cell">
                             <?php
-                            $options = array(
-                                '' => ['ACYM_ALL', $data["automationNumberPerStatus"]["all"]],
-                                'active' => ['ACYM_ACTIVE', $data["automationNumberPerStatus"]["active"]],
-                                'inactive' => ['ACYM_INACTIVE', $data["automationNumberPerStatus"]["inactive"]],
+                            $actions = array(
+                                'delete' => acym_translation('ACYM_DELETE'),
+                                'setActive' => acym_translation('ACYM_ENABLE'),
+                                'setInactive' => acym_translation('ACYM_DISABLE'),
                             );
-                            echo acym_filterStatus($options, $data["status"], 'automation_status');
+                            echo acym_listingActions($actions);
                             ?>
+							<div class="auto cell">
+                                <?php
+                                $options = array(
+                                    '' => ['ACYM_ALL', $data["automationNumberPerStatus"]["all"]],
+                                    'active' => ['ACYM_ACTIVE', $data["automationNumberPerStatus"]["active"]],
+                                    'inactive' => ['ACYM_INACTIVE', $data["automationNumberPerStatus"]["inactive"]],
+                                );
+                                echo acym_filterStatus($options, $data["status"], 'automation_status');
+                                ?>
+							</div>
+						</div>
+						<div class="grid-x auto cell">
+							<div class="cell acym_listing_sorty-by">
+                                <?php echo acym_sortBy(
+                                    array(
+                                        'id' => strtolower(acym_translation('ACYM_ID')),
+                                        "name" => acym_translation('ACYM_NAME'),
+                                        "active" => acym_translation('ACYM_ACTIVE'),
+                                    ),
+                                    "automation"
+                                ); ?>
+							</div>
 						</div>
 					</div>
 					<div class="grid-x acym__listing">

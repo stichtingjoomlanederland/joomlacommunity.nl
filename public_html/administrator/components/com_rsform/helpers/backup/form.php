@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2019 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -378,8 +378,6 @@ class RSFormProBackupForm
 			// No need for these
 			unset($directory->formId);
 			
-			$headers = RSFormProHelper::getDirectoryStaticHeaders();
-			
 			$this->xml->add('directory');
 			foreach ($directory as $property => $value) {
 				if ($property == 'fields') {
@@ -503,12 +501,22 @@ class RSFormProBackupForm
 	protected function storeMappings() {
 		// Add Mappings #__rsform_mappings
 		if ($mappings = $this->getMappings()) {
+
+			$prefix = JFactory::getConfig()->get('dbprefix');
+
 			$this->xml->add('mappings');
 			foreach ($mappings as $mapping) {
 				unset($mapping->id, $mapping->formId);
 				
 				$this->xml->add('mapping');
 				foreach ($mapping as $property => $value) {
+
+					// Don't hardcode the prefix so we can restore easier
+					if ($property === 'table' && strpos($value, $prefix) === 0)
+					{
+						$value = substr_replace($value, '#__', 0, strlen($prefix));
+					}
+
 					$this->xml->add($property, $value);
 				}
 				$this->xml->add('/mapping');

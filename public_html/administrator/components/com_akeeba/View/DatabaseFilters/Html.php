@@ -128,6 +128,7 @@ class Html extends BaseView
 		JText::script('COM_AKEEBA_DBFILTER_TABLE_PROCEDURE');
 		JText::script('COM_AKEEBA_DBFILTER_TABLE_FUNCTION');
 		JText::script('COM_AKEEBA_DBFILTER_TABLE_TRIGGER');
+		JText::script('COM_AKEEBA_DBFILTER_TABLE_META_ROWCOUNT');
 
 		$this->getProfileIdAndName();
 	}

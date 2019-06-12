@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2019 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -192,11 +192,15 @@ class RsformController extends JControllerLegacy
 		{
 		    $query = $db->getQuery(true)
                 ->select($db->qn('SubmissionId'))
+                ->select($db->qn('FormId'))
                 ->from($db->qn('#__rsform_submissions'))
                 ->where('MD5(CONCAT('.$db->qn('SubmissionId').', '.$db->qn('FormId').', '.$db->qn('DateSubmitted').')) = ' . $db->q($hash));
 			$db->setQuery($query);
-			if ($SubmissionId = $db->loadResult())
+			if ($submission = $db->loadObject())
 			{
+				$SubmissionId 	= $submission->SubmissionId;
+				$formId			= $submission->FormId;
+
 			    $query->clear()
                     ->update($db->qn('#__rsform_submissions'))
                     ->set($db->qn('confirmed') . ' = ' . $db->q(1))
@@ -206,6 +210,15 @@ class RsformController extends JControllerLegacy
 				
 				$app->triggerEvent('rsfp_f_onSubmissionConfirmation', array(array('SubmissionId' => $SubmissionId, 'hash' => $hash)));
 				$app->enqueueMessage(JText::_('RSFP_SUBMISSION_CONFIRMED'), 'notice');
+
+				$form = RSFormProHelper::getForm($formId);
+				if (!empty($form->ConfirmSubmissionUrl))
+				{
+					list($replace, $with) = RSFormProHelper::getReplacements($SubmissionId);
+
+					$url = str_replace($replace, $with, $form->ConfirmSubmissionUrl);
+					$app->redirect(JRoute::_($url, false));
+				}
 			}
 		}
 		else

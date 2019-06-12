@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2019 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -199,12 +199,44 @@ class RsformControllerDirectory extends RsformController
 		
 		jexit();
 	}
+
+	public function saveSetting()
+	{
+		$app    = JFactory::getApplication();
+		$db     = JFactory::getDbo();
+		$formId = $app->input->getInt('formId');
+		$name   = $app->input->get('settingName');
+		$value  = $app->input->getString('settingValue');
+
+		$query = $db->getQuery(true)
+			->select($db->qn('formId'))
+			->from($db->qn('#__rsform_directory'))
+			->where($db->qn('formId') . ' = ' . $db->q($formId));
+
+		$object = (object) array(
+			'formId'    => $formId,
+			$name 		=> $value
+		);
+
+		$db->setQuery($query);
+		if (!$db->loadResult())
+		{
+			$db->insertObject('#__rsform_directory', $object);
+		}
+		else
+		{
+			$db->updateObject('#__rsform_directory', $object, array('formId'));
+		}
+
+		jexit();
+	}
 	
 	public function generate() {
 		$db 	= JFactory::getDbo();
 		$app    = JFactory::getApplication();
 		$formId = $app->input->getInt('formId');
 		$layout = $app->input->getCmd('layoutName');
+		$hideEmptyValues = $app->input->getInt('hideEmptyValues');
 
         $query = $db->getQuery(true)
             ->select($db->qn('formId'))
@@ -224,6 +256,7 @@ class RsformControllerDirectory extends RsformController
 		$model = $this->getModel('directory');
 		$model->getDirectory();
 		$model->_directory->ViewLayoutName = $layout;
+		$model->_directory->HideEmptyValues = $hideEmptyValues;
 		$model->autoGenerateLayout();
 		
 		echo $model->_directory->ViewLayout;

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -22,21 +22,15 @@ class ToggleController extends acymController
 
         $this->defaulttask = 'toggle';
 
-        $this->toggleableColumns['list'] = array('active' => 'id', 'visible' => 'id');
-        $this->toggleableColumns['user'] = array('active' => 'id', 'confirmed' => 'id');
-        $this->toggleableColumns['campaign'] = array('active' => 'id');
         $this->toggleableColumns['automation'] = array('active' => 'id');
+        $this->toggleableColumns['campaign'] = array('active' => 'id');
         $this->toggleableColumns['field'] = array('active' => 'id', 'required' => 'id', 'backend_profile' => 'id', 'backend_listing' => 'id', 'frontend_profile' => 'id', 'frontend_listing' => 'id');
+        $this->toggleableColumns['list'] = array('active' => 'id', 'visible' => 'id');
         $this->toggleableColumns['rule'] = array('active' => 'id');
+        $this->toggleableColumns['user'] = array('active' => 'id', 'confirmed' => 'id');
 
-        $this->icons['list']['active'][1] = 'fa fa-check-circle-o acym__color__green';
-        $this->icons['list']['active'][0] = 'fa fa-times-circle-o acym__color__red';
-        $this->icons['list']['visible'][1] = 'fa fa-eye';
-        $this->icons['list']['visible'][0] = 'fa fa-eye-slash acym__color__dark-gray';
-        $this->icons['user']['active'][1] = 'fa fa-check-circle-o acym__color__green';
-        $this->icons['user']['active'][0] = 'fa fa-times-circle-o acym__color__red';
-        $this->icons['user']['confirmed'][1] = 'fa fa-check-circle-o acym__color__green';
-        $this->icons['user']['confirmed'][0] = 'fa fa-times-circle-o acym__color__red';
+        $this->icons['automation']['active'][1] = 'fa fa-check-circle-o acym__color__green';
+        $this->icons['automation']['active'][0] = 'fa fa-times-circle-o acym__color__red';
         $this->icons['campaign']['active'][0] = 'fa fa-play-circle-o';
         $this->icons['campaign']['active'][1] = 'fa fa-pause-circle-o';
         $this->icons['field']['active'][1] = 'fa fa-check-circle-o acym__color__green';
@@ -51,10 +45,16 @@ class ToggleController extends acymController
         $this->icons['field']['frontend_profile'][0] = 'fa fa-times-circle-o acym__color__red';
         $this->icons['field']['frontend_listing'][1] = 'fa fa-check-circle-o acym__color__green';
         $this->icons['field']['frontend_listing'][0] = 'fa fa-times-circle-o acym__color__red';
+        $this->icons['list']['active'][1] = 'fa fa-check-circle-o acym__color__green';
+        $this->icons['list']['active'][0] = 'fa fa-times-circle-o acym__color__red';
+        $this->icons['list']['visible'][1] = 'fa fa-eye';
+        $this->icons['list']['visible'][0] = 'fa fa-eye-slash acym__color__dark-gray';
         $this->icons['rule']['active'][0] = 'fa fa-times-circle acym__color__red';
         $this->icons['rule']['active'][1] = 'fa fa-check-circle acym__color__green';
-        $this->icons['automation']['active'][1] = 'fa fa-check-circle-o acym__color__green';
-        $this->icons['automation']['active'][0] = 'fa fa-times-circle-o acym__color__red';
+        $this->icons['user']['active'][1] = 'fa fa-check-circle-o acym__color__green';
+        $this->icons['user']['active'][0] = 'fa fa-times-circle-o acym__color__red';
+        $this->icons['user']['confirmed'][1] = 'fa fa-check-circle-o acym__color__green';
+        $this->icons['user']['confirmed'][0] = 'fa fa-times-circle-o acym__color__red';
 
         $this->deletableRows[] = 'list';
         $this->deletableRows[] = 'mail';
@@ -90,6 +90,8 @@ class ToggleController extends acymController
         } else {
             acym_query('UPDATE '.acym_secureDBColumn(ACYM_DBPREFIX.$table).' SET `'.acym_secureDBColumn($field).'` = '.intval($newValue).' WHERE `'.acym_secureDBColumn($pkey).'` = '.intval($id).' LIMIT 1');
         }
+
+        acym_trigger('onAcymToggle'.ucfirst($table).ucfirst($field), array(&$id, &$newValue));
 
 
         if (empty($this->icons[$table][$field][$newValue])) {

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.4
+ * @version	6.1.5
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -89,10 +89,10 @@ class acymcampaignClass extends acymClass
             if (isset($totalStats[$oneCampaign->mail_id])) {
                 $oneCampaignStats = $totalStats[$oneCampaign->mail_id];
                 $results['campaigns'][$i]->subscribers = $oneCampaignStats->total_subscribers;
-	            $results['campaigns'][$i]->open = 0;
-	            if (!empty($oneCampaignStats->total_subscribers)) {
-		            $results['campaigns'][$i]->open = intval($oneCampaignStats->open_unique / $oneCampaignStats->total_subscribers * 100);
-	            }
+                $results['campaigns'][$i]->open = 0;
+                if (!empty($oneCampaignStats->total_subscribers)) {
+                    $results['campaigns'][$i]->open = intval($oneCampaignStats->open_unique / $oneCampaignStats->total_subscribers * 100);
+                }
             }
         }
 
@@ -110,12 +110,14 @@ class acymcampaignClass extends acymClass
 
     public function getOneByIdWithMail($id)
     {
+        $mailClass = acym_get('class.mail');
+
         $query = 'SELECT campaign.*, mail.name, mail.subject, mail.body, mail.from_name, mail.from_email, mail.reply_to_name, mail.reply_to_email, mail.bcc 
                 FROM #__acym_campaign AS campaign
                 JOIN #__acym_mail AS mail ON campaign.mail_id = mail.id
                 WHERE campaign.id = '.intval($id);
 
-        return acym_loadObject($query);
+        return $mailClass->decode(acym_loadObject($query));
     }
 
     public function get($identifier, $column = 'id')
@@ -148,6 +150,7 @@ class acymcampaignClass extends acymClass
         }
 
         $values = array();
+        $listsIds = array_unique($listsIds);
         foreach ($listsIds as $id) {
             array_push($values, '('.intval($mailId).', '.intval($id).')');
         }
@@ -233,13 +236,15 @@ class acymcampaignClass extends acymClass
 
         $config = acym_config();
         $confirmed = $config->get('require_confirmation', 1) == 1 ? ' AND user.confirmed = 1 ' : '';
-        $result = empty($result) ? acym_query(
-            'INSERT IGNORE INTO #__acym_queue (`mail_id`, `user_id`, `sending_date`) 
+        if (empty($result)) {
+            $result = acym_query(
+                'INSERT IGNORE INTO #__acym_queue (`mail_id`, `user_id`, `sending_date`) 
                 SELECT '.intval($campaign->mail_id).', ul.user_id, '.acym_escapeDB($date).' 
                 FROM #__acym_user_has_list AS ul 
                 JOIN #__acym_user AS user ON user.id = ul.user_id 
                 WHERE user.active = 1 AND ul.status = 1 AND ul.list_id IN ('.implode(',', $lists).')'.$confirmed
-        ) : $result;
+            );
+        }
 
         $mailStat = array();
         $mailStat['mail_id'] = intval($campaign->mail_id);
@@ -342,6 +347,8 @@ class acymcampaignClass extends acymClass
 
     public function getLastNewsletters(array $params)
     {
+        $mailClass = acym_get('class.mail');
+
         $query = 'SELECT m.name, m.id, m.body, m.subject, c.sending_date FROM #__acym_campaign as c
                     INNER JOIN #__acym_mail as m ON c.mail_id = m.id
                     WHERE c.active = 1 AND c.sent = 1';
@@ -384,7 +391,7 @@ class acymcampaignClass extends acymClass
 
         $return = array();
 
-        $return['matchingNewsletters'] = acym_loadObjectList($query);
+        $return['matchingNewsletters'] = $mailClass->decode(acym_loadObjectList($query));
 
         $return['count'] = acym_loadResult($queryCount);
 
