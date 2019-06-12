@@ -2806,7 +2806,7 @@ final class bfTools
     {
         require 'bfFilesystem.php';
 
-        if (!$this->_dataObj->filename || !$this->_dataObj->filecontents){
+        if (!$this->_dataObj->filename || !$this->_dataObj->filecontents) {
             bfEncrypt::reply('error', array(
                 'msg' => 'No file name or file contents were provided!',
             ));

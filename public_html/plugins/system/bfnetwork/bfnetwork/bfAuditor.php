@@ -885,6 +885,10 @@ final class bfAudit
         $str = str_replace('\\t', '/t', $str);
         $str = str_replace("\/", '/', $str);
 
+        if ('/' !== substr($str, 0, 1) && JPATH_BASE === '/') {
+            $str = '/'.$str;
+        }
+
         return addslashes($str);
     }
 
@@ -913,8 +917,22 @@ final class bfAudit
      */
     private function ensureRooted($folder)
     {
-        // This looks stupid to me, but I'm sure there was a reason I did this!?
-        return JPATH_BASE.str_replace(JPATH_BASE, '', stripslashes($folder));
+        if (JPATH_BASE === '/' && '/' === substr($folder, 0, 1)) {
+            return $folder;
+        }
+
+        $str = JPATH_BASE.str_replace(JPATH_BASE, '', stripslashes($this->_cleanupFileFolderName($folder)));
+
+        return $str;
+    }
+
+    private function removeJPATHBASE($str)
+    {
+        if (JPATH_BASE === '/' && '/' === substr($str, 0, 1)) {
+            return $str;
+        }
+
+        return str_replace(JPATH_BASE, '', stripslashes($this->ensureRooted($str)));
     }
 
     /**
@@ -1281,10 +1299,11 @@ final class bfAudit
                 $removeFoldersFromQueueIds[] = $dirToScanObj->id;
 
                 // Make sure we have a absolute path to the folder
-                $dirToScanWithPath = JPATH_BASE.DIRECTORY_SEPARATOR.str_replace(JPATH_BASE, '', $dirToScan);
+                $dirToScanWithPath = $this->ensureRooted($dirToScan);
+//                $dirToScanWithPath = JPATH_BASE.DIRECTORY_SEPARATOR.str_replace(JPATH_BASE, '', $dirToScan);
 
                 $filesInThisFolder = $this->getFiles($dirToScanWithPath);
-                bfLog::log('Found '.count($filesInThisFolder).' files in '.str_replace(JPATH_BASE, '', $dirToScan));
+                bfLog::log('Found '.count($filesInThisFolder).' files in '.$this->removeJPATHBASE($dirToScan));
 
                 // If there are any files, and we have time left
                 if (count($filesInThisFolder) && $this->_timer->getTimeLeft() > _BF_CONFIG_FILES_TIMER_TWO) {
@@ -1302,22 +1321,23 @@ final class bfAudit
                             $this->saveState(false, __LINE__);
                         }
 
+                        // with full path
+                        $fileBase = $this->_cleanupFileFolderName($this->ensureRooted($dirToScanWithPath).DIRECTORY_SEPARATOR.$file);
+
                         // Get the file Info...
-                        $fileInfo = $this->_getFileInfo($dirToScanWithPath.DIRECTORY_SEPARATOR.$file);
+                        $fileInfo = $this->_getFileInfo($fileBase);
+
+                        // with no JPATH_BASE
+                        $fileBase = $this->removeJPATHBASE($fileBase);
 
                         // create the insert
                         $sqlinsert = ' ("%s", "%s", "%s", "%s", "%s") ';
 
-                        // count
-                        ++$this->foundFiles;
-
-                        // clean up the file path so that we always start from /
-                        // which is where configuration.php is
-                        $fileBase = str_replace(JPATH_BASE, '', $dirToScanWithPath.'/'.$file);
-                        $fileBase = $this->_cleanupFileFolderName($fileBase);
-
                         // cache the insert so that we can insert many rows for performance
                         $sqlvalues[] = sprintf($sqlinsert, $fileBase, $fileInfo['perms'], $fileInfo['mtime'], $fileInfo['currenthash'], $fileInfo['size']);
+
+                        // count
+                        ++$this->foundFiles;
                     }
 
                     if (count($filesInThisFolder) > 200) {
@@ -1566,7 +1586,7 @@ final class bfAudit
 
                 $subDirectorys = $this->getFolders($dirToScanWithPath);
 
-                bfLog::log('Found '.count($subDirectorys).' subfolders in '.str_replace(JPATH_BASE, '', $dirToScan));
+                bfLog::log('Found '.count($subDirectorys).' subfolders in '.$this->ensureRooted($dirToScan));
 
                 foreach ($subDirectorys as $folder) {
                     $folder           = str_replace('////', '/', $folder);

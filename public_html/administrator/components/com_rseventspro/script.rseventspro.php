@@ -1137,9 +1137,9 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.12.6</h2>
+	<h2>Changelog v1.12.7</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> Resolved some errors.</li>
+		<li><span class="version-fixed">Fix</span> Code optimization.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>

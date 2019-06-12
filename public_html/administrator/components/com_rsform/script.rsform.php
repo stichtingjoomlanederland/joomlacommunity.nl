@@ -10,6 +10,8 @@ defined('_JEXEC') or die('Restricted access');
 class com_rsformInstallerScript
 {
 	protected $source;
+
+	protected static $legacy = array('inline', '2lines', '2colsinline', '2cols2lines', 'inline-xhtml', '2lines-xhtml');
 	
 	public function update($parent) {
 		$db = JFactory::getDbo();
@@ -645,11 +647,10 @@ class com_rsformInstallerScript
 		}
 
 		// Let's see if we have legacy layouts
-		$layouts = array('inline', '2lines', '2colsinline', '2cols2lines', 'inline-xhtml', '2lines-xhtml');
 		$query = $db->getQuery(true)
 			->select('FormId')
 			->from($db->qn('#__rsform_forms'))
-			->where($db->qn('FormLayoutName') . ' IN (' . implode(',', $db->q($layouts)) . ')');
+			->where($db->qn('FormLayoutName') . ' IN (' . implode(',', $db->q(self::$legacy)) . ')');
 		if ($forms = $db->setQuery($query)->loadColumn())
 		{
 			$query = $db->getQuery(true)
@@ -777,6 +778,17 @@ class com_rsformInstallerScript
 			$db->execute();
 			
 			$messages['plg_rsformdeletesubmissions'] = true;
+		}
+
+		$messages['legacy'] = false;
+		// Let's see if we have legacy layouts
+		$query = $db->getQuery(true)
+			->select('FormId')
+			->from($db->qn('#__rsform_forms'))
+			->where($db->qn('FormLayoutName') . ' IN (' . implode(',', $db->q(self::$legacy)) . ')');
+		if ($db->setQuery($query)->loadResult() && !file_exists(JPATH_PLUGINS . '/system/rsfplegacylayouts/rsfplegacylayouts.xml'))
+		{
+			$messages['legacy'] = true;
 		}
 		
 		$this->showInstallMessage($messages);
@@ -920,22 +932,15 @@ class com_rsformInstallerScript
 			<b class="install-not-ok">Error installing!</b>
 			<?php } ?>
 		</p>
-		<h2>Changelog v2.2.2</h2>
+		<?php if ($messages['legacy']) { ?>
+			<div class="alert alert-error">
+				<h4>Legacy Layouts</h4>
+				<p>It seems you are still using legacy layouts - they have been removed from RSForm! Pro since they are no longer usable today as they do not provide responsive features.<br>If you still want to keep using them, please install the <a href="https://www.rsjoomla.com/support/documentation/rsform-pro/plugins-and-modules/plugin-legacy-layouts.html" target="_blank">Legacy Layouts Plugin</a>.</p>
+			</div>
+		<?php } ?>
+		<h2>Changelog v2.2.3</h2>
 		<ul class="version-history">
-            <li><span class="version-new">New</span> Can specify a URL to redirect to after submission confirmation.</li>
-			<li><span class="version-new">New</span> Menu item parameter for the Submissions Directory view to allow displaying only search results instead of the full submissions list.</li>
-			<li><span class="version-new">New</span> Option to hide empty values from the Directory Details Layout.</li>
-			<li><span class="version-new">New</span> Show submissions that match specific values in the Submissions Directory view.</li>
-			<li><span class="version-new">New</span> Added a search input in the Manage Directories area.</li>
-            <li><span class="version-upgraded">Upg</span> Edit Directory when configuring the Submissions - Directory menu item.</li>
-            <li><span class="version-upgraded">Upg</span> Edit Form when configuring the Form or Submissions - View menu items.</li>
-            <li><span class="version-upgraded">Upg</span> Form Title is now shown when editing a Directory.</li>
-            <li><span class="version-upgraded">Upg</span> Bootstrap updated to 4.3.1.</li>
-            <li><span class="version-upgraded">Upg</span> UIkit updated to 3.1.5.</li>
-            <li><span class="version-upgraded">Upg</span> The Submission ID field can now be selected when configuring the Directory.</li>
-            <li><span class="version-upgraded">Upg</span> Backing up or restoring a form with mappings will now adjust the database prefix to the current configuration.</li>
-            <li><span class="version-upgraded">Upg</span> Submissions can now be confirmed from the Manage Submissions area.</li>
-            <li><span class="version-fixed">Fix</span> Conditions were not showing up if 'Disable Multi-Language' was set to Yes and site language was different than the default en-GB.</li>
+            <li><span class="version-upgraded">Upg</span> Range Slider can be used in conditions.</li>
 		</ul>
 		<a class="btn btn-large btn-primary" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="btn" href="https://www.rsjoomla.com/support/documentation/rsform-pro.html" target="_blank">Read the RSForm! Pro User Guide</a>
