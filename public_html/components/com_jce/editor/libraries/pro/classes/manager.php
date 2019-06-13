@@ -1041,10 +1041,10 @@ class WFMediaManager extends WFMediaManagerBase
         // check if exif_read_data disabled...
         if (function_exists('exif_read_data')) {
             // get exif data
-            $exif = exif_read_data($image);
+            $exif = @exif_read_data($image);
             $rotate = 0;
 
-            if (!empty($exif['Orientation'])) {
+            if ($exif && !empty($exif['Orientation'])) {
                 $orientation = (int) $exif['Orientation'];
 
                 // Fix Orientation
@@ -1077,7 +1077,7 @@ class WFMediaManager extends WFMediaManagerBase
 
                 // add back iptcc
                 /*if (!empty($iptcc)) {
-                $img->profileImage($iptcc);
+                    $img->profileImage($iptcc);
                 }*/
 
                 $img->writeImage($image);
@@ -1097,7 +1097,12 @@ class WFMediaManager extends WFMediaManagerBase
 
                         if (is_resource($handle)) {
                             if ($rotate) {
-                                $handle = imagerotate($handle, $rotate, -1);
+                                
+                                $rotation = imagerotate($handle, -$rotate, 0);
+
+                                if ($rotation) {
+                                    $handle = $rotation;
+                                }
                             }
 
                             imagejpeg($handle, $image);
@@ -1112,7 +1117,11 @@ class WFMediaManager extends WFMediaManagerBase
 
                         if (is_resource($handle)) {
                             if ($rotate) {
-                                $handle = imagerotate($handle, $rotate, -1);
+                                $rotation = imagerotate($handle, -$rotate, -1);
+
+                                if ($rotation) {
+                                    $handle = $rotation;
+                                }
                             }
 
                             // Allow transparency for the new image handle.

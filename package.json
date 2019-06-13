@@ -1,9 +1,23 @@
 {
   "name": "perfectsite",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "license": "GPL-3.0",
-  "description": "Perfect Site",
-  "author": "Perfect Web Team",
+  "description": "Perfect Site for JoomlaCommunity",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stichtingjoomlanederland/joomlacommunity.nl.git"
+  },
+  "author": "https://github.com/stichtingjoomlanederland/joomlacommunity.nl/graphs/contributors",
+  "bugs": {
+    "url": "https://github.com/stichtingjoomlanederland/joomlacommunity.nl/issues"
+  },
+  "homepage": "https://github.com/stichtingjoomlanederland/joomlacommunity.nl#readme",
+  "browserslist": [
+    "> 2% in NL",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
   "devDependencies": {
     "apollo.js": "toddmotto/apollo",
     "font-face": "^2.3.2",
@@ -17,7 +31,7 @@
     "grunt-contrib-uglify": "^4.0.1",
     "grunt-contrib-watch": "^1.1.0",
     "grunt-modernizr": "^2.0.1",
-    "grunt-sass": "^2.1.0",
+    "grunt-sass": "^3.0.2",
     "grunt-shell": "^3.0.1",
     "grunt-svgstore": "^2.0.0",
     "grunt-version-check": "^0.3.8",

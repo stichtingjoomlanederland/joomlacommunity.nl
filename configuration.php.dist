@@ -4,7 +4,7 @@ class JConfig {
 	public $offline_message = 'Deze website is tijdelijk niet beschikbaar i.v.m. werkzaamheden.<br /> Probeert u het later nog eens.';
 	public $display_offline_message = '1';
 	public $offline_image = '';
-	public $sitename = '';
+	public $sitename = 'JoomlaCommunity - [dev]';
 	public $editor = 'tinymce';
 	public $captcha = '0';
 	public $list_limit = '50';
@@ -12,9 +12,9 @@ class JConfig {
 	public $debug = '0';
 	public $debug_lang = '0';
 	public $dbtype = 'mysqli';
-	public $host = 'localhost';
-	public $user = 'root';
-	public $password = 'root';
+	public $host = '';
+	public $user = '';
+	public $password = '';
 	public $db = '';
 	public $dbprefix = '';
 	public $live_site = '';
@@ -37,9 +37,9 @@ class JConfig {
 	public $smtpauth = '0';
 	public $smtpuser = '';
 	public $smtppass = '';
-	public $smtphost = 'localhost';
+	public $smtphost = '127.0.0.1';
 	public $smtpsecure = 'none';
-	public $smtpport = '25';
+	public $smtpport = '1025';
 	public $caching = '0';
 	public $cache_handler = 'file';
 	public $cachetime = '15';
@@ -54,8 +54,8 @@ class JConfig {
 	public $sef_suffix = '0';
 	public $unicodeslugs = '0';
 	public $feed_limit = '10';
-	public $log_path = '';
-	public $tmp_path = '';
+	public $log_path = __DIR__ . '/administrator/logs';
+	public $tmp_path = __DIR__ . '/tmp';
 	public $lifetime = '15';
 	public $session_handler = 'database';
 	public $memcache_persist = '1';
