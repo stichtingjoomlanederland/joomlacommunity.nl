@@ -20,7 +20,9 @@
   ],
   "devDependencies": {
     "apollo.js": "toddmotto/apollo",
+    "diff": ">=3.5.0",
     "font-face": "^2.3.2",
+    "fstream": ">=1.0.12",
     "grunt": "^1.0.4",
     "grunt-autoprefixer": "^3.0.4",
     "grunt-browser-sync": "^2.2.0",
@@ -38,9 +40,11 @@
     "grunt-webfont": "^1.7.2",
     "illusion": "timble/illusion",
     "jit-grunt": "^0.10.0",
+    "js-yaml": ">=3.13.1",
     "jquery": "^3.4.1",
     "load-grunt-configs": "^1.0.0",
     "node-normalize-scss": "^8.0.0",
+    "tar": ">=2.2.2",
     "time-grunt": "^2.0.0",
     "vanilla-js-responsive-menu": "robinpoort/vanilla-js-responsive-menu"
   }
