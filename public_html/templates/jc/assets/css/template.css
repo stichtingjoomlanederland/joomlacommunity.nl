@@ -6333,10 +6333,6 @@ ol.linenums li {
 .pagination {
   margin: 0 0 20px 0;
 }
-.content {
-  max-width: 100%;
-  overflow: hidden;
-}
 /* List group */
 .list-group {
   border-radius: 4px;
