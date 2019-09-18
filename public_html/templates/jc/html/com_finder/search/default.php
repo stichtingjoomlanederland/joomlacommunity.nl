@@ -8,6 +8,7 @@
  */
 
 use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Language\Text;
 
 defined('_JEXEC') or die;
 
@@ -36,6 +37,16 @@ HTMLHelper::addIncludePath(JPATH_COMPONENT . '/helpers/html');
 			</div>
 		</div><?php
     endif;
+
+	if ($this->query->search !== true): ?>
+        <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div id="search-results" class="well">
+				<?php echo Text::_('COM_FINDER_START_SEARCH_LABEL'); ?>
+            </div>
+        </div>
+        </div><?php
+	endif;
 
 	// Load the search results layout if we are performing a search.
 	if ($this->query->search === true): ?>
