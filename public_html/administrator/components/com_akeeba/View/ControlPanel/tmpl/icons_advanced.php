@@ -10,6 +10,11 @@
 // Protect from unauthorized access
 defined('_JEXEC') or die();
 
+// All of the buttons in this panel require the Configure privilege
+if (!$this->permissions['configure'])
+{
+    return;
+}
 ?>
 <section class="akeeba-panel--info">
     <header class="akeeba-block-header">

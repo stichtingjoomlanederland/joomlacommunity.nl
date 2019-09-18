@@ -213,4 +213,42 @@ class RSFormProFieldCalendar extends RSFormProField
 		
 		return $attr;
 	}
+
+
+	public function processValidation($validationType = 'form', $submissionId = 0)
+	{
+		$validate 	= $this->getProperty('VALIDATIONDATE', true);
+		$required 	= $this->getProperty('REQUIRED', false);
+		$format 	= $this->getProperty('DATEFORMAT');
+		$value 		= $this->getValue();
+
+		if ($required && !strlen(trim($value)))
+		{
+			return false;
+		}
+
+		if ($validate && strlen(trim($value)))
+		{
+			if (JFactory::getLanguage()->getTag() != 'en-GB')
+			{
+				require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/calendar.php';
+
+				$value = RSFormProCalendar::fixValue($value, $format);
+			}
+
+			$validDate = JFactory::getDate()->createFromFormat($format, $value);
+
+			if ($validDate)
+			{
+				$validDate = $validDate->format($format);
+			}
+
+			if ($validDate !== $value)
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
 }

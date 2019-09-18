@@ -29,7 +29,7 @@ class plgFinderDocman extends PlgKoowaFinder
             'context'  => 'DOCman',
             'entity'   => 'document',
             'instructions' => array(
-                FinderIndexer::TEXT_CONTEXT => array('contents'),
+                //FinderIndexer::TEXT_CONTEXT => array('contents'),
                 FinderIndexer::META_CONTEXT => array('storage_path')
             )
         ));
@@ -135,13 +135,29 @@ class plgFinderDocman extends PlgKoowaFinder
             $item->addTaxonomy('Category', $item->category_title, $category_state, $category_access);
         }
 
-        // Tokenizing 40000 characters seem to take around 10 seconds in Finder
-        if (strlen($entity->contents) > 40000) {
-            $item->contents = substr($entity->contents, 0, 40000);
-        } else {
-            $item->contents = $entity->contents;
+        if (!$item->summary) {
+            $item->summary = '';
         }
 
+        // Tokenizing 40000 characters seem to take around 10 seconds in Finder
+        if (strlen($entity->contents) > 40000) {
+            $contents = substr($entity->contents, 0, 40000);
+        } else {
+            $contents = $entity->contents;
+        }
+
+        $item->summary .= ' '.$contents;
+
+        $tags = $entity->getTags();
+        if (count($tags)) {
+            $tag_titles = [];
+
+            foreach ($tags as $tag) {
+                $tag_titles[] = $tag->title;
+            }
+
+            $item->summary .= ' '.implode(' ', $tag_titles);
+        }
 
         return $item;
 	}

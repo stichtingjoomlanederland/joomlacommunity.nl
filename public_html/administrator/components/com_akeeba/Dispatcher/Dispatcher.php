@@ -90,7 +90,8 @@ class Dispatcher extends BaseDispatcher
 
 		// FEF Renderer options. Used to load the common CSS file.
 		$this->container->renderer->setOptions([
-			'custom_css' => 'media://com_akeeba/css/akeebaui.min.css'
+			'custom_css' => 'media://com_akeeba/css/akeebaui.min.css',
+			//'fef_dark'   => 0,
 		]);
 
 		// Load Akeeba Engine

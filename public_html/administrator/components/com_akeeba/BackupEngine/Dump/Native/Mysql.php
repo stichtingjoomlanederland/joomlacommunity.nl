@@ -272,9 +272,11 @@ class Mysql extends Base
 			$timer = Factory::getTimer();
 
 			// Get the number of rows left to dump from the current table
-			$sql = $db->getQuery(true)
-			          ->select('*')
-			          ->from($db->nameQuote($tableAbstract));
+			$columns         = $this->getSelectColumns($tableAbstract);
+			$columnsForQuery = is_array($columns) ? array_map([$db, 'qn'], $columns) : $columns;
+			$sql             = $db->getQuery(true)
+				->select($columnsForQuery)
+				->from($db->nameQuote($tableAbstract));
 
 			if (!is_null($this->table_autoincrement['field']))
 			{
@@ -301,14 +303,14 @@ class Mysql extends Base
 				if (!is_null($this->table_autoincrement['field']) && !is_null($this->table_autoincrement['value']))
 				{
 					Factory::getLog()
-					       ->log(LogLevel::INFO, "Continuing dump of " . $tableAbstract . " from record #{$this->nextRange} using auto_increment column {$this->table_autoincrement['field']} and value {$this->table_autoincrement['value']}");
+						->log(LogLevel::INFO, "Continuing dump of " . $tableAbstract . " from record #{$this->nextRange} using auto_increment column {$this->table_autoincrement['field']} and value {$this->table_autoincrement['value']}");
 					$sql->where($db->qn($this->table_autoincrement['field']) . ' > ' . $db->q($this->table_autoincrement['value']));
 					$db->setQuery($sql, 0, $batchSize);
 				}
 				else
 				{
 					Factory::getLog()
-					       ->log(LogLevel::INFO, "Continuing dump of " . $tableAbstract . " from record #{$this->nextRange}");
+						->log(LogLevel::INFO, "Continuing dump of " . $tableAbstract . " from record #{$this->nextRange}");
 					$db->setQuery($sql, $this->nextRange, $batchSize);
 				}
 			}
@@ -356,23 +358,23 @@ class Mysql extends Base
 					return;
 				}
 
-				$numRows ++;
+				$numRows++;
 				$numOfFields = count($myRow);
 
 				// On MS SQL Server there's always a RowNumber pseudocolumn added at the end, screwing up the backup (GRRRR!)
 				if ($db->getDriverType() == 'mssql')
 				{
-					$numOfFields --;
+					$numOfFields--;
 				}
 
 				// If row-level filtering is enabled, please run the filtering
 				if ($mustFilter)
 				{
 					$isFiltered = $filters->isFiltered(
-						array(
+						[
 							'table' => $tableAbstract,
-							'row'   => $myRow
-						),
+							'row'   => $myRow,
+						],
 						$dbRoot,
 						'dbobject',
 						'children'
@@ -381,9 +383,9 @@ class Mysql extends Base
 					if ($isFiltered)
 					{
 						// Update the auto_increment value to avoid edge cases when the batch size is one
-						if (!is_null($this->table_autoincrement['field']) && isset($myRow[ $this->table_autoincrement['field'] ]))
+						if (!is_null($this->table_autoincrement['field']) && isset($myRow[$this->table_autoincrement['field']]))
 						{
-							$this->table_autoincrement['value'] = $myRow[ $this->table_autoincrement['field'] ];
+							$this->table_autoincrement['value'] = $myRow[$this->table_autoincrement['field']];
 						}
 
 						continue;
@@ -396,11 +398,11 @@ class Mysql extends Base
 				)
 				{
 					$newQuery  = true;
-					$fieldList = $this->getFieldListSQL(array_keys($myRow), $numOfFields);
+					$fieldList = $this->getFieldListSQL($columns);
 
 					if ($numOfFields > 0)
 					{
-						$this->query = "INSERT INTO " . $db->nameQuote((!$use_abstract ? $tableName : $tableAbstract)) . " $fieldList VALUES ";
+						$this->query = "INSERT INTO " . $db->nameQuote((!$use_abstract ? $tableName : $tableAbstract)) . " {$fieldList} VALUES ";
 					}
 				}
 				else
@@ -423,7 +425,7 @@ class Mysql extends Base
 					foreach ($myRow as $fieldName => $value)
 					{
 						// The ID of the field, used to determine placement of commas
-						$fieldID ++;
+						$fieldID++;
 
 						if ($fieldID > $numOfFields)
 						{
@@ -499,8 +501,10 @@ class Mysql extends Base
 							}
 
 							// Then, start a new query
+							$fieldList = $this->getFieldListSQL($columns);
+
 							$this->query = '';
-							$this->query = "INSERT INTO " . $db->nameQuote((!$use_abstract ? $tableName : $tableAbstract)) . " VALUES ";
+							$this->query = "INSERT INTO " . $db->nameQuote((!$use_abstract ? $tableName : $tableAbstract)) . " {$fieldList} VALUES ";
 							$this->query .= $outData;
 						}
 						else
@@ -549,12 +553,13 @@ class Mysql extends Base
 						$this->query = '';
 					}
 				}
+
 				$outData = '';
 
 				// Update the auto_increment value to avoid edge cases when the batch size is one
 				if (!is_null($this->table_autoincrement['field']))
 				{
-					$this->table_autoincrement['value'] = $myRow[ $this->table_autoincrement['field'] ];
+					$this->table_autoincrement['value'] = $myRow[$this->table_autoincrement['field']];
 				}
 
 				unset($myRow);
@@ -563,7 +568,7 @@ class Mysql extends Base
 				if ($timer->getTimeLeft() <= 0)
 				{
 					Factory::getLog()
-					       ->log(LogLevel::DEBUG, "Breaking dump of $tableAbstract after $numRows rows; will continue on next step");
+						->log(LogLevel::DEBUG, "Breaking dump of $tableAbstract after $numRows rows; will continue on next step");
 
 					break;
 				}
@@ -2065,4 +2070,65 @@ class Mysql extends Base
 
 		return $memLimit;
 	}
+
+	/**
+	 * Return a list of columns to use in the SELECT query for dumping table data.
+	 *
+	 * This is used to filter out all generated rows.
+	 *
+	 * @param   string  $tableAbstract
+	 *
+	 * @return  string|array  An array of table columns or the string literal '*' to quickly select all columns.
+	 *
+	 * @see  https://dev.mysql.com/doc/refman/5.7/en/create-table-generated-columns.html
+	 */
+	protected function getSelectColumns($tableAbstract)
+	{
+		static $lastTable = null;
+		static $columnList = '*';
+
+		if ($lastTable == $tableAbstract)
+		{
+			return $columnList;
+		}
+
+		$lastTable = $tableAbstract;
+
+		try
+		{
+			$db = $this->getDB();
+
+			$db->setQuery('SHOW COLUMNS FROM ' . $db->qn($tableAbstract));
+
+			$tableCols = $db->loadAssocList();
+		}
+		catch (\Exception $e)
+		{
+			return $columnList;
+		}
+
+		$totalColumns = count($tableCols);
+		$columnList = [];
+
+		foreach ($tableCols as $col)
+		{
+			// Skip over generated columns
+			$attribs = array_map('strtoupper', empty($col['Extra']) ? [] : explode(' ', $col['Extra']));
+
+			if (in_array('GENERATED', $attribs))
+			{
+				continue;
+			}
+
+			$columnList[] = $col['Field'];
+		}
+
+		if ($totalColumns == count($columnList))
+		{
+			$columnList = '*';
+		}
+
+		return $columnList;
+	}
+
 }

@@ -26,7 +26,7 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 			content: EasyDiscuss.ajax('site/views/comment/showTnc', {
 			})
 		})
-	});    
+	});
 
 	// Reply submit
 	var replyButton = wrapper.find('[data-ed-reply-submit]');
@@ -210,7 +210,7 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 		if (deferredObjects.length <= 0) {
 			self.saveState.resolve();
 		} else {
-			$.when.apply(null, deferredObjects) 
+			$.when.apply(null, deferredObjects)
 				.done(function() {
 					self.saveState.resolve();
 				})
@@ -221,7 +221,7 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 
 		self.saveState.done(function() {
 			submitReply(element);
-		});		
+		});
 	});
 
 	// Click reply submit
@@ -309,6 +309,31 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 			// Update the alert
 			setAlert(notification, result.message, result.type);
 
+			if (result.type == 'success' || result.type == 'success.edit') {
+
+				// first we replace the gist script tag with normal div with an identifier.
+				var tmp = $(result.html);
+				var count = 0;
+				$(tmp).find('[data-ed-scripts-gist]').each(function() {
+
+					var url = $(this).attr('src');
+
+					var div = document.createElement("div");
+					$(div).attr('data-gist-div', "");
+					$(div).attr('data-url', url);
+					$(div).attr('style', 'border:0; padding:0;');
+
+					$(this).replaceWith(div);
+					count++;
+				});
+
+				if (count > 0) {
+					// update the result.html
+					result.html = tmp[0];
+				}
+			}
+
+
 			// For editing success
 			if (result.type == 'success.edit') {
 				var parent = wrapper.parent();
@@ -318,6 +343,7 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 
 				// Now we need to replace the html contents back
 				var replyItem = replies.find('[data-ed-reply-item][data-id=' + result.id + ']');
+
 				replyItem.replaceWith(result.html);
 			}
 
@@ -355,6 +381,49 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 				// Clear the form.
 				resetForm(form);
 			};
+
+			if (result.type == 'success' || result.type == 'success.edit') {
+				// now the contents are append into the doc.
+				// we need to replade the div back to proper script tag and use iframe to load.
+				$('[data-gist-div').each(function() {
+
+					var url = $(this).data('url');
+
+					// Create an iframe, append it to this document where specified
+					var iframe = document.createElement('iframe');
+
+					// Set the iframe attributes
+					iframe.setAttribute('width', '100%');
+					iframe.setAttribute('style', 'border:0; padding:0;');
+					iframe.id = 'gistFrame';
+
+					$(this).html(iframe);
+
+					var callback = $.callback(function(height) {
+						var i = document.getElementById("gistFrame");
+						i.style.height = parseInt(height) + "px";
+						i.style.border = 0;
+						i.style.padding = 0;
+					});
+
+					// Create the iframe's document
+					var html = '<h' + 'tml>' + '<' + 'b' + 'ody onload="parent.' + callback + '(document.body.scrollHeight);"><scr' + 'ipt type="text/javascript" src="' + url + '"></sc'+'ript></'+'b' + 'ody>' + '<' + '/h' + 'tml>';
+
+					// Set iframe's document with a trigger for this document to adjust the height
+					var doc = iframe.document;
+
+					if (iframe.contentDocument) {
+						doc = iframe.contentDocument;
+					} else if (iframe.contentWindow) {
+						doc = iframe.contentWindow.document;
+					}
+
+					doc.open();
+					doc.writeln(html);
+					doc.close();
+
+				});
+			}
 
 			if (result.type == 'error.captcha') {
 				setAlert(notification, result.message, 'error');

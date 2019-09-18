@@ -9,12 +9,12 @@ namespace acymEmogrifier;
  *
  * @version 2.0.0
  *
- * @author Cameron Brooks
- * @author Jaime Prado
- * @author Oliver Klee <github@oliverklee.de>
- * @author Roman Ožana <ozana@omdesign.cz>
- * @author Sander Kruger <s.kruger@invessel.com>
- * @author Zoli Szabó <zoli.szabo+github@gmail.com>
+ * @author  Cameron Brooks
+ * @author  Jaime Prado
+ * @author  Oliver Klee <github@oliverklee.de>
+ * @author  Roman Ožana <ozana@omdesign.cz>
+ * @author  Sander Kruger <s.kruger@invessel.com>
+ * @author  Zoli Szabó <zoli.szabo+github@gmail.com>
  */
 class acymEmogrifier
 {
@@ -90,17 +90,17 @@ class acymEmogrifier
     /**
      * @var bool[]
      */
-    private $excludedSelectors = array();
+    private $excludedSelectors = [];
 
     /**
      * @var string[]
      */
-    private $unprocessableHtmlTags = array('wbr');
+    private $unprocessableHtmlTags = ['wbr'];
 
     /**
      * @var bool[]
      */
-    private $allowedMediaTypes = array('all' => true, 'screen' => true, 'print' => true);
+    private $allowedMediaTypes = ['all' => true, 'screen' => true, 'print' => true];
 
     /**
      * @var mixed[]
@@ -118,7 +118,7 @@ class acymEmogrifier
      *
      * @var \DOMElement[]
      */
-    private $visitedNodes = array();
+    private $visitedNodes = [];
 
     /**
      * the styles to apply to the nodes with the XPath paths as array keys for the outer array
@@ -126,7 +126,7 @@ class acymEmogrifier
      *
      * @var string[][]
      */
-    private $styleAttributesForNodes = array();
+    private $styleAttributesForNodes = [];
 
     /**
      * Determines whether the "style" attributes of tags in the the HTML passed to this class should be preserved.
@@ -165,11 +165,9 @@ class acymEmogrifier
         // type and attribute exact value
         '/(\\w)\\[(\\w+)\\=[\'"]?([\\w\\s]+)[\'"]?\\]/' => '\\1[@\\2="\\3"]',
         // type and attribute value with ~ (one word within a whitespace-separated list of words)
-        '/([\\w\\*]+)\\[(\\w+)[\\s]*\\~\\=[\\s]*[\'"]?([\\w_\\/-]+)[\'"]?\\]/'
-        => '\\1[contains(concat(" ", @\\2, " "), concat(" ", "\\3", " "))]',
+        '/([\\w\\*]+)\\[(\\w+)[\\s]*\\~\\=[\\s]*[\'"]?([\\w_\\/-]+)[\'"]?\\]/' => '\\1[contains(concat(" ", @\\2, " "), concat(" ", "\\3", " "))]',
         // type and attribute value with | (either exact value match or prefix followed by a hyphen)
-        '/([\\w\\*]+)\\[(\\w+)[\\s]*\\|\\=[\\s]*[\'"]?([\\w_\\s\\/-]+)[\'"]?\\]/'
-        => '\\1[@\\2="\\3" or starts-with(@\\2, concat("\\3", "-"))]',
+        '/([\\w\\*]+)\\[(\\w+)[\\s]*\\|\\=[\\s]*[\'"]?([\\w_\\s\\/-]+)[\'"]?\\]/' => '\\1[@\\2="\\3" or starts-with(@\\2, concat("\\3", "-"))]',
         // type and attribute value with ^ (prefix match)
         '/([\\w\\*]+)\\[(\\w+)[\\s]*\\^\\=[\\s]*[\'"]?([\\w_\\/-]+)[\'"]?\\]/' => '\\1[starts-with(@\\2, "\\3")]',
         // type and attribute value with * (substring match)
@@ -188,8 +186,7 @@ class acymEmogrifier
         // The following matcher will break things if it is placed before the adjacent matcher.
         // So one of the matchers matches either too much or not enough.
         // type and attribute value with $ (suffix match)
-        '/([\\w\\*]+)\\[(\\w+)[\\s]*\\$\\=[\\s]*[\'"]?([\\w_\\s\\/-]+)[\'"]?\\]/'
-        => '\\1[substring(@\\2, string-length(@\\2) - string-length("\\3") + 1) = "\\3"]',
+        '/([\\w\\*]+)\\[(\\w+)[\\s]*\\$\\=[\\s]*[\'"]?([\\w_\\s\\/-]+)[\'"]?\\]/' => '\\1[substring(@\\2, string-length(@\\2) - string-length("\\3") + 1) = "\\3"]',
     ];
 
     /**
@@ -208,7 +205,7 @@ class acymEmogrifier
      *
      * @var mixed[][]
      */
-    private $cssToHtmlMap = array(
+    private $cssToHtmlMap = [
         'background-color' => [
             'attribute' => 'bgcolor',
         ],
@@ -226,7 +223,7 @@ class acymEmogrifier
             'attribute' => 'cellspacing',
             'nodes' => ['table'],
         ],
-    );
+    ];
 
     /**
      * Emogrifier will throw Exceptions when it encounters an error instead of silently ignoring them.
@@ -236,10 +233,16 @@ class acymEmogrifier
     private $debug = false;
 
     /**
+     * Emogrifier will put in this variable all the media queries css
+     * @var string
+     */
+    public $mediaCSS = '';
+
+    /**
      * The constructor.
      *
      * @param string $html the HTML to emogrify, must be UTF-8-encoded
-     * @param string $css the CSS to merge, must be UTF-8-encoded
+     * @param string $css  the CSS to merge, must be UTF-8-encoded
      */
     public function __construct($html = '', $css = '')
     {
@@ -387,7 +390,7 @@ class acymEmogrifier
                     // break it up into an associative array
                     $oldStyleDeclarations = $this->parseCssDeclarationsBlock($node->getAttribute('style'));
                 } else {
-                    $oldStyleDeclarations = array();
+                    $oldStyleDeclarations = [];
                 }
                 $newStyleDeclarations = $this->parseCssDeclarationsBlock($cssRule['declarationsBlock']);
                 $node->setAttribute(
@@ -463,8 +466,8 @@ class acymEmogrifier
     private function removeImportantAnnotationFromNodeInlineStyle(\DOMElement $node)
     {
         $inlineStyleDeclarations = $this->parseCssDeclarationsBlock($node->getAttribute('style'));
-        $regularStyleDeclarations = array();
-        $importantStyleDeclarations = array();
+        $regularStyleDeclarations = [];
+        $importantStyleDeclarations = [];
         foreach ($inlineStyleDeclarations as $property => $value) {
             if ($this->attributeValueIsImportant($value)) {
                 $importantStyleDeclarations[$property] = trim(str_replace('!important', '', $value));
@@ -500,8 +503,8 @@ class acymEmogrifier
      * This method maps CSS styles to HTML attributes and adds those to the
      * node.
      *
-     * @param string[] $styles the new CSS styles taken from the global styles to be applied to this node
-     * @param \DOMElement $node node to apply styles to
+     * @param string[]    $styles the new CSS styles taken from the global styles to be applied to this node
+     * @param \DOMElement $node   node to apply styles to
      *
      * @return void
      */
@@ -519,9 +522,9 @@ class acymEmogrifier
      *
      * This method maps a CSS rule to HTML attributes and adds those to the node.
      *
-     * @param string $property the name of the CSS property to map
-     * @param string $value the value of the style rule to map
-     * @param \DOMElement $node node to apply styles to
+     * @param string      $property the name of the CSS property to map
+     * @param string      $value    the value of the style rule to map
+     * @param \DOMElement $node     node to apply styles to
      *
      * @return void
      */
@@ -535,9 +538,9 @@ class acymEmogrifier
     /**
      * Looks up the CSS property in the mapping table and maps it if it matches the conditions.
      *
-     * @param string $property the name of the CSS property to map
-     * @param string $value the value of the style rule to map
-     * @param \DOMElement $node node to apply styles to
+     * @param string      $property the name of the CSS property to map
+     * @param string      $value    the value of the style rule to map
+     * @param \DOMElement $node     node to apply styles to
      *
      * @return bool true if the property cab be mapped using the simple mapping table
      */
@@ -562,9 +565,9 @@ class acymEmogrifier
     /**
      * Maps CSS properties that need special transformation to an HTML attribute.
      *
-     * @param string $property the name of the CSS property to map
-     * @param string $value the value of the style rule to map
-     * @param \DOMElement $node node to apply styles to
+     * @param string      $property the name of the CSS property to map
+     * @param string      $value    the value of the style rule to map
+     * @param \DOMElement $node     node to apply styles to
      *
      * @return void
      */
@@ -628,7 +631,7 @@ class acymEmogrifier
     {
         $values = preg_split('/\\s+/', $value);
 
-        $css = array();
+        $css = [];
         $css['top'] = $values[0];
         $css['right'] = (count($values) > 1) ? $values[1] : $css['top'];
         $css['bottom'] = (count($values) > 2) ? $values[2] : $css['top'];
@@ -655,7 +658,7 @@ class acymEmogrifier
             // process the CSS file for selectors and definitions
             preg_match_all('/(?:^|[\\s^{}]*)([^{]+){([^}]*)}/mi', $css, $matches, PREG_SET_ORDER);
 
-            $cssRules = array();
+            $cssRules = [];
             /** @var string[][] $matches */
             /** @var string[] $cssRule */
             foreach ($matches as $key => $cssRule) {
@@ -678,12 +681,12 @@ class acymEmogrifier
                         continue;
                     }
 
-                    $cssRules[] = array(
+                    $cssRules[] = [
                         'selector' => trim($selector),
                         'declarationsBlock' => $cssDeclaration,
                         // keep track of where it appears in the file, since order is important
                         'line' => $key,
-                    );
+                    ];
                 }
             }
 
@@ -770,7 +773,7 @@ class acymEmogrifier
             self::CACHE_KEY_COMBINED_STYLES,
         ];
         if (!in_array($key, $allowedCacheKeys, true)) {
-            throw new \InvalidArgumentException('Invalid cache key: ' . $key, 1391822035);
+            throw new \InvalidArgumentException('Invalid cache key: '.$key, 1391822035);
         }
 
         $this->caches[$key] = [];
@@ -1001,16 +1004,14 @@ class acymEmogrifier
             }
 
             $newAttributeValue = $newStyles[$attributeName];
-            if ($this->attributeValueIsImportant($attributeValue)
-                && !$this->attributeValueIsImportant($newAttributeValue)
-            ) {
+            if ($this->attributeValueIsImportant($attributeValue) && !$this->attributeValueIsImportant($newAttributeValue)) {
                 $combinedStyles[$attributeName] = $attributeValue;
             }
         }
 
         $style = '';
         foreach ($combinedStyles as $attributeName => $attributeValue) {
-            $style .= strtolower(trim($attributeName)) . ': ' . trim($attributeValue) . '; ';
+            $style .= strtolower(trim($attributeName)).': '.trim($attributeValue).'; ';
         }
         $trimmedStyle = rtrim($style);
 
@@ -1047,8 +1048,8 @@ class acymEmogrifier
      * Applies $css to $xmlDocument, limited to the media queries that actually apply to the document.
      *
      * @param \DOMDocument $xmlDocument the document to match against
-     * @param \DOMXPath $xPath
-     * @param string $css a string of CSS
+     * @param \DOMXPath    $xPath
+     * @param string       $css         a string of CSS
      *
      * @return void
      */
@@ -1058,7 +1059,7 @@ class acymEmogrifier
             return;
         }
 
-        $mediaQueriesRelevantForDocument = array();
+        $mediaQueriesRelevantForDocument = [];
 
         foreach ($this->extractMediaQueriesFromCss($css) as $mediaQuery) {
             foreach ($this->parseCssRules($mediaQuery['css']) as $selector) {
@@ -1082,15 +1083,15 @@ class acymEmogrifier
     private function extractMediaQueriesFromCss($css)
     {
         preg_match_all('/@media\\b[^{]*({((?:[^{}]+|(?1))*)})/', $css, $rawMediaQueries, PREG_SET_ORDER);
-        $parsedQueries = array();
+        $parsedQueries = [];
 
         /** @var string[][] $rawMediaQueries */
         foreach ($rawMediaQueries as $mediaQuery) {
             if ($mediaQuery[2] !== '') {
-                $parsedQueries[] = array(
+                $parsedQueries[] = [
                     'css' => $mediaQuery[2],
                     'query' => $mediaQuery[0],
-                );
+                ];
             }
         }
 
@@ -1103,7 +1104,7 @@ class acymEmogrifier
      * just not implemented/recognized yet by Emogrifier).
      *
      * @param \DOMXPath $xPath
-     * @param string $cssSelector
+     * @param string    $cssSelector
      *
      * @return bool
      *
@@ -1117,6 +1118,7 @@ class acymEmogrifier
             if ($this->debug) {
                 throw $e;
             }
+
             return true;
         }
 
@@ -1141,7 +1143,7 @@ class acymEmogrifier
         $css = '';
         /** @var \DOMNode $styleNode */
         foreach ($styleNodes as $styleNode) {
-            $css .= "\n\n" . $styleNode->nodeValue;
+            $css .= "\n\n".$styleNode->nodeValue;
             $styleNode->parentNode->removeChild($styleNode);
         }
 
@@ -1156,19 +1158,20 @@ class acymEmogrifier
      * @see https://github.com/jjriv/emogrifier/issues/103
      *
      * @param \DOMDocument $document
-     * @param string $css
+     * @param string       $css
      *
      * @return void
      */
     protected function addStyleElementToDocument(\DOMDocument $document, $css)
     {
-        $styleElement = $document->createElement('style', $css);
-        $styleAttribute = $document->createAttribute('type');
-        $styleAttribute->value = 'text/css';
-        $styleElement->appendChild($styleAttribute);
+        $this->mediaCSS = $css;
+        //$styleElement = $document->createElement('style', $css);
+        //$styleAttribute = $document->createAttribute('type');
+        //$styleAttribute->value = 'text/css';
+        //$styleElement->appendChild($styleAttribute);
 
-        $bodyElement = $this->getBodyElement($document);
-        $bodyElement->appendChild($styleElement);
+        //$bodyElement = $this->getBodyElement($document);
+        //$bodyElement->appendChild($styleElement);
     }
 
     /**
@@ -1203,8 +1206,7 @@ class acymEmogrifier
         $bodyElement = $document->getElementsByTagName('body')->item(0);
         if ($bodyElement === null) {
             throw new \BadMethodCallException(
-                'getBodyElement method may only be called after ensureExistenceOfBodyElement has been called.',
-                1508173775427
+                'getBodyElement method may only be called after ensureExistenceOfBodyElement has been called.', 1508173775427
             );
         }
 
@@ -1238,12 +1240,12 @@ class acymEmogrifier
 
         $mediaTypesExpression = '';
         if (!empty($this->allowedMediaTypes)) {
-            $mediaTypesExpression = '|' . implode('|', array_keys($this->allowedMediaTypes));
+            $mediaTypesExpression = '|'.implode('|', array_keys($this->allowedMediaTypes));
         }
 
         $media = '';
         $cssForAllowedMediaTypes = preg_replace_callback(
-            '#@media\\s+(?:only\\s)?(?:[\\s{\\(]\\s*' . $mediaTypesExpression . ')\\s*[^{]*+{.*}\\s*}\\s*#misU',
+            '#@media\\s+(?:only\\s)?(?:[\\s{\\(]\\s*'.$mediaTypesExpression.')\\s*[^{]*+{.*}\\s*}\\s*#misU',
             function ($matches) use (&$media) {
                 $media .= $matches[0];
             },
@@ -1313,7 +1315,7 @@ class acymEmogrifier
         $unprocessableHtmlTags = implode('|', $this->unprocessableHtmlTags);
 
         return preg_replace(
-            '/<\\/?(' . $unprocessableHtmlTags . ')[^>]*>/i',
+            '/<\\/?('.$unprocessableHtmlTags.')[^>]*>/i',
             '',
             $html
         );
@@ -1333,7 +1335,7 @@ class acymEmogrifier
             return $html;
         }
 
-        return self::DEFAULT_DOCUMENT_TYPE . $html;
+        return self::DEFAULT_DOCUMENT_TYPE.$html;
     }
 
     /**
@@ -1356,15 +1358,15 @@ class acymEmogrifier
         $hasHtmlTag = stripos($html, '<html') !== false;
 
         if ($hasHeadTag) {
-            $reworkedHtml = preg_replace('/<head(.*?)>/i', '<head$1>' . self::CONTENT_TYPE_META_TAG, $html);
+            $reworkedHtml = preg_replace('/<head(.*?)>/i', '<head$1>'.self::CONTENT_TYPE_META_TAG, $html);
         } elseif ($hasHtmlTag) {
             $reworkedHtml = preg_replace(
                 '/<html(.*?)>/i',
-                '<html$1><head>' . self::CONTENT_TYPE_META_TAG . '</head>',
+                '<html$1><head>'.self::CONTENT_TYPE_META_TAG.'</head>',
                 $html
             );
         } else {
-            $reworkedHtml = self::CONTENT_TYPE_META_TAG . $html;
+            $reworkedHtml = self::CONTENT_TYPE_META_TAG.$html;
         }
 
         return $reworkedHtml;
@@ -1385,6 +1387,7 @@ class acymEmogrifier
         // selectors with greater precedence get sorted last.
         $precedenceForEquals = ($a['line'] < $b['line'] ? -1 : 1);
         $precedenceForNotEquals = ($precedenceA < $precedenceB ? -1 : 1);
+
         return ($precedenceA === $precedenceB) ? $precedenceForEquals : $precedenceForNotEquals;
     }
 
@@ -1400,14 +1403,14 @@ class acymEmogrifier
             $precedence = 0;
             $value = 100;
             // ids: worth 100, classes: worth 10, elements: worth 1
-            $search = array('\\#', '\\.', '');
+            $search = ['\\#', '\\.', ''];
 
             foreach ($search as $s) {
                 if (trim($selector) === '') {
                     break;
                 }
                 $number = 0;
-                $selector = preg_replace('/' . $s . '\\w+/', '', $selector, -1, $number);
+                $selector = preg_replace('/'.$s.'\\w+/', '', $selector, -1, $number);
                 $precedence += ($value * $number);
                 $value /= 10;
             }
@@ -1428,7 +1431,7 @@ class acymEmogrifier
      */
     private function translateCssToXpath($cssSelector)
     {
-        $paddedSelector = ' ' . $cssSelector . ' ';
+        $paddedSelector = ' '.$cssSelector.' ';
         $lowercasePaddedSelector = preg_replace_callback(
             '/\\s+\\w+\\s+/',
             function (array $matches) {
@@ -1448,13 +1451,12 @@ class acymEmogrifier
             $matches
         );
         if (!$hasNotSelector) {
-            $xPath = '//' . $this->translateCssToXpathPass($trimmedLowercaseSelector);
+            $xPath = '//'.$this->translateCssToXpathPass($trimmedLowercaseSelector);
         } else {
             /** @var string[] $matches */
             $partBeforeNot = $matches[1];
             $notContents = $matches[2];
-            $xPath = '//' . $this->translateCssToXpathPass($partBeforeNot) .
-                '[not(' . $this->translateCssToXpathPassInline($notContents) . ')]';
+            $xPath = '//'.$this->translateCssToXpathPass($partBeforeNot).'[not('.$this->translateCssToXpathPassInline($notContents).')]';
         }
         $this->caches[self::CACHE_KEY_SELECTOR][$xPathKey] = $xPath;
 
@@ -1495,14 +1497,13 @@ class acymEmogrifier
      * Flexibly translates the CSS selector $trimmedLowercaseSelector to an xPath selector while using
      * $matchClassAttributesCallback as to match the class attributes.
      *
-     * @param string $trimmedLowercaseSelector
+     * @param string   $trimmedLowercaseSelector
      * @param callable $matchClassAttributesCallback
      *
      * @return string
      */
     private function translateCssToXpathPassWithMatchClassAttributesCallback(
-        $trimmedLowercaseSelector,
-        callable $matchClassAttributesCallback
+        $trimmedLowercaseSelector, callable $matchClassAttributesCallback
     ) {
         $roughXpath = preg_replace(array_keys($this->xPathRules), $this->xPathRules, $trimmedLowercaseSelector);
         $xPathWithIdAttributeMatchers = preg_replace_callback(
@@ -1538,7 +1539,7 @@ class acymEmogrifier
      */
     private function matchIdAttributes(array $match)
     {
-        return ($match[1] !== '' ? $match[1] : '*') . '[@id="' . $match[2] . '"]';
+        return ($match[1] !== '' ? $match[1] : '*').'[@id="'.$match[2].'"]';
     }
 
     /**
@@ -1548,7 +1549,7 @@ class acymEmogrifier
      */
     private function matchClassAttributes(array $match)
     {
-        return ($match[1] !== '' ? $match[1] : '*') . '[' . $this->matchClassAttributesInline($match) . ']';
+        return ($match[1] !== '' ? $match[1] : '*').'['.$this->matchClassAttributesInline($match).']';
     }
 
     /**
@@ -1558,11 +1559,10 @@ class acymEmogrifier
      */
     private function matchClassAttributesInline(array $match)
     {
-        return 'contains(concat(" ",@class," "),concat(" ","' .
-            implode(
+        return 'contains(concat(" ",@class," "),concat(" ","'.implode(
                 '"," "))][contains(concat(" ",@class," "),concat(" ","',
                 explode('.', substr($match[2], 1))
-            ) . '"," "))';
+            ).'"," "))';
     }
 
     /**
@@ -1641,11 +1641,13 @@ class acymEmogrifier
         if (in_array(strtolower($match[2]), ['even', 'odd'], true)) {
             // we have "even" or "odd"
             $index = strtolower($match[2]) === 'even' ? 0 : 1;
+
             return [self::MULTIPLIER => 2, self::INDEX => $index];
         }
         if (stripos($match[2], 'n') === false) {
             // if there is a multiplier
             $index = (int)str_replace(' ', '', $match[2]);
+
             return [self::INDEX => $index];
         }
 
@@ -1699,11 +1701,11 @@ class acymEmogrifier
             return $this->caches[self::CACHE_KEY_CSS_DECLARATIONS_BLOCK][$cssDeclarationsBlock];
         }
 
-        $properties = array();
+        $properties = [];
         $declarations = preg_split('/;(?!base64|charset)/', $cssDeclarationsBlock);
 
         foreach ($declarations as $declaration) {
-            $matches = array();
+            $matches = [];
             if (!preg_match('/^([A-Za-z\\-]+)\\s*:\\s*(.+)$/', trim($declaration), $matches)) {
                 continue;
             }
@@ -1728,7 +1730,7 @@ class acymEmogrifier
      */
     private function getNodesToExclude(\DOMXPath $xPath)
     {
-        $excludedNodes = array();
+        $excludedNodes = [];
         foreach (array_keys($this->excludedSelectors) as $selectorToExclude) {
             try {
                 $matchingNodes = $xPath->query($this->translateCssToXpath($selectorToExclude));
@@ -1751,11 +1753,11 @@ class acymEmogrifier
      * during querying \DOMDocument and trigger \InvalidArgumentException with invalid selector
      * or \RuntimeException, depending on the source of the warning.
      *
-     * @param int $type
+     * @param int    $type
      * @param string $message
      * @param string $file
-     * @param int $line
-     * @param array $context
+     * @param int    $line
+     * @param array  $context
      *
      * @return bool always false
      *
@@ -1763,11 +1765,7 @@ class acymEmogrifier
      * @throws \RuntimeException
      */
     public function handleXpathQueryWarnings( // @codingStandardsIgnoreLine
-        $type,
-        $message,
-        $file,
-        $line,
-        array $context
+        $type, $message, $file, $line, array $context
     ) {
         $selector = '';
         if (isset($context['cssRule']['selector'])) {
@@ -1783,16 +1781,14 @@ class acymEmogrifier
 
         if ($selector !== '') {
             throw new \InvalidArgumentException(
-                sprintf('%1$s in selector >> %2$s << in %3$s on line %4$u', $message, $selector, $file, $line),
-                1509279985
+                sprintf('%1$s in selector >> %2$s << in %3$s on line %4$u', $message, $selector, $file, $line), 1509279985
             );
         }
 
         // Catches eventual warnings generated by method getAllNodesWithStyleAttribute()
         if (isset($context['xPath'])) {
             throw new \RuntimeException(
-                sprintf('%1$s in %2$s on line %3$u', $message, $file, $line),
-                1509280067
+                sprintf('%1$s in %2$s on line %3$u', $message, $file, $line), 1509280067
             );
         }
 

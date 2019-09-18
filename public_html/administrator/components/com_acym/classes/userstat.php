@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -16,10 +16,10 @@ class acymuserStatClass extends acymClass
 
     public function save($userStat)
     {
-        $column = array();
-        $valueColumn = array();
+        $column = [];
+        $valueColumn = [];
         $columnName = acym_getColumns("user_stat");
-        if (!array($userStat)) {
+        if (![$userStat]) {
             $userStat = (array)$userStat;
         }
 
@@ -31,7 +31,7 @@ class acymuserStatClass extends acymClass
         }
 
         $query = "INSERT INTO #__acym_user_stat (".implode(',', $column).") VALUE (".implode(',', $valueColumn).")";
-        $onDuplicate = array();
+        $onDuplicate = [];
 
         if (!empty($userStat['statusSending'])) {
             $onDuplicate[] = $userStat['statusSending'] == 0 ? "fail = fail + 1" : "sent = sent + 1";
@@ -40,7 +40,7 @@ class acymuserStatClass extends acymClass
         if (!empty($userStat['open'])) {
             $onDuplicate[] = "open = open + 1";
             $automationClass = acym_get('class.automation');
-            $automationClass->triggerUser('user_open', $userStat['user_id']);
+            $automationClass->trigger('user_open', ['userId' => $userStat['user_id']]);
         }
 
         if (!empty($userStat['open_date'])) {
@@ -72,14 +72,17 @@ class acymuserStatClass extends acymClass
 
     public function getDetailedStats($settings)
     {
-        $query = 'SELECT us.*, m.name, m.subject, u.email, c.id as campaign_id FROM #__acym_user_stat as us
-                    LEFT JOIN #__acym_user as u ON us.user_id = u.id
-                    INNER JOIN #__acym_mail as m ON us.mail_id = m.id
-                    LEFT JOIN #__acym_campaign as c ON m.id = c.mail_id';
+        $mailClass = acym_get('class.mail');
+
+        $query = 'SELECT us.*, m.name, m.subject, u.email, c.id as campaign_id 
+                    FROM #__acym_user_stat AS us
+                    LEFT JOIN #__acym_user AS u ON us.user_id = u.id
+                    INNER JOIN #__acym_mail AS m ON us.mail_id = m.id
+                    LEFT JOIN #__acym_campaign AS c ON m.id = c.mail_id';
         $queryCount = 'SELECT COUNT(*) FROM #__acym_user_stat as us
-                            LEFT JOIN #__acym_user as u ON us.user_id = u.id
-                            INNER JOIN #__acym_mail as m ON us.mail_id = m.id';
-        $where = array();
+                        LEFT JOIN #__acym_user AS u ON us.user_id = u.id
+                        INNER JOIN #__acym_mail AS m ON us.mail_id = m.id';
+        $where = [];
 
         if (!empty($settings['mail_id'])) {
             $where[] = 'us.mail_id = '.intval($settings['mail_id']);
@@ -105,7 +108,7 @@ class acymuserStatClass extends acymClass
             $query .= ' ORDER BY '.$table.'.'.acym_secureDBColumn($settings['ordering']).' '.acym_secureDBColumn(strtoupper($settings['ordering_sort_order']));
         }
 
-        $results['detailed_stats'] = acym_loadObjectList($query, '', $settings['offset'], $settings['detailedStatsPerPage']);
+        $results['detailed_stats'] = $mailClass->decode(acym_loadObjectList($query, '', $settings['offset'], $settings['detailedStatsPerPage']));
         $results['total'] = acym_loadResult($queryCount);
 
         return $results;
@@ -120,4 +123,12 @@ class acymuserStatClass extends acymClass
 
         return acym_loadObjectList($query, 'mail_id');
     }
+
+    public function getUserWithNoMailOpen()
+    {
+        $query = 'SELECT user_id FROM #__acym_user_stat GROUP BY user_id HAVING MAX(open) = 0';
+
+        return acym_loadResultArray($query);
+    }
 }
+

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -22,13 +22,8 @@ class acymheaderHelper
             $currentLanguage = acym_getLanguageTag();
 
             $latestNews = null;
-            $review = null;
             $doNotRemind = json_decode($config->get('remindme', '[]'));
             foreach ($news->news as $oneNews) {
-                if (!empty($oneNews->name) && $oneNews->name == 'reviews') {
-                    if (!empty($oneNews->published) && ($config->get('install_date', time()) + $oneNews->wait) < time() && !in_array($oneNews->name, $doNotRemind) && version_compare($config->get('version'), $oneNews->version, '>=')) $review = $oneNews;
-                    continue;
-                }
                 if (!empty($latestNews) && strtotime($latestNews->date) > strtotime($oneNews->date)) break;
 
                 if (empty($oneNews->published) || (strtolower($oneNews->language) != strtolower($currentLanguage) && (strtolower($oneNews->language) != 'default' || !empty($latestNews)))) continue;
@@ -43,28 +38,24 @@ class acymheaderHelper
                     list($version, $operator) = explode('_', $oneNews->version);
                     if (!version_compare($config->get('version'), $version, $operator)) continue;
                 }
+
+                if (in_array($oneNews->name, $doNotRemind)) continue;
+
                 $latestNews = $oneNews;
             }
-            if (!empty($latestNews) || !empty($review)) {
-                $header .= '<div id="acym__header__banner__news">';
-                if (!empty($review)) {
-                    if ('wordpress' === ACYM_CMS) {
-                        $header .= str_replace('{__LINK_5_STARS__}', 'https://wordpress.org/support/plugin/acymailing/reviews/', $review->content);
-                    } else {
-                        $header .= str_replace('{__LINK_5_STARS__}', 'https://www.acyba.com/component/updateme/reviews/save.html?review_note=5&url='.urlencode(ACYM_LIVE), $review->content);
-                    }
 
-                    $header = str_replace('{__URL_SITE__}', urlencode(ACYM_LIVE), $header);
-                }
+            if (!empty($latestNews)) {
+                $header .= '<div id="acym__header__banner__news" data-news="'.acym_escape($latestNews->name).'">';
 
                 if (!empty($latestNews)) {
-                    $header .= $latestNews;
+                    $header .= $latestNews->content;
                 }
 
                 $header .= '</div>';
             }
         }
-        $links = array();
+
+        $links = [];
         foreach ($breadcrumb as $oneLevel => $link) {
             if (!empty($link)) {
                 $oneLevel = '<a href="'.$link.'">'.$oneLevel.'</a>';
@@ -85,70 +76,87 @@ class acymheaderHelper
         $header .= implode('', $links);
         $header .= '</ul></nav></div>';
 
-        $header .= '<div id="checkVersionArea" class="cell text-right medium-auto check-version-area">';
+        $header .= '<div id="checkVersionArea" class="cell grid-x align-right large-auto check-version-area acym_vcenter margin-right-1">';
         $header .= $this->checkVersionArea();
         $header .= '</div>';
 
         $config = acym_config();
-        $lastLicenseCheck = $config->get('lastlicensecheck', '');
-        $checking = false;
 
-        if (empty($lastLicenseCheck) || $lastLicenseCheck < (time() - 604800)) {
-            $checking = "check";
-        }
-        $header .= acym_tooltip('<a id="checkVersionButton" type="button" class="button button-secondary medium-shrink" data-check="'.$checking.'">'.acym_translation('ACYM_CHECK_MY_VERSION').'</a>', acym_translation('ACYM_LAST_CHECK').' <span id="acym__check__version__last__check">'.acym_date($config->get('lastlicensecheck', time()), 'Y/m/d H:i').'</span>');
+        $lastLicenseCheck = $config->get('lastlicensecheck', 0);
+        $time = time();
+        $checking = '0';
+        if ($time > $lastLicenseCheck + 604800) $checking = '1';
+        if (empty($lastLicenseCheck)) $lastLicenseCheck = $time;
 
-        $header .= '<a type="button" class="button medium-shrink" target="_blank" href="'.ACYM_UPDATEMEURL.'doc&task=doc&product=acymailing&for='.(empty($_REQUEST['ctrl']) ? 'dashboard' : $_REQUEST['ctrl']).'-'.$_REQUEST['layout'].'">'.acym_translation('ACYM_DOCUMENTATION').'</a>';
-        $header .= '</div>';
+        $header .= '<div class="cell grid-x align-right large-shrink">';
+        $header .= acym_tooltip(
+            '<a id="checkVersionButton" type="button" class="button button-secondary medium-shrink" data-check="'.$checking.'">'.acym_translation('ACYM_CHECK_MY_VERSION').'</a>',
+            acym_translation('ACYM_LAST_CHECK').' <span id="acym__check__version__last__check">'.acym_date($lastLicenseCheck, 'Y/m/d H:i').'</span>'
+        );
+
+        $url = ACYM_UPDATEMEURL.'doc&task=doc&product=acymailing&for='.(empty($_REQUEST['ctrl']) ? 'dashboard' : $_REQUEST['ctrl']).'-'.$_REQUEST['layout'];
+        $header .= '<a type="button" class="button medium-shrink" target="_blank" href="'.$url.'">'.acym_translation('ACYM_DOCUMENTATION').'</a>';
+        $header .= '</div></div>';
 
         return $header;
     }
 
     public function checkVersionArea()
     {
-
         $config = acym_config();
-        if (!acym_isAllowed($config->get('acl_configuration_manage', 'all'))) {
-            return '';
-        }
 
         $currentLevel = $config->get('level', '');
         $currentVersion = $config->get('version', '');
         $latestVersion = $config->get('latestversion', '');
 
-        $version = '<div id="acym_level_version_area">';
-        $version .= '<div id="acym_level">'.ACYM_NAME.' '.$currentLevel.' '.$currentVersion.'</div>';
-
-        $version .= '<div id="acyma_version">';
+        $version = '<div id="acym_level_version_area" class="text-right">';
+        $version .= '<div id="acym_level">'.ACYM_NAME.' '.$currentLevel.' ';
 
         if (version_compare($currentVersion, $latestVersion, '>=')) {
-            $version .= '<div class="acyversion_uptodate acym__color__green myacymailingbuttons">'.acym_translation('ACYM_UP_TO_DATE').'</div>';
+            $version .= acym_tooltip('<span class="acym__color__green">'.$currentVersion.'</span>', acym_translation('ACYM_UP_TO_DATE'));
         } elseif (!empty($latestVersion)) {
-            $version .= '<div class="acyversion_needtoupdate acymbuttons"><a class="acy_updateversion acym__color__light-blue" href="';
             if ('wordpress' === ACYM_CMS) {
-                $version .= admin_url().'update-core.php">';
+                $downloadLink = admin_url().'update-core.php';
             } else {
-                $version .= ACYM_REDIRECT.'update-acymailing-'.$currentLevel.'" target="_blank">';
+                $downloadLink = ACYM_REDIRECT.'update-acymailing-'.$currentLevel.'&version='.$config->get('version').'" target="_blank';
             }
-            $version .= '<i class="acyicon-import"></i>'.acym_translation_sprintf('ACYM_UPDATE_NOW', $latestVersion).'</a></div>';
+            $version .= acym_tooltip(
+                '<span class="acy_updateversion acym__color__red">'.$currentVersion.'</span>',
+                acym_translation_sprintf('ACYM_CLICK_UPDATE', $latestVersion),
+                '',
+                acym_translation('ACYM_OLD_VERSION'),
+                $downloadLink
+            );
         }
 
         $version .= '</div></div>';
 
-        if (acym_level(1)) {
-            $expirationDate = $config->get('expirationdate', '');
-            $version .= '<div id="acym_expiration">';
-            if (empty($expirationDate) || $expirationDate == -1) {
-                $version .= '</div>';
-            } elseif ($expirationDate == -2) {
-                $version .= '<div class="acylicence_expired"><a class="acy_attachlicence acymbuttons acym__color__red" href="'.ACYM_REDIRECT.'acymailing-assign" target="_blank">'.acym_translation('ACYM_ATTACH_LICENCE').' :<br>'.acym_translation('ACYM_ATTACH_LICENCE_BUTTON').'</a></div></div>';
-            } elseif ($expirationDate < time()) {
-                $version .= '<div class="acylicence_expired"><span class="acylicenceinfo">'.acym_translation('ACYM_SUBSCRIPTION_EXPIRED').'</span><a class="acy_subscriptionexpired acymbuttons" href="'.ACYM_REDIRECT.'renew-acymailing-'.$currentLevel.'" target="_blank"><i class="acyicon-renew"></i>'.acym_translation('ACYM_SUBSCRIPTION_EXPIRED_LINK').'</a></div></div>';
-            } else {
-                $version .= '<div class="acylicence_valid acymbuttons"><span class="acy_subscriptionok acym__color__green">'.acym_translation_sprintf('ACYM_VALID_UNTIL', acym_getDate($expirationDate, acym_translation('ACYM_DATE_FORMAT_LC4'))).'</span></div></div>';
-            }
+        if (!acym_level(1)) return $version;
+
+        $expirationDate = $config->get('expirationdate', 0);
+        if (empty($expirationDate) || $expirationDate == -1) return $version;
+
+        $version .= '<div id="acym_expiration" class="text-right cell">';
+        if ($expirationDate == -2) {
+            $version .= '<div class="acylicence_expired">
+                            <a class="acy_attachlicence acymbuttons acym__color__red" href="'.ACYM_REDIRECT.'acymailing-assign" target="_blank">'.acym_translation('ACYM_ATTACH_LICENCE').'</a>
+                        </div>';
+        } elseif ($expirationDate < time()) {
+            $version .= acym_tooltip(
+                '<span class="acy_subscriptionexpired acym__color__red">'.acym_translation('ACYM_SUBSCRIPTION_EXPIRED').'</span>',
+                acym_translation('ACYM_SUBSCRIPTION_EXPIRED_LINK'),
+                '',
+                '',
+                ACYM_REDIRECT.'renew-acymailing-'.$currentLevel
+            );
+        } else {
+            $version .= '<div class="acylicence_valid">
+                            <span class="acy_subscriptionok acym__color__green">'.acym_translation_sprintf('ACYM_VALID_UNTIL', acym_getDate($expirationDate, acym_translation('ACYM_DATE_FORMAT_LC4'))).'</span>
+                        </div>';
         }
+        $version .= '</div>';
 
         return $version;
     }
 }
+

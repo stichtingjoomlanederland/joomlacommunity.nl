@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.4.11218
+ * @version         19.8.25552
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -23,14 +23,16 @@ use Joomla\CMS\Factory as JFactory;
 abstract class Condition
 	implements \RegularLabs\Library\Api\ConditionInterface
 {
-	public $request      = null;
-	public $date         = null;
-	public $db           = null;
-	public $selection    = null;
-	public $params       = null;
-	public $include_type = null;
-	public $article      = null;
-	public $module       = null;
+	public  $request      = null;
+	public  $date         = null;
+	public  $db           = null;
+	public  $selection    = null;
+	public  $params       = null;
+	public  $include_type = null;
+	public  $article      = null;
+	public  $module       = null;
+	private $timezone     = null;
+	private $dates        = [];
 
 	public function __construct($condition = [], $article = null, $module = null)
 	{
@@ -216,7 +218,7 @@ abstract class Condition
 	{
 		$pass_type = ! empty($data) ? $this->{'pass' . $type}($data) : $this->{'pass' . $type}();
 
-		if ($pass_type == null)
+		if ($pass_type === null)
 		{
 			return true;
 		}
@@ -426,5 +428,51 @@ abstract class Condition
 		}
 
 		return $menu;
+	}
+
+	public function getNow()
+	{
+		return strtotime($this->date->format('Y-m-d H:i:s', true));
+	}
+
+	public function getDate($date = '')
+	{
+		$date = Date::fix($date);
+
+		$id = 'date_' . $date;
+
+		if (isset($this->dates[$id]))
+		{
+			return $this->dates[$id];
+		}
+
+		$this->dates[$id] = JFactory::getDate($date);
+
+		if (empty($this->params->ignore_time_zone))
+		{
+			$this->dates[$id]->setTimeZone($this->getTimeZone());
+		}
+
+		return $this->dates[$id];
+	}
+
+	public function getDateString($date = '')
+	{
+		$date = $this->getDate($date);
+		$date = strtotime($date->format('Y-m-d H:i:s', true));
+
+		return $date;
+	}
+
+	private function getTimeZone()
+	{
+		if ( ! is_null($this->timezone))
+		{
+			return $this->timezone;
+		}
+
+		$this->timezone = new DateTimeZone(JFactory::getApplication()->getCfg('offset'));
+
+		return $this->timezone;
 	}
 }

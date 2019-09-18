@@ -45,8 +45,9 @@ if (!$choices) {
                         <?php echo JText::_('COM_EASYDISCUSS_ENTRY_UNLOCK_POLL'); ?>
                     </a>
                 <?php } ?>
-
-                <?php echo JText::sprintf('COM_EASYDISCUSS_POLLS_TOTAL_VOTES', $poll->getTotalVotes()); ?>
+                <span data-ed-post-poll-total-votes>
+                    <?php echo JText::sprintf('COM_EASYDISCUSS_POLLS_TOTAL_VOTES', $poll->getTotalVotes()); ?>
+                </span>
             </div>
         </div>
     </div>

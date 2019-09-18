@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.4.11218
+ * @version         19.8.25552
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -28,6 +28,7 @@ class ContentCategory
 	{
 		// components that use the com_content secs/cats
 		$components = ['com_content', 'com_flexicontent', 'com_contentsubmit'];
+
 		if ( ! in_array($this->request->option, $components))
 		{
 			return $this->_(false);
@@ -38,6 +39,8 @@ class ContentCategory
 			return $this->_(false);
 		}
 
+		$app = JFactory::getApplication();
+
 		$is_content  = in_array($this->request->option, ['com_content', 'com_flexicontent']);
 		$is_category = in_array($this->request->view, ['category']);
 		$is_item     = in_array($this->request->view, ['', 'article', 'item', 'form']);
@@ -47,6 +50,7 @@ class ContentCategory
 			&& ! ($this->params->inc_categories && $is_content && $is_category)
 			&& ! ($this->params->inc_articles && $is_content && $is_item)
 			&& ! ($this->params->inc_others && ! ($is_content && ($is_category || $is_item)))
+			&& ! ($app->input->get('rl_qp') && ! empty($this->getCategoryIds()))
 		)
 		{
 			return $this->_(false);
@@ -129,18 +133,34 @@ class ContentCategory
 			return (array) $this->request->id;
 		}
 
-		if ( ! $this->article && $this->request->id)
+		$app = JFactory::getApplication();
+
+		$catid = $app->getUserState('com_content.edit.article.data.catid');
+
+		if ( ! $catid)
 		{
-			$this->article = JTable::getInstance('content');
-			$this->article->load($this->request->id);
+			if ( ! $this->article && $this->request->id)
+			{
+				$this->article = JTable::getInstance('content');
+				$this->article->load($this->request->id);
+			}
+
+			if ($this->article && isset($this->article->catid))
+			{
+				return (array) $this->article->catid;
+			}
 		}
 
-		if ($this->article && isset($this->article->catid))
+		if ( ! $catid)
 		{
-			return (array) $this->article->catid;
+			$catid = $app->getUserState('com_content.articles.filter.category_id');
 		}
 
-		$catid      = JFactory::getApplication()->input->getInt('catid', JFactory::getApplication()->getUserState('com_content.articles.filter.category_id'));
+		if ( ! $catid)
+		{
+			$catid = JFactory::getApplication()->input->getInt('catid');
+		}
+
 		$menuparams = $this->getMenuItemParams($this->request->Itemid);
 
 		if ($this->request->view == 'featured')

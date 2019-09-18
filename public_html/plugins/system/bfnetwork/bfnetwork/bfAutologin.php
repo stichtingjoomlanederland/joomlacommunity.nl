@@ -39,7 +39,7 @@ require 'bfEncrypt.php';
 // Pretend we are /administrator/index.php
 define('_JEXEC', 1);
 
-// Joomla 2.5.0 an onwards - auto login for Joomla 1.5 sites not a feature of myJoomla.com
+// Joomla 2.5.0 an onwards - auto login for Joomla 1.5 sites not a feature of mysites.guru
 define('JPATH_BASE', realpath(__DIR__.'/../../../../administrator/'));
 
 require_once JPATH_BASE.'/includes/defines.php';

@@ -306,8 +306,8 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		// For contents, we need to get the raw data.
 		$data['content'] = $this->input->get('dc_content', '', 'raw');
 
-		// Bind the posted data
-		$post->bind($data);
+		// Bind the posted data for saving
+		$post->bind($data, false, false, true);
 
 		// Validate the posted data to ensure that we can really proceed
 		if (!$post->validate($data)) {
@@ -527,6 +527,13 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		$this->app->redirect($redirect);	
 	}
+
+	/**
+	 * Deletes posts from the back end
+	 *
+	 * @since	4.1.10
+	 * @access	public
+	 */
 	public function delete()
 	{
 		// Check for request forgeries

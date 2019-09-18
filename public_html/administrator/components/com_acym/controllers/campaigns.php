@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -16,10 +16,10 @@ class CampaignsController extends acymController
     {
         parent::__construct();
         $this->breadcrumb[acym_translation('ACYM_CAMPAIGNS')] = acym_completeLink('campaigns');
-        $this->loadScripts = array(
-            'edit' => array('colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'parse-css'),
-            'save' => array('colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'parse-css'),
-        );
+        $this->loadScripts = [
+            'edit' => ['colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'parse-css'],
+            'save' => ['colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'parse-css'],
+        ];
         acym_setVar('edition', '1');
         header('X-XSS-Protection:0');
     }
@@ -38,7 +38,7 @@ class CampaignsController extends acymController
 
         $campaignClass = acym_get('class.campaign');
         $matchingCampaigns = $campaignClass->getMatchingCampaigns(
-            array(
+            [
                 'ordering' => $ordering,
                 'search' => $searchFilter,
                 'campaignsPerPage' => $campaignsPerPage,
@@ -46,13 +46,13 @@ class CampaignsController extends acymController
                 'tag' => $tagFilter,
                 'ordering_sort_order' => $orderingSortOrder,
                 'status' => $status,
-            )
+            ]
         );
 
         $pagination = acym_get('helper.pagination');
         $pagination->setStatus($matchingCampaigns['total'], $page, $campaignsPerPage);
 
-        $data = array(
+        $data = [
             'allCampaigns' => $matchingCampaigns['campaigns'],
             'allTags' => acym_get('class.tag')->getAllTagsByType('mail'),
             'allStatusFilter' => $this->getCountStatusFilter($matchingCampaigns['campaigns']),
@@ -62,7 +62,7 @@ class CampaignsController extends acymController
             'status' => $status,
             'tag' => $tagFilter,
             'orderingSortOrder' => $orderingSortOrder,
-        );
+        ];
 
         parent::display($data);
     }
@@ -98,7 +98,7 @@ class CampaignsController extends acymController
 
         $mailClass = acym_get('class.mail');
         $matchingMails = $mailClass->getMatchingMails(
-            array(
+            [
                 'ordering' => $ordering,
                 'ordering_sort_order' => $orderingSortOrder,
                 'search' => $searchFilter,
@@ -107,7 +107,7 @@ class CampaignsController extends acymController
                 'tag' => $tagFilter,
                 'type' => $type,
                 'onlyStandard' => true,
-            )
+            ]
         );
 
         $pagination = acym_get('helper.pagination');
@@ -119,7 +119,7 @@ class CampaignsController extends acymController
             }
         }
 
-        $data = array(
+        $data = [
             'allMails' => $matchingMails['mails'],
             'allTags' => acym_get('class.tag')->getAllTagsByType('mail'),
             'pagination' => $pagination,
@@ -128,7 +128,7 @@ class CampaignsController extends acymController
             'ordering' => $ordering,
             'type' => $type,
             'campaignID' => $campaignId,
-        );
+        ];
 
 
         parent::display($data);
@@ -155,7 +155,7 @@ class CampaignsController extends acymController
             $campaign = new stdClass();
             $campaign->id = 0;
             $campaign->name = '';
-            $campaign->tags = array();
+            $campaign->tags = [];
             $campaign->subject = '';
             $campaign->preheader = '';
             $campaign->body = '';
@@ -177,12 +177,12 @@ class CampaignsController extends acymController
 
         if ($mailId == -1) {
             $campaign->name = '';
-            $campaign->tags = array();
+            $campaign->tags = [];
             $campaign->subject = '';
             $campaign->preheader = '';
             $campaign->body = '';
             $campaign->settings = null;
-            $campaign->attachments = array();
+            $campaign->attachments = [];
             $campaign->stylesheet = '';
             $campaign->headers = '';
         } elseif (!empty($mailId)) {
@@ -237,15 +237,15 @@ class CampaignsController extends acymController
 
         $editor->mailId = empty($mailId) ? 0 : $mailId;
 
-        $data = array(
+        $data = [
             'campaignID' => $campaign->id,
             'mailInformation' => $campaign,
             'allTags' => acym_get('class.tag')->getAllTagsByType('mail'),
             'editor' => $editor,
             'maxupload' => $maxupload,
             'needDisplayStylesheet' => $needDisplayStylesheet,
-            'social_icons' => $config->get('social_icons', ''),
-        );
+            'social_icons' => $config->get('social_icons', '{}'),
+        ];
 
         parent::display($data);
     }
@@ -272,10 +272,10 @@ class CampaignsController extends acymController
             return;
         }
 
-        $campaign = array(
+        $campaign = [
             'campaignInformation' => $campaignId,
             'currentCampaign' => $currentCampaign,
-        );
+        ];
 
         if (!empty($currentCampaign->mail_id)) {
             $campaignLists = $mailClass->getAllListsByMailId($currentCampaign->mail_id);
@@ -322,7 +322,7 @@ class CampaignsController extends acymController
             $this->addRecipients();
         }
 
-        $campaign = array();
+        $campaign = [];
 
         $campaign['currentCampaign'] = $currentCampaign;
         $campaign['from'] = $from;
@@ -343,13 +343,13 @@ class CampaignsController extends acymController
         return parent::display($campaign);
     }
 
-    public function saveEditEmail()
+    public function saveEditEmail($ajax = false)
     {
         acym_checkToken();
 
         $campaignClass = acym_get('class.campaign');
         $mailClass = acym_get('class.mail');
-        $formData = acym_getVar('array', 'mail', array());
+        $formData = acym_getVar('array', 'mail', []);
         $allowedFields = acym_getColumns('mail');
         $campaignId = acym_getVar("int", "id", 0);
 
@@ -378,9 +378,7 @@ class CampaignsController extends acymController
         }
 
         if (empty($mail->name)) {
-            acym_enqueueNotification(acym_translation('ACYM_ERROR_SAVING'), 'error', 0);
-
-            return $this->listing();
+            $mail->name = $mail->subject;
         }
 
         $mail->body = acym_getVar('string', 'editor_content', '', 'REQUEST', ACYM_ALLOWRAW);
@@ -389,10 +387,10 @@ class CampaignsController extends acymController
         $mail->headers = acym_getVar('string', 'editor_headers', '', 'REQUEST', ACYM_ALLOWRAW);
         $mail->drag_editor = strpos($mail->body, 'acym__wysid__template') === false ? 0 : 1;
 
-        $mail->tags = acym_getVar("array", "template_tags", array());
+        $mail->tags = acym_getVar("array", "template_tags", []);
 
-        $newAttachments = array();
-        $attachments = acym_getVar('array', 'attachments', array());
+        $newAttachments = [];
+        $attachments = acym_getVar('array', 'attachments', []);
         $config = acym_config();
         if (!empty($attachments)) {
             foreach ($attachments as $id => $filepath) {
@@ -408,7 +406,7 @@ class CampaignsController extends acymController
                     acym_enqueueMessage(acym_translation_sprintf('ACYM_ACCEPTED_TYPE', substr($attachment->filename, strrpos($attachment->filename, '.') + 1), $config->get('allowed_files')), 'notice');
                     continue;
                 }
-                $attachment->filename = str_replace(array('.', ' '), '_', substr($attachment->filename, 0, strpos($attachment->filename, $extension))).$extension;
+                $attachment->filename = str_replace(['.', ' '], '_', substr($attachment->filename, 0, strpos($attachment->filename, $extension))).$extension;
 
                 $newAttachments[] = $attachment;
             }
@@ -435,11 +433,21 @@ class CampaignsController extends acymController
                 acym_enqueueNotification($mailClass->errors, 'error', 0);
             }
 
-            return $this->listing();
+            if (!$ajax) {
+                $this->listing();
+
+                return;
+            } else {
+                return false;
+            }
         }
 
         $campaign->mail_id = $mailID;
         $campaign->id = $campaignClass->save($campaign);
+
+        if ($ajax) {
+            return $campaign->id;
+        }
 
         acym_setVar("id", $campaign->id);
 
@@ -453,13 +461,7 @@ class CampaignsController extends acymController
 
         $campaignClass = acym_get('class.campaign');
         $currentCampaign = $campaignClass->getOneByIdWithMail($campaignId);
-        if (!empty($currentCampaign->sent) && empty($currentCampaign->active)) $this->edit();
-        if (!empty($currentCampaign->mail_id)) {
-            $campaignClass->manageListsToCampaign($allLists, $currentCampaign->mail_id);
-            if (acym_getVar('string', 'nextstep', '') == 'listing') {
-                acym_enqueueNotification(acym_translation_sprintf("ACYM_LIST_IS_SAVED", $currentCampaign->name), 'success', 8000);
-            }
-        }
+
 
         if ($currentCampaign->sent && !$currentCampaign->active) {
             $mailStatClass = acym_get('class.mailstat');
@@ -467,6 +469,11 @@ class CampaignsController extends acymController
             $mailStat = $mailStatClass->getOneRowByMailId($currentCampaign->mail_id);
             $mailStat->total_subscribers = $listClass->getTotalSubCount($allLists);
             $mailStatClass->save($mailStat);
+        } elseif (!empty($currentCampaign->mail_id)) {
+            $campaignClass->manageListsToCampaign($allLists, $currentCampaign->mail_id);
+            if (acym_getVar('string', 'nextstep', '') == 'listing') {
+                acym_enqueueNotification(acym_translation_sprintf("ACYM_LIST_IS_SAVED", $currentCampaign->name), 'success', 8000);
+            }
         }
 
         $this->edit();
@@ -486,13 +493,17 @@ class CampaignsController extends acymController
         if (is_null($campaignInformation)) {
             acym_enqueueNotification(acym_translation("ACYM_CAMPAIGN_DOESNT_EXISTS"), 'error', 0);
 
-            return $this->listing();
+            $this->listing();
+
+            return;
         }
         $currentCampaign = $campaignClass->getOneById($campaignId);
         empty($currentCampaign->mail_id) ? : $currentMail = $mailClass->getOneById($currentCampaign->mail_id);
 
         if (empty($currentMail) || empty($senderInformation)) {
-            return $this->listing();
+            $this->listing();
+
+            return;
         }
 
         $currentMail->from_name = $senderInformation['from_name'];
@@ -507,15 +518,7 @@ class CampaignsController extends acymController
         if (!empty($isScheduled) && empty($currentCampaign->sent)) {
             if ($isScheduled == 'true') {
                 $currentCampaign->scheduled = 1;
-                if (!empty($sendingDate)) {
-                    if (acym_getTime($sendingDate) < time()) {
-                        acym_enqueueNotification(acym_translation('ACYM_CANT_SET_DATE_IN_PAST'), 'error', 5000);
-
-                        return $this->listing();
-                    } else {
-                        if (empty($currentCampaign->sent) && !empty($currentCampaign->active)) $currentCampaign->sending_date = acym_date(acym_getTime($sendingDate), 'Y-m-d H:i:s', false);
-                    }
-                }
+                if (!empty($sendingDate) && empty($currentCampaign->sent)) $currentCampaign->sending_date = acym_date(acym_getTime($sendingDate), 'Y-m-d H:i:s', false);
             } else {
                 $currentCampaign->scheduled = 0;
                 $currentCampaign->sending_date = null;
@@ -536,7 +539,9 @@ class CampaignsController extends acymController
                 acym_enqueueNotification($campaignClass->errors, 'error', 0);
             }
 
-            return $this->listing();
+            $this->listing();
+
+            return;
         }
 
         $this->edit();
@@ -594,14 +599,14 @@ class CampaignsController extends acymController
     public function summary()
     {
         acym_setVar('step', 'summary');
-        acym_setVar("layout", "summary");
+        acym_setVar('layout', 'summary');
         $campaignId = acym_getVar('int', 'id');
         $campaignClass = acym_get('class.campaign');
 
         $campaign = empty($campaignId) ? null : $campaignClass->getOneByIdWithMail($campaignId);
 
         if (is_null($campaign)) {
-            acym_enqueueNotification(acym_translation("ACYM_CANT_GET_CAMPAIGN_INFORMATION"), 'error', 0);
+            acym_enqueueNotification(acym_translation('ACYM_CANT_GET_CAMPAIGN_INFORMATION'), 'error', 0);
             $this->listing();
 
             return;
@@ -616,7 +621,7 @@ class CampaignsController extends acymController
         $mailData = $mailClass->getOneById($campaign->mail_id);
 
         if (!empty($campaignLists)) {
-            $listsIds = array();
+            $listsIds = [];
             foreach ($campaignLists as $oneList) {
                 $listsIds[] = $oneList->list_id;
             }
@@ -647,9 +652,9 @@ class CampaignsController extends acymController
         $mailData->reply_to_name = $replytoName;
         $mailData->reply_to_email = $replytoEmail;
 
-        $campaignType = empty($campaign->scheduled) ? "now" : "scheduled";
+        $campaignType = empty($campaign->scheduled) ? 'now' : 'scheduled';
 
-        acym_trigger('replaceContent', array(&$mailData, false));
+        acym_trigger('replaceContent', [&$mailData, false]);
         $receiver = $userClass->getOneByEmail(acym_currentUserEmail());
         if (empty($receiver)) {
             $receiver = new stdClass();
@@ -657,15 +662,16 @@ class CampaignsController extends acymController
             $newID = $userClass->save($receiver);
             $receiver = $userClass->getOneById($newID);
         }
-        acym_trigger('replaceUserInformation', array(&$mailData, &$receiver, false));
+        acym_trigger('replaceUserInformation', [&$mailData, &$receiver, false]);
 
-        $data = array(
+        $data = [
+            'config' => $config,
             'campaignInformation' => $campaign,
             'mailInformation' => $mailData,
             'listsReceiver' => $campaignLists,
             'nbSubscribers' => $nbSubscribers,
             'campaignType' => $campaignType,
-        );
+        ];
 
         $this->breadcrumb[acym_escape($campaign->name)] = acym_completeLink('campaigns&task=edit&step=summary&id='.$campaign->id);
         parent::display($data);
@@ -883,7 +889,7 @@ class CampaignsController extends acymController
             if ($campaign->sent) {
                 acym_enqueueNotification(acym_translation_sprintf('ACYM_CAMPAIGN_ALREADY_SENT', $campaign->name), 'error', 10000);
 
-                $this->listing();
+                $this->_redirectAfterQueued();
 
                 return;
             }
@@ -891,7 +897,7 @@ class CampaignsController extends acymController
             $status = $campaignClass->send($campaignID);
 
             if ($status) {
-                acym_enqueueNotification(acym_translation_sprintf('ACYM_CAMPAIGN_ADDED_TO_QUEUE', $campaign->name), 'info');
+                acym_enqueueNotification(acym_translation_sprintf('ACYM_CAMPAIGN_ADDED_TO_QUEUE', $campaign->name), 'info', 5000);
             } else {
                 if (empty($campaignClass->errors)) {
                     acym_enqueueNotification(acym_translation_sprintf('ACYM_ERROR_QUEUE_CAMPAIGN', $campaign->name), 'error', 10000);
@@ -901,12 +907,22 @@ class CampaignsController extends acymController
             }
         }
 
-        $this->listing();
+        $this->_redirectAfterQueued();
+    }
+
+    private function _redirectAfterQueued()
+    {
+        $config = acym_config();
+        if (!acym_level(1) || $config->get('cron_last', 0) < (time() - 43200)) {
+            acym_redirect(acym_completeLink('queue&task=campaigns', false, true));
+        } else {
+            $this->listing();
+        }
     }
 
     public function countNumberOfRecipients()
     {
-        $listsSelected = acym_getVar("array", "listsSelected", array());
+        $listsSelected = acym_getVar("array", "listsSelected", []);
         if (empty($listsSelected)) {
             echo 0;
             exit;
@@ -956,7 +972,7 @@ class CampaignsController extends acymController
         $mailerHelper->report = false;
 
 
-        $report = array();
+        $report = [];
 
         $testEmails = explode(',', acym_getVar('string', 'test_emails'));
         foreach ($testEmails as $oneAddress) {
@@ -991,17 +1007,17 @@ class CampaignsController extends acymController
             return;
         }
 
-        $testEmails = acym_getVar('array', 'test_emails', array(acym_currentUserEmail()));
+        $testEmails = acym_getVar('array', 'test_emails', [acym_currentUserEmail()]);
         foreach ($testEmails as $oneEmail) {
             $defaultEmails[$oneEmail] = $oneEmail;
         }
 
-        $data = array(
+        $data = [
             'id' => $campaign->id,
             'test_emails' => $defaultEmails,
             'upgrade' => !acym_level(2) ? true : false,
             'version' => 'enterprise',
-        );
+        ];
 
         $this->breadcrumb[acym_escape($campaign->name)] = acym_completeLink('campaigns&task=edit&step=tests&id='.$campaign->id);
         parent::display($data);
@@ -1018,267 +1034,190 @@ class CampaignsController extends acymController
         $campaignClass = acym_get('class.campaign');
         $campaign = $campaignClass->getOneByIdWithMail($campaignId);
 
-        $spamWords = array(
-            "4U",
-            "you are a winner",
-            "For instant access",
-            "Accept credit cards",
-            "Claims you registered with",
-            "For just $",
-            "Act now!",
-            "Don’t hesitate!",
-            "Click below",
-            "Free access",
-            "Additional income",
-            "Click here",
-            "Free cell phone",
-            "Addresses on CD",
-            "Click to remove",
-            "Free consultation",
-            "All natural",
-            "Free DVD",
-            "Amazing",
-            "Compare rates",
-            "Free grant money",
-            "Apply Online",
-            "Compete for your business",
-            "Free hosting",
-            "As seen on",
-            "Confidentially on all orders",
-            "Free installation",
-            "Auto email removal",
-            "Congratulations",
-            "Free investment",
-            "Avoid bankruptcy",
-            "Consolidate debt and credit",
-            "Free leads",
-            "Be amazed",
-            "Copy accurately",
-            "Free membership",
-            "Be your own boss",
-            "Copy DVDs",
-            "Free money",
-            "Being a member",
-            "Credit bureaus",
-            "Free offer",
-            "Big bucks",
-            "Credit card offers",
-            "Free preview",
-            "Bill 1618",
-            "Cures baldness",
-            "Free priority mail",
-            "Billing address",
-            "Dear email",
-            "Free quote",
-            "Billion dollars",
-            "Dear friend",
-            "Free sample",
-            "Brand new pager",
-            "Dear somebody",
-            "Free trial",
-            "Bulk email",
-            "Different reply to",
-            "Free website",
-            "Buy direct",
-            "Dig up dirt on friends",
-            "Full refund",
-            "Buying judgments",
-            "Direct email",
-            "Get It Now",
-            "Cable converter",
-            "Direct marketing",
-            "Get paid",
-            "Call free",
-            "Discusses search engine listings",
-            "Get started now",
-            "Call now",
-            "Do it today",
-            "Gift certificate",
-            "Calling creditors",
-            "Don’t delete",
-            "Great offer",
-            "Can’t live without",
-            "Drastically reduced",
-            "Guarantee",
-            "Cancel at any time",
-            "Earn per week",
-            "Have you been turned down?",
-            "Cannot be combined with any other offer",
-            "Easy terms",
-            "Hidden assets",
-            "Cash bonus",
-            "Eliminate bad credit",
-            "Home employment",
-            "Cashcashcash",
-            "Email harvest",
-            "Human growth hormone",
-            "Casino",
-            "Email marketing",
-            "If only it were that easy",
-            "Cell phone cancer scam",
-            "Expect to earn",
-            "In accordance with laws",
-            "Cents on the dollar",
-            "Fantastic deal",
-            "Increase sales",
-            "Check or money order",
-            "Fast Viagra delivery",
-            "Increase traffic",
-            "Claims not to be selling anything",
-            "Financial freedom",
-            "Insurance",
-            "Claims to be in accordance with some spam law",
-            "Find out anything",
-            "Investment decision",
-            "Claims to be legal",
-            "For free",
-            "It's effective",
-            "Join millions of Americans",
-            "No questions asked",
-            "Reverses aging",
-            "Laser printer",
-            "No selling",
-            "Risk free",
-            "Limited time only",
-            "No strings attached",
-            "Round the world",
-            "Long distance phone offer",
-            "Not intended",
-            "S 1618",
-            "Lose weight spam",
-            "Off shore",
-            "Safeguard notice",
-            "Lower interest rates",
-            "Offer expires",
-            "Satisfaction guaranteed",
-            "Lower monthly payment",
-            "Offers coupon",
-            "Save $",
-            "Lowest price",
-            "Offers extra cash",
-            "Save big money",
-            "Luxury car",
-            "Offers free (often stolen) passwords",
-            "Save up to",
-            "Mail in order form",
-            "Once in lifetime",
-            "Score with babes",
-            "Marketing solutions",
-            "One hundred percent free",
-            "Section 301",
-            "Mass email",
-            "One hundred percent guaranteed",
-            "See for yourself",
-            "Meet singles",
-            "One time mailing",
-            "Sent in compliance",
-            "Member stuff",
-            "Online biz opportunity",
-            "Serious cash",
-            "Message contains disclaimer",
-            "Online pharmacy",
-            "Serious only",
-            "MLM",
-            "Only $",
-            "Shopping spree",
-            "Money back",
-            "Opportunity",
-            "Sign up free today",
-            "Money making",
-            "Opt in",
-            "Social security number",
-            "Month trial offer",
-            "Order now",
-            "Special promotion",
-            "More Internet traffic",
-            "Order status",
-            "Stainless steel",
-            "Mortgage rates",
-            "Orders shipped by priority mail",
-            "Stock alert",
-            "Multi level marketing",
-            "Outstanding values",
-            "Stock disclaimer statement",
-            "Name brand",
-            "Pennies a day",
-            "Stock pick",
-            "New customers only",
-            "People just leave money laying around",
-            "Stop snoring",
-            "New domain extensions",
-            "Please read",
-            "Strong buy",
-            "Nigerian",
-            "Potential earnings",
-            "Stuff on sale",
-            "No age restrictions",
-            "Print form signature",
-            "Subject to credit",
-            "No catch",
-            "Print out and fax",
-            "Supplies are limited",
-            "No claim forms",
-            "Produced and sent out",
-            "Take action now",
-            "No cost",
-            "Profits",
-            "Talks about hidden charges",
-            "No credit check",
-            "Promise you …!",
-            "Talks about prizes",
-            "No disappointment",
-            "Pure profit",
-            "Tells you it’s an ad",
-            "No experience",
-            "Real thing",
-            "Terms and conditions",
-            "No fees",
-            "Refinance home",
-            "The best rates",
-            "No gimmick",
-            "Removal instructions",
-            "The following form",
-            "No inventory",
-            "Remove in quotes",
-            "They keep your money — no refund!",
-            "No investment",
-            "Remove subject",
-            "They’re just giving it away",
-            "No medical exams",
-            "Removes wrinkles",
-            "This isn’t junk",
-            "No middleman",
-            "Reply remove subject",
-            "This isn’t spam",
-            "No obligation",
-            "Requires initial investment",
-            "University diplomas",
-            "No purchase necessary",
-            "Reserves the right",
-            "Unlimited",
-            "Unsecured credit/debt",
-            "We honor all",
-            "Will not believe your eyes",
-            "Urgent",
-            "Weekend getaway",
-            "Winner",
-            "US dollars",
-            "What are you waiting for?",
-            "Winning",
-            "Vacation offers",
-            "While supplies last",
-            "Work at home",
-            "Viagra and other drugs",
-            "While you sleep",
-            "You have been selected",
-            "Wants credit card",
-            "Who really wins?",
-            "Your income",
-            "We hate spam",
-            "Why pay more?",
-        );
+        $spamWords = [
+            '4U',
+            'you are a winner',
+            'For instant access',
+            'Accept credit cards',
+            'Claims you registered with',
+            'For just $',
+            'Act now!',
+            'Don’t hesitate!',
+            'Click below',
+            'Free',
+            'income',
+            'Click here',
+            'Click to remove',
+            'All natural',
+            'Amazing',
+            'Compare rates',
+            'Apply Online',
+            'your business',
+            'As seen on',
+            'all orders',
+            'Auto email removal',
+            'bankruptcy',
+            'debt',
+            'Be amazed',
+            'Copy accurately',
+            'Be your own boss',
+            'Being a member',
+            'Big bucks',
+            'Credit card',
+            'Bill',
+            'Cures baldness',
+            'Billing address',
+            'Billion dollars',
+            'Dear friend',
+            'Brand new pager',
+            'Bulk email',
+            'Different reply to',
+            'Buy direct',
+            'Dig up dirt',
+            'Full refund',
+            'Buying judgments',
+            'Direct email',
+            'Get It Now',
+            'Cable converter',
+            'Direct marketing',
+            'Get paid',
+            'Get started now',
+            'Call now',
+            'Do it today',
+            'Gift certificate',
+            'Calling creditors',
+            'Don’t delete',
+            'Great offer',
+            'Can’t live without',
+            'Drastically reduced',
+            'Guarantee',
+            'Cancel at any time',
+            'Earn per week',
+            'Have you been turned down?',
+            'Easy terms',
+            'Hidden assets',
+            'Eliminate bad credit',
+            'Home employment',
+            'Cash',
+            'Email harvest',
+            'Human growth hormone',
+            'Casino',
+            'Email marketing',
+            'Expect to earn',
+            'In accordance with laws',
+            'Fantastic deal',
+            'Increase sales',
+            'Viagra',
+            'Increase traffic',
+            'Insurance',
+            'Find out anything',
+            'Investment decision',
+            'it\'s legal',
+            'It\'s effective',
+            'Join millions of',
+            'No questions asked',
+            'Reverses aging',
+            'No selling',
+            'Risk',
+            'Limited time only',
+            'No strings attached',
+            'Round the world',
+            'Not intended',
+            'Lose weight',
+            'Off shore',
+            'Safeguard notice',
+            'Lower interest rates',
+            'Offer expires',
+            'Satisfaction guaranteed',
+            'Lower monthly payment',
+            'coupon',
+            'Save $',
+            'Lowest price',
+            'Luxury car',
+            'Save up to',
+            'Once in a lifetime',
+            'Score with babes',
+            'Marketing solutions',
+            'Mass email',
+            'guaranteed',
+            'See for yourself',
+            'Meet singles',
+            'One time mailing',
+            'Sent in compliance',
+            'Member stuff',
+            'opportunity',
+            'Online pharmacy',
+            'Serious only',
+            'MLM',
+            'Only $',
+            'Shopping spree',
+            'Social security number',
+            'trial offer',
+            'Special promotion',
+            'More Internet traffic',
+            'Stock alert',
+            'Outstanding values',
+            'Pennies a day',
+            'Stock pick',
+            'New customers only',
+            'money',
+            'Stop snoring',
+            'New domain extensions',
+            'Please read',
+            'Strong buy',
+            'Potential earnings',
+            'Stuff on sale',
+            'No age restrictions',
+            'Subject to credit',
+            'No catch',
+            'Supplies are limited',
+            'No claim forms',
+            'Produced and sent out',
+            'Take action now',
+            'No cost',
+            'Profits',
+            'hidden charges',
+            'No credit check',
+            'Promise you',
+            'No disappointment',
+            'Pure profit',
+            'Real thing',
+            'No fees',
+            'Refinance home',
+            'The best rates',
+            'No gimmick',
+            'The following form',
+            'No inventory',
+            'No investment',
+            'giving it away',
+            'No medical exams',
+            'Removes wrinkles',
+            'This isn’t junk',
+            'No middleman',
+            'This isn’t spam',
+            'No obligation',
+            'initial investment',
+            'University diplomas',
+            'No purchase necessary',
+            'Reserves the right',
+            'Unlimited',
+            'We honor all',
+            'Will not believe your eyes',
+            'Urgent',
+            'Winner',
+            'US dollars',
+            'What are you waiting for?',
+            'Winning',
+            'While supplies last',
+            'Work at home',
+            'drugs',
+            'While you sleep',
+            'You have been selected',
+            'We hate spam',
+            'Why pay more?',
+        ];
 
-        $errors = array();
+        $errors = [];
         foreach ($spamWords as $oneWord) {
             if ((bool)preg_match('#'.preg_quote($oneWord, '#').'#Uis', $campaign->subject.$campaign->body)) {
                 $errors[] = $oneWord;
@@ -1300,7 +1239,7 @@ class CampaignsController extends acymController
         $campaign = $campaignClass->getOneById($campaignId);
         $mail = $mailClass->getOneById($campaign->mail_id);
 
-        acym_trigger('replaceContent', array(&$mail, false));
+        acym_trigger('replaceContent', [&$mail, false]);
         $userClass = acym_get('class.user');
         $receiver = $userClass->getOneByEmail(acym_currentUserEmail());
         if (empty($receiver)) {
@@ -1309,12 +1248,12 @@ class CampaignsController extends acymController
             $newID = $userClass->save($receiver);
             $receiver = $userClass->getOneById($newID);
         }
-        acym_trigger('replaceUserInformation', array(&$mail, &$receiver, false));
+        acym_trigger('replaceUserInformation', [&$mail, &$receiver, false]);
 
         preg_match_all('# (href|src)="([^"]+)"#Uis', acym_absoluteURL($mail->body), $URLs);
 
-        $errors = array();
-        $processed = array();
+        $errors = [];
+        $processed = [];
         foreach ($URLs[2] as $oneURL) {
             if (in_array($oneURL, $processed)) continue;
             if (0 === strpos($oneURL, 'mailto:')) continue;
@@ -1397,4 +1336,12 @@ class CampaignsController extends acymController
         echo json_encode($result);
         exit;
     }
+
+    public function saveAjax()
+    {
+        $return = $this->saveEditEmail(true);
+        echo json_encode(['error' => !$return ? acym_translation('ACYM_ERROR_SAVING') : '', 'data' => $return]);
+        exit;
+    }
 }
+

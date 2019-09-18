@@ -161,6 +161,7 @@ final class bfTools
         113 => 'getUserRegistration',
         114 => 'setUserRegistration',
         115 => 'getPostInstallMessages',
+        999 => 'getDebugLog',
     );
 
     private $fluffFiles = array(
@@ -274,6 +275,11 @@ final class bfTools
             // Die if an unknown function
             bfEncrypt::reply('error', 'No Such method #err2');
         }
+    }
+
+    public function getDebugLog()
+    {
+        bfEncrypt::reply('success', array('data'=>bfLog::getLog()));
     }
 
     /**
@@ -404,9 +410,9 @@ final class bfTools
     public function getSessionlifetime()
     {
         bfEncrypt::reply('success', array(
-                     'lifetime' => JFactory::getApplication()->getCfg('lifetime', 0),
-                 )
-             );
+                'lifetime' => JFactory::getApplication()->getCfg('lifetime', 0),
+            )
+        );
     }
 
     /**
@@ -719,24 +725,24 @@ final class bfTools
 
         if (preg_match('/^1\.5/', JVERSION)) {
             $filesToPatch[] = array(
-                'source'      => 'https://cdn.myjoomla.com/public/patchfile/1',
+                'source'      => 'https://cdn.mysites.guru/public/patchfile/1',
                 'destination' => JPATH_BASE.'/libraries/joomla/filesystem/file.php',
             );
             $filesToPatch[] = array(
-                'source'      => 'https://cdn.myjoomla.com/public/patchfile/2',
+                'source'      => 'https://cdn.mysites.guru/public/patchfile/2',
                 'destination' => JPATH_BASE.'/administrator/components/com_media/helpers/media.php',
             );
             $filesToPatch[] = array(
-                'source'      => 'https://cdn.myjoomla.com/public/patchfile/3',
+                'source'      => 'https://cdn.mysites.guru/public/patchfile/3',
                 'destination' => JPATH_BASE.'/libraries/joomla/session/session.php',
             );
         } elseif (preg_match('/^2\.5/', JVERSION)) {
             $filesToPatch[] = array(
-                'source'      => 'https://cdn.myjoomla.com/public/patchfile/4',
+                'source'      => 'https://cdn.mysites.guru/public/patchfile/4',
                 'destination' => JPATH_BASE.'/libraries/joomla/session/session.php',
             );
             $filesToPatch[] = array(
-                'source'      => 'https://cdn.myjoomla.com/public/patchfile/5',
+                'source'      => 'https://cdn.mysites.guru/public/patchfile/5',
                 'destination' => JPATH_BASE.'/plugins/system/debug/debug.php',
             );
         }
@@ -1658,7 +1664,7 @@ final class bfTools
     {
         $limitstart = (int) $this->_dataObj->ls;
         $limit      = (int) $this->_dataObj->limit;
-        $order      =  $this->_dataObj->orderby;
+        $order      = $this->_dataObj->orderby;
 
         if (!in_array($order, array('filewithpath', 'filemtime', 'size'))) {
             $order = 'filewithpath';
@@ -2530,13 +2536,13 @@ final class bfTools
             /**
              * Performs the actual schema change.
              *
-             * @copyright Copyright (c)2010-2011 Nicholas K. Dionysopoulos
-             * @license   GNU General Public License version 3, or later
-             *
              * @param $prefix string
              *                The new prefix
              *
              * @return bool False if the schema could not be changed
+             *
+             * @copyright Copyright (c)2010-2011 Nicholas K. Dionysopoulos
+             * @license   GNU General Public License version 3, or later
              */
             $config = JFactory::getConfig();
             if (version_compare(JVERSION, '3.0', 'ge')) {
@@ -2575,13 +2581,13 @@ final class bfTools
             /**
              * Updates the configuration.php file with the given prefix.
              *
-             * @copyright Copyright (c)2010-2011 Nicholas K. Dionysopoulos
-             * @license   GNU General Public License version 3, or later
-             *
              * @param $prefix string
              *                The prefix to write to the configuration.php file
              *
              * @return bool False if writing to the file was not possible
+             *
+             * @copyright Copyright (c)2010-2011 Nicholas K. Dionysopoulos
+             * @license   GNU General Public License version 3, or later
              */
             // Load the configuration and replace the db prefix
             $config = JFactory::getConfig();
@@ -2637,14 +2643,14 @@ final class bfTools
      * an underscore and must not alrady exist in the current database. It must
      * also not be jos_ or bak_.
      *
-     * @copyright Copyright (c)2010-2011 Nicholas K. Dionysopoulos
-     *
      * @param $prefix string
      *                The prefix to check
      *
+     * @return string bool validated prefix or false if the prefix is invalid
+     *
      * @throws exception
      *
-     * @return string bool validated prefix or false if the prefix is invalid
+     * @copyright Copyright (c)2010-2011 Nicholas K. Dionysopoulos
      */
     private function _validateDbPrefix($prefix)
     {
@@ -2796,7 +2802,7 @@ final class bfTools
 
     /**
      * ok ok I know this looks bad, it probably is, but this allows a subscriber to edit a file on
-     * myJoomla.com and then save the contents back to myJoomla.com.
+     * mysites.guru and then save the contents back to mysites.guru.
      *
      * In order to get to this method a lot of security jumps have to have gone through already
      *
@@ -2857,7 +2863,7 @@ final class bfTools
             $obj->filename     = '';
             $obj->filemd5      = md5('');
             $obj->filewithpath = '';
-            $obj->filecontents = base64_encode('Could not load content for your own security, run a full audit before attempting to edit file content with myJoomla.com');
+            $obj->filecontents = base64_encode('Could not load content for your own security, run a full audit before attempting to edit file content with mySites.guru');
             $obj->filesize     = 0;
             $obj->basepath     = JPATH_BASE;
             $obj->writeable    = 0;
@@ -3079,13 +3085,13 @@ final class bfTools
          * Updates the configuration.php file with the given prefix
          * (some code from below).
          *
-         * @copyright Copyright (c)2010-2011 Nicholas K. Dionysopoulos
-         * @license   GNU General Public License version 3, or later
-         *
          * @param $prefix string
          *                The prefix to write to the configuration.php file
          *
          * @return bool False if writing to the file was not possible
+         *
+         * @copyright Copyright (c)2010-2011 Nicholas K. Dionysopoulos
+         * @license   GNU General Public License version 3, or later
          */
         // Load the configuration and replace the db prefix
         $config = JFactory::getConfig();
@@ -3216,7 +3222,7 @@ final class bfTools
         $bfUpdates = new bfUpdates();
 
         bfEncrypt::reply('success', array(
-            'count' => $bfUpdates->getupdates(true),
+            'count' => $bfUpdates->getupdates(true, $this->_dataObj->d),
         ));
     }
 
@@ -3227,7 +3233,7 @@ final class bfTools
         require 'bfUpdates.php';
 
         $bfUpdates = new bfUpdates();
-        $updates   = $bfUpdates->getupdates();
+        $updates   = $bfUpdates->getupdates(false, $this->_dataObj->d);
 
         @ob_clean();
 
@@ -3394,7 +3400,7 @@ final class bfTools
         // Support crappy extensions like OSMap that implement their own license manager via plugins
         JPluginHelper::importPlugin('system');
 
-        // init reply to myJoomla.com
+        // init reply to mysites.guru
         $result             = array();
         $result['messages'] = array();
 
@@ -3620,7 +3626,7 @@ final class bfTools
             $lang->load('plg_system_actionlogs', JPATH_ADMINISTRATOR, null, false, true);
             $lang->load('plg_system_privacyconsent', JPATH_ADMINISTRATOR, null, false, true);
 
-            // manipulate data to push to myJoomla.com
+            // manipulate data to push to mysites.guru
             foreach ($rows as $row) {
                 $row->what   = ActionlogsHelper::getHumanReadableLogMessage($row);
                 $row->ip     = $row->ip_address;

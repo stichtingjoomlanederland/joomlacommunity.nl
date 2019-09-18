@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -14,10 +14,10 @@ class acymmailClass extends acymClass
 {
     var $table = 'mail';
     var $pkey = 'id';
-    var $templateNames = array();
+    var $templateNames = [];
     var $checkAreas = true;
 
-    const FIELDS_ENCODING = ['subject'];
+    const FIELDS_ENCODING = ['name', 'subject', 'body', 'autosave', 'preheader'];
 
     public function getMatchingMails($settings)
     {
@@ -25,7 +25,7 @@ class acymmailClass extends acymClass
         $queryCount = 'SELECT COUNT(mail.id) FROM #__acym_mail AS mail';
         $queryStatus = 'SELECT COUNT(mail.type) AS number, mail.type FROM #__acym_mail AS mail';
 
-        $filters = array();
+        $filters = [];
 
         if (!empty($settings['tag'])) {
             $tagJoin = ' JOIN #__acym_tag AS tag ON mail.id = tag.id_element';
@@ -73,11 +73,11 @@ class acymmailClass extends acymClass
         }
 
         if (!empty($settings['status'])) {
-            $allowedStatus = array(
+            $allowedStatus = [
                 'standard',
                 'welcome',
                 'unsubscribe',
-            );
+            ];
 
             if (!in_array($settings['status'], $allowedStatus)) {
                 die('Injection denied');
@@ -103,12 +103,12 @@ class acymmailClass extends acymClass
             $nbAllMail += $oneMailType->number;
         }
 
-        $results['status'] = array(
+        $results['status'] = [
             'all' => $nbAllMail,
             'standard' => !empty($mailsPerStatus['standard']->number) ? $mailsPerStatus['standard']->number : 0,
             'welcome' => !empty($mailsPerStatus['welcome']->number) ? $mailsPerStatus['welcome']->number : 0,
             'unsubscribe' => !empty($mailsPerStatus['unsubscribe']->number) ? $mailsPerStatus['unsubscribe']->number : 0,
-        );
+        ];
 
         return $results;
     }
@@ -120,11 +120,9 @@ class acymmailClass extends acymClass
 
     public function getOneById($id)
     {
-        $mail = acym_loadObject('SELECT * FROM #__acym_mail WHERE id = '.intval($id));
+        $mail = $this->decode(acym_loadObject('SELECT * FROM #__acym_mail WHERE id = '.intval($id)));
 
         if (!empty($mail)) {
-            $mail = $this->decode($mail);
-
             $tagsClass = acym_get('class.tag');
             $mail->tags = $tagsClass->getAllTagsByElementId('mail', $id);
         }
@@ -132,13 +130,11 @@ class acymmailClass extends acymClass
         return $mail;
     }
 
-    public function getNotificationByName($name)
+    public function getOneByName($name)
     {
-        $mail = acym_loadObject('SELECT * FROM #__acym_mail WHERE `type` = "notification" AND `name` = '.acym_escapeDB($name));
+        $mail = $this->decode(acym_loadObject('SELECT * FROM #__acym_mail WHERE `name` = '.acym_escapeDB($name)));
 
         if (!empty($mail)) {
-            $mail = $this->decode($mail);
-
             $tagsClass = acym_get('class.tag');
             $mail->tags = $tagsClass->getAllTagsByElementId('mail', $mail->id);
         }
@@ -161,7 +157,7 @@ class acymmailClass extends acymClass
         $query = 'SELECT * FROM #__acym_mail AS mail';
         $queryCount = 'SELECT count(*) FROM #__acym_mail AS mail';
 
-        $filters = array();
+        $filters = [];
         $filters[] = 'mail.type = '.acym_escapeDB($typeMail);
 
         if (!empty($settings['search'])) {
@@ -183,7 +179,7 @@ class acymmailClass extends acymClass
     {
         acym_arrayToInteger($ids);
         if (empty($ids)) {
-            return array();
+            return [];
         }
 
         $query = 'SELECT mailLists.list_id, mailLists.mail_id, list.*, COUNT(userLists.user_id) AS subscribers 
@@ -232,22 +228,21 @@ class acymmailClass extends acymClass
             unset($mail->tags);
         }
 
-        if (empty($mail->id) && empty($mail->creator_id)) $mail->creator_id = acym_currentUserId();
-
-
-        if (empty($mail->id) && empty($mail->creation_date)) $mail->creation_date = acym_date('now', 'Y-m-d H:i:s');
-
+        if (empty($mail->id)) {
+            $mail->creation_date = acym_date('now', 'Y-m-d H:i:s', false);
+            if (empty($mail->creator_id)) $mail->creator_id = acym_currentUserId();
+        }
 
         $mail = $this->encode($mail);
 
         $mail->autosave = null;
 
         foreach ($mail as $oneAttribute => $value) {
-            if (empty($value) || in_array($oneAttribute, array('thumbnail', 'settings'))) {
+            if (empty($value) || in_array($oneAttribute, ['thumbnail', 'settings'])) {
                 continue;
             }
 
-            if (in_array($oneAttribute, array('body', 'headers'))) {
+            if (in_array($oneAttribute, ['body', 'headers'])) {
                 $mail->$oneAttribute = preg_replace('#<input[^>]*value="[^"]*"[^>]*>#Uis', '', $mail->$oneAttribute);
 
                 $mail->$oneAttribute = str_replace(' contenteditable="true"', '', $mail->$oneAttribute);
@@ -266,21 +261,19 @@ class acymmailClass extends acymClass
         return $mailID;
     }
 
-    public function autosave($mail)
+    public function autoSave($mail)
     {
-        if (empty($mail->id)) {
-            return;
-        }
+        if (empty($mail->id)) return false;
 
-        $mail->autoSave = str_replace(' contenteditable="true"', '', $mail->autoSave);
-        $mailID = parent::save($mail);
+        $mail->autosave = str_replace(' contenteditable="true"', '', $mail->autosave);
+        $mail = $this->encode($mail);
 
-        return $mailID;
+        return parent::save($mail);
     }
 
     public function delete($elements)
     {
-        if (!is_array($elements)) $elements = array($elements);
+        if (!is_array($elements)) $elements = [$elements];
 
         if (empty($elements)) return 0;
 
@@ -385,18 +378,15 @@ class acymmailClass extends acymClass
         return $inline;
     }
 
-    public function getAllTemplateForSelect($removeQueue = false)
+    public function getAllTemplatesForSelect()
     {
+        $query = 'SELECT `id`, `subject`, `name` FROM #__acym_mail WHERE `template` IN(0, 2) AND `name` != "acy_report"';
 
-        $templateType = $removeQueue ? '0,2' : '1, 2';
+        $mails = $this->decode(acym_loadObjectList($query, 'id'));
 
-        $query = 'SELECT id, subject, name FROM #__acym_mail WHERE template IN('.$templateType.') AND name != "acy_report"';
-
-        $mails = acym_loadObjectList($query, 'id');
-
-        $return = array();
-
+        $return = [];
         $return[] = acym_translation('ACYM_SELECT_A_MAIL');
+        $return[-1] = acym_translation('ACYM_ALL_MAILS');
 
         foreach ($mails as $id => $mail) {
             $return[$id] = empty($mail->subject) ? $mail->name : $mail->subject;
@@ -464,7 +454,7 @@ class acymmailClass extends acymClass
         $filename = strtolower(acym_makeSafeFile($importFile['name']));
         $extension = strtolower(substr($filename, strrpos($filename, '.') + 1));
 
-        if (!in_array($extension, array('zip', 'tar.gz'))) {
+        if (!in_array($extension, ['zip', 'tar.gz'])) {
             acym_enqueueNotification(acym_translation_sprintf('ACYM_ACCEPTED_TYPE', $extension, 'zip,tar.gz'), 'error');
 
             return false;
@@ -488,7 +478,7 @@ class acymmailClass extends acymClass
         $result = acym_extractArchive($tmp_dest, $extractdir);
         acym_deleteFile($tmp_dest);
 
-        $allFiles = acym_getFiles($extractdir, '.', true, true, array(), array());
+        $allFiles = acym_getFiles($extractdir, '.', true, true, [], []);
         foreach ($allFiles as $oneFile) {
             if (preg_match('#\.(jpg|gif|png|jpeg|ico|bmp|html|htm|css)$#i', $oneFile)) {
                 continue;
@@ -567,7 +557,7 @@ class acymmailClass extends acymClass
 
         $moveResult = acym_copyFolder(dirname($filepath), ACYM_TEMPLATE.$newTemplateFolder);
         if ($moveResult !== true) {
-            acym_display(array(acym_translation_sprintf('ACYM_ERROR_COPYING_FOLDER_TO', dirname($filepath), ACYM_TEMPLATE.$newTemplateFolder), $moveResult), 'error');
+            acym_display([acym_translation_sprintf('ACYM_ERROR_COPYING_FOLDER_TO', dirname($filepath), ACYM_TEMPLATE.$newTemplateFolder), $moveResult], 'error');
 
             return false;
         }
@@ -578,16 +568,16 @@ class acymmailClass extends acymClass
         }
 
         $fileContent = str_replace(
-            array(
+            [
                 'src="./',
                 'src="../',
                 'src="images/',
-            ),
-            array(
+            ],
+            [
                 'src="'.ACYM_TEMPLATE_URL.$newTemplateFolder.'/',
                 'src="'.ACYM_TEMPLATE_URL,
                 'src="'.ACYM_TEMPLATE_URL.$newTemplateFolder.'/images/',
-            ),
+            ],
             $fileContent
         );
 
@@ -603,7 +593,7 @@ class acymmailClass extends acymClass
         if (preg_match_all('#< *style[^>]*>(.*)< */ *style *>#Uis', $fileContent, $results)) {
             $newTemplate->stylesheet .= preg_replace('#(<!--|-->)#s', '', implode("\n", $results[1]));
         }
-        $cssFiles = array();
+        $cssFiles = [];
         $cssFiles[ACYM_TEMPLATE.$newTemplateFolder] = acym_getFiles(ACYM_TEMPLATE.$newTemplateFolder, '\.css$');
         $subFolders = acym_getFolders(ACYM_TEMPLATE.$newTemplateFolder);
         foreach ($subFolders as $oneFolder) {
@@ -620,7 +610,7 @@ class acymmailClass extends acymClass
                 $newTemplate->stylesheet = preg_replace('#(body *\{[^\}]*)background-color:[^;\}]*[;\}]#Uis', '$1', $newTemplate->stylesheet);
             }
 
-            $quickstyle = array('tag_h1' => 'h1', 'tag_h2' => 'h2', 'tag_h3' => 'h3', 'tag_h4' => 'h4', 'tag_h5' => 'h5', 'tag_h6' => 'h6', 'tag_a' => 'a', 'tag_ul' => 'ul', 'tag_li' => 'li', 'acym_unsub' => '\.acym_unsub', 'acym_online' => '\.acym_online', 'acym_title' => '\.acym_title', 'acym_content' => '\.acym_content', 'acym_readmore' => '\.acym_readmore');
+            $quickstyle = ['tag_h1' => 'h1', 'tag_h2' => 'h2', 'tag_h3' => 'h3', 'tag_h4' => 'h4', 'tag_h5' => 'h5', 'tag_h6' => 'h6', 'tag_a' => 'a', 'tag_ul' => 'ul', 'tag_li' => 'li', 'acym_unsub' => '\.acym_unsub', 'acym_online' => '\.acym_online', 'acym_title' => '\.acym_title', 'acym_content' => '\.acym_content', 'acym_readmore' => '\.acym_readmore'];
             foreach ($quickstyle as $styledb => $oneStyle) {
                 if (preg_match('#[^a-z\. ,] *'.$oneStyle.' *{([^}]*)}#Uis', $newTemplate->stylesheet, $quickstyleresults)) {
                     $newTemplate->stylesheet = str_replace($quickstyleresults[0], '', $newTemplate->stylesheet);
@@ -628,12 +618,12 @@ class acymmailClass extends acymClass
             }
         }
 
-        $foldersForPicts = array($newTemplateFolder);
+        $foldersForPicts = [$newTemplateFolder];
         $otherFolders = acym_getFolders(ACYM_TEMPLATE.$newTemplateFolder);
         foreach ($otherFolders as $oneFold) {
             $foldersForPicts[] = $newTemplateFolder.DS.$oneFold;
         }
-        $allPictures = array();
+        $allPictures = [];
         foreach ($foldersForPicts as $oneFolder) {
             $allPictures[$oneFolder] = acym_getFiles(ACYM_TEMPLATE.$oneFolder);
         }
@@ -663,7 +653,7 @@ class acymmailClass extends acymClass
         $newTemplate->type = "standard";
         $newTemplate->template = 1;
         $newTemplate->library = 0;
-        $newTemplate->creation_date = acym_date('now', 'Y-m-d H:i:s');
+        $newTemplate->creation_date = acym_date('now', 'Y-m-d H:i:s', false);
 
         $tempid = $this->save($newTemplate);
 
@@ -673,7 +663,7 @@ class acymmailClass extends acymClass
         return true;
     }
 
-    public function sendAutomation($mailId, $userIds, $sendingDate, $automationAdmin = array())
+    public function sendAutomation($mailId, $userIds, $sendingDate, $automationAdmin = [])
     {
 
         if (empty($mailId)) return acym_translation_sprintf('ACYM_EMAILS_ADDED_QUEUE', 0);
@@ -738,7 +728,7 @@ class acymmailClass extends acymClass
         return $result;
     }
 
-    public function encode($mails = array())
+    public function encode($mails = [])
     {
         $isArray = true;
         if (!is_array($mails)) {
@@ -747,12 +737,12 @@ class acymmailClass extends acymClass
             $isArray = false;
         }
 
-        $return = array_map(array($this, 'utf8Encode'), $mails);
+        $return = array_map([$this, 'utf8Encode'], $mails);
 
         return $isArray ? $return : $return[0];
     }
 
-    public function decode($mails = array())
+    public function decode($mails = [])
     {
         $isArray = true;
         if (!is_array($mails)) {
@@ -761,7 +751,7 @@ class acymmailClass extends acymClass
             $isArray = false;
         }
 
-        $return = array_map(array($this, 'utf8Decode'), $mails);
+        $return = array_map([$this, 'utf8Decode'], $mails);
 
         return $isArray ? $return : $return[0];
     }
@@ -772,14 +762,14 @@ class acymmailClass extends acymClass
             foreach (self::FIELDS_ENCODING as $oneField) {
 
                 if (is_array($mail)) {
+                    if (empty($mail[$oneField])) continue;
                     $value = &$mail[$oneField];
                 } else {
+                    if (empty($mail->$oneField)) continue;
                     $value = &$mail->$oneField;
                 }
 
-                if (!empty($value)) {
-                    $value = utf8_decode($value);
-                }
+                $value = utf8_decode($value);
             }
         }
 
@@ -792,17 +782,18 @@ class acymmailClass extends acymClass
             foreach (self::FIELDS_ENCODING as $oneField) {
 
                 if (is_array($mail)) {
+                    if (empty($mail[$oneField])) continue;
                     $value = &$mail[$oneField];
                 } else {
+                    if (empty($mail->$oneField)) continue;
                     $value = &$mail->$oneField;
                 }
 
-                if (!empty($value)) {
-                    $value = utf8_encode($value);
-                }
+                $value = utf8_encode($value);
             }
         }
 
         return $mail;
     }
 }
+

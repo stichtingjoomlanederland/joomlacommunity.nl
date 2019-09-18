@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -74,13 +74,14 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 		// Reset the settings for layout_featuredpost_style to always use from configuration.ini
 		$post['layout_featuredpost_style'] = ED::getDefaultConfigValue('layout_featuredpost_style', 0);
 
-		if ($layout == 'general') {
+		// For now this code will be commented out to avoid reset the value for work schedule days
+		if ($layout == 'work') {
 			// we need to reset the settings for work schedule days due to the use of checkbox
 			$days = array('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun');
 
 			foreach($days as $dd) {
 				$dkey = 'main_work_' . $dd;
-				if (! isset($post[$dkey])) {
+				if (!isset($post[$dkey])) {
 					$post[$dkey] = 0;
 				}
 			}
@@ -129,7 +130,7 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 		$result = $model->save($post);
 
 		// Check if any of the configurations are stored as non local
-		if ($post['amazon_access_key'] && $post['amazon_access_secret'] && $layout == 'storage') {
+		if (isset($post['amazon_access_key']) && isset($post['amazon_access_secret']) && $layout == 'storage') {
 			
 			$bucket = $post['amazon_bucket'];
 			

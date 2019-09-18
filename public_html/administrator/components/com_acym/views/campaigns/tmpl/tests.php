@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -25,7 +25,7 @@ defined('_JEXEC') or die('Restricted access');
                     } else { ?>
 						<p><?php echo acym_translation('ACYM_SAFE_CHECK_DESC'); ?></p>
 						<div class="grid-x">
-							<div class="cell"><i id="launch_spamtest" class="material-icons acym_icon_blue acym_clickable launch_icons">play_circle_filled</i><i id="stop_spamtest" class="material-icons acym_icon_red acym_clickable launch_icons acym_icon_disabled">cancel</i></div>
+							<div class="cell"><i id="launch_spamtest" class="acymicon-play_circle_filled acym_icon_blue acym_clickable launch_icons"></i><i id="stop_spamtest" class="acymicon-cancel acym_icon_red acym_clickable launch_icons acym_icon_disabled"></i></div>
 
 							<div class="cell grid-x is-hidden" id="safe_check_results">
 								<div class="cell grid-x acym_vcenter" id="check_words">
@@ -62,11 +62,11 @@ defined('_JEXEC') or die('Restricted access');
                         $data['test_emails'],
                         "test_emails",
                         $data['test_emails'],
-                        array(
+                        [
                             'id' => 'acym__test__field',
                             'placeholder' => acym_translation('ACYM_TEST_ADDRESS'),
                             'data-urlsearch' => acym_completeLink('users&task=ajaxsearch'),
-                        )
+                        ]
                     );
 
                     ?>
@@ -96,3 +96,4 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
     <?php acym_formOptions(true, 'edit', 'tests'); ?>
 </form>
+

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -28,7 +28,7 @@ class JFormFieldLists extends JFormField
             }
         }
 
-        if ('Joomla' == 'Joomla' && $this->value == 'All') {
+        if (ACYM_CMS == 'joomla' && $this->value == 'All') {
             $formId = $this->form->getData()->get('id');
             if (!empty($formId)) {
                 $this->value = '';
@@ -40,12 +40,13 @@ class JFormFieldLists extends JFormField
         }
 
         if (in_array('None', $this->value)) {
-            $this->value = array();
+            $this->value = [];
         }
         if (in_array('All', $this->value)) {
             $this->value = array_keys($lists);
         }
 
-        return acym_selectMultiple($lists, $this->name, $this->value, array('id' => $this->name), 'id', 'name');
+        return acym_selectMultiple($lists, $this->name, $this->value, ['id' => $this->name], 'id', 'name');
     }
 }
+

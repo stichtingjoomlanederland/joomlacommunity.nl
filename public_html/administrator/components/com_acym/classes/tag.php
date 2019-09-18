@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -20,7 +20,7 @@ class acymtagClass extends acymClass
     {
         acym_query('DELETE FROM #__acym_tag WHERE `type` = '.acym_escapeDB($type).' AND id_element = '.intval($elementId));
 
-        $tagsToInsertQuery = array();
+        $tagsToInsertQuery = [];
 
         foreach ($newTags as $oneTag) {
 
@@ -55,14 +55,14 @@ class acymtagClass extends acymClass
         $query = 'SELECT * FROM #__acym_tag WHERE type = '.acym_escapeDB($type).' AND id_element = '.intval($id);
         $tags = acym_loadResultArray($query);
 
-        return empty($tags) ? array() : $tags;
+        return empty($tags) ? [] : $tags;
     }
 
     public function getAllTagsByTypeAndElementIds($type, $ids)
     {
         acym_arrayToInteger($ids);
         if (empty($ids)) {
-            return array();
+            return [];
         }
 
         $query = 'SELECT * FROM #__acym_tag WHERE `type` = '.acym_escapeDB($type).' AND `id_element` IN ('.implode(',', $ids).')';
@@ -70,3 +70,4 @@ class acymtagClass extends acymClass
         return acym_loadObjectList($query);
     }
 }
+

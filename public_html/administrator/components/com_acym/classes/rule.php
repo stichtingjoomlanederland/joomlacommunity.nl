@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -14,7 +14,7 @@ class acymruleClass extends acymClass
 {
     var $table = 'rule';
     var $pkey = 'id';
-    var $errors = array();
+    var $errors = [];
 
     public function getAll($active = false)
     {
@@ -36,7 +36,7 @@ class acymruleClass extends acymClass
 
     private function _prepareRule($rule)
     {
-        $columns = array('executed_on', 'action_message', 'action_user');
+        $columns = ['executed_on', 'action_message', 'action_user'];
         foreach ($columns as $oneColumn) {
             if (!empty($rule->$oneColumn)) {
                 $rule->$oneColumn = json_decode($rule->$oneColumn, true);
@@ -60,3 +60,4 @@ class acymruleClass extends acymClass
         return parent::delete($ids);
     }
 }
+

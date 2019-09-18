@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -74,7 +74,7 @@ class EasyDiscussViewPost extends EasyDiscussView
 				ED::breadcrumbs()->insertCategory($category);
 			}
 
-			$this->setPathway($this->escape($post->getTitle()));
+			$this->setPathway($post->getTitle());
 		}
 
 		// Mark as viewed for notifications.
@@ -109,12 +109,11 @@ class EasyDiscussViewPost extends EasyDiscussView
 
 		$emptyMessage = JText::_('COM_EASYDISCUSS_NO_REPLIES_YET');
 
-		// Display proper empty message if the user are not allowed to reply.
-		if (!$post->canReply()) {
+		// Display proper empty message if the user are not allowed to reply or view the replies.
+		if ((!$post->canReply() || !$post->canView()) && $post->isReply()) {
 			$emptyMessage = JText::_('COM_EASYDISCUSS_POST_REPLY_NOT_ALLOWED');
 		}
 
-		// Display proper empty message if the user are not allowed to view replies.
 		// We need to double check again whether this post already have accepted answer while this total replies equal to 1
 		if (empty($replies) && $post->getTotalReplies() > 0) {
 			$emptyMessage = JText::_('COM_EASYDISCUSS_VIEW_REPLIES_NOT_ALLOWED');
@@ -131,7 +130,7 @@ class EasyDiscussViewPost extends EasyDiscussView
 		$post->comments = array();
 
 		if ($this->config->get('main_commentpost')) {
-			$commentLimit = $this->config->get('main_comment_pagination') ? $this->config->get('main_comment_pagination_count') : null;
+			$commentLimit = $this->config->get('main_comment_pagination') ? $this->config->get('main_comment_first_sight_count') : null;
 			$post->comments = $post->getComments($commentLimit);
 
 			// get post comments count
@@ -199,7 +198,7 @@ class EasyDiscussViewPost extends EasyDiscussView
 
 		parent::display('post/default');
 	}
-	
+
 	/**
 	 * Displays the edit form for reply only
 	 *
@@ -348,7 +347,8 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 */
 	private function setPageHeaders(EasyDiscussPost $post)
 	{
-		$pageTitle = $post->getTitle();
+		$postTitle = $post->getTitle();
+		$pageTitle = htmlspecialchars_decode($postTitle, ENT_QUOTES);
 		$pageContent = strip_tags($post->preview);
 		$pageContent = JString::substr($pageContent, 0, 160);
 
@@ -357,6 +357,9 @@ class EasyDiscussViewPost extends EasyDiscussView
 		// Set page title.
 		ED::setPageTitle($pageTitle);
 
+		// Default data
+		$this->doc->setTitle($pageTitle);
+		$this->doc->setDescription($description);
 		$this->doc->setMetadata('keywords', $pageTitle);
 		$this->doc->setMetadata('description', $description);
 

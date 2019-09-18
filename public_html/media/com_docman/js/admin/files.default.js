@@ -154,7 +154,8 @@ window.addEvent('domready', function() {
                 method: 'POST',
                 data: {
                     _method: 'GET',
-                    storage_path: []
+					csrf_token: Files.token,
+					storage_path: [],
                 },
                 onComplete: function() {
                     requests.callChain();

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -33,6 +33,6 @@ defined('_JEXEC') or die('Restricted access');
 		</div>
 	</div>
 	<div class="cell large-3"></div>
-	<input type="hidden" name="new_list" id="acym__import__new-list" value=""/>
+	<input type="hidden" name="new_list" id="acym__import__new-list" value="" />
 </div>
 

@@ -180,7 +180,7 @@ defined('_JEXEC') or die('Restricted access');
 					<?php } ?>
 
 					<div class="pull-right">
-						<?php if ($post->id && $post->isPending() && (ED::isSiteAdmin() || $this->acl->allowed('manage_pending'))) { ?>
+						<?php if ($post->id && $post->isPending() && (ED::isSiteAdmin() || $this->acl->allowed('manage_pending')) || (ED::isModerator() && $post->isPending())) { ?>
 						<a class="btn btn-link t-lg-pl--xs" href="<?php echo $cancel;?>">
 							<?php echo JText::_('COM_EASYDISCUSS_CANCEL');?>
 						</a>

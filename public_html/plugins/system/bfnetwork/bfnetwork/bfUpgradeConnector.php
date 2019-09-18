@@ -62,22 +62,18 @@ try {
         throw new Exception('bfNetwork Folder not writeable');
     }
 
-    // check file is from myJoomla.com for security
+    // check file is from mysites.guru for security
 
     // Allow for local development with a local endpoint
     switch ($_POST['APPLICATION_ENV']) { // Switch from insecure $_POST to a known clean value locally
         case'development':
         case 'local':
             // Never used on public servers
-            $upgradeFile = 'https://local-maintain.myjoomla.com/public/connector';
-            break;
-        case 'staging':
-            // staging Mode Endpoint - by invitation only - email phil@phil-taylor.com for early access!
-            $upgradeFile = 'https://staging.myjoomla.com/public/connector';
+            $upgradeFile = 'https://dev.mysites.guru/public/connector';
             break;
         default:
             // Production Mode Endpoint... ...
-            $upgradeFile = 'https://cdn.myjoomla.com/public/connector';
+            $upgradeFile = 'https://cdn.mysites.guru/public/connector';
             break;
     }
 
@@ -90,7 +86,7 @@ try {
 
         $ch = curl_init();
 
-        // Set up bare minimum CURL Options needed for myJoomla.com
+        // Set up bare minimum CURL Options needed for mysites.guru
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_URL, $upgradeFile);

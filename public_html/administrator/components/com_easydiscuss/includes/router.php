@@ -108,7 +108,7 @@ class EDR
 		// $url = EDR::getPostRoute($postId);
 
 		// Retrieve the limit start if available
-		$limitstart = JFactory::getApplication()->input->get('limitstart', 0);
+		$limitstart = JFactory::getApplication()->input->get('limitstart', 0, 'int');
 
 		if ($limitstart) {
 			// if (strpos($url, '?') === false) {
@@ -235,6 +235,8 @@ class EDR
 		$lang = isset($query['lang']) ? $query['lang'] : null;
 		$search = isset($query['search']) ? $query['search'] : null;
 		$category_id = isset($query['category_id']) ? $query['category_id'] : null;
+		$postStatus = isset($query['status']) ? $query['status'] : null;
+		$groupId = isset($query['group_id']) ? $query['group_id'] : null;
 
 		if (!empty($Itemid)) {
 			if (self::isEasyDiscussMenuItem($Itemid)) {
@@ -439,6 +441,18 @@ class EDR
 					$dropSegment = true;
 				}
 			}
+
+			if ($view == 'groups') {
+				$menu = self::getMenus($view, null, null, $lang);
+
+				if ($menu) {
+					$tmpId = $menu->id;
+				}
+
+				if (!$groupId && $tmpId) {
+					$dropSegment = true;
+				}
+			}
 		}
 
 		if (!$tmpId){
@@ -447,6 +461,10 @@ class EDR
 
 		// Some query strings may have "sort" in them.
 		if ($sort) {
+			$dropSegment = false;
+		}
+
+		if ($postStatus) {
 			$dropSegment = false;
 		}
 

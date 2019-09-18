@@ -609,6 +609,10 @@ class com_rsformInstallerScript
 			$db->setQuery("ALTER TABLE `#__rsform_directory` ADD `HideEmptyValues` tinyint(1) NOT NULL AFTER `enablecsv`");
 			$db->execute();
 		}
+		if (!isset($columns['ShowGoogleMap'])) {
+			$db->setQuery("ALTER TABLE `#__rsform_directory` ADD `ShowGoogleMap` tinyint(1) NOT NULL AFTER `HideEmptyValues`");
+			$db->execute();
+		}
 
 		// #__rsform_posts updates
 		$columns = $db->getTableColumns('#__rsform_posts');
@@ -938,9 +942,20 @@ class com_rsformInstallerScript
 				<p>It seems you are still using legacy layouts - they have been removed from RSForm! Pro since they are no longer usable today as they do not provide responsive features.<br>If you still want to keep using them, please install the <a href="https://www.rsjoomla.com/support/documentation/rsform-pro/plugins-and-modules/plugin-legacy-layouts.html" target="_blank">Legacy Layouts Plugin</a>.</p>
 			</div>
 		<?php } ?>
-		<h2>Changelog v2.2.3</h2>
+		<h2>Changelog v2.2.6</h2>
 		<ul class="version-history">
-            <li><span class="version-upgraded">Upg</span> Range Slider can be used in conditions.</li>
+			<li><span class="version-new">New</span> New placeholder for 'Google Map' fields: {field:map} which displays an image of the map.</li>
+			<li><span class="version-new">New</span> Directory has a new option - 'Show Google Map' instead of just the address.</li>
+			<li><span class="version-new">New</span> Google Map fields can request the current location.</li>
+			<li><span class="version-upgraded">Upg</span> When editing a submission in the Directory area the validation message will appear below the field.</li>
+			<li><span class="version-fixed">Fix</span> In some cases, restoring CSV submissions would fail and show a Javascript error.</li>
+			<li><span class="version-fixed">Fix</span> In some cases ReCAPTCHA was not working when the 'Disable Submit Button' option was used on the form.</li>
+			<li><span class="version-fixed">Fix</span> The 'Disable Submit Button' option was not taken into account when using AJAX validation on the form.</li>
+			<li><span class="version-fixed">Fix</span> An SQL error was showing up on the 'Add To Menu' page.</li>
+			<li><span class="version-fixed">Fix</span> AJAX validation was not working for forms added to the backend menu.</li>
+			<li><span class="version-fixed">Fix</span> When failing validation in the Directory area, fields were missing the indicative red border.</li>
+			<li><span class="version-fixed">Fix</span> When editing a submission in the Directory area the language of the submission was not taken into account.</li>
+			<li><span class="version-fixed">Fix</span> Code improvements.</li>
 		</ul>
 		<a class="btn btn-large btn-primary" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="btn" href="https://www.rsjoomla.com/support/documentation/rsform-pro.html" target="_blank">Read the RSForm! Pro User Guide</a>

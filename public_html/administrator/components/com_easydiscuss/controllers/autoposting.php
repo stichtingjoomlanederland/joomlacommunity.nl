@@ -93,6 +93,13 @@ class EasyDiscussControllerAutoposting extends EasyDiscussController
 			return $this->app->redirect($url); 
 		}
 
+		if ($type == 'github') {
+			$client = ED::oauth()->getClient('Github');
+			$url = $client->getAuthorizationURL();
+
+			return $this->app->redirect($url); 
+		}
+
 		// Get the oauth client
 		$client = ED::oauth()->getClient($type);
 
@@ -145,6 +152,7 @@ class EasyDiscussControllerAutoposting extends EasyDiscussController
 	public function revoke()
 	{
 		$type = $this->input->get('type', '', 'cmd');
+		$returnUri = $this->input->get('return', '', 'base64');
 
 		// Get the client
 		$client = ED::oauth()->getClient($type);
@@ -157,6 +165,10 @@ class EasyDiscussControllerAutoposting extends EasyDiscussController
 
 		// Default redirection url
 		$redirect = JRoute::_('index.php?option=com_easydiscuss&view=autoposting&layout=' . $type, false);
+
+		if ($returnUri) {
+			$redirect = base64_decode($returnUri);
+		}
 
 		if (!$client->revokeApp()) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_ERROR_REVOKING_APP'), DISCUSS_QUEUE_ERROR);

@@ -121,6 +121,11 @@ abstract class ServerConfigMaker extends Model
 		$this->defaultConfig = (object)$this->defaultConfig;
 	}
 
+	public function getConfigFileName()
+	{
+		return $this->configFileName;
+	}
+
 	/**
 	 * Loads the feature's configuration from the database
 	 *
@@ -264,7 +269,7 @@ abstract class ServerConfigMaker extends Model
 		$this->config = $config;
 		$config       = json_encode($config);
 
-		// This keeps JRegistry from hapily corrupting our data :@
+		// This keeps JRegistry from happily corrupting our data :@
 		if (function_exists('base64_encode') && function_exists('base64_encode'))
 		{
 			$config = base64_encode($config);
@@ -316,6 +321,18 @@ abstract class ServerConfigMaker extends Model
 		 * mind, but NginX will break hard when it sees the CR in the configuration file.
 		 */
 		$configFileContents = str_replace("\r\n", "\n", $configFileContents);
+
+		// Save the hash of the contents as well as the technology used, so later we can inform the user about any manual edit
+		// Please note: we have to save the hash only when we actually write to disk, not when we save the config
+		// We're going to do that even if the user decided to ignore the warning, because if he changes idea later we can warn him
+		$storage = Storage::getInstance();
+
+		$info = [
+			'technology' => $this->getName(),
+			'contents'   => md5($configFileContents)
+		];
+
+		$storage->setValue('configInfo', $info, true);
 
 		if (!@file_put_contents($htaccessPath, $configFileContents))
 		{

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -46,17 +46,17 @@ defined('_JEXEC') or die('Restricted access');
 				<div class="cell grid-x margin-top-1">
 					<div class="grid-x acym__listing__actions cell auto">
                         <?php
-                        $actions = array('delete' => acym_translation('ACYM_DELETE'), 'duplicate' => acym_translation('ACYM_DUPLICATE'));
+                        $actions = ['delete' => acym_translation('ACYM_DELETE'), 'duplicate' => acym_translation('ACYM_DUPLICATE')];
                         echo acym_listingActions($actions);
                         ?>
 						<div class="medium-auto cell">
                             <?php
-                            $options = array(
-                                '' => array('ACYM_ALL', count($data['allCampaigns'])),
-                                'scheduled' => array('ACYM_SCHEDULED', $data['allStatusFilter']->scheduled),
-                                'sent' => array('ACYM_SENT', $data['allStatusFilter']->sent),
-                                'draft' => array('ACYM_DRAFT', $data['allStatusFilter']->draft),
-                            );
+                            $options = [
+                                '' => ['ACYM_ALL', count($data['allCampaigns'])],
+                                'scheduled' => ['ACYM_SCHEDULED', $data['allStatusFilter']->scheduled],
+                                'sent' => ['ACYM_SENT', $data['allStatusFilter']->sent],
+                                'draft' => ['ACYM_DRAFT', $data['allStatusFilter']->draft],
+                            ];
                             echo acym_filterStatus($options, $data["status"], 'campaigns_status');
                             ?>
 						</div>
@@ -64,7 +64,7 @@ defined('_JEXEC') or die('Restricted access');
 					<div class="grid-x cell auto">
 						<div class="cell acym_listing_sorty-by">
                             <?php echo acym_sortBy(
-                                array(
+                                [
                                     'id' => strtolower(acym_translation('ACYM_ID')),
                                     'name' => acym_translation('ACYM_NAME'),
                                     'sending_date' => acym_translation('ACYM_SENDING_DATE'),
@@ -73,7 +73,7 @@ defined('_JEXEC') or die('Restricted access');
                                     'active' => acym_translation('ACYM_ACTIVE'),
                                     'scheduled' => acym_translation('ACYM_SCHEDULED'),
                                     'sent' => acym_translation('ACYM_SENT'),
-                                ),
+                                ],
                                 "campaigns"
                             ); ?>
 						</div>
@@ -150,11 +150,11 @@ defined('_JEXEC') or die('Restricted access');
                                         if ($campaign->sent) {
                                             if (!isset($campaign->subscribers)) $campaign->subscribers = 'x';
                                             echo '<div class="cell acym__campaign__status__status acym__background-color__green"><span>'.acym_translation('ACYM_SENT').' : '.acym_escape($campaign->subscribers).' '.acym_translation('ACYM_RECIPIENTS').'</span></div>';
-                                        } else if ($campaign->scheduled && !$campaign->draft) {
+                                        } elseif ($campaign->scheduled && !$campaign->draft) {
                                             echo '<div class="cell acym__campaign__status__status acym__background-color__orange"><span>'.acym_translation('ACYM_SCHEDULED').' : '.acym_date($campaign->sending_date, 'M. j, Y').'</span></div>';
                                             $target = '<div class="acym__campaign__listing__scheduled__stop grid-x cell xlarge-shrink" data-campaignid="'.acym_escape($campaign->id).'"><i class="fa fa-times-circle cell shrink show-for-xlarge"></i><span class="cell xlarge-shrink">'.acym_translation('ACYM_CANCEL_SCHEDULING').'</span></div>';
                                             echo acym_escape($campaign->draft) && !$campaign->active ? '' : '<div class="cell acym__campaign__listing__status__controls"><div class="grid-x text-center"><div class="cell auto"></div>'.acym_tooltip($target, acym_translation("ACYM_STOP_THE_SCHEDULING_AND_SET_CAMPAIGN_AS_DRAFT")).'<div class="cell auto"></div></div></div>';
-                                        } else if ($campaign->draft) {
+                                        } elseif ($campaign->draft) {
                                             echo '<div class="cell acym__campaign__status__status acym__campaign__status__draft"><span>'.acym_translation('ACYM_DRAFT').'</span></div>';
                                         }
                                         ?>
@@ -182,4 +182,6 @@ defined('_JEXEC') or die('Restricted access');
             <?php } ?>
         <?php } ?>
         <?php acym_formOptions(); ?>
+	</div>
 </form>
+

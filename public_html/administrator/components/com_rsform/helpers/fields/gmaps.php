@@ -66,15 +66,20 @@ class RSFormProFieldGMaps extends RSFormProFieldTextbox
 
 	public function generateMap()
 	{
-		$id			= $this->getProperty('componentId');
-		$zoom 		= (int) $this->getProperty('MAPZOOM', 2);
-		$center 	= $this->getProperty('MAPCENTER', '39.5500507,-105.7820674');
-		$geo		= $this->getProperty('GEOLOCATION', 'NO');
-		$address	= $this->getProperty('MAPRESULT', 'ADDRESS');
-		$name 		= $this->getProperty('NAME');
-		$mapType 	= $this->getProperty('MAPTYPE', 'ROADMAP');
-		
-		$script		= '';
+		$id					= $this->getProperty('componentId');
+		$zoom 				= (int) $this->getProperty('MAPZOOM', 2);
+		$center 			= $this->getProperty('MAPCENTER', '39.5500507,-105.7820674');
+		$geo				= $this->getProperty('GEOLOCATION', 'NO');
+		$address			= $this->getProperty('MAPRESULT', 'ADDRESS');
+		$name 				= $this->getProperty('NAME');
+		$mapType 			= $this->getProperty('MAPTYPE', 'ROADMAP');
+		$requestLocation 	= $this->getProperty('REQUESTLOCATION');
+		$script				= '';
+
+		if ($requestLocation)
+		{
+			$script .= 'RSFormPro.googleMapIds.push(' . $id . ');';
+		}
 		
 		$script .= "\n".'var rsformmap'.$id.'; var geocoder; var rsformmarker'.$id.';'."\n";
 		$script .= 'function rsfp_initialize_map'.$id.'() {'."\n";
@@ -124,16 +129,20 @@ class RSFormProFieldGMaps extends RSFormProFieldTextbox
 				$script .= "\t}\n";
 			}
 		}
-		
+
+		if ($requestLocation)
+		{
+			$script .= 'RSFormPro.requestLocation();' . "\n";
+		}
 		
 		$script .= '}'."\n";
 		$script .= 'google.maps.event.addDomListener(window, \'load\', rsfp_initialize_map'.$id.');'."\n\n";
-		
+
 		if ($geo) {
 			$isAdress = $address == 'ADDRESS';
-			$script .= 'window.addEventListener("load", function(){'."\n";
-			$script .= "\t".'rsfp_addEvent(document.getElementById(\''.$name.'\'),\'keyup\', function() { '."\n";
-			$script .= "\t\t".'rsfp_geolocation(this.value,'.$id.',\''.$name.'\',rsformmap'.$id.',rsformmarker'.$id.',geocoder, '.(int) $isAdress.');'."\n";
+			$script .= 'RSFormProUtils.addEvent(window, "load", function(){'."\n";
+			$script .= "\t".'RSFormProUtils.addEvent(document.getElementById(\''.$name.'\'),\'keyup\', function() { '."\n";
+			$script .= "\t\t".'RSFormPro.initGeoLocation(this.value,'.$id.',\''.$name.'\',rsformmap'.$id.',rsformmarker'.$id.',geocoder, '.(int) $isAdress.');'."\n";
 			$script .= "\t".'});'."\n";
 			$script .= '});'."\n";
 		}

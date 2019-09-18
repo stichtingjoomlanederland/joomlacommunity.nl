@@ -38,15 +38,15 @@ kQuery(function($) {
     };
 
     //gallery view
-    if($('.koowa_media--gallery').length) {
+    if($('.k-ui-namespace.com_docman .koowa_media--gallery').length) {
         deletable = '.koowa_media__item__content';
         deletable_container = '.koowa_media__item';
     // tree table layout
-    } else if($('.docman_list_layout--tree .docman_table_layout').length) {
+    } else if($('.k-ui-namespace.com_docman .docman_list_layout--tree .docman_table_layout').length) {
         deletable = delete_item_btn;
         deletable_container = getTreeDeletableContainers;
         // table layout
-    } else if ($('.docman_table_layout').length) {
+    } else if ($('.k-ui-namespace.com_docman .docman_table_layout').length) {
         deletable = delete_item_btn;
         deletable_container = 'tr.docman_item';
     } else {

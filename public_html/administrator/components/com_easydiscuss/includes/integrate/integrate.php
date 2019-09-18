@@ -101,7 +101,7 @@ class EasyDiscussIntegrate extends EasyDiscuss
 	{
 		$legacy	= ($profile->avatar == 'default_avatar.png' || $profile->avatar == 'default.png' || $profile->avatar == 'media/com_easydiscuss/images/default.png' || empty($profile->avatar));
 
-		$avatarLink	= $legacy ? '/media/com_easydiscuss/images/default_avatar.png' : ED::image()->getAvatarRelativePath() . '/' . $profile->avatar;
+		$avatarLink	= $legacy ? 'media/com_easydiscuss/images/default_avatar.png' : ED::image()->getAvatarRelativePath() . '/' . $profile->avatar;
 
 		$avatarLink = rtrim(DISCUSS_JURIROOT, '/') . '/' . $avatarLink;
 		$profileLink = EDR::_('index.php?option=com_easydiscuss&view=profile&id='.$profile->id, false);

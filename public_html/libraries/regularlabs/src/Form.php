@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.4.11218
+ * @version         19.8.25552
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -130,7 +130,7 @@ class Form
 
 		if ( ! $multiple)
 		{
-			$html = JHtml::_('select.genericlist', $options, $name, 'class="inputbox"', 'value', 'text', $value);
+			$html = JHtml::_('select.genericlist', $options, $name, 'class="inputbox"', 'value', 'text', $value, $id);
 
 			return self::handlePreparedStyles($html);
 		}

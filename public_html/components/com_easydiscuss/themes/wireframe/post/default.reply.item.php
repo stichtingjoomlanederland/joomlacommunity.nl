@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -19,6 +19,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<a name="<?php echo JText::_('COM_EASYDISCUSS_REPLY_PERMALINK');?>-<?php echo $post->id;?>"></a>
 
 	<div class="ed-reply-item__hd">
+
 		<div class="o-row">
 			<div class="o-col">
 				<div class="o-grid">
@@ -61,13 +62,13 @@ defined('_JEXEC') or die('Unauthorized Access');
 										<div class="ed-rank-bar">
 											<div style="width: <?php echo ED::ranks()->getScore($post->getOwner()->id, true); ?>%" class="ed-rank-bar__progress"></div>
 										</div>
-									<?php } ?>                            
+									<?php } ?>
 								</div>
 							<?php } ?>
 						</div>
 					</div>
 					
-					<?php if ($this->config->get('layout_badges_in_post') && $post->getOwner()->hasUserBadges()) { ?>
+					<?php if (ED::badges()->isEnabled() && $post->getOwner()->hasUserBadges()) { ?>
 					<div class="o-grid__cell o-grid__cell--auto-size o-grid__cell--center t-lg-pr--md">
 						<?php echo ED::badges()->getPostHtml($post->getOwner()->id); ?>					
 					</div>
@@ -79,9 +80,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 						<span class="o-label o-label--primary-o ed-state-pending"><?php echo JText::_('COM_EASYDISCUSS_PENDING_MODERATION'); ?></span>
 					</div>
 				</div>
-						
 			</div>
-			
+
 			<div class="o-col">
 				<div class="t-lg-pull-right">
 					<?php if (!$post->isPending()) { ?>
@@ -106,7 +106,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			</div>
 
 			<div class="ed-post-widget-group t-lg-mb--lg">
-				<?php if ($post->hasPolls()) { ?>
+				<?php if ($post->hasPolls() && $this->config->get('main_polls_replies')) { ?>
 					<?php echo $this->output('site/post/default.polls', array('post' => $post)); ?>
 				<?php } ?>
 
@@ -119,9 +119,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<?php echo $this->output('site/post/default.references', array('post' => $post, 'composer' => $composer)); ?>
 
 				<?php echo $this->output('site/post/default.site.detail', array('post' => $post, 'composer' => $composer)); ?>
-			
-			</div>                    
-			
+			</div>
+
 			<?php echo ED::likes()->button($post); ?>
 
 			<?php echo $this->output('site/post/default.signature', array('post' => $post)); ?>

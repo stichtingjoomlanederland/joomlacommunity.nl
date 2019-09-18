@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -30,7 +30,7 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="cell grid-x acym__content acym__automation__group__condition" data-condition-number="0">
 				<div class="acym__automation__new__or cell grid-x">
 					<div class="cell auto"></div>
-					<i class="material-icons acym__color__red acym__automation__delete__group__condition shrink cell cursor-pointer">close</i>
+					<i class="acymicon-close acym__color__red acym__automation__delete__group__condition shrink cell cursor-pointer"></i>
 				</div>
 				<div class="cell grid-x margin-top-2">
 					<button data-condition-type="" type="button" class="button-secondary button medium-shrink acym__automation__add-condition"><?php echo acym_translation('ACYM_ADD_CONDITION'); ?></button>
@@ -41,7 +41,7 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="acym__automation__and cell grid-x margin-top-2">
 				<h6 class="cell medium-shrink small-11 acym__content__title__light-blue"><?php echo acym_translation('ACYM_AND'); ?></h6>
 				<div class="cell medium-4 hide-for-small-only"></div>
-				<i class="cell medium-shrink small-1 cursor-pointer material-icons acym__color__red acym__automation__delete__one__condition">close</i>
+				<i class="cell medium-shrink small-1 cursor-pointer acymicon-close acym__color__red acym__automation__delete__one__condition"></i>
 			</div>
 			<div class="medium-5 cell acym__automation__and__example__classic__select" style="display: none;">
                 <?php echo acym_select($data['classic_name'], 'conditions_name', null, 'class="acym__automation__select__classic__condition" data-class="acym__select"'); ?>
@@ -108,5 +108,7 @@ defined('_JEXEC') or die('Restricted access');
 				<button type="button" class="button acy_button_submit medium-shrink cell" data-task="edit" data-step="saveConditions"><?php echo acym_translation('ACYM_SAVE_CONTINUE'); ?></button>
             <?php } ?>
 		</div>
-        <?php acym_formOptions(); ?>
+	</div>
+    <?php acym_formOptions(); ?>
 </form>
+

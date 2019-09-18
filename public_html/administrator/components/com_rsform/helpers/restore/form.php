@@ -449,6 +449,7 @@ class RSFormProRestoreForm
 								$this->db->qn('enablepdf')				.'='.$this->db->q((string) $directory->enablepdf),
 								$this->db->qn('enablecsv')				.'='.$this->db->q((string) $directory->enablecsv),
 								$this->db->qn('HideEmptyValues')			.'='.$this->db->q((string) $directory->HideEmptyValues),
+								$this->db->qn('ShowGoogleMap')			.'='.$this->db->q((string) $directory->ShowGoogleMap),
 								$this->db->qn('ViewLayout')				.'='.$this->db->q((string) $directory->ViewLayout),
 								$this->db->qn('ViewLayoutName')			.'='.$this->db->q((string) $directory->ViewLayoutName),
 								$this->db->qn('ViewLayoutAutogenerate')	.'='.$this->db->q((string) $directory->ViewLayoutAutogenerate),

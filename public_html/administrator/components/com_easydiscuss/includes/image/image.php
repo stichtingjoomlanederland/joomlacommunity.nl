@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyBlog is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -18,8 +18,6 @@ class EasyDiscussImage extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function isImage($filePath)
 	{
@@ -34,12 +32,20 @@ class EasyDiscussImage extends EasyDiscuss
 		return false;
 	}
 
+	/**
+	 * Checks for the file extension name
+	 *
+	 * @since	4.1.11
+	 * @access	public
+	 */
 	public static function getFileExtention($fileName)
 	{
-		if(empty($fileName))
+		if (empty($fileName)) {
 			return false;
+		}
 
-		$data	= explode('.', $fileName);
+		$data = explode('.', $fileName);
+
 		return $data[count($data) - 1];
 	}
 
@@ -55,13 +61,25 @@ class EasyDiscussImage extends EasyDiscuss
 	}
 
 	/**
+	 * Determines if an extension is an image type
+	 *
+	 * @since	4.1.11
+	 * @access	public
+	 */
+	public static function isImageExtension($fileName)
+	{
+		static $imageTypes = 'gif|jpg|jpeg|png';
+
+		return preg_match("/$imageTypes/i", $fileName);
+	}
+
+	/**
 	 * Checks if the file can be uploaded
 	 *
-	 * @param array File information
-	 * @param string An error message to be returned
-	 * @return boolean
+	 * @since	4.1.11
+	 * @access	public
 	 */
-	public static function canUpload( $file, &$err )
+	public static function canUpload($file, &$error)
 	{
 		//$params = JComponentHelper::getParams( 'com_media' );
 		$config = ED::config();
@@ -70,21 +88,41 @@ class EasyDiscussImage extends EasyDiscuss
 		// Convert MB to B
 		$maxSize = $maxSize * 1024 * 1024;
 
-		if(empty($file['name'])) {
-			$err = JText::_( 'COM_EASYDISCUSS_EMPTY_FILENAME' );
+		if (empty($file['name'])) {
+			$error = JText::_('COM_EASYDISCUSS_EMPTY_FILENAME');
 			return false;
 		}
 
 		jimport('joomla.filesystem.file');
-		if ($file['name'] !== JFile::makesafe($file['name'])) {
-			$err = JText::_( 'COM_EASYDISCUSS_INVALID_FILENAME' );
+
+		$targetFile = JFile::makesafe($file['name']);
+
+		if ($file['name'] !== $targetFile) {
+			$error = JText::_('COM_EASYDISCUSS_INVALID_FILENAME');
 			return false;
 		}
 
-		$format = strtolower(JFile::getExt($file['name']));
+		// Checks if the file contains any funky html tags
+		$containsXSS = self::containsXSS($file['tmp_name']);
 
-		if (!ED::image()->isImage($file['tmp_name'])) {
-			$err = JText::_( 'COM_EASYDISCUSS_INVALID_IMG' );
+		if ($containsXSS) {
+			$error = JText::_('COM_EASYDISCUSS_INVALID_IMG');
+			return false;
+		}
+
+		// Validate the file whether is an image type
+		$isImageType = self::isImageExtension($file['name']);
+
+		if (!$isImageType) {
+			$error = JText::_('COM_EASYDISCUSS_INVALID_IMG');
+			return false;
+		}
+
+		// Validate the file whether is valid image
+		$isImage = ED::image()->isImage($file['tmp_name']);
+
+		if (!$isImage) {
+			$error = JText::_('COM_EASYDISCUSS_INVALID_IMG');
 			return false;
 		}
 
@@ -96,21 +134,47 @@ class EasyDiscussImage extends EasyDiscuss
 		//$maxSize	= 200000; //200KB
 		//$maxSize = (int) $params->get( 'main_upload_maxsize', 0 );
 
-		if ($maxSize > 0 && (int) $file['size'] > $maxSize)
-		{
-			$err = JText::_( 'COM_EASYDISCUSS_FILE_TOO_LARGE' );
+		if ($maxSize > 0 && (int) $file['size'] > $maxSize) {
+			$error = JText::_('COM_EASYDISCUSS_FILE_TOO_LARGE');
 			return false;
 		}
 
 		$user = JFactory::getUser();
 		$imginfo = null;
 
-		if(($imginfo = getimagesize($file['tmp_name'])) === FALSE) {
-			$err = JText::_( 'COM_EASYDISCUSS_IMAGE_CORRUPT' );
+		if (($imginfo = getimagesize($file['tmp_name'])) === FALSE) {
+			$error = JText::_('COM_EASYDISCUSS_IMAGE_CORRUPT');
 			return false;
 		}
 
 		return true;
+	}
+
+	/**
+	 * Checks if the file contains any funky html tags
+	 *
+	 * @since	4.1.11
+	 * @access	public
+	 */
+	public static function containsXSS($path)
+	{
+		// Sanitize the content of the files
+		$contents = JFile::read($path, false, 256);
+		$tags = array('abbr','acronym','address','applet','area','audioscope','base','basefont','bdo','bgsound','big','blackface','blink','blockquote','body','bq','br','button','caption','center','cite','code','col','colgroup','comment','custom','dd','del','dfn','dir','div','dl','dt','em','embed','fieldset','fn','font','form','frame','frameset','h1','h2','h3','h4','h5','h6','head','hr','html','iframe','ilayer','img','input','ins','isindex','keygen','kbd','label','layer','legend','li','limittext','link','listing','map','marquee','menu','meta','multicol','nobr','noembed','noframes','noscript','nosmartquotes','object','ol','optgroup','option','param','plaintext','pre','rt','ruby','s','samp','script','select','server','shadow','sidebar','small','spacer','span','strike','strong','style','sub','sup','table','tbody','td','textarea','tfoot','th','thead','title','tr','tt','ul','var','wbr','xml','xmp','!DOCTYPE', '!--');
+
+		// If we can't read the file, just skip this altogether
+		if (!$contents) {
+			return false;
+		}
+
+		foreach ($tags as $tag) {
+			// If this tag is matched anywhere in the contents, we can safely assume that this file is dangerous
+			if (stristr($contents, '<' . $tag . ' ') || stristr($contents, '<' . $tag . '>') || stristr($contents, '<?php') || stristr($contents, '?\>')) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

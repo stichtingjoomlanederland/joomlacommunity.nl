@@ -36,17 +36,11 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 			return;
 		}
 
-		$user = $this->input->getString('username', null);
-		$pass = $this->input->getString('password', null);
-
-		if (empty($pass))
-		{
-			$pass = $this->input->getString('passwd', null);
-		}
-
 		$extraInfo = null;
+		$user      = $this->input->getString('username', null);
 
-		if (!empty($user))
+		// Log the username only if we have a user AND we told Admin Tools to store usernames, too
+		if ($this->cparams->getValue('logusernames', 0) && !empty($user))
 		{
 			$extraInfo = 'Username: ' . $user;
 		}

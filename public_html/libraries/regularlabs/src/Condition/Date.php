@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.4.11218
+ * @version         19.8.25552
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -23,42 +23,4 @@ use Joomla\CMS\Factory as JFactory;
 abstract class Date
 	extends \RegularLabs\Library\Condition
 {
-	var $timezone = null;
-	var $dates    = [];
-
-	public function getNow()
-	{
-		return strtotime($this->date->format('Y-m-d H:i:s', true));
-	}
-
-	public function getDate($date = '')
-	{
-		$id = 'date_' . $date;
-
-		if (isset($this->dates[$id]))
-		{
-			return $this->dates[$id];
-		}
-
-		$this->dates[$id] = JFactory::getDate($date);
-
-		if (empty($this->params->ignore_time_zone))
-		{
-			$this->dates[$id]->setTimeZone($this->getTimeZone());
-		}
-
-		return $this->dates[$id];
-	}
-
-	private function getTimeZone()
-	{
-		if ( ! is_null($this->timezone))
-		{
-			return $this->timezone;
-		}
-
-		$this->timezone = new DateTimeZone(JFactory::getApplication()->getCfg('offset'));
-
-		return $this->timezone;
-	}
 }

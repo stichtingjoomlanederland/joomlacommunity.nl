@@ -185,7 +185,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 							</div>
 						</div>
 
-						<?php if ($this->config->get('layout_badges_in_post') && $post->getOwner()->hasUserBadges()) { ?>
+						<?php if (ED::badges()->isEnabled() && $post->getOwner()->hasUserBadges()) { ?>
 						<div class="o-grid__cell o-grid__cell--auto-size o-grid__cell--center t-lg-pr--md">
 							<?php echo ED::badges()->getPostHtml($post->getOwner()->id); ?>
 						</div>
@@ -198,7 +198,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<div class="o-col-sm">
 					<div class="o-flag">
 						<div class="o-flag__image o-flag--top">
-							<?php echo $this->output('site/html/user.anonymous') ?>
+							<?php echo $this->html('user.anonymous', $post->getOwner(), $post->isAnonymous()); ?>
 						</div>
 						<div class="o-flag__body">
 							<div class="">
@@ -218,7 +218,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					</li>
 					<?php } ?>
 
-					<?php if ($post->hasPolls()) { ?>
+					<?php if ($post->hasPolls() && $this->config->get('main_polls')) { ?>
 					<li>
 						<i class="fa fa-pie-chart" data-ed-provide="tooltip" data-title="<?php echo JText::_('COM_ED_HAS_POLL');?>"></i>
 					</li>

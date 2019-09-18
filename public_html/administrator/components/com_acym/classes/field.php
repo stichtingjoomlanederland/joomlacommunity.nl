@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -32,7 +32,7 @@ class acymfieldClass extends acymClass
     public function getFieldsByID($ids)
     {
         acym_arrayToInteger($ids);
-        if (empty($ids)) return array();
+        if (empty($ids)) return [];
         $query = 'SELECT * FROM #__acym_field WHERE `id` IN('.implode(',', $ids).') ORDER BY `ordering` ASC';
 
         return acym_loadObjectList($query);
@@ -93,34 +93,68 @@ class acymfieldClass extends acymClass
         return acym_loadObjectList($query);
     }
 
-    public function store($fields, $userID)
+    public function store($userID, $fields, $ajax = false)
     {
         if (!empty($_FILES['customField'])) {
             $uploadFolder = trim(acym_cleanPath(html_entity_decode(acym_getFilesFolder())), DS.' ').DS;
             $uploadPath = acym_cleanPath(ACYM_ROOT.$uploadFolder.'userfiles'.DS);
+            $config = acym_config();
+            $allowedExtensions = explode(',', $config->get('allowed_files'));
+
             foreach ($_FILES['customField']['tmp_name'] as $key => $value) {
-                if (empty($value[0])) {
+                if (empty($value)) continue;
+
+                $fileName = $_FILES['customField']['name'][$key];
+                while (is_array($fileName) && isset($fileName[0])) {
+                    $fileName = $fileName[0];
+                }
+
+                if (!preg_match('#\.('.implode('|', $allowedExtensions).')$#Ui', $fileName)) {
+                    $ext = substr($fileName, strrpos($fileName, '.') + 1);
+                    if ($ajax) {
+                        $this->errors[] = acym_translation_sprintf(
+                            'ACYM_ACCEPTED_TYPE',
+                            acym_escape($ext),
+                            implode(', ', $allowedExtensions)
+                        );
+                    } else {
+                        acym_enqueueNotification(
+                            acym_translation_sprintf(
+                                'ACYM_ACCEPTED_TYPE',
+                                acym_escape($ext),
+                                implode(', ', $allowedExtensions)
+                            ),
+                            'error',
+                            5000
+                        );
+                    }
+
                     continue;
                 }
-                $error = acym_uploadFile($value[0], $uploadPath.$_FILES['customField']['name'][$key][0]);
-                if (!$error) {
-                    acym_enqueueNotification(acym_translation('ACYM_ERROR_SAVING'), 'error', 5000);
 
-                    return;
+                if (!acym_uploadFile($value, $uploadPath.$fileName)) {
+                    if ($ajax) {
+                        $this->errors[] = acym_translation('ACYM_ERROR_SAVING');
+                    } else {
+                        acym_enqueueNotification(acym_translation('ACYM_ERROR_SAVING'), 'error', 5000);
+                    }
+
+                    continue;
                 }
-                $fields[$key] = $_FILES['customField']['name'][$key][0];
+                $fields[$key] = $_FILES['customField']['name'][$key];
             }
         }
 
+        if (empty($fields)) return;
         foreach ($fields as $id => $field) {
             $query = 'INSERT INTO #__acym_user_has_field (`user_id`, `field_id`, `value`) VALUES ';
             if (is_array($field)) {
                 $fullField = $this->getOneFieldByID($id);
-                if (in_array($fullField->type, array('multiple_dropdown', 'radio', 'phone'))) {
+                if (in_array($fullField->type, ['multiple_dropdown', 'radio', 'phone'])) {
                     $field = implode(',', $field);
-                } else if ($fullField->type == 'checkbox') {
+                } elseif ($fullField->type == 'checkbox') {
                     $field = implode(',', array_keys($field));
-                } else if ($fullField->type == 'date') {
+                } elseif ($fullField->type == 'date') {
                     $field = implode('/', $field);
                 } else {
                     $field = json_encode($field);
@@ -138,7 +172,7 @@ class acymfieldClass extends acymClass
                     FROM #__acym_user_has_field AS user_field
                     LEFT JOIN #__acym_field AS field ON user_field.field_id = field.id';
 
-        $conditions = array();
+        $conditions = [];
 
         if ($forBackEnd) $conditions[] = 'field.backend_listing = 1';
 
@@ -155,7 +189,7 @@ class acymfieldClass extends acymClass
 
         $query .= !empty($conditions) ? ' WHERE ('.implode(') AND (', $conditions).')' : '';
 
-        $fieldValues = array();
+        $fieldValues = [];
         foreach (acym_loadObjectList($query) as $one) {
             $fieldValues[$one->field_id.$one->user_id] = is_array(json_decode($one->field_value)) ? implode(', ', json_decode($one->field_value)) : $one->field_value;
         }
@@ -167,10 +201,10 @@ class acymfieldClass extends acymClass
     {
         $query = 'SELECT id, name FROM #__acym_field WHERE backend_listing = 1 AND id NOT IN (1, 2)';
 
-        $return = array(
-            'names' => array(),
-            'ids' => array(),
-        );
+        $return = [
+            'names' => [],
+            'ids' => [],
+        ];
 
         foreach (acym_loadObjectList($query) as $one) {
             $return['names'][] = $one->name;
@@ -183,7 +217,7 @@ class acymfieldClass extends acymClass
     public function delete($elements)
     {
         if (!is_array($elements)) {
-            $elements = array($elements);
+            $elements = [$elements];
         }
         acym_arrayToInteger($elements);
 
@@ -205,10 +239,10 @@ class acymfieldClass extends acymClass
             $cmsUser = !empty($user->cms_id) ? true : false;
             if ($field->id == 1) {
                 $defaultValue = $user->name;
-            } else if ($field->id == 2) {
+            } elseif ($field->id == 2) {
                 $defaultValue = $user->email;
             } else {
-                $allValues = array();
+                $allValues = [];
                 $defaultUserValue = $this->getFieldsValueByUserId($user->id);
                 if (!empty($defaultUserValue)) {
                     foreach ($defaultUserValue as $one) {
@@ -222,8 +256,8 @@ class acymfieldClass extends acymClass
             }
         }
 
-        if (in_array($field->type, array('radio', 'checkbox'))) {
-            $valuesArrayTmp = array();
+        if (in_array($field->type, ['radio', 'checkbox'])) {
+            $valuesArrayTmp = [];
             foreach ($valuesArray as $oneValue) {
                 if (!is_object($oneValue)) {
                     $valuesArrayTmp = $valuesArray;
@@ -252,7 +286,7 @@ class acymfieldClass extends acymClass
 
         $style = empty($size) ? '' : ' style="'.$size.'"';
         $messageRequired = empty($field->option->error_message) ? acym_translation_sprintf('ACYM_DEFAULT_REQUIRED_MESSAGE', $field->name) : acym_translation($field->option->error_message);
-        $requiredJson = json_encode(array('type' => $field->type, 'message' => $messageRequired));
+        $requiredJson = json_encode(['type' => $field->type, 'message' => $messageRequired]);
         $required = $field->required ? ' data-required="'.acym_escape($requiredJson).'"' : '';
         $placeholder = '';
         if (!$displayOutside) $placeholder = ' placeholder="'.acym_escape($field->name).'"';
@@ -269,16 +303,16 @@ class acymfieldClass extends acymClass
         if ($field->id == 1) {
             $nameAttribute = ' name="user[name]"';
             $return .= '<input '.$nameAttribute.$placeholder.$required.$value.' type="text" class="cell">';
-        } else if ($field->id == 2) {
+        } elseif ($field->id == 2) {
             $nameAttribute = ' name="user[email]"';
             $return .= '<input '.$nameAttribute.$placeholder.$value.' required type="email" class="cell" id="acym__user__edit__email" '.($displayFront && $cmsUser ? 'disabled' : '').'>';
-        } else if ($field->type == 'text') {
+        } elseif ($field->type == 'text') {
             $field->option->authorized_content->message = $field->option->error_message_invalid;
             $authorizedContent = ' data-authorized-content="'.acym_escape(json_encode($field->option->authorized_content)).'"';
             $return .= '<input '.$nameAttribute.$placeholder.$required.$value.$authorizedContent.$style.' type="text">';
-        } else if ($field->type == 'textarea') {
+        } elseif ($field->type == 'textarea') {
             $return .= '<textarea '.$nameAttribute.$required.' rows="'.intval($field->option->rows).'" cols="'.intval($field->option->columns).'">'.(empty($defaultValue) ? $field->name : $defaultValue).'</textarea>';
-        } else if ($field->type == 'radio') {
+        } elseif ($field->type == 'radio') {
             if ($displayFront) {
                 $return .= '<div '.$displayIf.' class="cell acym__content"><div class="acym__users__creation__fields__title">'.$field->name.'</div>';
                 $defaultValue = empty($defaultValue) ? null : (is_array($defaultValue) ? $defaultValue[0] : $defaultValue);
@@ -293,8 +327,8 @@ class acymfieldClass extends acymClass
                 $return .= acym_radio($valuesArray, $name.'[]', empty($defaultValue) ? null : (is_array($defaultValue) ? $defaultValue[0] : $defaultValue), null, ($field->required ? ['data-required' => $requiredJson] : []));
                 $return .= '</div></div>';
             }
-        } else if ($field->type == 'checkbox') {
-            $return .= '<div '.$displayIf.' class="cell margin-top-1 acym__content"><div class="acym__users__creation__fields__title margin-bottom-1">'.$field->name.'</div>';
+        } elseif ($field->type == 'checkbox') {
+            $return .= '<div '.$displayIf.' class="cell margin-top-1"><div class="acym__users__creation__fields__title margin-bottom-1">'.$field->name.'</div>';
             if ($displayFront) {
                 $defaultValue = empty($defaultValue) ? null : (explode(',', $defaultValue));
                 foreach ($valuesArray as $key => $value) {
@@ -324,9 +358,9 @@ class acymfieldClass extends acymClass
                 }
             }
             $return .= '</div>';
-        } else if ($field->type == 'single_dropdown') {
+        } elseif ($field->type == 'single_dropdown') {
             $return .= acym_select($valuesArray, $name, empty($defaultValue) ? '' : $defaultValue, 'class="acym__custom__fields__select__form"'.$style.$required);
-        } else if ($field->type == 'multiple_dropdown') {
+        } elseif ($field->type == 'multiple_dropdown') {
             $defaultValue = is_array($defaultValue) ? $defaultValue : explode(',', $defaultValue);
 
             $attributes = [
@@ -336,10 +370,10 @@ class acymfieldClass extends acymClass
             if ($field->required) $attributes['data-required'] = $requiredJson;
 
             $return .= acym_selectMultiple($valuesArray, $name, empty($defaultValue) ? [] : $defaultValue, $attributes);
-        } else if ($field->type == 'date') {
+        } elseif ($field->type == 'date') {
             $defaultValue = is_array($defaultValue) ? implode('/', $defaultValue) : $defaultValue;
             $return .= acym_displayDateFormat($field->option->format, $name.'[]', $defaultValue);
-        } else if ($field->type == 'file') {
+        } elseif ($field->type == 'file') {
             $defaultValue = is_array($defaultValue) ? $defaultValue[0] : $defaultValue;
             if ($displayFront) {
                 $return .= '<label '.$displayIf.' class="cell margin-top-1 grid-x grid-margin-x"><div class="acym__users__creation__fields__title cell">'.$field->name.'</div>';
@@ -347,7 +381,7 @@ class acymfieldClass extends acymClass
             } else {
                 $return .= acym_inputFile($name.'[]', $defaultValue, '', '', $required);
             }
-        } else if ($field->type == 'phone') {
+        } elseif ($field->type == 'phone') {
             $defaultValue = !empty($defaultValue) ? explode(',', $defaultValue) : '';
 
             if ($displayOutside) $return .= '<label '.$displayIf.' class="cell margin-top-1 grid-x grid-margin-x"><div class="acym__users__creation__fields__title cell">'.$field->name.'</div>';
@@ -355,7 +389,7 @@ class acymfieldClass extends acymClass
             $return .= acym_generateCountryNumber($name.'[code]', empty($defaultValue) ? '' : $defaultValue[0]);
             $return .= '</div>';
             $return .= '<input '.$placeholder.$required.$style.' class="medium-9 cell" type="tel" name="'.$name.'[phone]" value="'.acym_escape(empty($defaultValue) ? '' : $defaultValue[1]).'" data-format="'.acym_escape($field->option->format).'">';
-        } else if ($field->type == 'custom_text') {
+        } elseif ($field->type == 'custom_text') {
             $return .= $field->option->custom_text;
         }
 

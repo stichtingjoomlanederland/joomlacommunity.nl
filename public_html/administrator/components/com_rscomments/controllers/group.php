@@ -18,6 +18,6 @@ class RscommentsControllerGroup extends JControllerForm
 	}
 	
 	public function allowAdd($data = array()) {
-		return RSCommentsHelper::canAdd();
+		return RSCommentsHelperAdmin::canAdd();
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -18,10 +18,10 @@ class ListsController extends acymController
         $this->breadcrumb[acym_translation('ACYM_LISTS')] = acym_completeLink('lists');
         $this->edition = acym_getVar('int', 'edition', 0);
         $this->listClass = acym_get('class.list');
-        $this->loadScripts = array(
-            'edit' => array('colorpicker'),
-            'save' => array('colorpicker'),
-        );
+        $this->loadScripts = [
+            'edit' => ['colorpicker'],
+            'save' => ['colorpicker'],
+        ];
     }
 
     public function listing()
@@ -40,7 +40,7 @@ class ListsController extends acymController
 
         $listClass = acym_get('class.list');
         $matchingLists = $listClass->getMatchingLists(
-            array(
+            [
                 'ordering' => $ordering,
                 'search' => $searchFilter,
                 'listsPerPage' => $listsPerPage,
@@ -48,13 +48,13 @@ class ListsController extends acymController
                 'tag' => $tagFilter,
                 'status' => $status,
                 'ordering_sort_order' => $orderingSortOrder,
-            )
+            ]
         );
 
         $pagination = acym_get('helper.pagination');
         $pagination->setStatus($matchingLists['total'], $page, $listsPerPage);
 
-        $data = array(
+        $data = [
             "lists" => $matchingLists['lists'],
             "tags" => acym_get('class.tag')->getAllTagsByType('list'),
             "pagination" => $pagination,
@@ -65,7 +65,7 @@ class ListsController extends acymController
             "status" => $status,
             "format" => $format,
             "orderingSortOrder" => $orderingSortOrder,
-        );
+        ];
 
         parent::display($data);
     }
@@ -87,7 +87,7 @@ class ListsController extends acymController
         $usersPerPage = acym_getCMSConfig('list_limit', 20);
         $page = acym_getVar('int', 'subscribers_pagination_page', 1);
 
-        $listData = array();
+        $listData = [];
         $listData['listInformation'] = $this->listClass->getOneById($listId);
 
         $link = $this->edition ? acym_completeLink('lists&task=edit&step=subscribers&edition=1&id=').$listId : '';
@@ -101,12 +101,12 @@ class ListsController extends acymController
         }
 
         $matchingUsers = $this->listClass->getMatchingSubscribersByListId(
-            array(
+            [
                 'search' => $searchFilter,
                 'usersPerPage' => $usersPerPage,
                 'offset' => ($page - 1) * $usersPerPage,
                 'status' => $status,
-            ),
+            ],
             $listId
         );
 
@@ -147,7 +147,7 @@ class ListsController extends acymController
     public function unsubscribeUsers()
     {
         acym_checkToken();
-        $ids = acym_getVar('array', 'elements_checked', array());
+        $ids = acym_getVar('array', 'elements_checked', []);
         $userClass = acym_get('class.user');
         foreach ($ids as $id) {
             if (!empty($id)) {
@@ -162,7 +162,7 @@ class ListsController extends acymController
     {
         acym_checkToken();
         $listId = acym_getVar("int", "id", 0);
-        $selectedUsers = acym_getVar("array", "elements_checked", array());
+        $selectedUsers = acym_getVar("array", "elements_checked", []);
 
 
         if (!empty($selectedUsers) && !empty($listId)) {
@@ -188,9 +188,9 @@ class ListsController extends acymController
     {
         acym_setVar("layout", "settings");
         $listId = acym_getVar("int", "id", 0);
-        $listTagsName = array();
+        $listTagsName = [];
 
-        $randColor = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
+        $randColor = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
 
         if (!$listId) {
             $listInformation = new stdClass();
@@ -224,11 +224,11 @@ class ListsController extends acymController
             acym_setVar('edition', '1');
         }
 
-        $listData = array(
+        $listData = [
             "listInformation" => $listInformation,
             "allTags" => acym_get('class.tag')->getAllTagsByType('list'),
             "listTagsName" => $listTagsName,
-        );
+        ];
 
         parent::display($listData);
     }
@@ -249,11 +249,11 @@ class ListsController extends acymController
         $mailClass = acym_get('class.mail');
         $mails = $mailClass->getMailsByType(
             $type,
-            array(
+            [
                 'mailsPerPage' => $mailsPerPage,
                 'offset' => ($page - 1) * $mailsPerPage,
                 'search' => $searchFilter,
-            )
+            ]
         );
 
         $currentList = $this->listClass->getOneById($listId);
@@ -270,13 +270,13 @@ class ListsController extends acymController
             }
         }
 
-        $data = array(
+        $data = [
             $type.'Mails' => $mails['mails'],
             'pagination' => $pagination,
             'search' => $searchFilter,
             'selected'.ucfirst($type) => $selectedTemplate,
             'listId' => $listId,
-        );
+        ];
 
         parent::display($data);
     }
@@ -333,7 +333,7 @@ class ListsController extends acymController
         acym_checkToken();
 
         $listUseSameReplyTo = acym_getVar("boolean", "list_use_same_reply-to");
-        $formData = (object)acym_getVar("array", "list", array());
+        $formData = (object)acym_getVar("array", "list", []);
 
         $listId = acym_getVar('int', 'id', 0);
         if (!empty($listId)) {
@@ -349,7 +349,7 @@ class ListsController extends acymController
             $listInformation->{$name} = $data;
         }
 
-        $listInformation->tags = acym_getVar("array", "list_tags", array());
+        $listInformation->tags = acym_getVar("array", "list_tags", []);
 
         if ($listUseSameReplyTo) {
             $listInformation->reply_to_name = $listInformation->from_name;
@@ -426,7 +426,7 @@ class ListsController extends acymController
     public function setVisible()
     {
         acym_checkToken();
-        $ids = acym_getVar('array', 'elements_checked', array());
+        $ids = acym_getVar('array', 'elements_checked', []);
 
         if (!empty($ids)) {
             $this->listClass->setVisible($ids, 1);
@@ -438,7 +438,7 @@ class ListsController extends acymController
     public function setInvisible()
     {
         acym_checkToken();
-        $ids = acym_getVar('array', 'elements_checked', array());
+        $ids = acym_getVar('array', 'elements_checked', []);
 
         if (!empty($ids)) {
             $this->listClass->setVisible($ids, 0);
@@ -464,13 +464,13 @@ class ListsController extends acymController
         }
 
 
-        $params = array(
+        $params = [
             'ordering' => $matchingListsData->ordering,
             'search' => $matchingListsData->searchFilter,
             'listsPerPage' => $matchingListsData->listsPerPage,
             'offset' => ($matchingListsData->page - 1) * $matchingListsData->listsPerPage,
             'already' => $matchingListsData->idsAlready,
-        );
+        ];
 
         if ($showSelected == 'true') {
             $params['ids'] = $matchingListsData->idsSelected;
@@ -539,7 +539,7 @@ class ListsController extends acymController
                         </div>
                     </div>';
         }
-        $return = array();
+        $return = [];
         $return['html'] = $echo;
         $return['notif'] = acym_translation_sprintf('ACYM_X_CONFIRMATION_SUBSCRIPTION_ADDED_AND_CLICK_TO_SAVE', count($allLists));
         $return = json_encode($return);
@@ -547,3 +547,4 @@ class ListsController extends acymController
         exit;
     }
 }
+

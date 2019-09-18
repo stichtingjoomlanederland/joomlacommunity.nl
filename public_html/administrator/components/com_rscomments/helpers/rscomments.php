@@ -22,7 +22,7 @@ if (!function_exists('mb_substr')) {
 	}
 }
 
-abstract class RSCommentsHelper {
+abstract class RSCommentsHelperAdmin {
 	
 	// Get component configuration
 	public static function getConfig($name = null, $default = null) {
@@ -71,7 +71,7 @@ abstract class RSCommentsHelper {
 
 	// Get update code
 	public static function genKeyCode() {
-		if ($code = RSCommentsHelper::getConfig('global_register_code')) {
+		if ($code = RSCommentsHelperAdmin::getConfig('global_register_code')) {
 			$version = new RSCommentsVersion();
 			return md5($code.$version->key);
 		}
@@ -79,7 +79,7 @@ abstract class RSCommentsHelper {
 	
 	// Load jQuery
 	public static function loadjQuery($noconflict = true) {
-		$enable = RSCommentsHelper::getConfig('backend_jquery', 1);
+		$enable = RSCommentsHelperAdmin::getConfig('backend_jquery', 1);
 		
 		if ($enable) {
 			JHtml::_('jquery.framework', $noconflict);
@@ -88,18 +88,18 @@ abstract class RSCommentsHelper {
 	
 	//set scripts
 	public static function setScripts() {
-		RSCommentsHelper::loadjQuery();
+		RSCommentsHelperAdmin::loadjQuery();
 			
 		JHtml::_('formbehavior.chosen', 'select');
 		
 		JHtml::stylesheet('com_rscomments/admin.css', array('relative' => true, 'version' => 'auto'));
 		
-		if (RSCommentsHelper::getConfig('fontawesome_admin') == 1) {
+		if (RSCommentsHelperAdmin::getConfig('fontawesome_admin') == 1) {
 			JHtml::stylesheet('com_rscomments/font-awesome.min.css', array('relative' => true, 'version' => 'auto'));
 		}
 		
-		RSCommentsHelper::cleancache();
-		RSCommentsHelper::submenu();
+		RSCommentsHelperAdmin::cleancache();
+		RSCommentsHelperAdmin::submenu();
 	}
 	
 	// Clean the cache
@@ -108,7 +108,7 @@ abstract class RSCommentsHelper {
 	}
 	
 	public static function showDate($date, $format = null) {
-		$date_format = !is_null($format) ? $format : RSCommentsHelper::getConfig('date_format');
+		$date_format = !is_null($format) ? $format : RSCommentsHelperAdmin::getConfig('date_format');
 		return JHtml::date($date, $date_format);
 	}
 
@@ -325,7 +325,7 @@ abstract class RSCommentsHelper {
 	public static function getAvatar($user_id, $useremail = null, $size = 60, $class = null) {
 		$db			= JFactory::getDbo();
 		$query		= $db->getQuery(true);
-		$avatar 	= RSCommentsHelper::getConfig('avatar');
+		$avatar 	= RSCommentsHelperAdmin::getConfig('avatar');
 		$theclass	= '';
 		$html		= '';
 		

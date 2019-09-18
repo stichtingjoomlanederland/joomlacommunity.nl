@@ -106,7 +106,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 * @access	public
 	 */
 	public function getToolbarDropdown()
-	{
+	{		
 		$theme = ED::themes();
 		$theme->set('esConfig', ES::config());
 		$output = $theme->output('site/toolbar/easysocial');
@@ -1075,7 +1075,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 * @since	4.2.0
 	 * @access	public
 	 */
-	public function hasToolbar()
+	public function hasToolbar($userId = null)
 	{
 		if (!$this->exists()) {
 			return false;
@@ -1083,6 +1083,14 @@ class EasyDiscussEasySocial extends EasyDiscuss
 
 		if (!$this->config->get('integration_easysocial_toolbar') || !$this->exists()) {
 			return false;
+		}
+
+		if (!is_null($userId)) {
+			$user = ES::user($userId);
+
+			if (!$user->hasCommunityAccess()) {
+				return false;
+			}
 		}
 
 		return true;
@@ -1252,7 +1260,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 
 	public function isGroupAppExists()
 	{
-		if (!$this->exists() || !$this->my->id) {
+		if (!$this->exists()) {
 			return false;
 		}
 

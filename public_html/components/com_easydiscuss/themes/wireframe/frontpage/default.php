@@ -15,15 +15,15 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 	<?php if ($featured) { ?>
 		<h3 class="ed-page-title"><?php echo JText::_('COM_EASYDISCUSS_FEATURED_POSTS'); ?></h3>
-		<div class="ed-posts-list" itemscope itemtype="http://schema.org/ItemList">
+		<div class="ed-posts-list t-lg-mb--lg" itemscope itemtype="http://schema.org/ItemList">
 			<?php foreach ($featured as $featuredPost) { ?>
 				<?php echo $this->output('site/posts/item', array('post' => $featuredPost)); ?>
 			<?php } ?>
 		</div>
 	<?php } ?>
 
-	<div class="ed-filters">
-		<?php echo $this->output('site/frontpage/filters', array('baseUrl' => 'view=index', 'activeFilter' => $activeFilter, 'activeSort' => $activeSort, 'menuCatId' => $menuCatId)); ?>
+	<div class="ed-filters" data-filters-wrapper>
+		<?php echo $this->output('site/frontpage/filters', array('baseUrl' => 'view=index', 'activeFilter' => $activeFilter, 'activeStatus' => $activeStatus, 'activeSort' => $activeSort, 'menuCatId' => $menuCatId, 'view' => $view)); ?>
 	</div>
 
 	<div class="ed-posts-list <?php echo !$posts ? 'is-empty' : '';?>" data-list-item itemscope itemtype="http://schema.org/ItemList">

@@ -233,23 +233,15 @@ class EasyDiscussLikes extends EasyDiscuss
 		return $output;
 	}
 
-
 	/**
 	 * Notifies the post owner when someone likes his post
 	 *
-	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
+	 * @since	4.1.7
+	 * @access	private
 	 */
-	private function notifyPostOwner(EasyDiscussPost $post)
+	private function likeNotify($post)
 	{
-		if (!$this->config->get('notify_owner_like')) {
-			return;
-		}
-
-		// Do not process notification if post owner like their own post.
-		if ($post->user_id == $this->my->id) {
+		if (!$this->config->get('main_notifications_liked')) {
 			return;
 		}
 
@@ -261,31 +253,64 @@ class EasyDiscussLikes extends EasyDiscuss
 		$title = $question->title;
 		$likeType = $post->isQuestion() ? DISCUSS_NOTIFICATIONS_LIKES_DISCUSSION : DISCUSS_NOTIFICATIONS_LIKES_REPLIES;
 
+		$permalink = 'index.php?option=com_easydiscuss&view=post&id=' . $question->id;
+
+		if (!$post->isQuestion()) {
+			$permalink = 'index.php?option=com_easydiscuss&' . $post->getReplyPermalink();
+		}
+
 		$notification->bind(array(
-				'title'	=> JText::sprintf($text, $title),
-				'cid' => $question->id,
-				'type' => $likeType,
-				'target' => $post->user_id,
-				'author' => $this->my->id,
-				'permalink'	=> 'index.php?option=com_easydiscuss&view=post&id=' . $question->id
-			));
+			'title'	=> JText::sprintf($text, $title),
+			'cid' => $question->id,
+			'type' => $likeType,
+			'target' => $post->user_id,
+			'author' => $this->my->id,
+			'permalink'	=> $permalink
+		));
 
 		$notification->store();
+	}
+
+	/**
+	 * Notifies the post owner when someone likes his post
+	 *
+	 * @since	4.0
+	 * @access	private
+	 */
+	private function notifyPostOwner(EasyDiscussPost $post)
+	{
+		// Do not process notification if post owner like their own post.
+		if ($post->user_id == $this->my->id) {
+			return;
+		}
+
+		$this->likeNotify($post);
+
+		if (!$this->config->get('notify_owner_like')) {
+			return;
+		}
+
+		$question = $post->isQuestion() ? $post : $post->getParent();
 
 		// Add email notification to the post owner.
 		$notify	= ED::getNotification();
-
 		$profile = ED::user($this->my->id);
+		$title = $question->title;
+
+		$permalink = 'index.php?option=com_easydiscuss&view=post&id=' . $question->id;
+
+		if (!$post->isQuestion()) {
+			$permalink = 'index.php?option=com_easydiscuss&' . $post->getReplyPermalink();
+		}
 
 		$emailText = $post->isQuestion() ? 'POST' : 'REPLY';
-
 		$emailSubject = JText::sprintf('COM_EASYDISCUSS_USER_LIKED_YOUR_' . $emailText, $profile->getName(), $title);
 		$emailTemplate = 'email.like.post';
 
 		$emailData = array();
 		$emailData['emailContent'] = JText::sprintf('COM_EASYDISCUSS_EMAIL_TEMPLATE_LIKES_' . $emailText, $profile->getName(), $title);
 		$emailData['replyContent'] = $post->content;
-		$emailData['postLink'] = EDR::getRoutedURL('view=post&id=' . $question->id, false, true);
+		$emailData['postLink'] = EDR::getRoutedURL($permalink, false, true);
 
 		$recipient = JFactory::getUser($post->user_id);
 

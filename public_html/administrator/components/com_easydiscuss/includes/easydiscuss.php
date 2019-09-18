@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -438,7 +438,7 @@ class ED
 
 		foreach($items as $index => $item) {
 			if (strpos($item, '*' ) !== false) {
-				$items[$index] = 'censored';
+				$items[$index] = str_replace('*', '-', $items[$index]);
 			}
 		}
 
@@ -1205,28 +1205,31 @@ class ED
 			$original = JPath::clean($target_file_path . '/' . 'original_' . JFile::makeSafe($file['name']));
 
 			$isNew = false;
+			$redirectUrl = $isFromBackend ? 'index.php?option=com_easydiscuss&view=users&layout=form&id=' . $profile->id : EDR::_('index.php?option=com_easydiscuss&view=profile&layout=edit', false);
 
 			if (!ED::Image()->canUpload($file, $error)) {
-				if (!$isFromBackend) {
-					ED::setMessageQueue(JText::_($error), 'error');
-					$mainframe->redirect(EDR::_('index.php?option=com_easydiscuss&view=profile&layout=edit', false));
+
+				ED::setMessageQueue(JText::_($error), 'error');
+				
+				if (!$isFromBackend) {	
+					$mainframe->redirect($redirectUrl);
 					return;
 				}
 
-				$mainframe->redirect(EDR::_('index.php?option=com_easydiscuss&view=users', false), JText::_($error), 'error');
-
+				$mainframe->redirect($redirectUrl, JText::_($error), 'error');
 				return;
 			}
 
 			if ((int)$file['error'] != 0) {
+				
+				ED::setMessageQueue( $file['error'] , 'error');
+
 				if (!$isFromBackend) {
-					ED::setMessageQueue( $file['error'] , 'error');
-					$mainframe->redirect(EDR::_('index.php?option=com_easydiscuss&view=profile&layout=edit', false));
+					$mainframe->redirect($redirectUrl);
 					return;
 				}
-				//from backend
-				$mainframe->redirect(EDR::_('index.php?option=com_easydiscuss&view=users', false), $file['error'], 'error');
 
+				$mainframe->redirect($redirectUrl, $file['error'], 'error');
 				return;
 			}
 
@@ -1584,8 +1587,8 @@ class ED
 
 			$comment = ED::table('Comment');
 			$comment->bind($row);
-
-			$comment->duration = ED::date()->toLapsed($comment->modified);
+			
+            $comment->duration = ED::date()->toLapsed($comment->modified);
 
 			$creator = ED::user($comment->user_id);
 			$comment->creator = $creator;
@@ -1640,7 +1643,7 @@ class ED
 			return $result;
 		}
 
-		$limitstart = JFactory::getApplication()->input->get('limitstart', 0);
+		$limitstart = JFactory::getApplication()->input->get('limitstart', 0, 'int');
 		$replies = array();
 
 		foreach ($result as $key => $row) {
@@ -1660,7 +1663,7 @@ class ED
 			}
 
 			if ($config->get('main_comment')) {
-				$commentLimit = $config->get('main_comment_pagination') ? $config->get('main_comment_pagination_count') : null;
+				$commentLimit = $config->get('main_comment_pagination') ? $config->get('main_comment_first_sight_count') : null;
 				$reply->comments = $reply->getComments($commentLimit);
 
 				// get post comments count
@@ -2239,7 +2242,25 @@ class ED
 		return $html;
 	}
 
+	/**
+	 * Generates a html code for post status selection in backend
+	 *
+	 * @since	4.1.7
+	 * @access	public
+	 */
+	public static function populatePostStatusFilter($element, $selectedPostStatus)
+	{
+		$onHold = JText::_('COM_ED_POST_STATUS_FILTER_ON_HOLD');
+		$accepted = JText::_('COM_ED_POST_STATUS_FILTER_ACCEPTED');
+		$workingOn = JText::_('COM_ED_POST_STATUS_FILTER_WORKING_ON');
+		$rejected = JText::_('COM_ED_POST_STATUS_FILTER_REJECTED');
 
+		$postStatus = array(DISCUSS_POST_STATUS_ON_HOLD => $onHold, DISCUSS_POST_STATUS_ACCEPTED => $accepted, DISCUSS_POST_STATUS_WORKING_ON => $workingOn, DISCUSS_POST_STATUS_REJECT => $rejected);
+		$defaultSelection = JText::_('COM_ED_POST_STATUS_FILTER_DEFAULT');
+		$theme = ED::themes();
+
+		return $theme->html('table.filter', $element, $selectedPostStatus, $postStatus, $defaultSelection);
+	}
 
 	/**
 	 * $post - post jtable object
@@ -3399,7 +3420,7 @@ class ED
 			case 'easysocial':
 
 				if (ED::easysocial()->exists()) {
-					$link = ESR::profile(array('layout' => 'forgetUsername'));
+					$link = ESR::account(array('layout' => 'forgetUsername'));
 				} else {
 					$link = $default;
 				}
@@ -3771,7 +3792,7 @@ class ED
 			// Allow syntax highlighter even on html codes.
 			$content = ED::parser()->replaceCodes($content);
 
-			$content = ED::parser()->bbcode($content , true);
+			$content = ED::parser()->bbcode($content);
 
 			// Since this is a bbcode content and source, we want to replace \n with <br /> tags.
 			$content = nl2br($content);
@@ -4449,18 +4470,22 @@ class ED
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public static function getCallback()
+	public static function getCallback($default = '', $resetSession = true)
 	{
 		$session = JFactory::getSession();
 		$data = $session->get('easydiscuss.callback', '', 'com_easydiscuss');
 
-		$data = unserialize( $data );
+		$data = unserialize($data);
 
 		// Clear off the session once it's been picked up.
-		$session->clear('easydiscuss.callback', 'com_easydiscuss');
+		if ($resetSession) {
+			$session->clear('easydiscuss.callback', 'com_easydiscuss');
+		}
+
+		if (!$data && $default) {
+			return $default;
+		}
 
 		return $data;
 	}

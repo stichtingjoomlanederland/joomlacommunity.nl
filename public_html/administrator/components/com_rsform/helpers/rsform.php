@@ -557,13 +557,11 @@ class RSFormProHelper
 			{
 				$cid = $mainframe->input->get('cid', array(), 'array');
 
-				$db = JFactory::getDbo();
-				$query = $db->getQuery(true)
-					->select($db->qn('Lang'))
-					->from($db->qn('#__rsform_submissions'))
-					->where($db->qn('SubmissionId').'='.$db->q(reset($cid)));
-				return $db->setQuery($query)
-					->loadResult();
+				require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/submissions.php';
+				if ($submission = RSFormProSubmissionsHelper::getSubmission(reset($cid), false))
+				{
+					return $submission->Lang;
+				}
 			}
 
 			return $session->get('com_rsform.form.formId'.$formId.'.lang', $lang->getTag());
@@ -571,6 +569,21 @@ class RSFormProHelper
 		// frontend
 		else
 		{
+			// If it's a directory, get the language of the submission
+			if (($active = $mainframe->getMenu()->getActive()) && // get active menu
+				isset($active->query, $active->query['option'], $active->query['view']) // make sure we have option & query
+				&& $active->query['option'] == 'com_rsform' && $active->query['view'] == 'directory' // make sure it's a Directory view
+				&& ($params = $active->getParams()) // we have params
+				&& $params->get('enable_directory') && $params->get('formId') == $formId // this form matches
+				&& ($id = $mainframe->input->getInt('id'))) // it's an edit request
+			{
+				require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/submissions.php';
+				if ($submission = RSFormProSubmissionsHelper::getSubmission($id, false))
+				{
+					return $submission->Lang;
+				}
+			}
+
 			return $lang->getTag();
 		}
 	}
@@ -630,6 +643,12 @@ class RSFormProHelper
                     $lang 		  = RSFormProHelper::getCurrentLanguage($formId);
                     $translations = RSFormProHelper::getTranslations('properties', $formId, $lang);
                     foreach ($all_data as $componentId => $properties) {
+                    	// Don't translate again if not needed
+                    	if (!in_array($componentId, $newComponentIds))
+						{
+							continue;
+						}
+
                         foreach ($properties as $property => $value) {
                             $reference_id = $componentId.'.'.$property;
                             if (isset($translations[$reference_id])) {
@@ -787,6 +806,7 @@ class RSFormProHelper
         $values         = array();
         $Itemid         = $mainframe->input->getInt('Itemid');
         $Itemid         = $Itemid ? '&amp;Itemid='.$Itemid : '';
+		$root 			= JUri::getInstance()->toString(array('scheme', 'host', 'port'));
 
         // Get the submission
         require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/submissions.php';
@@ -912,15 +932,38 @@ class RSFormProHelper
                     // Check if this is an upload field
                     if ($component->ComponentTypeId == RSFORM_FIELD_FILEUPLOAD)
                     {
-                    	// If we have a value, create a link, otherwise no point in doing that
-                    	if (strlen($value))
+                    	$separator = '<br />';
+                    	if (!empty($property['FILESSEPARATOR']))
 						{
-							$value = '<a href="'.JUri::root().'index.php?option=com_rsform&amp;task=submissions.view.file&amp;hash='.md5($submission->SubmissionId.$secret.$property['NAME']).$Itemid.'">'.basename($submission->values[$property['NAME']]).'</a>';
+							$separator = str_replace(array('\n', '\r', '\t'), array("\n", "\r", "\t"), $property['FILESSEPARATOR']);
+						}
+
+                    	if (!empty($property['MULTIPLE']) && $property['MULTIPLE'] === 'YES')
+						{
+							$value = RSFormProHelper::explode($value);
 						}
 						else
 						{
-							$value = '';
+							$value = array($value);
 						}
+
+						$actualValues = array();
+						foreach ($value as $actualValue)
+						{
+							// If we have a value, create a link, otherwise no point in doing that
+							if (strlen($actualValue))
+							{
+								$actualValues[] = '<a href="'. $root . JRoute::_('index.php?option=com_rsform&task=submissions.view.file&hash=' . md5($submission->SubmissionId . $secret . $property['NAME']) . '&file=' . md5($actualValue) . $Itemid) . '">'.RSFormProHelper::htmlEscape(basename($actualValue)).'</a>';
+							}
+							else
+							{
+								$actualValues[] = '';
+							}
+						}
+
+						$actualValues = array_filter($actualValues);
+
+						$value = implode($separator, $actualValues);
                     }
 
                     // Check if this is a multiple field
@@ -993,29 +1036,82 @@ class RSFormProHelper
                     }
                 }
 
+                // {component:map}
+				if ($component->ComponentTypeId == RSFORM_FIELD_GMAPS)
+				{
+					$placeholders[] = '{'.$property['NAME'].':map}';
+					$mapw = str_replace('px', '', $property['MAPWIDTH']);
+					$maph = str_replace('px', '', $property['MAPHEIGHT']);
+					if (!empty($submission->values[$property['NAME']]))
+					{
+						$values[] = '<img width="' . self::htmlEscape($mapw) . '" height="' . self::htmlEscape($maph) . '" class="rsfp-gmap-image" src="https://maps.googleapis.com/maps/api/staticmap?key=' . urlencode(RSFormProHelper::getConfig('google.api_key')) . '&amp;markers=' . urlencode($submission->values[$property['NAME']]) . '&amp;center=' . urlencode($submission->values[$property['NAME']]) . '&amp;zoom=' . urlencode($property['MAPZOOM']) . '&amp;size=' . urlencode($mapw . 'x' . $maph) . '&amp;maptype=' . urlencode(strtolower($property['MAPTYPE'])) . '">';
+					}
+					else
+					{
+						$values[] = '';
+					}
+
+				}
+
                 // {component:path}
                 // {component:localpath}
                 // {component:filename}
+				// {component:image}
                 if ($component->ComponentTypeId == RSFORM_FIELD_FILEUPLOAD)
                 {
+					$separator = '<br />';
+					if (!empty($property['FILESSEPARATOR']))
+					{
+						$separator = str_replace(array('\n', '\r', '\t'), array("\n", "\r", "\t"), $property['FILESSEPARATOR']);
+					}
+
+					if (!empty($submission->values[$property['NAME']]))
+					{
+						if (!empty($property['MULTIPLE']) && $property['MULTIPLE'] === 'YES')
+						{
+							$value = RSFormProHelper::explode($submission->values[$property['NAME']]);
+						}
+						else
+						{
+							$value = array($submission->values[$property['NAME']]);
+						}
+					}
+					else
+					{
+						$value = array();
+					}
+
                     $placeholders[] = '{'.$property['NAME'].':path}';
                     $placeholders[] = '{'.$property['NAME'].':localpath}';
                     $placeholders[] = '{'.$property['NAME'].':filename}';
-                    if (isset($submission->values[$property['NAME']]))
-                    {
-                        $filepath = $submission->values[$property['NAME']];
-                        $filepath = substr_replace($filepath, JUri::root(), 0, strlen(JPATH_SITE)+1);
-                        $filepath = str_replace(array('\\', '\\/', '//\\'), '/', $filepath);
-                        $values[] = $filepath;
-                        $values[] = $submission->values[$property['NAME']];
-                        $values[] = basename($submission->values[$property['NAME']]);
-                    }
-                    else
-                    {
-                        $values[] = '';
-                        $values[] = '';
-                        $values[] = '';
-                    }
+                    $placeholders[] = '{'.$property['NAME'].':image}';
+                    $placeholders[] = '{'.$property['NAME'].':localimage}';
+
+					$parsed = array(
+						'value' 		=> array(),
+						'path' 			=> array(),
+						'localpath' 	=> array(),
+						'filename' 		=> array(),
+						'image'			=> array(),
+						'localimage'	=> array()
+					);
+					foreach ($value as $actualValue)
+					{
+						$filepath = substr_replace($actualValue, JUri::root(), 0, strlen(JPATH_SITE)+1);
+						$filepath = str_replace(array('\\', '\\/', '//\\'), '/', $filepath);
+
+						$parsed['path'][]   	= $filepath;
+						$parsed['localpath'][]  = $actualValue;
+						$parsed['filename'][]	= basename($actualValue);
+						$parsed['image'][]		= '<img src="' . self::htmlEscape($filepath) . '">';
+						$parsed['localimage'][]	= '<img src="' . self::htmlEscape($actualValue) . '">';
+					}
+
+					$values[] = implode($separator, $parsed['path']);
+					$values[] = implode($separator, $parsed['localpath']);
+					$values[] = implode($separator, $parsed['filename']);
+					$values[] = implode($separator, $parsed['image']);
+					$values[] = implode($separator, $parsed['localimage']);
 
                     // Handle attach to email settings.
                     if (!empty($property['EMAILATTACH']))
@@ -1142,7 +1238,7 @@ class RSFormProHelper
             {
                 if (!empty($submission->values[$name]))
                 {
-                    $userEmail['files'][] = $submission->values[$name];
+					$userEmail['files'] = array_merge($userEmail['files'], RSFormProHelper::explode($submission->values[$name]));
                 }
             }
         }
@@ -1187,7 +1283,7 @@ class RSFormProHelper
             {
                 if (!empty($submission->values[$name]))
                 {
-                    $adminEmail['files'][] = $submission->values[$name];
+					$adminEmail['files'] = array_merge($adminEmail['files'], RSFormProHelper::explode($submission->values[$name]));
                 }
             }
         }
@@ -1271,7 +1367,7 @@ class RSFormProHelper
                     {
                         if (!empty($submission->values[$name]))
                         {
-                            $additionalEmail['files'][] = $submission->values[$name];
+							$additionalEmail['files'] = array_merge($additionalEmail['files'], RSFormProHelper::explode($submission->values[$name]));
                         }
                     }
                 }
@@ -1772,7 +1868,7 @@ class RSFormProHelper
 		if ($form->AjaxValidation) {
 		    RSFormProAssets::addScriptDeclaration(
 "RSFormProUtils.addEvent(window, 'load', function(){
-    RSFormPro.Ajax.overrideSubmit(" . $formId . ", " . json_encode($validationParams) . ");
+    RSFormPro.Ajax.overrideSubmit(" . $formId . ", " . json_encode($validationParams) . ", " . ($form->DisableSubmitButton ? 'true' : 'false') . ");
 });");
 		} else {
 			RSFormProAssets::addScriptDeclaration(
@@ -1915,9 +2011,9 @@ class RSFormProHelper
         {
             foreach ($translations as $field => $value)
             {
-                if (isset($form->$field))
+                if (isset($form->{$field}))
                 {
-                    $form->$field = $value;
+                    $form->{$field} = $value;
                 }
             }
         }
@@ -1930,6 +2026,8 @@ class RSFormProHelper
 		$mainframe->triggerEvent('rsfp_f_onBeforeFormValidation', array(array('invalid'=>&$invalid, 'formId' => $formId, 'post' => &$post)));
 
 		$_POST['form'] = $post;
+
+		$isAjax = false;
 
 		eval($form->ScriptProcess);
 
@@ -1959,7 +2057,7 @@ class RSFormProHelper
             $submission = (object) array(
                 'FormId'         => $formId,
                 'DateSubmitted'  => $date->toSql(),
-                'UserIp'         => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '',
+                'UserIp'         => $mainframe->input->server->getString('REMOTE_ADDR'),
                 'Username'       => $user->username,
                 'UserId'         => $user->id,
                 'Lang'           => RSFormProHelper::getCurrentLanguage(),
@@ -2378,7 +2476,14 @@ class RSFormProHelper
 		return 0;
 	}
 
-	public static function validateForm($formId, $validationType='form', $SubmissionId=0)
+	/**
+	 * @param $formId
+	 * @param string $validationType
+	 * @param int $SubmissionId
+	 * @return array
+	 * @throws Exception
+	 */
+	public static function validateForm($formId, $validationType = 'form', $SubmissionId = 0)
 	{
 		$db 	 	= JFactory::getDbo();
 		$invalid 	= array();
@@ -2401,7 +2506,9 @@ class RSFormProHelper
 		$query = $db->getQuery(true);
 		$query->select($db->qn('c.ComponentId'))
 			->select($db->qn('c.ComponentTypeId'))
+			->select($db->qn('ct.ComponentTypeName'))
 			->from($db->qn('#__rsform_components', 'c'))
+			->join('left', $db->qn('#__rsform_component_types', 'ct') . ' ON (' . $db->qn('c.ComponentTypeId') . ' = ' . $db->qn('ct.ComponentTypeId') . ')')
 			->where($db->qn('FormId').'='.$db->q($formId))
 			->where($db->qn('Published').'='.$db->q(1))
 			->order($db->qn('Order').' '.$db->escape('asc'));
@@ -2418,7 +2525,8 @@ class RSFormProHelper
 
 		$db->setQuery($query);
 
-		if ($components = $db->loadObjectList('ComponentId')) {
+		if ($components = $db->loadObjectList('ComponentId'))
+		{
 			$componentIds = array_keys($components);
 			// load properties
 			$all_data = RSFormProHelper::getComponentProperties($componentIds);
@@ -2455,255 +2563,48 @@ class RSFormProHelper
 
 			// load validation rules
 			$validations 	 = array_flip(RSFormProHelper::getValidationRules(true));
-			$dateValidations = array_flip(RSFormProHelper::getDateValidationRules(true));
-
-			$validationClass 		= RSFormProHelper::getValidationClass();
-			$dateValidationClass 	= RSFormProHelper::getDateValidationClass();
+			$validationClass = RSFormProHelper::getValidationClass();
 
 			// validate through components
-			foreach ($components as $component) {
+			foreach ($components as $component)
+			{
 				$data 			= $all_data[$component->ComponentId];
 				$required 		= !empty($data['REQUIRED']) && $data['REQUIRED'] == 'YES';
 				$validationRule = !empty($data['VALIDATIONRULE']) ? $data['VALIDATIONRULE'] : '';
-				$typeId 		= $component->ComponentTypeId;
 
-				// birthDay field
-				if ($typeId == RSFORM_FIELD_BIRTHDAY) {
-					// flag to check if we need to run the validation functions
-					$runValidations = false;
+				$type 	= (string) preg_replace('/[^A-Z0-9_\.-]/i', '', $component->ComponentTypeName);
+				$type 	= ltrim($type, '.');
 
-					if ($validationType == 'directory') {
-						// Split the field...
-						$dateParts = explode($data['DATESEPARATOR'], $post[$data['NAME']]);
+				$fieldTypeClass = 'RSFormProField' . $type;
+				$fieldTypeFile  = dirname(__FILE__) . '/fields/' . strtolower($type) . '.php';
 
-						if ($data['SHOWDAY'] != 'YES') {
-							$data['DATEORDERING'] = str_replace('D', '', $data['DATEORDERING']);
-						}
-						if ($data['SHOWMONTH'] != 'YES') {
-							$data['DATEORDERING'] = str_replace('M', '', $data['DATEORDERING']);
-						}
-						if ($data['SHOWYEAR'] != 'YES') {
-							$data['DATEORDERING'] = str_replace('Y', '', $data['DATEORDERING']);
-						}
-
-						$day   = strpos($data['DATEORDERING'], 'D');
-						$month = strpos($data['DATEORDERING'], 'M');
-						$year  = strpos($data['DATEORDERING'], 'Y');
-
-						$post[$data['NAME']] = array();
-
-						if ($data['SHOWDAY'] == 'YES' && isset($dateParts[$day])) {
-							$post[$data['NAME']]['d'] = $dateParts[$day];
-						}
-
-						if ($data['SHOWMONTH'] == 'YES' && isset($dateParts[$month])) {
-							$post[$data['NAME']]['m'] = $dateParts[$month];
-						}
-						if ($data['SHOWYEAR'] == 'YES' && isset($dateParts[$year])) {
-							$post[$data['NAME']]['y'] = $dateParts[$year];
-						}
-					}
-
-					if ($required) {
-						// we need all of the fields to be selected
-						if ($data['SHOWDAY'] == 'YES' && empty($post[$data['NAME']]['d']) ||
-							$data['SHOWMONTH'] == 'YES' && empty($post[$data['NAME']]['m']) ||
-							$data['SHOWYEAR'] == 'YES' && empty($post[$data['NAME']]['y'])) {
-							$invalid[] = $data['componentId'];
-							continue;
-						}
-
-						$runValidations = true;
-					} else {
-						// the field is not required, but if a selection is made it needs to be valid
-						$selections = array();
-						if ($data['SHOWDAY'] == 'YES') {
-							$selections[] = !empty($post[$data['NAME']]['d']) ? $post[$data['NAME']]['d'] : '';
-						}
-						if ($data['SHOWMONTH'] == 'YES') {
-							$selections[] = !empty($post[$data['NAME']]['m']) ? $post[$data['NAME']]['m'] : '';
-						}
-						if ($data['SHOWYEAR'] == 'YES') {
-							$selections[] = !empty($post[$data['NAME']]['y']) ? $post[$data['NAME']]['y'] : '';
-						}
-						$foundEmpty = false;
-						$foundValue = false;
-						foreach ($selections as $selection) {
-							if ($selection == '') {
-								$foundEmpty = true;
-							} else {
-								$foundValue = true;
-							}
-						}
-						// at least 1 value has been selected but we've found empty values as well, make sure the selection is valid first!
-						if ($foundEmpty && $foundValue) {
-							$invalid[] = $data['componentId'];
-							continue;
-						} elseif ($foundValue && !$foundEmpty) {
-							$runValidations = true;
-						}
-					}
-
-					// we have all the info we need, validations only work when all fields are selected
-					if ($runValidations && $data['SHOWDAY'] == 'YES' && $data['SHOWMONTH'] == 'YES' && $data['SHOWYEAR'] == 'YES') {
-						$validationRule = !empty($data['VALIDATIONRULE_DATE']) ? $data['VALIDATIONRULE_DATE'] : '';
-
-						$day   = $post[$data['NAME']]['d'];
-						$month = $post[$data['NAME']]['m'];
-						$year  = $post[$data['NAME']]['y'];
-
-						// start checking validation rules
-						if (isset($dateValidations[$validationRule]) && !call_user_func(array($dateValidationClass, $validationRule), $day, $month, $year, $data)) {
-							$invalid[] = $data['componentId'];
-							continue;
-						}
-					}
-
-					// no need to process further
-					continue;
-				}
-
-				// CAPTCHA
-				if ($typeId == RSFORM_FIELD_CAPTCHA) {
-					if (JFactory::getUser()->id) {
-						$form = RSFormProHelper::getForm($formId);
-						if ($form->RemoveCaptchaLogged) {
-							continue;
-						}
-					}
-					$session = JFactory::getSession();
-					$captchaCode = $session->get('com_rsform.captcha.captchaId'.$component->ComponentId);
-					if ($data['IMAGETYPE'] == 'INVISIBLE')
+				if (file_exists($fieldTypeFile))
+				{
+					// If class doesn't exist, load the file
+					if (!class_exists($fieldTypeClass))
 					{
-					    if (empty($captchaCode))
-                        {
-                            $invalid[] = $data['componentId'];
-                        }
-
-						if (JFactory::getApplication()->input->post->get($captchaCode, '', 'raw'))
-                        {
-                            $invalid[] = $data['componentId'];
-                        }
-
-                        $words = RSFormProHelper::getInvisibleCaptchaWords();
-						foreach ($words as $word)
-                        {
-                            if (JFactory::getApplication()->input->post->get($word, '', 'raw'))
-                            {
-                                $invalid[] = $data['componentId'];
-                            }
-                        }
+						require_once $fieldTypeFile;
 					}
-					else
+
+					$config = array(
+						'formId'        => $formId,
+						'componentId'   => $component->ComponentId,
+						'data'          => $data,
+						'value'			=> $post
+					);
+
+					// access the field class
+					$field = new $fieldTypeClass($config);
+
+					if (is_callable(array($field, 'processValidation')))
 					{
-						if (empty($post[$data['NAME']]) || empty($captchaCode) || $post[$data['NAME']] != $captchaCode)
+						if (!$field->processValidation($validationType, $SubmissionId))
+						{
 							$invalid[] = $data['componentId'];
-					}
-
-					// no sense continuing
-					continue;
-				}
-
-				// Upload field
-				if ($typeId == RSFORM_FIELD_FILEUPLOAD) {
-					$originalUpload = false;
-					if ($validationType == 'directory' && $SubmissionId) {
-						$db->setQuery("SELECT FieldValue FROM #__rsform_submission_values WHERE FieldName='".$db->escape($data['NAME'])."' AND SubmissionId='".(int) $SubmissionId."' LIMIT 1");
-						$originalUpload = $db->loadResult();
-					}
-
-					if ($files = JFactory::getApplication()->input->files->get('form', null, 'raw')) {
-						if (!empty($files[$data['NAME']])) {
-							$name 		= $files[$data['NAME']]['name'];
-							$error 		= $files[$data['NAME']]['error'];
-							$size		= $files[$data['NAME']]['size'];
-
-							// File has not been sent but it's required
-							if ($error == UPLOAD_ERR_NO_FILE && $required && !$originalUpload) {
-								$invalid[] = $data['componentId'];
-								continue;
-							}
-
-							// File has been uploaded correctly to the server
-							if ($error == UPLOAD_ERR_OK) {
-								// Let's check if the extension is allowed
-								$extParts 		= explode('.', $name);
-								$ext 			= strtolower(end($extParts));
-								$acceptedExts   = false;
-                                if (!empty($data['ACCEPTEDFILESIMAGES']) && $data['ACCEPTEDFILESIMAGES'] == 'YES')
-                                {
-                                    $acceptedExts = array('jpg', 'jpeg', 'png', 'gif');
-                                }
-                                elseif (!empty($data['ACCEPTEDFILES']))
-                                {
-                                    $acceptedExts = self::explode($data['ACCEPTEDFILES']);
-                                }
-
-								// Let's check only if accepted extensions are set
-								if ($acceptedExts) {
-									$accepted = false;
-									foreach ($acceptedExts as $acceptedExt) {
-										$acceptedExt = trim(strtolower($acceptedExt));
-										if (strlen($acceptedExt) && $acceptedExt == $ext) {
-											$accepted = true;
-											break;
-										}
-									}
-									if (!$accepted) {
-										$invalid[] = $data['componentId'];
-										continue;
-									}
-								}
-
-								// Let's check if it's the correct size
-								if ($size > 0 && $data['FILESIZE'] > 0 && $size > $data['FILESIZE']*1024) {
-									$invalid[] = $data['componentId'];
-									continue;
-								}
-							} elseif ($error != UPLOAD_ERR_NO_FILE) {
-								// Parse the error message
-								switch ($error) {
-									default:
-										// File has not been uploaded correctly
-										$msg = JText::_('RSFP_FILE_HAS_NOT_BEEN_UPLOADED_DUE_TO_AN_UNKNOWN_ERROR');
-										break;
-
-									case UPLOAD_ERR_INI_SIZE:
-										$msg = JText::_('RSFP_UPLOAD_ERR_INI_SIZE');
-										break;
-
-									case UPLOAD_ERR_FORM_SIZE:
-										$msg = JText::_('RSFP_UPLOAD_ERR_FORM_SIZE');
-										break;
-
-									case UPLOAD_ERR_PARTIAL:
-										$msg = JText::_('RSFP_UPLOAD_ERR_PARTIAL');
-										break;
-
-									case UPLOAD_ERR_NO_TMP_DIR:
-										$msg = JText::_('RSFP_UPLOAD_ERR_NO_TMP_DIR');
-										break;
-
-									case UPLOAD_ERR_CANT_WRITE:
-										$msg = JText::_('RSFP_UPLOAD_ERR_CANT_WRITE');
-										break;
-
-									case UPLOAD_ERR_EXTENSION:
-										$msg = JText::_('RSFP_UPLOAD_ERR_EXTENSION');
-										break;
-								}
-
-								// Show the warning
-								JFactory::getApplication()->enqueueMessage($msg, 'warning');
-
-								$invalid[] = $data['componentId'];
-								continue;
-							}
 						}
-					}
 
-					// Files have been handled, no need to continue
-					continue;
+						continue;
+					}
 				}
 
 				// flag to check if we need to run the validation functions
@@ -2738,43 +2639,12 @@ class RSFormProHelper
                         continue;
                     }
 
-                    // Range Slider must have a value > 0
-                    if ($typeId == RSFORM_FIELD_RANGE_SLIDER && empty($value))
-                    {
-                        $invalid[] = $data['componentId'];
-                        continue;
-                    }
-
                     $runValidations = true;
 				} else { // not required, perform checks only when something is selected
 					// we have a value, make sure it's the correct one
 					if (isset($post[$data['NAME']]) && !is_array($post[$data['NAME']]) && strlen(trim($post[$data['NAME']]))) {
 						$runValidations = true;
 					}
-				}
-				
-				// check the calendar field if is required
-				if (($typeId == RSFORM_FIELD_CALENDAR || $typeId == RSFORM_FIELD_JQUERY_CALENDAR) && strlen(trim($post[$data['NAME']]))) {
-				    if (!isset($data['VALIDATIONDATE']) || $data['VALIDATIONDATE'] == 'YES') {
-                        $selectedDate = $post[$data['NAME']];
-
-                        if (JFactory::getLanguage()->getTag() != 'en-GB') {
-                            require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/calendar.php';
-
-                            $selectedDate = RSFormProCalendar::fixValue($selectedDate, $data['DATEFORMAT']);
-                        }
-
-                        $validDate = JFactory::getDate()->createFromFormat($data['DATEFORMAT'], $selectedDate);
-
-                        if ($validDate) {
-                            $validDate = $validDate->format($data['DATEFORMAT']);
-                        }
-
-                        if ($validDate != $selectedDate) {
-                            $invalid[] = $data['componentId'];
-                            continue;
-                        }
-                    }
 				}
 
 				if ($runValidations && isset($validations[$validationRule]) && !call_user_func(array($validationClass, $validationRule), $post[$data['NAME']], isset($data['VALIDATIONEXTRA']) ? $data['VALIDATIONEXTRA'] : '', $data)) {
@@ -2783,6 +2653,7 @@ class RSFormProHelper
 				}
 			}
 		}
+
 		return $invalid;
 	}
 
@@ -2804,11 +2675,6 @@ class RSFormProHelper
 			$attributes .= ' onclick="'.$onClick.'"';
 
 		return $attributes;
-	}
-
-	public static function getInvisibleCaptchaWords()
-	{
-		return array('Website', 'Email', 'Name', 'Address', 'User', 'Username', 'Comment', 'Message');
 	}
 
 	public static function stripJava($val) {
@@ -3181,6 +3047,7 @@ class RSFormProHelper
 					$currentFields[] = (object) array(
 						'FieldId' 		=> $field->FieldId,
 						'FieldName' 	=> $field->FieldName,
+						'FieldType'		=> $field->FieldType,
 						'FieldCaption' 	=> $field->FieldCaption,
 						'formId' 		=> $formId,
 						'componentId' 	=> $field->FieldId,
@@ -3196,6 +3063,7 @@ class RSFormProHelper
 					$currentFields[$field->FieldId]->FieldId 		= $field->FieldId;
 					$currentFields[$field->FieldId]->FieldName 		= $field->FieldName;
 					$currentFields[$field->FieldId]->FieldCaption 	= $field->FieldCaption;
+					$currentFields[$field->FieldId]->FieldType 		= $field->FieldType;
 					$currentFields[$field->FieldId]->allowEdit      = $allowEdit;
 				}
 			}
@@ -3272,70 +3140,80 @@ class RSFormProHelper
 		);
 	}
 
-	public static function canEdit($formId, $SubmissionId)
+	public static function canEdit($formId, $submissionId)
     {
-        $db = JFactory::getDbo();
-        $user = JFactory::getUser();
-        $canedit = false;
+        $user 		 = JFactory::getUser();
         $user_groups = JAccess::getGroupsByUser($user->get('id'));
 
-        if ($groups = static::getDirectoryGroups($formId, 'edit')) {
+		require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/submissions.php';
+		$submission = RSFormProSubmissionsHelper::getSubmission($submissionId, false);
+
+		// Submission does not exist, can't allow editing
+		if (!$submission)
+		{
+			return false;
+		}
+
+        if ($groups = static::getDirectoryGroups($formId, 'edit'))
+        {
             $registry = new JRegistry;
             $registry->loadString($groups);
-            if ($groups = $registry->toArray()) {
+
+            if ($groups = $registry->toArray())
+            {
                 // Check if the user can edit its own submissions
-                if (in_array('own', $groups)) {
-                    $db->setQuery('SELECT ' . $db->qn('UserId') . ' FROM ' . $db->qn('#__rsform_submissions') . ' WHERE ' . $db->qn('SubmissionId') . ' = ' . $SubmissionId . ' ');
-                    $UserId = $db->loadResult();
-                    if ($UserId == $user->get('id') && !$user->get('guest')) {
-                        $canedit = true;
-                    }
+                if (in_array('own', $groups) && $submission->UserId == $user->get('id') && !$user->get('guest'))
+                {
+					return true;
                 }
 
-                // Check if the current user can edit submissions
-                if ($user_groups) {
-                    foreach ($user_groups as $user_group) {
-                        if (in_array($user_group, $groups))
-                            $canedit = true;
-                    }
+                // Check if the current group can edit submissions
+                if ($user_groups && $groups && array_intersect($user_groups, $groups))
+                {
+                	return true;
                 }
             }
         }
 
-        return $canedit;
+        return false;
     }
 
-    public static function canDelete($formId, $SubmissionId)
+    public static function canDelete($formId, $submissionId)
     {
-        $db         = JFactory::getDbo();
-        $user       = JFactory::getUser();
-        $canDelete  = false;
+        $user        = JFactory::getUser();
         $user_groups = JAccess::getGroupsByUser($user->get('id'));
 
-        if ($groups = static::getDirectoryGroups($formId, 'delete')) {
+		require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/submissions.php';
+		$submission = RSFormProSubmissionsHelper::getSubmission($submissionId, false);
+
+		// Submission does not exist, can't allow deleting
+		if (!$submission)
+		{
+			return false;
+		}
+
+        if ($groups = static::getDirectoryGroups($formId, 'delete'))
+        {
             $registry = new JRegistry;
             $registry->loadString($groups);
-            if ($groups = $registry->toArray()) {
-                // Check if the user can edit its own submissions
-                if (in_array('own', $groups)) {
-                    $db->setQuery('SELECT ' . $db->qn('UserId') . ' FROM ' . $db->qn('#__rsform_submissions') . ' WHERE ' . $db->qn('SubmissionId') . ' = ' . $SubmissionId . ' ');
-                    $UserId = $db->loadResult();
-                    if ($UserId == $user->get('id') && !$user->get('guest')) {
-                        $canDelete = true;
-                    }
-                }
 
-                // Check if the current user can edit submissions
-                if ($user_groups) {
-                    foreach ($user_groups as $user_group) {
-                        if (in_array($user_group, $groups))
-                            $canDelete = true;
-                    }
-                }
+            if ($groups = $registry->toArray())
+            {
+                // Check if the user can delete its own submissions
+				if (in_array('own', $groups) && $submission->UserId == $user->get('id') && !$user->get('guest'))
+				{
+					return true;
+				}
+
+                // Check if the current user can delete submissions
+				if ($user_groups && $groups && array_intersect($user_groups, $groups))
+				{
+					return true;
+				}
             }
         }
 
-        return $canDelete;
+        return false;
     }
 
     public static function getDirectoryGroups($formId, $type = 'edit')
@@ -3365,221 +3243,6 @@ class RSFormProHelper
 
         return $cache[$formId]->{$type};
     }
-
-	public static function getEditFields($cid) {
-		$db			= JFactory::getDbo();
-		$return		= array();
-		$values		= JFactory::getApplication()->input->get('form',array(),'array');
-
-		jimport('joomla.filesystem.file');
-
-		// Load submission
-        require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/submissions.php';
-        $submission = RSFormProSubmissionsHelper::getSubmission($cid);
-
-        if (!$submission)
-        {
-            return $return;
-        }
-
-        $query = $db->getQuery(true)
-            ->select($db->qn('MultipleSeparator'))
-            ->select($db->qn('TextareaNewLines'))
-            ->from($db->qn('#__rsform_forms'))
-            ->where($db->qn('FormId') . ' = ' . $db->q($submission->FormId));
-        $form = $db->setQuery($query)->loadObject();
-
-        $form->MultipleSeparator = str_replace(array('\n', '\r', '\t'), array("\n", "\r", "\t"), $form->MultipleSeparator);
-
-		$submission->DateSubmitted = JHtml::_('date', $submission->DateSubmitted, 'Y-m-d H:i:s');
-
-		$validation		= !empty($values) ? RSFormProHelper::validateForm($submission->FormId, 'directory', $cid) : array();
-		$headers        = self::getDirectoryStaticHeaders();
-		$formFields 	= self::getDirectoryFields($submission->FormId);
-
-		$query = $db->getQuery(true);
-		$query->select($db->qn('ct.ComponentTypeName', 'type'))
-			->select($db->qn('c.ComponentId'))
-			->from($db->qn('#__rsform_components', 'c'))
-			->join('left', $db->qn('#__rsform_component_types', 'ct').' ON ('.$db->qn('c.ComponentTypeId').'='.$db->qn('ct.ComponentTypeId').')')
-			->where($db->qn('c.FormId').'='.$db->q($submission->FormId))
-			->where($db->qn('c.Published').'='.$db->q(1));
-		$componentTypes = $db->setQuery($query)->loadObjectList('ComponentId');
-
-		$componentIds = array();
-		foreach ($formFields as $formField) {
-			if ($formField->FieldId > 0) {
-				$componentIds[] = $formField->FieldId;
-			}
-
-			// Assign the type
-			$formField->type = '';
-			if ($formField->FieldId < 0 && isset($headers[$formField->FieldId])) {
-				$formField->type = 'static';
-			} elseif (isset($componentTypes[$formField->FieldId])) {
-				$formField->type = $componentTypes[$formField->FieldId]->type;
-			}
-
-			// For convenience...
-			$formField->id 		= $formField->FieldId;
-			$formField->name 	= $formField->FieldName;
-		}
-
-		$properties	= RSFormProHelper::getComponentProperties($componentIds);
-
-		foreach ($formFields as $field)
-		{
-			if (!$field->editable) {
-				continue;
-			}
-
-			$invalid		= !empty($validation) && in_array($field->id,$validation) ? ' rsform-error' : '';
-			$data			= $field->id > 0 ? $properties[$field->id] : array('NAME' => $field->name);
-			$new_field		= array();
-			$new_field[0]	= !empty($data['CAPTION']) ? $data['CAPTION'] : $field->name;
-			$new_field[2]	= isset($data['REQUIRED']) && $data['REQUIRED'] == 'YES' ? '<strong class="formRequired">(*)</strong>' : '';
-			$new_field[3]	= $field->name;
-			$name			= $field->name;
-
-			if ($field->type != 'static') {
-				if (isset($values[$field->name]))
-					$value	= $values[$field->name];
-				else {
-					$value	= isset($submission->values[$field->name]) ? $submission->values[$field->name] : '';
-				}
-			} else {
-				$value = isset($submission->{$field->name}) ? $submission->{$field->name} : '';
-			}
-
-			switch ($field->type)
-			{
-				case 'static':
-					$new_field[0] = JText::_('RSFP_'.$field->name);
-
-					// Show a dropdown for yes/no
-					if ($field->name == 'confirmed') {
-						$options = array(
-							JHtml::_('select.option', 0, JText::_('RSFP_NO')),
-							JHtml::_('select.option', 1, JText::_('RSFP_YES'))
-						);
-
-						$new_field[1] = JHtml::_('select.genericlist', $options, 'formStatic[confirmed]', null, 'value', 'text', $value);
-					} else {
-						$new_field[1] = '<input class="rs_inp rs_80" type="text" name="formStatic['.$name.']" value="'.RSFormProHelper::htmlEscape($value).'" />';
-					}
-					break;
-
-				// skip this field for now, no need to edit it
-				case 'freeText':
-				    $new_field[0] = '';
-				    $new_field[1] = RSFormProHelper::isCode($data['TEXT']);
-					break;
-
-				default:
-				    if (is_array($value))
-                    {
-                        $value = implode($form->MultipleSeparator, $value);
-                    }
-
-					if (strpos($value, "\n") !== false || strpos($value, "\r") !== false) {
-						$new_field[1] = '<textarea style="width: 95%" class="rs_textarea'.$invalid.'" rows="10" cols="60" name="form['.$name.']">'.RSFormProHelper::htmlEscape($value).'</textarea>';
-					} else {
-						$new_field[1] = '<input class="rs_inp rs_80'.$invalid.'" type="text" name="form['.$name.']" value="'.RSFormProHelper::htmlEscape($value).'" />';
-					}
-					break;
-
-				case 'textArea':
-					if (isset($data['WYSIWYG']) && $data['WYSIWYG'] == 'YES')
-						$new_field[1] = RSFormProHelper::WYSIWYG('form['.$name.']', RSFormProHelper::htmlEscape($value), '', 600, 100, 60, 10);
-					else
-						$new_field[1] = '<textarea style="width: 95%" class="rs_textarea'.$invalid.'" rows="10" cols="60" name="form['.$name.']">'.RSFormProHelper::htmlEscape($value).'</textarea>';
-					break;
-
-				case 'radioGroup':
-				case 'checkboxGroup':
-				case 'selectList':
-					$options = array();
-					if ($field->type == 'radioGroup') {
-						$data['SIZE'] = 0;
-						$data['MULTIPLE'] = 'NO';
-						$options[] = JHtml::_('select.option', '', JText::_('COM_RSFORM_NO_VALUE'));
-
-					} elseif ($field->type == 'checkboxGroup') {
-						$data['SIZE'] = 5;
-						$data['MULTIPLE'] = 'YES';
-					}
-
-					$value = !empty($values) ? $value : RSFormProHelper::explode($value);
-
-                    require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/fields/fielditem.php';
-                    require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/fieldmultiple.php';
-                    $f = new RSFormProFieldMultiple(array(
-                        'formId' 			=> $submission->FormId,
-                        'componentId' 		=> $field->id,
-                        'data' 				=> $data,
-                        'value' 			=> array('formId' => $submission->FormId, $data['NAME'] => $value),
-                        'invalid' 			=> in_array($field->id, $validation)
-                    ));
-
-                    if ($items = $f->getItems())
-                    {
-                        foreach ($items as $item)
-                        {
-                            $item = new RSFormProFieldItem($item);
-
-                            if ($item->flags['optgroup']) {
-                                $options[] = JHtml::_('select.option', '<OPTGROUP>', $item->label, 'value', 'text');
-                            } elseif ($item->flags['/optgroup']) {
-                                $options[] = JHtml::_('select.option', '</OPTGROUP>', $item->label, 'value', 'text');
-                            } else {
-                                $options[] = JHtml::_('select.option', $item->value, $item->label, 'value', 'text', $item->flags['disabled']);
-                            }
-                        }
-                    }
-
-                    $attribs = array();
-
-                    if ((int) $data['SIZE'] > 0)
-                    {
-                        $attribs[] = 'size="'.(int) $data['SIZE'].'"';
-                    }
-
-                    if ($data['MULTIPLE'] == 'YES')
-                    {
-                        $attribs[] = 'multiple="multiple"';
-                    }
-
-					if ($invalid)
-					{
-						$attribs[] = 'class="' . $invalid . '"';
-					}
-
-                    $attribs = implode(' ', $attribs);
-
-					$new_field[1] = JHtml::_('select.genericlist', $options, 'form['.$name.'][]', $attribs, 'value', 'text', $value);
-					break;
-
-				case 'fileUpload':
-					$new_field[1] = '<div>';
-					$new_field[1] .= '<span' . ($invalid ? ' class="' . $invalid . '"' : '') . '>' . RSFormProHelper::htmlEscape(basename($value)) . '</span>';
-
-					if (strlen($value))
-                    {
-                        $new_field[1] .= ' <button type="button" class="btn btn-small" onclick="RSFormProDirectory.clearUpload(\'' . $name . '\', this);">' . JText::_('COM_RSFORM_CLEAR') . '</button>';
-                    }
-
-					$new_field[1] .= '</div>';
-					$new_field[1] .= '<input size="45" type="file" name="form['.$name.']" />';
-					break;
-			}
-
-			$return[$field->id] = $new_field;
-		}
-
-        JFactory::getApplication()->triggerEvent('rsfp_f_onGetEditFields', array(&$return, $submission));
-
-		return $return;
-	}
 
 	public static function getCalculations($formId) {
 		$db = JFactory::getDbo();

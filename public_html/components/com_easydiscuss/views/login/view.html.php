@@ -35,7 +35,7 @@ class EasyDiscussViewLogin extends EasyDiscussView
 		$return = EDR::getLoginRedirect();
 
         // Get any callback url and use it.
-        $url = ED::getCallback();
+        $url = ED::getCallback('', false);
 
         if ($url) {
             $return = base64_encode($url);

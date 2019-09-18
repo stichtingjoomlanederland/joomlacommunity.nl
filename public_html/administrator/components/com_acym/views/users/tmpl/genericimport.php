@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -9,9 +9,9 @@
 
 defined('_JEXEC') or die('Restricted access');
 ?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
-	<input type="hidden" name="filename" id="filename" value="<?php echo acym_getVar('cmd', 'filename'); ?>"/>
-	<input type="hidden" name="import_columns" id="import_columns" value=""/>
-	<input type="hidden" name="new_list" id="acym__import__new-list" value=""/>
+	<input type="hidden" name="filename" id="filename" value="<?php echo acym_getVar('cmd', 'filename'); ?>" />
+	<input type="hidden" name="import_columns" id="import_columns" value="" />
+	<input type="hidden" name="new_list" id="acym__import__new-list" value="" />
 	<div id="acym__users__import__generic" class="acym__content">
 		<div class="grid-x">
 			<div class="cell medium-auto hide-for-small-only"></div>

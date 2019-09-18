@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -33,15 +33,17 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 		<div class="o-col o-col--4">
 			<div class="ed-entry-action-bar__btn-group">
-				<?php if ((!$post->isLocked() || ED::isModerator($post->category_id)) && ($post->canReply())) { ?>
+				<?php if ((!$post->isLocked() || ED::isModerator($post->category_id)) && $post->canReply()) { ?>
 				<a href="<?php echo JRequest::getURI();?>#respond" class="btn btn-default btn-xs t-mr--sm">
 					<?php echo JText::_('COM_EASYDISCUSS_ADD_A_REPLY');?>
 				</a>
 				<?php } ?>
 
+				<?php if ((!$post->isLocked() || ED::isModerator($post->category_id)) && $post->getCategory()->canViewReplies()) { ?>
 				<a href="<?php echo JRequest::getURI();?>#replies" class="btn btn-default btn-xs">
 					<?php echo JText::_('COM_EASYDISCUSS_VIEW_REPLIES');?> (<span data-ed-post-reply-counter><?php echo $post->getTotalReplies(); ?></span>)
 				</a>
+				<?php } ?>
 			</div>
 		</div>
 	</div>
@@ -84,32 +86,21 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php if ($post->hasStatus() || $post->getPostType() || $post->isStillNew()) { ?>
 
 						<ol class="g-list-inline ed-post-item__post-meta t-mt--sm">
-							<?php //if ($post->isResolved()) { ?>
 
-							<?php //} ?>
 							<?php if ($post->hasStatus()) { ?>
-							<li><span class="o-label o-label--info-o">
-								<!-- post status here: accepted, onhold, working rejected -->
-								<?php if ($post->isPostRejected()) { ?>
-									<?php echo JText::_('COM_EASYDISCUSS_POST_STATUS_REJECT');?>
-								<?php } ?>
-								<?php if ($post->isPostOnhold()) { ?>
-									<?php echo JText::_('COM_EASYDISCUSS_POST_STATUS_ON_HOLD');?>
-								<?php } ?>
-								<?php if ($post->isPostAccepted()) { ?>
-									<?php echo JText::_('COM_EASYDISCUSS_POST_STATUS_ACCEPTED');?>
-								<?php } ?>
-								<?php if ($post->isPostWorkingOn()) { ?>
-									<?php echo JText::_('COM_EASYDISCUSS_POST_STATUS_WORKING_ON');?>
-								<?php } ?>
-							</span></li>
+							<li>
+								<span class="o-label o-label--info-o"><?php echo $post->getStatusMessage(); ?></span>
+							</li>
 							<?php } else if ($post->isStillNew()) { ?>
-								<li><span class="o-label o-label--info-o"><?php echo JText::_('COM_EASYDISCUSS_NEW');?></span></li>
+							<li>
+								<span class="o-label o-label--info-o"><?php echo JText::_('COM_EASYDISCUSS_NEW');?></span>
+							</li>
 							<?php } ?>
 
-							<!-- post type here -->
 							<?php if ($post->getPostType()) { ?>
-								<li><span class="o-label o-label--clean-o <?php echo $post->getPostTypeSuffix(); ?>"><?php echo $post->getPostType(); ?></span></li>
+							<li>
+								<span class="o-label o-label--clean-o <?php echo $post->getPostTypeSuffix(); ?>"><?php echo $post->getPostType(); ?></span>
+							</li>
 							<?php } ?>
 
 						</ol>
@@ -153,9 +144,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php } ?>
 				</li>
 
-				<?php if ($this->config->get('layout_badges_in_post') && $post->getOwner()->hasUserBadges()) { ?>
+				<?php if (ED::badges()->isEnabled() && $post->getOwner()->hasUserBadges()) { ?>
 				<li>
-					<?php echo ED::badges()->getPostHtml($post->getOwner()->id); ?>					
+					<?php echo ED::badges()->getPostHtml($post->getOwner()->id); ?>
 				</li>
 				<?php } ?>
 
@@ -186,12 +177,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<?php echo $this->output('site/post/default.actions', array('post' => $post)); ?>
 
 			<div class="ed-post-content t-lg-pt--lg t-lg-pb--lg">
-			   <?php echo $post->getContent(); ?>
+				<?php echo $post->getContent(); ?>
 			</div>
 
 			<div class="ed-post-widget-group t-lg-mb--lg">
 
-				<?php if ($post->hasPolls()) { ?>
+				<?php if ($post->hasPolls() && $this->config->get('main_polls')) { ?>
 					<?php echo $this->output('site/post/default.polls', array('post' => $post)); ?>
 				<?php } ?>
 
@@ -224,9 +215,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<?php echo ED::ratings()->html($post); ?>
 			<?php } ?>
 
-
 			<?php echo $socialbuttons; ?>
-
 
 			<?php echo $this->output('site/post/default.signature', array('post' => $post)); ?>
 
@@ -249,7 +238,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 	</div>
 
 	<?php echo $adsense->beforereplies; ?>
-
 
 	<?php if ($answer) { ?>
 		<?php if ($answer === true) { ?>
@@ -285,9 +273,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<?php } ?>
 	<?php } ?>
 
-	<div class="ed-post-replies-wrapper
-		<?php echo !$replies && !$onlyAcceptedReply ? ' is-empty' : '';?>
-		"
+	<?php if ((!$post->isLocked() || ED::isModerator($post->category_id)) && ($post->canReply() || $post->getCategory()->canViewReplies())) { ?>
+	<div class="ed-post-replies-wrapper <?php echo !$replies && !$onlyAcceptedReply ? ' is-empty' : '';?>"
 		data-ed-post-replies-wrapper
 	>
 		<div class="ed-post-reply-bar">
@@ -303,9 +290,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 			</div>
 		</div>
 
-
 		<?php echo ED::renderModule('easydiscuss-before-replies'); ?>
 
+		<?php if ($post->getCategory()->canViewReplies()) { ?>
 		<div class="ed-post-replies" data-ed-post-replies>
 		<?php if ($replies) { ?>
 			<?php foreach ($replies as $reply) { ?>
@@ -313,6 +300,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<?php } ?>
 		<?php } ?>
 		</div>
+		<?php } ?>
 
 		<?php if ($replies && $pagination) { ?>
 			<div class="ed-pagination">
@@ -333,9 +321,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 		</div>
 
 		<?php echo ED::renderModule('easydiscuss-after-replies'); ?>
-
-
 	</div>
+	<?php } ?>
 
 	<?php echo ED::renderModule('easydiscuss-before-replyform'); ?>
 

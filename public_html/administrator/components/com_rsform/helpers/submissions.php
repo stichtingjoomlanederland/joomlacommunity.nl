@@ -159,7 +159,11 @@ abstract class RSFormProSubmissionsHelper
 
             foreach ($formIds as $formId)
             {
-                if ($fields = RSFormProHelper::componentExists($formId, RSFORM_FIELD_FILEUPLOAD, false))
+				$fields = RSFormProHelper::componentExists($formId, RSFORM_FIELD_FILEUPLOAD, false);
+
+				JFactory::getApplication()->triggerEvent('rsfp_onDeleteSubmissionFiles', $fields, $formId, $cid);
+
+                if ($fields)
                 {
                     $allData = RSFormProHelper::getComponentProperties($fields);
                     foreach ($fields as $field)
@@ -183,10 +187,15 @@ abstract class RSFormProSubmissionsHelper
 
                             foreach ($files as $file)
                             {
-                                if (file_exists($file) && is_file($file))
-                                {
-                                    JFile::delete($file);
-                                }
+                            	$file = RSFormProHelper::explode($file);
+
+                            	foreach ($file as $actualFile)
+								{
+									if (file_exists($file) && is_file($file))
+									{
+										JFile::delete($file);
+									}
+								}
                             }
                         }
                     }

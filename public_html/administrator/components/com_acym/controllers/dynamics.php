@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -35,22 +35,22 @@ class DynamicsController extends acymController
 
         $tab = acym_get('helper.tab');
 
-        $data = array(
+        $data = [
             "type" => acym_getVar('string', 'type', 'news'),
             "plugins" => $plugins,
             "tab" => $tab,
             "automation" => $isAutomation,
-        );
+        ];
 
         parent::display($data);
     }
 
     public function replaceDummy()
     {
-        $campaignId = acym_getVar('int', 'campaignId', 0);
-        if (!empty($campaignId)) {
-            $campaignClass = acym_get('class.campaign');
-            $email = $campaignClass->getOneByIdWithMail($campaignId);
+        $mailId = acym_getVar('int', 'mailId', 0);
+        if (!empty($mailId)) {
+            $mailClass = acym_get('class.mail');
+            $email = $mailClass->getOneById($mailId);
         }
 
         if (empty($email)) {
@@ -63,11 +63,10 @@ class DynamicsController extends acymController
             $email->reply_to_name = '';
             $email->reply_to_email = '';
             $email->bcc = '';
-        } else {
-            $email->id = $email->mail_id;
         }
 
-        $email->creation_date = date('Y-m-d H:i:s', time());
+        $email->creation_date = acym_date('now', 'Y-m-d H:i:s', false);
+        $email->creator_id = acym_currentUserId();
         $email->thumbnail = '';
         $email->drag_editor = '1';
         $email->library = '0';
@@ -76,13 +75,12 @@ class DynamicsController extends acymController
         $email->settings = '';
         $email->stylesheet = '';
         $email->attachments = '';
-        $email->creator_id = acym_currentUserId();
 
-        $code = acym_getVar('string', 'code', '');
-        $email->body = $code;
+        $email->body = acym_getVar('string', 'code', '');
 
 
-        acym_trigger('replaceContent', array(&$email));
+        acym_trigger('replaceContent', [&$email]);
+
         $userClass = acym_get('class.user');
         $userEmail = acym_currentUserEmail();
         $user = $userClass->getOneByEmail($userEmail);
@@ -99,7 +97,7 @@ class DynamicsController extends acymController
             $user->id = $userClass->save($user);
         }
 
-        acym_trigger('replaceUserInformation', array(&$email, &$user, false));
+        acym_trigger('replaceUserInformation', [&$email, &$user, false]);
 
         echo $email->body;
         exit;
@@ -113,7 +111,7 @@ class DynamicsController extends acymController
             exit;
         }
 
-        acym_trigger($trigger, array(), $plugin);
+        acym_trigger($trigger, [], $plugin);
 
         exit;
     }

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -41,12 +41,9 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		$limit = $this->app->getUserStateFromRequest('com_easydiscuss.posts.limit', 'limit', $this->app->getCfg('list_limit') , 'int');
 		$limitstart	= $this->input->get('limitstart', 0, 'int');
 
+		$filter = $this->getUserState('posts.filter_state', 'filter_state', '', 'word');
 
-		// Selected filter
-		$filter = $this->input->get('filter_state', '', 'word');
-
-		// Search query
-		$search = $this->input->get('search', '', 'string');
+		$search = $this->getUserState('posts.search', 'search', '', 'string');
 		$search = trim(strtolower($search));
 
 		// Ordering
@@ -54,14 +51,20 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		$orderDirection = $this->getUserState('posts.filter_order_Dir', 'filter_order_Dir', 'DESC', 'word');
 
 		// Filter by category
-		$categoryId = $this->input->get('category_id', 0, 'int');
+		$categoryId = $this->getUserState('posts.category_id', 'category_id', 0, 'int');
 
 		// Get the dropdown for categories
 		$categoryFilter = ED::populateCategoryFilter('category_id', $categoryId, 'class="o-form-control" data-ed-table-filter');
 
+		// Selected post status filter
+		$selectedPostStatus = $this->getUserState('posts.post_status', 'post_status', '', 'int');
+
+		// Get the dropdown for post status
+		$postStatusFilter = ED::populatePostStatusFilter('post_status', $selectedPostStatus);
+
 		// Fetch the list of posts
 		$model = ED::model('Threaded');
-		$options = array('stateKey' => 'posts', 'questions' => true, 'filter' => $filter, 'category' => $categoryId, 'search' => $search);
+		$options = array('stateKey' => 'posts', 'questions' => true, 'filter' => $filter, 'category' => $categoryId, 'search' => $search, 'poststatus' => $selectedPostStatus);
 
 		$options['loadPaginationCount'] = false;
 
@@ -124,6 +127,7 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		$this->set('orderDirection', $orderDirection);
 		$this->set('limit', $limit);
 		$this->set('limitstart', $limitstart);
+		$this->set('postStatusFilter', $postStatusFilter);
 
 		parent::display('posts/default');
 	}

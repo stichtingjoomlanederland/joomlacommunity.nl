@@ -42,4 +42,10 @@ defined('_JEXEC') or die('Restricted access'); ?>
 			<?php echo $this->lists['HideEmptyValues']; ?>
 		</td>
 	</tr>
+	<tr>
+		<td width="25%" nowrap="nowrap" align="right" class="key"><?php echo JText::_('COM_RSFORM_DIRECTORY_SHOW_GOOGLE_MAP'); ?></td>
+		<td>
+			<?php echo $this->lists['ShowGoogleMap']; ?>
+		</td>
+	</tr>
 </table>

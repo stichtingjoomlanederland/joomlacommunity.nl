@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -60,12 +60,12 @@ function uninstallAcym()
     $db->$method();
 
     ?>
-	AcyMailing successfully uninstalled.<br/>
-	Its modules have been disabled.<br/><br/>
-	If you want to completely uninstall AcyMailing and remove its data, please uninstall all the AcyMailing modules and plugins from the Joomla Extensions Manager then run the following query on your database manager:<br/><br/>
+	AcyMailing successfully uninstalled.<br />
+	Its modules have been disabled.<br /><br />
+	If you want to completely uninstall AcyMailing and remove its data, please uninstall all the AcyMailing modules and plugins from the Joomla Extensions Manager then run the following query on your database manager:<br /><br />
     <?php
 
-    $tables = array(
+    $tables = [
         'action',
         'condition',
         'history',
@@ -87,15 +87,15 @@ function uninstallAcym()
         'mail',
         'configuration',
         'user',
-    );
+    ];
 
     $prefix = $db->getPrefix().'acym_';
     echo 'DROP TABLE '.$prefix.implode(', '.$prefix, $tables).';';
 
     ?>
-	<br/><br/>
-	If you don't do this, you will be able to install AcyMailing again without losing your data.<br/>
-	Please note that you don't have to uninstall AcyMailing to install a new version, simply install it over the current version.<br/><br/>
+	<br /><br />
+	If you don't do this, you will be able to install AcyMailing again without losing your data.<br />
+	Please note that you don't have to uninstall AcyMailing to install a new version, simply install it over the current version.<br /><br />
     <?php
 }
 
@@ -142,3 +142,4 @@ class com_acymInstallerScript
 }
 
 include_once(__DIR__.DIRECTORY_SEPARATOR.'install.class.php');
+

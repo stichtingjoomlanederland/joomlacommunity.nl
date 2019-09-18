@@ -120,6 +120,7 @@ class EasyDiscussViewProfile extends EasyDiscussView
 			if (ED::user()->id == $profileId) {
 				$options['includeAnonymous'] = true;
 				$options['private'] = true;
+				$options['includeCluster'] = true;
 			}
 
 			$posts = $model->getDiscussions($options);

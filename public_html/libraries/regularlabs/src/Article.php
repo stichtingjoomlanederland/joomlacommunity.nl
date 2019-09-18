@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.4.11218
+ * @version         19.8.25552
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -229,6 +229,13 @@ class Article
 
 		self::processText('text', $article, $helper, $method, $params, $ignore);
 		self::processText('introtext', $article, $helper, $method, $params, $ignore);
+
+		// Don't handle fulltext on category blog views
+		if ($context == 'com_content.category' && JFactory::getApplication()->input->get('view') == 'category')
+		{
+			return;
+		}
+
 		self::processText('fulltext', $article, $helper, $method, $params, $ignore);
 	}
 

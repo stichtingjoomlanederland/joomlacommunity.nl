@@ -84,7 +84,8 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		}
 
 		// Bind the posted data
-		$post->bind($data);
+		// we need to indicate this bind is for creation / update
+		$post->bind($data, false, false, true);
 
 		// Validate the posted data to ensure that we can really proceed
 		if (!$post->validate($data)) {
@@ -945,7 +946,11 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		}
 
 		$message = JText::_('COM_EASYDISCUSS_POST_REJECT');
-		$redirect = EDR::_('index.php?option=com_easydiscuss&view=dashboard');
+		$redirect = EDR::_('index.php?option=com_easydiscuss');
+
+		if ($this->acl->allowed('manage_pending') || ED::isSiteAdmin()) {
+			$redirect = EDR::_('index.php?option=com_easydiscuss&view=dashboard');
+		}
 
 		if ($post->isReply()) {
 			$message = JText::_('COM_EASYDISCUSS_MODERATE_REPLY_UNPUBLISHED');
@@ -1005,7 +1010,11 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		$message = JText::_('COM_EASYDISCUSS_MODERATE_POST_PUBLISHED');
 		ED::setMessage($message, DISCUSS_QUEUE_SUCCESS);
 
-		$redirect = 'index.php?option=com_easydiscuss&view=dashboard';
+		$redirect = 'index.php?option=com_easydiscuss';
+
+		if ($this->acl->allowed('manage_pending') || ED::isSiteAdmin()) {
+			$redirect = 'index.php?option=com_easydiscuss&view=dashboard';	
+		}
 
 		$this->app->redirect($redirect);
 	}

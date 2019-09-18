@@ -138,14 +138,6 @@ class UsageStatistics extends Model
 		{
 			$stats->setValue('dt', 1);
 		}
-		elseif (stripos($db_driver, 'sqlsrv') !== false || stripos($db_driver, 'sqlazure'))
-		{
-			$stats->setValue('dt', 2);
-		}
-		elseif (stripos($db_driver, 'postgresql') !== false)
-		{
-			$stats->setValue('dt', 3);
-		}
 		else
 		{
 			$stats->setValue('dt', 0);

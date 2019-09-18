@@ -2,15 +2,15 @@ if (typeof RSFormProDirectory != 'object') {
     var RSFormProDirectory = {};
 }
 
-RSFormProDirectory.clearUpload = function(name, button) {
-    var parent = button.parentNode;
+RSFormProDirectory.clearUpload = function(name, button, hash) {
+    var parent = button.parentNode.parentNode;
 
-    parent.removeChild(button);
-    parent.removeChild(parent.firstChild);
+    parent.removeChild(button.parentNode);
 
     var input = document.createElement('input');
-    input.name = 'form[' + name + ']';
-    input.type = 'hidden';
+    input.setAttribute('name', 'delete[' + name + '][]');
+    input.setAttribute('type', 'hidden');
+    input.setAttribute('value', hash);
 
     parent.appendChild(input);
 };

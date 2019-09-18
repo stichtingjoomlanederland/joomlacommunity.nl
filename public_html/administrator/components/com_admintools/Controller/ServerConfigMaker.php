@@ -11,13 +11,14 @@ defined('_JEXEC') or die;
 
 use Akeeba\AdminTools\Admin\Controller\Mixin\CustomACL;
 use Akeeba\AdminTools\Admin\Controller\Mixin\PredefinedTaskList;
+use Akeeba\AdminTools\Admin\Controller\Mixin\SendTroubleshootingEmail;
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
 use JText;
 
 class ServerConfigMaker extends Controller
 {
-	use PredefinedTaskList, CustomACL;
+	use PredefinedTaskList, CustomACL, SendTroubleshootingEmail;
 
 	/**
 	 * The prefix for the language strings of the information and error messages
@@ -58,7 +59,10 @@ class ServerConfigMaker extends Controller
 		$model = $this->getModel();
 
 		$data = $this->input->getData();
+
+		$this->sendTroubelshootingEmail($this->getName());
 		$model->saveConfiguration($data);
+
 		$status = $model->writeConfigFile();
 
 		if (!$status)

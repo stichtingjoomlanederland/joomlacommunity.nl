@@ -56,9 +56,10 @@ class EasyDiscussModules extends EasyDiscuss
 		$sort = isset($options['sort']) ? $options['sort'] : 'latest';
 
 		$count = (INT)trim($params->get('count', 0));
-		$categoryIds = trim($params->get('category_id', 0));
+		$selectedCategories = $params->get('category_id', 0);
+		$categoryIds = is_string($selectedCategories) ? trim($selectedCategories) : $selectedCategories; 
 
-		if ($categoryIds) {
+		if (is_string($categoryIds)) {
 			// Remove white space
 			$categoryIds = preg_replace('/\s+/', '', $categoryIds);
 			$categoryIds = explode( ',', $categoryIds );

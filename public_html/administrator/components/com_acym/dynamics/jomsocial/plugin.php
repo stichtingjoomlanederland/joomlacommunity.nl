@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -48,12 +48,12 @@ class plgAcymJomsocial extends acymPlugin
     {
         ?>
 
-        <script language="javascript" type="text/javascript">
-            function applyJomSocial(tagname, element){
+		<script language="javascript" type="text/javascript">
+            function applyJomSocial(tagname, element) {
                 var string = '{jomsocialfield:' + tagname + '}';
                 setTag(string, jQuery(element));
             }
-        </script>
+		</script>
 
         <?php
 
@@ -89,7 +89,7 @@ class plgAcymJomsocial extends acymPlugin
             return;
         }
 
-        $tags = array();
+        $tags = [];
         foreach ($extractedTags as $i => $oneTag) {
             if (isset($tags[$i])) {
                 continue;
@@ -125,7 +125,7 @@ class plgAcymJomsocial extends acymPlugin
                     $tags[$i] = $this->valuesString->$field;
                 }
 
-                if (in_array($field, array('avatar', 'thumb')) && !empty($this->valuesString->$field)) {
+                if (in_array($field, ['avatar', 'thumb']) && !empty($this->valuesString->$field)) {
                     $tags[$i] = '<img src="'.ACYM_LIVE.$this->valuesString->$field.'"/>';
                     if (!empty($oneTag->maxheight) || !empty($oneTag->maxwidth)) {
                         $tags[$i] = $this->acympluginHelper->managePicts($oneTag, $tags[$i]);
@@ -144,7 +144,7 @@ class plgAcymJomsocial extends acymPlugin
 
         $tabHelper->startTab(acym_translation('ACYM_USERS'));
 
-        $attributes = array(
+        $attributes = [
             'title' => 'ACYM_TITLE',
             'karma' => 'COM_COMMUNITY_KARMA',
             'email' => 'COM_COMMUNITY_EMAIL',
@@ -152,7 +152,7 @@ class plgAcymJomsocial extends acymPlugin
             'lastvisitdate' => 'COM_COMMUNITY_LAST_LOGIN',
             'views' => 'COM_COMMUNITY_PROFILE_VIEW',
             'friends' => 'COM_COMMUNITY_PROFILE_FRIENDS',
-        );
+        ];
 
         $extraFields = acym_loadObjectList(
             "SELECT `name`, `fieldcode`
@@ -161,63 +161,63 @@ class plgAcymJomsocial extends acymPlugin
 			ORDER BY `ordering` ASC"
         );
 
-        $extra = array();
+        $extra = [];
         foreach ($extraFields as $field) {
             $extra[strtolower($field->fieldcode)] = $field->name;
         }
 
         $attributes = array_merge($attributes, $extra);
 
-        $displayOptions = array(
-            array(
+        $displayOptions = [
+            [
                 'title' => 'ACYM_DISPLAY',
                 'type' => 'checkbox',
                 'name' => 'fields',
                 'options' => $attributes,
                 'default' => 'full',
-            ),
-            array(
+            ],
+            [
                 'title' => 'ACYM_DISPLAY_PICTURES',
                 'type' => 'pictures',
                 'name' => 'pictures',
-            ),
-            array(
+            ],
+            [
                 'title' => 'ACYM_IMAGE_REQUIRED',
                 'type' => 'boolean',
                 'name' => 'required',
                 'default' => false,
-            ),
-            array(
+            ],
+            [
                 'title' => 'ACYM_ORDER_BY',
                 'type' => 'select',
                 'name' => 'order',
-                'options' => array(
+                'options' => [
                     'u.registerDate' => 'ACYM_DATE_CREATED',
                     'u.lastvisitDate' => 'COM_COMMUNITY_LAST_LOGIN',
                     'c.view' => 'COM_COMMUNITY_PROFILE_VIEW',
                     'c.points' => 'COM_COMMUNITY_KARMA',
                     'rand()' => 'ACYM_RANDOM',
-                ),
-            ),
-            array(
+                ],
+            ],
+            [
                 'title' => 'Number of characters ("About me" field)',
                 'type' => 'text',
                 'name' => 'chars',
                 'default' => 150,
-            ),
-            array(
+            ],
+            [
                 'title' => 'ACYM_COLUMNS',
                 'type' => 'text',
                 'name' => 'cols',
                 'default' => 1,
-            ),
-            array(
+            ],
+            [
                 'title' => 'ACYM_MAX_NB_ELEMENTS',
                 'type' => 'text',
                 'name' => 'max',
                 'default' => 20,
-            ),
-        );
+            ],
+        ];
 
         echo $this->acympluginHelper->displayOptions($displayOptions, 'jomsocialusers', 'simple');
 
@@ -225,58 +225,58 @@ class plgAcymJomsocial extends acymPlugin
         $tabHelper->startTab(acym_translation('COM_COMMUNITY_VIDEOS'));
 
 
-        $attributes = array(
+        $attributes = [
             'description' => acym_translation('COM_COMMUNITY_VIDEOS_DESCRIPTION'),
             'duration' => trim(acymailing_translation('COM_COMMUNITY_VIDEOS_DURATION'), ': '),
             'uploadedby' => acymailing_translation_sprintf('COM_COMMUNITY_PHOTOS_UPLOADED_BY', ''),
             'uploadedon' => trim(acymailing_translation('COM_COMMUNITY_VIDEOS_CREATED'), ': '),
             'views' => ucfirst(trim(acymailing_translation_sprintf('COM_COMMUNITY_VIDEOS_HITS_COUNT', ''))),
             'category' => acymailing_translation('COM_COMMUNITY_VIDEOS_CATEGORY'),
-        );
+        ];
 
 
-        $displayOptions = array(
-            array(
+        $displayOptions = [
+            [
                 'title' => 'ACYM_DISPLAY',
                 'type' => 'checkbox',
                 'name' => 'fields',
                 'options' => $attributes,
                 'default' => 'full',
-            ),
-            array(
+            ],
+            [
                 'title' => 'ACYM_DISPLAY_PICTURES',
                 'type' => 'pictures',
                 'name' => 'pictures',
-            ),
-            array(
+            ],
+            [
                 'title' => 'ACYM_ORDER_BY',
                 'type' => 'select',
                 'name' => 'order',
-                'options' => array(
+                'options' => [
                     'v.created' => 'COM_COMMUNITY_VIDEOS_SORT_LATEST',
                     'v.hits' => 'COM_COMMUNITY_VIDEOS_SORT_POPULAR',
                     'rand()' => 'ACYM_RANDOM',
-                ),
-            ),
-            array(
+                ],
+            ],
+            [
                 'title' => 'Number of characters ("Description" field)',
                 'type' => 'text',
                 'name' => 'chars',
                 'default' => 150,
-            ),
-            array(
+            ],
+            [
                 'title' => 'ACYM_COLUMNS',
                 'type' => 'text',
                 'name' => 'cols',
                 'default' => 1,
-            ),
-            array(
+            ],
+            [
                 'title' => 'ACYM_MAX_NB_ELEMENTS',
                 'type' => 'text',
                 'name' => 'max',
                 'default' => 20,
-            ),
-        );
+            ],
+        ];
 
         echo $this->acympluginHelper->displayOptions($displayOptions, 'jomsocialusers', 'simple');
 

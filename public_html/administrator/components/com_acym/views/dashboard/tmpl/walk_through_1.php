@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.1.10
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -10,12 +10,8 @@
 defined('_JEXEC') or die('Restricted access');
 ?><input type="hidden" name="step" value="2">
 <div id="acym_walk-through_1" class="cell grid-x">
-	<div class="acym__walk-through-1 text-center cell">
-		<h1 class="acym__walk-through-1__title__welcome"><?php echo acym_translation('ACYM_THANKS_FOR_INSTALLING_ACYM'); ?></h1>
-		<h2 class="acym__walk-through-1__sub-title"><?php echo acym_translation('ACYM_WALK_THROUGH_CONFIGURATION_SETTINGS_TO_GET_STARTED'); ?></h2>
-	</div>
 	<div class="cell large-3"></div>
-	<div class="acym__content cell grid-x large-6 small-12 acym__walk-through-1__content text-center">
+	<div class="acym__content cell grid-x large-6 small-12 acym__walk-through-1__content acym__walkthrough__content text-center">
 		<h1 class="acym__walk-through__content__title cell"><?php echo acym_translation('ACYM_DEFAULT_SENDER_INFORMATION'); ?></h1>
 		<p class="acym__walk-through__step cell"><?php echo acym_translation_sprintf('ACYM_STEP_X', 1, 4); ?></p>
 

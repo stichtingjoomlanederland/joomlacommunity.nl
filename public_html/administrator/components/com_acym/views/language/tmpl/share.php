@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -21,9 +21,12 @@ defined('_JEXEC') or die('Restricted access');
 			<textarea rows="8" name="mailbody" class="acym__language__modal__body margin-top-1">Hi Acyba team,
 Here is a new version of the language file, I translated few more strings...</textarea>
 		</div>
-		<input type="hidden" name="code" value="<?php echo acym_escape($data['file']->name); ?>"/>
+		<input type="hidden" name="code" value="<?php echo acym_escape($data['file']->name); ?>" />
 		<div class="medium-10 hide-for-small-only cell"></div>
-		<button data-task="send" type="button" class="button acym__language__modal__send cell medium-2"><?php echo acym_translation('ACYM_SEND'); ?></button>
+		<button type="button" data-task="send" data-confirmation-message="ACYM_SURE_SEND_TRANSALTION" class="button cell medium-2 acy_button_submit">
+            <?php echo acym_translation('ACYM_SEND'); ?>
+		</button>
         <?php acym_formOptions(); ?>
 	</div>
 </form>
+

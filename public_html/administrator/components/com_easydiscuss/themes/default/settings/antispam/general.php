@@ -18,7 +18,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 			<div class="panel-body">
 				<div class="form-horizontal">
-					<?php echo $this->html('settings.textbox', 'antispam_minimum_title', 'COM_EASYDISCUSS_ANTI_SPAM_MINIMUM_TITLE', '', array('size' => 8, 'postfix' => 'Characters'), '', 'form-control-sm text-center'); ?>
 					<?php echo $this->html('settings.toggle', 'main_filterbadword', 'COM_EASYDISCUSS_ENABLE_BAD_WORDS_FILTER'); ?>
 					<div class="form-group">
 						<div class="col-md-5 control-label">

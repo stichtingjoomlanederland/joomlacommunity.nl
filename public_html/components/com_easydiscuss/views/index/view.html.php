@@ -24,6 +24,7 @@ class EasyDiscussViewIndex extends EasyDiscussView
 	public function display($tpl = null)
 	{
 		$categoryId = $this->input->get('category_id', 0, 'int');
+		$view = $this->input->get('view', 'index', 'cmd');
 		$registry = new JRegistry();
 
 		// Perform redirection if there is a category_id in the index view.
@@ -51,6 +52,8 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		$activeFilter = 'all';
 
 		$filter = $this->input->get('filter', $registry->get('filter'), 'string');
+		$poststatus = $this->input->get('status', $registry->get('status', ''), 'string');
+
 		if ($filter) {
 			$activeFilter = $filter;
 		}
@@ -103,12 +106,12 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		if ($this->config->get('layout_featuredpost_frontpage')) {
 
 			$options 	= array(
-									'pagination' => false,
-									'category' => $cats,
-									'sort' => 'latest',
-									'filter' => $this->config->get('layout_frontpage_sorting'),
-									'limit' => $this->config->get( 'layout_featuredpost_limit' , $limit ),
-									'featured' => true
+								'pagination' => false,
+								'category' => $cats,
+								'sort' => 'latest',
+								'filter' => $this->config->get('layout_frontpage_sorting'),
+								'limit' => $this->config->get( 'layout_featuredpost_limit' , $limit ),
+								'featured' => true
 							);
 			$featured	= $postModel->getDiscussions( $options );
 			if (is_null($featured)) {
@@ -119,6 +122,7 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		// Get normal discussion posts.
 		$options 	= array(
 						'sort'		=> $sort,
+						'postStatus' => $poststatus,
 						'category'	=> $cats,
 						'filter'	=> $filter,
 						'limit'		=> $limit,
@@ -154,13 +158,25 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		// Format normal entries
 		$posts = ED::formatPost($posts, false, true);
 
+		// This is to show the value of the status in the URL instead of the number
+		$status = array( 
+					0 => '', 
+					1 => 'onhold', 
+					2 => 'accepted', 
+					3 => 'workingon', 
+					4 => 'rejected'
+				);
+
 		// Let's render the layout now.
+		$this->set('status', $status);
 		$this->set('activeFilter', $activeFilter);
+		$this->set('activeStatus', $poststatus);
 		$this->set('activeSort', $sort);
 		$this->set('categories', $categoryId);
 		$this->set('posts', $posts);
 		$this->set('featured', $featured);
 		$this->set('pagination', $pagination);
+		$this->set('view', $view);
 
 		// used for the filtering
 		if ($menuCatId && is_array($menuCatId)) {

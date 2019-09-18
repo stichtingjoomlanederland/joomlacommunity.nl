@@ -153,10 +153,41 @@ function rsformBuildRoute(&$query)
 	{
         switch ($query['task'])
         {
+			case 'submissions.view.file':
+				$segments[] = JText::_('COM_RSFORM_SEF_SUBMISSIONS_VIEW_FILE');
+
+				if (isset($query['hash']))
+				{
+					$segments[] = $query['hash'];
+					unset($query['hash']);
+
+					if (isset($query['file']))
+					{
+						$segments[] = $query['file'];
+						unset($query['file']);
+					}
+				}
+
+				unset($query['task']);
+				break;
+
             case 'confirm':
                 $segments[] = JText::_('COM_RSFORM_SEF_CONFIRM_SUBMISSION');
                 unset($query['task']);
                 break;
+
+			case 'delete':
+				if (isset($query['controller']) && $query['controller'] == 'directory')
+				{
+					$segments[] = JText::_('COM_RSFORM_SEF_DIRECTORY_DELETE_SUBMISSION');
+					if (isset($query['id']))
+					{
+						$segments[] = $query['id'];
+					}
+
+					unset($query['controller'], $query['task'], $query['id']);
+				}
+				break;
         }
     }
 
@@ -227,6 +258,30 @@ function rsformParseRoute($segments)
                 $query['id'] = $segments[1];
             }
 		break;
+
+		case JText::_('COM_RSFORM_SEF_DIRECTORY_DELETE_SUBMISSION'):
+			$query['controller'] = 'directory';
+			$query['task'] = 'delete';
+			if (isset($segments[1]))
+			{
+				$query['id'] = (int) $segments[1];
+			}
+
+			break;
+
+		case JText::_('COM_RSFORM_SEF_SUBMISSIONS_VIEW_FILE'):
+			$query['task'] = 'submissions.view.file';
+
+			if (isset($segments[1]))
+			{
+				$query['hash'] = $segments[1];
+			}
+			if (isset($segments[2]))
+			{
+				$query['file'] = $segments[2];
+			}
+
+			break;
 	}
 	
 	$app->triggerEvent('rsfp_onAfterFormParseRoute', array(&$segments, &$query));

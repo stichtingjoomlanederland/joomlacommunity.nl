@@ -46,6 +46,7 @@ class RsformViewDirectory extends JViewLegacy
 			$lists['enablepdf'] = RSFormProHelper::renderHTML('select.booleanlist', 'jform[enablepdf]', '', $this->directory->enablepdf);
 			$lists['enablecsv'] = RSFormProHelper::renderHTML('select.booleanlist', 'jform[enablecsv]', '', $this->directory->enablecsv);
 			$lists['HideEmptyValues'] = RSFormProHelper::renderHTML('select.booleanlist', 'jform[HideEmptyValues]', 'onchange="saveDirectorySetting(\'HideEmptyValues\', this.value, '  . $this->formId . ');"', $this->directory->HideEmptyValues);
+			$lists['ShowGoogleMap'] = RSFormProHelper::renderHTML('select.booleanlist', 'jform[ShowGoogleMap]', 'onchange="saveDirectorySetting(\'ShowGoogleMap\', this.value, '  . $this->formId . ');"', $this->directory->ShowGoogleMap);
 
 			JToolbarHelper::title('RSForm! Pro <small>['.JText::sprintf('RSFP_EDITING_DIRECTORY', $this->get('formTitle')).']</small>','rsform');
 			

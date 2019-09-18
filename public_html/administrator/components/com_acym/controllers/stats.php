@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -17,9 +17,9 @@ class StatsController extends acymController
     {
         parent::__construct();
         $this->breadcrumb[acym_translation('ACYM_STATISTICS')] = acym_completeLink('stats');
-        $this->loadScripts = array(
-            'all' => array('datepicker'),
-        );
+        $this->loadScripts = [
+            'all' => ['datepicker'],
+        ];
     }
 
     public function saveSendingStatUser($userId, $mailId, $sendDate = null)
@@ -43,7 +43,7 @@ class StatsController extends acymController
         acym_setVar("layout", "listing");
 
         $selectedMail = acym_getVar('int', 'mail_id');
-        $data = array();
+        $data = [];
         $campaignClass = acym_get('class.campaign');
         $mailStatsClass = acym_get('class.mailstat');
         $userStatClass = acym_get('class.userstat');
@@ -62,14 +62,14 @@ class StatsController extends acymController
         $page = acym_getVar('int', 'detailed_stats_pagination_page', 1);
 
         $matchingDetailedStats = $userStatClass->getDetailedStats(
-            array(
+            [
                 'ordering' => $ordering,
                 'search' => $search,
                 'detailedStatsPerPage' => $detailedStatsPerPage,
                 'offset' => ($page - 1) * $detailedStatsPerPage,
                 'ordering_sort_order' => $orderingSortOrder,
                 'mail_id' => $selectedMail,
-            )
+            ]
         );
 
         $pagination = acym_get('helper.pagination');
@@ -90,7 +90,7 @@ class StatsController extends acymController
             $data['emptyDetailed'] = empty($selectedMail) ? 'campaigns' : 'stats';
         }
 
-        $data['mails'] = array();
+        $data['mails'] = [];
 
         foreach ($mails as $mail) {
             if ((empty($mail->name) || empty($mail->id) && $mail->sent != 1)) {
@@ -106,15 +106,15 @@ class StatsController extends acymController
         if (!empty($selectedMail)) {
             $data['selectedMailid'] = $selectedMail;
             $allClickInfo = $urlClickClass->getAllLinkFromEmail($selectedMail);
-            $data['url_click'] = array();
-            $allPercentage = array();
+            $data['url_click'] = [];
+            $allPercentage = [];
             foreach ($allClickInfo['urls_click'] as $url) {
                 $percentage = 0;
                 if (empty($url->click)) {
-                    $data['url_click'][$url->name] = array('percentage' => $percentage, 'numberClick' => '0');
+                    $data['url_click'][$url->name] = ['percentage' => $percentage, 'numberClick' => '0'];
                 } else {
                     $percentage = intval(($url->click * 100) / $allClickInfo['allClick']);
-                    $data['url_click'][$url->name] = array('percentage' => $percentage, 'numberClick' => $url->click);
+                    $data['url_click'][$url->name] = ['percentage' => $percentage, 'numberClick' => $url->click];
                 }
                 $allPercentage[] = $percentage;
             }
@@ -129,7 +129,7 @@ class StatsController extends acymController
                     $percentageRecalc = intval(($val['percentage'] * 100) / $maxPercentage);
                     if ($percentageRecalc <= 33) {
                         $data['url_click'][$name]['color'] = '0, 164, 255';
-                    } else if ($percentageRecalc <= 66) {
+                    } elseif ($percentageRecalc <= 66) {
                         $data['url_click'][$name]['color'] = '248, 31, 255';
                     } else {
                         $data['url_click'][$name]['color'] = '255, 82, 89';
@@ -178,7 +178,7 @@ class StatsController extends acymController
 
         $allHour = array_keys($statsMailSelected->hour);
 
-        $statsMailSelected->startEndDateHour = array();
+        $statsMailSelected->startEndDateHour = [];
         $statsMailSelected->startEndDateHour['start'] = $allHour[0];
         $statsMailSelected->startEndDateHour['end'] = end($allHour);
 
@@ -195,7 +195,7 @@ class StatsController extends acymController
             return;
         }
 
-        $urls = array();
+        $urls = [];
 
         $config = acym_config();
 
@@ -271,30 +271,30 @@ class StatsController extends acymController
         }
 
         #To get all the month between the first open date and the last
-        $begin = new DateTime(empty($campaignClickByMonth) ? $campaignOpenByMonth[0]->open_date : min(array($campaignOpenByMonth[0]->open_date, $campaignClickByMonth[0]->date_click)));
-        $end = new DateTime(empty($campaignClickByMonth) ? end($campaignOpenByMonth)->open_date : max(array(end($campaignOpenByMonth)->open_date, end($campaignClickByMonth)->date_click)));
+        $begin = new DateTime(empty($campaignClickByMonth) ? $campaignOpenByMonth[0]->open_date : min([$campaignOpenByMonth[0]->open_date, $campaignClickByMonth[0]->date_click]));
+        $end = new DateTime(empty($campaignClickByMonth) ? end($campaignOpenByMonth)->open_date : max([end($campaignOpenByMonth)->open_date, end($campaignClickByMonth)->date_click]));
 
         $end->modify('+1 day');
 
         $interval = new DateInterval('P1M');
         $daterange = new DatePeriod($begin, $interval, $end);
 
-        $rangeMonth = array();
+        $rangeMonth = [];
 
         foreach ($daterange as $date) {
             $rangeMonth[] = acym_getTime($date->format('Y-m-d H:i:s'));
         }
 
         #To get all the day between the first open date and the last
-        $begin = new DateTime(empty($campaignClickByDay) ? $campaignOpenByDay[0]->open_date : min(array($campaignOpenByDay[0]->open_date, $campaignClickByDay[0]->date_click)));
-        $end = new DateTime(empty($campaignClickByDay) ? end($campaignOpenByDay)->open_date : max(array(end($campaignOpenByDay)->open_date, end($campaignClickByDay)->date_click)));
+        $begin = new DateTime(empty($campaignClickByDay) ? $campaignOpenByDay[0]->open_date : min([$campaignOpenByDay[0]->open_date, $campaignClickByDay[0]->date_click]));
+        $end = new DateTime(empty($campaignClickByDay) ? end($campaignOpenByDay)->open_date : max([end($campaignOpenByDay)->open_date, end($campaignClickByDay)->date_click]));
 
         $end->modify('+1 hour');
 
         $interval = new DateInterval('P1D');
         $daterange = new DatePeriod($begin, $interval, $end);
 
-        $rangeDay = array();
+        $rangeDay = [];
 
         foreach ($daterange as $date) {
             $rangeDay[] = acym_getTime($date->format('Y-m-d H:i:s'));
@@ -302,23 +302,23 @@ class StatsController extends acymController
 
 
         #To get all the hour between the first open date and the last
-        $begin = new DateTime(empty($campaignClickByHour) ? $campaignOpenByHour[0]->open_date : min(array($campaignOpenByHour[0]->open_date, $campaignClickByHour[0]->date_click)));
-        $end = new DateTime(empty($campaignClickByHour) ? end($campaignOpenByHour)->open_date : max(array(end($campaignOpenByHour)->open_date, end($campaignClickByHour)->date_click)));
+        $begin = new DateTime(empty($campaignClickByHour) ? $campaignOpenByHour[0]->open_date : min([$campaignOpenByHour[0]->open_date, $campaignClickByHour[0]->date_click]));
+        $end = new DateTime(empty($campaignClickByHour) ? end($campaignOpenByHour)->open_date : max([end($campaignOpenByHour)->open_date, end($campaignClickByHour)->date_click]));
 
         $end->modify('+1 min');
 
         $interval = new DateInterval('PT1H');
         $daterange = new DatePeriod($begin, $interval, $end);
 
-        $rangeHour = array();
+        $rangeHour = [];
 
         foreach ($daterange as $date) {
             $rangeHour[] = acym_getTime($date->format('Y-m-d H:i:s'));
         }
 
-        $openMonthArray = array();
-        $openDayArray = array();
-        $openHourArray = array();
+        $openMonthArray = [];
+        $openDayArray = [];
+        $openHourArray = [];
 
         foreach ($campaignOpenByMonth as $one) {
             $openMonthArray[acym_date(acym_getTime($one->open_date), 'M Y')] = $one->open;
@@ -332,9 +332,9 @@ class StatsController extends acymController
             $openHourArray[acym_date(acym_getTime($one->open_date), 'd M Y H')] = $one->open;
         }
 
-        $clickMonthArray = array();
-        $clickDayArray = array();
-        $clickHourArray = array();
+        $clickMonthArray = [];
+        $clickDayArray = [];
+        $clickHourArray = [];
 
         foreach ($campaignClickByMonth as $one) {
             $clickMonthArray[acym_date(acym_getTime($one->date_click), 'M Y')] = $one->click;
@@ -348,31 +348,32 @@ class StatsController extends acymController
             $clickHourArray[acym_date(acym_getTime($one->date_click), 'd M Y H')] = $one->click;
         }
 
-        $statsCampaignSelected->month = array();
+        $statsCampaignSelected->month = [];
         foreach ($rangeMonth as $one) {
             $one = acym_date($one, 'M Y');
-            $currentMonth = array();
+            $currentMonth = [];
             $currentMonth['open'] = empty($openMonthArray[$one]) ? 0 : $openMonthArray[$one];
             $currentMonth['click'] = empty($clickMonthArray[$one]) ? 0 : $clickMonthArray[$one];
             $statsCampaignSelected->month[$one] = $currentMonth;
         }
 
-        $statsCampaignSelected->day = array();
+        $statsCampaignSelected->day = [];
         foreach ($rangeDay as $one) {
             $one = acym_date($one, 'd M Y');
-            $currentDay = array();
+            $currentDay = [];
             $currentDay['open'] = empty($openDayArray[$one]) ? 0 : $openDayArray[$one];
             $currentDay['click'] = empty($clickDayArray[$one]) ? 0 : $clickDayArray[$one];
             $statsCampaignSelected->day[$one] = $currentDay;
         }
 
-        $statsCampaignSelected->hour = array();
+        $statsCampaignSelected->hour = [];
         foreach ($rangeHour as $one) {
             $one = acym_date($one, 'd M Y H');
-            $currentHour = array();
+            $currentHour = [];
             $currentHour['open'] = empty($openHourArray[$one]) ? 0 : $openHourArray[$one];
             $currentHour['click'] = empty($clickHourArray[$one]) ? 0 : $clickHourArray[$one];
             $statsCampaignSelected->hour[$one.':00'] = $currentHour;
         }
     }
 }
+

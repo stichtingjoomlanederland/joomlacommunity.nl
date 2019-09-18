@@ -28,6 +28,9 @@ class EasyDiscussViewPolls extends EasyDiscussView
 		// Get the choice id
 		$id	= $this->input->get('id', 0, 'int');
 
+		// Get the post id
+		$postId = $this->input->get('postId', 0, 'int');
+
 		// Load the poll choice
 		$choice = ED::pollchoice($id);
 
@@ -55,7 +58,11 @@ class EasyDiscussViewPolls extends EasyDiscussView
 			$result[] = $choice->toData();
 		}
 
-		return $this->ajax->resolve($result);
+		$model = ED::model('Polls');
+		$totalVotes = $model->getTotalVotes($postId);
+		$totalVotes = JText::sprintf('COM_EASYDISCUSS_POLLS_TOTAL_VOTES', $totalVotes);
+
+		return $this->ajax->resolve($result, $totalVotes);
 	}
 
 	/**

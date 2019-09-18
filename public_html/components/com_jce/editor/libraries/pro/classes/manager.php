@@ -307,7 +307,7 @@ class WFMediaManager extends WFMediaManagerBase
                     $$var = array_map('intval', $$var);
                 }
 
-                $resize_suffix = $app->input->get('upload_resize_suffix', '', 'STRING');
+                $resize_suffix = $app->input->get('upload_resize_suffix', array(), 'array');
 
                 // clean suffix
                 $resize_suffix = WFUtility::makeSafe($resize_suffix);
@@ -327,13 +327,13 @@ class WFMediaManager extends WFMediaManagerBase
                     $resize_width = $file_resize_width;
                     $resize_height = $file_resize_height;
 
-                    $file_resize_suffix = $app->input->get('upload_file_resize_suffix', '', 'STRING');
+                    $file_resize_suffix = $app->input->get('upload_file_resize_suffix', array(), 'array');
 
                     // clean suffix
                     $file_resize_suffix = WFUtility::makeSafe($file_resize_suffix);
 
                     for ($i = 1; $i < count($file_resize_suffix); ++$i) {
-                        $resize_suffix[i] = $file_resize_suffix[$i];
+                        $resize_suffix[$i] = $file_resize_suffix[$i];
                     }
 
                     // set global resize option

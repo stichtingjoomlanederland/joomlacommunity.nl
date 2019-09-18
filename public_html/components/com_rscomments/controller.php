@@ -351,20 +351,23 @@ class RscommentsController extends JControllerLegacy
 		
 		if ($this->checkPermission($id, $hash)) {
 			$query->clear()
-				->select($db->qn('id'))->select($db->qn('option'))->select($db->qn('url'))
+				->select('*')
 				->from($db->qn('#__rscomments_comments'))
 				->where($db->qn('IdComment').' = '.$db->q($id));
 			$db->setQuery($query);
 			$comment = $db->loadObject();
 			
-			$query->clear()
-				->update($db->qn('#__rscomments_comments'))
-				->set($db->qn('published').' = '.$db->q(1))
-				->where($db->qn('IdComment').' = '.$db->q($id));
-			$db->setQuery($query);
-			$db->execute();
-			
-			RSCommentsHelper::removeCache($comment->id.$comment->option);
+			if (!$comment->published) {
+				$query->clear()
+					->update($db->qn('#__rscomments_comments'))
+					->set($db->qn('published').' = '.$db->q(1))
+					->where($db->qn('IdComment').' = '.$db->q($id));
+				$db->setQuery($query);
+				$db->execute();
+				
+				RSCommentsHelper::removeCache($comment->id.$comment->option);
+				RSCommentsHelper::sendEmailSubscriptions($comment);
+			}
 			
 			$app->enqueueMessage(JText::_('COM_RSCOMMENTS_COMMENT_APPROVED'));
 			$app->redirect($comment->url ? JURI::root().base64_decode($comment->url).'#rscomment'.$id : JURI::root());
@@ -409,16 +412,10 @@ class RscommentsController extends JControllerLegacy
 	protected function checkPermission($id, $hash) {
 		$config = RSCommentsHelper::getConfig();
 		$secret	= JFactory::getConfig()->get('secret');
+		$email	= JFactory::getUser()->get('email');
 		
-		if ($emails	= $config->notification_emails) {
-			if ($emails = explode(',',$emails)) {
-				foreach ($emails as $email) {
-					$email = trim($email);
-					if ($hash == md5($email.$id.$secret)) {
-						return true;
-					}
-				}
-			}
+		if ($hash == md5($email.$id.$secret)) {
+			return true;
 		}
 		
 		return false;

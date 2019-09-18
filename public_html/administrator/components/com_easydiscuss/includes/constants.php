@@ -1,8 +1,8 @@
 <?php
 /**
-* @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
-* @license		GNU/GPL, see LICENSE.php
+* @package      EasyDiscuss
+* @copyright    Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -70,8 +70,8 @@ define('DISCUSS_TAGS_TYPE', 'tags');
 define('DISCUSS_SEARCH_TYPE', 'search');
 
 // Post resolve status
-define('DISCUSS_ENTRY_RESOLVED'	, 1);
-define('DISCUSS_ENTRY_UNRESOLVED'	, 0);
+define('DISCUSS_ENTRY_RESOLVED' , 1);
+define('DISCUSS_ENTRY_UNRESOLVED'   , 0);
 
 // Notification queue types
 define('DISCUSS_QUEUE_SUCCESS', 'success');
@@ -93,15 +93,17 @@ define('DISCUSS_AVATAR_THUMB_HEIGHT', 60);
 
 // Category
 define('DISCUSS_CATEGORY_PARENT', 0);
-define('DISCUSS_CATEGORY_ACL_ACTION_SELECT'	, 1);
+define('DISCUSS_CATEGORY_ACL_ACTION_SELECT' , 1);
 define('DISCUSS_CATEGORY_ACL_ACTION_VIEW', 2);
 define('DISCUSS_CATEGORY_ACL_ACTION_REPLY', 3);
-define('DISCUSS_CATEGORY_ACL_ACTION_VIEWREPLY'	, 4);
+define('DISCUSS_CATEGORY_ACL_ACTION_VIEWREPLY'  , 4);
 define('DISCUSS_CATEGORY_ACL_MODERATOR', 5);
 
 // Notifications constants
 define('DISCUSS_NOTIFICATIONS_MENTIONED', 'mention');
 define('DISCUSS_NOTIFICATIONS_REPLY', 'reply');
+define('DISCUSS_NOTIFICATIONS_MODERATE_QUESTION', 'moderate-question');
+define('DISCUSS_NOTIFICATIONS_MODERATE_REPLY', 'moderate-reply');
 define('DISCUSS_NOTIFICATIONS_RESOLVED', 'resolved');
 define('DISCUSS_NOTIFICATIONS_ACCEPTED', 'accepted');
 define('DISCUSS_NOTIFICATIONS_FEATURED', 'featured');
@@ -111,7 +113,7 @@ define('DISCUSS_NOTIFICATIONS_BADGE', 'badge');
 define('DISCUSS_NOTIFICATIONS_LOCKED', 'locked');
 define('DISCUSS_NOTIFICATIONS_UNLOCKED', 'unlocked');
 define('DISCUSS_NOTIFICATIONS_LIKES_DISCUSSION', 'likes-discussion');
-define('DISCUSS_NOTIFICATIONS_LIKES_REPLIES'	, 'likes-replies');
+define('DISCUSS_NOTIFICATIONS_LIKES_REPLIES'    , 'likes-replies');
 define('DISCUSS_NOTIFICATIONS_FAVOURITE', 'favourited');
 define('DISCUSS_NOTIFICATION_READ', 0);
 define('DISCUSS_NOTIFICATION_NEW', 1);
@@ -145,8 +147,8 @@ define('DISCUSS_BADGES_PATH', JPATH_ROOT . '/media/com_easydiscuss/badges');
 define('DISCUSS_BADGES_URI', DISCUSS_JURIROOT . '/media/com_easydiscuss/badges');
 define('DISCUSS_BADGES_DEFAULT', DISCUSS_BADGES_PATH . '/default');
 define('DISCUSS_BADGES_UPLOADED', DISCUSS_BADGES_PATH . '/uploaded');
-define('DISCUSS_BADGES_FAVICON_WIDTH'	, 16);
-define('DISCUSS_BADGES_FAVICON_HEIGHT'	, 16);
+define('DISCUSS_BADGES_FAVICON_WIDTH'   , 16);
+define('DISCUSS_BADGES_FAVICON_HEIGHT'  , 16);
 
 //
 define('DISCUSS_HISTORY_BADGES', 'badges');
@@ -190,7 +192,6 @@ define('DISCUSS_POST_STATUS_WORKING_ON', 3);
 define('DISCUSS_POST_STATUS_REJECT', 4);
 
 define('DISCUSS_TAGS_LIMIT', 18);
-
 
 // Update server
 define('ED_UPDATER', 'https://stackideas.com/updater/manifests/easydiscuss');

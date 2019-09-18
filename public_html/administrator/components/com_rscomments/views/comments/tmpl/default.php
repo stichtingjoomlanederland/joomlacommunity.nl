@@ -34,7 +34,7 @@ $listDirn	= $this->escape($this->state->get('list.direction', 'DESC')); ?>
 				</thead>
 				<tbody>
 				<?php foreach ($this->items as $i => $item) { ?>
-				<?php $comment_length = mb_strlen(RSCommentsHelper::cleanComment(strip_tags($item->comment))); ?>
+				<?php $comment_length = mb_strlen(RSCommentsHelperAdmin::cleanComment(strip_tags($item->comment))); ?>
 					<tr class="row<?php echo $i % 2; ?>">
 						<td width="2%"><?php echo JHtml::_('grid.id', $i, $item->IdComment); ?></td>
 						
@@ -50,11 +50,11 @@ $listDirn	= $this->escape($this->state->get('list.direction', 'DESC')); ?>
 							<br />
 							
 							<div class="rsc_comment">
-								<?php echo RSCommentsHelper::cleanComment(strip_tags(mb_substr($item->comment,0,255))); ?>
-								<?php echo ($comment_length > 255) ? '<span id="rsc_rest'.$i.'" style="display:none;">'.RSCommentsHelper::cleanComment(strip_tags(mb_substr($item->comment,255,$comment_length))).'</span>' : ''; ?>
+								<?php echo RSCommentsHelperAdmin::cleanComment(strip_tags(mb_substr($item->comment,0,255))); ?>
+								<?php echo ($comment_length > 255) ? '<span id="rsc_rest'.$i.'" style="display:none;">'.RSCommentsHelperAdmin::cleanComment(strip_tags(mb_substr($item->comment,255,$comment_length))).'</span>' : ''; ?>
 							</div>
 							
-							<?php if (mb_strlen(RSCommentsHelper::cleanComment(strip_tags($item->comment))) > 255) echo '<a href="javascript:rsc_show_all('.$i.');" class="rsc_showall" id="show_btn'.$i.'">'.JText::_('COM_RSCOMMENTS_SHOW_ALL').'</a>';?>
+							<?php if (mb_strlen(RSCommentsHelperAdmin::cleanComment(strip_tags($item->comment))) > 255) echo '<a href="javascript:rsc_show_all('.$i.');" class="rsc_showall" id="show_btn'.$i.'">'.JText::_('COM_RSCOMMENTS_SHOW_ALL').'</a>';?>
 						</td>
 						
 						<td align="center" class="center">
@@ -72,9 +72,9 @@ $listDirn	= $this->escape($this->state->get('list.direction', 'DESC')); ?>
 							</span>
 						</td>
 						
-						<td class="hidden-phone center" align="center"><?php echo RSCommentsHelper::component($item->option); ?></td>
+						<td class="hidden-phone center" align="center"><?php echo RSCommentsHelperAdmin::component($item->option); ?></td>
 						
-						<td class="center" align="center"><?php echo RSCommentsHelper::showDate($item->date); ?></td>
+						<td class="center" align="center"><?php echo RSCommentsHelperAdmin::showDate($item->date); ?></td>
 						
 						<td class="hidden-phone center" align="center">
 							<?php echo JHtml::_('jgrid.published', $item->published, $i, 'comments.', true, 'cb'); ?>

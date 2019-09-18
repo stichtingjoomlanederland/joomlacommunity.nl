@@ -22,6 +22,9 @@ JText::script('RSFP_GRID_PASTE_ITEMS');
 JText::script('RSFP_GRID_NOTHING_TO_PUBLISH');
 JText::script('RSFP_GRID_PUBLISHED');
 JText::script('RSFP_GRID_UNPUBLISHED');
+JText::script('RSFP_GRID_CANT_CHANGE_REQUIRED');
+JText::script('RSFP_GRID_SET_AS_REQUIRED');
+JText::script('RSFP_GRID_SET_AS_NOT_REQUIRED');
 
 list($rows, $hidden) = $this->buildGrid();
 
@@ -62,7 +65,31 @@ $this->loadTemplate('grid_modal_body'));
 				<div class="rsfp-grid-column rsfp-grid-column<?php echo $size; ?><?php if ($last_column) { ?> rsfp-grid-column-unresizable<?php } ?><?php if ($has_pagebreak) { ?> rsfp-grid-column-unconnectable<?php } ?>">
 				<h3><?php echo $size; ?>/12</h3>
 				<?php foreach ($fields as $field) { ?>
-					<div id="rsfp-grid-field-id-<?php echo $field->id; ?>" class="rsfp-grid-field<?php if ($field->type_id == RSFORM_FIELD_PAGEBREAK) { ?> rsfp-grid-field-unsortable<?php } ?><?php if (!$field->published) { ?> rsfp-grid-unpublished-field<?php } ?>">
+					<?php
+					$fieldClasses = array();
+
+					if ($field->type_id == RSFORM_FIELD_PAGEBREAK)
+					{
+						$fieldClasses[] = 'rsfp-grid-field-unsortable';
+					}
+					if (!$field->published)
+					{
+						$fieldClasses[] = 'rsfp-grid-unpublished-field';
+					}
+					if (!empty($field->hasRequired))
+					{
+						$fieldClasses[] = 'rsfp-grid-can-be-required';
+						if ($field->required)
+						{
+							$fieldClasses[] = 'rsfp-grid-required-field';
+						}
+						else
+						{
+							$fieldClasses[] = 'rsfp-grid-unrequired-field';
+						}
+					}
+					?>
+					<div id="rsfp-grid-field-id-<?php echo $field->id; ?>" class="rsfp-grid-field<?php echo $fieldClasses ? ' ' . implode(' ', $fieldClasses) : ''; ?>">
 						<strong class="pull-left rsfp-grid-field-name"><?php echo JHtml::_('grid.id', $i, $field->id); ?> <?php echo $this->escape($this->show_caption ? $field->caption : $field->name); ?><?php if ($field->required) { ?> (*)<?php } ?></strong>
 						<div class="btn-group pull-right rsfp-grid-field-buttons">
 							<button type="button" class="btn btn-small" onclick="displayTemplate('<?php echo $field->type_id; ?>','<?php echo $field->id; ?>');"><?php echo JText::_('RSFP_EDIT'); ?></button>

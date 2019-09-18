@@ -1481,4 +1481,60 @@ abstract class RSCommentsHelper
 		$cache->remove(md5($id.'0,1ASC'));
 		$cache->remove(md5($id.'0,1DESC'));
 	}
+	
+	public static function sendEmailSubscriptions($row) {
+		$db			 = JFactory::getDbo();
+		$query		 = $db->getQuery(true);
+		$cfg 		 = JFactory::getConfig();
+		$permissions = RSCommentsHelper::getPermissions();
+		
+		JFactory::getLanguage()->load('com_rscomments', JPATH_SITE);
+		
+		$query->clear()
+			->select($db->qn('emails'))
+			->from($db->qn('#__rscomments_comments'))
+			->where($db->qn('IdComment').' = '.$db->q($row->IdComment));
+		$db->setQuery($query);
+		$emailsSent = $db->loadResult();
+		
+		if (!$emailsSent) {
+			$query->clear()
+				->select($db->qn('name'))->select($db->qn('email'))
+				->select($db->qn('option'))->select($db->qn('id'))
+				->from($db->qn('#__rscomments_subscriptions'))
+				->where($db->qn('id').' = '.(int) $row->id)
+				->where($db->qn('option').' = '.$db->q($row->option));
+			
+			$db->setQuery($query);
+			$subscribers = $db->loadObjectList();
+
+			$name = $row->name;
+			if ($row->anonymous) {
+				$name = empty($name) ? JText::_('COM_RSCOMMENTS_ANONYMOUS') : $name;
+			}
+			
+			if (!empty($subscribers)) {
+				foreach($subscribers as $subscriber) {
+					$hash				= md5($subscriber->email.$subscriber->option.$subscriber->id);
+					$msg 	 			= RSCommentsHelper::getMessage('subscription_message');
+					$preview 			= '<a href="'.JURI::root().base64_decode($row->url).'" target="_blank">'.JURI::root().base64_decode($row->url).'</a>'; 
+					$unsubscribelink 	= '<a href="'.JURI::root().'index.php?option=com_rscomments&task=comments.unsubscribeemail&opt='.$row->option.'&id='.$row->id.'&uemail='.urlencode($subscriber->email).'&hash='.$hash.'&redirect_url='.$row->url.'">'.JURI::root().'index.php?option=com_rscomments&task=comments.unsubscribeemail&opt='.$row->option.'&id='.$row->id.'&uemail='.$subscriber->email.'&hash='.$hash.'&redirect_url='.$row->url.'</a>';
+					$replace 			= array('{name}','{author}','{message}','{link}','{unsubscribelink}');
+					$with 	 			= array($subscriber->name,'"'.$name.'"',RSCommentsHelper::parseComment($row->comment,$permissions),$preview,$unsubscribelink);
+					$msg 	 			= str_replace($replace,$with,$msg);
+					$msg 	 			= html_entity_decode($msg,ENT_COMPAT,'UTF-8');
+					
+					$mailer	= JFactory::getMailer();
+					$mailer->sendMail($cfg->get('mailfrom'), $cfg->get('fromname'), $subscriber->email , JText::_('COM_RSCOMMENTS_NEW_COMMENT_SUBJECT') , $msg , 1);
+				}
+				
+				$query->clear()
+					->update($db->qn('#__rscomments_comments'))
+					->set($db->qn('emails').' = '.$db->q(1))
+					->where($db->qn('IdComment').' = '.$db->q($row->IdComment));
+				$db->setQuery($query);
+				$db->execute();
+			}
+		}
+	}
 }

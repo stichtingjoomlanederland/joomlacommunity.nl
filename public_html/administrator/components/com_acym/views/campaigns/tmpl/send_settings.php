@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -62,7 +62,7 @@ defined('_JEXEC') or die('Restricted access');
 					<div class="large-auto medium-auto"></div>
 				</div>
 				<div class="cell grid-x">
-					<div class="grid-x xxlarge-6 cell text-center float-center">
+					<div class="grid-x xxlarge-7 cell text-center float-center">
 						<div class="cell acym__campaign__sendsettings__display-send-type-now">
 							<h6><?php echo acym_translation('ACYM_SENT_AS_SOON_CAMPAIGN_SAVE'); ?></h6>
 						</div>
@@ -70,7 +70,7 @@ defined('_JEXEC') or die('Restricted access');
 							<h6 id="acym__campaign__sendsettings__scheduled__send-date__label" class="cell large-6"><?php echo acym_translation('ACYM_CAMPAIGN_WILL_BE_SENT'); ?></h6>
 							<label class="cell large-6" for="acym__campaign__sendsettings__send">
                                 <?php
-                                $value = empty($data['currentCampaign']->sending_date) ? '' : acym_date($data['currentCampaign']->sending_date, 'd M Y H:i');
+                                $value = empty($data['currentCampaign']->sending_date) ? '' : date('d M Y H:i', strtotime($data['currentCampaign']->sending_date) + date('Z'));
                                 echo acym_tooltip('<input class="text-center acy_date_picker" type="text" name="sendingDate" id="acym__campaign__sendsettings__send-type-scheduled__date" value="'.acym_escape($value).'" readonly>', acym_translation('ACYM_CLICK_TO_EDIT'));
                                 ?>
 							</label>

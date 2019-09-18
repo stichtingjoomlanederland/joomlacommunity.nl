@@ -141,6 +141,25 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			'administrator/components/com_akeeba/Master/Installers/abi.jpa',
 			'administrator/components/com_akeeba/Master/Installers/angie-generic.ini',
 			'administrator/components/com_akeeba/Master/Installers/angie-generic.jpa',
+
+			// PostgreSQL and MS SQL Server support
+			'administrator/components/com_akeeba/BackupEngine/Driver/Pgsql.php',
+			'administrator/components/com_akeeba/BackupEngine/Driver/Postgresql.php',
+			'administrator/components/com_akeeba/BackupEngine/Driver/Sqlazure.php',
+			'administrator/components/com_akeeba/BackupEngine/Driver/Sqlsrv.php',
+
+			'administrator/components/com_akeeba/BackupEngine/Driver/Query/Pgsql.php',
+			'administrator/components/com_akeeba/BackupEngine/Driver/Query/Postgresql.php',
+			'administrator/components/com_akeeba/BackupEngine/Driver/Query/Sqlazure.php',
+			'administrator/components/com_akeeba/BackupEngine/Driver/Query/Sqlsrv.php',
+
+			'administrator/components/com_akeeba/BackupEngine/Dump/reverse.json',
+			'administrator/components/com_akeeba/BackupEngine/Dump/Reverse.php',
+			'administrator/components/com_akeeba/BackupEngine/Dump/Native/Postgresql.php',
+			'administrator/components/com_akeeba/BackupEngine/Dump/Native/Sqlsrv.php',
+
+			'administrator/components/com_akeeba/sql/xml/postgresql.xml',
+			'administrator/components/com_akeeba/sql/xml/sqlsrv.xml',
 		],
 		'folders' => [
 			// Pro component features
@@ -156,6 +175,9 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			'administrator/components/com_akeeba/View/S3Import',
 			'administrator/components/com_akeeba/View/Upload',
 			'administrator/components/com_akeeba/BackupEngine/Postproc/Connector',
+
+			// PostgreSQL and MS SQL Server support
+			'administrator/components/com_akeeba/BackupEngine/Dump/Reverse',
 		],
 	];
 

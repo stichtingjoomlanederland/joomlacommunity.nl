@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -22,46 +22,46 @@ defined('_JEXEC') or die('Restricted access');
 				<p class="acym__color__red"><b><?php echo acym_translation("ACYM_MIGRATE_WARNING_DATA_OVERWRITE_MESSAGE"); ?></b></p>
 			</div>
 			<div class="cell acym__migrate__input__element">
-				<input type="checkbox" id="acym__migrate__config" name="migrate[config]" class="acym__migrate__option"/>
+				<input type="checkbox" id="acym__migrate__config" name="migrate[config]" class="acym__migrate__option" />
 				<label for="acym__migrate__config"><?php echo acym_translation("ACYM_CONFIGURATION"); ?></label>
 				<span id="acym__migrate__result__config__check"></span>
 			</div>
             <?php if (acym_level(2)) { ?>
 				<div class="cell acym__migrate__input__element">
-					<input type="checkbox" id="acym__migrate__bounce" name="migrate[bounce]" class="acym__migrate__option"/>
+					<input type="checkbox" id="acym__migrate__bounce" name="migrate[bounce]" class="acym__migrate__option" />
 					<label for="acym__migrate__bounce"><?php echo acym_translation("ACYM_BOUNCE_HANDLING"); ?></label>
 					<span id="acym__migrate__result__bounce__check"></span>
 				</div>
             <?php } ?>
 			<div class="cell acym__migrate__input__element">
-				<input type="checkbox" id="acym__migrate__lists" name="migrate[lists]" class="acym__migrate__option"/>
+				<input type="checkbox" id="acym__migrate__lists" name="migrate[lists]" class="acym__migrate__option" />
 				<label for="acym__migrate__lists"><?php echo acym_translation("ACYM_LISTS"); ?></label>
 				<span id="acym__migrate__result__lists__check"></span>
 			</div>
 			<div class="cell acym__migrate__input__element">
-				<input type="checkbox" id="acym__migrate__mails" name="migrate[mails]" class="acym__migrate__option"/>
+				<input type="checkbox" id="acym__migrate__mails" name="migrate[mails]" class="acym__migrate__option" />
 				<label for="acym__migrate__mails"><?php echo acym_translation("ACYM_NEWSLETTERS"); ?></label>
 				<span id="acym__migrate__result__mails__check"></span>
 			</div>
 			<div class="cell acym__migrate__input__element margin-left-2" id="acym__migrate__input__global_stats">
-				<input type="checkbox" id="acym__migrate__mailstats" name="migrate[mailStats]" class="acym__migrate__option"/>
+				<input type="checkbox" id="acym__migrate__mailstats" name="migrate[mailStats]" class="acym__migrate__option" />
 				<label for="acym__migrate__mailstats"><?php echo acym_translation("ACYM_GLOBAL_STATS"); ?></label>
 				<span id="acym__migrate__result__mailstats__check"></span>
 			</div>
 			<div class="cell acym__migrate__input__element">
-				<input type="checkbox" id="acym__migrate__templates" name="migrate[templates]" class="acym__migrate__option"/>
+				<input type="checkbox" id="acym__migrate__templates" name="migrate[templates]" class="acym__migrate__option" />
 				<label for="acym__migrate__templates"><?php echo acym_translation("ACYM_TEMPLATES"); ?></label>
 				<span id="acym__migrate__result__templates__check"></span>
 			</div>
             <?php if (acym_level(2)) { ?>
 				<div class="cell acym__migrate__input__element">
-					<input type="checkbox" id="acym__migrate__fields" name="migrate[fields]" class="acym__migrate__option"/>
+					<input type="checkbox" id="acym__migrate__fields" name="migrate[fields]" class="acym__migrate__option" />
 					<label for="acym__migrate__fields"><?php echo acym_translation("ACYM_CUSTOM_FIELDS"); ?></label>
 					<span id="acym__migrate__result__fields__check"></span>
 				</div>
             <?php } ?>
 			<div class="cell acym__migrate__input__element">
-				<input type="checkbox" id="acym__migrate__users" name="migrate[users]" class="acym__migrate__option"/>
+				<input type="checkbox" id="acym__migrate__users" name="migrate[users]" class="acym__migrate__option" />
 				<label for="acym__migrate__users"><?php echo acym_translation("ACYM_USERS"); ?></label>
 				<span id="acym__migrate__result__users__check"></span>
 			</div>

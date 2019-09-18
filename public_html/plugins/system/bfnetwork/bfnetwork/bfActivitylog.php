@@ -215,10 +215,10 @@ class bfActivitylog
                     ), )
             );
 
-            return @file_get_contents('https://local-maintain.myjoomla.com/api/log', false, stream_context_create($opts));
+            return @file_get_contents('https://dev.mysites.guru/api/log', false, stream_context_create($opts));
         } else {
             // Using @ so we don't destroy live sites if the service is offline
-            return @file_get_contents('https://manage.myjoomla.com/api/log', false, stream_context_create($opts));
+            return @file_get_contents('https://mysites.guru/api/log', false, stream_context_create($opts));
         }
     }
 

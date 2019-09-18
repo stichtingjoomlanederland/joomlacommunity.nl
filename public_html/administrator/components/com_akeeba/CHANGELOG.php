@@ -1,4 +1,15 @@
 <?php die();?>
+Akeeba Backup 6.6.0
+================================================================================
+- Removed support for non-MySQL database engines (PostgreSQL and MS SQL Server)
+~ Compatibility with Joomla 4.0.0-alpha9
+~ Google Storage: API endpoint changed from www.googleapis.com to storage.googleapis.com
+~ Configuration Wizard: determining AJAX method is redundant
+~ Improved feedback in the Manage Backups page when uploading a backup archive
+# [HIGH] Generated columns were being dumped instead of skipped over
+# [LOW] Empty "Advanced Operations" control panel area when the user lacks the Configure privilege
+# [LOW] Integrated restoration progress timer was always stuck at zero
+
 Akeeba Backup 6.5.1
 ================================================================================
 ! Missing language files in embedded restoration script made restoring sites impossible

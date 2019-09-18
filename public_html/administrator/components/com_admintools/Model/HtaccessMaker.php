@@ -271,8 +271,8 @@ class HtaccessMaker extends ServerConfigMaker
 			'swf', 'html', 'mpg', 'mp3', 'mpeg', 'mp4', 'avi', 'wav', 'ogg', 'ogv',
 			'xls', 'xlsx', 'doc', 'docx', 'ppt', 'pptx', 'zip', 'rar', 'pdf', 'xps',
 			'txt', '7z', 'svg', 'odt', 'ods', 'odp', 'flv', 'mov', 'htm', 'ttf',
-			'woff', 'woff2', 'eot',
-			'JPG', 'JPEG', 'PNG', 'GIF', 'CSS', 'JS', 'TTF', 'WOFF', 'WOFF2', 'EOT'
+			'woff', 'woff2', 'eot', 'webp',
+			'JPG', 'JPEG', 'PNG', 'GIF', 'CSS', 'JS', 'TTF', 'WOFF', 'WOFF2', 'EOT', 'WEBP'
 		),
 		// Front-end directories where file type exceptions are allowed
 		'fepexdirs'           => array('components', 'modules', 'templates', 'images', 'plugins', 'media', 'libraries',
@@ -283,8 +283,8 @@ class HtaccessMaker extends ServerConfigMaker
 			'swf', 'html', 'mpg', 'mp3', 'mpeg', 'mp4', 'avi', 'wav', 'ogg', 'ogv',
 			'xls', 'xlsx', 'doc', 'docx', 'ppt', 'pptx', 'zip', 'rar', 'pdf', 'xps',
 			'txt', '7z', 'svg', 'odt', 'ods', 'odp', 'flv', 'mov', 'ico', 'htm',
-			'ttf', 'woff', 'woff2', 'eot',
-			'JPG', 'JPEG', 'PNG', 'GIF', 'CSS', 'JS', 'TTF', 'WOFF', 'WOFF2', 'EOT'
+			'ttf', 'woff', 'woff2', 'eot', 'webp',
+			'JPG', 'JPEG', 'PNG', 'GIF', 'CSS', 'JS', 'TTF', 'WOFF', 'WOFF2', 'EOT', 'WEBP'
 		),
 		// -- Exceptions
 		// Allow direct access to these files
@@ -338,6 +338,7 @@ class HtaccessMaker extends ServerConfigMaker
 	protected $allowedCallersForWrite = [
 		'Akeeba\AdminTools\Admin\Controller\ServerConfigMaker::apply',
 		'Akeeba\AdminTools\Admin\Controller\HtaccessMaker::apply',
+		'Akeeba\AdminTools\Admin\Controller\ControlPanel::regenerateServerConfig',
 		'Akeeba\AdminTools\Admin\Model\QuickStart::applyHtmaker'
 	];
 

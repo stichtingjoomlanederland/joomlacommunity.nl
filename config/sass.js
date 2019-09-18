@@ -5,9 +5,6 @@
 module.exports = {
     dist: {
         options: {
-            includePaths: [
-                require("node-normalize-scss").includePaths
-            ],
             style: 'expanded',
             sourceMap: false
         },

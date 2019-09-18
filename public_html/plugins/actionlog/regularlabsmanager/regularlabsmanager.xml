@@ -2,8 +2,8 @@
 <extension version="3.9" type="plugin" group="actionlog" method="upgrade">
 	<name>plg_actionlog_regularlabsmanager</name>
 	<description>PLG_ACTIONLOG_REGULARLABSMANAGER_DESC</description>
-	<version>7.4.2</version>
-	<creationDate>April 2019</creationDate>
+	<version>7.4.3</version>
+	<creationDate>September 2019</creationDate>
 	<author>Regular Labs (Peter van Westen)</author>
 	<authorEmail>info@regularlabs.com</authorEmail>
 	<authorUrl>https://www.regularlabs.com</authorUrl>

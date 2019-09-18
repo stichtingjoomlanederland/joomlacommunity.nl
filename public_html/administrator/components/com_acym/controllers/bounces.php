@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -28,10 +28,10 @@ class BouncesController extends acymController
 
             $bounceRules = $bounceClass->getAll();
 
-            $data = array(
+            $data = [
                 "allRules" => $bounceRules,
                 "lists" => $listsClass->getAllWithIdName(),
-            );
+            ];
 
             parent::display($data);
         }
@@ -58,11 +58,11 @@ class BouncesController extends acymController
             $this->breadcrumb[acym_translation('ACYM_NEW')] = acym_completeLink('bounces&task=edit');
         }
 
-        $data = array(
+        $data = [
             "id" => $ruleId,
             "lists" => $listsClass->getAllWithIdName(),
             "rule" => $rule,
-        );
+        ];
 
         parent::display($data);
     }
@@ -214,7 +214,7 @@ class BouncesController extends acymController
         acym_checkToken();
 
         $config = acym_config();
-        $newConfig = acym_getVar('array', 'config', array(), 'POST');
+        $newConfig = acym_getVar('array', 'config', [], 'POST');
         if (!empty($newConfig['bounce_username'])) {
             $newConfig['bounce_username'] = acym_punycode($newConfig['bounce_username']);
         }
@@ -264,7 +264,7 @@ class BouncesController extends acymController
                 $bounceClass->close();
                 if (!empty($nbMessages)) {
                     acym_enqueueNotification(
-                        array(
+                        [
                             acym_translation_sprintf('ACYM_NB_MAIL_MAILBOX', $nbMessages),
                             acym_modal(
                                 acym_translation('ACYM_CLICK_BOUNCE'),
@@ -273,7 +273,7 @@ class BouncesController extends acymController
                                 'data-reveal-larger',
                                 'data-ajax="true" data-iframe="&ctrl=bounces&task=process" class="acym__color__light-blue cursor-pointer" style="margin: 0"'
                             ),
-                        )
+                        ]
                     );
                 }
             } else {
@@ -284,7 +284,7 @@ class BouncesController extends acymController
                     $port = $config->get('bounce_port', '');
                     if (preg_match('#certificate#i', $errorString) && !$config->get('bounce_certif', false)) {
                         acym_enqueueNotification('You may need to turn ON the option <i>'.acym_translation('ACYM_SELF_SIGNED_CERTIFICATE').'</i>', 'warning');
-                    } elseif (!empty($port) && !in_array($port, array('993', '143', '110'))) {
+                    } elseif (!empty($port) && !in_array($port, ['993', '143', '110'])) {
                         acym_enqueueNotification(acym_translation('ACYM_BOUNCE_WRONG_PORT'), 'warning');
                     }
                 }
@@ -320,3 +320,4 @@ class BouncesController extends acymController
         $this->listing();
     }
 }
+

@@ -63,6 +63,14 @@
 			<option value="1">JYes</option>
 		</field>
 
+		<field name="frontend_email_when" type="radio" default="always"
+			   label="COM_AKEEBA_CONFIG_FRONTEND_EMAIL_WHEN_LABEL"
+			   description="COM_AKEEBA_CONFIG_FRONTEND_EMAIL_WHEN_DESC"
+			   class="switcher btn-group">
+			<option value="always">COM_AKEEBA_CONFIG_FRONTEND_EMAIL_WHEN_ALWAYS</option>
+			<option value="failedupload">COM_AKEEBA_CONFIG_FRONTEND_EMAIL_WHEN_FAILEDUPLOAD</option>
+		</field>
+
 		<field name="frontend_email_address" type="text" default="" size="50"
 			   label="COM_AKEEBA_CONFIG_ARBITRARYFEEMAIL_LABEL"
 			   description="COM_AKEEBA_CONFIG_ARBITRARYFEEMAIL_DESC"

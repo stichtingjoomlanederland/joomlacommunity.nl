@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -32,36 +32,36 @@ class plgAcymPage extends acymPlugin
 
     function contentPopup()
     {
-        $displayOptions = array(
-            array(
+        $displayOptions = [
+            [
                 'title' => 'ACYM_DISPLAY',
                 'type' => 'checkbox',
                 'name' => 'display',
-                'options' => array(
-                    'title' => array('ACYM_TITLE', true),
-                    'image' => array('ACYM_FEATURED_IMAGE', true),
-                    'content' => array('ACYM_CONTENT', true),
-                ),
-            ),
-            array(
+                'options' => [
+                    'title' => ['ACYM_TITLE', true],
+                    'image' => ['ACYM_FEATURED_IMAGE', true],
+                    'content' => ['ACYM_CONTENT', true],
+                ],
+            ],
+            [
                 'title' => 'ACYM_CLICKABLE_TITLE',
                 'type' => 'boolean',
                 'name' => 'clickable',
                 'default' => true,
-            ),
-            array(
+            ],
+            [
                 'title' => 'ACYM_TRUNCATE',
                 'type' => 'intextfield',
                 'name' => 'wrap',
                 'text' => 'ACYM_TRUNCATE_AFTER',
                 'default' => 0,
-            ),
-            array(
+            ],
+            [
                 'title' => 'ACYM_DISPLAY_PICTURES',
                 'type' => 'pictures',
                 'name' => 'pictures',
-            ),
-        );
+            ],
+        ];
 
         echo $this->acympluginHelper->displayOptions($displayOptions, $this->name);
 
@@ -72,7 +72,8 @@ class plgAcymPage extends acymPlugin
 
     function displayListing()
     {
-        $query = 'SELECT SQL_CALC_FOUND_ROWS page.ID, page.post_title, page.post_date, page.post_content FROM #__posts AS page ';
+        $querySelect = 'SELECT page.ID, page.post_title, page.post_date, page.post_content ';
+        $query = 'FROM #__posts AS page ';
         $filters = [];
 
         $this->pageInfo = new stdClass();
@@ -84,7 +85,7 @@ class plgAcymPage extends acymPlugin
         $this->pageInfo->order = 'page.ID';
         $this->pageInfo->orderdir = 'DESC';
 
-        $searchFields = array('page.ID', 'page.post_title');
+        $searchFields = ['page.ID', 'page.post_title'];
         if (!empty($this->pageInfo->search)) {
             $searchVal = '%'.acym_getEscaped($this->pageInfo->search, true).'%';
             $filters[] = implode(" LIKE ".acym_escapeDB($searchVal)." OR ", $searchFields)." LIKE ".acym_escapeDB($searchVal);
@@ -96,8 +97,8 @@ class plgAcymPage extends acymPlugin
         $query .= ' WHERE ('.implode(') AND (', $filters).')';
         if (!empty($this->pageInfo->order)) $query .= ' ORDER BY '.acym_secureDBColumn($this->pageInfo->order).' '.acym_secureDBColumn($this->pageInfo->orderdir);
 
-        $rows = acym_loadObjectList($query, '', $this->pageInfo->start, $this->pageInfo->limit);
-        $this->pageInfo->total = acym_loadResult('SELECT FOUND_ROWS()');
+        $rows = acym_loadObjectList($querySelect.$query, '', $this->pageInfo->start, $this->pageInfo->limit);
+        $this->pageInfo->total = acym_loadResult('SELECT COUNT(*) '.$query);
 
 
         foreach ($rows as $i => $row) {
@@ -140,7 +141,7 @@ class plgAcymPage extends acymPlugin
         $tags = $this->acympluginHelper->extractTags($email, $this->name);
         if (empty($tags)) return;
 
-        $tagsReplaced = array();
+        $tagsReplaced = [];
         foreach ($tags as $i => $oneTag) {
             if (isset($tagsReplaced[$i])) continue;
             $tagsReplaced[$i] = $this->_replaceContent($oneTag, $email);
@@ -168,12 +169,12 @@ class plgAcymPage extends acymPlugin
         }
 
         if (empty($tag->display)) {
-            $tag->display = array();
+            $tag->display = [];
         } else {
             $tag->display = explode(',', $tag->display);
         }
 
-        $varFields = array();
+        $varFields = [];
         foreach ($element as $fieldName => $oneField) {
             $varFields['{'.$fieldName.'}'] = $oneField;
         }
@@ -197,7 +198,7 @@ class plgAcymPage extends acymPlugin
         $contentText = '';
         if (in_array('content', $tag->display)) $contentText .= $element->post_content;
 
-        $customFields = array();
+        $customFields = [];
 
         $format = new stdClass();
         $format->tag = $tag;
@@ -214,3 +215,4 @@ class plgAcymPage extends acymPlugin
         return $this->finalizeElementFormat($this->name, $result, $tag, $varFields);
     }
 }
+

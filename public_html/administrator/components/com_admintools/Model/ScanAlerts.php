@@ -30,6 +30,14 @@ use FOF30\Model\DataModel;
  */
 class ScanAlerts extends DataModel
 {
+	/**
+	 * Size threshold for reading file contents. To calculate the score we have to read the whole file, with large ones
+	 * (ie log files) we could run out of memory, causing a fatal error.
+	 *
+	 * @var int
+	 */
+	private $filesizeThreshold = 5 * 1024 * 1024;
+
 	public function __construct(Container $container, array $config)
 	{
 		$config['tableName']   = '#__admintools_scanalerts';
@@ -134,7 +142,16 @@ class ScanAlerts extends DataModel
 
 	public function getFileSourceForDisplay($highlight = false)
 	{
-		$filedata = @file_get_contents(JPATH_ROOT . '/' . $this->path);
+		$filepath = JPATH_ROOT . '/' . $this->path;
+		$filesize = @filesize($filepath);
+
+		// With very large files do not display the whole contents, but instead show a placeholder
+		if ($filesize > $this->filesizeThreshold)
+		{
+			return \JText::sprintf('COM_ADMINTOOLS_SCANS_FILE_TOO_LARGE', round($filesize / 1024 / 1024, 2));
+		}
+
+		$filedata = @file_get_contents($filepath);
 
 		if (!$highlight)
 		{

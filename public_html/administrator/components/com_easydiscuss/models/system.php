@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -20,7 +20,7 @@ class EasyDiscussModelSystem extends EasyDiscussAdminModel
 		parent::__construct();
 
 		$defaultLimit = ED::getListLimit();
-		$limit = $this->app->getUserStateFromRequest( 'com_easydiscuss.posts.limit', 'limit', $defaultLimit);
+		$limit = $this->app->getUserStateFromRequest( 'com_easydiscuss.posts.limit', 'limit', $defaultLimit, 'int');
 		$limitstart	= $this->input->get('limitstart', 0, 'int');
 
 		$this->setState('limit', $limit);

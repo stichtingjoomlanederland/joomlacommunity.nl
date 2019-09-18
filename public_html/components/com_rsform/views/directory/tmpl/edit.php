@@ -27,6 +27,10 @@ function directorySave(task) {
 			</td>
 			<td>
 				<?php echo $field[1]; ?>
+
+				<?php if (!empty($field[4])) { ?>
+					<?php echo $field[4]; ?>
+				<?php } ?>
 			</td>
 		</tr>
 		<?php } ?>

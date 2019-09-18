@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -39,14 +39,14 @@ class plgAcymSeblod extends acymPlugin
         $tabHelper = acym_get('helper.tab');
         $tabHelper->startTab(acym_translation('ACYM_ONE_BY_ONE'));
 
-        $fields = array(
-            'title' => array('ACYM_TITLE', true),
-            'introtext' => array('ACYM_INTRO_TEXT', true),
-            'fulltext' => array('ACYM_FULL_TEXT', false),
-            'created' => array('ACYM_DATE_CREATED', false),
-            'pubdate' => array('ACYM_PUBLISHING_DATE', false),
-            'image' => array('ACYM_IMAGE', true),
-        );
+        $fields = [
+            'title' => ['ACYM_TITLE', true],
+            'introtext' => ['ACYM_INTRO_TEXT', true],
+            'fulltext' => ['ACYM_FULL_TEXT', false],
+            'created' => ['ACYM_DATE_CREATED', false],
+            'pubdate' => ['ACYM_PUBLISHING_DATE', false],
+            'image' => ['ACYM_IMAGE', true],
+        ];
 
         $query = 'SELECT a.name, a.title 
                     FROM `#__cck_core_fields` AS a 
@@ -60,34 +60,34 @@ class plgAcymSeblod extends acymPlugin
 
         if (!empty($customFields)) {
             foreach ($customFields as $onefield) {
-                if (in_array($onefield->name, array('art_introtext', 'art_fulltext', 'cat_description'))) {
+                if (in_array($onefield->name, ['art_introtext', 'art_fulltext', 'cat_description'])) {
                     continue;
                 }
 
-                $fields[$onefield->name] = array($onefield->title, false);
+                $fields[$onefield->name] = [$onefield->title, false];
             }
         }
 
-        $displayOptions = array(
-            array(
+        $displayOptions = [
+            [
                 'title' => 'ACYM_FIELDS_TO_DISPLAY',
                 'type' => 'checkbox',
                 'name' => 'displays',
                 'options' => $fields,
                 'separator' => '; ',
-            ),
-            array(
+            ],
+            [
                 'title' => 'ACYM_CLICKABLE_TITLE',
                 'type' => 'boolean',
                 'name' => 'clickable',
                 'default' => true,
-            ),
-            array(
+            ],
+            [
                 'title' => 'ACYM_DISPLAY_PICTURES',
                 'type' => 'pictures',
                 'name' => 'pictures',
-            ),
-        );
+            ],
+        ];
 
         echo $this->acympluginHelper->displayOptions($displayOptions, $this->name);
 
@@ -99,32 +99,32 @@ class plgAcymSeblod extends acymPlugin
 
         $tabHelper->startTab(acym_translation('ACYM_BY_CATEGORY'));
 
-        $catOptions = array(
-            array(
+        $catOptions = [
+            [
                 'title' => 'ACYM_ORDER_BY',
                 'type' => 'select',
                 'name' => 'order',
-                'options' => array(
+                'options' => [
                     'id' => 'ACYM_ID',
                     'created' => 'ACYM_DATE_CREATED',
                     'modified' => 'ACYM_MODIFICATION_DATE',
                     'title' => 'ACYM_TITLE',
                     'rand' => 'ACYM_RANDOM',
-                ),
-            ),
-            array(
+                ],
+            ],
+            [
                 'title' => 'ACYM_MAX_NB_ELEMENTS',
                 'type' => 'text',
                 'name' => 'max',
                 'default' => 20,
-            ),
-            array(
+            ],
+            [
                 'title' => 'ACYM_COLUMNS',
                 'type' => 'text',
                 'name' => 'cols',
                 'default' => 1,
-            ),
-        );
+            ],
+        ];
 
         $displayOptions = array_merge($displayOptions, $catOptions);
 
@@ -139,8 +139,8 @@ class plgAcymSeblod extends acymPlugin
 
     function displayListing()
     {
-        $query = 'SELECT SQL_CALC_FOUND_ROWS a.*,b.*,c.*,a.id AS gID, a.title AS gtitle 
-                    FROM `#__content` AS a 
+        $querySelect = 'SELECT a.*,b.*,c.*,a.id AS gID, a.title AS gtitle ';
+        $query = 'FROM `#__content` AS a 
                     JOIN #__categories AS b ON a.catid = b.id 
                     LEFT JOIN `#__users` AS c ON a.created_by = c.id';
         $filters = [];
@@ -154,7 +154,7 @@ class plgAcymSeblod extends acymPlugin
         $this->pageInfo->order = 'a.id';
         $this->pageInfo->orderdir = 'DESC';
 
-        $searchFields = array('a.id', 'a.title', 'b.title', 'c.username');
+        $searchFields = ['a.id', 'a.title', 'b.title', 'c.username'];
         if (!empty($this->pageInfo->search)) {
             $searchVal = '%'.acym_getEscaped($this->pageInfo->search, true).'%';
             $filters[] = implode(" LIKE ".acym_escapeDB($searchVal)." OR ", $searchFields)." LIKE ".acym_escapeDB($searchVal);
@@ -170,8 +170,8 @@ class plgAcymSeblod extends acymPlugin
             $query .= ' ORDER BY '.acym_secureDBColumn($this->pageInfo->order).' '.acym_secureDBColumn($this->pageInfo->orderdir);
         }
 
-        $rows = acym_loadObjectList($query, '', $this->pageInfo->start, $this->pageInfo->limit);
-        $this->pageInfo->total = acym_loadResult('SELECT FOUND_ROWS()');
+        $rows = acym_loadObjectList($querySelect.$query, '', $this->pageInfo->start, $this->pageInfo->limit);
+        $this->pageInfo->total = acym_loadResult('SELECT COUNT(*) '.$query);
 
 
         foreach ($rows as $i => $row) {
@@ -230,7 +230,7 @@ class plgAcymSeblod extends acymPlugin
 
         $this->addedcss = false;
 
-        $tagsReplaced = array();
+        $tagsReplaced = [];
         foreach ($tags as $i => $oneTag) {
             if (isset($tagsReplaced[$i])) {
                 continue;
@@ -246,7 +246,7 @@ class plgAcymSeblod extends acymPlugin
         if (!empty($tag->displays)) {
             $tag->displays = explode(';', $tag->displays);
         } else {
-            $tag->displays = array('title');
+            $tag->displays = ['title'];
         }
 
         foreach ($tag->displays as $i => $oneField) {
@@ -258,7 +258,7 @@ class plgAcymSeblod extends acymPlugin
         $query .= 'WHERE a.id = '.intval($tag->id).' LIMIT 1';
         $article = acym_loadObject($query);
         $result = '';
-        $varFields = array();
+        $varFields = [];
 
         if (empty($article)) {
             if (acym_isAdmin()) {
@@ -289,7 +289,7 @@ class plgAcymSeblod extends acymPlugin
             $pubdate = '<tr><td>'.acym_translation('ACYM_PUBLISHING_DATE').' : </td><td>'.$varFields['{pubdate}'].'</td></tr>';
         }
 
-        $answer = array();
+        $answer = [];
         preg_match_all('#::([^/:]+)::(.*)::/#Uis', $article->introtext, $fields);
 
         if (!empty($fields)) {
@@ -322,7 +322,7 @@ class plgAcymSeblod extends acymPlugin
         }
         $article->text = $article->introtext.$article->fulltext;
 
-        $params = array();
+        $params = [];
         $acyCCK = new AcyplgContentCCK();
         $acyCCK->acyDisplays = $tag->displays;
         $acyCCK->onContentPrepare('com_content.article', $article, $params, 0);
@@ -391,7 +391,7 @@ class plgAcymSeblod extends acymPlugin
         $return = new stdClass();
         $return->status = true;
         $return->message = '';
-        $this->tags = array();
+        $this->tags = [];
 
         if (empty($tags)) {
             return $return;
@@ -402,7 +402,7 @@ class plgAcymSeblod extends acymPlugin
                 continue;
             }
             $allcats = explode('-', $parameter->id);
-            $selectedArea = array();
+            $selectedArea = [];
             foreach ($allcats as $oneCat) {
                 if (empty($oneCat)) {
                     continue;
@@ -410,7 +410,7 @@ class plgAcymSeblod extends acymPlugin
                 $selectedArea[] = intval($oneCat);
             }
             $query = 'SELECT id FROM #__content';
-            $where = array();
+            $where = [];
 
             if (!empty($selectedArea)) {
                 $where[] = 'catid IN ('.implode(',', $selectedArea).')';
@@ -441,3 +441,4 @@ class plgAcymSeblod extends acymPlugin
         return $return;
     }
 }
+

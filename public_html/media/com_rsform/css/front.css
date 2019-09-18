@@ -110,6 +110,90 @@ p.rsformVerticalClear {
 	-webkit-border-radius: 5px;
 }
 
+.rsfp-image-container {
+	margin-top: 4px;
+}
+
+.rsfp-image-polaroid {
+	padding: 4px;
+	background-color: #fff;
+	border: 1px solid rgba(0,0,0,0.2);
+	box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+	width: 200px;
+	border-radius: 5px;
+	cursor: pointer;
+	transition: 0.3s;
+}
+
+.rsfp-image-polaroid:hover {
+	opacity: 0.7;
+}
+
+.rsfp-modal {
+	display: none;
+	position: fixed;
+	z-index: 9999;
+	padding-top: 100px;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	background-color: rgb(0,0,0);
+	background-color: rgba(0,0,0,0.9);
+}
+
+.rsfp-modal-close-button {
+	position: absolute;
+	top: 15px;
+	right: 35px;
+	color: #f1f1f1;
+	font-size: 40px;
+	font-weight: bold;
+	transition: 0.3s;
+}
+
+.rsfp-modal-close-button:hover,
+.rsfp-modal-close-button:focus {
+	color: #bbb;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.rsfp-modal-image {
+	margin: auto;
+	display: block;
+	width: 80%;
+	max-width: 700px;
+}
+
+.rsfp-modal-caption {
+	margin: auto;
+	display: block;
+	width: 80%;
+	max-width: 700px;
+	text-align: center;
+	color: #ccc;
+	padding: 10px 0;
+	height: 150px;
+}
+
+.rsfp-modal-image, .rsfp-modal-caption {
+	animation-name: rsfp-modal-zoom;
+	animation-duration: 0.6s;
+}
+
+@keyframes rsfp-modal-zoom {
+	from {transform:scale(0)}
+	to {transform:scale(1)}
+}
+
+@media only screen and (max-width: 700px){
+	.rsfp-modal-image {
+		width: 100%;
+	}
+}
+
 /* progress bar */
 .rsfp-progress {
   height: 20px;

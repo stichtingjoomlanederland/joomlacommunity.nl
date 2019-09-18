@@ -1,14 +1,14 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><div id="acym_fulldiv_acymodifyform" class="acym_front_page">
+?><div id="acym_fulldiv_acyprofileform" class="acym_front_page">
     <?php
     if (!empty($data['show_page_heading'])) {
         echo '<h1 class="contentheading'.$data['suffix'].'">'.$data['page_heading'].'</h1>';
@@ -19,7 +19,7 @@ defined('_JEXEC') or die('Restricted access');
     }
     ?>
 
-	<form action="<?php echo acym_frontendLink('frontusers', true, acym_isNoTemplate()); ?>" method="post" name="adminForm" id="acymodifyform" onsubmit="this.querySelector('input[type=submit]').click(); return false;">
+	<form enctype="multipart/form-data" action="<?php echo acym_frontendLink('frontusers', true, acym_isNoTemplate()); ?>" method="post" name="acyprofileform" id="acyprofileform" onsubmit="this.querySelector('input[type=submit]').click(); return false;">
 		<fieldset class="adminform acy_user_info">
 			<legend><span><?php echo acym_translation('ACYM_USER_INFORMATION'); ?></span></legend>
             <?php
@@ -32,7 +32,7 @@ defined('_JEXEC') or die('Restricted access');
                     $fieldDB = empty($field->option->fieldDB) ? '' : json_decode($field->option->fieldDB);
                     $field->value = empty($field->value) ? '' : json_decode($field->value);
                     $field->option = json_decode($field->option);
-                    $valuesArray = array();
+                    $valuesArray = [];
                     if (!empty($field->value)) {
                         foreach ($field->value as $value) {
                             $valueTmp = new stdClass();
@@ -103,9 +103,9 @@ defined('_JEXEC') or die('Restricted access');
 				<div id="acyusersubscription">
                     <?php
                     if (empty($data['dropdown'])) {
-                        $values = array();
-                        $values[0] = acym_selectOption('-1', acym_translation('ACYM_NO'));
-                        $values[1] = acym_selectOption('1', acym_translation('ACYM_YES'));
+                        $values = [];
+                        $values[0] = acym_selectOption('-1', 'ACYM_NO');
+                        $values[1] = acym_selectOption('1', 'ACYM_YES');
                         $values[0]->class = 'btn-danger';
                         $values[1]->class = 'btn-success';
 
@@ -126,7 +126,7 @@ defined('_JEXEC') or die('Restricted access');
                     } else {
                         $selectedIndex = '';
                         $k = 0;
-                        $dropdownOpts = array();
+                        $dropdownOpts = [];
                         foreach ($data['subscription'] as $key => $row) {
                             if (empty($row->active) || !$row->visible) {
                                 continue;
@@ -151,10 +151,10 @@ defined('_JEXEC') or die('Restricted access');
             <?php
         }
 
-        if (empty($data['user']->id) && $data['config']->get('captcha_enabled')) {
+        if (empty($data['user']->id) && $data['config']->get('captcha', '') == 1) {
             echo '<div id="trcaptcha" class="acy_onefield">';
             $captchaHelper = acym_get('helper.captcha');
-            $captchaHelper->display();
+            echo $captchaHelper->display('acyprofileform');
             echo '</div>';
         }
 
@@ -170,16 +170,16 @@ defined('_JEXEC') or die('Restricted access');
             echo '<input type="hidden" name="tmpl" value="component"/>';
         }
 
-        acym_formOptions(true, 'notask', null, 'frontusers');
+        acym_formOptions(true, 'savechanges', null, 'frontusers');
         ?>
 
-		<input type="hidden" name="hiddenlists" value="<?php echo implode(',', $data['hiddenlists']); ?>"/>
-		<input type="hidden" name="id" value="<?php echo acym_escape($data['user']->id); ?>"/>
-		<input type="hidden" name="key" value="<?php echo acym_escape($data['user']->key); ?>"/>
-		<input type="hidden" name="ajax" value="1"/>
+		<input type="hidden" name="hiddenlists" value="<?php echo implode(',', $data['hiddenlists']); ?>" />
+		<input type="hidden" name="id" value="<?php echo acym_escape($data['user']->id); ?>" />
+		<input type="hidden" name="key" value="<?php echo acym_escape($data['user']->key); ?>" />
+		<input type="hidden" name="ajax" value="1" />
 
 		<p class="acymodifybutton">
-			<input class="btn btn-primary" type="submit" onclick="this.form.task.value='savechanges';return acym_checkChangeForm(this.form);" value="<?php echo acym_escape(acym_translation(empty($data['user']->id) ? 'ACYM_SUBSCRIBE' : 'ACYM_SAVE_CHANGES')); ?>"/>
+			<input class="btn btn-primary" type="submit" onclick="return submitAcymForm('savechanges', 'acyprofileform', 'acym_checkChangeForm');" value="<?php echo acym_escape(acym_translation(empty($data['user']->id) ? 'ACYM_SUBSCRIBE' : 'ACYM_SAVE_CHANGES')); ?>" />
 		</p>
 	</form>
     <?php if (!empty($data['posttext'])) {

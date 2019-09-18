@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -17,7 +17,7 @@ class acymencodingHelper
         $inputCharset = strtoupper(trim($inputCharset));
         $outputCharset = strtoupper(trim($outputCharset));
 
-        $supportedEncodings = array("BIG5", "ISO-8859-1", "ISO-8859-2", "ISO-8859-3", "ISO-8859-4", "ISO-8859-5", "ISO-8859-6", "ISO-8859-7", "ISO-8859-8", "ISO-8859-9", "ISO-8859-10", "ISO-8859-13", "ISO-8859-14", "ISO-8859-15", "ISO-2022-JP", "US-ASCII", "UTF-7", "UTF-8", "UTF-16", "WINDOWS-1251", "WINDOWS-1252", "ARMSCII-8", "ISO-8859-16");
+        $supportedEncodings = ["BIG5", "ISO-8859-1", "ISO-8859-2", "ISO-8859-3", "ISO-8859-4", "ISO-8859-5", "ISO-8859-6", "ISO-8859-7", "ISO-8859-8", "ISO-8859-9", "ISO-8859-10", "ISO-8859-13", "ISO-8859-14", "ISO-8859-15", "ISO-2022-JP", "US-ASCII", "UTF-7", "UTF-8", "UTF-16", "WINDOWS-1251", "WINDOWS-1252", "ARMSCII-8", "ISO-8859-16"];
         if (!in_array($inputCharset, $supportedEncodings)) {
             acym_enqueueNotification('Encoding not supported: '.$inputCharset, 'error', 0);
         } elseif (!in_array($outputCharset, $supportedEncodings)) {
@@ -62,7 +62,7 @@ class acymencodingHelper
             return '';
         }
 
-        $toTest = array('UTF-8');
+        $toTest = ['UTF-8'];
 
         $tag = acym_getLanguageTag();
 
@@ -84,20 +84,20 @@ class acymencodingHelper
 
     function encodingField($name, $selected, $attribs = 'style="max-width:200px;"')
     {
-        $encodings = array(
+        $encodings = [
             'binary' => 'Binary',
             'quoted' => 'Quoted-printable',
             '7bit' => '7 Bit',
             '8bit' => '8 Bit',
             'base64' => 'Base 64',
-        );
+        ];
         $attribs .= 'style="max-width:200px;"';
         echo acym_select($encodings, $name, $selected, $attribs, '', '', 'config_encoding');
     }
 
     function charsetField($name, $selected, $attribs = null)
     {
-        $charsets = array(
+        $charsets = [
             'BIG5' => 'BIG5',//Iconv,mbstring
             'ISO-8859-1' => 'ISO-8859-1',//Iconv,mbstring
             'ISO-8859-2' => 'ISO-8859-2',//Iconv,mbstring
@@ -119,7 +119,7 @@ class acymencodingHelper
             'UTF-16' => 'UTF-16',//Iconv,mbstring
             'Windows-1251' => 'Windows-1251', //Iconv,mbstring
             'Windows-1252' => 'Windows-1252' //Iconv,mbstring
-        );
+        ];
 
         if (function_exists('iconv')) {
             $charsets['ARMSCII-8'] = 'ARMSCII-8';
@@ -143,3 +143,4 @@ function acym_error_handler_encoding($errno, $errstr = '')
 
     return true;
 }
+

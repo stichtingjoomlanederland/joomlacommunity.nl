@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -12,7 +12,7 @@ defined('_JEXEC') or die('Restricted access');
 
 class plgAcymUser extends acymPlugin
 {
-    var $sendervalues = array();
+    var $sendervalues = [];
 
     public function __construct()
     {
@@ -40,17 +40,17 @@ class plgAcymUser extends acymPlugin
             <!--
             var selectedTag;
 
-            function changeUserTag(tagname){
-                if(!tagname) return;
+            function changeUserTag(tagname) {
+                if (!tagname) return;
 
                 selectedTag = tagname;
 
                 var string;
                 var iscf = tagname.toLowerCase().indexOf('custom');
 
-                if(iscf >= 0) string = '{usertag:' + tagname.substr(0, iscf) + '|type:custom'; else string = '{usertag:' + tagname;
+                if (iscf >= 0) string = '{usertag:' + tagname.substr(0, iscf) + '|type:custom'; else string = '{usertag:' + tagname;
 
-                if(tagname.toLowerCase().indexOf('date') >= 0) string += '|type:date';
+                if (tagname.toLowerCase().indexOf('date') >= 0) string += '|type:date';
                 string += '|info:' + jQuery('input[name="typeinfo"]:checked').val() + '}';
 
                 setTag(string, jQuery('#' + tagname + 'option'));
@@ -64,19 +64,19 @@ class plgAcymUser extends acymPlugin
         $isAutomation = acym_getVar('string', 'automation');
         $text = '<div class="acym__popup__listing text-center grid-x">';
 
-        $typeinfo = array();
-        $typeinfo[] = acym_selectOption("receiver", acym_translation('ACYM_RECEIVER_INFORMATION'));
-        $typeinfo[] = acym_selectOption("sender", acym_translation('ACYM_SENDER_INFORMATION'));
-        if (!empty($isAutomation)) $typeinfo[] = acym_selectOption("current", acym_translation('ACYM_USER_TRIGGERING_AUTOMATION'));
+        $typeinfo = [];
+        $typeinfo[] = acym_selectOption('receiver', 'ACYM_RECEIVER_INFORMATION');
+        $typeinfo[] = acym_selectOption('sender', 'ACYM_SENDER_INFORMATION');
+        if (!empty($isAutomation)) $typeinfo[] = acym_selectOption('current', 'ACYM_USER_TRIGGERING_AUTOMATION');
 
-        $text .= acym_radio($typeinfo, 'typeinfo', 'receiver', null, array('onclick' => 'changeUserTag(selectedTag)'));
+        $text .= acym_radio($typeinfo, 'typeinfo', 'receiver', null, ['onclick' => 'changeUserTag(selectedTag)']);
 
-        $fields = array(
+        $fields = [
             $this->cmsUserVars->username => 'ACYM_LOGIN_NAME',
             $this->cmsUserVars->name => 'ACYM_USER_NAME',
             $this->cmsUserVars->registered => 'ACYM_REGISTRATION_DATE',
             'groups' => 'ACYM_USER_GROUPS',
-        );
+        ];
 
         foreach ($fields as $fieldname => $description) {
             $text .= '<div class="grid-x medium-12 cell acym__listing__row acym__listing__row__popup text-left" id="'.$fieldname.'option" onclick="changeUserTag(\''.$fieldname.'\');" >
@@ -85,7 +85,7 @@ class plgAcymUser extends acymPlugin
                      </div>';
         }
 
-        if ('Joomla' == 'Joomla' && ACYM_J37) {
+        if (ACYM_CMS == 'joomla' && ACYM_J37) {
             $groups = acym_loadObjectList('SELECT id, title FROM #__fields_groups WHERE context = "com_users.user" AND state = 1 ORDER BY title ASC');
             $defaultGroup = new stdClass();
             $defaultGroup->id = 0;
@@ -121,7 +121,7 @@ class plgAcymUser extends acymPlugin
             return;
         }
 
-        if (empty($this->customFields) && 'Joomla' == 'Joomla' && ACYM_J37) {
+        if (empty($this->customFields) && ACYM_CMS == 'joomla' && ACYM_J37) {
             $this->customFields = acym_loadObjectList('SELECT * FROM #__fields WHERE context = "com_users.user"', 'id');
             foreach ($this->customFields as &$oneCF) {
                 if (!empty($oneCF->fieldparams)) {
@@ -130,8 +130,8 @@ class plgAcymUser extends acymPlugin
             }
         }
 
-        $tags = array();
-        $receivervalues = array();
+        $tags = [];
+        $receivervalues = [];
         foreach ($extractedTags as $i => $mytag) {
             if (isset($tags[$i])) {
                 continue;
@@ -178,7 +178,7 @@ class plgAcymUser extends acymPlugin
                 $mytag->type = '';
             }
 
-            if ($mytag->type == 'custom' && 'Joomla' == 'Joomla') {
+            if ($mytag->type == 'custom' && ACYM_CMS == 'joomla') {
                 $mytag->id = intval($mytag->id);
                 if (empty($mytag->id)) {
                     $replaceme = '';
@@ -189,7 +189,7 @@ class plgAcymUser extends acymPlugin
                     if (empty($fieldValues)) {
                         $defaultValue = acym_loadObject('SELECT default_value, type FROM #__fields WHERE id = '.intval($mytag->id));
                         if (($defaultValue->type == 'user' && !empty($defaultValue->default_value)) || ($defaultValue->type != 'user' && strlen($defaultValue->default_value) > 0)) {
-                            $userFieldVals = array($defaultValue->default_value);
+                            $userFieldVals = [$defaultValue->default_value];
                         }
                     }
 
@@ -267,7 +267,7 @@ class plgAcymUser extends acymPlugin
     {
 
         $allGroups = acym_getGroups();
-        $groups = array();
+        $groups = [];
         foreach ($allGroups as $group) {
             $groups[$group->id] = $group->text;
         }
@@ -282,19 +282,19 @@ class plgAcymUser extends acymPlugin
         $conditions['user']['acy_group']->option .= acym_select($groups, 'acym_condition[conditions][__numor__][__numand__][acy_group][group]', null, 'class="acym__select"');
         $conditions['user']['acy_group']->option .= '</div>';
 
-        if ('Joomla' == 'Joomla') {
+        if (ACYM_CMS == 'joomla') {
             $conditions['user']['acy_group']->option .= '<div class="cell grid-x medium-3">';
             $conditions['user']['acy_group']->option .= acym_switch('acym_condition[conditions][__numor__][__numand__][acy_group][subgroup]', 1, acym_translation('ACYM_INCLUDE_SUB_GROUPS'));
             $conditions['user']['acy_group']->option .= '</div>';
         }
 
 
-        $cmsFields = array();
+        $cmsFields = [];
         foreach (acym_getColumns('users', false) as $key => $column) {
             $cmsFields[$column] = $column;
         }
 
-        if ('Joomla' == 'Joomla' && ACYM_J37) {
+        if (ACYM_CMS == 'joomla' && ACYM_J37) {
             $query = 'SELECT id, title 
 						FROM #__fields 
 						WHERE context = "com_users.user"
@@ -306,7 +306,7 @@ class plgAcymUser extends acymPlugin
                 $cmsFields['cf_'.$oneCF->id] = $oneCF->title;
             }
         }
-        $excluded = array('password', 'params', 'activation', 'lastResetTime', 'resetCount', 'optKey', 'otep', 'requireReset', 'user_pass', 'user_activation_key');
+        $excluded = ['password', 'params', 'activation', 'lastResetTime', 'resetCount', 'optKey', 'otep', 'requireReset', 'user_pass', 'user_activation_key'];
         foreach ($excluded as $oneExcluded) {
             unset($cmsFields[$oneExcluded]);
         }
@@ -327,7 +327,7 @@ class plgAcymUser extends acymPlugin
         $conditions['classic']['acy_totaluser']->name = acym_translation('ACYM_NUMBER_OF_USERS');
         $conditions['classic']['acy_totaluser']->option = '<div class="cell shrink acym__automation__inner__text">'.acym_translation('ACYM_THERE_IS').'</div>';
         $conditions['classic']['acy_totaluser']->option .= '<div class="intext_select_automation cell">';
-        $conditions['classic']['acy_totaluser']->option .= acym_select(array('=' => acym_translation('ACYM_EXACTLY'), '>' => acym_translation('ACYM_MORE_THAN'), '<' => acym_translation('ACYM_LESS_THAN')), 'acym_condition[conditions][__numor__][__numand__][acy_totaluser][operator]', null, 'class="intext_select_automation acym__select"');
+        $conditions['classic']['acy_totaluser']->option .= acym_select(['=' => acym_translation('ACYM_EXACTLY'), '>' => acym_translation('ACYM_MORE_THAN'), '<' => acym_translation('ACYM_LESS_THAN')], 'acym_condition[conditions][__numor__][__numand__][acy_totaluser][operator]', null, 'class="intext_select_automation acym__select"');
         $conditions['classic']['acy_totaluser']->option .= '</div>';
         $conditions['classic']['acy_totaluser']->option .= '<input type="number" min="0" class="intext_input_automation cell" name="acym_condition[conditions][__numor__][__numand__][acy_totaluser][number]">';
         $conditions['classic']['acy_totaluser']->option .= '<div class="cell shrink acym__automation__inner__text">'.acym_translation('ACYM_ACYMAILING_USERS').'</div>';
@@ -340,7 +340,7 @@ class plgAcymUser extends acymPlugin
     public function onAcymDeclareFilters(&$filters)
     {
         $allGroups = acym_getGroups();
-        $groups = array();
+        $groups = [];
         foreach ($allGroups as $group) {
             $groups[$group->id] = $group->text;
         }
@@ -355,19 +355,19 @@ class plgAcymUser extends acymPlugin
         $filters['acy_group']->option .= acym_select($groups, 'acym_action[filters][__numor__][__numand__][acy_group][group]', null, 'class="acym__select"');
         $filters['acy_group']->option .= '</div>';
 
-        if ('Joomla' == 'Joomla') {
+        if (ACYM_CMS == 'joomla') {
             $filters['acy_group']->option .= '<div class="cell grid-x medium-3">';
             $filters['acy_group']->option .= acym_switch('acym_action[filters][__numor__][__numand__][acy_group][subgroup]', 1, acym_translation('ACYM_INCLUDE_SUB_GROUPS'));
             $filters['acy_group']->option .= '</div>';
         }
 
 
-        $cmsFields = array();
+        $cmsFields = [];
         foreach (acym_getColumns('users', false) as $key => $column) {
             $cmsFields[$column] = $column;
         }
 
-        if ('Joomla' == 'Joomla' && ACYM_J37) {
+        if (ACYM_CMS == 'joomla' && ACYM_J37) {
             $query = 'SELECT id, title 
 						FROM #__fields 
 						WHERE context = "com_users.user"
@@ -379,7 +379,7 @@ class plgAcymUser extends acymPlugin
                 $cmsFields['cf_'.$oneCF->id] = $oneCF->title;
             }
         }
-        $excluded = array('password', 'params', 'activation', 'lastResetTime', 'resetCount', 'optKey', 'otep', 'requireReset', 'user_pass', 'user_activation_key');
+        $excluded = ['password', 'params', 'activation', 'lastResetTime', 'resetCount', 'optKey', 'otep', 'requireReset', 'user_pass', 'user_activation_key'];
         foreach ($excluded as $oneExcluded) {
             unset($cmsFields[$oneExcluded]);
         }
@@ -424,7 +424,7 @@ class plgAcymUser extends acymPlugin
 
     public function onAcymProcessCondition_acy_group(&$query, $options, $num, &$conditionNotValid)
     {
-        if ('Joomla' == 'Joomla') {
+        if (ACYM_CMS == 'joomla') {
             $operator = (empty($options['in']) || $options['in'] == 'in') ? 'IS NOT NULL AND cmsuser'.$num.'.user_id != 0' : "IS NULL";
 
             if (empty($options['subgroup'])) {
@@ -450,7 +450,7 @@ class plgAcymUser extends acymPlugin
 
     public function onAcymProcessFilter_acy_group(&$query, $options, $num)
     {
-        if ('Joomla' == 'Joomla') {
+        if (ACYM_CMS == 'joomla') {
             $operator = (empty($options['in']) || $options['in'] == 'in') ? 'IS NOT NULL AND cmsuser'.$num.'.user_id != 0' : "IS NULL";
 
             if (empty($options['subgroup'])) {
@@ -492,7 +492,7 @@ class plgAcymUser extends acymPlugin
             $type = '';
             $query->leftjoin['cmsuser'.$num] = '#__users AS cmsuser'.$num.' ON cmsuser'.$num.'.id = user.cms_id';
 
-            if (in_array($options['field'], array('registerDate', 'lastvisitDate', 'user_registered'))) {
+            if (in_array($options['field'], ['registerDate', 'lastvisitDate', 'user_registered'])) {
                 $type = 'datetime';
                 $options['value'] = acym_replaceDate($options['value']);
 
@@ -523,7 +523,7 @@ class plgAcymUser extends acymPlugin
             $type = '';
             $query->leftjoin['cmsuser'.$num] = '#__users AS cmsuser'.$num.' ON cmsuser'.$num.'.id = user.cms_id';
 
-            if (in_array($options['field'], array('registerDate', 'lastvisitDate', 'user_registered'))) {
+            if (in_array($options['field'], ['registerDate', 'lastvisitDate', 'user_registered'])) {
                 $type = 'datetime';
                 $options['value'] = acym_replaceDate($options['value']);
 
@@ -551,15 +551,18 @@ class plgAcymUser extends acymPlugin
         if (!empty($automationCondition['acy_group'])) {
             if ('joomla' === ACYM_CMS) {
                 $allGroups = acym_getGroups();
-                $groups = array();
+                $groups = [];
                 foreach ($allGroups as $group) {
                     if ($automationCondition['acy_group']['group'] == $group->id) $automationCondition['acy_group']['group'] = $group->text;
                     $groups[$group->id] = $group->text;
                 }
             } else {
-                $automationCondition['acy_group']['group'] = acym_translation('ACYM_'.strtoupper($automationCondition['acy_group']['group']));
+                $groupKey = 'ACYM_'.strtoupper($automationCondition['acy_group']['group']);
+                if (acym_translationExists($groupKey)) {
+                    $automationCondition['acy_group']['group'] = $groupKey;
+                }
             }
-            $finalText = acym_translation_sprintf('ACYM_CONDITION_ACY_GROUP_SUMMARY', acym_translation($automationCondition['acy_group']['in'] == 'in' ? 'ACYM_IS_IN' : 'ACYM_IS_NOT_IN'), $automationCondition['acy_group']['group']);
+            $finalText = acym_translation_sprintf('ACYM_CONDITION_ACY_GROUP_SUMMARY', acym_translation($automationCondition['acy_group']['in'] == 'in' ? 'ACYM_IS_IN' : 'ACYM_IS_NOT_IN'), acym_translation($automationCondition['acy_group']['group']));
             if ('joomla' === ACYM_CMS) {
                 $finalText .= $automationCondition['acy_group']['subgroup'] == 1 ? '' : ' '.acym_translation('ACYM_FILTER_ACY_GROUP_SUBGROUP_SUMMARY');
             }
@@ -570,8 +573,8 @@ class plgAcymUser extends acymPlugin
         }
 
         if (!empty($automationCondition['acy_totaluser'])) {
-            $operators = array('=' => acym_translation('ACYM_EXACTLY'), '>' => acym_translation('ACYM_MORE_THAN'), '<' => acym_translation('ACYM_LESS_THAN'));
-            $automationCondition = acym_translation('ACYM_THERE_IS').' '.strtolower($operators[$automationCondition['acy_totaluser']['operator']]).' '.$automationCondition['acy_totaluser']['number'].' '.acym_translation('ACYM_ACYMAILING_USERS');
+            $operators = ['=' => acym_translation('ACYM_EXACTLY'), '>' => acym_translation('ACYM_MORE_THAN'), '<' => acym_translation('ACYM_LESS_THAN')];
+            $automationCondition = acym_translation('ACYM_THERE_IS').' '.strtolower($operators[$automationCondition['acy_totaluser']['operator']]).' '.$automationCondition['acy_totaluser']['number'].' '.acym_translation('ACYM_ACYMAILING_USERS').' ';
         }
 
         if (!empty($automationCondition['acy_toss'])) {
@@ -584,15 +587,18 @@ class plgAcymUser extends acymPlugin
         if (!empty($automationFilter['acy_group'])) {
             if ('joomla' === ACYM_CMS) {
                 $allGroups = acym_getGroups();
-                $groups = array();
+                $groups = [];
                 foreach ($allGroups as $group) {
                     if ($automationFilter['acy_group']['group'] == $group->id) $automationFilter['acy_group']['group'] = $group->text;
                     $groups[$group->id] = $group->text;
                 }
             } else {
-                $automationFilter['acy_group']['group'] = acym_translation('ACYM_'.strtoupper($automationFilter['acy_group']['group']));
+                $groupKey = 'ACYM_'.strtoupper($automationFilter['acy_group']['group']);
+                if (acym_translationExists($groupKey)) {
+                    $automationFilter['acy_group']['group'] = $groupKey;
+                }
             }
-            $finalText = acym_translation_sprintf('ACYM_FILTER_ACY_GROUP_SUMMARY', acym_translation($automationFilter['acy_group']['in'] == 'in' ? 'ACYM_IN' : 'ACYM_NOT_IN'), $automationFilter['acy_group']['group']);
+            $finalText = acym_translation_sprintf('ACYM_FILTER_ACY_GROUP_SUMMARY', acym_translation($automationFilter['acy_group']['in'] == 'in' ? 'ACYM_IN' : 'ACYM_NOT_IN'), acym_translation($automationFilter['acy_group']['group']));
             if ('joomla' === ACYM_CMS) {
                 $finalText .= $automationFilter['acy_group']['subgroup'] == 1 ? '' : ' '.acym_translation('ACYM_FILTER_ACY_GROUP_SUBGROUP_SUMMARY');
             }
@@ -600,28 +606,6 @@ class plgAcymUser extends acymPlugin
         }
         if (!empty($automationFilter['acy_cmsfield'])) {
             $automationFilter = acym_translation_sprintf('ACYM_FILTER_ACY_CMS_FIELD_SUMMARY', $automationFilter['acy_cmsfield']['field'], $automationFilter['acy_cmsfield']['operator'], $automationFilter['acy_cmsfield']['value']);
-        }
-    }
-
-    public function onAcymDeclareSummary_actions(&$automationAction)
-    {
-        if (!empty($automationAction['acy_add_queue'])) {
-            $mailClass = acym_get('class.mail');
-            $mail = $mailClass->getOneById($automationAction['acy_add_queue']['mail_id']);
-            if (empty($mail)) {
-                $automationAction = '<span class="acym__color__red">'.acym_translation('ACYM_SELECT_A_MAIL').'</span>';
-            } else {
-                if (strpos($automationAction['acy_add_queue']['time'], '{time}') !== false) {
-                    $addedTime = str_replace('{time}', '', $automationAction['acy_add_queue']['time']);
-                    $automationAction['acy_add_queue']['time'] = time() + intval($addedTime);
-                }
-                $automationAction = acym_translation_sprintf('ACYM_ACTION_ADD_QUEUE_SUMMARY', $mail->name, acym_date($automationAction['acy_add_queue']['time'], 'd M Y H:i'));
-            }
-        }
-        if (!empty($automationAction['acy_remove_queue'])) {
-            $mailClass = acym_get('class.mail');
-            $mail = $mailClass->getOneById($automationAction['acy_remove_queue']['mail_id']);
-            $automationAction = empty($mail) ? '<span class="acym__color__red">'.acym_translation('ACYM_SELECT_A_MAIL').'</span>' : acym_translation_sprintf('ACYM_ACTION_REMOVE_QUEUE_SUMMARY', $mail->name);
         }
     }
 }

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -12,7 +12,7 @@ defined('_JEXEC') or die('Restricted access');
 
 class plgAcymWoocommerce extends acymPlugin
 {
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
         $this->cms = 'WordPress';
@@ -23,7 +23,7 @@ class plgAcymWoocommerce extends acymPlugin
         $this->rootCategoryId = 0;
     }
 
-    function insertOptions()
+    public function insertOptions()
     {
         $plugin = new stdClass();
         $plugin->name = 'WooCommerce';
@@ -33,7 +33,7 @@ class plgAcymWoocommerce extends acymPlugin
         return $plugin;
     }
 
-    function contentPopup()
+    public function contentPopup()
     {
         $this->categories = acym_loadObjectList(
             "SELECT cat.term_taxonomy_id AS id, cat.parent AS parent_id, catdetails.name AS title 
@@ -50,39 +50,39 @@ class plgAcymWoocommerce extends acymPlugin
         $tabHelper = acym_get('helper.tab');
         $tabHelper->startTab(acym_translation('ACYM_ONE_BY_ONE'));
 
-        $displayOptions = array(
-            array(
+        $displayOptions = [
+            [
                 'title' => 'ACYM_DISPLAY',
                 'type' => 'checkbox',
                 'name' => 'display',
-                'options' => array(
-                    'title' => array('ACYM_TITLE', true),
-                    'price' => array('ACYM_PRICE', true),
-                    'desc' => array('ACYM_DESCRIPTION', true),
-                    'shortdesc' => array('ACYM_SHORT_DESCRIPTION', false),
-                    'cats' => array('ACYM_CATEGORIES', false),
-                    'attribs' => array('ACYM_DETAILS', false),
-                ),
-            ),
-            array(
+                'options' => [
+                    'title' => ['ACYM_TITLE', true],
+                    'price' => ['ACYM_PRICE', true],
+                    'desc' => ['ACYM_DESCRIPTION', true],
+                    'shortdesc' => ['ACYM_SHORT_DESCRIPTION', false],
+                    'cats' => ['ACYM_CATEGORIES', false],
+                    'attribs' => ['ACYM_DETAILS', false],
+                ],
+            ],
+            [
                 'title' => 'ACYM_CLICKABLE_TITLE',
                 'type' => 'boolean',
                 'name' => 'clickable',
                 'default' => true,
-            ),
-            array(
+            ],
+            [
                 'title' => 'ACYM_TRUNCATE',
                 'type' => 'intextfield',
                 'name' => 'wrap',
                 'text' => 'ACYM_TRUNCATE_AFTER',
                 'default' => 0,
-            ),
-            array(
+            ],
+            [
                 'title' => 'ACYM_DISPLAY_PICTURES',
                 'type' => 'pictures',
                 'name' => 'pictures',
-            ),
-        );
+            ],
+        ];
 
         echo $this->acympluginHelper->displayOptions($displayOptions, $this->name);
 
@@ -93,32 +93,32 @@ class plgAcymWoocommerce extends acymPlugin
         $tabHelper->endTab();
         $tabHelper->startTab(acym_translation('ACYM_BY_CATEGORY'));
 
-        $catOptions = array(
-            array(
+        $catOptions = [
+            [
                 'title' => 'ACYM_ORDER_BY',
                 'type' => 'select',
                 'name' => 'order',
-                'options' => array(
+                'options' => [
                     'ID' => 'ACYM_ID',
                     'post_date' => 'ACYM_PUBLISHING_DATE',
                     'post_modified' => 'ACYM_MODIFICATION_DATE',
                     'post_title' => 'ACYM_TITLE',
                     'rand' => 'ACYM_RANDOM',
-                ),
-            ),
-            array(
+                ],
+            ],
+            [
                 'title' => 'ACYM_COLUMNS',
                 'type' => 'text',
                 'name' => 'cols',
                 'default' => 1,
-            ),
-            array(
+            ],
+            [
                 'title' => 'ACYM_MAX_NB_ELEMENTS',
                 'type' => 'text',
                 'name' => 'max',
                 'default' => 20,
-            ),
-        );
+            ],
+        ];
 
         $displayOptions = array_merge($displayOptions, $catOptions);
 
@@ -129,99 +129,99 @@ class plgAcymWoocommerce extends acymPlugin
         $tabHelper->endTab();
         $tabHelper->startTab(acym_translation('ACYM_COUPON'));
 
-        $displayOptions = array(
-            array(
+        $displayOptions = [
+            [
                 'title' => 'ACYM_DISCOUNT_CODE',
                 'type' => 'text',
                 'name' => 'code',
                 'default' => '[name][key][value]',
                 'class' => 'acym_plugin__larger_text_field',
-            ),
-            array(
+            ],
+            [
                 'title' => __('Coupon expiry date', 'woocommerce'),
                 'type' => 'date',
                 'name' => 'end',
                 'default' => '',
-            ),
-            array(
+            ],
+            [
                 'title' => __('Discount type', 'woocommerce'),
                 'type' => 'select',
                 'name' => 'type',
-                'options' => array(
+                'options' => [
                     'fixed_cart' => __('Fixed cart discount', 'woocommerce'),
                     'fixed_product' => __('Fixed product discount', 'woocommerce'),
                     'percent' => __('Percentage discount', 'woocommerce'),
-                ),
-            ),
-            array(
+                ],
+            ],
+            [
                 'title' => __('Coupon amount', 'woocommerce'),
                 'type' => 'number',
                 'name' => 'amount',
                 'default' => '0',
-            ),
-            array(
+            ],
+            [
                 'title' => __('Allow free shipping', 'woocommerce'),
                 'type' => 'boolean',
                 'name' => 'free',
                 'default' => false,
-            ),
-            array(
+            ],
+            [
                 'title' => __('Exclude sale items', 'woocommerce'),
                 'type' => 'boolean',
                 'name' => 'exclsale',
                 'default' => false,
-            ),
-            array(
+            ],
+            [
                 'title' => __('Minimum spend', 'woocommerce'),
                 'type' => 'number',
                 'name' => 'min',
                 'default' => '',
-            ),
-            array(
+            ],
+            [
                 'title' => __('Maximum spend', 'woocommerce'),
                 'type' => 'number',
                 'name' => 'max',
                 'default' => '',
-            ),
-            array(
+            ],
+            [
                 'title' => __('Usage limit per coupon', 'woocommerce'),
                 'type' => 'number',
                 'name' => 'use',
                 'default' => '1',
-            ),
-            array(
+            ],
+            [
                 'title' => __('Limit usage to X items', 'woocommerce'),
                 'type' => 'number',
                 'name' => 'items',
                 'default' => '',
-            ),
-            array(
+            ],
+            [
                 'title' => __('Products', 'woocommerce'),
                 'type' => 'text',
                 'name' => 'prod',
                 'class' => 'acym_plugin__larger_text_field',
                 'default' => '',
-            ),
-            array(
+            ],
+            [
                 'title' => __('Exclude products', 'woocommerce'),
                 'type' => 'text',
                 'name' => 'exclprod',
                 'class' => 'acym_plugin__larger_text_field',
                 'default' => '',
-            ),
-            array(
+            ],
+            [
                 'title' => __('Product categories', 'woocommerce'),
                 'type' => 'multiselect',
                 'name' => 'cat',
                 'options' => $wooCategories,
-            ),
-            array(
+            ],
+            [
                 'title' => __('Exclude categories', 'woocommerce'),
                 'type' => 'multiselect',
                 'name' => 'exclcat',
                 'options' => $wooCategories,
-            ),
-        );
+            ],
+        ];
 
         echo $this->acympluginHelper->displayOptions($displayOptions, $this->name.'_coupon', 'simple', '');
 
@@ -230,10 +230,11 @@ class plgAcymWoocommerce extends acymPlugin
         $tabHelper->display('plugin');
     }
 
-    function displayListing()
+    public function displayListing()
     {
-        $query = 'SELECT SQL_CALC_FOUND_ROWS product.ID, product.post_title, product.post_date FROM #__posts AS product ';
-        $filters = array();
+        $querySelect = 'SELECT product.ID, product.post_title, product.post_date ';
+        $query = 'FROM #__posts AS product ';
+        $filters = [];
 
         $this->pageInfo = new stdClass();
         $this->pageInfo->limit = acym_getCMSConfig('list_limit');
@@ -244,7 +245,7 @@ class plgAcymWoocommerce extends acymPlugin
         $this->pageInfo->order = 'product.ID';
         $this->pageInfo->orderdir = 'DESC';
 
-        $searchFields = array('product.ID', 'product.post_title');
+        $searchFields = ['product.ID', 'product.post_title'];
         if (!empty($this->pageInfo->search)) {
             $searchVal = '%'.acym_getEscaped($this->pageInfo->search, true).'%';
             $filters[] = implode(" LIKE ".acym_escapeDB($searchVal)." OR ", $searchFields)." LIKE ".acym_escapeDB($searchVal);
@@ -261,8 +262,8 @@ class plgAcymWoocommerce extends acymPlugin
         $query .= ' WHERE ('.implode(') AND (', $filters).')';
         if (!empty($this->pageInfo->order)) $query .= ' ORDER BY '.acym_secureDBColumn($this->pageInfo->order).' '.acym_secureDBColumn($this->pageInfo->orderdir);
 
-        $rows = acym_loadObjectList($query, '', $this->pageInfo->start, $this->pageInfo->limit);
-        $this->pageInfo->total = acym_loadResult('SELECT FOUND_ROWS()');
+        $rows = acym_loadObjectList($querySelect.$query, '', $this->pageInfo->start, $this->pageInfo->limit);
+        $this->pageInfo->total = acym_loadResult('SELECT COUNT(*) '.$query);
 
 
         $listingOptions = [
@@ -289,13 +290,13 @@ class plgAcymWoocommerce extends acymPlugin
         echo $this->getElementsListing($listingOptions);
     }
 
-    function replaceContent(&$email)
+    public function replaceContent(&$email)
     {
         $this->_replaceAuto($email);
         $this->_replaceOne($email);
     }
 
-    function _replaceAuto(&$email)
+    public function _replaceAuto(&$email)
     {
         $this->generateByCategory($email);
         if (empty($this->tags)) {
@@ -304,13 +305,13 @@ class plgAcymWoocommerce extends acymPlugin
         $this->acympluginHelper->replaceTags($email, $this->tags, true);
     }
 
-    function generateByCategory(&$email)
+    public function generateByCategory(&$email)
     {
         $tags = $this->acympluginHelper->extractTags($email, 'auto'.$this->name);
         $return = new stdClass();
         $return->status = true;
         $return->message = '';
-        $this->tags = array();
+        $this->tags = [];
 
         if (empty($tags)) {
             return $return;
@@ -321,7 +322,7 @@ class plgAcymWoocommerce extends acymPlugin
                 continue;
             }
             $allcats = explode('-', $parameter->id);
-            $selectedArea = array();
+            $selectedArea = [];
             foreach ($allcats as $oneCat) {
                 if (empty($oneCat)) {
                     continue;
@@ -333,7 +334,7 @@ class plgAcymWoocommerce extends acymPlugin
                     FROM #__posts AS product 
                     LEFT JOIN #__term_relationships AS cat ON product.ID = cat.object_id';
 
-            $where = array();
+            $where = [];
 
             if (!empty($selectedArea)) {
                 $where[] = 'cat.term_taxonomy_id IN ('.implode(',', $selectedArea).')';
@@ -369,7 +370,7 @@ class plgAcymWoocommerce extends acymPlugin
         $tags = $this->acympluginHelper->extractTags($email, $this->name);
         if (empty($tags)) return;
 
-        $tagsReplaced = array();
+        $tagsReplaced = [];
         foreach ($tags as $i => $oneTag) {
             if (isset($tagsReplaced[$i])) {
                 continue;
@@ -380,7 +381,7 @@ class plgAcymWoocommerce extends acymPlugin
         $this->acympluginHelper->replaceTags($email, $tagsReplaced, true);
     }
 
-    function _replaceContent($tag, &$email)
+    private function _replaceContent($tag, &$email)
     {
         $query = 'SELECT product.*
                     FROM #__posts AS product
@@ -400,12 +401,12 @@ class plgAcymWoocommerce extends acymPlugin
         }
 
         if (empty($tag->display)) {
-            $tag->display = array();
+            $tag->display = [];
         } else {
             $tag->display = explode(',', $tag->display);
         }
 
-        $varFields = array();
+        $varFields = [];
         foreach ($element as $fieldName => $oneField) {
             $varFields['{'.$fieldName.'}'] = $oneField;
         }
@@ -433,12 +434,12 @@ class plgAcymWoocommerce extends acymPlugin
         if (in_array('desc', $tag->display)) $contentText .= $element->post_content;
         if (in_array('shortdesc', $tag->display)) $contentText .= $element->post_excerpt;
 
-        $customFields = array();
+        $customFields = [];
         if (in_array('cats', $tag->display)) {
-            $customFields[] = array(
+            $customFields[] = [
                 get_the_term_list($tag->id, 'product_cat', '', ', '),
                 acym_translation('ACYM_CATEGORIES'),
-            );
+            ];
         }
 
         if (in_array('attribs', $tag->display)) {
@@ -449,10 +450,10 @@ class plgAcymWoocommerce extends acymPlugin
                     foreach ($attributes as $oneAttribute) {
                         if ($oneAttribute['is_visible'] != 1) continue;
 
-                        $customFields[] = array(
+                        $customFields[] = [
                             str_replace('|', ', ', $oneAttribute['value']),
                             $oneAttribute['name'],
-                        );
+                        ];
                     }
                 }
             }
@@ -485,7 +486,7 @@ class plgAcymWoocommerce extends acymPlugin
             return;
         }
 
-        $tagsReplaced = array();
+        $tagsReplaced = [];
         foreach ($tags as $i => $oneTag) {
             if (isset($tagsReplaced[$i])) {
                 continue;
@@ -502,9 +503,9 @@ class plgAcymWoocommerce extends acymPlugin
 
     private function generateCoupon($tag, $user)
     {
-        if (empty($tag->code) || empty($tag->amount) || empty($tag->type) || !in_array($tag->type, array('fixed_cart', 'fixed_product', 'percent'))) return '';
+        if (empty($tag->code) || empty($tag->amount) || empty($tag->type) || !in_array($tag->type, ['fixed_cart', 'fixed_product', 'percent'])) return '';
 
-        $intAttributes = array('amount', 'free', 'min', 'max', 'exclsale', 'use', 'items');
+        $intAttributes = ['amount', 'free', 'min', 'max', 'exclsale', 'use', 'items'];
         foreach ($intAttributes as $oneAttribute) {
             if (empty($tag->$oneAttribute)) $tag->$oneAttribute = 0;
             $tag->$oneAttribute = intval($tag->$oneAttribute);
@@ -518,38 +519,38 @@ class plgAcymWoocommerce extends acymPlugin
         if (!empty($space)) $clean_name = substr($clean_name, 0, $space);
 
         $couponCode = str_replace(
-            array(
+            [
                 '[name]',
                 '[userid]',
                 '[email]',
                 '[key]',
                 '[value]',
-            ),
-            array(
+            ],
+            [
                 $clean_name,
                 $user->id,
                 $user->email,
                 acym_generateKey(5),
                 $tag->amount,
-            ),
+            ],
             $tag->code
         );
 
 
-        $coupon = array(
+        $coupon = [
             'post_title' => $couponCode,
             'post_content' => '',
             'post_status' => 'publish',
             'post_author' => 1,
             'post_type' => 'shop_coupon',
-        );
+        ];
 
         $couponId = wp_insert_post($coupon);
 
         update_post_meta($couponId, 'discount_type', $tag->type);
         update_post_meta($couponId, 'coupon_amount', $tag->amount);
-        update_post_meta($couponId, 'expiry_date', empty($tag->end) ? '' : $tag->end);
-        update_post_meta($couponId, 'date_expires', empty($tag->end) ? null : strtotime($tag->end));
+        update_post_meta($couponId, 'expiry_date', empty($tag->end) ? '' : acym_date(acym_replaceDate($tag->end), 'Y-m-d'));
+        update_post_meta($couponId, 'date_expires', empty($tag->end) ? null : acym_replaceDate($tag->end));
 
         update_post_meta($couponId, 'usage_limit', $tag->use);
         update_post_meta($couponId, 'usage_limit_per_user', 0);
@@ -571,7 +572,7 @@ class plgAcymWoocommerce extends acymPlugin
 
 
         update_post_meta($couponId, 'individual_use', 'yes');
-        update_post_meta($couponId, 'customer_email', array($user->email));
+        update_post_meta($couponId, 'customer_email', [$user->email]);
 
 
         return $couponCode;
@@ -579,7 +580,7 @@ class plgAcymWoocommerce extends acymPlugin
 
     private function cleanElements($elements)
     {
-        $elements = empty($elements) ? array() : explode(',', $elements);
+        $elements = empty($elements) ? [] : explode(',', $elements);
         acym_arrayToInteger($elements);
         foreach ($elements as $i => $oneElement) {
             if (empty($oneElement)) unset($elements[$i]);
@@ -590,23 +591,40 @@ class plgAcymWoocommerce extends acymPlugin
 
     public function searchProduct()
     {
+        $id = acym_getVar('int', 'id');
+        if (!empty($id)) {
+            $args = [
+                'p' => $id,
+                'post_type' => 'product',
+            ];
+            $posts = new WP_Query($args);
+
+            $value = '';
+            if ($posts->have_posts()) {
+                $posts->the_post();
+                $value = $posts->post->post_title;
+            }
+            echo json_encode(['value' => $value]);
+            exit;
+        }
+
         $return = [];
         $search = acym_getVar('cmd', 'search', '');
 
         $search_results = new WP_Query(
-            array(
+            [
                 's' => $search,
                 'post_status' => 'publish',
                 'ignore_sticky_posts' => 1,
                 'post_type' => 'product',
                 'posts_per_page' => 20,
-            )
+            ]
         );
 
         if ($search_results->have_posts()) {
             while ($search_results->have_posts()) {
                 $search_results->the_post();
-                $return[] = array($search_results->post->ID, $search_results->post->post_title);
+                $return[] = [$search_results->post->ID, $search_results->post->post_title];
             }
         }
 
@@ -616,9 +634,9 @@ class plgAcymWoocommerce extends acymPlugin
 
     public function onAcymDeclareConditions(&$conditions)
     {
-        $categories = array(
+        $categories = [
             'any' => acym_translation('ACYM_ANY_CATEGORY'),
-        );
+        ];
         $cats = acym_loadObjectList('SELECT term.term_id, term.`name` FROM #__terms AS term JOIN #__term_taxonomy AS tax ON term.term_id = tax.term_id WHERE tax.taxonomy = "product_cat" ORDER BY term.`name`');
         foreach ($cats as $oneCat) {
             $categories[$oneCat->term_id] = $oneCat->name;
@@ -660,7 +678,7 @@ class plgAcymWoocommerce extends acymPlugin
         $conditions['user']['woopurchased']->option .= '</div>';
 
 
-        $paymentMethods = array('any' => acym_translation('ACYM_ANY_PAYMENT_METHOD'));
+        $paymentMethods = ['any' => acym_translation('ACYM_ANY_PAYMENT_METHOD')];
         if (function_exists('WC')) {
             $payments = WC()->payment_gateways()->payment_gateways;
             foreach ($payments as $oneMethod) {
@@ -675,7 +693,7 @@ class plgAcymWoocommerce extends acymPlugin
             'ACYM_ORDER_WITH_STATUS',
             '<input type="number" name="acym_condition[conditions][__numor__][__numand__][wooreminder][days]" value="1" min="1" class="intext_input"/>',
             '<div class="intext_select_automation cell margin-right-1">'.acym_select(
-                array(
+                [
                     'wc-pending' => _x('Pending payment', 'Order status', 'woocommerce'),
                     'wc-processing' => _x('Processing', 'Order status', 'woocommerce'),
                     'wc-on-hold' => _x('On hold', 'Order status', 'woocommerce'),
@@ -683,7 +701,7 @@ class plgAcymWoocommerce extends acymPlugin
                     'wc-cancelled' => _x('Cancelled', 'Order status', 'woocommerce'),
                     'wc-refunded' => _x('Refunded', 'Order status', 'woocommerce'),
                     'wc-failed' => _x('Failed', 'Order status', 'woocommerce'),
-                ),
+                ],
                 'acym_condition[conditions][__numor__][__numand__][wooreminder][status]',
                 'wc-pending',
                 'class="acym__select"'
@@ -702,9 +720,9 @@ class plgAcymWoocommerce extends acymPlugin
 
     public function onAcymDeclareFilters(&$filters)
     {
-        $categories = array(
+        $categories = [
             'any' => acym_translation('ACYM_ANY_CATEGORY'),
-        );
+        ];
         $cats = acym_loadObjectList('SELECT term.term_id, term.`name` FROM #__terms AS term JOIN #__term_taxonomy AS tax ON term.term_id = tax.term_id WHERE tax.taxonomy = "product_cat" ORDER BY term.`name`');
         foreach ($cats as $oneCat) {
             $categories[$oneCat->term_id] = $oneCat->name;
@@ -746,7 +764,7 @@ class plgAcymWoocommerce extends acymPlugin
         $filters['woopurchased']->option .= '</div>';
 
 
-        $paymentMethods = array('any' => acym_translation('ACYM_ANY_PAYMENT_METHOD'));
+        $paymentMethods = ['any' => acym_translation('ACYM_ANY_PAYMENT_METHOD')];
         if (function_exists('WC')) {
             $payments = WC()->payment_gateways()->payment_gateways;
             foreach ($payments as $oneMethod) {
@@ -761,7 +779,7 @@ class plgAcymWoocommerce extends acymPlugin
             'ACYM_ORDER_WITH_STATUS',
             '<input type="number" name="acym_action[filters][__numor__][__numand__][wooreminder][days]" value="1" min="1" class="intext_input"/>',
             '<div class="intext_select_automation cell margin-right-1">'.acym_select(
-                array(
+                [
                     'wc-pending' => _x('Pending payment', 'Order status', 'woocommerce'),
                     'wc-processing' => _x('Processing', 'Order status', 'woocommerce'),
                     'wc-on-hold' => _x('On hold', 'Order status', 'woocommerce'),
@@ -769,7 +787,7 @@ class plgAcymWoocommerce extends acymPlugin
                     'wc-cancelled' => _x('Cancelled', 'Order status', 'woocommerce'),
                     'wc-refunded' => _x('Refunded', 'Order status', 'woocommerce'),
                     'wc-failed' => _x('Failed', 'Order status', 'woocommerce'),
-                ),
+                ],
                 'acym_action[filters][__numor__][__numand__][wooreminder][status]',
                 'wc-pending',
                 'class="acym__select"'
@@ -795,8 +813,7 @@ class plgAcymWoocommerce extends acymPlugin
 
     private function processConditionFilter_woopurchased(&$query, $options, $num)
     {
-        $conditions = array();
-        $conditions[] = 'post'.$num.'.post_author != 0';
+        $conditions = [];
         $conditions[] = 'post'.$num.'.post_type = "shop_order"';
         $conditions[] = 'post'.$num.'.post_status = "wc-completed"';
 
@@ -816,7 +833,9 @@ class plgAcymWoocommerce extends acymPlugin
             }
         }
 
-        $query->join['woopurchased_post'.$num] = '#__posts AS post'.$num.' ON post'.$num.'.post_author = user.cms_id AND '.implode(' AND ', $conditions);
+        $query->join['woopurchased_post'.$num] = '#__posts AS post'.$num.' ON '.implode(' AND ', $conditions);
+
+        $query->join['woopurchased_postmeta'.$num] = '#__postmeta AS postmeta'.$num.' ON postmeta'.$num.'.post_id = post'.$num.'.ID AND postmeta'.$num.'.meta_value = user.cms_id AND postmeta'.$num.'.meta_value != 0 AND postmeta'.$num.'.meta_key = "_customer_user"';
 
         if (!empty($options['product'])) {
             $query->join['woopurchased_order_items'.$num] = '#__woocommerce_order_items AS woooi'.$num.' ON post'.$num.'.ID = woooi'.$num.'.order_id AND woooi'.$num.'.order_item_type = "line_item"';
@@ -852,9 +871,9 @@ class plgAcymWoocommerce extends acymPlugin
     {
         $options['days'] = intval($options['days']);
 
-        $query->join['wooreminder_post'.$num] = '#__posts AS post'.$num.' ON post'.$num.'.post_author = user.cms_id';
+        $query->join['wooreminder_post'.$num] = '#__posts AS post'.$num.' ON post'.$num.'.post_type = "shop_order"';
+        $query->join['wooreminder_postmeta'.$num] = '#__postmeta AS postmeta'.$num.' ON postmeta'.$num.'.post_id = post'.$num.'.ID AND postmeta'.$num.'.meta_value = user.cms_id AND postmeta'.$num.'.meta_key = "_customer_user"';
         $query->where[] = 'user.cms_id != 0';
-        $query->where[] = 'post'.$num.'.post_type = "shop_order"';
         $query->where[] = 'SUBSTRING(post'.$num.'.post_date, 1, 10) = '.acym_escapeDB(date('Y-m-d', time() - ($options['days'] * 86400)));
         $query->where[] = 'post'.$num.'.post_status = '.acym_escapeDB($options['status']);
 
@@ -877,7 +896,7 @@ class plgAcymWoocommerce extends acymPlugin
         $this->processConditionFilter_wooreminder($query, $options, $num);
     }
 
-    function onAcymDeclareSummary_conditions(&$automationCondition)
+    public function onAcymDeclareSummary_conditions(&$automationCondition)
     {
         $this->summaryConditionFilters($automationCondition);
     }
@@ -886,7 +905,7 @@ class plgAcymWoocommerce extends acymPlugin
     {
         if (!empty($automationCondition['wooreminder'])) {
 
-            $paymentMethods = array('any' => acym_translation('ACYM_ANY_PAYMENT_METHOD'));
+            $paymentMethods = ['any' => acym_translation('ACYM_ANY_PAYMENT_METHOD')];
             if (function_exists('WC')) {
                 $payments = WC()->payment_gateways()->payment_gateways;
                 foreach ($payments as $oneMethod) {
@@ -894,7 +913,7 @@ class plgAcymWoocommerce extends acymPlugin
                 }
             }
 
-            $orderStatus = array(
+            $orderStatus = [
                 'wc-pending' => _x('Pending payment', 'Order status', 'woocommerce'),
                 'wc-processing' => _x('Processing', 'Order status', 'woocommerce'),
                 'wc-on-hold' => _x('On hold', 'Order status', 'woocommerce'),
@@ -902,13 +921,13 @@ class plgAcymWoocommerce extends acymPlugin
                 'wc-cancelled' => _x('Cancelled', 'Order status', 'woocommerce'),
                 'wc-refunded' => _x('Refunded', 'Order status', 'woocommerce'),
                 'wc-failed' => _x('Failed', 'Order status', 'woocommerce'),
-            );
+            ];
 
             $automationCondition = acym_translation_sprintf(
                 'ACYM_CONDITION_ECOMMERCE_REMINDER',
+                $paymentMethods[$automationCondition['wooreminder']['payment']],
                 intval($automationCondition['wooreminder']['days']),
-                $orderStatus[$automationCondition['wooreminder']['status']],
-                $paymentMethods[$automationCondition['wooreminder']['payment']]
+                $orderStatus[$automationCondition['wooreminder']['status']]
             );
         }
 
@@ -943,8 +962,70 @@ class plgAcymWoocommerce extends acymPlugin
         }
     }
 
-    function onAcymDeclareSummary_filters(&$automationFilter)
+    public function onAcymDeclareSummary_filters(&$automationFilter)
     {
         $this->summaryConditionFilters($automationFilter);
     }
+
+    public function onRegacyOptionsDisplay($lists)
+    {
+        if (!is_plugin_active('woocommerce/woocommerce.php')) return;
+
+        $config = acym_config();
+        ?>
+		<div class="acym__configuration__subscription acym__content acym_area padding-vertical-1 padding-horizontal-2">
+			<div class="acym_area_title"><?php echo acym_escape(acym_translation_sprintf('ACYM_XX_INTEGRATION', 'WooCommerce')); ?></div>
+
+			<div class="grid-x">
+				<div class="cell grid-x grid-margin-x">
+                    <?php
+                    echo acym_switch(
+                        'config[woocommerce_sub]',
+                        $config->get('woocommerce_sub'),
+                        acym_tooltip(
+                            acym_translation_sprintf('ACYM_SUBSCRIBE_OPTION_ON_XX_CHECKOUT', 'WooCommerce'),
+                            acym_translation('ACYM_SUBSCRIBE_OPTION_ON_XX_CHECKOUT_DESC')
+                        ),
+                        [],
+                        'xlarge-3 medium-5 small-9',
+                        'auto',
+                        'tiny',
+                        'acym__config__woocommerce_sub'
+                    );
+                    ?>
+				</div>
+				<div class="cell grid-x" id="acym__config__woocommerce_sub">
+					<div class="cell xlarge-3 medium-5">
+						<label for="acym__config__woocommerce-text">
+                            <?php echo acym_tooltip(acym_translation('ACYM_SUBSCRIBE_CAPTION'), acym_translation('ACYM_SUBSCRIBE_CAPTION_OPT_DESC')); ?>
+						</label>
+					</div>
+					<div class="cell xlarge-4 medium-7">
+						<input type="text" name="config[woocommerce_text]" id="acym__config__woocommerce-text" value="<?php echo acym_escape($config->get('woocommerce_text')); ?>" />
+					</div>
+					<div class="cell xlarge-5 hide-for-medium-only hide-for-small-only"></div>
+					<div class="cell xlarge-3 medium-5">
+						<label for="acym__config__woocommerce-autolists">
+                            <?php echo acym_tooltip(acym_translation('ACYM_AUTO_SUBSCRIBE_TO'), acym_translation('ACYM_SUBSCRIBE_OPTION_AUTO_SUBSCRIBE_TO_DESC')); ?>
+						</label>
+					</div>
+					<div class="cell xlarge-4 medium-7">
+                        <?php
+                        echo acym_selectMultiple(
+                            $lists,
+                            'config[woocommerce_autolists]',
+                            explode(',', $config->get('woocommerce_autolists')),
+                            ['class' => 'acym__select', 'id' => 'acym__config__woocommerce-autolists'],
+                            'id',
+                            'name'
+                        );
+                        ?>
+					</div>
+					<div class="cell xlarge-5 hide-for-medium-only hide-for-small-only"></div>
+				</div>
+			</div>
+		</div>
+        <?php
+    }
 }
+

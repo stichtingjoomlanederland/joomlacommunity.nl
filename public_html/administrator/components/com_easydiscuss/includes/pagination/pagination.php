@@ -149,6 +149,10 @@ class EasyDiscussPagination extends EasyDiscuss
 				$queries .= '&sort=' .$filtering['sort'];
 			}
 
+			if (isset($filtering['status'])) {
+				$queries .= '&status=' .$filtering['status'];
+			}
+
 			if (isset($filtering['query'])) {
 				$queries .= '&query=' .$filtering['query'];
 			}

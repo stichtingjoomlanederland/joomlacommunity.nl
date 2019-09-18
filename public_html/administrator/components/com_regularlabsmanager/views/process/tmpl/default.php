@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Extension Manager
- * @version         7.4.2
+ * @version         7.4.3
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -24,7 +24,7 @@ $task = JFactory::getApplication()->input->get('task');
 
 RL_Document::loadMainDependencies();
 
-$update_extensionmanager = count($this->items) > 1 && isset($this->items['extensionmanager']);
+$update_extensionmanager = count($this->items) > 1 && isset($this->items['extensionmanager']) && $task !== 'reinstall';
 
 $ids = $update_extensionmanager ? ['extensionmanager'] : array_keys($this->items);
 
@@ -35,8 +35,8 @@ $options = [
 RL_Document::scriptOptions($options, 'Extension Manager');
 JText::script('RLEM_INSTALLATION_FAILED');
 
-RL_Document::script('regularlabsmanager/process.min.js', '7.4.2');
-RL_Document::style('regularlabsmanager/process.min.css', '7.4.2');
+RL_Document::script('regularlabsmanager/process.min.js', '7.4.3');
+RL_Document::style('regularlabsmanager/process.min.css', '7.4.3');
 ?>
 
 <div id="rlem">

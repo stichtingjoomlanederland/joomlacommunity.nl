@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -12,7 +12,7 @@ defined('_JEXEC') or die('Restricted access');
 
 class plgAcymCbuilder extends acymPlugin
 {
-    var $sendervalues = array();
+    var $sendervalues = [];
 
     function __construct()
     {
@@ -39,7 +39,7 @@ class plgAcymCbuilder extends acymPlugin
         ?>
 
 		<script language="javascript" type="text/javascript">
-            function applyCB(tagname, element){
+            function applyCB(tagname, element) {
                 var string = '{cbtag:' + tagname + '|info:' + jQuery('input[name="typeinfo"]:checked').val() + '}';
                 setTag(string, jQuery(element));
             }
@@ -49,9 +49,9 @@ class plgAcymCbuilder extends acymPlugin
 
         $text = '<div class="grid-x acym__popup__listing">';
 
-        $typeinfo = array();
-        $typeinfo[] = acym_selectOption("receiver", acym_translation('ACYM_RECEIVER_INFORMATION'));
-        $typeinfo[] = acym_selectOption("sender", acym_translation('ACYM_SENDER_INFORMATION'));
+        $typeinfo = [];
+        $typeinfo[] = acym_selectOption('receiver', 'ACYM_RECEIVER_INFORMATION');
+        $typeinfo[] = acym_selectOption('sender', 'ACYM_SENDER_INFORMATION');
         $text .= acym_radio($typeinfo, 'typeinfo', 'receiver');
 
         $fieldType = acym_loadObjectList('SELECT name, type FROM #__comprofiler_fields', 'name');
@@ -96,7 +96,7 @@ class plgAcymCbuilder extends acymPlugin
         cbimport('cb.database');
         $currentCBUser = null;
 
-        $tags = array();
+        $tags = [];
         foreach ($extractedTags as $i => $oneTag) {
             if (isset($tags[$i])) continue;
 
@@ -138,7 +138,7 @@ class plgAcymCbuilder extends acymPlugin
                             $requiredFields = explode('|*|', $fieldObjects[$fieldName]->decodedParams->prg_fields);
                             $filled_in = 0;
                             foreach ($fieldObjects as $oneField) {
-                                if (!in_array($oneField->fieldid, $requiredFields) || !in_array($oneField->table, array('#__comprofiler', '#__users'))) continue;
+                                if (!in_array($oneField->fieldid, $requiredFields) || !in_array($oneField->table, ['#__comprofiler', '#__users'])) continue;
 
                                 $fieldName = $oneField->name;
                                 if (!empty($currentCBUser->_cbuser->$fieldName)) {

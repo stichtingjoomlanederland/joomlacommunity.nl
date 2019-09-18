@@ -14,6 +14,7 @@ defined('KOOWA') or die; ?>
         data-media-id="<?= $document->id ?>"
         data-title="<?= escape($document->title) ?>"
         data-category="docman"
+        preload="none"
         controls>
         <source src="<?= $document->download_link ?>" type="video/<?= $document->extension ?>" />
     </video>

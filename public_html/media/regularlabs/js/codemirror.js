@@ -1,6 +1,6 @@
 /**
  * @package         Regular Labs Library
- * @version         19.4.11218
+ * @version         19.8.25552
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -36,7 +36,7 @@ var RegularLabsCodeMirror = null;
 		},
 
 		resizeWidth: function(id) {
-			$('#rl_codemirror_' + id + ' .CodeMirror').width(100);
+			$('#rl_codemirror_' + id + ' .CodeMirror').width(100).css('visibility', 'hidden');
 			setTimeout(function() {
 				$('#rl_codemirror_' + id + ' .CodeMirror').each(function() {
 					var new_width = $(this).parent().width();
@@ -44,11 +44,11 @@ var RegularLabsCodeMirror = null;
 					if (new_width <= 100) {
 						setTimeout(function() {
 							RegularLabsCodeMirror.resizeWidth(id);
-						}, 1000);
+						}, 100);
 						return;
 					}
 
-					$(this).width(new_width);
+					$(this).width(new_width).css('visibility', 'visible');
 				})
 			}, 100);
 		}

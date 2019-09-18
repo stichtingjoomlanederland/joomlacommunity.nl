@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -26,7 +26,7 @@ class FrontStatsController extends acymController
                     $openUnique = 0;
                 }
 
-                $mailStat = array();
+                $mailStat = [];
                 $mailStat['mail_id'] = $mailId;
                 $mailStat['open_unique'] = $openUnique;
                 $mailStat['open_total'] = 1;
@@ -34,7 +34,7 @@ class FrontStatsController extends acymController
                 $mailStatClass = acym_get('class.mailstat');
                 $mailStatClass->save($mailStat);
 
-                $userStatToInsert = array();
+                $userStatToInsert = [];
                 $userStatToInsert['user_id'] = $userId;
                 $userStatToInsert['mail_id'] = $mailId;
                 $userStatToInsert['open'] = 1;
@@ -44,16 +44,13 @@ class FrontStatsController extends acymController
             }
         }
 
-        header('Cache-Control: no-store, no-cache, must-revalidate');
-        header('Cache-Control: post-check=0, pre-check=0', false);
-        header('Pragma: no-cache');
-        header("Expires: Wed, 17 Sep 1975 21:32:10 GMT");
+        acym_noCache();
 
         ob_end_clean();
 
         $picture = ACYM_MEDIA_RELATIVE.'images/statpicture.png';
 
-        $picture = ltrim(str_replace(array('\\', '/'), DS, $picture), DS);
+        $picture = ltrim(str_replace(['\\', '/'], DS, $picture), DS);
 
         $imagename = ACYM_ROOT.$picture;
         $handle = fopen($imagename, 'r');
@@ -68,3 +65,4 @@ class FrontStatsController extends acymController
         exit;
     }
 }
+

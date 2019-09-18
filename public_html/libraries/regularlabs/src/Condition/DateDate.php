@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.4.11218
+ * @version         19.8.25552
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -12,8 +12,6 @@
 namespace RegularLabs\Library\Condition;
 
 defined('_JEXEC') or die;
-
-use RegularLabs\Library\Date as RL_Date;
 
 /**
  * Class DateDate
@@ -29,9 +27,6 @@ class DateDate
 			// no date range set
 			return ($this->include_type == 'include');
 		}
-
-		RL_Date::fix($this->params->publish_up);
-		RL_Date::fix($this->params->publish_down);
 
 		$now  = $this->getNow();
 		$up   = $this->getDate($this->params->publish_up);

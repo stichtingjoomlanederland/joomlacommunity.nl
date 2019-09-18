@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -43,37 +43,37 @@ class plgAcymPost extends acymPlugin
         $tabHelper = acym_get('helper.tab');
         $tabHelper->startTab(acym_translation('ACYM_ONE_BY_ONE'));
 
-        $displayOptions = array(
-            array(
+        $displayOptions = [
+            [
                 'title' => 'ACYM_DISPLAY',
                 'type' => 'checkbox',
                 'name' => 'display',
-                'options' => array(
-                    'title' => array('ACYM_TITLE', true),
-                    'image' => array('ACYM_FEATURED_IMAGE', true),
-                    'content' => array('ACYM_CONTENT', true),
-                    'cats' => array('ACYM_CATEGORIES', false),
-                ),
-            ),
-            array(
+                'options' => [
+                    'title' => ['ACYM_TITLE', true],
+                    'image' => ['ACYM_FEATURED_IMAGE', true],
+                    'content' => ['ACYM_CONTENT', true],
+                    'cats' => ['ACYM_CATEGORIES', false],
+                ],
+            ],
+            [
                 'title' => 'ACYM_CLICKABLE_TITLE',
                 'type' => 'boolean',
                 'name' => 'clickable',
                 'default' => true,
-            ),
-            array(
+            ],
+            [
                 'title' => 'ACYM_TRUNCATE',
                 'type' => 'intextfield',
                 'name' => 'wrap',
                 'text' => 'ACYM_TRUNCATE_AFTER',
                 'default' => 0,
-            ),
-            array(
+            ],
+            [
                 'title' => 'ACYM_DISPLAY_PICTURES',
                 'type' => 'pictures',
                 'name' => 'pictures',
-            ),
-        );
+            ],
+        ];
 
         echo $this->acympluginHelper->displayOptions($displayOptions, $this->name);
 
@@ -84,32 +84,32 @@ class plgAcymPost extends acymPlugin
         $tabHelper->endTab();
         $tabHelper->startTab(acym_translation('ACYM_BY_CATEGORY'));
 
-        $catOptions = array(
-            array(
+        $catOptions = [
+            [
                 'title' => 'ACYM_ORDER_BY',
                 'type' => 'select',
                 'name' => 'order',
-                'options' => array(
+                'options' => [
                     'ID' => 'ACYM_ID',
                     'post_date' => 'ACYM_PUBLISHING_DATE',
                     'post_modified' => 'ACYM_MODIFICATION_DATE',
                     'post_title' => 'ACYM_TITLE',
                     'rand' => 'ACYM_RANDOM',
-                ),
-            ),
-            array(
+                ],
+            ],
+            [
                 'title' => 'ACYM_COLUMNS',
                 'type' => 'text',
                 'name' => 'cols',
                 'default' => 1,
-            ),
-            array(
+            ],
+            [
                 'title' => 'ACYM_MAX_NB_ELEMENTS',
                 'type' => 'text',
                 'name' => 'max',
                 'default' => 20,
-            ),
-        );
+            ],
+        ];
 
         $displayOptions = array_merge($displayOptions, $catOptions);
 
@@ -126,8 +126,9 @@ class plgAcymPost extends acymPlugin
 
     function displayListing()
     {
-        $query = 'SELECT SQL_CALC_FOUND_ROWS post.ID, post.post_title, post.post_date, post.post_content FROM #__posts AS post ';
-        $filters = array();
+        $querySelect = 'SELECT post.ID, post.post_title, post.post_date, post.post_content ';
+        $query = 'FROM #__posts AS post ';
+        $filters = [];
 
         $this->pageInfo = new stdClass();
         $this->pageInfo->limit = acym_getCMSConfig('list_limit');
@@ -138,7 +139,7 @@ class plgAcymPost extends acymPlugin
         $this->pageInfo->order = 'post.ID';
         $this->pageInfo->orderdir = 'DESC';
 
-        $searchFields = array('post.ID', 'post.post_title');
+        $searchFields = ['post.ID', 'post.post_title'];
         if (!empty($this->pageInfo->search)) {
             $searchVal = '%'.acym_getEscaped($this->pageInfo->search, true).'%';
             $filters[] = implode(" LIKE ".acym_escapeDB($searchVal)." OR ", $searchFields)." LIKE ".acym_escapeDB($searchVal);
@@ -155,8 +156,8 @@ class plgAcymPost extends acymPlugin
         $query .= ' WHERE ('.implode(') AND (', $filters).')';
         if (!empty($this->pageInfo->order)) $query .= ' ORDER BY '.acym_secureDBColumn($this->pageInfo->order).' '.acym_secureDBColumn($this->pageInfo->orderdir);
 
-        $rows = acym_loadObjectList($query, '', $this->pageInfo->start, $this->pageInfo->limit);
-        $this->pageInfo->total = acym_loadResult('SELECT FOUND_ROWS()');
+        $rows = acym_loadObjectList($querySelect.$query, '', $this->pageInfo->start, $this->pageInfo->limit);
+        $this->pageInfo->total = acym_loadResult('SELECT COUNT(*) '.$query);
 
 
         foreach ($rows as $i => $row) {
@@ -210,7 +211,7 @@ class plgAcymPost extends acymPlugin
         $return = new stdClass();
         $return->status = true;
         $return->message = '';
-        $this->tags = array();
+        $this->tags = [];
 
         if (empty($tags)) {
             return $return;
@@ -221,7 +222,7 @@ class plgAcymPost extends acymPlugin
                 continue;
             }
             $allcats = explode('-', $parameter->id);
-            $selectedArea = array();
+            $selectedArea = [];
             foreach ($allcats as $oneCat) {
                 if (empty($oneCat)) {
                     continue;
@@ -233,7 +234,7 @@ class plgAcymPost extends acymPlugin
                     FROM #__posts AS post 
                     LEFT JOIN #__term_relationships AS cat ON post.ID = cat.object_id';
 
-            $where = array();
+            $where = [];
 
             if (!empty($selectedArea)) {
                 $where[] = 'cat.term_taxonomy_id IN ('.implode(',', $selectedArea).')';
@@ -269,7 +270,7 @@ class plgAcymPost extends acymPlugin
         $tags = $this->acympluginHelper->extractTags($email, $this->name);
         if (empty($tags)) return;
 
-        $tagsReplaced = array();
+        $tagsReplaced = [];
         foreach ($tags as $i => $oneTag) {
             if (isset($tagsReplaced[$i])) {
                 continue;
@@ -299,12 +300,12 @@ class plgAcymPost extends acymPlugin
         }
 
         if (empty($tag->display)) {
-            $tag->display = array();
+            $tag->display = [];
         } else {
             $tag->display = explode(',', $tag->display);
         }
 
-        $varFields = array();
+        $varFields = [];
         foreach ($element as $fieldName => $oneField) {
             $varFields['{'.$fieldName.'}'] = $oneField;
         }
@@ -328,12 +329,12 @@ class plgAcymPost extends acymPlugin
         $contentText = '';
         if (in_array('content', $tag->display)) $contentText .= $element->post_content;
 
-        $customFields = array();
+        $customFields = [];
         if (in_array('cats', $tag->display)) {
-            $customFields[] = array(
+            $customFields[] = [
                 get_the_term_list($tag->id, 'category', '', ', '),
                 acym_translation('ACYM_CATEGORIES'),
-            );
+            ];
         }
 
         $format = new stdClass();
@@ -351,3 +352,4 @@ class plgAcymPost extends acymPlugin
         return $this->finalizeElementFormat($this->name, $result, $tag, $varFields);
     }
 }
+

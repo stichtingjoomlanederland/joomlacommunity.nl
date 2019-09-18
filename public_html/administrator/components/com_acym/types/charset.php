@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -18,7 +18,7 @@ class charsetType extends acymClass
     function __construct()
     {
         parent::__construct();
-        $charsets = array(
+        $charsets = [
             'BIG5' => 'BIG5',//Iconv,mbstring
             'ISO-8859-1' => 'ISO-8859-1',//Iconv,mbstring
             'ISO-8859-2' => 'ISO-8859-2',//Iconv,mbstring
@@ -40,7 +40,7 @@ class charsetType extends acymClass
             'UTF-16' => 'UTF-16',//Iconv,mbstring
             'Windows-1251' => 'Windows-1251', //Iconv,mbstring
             'Windows-1252' => 'Windows-1252' //Iconv,mbstring
-        );
+        ];
 
         if (function_exists('iconv')) {
             $charsets['ARMSCII-8'] = 'ARMSCII-8';
@@ -49,7 +49,7 @@ class charsetType extends acymClass
 
         $this->charsets = $charsets;
 
-        $this->values = array();
+        $this->values = [];
         foreach ($charsets as $code => $charset) {
             $this->values[] = acym_selectOption($code, $charset);
         }

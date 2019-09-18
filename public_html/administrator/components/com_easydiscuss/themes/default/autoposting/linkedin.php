@@ -37,12 +37,11 @@ defined('_JEXEC') or die('Unauthorized Access');
 							<div class="col-md-7">
 								<p>Effective <b>May 18th, 2018</b>, LinkedIn has <a href="https://developer.linkedin.com/docs/guide/v2/compliance/release-notes#2018-04-11" target="_blank">announced</a> that V1 Company Pages API will no longer work with OAuth 1.0. It is recommended for all apps to switchover OAuth 2.0 authentication before then. You will need to copy the links below and add it under the Authorized Redirect URLs section of the LinkedIn app.</p>
 							<?php
-							if (EDR::isSefEnabled()) {
 								$i = 1;
 								foreach ($oauthURIs as $oauthURI) { ?>
 								<div class="input-group mb-10">
 									<input type="text" id="oauth-uri-<?php echo $i?>" data-oauthuri-input name="integrations_linkedin_oauth_redirect_uri" class="form-control" value="<?php echo $oauthURI;?>" size="60" style="pointer-events:none;" />
-									<span class="input-group-btn" 
+									<span class="input-group-btn"
 										data-oauthuri-button
 										data-original-title="<?php echo JText::_('COM_ED_COPY_TOOLTIP')?>"
 										data-placement="bottom"
@@ -54,11 +53,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 									</span>
 								</div>
 								<?php $i++; } ?>
-							<?php } else { ?>
-							<div style="margin:15px 0 8px 0;border: 1px dashed #FC595B;padding: 20px;color: #FC595B;">
-								<b>Note:</b> It seems like your site Search Engine Friendly (SEF) is disabled. In order to use LinkedIn as autoposting medium, you must first enable the SEF of your site.
-							</div>
-							<?php } ?>
 							</div>
 						</div>
 
@@ -113,25 +107,25 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<div class="panel-body">
 					<?php if ($associated) { ?>
 					<div class="form-horizontal">
-						<div class="form-group">						
+						<div class="form-group">
 							<div class="col-md-5 control-label">
 								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_LINKEDIN_COMPANIES'); ?>
 							</div>
 
 							<div class="col-md-7 control-label">
-	                            <?php if ($companies) { ?>
-	                            <select name="main_autopost_linkedin_company_id[]" class="form-control" multiple="multiple" size="10">
-	                                <?php foreach ($companies as $company) { ?>
-	                                <option value="<?php echo $company->id;?>" <?php echo in_array($company->id, $storedCompanies) ? ' selected="selected"' : '';?>>
-	                                    <?php echo $company->title;?>
-	                                </option>
-	                                <?php } ?>
-	                            </select>
+								<?php if ($companies) { ?>
+								<select name="main_autopost_linkedin_company_id[]" class="form-control" multiple="multiple" size="10">
+									<?php foreach ($companies as $company) { ?>
+									<option value="<?php echo $company->id;?>" <?php echo in_array($company->id, $storedCompanies) ? ' selected="selected"' : '';?>>
+										<?php echo $company->title;?>
+									</option>
+									<?php } ?>
+								</select>
 
-	                            <p class="mt-5 small"><?php echo JText::_('COM_EASYDISCUSS_AUTOPOST_SELECT_MULTIPLE'); ?></p>
-	                            <?php } else { ?>
-	                                <p><?php echo JText::_('COM_EASYDISCUSS_LINKEDIN_AUTOPOST_NO_COMPANIES_YET'); ?></p>
-	                            <?php } ?>
+								<p class="mt-5 small"><?php echo JText::_('COM_EASYDISCUSS_AUTOPOST_SELECT_MULTIPLE'); ?></p>
+								<?php } else { ?>
+									<p><?php echo JText::sprintf('COM_ED_AUTOPOSTING_LINKEDIN_COMPANIES_UNAVAILABLE_REVIEW_REQUIRED', '<a href="https://stackideas.com/docs/easyblog/administrators/autoposting/linkedin-autoposting" target="_blank">', '</a>');?></p>
+								<?php } ?>
 							</div>
 						</div>
 					</div>

@@ -152,18 +152,18 @@ class EasyDiscussMailQueue extends EasyDiscuss
 		// Only search for messages that are new.
 		$unread	= $mailer->searchMessages($searchCriteria);
 
+		// If there is no unread emails, just skip this altogether
+		if (!$unread) {
+			echo JText::_('COM_EASYDISCUSS_NO_EMAILS_TO_PARSE');
+			return false;
+		}
+
 		// retrieve the current fetch email limit
 		$limit = $this->config->get('main_email_parser_limit', 10);
 		sort($unread);
 
 		// Specifies the length of the returned array
 		$unread = array_slice($unread, 0, $limit);
-
-		// If there is no unread emails, just skip this altogether
-		if (!$unread) {
-			echo JText::_('COM_EASYDISCUSS_NO_EMAILS_TO_PARSE');
-			return false;
-		}
 
 		$config = $this->config;
 		$acl = $this->acl;
@@ -313,8 +313,17 @@ class EasyDiscussMailQueue extends EasyDiscuss
 			// check if guest can post question or not. if not skip the processing.
 			if ($data['user_type'] == DISCUSS_POSTER_GUEST) {
 				$acl = ED::acl();
+				$model = ED::model('Category');
+				// action select is the user permission for create discussion
+				$allow = $model->getAssignedGroups( $data['category_id'], 'select');
+				$guestGroupId = JComponentHelper::getParams('com_users')->get('guest_usergroup');
 
-				if (!$acl->allowed('add_question')) {
+				$isNotAllow = false;
+				if (!in_array($guestGroupId, $allow)) {
+					$isNotAllow = true;
+				}
+
+				if (!$acl->allowed('add_question') || $isNotAllow) {
 					continue;
 				}
 			}

@@ -120,7 +120,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php } ?>
 				</li>
 
-				<?php if ($this->config->get('layout_badges_in_post') && $post->getOwner()->hasUserBadges()) { ?>
+				<?php if (ED::badges()->isEnabled() && $post->getOwner()->hasUserBadges()) { ?>
 				<li>
 					<?php echo ED::badges()->getPostHtml($post->getOwner()->id); ?>					
 				</li>

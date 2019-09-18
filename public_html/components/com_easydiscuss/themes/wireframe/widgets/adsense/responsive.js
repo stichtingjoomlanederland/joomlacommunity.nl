@@ -1,3 +1,4 @@
+<?php if ($this->config->get('integration_google_adsense_script')) { ?>
 ed.require(['edq', '//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'], function($, responsive) {
 
 	// Determine how many ads unit is available
@@ -11,3 +12,4 @@ ed.require(['edq', '//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'], 
 		});
 	}
 });
+<?php } ?>

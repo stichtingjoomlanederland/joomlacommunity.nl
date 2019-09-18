@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -36,7 +36,7 @@ defined('_JEXEC') or die('Restricted access');
                     <?php echo acym_switch('automation[active]', $data['automation']->active, acym_translation('ACYM_ACTIVE')); ?>
 				</div>
 				<label class="cell">
-					<h6 id="acym__automation__info__desc__button" class="cursor-pointer"><?php echo acym_translation('ACYM_DESCRIPTION'); ?><i class="material-icons">keyboard_arrow_down</i></h6>
+					<h6 id="acym__automation__info__desc__button" class="cursor-pointer"><?php echo acym_translation('ACYM_DESCRIPTION'); ?><i class="acymicon-keyboard_arrow_down"></i></h6>
                     <?php if (!empty($data['automation']->admin)) $data['automation']->description = acym_escape(acym_translation($data['automation']->description)); ?>
 					<textarea style="display: none" name="automation[description]" <?php echo empty($data['automation']->admin) ? '' : 'disabled'; ?>  rows="6" class="margin-top-1"><?php echo !empty($data['automation']->description) ? acym_escape($data['automation']->description) : ''; ?></textarea>
 				</label>
@@ -74,7 +74,7 @@ defined('_JEXEC') or die('Restricted access');
                                         <?php echo $classic->name; ?>
 										<span class="acym__automation__trigger__action"><?php echo $classic->option; ?></span>
 									</div>
-									<i data-trigger-show="<?php echo acym_escape($key); ?>" class="material-icons acym__color__red acym__automation__delete__trigger cursor-pointer">close</i>
+									<i data-trigger-show="<?php echo acym_escape($key); ?>" class="acymicon-close acym__color__red acym__automation__delete__trigger cursor-pointer"></i>
 								</div>
                                 <?php
                             }
@@ -108,7 +108,7 @@ defined('_JEXEC') or die('Restricted access');
 									<div class="acym__automation__one__trigger"><?php echo $triggerUser->name; ?>
 										<span class="acym__automation__trigger__action"><?php echo $triggerUser->option; ?></span>
 									</div>
-									<i data-trigger-show="<?php echo acym_escape($key); ?>" class="material-icons acym__color__red acym__automation__delete__trigger cursor-pointer">close</i>
+									<i data-trigger-show="<?php echo acym_escape($key); ?>" class="acymicon-close acym__color__red acym__automation__delete__trigger cursor-pointer"></i>
 								</div>
                                 <?php
                             }
@@ -119,7 +119,7 @@ defined('_JEXEC') or die('Restricted access');
 			</div>
 			<div class="cell grid-x margin-top-2">
 				<div class="cell medium-shrink medium-margin-bottom-0 margin-bottom-1 text-left">
-                    <?php echo acym_backToListing("lists"); ?>
+                    <?php echo acym_backToListing("automation"); ?>
 				</div>
 				<div class="cell medium-auto grid-x grid-margin-x text-right">
 					<div class="cell auto"></div>
@@ -131,3 +131,4 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
     <?php acym_formOptions(); ?>
 </form>
+

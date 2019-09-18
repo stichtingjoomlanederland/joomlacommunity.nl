@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -26,7 +26,7 @@ class ConfigurationController extends acymController
         $tabHelper = acym_get('helper.tab');
 
         $langs = acym_getLanguages();
-        $languages = array();
+        $languages = [];
 
         foreach ($langs as $lang => $obj) {
             if (strlen($lang) != 5 || $lang == "xx-XX") {
@@ -41,7 +41,7 @@ class ConfigurationController extends acymController
             $icon = $obj->exists ? 'edit' : 'add';
             $idModalLanguage = 'acym_modal_language_'.$lang;
             $oneLanguage->edit = acym_modal(
-                '<i class="material-icons cursor-pointer acym__color__blue" data-open="'.$idModalLanguage.'" data-ajax="false" data-iframe="'.$linkEdit.'" data-iframe-class="acym__iframe_language" id="image'.$lang.'">'.$icon.'</i>',
+                '<i class="acymicon-'.$icon.' cursor-pointer acym__color__blue" data-open="'.$idModalLanguage.'" data-ajax="false" data-iframe="'.$linkEdit.'" data-iframe-class="acym__iframe_language" id="image'.$lang.'"></i>',
                 '', //<iframe src="'.$linkEdit.'"></iframe>
                 $idModalLanguage,
                 'data-reveal-larger',
@@ -52,24 +52,33 @@ class ConfigurationController extends acymController
             $languages[] = $oneLanguage;
         }
 
-        $data = array(
+        $listClass = acym_get('class.list');
+        $lists = $listClass->getAll();
+        foreach ($lists as $i => $oneList) {
+            if ($oneList->active == 0) {
+                unset($lists[$i]);
+            }
+        }
+
+        $data = [
             'config' => $config,
             'tab' => $tabHelper,
             'languages' => $languages,
-        );
+            'lists' => $lists,
+        ];
 
-        return parent::display($data);
+        parent::display($data);
     }
 
     function checkDB()
     {
-        $messages = array();
+        $messages = [];
 
         $queries = file_get_contents(ACYM_BACK.'tables.sql');
         $tables = explode("CREATE TABLE IF NOT EXISTS ", $queries);
-        $structure = array();
-        $createTable = array();
-        $indexes = array();
+        $structure = [];
+        $createTable = [];
+        $indexes = [];
 
         foreach ($tables as $oneTable) {
             if (strpos($oneTable, '`#__') !== 0) {
@@ -93,7 +102,7 @@ class ConfigurationController extends acymController
 
                 if (strpos($oneField, 'PRIMARY KEY') === 0) {
                     $indexes[$tableName]['PRIMARY'] = $oneField;
-                } else if (strpos($oneField, 'INDEX') === 0) {
+                } elseif (strpos($oneField, 'INDEX') === 0) {
                     $firstBackquotePos = strpos($oneField, '`');
                     $indexName = substr($oneField, $firstBackquotePos + 1, strpos($oneField, '`', $firstBackquotePos + 1) - $firstBackquotePos - 1);
 
@@ -104,7 +113,7 @@ class ConfigurationController extends acymController
         }
 
 
-        $columnNames = array();
+        $columnNames = [];
         $tableNames = array_keys($structure);
 
         foreach ($tableNames as $oneTableName) {
@@ -187,7 +196,7 @@ class ConfigurationController extends acymController
 
             $results = acym_loadObjectList('SHOW INDEX FROM '.$oneTableName, 'Key_name');
             if (empty($results)) {
-                $results = array();
+                $results = [];
             }
 
             foreach ($indexes[$oneTableName] as $name => $query) {
@@ -228,7 +237,7 @@ class ConfigurationController extends acymController
     {
         acym_checkToken();
 
-        $formData = acym_getVar('array', 'config', array());
+        $formData = acym_getVar('array', 'config', []);
         if (empty($formData)) {
             return false;
         }
@@ -287,7 +296,7 @@ class ConfigurationController extends acymController
                 }
             }
 
-            if ((strpos(ACYM_LIVE, 'localhost') || strpos(ACYM_LIVE, '127.0.0.1')) && in_array($sendingMethod, array('sendmail', 'qmail', 'mail'))) {
+            if (acym_isLocalWebsite() && in_array($sendingMethod, ['sendmail', 'qmail', 'mail'])) {
                 acym_enqueueNotification(acym_translation('ACYM_ADVICE_LOCALHOST'), 'notice');
             }
 
@@ -307,7 +316,7 @@ class ConfigurationController extends acymController
             exit;
         }
 
-        $tests = array(25 => 'smtp.sendgrid.com', 2525 => 'smtp.sendgrid.com', 587 => 'smtp.sendgrid.com', 465 => 'ssl://smtp.sendgrid.com');
+        $tests = [25 => 'smtp.sendgrid.com', 2525 => 'smtp.sendgrid.com', 587 => 'smtp.sendgrid.com', 465 => 'ssl://smtp.sendgrid.com'];
         $total = 0;
         foreach ($tests as $port => $server) {
             $fp = @fsockopen($server, $port, $errno, $errstr, 5);
@@ -368,6 +377,8 @@ class ConfigurationController extends acymController
 
     public function seereport()
     {
+        acym_noCache();
+
         $config = acym_config();
 
         $path = trim(html_entity_decode($config->get('cron_savepath')));
@@ -375,7 +386,7 @@ class ConfigurationController extends acymController
             acym_display(acym_translation('ACYM_WRONG_LOG_NAME'), 'error');
         }
 
-        $path = str_replace(array('{year}', '{month}'), array(date('Y'), date('m')), $path);
+        $path = str_replace(['{year}', '{month}'], [date('Y'), date('m')], $path);
         $reportPath = acym_cleanPath(ACYM_ROOT.$path);
 
         if (file_exists($reportPath) && !is_dir($reportPath)) {
@@ -423,3 +434,4 @@ class ConfigurationController extends acymController
         acym_redirect(acym_completeLink('dashboard', false, true));
     }
 }
+

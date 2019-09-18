@@ -382,21 +382,38 @@ class ComFilesAdapterFile extends ComFilesAdapterAbstract
 
 		if (is_writable(dirname($this->_path)))
 		{
-			if (is_uploaded_file($data)) {
-				$result = move_uploaded_file($data, $this->_path);
-			} elseif (is_string($data)) {
-				$result = file_put_contents($this->_path, $data);
-			} elseif ($data instanceof SplFileObject)
-			{
-				$handle = @fopen($this->_path, 'w');
-				if ($handle)
-				{
-					foreach ($data as $line) {
-						$result = (fwrite($handle, $line) !== false);
-					}
-					fclose($handle);
-				}
+			if ($data instanceof SplFileObject)
+            {
+			    if ($source = $data->getRealPath())
+                {
+                    $target = $this->_path;
+
+                    $this->setPath($source);
+
+                    $result = $this->copy($target);
+                }
+                else
+                {
+                    $handle = @fopen($this->_path, 'w');
+
+                    if ($handle)
+                    {
+                        foreach ($data as $line) {
+                            $result = (fwrite($handle, $line) !== false);
+                        }
+
+                        fclose($handle);
+                    }
+                }
 			}
+			elseif (is_uploaded_file($data))
+            {
+                $result = move_uploaded_file($data, $this->_path);
+            }
+            elseif (is_string($data))
+            {
+                $result = file_put_contents($this->_path, $data);
+            }
 		}
 
 		if ($result)

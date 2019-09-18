@@ -377,7 +377,7 @@ class ControlPanel extends Model
 	 *
 	 * @return bool
 	 */
-	public function needsIpWorkarounds()
+	public function needsIpWorkaroundsForPrivNetwork()
 	{
 		$WAFparams = Storage::getInstance();
 		$params    = $this->container->params;
@@ -386,6 +386,43 @@ class ControlPanel extends Model
 		if (!$WAFparams->getValue('ipworkarounds', -1) && ($params->get('detected_exceptions_from_private_network') === 1))
 		{
 			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks if we have detected a prozy header AND the IP Workaround feature is turned off
+	 *
+	 * @return bool
+	 */
+	public function needsIpWorkaroundsHeaders()
+	{
+		$WAFparams = Storage::getInstance();
+		$params    = $this->container->params;
+
+		// IP Workarounds are already loaded, no notice
+		if ($WAFparams->getValue('ipworkarounds', -1))
+		{
+			return false;
+		}
+
+		// User suppressed the notice
+		if ($params->get('detected_proxy_header') === -1)
+		{
+			return false;
+		}
+
+		// Ok let's check if we truly have any proxy header
+		$headers = Ip::getProxyHeaders();
+
+		foreach ($headers as $header)
+		{
+			// Proxy header found, warn the user
+			if (isset($_SERVER[$header]))
+			{
+				return true;
+			}
 		}
 
 		return false;
@@ -405,9 +442,10 @@ class ControlPanel extends Model
 		}
 		else
 		{
-			// If we user wants to ignore the warning, let's set the flag to -1 (ignore)
+			// If we user wants to ignore the warning, let's set every flag about IP workarounds to -1 (so they will be ignored)
 			$params = $this->container->params;
 			$params->set('detected_exceptions_from_private_network', -1);
+			$params->set('detected_proxy_header', -1);
 			$params->save();
 		}
 	}
@@ -569,5 +607,60 @@ class ControlPanel extends Model
 
 			\JFile::delete($file);
 		}
+	}
+
+	/**
+	 * Checks if the current contents of the server configuration file (ie .htaccess) match with the saved one.
+	 */
+	public function serverConfigEdited()
+	{
+		// Core version? No need to continue
+		if (!defined('ADMINTOOLS_PRO') || !ADMINTOOLS_PRO)
+		{
+			return false;
+		}
+
+		// User decided to ignore any warning about manual edits
+		if (!$this->container->params->get('serverconfigwarn', 1))
+		{
+			return false;
+		}
+
+		$storage = Storage::getInstance();
+		$configInfo = $storage->getValue('configInfo', []);
+
+		// Sanity checks
+		if (!$configInfo || !isset($configInfo->technology) || !isset($configInfo->contents))
+		{
+			return false;
+		}
+
+		// Sanity checks - part 2
+		if (!in_array($configInfo->technology, ['HtaccessMaker', 'NginXConfMaker', 'WebConfigMaker']) || !$configInfo->contents)
+		{
+			return false;
+		}
+
+		try
+		{
+			/** @var ServerConfigMaker $serverModel */
+			$serverModel = $this->container->factory->model($configInfo->technology)->tmpInstance();
+		}
+		catch (\Exception $e)
+		{
+			return false;
+		}
+
+		$serverFile = JPATH_ROOT.'/'.$serverModel->getConfigFileName();
+
+		if (!file_exists($serverFile))
+		{
+			return false;
+		}
+
+		$actualContents = md5(file_get_contents($serverFile));
+
+		// Is the hash of current file different from the saved one? If so, warn the user
+		return ($actualContents != $configInfo->contents);
 	}
 }

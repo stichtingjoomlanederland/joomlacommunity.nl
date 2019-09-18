@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -32,16 +32,70 @@ if (is_callable("date_default_timezone_set")) {
     date_default_timezone_set(@date_default_timezone_get());
 }
 
-function acym_dateField($name, $value = '', $class = '')
+function acym_isLocalWebsite()
+{
+    return strpos(ACYM_LIVE, 'localhost') !== false || strpos(ACYM_LIVE, '127.0.0.1') !== false;
+}
+
+function acym_translationExists($key)
+{
+    return $key !== acym_translation($key);
+}
+
+function acym_checkVersion($ajax = false)
+{
+    ob_start();
+    $config = acym_config();
+    $url = ACYM_UPDATEURL.'loadUserInformation';
+
+    $paramsForLicenseCheck = [
+        'component' => 'acymailing', // Know which product to look at
+        'level' => strtolower($config->get('level', 'starter')), // Know which version to look at
+        'domain' => rtrim(ACYM_LIVE, '/'), // Tell the user if the automatic features are available for the current installation
+        'version' => $config->get('version'), // Tell the user if a newer version is available
+        'cms' => ACYM_CMS, // We may delay some new Acy versions depending on the CMS
+        'cmsv' => ACYM_CMSV, // Acy isn't available for some versions
+    ];
+
+    foreach ($paramsForLicenseCheck as $param => $value) {
+        $url .= '&'.$param.'='.urlencode($value);
+    }
+
+    $userInformation = acym_fileGetContent($url, 30);
+    $warnings = ob_get_clean();
+    $result = (!empty($warnings) && acym_isDebug()) ? $warnings : '';
+
+    if (empty($userInformation) || $userInformation === false) {
+        if ($ajax) {
+            echo json_encode(['content' => '<br/><span style="color:#C10000;">'.acym_translation('ACYM_ERROR_LOAD_FROM_ACYBA').'</span><br/>'.$result]);
+            exit;
+        } else {
+            return '';
+        }
+    }
+
+    $decodedInformation = json_decode($userInformation, true);
+
+    $newConfig = new stdClass();
+
+    $newConfig->latestversion = $decodedInformation['latestversion'];
+    $newConfig->expirationdate = $decodedInformation['expiration'];
+    $newConfig->lastlicensecheck = time();
+    $config->save($newConfig);
+
+    return $newConfig->lastlicensecheck;
+}
+
+function acym_dateField($name, $value = '', $class = '', $attributes = '', $relativeDefault = '-')
 {
     $result = '<div class="date_rs_selection_popup">';
 
     $result .= '<div class="grid-x">';
     $result .= acym_switchFilter(
-        array(
+        [
             'relative' => acym_translation('ACYM_RELATIVE_DATE'),
             'specific' => acym_translation('ACYM_SPECIFIC_DATE'),
-        ),
+        ],
         'relative',
         'switch_'.$name,
         'date_rs_selection'
@@ -54,11 +108,11 @@ function acym_dateField($name, $value = '', $class = '')
                     </div>
                     <div class="cell small-5">';
     $result .= acym_select(
-        array(
+        [
             '60' => acym_translation('ACYM_MINUTES'),
             '3600' => acym_translation('ACYM_HOUR'),
             '86400' => acym_translation('ACYM_DAY'),
-        ),
+        ],
         'relative_'.$name,
         null,
         'class="acym__select relativetype"'
@@ -68,12 +122,12 @@ function acym_dateField($name, $value = '', $class = '')
                 <div class="cell small-5">';
 
     $result .= acym_select(
-        array(
+        [
             '-' => acym_translation('ACYM_BEFORE'),
             '+' => acym_translation('ACYM_AFTER'),
-        ),
+        ],
         'relativewhen_'.$name,
-        null,
+        $relativeDefault,
         'class="acym__select relativewhen"'
     );
     $result .= '</div>
@@ -86,9 +140,10 @@ function acym_dateField($name, $value = '', $class = '')
                     </div>
                     <div class="cell auto"></div>
                 </div>
-                <div class="cell grid-x">
+                <div class="cell grid-x grid-margin-x">
                     <div class="cell auto"></div>
-                    <button type="button" class="cell medium-4 button acym__button__set__time" data-close>'.acym_translation('ACYM_SET').'</button>
+                    <button type="button" class="cell medium-4 button button-secondary acym__button__clear__time" data-close>'.acym_translation('ACYM_CLEAR').'</button>
+                    <button type="button" class="cell medium-4 button acym__button__set__time" data-close>'.acym_translation('ACYM_APPLY').'</button>
                     <div class="cell auto"></div>
                 </div>';
 
@@ -96,16 +151,19 @@ function acym_dateField($name, $value = '', $class = '')
 
     $id = preg_replace('#[^a-z0-9_]#i', '', $name);
     if (is_numeric($value)) {
-        $shownValue = str_replace(
-            array('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'),
-            array(substr(acym_translation('ACYM_JANUARY'), 0, 3), substr(acym_translation('ACYM_FEBRUARY'), 0, 3), substr(acym_translation('ACYM_MARCH'), 0, 3), substr(acym_translation('ACYM_APRIL'), 0, 3), substr(acym_translation('ACYM_MAY'), 0, 3), substr(acym_translation('ACYM_JUNE'), 0, 3), substr(acym_translation('ACYM_JULY'), 0, 3), substr(acym_translation('ACYM_AUGUST'), 0, 3), substr(acym_translation('ACYM_SEPTEMBER'), 0, 3), substr(acym_translation('ACYM_OCTOBER'), 0, 3), substr(acym_translation('ACYM_NOVEMBER'), 0, 3), substr(acym_translation('ACYM_DECEMBER'), 0, 3)),
-            date('d F Y H:i', $value)
-        );
+        $months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+        $replaceValues = [];
+        foreach ($months as $oneMonth) {
+            $replaceValues[] = substr(acym_translation('ACYM_'.strtoupper($oneMonth)), 0, 3);
+        }
+
+        $shownValue = str_replace($months, $replaceValues, date('d F Y H:i', $value));
     } else {
         $shownValue = $value;
     }
-    $result = '<input data-rs="'.$id.'" type="hidden" name="'.acym_escape($name).'" value="'.acym_escape($value).'">'.acym_modal(
-            '<input data-open="'.$id.'" class="rs_date_field '.$class.'" type="text" value="'.$shownValue.'" readonly>',
+    $result = '<input data-rs="'.acym_escape($id).'" type="hidden" name="'.acym_escape($name).'" value="'.acym_escape($value).'">'.acym_modal(
+            '<input data-open="'.acym_escape($id).'" class="rs_date_field '.$class.'" '.$attributes.' type="text" value="'.acym_escape($shownValue).'" readonly>',
             $result,
             $id,
             '',
@@ -117,7 +175,7 @@ function acym_dateField($name, $value = '', $class = '')
     return $result;
 }
 
-function acym_escape($text)
+function acym_escape($text, $isURL = false)
 {
     return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 }
@@ -131,20 +189,17 @@ function acym_escapeArrayValues($array)
     return $array;
 }
 
-function acydump($arg, $magic = false)
+function acydump($arg, $ajax = false, $indent = true)
 {
     ob_start();
     var_dump($arg);
     $result = ob_get_clean();
 
-    if ($magic) {
-        file_put_contents(
-            ACYM_ROOT.'acydebug.txt',
-            $result,
-            FILE_APPEND
-        );
+    if ($ajax) {
+        file_put_contents(ACYM_ROOT.'acydebug.txt', $result, FILE_APPEND);
     } else {
-        echo '<pre style="margin-left: 220px;">'.$result.'</pre>';
+        $style = $indent ? 'margin-left: 220px;' : '';
+        echo '<pre style="'.$style.'">'.$result.'</pre>';
     }
 }
 
@@ -155,13 +210,13 @@ function acym_teasing($text)
           ';
 }
 
-function acym_line_chart($id = '', $dataMonth, $dataDay, $dataHour)
+function acym_line_chart($id, $dataMonth, $dataDay, $dataHour)
 {
     acym_initializeChart();
 
-    $month = array();
-    $openMonth = array();
-    $clickMonth = array();
+    $month = [];
+    $openMonth = [];
+    $clickMonth = [];
 
     foreach ($dataMonth as $key => $data) {
         $month[] = '"'.$key.'"';
@@ -169,9 +224,9 @@ function acym_line_chart($id = '', $dataMonth, $dataDay, $dataHour)
         $clickMonth[] = '"'.$data['click'].'"';
     }
 
-    $day = array();
-    $openDay = array();
-    $clickDay = array();
+    $day = [];
+    $openDay = [];
+    $clickDay = [];
 
     foreach ($dataDay as $key => $data) {
         $day[] = '"'.$key.'"';
@@ -179,9 +234,9 @@ function acym_line_chart($id = '', $dataMonth, $dataDay, $dataHour)
         $clickDay[] = '"'.$data['click'].'"';
     }
 
-    $hour = array();
-    $openHour = array();
-    $clickHour = array();
+    $hour = [];
+    $openHour = [];
+    $clickHour = [];
 
     foreach ($dataHour as $key => $data) {
         $hour[] = '"'.$key.'"';
@@ -204,7 +259,7 @@ function acym_line_chart($id = '', $dataMonth, $dataDay, $dataHour)
         $displayed = $hour;
         $clickDisplayed = $clickHour;
         $openDisplayed = $openHour;
-    } else if ($nbDataDay < 63) {
+    } elseif ($nbDataDay < 63) {
         $selectedChartDay = "selected__choose_by";
         $displayed = $day;
         $clickDisplayed = $clickDay;
@@ -438,9 +493,9 @@ function acym_round_chart($id, $pourcentage, $type = '', $class = '', $topLabel 
     } else {
         if ($pourcentage >= $valueHigh) {
             $color = $isInverted ? $red : $green;
-        } else if ($pourcentage < $valueHigh && $pourcentage >= $valueLow) {
+        } elseif ($pourcentage < $valueHigh && $pourcentage >= $valueLow) {
             $color = $orange;
-        } else if ($pourcentage < $valueLow) {
+        } elseif ($pourcentage < $valueLow) {
             $color = $isInverted ? $green : $red;
         } else {
             $color = $defaultColor;
@@ -520,7 +575,7 @@ function acym_getEmailRegex($secureJS = false, $forceRegex = false)
     }
 
     if ($secureJS) {
-        $regex = str_replace(array('"', "'"), array('\"', "\'"), $regex);
+        $regex = str_replace(['"', "'"], ['\"', "\'"], $regex);
     }
 
     return $regex;
@@ -545,7 +600,7 @@ function acym_isValidEmail($email, $extended = false)
 
     if ($config->get('email_checkdomain', false) && function_exists('getmxrr')) {
         $domain = substr($email, strrpos($email, '@') + 1);
-        $mxhosts = array();
+        $mxhosts = [];
         $checkDomain = getmxrr($domain, $mxhosts);
         if (!empty($mxhosts) && strpos($mxhosts[0], 'hostnamedoesnotexist')) {
             array_shift($mxhosts);
@@ -593,14 +648,14 @@ function acym_getIP()
     return strip_tags($ip);
 }
 
-function acym_radio($options, $name, $selected = null, $id = null, $attributes = array(), $objValue = 'value', $objText = 'text', $useIncrement = false)
+function acym_radio($options, $name, $selected = null, $id = null, $attributes = [], $objValue = 'value', $objText = 'text', $useIncrement = false)
 {
     $id = preg_replace(
         '#[^a-zA-Z0-9_]+#mi',
         '_',
         str_replace(
-            array('[', ']'),
-            array('_', ''),
+            ['[', ']'],
+            ['_', ''],
             empty($id) ? $name : $id
         )
     );
@@ -625,8 +680,8 @@ function acym_radio($options, $name, $selected = null, $id = null, $attributes =
         $attributes['value'] = $value;
         $attributes['id'] = $currentId;
 
-        $return .= '<i data-radio="'.$currentId.'" class="material-icons acym_radio_checked">radio_button_checked</i>';
-        $return .= '<i data-radio="'.$currentId.'" class="material-icons acym_radio_unchecked">radio_button_unchecked</i>';
+        $return .= '<i data-radio="'.$currentId.'" class="acymicon-radio_button_checked acym_radio_checked"></i>';
+        $return .= '<i data-radio="'.$currentId.'" class="acymicon-radio_button_unchecked acym_radio_unchecked"></i>';
         $return .= '<input';
         foreach ($attributes as $attribute => $val) {
             $return .= ' '.$attribute.'="'.acym_escape($val).'"';
@@ -642,7 +697,7 @@ function acym_radio($options, $name, $selected = null, $id = null, $attributes =
 
 function acym_convertPHPToMomentFormat($format)
 {
-    $replacements = array(
+    $replacements = [
         'd' => 'DD',
         'D' => 'ddd',
         'j' => 'D',
@@ -680,18 +735,18 @@ function acym_convertPHPToMomentFormat($format)
         'c' => '', // no equivalent
         'r' => '', // no equivalent
         'U' => 'X',
-    );
+    ];
     $momentFormat = strtr($format, $replacements);
 
     return $momentFormat;
 }
 
-function acym_boolean($name, $selected = null, $id = null, $attributes = array(), $yes = 'ACYM_YES', $no = 'ACYM_NO')
+function acym_boolean($name, $selected = null, $id = null, $attributes = [], $yes = 'ACYM_YES', $no = 'ACYM_NO')
 {
-    $options = array(
+    $options = [
         '1' => acym_translation($yes),
         '0' => acym_translation($no),
-    );
+    ];
 
     return acym_radio(
         $options,
@@ -702,21 +757,10 @@ function acym_boolean($name, $selected = null, $id = null, $attributes = array()
     );
 }
 
-function acym_select(
-    $data,
-    $name,
-    $selected = null,
-    $attribs = null,
-    $optKey = 'value',
-    $optText = 'text',
-    $idtag = false,
-    $translate = false
-) {
-    $dropdown = '<select id="'.str_replace(
-            array('[', ']', ' '),
-            '',
-            empty($idtag) ? $name : $idtag
-        ).'" name="'.$name.'" '.(empty($attribs) ? '' : $attribs).'>';
+function acym_select($data, $name, $selected = null, $attribs = null, $optKey = 'value', $optText = 'text', $idtag = false, $translate = false)
+{
+    $idtag = str_replace(['[', ']', ' '], '', empty($idtag) ? $name : $idtag);
+    $dropdown = '<select id="'.acym_escape($idtag).'" name="'.acym_escape($name).'" '.(empty($attribs) ? '' : $attribs).'>';
 
     foreach ($data as $key => $oneOption) {
         $disabled = false;
@@ -925,241 +969,241 @@ function acym_modal_pagination_lists_import($button, $class, $textButtonRight, $
 
 function acym_generateCountryNumber($name, $defaultvalue = '')
 {
-    $flagPosition = array();
-    $flagPosition['93'] = array('x' => -48, 'y' => 0);
-    $flagPosition['355'] = array('x' => -96, 'y' => 0);
-    $flagPosition['213'] = array('x' => -160, 'y' => -33);
-    $flagPosition['1684'] = array('x' => -176, 'y' => 0);
-    $flagPosition['376'] = array('x' => -16, 'y' => 0);
-    $flagPosition['244'] = array('x' => -144, 'y' => 0);
-    $flagPosition['1264'] = array('x' => -80, 'y' => 0);
-    $flagPosition['672'] = array('x' => 0, 'y' => -176); //antartica
-    $flagPosition['1268'] = array('x' => -64, 'y' => 0);
-    $flagPosition['54'] = array('x' => -160, 'y' => 0);
-    $flagPosition['374'] = array('x' => -112, 'y' => 0);
-    $flagPosition['297'] = array('x' => -224, 'y' => 0);
-    $flagPosition['247'] = array('x' => -16, 'y' => -176); //ascenscion island
-    $flagPosition['61'] = array('x' => -208, 'y' => 0);
-    $flagPosition['43'] = array('x' => -192, 'y' => 0);
-    $flagPosition['994'] = array('x' => -240, 'y' => 0);
-    $flagPosition['1242'] = array('x' => -208, 'y' => -11);
-    $flagPosition['973'] = array('x' => -96, 'y' => -11);
-    $flagPosition['880'] = array('x' => -32, 'y' => -11);
-    $flagPosition['1246'] = array('x' => -16, 'y' => -11);
-    $flagPosition['375'] = array('x' => -16, 'y' => -22);
-    $flagPosition['32'] = array('x' => -48, 'y' => -11);
-    $flagPosition['501'] = array('x' => -32, 'y' => -22);
-    $flagPosition['229'] = array('x' => -128, 'y' => -11);
-    $flagPosition['1441'] = array('x' => -144, 'y' => -11);
-    $flagPosition['975'] = array('x' => -224, 'y' => -11);
-    $flagPosition['591'] = array('x' => -176, 'y' => -11);
-    $flagPosition['387'] = array('x' => 0, 'y' => -11);
-    $flagPosition['267'] = array('x' => 0, 'y' => -22);
-    $flagPosition['55'] = array('x' => -192, 'y' => -11);
-    $flagPosition['1284'] = array('x' => -240, 'y' => -154);
-    $flagPosition['673'] = array('x' => -160, 'y' => -11);
-    $flagPosition['359'] = array('x' => -80, 'y' => -11);
-    $flagPosition['226'] = array('x' => -64, 'y' => -11);
-    $flagPosition['257'] = array('x' => -112, 'y' => -11);
-    $flagPosition['855'] = array('x' => -64, 'y' => -77);
-    $flagPosition['237'] = array('x' => -192, 'y' => -22);
-    $flagPosition['1'] = array('x' => -48, 'y' => -22);
-    $flagPosition['238'] = array('x' => -16, 'y' => -33);
-    $flagPosition['1345'] = array('x' => -192, 'y' => -77);
-    $flagPosition['236'] = array('x' => -96, 'y' => -22);
-    $flagPosition['235'] = array('x' => -112, 'y' => -143);
-    $flagPosition['56'] = array('x' => -176, 'y' => -22);
-    $flagPosition['86'] = array('x' => -208, 'y' => -22);
-    $flagPosition['6724'] = array('x' => -32, 'y' => -176); //christmas island
-    $flagPosition['6722'] = array('x' => -48, 'y' => -176); //coco keeling island
-    $flagPosition['57'] = array('x' => -224, 'y' => -22);
-    $flagPosition['269'] = array('x' => -96, 'y' => -77);
-    $flagPosition['243'] = array('x' => -80, 'y' => -22);
-    $flagPosition['242'] = array('x' => -112, 'y' => -22);
-    $flagPosition['682'] = array('x' => -160, 'y' => -22);
-    $flagPosition['506'] = array('x' => -240, 'y' => -22);
-    $flagPosition['225'] = array('x' => -144, 'y' => -22);
-    $flagPosition['385'] = array('x' => 0, 'y' => -66);
-    $flagPosition['53'] = array('x' => 0, 'y' => -33);
-    $flagPosition['357'] = array('x' => -48, 'y' => -33);
-    $flagPosition['420'] = array('x' => -64, 'y' => -33);
-    $flagPosition['45'] = array('x' => -112, 'y' => -33);
-    $flagPosition['253'] = array('x' => -96, 'y' => -33);
-    $flagPosition['1767'] = array('x' => -128, 'y' => -33);
-    $flagPosition['1809'] = array('x' => -144, 'y' => -33);
-    $flagPosition['593'] = array('x' => -176, 'y' => -33);
-    $flagPosition['20'] = array('x' => -208, 'y' => -33);
-    $flagPosition['503'] = array('x' => -32, 'y' => -143);
-    $flagPosition['240'] = array('x' => -96, 'y' => -55);
-    $flagPosition['291'] = array('x' => 0, 'y' => -44);
-    $flagPosition['372'] = array('x' => -192, 'y' => -33);
-    $flagPosition['251'] = array('x' => -32, 'y' => -44);
-    $flagPosition['500'] = array('x' => -96, 'y' => -44);
-    $flagPosition['298'] = array('x' => -128, 'y' => -44);
-    $flagPosition['679'] = array('x' => -80, 'y' => -44);
-    $flagPosition['358'] = array('x' => -64, 'y' => -44);
-    $flagPosition['33'] = array('x' => -144, 'y' => -44);
-    $flagPosition['596'] = array('x' => -80, 'y' => -99);
-    $flagPosition['594'] = array('x' => -128, 'y' => -176); //french guiana
-    $flagPosition['689'] = array('x' => -224, 'y' => -110);
-    $flagPosition['241'] = array('x' => -160, 'y' => -44);
-    $flagPosition['220'] = array('x' => -48, 'y' => -55);
-    $flagPosition['995'] = array('x' => -208, 'y' => -44);
-    $flagPosition['49'] = array('x' => -80, 'y' => -33);
-    $flagPosition['233'] = array('x' => 0, 'y' => -55);
-    $flagPosition['350'] = array('x' => -16, 'y' => -55);
-    $flagPosition['30'] = array('x' => -112, 'y' => -55);
-    $flagPosition['299'] = array('x' => -32, 'y' => -55);
-    $flagPosition['1473'] = array('x' => -192, 'y' => -44);
-    $flagPosition['590'] = array('x' => -80, 'y' => -55);
-    $flagPosition['1671'] = array('x' => -160, 'y' => -55);
-    $flagPosition['502'] = array('x' => -144, 'y' => -55);
-    $flagPosition['224'] = array('x' => -64, 'y' => -55);
-    $flagPosition['245'] = array('x' => -176, 'y' => -55);
-    $flagPosition['592'] = array('x' => -192, 'y' => -55);
-    $flagPosition['509'] = array('x' => -16, 'y' => -66);
-    $flagPosition['504'] = array('x' => -240, 'y' => -55);
-    $flagPosition['852'] = array('x' => -208, 'y' => -55);
-    $flagPosition['36'] = array('x' => -32, 'y' => -66);
-    $flagPosition['354'] = array('x' => -192, 'y' => -66);
-    $flagPosition['91'] = array('x' => -128, 'y' => -66);
-    $flagPosition['62'] = array('x' => -64, 'y' => -66);
-    $flagPosition['964'] = array('x' => -160, 'y' => -66);
-    $flagPosition['98'] = array('x' => -176, 'y' => -66);
-    $flagPosition['353'] = array('x' => -80, 'y' => -66);
-    $flagPosition['972'] = array('x' => -96, 'y' => -66);
-    $flagPosition['39'] = array('x' => -208, 'y' => -66);
-    $flagPosition['1876'] = array('x' => -240, 'y' => -66);
-    $flagPosition['81'] = array('x' => -16, 'y' => -77);
-    $flagPosition['962'] = array('x' => 0, 'y' => -77);
-    $flagPosition['254'] = array('x' => -32, 'y' => -77);
-    $flagPosition['686'] = array('x' => -80, 'y' => -77);
-    $flagPosition['3774'] = array('x' => -64, 'y' => -176); //kosovo
-    $flagPosition['965'] = array('x' => -176, 'y' => -77);
-    $flagPosition['996'] = array('x' => -48, 'y' => -77);
-    $flagPosition['856'] = array('x' => -224, 'y' => -77);
-    $flagPosition['371'] = array('x' => -112, 'y' => -88);
-    $flagPosition['961'] = array('x' => -240, 'y' => -77);
-    $flagPosition['266'] = array('x' => -64, 'y' => -88);
-    $flagPosition['231'] = array('x' => -48, 'y' => -88);
-    $flagPosition['218'] = array('x' => -128, 'y' => -88);
-    $flagPosition['423'] = array('x' => -16, 'y' => -88);
-    $flagPosition['370'] = array('x' => -80, 'y' => -88);
-    $flagPosition['352'] = array('x' => -96, 'y' => -88);
-    $flagPosition['853'] = array('x' => -48, 'y' => -99);
-    $flagPosition['389'] = array('x' => -240, 'y' => -88);
-    $flagPosition['261'] = array('x' => -208, 'y' => -88);
-    $flagPosition['265'] = array('x' => -176, 'y' => -99);
-    $flagPosition['60'] = array('x' => -208, 'y' => -99);
-    $flagPosition['960'] = array('x' => -160, 'y' => -99);
-    $flagPosition['223'] = array('x' => 0, 'y' => -99);
-    $flagPosition['356'] = array('x' => -128, 'y' => -99);
-    $flagPosition['692'] = array('x' => -224, 'y' => -88);
-    $flagPosition['222'] = array('x' => -96, 'y' => -99);
-    $flagPosition['230'] = array('x' => -144, 'y' => -99);
-    $flagPosition['52'] = array('x' => -192, 'y' => -99);
-    $flagPosition['691'] = array('x' => -112, 'y' => -44);
-    $flagPosition['373'] = array('x' => -176, 'y' => -88);
-    $flagPosition['377'] = array('x' => -160, 'y' => -88);
-    $flagPosition['976'] = array('x' => -32, 'y' => -99);
-    $flagPosition['382'] = array('x' => -192, 'y' => -88);
-    $flagPosition['1664'] = array('x' => -112, 'y' => -99);
-    $flagPosition['212'] = array('x' => -144, 'y' => -88);
-    $flagPosition['258'] = array('x' => -224, 'y' => -99);
-    $flagPosition['95'] = array('x' => -16, 'y' => -99);
-    $flagPosition['264'] = array('x' => -240, 'y' => -99);
-    $flagPosition['674'] = array('x' => -128, 'y' => -110);
-    $flagPosition['977'] = array('x' => -112, 'y' => -110);
-    $flagPosition['31'] = array('x' => -80, 'y' => -110);
-    $flagPosition['599'] = array('x' => -128, 'y' => 0);
-    $flagPosition['687'] = array('x' => 0, 'y' => -110);
-    $flagPosition['64'] = array('x' => -160, 'y' => -110);
-    $flagPosition['505'] = array('x' => -64, 'y' => -110);
-    $flagPosition['227'] = array('x' => -16, 'y' => -110);
-    $flagPosition['234'] = array('x' => -48, 'y' => -110);
-    $flagPosition['683'] = array('x' => -144, 'y' => -110);
-    $flagPosition['6723'] = array('x' => -32, 'y' => -110);
-    $flagPosition['850'] = array('x' => -128, 'y' => -77);
-    $flagPosition['47'] = array('x' => -96, 'y' => -110);
-    $flagPosition['968'] = array('x' => -176, 'y' => -110);
-    $flagPosition['92'] = array('x' => -16, 'y' => -121);
-    $flagPosition['680'] = array('x' => -80, 'y' => -176); //palau
-    $flagPosition['970'] = array('x' => -96, 'y' => -121);
-    $flagPosition['507'] = array('x' => -192, 'y' => -110);
-    $flagPosition['675'] = array('x' => -240, 'y' => -110);
-    $flagPosition['595'] = array('x' => -144, 'y' => -121);
-    $flagPosition['51'] = array('x' => -208, 'y' => -110);
-    $flagPosition['63'] = array('x' => 0, 'y' => -121);
-    $flagPosition['48'] = array('x' => -32, 'y' => -121);
-    $flagPosition['351'] = array('x' => -112, 'y' => -121);
-    $flagPosition['1787'] = array('x' => -80, 'y' => -121);
-    $flagPosition['974'] = array('x' => -160, 'y' => -121);
-    $flagPosition['262'] = array('x' => -144, 'y' => -176); //reunion island
-    $flagPosition['40'] = array('x' => -192, 'y' => -121);
-    $flagPosition['7'] = array('x' => -224, 'y' => -121);
-    $flagPosition['250'] = array('x' => -240, 'y' => -121);
-    $flagPosition['1670'] = array('x' => -96, 'y' => -176); //marianne
-    $flagPosition['378'] = array('x' => -176, 'y' => -132);
-    $flagPosition['239'] = array('x' => -16, 'y' => -143);
-    $flagPosition['966'] = array('x' => 0, 'y' => -132);
-    $flagPosition['221'] = array('x' => -192, 'y' => -132);
-    $flagPosition['381'] = array('x' => -208, 'y' => -121);
-    $flagPosition['248'] = array('x' => -32, 'y' => -132);
-    $flagPosition['232'] = array('x' => -160, 'y' => -132);
-    $flagPosition['65'] = array('x' => -96, 'y' => -132);
-    $flagPosition['421'] = array('x' => -144, 'y' => -132);
-    $flagPosition['386'] = array('x' => -128, 'y' => -132);
-    $flagPosition['677'] = array('x' => -16, 'y' => -132);
-    $flagPosition['252'] = array('x' => -208, 'y' => -132);
-    $flagPosition['685'] = array('x' => -112, 'y' => -176); //somoa
-    $flagPosition['27'] = array('x' => -128, 'y' => -165);
-    $flagPosition['82'] = array('x' => -144, 'y' => -77);
-    $flagPosition['34'] = array('x' => -16, 'y' => -44);
-    $flagPosition['94'] = array('x' => -32, 'y' => -88);
-    $flagPosition['290'] = array('x' => -112, 'y' => -132);
-    $flagPosition['1869'] = array('x' => -112, 'y' => -77);
-    $flagPosition['1758'] = array('x' => 0, 'y' => -88);
-    $flagPosition['508'] = array('x' => -48, 'y' => -121);
-    $flagPosition['1784'] = array('x' => -208, 'y' => -154);
-    $flagPosition['249'] = array('x' => -64, 'y' => -132);
-    $flagPosition['597'] = array('x' => -240, 'y' => -132);
-    $flagPosition['268'] = array('x' => -80, 'y' => -143);
-    $flagPosition['46'] = array('x' => -80, 'y' => -132);
-    $flagPosition['41'] = array('x' => -128, 'y' => -22);
-    $flagPosition['963'] = array('x' => -64, 'y' => -143);
-    $flagPosition['886'] = array('x' => -64, 'y' => -154);
-    $flagPosition['992'] = array('x' => -176, 'y' => -143);
-    $flagPosition['255'] = array('x' => -80, 'y' => -154);
-    $flagPosition['66'] = array('x' => -160, 'y' => -143);
-    $flagPosition['228'] = array('x' => -144, 'y' => -143);
-    $flagPosition['690'] = array('x' => -192, 'y' => -143);
-    $flagPosition['676'] = array('x' => 0, 'y' => -154);
-    $flagPosition['1868'] = array('x' => -32, 'y' => -154);
-    $flagPosition['216'] = array('x' => -240, 'y' => -143);
-    $flagPosition['90'] = array('x' => -16, 'y' => -154);
-    $flagPosition['993'] = array('x' => -224, 'y' => -143);
-    $flagPosition['1649'] = array('x' => -96, 'y' => -143);
-    $flagPosition['688'] = array('x' => -48, 'y' => -154);
-    $flagPosition['256'] = array('x' => -112, 'y' => -154);
-    $flagPosition['380'] = array('x' => -96, 'y' => -154);
-    $flagPosition['971'] = array('x' => -32, 'y' => 0);
-    $flagPosition['44'] = array('x' => -176, 'y' => -44);
-    $flagPosition['598'] = array('x' => -160, 'y' => -154);
-    $flagPosition['1 '] = array('x' => -144, 'y' => -154);
-    $flagPosition['998'] = array('x' => -176, 'y' => -154);
-    $flagPosition['678'] = array('x' => -32, 'y' => -165);
-    $flagPosition['3966'] = array('x' => -192, 'y' => -154);
-    $flagPosition['58'] = array('x' => -224, 'y' => -154);
-    $flagPosition['84'] = array('x' => -16, 'y' => -165);
-    $flagPosition['1340'] = array('x' => 0, 'y' => -165);
-    $flagPosition['681'] = array('x' => -64, 'y' => -165);
-    $flagPosition['967'] = array('x' => -96, 'y' => -165);
-    $flagPosition['260'] = array('x' => -160, 'y' => -165);
-    $flagPosition['263'] = array('x' => -176, 'y' => -165);
-    $flagPosition[''] = array('x' => -160, 'y' => -176);
+    $flagPosition = [];
+    $flagPosition['93'] = ['x' => -48, 'y' => 0];
+    $flagPosition['355'] = ['x' => -96, 'y' => 0];
+    $flagPosition['213'] = ['x' => -160, 'y' => -33];
+    $flagPosition['1684'] = ['x' => -176, 'y' => 0];
+    $flagPosition['376'] = ['x' => -16, 'y' => 0];
+    $flagPosition['244'] = ['x' => -144, 'y' => 0];
+    $flagPosition['1264'] = ['x' => -80, 'y' => 0];
+    $flagPosition['672'] = ['x' => 0, 'y' => -176]; //antartica
+    $flagPosition['1268'] = ['x' => -64, 'y' => 0];
+    $flagPosition['54'] = ['x' => -160, 'y' => 0];
+    $flagPosition['374'] = ['x' => -112, 'y' => 0];
+    $flagPosition['297'] = ['x' => -224, 'y' => 0];
+    $flagPosition['247'] = ['x' => -16, 'y' => -176]; //ascenscion island
+    $flagPosition['61'] = ['x' => -208, 'y' => 0];
+    $flagPosition['43'] = ['x' => -192, 'y' => 0];
+    $flagPosition['994'] = ['x' => -240, 'y' => 0];
+    $flagPosition['1242'] = ['x' => -208, 'y' => -11];
+    $flagPosition['973'] = ['x' => -96, 'y' => -11];
+    $flagPosition['880'] = ['x' => -32, 'y' => -11];
+    $flagPosition['1246'] = ['x' => -16, 'y' => -11];
+    $flagPosition['375'] = ['x' => -16, 'y' => -22];
+    $flagPosition['32'] = ['x' => -48, 'y' => -11];
+    $flagPosition['501'] = ['x' => -32, 'y' => -22];
+    $flagPosition['229'] = ['x' => -128, 'y' => -11];
+    $flagPosition['1441'] = ['x' => -144, 'y' => -11];
+    $flagPosition['975'] = ['x' => -224, 'y' => -11];
+    $flagPosition['591'] = ['x' => -176, 'y' => -11];
+    $flagPosition['387'] = ['x' => 0, 'y' => -11];
+    $flagPosition['267'] = ['x' => 0, 'y' => -22];
+    $flagPosition['55'] = ['x' => -192, 'y' => -11];
+    $flagPosition['1284'] = ['x' => -240, 'y' => -154];
+    $flagPosition['673'] = ['x' => -160, 'y' => -11];
+    $flagPosition['359'] = ['x' => -80, 'y' => -11];
+    $flagPosition['226'] = ['x' => -64, 'y' => -11];
+    $flagPosition['257'] = ['x' => -112, 'y' => -11];
+    $flagPosition['855'] = ['x' => -64, 'y' => -77];
+    $flagPosition['237'] = ['x' => -192, 'y' => -22];
+    $flagPosition['1'] = ['x' => -48, 'y' => -22];
+    $flagPosition['238'] = ['x' => -16, 'y' => -33];
+    $flagPosition['1345'] = ['x' => -192, 'y' => -77];
+    $flagPosition['236'] = ['x' => -96, 'y' => -22];
+    $flagPosition['235'] = ['x' => -112, 'y' => -143];
+    $flagPosition['56'] = ['x' => -176, 'y' => -22];
+    $flagPosition['86'] = ['x' => -208, 'y' => -22];
+    $flagPosition['6724'] = ['x' => -32, 'y' => -176]; //christmas island
+    $flagPosition['6722'] = ['x' => -48, 'y' => -176]; //coco keeling island
+    $flagPosition['57'] = ['x' => -224, 'y' => -22];
+    $flagPosition['269'] = ['x' => -96, 'y' => -77];
+    $flagPosition['243'] = ['x' => -80, 'y' => -22];
+    $flagPosition['242'] = ['x' => -112, 'y' => -22];
+    $flagPosition['682'] = ['x' => -160, 'y' => -22];
+    $flagPosition['506'] = ['x' => -240, 'y' => -22];
+    $flagPosition['225'] = ['x' => -144, 'y' => -22];
+    $flagPosition['385'] = ['x' => 0, 'y' => -66];
+    $flagPosition['53'] = ['x' => 0, 'y' => -33];
+    $flagPosition['357'] = ['x' => -48, 'y' => -33];
+    $flagPosition['420'] = ['x' => -64, 'y' => -33];
+    $flagPosition['45'] = ['x' => -112, 'y' => -33];
+    $flagPosition['253'] = ['x' => -96, 'y' => -33];
+    $flagPosition['1767'] = ['x' => -128, 'y' => -33];
+    $flagPosition['1809'] = ['x' => -144, 'y' => -33];
+    $flagPosition['593'] = ['x' => -176, 'y' => -33];
+    $flagPosition['20'] = ['x' => -208, 'y' => -33];
+    $flagPosition['503'] = ['x' => -32, 'y' => -143];
+    $flagPosition['240'] = ['x' => -96, 'y' => -55];
+    $flagPosition['291'] = ['x' => 0, 'y' => -44];
+    $flagPosition['372'] = ['x' => -192, 'y' => -33];
+    $flagPosition['251'] = ['x' => -32, 'y' => -44];
+    $flagPosition['500'] = ['x' => -96, 'y' => -44];
+    $flagPosition['298'] = ['x' => -128, 'y' => -44];
+    $flagPosition['679'] = ['x' => -80, 'y' => -44];
+    $flagPosition['358'] = ['x' => -64, 'y' => -44];
+    $flagPosition['33'] = ['x' => -144, 'y' => -44];
+    $flagPosition['596'] = ['x' => -80, 'y' => -99];
+    $flagPosition['594'] = ['x' => -128, 'y' => -176]; //french guiana
+    $flagPosition['689'] = ['x' => -224, 'y' => -110];
+    $flagPosition['241'] = ['x' => -160, 'y' => -44];
+    $flagPosition['220'] = ['x' => -48, 'y' => -55];
+    $flagPosition['995'] = ['x' => -208, 'y' => -44];
+    $flagPosition['49'] = ['x' => -80, 'y' => -33];
+    $flagPosition['233'] = ['x' => 0, 'y' => -55];
+    $flagPosition['350'] = ['x' => -16, 'y' => -55];
+    $flagPosition['30'] = ['x' => -112, 'y' => -55];
+    $flagPosition['299'] = ['x' => -32, 'y' => -55];
+    $flagPosition['1473'] = ['x' => -192, 'y' => -44];
+    $flagPosition['590'] = ['x' => -80, 'y' => -55];
+    $flagPosition['1671'] = ['x' => -160, 'y' => -55];
+    $flagPosition['502'] = ['x' => -144, 'y' => -55];
+    $flagPosition['224'] = ['x' => -64, 'y' => -55];
+    $flagPosition['245'] = ['x' => -176, 'y' => -55];
+    $flagPosition['592'] = ['x' => -192, 'y' => -55];
+    $flagPosition['509'] = ['x' => -16, 'y' => -66];
+    $flagPosition['504'] = ['x' => -240, 'y' => -55];
+    $flagPosition['852'] = ['x' => -208, 'y' => -55];
+    $flagPosition['36'] = ['x' => -32, 'y' => -66];
+    $flagPosition['354'] = ['x' => -192, 'y' => -66];
+    $flagPosition['91'] = ['x' => -128, 'y' => -66];
+    $flagPosition['62'] = ['x' => -64, 'y' => -66];
+    $flagPosition['964'] = ['x' => -160, 'y' => -66];
+    $flagPosition['98'] = ['x' => -176, 'y' => -66];
+    $flagPosition['353'] = ['x' => -80, 'y' => -66];
+    $flagPosition['972'] = ['x' => -96, 'y' => -66];
+    $flagPosition['39'] = ['x' => -208, 'y' => -66];
+    $flagPosition['1876'] = ['x' => -240, 'y' => -66];
+    $flagPosition['81'] = ['x' => -16, 'y' => -77];
+    $flagPosition['962'] = ['x' => 0, 'y' => -77];
+    $flagPosition['254'] = ['x' => -32, 'y' => -77];
+    $flagPosition['686'] = ['x' => -80, 'y' => -77];
+    $flagPosition['3774'] = ['x' => -64, 'y' => -176]; //kosovo
+    $flagPosition['965'] = ['x' => -176, 'y' => -77];
+    $flagPosition['996'] = ['x' => -48, 'y' => -77];
+    $flagPosition['856'] = ['x' => -224, 'y' => -77];
+    $flagPosition['371'] = ['x' => -112, 'y' => -88];
+    $flagPosition['961'] = ['x' => -240, 'y' => -77];
+    $flagPosition['266'] = ['x' => -64, 'y' => -88];
+    $flagPosition['231'] = ['x' => -48, 'y' => -88];
+    $flagPosition['218'] = ['x' => -128, 'y' => -88];
+    $flagPosition['423'] = ['x' => -16, 'y' => -88];
+    $flagPosition['370'] = ['x' => -80, 'y' => -88];
+    $flagPosition['352'] = ['x' => -96, 'y' => -88];
+    $flagPosition['853'] = ['x' => -48, 'y' => -99];
+    $flagPosition['389'] = ['x' => -240, 'y' => -88];
+    $flagPosition['261'] = ['x' => -208, 'y' => -88];
+    $flagPosition['265'] = ['x' => -176, 'y' => -99];
+    $flagPosition['60'] = ['x' => -208, 'y' => -99];
+    $flagPosition['960'] = ['x' => -160, 'y' => -99];
+    $flagPosition['223'] = ['x' => 0, 'y' => -99];
+    $flagPosition['356'] = ['x' => -128, 'y' => -99];
+    $flagPosition['692'] = ['x' => -224, 'y' => -88];
+    $flagPosition['222'] = ['x' => -96, 'y' => -99];
+    $flagPosition['230'] = ['x' => -144, 'y' => -99];
+    $flagPosition['52'] = ['x' => -192, 'y' => -99];
+    $flagPosition['691'] = ['x' => -112, 'y' => -44];
+    $flagPosition['373'] = ['x' => -176, 'y' => -88];
+    $flagPosition['377'] = ['x' => -160, 'y' => -88];
+    $flagPosition['976'] = ['x' => -32, 'y' => -99];
+    $flagPosition['382'] = ['x' => -192, 'y' => -88];
+    $flagPosition['1664'] = ['x' => -112, 'y' => -99];
+    $flagPosition['212'] = ['x' => -144, 'y' => -88];
+    $flagPosition['258'] = ['x' => -224, 'y' => -99];
+    $flagPosition['95'] = ['x' => -16, 'y' => -99];
+    $flagPosition['264'] = ['x' => -240, 'y' => -99];
+    $flagPosition['674'] = ['x' => -128, 'y' => -110];
+    $flagPosition['977'] = ['x' => -112, 'y' => -110];
+    $flagPosition['31'] = ['x' => -80, 'y' => -110];
+    $flagPosition['599'] = ['x' => -128, 'y' => 0];
+    $flagPosition['687'] = ['x' => 0, 'y' => -110];
+    $flagPosition['64'] = ['x' => -160, 'y' => -110];
+    $flagPosition['505'] = ['x' => -64, 'y' => -110];
+    $flagPosition['227'] = ['x' => -16, 'y' => -110];
+    $flagPosition['234'] = ['x' => -48, 'y' => -110];
+    $flagPosition['683'] = ['x' => -144, 'y' => -110];
+    $flagPosition['6723'] = ['x' => -32, 'y' => -110];
+    $flagPosition['850'] = ['x' => -128, 'y' => -77];
+    $flagPosition['47'] = ['x' => -96, 'y' => -110];
+    $flagPosition['968'] = ['x' => -176, 'y' => -110];
+    $flagPosition['92'] = ['x' => -16, 'y' => -121];
+    $flagPosition['680'] = ['x' => -80, 'y' => -176]; //palau
+    $flagPosition['970'] = ['x' => -96, 'y' => -121];
+    $flagPosition['507'] = ['x' => -192, 'y' => -110];
+    $flagPosition['675'] = ['x' => -240, 'y' => -110];
+    $flagPosition['595'] = ['x' => -144, 'y' => -121];
+    $flagPosition['51'] = ['x' => -208, 'y' => -110];
+    $flagPosition['63'] = ['x' => 0, 'y' => -121];
+    $flagPosition['48'] = ['x' => -32, 'y' => -121];
+    $flagPosition['351'] = ['x' => -112, 'y' => -121];
+    $flagPosition['1787'] = ['x' => -80, 'y' => -121];
+    $flagPosition['974'] = ['x' => -160, 'y' => -121];
+    $flagPosition['262'] = ['x' => -144, 'y' => -176]; //reunion island
+    $flagPosition['40'] = ['x' => -192, 'y' => -121];
+    $flagPosition['7'] = ['x' => -224, 'y' => -121];
+    $flagPosition['250'] = ['x' => -240, 'y' => -121];
+    $flagPosition['1670'] = ['x' => -96, 'y' => -176]; //marianne
+    $flagPosition['378'] = ['x' => -176, 'y' => -132];
+    $flagPosition['239'] = ['x' => -16, 'y' => -143];
+    $flagPosition['966'] = ['x' => 0, 'y' => -132];
+    $flagPosition['221'] = ['x' => -192, 'y' => -132];
+    $flagPosition['381'] = ['x' => -208, 'y' => -121];
+    $flagPosition['248'] = ['x' => -32, 'y' => -132];
+    $flagPosition['232'] = ['x' => -160, 'y' => -132];
+    $flagPosition['65'] = ['x' => -96, 'y' => -132];
+    $flagPosition['421'] = ['x' => -144, 'y' => -132];
+    $flagPosition['386'] = ['x' => -128, 'y' => -132];
+    $flagPosition['677'] = ['x' => -16, 'y' => -132];
+    $flagPosition['252'] = ['x' => -208, 'y' => -132];
+    $flagPosition['685'] = ['x' => -112, 'y' => -176]; //somoa
+    $flagPosition['27'] = ['x' => -128, 'y' => -165];
+    $flagPosition['82'] = ['x' => -144, 'y' => -77];
+    $flagPosition['34'] = ['x' => -16, 'y' => -44];
+    $flagPosition['94'] = ['x' => -32, 'y' => -88];
+    $flagPosition['290'] = ['x' => -112, 'y' => -132];
+    $flagPosition['1869'] = ['x' => -112, 'y' => -77];
+    $flagPosition['1758'] = ['x' => 0, 'y' => -88];
+    $flagPosition['508'] = ['x' => -48, 'y' => -121];
+    $flagPosition['1784'] = ['x' => -208, 'y' => -154];
+    $flagPosition['249'] = ['x' => -64, 'y' => -132];
+    $flagPosition['597'] = ['x' => -240, 'y' => -132];
+    $flagPosition['268'] = ['x' => -80, 'y' => -143];
+    $flagPosition['46'] = ['x' => -80, 'y' => -132];
+    $flagPosition['41'] = ['x' => -128, 'y' => -22];
+    $flagPosition['963'] = ['x' => -64, 'y' => -143];
+    $flagPosition['886'] = ['x' => -64, 'y' => -154];
+    $flagPosition['992'] = ['x' => -176, 'y' => -143];
+    $flagPosition['255'] = ['x' => -80, 'y' => -154];
+    $flagPosition['66'] = ['x' => -160, 'y' => -143];
+    $flagPosition['228'] = ['x' => -144, 'y' => -143];
+    $flagPosition['690'] = ['x' => -192, 'y' => -143];
+    $flagPosition['676'] = ['x' => 0, 'y' => -154];
+    $flagPosition['1868'] = ['x' => -32, 'y' => -154];
+    $flagPosition['216'] = ['x' => -240, 'y' => -143];
+    $flagPosition['90'] = ['x' => -16, 'y' => -154];
+    $flagPosition['993'] = ['x' => -224, 'y' => -143];
+    $flagPosition['1649'] = ['x' => -96, 'y' => -143];
+    $flagPosition['688'] = ['x' => -48, 'y' => -154];
+    $flagPosition['256'] = ['x' => -112, 'y' => -154];
+    $flagPosition['380'] = ['x' => -96, 'y' => -154];
+    $flagPosition['971'] = ['x' => -32, 'y' => 0];
+    $flagPosition['44'] = ['x' => -176, 'y' => -44];
+    $flagPosition['598'] = ['x' => -160, 'y' => -154];
+    $flagPosition['1 '] = ['x' => -144, 'y' => -154];
+    $flagPosition['998'] = ['x' => -176, 'y' => -154];
+    $flagPosition['678'] = ['x' => -32, 'y' => -165];
+    $flagPosition['3966'] = ['x' => -192, 'y' => -154];
+    $flagPosition['58'] = ['x' => -224, 'y' => -154];
+    $flagPosition['84'] = ['x' => -16, 'y' => -165];
+    $flagPosition['1340'] = ['x' => 0, 'y' => -165];
+    $flagPosition['681'] = ['x' => -64, 'y' => -165];
+    $flagPosition['967'] = ['x' => -96, 'y' => -165];
+    $flagPosition['260'] = ['x' => -160, 'y' => -165];
+    $flagPosition['263'] = ['x' => -176, 'y' => -165];
+    $flagPosition[''] = ['x' => -160, 'y' => -176];
 
 
-    $country = array();
+    $country = [];
     $country['93'] = 'Afghanistan';
     $country['355'] = 'Albania';
     $country['213'] = 'Algeria';
@@ -1392,7 +1436,7 @@ function acym_generateCountryNumber($name, $defaultvalue = '')
     $country['263'] = 'Zimbabwe';
     $country[''] = acym_translation('ACYM_PHONE_NOCOUNTRY');
 
-    $countryCodeForSelect = array();
+    $countryCodeForSelect = [];
 
     foreach ($country as $key => $one) {
         $countryCodeForSelect[$key] = $one.' +'.$key;
@@ -1406,11 +1450,11 @@ function acym_displayDateFormat($format, $name = 'date', $default = '14/06/1997'
     $attributes = empty($attributes) ? 'class="acym__custom__fields__select__form "' : $attributes;
     $default = empty($default) ? '14/06/1997' : $default;
     $return = '<div class="cell grid-x grid-margin-x">';
-    $days = array();
-    for ($i = 1; $i != 31; $i++) {
+    $days = [];
+    for ($i = 1 ; $i != 31 ; $i++) {
         $days[$i < 10 ? '0'.$i : $i] = $i < 10 ? '0'.$i : $i;
     }
-    $month = array(
+    $month = [
         '01' => acym_translation('ACYM_JANUARY'),
         '02' => acym_translation('ACYM_FEBRUARY'),
         '03' => acym_translation('ACYM_MARCH'),
@@ -1423,9 +1467,9 @@ function acym_displayDateFormat($format, $name = 'date', $default = '14/06/1997'
         '10' => acym_translation('ACYM_OCTOBER'),
         '11' => acym_translation('ACYM_NOVEMBER'),
         '12' => acym_translation('ACYM_DECEMBER'),
-    );
-    $year = array();
-    for ($i = 1900; $i <= acym_date('now', 'Y'); $i++) {
+    ];
+    $year = [];
+    for ($i = 1900 ; $i <= acym_date('now', 'Y') ; $i++) {
         $year[$i] = $i;
     }
     $formatToDisplay = explode('%', $format);
@@ -1451,7 +1495,7 @@ function acym_displayDateFormat($format, $name = 'date', $default = '14/06/1997'
     return $return;
 }
 
-function acym_selectMultiple($data, $name, $selected = array(), $attribs = array(), $optValue = "value", $optText = "text", $translate = false)
+function acym_selectMultiple($data, $name, $selected = [], $attribs = [], $optValue = "value", $optText = "text", $translate = false)
 {
     if (substr($name, -2) !== '[]') {
         $name .= "[]";
@@ -1502,7 +1546,7 @@ function acym_selectOption($value, $text = '', $optKey = 'value', $optText = 'te
 {
     $option = new stdClass();
     $option->$optKey = $value;
-    $option->$optText = $text;
+    $option->$optText = acym_translation($text);
     $option->disable = $disable;
 
     return $option;
@@ -1523,57 +1567,6 @@ function acym_level($level)
     return false;
 }
 
-function acym_navigationTabs()
-{
-    if (acym_isNoTemplate() || !acym_isAdmin() || !ACYM_J40) {
-        return;
-    }
-
-    $pages = array(
-        'configuration' => array(
-            'ACYM_CONFIGURATION' => array('ctrl' => 'cpanel', 'task' => ''),
-            'EXTRA_FIELDS' => array('ctrl' => 'fields', 'task' => ''),
-            'BOUNCE_HANDLING' => array('ctrl' => 'bounces', 'task' => ''),
-        ),
-    );
-
-    $ctrl = acym_getVar('cmd', 'ctrl');
-    $task = acym_getVar('cmd', 'task');
-
-    $page = str_replace(ACYM_COMPONENT.'_', '', acym_getVar('cmd', 'page', ''));
-
-    if (empty($page)) {
-        foreach ($pages as $mainCtrl => $siblings) {
-            foreach ($siblings as $oneSibling) {
-                if ($oneSibling['ctrl'] == $ctrl) {
-                    $page = $mainCtrl;
-                    break;
-                }
-            }
-
-            if (!empty($page)) {
-                break;
-            }
-        }
-    }
-    if (empty($pages[$page])) {
-        return;
-    }
-
-    $navigationTabs = array();
-    foreach ($pages[$page] as $text => $oneCtrl) {
-        $active = false;
-
-        if ($oneCtrl['ctrl'] == $ctrl && (empty($oneCtrl['task']) || $oneCtrl['task'] == $task || (empty($task) && $oneCtrl['task'] == 'listing'))) {
-            $active = true;
-        }
-
-        $navigationTabs[] = '<li'.($active ? ' class="active"' : '').'><a href="'.acym_completeLink($oneCtrl['ctrl']).(empty($oneCtrl['task']) ? '' : '&task='.$oneCtrl['task']).'">'.acym_translation($text).'</a></li>';
-    }
-
-    echo '<div class="acytabsystem"><ul class="acynavigationtabs nav nav-tabs">'.implode('', $navigationTabs).'</ul></div>';
-}
-
 function acym_getDate($time = 0, $format = '%d %B %Y %H:%M')
 {
     if (empty($time)) {
@@ -1585,8 +1578,8 @@ function acym_getDate($time = 0, $format = '%d %B %Y %H:%M')
     }
 
     $format = str_replace(
-        array('%A', '%d', '%B', '%m', '%Y', '%y', '%H', '%M', '%S', '%a', '%I', '%p', '%w'),
-        array('l', 'd', 'F', 'm', 'Y', 'y', 'H', 'i', 's', 'D', 'h', 'a', 'w'),
+        ['%A', '%d', '%B', '%m', '%Y', '%y', '%H', '%M', '%S', '%a', '%I', '%p', '%w'],
+        ['l', 'd', 'F', 'm', 'Y', 'y', 'H', 'i', 's', 'D', 'h', 'a', 'w'],
         $format
     );
 
@@ -1637,7 +1630,7 @@ function acym_isAllowed($allowedGroups, $groups = null)
     }
 
     if (!is_array($groups)) {
-        $groups = array($groups);
+        $groups = [$groups];
     }
     $inter = array_intersect($groups, $allowedGroups);
     if (empty($inter)) {
@@ -1647,7 +1640,7 @@ function acym_isAllowed($allowedGroups, $groups = null)
     return true;
 }
 
-function acym_getFunctionsEmailCheck($controllButtons = array(), $bounce = false)
+function acym_getFunctionsEmailCheck($controllButtons = [], $bounce = false)
 {
     $addressCheck = '!emailAddress.match(/^'.acym_getEmailRegex(true).'((,|;)'.acym_getEmailRegex(
             true
@@ -1761,16 +1754,16 @@ function acym_getUpgradeLink($tolevel)
 
 function acym_replaceDate($mydate, $display = false)
 {
-    if (strpos($mydate, '{time}') === false) {
-        if (is_numeric($mydate) && $display) return acym_date($mydate, "Y-m-d H:i:s");
+    if (strpos($mydate, '[time]') === false) {
+        if (is_numeric($mydate) && $display) return acym_date($mydate, 'Y-m-d H:i:s');
 
         return $mydate;
     }
 
-    if ($mydate == '{time}' && $display) return acym_translation('ACYM_NOW');
+    if ($mydate == '[time]' && $display) return acym_translation('ACYM_NOW');
 
-    $mydate = str_replace('{time}', time(), $mydate);
-    $operators = array('+', '-');
+    $mydate = str_replace('[time]', time(), $mydate);
+    $operators = ['+', '-'];
     foreach ($operators as $oneOperator) {
         if (strpos($mydate, $oneOperator) === false) continue;
 
@@ -1806,7 +1799,7 @@ function acym_generateKey($length)
     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     $randstring = '';
     $max = strlen($characters) - 1;
-    for ($i = 0; $i < $length; $i++) {
+    for ($i = 0 ; $i < $length ; $i++) {
         $randstring .= $characters[mt_rand(0, $max)];
     }
 
@@ -1826,15 +1819,22 @@ function acym_absoluteURL($text)
     }
 
     $text = str_replace(
-        array(
+        [
             'href="../undefined/',
             'href="../../undefined/',
             'href="../../../undefined//',
             'href="undefined/',
             ACYM_LIVE.'http://',
             ACYM_LIVE.'https://',
-        ),
-        array('href="'.$mainurl, 'href="'.$mainurl, 'href="'.$mainurl, 'href="'.ACYM_LIVE, 'http://', 'https://'),
+        ],
+        [
+            'href="'.$mainurl,
+            'href="'.$mainurl,
+            'href="'.$mainurl,
+            'href="'.ACYM_LIVE,
+            'http://',
+            'https://',
+        ],
         $text
     );
     $text = preg_replace('#href="(/?administrator)?/({|%7B)#Ui', 'href="$2', $text);
@@ -1842,13 +1842,13 @@ function acym_absoluteURL($text)
     $text = preg_replace('#href="http:/([^/])#Ui', 'href="http://$1', $text);
 
     $text = preg_replace(
-        '#href="'.preg_quote(str_replace(array('http://', 'https://'), '', $mainurl), '#').'#Ui',
+        '#href="'.preg_quote(str_replace(['http://', 'https://'], '', $mainurl), '#').'#Ui',
         'href="'.$mainurl,
         $text
     );
 
-    $replace = array();
-    $replaceBy = array();
+    $replace = [];
+    $replaceBy = [];
     if ($mainurl !== ACYM_LIVE) {
 
         $replace[] = '#(href|src|action|background)[ ]*=[ ]*\"(?!(\{|%7B|\[|\#|\\\\|[a-z]{3,15}:|/))(?:\.\./)#i';
@@ -1859,12 +1859,13 @@ function acym_absoluteURL($text)
         $replace[] = '#(href|src|action|background)[ ]*=[ ]*\"'.preg_quote($subfolder, '#').'(\{|%7B)#i';
         $replaceBy[] = '$1="$2';
     }
+
     $replace[] = '#(href|src|action|background)[ ]*=[ ]*\"(?!(\{|%7B|\[|\#|\\\\|[a-z]{3,15}:|/))(?:\.\./|\./)?#i';
     $replaceBy[] = '$1="'.ACYM_LIVE;
     $replace[] = '#(href|src|action|background)[ ]*=[ ]*\"(?!(\{|%7B|\[|\#|\\\\|[a-z]{3,15}:))/#i';
     $replaceBy[] = '$1="'.$mainurl;
 
-    $replace[] = '#((background-image|background)[ ]*:[ ]*url\(\'?"?(?!(\\\\|[a-z]{3,15}:|/|\'|"))(?:\.\./|\./)?)#i';
+    $replace[] = '#((?:background-image|background)[ ]*:[ ]*url\((?:\'|"|&quot;)?(?!(\\\\|[a-z]{3,15}:|/|\'|"|&quot;))(?:\.\./|\./)?)#i';
     $replaceBy[] = '$1'.ACYM_LIVE;
 
     return preg_replace($replace, $replaceBy, $text);
@@ -1938,7 +1939,7 @@ function acym_display($messages, $type = 'success', $close = true)
     }
 
     if (!is_array($messages)) {
-        $messages = array($messages);
+        $messages = [$messages];
     }
 
     echo '<div id="acym_messages_'.$type.'" class="acym_message acym_'.$type.'">';
@@ -2024,7 +2025,7 @@ function acym_initModule($params = null)
     $version = str_replace('.', '', $config->get('version'));
 
     $scriptName = acym_addScript(false, ACYM_JS.'module.min.js?v='.$version);
-    acym_addScript(true, $js, "text/javascript", false, false, false, ['script_name' => $scriptName]);
+    acym_addScript(true, $js, 'text/javascript', false, false, false, ['script_name' => $scriptName]);
 
     if ('wordpress' === ACYM_CMS) {
         wp_enqueue_style('style_acymailing_module', ACYM_CSS.'module.min.css?v='.$version);
@@ -2117,7 +2118,7 @@ function acym_get($path)
 
 function acym_getCID($field = '')
 {
-    $oneResult = acym_getVar('array', 'cid', array(), '');
+    $oneResult = acym_getVar('array', 'cid', [], '');
     $oneResult = intval(reset($oneResult));
     if (!empty($oneResult) || empty($field)) {
         return $oneResult;
@@ -2148,7 +2149,7 @@ function acym_importFile($file, $uploadPath, $onlyPict, $maxwidth = '')
             $file["error"] = 0;
         }
 
-        $phpFileUploadErrors = array(
+        $phpFileUploadErrors = [
             0 => 'Unknown error',
             1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini',
             2 => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form',
@@ -2157,7 +2158,7 @@ function acym_importFile($file, $uploadPath, $onlyPict, $maxwidth = '')
             6 => 'Missing a temporary folder',
             7 => 'Failed to write file to disk',
             8 => 'A PHP extension stopped the file upload',
-        );
+        ];
 
         acym_enqueueNotification(acym_translation_sprintf('ACYM_ERROR_UPLOADING_FILE_X', $phpFileUploadErrors[$file["error"]]), 'error', 5000);
 
@@ -2176,7 +2177,7 @@ function acym_importFile($file, $uploadPath, $onlyPict, $maxwidth = '')
     }
 
     if ($onlyPict) {
-        $allowedExtensions = array('png', 'jpeg', 'jpg', 'gif', 'ico', 'bmp');
+        $allowedExtensions = ['png', 'jpeg', 'jpg', 'gif', 'ico', 'bmp'];
     } else {
         $allowedExtensions = explode(',', $config->get('allowed_files'));
     }
@@ -2205,10 +2206,10 @@ function acym_importFile($file, $uploadPath, $onlyPict, $maxwidth = '')
     }
 
     $file["name"] = preg_replace(
-                        '#[^a-z0-9]#i',
-                        '_',
-                        strtolower(substr($file["name"], 0, strrpos($file["name"], '.')))
-                    ).'.'.$extension[1];
+            '#[^a-z0-9]#i',
+            '_',
+            strtolower(substr($file["name"], 0, strrpos($file["name"], '.')))
+        ).'.'.$extension[1];
 
     if ($onlyPict) {
         $imageSize = getimagesize($file['tmp_name']);
@@ -2291,7 +2292,7 @@ function acym_getFilesFolder($folder = 'upload', $multipleFolders = false)
     } else {
         $allLists = $listClass->getAll();
     }
-    $newFolders = array();
+    $newFolders = [];
 
     $config = acym_config();
     if ($folder == 'upload') {
@@ -2312,13 +2313,13 @@ function acym_getFilesFolder($folder = 'upload', $multipleFolders = false)
             if (empty($allLists)) {
                 $noList = new stdClass();
                 $noList->alias = 'none';
-                $allLists = array($noList);
+                $allLists = [$noList];
             }
 
             foreach ($allLists as $oneList) {
                 $newFolders[] = str_replace(
                     '{listalias}',
-                    strtolower(str_replace(array(' ', '-'), '_', $oneList->alias)),
+                    strtolower(str_replace([' ', '-'], '_', $oneList->alias)),
                     $folders[$k]
                 );
             }
@@ -2338,8 +2339,8 @@ function acym_getFilesFolder($folder = 'upload', $multipleFolders = false)
 
             foreach ($completeGroups as $group) {
                 $newFolders[] = str_replace(
-                    array('{groupid}', '{groupname}'),
-                    array($group->id, strtolower(str_replace(' ', '_', $group->title))),
+                    ['{groupid}', '{groupname}'],
+                    [$group->id, strtolower(str_replace(' ', '_', $group->title))],
                     $folders[$k]
                 );
             }
@@ -2360,14 +2361,14 @@ function acym_getFilesFolder($folder = 'upload', $multipleFolders = false)
 
 function acym_generateArborescence($folders)
 {
-    $folderList = array();
+    $folderList = [];
     foreach ($folders as $folder) {
         $folderPath = acym_cleanPath(ACYM_ROOT.trim(str_replace('/', DS, trim($folder)), DS));
         if (!file_exists($folderPath)) {
             acym_createDir($folderPath);
         }
         $subFolders = acym_listFolderTree($folderPath, '', 15);
-        $folderList[$folder] = array();
+        $folderList[$folder] = [];
         foreach ($subFolders as $oneFolder) {
             $subFolder = str_replace(ACYM_ROOT, '', $oneFolder['relname']);
             $subFolder = str_replace(DS, '/', $subFolder);
@@ -2384,13 +2385,13 @@ function acym_arrayToInteger(&$array)
     if (is_array($array)) {
         $array = array_map('intval', $array);
     } else {
-        $array = array();
+        $array = [];
     }
 }
 
 function acym_arrayToString($array, $inner_glue = '=', $outer_glue = ' ', $keepOuterKey = false)
 {
-    $output = array();
+    $output = [];
 
     foreach ($array as $key => $item) {
         if (is_array($item)) {
@@ -2410,7 +2411,7 @@ function acym_arrayToString($array, $inner_glue = '=', $outer_glue = ' ', $keepO
 function acym_makeSafeFile($file)
 {
     $file = rtrim($file, '.');
-    $regex = array('#(\.){2,}#', '#[^A-Za-z0-9\.\_\- ]#', '#^\.#');
+    $regex = ['#(\.){2,}#', '#[^A-Za-z0-9\.\_\- ]#', '#^\.#'];
 
     return trim(preg_replace($regex, '', $file));
 }
@@ -2457,6 +2458,11 @@ function acym_tooltip($text, $tooltipText, $classContainer = '', $title = '', $l
     return '<span class="acym__tooltip '.$classContainer.'"><span class="acym__tooltip__text">'.$title.$tooltipText.'</span>'.$text.'</span>';
 }
 
+function acym_info($tooltipText)
+{
+    return acym_tooltip('<span class="acym__tooltip__info__container"><i class="acym__tooltip__info__icon fa fa-info-circle"></i></span>', $tooltipText, 'acym__tooltip__info');
+}
+
 function acym_deleteFolder($path)
 {
     $path = acym_cleanPath($path);
@@ -2474,7 +2480,7 @@ function acym_deleteFolder($path)
         }
     }
 
-    $folders = acym_getFolders($path, '.', false, false, array());
+    $folders = acym_getFolders($path, '.', false, false, []);
     if (!empty($folders)) {
         foreach ($folders as $oneFolder) {
             if (!acym_deleteFolder($path.DS.$oneFolder)) {
@@ -2507,14 +2513,8 @@ function acym_createFolder($path = '', $mode = 0755)
     return $ret;
 }
 
-function acym_getFolders(
-    $path,
-    $filter = '.',
-    $recurse = false,
-    $full = false,
-    $exclude = array('.svn', 'CVS', '.DS_Store', '__MACOSX'),
-    $excludefilter = array('^\..*')
-) {
+function acym_getFolders($path, $filter = '.', $recurse = false, $full = false, $exclude = ['.svn', 'CVS', '.DS_Store', '__MACOSX'], $excludefilter = ['^\..*'])
+{
     $path = acym_cleanPath($path);
 
     if (!is_dir($path)) {
@@ -2535,15 +2535,8 @@ function acym_getFolders(
     return array_values($arr);
 }
 
-function acym_getFiles(
-    $path,
-    $filter = '.',
-    $recurse = false,
-    $full = false,
-    $exclude = array('.svn', 'CVS', '.DS_Store', '__MACOSX'),
-    $excludefilter = array('^\..*', '.*~'),
-    $naturalSort = false
-) {
+function acym_getFiles($path, $filter = '.', $recurse = false, $full = false, $exclude = ['.svn', 'CVS', '.DS_Store', '__MACOSX'], $excludefilter = ['^\..*', '.*~'], $naturalSort = false)
+{
     $path = acym_cleanPath($path);
 
     if (!is_dir($path)) {
@@ -2571,7 +2564,7 @@ function acym_getFiles(
 
 function acym_getItems($path, $filter, $recurse, $full, $exclude, $excludefilter_string, $findfiles)
 {
-    $arr = array();
+    $arr = [];
 
     if (!($handle = @opendir($path))) {
         return $arr;
@@ -2719,7 +2712,7 @@ function acym_moveFolder($src, $dest, $path = '', $use_streams = false)
 
 function acym_listFolderTree($path, $filter, $maxLevel = 3, $level = 0, $parent = 0)
 {
-    $dirs = array();
+    $dirs = [];
 
     if ($level == 0) {
         $GLOBALS['acym_folder_tree_index'] = 0;
@@ -2731,13 +2724,13 @@ function acym_listFolderTree($path, $filter, $maxLevel = 3, $level = 0, $parent 
         foreach ($folders as $name) {
             $id = ++$GLOBALS['acym_folder_tree_index'];
             $fullName = acym_cleanPath($path.'/'.$name);
-            $dirs[] = array(
+            $dirs[] = [
                 'id' => $id,
                 'parent' => $parent,
                 'name' => $name,
                 'fullname' => $fullName,
                 'relname' => str_replace(ACYM_ROOT, '', $fullName),
-            );
+            ];
             $dirs2 = acym_listFolderTree($fullName, $filter, $maxLevel, $level + 1, $id);
             $dirs = array_merge($dirs, $dirs2);
         }
@@ -2781,7 +2774,7 @@ function acym_writeFile($file, $buffer, $use_streams = false)
 
 function acym_moveFile($src, $dest, $path = '', $use_streams = false)
 {
-    if ($path) {
+    if (!empty($path)) {
         $src = acym_cleanPath($path.'/'.$src);
         $dest = acym_cleanPath($path.'/'.$dest);
     }
@@ -2872,8 +2865,8 @@ function acym_cleanPath($path, $ds = DIRECTORY_SEPARATOR)
 
 function acym_createArchive($name, $files)
 {
-    $contents = array();
-    $ctrldir = array();
+    $contents = [];
+    $ctrldir = [];
 
     $timearray = getdate();
     $dostime = (($timearray['year'] - 1980) << 25) | ($timearray['mon'] << 21) | ($timearray['mday'] << 16) | ($timearray['hours'] << 11) | ($timearray['minutes'] << 5) | ($timearray['seconds'] >> 1);
@@ -2957,13 +2950,7 @@ function acym_accessList()
 }
 
 function acym_gridSort(
-    $title,
-    $order,
-    $direction = 'asc',
-    $selected = '',
-    $task = null,
-    $new_direction = 'asc',
-    $tip = ''
+    $title, $order, $direction = 'asc', $selected = '', $task = null, $new_direction = 'asc', $tip = ''
 ) {
     $direction = strtolower($direction);
     if ($order != $selected) {
@@ -2972,7 +2959,7 @@ function acym_gridSort(
         $direction = $direction == 'desc' ? 'asc' : 'desc';
     }
 
-    $icon = array('acyicon-up', 'acyicon-down');
+    $icon = ['acyicon-up', 'acyicon-down'];
     $index = (int)($direction == 'desc');
 
     $result = '<a href="#" onclick="acym.tableOrdering(\''.$order.'\', \''.$direction.'\', \''.$task.'\');return false;">';
@@ -3025,6 +3012,7 @@ function acym_listingActions($actions)
     $defaultAction->disable = true;
 
     array_unshift($actions, $defaultAction);
+
     return acym_select($actions, '', null, 'class="medium-shrink cell margin-right-1"', 'value', 'text', 'listing_actions');
 }
 
@@ -3063,7 +3051,7 @@ function acym_filterSearch($search, $name, $placeholder = 'ACYM_SEARCH', $showCl
 {
     $searchField = '<div class="input-group acym__search-area">
         <div class="input-group-button">
-            <button class="button acym__search__button hide-for-small-only"><i class="material-icons">search</i></button>
+            <button class="button acym__search__button hide-for-small-only"><i class="acymicon-search"></i></button>
         </div>
         <input class="input-group-field acym__search-field" type="text" name="'.acym_escape($name).'" placeholder="'.acym_escape(acym_translation($placeholder)).'" value="'.acym_escape($search).'">';
     if ($showClearBtn) {
@@ -3074,20 +3062,20 @@ function acym_filterSearch($search, $name, $placeholder = 'ACYM_SEARCH', $showCl
     return $searchField;
 }
 
-function acym_switch($name, $value, $label = null, $attrInput = array(), $labelClass = 'medium-6 small-9', $switchContainerClass = "auto", $switchClass = "tiny", $toggle = null, $toggleOpen = true)
+function acym_switch($name, $value, $label = null, $attrInput = [], $labelClass = 'medium-6 small-9', $switchContainerClass = 'auto', $switchClass = 'tiny', $toggle = null, $toggleOpen = true)
 {
     static $occurrence = 100;
     $occurrence++;
 
-    $id = 'switch_'.$occurrence;
+    $id = acym_escape('switch_'.$occurrence);
     $checked = $value == 1 ? 'checked="checked"' : '';
 
     $switch = '
-    <div class="switch '.$switchClass.'">
-        <input type="hidden" name="'.$name.'" data-switch="'.$id.'" value="'.$value.'"';
+    <div class="switch '.acym_escape($switchClass).'">
+        <input type="hidden" name="'.acym_escape($name).'" data-switch="'.$id.'" value="'.acym_escape($value).'"';
 
     if (!empty($toggle)) {
-        $switch .= ' data-toggle-switch="'.$toggle.'" data-toggle-switch-open="'.($toggleOpen ? 'show' : 'hide').'"';
+        $switch .= ' data-toggle-switch="'.acym_escape($toggle).'" data-toggle-switch-open="'.($toggleOpen ? 'show' : 'hide').'"';
     }
 
     foreach ($attrInput as $oneAttributeName => $oneAttributeValue) {
@@ -3134,71 +3122,7 @@ function acym_selectTemplates($mailOptions, $selected, $type, $listId)
         </div>';
         echo $button;
     }
-    echo '<div class="cell grid-x acym__template__block text-center align-center acym_vcenter"><a class="acym_vcenter text-center align-center acym__color__white acym__list__button__add__mail__welcome__unsub" href="'.acym_completeLink('mails&task=edit&step=editEmail&type='.$type.'&type_editor=acyEditor&return='.urlencode(acym_completeLink('lists&task=edit&step='.$type.'&id='.$listId.'&edition=1'))).'"><i class="material-icons">add</i></a></div>';
-}
-
-function acym_getCurrentIP()
-{
-    $ip = '';
-    if (!empty($_SERVER['HTTP_X_FORWARDED_FOR']) && strlen($_SERVER['HTTP_X_FORWARDED_FOR']) > 6) {
-        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-    } elseif (!empty($_SERVER['HTTP_CLIENT_IP']) && strlen($_SERVER['HTTP_CLIENT_IP']) > 6) {
-        $ip = $_SERVER['HTTP_CLIENT_IP'];
-    } elseif (!empty($_SERVER['REMOTE_ADDR']) && strlen($_SERVER['REMOTE_ADDR']) > 6) {
-        $ip = $_SERVER['REMOTE_ADDR'];
-    }
-
-    return strip_tags($ip);
-}
-
-function acym_validEmail($email, $extended = false)
-{
-    if (empty($email) || !is_string($email)) {
-        return false;
-    }
-
-    if (!preg_match('/^'.acym_getEmailRegex().'$/i', $email)) {
-        return false;
-    }
-
-    if (!$extended) {
-        return true;
-    }
-
-
-    $config = acym_config();
-
-    if ($config->get('email_checkdomain', false) && function_exists('getmxrr')) {
-        $domain = substr($email, strrpos($email, '@') + 1);
-        $mxhosts = array();
-        $checkDomain = getmxrr($domain, $mxhosts);
-        if (!empty($mxhosts) && strpos($mxhosts[0], 'hostnamedoesnotexist')) {
-            array_shift($mxhosts);
-        }
-        if (!$checkDomain || empty($mxhosts)) {
-            $dns = @dns_get_record($domain, DNS_A);
-            $domainChanged = true;
-            foreach ($dns as $oneRes) {
-                if (strtolower($oneRes['host']) == strtolower($domain)) {
-                    $domainChanged = false;
-                }
-            }
-            if (empty($dns) || $domainChanged) {
-                return false;
-            }
-        }
-    }
-
-    if ($config->get('email_iptimecheck', 0)) {
-        $lapseTime = time() - 7200;
-        $ip = acym_getCurrentIP();
-        $nbUsers = acym_loadResult('SELECT COUNT(*) FROM #__acym_subscriber WHERE created > '.intval($lapseTime).' AND ip = '.acym_escapeDB($ip));
-        if ($nbUsers >= 3) {
-            return false;
-        }
-    }
-
-    return true;
+    echo '<div class="cell grid-x acym__template__block text-center align-center acym_vcenter"><a class="acym_vcenter text-center align-center acym__color__white acym__list__button__add__mail__welcome__unsub" href="'.acym_completeLink('mails&task=edit&step=editEmail&type='.$type.'&type_editor=acyEditor&return='.urlencode(acym_completeLink('lists&task=edit&step='.$type.'&id='.$listId.'&edition=1'))).'"><i class="acymicon-add"></i></a></div>';
 }
 
 function acym_backToListing($listingName)
@@ -3206,7 +3130,7 @@ function acym_backToListing($listingName)
     return '<p class="acym__back_to_listing"><a href="'.acym_completeLink($listingName).'"><i class="fa fa-chevron-left"></i> '.acym_translation('ACYM_BACK_TO_LISTING').'</a></p>';
 }
 
-function acym_sortBy($options = array(), $listing, $default = "")
+function acym_sortBy($options = [], $listing, $default = "")
 {
     $default = empty($default) ? reset($options) : $default;
 
@@ -3283,7 +3207,7 @@ function acym_getJSMessages()
     $msg .= '"requiredMsg": "'.acym_translation('ACYM_REQUIRED_FIELD', true).'",';
     $msg .= '"defaultMsg": "'.acym_translation('ACYM_DEFAULT_VALIDATION_ERROR', true).'"';
 
-    $keysToLoad = array(
+    $keysToLoad = [
         'ACYM_ARE_YOU_SURE',
         'ACYM_INSERT_IMG_BAD_NAME',
         'ACYM_NON_VALID_URL',
@@ -3307,8 +3231,6 @@ function acym_getJSMessages()
         'ACYM_BACK',
         'ACYM_SKIP',
         'ACYM_INTRO_ADD_DTEXT',
-        'ACYM_INTRO_CREATE_DD',
-        'ACYM_INTRO_CREATE_HTML',
         'ACYM_INTRO_TEMPLATE',
         'ACYM_INTRO_DRAG_BLOCKS',
         'ACYM_INTRO_DRAG_CONTENT',
@@ -3344,7 +3266,13 @@ function acym_getJSMessages()
         'ACYM_ARE_SURE_DUPLICATE_TEMPLATE',
         'ACYM_NOT_FOUND',
         'ACYM_EMAIL',
-    );
+        'ACYM_CAMPAIGN_NAME',
+        'ACYM_EMAIL_SUBJECT',
+        'ACYM_TEMPLATE_NAME',
+        'ACYM_ERROR_SAVING',
+        'ACYM_LOADING_ERROR',
+        'ACYM_AT_LEAST_ONE_USER',
+    ];
 
     foreach ($keysToLoad as $oneKey) {
         $msg .= ',"'.$oneKey.'": "'.acym_translation($oneKey, true).'"';
@@ -3373,7 +3301,7 @@ function acym_loadPlugins()
         if (!class_exists($className)) continue;
 
         $plugin = new $className();
-        if (!in_array($plugin->cms, array('all', 'Joomla')) || !$plugin->installed) continue;
+        if (!in_array($plugin->cms, ['all', 'Joomla']) || !$plugin->installed) continue;
 
         $acymPlugins[$className] = $plugin;
     }
@@ -3382,21 +3310,21 @@ function acym_loadPlugins()
 function acym_getPlugin($family, $name = null)
 {
     $plugin = new stdClass();
-    $plugin->params = array();
+    $plugin->params = [];
 
     return $plugin;
 }
 
-function acym_trigger($method, $args = array(), $plugin = null)
+function acym_trigger($method, $args = [], $plugin = null)
 {
     global $acymPlugins;
     if (empty($acymPlugins)) acym_loadPlugins();
 
-    $result = array();
+    $result = [];
     foreach ($acymPlugins as $class => $onePlugin) {
         if (!method_exists($onePlugin, $method)) continue;
         if (!empty($plugin) && $class != $plugin) continue;
-        $value = call_user_func_array(array($onePlugin, $method), $args);
+        $value = call_user_func_array([$onePlugin, $method], $args);
 
         if (isset($value)) $result[] = $value;
     }
@@ -3404,7 +3332,7 @@ function acym_trigger($method, $args = array(), $plugin = null)
     return $result;
 }
 
-function acym_displayParam($type, $value, $name, $params = array())
+function acym_displayParam($type, $value, $name, $params = [])
 {
     if (!include_once(ACYM_FRONT.'params'.DS.$type.'.php')) return '';
 
@@ -3433,7 +3361,7 @@ function acym_upgradeTo($version)
           </div>';
 }
 
-function acym_checkbox($values, $name, $selected = array(), $label = '', $parentClass = '', $labelClass = '')
+function acym_checkbox($values, $name, $selected = [], $label = '', $parentClass = '', $labelClass = '')
 {
     echo '<div class="'.$parentClass.'"><div class="cell acym__label '.$labelClass.'">'.$label.'</div><div class="cell auto grid-x">';
     foreach ($values as $key => $value) {
@@ -3449,7 +3377,6 @@ function acym_table($name, $component = true)
     return $prefix.$name;
 }
 
-
 function acym_existsAcyMailing59()
 {
     $allTables = acym_getTables();
@@ -3460,6 +3387,14 @@ function acym_existsAcyMailing59()
     return version_compare($version, '5.9.0', '>=');
 }
 
+function acym_noCache()
+{
+    header('Cache-Control: no-store, no-cache, must-revalidate');
+    header('Cache-Control: post-check=0, pre-check=0', false);
+    header('Pragma: no-cache');
+    header('Expires: Wed, 17 Sep 1975 21:32:10 GMT');
+}
+
 
 include_once(ACYM_LIBRARY.'class.php');
 include_once(ACYM_LIBRARY.'parameter.php');
@@ -3468,3 +3403,4 @@ include_once(ACYM_LIBRARY.'view.php');
 include_once(ACYM_LIBRARY.'plugin.php');
 
 acym_loadLanguage();
+

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -19,8 +19,8 @@ class acymController
     var $aclCat = '';
     var $name = '';
     var $defaulttask = 'listing';
-    var $breadcrumb = array();
-    var $loadScripts = array();
+    var $breadcrumb = [];
+    var $loadScripts = [];
 
     public function __construct()
     {
@@ -40,7 +40,7 @@ class acymController
             return;
         }
 
-        $scripts = array();
+        $scripts = [];
         if (!empty($this->loadScripts['all'])) {
             $scripts = $this->loadScripts['all'];
         }
@@ -88,7 +88,7 @@ class acymController
         return $this->name;
     }
 
-    function display($data = array())
+    function display($data = [])
     {
         $viewFolder = 'view';
         if (acym_isAdmin()) {
@@ -145,7 +145,7 @@ class acymController
 
     function add()
     {
-        acym_setVar('cid', array());
+        acym_setVar('cid', []);
         acym_setVar('layout', 'form');
 
         return $this->display();
@@ -164,7 +164,7 @@ class acymController
             return $this->$saveMethod();
         }
 
-        $this->store();
+        if(method_exists($this, 'store')) $this->store();
 
         return $this->listing();
     }
@@ -172,7 +172,7 @@ class acymController
     function delete()
     {
         acym_checkToken();
-        $ids = acym_getVar('array', 'elements_checked', array());
+        $ids = acym_getVar('array', 'elements_checked', []);
         $allChecked = acym_getVar('string', 'checkbox_all');
         $currentPage = explode('_', acym_getVar('string', 'page'));
         $pageNumber = acym_getVar('int', end($currentPage).'_pagination_page');
@@ -191,7 +191,7 @@ class acymController
     public function setActive()
     {
         acym_checkToken();
-        $ids = acym_getVar('array', 'elements_checked', array());
+        $ids = acym_getVar('array', 'elements_checked', []);
 
         if (!empty($ids)) {
             $elementClass = acym_get('class.'.rtrim($this->name, 's'));
@@ -204,7 +204,7 @@ class acymController
     public function setInactive()
     {
         acym_checkToken();
-        $ids = acym_getVar('array', 'elements_checked', array());
+        $ids = acym_getVar('array', 'elements_checked', []);
 
         if (!empty($ids)) {
             $elementClass = acym_get('class.'.rtrim($this->name, 's'));
@@ -214,3 +214,4 @@ class acymController
         $this->listing();
     }
 }
+

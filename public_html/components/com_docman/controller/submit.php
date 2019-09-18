@@ -143,6 +143,8 @@ class ComDocmanControllerSubmit extends ComKoowaControllerModel
     {
         return $this->getObject('com:files.controller.file', [
             'behaviors' => [
+                'com://admin/docman.controller.behavior.movable',
+                'com://admin/docman.controller.behavior.syncable',
                 'permissible' => [
                     'permission' => 'com://site/docman.controller.permission.submit'
                 ]
@@ -221,7 +223,7 @@ class ComDocmanControllerSubmit extends ComKoowaControllerModel
     {
         $adapter   = $this->getObject('com:files.adapter.file');
         $folder    = $container->fullpath.(!empty($folder) ? '/'.$folder : '');
-        $fileinfo  = pathinfo(' '.strtr($file, array('/' => '/ ')));
+        $fileinfo  = \Koowa\pathinfo($file);
         $filename  = ltrim($fileinfo['filename']);
         $extension = $fileinfo['extension'];
 

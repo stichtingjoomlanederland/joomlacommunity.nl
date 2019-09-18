@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -17,8 +17,8 @@ class acymmailStatClass extends acymClass
 
     public function save($mailStat)
     {
-        $column = array();
-        $valueColumn = array();
+        $column = [];
+        $valueColumn = [];
         $columnName = acym_getColumns("mail_stat");
 
         if (!is_array($mailStat)) {
@@ -34,7 +34,7 @@ class acymmailStatClass extends acymClass
 
         $query = "#__acym_mail_stat (".implode(',', $column).") VALUES (".implode(',', $valueColumn).")";
 
-        $onDuplicate = array();
+        $onDuplicate = [];
 
         if (!empty($mailStat['sent'])) {
             $onDuplicate[] = " sent = sent + ".intval($mailStat['sent']);
@@ -82,7 +82,7 @@ class acymmailStatClass extends acymClass
         return acym_loadObject($query);
     }
 
-    public function getAllFromMailIds($mailsIds = array())
+    public function getAllFromMailIds($mailsIds = [])
     {
         acym_arrayToInteger($mailsIds);
         if (empty($mailsIds)) {
@@ -103,9 +103,12 @@ class acymmailStatClass extends acymClass
 
     public function getAllMailsForStats()
     {
+        $mailClass = acym_get('class.mail');
+
         $query = 'SELECT mail.* FROM #__acym_mail_stat AS mail_stat LEFT JOIN #__acym_mail AS mail ON mail.id = mail_stat.mail_id';
 
-        return acym_loadObjectList($query);
+        return $mailClass->decode(acym_loadObjectList($query));
     }
 
 }
+

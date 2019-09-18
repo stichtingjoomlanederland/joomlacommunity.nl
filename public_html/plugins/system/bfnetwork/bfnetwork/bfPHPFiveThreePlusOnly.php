@@ -31,7 +31,7 @@
 /**
  * This file contains code that can only be run on PHP 5.3.0+ servers.
  *
- * As myJoomla.com service has to support PHP 5.2 for idiot servers with crappy
+ * As mysites.guru service has to support PHP 5.2 for idiot servers with crappy
  * webhosting the main connector needs to be fully PHP 5.2 compliant most of the time
  *
  * The following code will ONLY run with a decent PHP version.

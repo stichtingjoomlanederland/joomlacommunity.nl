@@ -98,7 +98,7 @@ class EasyDiscussConversationMessage extends EasyDiscuss
 		$elapsed = ED::date()->toLapsed($this->table->created);
 
 		if (is_null($elapsed)) {
-			return JText::_('just now');
+			return JText::_('COM_ED_CONVERSATION_LAST_TIMELAPSE_JUST_NOW');
 		}
 		return $elapsed;
 	}

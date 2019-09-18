@@ -151,3 +151,9 @@ select.rsform-error:focus,
 textarea.rsform-error:focus {
 	border-color: #953b39 !important;
 }
+
+.dirError {
+	color: #CF4D4D;
+	font-weight:bold;
+	font-size:10px;
+}

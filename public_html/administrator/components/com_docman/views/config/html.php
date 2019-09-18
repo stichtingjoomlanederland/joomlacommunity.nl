@@ -63,6 +63,22 @@ class ComDocmanViewConfigHtml extends ComDocmanViewHtml
 
             $context->data->scheduler_metadata = $adapter->select($query, KDatabase::FETCH_OBJECT);
 
+            $db    = $this->getObject('lib:database.adapter.mysqli');
+            $q     = $this->getObject('lib:database.query.select')
+                ->columns('*')->table('extensions')
+                ->where('type = :type')->where('folder = :folder')->where('element = :element ')
+                ->bind(['type' => 'plugin', 'folder' => 'koowa', 'element' => 'connect']);
+
+            $plugin = $db->select($q, KDatabase::FETCH_OBJECT);
+
+            if ($plugin && isset($plugin->params) && is_string($plugin->params)) {
+                $plugin->params = json_decode($plugin->params);
+            }
+
+            $context->data->connect = [
+                'plugin' => $plugin,
+            ];
+
         }
 
         parent::_fetchData($context);

@@ -32,8 +32,25 @@ class EasyDiscussRouter extends EasyDiscuss
 
 		// Groups view
 		if (isset($query['view']) && $query['view'] == 'groups') {
-			$segments[] = $query['view'];
+			
+			// check the current active menu item id to see if we really need to
+			// add the view or not.
+			$addView = true;
+
+			if ($active) {
+				$xView = isset($active->query['view']) && $active->query['view'] ? $active->query['view'] : '';
+
+				if ($xView == 'groups') {
+					$addView = false;
+				}
+			}
+
+			if ($addView) {
+				$segments[] = $query['view'];
+			}
+
 			unset($query['view']);
+
 
 			if (isset($query['group_id']) && $query['group_id']) {
 				$alias = ED::easysocial()->loadGroup($query['group_id'])->getAlias();
@@ -48,6 +65,7 @@ class EasyDiscussRouter extends EasyDiscuss
 				unset($query['layout']);
 			}
 		}
+
 
 		// Forums view
 		if (isset($query['view']) && $query['view'] == 'forums') {
@@ -404,6 +422,11 @@ class EasyDiscussRouter extends EasyDiscuss
 			unset( $query['sort'] );
 		}
 
+		if (isset($query['status'])) {
+			$segments[] = $query['status'];
+			unset($query['status']);
+		}
+
 		if (!isset($query['Itemid'])) {
 			$query['Itemid'] = DiscussRouter::getItemId();
 		}
@@ -653,6 +676,10 @@ class EasyDiscussRouter extends EasyDiscuss
 
 					if (isset($segments[2])) {
 						$vars['sort'] = $segments[2];
+					}
+
+					if (isset($segments[3])) {
+						$vars['status'] = $segments[3];
 					}
 				}
 			}

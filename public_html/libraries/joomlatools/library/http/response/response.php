@@ -173,6 +173,49 @@ class KHttpResponse extends KHttpMessage implements KHttpResponseInterface
     }
 
     /**
+     * Return the message format from the content type
+     *
+     * @return  string  The message format NULL if no format could be found
+     */
+    public function getFormat()
+    {
+        $result = null;
+
+        if(!$this->_format)
+        {
+            foreach (static::$_formats as $value => $media_types)
+            {
+                if($media_type = $this->getContentType())
+                {
+                    if (in_array($media_type, (array)$media_types))
+                    {
+                        $this->_format = $value;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $this->_format;
+    }
+
+    /**
+     * Sets a format and set the content type
+     *
+     * @param string $format The format
+     * @throws UnexpectedValueException If the format hasn't been registered.
+     * @return KHttpMessage
+     */
+    public function setFormat($format)
+    {
+        parent::setFormat($format);
+
+        $this->setContentType(static::$_formats[$format][0]);
+
+        return $this;
+    }
+
+    /**
      * Set the header parameters
      *
      * @param  array $headers
@@ -398,7 +441,7 @@ class KHttpResponse extends KHttpMessage implements KHttpResponseInterface
      *
      * @link https://tools.ietf.org/html/rfc2616#section-14.9.3
      * @param integer $max_age       The number of seconds after which the response should no longer be considered fresh.
-     * @param integer $share_max_age The number of seconds after which the response should no longer be considered fresh by shared caches.
+     * @param integer $shared_max_age The number of seconds after which the response should no longer be considered fresh by shared caches.
      * @return KHttpResponse
      */
     public function setMaxAge($max_age, $shared_max_age = null)

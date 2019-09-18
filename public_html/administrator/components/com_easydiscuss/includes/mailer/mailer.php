@@ -711,7 +711,7 @@ class EasyDiscussMailer extends EasyDiscuss
 		return $link;
 	}
 
-	protected static function _prepareBody( $data )
+	protected static function _prepareBody($data)
 	{
 		$config = ED::config();
 		$app = JFactory::getApplication();
@@ -727,7 +727,6 @@ class EasyDiscussMailer extends EasyDiscuss
 		if (JFile::exists($override)) {
 			$logo 	= rtrim( JURI::root() , '/' ) . '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/emails/logo.png';
 		}
-
 
 		$template = $data['emailTemplate'];
 		$replyBreaker = false;

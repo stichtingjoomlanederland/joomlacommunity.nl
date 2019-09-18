@@ -45,7 +45,7 @@ class ComActivitiesControllerBehaviorPurgeable extends KControllerBehaviorAbstra
         if (!$this->getModel()->getTable()->getAdapter()->execute($query)) {
             throw new KControllerExceptionActionFailed('Delete Action Failed');
         } else {
-            $context->status = KHttpResponse::NO_CONTENT;
+            $context->getResponse()->setStatus(KHttpResponse::NO_CONTENT);
         }
     }
 }

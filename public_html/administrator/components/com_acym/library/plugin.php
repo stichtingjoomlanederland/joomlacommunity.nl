@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -63,7 +63,7 @@ class acymPlugin
             }
         }
         $this->catvalues = [];
-        $this->catvalues[] = acym_selectOption(0, acym_translation('ACYM_ALL'));
+        $this->catvalues[] = acym_selectOption(0, 'ACYM_ALL');
         $this->handleChildrenCategories($this->rootCategoryId);
 
         return acym_select($this->catvalues, 'plugin_category', intval($filter_cat), 'class="plugin_category_select"', 'value', 'text');
@@ -74,7 +74,7 @@ class acymPlugin
         if (empty($this->cats[$parent_id])) return;
 
         foreach ($this->cats[$parent_id] as $cat) {
-            $this->catvalues[] = acym_selectOption($cat->id, str_repeat(" - - ", $level).$cat->title);
+            $this->catvalues[] = acym_selectOption($cat->id, str_repeat(' - - ', $level).$cat->title);
             $this->handleChildrenCategories($cat->id, $level + 1);
         }
     }
@@ -106,7 +106,7 @@ class acymPlugin
 
                     if (!empty($oneColumn['type']) && $oneColumn['type'] == 'date') {
                         if (!is_numeric($value)) $value = strtotime($value);
-                        $value = acym_getDate($value);
+                        $value = acym_date($value, 'd F Y H:i');
                     }
 
                     $class = empty($oneColumn['class']) ? '' : ' '.$oneColumn['class'];
@@ -185,3 +185,4 @@ class acymPlugin
         return $this->acympluginHelper->managePicts($options, $result);
     }
 }
+

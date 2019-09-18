@@ -90,6 +90,12 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 			return;
 		}
 
+		// Allow editing my own user record if I am already an admin
+		if ($isAdmin && ($this->container->platform->getUser()->id == $jform['id']))
+		{
+			return;
+		}
+
 		/**
 		 * In the frontend we only stop requests which are trying to make a new admin. This lets execution fall through
 		 * to onUserBeforeSave where we can check for Joomla! 3.9+ user consent changes.
@@ -147,10 +153,16 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 			return;
 		}
 
-		$user = JFactory::getUser($data['id']);
+		$user = $this->container->platform->getUser($data['id']);
 
 		// We are allowed to edit the profile of a user without active consent
 		if (!$isNew && $this->allowEdit($user))
+		{
+			return;
+		}
+
+		// We can always edit out own profile
+		if ($this->container->platform->getUser()->id == $data['id'])
 		{
 			return;
 		}

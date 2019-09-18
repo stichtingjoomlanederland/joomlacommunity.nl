@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -116,7 +116,7 @@ $isSent = !empty($data['campaignInformation']->sent) && !empty($data['campaignIn
                             $output = '';
                             if ($isSent) {
                                 $output .= acym_translation_sprintf('ACYM_THIS_CAMPAIGN_HAS_BEEN_SENT_ON_AT', '<b>'.acym_date($data['campaignInformation']->sending_date, 'F j, Y').'</b>', '<b>'.acym_date($data['campaignInformation']->sending_date, 'H:i').'</b>');
-                            } else if ($data['campaignType'] == 'scheduled') {
+                            } elseif ($data['campaignType'] == 'scheduled') {
                                 $output .= acym_translation_sprintf('ACYM_THIS_CAMPAIGN_WILL_BE_SENT_ON_AT', '<b>'.acym_date($data['campaignInformation']->sending_date, 'F j, Y').'</b>', '<b>'.acym_date($data['campaignInformation']->sending_date, 'H:i').'</b>');
                             } else {
                                 $output .= acym_translation('ACYM_THIS_CAMPAIGN_WILL_BE_SENT').' '.strtolower(acym_translation('ACYM_NOW'));
@@ -136,20 +136,28 @@ $isSent = !empty($data['campaignInformation']->sent) && !empty($data['campaignIn
 							<div class="cell auto hide-for-small-only"></div>
 							<button type="submit" class="cell button button-secondary medium-margin-bottom-0 margin-right-1 acy_button_submit medium-shrink" data-task="saveAsDraftCampaign"><?php echo acym_translation('ACYM_SAVE_AS_DRAFT'); ?></button>
                             <?php
-                            $task = $data['campaignType'] == 'now' ? "addQueue" : "confirmCampaign";
-                            $buttonText = $data['campaignType'] == 'now' ? acym_translation('ACYM_SEND_CAMPAIGN') : acym_translation('ACYM_CONFIRM_CAMPAIGN');
+                            if ($data['campaignType'] == 'now') {
+                                $task = 'addQueue';
+                                $buttonText = 'ACYM_SEND_CAMPAIGN';
+                                if (!acym_level(1) || $data['config']->get('cron_last', 0) < (time() - 43200)) $buttonText = 'ACYM_ADD_TO_QUEUE';
+                            } else {
+                                $task = 'confirmCampaign';
+                                $buttonText = 'ACYM_CONFIRM_CAMPAIGN';
+                            }
+
+
+                            $buttonClass = '';
+                            if ($data['nbSubscribers'] <= 0) $buttonClass = ' disabled-button';
+                            $button = '<button type="button" class="cell button primary margin-bottom-0 acy_button_submit medium-shrink'.$buttonClass.'" data-task="'.acym_escape($task).'">'.acym_translation($buttonText).'</button>';
 
                             if ($data['nbSubscribers'] > 0) {
-                                $button = '<button type="button" class="cell button primary margin-bottom-0 acy_button_submit medium-shrink" data-task="'.$task.'">'.$buttonText.'</button>';
                                 echo $button;
                             } else {
-                                $dataToggle = 'campaign_save_continue_no_recipient';
-                                $button = '<button type="button" class="disabled-button cell button primary margin-bottom-0 acy_button_submit medium-shrink" data-task="'.$task.'">'.$buttonText.'</button>';
-                                echo acym_tooltip('<button type="button" class="disabled-button cell button primary margin-bottom-0 acy_button_submit medium-shrink" data-task="'.$task.'">'.$buttonText.'</button>', acym_translation('ACYM_ADD_RECIPIENTS_TO_SEND_THIS_CAMPAIGN'));
+                                echo acym_tooltip($button, acym_translation('ACYM_ADD_RECIPIENTS_TO_SEND_THIS_CAMPAIGN'));
                             }
                             ?>
 						</div>
-                    <?php } else if (!empty($data['campaignInformation']->sent) && empty($data['campaignInformation']->active)) {
+                    <?php } elseif (!empty($data['campaignInformation']->sent) && empty($data['campaignInformation']->active)) {
                         echo '<div class="cell auto hide-for-small-only"></div>';
                         echo '<button type="button" class="cell button primary margin-bottom-0 acy_button_submit medium-shrink" data-task="unpause_campaign">'.acym_translation('ACYM_UNPAUSE_CAMPAIGN').'</button>';
                     } else {
@@ -162,7 +170,8 @@ $isSent = !empty($data['campaignInformation']->sent) && !empty($data['campaignIn
 		</div>
 		<div class="cell medium-auto"></div>
 	</div>
-	<input type="hidden" value="<?php echo intval($data['campaignInformation']->id); ?>" name="id"/>
-	<input type="hidden" value="<?php echo acym_escape($data['campaignInformation']->sending_date); ?>" name="sending_date"/>
+	<input type="hidden" value="<?php echo intval($data['campaignInformation']->id); ?>" name="id" />
+	<input type="hidden" value="<?php echo acym_escape($data['campaignInformation']->sending_date); ?>" name="sending_date" />
     <?php acym_formOptions(true, 'edit', 'summary'); ?>
 </form>
+

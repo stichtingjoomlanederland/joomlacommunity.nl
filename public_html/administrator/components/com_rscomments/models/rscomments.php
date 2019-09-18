@@ -14,7 +14,7 @@ class RscommentsModelRSComments extends JModelLegacy
 	}
 	
 	public function getCode() {
-		$code = RSCommentsHelper::getConfig('global_register_code');
+		$code = RSCommentsHelperAdmin::getConfig('global_register_code');
 		return $code;
 	}
 	

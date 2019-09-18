@@ -13,7 +13,7 @@ namespace Akeeba\Engine\Dump\Native;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Dump\Reverse\Sqlite as ReverseDumpEngine;
+use Akeeba\Engine\Dump\Base;
 use Akeeba\Engine\Factory;
 use Psr\Log\LogLevel;
 
@@ -22,13 +22,13 @@ use Psr\Log\LogLevel;
  * Dump class for the "None" database driver (ie no database used by the application)
  *
  */
-class Sqlite extends ReverseDumpEngine
+class Sqlite extends None
 {
 	public function __construct()
 	{
 		parent::__construct();
 
-		Factory::getLog()->log(LogLevel::INFO, "There is no native engine for backing up SQLite databases. Using the Reverse Engineering class instead.");
+		throw new \RuntimeException("Please do not add SQLite databases, they are files. If they are under your site's root they are backed up automatically. Otherwise use the Off-site Directories Inclusion to include them in the backup.");
 	}
 
 }

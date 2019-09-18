@@ -643,7 +643,7 @@ class EasyDiscussViewPost extends EasyDiscussView
 		$data['content'] = $this->input->get('dc_content', '', 'raw');
 
 		$post = ED::post($id);
-		$post->bind($data);
+		$post->bind($data, false, false, true);
 
 		// Check if it is valid
 		$valid = $post->validate($data);
@@ -695,7 +695,7 @@ class EasyDiscussViewPost extends EasyDiscussView
 
 		// Prepare the result object
 		$output = array();
-		$output['message'] = JText::_('Reply edited successfully');
+		$output['message'] = JText::_('COM_ED_EDIT_REPLY_SUCCESS');
 		$output['type'] = 'success.edit';
 		$output['html'] = $html;
 		$output['id'] = $post->id;
@@ -725,7 +725,7 @@ class EasyDiscussViewPost extends EasyDiscussView
 
 		// Load the post library
 		$post = ED::post();
-		$post->bind($data);
+		$post->bind($data, false, false, true);
 
 		if ($parentId) {
 			$threadPost = ED::post($parentId);

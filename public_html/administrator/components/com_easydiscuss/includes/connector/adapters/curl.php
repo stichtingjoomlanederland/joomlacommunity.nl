@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -208,8 +208,13 @@ class EasyDiscussConnectorCurl
 		if ($code == 301 || $code == 302 || $code == 303) {
 			$matches = array();
 
-			// Most sites
-			preg_match('/Location:(.*?)\n/', $headers, $matches);
+			if (strpos($headers, "HTTP/2") === 0) {
+				// Check if the site using http/2 we need to use small letter
+				preg_match('/location:(.*?)\n/', $headers, $matches);
+			} else {
+				// Most sites
+				preg_match('/Location:(.*?)\n/', $headers, $matches);
+			}
 
 			// Cnn.com is pretty peticular.
 			if (!$matches) {

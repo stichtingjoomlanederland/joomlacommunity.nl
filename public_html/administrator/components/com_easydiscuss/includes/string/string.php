@@ -165,7 +165,7 @@ class EasyDiscussString extends EasyDiscuss
 	public static function url2link( $string )
 	{
 		$newString	= $string;
-		$patterns	= array("/([\w]+:\/\/[\w-?&;#~=\.\/\@]+[\w\/])/i",
+		$patterns	= array("/([\w]+:\/\/[\w\-?&;#~=\.\/\@]+[\w\/])/i",
 							"/([^\w\/])(www\.[a-z0-9\-]+\.[a-z0-9\-]+)/i");
 
 		$replace	= array("<a target=\"_blank\" href=\"$1\" rel=\"nofollow\">$1</a>",
@@ -262,8 +262,8 @@ class EasyDiscussString extends EasyDiscuss
 	public static function isValidEmail($data, $strict = false)
 	{
 		$regex = $strict?
-			'/^([.0-9a-z_-]+)@(([0-9a-z-]+\.)+[0-9a-z]{2,4})$/i' :
-			'/^([*+!.&#$¦\'\\%\/0-9a-z^_`{}=?~:-]+)@(([0-9a-z-]+\.)+[0-9a-z]{2,4})$/i'
+			'/^([.0-9a-z_-]+)@(([0-9a-z-]+\.)+[0-9a-z]{2,5})$/i' :
+			'/^([*+!.&#$¦\'\\%\/0-9a-z^_`{}=?~:-]+)@(([0-9a-z-]+\.)+[0-9a-z]{2,5})$/i'
 		;
 
 		if (preg_match($regex, trim($data), $matches))

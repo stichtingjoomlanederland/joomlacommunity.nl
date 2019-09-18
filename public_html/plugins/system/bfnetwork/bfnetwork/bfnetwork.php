@@ -33,7 +33,7 @@ defined('_JEXEC') or die('Restricted access');
 
 /*
  * All our code is in the sub folder, as that is what is auto-upgraded
- * and fully maintained by the automated processes at myJoomla.com.
+ * and fully maintained by the automated processes at mySites.guru.
  */
 if (file_exists(dirname(__FILE__).'/bfnetwork/bfPlugin.php')) {
     require dirname(__FILE__).'/bfnetwork/bfPlugin.php';

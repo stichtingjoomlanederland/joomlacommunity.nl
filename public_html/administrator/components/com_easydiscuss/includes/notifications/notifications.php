@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyBlog is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -32,7 +32,9 @@ class EasyDiscussNotifications extends EasyDiscuss
 						DISCUSS_NOTIFICATIONS_VOTE_UP_REPLY,
 						DISCUSS_NOTIFICATIONS_VOTE_DOWN_REPLY,
 						DISCUSS_NOTIFICATIONS_VOTE_UP_DISCUSSION,
-						DISCUSS_NOTIFICATIONS_VOTE_DOWN_DISCUSSION
+						DISCUSS_NOTIFICATIONS_VOTE_DOWN_DISCUSSION,
+						DISCUSS_NOTIFICATIONS_MODERATE_QUESTION,
+						DISCUSS_NOTIFICATIONS_MODERATE_REPLY
 					);
 
 	public function clear($id)
@@ -326,7 +328,6 @@ class EasyDiscussNotifications extends EasyDiscuss
 		return $fromname;
 	}
 
-
 	public function addQueue($toEmails, $subject = '', $body = '', $template='', $data = array())
 	{
 		$mainframe = JFactory::getApplication();
@@ -457,13 +458,11 @@ class EasyDiscussNotifications extends EasyDiscuss
 		$app = JFactory::getApplication();
 		$output = '';
 
-		$defaultJoomlaTemplate = ED::getCurrentTemplate();
-
 		if (!isset($data['unsubscribeLink'])) {
 			$data['unsubscribeLink'] = '';
 		}
 
-		$replyBreakText = $config->get(' mail_reply_breaker');
+		$replyBreakText = $config->get('mail_reply_breaker');
 
 		if ($replyBreakText) {
 			$replyBreakText = JText::sprintf('COM_EASYDISCUSS_EMAILTEMPLATE_REPLY_BREAK', $replyBreakText);
@@ -474,13 +473,14 @@ class EasyDiscussNotifications extends EasyDiscuss
 			$template .= '.html';
 		}
 
-
+		$defaultJoomlaTemplate = ED::getCurrentTemplate();
+		
 		// Set the logo for the generic email template
 		$override = JPATH_ROOT . '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/emails/logo.png';
-		$logo = rtrim( JURI::root() , '/' ) . '/components/com_easydiscuss/themes/wireframe/images/emails/logo.png';
+		$logo = rtrim(JURI::root(), '/') . '/components/com_easydiscuss/themes/wireframe/images/emails/logo.png';
 
 		if (JFile::exists($override)) {
-			$logo 	= rtrim( JURI::root() , '/' ) . '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/emails/logo.png';
+			$logo = rtrim(JURI::root(), '/') . '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/emails/logo.png';
 		}
 
 		$theme = ED::themes();
@@ -506,7 +506,7 @@ class EasyDiscussNotifications extends EasyDiscuss
 		if ($config->get('notify_html_format')) {
 			$output = $theme->output('site/emails/email.template.html', array('emails'=> true));
 		} else {
-			$output = $theme->fetch('site/emails/email.template.text', array('emails'=> true));
+			$output = $theme->output('site/emails/email.template.text', array('emails'=> true));
 		}
 
 		return $output;

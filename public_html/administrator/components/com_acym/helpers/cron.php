@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -13,8 +13,8 @@ defined('_JEXEC') or die('Restricted access');
 class acymcronHelper
 {
     var $report = false;
-    var $messages = array();
-    var $detailMessages = array();
+    var $messages = [];
+    var $detailMessages = [];
 
     var $processed = false;
 
@@ -24,9 +24,9 @@ class acymcronHelper
 
     var $errorDetected = false;
 
-    var $skip = array();
+    var $skip = [];
 
-    var $emailtypes = array();
+    var $emailtypes = [];
 
     function cron()
     {
@@ -81,12 +81,7 @@ class acymcronHelper
         }
 
         if ($config->get('require_confirmation', 1) == 1) {
-            $deletedNb = acym_query(
-                'DELETE `queue`.* 
-                    FROM `#__acym_queue` AS `queue` 
-                    JOIN `#__acym_user` AS `user` ON `queue`.`user_id` = `user`.`id` 
-                    WHERE `user`.`confirmed` = 0 OR `user`.`active` = 0'
-            );
+            $deletedNb = $queueClass->removeUnconfirmedUsersEmails();
 
             if (!empty($deletedNb)) {
                 $this->messages[] = acym_translation_sprintf('ACYM_EMAILS_REMOVED_QUEUE_UNCONFIRMED', $deletedNb);
@@ -187,7 +182,7 @@ class acymcronHelper
             $mailer->addParam('detailreport', implode('<br />', $this->detailMessages));
 
             $receiverString = $config->get('cron_sendto');
-            $receivers = array();
+            $receivers = [];
             if (substr_count($receiverString, '@') > 1) {
                 $receivers = explode(' ', trim(preg_replace('# +#', ' ', str_replace([';', ','], ' ', $receiverString))));
             } else {
@@ -230,7 +225,7 @@ class acymcronHelper
             return;
         }
 
-        $reportPath = str_replace(array('{year}', '{month}'), array(date('Y'), date('m')), $reportPath);
+        $reportPath = str_replace(['{year}', '{month}'], [date('Y'), date('m')], $reportPath);
 
         $reportPath = acym_cleanPath(ACYM_ROOT.trim(html_entity_decode($reportPath)));
 
@@ -248,3 +243,4 @@ class acymcronHelper
         }
     }
 }
+

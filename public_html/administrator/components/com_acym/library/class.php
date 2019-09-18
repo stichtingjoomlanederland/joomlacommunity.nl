@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -18,7 +18,7 @@ class acymClass
 
     var $namekey = '';
 
-    var $errors = array();
+    var $errors = [];
 
     public function __construct()
     {
@@ -28,6 +28,10 @@ class acymClass
 
     function save($element)
     {
+        foreach ($element as $column => $value) {
+            acym_secureDBColumn($column);
+        }
+
         $pkey = $this->pkey;
 
         if (empty($element->$pkey)) {
@@ -37,7 +41,11 @@ class acymClass
         }
 
         if (!$status) {
-            $this->errors[] = substr(strip_tags(acym_getDBError()), 0, 200).'...';
+            $dbError = strip_tags(acym_getDBError());
+            if (!empty($dbError)) {
+                if (strlen($dbError) > 203) $dbError = substr($dbError, 0, 200).'...';
+                $this->errors[] = $dbError;
+            }
 
             return false;
         }
@@ -48,7 +56,7 @@ class acymClass
     function delete($elements)
     {
         if (!is_array($elements)) {
-            $elements = array($elements);
+            $elements = [$elements];
         }
 
         if (empty($elements)) {
@@ -72,7 +80,7 @@ class acymClass
             return false;
         }
 
-        acym_trigger('onAcymAfter'.$this->table.'Delete', array(&$elements));
+        acym_trigger('onAcymAfter'.$this->table.'Delete', [&$elements]);
 
         return $result;
     }
@@ -80,7 +88,7 @@ class acymClass
     public function setActive($elements)
     {
         if (!is_array($elements)) {
-            $elements = array($elements);
+            $elements = [$elements];
         }
 
         if (empty($elements)) {
@@ -94,7 +102,7 @@ class acymClass
     public function setInactive($elements)
     {
         if (!is_array($elements)) {
-            $elements = array($elements);
+            $elements = [$elements];
         }
 
         if (empty($elements)) {
@@ -105,3 +113,4 @@ class acymClass
         acym_query('UPDATE '.acym_secureDBColumn('#__acym_'.$this->table).' SET active = 0 WHERE id IN ('.implode(',', $elements).')');
     }
 }
+

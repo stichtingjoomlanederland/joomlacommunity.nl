@@ -161,6 +161,18 @@ defined('_JEXEC') or die;
     <?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'trackfailedlogins', $this->wafconfig['trackfailedlogins']); ?>
 </div>
 
+<div class="akeeba-form-group">
+    <label
+            for="logusernames"
+            rel="akeeba-sticky-tooltip"
+            data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_LOGUSERNAMES'); ?>"
+            data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_LOGUSERNAMES_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_LOGUSERNAMES'); ?>
+    </label>
+
+	<?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'logusernames', $this->wafconfig['logusernames']); ?>
+</div>
+
 <?php
 // Detect user registration and activation type
 $disabled = '';

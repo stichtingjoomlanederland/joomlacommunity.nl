@@ -286,4 +286,125 @@ class RSFormProFieldBirthDay extends RSFormProFieldSelectList
 
 		$post[$this->name] = $value;
 	}
+
+	public function processValidation($validationType = 'form', $submissionId = 0)
+	{
+		$value 		= $this->getValue();
+		$showDay 	= $this->getProperty('SHOWDAY', false);
+		$showMonth 	= $this->getProperty('SHOWMONTH', false);
+		$showYear 	= $this->getProperty('SHOWYEAR', false);
+
+		// flag to check if we need to run the validation functions
+		$runValidations = false;
+
+		if ($validationType == 'directory')
+		{
+			// Split the field...
+			$dateParts = explode($this->getProperty('DATESEPARATOR'), $value);
+			$dateOrdering = $this->getProperty('DATEORDERING');
+
+			if (!$showDay)
+			{
+				$dateOrdering = str_replace('D', '', $dateOrdering);
+			}
+
+			if (!$showMonth)
+			{
+				$dateOrdering = str_replace('M', '', $dateOrdering);
+			}
+
+			if (!$showYear)
+			{
+				$dateOrdering = str_replace('Y', '', $dateOrdering);
+			}
+
+			$day   = strpos($dateOrdering, 'D');
+			$month = strpos($dateOrdering, 'M');
+			$year  = strpos($dateOrdering, 'Y');
+
+			$value = array();
+
+			if ($showDay && isset($dateParts[$day]))
+			{
+				$value['d'] = $dateParts[$day];
+			}
+
+			if ($showMonth && isset($dateParts[$month]))
+			{
+				$value['m'] = $dateParts[$month];
+			}
+
+			if ($showYear && isset($dateParts[$year]))
+			{
+				$value['y'] = $dateParts[$year];
+			}
+		}
+
+		if ($this->getProperty('REQUIRED', false))
+		{
+			if (($showDay && empty($value['d'])) || ($showMonth && empty($value['m'])) || ($showYear && empty($value['y'])))
+			{
+				return false;
+			}
+
+			$runValidations = true;
+		}
+		else
+		{
+			// the field is not required, but if a selection is made it needs to be valid
+			$selections = array();
+
+			if ($showDay)
+			{
+				$selections[] = !empty($value['d']) ? $value['d'] : '';
+			}
+
+			if ($showMonth)
+			{
+				$selections[] = !empty($value['m']) ? $value['m'] : '';
+			}
+
+			if ($showYear)
+			{
+				$selections[] = !empty($value['y']) ? $value['y'] : '';
+			}
+
+			$selectionsFiltered = array_filter($selections);
+
+			// If we've selected something
+			if ($selectionsFiltered)
+			{
+				// We've found empty values, fail validation
+				if (count($selections) !== count($selectionsFiltered))
+				{
+					return false;
+				}
+
+				$runValidations = true;
+			}
+		}
+
+		// We have all the info we need, validations only work when all fields are selected
+		if ($runValidations && $showDay && $showMonth && $showYear)
+		{
+			if ($validationRule = $this->getProperty('VALIDATIONRULE_DATE'))
+			{
+				$day 	= $value['d'];
+				$month 	= $value['m'];
+				$year 	= $value['y'];
+
+				// load validation rules
+				$dateValidations 	 = array_flip(RSFormProHelper::getDateValidationRules(true));
+				$dateValidationClass = RSFormProHelper::getDateValidationClass();
+
+				// start checking validation rules
+				if (isset($dateValidations[$validationRule]) && !call_user_func(array($dateValidationClass, $validationRule), $day, $month, $year, $this->data))
+				{
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
 }

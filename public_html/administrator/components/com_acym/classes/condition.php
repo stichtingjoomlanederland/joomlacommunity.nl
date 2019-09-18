@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -25,7 +25,7 @@ class acymconditionClass extends acymClass
     public function delete($elements)
     {
         if (!is_array($elements)) {
-            $elements = array($elements);
+            $elements = [$elements];
         }
         acym_arrayToInteger($elements);
 
@@ -61,4 +61,10 @@ class acymconditionClass extends acymClass
 
         return acym_loadObjectList($query);
     }
+
+    public function getAll()
+    {
+        return acym_loadObjectList('SELECT * FROM #__acym_condition');
+    }
 }
+

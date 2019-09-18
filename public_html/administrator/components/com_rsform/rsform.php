@@ -17,8 +17,6 @@ if (!$user->authorise('core.manage', 'com_rsform')) {
 	throw new Exception(JText::_('JERROR_ALERTNOAUTHOR'), 404);
 }
 
-// Require the base controller
-require_once JPATH_COMPONENT.'/controller.php';
 require_once JPATH_COMPONENT.'/helpers/rsform.php';
 
 $mainframe = JFactory::getApplication();
@@ -30,12 +28,15 @@ $controller 		= $mainframe->input->getWord('controller');
 $controller_exists  = false;
 $task				= $mainframe->input->getCmd('task');
 
-if (!$controller && strpos($task, '.')) {
+if (!$controller && strpos($task, '.'))
+{
 	list($controller, $controller_task) = explode('.', $task, 2);
 }
 
 if (!empty($controller) && file_exists(JPATH_COMPONENT.'/controllers/'.$controller.'.php'))
 {
+	// Require the base controller
+	require_once JPATH_COMPONENT.'/controller.php';
 	require_once JPATH_COMPONENT.'/controllers/'.$controller.'.php';
 	
 	$controller 	   = 'RsformController'.$controller;
@@ -43,7 +44,20 @@ if (!empty($controller) && file_exists(JPATH_COMPONENT.'/controllers/'.$controll
 	$controller_exists = true;
 }
 else
+{
+	// Require the base controller
+	// Workaround needed to access the 'ajaxvalidate' and 'captcha' functions in the backend
+	if (in_array(strtolower($task), array('ajaxvalidate', 'captcha')))
+	{
+		require_once JPATH_SITE . '/components/com_rsform/controller.php';
+	}
+	else
+	{
+		require_once JPATH_COMPONENT.'/controller.php';
+	}
+
 	$RsformController = new RsformController();
+}
 
 // Trigger onInit
 $mainframe->triggerEvent('rsfp_bk_onInit');

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -36,6 +36,9 @@ defined('_JEXEC') or die('Restricted access');
                     ?>
 				</div>
 				<div class="xxlarge-4 xlarge-3 large-2 hide-for-large-only medium-auto hide-for-small-only cell"></div>
+				<button type="submit" data-task="emptyQueue" data-confirmation-message="ACYM_ARE_YOU_SURE" class="cell medium-shrink button button-secondary acy_button_submit">
+                    <?php echo acym_translation('ACYM_EMPTY_QUEUE'); ?>
+				</button>
 				<div class="cell medium-shrink">
                     <?php
                     echo acym_modal(
@@ -58,13 +61,13 @@ defined('_JEXEC') or die('Restricted access');
                         $config = acym_config();
                         $sendingText = $config->get('cron_last', 0) < (time() - 43200) ? 'ACYM_QUEUE_READY' : 'ACYM_SENDING';
 
-                        $options = array(
+                        $options = [
                             '' => ['ACYM_ALL', $data["numberPerStatus"]["all"]],
                             'sending' => [$sendingText, $data["numberPerStatus"]["sending"]],
                             'paused' => ['ACYM_PAUSED', $data["numberPerStatus"]["paused"]],
                             'scheduled' => ['ACYM_SCHEDULED', $data["numberPerStatus"]["scheduled"]],
                             'automation' => ['ACYM_AUTOMATION', $data["numberPerStatus"]["automation"]],
-                        );
+                        ];
                         echo acym_filterStatus($options, $data["status"], 'cqueue_status');
                         ?>
 					</div>
@@ -201,3 +204,4 @@ defined('_JEXEC') or die('Restricted access');
 		<input type="hidden" name="acym__queue__play_pause__active__new_value">
 	</form>
 </div>
+

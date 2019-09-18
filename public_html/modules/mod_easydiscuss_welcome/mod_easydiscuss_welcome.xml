@@ -2,12 +2,12 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Welcome</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>25th January 2019</creationDate>
+	<creationDate>16th August 2019</creationDate>
 	<copyright>Copyright 2009 - 2016 StackIdeas. All rights reserved.</copyright>
 	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>4.1.6</version>
+	<version>4.1.11</version>
 	<description><![CDATA[A module that provides users login and will welcome the users if they are already logged in. It also includes the shortcuts to EasyDiscuss links.]]></description>
 	<languages>
 		<language tag="en-GB">en-GB.mod_easydiscuss_welcome.ini</language>

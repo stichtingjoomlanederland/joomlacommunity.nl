@@ -51,11 +51,14 @@ class RsformModelBackuprestore extends JModelAdmin
 		return $query;
 	}
 	
-	public function getForms() {
-		if (empty($this->_data)) {
+	public function getForms()
+	{
+		if (empty($this->_data))
+		{
 			$this->_data = $this->_getList($this->_query);
 			
-			foreach ($this->_data as $i => $row) {
+			foreach ($this->_data as $i => $row)
+			{
 				$lang = RSFormProHelper::getCurrentLanguage($row->FormId);
 				if ($lang != $row->Lang)
 				{
@@ -63,20 +66,43 @@ class RsformModelBackuprestore extends JModelAdmin
 					{
 						foreach ($translations as $field => $value)
 						{
-							if (isset($row->$field))
+							if (isset($row->{$field}))
 							{
-								$row->$field = $value;
+								$row->{$field} = $value;
 							}
 						}
 					}
 				}
 
-				$this->_db->setQuery("SELECT COUNT(`SubmissionId`) cnt FROM #__rsform_submissions WHERE FormId='".$row->FormId."'");
-				$row->_allSubmissions = $this->_db->loadResult();
+				$query = $this->_db->getQuery(true)
+					->select('COUNT(' . $this->_db->qn('SubmissionId') . ')')
+					->from($this->_db->qn('#__rsform_submissions'))
+					->where($this->_db->qn('FormId') . ' = ' . $this->_db->q($row->FormId));
+
+				$row->_allSubmissions = $this->_db->setQuery($query)->loadResult();
 			}
 		}
 		
 		return $this->_data;
+	}
+
+	public function getSubmissions()
+	{
+		$result = array();
+
+		if (!empty($this->_data))
+		{
+			$query = $this->_db->getQuery(true)
+				->select('COUNT(' . $this->_db->qn('SubmissionId') . ') AS cnt')
+				->select($this->_db->qn('FormId'))
+				->from($this->_db->qn('#__rsform_submissions'))
+				->where($this->_db->qn('FormId') . ' <> ' . $this->_db->q(0))
+				->group($this->_db->qn('FormId'));
+
+			$result = $this->_db->setQuery($query)->loadObjectList('FormId');
+		}
+
+		return $result;
 	}
 	
 	public function getSortColumn() {

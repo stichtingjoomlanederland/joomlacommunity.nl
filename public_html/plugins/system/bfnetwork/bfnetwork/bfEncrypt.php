@@ -45,7 +45,7 @@ require './bfWorkarounds.php';
  * Compose the Endpoint for Validation
  *
  * Note: The use of md5 here serves to clean to a known 32 string, we dont care if the data is real or fake at this
- * point as that is validated by the myJoomla.com endpoint.
+ * point as that is validated by the mysites.guru endpoint.
  *
  * The only weakness here is if our service is compromised or your DNS is compromised, however small a chance that is
  * the request is still encrypted, and will have to pass decryption validation later on, so is still secure.
@@ -56,16 +56,12 @@ switch ($_POST['APPLICATION_ENV']) { // Switch from insecure $_POST to a known c
     case'development':
     case 'local':
         $APPLICATION_ENV = 'development';
-        $urlPattern      = 'https://nginx/validate/?%s=%s';
-        break;
-    case 'staging':
-        $APPLICATION_ENV = 'staging';
-        $urlPattern      = 'https://manage.myjoomla.com/validate/?%s=%s';
+        $urlPattern      = 'https://dev.mysites.guru/validate/?%s=%s';
         break;
     default:
         // If brute force attempt to inject fake APPLICATION_ENV we reset to production
         $APPLICATION_ENV = 'production';
-        $urlPattern      = 'https://manage.myjoomla.com/validate/?%s=%s';
+        $urlPattern      = 'https://validate.mysites.guru/validate/?%s=%s';
         break;
 }
 
@@ -89,7 +85,7 @@ switch ($_POST['VM']) { // Switch from insecure $_POST to a known clean value lo
 /*
  * Call validation service to validate the request
  *
- * Call back to myjoomla.com to authenticate that the request is genuine and from our service
+ * Call back to mysites.guru to authenticate that the request is genuine and from our service
  * If not a validated request fail to process anything else past this point.
  * Requests are valid if they have a valid UNIQUE_REQUEST_ID and the message has not been tampered with
  * The UNIQUE_REQUEST_ID also contains other security like, but limited to, time and site specific hashes
@@ -105,7 +101,7 @@ if ($overrideVMethod !== 'C'.'U'.'R'.'L' && true == ini_get('allow_url_fopen') &
     $options = array(
         'http' => array(
             'method' => 'GET',
-            'header' => "User-Agent: myJoomla.com validation with file_get_contents\r\n",
+            'header' => "User-Agent: mysites.guru validation with file_get_contents\r\n",
         ),
     );
 
@@ -129,7 +125,7 @@ if ($overrideVMethod !== 'C'.'U'.'R'.'L' && true == ini_get('allow_url_fopen') &
     // configure CURL request
     curl_setopt($ch, CURLOPT_URL, $validationUrl);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'myJoomla.com validation with c'.'u'.'r'.'l');
+    curl_setopt($ch, CURLOPT_USERAGENT, 'mysites.guru validation with c'.'u'.'r'.'l');
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
 
     // run curl request
@@ -171,7 +167,7 @@ if ($overrideVMethod !== 'C'.'U'.'R'.'L' && true == ini_get('allow_url_fopen') &
  * Note: There is no valuable data hashed to make these md5 strings just randomisers
  */
 if ('f59fbbcf2dc5e3888a079d34f821a75a' !== md5(trim($validationResultHash))) {
-    echo 'Request not validated by myJoomla.com - This is fatal and means that YOUR server cannot send a request OUT to our service over https on port 443 using c'.'u'.'r'.'l or file_get_contents() - this normally means your server is blocking OUTGOING requests with a firewall or misconfiguration.';
+    echo 'Request not validated by mysites.guru - This is fatal and means that YOUR server cannot send a request OUT to our service over https on port 443 using c'.'u'.'r'.'l or file_get_contents() - this normally means your server is blocking OUTGOING requests with a firewall or misconfiguration.';
     echo '<br/><br/>Debug: We tried the validation with PHP methods: '.$vMethod;
     echo '<br/><br/>Debug: env was '.$APPLICATION_ENV;
     echo '<br/><br/>Debug: response was '.print_r($validationResultHash, true);
@@ -262,7 +258,7 @@ if (!is_object($dataObj)) {
         'METHOD'       => 'NOTENCRYPTED',
         'RESULT'       => bfReply::ERROR,
         'NOTENCRYPTED' => array(
-            'msg' => 'The connector you have installed currently on your site doesnt match the last one we generated for this site, and thus the encryption certificates are invalid and we cannot encrypt/decrypt data with them - you need to delete this site from myJoomla.com and start the connection process again from scratch, making sure you install the exact connector generated in the process, as each is unique.',
+            'msg' => 'The connector you have installed currently on your site doesnt match the last one we generated for this site, and thus the encryption certificates are invalid and we cannot encrypt/decrypt data with them - you need to delete this site from mysites.guru and start the connection process again from scratch, making sure you install the exact connector generated in the process, as each is unique.',
         ),
     )));
 }
@@ -310,7 +306,7 @@ class bfEncrypt
                 'METHOD'       => 'NOTENCRYPTED',
                 'RESULT'       => bfReply::ERROR,
                 'NOTENCRYPTED' => array(
-                    'msg' => 'The connector you have installed currently on your site doesnt match the last one we generated for this site, and thus the encryption certificates are invalid and we cannot encrypt/decrypt data with them - you need to delete this site from myJoomla.com and start the connection process again from scratch, making sure you install the exact connector generated in the process, as each is unique.',
+                    'msg' => 'The connector you have installed currently on your site doesnt match the last one we generated for this site, and thus the encryption certificates are invalid and we cannot encrypt/decrypt data with them - you need to delete this site from mysites.guru and start the connection process again from scratch, making sure you install the exact connector generated in the process, as each is unique.',
                 ),
             )));
         }
@@ -393,7 +389,7 @@ class bfEncrypt
                 'METHOD'       => 'NOTENCRYPTED',
                 'RESULT'       => bfReply::ERROR,
                 'NOTENCRYPTED' => array(
-                    'msg' => 'The connector you have installed currently on your site doesnt match the last one we generated for this site, and thus the encryption certificates are invalid and we cannot encrypt/decrypt data with them - you need to delete this site from myJoomla.com and start the connection process again from scratch, making sure you install the exact connector generated in the process, as each is unique.',
+                    'msg' => 'The connector you have installed currently on your site doesnt match the last one we generated for this site, and thus the encryption certificates are invalid and we cannot encrypt/decrypt data with them - you need to delete this site from mysites.guru and start the connection process again from scratch, making sure you install the exact connector generated in the process, as each is unique.',
                 ),
             )));
         }

@@ -13,48 +13,77 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussGithub extends EasyDiscuss
 {
-    /**
-     * Creates a new gist anonymously
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return  
-     */
-    public function createGist($contents, $language)
-    {
-        // Load front end's language
-        ED::loadLanguages();
+	/**
+	 * Creates a new gist anonymously
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return  
+	 */
+	public function createGist($contents, $language)
+	{
+		$token = $this->getAccessToken();
 
-        $files = array('snippet.' . $language => array('content' => $contents));
-        $params = array('files' => $files, 'description' => JText::sprintf('COM_EASYDISCUSS_GIST_SNIPPET_SHARED_FROM', JURI::root()), 'public' => true);
-        $paramsStr = json_encode($params);
+		if (!$token) {
+			return false;
+		}
 
-        // Set a due date?
-        $ch = curl_init('https://api.github.com/gists');
+		// Load front end's language
+		ED::loadLanguages();
 
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");                                                                     
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $paramsStr);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            'Accept: application/json',
-            'Content-Type: application/json',
-            'User-Agent: StackIdeas Forums',
-            'Content-Length: ' . strlen($paramsStr)
-            ));
-        $output = curl_exec($ch);
-        curl_close($ch);
+		$files = array('snippet.' . $language => array('content' => $contents));
+		$params = array('files' => $files, 'description' => JText::sprintf('COM_ED_GIST_SNIPPET_SHARED_FROM', JURI::root()), 'public' => true);
+		$paramsStr = json_encode($params);
 
-        if (!$output) {
-            return false;
-        }
+		// Set a due date?
+		$ch = curl_init('https://api.github.com/gists');
 
-        $result = json_decode($output);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $paramsStr);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+			'Authorization: token ' . $token,
+			'Accept: application/json',
+			'Content-Type: application/json',
+			'User-Agent: StackIdeas Forums',
+			'Content-Length: ' . strlen($paramsStr)
+			));
+		$output = curl_exec($ch);
 
-        if (!$result || !isset($result->html_url)) {
-            return false;
-        }
+		curl_close($ch);
 
-        return $result->html_url;
-    }
+		if (!$output) {
+			return false;
+		}
+
+		$result = json_decode($output);
+
+		if (!$result || !isset($result->html_url)) {
+			return false;
+		}
+
+		return $result->html_url;
+	}
+
+	private function getAccessToken()
+	{
+		static $token = null;
+
+		if (is_null($token)) {
+
+			$token = false;
+
+			$oauth = ED::table('Oauth');
+			$oauth->load(array('type' => 'github'));
+
+			if ($oauth->id && $oauth->access_token) {
+				$data = json_decode($oauth->access_token);
+				$token = $data->token;
+			}
+		}
+
+		return $token;
+	}
 }

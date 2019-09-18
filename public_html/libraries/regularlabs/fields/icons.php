@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.4.11218
+ * @version         19.8.25552
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -148,7 +148,7 @@ class JFormFieldRL_Icons extends \RegularLabs\Library\Field
 			$html[] = '<fieldset class="pull-left">';
 			$html[] = '<input type="radio" id="' . $id . '" name="' . $this->name . '"'
 				. ' value="' . htmlspecialchars($class, ENT_COMPAT, 'UTF-8') . '"' . $checked . '>';
-			$html[] = '<label for="' . $id . '" class="btn btn-small"><span class="icon-' . $class . '"></span></label>';
+			$html[] = '<label for="' . $id . '" class="btn btn-small hasTip" title="' . $class . '"><span class="icon-' . $class . '"></span></label>';
 			$html[] = '</fieldset>';
 		}
 

@@ -36,7 +36,7 @@ $listDirn	= $this->escape($this->state->get('list.direction', 'DESC')); ?>
 						<td><?php echo $item->IdSubscription; ?></td>
 						<td><?php echo $item->name; ?></td>
 						<td><a href="mailto:<?php echo $item->email; ?>"><?php echo $item->email; ?></a></td>
-						<td align="center"><?php echo RSCommentsHelper::component($item->option); ?></td>
+						<td align="center"><?php echo RSCommentsHelperAdmin::component($item->option); ?></td>
 					</tr>
 				<?php } ?>
 				</tbody>

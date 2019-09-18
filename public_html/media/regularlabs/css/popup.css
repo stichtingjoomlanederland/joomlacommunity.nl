@@ -1,6 +1,6 @@
 /**
  * @package         Regular Labs Library
- * @version         19.4.11218
+ * @version         19.8.25552
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -297,6 +297,16 @@ body.reglab-popup {
 body.reglab-popup .container-fluid {
   padding: 0 20px;
 }
+body.reglab-popup .navbar {
+  margin-bottom: 10px;
+}
+body.reglab-popup .navbar .navbar-inner {
+  padding-left: 0;
+  padding-right: 0;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+}
 body.reglab-popup .navbar .btn-toolbar,
 body.reglab-popup .navbar #toolbar {
   margin-top: 2px;
@@ -337,4 +347,18 @@ body.reglab-popup .reglab-overlay {
 }
 body.reglab-popup .chzn-container-single .chzn-single div b {
   background: none !important;
+}
+body.reglab-popup .nav-tabs > li > a {
+  border-color: #eeeeee #eeeeee #dddddd;
+  background-color: #f5f5f5;
+  margin-right: 4px;
+}
+body.reglab-popup .nav-tabs > li > a:hover,
+body.reglab-popup .nav-tabs > li > a:focus {
+  background-color: #eeeeee;
+}
+body.reglab-popup .nav-tabs > li.active a {
+  border-color: #dddddd;
+  border-bottom-color: transparent;
+  background-color: #ffffff;
 }

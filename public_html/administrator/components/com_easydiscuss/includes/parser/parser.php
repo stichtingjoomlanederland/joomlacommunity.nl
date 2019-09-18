@@ -384,6 +384,51 @@ class EasyDiscussParser extends EasyDiscuss
 	}
 
 	/**
+	 * Process gist blocks
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function processGistBlocks($blocks)
+	{
+		// check if we have the gist url or not.
+		// if yes, we will just reuse the existing gist url.
+		$tmp = $blocks[1];
+
+		$tmp = str_replace('&quot;', '"', $tmp);
+
+		$pattern = '/url="(.*?)"/ms';
+		preg_match($pattern, $tmp, $matches);
+
+		if ($matches && isset($matches[1])) {
+			$url = $matches[1];
+
+			return '<script src="' . $url . '" data-ed-scripts-gist></script>';
+		}
+
+		// The codes are on the 3rd index.
+		$code = $blocks[3];
+
+		// Determine the language type
+		$language = isset($blocks[2]) && !empty($blocks[2]) ? $blocks[2] : 'html';
+
+		// Because the text / contents are already escaped, we need to revert back to the original html codes only for the codes.
+		$code = html_entity_decode($code);
+
+
+		// Send to gist to create the gist now.
+		$github = ED::github();
+		$url = $github->createGist($code, $language);
+
+		// Check if the gist was successfully created
+		if (!$url) {
+			return '';
+		}
+
+		return '<script src="' . $url . '.js" data-ed-scripts-gist></script>';
+	}
+
+	/**
 	 * Replace mentions
 	 *
 	 * @since	4.0
@@ -425,32 +470,6 @@ class EasyDiscussParser extends EasyDiscuss
 		}
 
 		return $text;
-	}
-
-	/**
-	 * Process gist blocks
-	 *
-	 * @since	4.0
-	 * @access	public
-	 */
-	public function processGistBlocks($blocks)
-	{
-		// The codes are on the 3rd index.
-		$code = $blocks[3];
-
-		// Determine the language type
-		$language = isset($blocks[2]) && !empty($blocks[2]) ? $blocks[2] : 'html';
-
-		// Because the text / contents are already escaped, we need to revert back to the original html codes only for the codes.
-		$code = html_entity_decode($code);
-
-
-		// Send to gist to create the gist now.
-		$github = ED::github();
-		$url = $github->createGist($code, $language);
-
-		// @TODO: Check if the gist was successfully created
-		return '<script src="' . $url . '.js" data-ed-scripts-gist></script>';
 	}
 
 	/**

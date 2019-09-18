@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -15,18 +15,19 @@ class MailsController extends acymController
     public function __construct()
     {
         parent::__construct();
-        $this->breadcrumb[acym_translation('ACYM_TEMPLATES')] = acym_completeLink('mails');
-        $this->loadScripts = array(
-            'edit' => array('colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'parse-css'),
-            'apply' => array('colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'parse-css'),
-            'test' => array('colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'parse-css'),
-        );
+        $type = acym_getVar('string', 'type');
+        $this->breadcrumb[acym_translation('automation' != $type ? 'ACYM_TEMPLATES' : 'ACYM_AUTOMATION')] = acym_completeLink('automation' != $type ? 'mails' : 'automation');
+        $this->loadScripts = [
+            'edit' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'parse-css'],
+            'apply' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'parse-css'],
+            'test' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'parse-css'],
+        ];
         header('X-XSS-Protection:0');
     }
 
     public function listing()
     {
-        acym_setVar("layout", "listing");
+        acym_setVar('layout', 'listing');
 
         $searchFilter = acym_getVar('string', 'mails_search', '');
         $tagFilter = acym_getVar('string', 'mails_tag', '');
@@ -39,7 +40,7 @@ class MailsController extends acymController
 
         $mailClass = acym_get('class.mail');
         $matchingMails = $mailClass->getMatchingMails(
-            array(
+            [
                 'ordering' => $ordering,
                 'search' => $searchFilter,
                 'mailsPerPage' => $mailsPerPage,
@@ -47,15 +48,23 @@ class MailsController extends acymController
                 'tag' => $tagFilter,
                 'status' => $status,
                 'ordering_sort_order' => $orderingSortOrder,
-            )
+            ]
         );
 
         $matchingMailsNb = count($matchingMails['mails']);
-        if ($page > 1 && empty($matchingMailsNb)) {
-            acym_setVar('mails_pagination_page', 1);
-            $this->listing();
 
-            return;
+        if (empty($matchingMailsNb)) {
+            if ($page > 1) {
+                acym_setVar('mails_pagination_page', 1);
+                $this->listing();
+
+                return;
+            } elseif (!empty($status)) {
+                acym_setVar('mails_status', '');
+                $this->listing();
+
+                return;
+            }
         }
 
         $pagination = acym_get('helper.pagination');
@@ -66,7 +75,8 @@ class MailsController extends acymController
                 $oneTemplate->thumbnail = ACYM_IMAGES.'default_template_thumbnail.png';
             }
         }
-        $mailsData = array(
+
+        $mailsData = [
             'allMails' => $matchingMails['mails'],
             'allTags' => acym_get('class.tag')->getAllTagsByType('mail'),
             'pagination' => $pagination,
@@ -76,9 +86,10 @@ class MailsController extends acymController
             'status' => $status,
             'mailNumberPerStatus' => $matchingMails['status'],
             'orderingSortOrder' => $orderingSortOrder,
-        );
+        ];
+        parent::display($mailsData);
 
-        return parent::display($mailsData);
+        return;
     }
 
     public function choose()
@@ -98,7 +109,7 @@ class MailsController extends acymController
 
         $mailClass = acym_get('class.mail');
         $matchingMails = $mailClass->getMatchingMails(
-            array(
+            [
                 'ordering' => $ordering,
                 'ordering_sort_order' => $orderingSortOrder,
                 'search' => $searchFilter,
@@ -106,7 +117,7 @@ class MailsController extends acymController
                 'offset' => ($page - 1) * $mailsPerPage,
                 'tag' => $tagFilter,
                 'type' => $type,
-            )
+            ]
         );
 
         $pagination = acym_get('helper.pagination');
@@ -118,7 +129,7 @@ class MailsController extends acymController
             }
         }
 
-        $mailsData = array(
+        $mailsData = [
             'allMails' => $matchingMails['mails'],
             'allTags' => acym_get('class.tag')->getAllTagsByType('mail'),
             'pagination' => $pagination,
@@ -126,7 +137,7 @@ class MailsController extends acymController
             'tag' => $tagFilter,
             'ordering' => $ordering,
             'type' => $type,
-        );
+        ];
 
 
         parent::display($mailsData);
@@ -143,7 +154,7 @@ class MailsController extends acymController
         $type = acym_getVar('string', 'type');
 
         if (!empty($notification)) {
-            $mail = $mailClass->getNotificationByName($notification);
+            $mail = $mailClass->getOneByName($notification);
             if (!empty($mail->id)) {
                 $tempId = $mail->id;
             }
@@ -163,22 +174,25 @@ class MailsController extends acymController
                 $mail->name = '';
                 $mail->subject = '';
                 $mail->preheader = '';
-                $mail->tags = array();
+                $mail->tags = [];
                 $mail->type = '';
                 $mail->body = '';
-                $mail->editor = $typeEditor;
+                $mail->editor = 'automation' == $type ? 'acyEditor' : $typeEditor;
                 $mail->headers = '';
                 $mail->thumbnail = null;
             } else {
                 $mail = $mailClass->getOneById($fromId);
-                $mail->editor = $mail->drag_editor == 0 ? 'html' : 'acyEditor';
-                if (!empty($typeEditor)) $mail->editor = $typeEditor;
+                if (0 == $mail->drag_editor) {
+                    $mail->editor = 'html';
+                } else {
+                    $mail->editor = !empty($typeEditor) ? $typeEditor : 'acyEditor';
+                }
             }
 
             if (!empty($type)) $mail->type = $type;
 
             if ('automation' != $type || empty($fromId)) $mail->id = 0;
-            $this->breadcrumb[acym_translation('ACYM_CREATE_TEMPLATE')] = acym_completeLink('mails&task=edit&type_editor='.$typeEditor.(!empty($fromId) ? '&from='.$fromId : '').'&type='.$type.(!empty($return) ? '&return='.urlencode($return) : ''));
+            $this->breadcrumb[acym_translation('automation' != $type ? 'ACYM_CREATE_TEMPLATE' : 'ACYM_NEW_EMAIL')] = acym_completeLink('mails&task=edit&type_editor='.$typeEditor.(!empty($fromId) ? '&from='.$fromId : '').'&type='.$type.(!empty($return) ? '&return='.urlencode($return) : ''));
         } else {
             $mail = $mailClass->getOneById($tempId);
             $mail->editor = $mail->drag_editor == 0 ? 'html' : 'acyEditor';
@@ -206,13 +220,13 @@ class MailsController extends acymController
 
         $config = acym_config();
 
-        $data = array(
+        $data = [
             "mail" => $mail,
             'allTags' => acym_get('class.tag')->getAllTagsByType('mail'),
             'config' => acym_config(),
             'isAutomationAdmin' => $isAutomationAdmin,
-            'social_icons' => $config->get('social_icons', ''),
-        );
+            'social_icons' => $config->get('social_icons', '{}'),
+        ];
 
         if (!empty($return)) $data['return'] = $return;
 
@@ -227,12 +241,12 @@ class MailsController extends acymController
         parent::display();
     }
 
-    public function store()
+    public function store($ajax = false)
     {
         acym_checkToken();
 
         $mailClass = acym_get('class.mail');
-        $formData = acym_getVar('array', 'mail', array());
+        $formData = acym_getVar('array', 'mail', []);
         $mail = new stdClass();
         $allowedFields = acym_getColumns('mail');
         $return = acym_getVar('string', 'return');
@@ -255,7 +269,7 @@ class MailsController extends acymController
             return false;
         }
 
-        $mail->tags = acym_getVar("array", "template_tags", array());
+        $mail->tags = acym_getVar("array", "template_tags", []);
         $mail->body = acym_getVar('string', 'editor_content', '', 'REQUEST', ACYM_ALLOWRAW);
         $mail->settings = acym_getVar('string', 'editor_settings', '', 'REQUEST', ACYM_ALLOWRAW);
         $mail->stylesheet = acym_getVar('string', 'editor_stylesheet', '', 'REQUEST', ACYM_ALLOWRAW);
@@ -270,7 +284,7 @@ class MailsController extends acymController
         }
         $mailID = $mailClass->save($mail);
         if (!empty($mailID)) {
-            acym_enqueueNotification(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success', 8000);
+            if (!$ajax) acym_enqueueNotification(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success', 8000);
             if ($fromAutomation) {
                 acym_setVar('from', $mailID);
                 acym_setVar('type', 'automation');
@@ -281,9 +295,9 @@ class MailsController extends acymController
 
             return $mailID;
         } else {
-            acym_enqueueNotification(acym_translation('ACYM_ERROR_SAVING'), 'error', 0);
+            if (!$ajax) acym_enqueueNotification(acym_translation('ACYM_ERROR_SAVING'), 'error', 0);
             if (!empty($mailClass->errors)) {
-                acym_enqueueNotification($mailClass->errors, 'error', 0);
+                if (!$ajax) acym_enqueueNotification($mailClass->errors, 'error', 0);
             }
 
             return false;
@@ -316,15 +330,15 @@ class MailsController extends acymController
         $mail = new stdClass();
 
         $mail->id = acym_getVar('int', 'mailId', 0);
-        if (!empty($mail->id)) {
-            $mail->autoSave = acym_getVar('string', 'autoSave', '', 'REQUEST', ACYM_ALLOWRAW);;
-            $mailClass->autoSave($mail);
-            echo 'saved';
-            exit;
-        } else {
+        $mail->autosave = acym_getVar('string', 'autoSave', '', 'REQUEST', ACYM_ALLOWRAW);
+
+        if (empty($mail->id) || !$mailClass->autoSave($mail)) {
             echo 'error';
-            exit;
+        } else {
+            echo 'saved';
         }
+
+        exit;
     }
 
     public function getTemplateAjax()
@@ -336,7 +350,6 @@ class MailsController extends acymController
         $type = acym_getVar('string', 'type', 'custom');
         $editor = acym_getVar('string', 'editor');
         $automation = acym_getVar('string', 'automation');
-        $inMailEditor = acym_getVar('boolean', 'inmail');
 
         $mailsPerPage = 12;
         $page = acym_getVar('int', 'pagination_page_ajax', 1);
@@ -344,7 +357,7 @@ class MailsController extends acymController
 
         $mailClass = acym_get('class.mail');
         $matchingMails = $mailClass->getMatchingMails(
-            array(
+            [
                 'ordering' => $ordering,
                 'ordering_sort_order' => $orderingSortOrder,
                 'search' => $searchFilter,
@@ -354,7 +367,7 @@ class MailsController extends acymController
                 'type' => $type,
                 'editor' => $editor,
                 'automation' => $automation,
-            )
+            ]
         );
 
         $return = '<div class="grid-x grid-padding-x grid-padding-y grid-margin-x grid-margin-y xxlarge-up-6 large-up-4 medium-up-3 small-up-1 cell acym__template__choose__list">';
@@ -372,16 +385,13 @@ class MailsController extends acymController
                 $thumbnail = ACYM_TEMPLATE_THUMBNAILS.$oneTemplate->thumbnail;
             }
 
-            if ($inMailEditor) {
-                $url = acym_getVar('cmd', 'ctrl').'&task=edit&step=editEmail&from='.intval($oneTemplate->id);
-                if (!empty($this->data['campaignInformation'])) $url .= '&id='.intval($this->data['campaignInformation']);
-                $return .= '<a href="'.acym_completeLink($url, false, false, true).'">';
-            } else {
-                $return .= '<div>';
-            }
+            $url = acym_getVar('cmd', 'ctrl').'&task=edit&step=editEmail&from='.intval($oneTemplate->id);
+            if (!empty($this->data['campaignInformation'])) $url .= '&id='.intval($this->data['campaignInformation']);
+            $return .= '<a href="'.acym_completeLink($url, false, false, true).'">';
+
 
             $return .= '<img src="'.acym_escape($thumbnail).'" alt="template thumbnail"/>';
-            $return .= $inMailEditor ? '</a>' : '</div>';
+            $return .= '</a>';
             if ($oneTemplate->drag_editor) {
                 $return .= '<div class="acym__templates__choose__ribbon ribbon">
                                     <div class="acym__templates__choose__ribbon__label acym__color__white acym__background-color__blue">AcyEditor</div>
@@ -427,7 +437,7 @@ class MailsController extends acymController
             exit;
         }
 
-        $echo = array('mailSettings' => $echo->settings, 'content' => $echo->body, 'stylesheet' => $echo->stylesheet);
+        $echo = ['mailSettings' => $echo->settings, 'content' => $echo->body, 'stylesheet' => $echo->stylesheet];
 
         $echo = json_encode($echo);
 
@@ -446,8 +456,9 @@ class MailsController extends acymController
 
         if (empty($mail)) {
             acym_enqueueNotification(acym_translation('ACYM_CAMPAIGN_NOT_FOUND'), 'error', 5000);
+            $this->edit();
 
-            return $this->edit();
+            return;
         }
 
         $mailerHelper = acym_get('helper.mailer');
@@ -467,12 +478,13 @@ class MailsController extends acymController
 
     public function setNewThumbnail()
     {
+        acym_checkToken();
         $contentThumbnail = acym_getVar('string', 'content', '');
         $file = acym_getVar('string', 'thumbnail', '');
 
         $config = acym_config();
 
-        if (empty($file)) {
+        if (empty($file) || strpos($file, 'http') === 0) {
             $thumbNb = $config->get('numberThumbnail', 2);
             $file = 'thumbnail_'.($thumbNb + 1).'.png';
             $newConfig = new stdClass();
@@ -480,15 +492,11 @@ class MailsController extends acymController
             $config->save($newConfig);
         }
 
-        if ('wordpress' === ACYM_CMS) {
-            $wpUploadFolder = wp_upload_dir();
-            $uploadsFolder = $wpUploadFolder['basedir'].DS.'acymailing'.DS.'thumbnails'.DS;
-        } else {
-            $uploadsFolder = ACYM_MEDIA.'images'.DS.'thumbnails'.DS;
-        }
+        $extension = acym_fileGetExt($file);
+        if (strpos($file, 'thumbnail_') === false || !in_array($extension, ['png', 'jpeg', 'jpg', 'gif'])) exit;
 
-        acym_createFolder($uploadsFolder);
-        file_put_contents($uploadsFolder.$file, base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $contentThumbnail)));
+        acym_createFolder(ACYM_UPLOAD_FOLDER_THUMBNAIL);
+        file_put_contents(ACYM_UPLOAD_FOLDER_THUMBNAIL.$file, base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $contentThumbnail)));
         echo $file;
 
         exit;
@@ -599,6 +607,13 @@ class MailsController extends acymController
         }
 
         echo json_encode($newMail);
+        exit;
+    }
+
+    public function saveAjax()
+    {
+        $return = $this->store(true);
+        echo json_encode(['error' => !$return ? acym_translation('ACYM_ERROR_SAVING') : '', 'data' => $return]);
         exit;
     }
 }

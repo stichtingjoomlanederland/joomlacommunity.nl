@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -14,11 +14,11 @@ defined('_JEXEC') or die('Restricted access');
 		<div class="cell medium-3"><?php echo acym_translation('ACYM_CONFIGURATION_QUEUE_PROCESSING'); ?></div>
 		<div class="cell medium-9">
             <?php
-            $queueModes = array(
+            $queueModes = [
                 'auto' => acym_translation('ACYM_CONFIGURATION_QUEUE_AUTOMATIC'),
                 'automan' => acym_translation('ACYM_CONFIGURATION_QUEUE_AUTOMAN'),
                 'manual' => acym_translation('ACYM_CONFIGURATION_QUEUE_MANUAL'),
-            );
+            ];
             echo acym_radio($queueModes, 'config[queue_type]', $data['config']->get('queue_type', 'automan'));
             ?>
 		</div>
@@ -67,10 +67,10 @@ defined('_JEXEC') or die('Restricted access');
 		<div class="cell medium-3 margin-top-1"><?php echo acym_translation('ACYM_ORDER_SEND_QUEUE'); ?></div>
 		<div class="cell medium-9 margin-top-1">
             <?php
-            $ordering = array();
+            $ordering = [];
             $ordering[] = acym_selectOption("user_id, ASC", 'user_id ASC');
             $ordering[] = acym_selectOption("user_id, DESC", 'user_id DESC');
-            $ordering[] = acym_selectOption("rand", acym_translation('ACYM_RANDOM'));
+            $ordering[] = acym_selectOption('rand', 'ACYM_RANDOM');
             echo acym_select(
                 $ordering,
                 'config[sendorder]',
@@ -92,22 +92,36 @@ if (acym_level(1)) {
 		<div class="grid-x grid-margin-x">
 			<div class="cell">
                 <?php
-                $cron_url = acym_frontendLink('cron');
-                $cron_edit = acym_modal(
+                if ($data['config']->get('cron_last', 0) < (time() - 43200)) {
+                    echo '<p class="acym__color__red">'.acym_translation('ACYM_CREATE_CRON_REMINDER').'</p>';
+                }
+
+                $cronUrl = acym_frontendLink('cron');
+                echo acym_modal(
                     acym_translation('ACYM_CREATE_CRON'),
-                    '<iframe src="'.ACYM_UPDATEMEURL.'launcher&task=edit&component=acymailing&cronurl='.urlencode($cron_url).'"></iframe>',
+                    '<iframe src="'.ACYM_UPDATEMEURL.'launcher&task=edit&component=acymailing&cronurl='.urlencode($cronUrl).'"></iframe>',
                     null,
                     'data-reveal-larger',
                     'class="button"'
                 );
-
-                if ($data['config']->get('cron_last', 0) < (time() - 43200)) {
-                    echo '<p>'.acym_translation('ACYM_CREATE_CRON_REMINDER').'</p>';
-                }
-
-                echo $cron_edit;
                 ?>
 			</div>
+            <?php
+
+            $expirationDate = $data['config']->get('expirationdate', 0);
+            if (empty($expirationDate) || (time() - 604800) > $data['config']->get('lastlicensecheck', 0)) {
+                acym_checkVersion();
+            }
+
+            if ($expirationDate > time()) {
+                ?>
+				<div class="cell medium-3"><?php echo acym_tooltip(acym_translation('ACYM_CRON_URL'), acym_translation('ACYM_CRON_URL_DESC')); ?></div>
+				<div class="cell medium-9">
+					<a class="acym__color__blue" href="<?php echo acym_escape($cronUrl, true); ?>" target="_blank"><?php echo $cronUrl; ?></a>
+				</div>
+                <?php
+            }
+            ?>
 		</div>
 	</div>
 
@@ -117,11 +131,12 @@ if (acym_level(1)) {
 			<div class="cell large-2 medium-3"><label for="cronsendreport"><?php echo acym_tooltip(acym_translation('ACYM_REPORT_SEND'), acym_translation('ACYM_REPORT_SEND_DESC')); ?></label></div>
 			<div class="cell large-4 medium-9">
                 <?php
-                $cronreportval = array();
-                $cronreportval['0'] = acym_translation('ACYM_NO');
-                $cronreportval['1'] = acym_translation('ACYM_EACH_TIME');
-                $cronreportval['2'] = acym_translation('ACYM_ONLY_ACTION');
-                $cronreportval['3'] = acym_translation('ACYM_ONLY_SOMETHING_WRONG');
+                $cronreportval = [
+                    '0' => 'ACYM_NO',
+                    '1' => 'ACYM_EACH_TIME',
+                    '2' => 'ACYM_ONLY_ACTION',
+                    '3' => 'ACYM_ONLY_SOMETHING_WRONG',
+                ];
 
                 echo acym_select(
                     $cronreportval,
@@ -130,8 +145,8 @@ if (acym_level(1)) {
                     'class="acym_select_foundation"',
                     'value',
                     'text',
-                    (int)$data['config']->get('cron_sendreport', 2),
-                    'cronsendreport'
+                    'cronsendreport',
+                    true
                 );
                 ?>
 			</div>
@@ -151,7 +166,7 @@ if (acym_level(1)) {
 			<div class="cell large-2 medium-3"><label for="cronsavereport"><?php echo acym_tooltip(acym_translation('ACYM_REPORT_SAVE'), acym_translation('ACYM_REPORT_SAVE_DESC')); ?></label></div>
 			<div class="cell large-4 medium-9">
                 <?php
-                $cronsave = array();
+                $cronsave = [];
                 $cronsave['0'] = acym_translation('ACYM_NO');
                 $cronsave['1'] = acym_translation('ACYM_SIMPLIFIED_REPORT');
                 $cronsave['2'] = acym_translation('ACYM_DETAILED_REPORT');
@@ -163,7 +178,8 @@ if (acym_level(1)) {
                     'class="acym_select_foundation"',
                     'value',
                     'text',
-                    'cronsendreport'
+                    'cronsendreport',
+                    true
                 );
                 ?>
 			</div>
@@ -221,15 +237,15 @@ if (acym_level(1)) {
 
                     <?php
 
-                    $listHours = array();
-                    for ($i = 0; $i < 24; $i++) {
+                    $listHours = [];
+                    for ($i = 0 ; $i < 24 ; $i++) {
                         $value = $i < 10 ? '0'.$i : $i;
                         $listHours[] = acym_selectOption($value, $value);
                     }
                     $hours = acym_select($listHours, 'config[daily_hour]', $data['config']->get('daily_hour', '12'), 'class="intext_select"');
 
-                    $listMinutess = array();
-                    for ($i = 0; $i < 60; $i += 5) {
+                    $listMinutess = [];
+                    for ($i = 0 ; $i < 60 ; $i += 5) {
                         $value = $i < 10 ? '0'.$i : $i;
                         $listMinutess[] = acym_selectOption($value, $value);
                     }
@@ -250,3 +266,4 @@ if (!acym_level(1)) {
     include(ACYM_VIEW.'dashboard'.DS.'tmpl'.DS.'upgrade.php');
     echo '</div>';
 }
+

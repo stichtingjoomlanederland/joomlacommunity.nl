@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.4.11218
+ * @version         19.8.25552
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -13,6 +13,7 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\HTML\HTMLHelper as JHtml;
 use Joomla\CMS\Language\Text as JText;
+use RegularLabs\Library\ArrayHelper as RL_ArrayHelper;
 
 if ( ! is_file(JPATH_LIBRARIES . '/regularlabs/autoload.php'))
 {
@@ -40,6 +41,8 @@ class JFormFieldRL_Content extends \RegularLabs\Library\FieldGroup
 		{
 			return -1;
 		}
+
+		$this->value = RL_ArrayHelper::toArray($this->value);
 
 		// assemble items to the array
 		$options = [];

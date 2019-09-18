@@ -93,7 +93,12 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 			"tncCheckbox": tncCheckbox
 		}).done(function(content) {
 			wrapper.removeClass('is-empty');
+
+			<?php if ($this->config->get('main_comment_ordering') == 'asc') { ?>
 			commentList.append(content);
+			<?php } else { ?>
+			commentList.prepend(content);
+			<?php } ?>
 
 			commentMessage.val('')
 			$(this).attr('disabled', false);
@@ -118,8 +123,8 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 			"id": id,
 			"start": totalCurrent
 		}).done(function(content, nextCycle) {
-			commentList.prepend(content);
-
+			commentList.append(content);
+			
 			if (!nextCycle) {
 				loadButton.hide();
 			}

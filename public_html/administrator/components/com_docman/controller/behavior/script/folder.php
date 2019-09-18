@@ -252,7 +252,7 @@ class ComDocmanControllerBehaviorScriptFolder extends KControllerBehaviorAbstrac
     protected function _splitPath($path)
     {
         $folder = pathinfo($path, PATHINFO_DIRNAME);
-        $name   = ltrim(basename(' '.strtr($path, array('/' => '/ '))));
+        $name   = \Koowa\basename($path);
 
         if ($folder === '.') {
             $folder = '';

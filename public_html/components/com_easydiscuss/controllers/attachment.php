@@ -73,7 +73,41 @@ class EasyDiscussControllerAttachment extends EasyDiscussController
 		$file = $attachment->getAbsolutePath();
 
 		if (!JFile::exists($file)) {
-			return JError::raiseError(500, JText::_('File cannot be found'));
+			return JError::raiseError(500, JText::_('COM_ED_ATTACHMENT_FILE_NOT_FOUND'));
+		}
+
+		$post = ED::post($attachment->uid);
+
+		// Ensure that the viewer can view the post then only can download the file.
+		if (!$post->canView($this->my->id) || !$post->isPublished()) {
+			return JError::raiseError(500, JText::_('COM_ED_ATTACHMENT_DOWNLOAD_INSUFFICIENT_PERMISSION'));
+		}
+
+		// Need to check for the discussion whether created from cluster
+		if (!$post->isQuestion()) {
+			$post = ED::post($post->parent_id);
+
+			$isModerator = ED::isModerator($post->category_id, $this->my->id);
+
+			// Ensure that private post only allow certain user can able to access it
+			if ($post->private && $this->my->id != $post->user_id && !$isModerator) {
+				return JError::raiseError(500, JText::_('COM_ED_ATTACHMENT_DOWNLOAD_INSUFFICIENT_PERMISSION'));
+			}
+		}
+
+		// Determine if user are allowed to download file from the discussion which belong to Easysocial cluster.
+		if ($post->isCluster()) {
+			$easysocial = ED::easysocial();
+
+			if (!$easysocial->isGroupAppExists()) {
+				return JError::raiseError(500, JText::_('COM_ED_ATTACHMENT_DOWNLOAD_INSUFFICIENT_PERMISSION'));
+			}
+
+			$cluster = $easysocial->getCluster($post->cluster_id, $post->getClusterType());
+
+			if (!$cluster->canViewItem()) {
+				return JError::raiseError(500, JText::_('COM_ED_ATTACHMENT_DOWNLOAD_INSUFFICIENT_PERMISSION'));
+			}
 		}
 
 		header('Content-Description: File Transfer');

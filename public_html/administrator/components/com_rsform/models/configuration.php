@@ -9,11 +9,6 @@ defined('_JEXEC') or die('Restricted access');
 
 class RsformModelConfiguration extends JModelAdmin
 {
-	public function __construct()
-	{
-		parent::__construct();
-	}
-	
 	public function getForm($data = array(), $loadData = true) {
 		// Get the form.
 		$form = $this->loadForm('com_rsform.configuration', 'configuration', array('control' => 'rsformConfig', 'load_data' => $loadData));

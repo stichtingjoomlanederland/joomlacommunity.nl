@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -32,10 +32,10 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 	}
 
 	/**
-	 * Method to get the total nr of the categories
+	 * Method to get the total number of categories
 	 *
-	 * @access public
-	 * @return integer
+	 * @since	4.1.7
+	 * @access	public
 	 */
 	public function getTotal()
 	{
@@ -51,8 +51,8 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 	/**
 	 * Method to get a pagination object for the categories
 	 *
-	 * @access public
-	 * @return integer
+	 * @since	4.1.7
+	 * @access	public
 	 */
 	public function getPagination()
 	{
@@ -66,8 +66,8 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 	/**
 	 * Method to build the query for the tags
 	 *
-	 * @access private
-	 * @return string
+	 * @since	4.1.7
+	 * @access	public
 	 */
 	public function _buildQuery($options = array())
 	{
@@ -87,6 +87,12 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		return $query;
 	}
 
+	/**
+	 * Method to build the query for Where
+	 *
+	 * @since	4.1.7
+	 * @access	public
+	 */
 	public function _buildQueryWhere($options = array())
 	{
 		$db = $this->db;
@@ -139,8 +145,8 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 	/**
 	 * Method to get categories item data
 	 *
-	 * @access public
-	 * @return array
+	 * @since	4.1.7
+	 * @access	public
 	 */
 	public function getData($usePagination = true, $options = array())
 	{
@@ -159,10 +165,10 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 	}
 
 	/**
-	 * Method to publish or unpublish categories
+	 * Method to publish or unpublished the categories
 	 *
-	 * @access public
-	 * @return array
+	 * @since	4.1.7
+	 * @access	public
 	 */
 	public function publish(&$categories = array(), $publish = 1)
 	{
@@ -192,10 +198,10 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 	}
 
 	/**
-	 * Returns the number of blog entries created within this category.
+	 * Returns the number of blog entries created within the category
 	 *
-	 * @return int	$result	The total count of entries.
-	 * @param boolean	$published	Whether to filter by published.
+	 * @since	4.1.7
+	 * @access	public
 	 */
 	public function getUsedCount($categoryId, $published = false)
 	{
@@ -215,6 +221,12 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		return $result;
 	}
 
+	/**
+	 * Method to retrieve all of the posts within the category trees
+	 *
+	 * @since	4.1.7
+	 * @access	public
+	 */
 	public function getCategoryTreePosts($ids, $options = array())
 	{
 		if (!$ids) {
@@ -237,15 +249,13 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 
 		$includeChilds = isset($options['includeChilds']) ? $options['includeChilds'] : true;
 
-		if (! is_array($ids)) {
+		if (!is_array($ids)) {
 			$ids = array($ids);
 		}
 
 		$joins = array();
 
-		foreach($ids as $catId) {
-
-			// $includeChilds = true;
+		foreach ($ids as $catId) {
 
 			// $catModel = ED::model('Categories');
 			$children = $this->getCategoriesTree($catId, array('idOnly' => true, 'includeChilds' => $includeChilds));
@@ -253,8 +263,6 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 			if (! $children) {
 				continue;
 			}
-
-			// var_dump($includeChilds, $children);
 
 			$query = "select $catId as `cat_parent_id`, a.`post_id`, a.`has_polls` as `polls_cnt`, a.`num_fav` as `totalFavourites`, a.`num_replies`, a.`num_attachments` as attachments_cnt,";
 			$query .= " a.`num_likes` as `likeCnt`, a.`sum_totalvote` as `VotedCnt`,";
@@ -314,12 +322,10 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 			$joins[] = $query;
 		}
 
-
 		// check if there is ant joins or not. if no mean nothing to search. just return empty array.
 		if (! $joins) {
 			return array();
 		}
-
 
 		$joinQuery = "(" . implode(") UNION ALL (", $joins) . ")";
 
@@ -334,8 +340,6 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 
 		// Join with category table.
 		$query	.= "	LEFT JOIN " . $db->nameQuote('#__discuss_category') . " AS e ON b.`category_id` = e.`id`";
-
-		// echo $query;
 
 		$db->setQuery($query);
 		$results = $db->loadObjectList();
@@ -360,7 +364,6 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 				}
 			}
 		}
-
 
 		return $results;
 
@@ -898,7 +901,10 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 
 		$idOnly = isset($options['id_only']) ? $options['id_only'] : false;
 		$pagination = isset($options['pagination']) ? $options['pagination'] : true;
+		
 		$limitstart = isset($options['limitstart']) ? $options['limitstart'] : $this->input->get('limitstart', 0);
+		$limitstart = (int) $limitstart;
+
 		$limit = isset($options['limit']) ? $options['limit'] : null;
 		$withNoPosts = isset($options['withNoPosts']) ? $options['withNoPosts'] : false;
 
@@ -1070,8 +1076,6 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 	 *
 	 * @since 	4.0
 	 * @access 	public
-	 * @param
-	 * @return
 	 **/
 	public function getCatContainer()
 	{
@@ -1105,8 +1109,6 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 	 *
 	 * @since 	4.0
 	 * @access 	public
-	 * @param
-	 * @return
 	 **/
 	public function suggestCategories($text)
 	{

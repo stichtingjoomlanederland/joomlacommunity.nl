@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -12,27 +12,17 @@ defined('_JEXEC') or die('Restricted access');
 
 class plgAcymManagetext extends acymPlugin
 {
-    var $foundtags = array();
+    var $foundtags = [];
 
-    function replaceContent(&$email, $send = true)
+    public function replaceContent(&$email, $send = true)
     {
         $this->_replaceConstant($email);
         $this->_replaceRandom($email);
-
-        $imageAlignment = '<style type="text/css">
-			.alignleft{float:left;margin:0.5em 1em 0.5em 0;}
-			.aligncenter{display: block;margin-left: auto;margin-right: auto;}
-			.alignright{float: right;margin: 0.5em 0 0.5em 1em;}
-		</style>';
-
-        if (strpos($email->body, '</body>')) {
-            $email->body = str_replace('</body>', $imageAlignment.'</body>', $email->body);
-        } else {
-            $email->body .= $imageAlignment;
-        }
+        $this->_addAlignmentCss($email);
+        $this->_handleAnchors($email);
     }
 
-    function replaceUserInformation(&$email, &$user, $send = true)
+    public function replaceUserInformation(&$email, &$user, $send = true)
     {
         $this->acympluginHelper->cleanHtml($email->body);
         $this->acympluginHelper->replaceVideos($email->body);
@@ -48,10 +38,10 @@ class plgAcymManagetext extends acymPlugin
             return;
         }
 
-        $tagsReplaced = array();
+        $tagsReplaced = [];
         foreach ($tags as $i => $oneTag) {
             $val = '';
-            $arrayVal = array();
+            $arrayVal = [];
             foreach ($oneTag as $valname => $oneValue) {
                 if ($valname == 'id') {
                     $val = trim(strip_tags($oneValue));
@@ -101,7 +91,7 @@ class plgAcymManagetext extends acymPlugin
             $results[$oneRandTag->id][count($results[$oneRandTag->id])] = $results[$oneRandTag->id][$randNumber];
         }
 
-        $tags = array();
+        $tags = [];
         foreach (array_keys($results) as $oneResult) {
             $tags['{rand:'.$oneResult.'}'] = end($results[$oneResult]);
         }
@@ -130,7 +120,7 @@ class plgAcymManagetext extends acymPlugin
         }
 
         $match = '#{if:(((?!{if).)*)}(((?!{if).)*){/if}#Uis';
-        $variables = array('subject', 'body', 'altbody', 'From', 'FromName', 'ReplyTo');
+        $variables = ['subject', 'body', 'altbody', 'From', 'FromName', 'ReplyTo'];
         $found = false;
         foreach ($variables as $var) {
             if (empty($email->$var)) {
@@ -166,7 +156,7 @@ class plgAcymManagetext extends acymPlugin
 
         static $a = false;
 
-        $tags = array();
+        $tags = [];
         foreach ($results as $var => $allresults) {
             foreach ($allresults[0] as $i => $oneTag) {
                 if (isset($tags[$oneTag])) {
@@ -185,7 +175,7 @@ class plgAcymManagetext extends acymPlugin
 
                 $operatorsParts = explode('.', $operators[1]);
                 $operatorComp = 'acym';
-                if (count($operatorsParts) > 1 && in_array($operatorsParts[0], array('acym', 'joomla', 'var'))) {
+                if (count($operatorsParts) > 1 && in_array($operatorsParts[0], ['acym', 'joomla', 'var'])) {
                     $operatorComp = $operatorsParts[0];
                     unset($operatorsParts[0]);
                     $field = implode('.', $operatorsParts);
@@ -256,7 +246,7 @@ class plgAcymManagetext extends acymPlugin
 
         $removetags = 'youtube';
         if (!empty($removetags)) {
-            $regex = array();
+            $regex = [];
             $removeArray = explode(',', trim($removetags, ' ,'));
             foreach ($removeArray as $oneTag) {
                 if (empty($oneTag)) {
@@ -271,5 +261,29 @@ class plgAcymManagetext extends acymPlugin
             }
         }
     }
-}//endclass
+
+    private function _addAlignmentCss(&$email)
+    {
+        $imageAlignment = '<style type="text/css">
+			.alignleft{float:left;margin:0.5em 1em 0.5em 0;}
+			.aligncenter{display: block;margin-left: auto;margin-right: auto;}
+			.alignright{float: right;margin: 0.5em 0 0.5em 1em;}
+		</style>';
+
+        if (strpos($email->body, '</body>')) {
+            $email->body = str_replace('</body>', $imageAlignment.'</body>', $email->body);
+        } else {
+            $email->body .= $imageAlignment;
+        }
+    }
+
+    private function _handleAnchors(&$email)
+    {
+        if (empty($email->body)) return;
+
+        $newBody = preg_replace('/(<a +href="#[^"]*"[^>]*) target="_blank"([^>]*>)/Uis', '$1 $2', $email->body);
+
+        if (!empty($newBody)) $email->body = $newBody;
+    }
+}
 

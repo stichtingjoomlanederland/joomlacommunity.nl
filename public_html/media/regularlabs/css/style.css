@@ -1,6 +1,6 @@
 /**
  * @package         Regular Labs Library
- * @version         19.4.11218
+ * @version         19.8.25552
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -327,11 +327,14 @@ div.rl_well .controls .btn-group > .btn {
 .alert.alert-noclose {
   padding: 8px 14px;
 }
+.rl_has-ignore .btn-primary.active,
 .rl_btn-ignore.btn-danger.active {
   background-color: #999;
   border: 1px solid rgba(0, 0, 0, 0.2);
 }
+.rl_has-ignore .btn-primary.active:hover,
 .rl_btn-ignore.btn-danger.active:hover,
+.rl_has-ignore .btn-primary.active:focus,
 .rl_btn-ignore.btn-danger.active:focus {
   background-color: #737373;
 }
@@ -342,6 +345,13 @@ div.rl_well .controls .btn-group > .btn {
 .rl_btn-exclude.btn-success.active:hover,
 .rl_btn-exclude.btn-success.active:focus {
   background-color: #802420;
+}
+.btn-group.btn-group-full,
+.subform-table-layout table .btn-group.btn-group-full,
+.btn-full {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
 }
 .icon-back:before {
   content: "\e008";
@@ -490,6 +500,13 @@ div.rl_well .controls .btn-group > .btn {
 }
 /* better responsiveness */
 @media (min-width: 768px) and (max-width: 1200px) {
+  .row-fluid [class*="span"][class*="span-md"] {
+    margin-left: 2.12%;
+    *margin-left: 2.03%;
+  }
+  .row-fluid [class*="span"][class*="span-md"]:first-child {
+    margin-left: 0;
+  }
   .row-fluid [class*="span"].span-md-12 {
     width: 100%;
     *width: 99.94680851%;

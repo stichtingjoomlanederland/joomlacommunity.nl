@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -780,7 +780,7 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function bind($data = array(), $allowBindingId = false, $isMigration = false)
+	public function bind($data = array(), $allowBindingId = false, $isMigration = false, $isWrite = false)
 	{
 		$date = ED::date();
 
@@ -917,6 +917,50 @@ class EasyDiscussPost extends EasyDiscuss
 		// now we need to 'translate the content into preview mode so that frontend no longer need to do this heavy process'
 		if ($this->post->content_type == 'bbcode') {
 			$preview = ED::parser()->bbcode($content);
+
+			if ($isWrite) {
+
+				// find all gist blocks.
+				$pattern = '/\<script src="(.*?)" data\-ed\-scripts\-gist\>\<\/script\>/ms';
+				preg_match_all($pattern, $preview, $matches);
+
+				// if (!$matches) {
+				// 	$pattern = '/\<script src=&quot;(.*?)&quot; data\-ed\-scripts\-gist\>\<\/script\>/ms';
+				// 	preg_match_all($pattern, $preview, $matches);
+				// }
+
+				if ($matches && isset($matches[1])) {
+
+					$codesPattern = '/\[gist( type="(.*?)")?\](.*?)\[\/gist\]/ms';
+					preg_match_all($codesPattern, $content, $matches2);
+
+					// if (!$matches2) {
+					// 	$codesPattern = '/\[gist( type=&quot;(.*?)&quot;)?\](.*?)\[\/gist\]/ms';
+					// 	preg_match_all($codesPattern, $content, $matches2);
+					// }
+
+					if ($matches2 && isset($matches2[1]) && count($matches[1]) == count($matches2[1])) {
+
+						for ($i = 0; $i < count($matches[1]); $i++) {
+							$url = $matches[1][$i];
+							$code = $matches2[1][$i];
+
+							$tmp = str_replace('&quot;', '"', $code);
+
+							$pattern = '/url="(.*?)"/ms';
+							if (!preg_match($pattern, $tmp)) {
+
+								$oldCode = '[gist' . $code . ']';
+								$newCode = '[gist' . $code . ' url="' . $url . '"]';
+
+								$content = JString::str_ireplace($oldCode, $newCode, $content);
+
+								$this->post->content = $content;
+							}
+						}
+					}
+				}
+			}
 
 			$preview = nl2br($preview);
 
@@ -1154,9 +1198,7 @@ class EasyDiscussPost extends EasyDiscuss
 			return false;
 		}
 
-		// Check for Cleantalk
-		if (!$this->cleantalk()) {
-			$this->setError('COM_ED_CLEANTALK_SPAM_DETECTED');
+		if (!$this->checkAntiSpam()) {
 			return false;
 		}
 
@@ -1311,17 +1353,7 @@ class EasyDiscussPost extends EasyDiscuss
 			return false;
 		}
 
-		// Check for akismet
-		if ($this->config->get('antispam_akismet') && $this->config->get('antispam_akismet_key')) {
-			if (!$this->akismet()) {
-				$this->setError('COM_EASYDISCUSS_AKISMET_SPAM_DETECTED');
-				return false;
-			}
-		}
-
-		// Check for Cleantalk
-		if (!$this->cleantalk(true)) {
-			$this->setError('COM_ED_CLEANTALK_SPAM_DETECTED');
+		if (!$this->checkAntiSpam(true)) {
 			return false;
 		}
 
@@ -1462,20 +1494,25 @@ class EasyDiscussPost extends EasyDiscuss
 	 */
 	public function akismet()
 	{
+		if (!$this->config->get('antispam_akismet') || !$this->config->get('antispam_akismet_key')) {
+			return true;
+		}
+
 		// load akismet lib
 		ED::akismet();
-
-
 		$properties = array('title', 'content');
-		foreach ($properties as $property) {
 
-			$akismet = new Akismet(DISCUSS_JURIROOT, $this->config->get('antispam_akismet_key'), array(
-								'author' => $this->my->name,
-								'email' => $this->my->email,
-								'website' => DISCUSS_JURIROOT,
-								'body' => urlencode($this->post->$property),
-								'alias' => ''
-								));
+		$options = array(
+					'author' => $this->my->name,
+					'email' => $this->my->email,
+					'website' => DISCUSS_JURIROOT,
+					'body' => '',
+					'alias' => ''
+				);
+
+		foreach ($properties as $property) {
+			$options['body'] = urlencode($this->post->$property);
+			$akismet = new Akismet(DISCUSS_JURIROOT, $this->config->get('antispam_akismet_key'), $options);
 
 			// Detect if there's any errors in Akismet.
 			if (!$akismet->errorsExist() && $akismet->isSpam()) {
@@ -1577,7 +1614,7 @@ class EasyDiscussPost extends EasyDiscuss
 	 */
 	public function canModerate()
 	{
-		if (ED::isSiteAdmin()) {
+		if (ED::isSiteAdmin() || ED::isModerator()) {
 			return true;
 		}
 
@@ -1820,11 +1857,7 @@ class EasyDiscussPost extends EasyDiscuss
 			return false;
 		}
 
-		if (ED::isSiteAdmin()) {
-			return true;
-		}
-
-		if (ED::isModerator($this->post->category_id)) {
+		if (ED::isSiteAdmin() || ED::isModerator($this->post->category_id)) {
 			return true;
 		}
 
@@ -1840,7 +1873,7 @@ class EasyDiscussPost extends EasyDiscuss
 			return true;
 		}
 
-		if ($status == 'rejected' && $this->acl->allowed('mark_reject')) {
+		if ($status == 'rejected' && $this->acl->allowed('mark_rejected')) {
 			return true;
 		}
 
@@ -2051,7 +2084,7 @@ class EasyDiscussPost extends EasyDiscuss
 		$key = $this->post->id;
 
 		if (!isset($items[$key])) {
-			if (isset($this->attachments_cnt)) {
+			if (isset($this->attachments_cnt) && !$this->isReply()) {
 				$items[$key] = $this->attachments_cnt;
 			} else if (isset($this->post->attachments_cnt)) {
 				$items[$key] = $this->post->attachments_cnt;
@@ -2422,6 +2455,8 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since	4.1.3
 	 * @access	public
 	 */
+
+
 	public function getEmbedData()
 	{
 		static $items = array();
@@ -2434,9 +2469,12 @@ class EasyDiscussPost extends EasyDiscuss
 			$maxContent = 350;
 
 			// Remove bbcode tags from the content.
-			$description = $this->content;
-			$description = preg_replace('/\s+/', ' ', (strip_tags(ED::parser()->bbcode($description))));
+			// $description = $this->content;
+			// $description = preg_replace('/\s+/', ' ', (strip_tags(ED::parser()->bbcode($description))));
 			// strip this kind of tag -> &nbsp; &amp;
+
+			$description = $this->preview;
+			$description = preg_replace('/\s+/', ' ', (strip_tags($description)));
 			$description = strip_tags(html_entity_decode($description));
 
 			// We need to escape quotes this now
@@ -3459,24 +3497,24 @@ class EasyDiscussPost extends EasyDiscuss
 	/**
 	 * Retrieves the status class of this post
 	 *
-	 * @since   1.0
-	 * @access  public
+	 * @since	4.1.7
+	 * @access	public
 	 */
 	public function getStatusClass()
 	{
-		if ($this->post->post_status == 1) {
+		if ($this->isPostOnhold()) {
 			return '-on-hold';
 		}
 
-		if ($this->post->post_status == 2) {
+		if ($this->isPostAccepted()) {
 			return '-accepted';
 		}
 
-		if ($this->post->post_status == 3) {
+		if ($this->isPostWorkingOn()) {
 			return '-working-on';
 		}
 
-		if ($this->post->post_status == 4) {
+		if ($this->isPostRejected()) {
 			return '-reject';
 		}
 
@@ -3484,26 +3522,26 @@ class EasyDiscussPost extends EasyDiscuss
 	}
 
 	/**
-	 * Retrieves the status message of the post.
+	 * Retrieves the status message of the post
 	 *
-	 * @since   1.0
-	 * @access  public
+	 * @since	4.1.7
+	 * @access	public
 	 */
 	public function getStatusMessage()
 	{
-		if ($this->post->post_status == 1) {
+		if ($this->isPostOnhold()) {
 			return JText::_('COM_EASYDISCUSS_POST_STATUS_ON_HOLD');
 		}
 
-		if ($this->post->post_status == 2) {
+		if ($this->isPostAccepted()) {
 			return JText::_('COM_EASYDISCUSS_POST_STATUS_ACCEPTED');
 		}
 
-		if ($this->post->post_status == 3) {
+		if ($this->isPostOnhold()) {
 			return JText::_('COM_EASYDISCUSS_POST_STATUS_WORKING_ON');
 		}
 
-		if ($this->post->post_status == 4) {
+		if ($this->isPostRejected()) {
 			return JText::_('COM_EASYDISCUSS_POST_STATUS_REJECT');
 		}
 
@@ -4133,7 +4171,8 @@ class EasyDiscussPost extends EasyDiscuss
 
 				// We only want to update the rest of this section if this reply is not pending moderation
 				if ($this->isPublished()) {
-					$thread->last_user_id = $this->post->user_id;
+					// Editing a reply doesn't count as latest replier #757
+					// $thread->last_user_id = $this->post->user_id;
 					$thread->last_poster_name = $this->post->poster_name;
 					$thread->last_poster_email = $this->post->poster_email;
 					$thread->replied = $this->post->created;
@@ -4475,7 +4514,7 @@ class EasyDiscussPost extends EasyDiscuss
 	public function replyNotify()
 	{
 		// Add system notifications for the thread starter
-		if ($this->post->published && $this->config->get('main_notifications_reply')) {
+		if ($this->post->published && $this->config->get('main_notifications_reply') && !$this->isPending()) {
 
 			// Get all users that are subscribed to this post
 			$model = ED::model('Posts');
@@ -4593,6 +4632,24 @@ class EasyDiscussPost extends EasyDiscuss
 
 			ED::mailer()->notifyAdministrators($emailData, array(), $this->config->get('notify_admin'), $this->config->get('notify_moderator'));
 
+			$model = ED::model('Category');
+			$moderators = $model->getModerators($this->post->category_id);
+
+			// // We need to notify admin and moderator through system notification as well
+			foreach ($moderators as $moderator) {
+			$notification = ED::table('Notifications');
+
+				$notification->bind(array(
+					'title' => JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_MODERATE', $question->title),
+					'cid' => $question->id,
+					'type' => DISCUSS_NOTIFICATIONS_MODERATE_REPLY,
+					'target' => $moderator,
+					'author' => $this->post->user_id,
+					'permalink' => 'index.php?option=com_easydiscuss&' . $this->getReplyPermalink()
+				));
+			$notification->store();
+			}
+
 		} elseif (($this->isPublished() && $this->isNew()) || (!$this->isNew() && $this->prevPostStatus == DISCUSS_ID_PENDING)) {
 
 			$emailData['emailTemplate'] = 'email.post.reply.new.php';
@@ -4635,24 +4692,40 @@ class EasyDiscussPost extends EasyDiscuss
 			$excludeEmails = array_unique($excludeEmails);
 		}
 
-		// notify post owner.
-		$postOwnerId = $question->user_id;
-		$postOwner = ED::user($postOwnerId);
-		$ownerEmail = $postOwner->user->email;
+		// Retrieve question owner id and notify notify him.
+		$questionOwnerId = $question->user_id;
 
+		// If the question owner user id is registered user
+		if ($questionOwnerId) {
+			$questionOwner = ED::user($questionOwnerId);
+			$questionOwnerEmail = $questionOwner->user->email;
+		} else {
+			$questionOwnerEmail = $question->poster_email;
+		}
+
+		// Retrieve reply owner user id
+		$replyOwnerId = $this->post->user_id;
+
+		// If the reply owner user id is registered user
+		if ($replyOwnerId) {
+			$replyOwner = ED::user($replyOwnerId);
+			$replyOwnerEmail = $replyOwner->user->email;
+		}
+
+		// Retrieve the email from poster_email column if that is a guest
 		if ($this->post->user_type != 'member') {
-			$ownerEmail = $this->post->poster_email;
+			$replyOwnerEmail = $this->post->poster_email;
 		}
 
 		// if the reply under moderation and current reply user id shouldn't match with post owner user id, then notify owner.
-		if ($this->config->get('notify_owner') && $this->isPublished() && ($postOwnerId != $this->my->id) && !in_array($ownerEmail, $excludeEmails) && !empty($ownerEmail)) {
-			$emailData['owner_email'] = $ownerEmail;
+		if ($this->config->get('notify_owner') && $this->isPublished() && ($questionOwnerEmail != $replyOwnerEmail) && !in_array($questionOwnerEmail, $excludeEmails) && !empty($questionOwnerEmail)) {
+			$emailData['owner_email'] = $questionOwnerEmail;
 			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $question->id , $question->title);
 			$emailData['emailTemplate'] = 'email.post.reply.new.php';
 
 			ED::mailer()->notifyThreadOwner($emailData);
 
-			$excludeEmails[] = $ownerEmail;
+			$excludeEmails[] = $questionOwnerEmail;
 			$excludeEmails = array_unique($excludeEmails);
 		}
 
@@ -4667,7 +4740,7 @@ class EasyDiscussPost extends EasyDiscuss
 
 			$participantsEmails = ED::mailer()->notifyThreadParticipants($emailData, $excludeEmails);
 		}
-
+		
 		$isBeingApproved = $this->prevPostStatus == DISCUSS_ID_PENDING && $this->isPublished();
 		$isBeingRejected = $this->isRejected;
 
@@ -4784,7 +4857,10 @@ class EasyDiscussPost extends EasyDiscuss
 			}
 		}
 
-		$url = 'view=post&id=' . $question->id . '&limitstart=' . $limitstart . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $this->post->id;
+		$limitstart = $limitstart > 0 ? '&limitstart=' . $limitstart : '';
+
+		$url = 'view=post&id=' . $question->id . $limitstart . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $this->post->id;
+
 		return $url;
 	}
 
@@ -4933,6 +5009,25 @@ class EasyDiscussPost extends EasyDiscuss
 		if (($this->isNew() || $this->prevPostStatus == DISCUSS_ID_PENDING) ||
 			($this->post->published == DISCUSS_ID_PENDING && $this->prevPostStatus == DISCUSS_ID_PUBLISHED && $this->isModerate)) {
 			$administratorEmails = ED::Mailer()->notifyAdministrators($emailData, $excludeEmails, $this->config->get('notify_admin'), $this->config->get('notify_moderator'));
+
+		// Notify by system notification as well
+		$model = ED::model('Category');
+		$moderators = $model->getModerators($this->post->category_id);
+
+		foreach ($moderators as $moderator) {
+			$notification = ED::table('Notifications');
+
+			$notification->bind(array(
+				'title' => JText::sprintf('COM_ED_NEW_QUESTION_MODERATE_NOTIFICATION', $this->getTitle()),
+				'cid' => $this->post->id,
+				'type' => DISCUSS_NOTIFICATIONS_MODERATE_QUESTION,
+				'target' => $moderator,
+				'author' => $this->post->user_id,
+				'permalink' => 'index.php?option=com_easydiscuss&view=ask&id=' . $this->post->id
+			));
+			$notification->store();
+		}
+
 		}
 
 		$isBeingApproved = $this->prevPostStatus == DISCUSS_ID_PENDING && $this->isPublished();
@@ -6690,6 +6785,10 @@ class EasyDiscussPost extends EasyDiscuss
 			// Get the url
 			$url = $this->getFieldData('siteurl', $this->params);
 
+			if (empty($url)) {
+				return false;
+			}
+
 			// Sanitize the url
 			if ($url) {
 				if (stristr($url[0], 'http://') === false && stristr($url[0], 'https://') === false) {
@@ -6717,7 +6816,7 @@ class EasyDiscussPost extends EasyDiscuss
 			// We need to check if the user have set a value in the site details when posting a new question or replies.
 			// If yes, we need to always use that informations.
 			foreach ($siteDetailsTemp as $siteDetail => $key) {
-				$siteDetailsPost->$siteDetail = $key[0];
+				$siteDetailsPost->$siteDetail = isset($key[0]) ? $key[0] : '';
 
 				// Check for the value.
 				if (isset($key[0]) && $key[0]) {
@@ -6855,5 +6954,28 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		return false;
+	}
+
+	/**
+	 * Check for antispam integration
+	 *
+	 * @since	4.1.7
+	 * @access	public
+	 */
+	public function checkAntiSpam($isQuestion = false)
+	{
+		// Check for akismet
+		if (!$this->akismet()) {
+			$this->setError('COM_EASYDISCUSS_AKISMET_SPAM_DETECTED');
+			return false;
+		}
+
+		// Check for Cleantalk
+		if (!$this->cleantalk($isQuestion)) {
+			$this->setError('COM_ED_CLEANTALK_SPAM_DETECTED');
+			return false;
+		}
+
+		return true;
 	}
 }

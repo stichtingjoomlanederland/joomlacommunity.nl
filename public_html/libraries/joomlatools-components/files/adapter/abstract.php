@@ -80,7 +80,7 @@ abstract class ComFilesAdapterAbstract extends KObject
 	{
         $path = $this->_handle->getBasename();
 
-		return $this->normalize(ltrim(basename(' '.strtr($path, array('/' => '/ ')))));
+		return $this->normalize(\Koowa\basename($path));
 	}
 
 	public function getPath()

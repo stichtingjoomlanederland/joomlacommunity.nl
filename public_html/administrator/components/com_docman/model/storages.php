@@ -26,7 +26,7 @@ class ComDocmanModelStorages extends KModelAbstract
         {
             // Can't use basename as it gets rid of UTF characters at the beginning of the file name
             $folder = dirname($state->storage_path) !== '.' ? dirname($state->storage_path) : '';
-            $name   = ltrim(basename(' '.strtr($state->storage_path, array('/' => '/ '))));
+            $name   = \Koowa\basename($state->storage_path);
 
             $entity = $this->getObject('com:files.model.entity.file', array(
                 'data' => array(

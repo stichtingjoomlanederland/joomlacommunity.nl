@@ -10,9 +10,11 @@ defined('_JEXEC') or die('Restricted access');
 class RsformModelRsform extends JModelLegacy
 {
 	protected $config;
-	
-	public function __construct() {
-		parent::__construct();
+
+	public function __construct($config = array())
+	{
+		parent::__construct($config);
+
 		$this->config = RSFormProConfig::getInstance();
 	}
 	

@@ -8,22 +8,24 @@
 defined('_JEXEC') or die('Restricted access');
 
 class RsformController extends JControllerLegacy
-{	
-	public function captcha() {
+{
+	public function captcha()
+	{
 		require_once JPATH_SITE.'/components/com_rsform/helpers/captcha.php';
-		
+
 		$componentId 	= JFactory::getApplication()->input->getInt('componentId');
 		$captcha 		= new RSFormProCaptcha($componentId);
 
 		JFactory::getSession()->set('com_rsform.captcha.captchaId'.$componentId, $captcha->getCaptcha());
-		
+
 		if (JFactory::getDocument()->getType() != 'image')
 		{
 			JFactory::getApplication()->close();
 		}
 	}
-	
-	public function plugin() {
+
+	public function plugin()
+	{
 		JFactory::getApplication()->triggerEvent('rsfp_f_onSwitchTasks');
 	}
 	
@@ -34,7 +36,9 @@ class RsformController extends JControllerLegacy
     {
 		$db 	= JFactory::getDbo();
 		$secret = JFactory::getConfig()->get('secret');
-		$hash 	= JFactory::getApplication()->input->getCmd('hash');
+		$app	= JFactory::getApplication();
+		$hash 	= $app->input->getCmd('hash');
+		$file   = $app->input->getCmd('file');
 		
 		// Load language file
 		JFactory::getLanguage()->load('com_rsform', JPATH_ADMINISTRATOR);
@@ -51,6 +55,8 @@ class RsformController extends JControllerLegacy
 		$db->setQuery($query);
 		if ($result = $db->loadObject())
 		{
+			$allowedTypes = array(RSFORM_FIELD_FILEUPLOAD);
+
 			// Check if it's an upload field
             $query->clear()
                 ->select($db->qn('c.ComponentTypeId'))
@@ -61,17 +67,39 @@ class RsformController extends JControllerLegacy
                 ->where($db->qn('c.FormId') . '=' . $db->q($result->FormId));
 			$db->setQuery($query);
 			$type = $db->loadResult();
-			if ($type != RSFORM_FIELD_FILEUPLOAD)
+
+			$app->triggerEvent('rsfp_onSubmissionsViewFile', array(&$allowedTypes, &$result));
+
+			if (!in_array($type, $allowedTypes))
 			{
                 throw new Exception(JText::_('RSFP_VIEW_FILE_NOT_UPLOAD'));
 			}
+
+			$foundFile = false;
+			if ($file && strlen($file) == 32)
+			{
+				$values = RSFormProHelper::explode($result->FieldValue);
+
+				foreach ($values as $value)
+				{
+					if (md5($value) == $file)
+					{
+						$foundFile = $value;
+						break;
+					}
+				}
+			}
+			else
+			{
+				$foundFile = $result->FieldValue;
+			}
 			
-			if (!file_exists($result->FieldValue))
+			if (!$foundFile || !file_exists($foundFile))
 			{
                 throw new Exception(JText::_('RSFP_VIEW_FILE_NOT_FOUND'));
 			}
 
-            RSFormProHelper::readFile($result->FieldValue);
+            RSFormProHelper::readFile($foundFile);
 		}
 		else
         {
@@ -83,8 +111,22 @@ class RsformController extends JControllerLegacy
 	{
 		$db     = JFactory::getDbo();
 		$app    = JFactory::getApplication();
-		$form   = $app->input->post->get('form', array(), 'array');
-		$formId = isset($form['formId']) ? $form['formId'] : 0;
+		$post   = $app->input->post->get('form', array(), 'array');
+		$formId = isset($post['formId']) ? $post['formId'] : 0;
+		$isAjax = true;
+		$data	= array();
+
+		if (!$formId)
+		{
+			$app->close();
+		}
+
+		$form = RSFormProHelper::getForm($formId);
+
+		if (!$form || !$form->Published)
+		{
+			$app->close();
+		}
 
 		$query = $db->getQuery(true)
             ->select($db->qn('ComponentId'))
@@ -124,15 +166,19 @@ class RsformController extends JControllerLegacy
                 $removeUploads[] = $component->ComponentId;
             }
 		}
-		
-		echo implode(',', $formComponents);
-		
-		echo "\n";
+
+		$data['formComponents'] = $formComponents;
 		
 		$invalid = RSFormProHelper::validateForm($formId);
 		
 		//Trigger Event - onBeforeFormValidation
-		$app->triggerEvent('rsfp_f_onBeforeFormValidation', array(array('invalid'=>&$invalid, 'formId' => $formId, 'post' => &$form)));
+		$app->triggerEvent('rsfp_f_onBeforeFormValidation', array(array('invalid'=>&$invalid, 'formId' => $formId, 'post' => &$post)));
+
+		$_POST['form'] = $post;
+
+		eval($form->ScriptProcess);
+
+		$post = $_POST['form'];
 		
 		if (count($invalid))
 		{
@@ -143,16 +189,15 @@ class RsformController extends JControllerLegacy
                     unset($invalid[$i]);
                 }
             }
-			
-			$invalidComponents = array_intersect($formComponents, $invalid);
-			
-			echo implode(',', $invalidComponents);
+
+            // Using array_values to reindex keys so we have an Array in JSON
+			$invalidComponents = array_values(array_intersect($formComponents, $invalid));
+
+			$data['invalidComponents'] = $invalidComponents;
 		}
 		
-		if (isset($invalidComponents))
+		if (!empty($invalidComponents))
 		{
-			echo "\n";
-
 			$pages = RSFormProHelper::componentExists($formId, RSFORM_FIELD_PAGEBREAK);
 			$pages = count($pages);
 			
@@ -171,15 +216,126 @@ class RsformController extends JControllerLegacy
                         $current_page++;
                     }
 				}
-				echo $current_page;
-				
-				echo "\n";
-				
-				echo $pages;
+				$data['currentPage'] = $current_page;
+
+				$data['allPages'] = $pages;
 			}
+
+			// Update error messages on the page
+			if ($results = RSFormProHelper::getComponentProperties($invalidComponents))
+			{
+				$data['validationMessages'] = array();
+				foreach ($results as $componentId => $properties)
+				{
+					if (!empty($properties['VALIDATIONMESSAGE']))
+					{
+						$data['validationMessages'][$componentId] = $properties['VALIDATIONMESSAGE'];
+					}
+				}
+			}
+
 		}
+
+		$this->showJson($data);
 		
 		$app->close();
+	}
+
+	protected function showJson($data)
+	{
+		$app	= JFactory::getApplication();
+		$accept = $app->input->server->get('HTTP_ACCEPT', '', 'raw');
+
+		if (strpos($accept, 'application/json') === false && strpos($accept, 'text/html') !== false && strpos($accept, '*/*') === false)
+		{
+			// Internet Explorer < 10
+			$mime = 'text/plain';
+		}
+		else
+		{
+			// Browser other than Internet Explorer < 10
+			$mime = 'application/json';
+
+			$app->setHeader('Content-Disposition', 'attachment; filename="ajaxvalidate.json"', true);
+		}
+
+		$app->allowCache(false);
+
+		$app->setHeader('Content-Type', $mime, true);
+
+		$app->sendHeaders();
+
+		echo $this->encode($data);
+
+		$app->close();
+	}
+
+	protected function encode($response)
+	{
+		$result = json_encode($response);
+
+		// Added a failsafe in case the response isn't encoded - at least we'll have something to work with.
+		if ($result === false)
+		{
+			$result = $this->jsonEncode($response);
+		}
+
+		// Let's see if the JSON can be decoded to avoid JSON.parse errors
+		$decoded = json_decode($result);
+		if ($decoded === null)
+		{
+			// Remove wrong control chars
+			$result = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x80-\x9F]/', '', $result);
+		}
+
+		return $result;
+	}
+
+	protected function jsonEncode($val)
+	{
+		if (is_string($val))
+		{
+			$val = str_replace(array("\n", "\r", "\t", "\v", "\f"), array('\n', '\r', '\t', '\v', '\f'), $val);
+			return '"'.addcslashes($val, '"\\').'"';
+		}
+
+		if (is_numeric($val))
+		{
+			return $val;
+		}
+
+		if ($val === null)
+		{
+			return 'null';
+		}
+
+		if ($val === true)
+		{
+			return 'true';
+		}
+
+		if ($val === false)
+		{
+			return 'false';
+		}
+
+		$assoc = is_array($val) ? array_keys($val) !== range(0, count($val) - 1) : true;
+
+		$res = array();
+
+		foreach ($val as $k => $v)
+		{
+			$v = $this->jsonEncode($v);
+			if ($assoc)
+			{
+				$k = '"'.addcslashes($k, '"\\').'"';
+				$v = $k.':'.$v;
+			}
+			$res[] = $v;
+		}
+
+		$res = implode(',', $res);
+		return ($assoc) ? '{'.$res.'}' : '['.$res.']';
 	}
 	
 	public function confirm()

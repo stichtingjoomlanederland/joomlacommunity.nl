@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -94,18 +94,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 			</div>
 			<?php } ?>
 
-			<?php if ($this->config->get('integration_easysocial_members') && ED::easysocial()->exists()) { ?>
+			<?php if ($showUsers) { ?>
 			<div class="o-nav__item <?php echo $active == 'users' ? ' is-active' : '';?>">
-				<a href="<?php echo ESR::users();?>" class="o-nav__link ed-toolbar__link">
-					<i class="fa fa-users t-sm-visible"></i>
-					<span>
-						<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_USERS');?>
-					</span>
-				</a>
-			</div>
-			<?php } else if ($showUsers && $this->config->get('main_user_listings')) { ?>
-			<div class="o-nav__item <?php echo $active == 'users' ? ' is-active' : '';?>">
-				<a href="<?php echo EDR::_('view=users');?>" class="o-nav__link ed-toolbar__link">
+				<a href="<?php echo $userMenuLink;?>" class="o-nav__link ed-toolbar__link">
 					<i class="fa fa-users t-sm-visible"></i>
 					<span>
 						<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_USERS');?>
@@ -260,18 +251,16 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<div class="o-nav__item is-signin dropdown_" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_MORE_SETTINGS');?>">
 					<a href="javascript:void(0);" class="o-nav__link ed-toolbar__link has-avatar dropdown-toggle_" data-ed-toggle="dropdown">
 						<div class="ed-toolbar__avatar">
-							<div class="o-avatar o-avatar--sm">
-								<img src="<?php echo $this->profile->getAvatar();?>">
-							</div>
+							<?php echo $this->html('user.avatar', $this->profile, array(), false, true); ?>
 						</div>
 					</a>
 
 					<!-- TODO For dropdown width t-width--100, t-width--66 and t-width--33 -->
 					<div class="ed-toolbar__dropdown-menu ed-toolbar__dropdown-menu--action dropdown-menu bottom-right
-						<?php echo ED::easyblog()->hasToolbar() && ED::easysocial()->hasToolbar() ? 't-width--100' : '';?>
-						<?php echo !ED::easyblog()->hasToolbar() && !ED::easysocial()->hasToolbar() ? 't-width--33' : '';?>
-						<?php echo ED::easyblog()->hasToolbar() && !ED::easysocial()->hasToolbar() ? 't-width--66' : '';?>
-						<?php echo !ED::easyblog()->hasToolbar() && ED::easysocial()->hasToolbar() ? 't-width--66' : '';?>
+						<?php echo ED::easyblog()->hasToolbar() && ED::easysocial()->hasToolbar($this->my->id) ? 't-width--100' : '';?>
+						<?php echo !ED::easyblog()->hasToolbar() && !ED::easysocial()->hasToolbar($this->my->id) ? 't-width--33' : '';?>
+						<?php echo ED::easyblog()->hasToolbar() && !ED::easysocial()->hasToolbar($this->my->id) ? 't-width--66' : '';?>
+						<?php echo !ED::easyblog()->hasToolbar() && ED::easysocial()->hasToolbar($this->my->id) ? 't-width--66' : '';?>
 							t-width--100"
 						data-ed-toolbar-dropdown
 					>
@@ -322,7 +311,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 									<?php echo ED::easyblog()->getToolbarDropdown();?>
 								<?php } ?>
 
-								<?php if (ED::easysocial()->hasToolbar()) { ?>
+								<?php if (ED::easysocial()->hasToolbar($this->my->id)) { ?>
 									<?php echo ED::easysocial()->getToolbarDropdown();?>
 								<?php } ?>
 
@@ -400,6 +389,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 									</div>
 									<?php } ?>
 
+									<?php if ($showManageSubscription) { ?>
 									<div class="ed-toolbar-dropdown-nav__item ">
 										<a href="<?php echo EDR::_('view=subscription');?>"  class="ed-toolbar-dropdown-nav__link">
 											<div class="ed-toolbar-dropdown-nav__name">
@@ -415,6 +405,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 											</ol>
 										</a>
 									</div>
+									<?php } ?>
 
 									<?php if (($this->acl->allowed('manage_holiday') && $this->config->get('main_work_schedule')) || $this->acl->allowed('manage_pending') || ED::isSiteAdmin()) { ?>
 									<div class="ed-toolbar-dropdown-nav__item ">

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -45,9 +45,9 @@ class DiscussLanguage extends EasyDiscussTable
 
 		if (!$key) {
 			$this->setError(JText::_('COM_EASYDISCUSS_INVALID_API_KEY_PROVIDED'));
-			return false;			
+			return false;
 		}
-		
+
 		// Get the download url
 		$url = $params->get('download');
 
@@ -113,7 +113,7 @@ class DiscussLanguage extends EasyDiscussTable
 			if (JFile::exists($destFile)) {
 				JFile::delete($destFile);
 			}
-			
+
 			// Try to copy the file
 			$state = JFile::copy($sourceFile, $destFile);
 
@@ -179,9 +179,6 @@ class DiscussLanguage extends EasyDiscussTable
 			foreach ($files as $file) {
 				JFile::delete($file);
 			}
-
-			// Remove the path file as well.
-			JFolder::delete($path);
 		}
 
 		$this->state = ED_LANGUAGES_NOT_INSTALLED;
@@ -197,5 +194,5 @@ class DiscussLanguage extends EasyDiscussTable
 	public function isInstalled()
 	{
 		return $this->state == ED_LANGUAGES_INSTALLED;
-	}	
+	}
 }

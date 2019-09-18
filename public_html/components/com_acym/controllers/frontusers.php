@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -59,8 +59,7 @@ class FrontusersController extends acymController
             }
         }
 
-        $formData = acym_getVar('array', 'user', array(), '');
-        $customFields = acym_getVar('array', 'customField');
+        $formData = acym_getVar('array', 'user', [], '');
         $user = new stdClass();
 
         foreach ($formData as $column => $value) {
@@ -83,7 +82,7 @@ class FrontusersController extends acymController
         }
         $user->email = trim($user->email);
 
-        if (empty($user->email) || !acym_validEmail($user->email, true)) {
+        if (empty($user->email) || !acym_isValidEmail($user->email, true)) {
             $this->displayMessage('ACYM_VALID_EMAIL', $ajax);
         }
 
@@ -98,7 +97,9 @@ class FrontusersController extends acymController
             $user->creation_date = acym_date('now', 'Y-m-d H:i:s', false);
         }
 
-        $user->id = $userClass->save($user, $customFields);
+        $customFields = acym_getVar('array', 'customField');
+        $user->id = $userClass->save($user, $customFields, $ajax);
+        if (!empty($userClass->errors)) $this->displayMessage(implode('<br /><br />', $userClass->errors), $ajax);
 
         $myuser = $userClass->getOneById($user->id);
         if (empty($myuser->id)) {
@@ -108,7 +109,7 @@ class FrontusersController extends acymController
         $hiddenlistsstring = acym_getVar('string', 'hiddenlists', '');
         $hiddenlists = explode(',', $hiddenlistsstring);
         acym_arrayToInteger($hiddenlists);
-        $visibleSubscription = acym_getVar('array', 'subscription', array());
+        $visibleSubscription = acym_getVar('array', 'subscription', []);
 
         $addLists = array_merge($hiddenlists, $visibleSubscription);
 
@@ -134,7 +135,7 @@ class FrontusersController extends acymController
             }
         }
 
-        $replace = array();
+        $replace = [];
         foreach ($myuser as $oneProp => $oneVal) {
             $replace['{user:'.$oneProp.'}'] = $oneVal;
         }
@@ -142,7 +143,7 @@ class FrontusersController extends acymController
         $msg = str_replace(array_keys($replace), $replace, acym_translation($msg));
 
         if ($ajax) {
-            $msg = str_replace(array("\n", "\r", '"', '\\'), array(' ', ' ', "'", '\\\\'), $msg);
+            $msg = str_replace(["\n", "\r", '"', '\\'], [' ', ' ', "'", '\\\\'], $msg);
             echo '{"message":"'.$msg.'","type":"'.$msgtype.'","code":"'.$code.'"}';
             exit;
         } else {
@@ -181,7 +182,7 @@ class FrontusersController extends acymController
             }
         }
 
-        $formData = acym_getVar('array', 'user', array());
+        $formData = acym_getVar('array', 'user', []);
 
         if (empty($formData['email'])) {
             if (empty($user)) {
@@ -199,7 +200,7 @@ class FrontusersController extends acymController
             $email = $currentEmail;
         }
 
-        if (empty($email) || !acym_validEmail($email)) {
+        if (empty($email) || !acym_isValidEmail($email)) {
             $this->displayMessage('ACYM_VALID_EMAIL', $ajax);
         }
 
@@ -210,9 +211,9 @@ class FrontusersController extends acymController
             $this->displayMessage('ACYM_NOT_IN_LIST', $ajax);
         }
 
-        $visibleSubscription = acym_getVar('array', 'subscription', array());
+        $visibleSubscription = acym_getVar('array', 'subscription', []);
         $hiddenLists = trim(acym_getVar('string', 'hiddenlists', ''));
-        $hiddenSubscription = empty($hiddenLists) ? array() : explode(',', $hiddenLists);
+        $hiddenSubscription = empty($hiddenLists) ? [] : explode(',', $hiddenLists);
         $unsubscribeLists = array_merge($visibleSubscription, $hiddenSubscription);
 
         $mailId = acym_getVar('int', 'mail_id', 0);
@@ -223,7 +224,7 @@ class FrontusersController extends acymController
 
         if (empty($unsubscribeLists)) {
             $msg = 'ACYM_NO_SUBSCRIPTION_LINKED_EMAIL';
-        } else if (false === $userClass->unsubscribe($alreadyExists->id, $unsubscribeLists)) {
+        } elseif (false === $userClass->unsubscribe($alreadyExists->id, $unsubscribeLists)) {
             $msg = 'ACYM_UNSUBSCRIPTION_NOT_IN_LIST';
         } else {
             $msg = 'ACYM_UNSUBSCRIPTION_OK';
@@ -276,7 +277,7 @@ class FrontusersController extends acymController
 
 
         if (!empty($redirectUrl)) {
-            $replace = array();
+            $replace = [];
             foreach ($user as $key => $val) {
                 $replace['{user:'.$key.'}'] = $val;
             }
@@ -287,7 +288,7 @@ class FrontusersController extends acymController
         acym_redirect(acym_rootURI());
     }
 
-    function profile()
+    public function profile()
     {
         $userClass = acym_get('class.user');
 
@@ -299,9 +300,11 @@ class FrontusersController extends acymController
             if (empty($allowvisitor)) {
                 acym_askLog(true, 'ONLY_LOGGED', 'message');
 
-                return false;
+                return;
             }
         }
+
+        acym_addScript(false, ACYM_JS.'module.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'module.min.js'));
 
         $params = new stdClass();
         $menu = acym_getMenu();
@@ -356,7 +359,7 @@ class FrontusersController extends acymController
             $values->hiddenlists = 'None';
         }
         if (empty($values->fields)) {
-            $values->fields = array('1', '2');
+            $values->fields = ['1', '2'];
         }
         if (!in_array('2', $values->fields) && !in_array(2, $values->fields)) {
             $values->fields[] = '2';
@@ -368,7 +371,7 @@ class FrontusersController extends acymController
             $values->posttext = '';
         }
 
-        foreach (array('lists', 'listschecked', 'hiddenlists', 'fields') as $option) {
+        foreach (['lists', 'listschecked', 'hiddenlists', 'fields'] as $option) {
             if (is_string($values->$option)) {
                 $values->$option = explode(',', $values->$option);
             }
@@ -421,9 +424,9 @@ class FrontusersController extends acymController
 
         if (!empty($values->lists) && strtolower(implode('', $values->lists)) != 'all') {
             if (in_array('None', $values->lists)) {
-                $subscription = array();
+                $subscription = [];
             } else {
-                $newSubscription = array();
+                $newSubscription = [];
                 foreach ($subscription as $id => $onesub) {
                     if (in_array($id, $values->lists)) {
                         $newSubscription[$id] = $onesub;
@@ -434,9 +437,9 @@ class FrontusersController extends acymController
         }
 
         if (!empty($values->hiddenlists)) {
-            $hiddenListsArray = array();
+            $hiddenListsArray = [];
             if (strtolower(implode('', $values->hiddenlists)) == 'all') {
-                $subscription = array();
+                $subscription = [];
                 foreach ($allLists as $oneList) {
                     if (!empty($oneList->active)) {
                         $hiddenListsArray[] = $oneList->id;
@@ -457,7 +460,7 @@ class FrontusersController extends acymController
         $defaultSubscription = $subscription;
         $forceLists = acym_getVar('string', 'listid', '');
         if (!empty($forceLists)) {
-            $subscription = array();
+            $subscription = [];
             $forceLists = explode(',', $forceLists);
             foreach ($forceLists as $oneList) {
                 if (!empty($defaultSubscription[$oneList])) {
@@ -468,7 +471,7 @@ class FrontusersController extends acymController
         $forceHiddenLists = acym_getVar('string', 'hiddenlist', '');
         if (!empty($forceHiddenLists)) {
             $forceHiddenLists = explode(',', $forceHiddenLists);
-            $tmpList = array();
+            $tmpList = [];
             foreach ($forceHiddenLists as $oneList) {
                 if (!empty($defaultSubscription[$oneList]) || in_array($oneList, $values->hiddenlists)) {
                     $tmpList[] = $oneList;
@@ -487,7 +490,7 @@ class FrontusersController extends acymController
 
         $fieldClass = acym_get('class.field');
         $allfields = $fieldClass->getFieldsByID($values->fields);
-        $fields = array();
+        $fields = [];
         foreach ($allfields as $field) {
             $fields[$field->id] = $field;
         }
@@ -495,13 +498,13 @@ class FrontusersController extends acymController
 
         $config = acym_config();
 
-        $data = array(
+        $data = [
             'config' => $config,
             'displayLists' => $displayLists,
             'user' => $user,
             'subscription' => $subscription,
             'fieldClass' => $fieldClass,
-        );
+        ];
 
         foreach ($values as $key => $value) {
             $data[$key] = $value;
@@ -519,7 +522,7 @@ class FrontusersController extends acymController
         $userClass = acym_get('class.user');
         $userClass->extendedEmailVerif = true;
 
-        if (acym_level(1) && $config->get('captcha_enabled') && !$userClass->identify(true)) {
+        if (acym_level(1) && $config->get('captcha') == 1 && $userClass->identify(true) === false) {
             $captchaHelper = acym_get('helper.captcha');
             if (!$captchaHelper->check()) {
                 $this->displayMessage('ACYM_WRONG_CAPTCHA', true);
@@ -581,3 +584,4 @@ class FrontusersController extends acymController
         acym_redirect(acym_rootURI());
     }
 }
+

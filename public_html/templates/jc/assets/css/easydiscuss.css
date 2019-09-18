@@ -7907,12 +7907,9 @@ fieldset[disabled] #ed .btn-link:focus {
 #ed .ed-dashboard-j-calendar .icon-calendar {
   -moz-osx-font-smoothing: grayscale;
   display: inline-block;
-  -webkit-font-feature-settings: normal;
-          font-feature-settings: normal;
-  -webkit-font-kerning: auto;
-          font-kerning: auto;
-  -webkit-font-language-override: normal;
-          font-language-override: normal;
+  font-feature-settings: normal;
+  font-kerning: auto;
+  font-language-override: normal;
   font-size: inherit;
   font-size-adjust: none;
   font-stretch: normal;

@@ -361,7 +361,7 @@ final class bfSnapshot
     }
 
     /**
-     * Clean up old myJoomla.com files and features.
+     * Clean up old mysites.guru files and features.
      */
     private function cleanOurCrap()
     {
@@ -401,7 +401,7 @@ final class bfSnapshot
             $fileContent = $fileContent."
 /**
  * All our code is in the sub folder, as that is what is auto-upgraded
- * and fully maintained by the automated processes at myJoomla.com
+ * and fully maintained by the automated processes at mysites.guru
  */
 require 'bfnetwork/bfPlugin.php';";
 

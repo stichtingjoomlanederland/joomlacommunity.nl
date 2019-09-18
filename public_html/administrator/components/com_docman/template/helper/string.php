@@ -19,7 +19,7 @@ class ComDocmanTemplateHelperString extends KTemplateHelperAbstract
         $string = $config->string;
 
         if ($config->strip_extension) {
-                $string = ltrim(pathinfo(' '.strtr($string, array('/' => '/ ')), PATHINFO_FILENAME));
+            $string = \Koowa\pathinfo($string, PATHINFO_FILENAME);
         }
 
         $string = str_replace(array('_', '-', '.'), ' ', $string);
