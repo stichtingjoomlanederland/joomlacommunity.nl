@@ -2,6 +2,10 @@
 
 Het Nederlandstalige Joomla!-portal
 
+## Logo's en banners 
+Logo's en banners van JoomlaCommunity zijn verwerkt op https://github.com/stichtingjoomlanederland/media
+Wensen en issues met betrekking tot logo's en banners graag als issue verwerken op bovengenoemde repo. 
+
 ## Uitrol site op Byte server
 
 ### Git repo locaties
