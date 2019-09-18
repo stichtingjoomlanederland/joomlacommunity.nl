@@ -47,6 +47,13 @@ class bfLog
             return; // Dont log this call...
         }
 
+        if (!is_string($msg)) {
+            ob_start();
+            var_dump($msg);
+            $msg = ob_get_contents();
+            ob_end_clean();
+        }
+
         if (file_exists(dirname(__FILE__).bfLog::FILE)) {
             $logSize = number_format(filesize(dirname(__FILE__).bfLog::FILE) / 1024 / 1024, 2);
             if ($logSize > 10) {
@@ -80,11 +87,20 @@ class bfLog
      */
     public static function truncate()
     {
+        $preferences = new bfPreferences();
+        $prefs       = $preferences->getPreferences();
+
         bflog::checkPermissions();
 
         @unlink('tmp/log.tmp');
         @unlink('tmp/log.php');
+
+        // temp change to allow debugging of logs - 82.112.150.169 is a static office IP for Phil.
+//        if ($prefs->_BF_LOG) {
+        /*            file_put_contents(dirname(__FILE__).bfLog::FILE, '<?php if ($_SERVER["REMOTE_ADDR"] != "82.112.150.169") die("NOTAUTH"); ?>'.PHP_EOL);*/
+//        } else {
         file_put_contents(dirname(__FILE__).bfLog::FILE, '<?php die(); ?>'.PHP_EOL);
+//        }
         bfLog::log('Log file truncated');
 
         // populate the config into the log
@@ -145,6 +161,11 @@ class bfLog
         bfLog::checkPermissions();
     }
 
+    public static function getLog()
+    {
+        return file_get_contents(dirname(__FILE__).bfLog::FILE);
+    }
+
     /**
      * bfLog::getTail();.
      *
@@ -153,7 +174,7 @@ class bfLog
      *
      * @return array
      */
-    public static function getTail($filename = null, $n = 25)
+    public static function getTail($filename = null, $n = 1000)
     {
         if (null === $filename) {
             $filename = dirname(__FILE__).bfLog::FILE;

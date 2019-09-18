@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.1.10
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -47,7 +47,7 @@ defined('_JEXEC') or die('Restricted access');
 					</div>
 					<label for="acym__walk-through-2__smtp_secure" class="cell text-left acym__walk-through__content__label"><?php echo acym_translation('ACYM_SMTP_SECURE'); ?></label>
                     <?php
-                    $secure = array('ssl' => 'SSL', 'tsl' => 'TSL');
+                    $secure = ['ssl' => 'SSL', 'tsl' => 'TSL'];
                     echo acym_select($secure, 'smtp[secure]', empty($data['smtp_secured']) ? $secure['ssl'] : $data['smtp_secured'], 'class="acym__walk-through__select" id="acym__walk-through-2__smtp_secure"', 'value', 'name'); ?>
 					<div class="cell medium-6 grid-x">
                         <?php echo acym_switch('smtp[keepalive]', empty($data['smtp_keepalive']) ? '0' : '1', acym_translation('ACYM_SMTP_ALIVE')); ?>
@@ -68,11 +68,11 @@ defined('_JEXEC') or die('Restricted access');
 					<div class="cell medium-up-2 grid-x acym__walk-through-2__elastic_port">
 						<span><?php echo acym_translation('ACYM_SMTP_PORT'); ?></span>
                         <?php
-                        $ports = array(
+                        $ports = [
                             '25' => '25',
                             '2525' => '2525',
                             'restapi' => acym_translation('ACYM_REST_API'),
-                        );
+                        ];
                         echo acym_radio($ports, 'elastic[port]', empty($data['elasticemail_port']) ? 'restapi' : $data['elasticemail_port']);
                         ?>
 					</div>
@@ -88,3 +88,4 @@ defined('_JEXEC') or die('Restricted access');
 		</div>
 	</div>
 </div>
+

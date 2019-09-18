@@ -24,9 +24,10 @@ class RsformViewBackuprestore extends JViewLegacy
 		$this->field	 = $this->get('RSFieldset');
 		$this->sidebar 	 = $this->get('SideBar');
 		
-		$this->tempDir	= $this->get('TempDir');
-		$this->writable = $this->get('isWritable');
-		$this->forms	= $this->get('forms');
+		$this->tempDir		= $this->get('TempDir');
+		$this->writable 	= $this->get('isWritable');
+		$this->forms		= $this->get('forms');
+		$this->submissions 	= $this->get('submissions');
 		
 		$this->config = RSFormProConfig::getInstance();
 

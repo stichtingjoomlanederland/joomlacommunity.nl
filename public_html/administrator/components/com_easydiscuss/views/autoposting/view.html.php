@@ -114,7 +114,7 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 	 * Renders the twitter auto posting form
 	 *
 	 * @since	4.0
-	 * @access	public	
+	 * @access	public
 	 */
 	public function twitter($tpl = null)
 	{
@@ -123,7 +123,7 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 
 		// Register buttons here
 		JToolBarHelper::apply();
-		
+
 		// Generate callback url
 		$callback = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=autoposting', false, true);
 
@@ -152,7 +152,7 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 	 * Renders the twitter auto posting form
 	 *
 	 * @since	4.0
-	 * @access	public	
+	 * @access	public
 	 */
 	public function linkedin($tpl = null)
 	{
@@ -161,7 +161,7 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 
 		// Register buttons here
 		JToolBarHelper::apply();
-		
+
 		// Get the oauth library
 		$client = ED::oauth()->getClient('Linkedin');
 
@@ -181,7 +181,23 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 		// Try to get the companies the user manages.
 		if ($associated) {
 			$client->setAccess($table->access_token);
-			$companies = $client->getCompanies();
+			$data = $client->getCompanyLists('role=ADMINISTRATOR&state=APPROVED&projection=(elements*(organizationalTarget~)');
+			$result = json_decode($data['linkedin']);
+
+			if ($result->status == 200) {
+
+				$elements = $result->elements;
+
+				foreach ($elements as $element) {
+					$element = EB::makeArray($element);
+
+					$company = new stdClass();
+					$company->id = $element['organizationalTarget~']['id'];
+					$company->name = $element['organizationalTarget~']['localizedName'];
+
+					$companies[] = $company;
+				}
+			}
 
 			// Get a list of stored groups
 			$storedCompanies = $this->config->get('main_autopost_linkedin_company_id', array());
@@ -223,7 +239,7 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 	 * Renders the slack auto posting settings form
 	 *
 	 * @since	4.0
-	 * @access	public	
+	 * @access	public
 	 */
 	public function slack($tpl = null)
 	{
@@ -232,7 +248,7 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 
 		// Register buttons here
 		JToolBarHelper::apply();
-		
+
 		parent::display('autoposting/slack');
 	}
 
@@ -240,7 +256,7 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 	 * Renders the wunderlist auto posting settings form
 	 *
 	 * @since	4.0
-	 * @access	public	
+	 * @access	public
 	 */
 	public function wunderlist($tpl = null)
 	{
@@ -249,7 +265,7 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 
 		// Register buttons here
 		JToolBarHelper::apply();
-		
+
 		// Get the oauth library
 		$client = ED::oauth()->getClient('Wunderlist');
 
@@ -291,7 +307,7 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 	 * Fetch Facebook groups
 	 *
 	 * @since	4.0
-	 * @access	public	
+	 * @access	public
 	 */
 	public function getFacebookGroup($client, $token)
 	{
@@ -305,14 +321,14 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 		} catch(Exception $e) {
 		}
 
-		return $groups;	
+		return $groups;
 	}
 
 	/**
 	 * Fetch Facebook groups
 	 *
 	 * @since	4.0
-	 * @access	public	
+	 * @access	public
 	 */
 	 public function getFacebookPage($client, $token)
 	 {
@@ -323,7 +339,7 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 
 	 	try {
 	 		$pages = $client->getPages();
-	 	} catch(Exception $e){	 		
+	 	} catch(Exception $e){
 	 	}
 
 	 	return $pages;

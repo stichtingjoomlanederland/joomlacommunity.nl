@@ -12,10 +12,10 @@
  */
 defined('_JEXEC') or die('Restricted access');
 ?>
-<div class="discuss-replies ed-post-replies" data-ed-post-replies>
+<div class="ed-post-replies" data-ed-post-replies>
 	<?php if( $replies ){ ?>
 		<?php foreach( $replies as $reply ){ ?>
-            <?php echo ED::themes()->output('site/post/default.reply.item', array('post' => $reply, 'poll' => $reply->getPoll(), 'composer' => $composer)); ?>
+			<?php echo ED::themes()->output('site/post/default.reply.item', array('post' => $reply, 'poll' => $reply->getPoll(), 'composer' => $composer)); ?>
 		<?php } ?>
 	<?php } ?>
 </div>

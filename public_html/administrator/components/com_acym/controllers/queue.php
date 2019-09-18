@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -21,7 +21,12 @@ class QueueController extends acymController
 
     public function campaigns()
     {
-        acym_setVar("layout", "campaigns");
+        acym_setVar('layout', 'campaigns');
+
+        $config = acym_config();
+        if (acym_level(1) && $config->get('cron_last', 0) < (time() - 43200)){
+            acym_enqueueMessage(acym_translation('ACYM_CREATE_CRON_REMINDER').' <a id="acym__queue__configure-cron" href="'.acym_completeLink('configuration&tab=queue').'">'.acym_translation('ACYM_GOTO_CONFIG').'</a>', 'warning');
+        }
 
         $searchFilter = acym_getVar('string', 'cqueue_search', '');
         $tagFilter = acym_getVar('string', 'cqueue_tag', '');
@@ -32,19 +37,19 @@ class QueueController extends acymController
 
         $queueClass = acym_get('class.queue');
         $matchingElements = $queueClass->getMatchingCampaigns(
-            array(
+            [
                 'search' => $searchFilter,
                 'tag' => $tagFilter,
                 'status' => $status,
                 'campaignsPerPage' => $campaignsPerPage,
                 'offset' => ($page - 1) * $campaignsPerPage,
-            )
+            ]
         );
 
         $pagination = acym_get('helper.pagination');
         $pagination->setStatus($matchingElements['total'], $page, $campaignsPerPage);
 
-        $viewData = array(
+        $viewData = [
             'allElements' => $matchingElements['elements'],
             'pagination' => $pagination,
             'search' => $searchFilter,
@@ -52,7 +57,7 @@ class QueueController extends acymController
             'tags' => acym_get('class.tag')->getAllTagsByType('mail'),
             'numberPerStatus' => $matchingElements['status'],
             'status' => $status,
-        );
+        ];
 
         $this->breadcrumb[acym_translation('ACYM_CAMPAIGNS')] = acym_completeLink('queue');
         parent::display($viewData);
@@ -74,37 +79,27 @@ class QueueController extends acymController
 
         $queueClass = acym_get('class.queue');
         $matchingElements = $queueClass->getMatchingResults(
-            array(
+            [
                 'search' => $searchFilter,
                 'tag' => $tagFilter,
                 'elementsPerPage' => $elementsPerPage,
                 'offset' => ($page - 1) * $elementsPerPage,
-            )
+            ]
         );
 
         $pagination = acym_get('helper.pagination');
         $pagination->setStatus($matchingElements['total'], $page, $elementsPerPage);
 
-        $viewData = array(
+        $viewData = [
             'allElements' => $matchingElements['elements'],
             'pagination' => $pagination,
             'search' => $searchFilter,
             'tag' => $tagFilter,
             'tags' => acym_get('class.tag')->getAllTagsByType('mail'),
-        );
+        ];
 
         $this->breadcrumb[acym_translation('ACYM_QUEUE_DETAILED')] = acym_completeLink('queue&task=detailed');
         parent::display($viewData);
-    }
-
-    public function delete()
-    {
-    }
-
-    public function process()
-    {
-        $queueClass = acym_get('class.queue');
-        $toSend = $queueClass->getReady();
     }
 
     public function scheduleReady()
@@ -158,12 +153,12 @@ class QueueController extends acymController
 
     public function cancelSending()
     {
-        $mailId = acym_getVar("string", "acym__queue__cancel__mail_id");
+        $mailId = acym_getVar('int', 'acym__queue__cancel__mail_id');
 
         if (!empty($mailId)) {
             $hasStat = acym_loadResult("SELECT COUNT(*) FROM #__acym_user_stat WHERE mail_id = ".intval($mailId));
 
-            $result = array();
+            $result = [];
 
             $result[] = acym_query('DELETE FROM #__acym_queue WHERE mail_id = '.intval($mailId));
             if (empty($hasStat)) {
@@ -195,5 +190,15 @@ class QueueController extends acymController
         $this->campaigns();
     }
 
+    public function emptyQueue()
+    {
+        acym_checkToken();
 
+        $queueClass = acym_get('class.queue');
+        $deleted = $queueClass->emptyQueue();
+        acym_enqueueNotification(acym_translation_sprintf('ACYM_EMAILS_REMOVED_QUEUE', $deleted));
+
+        $this->campaigns();
+    }
 }
+

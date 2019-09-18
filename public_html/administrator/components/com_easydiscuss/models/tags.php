@@ -291,7 +291,7 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 	{
 		$db = ED::db();
 
-		$limitstart = $this->getState('limitstart', 0);
+		$limitstart = (int) $this->getState('limitstart', 0);
 
 		$query	=  'select SQL_CALC_FOUND_ROWS a.`id`, a.`title`, a.`alias`, a.`created`, count(c.`id`) as `post_count`';
 		$query	.= ' from #__discuss_tags as a';

@@ -14,6 +14,7 @@ class RsformViewFormajax extends JViewLegacy
 		switch ($this->getLayout())
 		{
 			case 'component':
+				$this->translateIcon = RSFormProHelper::translateIcon();
 				$this->fields = $this->get('componentFields');
 				$this->data = $this->get('componentData');
 				

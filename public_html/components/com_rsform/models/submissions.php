@@ -201,22 +201,41 @@ class RsformModelSubmissions extends JModelLegacy
 					if (in_array($result->FieldName, $this->uploadFields) && !empty($result->FieldValue))
 					{
 						$result->FilePath = $result->FieldValue;
-						$result->FieldValue = '<a href="'.JUri::root().'index.php?option=com_rsform&amp;task=submissions.view.file&amp;hash='.md5($result->SubmissionId.$secret.$result->FieldName).'">'.JFile::getName($result->FieldValue).'</a>';
+
+						$files = RSFormProHelper::explode($result->FieldValue);
+						$actualValues = array();
+						foreach ($files as $file)
+						{
+							$actualValues[] = '<a href="' . JRoute::_('index.php?option=com_rsform&task=submissions.view.file&hash=' . md5($result->SubmissionId.$secret.$result->FieldName) . '&file=' . md5($file)) . '">' . RSFormProHelper::htmlEscape(basename($file)) . '</a>';
+						}
+						$result->FieldValue = implode('<br />', $actualValues);
 					}
 					// Check if this is a multiple field
 					elseif (in_array($result->FieldName, $this->multipleFields))
-						$result->FieldValue = str_replace("\n", $form->MultipleSeparator, $result->FieldValue);
-					elseif ($form->TextareaNewLines && in_array($result->FieldName, $this->textareaFields))
-						$result->FieldValue = nl2br($result->FieldValue);
-						
-					$this->_data[$result->SubmissionId]['SubmissionValues'][$result->FieldName] = array('Value' => $result->FieldValue, 'Id' => $result->SubmissionValueId);
-					if (in_array($result->FieldName, $this->uploadFields) && !empty($result->FieldValue))
 					{
-						$filepath = $result->FilePath;
-						$filepath = str_replace(JPATH_SITE.DIRECTORY_SEPARATOR, JUri::root(), $filepath);
-						$filepath = str_replace(array('\\', '\\/', '//\\'), '/', $filepath);
+						$result->FieldValue = str_replace("\n", $form->MultipleSeparator, $result->FieldValue);
+					}
+					elseif ($form->TextareaNewLines && in_array($result->FieldName, $this->textareaFields))
+					{
+						$result->FieldValue = nl2br($result->FieldValue);
+					}
+
+					$this->_data[$result->SubmissionId]['SubmissionValues'][$result->FieldName] = array('Value' => $result->FieldValue, 'Id' => $result->SubmissionValueId);
+
+					if (!empty($result->FilePath))
+					{
+						$files = RSFormProHelper::explode($result->FilePath);
+
+						$actualValues = array();
+						foreach ($files as $filepath)
+						{
+							$filepath = str_replace(JPATH_SITE.DIRECTORY_SEPARATOR, JUri::root(), $filepath);
+							$filepath = str_replace(array('\\', '\\/', '//\\'), '/', $filepath);
+
+							$actualValues[] = $filepath;
+						}
 						
-						$this->_data[$result->SubmissionId]['SubmissionValues'][$result->FieldName]['Path'] = $filepath;
+						$this->_data[$result->SubmissionId]['SubmissionValues'][$result->FieldName]['Path'] = implode('<br />', $actualValues);
 					}
 				}
 			}

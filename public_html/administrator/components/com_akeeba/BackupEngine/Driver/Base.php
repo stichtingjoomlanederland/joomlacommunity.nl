@@ -82,7 +82,7 @@ abstract class Base extends BaseObject
 	/** @var    string  The minimum supported database version. */
 	protected static $dbMinimum;
 
-	/** @var string Driver type, e.g. mysql, mssql, pgsql and so on */
+	/** @var string Driver type. This should always be mysql as we don't support anything else anymore. */
 	protected $driverType = '';
 
 	/**
@@ -415,8 +415,7 @@ abstract class Base extends BaseObject
 	abstract public function getCollation();
 
 	/**
-	 * Method that provides access to the underlying database connection. Useful for when you need to call a
-	 * proprietary method such as postgresql's lo_* methods.
+	 * Method that provides access to the underlying database connection.
 	 *
 	 * @return  resource  The underlying database connection resource.
 	 */

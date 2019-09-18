@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -21,7 +21,7 @@ defined('_JEXEC') or die('Restricted access');
 				<h6 class="cell shrink acym__language__modal__title acym__language__modal__existing__name-file"><?php echo acym_translation('ACYM_FILE').' : '.$data['file']->name; ?></h6>
 				<div class="cell auto text-right">
                     <?php if (!empty($data['showLatest'])) { ?>
-						<button data-task="latest" id="acym__button__load__latest__language" class="button small-shrink margin-left-1 acy_button_submit"> <?php echo acym_translation('ACYM_LOAD_LATEST_LANGUAGE'); ?> <i class="material-icons">file_download</i></button>
+						<button data-task="latest" id="acym__button__load__latest__language" class="button small-shrink margin-left-1 acy_button_submit"> <?php echo acym_translation('ACYM_LOAD_LATEST_LANGUAGE'); ?> <i class="acymicon-file_download"></i></button>
                     <?php } ?>
 					<a href="#customcontent" id="edit_translation" class="button margin-left-1"><?php echo acym_translation('ACYM_EDIT'); ?></a>
 				</div>
@@ -38,7 +38,8 @@ defined('_JEXEC') or die('Restricted access');
 			</div>
 		</div>
 		<div class="clr"></div>
-		<input type="hidden" name="code" value="<?php echo acym_escape($data['file']->name); ?>"/>
+		<input type="hidden" name="code" value="<?php echo acym_escape($data['file']->name); ?>" />
         <?php acym_formOptions(); ?>
 	</div>
 </form>
+

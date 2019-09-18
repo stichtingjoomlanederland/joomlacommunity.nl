@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -30,8 +30,8 @@ class acymcampaignClass extends acymClass
         $statClass = acym_get('class.mailstat');
         $query = 'SELECT campaign.*, mail.name FROM #__acym_campaign AS campaign';
         $queryCount = 'SELECT COUNT(campaign.id) FROM #__acym_campaign AS campaign';
-        $filters = array();
-        $mailIds = array();
+        $filters = [];
+        $mailIds = [];
 
         $query .= ' JOIN #__acym_mail AS mail ON campaign.mail_id = mail.id';
         $queryCount .= ' JOIN #__acym_mail AS mail ON campaign.mail_id = mail.id';
@@ -54,15 +54,15 @@ class acymcampaignClass extends acymClass
         }
 
         if (!empty($settings['ordering']) && !empty($settings['ordering_sort_order'])) {
-            $table = in_array($settings['ordering'], array('name', 'creation_date')) ? 'mail' : 'campaign';
+            $table = in_array($settings['ordering'], ['name', 'creation_date']) ? 'mail' : 'campaign';
             $query .= ' ORDER BY '.$table.'.'.acym_secureDBColumn($settings['ordering']).' '.acym_secureDBColumn(strtoupper($settings['ordering_sort_order']));
         }
 
-        $results['campaigns'] = acym_loadObjectList($query, '', $settings['offset'], $settings['campaignsPerPage']);
+        $results['campaigns'] = $mailClass->decode(acym_loadObjectList($query, '', $settings['offset'], $settings['campaignsPerPage']));
 
         foreach ($results['campaigns'] as $oneCampaign) {
             array_push($mailIds, $oneCampaign->mail_id);
-            $oneCampaign->tags = "";
+            $oneCampaign->tags = '';
         }
 
         $tags = $tagClass->getAllTagsByTypeAndElementIds('mail', $mailIds);
@@ -70,8 +70,8 @@ class acymcampaignClass extends acymClass
         $totalStats = $statClass->getAllFromMailIds($mailIds);
 
         foreach ($results['campaigns'] as $i => $oneCampaign) {
-            $results['campaigns'][$i]->tags = array();
-            $results['campaigns'][$i]->lists = array();
+            $results['campaigns'][$i]->tags = [];
+            $results['campaigns'][$i]->lists = [];
             $results['campaigns'][$i]->automation_id = null;
 
             foreach ($tags as $tag) {
@@ -127,10 +127,13 @@ class acymcampaignClass extends acymClass
 
     public function getAllCampaignsNameMailId()
     {
-        $query = 'SELECT m.id, m.name FROM #__acym_campaign as c 
-                    LEFT JOIN #__acym_mail as m ON c.mail_id = m.id';
+        $mailClass = acym_get('class.mail');
 
-        return acym_loadObjectList($query);
+        $query = 'SELECT m.id, m.name 
+                FROM #__acym_campaign as c 
+                LEFT JOIN #__acym_mail as m ON c.mail_id = m.id';
+
+        return $mailClass->decode(acym_loadObjectList($query));
     }
 
     public function getOneCampaignByMailId($mailId)
@@ -145,11 +148,9 @@ class acymcampaignClass extends acymClass
         acym_query('DELETE FROM #__acym_mail_has_list WHERE mail_id = '.intval($mailId));
 
         acym_arrayToInteger($listsIds);
-        if (empty($listsIds)) {
-            return;
-        }
+        if (empty($listsIds)) return;
 
-        $values = array();
+        $values = [];
         $listsIds = array_unique($listsIds);
         foreach ($listsIds as $id) {
             array_push($values, '('.intval($mailId).', '.intval($id).')');
@@ -188,14 +189,14 @@ class acymcampaignClass extends acymClass
     public function delete($elements)
     {
         if (!is_array($elements)) {
-            $elements = array($elements);
+            $elements = [$elements];
         }
 
         if (empty($elements)) {
             return 0;
         }
 
-        $mailsToDelete = array();
+        $mailsToDelete = [];
         foreach ($elements as $id) {
             $mailsToDelete[] = acym_loadResult('SELECT mail_id FROM #__acym_campaign WHERE id = '.intval($id));
             acym_query('UPDATE #__acym_campaign SET mail_id = NULL WHERE id = '.intval($id));
@@ -209,7 +210,7 @@ class acymcampaignClass extends acymClass
 
     public function send($campaignID, $result = 0)
     {
-        $date = date("Y-m-d H:i:s", time());
+        $date = acym_date('now', 'Y-m-d H:i:s', false);
         $campaign = $this->getOneById($campaignID);
 
         if ($campaign->scheduled == 0) {
@@ -246,7 +247,7 @@ class acymcampaignClass extends acymClass
             );
         }
 
-        $mailStat = array();
+        $mailStat = [];
         $mailStat['mail_id'] = intval($campaign->mail_id);
         $mailStat['total_subscribers'] = intval($result);
         $mailStat['send_date'] = acym_date("now", "Y-m-d H:i:s");
@@ -265,9 +266,11 @@ class acymcampaignClass extends acymClass
 
     public function getCampaignForDashboard()
     {
+        $mailClass = acym_get('class.mail');
+
         $query = 'SELECT campaign.*, mail.name as name FROM #__acym_campaign as campaign LEFT JOIN #__acym_mail as mail ON campaign.mail_id = mail.id WHERE `active` = 1 AND `scheduled` = 1 AND `sent` = 0 LIMIT 3';
 
-        return acym_loadObjectList($query);
+        return $mailClass->decode(acym_loadObjectList($query));
     }
 
     public function getOpenRateOneCampaign($mail_id)
@@ -345,10 +348,8 @@ class acymcampaignClass extends acymClass
         return acym_loadObjectList($query);
     }
 
-    public function getLastNewsletters(array $params)
+    public function getLastNewsletters($params)
     {
-        $mailClass = acym_get('class.mail');
-
         $query = 'SELECT m.name, m.id, m.body, m.subject, c.sending_date FROM #__acym_campaign as c
                     INNER JOIN #__acym_mail as m ON c.mail_id = m.id
                     WHERE c.active = 1 AND c.sent = 1';
@@ -356,21 +357,21 @@ class acymcampaignClass extends acymClass
         $queryCount = 'SELECT COUNT(*) FROM (SELECT m.id FROM #__acym_campaign as c INNER JOIN #__acym_mail as m ON c.mail_id = m.id WHERE c.active = 1 AND c.sent = 1';
 
         if (isset($params['userId'])) {
-            $query .= " AND m.id IN (SELECT ml.mail_id FROM #__acym_mail_has_list ml
+            $query .= ' AND m.id IN (SELECT ml.mail_id FROM #__acym_mail_has_list ml
                         INNER JOIN #__acym_user_has_list ul ON ml.list_id = ul.list_id
-                        WHERE ul.user_id = ".intval($params['userId']).")";
-            $queryCount .= " AND m.id IN (SELECT ml.mail_id FROM #__acym_mail_has_list ml
+                        WHERE ul.user_id = '.intval($params['userId']).')';
+            $queryCount .= ' AND m.id IN (SELECT ml.mail_id FROM #__acym_mail_has_list ml
                         INNER JOIN #__acym_user_has_list ul ON ml.list_id = ul.list_id
-                        WHERE ul.user_id = ".intval($params['userId']).")";
+                        WHERE ul.user_id = '.intval($params['userId']).')';
         }
 
-        $query .= " ORDER BY c.sending_date DESC";
+        $query .= ' ORDER BY c.sending_date DESC';
 
         $page = isset($params['page']) ? $params['page'] : 0;
         $numberPerPage = isset($params['numberPerPage']) ? $params['numberPerPage'] : 0;
         $lastNewsletters = isset($params['limit']) ? $params['limit'] : 0;
 
-        $queryCount .= empty($lastNewsletters) ? "" : " LIMIT ".intval($lastNewsletters);
+        $queryCount .= empty($lastNewsletters) ? '' : ' LIMIT '.intval($lastNewsletters);
 
         if (!empty($page) && !empty($numberPerPage)) {
             if (!empty($lastNewsletters)) {
@@ -381,7 +382,7 @@ class acymcampaignClass extends acymClass
 
             $offset = ($params['page'] - 1) * $numberPerPage;
             $query .= ' LIMIT '.intval($offset).', '.intval($limit);
-        } else if (!empty($lastNewsletters)) {
+        } elseif (!empty($lastNewsletters)) {
             $limit = $lastNewsletters;
 
             $query .= ' LIMIT '.intval($limit);
@@ -389,9 +390,22 @@ class acymcampaignClass extends acymClass
 
         $queryCount .= ') AS r';
 
-        $return = array();
 
+        $return = [];
+
+        $mailClass = acym_get('class.mail');
         $return['matchingNewsletters'] = $mailClass->decode(acym_loadObjectList($query));
+
+        $userClass = acym_get('class.user');
+        $userEmail = acym_currentUserEmail();
+        $user = $userClass->getOneByEmail($userEmail);
+
+        foreach ($return['matchingNewsletters'] as $i => $oneNewsletter) {
+            acym_trigger('replaceContent', [&$oneNewsletter]);
+            acym_trigger('replaceUserInformation', [&$oneNewsletter, &$user, false]);
+
+            $return['matchingNewsletters'][$i] = $oneNewsletter;
+        }
 
         $return['count'] = acym_loadResult($queryCount);
 
@@ -400,8 +414,9 @@ class acymcampaignClass extends acymClass
 
     public function getListsForCampaign($mailId)
     {
-        $query = "SELECT list_id FROM #__acym_mail_has_list WHERE mail_id = ".intval($mailId);
+        $query = 'SELECT list_id FROM #__acym_mail_has_list WHERE mail_id = '.intval($mailId);
 
         return acym_loadResultArray($query);
     }
 }
+

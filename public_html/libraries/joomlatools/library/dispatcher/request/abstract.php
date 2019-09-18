@@ -79,12 +79,18 @@ abstract class KDispatcherRequestAbstract extends KControllerRequest implements 
     protected $_proxies;
 
     /**
+     * A list of trusted origins
+     *
+     * @var array
+     */
+    protected $_origins;
+
+    /**
      * The requested ranges
      *
      * @var array
      */
     protected $_ranges;
-
 
     /**
      * Constructor
@@ -170,13 +176,6 @@ abstract class KDispatcherRequestAbstract extends KControllerRequest implements 
             }
         }
 
-        /*if(isset($_SERVER['PHP_AUTH_USER']))
-        {
-            This breaks Apache htpasswd authentication
-            $headers['PHP_AUTH_USER'] = $_SERVER['PHP_AUTH_USER'];
-            $headers['PHP_AUTH_PW']   = isset($_SERVER['PHP_AUTH_PW']) ? $_SERVER['PHP_AUTH_PW'] : '';
-        }*/
-
         $this->_headers->add($headers);
 
         //Set the version
@@ -207,6 +206,12 @@ abstract class KDispatcherRequestAbstract extends KControllerRequest implements 
                 $this->data->add($data);
             }
         }
+
+        //Add the trusted origins
+        $origins = KObjectConfig::unbox($config->origins) + array($this->getHost());
+        foreach($origins as $origin) {
+            $this->addOrigin($origin);
+        }
     }
 
     /**
@@ -229,7 +234,7 @@ abstract class KDispatcherRequestAbstract extends KControllerRequest implements 
             'cookies' => $_COOKIE,
             'files'   => $_FILES,
             'proxies' => array(),
-            'format'  => null,
+            'origins' => array()
         ));
 
         parent::_initialize($config);
@@ -304,7 +309,7 @@ abstract class KDispatcherRequestAbstract extends KControllerRequest implements 
     /**
      * Returns current request method.
      *
-     * @return  string
+     * @return  string|null Will return null if a overridde tries to set an unknown method
      */
     public function getMethod()
     {
@@ -321,24 +326,16 @@ abstract class KDispatcherRequestAbstract extends KControllerRequest implements 
                 if($this->data->has('_method')) {
                     $method = strtoupper($this->data->get('_method', 'alpha'));
                 }
+
+                if(!in_array($method, array('GET', 'POST', 'PUT', 'PATCH', 'DELETE'))) {
+                    $method = null;
+                }
             }
 
             $this->_method = $method;
         }
 
         return $this->_method;
-    }
-
-    /**
-     * Sets the request method.
-     *
-     * @param string $method
-     * @return KDispatcherRequest
-     */
-    public function setMethod($method)
-    {
-        $_SERVER['REQUEST_METHOD'] = $method;
-        return parent::setMethod($method);
     }
 
     /**
@@ -499,12 +496,12 @@ abstract class KDispatcherRequestAbstract extends KControllerRequest implements 
             }
 
             //Set the user
-            if($this->_headers->has('PHP_AUTH_USER'))
+            if(isset($_SERVER['PHP_AUTH_USER']))
             {
-                $this->_url->user = $this->_headers->get('PHP_AUTH_USER');
+                $this->_url->user = $_SERVER['PHP_AUTH_USER'];
 
-                if($this->_headers->has('PHP_AUTH_PW')) {
-                    $this->_url->pass = $this->_headers->get('PHP_AUTH_PASS');
+                if(isset($_SERVER['PHP_AUTH_PW'])) {
+                    $this->_url->pass = $_SERVER['PHP_AUTH_PW'];
                 }
             }
         }
@@ -534,10 +531,10 @@ abstract class KDispatcherRequestAbstract extends KControllerRequest implements 
      * 'referer' a commonly used misspelling word for 'referrer'
      * @link http://en.wikipedia.org/wiki/HTTP_referrer
      *
-     * @param   boolean  $isInternal Only allow internal url's
+     * @param   boolean  $isTrusted Only allow trusted origins
      * @return  KHttpUrl|null  A HttpUrl object or NULL if no referrer could be found
      */
-    public function getReferrer($isInternal = true)
+    public function getReferrer($isTrusted = true)
     {
         if(!isset($this->_referrer) && ($this->_headers->has('Referer') || $this->data->has('_referrer')))
         {
@@ -550,60 +547,27 @@ abstract class KDispatcherRequestAbstract extends KControllerRequest implements 
             $this->setReferrer($this->getObject('lib:filter.url')->sanitize($referrer));
         }
 
-        if(isset($this->_referrer) && $isInternal)
-        {
-            $target_origin = $this->getUrl()->getHost();
-            $source_origin = $this->_referrer->getHost();
+        $referrer = $this->_referrer;
 
-            // Check if the source matches the target
-            if($target_origin !== $source_origin)
+        if(isset($referrer) && $isTrusted)
+        {
+            $trusted = false;
+            $source  = $this->_referrer->getHost();
+
+            foreach($this->getOrigins() as $target)
             {
-                // Special case: check if the source is a subdomain of the target origin
-                if ('.'.$target_origin !== substr($source_origin, -1 * (strlen($target_origin)+1))) {
-                    return null;
+                // Check if the source matches the target
+                if($target == $source || '.'.$target === substr($source, -1 * (strlen($target)+1))) {
+                    $trusted = true; break;
                 }
+            }
+
+            if(!$trusted) {
+                $referrer = null;
             }
         }
 
-        return $this->_referrer;
-    }
-
-    /**
-     * Returns the HTTP origin header.
-     *
-     * @param   boolean  $isInternal Only allow internal URLs
-     * @return  KHttpUrl|null  A HttpUrl object or NULL if no origin header could be found
-     */
-    public function getOrigin($isInternal = true)
-    {
-        $origin = null;
-
-        if ($this->_headers->has('Origin'))
-        {
-            try {
-                $origin = $this->getObject('lib:http.url', [
-                    'url' => $this->getObject('lib:filter.url')->sanitize($this->_headers->get('Origin'))
-                ]);
-
-                if($isInternal)
-                {
-                    $target_origin = $this->getUrl()->getHost();
-                    $source_origin = $origin->getHost();
-
-                    // Check if the source matches the target
-                    if($target_origin !== $source_origin)
-                    {
-                        // Special case: check if the source is a subdomain of the target origin
-                        if ('.'.$target_origin !== substr($source_origin, -1 * (strlen($target_origin)+1))) {
-                            $origin = null;
-                        }
-                    }
-                }
-            }
-            catch (UnexpectedValueException $e) {}
-        }
-
-        return $origin;
+        return $referrer;
     }
 
     /**
@@ -621,6 +585,79 @@ abstract class KDispatcherRequestAbstract extends KControllerRequest implements 
         $this->_referrer = $referrer;
 
         return $this;
+    }
+
+    /**
+     * Add a trusted origin
+     *
+     * You should only add an origins that you trust
+     *
+     * @param string $origin A trusted origin
+     * @return KDispatcherRequestInterface
+     */
+    public function addOrigin($origin)
+    {
+        if (strpos($origin, '://') !== false) {
+            $origin = $this->getObject('lib:http.url', array('url' => $origin))->getHost();
+        }
+
+        if(!in_array($origin, (array) $this->_origins)) {
+            $this->_origins[] = $origin;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Returns the HTTP origin header.
+     *
+     * @param   boolean  $isTrusted Only allow trusted origins
+     * @return  KHttpUrl|null  A HttpUrl object or NULL if no origin header could be found
+     */
+    public function getOrigin($isTrusted = true)
+    {
+        $origin = null;
+
+        if ($this->_headers->has('Origin'))
+        {
+            try
+            {
+                $origin = $this->getObject('lib:http.url', [
+                    'url' => $this->getObject('lib:filter.url')->sanitize($this->_headers->get('Origin'))
+                ]);
+
+                if($isTrusted)
+                {
+                    $trusted = false;
+                    $source  = $origin->getHost();
+
+                    foreach($this->getOrigins() as $target)
+                    {
+                        // Check if the source matches the target
+                        if($target == $source || '.'.$target === substr($source, -1 * (strlen($target)+1))) {
+                            $trusted = true; break;
+                        }
+                    }
+
+                    if(!$trusted) {
+                        $origin = null;
+                    }
+                }
+            }
+            catch (UnexpectedValueException $e) {}
+        }
+
+        return $origin;
+    }
+
+    /**
+     * Gets the list of trusted origins.
+     *
+     * @return array An array of trusted origins.
+     */
+    public function getOrigins()
+    {
+        return $this->_origins;
     }
 
     /**
@@ -726,65 +763,6 @@ abstract class KDispatcherRequestAbstract extends KControllerRequest implements 
     {
         $this->_base_path = $path;
         return $this;
-    }
-
-    /**
-     * Return the request format or mediatype
-     *
-     * Find the format by using following sequence :
-     *
-     * 1. Use the the 'format' request parameter
-     * 2. Use the URL path extension
-     * 3. Use the accept header with the highest quality apply the reverse format map to find the format.
-     *
-     * @param   bool    $mediatype Get the media type
-     * @return  string  The request format or NULL if no format could be found
-     */
-    public function getFormat($mediatype = false)
-    {
-        if (!isset($this->_format))
-        {
-            if(!$this->query->has('format'))
-            {
-                $format = pathinfo($this->getUrl()->getPath(), PATHINFO_EXTENSION);
-
-                if(empty($format) || !isset(static::$_formats[$format]))
-                {
-                    $format = 'html'; //define html default
-
-                    if ($this->_headers->has('Accept'))
-                    {
-                        $accept  = $this->_headers->get('Accept');
-                        $formats = $this->_parseAccept($accept);
-
-                        /**
-                         * If the browser is requested text/html serve it at all times
-                         *
-                         * @hotfix #409 : Android 2.3 requesting application/xml
-                         */
-                        if (!isset($formats['text/html']))
-                        {
-                            //Get the highest quality format
-                            $mime_type = key($formats);
-
-                            foreach (static::$_formats as $value => $mime_types)
-                            {
-                                if (in_array($mime_type, (array)$mime_types)) {
-                                    $format = $value;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            else $format = $this->query->get('format', 'word');
-
-            $this->_format = $format;
-            $this->setFormat($format);
-        }
-
-        return $mediatype ? static::$_formats[$this->_format][0] : $this->_format;
     }
 
     /**
@@ -1051,61 +1029,7 @@ abstract class KDispatcherRequestAbstract extends KControllerRequest implements 
         return parent::__get($name);
     }
 
-    /**
-     * Parses an accept header and returns an array (type => quality) of the accepted types, ordered by quality.
-     *
-     * @param string    $accept     The header to parse
-     * @param array     $defaults   The default values
-     * @return array
-     */
-    protected function _parseAccept($accept, array $defaults = NULL)
-    {
-        if (!empty($accept))
-        {
-            // Get all of the types
-            $types = explode(',', $accept);
 
-            foreach ($types as $type)
-            {
-                // Split the type into parts
-                $parts = explode(';', $type);
-
-                // Make the type only the MIME
-                $type = trim(array_shift($parts));
-
-                // Default quality is 1.0
-                $options = array('quality' => 1.0);
-
-                foreach ($parts as $part)
-                {
-                    // Prevent undefined $value notice below
-                    if (strpos($part, '=') === FALSE) {
-                        continue;
-                    }
-
-                    // Separate the key and value
-                    list ($key, $value) = explode('=', trim($part));
-
-                    switch ($key)
-                    {
-                        case 'q'       : $options['quality'] = (float) trim($value); break;
-                        case 'version' : $options['version'] = (float) trim($value); break;
-                    }
-                }
-
-                // Add the accept type and quality
-                $defaults[$type] = $options;
-            }
-        }
-
-        // Make sure that accepts is an array
-        $accepts = (array) $defaults;
-
-        // Order by quality
-        arsort($accepts);
-
-        return $accepts;
-    }
 
     /**
      * Deep clone of this instance

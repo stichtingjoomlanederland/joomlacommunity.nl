@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -30,7 +30,7 @@ class FileController extends acymController
         $folders = acym_generateArborescence([$uploadFolders]);
 
 
-        $uploadedFile = acym_getVar('array', 'uploadedFile', array(), 'files');
+        $uploadedFile = acym_getVar('array', 'uploadedFile', [], 'files');
         if (!empty($uploadedFile) && !empty($uploadedFile['name'])) {
             $uploaded = acym_importFile($uploadedFile, $uploadPath, false);
             if ($uploaded) {
@@ -40,15 +40,15 @@ class FileController extends acymController
 
 
         $allowedExtensions = explode(',', $config->get('allowed_files'));
-        $imageExtensions = array('jpg', 'jpeg', 'png', 'gif', 'ico', 'bmp', 'svg');
+        $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'ico', 'bmp', 'svg'];
         $displayType = acym_getVar('string', 'displayType', 'icons');
 
-        $files = array();
+        $files = [];
         if (file_exists($uploadPath)) {
             $files = acym_getFiles($uploadPath);
         }
 
-        $data = array(
+        $data = [
             'files' => $files,
             'uploadFolder' => $uploadFolder,
             'map' => $map,
@@ -56,8 +56,9 @@ class FileController extends acymController
             'imageExtensions' => $imageExtensions,
             'allowedExtensions' => $allowedExtensions,
             'folders' => $folders,
-        );
+        ];
 
         parent::display($data);
     }
 }
+

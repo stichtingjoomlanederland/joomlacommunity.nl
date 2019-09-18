@@ -109,4 +109,17 @@ class RSFormProFieldRangeSlider extends RSFormProField
 		}
 		return $position;
 	}
+
+	public function processValidation($validationType = 'form', $submissionId = 0)
+	{
+		$required 	= $this->getProperty('REQUIRED', false);
+		$value 		= trim($this->getValue());
+
+		if ($required && empty($value))
+		{
+			return false;
+		}
+
+		return true;
+	}
 }

@@ -12,7 +12,7 @@ class RscommentsViewGroups extends JViewLegacy
 	public function display($tpl = null) {		
 		$this->pagination 	= $this->get('Pagination');
 		$this->items 		= $this->get('Items');
-		$this->canadd 		= RSCommentsHelper::canAdd();
+		$this->canadd 		= RSCommentsHelperAdmin::canAdd();
 		
 		$this->addToolbar();
 		parent::display($tpl);

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -12,9 +12,9 @@ defined('_JEXEC') or die('Restricted access');
 
 function AcymBuildRoute(&$query)
 {
-    $segments = array();
+    $segments = [];
 
-    if (isset($query['ctrl']) && in_array($query['ctrl'], array('moduleloader', 'frontstats', 'cron', 'fronturl', 'frontusers'))) {
+    if (isset($query['ctrl']) && in_array($query['ctrl'], ['moduleloader', 'frontstats', 'cron', 'fronturl', 'frontusers'])) {
         return $segments;
     }
 
@@ -50,7 +50,7 @@ function AcymBuildRoute(&$query)
     }
 
     foreach ($query as $name => $value) {
-        if (in_array($name, array('option', 'Itemid', 'start', 'format', 'limitstart', 'no_html', 'val', 'key', 'acyformname', 'id', 'tmpl', 'lang', 'limit'))) {
+        if (in_array($name, ['option', 'Itemid', 'start', 'format', 'limitstart', 'no_html', 'val', 'key', 'acyformname', 'id', 'tmpl', 'lang', 'limit'])) {
             continue;
         }
 
@@ -67,7 +67,7 @@ function AcymBuildRoute(&$query)
 
 function AcymParseRoute($segments)
 {
-    $vars = array();
+    $vars = [];
 
     if (empty($segments)) {
         return $vars;
@@ -101,3 +101,4 @@ function AcymParseRoute($segments)
 
     return $vars;
 }
+

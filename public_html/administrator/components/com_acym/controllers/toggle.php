@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -12,9 +12,9 @@ defined('_JEXEC') or die('Restricted access');
 
 class ToggleController extends acymController
 {
-    var $toggleableColumns = array();
-    var $icons = array();
-    var $deletableRows = array();
+    var $toggleableColumns = [];
+    var $icons = [];
+    var $deletableRows = [];
 
     public function __construct()
     {
@@ -22,12 +22,12 @@ class ToggleController extends acymController
 
         $this->defaulttask = 'toggle';
 
-        $this->toggleableColumns['automation'] = array('active' => 'id');
-        $this->toggleableColumns['campaign'] = array('active' => 'id');
-        $this->toggleableColumns['field'] = array('active' => 'id', 'required' => 'id', 'backend_profile' => 'id', 'backend_listing' => 'id', 'frontend_profile' => 'id', 'frontend_listing' => 'id');
-        $this->toggleableColumns['list'] = array('active' => 'id', 'visible' => 'id');
-        $this->toggleableColumns['rule'] = array('active' => 'id');
-        $this->toggleableColumns['user'] = array('active' => 'id', 'confirmed' => 'id');
+        $this->toggleableColumns['automation'] = ['active' => 'id'];
+        $this->toggleableColumns['campaign'] = ['active' => 'id'];
+        $this->toggleableColumns['field'] = ['active' => 'id', 'required' => 'id', 'backend_profile' => 'id', 'backend_listing' => 'id', 'frontend_profile' => 'id', 'frontend_listing' => 'id'];
+        $this->toggleableColumns['list'] = ['active' => 'id', 'visible' => 'id'];
+        $this->toggleableColumns['rule'] = ['active' => 'id'];
+        $this->toggleableColumns['user'] = ['active' => 'id', 'confirmed' => 'id'];
 
         $this->icons['automation']['active'][1] = 'fa fa-check-circle-o acym__color__green';
         $this->icons['automation']['active'][0] = 'fa fa-times-circle-o acym__color__red';
@@ -60,9 +60,7 @@ class ToggleController extends acymController
         $this->deletableRows[] = 'mail';
         $this->deletableRows[] = 'queue';
 
-        header('Cache-Control: no-store, no-cache, must-revalidate');
-        header('Cache-Control: post-check=0, pre-check=0', false);
-        header('Pragma: no-cache');
+        acym_noCache();
     }
 
     public function toggle()
@@ -91,7 +89,7 @@ class ToggleController extends acymController
             acym_query('UPDATE '.acym_secureDBColumn(ACYM_DBPREFIX.$table).' SET `'.acym_secureDBColumn($field).'` = '.intval($newValue).' WHERE `'.acym_secureDBColumn($pkey).'` = '.intval($id).' LIMIT 1');
         }
 
-        acym_trigger('onAcymToggle'.ucfirst($table).ucfirst($field), array(&$id, &$newValue));
+        acym_trigger('onAcymToggle'.ucfirst($table).ucfirst($field), [&$id, &$newValue]);
 
 
         if (empty($this->icons[$table][$field][$newValue])) {
@@ -99,7 +97,7 @@ class ToggleController extends acymController
             exit;
         }
 
-        $result = array();
+        $result = [];
         $result['value'] = 1 - $newValue;
         $result['classes'] = 'acym_toggleable '.$this->icons[$table][$field][$newValue];
 
@@ -149,18 +147,29 @@ class ToggleController extends acymController
     {
         $newValue = acym_getVar('string', 'value');
 
+        $return = [];
+        $return['error'] = '';
+
         if (empty($newValue)) {
-            echo 'error';
+            $return['error'] = acym_translation('ACYM_ERROR_SAVING');
+            echo json_encode($return);
             exit;
         }
         $config = acym_config();
         $newConfig = new stdClass();
 
         $newConfig->remindme = json_decode($config->get('remindme', '[]'));
-        array_push($newConfig->remindme, $newValue);
+        if (!in_array($newValue, $newConfig->remindme)) array_push($newConfig->remindme, $newValue);
         $newConfig->remindme = json_encode($newConfig->remindme);
 
-        echo $config->save($newConfig);
+        if ($config->save($newConfig)) {
+            $return['message'] = acym_translation('ACYM_THANKS');
+        } else {
+            $return['error'] = acym_translation('ACYM_ERROR_SAVING');
+        }
+
+        echo json_encode($return);
         exit;
     }
 }
+

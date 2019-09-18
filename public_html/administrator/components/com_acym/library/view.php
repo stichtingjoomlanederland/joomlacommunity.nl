@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Restricted access');
 class acymView
 {
     var $name = '';
-    var $steps = array();
+    var $steps = [];
     var $step = '';
     var $edition = false;
 
@@ -39,7 +39,7 @@ class acymView
 
     public function getLayout()
     {
-        return acym_getVar('string', 'layout', acym_getVar('string', 'task', 'listing'));
+        return acym_getVar('cmd', 'layout', acym_getVar('cmd', 'task', 'listing'));
     }
 
     public function setLayout($value)
@@ -47,7 +47,7 @@ class acymView
         acym_setVar('layout', $value);
     }
 
-    public function display($data = array())
+    public function display($data = [])
     {
         $name = $this->getName();
         $view = $this->getLayout();
@@ -56,16 +56,16 @@ class acymView
 
         $viewFolder = acym_isAdmin() ? ACYM_VIEW : ACYM_VIEW_FRONT;
         if (!file_exists($viewFolder.$name.DS.'tmpl'.DS.$view.'.php')) $view = 'listing';
-        if ('Joomla' == 'WordPress') echo ob_get_clean();
+        if (ACYM_CMS === 'wordpress') echo ob_get_clean();
 
         if (!empty($_SESSION['acynotif'])) {
             echo implode('', $_SESSION['acynotif']);
-            $_SESSION['acynotif'] = array();
+            $_SESSION['acynotif'] = [];
         }
 
 
         $outsideForm = $name == 'mails' && $view == 'edit';
-        if ($outsideForm) echo '<form id="acym_form" action="'.acym_completeLink(acym_getVar('cmd', 'ctrl')).'" method="post" name="acyForm" data-abide novalidate>';
+        if ($outsideForm) echo '<form id="acym_form" action="'.acym_completeLink(acym_getVar('cmd', 'ctrl')).'" class="acym__form__mail__edit" method="post" name="acyForm" data-abide novalidate>';
 
         $class = empty($config->get('small_display', 0)) ? '' : 'acym__wrapper__small';
 
@@ -91,5 +91,16 @@ class acymView
         if (acym_getVar('cmd', 'task') != 'ajaxEncoding') echo '</div>';
 
         if ($outsideForm) echo '</form>';
+
+        $remind = json_decode($config->get('remindme', '[]'));
+        if (ACYM_CMS == 'wordpress' && !in_array('reviews', $remind) && acym_isAdmin()) {
+            echo '<div id="acym__reviews__footer" style="margin: 0 0 30px 30px;">';
+            echo acym_translation_sprintf(
+                'ACYM_REVIEW_FOOTER',
+                '<a title="reviews" id="acym__reviews__footer__link" target="_blank" href="https://wordpress.org/support/plugin/acymailing/reviews/?rate=5#new-post"><i class="fa fa-star acym__color__light-blue"></i><i class="fa fa-star acym__color__light-blue"></i><i class="fa fa-star acym__color__light-blue"></i><i class="fa fa-star acym__color__light-blue"></i><i class="fa fa-star acym__color__light-blue"></i></a>'
+            );
+            echo '</div>';
+        }
     }
 }
+

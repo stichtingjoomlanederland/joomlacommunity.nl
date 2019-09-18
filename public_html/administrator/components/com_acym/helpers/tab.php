@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -12,8 +12,8 @@ defined('_JEXEC') or die('Restricted access');
 
 class acymtabHelper
 {
-    var $titles = array();
-    var $content = array();
+    var $titles = [];
+    var $content = [];
     var $tabNumber = 0;
     var $opened = false;
     var $identifier = 0;
@@ -35,7 +35,7 @@ class acymtabHelper
 
         $this->identifier = preg_replace('#[^a-z0-9]#is', '_', strtolower($title));
 
-        $this->titles[] = '<li class="tabs-title '.$classLi.'"><a class="acym_tab acym__color__medium-gray" '.$attributes.' href="#" data-tabs-target="tab_'.$this->identifier.'_'.$this->tabNumber.'">'.$title.'</a></li>';
+        $this->titles[] = '<li class="tabs-title '.$classLi.'"><a class="acym_tab acym__color__medium-gray" '.$attributes.' href="#" data-tab-identifier="'.$this->identifier.'" data-tabs-target="tab_'.$this->identifier.'_'.$this->tabNumber.'">'.$title.'</a></li>';
 
         ob_start();
     }
@@ -67,3 +67,4 @@ class acymtabHelper
         echo $tabSystem;
     }
 }
+

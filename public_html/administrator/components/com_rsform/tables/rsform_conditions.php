@@ -14,21 +14,21 @@ class TableRSForm_Conditions extends JTable
 	 *
 	 * @var int
 	 */
-	var $id = null;
-	
-	var $form_id 		= null;
-	var $action	 		= null;
-	var $block 	 		= null;
-	var $component_id	= null;
-	var $condition 		= null;
-	var $lang_code 		= null;
+	public $id = null;
+
+	public $form_id 		= null;
+	public $action	 		= null;
+	public $block 	 		= null;
+	public $component_id	= null;
+	public $condition 		= null;
+	public $lang_code 		= null;
 		
 	/**
 	 * Constructor
 	 *
 	 * @param object Database connector object
 	 */
-	function __construct(& $db)
+	public function __construct(& $db)
 	{
 		parent::__construct('#__rsform_conditions', 'id', $db);
 	}

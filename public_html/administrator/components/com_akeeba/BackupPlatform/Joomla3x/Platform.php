@@ -542,18 +542,6 @@ class Joomla3x extends BasePlatform
 
 			return '\\Akeeba\\Engine\\Driver\\Mysql';
 		}
-		elseif (substr($driver, 0, 6) == 'sqlsrv')
-		{
-			return '\\Akeeba\\Engine\\Driver\\Sqlsrv';
-		}
-		elseif (substr($driver, 0, 8) == 'sqlazure')
-		{
-			return '\\Akeeba\\Engine\\Driver\\Sqlazure';
-		}
-		elseif (substr($driver, 0, 10) == 'postgresql')
-		{
-			return '\\Akeeba\\Engine\\Driver\\Postgresql';
-		}
 
 		// Sometimes we get driver names in the form of foomysql instead of mysqlfoo. Let's look for that too.
 		if (substr($driver, -8) == 'pdomysql')
@@ -580,18 +568,6 @@ class Joomla3x extends BasePlatform
 			}
 
 			return '\\Akeeba\\Engine\\Driver\\Mysql';
-		}
-		elseif (substr($driver, -6) == 'sqlsrv')
-		{
-			return '\\Akeeba\\Engine\\Driver\\Sqlsrv';
-		}
-		elseif (substr($driver, -8) == 'sqlazure')
-		{
-			return '\\Akeeba\\Engine\\Driver\\Sqlazure';
-		}
-		elseif (substr($driver, -10) == 'postgresql')
-		{
-			return '\\Akeeba\\Engine\\Driver\\Postgresql';
 		}
 
 		// I give up! You'd better be usign a MySQL db server.

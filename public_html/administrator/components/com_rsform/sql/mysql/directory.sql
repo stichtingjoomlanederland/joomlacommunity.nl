@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS `#__rsform_directory` (
   `enablepdf` tinyint(1) NOT NULL,
   `enablecsv` tinyint(1) NOT NULL,
   `HideEmptyValues` tinyint(1) NOT NULL,
+  `ShowGoogleMap` tinyint(1) NOT NULL,
   `ViewLayout` longtext NOT NULL,
   `ViewLayoutName` text NOT NULL,
   `ViewLayoutAutogenerate` tinyint(1) NOT NULL,

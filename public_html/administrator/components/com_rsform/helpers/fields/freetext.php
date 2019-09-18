@@ -24,7 +24,7 @@ class RSFormProFieldFreeText extends RSFormProField
 			$value = '<pre class="rsfp-preview-freetext">'.$this->escape($value).'</pre>';
 		}
 
-		return $codeIcon . $value . '</td>';
+		return $codeIcon . $value;
 	}
 	
 	// functions used for rendering in front view

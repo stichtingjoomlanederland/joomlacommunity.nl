@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -16,8 +16,8 @@ class acymurlClickClass extends acymClass
 
     public function save($urlClick)
     {
-        $column = array();
-        $valueColumn = array();
+        $column = [];
+        $valueColumn = [];
         $columnName = acym_getColumns("url_click");
 
         if (!is_array($urlClick)) {
@@ -33,12 +33,12 @@ class acymurlClickClass extends acymClass
 
         $query = "#__acym_url_click (".implode(',', $column).") VALUES (".implode(',', $valueColumn).")";
 
-        $onDuplicate = array();
+        $onDuplicate = [];
 
         if (!empty($urlClick['click'])) {
             $onDuplicate[] = "click = click + 1";
             $automationClass = acym_get('class.automation');
-            $automationClass->triggerUser('user_click', $urlClick['user_id']);
+            $automationClass->trigger('user_click', ['userId' => $urlClick['user_id']]);
         }
 
         if (!empty($onDuplicate)) {
@@ -107,14 +107,18 @@ class acymurlClickClass extends acymClass
 
     public function getAllLinkFromEmail($id)
     {
-        $queryClickUrl = 'SELECT url.name, urlclick.click FROM #__acym_url_click AS urlclick LEFT JOIN #__acym_url AS url ON urlclick.url_id = url.id WHERE `mail_id` = '.intval($id).' GROUP BY `url_id`';
+        $queryClickUrl = 'SELECT url.name, SUM(urlclick.click) as click FROM #__acym_url_click AS urlclick 
+                          LEFT JOIN #__acym_url AS url ON urlclick.url_id = url.id 
+                          WHERE `mail_id` = '.intval($id).' GROUP BY `url_id`';
+
         $queryCountAllClicks = 'SELECT SUM(click) FROM #__acym_url_click WHERE `mail_id` = '.intval($id);
 
-        $return = array(
+        $return = [
             'urls_click' => acym_loadObjectList($queryClickUrl),
             'allClick' => acym_loadResult($queryCountAllClicks),
-        );
+        ];
 
         return $return;
     }
 }
+

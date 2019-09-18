@@ -437,4 +437,24 @@ class EasyDiscussThemes extends EasyDiscuss
 		$this->categoryTheme = $theme;
 	}
 
+	/**
+	 * Generates text/avatar image class 
+	 *
+	 * @since	4.1.9
+	 * @access	public	
+	 */
+	public function renderAvatarClass($user)
+	{
+		$config = ED::config();
+
+		$hasEnableAvatarImage = $config->get('layout_avatar');
+
+		$avatarClass = '';
+
+		if (!$hasEnableAvatarImage) {
+			$avatarClass = 'o-avatar--text ' . 'o-avatar--bg-' .  $user->getNameInitial()->code;
+		}
+
+		return $avatarClass;
+	}	
 }

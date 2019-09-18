@@ -244,12 +244,12 @@ class EasyDiscussModelConversation extends EasyDiscussAdminModel
 		$query = array();
 
 		// Delete the conversation items
-		$query[] = 'DELETE FROM ' . $db->nameQuote( '#__discuss_conversations_message_maps' );
-		$query[] = 'WHERE ' . $db->nameQuote( 'conversation_id' ) . ' = ' . $db->Quote( $conversationId );
-		$query[] = 'AND ' . $db->nameQuote( 'user_id' ) . '=' . $db->Quote( $userId );
-		$query = implode( ' ' , $query );
+		$query[] = 'DELETE FROM ' . $db->nameQuote('#__discuss_conversations_message_maps');
+		$query[] = 'WHERE ' . $db->nameQuote('conversation_id') . ' = ' . $db->Quote($conversationId);
+		$query[] = 'AND ' . $db->nameQuote('user_id') . '=' . $db->Quote($userId);
+		$query = implode(' ' , $query);
 
-		$db->setQuery( $query );
+		$db->setQuery($query);
 		$db->Query();
 
 		// @rule: Check if this is the last child item. If it is the last, we should delete everything else.
@@ -262,12 +262,11 @@ class EasyDiscussModelConversation extends EasyDiscussAdminModel
 				. 'WHERE a.' . $db->nameQuote( 'id' ) . ' = ' . $db->Quote( $conversationId ) . ' '
 				. 'AND c.' . $db->nameQuote( 'user_id' ) . ' != ' . $db->Quote( $userId ) . ' '
 				. 'GROUP BY a.' . $db->nameQuote( 'id' );
-		$db->setQuery( $query );
-		$total	= $db->loadResult();
+		$db->setQuery($query);
+		$total = $db->loadResult();
 
-		if( $total <= 0 )
-		{
-			return $this->cleanup();
+		if ($total <= 0) {		
+			return $this->cleanup($conversationId);
 		}
 	}
 
@@ -277,7 +276,7 @@ class EasyDiscussModelConversation extends EasyDiscussAdminModel
 	 * @return	boolean
 	 * @param	int $conversationId
 	 */
-	private function cleanup( $conversationId )
+	private function cleanup($conversationId)
 	{
 		$db		= ED::db();
 

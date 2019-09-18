@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -22,7 +22,7 @@ class FieldsController extends acymController
     {
         if (acym_level(2)) {
             acym_setVar('layout', 'listing');
-            $data = array();
+            $data = [];
             $fieldClass = acym_get('class.field');
 
             $data['allFields'] = $fieldClass->getMatchingFields();
@@ -64,14 +64,14 @@ class FieldsController extends acymController
             $field->option = json_decode($field->option);
             $field->value = json_decode($field->value);
             $field->fieldDB = empty($field->option->fieldDB) ? new stdClass() : json_decode($field->option->fieldDB);
-            if (!in_array($id, array(1, 2)) && !empty($field->fieldDB->table)) {
+            if (!in_array($id, [1, 2]) && !empty($field->fieldDB->table)) {
                 $tables = acym_loadResultArray('SHOW TABLES FROM `'.acym_secureDBColumn($field->fieldDB->database).'`');
-                $field->fieldDB->tables = array();
+                $field->fieldDB->tables = [];
                 foreach ($tables as $one) {
                     $field->fieldDB->tables[$one] = $one;
                 }
-                $columns = empty($field->fieldDB->table) ? array() : acym_loadResultArray('SHOW COLUMNS FROM '.acym_secureDBColumn($field->fieldDB->table).' FROM '.acym_secureDBColumn($field->fieldDB->database));
-                $field->fieldDB->columns = array();
+                $columns = empty($field->fieldDB->table) ? [] : acym_loadResultArray('SHOW COLUMNS FROM '.acym_secureDBColumn($field->fieldDB->table).' FROM '.acym_secureDBColumn($field->fieldDB->database));
+                $field->fieldDB->columns = [];
                 foreach ($columns as $one) {
                     $field->fieldDB->columns[$one] = $one;
                 }
@@ -86,25 +86,25 @@ class FieldsController extends acymController
         }
 
         $allDatabases = acym_loadResultArray('SHOW DATABASES');
-        $databases = array();
+        $databases = [];
         foreach ($allDatabases as $database) {
             $databases[$database] = $database;
         }
 
         $allFields = $fieldClass->getAllfields();
 
-        $allFieldsName = array();
+        $allFieldsName = [];
         foreach ($allFields as $one) {
             $allFieldsName[$one->id] = $one->name;
         }
 
-        $data = array(
+        $data = [
             'field' => $field,
             'database' => $databases,
             'allFields' => $allFieldsName,
-        );
+        ];
 
-        $data['fieldType'] = array(
+        $data['fieldType'] = [
             'text' => acym_translation('ACYM_TEXT'),
             'textarea' => acym_translation('ACYM_TEXTAREA'),
             'radio' => acym_translation('ACYM_RADIO'),
@@ -115,7 +115,7 @@ class FieldsController extends acymController
             'file' => acym_translation('ACYM_FILE'),
             'phone' => acym_translation('ACYM_PHONE'),
             'custom_text' => acym_translation('ACYM_CUSTOM_TEXT'),
-        );
+        ];
 
         return parent::display($data);
     }
@@ -182,22 +182,22 @@ class FieldsController extends acymController
         }
 
 
-        $value = array();
+        $value = [];
 
         $fieldValues = $field['value'];
-        $field['type'] = in_array($id, array(1, 2)) ? 'text' : $field['type'];
+        $field['type'] = in_array($id, [1, 2]) ? 'text' : $field['type'];
 
         $i = 0;
         foreach ($fieldValues['value'] as $one) {
-            if (empty($one) && $one != '0' && ($i != 0 || !in_array($field['type'], array('single_dropdown', 'multiple_dropdown')))) {
+            if (empty($one) && $one != '0' && ($i != 0 || !in_array($field['type'], ['single_dropdown', 'multiple_dropdown']))) {
                 $i++;
                 continue;
             } else {
-                $value[$i] = array(
+                $value[$i] = [
                     'value' => $one,
                     'title' => $fieldValues['title'][$i],
                     'disabled' => $fieldValues['disabled'][$i],
-                );
+                ];
                 $i++;
             }
         }
@@ -214,7 +214,7 @@ class FieldsController extends acymController
         $newField->name = $field['name'];
         $newField->active = $field['active'];
         $newField->namekey = $field['namekey'];
-        $newField->type = in_array($id, array(1, 2)) ? 'text' : $field['type'];
+        $newField->type = in_array($id, [1, 2]) ? 'text' : $field['type'];
         $newField->required = $field['required'];
         $newField->option = json_encode($field['option']);
         $newField->value = $field['value'];
@@ -266,3 +266,4 @@ class FieldsController extends acymController
         }
     }
 }
+

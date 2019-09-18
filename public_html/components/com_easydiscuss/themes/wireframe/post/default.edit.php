@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -30,15 +30,6 @@ defined('_JEXEC') or die('Unauthorized Access');
                      <?php } ?>
                     <?php echo JText::_('COM_EASYDISCUSS_EDIT_YOUR_RESPONSE'); ?>
                 </div>
-
-                <?php if ($this->config->get('main_private_post', false) && $this->my->id) { ?>
-                <div class="o-checkbox t-lg-mb--lg small">
-                    <input id="private" type="checkbox" name="private" value="1"<?php echo $post->private ? ' checked="checked"' : '';?> />
-                    <label for="private">
-                        <?php echo JText::_('COM_EASYDISCUSS_MAKE_THIS_POST_PRIVATE');?>
-                    </label>
-                </div>
-                <?php } ?>
 
                 <?php if ($this->config->get('main_anonymous_posting')) { ?>
                 <div class="o-checkbox t-lg-mb--lg small">

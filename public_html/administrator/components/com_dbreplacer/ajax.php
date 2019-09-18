@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         DB Replacer
- * @version         6.3.3PRO
+ * @version         6.3.4PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -230,7 +230,7 @@ class DBReplacer
 
 			$class = implode(' ', $class);
 
-			if ($value == '' || $value == 0 || $value === null || $value == '0000-00-00')
+			if ($value == '' || $value === 0 || $value === null || $value == '0000-00-00')
 			{
 				if ($value === null)
 				{

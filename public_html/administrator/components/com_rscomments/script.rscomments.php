@@ -299,6 +299,12 @@ class com_rscommentsInstallerScript
 				$db->execute();
 			}
 			
+			$db->setQuery("SHOW COLUMNS FROM `#__rscomments_comments` WHERE `Field` = 'emails'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rscomments_comments` ADD `emails` TINYINT( 2 ) NOT NULL AFTER `anonymous`");
+				$db->execute();
+			}
+			
 			$db->setQuery("SHOW COLUMNS FROM `#__rscomments_votes` WHERE `Field` = 'ip'");
 			$ipField = $db->loadObject();
 			if (strtolower($ipField->Type) == 'varchar(15)') {
@@ -629,9 +635,9 @@ class com_rscommentsInstallerScript
 	</div>
 	<?php } ?>
 	
-	<h2>Changelog v1.13.16</h2>
+	<h2>Changelog v1.13.17</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> Some comments were not showing for some users.</li>
+		<li><span class="version-fixed">Fix</span> Email subscriptions were not sent from the backend and from the approval link.</li>
 	</ul>
 	<a class="com-rscomments-button" href="index.php?option=com_rscomments">Start using RSComments!</a>
 	<a class="com-rscomments-button" href="http://www.rsjoomla.com/support/documentation/view-knowledgebase/95-rscomments.html" target="_blank">Read the RSComments! User Guide</a>

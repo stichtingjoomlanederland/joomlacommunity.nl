@@ -110,6 +110,8 @@ class ConfigureWAF extends Model
 		'disableobsoleteadmins_maxdays'   => 90,
 		'disableobsoleteadmins_action'    => 'reset',
 		'disableobsoleteadmins_protected' => [],
+		'logusernames'                    => 0,
+		'troubleshooteremail'             => 1,
 	];
 
 	/**

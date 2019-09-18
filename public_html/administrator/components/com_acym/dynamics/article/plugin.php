@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -124,6 +124,10 @@ class plgAcymArticle extends acymPlugin
 
     public function displayListing()
     {
+        $querySelect = 'SELECT article.id, article.title, article.publish_up ';
+        $query = 'FROM #__content AS article ';
+        $filters = [];
+
         $this->pageInfo = new stdClass();
         $this->pageInfo->limit = acym_getCMSConfig('list_limit');
         $this->pageInfo->page = acym_getVar('int', 'pagination_page_ajax', 1);
@@ -132,9 +136,6 @@ class plgAcymArticle extends acymPlugin
         $this->pageInfo->filter_cat = acym_getVar('int', 'plugin_category', 0);
         $this->pageInfo->order = 'article.id';
         $this->pageInfo->orderdir = 'DESC';
-
-        $query = 'SELECT SQL_CALC_FOUND_ROWS article.id, article.title, article.publish_up FROM #__content AS article ';
-        $filters = [];
 
         $searchFields = ['article.id', 'article.title'];
         if (!empty($this->pageInfo->search)) {
@@ -151,8 +152,8 @@ class plgAcymArticle extends acymPlugin
         $query .= ' WHERE ('.implode(') AND (', $filters).')';
         if (!empty($this->pageInfo->order)) $query .= ' ORDER BY '.acym_secureDBColumn($this->pageInfo->order).' '.acym_secureDBColumn($this->pageInfo->orderdir);
 
-        $rows = acym_loadObjectList($query, '', $this->pageInfo->start, $this->pageInfo->limit);
-        $this->pageInfo->total = acym_loadResult('SELECT FOUND_ROWS()');
+        $rows = acym_loadObjectList($querySelect.$query, '', $this->pageInfo->start, $this->pageInfo->limit);
+        $this->pageInfo->total = acym_loadResult('SELECT COUNT(*) '.$query);
 
 
         $listingOptions = [

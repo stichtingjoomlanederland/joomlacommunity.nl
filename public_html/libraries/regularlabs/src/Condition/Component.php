@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.4.11218
+ * @version         19.8.25552
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -10,6 +10,8 @@
  */
 
 namespace RegularLabs\Library\Condition;
+
+use Joomla\CMS\Factory as JFactory;
 
 defined('_JEXEC') or die;
 
@@ -22,6 +24,10 @@ class Component
 {
 	public function pass()
 	{
-		return $this->passSimple(strtolower($this->request->option));
+		$option = JFactory::getApplication()->input->get('option') == 'com_categories'
+			? 'com_categories'
+			: $this->request->option;
+
+		return $this->passSimple(strtolower($option));
 	}
 }

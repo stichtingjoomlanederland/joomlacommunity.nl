@@ -13,6 +13,8 @@ defined('JPATH_PLATFORM') or die;
 <div class="source-editor">
   <div class="uk-navbar uk-navbar-attached">
     <div class="uk-navbar-content uk-padding-remove uk-margin-small uk-margin-small-top">
+        <button class="uk-button uk-button-checkbox" data-action="fullscreen" title="<?php echo JText::_('WF_SOURCE_FULLSCREEN', 'Fullscreen'); ?>"><i class="uk-icon uk-icon-fullscreen"></i></button>
+        
         <button class="uk-button" data-action="undo" title="<?php echo JText::_('WF_SOURCE_UNDO', 'Undo'); ?>"><i class="uk-icon uk-icon-undo"></i></button>
         <button class="uk-button" data-action="redo" title="<?php echo JText::_('WF_SOURCE_REDO', 'Redo'); ?>"><i class="uk-icon uk-icon-redo"></i></button>
 
@@ -20,8 +22,6 @@ defined('JPATH_PLATFORM') or die;
         <button class="uk-button uk-button-checkbox" data-action="linenumbers" title="<?php echo JText::_('WF_SOURCE_NUMBERS', 'Line Numbers'); ?>"><i class="uk-icon uk-icon-linenumbers"></i></button>
         <button class="uk-button uk-button-checkbox" data-action="wrap" title="<?php echo JText::_('WF_SOURCE_WRAP', 'Wrap Lines'); ?>"><i class="uk-icon uk-icon-wrap"></i></button>
         <button class="uk-button" data-action="format" title="<?php echo JText::_('WF_SOURCE_FORMAT', 'Format Code'); ?>"><i class="uk-icon uk-icon-format"></i></button>
-
-        <button class="uk-button uk-button-checkbox" data-action="fullscreen" title="<?php echo JText::_('WF_SOURCE_FULLSCREEN', 'Fullscreen'); ?>"><i class="uk-icon uk-icon-fullscreen"></i></button>
     </div>
     <div class="uk-navbar-content uk-navbar-flip uk-grid uk-grid-small uk-margin-small-top">
       <div class="uk-form uk-display-inline-block uk-margin-small">

@@ -28,20 +28,25 @@ JText::script('RSFP_CONDITION_DELETE_SURE');
 		</tr>
 	</thead>
 	<tbody>
-		<?php $i = 0; $k = 0; $n = count($this->conditions); ?>
 		<?php if (!empty($this->conditions)) { ?>
 		<?php foreach ($this->conditions as $row) { ?>
-		<tr class="row<?php echo $k; ?>">
+		<tr>
 			<td>
 				<a href="#" onclick="openRSModal('<?php echo JRoute::_('index.php?option=com_rsform&view=conditions&layout=edit&tmpl=component&formId='.$this->formId.'&cid='.$row->id); ?>', 'Conditions', '800x600'); return false;">(<?php echo JText::_('RSFP_CONDITION_'.$row->action); ?>) <?php echo $this->escape($row->ComponentName); ?></a>
+				<?php if (!empty($row->details)) { ?>
+					<ul>
+						<li><strong><?php echo JText::_('RSFP_CONDITION_' . $row->condition); ?></strong></li>
+					<?php foreach ($row->details as $detail) { ?>
+						<li><small><?php echo $this->escape($detail->name) . ' ' . JText::_('RSFP_CONDITION_' . $detail->operator) . ' ' . $this->escape($detail->value); ?></small></li>
+					<?php } ?>
+					</ul>
+				<?php } ?>
 			</td>
 			<td align="center" width="20%" nowrap="nowrap">
 				<button type="button" class="btn pull-left" onclick="openRSModal('<?php echo JRoute::_('index.php?option=com_rsform&view=conditions&layout=edit&tmpl=component&formId='.$this->formId.'&cid='.$row->id); ?>', 'Conditions', '800x600')"><?php echo JText::_('RSFP_EDIT'); ?></button>
 				<button type="button" class="btn btn-danger pull-left" onclick="if (confirm(Joomla.JText._('RSFP_CONDITION_DELETE_SURE'))) conditionDelete(<?php echo $this->formId; ?>,<?php echo $row->id; ?>);"><?php echo JText::_('RSFP_DELETE'); ?></button>
 			</td>
 		</tr>
-		<?php $k=1-$k; ?>
-		<?php $i++; ?>
 		<?php } ?>
 		<?php } ?>
 	</tbody>

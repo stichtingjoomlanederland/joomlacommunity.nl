@@ -42,6 +42,7 @@ class WFFileBrowser extends JObject
         'total_size' => 0,
         'remove_exif' => 0,
     );
+
     /* @var int */
     public $folder_tree = 1;
 
@@ -341,15 +342,44 @@ class WFFileBrowser extends JObject
 
     protected function checkPathAccess($path)
     {
-        $filter = $this->get('filter');
+        $filters = $this->get('filter');
 
-        if (!empty($filter)) {
+        $return = true;
+
+        if (!empty($filters)) {
             $path = ltrim($path, '/');
 
-            return !in_array($path, (array) $filter);
+            foreach ($filters as $filter) {
+                $filter = trim($filter);
+                
+                // show this folder
+                if ($filter[0] === "+") {
+                    $path_parts     = explode('/', $path);
+                    $filter_parts   = explode('/', substr($filter, 1));
+
+                    // filter match
+                    if (false === empty(array_intersect_assoc($filter_parts, $path_parts))) {
+                        return true;
+                    }
+
+                    $return = false;
+
+                // hide this folder    
+                } else {
+                    $return = true;
+                    
+                    if ($filter[0] === "-") {
+                        $filter = substr($filter, 1);
+                    }
+
+                    if ($filter === $path) {
+                        return false;
+                    }
+                }
+            }
         }
 
-        return true;
+        return $return;
     }
 
     public function getBaseDir()
@@ -387,30 +417,9 @@ class WFFileBrowser extends JObject
         $filesystem = $this->getFileSystem();
         $list = $filesystem->getFolders($relative, $filter, $sort);
 
-        $filters = $this->get('filter');
-
-        // remove filtered items
-        if (!empty($filters)) {
-            $list = array_filter($list, function ($item) use ($filters) {
-                // remove leading slash
-                $id = ltrim($item['id'], '/');
-
-                return !in_array($id, $filters);
-
-                /*foreach($filters as $filter) {
-            // show this folder
-            if ($filter{0} === "+") {
-            return substr($filter, 1) === $id;
-            }
-            // hide this folder
-            if ($filter{0} === "-") {
-            $filter = substr($filter, 1);
-            }
-
-            return $filter !== $id;
-            }*/
-            });
-        }
+        $list = array_filter($list, function ($item) {
+            return $this->checkPathAccess($item['id']);
+        });
 
         return $list;
     }
@@ -449,7 +458,7 @@ class WFFileBrowser extends JObject
         $name = '';
 
         if ($filter) {
-            if ($filter{0} == '.') {
+            if ($filter[0] == '.') {
                 $ext = WFUtility::makeSafe($filter);
 
                 for ($i = 0; $i < count($filetypes); ++$i) {
@@ -465,7 +474,7 @@ class WFFileBrowser extends JObject
         // get file list by filter
         $files = $this->getFiles($dir, $name . '\.(?i)(' . implode('|', $filetypes) . ')$', $sort);
 
-        if (empty($filter) || $filter{0} != '.') {
+        if (empty($filter) || $filter[0] != '.') {
             // get folder list
             $folders = $this->getFolders($dir, '^(?i).*' . WFUtility::makeSafe($filter) . '.*', $sort);
         }
@@ -609,8 +618,8 @@ class WFFileBrowser extends JObject
                 . '       <i class="uk-icon uk-icon-home"></i>'
                 . '     </span>'
                 . '     <span class="uk-tree-text">' . JText::_('WF_LABEL_HOME', 'Home') . '</span>'
-                    . '   </a>'
-                    . ' </div>';
+                . '   </a>'
+                . ' </div>';
 
                 $dir = '/';
             }
@@ -1279,9 +1288,9 @@ class WFFileBrowser extends JObject
                 }
             } else {
                 $data = array(
-                    'name' => basename($result->path)
+                    'name' => basename($result->path),
                 );
-                
+
                 $event = $this->fireEvent('on' . ucfirst($result->type) . 'Rename', array($destination));
 
                 // merge event data with default values
@@ -1376,9 +1385,9 @@ class WFFileBrowser extends JObject
                     }
                 } else {
                     $data = array(
-                        'name' => $filesystem->toRelative($result->path)
+                        'name' => $filesystem->toRelative($result->path),
                     );
-                    
+
                     $event = $this->fireEvent('on' . ucfirst($result->type) . 'Copy', array($item));
 
                     // merge event data with default values
@@ -1464,9 +1473,9 @@ class WFFileBrowser extends JObject
                     }
                 } else {
                     $data = array(
-                        'name' => $filesystem->toRelative($result->path)
+                        'name' => $filesystem->toRelative($result->path),
                     );
-                    
+
                     $event = $this->fireEvent('on' . ucfirst($result->type) . 'Move', array($item));
 
                     // merge event data with default values

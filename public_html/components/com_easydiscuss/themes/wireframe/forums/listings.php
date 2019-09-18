@@ -15,7 +15,7 @@ defined('_JEXEC') or die('Restricted access');
 	<?php echo $this->output('site/forums/active', array('activeCategory' => $activeCategory, 'listing' => $listing, 'childs' => $childs)); ?>
 
 	<div class="ed-filters">
-		<?php echo $this->output('site/frontpage/filters', array('baseUrl' => $baseUrl, 'activeFilter' => $activeFilter, 'activeSort' => $activeSort, 'menuCatId' => '')); ?>
+		<?php echo $this->output('site/frontpage/filters', array('baseUrl' => $baseUrl, 'activeStatus' => $activeStatus, 'activeFilter' => $activeFilter, 'activeSort' => $activeSort, 'menuCatId' => '')); ?>
 	</div>
 
 	<div data-list-wrapper>

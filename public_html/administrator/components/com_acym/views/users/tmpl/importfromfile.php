@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -20,7 +20,7 @@ defined('_JEXEC') or die('Restricted access');
             $maxpost = acym_bytes(ini_get('post_max_size'));
             $maxupload = $maxupload > $maxpost ? $maxpost : $maxupload;
             ?>
-			<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo acym_escape($maxupload); ?>"/>
+			<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo acym_escape($maxupload); ?>" />
 			<input type="file" name="import_file" class="show-for-sr" id="acym__users__import__from_file__import__input" accept=".csv">
 			<label for="acym__users__import__from_file__import__input" class="cell acym__color__blue medium-shrink margin-top-2 acym__users__import__from_file__import__label">
                 <?php echo acym_translation('ACYM_CHOOSE_FILE'); ?>
@@ -31,7 +31,7 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="cell medium-auto"></div>
 			<div class="cell medium-shrink margin-top-2">
 				<span class="acym__users__import__from_file__file-name acym__color__dark-gray"></span>
-				<i title="<?php echo acym_translation('ACYM_DELETE'); ?>" class="material-icons acym__users__import__from_file__file__close  acym__color__red">close</i>
+				<i title="<?php echo acym_translation('ACYM_DELETE'); ?>" class="acymicon-close acym__users__import__from_file__file__close  acym__color__red"></i>
 			</div>
 			<div class="cell medium-auto"></div>
 		</div>

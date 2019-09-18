@@ -9,9 +9,9 @@ defined('_JEXEC') or die('Restricted access');
 
 class RsformController extends JControllerLegacy
 {
-	public function __construct()
+	public function __construct($config = array())
 	{
-		parent::__construct();
+		parent::__construct($config);
 
 		JHtml::_('behavior.framework');
 		JHtml::_('jquery.framework');
@@ -63,6 +63,8 @@ class RsformController extends JControllerLegacy
 
 	public function layoutsGenerate()
 	{
+		/* @var $model RsformModelForms */
+
 		$model = $this->getModel('forms');
 		$model->getForm();
 		$model->_form->FormLayoutName = JFactory::getApplication()->input->getCmd('layoutName');
@@ -75,11 +77,14 @@ class RsformController extends JControllerLegacy
 	public function layoutsSaveName()
 	{
 		$formId = JFactory::getApplication()->input->getInt('formId');
-		$name = JFactory::getApplication()->input->getCmd('formLayoutName');
+		$name 	= JFactory::getApplication()->input->getCmd('formLayoutName');
 
 		$db = JFactory::getDbo();
-		$db->setQuery("UPDATE #__rsform_forms SET FormLayoutName='".$db->escape($name)."' WHERE FormId='".$formId."'");
-		$db->execute();
+		$query = $db->getQuery(true)
+			->update($db->qn('#__rsform_forms'))
+			->set($db->qn('FormLayoutName') . ' = ' . $db->q($name))
+			->where($db->qn('FormId') . ' = ' . $db->q($formId));
+		$db->setQuery($query)->execute();
 
 		exit();
 	}
@@ -101,31 +106,8 @@ class RsformController extends JControllerLegacy
 		parent::display();
 	}
 
-	public function updatesManage()
-	{
-		JFactory::getApplication()->input->set('view', 'updates');
-		JFactory::getApplication()->input->set('layout', 'default');
-
-		parent::display();
-	}
-
 	public function plugin()
 	{
 		JFactory::getApplication()->triggerEvent('rsfp_bk_onSwitchTasks');
-	}
-
-	public function captcha()
-	{
-		require_once JPATH_SITE.'/components/com_rsform/helpers/captcha.php';
-
-		$componentId = JFactory::getApplication()->input->getInt('componentId');
-		$captcha = new RSFormProCaptcha($componentId);
-
-		JFactory::getSession()->set('com_rsform.captcha.captchaId'.$componentId, $captcha->getCaptcha());
-		
-		if (JFactory::getDocument()->getType() != 'image')
-		{
-			JFactory::getApplication()->close();
-		}
 	}
 }

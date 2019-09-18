@@ -9,9 +9,9 @@ defined('_JEXEC') or die('Restricted access');
 
 class RsformControllerEmails extends RsformController
 {
-	public function __construct()
+	public function __construct($config = array())
 	{
-		parent::__construct();
+		parent::__construct($config);
 		
 		$this->registerTask('apply', 'save');
 	}

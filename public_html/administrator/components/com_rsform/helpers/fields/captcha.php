@@ -185,4 +185,48 @@ class RSFormProFieldCaptcha extends RSFormProField
 		
 		return implode(' ', $attr);
 	}
+
+	public function processValidation($validationType = 'form', $submissionId = 0)
+	{
+		$form 			= RSFormProHelper::getForm($this->formId);
+		$captchaCode 	= JFactory::getSession()->get('com_rsform.captcha.captchaId' . $this->componentId);
+		$value			= $this->getValue();
+
+		// Logged in users don't need to pass Captcha if this option is enabled on the form.
+		if (JFactory::getUser()->id && $form->RemoveCaptchaLogged)
+		{
+			return true;
+		}
+
+		if ($this->getProperty('IMAGETYPE') == 'INVISIBLE')
+		{
+			if (empty($captchaCode))
+			{
+				return false;
+			}
+
+			if (JFactory::getApplication()->input->post->get($captchaCode, '', 'raw'))
+			{
+				return false;
+			}
+
+			$words = $this->getWords();
+			foreach ($words as $word)
+			{
+				if (JFactory::getApplication()->input->post->get($word, '', 'raw'))
+				{
+					return false;
+				}
+			}
+		}
+		else
+		{
+			if (empty($value) || empty($captchaCode) || $value != $captchaCode)
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
 }

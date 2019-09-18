@@ -56,6 +56,7 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 
 		$filter = isset($options['filter']) ? $options['filter'] : '';
 		$category = isset($options['category']) ? $options['category'] : '';
+		$postStatus = isset($options['poststatus']) ? $options['poststatus'] : '';
 
 		$where = array();
 
@@ -89,6 +90,10 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 		// Filter posts that are unpublished
 		if ($filter == 'unpublished') {
 			$where[] = $db->qn('a.published') . '=' . $db->Quote('0');
+		}
+
+		if ($postStatus) {
+			$where[] = $db->qn('a.post_status') . '=' . $db->Quote($postStatus);
 		}
 
 		// Search queries

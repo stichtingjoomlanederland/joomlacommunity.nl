@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -74,17 +74,17 @@ defined('_JEXEC') or die('Restricted access');
                         ?>
 						<div class="margin-bottom-1 margin-top-1">
                             <?php
-                            $exportSub = array(
+                            $exportSub = [
                                 'sub' => acym_translation('ACYM_SUBSCRIBED_USER'),
                                 'unsub' => acym_translation('ACYM_UNSUBSCRIBED_USER'),
                                 'all' => acym_translation('ACYM_EXPORT_BOTH'),
-                            );
+                            ];
                             echo acym_radio($exportSub, 'export_list', 'all');
                             ?>
 						</div>
 					</div>
                 <?php } else { ?>
-					<input type="hidden" name="selected_users" value="<?php echo implode(',', $data['checkedUsers']); ?>"/>
+					<input type="hidden" name="selected_users" value="<?php echo implode(',', $data['checkedUsers']); ?>" />
 					<div class="grid-x">
                         <?php
                         $userClass = acym_get('class.user');
@@ -114,3 +114,4 @@ defined('_JEXEC') or die('Restricted access');
 
     <?php acym_formOptions(); ?>
 </form>
+

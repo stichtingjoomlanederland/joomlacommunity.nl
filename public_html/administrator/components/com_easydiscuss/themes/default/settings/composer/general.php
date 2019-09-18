@@ -67,6 +67,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 						</div>
 					</div>
 
+					<?php echo $this->html('settings.textbox', 'antispam_minimum_title', 'COM_EASYDISCUSS_ANTI_SPAM_MINIMUM_TITLE', '', array('size' => 8, 'postfix' => 'Characters'), '', 'form-control-sm text-center'); ?>
 					<?php echo $this->html('settings.textbox', 'main_post_min_length', 'COM_EASYDISCUSS_MAIN_POST_MIN_LENGTH', '', array('size' => 8, 'postfix' => 'COM_EASYDISCUSS_CHARACTERS'), '', 'form-control-sm text-center'); ?>
 					<?php echo $this->html('settings.toggle', 'main_post_appendemail', 'COM_EASYDISCUSS_POST_APPEND_EMAIL_ADDRESS_IN_CONTENT'); ?>
 					<?php echo $this->html('settings.toggle', 'main_anonymous_posting', 'COM_EASYDISCUSS_ENABLE_ANONYMOUS_POSTING'); ?>

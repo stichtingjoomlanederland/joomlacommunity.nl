@@ -25,7 +25,7 @@ JHtml::_('behavior.keepalive'); ?>
 			<?php foreach ($this->items as $row) { ?>
 					<tr>
 						<td>
-							<a href="<?php echo JRoute::_('index.php?option=com_rscomments&task=message.edit&tag='.$row->tag); ?>"><?php echo RSCommentsHelper::language($row->tag); ?></a>
+							<a href="<?php echo JRoute::_('index.php?option=com_rscomments&task=message.edit&tag='.$row->tag); ?>"><?php echo RSCommentsHelperAdmin::language($row->tag); ?></a>
 						</td>
 					</tr>
 			<?php } ?>

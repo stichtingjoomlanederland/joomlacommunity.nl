@@ -15,24 +15,24 @@ class TableRSForm_Emails extends JTable
 	 * @var int
 	 */
 	
-	var $id = null;
-	var $formId = null;
-	var $from = null;
-	var $fromname = null;
-	var $replyto = null;
-	var $to = null;
-	var $cc = null;
-	var $bcc = null;
-	var $subject = null;
-	var $mode = 1;
-	var $message = null;
+	public $id = null;
+	public $formId = null;
+	public $from = null;
+	public $fromname = null;
+	public $replyto = null;
+	public $to = null;
+	public $cc = null;
+	public $bcc = null;
+	public $subject = null;
+	public $mode = 1;
+	public $message = null;
 		
 	/**
 	 * Constructor
 	 *
 	 * @param object Database connector object
 	 */
-	function __construct(& $db)
+	public function __construct(& $db)
 	{
 		parent::__construct('#__rsform_emails', 'id', $db);
 	}

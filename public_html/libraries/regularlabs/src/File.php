@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.4.11218
+ * @version         19.8.25552
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -343,6 +343,8 @@ class File
 	// > some/url/to/a
 	public static function getDirName($url)
 	{
+		$url = StringHelper::normalize($url);
+
 		return rtrim(dirname($url), '/');
 	}
 
@@ -350,6 +352,8 @@ class File
 	// > file.ext
 	public static function getBaseName($url, $lowercase = false)
 	{
+		$url = StringHelper::normalize($url);
+
 		$basename = ltrim(basename($url), '/');
 
 		$parts = explode('?', $basename);
@@ -368,6 +372,8 @@ class File
 	// > file
 	public static function getFileName($url, $lowercase = false)
 	{
+		$url = StringHelper::normalize($url);
+
 		$info = pathinfo($url);
 
 		$filename = isset($info['filename']) ? $info['filename'] : $url;

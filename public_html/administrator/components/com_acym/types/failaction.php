@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -16,18 +16,18 @@ class failactionType extends acymClass
     {
         parent::__construct();
 
-        $this->values = array();
-        $this->values[] = acym_selectOption('noaction', acym_translation('ACYM_DO_NOTHING'));
-        $this->values[] = acym_selectOption('remove', acym_translation('ACYM_REMOVE_SUB'));
-        $this->values[] = acym_selectOption('unsub', acym_translation('ACYM_UNSUB_USER'));
-        $this->values[] = acym_selectOption('sub', acym_translation('ACYM_SUBSCRIBE_USER'));
-        $this->values[] = acym_selectOption('block', acym_translation('ACYM_BLOCK_USER'));
-        $this->values[] = acym_selectOption('delete', acym_translation('ACYM_DELETE_USER'));
+        $this->values = [];
+        $this->values[] = acym_selectOption('noaction', 'ACYM_DO_NOTHING');
+        $this->values[] = acym_selectOption('remove', 'ACYM_REMOVE_SUB');
+        $this->values[] = acym_selectOption('unsub', 'ACYM_UNSUB_USER');
+        $this->values[] = acym_selectOption('sub', 'ACYM_SUBSCRIBE_USER');
+        $this->values[] = acym_selectOption('block', 'ACYM_BLOCK_USER');
+        $this->values[] = acym_selectOption('delete', 'ACYM_DELETE_USER');
 
         $this->config = acym_config();
         $listClass = acym_get('class.list');
         $lists = $listClass->getAll('name');
-        $this->lists = array();
+        $this->lists = [];
         foreach ($lists as $oneList) {
             $this->lists[] = acym_selectOption($oneList->id, $oneList->name);
         }
@@ -62,7 +62,7 @@ class failactionType extends acymClass
             'class="intext_select" style="width: 200px;margin-left: 5px;"',
             'value',
             'text',
-            str_replace(array('[', ']'), array('_', ''), 'config[bounce_action_lists_'.$num.']')
+            str_replace(['[', ']'], ['_', ''], 'config[bounce_action_lists_'.$num.']')
         );
 
         $return .= '</span>';
@@ -70,3 +70,4 @@ class failactionType extends acymClass
         return $return;
     }
 }
+

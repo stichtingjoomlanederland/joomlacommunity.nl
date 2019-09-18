@@ -300,7 +300,7 @@ class ComDocmanControllerBehaviorScannable extends KControllerBehaviorAbstract
             $data = array(
                 'download_url' => (string)$this->_getDownloadUrl($document),
                 'callback_url' => (string)$this->_getCallbackUrl(),
-                'filename'     => ltrim(basename(' '.strtr($document->storage_path, array('/' => '/ ')))),
+                'filename'     => \Koowa\basename($document->storage_path),
                 'user_data'    => array(
                     'uuid' => $document->uuid
                 )

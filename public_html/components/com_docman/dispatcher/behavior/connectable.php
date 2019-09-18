@@ -84,7 +84,7 @@ class ComDocmanDispatcherBehaviorConnectable extends KControllerBehaviorAbstract
             $filename = $filepath;
         } else {
             $folder    = substr($filepath, 0, strrpos($filepath, '/'));
-            $filename  = ltrim(basename(' '.strtr($path, array('/' => '/ '))));
+            $filename  = \Koowa\basename($path);
         }
 
         return [

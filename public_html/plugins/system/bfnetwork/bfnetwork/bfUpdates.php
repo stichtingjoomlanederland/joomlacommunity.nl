@@ -37,10 +37,11 @@ final class bfUpdates
 {
     /**
      * @param bool $returnCount
+     * @param int  $dontEnableUpdateSites
      *
      * @return bool|int|string
      */
-    public function getUpdates($returnCount = false)
+    public function getUpdates($returnCount = false, $dontEnableUpdateSites = 0)
     {
         if (
             // If Joomla 1.5 - No concept of updates
@@ -59,7 +60,12 @@ final class bfUpdates
 
         // clear cache and enable disabled sites again
         $db = JFactory::getDbo();
-        $db->setQuery('update #__update_sites SET last_check_timestamp = 0, enabled = 1');
+        if (1 === $dontEnableUpdateSites) {
+            $db->setQuery('update #__update_sites SET last_check_timestamp = 0');
+        } else {
+            $db->setQuery('update #__update_sites SET last_check_timestamp = 0, enabled = 1');
+        }
+
         $db->query();
         $db->setQuery('TRUNCATE #__updates');
         $db->query();

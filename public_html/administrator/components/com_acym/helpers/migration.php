@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -12,15 +12,15 @@ defined('_JEXEC') or die('Restricted access');
 
 class acymmigrationHelper
 {
-    private $errors = array();
+    private $errors = [];
 
 
-    private $result = array(
+    private $result = [
         "isOk" => true,
         "errorInsert" => false,
         "errorClean" => false,
         "count" => 0,
-    );
+    ];
 
     public function doConfigMigration()
     {
@@ -59,7 +59,7 @@ class acymmigrationHelper
 
     public function doMailsMigration()
     {
-        $params = array();
+        $params = [];
 
         $this->doElementMigration("mails", $params);
 
@@ -111,7 +111,7 @@ class acymmigrationHelper
         return $this->result;
     }
 
-    public function migrateConfig($params = array())
+    public function migrateConfig($params = [])
     {
         $fieldsMatchMailSettings = [
             "add_names" => "add_names",
@@ -234,7 +234,7 @@ class acymmigrationHelper
 
         if (empty($dataPrevious)) return true;
 
-        $valuesToInsert = array();
+        $valuesToInsert = [];
 
         foreach ($dataPrevious as $value) {
             switch ($value->namekey) {
@@ -281,7 +281,7 @@ class acymmigrationHelper
         }
     }
 
-    public function migrateTemplates($params = array())
+    public function migrateTemplates($params = [])
     {
         $mailClass = acym_get('class.mail');
         $result = 0;
@@ -291,7 +291,7 @@ class acymmigrationHelper
         $templates = acym_loadObjectList($queryGetTemplates);
         if (empty($templates)) return true;
 
-        $valuesToInsert = array();
+        $valuesToInsert = [];
 
         $templates = $mailClass->encode($templates);
 
@@ -302,7 +302,7 @@ class acymmigrationHelper
                 if (strpos($key, "tag_") !== false) {
                     $tag = str_replace("tag_", "", $key);
                     $styleDeclaration = $tag."{".$value."}";
-                } else if (strpos($key, "color_bg") !== false) {
+                } elseif (strpos($key, "color_bg") !== false) {
                     $styleDeclaration = "";
                 } else {
                     $styleDeclaration = ".".$key."{".$value."}";
@@ -311,7 +311,25 @@ class acymmigrationHelper
                 $oneTemplate->stylesheet .= $styleDeclaration;
             }
 
-            $valuesToInsert[] = "(".acym_escapeDB(empty($oneTemplate->name) ? acym_translation('ACYM_MIGRATED_TEMPLATE').' '.time() : $oneTemplate->name).", ".acym_escapeDB(acym_date('now', 'Y-m-d H:i:s')).", 0, 0, 'standard', ".acym_escapeDB(empty($oneTemplate->body) ? "" : $oneTemplate->body).", ".acym_escapeDB($oneTemplate->subject).", 1, ".acym_escapeDB($oneTemplate->fromname).", ".acym_escapeDB($oneTemplate->fromemail).", ".acym_escapeDB($oneTemplate->replyname).", ".acym_escapeDB($oneTemplate->replyemail).",".acym_escapeDB($oneTemplate->stylesheet).",  ".intval(acym_currentUserId()).")";
+            $valuesToInsert[] = "(".implode(
+                    ', ',
+                    [
+                        acym_escapeDB(empty($oneTemplate->name) ? acym_translation('ACYM_MIGRATED_TEMPLATE').' '.time() : $oneTemplate->name),
+                        acym_escapeDB(acym_date('now', 'Y-m-d H:i:s', false)),
+                        '0',
+                        '0',
+                        acym_escapeDB('standard'),
+                        acym_escapeDB(empty($oneTemplate->body) ? '' : $oneTemplate->body),
+                        acym_escapeDB($oneTemplate->subject),
+                        '1',
+                        acym_escapeDB($oneTemplate->fromname),
+                        acym_escapeDB($oneTemplate->fromemail),
+                        acym_escapeDB($oneTemplate->replyname),
+                        acym_escapeDB($oneTemplate->replyemail),
+                        acym_escapeDB($oneTemplate->stylesheet),
+                        intval(acym_currentUserId()),
+                    ]
+                ).")";
         }
 
         if (empty($valuesToInsert)) {
@@ -340,7 +358,7 @@ class acymmigrationHelper
         return $result;
     }
 
-    public function migrateUsers_fields($params = array())
+    public function migrateUsers_fields($params = [])
     {
         $fieldsV5 = acym_loadObjectList('SELECT `namekey`, `type` FROM #__acymailing_fields WHERE `namekey` NOT IN ("name", "email", "html") AND `type` NOT IN ("customtext", "category", "gravatar")', 'namekey');
 
@@ -352,7 +370,7 @@ class acymmigrationHelper
 
         $fieldImported = acym_loadObjectList('SELECT `id`, `namekey`, `option`, `type` FROM #__acym_field WHERE `namekey` IN ("'.implode('", "', $fieldsKeyV5).'")', 'namekey');
 
-        $valuesToInsert = array();
+        $valuesToInsert = [];
 
         foreach ($fieldsKeyV5 as $fieldKey) {
             foreach ($usersFieldsValuesV5 as $user) {
@@ -365,13 +383,13 @@ class acymmigrationHelper
 
                     if (!empty($fieldImported[$fieldKey]->option['format'])) {
                         $birthdayValue = explode('/', $user->$fieldKey);
-                        $positions = array(
+                        $positions = [
                             '0' => strpos($fieldImported[$fieldKey]->option['format'], '%y'),
                             '1' => strpos($fieldImported[$fieldKey]->option['format'], '%m'),
                             '2' => strpos($fieldImported[$fieldKey]->option['format'], '%d'),
-                        );
+                        ];
                         asort($positions);
-                        $final = array();
+                        $final = [];
                         foreach ($positions as $key => $value) {
                             $final[] = $birthdayValue[$key];
                         }
@@ -389,12 +407,12 @@ class acymmigrationHelper
         return acym_query('INSERT INTO #__acym_user_has_field (`user_id`, `value`, `field_id`) VALUES '.implode(', ', $valuesToInsert));
     }
 
-    public function migrateFields($params = array())
+    public function migrateFields($params = [])
     {
 
         $fieldClass = acym_get('class.field');
 
-        $columnConnection = array(
+        $columnConnection = [
             'namekey' => 'namekey',
             'fieldname' => 'name',
             'published' => 'active',
@@ -406,9 +424,9 @@ class acymmigrationHelper
             'value' => 'value',
             'ordering' => 'ordering',
             'required' => 'required',
-        );
+        ];
 
-        $optionConnection = array(
+        $optionConnection = [
             'errormessage' => 'error_message',
             'editablecreate' => 'editable_user_creation',
             'editablemodify' => 'editable_user_modification',
@@ -420,9 +438,9 @@ class acymmigrationHelper
             'size' => 'size',
             'rows' => 'rows',
             'customtext' => 'custom_text',
-        );
+        ];
 
-        $databaseConnection = array(
+        $databaseConnection = [
             'dbName' => 'database',
             'tableName' => 'table',
             'valueFromDb' => 'value',
@@ -432,9 +450,9 @@ class acymmigrationHelper
             'whereValue' => 'where_value',
             'orderField' => 'order_by',
             'orderValue' => 'sort_order',
-        );
+        ];
 
-        $typeConnection = array(
+        $typeConnection = [
             'text' => 'text',
             'textarea' => 'textarea',
             'radio' => 'radio',
@@ -446,11 +464,11 @@ class acymmigrationHelper
             'file' => 'file',
             'phone' => 'phone',
             'customtext' => 'custom_text',
-        );
+        ];
 
         $fieldsFromV5 = acym_loadObjectList('SELECT * FROM #__acymailing_fields WHERE `namekey` NOT IN ("name", "email", "html") AND `type` NOT IN ("gravatar", "category")  LIMIT '.intval($params['currentElement']).', '.intval($params['insertPerCalls']));
 
-        $insertedFields = array();
+        $insertedFields = [];
 
         foreach ($fieldsFromV5 as $oneField) {
             $newField = new stdClass();
@@ -459,12 +477,12 @@ class acymmigrationHelper
                 if ('type' == $columnConnection[$key]) {
                     $value = $typeConnection[$value];
                 }
-                if ('default_value' == $columnConnection[$key] && in_array($oneField->type, array('date', 'birthday'))) {
+                if ('default_value' == $columnConnection[$key] && in_array($oneField->type, ['date', 'birthday'])) {
                     $value = preg_replace('@[^0-9]@', '/', $value);
                 }
                 if ('value' == $columnConnection[$key]) {
                     $allValues = explode("\n", $value);
-                    $returnedValues = array();
+                    $returnedValues = [];
                     foreach ($allValues as $id => $oneVal) {
                         $line = explode('::', trim($oneVal));
                         if (empty($line[1])) continue;
@@ -489,21 +507,21 @@ class acymmigrationHelper
                     foreach ($options as $keyOption => $option) {
                         if (!array_key_exists($keyOption, $optionConnection)) continue;
                         if ('authorized_content' == $optionConnection[$keyOption]) {
-                            $option = array(
+                            $option = [
                                 $option,
                                 'regex' => $options['regexp'],
-                            );
+                            ];
                         }
-                        if (in_array($oneField->type, array('date', 'birthday')) && 'format' == $keyOption) {
+                        if (in_array($oneField->type, ['date', 'birthday']) && 'format' == $keyOption) {
                             if (empty($option)) {
                                 $option = '%d%m%y';
                             } else {
                                 $option = strtolower($option);
-                                $position = array(
+                                $position = [
                                     '%y' => strpos($option, '%y'),
                                     '%m' => strpos($option, '%m'),
                                     '%d' => strpos($option, '%d'),
-                                );
+                                ];
                                 asort($position);
                                 $option = implode('', array_keys($position));
                             }
@@ -511,7 +529,7 @@ class acymmigrationHelper
                         $optionName = $optionConnection[$keyOption];
                         $newOption->$optionName = $option;
                     }
-                    $newOption->fieldDB = array();
+                    $newOption->fieldDB = [];
                     foreach ($databaseConnection as $keyOldDatabase => $keyNewDatabase) {
                         if (!array_key_exists($keyOldDatabase, $options)) {
                             $newOption->fieldDB[$keyNewDatabase] = '';
@@ -532,12 +550,12 @@ class acymmigrationHelper
         return count($insertedFields);
     }
 
-    public function migrateMails($params = array())
+    public function migrateMails($params = [])
     {
         $mailClass = acym_get('class.mail');
 
         $result = 0;
-        $idsMigratedMails = array();
+        $idsMigratedMails = [];
 
         $migrateMailStats = empty($params["migrateMailStats"]) ? 0 : 1;
 
@@ -565,8 +583,8 @@ class acymmigrationHelper
 
         if (empty($mails)) return true;
 
-        $mailsToInsert = array();
-        $campaignsToInsert = array();
+        $mailsToInsert = [];
+        $campaignsToInsert = [];
 
         foreach ($mails as $oneMail) {
             if (empty($oneMail->mailid)) {
@@ -602,7 +620,7 @@ class acymmigrationHelper
                     if (strpos($key, "tag_") !== false) {
                         $tag = str_replace("tag_", "", $key);
                         $styleDeclaration = $tag."{".$value."}";
-                    } else if (strpos($key, "color_bg") !== false) {
+                    } elseif (strpos($key, "color_bg") !== false) {
                         $styleDeclaration = "";
                     } else {
                         $styleDeclaration = ".".$key."{".$value."}";
@@ -614,7 +632,7 @@ class acymmigrationHelper
             $mail = [
                 "id" => intval($oneMail->mailid),
                 "name" => acym_escapeDB($oneMail->subject),
-                "creation_date" => acym_escapeDB(empty($oneMail->created) ? acym_date('now', 'Y-m-d H:i:s') : acym_date($oneMail->created, 'Y-m-d H:i:s')),
+                "creation_date" => acym_escapeDB(acym_date(empty($oneMail->created) ? 'now' : $oneMail->created, 'Y-m-d H:i:s')),
                 "drag_editor" => 0,
                 "library" => 0,
                 "type" => acym_escapeDB($mailType),
@@ -698,7 +716,7 @@ class acymmigrationHelper
         return $result;
     }
 
-    public function migrateLists($params = array())
+    public function migrateLists($params = [])
     {
         $result = 0;
 
@@ -706,7 +724,7 @@ class acymmigrationHelper
 
         $lists = acym_loadObjectList($queryGetLists);
 
-        $listsToInsert = array();
+        $listsToInsert = [];
 
         foreach ($lists as $oneList) {
             if (empty($oneList->listid)) {
@@ -752,7 +770,7 @@ class acymmigrationHelper
         return $result;
     }
 
-    public function migrateUsers($params = array())
+    public function migrateUsers($params = [])
     {
         $result = 0;
 
@@ -760,7 +778,7 @@ class acymmigrationHelper
 
         $users = acym_loadObjectList($queryGetUsers, 'subid');
 
-        $usersToInsert = array();
+        $usersToInsert = [];
 
         foreach ($users as $oneUser) {
             if (empty($oneUser->subid)) {
@@ -807,7 +825,7 @@ class acymmigrationHelper
         return $result;
     }
 
-    public function migrateBounce($params = array())
+    public function migrateBounce($params = [])
     {
         $rules = acym_loadObjectList('SELECT * FROM #__acymailing_rules LIMIT '.intval($params['currentElement']).', '.intval($params['insertPerCalls']));
 
@@ -830,13 +848,13 @@ class acymmigrationHelper
             'ACY_RULE_FINAL' => 'ACYM_FINAL_RULE',
         ];
 
-        $migratedRules = array();
+        $migratedRules = [];
         foreach ($rules as $oneRule) {
 
             $actionUser = unserialize($oneRule->action_user);
             $actionMessage = unserialize($oneRule->action_message);
 
-            $actionsOnUsers = array();
+            $actionsOnUsers = [];
             if (!empty($actionUser['unsub'])) $actionsOnUsers[] = 'unsubscribe_user';
             if (!empty($actionUser['sub']) && !empty($actionUser['subscribeto'])) {
                 $actionsOnUsers[] = 'subscribe_user';
@@ -847,7 +865,7 @@ class acymmigrationHelper
             if (!empty($actionUser['emptyq'])) $actionsOnUsers[] = 'empty_queue_user';
 
 
-            $actionsOnEmail = array();
+            $actionsOnEmail = [];
             if (!empty($actionMessage['save'])) $actionsOnEmail[] = 'save_message';
             if (!empty($actionMessage['delete'])) $actionsOnEmail[] = 'delete_message';
             if (!empty($actionMessage['forwardto'])) {
@@ -886,7 +904,7 @@ class acymmigrationHelper
         }
     }
 
-    public function migrateSubscriptions($params = array())
+    public function migrateSubscriptions($params = [])
     {
         $result = 0;
 
@@ -896,7 +914,7 @@ class acymmigrationHelper
 
         if (empty($subscriptions)) return true;
 
-        $subscriptionsToInsert = array();
+        $subscriptionsToInsert = [];
 
         foreach ($subscriptions as $oneSubscription) {
             if (empty($oneSubscription->subid) || empty($oneSubscription->listid)) {
@@ -941,7 +959,7 @@ class acymmigrationHelper
         return $result;
     }
 
-    public function migrateMailHasLists($params = array())
+    public function migrateMailHasLists($params = [])
     {
         $result = 0;
 
@@ -954,7 +972,7 @@ class acymmigrationHelper
         $mailHasLists = acym_loadObjectList($queryGetMailHasLists);
         if (empty($mailHasLists)) return true;
 
-        $mailHasListsToInsert = array();
+        $mailHasListsToInsert = [];
 
         foreach ($mailHasLists as $oneMailHasLists) {
             if (empty($oneMailHasLists->mailid) || empty($oneMailHasLists->listid)) {
@@ -989,7 +1007,7 @@ class acymmigrationHelper
         return $result;
     }
 
-    public function migrateMailStats($params = array())
+    public function migrateMailStats($params = [])
     {
         $result = 0;
 
@@ -999,7 +1017,7 @@ class acymmigrationHelper
         if (empty($stats)) return true;
 
 
-        $statsToInsert = array();
+        $statsToInsert = [];
 
         $allMails = acym_loadResultArray('SELECT id FROM #__acym_mail');
 
@@ -1046,7 +1064,7 @@ class acymmigrationHelper
         return $result;
     }
 
-    public function migrateWelcomeunsub($params = array())
+    public function migrateWelcomeunsub($params = [])
     {
         $result = 0;
 
@@ -1056,7 +1074,7 @@ class acymmigrationHelper
 
         if (empty($ids)) return true;
 
-        $idsToInsert = array();
+        $idsToInsert = [];
 
         foreach ($ids as $oneId) {
             if (empty($oneId->listid) || empty($oneId->welmailid) || empty($oneId->unsubmailid)) {
@@ -1219,7 +1237,7 @@ class acymmigrationHelper
         return !$hasError;
     }
 
-    public function doElementMigration($elementName, $params = array())
+    public function doElementMigration($elementName, $params = [])
     {
         $functionName = 'migrate'.ucfirst($elementName);
         $params['currentElement'] = acym_getVar('int', 'currentElement');
@@ -1260,20 +1278,20 @@ class acymmigrationHelper
 
     public function preMigration($element)
     {
-        $connection = array(
-            'config' => array('table' => 'config', 'where' => ''),
-            'templates' => array('table' => 'template', 'where' => ''),
-            'mails' => array('table' => 'mail', 'where' => ''),
-            'lists' => array('table' => 'list', 'where' => ''),
-            'users' => array('table' => 'subscriber', 'where' => ''),
-            'bounce' => array('table' => 'rules', 'where' => ''),
-            'subscriptions' => array('table' => 'listsub', 'where' => ''),
-            'mailhaslists' => array('table' => 'listmail', 'where' => ''),
-            'mailstats' => array('table' => 'stats', 'where' => ''),
-            'welcomeunsub' => array('table' => 'list', 'where' => 'unsubmailid IS NOT NULL OR welmailid IS NOT NULL'),
-            'users_fields' => array('table' => 'subscriber'),
-            'fields' => array('table' => 'fields', 'where' => 'namekey NOT IN (\'name\', \'html\', \'email\')'),
-        );
+        $connection = [
+            'config' => ['table' => 'config', 'where' => ''],
+            'templates' => ['table' => 'template', 'where' => ''],
+            'mails' => ['table' => 'mail', 'where' => ''],
+            'lists' => ['table' => 'list', 'where' => ''],
+            'users' => ['table' => 'subscriber', 'where' => ''],
+            'bounce' => ['table' => 'rules', 'where' => ''],
+            'subscriptions' => ['table' => 'listsub', 'where' => ''],
+            'mailhaslists' => ['table' => 'listmail', 'where' => ''],
+            'mailstats' => ['table' => 'stats', 'where' => ''],
+            'welcomeunsub' => ['table' => 'list', 'where' => 'unsubmailid IS NOT NULL OR welmailid IS NOT NULL'],
+            'users_fields' => ['table' => 'subscriber'],
+            'fields' => ['table' => 'fields', 'where' => 'namekey NOT IN (\'name\', \'html\', \'email\')'],
+        ];
 
         $this->doCleanTable($element);
 
@@ -1290,3 +1308,4 @@ class acymmigrationHelper
         return $this->result;
     }
 }
+

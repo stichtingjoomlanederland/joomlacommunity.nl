@@ -27,7 +27,7 @@ class Koowa
      *
      * @var string
      */
-    const VERSION = '3.3.0';
+    const VERSION = '3.3.4';
 
     /**
      * The root path
@@ -79,6 +79,9 @@ class Koowa
         } else {
             $this->_vendor_path = $this->_root_path.'/libraries/vendor';
         }
+
+        //Load functions
+        require_once dirname(__FILE__).'/functions.php';
 
         //Load the legacy functions
         require_once dirname(__FILE__).'/legacy.php';

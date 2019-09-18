@@ -13,7 +13,7 @@ namespace Akeeba\Engine\Dump\Native;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Dump\Reverse\None as ReverseDumpEngine;
+use Akeeba\Engine\Dump\Base;
 use Akeeba\Engine\Factory;
 use Psr\Log\LogLevel;
 
@@ -22,13 +22,41 @@ use Psr\Log\LogLevel;
  * Dump class for the "None" database driver (ie no database used by the application)
  *
  */
-class None extends ReverseDumpEngine
+class None extends Base
 {
 	public function __construct()
 	{
 		parent::__construct();
-
-		Factory::getLog()->log(LogLevel::INFO, "There is no native engine for backing up databases with the None driver. Using the Reverse Engineering class instead.");
 	}
 
+	/**
+	 * Populates the table arrays with the information for the db entities to backup
+	 *
+	 * @return void
+	 */
+	protected function getTablesToBackup()
+	{
+	}
+
+	/**
+	 * Runs a step of the database dump
+	 *
+	 * @return void
+	 */
+	protected function stepDatabaseDump()
+	{
+		Factory::getLog()->log(LogLevel::INFO, "Reminder: database definitions using the 'None' driver result in no data being backed up.");
+
+		$this->setState('finished');
+	}
+
+	/**
+	 * Return the current database name by querying the database connection object (e.g. SELECT DATABASE() in MySQL)
+	 *
+	 * @return  string
+	 */
+	protected function getDatabaseNameFromConnection()
+	{
+		return '';
+	}
 }

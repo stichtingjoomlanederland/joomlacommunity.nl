@@ -56,6 +56,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 													'us-west-1' => 'US West (Northern California)',
 													'eu-central-1' => 'EU Frankfurt', 
 													'eu-west-1' => 'EU Ireland',
+													'eu-west-2' => 'EU London',
 													'ap-southeast-1' => 'Asia Pacific (Singapore)', 
 													'ap-southeast-2' => 'Asia Pacific (Sydney)', 
 													'ap-southeast-3' => 'Asia Pacific (Tokyo)',

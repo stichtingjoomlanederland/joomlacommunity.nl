@@ -29,7 +29,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 	{
 		parent::__construct();
 
-		$limit = $this->app->getUserStateFromRequest('com_easydiscuss.posts.limit', 'limit', ED::getListLimit());
+		$limit = $this->app->getUserStateFromRequest('com_easydiscuss.posts.limit', 'limit', ED::getListLimit(), 'int');
 		$limitstart	= $this->input->get('limitstart', 0, 'int');
 
 		$this->setState('limit', $limit);
@@ -585,6 +585,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$date = ED::date();
 
 		$sort = isset($options['sort']) ? $options['sort'] : 'latest';
+		$postStatus = isset($options['postStatus']) ? $options['postStatus'] : 0;
 		$pagination = isset($options['pagination']) ? $options['pagination'] : true;
 		$limitstart = isset($options['limitstart']) ? $options['limitstart'] : null;
 		$filter = isset($options['filter']) ? $options['filter'] : '';
@@ -804,6 +805,15 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$where[] = "LOWER(a.`title`) LIKE " . $db->Quote('%' . $search . '%');
 		}
 
+		$statuses = array('onhold' => DISCUSS_POST_STATUS_ON_HOLD, 
+						'accepted' => DISCUSS_POST_STATUS_ACCEPTED, 
+						'workingon' => DISCUSS_POST_STATUS_WORKING_ON, 
+						'rejected' => DISCUSS_POST_STATUS_REJECT);
+
+		if ($postStatus) {
+			$where[] = "a.`post_status` = " . $db->Quote($statuses[$postStatus]);
+		}
+
 		// category ACL:
 		$catOptions = array();
 		$catOptions['idOnly'] = true;
@@ -923,6 +933,8 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$query .= $orderby;
 
 		$limitstart = is_null($limitstart) ? $this->getState('limitstart') : $limitstart;
+		$limitstart = (int) $limitstart;
+
 		$limit = is_null($limit) ? $this->getState('limit') : $limit;
 
 		if ($limit != DISCUSS_NO_LIMIT) {
@@ -1531,7 +1543,6 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		$useFoundRows = ED::config()->get('system_query', 'default') == 'default' ? true : false;
 
-
 		$query = 'SELECT SQL_CALC_FOUND_ROWS';
 		if (!$useFoundRows) {
 			$query = 'SELECT';
@@ -1560,7 +1571,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		$query .= ' a.*, ';
 		$query .= ' e.`title` AS `category`, ';
-		$query .= ' IF(a.`replied` = '.$db->Quote('0000-00-00 00:00:00') . ', a.`created`, a.`replied`) as `lastupdate`';
+		$query .= ' a.`created` as `lastupdate`';
 
 		$query .= ', (select count(1) from `#__discuss_votes` where post_id = a.id) as `total_vote_cnt`';
 
@@ -1571,12 +1582,17 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		// building where conditions
 
+		// query used in replies count
+		$cntQuery = "select count(1) from `#__discuss_posts` AS a";
+
 		$where = array();
 
 		$publishState = ' a.`published` = ' . $db->Quote(DISCUSS_ID_PUBLISHED);
 
-		// Site admin should be able to view moderated replies
-		if ((ED::isSiteAdmin() || $acl->allowed('manage_pending'))) {
+		$isModerator = ED::moderator()->isModerator($this->getCategoryId($id), $my->id);
+
+		// Site admin and moderator for certain category should be able to view moderated replies
+		if ((ED::isSiteAdmin() || $acl->allowed('manage_pending') || $isModerator)) {
 			$publishState = ' a.`published` in (' . $db->Quote(DISCUSS_ID_PUBLISHED) . ',' . $db->Quote(DISCUSS_ID_PENDING) .')';
 		}
 
@@ -1589,6 +1605,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		$where = (count($where) ? ' WHERE ' . implode(' AND ', $where) : '');
 		$query .= $where;
+		$cntQuery .= $where;
 
 		// building sort
 
@@ -1631,10 +1648,8 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		if ($limit != DISCUSS_NO_LIMIT && $pagination) {
 			// now lets get the row_count() for pagination.
-			$cntQuery = "select FOUND_ROWS()";
-
-			if (! $useFoundRows) {
-				$cntQuery = "select count(1) from (" . $query . ") as x";
+			if ($useFoundRows) {
+				$cntQuery = "select FOUND_ROWS()";
 			}
 
 			$db->setQuery($cntQuery);
@@ -2035,8 +2050,10 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		$db = ED::db();
 		$limit = is_null($limit) ? (int) $this->getState('limit') : $limit;
-		$limitstart = (empty($limitStart)) ? $this->getState('limitstart') : $limitStart;
 
+		$limitstart = (empty($limitStart)) ? $this->getState('limitstart') : $limitStart;
+		$limitstart = (int) $limitstart;
+		
 		$limitstart = abs($limitstart);
 
 		if ($limit < 0) {
@@ -2200,6 +2217,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$db = ED::db();
 		$date = ED::date();
 		$offset = ED::getTimeZoneOffset();
+		$config = $this->config;
 
 		$query	= 'SELECT DATEDIFF('. $db->Quote($date->toMySQL(true)) . ', DATE_ADD(a.`created`, INTERVAL '.$offset.' HOUR)) as `noofdays`, '
 				. ' DATEDIFF(' . $db->Quote($date->toMySQL(true)) . ', DATE_ADD(a.`created`, INTERVAL '.$offset.' HOUR)) as `daydiff`, '
@@ -2207,7 +2225,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 				. ' a.* ';
 		$query	.= ' FROM `#__discuss_comments` AS a';
 
-		$runSort = false;
+		// $runSort = false;
 
 		if (is_array($postId)) {
 			if (count($postId) == 1) {
@@ -2218,12 +2236,15 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 				$query .= ' ORDER BY a.post_id, a.`created` ASC';
 			}
 		} else {
-			$query .= ' WHERE a.`post_id` = ' . $db->Quote($postId);
-			$query .= ' ORDER BY a.`created` DESC';
+			$query .= ' WHERE a.`post_id` = ' . $db->Quote($postId);			
 		}
 
 		if (!is_array($postId)) {
-			$runSort = true;
+			if ($config->get('main_comment_ordering') == 'asc'){
+				$query .= ' ORDER BY a.`created` ASC';
+			} elseif ($config->get('main_comment_ordering') == 'desc'){
+				$query .= ' ORDER BY a.`created` DESC';
+			}
 		}
 
 		if ($limit !== null) {
@@ -2236,10 +2257,6 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		$db->setQuery($query) ;
 		$result = $db->loadObjectList('created');
-
-		if ($runSort) {
-			ksort($result);
-		}
 
 		return $result;
 	}
@@ -2256,7 +2273,29 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$this->_parent = $id;
 		$this->_isaccept = true;
 
-		$query = $this->_buildQuery('latest' , 'answer' , '', 'all', true);
+		$my = JFactory::getUser();
+		// $query = $this->_buildQuery('latest' , 'answer' , '', 'all', true);
+
+
+		$query = "SELECT (SELECT COUNT(1) FROM `#__discuss_polls` WHERE `post_id` = a.`id`) AS `polls_cnt`,";
+		$query .= " (SELECT COUNT(1) FROM `#__discuss_favourites` WHERE `post_id` = a.`id`) AS `totalFavourites`,";
+		$query .= " 0 AS `num_replies`,";
+
+		if ($my->id != 0) {
+			$query .= " (SELECT COUNT(1) FROM `#__discuss_votes` WHERE `post_id` = a.`id` AND `user_id` = " . $db->Quote($my->id) . ") AS `isVoted`,"; 
+		} else {
+			$query .= " 0 as `isVoted`,";
+		}
+
+		$query .= " pt.`suffix` AS post_type_suffix, pt.`title` AS post_type_title , a.*, e.`title` AS `category`,";
+		$query .= " a.`created` as `lastupdate`, ";
+		$query .= " (select count(1) from `#__discuss_votes` where post_id = a.id) as `total_vote_cnt` ";
+		$query .= " FROM `#__discuss_posts` AS a";
+		$query .= " LEFT JOIN `#__discuss_post_types` AS pt ON a.`post_type`= pt.`alias`";
+		$query .= " LEFT JOIN `#__discuss_category` AS e ON a.`category_id`= e.`id`";
+		$query .= " WHERE a.`published` = " . $db->Quote('1');
+		$query .= " AND a.`parent_id` = " . $db->Quote($id);
+		$query .= " AND a.`answered` = " . $db->Quote('1');
 
 		$db->setQuery($query);
 		$result = $db->loadObjectList();
@@ -2265,7 +2304,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		return $result;
 	}
 
-	public function getUnresolvedCount($filter = '', $category = '', $tagId = '', $featuredOnly = 'all', $queryOnly = false, $clusterId = '')
+	public function getUnresolvedCount($filter = '', $category = '', $tagId = '', $featuredOnly = 'all', $queryOnly = false, $clusterId = '', $userId = '')
 	{
 		$db	= ED::db();
 		$my	= JFactory::getUser();
@@ -2296,8 +2335,9 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$includeCluster = true;
 		}
 
-		if (!$includeCluster) {
+		if (!$includeCluster && $userId) {
 			$query .= ' AND a.`cluster_id` = '. $db->Quote(0);
+			$query .= ' AND a.`user_id` = '. $db->Quote($userId);
 		}
 
 		// @rule: Should not calculate resolved posts
@@ -2420,7 +2460,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		return $db->loadResult();
 	}
 
-	public function getResolvedCount($filter = '', $category = '', $tagId = '', $featuredOnly = 'all', $queryOnly = false, $clusterId = '')
+	public function getResolvedCount($filter = '', $category = '', $tagId = '', $featuredOnly = 'all', $queryOnly = false, $clusterId = '', $userId = '')
 	{
 		$db = $this->db;
 		$my	= $this->my;
@@ -2452,8 +2492,9 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$includeCluster = true;
 		}
 
-		if (!$includeCluster) {
+		if (!$includeCluster && $userId) {
 			$query .= ' AND a.`cluster_id` = ' . $db->Quote(0);
+			$query .= ' AND a.`user_id` = ' . $db->Quote($userId);
 		}
 
 		// @rule: Should not calculate resolved posts
@@ -2494,7 +2535,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		return $db->loadResult();
 	}
 
-	public function getUnansweredCount($filter = '' , $category = '' , $tagId = '', $featuredOnly = 'all', $clusterId = '')
+	public function getUnansweredCount($filter = '' , $category = '' , $tagId = '', $featuredOnly = 'all', $clusterId = '' , $userId = '')
 	{
 		$db	= ED::db();
 		$my	= JFactory::getUser();
@@ -2531,8 +2572,9 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$includeCluster = true;
 		}
 
-		if (!$includeCluster) {
+		if (!$includeCluster && $userId) {
 			$query .= " AND a.`cluster_id` = " . $db->Quote(0);
+			$query .= " AND a.`user_id` = " . $db->Quote($userId);
 		}
 
 		if ($featuredOnly === true) {

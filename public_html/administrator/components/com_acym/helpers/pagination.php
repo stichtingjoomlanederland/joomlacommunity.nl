@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -31,16 +31,14 @@ class acympaginationHelper
         $nbPages = ceil($this->total / $this->nbPerPage);
 
         $pagination .= '<div class="pagination text-center cell grid-x" role="navigation" aria-label="Pagination">
-                            <div class="shrink pagination_container cell margin-auto">';
+                            <div class="small-auto large-shrink medium-shrink pagination_container cell margin-auto">';
 
-        if ($this->page > 1) {
-            $pagination .= '<div class="pagination-previous pagination_one_pagination acym__pagination__page'.$suffix.'" page="'.($this->page - 1).'"><i class="material-icons revert180deg pagination__i">play_arrow</i></div>';
-        } else {
-            $pagination .= '<div class="pagination-previous pagination_one_pagination pagination_disabled"><i class="material-icons revert180deg pagination__i">play_arrow</i></div>';
-        }
+        $pagination .= '<div class="pagination-previous pagination_one_pagination ';
+        $pagination .= $this->page > 1 ? 'acym__pagination__page'.$suffix.'" page="'.($this->page - 1) : 'pagination_disabled';
+        $pagination .= '"><i class="acymicon-play_arrow rotate180deg pagination__i"></i></div>';
 
         $ellipsis = false;
-        for ($i = 1; $i <= $nbPages; $i++) {
+        for ($i = 1 ; $i <= $nbPages ; $i++) {
             if ($i > 2 && $i < $nbPages - 1 && ($i < $this->page - 1 || $i > $this->page + 1)) {
                 if (!$ellipsis) {
                     $ellipsis = true;
@@ -59,9 +57,9 @@ class acympaginationHelper
         }
 
         if ($this->page < $nbPages) {
-            $pagination .= '<div class="pagination-next pagination_one_pagination acym__pagination__page'.$suffix.'" page="'.($this->page + 1).'"><i class="material-icons pagination__i">play_arrow</i></div>';
+            $pagination .= '<div class="pagination-next pagination_one_pagination acym__pagination__page'.$suffix.'" page="'.($this->page + 1).'"><i class="acymicon-play_arrow pagination__i"></i></div>';
         } else {
-            $pagination .= '<div class="pagination-next pagination_one_pagination pagination_disabled"><i class="material-icons pagination__i">play_arrow</i></div>';
+            $pagination .= '<div class="pagination-next pagination_one_pagination pagination_disabled"><i class="acymicon-play_arrow pagination__i"></i></div>';
         }
 
         $pagination .= '</div></div>';
@@ -99,3 +97,4 @@ class acympaginationHelper
         return $pagination;
     }
 }
+

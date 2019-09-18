@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -14,7 +14,7 @@ class fileTreeType extends acymClass
 {
     function display($folders, $currentFolder, $nameInput)
     {
-        $tree = array();
+        $tree = [];
         foreach ($folders as $root => $children) {
             $tree = array_merge($tree, $this->searchChildren($children, $root));
         }
@@ -28,8 +28,8 @@ class fileTreeType extends acymClass
 
     private function searchChildren($folders, $root)
     {
-        $tree = array();
-        $tree[$root] = array();
+        $tree = [];
+        $tree[$root] = [];
 
         foreach ($folders as $folder) {
             $folder = trim(str_replace($root, '', $folder), '/\\');
@@ -41,7 +41,7 @@ class fileTreeType extends acymClass
             $variable = &$tree[$root];
             foreach ($pathParts as $pathPart) {
                 if (empty($variable[$pathPart])) {
-                    $variable[$pathPart] = array();
+                    $variable[$pathPart] = [];
                 }
                 $variable = &$variable[$pathPart];
             }
@@ -85,3 +85,4 @@ class fileTreeType extends acymClass
         return $results;
     }
 }
+

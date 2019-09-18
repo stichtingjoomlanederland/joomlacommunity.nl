@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -26,7 +26,7 @@ defined('_JEXEC') or die('Restricted access');
 	<div class="grid-x xlarge-auto large-shrink text-center cell acym__templates__choose__type-templates">
 		<!-- Todo find a better way to pass the step in url when you choose a template in campaigns -->
         <?php
-        $switchfilter = array('custom' => 'ACYM_MY_TEMPLATES', 'library' => 'ACYM_LIBRARY');
+        $switchfilter = ['custom' => 'ACYM_MY_TEMPLATES', 'library' => 'ACYM_LIBRARY'];
         echo acym_switchFilter($switchfilter, 'custom', 'mailchoose_type');
         ?>
 	</div>

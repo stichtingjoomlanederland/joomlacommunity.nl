@@ -403,7 +403,7 @@ class ComDocmanControllerBehaviorOrganizable extends KControllerBehaviorAbstract
     protected function _splitPath($path)
     {
         $folder = pathinfo($path, PATHINFO_DIRNAME);
-        $name   = ltrim(basename(' '.strtr($path, array('/' => '/ '))));
+        $name   = \Koowa\basename($path);
 
         if ($folder === '.') {
             $folder = '';
@@ -434,6 +434,15 @@ class ComDocmanControllerBehaviorOrganizable extends KControllerBehaviorAbstract
                 // Move files out of root folder OR move from tmp to root if no category folder is defined
                 if (!$relation->isNew() && !empty($relation->folder) && $relation->folder !== $file->folder) {
                     $destination_folder = $relation->folder;
+
+                    if (!empty($destination_folder)) {
+                        $basepath = $this->getObject('com:files.model.containers')->slug('docman-files')->fetch()->fullpath;
+
+                        if (!is_dir($basepath.'/'.$destination_folder)) {
+                            $destination_folder = '';
+                        }
+                    }
+
                 }
                 elseif ($file->folder === 'tmp') {
                     $destination_folder = '';

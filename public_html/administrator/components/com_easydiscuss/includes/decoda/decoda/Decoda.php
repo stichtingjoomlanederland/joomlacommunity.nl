@@ -941,7 +941,7 @@ class EdDecoda {
 
 						if ($last['tag'] === $tag) {
 							array_pop($disallowed);
-							continue;
+							continue 2;
 						}
 					}
 

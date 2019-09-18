@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -27,13 +27,13 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="cell large-6">
 				<label>
                     <?php echo acym_translation('ACYM_CAMPAIGN_NAME'); ?>
-					<input name="mail[name]" type="text" class="acy_required_field" value="<?php echo acym_escape($data['mailInformation']->name); ?>" required>
+					<input name="mail[name]" type="text" value="<?php echo acym_escape($data['mailInformation']->name); ?>">
 				</label>
 			</div>
 			<div class="cell large-6">
 				<label>
                     <?php echo acym_translation('ACYM_TAGS'); ?>
-                    <?php echo acym_selectMultiple($data['allTags'], "template_tags", !empty($data['mailInformation']->tags) ? $data['mailInformation']->tags : array(), array('id' => 'acym__tags__field', 'placeholder' => acym_translation('ACYM_ADD_TAGS')), "name", "name"); ?>
+                    <?php echo acym_selectMultiple($data['allTags'], "template_tags", !empty($data['mailInformation']->tags) ? $data['mailInformation']->tags : [], ['id' => 'acym__tags__field', 'placeholder' => acym_translation('ACYM_ADD_TAGS')], "name", "name"); ?>
 				</label>
 			</div>
 			<div class="cell large-6">
@@ -75,7 +75,7 @@ defined('_JEXEC') or die('Restricted access');
                 }
 
                 $uploadfileType = acym_get('type.uploadFile');
-                for ($i = 0; $i < 10; $i++) {
+                for ($i = 0 ; $i < 10 ; $i++) {
                     $result = '<div '.($i >= 1 ? 'style="display:none"' : '').' class="cell grid-x grid-margin-x acym__campaigns__attach__elements" id="acym__campaigns__attach__'.$i.'">';
                     $result .= $uploadfileType->display('attachments', $i);
                     $result .= '<div class="cell medium-auto"></div><div class="cell medium-1 text-center "><i style="display: none;" id="attachments'.$i.'suppr" data-id="'.$i.'" class="fa fa-trash-o acym__color__red acym__campaigns__attach__remove"></i></div>';
@@ -115,8 +115,7 @@ defined('_JEXEC') or die('Restricted access');
 
     <?php acym_formOptions(true, 'edit', 'editEmail'); ?>
 
-    <?php echo $data['editor']->display();
-    ?>
+    <?php echo $data['editor']->display(); ?>
 </form>
 
 

@@ -12,6 +12,7 @@ defined('KOOWA') or die; ?>
 <?= helper('ui.load') ?>
 
 
+<?= helper('behavior.jquery'); ?>
 <?= helper('behavior.keepalive'); ?>
 
 
@@ -64,6 +65,70 @@ defined('KOOWA') or die; ?>
                                         </li>
                                     <? endforeach; ?>
                                     </ul>
+                                        </div>
+                                    </div>
+
+                                </fieldset>
+
+                                <fieldset class="k-form-block">
+
+                                    <div class="k-form-block__header">
+                                        <?= translate('Connect'); ?>
+                                    </div>
+
+                                    <div class="k-form-block__content">
+
+                                        <div class="k-form-group">
+                                            <? if ($connect['plugin']): $plugin = $connect['plugin']; ?>
+
+                                                <? if (empty($plugin->enabled)): ?>
+                                                    <div class="k-alert k-alert--danger">Plugin is disabled</div>
+                                                <? elseif (!class_exists('PlgKoowaConnect')): ?>
+                                                    <div class="k-alert k-alert--danger">PlgKoowaConnect is not autoloaded</div>
+                                                <? endif ?>
+
+
+
+                                                <? if (class_exists('PlgKoowaConnect')): ?>
+                                                <ul>
+                                                    <li>
+                                                        <a href="<?= JRoute::_('index.php?option=com_plugins&task=plugin.edit&extension_id='.$connect['plugin']->extension_id) ?>"
+                                                           target="_blank">Edit plugin</a>
+
+                                                    </li>
+                                                    <li>Version: <?= PlgKoowaConnect::VERSION; ?></li>
+                                                    <li>Is local: <?= (int)PlgKoowaConnect::isLocal(); ?></li>
+                                                    <li>Is supported: <?= (int)PlgKoowaConnect::isSupported(); ?></li>
+                                                </ul>
+                                                <? endif ;?>
+
+                                                <h4>Plugin parameters:</h4>
+                                                <pre><?= json_encode($plugin->params, JSON_PRETTY_PRINT); ?></pre>
+
+                                                <h4>Test results:</h4>
+                                                <? if(version_compare(PlgKoowaConnect::VERSION, '2.4.0', '>=')): ?>
+                                                <pre id="connect-test-results" style="white-space: pre-wrap;"></pre>
+
+                                                <script>
+                                                    kQuery(function($) {
+                                                        var results = $('#connect-test-results');
+                                                        $.ajax({
+                                                            type: "GET",
+                                                            url: '<?= object("request")->getSiteUrl(); ?>/?option=com_ajax&plugin=connect&group=koowa&format=json&path=scanner-test'
+                                                        }).then(function(response, status, xhr) {
+                                                            results.html(xhr.responseText);
+                                                        }).fail(function(xhr) {
+                                                            results.html(xhr.responseText);
+                                                        });
+                                                    });
+                                                </script>
+                                                <? else: ?>
+                                                    Test is only supported on 2.4.0+
+                                                <? endif; ?>
+                                            <? else: ?>
+                                                Connect is not installed
+                                            <? endif ?>
+
                                         </div>
                                     </div>
 

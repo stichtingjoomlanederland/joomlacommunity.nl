@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -32,13 +32,13 @@ define('ACYM_LANGUAGE', ACYM_ROOT.'language'.DS);
 define('ACYM_INC', ACYM_FRONT.'inc'.DS);
 
 define('ACYM_MEDIA_RELATIVE', 'media/'.ACYM_COMPONENT.'/');
-define('ACYM_MEDIA_URL', acym_rootURI().'media/'.ACYM_COMPONENT.'/');
+define('ACYM_MEDIA_URL', acym_rootURI().ACYM_MEDIA_RELATIVE);
 define('ACYM_IMAGES', ACYM_MEDIA_URL.'images/');
 define('ACYM_CSS', ACYM_MEDIA_URL.'css/');
 define('ACYM_JS', ACYM_MEDIA_URL.'js/');
 define('ACYM_TEMPLATE', ACYM_MEDIA.'templates'.DS);
 define('ACYM_TEMPLATE_URL', ACYM_MEDIA_URL.'templates'.DS);
-define('ACYM_TEMPLATE_THUMBNAILS', ACYM_IMAGES.'thumbnails'.DS);
+define('ACYM_TEMPLATE_THUMBNAILS', ACYM_IMAGES.'thumbnails/');
 define('ACYM_DYNAMICS_URL', acym_rootURI().'administrator/components/'.ACYM_COMPONENT.'/dynamics/');
 
 define('ACYM_MEDIA_FOLDER', 'media/'.ACYM_COMPONENT);
@@ -46,6 +46,7 @@ define('ACYM_UPLOAD_FOLDER', ACYM_MEDIA_FOLDER.DS.'upload'.DS);
 define('ACYM_UPLOAD_FOLDER_THUMBNAIL', ACYM_MEDIA.'images'.DS.'thumbnails'.DS);
 
 $jversion = preg_replace('#[^0-9\.]#i', '', JVERSION);
+define('ACYM_CMSV', $jversion);
 define('ACYM_J30', version_compare($jversion, '3.0.0', '>='));
 define('ACYM_J37', version_compare($jversion, '3.7.0', '>='));
 define('ACYM_J40', version_compare($jversion, '4.0.0', '>='));
@@ -73,7 +74,7 @@ function acym_fileGetContent($url, $timeout = 10)
     if (class_exists('JHttpFactory') && method_exists('JHttpFactory', 'getHttp')) {
         $http = JHttpFactory::getHttp();
         try {
-            $response = $http->get($url, array(), $timeout);
+            $response = $http->get($url, [], $timeout);
         } catch (RuntimeException $e) {
             $response = null;
         }
@@ -104,7 +105,7 @@ function acym_fileGetContent($url, $timeout = 10)
         if (!empty($timeout)) {
             ini_set('default_socket_timeout', $timeout);
         }
-        $streamContext = stream_context_create(array('ssl' => array('verify_peer' => false, 'verify_peer_name' => false)));
+        $streamContext = stream_context_create(['ssl' => ['verify_peer' => false, 'verify_peer_name' => false]]);
         $data = file_get_contents($url, false, $streamContext);
     }
 
@@ -164,7 +165,7 @@ function acym_translation_sprintf()
 {
     $args = func_get_args();
 
-    return call_user_func_array(array('JText', 'sprintf'), $args);
+    return call_user_func_array(['JText', 'sprintf'], $args);
 }
 
 function acym_route($url, $xhtml = true, $ssl = null)
@@ -240,7 +241,7 @@ function acym_getGroups()
 
 function acym_getLanguages($installed = false)
 {
-    $result = array();
+    $result = [];
 
     $path = acym_getLanguagePath(ACYM_ROOT);
     $dirs = acym_getFolders($path);
@@ -258,7 +259,7 @@ function acym_getLanguages($installed = false)
         $xmlFiles = acym_getFiles($path.DS.$dir, '^([-_A-Za-z]*)\.xml$');
         $xmlFile = reset($xmlFiles);
         if (empty($xmlFile)) {
-            $data = array();
+            $data = [];
         } else {
             if (ACYM_J40) {
                 $data = \JInstaller::parseXMLInstallFile(ACYM_LANGUAGE.$dir.DS.$xmlFile);
@@ -294,7 +295,7 @@ function acym_cleanSlug($slug)
 
 function acym_punycode($email, $method = 'emailToPunycode')
 {
-    if (empty($email) || version_compare(JVERSION, '3.1.2', '<')) {
+    if (empty($email) || version_compare(ACYM_CMSV, '3.1.2', '<')) {
         return $email;
     }
     $email = JStringPunycode::$method($email);
@@ -307,7 +308,7 @@ function acym_extractArchive($archive, $destination)
     return JArchive::extract($archive, $destination);
 }
 
-function acym_addScript($raw, $script, $type = "text/javascript", $defer = false, $async = false, $needTagScript = false, $deps = array('jquery'))
+function acym_addScript($raw, $script, $type = "text/javascript", $defer = false, $async = false, $needTagScript = false, $deps = ['jquery'])
 {
     $acyDocument = acym_getGlobal('doc');
 
@@ -320,7 +321,7 @@ function acym_addScript($raw, $script, $type = "text/javascript", $defer = false
     return 'acym_script';
 }
 
-function acym_addStyle($raw, $style, $type = 'text/css', $media = null, $attribs = array())
+function acym_addStyle($raw, $style, $type = 'text/css', $media = null, $attribs = [])
 {
     $acyDocument = acym_getGlobal('doc');
 
@@ -484,11 +485,11 @@ function acym_loadLanguageFile($extension = 'joomla', $basePath = JPATH_SITE, $l
 
 function acym_getGlobal($type)
 {
-    $variables = array(
-        'db' => array('acydb', 'getDBO'),
-        'doc' => array('acyDocument', 'getDocument'),
-        'app' => array('acyapp', 'getApplication'),
-    );
+    $variables = [
+        'db' => ['acydb', 'getDBO'],
+        'doc' => ['acyDocument', 'getDocument'],
+        'app' => ['acyapp', 'getApplication'],
+    ];
 
     global ${$variables[$type][0]};
     if (${$variables[$type][0]} === null) {
@@ -674,15 +675,15 @@ function acym_enqueueMessage($message, $type = 'success')
 
     if (acym_isAdmin()) {
         if (ACYM_J30) {
-            $type = str_replace(array('notice', 'message'), array('info', 'success'), $type);
+            $type = str_replace(['notice', 'message'], ['info', 'success'], $type);
         } else {
-            $type = str_replace(array('message', 'notice', 'warning'), array('info', 'warning', 'error'), $type);
+            $type = str_replace(['message', 'notice', 'warning'], ['info', 'warning', 'error'], $type);
         }
     } else {
         if (ACYM_J30) {
-            $type = str_replace(array('success', 'info'), array('message', 'notice'), $type);
+            $type = str_replace(['success', 'info'], ['message', 'notice'], $type);
         } else {
-            $type = str_replace(array('success', 'error', 'warning', 'info'), array('message', 'warning', 'notice', 'message'), $type);
+            $type = str_replace(['success', 'error', 'warning', 'info'], ['message', 'warning', 'notice', 'message'], $type);
         }
     }
 
@@ -699,7 +700,7 @@ function acym_displayMessages()
         return;
     }
 
-    $sorted = array();
+    $sorted = [];
     foreach ($messages as $oneMessage) {
         $sorted[$oneMessage['type']][] = $oneMessage['message'];
     }
@@ -836,7 +837,7 @@ function acym_getTitle()
 
 function acym_getDefaultConfigValues()
 {
-    $allPref = array();
+    $allPref = [];
 
     $allPref['from_name'] = acym_getCMSConfig('fromname');
     $allPref['from_email'] = acym_getCMSConfig('mailfrom');
@@ -853,7 +854,7 @@ function acym_getDefaultConfigValues()
     if (isset($smtpinfos[1])) {
         $allPref['smtp_port'] = $smtpinfos[1];
     }
-    if (!in_array($allPref['smtp_secured'], array('tls', 'ssl'))) {
+    if (!in_array($allPref['smtp_secured'], ['tls', 'ssl'])) {
         $allPref['smtp_secured'] = '';
     }
     $allPref['cron_savepath'] = 'media/'.ACYM_COMPONENT.'/logs/report{year}_{month}.log';
@@ -889,7 +890,7 @@ function acym_enqueueNotificationFront($message, $type = 'info', $time = 0)
 function acym_cmsModal($isIframe, $content, $buttonText, $isButton, $modalTitle, $identifier = null, $width = '800', $height = '400')
 {
     JHtml::_('jquery.framework');
-    JHtml::_('script', 'system/modal-fields.js', array('version' => 'auto', 'relative' => true));
+    JHtml::_('script', 'system/modal-fields.js', ['version' => 'auto', 'relative' => true]);
 
     if (empty($identifier)) {
         $identifier = 'identifier_'.rand(1000, 9000);
@@ -899,7 +900,7 @@ function acym_cmsModal($isIframe, $content, $buttonText, $isButton, $modalTitle,
     $html .= JHtml::_(
         'bootstrap.renderModal',
         $identifier,
-        array(
+        [
             'title' => $modalTitle,
             'url' => $content,
             'height' => $height.'px',
@@ -907,7 +908,7 @@ function acym_cmsModal($isIframe, $content, $buttonText, $isButton, $modalTitle,
             'bodyHeight' => '70',
             'modalWidth' => '80',
             'footer' => '<a role="button" class="btn" data-dismiss="modal" aria-hidden="true">'.acym_translation('JLIB_HTML_BEHAVIOR_CLOSE').'</a>',
-        )
+        ]
     );
 
     return $html;
@@ -938,7 +939,7 @@ function acym_getArticleURL($id, $popup, $text, $titleModal = '')
     $articleid = $article->id.(empty($article->alias) ? '' : ':'.$article->alias);
 
     $url = ContentHelperRoute::getArticleRoute($articleid, $category);
-    
+
     if ($popup == 1) {
         $url .= (strpos($url, '?') ? '&' : '?').acym_noTemplate();
         $url = acym_cmsModal(true, acym_route($url), $text, false, $titleModal);
@@ -970,29 +971,29 @@ function acym_getLeftMenu($name)
 {
     $isCollapsed = empty($_COOKIE['menuJoomla']) ? '' : $_COOKIE['menuJoomla'];
 
-    $menus = array(
-        'dashboard' => array('title' => 'ACYM_DASHBOARD', 'class-i' => 'material-icons', 'text-i' => 'dashboard', 'span-class' => ''),
-        'users' => array('title' => 'ACYM_USERS', 'class-i' => 'material-icons', 'text-i' => 'group', 'span-class' => ''),
-        'fields' => array('title' => 'ACYM_CUSTOM_FIELDS', 'class-i' => 'material-icons', 'text-i' => '	text_fields', 'span-class' => ''),
-        'lists' => array('title' => 'ACYM_LISTS', 'class-i' => 'fa fa-address-book-o', 'text-i' => '', 'span-class' => 'acym__joomla__left-menu__fa'),
-        'campaigns' => array('title' => 'ACYM_CAMPAIGNS', 'class-i' => 'material-icons', 'text-i' => 'email', 'span-class' => ''),
-        'mails' => array('title' => 'ACYM_TEMPLATES', 'class-i' => 'fa fa-pencil-square-o', 'text-i' => '', 'span-class' => 'acym__joomla__left-menu__fa'),
-        'automation' => array('title' => 'ACYM_AUTOMATION', 'class-i' => 'fa fa-gears', 'text-i' => '', 'span-class' => 'acym__joomla__left-menu__fa'),
-        'queue' => array('title' => 'ACYM_QUEUE', 'class-i' => 'fa fa-hourglass-half', 'text-i' => '', 'span-class' => 'acym__joomla__left-menu__fa'),
-        'stats' => array('title' => 'ACYM_STATISTICS', 'class-i' => 'fa fa-bar-chart', 'text-i' => '', 'span-class' => 'acym__joomla__left-menu__fa'),
-        'bounces' => array('title' => 'ACYM_BOUNCE_HANDLING', 'class-i' => 'fa fa-random', 'text-i' => '', 'span-class' => 'acym__joomla__left-menu__fa'),
-        'configuration' => array('title' => 'ACYM_CONFIGURATION', 'class-i' => 'material-icons', 'text-i' => 'settings', 'span-class' => ''),
-    );
+    $menus = [
+        'dashboard' => ['title' => 'ACYM_DASHBOARD', 'class-i' => 'acymicon-dashboard', 'span-class' => ''],
+        'users' => ['title' => 'ACYM_USERS', 'class-i' => 'acymicon-group', 'span-class' => ''],
+        'fields' => ['title' => 'ACYM_CUSTOM_FIELDS', 'class-i' => 'acymicon-text_fields', 'span-class' => ''],
+        'lists' => ['title' => 'ACYM_LISTS', 'class-i' => 'fa fa-address-book-o', 'span-class' => 'acym__joomla__left-menu__fa'],
+        'campaigns' => ['title' => 'ACYM_CAMPAIGNS', 'class-i' => 'acymicon-email', 'span-class' => ''],
+        'mails' => ['title' => 'ACYM_TEMPLATES', 'class-i' => 'fa fa-pencil-square-o', 'span-class' => 'acym__joomla__left-menu__fa'],
+        'automation' => ['title' => 'ACYM_AUTOMATION', 'class-i' => 'fa fa-gears', 'span-class' => 'acym__joomla__left-menu__fa'],
+        'queue' => ['title' => 'ACYM_QUEUE', 'class-i' => 'fa fa-hourglass-half', 'span-class' => 'acym__joomla__left-menu__fa'],
+        'stats' => ['title' => 'ACYM_STATISTICS', 'class-i' => 'fa fa-bar-chart', 'span-class' => 'acym__joomla__left-menu__fa'],
+        'bounces' => ['title' => 'ACYM_BOUNCE_HANDLING', 'class-i' => 'fa fa-random', 'span-class' => 'acym__joomla__left-menu__fa'],
+        'configuration' => ['title' => 'ACYM_CONFIGURATION', 'class-i' => 'acymicon-settings', 'span-class' => ''],
+    ];
 
-    $leftMenu = '<div id="acym__joomla__left-menu--show"><i class="acym-logo"></i><i id="acym__joomla__left-menu--burger" class="material-icons">menu</i></div>
+    $leftMenu = '<div id="acym__joomla__left-menu--show"><i class="acym-logo"></i><i id="acym__joomla__left-menu--burger" class="acymicon-menu"></i></div>
                     <div id="acym__joomla__left-menu" class="'.$isCollapsed.'">
-                        <i class="material-icons" id="acym__joomla__left-menu--close">close</i>';
+                        <i class="acymicon-close" id="acym__joomla__left-menu--close"></i>';
     foreach ($menus as $oneMenu => $menuOption) {
-        $class = $name == $oneMenu ? "acym__joomla__left-menu--current" : "";
-        $leftMenu .= '<a href="'.acym_completeLink($oneMenu).'" class="'.$class.'"><i class="'.$menuOption['class-i'].'">'.$menuOption['text-i'].'</i><span class="'.$menuOption['span-class'].'">'.acym_translation($menuOption['title']).'</span></a>';
+        $class = $name == $oneMenu ? 'acym__joomla__left-menu--current' : '';
+        $leftMenu .= '<a href="'.acym_completeLink($oneMenu).'" class="'.$class.'"><i class="'.$menuOption['class-i'].'"></i><span class="'.$menuOption['span-class'].'">'.acym_translation($menuOption['title']).'</span></a>';
     }
 
-    $leftMenu .= '<a href="#" id="acym__joomla__left-menu--toggle"><i class="material-icons">keyboard_arrow_left</i><span>'.acym_translation('ACYM_COLLAPSE').'</span></a>';
+    $leftMenu .= '<a href="#" id="acym__joomla__left-menu--toggle"><i class="acymicon-keyboard_arrow_left"></i><span>'.acym_translation('ACYM_COLLAPSE').'</span></a>';
 
     $leftMenu .= '</div>';
 
@@ -1016,6 +1017,10 @@ function acym_getPluginsPath($file, $dir)
     return '';
 }
 
+function acym_includeHeaders()
+{
+}
+
 global $acymCmsUserVars;
 $acymCmsUserVars = new stdClass();
 $acymCmsUserVars->table = '#__users';
@@ -1025,3 +1030,4 @@ $acymCmsUserVars->id = 'id';
 $acymCmsUserVars->email = 'email';
 $acymCmsUserVars->registered = 'registerDate';
 $acymCmsUserVars->blocked = 'block';
+

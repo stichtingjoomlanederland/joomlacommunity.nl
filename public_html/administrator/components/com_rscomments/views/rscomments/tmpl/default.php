@@ -53,7 +53,7 @@ defined('_JEXEC') or die('Restricted access'); ?>
 							
 							<tr>
 								<td class="center" width="8%">
-									<?php echo RSCommentsHelper::getAvatar($comment->uid, $comment->email, 40); ?>
+									<?php echo RSCommentsHelperAdmin::getAvatar($comment->uid, $comment->email, 40); ?>
 								</td>
 								<td class="rsc_comment_details">
 									<?php $name = $comment->anonymous ? ($comment->name ? $comment->name : JText::_('COM_RSCOMMENTS_ANONYMOUS')) : $comment->name; ?>
@@ -61,8 +61,8 @@ defined('_JEXEC') or die('Restricted access'); ?>
 									<br>
 									<span class="muted"><a href="<?php echo JRoute::_('index.php?option=com_rscomments&task=comment.edit&IdComment='.$comment->IdComment); ?>"><i class="fa fa-pencil"></i> <?php echo JText::_('COM_RSCOMMENTS_POSTED_A_COMMENT_EDIT'); ?></a></span>
 									<span class="muted"><a href="<?php echo JURI::root().base64_decode($comment->url);?>#rscomment<?php echo $comment->IdComment; ?>" target="_blank"><i class="fa fa-eye"></i> <?php echo JText::_('COM_RSCOMMENTS_POSTED_A_COMMENT_VIEW'); ?></a></span>
-									<span class="muted"><i class="fa fa-joomla"></i> <?php echo RSCommentsHelper::component($comment->option); ?></span>
-									<span class="muted"><i class="fa fa-calendar"></i> <?php echo RSCommentsHelper::showDate($comment->date); ?></span>
+									<span class="muted"><i class="fa fa-joomla"></i> <?php echo RSCommentsHelperAdmin::component($comment->option); ?></span>
+									<span class="muted"><i class="fa fa-calendar"></i> <?php echo RSCommentsHelperAdmin::showDate($comment->date); ?></span>
 								
 								</td>
 							</tr>

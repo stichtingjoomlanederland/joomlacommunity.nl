@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -12,13 +12,13 @@ defined('_JEXEC') or die('Restricted access');
 
 class ArchiveController extends acymController
 {
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
         $this->setDefaultTask('view');
     }
 
-    function view()
+    public function view()
     {
         acym_addMetadata('robots', 'noindex,nofollow');
 
@@ -31,7 +31,9 @@ class ArchiveController extends acymController
         $oneMail = $mailerHelper->load($mailId);
 
         if (empty($oneMail->id)) {
-            return acym_raiseError(E_ERROR, 404, acym_translation('ACYM_EMAIL_NOT_FOUND'));
+            acym_raiseError(E_ERROR, 404, acym_translation('ACYM_EMAIL_NOT_FOUND'));
+
+            return;
         }
 
         if (preg_match('#<img[^>]*id="pictshare"[^>]*>#i', $oneMail->body, $pregres) && preg_match('#src="([^"]*)"#i', $pregres[0], $pict)) {
@@ -42,6 +44,7 @@ class ArchiveController extends acymController
 
         acym_addMetadata('og:url', acym_frontendLink('archive&task=view&mailid='.$oneMail->id));
         acym_addMetadata('og:title', $oneMail->subject);
+
         if (!empty($oneMail->metadesc)) {
             acym_addMetadata('og:description', $oneMail->metadesc);
             acym_addMetadata('description', $oneMail->metadesc);
@@ -68,29 +71,35 @@ class ArchiveController extends acymController
             $receiver->name = acym_translation('ACYM_VISITOR');
         }
 
-        acym_trigger('replaceUserInformation', array(&$oneMail, &$receiver, false));
+        acym_trigger('replaceUserInformation', [&$oneMail, &$receiver, false]);
 
         preg_match('@href="{unsubscribe:(.*)}"@', $oneMail->body, $match);
         if (!empty($match)) {
             $oneMail->body = str_replace($match[0], 'href="'.$match[1].'"', $oneMail->body);
         }
 
-        acym_addStyle(false, ACYM_CSS.'libraries/foundation_email.min.css?v='.filemtime(ACYM_MEDIA.'css'.DS.'libraries'.DS.'foundation_email.min.css'));
+        if (strpos($oneMail->body, 'acym__wysid__template') !== false) {
+            acym_addStyle(false, ACYM_CSS.'libraries/foundation_email.min.css?v='.filemtime(ACYM_MEDIA.'css'.DS.'libraries'.DS.'foundation_email.min.css'));
+        }
         acym_addStyle(false, ACYM_CSS.'email.min.css?v='.filemtime(ACYM_MEDIA.'css'.DS.'email.min.css'));
+        if (!empty($oneMail->stylesheet)) {
+            acym_addStyle(true, $oneMail->stylesheet);
+        }
 
-        $data = array(
+        $data = [
             'mail' => $oneMail,
             'receiver' => $receiver,
-        );
+        ];
 
+        acym_includeHeaders();
         parent::display($data);
 
-        if ($isPopup) exit;
+        if ($isPopup || 'wordpress' === ACYM_CMS) exit;
     }
 
-    function listing()
+    public function listing()
     {
-        acym_setVar("layout", "listing");
+        acym_setVar('layout', 'listing');
 
         $menu = acym_getMenu();
         $campaignClass = acym_get('class.campaign');
@@ -99,12 +108,12 @@ class ArchiveController extends acymController
 
         $page = acym_getVar('int', 'page', 1);
 
-        $paramsJoomla = array();
+        $paramsJoomla = [];
 
         if (!is_object($menu)) {
             acym_redirect(acym_rootURI());
 
-            return false;
+            return;
         }
 
         $menuParams = new acymParameter($menu->params);
@@ -126,7 +135,7 @@ class ArchiveController extends acymController
 
         $currentUser = $userClass->identify(true);
 
-        $params = array();
+        $params = [];
 
         $userId = false;
 
@@ -141,7 +150,7 @@ class ArchiveController extends acymController
 
         $params['page'] = $page;
 
-        $params['numberPerPage'] = acym_getCMSConfig("list_limit", 10);
+        $params['numberPerPage'] = acym_getCMSConfig('list_limit', 10);
 
 
         $returnLastNewsletters = $campaignClass->getLastNewsletters($params);
@@ -165,3 +174,4 @@ class ArchiveController extends acymController
         parent::display($data);
     }
 }
+

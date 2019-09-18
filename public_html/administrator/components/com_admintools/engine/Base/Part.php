@@ -106,33 +106,33 @@ abstract class Part extends BaseObject
 	/**
 	 * Public constructor
 	 *
-	 * @return  Part
+	 * @return  void
 	 */
 	public function __construct()
 	{
 		// Fetch the installer settings
-		$this->installerSettings = (object)array(
+		$this->installerSettings = (object) [
 			'installerroot' => 'installation',
 			'sqlroot'       => 'installation/sql',
 			'databasesini'  => 1,
 			'readme'        => 1,
 			'extrainfo'     => 1,
 			'password'      => 0,
-		);
+		];
 
-		$config = Factory::getConfiguration();
-		$installerKey = $config->get('akeeba.advanced.embedded_installer');
+		$config               = Factory::getConfiguration();
+		$installerKey         = $config->get('akeeba.advanced.embedded_installer');
 		$installerDescriptors = Factory::getEngineParamsProvider()->getInstallerList();
 
 		if (array_key_exists($installerKey, $installerDescriptors))
 		{
 			// The selected installer exists, use it
-			$this->installerSettings = (object)$installerDescriptors[$installerKey];
+			$this->installerSettings = (object) $installerDescriptors[$installerKey];
 		}
 		elseif (array_key_exists('angie', $installerDescriptors))
 		{
 			// The selected installer doesn't exist, but ANGIE exists; use that instead
-			$this->installerSettings = (object)$installerDescriptors['angie'];
+			$this->installerSettings = (object) $installerDescriptors['angie'];
 		}
 	}
 

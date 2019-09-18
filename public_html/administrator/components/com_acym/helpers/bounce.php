@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -21,7 +21,7 @@ class acymbounceHelper
     var $selfSigned;
     var $timeout;
 
-    var $allowed_extensions = array();
+    var $allowed_extensions = [];
     var $nbMessages = 0;
     var $report = false;
     var $config;
@@ -29,13 +29,13 @@ class acymbounceHelper
     var $mailbox;
     var $_message;
     var $userClass;
-    var $blockedUsers = array();
-    var $deletedUsers = array();
-    var $bounceMessages = array();
+    var $blockedUsers = [];
+    var $deletedUsers = [];
+    var $bounceMessages = [];
     var $usepear = false;
     var $detectEmail;
     var $detectEmail2 = '/(([a-z0-9\-]+\.)+[a-z0-9]{2,8})\/([a-z0-9!#$%&\'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&\'*+\/=?^_`{|}~-]+)*)/i';
-    var $messages = array();
+    var $messages = [];
     var $stoptime = 0;
     var $mod_security2 = false;
     var $obend = 0;
@@ -299,16 +299,16 @@ class acymbounceHelper
         $this->_message->html = $this->mailbox->getBody($this->_message->messageNB);
 
         if (!empty($this->_message->headerinfo['content-type']) && strpos($this->_message->headerinfo['content-type'], 'boundary') !== false) {
-            $matches = array();
+            $matches = [];
             preg_match('#boundary="([^"]+)"#i', $this->_message->headerinfo['content-type'], $matches);
 
             if (!empty($matches[1]) && strpos($this->_message->html, $matches[1]) !== false) {
-                $inlineImages = array();
+                $inlineImages = [];
 
                 $segments = explode('--'.$matches[1], $this->_message->html);
                 foreach ($segments as $segment) {
                     if (strpos($segment, "Content-Type: text/plain") !== false) {
-                        $matches = array();
+                        $matches = [];
                         preg_match('#boundary="([^"]+)"#i', $segment, $matches);
 
                         if (!empty($matches[1])) {
@@ -350,7 +350,7 @@ class acymbounceHelper
 
                         $filename = preg_replace('#[^a-zA-Z0-9]#Uis', '_', substr($filename, 0, $extensionPos));
 
-                        $uploadFolder = str_replace(array('/', '\\'), DS, acym_getFilesFolder());
+                        $uploadFolder = str_replace(['/', '\\'], DS, acym_getFilesFolder());
                         $pathToUpload = ACYM_ROOT.trim($uploadFolder, DS).DS;
 
                         if (file_exists($pathToUpload.$filename.'.'.$extension)) {
@@ -518,7 +518,7 @@ class acymbounceHelper
         $replyemail = $this->config->get('reply_email');
         $fromemail = $this->config->get('from_email');
         $bouncemail = $this->config->get('bounce_email');
-        $removeEmails = '#('.str_replace(array('%'), array('@'), $this->config->get('bounce_username'));
+        $removeEmails = '#('.str_replace(['%'], ['@'], $this->config->get('bounce_username'));
         if (!empty($bouncemail)) {
             $removeEmails .= '|'.$bouncemail;
         }
@@ -571,13 +571,13 @@ class acymbounceHelper
 
                 if (empty($results[0])) {
                     preg_match_all($this->detectEmail2, $this->_message->analyseText, $results2);
-                    for ($i = 0; $i < count($results2[0]); $i++) {
+                    for ($i = 0 ; $i < count($results2[0]) ; $i++) {
                         $results[0][] = $results2[3][$i].'@'.$results2[1][$i];
                     }
                 }
 
                 if (!empty($results[0])) {
-                    $alreadyChecked = array();
+                    $alreadyChecked = [];
                     foreach ($results[0] as $oneEmail) {
                         if (!preg_match($removeEmails, $oneEmail)) {
                             $this->_message->subemail = strtolower($oneEmail);
@@ -586,7 +586,7 @@ class acymbounceHelper
                             }
 
                             $user = $this->userClass->getOneByEmail($this->_message->subemail);
-                            if(!empty($user)) $this->_message->userid = $user->id;
+                            if (!empty($user)) $this->_message->userid = $user->id;
 
                             if (empty($this->_message->userid) && preg_match('#(&|\?)id=([0-9]+)&#ims', $this->_message->subemail, $subid)) {
                                 $user = $this->userClass->getOneById($subid[2]);
@@ -634,14 +634,14 @@ class acymbounceHelper
         if (!empty($this->deletedUsers)) {
             acym_arrayToInteger($this->deletedUsers);
             $this->userClass->delete($this->deletedUsers);
-            $this->deletedUsers = array();
+            $this->deletedUsers = [];
         }
         if (!empty($this->blockedUsers)) {
             acym_arrayToInteger($this->blockedUsers);
             $allUsersId = implode(',', $this->blockedUsers);
             acym_query('UPDATE `#__acym_user` SET `active` = 0 WHERE `id` IN ('.$allUsersId.')');
             acym_query('DELETE FROM `#__acym_queue` WHERE `user_id` IN ('.$allUsersId.')');
-            $this->blockedUsers = array();
+            $this->blockedUsers = [];
         }
 
         if (!empty($this->bounceMessages)) {
@@ -653,7 +653,7 @@ class acymbounceHelper
                     if (!empty($bouncedetails)) {
                         $bouncedetails = unserialize($bouncedetails);
                     } else {
-                        $bouncedetails = array();
+                        $bouncedetails = [];
                     }
 
                     foreach ($bouncedata['bouncedetails'] as $ruleName => $nbTimes) {
@@ -667,7 +667,7 @@ class acymbounceHelper
                 }
 
                 if (!empty($bouncedata['userids'])) {
-                    $valueInsert = array();
+                    $valueInsert = [];
                     foreach ($bouncedata['ruletriggered'] as $userid => $rulename) {
                         $valueInsert[] = '('.intval($mailid).','.intval($userid).',1,'.acym_escapeDB($rulename).')';
                     }
@@ -679,7 +679,7 @@ class acymbounceHelper
 
                 acym_query('UPDATE #__acym_mail_stat SET `bounce_unique` = `bounce_unique` + '.intval($bouncedata['nbbounces']).$updateBounceDetails.' WHERE `mail_id` = '.intval($mailid).' LIMIT 1');
             }
-            $this->bounceMessages = array();
+            $this->bounceMessages = [];
         }
     }
 
@@ -713,7 +713,7 @@ class acymbounceHelper
             }
         }
 
-        $analyseText = str_replace(array("\n", "\r", "\t"), ' ', $analyseText);
+        $analyseText = str_replace(["\n", "\r", "\t"], ' ', $analyseText);
 
         if (!preg_match('#'.$regex.'#ims', $analyseText)) {
             return false;
@@ -760,11 +760,11 @@ class acymbounceHelper
         if ($oneRule->increment_stats && !empty($this->_message->mailid) && !empty($mail)) {
 
             if (empty($this->bounceMessages[$this->_message->mailid])) {
-                $this->bounceMessages[$this->_message->mailid] = array();
+                $this->bounceMessages[$this->_message->mailid] = [];
                 $this->bounceMessages[$this->_message->mailid]['nbbounces'] = 0;
-                $this->bounceMessages[$this->_message->mailid]['userids'] = array();
-                $this->bounceMessages[$this->_message->mailid]['bouncedetails'] = array();
-                $this->bounceMessages[$this->_message->mailid]['ruletriggered'] = array();
+                $this->bounceMessages[$this->_message->mailid]['userids'] = [];
+                $this->bounceMessages[$this->_message->mailid]['bouncedetails'] = [];
+                $this->bounceMessages[$this->_message->mailid]['ruletriggered'] = [];
             }
 
             $this->bounceMessages[$this->_message->mailid]['nbbounces']++;
@@ -823,9 +823,9 @@ class acymbounceHelper
         }
 
         if (in_array('delete_user_subscription', $oneRule->action_user)) {
-            $unsubLists = array_diff(array_keys($status), array($listId));
+            $unsubLists = array_diff(array_keys($status), [$listId]);
             if (!empty($unsubLists)) {
-                $listnames = array();
+                $listnames = [];
                 foreach ($unsubLists as $oneListId) {
                     if (!empty($this->allLists[$oneListId]->name)) {
                         $listnames[] = $this->allLists[$oneListId]->name;
@@ -841,9 +841,9 @@ class acymbounceHelper
         }
 
         if (in_array('unsubscribe_user', $oneRule->action_user)) {
-            $unsubLists = array_diff(array_keys($status), array($listId));
+            $unsubLists = array_diff(array_keys($status), [$listId]);
             if (!empty($unsubLists)) {
-                $listnames = array();
+                $listnames = [];
                 foreach ($unsubLists as $oneListId) {
                     if (!empty($this->allLists[$oneListId]->name)) {
                         $listnames[] = $this->allLists[$oneListId]->name;
@@ -885,7 +885,7 @@ class acymbounceHelper
 
 
         if (in_array('save_message', $oneRule->action_message) && !empty($this->_message->userid) && !in_array('delete_user', $oneRule->action_user)) {
-            $data = array();
+            $data = [];
             $data[] = 'SUBJECT::'.@htmlentities($this->_message->subject, ENT_COMPAT, 'UTF-8');
             $data[] = 'ACY_RULE::'.$oneRule->id.' '.$oneRule->name;
             $data[] = 'REPLYTO_ADDRESS::'.$this->_message->header->reply_to_name.' ( '.$this->_message->header->reply_to_email.' )';
@@ -911,9 +911,9 @@ class acymbounceHelper
             $this->mailer->Subject = 'BOUNCE FORWARD : '.$this->_message->subject;
 
             if (substr_count($oneRule->action_message['forward_to'], '@') > 1) {
-                $forwardAddresses = explode(';', str_replace(array(';', ','), ';', $oneRule->action_message['forward_to']));
+                $forwardAddresses = explode(';', str_replace([';', ','], ';', $oneRule->action_message['forward_to']));
             } else {
-                $forwardAddresses = array($oneRule->action_message['forward_to']);
+                $forwardAddresses = [$oneRule->action_message['forward_to']];
             }
 
             foreach ($forwardAddresses as $oneForwardAddress) {
@@ -1043,7 +1043,7 @@ class acymbounceHelper
 
     private function _explodeBodyMixed($struct, $path = "1")
     {
-        $allParts = array();
+        $allParts = [];
 
         if (empty($struct->parts)) {
             return $allParts;
@@ -1064,7 +1064,7 @@ class acymbounceHelper
 
     private function _explodeBody($struct, $path = "0", $inline = 0)
     {
-        $allParts = array();
+        $allParts = [];
 
         if (empty($struct->parts)) {
             return $allParts;
@@ -1100,7 +1100,7 @@ class acymbounceHelper
         $newpath = "";
         $path_elements = explode(".", $path);
         $limit = count($path_elements);
-        for ($i = 0; $i < $limit; $i++) {
+        for ($i = 0 ; $i < $limit ; $i++) {
             if ($i == $limit - 1) { //last element
                 $newpath .= $path_elements[$i] + $inc; // new Part-Number
             } else {
@@ -1137,7 +1137,7 @@ class acymbounceHelper
 
     private function _getMailParam($params, $name)
     {
-        $searchIn = array();
+        $searchIn = [];
 
         if ($params->ifparameters) {
             $searchIn = array_merge($searchIn, $params->parameters);
@@ -1159,7 +1159,7 @@ class acymbounceHelper
 
     public function getErrors()
     {
-        $return = array();
+        $return = [];
         if ($this->usepear) {
         } else {
             if (!function_exists('imap_alerts')) {
@@ -1180,3 +1180,4 @@ class acymbounceHelper
         return $return;
     }
 }
+

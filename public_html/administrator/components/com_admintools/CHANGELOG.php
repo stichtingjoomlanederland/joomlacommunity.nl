@@ -1,4 +1,27 @@
 <?php die() ?>
+Admin Tools 5.3.4
+================================================================================
++ Installer plugin to fix update issues after using Joomla's Rebuild Update Sites feature
++ Password-protect Administrator: option to reset custom error pages to avoid 404 errors accessing administrator
++ Admin Tools will warn the user if it detects that manual edits were performed on server configuration files (ie .htaccess, nginx.conf or web.config)
++ Allow editing own Joomla! user profile even when editing backend user information is forbidden
+~ Disable forgotten users no longer requires the user groups to give backend or Super User access to consider them
+~ Work towards future PHP 7.4 support
+~ Away Schedule is now more clear about the use of time zones
+# [HIGH] Core version: Administrator Password Protect would result in fatal error
+# [LOW] JDEBUG not defined under CLI
+# [LOW] Prevent fatal errors while scanning very large files
+
+Admin Tools 5.3.3
+================================================================================
++ Added option to log usernames or not during failed logins (required by GDPR)
++ Htaccess Maker: Added webp and WEBP file extensions to the default list of allowed extensions. Please remember to add them to your list (both for frontend and backend)
++ NginX Maker: Added webp and WEBP file extensions to the default list of allowed extensions. Please remember to add them to your list (both for frontend and backend)
++ WebConfig Maker: Added webp and WEBP file extensions to the default list of allowed extensions. Please remember to add them to your list (both for frontend and backend)
++ Troubleshooting email sent automatically whenever your Admin Tools administrative action might lock you out of your site (gh-149)
++ Added check if user request has an header usually used for proxied connection and suggest him to turn on IP workarounds (gh-200)
+# [HIGH] IP filtering with CIDR or netmask notation may not work for certain IP address blocks
+
 Admin Tools 5.3.2
 ================================================================================
 ~ PHP File Change Scanner comment editing now uses the Joomla WYSIWYG editor.

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -16,17 +16,21 @@ class AutomationController extends acymController
     {
         parent::__construct();
         $this->breadcrumb[acym_translation('ACYM_AUTOMATION')] = acym_completeLink('automation');
-        $this->loadScripts = array(
-            'all' => array('datepicker'),
-        );
+        $this->loadScripts = [
+            'all' => ['datepicker'],
+        ];
         acym_setVar('edition', '1');
     }
 
     public function listing()
     {
+        if (!acym_level(2)) {
+            acym_redirect(acym_completeLink('dashboard&task=upgrade&version=enterprise', false, true));
+        }
+
         if (acym_level(2)) {
             acym_session();
-            $_SESSION['massAction'] = array('filters' => array(), 'actions' => array());
+            $_SESSION['massAction'] = ['filters' => [], 'actions' => []];
             acym_setVar('layout', 'listing');
             $pageIdentifier = 'automation';
 
@@ -42,21 +46,21 @@ class AutomationController extends acymController
 
             $automationClass = acym_get('class.automation');
             $matchingAutomations = $automationClass->getMatchingAutomations(
-                array(
+                [
                     'ordering' => $ordering,
                     'search' => $searchFilter,
                     'automationsPerPage' => $automationsPerPage,
                     'offset' => ($page - 1) * $automationsPerPage,
                     'tag' => $tagFilter,
                     'ordering_sort_order' => $orderingSortOrder,
-                )
+                ]
             );
 
             $pagination = acym_get('helper.pagination');
             $pagination->setStatus($matchingAutomations['total'], $page, $automationsPerPage);
 
-            $automationActive = array();
-            $automationInactive = array();
+            $automationActive = [];
+            $automationInactive = [];
 
             foreach ($matchingAutomations['automations'] as $automation) {
                 if (empty($automation->active)) {
@@ -66,14 +70,14 @@ class AutomationController extends acymController
                 }
             }
 
-            $filters = array(
+            $filters = [
                 'all' => count($matchingAutomations['automations']),
                 'active' => count($automationActive),
                 'inactive' => count($automationInactive),
-            );
+            ];
 
 
-            $data = array(
+            $data = [
                 'allAutomations' => $matchingAutomations['automations'],
                 'allTags' => acym_get('class.tag')->getAllTagsByType('automation'),
                 'pagination' => $pagination,
@@ -83,18 +87,18 @@ class AutomationController extends acymController
                 'status' => $status,
                 'orderingSortOrder' => $orderingSortOrder,
                 'automationNumberPerStatus' => $filters,
-            );
+            ];
 
             parent::display($data);
-        }
-
-        if (!acym_level(2)) {
-            acym_redirect(acym_completeLink('dashboard&task=upgrade&version=enterprise', false, true));
         }
     }
 
     public function info()
     {
+        if (!acym_level(2)) {
+            acym_redirect(acym_completeLink('dashboard&task=upgrade&version=enterprise', false, true));
+        }
+
         acym_setVar('layout', 'info');
         acym_setVar('step', 'info');
 
@@ -117,28 +121,28 @@ class AutomationController extends acymController
             $step = $stepClass->getOneStepByAutomationId($automationId);
         }
 
-        $defaultValues = empty($step->triggers) ? array() : json_decode($step->triggers, true);
-        $triggers = array('classic' => array(), 'user' => array());
-        acym_trigger('onAcymDeclareTriggers', array(&$triggers, &$defaultValues));
+        $defaultValues = empty($step->triggers) ? [] : json_decode($step->triggers, true);
+        $triggers = ['classic' => [], 'user' => []];
+        acym_trigger('onAcymDeclareTriggers', [&$triggers, &$defaultValues]);
 
-        $data = array(
+        $data = [
             'automation' => $automation,
             'step' => $step,
             'user' => $triggers['user'],
             'classic' => $triggers['classic'],
-            'defaultValues' => !empty($defaultValues) ? array_keys($defaultValues) : array(),
+            'defaultValues' => !empty($defaultValues) ? array_keys($defaultValues) : [],
             'type_trigger' => !empty($defaultValues) ? $defaultValues['type_trigger'] : '',
-        );
+        ];
 
         parent::display($data);
-
-        if (!acym_level(2)) {
-            acym_redirect(acym_completeLink('dashboard&task=upgrade&version=enterprise', false, true));
-        }
     }
 
     public function condition()
     {
+        if (!acym_level(2)) {
+            acym_redirect(acym_completeLink('dashboard&task=upgrade&version=enterprise', false, true));
+        }
+
         acym_setVar('layout', 'condition');
         acym_setVar('layout', 'condition');
         $id = acym_getVar('int', 'id');
@@ -169,26 +173,27 @@ class AutomationController extends acymController
 
         if (empty($conditionObject->conditions)) $conditionObject->conditions = '[]';
 
-        $conditions = array('user' => array(), 'classic' => array());
-        $selectCondition = new stdClass();
-        $selectCondition->name = acym_translation('ACYM_SELECT_CONDITION');
-        $selectCondition->option = '';
-        $conditions['user'] = array();
-        $conditions['classic'] = array();
-        $conditions['both'][0] = $selectCondition;
-
-        $currentConditions = empty($conditionObject->conditions) ? array() : json_decode($conditionObject->conditions, true);
-        $currentTriggers = empty($step->triggers) ? array() : json_decode($step->triggers, true);
+        $currentConditions = empty($conditionObject->conditions) ? [] : json_decode($conditionObject->conditions, true);
+        $currentTriggers = empty($step->triggers) ? [] : json_decode($step->triggers, true);
         if (empty($currentConditions['type_condition'])) {
             $typeCondition = (empty($currentTriggers) || $currentTriggers['type_trigger'] != 'user') ? 'classic' : 'user';
         } else {
             $typeCondition = $currentConditions['type_condition'];
         }
 
-        acym_trigger('onAcymDeclareConditions', array(&$conditions));
+        $conditions = ['user' => [], 'classic' => []];
+        $conditions['user'] = [];
+        $conditions['classic'] = [];
+        acym_trigger('onAcymDeclareConditions', [&$conditions]);
 
-        $conditionsUser = array('name' => array(), 'option');
-        $conditionsClassic = array('name' => array(), 'option');
+
+        $selectCondition = new stdClass();
+        $selectCondition->name = acym_translation('ACYM_SELECT_CONDITION');
+        $selectCondition->option = '';
+        array_unshift($conditions['both'], $selectCondition);
+
+        $conditionsUser = ['name' => [], 'option' => []];
+        $conditionsClassic = ['name' => [], 'option' => []];
         foreach ($conditions['both'] as $key => $condition) {
             $conditionsUser['name'][$key] = $condition->name;
             $conditionsUser['option'][$key] = $condition->option;
@@ -206,25 +211,21 @@ class AutomationController extends acymController
             $conditionsClassic['option'][$key] = $condition->option;
         }
 
-        $data = array(
+        $data = [
             'automation' => $automation,
             'step' => $step,
             'condition' => $conditionObject,
             'id' => $id,
             'step_automation_id' => empty($step->id) ? 0 : $step->id,
             'user_name' => $conditionsUser['name'],
-            'user_option' => json_encode(preg_replace_callback('#(data\-switch=")(switch_.+id=")(switch_.+for=")(switch_)#Uis', array($this, 'switches'), $conditionsUser['option'])),
+            'user_option' => json_encode(preg_replace_callback('#(data\-switch=")(switch_.+id=")(switch_.+for=")(switch_)#Uis', [$this, 'switches'], $conditionsUser['option'])),
             'classic_name' => $conditionsClassic['name'],
-            'classic_option' => json_encode(preg_replace_callback('#(data\-switch=")(switch_.+id=")(switch_.+for=")(switch_)#Uis', array($this, 'switches'), $conditionsClassic['option'])),
+            'classic_option' => json_encode(preg_replace_callback('#(data\-switch=")(switch_.+id=")(switch_.+for=")(switch_)#Uis', [$this, 'switches'], $conditionsClassic['option'])),
             'type_trigger' => empty($step->triggers) ? 'classic' : json_decode($step->triggers, true)['type_trigger'],
             'type_condition' => $typeCondition,
-        );
+        ];
 
         parent::display($data);
-
-        if (!acym_level(2)) {
-            acym_redirect(acym_completeLink('dashboard&task=upgrade&version=enterprise', false, true));
-        }
     }
 
     public function filter()
@@ -271,14 +272,8 @@ class AutomationController extends acymController
 
         if (empty($action->filters)) $action->filters = '[]';
 
-        $selectFilter = new stdClass();
-        $selectFilter->name = acym_translation('ACYM_SELECT_FILTER');
-        $selectFilter->option = '';
-        $filters = array();
-        $filters[0] = $selectFilter;
-
-        $currentFilters = empty($action->filters) ? array() : json_decode($action->filters, true);
-        $currentTriggers = empty($step->triggers) ? array() : json_decode($step->triggers, true);
+        $currentFilters = empty($action->filters) ? [] : json_decode($action->filters, true);
+        $currentTriggers = empty($step->triggers) ? [] : json_decode($step->triggers, true);
         if (empty($currentFilters)) {
             if (empty($currentTriggers) || $currentTriggers['type_trigger'] != 'user') {
                 $typeFilter = 'classic';
@@ -289,16 +284,29 @@ class AutomationController extends acymController
             $typeFilter = $currentFilters['type_filter'];
         }
 
-        acym_trigger('onAcymDeclareFilters', array(&$filters));
+        $filters = [];
+        acym_trigger('onAcymDeclareFilters', [&$filters]);
 
-        $filtersClassic = array('name' => array(), 'option');
+        uasort(
+            $filters,
+            function ($a, $b) {
+                return strcmp(strtolower($a->name), strtolower($b->name));
+            }
+        );
+
+        $selectFilter = new stdClass();
+        $selectFilter->name = acym_translation('ACYM_SELECT_FILTER');
+        $selectFilter->option = '';
+        array_unshift($filters, $selectFilter);
+
+        $filtersClassic = ['name' => [], 'option'];
 
         foreach ($filters as $key => $filter) {
             $filtersClassic['name'][$key] = $filter->name;
             $filtersClassic['option'][$key] = $filter->option;
         }
 
-        $data = array(
+        $data = [
             'automation' => $automation,
             'step' => $step,
             'action' => $action,
@@ -306,10 +314,10 @@ class AutomationController extends acymController
             'condition' => $condition,
             'step_automation_id' => empty($step->id) ? 0 : $step->id,
             'classic_name' => $filtersClassic['name'],
-            'classic_option' => json_encode(preg_replace_callback('#(data\-switch=")(switch_.+id=")(switch_.+for=")(switch_)#Uis', array($this, 'switches'), $filtersClassic['option'])),
+            'classic_option' => json_encode(preg_replace_callback('#(data\-switch=")(switch_.+id=")(switch_.+for=")(switch_)#Uis', [$this, 'switches'], $filtersClassic['option'])),
             'type_trigger' => empty($step->triggers) ? 'classic' : json_decode($step->triggers, true)['type_trigger'],
             'type_filter' => $typeFilter,
-        );
+        ];
 
         parent::display($data);
 
@@ -385,6 +393,8 @@ class AutomationController extends acymController
                         if (!empty($mail)) {
                             $actionObject->actions[$and][$name]['mail_id'] = $mail->id;
                             $actionObject->actions[$and][$name]['mail_name'] = $mail->name;
+                        } else {
+                            $actionObject->actions[$and][$name]['mail_id'] = '';
                         }
                     }
                 }
@@ -393,21 +403,28 @@ class AutomationController extends acymController
 
         $actionObject->actions = empty($actionObject->actions) ? '[]' : json_encode($actionObject->actions);
 
-        $actions = array();
+        $actions = [];
+        acym_trigger('onAcymDeclareActions', [&$actions]);
+
+        uasort(
+            $actions,
+            function ($a, $b) {
+                return strcmp(strtolower($a->name), strtolower($b->name));
+            }
+        );
+
         $firstAction = new stdClass();
         $firstAction->name = acym_translation('ACYM_CHOOSE_ACTION');
         $firstAction->option = '';
-        $actions[0] = $firstAction;
+        array_unshift($actions, $firstAction);
 
-        acym_trigger('onAcymDeclareActions', array(&$actions));
-
-        $actionsOption = array();
+        $actionsOption = [];
 
         foreach ($actions as $key => $action) {
             $actionsOption[$key] = $action->name;
         }
 
-        $data = array(
+        $data = [
             'automation' => $automation,
             'step' => $step,
             'condition' => $condition,
@@ -416,7 +433,7 @@ class AutomationController extends acymController
             'actions' => json_encode($actions),
             'id' => empty($id) ? '' : $id,
             'step_automation_id' => empty($step->id) ? 0 : $step->id,
-        );
+        ];
 
         parent::display($data);
 
@@ -449,7 +466,7 @@ class AutomationController extends acymController
             if (!empty($steps)) {
                 $step = $steps[0];
                 if (!empty($step->triggers)) $step->triggers = json_decode($step->triggers, true);
-                acym_trigger('onAcymDeclareSummary_triggers', array(&$step));
+                acym_trigger('onAcymDeclareSummary_triggers', [&$step]);
 
                 $conditions = $conditionClass->getConditionsByStepId($step->id);
                 if (!empty($conditions)) {
@@ -460,7 +477,7 @@ class AutomationController extends acymController
                     foreach ($condition->conditions as $or => $orValues) {
                         if ($or === 'type_condition') continue;
                         foreach ($orValues as $and => $andValues) {
-                            acym_trigger('onAcymDeclareSummary_conditions', array(&$condition->conditions[$or][$and]));
+                            acym_trigger('onAcymDeclareSummary_conditions', [&$condition->conditions[$or][$and]]);
                         }
                     }
                 }
@@ -469,7 +486,7 @@ class AutomationController extends acymController
 
                 if (!empty($action->actions)) $action->actions = json_decode($action->actions, true);
             }
-        } else if (!empty($massAction)) {
+        } elseif (!empty($massAction)) {
             $action->filters = !empty($massAction['filters']) ? $massAction['filters'] : '';
             $action->actions = !empty($massAction['actions']) ? $massAction['actions'] : '';
             $this->breadcrumb[acym_translation('ACYM_NEW_MASS_ACTION')] = acym_completeLink('automation&task=edit&step=summary');
@@ -480,23 +497,23 @@ class AutomationController extends acymController
             foreach ($action->filters as $or => $orValues) {
                 if ($or === 'type_filter') continue;
                 foreach ($orValues as $and => $andValues) {
-                    acym_trigger('onAcymDeclareSummary_filters', array(&$action->filters[$or][$and]));
+                    acym_trigger('onAcymDeclareSummary_filters', [&$action->filters[$or][$and]]);
                 }
             }
         }
         if (!empty($action->actions)) {
             foreach ($action->actions as $and => $andValue) {
-                acym_trigger('onAcymDeclareSummary_actions', array(&$action->actions[$and]));
+                acym_trigger('onAcymDeclareSummary_actions', [&$action->actions[$and]]);
             }
         }
 
-        $data = array(
+        $data = [
             'id' => $id,
             'automation' => $automation,
             'step' => $step,
             'action' => $action,
             'condition' => $condition,
-        );
+        ];
 
         parent::display($data);
 
@@ -561,11 +578,11 @@ class AutomationController extends acymController
         $stepAutomation->automation_id = $automation->id;
         $stepAutomation->id = $stepClass->save($stepAutomation);
 
-        $returnIds = array(
+        $returnIds = [
             "automationId" => $automation->id,
             "stepId" => $stepAutomation->id,
             "typeTrigger" => $typeTrigger,
-        );
+        ];
 
         if ($isMassAction) {
             return true;
@@ -580,7 +597,7 @@ class AutomationController extends acymController
     {
         $automationID = acym_getVar('int', 'id');
         $conditionId = acym_getVar('int', 'conditionId');
-        $condition = acym_getVar('array', 'acym_condition', array());
+        $condition = acym_getVar('array', 'acym_condition', []);
         $conditionClass = acym_get('class.condition');
 
         $stepAutomationId = acym_getVar('int', 'stepAutomationId');
@@ -614,11 +631,11 @@ class AutomationController extends acymController
 
         $condition->id = $conditionClass->save($condition);
 
-        $returnIds = array(
+        $returnIds = [
             'automationId' => $automationID,
             'stepId' => $stepAutomationId,
             'conditionId' => $condition->id,
-        );
+        ];
 
         return $returnIds;
     }
@@ -627,7 +644,7 @@ class AutomationController extends acymController
     {
         $automationID = acym_getVar('int', 'id');
         $actionId = acym_getVar('int', 'actionId');
-        $action = acym_getVar('array', 'acym_action', array());
+        $action = acym_getVar('array', 'acym_action', []);
         $actionClass = acym_get('class.action');
         $conditionId = acym_getVar('int', 'conditionId');
 
@@ -666,11 +683,11 @@ class AutomationController extends acymController
 
         $action->id = $actionClass->save($action);
 
-        $returnIds = array(
+        $returnIds = [
             'automationId' => $automationID,
             'stepId' => $stepAutomationId,
             'actionId' => $action->id,
-        );
+        ];
 
         return $returnIds;
     }
@@ -702,7 +719,7 @@ class AutomationController extends acymController
         }
 
         if (empty($action['actions'])) {
-            $action['actions'] = array();
+            $action['actions'] = [];
         }
 
         if ($isMassAction) {
@@ -721,11 +738,11 @@ class AutomationController extends acymController
 
         $action->id = $actionClass->save($action);
 
-        $returnIds = array(
+        $returnIds = [
             'automationId' => $automationID,
             'stepId' => $stepAutomationId,
             'actionId' => $action->id,
-        );
+        ];
 
         return $returnIds;
     }
@@ -786,23 +803,23 @@ class AutomationController extends acymController
             $saveIdStepAutomation = $stepClass->save($stepAutomation);
             $saveIdAutomation = $automationClass->save($automation);
 
-            $returnIds = array(
+            $returnIds = [
                 "automationId" => $saveIdAutomation,
                 "stepId" => $saveIdStepAutomation,
-            );
+            ];
 
             if ($isMassAction) {
                 return true;
             } elseif (!empty($returnIds['automationId']) && !empty($returnIds['stepId'])) {
                 return $returnIds;
             } else return false;
-        } else if ($from == 'filters') {
+        } elseif ($from == 'filters') {
             $stepAutomation['filters']['type_filter'] = acym_getVar('string', 'type_filter');
             if ($isMassAction) {
                 $_SESSION['massAction']['filters'] = $stepAutomation['filters'];
             }
             $stepAutomation['filters'] = json_encode($stepAutomation['filters']);
-        } else if ($from == 'actions') {
+        } elseif ($from == 'actions') {
             if (empty($stepAutomation['actions'])) {
                 acym_enqueueNotification(acym_translation('ACYM_PLEASE_SET_ACTIONS'), 'error', 5000);
                 if (!empty($automationId)) acym_setVar('id', $automationId);
@@ -814,7 +831,7 @@ class AutomationController extends acymController
                 $_SESSION['massAction']['actions'] = $stepAutomation['actions'];
             }
             $stepAutomation['actions'] = json_encode($stepAutomation['actions']);
-        } else if ($from == 'summary') {
+        } elseif ($from == 'summary') {
             $automation = $automationClass->getOneById($automationId);
             $automation->active = 1;
         }
@@ -1018,7 +1035,7 @@ class AutomationController extends acymController
         $this->_saveActions(empty($id));
         $actions = acym_getVar('array', 'acym_action');
         $mailId = $actions['actions'][$and]['acy_add_queue']['mail_id'];
-        acym_redirect(acym_completeLink('mails&task=edit&step=editEmail&type='.$type.'&type_editor=acyEditor&from='.$mailId.'&return='.urlencode(acym_completeLink('automation&task=edit&step=action&id='.$id.'&fromMailEditor=1&mailid={mailid}&and='.$and)), false, true));
+        acym_redirect(acym_completeLink('mails&task=edit&step=editEmail&type='.$type.'&from='.$mailId.'&return='.urlencode(acym_completeLink('automation&task=edit&step=action&id='.$id.'&fromMailEditor=1&mailid={mailid}&and='.$and)), false, true));
     }
 
 
@@ -1034,7 +1051,7 @@ class AutomationController extends acymController
         $messages = '';
 
         foreach ($stepAutomation['filters'][$or][$and] as $filterName => $options) {
-            $messages = acym_trigger('onAcymProcessFilterCount_'.$filterName, array(&$query, &$options, &$and));
+            $messages = acym_trigger('onAcymProcessFilterCount_'.$filterName, [&$query, &$options, &$and]);
             break;
         }
 
@@ -1054,16 +1071,17 @@ class AutomationController extends acymController
             foreach ($stepAutomation['filters'][$or] as $and => $andValues) {
                 $and = intval($and);
                 foreach ($andValues as $filterName => $options) {
-                    acym_trigger('onAcymProcessFilter_'.$filterName, array(&$query, &$options, &$and));
+                    acym_trigger('onAcymProcessFilter_'.$filterName, [&$query, &$options, &$and]);
                 }
             }
         }
 
-        $result = acym_loadObject($query->getQuery(array('COUNT(user.id) as result')));
+        $result = $query->count();
 
-        echo acym_translation_sprintf('ACYM_SELECTED_USERS_TOTAL', $result->result);
+        echo acym_translation_sprintf('ACYM_SELECTED_USERS_TOTAL', $result);
         exit;
     }
 
 
 }
+

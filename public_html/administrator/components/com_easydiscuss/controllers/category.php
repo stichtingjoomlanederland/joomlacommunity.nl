@@ -164,6 +164,16 @@ class EasyDiscussControllerCategory extends EasyDiscussController
 			ED::setMessage(JText::_('COM_EASYDISCUSS_UNABLE_TO_SAVE_CATEGORY_AS_CONTAINER'), 'error');
 			return $this->app->redirect($validateRedirection);			
 		}
+
+		if (!JMailHelper::isEmailAddress($post['cat_email_parser']) && !empty($post['cat_email_parser'])) {
+			ED::setMessage(JText::_('COM_ED_UNABLE_TO_SAVE_EMAIL_PARSER'), 'error');
+			return $this->app->redirect($validateRedirection);	
+		}
+
+		if (!JMailHelper::isEmailAddress($post['cat_notify_custom']) && !empty($post['cat_notify_custom'])) {
+			ED::setMessage(JText::_('COM_ED_UNABLE_TO_SAVE_CUSTOM_EMAIL'), 'error');
+			return $this->app->redirect($validateRedirection);	
+		}
 		
 		// We need to ensure that the category is valid
 		if (!$category->validate()) {

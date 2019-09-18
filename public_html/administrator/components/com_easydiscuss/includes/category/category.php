@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -1008,6 +1008,15 @@ class EasyDiscussCategory extends EasyDiscuss
 			$query = 'SELECT a.*';
 			$query .= ' FROM `#__discuss_category` as a';
 			$query .= ' WHERE a.`parent_id` = ' . $db->Quote($parentId);
+
+			if (!$app->isAdmin()) {
+				// We don't need to check for language in backend because only frontend has the language filter
+				$filterLanguage = JFactory::getApplication()->getLanguageFilter();
+
+				if ($filterLanguage) {
+					$query .= ' AND ' . ED::getLanguageQuery('a.language');
+				}
+			}
 
 			if ($isPublishedOnly) {
 				$query	.=  ' AND a.`published` = ' . $db->Quote('1');

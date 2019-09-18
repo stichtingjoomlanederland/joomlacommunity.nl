@@ -20,6 +20,11 @@ foreach ($fields as $field) {
 		} else {
 			$placeholders['caption'] = '{'.$field->FieldName.':caption}';
 			$placeholders['value'] 	 = '{'.$field->FieldName.':value}';
+
+			if ($showGoogleMap && $field->FieldType == RSFORM_FIELD_GMAPS)
+			{
+				$placeholders['value'] = '{' . $field->FieldName . ':map}';
+			}
 		}
 
 		$mainframe->triggerEvent('rsfp_b_onManageDirectoriesAfterCreatedPlaceholders', array($field, & $placeholders));

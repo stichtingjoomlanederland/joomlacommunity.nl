@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -164,12 +164,14 @@ class plgAcymJevents extends acymPlugin
                 'type' => 'date',
                 'name' => 'from',
                 'default' => date('Y-m-d'),
+                'relativeDate' => '+',
             ],
             [
                 'title' => 'ACYM_TO',
                 'type' => 'date',
                 'name' => 'to',
                 'default' => '',
+                'relativeDate' => '+',
             ],
         ];
 
@@ -232,10 +234,11 @@ class plgAcymJevents extends acymPlugin
 
     public function displayListing()
     {
-        $query = 'SELECT SQL_CALC_FOUND_ROWS rpt.*, detail.*, cat.title AS cattitle FROM `#__jevents_repetition` as rpt ';
-        $query .= 'JOIN `#__jevents_vevent` as ev ON rpt.eventid = ev.ev_id ';
-        $query .= 'JOIN `#__categories` as cat ON ev.catid = cat.id ';
-        $query .= 'JOIN `#__jevents_vevdetail` AS detail ON ev.detail_id=detail.evdet_id ';
+        $querySelect = 'SELECT rpt.*, detail.*, cat.title AS cattitle ';
+        $query = 'FROM `#__jevents_repetition` AS rpt ';
+        $query .= 'JOIN `#__jevents_vevent` AS ev ON rpt.eventid = ev.ev_id ';
+        $query .= 'JOIN `#__categories` AS cat ON ev.catid = cat.id ';
+        $query .= 'JOIN `#__jevents_vevdetail` AS detail ON ev.detail_id = detail.evdet_id ';
         $filters = [];
 
         $this->pageInfo = new stdClass();
@@ -265,8 +268,8 @@ class plgAcymJevents extends acymPlugin
             $query .= ' ORDER BY '.acym_secureDBColumn($this->pageInfo->order).' '.acym_secureDBColumn($this->pageInfo->orderdir);
         }
 
-        $rows = acym_loadObjectList($query, '', $this->pageInfo->start, $this->pageInfo->limit);
-        $this->pageInfo->total = acym_loadResult('SELECT FOUND_ROWS()');
+        $rows = acym_loadObjectList($querySelect.$query, '', $this->pageInfo->start, $this->pageInfo->limit);
+        $this->pageInfo->total = acym_loadResult('SELECT COUNT(*) '.$query);
 
 
         $listingOptions = [
@@ -334,7 +337,12 @@ class plgAcymJevents extends acymPlugin
             $query .= ' JOIN `#__jevents_vevent` AS ev ON rpt.eventid = ev.ev_id ';
 
             if (empty($parameter->order)) $parameter->order = 'startrepeat,ASC';
-            if (empty($parameter->from)) $parameter->from = date('Y-m-d H:i:s', $time);
+            if (empty($parameter->from)) {
+                $parameter->from = date('Y-m-d H:i:s', $time);
+            } else {
+                $parameter->from = acym_date(acym_replaceDate($parameter->from), 'Y-m-d H:i:s');
+            }
+            if (!empty($parameter->to)) $parameter->to = acym_date(acym_replaceDate($parameter->to), 'Y-m-d H:i:s');
 
             if (!empty($parameter->id)) {
                 $allCats = explode('-', $parameter->id);
@@ -670,7 +678,7 @@ class plgAcymJevents extends acymPlugin
                 );
 
                 if (!empty($filesRow)) {
-                    for ($i = 1; $i < 30; $i++) {
+                    for ($i = 1 ; $i < 30 ; $i++) {
                         if (!empty($filesRow->{'imagename'.$i})) {
                             $varFields['{imgpath'.$i.'}'] = $this->imgFolder.$filesRow->{'imagename'.$i};
                             if (empty($imagePath)) {
@@ -734,4 +742,131 @@ class plgAcymJevents extends acymPlugin
 
         return $this->finalizeElementFormat($this->name, $result, $tag, $varFields);
     }
+
+    public function onAcymDeclareTriggers(&$triggers, &$defaultValues)
+    {
+
+        $every = [
+            '3600' => acym_translation('ACYM_HOURS'),
+            '86400' => acym_translation('ACYM_DAYS'),
+        ];
+
+        $when = [
+            'before' => acym_translation('ACYM_BEFORE'),
+            'after' => acym_translation('ACYM_AFTER'),
+        ];
+
+        $categories = acym_loadObjectList('SELECT `id`, `title` FROM #__categories WHERE `extension` = "com_jevents"', 'id');
+
+        foreach ($categories as $key => $category) {
+            $categories[$key] = $category->title;
+        }
+
+        $categories = ['' => acym_translation('ACYM_ANY_CATEGORY')] + $categories;
+
+        $triggers['classic']['jevents_reminder'] = new stdClass();
+        $triggers['classic']['jevents_reminder']->name = acym_translation_sprintf('ACYM_COMBINED_TRANSLATIONS', 'JEvents', acym_translation('ACYM_REMINDER'));
+        $triggers['classic']['jevents_reminder']->option = '<div class="grid-x cell acym_vcenter"><div class="grid-x cell grid-margin-x acym_vcenter margin-bottom-1">';
+        $triggers['classic']['jevents_reminder']->option .= '<div class="cell medium-shrink">
+                                                                <input 
+                                                                    type="number" 
+                                                                    name="[triggers][classic][jevents_reminder][number]" 
+                                                                    class="intext_input" 
+                                                                    value="'.(empty($defaultValues['jevents_reminder']) ? '1' : $defaultValues['jevents_reminder']['number']).'">
+                                                            </div>';
+        $triggers['classic']['jevents_reminder']->option .= '<div class="cell medium-shrink">'.acym_select(
+                $every,
+                '[triggers][classic][jevents_reminder][time]',
+                empty($defaultValues['jevents_reminder']) ? '86400' : $defaultValues['jevents_reminder']['time'],
+                'data-class="intext_select acym__select"'
+            ).'</div></div>';
+        $triggers['classic']['jevents_reminder']->option .= '<div class="grid-x cell grid-margin-x acym_vcenter margin-bottom-1"><div class="cell medium-shrink">'.acym_select(
+                $when,
+                '[triggers][classic][jevents_reminder][when]',
+                empty($defaultValues['jevents_reminder']) ? 'before' : $defaultValues['jevents_reminder']['when'],
+                'data-class="intext_select acym__select"'
+            ).'</div>';
+        $triggers['classic']['jevents_reminder']->option .= '<div class="cell medium-shrink">'.acym_translation('ACYM_AN_EVENT_IN').'</div>';
+        $triggers['classic']['jevents_reminder']->option .= '<div class="cell medium-auto">'.acym_select(
+                $categories,
+                '[triggers][classic][jevents_reminder][cat]',
+                empty($defaultValues['jevents_reminder']) ? '' : $defaultValues['jevents_reminder']['cat'],
+                'data-class="intext_select_larger intext_select acym__select"'
+            ).'</div>';
+        $triggers['classic']['jevents_reminder']->option .= '</div></div>';
+    }
+
+    public function onAcymExecuteTrigger(&$step, &$execute, $data)
+    {
+        $time = $data['time'];
+        $triggers = json_decode($step->triggers, true);
+
+        if (!empty($triggers['jevents_reminder']['number'])) {
+            $config = acym_config();
+            $triggerReminder = $triggers['jevents_reminder'];
+
+            $timestamp = ($triggerReminder['number'] * $triggerReminder['time']);
+
+            if ($triggerReminder['when'] == 'before') {
+                $timestamp += $time;
+            } else {
+                $timestamp -= $time;
+            }
+
+
+            $join = [];
+            $where = [];
+
+            if (!empty($triggerReminder['cat'])) {
+                $multicat = JComponentHelper::getParams('com_jevents')->get('multicategory', 0);
+                if ($multicat == 1) {
+                    $join[] = 'JOIN #__jevents_catmap AS cats ON rpt.eventid = cats.evid ';
+                    $where[] = 'cats.catid = '.intval($triggerReminder['cat']);
+                } else {
+                    $join[] = 'LEFT JOIN #__jevents_vevent AS event ON `rpt`.`eventid` = `event`.`ev_id`';
+                    $where[] = '`event`.`catid` = '.intval($triggerReminder['cat']);
+                }
+            }
+            $join[] = 'LEFT JOIN #__jevents_vevdetail AS eventd ON `rpt`.`eventdetail_id` = `eventd`.`evdet_id`';
+
+            $where[] = '`rpt`.`startrepeat` >= '.acym_escapeDB(acym_date($timestamp, 'Y-m-d H:i:s'));
+            $where[] = '`rpt`.`startrepeat` <= '.acym_escapeDB(acym_date($timestamp + $config->get('cron_frequency', '900'), 'Y-m-d H:i:s'));
+            $where[] = '`eventd`.`state` = 1';
+
+            $events = acym_loadObjectList('SELECT * FROM `#__jevents_repetition` AS rpt '.implode(' ', $join).' WHERE '.implode(' AND ', $where));
+            if (!empty($events)) $execute = true;
+        }
+    }
+
+    public function onAcymDeclareSummary_triggers(&$automation)
+    {
+        if (!empty($automation->triggers['jevents_reminder'])) {
+            $every = [
+                '3600' => acym_translation('ACYM_HOURS'),
+                '86400' => acym_translation('ACYM_DAYS'),
+            ];
+
+            $when = [
+                'before' => acym_translation('ACYM_BEFORE'),
+                'after' => acym_translation('ACYM_AFTER'),
+            ];
+            $categories = acym_loadObjectList('SELECT `id`, `title` FROM #__categories WHERE `extension` = "com_jevents"', 'id');
+
+            foreach ($categories as $key => $category) {
+                $categories[$key] = $category->title;
+            }
+
+            $categories = ['' => acym_translation('ACYM_ANY_CATEGORY')] + $categories;
+
+            $final = '';
+
+            $final = $automation->triggers['jevents_reminder']['number'].' ';
+            $final .= $every[$automation->triggers['jevents_reminder']['time']].' ';
+            $final .= $when[$automation->triggers['jevents_reminder']['when']].' ';
+            $final .= acym_translation('ACYM_AN_EVENT_IN').' '.strtolower($categories[$automation->triggers['jevents_reminder']['cat']]);
+
+            $automation->triggers['jevents_reminder'] = $final;
+        }
+    }
 }
+

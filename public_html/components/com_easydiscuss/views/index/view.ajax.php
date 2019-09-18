@@ -434,7 +434,8 @@ class EasyDiscussViewIndex extends EasyDiscussView
 	{
 		$filterType = $this->input->get('filter', 'allposts', 'default');
 		$sort = $this->input->get('sort', 'latest', 'default');
-
+		$postStatus = $this->input->get('poststatus', 'off', 'default');
+		
 		if (!$filterType) {
 			$filterType = 'allposts';
 		}
@@ -457,6 +458,7 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		// Get normal discussion posts.
 		$options 	= array(
 						'sort'		=> $sort,
+						'postStatus' => $postStatus,
 						'category'	=> $categoryIds,
 						'filter'	=> $filterType,
 						'limit'		=> $limit,
@@ -478,9 +480,9 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		// $pagination = $postModel->getPagination(0, $sort, $filterType, $categoryId, false);
 		$pagination = $postModel->getPagination();
 
-
 		$filtering = array( 'filter' => $filterType,
-							'sort' => $sort);
+							'sort' => $sort,
+							'status' => $postStatus);
 		
 		if ($categoryIds) {
 			$filtering['category_id'] = $categoryIds;
@@ -488,14 +490,21 @@ class EasyDiscussViewIndex extends EasyDiscussView
 
 		$pagination = $pagination->getPagesLinks($view, $filtering, true);
 
-		if (!$posts) {
-			return $this->ajax->resolve('', $pagination);
-		}
-
-
-
+		$sortBaseUrl = 'view=index';
+		$sortBaseUrl .= '&filter=' . $filterType;
+		$sortBaseUrl .= '&status=' . $postStatus;
 
 		$theme = ED::themes();
+		$theme->set('activeSort', $sort);
+		$theme->set('activeStatus', $postStatus);
+		$theme->set('sortBaseUrl', $sortBaseUrl);
+		$theme->set('view', $view);
+		$filtersHtml = $theme->output('site/frontpage/sorting');
+
+		if (!$posts) {
+			return $this->ajax->resolve('', $pagination, $filtersHtml);
+		}
+
 		$contents = '';
 
 		foreach ($posts as $post) {
@@ -508,7 +517,7 @@ class EasyDiscussViewIndex extends EasyDiscussView
 			$contents .= $theme->output('site/posts/item');
 		}
 
-		$this->ajax->resolve($contents, $pagination);
+		$this->ajax->resolve($contents, $pagination, $filtersHtml);
 		return $this->ajax->send();
 	}
 

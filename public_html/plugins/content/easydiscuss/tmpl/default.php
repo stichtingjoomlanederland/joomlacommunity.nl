@@ -15,7 +15,7 @@ defined('_JEXEC') or die('Restricted access');
 <?php include dirname( __FILE__ ) . '/default.scripts.php'; ?>
 <div id="ed" data-ed-wrapper>
 
-	<div class="likes-wrapper mb-20">
+	<div class="o-row t-lg-mb--lg">
 		<?php include dirname(__FILE__) . '/default.likes.php'; ?>
 	</div>
 
@@ -25,7 +25,7 @@ defined('_JEXEC') or die('Restricted access');
 
 	<a name="replies"></a>
 
-	<div class="discuss-component-title row-fluid t-lg-mb--lg">
+	<div class="o-row t-lg-mb--lg">
 		<div class="pull-left">
 			<?php echo JText::sprintf('COM_EASYDISCUSS_PLUGIN_TOTAL_RESPONSE', $totalReplies); ?>
 		</div>

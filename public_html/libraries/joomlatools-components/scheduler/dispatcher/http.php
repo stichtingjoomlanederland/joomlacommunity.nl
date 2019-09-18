@@ -38,6 +38,9 @@ class ComSchedulerDispatcherHttp extends KDispatcherAbstract
 
     protected function _actionDispatch(KDispatcherContextInterface $context)
     {
+        // Ensure the URL is not indexed ("none" equals "noindex, nofollow")
+        $context->getResponse()->getHeaders()->set('X-Robots-Tag', 'none');
+
         $job_dispatcher = $this->getController();
 
         $context = $job_dispatcher->getContext();

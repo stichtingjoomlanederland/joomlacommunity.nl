@@ -77,6 +77,7 @@ class EasyDiscussViewCategories extends EasyDiscussView
 	public function listings()
 	{
 		$categoryId = $this->input->get('category_id', 0, 'int');
+		$view = $this->input->get('view', 'index', 'cmd');
 		$registry = new JRegistry();
 
 		// If the category isn't found on the site throw an error.
@@ -100,6 +101,9 @@ class EasyDiscussViewCategories extends EasyDiscussView
 		$limit = $registry->get('limit',5);
 		$limit = ($limit == '-2') ? ED::getListLimit() : $limit;
 		$limit = ($limit == '-1') ? $this->jconfig->get('list_limit') : $limit;
+
+		// Set the meta for the page
+		ED::setMeta();
 
 		// Add view to this page.
 		$this->logView();
@@ -130,7 +134,7 @@ class EasyDiscussViewCategories extends EasyDiscussView
 
 		$options = array(
 						'sort' => $activeSort,
-						'limitstart' => $this->input->get('limitstart', 0),
+						'limitstart' => $this->input->get('limitstart', 0, 'int'),
 						'filter' => $activeFilter,
 						'category' => $categoryId,
 						'limit' => $this->config->get('layout_single_category_post_limit', $limit),
@@ -197,6 +201,8 @@ class EasyDiscussViewCategories extends EasyDiscussView
 		$this->set('includeChild', false);
 		$this->set('childs', $subcategories);
 		$this->set('baseUrl', $baseUrl);
+		$this->set('view', $view);
+		$this->set('activeStatus', '');
 
 		parent::display('forums/listings');
 	}

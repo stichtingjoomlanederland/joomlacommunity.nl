@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -42,7 +42,7 @@ defined('_JEXEC') or die('Restricted access');
 				<div class="acym__automation__and cell grid-x margin-top-2">
 					<h6 class="cell medium-shrink small-11 acym__content__title__light-blue"><?php echo acym_translation('ACYM_AND'); ?></h6>
 					<div class="cell medium-4 hide-for-small-only"></div>
-					<i class="cell medium-shrink small-1 cursor-pointer material-icons acym__color__red acym__automation__delete__one__action">close</i>
+					<i class="cell medium-shrink small-1 cursor-pointer acymicon-close acym__color__red acym__automation__delete__one__action"></i>
 				</div>
 				<div class="medium-5 cell">
                     <?php echo acym_select($data['actionsOption'], 'action_name', null, 'class="acym__automation__actions__select"'); ?>
@@ -76,3 +76,4 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
     <?php acym_formOptions(); ?>
 </form>
+

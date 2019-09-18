@@ -287,4 +287,37 @@ class EasyDiscussViewConversation extends EasyDiscussView
 
 		return $this->ajax->resolve();
 	}
+
+	/**
+	 * Marks conversation as unread
+	 *
+	 * @since	4.1.8
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function read()
+	{
+		ED::requireLogin();
+		ED::checkToken();
+
+		// Get the conversation item
+		$id = $this->input->get('id', 0, 'int');
+		
+		$conversation = ED::conversation($id);
+
+		if (!$id || !$conversation->id) {
+			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'));
+		}
+
+		// Test if user has the access for it
+		if (!$conversation->canAccess()) {
+			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
+		}
+
+		// Mark it as read
+		$conversation->setRead($this->my->id);
+
+		return $this->ajax->resolve();
+	}
 }

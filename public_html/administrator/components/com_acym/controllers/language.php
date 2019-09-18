@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -71,7 +71,7 @@ class LanguageController extends acymController
         $this->displayLanguage();
     }
 
-    function share()
+    public function share()
     {
         acym_checkToken();
 
@@ -81,13 +81,13 @@ class LanguageController extends acymController
             $file = new stdClass();
             $file->name = acym_getVar('cmd', 'code');
 
-            return parent::display(array('file' => $file));
+            return parent::display(['file' => $file]);
         } else {
             return $this->displayLanguage();
         }
     }
 
-    function send()
+    public function send()
     {
         acym_checkToken();
 
@@ -118,12 +118,12 @@ class LanguageController extends acymController
             $customTranslation = acym_fileGetContent($customFile);
 
             if (!empty($customTranslation)) {
-                $newKeys = array();
-                $customKeys = array();
+                $newKeys = [];
+                $customKeys = [];
                 preg_match_all('#([0-9A-Z_]+)="((?:[^"]|"_QQ_")+)"#is', $customTranslation, $customKeys);
 
                 if (!empty($customKeys)) {
-                    $mainKeys = array();
+                    $mainKeys = [];
                     preg_match_all('#([0-9A-Z_]+)="((?:[^"]|"_QQ_")+)"#is', $translation, $mainKeys);
 
                     foreach ($customKeys[1] as $index => $oneKey) {
@@ -208,11 +208,12 @@ class LanguageController extends acymController
             $showLatest = false;
         }
 
-        $data = array(
+        $data = [
             'showLatest' => $showLatest,
             'file' => $file,
-        );
+        ];
 
         return parent::display($data);
     }
 }
+

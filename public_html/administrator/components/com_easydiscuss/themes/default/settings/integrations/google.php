@@ -35,6 +35,15 @@ defined('_JEXEC') or die('Restricted access');
 						</div>
 					</div>
 
+					<div class="form-group">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_INTEGRATIONS_GOOGLE_ADSENSE_SCRIPT'); ?>
+						</div>
+						<div class="col-md-7">
+							<?php echo $this->html('form.boolean', 'integration_google_adsense_script', $this->config->get('integration_google_adsense_script')); ?>
+						</div>
+					</div>
+
 					<div class="form-group <?php echo $this->config->get('integration_google_adsense_responsive') ? ' hide' : '';?>" data-code-form>
 						<div class="col-md-5 control-label">
 							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_INTEGRATIONS_GOOGLE_ADSENSE_CODE'); ?>
@@ -73,19 +82,19 @@ defined('_JEXEC') or die('Restricted access');
 						} 
 						?>
 						<div class="col-md-7">						
-	                        <select name="integration_google_adsense_display[]" class="form-control" multiple="multiple" size="4">
-	                            <option value="header" <?php echo in_array('header', $storedDisplay) ? ' selected="selected"' : '';?>>
-	                                <?php echo JText::_('COM_EASYDISCUSS_INTEGRATIONS_GOOGLE_ADSENSE_HEADER');?>
-	                            </option>
-	                            <option value="footer" <?php echo in_array('footer', $storedDisplay) ? ' selected="selected"' : '';?>>
-	                                <?php echo JText::_('COM_EASYDISCUSS_INTEGRATIONS_GOOGLE_ADSENSE_FOOTER');?>
-	                            </option>
-	                            <option value="beforereplies" <?php echo in_array('beforereplies', $storedDisplay) ? ' selected="selected"' : '';?>>
-	                                <?php echo JText::_('COM_EASYDISCUSS_INTEGRATIONS_GOOGLE_ADSENSE_BEFORE_REPLIES');?>
-	                            </option>                                                                                                                
-	                        </select>
-                            <p class="mt-5 small"><?php echo JText::_('COM_EASYDISCUSS_GOOGLE_ADSENSE_SELECT_MULTIPLE'); ?></p>
-                    	</div>
+							<select name="integration_google_adsense_display[]" class="form-control" multiple="multiple" size="4">
+								<option value="header" <?php echo in_array('header', $storedDisplay) ? ' selected="selected"' : '';?>>
+									<?php echo JText::_('COM_EASYDISCUSS_INTEGRATIONS_GOOGLE_ADSENSE_HEADER');?>
+								</option>
+								<option value="footer" <?php echo in_array('footer', $storedDisplay) ? ' selected="selected"' : '';?>>
+									<?php echo JText::_('COM_EASYDISCUSS_INTEGRATIONS_GOOGLE_ADSENSE_FOOTER');?>
+								</option>
+								<option value="beforereplies" <?php echo in_array('beforereplies', $storedDisplay) ? ' selected="selected"' : '';?>>
+									<?php echo JText::_('COM_EASYDISCUSS_INTEGRATIONS_GOOGLE_ADSENSE_BEFORE_REPLIES');?>
+								</option>                                                                                                                
+							</select>
+							<p class="mt-5 small"><?php echo JText::_('COM_EASYDISCUSS_GOOGLE_ADSENSE_SELECT_MULTIPLE'); ?></p>
+						</div>
 					</div>
 					<div class="form-group">
 						<div class="col-md-5 control-label">

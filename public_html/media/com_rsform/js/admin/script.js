@@ -371,6 +371,7 @@ function generateDirectoryLayout(formId, alert) {
 	}
 
 	var hideEmptyValues = document.getElementsByName('jform[HideEmptyValues]')[1].checked ? 1 : 0;
+	var showGoogleMap = document.getElementsByName('jform[ShowGoogleMap]')[1].checked ? 1 : 0;
 
 	stateLoading();
 	var xml = buildXmlHttp();
@@ -384,7 +385,7 @@ function generateDirectoryLayout(formId, alert) {
 			stateDone();
 		}
 	};
-	xml.open('GET', 'index.php?option=com_rsform&task=directory.generate&layoutName=' + layoutName + '&formId=' + formId + '&hideEmptyValues=' + hideEmptyValues + '&randomTime=' + Math.random(), true);
+	xml.open('GET', 'index.php?option=com_rsform&task=directory.generate&layoutName=' + layoutName + '&formId=' + formId + '&hideEmptyValues=' + hideEmptyValues + '&showGoogleMap=' + showGoogleMap + '&randomTime=' + Math.random(), true);
 	xml.send(null);
 }
 
@@ -1436,6 +1437,13 @@ RSFormPro.Post.addField = function () {
 
 RSFormPro.Post.deleteField = function () {
 	jQuery(this).parents('tr').remove();
+};
+
+RSFormPro.removeFile = function(button) {
+	if (button.parentNode)
+	{
+		button.parentNode.parentNode.removeChild(button.parentNode);
+	}
 };
 
 jQuery(document).ready(initRSFormPro);

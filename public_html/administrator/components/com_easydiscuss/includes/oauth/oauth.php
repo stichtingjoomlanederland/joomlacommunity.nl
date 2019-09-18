@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -17,7 +17,7 @@ class EasyDiscussOauth extends EasyDiscuss
 	 * New way to retrieve the oauth client
 	 *
 	 * @since	4.0
-	 * @access	public	
+	 * @access	public
 	 */
 	public function getClient($type)
 	{
@@ -25,15 +25,11 @@ class EasyDiscussOauth extends EasyDiscuss
 	}
 
 	/**
-	 * Try to get the consumer type based on the given type.
+	 * Get the consumer type based on the given type.
 	 *
-	 * @param	string	$type	The client app type.
-	 * @param	string	$api	The API key required for most oauth clients
-	 * @param	string	$secret	The API secret required for oauth to work
-	 * @param	string	$callback	The callback URL.
-	 *
-	 * @return	oauth objects.
-	 **/
+	 * @since	4.0
+	 * @access	public
+	 */
 	public function getConsumer($type, $api, $secret, $callback)
 	{
 		static $clients = array();
@@ -50,12 +46,12 @@ class EasyDiscussOauth extends EasyDiscuss
 	 * Creates a new oauth client object
 	 *
 	 * @since	4.0
-	 * @access	public	
+	 * @access	public
 	 */
 	public function createClient($type = '', $api = '', $secret = '', $callback = '')
 	{
 		$type = strtolower($type);
-		
+
 		$file = __DIR__ . '/consumers/' . $type . '/' . $type . '.php';
 
 		require_once($file);
@@ -86,7 +82,11 @@ class EasyDiscussOauth extends EasyDiscuss
 		}
 
 		if ($type == 'linkedin') {
-			$callbackUri[] = EDR::getRoutedUrl('index.php?option=com_easydiscuss&view=auth&layout=linkedin', true, true, true, true);
+			$callbackUri[] = rtrim(JURI::root(), '/') . '/index.php?option=com_easydiscuss&view=auth&layout=linkedin';
+		}
+
+		if ($type == 'gist') {
+			$callbackUri[] = rtrim(JURI::root(), '/') . '/index.php?option=com_easydiscuss&view=auth&layout=gist';
 		}
 
 		if ($type == 'twitter') {
@@ -95,5 +95,5 @@ class EasyDiscussOauth extends EasyDiscuss
 		}
 
 		return $callbackUri;
-	}	
+	}
 }

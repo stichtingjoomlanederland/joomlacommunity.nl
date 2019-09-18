@@ -92,13 +92,13 @@ defined('_JEXEC') or die('Unauthorized Access');
 			</div>
 
 			<div class="o-col-sm ed-forum-item__col-avatar center">
-				 <?php echo $this->html('user.avatar', $post->getOwner(), array('rank' => false, 'status' => true, 'size' => 'sm')); ?>
+				 <?php echo $this->html('user.avatar', $post->getOwner(), array('rank' => false, 'status' => true, 'size' => 'sm'), $post->isAnonymous()); ?>
 			</div>
 
 			<div class="o-col-sm ed-forum-item__col-avatar center">
 
 			<?php if ($post->getLastReplier()) { ?>
-				<?php echo $this->html('user.avatar', $post->getLastReplier(), array('rank' => false, 'status' => true, 'size' => 'sm')); ?>
+				<?php echo $this->html('user.avatar', $post->getLastReplier(), array('rank' => false, 'status' => true, 'size' => 'sm'), $post->isAnonymous()); ?>
 			<?php } else { ?>
 				<?php echo JText::_('COM_EASYDISCUSS_FORUMS_NO_REPLIES'); ?>
 			<?php } ?>

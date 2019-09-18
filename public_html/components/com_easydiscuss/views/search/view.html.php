@@ -117,7 +117,7 @@ class EasyDiscussViewSearch extends EasyDiscussView
 		// Get post types list
 		if ($this->config->get('layout_post_types')) {
 			$postTypesModel = ED::model('PostTypes');
-			$postTypes = $postTypesModel->getPostTypes();
+			$postTypes = $postTypesModel->getPostTypes(null, 'ASC', true);
 		}
 
 		$this->set('query', $query);

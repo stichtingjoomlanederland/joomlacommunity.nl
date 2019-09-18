@@ -27,6 +27,7 @@ if (typeof Docman === 'undefined') { //noinspection JSUndeclaredVariable
         Docman.File = Vue.extend({
             data: function() {
                 return {
+                    force_scan: false,
                     last_remote: '',
                     last_file: '',
                     error_message: '',
@@ -76,6 +77,8 @@ if (typeof Docman === 'undefined') { //noinspection JSUndeclaredVariable
                             path   = ((folder && folder !== '') ? folder+'/' : '')+name;
 
                         vm.$store.commit('setProperty', {storage_path: path, storage_type: 'file'});
+
+                        vm.force_scan = true;
                     }
                 }).on('uploader:create', function() {
                     var button = $('.js-more-button');
@@ -110,6 +113,11 @@ if (typeof Docman === 'undefined') { //noinspection JSUndeclaredVariable
 
                     $('<input type="hidden" name="storage_type" />').val(type).appendTo(form);
                     $('<input type="hidden" name="storage_path" />').val(value).appendTo(form);
+
+                    if (vm.force_scan) {
+                        $('<input type="hidden" name="force_scan" />').val("1").appendTo(form);
+                    }
+
                 };
 
                 $('.k-js-form-controller').on('k:beforeApply', beforeSend)

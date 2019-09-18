@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -21,8 +21,8 @@ class acymlistClass extends acymClass
         $queryCount = 'SELECT COUNT(list.id) FROM #__acym_list AS list';
 
         $queryStatus = 'SELECT COUNT(id) AS number, active + (visible*2) AS score FROM #__acym_list AS list';
-        $filters = array();
-        $listsId = array();
+        $filters = [];
+        $listsId = [];
 
         if (!empty($settings['tag'])) {
             $tagJoin = ' JOIN #__acym_tag AS tag ON list.id = tag.id_element';
@@ -42,12 +42,12 @@ class acymlistClass extends acymClass
         }
 
         if (!empty($settings['status'])) {
-            $allowedStatus = array(
+            $allowedStatus = [
                 'active' => 'active = 1',
                 'inactive' => 'active = 0',
                 'visible' => 'visible = 1',
                 'invisible' => 'visible = 0',
-            );
+            ];
             if (empty($allowedStatus[$settings['status']])) {
                 die('Injection denied');
             }
@@ -73,7 +73,7 @@ class acymlistClass extends acymClass
         }
 
         if (empty($listsId)) {
-            $countUserByList = array();
+            $countUserByList = [];
         } else {
             acym_arrayToInteger($listsId);
             $query = 'SELECT userList.list_id, COUNT(userList.user_id) AS users, SUM(acyuser.confirmed) AS sendable 
@@ -89,7 +89,7 @@ class acymlistClass extends acymClass
         }
 
         foreach ($results['lists'] as $i => $list) {
-            $results['lists'][$i]->tags = array();
+            $results['lists'][$i]->tags = [];
             foreach ($countUserByList as $userList) {
                 if ($list->id == $userList->list_id) {
                     $results['lists'][$i]->subscribers = $userList->users;
@@ -101,28 +101,28 @@ class acymlistClass extends acymClass
         $results['total'] = acym_loadResult($queryCount);
 
         $listsPerStatus = acym_loadObjectList($queryStatus.' GROUP BY score', 'score');
-        for ($i = 0; $i < 4; $i++) {
+        for ($i = 0 ; $i < 4 ; $i++) {
             $listsPerStatus[$i] = empty($listsPerStatus[$i]) ? 0 : $listsPerStatus[$i]->number;
         }
 
-        $results['status'] = array(
+        $results['status'] = [
             'all' => array_sum($listsPerStatus),
             'active' => $listsPerStatus[1] + $listsPerStatus[3],
             'inactive' => $listsPerStatus[0] + $listsPerStatus[2],
             'visible' => $listsPerStatus[2] + $listsPerStatus[3],
             'invisible' => $listsPerStatus[0] + $listsPerStatus[1],
-        );
+        ];
 
         return $results;
     }
 
     public function getListsWithIdNameCount($settings)
     {
-        $filters = array();
+        $filters = [];
 
         if (isset($settings['ids'])) {
             if (empty($settings['ids'])) {
-                return array('lists' => array(), 'total' => 0);
+                return ['lists' => [], 'total' => 0];
             } else {
                 acym_arrayToInteger($settings['ids']);
                 $filters[] = 'list.id IN ('.implode(',', $settings['ids']).')';
@@ -171,10 +171,15 @@ class acymlistClass extends acymClass
         return acym_loadObject('SELECT * FROM #__acym_list WHERE id = '.intval($id).' LIMIT 1');
     }
 
+    public function getOneByName($name)
+    {
+        return acym_loadObject('SELECT * FROM #__acym_list WHERE name='.acym_escapeDB($name));
+    }
+
     public function getListsByIds($ids)
     {
 
-        if (!is_array($ids)) $ids = array($ids);
+        if (!is_array($ids)) $ids = [$ids];
         acym_arrayToInteger($ids);
         if (empty($ids)) return [];
 
@@ -202,7 +207,7 @@ class acymlistClass extends acymClass
         $queryCount = 'SELECT COUNT(user.id) FROM #__acym_user AS user JOIN #__acym_user_has_list AS userList ON user.id = userList.user_id';
         $queryStatus = 'SELECT COUNT(id) AS number, active FROM #__acym_user AS user JOIN #__acym_user_has_list AS userList ON user.id = userList.user_id';
 
-        $filters = array();
+        $filters = [];
         $filters[] = 'userList.list_id = '.intval($id);
         $filters[] = 'userList.status = 1';
 
@@ -216,10 +221,10 @@ class acymlistClass extends acymClass
         }
 
         if (!empty($settings['status'])) {
-            $allowedStatus = array(
+            $allowedStatus = [
                 'active' => 'active = 1',
                 'inactive' => 'active = 0',
-            );
+            ];
             if (empty($allowedStatus[$settings['status']])) {
                 die('Injection denied');
             }
@@ -238,15 +243,15 @@ class acymlistClass extends acymClass
 
         $usersPerStatus = acym_loadObjectList($queryStatus.' GROUP BY active', 'active');
 
-        for ($i = 0; $i < 2; $i++) {
+        for ($i = 0 ; $i < 2 ; $i++) {
             $usersPerStatus[$i] = empty($usersPerStatus[$i]) ? 0 : $usersPerStatus[$i]->number;
         }
 
-        $results['status'] = array(
+        $results['status'] = [
             'all' => array_sum($usersPerStatus),
             'active' => $usersPerStatus[1],
             'inactive' => $usersPerStatus[0],
-        );
+        ];
 
         return $results;
     }
@@ -300,10 +305,15 @@ class acymlistClass extends acymClass
         return acym_loadResultArray($query);
     }
 
+    public function getSubscribersByListId($listId)
+    {
+        return acym_loadObjectList('SELECT user.* FROM #__acym_user AS user LEFT JOIN #__acym_user_has_list AS user_list ON user.id = user_list.user_id WHERE user_list.list_id = '.intval($listId));
+    }
+
     public function delete($elements)
     {
         if (!is_array($elements)) {
-            $elements = array($elements);
+            $elements = [$elements];
         }
 
         if (empty($elements)) {
@@ -359,7 +369,7 @@ class acymlistClass extends acymClass
     {
         $lists = acym_loadObjectList('SELECT id, name FROM #__acym_list', 'id');
 
-        $listsToReturn = array();
+        $listsToReturn = [];
 
         foreach ($lists as $key => $list) {
             $listsToReturn[$key] = $list->name;
@@ -372,7 +382,7 @@ class acymlistClass extends acymClass
     {
         $lists = acym_loadObjectList('SELECT * FROM #__acym_list', 'id');
 
-        $return = array();
+        $return = [];
 
         $return[] = acym_translation('ACYM_SELECT_A_LIST');
 
@@ -386,7 +396,7 @@ class acymlistClass extends acymClass
     public function setVisible($elements, $status)
     {
         if (!is_array($elements)) {
-            $elements = array($elements);
+            $elements = [$elements];
         }
 
         if (empty($elements)) {
@@ -415,7 +425,7 @@ class acymlistClass extends acymClass
             return;
         }
 
-        $alreadySent = array();
+        $alreadySent = [];
         $config = acym_config();
         $mailerHelper = acym_get('helper.mailer');
         $mailerHelper->report = $config->get('welcome_message', 1);
@@ -450,7 +460,7 @@ class acymlistClass extends acymClass
             return;
         }
 
-        $alreadySent = array();
+        $alreadySent = [];
         $config = acym_config();
         $mailerHelper = acym_get('helper.mailer');
         $mailerHelper->report = $config->get('unsub_message', 1);
@@ -502,3 +512,4 @@ class acymlistClass extends acymClass
         return intval(acym_loadResult($query));
     }
 }
+

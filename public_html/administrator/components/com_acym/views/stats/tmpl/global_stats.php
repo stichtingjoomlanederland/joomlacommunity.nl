@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -50,15 +50,15 @@ defined('_JEXEC') or die('Restricted access');
 			</div>
 			<h1 class="acym__listing__empty__subtitle text-center cell"><?php echo acym_translation('ACYM_OR_THIS_AWESOME_CHART_LINE'); ?></h1>
             <?php
-            $dataMonth = array();
-            $dataMonth['Jan 18'] = array('open' => '150', 'click' => '40');
-            $dataDay = array();
-            $dataDay['23 Jan'] = array('open' => '150', 'click' => '40');
-            $dataHour = array();
-            $dataHour['23 Jan 08:00'] = array('open' => '25', 'click' => '10');
-            $dataHour['23 Jan 09:00'] = array('open' => '50', 'click' => '10');
-            $dataHour['23 Jan 10:00'] = array('open' => '16', 'click' => '10');
-            $dataHour['23 Jan 11:00'] = array('open' => '59', 'click' => '10');
+            $dataMonth = [];
+            $dataMonth['Jan 18'] = ['open' => '150', 'click' => '40'];
+            $dataDay = [];
+            $dataDay['23 Jan'] = ['open' => '150', 'click' => '40'];
+            $dataHour = [];
+            $dataHour['23 Jan 08:00'] = ['open' => '25', 'click' => '10'];
+            $dataHour['23 Jan 09:00'] = ['open' => '50', 'click' => '10'];
+            $dataHour['23 Jan 10:00'] = ['open' => '16', 'click' => '10'];
+            $dataHour['23 Jan 11:00'] = ['open' => '59', 'click' => '10'];
             echo acym_line_chart('', $dataMonth, $dataDay, $dataHour);
             ?>
 		</div>
@@ -81,7 +81,7 @@ defined('_JEXEC') or die('Restricted access');
                 } ?>
 			</div>
 			<div class="large-9 medium-8 small-12 margin-bottom-1 cell acym__stats__export">
-                <?php echo !empty($data['dashboard_stats']) ? '' : acym_tooltip('<button type="button" class="button primary">'.acym_translation('ACYM_EXPORT_REPORT').'</button>', '<span class="acy_coming_soon"><i class="material-icons acy_coming_soon_icon">new_releases</i>'.acym_translation('ACYM_COMING_SOON').'</span>'); ?>
+                <?php echo !empty($data['dashboard_stats']) ? '' : acym_tooltip('<button type="button" class="button primary">'.acym_translation('ACYM_EXPORT_REPORT').'</button>', '<span class="acy_coming_soon"><i class="acymicon-new_releases acy_coming_soon_icon"></i>'.acym_translation('ACYM_COMING_SOON').'</span>'); ?>
 			</div>
 			<div class="cell grid-x acym__stats__donut__chart">
 				<div class="acym__stats__donut__one-chart large-2 medium-4 small-12">
@@ -106,15 +106,15 @@ defined('_JEXEC') or die('Restricted access');
 					<h1 class="acym__stats__empty__title__chart__line cell text-center"><?php echo acym_translation('ACYM_YOU_DONT_HAVE_ANY_DATA_ON_THIS_CAMPAIGN'); ?></h1>
 					<h1 class="acym__stats__empty__title__chart__line cell text-center"><?php echo acym_translation('ACYM_HERE_AN_EXEMPLE_OF_WHAT_YOU_CAN_GET'); ?></h1>
                     <?php
-                    $dataMonth = array();
-                    $dataMonth['Jan 18'] = array('open' => '150', 'click' => '40');
-                    $dataDay = array();
-                    $dataDay['23 Jan'] = array('open' => '150', 'click' => '40');
-                    $dataHour = array();
-                    $dataHour['23 Jan 08:00'] = array('open' => '25', 'click' => '10');
-                    $dataHour['23 Jan 09:00'] = array('open' => '50', 'click' => '10');
-                    $dataHour['23 Jan 10:00'] = array('open' => '16', 'click' => '10');
-                    $dataHour['23 Jan 11:00'] = array('open' => '59', 'click' => '10');
+                    $dataMonth = [];
+                    $dataMonth['Jan 18'] = ['open' => '150', 'click' => '40'];
+                    $dataDay = [];
+                    $dataDay['23 Jan'] = ['open' => '150', 'click' => '40'];
+                    $dataHour = [];
+                    $dataHour['23 Jan 08:00'] = ['open' => '25', 'click' => '10'];
+                    $dataHour['23 Jan 09:00'] = ['open' => '50', 'click' => '10'];
+                    $dataHour['23 Jan 10:00'] = ['open' => '16', 'click' => '10'];
+                    $dataHour['23 Jan 11:00'] = ['open' => '59', 'click' => '10'];
                     echo acym_line_chart('', $dataMonth, $dataDay, $dataHour);
                     ?>
                 <?php } else { ?>
@@ -139,3 +139,4 @@ defined('_JEXEC') or die('Restricted access');
         } ?>
 	</div>
 <?php acym_formOptions(); ?>
+

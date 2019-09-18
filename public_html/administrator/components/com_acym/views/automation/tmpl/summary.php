@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -30,7 +30,7 @@ defined('_JEXEC') or die('Restricted access');
 				<div class="acym__automation__summary__filters cell grid-x margin-top-2 acym__content">
 					<h6 class="cell acym__content__title__light-blue"><?php echo acym_translation('ACYM_TRIGGERS'); ?></h6>
 					<div class="cell acym__automation__summary__information__one"><span class="acym__automation__summary__information__one__title"><?php echo acym_translation('ACYM_AUTOMATION_TRIGGER'); ?></span></div>
-					<br/>
+					<br />
 					<div class="cell acym__automation__summary__information__one">
                         <?php echo implode('<br /><span class="acym__automation__summary__information__one__title">'.acym_translation('ACYM_OR').'</span><br />', $data['step']->triggers); ?>
 					</div>
@@ -125,3 +125,4 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
     <?php acym_formOptions(); ?>
 </form>
+

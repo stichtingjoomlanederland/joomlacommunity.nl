@@ -38,7 +38,7 @@ $listDirn	= $this->escape($this->state->get('list.direction','DESC')); ?>
 						<td><?php echo $item->report; ?></td>
 						<td class="center" align="center"><?php echo empty($item->uid) ? JText::_('COM_RSCOMMENTS_GUEST') : $item->name; ?></td>
 						<td class="center" align="center"><?php echo $item->ip; ?></td>
-						<td class="center" align="center"><?php echo RSCommentsHelper::showDate($item->date); ?></td>
+						<td class="center" align="center"><?php echo RSCommentsHelperAdmin::showDate($item->date); ?></td>
 					</tr>
 				<?php } ?>
 				</tbody>

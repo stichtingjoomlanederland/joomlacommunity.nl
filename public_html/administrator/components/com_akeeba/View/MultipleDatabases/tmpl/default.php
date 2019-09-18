@@ -43,9 +43,6 @@ $this->getContainer()->template->addJSInline($js);
                             <option value="mysqli">MySQLi</option>
                             <option value="mysql">MySQL (old)</option>
                             <option value="pdomysql">PDO MySQL</option>
-                            <option value="sqlsrv">SQL Server</option>
-                            <option value="sqlazure">Windows Azure SQL</option>
-                            <option value="postgresql">PostgreSQL</option>
                         </select>
                     </div>
 

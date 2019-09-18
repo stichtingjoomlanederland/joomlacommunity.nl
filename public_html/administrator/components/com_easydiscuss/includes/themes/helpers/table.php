@@ -161,17 +161,12 @@ class EasyDiscussThemesHelperTable
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function filter($name, $selected, $items = array())
+	public static function filter($name, $selected, $items = array(), $initial = false)
 	{
 		$theme = ED::themes();
 
-		// Determines if there is a default option by determining the empty key in $items
-		$keys = array_keys($items);
-
-		$initial = JText::_('COM_EASYDISCUSS_TABLE_FILTER');
-
-		if (in_array('', $keys, true)) {
-			$initial = JText::_($items['']);
+		if (!$initial) {
+			$initial = JText::_('COM_EASYDISCUSS_TABLE_FILTER');
 		}
 
 		// If there is no items, we set the default filters

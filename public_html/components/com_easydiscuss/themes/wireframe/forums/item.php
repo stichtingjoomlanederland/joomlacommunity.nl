@@ -96,14 +96,14 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo $this->html('user.avatar', $post->getOwner(), array('rank' => false, 'status' => true, 'size' => 'sm')); ?>
 				<?php } ?>
 				<?php if ($post->isAnonymous()) { ?>
-					<?php echo $this->output('site/html/user.anonymous') ?>
+					<?php echo $this->html('user.anonymous', $post->getOwner(), $post->isAnonymous()); ?>
 				<?php } ?>
 			</div>
 
 			<div class="o-col-sm ed-forum-item__col-avatar t-text--center">
 
 			<?php if ($post->getLastReplier()) { ?>
-				<?php echo $this->html('user.avatar', $post->getLastReplier(), array('rank' => false, 'status' => true, 'size' => 'sm')); ?>
+				<?php echo $this->html('user.avatar', $post->getLastReplier(), array('rank' => false, 'status' => true, 'size' => 'sm'), $post->isAnonymous()); ?>
 			<?php } else { ?>
 				<?php echo JText::_('COM_EASYDISCUSS_FORUMS_NO_REPLIES'); ?>
 			<?php } ?>

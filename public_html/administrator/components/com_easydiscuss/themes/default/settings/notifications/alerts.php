@@ -39,6 +39,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo $this->html('settings.toggle', 'main_notifications_resolved', 'COM_EASYDISCUSS_LIVE_NOTIFICATIONS_FOR_RESOLVED'); ?>
 					<?php echo $this->html('settings.toggle', 'main_notifications_accepted', 'COM_EASYDISCUSS_LIVE_NOTIFICATIONS_FOR_ACCEPTED_ANSWER'); ?>
 					<?php echo $this->html('settings.toggle', 'main_notifications_comments', 'COM_EASYDISCUSS_LIVE_NOTIFICATIONS_FOR_COMMENTS'); ?>
+					<?php echo $this->html('settings.toggle', 'main_notifications_liked', 'COM_ED_LIVE_NOTIFICATIONS_FOR_LIKED'); ?>
 				</div>
 			</div>
 		</div>

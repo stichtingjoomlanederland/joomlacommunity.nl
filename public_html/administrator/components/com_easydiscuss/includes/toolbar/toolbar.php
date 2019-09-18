@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyBlog is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -42,7 +42,7 @@ class EasyDiscussToolbar extends EasyDiscuss
 		$showRecent = isset($options['showRecent']) ? $options['showRecent'] : $this->config->get('layout_toolbardiscussion');
 		$showTags = isset($options['showTags']) ? $options['showTags'] : $this->config->get('layout_toolbartags');
 		$showCategories = isset($options['showCategories']) ? $options['showCategories'] : $this->config->get('layout_toolbarcategories');
-		$showUsers = isset($options['showUsers']) ? $options['showUsers'] : $this->config->get('layout_toolbarusers');
+		$showUsers = isset($options['showUsers']) ? $options['showUsers'] : $this->showUserMenu();
 		$showBadges = isset($options['showBadges']) ? $options['showBadges'] : $this->config->get('layout_toolbarbadges');
 		$showSettings = isset($options['showSettings']) ? $options['showSettings'] : $this->config->get('layout_toolbarprofile');
 		$showLogin = isset($options['showLogin']) ? $options['showLogin'] : $this->config->get('layout_toolbarlogin');
@@ -121,6 +121,13 @@ class EasyDiscussToolbar extends EasyDiscuss
 					ED::notifications()->clear($postId);
 				}
 			}
+
+			// When the current viewer is checking on pending post
+			if ($active == 'ask') {
+				$postId = $this->input->get('id', 0, 'int');
+				// Mark as read
+				ED::notifications()->clear($postId);
+			}
 		}
 
 		$notificationsCount = 0;
@@ -178,7 +185,7 @@ class EasyDiscussToolbar extends EasyDiscuss
 		$return = EDR::getLoginRedirect();
 
 		// Get any callback url and use it.
-		$url = ED::getCallback();
+		$url = ED::getCallback('', false);
 
 		if ($url) {
 			$return = base64_encode($url);
@@ -217,7 +224,16 @@ class EasyDiscussToolbar extends EasyDiscuss
 
 		if ($this->config->get('layout_post_types')) {
 			$postTypesModel = ED::model('PostTypes');
-			$postTypes = $postTypesModel->getPostTypes();
+			$postTypes = $postTypesModel->getPostTypes(null, 'ASC', true);
+		}
+
+		// determine which user menu link should show
+		$userMenuLink = $this->showUserMenuLink();
+		$showManageSubscription = true;
+
+		// determine to show manage subscription link
+		if (!$this->config->get('main_sitesubscription') && !$this->config->get('main_ed_categorysubscription') && !$this->config->get('main_postsubscription')) {
+			$showManageSubscription = false;
 		}
 
 		$theme = ED::themes();
@@ -253,8 +269,60 @@ class EasyDiscussToolbar extends EasyDiscuss
 		$theme->set('showConversation', $showConversation);
 		$theme->set('showNotification', $showNotification);
 		$theme->set('renderToolbarModule', $renderToolbarModule);
+		$theme->set('userMenuLink', $userMenuLink);
+		$theme->set('showManageSubscription', $showManageSubscription);
 
 		return $theme->output('site/toolbar/default');
-
 	}
+
+	/**
+	 * Determine to show user listing menu
+	 *
+	 * @since	4.1.7
+	 * @access	public
+	 */
+	public function showUserMenu()
+	{
+		$hasEnabledMainUserListing = $this->config->get('main_user_listings');
+		$hasEnabledToolbarUser = $this->config->get('layout_toolbarusers');
+		$hasEnabledAccessProflePublic = $this->config->get('main_profile_public');
+
+		// Do not render this if main user listing setting disabled
+		if (!$hasEnabledMainUserListing) {
+			return false;
+		}
+
+		// Do not render this if public user unable to access user profile page
+		if (!$this->my->id && !$hasEnabledAccessProflePublic) {
+			return false;
+		}
+
+		// Do not render this if the toolbar show user menu is disabled
+		if (!$hasEnabledToolbarUser) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Determine to show user listing link
+	 *
+	 * @since	4.1.7
+	 * @access	public
+	 */
+	public function showUserMenuLink()
+	{
+		$permalink = EDR::_('view=users');
+
+		$hasES = ED::easysocial()->exists();
+		$hasEnabledESMembers = $this->config->get('integration_easysocial_members');
+
+		// Check for the Easysocial integration
+		if ($hasES && $hasEnabledESMembers) {
+			$permalink = ESR::users();
+		}
+
+		return $permalink;
+	}	
 }

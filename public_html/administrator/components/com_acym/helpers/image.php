@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -61,7 +61,7 @@ class acymimageHelper
             return $input;
         }
 
-        $replace = array();
+        $replace = [];
 
         foreach ($results[1] as $onepicture) {
             if (strpos($onepicture, 'donotresize') !== false) {
@@ -73,13 +73,13 @@ class acymimageHelper
             }
             $imageUrl = $path[1];
 
-            $base = str_replace(array('http://www.', 'https://www.', 'http://', 'https://'), '', ACYM_LIVE);
-            $replacements = array('https://www.'.$base, 'http://www.'.$base, 'https://'.$base, 'http://'.$base);
+            $base = str_replace(['http://www.', 'https://www.', 'http://', 'https://'], '', ACYM_LIVE);
+            $replacements = ['https://www.'.$base, 'http://www.'.$base, 'https://'.$base, 'http://'.$base];
             foreach ($replacements as $oneReplacement) {
                 if (strpos($imageUrl, $oneReplacement) === false) {
                     continue;
                 }
-                $imageUrl = str_replace(array($oneReplacement, '/'), array(ACYM_ROOT, DS), urldecode($imageUrl));
+                $imageUrl = str_replace([$oneReplacement, '/'], [ACYM_ROOT, DS], urldecode($imageUrl));
                 break;
             }
 
@@ -97,7 +97,7 @@ class acymimageHelper
 
             $newPicture['file'] = preg_replace('#^'.preg_quote(ACYM_ROOT, '#').'#i', ACYM_LIVE, $newPicture['file']);
             $newPicture['file'] = str_replace(DS, '/', $newPicture['file']);
-            $replaceImage = array();
+            $replaceImage = [];
             $replaceImage[$path[1]] = $newPicture['file'];
             if (preg_match_all('#(width|height)(:|=) *"?([0-9]+)#i', $onepicture, $resultsSize)) {
                 foreach ($resultsSize[0] as $i => $oneArg) {
@@ -160,7 +160,7 @@ class acymimageHelper
         }
 
         if (file_exists($newFile)) {
-            return array('file' => $newFile, 'width' => $newWidth, 'height' => $newHeight);
+            return ['file' => $newFile, 'width' => $newWidth, 'height' => $newHeight];
         }
 
         switch ($extension) {
@@ -180,7 +180,7 @@ class acymimageHelper
 
         $thumb = ImageCreateTrueColor($newWidth, $newHeight);
 
-        if (in_array($extension, array('gif', 'png'))) {
+        if (in_array($extension, ['gif', 'png'])) {
             imagealphablending($thumb, false);
             imagesavealpha($thumb, true);
         }
@@ -212,7 +212,7 @@ class acymimageHelper
             $newFile = $picturePath;
         }
 
-        return array('file' => $newFile, 'width' => $newWidth, 'height' => $newHeight);
+        return ['file' => $newFile, 'width' => $newWidth, 'height' => $newHeight];
     }
 }
 

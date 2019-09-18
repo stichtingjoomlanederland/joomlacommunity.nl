@@ -50,31 +50,13 @@ class Joomla extends BaseObject
 					$driver = 'mysqli';
 					break;
 
-				case 'sqlsrv':
-				case 'mssql':
-					$driver = 'sqlsrv';
-					break;
-
-				case 'sqlazure':
-					$driver = 'sqlsrv';
-					break;
-
-				case 'postgresql':
-					$driver = 'postgresql';
-					break;
-
-				case 'pgsql':
-					$driver = 'pgsql';
-					break;
-
 				case 'pdomysql':
 					$driver = 'pdomysql';
 					break;
 
 				default:
-					$driver = '';
+					throw new \RuntimeException("Unsupported database driver {$db->name}");
 
-					return; // Brace yourself, this engine is going down crashing in flames.
 					break;
 			}
 

@@ -866,13 +866,34 @@ abstract class Base extends Part
 	 * required for Microsoft SQL Server because without it the SET IDENTITY_INSERT
 	 * has no effect.
 	 *
-	 * @param   array   $fieldNames  A list of field names in array format
-	 * @param   integer $numOfFields The number of fields we should be dumping
+	 * @param   array|string  $fieldNames   A list of field names in array format or '*' if it's all fields
 	 *
 	 * @return  string
 	 */
-	protected function getFieldListSQL($fieldNames, $numOfFields)
+	protected function getFieldListSQL($fieldNames)
 	{
-		return '';
+		// If we get a literal '*' we dumped all columns so we don't need to add column names in the INSERT.
+		if ($fieldNames === '*')
+		{
+			return '';
+		}
+
+		return '(' . implode(', ', array_map([$this->getDB(), 'qn'], $fieldNames)) . ')';
+	}
+
+	/**
+	 * Return a list of columns to use in the SELECT query for dumping table data.
+	 *
+	 * This is used to filter out all generated rows.
+	 *
+	 * @param   string  $tableAbstract
+	 *
+	 * @return  string|array  An array of table columns or the string literal '*' to quickly select all columns.
+	 *
+	 * @see  https://dev.mysql.com/doc/refman/5.7/en/create-table-generated-columns.html
+	 */
+	protected function getSelectColumns($tableAbstract)
+	{
+		return '*';
 	}
 }

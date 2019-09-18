@@ -54,12 +54,15 @@ class GoogleStorage
 	/**
 	 * The root URL for the Google Storage v1 JSON API
 	 *
+	 * Note: as of June 20th, 2019 the recommended API domain is storage.googleapis.com instead of www.googleapis.com.
+	 * This is an optional change until June 20th, 2020, when the old endpoint is turned off.
+	 *
 	 * @see  https://cloud.google.com/storage/docs/json_api/v1/
 	 */
-	const rootUrl = 'https://www.googleapis.com/storage/v1/';
+	const rootUrl = 'https://storage.googleapis.com/storage/v1/';
 
 	/**
-	 * The upload URL for the Google Storage v1 JSON API
+	 * The upload URL for the Google Storage v1 file storage API
 	 *
 	 * @see  https://cloud.google.com/storage/docs/json_api/v1/how-tos/simple-upload
 	 */

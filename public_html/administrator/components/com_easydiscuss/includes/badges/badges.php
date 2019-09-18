@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -311,7 +311,7 @@ class EasyDiscussBadges extends EasyDiscuss
 			return;
 		}
 
-		if (ED::easysocial()->hasToolbar()) {
+		if (ED::easysocial()->hasToolbar($this->my->id)) {
 			return ED::easysocial()->getToolbarBadgesHtml();
 		}
 
@@ -324,5 +324,26 @@ class EasyDiscussBadges extends EasyDiscuss
 		$output = $theme->output('site/toolbar/badges');
 
 		return $output;
+	}
+
+	/**
+	 * Make sure the badges is enabled
+	 *
+	 * @since	4.1.7
+	 * @access	public
+	 */
+	public function isEnabled()
+	{
+		$config = ED::config();
+
+		if (!$config->get('main_badges')) {
+			return false;
+		}
+
+		if (!$config->get('layout_badges_in_post')){
+			return false;
+		}
+
+		return true;
 	}
 }

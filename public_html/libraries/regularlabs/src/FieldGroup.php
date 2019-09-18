@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.4.11218
+ * @version         19.8.25552
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -56,8 +56,9 @@ class FieldGroup
 			$this->value = explode(',', $this->value);
 		}
 
-		$size     = (int) $this->get('size');
-		$multiple = $this->get('multiple');
+		$size        = (int) $this->get('size');
+		$multiple    = $this->get('multiple');
+		$show_ignore = $this->get('show_ignore');
 
 		$group = $group ?: $this->getGroup();
 
@@ -65,13 +66,15 @@ class FieldGroup
 
 		return $this->selectListAjax(
 			$this->type, $this->name, $this->value, $this->id,
-			compact('group', 'size', 'multiple', 'simple'),
+			compact('group', 'size', 'multiple', 'simple', 'show_ignore'),
 			$simple
 		);
 	}
 
 	function getAjaxRaw(Registry $attributes)
 	{
+		$this->params = $attributes;
+
 		$name     = $attributes->get('name', $this->type);
 		$id       = $attributes->get('id', strtolower($name));
 		$value    = $attributes->get('value', []);

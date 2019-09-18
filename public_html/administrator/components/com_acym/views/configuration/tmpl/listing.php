@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -22,49 +22,24 @@ defined('_JEXEC') or die('Restricted access');
             </button>
         </div>';
 
-        $data['tab']->startTab(acym_translation('ACYM_CONFIGURATION_MAIL'));
-        echo '<div class="acym__configuration__content">';
-        include(dirname(__FILE__).DS.'mail.php');
-        echo '</div>';
-        $data['tab']->endTab();
+        $tabs = [
+            'mail' => 'ACYM_CONFIGURATION_MAIL',
+            'queue' => 'ACYM_CONFIGURATION_QUEUE',
+            'subscription' => 'ACYM_CONFIGURATION_SUBSCRIPTION',
+            'bounce' => 'ACYM_BOUNCE_HANDLING',
+            'interface' => 'ACYM_INTERFACE',
+            'data' => 'ACYM_CONFIGURATION_DATA_COLLECTION',
+            'security' => 'ACYM_CONFIGURATION_SECURITY',
+            'languages' => 'ACYM_CONFIGURATION_LANGUAGES',
+        ];
 
-        $data['tab']->startTab(acym_translation('ACYM_CONFIGURATION_QUEUE'));
-        echo '<div class="acym__configuration__content">';
-        include(dirname(__FILE__).DS.'queue.php');
-        echo '</div>';
-        $data['tab']->endTab();
-
-        $data['tab']->startTab(acym_translation('ACYM_CONFIGURATION_SUBSCRIPTION'));
-        echo '<div class="acym__configuration__content">';
-        include(dirname(__FILE__).DS.'subscription.php');
-        echo '</div>';
-        $data['tab']->endTab();
-
-        $data['tab']->startTab(acym_translation('ACYM_BOUNCE_HANDLING'));
-        include(dirname(__FILE__).DS.'bounce.php');
-        $data['tab']->endTab();
-
-        $data['tab']->startTab(acym_translation('ACYM_INTERFACE'));
-        include(dirname(__FILE__).DS.'interface.php');
-        $data['tab']->endTab();
-
-        $data['tab']->startTab(acym_translation('ACYM_CONFIGURATION_DATA_COLLECTION'));
-        echo '<div class="acym__configuration__content">';
-        include(dirname(__FILE__).DS.'data.php');
-        echo '</div>';
-        $data['tab']->endTab();
-
-        $data['tab']->startTab(acym_translation('ACYM_CONFIGURATION_SECURITY'));
-        echo '<div class="acym__configuration__content">';
-        include(dirname(__FILE__).DS.'security.php');
-        echo '</div>';
-        $data['tab']->endTab();
-
-        $data['tab']->startTab(acym_translation('ACYM_CONFIGURATION_LANGUAGES'));
-        echo '<div class="acym__configuration__content">';
-        include(dirname(__FILE__).DS.'languages.php');
-        echo '</div>';
-        $data['tab']->endTab();
+        foreach ($tabs as $oneTab => $title) {
+            $data['tab']->startTab(acym_translation($title));
+            echo '<div class="acym__configuration__content">';
+            include dirname(__FILE__).DS.$oneTab.'.php';
+            echo '</div>';
+            $data['tab']->endTab();
+        }
 
         $data['tab']->display('configuration');
         ?>
@@ -76,6 +51,6 @@ defined('_JEXEC') or die('Restricted access');
 		</div>
 	</div>
 
-
     <?php acym_formOptions(); ?>
 </form>
+

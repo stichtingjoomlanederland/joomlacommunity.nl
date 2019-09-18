@@ -166,9 +166,11 @@ class EasyDiscussView extends JViewLegacy
 
 				ES::initialize();
 
-				$user = ES::user($post->getOwner()->id);
+				if (ES::user()->hasCommunityAccess()) {
+					$user = ES::user($post->getOwner()->id);
 
-				$miniheader = ES::themes()->html('html.miniheader', $user);
+					$miniheader = ES::themes()->html('html.miniheader', $user);
+				}
 			}
 
 			$theme->set('miniheader', $miniheader);

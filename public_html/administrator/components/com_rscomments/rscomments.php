@@ -19,7 +19,7 @@ require_once JPATH_SITE.'/components/com_rscomments/helpers/adapter/adapter.php'
 require_once JPATH_ADMINISTRATOR.'/components/com_rscomments/helpers/rscomments.php';
 require_once JPATH_ADMINISTRATOR.'/components/com_rscomments/controller.php';
 
-RSCommentsHelper::setScripts();
+RSCommentsHelperAdmin::setScripts();
 
 $controller	= JControllerLegacy::getInstance('Rscomments');
 $controller->execute(JFactory::getApplication()->input->get('task'));

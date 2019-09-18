@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -12,7 +12,7 @@ defined('_JEXEC') or die('Restricted access');
 
 class delayType extends acymClass
 {
-    var $values = array();
+    var $values = [];
     var $num = 0;
     var $onChange = '';
 
@@ -43,24 +43,24 @@ class delayType extends acymClass
     function display($map, $value, $type = 1)
     {
         if ($type == 0) {
-            $this->values[] = acym_selectOption('second', acym_translation('ACYM_SECONDS'));
-            $this->values[] = acym_selectOption('minute', acym_translation('ACYM_MINUTES'));
+            $this->values[] = acym_selectOption('second', 'ACYM_SECONDS');
+            $this->values[] = acym_selectOption('minute', 'ACYM_MINUTES');
         } elseif ($type == 1) {
-            $this->values[] = acym_selectOption('minute', acym_translation('ACYM_MINUTES'));
-            $this->values[] = acym_selectOption('hour', acym_translation('ACYM_HOURS'));
-            $this->values[] = acym_selectOption('day', acym_translation('ACYM_DAYS'));
-            $this->values[] = acym_selectOption('week', acym_translation('ACYM_WEEKS'));
+            $this->values[] = acym_selectOption('minute', 'ACYM_MINUTES');
+            $this->values[] = acym_selectOption('hour', 'ACYM_HOURS');
+            $this->values[] = acym_selectOption('day', 'ACYM_DAYS');
+            $this->values[] = acym_selectOption('week', 'ACYM_WEEKS');
         } elseif ($type == 2) {
-            $this->values[] = acym_selectOption('minute', acym_translation('ACYM_MINUTES'));
-            $this->values[] = acym_selectOption('hour', acym_translation('ACYM_HOURS'));
+            $this->values[] = acym_selectOption('minute', 'ACYM_MINUTES');
+            $this->values[] = acym_selectOption('hour', 'ACYM_HOURS');
         } elseif ($type == 3) {
-            $this->values[] = acym_selectOption('hour', acym_translation('ACYM_HOURS'));
-            $this->values[] = acym_selectOption('day', acym_translation('ACYM_DAYS'));
-            $this->values[] = acym_selectOption('week', acym_translation('ACYM_WEEKS'));
-            $this->values[] = acym_selectOption('month', acym_translation('ACYM_MONTHS'));
+            $this->values[] = acym_selectOption('hour', 'ACYM_HOURS');
+            $this->values[] = acym_selectOption('day', 'ACYM_DAYS');
+            $this->values[] = acym_selectOption('week', 'ACYM_WEEKS');
+            $this->values[] = acym_selectOption('month', 'ACYM_MONTHS');
         } elseif ($type == 4) {
-            $this->values[] = acym_selectOption('week', acym_translation('ACYM_WEEKS'));
-            $this->values[] = acym_selectOption('month', acym_translation('ACYM_MONTHS'));
+            $this->values[] = acym_selectOption('week', 'ACYM_WEEKS');
+            $this->values[] = acym_selectOption('month', 'ACYM_MONTHS');
         }
 
         $return = $this->get($value, $type);
@@ -105,3 +105,4 @@ class delayType extends acymClass
         return $return;
     }
 }
+

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.4.11218
+ * @version         19.8.25552
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -36,7 +36,7 @@ class Date
 
 		// Check if date has correct syntax: 00-00-00 00:00:00
 		// If so, the date format is correct
-		if ( ! RegEx::match('^[0-9]+-[0-9]+-[0-9]+( [0-9][0-9]:[0-9][0-9]:[0-9][0-9])?$', $date))
+		if (RegEx::match('^[0-9]+-[0-9]+-[0-9]+( [0-9][0-9]:[0-9][0-9]:[0-9][0-9])?$', $date))
 		{
 			return $date;
 		}

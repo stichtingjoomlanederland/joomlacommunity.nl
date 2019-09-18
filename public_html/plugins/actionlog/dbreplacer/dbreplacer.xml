@@ -2,8 +2,8 @@
 <extension version="3.9" type="plugin" group="actionlog" method="upgrade">
 	<name>plg_actionlog_dbreplacer</name>
 	<description>PLG_ACTIONLOG_DBREPLACER_DESC</description>
-	<version>6.3.3PRO</version>
-	<creationDate>March 2019</creationDate>
+	<version>6.3.4PRO</version>
+	<creationDate>August 2019</creationDate>
 	<author>Regular Labs (Peter van Westen)</author>
 	<authorEmail>info@regularlabs.com</authorEmail>
 	<authorUrl>https://www.regularlabs.com</authorUrl>

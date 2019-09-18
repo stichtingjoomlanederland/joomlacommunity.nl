@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -12,14 +12,14 @@ defined('_JEXEC') or die('Restricted access');
 
 class acymqueryClass extends acymClass
 {
-    var $from = ' #__acym_user AS user';
-    var $leftjoin = array();
-    var $join = array();
-    var $where = array();
+    var $from = ' `#__acym_user` AS `user`';
+    var $leftjoin = [];
+    var $join = [];
+    var $where = [];
     var $orderBy = '';
     var $limit = '';
 
-    public function getQuery($select = array())
+    public function getQuery($select = [])
     {
         $query = '';
         if (!empty($select)) $query .= ' SELECT DISTINCT '.implode(',', $select);
@@ -35,7 +35,7 @@ class acymqueryClass extends acymClass
 
     public function count()
     {
-        return acym_loadResult($this->getQuery(array('COUNT(DISTINCT user.id)')));
+        return acym_loadResult($this->getQuery(['COUNT(DISTINCT user.id)']));
     }
 
     public function addFlag($id)
@@ -60,9 +60,9 @@ class acymqueryClass extends acymClass
         }
         acym_query($flagQuery);
 
-        $this->join = array();
-        $this->leftjoin = array();
-        $this->where = array('user.automation LIKE "%a'.intval($id).'a%"');
+        $this->join = [];
+        $this->leftjoin = [];
+        $this->where = ['user.automation LIKE "%a'.intval($id).'a%"'];
         $this->orderBy = '';
         $this->limit = '';
     }
@@ -74,7 +74,7 @@ class acymqueryClass extends acymClass
 
     function convertQuery($table, $column, $operator, $value, $type = '')
     {
-        $operator = str_replace(array('&lt;', '&gt;'), array('<', '>'), $operator);
+        $operator = str_replace(['&lt;', '&gt;'], ['<', '>'], $operator);
 
         if ($operator == 'CONTAINS' || ($type == 'phone' && $operator == '=')) {
             $operator = 'LIKE';
@@ -92,43 +92,44 @@ class acymqueryClass extends acymClass
             if ($value === '') return '1 = 1';
         } elseif ($operator == 'NOT REGEXP') {
             if ($value === '') return '0 = 1';
-        } elseif (!in_array($operator, array('IS NULL', 'IS NOT NULL', 'NOT LIKE', 'LIKE', '=', '!=', '>', '<', '>=', '<='))) {
+        } elseif (!in_array($operator, ['IS NULL', 'IS NOT NULL', 'NOT LIKE', 'LIKE', '=', '!=', '>', '<', '>=', '<='])) {
             die(acym_translation_sprintf('ACYM_UNKNOWN_OPERATOR', $operator));
         }
 
-        if (strpos($value, '{time}') !== false) {
+        if (strpos($value, '[time]') !== false) {
             $value = acym_replaceDate($value);
             $value = strftime('%Y-%m-%d %H:%M:%S', $value);
         }
 
-        $replace = array('{year}', '{month}', '{weekday}', '{day}');
-        $replaceBy = array(date('Y'), date('m'), date('N'), date('d'));
+        $replace = ['{year}', '{month}', '{weekday}', '{day}'];
+        $replaceBy = [date('Y'), date('m'), date('N'), date('d')];
         $value = str_replace($replace, $replaceBy, $value);
 
         if (preg_match_all('#{(year|month|weekday|day)\|(add|remove):([^}]*)}#Uis', $value, $results)) {
 
             foreach ($results[0] as $i => $oneMatch) {
-                $format = str_replace(array('year', 'month', 'weekday', 'day'), array('Y', 'm', 'N', 'd'), $results[1][$i]);
-                $delay = str_replace(array('add', 'remove'), array('+', '-'), $results[2][$i]).intval($results[3][$i]).' '.str_replace('weekday', 'day', $results[1][$i]);
+                $format = str_replace(['year', 'month', 'weekday', 'day'], ['Y', 'm', 'N', 'd'], $results[1][$i]);
+                $delay = str_replace(['add', 'remove'], ['+', '-'], $results[2][$i]).intval($results[3][$i]).' '.str_replace('weekday', 'day', $results[1][$i]);
                 $value = str_replace($oneMatch, date($format, strtotime($delay)), $value);
             }
         }
 
-        if (!is_numeric($value) || in_array($operator, array('REGEXP', 'NOT REGEXP', 'NOT LIKE', 'LIKE', '=', '!='))) {
+        if (!is_numeric($value) || in_array($operator, ['REGEXP', 'NOT REGEXP', 'NOT LIKE', 'LIKE', '=', '!='])) {
             $value = acym_escapeDB($value);
         }
 
-        if (in_array($operator, array('IS NULL', 'IS NOT NULL'))) {
+        if (in_array($operator, ['IS NULL', 'IS NOT NULL'])) {
             $value = '';
         }
 
-        if ($type == 'datetime' && in_array($operator, array('=', '!='))) {
+        if ($type == 'datetime' && in_array($operator, ['=', '!='])) {
             return 'DATE_FORMAT('.acym_secureDBColumn($table).'.`'.acym_secureDBColumn($column).'`, "%Y-%m-%d") '.$operator.' '.'DATE_FORMAT('.$value.', "%Y-%m-%d")';
         }
-        if ($type == 'timestamp' && in_array($operator, array('=', '!='))) {
+        if ($type == 'timestamp' && in_array($operator, ['=', '!='])) {
             return 'FROM_UNIXTIME('.acym_secureDBColumn($table).'.`'.acym_secureDBColumn($column).'`, "%Y-%m-%d") '.$operator.' '.'FROM_UNIXTIME('.$value.', "%Y-%m-%d")';
         }
 
         return acym_secureDBColumn($table).'.`'.acym_secureDBColumn($column).'` '.$operator.' '.$value;
     }
 }
+

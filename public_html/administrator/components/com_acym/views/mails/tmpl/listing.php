@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -20,21 +20,43 @@ defined('_JEXEC') or die('Restricted access');
 					<div class="xlarge-4 medium-auto cell text-center cell grid-x grid-margin-x text-right">
                         <?php echo acym_modal(
                             acym_translation('ACYM_CREATE_TEMPLATE'),
-                            '<div class="cell grid-x grid-margin-x"><button type="button" data-task="edit" data-editor="acyEditor" class="acym__create__template button cell medium-auto margin-top-1">'.acym_translation('ACYM_DD_EDITOR').'</button><button type="button" data-task="edit" data-editor="html" class="acym__create__template button cell large-auto small-6 margin-top-1 button-secondary">HTML</button></div>',
+                            '<div class="cell grid-x grid-margin-x">
+								<button type="button" data-task="edit" data-editor="acyEditor" class="acym__create__template button cell medium-auto margin-top-1">'.acym_translation('ACYM_DD_EDITOR').'</button>
+								<button type="button" data-task="edit" data-editor="html" class="acym__create__template button cell large-auto small-6 margin-top-1 button-secondary">'.acym_translation('ACYM_HTML_EDITOR').'</button>
+							</div>',
                             '',
                             '',
                             'class="button cell auto"',
                             true,
                             false
                         ); ?>
+
                         <?php
-                        $linkImport = acym_completeLink('mails&task=import', true);
                         echo acym_modal(
                             acym_translation('ACYM_IMPORT'),
-                            '',
+                            '<div class="text-center padding-0 cell grid-x text-center align-center">
+										<input type="file" style="width:auto" name="uploadedfile" class="cell"/>
+										<div class="cell">'.(acym_translation_sprintf('ACYM_MAX_UPLOAD', (acym_bytes(ini_get('upload_max_filesize')) > acym_bytes(ini_get('post_max_size'))) ? ini_get('post_max_size') : ini_get('upload_max_filesize'))).'</div>
+									</div>
+									<div class="cell margin-top-2 margin-bottom-2">
+										'.acym_translation('ACYM_IMPORT_INFO').'
+										<ul>
+											<li>'.acym_translation('ACYM_TEMLPATE_ZIP_IMPORT').'</li>
+											<ul>
+												<li>/template.html -> '.acym_translation('ACYM_TEMPLATE_HTML_IMPORT').'</li>
+												<li>/css -> '.acym_translation('ACYM_TEMPLATE_CSS_IMPORT').'</li>
+												<li>/images -> '.acym_translation('ACYM_TEMPLATE_IMAGES_IMPORT').'</li>
+												<li>/thumbnail.png -> '.acym_translation('ACYM_TEMPLATE_THUMBNAIL_IMPORT').'</li>
+											</ul>
+										</ul>
+									</div>
+									<a class="downloadmore" href="'.ACYM_ACYWEBSITE.'acymailing/templates-pack.html" target="_blank">'.acym_translation('ACYM_MORE_TEMPLATES').'</a>
+								   <div class="cell grid-x align-center">
+										<button type="button" data-task="doUploadTemplate" class="acy_button_submit button cell shrink margin-1">'.acym_translation('ACYM_IMPORT').'</button>
+								   </div>',
                             null,
                             '',
-                            'class="button cell medium-auto button-secondary" data-reload="true" data-ajax="false" data-iframe="'.$linkImport.'"'
+                            'class="button cell medium-auto button-secondary" data-reload="true" data-ajax="false"'
                         );
                         ?>
 					</div>
@@ -43,143 +65,141 @@ defined('_JEXEC') or die('Restricted access');
 			</div>
         <?php } else { ?>
 			<div class="grid-x grid-margin-x">
-			<div class="large-3 medium-8 cell">
-                <?php echo acym_filterSearch($data['search'], 'mails_search', 'ACYM_SEARCH_TEMPLATE'); ?>
-			</div>
-			<div class="large-3 medium-4 cell">
-                <?php
-                $allTags = new stdClass();
-                $allTags->name = acym_translation('ACYM_ALL_TAGS');
-                $allTags->value = '';
-                array_unshift($data["allTags"], $allTags);
-
-                echo acym_select($data["allTags"], 'mails_tag', acym_escape($data["tag"]), 'class="acym__templates__filter__tags"', 'value', 'name'); ?>
-			</div>
-			<div class="xlarge-1 medium-shrink"></div>
-			<div class="xlarge-4 medium-auto cell text-center cell grid-x grid-margin-x text-right">
-				<!--				<span class="acym__template__listing__create__text cell">--><?php //echo acym_translation('ACYM_CREATE_TEMPLATE'); ?><!-- : </span>-->
-                <?php echo acym_modal(
-                    acym_translation('ACYM_CREATE_TEMPLATE'),
-                    '<div class="cell grid-x grid-margin-x"><button type="button" data-task="edit" data-editor="acyEditor" class="acym__create__template button cell medium-auto margin-top-1">'.acym_translation('ACYM_DD_EDITOR').'</button><button type="button" data-task="edit" data-editor="html" class="acym__create__template button cell large-auto small-6 margin-top-1 button-secondary">HTML</button></div>',
-                    '',
-                    '',
-                    'class="button cell auto"',
-                    true,
-                    false
-                ); ?>
-
-                <?php
-                $linkImport = acym_completeLink('mails&task=import', true);
-                $linkImport = 'data-iframe="'.$linkImport.'"';
-                echo acym_modal(
-                    acym_translation('ACYM_IMPORT'),
-                    '<div class="text-center padding-0 cell grid-x text-center align-center">
-								<input type="file" style="width:auto" name="uploadedfile" class="cell"/>
-								<div class="cell">'.(acym_translation_sprintf('ACYM_MAX_UPLOAD', (acym_bytes(ini_get('upload_max_filesize')) > acym_bytes(ini_get('post_max_size'))) ? ini_get('post_max_size') : ini_get('upload_max_filesize'))).'</div>
-							</div>
-							<div class="cell margin-top-2 margin-bottom-2">
-								'.acym_translation('ACYM_IMPORT_INFO').'
-								<ul>
-									<li>'.acym_translation('ACYM_TEMLPATE_ZIP_IMPORT').'</li>
-									<ul>
-										<li>/template.html -> '.acym_translation('ACYM_TEMPLATE_HTML_IMPORT').'</li>
-										<li>/css -> '.acym_translation('ACYM_TEMPLATE_CSS_IMPORT').'</li>
-										<li>/images -> '.acym_translation('ACYM_TEMPLATE_IMAGES_IMPORT').'</li>
-										<li>/thumbnail.png -> '.acym_translation('ACYM_TEMPLATE_THUMBNAIL_IMPORT').'</li>
-									</ul>
-								</ul>
-							</div>
-							<a class="downloadmore" href="'.ACYM_ACYWEBSITE.'acymailing/templates-pack.html" target="_blank">'.acym_translation('ACYM_MORE_TEMPLATES').'</a>
-						   <div class="cell grid-x align-center">
-						   		<button type="button" data-task="doUploadTemplate" class="acy_button_submit button cell shrink margin-1">'.acym_translation('ACYM_IMPORT').'</button>
-						   </div>',
-                    null,
-                    '',
-                    'class="button acym__mails__listing__import-button cell medium-auto  button-secondary" data-reload="true" data-ajax="false"'
-                );
-                ?>
-			</div>
-            <?php if (empty($data['allMails'])) { ?>
-				<h1 class="cell acym__listing__empty__search__title text-center"><?php echo acym_translation('ACYM_NO_RESULTS_FOUND'); ?></h1>
-            <?php } else { ?>
-				<div class="cell grid-x margin-top-1">
-					<div class="grid-x cell auto">
-						<div class="small-11 cell">
-                            <?php
-                            $options = array(
-                                '' => ['ACYM_ALL', $data['mailNumberPerStatus']['all']],
-                                'standard' => ['ACYM_STANDARD', $data['mailNumberPerStatus']['standard']],
-                                'welcome' => ['ACYM_WELCOME_MAIL', $data['mailNumberPerStatus']['welcome']],
-                                'unsubscribe' => ['ACYM_UNSUBSCRIBE_MAIL', $data['mailNumberPerStatus']['unsubscribe']],
-                            );
-                            echo acym_filterStatus($options, $data["status"], 'mails_status');
-                            ?>
-						</div>
-					</div>
-					<div class="grid-x cell auto">
-						<div class="cell  acym_listing_sorty-by">
-                            <?php echo acym_sortBy(
-                                array(
-                                    'id' => strtolower(acym_translation('ACYM_ID')),
-                                    'creation_date' => acym_translation('ACYM_DATE_CREATED'),
-                                    'name' => acym_translation('ACYM_NAME'),
-                                    'type' => acym_translation('ACYM_TYPE'),
-                                ),
-                                'mails'
-                            ); ?>
-						</div>
-					</div>
+				<div class="large-3 medium-8 cell">
+                    <?php echo acym_filterSearch($data['search'], 'mails_search', 'ACYM_SEARCH_TEMPLATE'); ?>
 				</div>
-				<div class="grid-x grid-padding-x grid-padding-y grid-margin-x grid-margin-y xxlarge-up-6 large-up-4 medium-up-3 small-up-1 cell">
+				<div class="large-3 medium-4 cell">
                     <?php
-                    foreach ($data['allMails'] as $oneTemplate) {
-                        ?>
-						<div class="cell grid-x acym__templates__oneTpl acym__listing__block text-center" elementid="<?php echo acym_escape($oneTemplate->id); ?>">
-							<a href="<?php echo acym_completeLink('mails&task=edit&id='.acym_escape($oneTemplate->id)); ?>" class="cell grid-x text-center">
-								<div class="cell acym__templates__pic">
-                                    <?php
+                    $allTags = new stdClass();
+                    $allTags->name = acym_translation('ACYM_ALL_TAGS');
+                    $allTags->value = '';
+                    array_unshift($data["allTags"], $allTags);
 
-                                    if (strpos($oneTemplate->thumbnail, 'default_template') === false) {
-                                        $src = ACYM_TEMPLATE_THUMBNAILS.$oneTemplate->thumbnail;
-                                    } else {
-                                        $src = $oneTemplate->thumbnail;
-                                    }
+                    echo acym_select($data["allTags"], 'mails_tag', acym_escape($data["tag"]), 'class="acym__templates__filter__tags"', 'value', 'name'); ?>
+				</div>
+				<div class="xlarge-1 medium-shrink"></div>
+				<div class="xlarge-4 medium-auto cell text-center cell grid-x grid-margin-x text-right">
+                    <?php echo acym_modal(
+                        acym_translation('ACYM_CREATE_TEMPLATE'),
+                        '<div class="cell grid-x grid-margin-x"><button type="button" data-task="edit" data-editor="acyEditor" class="acym__create__template button cell medium-auto margin-top-1">'.acym_translation('ACYM_DD_EDITOR').'</button><button type="button" data-task="edit" data-editor="html" class="acym__create__template button cell large-auto small-6 margin-top-1 button-secondary">HTML</button></div>',
+                        '',
+                        '',
+                        'class="button cell auto"',
+                        true,
+                        false
+                    ); ?>
 
-                                    if (!file_exists(str_replace(acym_rootURI(), ACYM_ROOT, $src))) {
-                                        $src = ACYM_IMAGES.'default_template_thumbnail.png';
-                                    }
-                                    echo '<img src="'.acym_escape($src).'" alt="'.acym_escape($oneTemplate->name).'"/>';
-
-                                    ?>
-								</div>
-								<div class="cell grid-x acym__templates__footer text-center">
-									<div class="cell acym__templates__footer__title" title="<?php echo acym_escape($oneTemplate->name); ?>">
+                    <?php
+                    echo acym_modal(
+                        acym_translation('ACYM_IMPORT'),
+                        '<div class="text-center padding-0 cell grid-x text-center align-center">
+										<input type="file" style="width:auto" name="uploadedfile" class="cell"/>
+										<div class="cell">'.(acym_translation_sprintf('ACYM_MAX_UPLOAD', (acym_bytes(ini_get('upload_max_filesize')) > acym_bytes(ini_get('post_max_size'))) ? ini_get('post_max_size') : ini_get('upload_max_filesize'))).'</div>
+									</div>
+									<div class="cell margin-top-2 margin-bottom-2">
+										'.acym_translation('ACYM_IMPORT_INFO').'
+										<ul>
+											<li>'.acym_translation('ACYM_TEMLPATE_ZIP_IMPORT').'</li>
+											<ul>
+												<li>/template.html -> '.acym_translation('ACYM_TEMPLATE_HTML_IMPORT').'</li>
+												<li>/css -> '.acym_translation('ACYM_TEMPLATE_CSS_IMPORT').'</li>
+												<li>/images -> '.acym_translation('ACYM_TEMPLATE_IMAGES_IMPORT').'</li>
+												<li>/thumbnail.png -> '.acym_translation('ACYM_TEMPLATE_THUMBNAIL_IMPORT').'</li>
+											</ul>
+										</ul>
+									</div>
+									<a class="downloadmore" href="'.ACYM_ACYWEBSITE.'acymailing/templates-pack.html" target="_blank">'.acym_translation('ACYM_MORE_TEMPLATES').'</a>
+								   <div class="cell grid-x align-center">
+										<button type="button" data-task="doUploadTemplate" class="acy_button_submit button cell shrink margin-1">'.acym_translation('ACYM_IMPORT').'</button>
+								   </div>',
+                        null,
+                        '',
+                        'class="button acym__mails__listing__import-button cell medium-auto  button-secondary" data-reload="true" data-ajax="false"'
+                    );
+                    ?>
+				</div>
+                <?php if (empty($data['allMails'])) { ?>
+					<h1 class="cell acym__listing__empty__search__title text-center"><?php echo acym_translation('ACYM_NO_RESULTS_FOUND'); ?></h1>
+                <?php } else { ?>
+					<div class="cell grid-x margin-top-1">
+						<div class="grid-x cell auto">
+							<div class="small-11 cell">
+                                <?php
+                                $options = [
+                                    '' => ['ACYM_ALL', $data['mailNumberPerStatus']['all']],
+                                    'standard' => ['ACYM_STANDARD', $data['mailNumberPerStatus']['standard']],
+                                    'welcome' => ['ACYM_WELCOME_MAIL', $data['mailNumberPerStatus']['welcome']],
+                                    'unsubscribe' => ['ACYM_UNSUBSCRIBE_MAIL', $data['mailNumberPerStatus']['unsubscribe']],
+                                ];
+                                echo acym_filterStatus($options, $data["status"], 'mails_status');
+                                ?>
+							</div>
+						</div>
+						<div class="grid-x cell auto">
+							<div class="cell  acym_listing_sorty-by">
+                                <?php echo acym_sortBy(
+                                    [
+                                        'id' => strtolower(acym_translation('ACYM_ID')),
+                                        'creation_date' => acym_translation('ACYM_DATE_CREATED'),
+                                        'name' => acym_translation('ACYM_NAME'),
+                                        'type' => acym_translation('ACYM_TYPE'),
+                                    ],
+                                    'mails'
+                                ); ?>
+							</div>
+						</div>
+					</div>
+					<div class="grid-x grid-padding-x grid-padding-y grid-margin-x grid-margin-y xxlarge-up-6 large-up-4 medium-up-3 small-up-1 cell">
+                        <?php
+                        foreach ($data['allMails'] as $oneTemplate) {
+                            ?>
+							<div class="cell grid-x acym__templates__oneTpl acym__listing__block text-center" elementid="<?php echo acym_escape($oneTemplate->id); ?>">
+								<a href="<?php echo acym_completeLink('mails&task=edit&id='.acym_escape($oneTemplate->id)); ?>" class="cell grid-x text-center">
+									<div class="cell acym__templates__pic">
                                         <?php
-                                        if (strlen($oneTemplate->name) > 55) {
-                                            $oneTemplate->name = substr($oneTemplate->name, 0, 50).'...';
+
+                                        if (strpos($oneTemplate->thumbnail, 'default_template') === false) {
+                                            $src = ACYM_TEMPLATE_THUMBNAILS.$oneTemplate->thumbnail;
+                                        } else {
+                                            $src = $oneTemplate->thumbnail;
                                         }
-                                        echo acym_escape($oneTemplate->name);
+
+                                        if (!file_exists(str_replace(acym_rootURI(), ACYM_ROOT, $src))) {
+                                            $src = ACYM_IMAGES.'default_template_thumbnail.png';
+                                        }
+                                        echo '<img src="'.acym_escape($src).'" alt="'.acym_escape($oneTemplate->name).'"/>';
+
                                         ?>
 									</div>
-									<div class="cell"><?php echo acym_date($oneTemplate->creation_date, 'M. j, Y'); ?></div>
-								</div>
-							</a>
-							<div class="text-center cell acym__listing__block__delete acym__background-color__red">
-								<div>
-									<i class='fa fa-trash-o acym__listing__block__delete__trash acym__color__white'></i>
-									<p class="acym__listing__block__delete__cancel acym__background-color__very-dark-gray acym__color__white">
-                                        <?php echo acym_translation("ACYM_CANCEL"); ?>
-									</p>
-									<p class="acym__listing__block__delete__submit acym_toggle_delete acym__color__white" table="mail" elementid="<?php echo acym_escape($oneTemplate->id); ?>"><?php echo acym_translation("ACYM_DELETE"); ?></p>
+									<div class="cell grid-x acym__templates__footer text-center">
+										<div class="cell acym__templates__footer__title" title="<?php echo acym_escape($oneTemplate->name); ?>">
+                                            <?php
+                                            if (strlen($oneTemplate->name) > 55) {
+                                                $oneTemplate->name = substr($oneTemplate->name, 0, 50).'...';
+                                            }
+                                            echo acym_escape($oneTemplate->name);
+                                            ?>
+										</div>
+										<div class="cell"><?php echo acym_date($oneTemplate->creation_date, 'M. j, Y'); ?></div>
+									</div>
+								</a>
+								<div class="text-center cell acym__listing__block__delete acym__background-color__red">
+									<div>
+										<i class='fa fa-trash-o acym__listing__block__delete__trash acym__color__white'></i>
+										<p class="acym__listing__block__delete__cancel acym__background-color__very-dark-gray acym__color__white">
+                                            <?php echo acym_translation("ACYM_CANCEL"); ?>
+										</p>
+										<p class="acym__listing__block__delete__submit acym_toggle_delete acym__color__white" table="mail" elementid="<?php echo acym_escape($oneTemplate->id); ?>"><?php echo acym_translation("ACYM_DELETE"); ?></p>
+									</div>
 								</div>
 							</div>
-						</div>
-                    <?php } ?>
-				</div>
-				</div>
-                <?php echo $data['pagination']->display('mails'); ?>
-            <?php } ?>
+                        <?php } ?>
+					</div>
+                    <?php echo $data['pagination']->display('mails'); ?>
+                <?php } ?>
+			</div>
         <?php } ?>
 	</div>
     <?php acym_formOptions(false); ?>
 </form>
+

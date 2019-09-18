@@ -151,11 +151,15 @@ JLoader::import('joomla.filter.input');
 JLoader::import('joomla.filter.filterinput');
 JLoader::import('joomla.factory');
 
-if (version_compare(JVERSION, '3.4.9999', 'ge'))
+// Load the configuration file to grab database information
+$config = JFactory::getConfig(JPATH_CONFIGURATION . '/configuration.php');
+
+if (!defined('JDEBUG'))
 {
-	// Joomla! 3.5 and later does not load the configuration.php unless you explicitly tell it to.
-	JFactory::getConfig(JPATH_CONFIGURATION . '/configuration.php');
+	define('JDEBUG', $config->get('debug', 0) ? 1 : 0);
 }
+
+unset($config);
 
 if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
 {

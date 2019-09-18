@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -17,17 +17,17 @@ defined('_JEXEC') or die('Restricted access');
 		</div>
 		<div class="grid-x acym__listing__actions">
             <?php
-            $actions = array(
+            $actions = [
                 'delete' => acym_translation('ACYM_DELETE'),
                 'setActive' => acym_translation('ACYM_ENABLE'),
                 'setInactive' => acym_translation('ACYM_DISABLE'),
-            );
+            ];
             echo acym_listingActions($actions);
             ?>
 			<div class="auto cell"></div>
 			<div class="grid-x xlarge-3 medium-3 hide-for-small-only text-center cell margin-left-2 acym__fields__choose__back-front is-hidden">
                 <?php
-                $switchfilter = array('backend' => 'ACYM_BACKEND', 'frontend' => 'ACYM_FRONTEND');
+                $switchfilter = ['backend' => 'ACYM_BACKEND', 'frontend' => 'ACYM_FRONTEND'];
                 echo acym_switchFilter($switchfilter, 'backend', 'fields_choose_back_front');
                 ?>
 			</div>
@@ -99,7 +99,7 @@ defined('_JEXEC') or die('Restricted access');
 
                                 <?php
                                 $class = $field->active == 1 ? 'fa-check-circle-o acym__color__green" newvalue="0' : 'fa-times-circle-o acym__color__red" newvalue="1';
-                                echo '<i table="field" field="active" elementid="'.acym_escape($field->id).'" class="'.(in_array($field->id, array(1, 2)) ? '' : ' acym_toggleable cursor-pointer ').' fa '.$class.'"></i>';
+                                echo '<i table="field" field="active" elementid="'.acym_escape($field->id).'" class="'.(in_array($field->id, [1, 2]) ? '' : ' acym_toggleable cursor-pointer ').' fa '.$class.'"></i>';
                                 ?>
 							</div>
 							<div class="acym__listing__controls hide-for-small-only acym__field__controls medium-1 small-1 text-center acym__fields__back cell">
@@ -107,7 +107,7 @@ defined('_JEXEC') or die('Restricted access');
                                 <?php
                                 $class = $field->backend_profile == 1 ? 'fa-check-circle-o acym__color__green" newvalue="0' : 'fa-times-circle-o acym__color__red" newvalue="1';
                                 echo '<i table="field" field="backend_profile" elementid="'.acym_escape($field->id).'" class="';
-                                echo in_array($field->id, array(1, 2)) ? '' : ' acym_toggleable cursor-pointer ';
+                                echo in_array($field->id, [1, 2]) ? '' : ' acym_toggleable cursor-pointer ';
                                 echo 'fa '.$class.'"></i>';
                                 ?>
 							</div>
@@ -116,7 +116,7 @@ defined('_JEXEC') or die('Restricted access');
                                 <?php
                                 $class = $field->backend_listing == 1 ? 'fa-check-circle-o acym__color__green" newvalue="0' : 'fa-times-circle-o acym__color__red" newvalue="1';
                                 echo '<i table="field" field="backend_listing" elementid="'.acym_escape($field->id).'" class="';
-                                echo in_array($field->id, array(1, 2)) ? '' : ' acym_toggleable cursor-pointer ';
+                                echo in_array($field->id, [1, 2]) ? '' : ' acym_toggleable cursor-pointer ';
                                 echo 'fa '.$class.'"></i>';
                                 ?>
 							</div>
@@ -125,7 +125,7 @@ defined('_JEXEC') or die('Restricted access');
                                 <?php
                                 $class = $field->frontend_profile == 1 ? 'fa-check-circle-o acym__color__green" newvalue="0' : 'fa-times-circle-o acym__color__red" newvalue="1';
                                 echo '<i table="field" field="frontend_profile" elementid="'.acym_escape($field->id).'" class="';
-                                echo in_array($field->id, array(1, 2)) ? '' : ' acym_toggleable cursor-pointer ';
+                                echo in_array($field->id, [1, 2]) ? '' : ' acym_toggleable cursor-pointer ';
                                 echo 'fa '.$class.'"></i>';
                                 ?>
 							</div>
@@ -135,5 +135,7 @@ defined('_JEXEC') or die('Restricted access');
                 <?php } ?>
 			</div>
 		</div>
-        <?php acym_formOptions(); ?>
+	</div>
+    <?php acym_formOptions(); ?>
 </form>
+

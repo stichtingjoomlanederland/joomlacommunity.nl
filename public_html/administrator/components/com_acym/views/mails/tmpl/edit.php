@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -11,12 +11,12 @@ defined('_JEXEC') or die('Restricted access');
 ?><div id="acym__editor__content" class="grid-x acym__content acym__editor__area">
 	<div class="cell grid-x align-right">
 		<input type="hidden" id="acym__mail__edit__editor" value="<?php echo acym_escape($data['mail']->editor); ?>">
-		<input type="hidden" class="acym__wysid__hidden__save__thumbnail" id="editor_thumbnail" name="editor_thumbnail" value="<?php echo acym_escape($data['mail']->thumbnail); ?>"/>
+		<input type="hidden" class="acym__wysid__hidden__save__thumbnail" id="editor_thumbnail" name="editor_thumbnail" value="<?php echo acym_escape($data['mail']->thumbnail); ?>" />
 		<input type="hidden" id="acym__mail__edit__editor__social__icons" value="<?php echo empty($data['social_icons']) ? '{}' : acym_escape($data['social_icons']); ?>">
         <?php
         if ($data['mail']->type == 'notification') {
             ?>
-			<button type="submit" data-task="test" class="cell medium-shrink button-secondary auto button acy_button_submit acym__template__save acym__template__prevent__unload">
+			<button type="submit" data-task="test" class="cell medium-shrink button-secondary auto button acy_button_submit acym__template__save acy_button_submit">
                 <?php echo acym_translation('ACYM_SEND_TEST'); ?>
 			</button>
             <?php
@@ -29,11 +29,11 @@ defined('_JEXEC') or die('Restricted access');
             );
         }
         ?>
-		<button id="apply" type="button" data-task="apply" class="cell medium-shrink button-secondary auto button acym__template__save <?php echo 'html' == $data['mail']->editor ? 'acy_button_submit' : 'acym__template__prevent__unload'; ?>">
+		<button id="apply" type="button" data-task="apply" class="cell medium-shrink button-secondary auto button acym__template__save acy_button_submit">
             <?php echo acym_translation('ACYM_SAVE'); ?>
 		</button>
 		<button style="display: none;" data-task="apply" class="acy_button_submit" id="data_apply"></button>
-		<button id="save" type="button" data-task="save" class="cell medium-shrink auto button margin-left-1 <?php echo 'html' == $data['mail']->editor ? 'acy_button_submit' : 'acym__template__prevent__unload'; ?>">
+		<button id="save" type="button" data-task="save" class="cell medium-shrink auto button margin-left-1 acy_button_submit">
             <?php echo acym_translation('ACYM_SAVE_EXIT'); ?>
 		</button>
 		<button style="display: none;" data-task="save" class="acy_button_submit" id="data_save"></button>
@@ -65,7 +65,7 @@ defined('_JEXEC') or die('Restricted access');
 		<div class="cell <?php echo $mainSize; ?>">
 			<label>
                 <?php echo acym_translation('ACYM_EMAIL_SUBJECT'); ?>
-				<input name="mail[subject]" type="text" value="<?php echo acym_escape($data['mail']->subject); ?>" <?php echo in_array($data['mail']->type, array('welcome', 'unsubscribe', 'automation')) ? 'required' : ''; ?>>
+				<input name="mail[subject]" type="text" value="<?php echo acym_escape($data['mail']->subject); ?>" <?php echo in_array($data['mail']->type, ['welcome', 'unsubscribe', 'automation']) ? 'required' : ''; ?>>
 			</label>
 		</div>
 
@@ -88,13 +88,13 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="cell <?php echo $sizes; ?>">
 				<label>
                     <?php echo acym_translation('ACYM_REPLYTO_NAME'); ?>
-					<input name="mail[replyto_name]" type="text" value="<?php echo acym_escape(empty($data['mail']->replyto_name) ? $data['config']->get('replyto_name') : $data['mail']->replyto_name); ?>">
+					<input name="mail[reply_to_name]" type="text" value="<?php echo acym_escape(empty($data['mail']->reply_to_name) ? $data['config']->get('replyto_name') : $data['mail']->reply_to_name); ?>">
 				</label>
 			</div>
 			<div class="cell <?php echo $sizes; ?>">
 				<label>
                     <?php echo acym_translation('ACYM_REPLYTO_EMAIL'); ?>
-					<input name="mail[replyto_email]" type="text" value="<?php echo acym_escape(empty($data['mail']->replyto_email) ? $data['config']->get('replyto_email') : $data['mail']->replyto_email); ?>">
+					<input name="mail[reply_to_email]" type="text" value="<?php echo acym_escape(empty($data['mail']->reply_to_email) ? $data['config']->get('replyto_email') : $data['mail']->reply_to_email); ?>">
 				</label>
 			</div>
             <?php
@@ -108,11 +108,11 @@ defined('_JEXEC') or die('Restricted access');
                 <?php } else { ?>
 					<label>
                         <?php echo acym_translation('ACYM_TYPE');
-                        $templateTypes = array(
+                        $templateTypes = [
                             'standard' => acym_translation('ACYM_STANDARD'),
                             'welcome' => acym_translation('ACYM_WELCOME_MAIL'),
                             'unsubscribe' => acym_translation('ACYM_UNSUBSCRIBE_MAIL'),
-                        );
+                        ];
                         echo acym_select(
                             $templateTypes,
                             "mail[type]",
@@ -139,7 +139,7 @@ defined('_JEXEC') or die('Restricted access');
 				</label>
 			</div>
 			<div class="cell grid-x acym__toggle__arrow">
-				<p class="cell medium-shrink acym__toggle__arrow__trigger"><?php echo acym_translation('ACYM_ADVANCED_OPTIONS'); ?> <i class="material-icons">keyboard_arrow_down</i></p>
+				<p class="cell medium-shrink acym__toggle__arrow__trigger"><?php echo acym_translation('ACYM_ADVANCED_OPTIONS'); ?> <i class="acymicon-keyboard_arrow_down"></i></p>
 				<div class="cell acym__toggle__arrow__contain">
 					<div class="grid-x grid-padding-x">
 						<div class="cell grid-x medium-6" id="acym__mail__edit__html__stylesheet__container">
@@ -181,9 +181,9 @@ defined('_JEXEC') or die('Restricted access');
         ?>
 	</div>
 </div>
-<input type="hidden" name="mail[id]" value="<?php echo acym_escape($data['mail']->id); ?>"/>
-<input type="hidden" name="id" value="<?php echo acym_escape($data['mail']->id); ?>"/>
-<input type="hidden" name="thumbnail" value="<?php echo empty($data['mail']->thumbnail) ? '' : acym_escape($data['mail']->thumbnail); ?>"/>
+<input type="hidden" name="mail[id]" value="<?php echo acym_escape($data['mail']->id); ?>" />
+<input type="hidden" name="id" value="<?php echo acym_escape($data['mail']->id); ?>" />
+<input type="hidden" name="thumbnail" value="<?php echo empty($data['mail']->thumbnail) ? '' : acym_escape($data['mail']->thumbnail); ?>" />
 <?php
 acym_formOptions();
 
@@ -193,4 +193,7 @@ $editor->autoSave = !empty($data['mail']->autosave) ? $data['mail']->autosave : 
 if (!empty($data['mail']->editor)) $editor->editor = $data['mail']->editor;
 if (!empty($data['mail']->id)) $editor->mailId = $data['mail']->id;
 if (!empty($data['mail']->type)) $editor->automation = $data['isAutomationAdmin'];
+if (!empty($data['mail']->settings)) $editor->settings = $data['mail']->settings;
+if (!empty($data['mail']->stylesheet)) $editor->stylesheet = $data['mail']->stylesheet;
 echo $editor->display();
+

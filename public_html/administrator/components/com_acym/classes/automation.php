@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -16,13 +16,13 @@ class acymautomationClass extends acymClass
     var $table = 'automation';
     var $pkey = 'id';
     var $didAnAction = false;
-    var $report = array();
+    var $report = [];
 
     public function getMatchingAutomations($settings)
     {
         $query = 'SELECT * FROM #__acym_automation';
         $queryCount = 'SELECT COUNT(id) FROM #__acym_automation';
-        $filters = array();
+        $filters = [];
 
         if (!empty($settings['search'])) {
             $filters[] = 'name LIKE '.acym_escapeDB('%'.$settings['search'].'%');
@@ -73,7 +73,7 @@ class acymautomationClass extends acymClass
     public function delete($elements)
     {
         if (!is_array($elements)) {
-            $elements = array($elements);
+            $elements = [$elements];
         }
         acym_arrayToInteger($elements);
 
@@ -88,76 +88,53 @@ class acymautomationClass extends acymClass
         return parent::delete($elements);
     }
 
-    public function triggerUser($trigger, $userId)
+    public function trigger($trigger, $data = [])
     {
-        if (empty($userId) || !acym_level(2)) return;
+        if (!acym_level(2)) return;
+
         $stepClass = acym_get('class.step');
         $actionClass = acym_get('class.action');
         $conditionClass = acym_get('class.condition');
-
-        $steps = $stepClass->getActiveStepByTrigger($trigger);
-        foreach ($steps as $step) {
-            $automation = $this->getOneById($step->automation_id); 
-            $conditions = $conditionClass->getConditionsByStepId($step->id);
-
-            if (empty($conditions)) continue;
-
-            foreach ($conditions as $condition) {
-                if (!$this->_verifyCondition($condition->conditions, $userId)) continue;
-                $actions = $actionClass->getActionsByStepId($step->id);
-                if (!empty($actions)) {
-                    foreach ($actions as $action) {
-                        $this->execute($action, $userId, !empty($automation->admin));
-                    }
-                }
-            }
-        }
-    }
-
-    public function trigger($trigger)
-    {
-        $conditionClass = acym_get('class.condition');
-        $actionClass = acym_get('class.action');
-        $stepClass = acym_get('class.step');
         $steps = $stepClass->getActiveStepByTrigger($trigger);
 
-        $time = time();
+        $data['time'] = time();
         foreach ($steps as $step) {
             $execute = false;
 
-            $newStep = new stdClass();
-            $newStep->id = $step->id;
-
-            if (!empty($step->next_execution) && $step->next_execution <= $time) {
+            if (!empty($step->next_execution) && $step->next_execution <= $data['time']) {
                 $execute = true;
             }
 
-            acym_trigger('onAcymExecuteTrigger', array(&$step, &$newStep, &$execute, $time));
+            acym_trigger('onAcymExecuteTrigger', [&$step, &$execute, $data]);
+
+            $data['automation'] = $this->getOneById($step->automation_id);
 
             if ($execute) {
-                $newStep->last_execution = $time;
+                $step->last_execution = $data['time'];
                 $conditions = $conditionClass->getConditionsByStepId($step->id);
                 if (!empty($conditions)) {
                     foreach ($conditions as $condition) {
-                        if (!$this->_verifyCondition($condition->conditions)) continue;
+                        if (!$this->_verifyCondition($condition->conditions, $data)) continue;
+
                         $actions = $actionClass->getActionsByStepId($step->id);
-                        if (!empty($actions)) {
-                            foreach ($actions as $action) {
-                                $this->execute($action);
-                            }
+                        if (empty($actions)) continue;
+
+                        foreach ($actions as $action) {
+                            $this->execute($action, $data);
                         }
                     }
                 }
             }
 
-            $stepClass->save($newStep);
+            $stepClass->save($step);
         }
     }
 
-    public function execute($action, $userTriggeringAction = 0, $automationAdmin = false)
+    public function execute($action, $data = [])
     {
+        $userTriggeringAction = empty($data['userId']) ? 0 : $data['userId'];
         $action->actions = json_decode($action->actions, true);
-        if (empty($action->actions)) return;
+        if (empty($action->actions)) return false;
 
         $isMassAction = false;
         static $massAction = 0;
@@ -167,16 +144,16 @@ class acymautomationClass extends acymClass
         }
 
         $action->filters = json_decode($action->filters, true);
-        if (empty($action->filters)) return;
+        if (empty($action->filters)) return false;
 
 
         $query = acym_get('class.query');
 
-        $initialWhere = array('1 = 1');
+        $initialWhere = ['1 = 1'];
         $query->removeFlag($action->id);
 
         if (!empty($action->filters['type_filter']) && $action->filters['type_filter'] == 'user') {
-            $initialWhere = array('user.id = '.intval($userTriggeringAction));
+            $initialWhere = ['user.id = '.intval($userTriggeringAction)];
         }
 
         $typeFilter = $action->filters['type_filter'];
@@ -195,7 +172,7 @@ class acymautomationClass extends acymClass
             foreach ($orValue as $and => $andValue) {
                 $num++;
                 foreach ($andValue as $filterName => $filterOptions) {
-                    acym_trigger('onAcymProcessFilter_'.$filterName, array(&$query, &$filterOptions, &$num));
+                    acym_trigger('onAcymProcessFilter_'.$filterName, [&$query, &$filterOptions, &$num]);
                 }
             }
 
@@ -209,12 +186,13 @@ class acymautomationClass extends acymClass
                     $this->report,
                     acym_trigger(
                         'onAcymProcessAction_'.$actionName,
-                        array(&$query, &$actionOptions, array('automationAdmin' => $automationAdmin, 'user_id' => $userTriggeringAction))
+                        [&$query, &$actionOptions, ['automationAdmin' => !empty($data['automation']->admin), 'user_id' => $userTriggeringAction]]
                     )
                 );
                 $action->actions[$and][$actionName] = $actionOptions;
             }
         }
+
         if (!$isMassAction) {
             $action->filters['type_filter'] = $typeFilter;
             $action->filters = json_encode($action->filters);
@@ -228,17 +206,21 @@ class acymautomationClass extends acymClass
         return $this->didAnAction;
     }
 
-    private function _verifyCondition($conditions, $userTriggeringAction = 0)
+    private function _verifyCondition($conditions, $data = [])
     {
         if (empty($conditions)) return true;
+        $userTriggeringAction = empty($data['userId']) ? 0 : $data['userId'];
+
         $conditions = json_decode($conditions, true);
         $query = acym_get('class.query');
-        $initialWhere = array('1 = 1');
+        $initialWhere = ['1 = 1'];
         if (!empty($conditions['type_condition']) && $conditions['type_condition'] == 'user') {
-            $initialWhere = array('user.id = '.intval($userTriggeringAction));
+            $initialWhere = ['user.id = '.intval($userTriggeringAction)];
         }
         unset($conditions['type_condition']);
+
         if (empty($conditions)) return true;
+
         foreach ($conditions as $or => $orValue) {
             if (empty($orValue)) continue;
 
@@ -248,7 +230,7 @@ class acymautomationClass extends acymClass
                 $num++;
                 $query->where = $initialWhere;
                 foreach ($andValue as $filterName => $filterOptions) {
-                    acym_trigger('onAcymProcessCondition_'.$filterName, array(&$query, &$filterOptions, &$num, &$conditionNotValid));
+                    acym_trigger('onAcymProcessCondition_'.$filterName, [&$query, &$filterOptions, &$num, &$conditionNotValid]);
                 }
             }
 
@@ -268,3 +250,4 @@ class acymautomationClass extends acymClass
         return acym_loadObjectList($query, 'name');
     }
 }
+

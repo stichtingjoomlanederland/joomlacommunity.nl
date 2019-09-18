@@ -458,12 +458,17 @@ class DiscussProfile extends EasyDiscussTable
 		return $name;
 	}
 
-	public function getNameInitial()
+	public function getNameInitial($isAnonymous = false, $debug = false)
 	{
 		$name = $this->getName();
 
-		if (! $this->id && isset($this->poster_name) && $this->poster_name) {
+		if (!$this->id && isset($this->poster_name) && $this->poster_name) {
 			$name = $this->poster_name;
+		}
+
+		// Override to this anonymous name if this is anonymous post
+		if ($isAnonymous) {
+			$name = JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');
 		}
 
 		$initial = new stdClass();
@@ -471,7 +476,9 @@ class DiscussProfile extends EasyDiscussTable
 		$initial->code = '';
 
 		$text = '';
+
 		if (ED::string()->isAscii($name)) {
+
 			//lets split the name based on empty space
 			$segments = explode(' ', $name);
 

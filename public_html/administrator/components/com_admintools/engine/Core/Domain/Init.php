@@ -141,7 +141,6 @@ class Init extends Part
 
 		Factory::getLog()->log(LogLevel::INFO, "--------------------------------------------------------------------------------");
 		Factory::getLog()->log(LogLevel::INFO, "Akeeba Backup " . $version . ' (' . $date . ')');
-		Factory::getLog()->log(LogLevel::INFO, "Got backup?");
 		Factory::getLog()->log(LogLevel::INFO, "--------------------------------------------------------------------------------");
 
 		// PHP configuration variables are tried to be logged only for debug and info log levels

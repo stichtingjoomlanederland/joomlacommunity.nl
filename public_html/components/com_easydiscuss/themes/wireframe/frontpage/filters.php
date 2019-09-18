@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,7 +11,7 @@
 */
 defined('_JEXEC') or die('Restricted access');
 ?>
-<div class="ed-filter-bar t-lg-mt--lg t-lg-mb--md">
+<div class="ed-filter-bar t-lg-mb--md">
 	
 	<div class="ed-filter-bar__sort-tabs">
 		<!-- Filter tabs -->
@@ -21,7 +21,7 @@ defined('_JEXEC') or die('Restricted access');
 				data-filter-type="allposts"
 				data-filter-catid="<?php echo $menuCatId; ?>"
 			>
-				<a class="o-tabs__link allPostsFilter" data-filter-anchor href="<?php echo EDR::_($baseUrl);?>">
+				<a class="o-tabs__link allPostsFilter" data-filter-anchor href="<?php echo EDR::_($baseUrl . '&filter=');?>">
 					<?php echo JText::_('COM_EASYDISCUSS_FILTER_ALL_POSTS'); ?>
 				</a>
 			</li>
@@ -76,23 +76,10 @@ defined('_JEXEC') or die('Restricted access');
 
 		</ul>
 	</div>
+	<?php $sortBaseUrl = $activeFilter ? $baseUrl . '&filter=' . $activeFilter : $baseUrl; ?>
 
-	<?php
-	$sortBaseUrl = $baseUrl;
-	
-	if ($activeFilter) {
-		$sortBaseUrl .= '&filter=' . $activeFilter;
-	}
-
-	?>
-	<div class="ed-filter-bar__sort-action">
-		<select data-index-sort-filter>
-		  <option value="latest" <?php echo $activeSort == 'latest' || $activeSort == '' ? ' selected="true"' : '';?> data-link="<?php echo EDR::_($sortBaseUrl . '&sort=latest');?>"><?php echo JText::_('COM_EASYDISCUSS_SORT_LATEST');?></option>
-		  <?php if ($activeFilter != 'unread') { ?>
-			<option value="popular" <?php echo $activeSort == 'popular' ? ' selected="true"' : '';?> data-link="<?php echo EDR::_($sortBaseUrl . '&sort=popular');?>"><?php echo JText::_('COM_EASYDISCUSS_SORT_POPULAR');?></option>
-			<option value="title" <?php echo $activeSort == 'title' ? ' selected="true"' : '';?> data-link="<?php echo EDR::_($sortBaseUrl . '&sort=title');?>"><?php echo JText::_('COM_EASYDISCUSS_SORT_TITLE');?></option>
-		  <?php } ?>
-		</select>
+	<div class="ed-filter-bar__sort-action" data-sort-wrapper>
+		<?php echo $this->output('site/frontpage/sorting', array('activeSort' => $activeSort, 'sortBaseUrl' => $sortBaseUrl, 'activeStatus' => $activeStatus, 'view' => $view)); ?>
 	</div>
 
 </div>

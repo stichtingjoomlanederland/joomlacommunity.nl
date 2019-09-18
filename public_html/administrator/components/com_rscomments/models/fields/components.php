@@ -14,10 +14,10 @@ class JFormFieldComponents extends JFormFieldList {
 
 	protected function getOptions() {
 		$options = array();
-		$components = RSCommentsHelper::getComponents();
+		$components = RSCommentsHelperAdmin::getComponents();
 		
 		foreach($components as $component) {
-			$options[] = JHtml::_('select.option', $component, RSCommentsHelper::component($component));
+			$options[] = JHtml::_('select.option', $component, RSCommentsHelperAdmin::component($component));
 		}
 		
 		

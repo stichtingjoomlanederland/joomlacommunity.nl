@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.4.11218
+ * @version         19.8.25552
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -283,19 +283,21 @@ class PluginTag
 			}
 
 			// unprotect tags in key and val
-			foreach ($keyval as $key => $val)
+			foreach ($keyval as $key => $value)
 			{
-				RegEx::matchAll(RegEx::quote($tag_start) . '(.*?)' . RegEx::quote($tag_end), $val, $tags);
+				RegEx::matchAll(RegEx::quote($tag_start) . '(.*?)' . RegEx::quote($tag_end), $value, $tags);
 
-				if ( ! empty($tags))
+				if (empty($tags))
 				{
-					foreach ($tags as $tag)
-					{
-						$val = str_replace($tag[0], base64_decode($tag[1]), $val);
-					}
-
-					$keyval[trim($key)] = $val;
+					continue;
 				}
+
+				foreach ($tags as $tag)
+				{
+					$value = str_replace($tag[0], base64_decode($tag[1]), $value);
+				}
+
+				$keyval[trim($key)] = $value;
 			}
 
 			if (isset($keys[$i]))
@@ -303,12 +305,14 @@ class PluginTag
 				$key = trim($keys[$i]);
 				// if value is in the keys array add as defined in keys array
 				// ignore equal sign
-				$val = implode($equal, $keyval);
-				if (substr($val, 0, strlen($key) + 1) == $key . '=')
+				$value = implode($equal, $keyval);
+
+				if (substr($value, 0, strlen($key) + 1) == $key . '=')
 				{
-					$val = substr($val, strlen($key) + 1);
+					$value = substr($value, strlen($key) + 1);
 				}
-				$attributes->{$key} = $val;
+
+				$attributes->{$key} = $value;
 				unset($keys[$i]);
 
 				continue;
@@ -317,7 +321,21 @@ class PluginTag
 			// else add as defined in the string
 			if (isset($keyval[1]))
 			{
-				$attributes->{$keyval[0]} = $keyval[1];
+				$value = $keyval[1];
+
+				$value = trim($value, '"');
+
+				if ($value === 'true' || $value === true)
+				{
+					$value = true;
+				}
+
+				if ($value === 'false' || $value === false)
+				{
+					$value = false;
+				}
+
+				$attributes->{$keyval[0]} = $value;
 				continue;
 			}
 

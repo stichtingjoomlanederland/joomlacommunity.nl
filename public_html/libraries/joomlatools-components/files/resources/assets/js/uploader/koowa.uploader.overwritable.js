@@ -39,6 +39,7 @@
                     type: 'POST',
                     data: {
                         _method: 'GET',
+                        csrf_token: self.options.multipart_params.csrf_token,
                         name: names
                     }
                 }).done(function(response)

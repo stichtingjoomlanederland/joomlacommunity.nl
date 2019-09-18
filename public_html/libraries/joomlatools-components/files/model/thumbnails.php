@@ -151,7 +151,7 @@ class ComFilesModelThumbnails extends ComFilesModelFiles
     public function iteratorFilter($path)
     {
         $state     = $this->getState();
-        $filename  = ltrim(basename(' '.strtr($path, array('/' => '/ '))));
+        $filename  = \Koowa\basename($path);
 
         if ($filename && $filename[0] === '.') {
             return false;

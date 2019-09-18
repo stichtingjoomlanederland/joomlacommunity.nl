@@ -2,7 +2,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 
     // Update the polls layout when something changes
-    var updatePollsLayout = function(choices) {
+    var updatePollsLayout = function(choices,totalVotes) {
 
         var items = $('[data-ed-poll-choice-item]');
 
@@ -20,6 +20,9 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
             item.find('[data-ed-poll-choice-show-voters]')
                 .data('count', choice.count);
+
+            // Update the total vote as well
+            $('[data-ed-post-poll-total-votes]').text(totalVotes);
         });
     };
 
@@ -30,13 +33,15 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
         var item = $(this);
         var id = item.data('id');
+        var postId = $('[data-ed-polls]').data('post-id');
 
         EasyDiscuss.ajax('site/views/polls/vote', {
-            "id": id
-        }).done(function(choices) {
+            "id": id,
+            "postId" : postId
+        }).done(function(choices, totalVotes) {
 
             // Update the layout
-            updatePollsLayout(choices);
+            updatePollsLayout(choices, totalVotes);
 
         });
 

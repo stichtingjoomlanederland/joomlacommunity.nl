@@ -19,7 +19,7 @@ JText::script('RSFP_SUBM_DIR_DELETE_SURE');
 <?php if ($this->app->input->get('format') != 'pdf') { ?>
 <div class="form-actions">
 	<?php if ($this->canEdit) { ?><button type="button" class="btn button" onclick="document.location='<?php echo JRoute::_('index.php?option=com_rsform&view=directory&layout=edit&id='.$this->id); ?>'"><?php echo JText::_('RSFP_SUBM_DIR_EDIT'); ?></button><?php } ?>
-    <?php if ($this->canDelete) { ?><button type="button" class="btn button" onclick="if (confirm(Joomla.JText._('RSFP_SUBM_DIR_DELETE_SURE'))) document.location='<?php echo JRoute::_('index.php?option=com_rsform&controller=directory&task=delete&id='.$this->id); ?>'"><?php echo JText::_('RSFP_SUBM_DIR_DELETE'); ?></button><?php } ?>
+    <?php if ($this->canDelete) { ?><button type="button" class="btn btn-danger button" onclick="if (confirm(Joomla.JText._('RSFP_SUBM_DIR_DELETE_SURE'))) document.location='<?php echo JRoute::_('index.php?option=com_rsform&controller=directory&task=delete&id='.$this->id); ?>'"><?php echo JText::_('RSFP_SUBM_DIR_DELETE'); ?></button><?php } ?>
 	<?php if ($this->directory->enablepdf) { ?><button type="button" class="btn button" onclick="document.location='<?php echo $this->pdfLink($this->id); ?>'"><?php echo JText::_('RSFP_SUBM_DIR_PDF'); ?></button><?php } ?>
 	<button type="button" class="btn button" onclick="document.location='<?php echo JRoute::_('index.php?option=com_rsform&view=directory'); ?>'"><?php echo JText::_('RSFP_SUBM_DIR_BACK'); ?></button>
 </div>

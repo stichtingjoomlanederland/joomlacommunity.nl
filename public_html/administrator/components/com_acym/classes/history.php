@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -12,7 +12,10 @@ defined('_JEXEC') or die('Restricted access');
 
 class acymhistoryClass extends acymClass
 {
-    function insert($userId, $action, $data = array(), $mailid = 0)
+
+    var $table = 'history';
+
+    function insert($userId, $action, $data = [], $mailid = 0)
     {
         $currentUserid = acym_currentUserId();
         if (!empty($currentUserid)) {
@@ -45,11 +48,11 @@ class acymhistoryClass extends acymClass
         }
 
         if (!empty($_SERVER)) {
-            $source = array();
+            $source = [];
             if ($config->get('anonymous_tracking', 0) == 0) {
-                $vars = array('HTTP_REFERER', 'HTTP_USER_AGENT', 'HTTP_HOST', 'SERVER_ADDR', 'REMOTE_ADDR', 'REQUEST_URI', 'QUERY_STRING');
+                $vars = ['HTTP_REFERER', 'HTTP_USER_AGENT', 'HTTP_HOST', 'SERVER_ADDR', 'REMOTE_ADDR', 'REQUEST_URI', 'QUERY_STRING'];
             } else {
-                $vars = array('HTTP_REFERER', 'HTTP_HOST', 'SERVER_ADDR', 'REQUEST_URI', 'QUERY_STRING');
+                $vars = ['HTTP_REFERER', 'HTTP_HOST', 'SERVER_ADDR', 'REQUEST_URI', 'QUERY_STRING'];
             }
 
             foreach ($vars as $oneVar) {
@@ -69,4 +72,15 @@ class acymhistoryClass extends acymClass
 
         return !empty($result);
     }
+
+    public function getHistoryOfOneById($id)
+    {
+        $query = 'SELECT h.*, m.id, m.subject FROM #__acym_'.$this->table.' AS h ';
+        $query .= 'LEFT JOIN #__acym_mail AS m ON h.mail_id = m.id ';
+        $query .= 'WHERE h.user_id = '.intval($id);
+        $query .= ' ORDER BY h.date DESC';
+
+        return acym_loadObjectList($query);
+    }
 }
+

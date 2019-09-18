@@ -1,15 +1,15 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
 // the PECL OAuth extension is not present, load our third-party OAuth library
 require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/oauth/consumers/oauth.php');
@@ -20,6 +20,7 @@ class EDLinkedInConsumer {
 
 	// Linkedin API V2 end-points
 	const _URL_API = 'https://api.linkedin.com';
+	const _URL_API_V2 = 'https://api.linkedin.com/v2';
 	const _URL_AUTH_V2 = 'https://www.linkedin.com/oauth/v2/authorization?response_type=code';
 	const _URL_ACCESS_V2 = 'https://www.linkedin.com/oauth/v2/accessToken';
 	const _URL_REVOKE = 'https://api.linkedin.com/uas/oauth/invalidateToken';
@@ -85,12 +86,167 @@ class EDLinkedInConsumer {
 	}
 
 	/**
+	 * API to retrieve user email address for Oauth V2
+	 *
+	 * @since	4.1.7
+	 * @access	public
+	 */
+	public function emailAddress($options = '?q=members&projection=(elements*(handle~))')
+	{
+		// check passed data
+		if(!is_string($options)) {
+			// bad data passed
+			throw new LinkedInException('LinkedIn->emailAddress(): bad data passed, $options must be of type string.');
+		}
+
+		$query = self::_URL_API_V2 . '/emailAddress' . trim($options);
+		$response = $this->fetch('GET', $query);
+
+		return $this->checkResponse(200, $response);
+	}
+
+	/**
+	 * Method to share the post (version 2.0)
+	 *
+	 * @since	4.1.7
+	 * @access	public
+	 */
+	public function sharePost($action, $content, $private = true, $twitter = false, $company = false)
+	{
+		if (!empty($action) && !empty($content)) {
+
+			// Process the media
+			$mediaData = $this->processMedia($content);
+
+			// Personal Share
+			$author = 'urn:li:person:' . $content['userId'];
+
+			// Organization Share (Company)
+			if ($company) {
+				$author = 'urn:li:organization:' . $company;
+			}
+
+			$data = array(
+				'author' => $author,
+				'lifecycleState' => 'PUBLISHED',
+				'specificContent' =>
+						array(
+							'com.linkedin.ugc.ShareContent' =>
+								array(
+									'shareCommentary' => array('text' => $content['text']),
+									'shareMediaCategory' => $mediaData->mediaCategory,
+									'media' => array($mediaData->media)
+								)
+						),
+				'visibility' => array('com.linkedin.ugc.MemberNetworkVisibility' => $content['visibility'])
+			);
+
+			$share_url = self::_URL_API_V2 . '/ugcPosts';
+			$data = json_encode($data);
+
+			// send request
+			$response = $this->fetch('POST', $share_url, $data);
+
+			return $this->checkResponse(201, $response);
+		}
+	}
+
+	/**
+	 * Method to process the media properties for sharing
+	 *
+	 * @since	4.1.7
+	 * @access	public
+	 */
+	private function processMedia($content)
+	{
+		$obj = new stdClass();
+		$obj->media = '';
+		$obj->mediaCategory = 'NONE';
+
+		// Get the media if exists
+		if (isset($content['submitted-url'])) {
+			$obj->mediaCategory = 'ARTICLE';
+			$obj->media = array(
+				'status' => 'READY',
+				'title' => array('text' => $content['submitted-url-title']),
+				'description' => array('text' => $content['submitted-url-desc']),
+				'originalUrl' => $content['submitted-url']
+			);
+		}
+
+		if (isset($content['submitted-image'])) {
+			$obj->mediaCategory = 'IMAGE';
+
+			// 1. Register the image to be uploaded.
+			$url = self::_URL_API_V2 . '/assets?action=registerUpload';
+			$data = array(
+				'registerUploadRequest' => array(
+					'recipes' => array('urn:li:digitalmediaRecipe:feedshare-image'),
+					'owner' => 'urn:li:person:' . $content["userId"],
+					'serviceRelationships' => array(
+						array(
+							'relationshipType' => 'OWNER',
+							'identifier' => 'urn:li:userGeneratedContent'
+						)
+					)
+				)
+			);
+
+			$data = json_encode($data);
+			$response = $this->fetch('POST', $url, $data);
+
+			// Get the upload url and asset.
+			if ($response) {
+				$response = json_decode($response['linkedin']);
+
+				$uploadUrl = $response->value->uploadMechanism->{"com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest"}->uploadUrl;
+				$asset = $response->value->asset;
+
+				// 2. Upload the image to LinkedIn.
+				$photo = $content['submitted-image'];
+				$imageFile = $photo->getPath('large');
+				$mimeType = $photo->getMime('large');
+
+				$imageBinary = class_exists('CURLFile', false) ? new CURLFile($imageFile, $mimeType, basename($imageFile)) : "@" . $imageFile;
+
+				$header = array();
+				$header[] = 'Authorization: Bearer ' . $this->access_token;
+				$header[] = 'Content-Type:multipart/form-data';
+
+				$ch = curl_init();
+				curl_setopt($ch, CURLOPT_URL, $uploadUrl);
+				curl_setopt($ch, CURLOPT_POST, true);
+				curl_setopt($ch, CURLOPT_TIMEOUT, 100000);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+				curl_setopt($ch, CURLOPT_POSTFIELDS, array('file' => $imageBinary));
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+				$result = curl_exec($ch);
+				$error = curl_error($ch);
+				$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+				curl_close($ch);
+
+				// 3. Create the image share.
+				$obj->media = array(
+					'status' => 'READY',
+					'description' => array('text' => $content['text']),
+					'media' => $asset,
+					'title' => array('text' => $content['text'])
+				);
+			}
+		}
+
+		return $obj;
+	}
+
+	/**
 	 * Method to share the post made in ED
 	 *
 	 * @since	4.1.0
 	 * @access	public
 	 */
-	public function sharePost($action, $content, $private = TRUE, $twitter = FALSE , $companies = array()) 
+	public function sharePostLegacy($action, $content, $private = TRUE, $twitter = FALSE , $companies = array())
 	{
 		// check the status itself
 		if (!empty($action) && !empty($content)) {
@@ -249,6 +405,24 @@ class EDLinkedInConsumer {
 	}
 
 	/**
+	 * General user profile retrieval function
+	 *
+	 * @since	4.1.7
+	 * @access	public
+	 */
+	public function me($options = '?projection=(id,firstName,lastName,profilePicture(displayImage~:playableStreams))')
+	{
+		if (!is_string($options)) {
+			throw new LinkedInException('LinkedIn->me(): bad data passed, $options must be of type string.');
+		}
+
+		$query = self::_URL_API_V2 . '/me' . trim($options);
+		$response = $this->fetch('GET', $query);
+
+		return $this->checkResponse(200, $response);
+	}
+
+	/**
 	 * Retrieve token access for oauth2 authentication
 	 *
 	 * @since	4.1.0
@@ -277,7 +451,7 @@ class EDLinkedInConsumer {
 	 * @since	4.1.0
 	 * @access	public
 	 */
-	protected function fetch($method, $url, $data = NULL, $parameters = array()) 
+	protected function fetch($method, $url, $data = NULL, $parameters = array())
 	{
 		// check for cURL
 		if (!extension_loaded('curl')) {
@@ -360,7 +534,7 @@ class EDLinkedInConsumer {
 			$temp_response = $this->xmlToArray($response);
 			if ($temp_response !== FALSE) {
 				// check to see if we have an error
-				if (array_key_exists('error', $temp_response) && 
+				if (array_key_exists('error', $temp_response) &&
 					$temp_response['error']['children']['status']['content'] == 403 && preg_match('/throttle/i', $temp_response['error']['children']['message']['content'])) {
 
 					// we have an error, it is 403 and we have hit a throttle limit
@@ -373,25 +547,38 @@ class EDLinkedInConsumer {
 	}
 
 	/**
-	 * Method to retrieve company lists
+	 * Method to retrieve lists of company that the user have
 	 *
-	 * @since	4.1.0
+	 * @since	4.1.7
 	 * @access	public
 	 */
-	public function company($options, $by_email = false)
+	public function getCompanyLists($options)
+	{
+		// check passed data
+		if (!is_string($options)) {
+			throw new LinkedInException('LinkedIn->getCompanyLists(): bad data passed, $options must be of type string.');
+		}
+
+		$query = self::_URL_API_V2 . '/organizationalEntityAcls?q=roleAssignee&' . trim($options);
+		$response = $this->fetch('GET', $query);
+
+		return $this->checkResponse(200, $response);
+	}
+
+	/**
+	 * Method to retrieve company information
+	 *
+	 * @since	4.1.7
+	 * @access	public
+	 */
+	public function company($options)
 	{
 		// check passed data
 		if (!is_string($options)) {
 			throw new LinkedInException('LinkedIn->company(): bad data passed, $options must be of type string.');
 		}
 
-		if (!is_bool($by_email)) {
-			throw new LinkedInException('LinkedIn->company(): bad data passed, $by_email must be of type boolean.');
-		}
-
-		// construct and send the request
-		$query = self::_URL_API . '/v1/companies' . ($by_email ? '' : '/') . trim($options);
-
+		$query = self::_URL_API_V2 . '/organizations/' . $options;
 		$response = $this->fetch('GET', $query);
 
 		return $this->checkResponse(200, $response);

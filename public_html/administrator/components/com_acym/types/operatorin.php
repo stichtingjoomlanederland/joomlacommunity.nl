@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -12,7 +12,7 @@ defined('_JEXEC') or die('Restricted access');
 
 class operatorinType extends acymClass
 {
-    var $values = array();
+    var $values = [];
     var $class = 'acym__select';
     var $extra = '';
 
@@ -20,8 +20,8 @@ class operatorinType extends acymClass
     {
         parent::__construct();
 
-        $this->values[] = acym_selectOption('in', acym_translation('ACYM_IN'));
-        $this->values[] = acym_selectOption('not-in', acym_translation('ACYM_NOT_IN'));
+        $this->values[] = acym_selectOption('in', 'ACYM_IN');
+        $this->values[] = acym_selectOption('not-in', 'ACYM_NOT_IN');
     }
 
     function display($name, $valueSelected = '')
@@ -29,3 +29,4 @@ class operatorinType extends acymClass
         return acym_select($this->values, $name, $valueSelected, $this->extra.' class="'.$this->class.'"');
     }
 }
+

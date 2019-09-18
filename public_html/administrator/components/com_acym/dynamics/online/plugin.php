@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -24,15 +24,15 @@ class plgAcymOnline extends acymPlugin
 
     function textPopup()
     {
-        $others = array();
-        $others['readonline'] = array('default' => acym_translation('ACYM_VIEW_ONLINE', true), 'desc' => acym_translation('ACYM_VIEW_ONLINE_DESC'));
+        $others = [];
+        $others['readonline'] = ['default' => acym_translation('ACYM_VIEW_ONLINE', true), 'desc' => acym_translation('ACYM_VIEW_ONLINE_DESC')];
 
         ?>
 		<script language="javascript" type="text/javascript">
             <!--
             var selectedTag = '';
 
-            function changeOnlineTag(tagName){
+            function changeOnlineTag(tagName) {
                 selectedTag = tagName;
                 defaultText = [];
                 <?php
@@ -46,7 +46,7 @@ class plgAcymOnline extends acymPlugin
                 setOnlineTag();
             }
 
-            function setOnlineTag(){
+            function setOnlineTag() {
                 var tag = '{' + selectedTag + '}' + document.getElementById('acym__popup__online__tagtext').value + '{/' + selectedTag + '}';
                 setTag(tag, jQuery('#tr_' + selectedTag));
             }
@@ -77,9 +77,9 @@ class plgAcymOnline extends acymPlugin
     function replaceContent(&$email, $send = true)
     {
         $match = '#(?:{|%7B)(readonline)([^}]*)(?:}|%7D)(.*)(?:{|%7B)/(readonline)(?:}|%7D)#Uis';
-        $variables = array('body');
+        $variables = ['body'];
         $found = false;
-        $results = array();
+        $results = [];
         foreach ($variables as $var) {
             if (empty($email->$var)) continue;
 
@@ -99,7 +99,7 @@ class plgAcymOnline extends acymPlugin
                 $arguments = explode('|', strip_tags(str_replace('%7C', '|', $allresults[2][$i])));
                 $tag = new stdClass();
                 $tag->type = $allresults[1][$i];
-                for ($j = 0, $a = count($arguments); $j < $a; $j++) {
+                for ($j = 0, $a = count($arguments) ; $j < $a ; $j++) {
                     $args = explode(':', $arguments[$j]);
                     $arg0 = trim($args[0]);
                     if (empty($arg0)) {

@@ -279,9 +279,16 @@ class Finalization extends Part
 			return true;
 		}
 
-		$must_email = Platform::getInstance()->get_platform_configuration_option('frontend_email_on_finish', 0) != 0;
+		$emailFeatureEnabled = Platform::getInstance()->get_platform_configuration_option('frontend_email_on_finish', 0) != 0;
 
-		if (!$must_email)
+		/**
+		 * Possible values:
+		 * - always (default): email every time we reach this code
+		 * - failedupload    : email only when the upload to remote storage has failed
+		 */
+		$emailWhen = Platform::getInstance()->get_platform_configuration_option('frontend_email_when', 'always');
+
+		if (!$emailFeatureEnabled)
 		{
 			return true;
 		}
@@ -307,18 +314,18 @@ class Finalization extends Part
 			Factory::getLog()->log(LogLevel::DEBUG, "Creating email subject and body");
 			// Fetch user's preferences
 			$subject = trim(Platform::getInstance()->get_platform_configuration_option('frontend_email_subject', ''));
-			$body = trim(Platform::getInstance()->get_platform_configuration_option('frontend_email_body', ''));
+			$body    = trim(Platform::getInstance()->get_platform_configuration_option('frontend_email_body', ''));
 
 			// Get the statistics
 			$statistics = Factory::getStatistics();
-			$stat = $statistics->getRecord();
-			$parts = Factory::getStatistics()->get_all_filenames($stat, false);
+			$stat       = $statistics->getRecord();
+			$parts      = Factory::getStatistics()->get_all_filenames($stat, false);
 
 			$profile_number = Platform::getInstance()->get_active_profile();
-			$profile_name = Platform::getInstance()->get_profile_name($profile_number);
-			$parts = Factory::getStatistics()->get_all_filenames($stat, false);
-			$stat = (object)$stat;
-			$num_parts = $stat->multipart;
+			$profile_name   = Platform::getInstance()->get_profile_name($profile_number);
+			$parts          = Factory::getStatistics()->get_all_filenames($stat, false);
+			$stat           = (object) $stat;
+			$num_parts      = $stat->multipart;
 
 			// Non-split archives have a part count of 0
 			if ($num_parts == 0)
@@ -337,19 +344,26 @@ class Finalization extends Part
 			}
 
 			// Get the remote storage status
-			$remote_status = '';
-			$post_proc_engine = Factory::getConfiguration()->get('akeeba.advanced.postproc_engine');
+			$remote_status       = '';
+			$post_proc_engine    = Factory::getConfiguration()->get('akeeba.advanced.postproc_engine');
+			$failedUploadMessage = Platform::getInstance()->translate('COM_AKEEBA_EMAIL_POSTPROCESSING_FAILED');
 
 			if (!empty($post_proc_engine) && ($post_proc_engine != 'none'))
 			{
 				if (empty($stat->remote_filename))
 				{
-					$remote_status = Platform::getInstance()->translate('COM_AKEEBA_EMAIL_POSTPROCESSING_FAILED');
+					$remote_status = $failedUploadMessage;
 				}
 				else
 				{
 					$remote_status = Platform::getInstance()->translate('COM_AKEEBA_EMAIL_POSTPROCESSING_SUCCESS');
 				}
+			}
+
+			// Did the user ask to be emailed only on failed uploads but the upload has succeeded?
+			if (($emailWhen == 'failedupload') && ($remote_status != $failedUploadMessage))
+			{
+				return true;
 			}
 
 			// Do we need a default subject?
@@ -367,10 +381,10 @@ class Finalization extends Part
 			// Do we need a default body?
 			if (empty($body))
 			{
-				$body = Platform::getInstance()->translate('COM_AKEEBA_COMMON_EMAIL_BODY_OK');
+				$body        = Platform::getInstance()->translate('COM_AKEEBA_COMMON_EMAIL_BODY_OK');
 				$info_source = Platform::getInstance()->translate('COM_AKEEBA_COMMON_EMAIL_BODY_INFO');
-				$body .= "\n\n" . sprintf($info_source, $profile_number, $num_parts) . "\n\n";
-				$body .= $parts_list;
+				$body        .= "\n\n" . sprintf($info_source, $profile_number, $num_parts) . "\n\n";
+				$body        .= $parts_list;
 			}
 			else
 			{

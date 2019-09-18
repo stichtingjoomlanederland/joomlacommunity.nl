@@ -57,7 +57,7 @@ class ComDocmanModelBehaviorFileable extends KModelBehaviorAbstract
                 }
             }
 
-            $base = ltrim(basename(' '.strtr($folder, array('/' => '/ '))));
+            $base = \Koowa\basename($folder);
             $name = strpos($folder, '/') !== false ? substr($folder, strrpos($folder, '/')+1) : $base;
 
             $properties = array(

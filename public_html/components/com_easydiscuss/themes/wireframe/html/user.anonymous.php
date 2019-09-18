@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -13,15 +13,16 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="o-avatar-status is-offline">
 	<a href="javascript:void(0);"
-	    class="o-avatar o-avatar--<?php echo isset($size) ? $size : 'sm'; ?>"
-	    data-ed-provide="tooltip"
-	    data-placement="top"
-	    title="<?php echo JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');?>"
+		class="o-avatar o-avatar--<?php echo $size; ?> <?php echo ED::themes()->renderAvatarClass($user); ?>"
+		data-ed-provide="tooltip"
+		data-placement="top"
+		title="<?php echo JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');?>"
 	>
-	    <?php if ($this->config->get('layout_avatar')) { ?>
-	        <img src="<?php echo ED::getDefaultAvatar();?>" alt="<?php echo JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');?>"/>
-	    <?php } else { ?>
-	        <span class="o-avatar o-avatar--<?php echo $size; ?>; ?> o-avatar--text o-avatar--bg-1"><?php echo JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');?></span>
-	    <?php } ?>
+		<?php if ($showProfileImage) { ?>
+			<img src="<?php echo ED::getDefaultAvatar();?>" alt="<?php echo JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');?>"/>
+		<?php } else { ?>
+			<?php echo $textAvatarName; ?>
+		<?php } ?>
 	</a>
 </div>
+

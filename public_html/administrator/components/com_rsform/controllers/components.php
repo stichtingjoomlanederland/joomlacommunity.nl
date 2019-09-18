@@ -9,9 +9,9 @@ defined('_JEXEC') or die('Restricted access');
 
 class RsformControllerComponents extends RsformController
 {
-	public function __construct()
+	public function __construct($config = array())
 	{
-		parent::__construct();
+		parent::__construct($config);
 
 		$this->registerTask('apply', 	 'save');
 		$this->registerTask('new', 	 	 'add');
@@ -69,12 +69,20 @@ class RsformControllerComponents extends RsformController
 			$db->updateObject('#__rsform_components', $component, array('ComponentId'));
 		}
 
+		/* @var $model RsformModelForms */
 		$model = $this->getModel('forms');
 		$lang  = $model->getLang();
 
-		if (!$just_added && isset($params['ITEMS'])) {
-			$db->setQuery("SELECT cd.* FROM #__rsform_condition_details cd LEFT JOIN #__rsform_conditions c ON (cd.condition_id=c.id) WHERE cd.component_id='".$componentIdToEdit."' AND c.lang_code=".$db->quote($lang));
-			if ($conditions = $db->loadObjectList()) {
+		if (!$just_added && isset($params['ITEMS']))
+		{
+			$query = $db->getQuery(true)
+				->select('cd.*')
+				->from($db->qn('#__rsform_condition_details', 'cd'))
+				->join('left', $db->qn('#__rsform_conditions', 'c') . ' ON (' . $db->qn('cd.condition_id') . ' = ' . $db->qn('c.id') . ')')
+				->where($db->qn('cd.component_id') . ' = ' . $db->q($componentIdToEdit))
+				->where($db->qn('c.lang_code') . ' = ' . $db->q($lang));
+
+			if ($conditions = $db->setQuery($query)->loadObjectList()) {
 				$data 		= RSFormProHelper::getComponentProperties($componentIdToEdit);
 				$oldvalues 	= RSFormProHelper::explode(RSFormProHelper::isCode($data['ITEMS']));
 				$newvalues 	= RSFormProHelper::explode(RSFormProHelper::isCode($params['ITEMS']));
@@ -102,7 +110,13 @@ class RsformControllerComponents extends RsformController
 					if ($newPos === false && $oldPos !== false && isset($newvalues[$oldPos])) {
 						$newvalue = $newvalues[$oldPos];
 						if ($condition->value != $newvalue) {
-							$db->setQuery("UPDATE #__rsform_condition_details SET `value`=".$db->quote($newvalue)." WHERE id='".$condition->id."'");
+
+							$query = $db->getQuery(true)
+								->update($db->qn('#__rsform_condition_details'))
+								->set($db->qn('value') . ' = ' . $db->q($newvalue))
+								->where($db->qn('id') . ' = ' . $db->q($condition->id));
+
+							$db->setQuery($query);
 							$db->execute();
 						}
 					}
@@ -273,6 +287,8 @@ class RsformControllerComponents extends RsformController
 	{
 		$toFormId 	= JFactory::getApplication()->input->getInt('toFormId');
 		$cids 		= JFactory::getApplication()->input->get('cid', array(), 'array');
+
+		/* @var $model RsformModelForms */
 		$model 		= $this->getModel('forms');
 
 		$cids = array_map('intval', $cids);
@@ -312,6 +328,8 @@ class RsformControllerComponents extends RsformController
 	{
 		$formId = JFactory::getApplication()->input->getInt('formId');
         $cids 	= JFactory::getApplication()->input->get('cid', array(), 'array');
+
+		/* @var $model RsformModelForms */
 		$model 	= $this->getModel('forms');
 
 		$cids = array_map('intval', $cids);
@@ -324,6 +342,7 @@ class RsformControllerComponents extends RsformController
 
     public function changeStatus()
 	{
+		/* @var $model RsformModelFormajax */
 		$model = $this->getModel('formajax');
 		$model->componentsChangeStatus();
 		$componentId = $model->getComponentId();
@@ -352,6 +371,7 @@ class RsformControllerComponents extends RsformController
 
     public function changeRequired()
 	{
+		/* @var $model RsformModelFormajax */
 		$model = $this->getModel('formajax');
 		$model->componentsChangeRequired();
 

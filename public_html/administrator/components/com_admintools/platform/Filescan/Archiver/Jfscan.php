@@ -34,6 +34,14 @@ class Jfscan extends Base
 	private $ignoreNonThreats = null;
 
 	/**
+	 * Size threshold for reading file contents. To calculate the score we have to read the whole file, with large ones
+	 * (ie log files) we could run out of memory, causing a fatal error.
+	 *
+	 * @var int
+	 */
+	private $filesizeThreshold = 5 * 1024 * 1024;
+
+	/**
 	 * Common code which gets called on instance creation or wake-up (unserialization). Reloads the component's
 	 * parameters.
 	 *
@@ -151,16 +159,25 @@ class Jfscan extends Base
 		$multipart++;
 		Factory::getConfiguration()->set('volatile.statistics.multipart', $multipart);
 
+		$shouldReadContents = true;
+		$fileSize = @filesize($sourceNameOrData);
+
 		$filedata = (object)array(
 			'path'       => $targetName,
 			'filedate'   => @filemtime($sourceNameOrData),
-			'filesize'   => @filesize($sourceNameOrData),
+			'filesize'   => $fileSize,
 			'data'       => '',
 			'checksum'   => md5_file($sourceNameOrData),
 			'sourcePath' => $sourceNameOrData,
 		);
 
-		if ($this->generateDiff)
+		// Skip any file larger than 15Mb
+		if ($fileSize > $this->filesizeThreshold)
+		{
+			$shouldReadContents = false;
+		}
+
+		if ($this->generateDiff && $shouldReadContents)
 		{
 			$filedata->data = gzdeflate(@file_get_contents($sourceNameOrData), 9);
 		}
@@ -250,9 +267,17 @@ class Jfscan extends Base
 
 				unset($lastRecord);
 
-				// Not acknowledged. Proceed.
-				$text        = @file_get_contents($sourceNameOrData);
-				$threatScore = $this->_getThreatScore($text);
+				// Not acknowledged. Proceed. Default values in case the file is too large
+				$text        = '';
+				$threatScore = 5000;
+				$diffText    = "###File too large; if this is a log file please exclude it from the scan###\n";
+
+				if ($shouldReadContents)
+				{
+					$text        = @file_get_contents($sourceNameOrData);
+					$threatScore = $this->_getThreatScore($text);
+					$diffText    = "###SUSPICIOUS FILE###\n";
+				}
 
 				if ($threatScore == 0)
 				{
@@ -265,7 +290,7 @@ class Jfscan extends Base
 				$alertRecord = array(
 					'path'         => $targetName,
 					'scan_id'      => Factory::getStatistics()->getId(),
-					'diff'         => "###SUSPICIOUS FILE###\n",
+					'diff'         => $diffText,
 					'threat_score' => $threatScore,
 					'acknowledged' => 0
 				);
@@ -321,6 +346,11 @@ ENDFILEDATA;
 			'acknowledged' => 0
 		);
 
+		// Place holders in case the file is too large
+		$newText     = '';
+		$threatScore = 5000;
+		$diffText    = "###File too large; if this is a log file please exclude it from the scan###\n";
+
 		// Produce the diff if there is an old file
 		if (!is_null($oldFileRecord))
 		{
@@ -342,6 +372,7 @@ ENDFILEDATA;
 				$diffObject          = new \Diff($oldLines, $newLines);
 				$renderer            = new \Diff_Renderer_Text_Unified();
 				$alertRecord['diff'] = $diffObject->render($renderer);
+
 				unset($renderer);
 				unset($diffObject);
 				unset($newLines);
@@ -351,18 +382,31 @@ ENDFILEDATA;
 			}
 			else
 			{
+				// Read file contents (and calculate the score) only if the file is within the threshold
+				if ($newFileRecord->filesize < $this->filesizeThreshold)
+				{
+					$newText     = @file_get_contents($newFileRecord->sourcePath);
+					$threatScore = $this->_getThreatScore($newText);
+					$diffText    = "###MODIFIED FILE###\n";
+				}
+
 				// Modified file, do not generate diff
-				$alertRecord['diff']         = "###MODIFIED FILE###\n";
-				$newText                     = @file_get_contents($newFileRecord->sourcePath);
-				$alertRecord['threat_score'] = $this->_getThreatScore($newText);
+				$alertRecord['diff']         = $diffText;
+				$alertRecord['threat_score'] = $threatScore;
 				unset($newText);
 			}
 		}
 		else
 		{
+			// Read file contents (and calculate the score) only if the file is within the threshold
+			if ($newFileRecord->filesize < $this->filesizeThreshold)
+			{
+				$newText     = @file_get_contents($newFileRecord->sourcePath);
+				$threatScore = $this->_getThreatScore($newText);
+			}
+
 			// New file
-			$newText                     = @file_get_contents($newFileRecord->sourcePath);
-			$alertRecord['threat_score'] = $this->_getThreatScore($newText);
+			$alertRecord['threat_score'] = $threatScore;
 			unset($newText);
 		}
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.4.11218
+ * @version         19.8.25552
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -78,7 +78,7 @@ class Php
 			return null;
 		}
 
-		return $model->getItem($this->request->id);
+		return $model->getItem($id);
 	}
 
 	public function execute($string = '', $article = null, $module = null)

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         DB Replacer
- * @version         6.3.3PRO
+ * @version         6.3.4PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -162,7 +162,7 @@ class PlgActionlogDBReplacerInstallerScriptHelper
 
 		switch ($type)
 		{
-			case 'plugin';
+			case 'plugin':
 				$folders[] = JPATH_PLUGINS . '/' . $folder . '/' . $extname;
 				break;
 
@@ -370,7 +370,7 @@ class PlgActionlogDBReplacerInstallerScriptHelper
 	{
 		switch ($this->extension_type)
 		{
-			case 'plugin';
+			case 'plugin':
 				return JText::_('plg_' . strtolower($this->plugin_folder));
 
 			case 'component':

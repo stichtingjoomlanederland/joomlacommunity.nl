@@ -231,28 +231,38 @@ class RsformModelSubmissions extends JModelLegacy
 		if (empty($this->_data))
 		{
 			$formId = $this->getFormId();
-			
-			$this->_db->setQuery("SELECT MultipleSeparator, TextareaNewLines FROM #__rsform_forms WHERE FormId='".$formId."'");
-			$form = $this->_db->loadObject();
+			$app	= JFactory::getApplication();
+
+			$query = $this->_db->getQuery(true)
+				->select($this->_db->qn('MultipleSeparator'))
+				->select($this->_db->qn('TextareaNewLines'))
+				->from($this->_db->qn('#__rsform_forms'))
+				->where($this->_db->qn('FormId') . ' = ' . $this->_db->q($formId));
+
+			$form = $this->_db->setQuery($query)->loadObject();
 			if (empty($form))
+			{
 				return $this->_data;
+			}
 			
 			$uploadFields 	= array();
 			$multipleFields = array();
 			$textareaFields = array();
 			$fieldTypes = $this->getSpecialFields();
-			if (isset($fieldTypes['uploadFields'])) {
+			if (isset($fieldTypes['uploadFields']))
+			{
 				$uploadFields = $fieldTypes['uploadFields'];	
 			}
-			if (isset($fieldTypes['multipleFields'])) {
+			if (isset($fieldTypes['multipleFields']))
+			{
 				$multipleFields = $fieldTypes['multipleFields'];	
 			}
-			if (isset($fieldTypes['textareaFields'])) {
+			if (isset($fieldTypes['textareaFields']))
+			{
 				$textareaFields = $fieldTypes['textareaFields'];	
 			}
 			
-			$this->_db->setQuery("SET SQL_BIG_SELECTS=1");
-			$this->_db->execute();
+			$this->_db->setQuery("SET SQL_BIG_SELECTS=1")->execute();
 			
 			$submissionIds = array();
 			
@@ -276,31 +286,50 @@ class RsformModelSubmissions extends JModelLegacy
 			
 			if (!empty($submissionIds))
 			{
-				$layout = JFactory::getApplication()->input->get('layout');
-				$view = JFactory::getApplication()->input->get('view');
-				$must_escape = $view == 'submissions' && $layout == 'default';
+				$must_escape = $app->input->get('view') == 'submissions' && $app->input->get('layout') == 'default';
+
+				$query = $this->_db->getQuery(true)
+					->select('*')
+					->from($this->_db->qn('#__rsform_submission_values'))
+					->where($this->_db->qn('SubmissionId') . ' IN (' . implode(',', $this->_db->q($submissionIds)) . ')');
 				
-				$results = $this->_getList("SELECT * FROM `#__rsform_submission_values` WHERE `SubmissionId` IN (".implode(',',$submissionIds).")");
+				$results = $this->_db->setQuery($query)->loadObjectList();
 				foreach ($results as $result)
 				{
 					// Check if this is an upload field
 					if (in_array($result->FieldName, $uploadFields) && !empty($result->FieldValue) && !$this->export)
-						$result->FieldValue = '<a href="index.php?option=com_rsform&amp;task=submissions.view.file&amp;id='.$result->SubmissionValueId.'">'.JFile::getName($result->FieldValue).'</a>';
+					{
+						$files = RSFormProHelper::explode($result->FieldValue);
+
+						$values = array();
+						foreach ($files as $file)
+						{
+							$values[] = '<a href="index.php?option=com_rsform&amp;task=submissions.view.file&amp;id='.$result->SubmissionValueId.'&amp;file='.md5($file).'">'.RSFormProHelper::htmlEscape(basename($file)).'</a>';
+						}
+
+						$result->FieldValue = implode('<br />', $values);
+					}
 					else
 					{
 						// Check if this is a multiple field
 						if (in_array($result->FieldName, $multipleFields))
+						{
 							$result->FieldValue = str_replace("\n", $form->MultipleSeparator, $result->FieldValue);
+						}
 						// Transform new lines
 						elseif ($form->TextareaNewLines && in_array($result->FieldName, $textareaFields))
 						{
 							if ($must_escape)
+							{
 								$result->FieldValue = RSFormProHelper::htmlEscape($result->FieldValue);
+							}
 						}
 						else
 						{
 							if ($must_escape)
+							{
 								$result->FieldValue = RSFormProHelper::htmlEscape($result->FieldValue);
+							}
 						}
 					}
 						
@@ -322,41 +351,52 @@ class RsformModelSubmissions extends JModelLegacy
 	
 	public function getSubmission()
 	{
-		$this->_db->setQuery("SELECT * FROM #__rsform_submissions WHERE SubmissionId='".$this->getSubmissionId()."'");
-		return $this->_db->loadObject();
+		$query = $this->_db->getQuery(true)
+			->select('*')
+			->from($this->_db->qn('#__rsform_submissions'))
+			->where($this->_db->qn('SubmissionId') . ' = ' . $this->_db->q($this->getSubmissionId()));
+
+		return $this->_db->setQuery($query)->loadObject();
 	}
 	
 	public function getHeaders()
 	{
-		$query  = "SELECT p.PropertyValue FROM #__rsform_components c";
-		$query .= " LEFT JOIN #__rsform_properties p ON (c.ComponentId=p.ComponentId AND p.PropertyName='NAME')";
-		$query .= " LEFT JOIN #__rsform_component_types ct ON (c.ComponentTypeId=ct.ComponentTypeId)";
-		$query .= " WHERE c.FormId='".$this->getFormId()."' AND c.Published='1'";
-		
-		$task = strtolower(JFactory::getApplication()->input->getWord('task'));
+		$db 	= JFactory::getDbo();
+		$task 	= strtolower(JFactory::getApplication()->input->getWord('task'));
+
+		$query = $db->getQuery(true)
+			->select($db->qn('p.PropertyValue'))
+			->from($db->qn('#__rsform_components', 'c'))
+			->join('left', $db->qn('#__rsform_properties', 'p') . ' ON (' . $db->qn('c.ComponentId') . '=' . $db->qn('p.ComponentId') . ' AND ' . $db->qn('p.PropertyName') . ' = ' . $db->q('NAME') . ')')
+			->join('left', $db->qn('#__rsform_component_types', 'ct') . ' ON (' . $db->qn('c.ComponentTypeId') . '=' . $db->qn('ct.ComponentTypeId') . ')')
+			->where($db->qn('c.FormId') . ' = ' . $db->q($this->getFormId()))
+			->where($db->qn('c.Published') . ' = ' . $db->q(1));
+
 		if (strpos($task, 'submissionsexport') !== false)
-			$query .= " AND ct.ComponentTypeName NOT IN ('button', 'captcha', 'freeText', 'imageButton', 'submitButton')";
-			
-		$query .= " ORDER BY c.Order";
-		
-		$this->_db->setQuery($query);
-		$headers = $this->_db->loadColumn();
+		{
+			$query->where($db->qn('ct.ComponentTypeId') . ' NOT IN (' . implode(',', $db->q(array(RSFORM_FIELD_BUTTON, RSFORM_FIELD_CAPTCHA, RSFORM_FIELD_FREETEXT, RSFORM_FIELD_SUBMITBUTTON))) . ')');
+		}
+
+		$query->order($db->qn('c.Order'));
+
+		$headers = $this->_db->setQuery($query)->loadColumn();
 
         JFactory::getApplication()->triggerEvent('rsfp_bk_onGetSubmissionHeaders', array(&$headers, $this->getFormId()));
-		
+
 		return $headers;
 	}
 	
-	public function getUploadFields() {
+	public function getUnescapedFields()
+	{
 		$db = JFactory::getDbo();
-		$db->setQuery("SELECT p.PropertyValue FROM #__rsform_components c LEFT JOIN #__rsform_properties p ON (c.ComponentId=p.ComponentId) WHERE c.FormId='".$this->getFormId()."' AND c.ComponentTypeId ='9' AND p.PropertyName='NAME'");
-		return $db->loadColumn();
-	}
-	
-	public function getUnescapedFields(){
-		$db = JFactory::getDbo();
-		$db->setQuery("SELECT p.PropertyValue FROM #__rsform_components c LEFT JOIN #__rsform_properties p ON (c.ComponentId=p.ComponentId) WHERE c.FormId='".$this->getFormId()."' AND c.ComponentTypeId ='9' AND p.PropertyName='NAME'");
-		$fields = $db->loadColumn();
+		$query = $db->getQuery(true)
+			->select($db->qn('p.PropertyValue'))
+			->from($db->qn('#__rsform_components', 'c'))
+			->join('left', $db->qn('#__rsform_properties', 'p') . ' ON (' . $db->qn('c.ComponentId') . '=' . $db->qn('p.ComponentId') . ')')
+			->where($db->qn('c.FormId') . ' = ' . $db->q($this->getFormId()))
+			->where($db->qn('c.ComponentTypeId') . ' = ' . $db->q(RSFORM_FIELD_FILEUPLOAD))
+			->where($db->qn('p.PropertyName') . ' = ' . $db->q('NAME'));
+		$fields = $db->setQuery($query)->loadColumn();
 		
 		JFactory::getApplication()->triggerEvent('rsfp_b_onManageSubmissionsCreateUnescapedFields', array(array(
             'formId'    => $this->getFormId(),
@@ -370,19 +410,27 @@ class RsformModelSubmissions extends JModelLegacy
 	public function getHeadersEnabled()
 	{
 		$return = new stdClass();
-		$return->staticHeaders = array();
-		$return->headers = array();
+		$return->staticHeaders 	= array();
+		$return->headers 		= array();
+
+		$query = $this->_db->getQuery(true)
+			->select($this->_db->qn('ColumnName'))
+			->select($this->_db->qn('ColumnStatic'))
+			->from($this->_db->qn('#__rsform_submission_columns'))
+			->where($this->_db->qn('FormId') . ' = ' . $this->_db->q($this->getFormId()));
+
+		$results = $this->_db->setQuery($query)->loadObjectList();
 		
-		$formId = $this->getFormId();
-		
-		$this->_db->setQuery("SELECT ColumnName, ColumnStatic FROM #__rsform_submission_columns WHERE FormId='".$formId."'");
-		$results = $this->_db->loadObjectList();
-		
-		foreach ($results as $result) {
+		foreach ($results as $result)
+		{
 			if ($result->ColumnStatic)
+			{
 				$return->staticHeaders[] = $result->ColumnName;
+			}
 			else
+			{
 				$return->headers[] = $result->ColumnName;
+			}
 		}
 		
 		return $return;
@@ -391,7 +439,11 @@ class RsformModelSubmissions extends JModelLegacy
 	public function getStaticHeaders()
 	{		
 		$return = array('SubmissionId', 'DateSubmitted', 'UserIp', 'Username', 'UserId', 'Lang');
-		if ($this->addConfirmedHeader()) $return[] = 'confirmed';
+
+		if ($this->addConfirmedHeader())
+		{
+			$return[] = 'confirmed';
+		}
 		
 		return $return;
 	}
@@ -432,33 +484,31 @@ class RsformModelSubmissions extends JModelLegacy
 	public function getFormTitle()
 	{
 		$formId = $this->getFormId();
-		
+
 		$query = $this->_db->getQuery(true)
 			->select($this->_db->qn('FormTitle'))
 			->from($this->_db->qn('#__rsform_forms'))
 			->where($this->_db->qn('FormId') . ' = ' . $this->_db->q($formId));
 		$title = $this->_db->setQuery($query)->loadResult();
-		
-		$lang = RSFormProHelper::getCurrentLanguage($formId);
-		if ($translations = RSFormProHelper::getTranslations('forms', $formId, $lang))
+
+		if ($translations = RSFormProHelper::getTranslations('forms', $formId, RSFormProHelper::getCurrentLanguage($formId)))
 		{
 			if (isset($translations['FormTitle']))
 			{
 				$title = $translations['FormTitle'];
 			}
 		}
-		
+
 		return $title;
 	}
 	
 	public function getForms()
 	{
-		$mainframe = JFactory::getApplication();
-		$db        = JFactory::getDbo();
-		
-		$return = array();
+		$mainframe 	= JFactory::getApplication();
+		$db        	= JFactory::getDbo();
 		$sortColumn = $mainframe->getUserState('com_rsform.forms.filter_order', 'FormId');
 		$sortOrder  = $mainframe->getUserState('com_rsform.forms.filter_order_Dir', 'ASC');
+		$return 	= array();
 
         $query = $db->getQuery(true)
             ->select($db->qn('FormId'))
@@ -468,7 +518,8 @@ class RsformModelSubmissions extends JModelLegacy
             ->order($db->qn($sortColumn) . ' ' . $db->escape($sortOrder));
         if ($results = $db->setQuery($query)->loadObjectList())
         {
-            foreach ($results as $result) {
+            foreach ($results as $result)
+            {
                 $lang = RSFormProHelper::getCurrentLanguage($result->FormId);
                 if ($lang != $result->Lang)
                 {
@@ -489,7 +540,9 @@ class RsformModelSubmissions extends JModelLegacy
             }
 
             if (!empty($results[0]->FormId))
-                $this->firstFormId = $results[0]->FormId;
+			{
+				$this->firstFormId = $results[0]->FormId;
+			}
         }
 		
 		return $return;
@@ -497,20 +550,17 @@ class RsformModelSubmissions extends JModelLegacy
 	
 	public function getSortColumn()
 	{
-		$mainframe = JFactory::getApplication();
-		return $mainframe->getUserStateFromRequest('com_rsform.submissions.filter_order', 'filter_order', 'DateSubmitted', 'string');
+		return JFactory::getApplication()->getUserStateFromRequest('com_rsform.submissions.filter_order', 'filter_order', 'DateSubmitted', 'string');
 	}
 	
 	public function getSortOrder()
 	{
-		$mainframe = JFactory::getApplication();
-		return $mainframe->getUserStateFromRequest('com_rsform.submissions.filter_order_Dir', 'filter_order_Dir', 'DESC', 'word');
+		return JFactory::getApplication()->getUserStateFromRequest('com_rsform.submissions.filter_order_Dir', 'filter_order_Dir', 'DESC', 'word');
 	}
 	
 	public function getFilter()
 	{
-		$mainframe = JFactory::getApplication();
-		return $mainframe->getUserStateFromRequest('com_rsform.submissions.filter', 'search', '');
+		return JFactory::getApplication()->getUserStateFromRequest('com_rsform.submissions.filter', 'search', '');
 	}
 	
 	public function getFormId()
@@ -518,10 +568,13 @@ class RsformModelSubmissions extends JModelLegacy
 		$mainframe = JFactory::getApplication();
 		
 		if (empty($this->firstFormId))
+		{
 			$this->getForms();
-		
+		}
+
 		$formId = $mainframe->getUserStateFromRequest('com_rsform.submissions.formId', 'formId', $this->firstFormId, 'int');
-		if ($formId && !in_array($formId, $this->allFormIds)) {
+		if ($formId && !in_array($formId, $this->allFormIds))
+		{
 			$formId = $this->firstFormId;
 			$mainframe->setUserState('com_rsform.submissions.formId', $formId);
 		}
@@ -532,10 +585,15 @@ class RsformModelSubmissions extends JModelLegacy
 	public function getSubmissionId()
 	{
 		$cid = JFactory::getApplication()->input->get('cid', array(), 'array');
+
 		if (is_array($cid))
+		{
 			$cid = (int) reset($cid);
+		}
 		else
+		{
 			$cid = (int) $cid;
+		}
 		
 		return $cid;
 	}
@@ -614,12 +672,18 @@ class RsformModelSubmissions extends JModelLegacy
 				break;
 				
 				default:
-					if ($isPDF) {
+					if ($isPDF)
+					{
 						$new_field[1] = RSFormProHelper::htmlEscape($value);
-					} else {
-						if (strpos($value, "\n") !== false || strpos($value, "\r") !== false) {
+					}
+					else
+					{
+						if (strpos($value, "\n") !== false || strpos($value, "\r") !== false)
+						{
 							$new_field[1] = '<textarea style="width: 95%" class="rs_textarea" rows="10" cols="60" name="form['.$name.']">'.RSFormProHelper::htmlEscape($value).'</textarea>';
-						} else {
+						}
+						else
+						{
 							$new_field[1] = '<input class="rs_inp rs_80" size="105" type="text" name="form['.$name.']" value="'.RSFormProHelper::htmlEscape($value).'" />';
 						}
 					}
@@ -636,9 +700,13 @@ class RsformModelSubmissions extends JModelLegacy
 						$new_field[1] = $value;
 					}
 					elseif (isset($data['WYSIWYG']) && $data['WYSIWYG'] == 'YES')
+					{
 						$new_field[1] = RSFormProHelper::WYSIWYG('form['.$name.']', RSFormProHelper::htmlEscape($value), '', 600, 100, 60, 10);
+					}
 					else
+					{
 						$new_field[1] = '<textarea style="width: 95%" class="rs_textarea" rows="10" cols="60" name="form['.$name.']">'.RSFormProHelper::htmlEscape($value).'</textarea>';
+					}
 				break;
 				
 				case 'radioGroup':
@@ -652,11 +720,14 @@ class RsformModelSubmissions extends JModelLegacy
 
 					$options = array();
 					
-					if ($field->ComponentTypeName == 'radioGroup') {
+					if ($field->ComponentTypeName == 'radioGroup')
+					{
 						$data['SIZE'] = 0;
 						$data['MULTIPLE'] = 'NO';
 						$options[] = JHtml::_('select.option', '', JText::_('COM_RSFORM_NO_VALUE'));
-					} elseif ($field->ComponentTypeName == 'checkboxGroup') {
+					}
+					elseif ($field->ComponentTypeName == 'checkboxGroup')
+					{
 						$data['SIZE'] = 5;
 						$data['MULTIPLE'] = 'YES';
 					}
@@ -679,11 +750,16 @@ class RsformModelSubmissions extends JModelLegacy
                         {
                             $item = new RSFormProFieldItem($item);
 
-                            if ($item->flags['optgroup']) {
+                            if ($item->flags['optgroup'])
+                            {
                                 $options[] = JHtml::_('select.option', '<OPTGROUP>', $item->label, 'value', 'text');
-                            } elseif ($item->flags['/optgroup']) {
+                            }
+                            elseif ($item->flags['/optgroup'])
+							{
                                 $options[] = JHtml::_('select.option', '</OPTGROUP>', $item->label, 'value', 'text');
-                            } else {
+                            }
+                            else
+                            {
                                 $options[] = JHtml::_('select.option', $item->value, $item->label, 'value', 'text', $item->flags['disabled']);
                             }
                         }
@@ -709,11 +785,42 @@ class RsformModelSubmissions extends JModelLegacy
 				case 'fileUpload':
 					if ($isPDF)
 					{
-						$new_field[1] = $value;
+						if (!empty($data['FILESSEPARATOR']))
+						{
+							$separator = str_replace(array('\n', '\r', '\t'), array("\n", "\r", "\t"), $data['FILESSEPARATOR']);
+						}
+						else
+						{
+							$separator = '<br />';
+						}
+
+						$new_field[1] = implode($separator, RSFormProHelper::explode($value));
+
 						break;
 					}
-					$new_field[1]  = '<input class="rs_inp rs_80" size="105" type="text" name="form['.$name.']" value="'.RSFormProHelper::htmlEscape($value).'" />';
-					$new_field[1] .= '<br /><input size="45" type="file" name="upload['.$name.']" />';
+
+					if ($value)
+					{
+						$files = RSFormProHelper::explode($value);
+					}
+					else
+					{
+						$files = array();
+					}
+
+					$new_field[1] = '<ul class="rsfp-multiupload-list">';
+
+					foreach ($files as $file)
+					{
+						$new_field[1] .= '<li><button type="button" class="btn btn-mini" onclick="RSFormPro.removeFile(this);">' . JText::_('COM_RSFORM_REMOVE_FILE') . '</button> <input type="hidden" name="form[' . $data['NAME'] . '][]" value="' . RSFormProHelper::htmlEscape($file) . '" />' . RSFormProHelper::htmlEscape(basename($file)) . '</li>';
+					}
+
+					$multiple =  !empty($data['MULTIPLE']) && $data['MULTIPLE'] == 'YES';
+					$new_field[1] .= '</ul>';
+
+					$new_field[1] .= '<input size="45" type="file" name="upload['.$name.']' . ($multiple ? '[]' : '') . '" ' . ($multiple ? 'multiple' : '') . ' />';
+
+
 				break;
 			}
 			
@@ -731,7 +838,6 @@ class RsformModelSubmissions extends JModelLegacy
 		jimport('joomla.filesystem.folder');
 		
 		$app	= JFactory::getApplication();
-		$db     = JFactory::getDbo();
         $formId = $app->input->getInt('formId');
 		$cid    = $this->getSubmissionId();
 		$form   = $app->input->post->get('form', array(), 'array');
@@ -741,86 +847,88 @@ class RsformModelSubmissions extends JModelLegacy
 
 		$static['DateSubmitted'] = $date->toSql();
 
+		require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/submissions.php';
+		$submission = RSFormProSubmissionsHelper::getSubmission($cid);
+
+		// Check if submission exists
+		if (!$submission)
+		{
+			return false;
+		}
+
 		// Handle file uploads first
 		if (!empty($files))
 		{
+			require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/fields/fileupload.php';
+
             foreach ($files as $field => $file)
             {
-                if ($file['error'])
-                {
-                    continue;
-                }
+				if ($componentId = RSFormProHelper::getComponentId($field, $formId))
+				{
+					$data = RSFormProHelper::getComponentProperties($componentId);
 
-                $query = $db->getQuery(true)
-                    ->select($db->qn('FieldValue'))
-                    ->from($db->qn('#__rsform_submission_values'))
-                    ->where($db->qn('FieldName') . ' = ' . $db->q($field))
-                    ->where($db->qn('SubmissionId') . ' = ' . $db->q($cid));
+					// If we've cleared all files
+					if (!isset($form[$field]))
+					{
+						$form[$field] = array();
+					}
 
-                $original = $db->setQuery($query)->loadResult();
+					$valueSent = (array) $form[$field];
 
-                // already uploaded
-                if (!empty($form[$field]))
-                {
-                    // Path has changed, remove the original file to save up space
-                    if ($original != $form[$field] && JFile::exists($original) && is_file($original))
-                    {
-                        JFile::delete($original);
-                    }
+					if (isset($submission->values[$field]))
+					{
+						$originals = RSFormProHelper::explode($submission->values[$field]);
 
-                    if (JFolder::exists(dirname($form[$field])))
-                    {
-                        JFile::upload($file['tmp_name'], $form[$field], false, true);
-                    }
-                } // first upload
-                else
-                {
-                    if ($componentId = RSFormProHelper::getComponentId($field, $formId))
-                    {
-                        $data = RSFormProHelper::getComponentProperties($componentId);
-                        // Prefix
-                        $prefix = uniqid('') . '-';
-                        if (isset($data['PREFIX']) && strlen(trim($data['PREFIX'])) > 0)
-                        {
-                            $prefix = RSFormProHelper::isCode($data['PREFIX']);
-                        }
+						foreach ($originals as $k => $original)
+						{
+							// File has been removed from list, remove the original file to save up space
+							if (!in_array($original, $valueSent) && file_exists($original) && is_file($original))
+							{
+								JFile::delete($original);
+							}
+						}
+					}
 
-                        $data['DESTINATION'] = RSFormProHelper::getRelativeUploadPath($data['DESTINATION']);
+					$f = new RSFormProFieldFileUpload(array(
+						'formId' 		=> $formId,
+						'componentId' 	=> $componentId,
+						'data' 			=> $data,
+					));
 
-                        if (JFolder::exists($data['DESTINATION']))
-                        {
-                            // Path
-                            $realpath = realpath($data['DESTINATION'] . '/');
+					if ($object = $f->processBeforeStore($submission->SubmissionId, $form, $files, false))
+					{
+						if (!is_array($form[$field]))
+						{
+							$form[$field] = (array) $form[$field];
+						}
 
-                            if (substr($realpath, -1) != DIRECTORY_SEPARATOR)
-                            {
-                                $realpath .= DIRECTORY_SEPARATOR;
-                            }
-
-                            $path = $realpath . $prefix . '-' . $file['name'];
-
-                            $form[$field] = $path;
-
-                            JFile::upload($file['tmp_name'], $path, false, true);
-                        }
-                    }
-                }
+						if (!empty($data['MULTIPLE']) && $data['MULTIPLE'] === 'YES')
+						{
+							$form[$field] = array_merge($form[$field], RSFormProHelper::explode($object->FieldValue));
+						}
+						else
+						{
+							$form[$field] = RSFormProHelper::explode($object->FieldValue);
+						}
+					}
+				}
             }
         }
 
+        // Static submission data
         if ($static)
         {
-            $submission = new stdClass();
-            $submission->SubmissionId = $cid;
+            $object = new stdClass();
+			$object->SubmissionId = $submission->SubmissionId;
             foreach ($static as $field => $value)
             {
-                $submission->{$field} = $value;
+				$object->{$field} = $value;
             }
 
-            $this->_db->updateObject('#__rsform_submissions', $submission, array('SubmissionId'));
+            $this->_db->updateObject('#__rsform_submissions', $object, array('SubmissionId'));
         }
-		
-		// Update fields
+
+		// Update dynamic fields
 		foreach ($form as $field => $value)
 		{
 			if (is_array($value))
@@ -828,72 +936,60 @@ class RsformModelSubmissions extends JModelLegacy
                 $value = implode("\n", $value);
             }
 
-            $query = $db->getQuery(true)
-                ->select($db->qn('SubmissionValueId'))
-                ->select($db->qn('FieldValue'))
-                ->from($db->qn('#__rsform_submission_values'))
-                ->where($db->qn('FieldName') . ' = ' . $db->q($field))
-                ->where($db->qn('SubmissionId') . ' = ' . $db->q($cid));
+			$object = (object) array(
+				'FormId'        => $formId,
+				'SubmissionId'  => $submission->SubmissionId,
+				'FieldName'     => $field,
+				'FieldValue'    => $value
+			);
 
-			$this->_db->setQuery($query);
-			$original = $this->_db->loadObject();
-
-			if (!$original)
+			if (!isset($submission->values[$field]))
 			{
-			    $object = (object) array(
-			        'FormId'        => $formId,
-			        'SubmissionId'  => $cid,
-			        'FieldName'     => $field,
-			        'FieldValue'    => $value
-                );
-
 			    $this->_db->insertObject('#__rsform_submission_values', $object);
 			}
-			else
+			elseif ($submission->values[$field] !== $value)
 			{
 				// Update only if we've changed something
-				if ($original->FieldValue !== $value)
-				{
-					// Check if this is an upload field
-					if (isset($files['error'][$field]) && JFile::exists($original->FieldValue) && is_file($original->FieldValue))
-					{
-						// Move the file to the new location
-						if (!empty($value) && JFolder::exists(dirname($value)))
-							JFile::move($original->FieldValue, $value);
-						// Delete the file if we've chosen to delete it
-						elseif (empty($value))
-							JFile::delete($original->FieldValue);
-					}
-
-                    $object = (object) array(
-                        'FieldValue'            => $value,
-                        'SubmissionValueId'     => $original->SubmissionValueId
-                    );
-
-                    $this->_db->updateObject('#__rsform_submission_values', $object, array('SubmissionValueId'));
-				}
+				$this->_db->updateObject('#__rsform_submission_values', $object, array('SubmissionId', 'FormId', 'FieldName'));
 			}
 		}
 		
 		// Checkboxes don't send a value if nothing is checked
-		$this->_db->setQuery("SELECT p.PropertyValue FROM #__rsform_components c LEFT JOIN #__rsform_properties p ON (c.ComponentId=p.ComponentId) WHERE c.ComponentTypeId='4' AND p.PropertyName='NAME' AND c.FormId='".$formId."'");
-		$checkboxes = $this->_db->loadColumn();
+		$query = $this->_db->getQuery(true)
+			->select($this->_db->qn('p.PropertyValue'))
+			->from($this->_db->qn('#__rsform_components', 'c'))
+			->join('left', $this->_db->qn('#__rsform_properties', 'p') . ' ON (' . $this->_db->qn('c.ComponentId') . ' = ' . $this->_db->qn('p.ComponentId') . ')')
+			->where($this->_db->qn('c.ComponentTypeId') . ' = ' . $this->_db->q(RSFORM_FIELD_CHECKBOXGROUP))
+			->where($this->_db->qn('p.PropertyName') . ' = ' .$this->_db->q('NAME'))
+			->where($this->_db->qn('c.FormId') . ' = ' . $this->_db->q($formId));
+		$checkboxes = $this->_db->setQuery($query)->loadColumn();
 		foreach ($checkboxes as $checkbox)
 		{
 			$value = isset($form[$checkbox]) ? $form[$checkbox] : '';
 			if (is_array($value))
+			{
 				$value = implode("\n", $value);
-				
-			$this->_db->setQuery("UPDATE #__rsform_submission_values SET FieldValue='".$this->_db->escape($value)."' WHERE FieldName='".$this->_db->escape($checkbox)."' AND FormId='".$formId."' AND SubmissionId='".$cid."' LIMIT 1");			
-			$this->_db->execute();
+			}
+
+			$query->clear()
+				->update($this->_db->qn('#__rsform_submission_values'))
+				->set($this->_db->qn('FieldValue') . ' = ' . $this->_db->q($value))
+				->where($this->_db->qn('FieldName') . ' = ' . $this->_db->q($checkbox))
+				->where($this->_db->qn('FormId') . ' = ' . $this->_db->q($formId))
+				->where($this->_db->qn('SubmissionId') . ' = ' . $this->_db->q($cid));
+
+			$this->_db->setQuery($query)->execute();
 		}
 	}
 	
 	public function getSubmissionFormId()
 	{
-		$cid = $this->getSubmissionId();
-		$this->_db->setQuery("SELECT FormId FROM #__rsform_submissions WHERE SubmissionId='".$cid."' LIMIT 1");
-		return $this->_db->loadResult();
+		$query = $this->_db->getQuery(true)
+			->select($this->_db->qn('FormId'))
+			->from($this->_db->qn('#__rsform_submissions'))
+			->where($this->_db->qn('SubmissionId') . ' = ' . $this->_db->q($this->getSubmissionId()));
+
+		return $this->_db->setQuery($query)->loadResult();
 	}
 	
 	public function getExportSelected()
@@ -965,13 +1061,15 @@ class RsformModelSubmissions extends JModelLegacy
 	
 	public function getLanguages()
 	{
-		$languages = JFactory::getLanguage()->getKnownLanguages(JPATH_SITE);
-		
-		$return = array();
+		$languages 	= JFactory::getLanguage()->getKnownLanguages(JPATH_SITE);
+		$return 	= array();
+
 		$return[] = JHtml::_('select.option', '', JText::_('RSFP_SUBMISSIONS_ALL_LANGUAGES'));
 		foreach ($languages as $tag => $properties)
+		{
 			$return[] = JHtml::_('select.option', $tag, $properties['name']);
-		
+		}
+
 		return $return;
 	}
 	
@@ -980,7 +1078,8 @@ class RsformModelSubmissions extends JModelLegacy
 		return JFactory::getApplication()->getUserStateFromRequest('com_rsform.submissions.lang', 'Language', '');
 	}
 	
-	public function getRSTabs() {
+	public function getRSTabs()
+	{
 		require_once JPATH_COMPONENT.'/helpers/adapters/tabs.php';
 		
 		$tabs = new RSTabs('com-rsform-export');

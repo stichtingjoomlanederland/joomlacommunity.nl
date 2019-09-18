@@ -1,8 +1,8 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -15,12 +15,12 @@ require_once(__DIR__ . '/controller.php');
 
 class EasyDiscussControllerProfile extends EasyDiscussController
 {
-    /**
-     * To Display the view
-     *
-     * @since   4.0
-     * @access  public
-     */
+	/**
+	 * To Display the view
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function display($cachable = false, $urlparams = false)
 	{
 		$document = JFactory::getDocument();
@@ -30,12 +30,12 @@ class EasyDiscussControllerProfile extends EasyDiscussController
 		$view->display();
 	}
 
-    /**
-     * Store user profile data
-     *
-     * @since   4.0
-     * @access  public
-     */
+	/**
+	 * Store user profile data
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function saveProfile()
 	{
 		// Check for request forgeries
@@ -106,7 +106,7 @@ class EasyDiscussControllerProfile extends EasyDiscussController
 			unset($post['edited']);
 		}
 
-		$address = $post['address1'];
+		$address = isset($post['address1']) && $post['address1'] ? $post['address1'] : '';
 
 		if (isset($post['address']) && !empty($post['address'])) {
 			$address = $post['address'];
@@ -217,11 +217,8 @@ class EasyDiscussControllerProfile extends EasyDiscussController
 			if (!$profile->edited) {
 				ED::points()->assign('easydiscuss.update.profile', $my->id);
 
-				// Reload profile again because the points might already update the user's point.
-				$updatedProfile = ED::table('Profile');
-				$updatedProfile->load($my->id, false, true);
-				$updatedProfile->edited = true;
-				$updatedProfile->store();
+				$profile->edited = true;
+				$profile->store();
 			}
 		} else {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_PROFILE_SAVE_ERROR'), 'error');

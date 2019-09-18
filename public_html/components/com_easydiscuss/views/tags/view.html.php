@@ -33,6 +33,9 @@ class EasyDiscussViewTags extends EasyDiscussView
 			return $this->tag($tmpl);
 		}
 
+		// Set meta tags.
+		ED::setMeta();
+
 		// for now we hardcode the limit as tags page pagination abit special. #232
 		$limit = DISCUSS_TAGS_LIMIT;
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -15,7 +15,7 @@ $filename = strtolower(acym_getVar('cmd', 'filename'));
 $encoding = acym_getVar('cmd', 'encoding');
 
 $extension = '.'.acym_fileGetExt($filename);
-$uploadPath = ACYM_MEDIA.'import'.DS.str_replace(array('.', ' '), '_', substr($filename, 0, strpos($filename, $extension))).$extension;
+$uploadPath = ACYM_MEDIA.'import'.DS.str_replace(['.', ' '], '_', substr($filename, 0, strpos($filename, $extension))).$extension;
 
 if (!file_exists($uploadPath)) {
     acym_display(acym_translation_sprintf('ACYM_FAIL_OPEN', '<b><i>'.acym_escape($uploadPath).'</i></b>'), 'error');
@@ -33,11 +33,11 @@ if (empty($encoding)) {
 $content = $encodingHelper->change($this->content, $encoding, 'UTF-8');
 
 
-$content = str_replace(array("\r\n", "\r"), "\n", $content);
+$content = str_replace(["\r\n", "\r"], "\n", $content);
 $this->lines = explode("\n", $content);
 
 $this->separator = ',';
-$listSeparators = array("\t", ';', ',');
+$listSeparators = ["\t", ';', ','];
 foreach ($listSeparators as $sep) {
     if (strpos($this->lines[0], $sep) !== false) {
         $this->separator = $sep;
@@ -47,7 +47,7 @@ foreach ($listSeparators as $sep) {
 
 $nbPreviewLines = 0;
 $i = 0;
-$data = array();
+$data = [];
 
 while (isset($this->lines[$i])) {
     if (empty($this->lines[$i])) {
@@ -58,7 +58,7 @@ while (isset($this->lines[$i])) {
     }
 
     if (strpos($this->lines[$i], '"') !== false) {
-        $data[$i] = array();
+        $data[$i] = [];
         $j = $i + 1;
         $position = -1;
 
@@ -144,11 +144,11 @@ $nbLines = count($this->lines);
             }
         }
 
-        $fieldAssignment = array();
+        $fieldAssignment = [];
 
-        $fieldAssignment[] = acym_selectOption("0", acym_translation('ACYM_UNASSIGNED'), "value", "text");
-        $fieldAssignment[] = acym_selectOption("1", acym_translation('ACYM_IGNORE'));
-        $separator = acym_selectOption("3", '----------------------');
+        $fieldAssignment[] = acym_selectOption('0', 'ACYM_UNASSIGNED', 'value', 'text');
+        $fieldAssignment[] = acym_selectOption('1', 'ACYM_IGNORE');
+        $separator = acym_selectOption('3', '----------------------');
         $separator->disable = true;
         $fieldAssignment[] = $separator;
 
@@ -160,7 +160,7 @@ $nbLines = count($this->lines);
 
         $cleanFields = [];
         foreach ($fields as $value => $label) {
-            if (in_array($value, array('id', 'automation'))) continue;
+            if (in_array($value, ['id', 'automation'])) continue;
             if (is_numeric($value)) $value = 'cf_'.$value;
             $fieldAssignment[] = acym_selectOption($value, $label);
             $cleanFields[$value] = strtolower($label);
@@ -171,7 +171,7 @@ $nbLines = count($this->lines);
 
         echo '<tr>';
 
-        $alreadyFound = array();
+        $alreadyFound = [];
 
         foreach ($columnNames as $key => $oneColumn) {
             $columnNames[$key] = strtolower(trim($columnNames[$key], '\'" '));
@@ -216,7 +216,7 @@ $nbLines = count($this->lines);
             echo '<tr class="acym__users__import__generic__column_name"><td><b>'.implode('</b></td><td><b>', $columnNames).'</b></td></tr>';
         }
 
-        for ($i = 1 - $noHeader; $i < 11 - $noHeader && $i < $nbLines; $i++) {
+        for ($i = 1 - $noHeader ; $i < 11 - $noHeader && $i < $nbLines ; $i++) {
             $values = $this->lines[$i];
 
             echo '<tr>';
@@ -229,3 +229,4 @@ $nbLines = count($this->lines);
         ?>
 	</table>
 </div>
+

@@ -10,9 +10,10 @@ defined('_JEXEC') or die('Restricted access');
 class RsformModelFiles extends JModelLegacy
 {
 	protected $_folder = null;
-	
-	public function __construct() {
-		parent::__construct();
+
+	public function __construct($config = array())
+	{
+		parent::__construct($config);
 		
 		jimport('joomla.filesystem.file');
 		jimport('joomla.filesystem.folder');

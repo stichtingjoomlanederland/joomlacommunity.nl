@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.4.11218
+ * @version         19.8.25552
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -31,6 +31,7 @@ class JFormFieldRL_CodeEditor extends \RegularLabs\Library\Field
 	{
 		$width  = $this->get('width', '100%');
 		$height = $this->get('height', 400);
+		$syntax = $this->get('syntax', 'html');
 
 		$this->value = htmlspecialchars(str_replace('\n', "\n", $this->value), ENT_COMPAT, 'UTF-8');
 
@@ -68,7 +69,7 @@ class JFormFieldRL_CodeEditor extends \RegularLabs\Library\Field
 				80, 10,
 				false,
 				$this->id, null, null,
-				['markerGutter' => false, 'activeLine' => true, 'class' => 'xxx']
+				['markerGutter' => false, 'activeLine' => true, 'syntax' => $syntax, 'class' => 'xxx']
 			)
 			. '</div>';
 	}

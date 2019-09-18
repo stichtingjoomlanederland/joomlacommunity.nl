@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -60,7 +60,7 @@ class DiscussTags extends EasyDiscussTable
 				// Try replacing ':' to '-' since Joomla replaces it
 				if (!$tid) {
 					$query = 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $this->_tbl . ' '
-							. 'WHERE ' . $db->nameQuote('title') . '=' . $db->Quote(JString::str_ireplace(':' , '-' , $id));
+							. 'WHERE ' . $db->nameQuote('alias') . '=' . $db->Quote(JString::str_ireplace(':' , '-' , $id));
 					$db->setQuery($query);
 
 					$tid = $db->loadResult();

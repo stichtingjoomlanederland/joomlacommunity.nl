@@ -22,9 +22,16 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<?php echo $this->html('table.filter', 'filter_state', $filter, array('published' => 'COM_EASYDISCUSS_PUBLISHED', 'unpublished' => 'COM_EASYDISCUSS_UNPUBLISHED')); ?>
 			</div>
 		</div>
+
 		<div class="app-filter-bar__cell app-filter-bar__cell--auto-size app-filter-bar__cell--divider-left">
 			<div class="app-filter-bar__filter-wrap">
 				<?php echo $categoryFilter; ?>
+			</div>
+		</div>
+
+		<div class="app-filter-bar__cell app-filter-bar__cell--auto-size app-filter-bar__cell--divider-left">
+			<div class="app-filter-bar__filter-wrap">
+				<?php echo $postStatusFilter; ?>
 			</div>
 		</div>
 

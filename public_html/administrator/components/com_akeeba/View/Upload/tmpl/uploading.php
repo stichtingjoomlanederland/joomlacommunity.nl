@@ -39,9 +39,9 @@ $this->getContainer()->template->addJSInline($js);
 <div class="akeeba-panel--information">
     <p>
 	    <?php if($this->frag == 0): ?>
-		    <?php echo \JText::sprintf('COM_AKEEBA_TRANSFER_MSG_UPLOADINGPART', $this->part+1, $this->parts); ?>
+		    <?php echo \JText::sprintf('COM_AKEEBA_TRANSFER_MSG_UPLOADINGPART', $this->part+1, max($this->parts, 1)); ?>
 	    <?php else: ?>
-		    <?php echo \JText::sprintf('COM_AKEEBA_TRANSFER_MSG_UPLOADINGFRAG', $this->part+1, $this->parts); ?>
+		    <?php echo \JText::sprintf('COM_AKEEBA_TRANSFER_MSG_UPLOADINGFRAG', $this->part+1, max($this->parts, 1), max(++$this->frag, 1)); ?>
 	    <?php endif; ?>
     </p>
 </div>

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -16,7 +16,7 @@ class acymworkflowHelper
 
     function display($steps, $currentStep, $edition, $workflowMode = true)
     {
-        $workflow = array();
+        $workflow = [];
         $currentStepReached = false;
         $disableTabs = false;
         foreach ($steps as $task => $title) {
@@ -68,3 +68,4 @@ class acymworkflowHelper
         return $result;
     }
 }
+

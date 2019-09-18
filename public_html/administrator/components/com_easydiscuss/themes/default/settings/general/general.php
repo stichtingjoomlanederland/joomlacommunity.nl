@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -98,7 +98,22 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 					<?php echo $this->html('settings.toggle', 'main_comment_permalink', 'COM_ED_COMMENTS_SHOW_PERMALINK'); ?>
 
+					<div class="form-group">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_ED_COMMENT_LIST_SETTING_ORDER'); ?>
+						</div>
+						<div class="col-md-7">
+							<select name="main_comment_ordering" id="main_comment_ordering" class="form-control">
+								<option value="desc" <?php echo ($this->config->get('main_comment_ordering') == 'desc') ? 'selected="selected"' : '' ?> ><?php echo JText::_('COM_ED_COMMENT_LIST_SETTING_DESC'); ?></option>
+								<option value="asc" <?php echo ($this->config->get('main_comment_ordering') == 'asc') ? 'selected="selected"' : '' ?>><?php echo JText::_('COM_ED_COMMENT_LIST_SETTING_ASC'); ?></option>
+							</select>
+						</div>
+					</div>	
+
+					<?php echo $this->html('settings.textbox', 'main_comment_first_sight_count', 'COM_ED_COMMENT_FIRST_SIGHT_COUNT', '', array('size' => 8, 'postfix' => 'Comments'), '', 'form-control-sm text-center'); ?>				
+
 					<?php echo $this->html('settings.toggle', 'main_comment_pagination', 'COM_EASYDISCUSS_COMMENT_PAGINATION'); ?>
+					
 					<?php echo $this->html('settings.textbox', 'main_comment_pagination_count', 'COM_EASYDISCUSS_COMMENT_PAGINATION_COUNT', '', array('size' => 8, 'postfix' => 'Comments'), '', 'form-control-sm text-center'); ?>
 				</div>
 			</div>

@@ -13,7 +13,7 @@ class RscommentsViewSubscriptions extends JViewLegacy
 		$this->items 		 = $this->get('Items');
 		$this->pagination 	 = $this->get('Pagination');
 		$this->state 		 = $this->get('State');
-		$this->article		 = RSCommentsHelper::ArticleTitle($this->state->get('filter.component'), $this->state->get('filter.component_id'));
+		$this->article		 = RSCommentsHelperAdmin::ArticleTitle($this->state->get('filter.component'), $this->state->get('filter.component_id'));
 		$this->filterForm  	 = $this->get('FilterForm');
 		$this->activeFilters = $this->get('ActiveFilters');
 		

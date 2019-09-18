@@ -34,6 +34,8 @@
 				<option value="100">100</option>
 				<option value="0">JALL</option>
 			</field>
+			<field name="enclosure" type="text" default="&quot;" label="COM_RSFORM_DIR_ENCLOSURE" description="COM_RSFORM_DIR_ENCLOSURE_DESC" />
+			<field name="delimiter" type="text" default="," label="COM_RSFORM_DIR_DELIMITER" description="COM_RSFORM_DIR_DELIMITER_DESC" />
 		</fieldset>
 		<fieldset name="advanced">
 			<field name="filter_glue" type="list" default="OR" label="COM_RSFORM_FILTER_GLUE" description="COM_RSFORM_FILTER_GLUE_DESC">

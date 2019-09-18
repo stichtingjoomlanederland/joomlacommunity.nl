@@ -33,6 +33,7 @@ return array(
 
         'template.engine.factory' => array(
             'cache'        => JDEBUG ? false : true,
+            'debug'        => JDEBUG ? true  : false,
             'cache_path'   => JPATH_ADMINISTRATOR.'/cache/koowa.templates'
         ),
 
@@ -49,7 +50,8 @@ return array(
 
         'event.subscriber.factory' => array(
             'subscribers' => array(
-                'com:koowa.event.subscriber.application'
+                'com:koowa.event.subscriber.application',
+                'com:koowa.event.subscriber.user'
             )
         )
 

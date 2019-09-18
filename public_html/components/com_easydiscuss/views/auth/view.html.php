@@ -65,4 +65,49 @@ class EasyDiscussViewAuth extends EasyDiscussView
 
 		echo '<script type="text/javascript">window.opener.doneLogin();window.close();</script>';
 	}
+
+	/**
+	 * Authorize Gist oauth
+	 *
+	 * @since	4.1.7
+	 * @access	public
+	 */
+	public function github()
+	{
+		$code = $this->input->get('code', '', 'default');
+		$state = $this->input->get('state', '', 'default');
+
+		// Stored the generated token code
+		if ($code) {
+			$client = ED::oauth()->getClient('Github');
+
+			// Get the access token
+			$result = $client->getAccessTokens('', '', $code);
+
+			$table = ED::table('OAuth');
+			$table->load(array('type' => 'github'));
+
+			if (!$table->id) {
+				$table->type = 'github';
+			}
+
+			if ($result) {
+				$accessToken = new stdClass();
+				$accessToken->token  = $result->token;
+				$accessToken->secret = $result->secret;
+
+				// Set the access token now
+				$table->access_token = json_encode($accessToken);
+
+				// Set the params
+				$table->params = json_encode($result);
+
+				$table->store();
+			}
+
+		}
+
+		echo '<script type="text/javascript">window.opener.doneLogin();window.close();</script>';
+
+	}
 }

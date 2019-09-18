@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -11,15 +11,15 @@ defined('_JEXEC') or die('Restricted access');
 ?><div id="acym__dashboard">
 	<div class="acym__dashboard__card cell grid-x large-up-3 grid-margin-x grid-margin-y medium-up-2 small-up-1 margin-right-0 margin-bottom-2">
 		<div class="cell acym__content acym__dashboard__one-card text-center grid-x">
-			<div class="cell acym__dashboard__card__picto__audience acym__dashboard__card__picto"><i class="material-icons acym__dashboard__card__icon__audience">insert_chart</i></div>
+			<div class="cell acym__dashboard__card__picto__audience acym__dashboard__card__picto"><i class="acymicon-insert_chart acym__dashboard__card__icon__audience"></i></div>
 			<h1 class="cell acym__dashboard__card__title"><?php echo acym_translation('ACYM_AUDIENCE'); ?></h1>
 			<hr class="cell small-10">
 			<a class="acym__dashboard__card__link" href="<?php echo acym_completeLink('lists'); ?>"><?php echo acym_translation('ACYM_VIEW_ALL_LISTS'); ?></a>
 			<a class="acym__dashboard__card__link" href="<?php echo acym_completeLink('lists&task=edit&step=settings'); ?>"><?php echo acym_translation('ACYM_CREATE_LIST'); ?></a>
-			<a class="acym__dashboard__card__link" href="#"><?php echo acym_tooltip(acym_translation('ACYM_CREATE_SEGMENT'), '<span class="acy_coming_soon"><i class="material-icons acy_coming_soon_icon">new_releases</i>'.acym_translation('ACYM_COMING_SOON').'</span>', 'acym__dashboard__card__link__unclickable'); ?></a>
+			<a class="acym__dashboard__card__link" href="#"><?php echo acym_tooltip(acym_translation('ACYM_CREATE_SEGMENT'), '<span class="acy_coming_soon"><i class="acymicon-new_releases acy_coming_soon_icon"></i>'.acym_translation('ACYM_COMING_SOON').'</span>', 'acym__dashboard__card__link__unclickable'); ?></a>
 		</div>
 		<div class="cell acym__content acym__dashboard__one-card text-center grid-x">
-			<div class="acym__dashboard__card__picto__campaings acym__dashboard__card__picto"><i class="material-icons acym__dashboard__card__icon__campaings">email</i></div>
+			<div class="acym__dashboard__card__picto__campaings acym__dashboard__card__picto"><i class="acymicon-email acym__dashboard__card__icon__campaings"></i></div>
 			<h1 class="acym__dashboard__card__title"><?php echo acym_translation('ACYM_CAMPAIGNS'); ?></h1>
 			<hr class="cell small-10">
 			<a class="acym__dashboard__card__link" href="<?php echo acym_completeLink('campaigns'); ?>"><?php echo acym_translation('ACYM_VIEW_ALL_CAMPAIGNS'); ?></a>
@@ -27,7 +27,7 @@ defined('_JEXEC') or die('Restricted access');
 			<a class="acym__dashboard__card__link" href="<?php echo acym_completeLink('mails&task=edit&type_editor=acyEditor'); ?>"><?php echo acym_translation('ACYM_CREATE_TEMPLATE'); ?></a>
 		</div>
 		<div class="cell acym__content acym__dashboard__one-card text-center grid-x">
-			<div class="acym__dashboard__card__picto__automation acym__dashboard__card__picto"><i class="material-icons acym__dashboard__card__icon__automation">autorenew</i></div>
+			<div class="acym__dashboard__card__picto__automation acym__dashboard__card__picto"><i class="acymicon-autorenew acym__dashboard__card__icon__automation"></i></div>
 			<h1 class="acym__dashboard__card__title"><?php echo acym_translation('ACYM_AUTOAMTION'); ?></h1>
 			<hr class="cell small-10">
 			<a class="acym__dashboard__card__link" href="<?php echo acym_completeLink('automation&task=listing'); ?>"><?php echo acym_translation('ACYM_VIEW_ALL_AUTOMATIONS'); ?></a>

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -24,7 +24,7 @@ defined('_JEXEC') or die('Restricted access');
         <?php
         if (!empty($userFields)) {
             foreach ($userFields as $oneUserField) {
-                if (!in_array($oneUserField, ["id", "active", "creation_date", "cms_id", "source", "confirmed", "key", "automation"])) {
+                if (!in_array($oneUserField, ["id", "key", "automation"])) {
                     echo "<label class='cell' for='acym__users__import__from_database__field--".$oneUserField."'>".$oneUserField."</label>";
                     echo "<select class='cell acym__users__import__from_database__fields' name='fields[".$oneUserField."]' id='acym__users__import__from_database__field--".$oneUserField."'></select>";
                 }

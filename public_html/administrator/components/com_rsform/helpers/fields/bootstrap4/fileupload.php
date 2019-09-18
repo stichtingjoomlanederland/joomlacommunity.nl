@@ -20,4 +20,9 @@ class RSFormProFieldBootstrap4Fileupload extends RSFormProFieldFileUpload
 
         return $attr;
     }
+
+	protected function getButtonAttributes()
+	{
+		return array('class' => 'btn btn-secondary btn-sm rsfp-field-multiple-plus-button');
+	}
 }

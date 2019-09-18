@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -27,9 +27,10 @@ class acymeditorHelper
     var $thumbnail = 'editor_thumbnail';
     var $content = '';
     var $editorContent = '';
-    var $editorConfig = array();
+    var $editorConfig = [];
     var $mailId = 0;
     var $automation = false;
+    var $walkThrough = false;
 
     public function display()
     {
@@ -83,7 +84,7 @@ class acymeditorHelper
         if (empty($this->editorContent)) {
             $this->content = acym_escape($this->content);
             ob_start();
-            echo $this->myEditor->display($this->name, $this->content, $this->width, $this->height, $this->cols, $this->rows, array('pagebreak', 'readmore'), null, 'com_content', null, $this->editorConfig);
+            echo $this->myEditor->display($this->name, $this->content, $this->width, $this->height, $this->cols, $this->rows, ['pagebreak', 'readmore'], null, 'com_content', null, $this->editorConfig);
 
             $this->editorContent = ob_get_clean();
         }
@@ -106,7 +107,7 @@ class acymeditorHelper
         $mail = $mailClass->getOneById($this->mailId);
         $stylesheet = empty($mail) ? '' : trim(preg_replace('/\s\s+/', ' ', $mailClass->buildCSS($mail->stylesheet)));
 
-        $options = array(
+        $options = [
             'editor_css' => '<style type="text/css">
                                 .alignleft{float:left;margin:0.5em 1em 0.5em 0;}
                                 .aligncenter{display: block;margin-left: auto;margin-right: auto;}
@@ -115,11 +116,11 @@ class acymeditorHelper
             'editor_height' => $this->height,
             'textarea_rows' => $this->rows,
             "wpautop" => false,
-            'tinymce' => array(
+            'tinymce' => [
                 'content_css' => '',
                 'content_style' => '.alignleft{float:left;margin:0.5em 1em 0.5em 0;} .aligncenter{display: block;margin-left: auto;margin-right: auto;} .alignright{float: right;margin: 0.5em 0 0.5em 1em;}'.$stylesheet,
-            ),
-        );
+            ],
+        ];
 
         wp_editor($this->content, $this->name, $options);
     }
@@ -234,3 +235,4 @@ class acymeditorHelper
         return $buttons;
     }
 }
+

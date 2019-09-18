@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -23,13 +23,13 @@ class acymqueueHelper
     var $successSend = 0;
     var $errorSend = 0;
     var $consecutiveError = 0;
-    var $messages = array();
+    var $messages = [];
     var $pause = 0;
     var $config;
     var $userClass;
     var $mod_security2 = false;
     var $obend = 0;
-    var $emailtypes = array();
+    var $emailtypes = [];
 
     public function __construct()
     {
@@ -130,14 +130,14 @@ class acymqueueHelper
 
         $mailHelper = acym_get('helper.mailer');
         $mailHelper->report = false;
-        if ($this->config->get('smtp_keepalive', 1) || in_array($this->config->get('mailer_method'), array('elasticemail'))) {
+        if ($this->config->get('smtp_keepalive', 1) || in_array($this->config->get('mailer_method'), ['elasticemail'])) {
             $mailHelper->SMTPKeepAlive = true;
         }
 
-        $queueDelete = array();
-        $queueUpdate = array();
-        $statsAdd = array();
-        $actionSubscriber = array();
+        $queueDelete = [];
+        $queueUpdate = [];
+        $statsAdd = [];
+        $actionSubscriber = [];
 
         $maxTry = (int)$this->config->get('queue_try', 0);
 
@@ -173,13 +173,13 @@ class acymqueueHelper
                 $statsAdd[$oneQueue->mail_id][1][] = $oneQueue->user_id;
 
                 $queueDeleteOk = $this->_deleteQueue($queueDelete);
-                $queueDelete = array();
+                $queueDelete = [];
 
                 if ($this->nbprocess % 10 == 0) {
                     $this->statsAdd($statsAdd);
                     $this->_queueUpdate($queueUpdate);
-                    $statsAdd = array();
-                    $queueUpdate = array();
+                    $statsAdd = [];
+                    $queueUpdate = [];
                 }
             } else {
                 $this->errorSend++;
@@ -203,7 +203,7 @@ class acymqueueHelper
                     $statsAdd[$oneQueue->mail_id][0][] = $oneQueue->user_id;
                     if ($mailHelper->errorNumber == 1 && $this->config->get('bounce_action_maxtry')) {
                         $queueDeleteOk = $this->_deleteQueue($queueDelete);
-                        $queueDelete = array();
+                        $queueDelete = [];
                         $otherMessage .= $this->_failedActions($oneQueue->user_id);
                     }
                 } else {
@@ -319,7 +319,7 @@ class acymqueueHelper
 
                     $oneSubscriber = intval($oneSubscriber);
 
-                    $userStat = array();
+                    $userStat = [];
                     $userStat['user_id'] = $oneSubscriber;
                     $userStat['mail_id'] = $mailId;
                     $userStat['send_date'] = $time;
@@ -334,7 +334,7 @@ class acymqueueHelper
             $nbSent = empty($infos[1]) ? 0 : count($infos[1]);
             $nbFail = empty($infos[0]) ? 0 : count($infos[0]);
 
-            $mailStat = array();
+            $mailStat = [];
             $mailStat['mail_id'] = $mailId;
             $mailStat['sent'] = $nbSent;
             $mailStat['fail'] = $nbFail;
@@ -385,7 +385,7 @@ class acymqueueHelper
     private function _display($messages, $status = '', $num = '')
     {
         if (!is_array($messages)) {
-            $messages = array($messages);
+            $messages = [$messages];
         }
 
         foreach ($messages as $message) {
@@ -416,7 +416,7 @@ class acymqueueHelper
     private function _failedActions($userId)
     {
         $listId = 0;
-        if (in_array($this->config->get('bounce_action_maxtry'), array('sub', 'remove', 'unsub'))) {
+        if (in_array($this->config->get('bounce_action_maxtry'), ['sub', 'remove', 'unsub'])) {
             $subscriptions = $this->userClass->getUserSubscriptionById($userId);
         }
 
@@ -426,10 +426,10 @@ class acymqueueHelper
                 $listId = $this->config->get('bounce_action_lists_maxtry');
                 if (!empty($listId)) {
                     $message .= ' user '.$userId.' subscribed to list n°'.$listId;
-                    $this->userClass->subscribe($userId, array($listId));
+                    $this->userClass->subscribe($userId, [$listId]);
                 }
             case 'remove' :
-                $unsubLists = array_diff(array_keys($subscriptions), array($listId));
+                $unsubLists = array_diff(array_keys($subscriptions), [$listId]);
                 if (!empty($unsubLists)) {
                     $message .= ' user '.$userId.' removed from lists '.implode(',', $unsubLists);
                     $this->userClass->removeSubscription($userId, $unsubLists);
@@ -438,7 +438,7 @@ class acymqueueHelper
                 }
                 break;
             case 'unsub' :
-                $unsubLists = array_diff(array_keys($subscriptions), array($listId));
+                $unsubLists = array_diff(array_keys($subscriptions), [$listId]);
                 if (!empty($unsubLists)) {
                     $message .= ' user '.$userId.' unsubscribed from lists '.implode(',', $unsubLists);
                     $this->userClass->unsubscribe($userId, $unsubLists);
@@ -460,3 +460,4 @@ class acymqueueHelper
         return $message;
     }
 }
+

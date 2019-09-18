@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS `#__rscomments_comments` (
   `location` varchar(255) NOT NULL DEFAULT '',
   `coordinates` varchar(255) NOT NULL DEFAULT '',
   `anonymous` tinyint(2) NOT NULL DEFAULT '0',
+  `emails` tinyint(2) NOT NULL DEFAULT '0',
   `published` int(2) NOT NULL DEFAULT '0',
   PRIMARY KEY (`IdComment`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;

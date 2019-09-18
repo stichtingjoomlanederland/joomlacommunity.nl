@@ -19,13 +19,15 @@ defined('_JEXEC') or die('Restricted access');
 	</tr>
 	</thead>
 	<?php
-	foreach ($this->forms as $i => $row) { ?>
-		<tr class="row<?php echo $i % 2; ?>">
+	foreach ($this->forms as $i => $row)
+	{
+		?>
+		<tr>
 			<td><?php echo JHtml::_('grid.id', $i, $row->FormId); ?></td>
-			<td><label for="cb<?php echo $i; ?>"><?php echo !empty($row->FormTitle) ? strip_tags($row->FormTitle) : '<em>no title</em>'; ?></label></td>
+			<td><label for="cb<?php echo $i; ?>"><?php echo !empty($row->FormTitle) ? strip_tags($row->FormTitle) : '<em>' . JText::_('RSFP_FORM_DEFAULT_TITLE') . '</em>'; ?></label></td>
 			<td><?php echo $this->escape($row->FormName); ?></td>
 			<td width="1%"><?php echo $row->FormId; ?></td>
-			<td width="1%"><?php echo $row->_allSubmissions; ?></td>
+			<td width="1%"><?php echo isset($this->submissions[$row->FormId]) ? $this->submissions[$row->FormId]->cnt : 0; ?></td>
 		</tr>
 		<?php
 	}

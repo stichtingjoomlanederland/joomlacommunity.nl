@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.1.5
+ * @version	6.2.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -46,20 +46,20 @@ defined('_JEXEC') or die('Restricted access');
 				<div class="cell grid-x margin-top-1">
 					<div class="grid-x acym__listing__actions cell auto">
                         <?php
-                        $actions = array(
+                        $actions = [
                             'delete' => acym_translation('ACYM_DELETE'),
                             'setActive' => acym_translation('ACYM_ENABLE'),
                             'setInactive' => acym_translation('ACYM_DISABLE'),
-                        );
+                        ];
                         echo acym_listingActions($actions);
                         ?>
 						<div class="auto cell">
                             <?php
-                            $options = array(
+                            $options = [
                                 '' => ['ACYM_ALL', $data["listNumberPerStatus"]["all"]],
                                 'active' => ['ACYM_ACTIVE', $data["listNumberPerStatus"]["active"]],
                                 'inactive' => ['ACYM_INACTIVE', $data["listNumberPerStatus"]["inactive"]],
-                            );
+                            ];
                             echo acym_filterStatus($options, $data["status"], 'lists_status');
                             ?>
 						</div>
@@ -67,12 +67,12 @@ defined('_JEXEC') or die('Restricted access');
 					<div class="grid-x cell auto">
 						<div class="cell acym_listing_sorty-by">
                             <?php echo acym_sortBy(
-                                array(
+                                [
                                     'id' => strtolower(acym_translation('ACYM_ID')),
                                     "name" => acym_translation('ACYM_NAME'),
                                     "creation_date" => acym_translation('ACYM_DATE_CREATED'),
                                     "active" => acym_translation('ACYM_ACTIVE'),
-                                ),
+                                ],
                                 "lists"
                             ); ?>
 						</div>
@@ -146,3 +146,4 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
     <?php acym_formOptions(); ?>
 </form>
+

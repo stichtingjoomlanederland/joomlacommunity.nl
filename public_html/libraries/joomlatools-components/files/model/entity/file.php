@@ -94,7 +94,7 @@ class ComFilesModelEntityFile extends ComFilesModelEntityNode implements KComman
 
     public function getPropertyFilename()
     {
-        return ltrim(pathinfo(' '.strtr($this->name, array('/' => '/ ')), PATHINFO_FILENAME));
+        return \Koowa\pathinfo($this->name, PATHINFO_FILENAME);
     }
 
     public function getPropertySize()

@@ -64,7 +64,7 @@ class RscommentsController extends JControllerLegacy {
 				header("Content-Length: ".(string) filesize($fullpath));
 				header('Content-Disposition: attachment; filename="'.$filename.'"');
 				header("Content-Transfer-Encoding: binary\n");
-				RSCommentsHelper::readfile_chunked($fullpath);
+				RSCommentsHelperAdmin::readfile_chunked($fullpath);
 				$app->close();
 			} else {
 				throw new Exception(JText::_('COM_RSCOMMENTS_ACCESS_DENIED'));

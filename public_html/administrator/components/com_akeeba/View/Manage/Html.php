@@ -231,7 +231,10 @@ akeeba.System.documentReady(function(){
 JS;
 		$this->addJavascriptInline($js);
 
-		JHtml::_('behavior.calendar');
+		if (version_compare(JVERSION, '3.999.999', 'le'))
+		{
+			JHtml::_('behavior.calendar');
+		}
 
 		$hash = 'akeebamanage';
 

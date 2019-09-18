@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -323,7 +323,7 @@ class EasyDiscussConversation extends EasyDiscuss
 
 		// Mark the conversation as unread.
 		$model = ED::model('Conversation');
-		$model->markAsUnread($id, $userId);
+		$model->markAsUnread($this->table->id, $userId);
 
 		return true;
 	}
@@ -467,8 +467,6 @@ class EasyDiscussConversation extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	DiscussConversationMessage	The message object that is formatted
-	 *
 	 */
 	public function notify(DiscussConversationMessage $message)
 	{

@@ -43,7 +43,10 @@ class EasyDiscussFacebook extends EasyDiscuss
 		$this->doc->addCustomTag('<meta property="og:type" content="article" />');
 		$this->doc->addCustomTag('<meta property="og:url" content="' . $data->url . '" />');
 
-		$this->doc->setTitle($post->getTitle());
+		$postTitle = $post->getTitle();
+		$pageTitle = htmlspecialchars_decode($postTitle, ENT_QUOTES);
+
+		$this->doc->setTitle($pageTitle);
 		$this->doc->setDescription($data->description);
 
 		// If we still can't find any images, load up the placeholder

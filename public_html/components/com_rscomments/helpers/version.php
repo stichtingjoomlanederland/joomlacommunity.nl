@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Restricted access');
 
 class RSCommentsVersion
 {
-	public $version  = '1.13.16';
+	public $version  = '1.13.17';
 	public $key 	 = 'CM478HGD21';
 	// Unused
 	public $revision = null;

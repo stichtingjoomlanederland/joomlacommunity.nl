@@ -127,8 +127,8 @@ final class bfBackup
                     $saveChanges = true;
                 }
 
-                // Get a complex unique non-crypto string from myJoomla.com
-                $string = file_get_contents('https://manage.myjoomla.com/public/rand?'.time());
+                // Get a complex unique non-crypto string from mysites.guru
+                $string = file_get_contents('https://mysites.guru/public/rand?'.time());
 
                 $params->set('frontend_secret_word', $string);
                 $saveChanges = true;
@@ -183,8 +183,8 @@ final class bfBackup
                     $params->frontend_secret_word = (new \Akeeba\Engine\Util\SecureSettings())->encryptSettings($secretWord);
                 } else {
                     if (!$params->frontend_secret_word || preg_match('/\&/', $params->frontend_secret_word)) {
-                        // Get a complex unique non-crypto string from myJoomla.com
-                        $string                       = file_get_contents('https://manage.myjoomla.com/public/rand?'.time());
+                        // Get a complex unique non-crypto string from mysites.guru
+                        $string                       = file_get_contents('https://mysites.guru/public/rand?'.time());
                         $params->frontend_secret_word = $string;
                         $secretWord                   = $params->frontend_secret_word;
                     }
