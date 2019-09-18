@@ -8405,6 +8405,9 @@ img.avatar {
 .no-js .sb-search .sb-search-submit {
   z-index: 90;
 }
+.filter-branch {
+  margin-top: 15px;
+}
 .share-buttons {
   font-size: 30px;
   line-height: 30px;

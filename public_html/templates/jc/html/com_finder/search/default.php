@@ -7,45 +7,44 @@
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
+use Joomla\CMS\HTML\HTMLHelper;
+
 defined('_JEXEC') or die;
 
-JHtml::_('behavior.core');
-JHtml::_('formbehavior.chosen');
-JHtml::addIncludePath(JPATH_COMPONENT . '/helpers/html');
-//JHtml::stylesheet('com_finder/finder.css', false, true, false);
+HTMLHelper::_('behavior.core');
+HTMLHelper::_('formbehavior.chosen');
+HTMLHelper::addIncludePath(JPATH_COMPONENT . '/helpers/html');
+//HTMLHelper::stylesheet('com_finder/finder.css', false, true, false);
 ?>
 
-<div class="finder<?php echo $this->pageclass_sfx; ?>">
-	<?php if ($this->params->get('show_page_heading')) : ?>
-		<h1>
-			<?php if ($this->escape($this->params->get('page_heading'))) : ?>
-				<?php echo $this->escape($this->params->get('page_heading')); ?>
-			<?php else : ?>
-				<?php echo $this->escape($this->params->get('page_title')); ?>
-			<?php endif; ?>
-		</h1>
-	<?php endif; ?>
+<div class="finder<?php echo $this->pageclass_sfx; ?>"><?php
+    if ($this->params->get('show_page_heading')) : ?>
+        <h1><?php
+			if ($this->escape($this->params->get('page_heading'))) :
+				echo $this->escape($this->params->get('page_heading'));
+			else :
+				echo $this->escape($this->params->get('page_title'));
+			endif; ?></h1><?php
+    endif;
 
-	<?php if ($this->params->get('show_search_form', 1)) : ?>
-
+	if ($this->params->get('show_search_form', 1)) : ?>
 		<div class="row">
 			<div class="col-md-8 col-md-offset-2">
 				<div class="well" id="search-form">
 					<?php echo $this->loadTemplate('form'); ?>
 				</div>
 			</div>
-		</div>
-	<?php endif;
+		</div><?php
+    endif;
 
 	// Load the search results layout if we are performing a search.
-	if ($this->query->search === true):
-		?>
+	if ($this->query->search === true): ?>
 		<div class="row">
 			<div class="col-md-8 col-md-offset-2">
 				<div id="search-results" class="well">
 					<?php echo $this->loadTemplate('results'); ?>
 				</div>
 			</div>
-		</div>
-	<?php endif; ?>
+		</div><?php
+    endif; ?>
 </div>
