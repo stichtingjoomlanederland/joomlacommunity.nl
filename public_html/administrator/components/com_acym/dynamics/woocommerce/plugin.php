@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -33,8 +33,10 @@ class plgAcymWoocommerce extends acymPlugin
         return $plugin;
     }
 
-    public function contentPopup()
+    public function contentPopup($defaultValues = null)
     {
+        $this->defaultValues = $defaultValues;
+
         $this->categories = acym_loadObjectList(
             "SELECT cat.term_taxonomy_id AS id, cat.parent AS parent_id, catdetails.name AS title 
             FROM `#__term_taxonomy` AS cat 
@@ -48,7 +50,8 @@ class plgAcymWoocommerce extends acymPlugin
         }
 
         $tabHelper = acym_get('helper.tab');
-        $tabHelper->startTab(acym_translation('ACYM_ONE_BY_ONE'));
+        $identifier = $this->name;
+        $tabHelper->startTab(acym_translation('ACYM_ONE_BY_ONE'), !empty($this->defaultValues->defaultPluginTab) && $identifier === $this->defaultValues->defaultPluginTab);
 
         $displayOptions = [
             [
@@ -73,6 +76,7 @@ class plgAcymWoocommerce extends acymPlugin
             [
                 'title' => 'ACYM_TRUNCATE',
                 'type' => 'intextfield',
+                'isNumber' => 1,
                 'name' => 'wrap',
                 'text' => 'ACYM_TRUNCATE_AFTER',
                 'default' => 0,
@@ -84,14 +88,13 @@ class plgAcymWoocommerce extends acymPlugin
             ],
         ];
 
-        echo $this->acympluginHelper->displayOptions($displayOptions, $this->name);
-
-        echo $this->getFilteringZone();
-
-        $this->displayListing();
+        $zoneContent = $this->getFilteringZone().$this->prepareListing();
+        echo $this->displaySelectionZone($zoneContent);
+        echo $this->acympluginHelper->displayOptions($displayOptions, $identifier, 'individual', $this->defaultValues);
 
         $tabHelper->endTab();
-        $tabHelper->startTab(acym_translation('ACYM_BY_CATEGORY'));
+        $identifier = 'auto'.$this->name;
+        $tabHelper->startTab(acym_translation('ACYM_BY_CATEGORY'), !empty($this->defaultValues->defaultPluginTab) && $identifier === $this->defaultValues->defaultPluginTab);
 
         $catOptions = [
             [
@@ -108,13 +111,13 @@ class plgAcymWoocommerce extends acymPlugin
             ],
             [
                 'title' => 'ACYM_COLUMNS',
-                'type' => 'text',
+                'type' => 'number',
                 'name' => 'cols',
                 'default' => 1,
             ],
             [
                 'title' => 'ACYM_MAX_NB_ELEMENTS',
-                'type' => 'text',
+                'type' => 'number',
                 'name' => 'max',
                 'default' => 20,
             ],
@@ -122,12 +125,12 @@ class plgAcymWoocommerce extends acymPlugin
 
         $displayOptions = array_merge($displayOptions, $catOptions);
 
-        echo $this->acympluginHelper->displayOptions($displayOptions, 'auto'.$this->name, 'grouped');
-
-        echo $this->getCategoryListing();
+        echo $this->displaySelectionZone($this->getCategoryListing());
+        echo $this->acympluginHelper->displayOptions($displayOptions, $identifier, 'grouped', $this->defaultValues);
 
         $tabHelper->endTab();
-        $tabHelper->startTab(acym_translation('ACYM_COUPON'));
+        $identifier = $this->name.'_coupon';
+        $tabHelper->startTab(acym_translation('ACYM_COUPON'), !empty($this->defaultValues->defaultPluginTab) && $identifier === $this->defaultValues->defaultPluginTab);
 
         $displayOptions = [
             [
@@ -223,54 +226,37 @@ class plgAcymWoocommerce extends acymPlugin
             ],
         ];
 
-        echo $this->acympluginHelper->displayOptions($displayOptions, $this->name.'_coupon', 'simple', '');
+        echo $this->acympluginHelper->displayOptions($displayOptions, $identifier, 'simple', $this->defaultValues);
 
         $tabHelper->endTab();
 
         $tabHelper->display('plugin');
     }
 
-    public function displayListing()
+    public function prepareListing()
     {
-        $querySelect = 'SELECT product.ID, product.post_title, product.post_date ';
-        $query = 'FROM #__posts AS product ';
-        $filters = [];
-
-        $this->pageInfo = new stdClass();
-        $this->pageInfo->limit = acym_getCMSConfig('list_limit');
-        $this->pageInfo->page = acym_getVar('int', 'pagination_page_ajax', 1);
-        $this->pageInfo->start = ($this->pageInfo->page - 1) * $this->pageInfo->limit;
-        $this->pageInfo->search = acym_getVar('string', 'plugin_search', '');
-        $this->pageInfo->filter_cat = acym_getVar('int', 'plugin_category', 0);
+        $this->querySelect = 'SELECT product.ID, product.post_title, product.post_date ';
+        $this->query = 'FROM #__posts AS product ';
+        $this->filters = [];
+        $this->filters[] = 'product.post_type = "product"';
+        $this->filters[] = 'product.post_status = "publish"';
+        $this->searchFields = ['product.ID', 'product.post_title'];
         $this->pageInfo->order = 'product.ID';
-        $this->pageInfo->orderdir = 'DESC';
+        $this->elementIdTable = 'product';
+        $this->elementIdColumn = 'ID';
 
-        $searchFields = ['product.ID', 'product.post_title'];
-        if (!empty($this->pageInfo->search)) {
-            $searchVal = '%'.acym_getEscaped($this->pageInfo->search, true).'%';
-            $filters[] = implode(" LIKE ".acym_escapeDB($searchVal)." OR ", $searchFields)." LIKE ".acym_escapeDB($searchVal);
-        }
+        parent::prepareListing();
 
         if (!empty($this->pageInfo->filter_cat)) {
-            $query .= 'JOIN #__term_relationships AS cat ON product.ID = cat.object_id';
-            $filters[] = "cat.term_taxonomy_id = ".intval($this->pageInfo->filter_cat);
+            $this->query .= 'JOIN #__term_relationships AS cat ON product.ID = cat.object_id';
+            $this->filters[] = 'cat.term_taxonomy_id = '.intval($this->pageInfo->filter_cat);
         }
-
-        $filters[] = 'product.post_type = "product"';
-        $filters[] = 'product.post_status = "publish"';
-
-        $query .= ' WHERE ('.implode(') AND (', $filters).')';
-        if (!empty($this->pageInfo->order)) $query .= ' ORDER BY '.acym_secureDBColumn($this->pageInfo->order).' '.acym_secureDBColumn($this->pageInfo->orderdir);
-
-        $rows = acym_loadObjectList($querySelect.$query, '', $this->pageInfo->start, $this->pageInfo->limit);
-        $this->pageInfo->total = acym_loadResult('SELECT COUNT(*) '.$query);
-
 
         $listingOptions = [
             'header' => [
                 'post_title' => [
                     'label' => 'ACYM_TITLE',
-                    'size' => '5',
+                    'size' => '8',
                 ],
                 'post_date' => [
                     'label' => 'ACYM_DATE_CREATED',
@@ -284,10 +270,10 @@ class plgAcymWoocommerce extends acymPlugin
                 ],
             ],
             'id' => 'ID',
-            'rows' => $rows,
+            'rows' => $this->getElements(),
         ];
 
-        echo $this->getElementsListing($listingOptions);
+        return $this->getElementsListing($listingOptions);
     }
 
     public function replaceContent(&$email)
@@ -318,17 +304,7 @@ class plgAcymWoocommerce extends acymPlugin
         }
 
         foreach ($tags as $oneTag => $parameter) {
-            if (isset($this->tags[$oneTag])) {
-                continue;
-            }
-            $allcats = explode('-', $parameter->id);
-            $selectedArea = [];
-            foreach ($allcats as $oneCat) {
-                if (empty($oneCat)) {
-                    continue;
-                }
-                $selectedArea[] = intval($oneCat);
-            }
+            if (isset($this->tags[$oneTag])) continue;
 
             $query = 'SELECT DISTINCT product.`ID` 
                     FROM #__posts AS product 
@@ -336,6 +312,7 @@ class plgAcymWoocommerce extends acymPlugin
 
             $where = [];
 
+            $selectedArea = $this->getSelectedArea($parameter);
             if (!empty($selectedArea)) {
                 $where[] = 'cat.term_taxonomy_id IN ('.implode(',', $selectedArea).')';
             }
@@ -365,23 +342,7 @@ class plgAcymWoocommerce extends acymPlugin
         return $return;
     }
 
-    private function _replaceOne(&$email)
-    {
-        $tags = $this->acympluginHelper->extractTags($email, $this->name);
-        if (empty($tags)) return;
-
-        $tagsReplaced = [];
-        foreach ($tags as $i => $oneTag) {
-            if (isset($tagsReplaced[$i])) {
-                continue;
-            }
-            $tagsReplaced[$i] = $this->_replaceContent($oneTag, $email);
-        }
-
-        $this->acympluginHelper->replaceTags($email, $tagsReplaced, true);
-    }
-
-    private function _replaceContent($tag, &$email)
+    public function _replaceContent($tag, &$email)
     {
         $query = 'SELECT product.*
                     FROM #__posts AS product

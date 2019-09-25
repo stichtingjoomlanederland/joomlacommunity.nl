@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -16,21 +16,20 @@ class acymtabHelper
     var $content = [];
     var $tabNumber = 0;
     var $opened = false;
-    var $identifier = 0;
+    var $identifier;
 
-    function __construct()
+    public function __construct()
     {
         $this->identifier = rand(1000, 9000);
     }
 
-    public function startTab($title, $clickable = true, $attributes = '')
+    public function startTab($title, $selected = false, $attributes = '', $clickable = true)
     {
-        if ($this->opened) {
-            $this->endTab();
-        }
+        if ($this->opened) $this->endTab();
         $this->opened = true;
 
         $attributes .= $clickable ? '' : 'data-empty="true"';
+        $attributes .= $selected ? 'data-selected="true"' : '';
         $classLi = $clickable ? '' : 'tabs-title-empty';
 
         $this->identifier = preg_replace('#[^a-z0-9]#is', '_', strtolower($title));
@@ -42,9 +41,8 @@ class acymtabHelper
 
     public function endTab()
     {
-        if (!$this->opened) {
-            return;
-        }
+        if (!$this->opened) return;
+
         $this->opened = false;
         $this->content[] = '<div class="tabs-panel" id="tab_'.$this->identifier.'_'.$this->tabNumber.'">'.ob_get_clean().'</div>';
         $this->tabNumber++;

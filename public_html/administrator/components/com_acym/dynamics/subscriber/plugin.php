@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -148,9 +148,10 @@ class plgAcymSubscriber extends acymPlugin
         if (strpos($mytag->id, 'custom') === false) {
             $replaceme = (isset($user->$field) && strlen($user->$field) > 0) ? $user->$field : $mytag->default;
         } else {
-            $value = empty($user->id) ? "" : $fieldClass->getAllfieldBackEndListingByUserIds($user->id, explode(',', $field)[1]);
+            $fieldId = explode(',', $field)[1];
+            $value = empty($user->id) ? '' : $fieldClass->getAllfieldBackEndListingByUserIds($user->id, $fieldId);
 
-            $replaceme = empty($value) ? $mytag->default : $value[explode(',', $field)[1].$user->id];
+            $replaceme = empty($value) ? $mytag->default : $value[$fieldId.'-'.$user->id];
         }
         $replaceme = nl2br($replaceme);
 
@@ -268,51 +269,39 @@ class plgAcymSubscriber extends acymPlugin
         $filters['acy_field']->option .= implode(' ', $customFieldValues);
     }
 
-    public function onAcymProcessCondition_acy_field(&$query, &$conditionOptions, $num, &$conditionNotValid)
+    private function _processAcyField(&$query, &$options, $num)
     {
         $usersColumns = acym_getColumns('user');
 
-        if (!in_array($conditionOptions['field'], $usersColumns)) {
+        if (!in_array($options['field'], $usersColumns)) {
             $fieldClass = acym_get('class.field');
-            $field = $fieldClass->getOneFieldByID($conditionOptions['field']);
+            $field = $fieldClass->getOneFieldByID($options['field']);
             if ('date' == $field->type) {
-                $conditionOptions['value'] = explode('/', $conditionOptions['value']);
-                $conditionOptions['value'] = json_encode($conditionOptions['value']);
+                $options['value'] = explode('/', $options['value']);
+                $options['value'] = json_encode($options['value']);
             }
 
             $type = 'phone' == $field->type ? 'phone' : '';
 
-            $query->leftjoin['userfield'.$num] = ' #__acym_user_has_field as userfield'.$num.' ON userfield'.$num.'.user_id = user.id AND userfield'.$num.'.field_id = '.intval($conditionOptions['field']);
-            $query->where[] = $query->convertQuery('userfield'.$num, 'value', $conditionOptions['operator'], $conditionOptions['value'], $type);
+            $query->leftjoin['userfield'.$num] = ' #__acym_user_has_field as userfield'.$num.' ON userfield'.$num.'.user_id = user.id AND userfield'.$num.'.field_id = '.intval($options['field']);
+            $query->where[] = $query->convertQuery('userfield'.$num, 'value', $options['operator'], $options['value'], $type);
         } else {
-            if ($conditionOptions['field'] == 'creation_date') $conditionOptions['value'] = acym_date($conditionOptions['value'], "Y-m-d H:i:s");
-            $query->where[] = $query->convertQuery('user', $conditionOptions['field'], $conditionOptions['operator'], $conditionOptions['value']);
+            if ($options['field'] == 'creation_date') $options['value'] = acym_date($options['value'], "Y-m-d H:i:s");
+            $query->where[] = $query->convertQuery('user', $options['field'], $options['operator'], $options['value']);
         }
 
-        $affectedRows = $query->count();
+        return $query->count();
+    }
+
+    public function onAcymProcessCondition_acy_field(&$query, &$options, $num, &$conditionNotValid)
+    {
+        $affectedRows = $this->_processAcyField($query, $options, $num);
         if (empty($affectedRows)) $conditionNotValid++;
     }
 
-    public function onAcymProcessFilter_acy_field(&$query, &$filterOptions, $num)
+    public function onAcymProcessFilter_acy_field(&$query, &$options, $num)
     {
-        $usersColumns = acym_getColumns('user');
-
-        if (!in_array($filterOptions['field'], $usersColumns)) {
-            $fieldClass = acym_get('class.field');
-            $field = $fieldClass->getOneFieldByID($filterOptions['field']);
-            if ('date' == $field->type) {
-                $filterOptions['value'] = explode('/', $filterOptions['value']);
-                $filterOptions['value'] = json_encode($filterOptions['value']);
-            }
-
-            $type = 'phone' == $field->type ? 'phone' : '';
-
-            $query->leftjoin['userfield'.$num] = ' #__acym_user_has_field as userfield'.$num.' ON userfield'.$num.'.user_id = user.id AND userfield'.$num.'.field_id = '.intval($filterOptions['field']);
-            $query->where[] = $query->convertQuery('userfield'.$num, 'value', $filterOptions['operator'], $filterOptions['value'], $type);
-        } else {
-            if ($filterOptions['field'] == 'creation_date') $filterOptions['value'] = acym_date($filterOptions['value'], "Y-m-d H:i:s");
-            $query->where[] = $query->convertQuery('user', $filterOptions['field'], $filterOptions['operator'], $filterOptions['value']);
-        }
+        $this->_processAcyField($query, $options, $num);
     }
 
     public function onAcymProcessFilterCount_acy_field(&$query, $options, $num)
@@ -425,18 +414,7 @@ class plgAcymSubscriber extends acymPlugin
     public function onAcymProcessAction_acy_user_value(&$query, $action)
     {
         $value = $action['value'];
-
-        $replace = ['{year}', '{month}', '{weekday}', '{day}'];
-        $replaceBy = [date('Y'), date('m'), date('N'), date('d')];
-        $value = str_replace($replace, $replaceBy, $value);
-
-        if (preg_match_all('#{(year|month|weekday|day)\|(add|remove):([^}]*)}#Uis', $value, $results)) {
-            foreach ($results[0] as $i => $oneMatch) {
-                $format = str_replace(['year', 'month', 'weekday', 'day'], ['Y', 'm', 'N', 'd'], $results[1][$i]);
-                $delay = str_replace(['add', 'remove'], ['+', '-'], $results[2][$i]).intval($results[3][$i]).' '.str_replace('weekday', 'day', $results[1][$i]);
-                $value = str_replace($oneMatch, date($format, strtotime($delay)), $value);
-            }
-        }
+        $value = acym_replaceDateTags($value);
 
         if (empty($action['operator'])) $action['operator'] = '=';
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -26,8 +26,8 @@ class acymupdateHelper
 
     public function installBounceRules()
     {
-        $bounceClass = acym_get('class.bounce');
-        if ($bounceClass->getOrderingNumber() > 0) {
+        $ruleClass = acym_get('class.rule');
+        if ($ruleClass->getOrderingNumber() > 0) {
             return;
         }
         $config = acym_config();
@@ -202,7 +202,7 @@ class acymupdateHelper
             $menuPath = ACYM_ROOT.'administrator'.DS.'language'.DS.$code.DS.$code.'.com_acym.sys.ini';
 
             if (!acym_writeFile($menuPath, $menuFileContent)) {
-                acym_enqueueNotification(acym_translation_sprintf('ACYM_FAIL_SAVE_FILE', $menuPath), 'error', 0);
+                acym_enqueueMessage(acym_translation_sprintf('ACYM_FAIL_SAVE_FILE', $menuPath), 'error');
             }
         }
     }
@@ -215,12 +215,33 @@ class acymupdateHelper
         acym_query($query);
     }
 
-    public function installTemplate()
+    public function installTemplates()
     {
-        $names = ['default_template', 'default_template_2'];
+        $mailClass = acym_get('class.mail');
+
+        $defaultTemplatesFolder = ACYM_BACK.'templates'.DS;
+        $names = acym_getFolders($defaultTemplatesFolder);
+
+        $creationDate = acym_escapeDB(acym_date('now', 'Y-m-d H:i:s', false));
+        $currentUserId = acym_currentUserId();
         foreach ($names as $name) {
-            $query = "INSERT INTO `#__acym_mail` (`name`, `creation_date`, `thumbnail`, `drag_editor`, `library`, `type`, `body`, `subject`, `template`, `from_name`, `from_email`, `reply_to_name`, `reply_to_email`, `bcc`, `settings`, `stylesheet`, `attachments`, `creator_id`) VALUES
-                     (".acym_escapeDB(str_replace('_', ' ', $name)).", ".acym_escapeDB(acym_date('now', 'Y-m-d H:i:s', false)).", ".acym_escapeDB(ACYM_IMAGES.'img_template'.DS.$name.'.png').", 1, 1, 'standard', ".acym_escapeDB(str_replace('{acym_media}', ACYM_IMAGES, file_get_contents(ACYM_BACK.'templates'.DS.$name.DS.'content.txt'))).", 'Subject', 1, NULL, NULL, NULL, NULL, NULL, ".acym_escapeDB(file_get_contents(ACYM_BACK.'templates'.DS.$name.DS.'settings.txt')).", '', NULL, 1);";
+            $templatePath = $defaultTemplatesFolder.$name.DS;
+            $mailName = str_replace('_', ' ', $name);
+            $oneMail = $mailClass->getOneByName($mailName);
+            if (!empty($oneMail)) continue;
+
+            $tmplName = acym_escapeDB($mailName);
+            $thumbnail = acym_escapeDB($name.'.png');
+            $body = acym_escapeDB(str_replace('{acym_media}', ACYM_IMAGES, file_get_contents($templatePath.'content.txt')));
+            $settings = acym_escapeDB(file_get_contents($templatePath.'settings.txt'));
+            if (file_exists($templatePath.'stylesheet.txt')) {
+                $stylesheet = acym_escapeDB(file_get_contents($templatePath.'stylesheet.txt'));
+            } else {
+                $stylesheet = '""';
+            }
+
+            $query = 'INSERT INTO `#__acym_mail` (`name`, `creation_date`, `thumbnail`, `drag_editor`, `library`, `type`, `body`, `subject`, `template`, `from_name`, `from_email`, `reply_to_name`, `reply_to_email`, `bcc`, `settings`, `stylesheet`, `attachments`, `creator_id`) VALUES
+                     ('.$tmplName.', '.$creationDate.', '.$thumbnail.', 1, 1, "standard", '.$body.', "", 1, NULL, NULL, NULL, NULL, NULL, '.$settings.', '.$stylesheet.', NULL, '.$currentUserId.');';
             acym_query($query);
         }
 

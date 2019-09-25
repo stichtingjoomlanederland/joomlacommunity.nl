@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -19,13 +19,28 @@ defined('_JEXEC') or die('Restricted access');
                 <?php if (!empty($data['user-information']->id)) { ?>
 					<button type="button" id="acym__button--delete" class="cell shrink button acym__user__button alert acy_button_submit" data-task="deleteOne"><i class="acymicon-delete acym__users__display__delete__icon acym__color__white"></i></button>
                 <?php }
-                echo acym_modal_pagination_lists(
+
+                $entityHelper = acym_get('helper.entitySelect');
+
+                $columnsToDisplay = [0 => 'name', 1 => 'id'];
+                if (!empty($data['user-information']->id)) {
+                    $columnsToDisplay['join'] = 'userlist.list_id';
+                }
+
+                echo acym_modal(
                     acym_translation('ACYM_ADD_SUBSCRIPTION'),
-                    'cell medium-shrink  auto margin-horizontal-1 button button-secondary acym__user__button',
-                    acym_translation('ACYM_CONFIRM'),
-                    'acym__user__edit__add-subscription__modal',
-                    'data-toggle="add_subscription"'
-                ); ?>
+                    $entityHelper->entitySelect(
+                        'list',
+                        ['join' => empty($data['user-information']->id) ? '' : 'join_user-'.$data['user-information']->id],
+                        $columnsToDisplay,
+                        ['text' => acym_translation('ACYM_CONFIRM'), 'action' => ''],
+                        false
+                    ),
+                    null,
+                    '',
+                    'class="cell medium-shrink  auto margin-horizontal-1 button button-secondary acym__user__button"'
+                );
+                ?>
 				<button type="submit" data-task="apply" class="cell acy_button_submit button-secondary button medium-shrink acym__user__button margin-right-1"><?php echo acym_translation('ACYM_SAVE'); ?></button>
 				<button type="submit" data-task="save" class="cell acy_button_submit button medium-shrink acym__user__button"><?php echo acym_translation('ACYM_SAVE_EXIT'); ?></button>
 			</div>
@@ -107,7 +122,7 @@ defined('_JEXEC') or die('Restricted access');
 					<div class="grid-x acym__listing__subscribe-to">
 					</div>
                     <?php $data['tab']->endTab(); ?>
-                    <?php $data['tab']->startTab(acym_translation('ACYM_SUBSCRIBED').' ('.count($data['subscriptions']).')', !empty($data['subscriptions'])); ?>
+                    <?php $data['tab']->startTab(acym_translation('ACYM_SUBSCRIBED').' ('.count($data['subscriptions']).')', false, '', !empty($data['subscriptions'])); ?>
 					<div class="grid-x acym__listing">
                         <?php if (!empty($data['subscriptions']) || !empty($data['unsubscribe'])) { ?>
                             <?php foreach ($data['subscriptions'] as $oneSubscription) { ?>
@@ -129,7 +144,7 @@ defined('_JEXEC') or die('Restricted access');
                         <?php } ?>
 					</div>
                     <?php $data['tab']->endTab(); ?>
-                    <?php $data['tab']->startTab(acym_translation('ACYM_UNSUBSCRIBED').' ('.count($data['unsubscribe']).')', !empty($data['unsubscribe'])); ?>
+                    <?php $data['tab']->startTab(acym_translation('ACYM_UNSUBSCRIBED').' ('.count($data['unsubscribe']).')', false, '', !empty($data['unsubscribe'])); ?>
 					<div class="grid-x acym__listing">
                         <?php foreach ($data['unsubscribe'] as $oneUnsubscription) { ?>
 							<div class="grid-x cell acym__listing__row">

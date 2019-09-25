@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -18,7 +18,7 @@ defined('_JEXEC') or die('Restricted access');
 
             <?php
             $workflow = acym_get('helper.workflow');
-            echo $workflow->display($this->steps, $this->step, $this->edition);
+            echo $workflow->display($this->steps, $this->step, false);
             ?>
 
 			<h5 class="cell acym__campaign__sendsettings__title-settings"><?php echo acym_translation('ACYM_SENDER_INFORMATION'); ?></h5>
@@ -58,7 +58,15 @@ defined('_JEXEC') or die('Restricted access');
 				</div>
 				<div class="medium-6 cell grid-x">
 					<div class="large-auto medium-auto"></div>
-					<button type="button" class="<?php echo $data['currentCampaign']->scheduled == 1 ? '' : 'unselected'; ?> button medium-7 small-12 acym__campaign__sendsettings__send-type--sheduled" id="acym__campaign__sendsettings__send-type--sheduled"><?php echo acym_translation('ACYM_SCHEDULED'); ?></button>
+                    <?php if (acym_level(1)) { ?>
+						<button type="button" class="<?php echo $data['currentCampaign']->scheduled == 1 ? '' : 'unselected'; ?> button grid-x medium-7 small-12 acym__campaign__sendsettings__send-type--sheduled" id="acym__campaign__sendsettings__send-type--sheduled"><?php echo acym_translation('ACYM_SCHEDULED'); ?></button>
+                    <?php } else {
+                        $btnShedule = '<button class="button acym__campaign__sendsettings__send-type--sheduled cell medium-7 small-12 unselected"';
+                        $btnShedule .= ' type="button" id="acym__campaign__sendsettings__send-type--sheduled" disabled>';
+                        $btnShedule .= acym_translation('ACYM_SCHEDULED').'</button>';
+                        $upgradeTxt = acym_translation_sprintf('ACYM_USE_THIS_FEATURE', acym_translation('ACYM_ESSENTIAL'));
+                        echo acym_tooltip($btnShedule, $upgradeTxt, 'medium-7 small-12');
+                    } ?>
 					<div class="large-auto medium-auto"></div>
 				</div>
 				<div class="cell grid-x">

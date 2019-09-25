@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -15,10 +15,19 @@ class acymlistClass extends acymClass
     var $table = 'list';
     var $pkey = 'id';
 
-    public function getMatchingLists($settings)
+    public function getMatchingElements($settings = [])
     {
-        $query = 'SELECT list.* FROM #__acym_list AS list';
+        $columns = 'list.*';
+        if (!empty($settings['columns'])) {
+            foreach ($settings['columns'] as $key => $value) {
+                $settings['columns'][$key] = $key === 'join' ? $value : 'list.'.$value;
+            }
+            $columns = implode(', ', $settings['columns']);
+        }
+
+        $query = 'SELECT '.$columns.' FROM #__acym_list AS list';
         $queryCount = 'SELECT COUNT(list.id) FROM #__acym_list AS list';
+        if (!empty($settings['join'])) $query .= $this->getJoinForQuery($settings['join']);
 
         $queryStatus = 'SELECT COUNT(id) AS number, active + (visible*2) AS score FROM #__acym_list AS list';
         $filters = [];
@@ -54,6 +63,10 @@ class acymlistClass extends acymClass
             $filters[] = 'list.'.$allowedStatus[$settings['status']];
         }
 
+        if (!empty($settings['where'])) {
+            $filters[] = $settings['where'];
+        }
+
         if (!empty($filters)) {
             $query .= ' WHERE ('.implode(') AND (', $filters).')';
             $queryCount .= ' WHERE ('.implode(') AND (', $filters).')';
@@ -63,13 +76,19 @@ class acymlistClass extends acymClass
             $query .= ' ORDER BY list.'.acym_secureDBColumn($settings['ordering']).' '.acym_secureDBColumn(strtoupper($settings['ordering_sort_order']));
         }
 
-        $settings['offset'] = $settings['offset'] < 0 ? 0 : $settings['offset'];
+        if (empty($settings['offset']) || $settings['offset'] < 0) {
+            $settings['offset'] = 0;
+        }
 
-        $results['lists'] = acym_loadObjectList($query, '', $settings['offset'], $settings['listsPerPage']);
-        foreach ($results['lists'] as $i => $oneList) {
+        if (empty($settings['elementsPerPage']) || $settings['elementsPerPage'] < 1) {
+            $settings['elementsPerPage'] = acym_getCMSConfig('list_limit', 20);
+        }
+
+        $results['elements'] = acym_loadObjectList($query, '', $settings['offset'], $settings['elementsPerPage']);
+        foreach ($results['elements'] as $i => $oneList) {
             array_push($listsId, $oneList->id);
-            $results['lists'][$i]->subscribers = 0;
-            $results['lists'][$i]->sendable = 0;
+            $results['elements'][$i]->subscribers = 0;
+            $results['elements'][$i]->sendable = 0;
         }
 
         if (empty($listsId)) {
@@ -88,12 +107,12 @@ class acymlistClass extends acymClass
             $countUserByList = acym_loadObjectList($query);
         }
 
-        foreach ($results['lists'] as $i => $list) {
-            $results['lists'][$i]->tags = [];
+        foreach ($results['elements'] as $i => $list) {
+            $results['elements'][$i]->tags = [];
             foreach ($countUserByList as $userList) {
                 if ($list->id == $userList->list_id) {
-                    $results['lists'][$i]->subscribers = $userList->users;
-                    $results['lists'][$i]->sendable = $userList->sendable;
+                    $results['elements'][$i]->subscribers = $userList->users;
+                    $results['elements'][$i]->sendable = $userList->sendable;
                 }
             }
         }
@@ -114,6 +133,22 @@ class acymlistClass extends acymClass
         ];
 
         return $results;
+    }
+
+    public function getJoinForQuery($joinType)
+    {
+        if (strpos($joinType, 'join_mail') !== false) {
+            $mailId = explode('-', $joinType);
+
+            return ' LEFT JOIN #__acym_mail_has_list as maillist ON list.id = maillist.list_id AND maillist.mail_id = '.intval($mailId[1]);
+        }
+        if (strpos($joinType, 'join_user') !== false) {
+            $userId = explode('-', $joinType);
+
+            return ' LEFT JOIN #__acym_user_has_list as userlist ON list.id = userlist.list_id AND userlist.user_id = '.intval($userId[1]);
+        }
+
+        return '';
     }
 
     public function getListsWithIdNameCount($settings)
@@ -358,14 +393,14 @@ class acymlistClass extends acymClass
         return $listID;
     }
 
-    function getAll($key = 'id')
+    public function getAll($key = 'id')
     {
         $lists = acym_loadObjectList('SELECT * FROM #__acym_list', $key);
 
         return $lists;
     }
 
-    function getAllWithIdName()
+    public function getAllWithIdName()
     {
         $lists = acym_loadObjectList('SELECT id, name FROM #__acym_list', 'id');
 
@@ -378,7 +413,7 @@ class acymlistClass extends acymClass
         return $listsToReturn;
     }
 
-    function getAllForSelect()
+    public function getAllForSelect()
     {
         $lists = acym_loadObjectList('SELECT * FROM #__acym_list', 'id');
 
@@ -510,6 +545,11 @@ class acymlistClass extends acymClass
         }
 
         return intval(acym_loadResult($query));
+    }
+
+    public function emptySubscribersOfList($listId)
+    {
+        return acym_query('DELETE FROM #__acym_user_has_list WHERE list_id = '.intval($listId));
     }
 }
 

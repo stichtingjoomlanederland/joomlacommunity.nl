@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -18,7 +18,6 @@ class plgAcymManagetext extends acymPlugin
     {
         $this->_replaceConstant($email);
         $this->_replaceRandom($email);
-        $this->_addAlignmentCss($email);
         $this->_handleAnchors($email);
     }
 
@@ -165,7 +164,7 @@ class plgAcymManagetext extends acymPlugin
                 $allresults[1][$i] = html_entity_decode($allresults[1][$i]);
                 if (!preg_match('#^(.+)(!=|<|>|&gt;|&lt;|!~)([^=!<>~]+)$#is', $allresults[1][$i], $operators) && !preg_match('#^(.+)(=|~)([^=!<>~]+)$#is', $allresults[1][$i], $operators)) {
                     if ($isAdmin) {
-                        acym_display('Operation not found : '.$allresults[1][$i], 'error');
+                        acym_enqueueMessage(acym_translation_sprintf('ACYM_OPERATION_NOT_FOUND', $allresults[1][$i]), 'error');
                     }
                     $tags[$oneTag] = $allresults[3][$i];
                     continue;
@@ -259,21 +258,6 @@ class plgAcymManagetext extends acymPlugin
             if (!empty($email->body)) {
                 $email->body = preg_replace($regex, '', $email->body);
             }
-        }
-    }
-
-    private function _addAlignmentCss(&$email)
-    {
-        $imageAlignment = '<style type="text/css">
-			.alignleft{float:left;margin:0.5em 1em 0.5em 0;}
-			.aligncenter{display: block;margin-left: auto;margin-right: auto;}
-			.alignright{float: right;margin: 0.5em 0 0.5em 1em;}
-		</style>';
-
-        if (strpos($email->body, '</body>')) {
-            $email->body = str_replace('</body>', $imageAlignment.'</body>', $email->body);
-        } else {
-            $email->body .= $imageAlignment;
         }
     }
 

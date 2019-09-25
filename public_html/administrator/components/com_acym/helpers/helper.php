@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -19,17 +19,49 @@ define('ACYM_SPAMURL', ACYM_UPDATEMEURL.'spamsystem&task=');
 define('ACYM_HELPURL', ACYM_UPDATEMEURL.'doc&component='.ACYM_NAME.'&page=');
 define('ACYM_REDIRECT', ACYM_UPDATEMEURL.'redirect&page=');
 define('ACYM_UPDATEURL', ACYM_UPDATEMEURL.'update&task=');
+define('ACYM_DOCUMENTATION', ACYM_UPDATEMEURL.'doc&task=getLink');
 
+if (!defined('DS')) define('DS', DIRECTORY_SEPARATOR);
 
-if (!defined('DS')) {
-    define('DS', DIRECTORY_SEPARATOR);
-}
-include_once(rtrim(dirname(__DIR__), DS).DS.'library'.DS.strtolower('Joomla.php'));
+include_once rtrim(dirname(__DIR__), DS).DS.'library'.DS.strtolower('Joomla.php');
 
 define('ACYM_LIVE', rtrim(acym_rootURI(), '/').'/');
 
-if (is_callable("date_default_timezone_set")) {
+if (is_callable('date_default_timezone_set')) {
     date_default_timezone_set(@date_default_timezone_get());
+}
+
+function acym_replaceDateTags($value)
+{
+    $replace = ['{year}', '{month}', '{weekday}', '{day}'];
+    $replaceBy = [date('Y'), date('m'), date('N'), date('d')];
+    $value = str_replace($replace, $replaceBy, $value);
+
+    $results = [];
+    if (preg_match_all('#{(year|month|weekday|day)\|(add|remove):([^}]*)}#Uis', $value, $results)) {
+        foreach ($results[0] as $i => $oneMatch) {
+            $format = str_replace(['year', 'month', 'weekday', 'day'], ['Y', 'm', 'N', 'd'], $results[1][$i]);
+            $delay = str_replace(['add', 'remove'], ['+', '-'], $results[2][$i]).intval($results[3][$i]).' '.str_replace('weekday', 'day', $results[1][$i]);
+            $value = str_replace($oneMatch, date($format, strtotime($delay)), $value);
+        }
+    }
+
+    return $value;
+}
+
+function acym_getMailThumbnail($thumbnail)
+{
+    $thumbnailSRC = $thumbnail;
+
+    if (!file_exists(str_replace(acym_rootURI(), ACYM_ROOT, $thumbnailSRC))) {
+        $thumbnailSRC = ACYM_TEMPLATE_THUMBNAILS.$thumbnail;
+    }
+
+    if (empty($thumbnail) || !file_exists(str_replace(acym_rootURI(), ACYM_ROOT, $thumbnailSRC))) {
+        $thumbnailSRC = ACYM_IMAGES.'default_template_thumbnail.png';
+    }
+
+    return $thumbnailSRC;
 }
 
 function acym_isLocalWebsite()
@@ -84,6 +116,11 @@ function acym_checkVersion($ajax = false)
     $config->save($newConfig);
 
     return $newConfig->lastlicensecheck;
+}
+
+function acym_loaderLogo()
+{
+    return '<div class="cell shrink acym_loader_logo">'.acym_fileGetContent(ACYM_IMAGES.'loader.svg').'</div>';
 }
 
 function acym_dateField($name, $value = '', $class = '', $attributes = '', $relativeDefault = '-')
@@ -648,7 +685,7 @@ function acym_getIP()
     return strip_tags($ip);
 }
 
-function acym_radio($options, $name, $selected = null, $id = null, $attributes = [], $objValue = 'value', $objText = 'text', $useIncrement = false)
+function acym_radio($options, $name, $selected = null, $id = null, $attributes = [], $objValue = 'value', $objText = 'text', $useIncrement = false, $pluginMode = false)
 {
     $id = preg_replace(
         '#[^a-zA-Z0-9_]+#mi',
@@ -688,6 +725,7 @@ function acym_radio($options, $name, $selected = null, $id = null, $attributes =
         }
         $return .= ($value == $selected ? ' checked="checked"' : '').' />';
         $return .= '<label for="'.$currentId.'" id="'.$currentId.'-lbl">'.$label.'</label>';
+        if ($pluginMode) $return .= '<br />';
         $k++;
     }
     $return .= '</div>';
@@ -884,10 +922,10 @@ function acym_modal_pagination_lists($button, $class, $textButton = null, $id = 
     $data .= '<div class="cell grid-x" '.$attributesModal.'>
             <input type="hidden" name="show_selected" value="false" id="modal__pagination__show-information">
             <input type="hidden" id="modal__pagination__search__lists">
-            <input type="hidden" name="lists_selected" id="acym__modal__lists-selected" value=\''.$checkedLists.'\'>
+            <input type="hidden" name="lists_selected" id="acym__modal__lists-selected" value="'.acym_escape($checkedLists).'">
             <div class="cell grid-x">
                 <h4 class="cell text-center acym__modal__pagination__title">'.acym_translation('ACYM_CHOOSE_LISTS').'</h4>
-            </div>    
+            </div>
             <div class="cell grid-x modal__pagination__search">
                 '.$searchField.'
             </div>
@@ -1934,21 +1972,21 @@ function acym_getColumns($table, $acyTable = true, $putPrefix = true)
 
 function acym_display($messages, $type = 'success', $close = true)
 {
-    if (empty($messages)) {
-        return;
+    if (empty($messages)) return;
+    if (!is_array($messages)) $messages = [$messages];
+
+    foreach ($messages as $id => $message) {
+        echo '<div class="acym__message grid-x acym__message__'.$type.'">';
+
+        if (is_array($message)) $message = implode('</p><p>', $message);
+
+        echo '<div class="cell auto"><p>'.$message.'</p></div>';
+
+        if ($close) {
+            echo '<i data-id="'.acym_escape($id).'" class="cell shrink acym__message__close fa fa-close"></i>';
+        }
+        echo '</div>';
     }
-
-    if (!is_array($messages)) {
-        $messages = [$messages];
-    }
-
-    echo '<div id="acym_messages_'.$type.'" class="acym_message acym_'.$type.'">';
-
-    if ($close) {
-        echo '<i class="fa fa-close"></i>';
-    }
-
-    echo '<p>'.implode('</p><p>', $messages).'</p></div>';
 }
 
 function acym_secureDBColumn($fieldName)
@@ -2160,7 +2198,7 @@ function acym_importFile($file, $uploadPath, $onlyPict, $maxwidth = '')
             8 => 'A PHP extension stopped the file upload',
         ];
 
-        acym_enqueueNotification(acym_translation_sprintf('ACYM_ERROR_UPLOADING_FILE_X', $phpFileUploadErrors[$file["error"]]), 'error', 5000);
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_ERROR_UPLOADING_FILE_X', $phpFileUploadErrors[$file["error"]]), 'error');
 
         return false;
     }
@@ -2270,7 +2308,7 @@ function acym_importFile($file, $uploadPath, $onlyPict, $maxwidth = '')
             }
         }
     }
-    acym_enqueueNotification(acym_translation('ACYM_SUCCESS_FILE_UPLOAD').$additionalMsg, 'success', 5000);
+    acym_enqueueMessage(acym_translation('ACYM_SUCCESS_FILE_UPLOAD').$additionalMsg, 'success');
 
     return $file["name"];
 }
@@ -2467,7 +2505,7 @@ function acym_deleteFolder($path)
 {
     $path = acym_cleanPath($path);
     if (!is_dir($path)) {
-        acym_enqueueNotification(acym_translation_sprintf('ACYM_IS_NOT_A_FOLDER', $path), 'error', 0);
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_IS_NOT_A_FOLDER', $path), 'error');
 
         return false;
     }
@@ -2492,7 +2530,7 @@ function acym_deleteFolder($path)
     if (@rmdir($path)) {
         $ret = true;
     } else {
-        acym_enqueueNotification(acym_translation_sprintf('ACYM_COULD_NOT_DELETE_FOLDER', $path), 'error', 0);
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_COULD_NOT_DELETE_FOLDER', $path), 'error');
         $ret = false;
     }
 
@@ -2518,7 +2556,7 @@ function acym_getFolders($path, $filter = '.', $recurse = false, $full = false, 
     $path = acym_cleanPath($path);
 
     if (!is_dir($path)) {
-        acym_enqueueNotification(acym_translation_sprintf('ACYM_IS_NOT_A_FOLDER', $path), 'error', 0);
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_IS_NOT_A_FOLDER', $path), 'error');
 
         return false;
     }
@@ -2540,7 +2578,7 @@ function acym_getFiles($path, $filter = '.', $recurse = false, $full = false, $e
     $path = acym_cleanPath($path);
 
     if (!is_dir($path)) {
-        acym_enqueueNotification(acym_translation_sprintf('ACYM_IS_NOT_A_FOLDER', $path), 'error', 0);
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_IS_NOT_A_FOLDER', $path), 'error');
 
         return false;
     }
@@ -2637,25 +2675,25 @@ function acym_copyFolder($src, $dest, $path = '', $force = false, $use_streams =
     $dest = rtrim($dest, DIRECTORY_SEPARATOR);
 
     if (!file_exists($src)) {
-        acym_enqueueNotification(acym_translation_sprintf('ACYM_FOLDER_DOES_NOT_EXIST', $src), 'error', 0);
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_FOLDER_DOES_NOT_EXIST', $src), 'error');
 
         return false;
     }
 
     if (file_exists($dest) && !$force) {
-        acym_enqueueNotification(acym_translation_sprintf('ACYM_FOLDER_ALREADY_EXIST', $dest), 'error', 0);
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_FOLDER_ALREADY_EXIST', $dest), 'error');
 
         return true;
     }
 
     if (!acym_createFolder($dest)) {
-        acym_enqueueNotification(acym_translation('ACYM_CANNOT_CREATE_DESTINATION_FOLDER'), 'error', 0);
+        acym_enqueueMessage(acym_translation('ACYM_CANNOT_CREATE_DESTINATION_FOLDER'), 'error');
 
         return false;
     }
 
     if (!($dh = @opendir($src))) {
-        acym_enqueueNotification(acym_translation('ACYM_CANNOT_OPEN_SOURCE_FOLDER'), 'error', 0);
+        acym_enqueueMessage(acym_translation('ACYM_CANNOT_OPEN_SOURCE_FOLDER'), 'error');
 
         return false;
     }
@@ -2677,7 +2715,7 @@ function acym_copyFolder($src, $dest, $path = '', $force = false, $use_streams =
 
             case 'file':
                 if (!@copy($sfid, $dfid)) {
-                    acym_enqueueNotification(acym_translation_sprintf('ACYM_COPY_FILE_FAILED_PERMISSION', $sfid), 'error', 0);
+                    acym_enqueueMessage(acym_translation_sprintf('ACYM_COPY_FILE_FAILED_PERMISSION', $sfid), 'error');
 
                     return false;
                 }
@@ -2696,13 +2734,13 @@ function acym_moveFolder($src, $dest, $path = '', $use_streams = false)
     }
 
     if (!file_exists($src)) {
-        acym_enqueueNotification(acym_translation_sprintf('ACYM_FOLDER_DOES_NOT_EXIST', $src), 'error', 0);
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_FOLDER_DOES_NOT_EXIST', $src), 'error');
 
         return false;
     }
 
     if (!@rename($src, $dest)) {
-        acym_enqueueNotification(acym_translation_sprintf('ACYM_COULD_NOT_MOVE_FOLDER_PERMISSION', $src, $dest), 'error', 0);
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_COULD_NOT_MOVE_FOLDER_PERMISSION', $src, $dest), 'error');
 
         return false;
     }
@@ -2743,7 +2781,7 @@ function acym_deleteFile($file)
 {
     $file = acym_cleanPath($file);
     if (!is_file($file)) {
-        acym_enqueueNotification(acym_translation_sprintf('ACYM_IS_NOT_A_FILE', $file), 'error', 0);
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_IS_NOT_A_FILE', $file), 'error');
 
         return false;
     }
@@ -2752,7 +2790,7 @@ function acym_deleteFile($file)
 
     if (!@unlink($file)) {
         $filename = basename($file);
-        acym_enqueueNotification(acym_translation_sprintf('ACYM_FAILED_DELETE', $filename), 'error', 0);
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_FAILED_DELETE', $filename), 'error');
 
         return false;
     }
@@ -2780,13 +2818,13 @@ function acym_moveFile($src, $dest, $path = '', $use_streams = false)
     }
 
     if (!is_readable($src)) {
-        acym_enqueueNotification(acym_translation_sprintf('ACYM_COULD_NOT_FIND_FILE_SOURCE_PERMISSION', $src), 'error', 0);
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_COULD_NOT_FIND_FILE_SOURCE_PERMISSION', $src), 'error');
 
         return false;
     }
 
     if (!@rename($src, $dest)) {
-        acym_enqueueNotification(acym_translation('ACYM_COULD_NOT_MOVE_FILE'), 'error', 0);
+        acym_enqueueMessage(acym_translation('ACYM_COULD_NOT_MOVE_FILE'), 'error');
 
         return false;
     }
@@ -2807,10 +2845,10 @@ function acym_uploadFile($src, $dest)
         if (@chmod($dest, octdec('0644'))) {
             return true;
         } else {
-            acym_enqueueNotification(acym_translation('ACYM_FILE_REJECTED_SAFETY_REASON'), 'error', 0);
+            acym_enqueueMessage(acym_translation('ACYM_FILE_REJECTED_SAFETY_REASON'), 'error');
         }
     } else {
-        acym_enqueueNotification(acym_translation_sprintf('ACYM_COULD_NOT_UPLOAD_FILE_PERMISSION', $baseDir), 'error', 0);
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_COULD_NOT_UPLOAD_FILE_PERMISSION', $baseDir), 'error');
     }
 
     return false;
@@ -2824,13 +2862,13 @@ function acym_copyFile($src, $dest, $path = null, $use_streams = false)
     }
 
     if (!is_readable($src)) {
-        acym_enqueueNotification(acym_translation_sprintf('ACYM_COULD_NOT_FIND_FILE_SOURCE_PERMISSION', $src), 'error', 0);
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_COULD_NOT_FIND_FILE_SOURCE_PERMISSION', $src), 'error');
 
         return false;
     }
 
     if (!@copy($src, $dest)) {
-        acym_enqueueNotification(acym_translation_sprintf('ACYM_COULD_NOT_COPY_FILE_X_TO_X', $src, $dest), 'error', 0);
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_COULD_NOT_COPY_FILE_X_TO_X', $src, $dest), 'error');
 
         return false;
     }
@@ -3108,11 +3146,12 @@ function acym_selectTemplates($mailOptions, $selected, $type, $listId)
             $buttonSelectedClass = ' acym_template_option--selected';
             $iconSelectedClass = ' selected_template';
         }
+
         $button = '<i class="fa fa-check-circle '.$iconSelectedClass.'"></i>
                 <button type="button" template="'.acym_escape($oneTpl->id).'" class="cell acym__templates__oneTpl acym__listing__block acym_template_option'.$buttonSelectedClass.'">
                 <div class="cell grid-x text-center">
                     <div class="cell acym__templates__pic text-center">
-                        <img src="'.acym_escape((strpos($oneTpl->thumbnail, 'default_template_thumbnail') === false && strpos($oneTpl->thumbnail, 'default_template') === false) ? ACYM_TEMPLATE_THUMBNAILS.$oneTpl->thumbnail : $oneTpl->thumbnail).'" alt="'.acym_escape($oneTpl->name).'" />
+                        <img src="'.acym_getMailThumbnail($oneTpl->thumbnail).'" alt="'.acym_escape($oneTpl->name).'" />
                     </div>
                     <div class="cell grid-x text-center acym__templates__footer">
                         <div class="cell acym__template__footer__title">'.acym_escape($oneTpl->name).'</div>
@@ -3157,46 +3196,6 @@ function acym_sortBy($options = [], $listing, $default = "")
     $display .= '<input type="hidden" id="acym__listing__ordering__sort-order--input" name="'.$listing.'_ordering_sort_order" value="'.$orderingSortOrder.'">';
 
     return $display;
-}
-
-function acym_enqueueNotification($message, $type = 'info', $time = 0)
-{
-    if (!acym_isAdmin()) {
-        acym_enqueueNotificationFront($message, $type, 0);
-
-        return;
-    }
-
-    $logo = 'fa-bell';
-
-    if (!in_array($type, ['success', 'warning', 'error'])) $type = 'info';
-
-    $notification = '<div class="callout acym__callout__'.$type.'"';
-
-    if ($type == 'success') {
-        $logo = 'fa-check-circle';
-    } elseif ($type == 'warning') {
-        $logo = 'fa-exclamation-triangle';
-    } elseif ($type == 'error') {
-        $logo = 'fa-exclamation-circle';
-    }
-
-    if ($time > 0) {
-        $notification .= ' callout-timer="'.$time.'" style="display: none"><div class="progress" role="progressbar"><div class="progress-meter" style="width: 0"></div></div>';
-    } else {
-        $notification .= ' style="display: none">';
-    }
-
-    if (is_array($message)) {
-        $message = implode('<br />', $message);
-    }
-    $notification .= '<i class="fa '.$logo.'"></i><div class="acym_notification_container">'.$message.'</div><i class="fa fa-close"></i></div>';
-
-    if (empty($_SESSION)) acym_session();
-    if (empty($_SESSION['acynotif'])) {
-        $_SESSION['acynotif'] = [];
-    }
-    $_SESSION['acynotif'][] = $notification;
 }
 
 function acym_getJSMessages()
@@ -3272,6 +3271,14 @@ function acym_getJSMessages()
         'ACYM_ERROR_SAVING',
         'ACYM_LOADING_ERROR',
         'ACYM_AT_LEAST_ONE_USER',
+        'ACYM_ERROR_SAVING',
+        'ACYM_NO_DCONTENT_TEXT',
+        'ACYM_PREVIEW',
+        'ACYM_PREVIEW_DESC',
+        'ACYM_CONTENT_TYPE',
+        'ACYM_TEMPLATE_EMPTY',
+        'ACYM_DRAG_BLOCK_AND_DROP_HERE',
+        'ACYM_WELL_DONE_DROP_HERE',
     ];
 
     foreach ($keysToLoad as $oneKey) {

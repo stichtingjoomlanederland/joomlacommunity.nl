@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -18,7 +18,7 @@ class acymautomationClass extends acymClass
     var $didAnAction = false;
     var $report = [];
 
-    public function getMatchingAutomations($settings)
+    public function getMatchingElements($settings = [])
     {
         $query = 'SELECT * FROM #__acym_automation';
         $queryCount = 'SELECT COUNT(id) FROM #__acym_automation';
@@ -38,8 +38,16 @@ class acymautomationClass extends acymClass
         } else {
             $query .= ' ORDER BY id asc';
         }
-        $results['automations'] = acym_loadObjectList($query, '', $settings['offset'], $settings['automationsPerPage']);
 
+        if (empty($settings['offset']) || $settings['offset'] < 0) {
+            $settings['offset'] = 0;
+        }
+
+        if (empty($settings['elementsPerPage']) || $settings['elementsPerPage'] < 1) {
+            $settings['elementsPerPage'] = acym_getCMSConfig('list_limit', 20);
+        }
+
+        $results['elements'] = acym_loadObjectList($query, '', $settings['offset'], $settings['elementsPerPage']);
 
         $results['total'] = acym_loadResult($queryCount);
 

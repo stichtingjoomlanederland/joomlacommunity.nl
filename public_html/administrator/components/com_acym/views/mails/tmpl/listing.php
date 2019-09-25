@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -156,20 +156,7 @@ defined('_JEXEC') or die('Restricted access');
 							<div class="cell grid-x acym__templates__oneTpl acym__listing__block text-center" elementid="<?php echo acym_escape($oneTemplate->id); ?>">
 								<a href="<?php echo acym_completeLink('mails&task=edit&id='.acym_escape($oneTemplate->id)); ?>" class="cell grid-x text-center">
 									<div class="cell acym__templates__pic">
-                                        <?php
-
-                                        if (strpos($oneTemplate->thumbnail, 'default_template') === false) {
-                                            $src = ACYM_TEMPLATE_THUMBNAILS.$oneTemplate->thumbnail;
-                                        } else {
-                                            $src = $oneTemplate->thumbnail;
-                                        }
-
-                                        if (!file_exists(str_replace(acym_rootURI(), ACYM_ROOT, $src))) {
-                                            $src = ACYM_IMAGES.'default_template_thumbnail.png';
-                                        }
-                                        echo '<img src="'.acym_escape($src).'" alt="'.acym_escape($oneTemplate->name).'"/>';
-
-                                        ?>
+                                        <?php echo '<img src="'.acym_escape(acym_getMailThumbnail($oneTemplate->thumbnail)).'" alt="'.acym_escape($oneTemplate->name).'"/>'; ?>
 									</div>
 									<div class="cell grid-x acym__templates__footer text-center">
 										<div class="cell acym__templates__footer__title" title="<?php echo acym_escape($oneTemplate->name); ?>">
@@ -189,7 +176,7 @@ defined('_JEXEC') or die('Restricted access');
 										<p class="acym__listing__block__delete__cancel acym__background-color__very-dark-gray acym__color__white">
                                             <?php echo acym_translation("ACYM_CANCEL"); ?>
 										</p>
-										<p class="acym__listing__block__delete__submit acym_toggle_delete acym__color__white" table="mail" elementid="<?php echo acym_escape($oneTemplate->id); ?>"><?php echo acym_translation("ACYM_DELETE"); ?></p>
+										<p class="acym__listing__block__delete__submit acym_toggle_delete acym__color__white" table="mail" elementid="<?php echo acym_escape($oneTemplate->id); ?>"><?php echo acym_translation('ACYM_DELETE'); ?></p>
 									</div>
 								</div>
 							</div>

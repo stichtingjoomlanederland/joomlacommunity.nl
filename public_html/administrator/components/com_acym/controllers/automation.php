@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -45,11 +45,11 @@ class AutomationController extends acymController
 
 
             $automationClass = acym_get('class.automation');
-            $matchingAutomations = $automationClass->getMatchingAutomations(
+            $matchingAutomations = $automationClass->getMatchingElements(
                 [
                     'ordering' => $ordering,
                     'search' => $searchFilter,
-                    'automationsPerPage' => $automationsPerPage,
+                    'elementsPerPage' => $automationsPerPage,
                     'offset' => ($page - 1) * $automationsPerPage,
                     'tag' => $tagFilter,
                     'ordering_sort_order' => $orderingSortOrder,
@@ -62,7 +62,7 @@ class AutomationController extends acymController
             $automationActive = [];
             $automationInactive = [];
 
-            foreach ($matchingAutomations['automations'] as $automation) {
+            foreach ($matchingAutomations['elements'] as $automation) {
                 if (empty($automation->active)) {
                     $automationInactive[] = $automation;
                 } else {
@@ -71,14 +71,14 @@ class AutomationController extends acymController
             }
 
             $filters = [
-                'all' => count($matchingAutomations['automations']),
+                'all' => count($matchingAutomations['elements']),
                 'active' => count($automationActive),
                 'inactive' => count($automationInactive),
             ];
 
 
             $data = [
-                'allAutomations' => $matchingAutomations['automations'],
+                'allAutomations' => $matchingAutomations['elements'],
                 'allTags' => acym_get('class.tag')->getAllTagsByType('automation'),
                 'pagination' => $pagination,
                 'search' => $searchFilter,
@@ -254,7 +254,7 @@ class AutomationController extends acymController
                 if (empty($conditions)) {
                     acym_setVar('stepId', $stepId);
                     acym_setVar('id', $id);
-                    acym_enqueueNotification(acym_translation('ACYM_PLEASE_SET_CONDITION_OR_SAVE'), 'warning');
+                    acym_enqueueMessage(acym_translation('ACYM_PLEASE_SET_CONDITION_OR_SAVE'), 'warning');
 
                     return $this->condition();
                 }
@@ -359,7 +359,7 @@ class AutomationController extends acymController
                 if (empty($conditions)) {
                     acym_setVar('stepId', $step->id);
                     acym_setVar('id', $id);
-                    acym_enqueueNotification(acym_translation('ACYM_PLEASE_SET_CONDITION_OR_SAVE'), 'warning');
+                    acym_enqueueMessage(acym_translation('ACYM_PLEASE_SET_CONDITION_OR_SAVE'), 'warning');
 
                     return $this->condition();
                 }
@@ -551,7 +551,7 @@ class AutomationController extends acymController
         }
 
         if (empty($stepAutomation['triggers'][$typeTrigger])) {
-            acym_enqueueNotification(acym_translation('ACYM_PLEASE_SELECT_ONE_TRIGGER'), 'error', 5000);
+            acym_enqueueMessage(acym_translation('ACYM_PLEASE_SELECT_ONE_TRIGGER'),  'error');
 
             $this->info();
 
@@ -777,7 +777,7 @@ class AutomationController extends acymController
             }
 
             if (empty($stepAutomation['triggers'][$typeTrigger])) {
-                acym_enqueueNotification(acym_translation('ACYM_PLEASE_SELECT_ONE_TRIGGER'), 'error', 5000);
+                acym_enqueueMessage(acym_translation('ACYM_PLEASE_SELECT_ONE_TRIGGER'),  'error');
 
                 $this->info();
 
@@ -821,7 +821,7 @@ class AutomationController extends acymController
             $stepAutomation['filters'] = json_encode($stepAutomation['filters']);
         } elseif ($from == 'actions') {
             if (empty($stepAutomation['actions'])) {
-                acym_enqueueNotification(acym_translation('ACYM_PLEASE_SET_ACTIONS'), 'error', 5000);
+                acym_enqueueMessage(acym_translation('ACYM_PLEASE_SET_ACTIONS'),  'error');
                 if (!empty($automationId)) acym_setVar('id', $automationId);
                 $this->action();
 
@@ -875,7 +875,7 @@ class AutomationController extends acymController
             return;
         }
 
-        acym_enqueueNotification(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success', 8000);
+        acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'),  'success');
 
         acym_setVar('id', $ids['automationId']);
         acym_setVar('stepId', $ids['stepId']);
@@ -903,7 +903,7 @@ class AutomationController extends acymController
             return;
         }
 
-        acym_enqueueNotification(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success', 8000);
+        acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'),  'success');
 
         $this->listing();
     }
@@ -930,7 +930,7 @@ class AutomationController extends acymController
             return;
         }
 
-        acym_enqueueNotification(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success', 8000);
+        acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'),  'success');
 
         $this->listing();
     }
@@ -957,7 +957,7 @@ class AutomationController extends acymController
             return;
         }
 
-        acym_enqueueNotification(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success', 8000);
+        acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'),  'success');
 
         $this->listing();
     }
@@ -983,10 +983,10 @@ class AutomationController extends acymController
         $automation->active = 1;
         $saved = $automationClass->save($automation);
         if (!empty($saved)) {
-            acym_enqueueNotification(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success', 8000);
+            acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'),  'success');
             $this->listing();
         } else {
-            acym_enqueueNotification(acym_translation('ACYM_ERROR_SAVING'), 'error', 5000);
+            acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING'),  'error');
             $this->listing();
         }
     }
@@ -1005,7 +1005,7 @@ class AutomationController extends acymController
         $this->filter();
     }
 
-    function processMassAction()
+    public function processMassAction()
     {
         acym_session();
         $automationClass = acym_get('class.automation');
@@ -1018,7 +1018,7 @@ class AutomationController extends acymController
 
             if (!empty($automationClass->report)) {
                 foreach ($automationClass->report as $oneReport) {
-                    acym_enqueueNotification($oneReport, 'info', 5000);
+                    acym_enqueueMessage($oneReport,  'info');
                 }
             }
         }

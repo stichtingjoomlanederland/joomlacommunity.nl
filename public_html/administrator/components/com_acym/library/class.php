@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -26,7 +26,33 @@ class acymClass
         $this->cmsUserVars = $acymCmsUserVars;
     }
 
-    function save($element)
+    public function getMatchingElements($settings = [])
+    {
+        if (!empty($this->table) && !empty($this->pkey)) {
+            $query = 'SELECT * FROM #__acym_'.acym_escape($this->table).' ORDER BY `'.acym_escape($this->pkey).'` ASC';
+            $queryCount = 'SELECT COUNT(*) FROM #__acym_'.acym_escape($this->table);
+
+            $elements = acym_loadObjectList($query);
+            $total = acym_loadResult($queryCount);
+        } else {
+            $elements = [];
+            $total = '0';
+        }
+
+        return [
+            'elements' => $elements,
+            'total' => $total,
+        ];
+    }
+
+    public function getOneById($id)
+    {
+        $query = 'SELECT * FROM #__acym_'.acym_escape($this->table).' WHERE id = '.intval($id);
+
+        return acym_loadObject($query);
+    }
+
+    public function save($element)
     {
         foreach ($element as $column => $value) {
             acym_secureDBColumn($column);
@@ -53,7 +79,7 @@ class acymClass
         return empty($element->$pkey) ? $status : $element->$pkey;
     }
 
-    function delete($elements)
+    public function delete($elements)
     {
         if (!is_array($elements)) {
             $elements = [$elements];

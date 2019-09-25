@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -28,7 +28,7 @@ class acymcronHelper
 
     var $emailtypes = [];
 
-    function cron()
+    public function cron()
     {
         $time = time();
         $config = acym_config();
@@ -166,7 +166,7 @@ class acymcronHelper
         return true;
     }
 
-    function report()
+    public function report()
     {
         $config = acym_config();
 
@@ -212,7 +212,7 @@ class acymcronHelper
         $config->save($newConfig);
     }
 
-    function saveReport()
+    public function saveReport()
     {
         $config = acym_config();
         $saveReport = $config->get('cron_savereport');

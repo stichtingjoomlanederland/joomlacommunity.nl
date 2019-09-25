@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -12,7 +12,7 @@ defined('_JEXEC') or die('Restricted access');
 
 class plgAcymSeblod extends acymPlugin
 {
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
         $this->cms = 'Joomla';
@@ -22,7 +22,7 @@ class plgAcymSeblod extends acymPlugin
         $this->name = 'seblod';
     }
 
-    function insertOptions()
+    public function insertOptions()
     {
         $plugin = new stdClass();
         $plugin->name = 'Seblod';
@@ -32,12 +32,15 @@ class plgAcymSeblod extends acymPlugin
         return $plugin;
     }
 
-    function contentPopup()
+    public function contentPopup($defaultValues = null)
     {
+        $this->defaultValues = $defaultValues;
+
         $this->categories = acym_loadObjectList('SELECT id, parent_id, title FROM #__categories WHERE extension = "com_content" ORDER BY `id` DESC');
 
         $tabHelper = acym_get('helper.tab');
-        $tabHelper->startTab(acym_translation('ACYM_ONE_BY_ONE'));
+        $identifier = $this->name;
+        $tabHelper->startTab(acym_translation('ACYM_ONE_BY_ONE'), !empty($this->defaultValues->defaultPluginTab) && $identifier === $this->defaultValues->defaultPluginTab);
 
         $fields = [
             'title' => ['ACYM_TITLE', true],
@@ -89,15 +92,13 @@ class plgAcymSeblod extends acymPlugin
             ],
         ];
 
-        echo $this->acympluginHelper->displayOptions($displayOptions, $this->name);
-
-        echo $this->getFilteringZone();
-
-        $this->displayListing();
+        $zoneContent = $this->getFilteringZone().$this->prepareListing();
+        echo $this->displaySelectionZone($zoneContent);
+        echo $this->acympluginHelper->displayOptions($displayOptions, $identifier, 'individual', $this->defaultValues);
 
         $tabHelper->endTab();
-
-        $tabHelper->startTab(acym_translation('ACYM_BY_CATEGORY'));
+        $identifier = 'auto'.$this->name;
+        $tabHelper->startTab(acym_translation('ACYM_BY_CATEGORY'), !empty($this->defaultValues->defaultPluginTab) && $identifier === $this->defaultValues->defaultPluginTab);
 
         $catOptions = [
             [
@@ -114,13 +115,13 @@ class plgAcymSeblod extends acymPlugin
             ],
             [
                 'title' => 'ACYM_MAX_NB_ELEMENTS',
-                'type' => 'text',
+                'type' => 'number',
                 'name' => 'max',
                 'default' => 20,
             ],
             [
                 'title' => 'ACYM_COLUMNS',
-                'type' => 'text',
+                'type' => 'number',
                 'name' => 'cols',
                 'default' => 1,
             ],
@@ -128,52 +129,34 @@ class plgAcymSeblod extends acymPlugin
 
         $displayOptions = array_merge($displayOptions, $catOptions);
 
-        echo $this->acympluginHelper->displayOptions($displayOptions, 'auto'.$this->name, 'grouped');
-
-        echo $this->getCategoryListing();
+        echo $this->displaySelectionZone($this->getCategoryListing());
+        echo $this->acympluginHelper->displayOptions($displayOptions, $identifier, 'grouped', $this->defaultValues);
 
         $tabHelper->endTab();
 
         $tabHelper->display('plugin');
     }
 
-    function displayListing()
+    public function prepareListing()
     {
-        $querySelect = 'SELECT a.*,b.*,c.*,a.id AS gID, a.title AS gtitle ';
-        $query = 'FROM `#__content` AS a 
-                    JOIN #__categories AS b ON a.catid = b.id 
-                    LEFT JOIN `#__users` AS c ON a.created_by = c.id';
-        $filters = [];
-
-        $this->pageInfo = new stdClass();
-        $this->pageInfo->limit = acym_getCMSConfig('list_limit');
-        $this->pageInfo->page = acym_getVar('int', 'pagination_page_ajax', 1);
-        $this->pageInfo->start = ($this->pageInfo->page - 1) * $this->pageInfo->limit;
-        $this->pageInfo->search = acym_getVar('string', 'plugin_search', '');
-        $this->pageInfo->filter_cat = acym_getVar('int', 'plugin_category', 0);
+        $this->querySelect = 'SELECT a.*,b.*,c.*,a.id AS gID, a.title AS gtitle ';
+        $this->query = 'FROM `#__content` AS a 
+                        JOIN #__categories AS b ON a.catid = b.id 
+                        LEFT JOIN `#__users` AS c ON a.created_by = c.id';
+        $this->filters = [];
+        $this->filters[] = 'a.state != -2';
+        $this->searchFields = ['a.id', 'a.title', 'b.title', 'c.username'];
         $this->pageInfo->order = 'a.id';
-        $this->pageInfo->orderdir = 'DESC';
+        $this->elementIdTable = 'a';
+        $this->elementIdColumn = 'id';
 
-        $searchFields = ['a.id', 'a.title', 'b.title', 'c.username'];
-        if (!empty($this->pageInfo->search)) {
-            $searchVal = '%'.acym_getEscaped($this->pageInfo->search, true).'%';
-            $filters[] = implode(" LIKE ".acym_escapeDB($searchVal)." OR ", $searchFields)." LIKE ".acym_escapeDB($searchVal);
-        }
-        $filters[] = "a.state != -2";
+        parent::prepareListing();
+
         if (!empty($this->pageInfo->filter_cat)) {
-            $filters[] = "a.catid = ".intval($this->pageInfo->filter_cat);
-        }
-        if (!empty($filters)) {
-            $query .= ' WHERE ('.implode(') AND (', $filters).')';
-        }
-        if (!empty($this->pageInfo->order)) {
-            $query .= ' ORDER BY '.acym_secureDBColumn($this->pageInfo->order).' '.acym_secureDBColumn($this->pageInfo->orderdir);
+            $filters[] = 'a.catid = '.intval($this->pageInfo->filter_cat);
         }
 
-        $rows = acym_loadObjectList($querySelect.$query, '', $this->pageInfo->start, $this->pageInfo->limit);
-        $this->pageInfo->total = acym_loadResult('SELECT COUNT(*) '.$query);
-
-
+        $rows = $this->getElements();
         foreach ($rows as $i => $row) {
             if (strpos($row->created, ': ') != false) {
                 $rows[$i]->created = str_replace('/', '', strrchr(strip_tags($row->created), '/'));
@@ -205,16 +188,16 @@ class plgAcymSeblod extends acymPlugin
             'rows' => $rows,
         ];
 
-        echo $this->getElementsListing($listingOptions);
+        return $this->getElementsListing($listingOptions);
     }
 
-    function replaceContent(&$email)
+    public function replaceContent(&$email)
     {
         $this->_replaceAuto($email);
         $this->_replaceOne($email);
     }
 
-    private function _replaceOne(&$email)
+    public function _replaceOne(&$email)
     {
         $tags = $this->acympluginHelper->extractTags($email, $this->name);
         if (empty($tags)) return;
@@ -241,7 +224,7 @@ class plgAcymSeblod extends acymPlugin
         $this->acympluginHelper->replaceTags($email, $tagsReplaced, true);
     }
 
-    function _replaceContent(&$tag)
+    public function _replaceContent(&$tag)
     {
         if (!empty($tag->displays)) {
             $tag->displays = explode(';', $tag->displays);
@@ -376,7 +359,7 @@ class plgAcymSeblod extends acymPlugin
         return $result;
     }
 
-    function _replaceAuto(&$email)
+    public function _replaceAuto(&$email)
     {
         $this->generateByCategory($email);
         if (empty($this->tags)) {
@@ -385,7 +368,7 @@ class plgAcymSeblod extends acymPlugin
         $this->acympluginHelper->replaceTags($email, $this->tags, true);
     }
 
-    function generateByCategory(&$email)
+    public function generateByCategory(&$email)
     {
         $tags = $this->acympluginHelper->extractTags($email, 'auto'.$this->name);
         $return = new stdClass();
@@ -398,20 +381,12 @@ class plgAcymSeblod extends acymPlugin
         }
 
         foreach ($tags as $oneTag => $parameter) {
-            if (isset($this->tags[$oneTag])) {
-                continue;
-            }
-            $allcats = explode('-', $parameter->id);
-            $selectedArea = [];
-            foreach ($allcats as $oneCat) {
-                if (empty($oneCat)) {
-                    continue;
-                }
-                $selectedArea[] = intval($oneCat);
-            }
+            if (isset($this->tags[$oneTag])) continue;
+
             $query = 'SELECT id FROM #__content';
             $where = [];
 
+            $selectedArea = $this->getSelectedArea($parameter);
             if (!empty($selectedArea)) {
                 $where[] = 'catid IN ('.implode(',', $selectedArea).')';
             }

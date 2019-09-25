@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -16,12 +16,12 @@ class acymconfigurationClass extends acymClass
     var $pkey = 'name';
     var $values = [];
 
-    function load()
+    public function load()
     {
         $this->values = acym_loadObjectList('SELECT * FROM #__acym_configuration', 'name');
     }
 
-    function get($namekey, $default = '')
+    public function get($namekey, $default = '')
     {
         if (isset($this->values[$namekey])) {
             return $this->values[$namekey]->value;
@@ -30,7 +30,7 @@ class acymconfigurationClass extends acymClass
         return $default;
     }
 
-    function save($newConfig)
+    public function save($newConfig)
     {
         $query = 'REPLACE INTO #__acym_configuration (`name`, `value`) VALUES ';
 

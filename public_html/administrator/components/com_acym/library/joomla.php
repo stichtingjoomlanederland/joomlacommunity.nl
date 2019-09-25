@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -671,25 +671,26 @@ function acym_formOptions($token = true, $task = '', $currentStep = null, $curre
 
 function acym_enqueueMessage($message, $type = 'success')
 {
-    $result = is_array($message) ? implode('<br/>', $message) : $message;
 
-    if (acym_isAdmin()) {
-        if (ACYM_J30) {
-            $type = str_replace(['notice', 'message'], ['info', 'success'], $type);
-        } else {
-            $type = str_replace(['message', 'notice', 'warning'], ['info', 'warning', 'error'], $type);
-        }
-    } else {
-        if (ACYM_J30) {
-            $type = str_replace(['success', 'info'], ['message', 'notice'], $type);
-        } else {
-            $type = str_replace(['success', 'error', 'warning', 'info'], ['message', 'warning', 'notice', 'message'], $type);
-        }
+    $type = str_replace(['notice', 'message'], ['info', 'success'], $type);
+    $message = is_array($message) ? implode('<br/>', $message) : $message;
+
+    $notification = new stdClass();
+    $notification->message = $message;
+    $notification->date = time();
+    $notification->read = false;
+    $notification->level = $type;
+
+    $helperHeader = acym_get('helper.header');
+    $notification->id = $helperHeader->addNotification($notification);
+
+    if (in_array($type, ['info', 'warning', 'error'])) {
+        $acyapp = acym_getGlobal('app');
+
+        $acyapp->enqueueMessage($message, $type);
     }
 
-    $acyapp = acym_getGlobal('app');
-
-    $acyapp->enqueueMessage($result, $type);
+    return true;
 }
 
 function acym_displayMessages()
@@ -780,7 +781,7 @@ function acym_frontendLink($link, $complete = true, $popup = false)
         $json = json_decode($sefLink, true);
         if ($json == null) {
             if (!empty($sefLink) && acym_isDebug()) {
-                acym_enqueueNotification('Error trying to get the sef link: '.$sefLink, 'error', 0);
+                acym_enqueueMessage(acym_translation('ACYM_ERROR_TRYING_GET_LINK', $sefLink), 'error');
             }
         } else {
             $link = array_shift($json);
@@ -882,7 +883,7 @@ function acym_setPageTitle($title)
     $document->setTitle($title);
 }
 
-function acym_enqueueNotificationFront($message, $type = 'info', $time = 0)
+function acym_enqueueMessageFront($message, $type = 'info', $time = 0)
 {
     acym_enqueueMessage($message, $type);
 }

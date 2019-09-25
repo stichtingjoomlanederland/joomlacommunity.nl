@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -45,13 +45,17 @@ defined('_JEXEC') or die('Restricted access');
 					</button>
 				</div>
 				<div class="large-shrink medium-6 small-12 cell">
-                    <?php echo acym_modal_pagination_lists(
+                    <?php
+                    $entityHelper = acym_get('helper.entitySelect');
+
+                    echo acym_modal(
                         acym_translation('ACYM_ADD_TO_LIST').' (<span id="acym__users__listing__number_to_add_to_list">0</span>)',
-                        'button button-secondary acym__user__button disabled expanded',
-                        acym_translation('ACYM_CONFIRM'),
-                        'acym__user__listing__add-subscription__modal',
-                        'id="acym__users__listing__button--add-to-list"'
-                    ); ?>
+                        $entityHelper->entitySelect('list', ['join' => ''], ['name', 'id'], ['text' => acym_translation('ACYM_SUBSCRIBE_USERS_TO_THESE_LISTS'), 'action' => 'addToList']),
+                        null,
+                        '',
+                        'class="button button-secondary acym__user__button disabled expanded" id="acym__users__listing__button--add-to-list"'
+                    )
+                    ?>
 				</div>
 				<div class="large-shrink medium-6 small-12 cell">
 					<button data-task="edit" class="button expanded acy_button_submit">

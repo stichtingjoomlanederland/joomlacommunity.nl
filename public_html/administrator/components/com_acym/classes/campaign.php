@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -23,7 +23,7 @@ class acymcampaignClass extends acymClass
         return acym_loadObjectList($query);
     }
 
-    public function getMatchingCampaigns($settings)
+    public function getMatchingElements($settings = [])
     {
         $tagClass = acym_get('class.tag');
         $mailClass = acym_get('class.mail');
@@ -58,9 +58,18 @@ class acymcampaignClass extends acymClass
             $query .= ' ORDER BY '.$table.'.'.acym_secureDBColumn($settings['ordering']).' '.acym_secureDBColumn(strtoupper($settings['ordering_sort_order']));
         }
 
-        $results['campaigns'] = $mailClass->decode(acym_loadObjectList($query, '', $settings['offset'], $settings['campaignsPerPage']));
 
-        foreach ($results['campaigns'] as $oneCampaign) {
+        if (empty($settings['offset']) || $settings['offset'] < 0) {
+            $settings['offset'] = 0;
+        }
+
+        if (empty($settings['elementsPerPage']) || $settings['elementsPerPage'] < 1) {
+            $settings['elementsPerPage'] = acym_getCMSConfig('list_limit', 20);
+        }
+
+        $results['elements'] = $mailClass->decode(acym_loadObjectList($query, '', $settings['offset'], $settings['elementsPerPage']));
+
+        foreach ($results['elements'] as $oneCampaign) {
             array_push($mailIds, $oneCampaign->mail_id);
             $oneCampaign->tags = '';
         }
@@ -69,29 +78,29 @@ class acymcampaignClass extends acymClass
         $lists = $mailClass->getAllListsWithCountSubscribersByMailIds($mailIds);
         $totalStats = $statClass->getAllFromMailIds($mailIds);
 
-        foreach ($results['campaigns'] as $i => $oneCampaign) {
-            $results['campaigns'][$i]->tags = [];
-            $results['campaigns'][$i]->lists = [];
-            $results['campaigns'][$i]->automation_id = null;
+        foreach ($results['elements'] as $i => $oneCampaign) {
+            $results['elements'][$i]->tags = [];
+            $results['elements'][$i]->lists = [];
+            $results['elements'][$i]->automation_id = null;
 
             foreach ($tags as $tag) {
                 if ($oneCampaign->id == $tag->id_element) {
-                    $results['campaigns'][$i]->tags[] = $tag;
+                    $results['elements'][$i]->tags[] = $tag;
                 }
             }
 
             foreach ($lists as $list) {
                 if ($oneCampaign->mail_id == $list->mail_id) {
-                    array_push($results['campaigns'][$i]->lists, $list);
+                    array_push($results['elements'][$i]->lists, $list);
                 }
             }
 
             if (isset($totalStats[$oneCampaign->mail_id])) {
                 $oneCampaignStats = $totalStats[$oneCampaign->mail_id];
-                $results['campaigns'][$i]->subscribers = $oneCampaignStats->total_subscribers;
-                $results['campaigns'][$i]->open = 0;
+                $results['elements'][$i]->subscribers = $oneCampaignStats->total_subscribers;
+                $results['elements'][$i]->open = 0;
                 if (!empty($oneCampaignStats->total_subscribers)) {
-                    $results['campaigns'][$i]->open = intval($oneCampaignStats->open_unique / $oneCampaignStats->total_subscribers * 100);
+                    $results['elements'][$i]->open = intval($oneCampaignStats->open_unique / $oneCampaignStats->total_subscribers * 100);
                 }
             }
         }
@@ -143,9 +152,12 @@ class acymcampaignClass extends acymClass
         return acym_loadObject($query);
     }
 
-    public function manageListsToCampaign($listsIds, $mailId)
+    public function manageListsToCampaign($listsIds, $mailId, $unselectedListIds = [])
     {
-        acym_query('DELETE FROM #__acym_mail_has_list WHERE mail_id = '.intval($mailId));
+        if (!empty($unselectedListIds)) {
+            acym_arrayToInteger($unselectedListIds);
+            acym_query('DELETE FROM #__acym_mail_has_list WHERE mail_id = '.intval($mailId).' AND list_id IN ('.implode(', ', $unselectedListIds).')');
+        }
 
         acym_arrayToInteger($listsIds);
         if (empty($listsIds)) return;
@@ -157,7 +169,7 @@ class acymcampaignClass extends acymClass
         }
 
         if (!empty($values)) {
-            acym_query('INSERT INTO #__acym_mail_has_list (`mail_id`, `list_id`) VALUES '.implode(',', $values));
+            acym_query('INSERT IGNORE INTO #__acym_mail_has_list (`mail_id`, `list_id`) VALUES '.implode(',', $values));
         }
     }
 

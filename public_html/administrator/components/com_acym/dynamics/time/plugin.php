@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -167,11 +167,12 @@ class plgAcymTime extends acymPlugin
         }
 
         if (!empty($triggers['day'])) {
-            $todaysDate = strtotime('today '.$triggers['day']['hour'].':'.$triggers['day']['minutes']);
+            $todaysDate = acym_getTime('today '.$triggers['day']['hour'].':'.$triggers['day']['minutes']);
+            
             if ($time < $todaysDate) {
                 $nextExecutionDate[] = $todaysDate;
             } else {
-                $nextExecutionDate[] = strtotime('tomorrow '.$triggers['day']['hour'].':'.$triggers['day']['minutes']);
+                $nextExecutionDate[] = acym_getTime('tomorrow '.$triggers['day']['hour'].':'.$triggers['day']['minutes']);
 
                 if (empty($step->last_execution)) $execute = true;
             }
@@ -180,25 +181,25 @@ class plgAcymTime extends acymPlugin
         if (!empty($triggers['weeks_on'])) {
             foreach ($triggers['weeks_on']['day'] as $day) {
                 if ($day == strtolower(date('l'))) {
-                    $todaysDate = strtotime('today '.$dailyHour.':'.$dailyMinute);
+                    $todaysDate = acym_getTime('today '.$dailyHour.':'.$dailyMinute);
                     if ($time < $todaysDate) {
                         $nextExecutionDate[] = $todaysDate;
                     } elseif (empty($step->last_execution)) {
                         $execute = true;
                     }
                 } else {
-                    $nextExecutionDate[] = strtotime('next '.$day.' '.$dailyHour.':'.$dailyMinute);
+                    $nextExecutionDate[] = acym_getTime('next '.$day.' '.$dailyHour.':'.$dailyMinute);
                 }
             }
         }
 
         if (!empty($triggers['on_day_month'])) {
-            $today = strtotime('today '.$dailyHour.':'.$dailyMinute);
+            $today = acym_getTime('today '.$dailyHour.':'.$dailyMinute);
 
-            $execution = strtotime($triggers['on_day_month']['number'].' '.$triggers['on_day_month']['day'].' of this month '.$dailyHour.':'.$dailyMinute);
+            $execution = acym_getTime($triggers['on_day_month']['number'].' '.$triggers['on_day_month']['day'].' of this month '.$dailyHour.':'.$dailyMinute);
 
             if ($execution < $today) {
-                $execution = strtotime($triggers['on_day_month']['number'].' '.$triggers['on_day_month']['day'].' of next month '.$dailyHour.':'.$dailyMinute);
+                $execution = acym_getTime($triggers['on_day_month']['number'].' '.$triggers['on_day_month']['day'].' of next month '.$dailyHour.':'.$dailyMinute);
             }
 
             if ($execution > $time) {

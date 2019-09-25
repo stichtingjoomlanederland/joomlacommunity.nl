@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -35,14 +35,17 @@ class plgAcymJevents extends acymPlugin
         return $plugin;
     }
 
-    public function contentPopup()
+    public function contentPopup($defaultValues = null)
     {
+        $this->defaultValues = $defaultValues;
+
         acym_loadLanguageFile('com_jevents', JPATH_SITE);
 
         $this->categories = acym_loadObjectList('SELECT id, parent_id, title FROM `#__categories` WHERE extension = "com_jevents"', 'id');
 
         $tabHelper = acym_get('helper.tab');
-        $tabHelper->startTab(acym_translation('ACYM_ONE_BY_ONE'));
+        $identifier = $this->name;
+        $tabHelper->startTab(acym_translation('ACYM_ONE_BY_ONE'), !empty($this->defaultValues->defaultPluginTab) && $identifier === $this->defaultValues->defaultPluginTab);
 
         $displayOptions = [
             [
@@ -70,6 +73,7 @@ class plgAcymJevents extends acymPlugin
             [
                 'title' => 'ACYM_TRUNCATE',
                 'type' => 'intextfield',
+                'isNumber' => 1,
                 'name' => 'wrap',
                 'text' => 'ACYM_TRUNCATE_AFTER',
                 'default' => 0,
@@ -123,25 +127,24 @@ class plgAcymJevents extends acymPlugin
             }
         }
 
-        echo $this->acympluginHelper->displayOptions($displayOptions, $this->name);
-
-        echo $this->getFilteringZone();
-
-        $this->displayListing();
+        $zoneContent = $this->getFilteringZone().$this->prepareListing();
+        echo $this->displaySelectionZone($zoneContent);
+        echo $this->acympluginHelper->displayOptions($displayOptions, $identifier, 'individual', $this->defaultValues);
 
         $tabHelper->endTab();
-        $tabHelper->startTab(acym_translation('ACYM_BY_CATEGORY'));
+        $identifier = 'auto'.$this->name;
+        $tabHelper->startTab(acym_translation('ACYM_BY_CATEGORY'), !empty($this->defaultValues->defaultPluginTab) && $identifier === $this->defaultValues->defaultPluginTab);
 
         $catOptions = [
             [
                 'title' => 'ACYM_COLUMNS',
-                'type' => 'text',
+                'type' => 'number',
                 'name' => 'cols',
                 'default' => 1,
             ],
             [
                 'title' => 'ACYM_MAX_NB_ELEMENTS',
-                'type' => 'text',
+                'type' => 'number',
                 'name' => 'max',
                 'default' => 20,
             ],
@@ -223,54 +226,32 @@ class plgAcymJevents extends acymPlugin
 
         $displayOptions = array_merge($displayOptions, $catOptions);
 
-        echo $this->acympluginHelper->displayOptions($displayOptions, 'auto'.$this->name, 'grouped');
-
-        echo $this->getCategoryListing();
+        echo $this->displaySelectionZone($this->getCategoryListing());
+        echo $this->acympluginHelper->displayOptions($displayOptions, $identifier, 'grouped', $this->defaultValues);
 
         $tabHelper->endTab();
 
         $tabHelper->display('plugin');
     }
 
-    public function displayListing()
+    public function prepareListing()
     {
-        $querySelect = 'SELECT rpt.*, detail.*, cat.title AS cattitle ';
-        $query = 'FROM `#__jevents_repetition` AS rpt ';
-        $query .= 'JOIN `#__jevents_vevent` AS ev ON rpt.eventid = ev.ev_id ';
-        $query .= 'JOIN `#__categories` AS cat ON ev.catid = cat.id ';
-        $query .= 'JOIN `#__jevents_vevdetail` AS detail ON ev.detail_id = detail.evdet_id ';
-        $filters = [];
-
-        $this->pageInfo = new stdClass();
-        $this->pageInfo->limit = acym_getCMSConfig('list_limit');
-        $this->pageInfo->page = acym_getVar('int', 'pagination_page_ajax', 1);
-        $this->pageInfo->start = ($this->pageInfo->page - 1) * $this->pageInfo->limit;
-        $this->pageInfo->search = acym_getVar('string', 'plugin_search', '');
-        $this->pageInfo->filter_cat = acym_getVar('int', 'plugin_category', 0);
+        $this->querySelect = 'SELECT rpt.*, detail.*, cat.title AS cattitle ';
+        $this->query = 'FROM `#__jevents_repetition` AS rpt ';
+        $this->query .= 'JOIN `#__jevents_vevent` AS ev ON rpt.eventid = ev.ev_id ';
+        $this->query .= 'JOIN `#__categories` AS cat ON ev.catid = cat.id ';
+        $this->query .= 'JOIN `#__jevents_vevdetail` AS detail ON ev.detail_id = detail.evdet_id ';
+        $this->filters = [];
+        $this->searchFields = ['rpt.rp_id', 'detail.evdet_id', 'detail.description', 'detail.summary', 'detail.contact', 'detail.location'];
         $this->pageInfo->order = 'rpt.startrepeat';
-        $this->pageInfo->orderdir = 'DESC';
+        $this->elementIdTable = 'rpt';
+        $this->elementIdColumn = 'rp_id';
 
-        $searchFields = ['rpt.rp_id', 'detail.evdet_id', 'detail.description', 'detail.summary', 'detail.contact', 'detail.location'];
-        if (!empty($this->pageInfo->search)) {
-            $searchVal = '%'.acym_getEscaped($this->pageInfo->search, true).'%';
-            $filters[] = implode(" LIKE ".acym_escapeDB($searchVal)." OR ", $searchFields)." LIKE ".acym_escapeDB($searchVal);
-        }
+        parent::prepareListing();
 
         if (!empty($this->pageInfo->filter_cat)) {
-            $filters[] = "ev.catid = ".intval($this->pageInfo->filter_cat);
+            $filters[] = 'ev.catid = '.intval($this->pageInfo->filter_cat);
         }
-
-        if (!empty($filters)) {
-            $query .= ' WHERE ('.implode(') AND (', $filters).')';
-        }
-
-        if (!empty($this->pageInfo->order)) {
-            $query .= ' ORDER BY '.acym_secureDBColumn($this->pageInfo->order).' '.acym_secureDBColumn($this->pageInfo->orderdir);
-        }
-
-        $rows = acym_loadObjectList($querySelect.$query, '', $this->pageInfo->start, $this->pageInfo->limit);
-        $this->pageInfo->total = acym_loadResult('SELECT COUNT(*) '.$query);
-
 
         $listingOptions = [
             'header' => [
@@ -294,10 +275,10 @@ class plgAcymJevents extends acymPlugin
                 ],
             ],
             'id' => 'rp_id',
-            'rows' => $rows,
+            'rows' => $this->getElements(),
         ];
 
-        echo $this->getElementsListing($listingOptions);
+        return $this->getElementsListing($listingOptions);
     }
 
     public function replaceContent(&$email)
@@ -568,10 +549,11 @@ class plgAcymJevents extends acymPlugin
         $afterArticle = '';
 
         $imagePath = '';
-        $contentText = $element->description;
+        $contentText = '';
         $customFields = [];
 
         if ($tag->type == 'full') {
+            $contentText = $element->description;
             $customFields[] = [$date];
 
             if (!empty($element->location)) $customFields[] = [$element->location, acym_translation('ACYM_ADDRESS')];

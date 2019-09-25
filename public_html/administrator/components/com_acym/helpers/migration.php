@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -281,6 +281,27 @@ class acymmigrationHelper
         }
     }
 
+    private function _insertQuery($queryInsert, $result)
+    {
+        try {
+            $resultQuery = acym_query($queryInsert);
+        } catch (Exception $e) {
+            $this->errors[] = acym_getDBError();
+
+            return false;
+        }
+
+        if ($resultQuery === null) {
+            $this->errors[] = acym_getDBError();
+
+            return false;
+        } else {
+            $result += $resultQuery;
+        }
+
+        return $result;
+    }
+
     public function migrateTemplates($params = [])
     {
         $mailClass = acym_get('class.mail');
@@ -338,24 +359,7 @@ class acymmigrationHelper
 
         $queryInsert = "INSERT INTO #__acym_mail (`name`, `creation_date`, `drag_editor`, `library`, `type`, `body`, `subject`, `template`, `from_name`, `from_email`, `reply_to_name`, `reply_to_email`, `stylesheet`, `creator_id`) VALUES ".implode(',', $valuesToInsert).";";
 
-        try {
-            $resultQuery = acym_query($queryInsert);
-        } catch (Exception $e) {
-            $this->errors[] = acym_getDBError();
-
-            return false;
-        }
-
-        if ($resultQuery === null) {
-            $this->errors[] = acym_getDBError();
-
-            return false;
-        } else {
-            $result += $resultQuery;
-        }
-
-
-        return $result;
+        return $this->_insertQuery($queryInsert, $result);
     }
 
     public function migrateUsers_fields($params = [])
@@ -751,23 +755,7 @@ class acymmigrationHelper
 
         $queryInsert = "INSERT INTO #__acym_list (`id`, `name`, `active`, `visible`, `clean`, `color`, `creation_date`, `cms_user_id`) VALUES ".implode(',', $listsToInsert).";";
 
-        try {
-            $resultQuery = acym_query($queryInsert);
-        } catch (Exception $e) {
-            $this->errors[] = acym_getDBError();
-
-            return false;
-        }
-
-        if ($resultQuery === null) {
-            $this->errors[] = acym_getDBError();
-
-            return false;
-        } else {
-            $result += $resultQuery;
-        }
-
-        return $result;
+        return $this->_insertQuery($queryInsert, $result);
     }
 
     public function migrateUsers($params = [])
@@ -806,23 +794,7 @@ class acymmigrationHelper
 
         $queryInsert = "INSERT INTO #__acym_user (`id`, `name`, `email`, `creation_date`, `active`, `cms_id`, `source`, `confirmed`, `key`) VALUES ".implode(', ', $usersToInsert).";";
 
-        try {
-            $resultQuery = acym_query($queryInsert);
-        } catch (Exception $e) {
-            $this->errors[] = acym_getDBError();
-
-            return false;
-        }
-
-        if ($resultQuery === null) {
-            $this->errors[] = acym_getDBError();
-
-            return false;
-        } else {
-            $result += $resultQuery;
-        }
-
-        return $result;
+        return $this->_insertQuery($queryInsert, $result);
     }
 
     public function migrateBounce($params = [])
@@ -940,23 +912,7 @@ class acymmigrationHelper
 
         $queryInsert = "INSERT INTO #__acym_user_has_list (`user_id`, `list_id`, `status`, `subscription_date`, `unsubscribe_date`) VALUES ".implode(', ', $subscriptionsToInsert).";";
 
-        try {
-            $resultQuery = acym_query($queryInsert);
-        } catch (Exception $e) {
-            $this->errors[] = acym_getDBError();
-
-            return false;
-        }
-
-        if ($resultQuery === null) {
-            $this->errors[] = acym_getDBError();
-
-            return false;
-        } else {
-            $result += $resultQuery;
-        }
-
-        return $result;
+        return $this->_insertQuery($queryInsert, $result);
     }
 
     public function migrateMailHasLists($params = [])
@@ -988,23 +944,7 @@ class acymmigrationHelper
 
         $queryInsert = "INSERT INTO #__acym_mail_has_list (`mail_id`, `list_id`) VALUES ".implode(',', $mailHasListsToInsert).";";
 
-        try {
-            $resultQuery = acym_query($queryInsert);
-        } catch (Exception $e) {
-            $this->errors[] = acym_getDBError();
-
-            return false;
-        }
-
-        if ($resultQuery === null) {
-            $this->errors[] = acym_getDBError();
-
-            return false;
-        } else {
-            $result += $resultQuery;
-        }
-
-        return $result;
+        return $this->_insertQuery($queryInsert, $result);
     }
 
     public function migrateMailStats($params = [])
@@ -1045,23 +985,7 @@ class acymmigrationHelper
 
         $queryInsert = "INSERT INTO #__acym_mail_stat (`mail_id`, `total_subscribers`, `sent`, `send_date`, `fail`, `open_unique`, `open_total`) VALUES ".implode(',', $statsToInsert).";";
 
-        try {
-            $resultQuery = acym_query($queryInsert);
-        } catch (Exception $e) {
-            $this->errors[] = acym_getDBError();
-
-            return false;
-        }
-
-        if ($resultQuery === null) {
-            $this->errors[] = acym_getDBError();
-
-            return false;
-        } else {
-            $result += $resultQuery;
-        }
-
-        return $result;
+        return $this->_insertQuery($queryInsert, $result);
     }
 
     public function migrateWelcomeunsub($params = [])
@@ -1099,23 +1023,7 @@ class acymmigrationHelper
 
         $queryInsert = "INSERT INTO #__acym_list(`id`, `welcome_id`, `unsubscribe_id`) VALUES ".implode(',', $idsToInsert)." ON DUPLICATE KEY UPDATE `welcome_id` = VALUES(`welcome_id`), `unsubscribe_id` = VALUES(`unsubscribe_id`)";
 
-        try {
-            $resultQuery = acym_query($queryInsert);
-        } catch (Exception $e) {
-            $this->errors[] = acym_getDBError();
-
-            return false;
-        }
-
-        if ($resultQuery === null) {
-            $this->errors[] = acym_getDBError();
-
-            return false;
-        } else {
-            $result += $resultQuery;
-        }
-
-        return $result;
+        return $this->_insertQuery($queryInsert, $result);
     }
 
 
@@ -1123,21 +1031,12 @@ class acymmigrationHelper
 
     private function cleanFieldsTable()
     {
-        $hasError = false;
-
         $queryClean = [
             "DELETE FROM #__acym_user_has_field",
             "DELETE FROM #__acym_field WHERE `id` NOT IN (1,2)",
         ];
 
-        foreach ($queryClean as $query) {
-            if (acym_query($query) === null) {
-                $this->errors[] = acym_getDBError();
-                $hasError = true;
-            }
-        }
-
-        return !$hasError;
+        return $this->_finalizeClean($queryClean);
     }
 
     private function cleanUsers_fieldsTable()
@@ -1145,10 +1044,23 @@ class acymmigrationHelper
         return true;
     }
 
-    private function cleanMailsTable()
+    private function _finalizeClean($queryClean)
     {
         $hasError = false;
 
+        foreach ($queryClean as $oneQuery) {
+            if (acym_query($oneQuery) === null) {
+                $this->errors[] = acym_getDBError();
+                $hasError = true;
+                break;
+            }
+        }
+
+        return !$hasError;
+    }
+
+    private function cleanMailsTable()
+    {
         $queryClean = [
             "UPDATE #__acym_list SET `unsubscribe_id` = NULL",
             "UPDATE #__acym_list SET `welcome_id` = NULL",
@@ -1163,21 +1075,11 @@ class acymmigrationHelper
             "DELETE FROM #__acym_mail",
         ];
 
-        foreach ($queryClean as $oneQuery) {
-            if (acym_query($oneQuery) === null) {
-                $this->errors[] = acym_getDBError();
-                $hasError = true;
-                break;
-            }
-        }
-
-        return !$hasError;
+        return $this->_finalizeClean($queryClean);
     }
 
     private function cleanListsTable()
     {
-        $hasError = false;
-
         $queryClean = [
             "DELETE FROM #__acym_tag WHERE `type` = 'list'",
             "DELETE FROM #__acym_mail_has_list",
@@ -1185,21 +1087,11 @@ class acymmigrationHelper
             "DELETE FROM #__acym_list",
         ];
 
-        foreach ($queryClean as $oneQuery) {
-            if (acym_query($oneQuery) === null) {
-                $this->errors[] = acym_getDBError();
-                $hasError = true;
-                break;
-            }
-        }
-
-        return !$hasError;
+        return $this->_finalizeClean($queryClean);
     }
 
     private function cleanUsersTable()
     {
-        $hasError = false;
-
         $queryClean = [
             "DELETE FROM `#__acym_user_has_field`",
             "DELETE FROM `#__acym_user_has_list`",
@@ -1207,34 +1099,16 @@ class acymmigrationHelper
             "DELETE FROM `#__acym_user`",
         ];
 
-        foreach ($queryClean as $oneQuery) {
-            if (acym_query($oneQuery) === null) {
-                $this->errors[] = acym_getDBError();
-                $hasError = true;
-                break;
-            }
-        }
-
-        return !$hasError;
+        return $this->_finalizeClean($queryClean);
     }
 
     private function cleanBounceTable()
     {
-        $hasError = false;
-
         $queryClean = [
             "DELETE FROM `#__acym_rule`",
         ];
 
-        foreach ($queryClean as $oneQuery) {
-            if (acym_query($oneQuery) === null) {
-                $this->errors[] = acym_getDBError();
-                $hasError = true;
-                break;
-            }
-        }
-
-        return !$hasError;
+        return $this->_finalizeClean($queryClean);
     }
 
     public function doElementMigration($elementName, $params = [])

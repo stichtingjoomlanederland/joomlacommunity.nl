@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -39,11 +39,11 @@ class MailsController extends acymController
         $page = acym_getVar('int', 'mails_pagination_page', 1);
 
         $mailClass = acym_get('class.mail');
-        $matchingMails = $mailClass->getMatchingMails(
+        $matchingMails = $mailClass->getMatchingElements(
             [
                 'ordering' => $ordering,
                 'search' => $searchFilter,
-                'mailsPerPage' => $mailsPerPage,
+                'elementsPerPage' => $mailsPerPage,
                 'offset' => ($page - 1) * $mailsPerPage,
                 'tag' => $tagFilter,
                 'status' => $status,
@@ -51,7 +51,7 @@ class MailsController extends acymController
             ]
         );
 
-        $matchingMailsNb = count($matchingMails['mails']);
+        $matchingMailsNb = count($matchingMails['elements']);
 
         if (empty($matchingMailsNb)) {
             if ($page > 1) {
@@ -70,14 +70,8 @@ class MailsController extends acymController
         $pagination = acym_get('helper.pagination');
         $pagination->setStatus($matchingMails['total'], $page, $mailsPerPage);
 
-        foreach ($matchingMails['mails'] as $oneTemplate) {
-            if (empty($oneTemplate->thumbnail)) {
-                $oneTemplate->thumbnail = ACYM_IMAGES.'default_template_thumbnail.png';
-            }
-        }
-
         $mailsData = [
-            'allMails' => $matchingMails['mails'],
+            'allMails' => $matchingMails['elements'],
             'allTags' => acym_get('class.tag')->getAllTagsByType('mail'),
             'pagination' => $pagination,
             'search' => $searchFilter,
@@ -108,12 +102,12 @@ class MailsController extends acymController
         $page = acym_getVar('int', 'mailchoose_pagination_page', 1);
 
         $mailClass = acym_get('class.mail');
-        $matchingMails = $mailClass->getMatchingMails(
+        $matchingMails = $mailClass->getMatchingElements(
             [
                 'ordering' => $ordering,
                 'ordering_sort_order' => $orderingSortOrder,
                 'search' => $searchFilter,
-                'mailsPerPage' => $mailsPerPage,
+                'elementsPerPage' => $mailsPerPage,
                 'offset' => ($page - 1) * $mailsPerPage,
                 'tag' => $tagFilter,
                 'type' => $type,
@@ -123,14 +117,8 @@ class MailsController extends acymController
         $pagination = acym_get('helper.pagination');
         $pagination->setStatus($matchingMails['total'], $page, $mailsPerPage);
 
-        foreach ($matchingMails['mails'] as $oneTemplate) {
-            if (empty($oneTemplate->thumbnail)) {
-                $oneTemplate->thumbnail = ACYM_IMAGES.'default_template_thumbnail.png';
-            }
-        }
-
         $mailsData = [
-            'allMails' => $matchingMails['mails'],
+            'allMails' => $matchingMails['elements'],
             'allTags' => acym_get('class.tag')->getAllTagsByType('mail'),
             'pagination' => $pagination,
             'search' => $searchFilter,
@@ -284,7 +272,7 @@ class MailsController extends acymController
         }
         $mailID = $mailClass->save($mail);
         if (!empty($mailID)) {
-            if (!$ajax) acym_enqueueNotification(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success', 8000);
+            if (!$ajax) acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success');
             if ($fromAutomation) {
                 acym_setVar('from', $mailID);
                 acym_setVar('type', 'automation');
@@ -295,9 +283,9 @@ class MailsController extends acymController
 
             return $mailID;
         } else {
-            if (!$ajax) acym_enqueueNotification(acym_translation('ACYM_ERROR_SAVING'), 'error', 0);
+            if (!$ajax) acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING'), 'error');
             if (!empty($mailClass->errors)) {
-                if (!$ajax) acym_enqueueNotification($mailClass->errors, 'error', 0);
+                if (!$ajax) acym_enqueueMessage($mailClass->errors, 'error');
             }
 
             return false;
@@ -356,12 +344,12 @@ class MailsController extends acymController
         $page != 'undefined' ? : $page = '1';
 
         $mailClass = acym_get('class.mail');
-        $matchingMails = $mailClass->getMatchingMails(
+        $matchingMails = $mailClass->getMatchingElements(
             [
                 'ordering' => $ordering,
                 'ordering_sort_order' => $orderingSortOrder,
                 'search' => $searchFilter,
-                'mailsPerPage' => $mailsPerPage,
+                'elementsPerPage' => $mailsPerPage,
                 'offset' => ($page - 1) * $mailsPerPage,
                 'tag' => $tagFilter,
                 'type' => $type,
@@ -372,25 +360,15 @@ class MailsController extends acymController
 
         $return = '<div class="grid-x grid-padding-x grid-padding-y grid-margin-x grid-margin-y xxlarge-up-6 large-up-4 medium-up-3 small-up-1 cell acym__template__choose__list">';
 
-        foreach ($matchingMails['mails'] as $oneTemplate) {
-            if (empty($oneTemplate->thumbnail)) {
-                $oneTemplate->thumbnail = ACYM_IMAGES.'default_template_thumbnail.png';
-            }
-
+        foreach ($matchingMails['elements'] as $oneTemplate) {
             $return .= '<div class="cell grid-x acym__templates__oneTpl acym__listing__block" id="'.acym_escape($oneTemplate->id).'">
                 <div class="cell acym__templates__pic text-center">';
-
-            $thumbnail = $oneTemplate->thumbnail;
-            if (strpos($oneTemplate->thumbnail, 'default_template') === false) {
-                $thumbnail = ACYM_TEMPLATE_THUMBNAILS.$oneTemplate->thumbnail;
-            }
 
             $url = acym_getVar('cmd', 'ctrl').'&task=edit&step=editEmail&from='.intval($oneTemplate->id);
             if (!empty($this->data['campaignInformation'])) $url .= '&id='.intval($this->data['campaignInformation']);
             $return .= '<a href="'.acym_completeLink($url, false, false, true).'">';
 
-
-            $return .= '<img src="'.acym_escape($thumbnail).'" alt="template thumbnail"/>';
+            $return .= '<img src="'.acym_escape(acym_getMailThumbnail($oneTemplate->thumbnail)).'" alt="template thumbnail"/>';
             $return .= '</a>';
             if ($oneTemplate->drag_editor) {
                 $return .= '<div class="acym__templates__choose__ribbon ribbon">
@@ -455,7 +433,7 @@ class MailsController extends acymController
         $mail = $mailClass->getOneById($mailId);
 
         if (empty($mail)) {
-            acym_enqueueNotification(acym_translation('ACYM_CAMPAIGN_NOT_FOUND'), 'error', 5000);
+            acym_enqueueMessage(acym_translation('ACYM_CAMPAIGN_NOT_FOUND'), 'error');
             $this->edit();
 
             return;
@@ -468,9 +446,9 @@ class MailsController extends acymController
 
         $currentEmail = acym_currentUserEmail();
         if ($mailerHelper->sendOne($mailId, $currentEmail)) {
-            acym_enqueueNotification(acym_translation_sprintf('ACYM_SEND_SUCCESS', $mail->name, $currentEmail), 'info', 5000);
+            acym_enqueueMessage(acym_translation_sprintf('ACYM_SEND_SUCCESS', $mail->name, $currentEmail), 'info');
         } else {
-            acym_enqueueNotification(acym_translation_sprintf('ACYM_SEND_ERROR', $mail->name, $currentEmail), 'error', 5000);
+            acym_enqueueMessage(acym_translation_sprintf('ACYM_SEND_ERROR', $mail->name, $currentEmail), 'error');
         }
 
         $this->edit();
