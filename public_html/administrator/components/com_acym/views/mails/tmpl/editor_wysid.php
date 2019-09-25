@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -14,6 +14,7 @@ defined('_JEXEC') or die('Restricted access');
 <input type="hidden" id="acym__wysid__session--lifetime" name="acym_session_lifetime" value="<?php echo acym_escape(ini_get("session.gc_maxlifetime")); ?>" />
 <input type="hidden" class="acym__wysid__hidden__mailId" id="editor_mailid" name="editor_autoSave" value="<?php echo intval($this->mailId); ?>" />
 <input type="hidden" class="acym__wysid__hidden__save__auto" id="editor_autoSave" value="<?php echo acym_escape($this->autoSave); ?>">
+<input type="hidden" id="acym__template__preview">
 
 <div id="acym__wysid__edit" class="cell grid-x">
 	<div class="cell grid-x padding-1 padding-bottom-0">
@@ -34,23 +35,28 @@ defined('_JEXEC') or die('Restricted access');
 		<div id="acym__wysid__wrap" class="grid-y large-8 small-9 cell grid-padding-x grid-padding-y">
 			<!--Top toolbar-->
 			<div id="acym__wysid__top-toolbar" class="grid-x cell">
-				<div class="cell auto small-up-3 hide-for-small-only text-left">
-					<i id="acym__wysid__view__desktop" class="cell fa fa-desktop text-center"></i>
-					<i id="acym__wysid__view__smartphone" class="cell fa fa-mobile-phone text-center"></i>
-				</div>
-				<div class="cell auto hide-for-small-only"></div>
-				<div class="cell small-3 text-center acym__autosave__status">
-					<div class="acym__wysid__autosave__status__fail">
-						<i class="fa fa-exclamation-circle"></i>
-						<div><?php echo acym_translation('ACYM_AUTOSAVE_FAIL'); ?></div>
+				<div class="cell grid-x" id="acym__wysid__top-toolbar__actions">
+					<div class="cell grid-x align-left small-4 acym_vcenter ">
+						<i id="acym__wysid__top-toolbar__undo" class="cell shrink fa fa-undo acym__wysid__top-toolbar__icon"></i>
+						<p class="cell shrink">|</p>
+						<i id="acym__wysid__top-toolbar__redo" class="cell shrink fa fa-repeat acym__wysid__top-toolbar__icon"></i>
 					</div>
-					<div class="acym__wysid__autosave__status__success">
-						<i class="fa fa-check-circle"></i>
-						<div><?php echo acym_translation('ACYM_AUTOSAVE_SUCCESS'); ?></div>
+					<div class="cell grid-x auto small-4 hide-for-small-only align-center">
+						<p class="cell shrink acym__wysid__top-toolbar__icon margin-right-1"><?php echo acym_translation('ACYM_PREVIEW'); ?></p>
+						<i id="acym__wysid__view__desktop" class="cell shrink fa fa-desktop text-center acym__wysid__top-toolbar__icon"></i>
+						<i id="acym__wysid__view__smartphone" class="cell shrink acymicon-mobile text-center acym__wysid__top-toolbar__icon"></i>
+					</div>
+					<div class="cell grid-x small-4 align-right">
+						<button id="acym__wysid__cancel__button" type="button" class="cell small-6 medium-shrink margin-bottom-0"><i class="fa fa-ban acym__wysid__top-toolbar__button__icon"></i><?php echo acym_translation('ACYM_CANCEL'); ?></button>
+						<p class="cell shrink">|</p>
+						<button id="acym__wysid__save__button" type="button" class="cell small-6 medium-shrink margin-bottom-0"><i class="fa fa-save acym__wysid__top-toolbar__button__icon"></i><?php echo acym_translation('ACYM_APPLY'); ?></button>
 					</div>
 				</div>
-				<button id="acym__wysid__cancel__button" type="button" class="cell small-6 medium-shrink button-secondary button margin-bottom-0"><?php echo acym_translation('ACYM_CANCEL'); ?></button>
-				<button id="acym__wysid__save__button" type="button" class="cell small-6 medium-shrink button margin-bottom-0"><?php echo acym_translation('ACYM_APPLY'); ?></button>
+				<div class="cell grid-x align-left acym_vcenter" id="acym__wysid__top-toolbar__notification">
+					<i class="cell shrink fa" id="acym__wysid__top-toolbar__notification__icon"></i>
+					<p class="cell auto margin-left-1 margin-right-1 grid-x acym_vcenter" id="acym__wysid__top-toolbar__notification__message"></p>
+					<i class="cell grid-x shrink acymicon-close cursor-pointer" id="acym__wysid__top-toolbar__notification__close"></i>
+				</div>
 			</div>
 
             <?php if (strpos($this->content, 'acym__wysid__template') !== false) {
@@ -71,7 +77,7 @@ defined('_JEXEC') or die('Restricted access');
 															<tbody>
 																<tr>
 																	<th class="small-12 medium-12 large-12 columns">
-																		<table class="acym__wysid__column" style="min-height: 75px; display: block;">
+																		<table class="acym__wysid__column acym__wysid__column__first" style="min-height: 75px; display: block;">
 																			<tbody class="ui-sortable" style="min-height: 75px; display: block;">
                                                                                 <?php
                                                                                 if (!empty($this->content)) {
@@ -500,15 +506,15 @@ defined('_JEXEC') or die('Restricted access');
                                 ?>
 								<div class="cell grid-x acym__button__padding">
 									<div class="cell grid-x">
-										<label class="cell small-3"><?php echo acym_translation('ACYM_PADDING') ?></label>
-										<div class="cell grid-x auto">
-											<div class="small-8 padding-right-1 cell acym__wysid__context__button__slider" data-output="slider__output__button__width">
+										<div class="cell grid-x small-12">
+											<label class="cell small-3"><?php echo acym_translation('ACYM_PADDING') ?></label>
+											<div class="small-6 padding-right-1 padding-left-1 cell acym__wysid__context__button__slider" data-output="slider__output__button__width">
 												<div class="slider" data-slider="" data-end="100" data-initial-start="25">
 													<span class="slider-handle" data-slider-handle="" role="slider" tabindex="0" aria-controls="slider__output__button__width" aria-valuemax="50" data-valuenow="25" aria-valuemin="10" style="left: 44%"></span>
 													<span class="slider-fill" data-slider-fill="" style="width: 44%;"></span>
 												</div>
 											</div>
-											<div class="small-2 cell" id="acym__wysid__context__space__input">
+											<div class="shrink cell" id="acym__wysid__context__space__input">
 												<input type="number" id="slider__output__button__width" max="50" min="10" step="1">
 											</div>
 										</div>
@@ -530,17 +536,37 @@ defined('_JEXEC') or die('Restricted access');
 						</div>
 					</div>
 					<div id="acym__wysid__context__space" style="display: none" class="grid-x padding-1 acym__wysid__context__modal">
-						<label class="cell small-5"><?php echo acym_translation('ACYM_HEIGHT') ?></label>
-						<div class="grid-x cell auto">
-							<div class="small-8 padding-right-1 cell" id="acym__wysid__context__space__slider">
-								<div class="slider" data-slider="" data-initial-start="50" data-start="10" data-e="2mf38c-e">
-									<span class="slider-handle" data-slider-handle="" role="slider" tabindex="0" aria-controls="sliderOutput1" aria-valuemax="100" aria-valuemin="10" aria-valuenow="50" aria-orientation="horizontal" style="left: 44%;"></span>
-									<span class="slider-fill" data-slider-fill="" style="width: 44%;"></span>
+						<label class="cell small-3"><?php echo acym_translation('ACYM_HEIGHT') ?></label>
+						<div class="small-6 padding-right-1 cell" id="acym__wysid__context__space__slider">
+							<div class="slider" data-slider="" data-initial-start="50" data-start="10" data-e="2mf38c-e">
+								<span class="slider-handle" data-slider-handle="" role="slider" tabindex="0" aria-controls="sliderOutput1" aria-valuemax="100" aria-valuemin="10" aria-valuenow="50" aria-orientation="horizontal" style="left: 44%;"></span>
+								<span class="slider-fill" data-slider-fill="" style="width: 44%;"></span>
+							</div>
+						</div>
+						<div class="shrink cell" id="acym__wysid__context__space__input">
+							<input type="number" id="sliderOutput1" max="100" min="10" step="1">
+						</div>
+					</div>
+					<div id="acym__wysid__context__image" style="display: none" class="grid-x padding-1 acym__wysid__context__modal">
+						<p class="cell acym__wysid__right__toolbar__p__open acym__wysid__right__toolbar__p"><?php echo acym_translation('ACYM_POSITION'); ?><i class="acymicon-expand_more"></i></p>
+						<div class="cell grid-x acym__wysid__context__modal__container">
+							<div class="cell grid-x">
+								<label class="cell small-3"><?php echo acym_translation('ACYM_ALIGNMENT'); ?></label>
+								<div class="cell auto grid-x">
+									<i class="acymicon-format_align_left cell shrink acym__wysid__context__image__align" id="acym__wysid__context__image__align__left" data-float="left" data-css='{"float": "left"}'></i>
+									<i class="acymicon-format_align_center cell shrink acym__wysid__context__image__align" id="acym__wysid__context__image__align__left" data-float="none" data-css='{"marginRight": "auto", "marginLeft": "auto", "float": "none"}'></i>
+									<i class="acymicon-format_align_right cell shrink acym__wysid__context__image__align" id="acym__wysid__context__image__align__left" data-float="right" data-css='{"float": "right"}'></i>
 								</div>
 							</div>
-							<div class="small-2 cell" id="acym__wysid__context__space__input">
-								<input type="number" id="sliderOutput1" max="100" min="10" step="1">
-							</div>
+						</div>
+						<p class="cell acym__wysid__right__toolbar__p__open acym__wysid__right__toolbar__p"><?php echo acym_translation('ACYM_LINK'); ?><i class="acymicon-expand_more"></i></p>
+						<div class="cell grid-x acym__wysid__context__modal__container">
+							<label for="acym__wysid__context__image__link" class="cell small-3"><?php echo acym_translation('ACYM_LINK'); ?></label>
+							<input type="text" name="image_link" value="" id="acym__wysid__context__image__link" placeholder="https://www.example.com" class="cell auto acym__light__input">
+						</div>
+						<p class="cell acym__wysid__right__toolbar__p__open acym__wysid__right__toolbar__p"><?php echo acym_translation('ACYM_OTHER'); ?><i class="acymicon-expand_more"></i></p>
+						<div class="cell grid-x align-center acym__wysid__context__modal__container">
+							<button type="button" class="cell shrink button button-secondary" id="acym__wysid__context__image__change"><?php echo acym_translation('ACYM_CHANGE_IMAGE'); ?></button>
 						</div>
 					</div>
 					<div id="acym__wysid__context__separator" class="grid-x padding-1 acym__wysid__context__modal" style="display: none">
@@ -567,9 +593,9 @@ defined('_JEXEC') or die('Restricted access');
 						</div>
 						<p class="cell acym__wysid__right__toolbar__p__open acym__wysid__right__toolbar__p"><?php echo acym_translation('ACYM_SIZE'); ?><i class="acymicon-expand_more"></i></p>
 						<div class="cell grid-x acym__wysid__context__modal__container">
-							<div class="cell grid-x grid-margin-x">
+							<div class="cell grid-x">
 								<label class="cell small-3 acym_vcenter acym__color__light-blue"><?php echo acym_translation('ACYM_HEIGHT'); ?></label>
-								<div class="small-6 padding-right-1 cell" id="acym__wysid__context__separator__slide">
+								<div class="small-6 padding-right-1 padding-left-1 cell" id="acym__wysid__context__separator__slide">
 									<div class="slider" data-slider data-initial-start="3" data-start="1" data-e="2mf38c-e">
 										<span class="slider-handle" data-slider-handle role="slider" tabindex="0" aria-controls="sliderOutput2" aria-valuemax="20" aria-valuemin="1" aria-valuenow="3" aria-orientation="horizontal" style="left: 44%;"></span>
 										<span class="slider-fill" data-slider-fill style="width: 44%;"></span>
@@ -579,9 +605,9 @@ defined('_JEXEC') or die('Restricted access');
 									<input type="number" id="sliderOutput2" max="20" min="1" step="1" value="3">
 								</div>
 							</div>
-							<div class="cell grid-x grid-margin-x">
+							<div class="cell grid-x">
 								<label class="cell small-3 acym_vcenter acym__color__light-blue"><?php echo acym_translation('ACYM_WIDTH'); ?></label>
-								<div class="small-6 padding-right-1 cell" id="acym__wysid__context__separator__slide__width">
+								<div class="small-6 padding-right-1 padding-left-1 cell" id="acym__wysid__context__separator__slide__width">
 									<div class="slider" data-slider data-initial-start="100">
 										<span class="slider-handle" data-slider-handle role="slider" tabindex="1" aria-controls="sliderOutput3" style="left: 100%;"></span>
 										<span class="slider-fill" data-slider-fill style="width: 100%;"></span>
@@ -624,6 +650,9 @@ defined('_JEXEC') or die('Restricted access');
 							</div>
 						</div>
 					</div>
+
+					<div id="acym__wysid__context__plugins" class="grid-x acym__wysid__context__modal" style="display: none">
+					</div>
 				</div>
 			</div>
 		</div>
@@ -640,28 +669,16 @@ defined('_JEXEC') or die('Restricted access');
 				</button>
 			</div>
 		</div>
-		<div id="acym__wysid__modal_plugins" class="acym__wysid__modal">
-			<div class="acym__wysid__modal__bg acym__wysid__modal--close"></div>
-			<div class="acym__wysid__modal__ui float-center cell">
-				<div id="acym__plugins__modal__insert">
-					<div id="acym__dynamics__popup__menu__insert__tag" class="cell grid-x">
-						<div class="medium-auto hide-for-small-only"></div>
-						<input title="Dynamic content" type="text" class="cell medium-5 small-12 margin-right-1" id="dcontentcode" name="dcontentcode" value="">
-						<div class="medium-2 small-12">
-							<button class="button expanded smaller-button" id="insertDContent"><?php echo acym_translation('ACYM_INSERT'); ?></button>
-						</div>
-						<div class="medium-auto hide-for-small-only"></div>
-					</div>
-				</div>
-				<div id="acym__plugins__modal__options"></div>
-				<button class="close-button acym__wysid__modal--close" aria-label="Dismiss alert" type="button" data-close="">
-					<span aria-hidden="true">×</span>
-				</button>
-			</div>
-		</div>
 
-		<div id="acym__wysid__fullscreen__modal" class="grid-y">
-			<div id="acym__wysid__fullscreen__modal__content" class="grid-x cell small-12"></div>
+		<div id="acym__wysid__fullscreen__modal" class="grid-x align-center">
+			<div class="acym__imac cell medium-8 acym__wysid__fullscreen__modal__content__container" style="display: none">
+				<div id="acym__wysid__fullscreen__modal__content__desktop" class=acym__imac__screen></div>
+				<div class="acym__imac__stand"></div>
+			</div>
+			<div class="cell medium-4 acym__iphone acym__wysid__fullscreen__modal__content__container" style="display: none">
+				<div id="acym__wysid__fullscreen__modal__content__smartphone" class="acym__iphone__screen"></div>
+			</div>
+			<div class="grid-x cell small-12"></div>
 			<button id="acym__wysid__fullscreen__modal__close" class="close-button padding-1" aria-label="Dismiss alert" type="button" data-close="">
 				<span aria-hidden="true" style="font-size: 39px">×</span>
 			</button>

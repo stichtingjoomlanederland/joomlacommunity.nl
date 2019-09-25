@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -12,7 +12,7 @@ defined('_JEXEC') or die('Restricted access');
 
 class plgAcymPost extends acymPlugin
 {
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
         $this->cms = 'WordPress';
@@ -20,7 +20,7 @@ class plgAcymPost extends acymPlugin
         $this->rootCategoryId = 0;
     }
 
-    function insertOptions()
+    public function insertOptions()
     {
         $plugin = new stdClass();
         $plugin->name = acym_translation('ACYM_ARTICLE');
@@ -31,8 +31,10 @@ class plgAcymPost extends acymPlugin
         return $plugin;
     }
 
-    function contentPopup()
+    public function contentPopup($defaultValues = null)
     {
+        $this->defaultValues = $defaultValues;
+
         $this->categories = acym_loadObjectList(
             "SELECT cat.term_taxonomy_id AS id, cat.parent AS parent_id, catdetails.name AS title 
             FROM `#__term_taxonomy` AS cat 
@@ -41,7 +43,8 @@ class plgAcymPost extends acymPlugin
         );
 
         $tabHelper = acym_get('helper.tab');
-        $tabHelper->startTab(acym_translation('ACYM_ONE_BY_ONE'));
+        $identifier = $this->name;
+        $tabHelper->startTab(acym_translation('ACYM_ONE_BY_ONE'), !empty($this->defaultValues->defaultPluginTab) && $identifier === $this->defaultValues->defaultPluginTab);
 
         $displayOptions = [
             [
@@ -64,6 +67,7 @@ class plgAcymPost extends acymPlugin
             [
                 'title' => 'ACYM_TRUNCATE',
                 'type' => 'intextfield',
+                'isNumber' => 1,
                 'name' => 'wrap',
                 'text' => 'ACYM_TRUNCATE_AFTER',
                 'default' => 0,
@@ -75,14 +79,13 @@ class plgAcymPost extends acymPlugin
             ],
         ];
 
-        echo $this->acympluginHelper->displayOptions($displayOptions, $this->name);
-
-        echo $this->getFilteringZone();
-
-        $this->displayListing();
+        $zoneContent = $this->getFilteringZone().$this->prepareListing();
+        echo $this->displaySelectionZone($zoneContent);
+        echo $this->acympluginHelper->displayOptions($displayOptions, $identifier, 'individual', $this->defaultValues);
 
         $tabHelper->endTab();
-        $tabHelper->startTab(acym_translation('ACYM_BY_CATEGORY'));
+        $identifier = 'auto'.$this->name;
+        $tabHelper->startTab(acym_translation('ACYM_BY_CATEGORY'), !empty($this->defaultValues->defaultPluginTab) && $identifier === $this->defaultValues->defaultPluginTab);
 
         $catOptions = [
             [
@@ -99,13 +102,13 @@ class plgAcymPost extends acymPlugin
             ],
             [
                 'title' => 'ACYM_COLUMNS',
-                'type' => 'text',
+                'type' => 'number',
                 'name' => 'cols',
                 'default' => 1,
             ],
             [
                 'title' => 'ACYM_MAX_NB_ELEMENTS',
-                'type' => 'text',
+                'type' => 'number',
                 'name' => 'max',
                 'default' => 20,
             ],
@@ -113,53 +116,37 @@ class plgAcymPost extends acymPlugin
 
         $displayOptions = array_merge($displayOptions, $catOptions);
 
-        echo $this->acympluginHelper->displayOptions($displayOptions, 'auto'.$this->name, 'grouped');
-
+        ob_start();
         acym_display(acym_translation('ACYM_SPECIAL_CONTENT_WARNING'), 'warning', false);
-
-        echo $this->getCategoryListing();
+        $warningMessage = ob_get_clean();
+        echo $this->displaySelectionZone($warningMessage.$this->getCategoryListing());
+        echo $this->acympluginHelper->displayOptions($displayOptions, $identifier, 'grouped', $this->defaultValues);
 
         $tabHelper->endTab();
 
         $tabHelper->display('plugin');
     }
 
-    function displayListing()
+    public function prepareListing()
     {
-        $querySelect = 'SELECT post.ID, post.post_title, post.post_date, post.post_content ';
-        $query = 'FROM #__posts AS post ';
-        $filters = [];
-
-        $this->pageInfo = new stdClass();
-        $this->pageInfo->limit = acym_getCMSConfig('list_limit');
-        $this->pageInfo->page = acym_getVar('int', 'pagination_page_ajax', 1);
-        $this->pageInfo->start = ($this->pageInfo->page - 1) * $this->pageInfo->limit;
-        $this->pageInfo->search = acym_getVar('string', 'plugin_search', '');
-        $this->pageInfo->filter_cat = acym_getVar('int', 'plugin_category', 0);
+        $this->querySelect = 'SELECT post.ID, post.post_title, post.post_date, post.post_content ';
+        $this->query = 'FROM #__posts AS post ';
+        $this->filters = [];
+        $this->filters[] = 'post.post_type = "post"';
+        $this->filters[] = 'post.post_status = "publish"';
+        $this->searchFields = ['post.ID', 'post.post_title'];
         $this->pageInfo->order = 'post.ID';
-        $this->pageInfo->orderdir = 'DESC';
+        $this->elementIdTable = 'post';
+        $this->elementIdColumn = 'ID';
 
-        $searchFields = ['post.ID', 'post.post_title'];
-        if (!empty($this->pageInfo->search)) {
-            $searchVal = '%'.acym_getEscaped($this->pageInfo->search, true).'%';
-            $filters[] = implode(" LIKE ".acym_escapeDB($searchVal)." OR ", $searchFields)." LIKE ".acym_escapeDB($searchVal);
-        }
+        parent::prepareListing();
 
         if (!empty($this->pageInfo->filter_cat)) {
-            $query .= 'JOIN #__term_relationships AS cat ON post.ID = cat.object_id';
-            $filters[] = "cat.term_taxonomy_id = ".intval($this->pageInfo->filter_cat);
+            $this->query .= 'JOIN #__term_relationships AS cat ON post.ID = cat.object_id';
+            $this->filters[] = 'cat.term_taxonomy_id = '.intval($this->pageInfo->filter_cat);
         }
 
-        $filters[] = 'post.post_type = "post"';
-        $filters[] = 'post.post_status = "publish"';
-
-        $query .= ' WHERE ('.implode(') AND (', $filters).')';
-        if (!empty($this->pageInfo->order)) $query .= ' ORDER BY '.acym_secureDBColumn($this->pageInfo->order).' '.acym_secureDBColumn($this->pageInfo->orderdir);
-
-        $rows = acym_loadObjectList($querySelect.$query, '', $this->pageInfo->start, $this->pageInfo->limit);
-        $this->pageInfo->total = acym_loadResult('SELECT COUNT(*) '.$query);
-
-
+        $rows = $this->getElements();
         foreach ($rows as $i => $row) {
             if (str_replace(['wp:core-embed', 'wp:shortcode'], '', $row->post_content) !== $row->post_content) {
                 $rows[$i]->post_title = acym_tooltip('<i class="fa fa-warning"></i>', acym_translation('ACYM_SPECIAL_CONTENT_WARNING')).$rows[$i]->post_title;
@@ -187,16 +174,16 @@ class plgAcymPost extends acymPlugin
             'rows' => $rows,
         ];
 
-        echo $this->getElementsListing($listingOptions);
+        return $this->getElementsListing($listingOptions);
     }
 
-    function replaceContent(&$email)
+    public function replaceContent(&$email)
     {
         $this->_replaceAuto($email);
         $this->_replaceOne($email);
     }
 
-    function _replaceAuto(&$email)
+    public function _replaceAuto(&$email)
     {
         $this->generateByCategory($email);
         if (empty($this->tags)) {
@@ -205,7 +192,7 @@ class plgAcymPost extends acymPlugin
         $this->acympluginHelper->replaceTags($email, $this->tags, true);
     }
 
-    function generateByCategory(&$email)
+    public function generateByCategory(&$email)
     {
         $tags = $this->acympluginHelper->extractTags($email, 'auto'.$this->name);
         $return = new stdClass();
@@ -218,17 +205,7 @@ class plgAcymPost extends acymPlugin
         }
 
         foreach ($tags as $oneTag => $parameter) {
-            if (isset($this->tags[$oneTag])) {
-                continue;
-            }
-            $allcats = explode('-', $parameter->id);
-            $selectedArea = [];
-            foreach ($allcats as $oneCat) {
-                if (empty($oneCat)) {
-                    continue;
-                }
-                $selectedArea[] = intval($oneCat);
-            }
+            if (isset($this->tags[$oneTag])) continue;
 
             $query = 'SELECT DISTINCT post.`ID` 
                     FROM #__posts AS post 
@@ -236,6 +213,7 @@ class plgAcymPost extends acymPlugin
 
             $where = [];
 
+            $selectedArea = $this->getSelectedArea($parameter);
             if (!empty($selectedArea)) {
                 $where[] = 'cat.term_taxonomy_id IN ('.implode(',', $selectedArea).')';
             }
@@ -265,23 +243,7 @@ class plgAcymPost extends acymPlugin
         return $return;
     }
 
-    private function _replaceOne(&$email)
-    {
-        $tags = $this->acympluginHelper->extractTags($email, $this->name);
-        if (empty($tags)) return;
-
-        $tagsReplaced = [];
-        foreach ($tags as $i => $oneTag) {
-            if (isset($tagsReplaced[$i])) {
-                continue;
-            }
-            $tagsReplaced[$i] = $this->_replaceContent($oneTag, $email);
-        }
-
-        $this->acympluginHelper->replaceTags($email, $tagsReplaced, true);
-    }
-
-    function _replaceContent($tag, &$email)
+    public function _replaceContent($tag, &$email)
     {
         $query = 'SELECT post.*
                     FROM #__posts AS post

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -69,17 +69,7 @@ defined('_JEXEC') or die('Restricted access');
 						<div class="cell acym__templates__pic text-center">
 							<!-- Todo find a better way to pass the step in url when you choose a template in campaigns -->
 							<a href="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl').'&task=edit&step=editEmail&from='.$oneTemplate->id.'&id='.acym_escape($data['campaignID'])); ?>">
-                                <?php
-                                $src = $oneTemplate->thumbnail;
-                                if (strpos($oneTemplate->thumbnail, 'default_template') === false) {
-                                    $src = ACYM_TEMPLATE_THUMBNAILS.$src;
-                                }
-
-                                if (!file_exists(str_replace(acym_rootURI(), ACYM_ROOT, $src))) {
-                                    $src = ACYM_IMAGES.'default_template_thumbnail.png';
-                                }
-                                ?>
-								<img src="<?php echo $src; ?>" alt="<?php echo acym_escape($oneTemplate->name); ?>" />
+								<img src="<?php echo acym_getMailThumbnail($oneTemplate->thumbnail); ?>" alt="<?php echo acym_escape($oneTemplate->name); ?>" />
 							</a>
                             <?php
                             if ($oneTemplate->drag_editor) {

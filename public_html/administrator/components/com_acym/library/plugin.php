@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -26,16 +26,83 @@ class acymPlugin
 
     var $tags = [];
     var $pageInfo;
+    var $searchFields = [];
+    var $querySelect = '';
+    var $query = '';
+    var $filters = [];
+    var $elementIdTable = '';
+    var $elementIdColumn = '';
+
+    var $defaultValues;
 
     public function __construct()
     {
         $this->acympluginHelper = acym_get('helper.plugin');
         $this->pluginsPath = acym_getPluginsPath(__FILE__, __DIR__);
+        $this->pageInfo = new stdClass();
+    }
+
+    protected function displaySelectionZone($zoneContent)
+    {
+        $output = '<p class="acym__wysid__right__toolbar__p acym__wysid__right__toolbar__p__open">'.acym_translation('ACYM_CONTENT_TO_INSERT').'<i class="acymicon-expand_more"></i></p>';
+        $output .= '<div class="acym__wysid__right__toolbar__design--show acym__wysid__right__toolbar__design acym__wysid__context__modal__container">';
+        $output .= $zoneContent;
+        $output .= '</div>';
+
+        return $output;
+    }
+
+    public function displayListing()
+    {
+        echo $this->prepareListing();
+    }
+
+    public function prepareListing()
+    {
+        $this->pageInfo->limit = 5;
+        $this->pageInfo->page = acym_getVar('int', 'pagination_page_ajax', 1);
+        $this->pageInfo->start = ($this->pageInfo->page - 1) * $this->pageInfo->limit;
+        $this->pageInfo->search = acym_getVar('string', 'plugin_search', '');
+        $this->pageInfo->filter_cat = acym_getVar('int', 'plugin_category', 0);
+        $this->pageInfo->orderdir = 'DESC';
+
+        if (!empty($this->pageInfo->search) && !empty($this->searchFields)) {
+            $searchVal = '%'.acym_getEscaped($this->pageInfo->search, true).'%';
+            $this->filters[] = implode(' LIKE '.acym_escapeDB($searchVal).' OR ', $this->searchFields).' LIKE '.acym_escapeDB($searchVal);
+        }
+
+        return '';
+    }
+
+    public function getElements()
+    {
+        $conditions = '';
+        $ordering = '';
+        if (!empty($this->filters)) $conditions = ' WHERE ('.implode(') AND (', $this->filters).')';
+        if (!empty($this->pageInfo->order)) $ordering = ' ORDER BY '.acym_secureDBColumn($this->pageInfo->order).' '.acym_secureDBColumn($this->pageInfo->orderdir);
+
+        $rows = acym_loadObjectList($this->querySelect.$this->query.$conditions.$ordering, '', $this->pageInfo->start, $this->pageInfo->limit);
+        $this->pageInfo->total = acym_loadResult('SELECT COUNT(*) '.$this->query.$conditions.$ordering);
+
+        if (!empty($this->defaultValues->id)) {
+            $found = false;
+            foreach ($rows as $oneRow) {
+                if ($oneRow->{$this->elementIdColumn} === $this->defaultValues->id) $found = true;
+            }
+
+            if (!$found) {
+                $this->filters[] = $this->elementIdTable.'.'.$this->elementIdColumn.' = '.intval($this->defaultValues->id);
+                $row = acym_loadObject($this->querySelect.$this->query.$conditions);
+                if (!empty($row)) $rows[] = $row;
+            }
+        }
+
+        return $rows;
     }
 
     protected function getFilteringZone($categoryFilter = true)
     {
-        $result = '<div class="grid-x grid-margin-x" id="plugin_listing_filters">
+        $result = '<div class="grid-x" id="plugin_listing_filters">
                     <div class="cell medium-6">
                         <input type="text" name="plugin_search" placeholder="'.acym_escape(acym_translation('ACYM_SEARCH')).'"/>
                     </div>
@@ -81,7 +148,7 @@ class acymPlugin
 
     protected function getElementsListing($options)
     {
-        $listing = '<div id="plugin_listing" class="acym__popup__listing padding-0">';
+        $listing = '<div id="plugin_listing" class="acym__popup__listing">';
         $listing .= '<input type="hidden" name="plugin" value="'.acym_escape(get_class($this)).'" />';
 
         $listing .= '<div class="cell grid-x hide-for-small-only plugin_listing_headers">';
@@ -95,8 +162,10 @@ class acymPlugin
             $listing .= '<h1 class="cell acym__listing__empty__search__modal text-center">'.acym_translation('ACYM_NO_RESULTS_FOUND').'</h1>';
         } else {
             $selected = explode(',', acym_getVar('string', 'selected', ''));
+            if (!empty($this->defaultValues->id)) $selected = [$this->defaultValues->id];
+
             foreach ($options['rows'] as $row) {
-                $class = 'cell grid-x acym__listing__row acym__listing__row__popup';
+                $class = 'cell grid-x acym__listing__row__popup';
                 if (in_array($row->{$options['id']}, $selected)) $class .= ' selected_row';
 
                 $listing .= '<div class="'.$class.'" data-id="'.intval($row->{$options['id']}).'" onclick="applyContent'.acym_escape($this->name).'('.intval($row->{$options['id']}).', this);">';
@@ -106,7 +175,8 @@ class acymPlugin
 
                     if (!empty($oneColumn['type']) && $oneColumn['type'] == 'date') {
                         if (!is_numeric($value)) $value = strtotime($value);
-                        $value = acym_date($value, 'd F Y H:i');
+                        $tooltip = acym_date($value, acym_translation('ACYM_DATE_FORMAT_LC2'));
+                        $value = acym_tooltip(acym_date($value, acym_translation('ACYM_DATE_FORMAT_LC5')), $tooltip);
                     }
 
                     $class = empty($oneColumn['class']) ? '' : ' '.$oneColumn['class'];
@@ -131,10 +201,16 @@ class acymPlugin
         if (empty($this->catvalues)) return $listing;
 
         $listing .= '<div class="acym__popup__listing padding-0">';
+        $selected = [];
+        if (!empty($this->defaultValues->id) && strpos($this->defaultValues->id, '-')) {
+            $selected = explode('-', $this->defaultValues->id);
+        }
         foreach ($this->catvalues as $oneCat) {
             if (empty($oneCat->value)) continue;
 
-            $listing .= '<div class="cell grid-x acym__listing__row acym__listing__row__popup" data-id="'.intval($oneCat->value).'" onclick="applyContentauto'.acym_escape($this->name).'('.intval($oneCat->value).', this);">
+            $class = 'cell grid-x acym__listing__row acym__listing__row__popup';
+            if (in_array($oneCat->value, $selected)) $class .= ' selected_row';
+            $listing .= '<div class="'.$class.'" data-id="'.intval($oneCat->value).'" onclick="applyContentauto'.acym_escape($this->name).'('.intval($oneCat->value).', this);">
                         <div class="cell medium-5">'.acym_escape($oneCat->text).'</div>
                     </div>';
         }
@@ -173,6 +249,32 @@ class acymPlugin
         return $this->acympluginHelper->getFormattedResult($arrayElements, $parameter);
     }
 
+    protected function getSelectedArea($parameter)
+    {
+        $allcats = explode('-', $parameter->id);
+        $selectedArea = [];
+        foreach ($allcats as $oneCat) {
+            if (empty($oneCat)) continue;
+            $selectedArea[] = intval($oneCat);
+        }
+
+        return $selectedArea;
+    }
+
+    public function _replaceOne(&$email)
+    {
+        $tags = $this->acympluginHelper->extractTags($email, $this->name);
+        if (empty($tags)) return;
+
+        $tagsReplaced = [];
+        foreach ($tags as $i => $oneTag) {
+            if (isset($tagsReplaced[$i])) continue;
+            $tagsReplaced[$i] = $this->_replaceContent($oneTag, $email);
+        }
+
+        $this->acympluginHelper->replaceTags($email, $tagsReplaced, true);
+    }
+
     protected function finalizeElementFormat($name, $result, $options, $data)
     {
         if (file_exists(ACYM_MEDIA.'plugins'.DS.$name.'.php')) {
@@ -183,6 +285,19 @@ class acymPlugin
         }
 
         return $this->acympluginHelper->managePicts($options, $result);
+    }
+
+    protected function filtersFromConditions(&$filters)
+    {
+        $newFilters = [];
+
+        $this->onAcymDeclareConditions($newFilters);
+        foreach ($newFilters as $oneType) {
+            foreach ($oneType as $oneFilterName => $oneFilter) {
+                if (!empty($oneFilter->option)) $oneFilter->option = str_replace(['acym_condition', '[conditions]'], ['acym_action', '[filters]'], $oneFilter->option);
+                $filters[$oneFilterName] = $oneFilter;
+            }
+        }
     }
 }
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -58,6 +58,18 @@ class acymruleClass extends acymClass
     public function delete($ids)
     {
         return parent::delete($ids);
+    }
+
+    public function getOrderingNumber()
+    {
+        $query = 'SELECT COUNT(id) FROM #__acym_rule';
+
+        return acym_loadResult($query);
+    }
+
+    public function cleanTable()
+    {
+        acym_query('TRUNCATE TABLE `#__acym_rule`');
     }
 }
 

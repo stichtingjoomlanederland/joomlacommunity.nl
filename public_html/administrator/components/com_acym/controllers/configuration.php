@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -70,7 +70,7 @@ class ConfigurationController extends acymController
         parent::display($data);
     }
 
-    function checkDB()
+    public function checkDB()
     {
         $messages = [];
 
@@ -233,7 +233,7 @@ class ConfigurationController extends acymController
         exit;
     }
 
-    function store()
+    public function store()
     {
         acym_checkToken();
 
@@ -252,9 +252,9 @@ class ConfigurationController extends acymController
         $status = $config->save($formData);
 
         if ($status) {
-            acym_enqueueNotification(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success', 8000);
+            acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success');
         } else {
-            acym_enqueueNotification(acym_translation('ACYM_ERROR_SAVING'), 'error', 0);
+            acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING'), 'error');
         }
 
         $config->load();
@@ -284,25 +284,25 @@ class ConfigurationController extends acymController
 
             if ($sendingMethod == 'smtp') {
                 if ($config->get('smtp_secured') == 'ssl' && !function_exists('openssl_sign')) {
-                    acym_enqueueNotification(acym_translation('ACYM_OPENSSL'), 'notice');
+                    acym_enqueueMessage(acym_translation('ACYM_OPENSSL'), 'notice');
                 }
 
                 if (!$config->get('smtp_auth') && strlen($config->get('smtp_password')) > 1) {
-                    acym_enqueueNotification(acym_translation('ACYM_ADVICE_SMTP_AUTH'), 'notice');
+                    acym_enqueueMessage(acym_translation('ACYM_ADVICE_SMTP_AUTH'), 'notice');
                 }
 
                 if ($config->get('smtp_port') && !in_array($config->get('smtp_port'), [25, 2525, 465, 587])) {
-                    acym_enqueueNotification(acym_translation_sprintf('ACYM_ADVICE_PORT', $config->get('smtp_port')), 'notice');
+                    acym_enqueueMessage(acym_translation_sprintf('ACYM_ADVICE_PORT', $config->get('smtp_port')), 'notice');
                 }
             }
 
             if (acym_isLocalWebsite() && in_array($sendingMethod, ['sendmail', 'qmail', 'mail'])) {
-                acym_enqueueNotification(acym_translation('ACYM_ADVICE_LOCALHOST'), 'notice');
+                acym_enqueueMessage(acym_translation('ACYM_ADVICE_LOCALHOST'), 'notice');
             }
 
             $bounce = $config->get('bounce_email');
             if (!empty($bounce) && !in_array($sendingMethod, ['smtp', 'elasticemail'])) {
-                acym_enqueueNotification(acym_translation_sprintf('ACYM_ADVICE_BOUNCE', '<b>'.$bounce.'</b>'), 'notice');
+                acym_enqueueMessage(acym_translation_sprintf('ACYM_ADVICE_BOUNCE', '<b>'.$bounce.'</b>'), 'notice');
             }
         }
 
@@ -353,7 +353,7 @@ class ConfigurationController extends acymController
         $config = acym_config();
         $path = trim(html_entity_decode($config->get('cron_savepath')));
         if (!preg_match('#^[a-z0-9/_\-{}]*\.log$#i', $path)) {
-            acym_enqueueNotification(acym_translation('ACYM_WRONG_LOG_NAME'), 'error', 6000);
+            acym_enqueueMessage(acym_translation('ACYM_WRONG_LOG_NAME'), 'error');
 
             return;
         }
@@ -364,12 +364,12 @@ class ConfigurationController extends acymController
         if (is_file($reportPath)) {
             $result = acym_deleteFile($reportPath);
             if ($result) {
-                acym_enqueueNotification(acym_translation('ACYM_SUCC_DELETE_LOG'), 'success', 4000);
+                acym_enqueueMessage(acym_translation('ACYM_SUCC_DELETE_LOG'), 'success');
             } else {
-                acym_enqueueNotification(acym_translation('ACYM_ERROR_DELETE_LOG'), 'error', 4000);
+                acym_enqueueMessage(acym_translation('ACYM_ERROR_DELETE_LOG'), 'error');
             }
         } else {
-            acym_enqueueNotification(acym_translation('ACYM_EXIST_LOG'), 'info', 4000);
+            acym_enqueueMessage(acym_translation('ACYM_EXIST_LOG'), 'info');
         }
 
         return $this->listing();
@@ -432,6 +432,84 @@ class ConfigurationController extends acymController
         $config->save($newConfig);
 
         acym_redirect(acym_completeLink('dashboard', false, true));
+    }
+
+    public function removeNotification()
+    {
+        $config = acym_config();
+        $whichNotification = acym_getVar('string', 'id');
+
+        if ($whichNotification != 0 && empty($whichNotification)) {
+            echo json_encode(['error' => acym_translation('ACYM_NOTIFICATION_NOT_FOUND')]);
+            exit;
+        }
+
+        if ('all' === $whichNotification) {
+            $config->save(['notifications' => '[]']);
+            $notifications = [];
+        } else {
+            $notifications = json_decode($config->get('notifications', '[]'), true);
+            unset($notifications[$whichNotification]);
+            $config->save(['notifications' => json_encode($notifications)]);
+        }
+        $helperHeader = acym_get('helper.header');
+
+        echo json_encode(['data' => $helperHeader->getNotificationCenterInner($notifications)]);
+        exit;
+    }
+
+    public function markNotificationRead()
+    {
+        $config = acym_config();
+
+        $which = acym_getVar('string', 'id');
+
+        $notifications = json_decode($config->get('notifications', '[]'), true);
+        if (empty($notifications)) {
+            echo json_encode(['message' => 'done']);
+            exit;
+        }
+
+        if (empty($which)) {
+            foreach ($notifications as $key => $notification) {
+                $notifications[$key]['read'] = true;
+            }
+        } else {
+            foreach ($notifications as $key => $notification) {
+                if ($notification['id'] != $which) continue;
+                $notifications[$key]['read'] = true;
+            }
+        }
+
+
+        $config->save(['notifications' => json_encode($notifications)]);
+
+        echo json_encode(['message' => 'done']);
+        exit;
+    }
+
+    public function addNotification()
+    {
+        $message = acym_getVar('string', 'message');
+        $level = acym_getVar('string', 'level');
+
+        if (empty($message) || empty($level)) {
+            echo json_encode(['error' => acym_translation('ACYM_INFORMATION_MISSING')]);
+            exit;
+        }
+
+        $helperHeader = acym_get('helper.header');
+
+        $newNotification = new stdClass();
+        $newNotification->message = $message;
+        $newNotification->level = $level;
+        $newNotification->read = false;
+        $newNotification->date = time();
+
+        $helperHeader->addNotification($newNotification);
+
+        echo json_encode(['data' => $helperHeader->getNotificationCenter()]);
+        exit;
     }
 }
 

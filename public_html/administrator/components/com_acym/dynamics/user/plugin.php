@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -422,7 +422,7 @@ class plgAcymUser extends acymPlugin
         if (!$res) $conditionNotValid++;
     }
 
-    public function onAcymProcessCondition_acy_group(&$query, $options, $num, &$conditionNotValid)
+    private function _processAcyGroup(&$query, $options, $num)
     {
         if (ACYM_CMS == 'joomla') {
             $operator = (empty($options['in']) || $options['in'] == 'in') ? 'IS NOT NULL AND cmsuser'.$num.'.user_id != 0' : "IS NULL";
@@ -442,34 +442,21 @@ class plgAcymUser extends acymPlugin
             $operator = (empty($options['in']) || $options['in'] == 'in') ? 'IS NOT NULL AND cmsuser'.$num.'.user_id != 0' : "IS NULL";
 
             $query->leftjoin['cmsuser'.$num] = '#__usermeta AS cmsuser'.$num.' ON cmsuser'.$num.'.user_id = user.cms_id AND cmsuser'.$num.'.meta_key = "#__capabilities" AND cmsuser'.$num.'.meta_value LIKE '.acym_escapeDB('%'.strlen($options['group']).':"'.$options['group'].'"%');
-            $query->where[] = "cmsuser$num.user_id ".$operator;
+            $query->where[] = 'cmsuser'.$num.'.user_id '.$operator;
         }
-        $affectedRows = $query->count();
+
+        return $query->count();
+    }
+
+    public function onAcymProcessCondition_acy_group(&$query, $options, $num, &$conditionNotValid)
+    {
+        $affectedRows = $this->_processAcyGroup($query, $options, $num);
         if (empty($affectedRows)) $conditionNotValid++;
     }
 
     public function onAcymProcessFilter_acy_group(&$query, $options, $num)
     {
-        if (ACYM_CMS == 'joomla') {
-            $operator = (empty($options['in']) || $options['in'] == 'in') ? 'IS NOT NULL AND cmsuser'.$num.'.user_id != 0' : "IS NULL";
-
-            if (empty($options['subgroup'])) {
-                $value = ' = '.intval($options['group']);
-            } else {
-                $lftrgt = acym_loadObject('SELECT lft, rgt FROM #__usergroups WHERE id = '.intval($options['group']));
-                $allGroups = acym_loadResultArray('SELECT id FROM #__usergroups WHERE lft > '.intval($lftrgt->lft).' AND rgt < '.intval($lftrgt->rgt));
-                array_unshift($allGroups, $options['group']);
-                $value = ' IN ('.implode(', ', $allGroups).')';
-            }
-
-            $query->leftjoin['cmsuser'.$num] = "#__user_usergroup_map AS cmsuser$num ON cmsuser$num.user_id = user.cms_id AND cmsuser$num.group_id".$value;
-            $query->where[] = "cmsuser$num.user_id ".$operator;
-        } else {
-            $operator = (empty($options['in']) || $options['in'] == 'in') ? 'IS NOT NULL AND cmsuser'.$num.'.user_id != 0' : "IS NULL";
-
-            $query->leftjoin['cmsuser'.$num] = '#__usermeta AS cmsuser'.$num.' ON cmsuser'.$num.'.user_id = user.cms_id AND cmsuser'.$num.'.meta_key = "#__capabilities" AND cmsuser'.$num.'.meta_value LIKE '.acym_escapeDB('%'.strlen($options['group']).':"'.$options['group'].'"%');
-            $query->where[] = "cmsuser$num.user_id ".$operator;
-        }
+        $this->_processAcyGroup($query, $options, $num);
     }
 
     public function onAcymProcessFilterCount_acy_group(&$query, $options, $num)
@@ -479,7 +466,7 @@ class plgAcymUser extends acymPlugin
         return acym_translation_sprintf('ACYM_SELECTED_USERS', $query->count());
     }
 
-    public function onAcymProcessCondition_acy_cmsfield(&$query, $options, $num, &$conditionNotValid)
+    private function _processAcyCMSField(&$query, $options, $num)
     {
         if (empty($options['field'])) {
             return;
@@ -506,37 +493,19 @@ class plgAcymUser extends acymPlugin
 
             $query->where[] = $query->convertQuery('cmsuser'.$num, $options['field'], $options['operator'], $options['value'], $type);
         }
-        $affectedRows = $query->count();
+
+        return $query->count();
+    }
+
+    public function onAcymProcessCondition_acy_cmsfield(&$query, $options, $num, &$conditionNotValid)
+    {
+        $affectedRows = $this->_processAcyCMSField($query, $options, $num);
         if (empty($affectedRows)) $conditionNotValid++;
     }
 
     public function onAcymProcessFilter_acy_cmsfield(&$query, $options, $num)
     {
-        if (empty($options['field'])) {
-            return;
-        }
-
-        if (strpos($options['field'], 'cf_') !== false) {
-            $query->leftjoin['cmsuserfields'.$num] = '#__fields_values AS cmsuserfields'.$num.' ON cmsuserfields'.$num.'.item_id = user.cms_id AND cmsuserfields'.$num.'.field_id = '.intval($options['field']);
-            $query->where[] = $query->convertQuery('cmsuserfields'.$num, 'value', $options['operator'], $options['value'], '');
-        } else {
-            $type = '';
-            $query->leftjoin['cmsuser'.$num] = '#__users AS cmsuser'.$num.' ON cmsuser'.$num.'.id = user.cms_id';
-
-            if (in_array($options['field'], ['registerDate', 'lastvisitDate', 'user_registered'])) {
-                $type = 'datetime';
-                $options['value'] = acym_replaceDate($options['value']);
-
-                if (!is_numeric($options['value']) && strtotime($options['value']) !== false) {
-                    $options['value'] = strtotime($options['value']);
-                }
-                if (is_numeric($options['value'])) {
-                    $options['value'] = strftime('%Y-%m-%d %H:%M:%S', $options['value']);
-                }
-            }
-
-            $query->where[] = $query->convertQuery('cmsuser'.$num, $options['field'], $options['operator'], $options['value'], $type);
-        }
+        $this->_processAcyCMSField($query, $options, $num);
     }
 
     public function onAcymProcessFilterCount_acy_cmsfield(&$query, $options, $num)
@@ -546,66 +515,56 @@ class plgAcymUser extends acymPlugin
         return acym_translation_sprintf('ACYM_SELECTED_USERS', $query->count());
     }
 
-    public function onAcymDeclareSummary_conditions(&$automationCondition)
+    private function _summaryGroup(&$automation)
     {
-        if (!empty($automationCondition['acy_group'])) {
-            if ('joomla' === ACYM_CMS) {
-                $allGroups = acym_getGroups();
-                $groups = [];
-                foreach ($allGroups as $group) {
-                    if ($automationCondition['acy_group']['group'] == $group->id) $automationCondition['acy_group']['group'] = $group->text;
-                    $groups[$group->id] = $group->text;
-                }
-            } else {
-                $groupKey = 'ACYM_'.strtoupper($automationCondition['acy_group']['group']);
-                if (acym_translationExists($groupKey)) {
-                    $automationCondition['acy_group']['group'] = $groupKey;
-                }
+        if (empty($automation['acy_group'])) return;
+
+        if ('joomla' === ACYM_CMS) {
+            $allGroups = acym_getGroups();
+            $groups = [];
+            foreach ($allGroups as $group) {
+                if ($automation['acy_group']['group'] == $group->id) $automation['acy_group']['group'] = $group->text;
+                $groups[$group->id] = $group->text;
             }
-            $finalText = acym_translation_sprintf('ACYM_CONDITION_ACY_GROUP_SUMMARY', acym_translation($automationCondition['acy_group']['in'] == 'in' ? 'ACYM_IS_IN' : 'ACYM_IS_NOT_IN'), acym_translation($automationCondition['acy_group']['group']));
-            if ('joomla' === ACYM_CMS) {
-                $finalText .= $automationCondition['acy_group']['subgroup'] == 1 ? '' : ' '.acym_translation('ACYM_FILTER_ACY_GROUP_SUBGROUP_SUMMARY');
+        } else {
+            $groupKey = 'ACYM_'.strtoupper($automation['acy_group']['group']);
+            if (acym_translationExists($groupKey)) {
+                $automation['acy_group']['group'] = $groupKey;
             }
-            $automationCondition = $finalText;
-        }
-        if (!empty($automationCondition['acy_cmsfield'])) {
-            $automationCondition = acym_translation_sprintf('ACYM_CONDITION_ACY_CMS_FIELD_SUMMARY', $automationCondition['acy_cmsfield']['field'], $automationCondition['acy_cmsfield']['operator'], $automationCondition['acy_cmsfield']['value']);
         }
 
-        if (!empty($automationCondition['acy_totaluser'])) {
+        $finalText = acym_translation_sprintf('ACYM_FILTER_ACY_GROUP_SUMMARY', acym_translation($automation['acy_group']['in'] == 'in' ? 'ACYM_IN' : 'ACYM_NOT_IN'), acym_translation($automation['acy_group']['group']));
+        if ('joomla' === ACYM_CMS) {
+            $finalText .= $automation['acy_group']['subgroup'] == 1 ? '' : ' '.acym_translation('ACYM_FILTER_ACY_GROUP_SUBGROUP_SUMMARY');
+        }
+
+        $automation = $finalText;
+    }
+
+    public function onAcymDeclareSummary_conditions(&$automation)
+    {
+        $this->_summaryGroup($automation);
+
+        if (!empty($automation['acy_cmsfield'])) {
+            $automation = acym_translation_sprintf('ACYM_CONDITION_ACY_CMS_FIELD_SUMMARY', $automation['acy_cmsfield']['field'], $automation['acy_cmsfield']['operator'], $automation['acy_cmsfield']['value']);
+        }
+
+        if (!empty($automation['acy_totaluser'])) {
             $operators = ['=' => acym_translation('ACYM_EXACTLY'), '>' => acym_translation('ACYM_MORE_THAN'), '<' => acym_translation('ACYM_LESS_THAN')];
-            $automationCondition = acym_translation('ACYM_THERE_IS').' '.strtolower($operators[$automationCondition['acy_totaluser']['operator']]).' '.$automationCondition['acy_totaluser']['number'].' '.acym_translation('ACYM_ACYMAILING_USERS').' ';
+            $automation = acym_translation('ACYM_THERE_IS').' '.strtolower($operators[$automation['acy_totaluser']['operator']]).' '.$automation['acy_totaluser']['number'].' '.acym_translation('ACYM_ACYMAILING_USERS').' ';
         }
 
-        if (!empty($automationCondition['acy_toss'])) {
-            $automationCondition = acym_translation('ACYM_TOSS_DESC');
+        if (!empty($automation['acy_toss'])) {
+            $automation = acym_translation('ACYM_TOSS_DESC');
         }
     }
 
-    public function onAcymDeclareSummary_filters(&$automationFilter)
+    public function onAcymDeclareSummary_filters(&$automation)
     {
-        if (!empty($automationFilter['acy_group'])) {
-            if ('joomla' === ACYM_CMS) {
-                $allGroups = acym_getGroups();
-                $groups = [];
-                foreach ($allGroups as $group) {
-                    if ($automationFilter['acy_group']['group'] == $group->id) $automationFilter['acy_group']['group'] = $group->text;
-                    $groups[$group->id] = $group->text;
-                }
-            } else {
-                $groupKey = 'ACYM_'.strtoupper($automationFilter['acy_group']['group']);
-                if (acym_translationExists($groupKey)) {
-                    $automationFilter['acy_group']['group'] = $groupKey;
-                }
-            }
-            $finalText = acym_translation_sprintf('ACYM_FILTER_ACY_GROUP_SUMMARY', acym_translation($automationFilter['acy_group']['in'] == 'in' ? 'ACYM_IN' : 'ACYM_NOT_IN'), acym_translation($automationFilter['acy_group']['group']));
-            if ('joomla' === ACYM_CMS) {
-                $finalText .= $automationFilter['acy_group']['subgroup'] == 1 ? '' : ' '.acym_translation('ACYM_FILTER_ACY_GROUP_SUBGROUP_SUMMARY');
-            }
-            $automationFilter = $finalText;
-        }
-        if (!empty($automationFilter['acy_cmsfield'])) {
-            $automationFilter = acym_translation_sprintf('ACYM_FILTER_ACY_CMS_FIELD_SUMMARY', $automationFilter['acy_cmsfield']['field'], $automationFilter['acy_cmsfield']['operator'], $automationFilter['acy_cmsfield']['value']);
+        $this->_summaryGroup($automation);
+
+        if (!empty($automation['acy_cmsfield'])) {
+            $automation = acym_translation_sprintf('ACYM_FILTER_ACY_CMS_FIELD_SUMMARY', $automation['acy_cmsfield']['field'], $automation['acy_cmsfield']['operator'], $automation['acy_cmsfield']['value']);
         }
     }
 }

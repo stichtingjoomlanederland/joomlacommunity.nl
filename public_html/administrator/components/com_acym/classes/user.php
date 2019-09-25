@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -40,12 +40,23 @@ class acymuserClass extends acymClass
         }
     }
 
-    public function getMatchingUsers($settings)
+    public function getMatchingElements($settings = [])
     {
-        $query = 'SELECT user.* FROM #__acym_user AS user';
+        $columns = 'user.*';
+        if (!empty($settings['columns'])) {
+            foreach ($settings['columns'] as $key => $value) {
+                $settings['columns'][$key] = $key === 'join' ? $value : 'user.'.$value;
+            }
+            $columns = implode(', ', $settings['columns']);
+        }
+
+        $query = 'SELECT '.$columns.' FROM #__acym_user AS user';
         $queryCount = 'SELECT COUNT(user.id) FROM #__acym_user AS user';
         $queryStatus = 'SELECT COUNT(id) AS number, active FROM #__acym_user AS user';
         $filters = [];
+
+        if (!empty($settings['join'])) $query .= $this->getJoinForQuery($settings['join']);
+
 
         if (!empty($settings['search'])) {
             $searchValue = acym_escapeDB('%'.$settings['search'].'%');
@@ -67,9 +78,22 @@ class acymuserClass extends acymClass
             $filters[] = 'user.'.$allowedStatus[$settings['status']];
         }
 
-        if (!empty($settings['hiddenUsers'])) {
-            acym_arrayToInteger($settings['hiddenUsers']);
-            $filters[] = 'user.id NOT IN('.implode(',', $settings['hiddenUsers']).')';
+        if (isset($settings['hiddenElements'])) {
+            if (empty($settings['hiddenElements'])) {
+                $filters[] = 'user.id IS NOT NULL';
+            } else {
+                acym_arrayToInteger($settings['hiddenElements']);
+                $filters[] = 'user.id NOT IN('.implode(',', $settings['hiddenElements']).')';
+            }
+        }
+
+        if (isset($settings['onlyElements'])) {
+            if (empty($settings['onlyElements'])) {
+                $filters[] = 'user.id IS NULL';
+            } else {
+                acym_arrayToInteger($settings['onlyElements']);
+                $filters[] = 'user.id IN('.implode(',', $settings['onlyElements']).')';
+            }
         }
 
         if (!empty($settings['showOnlySelected'])) {
@@ -81,6 +105,33 @@ class acymuserClass extends acymClass
             }
         }
 
+        if (!empty($settings['relation']) && !empty($settings['relation']['target']) && !empty($settings['relation']['target_id']) && isset($settings['relation']['is_related'])) {
+            if ($settings['relation']['is_related']) {
+                switch ($settings['relation']['target']) {
+                    case 'list':
+                        $join = ' JOIN #__acym_user_has_list AS userlist ON user.id = userlist.user_id';
+                        $filters[] = '(userlist.list_id = '.acym_escapeDB($settings['relation']['target_id']).') AND (userlist.status = 1)';
+                        break;
+                    default:
+                        $join = '';
+                        break;
+                }
+            } else {
+                switch ($settings['relation']['target']) {
+                    case 'list':
+                        $join = ' LEFT JOIN #__acym_user_has_list AS userlist ON user.id = userlist.user_id AND userlist.list_id = '.acym_escapeDB($settings['relation']['target_id']);
+                        $filters[] = '(userlist.user_id IS NULL OR userlist.status = 0)';
+                        break;
+                    default:
+                        $join = '';
+                        break;
+                }
+            }
+
+            $query .= $join;
+            $queryCount .= $join;
+        }
+
         if (!empty($filters)) {
             $query .= ' WHERE ('.implode(') AND (', $filters).')';
             $queryCount .= ' WHERE ('.implode(') AND (', $filters).')';
@@ -90,9 +141,15 @@ class acymuserClass extends acymClass
             $query .= ' ORDER BY user.'.acym_secureDBColumn($settings['ordering']).' '.acym_secureDBColumn(strtoupper($settings['ordering_sort_order']));
         }
 
-        $settings['offset'] = $settings['offset'] < 0 ? 0 : $settings['offset'];
+        if (empty($settings['offset']) || $settings['offset'] < 0) {
+            $settings['offset'] = 0;
+        }
 
-        $results['users'] = acym_loadObjectList($query, '', $settings['offset'], $settings['usersPerPage']);
+        if (empty($settings['elementsPerPage']) || $settings['elementsPerPage'] < 1) {
+            $settings['elementsPerPage'] = acym_getCMSConfig('list_limit', 20);
+        }
+
+        $results['elements'] = acym_loadObjectList($query, '', $settings['offset'], $settings['elementsPerPage']);
         $results['total'] = acym_loadResult($queryCount);
 
         $usersPerStatus = acym_loadObjectList($queryStatus.' GROUP BY active', 'active');
@@ -108,6 +165,17 @@ class acymuserClass extends acymClass
         ];
 
         return $results;
+    }
+
+    public function getJoinForQuery($joinType)
+    {
+        if (strpos($joinType, 'join_list') !== false) {
+            $listId = explode('-', $joinType);
+
+            return ' LEFT JOIN #__acym_user_has_list as userlist ON user.id = userlist.user_id AND userlist.status = 1 AND userlist.list_id = '.intval($listId[1]);
+        }
+
+        return '';
     }
 
     public function getAll()
@@ -202,7 +270,7 @@ class acymuserClass extends acymClass
                 return $this->getOneByCMSId($currentUserid);
             }
             if (!$onlyValue) {
-                acym_enqueueNotification(acym_translation('ACYM_LOGIN'), 'error', 0);
+                acym_enqueueMessage(acym_translation('ACYM_LOGIN'), 'error');
             }
 
             return false;
@@ -215,7 +283,7 @@ class acymuserClass extends acymClass
         }
 
         if (!$onlyValue) {
-            acym_enqueueNotification(acym_translation('INVALID_KEY'), 'error', 0);
+            acym_enqueueMessage(acym_translation('INVALID_KEY'), 'error');
         }
 
         return false;
@@ -223,9 +291,7 @@ class acymuserClass extends acymClass
 
     public function subscribe($userIds, $addLists)
     {
-        if (empty($addLists)) {
-            return false;
-        }
+        if (empty($addLists)) return false;
 
         if (!is_array($userIds)) {
             $userIds = [$userIds];
@@ -237,12 +303,16 @@ class acymuserClass extends acymClass
 
         $config = acym_config();
         $listClass = acym_get('class.list');
+        $historyClass = acym_get('class.history');
+
+        $confirmationRequired = $config->get('require_confirmation', 1);
         $subscribedToLists = false;
+        $historyData = acym_translation_sprintf('ACYM_LISTS_NUMBERS', implode(', ', $addLists));
+
         foreach ($userIds as $userId) {
             $user = $this->getOneById($userId);
-            if (empty($user)) {
-                continue;
-            }
+            if (empty($user)) continue;
+
             $currentSubscription = $this->getUserSubscriptionById($userId);
 
             $currentlySubscribed = [];
@@ -264,7 +334,7 @@ class acymuserClass extends acymClass
                 $subscription->user_id = $userId;
                 $subscription->list_id = $oneListId;
                 $subscription->status = 1;
-                $subscription->subscription_date = date("Y-m-d H:i:s", time());
+                $subscription->subscription_date = date('Y-m-d H:i:s', time());
 
                 if (empty($currentSubscription[$oneListId])) {
                     acym_insertObject('#__acym_user_has_list', $subscription);
@@ -276,13 +346,11 @@ class acymuserClass extends acymClass
                 $subscribedToLists = true;
             }
 
-            $historyClass = acym_get('class.history');
-            $historyData = acym_translation_sprintf('ACYM_LISTS_NUMBERS', implode(', ', $addLists));
             $historyClass->insert($userId, 'subscribed', [$historyData]);
 
             acym_trigger('onAcymAfterUserSubscribe', [&$user, &$subscribedLists]);
 
-            if ($config->get('require_confirmation', 1) == 0 || $user->confirmed == 1) {
+            if ($confirmationRequired == 0 || $user->confirmed == 1) {
                 $listClass->sendWelcome($userId, $subscribedLists);
             }
         }
@@ -454,7 +522,7 @@ class acymuserClass extends acymClass
 
         $fieldClass = acym_get('class.field');
         $fieldClass->store($userID, $customFields, $ajax);
-        if(!empty($fieldClass->errors)) $this->errors = array_merge($this->errors, $fieldClass->errors);
+        if (!empty($fieldClass->errors)) $this->errors = array_merge($this->errors, $fieldClass->errors);
 
         $historyClass = acym_get('class.history');
         if (empty($user->id)) {

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -14,7 +14,7 @@ class plgAcymJomsocial extends acymPlugin
 {
     var $lastuserid = 0;
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
         $this->cms = 'Joomla';
@@ -23,7 +23,7 @@ class plgAcymJomsocial extends acymPlugin
         }
     }
 
-    function dynamicText()
+    public function dynamicText()
     {
         $onePlugin = new stdClass();
         $onePlugin->name = 'JomSocial';
@@ -34,7 +34,7 @@ class plgAcymJomsocial extends acymPlugin
         return $onePlugin;
     }
 
-    function insertOptions()
+    public function insertOptions()
     {
         $plugin = new stdClass();
         $plugin->name = 'JomSocial';
@@ -44,7 +44,7 @@ class plgAcymJomsocial extends acymPlugin
         return $plugin;
     }
 
-    function textPopup()
+    public function textPopup()
     {
         ?>
 
@@ -82,7 +82,7 @@ class plgAcymJomsocial extends acymPlugin
         echo $text;
     }
 
-    function replaceUserInformation(&$email, &$user, $send = true)
+    public function replaceUserInformation(&$email, &$user, $send = true)
     {
         $extractedTags = $this->acympluginHelper->extractTags($email, 'jomsocialfield');
         if (empty($extractedTags)) {
@@ -137,12 +137,14 @@ class plgAcymJomsocial extends acymPlugin
         $this->acympluginHelper->replaceTags($email, $tags);
     }
 
-    function contentPopup()
+    public function contentPopup($defaultValues = null)
     {
+        $this->defaultValues = $defaultValues;
+
         acym_loadLanguageFile('com_community', JPATH_SITE);
         $tabHelper = acym_get('helper.tab');
-
-        $tabHelper->startTab(acym_translation('ACYM_USERS'));
+        $identifier = 'jomsocialusers';
+        $tabHelper->startTab(acym_translation('ACYM_USERS'), !empty($this->defaultValues->defaultPluginTab) && $identifier === $this->defaultValues->defaultPluginTab);
 
         $attributes = [
             'title' => 'ACYM_TITLE',
@@ -201,28 +203,29 @@ class plgAcymJomsocial extends acymPlugin
             ],
             [
                 'title' => 'Number of characters ("About me" field)',
-                'type' => 'text',
+                'type' => 'number',
                 'name' => 'chars',
                 'default' => 150,
             ],
             [
                 'title' => 'ACYM_COLUMNS',
-                'type' => 'text',
+                'type' => 'number',
                 'name' => 'cols',
                 'default' => 1,
             ],
             [
                 'title' => 'ACYM_MAX_NB_ELEMENTS',
-                'type' => 'text',
+                'type' => 'number',
                 'name' => 'max',
                 'default' => 20,
             ],
         ];
 
-        echo $this->acympluginHelper->displayOptions($displayOptions, 'jomsocialusers', 'simple');
+        echo $this->acympluginHelper->displayOptions($displayOptions, $identifier, 'simple', $this->defaultValues);
 
         $tabHelper->endTab();
-        $tabHelper->startTab(acym_translation('COM_COMMUNITY_VIDEOS'));
+        $identifier = 'jomsocialusers';
+        $tabHelper->startTab(acym_translation('COM_COMMUNITY_VIDEOS'), !empty($this->defaultValues->defaultPluginTab) && $identifier === $this->defaultValues->defaultPluginTab);
 
 
         $attributes = [
@@ -260,25 +263,25 @@ class plgAcymJomsocial extends acymPlugin
             ],
             [
                 'title' => 'Number of characters ("Description" field)',
-                'type' => 'text',
+                'type' => 'number',
                 'name' => 'chars',
                 'default' => 150,
             ],
             [
                 'title' => 'ACYM_COLUMNS',
-                'type' => 'text',
+                'type' => 'number',
                 'name' => 'cols',
                 'default' => 1,
             ],
             [
                 'title' => 'ACYM_MAX_NB_ELEMENTS',
-                'type' => 'text',
+                'type' => 'number',
                 'name' => 'max',
                 'default' => 20,
             ],
         ];
 
-        echo $this->acympluginHelper->displayOptions($displayOptions, 'jomsocialusers', 'simple');
+        echo $this->acympluginHelper->displayOptions($displayOptions, $identifier, 'simple', $this->defaultValues);
 
         $tabHelper->endTab();
 

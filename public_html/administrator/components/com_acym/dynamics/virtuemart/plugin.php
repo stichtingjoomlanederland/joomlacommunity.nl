@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -383,15 +383,7 @@ class plgAcymVirtuemart extends acymPlugin
 
     public function onAcymDeclareFilters(&$filters)
     {
-        $newFilters = [];
-
-        $this->onAcymDeclareConditions($newFilters);
-        foreach ($newFilters as $oneType) {
-            foreach ($oneType as $oneFilterName => $oneFilter) {
-                if (!empty($oneFilter->option)) $oneFilter->option = str_replace(['acym_condition', '[conditions]'], ['acym_action', '[filters]'], $oneFilter->option);
-                $filters[$oneFilterName] = $oneFilter;
-            }
-        }
+        $this->filtersFromConditions($filters);
     }
 
     public function onAcymProcessFilterCount_vmgroups(&$query, $options, $num)

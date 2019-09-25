@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -14,7 +14,7 @@ class JFormFieldArticle extends JFormField
 {
     var $type = 'article';
 
-    function getInput()
+    public function getInput()
     {
         $modalId = 'acym_article_'.$this->id;
         $callback = 'jSelectArticle_'.$this->id;
@@ -64,8 +64,9 @@ class JFormFieldArticle extends JFormField
         return $html;
     }
 
-    function getLabel()
+    public function getLabel()
     {
         return str_replace($this->id, $this->id.'_id', parent::getLabel());
     }
 }
+

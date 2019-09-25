@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -37,13 +37,16 @@ class plgAcymEventbooking extends acymPlugin
         return $plugin;
     }
 
-    public function contentPopup()
+    public function contentPopup($defaultValues = null)
     {
+        $this->defaultValues = $defaultValues;
+
         acym_loadLanguageFile('com_eventbooking', JPATH_SITE);
         $this->categories = acym_loadObjectList('SELECT `id`, `parent` AS `parent_id`, `name` AS `title` FROM `#__eb_categories` WHERE published = 1', 'id');
 
         $tabHelper = acym_get('helper.tab');
-        $tabHelper->startTab(acym_translation('ACYM_ONE_BY_ONE'));
+        $identifier = $this->name;
+        $tabHelper->startTab(acym_translation('ACYM_ONE_BY_ONE'), !empty($this->defaultValues->defaultPluginTab) && $identifier === $this->defaultValues->defaultPluginTab);
 
         $displayOptions = [
             [
@@ -101,6 +104,7 @@ class plgAcymEventbooking extends acymPlugin
                 [
                     'title' => 'ACYM_TRUNCATE',
                     'type' => 'intextfield',
+                    'isNumber' => 1,
                     'name' => 'wrap',
                     'text' => 'ACYM_TRUNCATE_AFTER',
                     'default' => 0,
@@ -119,14 +123,13 @@ class plgAcymEventbooking extends acymPlugin
             ]
         );
 
-        echo $this->acympluginHelper->displayOptions($displayOptions, $this->name);
-
-        echo $this->getFilteringZone();
-
-        $this->displayListing();
+        $zoneContent = $this->getFilteringZone().$this->prepareListing();
+        echo $this->displaySelectionZone($zoneContent);
+        echo $this->acympluginHelper->displayOptions($displayOptions, $identifier, 'individual', $this->defaultValues);
 
         $tabHelper->endTab();
-        $tabHelper->startTab(acym_translation('ACYM_BY_CATEGORY'));
+        $identifier = 'auto'.$this->name;
+        $tabHelper->startTab(acym_translation('ACYM_BY_CATEGORY'), !empty($this->defaultValues->defaultPluginTab) && $identifier === $this->defaultValues->defaultPluginTab);
 
         $catOptions = [
             [
@@ -173,54 +176,31 @@ class plgAcymEventbooking extends acymPlugin
 
         $displayOptions = array_merge($displayOptions, $catOptions);
 
-        echo $this->acympluginHelper->displayOptions($displayOptions, 'auto'.$this->name, 'grouped');
-
-        echo $this->getCategoryListing();
+        echo $this->displaySelectionZone($this->getCategoryListing());
+        echo $this->acympluginHelper->displayOptions($displayOptions, $identifier, 'grouped', $this->defaultValues);
 
         $tabHelper->endTab();
 
         $tabHelper->display('plugin');
     }
 
-    public function displayListing()
+    public function prepareListing()
     {
-        $querySelect = 'SELECT event.* ';
-        $query = 'FROM `#__eb_events` AS event ';
-        $filters = [];
-
-        $this->pageInfo = new stdClass();
-        $this->pageInfo->limit = acym_getCMSConfig('list_limit');
-        $this->pageInfo->page = acym_getVar('int', 'pagination_page_ajax', 1);
-        $this->pageInfo->start = ($this->pageInfo->page - 1) * $this->pageInfo->limit;
-        $this->pageInfo->search = acym_getVar('string', 'plugin_search', '');
-        $this->pageInfo->filter_cat = acym_getVar('int', 'plugin_category', 0);
+        $this->querySelect = 'SELECT event.* ';
+        $this->query = 'FROM `#__eb_events` AS event ';
+        $this->filters = [];
+        $this->filters[] = 'event.published = 1';
+        $this->searchFields = ['event.id', 'event.title'];
         $this->pageInfo->order = 'event.id';
-        $this->pageInfo->orderdir = 'DESC';
+        $this->elementIdTable = 'event';
+        $this->elementIdColumn = 'id';
 
-        $searchFields = ['event.id', 'event.title'];
-        if (!empty($this->pageInfo->search)) {
-            $searchVal = '%'.acym_getEscaped($this->pageInfo->search, true).'%';
-            $filters[] = implode(" LIKE ".acym_escapeDB($searchVal)." OR ", $searchFields)." LIKE ".acym_escapeDB($searchVal);
-        }
+        parent::prepareListing();
 
         if (!empty($this->pageInfo->filter_cat)) {
-            $query .= 'JOIN `#__eb_event_categories` AS cat ON event.id = cat.event_id ';
-            $filters[] = 'cat.category_id = '.intval($this->pageInfo->filter_cat);
+            $this->query .= 'JOIN `#__eb_event_categories` AS cat ON event.id = cat.event_id ';
+            $this->filters[] = 'cat.category_id = '.intval($this->pageInfo->filter_cat);
         }
-
-        $filters[] = 'event.published = 1';
-
-        if (!empty($filters)) {
-            $query .= ' WHERE ('.implode(') AND (', $filters).')';
-        }
-
-        if (!empty($this->pageInfo->order)) {
-            $query .= ' ORDER BY '.acym_secureDBColumn($this->pageInfo->order).' '.acym_secureDBColumn($this->pageInfo->orderdir);
-        }
-
-        $rows = acym_loadObjectList($querySelect.$query, '', $this->pageInfo->start, $this->pageInfo->limit);
-        $this->pageInfo->total = acym_loadResult('SELECT COUNT(*) '.$query);
-
 
         $listingOptions = [
             'header' => [
@@ -240,10 +220,10 @@ class plgAcymEventbooking extends acymPlugin
                 ],
             ],
             'id' => 'id',
-            'rows' => $rows,
+            'rows' => $this->getElements(),
         ];
 
-        echo $this->getElementsListing($listingOptions);
+        return $this->getElementsListing($listingOptions);
     }
 
     public function replaceContent(&$email)
@@ -274,13 +254,6 @@ class plgAcymEventbooking extends acymPlugin
         foreach ($tags as $oneTag => $parameter) {
             if (isset($this->tags[$oneTag])) continue;
 
-            $allcats = explode('-', $parameter->id);
-            $selectedArea = [];
-            foreach ($allcats as $oneCat) {
-                if (empty($oneCat)) continue;
-
-                $selectedArea[] = intval($oneCat);
-            }
             if (empty($parameter->from)) {
                 $parameter->from = date('Y-m-d H:i:s', $time);
             } else {
@@ -293,6 +266,7 @@ class plgAcymEventbooking extends acymPlugin
             $where = [];
             $where[] = 'event.`published` = 1';
 
+            $selectedArea = $this->getSelectedArea($parameter);
             if (!empty($selectedArea)) {
                 $query .= 'JOIN `#__eb_event_categories` AS cat ON event.id = cat.event_id ';
                 $where[] = 'cat.category_id IN ('.implode(',', $selectedArea).')';
@@ -675,15 +649,7 @@ class plgAcymEventbooking extends acymPlugin
 
     public function onAcymDeclareFilters(&$filters)
     {
-        $newFilters = [];
-
-        $this->onAcymDeclareConditions($newFilters);
-        foreach ($newFilters as $oneType) {
-            foreach ($oneType as $oneFilterName => $oneFilter) {
-                if (!empty($oneFilter->option)) $oneFilter->option = str_replace(['acym_condition', '[conditions]'], ['acym_action', '[filters]'], $oneFilter->option);
-                $filters[$oneFilterName] = $oneFilter;
-            }
-        }
+        $this->filtersFromConditions($filters);
     }
 
     public function onAcymProcessFilterCount_ebregistration(&$query, $options, $num)

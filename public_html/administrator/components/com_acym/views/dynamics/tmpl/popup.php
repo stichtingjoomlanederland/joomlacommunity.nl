@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -26,7 +26,7 @@ defined('_JEXEC') or die('Restricted access');
                         continue;
                     }
                     if ($data['automation']) $onePlugin->plugin = $onePlugin->plugin.'&automation=true';
-                    $data['tab']->startTab($onePlugin->name, true, 'data-dynamics="'.$onePlugin->plugin.'"');
+                    $data['tab']->startTab($onePlugin->name, false, 'data-dynamics="'.$onePlugin->plugin.'"');
                     $data['tab']->endTab();
                 }
                 $data['tab']->display('popup__dynamics');
@@ -46,3 +46,4 @@ defined('_JEXEC') or die('Restricted access');
 		</div>
 	</div>
 </div>
+

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -17,7 +17,7 @@ class DashboardController extends acymController
         parent::__construct();
 
         $this->loadScripts = [
-            'all' => ['colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'parse-css'],
+            'all' => ['colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'parse-css', 'vue-applications'],
         ];
     }
 
@@ -319,7 +319,7 @@ class DashboardController extends acymController
         $mailId = $mailController->store();
 
         if (empty($mailId)) {
-            acym_enqueueNotification(acym_translation('ACYM_ERROR_SAVING'), 'error', 10000);
+            acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING'),  'error');
             $this->passWalkThrough();
         } else {
             $this->_saveWalkthrough(['step' => 'stepList', 'mail_id' => $mailId]);
@@ -370,7 +370,7 @@ class DashboardController extends acymController
         }
 
         if (empty($listId)) {
-            acym_enqueueNotification(acym_translation('ACYM_ERROR_SAVE_LIST'), 'error', 5000);
+            acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVE_LIST'),  'error');
             $this->passWalkThrough();
 
             return;
@@ -401,7 +401,7 @@ class DashboardController extends acymController
             $userClass->subscribe($userId, $listId);
         }
 
-        if (!empty($wrongAddresses)) acym_enqueueNotification(acym_translation_sprintf('ACYM_WRONG_ADDRESSES', implode(', ', $wrongAddresses)), 'warning', 5000);
+        if (!empty($wrongAddresses)) acym_enqueueMessage(acym_translation_sprintf('ACYM_WRONG_ADDRESSES', implode(', ', $wrongAddresses)),  'warning');
 
         $nextStep = acym_isLocalWebsite() ? 'stepGmail' : 'stepPhpmail';
 
@@ -564,7 +564,7 @@ class DashboardController extends acymController
     {
         $email = acym_getVar('string', 'email');
         if (empty($email) || !acym_isValidEmail($email)) {
-            acym_enqueueNotification(acym_translation('ACYM_PLEASE_ADD_YOUR_EMAIL'), 'error', 10000);
+            acym_enqueueMessage(acym_translation('ACYM_PLEASE_ADD_YOUR_EMAIL'),  'error');
             $this->$fromFunction();
 
             return;
@@ -609,12 +609,6 @@ class DashboardController extends acymController
         $config = acym_config();
         $newConfig = new stdClass();
         $newConfig->walk_through = 0;
-
-        if ($config->get('templates_installed') == 0) {
-            $updateHelper = acym_get('helper.update');
-            $updateHelper->installTemplate();
-            $newConfig->templates_installed = 1;
-        }
         $config->save($newConfig);
 
         acym_redirect(acym_completeLink('users&task=import', false, true));
@@ -691,6 +685,7 @@ class DashboardController extends acymController
 
         $updateHelper = acym_get('helper.update');
         $updateHelper->installNotifications();
+        $updateHelper->installTemplates();
 
         $this->listing();
     }
@@ -743,7 +738,7 @@ class DashboardController extends acymController
         $firstMail = $mailClass->getOneByName(acym_translation($updateHelper::FIRST_EMAIL_NAME_KEY));
 
         if (empty($firstMail)) {
-            acym_enqueueNotification(acym_translation('ACYM_PLEASE_REINSTALL_ACYMAILING'), 'error');
+            acym_enqueueMessage(acym_translation('ACYM_PLEASE_REINSTALL_ACYMAILING'), 'error');
 
             return false;
         }
@@ -754,7 +749,7 @@ class DashboardController extends acymController
         $statusSaveMail = $mailClass->save($firstMail);
 
         if (empty($statusSaveMail)) {
-            acym_enqueueNotification(acym_translation('ACYM_ERROR_SAVING'), 'error');
+            acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING'), 'error');
 
             return false;
         }
@@ -808,13 +803,13 @@ class DashboardController extends acymController
         $firstMail = empty($walkthroughParams['mail_id']) ? $mailClass->getOneByName(acym_translation($updateHelper::FIRST_EMAIL_NAME_KEY)) : $mailClass->getOneById($walkthroughParams['mail_id']);
 
         if (empty($testingList)) {
-            acym_enqueueNotification(acym_translation('ACYM_CANT_RETRIEVE_TESTING_LIST'), 'error');
+            acym_enqueueMessage(acym_translation('ACYM_CANT_RETRIEVE_TESTING_LIST'), 'error');
 
             return false;
         }
 
         if (empty($firstMail)) {
-            acym_enqueueNotification(acym_translation('ACYM_CANT_RETRIEVE_TEST_EMAIL'), 'error');
+            acym_enqueueMessage(acym_translation('ACYM_CANT_RETRIEVE_TEST_EMAIL'), 'error');
         }
 
         $subscribersTestingListIds = $listClass->getSubscribersIdsById($testingList->id);

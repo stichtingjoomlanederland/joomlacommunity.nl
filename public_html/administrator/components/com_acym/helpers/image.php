@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -17,11 +17,11 @@ class acymimageHelper
     var $maxWidth;
     var $destination;
 
-    function __construct()
+    public function __construct()
     {
     }
 
-    function removePictures($text)
+    public function removePictures($text)
     {
         $return = preg_replace('#< *img[^>]*>#Ui', '', $text);
         $return = preg_replace('#< *div[^>]*class="jce_caption"[^>]*>[^<]*(< *div[^>]*>[^<]*<\/div>)*[^<]*<\/div>#Ui', '', $return);
@@ -29,7 +29,7 @@ class acymimageHelper
         return $return;
     }
 
-    function available()
+    public function available()
     {
         if (!function_exists('gd_info')) {
             $this->error = 'The GD library is not installed.';
@@ -50,7 +50,7 @@ class acymimageHelper
         return true;
     }
 
-    function resizePictures($input)
+    public function resizePictures($input)
     {
         $this->destination = ACYM_MEDIA.'resized'.DS;
         acym_createDir($this->destination);
@@ -119,7 +119,7 @@ class acymimageHelper
         return $input;
     }
 
-    function generateThumbnail($picturePath)
+    public function generateThumbnail($picturePath)
     {
 
         list($currentwidth, $currentheight) = getimagesize($picturePath);

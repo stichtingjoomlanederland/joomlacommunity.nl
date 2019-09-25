@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -19,7 +19,7 @@ class acymmailClass extends acymClass
 
     const FIELDS_ENCODING = ['name', 'subject', 'body', 'autosave', 'preheader'];
 
-    public function getMatchingMails($settings)
+    public function getMatchingElements($settings = [])
     {
         $query = 'SELECT mail.* FROM #__acym_mail AS mail';
         $queryCount = 'SELECT COUNT(mail.id) FROM #__acym_mail AS mail';
@@ -94,7 +94,15 @@ class acymmailClass extends acymClass
             $query .= ' ORDER BY mail.'.acym_secureDBColumn($settings['ordering']).' '.acym_secureDBColumn(strtoupper($settings['ordering_sort_order']));
         }
 
-        $results['mails'] = $this->decode(acym_loadObjectList($query, '', $settings['offset'], $settings['mailsPerPage']));
+        if(empty($settings['offset']) || $settings['offset'] < 0){
+            $settings['offset'] = 0;
+        }
+
+        if(empty($settings['elementsPerPage']) || $settings['elementsPerPage'] < 1){
+            $settings['elementsPerPage'] = acym_getCMSConfig('list_limit', 20);
+        }
+
+        $results['elements'] = $this->decode(acym_loadObjectList($query, '', $settings['offset'], $settings['elementsPerPage']));
         $results['total'] = acym_loadResult($queryCount);
 
         $mailsPerStatus = acym_loadObjectList($queryStatus.' GROUP BY type', 'type');
@@ -356,7 +364,7 @@ class acymmailClass extends acymClass
         if (acym_writeFile($cssfile, $css)) {
             return $cssfile;
         } else {
-            acym_enqueueNotification('Could not create the file '.$cssfile, 'error');
+            acym_enqueueMessage('Could not create the file '.$cssfile, 'error');
 
             return '';
         }
@@ -395,7 +403,7 @@ class acymmailClass extends acymClass
         return $return;
     }
 
-    function doupload()
+    public function doupload()
     {
         $importFile = acym_getVar('none', 'uploadedfile', '', 'files');
 
@@ -403,29 +411,29 @@ class acymmailClass extends acymClass
         if ($fileError > 0) {
             switch ($fileError) {
                 case 1:
-                    acym_enqueueNotification(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_1'), 'error');
+                    acym_enqueueMessage(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_1'), 'error');
 
                     return false;
                 case 2:
-                    acym_enqueueNotification(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_2'), 'error');
+                    acym_enqueueMessage(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_2'), 'error');
 
                     return false;
                 case 3:
-                    acym_enqueueNotification(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_3'), 'error');
+                    acym_enqueueMessage(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_3'), 'error');
 
                     return false;
                 case 4:
-                    acym_enqueueNotification(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_4'), 'error');
+                    acym_enqueueMessage(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_4'), 'error');
 
                     return false;
                 default:
-                    acym_enqueueNotification(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_5', $fileError), 'error');
+                    acym_enqueueMessage(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_5', $fileError), 'error');
 
                     return false;
             }
         }
         if (empty($importFile['name'])) {
-            acym_enqueueNotification(acym_translation('ACYM_BROWSE_FILE'), 'error');
+            acym_enqueueMessage(acym_translation('ACYM_BROWSE_FILE'), 'error');
 
             return false;
         }
@@ -435,12 +443,12 @@ class acymmailClass extends acymClass
         if (!is_writable($uploadPath)) {
             @chmod($uploadPath, '0755');
             if (!is_writable($uploadPath)) {
-                acym_enqueueNotification(acym_translation_sprintf('ACYM_WRITABLE_FOLDER', $uploadPath), 'warning');
+                acym_enqueueMessage(acym_translation_sprintf('ACYM_WRITABLE_FOLDER', $uploadPath), 'warning');
             }
         }
 
         if (!(bool)ini_get('file_uploads')) {
-            acym_enqueueNotification(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_6'), 'error');
+            acym_enqueueMessage(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_6'), 'error');
 
             return false;
         }
@@ -455,7 +463,7 @@ class acymmailClass extends acymClass
         $extension = strtolower(substr($filename, strrpos($filename, '.') + 1));
 
         if (!in_array($extension, ['zip', 'tar.gz'])) {
-            acym_enqueueNotification(acym_translation_sprintf('ACYM_ACCEPTED_TYPE', $extension, 'zip,tar.gz'), 'error');
+            acym_enqueueMessage(acym_translation_sprintf('ACYM_ACCEPTED_TYPE', $extension, 'zip,tar.gz'), 'error');
 
             return false;
         }
@@ -466,7 +474,7 @@ class acymmailClass extends acymClass
 
         $uploaded = acym_uploadFile($tmp_src, $tmp_dest);
         if (!$uploaded) {
-            acym_enqueueNotification(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_7', $tmp_src, $tmp_dest), 'error');
+            acym_enqueueMessage(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_7', $tmp_src, $tmp_dest), 'error');
 
             return false;
         }
@@ -484,12 +492,12 @@ class acymmailClass extends acymClass
                 continue;
             }
             if (acym_deleteFile($oneFile)) {
-                acym_enqueueNotification(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_8', $oneFile), 'warning');
+                acym_enqueueMessage(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_8', $oneFile), 'warning');
             }
         }
 
         if (!$result) {
-            acym_enqueueNotification(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_9', $tmp_dest, $extractdir), 'error');
+            acym_enqueueMessage(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_9', $tmp_dest, $extractdir), 'error');
 
             return false;
         }
@@ -498,25 +506,25 @@ class acymmailClass extends acymClass
 
             $messages = $this->templateNames;
             array_unshift($messages, acym_translation_sprintf('ACYM_TEMPLATES_INSTALL', count($this->templateNames)));
-            acym_enqueueNotification($messages, 'success');
+            acym_enqueueMessage($messages, 'success');
             if (is_dir($extractdir)) acym_deleteFolder($extractdir);
 
             return true;
         }
 
-        acym_enqueueNotification(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_10'), 'error');
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_10'), 'error');
         if (is_dir($extractdir)) acym_deleteFolder($extractdir);
 
         return false;
     }
 
-    function detecttemplates($folder)
+    public function detecttemplates($folder)
     {
         $allFiles = acym_getFiles($folder);
         if (!empty($allFiles)) {
             foreach ($allFiles as $oneFile) {
                 if (preg_match('#^.*(html|htm)$#i', $oneFile)) {
-                    if ($this->installtemplate($folder.DS.$oneFile)) return true;
+                    if ($this->_installtemplate($folder.DS.$oneFile)) return true;
                 }
             }
         }
@@ -532,7 +540,7 @@ class acymmailClass extends acymClass
         return $status;
     }
 
-    function installtemplate($filepath)
+    private function _installtemplate($filepath)
     {
         $fileContent = acym_fileGetContent($filepath);
 

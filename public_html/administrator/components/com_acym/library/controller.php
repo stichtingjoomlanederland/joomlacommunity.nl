@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -36,6 +36,7 @@ class acymController
 
     public function loadScripts($task)
     {
+
         if (empty($this->loadScripts)) {
             return;
         }
@@ -76,9 +77,15 @@ class acymController
         if (in_array('parse-css', $scripts)) {
             acym_addScript(false, ACYM_JS.'libraries/parse-css.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'parse-css.min.js'));
         }
+
+        if (in_array('vue-applications', $scripts)) {
+            acym_addScript(false, ACYM_JS.'libraries'.DS.'vuejs.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'vuejs.min.js'));
+            acym_addScript(false, ACYM_JS.'libraries'.DS.'vue-infinite-scroll.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'vue-infinite-scroll.min.js'));
+            acym_addScript(false, ACYM_JS.'vue'.DS.'vue.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'vue'.DS.'vue.min.js'));
+        }
     }
 
-    function setDefaultTask($task)
+    public function setDefaultTask($task)
     {
         $this->defaulttask = $task;
     }
@@ -88,7 +95,7 @@ class acymController
         return $this->name;
     }
 
-    function display($data = [])
+    public function display($data = [])
     {
         $viewFolder = 'view';
         if (acym_isAdmin()) {
@@ -117,7 +124,7 @@ class acymController
         return $this->display();
     }
 
-    function edit()
+    public function edit()
     {
         $nextstep = acym_getVar('string', 'nextstep', '');
         $step = acym_getVar('string', 'step', '');
@@ -136,14 +143,14 @@ class acymController
         }
     }
 
-    function apply()
+    public function apply()
     {
         $this->store();
 
         return $this->edit();
     }
 
-    function add()
+    public function add()
     {
         acym_setVar('cid', []);
         acym_setVar('layout', 'form');
@@ -151,7 +158,7 @@ class acymController
         return $this->display();
     }
 
-    function save()
+    public function save()
     {
         $step = acym_getVar('string', 'step', '');
 
@@ -164,12 +171,12 @@ class acymController
             return $this->$saveMethod();
         }
 
-        if(method_exists($this, 'store')) $this->store();
+        if (method_exists($this, 'store')) $this->store();
 
         return $this->listing();
     }
 
-    function delete()
+    public function delete()
     {
         acym_checkToken();
         $ids = acym_getVar('array', 'elements_checked', []);

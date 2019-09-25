@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -37,6 +37,7 @@ function installAcym()
     $updateHelper->fromVersion = $installClass->fromVersion;
     $updateHelper->installList();
     $updateHelper->installNotifications();
+    $updateHelper->installTemplates();
     $updateHelper->installFields();
     $updateHelper->installLanguages();
     $updateHelper->installBackLanguages();
@@ -115,27 +116,27 @@ if (!function_exists('com_uninstall')) {
 
 class com_acymInstallerScript
 {
-    function install($parent)
+    public function install($parent)
     {
         installAcym();
     }
 
-    function update($parent)
+    public function update($parent)
     {
         installAcym();
     }
 
-    function uninstall($parent)
+    public function uninstall($parent)
     {
         return uninstallAcym();
     }
 
-    function preflight($type, $parent)
+    public function preflight($type, $parent)
     {
         return true;
     }
 
-    function postflight($type, $parent)
+    public function postflight($type, $parent)
     {
         return true;
     }

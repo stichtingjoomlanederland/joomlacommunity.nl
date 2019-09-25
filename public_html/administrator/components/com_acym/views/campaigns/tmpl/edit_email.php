@@ -1,14 +1,14 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" class="acym__form__campaign__edit" data-abide novalidate>
+?><div id="acym__campaign__edit_email">
 	<input type="hidden" value="<?php echo acym_escape($data['campaignID']); ?>" name="id" id="acym__campaign__recipients__form__campaign">
 	<input type="hidden" id="acym__mail__edit__editor__social__icons" value="<?php echo empty($data['social_icons']) ? '{}' : acym_escape($data['social_icons']); ?>">
     <?php echo $data['needDisplayStylesheet']; ?>
@@ -22,7 +22,7 @@ defined('_JEXEC') or die('Restricted access');
             if (empty($data['campaignID'])) {
                 $workflow->disabledAfter = 'editEmail';
             }
-            echo $workflow->display($this->steps, $this->step, $this->edition);
+            echo $workflow->display($this->steps, $this->step, false);
             ?>
 			<div class="cell large-6">
 				<label>
@@ -114,8 +114,7 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
 
     <?php acym_formOptions(true, 'edit', 'editEmail'); ?>
-
-    <?php echo $data['editor']->display(); ?>
-</form>
-
+</div>
+<?php
+echo $data['editor']->display();
 

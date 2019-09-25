@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -24,8 +24,9 @@ class FieldsController extends acymController
             acym_setVar('layout', 'listing');
             $data = [];
             $fieldClass = acym_get('class.field');
+            $fieldsElements = $fieldClass->getMatchingElements();
 
-            $data['allFields'] = $fieldClass->getMatchingFields();
+            $data['allFields'] = $fieldsElements['elements'];
 
             return parent::display($data);
         }
@@ -146,9 +147,9 @@ class FieldsController extends acymController
         $id = $fieldClass->save($newField);
         if (!empty($id)) {
             acym_setVar('id', $id);
-            acym_enqueueNotification(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success', 5000);
+            acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'),  'success');
         } else {
-            acym_enqueueNotification(acym_translation('ACYM_ERROR_SAVING'), 'error', 5000);
+            acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING'),  'error');
         }
 
         $this->edit();
@@ -161,9 +162,9 @@ class FieldsController extends acymController
         $id = $fieldClass->save($newField);
         if (!empty($id)) {
             acym_setVar('id', $id);
-            acym_enqueueNotification(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success', 5000);
+            acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'),  'success');
         } else {
-            acym_enqueueNotification(acym_translation('ACYM_ERROR_SAVING'), 'error', 5000);
+            acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING'),  'error');
         }
         $this->listing();
     }
@@ -257,7 +258,7 @@ class FieldsController extends acymController
     {
         $ids = acym_getVar('cmd', 'elements_checked');
         if (in_array('1', $ids) || in_array('2', $ids)) {
-            acym_enqueueNotification(acym_translation('ACYM_CANT_DELETE'), 'error', 5000);
+            acym_enqueueMessage(acym_translation('ACYM_CANT_DELETE'),  'error');
             $this->listing();
 
             return;

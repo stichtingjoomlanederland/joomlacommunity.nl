@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -12,7 +12,7 @@ defined('_JEXEC') or die('Restricted access');
 
 class acymheaderHelper
 {
-    function display($breadcrumb)
+    public function display($breadcrumb)
     {
         $news = @simplexml_load_file(ACYM_ACYWEBSITE.'acymnews.xml');
         $config = acym_config();
@@ -90,12 +90,12 @@ class acymheaderHelper
 
         $header .= '<div class="cell grid-x align-right large-shrink">';
         $header .= acym_tooltip(
-            '<a id="checkVersionButton" type="button" class="button button-secondary medium-shrink" data-check="'.$checking.'">'.acym_translation('ACYM_CHECK_MY_VERSION').'</a>',
+            '<a id="checkVersionButton" type="button" class="grid-x align-center button_header medium-shrink acym_vcenter" data-check="'.acym_escape($checking).'"><i class="cell shrink acymicon-autorenew"></i></a>',
             acym_translation('ACYM_LAST_CHECK').' <span id="acym__check__version__last__check">'.acym_date($lastLicenseCheck, 'Y/m/d H:i').'</span>'
         );
 
-        $url = ACYM_UPDATEMEURL.'doc&task=doc&product=acymailing&for='.(empty($_REQUEST['ctrl']) ? 'dashboard' : $_REQUEST['ctrl']).'-'.$_REQUEST['layout'];
-        $header .= '<a type="button" class="button medium-shrink" target="_blank" href="'.$url.'">'.acym_translation('ACYM_DOCUMENTATION').'</a>';
+        $header .= acym_tooltip('<a type="button" class="grid-x align-center button_header medium-shrink acym_vcenter" target="_blank" href="'.ACYM_DOCUMENTATION.'"><i class="cell shrink fa fa-book"></i></a>', acym_translation('ACYM_DOCUMENTATION'));
+        $header .= $this->getNotificationCenter();
         $header .= '</div></div>';
 
         return $header;
@@ -157,6 +157,110 @@ class acymheaderHelper
         $version .= '</div>';
 
         return $version;
+    }
+
+    public function getNotificationCenter()
+    {
+        $config = acym_config();
+        $notifications = json_decode($config->get('notifications', '{}'), true);
+        $message = '';
+        $notificationLevel = 0;
+        if (!empty($_SESSION['acym_success'])) {
+            $message = $_SESSION['acym_success'];
+            $_SESSION['acym_success'] = '';
+            $notificationLevel = 1;
+        }
+
+        if (!empty($notifications)) {
+            foreach ($notifications as $notification) {
+                if ($notification['read']) continue;
+                if ($notification['level'] == 'info' && $notificationLevel < 2) $notificationLevel = 2;
+                if ($notification['level'] == 'warning' && $notificationLevel < 3) $notificationLevel = 3;
+                if ($notification['level'] == 'error' && $notificationLevel < 4) $notificationLevel = 4;
+            }
+        }
+
+        $iconToDisplay = '';
+        $tooltip = '';
+
+        switch ($notificationLevel) {
+            case 0:
+                $iconToDisplay = 'fa-bell-o';
+                $notificationLevel = '';
+                break;
+            case 1:
+                $iconToDisplay = 'fa-check-circle acym__color__green';
+                $notificationLevel = 'acym__header__notification__button__success acym__header__notification__pulse';
+                $tooltip = 'data-tooltip="'.acym_escape($message).'" data-tooltip-position="left"';
+                break;
+            case 2:
+                $iconToDisplay = 'fa-bell-o acym__color__blue';
+                $notificationLevel = 'acym__header__notification__button__info';
+                break;
+            case 3:
+                $iconToDisplay = 'fa-exclamation-triangle acym__color__orange';
+                $notificationLevel = 'acym__header__notification__button__warning';
+                break;
+            case 4:
+                $iconToDisplay = 'fa-exclamation-circle acym__color__red';
+                $notificationLevel = 'acym__header__notification__button__error';
+                break;
+        }
+
+        $notificationCenter = '<div class="cell grid-x align-center acym_vcenter medium-shrink acym__header__notification '.$notificationLevel.' button_header cursor-pointer" '.$tooltip.'><i class="fa '.$iconToDisplay.'"></i>';
+        $notificationCenter .= '<div class="cell grid-x acym__header__notification__center align-center">';
+        $notificationCenter .= $this->getNotificationCenterInner($notifications);
+        $notificationCenter .= '</div></div>';
+
+        return $notificationCenter;
+    }
+
+    public function getNotificationCenterInner($notifications)
+    {
+        $notificationCenter = '';
+        if (empty($notifications)) {
+            $notificationCenter .= '<div class="cell grid-x acym__header__notification__one acym__header__notification__one__empty acym_vcenter">';
+            $notificationCenter .= '<h2 class="cell text-center">'.acym_translation('ACYM_YOU_DONT_HAVE_NOTIFICATIONS').'</h2>';
+            $notificationCenter .= '</div>';
+        } else {
+            $notificationCenter .= '<div class="cell grid-x acym__header__notification__toolbox"><p class="cell auto">'.acym_translation('ACYM_NOTIFICATIONS').'</p><div class="cell shrink cursor-pointer acym__header__notification__toolbox__remove text-right">'.acym_translation('ACYM_DELETE_ALL').'</div></div>';
+            foreach ($notifications as $key => $notif) {
+                if (strlen($notif['message']) > 150) $notif['message'] = substr($notif['message'], 0, 150).'...';
+                $logo = $notif['level'] == 'info' ? 'fa-bell' : ($notif['level'] == 'warning' ? 'fa-exclamation-triangle' : 'fa-exclamation-circle');
+                $read = $notif['read'] ? 'acym__header__notification__one__read' : '';
+                $notificationCenter .= '<div class="'.$read.' cell grid-x acym__header__notification__one acym_vcenter acym_vcenter acym__header__notification__one__'.$notif['level'].'">';
+                $notificationCenter .= '<div class="cell small-3 align-center acym__header__notification__one__icon"><i class="cell fa '.$logo.'"></i></div>';
+                $notificationCenter .= '<div class="cell grid-x small-8"><p class="cell acym__header__notification__message">'.$notif['message'];
+                $notificationCenter .= '<div class="cell acym__header__notification__one__date">'.acym_date($notif['date']).'</div></div>';
+                $notificationCenter .= '<i class="cell small-1 acym__header__notification__one__delete acymicon-close" data-id="'.acym_escape($key).'"></i>';
+                $notificationCenter .= '</div>';
+            }
+        }
+
+        return $notificationCenter;
+    }
+
+    public function addNotification($notif)
+    {
+        if ($notif->level == 'success') {
+            $_SESSION['acym_success'] = $notif->message;
+
+            return true;
+        }
+        $config = acym_config();
+
+        $notifications = json_decode($config->get('notifications', '[]'), true);
+
+        $notif->message = strip_tags($notif->message);
+
+        $notif->id = uniqid();
+        array_unshift($notifications, $notif);
+
+        if (count($notifications) > 10) unset($notifications[10]);
+
+        $config->save(['notifications' => json_encode($notifications)]);
+
+        return $notif->id;
     }
 }
 

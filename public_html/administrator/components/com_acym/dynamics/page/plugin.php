@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -12,14 +12,14 @@ defined('_JEXEC') or die('Restricted access');
 
 class plgAcymPage extends acymPlugin
 {
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
         $this->cms = 'WordPress';
         $this->name = 'page';
     }
 
-    function insertOptions()
+    public function insertOptions()
     {
         $plugin = new stdClass();
         $plugin->name = acym_translation('ACYM_PAGE');
@@ -30,8 +30,10 @@ class plgAcymPage extends acymPlugin
         return $plugin;
     }
 
-    function contentPopup()
+    public function contentPopup($defaultValues = null)
     {
+        $this->defaultValues = $defaultValues;
+
         $displayOptions = [
             [
                 'title' => 'ACYM_DISPLAY',
@@ -52,6 +54,7 @@ class plgAcymPage extends acymPlugin
             [
                 'title' => 'ACYM_TRUNCATE',
                 'type' => 'intextfield',
+                'isNumber' => 1,
                 'name' => 'wrap',
                 'text' => 'ACYM_TRUNCATE_AFTER',
                 'default' => 0,
@@ -63,44 +66,26 @@ class plgAcymPage extends acymPlugin
             ],
         ];
 
-        echo $this->acympluginHelper->displayOptions($displayOptions, $this->name);
-
-        echo $this->getFilteringZone(false);
-
-        $this->displayListing();
+        $zoneContent = $this->getFilteringZone(false).$this->prepareListing();
+        echo $this->displaySelectionZone($zoneContent);
+        echo $this->acympluginHelper->displayOptions($displayOptions, $this->name, 'individual', $this->defaultValues);
     }
 
-    function displayListing()
+    public function prepareListing()
     {
-        $querySelect = 'SELECT page.ID, page.post_title, page.post_date, page.post_content ';
-        $query = 'FROM #__posts AS page ';
-        $filters = [];
-
-        $this->pageInfo = new stdClass();
-        $this->pageInfo->limit = acym_getCMSConfig('list_limit');
-        $this->pageInfo->page = acym_getVar('int', 'pagination_page_ajax', 1);
-        $this->pageInfo->start = ($this->pageInfo->page - 1) * $this->pageInfo->limit;
-        $this->pageInfo->search = acym_getVar('string', 'plugin_search', '');
-        $this->pageInfo->filter_cat = acym_getVar('int', 'plugin_category', 0);
+        $this->querySelect = 'SELECT page.ID, page.post_title, page.post_date, page.post_content ';
+        $this->query = 'FROM #__posts AS page ';
+        $this->filters = [];
+        $this->filters[] = 'page.post_type = "page"';
+        $this->filters[] = 'page.post_status = "publish"';
+        $this->searchFields = ['page.ID', 'page.post_title'];
         $this->pageInfo->order = 'page.ID';
-        $this->pageInfo->orderdir = 'DESC';
+        $this->elementIdTable = 'page';
+        $this->elementIdColumn = 'ID';
 
-        $searchFields = ['page.ID', 'page.post_title'];
-        if (!empty($this->pageInfo->search)) {
-            $searchVal = '%'.acym_getEscaped($this->pageInfo->search, true).'%';
-            $filters[] = implode(" LIKE ".acym_escapeDB($searchVal)." OR ", $searchFields)." LIKE ".acym_escapeDB($searchVal);
-        }
+        parent::prepareListing();
 
-        $filters[] = 'page.post_type = "page"';
-        $filters[] = 'page.post_status = "publish"';
-
-        $query .= ' WHERE ('.implode(') AND (', $filters).')';
-        if (!empty($this->pageInfo->order)) $query .= ' ORDER BY '.acym_secureDBColumn($this->pageInfo->order).' '.acym_secureDBColumn($this->pageInfo->orderdir);
-
-        $rows = acym_loadObjectList($querySelect.$query, '', $this->pageInfo->start, $this->pageInfo->limit);
-        $this->pageInfo->total = acym_loadResult('SELECT COUNT(*) '.$query);
-
-
+        $rows = $this->getElements();
         foreach ($rows as $i => $row) {
             if (str_replace(['wp:core-embed', 'wp:shortcode'], '', $row->post_content) !== $row->post_content) {
                 $rows[$i]->post_title = acym_tooltip('<i class="fa fa-warning"></i>', acym_translation('ACYM_SPECIAL_CONTENT_WARNING')).$rows[$i]->post_title;
@@ -128,29 +113,15 @@ class plgAcymPage extends acymPlugin
             'rows' => $rows,
         ];
 
-        echo $this->getElementsListing($listingOptions);
+        return $this->getElementsListing($listingOptions);
     }
 
-    function replaceContent(&$email)
+    public function replaceContent(&$email)
     {
         $this->_replaceOne($email);
     }
 
-    private function _replaceOne(&$email)
-    {
-        $tags = $this->acympluginHelper->extractTags($email, $this->name);
-        if (empty($tags)) return;
-
-        $tagsReplaced = [];
-        foreach ($tags as $i => $oneTag) {
-            if (isset($tagsReplaced[$i])) continue;
-            $tagsReplaced[$i] = $this->_replaceContent($oneTag, $email);
-        }
-
-        $this->acympluginHelper->replaceTags($email, $tagsReplaced, true);
-    }
-
-    function _replaceContent($tag, &$email)
+    public function _replaceContent($tag, &$email)
     {
         $query = 'SELECT page.*
                     FROM #__posts AS page

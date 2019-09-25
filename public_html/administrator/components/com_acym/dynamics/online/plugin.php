@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -12,7 +12,7 @@ defined('_JEXEC') or die('Restricted access');
 
 class plgAcymOnline extends acymPlugin
 {
-    function dynamicText()
+    public function dynamicText()
     {
         $onePlugin = new stdClass();
         $onePlugin->name = acym_translation('ACYM_WEBSITE_LINKS');
@@ -22,7 +22,7 @@ class plgAcymOnline extends acymPlugin
         return $onePlugin;
     }
 
-    function textPopup()
+    public function textPopup()
     {
         $others = [];
         $others['readonline'] = ['default' => acym_translation('ACYM_VIEW_ONLINE', true), 'desc' => acym_translation('ACYM_VIEW_ONLINE_DESC')];
@@ -74,7 +74,7 @@ class plgAcymOnline extends acymPlugin
         <?php
     }
 
-    function replaceContent(&$email, $send = true)
+    public function replaceContent(&$email, $send = true)
     {
         $match = '#(?:{|%7B)(readonline)([^}]*)(?:}|%7D)(.*)(?:{|%7B)/(readonline)(?:}|%7D)#Uis';
         $variables = ['body'];

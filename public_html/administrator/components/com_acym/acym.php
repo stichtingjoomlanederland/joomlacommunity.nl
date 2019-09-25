@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -80,6 +80,8 @@ acym_addScript(false, ACYM_JS.'libraries/intro.min.js?v='.filemtime(ACYM_MEDIA.'
 
 acym_addScript(false, ACYM_JS.'global.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'global.min.js'));
 acym_addScript(false, ACYM_JS.'back_global.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'back_global.min.js'));
+
+
 acym_addStyle(false, ACYM_CSS.'back_global.min.css?v='.filemtime(ACYM_MEDIA.'css'.DS.'back_global.min.css'));
 if (file_exists(ACYM_MEDIA.'js'.DS.'back'.DS.$ctrl.'.min.js')) {
     acym_addScript(false, ACYM_JS.'back/'.$ctrl.'.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'back'.DS.$ctrl.'.min.js'));

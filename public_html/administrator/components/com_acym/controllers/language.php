@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -37,19 +37,19 @@ class LanguageController extends acymController
         $path = acym_getLanguagePath(ACYM_ROOT, $code).DS.$code.'.com_acym.ini';
         $result = acym_writeFile($path, $content);
         if ($result) {
-            acym_enqueueNotification(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success');
+            acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success');
             acym_addScript(true, "window.top.document.getElementById('image$code').innerHTML = 'edit'");
 
             $updateHelper = acym_get('helper.update');
             $updateHelper->installBackLanguages($code);
         } else {
-            acym_enqueueNotification(acym_translation_sprintf('ACYM_FAIL_SAVE', $path), 'error');
+            acym_enqueueMessage(acym_translation_sprintf('ACYM_FAIL_SAVE', $path), 'error');
         }
 
         $custompath = acym_getLanguagePath(ACYM_ROOT, $code).DS.$code.'.com_acym_custom.ini';
         $customresult = acym_writeFile($custompath, $customcontent);
         if (!$customresult) {
-            acym_enqueueNotification(acym_translation_sprintf('ACYM_FAIL_SAVE', $custompath), 'error');
+            acym_enqueueMessage(acym_translation_sprintf('ACYM_FAIL_SAVE', $custompath), 'error');
         }
 
         if ($code == acym_getLanguageTag()) {
@@ -151,9 +151,9 @@ class LanguageController extends acymController
         $result = $mailer->Send();
 
         if ($result) {
-            acym_enqueueNotification(acym_translation('ACYM_THANK_YOU_SHARING').'<br>'.acym_translation('ACYM_MESSAGE_SENT'), 'success');
+            acym_enqueueMessage(acym_translation('ACYM_THANK_YOU_SHARING').'<br>'.acym_translation('ACYM_MESSAGE_SENT'), 'success');
         } else {
-            acym_enqueueNotification($mailer->reportMessage, 'error');
+            acym_enqueueMessage($mailer->reportMessage, 'error');
         }
 
         $this->displayLanguage();

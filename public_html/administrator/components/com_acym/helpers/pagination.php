@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -16,14 +16,14 @@ class acympaginationHelper
     var $page;
     var $nbPerPage;
 
-    function setStatus($total, $page, $nbPerPage)
+    public function setStatus($total, $page, $nbPerPage)
     {
         $this->total = $total;
         $this->page = $page;
         $this->nbPerPage = $nbPerPage;
     }
 
-    function display($page, $suffix = '')
+    public function display($page, $suffix = '')
     {
         $name = empty($page) ? 'pagination_page_ajax' : $page.'_pagination_page';
         $pagination = '<input type="hidden" id="acym_pagination'.$suffix.'" name="'.$name.'" value="'.$this->page.'"/>';
@@ -67,12 +67,12 @@ class acympaginationHelper
         return $pagination;
     }
 
-    function displayAjax()
+    public function displayAjax()
     {
         return $this->display('', '__ajax');
     }
 
-    function displayFront()
+    public function displayFront()
     {
         $nbPages = ceil($this->total / $this->nbPerPage);
 

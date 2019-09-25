@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -24,7 +24,7 @@ class FrontusersController extends acymController
         exit;
     }
 
-    function subscribe()
+    public function subscribe()
     {
         acym_checkRobots();
         $config = acym_config();
@@ -147,7 +147,7 @@ class FrontusersController extends acymController
             echo '{"message":"'.$msg.'","type":"'.$msgtype.'","code":"'.$code.'"}';
             exit;
         } else {
-            acym_enqueueNotification($msg, 'info');
+            acym_enqueueMessage($msg, 'info');
         }
 
         $redirectUrl = urldecode(acym_getVar('string', 'redirect', ''));
@@ -161,7 +161,7 @@ class FrontusersController extends acymController
         return true;
     }
 
-    function unsubscribe()
+    public function unsubscribe()
     {
         acym_checkRobots();
         $config = acym_config();
@@ -236,7 +236,7 @@ class FrontusersController extends acymController
             echo '{"message":"'.str_replace('"', '\"', $msg).'","type":"success","code":"10"}';
             exit;
         }
-        acym_enqueueNotification($msg, 'info');
+        acym_enqueueMessage($msg, 'info');
 
         $redirectUrl = urldecode(acym_getVar('string', 'redirectunsub', ''));
         if (empty($redirectUrl)) {
@@ -246,7 +246,7 @@ class FrontusersController extends acymController
         acym_redirect($redirectUrl);
     }
 
-    function confirm()
+    public function confirm()
     {
         if (acym_isRobot()) {
             return false;
@@ -265,9 +265,9 @@ class FrontusersController extends acymController
 
         if ($config->get('confirmation_message', 1)) {
             if ($user->confirmed) {
-                acym_enqueueNotification(acym_translation('ACYM_ALREADY_CONFIRMED'));
+                acym_enqueueMessage(acym_translation('ACYM_ALREADY_CONFIRMED'));
             } else {
-                acym_enqueueNotification(acym_translation('ACYM_SUBSCRIPTION_CONFIRMED'));
+                acym_enqueueMessage(acym_translation('ACYM_SUBSCRIPTION_CONFIRMED'));
             }
         }
 
@@ -327,10 +327,10 @@ class FrontusersController extends acymController
                     acym_addMetadata('robots', $menuparams->get('robots'));
                 }
 
-                $params->lists = $menuparams->get('lists', 'all');
+                $params->lists = $menuparams->get('lists', 'none');
                 $params->listschecked = $menuparams->get('listschecked', 'all');
                 $params->dropdown = $menuparams->get('dropdown');
-                $params->hiddenlists = trim($menuparams->get('hiddenlists', 'None'));
+                $params->hiddenlists = $menuparams->get('hiddenlists', 'None');
                 $params->fields = $menuparams->get('fields');
                 $params->introtext = $menuparams->get('introtext');
                 $params->posttext = $menuparams->get('posttext');
@@ -347,7 +347,7 @@ class FrontusersController extends acymController
     public function prepareParams($values)
     {
         if (!isset($values->lists)) {
-            $values->lists = 'all';
+            $values->lists = 'none';
         }
         if (!isset($values->listschecked)) {
             $values->listschecked = 'all';
@@ -513,7 +513,7 @@ class FrontusersController extends acymController
         return $data;
     }
 
-    function savechanges()
+    public function savechanges()
     {
         acym_checkToken();
         acym_checkRobots();
@@ -549,7 +549,7 @@ class FrontusersController extends acymController
         exit;
     }
 
-    function exportdata()
+    public function exportdata()
     {
         acym_checkToken();
 
@@ -564,7 +564,7 @@ class FrontusersController extends acymController
         $userHelper->exportdata($user->id);
     }
 
-    function delete()
+    public function delete()
     {
         acym_checkToken();
 
@@ -576,9 +576,9 @@ class FrontusersController extends acymController
         }
 
         if ($userClass->delete($user->id)) {
-            acym_enqueueNotification(acym_translation('ACYM_DATA_DELETED'), 'success');
+            acym_enqueueMessage(acym_translation('ACYM_DATA_DELETED'), 'success');
         } else {
-            acym_enqueueNotification(acym_translation('ACYM_ERROR_DELETE_DATA'), 'error');
+            acym_enqueueMessage(acym_translation('ACYM_ERROR_DELETE_DATA'), 'error');
         }
 
         acym_redirect(acym_rootURI());

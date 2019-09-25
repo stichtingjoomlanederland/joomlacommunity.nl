@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -16,7 +16,7 @@ class operatorType extends acymClass
     var $class = 'acym__select';
     var $extra = '';
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
 
@@ -38,7 +38,7 @@ class operatorType extends acymClass
         $this->values[] = acym_selectOption('IS NOT NULL', 'IS NOT NULL');
     }
 
-    function display($name, $valueSelected = '', $class = '')
+    public function display($name, $valueSelected = '', $class = '')
     {
         return acym_select($this->values, $name, $valueSelected, $this->extra.' class="'.$this->class.' '.$class.'"');
     }

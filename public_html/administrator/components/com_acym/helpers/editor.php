@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -34,14 +34,19 @@ class acymeditorHelper
 
     public function display()
     {
-
         if ($this->isDragAndDrop()) {
             acym_addScript(false, ACYM_JS.'tinymce/tinymce.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'tinymce/tinymce.min.js'));
-            include(ACYM_VIEW.'mails'.DS.'tmpl'.DS.'editor_wysid.php');
+            include ACYM_VIEW.'mails'.DS.'tmpl'.DS.'editor_wysid.php';
         } else {
-            echo 'joomla' === ACYM_CMS ? '</div></div><div class="acym_no_foundation"><div>' : '</div><div class="acym_no_foundation"><div>';
+
+            if (acym_isLeftMenuNecessary()) echo '</div>';
+
+            echo '</div><div class="acym_no_foundation">';
+
             $method = 'displayJoomla';
             $this->$method();
+
+            if (acym_isLeftMenuNecessary()) echo '<div>';
         }
     }
 

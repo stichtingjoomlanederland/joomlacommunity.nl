@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -24,7 +24,7 @@ class QueueController extends acymController
         acym_setVar('layout', 'campaigns');
 
         $config = acym_config();
-        if (acym_level(1) && $config->get('cron_last', 0) < (time() - 43200)){
+        if (acym_level(1) && $config->get('cron_last', 0) < (time() - 43200)) {
             acym_enqueueMessage(acym_translation('ACYM_CREATE_CRON_REMINDER').' <a id="acym__queue__configure-cron" href="'.acym_completeLink('configuration&tab=queue').'">'.acym_translation('ACYM_GOTO_CONFIG').'</a>', 'warning');
         }
 
@@ -166,7 +166,7 @@ class QueueController extends acymController
                 $result[] = acym_query('DELETE FROM #__acym_mail_stat WHERE mail_id = '.intval($mailId));
             }
         } else {
-            acym_enqueueNotification(acym_translation("ACYM_ERROR_QUEUE_CANCEL_CAMPAIGN"), "error", 10000);
+            acym_enqueueMessage(acym_translation("ACYM_ERROR_QUEUE_CANCEL_CAMPAIGN"), "error");
         }
         $this->campaigns();
     }
@@ -181,9 +181,9 @@ class QueueController extends acymController
             $queueClass->unpauseCampaign($campaignId, $active);
         } else {
             if (!empty($active)) {
-                acym_enqueueNotification(acym_translation("ACYM_ERROR_QUEUE_RESUME"), "error", 10000);
+                acym_enqueueMessage(acym_translation("ACYM_ERROR_QUEUE_RESUME"), "error");
             } else {
-                acym_enqueueNotification(acym_translation("ACYM_ERROR_QUEUE_PAUSE"), "error", 10000);
+                acym_enqueueMessage(acym_translation("ACYM_ERROR_QUEUE_PAUSE"), "error");
             }
         }
 
@@ -196,7 +196,7 @@ class QueueController extends acymController
 
         $queueClass = acym_get('class.queue');
         $deleted = $queueClass->emptyQueue();
-        acym_enqueueNotification(acym_translation_sprintf('ACYM_EMAILS_REMOVED_QUEUE', $deleted));
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_EMAILS_REMOVED_QUEUE', $deleted));
 
         $this->campaigns();
     }

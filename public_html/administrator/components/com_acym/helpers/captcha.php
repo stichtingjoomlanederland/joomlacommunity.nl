@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -12,7 +12,7 @@ defined('_JEXEC') or die('Restricted access');
 
 class acymcaptchaHelper
 {
-    function display($formName = '')
+    public function display($formName = '')
     {
         $config = acym_config();
         $pubkey = $config->get('recaptcha_sitekey', '');
@@ -25,7 +25,7 @@ class acymcaptchaHelper
         return '<div id="'.acym_escape($id).'" data-size="invisible" class="g-recaptcha" data-sitekey="'.acym_escape($pubkey).'"></div>';
     }
 
-    function check()
+    public function check()
     {
         $config = acym_config();
         $secKey = acym_getVar('string', 'seckey', 'none');

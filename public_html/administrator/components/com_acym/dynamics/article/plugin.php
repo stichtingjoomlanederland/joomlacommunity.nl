@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -30,8 +30,10 @@ class plgAcymArticle extends acymPlugin
         return $plugin;
     }
 
-    public function contentPopup()
+    public function contentPopup($defaultValues = null)
     {
+        $this->defaultValues = $defaultValues;
+
         $this->categories = acym_loadObjectList(
             'SELECT id, parent_id, title
             FROM `#__categories` 
@@ -39,7 +41,8 @@ class plgAcymArticle extends acymPlugin
         );
 
         $tabHelper = acym_get('helper.tab');
-        $tabHelper->startTab(acym_translation('ACYM_ONE_BY_ONE'));
+        $identifier = $this->name;
+        $tabHelper->startTab(acym_translation('ACYM_ONE_BY_ONE'), !empty($this->defaultValues->defaultPluginTab) && $identifier === $this->defaultValues->defaultPluginTab);
 
         $displayOptions = [
             [
@@ -62,6 +65,7 @@ class plgAcymArticle extends acymPlugin
             [
                 'title' => 'ACYM_TRUNCATE',
                 'type' => 'intextfield',
+                'isNumber' => 1,
                 'name' => 'wrap',
                 'text' => 'ACYM_TRUNCATE_AFTER',
                 'default' => 0,
@@ -73,14 +77,13 @@ class plgAcymArticle extends acymPlugin
             ],
         ];
 
-        echo $this->acympluginHelper->displayOptions($displayOptions, $this->name);
-
-        echo $this->getFilteringZone();
-
-        $this->displayListing();
+        $zoneContent = $this->getFilteringZone().$this->prepareListing();
+        echo $this->displaySelectionZone($zoneContent);
+        echo $this->acympluginHelper->displayOptions($displayOptions, $identifier, 'individual', $this->defaultValues);
 
         $tabHelper->endTab();
-        $tabHelper->startTab(acym_translation('ACYM_BY_CATEGORY'));
+        $identifier = 'auto'.$this->name;
+        $tabHelper->startTab(acym_translation('ACYM_BY_CATEGORY'), !empty($this->defaultValues->defaultPluginTab) && $identifier === $this->defaultValues->defaultPluginTab);
 
         $catOptions = [
             [
@@ -113,48 +116,30 @@ class plgAcymArticle extends acymPlugin
 
         $displayOptions = array_merge($displayOptions, $catOptions);
 
-        echo $this->acympluginHelper->displayOptions($displayOptions, 'auto'.$this->name, 'grouped');
-
-        echo $this->getCategoryListing();
+        echo $this->displaySelectionZone($this->getCategoryListing());
+        echo $this->acympluginHelper->displayOptions($displayOptions, $identifier, 'grouped', $this->defaultValues);
 
         $tabHelper->endTab();
 
         $tabHelper->display('plugin');
     }
 
-    public function displayListing()
+    public function prepareListing()
     {
-        $querySelect = 'SELECT article.id, article.title, article.publish_up ';
-        $query = 'FROM #__content AS article ';
-        $filters = [];
-
-        $this->pageInfo = new stdClass();
-        $this->pageInfo->limit = acym_getCMSConfig('list_limit');
-        $this->pageInfo->page = acym_getVar('int', 'pagination_page_ajax', 1);
-        $this->pageInfo->start = ($this->pageInfo->page - 1) * $this->pageInfo->limit;
-        $this->pageInfo->search = acym_getVar('string', 'plugin_search', '');
-        $this->pageInfo->filter_cat = acym_getVar('int', 'plugin_category', 0);
+        $this->querySelect = 'SELECT article.id, article.title, article.publish_up ';
+        $this->query = 'FROM #__content AS article ';
+        $this->filters = [];
+        $this->filters[] = 'article.state = 1';
+        $this->searchFields = ['article.id', 'article.title'];
         $this->pageInfo->order = 'article.id';
-        $this->pageInfo->orderdir = 'DESC';
+        $this->elementIdTable = 'article';
+        $this->elementIdColumn = 'id';
 
-        $searchFields = ['article.id', 'article.title'];
-        if (!empty($this->pageInfo->search)) {
-            $searchVal = '%'.acym_getEscaped($this->pageInfo->search, true).'%';
-            $filters[] = implode(' LIKE '.acym_escapeDB($searchVal).' OR ', $searchFields).' LIKE '.acym_escapeDB($searchVal);
-        }
+        parent::prepareListing();
 
         if (!empty($this->pageInfo->filter_cat)) {
-            $filters[] = "article.catid = ".intval($this->pageInfo->filter_cat);
+            $this->filters[] = 'article.catid = '.intval($this->pageInfo->filter_cat);
         }
-
-        $filters[] = 'article.state = 1';
-
-        $query .= ' WHERE ('.implode(') AND (', $filters).')';
-        if (!empty($this->pageInfo->order)) $query .= ' ORDER BY '.acym_secureDBColumn($this->pageInfo->order).' '.acym_secureDBColumn($this->pageInfo->orderdir);
-
-        $rows = acym_loadObjectList($querySelect.$query, '', $this->pageInfo->start, $this->pageInfo->limit);
-        $this->pageInfo->total = acym_loadResult('SELECT COUNT(*) '.$query);
-
 
         $listingOptions = [
             'header' => [
@@ -174,10 +159,10 @@ class plgAcymArticle extends acymPlugin
                 ],
             ],
             'id' => 'id',
-            'rows' => $rows,
+            'rows' => $this->getElements(),
         ];
 
-        echo $this->getElementsListing($listingOptions);
+        return $this->getElementsListing($listingOptions);
     }
 
     public function replaceContent(&$email)
@@ -207,18 +192,11 @@ class plgAcymArticle extends acymPlugin
         foreach ($tags as $oneTag => $parameter) {
             if (isset($this->tags[$oneTag])) continue;
 
-            $allcats = explode('-', $parameter->id);
-            $selectedArea = [];
-            foreach ($allcats as $oneCat) {
-                if (empty($oneCat)) continue;
-
-                $selectedArea[] = intval($oneCat);
-            }
-
             $query = 'SELECT DISTINCT article.`id` FROM #__content AS article ';
 
             $where = [];
 
+            $selectedArea = $this->getSelectedArea($parameter);
             if (!empty($selectedArea)) {
                 $where[] = 'article.catid IN ('.implode(',', $selectedArea).')';
             }
@@ -348,3 +326,4 @@ class plgAcymArticle extends acymPlugin
         return $this->finalizeElementFormat($this->name, $result, $tag, $varFields);
     }
 }
+

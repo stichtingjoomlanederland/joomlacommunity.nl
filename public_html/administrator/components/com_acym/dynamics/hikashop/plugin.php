@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -38,14 +38,17 @@ class plgAcymHikashop extends acymPlugin
         return $plugin;
     }
 
-    public function contentPopup()
+    public function contentPopup($defaultValues = null)
     {
+        $this->defaultValues = $defaultValues;
+
         acym_loadLanguageFile('com_hikashop', JPATH_SITE);
 
         $this->categories = acym_loadObjectList("SELECT category_id AS id, category_parent_id AS parent_id, category_name AS title FROM `#__hikashop_category` WHERE category_type = 'product'", 'id');
 
         $tabHelper = acym_get('helper.tab');
-        $tabHelper->startTab(acym_translation('ACYM_ONE_BY_ONE'));
+        $identifier = $this->name;
+        $tabHelper->startTab(acym_translation('ACYM_ONE_BY_ONE'), !empty($this->defaultValues->defaultPluginTab) && $identifier === $this->defaultValues->defaultPluginTab);
 
         $displayOptions = [
             [
@@ -72,14 +75,13 @@ class plgAcymHikashop extends acymPlugin
             ],
         ];
 
-        echo $this->acympluginHelper->displayOptions($displayOptions, $this->name);
-
-        echo $this->getFilteringZone();
-
-        $this->displayListing();
+        $zoneContent = $this->getFilteringZone().$this->prepareListing();
+        echo $this->displaySelectionZone($zoneContent);
+        echo $this->acympluginHelper->displayOptions($displayOptions, $identifier, 'individual', $this->defaultValues);
 
         $tabHelper->endTab();
-        $tabHelper->startTab(acym_translation('ACYM_BY_CATEGORY'));
+        $identifier = 'auto'.$this->name;
+        $tabHelper->startTab(acym_translation('ACYM_BY_CATEGORY'), !empty($this->defaultValues->defaultPluginTab) && $identifier === $this->defaultValues->defaultPluginTab);
 
         $catOptions = [
             [
@@ -96,13 +98,13 @@ class plgAcymHikashop extends acymPlugin
             ],
             [
                 'title' => 'ACYM_COLUMNS',
-                'type' => 'text',
+                'type' => 'number',
                 'name' => 'cols',
                 'default' => 1,
             ],
             [
                 'title' => 'ACYM_MAX_NB_ELEMENTS',
-                'type' => 'text',
+                'type' => 'number',
                 'name' => 'max',
                 'default' => 20,
             ],
@@ -110,12 +112,12 @@ class plgAcymHikashop extends acymPlugin
 
         $displayOptions = array_merge($displayOptions, $catOptions);
 
-        echo $this->acympluginHelper->displayOptions($displayOptions, 'auto'.$this->name, 'grouped');
-
-        echo $this->getCategoryListing();
+        echo $this->displaySelectionZone($this->getCategoryListing());
+        echo $this->acympluginHelper->displayOptions($displayOptions, $identifier, 'grouped', $this->defaultValues);
 
         $tabHelper->endTab();
-        $tabHelper->startTab(acym_translation('HIKA_ABANDONED_CART'));
+        $identifier = 'hikashop_abandonedcart';
+        $tabHelper->startTab(acym_translation('HIKA_ABANDONED_CART'), !empty($this->defaultValues->defaultPluginTab) && $identifier === $this->defaultValues->defaultPluginTab);
 
         $methods = acym_loadObjectList('SELECT payment_id, payment_name FROM #__hikashop_payment', 'payment_id');
 
@@ -145,16 +147,18 @@ class plgAcymHikashop extends acymPlugin
             [
                 'title' => 'ACYM_DATE_CREATED',
                 'type' => 'intextfield',
+                'isNumber' => 1,
                 'name' => 'nbdayscart',
                 'text' => 'DAYS_AFTER_ORDERING',
                 'default' => 1,
             ],
         ];
 
-        echo $this->acympluginHelper->displayOptions($displayOptions, 'hikashop_abandonedcart', 'simple');
+        echo $this->acympluginHelper->displayOptions($displayOptions, $identifier, 'simple', $this->defaultValues);
 
         $tabHelper->endTab();
-        $tabHelper->startTab(acym_translation('ACYM_COUPON'));
+        $identifier = 'hikashop_coupon';
+        $tabHelper->startTab(acym_translation('ACYM_COUPON'), !empty($this->defaultValues->defaultPluginTab) && $identifier === $this->defaultValues->defaultPluginTab);
 
         $query = "SELECT `product_id`, CONCAT(product_name, ' ( ', product_code, ' )') AS `title` 
                             FROM #__hikashop_product 
@@ -199,14 +203,14 @@ class plgAcymHikashop extends acymPlugin
                 'title' => 'DISCOUNT_FLAT_AMOUNT',
                 'type' => 'custom',
                 'name' => 'flat',
-                'output' => '<input type="text" name="flathikashop_coupon" id="flat" onchange="updateDynamichikashop_coupon();" value="0" class="acym_plugin_text_field" style="display: inline-block;" />
+                'output' => '<input type="number" name="flathikashop_coupon" id="flat" onchange="updateDynamichikashop_coupon();" value="0" class="acym_plugin_text_field" style="display: inline-block;" />
                             '.acym_select($currencies, 'currencyhikashop_coupon', null, 'onchange="updateDynamichikashop_coupon();" style="width: 80px;"'),
                 'js' => 'otherinfo += "| flat:" + jQuery(\'input[name="flathikashop_coupon"]\').val();
                         otherinfo += "| currency:" + jQuery(\'[name="currencyhikashop_coupon"]\').val();',
             ],
             [
                 'title' => 'DISCOUNT_PERCENT_AMOUNT',
-                'type' => 'text',
+                'type' => 'number',
                 'name' => 'percent',
                 'default' => '0',
             ],
@@ -224,13 +228,13 @@ class plgAcymHikashop extends acymPlugin
             ],
             [
                 'title' => 'MINIMUM_ORDER_VALUE',
-                'type' => 'text',
+                'type' => 'number',
                 'name' => 'min',
                 'default' => '0',
             ],
             [
                 'title' => 'DISCOUNT_QUOTA',
-                'type' => 'text',
+                'type' => 'number',
                 'name' => 'quota',
                 'default' => '',
             ],
@@ -250,47 +254,29 @@ class plgAcymHikashop extends acymPlugin
             ],
         ];
 
-        echo $this->acympluginHelper->displayOptions($displayOptions, 'hikashop_coupon', 'simple');
+        echo $this->acympluginHelper->displayOptions($displayOptions, $identifier, 'simple', $this->defaultValues);
 
         $tabHelper->endTab();
 
         $tabHelper->display('plugin');
     }
 
-    public function displayListing()
+    public function prepareListing()
     {
-        $querySelect = 'SELECT a.* ';
-        $query = 'FROM #__hikashop_product AS a ';
-        $filters = [];
-
-        $this->pageInfo = new stdClass();
-        $this->pageInfo->limit = acym_getCMSConfig('list_limit');
-        $this->pageInfo->page = acym_getVar('int', 'pagination_page_ajax', 1);
-        $this->pageInfo->start = ($this->pageInfo->page - 1) * $this->pageInfo->limit;
-        $this->pageInfo->search = acym_getVar('string', 'plugin_search', '');
-        $this->pageInfo->filter_cat = acym_getVar('int', 'plugin_category', 0);
+        $this->querySelect = 'SELECT a.* ';
+        $this->query = 'FROM #__hikashop_product AS a ';
+        $this->filters = [];
+        $this->searchFields = ['a.product_id', 'a.product_name', 'a.product_code'];
         $this->pageInfo->order = 'a.product_id';
-        $this->pageInfo->orderdir = 'DESC';
+        $this->elementIdTable = 'a';
+        $this->elementIdColumn = 'product_id';
 
-        $searchFields = ['a.product_id', 'a.product_name', 'a.product_code'];
-        if (!empty($this->pageInfo->search)) {
-            $searchVal = '%'.acym_getEscaped($this->pageInfo->search, true).'%';
-            $filters[] = implode(" LIKE ".acym_escapeDB($searchVal)." OR ", $searchFields)." LIKE ".acym_escapeDB($searchVal);
-        }
+        parent::prepareListing();
+
         if (!empty($this->pageInfo->filter_cat)) {
-            $query .= 'JOIN #__hikashop_product_category AS b ON a.product_id = b.product_id';
-            $filters[] = "b.category_id = ".intval($this->pageInfo->filter_cat);
+            $this->query .= 'JOIN #__hikashop_product_category AS b ON a.product_id = b.product_id';
+            $this->filters[] = 'b.category_id = '.intval($this->pageInfo->filter_cat);
         }
-        if (!empty($filters)) {
-            $query .= ' WHERE ('.implode(') AND (', $filters).')';
-        }
-        if (!empty($this->pageInfo->order)) {
-            $query .= ' ORDER BY '.acym_secureDBColumn($this->pageInfo->order).' '.acym_secureDBColumn($this->pageInfo->orderdir);
-        }
-
-        $rows = acym_loadObjectList($querySelect.$query, '', $this->pageInfo->start, $this->pageInfo->limit);
-        $this->pageInfo->total = acym_loadResult('SELECT COUNT(*) '.$query);
-
 
         $listingOptions = [
             'header' => [
@@ -310,10 +296,10 @@ class plgAcymHikashop extends acymPlugin
                 ],
             ],
             'id' => 'product_id',
-            'rows' => $rows,
+            'rows' => $this->getElements(),
         ];
 
-        echo $this->getElementsListing($listingOptions);
+        return $this->getElementsListing($listingOptions);
     }
 
     public function replaceContent(&$email)
@@ -346,18 +332,12 @@ class plgAcymHikashop extends acymPlugin
         foreach ($tags as $oneTag => $parameter) {
             if (isset($this->tags[$oneTag])) continue;
 
-            $allcats = explode('-', $parameter->id);
-            $selectedArea = [];
-            foreach ($allcats as $oneCat) {
-                if (empty($oneCat)) continue;
-                $selectedArea[] = intval($oneCat);
-            }
-
             $query = 'SELECT DISTINCT b.`product_id` FROM #__hikashop_product_category AS a 
                     LEFT JOIN #__hikashop_product AS b ON a.product_id = b.product_id';
 
             $where = [];
 
+            $selectedArea = $this->getSelectedArea($parameter);
             if (!empty($selectedArea)) {
                 $where[] = 'a.category_id IN ('.implode(',', $selectedArea).')';
             }
@@ -399,7 +379,7 @@ class plgAcymHikashop extends acymPlugin
         return $return;
     }
 
-    private function _replaceOne(&$email)
+    public function _replaceOne(&$email)
     {
         $tags = $this->acympluginHelper->extractTags($email, $this->name);
         if (empty($tags)) return;
@@ -964,15 +944,7 @@ class plgAcymHikashop extends acymPlugin
 
     public function onAcymDeclareFilters(&$filters)
     {
-        $newFilters = [];
-
-        $this->onAcymDeclareConditions($newFilters);
-        foreach ($newFilters as $oneType) {
-            foreach ($oneType as $oneFilterName => $oneFilter) {
-                if (!empty($oneFilter->option)) $oneFilter->option = str_replace(['acym_condition', '[conditions]'], ['acym_action', '[filters]'], $oneFilter->option);
-                $filters[$oneFilterName] = $oneFilter;
-            }
-        }
+        $this->filtersFromConditions($filters);
     }
 
     public function onAcymProcessFilterCount_hikapurchased(&$query, $options, $num)
@@ -1079,7 +1051,7 @@ class plgAcymHikashop extends acymPlugin
         );
     }
 
-    function onAcymDeclareSummary_triggers(&$automation)
+    public function onAcymDeclareSummary_triggers(&$automation)
     {
         if (!empty($automation->triggers['hikashoporder']['status'])) {
             $status = implode(', ', $automation->triggers['hikashoporder']['status']);

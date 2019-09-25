@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -14,7 +14,7 @@ class plgAcymCbuilder extends acymPlugin
 {
     var $sendervalues = [];
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
         $this->cms = 'Joomla';
@@ -23,7 +23,7 @@ class plgAcymCbuilder extends acymPlugin
         }
     }
 
-    function dynamicText()
+    public function dynamicText()
     {
         $onePlugin = new stdClass();
         $onePlugin->name = 'Community Builder';
@@ -34,7 +34,7 @@ class plgAcymCbuilder extends acymPlugin
         return $onePlugin;
     }
 
-    function textPopup()
+    public function textPopup()
     {
         ?>
 
@@ -80,7 +80,7 @@ class plgAcymCbuilder extends acymPlugin
         echo $text;
     }
 
-    function replaceUserInformation(&$email, &$user, $send = true)
+    public function replaceUserInformation(&$email, &$user, $send = true)
     {
         $extractedTags = $this->acympluginHelper->extractTags($email, 'cbtag');
         if (empty($extractedTags)) return;
@@ -174,7 +174,7 @@ class plgAcymCbuilder extends acymPlugin
         $this->acympluginHelper->replaceTags($email, $tags);
     }
 
-    function onAcymDeclareConditions(&$conditions)
+    public function onAcymDeclareConditions(&$conditions)
     {
         $languages = [];
         $langPath = JPATH_SITE.DS.'components'.DS.'com_comprofiler'.DS.'plugin'.DS.'language'.DS.'default_language'.DS;
@@ -256,15 +256,7 @@ class plgAcymCbuilder extends acymPlugin
 
     public function onAcymDeclareFilters(&$filters)
     {
-        $newFilters = [];
-
-        $this->onAcymDeclareConditions($newFilters);
-        foreach ($newFilters as $oneType) {
-            foreach ($oneType as $oneFilterName => $oneFilter) {
-                if (!empty($oneFilter->option)) $oneFilter->option = str_replace(['acym_condition', '[conditions]'], ['acym_action', '[filters]'], $oneFilter->option);
-                $filters[$oneFilterName] = $oneFilter;
-            }
-        }
+        $this->filtersFromConditions($filters);
     }
 
     public function onAcymProcessFilterCount_cbfield(&$query, $options, $num)

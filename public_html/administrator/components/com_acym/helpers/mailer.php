@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -43,7 +43,7 @@ class acymmailerHelper extends acyPHPMailer
 
     public $stylesheet = '';
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
 
@@ -154,7 +154,7 @@ class acymmailerHelper extends acyPHPMailer
         if (!file_exists(ACYM_INC.'phpmailer'.DS.'phpmailer.php')) {
             $this->reportMessage = acym_translation_sprintf('ACYM_X_FILE_MISSING', 'phpmailer', ACYM_INC.'phpmailer'.DS);
             if ($this->report) {
-                acym_enqueueNotification($this->reportMessage, 'error');
+                acym_enqueueMessage($this->reportMessage, 'error');
             }
 
             return false;
@@ -163,7 +163,7 @@ class acymmailerHelper extends acyPHPMailer
             $this->reportMessage = acym_translation('ACYM_SEND_EMPTY');
             $this->errorNumber = 8;
             if ($this->report) {
-                acym_enqueueNotification($this->reportMessage, 'error');
+                acym_enqueueMessage($this->reportMessage, 'error');
             }
 
             return false;
@@ -209,7 +209,7 @@ class acymmailerHelper extends acyPHPMailer
                 $this->reportMessage = acym_translation('ACYM_VALID_EMAIL').' ( '.acym_translation('ACYM_REPLYTO_EMAIL').' : '.(empty($this->ReplyTo) ? '' : $replyToTmp).' ) ';
                 $this->errorNumber = 9;
                 if ($this->report) {
-                    acym_enqueueNotification($this->reportMessage, 'error');
+                    acym_enqueueMessage($this->reportMessage, 'error');
                 }
 
                 return false;
@@ -219,7 +219,7 @@ class acymmailerHelper extends acyPHPMailer
                 $this->reportMessage = acym_translation('ACYM_VALID_EMAIL').' ( '.acym_translation('ACYM_FROM_EMAIL').' : '.$this->From.' ) ';
                 $this->errorNumber = 9;
                 if ($this->report) {
-                    acym_enqueueNotification($this->reportMessage, 'error');
+                    acym_enqueueMessage($this->reportMessage, 'error');
                 }
 
                 return false;
@@ -229,7 +229,7 @@ class acymmailerHelper extends acyPHPMailer
                 $this->reportMessage = acym_translation('ACYM_VALID_EMAIL').' ( '.acym_translation('ACYM_BOUNCE_EMAIL').' : '.$this->Sender.' ) ';
                 $this->errorNumber = 9;
                 if ($this->report) {
-                    acym_enqueueNotification($this->reportMessage, 'error');
+                    acym_enqueueMessage($this->reportMessage, 'error');
                 }
 
                 return false;
@@ -335,7 +335,7 @@ class acymmailerHelper extends acyPHPMailer
             }
             if ($this->report) {
                 if (acym_isAdmin()) {
-                    acym_enqueueMessage(preg_replace('#(<br( ?/)?>){2}#', '<br />', nl2br($this->reportMessage)), 'message');
+                    acym_enqueueMessage(preg_replace('#(<br( ?/)?>){2}#', '<br />', nl2br($this->reportMessage)), 'info');
                 }
             }
         }
@@ -403,7 +403,7 @@ class acymmailerHelper extends acyPHPMailer
         if (!isset($this->defaultMail[$mailId]) && !$this->load($mailId)) {
             $this->reportMessage = 'Can not load the e-mail : '.acym_escape($mailId);
             if ($this->report) {
-                acym_enqueueNotification($this->reportMessage, 'error');
+                acym_enqueueMessage($this->reportMessage, 'error');
             }
             $this->errorNumber = 2;
 
@@ -430,7 +430,7 @@ class acymmailerHelper extends acyPHPMailer
         if (empty($receiver->email)) {
             $this->reportMessage = acym_translation_sprintf('ACYM_SEND_ERROR_USER', '<b><i>'.acym_escape($user).'</i></b>');
             if ($this->report) {
-                acym_enqueueNotification($this->reportMessage, 'error');
+                acym_enqueueMessage($this->reportMessage, 'error');
             }
             $this->errorNumber = 4;
 

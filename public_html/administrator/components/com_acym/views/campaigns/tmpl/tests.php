@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -15,7 +15,7 @@ defined('_JEXEC') or die('Restricted access');
 		<div id="acym__campaigns__tests" class="cell xxlarge-9 grid-x acym__content">
             <?php
             $workflow = acym_get('helper.workflow');
-            echo $workflow->display($this->steps, $this->step, $this->edition);
+            echo $workflow->display($this->steps, $this->step, false);
             ?>
 			<div class="cell grid-x grid-margin-x" id="campaigns_tests_step">
 				<div id="spam_test_zone" class="cell large-5">

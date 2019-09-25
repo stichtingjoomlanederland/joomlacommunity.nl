@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -14,25 +14,19 @@ class acymworkflowHelper
 {
     var $disabledAfter = null;
 
-    function display($steps, $currentStep, $edition, $workflowMode = true)
+    public function display($steps, $currentStep, $edition, $workflowMode = true)
     {
         $workflow = [];
-        $currentStepReached = false;
         $disableTabs = false;
         foreach ($steps as $task => $title) {
 
+            $params = '';
             $class = 'step';
-            if ($disableTabs || ($currentStepReached && !$edition)) {
-                $class .= ' disabled_step';
-            }
+            if ($disableTabs) $class .= ' disabled_step';
 
             if ($currentStep === $task) {
-                $currentStepReached = true;
                 $class .= ' current_step';
-            }
-
-            $params = '';
-            if ($edition && $workflowMode && !$disableTabs) {
+            } elseif ($workflowMode && !$disableTabs) {
                 $params .= 'data-task="edit" data-step="'.$task.'"';
                 $class .= ' acy_button_submit';
             }

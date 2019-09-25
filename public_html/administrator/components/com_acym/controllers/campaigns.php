@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.2
+ * @version	6.3.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -17,8 +17,9 @@ class CampaignsController extends acymController
         parent::__construct();
         $this->breadcrumb[acym_translation('ACYM_CAMPAIGNS')] = acym_completeLink('campaigns');
         $this->loadScripts = [
-            'edit' => ['colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'parse-css'],
-            'save' => ['colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'parse-css'],
+            'edit' => ['colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'parse-css', 'vue-applications'],
+            'save' => ['colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'parse-css', 'vue-applications'],
+            'duplicate' => ['colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'parse-css'],
         ];
         acym_setVar('edition', '1');
         header('X-XSS-Protection:0');
@@ -37,11 +38,11 @@ class CampaignsController extends acymController
         $page = acym_getVar('int', 'campaigns_pagination_page', 1);
 
         $campaignClass = acym_get('class.campaign');
-        $matchingCampaigns = $campaignClass->getMatchingCampaigns(
+        $matchingCampaigns = $campaignClass->getMatchingElements(
             [
                 'ordering' => $ordering,
                 'search' => $searchFilter,
-                'campaignsPerPage' => $campaignsPerPage,
+                'elementsPerPage' => $campaignsPerPage,
                 'offset' => ($page - 1) * $campaignsPerPage,
                 'tag' => $tagFilter,
                 'ordering_sort_order' => $orderingSortOrder,
@@ -53,9 +54,9 @@ class CampaignsController extends acymController
         $pagination->setStatus($matchingCampaigns['total'], $page, $campaignsPerPage);
 
         $data = [
-            'allCampaigns' => $matchingCampaigns['campaigns'],
+            'allCampaigns' => $matchingCampaigns['elements'],
             'allTags' => acym_get('class.tag')->getAllTagsByType('mail'),
-            'allStatusFilter' => $this->getCountStatusFilter($matchingCampaigns['campaigns']),
+            'allStatusFilter' => $this->getCountStatusFilter($matchingCampaigns['elements']),
             'pagination' => $pagination,
             "search" => $searchFilter,
             'ordering' => $ordering,
@@ -97,12 +98,12 @@ class CampaignsController extends acymController
         $page = acym_getVar('int', 'mailchoose_pagination_page', 1);
 
         $mailClass = acym_get('class.mail');
-        $matchingMails = $mailClass->getMatchingMails(
+        $matchingMails = $mailClass->getMatchingElements(
             [
                 'ordering' => $ordering,
                 'ordering_sort_order' => $orderingSortOrder,
                 'search' => $searchFilter,
-                'mailsPerPage' => $mailsPerPage,
+                'elementsPerPage' => $mailsPerPage,
                 'offset' => ($page - 1) * $mailsPerPage,
                 'tag' => $tagFilter,
                 'type' => $type,
@@ -113,14 +114,8 @@ class CampaignsController extends acymController
         $pagination = acym_get('helper.pagination');
         $pagination->setStatus($matchingMails['total'], $page, $mailsPerPage);
 
-        foreach ($matchingMails['mails'] as $oneTemplate) {
-            if (empty($oneTemplate->thumbnail)) {
-                $oneTemplate->thumbnail = ACYM_IMAGES.'default_template_thumbnail.png';
-            }
-        }
-
         $data = [
-            'allMails' => $matchingMails['mails'],
+            'allMails' => $matchingMails['elements'],
             'allTags' => acym_get('class.tag')->getAllTagsByType('mail'),
             'pagination' => $pagination,
             'search' => $searchFilter,
@@ -140,12 +135,13 @@ class CampaignsController extends acymController
         acym_setVar('numberattachment', '0');
         acym_setVar('step', 'editEmail');
 
+        $config = acym_config();
         $editor = acym_get('helper.editor');
         $mailClass = acym_get('class.mail');
-        $mailId = acym_getVar("int", "from", 0);
-        $campaignId = acym_getVar("int", "id", 0);
+
+        $mailId = acym_getVar('int', 'from', 0);
+        $campaignId = acym_getVar('int', 'id', 0);
         $typeEditor = acym_getVar('string', 'type_editor', '');
-        $config = acym_config();
 
         $editLink = 'campaigns&task=edit&step=editEmail';
 
@@ -160,6 +156,8 @@ class CampaignsController extends acymController
             $campaign->preheader = '';
             $campaign->body = '';
             $campaign->settings = null;
+
+            $editLink .= '&from='.$mailId;
         } else {
             $campaignClass = acym_get('class.campaign');
             $campaign = $campaignClass->getOneByIdWithMail($campaignId);
@@ -196,14 +194,10 @@ class CampaignsController extends acymController
             $campaign->headers = $mail->headers;
             $campaign->attachments = empty($mail->attachments) ? [] : json_decode($mail->attachments);
 
-            if (empty($campaignId)) {
-                $editLink .= '&from='.$mailId;
-            }
             if ($checkAutosave) {
                 $campaign->autosave = $mail->autosave;
             }
         }
-        $this->breadcrumb[acym_escape(empty($campaign->name) ? acym_translation('ACYM_NEW_CAMPAIGN') : $campaign->name)] = acym_completeLink($editLink);
 
         $pluginHelper = acym_get('helper.plugin');
         $pluginHelper->cleanHtml($campaign->body);
@@ -236,6 +230,9 @@ class CampaignsController extends acymController
         }
 
         $editor->mailId = empty($mailId) ? 0 : $mailId;
+
+        $editLink .= '&type_editor='.$typeEditor;
+        $this->breadcrumb[acym_escape(empty($campaign->name) ? acym_translation('ACYM_NEW_CAMPAIGN') : $campaign->name)] = acym_completeLink($editLink);
 
         $data = [
             'campaignID' => $campaign->id,
@@ -280,7 +277,8 @@ class CampaignsController extends acymController
         if (!empty($currentCampaign->mail_id)) {
             $campaignLists = $mailClass->getAllListsByMailId($currentCampaign->mail_id);
             $campaign['campaignListsId'] = array_keys($campaignLists);
-            $campaign['campaignListsSelected'] = json_encode(acym_escapeArrayValues($campaign['campaignListsId']));
+            acym_arrayToInteger($campaign['campaignListsId']);
+            $campaign['campaignListsSelected'] = json_encode($campaign['campaignListsId']);
         }
 
         parent::display($campaign);
@@ -295,7 +293,7 @@ class CampaignsController extends acymController
         $campaignInformation = empty($campaignId) ? null : $campaignClass->getOneById($campaignId);
 
         if (is_null($campaignInformation)) {
-            acym_enqueueNotification(acym_translation("ACYM_CANT_GET_CAMPAIGN_INFORMATION"), 'error', 0);
+            acym_enqueueMessage(acym_translation("ACYM_CANT_GET_CAMPAIGN_INFORMATION"), 'error');
             $this->listing();
 
             return;
@@ -425,12 +423,12 @@ class CampaignsController extends acymController
 
         if ($mailID = $mailClass->save($mail)) {
             if (acym_getVar('string', 'nextstep', '') == 'listing') {
-                acym_enqueueNotification(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success', 8000);
+                acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success');
             }
         } else {
-            acym_enqueueNotification(acym_translation('ACYM_ERROR_SAVING'), 'error', 0);
+            acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING'), 'error');
             if (!empty($mailClass->errors)) {
-                acym_enqueueNotification($mailClass->errors, 'error', 0);
+                acym_enqueueMessage($mailClass->errors, 'error');
             }
 
             if (!$ajax) {
@@ -456,7 +454,8 @@ class CampaignsController extends acymController
 
     public function saveRecipients()
     {
-        $allLists = json_decode(acym_getVar("string", "lists_selected"));
+        $allLists = json_decode(acym_getVar("string", "acym__entity_select__selected"));
+        $allListsUnselected = json_decode(acym_getVar("string", "acym__entity_select__unselected"));
         $campaignId = acym_getVar("int", "id");
 
         $campaignClass = acym_get('class.campaign');
@@ -470,9 +469,9 @@ class CampaignsController extends acymController
             $mailStat->total_subscribers = $listClass->getTotalSubCount($allLists);
             $mailStatClass->save($mailStat);
         } elseif (!empty($currentCampaign->mail_id)) {
-            $campaignClass->manageListsToCampaign($allLists, $currentCampaign->mail_id);
+            $campaignClass->manageListsToCampaign($allLists, $currentCampaign->mail_id, $allListsUnselected);
             if (acym_getVar('string', 'nextstep', '') == 'listing') {
-                acym_enqueueNotification(acym_translation_sprintf("ACYM_LIST_IS_SAVED", $currentCampaign->name), 'success', 8000);
+                acym_enqueueMessage(acym_translation_sprintf("ACYM_LIST_IS_SAVED", $currentCampaign->name), 'success');
             }
         }
 
@@ -491,7 +490,7 @@ class CampaignsController extends acymController
         $campaignInformation = $campaignClass->getOneById($campaignId);
 
         if (is_null($campaignInformation)) {
-            acym_enqueueNotification(acym_translation("ACYM_CAMPAIGN_DOESNT_EXISTS"), 'error', 0);
+            acym_enqueueMessage(acym_translation("ACYM_CAMPAIGN_DOESNT_EXISTS"), 'error');
 
             $this->listing();
 
@@ -531,12 +530,12 @@ class CampaignsController extends acymController
 
         if ($campaignClass->save($currentCampaign)) {
             if (acym_getVar('string', 'nextstep', '') == 'listing') {
-                acym_enqueueNotification(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success', 8000);
+                acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success');
             }
         } else {
-            acym_enqueueNotification(acym_translation('ACYM_ERROR_SAVING'), 'error', 0);
+            acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING'), 'error');
             if (!empty($campaignClass->errors)) {
-                acym_enqueueNotification($campaignClass->errors, 'error', 0);
+                acym_enqueueMessage($campaignClass->errors, 'error');
             }
 
             $this->listing();
@@ -579,7 +578,7 @@ class CampaignsController extends acymController
             $campaignClass->manageListsToCampaign($allLists, $idNewMail);
         }
 
-        acym_enqueueNotification(acym_translation('ACYM_CAMPAIGN_DUPLICATED_SUCCESS'), 'success', '10000');
+        acym_enqueueMessage(acym_translation('ACYM_CAMPAIGN_DUPLICATED_SUCCESS'), 'success');
 
         if (count($campaignsSelected) == 1 && acym_getVar('string', 'step', '') == 'summary') {
             acym_setVar('id', $campaignId);
@@ -606,7 +605,7 @@ class CampaignsController extends acymController
         $campaign = empty($campaignId) ? null : $campaignClass->getOneByIdWithMail($campaignId);
 
         if (is_null($campaign)) {
-            acym_enqueueNotification(acym_translation('ACYM_CANT_GET_CAMPAIGN_INFORMATION'), 'error', 0);
+            acym_enqueueMessage(acym_translation('ACYM_CANT_GET_CAMPAIGN_INFORMATION'), 'error');
             $this->listing();
 
             return;
@@ -677,11 +676,11 @@ class CampaignsController extends acymController
         parent::display($data);
     }
 
-    function unpause_campaign()
+    public function unpause_campaign()
     {
         $id = acym_getVar('int', 'id', 0);
         if (empty($id)) {
-            acym_enqueueNotification(acym_translation('ACYM_CAMPAIGN_NOT_FOUND'), 'error', 10000);
+            acym_enqueueMessage(acym_translation('ACYM_CAMPAIGN_NOT_FOUND'), 'error');
             $this->listing();
 
             return;
@@ -692,11 +691,11 @@ class CampaignsController extends acymController
         return;
     }
 
-    public function stopSending()
+    private function _stopAction($action)
     {
         acym_checkToken();
 
-        $campaignID = acym_getVar('int', 'stopSendingCampaignId');
+        $campaignID = acym_getVar('int', $action);
         $campaignClass = acym_get('class.campaign');
 
         if (!empty($campaignID)) {
@@ -707,39 +706,24 @@ class CampaignsController extends acymController
 
             $campaignId = $campaignClass->save($campaign);
             if (empty($campaignId)) {
-                acym_enqueueNotification(acym_translation('ACYM_CAMPAIGN_CANT_BE_SAVED'), 'error', 0);
+                acym_enqueueMessage(acym_translation('ACYM_CAMPAIGN_CANT_BE_SAVED'), 'error');
             } else {
-                acym_enqueueNotification(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success', 8000);
+                acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success');
             }
         } else {
-            acym_enqueueNotification(acym_translation('ACYM_CAMPAIGN_CANT_BE_SAVED'), 'error', 0);
+            acym_enqueueMessage(acym_translation('ACYM_CAMPAIGN_CANT_BE_SAVED'), 'error');
         }
         $this->listing();
     }
 
+    public function stopSending()
+    {
+        $this->_stopAction('stopSendingCampaignId');
+    }
+
     public function stopScheduled()
     {
-        acym_checkToken();
-
-        $campaignID = acym_getVar('int', 'stopScheduledCampaignId');
-        $campaignClass = acym_get('class.campaign');
-
-        if (!empty($campaignID)) {
-            $campaign = new stdClass();
-            $campaign->id = $campaignID;
-            $campaign->active = 0;
-            $campaign->draft = 1;
-
-            $campaignId = $campaignClass->save($campaign);
-            if (empty($campaignId)) {
-                acym_enqueueNotification(acym_translation('ACYM_CAMPAIGN_CANT_BE_SAVED'), 'error', 0);
-            } else {
-                acym_enqueueNotification(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success', 8000);
-            }
-        } else {
-            acym_enqueueNotification(acym_translation('ACYM_CAMPAIGN_CANT_BE_SAVED'), 'error', 0);
-        }
-        $this->listing();
+        $this->_stopAction('stopScheduledCampaignId');
     }
 
     public function confirmCampaign()
@@ -757,9 +741,9 @@ class CampaignsController extends acymController
         $resultSave = $campaignClass->save($campaign);
 
         if ($resultSave) {
-            acym_enqueueNotification(acym_translation_sprintf('ACYM_CONFIRMED_CAMPAIGN', acym_date($campaignSendingDate, 'j F Y H:i')), 'success', 8000);
+            acym_enqueueMessage(acym_translation_sprintf('ACYM_CONFIRMED_CAMPAIGN', acym_date($campaignSendingDate, 'j F Y H:i')), 'success');
         } else {
-            acym_enqueueNotification(acym_translation('ACYM_CANT_CONFIRM_CAMPAIGN').' : '.end($campaignClass->errors), 'error', 0);
+            acym_enqueueMessage(acym_translation('ACYM_CANT_CONFIRM_CAMPAIGN').' : '.end($campaignClass->errors), 'error');
         }
 
         $this->listing();
@@ -778,9 +762,9 @@ class CampaignsController extends acymController
         $resultSave = $campaignClass->save($campaign);
 
         if ($resultSave) {
-            acym_enqueueNotification(acym_translation('ACYM_CAMPAIGN_SUCCESSFULLY_SAVE_AS_DRAFT'), 'success', 8000);
+            acym_enqueueMessage(acym_translation('ACYM_CAMPAIGN_SUCCESSFULLY_SAVE_AS_DRAFT'), 'success');
         } else {
-            acym_enqueueNotification(acym_translation('ACYM_CAMPAIGN_CANT_BE_SAVED').' : '.end($campaignClass->errors), 'error', 0);
+            acym_enqueueMessage(acym_translation('ACYM_CAMPAIGN_CANT_BE_SAVED').' : '.end($campaignClass->errors), 'error');
         }
 
         $this->listing();
@@ -881,13 +865,13 @@ class CampaignsController extends acymController
         $campaignID = acym_getVar('int', 'id', 0);
 
         if (empty($campaignID)) {
-            acym_enqueueNotification(acym_translation('ACYM_CAMPAIGN_NOT_FOUND'), 'error', 10000);
+            acym_enqueueMessage(acym_translation('ACYM_CAMPAIGN_NOT_FOUND'), 'error');
         } else {
             $campaignClass = acym_get('class.campaign');
             $campaign = $campaignClass->getOneByIdWithMail($campaignID);
 
             if ($campaign->sent) {
-                acym_enqueueNotification(acym_translation_sprintf('ACYM_CAMPAIGN_ALREADY_SENT', $campaign->name), 'error', 10000);
+                acym_enqueueMessage(acym_translation_sprintf('ACYM_CAMPAIGN_ALREADY_SENT', $campaign->name), 'error');
 
                 $this->_redirectAfterQueued();
 
@@ -897,12 +881,12 @@ class CampaignsController extends acymController
             $status = $campaignClass->send($campaignID);
 
             if ($status) {
-                acym_enqueueNotification(acym_translation_sprintf('ACYM_CAMPAIGN_ADDED_TO_QUEUE', $campaign->name), 'info', 5000);
+                acym_enqueueMessage(acym_translation_sprintf('ACYM_CAMPAIGN_ADDED_TO_QUEUE', $campaign->name), 'info');
             } else {
                 if (empty($campaignClass->errors)) {
-                    acym_enqueueNotification(acym_translation_sprintf('ACYM_ERROR_QUEUE_CAMPAIGN', $campaign->name), 'error', 10000);
+                    acym_enqueueMessage(acym_translation_sprintf('ACYM_ERROR_QUEUE_CAMPAIGN', $campaign->name), 'error');
                 } else {
-                    acym_enqueueNotification($campaignClass->errors, 'error', 6000);
+                    acym_enqueueMessage($campaignClass->errors, 'error');
                 }
             }
         }
@@ -1001,7 +985,7 @@ class CampaignsController extends acymController
         $campaign = $campaignClass->getOneByIdWithMail($campaignId);
 
         if (empty($campaign->id)) {
-            acym_enqueueNotification(acym_translation("ACYM_CANT_GET_CAMPAIGN_INFORMATION"), 'error', 0);
+            acym_enqueueMessage(acym_translation("ACYM_CANT_GET_CAMPAIGN_INFORMATION"), 'error');
             $this->listing();
 
             return;
