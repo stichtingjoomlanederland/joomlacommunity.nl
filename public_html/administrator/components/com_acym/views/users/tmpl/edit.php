@@ -1,18 +1,20 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate enctype="multipart/form-data">
+?>
+<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate enctype="multipart/form-data">
 	<div class="grid-x">
 		<div id="acym__user__edit" class="cell grid-x acym__content ">
 			<input type="hidden" name="lists_already_add" id="acym__user__lists_already_add" value='<?php echo json_encode($data['subscriptionsIds']); ?>'>
 			<input type="hidden" name="id" value='<?php echo empty($data['user-information']->id) ? '' : acym_escape($data['user-information']->id); ?>'>
+			<input type="hidden" name="acy_source" value="backend_management" />
 
 			<div class="cell grid-x text-right">
 				<h5 class="cell medium-auto margin-bottom-1 medium-text-left text-center font-bold"><?php echo acym_translation('ACYM_USER'); ?></h5>
@@ -58,14 +60,25 @@ defined('_JEXEC') or die('Restricted access');
 						<div class="cell grid-x">
                             <?php echo acym_switch('user[confirmed]', $data['user-information']->confirmed, acym_translation('ACYM_CONFIRMED'), []); ?>
 						</div>
-						<div class="cell margin-top-1">
-                            <?php echo acym_translation('ACYM_DATE_CREATED'); ?> : <b><?php echo !empty($data['user-information']->id) ? acym_date($data['user-information']->creation_date, 'M. j, Y') : acym_date(time(), 'M. j, Y'); ?></b>
-						</div>
+                        <?php if (!empty($data['user-information']->source)) { ?>
+							<div class="cell grid-x margin-top-1">
+								<div class="cell medium-6 small-12">
+                                    <?php echo acym_translation('ACYM_DATE_CREATED'); ?> : <b><?php echo !empty($data['user-information']->id) ? acym_date($data['user-information']->creation_date, 'M. j, Y') : acym_date(time(), 'M. j, Y'); ?></b>
+								</div>
+								<div class="cell medium-6 small-12">
+                                    <?php echo acym_translation('ACYM_SOURCE'); ?> : <b><?= $data['user-information']->source; ?></b>
+								</div>
+							</div>
+                        <?php } else { ?>
+							<div class="cell margin-top-1">
+                                <?php echo acym_translation('ACYM_DATE_CREATED'); ?> : <b><?php echo !empty($data['user-information']->id) ? acym_date($data['user-information']->creation_date, 'M. j, Y') : acym_date(time(), 'M. j, Y'); ?></b>
+							</div>
+                        <?php } ?>
 					</div>
 
 				</div>
-				<div class="cell grid-x grid-margin-y large-7 align-middle">
-					<div class="cell grid-x align-middle text-center acym__users__display__click acym__content">
+				<div class="cell grid-x large-7">
+					<div class="cell grid-x align-middle text-center acym__users__display__click acym__content margin-bottom-1">
                         <?php echo acym_round_chart('', $data['pourcentageOpen'], 'open', 'cell small-6', acym_translation('ACYM_AVERAGE_OPEN'), ''); ?>
                         <?php echo acym_round_chart('', $data['pourcentageClick'], 'click', 'cell small-6', acym_translation('ACYM_AVERAGE_CLICK'), ''); ?>
 					</div>
@@ -116,7 +129,7 @@ defined('_JEXEC') or die('Restricted access');
 				</div>
 			</div>
 			<div class="cell grid-x acym__users__display__subscriptions--list">
-				<h5 class="cell font-bold"><?php echo acym_translation("ACYM_LISTS"); ?></h5>
+				<h5 class="cell font-bold"><?php echo acym_translation('ACYM_LISTS'); ?></h5>
 				<div class="cell acym__content__tab">
                     <?php $data['tab']->startTab(acym_translation('ACYM_SUBSCRIBE_TO').' (<span id="acym__listing__subscribe-to__count" >0</span>)'); ?>
 					<div class="grid-x acym__listing__subscribe-to">
@@ -132,9 +145,9 @@ defined('_JEXEC') or die('Restricted access');
 										<h6 class="cell auto"><?php echo acym_escape($oneSubscription->name); ?></h6>
 									</div>
                                     <?php
-                                    echo acym_tooltip('<div class="text-center acym__users__display__subscriptions__opening disabled-button"><h6><b>23%</b>'.strtolower(acym_translation("ACYM_OPEN")).'</h6></div>', '<span class="acy_coming_soon"><i class="acymicon-new_releases acy_coming_soon_icon"></i>'.acym_translation('ACYM_COMING_SOON').'</span>', 'medium-2 hide-for-small-only cell ');
+                                    echo acym_tooltip('<div class="text-center acym__users__display__subscriptions__opening disabled-button"><h6><b>23%</b>'.strtolower(acym_translation('ACYM_OPEN')).'</h6></div>', '<span class="acy_coming_soon"><i class="acymicon-new_releases acy_coming_soon_icon"></i>'.acym_translation('ACYM_COMING_SOON').'</span>', 'medium-2 hide-for-small-only cell ');
 
-                                    echo acym_tooltip('<div class="text-center acym__users__display__subscriptions__clicking disabled-button"><h6><b>3%</b>'.strtolower(acym_translation("ACYM_CLICK")).'</h6></div>', '<span class="acy_coming_soon"><i class="acymicon-new_releases acy_coming_soon_icon"></i>'.acym_translation('ACYM_COMING_SOON').'</span>', 'medium-2 hide-for-small-only cell ');
+                                    echo acym_tooltip('<div class="text-center acym__users__display__subscriptions__clicking disabled-button"><h6><b>3%</b>'.strtolower(acym_translation('ACYM_CLICK')).'</h6></div>', '<span class="acy_coming_soon"><i class="acymicon-new_releases acy_coming_soon_icon"></i>'.acym_translation('ACYM_COMING_SOON').'</span>', 'medium-2 hide-for-small-only cell ');
                                     ?>
 									<div id="<?php echo acym_escape($oneSubscription->id); ?>" class="medium-3 cell acym__users__display__list--action acym__user__action--unsubscribe">
 										<i class="fa fa-times-circle"></i><span><?php echo strtolower(acym_translation('ACYM_UNSUBSCRIBE')); ?></span>

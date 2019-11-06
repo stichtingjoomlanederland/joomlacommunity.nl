@@ -2877,6 +2877,16 @@ class EasyDiscussPost extends EasyDiscuss
 
 			$user = null;
 
+			if (isset($this->last_user_id) && $this->last_user_id) {
+				// now we need to check if this user is blocked or not.
+				$user = JFactory::getUser($this->last_user_id);
+				if ($user->block) {
+					// let unset the last_user_id here so that system
+					// will get the next last replier
+					unset($this->last_user_id);
+				} 
+			}
+
 			if (isset($this->last_user_id)) {
 				if ($this->last_user_id) {
 
@@ -3462,7 +3472,7 @@ class EasyDiscussPost extends EasyDiscuss
 			if ($this->post->user_id) {
 
 				// var_dump($this->post->anonymous && ($this->post->user_id != $this->my->id || !ED::isSiteAdmin()));
-				$showAsAnonymous = ($this->post->anonymous && ($this->post->user_id != $this->my->id || !ED::isSiteAdmin())) ? true : false;
+				$showAsAnonymous = ($this->post->anonymous && ($this->post->user_id != $this->my->id && !ED::isSiteAdmin())) ? true : false;
 
 				// Email section shouldn't show admin name if it post as anonymous
 				if ($isEmail && ED::isSiteAdmin() && $this->post->anonymous) {
@@ -4650,7 +4660,7 @@ class EasyDiscussPost extends EasyDiscuss
 			$notification->store();
 			}
 
-		} elseif (($this->isPublished() && $this->isNew()) || (!$this->isNew() && $this->prevPostStatus == DISCUSS_ID_PENDING)) {
+		} elseif ((($this->isPublished() && $this->isNew()) || (!$this->isNew() && $this->prevPostStatus == DISCUSS_ID_PENDING)) && !$this->config->get('notify_reply_all_members')) {
 
 			$emailData['emailTemplate'] = 'email.post.reply.new.php';
 			$emailData['emailSubject']  = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $question->id , $question->title);
@@ -4664,7 +4674,7 @@ class EasyDiscussPost extends EasyDiscuss
 			return;
 		}
 
-		if (($this->config->get('main_sitesubscription') ||  $this->config->get('main_postsubscription') ||  $this->config->get('main_ed_categorysubscription')) && $this->config->get('notify_subscriber') && $this->isPublished() && !$question->private) {
+		if (($this->config->get('main_sitesubscription') ||  $this->config->get('main_postsubscription') ||  $this->config->get('main_ed_categorysubscription')) && $this->config->get('notify_subscriber') && $this->isPublished() && !$question->private && !$this->config->get('notify_reply_all_members')) {
 			$emailData['emailTemplate'] = 'email.subscription.reply.new.php';
 			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $question->id , $question->title);
 
@@ -4718,7 +4728,7 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		// if the reply under moderation and current reply user id shouldn't match with post owner user id, then notify owner.
-		if ($this->config->get('notify_owner') && $this->isPublished() && ($questionOwnerEmail != $replyOwnerEmail) && !in_array($questionOwnerEmail, $excludeEmails) && !empty($questionOwnerEmail)) {
+		if ($this->config->get('notify_owner') && $this->isPublished() && ($questionOwnerEmail != $replyOwnerEmail) && !in_array($questionOwnerEmail, $excludeEmails) && !empty($questionOwnerEmail) && !$this->config->get('notify_reply_all_members')) {
 			$emailData['owner_email'] = $questionOwnerEmail;
 			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $question->id , $question->title);
 			$emailData['emailTemplate'] = 'email.post.reply.new.php';
@@ -4730,15 +4740,49 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		// notify participants who reply that post
-		if ($this->config->get('notify_participants') && $this->isPublished()) {
+		if ($this->config->get('notify_participants') && $this->isPublished() && !$this->config->get('notify_reply_all_members')) {
 			$emailData['post_id'] = $this->post->parent_id;
 			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $question->id , $question->title);
 			$emailData['emailTemplate'] = 'email.post.reply.new.php';
+			$emailData['commentContent'] = $this->comment;
 
 			$excludeEmails = array_merge($excludeEmails, $administratorEmails);
 			$excludeEmails = array_unique($excludeEmails);
 
 			$participantsEmails = ED::mailer()->notifyThreadParticipants($emailData, $excludeEmails);
+		}
+
+		$model = ED::model('Category');
+
+		$isGroup = $question->cluster_id;
+
+		// notify all user with respect to category view reply permission
+		if ($this->config->get('notify_reply_all_members') && $this->isPublished() && !$question->private && !$isGroup) {
+			$emailData['post_id'] = $this->post->parent_id;
+			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $question->id , $question->title);
+			$emailData['emailTemplate'] = 'email.post.reply.new.php';
+
+			$subject = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $question->id , $question->title);
+
+			$model = ED::model('Category');
+
+			// action select is the user permission for view reply discussion
+			$allowViewReply = $model->getAssignedGroups($this->post->category_id, 'viewreply');
+
+			$guestUserGroupId = JComponentHelper::getParams('com_users')->get('guest_usergroup');
+
+			$includesGuest = true;
+			if (!in_array($guestUserGroupId, $allowViewReply)) {
+				$includesGuest = false;
+			}
+
+			$ignoreEmails = array();
+			$ignoreEmails[] = $posterEmail;
+
+			$notify = ED::notifications();
+
+			$notify->sendToAllUsers($subject, $emailData, $ignoreEmails, 'email.post.reply.new', '', $allowViewReply, $includesGuest);
+			
 		}
 		
 		$isBeingApproved = $this->prevPostStatus == DISCUSS_ID_PENDING && $this->isPublished();
@@ -4963,6 +5007,24 @@ class EasyDiscussPost extends EasyDiscuss
 			$emailData['emailTemplate'] = 'email.subscription.site.moderate';
 			$emailData['emailSubject']  = JText::sprintf('COM_EASYDISCUSS_NEW_QUESTION_MODERATE', $this->post->id, $this->getTitle());
 
+			// Notify by system notification as well
+			$model = ED::model('Category');
+			$moderators = $model->getModerators($this->post->category_id);
+
+			foreach ($moderators as $moderator) {
+				$notification = ED::table('Notifications');
+
+				$notification->bind(array(
+					'title' => JText::sprintf('COM_ED_NEW_QUESTION_MODERATE_NOTIFICATION', $this->getTitle()),
+					'cid' => $this->post->id,
+					'type' => DISCUSS_NOTIFICATIONS_MODERATE_QUESTION,
+					'target' => $moderator,
+					'author' => $this->post->user_id,
+					'permalink' => 'index.php?option=com_easydiscuss&view=ask&id=' . $this->post->id
+				));
+				$notification->store();
+			}
+
 			if (!$this->isNew()) {
 				$emailData['originalContent'] = $this->original->getContent();
 				$emailData['emailTemplate'] = 'email.post.edited.moderation';
@@ -5009,25 +5071,6 @@ class EasyDiscussPost extends EasyDiscuss
 		if (($this->isNew() || $this->prevPostStatus == DISCUSS_ID_PENDING) ||
 			($this->post->published == DISCUSS_ID_PENDING && $this->prevPostStatus == DISCUSS_ID_PUBLISHED && $this->isModerate)) {
 			$administratorEmails = ED::Mailer()->notifyAdministrators($emailData, $excludeEmails, $this->config->get('notify_admin'), $this->config->get('notify_moderator'));
-
-		// Notify by system notification as well
-		$model = ED::model('Category');
-		$moderators = $model->getModerators($this->post->category_id);
-
-		foreach ($moderators as $moderator) {
-			$notification = ED::table('Notifications');
-
-			$notification->bind(array(
-				'title' => JText::sprintf('COM_ED_NEW_QUESTION_MODERATE_NOTIFICATION', $this->getTitle()),
-				'cid' => $this->post->id,
-				'type' => DISCUSS_NOTIFICATIONS_MODERATE_QUESTION,
-				'target' => $moderator,
-				'author' => $this->post->user_id,
-				'permalink' => 'index.php?option=com_easydiscuss&view=ask&id=' . $this->post->id
-			));
-			$notification->store();
-		}
-
 		}
 
 		$isBeingApproved = $this->prevPostStatus == DISCUSS_ID_PENDING && $this->isPublished();
@@ -5195,6 +5238,10 @@ class EasyDiscussPost extends EasyDiscuss
 			$aupRulesName = $this->isReply() ? DISCUSS_POINTS_NEW_REPLY : DISCUSS_POINTS_NEW_DISCUSSION;
 
 			ED::Aup()->assign($aupRulesName, $this->post->user_id, $this->post->title);
+		}
+
+		if ($this->isPending()) {
+			ED::EasySocial()->notify('new.moderate.discussion', $this, $question);
 		}
 	}
 
@@ -5383,6 +5430,35 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		return $isNew;
+	}
+
+	/**
+	 * Formats edit content
+	 *
+	 * @since   4.1.12
+	 * @access  public
+	 */
+	public function formatEditContent($operation = 'editing')
+	{
+		if ($operation != 'editing') {
+			return $this->post->content;
+		}
+
+		$editorType = $this->config->get('layout_editor');
+
+		// Determine how the content should be formatted in editing layout.
+		if ($editorType == 'bbcode') {
+			$this->post->content = ED::parser()->html2bbcode($this->post->content);
+
+		} else if ($editorType != 'bbcode' && $this->post->content_type == 'bbcode') {
+			$this->post->content = ED::parser()->bbcode($this->post->content);
+			$this->post->content = nl2br($this->post->content);
+		
+		} else if ($editorType != 'bbcode' && $this->post->content_type == 'html') {
+			$this->post->content = htmlentities($this->post->content);
+		}
+
+		return $this->post->content;
 	}
 
 	/**
@@ -6020,6 +6096,9 @@ class EasyDiscussPost extends EasyDiscuss
 	{
 		$this->post->isresolve = DISCUSS_ENTRY_RESOLVED;
 
+		// Need to store question answered value as well
+		$this->post->answered = true;
+
 		$state = $this->post->store();
 
 		if ($state) {
@@ -6038,6 +6117,9 @@ class EasyDiscussPost extends EasyDiscuss
 	public function setUnresolved()
 	{
 		$this->post->isresolve = DISCUSS_ENTRY_UNRESOLVED;
+
+		// Need to store question answered value as well
+		$this->post->answered = false;
 
 		$state = $this->post->store();
 
@@ -6307,6 +6389,9 @@ class EasyDiscussPost extends EasyDiscuss
 	{
 		// Assign the post to unresolved
 		$this->post->isresolve = DISCUSS_ENTRY_UNRESOLVED;
+
+		// Need to store question answered value as well
+		$this->post->answered = false;
 
 		$state = $this->post->store();
 
@@ -6978,4 +7063,19 @@ class EasyDiscussPost extends EasyDiscuss
 
 		return true;
 	}
+
+	/**
+	 * Determine if the current viewer can access anonymous post
+	 *
+	 * @since	4.1.12
+	 * @access	public
+	 */
+	public function canAccessAnonymousPost()
+	{
+		if ($this->isSiteAdmin || ($this->post->user_id == $this->my->id)) {
+			return true;
+		}
+
+		return false;
+	}		
 }

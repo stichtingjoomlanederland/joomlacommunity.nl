@@ -11,7 +11,7 @@ class ComDocmanControllerDownload extends ComDocmanControllerDocument
     protected function _initialize(KObjectConfig $config)
     {
         $config->append(array(
-            'behaviors' => array('redirectable', 'previewable'),
+            'behaviors' => array('redirectable', 'previewable', 'compressible'),
             'model' => 'documents',
             'view'  => 'download'
         ));

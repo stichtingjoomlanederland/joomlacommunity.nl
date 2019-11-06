@@ -1,21 +1,22 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class acymqueueClass extends acymClass
 {
 
     public function getMatchingCampaigns($settings)
     {
-
+        $campaignClass = acym_get('class.campaign');
         $mailStatClass = acym_get('class.mailstat');
         $query = 'FROM #__acym_mail AS mail
                     LEFT JOIN #__acym_queue AS queue ON mail.id = queue.mail_id 
@@ -27,7 +28,7 @@ class acymqueueClass extends acymClass
                         LEFT JOIN #__acym_campaign AS campaign ON mail.id = campaign.mail_id';
 
         $filters = [];
-        $filters[] = '(campaign.id IS NULL AND queue.mail_id IS NOT NULL) OR (campaign.id IS NOT NULL AND campaign.draft = 0 AND ((queue.mail_id IS NULL AND campaign.scheduled = 1 AND campaign.sent = 0) OR queue.mail_id IS NOT NULL))';
+        $filters[] = '(campaign.id IS NULL AND queue.mail_id IS NOT NULL) OR (campaign.id IS NOT NULL AND campaign.draft = 0 AND ((queue.mail_id IS NULL AND campaign.sending_type = '.acym_escapeDB($campaignClass::SENDING_TYPE_SCHEDULED).' AND campaign.sent = 0) OR queue.mail_id IS NOT NULL))';
 
         if (!empty($settings['tag'])) {
             $query .= ' JOIN #__acym_tag AS tag ON mail.id = tag.id_element AND tag.type = "mail" AND tag.name = '.acym_escapeDB($settings['tag']);
@@ -64,7 +65,7 @@ class acymqueueClass extends acymClass
         $queryCount = 'SELECT COUNT(DISTINCT mail.id) '.$query;
         $query .= ' GROUP BY mail.id';
 
-        $query = 'SELECT mail.name, mail.subject, mail.id, campaign.id AS campaign, IF(campaign.sending_date IS NULL, queue.sending_date, campaign.sending_date) as sending_date, campaign.scheduled, campaign.active, COUNT(queue.mail_id) AS nbqueued '.$query.' ORDER BY queue.sending_date ASC';
+        $query = 'SELECT mail.name, mail.subject, mail.id, campaign.id AS campaign, IF(campaign.sending_date IS NULL, queue.sending_date, campaign.sending_date) AS sending_date, campaign.sending_type, campaign.active, COUNT(queue.mail_id) AS nbqueued '.$query.' ORDER BY queue.sending_date ASC';
 
         $mailClass = acym_get('class.mail');
         $results['elements'] = $mailClass->decode(acym_loadObjectList($query, '', $settings['offset'], $settings['campaignsPerPage']));
@@ -143,6 +144,7 @@ class acymqueueClass extends acymClass
     {
         $this->messages = [];
 
+        $campaignClass = acym_get('class.campaign');
         $mailClass = acym_get('class.mail');
         $mailReady = $mailClass->decode(
             acym_loadObjectList(
@@ -150,7 +152,7 @@ class acymqueueClass extends acymClass
             FROM #__acym_campaign AS campaign 
             JOIN #__acym_mail AS mail 
                 ON campaign.mail_id = mail.id 
-            WHERE campaign.scheduled = 1 
+            WHERE campaign.sending_type = '.acym_escapeDB($campaignClass::SENDING_TYPE_SCHEDULED).' 
                 AND campaign.draft = 0
                 AND campaign.sending_date <= '.acym_escapeDB(acym_date('now', 'Y-m-d H:i:s', false)).'  
                 AND campaign.sent = 0',
@@ -364,9 +366,9 @@ class acymqueueClass extends acymClass
     public function unpauseCampaign($campaignId, $active)
     {
         if (acym_query('UPDATE #__acym_campaign SET active = '.intval($active).' WHERE id = '.intval($campaignId))) {
-            acym_enqueueMessage(acym_translation($active ? 'ACYM_UNPAUSE_CAMPAIGN_SUCCESSFUL' : 'ACYM_PAUSE_CAMPAIGN_SUCCESSFUL'),  "success");
+            acym_enqueueMessage(acym_translation($active ? 'ACYM_UNPAUSE_CAMPAIGN_SUCCESSFUL' : 'ACYM_PAUSE_CAMPAIGN_SUCCESSFUL'), "success");
         } else {
-            acym_enqueueMessage(acym_translation($active ? 'ACYM_UNPAUSE_CAMPAIGN_FAIL' : 'ACYM_PAUSE_CAMPAIGN_FAIL'),  "error");
+            acym_enqueueMessage(acym_translation($active ? 'ACYM_UNPAUSE_CAMPAIGN_FAIL' : 'ACYM_PAUSE_CAMPAIGN_FAIL'), "error");
         }
     }
 

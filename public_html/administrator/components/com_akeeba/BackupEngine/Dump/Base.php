@@ -157,6 +157,7 @@ abstract class Base extends Part
 			$config = Factory::getConfiguration();
 			$installerKey = $config->get('akeeba.advanced.embedded_installer');
 			$installerDescriptors = Factory::getEngineParamsProvider()->getInstallerList();
+
 			if (array_key_exists($installerKey, $installerDescriptors))
 			{
 				// The selected installer exists, use it
@@ -194,6 +195,7 @@ abstract class Base extends Part
 		{
 			Factory::getLog()->log(LogLevel::DEBUG, "AkeebaDomainDBBackup :: Creating new SQL dump part #$partNumber");
 		}
+
 		Factory::getLog()->log(LogLevel::DEBUG, "AkeebaDomainDBBackup :: SQL temp file is " . $this->tempFile);
 		Factory::getLog()->log(LogLevel::DEBUG, "AkeebaDomainDBBackup :: SQL file location in archive is " . $this->saveAsName);
 	}
@@ -205,6 +207,7 @@ abstract class Base extends Part
 	protected function removeOldFiles()
 	{
 		Factory::getLog()->log(LogLevel::DEBUG, "AkeebaDomainDBBackup :: Deleting leftover files, if any");
+
 		if (file_exists($this->tempFile))
 		{
 			@unlink($this->tempFile);
@@ -396,19 +399,19 @@ abstract class Base extends Part
 	 */
 	protected function _finalize()
 	{
-        Factory::getLog()->log(LogLevel::DEBUG, "Adding any extra SQL statements imposed by the filters");
-        $filters = Factory::getFilters();
-        $this->writeline($filters->getExtraSQL($this->databaseRoot));
+		Factory::getLog()->log(LogLevel::DEBUG, "Adding any extra SQL statements imposed by the filters");
+		$filters = Factory::getFilters();
+		$this->writeline($filters->getExtraSQL($this->databaseRoot));
 
 		// Close the file pointer (otherwise the SQL file is left behind)
 		$this->closeFile();
 
 		// If we are not just doing a main db only backup, add the SQL file to the archive
 		$finished = true;
-		$configuration = Factory::getConfiguration();
+
 		if (Factory::getEngineParamsProvider()->getScriptingParameter('db.saveasname', 'normal') != 'output')
 		{
-			$archiver = Factory::getArchiverEngine();
+			$archiver      = Factory::getArchiverEngine();
 			$configuration = Factory::getConfiguration();
 
 			if ($configuration->get('volatile.engine.archiver.processingfile', false))
@@ -417,7 +420,7 @@ abstract class Base extends Part
 				Factory::getLog()->log(LogLevel::DEBUG, "Continuing adding the SQL dump to the archive");
 				$archiver->addFile(null, null, null);
 
-                $this->propagateFromObject($archiver);
+				$this->propagateFromObject($archiver);
 
 				if ($this->getError())
 				{
@@ -432,7 +435,7 @@ abstract class Base extends Part
 				Factory::getLog()->log(LogLevel::DEBUG, "Adding the final SQL dump to the archive");
 				$archiver->addFileRenamed($this->tempFile, $this->saveAsName);
 
-                $this->propagateFromObject($archiver);
+				$this->propagateFromObject($archiver);
 
 				if ($this->getError())
 				{
@@ -597,32 +600,25 @@ abstract class Base extends Part
 					// This is more of a hack; it assumes all tables are core CMS tables if the prefix is empty.
 					return '#__' . $tableName;
 				}
-				else
-				{
-					// If $this->processEmptyPrefix (the process_empty_prefix config flag) is false, we don't
-					// assume anything.
-					return $tableName;
-				}
+
+				// If $this->processEmptyPrefix (the process_empty_prefix config flag) is false, we don't
+				// assume anything.
+				return $tableName;
+
 				break;
 
 			default:
-				// Normal behaviour for 99% of sites
-				// Fix 2.4 : Abstracting the prefix only if it's found in the beginning of the table name
+				// Normal behaviour for 99% of sites. Start by assuming the table has no prefix, therefore is non-core.
 				$tableAbstract = $tableName;
-				if (!empty($this->prefix))
+
+				// If there's a prefix use the abstract name
+				if (!empty($this->prefix) && (substr($tableName, 0, strlen($this->prefix)) == $this->prefix))
 				{
-					if (substr($tableName, 0, strlen($this->prefix)) == $this->prefix)
-					{
-						$tableAbstract = '#__' . substr($tableName, strlen($this->prefix));
-					}
-					else
-					{
-						// FIX 2.4: If there is no prefix, it's a non-core table.
-						$tableAbstract = $tableName;
-					}
+					$tableAbstract = '#__' . substr($tableName, strlen($this->prefix));
 				}
 
 				return $tableAbstract;
+
 				break;
 		}
 	}
@@ -630,14 +626,20 @@ abstract class Base extends Part
 	/**
 	 * Writes the SQL dump into the output files. If it fails, it sets the error
 	 *
-	 * @param string $data Data to write to the dump file. Pass NULL to force flushing to file.
+	 * @param   string  $data       Data to write to the dump file. Pass NULL to force flushing to file.
+	 * @param   bool    $addMarker  Should I prefix the data with a marker?
 	 *
-	 * @return boolean TRUE on successful write, FALSE otherwise
+	 * @return  boolean  TRUE on successful write, FALSE otherwise
 	 */
-	protected function writeDump(&$data)
+	protected function writeDump($data, $addMarker = false)
 	{
 		if (!empty($data))
 		{
+			if ($addMarker)
+			{
+				$this->data_cache .= '/**ABDB**/';
+			}
+
 			$this->data_cache .= $data;
 
 			if (strlen($data) > $this->largest_query)
@@ -647,10 +649,12 @@ abstract class Base extends Part
 			}
 
 		}
+
 		if ((strlen($this->data_cache) >= $this->cache_size) || (is_null($data) && (!empty($this->data_cache))))
 		{
 			Factory::getLog()->log(LogLevel::DEBUG, "Writing " . strlen($this->data_cache) . " bytes to the dump file");
 			$result = $this->writeline($this->data_cache);
+
 			if (!$result)
 			{
 				$errorMessage = 'Couldn\'t write to the SQL dump file ' . $this->tempFile . '; check the temporary directory permissions and make sure you have enough disk space available.';
@@ -658,6 +662,7 @@ abstract class Base extends Part
 
 				return false;
 			}
+
 			$this->data_cache = '';
 		}
 
@@ -677,11 +682,12 @@ abstract class Base extends Part
 		if (!is_resource($this->fp))
 		{
 			$this->fp = @fopen($this->tempFile, 'a');
+
 			if ($this->fp === false)
 			{
 				$this->setError('Could not open ' . $this->tempFile . ' for append, in DB dump.');
 
-				return;
+				return false;
 			}
 		}
 
@@ -691,6 +697,7 @@ abstract class Base extends Part
 			{
 				@fclose($this->fp);
 			}
+
 			$this->fp = null;
 
 			return true;
@@ -705,48 +712,61 @@ abstract class Base extends Part
 				// Make sure that all data was written to disk
 				return ($ret == strlen($fileData));
 			}
-			else
-			{
-				return false;
-			}
+
+			return false;
 		}
 	}
 
+	/**
+	 * This method is called when the factory is being serialized and is used to perform necessary cleanup steps.
+	 *
+	 * @return  void
+	 */
 	function _onSerialize()
 	{
 		$this->closeFile();
 	}
 
+	/**
+	 * This method is called when the object is destroyed and is used to perform necessary cleanup steps.
+	 */
 	function __destruct()
 	{
 		$this->closeFile();
 	}
 
+	/**
+	 * Close any open SQL dump (output) file.
+	 */
 	public function closeFile()
 	{
-		if (is_resource($this->fp))
+		if (!is_resource($this->fp))
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, "Closing SQL dump file.");
-
-			@fclose($this->fp);
-			$this->fp = null;
+			return;
 		}
+
+		Factory::getLog()->log(LogLevel::DEBUG, "Closing SQL dump file.");
+
+		@fclose($this->fp);
+		$this->fp = null;
 	}
 
 	/**
 	 * Return an instance of DriverBase
 	 *
-	 * @return DriverBase
+	 * @return DriverBase|bool
 	 */
 	protected function &getDB()
 	{
-		$host = $this->host . ($this->port != '' ? ':' . $this->port : '');
-		$user = $this->username;
+		$host     = $this->host . ($this->port != '' ? ':' . $this->port : '');
+		$user     = $this->username;
 		$password = $this->password;
-		$driver = $this->driver;
+		$driver   = $this->driver;
 		$database = $this->database;
-		$prefix = is_null($this->prefix) ? '' : $this->prefix;
-		$options = array('driver' => $driver, 'host' => $host, 'user' => $user, 'password' => $password, 'database' => $database, 'prefix' => $prefix);
+		$prefix   = is_null($this->prefix) ? '' : $this->prefix;
+		$options  = ['driver'   => $driver, 'host' => $host, 'user' => $user, 'password' => $password,
+		             'database' => $database, 'prefix' => $prefix,
+		];
 
 		$db = Factory::getDatabase($options);
 
@@ -793,20 +813,25 @@ abstract class Base extends Part
 		return $this->database;
 	}
 
+	/**
+	 * Call a specific stage of the dump engine
+	 *
+	 * @param   string  $stage
+	 */
 	public function callStage($stage)
 	{
 		switch ($stage)
 		{
 			case '_prepare':
-				return $this->_prepare();
+				$this->_prepare();
 				break;
 
 			case '_run':
-				return $this->_run();
+				$this->_run();
 				break;
 
 			case '_finalize':
-				return $this->_finalize();
+				$this->_finalize();
 				break;
 		}
 	}

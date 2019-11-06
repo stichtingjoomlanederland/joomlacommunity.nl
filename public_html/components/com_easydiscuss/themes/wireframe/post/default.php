@@ -124,10 +124,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 							</span>
 						<?php } ?>
 
-						<?php if ($this->isSiteAdmin) { ?>
-							<a class="ed-user-name" href="<?php echo $post->getOwner()->getPermalink();?>">
-								<?php echo JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');?> (<?php echo $post->getOwner()->getName($post->poster_name);?>)
-							</a>
+						<?php if ($post->canAccessAnonymousPost()) { ?>
+							<?php echo $this->html('user.username', $post->getOwner(), array('isAnonymous' => true, 'canViewAnonymousUsername' => $post->canAccessAnonymousPost(), 'posterName' => $post->poster_name)); ?>
 						<?php } else { ?>
 							<span class="ed-user-name"><?php echo JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');?></span>
 						<?php } ?>
@@ -140,19 +138,13 @@ defined('_JEXEC') or die('Unauthorized Access');
 							</span>
 						<?php } ?>
 
-						<a class="ed-user-name" href="<?php echo $post->getOwner()->getPermalink();?>"><?php echo $post->getOwner()->getName($post->poster_name);?></a>
+						<?php echo $this->html('user.username', $post->getOwner(), array('posterName' => $post->poster_name)); ?>
 					<?php } ?>
 				</li>
 
 				<?php if (ED::badges()->isEnabled() && $post->getOwner()->hasUserBadges()) { ?>
 				<li>
 					<?php echo ED::badges()->getPostHtml($post->getOwner()->id); ?>
-				</li>
-				<?php } ?>
-
-				<?php if ($post->isAnonymous() && $this->isSiteAdmin) { ?>
-				<li>
-					<span><?php echo JText::_('COM_EASYDISCUSS_POSTED_ANONYMOUSLY');?>
 				</li>
 				<?php } ?>
 

@@ -79,6 +79,17 @@ JHtml::_('behavior.keepalive'); ?>
 				</tbody>
 			</table>
 			
+			<table class="table table-striped">
+				<thead>
+					<th><?php echo JText::_('COM_RSEVENTSPRO_CONF_EMAIL_WAITINGLIST'); ?></th>
+				</thead>
+				<tbody>
+					<tr>
+						<td><a href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=message&type=waitinglist'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_MESSAGE_WAITINGLIST'); ?></a></td>
+					</tr>
+				</tbody>
+			</table>
+			
 			<?php JFactory::getApplication()->triggerEvent('rsepro_extraEmails', array(array('view' => $this))); ?>
 		</div>
 	</div>

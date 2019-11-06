@@ -172,6 +172,10 @@
 				<option value="1">JYES</option>
 				<option value="0">JNO</option>
 			</field>
+			<field name="allow_multi_download" type="radio" class="btn-group btn-group-yesno" default="1" label="ALLOW_MULTI_DOWNLOAD" description="ALLOW_MULTI_DOWNLOAD_DESCRIPTION">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
 			<field name="show_player" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_PLAYER" description="SHOW_PLAYER_DESCRIPTION"
 				   showon="force_download:0">
 				<option value="1">JYES</option>

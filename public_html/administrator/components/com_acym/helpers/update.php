@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class acymupdateHelper
 {
@@ -143,7 +144,7 @@ class acymupdateHelper
                 $this->installBackLanguages($code);
                 $success[] = $code;
             } else {
-                $error[] = acym_translation_sprintf('ACYM_ERROR_SAVE_FILE', $path);
+                $error[] = acym_translation_sprintf('ACYM_FAIL_SAVE_FILE', $path);
             }
         }
 
@@ -244,8 +245,6 @@ class acymupdateHelper
                      ('.$tmplName.', '.$creationDate.', '.$thumbnail.', 1, 1, "standard", '.$body.', "", 1, NULL, NULL, NULL, NULL, NULL, '.$settings.', '.$stylesheet.', NULL, '.$currentUserId.');';
             acym_query($query);
         }
-
-        acym_deleteFolder(ACYM_BACK.'templates');
     }
 
     private function _newAutomationAdmin($title)

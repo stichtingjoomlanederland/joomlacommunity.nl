@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.4.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -191,7 +191,7 @@ class plgAcymEventbooking extends acymPlugin
         $this->filters = [];
         $this->filters[] = 'event.published = 1';
         $this->searchFields = ['event.id', 'event.title'];
-        $this->pageInfo->order = 'event.id';
+        $this->pageInfo->order = 'event.event_date';
         $this->elementIdTable = 'event';
         $this->elementIdColumn = 'id';
 
@@ -722,10 +722,10 @@ class plgAcymEventbooking extends acymPlugin
         $triggers['classic']['eventbooking_reminder']->option .= '</div></div>';
     }
 
-    public function onAcymExecuteTrigger(&$step, &$execute, $data)
+    public function onAcymExecuteTrigger(&$step, &$execute, &$data)
     {
         $time = $data['time'];
-        $triggers = json_decode($step->triggers, true);
+        $triggers = $step->triggers;
 
         if (!empty($triggers['eventbooking_reminder']['number'])) {
             $config = acym_config();

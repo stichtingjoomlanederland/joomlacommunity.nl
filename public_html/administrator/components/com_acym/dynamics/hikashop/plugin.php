@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.4.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -1010,11 +1010,11 @@ class plgAcymHikashop extends acymPlugin
         );
     }
 
-    public function onAcymExecuteTrigger(&$step, &$execute, $data)
+    public function onAcymExecuteTrigger(&$step, &$execute, &$data)
     {
         if (empty($data['userId'])) return;
 
-        $triggers = json_decode($step->triggers, true);
+        $triggers = $step->triggers;
 
         if (!empty($triggers['hikashoporder']) && !empty($data['order'])) {
             if (!empty($triggers['hikashoporder']) && in_array($data['order']->order_status, $triggers['hikashoporder']['status'])) {

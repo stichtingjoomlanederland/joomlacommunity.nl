@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class LanguageController extends acymController
 {
@@ -43,13 +44,13 @@ class LanguageController extends acymController
             $updateHelper = acym_get('helper.update');
             $updateHelper->installBackLanguages($code);
         } else {
-            acym_enqueueMessage(acym_translation_sprintf('ACYM_FAIL_SAVE', $path), 'error');
+            acym_enqueueMessage(acym_translation_sprintf('ACYM_FAIL_SAVE_FILE', $path), 'error');
         }
 
         $custompath = acym_getLanguagePath(ACYM_ROOT, $code).DS.$code.'.com_acym_custom.ini';
         $customresult = acym_writeFile($custompath, $customcontent);
         if (!$customresult) {
-            acym_enqueueMessage(acym_translation_sprintf('ACYM_FAIL_SAVE', $custompath), 'error');
+            acym_enqueueMessage(acym_translation_sprintf('ACYM_FAIL_SAVE_FILE', $custompath), 'error');
         }
 
         if ($code == acym_getLanguageTag()) {

@@ -6,19 +6,25 @@
  */
 
 // Define ourselves as a parent file
+use Akeeba\AdminTools\Site\Model\Scans;
+use FOF30\Container\Container;
+use Joomla\CMS\Factory;
+
 define('_JEXEC', 1);
 
 // Setup and import the base CLI script
 $minphp = '5.6.0';
-$curdir = __DIR__;
+$curdir = getcwd();
 
-require_once __DIR__ . '/../administrator/components/com_admintools/assets/cli/base.php';
+if (!@file_exists($curdir . '/' . basename(__FILE__)))
+{
+	$curdir = __DIR__;
+}
+
+require_once $curdir . '/../administrator/components/com_admintools/assets/cli/base.php';
 
 // Enable Akeeba Engine
 define('AKEEBAENGINE', 1);
-
-use Akeeba\Engine\Platform;
-use Akeeba\Engine\Factory;
 
 /**
  * Admin Tools File Alteration Monitor (PHP File Change Scanner) CLI application
@@ -31,13 +37,12 @@ class AdminToolsFAM extends AdmintoolsCliBase
 	public function execute()
 	{
 		// Load the language files
-		$paths	 = array(JPATH_ADMINISTRATOR, JPATH_ROOT);
-		$jlang	 = JFactory::getLanguage();
+		$paths = [JPATH_ADMINISTRATOR, JPATH_ROOT];
+		$jlang = Factory::getLanguage();
 		$jlang->load('com_admintools', $paths[0], 'en-GB', true);
 		$jlang->load('com_admintools', $paths[1], 'en-GB', true);
 		$jlang->load('com_admintools' . '.override', $paths[0], 'en-GB', true);
 		$jlang->load('com_admintools' . '.override', $paths[1], 'en-GB', true);
-
 
 		$debugmessage = '';
 
@@ -52,18 +57,18 @@ class AdminToolsFAM extends AdmintoolsCliBase
 			ini_set('display_errors', 1);
 		}
 
-		$version		 = ADMINTOOLS_VERSION;
-		$date			 = ADMINTOOLS_DATE;
+		$version = ADMINTOOLS_VERSION;
+		$date    = ADMINTOOLS_DATE;
 
-		$phpversion		 = PHP_VERSION;
-		$phpenvironment	 = PHP_SAPI;
+		$phpversion     = PHP_VERSION;
+		$phpenvironment = PHP_SAPI;
 
 		$verboseMode = $this->input->get('quiet', -1, 'int') == -1;
 
 		if ($verboseMode)
 		{
-			$year = gmdate('Y');
-			echo <<<ENDBLOCK
+			$year   = gmdate('Y');
+			$header = <<<ENDBLOCK
 Admin Tools PHP File Scanner CLI $version ($date)
 Copyright (c) 2010-$year Akeeba Ltd / Nicholas K. Dionysopoulos
 -------------------------------------------------------------------------------
@@ -75,210 +80,95 @@ license. See http://www.gnu.org/licenses/gpl-3.0.html for details.
 You are using PHP $phpversion ($phpenvironment)
 $debugmessage
 
-
 ENDBLOCK;
+			$this->out($header);
 		}
 
 		$start_scan = time();
 
-		// Attempt to use an infinite time limit, in case you are using the PHP CGI binary instead
-		// of the PHP CLI binary. This will not work with Safe Mode, though.
-		$safe_mode = true;
-
-		if (function_exists('ini_get'))
-		{
-			$safe_mode = ini_get('safe_mode');
-		}
-
-		if (!$safe_mode && function_exists('set_time_limit'))
+		if (function_exists('set_time_limit'))
 		{
 			if ($verboseMode)
 			{
-				echo "Unsetting time limit restrictions.\n";
+				$this->out("Unsetting time limit restrictions.");
 			}
 
 			@set_time_limit(0);
-		}
-		elseif (!$safe_mode)
-		{
-			if ($verboseMode)
-			{
-				echo "Could not unset time limit restrictions; you may get a timeout error\n";
-			}
 		}
 		else
 		{
 			if ($verboseMode)
 			{
-				echo "You are using PHP's Safe Mode; you may get a timeout error\n";
+				$this->out("Could not unset time limit restrictions; you may get a timeout error");
 			}
 		}
 
 		if ($verboseMode)
 		{
-			echo "\n";
+			$this->out('');
 		}
 
 		// Log some paths
 		if ($verboseMode)
 		{
-			echo "Site paths determined by this script:\n";
-			echo "JPATH_BASE : " . JPATH_BASE . "\n";
-			echo "JPATH_ADMINISTRATOR : " . JPATH_ADMINISTRATOR . "\n\n";
+			$this->out('Site paths determined by this script:');
+			$this->out(sprintf("JPATH_BASE : %s", JPATH_BASE));
+			$this->out(sprintf("JPATH_ADMINISTRATOR : %s", JPATH_ADMINISTRATOR));
+			$this->out('');
 		}
 
-		// Load the engine
-		$factoryPath = JPATH_ADMINISTRATOR . '/components/com_admintools/engine/Factory.php';
-		define('JPATH_COMPONENT_ADMINISTRATOR', JPATH_ADMINISTRATOR . '/components/com_admintools');
-		define('AKEEBAROOT', JPATH_ADMINISTRATOR . '/components/com_admintools/engine');
-		if (!file_exists($factoryPath))
-		{
-			echo "ERROR!\n";
-			echo "Could not load the backup engine; file does not exist. Technical information:\n";
-			echo "Path to " . basename(__FILE__) . ": " . __DIR__ . "\n";
-			echo "Path to factory file: $factoryPath\n";
-			die("\n");
-		}
-		else
-		{
-			try
-			{
-				require_once $factoryPath;
-			}
-			catch (Exception $e)
-			{
-				echo "ERROR!\n";
-				echo "Backup engine returned an error. Technical information:\n";
-				echo "Error message:\n\n";
-				echo $e->getMessage() . "\n\n";
-				echo "Path to " . basename(__FILE__) . ":" . __DIR__ . "\n";
-				echo "Path to factory file: $factoryPath\n";
-				die("\n");
-			}
-		}
+		$container = Container::getInstance('com_admintools');
+		/** @var Scans $model */
+		$model = $container->factory->model('Scans')->tmpInstance();
 
-		// Load the platform
-		Platform::addPlatform('filescan', JPATH_ADMINISTRATOR . '/components/com_admintools/platform/Filescan');
-
-		// Forced CLI mode settings
-		define('AKEEBA_PROFILE', 1);
-		define('AKEEBA_BACKUP_ORIGIN', 'cli');
-
-		// Load the engine configuration
-		Platform::getInstance()->load_configuration(1);
-
-		// Reset Kettenrad and its storage
-		Factory::resetState(array(
-			'maxrun' => 0
-		));
-
-		Factory::getFactoryStorage()->reset(AKEEBA_BACKUP_ORIGIN);
-
-		// Setup
-		$kettenrad = Factory::getKettenrad();
-
-		$configOverrides['volatile.core.finalization.action_handlers'] = array(
-			new Akeeba\Engine\Finalization\Email()
-		);
-
-		$configOverrides['volatile.core.finalization.action_queue'] = array(
-			'remove_temp_files',
-			'update_statistics',
-			'update_filesizes',
-			'apply_quotas',
-			'send_scan_email'
-		);
-
-		// Apply the configuration overrides, please
-		$platformOverrides = Platform::getInstance()->configOverrides;
-		Platform::getInstance()->configOverrides = array_merge($platformOverrides, $configOverrides);
-
-		$options = array(
-			'description' => '',
-			'comment'     => '',
-			'jpskey'      => ''
-		);
-
-		$kettenrad->setup($options);
-
-		// Dummy array so that the loop iterates once
-		$array = array(
-			'HasRun' => 0,
-			'Error'  => ''
-		);
-
-		$warnings_flag = false;
+		$model->removeIncompleteScans();
 
 		$this->out("Starting file scanning");
 		$this->out("");
 
-		while (($array['HasRun'] != 1) && (empty($array['Error'])))
+		$warnings_flag = false;
+		$ret           = $model->startScan('cli');
+
+		while ($ret['status'] && !$ret['done'] && empty($ret['error']))
 		{
-			// Recycle the database connection to minimise problems with database timeouts
-			$db = Factory::getDatabase();
-			$db->close();
-			$db->open();
+			$time         = date('Y-m-d H:i:s \G\M\TO (T)');
+			$memusage     = $this->memUsage();
+			$warnings     = "no warnings issued (good)";
+			$stepWarnings = false;
 
-			Factory::getLog()->open(AKEEBA_BACKUP_ORIGIN);
-			Factory::getLog()->unpause();
-
-			// Apply engine optimization overrides
-			$config = Factory::getConfiguration();
-			$config->set('akeeba.tuning.min_exec_time', 0);
-			$config->set('akeeba.tuning.nobreak.beforelargefile', 1);
-			$config->set('akeeba.tuning.nobreak.afterlargefile', 1);
-			$config->set('akeeba.tuning.nobreak.proactive', 1);
-			$config->set('akeeba.tuning.nobreak.finalization', 1);
-			$config->set('akeeba.tuning.settimelimit', 0);
-			$config->set('akeeba.tuning.nobreak.domains', 0);
-
-
-			$kettenrad->tick();
-
-			Factory::getTimer()->resetTime();
-
-			$array		 = $kettenrad->getStatusArray();
-
-			Factory::getLog()->close();
-
-			$time		 = date('Y-m-d H:i:s \G\M\TO (T)');
-			$memusage	 = $this->memUsage();
-
-			$warnings		 = "no warnings issued (good)";
-			$stepWarnings	 = false;
-
-			if (!empty($array['Warnings']))
+			if (!empty($ret['warnings']))
 			{
-				$warnings_flag	 = true;
-				$warnings		 = "POTENTIAL PROBLEMS DETECTED; " . count($array['Warnings']) . " warnings issued (see below).\n";
-				foreach ($array['Warnings'] as $line)
+				$warnings_flag = true;
+				$stepWarnings  = true;
+
+				$warnings = sprintf("POTENTIAL PROBLEMS DETECTED; %s warnings issued (see below).\n", count($ret['warnings']));
+
+				foreach ($ret['Warnings'] as $line)
 				{
 					$warnings .= "\t$line\n";
 				}
-				$stepWarnings = true;
-				$kettenrad->resetWarnings();
 			}
+
 
 			if (($verboseMode) || $stepWarnings)
 			{
-				echo <<<ENDSTEPINFO
+				$stepInfo = <<<ENDSTEPINFO
 Last Tick   : $time
 Memory used : $memusage
 Warnings    : $warnings
 
-
 ENDSTEPINFO;
+				$this->out($stepInfo);
 			}
+
+			$ret = $model->stepScan();
 		}
 
-		// Clean up
-		Factory::getFactoryStorage()->reset(AKEEBA_BACKUP_ORIGIN);
-
-		$exitCode = 0;
-
-		if (!empty($array['Error']))
+		if (!empty($ret['error']))
 		{
-			echo "An error has occurred:\n{$array['Error']}\n\n";
+			$this->out('An error has occurred:');
+			$this->out($ret['error']);
+			$this->out();
 
 			$exitCode = 2;
 		}
@@ -286,7 +176,7 @@ ENDSTEPINFO;
 		{
 			if ($verboseMode)
 			{
-				echo "File scanning job finished successfully after approximately " . $this->timeago($start_scan, time(), '', false) . "\n";
+				$this->out(sprintf("File scanning job finished successfully after approximately %s", $this->timeago($start_scan, time(), '', false)));
 			}
 
 			$exitCode = 0;
@@ -299,17 +189,23 @@ ENDSTEPINFO;
 			if ($verboseMode)
 			{
 				$exitCode = 1;
-				echo "\n" . str_repeat('=', 79) . "\n";
-				echo "!!!!!  W A R N I N G  !!!!!\n\n";
-				echo "Admin Tools issued warnings during the scanning process. You have to review them\n";
-				echo "and make sure that your scan has completed successfully.\n";
-				echo "\n" . str_repeat('=', 79) . "\n";
+				$this->out('');
+				$this->out(str_repeat('=', 79));
+				$this->out('');
+				$this->out('!!!!!  W A R N I N G  !!!!!');
+				$this->out('');
+				$this->out('Admin Tools issued warnings during the scanning process. You have to review them');
+				$this->out('and make sure that your scan has completed successfully.');
+				$this->out('');
+				$this->out(str_repeat('=', 79));
+				$this->out('');
 			}
 		}
 
 		if ($verboseMode)
 		{
-			echo "Peak memory usage: " . $this->peakMemUsage() . "\n\n";
+			$this->out(sprintf("Peak memory usage: %s", $this->peakMemUsage()));
+			$this->out();
 		}
 
 		$this->close($exitCode);

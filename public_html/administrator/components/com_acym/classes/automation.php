@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class acymautomationClass extends acymClass
 {
@@ -21,7 +22,7 @@ class acymautomationClass extends acymClass
     public function getMatchingElements($settings = [])
     {
         $query = 'SELECT * FROM #__acym_automation';
-        $queryCount = 'SELECT COUNT(id) FROM #__acym_automation';
+        $queryCount = 'SELECT COUNT(id) AS total, SUM(active) AS totalActive FROM #__acym_automation';
         $filters = [];
 
         if (!empty($settings['search'])) {
@@ -31,6 +32,11 @@ class acymautomationClass extends acymClass
         if (!empty($filters)) {
             $query .= ' WHERE ('.implode(') AND (', $filters).')';
             $queryCount .= ' WHERE ('.implode(') AND (', $filters).')';
+        }
+
+        if (!empty($settings['status'])) {
+            $query .= empty($filters) ? ' WHERE ' : ' AND ';
+            $query .= 'active = '.($settings['status'] == 'active' ? '1' : '0');
         }
 
         if (!empty($settings['ordering']) && !empty($settings['ordering_sort_order'])) {
@@ -49,16 +55,9 @@ class acymautomationClass extends acymClass
 
         $results['elements'] = acym_loadObjectList($query, '', $settings['offset'], $settings['elementsPerPage']);
 
-        $results['total'] = acym_loadResult($queryCount);
+        $results['total'] = acym_loadObject($queryCount);
 
         return $results;
-    }
-
-    public function getOneById($id)
-    {
-        $query = 'SELECT * FROM #__acym_automation WHERE `id` = '.intval($id);
-
-        return acym_loadObject($query);
     }
 
     public function save($automation)
@@ -98,7 +97,7 @@ class acymautomationClass extends acymClass
 
     public function trigger($trigger, $data = [])
     {
-        if (!acym_level(2)) return;
+        if (!acym_level(2) || empty($trigger)) return;
 
         $stepClass = acym_get('class.step');
         $actionClass = acym_get('class.action');
@@ -113,7 +112,7 @@ class acymautomationClass extends acymClass
                 $execute = true;
             }
 
-            acym_trigger('onAcymExecuteTrigger', [&$step, &$execute, $data]);
+            acym_trigger('onAcymExecuteTrigger', [&$step, &$execute, &$data]);
 
             $data['automation'] = $this->getOneById($step->automation_id);
 
@@ -140,6 +139,7 @@ class acymautomationClass extends acymClass
 
     public function execute($action, $data = [])
     {
+        $usersTriggeringAction = empty($data['userIds']) ? [] : $data['userIds'];
         $userTriggeringAction = empty($data['userId']) ? 0 : $data['userId'];
         $action->actions = json_decode($action->actions, true);
         if (empty($action->actions)) return false;
@@ -155,13 +155,19 @@ class acymautomationClass extends acymClass
         if (empty($action->filters)) return false;
 
 
-        $query = acym_get('class.query');
-
         $initialWhere = ['1 = 1'];
+        $query = acym_get('class.query');
         $query->removeFlag($action->id);
 
         if (!empty($action->filters['type_filter']) && $action->filters['type_filter'] == 'user') {
-            $initialWhere = ['user.id = '.intval($userTriggeringAction)];
+            if (empty($usersTriggeringAction)) {
+                if (empty($userTriggeringAction)) return false;
+
+                $initialWhere = ['user.id = '.intval($userTriggeringAction)];
+            } else {
+                acym_arrayToInteger($usersTriggeringAction);
+                $initialWhere = ['user.id IN ('.implode(', ', $usersTriggeringAction).')'];
+            }
         }
 
         $typeFilter = $action->filters['type_filter'];

@@ -2,7 +2,7 @@
 <extension type="module" version="2.5" client="site" method="upgrade">
 	<name>AcyMailing subscription form</name>
 	<creationDate>August 2018</creationDate>
-	<version>1.0.0</version>
+	<version>6.5.0</version>
 	<author>Acyba</author>
 	<authorEmail>dev@acyba.com</authorEmail>
 	<authorUrl>https://www.acyba.com</authorUrl>

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -32,7 +32,7 @@ defined('_JEXEC') or die('Unauthorized Access');
         }
     }
     </bindings>
-    <title><?php echo JText::_('Remove Profile Picture'); ?></title>
+    <title><?php echo JText::_('COM_EASYDISCUSS_REMOVE_AVATAR'); ?></title>
     <content>
         <p class="mb-10">
             <?php echo JText::_('COM_EASYDISCUSS_REMOVE_AVATAR_DESCRIPTION');?>

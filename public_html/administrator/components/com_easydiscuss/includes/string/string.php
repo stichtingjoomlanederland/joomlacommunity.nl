@@ -259,21 +259,14 @@ class EasyDiscussString extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function isValidEmail($data, $strict = false)
+	public static function isValidEmail($email)
 	{
-		$regex = $strict?
-			'/^([.0-9a-z_-]+)@(([0-9a-z-]+\.)+[0-9a-z]{2,5})$/i' :
-			'/^([*+!.&#$¦\'\\%\/0-9a-z^_`{}=?~:-]+)@(([0-9a-z-]+\.)+[0-9a-z]{2,5})$/i'
-		;
-
-		if (preg_match($regex, trim($data), $matches))
-		{
-			return array($matches[1], $matches[2]);
-		}
-		else
-		{
+		$email = trim($email);
+		if ($email == "" || !JMailHelper::isEmailAddress($email)){
 			return false;
 		}
+
+		return true;
 	}
 
 	/**
@@ -376,11 +369,17 @@ class EasyDiscussString extends EasyDiscuss
 			}
 		}
 
+		// dump($linkArrays);
+
 		// Let's replace back the link now with the proper format based on the index given.
+
+		// here we need to update the skip pattern to ignore links inside <a> so that the regex will not re-process the 'already-processed' links.
+		$skipPattern = '<img[^>]*>(*SKIP)(*FAIL)|<script[^>]*>(*SKIP)(*FAIL)|<iframe[^>]*>(*SKIP)(*FAIL)|<a[^>]*>(*SKIP)(*FAIL)';
+
 		foreach ($linkArrays as $link) {
 			$text = str_ireplace($link->customcode, $link->newlink, $text);
 
-			$patternReplace = '/' . $skipPattern . '|((?<!href=")((http|https):\/{2})+(([0-9a-z_-]+\.)+(aero|asia|biz|cat|com|coop|edu|gov|club|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cu|cv|cx|cy|cz|cz|de|dj|dk|dm|do|dz|ec|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mn|mn|mo|mp|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|nom|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ra|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw|arpa|live|today)(:[0-9]+)?((\/([~0-9a-zA-Z\#\!\=\+\%@\.\/_-]+))?(\?[0-9a-zA-Z\+\#\%@\/&\[\];=_-]+)?)?))\b/i';
+			$patternReplace = '/' . $skipPattern . '|((?<!href=")((http|https):\/{2})+(([0-9a-z_-]+\.)+(aero|asia|biz|cat|com|coop|edu|gov|club|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cu|cv|cx|cy|cz|cz|de|dj|dk|dm|do|dz|ec|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mn|mn|mo|mp|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|nom|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ra|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw|arpa|live|today)(:[0-9]+)?((\/([~0-9a-zA-Z\#\!\=\+\%:@\.\/_-]+))?(\?[0-9a-zA-Z\+\#\%@\/&\[\]\.=_-]+)?)?))(\/|\b)/i';
 
 			// Replace & to &amp; for the URL to work correctly. #48
 			// eg : https://site.com/discuss?sub=1&sub=2

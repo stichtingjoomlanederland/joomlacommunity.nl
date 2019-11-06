@@ -975,6 +975,12 @@ class com_rseventsproInstallerScript
 			$updateData[] = array('table' => '#__rseventspro_groups', 'field' => 'can_add_speaker', 'type' => 'TINYINT(2)', 'default' => '0');
 			$updateData[] = array('table' => '#__rseventspro_tickets', 'field' => 'ticketinfo', 'type' => 'TINYINT(2)', 'default' => '0', 'after' => 'to');
 			$updateData[] = array('table' => '#__rseventspro_tickets', 'field' => 'ticketinfolayout', 'type' => 'TEXT', 'after' => 'ticketinfo');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'rsm_enable', 'type' => 'TINYINT(2)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'rsm_when', 'type' => 'TINYINT(2)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'rsm_lists', 'type' => 'VARCHAR(255)', 'default' => '');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'waitinglist', 'type' => 'TINYINT(2)', 'default' => '0', 'after' => 'rsm_lists');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'waitinglist_limit', 'type' => 'INT(11)', 'default' => '0', 'after' => 'waitinglist');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'waitinglist_time', 'type' => 'VARCHAR(50)', 'default' => '', 'after' => 'waitinglist_limit');
 			
 			foreach ($updateData as $data) {
 				$checkQuery = 'SHOW COLUMNS FROM '.$db->qn($data['table']).' WHERE '.$db->qn('Field').' = '.$db->q($data['field']);
@@ -1137,8 +1143,12 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.12.7</h2>
+	<h2>Changelog v1.12.8</h2>
 	<ul class="version-history">
+		<li><span class="version-new">Add</span> RSMail! integration.</li>
+		<li><span class="version-new">Add</span> Duplicate event ticket.</li>
+		<li><span class="version-new">Add</span> Select from which Google Calendars to import events.</li>
+		<li><span class="version-new">Add</span> Waiting list for events.</li>
 		<li><span class="version-fixed">Fix</span> Code optimization.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
@@ -1194,8 +1204,8 @@ class com_rseventsproInstallerScript
 				'rseventspro' => '1.2'
 			),
 			'system' => array(
-				'rsepropdf' => '1.14',
-				'rsfprseventspro' => '1.51.14',
+				'rsepropdf' => '1.15',
+				'rsfprseventspro' => '1.51.17',
 				'rsepro2co' => '1.1',
 				'rseproanzegate' => '1.2',
 				'rseproauthorize' => '1.2',
@@ -1205,7 +1215,8 @@ class com_rseventsproInstallerScript
 				'rsepropaypal' => '1.2',
 				'rseprovmerchant' => '1.2',
 				'rseprostripe' => '1.2',
-				'rseprooffline' => '1.3'
+				'rseprooffline' => '1.3',
+				'rseprocart' => '1.1.17'
 			)
 		);
 		
@@ -1231,16 +1242,16 @@ class com_rseventsproInstallerScript
 			'mod_rseventspro_attendees' => '1.3',
 			'mod_rseventspro_calendar' => '1.8',
 			'mod_rseventspro_categories' => '1.4',
-			'mod_rseventspro_events' => '1.6',
+			'mod_rseventspro_events' => '1.7',
 			'mod_rseventspro_featured' => '1.4',
-			'mod_rseventspro_location' => '1.3',
+			'mod_rseventspro_location' => '1.4',
 			'mod_rseventspro_locations' => '1.3',
 			'mod_rseventspro_map' => '1.9',
 			'mod_rseventspro_popular' => '1.5',
 			'mod_rseventspro_search' => '1.5',
-			'mod_rseventspro_slider' => '1.7.2',
+			'mod_rseventspro_slider' => '1.7.3',
 			'mod_rseventspro_tags' => '1.1',
-			'mod_rseventspro_upcoming' => '1.4'
+			'mod_rseventspro_upcoming' => '1.5'
 		);
 		
 		// Check modules version

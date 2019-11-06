@@ -116,7 +116,7 @@ class EasyDiscussViewProfile extends EasyDiscussView
 			if (ED::user()->id == $profile->id) {
 				$options['includeAnonymous'] = true;
 				$options['private'] = true;
-                $options['includeCluster'] = true;
+				$options['includeCluster'] = true;
 			}
 
 			$posts = $postsModel->getDiscussions($options);
@@ -126,6 +126,7 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		if ($viewType == 'assigned') {
 			$assignedModel = ED::model('Assigned');
 			$posts = $assignedModel->getPosts($profile->id);
+			$paginationModel = $assignedModel->getPagination();
 		}
 
 		if ($viewType == 'favourites') {

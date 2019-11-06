@@ -206,7 +206,7 @@ class WFMicrodataPlugin extends WFEditorPlugin
 
             // load data from cache file
             if (JFile::exists($cache)) {
-                $data = JFile::read($cache);
+                $data = file_get_contents($cache);
                 self::$_schema = json_decode($data);
             }
 

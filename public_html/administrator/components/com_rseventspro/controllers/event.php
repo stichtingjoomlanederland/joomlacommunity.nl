@@ -214,4 +214,24 @@ class RseventsproControllerEvent extends JControllerForm
 		
 		JFactory::getApplication()->close();
 	}
+	
+	public function subscribeUsers() {
+		// Get the model
+		$model = $this->getModel();
+		
+		$model->subscribeUsers();
+		
+		JFactory::getApplication()->close();
+	}
+	
+	public function duplicateticket() {
+		// Get the model
+		$model = $this->getModel();
+		
+		$response = $model->duplicateticket();
+		
+		echo json_encode($response);
+		
+		JFactory::getApplication()->close();
+	}
 }

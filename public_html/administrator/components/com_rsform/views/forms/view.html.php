@@ -271,6 +271,8 @@ class RsformViewForms extends JViewLegacy
 			$this->today = JFactory::getDate();
 			$this->today->setTime(0, 0, 0);
 			$this->today = $this->today->format('Y-m-d');
+
+			$this->disable_multilanguage = RSFormProHelper::getConfig('global.disable_multilanguage');
 		}
 
 		parent::display($tpl);

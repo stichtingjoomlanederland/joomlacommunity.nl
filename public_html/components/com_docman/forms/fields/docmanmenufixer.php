@@ -68,8 +68,15 @@ class JFormFieldDocmanmenufixer extends JFormField
                         "#jform_params_show_player"
                     ],
                     "default:download": [
-                        "#jform_params_show_player"
-                    ]
+                        "#jform_params_show_player",
+                        "#jform_params_allow_multi_download",
+                    ],
+                    "default:details": [
+                        "#jform_params_allow_multi_download",
+                    ],
+                    "default:0": [
+                        "#jform_params_allow_multi_download",
+                    ],
                 };
             
                 onChange = function() {

@@ -217,8 +217,10 @@ class RSFormProHelper
 
 	public static function displayForm($formId, $is_module=false)
 	{
-		$mainframe = JFactory::getApplication();
-		$form = RSFormProHelper::getForm($formId);
+		$mainframe 	= JFactory::getApplication();
+		$doc 		= JFactory::getDocument();
+		$session 	= JFactory::getSession();
+		$form 		= RSFormProHelper::getForm($formId);
 
 		if (empty($form) || !$form->Published)
 		{
@@ -261,9 +263,11 @@ class RSFormProHelper
                 }
             }
 
-			if (!$canView) {
+			if (!$canView)
+			{
 				$user = JFactory::getUser();
-				if (!in_array($form->Access,$user->getAuthorisedViewLevels())) {
+				if (!in_array($form->Access,$user->getAuthorisedViewLevels()))
+				{
 					// Error, the form cannot be accessed
 					$mainframe->enqueueMessage(JText::sprintf('RSFP_FORM_CANNOT_BE_ACCESSED', $formId), 'warning');
 					$mainframe->redirect(JUri::root());
@@ -275,24 +279,32 @@ class RSFormProHelper
 		$lang 		  = RSFormProHelper::getCurrentLanguage($formId);
 		$translations = RSFormProHelper::getTranslations('forms', $formId, $lang);
 		if ($translations)
+		{
 			foreach ($translations as $field => $value)
 			{
-				if (isset($form->$field))
-					$form->$field = $value;
+				if (isset($form->{$field}))
+					$form->{$field} = $value;
 			}
+		}
 
-		$doc = JFactory::getDocument();
 		if (!$is_module)
 		{
 			if ($form->MetaDesc)
+			{
 				$doc->setMetaData('description', $form->MetaDesc);
+			}
+
 			if ($form->MetaKeywords)
+			{
 				$doc->setMetaData('keywords', $form->MetaKeywords);
+			}
+
 			if ($form->MetaTitle)
+			{
 				$doc->setTitle($form->FormTitle);
+			}
 		}
 
-		$session = JFactory::getSession();
 		$formparams = $session->get('com_rsform.formparams.formId'.$formId);
 
 		// Form has been processed ?
@@ -308,20 +320,21 @@ class RSFormProHelper
 			$session->clear('com_rsform.formparams.formId'.$formId);
 
 			// Must show small message
-			if ($formparams->showSystemMessage) {
+			if ($formparams->showSystemMessage)
+			{
 				$mainframe->enqueueMessage(JText::_('RSFP_THANKYOU_SMALL'));
 			}
 
 			if ($form->ScrollToThankYou)
 			{
 				// scroll the window to the Thank You Message
-				$scrolltoScript = 'RSFormProUtils.addEvent(window, \'load\',function(){ RSFormPro.scrollToElement(document.getElementById(\'system-message-container\')); });';
-				RSFormProAssets::addScriptDeclaration($scrolltoScript);
+				RSFormProAssets::addScriptDeclaration("RSFormProUtils.addEvent(window, 'load', function(){ RSFormPro.scrollToElement(document.getElementById('system-message-container')); });");
 			}
 		}
 
-		if ($form->DisableSubmitButton) {
-			RSFormProAssets::addScriptDeclaration('RSFormProUtils.addEvent(window, \'load\',function(){ RSFormPro.setDisabledSubmit(\''.$formId.'\', '.($form->AjaxValidation ? 'true' : 'false').');  });');
+		if ($form->DisableSubmitButton)
+		{
+			RSFormProAssets::addScriptDeclaration("RSFormProUtils.addEvent(window, 'load', function(){ RSFormPro.setDisabledSubmit('{$formId}', " . ($form->AjaxValidation ? 'true' : 'false') . "); });");
 		}
 		
 		// Must process form
@@ -332,8 +345,9 @@ class RSFormProHelper
 			// Did not pass validation - show the form
 			if ($invalid)
 			{
-				if ($form->ScrollToError){
-					RSFormProAssets::addScriptDeclaration('RSFormProUtils.addEvent(window, \'load\',function(){ RSFormPro.gotoErrorElement('.$formId.');  });');
+				if ($form->ScrollToError)
+				{
+					RSFormProAssets::addScriptDeclaration("RSFormProUtils.addEvent(window, 'load', function(){ RSFormPro.gotoErrorElement({$formId}); });");
 				}
 				// We call this again because the array might have been modified by processForm()
                 $post = $mainframe->input->post->get('form', array(), 'array');
@@ -428,7 +442,7 @@ class RSFormProHelper
 		}
 	}
 
-	public static function getValidationRules($asArray = false, $remove_multiple = false) {
+	public static function getValidationRules($asArray = false, $removeMultiple = false) {
 		$results = get_class_methods(static::getValidationClass());
 		
 		// Add 'none' as first validation rule
@@ -436,7 +450,7 @@ class RSFormProHelper
 		array_unshift($results, 'none');
 		
 		// remove the multiple validation because the multiple rules has already been selected, also the none validation is not necessary
-		if ($remove_multiple) {
+		if ($removeMultiple) {
 			unset($results[array_search('multiplerules', $results)]);
 			unset($results[array_search('none', $results)]);
 		}
@@ -500,11 +514,12 @@ class RSFormProHelper
         return implode("\n", $options);
     }
 
-	public static function readConfig($force=false)
+	public static function readConfig($force = false)
 	{
 		$config = RSFormProConfig::getInstance();
 
-		if ($force) {
+		if ($force)
+		{
 			$config->reload();
 		}
 
@@ -514,33 +529,33 @@ class RSFormProHelper
 	public static function getConfig($name = null)
 	{
 		$config = RSFormProConfig::getInstance();
-		if (is_null($name)) {
+
+		if ($name === null)
+		{
 			return $config->getData();
-		} else {
-			return $config->get($name);
 		}
+
+		return $config->get($name);
 	}
 
-	public static function componentNameExists($componentName, $formId, $currentComponentId=0, $column = 'ComponentId')
+	public static function componentNameExists($componentName, $formId, $currentComponentId = 0, $column = 'ComponentId')
 	{
 		$db = JFactory::getDbo();
 
-		if ($componentName == 'formId')
-			return true;
+		$query = $db->getQuery(true)
+			->select($db->qn('c.' . $column))
+			->from($db->qn('#__rsform_properties', 'p'))
+			->join('left', $db->qn('#__rsform_components', 'c') . ' ON (' . $db->qn('p.ComponentId') . ' = ' . $db->qn('c.ComponentId') . ')')
+			->where($db->qn('c.FormId') . ' = ' . $db->q($formId))
+			->where($db->qn('p.PropertyName') . ' = ' . $db->q('NAME'))
+			->where($db->qn('p.PropertyValue') . ' = ' . $db->q($componentName));
 
-		$componentName = $db->escape($componentName);
-		$formId = (int) $formId;
-		$currentComponentId = (int) $currentComponentId;
-
-		$query  = "SELECT c.".$column." FROM #__rsform_properties p LEFT JOIN #__rsform_components c ON (p.ComponentId = c.ComponentId)";
-		$query .= "WHERE c.FormId='".$formId."' AND p.PropertyName='NAME' AND p.PropertyValue='".$componentName."'";
 		if ($currentComponentId)
-			$query .= " AND c.ComponentId != '".$currentComponentId."'";
+		{
+			$query->where($db->qn('c.ComponentId') . ' <> ' . $db->q($currentComponentId));
+		}
 
-		$db->setQuery($query);
-		$exists = $db->loadResult();
-
-		return $exists;
+		return $db->setQuery($query)->loadResult();
 	}
 
 	public static function getCurrentLanguage($formId=null)
@@ -562,6 +577,11 @@ class RSFormProHelper
 				{
 					return $submission->Lang;
 				}
+			}
+
+			if (RSFormProHelper::getConfig('global.disable_multilanguage') && RSFormProHelper::getConfig('global.default_language') != 'en-GB')
+			{
+				return RSFormProHelper::getConfig('global.default_language');
 			}
 
 			return $session->get('com_rsform.form.formId'.$formId.'.lang', $lang->getTag());
@@ -1779,8 +1799,9 @@ class RSFormProHelper
 
 		$formLayout .= '<input type="hidden" name="form[formId]" value="'.$formId.'"/>';
 
-		if ($form->FormLayoutName == 'responsive') {
-			$form->CSSClass .= ' formResponsive';
+		if ($layoutClassLoaded && is_callable(array($layoutClassLoaded, 'modifyForm')))
+		{
+			$layoutClassLoaded->modifyForm($form);
 		}
 
 		$CSSClass 	= $form->CSSClass ? ' class="'.RSFormProHelper::htmlEscape(trim($form->CSSClass)).'"' : '';
@@ -1831,16 +1852,20 @@ class RSFormProHelper
 			$formLayout .= "\n".'<script type="text/javascript">'."\n".$script."\n".'</script>'."\n";
 		}
 
-		if (!empty($YUICalendars) || !empty($jQueryCalendars))
+		if ($YUICalendars || $jQueryCalendars)
 		{
 			require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/calendar.php';
+
 			// render the YUI Calendars
-			if (!empty($YUICalendars)) {
+			if ($YUICalendars)
+			{
 				$calendar = RSFormProCalendar::getInstance('YUICalendar');
 				RSFormProAssets::addScriptDeclaration($calendar->printInlineScript($formId));
 			}
+
 			// render the jQuery Calendars
-			if ($jQueryCalendars) {
+			if ($jQueryCalendars)
+			{
 				$calendar = RSFormProCalendar::getInstance('jQueryCalendar');
 				RSFormProAssets::addScriptDeclaration($calendar->printInlineScript($formId));
 			}
@@ -1935,32 +1960,41 @@ class RSFormProHelper
 
 	public static function showThankYouMessage($formId)
 	{
-		$mainframe = JFactory::getApplication();
-		$formId = (int) $formId;
+		$mainframe 	= JFactory::getApplication();
+		$db 		= JFactory::getDbo();
+		$doc 		= JFactory::getDocument();
+		$session 	= JFactory::getSession();
+		$formId 	= (int) $formId;
 
-		$db = JFactory::getDbo();
-		$db->setQuery("SELECT ScrollToThankYou, ThankYouMessagePopUp, FormLayoutName FROM #__rsform_forms WHERE FormId='".$formId."'");
-		$form = $db->loadObject();
+		$query = $db->getQuery(true)
+			->select($db->qn(array('ScrollToThankYou', 'ThankYouMessagePopUp', 'FormLayoutName')))
+			->from($db->qn('#__rsform_forms'))
+			->where($db->qn('FormId') . ' = ' . $db->q($formId));
+		$form = $db->setQuery($query)->loadObject();
 
-		$doc = JFactory::getDocument();
 		RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/front.css', array('pathOnly' => true, 'relative' => true)));
 		if ($doc->getDirection() == 'rtl')
+		{
 			RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/front-rtl.css', array('pathOnly' => true, 'relative' => true)));
+		}
 
-		$session = JFactory::getSession();
 		$formparams = $session->get('com_rsform.formparams.formId'.$formId);
 		$output = base64_decode($formparams->thankYouMessage);
 
-		if ($formparams->loadLayoutFramework) {
+		if ($formparams->loadLayoutFramework)
+		{
             $layoutName = $form->FormLayoutName;
-            if (file_exists(dirname(__FILE__) . '/formlayouts/' . $layoutName . '.php')) {
+            if (file_exists(dirname(__FILE__) . '/formlayouts/' . $layoutName . '.php'))
+            {
                 require_once dirname(__FILE__) . '/formlayouts/' . $layoutName . '.php';
 
                 $class = 'RSFormProFormLayout' . $layoutName;
-                if (class_exists($class)) {
+                if (class_exists($class))
+                {
                     $layout = new $class();
 
-                    if (is_callable(array($layout, 'loadFramework'))) {
+                    if (is_callable(array($layout, 'loadFramework')))
+                    {
                         $layout->loadFramework();
                     }
                 }
@@ -1976,24 +2010,22 @@ class RSFormProHelper
 		if ($form->ScrollToThankYou)
 		{
 			// scroll the window to the Thank You Message
-			$scrolltoScript = 'RSFormProUtils.addEvent(window, \'load\',function(){ RSFormPro.scrollToElement(document.getElementById(\'rsfp-thankyou-scroll' . $formId . '\')); });';
 			RSFormProAssets::addScript(JHtml::script('com_rsform/script.js', array('pathOnly' => true, 'relative' => true)));
-			RSFormProAssets::addScriptDeclaration($scrolltoScript);
+			RSFormProAssets::addScriptDeclaration("RSFormProUtils.addEvent(window, 'load', function(){ RSFormPro.scrollToElement(document.getElementById('rsfp-thankyou-scroll{$formId}')); });");
 		}
 
-		if ($form->ThankYouMessagePopUp && !$form->ScrollToThankYou) {
-			//rsfp-thankyou-popup-container
-			$popupScript = 'RSFormProUtils.addEvent(window, \'load\',function(){ RSFormPro.showThankYouPopup(document.getElementById(\'rsfp-thankyou-popup-container' . $formId . '\')); });';
+		if ($form->ThankYouMessagePopUp && !$form->ScrollToThankYou)
+		{
 			RSFormProAssets::addScript(JHtml::script('com_rsform/script.js', array('pathOnly' => true, 'relative' => true)));
-			RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/popup.css', array('pathOnly' => true, 'relative' => true)));
-			RSFormProAssets::addScriptDeclaration($popupScript);
+			RSFormProAssets::addScriptDeclaration("RSFormProUtils.addEvent(window, 'load', function(){ RSFormPro.showThankYouPopup(document.getElementById('rsfp-thankyou-popup-container{$formId}')); });");
 		}
 
 		// Cache enabled ?
 		jimport('joomla.plugin.helper');
-		$cache_enabled = JPluginHelper::isEnabled('system', 'cache');
-		if ($cache_enabled)
+		if (JPluginHelper::isEnabled('system', 'cache'))
+		{
 			RSFormProHelper::cleanCache();
+		}
 
 		return $output;
 	}
@@ -2145,7 +2177,7 @@ class RSFormProHelper
 			if ($form->ShowContinue)
 			{
 				// Create goto link
-				$goto = 'document.location.reload();';
+				$goto = 'document.location.reload(true);';
 
 				// Cache workaround #1
 				if ($cache_enabled)
@@ -2218,12 +2250,16 @@ class RSFormProHelper
 				{
 					// Cache workaround #1
 					if ($cache_enabled)
-						$gotoLink =  addslashes($u);
+					{
+						$gotoLink = $u;
+					}
 
 					if (!empty($form->ReturnUrl))
-						$gotoLink = addslashes($form->ReturnUrl);
+					{
+						$gotoLink = $form->ReturnUrl;
+					}
 				}
-				$gotoLink = '<input type="hidden" id="rsfp-thankyou-popup-return-link" value="'.$gotoLink.'"/>';
+				$gotoLink = '<input type="hidden" id="rsfp-thankyou-popup-return-link" value="'.RSFormProHelper::htmlEscape($gotoLink).'"/>';
 
 				$thankYouMessage = '<div id="rsfp-thankyou-popup-container'.$formId.'">'.$thankYouMessage.$continueButton.$gotoLink.'</div>';
 			}
@@ -2762,8 +2798,22 @@ class RSFormProHelper
 			$langs[$formId] = $db->loadResult();
 		}
 
-		if ($langs[$formId] == $lang || RSFormProHelper::getConfig('global.disable_multilanguage'))
+		$disable_multilanguage 	= RSFormProHelper::getConfig('global.disable_multilanguage');
+		$default_language 		= RSFormProHelper::getConfig('global.default_language');
+
+		if ($disable_multilanguage && $default_language == 'en-GB')
+		{
 			return false;
+		}
+		elseif (!$disable_multilanguage && $langs[$formId] == $lang)
+		{
+			return false;
+		}
+		elseif ($disable_multilanguage && $default_language != 'en-GB')
+		{
+			$lang = $default_language;
+		}
+
 		// build the reference hash
 		$hash = md5($reference.$formId.$lang.$select);
 

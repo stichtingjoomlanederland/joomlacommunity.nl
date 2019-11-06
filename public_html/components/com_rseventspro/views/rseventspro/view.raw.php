@@ -180,6 +180,13 @@ class RseventsproViewRseventspro extends JViewLegacy
 					} else {
 						JFactory::getApplication()->close();
 					}
+				} elseif ($tmpl == 'waitinglist') {
+					$this->event = $this->get('Event');
+					if ($this->admin || $this->event->owner == $this->user) {
+						$this->data  = $this->get('WaitingData');
+					} else {
+						JFactory::getApplication()->close();
+					}
 				}
 				
 				$this->tmpl			= $tmpl;

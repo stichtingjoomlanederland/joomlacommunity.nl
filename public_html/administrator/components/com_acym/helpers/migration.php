@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class acymmigrationHelper
 {
@@ -408,7 +409,7 @@ class acymmigrationHelper
             return true;
         }
 
-        return acym_query('INSERT INTO #__acym_user_has_field (`user_id`, `value`, `field_id`) VALUES '.implode(', ', $valuesToInsert));
+        return acym_query('INSERT IGNORE INTO #__acym_user_has_field (`user_id`, `value`, `field_id`) VALUES '.implode(', ', $valuesToInsert));
     }
 
     public function migrateFields($params = [])
@@ -556,6 +557,7 @@ class acymmigrationHelper
 
     public function migrateMails($params = [])
     {
+        $campaignClass = acym_get('class.campaign');
         $mailClass = acym_get('class.mail');
 
         $result = 0;
@@ -658,12 +660,13 @@ class acymmigrationHelper
                 $stats = acym_loadResult("SELECT COUNT(mailid) FROM #__acymailing_stats WHERE mailid = ".intval($oneMail->mailid));
                 $isSent = !empty($stats);
 
+                $sendingType = intval(!$isSent && ($oneMail->senddate > time()));
                 $campaign = [
                     "sending_date" => empty($oneMail->senddate) ? "NULL" : acym_escapeDB(acym_date($oneMail->senddate, 'Y-m-d H:i:s')),
                     "draft" => intval(!$isSent),
                     "active" => empty($oneMail->published) ? 0 : intval($oneMail->published),
                     "mail_id" => intval($oneMail->mailid),
-                    "scheduled" => intval(!$isSent && ($oneMail->senddate > time())),
+                    "sending_type" => acym_escapeDB(0 === $sendingType ? $campaignClass::SENDING_TYPE_NOW : $campaignClass::SENDING_TYPE_SCHEDULED),
                     "sent" => intval($isSent),
                 ];
                 $campaignsToInsert[] = "(".implode(', ', $campaign).")";
@@ -700,7 +703,7 @@ class acymmigrationHelper
         }
 
         if (!empty($campaignsToInsert)) {
-            $queryCampaignInsert = "INSERT INTO #__acym_campaign (`sending_date`, `draft`, `active`, `mail_id`, `scheduled`, `sent`) VALUES ".implode(',', $campaignsToInsert).";";
+            $queryCampaignInsert = "INSERT IGNORE INTO #__acym_campaign (`sending_date`, `draft`, `active`, `mail_id`, `sending_type`, `sent`) VALUES ".implode(',', $campaignsToInsert).";";
 
             try {
                 $resultCampaign = acym_query($queryCampaignInsert);
@@ -910,7 +913,7 @@ class acymmigrationHelper
             return true;
         }
 
-        $queryInsert = "INSERT INTO #__acym_user_has_list (`user_id`, `list_id`, `status`, `subscription_date`, `unsubscribe_date`) VALUES ".implode(', ', $subscriptionsToInsert).";";
+        $queryInsert = "INSERT IGNORE INTO #__acym_user_has_list (`user_id`, `list_id`, `status`, `subscription_date`, `unsubscribe_date`) VALUES ".implode(', ', $subscriptionsToInsert).";";
 
         return $this->_insertQuery($queryInsert, $result);
     }
@@ -942,7 +945,7 @@ class acymmigrationHelper
             return true;
         }
 
-        $queryInsert = "INSERT INTO #__acym_mail_has_list (`mail_id`, `list_id`) VALUES ".implode(',', $mailHasListsToInsert).";";
+        $queryInsert = "INSERT IGNORE INTO #__acym_mail_has_list (`mail_id`, `list_id`) VALUES ".implode(',', $mailHasListsToInsert).";";
 
         return $this->_insertQuery($queryInsert, $result);
     }
@@ -983,7 +986,7 @@ class acymmigrationHelper
             return true;
         }
 
-        $queryInsert = "INSERT INTO #__acym_mail_stat (`mail_id`, `total_subscribers`, `sent`, `send_date`, `fail`, `open_unique`, `open_total`) VALUES ".implode(',', $statsToInsert).";";
+        $queryInsert = "INSERT IGNORE INTO #__acym_mail_stat (`mail_id`, `total_subscribers`, `sent`, `send_date`, `fail`, `open_unique`, `open_total`) VALUES ".implode(',', $statsToInsert).";";
 
         return $this->_insertQuery($queryInsert, $result);
     }
@@ -1021,7 +1024,7 @@ class acymmigrationHelper
             return true;
         }
 
-        $queryInsert = "INSERT INTO #__acym_list(`id`, `welcome_id`, `unsubscribe_id`) VALUES ".implode(',', $idsToInsert)." ON DUPLICATE KEY UPDATE `welcome_id` = VALUES(`welcome_id`), `unsubscribe_id` = VALUES(`unsubscribe_id`)";
+        $queryInsert = "INSERT IGNORE INTO #__acym_list(`id`, `welcome_id`, `unsubscribe_id`) VALUES ".implode(',', $idsToInsert)." ON DUPLICATE KEY UPDATE `welcome_id` = VALUES(`welcome_id`), `unsubscribe_id` = VALUES(`unsubscribe_id`)";
 
         return $this->_insertQuery($queryInsert, $result);
     }

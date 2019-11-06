@@ -7,9 +7,9 @@
 
 class RSFormProJQueryCalendar
 {
-	static $calendarOptions = array(); // store the javascript settings for each calendar
+	protected $calendarOptions = array(); // store the javascript settings for each calendar
 	
-	static $translationTable = array
+	protected $translationTable = array
 	(
 		'd' => 'DD',
 		'j' => 'D',
@@ -35,7 +35,15 @@ class RSFormProJQueryCalendar
 		's' => 'ss',
 	);
 	
-	public static function loadFiles() {
+	public function loadFiles()
+	{
+		static $done;
+
+		if ($done)
+		{
+			return;
+		}
+
 		// load the jQuery framework 
 		JHtml::_('jquery.framework', true);
 		
@@ -66,20 +74,24 @@ class RSFormProJQueryCalendar
 		$out .= 'RSFormPro.jQueryCalendar.settings.WEEKDAYS_MEDIUM = ['.implode(',', $w_med).'];'."\n";
 		$out .= 'RSFormPro.jQueryCalendar.settings.WEEKDAYS_LONG 	 = ['.implode(',', $w_long).'];'."\n";
 		$out .= 'RSFormPro.jQueryCalendar.settings.START_WEEKDAY 	 = '.JText::_('RSFP_CALENDAR_START_WEEKDAY').';'."\n";
+
+		$out .= "jQuery(document).ready(function(){ RSFormPro.jQueryCalendar.renderCalendars(); });\n";
 		
 		RSFormProAssets::addScriptDeclaration($out);
+
+		$done = true;
 	}
 	
-	public static function processDateFormat($dateFormat) {
+	protected function processDateFormat($dateFormat) {
 		$newFormat = '';
 		
 		for ($i = 0; $i < strlen($dateFormat); $i++)
 		{
 			$current = $dateFormat[$i];
 			
-			if (isset(self::$translationTable[$current]))
+			if (isset($this->translationTable[$current]))
 			{
-				$newFormat .= self::$translationTable[$current];
+				$newFormat .= $this->translationTable[$current];
 			}
 			else
 			{
@@ -90,21 +102,21 @@ class RSFormProJQueryCalendar
 		return $newFormat;
 	}
 	
-	public static function setCalendarOptions($config) {
+	public function setCalendarOptions($config) {
 		extract($config);
 		
-		self::$calendarOptions[$formId][$customId]['inline'] = $inline;
-		self::$calendarOptions[$formId][$customId]['format'] = self::processDateFormat($dateFormat);
-		self::$calendarOptions[$formId][$customId]['value'] = $value;
-		self::$calendarOptions[$formId][$customId]['timepicker'] = $timepicker;
-		self::$calendarOptions[$formId][$customId]['theme'] = $theme;
+		$this->calendarOptions[$formId][$customId]['inline'] = $inline;
+		$this->calendarOptions[$formId][$customId]['format'] = $this->processDateFormat($dateFormat);
+		$this->calendarOptions[$formId][$customId]['value'] = $value;
+		$this->calendarOptions[$formId][$customId]['timepicker'] = $timepicker;
+		$this->calendarOptions[$formId][$customId]['theme'] = $theme;
 		if ($timepicker) {
 			// in case the user leaves the input empty and save the settings
 			$timepickerformat = trim($timepickerformat);
 			if (empty($timepickerformat)) {
 				$timepickerformat = 'H:i';
 			}
-			self::$calendarOptions[$formId][$customId]['timepickerformat'] = self::processDateFormat($timepickerformat);
+			$this->calendarOptions[$formId][$customId]['timepickerformat'] = $this->processDateFormat($timepickerformat);
 		}
 		
 		$extras = array();
@@ -148,12 +160,12 @@ class RSFormProJQueryCalendar
 			$extras['rule'] = $rule.'|'.$otherCalendarData['NAME'];
 		}
 
-		$extras = self::parseJSProperties($extras);
+		$extras = $this->parseJSProperties($extras);
 
-		self::$calendarOptions[$formId][$customId]['extra'] = $extras;
+		$this->calendarOptions[$formId][$customId]['extra'] = $extras;
 	}
 
-	protected static function parseJSProperties($extras) {
+	protected function parseJSProperties($extras) {
 		$properties = array();
 		if (count($extras)) {
 			foreach ($extras as $key => $value) {
@@ -164,7 +176,26 @@ class RSFormProJQueryCalendar
 		return $properties;
 	}
 	
-	public static function getCalendarOptions() {
-		return self::$calendarOptions;
+	public function getCalendarOptions() {
+		return $this->calendarOptions;
+	}
+	
+	public function getPosition($formId, $componentId)
+	{
+		static $calendars = array();
+
+		if (!isset($calendars[$formId]))
+		{
+			$calendars[$formId] = RSFormProHelper::componentExists($formId, RSFORM_FIELD_JQUERY_CALENDAR);
+		}
+
+		$position = (int) array_search($componentId, $calendars[$formId]);
+
+		return $position;
+	}
+
+	public function printInlineScript($formId)
+	{
+		return "RSFormPro.callbacks.addCallback({$formId}, 'changePage', [RSFormPro.jQueryCalendar.hideAllPopupCalendars, {$formId}]);";
 	}
 }

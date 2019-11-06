@@ -165,6 +165,14 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_events` (
   `rsvp_going` tinyint(2) NOT NULL DEFAULT '0',
   `rsvp_interested` tinyint(2) NOT NULL DEFAULT '0',
   `rsvp_notgoing` tinyint(2) NOT NULL DEFAULT '0',
+  `event_ended` text NOT NULL,
+  `event_full` text NOT NULL,
+  `rsm_enable` tinyint(2) NOT NULL DEFAULT '0',
+  `rsm_when` tinyint(2) NOT NULL DEFAULT '0',
+  `rsm_lists` varchar(255) NOT NULL DEFAULT '',
+  `waitinglist` tinyint(2) NOT NULL DEFAULT '0',
+  `waitinglist_limit` int(11) NOT NULL DEFAULT '0',
+  `waitinglist_time` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `location` (`location`),
   KEY `owner` (`owner`),
@@ -253,6 +261,15 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_reports` (
   PRIMARY KEY (`id`), 
   INDEX (`ide`, `idu`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `#__rseventspro_rsmail` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ids` int(11) NOT NULL DEFAULT '0',
+  `idl` int(11) NOT NULL DEFAULT '0',
+   PRIMARY KEY (`id`),
+   KEY `ids` (`ids`),
+   KEY `idl` (`idl`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_rsvp_users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -413,6 +430,23 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_user_seats` (
   INDEX (`ids`, `idt`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `#__rseventspro_waitinglist` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ide` int(11) NOT NULL DEFAULT '0',
+  `ids` int(11) NOT NULL DEFAULT '0',
+  `name` varchar(255) NOT NULL DEFAULT '',
+  `email` varchar(255) NOT NULL DEFAULT '',
+  `date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `hash` varchar(32) NOT NULL DEFAULT '',
+  `sent` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `confirmed` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `used` tinyint(2) NOT NULL DEFAULT '0',
+  `itemid` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `ide` (`ide`),
+  KEY `ids` (`ids`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES(1, 'en-GB', 'registration', 1, 1, 0, 'Registration to {EventName}', '<p>Hello {user},</p>\r\n<p>You have been subscribed to {EventName} that will start on {EventStartDate}.</p>');
 INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES(2, 'en-GB', 'activation', 1, 1, 0, 'Activation email for {EventName}', '<p>Hello {user},</p>\r\n<p>Your request for participation to {EventName} has been approved.</p>');
@@ -429,6 +463,7 @@ INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mod
 INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES('', 'en-GB', 'rsvpgoing', 1, 1, 0, 'Going to {EventName}', '<p>Hello {user},</p>\r\n<p>Thank you for your participation to <strong>{EventName}</strong> that will start on {EventStartDate}.</p>');
 INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES('', 'en-GB', 'rsvpinterested', 1, 1, 0, 'Interested in going to {EventName}', '<p>Hello {user},</p>\r\n<p>Thank you for your interest in the <strong>{EventName}</strong> event. We hope to see you at this event.</p>\r\n<p>A quick reminder: this event starts on {EventStartDate} and ends on {EventEndDate}.</p>');
 INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES('', 'en-GB', 'rsvpnotgoing', 1, 1, 0, 'Not going to {EventName}', '<p>Hello {user},</p>\r\n<p>We are sorry to see that you cannot come to the <strong>{EventName}</strong> event. Hope you will change your mind.</p>');
+INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES('', 'en-GB', 'waitinglist', 1, 1, 0, 'Claim your ticket to {EventName}', '<p>Congratulations {user}!</p>\r\n<p>A spot has opened up for you at {EventName}. In order to register please click <a href=\"{claim}\">here</a>. Please note that you can claim your ticket before {claimdate}.</p>');
 
 
 INSERT IGNORE INTO `#__rseventspro_locations` (`id`, `name`, `url`, `address`, `description`, `coordinates`, `gallery_tags`, `ordering`, `published`) VALUES(1, 'RSEvents!Pro Location', 'http://www.rsjoomla.com', 'Colorado, USA', '<p>This is the location description.</p>', '39.5500507,-105.7820674', '', 0, 1);
@@ -572,6 +607,8 @@ INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('openstreet
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('openstreet_esri_tile_type', 'World_Street_Map');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('openstreet_stamen_tile_type', 'terrain');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('mysubscriptions', '1');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('consent', '1');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('show_og', '1');
 
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Afghanistan');
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Akrotiri');

@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class QueueController extends acymController
 {
@@ -46,6 +47,8 @@ class QueueController extends acymController
             ]
         );
 
+        $campaignClass = acym_get('class.campaign');
+
         $pagination = acym_get('helper.pagination');
         $pagination->setStatus($matchingElements['total'], $page, $campaignsPerPage);
 
@@ -57,6 +60,7 @@ class QueueController extends acymController
             'tags' => acym_get('class.tag')->getAllTagsByType('mail'),
             'numberPerStatus' => $matchingElements['status'],
             'status' => $status,
+            'campaignClass' => $campaignClass,
         ];
 
         $this->breadcrumb[acym_translation('ACYM_CAMPAIGNS')] = acym_completeLink('queue');
@@ -166,7 +170,7 @@ class QueueController extends acymController
                 $result[] = acym_query('DELETE FROM #__acym_mail_stat WHERE mail_id = '.intval($mailId));
             }
         } else {
-            acym_enqueueMessage(acym_translation("ACYM_ERROR_QUEUE_CANCEL_CAMPAIGN"), "error");
+            acym_enqueueMessage(acym_translation('ACYM_ERROR_QUEUE_CANCEL_CAMPAIGN'), "error");
         }
         $this->campaigns();
     }
@@ -181,9 +185,9 @@ class QueueController extends acymController
             $queueClass->unpauseCampaign($campaignId, $active);
         } else {
             if (!empty($active)) {
-                acym_enqueueMessage(acym_translation("ACYM_ERROR_QUEUE_RESUME"), "error");
+                acym_enqueueMessage(acym_translation('ACYM_ERROR_QUEUE_RESUME'), "error");
             } else {
-                acym_enqueueMessage(acym_translation("ACYM_ERROR_QUEUE_PAUSE"), "error");
+                acym_enqueueMessage(acym_translation('ACYM_ERROR_QUEUE_PAUSE'), "error");
             }
         }
 

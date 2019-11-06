@@ -106,6 +106,14 @@ class RseventsproTableSubscription extends JTable
 		$db->setQuery($query);
 		$db->execute();
 		
+		// Remove rsmail data
+		$query->clear()
+			->delete($db->qn('#__rseventspro_rsmail'))
+			->where($db->qn('ids').' = '.(int) $pk);
+		
+		$db->setQuery($query);
+		$db->execute();
+		
 		$query->clear()
 			->select($db->qn('e.id'))->select($db->qn('e.sync'))->select($db->qn('u.SubmissionId'))
 			->from($db->qn('#__rseventspro_users','u'))

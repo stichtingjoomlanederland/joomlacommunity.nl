@@ -63,7 +63,7 @@ defined('_JEXEC') or die('Restricted access');
 			<?php } ?>
 
 			<?php if ($this->config->get('layout_enablefilter_unread') && ED::isLoggedIn()) { ?>
-			<li class="o-tabs__item <?php echo $activeFilter == 'unread' ? ' active' : '';?>"
+			<li class="o-tabs__item t-xs-hidden <?php echo $activeFilter == 'unread' ? ' active' : '';?>"
 				data-filter-tab
 				data-filter-type="unread"
 				data-filter-catid="<?php echo $menuCatId; ?>"

@@ -20,7 +20,7 @@ $open = !$links ? 'target="_blank"' : ''; ?>
 		<?php if (isset($details['event']) && !empty($details['event'])) $event = $details['event']; else continue; ?>
 		<li class="clearfix span<?php echo 12 / $columns; ?>">
 			<div class="rsepro-image">
-				<img src="<?php echo $image; ?>" alt="" width="70" />
+				<img src="<?php echo $image; ?>" alt="<?php echo $event->name; ?>" width="70" />
 			</div>
 			
 			<a <?php echo $open; ?> href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),true,$itemid); ?>"><?php echo $event->name; ?></a> 

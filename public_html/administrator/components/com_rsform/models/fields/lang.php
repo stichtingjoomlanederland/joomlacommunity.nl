@@ -9,6 +9,8 @@ defined('_JEXEC') or die('Restricted access');
 
 JFormHelper::loadFieldClass('list');
 
+use Joomla\CMS\Language\LanguageHelper;
+
 class JFormFieldLang extends JFormFieldList
 {
 	protected $type = 'Lang';
@@ -18,13 +20,19 @@ class JFormFieldLang extends JFormFieldList
 		// Initialize variables.
 		$options = array();
 
-		$lang = JFactory::getLanguage();
-		$lang->load('com_rsform');
-		$languages = $lang->getKnownLanguages(JPATH_SITE);
+		$languages = LanguageHelper::getKnownLanguages();
 
-		$options[] = JHtml::_('select.option', '', JText::_('RSFP_SUBMISSIONS_ALL_LANGUAGES'));
+		if (empty($this->element['nodefault']))
+		{
+			JFactory::getLanguage()->load('com_rsform');
+
+			$options[] = JHtml::_('select.option', '', JText::_('RSFP_SUBMISSIONS_ALL_LANGUAGES'));
+		}
+
 		foreach ($languages as $language => $properties)
+		{
 			$options[] = JHtml::_('select.option', $language, $properties['name']);
+		}
 
 		reset($options);
 		

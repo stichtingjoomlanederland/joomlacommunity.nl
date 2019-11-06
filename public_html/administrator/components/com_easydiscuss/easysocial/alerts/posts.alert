@@ -78,5 +78,15 @@
 			"email" : false,
 			"system" : true
 		}
+	},
+	{
+		"extension" : "com_easydiscuss",
+		"element" : "discuss",
+		"rule" : "moderate",
+		"value" :
+		{
+			"email" : -1,
+			"system" : true
+		}
 	}
 ]

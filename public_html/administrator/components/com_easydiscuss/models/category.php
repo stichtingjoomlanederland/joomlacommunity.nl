@@ -333,6 +333,10 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 
 			if ($children) {
 				$query = "select count(1) from `#__discuss_thread` as a";
+
+				// exclude blocked users posts
+				$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+
 				$query .= " where a.`published` = " . $db->Quote('1');
 
 				// Check for private post
@@ -342,6 +346,8 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 
 				$query .= " and a.`cluster_id` = " . $db->Quote(0);
 				$query .= " and a.`category_id` in (" . implode(',', $children) . ")";
+
+				$query .= " and (uu.`block` = 0 OR uu.`id` IS NULL)";
 
 				$db->setQuery($query);
 				$_cache[$categoryId] = $db->loadResult();

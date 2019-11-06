@@ -183,14 +183,7 @@ class EasyDiscussViewAsk extends EasyDiscussView
 		$operation = $post->isNew() ? 'creating' : 'editing';
 
 		// Determine how the content should be formatted in editing layout.
-		if ($operation == 'editing') {
-			if ($this->config->get('layout_editor') == 'bbcode') {
-				$post->content = ED::parser()->html2bbcode($post->content);
-			} else if ($this->config->get('layout_editor') != 'bbcode' && $post->content_type == 'bbcode') {
-				$post->content = ED::parser()->bbcode($post->content);
-				$post->content = nl2br($post->content);
-			}
-		}
+		$post->formatEditContent($operation);
 
 		$composer = ED::composer($operation, $post);
 

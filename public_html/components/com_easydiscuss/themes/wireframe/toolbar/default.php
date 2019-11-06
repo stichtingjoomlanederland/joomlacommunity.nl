@@ -281,7 +281,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 									<div class="o-media o-media--rev">
 										<div class="o-media__body o-media__body--text-overflow">
 
-											<a class="ed-user-name" href="<?php echo $this->profile->getPermalink();?>"><?php echo $this->profile->getName();?></a>
+											<?php echo $this->html('user.username', $this->profile, array()); ?>
 											<div class="ed-toolbar-profile-meta">
 												<div class="ed-toolbar-profile-meta__item">
 													<span>

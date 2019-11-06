@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><div id="acym__users__import__from_database" class="grid-x padding-vertical-2 padding-horizontal-2">
+?>
+<div id="acym__users__import__from_database" class="grid-x padding-vertical-2 padding-horizontal-2">
 	<div class="cell large-3"></div>
     <?php
     $userFields = acym_getColumns('user');
@@ -32,7 +33,7 @@ defined('_JEXEC') or die('Restricted access');
         }
         if ($config->get('require_confirmation')) { ?>
 			<div class="cell grid-x">
-                <?php echo acym_switch('import_confirmed_database', 1, acym_translation("ACYM_IMPORT_USERS_AS_CONFIRMED")); ?>
+                <?php echo acym_switch('import_confirmed_database', 1, acym_translation('ACYM_IMPORT_USERS_AS_CONFIRMED')); ?>
 			</div>
         <?php } ?>
 
@@ -44,3 +45,4 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
 	<div class="cell large-3"></div>
 </div>
+

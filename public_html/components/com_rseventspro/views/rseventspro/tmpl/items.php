@@ -20,4 +20,6 @@ else if ($this->tmpl == 'search')
 	echo $this->loadTemplate('search');
 else if ($this->tmpl == 'rsvp')
 	echo $this->loadTemplate('rsvp');
+else if ($this->tmpl == 'waitinglist')
+	echo $this->loadTemplate('waitinglist');
 echo 'RS_DELIMITER1';

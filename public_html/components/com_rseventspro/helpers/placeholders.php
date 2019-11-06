@@ -281,4 +281,14 @@ class RSEventsProPlaceholders {
 		
 		return array_merge(self::$globals, $rsvpnotgoing);
 	}
+	
+	public static function waitinglist() {
+		$waitinglist = array(
+			'{user}'			=> 'COM_RSEVENTSPRO_PLACEHOLDER_USER',
+			'{claim}'			=> 'COM_RSEVENTSPRO_PLACEHOLDER_CLAIM',
+			'{claimdate}'		=> 'COM_RSEVENTSPRO_PLACEHOLDER_CLAIM_DATE'
+		);
+		
+		return array_merge(self::$globals, $waitinglist);
+	}
 }

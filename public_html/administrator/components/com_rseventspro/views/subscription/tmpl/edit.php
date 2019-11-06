@@ -215,6 +215,6 @@ JHtml::_('behavior.keepalive'); ?>
 	<?php echo JHTML::_('behavior.keepalive'); ?>
 </form>
 
-<?php if ($event->ticketsconfig && rseventsproHelper::hasSeats($this->item->id)) echo JHtml::_('bootstrap.renderModal', 'rseModal', array('title' => '&nbsp;', 'url' => JRoute::_('index.php?option=com_rseventspro&view=subscription&layout=seats&tmpl=component&id='.$this->item->id, false), 'bodyHeight' => 70, 'width' => rseventsproHelper::getConfig('seats_width','int','1280'), 'height' => rseventsproHelper::getConfig('seats_height','int','800'))); ?>
+<?php if (isset($event) && $event->ticketsconfig && rseventsproHelper::hasSeats($this->item->id)) echo JHtml::_('bootstrap.renderModal', 'rseModal', array('title' => '&nbsp;', 'url' => JRoute::_('index.php?option=com_rseventspro&view=subscription&layout=seats&tmpl=component&id='.$this->item->id, false), 'bodyHeight' => 70, 'width' => rseventsproHelper::getConfig('seats_width','int','1280'), 'height' => rseventsproHelper::getConfig('seats_height','int','800'))); ?>
 
 <?php echo JHtml::_('bootstrap.renderModal', 'rseTicketModal', array('title' => '&nbsp;', 'url' => '#', 'bodyHeight' => 70)); ?>

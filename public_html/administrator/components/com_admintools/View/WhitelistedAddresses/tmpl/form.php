@@ -18,6 +18,7 @@ defined('_JEXEC') or die;
 		<li><?php echo JText::_('COM_ADMINTOOLS_LBL_WHITELISTEDADDRESS_IP_OPT3') ?></li>
 		<li><?php echo JText::_('COM_ADMINTOOLS_LBL_WHITELISTEDADDRESS_IP_OPT4') ?></li>
 		<li><?php echo JText::_('COM_ADMINTOOLS_LBL_WHITELISTEDADDRESS_IP_OPT5') ?></li>
+		<li><?php echo JText::_('COM_ADMINTOOLS_LBL_WHITELISTEDADDRESS_IP_OPT6') ?></li>
 	</ol>
 
 	<p>

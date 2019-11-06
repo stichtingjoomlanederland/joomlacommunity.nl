@@ -1,25 +1,27 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class plgAcymOnline extends acymPlugin
 {
+    public function __construct()
+    {
+        parent::__construct();
+        $this->pluginDescription->name = acym_translation('ACYM_WEBSITE_LINKS');
+    }
+
     public function dynamicText()
     {
-        $onePlugin = new stdClass();
-        $onePlugin->name = acym_translation('ACYM_WEBSITE_LINKS');
-        $onePlugin->plugin = __CLASS__;
-        $onePlugin->help = 'plugin-online';
-
-        return $onePlugin;
+        return $this->pluginDescription;
     }
 
     public function textPopup()
@@ -93,9 +95,8 @@ class plgAcymOnline extends acymPlugin
 
         foreach ($results as $var => $allresults) {
             foreach ($allresults[0] as $i => $oneTag) {
-                if (isset($tags[$oneTag])) {
-                    continue;
-                }
+                if (isset($tags[$oneTag])) continue;
+
                 $arguments = explode('|', strip_tags(str_replace('%7C', '|', $allresults[2][$i])));
                 $tag = new stdClass();
                 $tag->type = $allresults[1][$i];
@@ -128,7 +129,7 @@ class plgAcymOnline extends acymPlugin
             }
         }
 
-        $this->acympluginHelper->replaceTags($email, $tags);
+        $this->pluginHelper->replaceTags($email, $tags);
     }
 }
 

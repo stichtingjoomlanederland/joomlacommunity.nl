@@ -439,6 +439,47 @@ class EasyDiscussMailer extends EasyDiscuss
 	}
 
 	/**
+	 * Determine which Joomla 3.x or 2.5 version should get the administrator from
+	 *
+	 * @since	4.1.12
+	 * @access	public
+	 */
+	private static function getAdministrators()
+	{
+		$db = ED::db();
+		$admins = array();
+
+		$joomlaVersion = ED::getJoomlaVersion();
+		$saUsersIds	= ED::getSAUsersIds();
+
+		if ($joomlaVersion >= '1.6' && $saUsersIds) {
+
+			$query = 'SELECT `email` FROM `#__users`';
+			$query .= ' WHERE id IN (' . implode(',', $saUsersIds) . ')';
+			$query .= ' AND `sendEmail` = ' . $db->Quote('1');
+
+			$db->setQuery($query);
+			$admins = $db->loadResultArray();
+
+			return $admins;
+		}
+
+		if ($joomlaVersion <= '1.5') {
+
+			$query = 'SELECT `email` FROM `#__users`';
+			$query .= ' WHERE LOWER( `usertype` ) = ' . $db->Quote('super administrator');
+			$query .= ' AND `sendEmail` = ' . $db->Quote('1');
+
+			$db->setQuery($query);
+			$admins = $db->loadResultArray();
+
+			return $admins;			
+		}
+
+		return $admins;		
+	}
+
+	/**
 	 * Includes admins, custom admins, moderators, custom moderators
 	 * unique these emails
 	 */
@@ -454,20 +495,7 @@ class EasyDiscussMailer extends EasyDiscuss
 
 		if ($notifyAdmins) {
 
-			$query	= 'SELECT `email` FROM `#__users`';
-
-			if (ED::getJoomlaVersion() >= '1.6') {
-
-				$saUsersIds	= ED::getSAUsersIds();
-				$query	.= ' WHERE id IN (' . implode(',', $saUsersIds) . ')';
-			} else {
-				$query	.= ' WHERE LOWER( `usertype` ) = ' . $db->Quote('super administrator');
-			}
-
-			$query	.= ' AND `sendEmail` = ' . $db->Quote('1');
-			$db->setQuery($query);
-
-			$admins = $db->loadResultArray();
+			$admins = self::getAdministrators();
 
 			$siteCustomMods = $config->get('notify_custom');
 
@@ -718,15 +746,8 @@ class EasyDiscussMailer extends EasyDiscuss
 
 		$type = $config->get('notify_html_format') ? 'html' : 'text';
 
-		$defaultJoomlaTemplate = ED::getCurrentTemplate();
-
 		// Set the logo for the generic email template
-		$override = JPATH_ROOT . '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/emails/logo.png';
-		$logo = rtrim( JURI::root() , '/' ) . '/components/com_easydiscuss/themes/wireframe/images/emails/logo.png';
-
-		if (JFile::exists($override)) {
-			$logo 	= rtrim( JURI::root() , '/' ) . '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/emails/logo.png';
-		}
+		$logo = ED::getLogo();
 
 		$template = $data['emailTemplate'];
 		$replyBreaker = false;

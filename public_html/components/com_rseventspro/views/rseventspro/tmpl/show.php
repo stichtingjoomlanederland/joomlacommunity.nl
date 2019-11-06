@@ -21,6 +21,7 @@ $links		= rseventsproHelper::getConfig('modal','int');
 $tmpl		= $links == 0 ? '' : '&tmpl=component';
 
 $subscribeURL	= $links == 2 ? 'javascript:void(0);' : rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe&id='.rseventsproHelper::sef($event->id,$event->name).$tmpl);
+$waitinglistURL	= $links == 2 ? 'javascript:void(0);' : rseventsproHelper::route('index.php?option=com_rseventspro&layout=waiting&id='.rseventsproHelper::sef($event->id,$event->name).$tmpl);
 $inviteURL		= $links == 2 ? 'javascript:void(0);' : rseventsproHelper::route('index.php?option=com_rseventspro&layout=invite&id='.rseventsproHelper::sef($event->id,$event->name).$tmpl);
 $messageURL		= $links == 2 ? 'javascript:void(0);' : rseventsproHelper::route('index.php?option=com_rseventspro&layout=message&id='.rseventsproHelper::sef($event->id,$event->name).$tmpl);
 $unsubscribeURL	= $links == 0 || $links == 2 ? 'javascript:void(0);' : rseventsproHelper::route('index.php?option=com_rseventspro&layout=unsubscribe&id='.rseventsproHelper::sef($event->id,$event->name).'&tmpl=component');
@@ -100,9 +101,16 @@ rseventsproMapHelper::loadMap($mapParams);
 					</a>
 				</li>
 				<?php } ?>
+				<?php if (rseventsproHelper::hasWaitingList($event->id)) { ?>
 				<li>
 					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribers&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
 						<i class="fa fa-users fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_SUBSCRIBERS'); ?>
+					</a>
+				</li>
+				<?php } ?>
+				<li>
+					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=waitinglist&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
+						<i class="fa fa-users fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_WAITINGLIST'); ?>
 					</a>
 				</li>
 				<li>
@@ -159,11 +167,20 @@ rseventsproMapHelper::loadMap($mapParams);
 		<?php } ?>
 
 	<!-- Invite/Join/Unsubscribe -->	
-		<?php if ($this->cansubscribe['status']) { ?>
+		<?php if ($this->cansubscribe['status'] || rseventsproHelper::validWaitingList($event->id)) { ?>
 		<a href="<?php echo $subscribeURL; ?>" class="btn" rel="rs_subscribe"<?php if ($links == 2) echo ' onclick="jQuery(\'#rseSubscribeModal\').modal(\'show\');"'; ?>>
 			<i class="fa fa-check fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_JOIN'); ?>
 		</a>
-		<?php } ?>	
+		<?php } ?>
+		
+		<?php $fullEvent = rseventsproHelper::eventisfull($this->event->id, false); ?>
+		<?php $fullEvent = $this->event->overbooking ? $fullEvent && !$this->cansubscribe['status'] : $fullEvent; ?>
+		<?php if ($fullEvent && !$this->eventended && rseventsproHelper::hasWaitingList($event->id)) { ?>
+		<a href="<?php echo $waitinglistURL; ?>" class="btn" rel="rs_subscribe"<?php if ($links == 2) echo ' onclick="jQuery(\'#rseSubscribeModal\').modal(\'show\');"'; ?>>
+			<i class="fa fa-check fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_WAITING_LIST'); ?>
+		</a>
+		<?php } ?>
+		
 		<?php if (!$this->eventended) { ?>
 		<?php if ($this->issubscribed) { ?>
 		<?php if ($this->canunsubscribe) { ?>

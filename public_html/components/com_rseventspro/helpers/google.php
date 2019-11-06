@@ -26,18 +26,111 @@ class RSEPROGoogle
 	protected $log = array();
 	
 	/*
-	*	Constructor
+	*	Google client
 	*/
+	protected $client;
 	
-	public function __construct() {
+	/* 
+	*	Stores the access token
+	*/
+	protected $access_token;
+	
+	public function __construct($token = true) {
 		date_default_timezone_set('UTC');
 		$this->_clientID = rseventsproHelper::getConfig('google_client_id');
 		$this->_secret	 = rseventsproHelper::getConfig('google_secret');
+		$this->client	 = new Google_Client();
+		
+		if ($token) {
+			$this->access_token = $this->getAccessToken();
+			
+			if ($this->access_token) {
+				$this->client->setAccessToken($this->access_token);
+			}
+			
+			if ($this->isInvalidToken()) {
+				$this->refreshToken();
+				$this->access_token = $this->getAccessToken();
+			}
+		}
 	}
 	
-	/*
-	*	Insert events in database
-	*/
+	public function getAuthURL() {
+		$this->client->setClientId($this->_clientID);
+		$this->client->setClientSecret($this->_secret);
+		$this->client->setRedirectUri(JUri::root().'administrator/index.php?option=com_rseventspro&task=settings.google');
+		$this->client->addScope('https://www.googleapis.com/auth/calendar');
+		$this->client->setAccessType('offline');
+		$this->client->setApprovalPrompt('force');
+		
+		return $this->client->createAuthUrl();
+	}
+	
+	public function saveToken() {
+		if (isset($_GET['code'])) {
+			$db		= JFactory::getDbo();
+			$query	= $db->getQuery(true);
+			
+			$this->client->setClientId($this->_clientID);
+			$this->client->setClientSecret($this->_secret);
+			$this->client->setRedirectUri(JUri::root().'administrator/index.php?option=com_rseventspro&task=settings.google');
+			$this->client->addScope('https://www.googleapis.com/auth/calendar');
+			$this->client->setAccessType('offline');
+			$this->client->authenticate($_GET['code']);
+			
+			$query->update($db->qn('#__rseventspro_config'))
+				->set($db->qn('value').' = '.$db->q($this->client->getAccessToken()))
+				->where($db->qn('name').' = '.$db->q('google_access_token'));
+			$db->setQuery($query);
+			$db->execute();
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public function getAccessToken() {
+		$db			= JFactory::getDbo();
+		$query		= $db->getQuery(true);
+		
+		$query->clear()->select($db->qn('value'))
+			->from($db->qn('#__rseventspro_config'))
+			->where($db->qn('name').' = '.$db->q('google_access_token'));
+		$db->setQuery($query);
+		return $db->loadResult();
+	}
+	
+	public function isInvalidToken() {
+		if ($this->access_token) {
+			$invalid = $this->client->isAccessTokenExpired();
+			return $invalid;
+		}
+		
+		return true;
+	}
+	
+	protected function refreshToken() {
+		$refreshToken = $this->client->getRefreshToken();
+		if (!is_null($refreshToken)) {
+			$this->client->setClientId($this->_clientID);
+			$this->client->setClientSecret($this->_secret);
+			$this->client->refreshToken($refreshToken);
+			
+			$newAccessToken = $this->client->getAccessToken();
+			
+			$db			= JFactory::getDbo();
+			$query		= $db->getQuery(true);
+			
+			$query->clear()
+				->update($db->qn('#__rseventspro_config'))
+				->set($db->qn('value').' = '.$db->q($newAccessToken))
+				->where($db->qn('name').' = '.$db->q('google_access_token'));
+			$db->setQuery($query);
+			$db->execute();
+			
+		}
+	}
 	
 	public function parse() {
 		$db		= JFactory::getDBO();
@@ -178,42 +271,34 @@ class RSEPROGoogle
 		return $i;
 	}
 	
-	/*
-	*	Get auth URL
-	*/
-	public function getAuthURL() {
-		$client = new Google_Client();
-		$client->setClientId($this->_clientID);
-		$client->setClientSecret($this->_secret);
-		$client->setRedirectUri(JUri::root().'administrator/index.php?option=com_rseventspro&task=settings.google');
-		$client->addScope('https://www.googleapis.com/auth/calendar');
+	public function getCalendars() {
+		$return	= array();
 		
-		return $client->createAuthUrl();
-	}
-	
-	/*
-	*	Save access token
-	*/
-	
-	public function saveToken() {
-		if (isset($_GET['code'])) {
-			$db		= JFactory::getDbo();
-			$query	= $db->getQuery(true);
-			$client = new Google_Client();
+		$this->client->setClientId($this->_clientID);
+		$this->client->setClientSecret($this->_secret);
+		$this->client->setRedirectUri(JUri::root().'administrator/index.php?option=com_rseventspro&task=settings.google');
+		$this->client->addScope('https://www.googleapis.com/auth/calendar');
+		
+		$service = new Google_Service_Calendar($this->client);
+		
+		if ($this->client->getAccessToken()) {
+			$calendarList = $service->calendarList->listCalendarList();
 			
-			$client->setClientId($this->_clientID);
-			$client->setClientSecret($this->_secret);
-			$client->setRedirectUri(JUri::root().'administrator/index.php?option=com_rseventspro&task=settings.google');
-			$client->addScope('https://www.googleapis.com/auth/calendar');
-			$client->setAccessType('offline');
-			$client->authenticate($_GET['code']);
-			
-			$query->update($db->qn('#__rseventspro_config'))
-				->set($db->qn('value').' = '.$db->q($client->getAccessToken()))
-				->where($db->qn('name').' = '.$db->q('google_access_token'));
-			$db->setQuery($query);
-			$db->execute();
+			while(true) {
+				foreach ($calendarList->getItems() as $calendarListEntry) {
+					$return[$calendarListEntry->id] = $calendarListEntry->getSummary();
+				}
+				
+				if ($pageToken = $calendarList->getNextPageToken()) {
+					$optParams = array('pageToken' => $pageToken);
+					$calendarList = $service->calendarList->listCalendarList($optParams);
+				} else {
+					break;
+				}
+			}
 		}
+		
+		return $return;
 	}
 	
 	/*
@@ -221,27 +306,17 @@ class RSEPROGoogle
 	*/
 	
 	protected function getEvents() {
-		$db			= JFactory::getDbo();
-		$query		= $db->getQuery(true);
 		$eventList	= array();
 		$return		= array();
 		
-		$query->select($db->qn('value'))
-			->from($db->qn('#__rseventspro_config'))
-			->where($db->qn('name').' = '.$db->q('google_access_token'));
-		$db->setQuery($query);
-		$access_token = $db->loadResult();
-		
-		$client = new Google_Client();
-		$client->setClientId($this->_clientID);
-		$client->setClientSecret($this->_secret);
-		$client->setRedirectUri(JUri::root().'administrator/index.php?option=com_rseventspro&task=settings.google');
-		$client->addScope('https://www.googleapis.com/auth/calendar');
-		$client->setAccessToken($access_token);
+		$this->client->setClientId($this->_clientID);
+		$this->client->setClientSecret($this->_secret);
+		$this->client->setRedirectUri(JUri::root().'administrator/index.php?option=com_rseventspro&task=settings.google');
+		$this->client->addScope('https://www.googleapis.com/auth/calendar');
 			
-		$service = new Google_Service_Calendar($client);
+		$service = new Google_Service_Calendar($this->client);
 		
-		if ($client->getAccessToken()) {
+		if ($this->client->getAccessToken()) {
 			$calendarIDs = array();
 			$calendarList = $service->calendarList->listCalendarList();
 
@@ -255,6 +330,18 @@ class RSEPROGoogle
 					$calendarList = $service->calendarList->listCalendarList($optParams);
 				} else {
 					break;
+				}
+			}
+			
+			// Get Google Calendar IDs
+			$gcIDs = rseventsproHelper::getConfig('google_calendars', 'string', '');
+			if ($gcIDs) {
+				$gcIDs = explode(',',$gcIDs);
+				
+				foreach ($calendarIDs as $id => $name) {
+					if (!in_array($id,$gcIDs)) {
+						unset($calendarIDs[$id]);
+					}
 				}
 			}
 			
@@ -546,6 +633,7 @@ class RSEPROGoogleCalendarRecurrence {
 			$nextWeekMondayDate->modify('+'.$mondayDiff.' days');
 			$nextWeekMondayDate = $nextWeekMondayDate->format('Y-m-d H:i:s');
 			$countInterval++;
+			$countEvents++;
 			
 			return array_merge($dates, $this->buildDatesWeekCount($nextWeekMondayDate, $countInterval, $countEvents));
 		} else {

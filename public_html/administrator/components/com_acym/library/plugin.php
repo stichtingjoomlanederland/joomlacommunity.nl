@@ -1,18 +1,19 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
-class acymPlugin
+class acymPlugin extends acymObject
 {
-    var $acympluginHelper;
+    var $pluginHelper;
     var $cms = 'all';
     var $name = '';
 
@@ -33,18 +34,32 @@ class acymPlugin
     var $elementIdTable = '';
     var $elementIdColumn = '';
 
+    var $pluginDescription;
+    var $generateCampaignResult;
+
     var $defaultValues;
 
     public function __construct()
     {
-        $this->acympluginHelper = acym_get('helper.plugin');
+        parent::__construct();
+
+        $this->pluginHelper = acym_get('helper.plugin');
         $this->pluginsPath = acym_getPluginsPath(__FILE__, __DIR__);
         $this->pageInfo = new stdClass();
+
+        $this->pluginDescription = new stdClass();
+        $this->pluginDescription->plugin = get_class($this);
+
+        $this->name = strtolower(substr($this->pluginDescription->plugin, 7));
+
+        $this->generateCampaignResult = new stdClass();
+        $this->generateCampaignResult->status = true;
+        $this->generateCampaignResult->message = '';
     }
 
     protected function displaySelectionZone($zoneContent)
     {
-        $output = '<p class="acym__wysid__right__toolbar__p acym__wysid__right__toolbar__p__open">'.acym_translation('ACYM_CONTENT_TO_INSERT').'<i class="acymicon-expand_more"></i></p>';
+        $output = '<p class="acym__wysid__right__toolbar__p acym__wysid__right__toolbar__p__open">'.acym_translation('ACYM_CONTENT_TO_INSERT').'<i class="acymicon-keyboard_arrow_up"></i></p>';
         $output .= '<div class="acym__wysid__right__toolbar__design--show acym__wysid__right__toolbar__design acym__wysid__context__modal__container">';
         $output .= $zoneContent;
         $output .= '</div>';
@@ -219,11 +234,54 @@ class acymPlugin
         return $listing;
     }
 
-    protected function finalizeCategoryFormat($name, $elements, $parameter)
+    protected function replaceMultiple(&$email)
     {
+        $this->generateByCategory($email);
+        if (empty($this->tags)) return;
+        $this->pluginHelper->replaceTags($email, $this->tags, true);
+    }
+
+    protected function handleOrderBy(&$query, $parameter, $table = null)
+    {
+        if (empty($parameter->order)) return;
+
+        $ordering = explode(',', $parameter->order);
+        if ($ordering[0] == 'rand') {
+            $query .= ' ORDER BY rand()';
+        } else {
+            $table = null === $table ? '' : $table.'.';
+            $query .= ' ORDER BY '.$table.'`'.acym_secureDBColumn(trim($ordering[0])).'` '.acym_secureDBColumn(trim($ordering[1]));
+        }
+    }
+
+    protected function handleMax(&$query, $parameter)
+    {
+        if (empty($parameter->max)) $parameter->max = 20;
+        $query .= ' LIMIT '.intval($parameter->max);
+    }
+
+    protected function getLastGenerated($mailId)
+    {
+        $campaignClass = acym_get('class.campaign');
+
+        return $campaignClass->getLastGenerated($mailId);
+    }
+
+    protected function finalizeCategoryFormat($query, $parameter, $table = null)
+    {
+        $this->handleOrderBy($query, $parameter, $table);
+        $this->handleMax($query, $parameter);
+
+        $elements = acym_loadResultArray($query);
+
+        if (!empty($parameter->min) && count($elements) < $parameter->min) {
+            $this->generateCampaignResult->status = false;
+            $this->generateCampaignResult->message = acym_translation_sprintf('ACYM_GENERATE_CAMPAIGN_NOT_ENOUGH_CONTENT', $this->pluginDescription->name, count($elements), $parameter->min);
+        }
+
         if (empty($elements)) return '';
 
-        $customLayout = ACYM_MEDIA.'plugins'.DS.$name.'_auto.php';
+        $customLayout = ACYM_CUSTOM_PLUGIN_LAYOUT.$this->name.'_auto.php';
         if (file_exists($customLayout)) {
             ob_start();
             require $customLayout;
@@ -235,7 +293,7 @@ class acymPlugin
         unset($parameter->id);
         foreach ($elements as $oneElementId) {
             $args = [];
-            $args[] = $name.':'.$oneElementId;
+            $args[] = $this->name.':'.$oneElementId;
             foreach ($parameter as $oneParam => $val) {
                 if (is_bool($val)) {
                     $args[] = $oneParam;
@@ -246,7 +304,7 @@ class acymPlugin
             $arrayElements[] = '{'.implode('|', $args).'}';
         }
 
-        return $this->acympluginHelper->getFormattedResult($arrayElements, $parameter);
+        return $this->pluginHelper->getFormattedResult($arrayElements, $parameter);
     }
 
     protected function getSelectedArea($parameter)
@@ -261,30 +319,69 @@ class acymPlugin
         return $selectedArea;
     }
 
-    public function _replaceOne(&$email)
+    protected function replaceOne(&$email)
     {
-        $tags = $this->acympluginHelper->extractTags($email, $this->name);
+        $tags = $this->pluginHelper->extractTags($email, $this->name);
         if (empty($tags)) return;
+
+        if (false === $this->loadLibraries($email)) return;
 
         $tagsReplaced = [];
         foreach ($tags as $i => $oneTag) {
             if (isset($tagsReplaced[$i])) continue;
-            $tagsReplaced[$i] = $this->_replaceContent($oneTag, $email);
+            $tagsReplaced[$i] = $this->replaceIndividualContent($oneTag, $email);
         }
 
-        $this->acympluginHelper->replaceTags($email, $tagsReplaced, true);
+        $this->pluginHelper->replaceTags($email, $tagsReplaced, true);
     }
 
-    protected function finalizeElementFormat($name, $result, $options, $data)
+    protected function loadLibraries($email)
     {
-        if (file_exists(ACYM_MEDIA.'plugins'.DS.$name.'.php')) {
+        return true;
+    }
+
+    protected function initIndividualContent(&$tag, $query)
+    {
+        $element = acym_loadObject($query);
+
+        if (empty($element)) {
+            if (acym_isAdmin()) {
+                acym_enqueueMessage(acym_translation_sprintf('ACYM_CONTENT_NOT_FOUND', $tag->id), 'notice');
+            }
+
+            return false;
+        }
+
+        if (empty($tag->display)) {
+            $tag->display = [];
+        } else {
+            $tag->display = explode(',', $tag->display);
+        }
+
+        return $element;
+    }
+
+    protected function getCustomLayoutVars($element)
+    {
+        $varFields = [];
+        $varFields['{picthtml}'] = '';
+        foreach ($element as $fieldName => $oneField) {
+            $varFields['{'.$fieldName.'}'] = $oneField;
+        }
+
+        return $varFields;
+    }
+
+    protected function finalizeElementFormat($result, $options, $data)
+    {
+        if (file_exists(ACYM_MEDIA.'plugins'.DS.$this->name.'.php')) {
             ob_start();
-            require(ACYM_MEDIA.'plugins'.DS.$name.'.php');
+            require(ACYM_MEDIA.'plugins'.DS.$this->name.'.php');
             $result = ob_get_clean();
             $result = str_replace(array_keys($data), $data, $result);
         }
 
-        return $this->acympluginHelper->managePicts($options, $result);
+        return $this->pluginHelper->managePicts($options, $result);
     }
 
     protected function filtersFromConditions(&$filters)

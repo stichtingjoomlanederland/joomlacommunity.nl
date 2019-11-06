@@ -100,9 +100,12 @@ class RseventsproModelEvent extends JModelAdmin
 				
 			if (empty($item->rsvp_start) || $item->rsvp_start == $db->getNullDate()) 
 				$item->rsvp_start = '';
-					
+			
 			if (empty($item->rsvp_end) || $item->rsvp_end == $db->getNullDate()) 
 				$item->rsvp_end = '';
+			
+			if (empty($item->waitinglist_limit)) 
+				$item->waitinglist_limit = '';
 				
 			if (empty($item->repeat_type)) 
 				$item->repeat_type = 1;
@@ -112,6 +115,18 @@ class RseventsproModelEvent extends JModelAdmin
 				
 			if (empty($item->owner)) 
 				$item->owner = JFactory::getUser()->get('id');
+			
+			$item->waitinglist_time = rseventsproHelper::secondsToTime($item->waitinglist_time);
+			
+			if (!empty($item->rsm_lists)) {
+				try {
+					$registry = new JRegistry;
+					$registry->loadString($item->rsm_lists);
+					$item->rsm_lists = $registry->toArray();
+				} catch (Exception $e) {
+					$item->rsm_lists = array();
+				}
+			}
 		}
 		
 		return $item;
@@ -1098,5 +1113,127 @@ class RseventsproModelEvent extends JModelAdmin
 			$db->setQuery($query);
 			$db->execute();
 		}
+	}
+	
+	public function subscribeUsers() {
+		if (!rseventsproHelper::isRsmail()) {
+			return;
+		}
+		
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		$app 	= JFactory::getApplication();
+		$id		= $app->input->getInt('id',0);
+		$lists 	= $app->input->get('lists', array(), 'array');
+		$status	= $app->input->get('status', array(), 'array');
+		
+		if ($lists) {
+			$query->select('DISTINCT '.$db->qn('u.email'))
+				->select($db->qn('u.id'))
+				->from($db->qn('#__rseventspro_users','u'))
+				->where($db->qn('u.ide').' = '.$id);
+			
+			if ($status) {
+				$status = array_map('intval', $status);
+				$query->where($db->qn('u.state').' IN ('.implode(',', $status).')');
+			}
+			
+			$app->triggerEvent('rsepro_subscriptionsQuery',array(array('query'=>&$query, 'rule' => 'u.ide')));
+			
+			$db->setQuery($query);
+			if ($subscribers = $db->loadObjectList()) {
+				require_once JPATH_SITE.'/components/com_rsmail/helpers/actions.php';
+				$rsmail = new rsmHelper;
+				
+				foreach ($subscribers as $subscriber) {
+					foreach ($lists as $listID) {
+						$query->clear()
+							->select($db->qn('id'))
+							->from($db->qn('#__rseventspro_rsmail'))
+							->where($db->qn('ids').' = '.$db->q($subscriber->id))
+							->where($db->qn('idl').' = '.$db->q($listID));
+						$db->setQuery($query);
+						if (!$db->loadResult()) {
+							$list = (object) array('id' => $listID);
+							if ($rsmail->subscribe($subscriber->email, $list, 1, 0)) {
+								$query->clear()
+									->insert($db->qn('#__rseventspro_rsmail'))
+									->set($db->qn('ids').' = '.$db->q($subscriber->id))
+									->set($db->qn('idl').' = '.$db->q($listID));
+								$db->setQuery($query);
+								$db->execute();
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	public function duplicateticket() {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		$app	= JFactory::getApplication();
+		$id		= $app->input->getInt('id', 0);
+		$cart	= false;
+		
+		$query->clear()
+			->select('*')
+			->from($db->qn('#__rseventspro_tickets'))
+			->where($db->qn('id').' = '.$db->q($id));
+		$db->setQuery($query);
+		$ticket = $db->loadObject();
+		
+		$ticket->id = 0;
+		$ticket->name = JText::sprintf('COM_RSEVENTSPRO_DUPLICATE_TICKET_NAME', $ticket->name);
+		
+		$query->clear()
+			->select('MAX('.$db->qn('order').')')
+			->from($db->qn('#__rseventspro_tickets'))
+			->where($db->qn('ide').' = '.$ticket->ide);
+		$db->setQuery($query);
+		$ticket->order = (int) $db->loadResult() + 1;
+		
+		// Save ticket
+		$db->insertObject('#__rseventspro_tickets', $ticket, 'id');
+		
+		$app->triggerEvent('rsepro_isCart',array(array('cart'=>&$cart)));
+		
+		if ($cart) {
+			$query->clear()
+				->select('*')
+				->from($db->qn('#__rseventspro_fields'))
+				->where($db->qn('idt').' = '.$db->q($id));
+			$db->setQuery($query);
+			if ($fields = $db->loadObjectList()) {
+				foreach ($fields as $field) {
+					$field->id = 0;
+					$field->idt = $ticket->id;
+					$db->insertObject('#__rseventspro_fields', $field);
+				}
+			}
+		}
+		
+		require_once JPATH_SITE.'/components/com_rseventspro/helpers/events.php';
+		
+		$eventClass = RSEvent::getInstance($ticket->ide);
+		
+		$app->input->set('format', 'raw');
+		
+		$view = new JViewLegacy(array(
+			'name' => 'event',
+			'layout' => 'edit',
+			'base_path' => JPATH_ADMINISTRATOR.'/components/com_rseventspro'
+		));
+		
+		$view->eventClass = $eventClass;
+		$view->tickets = $eventClass->getTickets($ticket->id);
+		
+		$response = new stdClass();
+		$response->id = $ticket->id;
+		$response->name = $ticket->name;
+		$response->html = $view->loadTemplate('tickets');
+		
+		return $response;
 	}
 }

@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><h2 class="acym__walkthrough__title cell"><?php echo acym_translation('ACYM_YOUR_FIRST_EMAIL'); ?></h2>
+?>
+<h2 class="acym__walkthrough__title cell"><?php echo acym_translation('ACYM_YOUR_FIRST_EMAIL'); ?></h2>
 <div class="cell grid-x margin-top-2">
 	<p class="cell text-center acym__walkthrough__text"><?php echo acym_translation('ACYM_WE_ARE_GOING_TO_CONFIGURE_ACY_SIMPLE_TEST'); ?></p>
 	<p class="cell text-center acym__walkthrough__text"><?php echo acym_translation('ACYM_HERE_IT_LOOKS_FEEL_FREE_TO_MODIFY'); ?></p>

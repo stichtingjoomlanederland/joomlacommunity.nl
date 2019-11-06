@@ -1141,6 +1141,52 @@ class rseventsproEmails
 		return rseventsproEmails::rsvpemail('rsvpnotgoing', $to, $ide);
 	}
 	
+	public static function waitinglist($to, $ide, $name, $hash, $claimDate, $lang = 'en-GB') {
+		$config		= rseventsproHelper::getConfig();
+		$email		= rseventsproEmails::email('waitinglist', null, null, $lang);
+		
+		if (empty($email))
+			return false;
+			
+		$from		= $config->email_from;
+		$fromName	= $config->email_fromname;
+		$mode		= $email->mode;
+		$replyto	= $config->email_replyto;
+		$replyname	= $config->email_replytoname;
+		$cc			= $config->email_cc;
+		$bcc		= $config->email_bcc;
+		$cc			= !empty($cc) ? $cc : null;
+		$bcc		= !empty($bcc) ? $bcc : null;
+		$subject	= $email->subject;
+		$body		= $email->message;
+		
+		$replacer	= array(
+			'from'		=> $from,
+			'fromName'	=> $fromName,
+			'replyto'	=> $replyto,
+			'replyname' => $replyname,
+			'cc'		=> $cc,
+			'bcc'		=> $bcc,
+			'subject'	=> $subject,
+			'body'		=> $body
+		);
+		
+		$claimURL	= JUri::getInstance()->toString(array('scheme','host')).JRoute::_('index.php?option=com_rseventspro&task=claim&hash='.$hash, false);
+		$claimURL	= str_replace('/administrator', '', $claimURL);
+		
+		$text				= rseventsproEmails::placeholders($replacer, $ide, $name);
+		$text['cc']			= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
+		$text['bcc']		= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text['replyto']	= isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
+		$text['replyname']	= isset($text['replyname']) && !empty($text['replyname']) ? explode(',',$text['replyname']) : null;
+		$text['body']		= str_replace(array('{claim}','{claimdate}'),array($claimURL,$claimDate),$text['body']);
+		
+		$mailer	= JFactory::getMailer();
+		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		
+		return true;
+	}
+	
 	/*
 	*	Get RSVP email
 	*/

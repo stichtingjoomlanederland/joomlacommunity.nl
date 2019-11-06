@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fields name="filter">
+		<field name="search" type="text" label="JSEARCH_FILTER" hint="JSEARCH_FILTER" />
+	</fields>
+
+	<fields name="list">
+		<field name="fullordering" type="list" onchange="this.form.submit();" default="date ASC">
+			<option value="">JGLOBAL_SORT_BY</option>
+			<option value="name ASC">COM_RSEVENTSPRO_WAITING_NAME_ASC</option>
+			<option value="name DESC">COM_RSEVENTSPRO_WAITING_NAME_DESC</option>
+			<option value="email ASC">COM_RSEVENTSPRO_WAITING_EMAIL_ASC</option>
+			<option value="email DESC">COM_RSEVENTSPRO_WAITING_EMAIL_DESC</option>
+			<option value="date ASC">COM_RSEVENTSPRO_WAITING_DATE_ASC</option>
+			<option value="date DESC">COM_RSEVENTSPRO_WAITING_DATE_DESC</option>
+			<option value="sent ASC">COM_RSEVENTSPRO_WAITING_SENT_ASC</option>
+			<option value="sent DESC">COM_RSEVENTSPRO_WAITING_SENT_DESC</option>
+			<option value="confirmed ASC">COM_RSEVENTSPRO_WAITING_CONFIRMED_ASC</option>
+			<option value="confirmed DESC">COM_RSEVENTSPRO_WAITING_CONFIRMED_DESC</option>
+			<option value="id ASC">JGRID_HEADING_ID_ASC</option>
+			<option value="id DESC">JGRID_HEADING_ID_DESC</option>
+		</field>
+		
+		<field name="limit" type="limitbox" default="25" class="input-mini" onchange="this.form.submit();" />
+	</fields>
+</form>

@@ -170,9 +170,19 @@ class EasyDiscussControllerCategory extends EasyDiscussController
 			return $this->app->redirect($validateRedirection);	
 		}
 
-		if (!JMailHelper::isEmailAddress($post['cat_notify_custom']) && !empty($post['cat_notify_custom'])) {
-			ED::setMessage(JText::_('COM_ED_UNABLE_TO_SAVE_CUSTOM_EMAIL'), 'error');
-			return $this->app->redirect($validateRedirection);	
+		if (!empty($post['cat_notify_custom'])) {
+
+			// We need to check each of the category moderator emails if it is valid
+			$customMods = array();
+			$customMods = explode(',', $post['cat_notify_custom']);
+
+			foreach ($customMods as $moderator) {
+
+				if (!JMailHelper::isEmailAddress($moderator)) {
+					ED::setMessage(JText::_('COM_ED_UNABLE_TO_SAVE_CUSTOM_EMAIL'), 'error');
+					return $this->app->redirect($validateRedirection);	
+				}
+			}
 		}
 		
 		// We need to ensure that the category is valid

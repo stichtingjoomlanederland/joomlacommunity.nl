@@ -1,22 +1,20 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
-class acymController
+class acymController extends acymObject
 {
     var $pkey = '';
     var $table = '';
-    var $groupMap = '';
-    var $groupVal = '';
-    var $aclCat = '';
     var $name = '';
     var $defaulttask = 'listing';
     var $breadcrumb = [];
@@ -24,8 +22,7 @@ class acymController
 
     public function __construct()
     {
-        global $acymCmsUserVars;
-        $this->cmsUserVars = $acymCmsUserVars;
+        parent::__construct();
 
         $classname = get_class($this);
         $ctrlpos = strpos($classname, 'Controller');
@@ -79,9 +76,9 @@ class acymController
         }
 
         if (in_array('vue-applications', $scripts)) {
-            acym_addScript(false, ACYM_JS.'libraries'.DS.'vuejs.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'vuejs.min.js'));
-            acym_addScript(false, ACYM_JS.'libraries'.DS.'vue-infinite-scroll.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'vue-infinite-scroll.min.js'));
-            acym_addScript(false, ACYM_JS.'vue'.DS.'vue.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'vue'.DS.'vue.min.js'));
+            acym_addScript(false, ACYM_JS.'libraries/vuejs.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'vuejs.min.js'));
+            acym_addScript(false, ACYM_JS.'libraries/vue-infinite-scroll.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'vue-infinite-scroll.min.js'));
+            acym_addScript(false, ACYM_JS.'vue/vue.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'vue'.DS.'vue.min.js'));
         }
     }
 
@@ -219,6 +216,20 @@ class acymController
         }
 
         $this->listing();
+    }
+
+    protected function getMatchingElementsFromData($requestData, $className, &$status)
+    {
+        $elementClass = acym_get('class.'.$className);
+        $matchingElement = $elementClass->getMatchingElements($requestData);
+
+        if (empty($matchingElement['elements']) && !empty($status) && empty($requestData['search']) && empty($requestData['tag'])) {
+            $status = '';
+            $requestData['status'] = $status;
+            $matchingElement = $elementClass->getMatchingElements($requestData);
+        }
+
+        return $matchingElement;
     }
 }
 

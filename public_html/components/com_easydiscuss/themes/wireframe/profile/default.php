@@ -22,7 +22,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 						</div>
 
 						<div class="o-flag__body">
-							<a href="<?php echo $profile->getPermalink();?>" class="ed-user-name t-lg-mb--sm"><?php echo $profile->getName(); ?></a>
+							<?php echo $this->html('user.username', $profile, array('lgMarginBottom' => true)); ?>
 							
 							<?php if( $this->config->get('main_ranking')){ ?>
 							<div class="ed-rank-bar t-lg-mb--sm">

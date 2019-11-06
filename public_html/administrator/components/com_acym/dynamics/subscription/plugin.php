@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class plgAcymSubscription extends acymPlugin
 {
@@ -25,16 +26,13 @@ class plgAcymSubscription extends acymPlugin
 
         global $acymCmsUserVars;
         $this->cmsUserVars = $acymCmsUserVars;
+
+        $this->pluginDescription->name = acym_translation('ACYM_SUBSCRIPTION');
     }
 
     public function dynamicText()
     {
-        $onePlugin = new stdClass();
-        $onePlugin->name = acym_translation('ACYM_SUBSCRIPTION');
-        $onePlugin->plugin = __CLASS__;
-        $onePlugin->help = 'plugin-subscription';
-
-        return $onePlugin;
+        return $this->pluginDescription;
     }
 
     public function textPopup()
@@ -155,6 +153,20 @@ class plgAcymSubscription extends acymPlugin
         }
         $text .= '</div></div>';
 
+        $text .= '<div class="acym__popup__listing text-center grid-x">
+					<span class="acym__popup__plugin__title cell">'.acym_translation('ACYM_AUTO').' '.acym_translation('ACYM_CAMPAIGNS').'</span>
+					<div class="cell grid-x">';
+        $autoMail = ['number_generated' => ['name' => acym_translation('ACYM_ISSUE_NB'), 'default' => '#1']];
+
+        foreach ($autoMail as $tag => $oneTag) {
+            $tagInserted = $tag;
+            if (!empty($oneTag['default'])) $tagInserted = $tag.'|default:'.$oneTag['default'];
+            $text .= '<div class="grid-x medium-12 cell acym__listing__row acym__listing__row__popup text-left" onclick="setTag(\'{automail:'.$tagInserted.'}\', jQuery(this));" id="tr_'.$tag.'" >
+                        <div class="cell medium-12 small-12 acym__listing__title acym__listing__title__dynamics">'.$oneTag['name'].'</div>
+                      </div>';
+        }
+        $text .= '</div></div>';
+
         echo $text;
     }
 
@@ -184,11 +196,12 @@ class plgAcymSubscription extends acymPlugin
     {
         $this->_replaceSubscriptionTags($email);
         $this->_replacemailtags($email);
+        $this->replacAutomailTags($email);
     }
 
     private function _replacemailtags(&$email)
     {
-        $result = $this->acympluginHelper->extractTags($email, 'mail');
+        $result = $this->pluginHelper->extractTags($email, 'mail');
         $tags = [];
 
         foreach ($result as $key => $oneTag) {
@@ -199,19 +212,64 @@ class plgAcymSubscription extends acymPlugin
             $field = $oneTag->id;
             if (!empty($email) && !empty($email->$field)) {
                 $text = $email->$field;
-                $this->acympluginHelper->formatString($text, $oneTag);
+                $this->pluginHelper->formatString($text, $oneTag);
+                $tags[$key] = $text;
+            } elseif (substr($field, 0, 8) == 'campaign') {
+                $this->getCampaignTags($email, $tags, $oneTag, $key);
+            } else {
+                $tags[$key] = $oneTag->default;
+            }
+        }
+
+        $this->pluginHelper->replaceTags($email, $tags);
+    }
+
+    private function getCampaignTags(&$email, &$tags, $oneTag, $key)
+    {
+        $campaignClass = acym_get('class.campaign');
+        $campaignFromMail = $campaignClass->getOneCampaignByMailId($email->id);
+        $campaignField = substr($oneTag->id, 8);
+        if (!empty($campaignFromMail) && !empty($campaignFromMail->$campaignField)) {
+            $text = $campaignFromMail->$campaignField;
+            $this->pluginHelper->formatString($text, $oneTag);
+            $tags[$key] = $text;
+        } else {
+            $tags[$key] = $oneTag->default;
+        }
+
+        return;
+    }
+
+    private function replacAutomailTags(&$email)
+    {
+        $result = $this->pluginHelper->extractTags($email, 'automail');
+        $tags = [];
+
+        foreach ($result as $key => $oneTag) {
+            if (isset($tags[$key])) {
+                continue;
+            }
+
+            $field = $oneTag->id;
+
+            $campaignClass = acym_get('class.campaign');
+            $autoCampaignFromMail = $campaignClass->getAutoCampaignFromGeneratedMailId($email->id);
+
+            if (!empty($autoCampaignFromMail) && !empty($autoCampaignFromMail->sending_params[$field])) {
+                $text = $autoCampaignFromMail->sending_params[$field];
+                $this->pluginHelper->formatString($text, $oneTag);
                 $tags[$key] = $text;
             } else {
                 $tags[$key] = $oneTag->default;
             }
         }
 
-        $this->acympluginHelper->replaceTags($email, $tags);
+        $this->pluginHelper->replaceTags($email, $tags);
     }
 
     private function _replacelisttags(&$email, &$user, $send)
     {
-        $tags = $this->acympluginHelper->extractTags($email, 'list');
+        $tags = $this->pluginHelper->extractTags($email, 'list');
         if (empty($tags)) {
             return;
         }
@@ -227,7 +285,7 @@ class plgAcymSubscription extends acymPlugin
             }
         }
 
-        $this->acympluginHelper->replaceTags($email, $replaceTags, true);
+        $this->pluginHelper->replaceTags($email, $replaceTags, true);
     }
 
     private function _getAttachedListid($email, $subid)
@@ -394,31 +452,25 @@ class plgAcymSubscription extends acymPlugin
         $found = false;
         $results = [];
         foreach ($variables as $var) {
-            if (empty($email->$var)) {
-                continue;
-            }
+            if (empty($email->$var)) continue;
+
             $found = preg_match_all($match, $email->$var, $results[$var]) || $found;
-            if (empty($results[$var][0])) {
-                unset($results[$var]);
-            }
+            if (empty($results[$var][0])) unset($results[$var]);
         }
 
-        if (!$found) {
-            return;
-        }
+        if (!$found) return;
 
         $tags = [];
         $this->listunsubscribe = false;
         foreach ($results as $var => $allresults) {
             foreach ($allresults[0] as $i => $oneTag) {
-                if (isset($tags[$oneTag])) {
-                    continue;
-                }
+                if (isset($tags[$oneTag])) continue;
+
                 $tags[$oneTag] = $this->_replaceSubscriptionTag($allresults, $i, $email);
             }
         }
 
-        $this->acympluginHelper->replaceTags($email, $tags);
+        $this->pluginHelper->replaceTags($email, $tags);
     }
 
     private function _replaceSubscriptionTag(&$allresults, $i, &$email)
@@ -426,7 +478,7 @@ class plgAcymSubscription extends acymPlugin
         $config = acym_config();
         $lang = empty($email->lang) ? '' : '&lang='.$email->lang;
 
-        $parameters = $this->acympluginHelper->extractTag($allresults[1][$i]);
+        $parameters = $this->pluginHelper->extractTag($allresults[1][$i]);
 
         if ($parameters->id == 'confirm') {
             $myLink = acym_frontendLink('frontusers&task=confirm&id={subtag:id}&key={subtag:key|urlencode}'.$lang);
@@ -689,24 +741,6 @@ class plgAcymSubscription extends acymPlugin
 
     public function onAcymDeclareSummary_conditions(&$automation)
     {
-        if (!empty($automation['acy_list'])) {
-            $finalText = '';
-            $listClass = acym_get('class.list');
-            $automation['acy_list']['list'] = $listClass->getOneById($automation['acy_list']['list']);
-            if (empty($automation['acy_list']['list'])) {
-                $automation = '<span class="acym__color__red">'.acym_translation('ACYM_SELECT_A_LIST').'</span>';
-
-                return;
-            }
-            if ($automation['acy_list']['action'] == 'sub') $automation['acy_list']['action'] = 'ACYM_IS_SUBSCRIBED';
-            if ($automation['acy_list']['action'] == 'unsub') $automation['acy_list']['action'] = 'ACYM_IS_UNSUBSCRIBED';
-            if ($automation['acy_list']['action'] == 'notsub') $automation['acy_list']['action'] = 'ACYM_IS_NOT_SUBSCRIBED';
-            $finalText .= acym_translation_sprintf('ACYM_CONDITION_ACY_LIST_SUMMARY', acym_translation($automation['acy_list']['action']), $automation['acy_list']['list']->name).' ';
-
-            $automation = $this->_summaryDate($automation['acy_list'], $finalText);
-        }
-
-
         if (!empty($automation['acy_list_all'])) {
             $operators = ['=' => acym_translation('ACYM_EXACTLY'), '>' => acym_translation('ACYM_MORE_THAN'), '<' => acym_translation('ACYM_LESS_THAN')];
             $finalText = acym_translation('ACYM_THERE_IS').' '.strtolower($operators[$automation['acy_list_all']['operator']]).' '.$automation['acy_list_all']['number'].' '.acym_translation('ACYM_ACYMAILING_USERS').' ';
@@ -724,9 +758,16 @@ class plgAcymSubscription extends acymPlugin
 
             $automation = $this->_summaryDate($automation['acy_list_all'], $finalText);
         }
+
+        $this->onAcymDeclareSummary_conditionsFilters($automation, 'ACYM_CONDITION_ACY_LIST_SUMMARY', 'ACYM_IS_SUBSCRIBED', 'ACYM_IS_UNSUBSCRIBED', 'ACYM_IS_NOT_SUBSCRIBED');
     }
 
     public function onAcymDeclareSummary_filters(&$automation)
+    {
+        $this->onAcymDeclareSummary_conditionsFilters($automation, 'ACYM_FILTER_ACY_LIST_SUMMARY', 'ACYM_SUBSCRIBED', 'ACYM_UNSUBSCRIBED', 'ACYM_NOT_SUBSCRIBED');
+    }
+
+    private function onAcymDeclareSummary_conditionsFilters(&$automation, $key, $keySub, $keyUnsub, $keyNotSub)
     {
         if (!empty($automation['acy_list'])) {
             $finalText = '';
@@ -737,10 +778,14 @@ class plgAcymSubscription extends acymPlugin
 
                 return;
             }
-            if ($automation['acy_list']['action'] == 'sub') $automation['acy_list']['action'] = 'ACYM_SUBSCRIBED';
-            if ($automation['acy_list']['action'] == 'unsub') $automation['acy_list']['action'] = 'ACYM_UNSUBSCRIBED';
-            if ($automation['acy_list']['action'] == 'notsub') $automation['acy_list']['action'] = 'ACYM_NOT_SUBSCRIBED';
-            $finalText .= acym_translation_sprintf('ACYM_FILTER_ACY_LIST_SUMMARY', acym_translation($automation['acy_list']['action']), $automation['acy_list']['list']->name).' ';
+            if ($automation['acy_list']['action'] == 'sub') $automation['acy_list']['action'] = $keySub;
+            if ($automation['acy_list']['action'] == 'unsub') $automation['acy_list']['action'] = $keyUnsub;
+            if ($automation['acy_list']['action'] == 'notsub') $automation['acy_list']['action'] = $keyNotSub;
+            $finalText .= acym_translation_sprintf(
+                    $key,
+                    acym_translation($automation['acy_list']['action']),
+                    $automation['acy_list']['list']->name
+                ).' ';
 
             $automation = $this->_summaryDate($automation['acy_list'], $finalText);
         }
@@ -754,10 +799,13 @@ class plgAcymSubscription extends acymPlugin
             if ($automationAction['acy_list']['list_actions'] == 'sub') $automationAction['acy_list']['list_actions'] = 'ACYM_SUBSCRIBED_TO';
             if ($automationAction['acy_list']['list_actions'] == 'unsub') $automationAction['acy_list']['list_actions'] = 'ACYM_UNSUBSCRIBE_FROM';
             if ($automationAction['acy_list']['list_actions'] == 'remove') $automationAction['acy_list']['list_actions'] = 'ACYM_REMOVE_FROM';
-            $automationAction = empty($list) ? '<span class="acym__color__red">'.acym_translation('ACYM_SELECT_A_LIST').'</span>' : acym_translation_sprintf('ACYM_ACTION_LIST_SUMMARY', acym_translation($automationAction['acy_list']['list_actions']), $list->name);
+            if (empty($list)) {
+                $automationAction = '<span class="acym__color__red">'.acym_translation('ACYM_SELECT_A_LIST').'</span>';
+            } else {
+                $automationAction = acym_translation_sprintf('ACYM_ACTION_LIST_SUMMARY', acym_translation($automationAction['acy_list']['list_actions']), $list->name);
+            }
         }
     }
-
 
     public function onAcymAfterUserSubscribe(&$user, $lists)
     {

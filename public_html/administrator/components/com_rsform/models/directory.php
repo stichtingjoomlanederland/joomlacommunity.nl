@@ -43,7 +43,7 @@ class RsformModelDirectory extends JModelList
 		$ids 	= array();
 
 		// Flag to know if we need translations - no point in doing a join if we're only using the default language.
-		if (RSFormProHelper::getConfig('global.disable_multilanguage'))
+		if (RSFormProHelper::getConfig('global.disable_multilanguage') && RSFormProHelper::getConfig('global.default_language') == 'en-GB')
 		{
 			$needs_translation = false;
 		}
@@ -70,7 +70,7 @@ class RsformModelDirectory extends JModelList
 				}
 			}
 
-			$needs_translation = $lang->getTag() != $lang->getDefault() || $ids;
+			$needs_translation = $lang->getTag() != $lang->getDefault() || $ids || (RSFormProHelper::getConfig('global.disable_multilanguage') && RSFormProHelper::getConfig('global.default_language') != 'en-GB');
 		}
 
 		$query->select($this->_db->qn('f.FormId'))
@@ -97,13 +97,20 @@ class RsformModelDirectory extends JModelList
 				$this->_db->qn('t.reference_id') . ' = ' . $this->_db->q('FormTitle')
 			);
 
-			if ($or)
+			if ($or && !RSFormProHelper::getConfig('global.disable_multilanguage'))
 			{
 				$on[] = '(' . implode(' OR ', $or) . ')';
 			}
 			else
 			{
-				$on[] = $this->_db->qn('t.lang_code') . ' = ' . $this->_db->q($lang->getTag());
+				if (RSFormProHelper::getConfig('global.default_language') == 'en-GB')
+				{
+					$on[] = $this->_db->qn('t.lang_code') . ' = ' . $this->_db->q($lang->getTag());
+				}
+				else
+				{
+					$on[] = $this->_db->qn('t.lang_code') . ' = ' . $this->_db->q(RSFormProHelper::getConfig('global.default_language'));
+				}
 			}
 
 			$query->join('left', $this->_db->qn('#__rsform_translations', 't') . ' ON (' . implode(' AND ', $on) . ')');
@@ -286,24 +293,41 @@ class RsformModelDirectory extends JModelList
 		return true;
 	}
 
-	public function getEmails() {
-		$formId = JFactory::getApplication()->input->getInt('formId',0);
-		$session = JFactory::getSession();
-		$lang = JFactory::getLanguage();
-		if (!$formId) return array();
+	public function getEmails()
+	{
+		$formId 	= JFactory::getApplication()->input->getInt('formId');
+		$db			= JFactory::getDbo();
+		$session 	= JFactory::getSession();
+		$lang 		= JFactory::getLanguage();
+		if (!$formId)
+		{
+			return array();
+		}
 
-		$emails = $this->_getList("SELECT `id`, `to`, `subject`, `formId` FROM `#__rsform_emails` WHERE `type` = 'directory' AND `formId` = ".$formId." ");
+		$query = $db->getQuery(true)
+			->select($db->qn(array('id', 'to', 'subject', 'formId')))
+			->from($db->qn('#__rsform_emails'))
+			->where($db->qn('type') . ' = ' . $db->q('directory'))
+			->where($db->qn('formId') . ' = ' . $db->q($formId));
+
+		$emails = $db->setQuery($query)->loadObjectList();
 		if (!empty($emails))
 		{
 			$translations = RSFormProHelper::getTranslations('emails', $formId, $session->get('com_rsform.form.formId'.$formId.'.lang', $lang->getDefault()));
-			foreach ($emails as $id => $email) {
-				if (isset($translations[$email->id.'.fromname'])) {
+			foreach ($emails as $id => $email)
+			{
+				if (isset($translations[$email->id.'.fromname']))
+				{
 					$emails[$id]->fromname = $translations[$email->id.'.fromname'];
 				}
-				if (isset($translations[$email->id.'.subject'])) {
+
+				if (isset($translations[$email->id.'.subject']))
+				{
 					$emails[$id]->subject = $translations[$email->id.'.subject'];
 				}
-				if (isset($translations[$email->id.'.message'])) {
+
+				if (isset($translations[$email->id.'.message']))
+				{
 					$emails[$id]->message = $translations[$email->id.'.message'];
 				}
 			}

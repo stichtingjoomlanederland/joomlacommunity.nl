@@ -170,6 +170,12 @@ class EasyDiscussPagination extends EasyDiscuss
 		if (!empty($data) && $doReplace) {
 			$curPageLink = 'index.php?option=com_easydiscuss&view=' . $viewpage . $queries;
 
+			// start
+			if (!empty($data->start->link)) {
+				$limitstart = (!empty($data->start->base)) ? '&limitstart=' . $data->start->base : '';
+				$data->start->link = EDR::_($curPageLink . $limitstart);
+			}
+
 			foreach ($data->pages as $page) {
 				
 				if (!empty($page->link)) {
@@ -188,6 +194,12 @@ class EasyDiscussPagination extends EasyDiscuss
 			if (!empty($data->previous->link)) {
 				$limitstart = ( !empty($data->previous->base) ) ? '&limitstart=' . $data->previous->base : '';
 				$data->previous->link = EDR::_($curPageLink . $limitstart);
+			}
+
+			// end
+			if (!empty($data->end->link)) {
+				$limitstart = (!empty($data->end->base)) ? '&limitstart=' . $data->end->base : '';
+				$data->end->link = EDR::_($curPageLink . $limitstart);
 			}
 
 		}

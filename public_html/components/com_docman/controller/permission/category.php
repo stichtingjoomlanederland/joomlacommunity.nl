@@ -11,6 +11,22 @@
  */
 class ComDocmanControllerPermissionCategory extends ComDocmanControllerPermissionAbstract
 {
+    public function canDelete()
+    {
+        $result = parent::canDelete();
+
+        // Only do this check on POST since we want to return true on toolbar canDelete calls for documents
+        if ($this->getRequest()->getMethod() !== 'GET') {
+            $page = JFactory::getApplication()->getMenu()->getItem($this->getRequest()->query->Itemid);
+
+            if ($page && !$page->params->get('allow_category_delete', 1) && !$this->canAdmin()) {
+                $result = false;
+            }
+        }
+
+        return $result;
+    }
+
     public function canAdd()
     {
         $result = parent::canAdd();

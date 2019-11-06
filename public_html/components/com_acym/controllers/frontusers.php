@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class FrontusersController extends acymController
 {
@@ -248,26 +249,22 @@ class FrontusersController extends acymController
 
     public function confirm()
     {
-        if (acym_isRobot()) {
-            return false;
-        }
-
-        $config = acym_config();
+        if (acym_isRobot()) return false;
 
         $userClass = acym_get('class.user');
         $user = $userClass->identify();
         if (empty($user)) {
+            acym_enqueueMessage(acym_translation('ACYM_USER_NOT_FOUND'), 'error');
+            acym_redirect(acym_rootURI());
+
             return false;
         }
 
-        $redirectUrl = $config->get('confirm_redirect');
-
-
-        if ($config->get('confirmation_message', 1)) {
+        if ($this->config->get('confirmation_message', 1)) {
             if ($user->confirmed) {
-                acym_enqueueMessage(acym_translation('ACYM_ALREADY_CONFIRMED'));
+                acym_enqueueMessage(acym_translation('ACYM_ALREADY_CONFIRMED'), 'info');
             } else {
-                acym_enqueueMessage(acym_translation('ACYM_SUBSCRIPTION_CONFIRMED'));
+                acym_enqueueMessage(acym_translation('ACYM_SUBSCRIPTION_CONFIRMED'), 'success');
             }
         }
 
@@ -275,7 +272,7 @@ class FrontusersController extends acymController
             $userClass->confirm($user->id);
         }
 
-
+        $redirectUrl = $this->config->get('confirm_redirect');
         if (!empty($redirectUrl)) {
             $replace = [];
             foreach ($user as $key => $val) {
@@ -283,6 +280,8 @@ class FrontusersController extends acymController
             }
             $redirectUrl = str_replace(array_keys($replace), $replace, $redirectUrl);
             acym_redirect($redirectUrl);
+
+            return;
         }
 
         acym_redirect(acym_rootURI());
@@ -298,7 +297,7 @@ class FrontusersController extends acymController
             $config = acym_config();
             $allowvisitor = $config->get('allow_visitor', 1);
             if (empty($allowvisitor)) {
-                acym_askLog(true, 'ONLY_LOGGED', 'message');
+                acym_askLog(true, 'ACYM_ONLY_LOGGED', 'message');
 
                 return;
             }

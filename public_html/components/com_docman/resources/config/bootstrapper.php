@@ -65,7 +65,8 @@ return array(
                 'com://admin/docman.job.documents',
                 'com://admin/docman.job.categories',
                 'com://admin/docman.job.scans',
-                'com://admin/docman.job.files'
+                'com://admin/docman.job.files',
+                'com://admin/docman.job.multidownload',
             )
         ),
         'com://admin/docman.model.behavior.taggable' => array(

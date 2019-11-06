@@ -9,15 +9,17 @@ defined('_JEXEC') or die;
 
 class RSFormProScripting
 {
-	public static function compile(&$subject, $replace, $with) {
+	public static function compile(&$subject, $replace, $with)
+	{
 		$placeholders = array_combine($replace, $with);
 		$formId = isset($placeholders['{global:formid}']) ? $placeholders['{global:formid}'] : null;
 		
-		$condition 	= '({[a-z0-9\_\- ]+:[a-z_]+})';
-		$inner 		= '((?:(?!{/?if).)*?)';
+		$placeholderPattern = '({[a-zA-Z0-9\_\- ]+:[a-zA-Z_]+})';
+		$innerPattern 		= '((?:(?!{/?if).)*?)';
+		$comparisonPattern  = '(<=|&lt;=|>=|&gt;=|<-|&lt;-|->|-&gt;|<>|&lt;&gt;|<|&lt;|>|&gt;|!=|===|==|=)';
 		
 		// {Placeholder1:value} > {Placeholder2:value}
-		$pattern = '#{if\s?'.$condition.'\s?(<=|&lt;=|>=|&gt;=|<-|&lt;-|->|-&gt;|<>|&lt;&gt;|<|&lt;|>|&gt;|!=|===|==|=)?\s?'.$condition.'?\s?}'.$inner.'{/if}#is';
+		$pattern = '#{if\s?' . $placeholderPattern . '\s?' . $comparisonPattern . '?\s?' . $placeholderPattern . '?\s?}' . $innerPattern . '{/if}#s';
 		while (preg_match($pattern, $subject, $match)) {
 			$placeholder = trim($match[1]);
 			$operand	 = htmlspecialchars_decode(trim($match[2]));
@@ -37,7 +39,7 @@ class RSFormProScripting
 		}
 		
 		// {Placeholder1:value} > 1
-		$pattern = '#{if\s?'.$condition.'\s?(<=|&lt;=|>=|&gt;=|<-|&lt;-|->|-&gt;|<>|&lt;&gt;|<|&lt;|>|&gt;|!=|===|==|=)?\s?'.$inner.'?\s?}'.$inner.'{/if}#is';
+		$pattern = '#{if\s?' . $placeholderPattern . '\s?' . $comparisonPattern . '?\s?' . $innerPattern . '?\s?}' . $innerPattern . '{/if}#s';
 		while (preg_match($pattern, $subject, $match)) {
 			$placeholder = trim($match[1]);
 			$operand	 = htmlspecialchars_decode(trim($match[2]));
@@ -56,7 +58,7 @@ class RSFormProScripting
 		}
 		
 		// 1 < {Placeholder1:value}
-		$pattern = '#{if\s?'.$inner.'\s?(<=|&lt;=|>=|&gt;=|<-|&lt;-|->|-&gt;|<>|&lt;&gt;|<|&lt;|>|&gt;|!=|===|==|=)?\s?'.$condition.'?\s?}'.$inner.'{/if}#is';
+		$pattern = '#{if\s?' . $innerPattern . '\s?' . $comparisonPattern . '?\s?' . $placeholderPattern . '?\s?}' . $innerPattern . '{/if}#s';
 		while (preg_match($pattern, $subject, $match)) {
 			$placeholder = trim($match[1]);
 			$operand	 = htmlspecialchars_decode(trim($match[2]));

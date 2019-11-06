@@ -201,4 +201,17 @@ class RseventsproViewEvents extends JViewLegacy
 		$db->setQuery($query);
 		return (int) $db->loadResult();
 	}
+	
+	protected function getWaitingList($id) {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		
+		$query->clear()
+			->select('COUNT('.$db->qn('id').')')
+			->from($db->qn('#__rseventspro_waitinglist'))
+			->where($db->qn('ide').' = '.(int) $id);
+		
+		$db->setQuery($query);
+		return (int) $db->loadResult();
+	}
 }

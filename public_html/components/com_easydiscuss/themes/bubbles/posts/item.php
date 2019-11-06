@@ -76,10 +76,10 @@ defined('_JEXEC') or die('Unauthorized Access');
 						<div class="o-col">
 							<div class="pull-left">
 								<?php if (!$post->isAnonymous()) { ?>
-									<a href="<?php echo $post->getOwner()->getLink();?>" class="ed-user-name t-fs--sm"><?php echo $post->getOwner()->getName();?></a>
+									<?php echo $this->html('user.username', $post->getOwner(), array()); ?>
 								<?php } ?>
 								<?php if ($post->isAnonymous()) { ?>
-									<a href="javascript:void(0);" class="ed-user-name t-fs--sm"><?php echo JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');?></a>
+									<?php echo $this->html('user.username', $post->getOwner(), array('isAnonymous' => true, 'size' => 'sm')); ?>
 								<?php } ?>
 
 								<span class="ed-posted-in t-fs--sm"><?php echo JText::_('COM_EASYDISCUSS_POSTED_IN');?>

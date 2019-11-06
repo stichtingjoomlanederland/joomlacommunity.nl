@@ -1,25 +1,26 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><div class="acym__content acym__stats" id="acym_stats_detailed">
+?>
+<div class="acym__content acym__stats" id="acym_stats_detailed">
     <?php if (!empty($data['emptyDetailed']) && $data['emptyDetailed'] == 'campaigns') { ?>
-		<h1 class="acym__listing__empty__title text-center cell"><?php echo acym_translation('ACYM_DONT_HAVE_STATS_CAMPAIGN'); ?>. <a href="<?php echo acym_completeLink('campaigns&task=edit&step=chooseTemplate'); ?>"><?php echo acym_translation('ACYM_CREATE_ONE'); ?>!</a></h1>
+		<h1 class="acym__listing__empty__title text-center cell"><?php echo acym_translation('ACYM_DONT_HAVE_STATS_CAMPAIGN'); ?> <a href="<?php echo acym_completeLink('campaigns&task=edit&step=chooseTemplate'); ?>"><?php echo acym_translation('ACYM_CREATE_ONE'); ?></a></h1>
     <?php } elseif (!empty($data['emptyDetailed']) && $data['emptyDetailed'] == 'stats') { ?>
 		<h1 class="acym__listing__empty__title text-center cell"><?php echo acym_translation('ACYM_DONT_HAVE_STATS_THIS_CAMPAIGN'); ?></a></h1>
     <?php } else { ?>
 		<div class="cell grid-x">
 			<div class="cell grid-x auto">
-				<div class="large-3 medium-4 small-12 cell acym_stats_detailed_search">
-                    <?php echo acym_filterSearch($data["search"], 'detailed_stats_search', 'ACYM_SEARCH_A_CAMPAIGN_NAME_OR_EMAIL'); ?>
+				<div class="medium-5 small-12 cell acym_stats_detailed_search">
+                    <?php echo acym_filterSearch($data["search"], 'detailed_stats_search', 'ACYM_SEARCH'); ?>
 				</div>
-				<div class="large-3 medium-4 small-12 cell acym__stats__campaign-choose">
+				<div class="medium-4 small-12 cell acym__stats__campaign-choose">
 				</div>
 			</div>
 			<div class="grid-x cell auto">
@@ -76,7 +77,13 @@ defined('_JEXEC') or die('Restricted access');
 						<div class="large-2 medium-3 small-3 cell acym__listing__detailed__stats__content">
                             <?php
                             if (!empty($detailed_stat->campaign_id)) {
-                                $name = '<a href="'.acym_completeLink('campaigns&task=edit&step=editEmail&id='.$detailed_stat->campaign_id).'" class="word-break acym__color__blue">'.$detailed_stat->name.'</a>';
+                                if (empty($detailed_stat->parent_id)) {
+                                    $link = acym_completeLink('campaigns&task=edit&step=editEmail&id='.$detailed_stat->campaign_id);
+                                } else {
+                                    $link = acym_completeLink('campaigns&task=summaryGenerated&id='.$detailed_stat->campaign_id);
+                                }
+
+                                $name = '<a href="'.$link.'" class="word-break acym__color__blue">'.$detailed_stat->name.'</a>';
                             } else {
                                 $name = $detailed_stat->name;
                             }

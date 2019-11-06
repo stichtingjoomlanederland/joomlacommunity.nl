@@ -296,7 +296,7 @@ function rspagination(tpl,limitstart,ide) {
 		jQuery('#rs_events_container').append(response);
 		jQuery('#rs_loader').css('display','none');
 		
-		if (jQuery('#rs_events_container li[class!="rsepro-month-year"]').length > 0 && (tpl == 'events' || tpl == 'locations' || tpl == 'subscribers' || tpl == 'day' || tpl == 'week' || tpl == 'search' || tpl == 'rsvp')) {
+		if (jQuery('#rs_events_container li[class!="rsepro-month-year"]').length > 0 && (tpl == 'events' || tpl == 'locations' || tpl == 'subscribers' || tpl == 'day' || tpl == 'week' || tpl == 'search' || tpl == 'rsvp' || tpl == 'waitinglist')) {
 			jQuery('#rs_events_container li[class!="rsepro-month-year"]').on('mouseenter', function() {
 				jQuery(this).find('div.rs_options').css('display','');
 			});
@@ -1687,6 +1687,50 @@ function rsepro_update_speakers(data) {
 	}
 	
 	window.parent.jQuery('#speakers').trigger('liszt:updated');
+}
+
+function rsepro_validate_waitinglist() {
+	ret = true;
+	msg = new Array();
+	
+	if (jQuery('#name').val() == '') {
+		ret = false; 
+		jQuery('#name').addClass('invalid'); 
+		msg.push(Joomla.JText._('COM_RSEVENTSPRO_WAITING_MESSAGE_NAME')); 
+	} else {
+		jQuery('#name').removeClass('invalid');
+	}
+	
+	if (jQuery('#email').val() == '') { 
+		ret = false; 
+		jQuery('#email').addClass('invalid');
+		msg.push(Joomla.JText._('COM_RSEVENTSPRO_WAITING_MESSAGE_EMAIL'));
+	} else { 
+		jQuery('#email').removeClass('invalid'); 
+	}
+	
+	if (!rse_validateEmail(jQuery('#email').val().trim())) { 
+		ret = false; 
+		jQuery('#email').addClass('invalid');
+		msg.push(Joomla.JText._('COM_RSEVENTSPRO_WAITING_INVALID_EMAIL_ADDRESS'));
+	} else { 
+		jQuery('#email').removeClass('invalid');
+	}
+	
+	if (jQuery('#consent').length) {
+		if (!jQuery('#consent:checked').length) {
+			ret = false; 
+			msg.push(Joomla.JText._('COM_RSEVENTSPRO_CONSENT_INFO'));
+		}
+	}
+	
+	if (ret) {
+		return true;
+	} else {
+		var messages = { 'error': msg.reverse() };
+		Joomla.renderMessages(messages);
+		return false;
+	}
 }
 
 var rsepro_timeinterval;

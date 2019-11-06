@@ -112,7 +112,7 @@ class RseventsproControllerSettings extends JControllerLegacy
 	}
 	
 	/**
-	 * Method to import Google events.
+	 * Method to auth Google events.
 	 *
 	 * @return	void
 	 * @since	1.6
@@ -121,7 +121,25 @@ class RseventsproControllerSettings extends JControllerLegacy
 		$model	= $this->getModel();
 		
 		if (!$model->google()) {
-			$this->setMessage($model->getError(), 'error');
+			$this->setMessage(JText::_('COM_RSEVENTSPRO_GOOGLE_AUTH_ERROR'), 'error');
+		} else {
+			$this->setMessage(JText::_('COM_RSEVENTSPRO_GOOGLE_AUTH_OK'), 'message');
+		}
+		
+		$this->setRedirect('index.php?option=com_rseventspro&view=settings');
+	}
+	
+	/**
+	 * Method to import Google events.
+	 *
+	 * @return	void
+	 * @since	1.6
+	 */
+	public function gimport() {
+		$model	= $this->getModel();
+		
+		if (!$model->gimport()) {
+			$this->setMessage('[Google Calendar] '.$model->getError(), 'error');
 			$this->setRedirect('index.php?option=com_rseventspro&view=settings');
 		} else {
 			$events = $model->getState('settings.gcevents');

@@ -295,7 +295,7 @@ class com_EasyDiscussInstallerScript
 	 */
 	public function processAddedFiles($files)
 	{
-		return $this->processModifiedFiles($files);
+		return $this->processModifiedFiles($files, true);
 	}
 
 	/**
@@ -323,7 +323,7 @@ class com_EasyDiscussInstallerScript
 	 * @since	4.2.0
 	 * @access	public
 	 */
-	public function processModifiedFiles($files)
+	public function processModifiedFiles($files, $isNew = false)
 	{
 		foreach ($files as $file) {
 			$source = $this->getSource($file);
@@ -354,6 +354,21 @@ class com_EasyDiscussInstallerScript
 				continue;
 			}
 
+			$folder = dirname($dest);
+
+			if (!$isNew) {
+				if (JFile::exists($dest)) {
+					JFile::copy($source, $dest);
+				}
+
+				// for modified file, we stop here.
+				continue;
+			}
+
+			// new files.
+			if (!JFolder::exists($folder)) {
+				JFolder::create($folder);
+			}
 			JFile::copy($source, $dest);
 		}
 

@@ -152,6 +152,70 @@ class EasyDiscussThemesHelperUser
 	}
 
 	/**
+	 * Generates a user name and permalink
+	 *
+	 * @since	4.1.12
+	 * @access	public
+	 */
+	public static function username(DiscussProfile $user, $options = array())
+	{
+		$config = ED::config();
+
+		$isAnonymous = isset($options['isAnonymous']) ? $options['isAnonymous'] : false;
+		$canViewAnonymousUsername = isset($options['canViewAnonymousUsername']) ? $options['canViewAnonymousUsername'] : false;
+		$posterName = isset($options['posterName']) ? $options['posterName'] : '';
+
+		// t-fs--md font size
+		$fontsize = isset($options['fontsize']) ? $options['fontsize'] : 'md';
+
+		// t-lg-mt--md = trumps-largescreen-margintop--mediumSpaces
+		$lgMarginTop = isset($options['lgMarginTop']) ? 't-lg-mt--md' : '';
+
+		// t-lg-mb--md = trumps-largescreen-marginBottom--mediumSpaces
+		$lgMarginBottom = isset($options['lgMarginBottom']) ? 't-lg-mb--sm' : '';
+
+		$isESVerified = false;
+		$username = $user->getName($posterName);
+		$permalink = $user->getPermalink();
+
+		// show Easysocial verification icon from the user name
+		if (ED::easysocial()->exists() && $config->get('layout_avatarLinking') && $config->get('layout_avatarIntegration', 'default') == 'easysocial') {
+
+			// Only execute this if that is register user
+			if ($user->id) {
+				$esUser = ES::user($user->id);
+				$isESVerified = $esUser->isVerified();
+			}
+		}
+
+		// do not render any user permalink if that owner post is anonymous
+		if ($isAnonymous) {
+
+			$isESVerified = false;
+
+			if ($canViewAnonymousUsername) {
+				$username = JText::_('COM_EASYDISCUSS_ANONYMOUS_USER') . '(' . $user->getName($posterName) . ')';
+
+			} else {
+				$username = JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');
+				$permalink = "javascript:void(0);";
+			}
+		}
+
+		$theme = ED::themes();
+		$theme->set('username', $username);
+		$theme->set('permalink', $permalink);
+		$theme->set('isESVerified', $isESVerified);
+		$theme->set('lgMarginTop', $lgMarginTop);
+		$theme->set('lgMarginBottom', $lgMarginBottom);
+		$theme->set('fontsize', $fontsize);
+
+		$output = $theme->output('site/html/user.name');
+
+		return $output;
+	}	
+
+	/**
 	 * Generates anonymous user html tag
 	 *
 	 * @since	4.1.9

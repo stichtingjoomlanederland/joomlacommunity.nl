@@ -36,7 +36,7 @@ class ScanAlerts extends DataModel
 	 *
 	 * @var int
 	 */
-	private $filesizeThreshold = 5 * 1024 * 1024;
+	private $filesizeThreshold = 5242880;
 
 	public function __construct(Container $container, array $config)
 	{
@@ -164,7 +164,7 @@ class ScanAlerts extends DataModel
 		$highlightSuffixKnownHack = "  ###]]*{{!}}*%";
 
 		/** @var string $encodedConfig Defined in the included file */
-		require_once $this->container->backEndPath . '/platform/encodedconfig.php';
+		require_once $this->container->backEndPath . '/Model/Scanner/encodedconfig.php';
 
 		$zipped = pack('H*', $encodedConfig);
 		unset($encodedConfig);

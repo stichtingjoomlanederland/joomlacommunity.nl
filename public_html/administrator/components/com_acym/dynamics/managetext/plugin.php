@@ -1,19 +1,18 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class plgAcymManagetext extends acymPlugin
 {
-    var $foundtags = [];
-
     public function replaceContent(&$email, $send = true)
     {
         $this->_replaceConstant($email);
@@ -23,8 +22,8 @@ class plgAcymManagetext extends acymPlugin
 
     public function replaceUserInformation(&$email, &$user, $send = true)
     {
-        $this->acympluginHelper->cleanHtml($email->body);
-        $this->acympluginHelper->replaceVideos($email->body);
+        $this->pluginHelper->cleanHtml($email->body);
+        $this->pluginHelper->replaceVideos($email->body);
 
         $this->_removetext($email);
         $this->_ifstatement($email, $user);
@@ -32,7 +31,7 @@ class plgAcymManagetext extends acymPlugin
 
     private function _replaceConstant(&$email)
     {
-        $tags = $this->acympluginHelper->extractTags($email, '(?:const|trans|config)');
+        $tags = $this->pluginHelper->extractTags($email, '(?:const|trans|config)');
         if (empty($tags)) {
             return;
         }
@@ -75,12 +74,12 @@ class plgAcymManagetext extends acymPlugin
             }
         }
 
-        $this->acympluginHelper->replaceTags($email, $tagsReplaced, true);
+        $this->pluginHelper->replaceTags($email, $tagsReplaced, true);
     }
 
     private function _replaceRandom(&$email)
     {
-        $randTag = $this->acympluginHelper->extractTags($email, "rand");
+        $randTag = $this->pluginHelper->extractTags($email, "rand");
         if (empty($randTag)) {
             return;
         }
@@ -98,7 +97,7 @@ class plgAcymManagetext extends acymPlugin
         if (empty($tags)) {
             return;
         }
-        $this->acympluginHelper->replaceTags($email, $tags, true);
+        $this->pluginHelper->replaceTags($email, $tags, true);
     }
 
 
@@ -122,26 +121,20 @@ class plgAcymManagetext extends acymPlugin
         $variables = ['subject', 'body', 'altbody', 'From', 'FromName', 'ReplyTo'];
         $found = false;
         foreach ($variables as $var) {
-            if (empty($email->$var)) {
-                continue;
-            }
+            if (empty($email->$var)) continue;
+
             if (is_array($email->$var)) {
                 foreach ($email->$var as $i => &$arrayField) {
-                    if (empty($arrayField) || !is_array($arrayField)) {
-                        continue;
-                    }
+                    if (empty($arrayField) || !is_array($arrayField)) continue;
+
                     foreach ($arrayField as $key => &$oneval) {
                         $found = preg_match_all($match, $oneval, $results[$var.$i.'-'.$key]) || $found;
-                        if (empty($results[$var.$i.'-'.$key][0])) {
-                            unset($results[$var.$i.'-'.$key]);
-                        }
+                        if (empty($results[$var.$i.'-'.$key][0])) unset($results[$var.$i.'-'.$key]);
                     }
                 }
             } else {
                 $found = preg_match_all($match, $email->$var, $results[$var]) || $found;
-                if (empty($results[$var][0])) {
-                    unset($results[$var]);
-                }
+                if (empty($results[$var][0])) unset($results[$var]);
             }
         }
 
@@ -227,7 +220,7 @@ class plgAcymManagetext extends acymPlugin
             }
         }
 
-        $this->acympluginHelper->replaceTags($email, $tags, true);
+        $this->pluginHelper->replaceTags($email, $tags, true);
 
         $this->_ifstatement($email, $user, $loop + 1);
     }

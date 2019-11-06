@@ -12,7 +12,12 @@ $eventOptions = $this->eventClass->getEventOptions(); ?>
 	<div class="span4">
 		<legend><?php echo JText::_('COM_RSEVENTSPRO_EVENT_OPTIONS_DETAIL'); ?></legend>
 		
-		<div class="control-group">
+		<label class="checkbox">
+			<input type="checkbox" name="check1" value="1" onclick="RSEventsPro.Event.checkAll(this, 'rsepro-block-1');" />
+			<strong><?php echo JText::_('COM_RSEVENTSPRO_CHECK_ALL'); ?></strong>
+		</label>
+		
+		<div id="rsepro-block-1" class="control-group">
 			<label class="checkbox">
 				<input type="checkbox" name="jform[options][start_date]" value="1" <?php echo (isset($eventOptions['start_date']) && $eventOptions['start_date'] == 1) ? 'checked="checked"' : ''; ?> />
 				<?php echo JText::_('COM_RSEVENTSPRO_SHOW_START_DATE'); ?>
@@ -154,7 +159,12 @@ $eventOptions = $this->eventClass->getEventOptions(); ?>
 	<div class="span4">
 		<legend><?php echo JText::_('COM_RSEVENTSPRO_EVENT_OPTIONS_LISTINGS'); ?></legend>
 		
-		<div class="control-group">
+		<label class="checkbox">
+			<input type="checkbox" name="check1" value="1" onclick="RSEventsPro.Event.checkAll(this, 'rsepro-block-2');" />
+			<strong><?php echo JText::_('COM_RSEVENTSPRO_CHECK_ALL'); ?></strong>
+		</label>
+		
+		<div id="rsepro-block-2" class="control-group">
 			<label class="checkbox">
 				<input type="checkbox" name="jform[options][start_date_list]" value="1" <?php echo (isset($eventOptions['start_date_list']) && $eventOptions['start_date_list'] == 1) ? 'checked="checked"' : ''; ?> />
 				<?php echo JText::_('COM_RSEVENTSPRO_SHOW_START_DATE'); ?>

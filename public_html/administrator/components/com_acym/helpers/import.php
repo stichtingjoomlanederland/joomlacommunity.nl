@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class acymimportHelper
 {
@@ -48,7 +49,7 @@ class acymimportHelper
         $importFile = acym_getVar('array', 'import_file', [], 'files');
 
         if (empty($importFile['name'])) {
-            acym_enqueueMessage(acym_translation('ACYM_PLEASE_BROWSE_FILE_IMPORT'),  'error');
+            acym_enqueueMessage(acym_translation('ACYM_PLEASE_BROWSE_FILE_IMPORT'), 'error');
 
             return false;
         }
@@ -123,7 +124,7 @@ class acymimportHelper
         $affected = acym_query($query);
         $nbUpdated += intval($affected);
 
-        acym_enqueueMessage(acym_translation_sprintf('ACYM_IMPORT_UPDATE', $nbUpdated),  'success');
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_IMPORT_UPDATE', $nbUpdated), 'success');
 
         $query = 'SELECT a.id FROM #__acym_user as a LEFT JOIN '.$this->cmsUserVars->table.' as b on a.cms_id = b.'.$this->cmsUserVars->id.' WHERE b.'.$this->cmsUserVars->id.' IS NULL AND a.cms_id > 0';
         $deletedSubid = acym_loadResultArray($query);
@@ -134,7 +135,7 @@ class acymimportHelper
         if (!empty($deletedSubid)) {
             $userClass = acym_get('class.user');
             $deletedUsers = $userClass->delete($deletedSubid);
-            acym_enqueueMessage(acym_translation_sprintf('ACYM_IMPORT_DELETE', $deletedUsers),  'success');
+            acym_enqueueMessage(acym_translation_sprintf('ACYM_IMPORT_DELETE', $deletedUsers), 'success');
         }
 
 
@@ -144,7 +145,7 @@ class acymimportHelper
 
         acym_query('UPDATE #__acym_configuration SET `value` = '.intval($time).' WHERE `name` = \'last_import\'');
 
-        acym_enqueueMessage(acym_translation_sprintf('ACYM_IMPORT_NEW', $insertedUsers),  'success');
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_IMPORT_NEW', $insertedUsers), 'success');
 
         $lists = $this->getImportedLists();
         $listsSubscribe = [];
@@ -163,7 +164,7 @@ class acymimportHelper
         $query = 'INSERT IGNORE INTO #__acym_user_has_list (`user_id`,`list_id`,`status`,`subscription_date`) ';
         $query .= 'SELECT user.`id`, list.`id`, 1, '.acym_escapeDB(date('Y-m-d H:i:s', time())).' FROM #__acym_list AS list, #__acym_user AS user WHERE list.`id` IN ('.implode(',', $listsSubscribe).') AND user.`cms_id` > 0';
         $nbsubscribed = acym_query($query);
-        acym_enqueueMessage(acym_translation_sprintf('ACYM_IMPORT_SUBSCRIPTION',  $nbsubscribed));
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_IMPORT_SUBSCRIPTION', $nbsubscribed));
 
 
         return true;
@@ -177,14 +178,14 @@ class acymimportHelper
         $time = time();
 
         if (empty($table)) {
-            acym_enqueueMessage(acym_translation('ACYM_SPECIFYTABLE'),  'warning');
+            acym_enqueueMessage(acym_translation('ACYM_SPECIFYTABLE'), 'warning');
 
             return false;
         }
 
         $fields = acym_getColumns($table, false, false);
         if (empty($fields)) {
-            acym_enqueueMessage(acym_translation('ACYM_SPECIFYTABLE'),  'warning');
+            acym_enqueueMessage(acym_translation('ACYM_SPECIFYTABLE'), 'warning');
 
             return false;
         }
@@ -192,7 +193,7 @@ class acymimportHelper
         $equivalentFields = acym_getVar('array', 'fields', []);
 
         if (empty($equivalentFields['email'])) {
-            acym_enqueueMessage(acym_translation('ACYM_SPECIFYFIELDEMAIL'),  'warning');
+            acym_enqueueMessage(acym_translation('ACYM_SPECIFYFIELDEMAIL'), 'warning');
 
             return false;
         }
@@ -204,7 +205,7 @@ class acymimportHelper
                 continue;
             }
             if (!in_array($tableField, $fields)) {
-                acym_enqueueMessage(acym_translation_sprintf('ACYM_SPECIFYFIELD', $tableField, implode(' <br> ', $fields)),  'warning');
+                acym_enqueueMessage(acym_translation_sprintf('ACYM_SPECIFYFIELD', $tableField, implode(' <br> ', $fields)), 'warning');
 
                 return false;
             }
@@ -230,7 +231,7 @@ class acymimportHelper
 
         acym_query('UPDATE #__acym_configuration SET `value` = '.intval($time).' WHERE `name` = "last_import"');
 
-        acym_enqueueMessage(acym_translation_sprintf('ACYM_IMPORT_NEW', $affectedRows),  "success");
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_IMPORT_NEW', $affectedRows), "success");
 
         $lists = $this->getImportedLists();
         $listsSubscribe = [];
@@ -249,7 +250,7 @@ class acymimportHelper
         $query = 'INSERT IGNORE INTO #__acym_user_has_list (`user_id`,`list_id`,`status`,`subscription_date`) ';
         $query .= 'SELECT user.`id`, list.`id`, 1, '.acym_escapeDB(date('Y-m-d H:i:s', time())).' FROM #__acym_list AS list, #__acym_user AS user WHERE list.`id` IN ('.implode(',', $listsSubscribe).') AND user.`source` LIKE "%'.$time.'%"';
         $nbsubscribed = acym_query($query);
-        acym_enqueueMessage(acym_translation_sprintf('ACYM_IMPORT_SUBSCRIPTION',  $nbsubscribed));
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_IMPORT_SUBSCRIPTION', $nbsubscribed));
 
         return true;
     }

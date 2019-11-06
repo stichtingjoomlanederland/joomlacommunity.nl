@@ -69,6 +69,10 @@ class RseventsproModelRseventspro extends JModelLegacy
 			$this->_rsvpquery = $this->_buildRSVPQuery();
 		}
 		
+		if ($layout == 'waitinglist' || $layout == 'items') {
+			$this->_waitingquery = $this->_buildWaitingQuery();
+		}
+		
 		if ($layout == 'search' || $layout == 'items') {
 			$this->_searchquery = $this->_buildSearchQuery();
 		}
@@ -820,14 +824,19 @@ class RseventsproModelRseventspro extends JModelLegacy
 	
 	// Get event tickets
 	public function getEventTickets() {
-		$return   = array();
-		$tickets  = $this->getTickets();
+		$return  = array();
+		$tickets = $this->getTickets();
+		$id		 = $this->_app->input->getInt('id');
+		$w8list	 = rseventsproHelper::validWaitingList($id);
 		
 		if (!empty($tickets)) {
 			foreach ($tickets as $ticket) {				
-				$checkticket = rseventsproHelper::checkticket($ticket->id);
-				if ($checkticket == -1) 
-					continue;
+				if (!$w8list) {
+					$checkticket = rseventsproHelper::checkticket($ticket->id);
+					if ($checkticket == -1) {
+						continue;
+					}
+				}
 				
 				$price = $ticket->price > 0 ? ' - '.rseventsproHelper::currency($ticket->price) : ' - '.JText::_('COM_RSEVENTSPRO_GLOBAL_FREE');
 				$return[] = JHTML::_('select.option', $ticket->id, $ticket->name.$price);
@@ -1053,6 +1062,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$id		= $this->_app->input->getInt('id');
 		$jform	= $this->_app->input->get('jform',array(),'array');
 		$task	= $this->_app->input->get('task');
+		$layout	= $this->_app->input->get('layout');
 		$query	= $this->_db->getQuery(true);
 		$tasks	= array('approve','pending','denied','removesubscriber','savesubscriber', 'removersvp');
 		
@@ -1064,6 +1074,11 @@ class RseventsproModelRseventspro extends JModelLegacy
 			$id = (int) $jform['ide'];
 		} elseif ($task == 'savesubscriber') {
 			$id = $this->_app->input->getInt('ide',0);
+		} elseif ($task == 'approvewaiting' || $task == 'removewaiting' || $task == 'savewaitinglist' || $layout == 'editwaitinglist') {
+			$db	= JFactory::getDbo();
+			$query = $db->getQuery(true)->select($db->qn('ide'))->from($db->qn('#__rseventspro_waitinglist'))->where($db->qn('id').' = '.$db->q($this->_app->input->getInt('id',0)));
+			$db->setQuery($query);
+			$id = (int) $db->loadResult();
 		}
 		
 		$event = RSEvent::getInstance($id);
@@ -1755,6 +1770,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$discount		= 0;
 		$info			= '';
 		$cansubscribe	= rseventsproHelper::getCanSubscribe($id, true);
+		$w8list			= rseventsproHelper::validWaitingList($id);
 		$couponid		= 0;
 		$tickets		= array();
 		$eventtickets	= array();
@@ -1806,8 +1822,10 @@ class RseventsproModelRseventspro extends JModelLegacy
 		if (!JMailHelper::isEmailAddress($email) || empty($name))
 			return array('status' => false, 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe&id='.rseventsproHelper::sef($id,$event->name),false) , 'message' => JText::_('COM_RSEVENTSPRO_INVALID_SUBSCRIBE_FORM'));
 		
-		if (!$cansubscribe['status']) {
-			return array('status' => false, 'id' => $id, 'name' => $event->name, 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe&id='.rseventsproHelper::sef($id,$event->name),false),  'message' => $cansubscribe['err']);
+		if (!$w8list) {
+			if (!$cansubscribe['status']) {
+				return array('status' => false, 'id' => $id, 'name' => $event->name, 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe&id='.rseventsproHelper::sef($id,$event->name),false),  'message' => $cansubscribe['err']);
+			}
 		}
 		
 		// Set tickets
@@ -1951,7 +1969,9 @@ class RseventsproModelRseventspro extends JModelLegacy
 		if (!empty($tickets)) {
 			foreach ($tickets as $tid => $quantity) {
 				$checkticket = rseventsproHelper::checkticket($tid);
-				if ($checkticket == RSEPRO_TICKETS_NOT_AVAILABLE) continue;
+				if (!$w8list) {
+					if ($checkticket == RSEPRO_TICKETS_NOT_AVAILABLE) continue;
+				}
 				
 				$query->clear()
 					->select($this->_db->qn('name'))->select($this->_db->qn('price'))->select($this->_db->qn('seats'))
@@ -2265,10 +2285,25 @@ class RseventsproModelRseventspro extends JModelLegacy
 		
 		// Send registration email
 		rseventsproEmails::registration($email, $id, $name, $optionals, $ids);
+		rseventsproHelper::newsletterSubscribe($email, $id, $ids, 0);
 		
 		// Send activation email
-		if ($state)
+		if ($state) {
 			rseventsproEmails::activation($email, $id, $name, $optionals, $ids);
+			rseventsproHelper::newsletterSubscribe($email, $id, $ids, 1);
+		}
+		
+		if ($w8list) {
+			$query->clear()
+				->update($this->_db->qn('#__rseventspro_waitinglist'))
+				->set($this->_db->qn('ids').' = '.$this->_db->q($id))
+				->set($this->_db->qn('confirmed').' = '.$this->_db->q($now->toSql()))
+				->set($this->_db->qn('used').' = 1')
+				->where($this->_db->qn('hash').' = '.$this->_db->q($w8list));
+			$this->_db->setQuery($query);
+			$this->_db->execute();
+			JFactory::getSession()->clear('rsepro_waitinglist'.$id);
+		}
 		
 		if ($total > 0 && !empty($payment)) {
 			if (!empty($wire)) {
@@ -3699,6 +3734,15 @@ class RseventsproModelRseventspro extends JModelLegacy
 		return $this->getCount($this->_rsvpquery);
 	}
 	
+	public function getWaitingData() {
+		$this->_db->setQuery($this->_waitingquery,$this->getState('com_rseventspro.limitstart'), $this->getState('com_rseventspro.limit'));
+		return $this->_db->loadObjectList();
+	}
+	
+	public function getWaitingTotal() {
+		return $this->getCount($this->_waitingquery);
+	}
+	
 	public function rsvp($id, $rsvp) {
 		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);
@@ -3810,5 +3854,207 @@ class RseventsproModelRseventspro extends JModelLegacy
 	
 	public function getYesNo() {
 		return array(JHTML::_('select.option', 1, JText::_('JYES')), JHTML::_('select.option', 0, JText::_('JNO')));
+	}
+	
+	public function duplicateticket() {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		$app	= JFactory::getApplication();
+		$id		= $app->input->getInt('id', 0);
+		$cart	= false;
+		
+		$query->clear()
+			->select('*')
+			->from($db->qn('#__rseventspro_tickets'))
+			->where($db->qn('id').' = '.$db->q($id));
+		$db->setQuery($query);
+		$ticket = $db->loadObject();
+		
+		$ticket->id = 0;
+		$ticket->name = JText::sprintf('COM_RSEVENTSPRO_DUPLICATE_TICKET_NAME', $ticket->name);
+		
+		$query->clear()
+			->select('MAX('.$db->qn('order').')')
+			->from($db->qn('#__rseventspro_tickets'))
+			->where($db->qn('ide').' = '.$ticket->ide);
+		$db->setQuery($query);
+		$ticket->order = (int) $db->loadResult() + 1;
+		
+		// Save ticket
+		$db->insertObject('#__rseventspro_tickets', $ticket, 'id');
+		
+		$app->triggerEvent('rsepro_isCart',array(array('cart'=>&$cart)));
+		
+		if ($cart) {
+			$query->clear()
+				->select('*')
+				->from($db->qn('#__rseventspro_fields'))
+				->where($db->qn('idt').' = '.$db->q($id));
+			$db->setQuery($query);
+			if ($fields = $db->loadObjectList()) {
+				foreach ($fields as $field) {
+					$field->id = 0;
+					$field->idt = $ticket->id;
+					$db->insertObject('#__rseventspro_fields', $field);
+				}
+			}
+		}
+		
+		require_once JPATH_SITE.'/components/com_rseventspro/helpers/events.php';
+		
+		$eventClass = RSEvent::getInstance($ticket->ide);
+		
+		$app->input->set('format', 'raw');
+		
+		$view = new JViewLegacy(array(
+			'name' => 'rseventspro',
+			'layout' => 'edit',
+			'base_path' => JPATH_SITE.'/components/com_rseventspro'
+		));
+		
+		$view->eventClass = $eventClass;
+		$view->tickets = $eventClass->getTickets($ticket->id);
+		
+		$response = new stdClass();
+		$response->id = $ticket->id;
+		$response->name = $ticket->name;
+		$response->html = $view->loadTemplate('tickets');
+		
+		return $response;
+	}
+	
+	public function waiting() {
+		$db		 = JFactory::getDbo();
+		$query	 = $db->getQuery(true);
+		$app	 = JFactory::getApplication();
+		$id		 = $app->input->getInt('id', 0);
+		$name	 = $app->input->getString('name', '');
+		$email	 = $app->input->getString('email', '');
+		$consent = $app->input->getInt('consent',0);
+		$itemid	 = $app->input->getInt('Itemid',0);
+		
+		if (rseventsproHelper::getConfig('consent','int','1')) {
+			if (!$consent) {
+				throw new Exception(JText::_('COM_RSEVENTSPRO_CONSENT_INFO'));
+			}
+		}
+		
+		if (empty($name) || empty($email)) {
+			throw new Exception(JText::_('COM_RSEVENTSPRO_WAITING_MISSING_DETAILS'));
+		}
+		
+		$query->clear()
+			->select($db->qn('id'))
+			->from($db->qn('#__rseventspro_waitinglist'))
+			->where($db->qn('ide').' = '.$db->q($id))
+			->where($db->qn('email').' = '.$db->q($email));
+		$db->setQuery($query);
+		if ($db->loadResult()) {
+			throw new Exception(JText::_('COM_RSEVENTSPRO_ALREADY_IN_WAITING'));
+		}
+		
+		$query->clear()
+			->insert($db->qn('#__rseventspro_waitinglist'))
+			->set($db->qn('ide').' = '.$db->q($id))
+			->set($db->qn('name').' = '.$db->q($name))
+			->set($db->qn('email').' = '.$db->q($email))
+			->set($db->qn('itemid').' = '.$db->q($itemid))
+			->set($db->qn('date').' = '.$db->q(JFactory::getDate()->toSql()));
+		$db->setQuery($query);
+		$db->execute();
+	}
+	
+	protected function _buildWaitingQuery() {
+		$db		 = JFactory::getDbo();
+		$query	 = $db->getQuery(true);
+		$app	 = JFactory::getApplication();
+		$id		 = $app->input->getInt('id', 0);
+		
+		$query->select('*');
+		$query->from($db->qn('#__rseventspro_waitinglist'));
+		$query->where($db->qn('ide').' = '.$db->q($id));
+		
+		return (string) $query;
+	}
+	
+	public function removewaiting() {
+		$db		 = JFactory::getDbo();
+		$query	 = $db->getQuery(true);
+		$app	 = JFactory::getApplication();
+		$id		 = $app->input->getInt('id', 0);
+		
+		$query->clear()
+			->delete($db->qn('#__rseventspro_waitinglist'))
+			->where($db->qn('id').' = '.$db->q($id));
+		$db->setQuery($query);
+		$db->execute();
+	}
+	
+	public function approvewaiting() {
+		$db		= JFactory::getDBO();
+		$query	= $db->getQuery(true);
+		$now	= JFactory::getDate()->toSql();
+		$app	= JFactory::getApplication();
+		$id		= $app->input->getInt('id', 0);
+		$lang	= JFactory::getLanguage()->getTag();
+		
+		$query->clear()
+			->select('w.*')->select($db->qn('e.waitinglist_time'))
+			->from($db->qn('#__rseventspro_waitinglist','w'))
+			->join('LEFT',$db->qn('#__rseventspro_events','e').' ON '.$db->qn('w.ide').' = '.$db->qn('e.id'))
+			->where($db->qn('w.id').' = '.$db->q($id))
+			->where($db->qn('w.hash').' = '.$db->q(''));
+		$db->setQuery($query);
+		if ($item = $db->loadObject()) {
+			$hash = md5($item->id.$item->email.$item->date);
+			$date = '';
+			
+			if ($item->waitinglist_time) {
+				$date = JFactory::getDate();
+				$date->modify('+'.$item->waitinglist_time.' second');
+				$date = rseventsproHelper::showdate($date->toSql());
+			}
+			
+			$query->clear()
+				->update($db->qn('#__rseventspro_waitinglist'))
+				->set($db->qn('hash').' = '.$db->q($hash))
+				->set($db->qn('sent').' = '.$db->q($now))
+				->where($db->qn('id').' = '.$db->q($item->id));
+			$db->setQuery($query);
+			if ($db->execute()) {
+				rseventsproEmails::waitinglist($item->email, $item->ide, $item->name, $hash, $date, $lang);
+				return true;
+			}
+		} else {
+			return false;
+		}
+	}
+	
+	public function savewaitinglist() {
+		$db		= JFactory::getDBO();
+		$query	= $db->getQuery(true);
+		$app	= JFactory::getApplication();
+		$jform	= $app->input->get('jform', array(), 'array');
+		
+		$query->update($db->qn('#__rseventspro_waitinglist'))
+			->set($db->qn('name').' = '.$db->q($jform['name']))
+			->set($db->qn('email').' = '.$db->q($jform['email']))
+			->where($db->qn('id').' = '.$db->q($jform['id']));
+		$db->setQuery($query);
+		return $db->execute();
+	}
+	
+	public function getWaitingUser() {
+		$db		= JFactory::getDBO();
+		$query	= $db->getQuery(true);
+		$app	= JFactory::getApplication();
+		$id		= $app->input->getInt('id', 0);
+		
+		$query->select('w.*')->select($db->qn('e.name','eventName'))
+			->from($db->qn('#__rseventspro_waitinglist','w'))
+			->join('LEFT', $db->qn('#__rseventspro_events','e').' ON '.$db->qn('w.ide').' = '.$db->qn('e.id'))
+			->where($db->qn('w.id').' = '.$db->q($id));
+		$db->setQuery($query);
+		return $db->loadObject();
 	}
 }

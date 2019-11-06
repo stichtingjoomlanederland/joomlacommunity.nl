@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
+?>
+<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
 	<div id="acym__lists" class="acym__content">
         <?php if (empty($data['lists']) && empty($data['search']) && empty($data['tag']) && empty($data['status'])) { ?>
 			<div class="grid-x text-center">
@@ -23,7 +24,7 @@ defined('_JEXEC') or die('Restricted access');
         <?php } else { ?>
 			<div class="grid-x grid-margin-x">
 				<div class="large-auto medium-8 cell">
-                    <?php echo acym_filterSearch($data['search'], 'lists_search', 'ACYM_SEARCH_A_LIST_NAME'); ?>
+                    <?php echo acym_filterSearch($data['search'], 'lists_search', 'ACYM_SEARCH'); ?>
 				</div>
 				<div class="large-auto medium-4 cell">
                     <?php

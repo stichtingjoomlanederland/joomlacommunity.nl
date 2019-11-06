@@ -473,16 +473,7 @@ class EasyDiscussNotifications extends EasyDiscuss
 			$template .= '.html';
 		}
 
-		$defaultJoomlaTemplate = ED::getCurrentTemplate();
-		
-		// Set the logo for the generic email template
-		$override = JPATH_ROOT . '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/emails/logo.png';
-		$logo = rtrim(JURI::root(), '/') . '/components/com_easydiscuss/themes/wireframe/images/emails/logo.png';
-
-		if (JFile::exists($override)) {
-			$logo = rtrim(JURI::root(), '/') . '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/emails/logo.png';
-		}
-
+		$logo = ED::getLogo();
 		$theme = ED::themes();
 
 		foreach ($data as $key => $val) {
@@ -512,6 +503,111 @@ class EasyDiscussNotifications extends EasyDiscuss
 		return $output;
 	}
 
+	/**
+	 * Query to send notification to all users on the site
+	 *
+	 * @since	4.1.12
+	 * @access	public
+	 */
+	public function sendToAllUsers($subject, $data = array(), $ignoreEmails = array(), $template = '', $body = '', $userGroupIds = array(), $includesGuest = true)
+	{
+		$db = ED::db();
+		$config = ED::config();
+
+		$userGroupIds = implode(',', $userGroupIds);
+
+		$app = JFactory::getApplication();
+		$jConfig = ED::jconfig();
+
+		$defaultEmailFrom = $jConfig->get('mailfrom');
+		$defaultFromName = $jConfig->get('fromname');
+
+		$fromEmail = $config->get('notification_sender_email', $defaultEmailFrom);
+		$fromName = $config->get('notification_sender_name', $defaultFromName );
+
+		// Override the from email address if necessary
+		if (empty($fromEmail)) {
+			$fromEmail = $defaultEmailFrom;
+		}
+
+		// Override the from name if necessary
+		if (empty($fromName)) {
+			$fromName = $defaultFromName;
+		}
+
+		//load the email template
+		$emailBody = '';
+		if (!empty($template)) {
+			$emailBody = $this->getEmailTemplateContent($template, $data);
+		} else {
+			$emailBody = $body;
+		}
+
+		//send as html or plaintext
+		$asHtml	= (bool) $config->get('notify_html_format');
+
+		if (!$asHtml) {
+			$emailBody = strip_tags($emailBody);
+		}
+
+		$insertDate = ED::date()->toMySQL();
+		$mainQuery = '';
+		$queryHeader = 'insert into `#__discuss_mailq` (`mailfrom`,`fromname`,`recipient`,`subject`,`body`,`created`,`status`,`ashtml`) ';
+
+		$query = '';
+
+		$collation = ED::getUsersTableCollation('joomla');
+
+		$query .= 'select distinct(a.`email`) ' . $collation . ' AS `email` from `#__users` as a';
+		$query .= ' INNER JOIN #__user_usergroup_map as b on b.`user_id` = a.`id`';
+		$query .= ' WHERE b.`group_id` IN (' . $userGroupIds. ')'; 
+		$query .= ' AND a.`block` = 0';
+
+		if ($includesGuest) {
+			// guest subscribers
+			$collation = ED::getUsersTableCollation('ed');
+			$query .= ' UNION ';
+			$query .= 'select a1.`email` ' . $collation . ' AS `email` FROM `#__discuss_subscription` as a1';
+			$query .= ' WHERE a1.`userid` = ' . $db->Quote('0');
+		}
+
+		if ($query) {
+			$mainQuery = $queryHeader;
+			$mainQuery .= 'SELECT ' . $db->Quote($fromEmail) . ' as `mailfrom`,' . $db->Quote($fromName) . ' as `fromname`, x.`email` as `recipient`,';
+			$mainQuery .= $db->Quote($subject) . ' as `subject`';
+			$mainQuery .= ', ' . $db->Quote($emailBody) . ' as `body`';
+			$mainQuery .= ', ' . $db->Quote($insertDate) . ' as `created`, 0 as `status`';
+			$mainQuery .= ', ' . $db->Quote($asHtml) . ' as `ashtml`';
+			$mainQuery .= ' FROM (' . $query . ') as x';
+
+			// exclude these emails if there are any
+			if ($ignoreEmails) {
+
+				$tmpQuery = '';
+
+				if (count($ignoreEmails) == 1) {
+					$tmpQuery = ' where x.email != ' . $db->Quote($ignoreEmails[0]);
+				} else {
+					$emails = '';
+					foreach ($ignoreEmails as $ignore) {
+						$emails .= ($emails) ? ',' . $db->Quote($ignore) : $db->Quote($ignore);
+					}
+
+					$tmpQuery = ' where x.email NOT IN (' . $emails . ')';
+				}
+
+				$mainQuery .= $tmpQuery;
+			}
+
+			// insert records into mailq here.
+			$db->setQuery($mainQuery);
+			$db->query();
+		}
+
+		return true;
+
+	}
+
 // 	/**
 //      * Determines if this notification post is featured
 //      *
@@ -534,6 +630,5 @@ class EasyDiscussNotifications extends EasyDiscuss
 // var_dump(expression)
 //         return $items[$key];
 //     }
-
 
 }

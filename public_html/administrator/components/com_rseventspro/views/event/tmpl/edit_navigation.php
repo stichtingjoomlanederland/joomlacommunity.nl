@@ -55,5 +55,9 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	<li><a href="javascript:void(0);" data-target="#rsepro-edit-tab13" data-toggle="tab"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TAB_GALLERY'); ?> <span class="fa fa-picture-o"></span></a></li>
 	<?php } ?>
 	
+	<?php if (rseventsproHelper::isRsmail()) { ?>
+	<li><a href="javascript:void(0);" data-target="#rsepro-edit-rsmail" data-toggle="tab"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TAB_RSMAIL'); ?> <span class="fa fa-envelope-o"></span></a></li>
+	<?php } ?>
+	
 	<?php JFactory::getApplication()->triggerEvent('rsepro_addMenuOption'); ?>
 </ul>

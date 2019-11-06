@@ -230,12 +230,15 @@ class EasyDiscussSubscription extends EasyDiscuss
 			// proceed to email sending if there are something.
 			if ($posts || $replies || $comments) {
 
+				$logo = ED::getLogo();
+
 				$theme = ED::themes();
 				$theme->set('sitename', ED::jconfig()->get('sitename'));
 				$theme->set('now', ED::date()->display());
 				$theme->set('posts', $postsContent);
 				$theme->set('replies', $repliesContent);
 				$theme->set('comments', $commentsContent);
+				$theme->set('logo', $logo);
 
 				$namespace = "site/emails/email.digest.subscriptions";
 				$body = $theme->output($namespace);

@@ -49,7 +49,7 @@ class RsformModelForms extends JModelList
 		$ids 	= array();
 
 		// Flag to know if we need translations - no point in doing a join if we're only using the default language.
-		if (RSFormProHelper::getConfig('global.disable_multilanguage'))
+		if (RSFormProHelper::getConfig('global.disable_multilanguage') && RSFormProHelper::getConfig('global.default_language') == 'en-GB')
 		{
 			$needs_translation = false;
 		}
@@ -76,7 +76,7 @@ class RsformModelForms extends JModelList
 				}
 			}
 
-			$needs_translation = $lang->getTag() != $lang->getDefault() || $ids;
+			$needs_translation = $lang->getTag() != $lang->getDefault() || $ids || (RSFormProHelper::getConfig('global.disable_multilanguage') && RSFormProHelper::getConfig('global.default_language') != 'en-GB');
 		}
 
 		$query->select($this->_db->qn('f.FormId'))
@@ -102,13 +102,20 @@ class RsformModelForms extends JModelList
 				$this->_db->qn('t.reference_id') . ' = ' . $this->_db->q('FormTitle')
 			);
 
-			if ($or)
+			if ($or && !RSFormProHelper::getConfig('global.disable_multilanguage'))
 			{
 				$on[] = '(' . implode(' OR ', $or) . ')';
 			}
 			else
 			{
-				$on[] = $this->_db->qn('t.lang_code') . ' = ' . $this->_db->q($lang->getTag());
+				if (RSFormProHelper::getConfig('global.default_language') == 'en-GB')
+				{
+					$on[] = $this->_db->qn('t.lang_code') . ' = ' . $this->_db->q($lang->getTag());
+				}
+				else
+				{
+					$on[] = $this->_db->qn('t.lang_code') . ' = ' . $this->_db->q(RSFormProHelper::getConfig('global.default_language'));
+				}
 			}
 
 			$query->join('left', $this->_db->qn('#__rsform_translations', 't') . ' ON (' . implode(' AND ', $on) . ')');
@@ -690,7 +697,7 @@ class RsformModelForms extends JModelList
 
 	public function saveFormTranslation(&$form, $lang)
 	{
-		if ($form->Lang == $lang || RSFormProHelper::getConfig('global.disable_multilanguage'))
+		if ($form->Lang == $lang || (RSFormProHelper::getConfig('global.disable_multilanguage') && RSFormProHelper::getConfig('global.default_language') == 'en-GB'))
         {
             return true;
         }
@@ -783,18 +790,17 @@ class RsformModelForms extends JModelList
 
 	public function getLang()
 	{
-        $lang = JFactory::getLanguage();
-	    if (RSFormProHelper::getConfig('global.disable_multilanguage'))
-        {
-            return $lang->getDefault();
-        }
-
 		if (empty($this->_form))
 		{
-            $this->getForm();
+			$this->getForm();
+		}
+
+	    if (RSFormProHelper::getConfig('global.disable_multilanguage'))
+        {
+            return RSFormProHelper::getConfig('global.default_language');
         }
 		
-		return JFactory::getSession()->get('com_rsform.form.formId'.$this->_form->FormId.'.lang', $lang->getTag());
+		return JFactory::getSession()->get('com_rsform.form.formId'.$this->_form->FormId.'.lang', JFactory::getLanguage()->getTag());
 	}
 
 	public function getEmailLang($id = null)

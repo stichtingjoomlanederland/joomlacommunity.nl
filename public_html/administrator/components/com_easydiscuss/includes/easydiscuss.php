@@ -1753,6 +1753,76 @@ class ED
 		return $data;
 	}
 
+	/**
+	 * function to the column collation that compatible with Joomla 3.5 jos_users table collation.
+	 *
+	 * @since	4.1.12
+	 * @access	public
+	 */
+	public static function getUsersTableCollation($from)
+	{
+		static $collationType = array();
+
+		if (!isset($collationType[$from])) {
+
+			// Default value
+			$collationType[$from] = '';
+
+			$jVersion = ED::getJoomlaVersion();
+
+			if ($jVersion >= '3.5') {
+				$jConfig = ED::jconfig();
+				$dbType = $jConfig->get('dbtype');
+
+				if ($dbType == 'mysql' || $dbType == 'mysqli' || $dbType == 'pdomysql') {
+					$db = ED::db();
+					$dbversion = $db->getVersion();
+					$dbversion = (float) $dbversion;
+
+					if ($dbversion >= '5.1') {
+
+						$prefix = $db->getPrefix();
+
+						$tableName = $prefix . 'users';
+
+						$query = "SHOW TABLE STATUS WHERE `Name` = " . $db->Quote($tableName);
+						$db->setQuery($query);
+						$result = $db->loadObject();
+
+						$collation = $result->Collation;
+
+						if (strpos($collation, 'mb4_') !== false) {
+
+							if ($from == 'ed') {
+								$tableName2 = $prefix . 'discuss_subscription';
+								// dump($tableName2);
+
+								$query = "SHOW TABLE STATUS WHERE `Name` = " . $db->Quote($tableName2);
+								$db->setQuery($query);
+								$result = $db->loadObject();
+
+								$collation2 = $result->Collation;
+
+								if (strpos($collation2, 'mb4_') !== false) {
+									$collationType[$from] = 'COLLATE utf8mb4_unicode_ci';
+								} else {
+									$collationType[$from] = 'COLLATE utf8_unicode_ci';
+								}
+							} else {
+								$collationType[$from] = 'COLLATE utf8mb4_unicode_ci';
+							}
+
+						} else if ($db->hasUTFSupport()) {
+							$collationType[$from] = 'COLLATE utf8_unicode_ci';
+						}
+					}
+				}
+			}
+		}
+
+		return $collationType[$from];
+	}
+
 	public static function getJoomlaVersion()
 	{
 		$jVerArr	= explode('.', JVERSION);
@@ -1822,15 +1892,17 @@ class ED
 
 	/**
 	 * Used in J1.6!. To retrieve list of superadmin users's id.
-	 * array
-	 */
+	 *
+	 * @since	1.0
+	 * @access	public
+	 */	
 	public static function getSAUsersIds()
 	{
-		if( ED::getJoomlaVersion() < '1.6' ) {
+		if (ED::getJoomlaVersion() < '1.6') {
 			return ED::getSAUsersIds15();
 		}
 
-		$db = ED::getDBO();
+		$db = ED::db();
 
 		$query	= 'SELECT a.`id`, a.`title`';
 		$query	.= ' FROM `#__usergroups` AS a';
@@ -1841,26 +1913,28 @@ class ED
 		$db->setQuery($query);
 		$result = $db->loadObjectList();
 
-		$saGroup    = array();
-		foreach($result as $group)
-		{
-			if(JAccess::checkGroup($group->id, 'core.admin'))
-			{
-				$saGroup[]  = $group;
+		$saGroup = array();
+		
+		foreach ($result as $group) {
+
+			if (JAccess::checkGroup($group->id, 'core.admin')) {
+				$saGroup[] = $group;
 			}
 		}
 
 		//now we got all the SA groups. Time to get the users
 		$saUsers = array();
-		if(count($saGroup) > 0)
-		{
-			foreach($saGroup as $sag)
-			{
-				$userArr	= JAccess::getUsersByGroup($sag->id);
-				if(count($userArr) > 0)
-				{
-					foreach($userArr as $user)
-					{
+
+		if (count($saGroup) > 0) {
+
+			foreach ($saGroup as $sag) {
+
+				$userArr = JAccess::getUsersByGroup($sag->id);
+				
+				if (count($userArr) > 0) {
+
+					foreach ($userArr as $user) {
+
 						$saUsers[] = $user;
 					}
 				}
@@ -4601,6 +4675,32 @@ class ED
 		$relAttr = !empty($relValue) ? ' rel="' . implode(' ', $relValue) . '"' : '';
 
 		return $targetBlank . $relAttr;
+	}
+
+	/**
+	 * Retrieves the logo that should be used site wide
+	 *
+	 * @since   4.1.12
+	 * @access  public
+	 */
+	public static function getLogo()
+	{
+		static $logo = null;
+
+		if (is_null($logo)) {
+
+			$defaultJoomlaTemplate = ED::getCurrentTemplate();
+			
+			// Set the logo for the generic email template
+			$override = JPATH_ROOT . '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/emails/logo.png';
+			$logo = rtrim(JURI::root(), '/') . '/components/com_easydiscuss/themes/wireframe/images/emails/logo.png';
+
+			if (JFile::exists($override)) {
+				$logo = rtrim(JURI::root(), '/') . '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/emails/logo.png';
+			}			
+		}
+
+		return $logo;
 	}
 
 	/**

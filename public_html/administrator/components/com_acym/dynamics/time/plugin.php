@@ -1,25 +1,27 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class plgAcymTime extends acymPlugin
 {
+    public function __construct()
+    {
+        parent::__construct();
+        $this->pluginDescription->name = acym_translation('ACYM_TIME');
+    }
+
     public function dynamicText()
     {
-        $onePlugin = new stdClass();
-        $onePlugin->name = acym_translation('ACYM_TIME');
-        $onePlugin->plugin = __CLASS__;
-        $onePlugin->help = 'plugin-time';
-
-        return $onePlugin;
+        return $this->pluginDescription;
     }
 
     public function textPopup()
@@ -54,7 +56,7 @@ class plgAcymTime extends acymPlugin
 
     public function replaceContent(&$email, $send = true)
     {
-        $extractedTags = $this->acympluginHelper->extractTags($email, 'date');
+        $extractedTags = $this->pluginHelper->extractTags($email, 'date');
         if (empty($extractedTags)) {
             return;
         }
@@ -83,7 +85,7 @@ class plgAcymTime extends acymPlugin
             $tags[$i] = acym_getDate($time, $oneTag->id);
         }
 
-        $this->acympluginHelper->replaceTags($email, $tags);
+        $this->pluginHelper->replaceTags($email, $tags);
     }
 
     public function onAcymDeclareTriggers(&$triggers, &$defaultValues)
@@ -149,10 +151,10 @@ class plgAcymTime extends acymPlugin
         $triggers['classic']['every']->option .= '</div>';
     }
 
-    public function onAcymExecuteTrigger(&$step, &$execute, $data)
+    public function onAcymExecuteTrigger(&$step, &$execute, &$data)
     {
         $time = $data['time'];
-        $triggers = json_decode($step->triggers, true);
+        $triggers = $step->triggers;
 
         $nextExecutionDate = [];
 
@@ -168,7 +170,7 @@ class plgAcymTime extends acymPlugin
 
         if (!empty($triggers['day'])) {
             $todaysDate = acym_getTime('today '.$triggers['day']['hour'].':'.$triggers['day']['minutes']);
-            
+
             if ($time < $todaysDate) {
                 $nextExecutionDate[] = $todaysDate;
             } else {
@@ -184,8 +186,10 @@ class plgAcymTime extends acymPlugin
                     $todaysDate = acym_getTime('today '.$dailyHour.':'.$dailyMinute);
                     if ($time < $todaysDate) {
                         $nextExecutionDate[] = $todaysDate;
-                    } elseif (empty($step->last_execution)) {
-                        $execute = true;
+                    } else {
+                        $nextExecutionDate[] = acym_getTime('next '.$day.' '.$dailyHour.':'.$dailyMinute);
+
+                        if (empty($step->last_execution) || acym_date($step->last_execution, 'Y-m-d') !== acym_date('now', 'Y-m-d')) $execute = true;
                     }
                 } else {
                     $nextExecutionDate[] = acym_getTime('next '.$day.' '.$dailyHour.':'.$dailyMinute);

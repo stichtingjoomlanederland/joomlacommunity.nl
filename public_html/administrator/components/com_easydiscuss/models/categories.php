@@ -287,6 +287,10 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 			$query .= " a.`post_status`, a.`post_type`";
 
 			$query .= " from " . $db->nameQuote('#__discuss_thread') . " as a";
+
+			// exclude blocked users posts #788
+			$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+
 			$query .= " where a.`published` = " . $db->Quote('1');
 
 			if (!$includeFeatured) {
@@ -302,6 +306,9 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 			}
 
 			$query .= " and a.`category_id` in (" . implode(',', $children) . ")";
+
+			// exclude blocked users posts #788
+			$query .= " and (uu.`block` = 0 OR uu.`id` IS NULL)";
 
 			$orderby = " order by";
 

@@ -30,7 +30,7 @@ class RseventsproViewSettings extends JViewLegacy
 			$this->login		= $this->get('Login');
 			
 			require_once JPATH_SITE.'/components/com_rseventspro/helpers/google.php';
-			$google = new RSEPROGoogle;
+			$google = new RSEPROGoogle(false);
 			$this->auth = $google->getAuthURL();
 			
 			if ($this->app->input->getInt('fb',0)) {

@@ -25,7 +25,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 		    			</div>
 					<?php } ?>
 		    		<div class="o-flag__body">
-						<a class="ed-user-name" href="<?php echo $my->getLink();?>"><?php echo $my->getName();?></a>
+		    			<?php echo ED::themes()->html('user.username', $my); ?>
 		    			<?php if ($params->get('showranks')) { ?>
 		    			<div class="t-fs--sm">( <?php echo $ranking; ?> )</div>
 		    			<?php } ?>

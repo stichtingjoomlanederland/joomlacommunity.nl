@@ -7,9 +7,9 @@
 
 class RSFormProYUICalendar
 {
-	static $calendarOptions = array(); // store the javascript settings for each calendar
-	
-	static $translationTable = array
+	protected $calendarOptions = array(); // store the javascript settings for each calendar
+
+	protected $translationTable = array
 	(
 		'd' => 'dd',
 		'j' => 'd',
@@ -31,7 +31,14 @@ class RSFormProYUICalendar
 		's' => 'ss',
 	);
 	
-	public static function loadFiles() {
+	public function loadFiles() {
+		static $done;
+
+		if ($done)
+		{
+			return;
+		}
+
 		RSFormProAssets::addScript(JHtml::script('com_rsform/calendar/calendar.js', array('pathOnly' => true, 'relative' => true)));
 		RSFormProAssets::addScript(JHtml::script('com_rsform/calendar/script.js', array('pathOnly' => true, 'relative' => true)));
 		RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/calendar/calendar.css', array('pathOnly' => true, 'relative' => true)));
@@ -63,16 +70,19 @@ class RSFormProYUICalendar
 		$out .= 'RSFormPro.YUICalendar.settings.WEEKDAYS_MEDIUM = ['.implode(',', $w_med).'];'."\n";
 		$out .= 'RSFormPro.YUICalendar.settings.WEEKDAYS_LONG 	 = ['.implode(',', $w_long).'];'."\n";
 		$out .= 'RSFormPro.YUICalendar.settings.START_WEEKDAY 	 = '.JText::_('RSFP_CALENDAR_START_WEEKDAY').';'."\n";
-		
-		$lang = JFactory::getLanguage();
-		if ($lang->hasKey('COM_RSFORM_CALENDAR_CHOOSE_MONTH')) {
+
+		if (JFactory::getLanguage()->hasKey('COM_RSFORM_CALENDAR_CHOOSE_MONTH')) {
 			$out .= 'RSFormPro.YUICalendar.settings.navConfig = { strings : { month: "'.JText::_('COM_RSFORM_CALENDAR_CHOOSE_MONTH', true).'", year: "'.JText::_('COM_RSFORM_CALENDAR_ENTER_YEAR', true).'", submit: "'.JText::_('COM_RSFORM_CALENDAR_OK').'", cancel: "'.JText::_('COM_RSFORM_CALENDAR_CANCEL').'", invalidYear: "'.JText::_('COM_RSFORM_CALENDAR_PLEASE_ENTER_A_VALID_YEAR', true).'" }, monthFormat: rsf_CALENDAR.widget.Calendar.LONG, initialFocus: "year" };'."\n";
 		}
+
+		$out .= "rsf_CALENDAR.util.Event.addListener(window, 'load', RSFormPro.YUICalendar.renderCalendars);\n";
 		
 		RSFormProAssets::addScriptDeclaration($out);
+
+		$done = true;
 	}
 	
-	public static function processDateFormat($dateFormat)
+	protected function processDateFormat($dateFormat)
 	{
 		$newFormat = '';
 		
@@ -80,9 +90,9 @@ class RSFormProYUICalendar
 		{
 			$current = $dateFormat[$i];
 			
-			if (isset(self::$translationTable[$current]))
+			if (isset($this->translationTable[$current]))
 			{
-				$newFormat .= self::$translationTable[$current];
+				$newFormat .= $this->translationTable[$current];
 			}
 			else
 			{
@@ -93,12 +103,12 @@ class RSFormProYUICalendar
 		return $newFormat;
 	}
 
-	public static function setCalendarOptions($config) {
+	public function setCalendarOptions($config) {
 		extract($config);
 		
-		self::$calendarOptions[$formId][$customId]['layout'] = $layout;
-		self::$calendarOptions[$formId][$customId]['format'] = self::processDateFormat($dateFormat);
-		self::$calendarOptions[$formId][$customId]['value'] = $value;
+		$this->calendarOptions[$formId][$customId]['layout'] = $layout;
+		$this->calendarOptions[$formId][$customId]['format'] = $this->processDateFormat($dateFormat);
+		$this->calendarOptions[$formId][$customId]['value'] = $value;
 		
 		$extras = array();
 		if (!empty($minDate)) {
@@ -115,12 +125,12 @@ class RSFormProYUICalendar
 			$extras['rule'] = $rule.'|'.$otherCalendarData['NAME'];
 		}
 
-		$extras = self::parseJSProperties($extras);
+		$extras = $this->parseJSProperties($extras);
 
-		self::$calendarOptions[$formId][$customId]['extra'] = $extras;
+		$this->calendarOptions[$formId][$customId]['extra'] = $extras;
 	}
 
-	protected static function parseJSProperties($extras) {
+	protected function parseJSProperties($extras) {
 		$properties = array();
 		if (count($extras)) {
 			foreach ($extras as $key => $value) {
@@ -131,7 +141,29 @@ class RSFormProYUICalendar
 		return $properties;
 	}
 	
-	public static function getCalendarOptions() {
-		return self::$calendarOptions;
+	public function getCalendarOptions() {
+		return $this->calendarOptions;
+	}
+
+	public function getPosition($formId, $componentId)
+	{
+		static $calendars = array();
+
+		if (!isset($calendars[$formId]))
+		{
+			$calendars[$formId] = RSFormProHelper::componentExists($formId, RSFORM_FIELD_CALENDAR);
+		}
+
+		$position = (int) array_search($componentId, $calendars[$formId]);
+
+		return $position;
+	}
+
+	public function printInlineScript($formId)
+	{
+		$calendarIds = array_keys($this->calendarOptions[$formId]);
+		$calendarIds = json_encode($calendarIds);
+
+		return "RSFormPro.callbacks.addCallback({$formId}, 'changePage', [RSFormPro.YUICalendar.hideAllPopupCalendars, {$formId}, {$calendarIds}]);";
 	}
 }

@@ -33,6 +33,11 @@ class RSFormProFormLayoutResponsive extends RSFormProFormLayout
 		}
     }
 
+    public function modifyForm(&$form)
+	{
+		$form->CSSClass .= ' formResponsive';
+	}
+
     public function generateButton($goto)
     {
         return

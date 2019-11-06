@@ -67,6 +67,12 @@
 	<field name="rsvp_notgoing" type="hidden" />
 	<field name="event_ended" type="hidden" />
 	<field name="event_full" type="hidden" />
+	<field name="rsm_enable" type="hidden" />
+	<field name="rsm_when" type="hidden" />
+	<field name="rsm_lists" type="hidden" />
+	<field name="waitinglist" type="hidden" />
+	<field name="waitinglist_limit" type="hidden" />
+	<field name="waitinglist_time" type="hidden" />
 	
 	<field name="created" type="hidden" filter="unset" />
 	<field name="icon" type="hidden" filter="unset" />

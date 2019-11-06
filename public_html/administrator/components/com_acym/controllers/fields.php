@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class FieldsController extends acymController
 {
@@ -86,12 +87,6 @@ class FieldsController extends acymController
             $this->breadcrumb[acym_translation('ACYM_NEW_CUSTOM_FIELD')] = acym_completeLink('fields&task=edit');
         }
 
-        $allDatabases = acym_loadResultArray('SHOW DATABASES');
-        $databases = [];
-        foreach ($allDatabases as $database) {
-            $databases[$database] = $database;
-        }
-
         $allFields = $fieldClass->getAllfields();
 
         $allFieldsName = [];
@@ -101,7 +96,7 @@ class FieldsController extends acymController
 
         $data = [
             'field' => $field,
-            'database' => $databases,
+            'database' => acym_getDatabases(),
             'allFields' => $allFieldsName,
         ];
 
@@ -147,9 +142,9 @@ class FieldsController extends acymController
         $id = $fieldClass->save($newField);
         if (!empty($id)) {
             acym_setVar('id', $id);
-            acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'),  'success');
+            acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success');
         } else {
-            acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING'),  'error');
+            acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING'), 'error');
         }
 
         $this->edit();
@@ -162,9 +157,9 @@ class FieldsController extends acymController
         $id = $fieldClass->save($newField);
         if (!empty($id)) {
             acym_setVar('id', $id);
-            acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'),  'success');
+            acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success');
         } else {
-            acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING'),  'error');
+            acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING'), 'error');
         }
         $this->listing();
     }
@@ -258,7 +253,7 @@ class FieldsController extends acymController
     {
         $ids = acym_getVar('cmd', 'elements_checked');
         if (in_array('1', $ids) || in_array('2', $ids)) {
-            acym_enqueueMessage(acym_translation('ACYM_CANT_DELETE'),  'error');
+            acym_enqueueMessage(acym_translation('ACYM_CANT_DELETE'), 'error');
             $this->listing();
 
             return;

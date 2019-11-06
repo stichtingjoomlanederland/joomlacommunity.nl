@@ -292,33 +292,23 @@ class Db extends Part
 				$definition['database'] = str_replace($siteRoot, '#SITEROOT#', $definition['database']);
 			}
 
+			$this->databases_json[$section] = [
+				'dbtype'  => $type,
+				'dbtech'  => $tech,
+				'dbname'  => $definition['database'],
+				'sqlfile' => $definition['dumpFile'],
+				'marker'  => "\n/**ABDB**/",
+				'dbhost'  => $definition['host'],
+				'dbuser'  => $definition['username'],
+				'dbpass'  => $definition['password'],
+				'prefix'  => $definition['prefix'],
+				'parts'   => $definition['parts'],
+			];
+
 			if ($blankOutPass)
 			{
-				$this->databases_json[$section] = [
-					'dbtype'  => $type,
-					'dbtech'  => $tech,
-					'dbname'  => $definition['database'],
-					'sqlfile' => $definition['dumpFile'],
-					'dbhost'  => $definition['host'],
-					'dbuser'  => "",
-					'dbpass'  => "",
-					'prefix'  => $definition['prefix'],
-					'parts'   => $definition['parts'],
-				];
-			}
-			else
-			{
-				$this->databases_json[$section] = [
-					'dbtype'  => $type,
-					'dbtech'  => $tech,
-					'dbname'  => $definition['database'],
-					'sqlfile' => $definition['dumpFile'],
-					'dbhost'  => $definition['host'],
-					'dbuser'  => $definition['username'],
-					'dbpass'  => $definition['password'],
-					'prefix'  => $definition['prefix'],
-					'parts'   => $definition['parts'],
-				];
+				$this->databases_json[$section]['dbuser'] = '';
+				$this->databases_json[$section]['dbpass'] = '';
 			}
 		}
 	}

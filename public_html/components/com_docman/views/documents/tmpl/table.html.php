@@ -5,9 +5,15 @@
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
-defined('KOOWA') or die; ?>
+defined('KOOWA') or die;
+
+$multi_download = object('com://site/docman.controller.behavior.compressible')->isSupported(); ?>
 
 <ktml:script src="media://com_docman/js/footable.js" />
+
+<? if ($multi_download): ?>
+    <?= helper('behavior.multidownload'); ?>
+<? endif; ?>
 
 <script>
 kQuery(function($) {
@@ -88,7 +94,7 @@ kQuery(function($) {
     } ?>
 
     <tr>
-        <? if ($can_delete): ?>
+        <? if ($can_delete || $multi_download): ?>
         <th width="1%" data-hide="phone"><?= translate('Select'); ?></th>
         <? endif ?>
         <th width="1%" data-toggle="true" class="k-table-data--toggle"><?= translate('Toggle'); ?></th>
@@ -107,9 +113,13 @@ kQuery(function($) {
     <tbody>
     <? foreach ($documents as $document): ?>
         <tr class="docman_item" data-document="<?= $document->uuid ?>" itemscope itemtype="http://schema.org/CreativeWork">
-            <? if ($can_delete): ?>
+            <? if ($can_delete || $multi_download): ?>
             <td>
-                <input name="item-select" type="checkbox" data-url="<?= $document->document_link ?>" />
+                <input name="item-select" class="k-js-item-select" type="checkbox"
+                       data-id="<?= $document->id ?>" type="checkbox" data-url="<?= $document->document_link ?>"
+                       data-storage-type="<?= $document->storage_type ?>"
+                       data-can-download="<?= $document->canPerform('download') ?>"
+                />
             </td>
             <? endif; ?>
             <td class="k-table-data--toggle"></td>

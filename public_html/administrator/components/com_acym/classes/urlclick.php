@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class acymurlClickClass extends acymClass
 {
@@ -119,6 +120,19 @@ class acymurlClickClass extends acymClass
         ];
 
         return $return;
+    }
+
+    public function getClickRateByMailIds($mailsIds = [])
+    {
+        $conditionMailId = '';
+        if (!empty($mailsIds)) {
+            acym_arrayToInteger($mailsIds);
+            $conditionMailId = 'WHERE mail_id IN ('.implode(',', $mailsIds).')';
+        }
+        $query = 'SELECT COUNT(groupStat.user_id) as nbClick FROM (SELECT user_id FROM #__acym_url_click '.$conditionMailId.' GROUP BY mail_id, user_id) AS groupStat';
+        $result = acym_loadResult($query);
+
+        return $result;
     }
 }
 

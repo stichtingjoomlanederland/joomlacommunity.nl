@@ -70,7 +70,7 @@ class WFImageEditor extends JObject
     public function resize($src, $dest, $width, $height, $quality, $sx = null, $sy = null, $sw = null, $sh = null)
     {
         $ext = strtolower(JFile::getExt($src));
-        $data = @JFile::read($src);
+        $data = @file_get_contents($src);
 
         if ($src) {
             $options = $this->getOptions();
@@ -128,7 +128,7 @@ class WFImageEditor extends JObject
     public function rotate($file, $direction)
     {
         $ext = strtolower(JFile::getExt($file));
-        $src = @JFile::read($file);
+        $src = @file_get_contents($file);
 
         if ($src) {
             $options = $this->getOptions();

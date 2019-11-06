@@ -78,6 +78,33 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 </div>
 
 <div class="control-group">
+	<label class="checkbox" id="jform_waitinglist_label">
+		<?php $waitinglistOptions = $this->item->waitinglist ? 'checked="checked"' : ''; ?>
+		<input type="checkbox" id="jform_waitinglist" name="jform[waitinglist]" value="1" <?php echo $waitinglistOptions; ?> /> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_ENABLE_WAITINGLIST'); ?>
+	</label>
+</div>
+
+<div class="control-group" id="rsepro-waitinglist-limit" style="display: none;">
+	<div class="control-label">
+		<label for="jform_waitinglist_limit" class="<?php echo rseventsproHelper::tooltipClass(); ?>" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_EVENT_WAITINGLIST_LIMIT_DESC')); ?>"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_WAITINGLIST_LIMIT'); ?></label>
+	</div>
+	<div class="controls">
+		<input type="text" name="jform[waitinglist_limit]" id="jform_waitinglist_limit" class="span1" value="<?php echo $this->escape($this->item->waitinglist_limit); ?>" />
+	</div>
+</div>
+
+<div class="control-group" id="rsepro-waitinglist-time" style="display: none;">
+	<div class="control-label">
+		<label for="jform_waitinglist_time" class="<?php echo rseventsproHelper::tooltipClass(); ?>" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_EVENT_WAITINGLIST_TIME_DESC')); ?>"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_WAITINGLIST_TIME'); ?></label>
+	</div>
+	<div class="controls">
+		<input type="text" name="jform[waitinglist_time][]" id="jform_waitinglist_timed" class="span1" value="<?php echo $this->escape($this->item->waitinglist_time[0]); ?>" /> <?php echo JText::_('COM_RSEVENTSPRO_DAYS'); ?>
+		<input type="text" name="jform[waitinglist_time][]" id="jform_waitinglist_timeh" class="span1" value="<?php echo $this->escape($this->item->waitinglist_time[1]); ?>" /> <?php echo JText::_('COM_RSEVENTSPRO_HOURS'); ?>
+		<input type="text" name="jform[waitinglist_time][]" id="jform_waitinglist_timem" class="span1" value="<?php echo $this->escape($this->item->waitinglist_time[2]); ?>" /> <?php echo JText::_('COM_RSEVENTSPRO_MINUTES'); ?>
+	</div>
+</div>
+
+<div class="control-group">
 	
 	<label class="checkbox">
 		<input id="jform_notify_me" name="jform[notify_me]" type="checkbox" value="1" <?php echo $this->item->notify_me ? 'checked="checked"' : ''; ?> />

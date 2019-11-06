@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><form id="acym_form" action="<?php echo acym_prepareAjaxURL(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
+?>
+<form id="acym_form" action="<?php echo acym_prepareAjaxURL(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
 	<div class="grid-x acym__content" id="acym__users__export">
 		<!--<div class="cell grid-x align-right margin-bottom-1">-->
 		<!--	<h5 class="cell auto font-bold">--><?php //echo acym_translation('ACYM_EXPORT'); ?><!--</h5>-->
@@ -41,7 +42,13 @@ defined('_JEXEC') or die('Restricted access');
 				</div>
 				<div class="grid-x margin-bottom-1" id="userField_separator">
 					<label class="cell"><?php echo acym_translation('ACYM_SEPARATOR'); ?>
-                        <?php echo acym_radio([';' => acym_translation('ACYM_SEMICOLON'), ',' => acym_translation('ACYM_COMMA')], "export_separator", $data['config']->get('export_separator', ',')); ?>
+                        <?php
+                        echo acym_radio(
+                            [';' => acym_translation('ACYM_SEMICOLON'), ',' => acym_translation('ACYM_COMMA')],
+                            "export_separator",
+                            $data['config']->get('export_separator', ',')
+                        );
+                        ?>
 					</label>
 					<div class="cell medium-auto"></div>
 				</div>

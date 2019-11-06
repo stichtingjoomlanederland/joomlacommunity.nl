@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.4.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -312,6 +312,31 @@ class plgAcymPost extends acymPlugin
         $result = '<div class="acymailing_content">'.$this->acympluginHelper->getStandardDisplay($format).'</div>';
 
         return $this->finalizeElementFormat($this->name, $result, $tag, $varFields);
+    }
+
+    public function getPosts()
+    {
+        $return = [];
+
+        $search_results = new WP_Query(
+            [
+                's' => acym_getVar('string', 'searchedterm', ''),
+                'post_status' => 'publish',
+                'ignore_sticky_posts' => 1,
+                'post_type' => ['page', 'post'],
+                'posts_per_page' => 20,
+            ]
+        );
+
+        if ($search_results->have_posts()) {
+            while ($search_results->have_posts()) {
+                $search_results->the_post();
+                $return[] = [$search_results->post->ID, $search_results->post->post_title];
+            }
+        }
+
+        echo json_encode($return);
+        exit;
     }
 }
 

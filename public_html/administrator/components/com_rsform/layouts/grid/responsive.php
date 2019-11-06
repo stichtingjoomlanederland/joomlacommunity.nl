@@ -119,10 +119,23 @@ class RSFormProGridResponsive extends RSFormProGrid
 			
 			$html[] = "\t"."\t"."\t".'<div class="rsform-block rsform-block-' . $block . $placeholders['error'] . '">';
 				$label = "\t"."\t"."\t"."\t".'<label class="formControlLabel"';
-				if (!in_array($data->ComponentTypeId, array(RSFORM_FIELD_CHECKBOXGROUP, RSFORM_FIELD_RADIOGROUP, RSFORM_FIELD_BIRTHDAY)))
+				if (!in_array($data->ComponentTypeId, array(RSFORM_FIELD_CHECKBOXGROUP, RSFORM_FIELD_RADIOGROUP, RSFORM_FIELD_BIRTHDAY, RSFORM_FIELD_JQUERY_CALENDAR, RSFORM_FIELD_CALENDAR)))
 				{
 					$label .= ' for="' . $data->ComponentName . '"';
 				}
+				elseif ($data->ComponentTypeId == RSFORM_FIELD_JQUERY_CALENDAR)
+				{
+					require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/calendar.php';
+
+					$label .= ' for="txtjQcal' . $this->formId . '_' . RSFormProCalendar::getInstance('jQueryCalendar')->getPosition($this->formId, $data->ComponentId) . '"';
+				}
+				elseif ($data->ComponentTypeId == RSFORM_FIELD_CALENDAR)
+				{
+					require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/calendar.php';
+
+					$label .= ' for="txtcal' . $this->formId . '_' . RSFormProCalendar::getInstance('YUICalendar')->getPosition($this->formId, $data->ComponentId) . '"';
+				}
+
 				$label .= '>';
 				$label .= $placeholders['caption'];
                 if ($data->Required && $this->requiredMarker)

@@ -171,7 +171,21 @@ class EasyDiscussRouter extends EasyDiscuss
 			//  $segments[] = $query['view'];
 			// }
 
-			$segments[] = $query['view'];
+
+			$addView = true;
+			if ($active) {
+				$xView = isset($active->query['view']) && $active->query['view'] ? $active->query['view'] : '';
+
+				if ($xView == 'index') {
+					$addView = false;
+				}
+			}
+
+			if ($addView) {
+				$segments[] = $query['view'];
+			}
+
+			
 			unset($query['view']);
 
 			if (isset($query['category_id'])) {
@@ -449,8 +463,11 @@ class EasyDiscussRouter extends EasyDiscuss
 						'points','dashboard', 'mypost', 'groups', 'login', 'auth', 'download');
 
 		$repliesSorting = array('oldest', 'latest', 'voted', 'likes');
-		$categoryFilters = array('allposts', 'unresolved', 'resolved', 'unanswered', 'unread');
+		$categoryFilters = array('all', 'allposts', 'unresolved', 'resolved', 'unanswered', 'unread', 'latest');
+		$categorySorting = array('latest', 'popular', 'title');
 
+		$indexSorting = array('latest', 'popular', 'title');
+		$statusFilters = array('all', 'onhold', 'accepted', 'workingon', 'rejected');
 
 		// Re-assign the correct item route to the segments if the item route is exists within the view.
 		// This is to avoid the link query to be treated as 'post' view all the times when menu item is exist. #1927
@@ -465,7 +482,8 @@ class EasyDiscussRouter extends EasyDiscuss
 
 		// We know that the view=categories&layout=listings&id=xxx because there's only 1 segment
 		// and the active menu is view=categories
-		//
+		
+		// var_dump($segments);
 
 		if (isset($item) && $item->query['view'] == 'categories' && count($segments) >= 1 && !in_array($segments[0], $views) ) {
 
@@ -484,8 +502,8 @@ class EasyDiscussRouter extends EasyDiscuss
 			}
 
 			// here we know this is a single category view but there is more than one segment
-			// the extra segment cound be for the fitlering.
-			if ($category->id && in_array($segments[count($segments) - 1], $categoryFilters)) {
+			// the extra segment cound be for the fitlering or, filtering and sorting.
+			if ($category->id && (in_array($segments[count($segments) - 1], $categoryFilters) || in_array($segments[count($segments) - 1], $categorySorting))) {
 				$xView = isset($item->query['view']) && $item->query['view'] ? $item->query['view'] : '';
 				array_unshift($segments, $xView);
 			}
@@ -504,9 +522,14 @@ class EasyDiscussRouter extends EasyDiscuss
 				$tagAliass = $model->getTagPermalinks();
 
 				$testItem = JString::str_ireplace(':', '-', $segments[$numSegments - 1]);
+				$testFirstItem = JString::str_ireplace(':', '-', $segments[0]);
 
 				if (in_array($testItem, $catAliases)) {
 					array_unshift($segments, 'forums');
+
+				} else if (in_array($testItem, $tagAliass)) {
+					array_unshift($segments, 'tags');
+
 				} else {
 
 					// if the current active menu item is pointing to below views, means we now the current url most likely is a post url.
@@ -514,32 +537,33 @@ class EasyDiscussRouter extends EasyDiscuss
 					$xViews = array('index', 'forums', 'post', 'categories', 'tags', 'subscription', 'ask');
 					$xView = isset($item->query['view']) && $item->query['view'] ? $item->query['view'] : '';
 
-					if ($numSegments >= 2) {
-						if (in_array($segments[count($segments) - 1], $repliesSorting)) {
-							// this is a post.
+					if (count($segments) == 1) {
+
+						$postId = EDR::decodeAlias($testFirstItem, 'Post');
+						$postId = (int) $postId;
+
+						if ($postId !== 0) {
 							array_unshift($segments, 'post');
 						} else {
-							// we just assign the first segment to be a post
-							if ($item->component == 'com_easydiscuss' && $xView && !in_array($xView, $xViews)) {
-								array_unshift($segments, $xView);
-							} else {
-								// this is a post page
-								$segments[0] = 'post';
-							}
-						}
-					} else {
-						if ($item->component == 'com_easydiscuss' && $xView && !in_array($xView, $xViews)) {
 							array_unshift($segments, $xView);
-						} else {
-							// we need further check if this is a post alias or not.
-							if (in_array($testItem, $tagAliass)) {
-								array_unshift($segments, 'tags');
-							} else {
-								// this is a post
-								array_unshift($segments, 'post');
-							}
 						}
 
+					} else if ((count($segments) == 2 && in_array($segments[0], $categoryFilters) && (in_array($segments[1], $indexSorting) || in_array($segments[1], $statusFilters))) 
+						|| (count($segments) > 2 && in_array($segments[0], $categoryFilters) && in_array($segments[1], $indexSorting) && in_array($segments[2], $statusFilters))) {
+
+						array_unshift($segments, $xView);
+
+					} else {
+
+
+						$postId = EDR::decodeAlias($testFirstItem, 'Post');
+						$postId = (int) $postId;
+
+						if ($postId !== 0) {
+							array_unshift($segments, 'post');
+						} else {
+							array_unshift($segments, $xView);
+						}
 					}
 
 				}
@@ -555,7 +579,6 @@ class EasyDiscussRouter extends EasyDiscuss
 				array_unshift($segments, $xView);
 			}
 		}
-
 
 		// Login View
 		if (isset($segments[0]) && $segments[0] == 'login') {
@@ -730,6 +753,18 @@ class EasyDiscussRouter extends EasyDiscuss
 				$segments = EDR::encodeSegments($segments);
 
 				$knownFilter = array('allposts','unanswered', 'unresolved', 'unread', 'resolved');
+				$knownSorting = array('popular','latest', 'title');
+
+
+				// Determine if the last segments is a known sorting
+				if (in_array($segments[$count - 1], $knownSorting)) {
+					$vars['sort'] = $segments[$count - 1];
+					unset($segments[$count - 1]);
+
+					// Get new count
+					$count = $count - 1;
+				}
+
 
 				// Determine if the last segments is a known filter
 				if (in_array($segments[$count - 1], $knownFilter)) {

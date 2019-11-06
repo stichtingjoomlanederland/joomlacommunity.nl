@@ -1,18 +1,19 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
+?>
+<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
 	<div id="acym__list__subscribers" class="acym__content">
         <?php
         $workflow = acym_get('helper.workflow');
-        echo $workflow->display($this->steps, $this->step, true);
+        echo $workflow->display($this->steps, $this->step);
         $entityHelper = acym_get('helper.entitySelect');
         echo $entityHelper->entitySelect(
             'user',
@@ -31,8 +32,9 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="cell medium-shrink medium-margin-bottom-0 margin-bottom-1"><?php echo acym_backToListing("lists"); ?></div>
 			<div class="cell medium-auto grid-x text-right">
 				<div class="cell medium-auto"></div>
-				<button data-task="saveSubscribersExit" data-step="listing" type="submit" class="cell medium-shrink button medium-margin-bottom-0 margin-right-1 acy_button_submit button-secondary"><?php echo acym_translation('ACYM_SAVE_EXIT'); ?></button>
-				<button data-task="saveSubscribers" data-step="welcome" type="submit" class="cell medium-shrink button margin-bottom-0 acy_button_submit"><?php echo acym_translation('ACYM_SAVE_CONTINUE'); ?><i class="fa fa-chevron-right"></i></button>
+				<button data-task="saveSubscribersExit" data-step="listing" type="submit" class="cell medium-shrink button medium-margin-bottom-0 margin-right-1 acy_button_submit">
+                    <?php echo acym_translation('ACYM_SAVE_EXIT'); ?>
+				</button>
 			</div>
 		</div>
 	</div>

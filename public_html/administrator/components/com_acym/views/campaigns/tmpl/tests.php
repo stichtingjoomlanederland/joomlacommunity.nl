@@ -1,21 +1,22 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl').'&task='.acym_getVar('string', 'task').'&id='.acym_getVar('string', 'id')); ?>" method="post" name="acyForm" class="acym__form__campaign__edit">
+?>
+<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl').'&task='.acym_getVar('string', 'task').'&id='.acym_getVar('string', 'id')); ?>" method="post" name="acyForm" class="acym__form__campaign__edit">
 	<input type="hidden" name="id" value="<?php echo acym_escape($data['id']); ?>">
 	<div class="cell grid-x">
 		<div class="cell medium-auto"></div>
 		<div id="acym__campaigns__tests" class="cell xxlarge-9 grid-x acym__content">
             <?php
             $workflow = acym_get('helper.workflow');
-            echo $workflow->display($this->steps, $this->step, false);
+            echo $workflow->display($this->steps, $this->step);
             ?>
 			<div class="cell grid-x grid-margin-x" id="campaigns_tests_step">
 				<div id="spam_test_zone" class="cell large-5">
@@ -65,7 +66,6 @@ defined('_JEXEC') or die('Restricted access');
                         [
                             'id' => 'acym__test__field',
                             'placeholder' => acym_translation('ACYM_TEST_ADDRESS'),
-                            'data-urlsearch' => acym_completeLink('users&task=ajaxsearch'),
                         ]
                     );
 

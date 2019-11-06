@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><div id="acym__campaign__edit_email">
+?>
+<div id="acym__campaign__edit_email">
 	<input type="hidden" value="<?php echo acym_escape($data['campaignID']); ?>" name="id" id="acym__campaign__recipients__form__campaign">
 	<input type="hidden" id="acym__mail__edit__editor__social__icons" value="<?php echo empty($data['social_icons']) ? '{}' : acym_escape($data['social_icons']); ?>">
     <?php echo $data['needDisplayStylesheet']; ?>
@@ -22,7 +23,7 @@ defined('_JEXEC') or die('Restricted access');
             if (empty($data['campaignID'])) {
                 $workflow->disabledAfter = 'editEmail';
             }
-            echo $workflow->display($this->steps, $this->step, false);
+            echo $workflow->display($this->steps, $this->step);
             ?>
 			<div class="cell large-6">
 				<label>
@@ -88,7 +89,7 @@ defined('_JEXEC') or die('Restricted access');
 				<a href="javascript:void(0);" id="acym__campaigns__attach__add"><?php echo acym_translation('ACYM_ADD_ATTACHMENT'); ?></a>
                 <?php echo acym_translation_sprintf('ACYM_MAX_UPLOAD', $data['maxupload']); ?>
 			</div>
-			<div class="cell grid-x text-center acym__campaign__email__save-button cell">
+			<div class="cell grid-x text-center acym__campaign__email__save-button">
 				<div class="cell medium-shrink medium-margin-bottom-0 margin-bottom-1 text-left">
                     <?php echo acym_backToListing("campaigns"); ?>
 				</div>

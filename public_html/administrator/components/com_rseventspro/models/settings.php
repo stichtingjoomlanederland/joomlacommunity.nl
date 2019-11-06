@@ -176,6 +176,13 @@ class RseventsproModelSettings extends JModelAdmin
 			$data['facebook_pages'] = '';
 		}
 		
+		// Save Google calendars
+		if (isset($data['google_calendars'])) {
+			$data['google_calendars'] = is_array($data['google_calendars']) ? implode(',', $data['google_calendars']) : $data['google_calendars'];
+		} else {
+			$data['google_calendars'] = '';
+		}
+		
 		// Save gallery params
 		if (file_exists(JPATH_ADMINISTRATOR.'/components/com_rsmediagallery/helpers/integration.php')) {
 			$gallery = isset($data['gallery']) ? $data['gallery'] : array();
@@ -240,7 +247,7 @@ class RseventsproModelSettings extends JModelAdmin
 		$db			 = $this->getDbo();
 		$query		 = $db->getQuery(true);
 		$config		 = $this->getConfig();
-		$redirectURI = JRoute::_('index.php?option=com_rseventspro&task=settings.savetoken', false, true);
+		$redirectURI = JRoute::_('index.php?option=com_rseventspro&task=settings.savetoken', false, 1);
 		$token		 = false;
 		
 		require_once JPATH_SITE.'/components/com_rseventspro/helpers/facebook/autoload.php';
@@ -249,7 +256,7 @@ class RseventsproModelSettings extends JModelAdmin
 			$facebook = new Facebook\Facebook(array(
 				'app_id' => $config->facebook_appid,
 				'app_secret' => $config->facebook_secret,
-				'default_graph_version' => 'v2.10',
+				'default_graph_version' => 'v4.0',
 				'pseudo_random_string_generator' => 'openssl'
 			));
 			
@@ -326,7 +333,7 @@ class RseventsproModelSettings extends JModelAdmin
 	}
 	
 	/**
-	 * Method to import Google events.
+	 * Method to auth Google events.
 	 *
 	 * @return	boolean		True if success.
 	 * @since	1.6
@@ -334,17 +341,35 @@ class RseventsproModelSettings extends JModelAdmin
 	public function google() {
 		require_once JPATH_SITE.'/components/com_rseventspro/helpers/google.php';
 		
-		$google		= new RSEPROGoogle();
-		$google->saveToken();
-		$response	= $google->parse();
+		$google	= new RSEPROGoogle();
 		
-		if (!$response) {
-			$this->setError(JText::_('COM_RSEVENTSPRO_NO_EVENTS_IMPORTED'));
+		return $google->saveToken();
+	}
+	
+	/**
+	 * Method to import Google events.
+	 *
+	 * @return	boolean		True if success.
+	 * @since	1.6
+	 */
+	public function gimport() {
+		require_once JPATH_SITE.'/components/com_rseventspro/helpers/google.php';
+		
+		try {
+			$google		= new RSEPROGoogle();
+			$response	= $google->parse();
+			
+			if (!$response) {
+				$this->setError(JText::_('COM_RSEVENTSPRO_NO_EVENTS_IMPORTED'));
+				return false;
+			}
+			
+			$this->setState($this->getName() . '.gcevents', $response);
+			return true;
+		} catch (Exception $e) {
+			$this->setError($e->getMessage());
 			return false;
 		}
-		
-		$this->setState($this->getName() . '.gcevents', $response);
-		return true;
 	}
 	
 	public function getLogs() {
@@ -392,7 +417,7 @@ class RseventsproModelSettings extends JModelAdmin
 	
 	public function getLogin() {
 		$config 	 = $this->getConfig();
-		$redirectURI = JRoute::_('index.php?option=com_rseventspro&task=settings.savetoken', false, true);
+		$redirectURI = JRoute::_('index.php?option=com_rseventspro&task=settings.savetoken', false, 1);
 		
 		if ($config->facebook_appid && $config->facebook_secret) {
 			try {
@@ -401,7 +426,7 @@ class RseventsproModelSettings extends JModelAdmin
 				$facebook = new Facebook\Facebook(array(
 					'app_id' => $config->facebook_appid,
 					'app_secret' => $config->facebook_secret,
-					'default_graph_version' => 'v2.10',
+					'default_graph_version' => 'v4.0',
 					'pseudo_random_string_generator' => 'openssl'
 				));
 				

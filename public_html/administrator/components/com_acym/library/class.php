@@ -1,16 +1,17 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
-class acymClass
+class acymClass extends acymObject
 {
     var $table = '';
 
@@ -20,17 +21,13 @@ class acymClass
 
     var $errors = [];
 
-    public function __construct()
-    {
-        global $acymCmsUserVars;
-        $this->cmsUserVars = $acymCmsUserVars;
-    }
+    var $messages = [];
 
     public function getMatchingElements($settings = [])
     {
         if (!empty($this->table) && !empty($this->pkey)) {
-            $query = 'SELECT * FROM #__acym_'.acym_escape($this->table).' ORDER BY `'.acym_escape($this->pkey).'` ASC';
-            $queryCount = 'SELECT COUNT(*) FROM #__acym_'.acym_escape($this->table);
+            $query = 'SELECT * FROM #__acym_'.acym_secureDBColumn($this->table).' ORDER BY `'.acym_secureDBColumn($this->pkey).'` ASC';
+            $queryCount = 'SELECT COUNT(*) FROM #__acym_'.acym_secureDBColumn($this->table);
 
             $elements = acym_loadObjectList($query);
             $total = acym_loadResult($queryCount);
@@ -47,9 +44,14 @@ class acymClass
 
     public function getOneById($id)
     {
-        $query = 'SELECT * FROM #__acym_'.acym_escape($this->table).' WHERE id = '.intval($id);
+        return acym_loadObject('SELECT * FROM #__acym_'.acym_secureDBColumn($this->table).' WHERE `'.acym_secureDBColumn($this->pkey).'` = '.intval($id));
+    }
 
-        return acym_loadObject($query);
+    public function getAll($key = null)
+    {
+        if (empty($key)) $key = $this->pkey;
+
+        return acym_loadObjectList('SELECT * FROM #__acym_'.acym_secureDBColumn($this->table), $key);
     }
 
     public function save($element)
@@ -99,7 +101,7 @@ class acymClass
             return false;
         }
 
-        $query = 'DELETE FROM #__acym_'.$this->table.' WHERE '.acym_secureDBColumn($column).' IN ('.implode(',', $elements).')';
+        $query = 'DELETE FROM #__acym_'.acym_secureDBColumn($this->table).' WHERE '.acym_secureDBColumn($column).' IN ('.implode(',', $elements).')';
         $result = acym_query($query);
 
         if (!$result) {
@@ -122,7 +124,7 @@ class acymClass
         }
 
         acym_arrayToInteger($elements);
-        acym_query('UPDATE '.acym_secureDBColumn('#__acym_'.$this->table).' SET active = 1 WHERE id IN ('.implode(',', $elements).')');
+        acym_query('UPDATE '.acym_secureDBColumn('#__acym_'.$this->table).' SET active = 1 WHERE `'.acym_secureDBColumn($this->pkey).'` IN ('.implode(',', $elements).')');
     }
 
     public function setInactive($elements)
@@ -136,7 +138,7 @@ class acymClass
         }
 
         acym_arrayToInteger($elements);
-        acym_query('UPDATE '.acym_secureDBColumn('#__acym_'.$this->table).' SET active = 0 WHERE id IN ('.implode(',', $elements).')');
+        acym_query('UPDATE '.acym_secureDBColumn('#__acym_'.$this->table).' SET active = 0 WHERE `'.acym_secureDBColumn($this->pkey).'` IN ('.implode(',', $elements).')');
     }
 }
 

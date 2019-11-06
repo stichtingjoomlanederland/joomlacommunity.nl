@@ -614,6 +614,17 @@ class EasyDiscussEasySocial extends EasyDiscuss
 			return $recipients;
 		}
 
+		if ($action == 'new.moderate.discussion') {
+			$model = ED::model('Category');
+			$moderators = $model->getModerators($post->post->category_id);
+
+			foreach ($moderators as $moderator) {
+				$recipients[] = $moderator;
+			}
+
+			return $recipients;
+		}
+
 		if ($action == 'new.reply') {
 			// Get all users that are subscribed to this post
 			$model	= ED::model('Posts');
@@ -789,6 +800,39 @@ class EasyDiscussEasySocial extends EasyDiscuss
 			$options = array('actor_id' => $post->user_id, 'uid' => $post->id, 'title' => JText::sprintf('COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_NEW_POST', $post->title), 'type' => 'discuss', 'url' => $permalink);
 
 			$rule = 'discuss.create';
+		}
+
+		if ($action == 'new.moderate.discussion') {
+
+			if (!$this->config->get('integration_easysocial_notify_moderate')) {
+				return;
+			}
+
+			if (!$recipients) {
+				return;
+			}
+
+			$defaultPermalink = 'index.php?option=com_easydiscuss&view=ask&id=' . $post->id;
+
+			if ($isSiteMultilingualEnabled) {
+
+				// if the post post in language category
+				if ($postCatLang != '*') {
+					$permalink = EDR::_('view=post&id=' . $post->id . '&lang=' . $langcode, true, null, false);
+
+				} else {
+					$permalink = $defaultPermalink;
+				}
+
+			} else {
+				$permalink = EDR::_($defaultPermalink, true, null, false);
+			}
+
+			$image = '';
+
+			$options = array('actor_id' => $post->user_id, 'uid' => $post->id, 'title' => JText::sprintf('COM_ED_EASYSOCIAL_NOTIFICATION_NEW_MODERATE_POST', $post->title), 'type' => 'discuss', 'url' => $permalink);
+
+			$rule = 'discuss.moderate';
 		}
 
 		if ($action == 'new.reply') {

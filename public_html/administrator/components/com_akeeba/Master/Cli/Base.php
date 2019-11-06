@@ -192,7 +192,14 @@ JLoader::import('joomla.filter.filterinput');
 JLoader::import('joomla.factory');
 
 // Load the configuration file to grab database information
-JFactory::getConfig(JPATH_CONFIGURATION . '/configuration.php');
+$config = JFactory::getConfig(JPATH_CONFIGURATION . '/configuration.php');
+
+if (!defined('JDEBUG'))
+{
+	define('JDEBUG', $config->get('debug', 0) ? 1 : 0);
+}
+
+unset($config);
 
 if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
 {

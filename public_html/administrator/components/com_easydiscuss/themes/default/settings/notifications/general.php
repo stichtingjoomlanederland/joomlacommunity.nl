@@ -28,6 +28,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo $this->html('settings.toggle', 'notify_moderator', 'COM_EASYDISCUSS_NOTIFY_MODERATORS_ON_NEW_POST'); ?>
 					<?php echo $this->html('settings.toggle', 'notify_moderator_onreply', 'COM_EASYDISCUSS_NOTIFY_MODERATORS_ON_NEW_REPLY'); ?>
 					<?php echo $this->html('settings.toggle', 'notify_all', 'COM_EASYDISCUSS_NOTIFY_ALL_USERS_ON_NEW_POST'); ?>
+					<?php echo $this->html('settings.toggle', 'notify_reply_all_members', 'COM_ED_NOTIFY_ALL_USERS_ON_NEW_REPLY'); ?>
 					<?php echo $this->html('settings.toggle', 'notify_all_respect_category', 'COM_EASYDISCUSS_NOTIFY_ALL_USERS_RESPECT_CATEGORY_PERMISSIONS'); ?>
 					<?php echo $this->html('settings.toggle', 'notify_participants', 'COM_EASYDISCUSS_NOTIFY_PARTICIPANTS_ON_NEW_REPLY'); ?>
 					<?php echo $this->html('settings.toggle', 'notify_owner', 'COM_EASYDISCUSS_NOTIFY_OWNER_ON_NEW_REPLY'); ?>
@@ -36,6 +37,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo $this->html('settings.toggle', 'notify_owner_like', 'COM_EASYDISCUSS_NOTIFY_OWNER_WHEN_LIKE_THEIR_POST'); ?>
 					<?php echo $this->html('settings.toggle', 'notify_mention', 'COM_EASYDISCUSS_NOTIFY_USER_WHEN_MENTIONED'); ?>
 					<?php echo $this->html('settings.toggle', 'notify_actor', 'COM_EASYDISCUSS_NOTIFY_ACTOR_ON_NEW_ACTION'); ?>
+					<?php echo $this->html('settings.toggle', 'notify_comment_all_members', 'COM_ED_NOTIFY_COMMENT_FOR_ALL_USERS'); ?>
 					<?php echo $this->html('settings.toggle', 'notify_comment_participants', 'COM_EASYDISCUSS_NOTIFY_COMMENT_PARTICIPANTS'); ?>
 
 					<div class="form-group">

@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 if (version_compare(PHP_VERSION, '5.4.0', '<')) {
     echo '<p style="color:red">This version of AcyMailing requires at least PHP 5.4.0, it is time to update the PHP version of your server!</p>';
     exit;
@@ -57,7 +58,7 @@ acym_addScript(
     true,
     'var TOGGLE_URL_ACYM = "index.php?option='.ACYM_COMPONENT.'&'.acym_noTemplate().'&ctrl=toggle&'.acym_getFormToken().'";
     var AJAX_URL_ACYM = "index.php?option='.ACYM_COMPONENT.'&'.acym_noTemplate().'&'.acym_getFormToken().'";
-    var AJAX_URL_ACYBA = "'.ACYM_ACYWEBSITE.'";
+    var AJAX_URL_UPDATEME = "'.ACYM_UPDATEMEURL.'";
     var MEDIA_URL_ACYM = "'.ACYM_MEDIA_URL.'";
     var CMS_ACYM = "'.ACYM_CMS.'";
     var FOUNDATION_FOR_EMAIL = "'.ACYM_CSS.'libraries/foundation_email.min.css?v='.filemtime(ACYM_MEDIA.'css'.DS.'libraries'.DS.'foundation_email.min.css').'";
@@ -89,3 +90,4 @@ if (file_exists(ACYM_MEDIA.'js'.DS.'back'.DS.$ctrl.'.min.js')) {
 
 $controller->loadScripts($task);
 $controller->$task();
+

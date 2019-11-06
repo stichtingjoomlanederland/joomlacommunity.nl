@@ -1,4 +1,15 @@
 <?php die();?>
+Akeeba Backup 6.6.1
+================================================================================
++ Installer plugin to fix update issues after using Joomla's Rebuild Update Sites feature
++ Database dump produces multiline queries, supports PROCEDUREs, FUNCTIONs and TRIGGERs even better
+~ Preliminary work for PHP future 7.4 compatibility
+# [HIGH] Obsolete backup record quotas would also remove Remote records
+# [LOW] JDEBUG not defined under CLI
+# [LOW] Fixed ALICE memory check when the server has no limit set
+# [LOW] Transfer wizard, Yes/No switches rendered without styling
+# [LOW] Obsolete backup record quotas would not run when there are no "OK" (files locally present) backup records in the backup profile
+
 Akeeba Backup 6.6.0
 ================================================================================
 - Removed support for non-MySQL database engines (PostgreSQL and MS SQL Server)

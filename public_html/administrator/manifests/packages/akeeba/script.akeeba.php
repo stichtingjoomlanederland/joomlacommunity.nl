@@ -49,11 +49,23 @@ class Pkg_AkeebaInstallerScript
 	 * A list of extensions (modules, plugins) to enable after installation. Each item has four values, in this order:
 	 * type (plugin, module, ...), name (of the extension), client (0=site, 1=admin), group (for plugins).
 	 *
+	 * These extensions are ONLY enabled when you do a clean installation of the package, i.e. it will NOT run on update
+	 *
 	 * @var array
 	 */
-	protected $extensionsToEnable = array(
-		array('plugin', 'akeebabackup', 1, 'quickicon'),
-    );
+	protected $extensionsToEnable = [
+		['plugin', 'akeebabackup', 1, 'quickicon'],
+	];
+
+	/**
+	 * Like above, but enable these extensions on installation OR update. Use this sparringly. It overrides the
+	 * preferences of the user. Ideally, this should only be used for installer plugins.
+	 *
+	 * @var array
+	 */
+	protected $extensionsToAlwaysEnable = [
+		['plugin', 'akeebabackup', 1, 'installer'],
+	];
 
 	/**
 	 * =================================================================================================================
@@ -134,6 +146,12 @@ class Pkg_AkeebaInstallerScript
 	 */
 	public function postflight($type, $parent)
 	{
+		// Always enable these extensions
+		if (isset($this->extensionsToAlwaysEnable) && !empty($this->extensionsToAlwaysEnable))
+		{
+			$this->enableExtensions($this->extensionsToAlwaysEnable);
+		}
+
 		/**
 		 * Try to install FEF. We only need to do this in postflight. A failure, while detrimental to the display of the
 		 * extension, is non-fatal to the installation and can be rectified by manual installation of the FEF package.
@@ -186,7 +204,7 @@ class Pkg_AkeebaInstallerScript
 	}
 
 	/**
-	 * Tuns on installation (but not on upgrade). This happens in install and discover_install installation routes.
+	 * Runs on installation (but not on upgrade). This happens in install and discover_install installation routes.
 	 *
 	 * @param   \JInstallerAdapterPackage  $parent  Parent object
 	 *
@@ -419,9 +437,14 @@ class Pkg_AkeebaInstallerScript
 	/**
 	 * Enable modules and plugins after installing them
 	 */
-	private function enableExtensions()
+	private function enableExtensions($extensions = [])
 	{
-		foreach ($this->extensionsToEnable as $ext)
+		if (empty($extensions))
+		{
+			$extensions = $this->extensionsToEnable;
+		}
+
+		foreach ($extensions as $ext)
 		{
 			$this->enableExtension($ext[0], $ext[1], $ext[2], $ext[3]);
 		}

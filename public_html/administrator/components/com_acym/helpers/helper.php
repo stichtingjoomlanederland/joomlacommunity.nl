@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 define('ACYM_NAME', 'AcyMailing');
 define('ACYM_DBPREFIX', '#__acym_');
@@ -57,6 +58,10 @@ function acym_getMailThumbnail($thumbnail)
         $thumbnailSRC = ACYM_TEMPLATE_THUMBNAILS.$thumbnail;
     }
 
+    if (!file_exists(str_replace(acym_rootURI(), ACYM_ROOT, $thumbnailSRC))) {
+        $thumbnailSRC = ACYM_IMAGES.'thumbnails/'.$thumbnail;
+    }
+
     if (empty($thumbnail) || !file_exists(str_replace(acym_rootURI(), ACYM_ROOT, $thumbnailSRC))) {
         $thumbnailSRC = ACYM_IMAGES.'default_template_thumbnail.png';
     }
@@ -74,6 +79,31 @@ function acym_translationExists($key)
     return $key !== acym_translation($key);
 }
 
+function acym_checkPluginsVersion()
+{
+    $pluginClass = acym_get('class.plugin');
+    $pluginsInstalled = $pluginClass->getMatchingElements();
+    $pluginsInstalled = $pluginsInstalled['elements'];
+    if (empty($pluginsInstalled)) return true;
+
+    $url = ACYM_UPDATEMEURL.'integrationv6&task=getAllPlugin&cms='.ACYM_CMS;
+
+    $res = acym_fileGetContent($url);
+    $pluginsAvailable = json_decode($res, true);
+
+    foreach ($pluginsInstalled as $key => $pluginInstalled) {
+        foreach ($pluginsAvailable as $pluginAvailable) {
+            if (str_replace('.zip', '', $pluginAvailable['file_name']) == $pluginInstalled->folder_name && !version_compare($pluginInstalled->version, $pluginAvailable['version'], '>=')) {
+                $pluginsInstalled[$key]->uptodate = 0;
+                $pluginsInstalled[$key]->latest_version = $pluginAvailable['version'];
+                $pluginClass->save($pluginsInstalled[$key]);
+            }
+        }
+    }
+
+    return true;
+}
+
 function acym_checkVersion($ajax = false)
 {
     ob_start();
@@ -87,6 +117,7 @@ function acym_checkVersion($ajax = false)
         'version' => $config->get('version'), // Tell the user if a newer version is available
         'cms' => ACYM_CMS, // We may delay some new Acy versions depending on the CMS
         'cmsv' => ACYM_CMSV, // Acy isn't available for some versions
+        'php' => PHP_VERSION, // Return a warning if Acy cannot be installed with this version
     ];
 
     foreach ($paramsForLicenseCheck as $param => $value) {
@@ -115,12 +146,14 @@ function acym_checkVersion($ajax = false)
     $newConfig->lastlicensecheck = time();
     $config->save($newConfig);
 
+    acym_checkPluginsVersion();
+
     return $newConfig->lastlicensecheck;
 }
 
 function acym_loaderLogo()
 {
-    return '<div class="cell shrink acym_loader_logo">'.acym_fileGetContent(ACYM_IMAGES.'loader.svg').'</div>';
+    return '<div class="cell shrink acym_loader_logo">'.acym_getSvg(ACYM_IMAGES.'loader.svg').'</div>';
 }
 
 function acym_dateField($name, $value = '', $class = '', $attributes = '', $relativeDefault = '-')
@@ -217,15 +250,6 @@ function acym_escape($text, $isURL = false)
     return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 }
 
-function acym_escapeArrayValues($array)
-{
-    foreach ($array as $key => $one) {
-        $array[$key] = acym_escape($one);
-    }
-
-    return $array;
-}
-
 function acydump($arg, $ajax = false, $indent = true)
 {
     ob_start();
@@ -238,13 +262,6 @@ function acydump($arg, $ajax = false, $indent = true)
         $style = $indent ? 'margin-left: 220px;' : '';
         echo '<pre style="'.$style.'">'.$result.'</pre>';
     }
-}
-
-function acym_teasing($text)
-{
-    echo '<div class="acym__hide__teasing"></div>
-          <div class="acym__ribbon__label acym__color__white acym__background-color__blue"><span>'.$text.'</span></div>
-          ';
 }
 
 function acym_line_chart($id, $dataMonth, $dataDay, $dataHour)
@@ -685,7 +702,7 @@ function acym_getIP()
     return strip_tags($ip);
 }
 
-function acym_radio($options, $name, $selected = null, $id = null, $attributes = [], $objValue = 'value', $objText = 'text', $useIncrement = false, $pluginMode = false)
+function acym_radio($options, $name, $selected = null, $attributes = [], $params = [])
 {
     $id = preg_replace(
         '#[^a-zA-Z0-9_]+#mi',
@@ -693,9 +710,12 @@ function acym_radio($options, $name, $selected = null, $id = null, $attributes =
         str_replace(
             ['[', ']'],
             ['_', ''],
-            empty($id) ? $name : $id
+            empty($params['id']) ? $name : $params['id']
         )
     );
+
+    $objValue = empty($params['objectValue']) ? 'value' : $params['objectValue'];
+    $objText = empty($params['objectText']) ? 'text' : $params['objectText'];
 
     $attributes['type'] = 'radio';
     $attributes['name'] = $name;
@@ -712,71 +732,33 @@ function acym_radio($options, $name, $selected = null, $id = null, $attributes =
             $label = $label->$objText;
         }
 
-        $currentId = $useIncrement ? $id.$k : $id.$value;
+        $currentId = empty($params['useIncrement']) ? $id.$value : $id.$k;
 
         $attributes['value'] = $value;
         $attributes['id'] = $currentId;
 
+        $checked = $value == $selected ? ' checked="checked"' : '';
+
+        $formattedAttributes = '';
+        foreach ($attributes as $attribute => $val) {
+            $formattedAttributes .= ' '.$attribute.'="'.acym_escape($val).'"';
+        }
+        if (!empty($params['required'])) {
+            $formattedAttributes .= ' required';
+            unset($params['required']);
+        }
+
         $return .= '<i data-radio="'.$currentId.'" class="acymicon-radio_button_checked acym_radio_checked"></i>';
         $return .= '<i data-radio="'.$currentId.'" class="acymicon-radio_button_unchecked acym_radio_unchecked"></i>';
-        $return .= '<input';
-        foreach ($attributes as $attribute => $val) {
-            $return .= ' '.$attribute.'="'.acym_escape($val).'"';
-        }
-        $return .= ($value == $selected ? ' checked="checked"' : '').' />';
+        $return .= '<input'.$formattedAttributes.$checked.' />';
         $return .= '<label for="'.$currentId.'" id="'.$currentId.'-lbl">'.$label.'</label>';
-        if ($pluginMode) $return .= '<br />';
+
+        if (!empty($params['pluginMode'])) $return .= '<br />';
         $k++;
     }
     $return .= '</div>';
 
     return $return;
-}
-
-function acym_convertPHPToMomentFormat($format)
-{
-    $replacements = [
-        'd' => 'DD',
-        'D' => 'ddd',
-        'j' => 'D',
-        'l' => 'dddd',
-        'N' => 'E',
-        'S' => 'o',
-        'w' => 'e',
-        'z' => 'DDD',
-        'W' => 'W',
-        'F' => 'MMMM',
-        'm' => 'MM',
-        'M' => 'MMM',
-        'n' => 'M',
-        't' => '', // no equivalent
-        'L' => '', // no equivalent
-        'o' => 'YYYY',
-        'Y' => 'YYYY',
-        'y' => 'YY',
-        'a' => 'a',
-        'A' => 'A',
-        'B' => '', // no equivalent
-        'g' => 'h',
-        'G' => 'H',
-        'h' => 'hh',
-        'H' => 'HH',
-        'i' => 'mm',
-        's' => 'ss',
-        'u' => 'SSS',
-        'e' => 'zz', // deprecated since version 1.6.0 of moment.js
-        'I' => '', // no equivalent
-        'O' => '', // no equivalent
-        'P' => '', // no equivalent
-        'T' => '', // no equivalent
-        'Z' => '', // no equivalent
-        'c' => '', // no equivalent
-        'r' => '', // no equivalent
-        'U' => 'X',
-    ];
-    $momentFormat = strtr($format, $replacements);
-
-    return $momentFormat;
 }
 
 function acym_boolean($name, $selected = null, $id = null, $attributes = [], $yes = 'ACYM_YES', $no = 'ACYM_NO')
@@ -790,8 +772,8 @@ function acym_boolean($name, $selected = null, $id = null, $attributes = [], $ye
         $options,
         $name,
         $selected ? 1 : 0,
-        $id,
-        $attributes
+        $attributes,
+        ['id' => $id]
     );
 }
 
@@ -867,48 +849,9 @@ function acym_modal_include($button, $file, $id, $data, $attributes = '', $class
     return $modal;
 }
 
-function acym_modal_pagination_users($button, $class, $textButton = null, $id = null, $attributes = '', $hiddenUsers = '', $task = '')
-{
-    $searchField = acym_filterSearch('', 'modal_search_users', 'ACYM_SEARCH_A_USER_NAME');
-
-
-    $data = '
-            <input type="hidden" name="show_selected" value="false" id="modal__pagination__users__show-information">
-            <input type="hidden" name="users_selected" id="acym__modal__users-selected" value="">
-            <input type="hidden" name="users_hidden" id="acym__modal__users-hidden" value=\''.$hiddenUsers.'\'>
-            <input type="hidden" id="modal__pagination__users__search__input">
-            <input type="hidden" name="form_task" id="acym__modal__users__form-task" value="'.$task.'">
-            <div class="cell grid-x">
-                <h4 class="cell text-center acym__modal__pagination__users__title">
-                    '.acym_translation('ACYM_CHOOSE_USERS').'</h4>
-            </div>  
-              <div class="cell grid-x modal__pagination__users__search">
-                  '.$searchField.'
-              </div>
-               <div class="cell text-center" id="modal__pagination__users__search__spinner" style="display: none">
-                <i class="fa fa-circle-o-notch fa-spin"></i>
-               </div>
-              <div class="cell medium-6 modal__pagination__show">
-                <a href="#" class="acym__color__blue modal__pagination__users__show-selected modal__pagination__users__show-button selected">
-                    '.acym_translation('ACYM_SHOW_SELECTED_USERS').'</a>
-                <a href="#" class="acym__color__blue modal__pagination__users__show-all modal__pagination__users__show-button">
-                    '.acym_translation('ACYM_SHOW_ALL_USERS').'</a>
-              </div>
-              <div class="cell grid-x modal__pagination__users__listing">
-                  <div class="cell modal__pagination__users__listing__in-form">                  
-                  </div>
-              </div>';
-
-    $data .= '<div class="cell grid-x"><div class="cell medium-auto"></div><div class="cell medium-shrink"><button type="button" text-empty="'.acym_translation('ACYM_PLEASE_SELECT_USER').'" class="cell button primary" id="modal__pagination__users__confirm">'.$textButton.'</button></div><div class="cell medium-auto"></div></div>';
-
-    $attributesButton = 'class="modal__pagination__users__button-open button '.$class.'" '.$attributes;
-
-    return acym_modal($button, $data, $id, "", $attributesButton);
-}
-
 function acym_modal_pagination_lists($button, $class, $textButton = null, $id = null, $attributes = '', $isModal = true, $inputEventId = "", $checkedLists = "[]", $needDisplaySubscribers = false, $attributesModal = '')
 {
-    $searchField = acym_filterSearch('', 'modal_search_lists', 'ACYM_SEARCH_A_LIST_NAME');
+    $searchField = acym_filterSearch('', 'modal_search_lists', 'ACYM_SEARCH');
 
     $data = "";
 
@@ -949,60 +892,6 @@ function acym_modal_pagination_lists($button, $class, $textButton = null, $id = 
     } else {
         return $data;
     }
-}
-
-function acym_modal_pagination_lists_import($button, $class, $textButtonRight, $id = null, $attributes = '', $classButton = 'acym__users__import__generic__import__button', $severalButton = false)
-{
-    if (empty($id)) {
-        $id = 'acymodal_pagination_lists_'.rand(1000, 9000);
-    }
-
-    $listsPerPage = acym_getCMSConfig('list_limit', 20);
-    $ajaxURL = acym_prepareAjaxURL('lists').'&task=setAjaxListing&listsPerPage='.$listsPerPage;
-
-    $searchField = acym_filterSearch('', 'modal_search_lists', 'ACYM_SEARCH_A_LIST_NAME');
-
-    $data = '
-            <input type="hidden" name="show_selected" value="false" id="modal__pagination__show-information">
-            <input type="hidden" name="lists_selected" id="acym__modal__lists-selected" value="">
-            <input type="hidden" name="ajaxURL" id="modal_ajaxURL" value="'.$ajaxURL.'">
-            <input type="hidden" id="modal__pagination__search__lists">
-            <div class="cell grid-x">
-                <h4 class="cell text-center acym__modal__pagination__title">
-                    '.acym_translation('ACYM_CHOOSE_LISTS').'</h4>
-                </div>  
-                <div class="cell grid-x modal__pagination__search">
-                  '.$searchField.'
-              </div>
-               <div class="cell text-center" id="modal__pagination__search__spinner" style="display: none">
-                    <i class="fa fa-circle-o-notch fa-spin"></i>
-                </div>
-                <div class="cell medium-6 modal__pagination__show">
-                <a href="#" class="acym__color__blue modal__pagination__show-selected modal__pagination__show-button selected">
-                    '.acym_translation('ACYM_SHOW_SELECTED_LISTS').'</a>
-                <a href="#" class="acym__color__blue modal__pagination__show-all modal__pagination__show-button">
-                    '.acym_translation('ACYM_SHOW_ALL_LISTS').'</a>
-                </div>
-              <div class="cell grid-x modal__pagination__listing__lists">
-                  <div class="cell modal__pagination__listing__lists__in-form">                  
-                  </div>
-              </div>
-              <div id="acym__modal__lists__import__create-area">
-                 <input id="modal__pagination__create__list" class="input-group-field" type="text" name="new_list_modal" placeholder="'.acym_translation('ACYM_CREATE_NEW_LIST').'">
-                 <i class="fa fa-close" id="acym__modal__lists_import__clear"></i>
-              </div>
-              <div class="cell grid-margin-x large-up-2 small-up-1" id="modal__pagination__listing__button-submit">   
-                <button type="button" class="cell button '.$classButton.'" id="lists">'.$textButtonRight.'</button>
-              </div>';
-
-    $modal = $severalButton ? '' : '<button type="button" data-open="'.$id.'" class="modal__pagination__button-open button '.$class.'" '.$attributes.'>'.$button.'</button>';
-    $modal .= '<div class="reveal grid-x" id="'.$id.'" data-reveal>';
-    $modal .= $data;
-    $modal .= '<button class="close-button" data-close aria-label="Close reveal" type="button">';
-    $modal .= '<span aria-hidden = "true" >&times;</span>';
-    $modal .= '</button ></div>';
-
-    return $modal;
 }
 
 function acym_generateCountryNumber($name, $defaultvalue = '')
@@ -1483,13 +1372,18 @@ function acym_generateCountryNumber($name, $defaultvalue = '')
     return acym_select($countryCodeForSelect, $name, empty($defaultvalue) ? '' : $defaultvalue, 'class="acym__select__country"', 'value', 'text');
 }
 
-function acym_displayDateFormat($format, $name = 'date', $default = '14/06/1997', $attributes = '')
+function acym_displayDateFormat($format, $name = 'date', $default = '', $attributes = '')
 {
+    $formatForDate = explode('%', $format);
+    unset($formatForDate[0]);
+    $formatForDate = implode('/', $formatForDate);
+    $formatForDate = str_replace('y', 'Y', $formatForDate);
+
     $attributes = empty($attributes) ? 'class="acym__custom__fields__select__form "' : $attributes;
-    $default = empty($default) ? '14/06/1997' : $default;
+    $default = empty($default) ? acym_date('now', $formatForDate) : $default;
     $return = '<div class="cell grid-x grid-margin-x">';
     $days = [];
-    for ($i = 1 ; $i != 31 ; $i++) {
+    for ($i = 1 ; $i <= 31 ; $i++) {
         $days[$i < 10 ? '0'.$i : $i] = $i < 10 ? '0'.$i : $i;
     }
     $month = [
@@ -1507,7 +1401,7 @@ function acym_displayDateFormat($format, $name = 'date', $default = '14/06/1997'
         '12' => acym_translation('ACYM_DECEMBER'),
     ];
     $year = [];
-    for ($i = 1900 ; $i <= acym_date('now', 'Y') ; $i++) {
+    for ($i = 1900 ; $i <= (acym_date('now', 'Y') + 10) ; $i++) {
         $year[$i] = $i;
     }
     $formatToDisplay = explode('%', $format);
@@ -1536,14 +1430,16 @@ function acym_displayDateFormat($format, $name = 'date', $default = '14/06/1997'
 function acym_selectMultiple($data, $name, $selected = [], $attribs = [], $optValue = "value", $optText = "text", $translate = false)
 {
     if (substr($name, -2) !== '[]') {
-        $name .= "[]";
+        $name .= '[]';
     }
 
-    $dropdown = "<select name=".$name;
+    $attribs['multiple'] = 'multiple';
+
+    $dropdown = '<select name="'.acym_escape($name).'"';
     foreach ($attribs as $attribKey => $attribValue) {
         $dropdown .= ' '.$attribKey.'="'.addslashes($attribValue).'"';
     }
-    $dropdown .= ' multiple="multiple">';
+    $dropdown .= '>';
 
     foreach ($data as $oneDataKey => $oneDataValue) {
         $disabled = '';
@@ -1570,8 +1466,7 @@ function acym_selectMultiple($data, $name, $selected = [], $attribs = [], $optVa
             $dropdown .= '</optgroup>';
         } else {
             $text = acym_escape($text);
-            $value = acym_escape($value);
-            $dropdown .= '<option value="'.$value.'"'.(in_array($value, $selected) ? ' selected="selected"' : '').$disabled.'>'.$text.'</option>';
+            $dropdown .= '<option value="'.acym_escape($value).'"'.(in_array($value, $selected) ? ' selected="selected"' : '').$disabled.'>'.$text.'</option>';
         }
     }
 
@@ -1588,11 +1483,6 @@ function acym_selectOption($value, $text = '', $optKey = 'value', $optText = 'te
     $option->disable = $disable;
 
     return $option;
-}
-
-function acym_gridID($rowNum, $recId, $checkedOut = false, $name = 'cid', $stub = 'cb')
-{
-    return '<input type="checkbox" id="'.$stub.$rowNum.'" name="'.$name.'[]" value="'.$recId.'" onclick="acym.isChecked(this);">';
 }
 
 function acym_level($level)
@@ -1643,86 +1533,6 @@ function acym_isRobot()
     return false;
 }
 
-function acym_isAllowed($allowedGroups, $groups = null)
-{
-    if ($allowedGroups == 'all') {
-        return true;
-    }
-    if ($allowedGroups == 'none') {
-        return false;
-    }
-    if (!is_array($allowedGroups)) {
-        $allowedGroups = explode(',', trim($allowedGroups, ','));
-    }
-
-    $currentUserid = acym_currentUserId();
-    if (empty($currentUserid) && empty($groups) && in_array('nonloggedin', $allowedGroups)) {
-        return true;
-    }
-
-    if (empty($groups) && empty($currentUserid)) {
-        return false;
-    }
-    if (empty($groups)) {
-        $groups = acym_getGroupsByUser($currentUserid, false);
-    }
-
-    if (!is_array($groups)) {
-        $groups = [$groups];
-    }
-    $inter = array_intersect($groups, $allowedGroups);
-    if (empty($inter)) {
-        return false;
-    }
-
-    return true;
-}
-
-function acym_getFunctionsEmailCheck($controllButtons = [], $bounce = false)
-{
-    $addressCheck = '!emailAddress.match(/^'.acym_getEmailRegex(true).'((,|;)'.acym_getEmailRegex(
-            true
-        ).')*$/i)';
-
-    $return = '<script language="javascript" type="text/javascript">
-				function validateEmail(emailAddress, fieldName){
-					if(emailAddress.length > 0 && emailAddress.indexOf("{") == -1 && '.$addressCheck.'){
-						alert("Wrong email address supplied for the " + fieldName + " field: " + emailAddress);
-						return false;
-					}
-					return true;
-				}';
-
-    if (!empty($controllButtons)) {
-        foreach ($controllButtons as &$oneField) {
-            $oneField = 'pressbutton == \''.$oneField.'\'';
-        }
-
-        $return .= '
-		document.addEventListener("DOMContentLoaded", function(){
-			acym.submitbutton = function(pressbutton){
-				if('.implode(' || ', $controllButtons).'){
-					var emailVars = ["fromemail","replyemail"'.($bounce ? ',"bounceemail"' : '').'];
-					var val = "";
-					for(var key in emailVars){
-						if(isNaN(key)) continue;
-						val = document.getElementById(emailVars[key]).value;
-						if(!validateEmail(val, emailVars[key])){
-							return;
-						}
-					}
-				}
-				acym.submitform(pressbutton,document.adminForm);
-			};
-		});';
-    }
-
-    $return .= '
-				</script>';
-
-    return $return;
-}
-
 function acym_loadLanguage()
 {
     acym_loadLanguageFile(ACYM_LANGUAGE_FILE, ACYM_ROOT, null, true);
@@ -1731,9 +1541,7 @@ function acym_loadLanguage()
 
 function acym_createDir($dir, $report = true, $secured = false)
 {
-    if (is_dir($dir)) {
-        return true;
-    }
+    if (is_dir($dir)) return true;
 
     $indexhtml = '<html><body bgcolor="#FFFFFF"></body></html>';
 
@@ -1779,15 +1587,6 @@ function acym_createDir($dir, $report = true, $secured = false)
     }
 
     return $status;
-}
-
-function acym_getUpgradeLink($tolevel)
-{
-    $config = acym_config();
-
-    return ' <a class="acyupgradelink" href="'.ACYM_REDIRECT.'upgrade-acym-'.$config->get(
-            'level'
-        ).'-to-'.$tolevel.'" target="_blank">'.acym_translation('ONLY_FROM_'.strtoupper($tolevel)).'</a>';
 }
 
 function acym_replaceDate($mydate, $display = false)
@@ -2070,60 +1869,6 @@ function acym_initModule($params = null)
     } else {
         acym_addStyle(false, ACYM_CSS.'module.min.css?v='.$version);
     }
-}
-
-function acym_footer()
-{
-    $config = acym_config();
-    $description = ACYM_CMS_TITLE.' E-mail Marketing';
-    $text = '<!-- '.ACYM_NAME.' Component powered by '.ACYM_ACYWEBSITE.' -->
-		<!-- version '.$config->get('level').' : '.$config->get('version').' -->';
-    if (acym_level(1) && !acym_level(4)) {
-        return $text;
-    }
-    $level = $config->get('level');
-    $text .= '<div class="acym_footer" align="center" style="text-align:center"><a href="'.ACYM_ACYWEBSITE.'?utm_source=acym-'.$level.'&utm_medium=front-end&utm_content=txt&utm_campaign=powered-by" target="_blank" title="'.ACYM_NAME.' : '.str_replace(
-            'TM ',
-            ' ',
-            strip_tags($description)
-        ).'">'.ACYM_NAME;
-    $text .= ' - '.$description.'</a></div>';
-
-    return $text;
-}
-
-function acym_perf($name)
-{
-    static $previoustime = 0;
-    static $previousmemory = 0;
-    static $file = '';
-
-    if (empty($file)) {
-        $file = ACYM_ROOT.'acydebug_'.rand().'.txt';
-        $previoustime = microtime(true);
-        $previousmemory = memory_get_usage();
-        file_put_contents(
-            $file,
-            "\r\n\r\n-- new test : ".$name." -- ".date('d M H:i:s')." from ".@$_SERVER['REMOTE_ADDR'],
-            FILE_APPEND
-        );
-
-        return;
-    }
-
-    $nowtime = microtime(true);
-    $totaltime = $nowtime - $previoustime;
-    $previoustime = $nowtime;
-
-    $nowmemory = memory_get_usage();
-    $totalmemory = $nowmemory - $previousmemory;
-    $previousmemory = $nowmemory;
-
-    file_put_contents(
-        $file,
-        "\r\n".$name.' : '.number_format($totaltime, 2).'s - '.$totalmemory.' / '.memory_get_usage(),
-        FILE_APPEND
-    );
 }
 
 function acym_get($path)
@@ -2427,60 +2172,12 @@ function acym_arrayToInteger(&$array)
     }
 }
 
-function acym_arrayToString($array, $inner_glue = '=', $outer_glue = ' ', $keepOuterKey = false)
-{
-    $output = [];
-
-    foreach ($array as $key => $item) {
-        if (is_array($item)) {
-            if ($keepOuterKey) {
-                $output[] = $key;
-            }
-
-            $output[] = acym_arrayToString($item, $inner_glue, $outer_glue, $keepOuterKey);
-        } else {
-            $output[] = $key.$inner_glue.'"'.$item.'"';
-        }
-    }
-
-    return implode($outer_glue, $output);
-}
-
 function acym_makeSafeFile($file)
 {
     $file = rtrim($file, '.');
     $regex = ['#(\.){2,}#', '#[^A-Za-z0-9\.\_\- ]#', '#^\.#'];
 
     return trim(preg_replace($regex, '', $file));
-}
-
-function acym_sortablelist($table, $ordering)
-{
-    acym_addScript(false, ACYM_JS.'sortable.js?v='.@filemtime(ACYM_MEDIA.'js'.DS.'sortable.js'));
-
-    $js = "
-		document.addEventListener(\"DOMContentLoaded\", function(event) {
-			Sortable.create(document.getElementById('acym_sortable_listing'), {
-				handle: '.acyicon-draghandle',
-				animation: 150,
-				dataIdAttr: 'acyorderid',
-				ghostClass: 'acysortable-ghost',
-				store: {
-					set: function (sortable) {
-						var cid = sortable.toArray();
-						var order = [".$ordering."];
-						
-						var xhr = new XMLHttpRequest();
-						xhr.open('GET', '".acym_prepareAjaxURL(
-            $table
-        )."&task=saveorder&'+cid.join('&')+'&'+order.join('&')+'&".acym_getFormToken()."');
-						xhr.send();
-					}
-				}
-			});
-		});";
-
-    acym_addScript(true, $js);
 }
 
 function acym_tooltip($text, $tooltipText, $classContainer = '', $title = '', $link = '')
@@ -2558,7 +2255,7 @@ function acym_getFolders($path, $filter = '.', $recurse = false, $full = false, 
     if (!is_dir($path)) {
         acym_enqueueMessage(acym_translation_sprintf('ACYM_IS_NOT_A_FOLDER', $path), 'error');
 
-        return false;
+        return [];
     }
 
     if (count($excludefilter)) {
@@ -2726,28 +2423,6 @@ function acym_copyFolder($src, $dest, $path = '', $force = false, $use_streams =
     return true;
 }
 
-function acym_moveFolder($src, $dest, $path = '', $use_streams = false)
-{
-    if ($path) {
-        $src = acym_cleanPath($path.'/'.$src);
-        $dest = acym_cleanPath($path.'/'.$dest);
-    }
-
-    if (!file_exists($src)) {
-        acym_enqueueMessage(acym_translation_sprintf('ACYM_FOLDER_DOES_NOT_EXIST', $src), 'error');
-
-        return false;
-    }
-
-    if (!@rename($src, $dest)) {
-        acym_enqueueMessage(acym_translation_sprintf('ACYM_COULD_NOT_MOVE_FOLDER_PERMISSION', $src, $dest), 'error');
-
-        return false;
-    }
-
-    return true;
-}
-
 function acym_listFolderTree($path, $filter, $maxLevel = 3, $level = 0, $parent = 0)
 {
     $dirs = [];
@@ -2878,12 +2553,16 @@ function acym_copyFile($src, $dest, $path = null, $use_streams = false)
 
 function acym_fileGetExt($file)
 {
-    $dot = strrpos($file, '.');
-    if ($dot === false) {
-        return '';
+    $endPos = strpos($file, '?');
+    if (false !== $endPos) {
+        $file = substr($file, 0, $endPos);
     }
 
-    return substr($file, $dot + 1);
+    $dot = strrpos($file, '.');
+    if (false === $dot) return '';
+    $extension = substr($file, $dot + 1);
+
+    return $extension;
 }
 
 function acym_cleanPath($path, $ds = DIRECTORY_SEPARATOR)
@@ -2960,86 +2639,12 @@ function acym_currentURL()
     return $url;
 }
 
-function acym_accessList()
-{
-    $listid = acym_getVar('int', 'listid');
-    if (empty($listid)) {
-        return false;
-    }
-
-    $listClass = acym_get('class.list');
-    $myList = $listClass->get($listid);
-    if (empty($myList->listid)) {
-        die('Invalid List');
-    }
-
-    $currentUserid = acym_currentUserId();
-    if (!empty($currentUserid) && $currentUserid == (int)$myList->userid) {
-        return true;
-    }
-    if (empty($currentUserid) || $myList->access_manage == 'none') {
-        return false;
-    }
-    if ($myList->access_manage != 'all' && !acym_isAllowed($myList->access_manage)) {
-        return false;
-    }
-
-    return true;
-}
-
-function acym_gridSort(
-    $title, $order, $direction = 'asc', $selected = '', $task = null, $new_direction = 'asc', $tip = ''
-) {
-    $direction = strtolower($direction);
-    if ($order != $selected) {
-        $direction = $new_direction;
-    } else {
-        $direction = $direction == 'desc' ? 'asc' : 'desc';
-    }
-
-    $icon = ['acyicon-up', 'acyicon-down'];
-    $index = (int)($direction == 'desc');
-
-    $result = '<a href="#" onclick="acym.tableOrdering(\''.$order.'\', \''.$direction.'\', \''.$task.'\');return false;">';
-    $result .= acym_tooltip(acym_translation('ACYM_ORDER_COLUMN'), '', '', acym_translation($title));
-    if ($order == $selected) {
-        $result .= '<span class="'.$icon[$index].'"></span>';
-    }
-    $result .= '</a>';
-
-    return $result;
-}
-
 function acym_session()
 {
     $sessionID = session_id();
     if (empty($sessionID)) {
         @session_start();
     }
-}
-
-function acym_filterOrdering($orderingOptions, $selected)
-{
-    echo '<input type="hidden" id="acym_ordering" name="ordering" value="'.$selected.'"/>';
-
-    foreach ($orderingOptions as $value => $text) {
-        $class = 'acym_ordering_option large-shrink medium-auto small-6 cell button primary';
-        if ($value == $selected) {
-            $class .= ' acym__listing__sort-by--selected';
-        }
-        echo acym_tooltip('<button type="button" ordering="'.$value.'" class="'.$class.'">'.acym_translation($text).'</button>', acym_translation("ACYM_SORT_BY").' '.acym_translation($text));
-    }
-}
-
-function acym_dropdown($id = null, $target = null, $content = '', $dataPosition = 'bottom', $dataAlignment = 'center')
-{
-    $dropdown = $target;
-    $dropdown .= '<div class="dropdown-pane" id="'.$id.'" data-dropdown data-hover="true"';
-    $dropdown .= 'data-hover-pane="true" data-position="'.$dataPosition.'" data-alignment="'.$dataAlignment.'">';
-    $dropdown .= $content;
-    $dropdown .= '</div>';
-
-    return $dropdown;
 }
 
 function acym_listingActions($actions)
@@ -3079,7 +2684,11 @@ function acym_filterStatus($options, $selected, $name)
             $class .= ' font-bold acym__status__select';
         }
         $disabled = empty($text[1]) ? ' disabled' : '';
-        $filterStatus .= '<button type="button" status="'.acym_escape($value).'" class="'.acym_escape($class).'"'.$disabled.'>'.acym_translation($text[0]).' ('.$text[1].')</button>';
+        $extraIcon = '';
+        if (!empty($text[2]) && 'pending' == $text[2]) {
+            $extraIcon = ' <i class="fa fa-exclamation-triangle acym__color__orange" style="font-size: 15px;"></i>';
+        }
+        $filterStatus .= '<button type="button" status="'.acym_escape($value).'" class="'.acym_escape($class).'"'.$disabled.'>'.acym_translation($text[0]).$extraIcon.' ('.$text[1].')</button>';
     }
 
     return $filterStatus;
@@ -3135,35 +2744,6 @@ function acym_switch($name, $value, $label = null, $attrInput = [], $labelClass 
     return $switch;
 }
 
-function acym_selectTemplates($mailOptions, $selected, $type, $listId)
-{
-    echo '<input type="hidden" id="acym_template" name="mailSelected" value="'.$selected.'"/>';
-    foreach ($mailOptions as $oneTpl) {
-        echo '<div class="cell grid-x acym__template__block text-center">';
-        $buttonSelectedClass = '';
-        $iconSelectedClass = ' not_selected_template';
-        if ($oneTpl->id == $selected) {
-            $buttonSelectedClass = ' acym_template_option--selected';
-            $iconSelectedClass = ' selected_template';
-        }
-
-        $button = '<i class="fa fa-check-circle '.$iconSelectedClass.'"></i>
-                <button type="button" template="'.acym_escape($oneTpl->id).'" class="cell acym__templates__oneTpl acym__listing__block acym_template_option'.$buttonSelectedClass.'">
-                <div class="cell grid-x text-center">
-                    <div class="cell acym__templates__pic text-center">
-                        <img src="'.acym_getMailThumbnail($oneTpl->thumbnail).'" alt="'.acym_escape($oneTpl->name).'" />
-                    </div>
-                    <div class="cell grid-x text-center acym__templates__footer">
-                        <div class="cell acym__template__footer__title">'.acym_escape($oneTpl->name).'</div>
-                    </div>
-                </div>
-            </button>
-        </div>';
-        echo $button;
-    }
-    echo '<div class="cell grid-x acym__template__block text-center align-center acym_vcenter"><a class="acym_vcenter text-center align-center acym__color__white acym__list__button__add__mail__welcome__unsub" href="'.acym_completeLink('mails&task=edit&step=editEmail&type='.$type.'&type_editor=acyEditor&return='.urlencode(acym_completeLink('lists&task=edit&step='.$type.'&id='.$listId.'&edition=1'))).'"><i class="acymicon-add"></i></a></div>';
-}
-
 function acym_backToListing($listingName)
 {
     return '<p class="acym__back_to_listing"><a href="'.acym_completeLink($listingName).'"><i class="fa fa-chevron-left"></i> '.acym_translation('ACYM_BACK_TO_LISTING').'</a></p>';
@@ -3214,8 +2794,7 @@ function acym_getJSMessages()
         'ACYM_ARE_YOU_SURE_DELETE',
         'ACYM_ARE_YOU_SURE_ACTIVE',
         'ACYM_ARE_YOU_SURE_INACTIVE',
-        'ACYM_SEARCH_TAGS',
-        'ACYM_SEARCH_CAMPAIGN',
+        'ACYM_SEARCH',
         'ACYM_SEARCH_ENCODING',
         'ACYM_CANCEL',
         'ACYM_CONFIRM',
@@ -3279,6 +2858,9 @@ function acym_getJSMessages()
         'ACYM_TEMPLATE_EMPTY',
         'ACYM_DRAG_BLOCK_AND_DROP_HERE',
         'ACYM_WELL_DONE_DROP_HERE',
+        'ACYM_REPLACE_CONFIRM',
+        'ACYM_STATS_START_DATE_LOWER',
+        'ACYM_ARE_YOU_SURE_DELETE_ADD_ON',
     ];
 
     foreach ($keysToLoad as $oneKey) {
@@ -3295,16 +2877,22 @@ function acym_loadPlugins()
 {
     $dynamics = acym_getFolders(ACYM_BACK.'dynamics');
 
-    $key = array_search('managetext', $dynamics);
-    unset($dynamics[$key]);
+    $pluginClass = acym_get('class.plugin');
+    $plugins = $pluginClass->getAll('folder_name');
+
+    foreach ($dynamics as $key => $oneDynamic) {
+        if (!empty($plugins[$oneDynamic]) && '0' === $plugins[$oneDynamic]->active) unset($dynamics[$key]);
+        if ('managetext' === $oneDynamic) unset($dynamics[$key]);
+    }
+
     $dynamics[] = 'managetext';
 
     global $acymPlugins;
     foreach ($dynamics as $oneDynamic) {
-        $dynamicFile = ACYM_BACK.'dynamics'.DS.$oneDynamic.DS.'plugin.php';
+        $dynamicFile = acym_getPluginPath($oneDynamic);
         $className = 'plgAcym'.ucfirst($oneDynamic);
 
-        if (isset($acymPlugins[$className]) || !file_exists($dynamicFile) || !include_once($dynamicFile)) continue;
+        if (isset($acymPlugins[$className]) || !file_exists($dynamicFile) || !include_once $dynamicFile) continue;
         if (!class_exists($className)) continue;
 
         $plugin = new $className();
@@ -3312,14 +2900,6 @@ function acym_loadPlugins()
 
         $acymPlugins[$className] = $plugin;
     }
-}
-
-function acym_getPlugin($family, $name = null)
-{
-    $plugin = new stdClass();
-    $plugin->params = [];
-
-    return $plugin;
 }
 
 function acym_trigger($method, $args = [], $plugin = null)
@@ -3361,9 +2941,9 @@ function acym_displayParam($type, $value, $name, $params = [])
 function acym_upgradeTo($version)
 {
     $link = ACYM_ACYWEBSITE.'acymailing/'.($version == 'essential' ? 'essential' : 'enterprise').'.html';
-    $text = $version == 'essential' ? 'ACYM_ESSENTIAL' : 'ACYM_ENTERPRISE';
+    $text = $version == 'essential' ? 'AcyMailing Essential' : 'AcyMailing Enterprise';
     echo '<div class="acym__upgrade cell grid-x text-center align-center">
-            <h1 class="acym__listing__empty__title cell">'.acym_translation_sprintf('ACYM_USE_THIS_FEATURE', '<span class="acym__color__blue">'.acym_translation($text).'</span>').'</h1>
+            <h1 class="acym__listing__empty__title cell">'.acym_translation_sprintf('ACYM_USE_THIS_FEATURE', '<span class="acym__color__blue">'.$text.'</span>').'</h1>
             <a target="_blank" href="'.$link.'" class="button smaller-button cell shrink">'.acym_translation('ACYM_UPGRADE_NOW').'</a>
           </div>';
 }
@@ -3375,13 +2955,6 @@ function acym_checkbox($values, $name, $selected = [], $label = '', $parentClass
         echo '<label class="cell grid-x margin-top-1"><input type="checkbox" name="'.$name.'" value="'.$key.'" '.(in_array($key, $selected) ? 'checked' : '').' >'.$value.'</label>';
     }
     echo '</div></div>';
-}
-
-function acym_table($name, $component = true)
-{
-    $prefix = $component ? ACYM_DBPREFIX : '#__';
-
-    return $prefix.$name;
 }
 
 function acym_existsAcyMailing59()
@@ -3402,12 +2975,40 @@ function acym_noCache()
     header('Expires: Wed, 17 Sep 1975 21:32:10 GMT');
 }
 
+function acym_getDatabases()
+{
+    try {
+        $allDatabases = acym_loadResultArray('SHOW DATABASES');
+    } catch (Exception $exception) {
+        $allDatabases = [];
+        $allDatabases[] = acym_loadResult('SELECT DATABASE();');
+    }
 
-include_once(ACYM_LIBRARY.'class.php');
-include_once(ACYM_LIBRARY.'parameter.php');
-include_once(ACYM_LIBRARY.'controller.php');
-include_once(ACYM_LIBRARY.'view.php');
-include_once(ACYM_LIBRARY.'plugin.php');
+    $databases = [];
+    foreach ($allDatabases as $database) {
+        $databases[$database] = $database;
+    }
+
+    return $databases;
+}
+
+function acym_getSvg($svgPath)
+{
+    if (class_exists('SimpleXMLElement') && $xml = simplexml_load_file($svgPath)) {
+        $res = $xml->asXML();
+        if (!empty($res)) return $res;
+    }
+
+    return acym_fileGetContent($svgPath);
+}
+
+
+include_once ACYM_LIBRARY.'object.php';
+include_once ACYM_LIBRARY.'class.php';
+include_once ACYM_LIBRARY.'parameter.php';
+include_once ACYM_LIBRARY.'controller.php';
+include_once ACYM_LIBRARY.'view.php';
+include_once ACYM_LIBRARY.'plugin.php';
 
 acym_loadLanguage();
 

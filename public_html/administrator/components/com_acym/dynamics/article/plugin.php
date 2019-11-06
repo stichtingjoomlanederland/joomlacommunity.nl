@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class plgAcymArticle extends acymPlugin
 {
@@ -16,21 +17,18 @@ class plgAcymArticle extends acymPlugin
     {
         parent::__construct();
         $this->cms = 'Joomla';
-        $this->name = 'article';
+
+        $this->pluginDescription->name = acym_translation('ACYM_ARTICLE');
+        $this->pluginDescription->icon = '<i class="cell fa fa-joomla"></i>';
+        $this->pluginDescription->icontype = 'raw';
     }
 
-    public function insertOptions()
+    public function getPossibleIntegrations()
     {
-        $plugin = new stdClass();
-        $plugin->name = acym_translation('ACYM_ARTICLE');
-        $plugin->icon = '<i class="cell fa fa-joomla"></i>';
-        $plugin->icontype = 'raw';
-        $plugin->plugin = __CLASS__;
-
-        return $plugin;
+        return $this->pluginDescription;
     }
 
-    public function contentPopup($defaultValues = null)
+    public function insertionOptions($defaultValues = null)
     {
         $this->defaultValues = $defaultValues;
 
@@ -79,7 +77,7 @@ class plgAcymArticle extends acymPlugin
 
         $zoneContent = $this->getFilteringZone().$this->prepareListing();
         echo $this->displaySelectionZone($zoneContent);
-        echo $this->acympluginHelper->displayOptions($displayOptions, $identifier, 'individual', $this->defaultValues);
+        echo $this->pluginHelper->displayOptions($displayOptions, $identifier, 'individual', $this->defaultValues);
 
         $tabHelper->endTab();
         $identifier = 'auto'.$this->name;
@@ -117,7 +115,7 @@ class plgAcymArticle extends acymPlugin
         $displayOptions = array_merge($displayOptions, $catOptions);
 
         echo $this->displaySelectionZone($this->getCategoryListing());
-        echo $this->acympluginHelper->displayOptions($displayOptions, $identifier, 'grouped', $this->defaultValues);
+        echo $this->pluginHelper->displayOptions($displayOptions, $identifier, 'grouped', $this->defaultValues);
 
         $tabHelper->endTab();
 
@@ -126,19 +124,19 @@ class plgAcymArticle extends acymPlugin
 
     public function prepareListing()
     {
-        $this->querySelect = 'SELECT article.id, article.title, article.publish_up ';
-        $this->query = 'FROM #__content AS article ';
+        $this->querySelect = 'SELECT element.id, element.title, element.publish_up ';
+        $this->query = 'FROM #__content AS element ';
         $this->filters = [];
-        $this->filters[] = 'article.state = 1';
-        $this->searchFields = ['article.id', 'article.title'];
-        $this->pageInfo->order = 'article.id';
-        $this->elementIdTable = 'article';
+        $this->filters[] = 'element.state = 1';
+        $this->searchFields = ['element.id', 'element.title'];
+        $this->pageInfo->order = 'element.id';
+        $this->elementIdTable = 'element';
         $this->elementIdColumn = 'id';
 
         parent::prepareListing();
 
         if (!empty($this->pageInfo->filter_cat)) {
-            $this->filters[] = 'article.catid = '.intval($this->pageInfo->filter_cat);
+            $this->filters[] = 'element.catid = '.intval($this->pageInfo->filter_cat);
         }
 
         $listingOptions = [
@@ -167,111 +165,61 @@ class plgAcymArticle extends acymPlugin
 
     public function replaceContent(&$email)
     {
-        $this->replaceAuto($email);
+        $this->replaceMultiple($email);
         $this->replaceOne($email);
     }
 
-    private function replaceAuto(&$email)
+    protected function loadLibraries($email)
     {
-        $this->generateByCategory($email);
-        if (empty($this->tags)) return;
-        $this->acympluginHelper->replaceTags($email, $this->tags, true);
+        require_once JPATH_SITE.DS.'components'.DS.'com_content'.DS.'helpers'.DS.'route.php';
+
+        return true;
     }
 
-    private function generateByCategory(&$email)
+    public function generateByCategory(&$email)
     {
-        $tags = $this->acympluginHelper->extractTags($email, 'auto'.$this->name);
-        $return = new stdClass();
-        $return->status = true;
-        $return->message = '';
+        $tags = $this->pluginHelper->extractTags($email, 'auto'.$this->name);
         $this->tags = [];
         $time = time();
 
-        if (empty($tags)) return $return;
+        if (empty($tags)) return $this->generateCampaignResult;
 
         foreach ($tags as $oneTag => $parameter) {
             if (isset($this->tags[$oneTag])) continue;
 
-            $query = 'SELECT DISTINCT article.`id` FROM #__content AS article ';
+            $query = 'SELECT DISTINCT element.`id` FROM #__content AS element ';
 
             $where = [];
 
             $selectedArea = $this->getSelectedArea($parameter);
             if (!empty($selectedArea)) {
-                $where[] = 'article.catid IN ('.implode(',', $selectedArea).')';
+                $where[] = 'element.catid IN ('.implode(',', $selectedArea).')';
             }
 
-            $where[] = 'article.state = 1';
+            $where[] = 'element.state = 1';
             $where[] = '`publish_up` < '.acym_escapeDB(date('Y-m-d H:i:s', $time - date('Z')));
             $where[] = '`publish_down` > '.acym_escapeDB(date('Y-m-d H:i:s', $time - date('Z'))).' OR `publish_down` = 0';
 
             $query .= ' WHERE ('.implode(') AND (', $where).')';
 
-            if (!empty($parameter->order)) {
-                $ordering = explode(',', $parameter->order);
-                if ($ordering[0] == 'rand') {
-                    $query .= ' ORDER BY rand()';
-                } else {
-                    $query .= ' ORDER BY article.`'.acym_secureDBColumn(trim($ordering[0])).'` '.acym_secureDBColumn(trim($ordering[1]));
-                }
-            }
-
-            if (empty($parameter->max)) $parameter->max = 20;
-            $query .= ' LIMIT '.intval($parameter->max);
-
-            $allArticles = acym_loadResultArray($query);
-
-            $this->tags[$oneTag] = $this->finalizeCategoryFormat($this->name, $allArticles, $parameter);
+            $this->tags[$oneTag] = $this->finalizeCategoryFormat($query, $parameter, 'element');
         }
 
-        return $return;
+        return $this->generateCampaignResult;
     }
 
-    private function replaceOne(&$email)
+    public function replaceIndividualContent($tag)
     {
-        $tags = $this->acympluginHelper->extractTags($email, $this->name);
-        if (empty($tags)) return;
+        $query = 'SELECT element.*
+                    FROM #__content AS element
+                    WHERE element.state = 1
+                        AND element.id = '.intval($tag->id);
 
-        require_once JPATH_SITE.DS.'components'.DS.'com_content'.DS.'helpers'.DS.'route.php';
+        $element = $this->initIndividualContent($tag, $query);
 
-        $tagsReplaced = [];
-        foreach ($tags as $i => $oneTag) {
-            if (isset($tagsReplaced[$i])) continue;
+        if (empty($element)) return '';
 
-            $tagsReplaced[$i] = $this->replaceIndividualContent($oneTag);
-        }
-
-        $this->acympluginHelper->replaceTags($email, $tagsReplaced, true);
-    }
-
-    private function replaceIndividualContent($tag)
-    {
-        $query = 'SELECT article.*
-                    FROM #__content AS article
-                    WHERE article.state = 1
-                        AND article.id = '.intval($tag->id);
-
-        $element = acym_loadObject($query);
-
-        if (empty($element)) {
-            if (acym_isAdmin()) {
-                acym_enqueueMessage('The article "'.$tag->id.'" could not be found', 'notice');
-            }
-
-            return '';
-        }
-
-        if (empty($tag->display)) {
-            $tag->display = [];
-        } else {
-            $tag->display = explode(',', $tag->display);
-        }
-
-        $varFields = [];
-        $varFields['{picthtml}'] = '';
-        foreach ($element as $fieldName => $oneField) {
-            $varFields['{'.$fieldName.'}'] = $oneField;
-        }
+        $varFields = $this->getCustomLayoutVars($element);
 
         $completeId = $element->id;
         if (!empty($element->alias)) $completeId .= ':'.$element->alias;
@@ -280,7 +228,8 @@ class plgAcymArticle extends acymPlugin
         $link = acym_frontendLink($link, false);
         $varFields['{link}'] = $link;
 
-        $title = $element->title;
+        $title = '';
+        if (in_array('title', $tag->display)) $title = $element->title;
 
         $afterTitle = '';
         $afterArticle = '';
@@ -319,11 +268,10 @@ class plgAcymArticle extends acymPlugin
         $format->imagePath = $imagePath;
         $format->description = $contentText;
         $format->link = empty($tag->clickable) ? '' : $link;
-        $format->cols = empty($tag->nbcols) ? 1 : intval($tag->nbcols);
         $format->customFields = $customFields;
-        $result = '<div class="acymailing_content">'.$this->acympluginHelper->getStandardDisplay($format).'</div>';
+        $result = '<div class="acymailing_content">'.$this->pluginHelper->getStandardDisplay($format).'</div>';
 
-        return $this->finalizeElementFormat($this->name, $result, $tag, $varFields);
+        return $this->finalizeElementFormat($result, $tag, $varFields);
     }
 }
 

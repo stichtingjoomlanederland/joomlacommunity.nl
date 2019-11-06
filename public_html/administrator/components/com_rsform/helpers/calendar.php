@@ -7,17 +7,16 @@
 
 class RSFormProCalendar
 {
+	protected $calendar;
 	protected $className;
 	protected $type;
-	protected static $renderYUI = false;
-	protected static $renderJQ = false;
 
 	public function __construct($type = 'YUICalendar') {
 		require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/calendars/'.strtolower($type).'.php';
+
 		$this->className = 'RSFormPro'.ucfirst($type);
+		$this->calendar = new $this->className();
 		$this->type = $type;
-		// load the files necessary for the calendar
-		call_user_func(array($this->className, 'loadFiles'));
 	}
 	
 	public static function getInstance($type = 'YUICalendar') {
@@ -30,43 +29,40 @@ class RSFormProCalendar
 	}
 	
 	public function setCalendar($config) {
-		call_user_func(array($this->className, 'setCalendarOptions'), $config);
+		$this->calendar->setCalendarOptions($config);
 	}
 	
-	public function printInlineScript($formId) {
-		$className = $this->className;
-		$calendarOptions = call_user_func(array($className, 'getCalendarOptions'));
+	public function printInlineScript($formId)
+	{
+		// load the files necessary for the calendar
+		$this->calendar->loadFiles();
+
+		$calendarOptions = $this->calendar->getCalendarOptions();
 
         $script = '';
 		
-		if (isset($calendarOptions[$formId])) {
-			// the form calendar fields
-			$calendarsIds = array();
-			foreach ($calendarOptions[$formId] as $calendarId => $calendarConfigs) {
+		if (isset($calendarOptions[$formId]))
+		{
+			foreach ($calendarOptions[$formId] as $calendarId => $calendarConfigs)
+			{
 				$configs = array();
-				foreach ($calendarConfigs as $type=>$value) {
-					if ($type == 'extra') {
+				foreach ($calendarConfigs as $type => $value)
+				{
+					if ($type == 'extra')
+					{
 						$configs[] = "extra: {".implode(',', $value)."}";
-					} else {
+					}
+					else
+					{
 						$configs[] = json_encode($type).':'.json_encode($value);
 					}
 				}
-				$script .= "RSFormPro.".$this->type.".setCalendar(".$formId.", '".$calendarId."', {".implode(', ',$configs)."});\n";
-				if ($this->type == 'YUICalendar') {
-					$calendarsIds[] = $calendarId;
-				}
+				$configs = implode(', ',$configs);
+
+				$script .= "RSFormPro.{$this->type}.setCalendar({$formId}, '{$calendarId}', {{$configs}});\n";
 			}
-			if (!RSFormProCalendar::$renderYUI && $this->type == 'YUICalendar') {
-				$script .= 'rsf_CALENDAR.util.Event.addListener(window, "load",RSFormPro.YUICalendar.renderCalendars);'."\n";
-				$script .= 'RSFormPro.callbacks.addCallback('.$formId.', \'changePage\', [RSFormPro.YUICalendar.hideAllPopupCalendars, '.$formId.', '.json_encode($calendarsIds).']);';
-				RSFormProCalendar::$renderYUI = true;
-			}
-			
-			if (!RSFormProCalendar::$renderJQ && $this->type == 'jQueryCalendar') {
-				$script .= "jQuery(document).ready(function(){\n\t RSFormPro.jQueryCalendar.renderCalendars(); });\n";
-				$script .= 'RSFormPro.callbacks.addCallback('.$formId.', \'changePage\', [RSFormPro.jQueryCalendar.hideAllPopupCalendars, '.$formId.']);';
-				RSFormProCalendar::$renderJQ = true;
-			}
+
+			$script .= $this->calendar->printInlineScript($formId);
 		}
 		return $script;
 	}
@@ -138,5 +134,10 @@ class RSFormProCalendar
 		}
 		
 		return $value;
+	}
+
+	public function getPosition($formId, $componentId)
+	{
+		return $this->calendar->getPosition($formId, $componentId);
 	}
 }

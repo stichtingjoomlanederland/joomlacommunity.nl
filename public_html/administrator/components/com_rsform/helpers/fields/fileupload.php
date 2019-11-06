@@ -251,7 +251,7 @@ class RSFormProFieldFileUpload extends RSFormProField
 			$prefix = uniqid('') . '-';
 			if (strlen(trim($prefixProperty)) > 0)
 			{
-				$prefix = RSFormProHelper::isCode($prefixProperty);
+				$prefix = $this->isCode($prefixProperty);
 			}
 
 			// Path

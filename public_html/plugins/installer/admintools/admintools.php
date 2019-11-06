@@ -80,6 +80,12 @@ class plgInstallerAdmintools extends JPlugin
 	 */
 	public function onInstallerBeforePackageDownload(&$url, &$headers)
 	{
+		// This plugin only applies to Joomla! 3
+		if (version_compare(JVERSION, '3.999.999', 'gt'))
+		{
+			return;
+		}
+
 		// Make sure the URL is one we're supposed to handle
 		if (!$this->hasAllowedPrefix($url))
 		{

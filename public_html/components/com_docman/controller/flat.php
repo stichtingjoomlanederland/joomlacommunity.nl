@@ -23,6 +23,7 @@ class ComDocmanControllerFlat extends ComKoowaControllerModel
     protected function _initialize(KObjectConfig $config)
     {
         $config->append(array(
+            'toolbars' => ['flat'],
             'formats' => array('json', 'rss'),
             'model'   => 'com://site/docman.model.documents',
             'behaviors' => array(
@@ -31,6 +32,31 @@ class ComDocmanControllerFlat extends ComKoowaControllerModel
         ));
 
         parent::_initialize($config);
+    }
+
+    /**
+     * Add the toolbar for non-authentic users too
+     *
+     * @param KControllerContextInterface $context
+     */
+    protected function _addToolbars(KControllerContextInterface $context)
+    {
+        if($this->getView() instanceof KViewHtml)
+        {
+            if($this->isDispatched())
+            {
+                foreach($context->toolbars as $toolbar) {
+                    $this->addToolbar($toolbar);
+                }
+
+                if($toolbars = $this->getToolbars())
+                {
+                    $this->getView()
+                        ->getTemplate()
+                        ->addFilter('toolbar', array('toolbars' => $toolbars));
+                };
+            }
+        }
     }
 
     public function getView()

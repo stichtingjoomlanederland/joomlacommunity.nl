@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.0
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 require_once(ACYM_INC.'phpmailer'.DS.'exception.php');
 require_once(ACYM_INC.'phpmailer'.DS.'smtp.php');
@@ -418,6 +419,7 @@ class acymmailerHelper extends acyPHPMailer
                 $newUser->email = $user;
                 $this->userClass->checkVisitor = false;
                 $this->userClass->sendConf = false;
+                acym_setVar('acy_source', 'auto_on_sending');
                 $userId = $this->userClass->save($newUser);
                 $receiver = $this->userClass->getOneById($userId);
             }
@@ -583,16 +585,10 @@ class acymmailerHelper extends acyPHPMailer
 
     public function statClick($mailId, $userid)
     {
-        if (!in_array($this->type, ['standard', 'automation'])) {
-
-            return;
-        }
+        if (!in_array($this->type, ['standard', 'automation'])) return;
 
         $urlClass = acym_get('class.url');
-
-        if ($urlClass === null) {
-            return;
-        }
+        if ($urlClass === null) return;
 
         $urls = [];
 
@@ -600,10 +596,7 @@ class acymmailerHelper extends acyPHPMailer
         $trackingSystemExternalWebsite = $config->get('trackingsystemexternalwebsite', 1);
 
         preg_match_all('#href[ ]*=[ ]*"(?!mailto:|\#|ymsgr:|callto:|file:|ftp:|webcal:|skype:|tel:)([^"]+)"#Ui', $this->body, $results);
-
-        if (empty($results)) {
-            return;
-        }
+        if (empty($results)) return;
 
         $countLinks = array_count_values($results[1]);
         if (array_product($countLinks) != 1) {

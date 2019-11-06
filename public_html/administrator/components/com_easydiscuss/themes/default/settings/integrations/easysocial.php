@@ -41,6 +41,7 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="panel-body">
 				<div class="form-horizontal">
 					<?php echo $this->html('settings.toggle', 'integration_easysocial_notify_create', 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFY_NEW_DISCUSSION'); ?>
+					<?php echo $this->html('settings.toggle', 'integration_easysocial_notify_moderate', 'COM_ED_EASYSOCIAL_NOTIFY_NEW_MODERATION'); ?>
 					<?php echo $this->html('settings.toggle', 'integration_easysocial_notify_reply', 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFY_NEW_REPLY'); ?>
 					<?php echo $this->html('settings.toggle', 'integration_easysocial_notify_comment', 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFY_NEW_COMMENT'); ?>
 					<?php echo $this->html('settings.toggle', 'integration_easysocial_notify_accepted', 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFY_ACCEPTED_ANSWER'); ?>

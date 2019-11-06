@@ -32,7 +32,9 @@ JText::script('RSFP_AUTOGENERATE_LAYOUT_WARNING_SURE');
         <?php if (!RSFormProHelper::getConfig('global.disable_multilanguage')) { ?>
             <span><?php echo $this->lists['Languages']; ?></span>
             <span><?php echo JText::sprintf('RSFP_YOU_ARE_EDITING_IN', $this->lang, RSFormProHelper::translateIcon()); ?></span>
-        <?php } ?>
+        <?php } else { ?>
+			<p><span><?php echo JText::sprintf('RSFP_YOU_ARE_EDITING_IN_SHORT', $this->lang); ?></span></p>
+		<?php } ?>
 
 		<div id="rsform_container">
 			<div id="state" style="display: none;"><?php echo JHtml::image('com_rsform/admin/load.gif', JText::_('RSFP_PROCESSING'), null, true); ?><?php echo JText::_('RSFP_PROCESSING'); ?></div>
@@ -192,7 +194,7 @@ JText::script('RSFP_AUTOGENERATE_LAYOUT_WARNING_SURE');
                     messages.error.push(Joomla.JText._('RSFP_SPECIFY_FORM_NAME'));
                     Joomla.renderMessages(messages);
 				} else {
-					if (RSFormPro.$('#properties').hasClass('btn-primary')) {
+					if (jQuery('#properties').hasClass('btn-primary')) {
 						document.getElementById('tabposition').value = 1;
 					}
 					Joomla.submitform(pressbutton);
@@ -249,7 +251,7 @@ JText::script('RSFP_AUTOGENERATE_LAYOUT_WARNING_SURE');
 				if(xml.readyState==4)
 				{
 					var cell = document.getElementById(theId);
-					RSFormPro.$(cell).html(xml.responseText);
+					jQuery(cell).html(xml.responseText);
 
 					stateDone();
 

@@ -176,7 +176,7 @@ defined('_JEXEC') or die('Restricted access');
 								</div>
 								<div class="o-flag__body">
 									<div class="">
-										<a href="<?php echo $post->getOwner()->getLink();?>" class="ed-user-name"><?php echo $post->getOwner()->getName();?></a>
+										<?php echo $this->html('user.username', $post->getOwner(), array()); ?>
 										<?php if($this->config->get('layout_profile_roles') && $post->getOwner()->getRole() ) { ?>
 											<span class="ed-user-role-label o-label o-label--<?php echo $post->getOwner()->getRoleLabelClassname()?>"><?php echo $post->getOwner()->getRole(); ?></span>
 										<?php } ?>
@@ -206,7 +206,7 @@ defined('_JEXEC') or die('Restricted access');
 						</div>
 						<div class="o-flag__body">
 							<div class="">
-								<a href="javascript:void(0);" class="ed-user-name"><?php echo JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');?></a>
+								<?php echo $this->html('user.username', $post->getOwner(), array('isAnonymous' => true)); ?>
 							</div>
 						</div>
 					</div>

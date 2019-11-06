@@ -7,6 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 JHtml::_('behavior.keepalive');
+JHtml::_('bootstrap.popover');
 JHtml::script('com_rsform/admin/directory.js', array('relative' => true, 'version' => 'auto'));
 ?>
 
