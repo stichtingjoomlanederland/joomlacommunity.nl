@@ -217,6 +217,10 @@ class RSFormProField
 	public function addScript($path) {
 		RSFormProAssets::addScript($path);
 	}
+
+	public function addStyleSheet($path) {
+		RSFormProAssets::addStyleSheet($path);
+	}
 	
 	public function addCustomTag($tag) {
 		RSFormProAssets::addCustomTag($tag);
@@ -224,6 +228,10 @@ class RSFormProField
 	
 	public function addScriptDeclaration($script) {
 		RSFormProAssets::addScriptDeclaration($script);
+	}
+
+	public function addStyleDeclaration($style) {
+		RSFormProAssets::addStyleDeclaration($style);
 	}
 
 	// process field or file before storing it to the database

@@ -744,6 +744,7 @@ class RsformControllerForms extends RsformController
 			{
 				foreach ($calculations as $calculation)
 				{
+					unset($calculation->id);
 					$calculation->formId = $newFormId;
 
 					$db->insertObject('#__rsform_calculations', $calculation);

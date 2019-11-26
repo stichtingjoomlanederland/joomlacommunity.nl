@@ -239,21 +239,20 @@ class RsformModelDirectory extends JModelList
         }
 
 		// Check if the entry exists
-		$this->_db->setQuery('SELECT COUNT('.$this->_db->qn('formId').') FROM '.$this->_db->qn('#__rsform_directory').' WHERE '.$this->_db->qn('formId').' = '.(int) $data['formId'].' ');
-		if (!$this->_db->loadResult()) {
-			$this->_db->setQuery('INSERT INTO '.$this->_db->qn('#__rsform_directory').' SET '.$this->_db->qn('formId').' = '.(int) $data['formId'].' ');
-			$this->_db->execute();
+		$query = $this->_db->getQuery(true)
+			->select($this->_db->qn('formId'))
+			->from($this->_db->qn('#__rsform_directory'))
+			->where($this->_db->qn('formId') . ' = ' . $this->_db->q($data['formId']));
+		if (!$this->_db->setQuery($query)->loadResult())
+		{
+			$tmp = (object) array(
+				'formId' => $data['formId']
+			);
+			$this->_db->insertObject('#__rsform_directory', $tmp);
 		}
 
-		// Bind the data.
-		if (!$table->bind($data)) {
-			$this->setError($table->getError());
-			return false;
-		}
-
-		// Store the data.
-		if (!$table->store()) {
-			$this->setError($table->getError());
+		if (!$table->save($data))
+		{
 			return false;
 		}
 

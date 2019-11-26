@@ -11,9 +11,9 @@
 defined('JPATH_PLATFORM') or die;
 
 ?>
-<div class="uk-grid uk-grid-small">
+<div class="uk-form-row uk-grid uk-grid-small">
     <div class="uk-width-4-5">
-        <div class="uk-form-row">
+        <div class="uk-form-row uk-grid uk-grid-small">
             <label for="media_type" class="uk-form-label uk-width-1-5">
                 <?php echo JText::_('WF_LABEL_MEDIA_TYPE'); ?>
             </label>
@@ -23,7 +23,7 @@ defined('JPATH_PLATFORM') or die;
                 </select>
             </div>
         </div>
-        <div class="uk-form-row">
+        <div class="uk-form-row uk-grid uk-grid-small">
             <label for="src" class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_LABEL_URL_DESC'); ?>">
                 <?php echo JText::_('WF_LABEL_URL'); ?>
             </label>
@@ -31,32 +31,39 @@ defined('JPATH_PLATFORM') or die;
                 <input type="text" id="src" value="" class="filebrowser" required />
             </div>
         </div>
-        <div class="uk-form-row" id="attributes-dimensions">
-            <label class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_LABEL_DIMENSIONS_DESC'); ?>">
+
+        <div class="uk-form-row uk-grid uk-grid-small" id="attributes-dimensions">
+            <label class="hastip uk-form-label uk-width-1-1 uk-width-small-1-5" title="<?php echo JText::_('WF_LABEL_DIMENSIONS_DESC'); ?>">
                 <?php echo JText::_('WF_LABEL_DIMENSIONS'); ?>
             </label>
-            <div class="uk-form-controls uk-width-4-5 uk-form-constrain">
+            <div class="uk-form-control uk-width-1-1 uk-width-small-4-5 uk-form-constrain uk-flex">
+
                 <div class="uk-form-controls">
-                    <input type="text" id="width" value="" />
+                    <input type="text" id="width" value="" class="uk-text-muted" />
                 </div>
+
                 <div class="uk-form-controls">
                     <strong class="uk-form-label uk-text-center uk-vertical-align-middle">&times;</strong>
                 </div>
+
                 <div class="uk-form-controls">
-                    <input type="text" id="height" value="" />
+                    <input type="text" id="height" value="" class="uk-text-muted" />
                 </div>
+
                 <label class="uk-form-label">
                     <input class="uk-constrain-checkbox" type="checkbox" checked />
                     <?php echo JText::_('WF_LABEL_PROPORTIONAL'); ?>
                 </label>
             </div>
         </div>
-        <div class="uk-form-row" id="attributes-align">
+
+        <div class="uk-hidden-mini uk-grid uk-grid-small uk-form-row" id="attributes-align">
             <label for="align" class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_LABEL_ALIGN_DESC'); ?>">
                 <?php echo JText::_('WF_LABEL_ALIGN'); ?>
             </label>
+
             <div class="uk-width-2-5">
-                <div class="uk-form-controls uk-width-9-10">
+                <div class="uk-form-controls uk-width-9-10 uk-grid uk-grid-small">
                     <select id="align">
                         <option value=""><?php echo JText::_('WF_OPTION_NOT_SET'); ?></option>
                         <optgroup label="------------">
@@ -72,7 +79,7 @@ defined('JPATH_PLATFORM') or die;
                     </select>
                 </div>
             </div>
-            <div class="uk-width-2-5">
+            <div class="uk-width-2-5 uk-hidden-mini uk-grid uk-grid-small uk-margin-remove">
                 <label for="clear" class="hastip uk-form-label uk-width-3-10" title="<?php echo JText::_('WF_LABEL_CLEAR_DESC'); ?>">
                     <?php echo JText::_('WF_LABEL_CLEAR'); ?>
                 </label>
@@ -87,39 +94,44 @@ defined('JPATH_PLATFORM') or die;
                 </div>
             </div>
         </div>
-        <div class="uk-hidden-mini uk-grid uk-grid-small" id="attributes-margin">
+
+        <div class="uk-hidden-mini uk-grid uk-grid-small uk-form-row" id="attributes-margin">
             <label for="margin" class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_LABEL_MARGIN_DESC'); ?>">
                 <?php echo JText::_('WF_LABEL_MARGIN'); ?>
             </label>
             <div class="uk-form-controls uk-width-4-5 uk-grid uk-grid-small uk-form-equalize">
+
                 <label for="margin_top" class="uk-form-label">
-                  <?php echo JText::_('WF_OPTION_TOP'); ?>
-              </label>
+                    <?php echo JText::_('WF_OPTION_TOP'); ?>
+                </label>
                 <div class="uk-form-controls">
                     <input type="text" id="margin_top" value="" />
                 </div>
+
                 <label for="margin_right" class="uk-form-label">
-                        <?php echo JText::_('WF_OPTION_RIGHT'); ?>
-                    </label>
+                    <?php echo JText::_('WF_OPTION_RIGHT'); ?>
+                </label>
                 <div class="uk-form-controls">
                     <input type="text" id="margin_right" value="" />
                 </div>
+
                 <label for="margin_bottom" class="uk-form-label">
-                        <?php echo JText::_('WF_OPTION_BOTTOM'); ?>
-                    </label>
+                    <?php echo JText::_('WF_OPTION_BOTTOM'); ?>
+                </label>
                 <div class="uk-form-controls">
                     <input type="text" id="margin_bottom" value="" />
                 </div>
+
                 <label for="margin_left" class="uk-form-label">
-                        <?php echo JText::_('WF_OPTION_LEFT'); ?>
-                    </label>
+                    <?php echo JText::_('WF_OPTION_LEFT'); ?>
+                </label>
                 <div class="uk-form-controls">
                     <input type="text" id="margin_left" value="" />
                 </div>
                 <label class="uk-form-label">
-                        <input type="checkbox" class="uk-equalize-checkbox" checked />
-                        <?php echo JText::_('WF_LABEL_EQUAL'); ?>
-                    </label>
+                    <input type="checkbox" class="uk-equalize-checkbox" />
+                    <?php echo JText::_('WF_LABEL_EQUAL'); ?>
+                </label>
             </div>
         </div>
     </div>

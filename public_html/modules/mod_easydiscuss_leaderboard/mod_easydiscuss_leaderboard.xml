@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.0" client="site" method="upgrade">
+	<name>EasyDiscuss - Leaderboard</name>
+	<author>Stack Ideas Sdn Bhd</author>
+	<creationDate>10th October 2019</creationDate>
+	<copyright>Copyright 2009 - 2016 StackIdeas. All rights reserved.</copyright>
+	<license>GPL License v2</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://stackideas.com</authorUrl>
+	<version>4.1.12</version>
+	<description><![CDATA[This module will display a list of users in a ranking order.]]></description>
+	<languages>
+		<language tag="en-GB">en-GB.mod_easydiscuss_leaderboard.ini</language>
+	</languages>
+	<files>
+		<folder>tmpl</folder>
+		<filename module="mod_easydiscuss_leaderboard">mod_easydiscuss_leaderboard.php</filename>
+		<filename>mod_easydiscuss_leaderboard.xml</filename>
+	</files>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="count" type="text" default="5" label="MOD_EASYDISCUSS_LEADERBOARD_COUNT" description="MOD_EASYDISCUSS_LEADERBOARD_COUNT_DESC" />
+				<field name="rank_type" type="list" default="points" label="Ranking by" description="Set the ranking type">
+					<option value="points">MOD_EASYDISCUSS_LEADERBOARD_POINTS</option>
+					<option value="answers">MOD_EASYDISCUSS_LEADERBOARD_ANSWERS</option>
+					<option value="posts">MOD_EASYDISCUSS_LEADERBOARD_POSTS</option>
+				</field>
+				<field name="showavatar" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_LEADERBOARD_SHOW_AVATAR" description="MOD_EASYDISCUSS_LEADERBOARD_SHOW_AVATAR_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showcurrentpoints" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_LEADERBOARD_SHOW_CURRENT_POINTS" description="MOD_EASYDISCUSS_LEADERBOARD_SHOW_CURRENT_POINTS_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+			</fieldset>
+			<fieldset name="advanced">
+				<field name="moduleclass_sfx" type="text" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC">
+					<option value="1">JGLOBAL_USE_GLOBAL</option>
+					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+				</field>
+				<field name="cache_time" type="text" default="900" label="COM_MODULES_FIELD_CACHE_TIME_LABEL" description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>

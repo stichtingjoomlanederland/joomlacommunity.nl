@@ -2,7 +2,7 @@
 <extension type="component" version="2.5" method="upgrade">
 	<name>Acym</name>
 	<creationDate>November 2019</creationDate>
-	<version>6.5.0</version>
+	<version>6.5.2</version>
 	<level>enterprise</level>
 	<author>Acyba</author>
 	<authorEmail>dev@acyba.com</authorEmail>

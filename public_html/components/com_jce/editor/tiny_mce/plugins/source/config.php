@@ -15,7 +15,7 @@ class WFSourcePluginConfig
         $wf = WFApplication::getInstance();
 
         $settings['source_highlight'] = $wf->getParam('source.highlight', 1, 1, 'boolean');
-        $settings['source_numbers'] = $wf->getParam('source.numbers', 1, 1, 'boolean');
+        $settings['source_linenumbers'] = $wf->getParam('source.numbers', 1, 1, 'boolean');
         $settings['source_wrap'] = $wf->getParam('source.wrap', 1, 1, 'boolean');
         $settings['source_format'] = $wf->getParam('source.format', 1, 1, 'boolean');
         $settings['source_tag_closing'] = $wf->getParam('source.tag_closing', 1, 1, 'boolean');
@@ -25,21 +25,5 @@ class WFSourcePluginConfig
         $settings['source_theme'] = $wf->getParam('source.theme', 'codemirror', 'codemirror');
 
         $settings['source_validate_content'] = $wf->getParam('source.validate_content', 1, 1, 'boolean');
-    }
-
-    public static function getStyles()
-    {
-        $wf = WFApplication::getInstance();
-
-        if (JFactory::getApplication()->input->getWord('layout') === 'plugin') {
-            // return file(s) array
-            if ($wf->getParam('editor.compress_css', 0)) {
-                return array(dirname(__DIR__) . '/css/editor.css');
-            }
-
-            // use document instance
-            $document = JFactory::getDocument();
-            $document->addStyleSheet(JURI::root(true) . '/components/com_jce/editor/tiny_mce/plugins/source/css/editor.css?version=' . $wf->getVersion());
-        }
     }
 }

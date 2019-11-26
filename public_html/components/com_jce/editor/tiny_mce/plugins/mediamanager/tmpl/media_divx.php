@@ -10,58 +10,24 @@
  */
 defined('JPATH_PLATFORM') or die;
 ?>
-    <div class="media_option divx">
-        <h4><?php echo JText::_('WF_MEDIAMANAGER_DIVX_OPTIONS'); ?></h4>
+<div class="media_option divx">
+    <h4><?php echo JText::_('WF_MEDIAMANAGER_DIVX_OPTIONS'); ?></h4>
 
-        <table border="0" cellpadding="4" cellspacing="0">
-            <tr>
-                <td colspan="2">
-                    <table border="0" cellpadding="0" cellspacing="0">
-                        <tr>
-                            <td><input type="checkbox" class="checkbox" id="divx_loop"></td>
 
-                            <td><label for="divx_loop"><?php echo JText::_('WF_MEDIAMANAGER_DIVX_LOOP'); ?></label></td>
-                        </tr>
-                    </table>
-                </td>
+    <div class="uk-form-row uk-grid uk-grid-small">
+        <label for="divx_loop" class="uk-form-label uk-width-1-4"><input type="checkbox" class="checkbox" id="divx_loop">
+            <?php echo JText::_('WF_MEDIAMANAGER_DIVX_LOOP'); ?></label>
+        <label for="divx_bannerenabled" class="uk-form-label uk-width-1-4"><input type="checkbox" class="checkbox" id="divx_bannerenabled" checked="checked"> <?php echo JText::_('WF_MEDIAMANAGER_DIVX_BANNERENABLED'); ?></label>
+        <label for="divx_autoplay" class="uk-form-label uk-width-1-4"><input type="checkbox" class="checkbox" id="divx_autoplay" checked="checked">
+            <?php echo JText::_('WF_MEDIAMANAGER_DIVX_AUTOPLAY'); ?></label>
+        <label for="divx_allowcontextmenu" class="uk-form-label uk-width-1-4"><input type="checkbox" class="checkbox" id="divx_allowcontextmenu" checked="checked"> <?php echo JText::_('WF_MEDIAMANAGER_DIVX_ALLOWCONTEXTMENU'); ?></label>
+    </div>
 
-                <td colspan="2">
-                    <table border="0" cellpadding="0" cellspacing="0">
-                        <tr>
-                            <td><input type="checkbox" class="checkbox" id="divx_bannerenabled" checked="checked"></td>
-
-                            <td><label for="divx_bannerenabled"><?php echo JText::_('WF_MEDIAMANAGER_DIVX_BANNERENABLED'); ?></label></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-
-            <tr>
-                <td colspan="2">
-                    <table border="0" cellpadding="0" cellspacing="0">
-                        <tr>
-                            <td><input type="checkbox" class="checkbox" id="divx_autoplay" checked="checked"></td>
-
-                            <td><label for="divx_autoplay"><?php echo JText::_('WF_MEDIAMANAGER_DIVX_AUTOPLAY'); ?></label></td>
-                        </tr>
-                    </table>
-                </td>
-
-                <td colspan="2">
-                    <table border="0" cellpadding="0" cellspacing="0">
-                        <tr>
-                            <td><input type="checkbox" class="checkbox" id="divx_allowcontextmenu" checked="checked"></td>
-
-                            <td><label for="divx_allowcontextmenu"><?php echo JText::_('WF_MEDIAMANAGER_DIVX_ALLOWCONTEXTMENU'); ?></label></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-
-            <tr>
-                <td><label for="divx_mode"><?php echo JText::_('WF_MEDIAMANAGER_DIVX_MODE'); ?></label></td>
-
-                <td><select id="divx_mode" onchange="MediaManagerDialog.setControllerHeight('divx');">
+    <div class="uk-form-row uk-grid uk-grid-small">
+        <label for="divx_mode" class="uk-form-label uk-width-1-5"><?php echo JText::_('WF_MEDIAMANAGER_DIVX_MODE'); ?></label>
+        <div class="uk-width-4-5 uk-grid uk-grid-small">
+            <div class="uk-form-controls uk-width-2-5">
+                <select id="divx_mode" onchange="MediaManagerDialog.setControllerHeight('divx');">
                     <option value="null">
                         <?php echo JText::_('WF_MEDIAMANAGER_DIVX_NULL'); ?>
                     </option>
@@ -81,11 +47,12 @@ defined('JPATH_PLATFORM') or die;
                     <option value="full">
                         <?php echo JText::_('WF_MEDIAMANAGER_DIVX_FULL'); ?>
                     </option>
-                </select></td>
+                </select>
+            </div>
 
-                <td><label for="divx_bufferingmode"><?php echo JText::_('WF_MEDIAMANAGER_DIVX_BUFFERINGMODE'); ?></label></td>
-
-                <td><select id="divx_bufferingmode">
+            <label for="divx_bufferingmode" class="uk-form-label uk-width-1-5"><?php echo JText::_('WF_MEDIAMANAGER_DIVX_BUFFERINGMODE'); ?></label>
+            <div class="uk-form-controls uk-width-2-5">
+                <select id="divx_bufferingmode">
                     <option value="null">
                         <?php echo JText::_('WF_MEDIAMANAGER_DIVX_NULL'); ?>
                     </option>
@@ -97,34 +64,43 @@ defined('JPATH_PLATFORM') or die;
                     <option value="full">
                         <?php echo JText::_('WF_MEDIAMANAGER_DIVX_FULL'); ?>
                     </option>
-                </select></td>
-            </tr>
-
-            <tr>
-                <td><label for="divx_previewmessage"><?php echo JText::_('WF_MEDIAMANAGER_DIVX_PREVIEWMESSAGE'); ?></label></td>
-
-                <td><input type="text" id="divx_previewmessage"></td>
-
-                <td><label for="divx_movietitle"><?php echo JText::_('WF_MEDIAMANAGER_DIVX_MOVIETITLE'); ?></label></td>
-
-                <td><input type="text" id="divx_movietitle"></td>
-            </tr>
-
-            <tr>
-                <td><label for="divx_previewmessagefontsize"><?php echo JText::_('WF_MEDIAMANAGER_DIVX_PREVIEWMESSAGEFONTSIZE'); ?></label></td>
-
-                <td><input type="text" id="divx_previewmessagefontsize"></td>
-
-                <td><label for="divx_minversion"><?php echo JText::_('WF_MEDIAMANAGER_DIVX_MINVERSION'); ?></label></td>
-
-                <td><input type="text" id="divx_minversion"></td>
-            </tr>
-
-            <tr>
-                <td><label for="divx_previewimage"><?php echo JText::_('WF_MEDIAMANAGER_DIVX_PREVIEWIMAGE'); ?></label></td>
-
-                <td colspan="3"><input type="text" id="divx_previewimage" class="browser image"></td>
-            </tr>
-        </table>
-		<h6 class="notice">DivX and the associated DivX logos are trademarks of DivX, LLC, a subsidiary of Rovi Corporation</h6>
+                </select>
+            </div>
+        </div>
     </div>
+
+    <div class="uk-form-row uk-grid uk-grid-small">
+        <label for="divx_previewmessage" class="uk-form-label uk-width-1-5"><?php echo JText::_('WF_MEDIAMANAGER_DIVX_PREVIEWMESSAGE'); ?></label>
+        <div class="uk-width-4-5 uk-grid uk-grid-small">
+            <div class="uk-form-controls uk-width-2-5">
+                <input type="text" id="divx_previewmessage">
+            </div>
+            <label for="divx_movietitle" class="uk-form-label uk-width-1-5"><?php echo JText::_('WF_MEDIAMANAGER_DIVX_MOVIETITLE'); ?></label>
+            <div class="uk-form-controls uk-width-2-5">
+                <input type="text" id="divx_movietitle">
+            </div>
+        </div>
+    </div>
+
+    <div class="uk-form-row uk-grid uk-grid-small">
+        <label for="divx_previewmessagefontsize" class="uk-form-label uk-width-1-5"><?php echo JText::_('WF_MEDIAMANAGER_DIVX_PREVIEWMESSAGEFONTSIZE'); ?></label>
+        <div class="uk-width-4-5 uk-grid uk-grid-small">
+            <div class="uk-form-controls uk-width-2-5">
+                <input type="text" id="divx_previewmessagefontsize">
+            </div>
+            <label for="divx_minversion" class="uk-form-label uk-width-1-5"><?php echo JText::_('WF_MEDIAMANAGER_DIVX_MINVERSION'); ?></label>
+            <div class="uk-form-controls uk-width-2-5">
+                <input type="text" id="divx_minversion">
+            </div>
+        </div>
+    </div>
+
+    <div class="uk-form-row uk-grid uk-grid-small">
+        <label for="divx_previewimage" class="uk-form-label uk-width-1-5"><?php echo JText::_('WF_MEDIAMANAGER_DIVX_PREVIEWIMAGE'); ?></label>
+        <div class="uk-form-controls uk-width-4-5">
+            <input type="text" id="divx_previewimage" class="browser image">
+        </div>
+    </div>
+
+    <h6 class="notice">DivX and the associated DivX logos are trademarks of DivX, LLC, a subsidiary of Rovi Corporation</h6>
+</div>

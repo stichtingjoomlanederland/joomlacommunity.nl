@@ -11,9 +11,9 @@
 defined('JPATH_PLATFORM') or die;
 ?>
 
-<div class="uk-repeatable uk-placeholder uk-position-relative uk-margin-top-remove uk-margin-small-bottom">
+<div class="uk-repeatable uk-placeholder uk-position-relative uk-margin-top-remove uk-margin-small-bottom uk-grid uk-grid-collapse">
 
-  <div class="uk-form-row">
+  <div class="uk-form-row uk-grid uk-grid-collapse uk-width-9-10">
     <label for="responsive_media_query" class="uk-form-label uk-width-2-10"><?php echo JText::_('WF_IMGMANAGER_EXT_LABEL_SOURCE', 'Source'); ?></label>
     <div class="uk-width-3-4 uk-form-controls uk-grid uk-grid-small">
       <div class="uk-width-4-6">
@@ -30,23 +30,14 @@ defined('JPATH_PLATFORM') or die;
     </div>
   </div>
 
-  <!--div class="uk-form-row uk-width-9-10">
-    <label for="responsive_source" class="uk-form-label uk-width-2-10"><?php echo JText::_('WF_IMGMANAGER_EXT_LABEL_MEDIA_QUERY', 'Media'); ?></label>
-    <div class="uk-grid uk-grid-small uk-width-8-10">
-        <div class="uk-width-1-1 uk-form-controls">
-          <input type="text" name="responsive_media_query[]" disabled="disabled" />
-        </div>
-    </div>
-  </div-->
-
-  <div class="uk-position-top-right uk-margin-small-top uk-margin-small-right">
-    <button class="uk-button uk-button-link uk-repeatable-create uk-margin-small-top" aria-label="<?php echo JText::_('WF_LABEL_ADD'); ?>" title="<?php echo JText::_('WF_LABEL_ADD'); ?>"><i class="uk-icon-plus"></i></button>
-    <button class="uk-button uk-button-link uk-repeatable-delete uk-margin-small-top" aria-label="<?php echo JText::_('WF_LABEL_REMOVE'); ?>" title="<?php echo JText::_('WF_LABEL_REMOVE'); ?>"><i class="uk-icon-trash"></i></button>
+  <div class="uk-margin-small-right">
+    <button class="uk-button uk-button-link uk-repeatable-create" aria-label="<?php echo JText::_('WF_LABEL_ADD'); ?>" title="<?php echo JText::_('WF_LABEL_ADD'); ?>"><i class="uk-icon-plus"></i></button>
+    <button class="uk-button uk-button-link uk-repeatable-delete" aria-label="<?php echo JText::_('WF_LABEL_REMOVE'); ?>" title="<?php echo JText::_('WF_LABEL_REMOVE'); ?>"><i class="uk-icon-trash"></i></button>
   </div>
 
 </div>
 
-<div class="uk-form-row">
+<div class="uk-form-row uk-grid uk-grid-small">
   <label for="responsive_sizes" class="uk-form-label uk-width-2-10"><?php echo JText::_('WF_IMGMANAGER_EXT_LABEL_SIZES', 'Sizes'); ?></label>
   <div class="uk-form-controls uk-width-8-10">
       <input type="text" id="responsive_sizes" />

@@ -11,15 +11,15 @@ defined('JPATH_PLATFORM') or die;
 
 $document = WFDocument::getInstance();
 ?>
-<div class="uk-grid uk-grid-small">
+<div class="uk-form-row uk-grid uk-grid-small">
     <div class="uk-width-4-5 uk-width-mini-1-1">
-        <div class="uk-grid uk-grid-small">
+        <div class="uk-form-row uk-grid uk-grid-small">
             <label class="uk-form-label uk-width-1-5" for="src" class="hastip" title="<?php echo JText::_('WF_LABEL_URL_DESC'); ?>"><?php echo JText::_('WF_LABEL_URL'); ?></label>
             <div class="uk-form-controls uk-form-icon uk-form-icon-flip uk-width-3-4 uk-flex-item-auto">
                 <input id="src" type="text" value="" class="filebrowser" required />
             </div>
         </div>
-        <div class="uk-grid uk-grid-small">
+        <div class="uk-form-row uk-grid uk-grid-small">
             <label class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_LABEL_DIMENSIONS_DESC'); ?>">
                 <?php echo JText::_('WF_LABEL_DIMENSIONS'); ?>
             </label>
@@ -39,7 +39,7 @@ $document = WFDocument::getInstance();
                 </label>
             </div>
         </div>
-        <div class="uk-grid uk-grid-small">
+        <div class="uk-form-row uk-grid uk-grid-small">
             <label for="align" class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_LABEL_ALIGN_DESC'); ?>">
                 <?php echo JText::_('WF_LABEL_ALIGN'); ?>
             </label>
@@ -67,57 +67,51 @@ $document = WFDocument::getInstance();
                 </div>
             </div>
         </div>
-        <div class="uk-hidden-mini uk-grid uk-grid-small">
+        <div class="uk-hidden-mini uk-grid uk-grid-small uk-form-row">
             <label for="margin" class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_LABEL_MARGIN_DESC'); ?>">
                 <?php echo JText::_('WF_LABEL_MARGIN'); ?>
             </label>
             <div class="uk-form-controls uk-width-4-5 uk-grid uk-grid-small uk-form-equalize">
                 <label for="margin_top" class="uk-form-label">
-                  <?php echo JText::_('WF_OPTION_TOP'); ?>
-              </label>
+                    <?php echo JText::_('WF_OPTION_TOP'); ?>
+                </label>
                 <div class="uk-form-controls">
                     <input type="text" id="margin_top" value="" />
                 </div>
                 <label for="margin_right" class="uk-form-label">
-                        <?php echo JText::_('WF_OPTION_RIGHT'); ?>
-                    </label>
+                    <?php echo JText::_('WF_OPTION_RIGHT'); ?>
+                </label>
                 <div class="uk-form-controls">
                     <input type="text" id="margin_right" value="" />
                 </div>
                 <label for="margin_bottom" class="uk-form-label">
-                        <?php echo JText::_('WF_OPTION_BOTTOM'); ?>
-                    </label>
+                    <?php echo JText::_('WF_OPTION_BOTTOM'); ?>
+                </label>
                 <div class="uk-form-controls">
                     <input type="text" id="margin_bottom" value="" />
                 </div>
                 <label for="margin_left" class="uk-form-label">
-                        <?php echo JText::_('WF_OPTION_LEFT'); ?>
-                    </label>
+                    <?php echo JText::_('WF_OPTION_LEFT'); ?>
+                </label>
                 <div class="uk-form-controls">
                     <input type="text" id="margin_left" value="" />
                 </div>
                 <label class="uk-form-label">
-                        <input type="checkbox" class="uk-equalize-checkbox" />
-                        <?php echo JText::_('WF_LABEL_EQUAL'); ?>
-                    </label>
+                    <input type="checkbox" class="uk-equalize-checkbox" />
+                    <?php echo JText::_('WF_LABEL_EQUAL'); ?>
+                </label>
             </div>
         </div>
-        <div class="uk-grid uk-grid-small html4">
+        <div class="uk-grid uk-grid-small uk-form-row html4">
             <label for="scrolling" class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_IFRAME_SCROLLING_DESC'); ?>">
-              <?php echo JText::_('WF_IFRAME_SCROLLING'); ?>
-          </label>
+                <?php echo JText::_('WF_IFRAME_SCROLLING'); ?>
+            </label>
             <div class="uk-form-controls uk-width-1-5">
                 <select id="scrolling">
-                  <option value="">
-                      <?php echo JText::_('WF_OPTION_AUTO'); ?>
-                  </option>
-                  <option value="yes">
-                      <?php echo JText::_('JYES'); ?>
-                  </option>
-                  <option value="no">
-                      <?php echo JText::_('JNO'); ?>
-                  </option>
-              </select>
+                    <option value=""><?php echo JText::_('WF_OPTION_AUTO'); ?></option>
+                    <option value="yes"><?php echo JText::_('JYES'); ?></option>
+                    <option value="no"><?php echo JText::_('JNO'); ?></option>
+                </select>
             </div>
         </div>
     </div>

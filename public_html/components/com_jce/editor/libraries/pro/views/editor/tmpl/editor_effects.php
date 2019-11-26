@@ -11,9 +11,7 @@
 defined('JPATH_PLATFORM') or die;
 ?>
 
-<div id="editor_effects" class="uk-flex uk-flex-wrap uk-grid uk-grid-small uk-margin-small-top uk-margin-small-bottom"></div>
-<div class="uk-form-row uk-align-right uk-margin-small-top">
-  <a role="button" id="effects_apply" class="uk-button" data-function="effects">
-    <?php echo JText::_('WF_LABEL_APPLY'); ?>
-  </a>
+<div id="editor_effects" class="uk-flex uk-flex-wrap uk-flex-space-around"></div>
+<div class="uk-form-row uk-align-right uk-margin-top">
+  <button type="button" id="effects_apply" class="uk-button" data-function="effects"><?php echo JText::_('WF_LABEL_APPLY'); ?></button>
 </div>

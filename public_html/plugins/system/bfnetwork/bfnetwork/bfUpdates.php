@@ -111,6 +111,7 @@ final class bfUpdates
                 $i->eid                       = $item->extension_id;
                 $i->current_version           = $item->current_version;
                 $i->infourl                   = $item->infourl;
+                $i->update_site_id            = $item->update_site_id;
                 $i->installed_version         = json_decode($item->manifest_cache)->version;
 
                 // inject to our array we will return

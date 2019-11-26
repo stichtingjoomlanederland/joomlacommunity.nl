@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.0
+ * @version	6.5.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -223,9 +223,9 @@ defined('_JEXEC') or die('Restricted access');
                             $plugins = acym_trigger('getPossibleIntegrations');
 
                             foreach ($plugins as $onePlugin) {
-                                $title = empty($onePlugin->title) ? '' : 'title="'.$onePlugin->title.'"';
+                                $title = empty($onePlugin->title) ? '' : 'title="'.acym_escape($onePlugin->title).'"';
 
-                                echo '<div '.$title.' data-plugin="'.$onePlugin->plugin.'" class="grid-x cell acym__wysid__column__element--new ui-draggable ui-draggable-handle">';
+                                echo '<div '.$title.' data-plugin="'.acym_escape($onePlugin->plugin).'" class="grid-x cell acym__wysid__column__element--new ui-draggable ui-draggable-handle">';
 
                                 if (empty($onePlugin->icontype) || $onePlugin->icontype == 'img') {
                                     echo '<img class="cell acym-plugin-icon" src="'.$onePlugin->icon.'" alt="icon"/>';

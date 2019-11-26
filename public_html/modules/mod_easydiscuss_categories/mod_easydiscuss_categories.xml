@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.0" client="site" method="upgrade">
+	<name>EasyDiscuss - Categories</name>
+	<author>Stack Ideas Sdn Bhd</author>
+	<creationDate>10th October 2019</creationDate>
+	<copyright>Copyright 2009 - 2016 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
+	<license>GPL License v2</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://www.stackideas.com</authorUrl>
+	<version>4.1.12</version>
+	<description><![CDATA[This module will display a list of categories in EasyDiscuss.]]></description>
+	<languages>
+		<language tag="en-GB">en-GB.mod_easydiscuss_categories.ini</language>
+	</languages>
+	<files>
+		<folder>tmpl</folder>
+		<filename>helper.php</filename>
+		<filename module="mod_easydiscuss_categories">mod_easydiscuss_categories.php</filename>
+		<filename>mod_easydiscuss_categories.xml</filename>
+	</files>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="layouttype" type="list" default="flat" label="MOD_DISCUSSIONSCATEGORIES_LAYOUT_TYPE" description="MOD_DISCUSSIONSCATEGORIES_LAYOUT_TYPE_DESC">
+					<option value="tree">MOD_DISCUSSIONSCATEGORIES_LAYOUT_TYPE_CATEGORY_TREE</option>
+					<option value="flat">MOD_DISCUSSIONSCATEGORIES_LAYOUT_TYPE_FLAT_LAYOUT</option>
+				</field>
+				<field name="count" type="text" default="5" label="MOD_DISCUSSIONSCATEGORIES_ITEM_COUNT" description="MOD_DISCUSSIONSCATEGORIES_ITEM_COUNT_DESC" />
+				<field name="order" type="list" default="default" label="MOD_DISCUSSIONSCATEGORIES_ITEM_ORDER" description="MOD_DISCUSSIONSCATEGORIES_ITEM_ORDER_DESC" >
+					<option value="default">MOD_DISCUSSIONSCATEGORIES_ITEM_ORDER_DEFAULT</option>
+					<option value="alphabet">MOD_DISCUSSIONSCATEGORIES_ITEM_ORDER_ALPHABETICAL</option>
+					<option value="latest">MOD_DISCUSSIONSCATEGORIES_ITEM_ORDER_LATEST</option>
+					<option value="popular">MOD_DISCUSSIONSCATEGORIES_ITEM_ORDER_POPULAR</option>
+				</field>
+				<field
+					name="category"
+					type="sql"
+					default="0"
+					label="MOD_DISCUSSIONSCATEGORIES_CATEGORY_FILTER"
+					description="MOD_DISCUSSIONSCATEGORIES_CATEGORY_FILTER_DESC"
+					query="SELECT id, title FROM #__discuss_category"
+					key_field="id"
+					value_field="title"
+					multiple="multiple"
+				/>
+				<field name="sort" type="radio" class="btn-group" default="asc" label="MOD_DISCUSSIONSCATEGORIES_ITEM_SORTING" description="MOD_DISCUSSIONSCATEGORIES_ITEM_SORTING_DESC">
+					<option value="asc">Ascending</option>
+					<option value="desc">Descending</option>
+				</field>
+				<field name="hideemptypost" type="radio" class="btn-group" default="0" label="MOD_DISCUSSIONSCATEGORIES_HIDE_CATEGORY_WITHOUT_POST" description="MOD_DISCUSSIONSCATEGORIES_HIDE_CATEGORY_WITHOUT_POST_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="exclude_child_categories" type="radio" class="btn-group" default="0" label="MOD_DISCUSSIONSCATEGORIES_EXCLUDE_SUBCATEGORIES" description="MOD_DISCUSSIONSCATEGORIES_EXCLUDE_SUBCATEGORIES_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showcavatar" type="radio" class="btn-group" default="1" label="MOD_DISCUSSIONSCATEGORIES_SHOW_AVATAR" description="MOD_DISCUSSIONSCATEGORIES_SHOW_AVATAR_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showpostcnt" type="radio" class="btn-group" default="1" label="MOD_DISCUSSIONSCATEGORIES_SHOW_POSTCOUNT" description="MOD_DISCUSSIONSCATEGORIES_SHOW_POSTCOUNT_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="show_subcategory_count" type="radio" class="btn-group" default="1" label="Show Subcategory Count" description="Determines if the module should display the subcategory count">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+			</fieldset>
+			<fieldset name="advanced">
+				<field name="moduleclass_sfx" type="text" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC" >
+					<option value="1">JGLOBAL_USE_GLOBAL</option>
+					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+				</field>
+				<field name="cache_time" type="text" default="900" label="COM_MODULES_FIELD_CACHE_TIME_LABEL" description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>

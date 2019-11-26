@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.0
+ * @version	6.5.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -447,7 +447,7 @@ class plgAcymSubscription extends acymPlugin
 
     private function _replaceSubscriptionTags(&$email)
     {
-        $match = '#(?:{|%7B)(confirm[^}]*|unsubscribe(?:\|[^}]*)?|subscribe[^}]*)(?:}|%7D)(.*)(?:{|%7B)/(confirm|unsubscribe|subscribe)(?:}|%7D)#Uis';
+        $match = '#(?:{|%7B)(confirm|unsubscribe|subscribe(?:\|[^}]+)*)(?:}|%7D)(.*)(?:{|%7B)/(confirm|unsubscribe|subscribe)(?:}|%7D)#Uis';
         $variables = ['subject', 'body'];
         $found = false;
         $results = [];

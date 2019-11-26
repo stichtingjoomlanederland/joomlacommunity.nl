@@ -62,8 +62,7 @@ class RSFormProFieldSelectList extends RSFormProFieldMultiple
 				}
 			}
 		}
-		
-		$callingClass = get_class($this);
+
 		// Close the tag
 		$selectInput .= '</select>';
 

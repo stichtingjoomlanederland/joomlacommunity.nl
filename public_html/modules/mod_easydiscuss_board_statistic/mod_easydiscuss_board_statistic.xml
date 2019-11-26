@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.0" client="site" method="upgrade">
+	<name>EasyDiscuss - Board Statistic</name>
+	<author>Stack Ideas Sdn Bhd</author>
+	<creationDate>10th October 2019</creationDate>
+	<copyright>Copyright 2009 - 2016 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
+	<license>GPL License v2</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://stackideas.com</authorUrl>
+	<version>4.1.12</version>
+	<description><![CDATA[This module will display EasyDiscuss board statistic.]]></description>
+	<languages>
+		<language tag="en-GB">en-GB.mod_easydiscuss_board_statistic.ini</language>
+	</languages>
+	<files>
+		<folder>images</folder>
+		<folder>tmpl</folder>
+		<filename module="mod_easydiscuss_board_statistic">mod_easydiscuss_board_statistic.php</filename>
+		<filename>mod_easydiscuss_board_statistic.xml</filename>
+	</files>
+	<config>
+		<fields name="params">
+			<fieldset name="advanced">
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC" >
+					<option value="1">JGLOBAL_USE_GLOBAL</option>
+					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+				</field>
+				<field name="cache_time" type="text" default="900" label="COM_MODULES_FIELD_CACHE_TIME_LABEL" description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>

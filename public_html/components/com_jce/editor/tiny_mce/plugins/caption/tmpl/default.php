@@ -18,25 +18,25 @@ $tabs = WFTabs::getInstance();
     <?php $tabs->render(); ?>
 
     <div id="preview" class="uk-placeholder">
-      <h3><?php echo JText::_('WF_LABEL_PREVIEW'); ?></h3>
+        <h5 class="uk-margin-small-bottom uk-text-bold"><?php echo JText::_('WF_LABEL_PREVIEW'); ?></h5>
         <figure id="caption">
-          <img id="caption_image" src="<?php echo $plugin->image('sample.jpg', 'plugins'); ?>" alt="Preview" />
-          <figcaption id="caption_text"></figcaption>
+            <img id="caption_image" src="<?php echo $plugin->image('sample.jpg', 'plugins'); ?>" alt="Preview" />
+            <figcaption id="caption_text"></figcaption>
         </figure>
         <p><?php echo JText::_('WF_LOREM_IPSUM'); ?></p>
     </div>
 
     <!-- Token -->
-    <input type="hidden" id="token" name="<?php echo JSession::getFormToken(); ?>" value="1"/>
+    <input type="hidden" id="token" name="<?php echo JSession::getFormToken(); ?>" value="1" />
 </form>
 <div class="actionPanel">
-    <button class="button" id="insert">
-        <?php echo JText::_('WF_LABEL_INSERT') ?>
+    <button class="button" id="cancel">
+        <?php echo JText::_('WF_LABEL_CANCEL') ?>
     </button>
     <button class="button" id="help">
         <?php echo JText::_('WF_LABEL_HELP') ?>
     </button>
-    <button class="button" id="cancel">
-        <?php echo JText::_('WF_LABEL_CANCEL') ?>
+    <button class="button" id="insert">
+        <?php echo JText::_('WF_LABEL_INSERT') ?>
     </button>
 </div>

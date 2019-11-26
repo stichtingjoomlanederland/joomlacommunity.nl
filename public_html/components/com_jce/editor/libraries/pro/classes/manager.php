@@ -269,6 +269,9 @@ class WFMediaManager extends WFMediaManagerBase
         // default values from parameters
         $resize = (int) $browser->get('upload_resize_state');
 
+        // resize crop
+        $resize_crop = (int) $browser->get('upload_resize_crop');
+
         // get parameter values, allow empty but fallback to system default
         $resize_width   = $browser->get('upload_resize_width');
         $resize_height  = $browser->get('upload_resize_height');
@@ -300,8 +303,9 @@ class WFMediaManager extends WFMediaManagerBase
                 // set empty default values
                 $file_resize_width  = array();
                 $file_resize_height = array();
+                $file_resize_crop   = array();
 
-                foreach (array('resize_width', 'resize_height', 'file_resize_width', 'file_resize_height') as $var) {
+                foreach (array('resize_width', 'resize_height', 'file_resize_width', 'file_resize_height', 'resize_crop', 'file_resize_crop') as $var) {
                     $$var = $app->input->get('upload_' . $var, array(), 'array');
                     // pass each value through intval
                     $$var = array_map('intval', $$var);
@@ -324,8 +328,10 @@ class WFMediaManager extends WFMediaManagerBase
 
                 // transfer values
                 if ($file_resize) {
-                    $resize_width = $file_resize_width;
-                    $resize_height = $file_resize_height;
+                    $resize_width   = $file_resize_width;
+                    $resize_height  = $file_resize_height;
+
+                    $resize_crop    = $file_resize_crop;
 
                     $file_resize_suffix = $app->input->get('upload_file_resize_suffix', array(), 'array');
 
@@ -407,8 +413,19 @@ class WFMediaManager extends WFMediaManagerBase
                             // create new destination
                             $destination = WFUtility::makePath($path, $name);
 
+                            $box = array();
+
+                            // revert to default if not set
+                            if (!isset($resize_crop[$i])) {
+                                $resize_crop[$i] = $resize_crop;
+                            }
+
+                            if ($resize_crop[$i]) {
+                                $box = $this->cropImage($width, $height, $resize_width[$i], $resize_height[$i]);
+                            }
+
                             // no need to remove exif data on successful resize
-                            if ($editor->resize($file, $destination, $resize_width[$i], $resize_height[$i], $resize_quality)) {
+                            if ($editor->resize($file, $destination, $resize_width[$i], $resize_height[$i], $resize_quality, $box)) {
                                 $removeExif = false;
 
                                 if ($file !== $destination) {
@@ -510,7 +527,7 @@ class WFMediaManager extends WFMediaManagerBase
                     // Make relative
                     $source = str_replace($browser->getBaseDir(), '', $file);
 
-                    $coords = array(
+                    $box = array(
                         'sx' => null,
                         'sy' => null,
                         'sw' => null,
@@ -518,10 +535,10 @@ class WFMediaManager extends WFMediaManagerBase
                     );
 
                     if ($crop) {
-                        $coords = $this->cropThumbnail($dim[0], $dim[1], $tw, $th);
+                        $box = $this->cropImage($dim[0], $dim[1], $tw, $th);
                     }
 
-                    if (!$this->createThumbnail($source, $tw, $th, $tq, $coords['sx'], $coords['sy'], $coords['sw'], $coords['sh'], true)) {
+                    if (!$this->createThumbnail($source, $tw, $th, $tq, $box, true)) {
                         $browser->setResult(JText::_('WF_IMGMANAGER_EXT_THUMBNAIL_ERROR'), 'error');
                     }
                 }
@@ -787,7 +804,7 @@ class WFMediaManager extends WFMediaManagerBase
         return $browser->getResult();
     }
 
-    protected function cropThumbnail($sw, $sh, $dw, $dh)
+    protected function cropImage($sw, $sh, $dw, $dh)
     {
         $sx = 0;
         $sy = 0;
@@ -973,10 +990,10 @@ class WFMediaManager extends WFMediaManagerBase
             return $this->outputImage($thumb, $mime);
         }
 
-        $coords = $this->cropThumbnail($data[0], $data[1], $width, $height);
+        $box = $this->cropImage($data[0], $data[1], $width, $height);
 
         if (self::checkMem($data)) {
-            if ($editor->resize($file, $thumb, $width, $height, $quality, $coords['sx'], $coords['sy'], $coords['sw'], $coords['sh'])) {
+            if ($editor->resize($file, $thumb, $width, $height, $quality, $box)) {
                 if (JFile::exists($thumb)) {
                     return $this->outputImage($thumb, $mime);
                 }
@@ -1077,7 +1094,7 @@ class WFMediaManager extends WFMediaManagerBase
 
                 // add back iptcc
                 /*if (!empty($iptcc)) {
-                    $img->profileImage($iptcc);
+                $img->profileImage($iptcc);
                 }*/
 
                 $img->writeImage($image);
@@ -1097,7 +1114,6 @@ class WFMediaManager extends WFMediaManagerBase
 
                         if (is_resource($handle)) {
                             if ($rotate) {
-                                
                                 $rotation = imagerotate($handle, -$rotate, 0);
 
                                 if ($rotation) {
@@ -1199,7 +1215,7 @@ class WFMediaManager extends WFMediaManagerBase
      * @param string $quality thumbnail quality (%)
      * @param string $mode    thumbnail mode
      */
-    public function createThumbnail($file, $width = null, $height = null, $quality = 100, $sx = null, $sy = null, $sw = null, $sh = null)
+    public function createThumbnail($file, $width = null, $height = null, $quality = 100, $box = array())
     {
         // check path
         self::validateImagePath($file);
@@ -1212,7 +1228,7 @@ class WFMediaManager extends WFMediaManagerBase
         $path = WFUtility::makePath($browser->getBaseDir(), $file);
         $thumb = WFUtility::makePath($browser->getBaseDir(), $thumb);
 
-        if (!$editor->resize($path, $thumb, $width, $height, $quality, $sx, $sy, $sw, $sh)) {
+        if (!$editor->resize($path, $thumb, $width, $height, $quality, $box)) {
             $browser->setResult(JText::_('WF_IMGMANAGER_EXT_THUMBNAIL_ERROR'), 'error');
         }
 
@@ -1245,6 +1261,7 @@ class WFMediaManager extends WFMediaManagerBase
             // value must be cast as string for javascript processing
             'upload_resize_height' => $resize_height,
             'upload_resize_quality' => $this->getParam('editor.resize_quality', 100),
+            'upload_resize_crop' => $this->getParam('editor.upload_resize_crop', 0),
             'upload_watermark' => $this->getParam('editor.upload_watermark', 0),
             'upload_watermark_state' => $this->getParam('editor.upload_watermark_state', 0),
             // thumbnail

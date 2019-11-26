@@ -27,6 +27,14 @@ class WFMediaManagerPlugin extends WFMediaManager
 
     public $_filetypes = 'windowsmedia=avi,wmv,wm,asf,asx,wmx,wvx;quicktime=mov,qt,mpg,mpeg,m4a;flash=swf;shockwave=dcr;real=rm,ra,ram;divx=divx;video=mp4,ogv,ogg,webm,flv,f4v;audio=mp3,ogg,wav;silverlight=xap';
 
+    public function __construct($config = array())
+    {
+        parent::__construct($config);
+
+        $request = WFRequest::getInstance();
+        $request->setRequest(array($this, 'getEmbedData'));
+    }
+
     /**
      * Display the plugin.
      */
@@ -108,6 +116,8 @@ class WFMediaManagerPlugin extends WFMediaManager
             foreach ($this->get('_media_options') as $k => $v) {
                 $options .= '<option value="' . $k . '">' . JText::_($v, ucfirst($k)) . '</option>' . "\n";
             }
+
+            $options .= '<option value="iframe">' . JText::_('WF_MEDIAMANAGER_IFRAME_TITLE') . '</option>' . "\n";
         }
 
         return $options;
@@ -153,5 +163,65 @@ class WFMediaManagerPlugin extends WFMediaManager
         );
 
         return parent::getSettings($settings);
+    }
+
+    public function getEmbedData($provider, $url, $type = '')
+    {
+        $providers = array(
+            'youtube' => 'https://www.youtube.com/oembed',
+            'vimeo' => 'https://vimeo.com/api/oembed.json',
+            'dailymotion' => 'http://www.dailymotion.com/services/oembed',
+            'scribd' => 'https://www.scribd.com/services/oembed/?format=json',
+            'facebook' => array(
+                'posts' => 'https://www.facebook.com/plugins/post/oembed.json/',
+                'videos' => 'https://www.facebook.com/plugins/video/oembed.json/',
+            ),
+            'instagram' => 'https://api.instagram.com/oembed/',
+            'reddit' => 'https://www.reddit.com/oembed',
+            'slideshare' => 'https://www.slideshare.net/api/oembed/2?format=json',
+            'soundcloud' => 'https://soundcloud.com/oembed?format=json',
+            'spotify' => 'https://embed.spotify.com/oembed/',
+            'ted' => 'http://www.ted.com/talks/oembed.json',
+            'twitch' => 'https://api.twitch.tv/v4/oembed',
+            'twitter' => 'https://publish.twitter.com/oembed',
+        );
+
+        // decode url
+        $url = rawurldecode($url);
+
+        // clean the url
+        $url = filter_var($url, FILTER_SANITIZE_URL);
+
+        // encode url
+        $url = rawurlencode($url);
+
+        if (array_key_exists($provider, $providers) === false) {
+            return false;
+        }
+
+        $source = $providers[$provider];
+
+        if (is_array($source) && $type) {
+            $source = (array_key_exists($type, $source)) ? $source[$type] : $source[0];
+        }
+
+        if (strpos($source, '?') === false) {
+            $url = $source . '?url=' . $url;
+        } else {
+            $url = $source . '&url=' . $url;
+        }
+
+        $options = array(
+            'http' => array(
+                'method' => "GET",
+                'header' => "Accept-language: en\r\n" .
+                            "Cookie: foo=bar\r\n" .
+                            "User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.14) Gecko/20110105 Firefox/3.6.14\r\n", // i.e. An iPad
+            ),
+        );
+
+        $context = stream_context_create($options);
+
+        return @file_get_contents($url, false, $context);
     }
 }

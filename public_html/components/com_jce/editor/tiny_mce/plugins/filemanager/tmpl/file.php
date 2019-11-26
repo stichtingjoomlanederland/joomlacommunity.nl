@@ -116,17 +116,13 @@ defined('JPATH_PLATFORM') or die;
     <div class="uk-grid uk-grid-small">
         <label for="size_class" class="uk-form-label uk-width-1-5 hastip"
                    title="<?php echo JText::_('WF_FILEMANAGER_SIZE_CLASS_DESC'); ?>"><?php echo JText::_('WF_FILEMANAGER_SIZE_CLASS'); ?></label>
-            <div class="uk-form-controls uk-width-3-10 uk-datalist">
-            <select id="size_class">
-                <option value=""><?php echo JText::_('WF_OPTION_NOT_SET'); ?></option>
-            </select>
+            <div class="uk-form-controls uk-width-3-10">
+            <select id="size_class" class="uk-datalist" multiple="multiple"></select>
           </div>
           <label for="date_class" class="uk-form-label uk-width-1-5 hastip"
                      title="<?php echo JText::_('WF_FILEMANAGER_DATE_CLASS_DESC'); ?>"><?php echo JText::_('WF_FILEMANAGER_DATE_CLASS'); ?></label></td>
-          <div class="uk-form-controls uk-width-3-10 uk-datalist">
-            <select id="date_class">
-              <option value=""><?php echo JText::_('WF_OPTION_NOT_SET'); ?></option>
-            </select>
+          <div class="uk-form-controls uk-width-3-10">
+            <select id="date_class" class="uk-datalist" multiple="multiple"></select>
           </div>
   </div>
 </div>

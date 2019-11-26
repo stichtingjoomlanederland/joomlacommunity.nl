@@ -1143,13 +1143,9 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.12.8</h2>
+	<h2>Changelog v1.12.9</h2>
 	<ul class="version-history">
-		<li><span class="version-new">Add</span> RSMail! integration.</li>
-		<li><span class="version-new">Add</span> Duplicate event ticket.</li>
-		<li><span class="version-new">Add</span> Select from which Google Calendars to import events.</li>
-		<li><span class="version-new">Add</span> Waiting list for events.</li>
-		<li><span class="version-fixed">Fix</span> Code optimization.</li>
+		<li><span class="version-fixed">Fix</span> View subscribers option from the 'Admin Options' was not showing anymore.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>
@@ -1230,7 +1226,7 @@ class com_rseventsproInstallerScript
 					
 					if ($this->checkVersion($xml, $version, '>') || strpos($xml, '<extension') === false) {
 						$lang->load($plugin->element, JPATH_ADMINISTRATOR);
-						$this->disableExtension($plugin->extension_id);
+						//$this->disableExtension($plugin->extension_id);
 						$messages[] = 'Please update the plugin "'.JText::_($plugin->name).'" manually.';
 					}
 				}
@@ -1263,7 +1259,7 @@ class com_rseventsproInstallerScript
 					
 					if ($this->checkVersion($xml, $modules[$module->element], '>') || strpos($xml, '<install') !== false) {
 						$lang->load($module->element, JPATH_SITE);
-						$this->unpublishModule($module->element);
+						//$this->unpublishModule($module->element);
 						$messages[] = 'Please update the module "'.JText::_($module->name).'" manually.';
 					}
 				}

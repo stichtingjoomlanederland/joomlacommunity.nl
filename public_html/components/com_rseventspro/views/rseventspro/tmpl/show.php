@@ -100,19 +100,20 @@ rseventsproMapHelper::loadMap($mapParams);
 						<i class="fa fa-users fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_RSVP_GUESTS'); ?>
 					</a>
 				</li>
-				<?php } ?>
-				<?php if (rseventsproHelper::hasWaitingList($event->id)) { ?>
+				<?php } else { ?>
 				<li>
 					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribers&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
 						<i class="fa fa-users fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_SUBSCRIBERS'); ?>
 					</a>
 				</li>
 				<?php } ?>
+				<?php if (rseventsproHelper::hasWaitingList($event->id)) { ?>
 				<li>
 					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=waitinglist&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
 						<i class="fa fa-users fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_WAITINGLIST'); ?>
 					</a>
 				</li>
+				<?php } ?>
 				<li>
 					<a href="<?php echo $messageURL; ?>" rel="rs_message"<?php if ($links == 2) echo ' onclick="jQuery(\'#rseMessageModal\').modal(\'show\');"'; ?>>
 						<i class="fa fa-envelope-o fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_MESSAGE_TO_GUESTS'); ?>

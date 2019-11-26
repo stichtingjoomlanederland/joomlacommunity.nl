@@ -67,7 +67,7 @@ class WFImageEditor extends JObject
         return $src;
     }
 
-    public function resize($src, $dest, $width, $height, $quality, $sx = null, $sy = null, $sw = null, $sh = null)
+    public function resize($src, $dest, $width, $height, $quality, $box = array())
     {
         $ext = strtolower(JFile::getExt($src));
         $data = @file_get_contents($src);
@@ -87,8 +87,8 @@ class WFImageEditor extends JObject
             $image->loadString($data);
 
             // cropped thumbnail
-            if ((isset($sx) || isset($sy)) && isset($sw) && isset($sh)) {
-                $image->crop($sw, $sh, $sx, $sy);
+            if (!empty($box)) {
+                $image->crop($box['sw'], $box['sh'], $box['sx'], $box['sy']);
             }
             // resize
             $image->resize($width, $height);

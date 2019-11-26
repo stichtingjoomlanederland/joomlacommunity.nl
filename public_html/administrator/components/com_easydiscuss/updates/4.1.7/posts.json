@@ -1,0 +1,7 @@
+[
+	{
+		"table": "#__discuss_posts",
+		"index": "idx_post_replies",
+		"query": "ALTER TABLE `#__discuss_posts` ADD INDEX `idx_post_replies` (`published`, `parent_id`, `answered`, `created`)"
+	}
+]

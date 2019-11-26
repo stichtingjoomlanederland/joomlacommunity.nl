@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.0
+ * @version	6.5.2
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -2883,6 +2883,11 @@ function acym_loadPlugins()
     foreach ($dynamics as $key => $oneDynamic) {
         if (!empty($plugins[$oneDynamic]) && '0' === $plugins[$oneDynamic]->active) unset($dynamics[$key]);
         if ('managetext' === $oneDynamic) unset($dynamics[$key]);
+    }
+
+    foreach ($plugins as $pluginFolder => $onePlugin) {
+        if (in_array($pluginFolder, $dynamics) || '0' === $onePlugin->active) continue;
+        $dynamics[] = $pluginFolder;
     }
 
     $dynamics[] = 'managetext';

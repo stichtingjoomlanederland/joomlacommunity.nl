@@ -968,20 +968,10 @@ class com_rsformInstallerScript
 				<p>It seems you are still using legacy layouts - they have been removed from RSForm! Pro since they are no longer usable today as they do not provide responsive features.<br>If you still want to keep using them, please install the <a href="https://www.rsjoomla.com/support/documentation/rsform-pro/plugins-and-modules/plugin-legacy-layouts.html" target="_blank">Legacy Layouts Plugin</a>.</p>
 			</div>
 		<?php } ?>
-		<h2>Changelog v2.2.7</h2>
+		<h2>Changelog v2.2.9</h2>
 		<ul class="version-history">
-			<li><span class="version-new">New</span> Choose the default language when Multi Language is disabled.</li>
-			<li><span class="version-new">New</span> Specify the filename when exporting submissions from the backend.</li>
-			<li><span class="version-new">New</span> Specify the CSV filename when exporting submissions from the Directory area.</li>
-			<li><span class="version-new">New</span> Specify a list of disposable email domains to reject specific email addresses.</li>
-			<li><span class="version-upgraded">Upg</span> UIkit updated to 3.2.1</li>
-			<li><span class="version-fixed">Fix</span> Bootstrap 2 tooltips were showing up incorrectly.</li>
-			<li><span class="version-fixed">Fix</span> Some queries could take longer to process due to missing keys in the #__rsform_translations table.</li>
-			<li><span class="version-fixed">Fix</span> 'Last Language Used' no longer shows up when Multi Language is disabled.</li>
-			<li><span class="version-fixed">Fix</span> Label 'for' attribute was not generated correctly for calendar fields.</li>
-			<li><span class="version-fixed">Fix</span> In some cases, the Excel submissions export would show up as corrupted.</li>
-			<li><span class="version-fixed">Fix</span> Removed some deprecated code.</li>
-			<li><span class="version-fixed">Fix</span> Code improvements.</li>
+			<li><span class="version-upgraded">Upg</span> Bootstrap version upgraded to 3.4.1</li>
+			<li><span class="version-fixed">Fix</span> In some cases the 'Add More Files' button would show up next to a 'File Upload' field even if the 'Multiple' option was set to 'No'.</li>
 		</ul>
 		<a class="btn btn-large btn-primary" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="btn" href="https://www.rsjoomla.com/support/documentation/rsform-pro.html" target="_blank">Read the RSForm! Pro User Guide</a>

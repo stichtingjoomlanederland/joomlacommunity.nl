@@ -9,31 +9,31 @@
  */
 defined('JPATH_PLATFORM') or die;
 ?>
-    <div class="uk-form-row">
-        <label for="itemtype" class="uk-form-label uk-width-3-10"><?php echo JText::_('WF_LABEL_TYPE'); ?></label>
-        <div class="uk-form-controls uk-width-7-10 uk-position-relative">
-            <select id="itemtype">
-                <option value="">-- <?php echo JText::_('WF_OPTION_SELECT_TYPE'); ?> --</option>
-            </select>
-            <input type="text" disbabled value="<?php echo JText::_('WF_MESSAGE_LOAD', 'Loading...'); ?>" />
-        </div>
-    </div>
+<div class="uk-form-row uk-grid uk-grid-small">
+    <label for="itemtype" class="uk-form-label uk-width-3-10"><?php echo JText::_('WF_LABEL_TYPE'); ?></label>
 
-    <div class="uk-form-row itemtype-options">
-        <label><input type="radio" id="itemtype-replace" checked="checked" name="itemtype-option" class="uk-margin-small-right" /><?php echo JText::_('WF_LABEL_REPLACE'); ?></label>
-        <label><input type="radio" id="itemtype-new" name="itemtype-option" class="uk-margin-small-right" /><?php echo JText::_('WF_LABEL_NEW'); ?></label>
+    <div class="uk-form-controls uk-width-7-10">
+        <select id="itemtype" class="uk-datalist" disabled>
+            <option value=""></option>
+        </select>
     </div>
+</div>
 
-    <div class="uk-form-row">
-        <label for="itemprop" class="uk-form-label uk-width-3-10"><?php echo JText::_('WF_LABEL_PROPERTY'); ?></label>
-        <div class="uk-form-controls uk-width-7-10">
-            <select id="itemprop"></select>
-        </div>
+<div class="uk-form-row uk-grid uk-grid-small">
+    <label for="itemprop" class="uk-form-label uk-width-3-10"><?php echo JText::_('WF_LABEL_PROPERTY'); ?></label>
+    <div class="uk-form-controls uk-width-7-10">
+        <select id="itemprop" class="uk-datalist" disabled></select>
     </div>
+</div>
 
-    <div class="uk-form-row">
-        <label for="itemid" class="uk-form-label uk-width-3-10"><?php echo JText::_('WF_LABEL_ID'); ?></label>
-        <div class="uk-form-controls uk-width-7-10">
-            <input type="text" value="" id="itemid" />
-        </div>
+<div class="uk-form-row uk-grid uk-grid-small">
+    <label for="itemid" class="uk-form-label uk-width-3-10"><?php echo JText::_('WF_LABEL_ID'); ?></label>
+    <div class="uk-form-controls uk-width-7-10">
+        <input type="text" value="" id="itemid" />
     </div>
+</div>
+
+<div class="uk-form-row itemtype-options">
+    <label class="uk-width-1-2"><input type="radio" id="itemtype-replace" checked="checked" name="itemtype-option" class="uk-margin-small-right" /><?php echo JText::_('WF_LABEL_REPLACE'); ?></label>
+    <label class="uk-width-1-2"><input type="radio" id="itemtype-new" name="itemtype-option" class="uk-margin-small-right" /><?php echo JText::_('WF_LABEL_NEW'); ?></label>
+</div>
