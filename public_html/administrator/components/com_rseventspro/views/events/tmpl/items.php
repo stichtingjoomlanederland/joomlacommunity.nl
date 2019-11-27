@@ -19,9 +19,12 @@ if (!empty($this->data))
 		$complete = empty($row->completed) ? ' rs_incomplete' : '';
 		
 		echo '<tr class="row'.$k.$complete.'">';
-		echo '<td align="center" class="center" style="vertical-align: middle;">'.JHTML::_('grid.id',$i,$row->id).'</td>';
-		echo '<td align="center" class="center hidden-phone" style="vertical-align: middle;"><div class="btn-group">'.JHTML::_('jgrid.published', $row->published, $i, 'events.').JHtml::_('rseventspro.featured', $row->featured, $i).'</div></td>';
-		echo '<td class="hidden-phone">';
+		echo '<td align="center" class="center">'.JHTML::_('grid.id',$i,$row->id).'</td>';
+		echo '<td align="center" class="center hidden-phone"><div class="btn-group">';
+		echo JHTML::_('jgrid.published', $row->published, $i, 'events.').JHtml::_('rseventspro.featured', $row->featured, $i);
+		echo '<a class="btn btn-micro hasTooltip" title="'.JText::_('COM_RSEVENTSPRO_PREVIEW_EVENT').'" target="_blank" href="'.JUri::root().'index.php?option=com_rseventspro&layout=show&id='.$row->id.'"><span class="icon-zoom-in"></span></a>';
+		echo '</div></td>';
+		echo '<td class="hidden-phone center">';
 		echo '<div class="rs_event_img">';
 		echo '<img src="'.rseventsproHelper::thumb($row->id, 70).'?nocache='.uniqid('').'" alt="" width="70" />';
 		echo '</div>';
@@ -45,42 +48,66 @@ if (!empty($this->data))
 		if ($row->parent) {
 			echo '<i class="fa fa-child" title="'.ucfirst(JText::_('COM_RSEVENTSPRO_CHILD_EVENT_INFO')).'"></i> ';
 		}
-		
+						
 		echo '<b><a href="'.JRoute::_('index.php?option=com_rseventspro&task=event.edit&id='.$row->id).'">'.$row->name.'</a></b>';
 		
-		if (empty($row->completed)) 
-			echo '<b>'.JText::_('COM_RSEVENTSPRO_GLOBAL_INCOMPLETE_EVENT').'</b>';
+		if (empty($row->completed)) {
+			echo ' <small class="muted">'.JText::_('COM_RSEVENTSPRO_GLOBAL_INCOMPLETE_EVENT').'</small>';
+		}
 		
-		echo rseventsproHelper::report($row->id);
+		echo ' '.rseventsproHelper::report($row->id);
 		echo '</p>';
-		
-		if ($row->allday)
-			echo '<p>'.rseventsproHelper::showdate($row->start,rseventsproHelper::getConfig('global_date'),true).'</p>';
-		else
-			echo '<p>'.rseventsproHelper::showdate($row->start,null,true).'</p>';
-		
-		
-		if ($availabletickets = $this->getTickets($row->id)) {
-			echo '<p>'.$availabletickets.'</p>';
+					
+		echo '<p>';
+		echo '<small class="muted">';
+		echo $row->allday ? rseventsproHelper::showdate($row->start,rseventsproHelper::getConfig('global_date'),true) : rseventsproHelper::showdate($row->start,null,true).' - '.rseventsproHelper::showdate($row->end,null,true);
+		echo '</small>';
+		echo '</p>';
+					
+		$availabletickets = $row->registration ? $this->getTickets($row->id) : false;
+		$subscriptions = $row->registration ? $this->getSubscribers($row->id) : false;
+		$waitinglist = $row->registration ? $this->getWaitingList($row->id) : false;
+					
+		if ($availabletickets) { 
+			echo '<p><small class="muted">'.$availabletickets.'</small></p>';
+		}
+					
+		echo '<p>';
+		if ($subscriptions) {
+			echo '<a class="btn btn-small" href="'.JRoute::_('index.php?option=com_rseventspro&view=subscriptions&filter_event='.$row->id).'">'.JText::plural('COM_RSEVENTSPRO_SUBSCRIBERS_NO',$subscriptions).'</a> ';
 		}
 		
-		if ($subscriptions = $this->getSubscribers($row->id)) {
-			echo '<p><a href="'.JRoute::_('index.php?option=com_rseventspro&view=subscriptions&filter_event='.$row->id).'">'.JText::plural('COM_RSEVENTSPRO_SUBSCRIBERS_NO',$subscriptions).'</a></p>';
+		if ($waitinglist) {
+			echo '<a class="btn btn-small" href="'.JRoute::_('index.php?option=com_rseventspro&view=waitinglist&id='.$row->id).'">'.JText::_('COM_RSEVENTSPRO_WAITINGLIST').'</a> ';
+		}
+						
+		if ($row->rsvp) {
+			echo '<a class="btn btn-small" href="'.JRoute::_('index.php?option=com_rseventspro&view=rsvp&id='.$row->id).'">'.JText::_('COM_RSEVENTSPRO_RSVP_GUESTS').'</a> ';
 		}
 		
+		echo '</p>';
 		echo '</div>';
+		echo '</td>';
+		
+		echo '<td class="hidden-phone">';
+		$categories = rseventsproHelper::categories($row->id, true, ', ');
+		$tags = rseventsproHelper::tags($row->id, true);
+		
+		echo '<p><i class="fa fa-user fa-fw"></i> '.(empty($row->owner) ? JText::_('COM_RSEVENTSPRO_GLOBAL_GUEST') : $row->uname).'</p>';
+		
+		if ($row->lid) {
+			echo '<p><i class="fa fa-map-marker fa-fw"></i> <a href="'.JRoute::_('index.php?option=com_rseventspro&task=location.edit&id='.$row->lid).'">'.$row->lname.'</a></p>';
+		}
+		
+		if ($categories) { 
+			echo '<p><i class="fa fa-book fa-fw"></i> '.$categories.'</p>';
+		}
+		
+		if ($tags) { 
+			echo '<p><i class="fa fa-tags fa-fw"></i> '.$tags.'</p>';
+		}
 		
 		echo '</td>';
-		echo '<td align="center" class="center hidden-phone"><a href="'.JRoute::_('index.php?option=com_rseventspro&task=location.edit&id='.$row->lid).'">'.$row->lname.'</a></td>';
-		echo '<td align="center" class="center hidden-phone">'.(empty($row->owner) ? JText::_('COM_RSEVENTSPRO_GLOBAL_GUEST') : $row->uname).'</td>';
-		echo '<td align="center" class="center hidden-phone">'.rseventsproHelper::categories($row->id, true).'</td>';
-		echo '<td align="center" class="center hidden-phone">'.rseventsproHelper::tags($row->id,true).'</td>';
-		
-		if ($row->allday)
-			echo '<td align="center" class="center hidden-phone"></td>';
-		else
-			echo '<td align="center" class="center hidden-phone">'.rseventsproHelper::showdate($row->end,null,true).'</td>';
-		
 		echo '<td align="center" class="center hidden-phone">'.$row->hits.'</td>';
 		echo '<td class="center hidden-phone">'.$id.'</td>';
 		echo '</tr>';

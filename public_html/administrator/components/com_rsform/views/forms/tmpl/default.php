@@ -29,7 +29,9 @@ JText::script('COM_RSFORM_ARE_YOU_SURE_YOU_WANT_TO_CLEAR');
 			<th width="1%" nowrap="nowrap" class="title"><?php echo JText::_('RSFP_SUBMISSIONS'); ?></th>
             <?php } ?>
 			<th class="title"><?php echo JText::_('RSFP_TOOLS'); ?></th>
+			<?php if (!$this->disable_multilanguage) { ?>
 			<th class="title" width="1%" nowrap="nowrap"><?php echo JText::_('RSFP_LAST_LANGUAGE'); ?></th>
+			<?php } ?>
 			<th width="1%" nowrap="nowrap" class="title"><?php echo JHtml::_('grid.sort', JText::_('RSFP_FORM_ID'), 'FormId', $this->sortOrder, $this->sortColumn, 'forms.manage'); ?></th>
 		</tr>
 		</thead>
@@ -71,7 +73,9 @@ JText::script('COM_RSFORM_ARE_YOU_SURE_YOU_WANT_TO_CLEAR');
 					</ul>
 				</div>
 			</td>
+			<?php if (!$this->disable_multilanguage) { ?>
 			<td width="1%" nowrap="nowrap"><?php echo $this->escape(RSFormProHelper::getCurrentLanguage($row->FormId)); ?></td>
+			<?php } ?>
 			<td width="1%" nowrap="nowrap"><?php echo $row->FormId; ?></td>
 		</tr>
 	<?php

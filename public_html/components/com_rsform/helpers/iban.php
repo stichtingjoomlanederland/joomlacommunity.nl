@@ -305,7 +305,7 @@ class RSFormIBAN
         return $numericRepresentation;
     }
     /**
-     * Normailze IBAN by removing non-relevant characters and proper casing
+     * Normalize IBAN by removing non-relevant characters and proper casing
      *
      * @param $iban
      *

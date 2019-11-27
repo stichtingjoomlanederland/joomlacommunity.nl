@@ -1,0 +1,7 @@
+[
+	{
+		"table": "#__discuss_assignment_map",
+		"index": "idx_assignee",
+		"query": "ALTER TABLE `#__discuss_assignment_map` ADD INDEX `idx_assignee` (`assignee_id`)"
+	}
+]

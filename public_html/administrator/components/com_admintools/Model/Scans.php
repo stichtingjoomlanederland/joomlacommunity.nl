@@ -9,45 +9,35 @@ namespace Akeeba\AdminTools\Admin\Model;
 
 defined('_JEXEC') or die;
 
-use Akeeba\Engine\Factory;
-use Akeeba\Engine\Finalization\Email;
-use Akeeba\Engine\Platform;
+use Akeeba\AdminTools\Admin\Model\Scanner\Crawler;
+use Akeeba\AdminTools\Admin\Model\Scanner\Email;
+use Akeeba\AdminTools\Admin\Model\Scanner\Logger\Logger;
+use Akeeba\AdminTools\Admin\Model\Scanner\Part;
+use Akeeba\AdminTools\Admin\Model\Scanner\Util\Configuration;
+use Akeeba\AdminTools\Admin\Model\Scanner\Util\Session;
 use FOF30\Container\Container;
+use FOF30\Date\Date;
 use FOF30\Model\DataModel;
+use FOF30\Timer\Timer;
 
 /**
- * @property    int       $id
- * @property    string    $description
- * @property    string    $comment
- * @property    string    $backupstart
- * @property    string    $backupend
- * @property    string    $status
- * @property    string    $origin
- * @property    string    $type
- * @property    int       $profile_id
- * @property    string    $archivename
- * @property    string    $absolute_path
- * @property    int       $multipart
- * @property    string    $tag
- * @property    string    $backupid
- * @property    int       $filesexist
- * @property    string    $remote_filename
- * @property    int       $total_size
+ * @property    int      $id
+ * @property    string   $comment
+ * @property    string   $scanstart
+ * @property    string   $scanend
+ * @property    string   $status
+ * @property    string   $origin
+ * @property    int      $totalfiles
  *
- * @property-read    int       $files_modified
- * @property-read    int       $files_new
- * @property-read    int       $files_suspicious
+ * @property-read    int $files_modified
+ * @property-read    int $files_new
+ * @property-read    int $files_suspicious
  *
- * @method  $this  description()  description(string $v)
- * @method  $this  comment()  comment(string  $v)
- * @method  $this  backupstart()  backupstart(string $v)
- * @method  $this  backupend()  backupend(string $v)
+ * @method  $this  comment()  comment(string $v)
+ * @method  $this  scanstart()  scanstart(string $v)
+ * @method  $this  scanend()  scanend(string $v)
  * @method  $this  status()  status(string $v)
  * @method  $this  origin()  origin(string $v)
- * @method  $this  type()  type(string $v)
- * @method  $this  profile_id()  profile_id(int $v)
- * @method  $this  tag()  tag(string $v)
- * @method  $this  backupid()  backupid(string $v)
  */
 class Scans extends DataModel
 {
@@ -67,87 +57,6 @@ class Scans extends DataModel
 		$this->addKnownField('files_suspicious');
 	}
 
-	protected function onAfterGetItemsArray(&$resultArray)
-	{
-		// Don't process an empty list
-		if (empty($resultArray))
-		{
-			return;
-		}
-
-		// Get the scan_id's and initialise the special fields
-		$scanids = array();
-		$map     = array();
-
-		foreach ($resultArray as $index => &$row)
-		{
-			$scanids[]       = $row->id;
-			$map[ $row->id ] = $index;
-
-			$row->files_new      = 0;
-			$row->files_modified = 0;
-		}
-
-		// Fetch the stats for the IDs at hand
-		$ids = implode(',', $scanids);
-
-		$db    = $this->getDbo();
-		$query = $db->getQuery(true)
-		            ->select(array(
-			            $db->qn('scan_id'),
-			            '(' . $db->qn('diff') . ' = ' . $db->q('') . ') AS ' . $db->qn('newfile'),
-			            'COUNT(*) AS ' . $db->qn('count')
-		            ))
-		            ->from($db->qn('#__admintools_scanalerts'))
-		            ->where($db->qn('scan_id') . ' IN (' . $ids . ')')
-		            ->group(array(
-			            $db->qn('scan_id'),
-			            $db->qn('newfile'),
-		            ));
-
-		$alertstats = $db->setQuery($query)->loadObjectList();
-
-		$query = $db->getQuery(true)
-		            ->select(array(
-			            $db->qn('scan_id'),
-			            'COUNT(*) AS ' . $db->qn('count')
-		            ))
-		            ->from($db->qn('#__admintools_scanalerts'))
-		            ->where($db->qn('scan_id') . ' IN (' . $ids . ')')
-		            ->where($db->qn('threat_score') . ' > ' . $db->q('0'))
-		            ->where($db->qn('acknowledged') . ' = ' . $db->q('0'))
-		            ->group($db->qn('scan_id'));
-
-		$suspiciousstats = $db->setQuery($query)->loadObjectList();
-
-		// Update the $resultArray with the loaded stats
-		if (!empty($alertstats))
-		{
-			foreach ($alertstats as $stat)
-			{
-				$idx = $map[ $stat->scan_id ];
-
-				if ($stat->newfile)
-				{
-					$resultArray[ $idx ]->files_new = $stat->count;
-				}
-				else
-				{
-					$resultArray[ $idx ]->files_modified = $stat->count;
-				}
-			}
-		}
-
-		if (!empty($suspiciousstats))
-		{
-			foreach ($suspiciousstats as $stat)
-			{
-				$idx                                   = $map[ $stat->scan_id ];
-				$resultArray[ $idx ]->files_suspicious = $stat->count;
-			}
-		}
-	}
-
 	public function removeIncompleteScans()
 	{
 		/** @var Scans $model1 */
@@ -158,77 +67,15 @@ class Scans extends DataModel
 		/** @var DataModel\Collection $list1 */
 		$list1 = $model1
 			->status('fail')
-			->profile_id(1)
 			->get();
 
 		$list2 = $model2
 			->status('run')
-			->profile_id(1)
 			->get();
 
 		$list = $list1->merge($list2);
 
-		unset($list1);
-		unset($list2);
-
-		if (!empty($list))
-		{
-			$ids = array(- 1);
-
-			foreach ($list as $item)
-			{
-				$ids[] = $item->id;
-			}
-
-			$ids = implode(',', $ids);
-
-			$db = $this->getDbo();
-
-			$query = $db->getQuery(true)
-			            ->delete('#__admintools_scans')
-			            ->where($db->qn('id') . ' IN (' . $ids . ')');
-
-			$db->setQuery($query)->execute();
-
-			$query = $db->getQuery(true)
-			            ->delete('#__admintools_scanalerts')
-			            ->where($db->qn('scan_id') . ' IN (' . $ids . ')');
-
-			$db->setQuery($query)->execute();
-		}
-	}
-
-	protected function onAfterDelete($id)
-	{
-		$this->deleteScanAlerts($id);
-	}
-
-	protected function onBeforeSave(&$data)
-	{
-		// Let's remove all the fields created on the fly
-		$fakeFields = array('newfile', 'files_new', 'files_modified', 'files_suspicious');
-
-		foreach ($fakeFields as $field)
-		{
-			// I can't use `isset` since if we have a null key the check will return false, but that
-			// would cause an error during the update
-			if (array_key_exists($field, $this->recordData))
-			{
-				unset($this->recordData[ $field ]);
-			}
-		}
-	}
-
-	private function deleteScanAlerts($scan_id)
-	{
-		$db    = $this->getDbo();
-		$query = $db->getQuery(true)
-		            ->delete('#__admintools_scanalerts')
-		            ->where($db->qn('scan_id') . ' = ' . $db->q($scan_id));
-
-		$db->setQuery($query)->execute();
-
-		return true;
+		$list->delete();
 	}
 
 	/**
@@ -242,7 +89,7 @@ class Scans extends DataModel
 
 		// The best choice should be the TRUNCATE statement, however there isn't the proper function inside Joomla driver...
 		$query = $db->getQuery(true)
-		            ->delete($db->qn('#__admintools_filescache'));
+			->delete($db->qn('#__admintools_filescache'));
 
 		try
 		{
@@ -261,54 +108,51 @@ class Scans extends DataModel
 	 *
 	 * @return  array
 	 */
-	public function startScan()
+	public function startScan($origin = 'backend')
 	{
-		if (!$this->scanEngineSetup())
+		if (function_exists('set_time_limit'))
 		{
-			return array(
-				'status' => false,
-				'error'  => 'Could not load the file scanning engine; please try reinstalling the component',
-				'done'   => true
-			);
+			@set_time_limit(0);
 		}
 
-		Platform::getInstance()->load_configuration(1);
-		Factory::resetState();
-		Factory::getFactoryStorage()->reset(AKEEBA_BACKUP_ORIGIN);
+		// Get the scanner engine's base objects (configuration, session storage and logger)
+		$configuration = Configuration::getInstance();
+		$session       = Session::getInstance();
+		$logger        = new Logger($configuration);
 
-		$configOverrides['volatile.core.finalization.action_handlers'] = array(
-			new Email()
-		);
+		// Log the start of a new scan
+		$logger->reset();
+		$logger->info(sprintf("Admin Tools Professional %s (%s)", ADMINTOOLS_VERSION, ADMINTOOLS_DATE));
+		$logger->info('PHP File Change Scanner');
+		$logger->info('Starting a new scan from the “' . $origin . '” origin.');
 
-		$configOverrides['volatile.core.finalization.action_queue']    = array(
-			'remove_temp_files',
-			'update_statistics',
-			'update_filesizes',
-			'apply_quotas',
-			'send_scan_email'
-		);
+		// Get a timer according to the engine's configuration
+		$maxExec     = $configuration->get('maxExec');
+		$runtimeBias = $configuration->get('runtimeBias');
+		$logger->debug(sprintf("Getting a new operations timer, max. exec. time %0.2fs, runtime bias %u%%", $maxExec, $runtimeBias));
+		$timer = new Timer($maxExec, $runtimeBias);
 
-		// Apply the configuration overrides, please
-		$platform                  = Platform::getInstance();
-		$platform->configOverrides = $configOverrides;
+		// Reset the session. This marks a brand new scan.
+		$logger->debug('Resetting the session storage');
+		$session->reset();
 
-		$kettenrad = Factory::getKettenrad();
-		$options   = array(
-			'description' => '',
-			'comment'     => '',
-			'jpskey'      => ''
-		);
-		$kettenrad->setup($options);
+		// Create a new scan record and save its ID in the session
+		$logger->debug('Creating a new scan record');
+		$currentTime = new Date();
+		/** @var static $newScanRecord */
+		$newScanRecord = $this->tmpInstance()->create([
+			'scanstart'  => $currentTime->toSql(),
+			'status'     => 'run',
+			'origin'     => $origin,
+			'totalfiles' => 0,
+		]);
+		$logger->debug(sprintf('Scan ID: %u', $newScanRecord->getId()));
+		$session->set('scanID', $newScanRecord->getId());
 
-		Factory::getLog()->open(AKEEBA_BACKUP_ORIGIN);
-		Factory::getLog()->log(true, '');
+		// Run the scanner engine
+		$statusArray = $this->tickScannerEngine($configuration, $session, $logger, $timer, true);
 
-		$kettenrad->tick();
-		$kettenrad->tick();
-
-		Factory::saveState(AKEEBA_BACKUP_ORIGIN);
-
-		return $this->parseScanArray($kettenrad->getStatusArray());
+		return $this->postProcessStatusArray($statusArray, $logger);
 	}
 
 	/**
@@ -318,95 +162,302 @@ class Scans extends DataModel
 	 */
 	public function stepScan()
 	{
-		if (!$this->scanEngineSetup())
-		{
-			return array(
-				'status' => false,
-				'error'  => 'Could not load the file scanning engine; please try reinstalling the component',
-				'done'   => true
-			);
-		}
+		// Get the scanner engine's base objects (configuration, session storage and logger)
+		$configuration = Configuration::getInstance();
+		$session       = Session::getInstance();
+		$logger        = new Logger($configuration);
 
-		Factory::loadState(AKEEBA_BACKUP_ORIGIN);
+		// Get a timer according to the engine's configuration
+		$maxExec     = $configuration->get('maxExec');
+		$runtimeBias = $configuration->get('runtimeBias');
+		$logger->debug(sprintf("Getting a new operations timer, max. exec. time %0.2fs, runtime bias %u%%", $maxExec, $runtimeBias));
+		$timer = new Timer($maxExec, $runtimeBias);
 
-		$kettenrad = Factory::getKettenrad();
+		// Run the scanner engine
+		$statusArray = $this->tickScannerEngine($configuration, $session, $logger, $timer, true);
 
-		$kettenrad->tick();
-
-		Factory::saveState(AKEEBA_BACKUP_ORIGIN);
-
-		return $this->parseScanArray($kettenrad->getStatusArray());
+		return $this->postProcessStatusArray($statusArray, $logger);
 	}
 
-	/**
-	 * Sets up the environment to start or continue a file scan
-	 *
-	 * @return  bool
-	 */
-	private function scanEngineSetup()
+	protected function onAfterGetItemsArray(&$resultArray)
 	{
-		// Load the Akeeba Engine autoloader
-		define('AKEEBAENGINE', 1);
-		require_once JPATH_ADMINISTRATOR . '/components/com_admintools/engine/Autoloader.php';
-
-		// Load the platform
-		Platform::addPlatform('filescan', JPATH_ADMINISTRATOR . '/components/com_admintools/platform/Filescan');
-
-		// Load the engine configuration
-		Platform::getInstance()->load_configuration(1);
-		$this->aeconfig = Factory::getConfiguration();
-
-		define('AKEEBA_BACKUP_ORIGIN', 'backend');
-
-		// Unset time limits
-		$safe_mode = true;
-
-		if (function_exists('ini_get'))
+		// Don't process an empty list
+		if (empty($resultArray))
 		{
-			$safe_mode = ini_get('safe_mode');
+			return;
 		}
 
-		if (!$safe_mode && function_exists('set_time_limit'))
+		// Get the scan_id's and initialise the special fields
+		$scanids = [];
+		$map     = [];
+
+		foreach ($resultArray as $index => &$row)
 		{
-			@set_time_limit(0);
+			$scanids[]     = $row->id;
+			$map[$row->id] = $index;
+
+			$row->files_new      = 0;
+			$row->files_modified = 0;
 		}
+
+		// Fetch the stats for the IDs at hand
+		$ids = implode(',', $scanids);
+
+		$db    = $this->getDbo();
+		$query = $db->getQuery(true)
+			->select([
+				$db->qn('scan_id'),
+				'(' . $db->qn('diff') . ' = ' . $db->q('') . ') AS ' . $db->qn('newfile'),
+				'COUNT(*) AS ' . $db->qn('count'),
+			])
+			->from($db->qn('#__admintools_scanalerts'))
+			->where($db->qn('scan_id') . ' IN (' . $ids . ')')
+			->group([
+				$db->qn('scan_id'),
+				$db->qn('newfile'),
+			]);
+
+		$alertstats = $db->setQuery($query)->loadObjectList();
+
+		$query = $db->getQuery(true)
+			->select([
+				$db->qn('scan_id'),
+				'COUNT(*) AS ' . $db->qn('count'),
+			])
+			->from($db->qn('#__admintools_scanalerts'))
+			->where($db->qn('scan_id') . ' IN (' . $ids . ')')
+			->where($db->qn('threat_score') . ' > ' . $db->q('0'))
+			->where($db->qn('acknowledged') . ' = ' . $db->q('0'))
+			->group($db->qn('scan_id'));
+
+		$suspiciousstats = $db->setQuery($query)->loadObjectList();
+
+		// Update the $resultArray with the loaded stats
+		if (!empty($alertstats))
+		{
+			foreach ($alertstats as $stat)
+			{
+				$idx = $map[$stat->scan_id];
+
+				if ($stat->newfile)
+				{
+					$resultArray[$idx]->files_new = $stat->count;
+				}
+				else
+				{
+					$resultArray[$idx]->files_modified = $stat->count;
+				}
+			}
+		}
+
+		if (!empty($suspiciousstats))
+		{
+			foreach ($suspiciousstats as $stat)
+			{
+				$idx                                 = $map[$stat->scan_id];
+				$resultArray[$idx]->files_suspicious = $stat->count;
+			}
+		}
+	}
+
+	protected function onAfterDelete($id)
+	{
+		$this->deleteScanAlerts($id);
+	}
+
+	protected function onBeforeSave(&$data)
+	{
+		// Let's remove all the fields created on the fly
+		$fakeFields = ['newfile', 'files_new', 'files_modified', 'files_suspicious'];
+
+		foreach ($fakeFields as $field)
+		{
+			// I can't use `isset` since if we have a null key the check will return false, but that
+			// would cause an error during the update
+			if (array_key_exists($field, $this->recordData))
+			{
+				unset($this->recordData[$field]);
+			}
+		}
+	}
+
+	private function deleteScanAlerts($scan_id)
+	{
+		$db    = $this->getDbo();
+		$query = $db->getQuery(true)
+			->delete('#__admintools_scanalerts')
+			->where($db->qn('scan_id') . ' = ' . $db->q($scan_id));
+
+		$db->setQuery($query)->execute();
 
 		return true;
 	}
 
-	private function parseScanArray($array)
+	private function postProcessStatusArray(array $statusArray, Logger $logger)
 	{
-		$kettenrad = Factory::getKettenrad();
-		$kettenrad->resetWarnings();
+		// Get the current scan record
+		$session       = Session::getInstance();
+		$configuration = Configuration::getInstance();
+		$scanID        = $session->get('scanID');
+		$scanRecord    = $this->tmpInstance()->findOrFail($scanID);
+		$currentTime   = new Date();
+		$warnings      = $logger->getAndResetWarnings();
 
-		if (($array['HasRun'] != 1) && (empty($array['Error'])))
+		// Apply common updates to the backup record
+		$scanRecord->bind([
+			'totalfiles' => $session->get('scannedFiles'),
+			'scanend'    => $currentTime->toSql(),
+		]);
+
+		// More work to do
+		if ($statusArray['HasRun'] && (empty($statusArray['Error'])))
 		{
+			$logger->debug('** More work necessary. Will resume in the next step.');
+
+			$scanRecord->save([
+				'status' => 'run',
+			]);
+
 			// Still have work to do
-			return array(
-				'status' => true,
-				'done'   => false,
-				'error'  => ''
-			);
+			return [
+				'status'   => true,
+				'done'     => false,
+				'error'    => '',
+				'warnings' => $warnings,
+			];
 		}
-		elseif (!empty($array['Error']))
-		{
-			// Error!
-			return array(
-				'status' => false,
-				'done'   => true,
-				'error'  => $array['Error']
-			);
-		}
-		else
-		{
-			// All done
-			Factory::getFactoryStorage()->reset(AKEEBA_BACKUP_ORIGIN);
 
-			return array(
-				'status' => true,
-				'done'   => true,
-				'error'  => ''
-			);
+		// An error occurred
+		if (!empty($statusArray['Error']))
+		{
+			$logger->debug('** An error occurred. The scan has died.');
+
+			$scanRecord->save([
+				'status' => 'fail',
+			]);
+			$session->reset();
+
+			return [
+				'status'   => false,
+				'done'     => true,
+				'error'    => $statusArray['Error'],
+				'warnings' => $warnings,
+			];
 		}
+
+		// Just finished
+		// -- Send emails, if necessary
+		if ($scanRecord->origin != 'backend')
+		{
+			$logger->debug('Finished scanning. Evaluating whether to send email with scan results.');
+			$email = new Email($configuration, $session, $logger);
+			$email->sendEmail();
+		}
+
+		$logger->debug('** This scan is now finished.');
+		$scanRecord->save([
+			'status' => 'complete',
+		]);
+		$session->reset();
+
+		return [
+			'status'   => true,
+			'done'     => true,
+			'error'    => '',
+			'warnings' => $warnings,
+		];
+	}
+
+	/**
+	 * @param   Configuration  $configuration
+	 * @param   Session        $session
+	 * @param   Logger         $logger
+	 * @param   Timer          $timer
+	 * @param   bool           $enforceMinimumExecutionTime
+	 *
+	 * @return  array
+	 *
+	 * @since   5.4.0
+	 */
+	private function tickScannerEngine(Configuration $configuration, Session $session, Logger $logger, Timer $timer, $enforceMinimumExecutionTime = true)
+	{
+		// Get the crawler and step it while we have enough time left
+		$crawler   = new Crawler($configuration, $session, $logger, $timer);
+		$step      = $session->get('step', 0);
+		$operation = 0;
+		$logger->debug(sprintf('===== Starting Step #%u =====', ++$step));
+
+		while (true)
+		{
+			$logger->debug(sprintf('----- Starting operation #%u -----', ++$operation));
+			$statusArray = $crawler->tick();
+			$logger->debug(sprintf('----- Finished operation #%u -----', $operation));
+
+			// Did we run into an error?
+			if ($crawler->getState() == Part::STATE_ERROR)
+			{
+				$logger->debug('The scanner engine has experienced an error.');
+
+				break;
+			}
+
+			// Are we done?
+			if ($crawler->getState() == Part::STATE_FINISHED)
+			{
+				$logger->debug('The scanner engine finished scanning your site.');
+
+				break;
+			}
+
+			// Did we run out of time?
+			if ($timer->getTimeLeft() <= 0)
+			{
+				$logger->debug('We are running out of time.');
+
+				break;
+			}
+
+			// Is the Break Flag set?
+			if ($session->get('breakFlag', false))
+			{
+				$logger->debug('The Break Flag is set.');
+
+				break;
+			}
+		}
+
+		$logger->debug(sprintf('===== Finished Step #%u =====', $step));
+
+		// Reset the break flag
+		$session->set('breakFlag', false);
+
+		// Do I need to enforce the minimum execution time?
+		if (!$enforceMinimumExecutionTime)
+		{
+			return $statusArray;
+		}
+
+		$minExec    = $configuration->get('minExec');
+		$alreadyRun = $timer->getRunningTime();
+		$waitTime   = $alreadyRun - $minExec;
+
+		// Negative wait times mean that we shouldn't wait. Also, waiting for less than 10 msec is daft.
+		if ($waitTime <= 0.01)
+		{
+			return $statusArray;
+		}
+
+		if (!function_exists('time_nanosleep'))
+		{
+			usleep(1000000 * $waitTime);
+
+			return $statusArray;
+		}
+
+		$seconds    = floor($waitTime);
+		$fractional = $waitTime - $seconds;
+		time_nanosleep($seconds, $fractional * 1000000000);
+
+		return $statusArray;
 	}
 }

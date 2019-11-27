@@ -1,18 +1,19 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><div id="acym__queue" class="acym__content">
+?>
+<div id="acym__queue" class="acym__content">
 	<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate>
         <?php
         $workflow = acym_get('helper.workflow');
-        echo $workflow->display($this->steps, 'campaigns', 1, false);
+        echo $workflow->display($this->steps, 'campaigns', false);
         ?>
 
         <?php if (empty($data['allElements']) && empty($data['search']) && empty($data['tag']) && empty($data['status'])) { ?>
@@ -126,7 +127,7 @@ defined('_JEXEC') or die('Restricted access');
                                     if ($row->active == 0 && $row->iscampaign) {
                                         $text = acym_translation('ACYM_PAUSED');
                                         $class = 'acym_status_paused';
-                                    } elseif (!$row->iscampaign || $row->scheduled && empty($row->nbqueued)) {
+                                    } elseif (!$row->iscampaign || $row->sending_type === $data['campaignClass']::SENDING_TYPE_SCHEDULED && empty($row->nbqueued)) {
                                         $text = acym_translation('ACYM_SCHEDULED');
                                         $class = 'acym_status_scheduled';
                                     } else {

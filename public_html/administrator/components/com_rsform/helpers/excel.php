@@ -216,10 +216,22 @@ class RSFormProXLSX
 		'<fileVersion appName="Calc"/><workbookPr backupFile="false" showObjects="all" date1904="false"/><workbookProtection/>'."\n".
 		'<bookViews><workbookView activeTab="0" firstSheet="0" showHorizontalScroll="true" showSheetTabs="true" showVerticalScroll="true" tabRatio="212" windowHeight="8192" windowWidth="16384" xWindow="0" yWindow="0"/></bookViews>'."\n".
 		'<sheets>'."\n".
-		'<sheet name="'.$this->escape($this->name).'" sheetId="1" state="visible" r:id="rId2"/>'."\n".
+		'<sheet name="'.$this->escapeSheet($this->name).'" sheetId="1" state="visible" r:id="rId2"/>'."\n".
 		'</sheets>'."\n".
 		'<calcPr iterateCount="100" refMode="A1" iterate="false" iterateDelta="0.001"/>'."\n".
 		'</workbook>';
+	}
+
+	protected function escapeSheet($string)
+	{
+		// https://www.accountingweb.com/technology/excel/seven-characters-you-cant-use-in-worksheet-names
+		$string = str_replace(array('\\', '/', '*', '[', ']', ':', '?'), '', $string);
+		if (strlen(utf8_decode($string)) > 31)
+		{
+			$string = substr($string, 0, 31);
+		}
+
+		return $this->escape($string);
 	}
 	
 	protected function buildWorkbookRelsXML()

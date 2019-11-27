@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class acymentitySelectHelper
 {
@@ -16,7 +17,7 @@ class acymentitySelectHelper
 
     public function __construct()
     {
-        $this->svg = acym_fileGetContent(ACYM_IMAGES.'loader.svg');
+        $this->svg = acym_getSvg(ACYM_IMAGES.'loader.svg');
     }
 
     private function _getListing($type, $allSelector, $entity, $columnsToDisplay = [])
@@ -55,8 +56,6 @@ class acymentitySelectHelper
                           <div class="plus plus-bar"></div>
                           <div class="bottom-plus plus-bar"></div>
                         </div>
-        				<!--<i class="fa fa-plus-circle acym__entity_select__available__listing__row__select" v-on:click="selectEntity(entity.id)"></i>-->
-                        <!--<i class="fa fa-minus-circle acym__entity_select__selected__listing__row__unselect" v-on:click="unselectEntity(entity.id)"></i>-->
         			</div>
         		</div>
                     <div class="cell grid-x align-center acym__entity_select__loading margin-top-1"  v-show="loading"><div class="cell text-center acym__entity_select__title">'.acym_translation('ACYM_WE_ARE_LOADING_YOUR_DATA').'</div><div class="cell grid-x shrink margin-top-1">'.$this->svg.'</div></div>';

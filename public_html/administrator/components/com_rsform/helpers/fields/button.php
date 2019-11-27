@@ -126,6 +126,7 @@ class RSFormProFieldButton extends RSFormProField
 			$attr['class'] .= $this->baseClass;
 		} elseif ($type == 'reset') {
 			$attr['class'] .= 'rsform-reset-button';
+			$attr['onclick'] = 'RSFormPro.resetElements('.$this->formId.')';
 		} elseif ($type == 'previous') {
 			$attr['class'] .= 'rsform-button-prev';
 			if (!isset($attr['onclick'])) {

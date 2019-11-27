@@ -753,7 +753,6 @@ class RsformControllerSubmissions extends RsformController
 		$file = $config->get('tmp_path').'/'.$file;
 		
 		$type = JFactory::getApplication()->input->getCmd('ExportType');
-		$extension = 'csv';
 		
 		switch ($type) {
 			default:
@@ -774,8 +773,14 @@ class RsformControllerSubmissions extends RsformController
 				$extension = 'xlsx';
 			break;
 		}
+
+		$filename = str_replace(
+			array('{domain}', '{date}', '{formId}'),
+			array(JUri::getInstance()->getHost(), JHtml::_('date', 'now', 'Y-m-d_H-i'), JFactory::getApplication()->input->getCmd('formId')),
+			RSFormProHelper::getConfig('export.mask')
+		);
 		
-		RSFormProHelper::readFile($file, JFactory::getDate()->format('Y-m-d').'_rsform.'.$extension);
+		RSFormProHelper::readFile($file, $filename . '.' . $extension);
 	}
 	
 	public function viewFile()

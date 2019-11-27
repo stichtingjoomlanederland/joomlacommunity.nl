@@ -1,19 +1,20 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><div id="acym__queue" class="acym__content">
+?>
+<div id="acym__queue" class="acym__content">
 	<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate>
 
         <?php
         $workflow = acym_get('helper.workflow');
-        echo $workflow->display($this->steps, 'detailed', 1, false);
+        echo $workflow->display($this->steps, 'detailed', false);
         ?>
 
         <?php if (empty($data['allElements']) && empty($data['search']) && empty($data['tag']) && empty($data['status'])) { ?>
@@ -24,7 +25,7 @@ defined('_JEXEC') or die('Restricted access');
         <?php } else { ?>
 			<div class="grid-x grid-margin-x">
 				<div class="cell medium-auto">
-                    <?php echo acym_filterSearch($data["search"], 'dqueue_search', 'ACYM_SEARCH_A_CAMPAIGN_NAME'); ?>
+                    <?php echo acym_filterSearch($data["search"], 'dqueue_search', 'ACYM_SEARCH'); ?>
 				</div>
 				<div class="cell medium-auto">
                     <?php

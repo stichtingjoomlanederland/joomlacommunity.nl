@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class DashboardController extends acymController
 {
@@ -24,221 +25,27 @@ class DashboardController extends acymController
     public function listing()
     {
         acym_setVar('layout', 'listing');
-        $config = acym_config();
 
-        if ($config->get('migration') == 0 && acym_existsAcyMailing59()) {
+        if ($this->migration()) return;
+        if ($this->feedback()) return;
+        if ($this->walkthrough()) return;
 
-            acym_setVar("layout", "migrate");
-
-            parent::display();
-
-            return;
-        }
-
-        if (ACYM_CMS === 'wordpress') {
-            $installDate = $config->get('install_date', time());
-            $remindme = json_decode($config->get('remindme', '[]'));
-
-            if ($installDate < time() - 1814400 && !in_array('reviews', $remindme)) {
-                $this->feedback();
-
-                return true;
-            }
-        }
-
-        $newConfig = new stdClass();
-
-        $newConfig->migration = '1';
-        $config->save($newConfig);
-
-        if ($config->get('walk_through') == 1) {
-            $walkthroughParams = json_decode($config->get('walkthrough_params', '[]'), true);
-            if (!empty($walkthroughParams['step'])) {
-                $this->{$walkthroughParams['step']}();
-            } else {
-                $this->stepSubscribe();
-            }
-
-            return;
-        }
+        $campaignClass = acym_get('class.campaign');
+        $mailStatClass = acym_get('class.mailstat');
+        $statsController = acym_get('controller.stats');
 
         $data = [];
-        $campaignClass = acym_get('class.campaign');
-        $mailStatsClass = acym_get('class.mailstat');
-        $urlClickClass = acym_get('class.urlclick');
-        $mails = $mailStatsClass->getAllMailsForStats();
+        $data['page_title'] = true;
+        $data['mail_filter'] = '';
+        $data['stats_export'] = '';
+        $data['selectedMailid'] = '';
+        $data['show_date_filters'] = false;
         $data['campaignsScheduled'] = $campaignClass->getCampaignForDashboard();
-        $data['dashboard_stats'] = true;
+        $data['sentMails'] = $mailStatClass->getAllMailsForStats();
 
-        if (empty($mails)) {
-            $data['emptyGlobal'] = 'campaigns';
-            parent::display($data);
-
-            return;
-        }
-
-        $data['mails'] = [];
-
-        foreach ($mails as $mail) {
-            if (empty($mail->name) || (empty($mail->id) && $mail->sent != 1)) continue;
-
-            $newMail = new stdClass();
-            $newMail->name = $mail->name;
-            $newMail->value = $mail->id;
-            $data['mails'][] = $newMail;
-        }
-
-        $data['selectedMailid'] = empty($selectedMail) ? '' : $selectedMail;
-
-        $statsMailSelected = $mailStatsClass->getOneByMailId($data['selectedMailid']);
-
-        if (empty($statsMailSelected)) {
-            $data['emptyGlobal'] = empty($data['selectedMailid']) ? 'campaigns' : 'stats';
-        }
-
-        if (empty($statsMailSelected->sent)) {
-            $data['emptyGlobal'] = 'stats';
-        }
-
-        $statsMailSelected->totalMail = $statsMailSelected->sent + $statsMailSelected->fail;
-        $statsMailSelected->pourcentageSent = empty($statsMailSelected->totalMail) ? 0 : intval(($statsMailSelected->sent * 100) / $statsMailSelected->totalMail);
-        $statsMailSelected->allSent = empty($statsMailSelected->totalMail) ? acym_translation_sprintf('ACYM_X_MAIL_SUCCESSFULLY_SENT_OF_X', 0, 0) : acym_translation_sprintf('ACYM_X_MAIL_SUCCESSFULLY_SENT_OF_X', $statsMailSelected->sent, $statsMailSelected->totalMail);
-
-        $openRateCampaign = empty($data['selectedMailid']) ? $campaignClass->getOpenRateAllCampaign() : $campaignClass->getOpenRateOneCampaign($data['selectedMailid']);
-        $statsMailSelected->pourcentageOpen = empty($openRateCampaign->sent) ? 0 : intval(($openRateCampaign->open_unique * 100) / $openRateCampaign->sent);
-        $statsMailSelected->allOpen = empty($openRateCampaign->sent) ? acym_translation_sprintf('ACYM_X_MAIL_OPENED_OF_X', 0, 0) : acym_translation_sprintf('ACYM_X_MAIL_OPENED_OF_X', $openRateCampaign->open_unique, $openRateCampaign->sent);
-
-        $clickRateCampaign = $urlClickClass->getClickRate($data['selectedMailid']);
-        $statsMailSelected->pourcentageClick = empty($statsMailSelected->sent) ? 0 : intval(($clickRateCampaign->click * 100) / $statsMailSelected->sent);
-        $statsMailSelected->allClick = empty($statsMailSelected->sent) ? acym_translation_sprintf('ACYM_X_MAIL_CLICKED_OF_X', 0, 0) : acym_translation_sprintf('ACYM_X_MAIL_CLICKED_OF_X', $clickRateCampaign->click, $statsMailSelected->sent);
-
-        $bounceRateCampaign = empty($data['selectedMailid']) ? $campaignClass->getBounceRateAllCampaign() : $campaignClass->getBounceRateOneCampaign($data['selectedMailid']);
-        $statsMailSelected->pourcentageBounce = empty($statsMailSelected->sent) ? 0 : intval(($bounceRateCampaign->bounce_unique * 100) / $statsMailSelected->sent);
-        $statsMailSelected->allBounce = empty($statsMailSelected->sent) ? acym_translation_sprintf('ACYM_X_BOUNCE_OF_X', 0, 0) : acym_translation_sprintf('ACYM_X_BOUNCE_OF_X', $bounceRateCampaign->bounce_unique, $statsMailSelected->sent);
-
-
-        $campaignOpenByMonth = $campaignClass->getOpenByMonth($data['selectedMailid']);
-        $campaignOpenByDay = $campaignClass->getOpenByDay($data['selectedMailid']);
-        $campaignOpenByHour = $campaignClass->getOpenByHour($data['selectedMailid']);
-
-        $campaignClickByMonth = $urlClickClass->getAllClickByMailMonth($data['selectedMailid']);
-        $campaignClickByDay = $urlClickClass->getAllClickByMailDay($data['selectedMailid']);
-        $campaignClickByHour = $urlClickClass->getAllClickByMailHour($data['selectedMailid']);
-
-        if (empty($campaignOpenByMonth) || empty($campaignOpenByDay) || empty($campaignOpenByHour)) {
-            $statsMailSelected->empty = true;
-            $data['stats_mail_1'] = $statsMailSelected;
-
-            parent::display($data);
-
-            return;
-        }
-
-        #To get all the month between the first open date and the last
-        $begin = new DateTime(empty($campaignClickByMonth) ? $campaignOpenByMonth[0]->open_date : min([$campaignOpenByMonth[0]->open_date, $campaignClickByMonth[0]->date_click]));
-        $end = new DateTime(empty($campaignClickByMonth) ? end($campaignOpenByMonth)->open_date : max([end($campaignOpenByMonth)->open_date, end($campaignClickByMonth)->date_click]));
-
-        $end->modify('+1 day');
-
-        $interval = new DateInterval('P1M');
-        $daterange = new DatePeriod($begin, $interval, $end);
-
-        $rangeMonth = [];
-
-        foreach ($daterange as $date) {
-            $rangeMonth[] = acym_getTime($date->format('Y-m-d H:i:s'));
-        }
-
-        #To get all the day between the first open date and the last
-        $begin = new DateTime(empty($campaignClickByDay) ? $campaignOpenByDay[0]->open_date : min([$campaignOpenByDay[0]->open_date, $campaignClickByDay[0]->date_click]));
-        $end = new DateTime(empty($campaignClickByDay) ? end($campaignOpenByDay)->open_date : max([end($campaignOpenByDay)->open_date, end($campaignClickByDay)->date_click]));
-
-        $end->modify('+1 hour');
-
-        $interval = new DateInterval('P1D');
-        $daterange = new DatePeriod($begin, $interval, $end);
-
-        $rangeDay = [];
-
-        foreach ($daterange as $date) {
-            $rangeDay[] = acym_getTime($date->format('Y-m-d H:i:s'));
-        }
-
-
-        #To get all the hour between the first open date and the last
-        $begin = new DateTime(empty($campaignClickByHour) ? $campaignOpenByHour[0]->open_date : min([$campaignOpenByHour[0]->open_date, $campaignClickByHour[0]->date_click]));
-        $end = new DateTime(empty($campaignClickByHour) ? end($campaignOpenByHour)->open_date : max([end($campaignOpenByHour)->open_date, end($campaignClickByHour)->date_click]));
-
-        $end->modify('+1 min');
-
-        $interval = new DateInterval('PT1H');
-        $daterange = new DatePeriod($begin, $interval, $end);
-
-        $rangeHour = [];
-
-        foreach ($daterange as $date) {
-            $rangeHour[] = acym_getTime($date->format('Y-m-d H:i:s'));
-        }
-
-        $openMonthArray = [];
-        $openDayArray = [];
-        $openHourArray = [];
-
-        foreach ($campaignOpenByMonth as $one) {
-            $openMonthArray[acym_date(acym_getTime($one->open_date), 'M Y')] = $one->open;
-        }
-
-        foreach ($campaignOpenByDay as $one) {
-            $openDayArray[acym_date(acym_getTime($one->open_date), 'd M Y')] = $one->open;
-        }
-
-        foreach ($campaignOpenByHour as $one) {
-            $openHourArray[acym_date(acym_getTime($one->open_date), 'd M Y H')] = $one->open;
-        }
-
-        $clickMonthArray = [];
-        $clickDayArray = [];
-        $clickHourArray = [];
-
-        foreach ($campaignClickByMonth as $one) {
-            $clickMonthArray[acym_date(acym_getTime($one->date_click), 'M Y')] = $one->click;
-        }
-
-        foreach ($campaignClickByDay as $one) {
-            $clickDayArray[acym_date(acym_getTime($one->date_click), 'd M Y')] = $one->click;
-        }
-
-        foreach ($campaignClickByHour as $one) {
-            $clickHourArray[acym_date(acym_getTime($one->date_click), 'd M Y H')] = $one->click;
-        }
-
-        $statsMailSelected->month = [];
-        foreach ($rangeMonth as $one) {
-            $one = acym_date($one, 'M Y');
-            $currentMonth = [];
-            $currentMonth['open'] = empty($openMonthArray[$one]) ? 0 : $openMonthArray[$one];
-            $currentMonth['click'] = empty($clickMonthArray[$one]) ? 0 : $clickMonthArray[$one];
-            $statsMailSelected->month[$one] = $currentMonth;
-        }
-
-        $statsMailSelected->day = [];
-        foreach ($rangeDay as $one) {
-            $one = acym_date($one, 'd M Y');
-            $currentDay = [];
-            $currentDay['open'] = empty($openDayArray[$one]) ? 0 : $openDayArray[$one];
-            $currentDay['click'] = empty($clickDayArray[$one]) ? 0 : $clickDayArray[$one];
-            $statsMailSelected->day[$one] = $currentDay;
-        }
-
-        $statsMailSelected->hour = [];
-        foreach ($rangeHour as $one) {
-            $one = acym_date($one, 'd M Y H');
-            $currentHour = [];
-            $currentHour['open'] = empty($openHourArray[$one]) ? 0 : $openHourArray[$one];
-            $currentHour['click'] = empty($clickHourArray[$one]) ? 0 : $clickHourArray[$one];
-            $statsMailSelected->hour[$one.':00'] = $currentHour;
-        }
-        $data['stats_mail_1'] = $statsMailSelected;
+        $statsController->preparecharts($data);
+        $statsController->prepareDefaultRoundCharts($data);
+        $statsController->prepareDefaultLineChart($data);
 
         parent::display($data);
     }
@@ -265,9 +72,7 @@ class DashboardController extends acymController
     {
         acym_setVar('layout', 'walk_through');
 
-        $config = acym_config();
-
-        $walkthroughParams = json_decode($config->get('walkthrough_params', '[]'), true);
+        $walkthroughParams = json_decode($this->config->get('walkthrough_params', '[]'), true);
 
         $mailClass = acym_get('class.mail');
         $updateHelper = acym_get('helper.update');
@@ -296,7 +101,7 @@ class DashboardController extends acymController
         $data = [
             'step' => 'email',
             'editor' => $editor,
-            'social_icons' => $config->get('social_icons', '{}'),
+            'social_icons' => $this->config->get('social_icons', '{}'),
             'mail' => $mail,
         ];
 
@@ -319,7 +124,7 @@ class DashboardController extends acymController
         $mailId = $mailController->store();
 
         if (empty($mailId)) {
-            acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING'),  'error');
+            acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING'), 'error');
             $this->passWalkThrough();
         } else {
             $this->_saveWalkthrough(['step' => 'stepList', 'mail_id' => $mailId]);
@@ -331,8 +136,7 @@ class DashboardController extends acymController
     {
         acym_setVar('layout', 'walk_through');
         $listClass = acym_get('class.list');
-        $config = acym_config();
-        $walkthroughParams = json_decode($config->get('walkthrough_params', '[]'), true);
+        $walkthroughParams = json_decode($this->config->get('walkthrough_params', '[]'), true);
 
         $users = empty($walkthroughParams['list_id']) ? [] : $listClass->getSubscribersByListId($walkthroughParams['list_id']);
         $usersReturn = [];
@@ -354,8 +158,7 @@ class DashboardController extends acymController
 
     public function saveStepList()
     {
-        $config = acym_config();
-        $walkthroughParams = json_decode($config->get('walkthrough_params', '[]'), true);
+        $walkthroughParams = json_decode($this->config->get('walkthrough_params', '[]'), true);
         if (empty($walkthroughParams['list_id'])) {
             $testingList = new stdClass();
             $testingList->name = acym_translation('ACYM_TESTING_LIST');
@@ -370,7 +173,7 @@ class DashboardController extends acymController
         }
 
         if (empty($listId)) {
-            acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVE_LIST'),  'error');
+            acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVE_LIST'), 'error');
             $this->passWalkThrough();
 
             return;
@@ -392,7 +195,7 @@ class DashboardController extends acymController
                 $newUser = new stdClass();
                 $newUser->email = $oneAddress;
                 $newUser->confirmed = 1;
-
+                acym_setVar('acy_source', 'walkthrough');
                 $userId = $userClass->save($newUser);
             } else {
                 $userId = $existing->id;
@@ -401,7 +204,7 @@ class DashboardController extends acymController
             $userClass->subscribe($userId, $listId);
         }
 
-        if (!empty($wrongAddresses)) acym_enqueueMessage(acym_translation_sprintf('ACYM_WRONG_ADDRESSES', implode(', ', $wrongAddresses)),  'warning');
+        if (!empty($wrongAddresses)) acym_enqueueMessage(acym_translation_sprintf('ACYM_WRONG_ADDRESSES', implode(', ', $wrongAddresses)), 'warning');
 
         $nextStep = acym_isLocalWebsite() ? 'stepGmail' : 'stepPhpmail';
 
@@ -423,9 +226,6 @@ class DashboardController extends acymController
 
     public function saveStepPhpmail()
     {
-        $config = acym_config();
-
-
         if (!$this->_saveFrom()) {
             $this->stepPhpmail();
 
@@ -433,7 +233,7 @@ class DashboardController extends acymController
         }
 
         $mailerMethod = ['mailer_method' => 'phpmail'];
-        if (false === $config->save($mailerMethod)) {
+        if (false === $this->config->save($mailerMethod)) {
             acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING', 'error'));
             $this->stepPhpmail();
 
@@ -464,8 +264,6 @@ class DashboardController extends acymController
 
     public function saveStepGmail()
     {
-        $config = acym_config();
-
         if (!$this->_saveFrom() || !$this->_saveGmailInformation()) {
             $this->stepGmail();
 
@@ -491,10 +289,9 @@ class DashboardController extends acymController
 
     public function saveStepResult()
     {
-        $config = acym_config();
         $result = acym_getVar('boolean', 'result');
 
-        $walkthroughParams = json_decode($config->get('walkthrough_params', '[]'), true);
+        $walkthroughParams = json_decode($this->config->get('walkthrough_params', '[]'), true);
 
         $stepFail = acym_isLocalWebsite() || !empty($walkthroughParams['step_fail']) ? 'stepFaillocal' : 'stepFail';
 
@@ -564,16 +361,14 @@ class DashboardController extends acymController
     {
         $email = acym_getVar('string', 'email');
         if (empty($email) || !acym_isValidEmail($email)) {
-            acym_enqueueMessage(acym_translation('ACYM_PLEASE_ADD_YOUR_EMAIL'),  'error');
+            acym_enqueueMessage(acym_translation('ACYM_PLEASE_ADD_YOUR_EMAIL'), 'error');
             $this->$fromFunction();
 
             return;
         }
 
-        $config = acym_config();
-
         $handle = curl_init();
-        $url = ACYM_UPDATEMEURL.'contact&task=contactme&email='.urlencode($email).'&version='.$config->get('version', '6').'&cms='.ACYM_CMS;
+        $url = ACYM_UPDATEMEURL.'contact&task=contactme&email='.urlencode($email).'&version='.$this->config->get('version', '6').'&cms='.ACYM_CMS;
         curl_setopt($handle, CURLOPT_URL, $url);
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
         $output = curl_exec($handle);
@@ -606,10 +401,9 @@ class DashboardController extends acymController
 
     public function passWalkThrough()
     {
-        $config = acym_config();
         $newConfig = new stdClass();
         $newConfig->walk_through = 0;
-        $config->save($newConfig);
+        $this->config->save($newConfig);
 
         acym_redirect(acym_completeLink('users&task=import', false, true));
 
@@ -618,27 +412,27 @@ class DashboardController extends acymController
 
     public function preMigration()
     {
-        $elementToMigrate = acym_getVar("string", "element");
+        $elementToMigrate = acym_getVar('string', 'element');
         $helperMigration = acym_get('helper.migration');
 
         $result = $helperMigration->preMigration($elementToMigrate);
 
-        if (!empty($result["isOk"])) {
-            echo $result["count"];
+        if (!empty($result['isOk'])) {
+            echo $result['count'];
         } else {
-            echo "ERROR : ";
-            if (!empty($result["errorInsert"])) {
-                echo strtoupper(acym_translation("ACYM_INSERT_ERROR"));
+            echo 'ERROR : ';
+            if (!empty($result['errorInsert'])) {
+                echo strtoupper(acym_translation('ACYM_INSERT_ERROR'));
             }
-            if (!empty($result["errorClean"])) {
-                echo strtoupper(acym_translation("ACYM_CLEAN_ERROR"));
+            if (!empty($result['errorClean'])) {
+                echo strtoupper(acym_translation('ACYM_CLEAN_ERROR'));
             }
 
-            if (!empty($result["errors"])) {
-                echo "<br>";
+            if (!empty($result['errors'])) {
+                echo '<br>';
 
-                foreach ($result["errors"] as $key => $oneError) {
-                    echo "<br>".$key." : ".$oneError;
+                foreach ($result['errors'] as $key => $oneError) {
+                    echo '<br>'.$key.' : '.$oneError;
                 }
             }
         }
@@ -647,28 +441,28 @@ class DashboardController extends acymController
 
     public function migrate()
     {
-        $elementToMigrate = acym_getVar("string", "element");
+        $elementToMigrate = acym_getVar('string', 'element');
         $helperMigration = acym_get('helper.migration');
-        $functionName = "do".ucfirst($elementToMigrate)."Migration";
+        $functionName = 'do'.ucfirst($elementToMigrate).'Migration';
 
         $result = $helperMigration->$functionName($elementToMigrate);
 
-        if (!empty($result["isOk"])) {
+        if (!empty($result['isOk'])) {
             echo json_encode($result);
         } else {
-            echo "ERROR : ";
-            if (!empty($result["errorInsert"])) {
-                echo strtoupper(acym_translation("ACYM_INSERT_ERROR"));
+            echo 'ERROR : ';
+            if (!empty($result['errorInsert'])) {
+                echo strtoupper(acym_translation('ACYM_INSERT_ERROR'));
             }
-            if (!empty($result["errorClean"])) {
-                echo strtoupper(acym_translation("ACYM_CLEAN_ERROR"));
+            if (!empty($result['errorClean'])) {
+                echo strtoupper(acym_translation('ACYM_CLEAN_ERROR'));
             }
 
-            if (!empty($result["errors"])) {
-                echo "<br>";
+            if (!empty($result['errors'])) {
+                echo '<br>';
 
-                foreach ($result["errors"] as $key => $oneError) {
-                    echo "<br>".$key." : ".$oneError;
+                foreach ($result['errors'] as $key => $oneError) {
+                    echo '<br>'.$key.' : '.$oneError;
                 }
             }
         }
@@ -677,11 +471,9 @@ class DashboardController extends acymController
 
     public function migrationDone()
     {
-        $config = acym_config();
-
         $newConfig = new stdClass();
-        $newConfig->migration = "1";
-        $config->save($newConfig);
+        $newConfig->migration = '1';
+        $this->config->save($newConfig);
 
         $updateHelper = acym_get('helper.update');
         $updateHelper->installNotifications();
@@ -718,13 +510,53 @@ class DashboardController extends acymController
         parent::display($data);
     }
 
+    public function migration()
+    {
+        if ($this->config->get('migration') == 0 && acym_existsAcyMailing59()) {
+            acym_setVar('layout', 'migrate');
+            parent::display();
+
+            return true;
+        }
+
+        $newConfig = new stdClass();
+        $newConfig->migration = '1';
+        $this->config->save($newConfig);
+
+        return false;
+    }
+
     public function feedback()
     {
-        acym_setVar('layout', 'feedback');
+        if ('wordpress' === ACYM_CMS) {
+            $installDate = $this->config->get('install_date', time());
+            $remindme = json_decode($this->config->get('remindme', '[]'));
 
-        parent::display();
+            if ($installDate < time() - 1814400 && !in_array('reviews', $remindme)) {
+                acym_setVar('layout', 'feedback');
+                parent::display();
 
-        return;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function walkthrough()
+    {
+        if ($this->config->get('walk_through') == 1) {
+            $walkthroughParams = json_decode($this->config->get('walkthrough_params', '[]'), true);
+            if (empty($walkthroughParams['step'])) {
+                $this->stepSubscribe();
+            } else {
+                $this->{$walkthroughParams['step']}();
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     private function _saveFrom()
@@ -762,8 +594,6 @@ class DashboardController extends acymController
         $gmailAddress = acym_getVar('string', 'gmail_address', '');
         $gmailPassword = acym_getVar('string', 'gmail_password', '');
 
-        $config = acym_config();
-
         if (empty($gmailAddress) || empty($gmailPassword)) {
             acym_enqueueMessage(acym_translation('ACYM_EMPTY_ADDRESS_OR_PASSWORD'), 'error');
 
@@ -781,7 +611,7 @@ class DashboardController extends acymController
             'mailer_method' => 'smtp',
         ];
 
-        if (false === $config->save($newSmtpConfiguration)) {
+        if (false === $this->config->save($newSmtpConfiguration)) {
             acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING', 'error'));
 
             return false;
@@ -792,8 +622,7 @@ class DashboardController extends acymController
 
     private function _sendFirstEmail()
     {
-        $config = acym_config();
-        $walkthroughParams = json_decode($config->get('walkthrough_params', '[]'), true);
+        $walkthroughParams = json_decode($this->config->get('walkthrough_params', '[]'), true);
         $listClass = acym_get('class.list');
         $mailClass = acym_get('class.mail');
         $updateHelper = acym_get('helper.update');
@@ -828,13 +657,11 @@ class DashboardController extends acymController
 
     private function _saveWalkthrough($params)
     {
-        $config = acym_config();
-
-        $newParams = json_decode($config->get('walkthrough_params', '[]'), true);
+        $newParams = json_decode($this->config->get('walkthrough_params', '[]'), true);
         foreach ($params as $key => $value) {
             $newParams[$key] = $value;
         }
-        $config->save(['walkthrough_params' => json_encode($newParams)]);
+        $this->config->save(['walkthrough_params' => json_encode($newParams)]);
     }
 }
 

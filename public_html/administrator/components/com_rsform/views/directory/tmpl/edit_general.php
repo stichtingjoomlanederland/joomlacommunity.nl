@@ -37,6 +37,12 @@ defined('_JEXEC') or die('Restricted access'); ?>
 		</td>
 	</tr>
 	<tr>
+		<td width="25%" nowrap="nowrap" align="right" class="key"><span class="hasPopover" data-title="<?php echo JText::_('RSFP_SUBM_DIR_CSV_FILENAME'); ?>" data-content="<?php echo $this->escape(JText::_('RSFP_SUBM_DIR_CSV_FILENAME_DESC')); ?>"><?php echo JText::_('RSFP_SUBM_DIR_CSV_FILENAME'); ?></span></td>
+		<td>
+			<input type="text" class="input-xxlarge" name="jform[csvfilename]" value="<?php echo $this->escape($this->directory->csvfilename); ?>" />
+		</td>
+	</tr>
+	<tr>
 		<td width="25%" nowrap="nowrap" align="right" class="key"><?php echo JText::_('COM_RSFORM_DIRECTORY_HIDE_EMPTY_VALUES'); ?></td>
 		<td>
 			<?php echo $this->lists['HideEmptyValues']; ?>

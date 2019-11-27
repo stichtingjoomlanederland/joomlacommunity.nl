@@ -174,16 +174,16 @@ defined('_JEXEC') or die();
                 <label for="akeeba-transfer-ftp-passive" >
 				    <?php echo \JText::_('COM_AKEEBA_TRANSFER_LBL_FTP_PASSIVE'); ?>
                 </label>
-                <div class="akeeba-form-group--radio">
-	                <?php echo \JHtml::_('FEFHelper.select.booleanlist', 'akeeba-transfer-ftp-passive', array(), $this->ftpPassive ? 1 : 0, 'JYES', 'JNO', 'akeeba-transfer-ftp-passive') ?>
-                </div>
-            </div>
+				<div class="akeeba-toggle">
+					<?php echo \JHtml::_('FEFHelper.select.booleanlist', 'akeeba-transfer-ftp-passive', array(), $this->ftpPassive ? 1 : 0, 'JYES', 'JNO', 'akeeba-transfer-ftp-passive') ?>
+				</div>
+			</div>
 
             <div class="akeeba-form-group" id="akeeba-transfer-ftp-passive-fix-container">
                 <label for="akeeba-transfer-ftp-passive-fix" >
 				    <?php echo \JText::_('COM_AKEEBA_CONFIG_ENGINE_ARCHIVER_DIRECTFTPCURL_PASVWORKAROUND_TITLE'); ?>
                 </label>
-                <div class="akeeba-form-group--radio">
+				<div class="akeeba-toggle">
 				    <?php echo \JHtml::_('FEFHelper.select.booleanlist', 'akeeba-transfer-ftp-passive-fix', array(), $this->ftpPassiveFix ? 1 : 0, 'JYES', 'JNO', 'akeeba-transfer-ftp-passive-fix') ?>
                 </div>
                 <p class="akeeba-help-text">

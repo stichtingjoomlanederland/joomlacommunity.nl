@@ -5,11 +5,17 @@
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
-defined('KOOWA') or die; ?>
+defined('KOOWA') or die;
+
+$multi_download = object('com://site/docman.controller.behavior.compressible')->isSupported(); ?>
 
 <?= helper('ui.load'); ?>
 <?= helper('com://site/docman.behavior.modal'); ?>
 <?= helper('com://site/docman.behavior.thumbnail_modal'); ?>
+
+<? if ($multi_download): ?>
+    <?= helper('behavior.multidownload'); ?>
+<? endif; ?>
 
 <? if ($params->track_downloads): ?>
     <?= helper('com://site/docman.behavior.download_tracker'); ?>
@@ -75,17 +81,24 @@ defined('KOOWA') or die; ?>
         <? endif; ?>
     </div>
 </a>
-<? if((!isset($manage) || $manage === true) && ($document->canPerform('delete') || $document->canPerform('edit'))): ?>
+<? if($multi_download || ((!isset($manage) || $manage === true) && ($document->canPerform('delete') || $document->canPerform('edit')))): ?>
 <div class="koowa_media__item__options">
-    <? if ($document->canPerform('delete')): ?>
+    <? if ($document->canPerform('delete') || $multi_download): ?>
         <span class="koowa_media__item__options__select">
             <input id="document-select-<?= $count; ?>" name="item-select" type="checkbox"
+                   class="k-js-item-select"
+                   data-can-download="<?= $document->canPerform('download') ?>"
+                   data-storage-type="<?= $document->storage_type ?>"
+                   data-id="<?= $document->id ?>"
                    data-url="<?= $document->document_link ?>" />
             <label for="document-select-<?= $count; ?>"></label>
         </span>
+    <? endif ?>
+
+    <? if ($document->canPerform('delete')): ?>
         <a href="#" data-action="delete-item" class="koowa_media__item__options__delete">
             <span class="k-icon-trash k-icon--size-default"></span></a>
-    <? endif ?>
+    <? endif; ?>
 
     <? if ($document->canPerform('edit')): ?>
         <a href="<?= helper('route.document', array('entity' => $document, 'layout' => 'form'));?>" class="koowa_media__item__options__edit">

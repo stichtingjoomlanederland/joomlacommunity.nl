@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.0" client="site" method="upgrade">
+	<name>EasyDiscuss - Most Voted Discussions</name>
+	<author>Stack Ideas Sdn Bhd</author>
+	<creationDate>10th October 2019</creationDate>
+	<copyright>Copyright 2009 - 2016 Stack Ideas. All rights reserved.</copyright>
+	<license>GPL License v2</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://www.stackideas.com</authorUrl>
+	<version>4.1.12</version>
+	<description><![CDATA[This module will display a list of discussions that are most voted throughout the site.]]></description>
+	<languages>
+		<language tag="en-GB">en-GB.mod_easydiscuss_most_voted.ini</language>
+	</languages>
+	<files>
+		<folder>tmpl</folder>
+		<filename module="mod_easydiscuss_most_voted">mod_easydiscuss_most_voted.php</filename>
+		<filename>mod_easydiscuss_most_voted.xml</filename>
+	</files>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="count" type="text" default="5" label="MOD_EASYDISCUSS_MOST_VOTED_COUNT" description="MOD_EASYDISCUSS_MOST_VOTED_COUNT_DESC" />
+				<field name="showvote" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_MOST_VOTED_SHOW_VOTE" description="MOD_EASYDISCUSS_MOST_VOTED_SHOW_VOTE_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>				
+				<field name="showauthor" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_MOST_VOTED_SHOW_AUTHOR" description="MOD_EASYDISCUSS_MOST_VOTED_SHOW_AUTHOR_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showcategory" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_MOST_VOTED_SHOW_CATEGORY" description="MOD_EASYDISCUSS_MOST_VOTED_SHOW_CATEGORY_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showpoststate" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_MOST_VOTED_SHOW_POST_STATE" description="MOD_EASYDISCUSS_MOST_VOTED_SHOW_POST_STATE_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showdate" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_MOST_VOTED_SHOW_POST_DATE" description="MOD_EASYDISCUSS_MOST_VOTED_SHOW_POST_DATE_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showpoststatus" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_MOST_VOTED_SHOW_POST_STATUS" description="MOD_EASYDISCUSS_MOST_VOTED_SHOW_POST_STATUS_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showtags" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_MOST_VOTED_SHOW_TAGS" description="MOD_EASYDISCUSS_MOST_VOTED_SHOW_TAGS_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showreplycount" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_MOST_VOTED_SHOW_REPLY_COUNT" description="MOD_EASYDISCUSS_MOST_VOTED_SHOW_REPLY_COUNT_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showlastreply" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_MOST_VOTED_SHOW_LAST_REPLY" description="MOD_EASYDISCUSS_MOST_VOTED_SHOW_LAST_REPLY_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showhits" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_SHOW_HITS" description="MOD_EASYDISCUSS_SHOW_HITS_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+			</fieldset>
+			<fieldset name="advanced">
+				<field name="moduleclass_sfx" type="textarea" rows="3" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC" >
+					<option value="1">JGLOBAL_USE_GLOBAL</option>
+					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+				</field>
+				<field name="cache_time" type="text" default="900" label="COM_MODULES_FIELD_CACHE_TIME_LABEL" description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>

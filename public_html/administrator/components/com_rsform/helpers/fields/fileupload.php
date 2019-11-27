@@ -32,9 +32,10 @@ class RSFormProFieldFileUpload extends RSFormProField
 	// functions used for rendering in front view
 	public function getFormInput()
 	{
-		$multipleplus = $this->getProperty('MULTIPLEPLUS', false);
+		$multiple 		= $this->getProperty('MULTIPLE', false);
+		$multipleplus 	= $this->getProperty('MULTIPLEPLUS', false);
 
-		if ($multipleplus)
+		if ($multiple && $multipleplus)
 		{
 			$minFiles = (int) $this->getProperty('MINFILES', 1);
 
@@ -251,7 +252,7 @@ class RSFormProFieldFileUpload extends RSFormProField
 			$prefix = uniqid('') . '-';
 			if (strlen(trim($prefixProperty)) > 0)
 			{
-				$prefix = RSFormProHelper::isCode($prefixProperty);
+				$prefix = $this->isCode($prefixProperty);
 			}
 
 			// Path

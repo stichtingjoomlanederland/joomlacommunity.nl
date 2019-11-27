@@ -23,7 +23,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					</div>
 
 					<div class="o-flag__body">
-						<a href="<?php echo $profile->getPermalink();?>" class="ed-user-name t-lg-mb--sm"><?php echo $profile->getName();?></a>
+						<?php echo $this->html('user.username', $profile, array('lgMarginBottom' => true)); ?>
 						<div class="ed-rank-bar">
 							<div class="ed-rank-bar__progress" style="width: <?php echo ED::getUserRankScore($profile->id); ?>%"></div>
 						</div>

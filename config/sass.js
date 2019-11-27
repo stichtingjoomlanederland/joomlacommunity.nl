@@ -1,12 +1,14 @@
-
 'use strict';
+
+const sass = require('node-sass');
 
 //
 module.exports = {
     dist: {
         options: {
             style: 'expanded',
-            sourceMap: false
+            sourceMap: false,
+            implementation: sass
         },
         files: {
             '<%= paths.assets %>/css/font.css': '<%= paths.assets %>/scss/font.scss',

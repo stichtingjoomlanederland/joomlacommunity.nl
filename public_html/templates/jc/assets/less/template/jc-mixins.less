@@ -1,3 +1,13 @@
+.lobotomizedOwl(@multiplier: 1) {
+  > * {
+    margin-bottom: 0;
+
+    + * {
+      margin-top: @multiplier * 1.5em
+    }
+  }
+}
+
 // JC Color
 // -------------------------
 .jc-color(@color) {

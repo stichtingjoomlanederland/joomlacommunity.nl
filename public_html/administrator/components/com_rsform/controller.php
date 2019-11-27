@@ -13,7 +13,6 @@ class RsformController extends JControllerLegacy
 	{
 		parent::__construct($config);
 
-		JHtml::_('behavior.framework');
 		JHtml::_('jquery.framework');
 
         JHtml::script('com_rsform/admin/placeholders.js', array('relative' => true, 'version' => 'auto'));

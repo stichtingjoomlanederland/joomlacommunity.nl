@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class acymcronHelper
 {
@@ -46,7 +47,7 @@ class acymcronHelper
                 $config->save($newConfig);
             }
 
-            $nottime = acym_translation_sprintf('ACYM_CRON_NEXT', acym_getDate($config->get('cron_next')));
+            $nottime = acym_translation_sprintf('ACYM_CRON_NEXT', acym_date($config->get('cron_next'), 'd F Y H:i'));
             $this->messages[] = $nottime;
             if ($this->report) {
                 acym_display($nottime, 'info');
@@ -153,6 +154,11 @@ class acymcronHelper
         if (!in_array('automation', $this->skip) && acym_level(2)) {
             $automationClass = acym_get('class.automation');
             $automationClass->trigger('classic');
+
+            $userStatusCheckTriggers = [];
+            acym_trigger('onAcymDefineUserStatusCheckTriggers', [&$userStatusCheckTriggers]);
+            $automationClass->trigger($userStatusCheckTriggers);
+
             if (!empty($automationClass->report)) {
                 if ($automationClass->didAnAction) $this->processed = true;
                 $this->messages = array_merge($this->messages, $automationClass->report);
@@ -160,6 +166,15 @@ class acymcronHelper
 
             if (!empty($queueHelper->stoptime) && time() > $queueHelper->stoptime) {
                 return true;
+            }
+        }
+
+        if (!in_array('campaign', $this->skip) && acym_level(2)) {
+            $campaignClass = acym_get('class.campaign');
+            $campaignClass->triggerAutoCampaign();
+            if (!empty($campaignClass->messages)) {
+                $this->messages = array_merge($this->messages, $campaignClass->messages);
+                $this->processed = true;
             }
         }
 

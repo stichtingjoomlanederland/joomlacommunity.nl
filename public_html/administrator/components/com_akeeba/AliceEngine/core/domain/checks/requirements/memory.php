@@ -21,7 +21,7 @@ class AliceCoreDomainChecksRequirementsMemory extends AliceCoreDomainChecksAbstr
 	public function check()
 	{
 		$handle = @fopen($this->logFile, 'r');
-		$limit  = false;
+		$limit  = null;
 		$usage  = false;
 
 		if ($handle === false)
@@ -34,7 +34,7 @@ class AliceCoreDomainChecksRequirementsMemory extends AliceCoreDomainChecksAbstr
 		// Memory information is on a single line and it is at the beginning, so I can start reading one line at time
 		while (($line = fgets($handle)) !== false)
 		{
-			if ( !$limit)
+			if (is_null($limit))
 			{
 				$pos = strpos($line, '|Memory limit');
 
@@ -42,6 +42,9 @@ class AliceCoreDomainChecksRequirementsMemory extends AliceCoreDomainChecksAbstr
 				{
 					$limit = trim(substr($line, strpos($line, ':', $pos) + 1));
 					$limit = str_ireplace('M', '', $limit);
+
+					// Convert to integer for better handling and checks
+					$limit = (int) $limit;
 
 					AliceUtilLogger::WriteLog(_AE_LOG_INFO, $this->checkName . ' Detected memory limit: ' . $limit);
 				}
@@ -63,7 +66,7 @@ class AliceCoreDomainChecksRequirementsMemory extends AliceCoreDomainChecksAbstr
 			}
 
 
-			if ($limit && $usage)
+			if (!is_null($limit) && $usage)
 			{
 				break;
 			}
@@ -75,7 +78,11 @@ class AliceCoreDomainChecksRequirementsMemory extends AliceCoreDomainChecksAbstr
 		{
 			$available = $limit - $usage;
 
-			if ($available >= 16)
+			if ($limit == -1)
+			{
+				AliceUtilLogger::WriteLog(_AE_LOG_INFO, $this->checkName . ' Test passed, server has a memory limit of -1');
+			}
+			elseif ($available >= 16)
 			{
 				AliceUtilLogger::WriteLog(_AE_LOG_INFO, $this->checkName . ' Test passed, detected available memory: ' . $available);
 			}

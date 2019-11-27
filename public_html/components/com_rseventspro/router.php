@@ -314,6 +314,27 @@ class RseventsproRouter extends JComponentRouterBase {
 							if (isset($query['id']))
 								$segments[] = $query['id'];
 						break;
+						
+						case 'waiting':
+							$segments[] = JText::_('COM_RSEVENTSPRO_WAITING_SEF');
+							
+							if (isset($query['id']))
+								$segments[] = $query['id'];
+						break;
+						
+						case 'waitinglist':
+							$segments[] = JText::_('COM_RSEVENTSPRO_WAITINGLIST_SEF');
+							
+							if (isset($query['id']))
+								$segments[] = $query['id'];
+						break;
+						
+						case 'editwaitinglist':
+							$segments[] = JText::_('COM_RSEVENTSPRO_WAITINGLIST_EDIT_SEF');
+							
+							if (isset($query['id']))
+								$segments[] = $query['id'];
+						break;
 					}
 					
 					if(isset($query['category'])) {
@@ -533,6 +554,27 @@ class RseventsproRouter extends JComponentRouterBase {
 					
 					if (isset($query['id']))
 						$segments[] = $query['id'];
+				break;
+				
+				case 'rseventspro.approvewaiting':
+					$segments[] = JText::_('COM_RSEVENTSPRO_WAITINGLIST_APPROVE_SEF');
+					
+					if (isset($query['id']))
+						$segments[] = $query['id'];
+				break;
+				
+				case 'rseventspro.removewaiting':
+					$segments[] = JText::_('COM_RSEVENTSPRO_WAITINGLIST_REMOVE_SEF');
+					
+					if (isset($query['id']))
+						$segments[] = $query['id'];
+				break;
+				
+				case 'claim':
+					$segments[] = JText::_('COM_RSEVENTSPRO_CLAIM_TICKET_SEF');
+					
+					if (isset($query['hash']))
+						$segments[] = $query['hash'];
 				break;
 			}
 		}
@@ -963,6 +1005,34 @@ class RseventsproRouter extends JComponentRouterBase {
 				$query['id']		= isset($segments[1]) ? str_replace(':','-',$segments[1]) : null;
 			break;
 			
+			case JText::_('COM_RSEVENTSPRO_WAITING_SEF'):
+				$query['view']		= 'rseventspro';
+				$query['layout']	= 'waiting';
+				$query['id']		= isset($segments[1]) ? str_replace(':','-',$segments[1]) : null;
+			break;
+			
+			case JText::_('COM_RSEVENTSPRO_WAITINGLIST_SEF'):
+				$query['view']		= 'rseventspro';
+				$query['layout']	= 'waitinglist';
+				$query['id']		= isset($segments[1]) ? str_replace(':','-',$segments[1]) : null;
+			break;
+			
+			case JText::_('COM_RSEVENTSPRO_WAITINGLIST_EDIT_SEF'):
+				$query['view']		= 'rseventspro';
+				$query['layout']	= 'editwaitinglist';
+				$query['id']		= isset($segments[1]) ? str_replace(':','-',$segments[1]) : null;
+			break;
+			
+			case JText::_('COM_RSEVENTSPRO_WAITINGLIST_APPROVE_SEF'):
+				$query['task']			= 'rseventspro.approvewaiting';
+				$query['id']			= isset($segments[1]) ? str_replace(':','-',$segments[1]) : null;
+			break;
+			
+			case JText::_('COM_RSEVENTSPRO_WAITINGLIST_REMOVE_SEF'):
+				$query['task']			= 'rseventspro.removewaiting';
+				$query['id']			= isset($segments[1]) ? str_replace(':','-',$segments[1]) : null;
+			break;
+			
 			case JText::_('COM_RSEVENTSPRO_RSVP_REMOVE_SEF'):
 				$query['task']			= 'rseventspro.removersvp';
 				$query['id']			= isset($segments[1]) ? str_replace(':','-',$segments[1]) : null;
@@ -972,6 +1042,11 @@ class RseventsproRouter extends JComponentRouterBase {
 			case JText::_('COM_RSEVENTSPRO_RSVP_EXPORT_SEF'):
 				$query['task']			= 'rseventspro.exportrsvpguests';
 				$query['id']			= isset($segments[1]) ? str_replace(':','-',$segments[1]) : null;
+			break;
+			
+			case JText::_('COM_RSEVENTSPRO_CLAIM_TICKET_SEF'):
+				$query['task']			= 'claim';
+				$query['hash']			= isset($segments[1]) ? str_replace(':','-',$segments[1]) : null;
 			break;
 		}
 		
@@ -999,7 +1074,7 @@ class RseventsproRouter extends JComponentRouterBase {
 			JText::_('COM_RSEVENTSPRO_EVENT_SEF'), JText::_('COM_RSEVENTSPRO_LOCATION_SEF'), JText::_('COM_RSEVENTSPRO_EDIT_EVENT_SEF'), JText::_('COM_RSEVENTSPRO_ADD_EVENT_SEF'), JText::_('COM_RSEVENTSPRO_CATEGORY_SEF'), JText::_('COM_RSEVENTSPRO_TAG_SEF'), JText::_('COM_RSEVENTSPRO_JOIN_SEF'), JText::_('COM_RSEVENTSPRO_INVITE_SEF'), JText::_('COM_RSEVENTSPRO_MESSAGE_SEF'), JText::_('COM_RSEVENTSPRO_SUBSCRIBERS_SEF'),JText::_('COM_RSEVENTSPRO_EXPORT_SEF'), JText::_('COM_RSEVENTSPRO_UNSUBSCRIBE_SEF'), JText::_('COM_RSEVENTSPRO_WIRE_SEF'),JText::_('COM_RSEVENTSPRO_CAPTCHA_SEF'), JText::_('COM_RSEVENTSPRO_DELETE_SEF'), JText::_('COM_RSEVENTSPRO_REMINDER_SEF'), JText::_('COM_RSEVENTSPRO_POSTREMINDER_SEF'), JText::_('COM_RSEVENTSPRO_EDIT_LOCATION_SEF'), JText::_('COM_RSEVENTSPRO_VIEW_SUBSCRIBER_SEF'), JText::_('COM_RSEVENTSPRO_EXPORT_SUBSCRIBERS_SEF'), JText::_('COM_RSEVENTSPRO_DELETE_SUBSCRIBER_SEF'), JText::_('COM_RSEVENTSPRO_APPORVE_SEF'), JText::_('COM_RSEVENTSPRO_PENDING_SEF'), JText::_('COM_RSEVENTSPRO_DENIED_SEF'), JText::_('COM_RSEVENTSPRO_FILE_SEF'), JText::_('COM_RSEVENTSPRO_UPLOAD_SEF'), JText::_('COM_RSEVENTSPRO_CROP_SEF'),JText::_('COM_RSEVENTSPRO_LOCATION_LIST_SEF'), JText::_('COM_RSEVENTSPRO_ACTIVATE_SEF'), JText::_('COM_RSEVENTSPRO_PAYMENT_SEF'), JText::_('COM_RSEVENTSPRO_PAYMENT_PROCESS_SEF'), JText::_('COM_RSEVENTSPRO_VIEW_UNSUBSCRIBE_SEF'), JText::_('COM_RSEVENTSPRO_UNSUBSCRIBEUSER_SEF'), JText::_('COM_RSEVENTSPRO_DOWNLOAD_TICKET_SEF'), JText::_('COM_RSEVENTSPRO_SEARCH_SEF'), JText::_('COM_RSEVENTSPRO_DELETE_ICON_SEF'), JText::_('COM_RSEVENTSPRO_CLEAR_SEF'), JText::_('COM_RSEVENTSPRO_FORMS_SEF'), JText::_('COM_RSEVENTSPRO_PARENT_SEF'), 
 			JText::_('COM_RSEVENTSPRO_TICKETS_SEF'), JText::_('COM_RSEVENTSPRO_SEATS_SEF'), JText::_('COM_RSEVENTSPRO_REPORT_SEF'), JText::_('COM_RSEVENTSPRO_REPORTS_SEF'), JText::_('COM_RSEVENTSPRO_SCAN_SEF'),
 			JText::_('COM_RSEVENTSPRO_USER_SEATS_SEF'), JText::_('COM_RSEVENTSPRO_PRINT_SEF'), JText::_('COM_RSEVENTSPRO_EVENT_IMAGE_SEF'), JText::_('COM_RSEVENTSPRO_PLACEHOLDERS_SEF'), JText::_('COM_RSEVENTSPRO_USER_SEF'),
-			JText::_('COM_RSEVENTSPRO_USER_EDIT_SEF'), JText::_('COM_RSEVENTSPRO_USER_DELETE_IMAGE_SEF'), JText::_('COM_RSEVENTSPRO_REMOVE_SUBSCRIBER_SEF'), JText::_('COM_RSEVENTSPRO_USER_SUBSCRIPTIONS_SEF'), JText::_('COM_RSEVENTSPRO_SEND_SUBSCRIPTION_SEF'), JText::_('COM_RSEVENTSPRO_RSVP_SEF'), JText::_('COM_RSEVENTSPRO_RSVP_REMOVE_SEF'), JText::_('COM_RSEVENTSPRO_RSVP_EXPORT_SEF')
+			JText::_('COM_RSEVENTSPRO_USER_EDIT_SEF'), JText::_('COM_RSEVENTSPRO_USER_DELETE_IMAGE_SEF'), JText::_('COM_RSEVENTSPRO_REMOVE_SUBSCRIBER_SEF'), JText::_('COM_RSEVENTSPRO_USER_SUBSCRIPTIONS_SEF'), JText::_('COM_RSEVENTSPRO_SEND_SUBSCRIPTION_SEF'), JText::_('COM_RSEVENTSPRO_RSVP_SEF'), JText::_('COM_RSEVENTSPRO_RSVP_REMOVE_SEF'), JText::_('COM_RSEVENTSPRO_RSVP_EXPORT_SEF'), JText::_('COM_RSEVENTSPRO_WAITING_SEF'), JText::_('COM_RSEVENTSPRO_WAITINGLIST_SEF'), JText::_('COM_RSEVENTSPRO_WAITINGLIST_EDIT_SEF'), JText::_('COM_RSEVENTSPRO_WAITINGLIST_APPROVE_SEF'), JText::_('COM_RSEVENTSPRO_WAITINGLIST_REMOVE_SEF'), JText::_('COM_RSEVENTSPRO_CLAIM_TICKET_SEF')
 		);
 		
 		JFactory::getApplication()->triggerEvent('rsepro_allRoutes', array(array('routes' => &$routes)));

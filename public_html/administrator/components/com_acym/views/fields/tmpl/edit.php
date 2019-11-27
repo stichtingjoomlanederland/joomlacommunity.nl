@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate>
+?>
+<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate>
 	<input type="hidden" name="id" value="<?php echo empty($data['field']->id) ? '' : intval($data['field']->id); ?>">
 	<input type="hidden" name="namekey" value="<?php echo empty($data['field']->namekey) ? '' : acym_escape($data['field']->namekey); ?>">
 	<div id="acym__fields__edit" class="acym__content grid-x cell">
@@ -69,7 +70,7 @@ defined('_JEXEC') or die('Restricted access');
 					<input type="text" name="field[default_value]" value="<?php echo empty($data['field']->default_value) ? '' : $data['field']->default_value; ?>">
 				</label>
 				<label class="cell margin-top-1 large-5 acym__fields__change" id="acym__fields__format"><?php
-                    echo acym_tooltip('<h6>'.acym_translation('ACYM_FORMAT').'</h6>', acym_translation_sprintf('ACYM_X_TO_ENTER_X', '%d', acym_translation('ACYM_DAY')).'<br>'.acym_translation_sprintf('ACYM_X_TO_ENTER_X', '%m', acym_translation('ACYM_MONTH')).'<br>'.acym_translation_sprintf('ACYM_X_TO_ENTER_X', '%y', acym_translation('ACYM_YEAR')).'<br>'.acym_translation('ACYM_EXEMPLE_FORMAT'));
+                    echo '<h6>'.acym_translation('ACYM_FORMAT').acym_info(acym_translation_sprintf('ACYM_X_TO_ENTER_X', '%d', acym_translation('ACYM_DAY')).'<br>'.acym_translation_sprintf('ACYM_X_TO_ENTER_X', '%m', acym_translation('ACYM_MONTH')).'<br>'.acym_translation_sprintf('ACYM_X_TO_ENTER_X', '%y', acym_translation('ACYM_YEAR')).'<br>'.acym_translation('ACYM_EXEMPLE_FORMAT')).'</h6>';
                     ?>
 					<input type="text" name="field[option][format]" value="<?php echo empty($data['field']->option->format) ? '%d%m%y' : $data['field']->option->format; ?>">
 				</label>

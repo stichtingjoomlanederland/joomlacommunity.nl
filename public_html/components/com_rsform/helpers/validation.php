@@ -69,6 +69,16 @@ class RSFormProValidations
 	{
 		jimport('joomla.mail.helper');
 
+		if ($list = array_filter(RSFormProConfig::getInstance()->get('disposable_domains', array(), true)))
+		{
+			list($user, $domain) = explode('@', $email, 2);
+
+			if (in_array(strtolower($domain), $list))
+			{
+				return false;
+			}
+		}
+
 		return JMailHelper::isEmailAddress($email);
 	}
 	
@@ -224,7 +234,7 @@ class RSFormProValidations
 	
 	public static function ipaddress($param,$extra=null,$data=null)
 	{
-		return preg_match('#\b(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b#', $param, $match);
+		return filter_var($param, FILTER_VALIDATE_IP);
 	}
 	
 	public static function validurl($param,$extra=null,$data=null)

@@ -190,15 +190,17 @@ class RseventsproController extends JControllerLegacy
 		$query = $db->getQuery(true);
 		
 		$query->clear()
-			->select($db->qn('description'))
+			->select($db->qn('ide'))->select($db->qn('description'))
 			->from($db->qn('#__rseventspro_tickets'))
 			->where($db->qn('id').' = '.$id);
 		
 		$db->setQuery($query);
-		$ticket_description = $db->loadResult();
-		$seats = rseventsproHelper::checkticket($id);
+		$ticket = $db->loadObject();
 		
-		echo 'RS_DELIMITER0'.$seats.'|'.$ticket_description.'RS_DELIMITER1';
+		$w8list	 = rseventsproHelper::validWaitingList($ticket->ide);
+		$seats	 = $w8list ? 1 : rseventsproHelper::checkticket($id);
+		
+		echo 'RS_DELIMITER0'.$seats.'|'.$ticket->description.'RS_DELIMITER1';
 		JFactory::getApplication()->close();
 	}
 	
@@ -261,6 +263,7 @@ class RseventsproController extends JControllerLegacy
 		$method 	= $app->input->getString('method');
 		$hash		= $app->input->getString('hash');
 		$currency	= rseventsproHelper::getConfig('payment_currency');
+		$uri		= JUri::getInstance();
 		$total		= 0;
 		$info		= array();
 		$cart		= false;
@@ -298,6 +301,11 @@ class RseventsproController extends JControllerLegacy
 			}
 			
 			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro',false));
+		}
+		
+		if ($app->input->server->get('REQUEST_METHOD', 'POST') == 'GET' && !$uri->isSSL()) {
+			$uri->setScheme('https');
+			$app->redirect($uri->toString());
 		}
 		
 		$query->clear()
@@ -745,6 +753,7 @@ class RseventsproController extends JControllerLegacy
 		$payment	= $jinput->getString('payment');
 		$coupon		= $jinput->getString('coupon');
 		$idevent	= $jinput->getInt('idevent',0);
+		$w8list		= rseventsproHelper::validWaitingList($idevent);
 		$type		= $jinput->getCmd('type','');
 		$now		= JFactory::getDate();
 		$nowunix	= $now->toUnix();
@@ -772,6 +781,8 @@ class RseventsproController extends JControllerLegacy
 			
 			foreach ($tickets as $tid => $quantity) {
 				$checkticket = rseventsproHelper::checkticket($tid);
+				$checkticket = $w8list ? 1 : $checkticket;
+				
 				if ($checkticket == RSEPRO_TICKETS_NOT_AVAILABLE) continue;
 				
 				$query->clear()
@@ -1008,14 +1019,18 @@ class RseventsproController extends JControllerLegacy
 		$quantity = JFactory::getApplication()->input->getInt('quantity',1);
 		$return	  = new stdClass();
 		
-		$return->seats = rseventsproHelper::checkticket($id);
-		
 		$query->select('*')
 			->from($db->qn('#__rseventspro_tickets'))
 			->where($db->qn('id').' = '.$id);
 		
 		$db->setQuery($query);
-		if ($ticket = $db->loadObject()) {
+		$ticket = $db->loadObject();
+		
+		$w8list	  = rseventsproHelper::validWaitingList($ticket->ide);
+		
+		$return->seats = $w8list ? 1 : rseventsproHelper::checkticket($id);
+		
+		if ($ticket) {
 			$return->name			= $ticket->name;
 			$return->price			= rseventsproHelper::currency($ticket->price);
 			$return->tprice			= $ticket->price;
@@ -1096,9 +1111,11 @@ class RseventsproController extends JControllerLegacy
 		// Syng Google Calendar
 		if ($config->google_client_id && $config->google_secret) {
 			require_once JPATH_SITE.'/components/com_rseventspro/helpers/google.php';
-		
-			$google	= new RSEPROGoogle();
-			$google->parse();
+			
+			try {
+				$google	= new RSEPROGoogle();
+				$google->parse();
+			} catch(Exception $e) {}
 		}
 		
 		// Sync Facebook events
@@ -1428,6 +1445,96 @@ class RseventsproController extends JControllerLegacy
 					$db->execute();
 				}
 			}
+		}
+	}
+	
+	public function claim() {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		$app	= JFactory::getApplication();
+		$hash	= $app->input->getString('hash', '');
+		$now	= JFactory::getDate()->toUnix();
+		
+		if ($hash) {
+			$query->clear()
+				->select('w.*')->select($db->qn('e.name','ename'))
+				->select($db->qn('e.end'))->select($db->qn('e.start_registration'))
+				->select($db->qn('e.end_registration'))->select($db->qn('e.waitinglist_time'))
+				->from($db->qn('#__rseventspro_waitinglist','w'))
+				->join('LEFT', $db->qn('#__rseventspro_events','e').' ON '.$db->qn('w.ide').' = '.$db->qn('e.id'))
+				->where($db->qn('w.hash').' = '.$db->q($hash));
+			$db->setQuery($query);
+			if ($data = $db->loadObject()) {
+				
+				$itemid = rseventsproHelper::itemid($data->ide);
+				$itemid = $itemid ? $itemid : $data->itemid;
+				
+				// Check claim expiration date
+				if (!empty($data->waitinglist_time)) {
+					$nowd	= JFactory::getDate();
+					$date	= JFactory::getDate($data->sent);
+					$date->modify('+ '.$data->waitinglist_time.' second');
+					
+					if ($nowd > $date) {
+						$app->enqueueMessage(JText::_('COM_RSEVENTSPRO_WAITINGLIST_ERROR5'), 'error');
+						$app->redirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($data->ide,$data->ename),false,$itemid));
+					}
+				}
+				
+				// The event has ended
+				if ($now > JFactory::getDate($data->end)->toUnix()) {
+					$app->enqueueMessage(JText::_('COM_RSEVENTSPRO_WAITINGLIST_ERROR3'), 'error');
+					$app->redirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($data->ide,$data->ename),false,$itemid));
+				}
+				
+				$show = true;
+				if ($data->start_registration == $db->getNullDate()) $data->start_registration = '';
+				if ($data->end_registration == $db->getNullDate()) $data->end_registration = '';
+				
+				$start_registration = empty($data->start_registration) ? false : JFactory::getDate($data->start_registration)->toUnix();
+				$end_registration = empty($data->end_registration) ? false : JFactory::getDate($data->end_registration)->toUnix();
+				
+				if (!empty($start_registration) && !empty($end_registration)) {
+					if ($start_registration <= $now && $end_registration >= $now || $start_registration >= $now && $end_registration <= $now) {
+						$show = true;
+					} else {
+						$show = false;
+					}
+				} elseif (empty($start_registration) && !empty($end_registration)) {
+					if ($end_registration >= $now) {
+						$show = true;
+					} else {
+						$show = false;
+					}
+				} elseif (!empty($start_registration) && empty($end_registration)) {
+					if ($start_registration <= $now) {
+						$show = true;
+					} else { 
+						$show = false;
+					}
+				} elseif (empty($start_registration) && empty($end_registration)) {
+					$show = true;
+				}
+				
+				if (!$show) {
+					$app->enqueueMessage(JText::_('COM_RSEVENTSPRO_WAITINGLIST_ERROR4'), 'error');
+					$app->redirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($data->ide,$data->ename),false,$itemid));
+				}
+				
+				if ($data->used) {
+					$app->enqueueMessage(JText::_('COM_RSEVENTSPRO_WAITINGLIST_ERROR1'), 'error');
+					$app->redirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($data->ide,$data->ename),false,$itemid));
+				}
+				
+				JFactory::getSession()->set('rsepro_waitinglist'.$data->ide, $hash);
+				$app->enqueueMessage(JText::_('COM_RSEVENTSPRO_WAITINGLIST_CLAIM_TICKET'));
+				$app->redirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($data->ide,$data->ename),false,$itemid));
+			} else {
+				$app->enqueueMessage(JText::_('COM_RSEVENTSPRO_WAITINGLIST_ERROR2'), 'error');
+				$app->redirect(rseventsproHelper::route('index.php?option=com_rseventspro',false));
+			}
+		} else {
+			$app->redirect(rseventsproHelper::route('index.php?option=com_rseventspro',false));
 		}
 	}
 }

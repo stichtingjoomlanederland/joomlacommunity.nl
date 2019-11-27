@@ -35,12 +35,10 @@ defined('_JEXEC') or die('Unauthorized Access');
 								<?php } ?>
 
 								<div class="o-flag__body">
-									<?php if ($this->isSiteAdmin) { ?>
-									<a class="ed-user-name t-lg-mb--sm" href="<?php echo $post->getOwner()->getPermalink();?>">
-										<?php echo JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');?> (<?php echo $post->getOwner()->getName();?>)
-									</a>
+									<?php if ($post->canAccessAnonymousPost()) { ?>
+										<?php echo $this->html('user.username', $post->getOwner(), array('isAnonymous' => true, 'canViewAnonymousUsername' => $post->canAccessAnonymousPost(), 'lgMarginBottom' => true)); ?>
 									<?php } else { ?>
-									<a class="ed-user-name t-lg-mb--sm" href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');?></a>
+										<?php echo $this->html('user.username', $post->getOwner(), array('isAnonymous' => true, 'lgMarginBottom' => true)); ?>
 									<?php } ?>
 								</div>
 							<?php } ?>
@@ -51,10 +49,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 								</div>
 
 								<div class="o-flag__body">
-									<a class="ed-user-name t-lg-mb--sm" href="<?php echo $post->getOwner()->getPermalink();?>">
-										<?php echo $post->getOwner()->getName($post->poster_name); ?>
-									</a>
-									
+									<?php echo $this->html('user.username', $post->getOwner(), array('posterName' => $post->poster_name, 'lgMarginBottom' => true)); ?>
 									
 									<div class="ed-user-rank t-lg-mb--sm o-label o-label--<?php echo $post->getOwner()->getRoleLabelClassname()?>"><?php echo $post->getOwner()->getRole(); ?></div>
 

@@ -1,18 +1,19 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.1
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class plgSystemJceacym extends JPlugin
 {
-    function onBeforeWfEditorRender(&$settings)
+    public function onBeforeWfEditorRender(&$settings)
     {
         if (empty($_REQUEST['option']) || $_REQUEST['option'] != 'com_acym') {
             return;
@@ -23,3 +24,4 @@ class plgSystemJceacym extends JPlugin
         }
     }
 }
+

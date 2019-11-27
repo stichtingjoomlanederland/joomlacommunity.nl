@@ -620,6 +620,14 @@ class com_docmanInstallerScript extends JoomlatoolsInstallerHelper
                     $item->params = json_encode($params);
                 }
 
+                if (strpos($item->params, 'allow_category_delete') === false && in_array($query['view'], ['tree', 'list'])) {
+                    $params = json_decode($item->params);
+
+                    $params->allow_category_delete = 1;
+
+                    $item->params = json_encode($params);
+                }
+
                 if (strpos($item->params, 'show_document_tags') === false) {
                     $params = json_decode($item->params);
 

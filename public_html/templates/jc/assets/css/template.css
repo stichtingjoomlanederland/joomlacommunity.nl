@@ -11771,3 +11771,71 @@ h3 a:hover {
   overflow: visible;
   clip: auto;
 }
+.cards--media {
+  display: -ms-flexbox;
+  display: flex;
+  overflow: hidden;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  -ms-flex-align: stretch;
+      align-items: stretch;
+}
+.cards--media > * {
+  margin-bottom: 0;
+}
+.cards--media > * + * {
+  margin-top: 1.5em;
+}
+.cards--media > * {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex: 1 1 100%;
+      flex: 1 1 100%;
+}
+.cards--media .card {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+      align-items: center;
+  overflow: hidden;
+}
+@media (max-width: 480px) {
+  .cards--media .card {
+    -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+  }
+  .cards--media .card > * {
+    -ms-flex-preferred-size: 100%;
+        flex-basis: 100%;
+  }
+}
+@media (max-width: 480px) {
+  .cards--media .card__figure + .card__body {
+    margin-top: 1.5em;
+  }
+}
+@media (min-width: 480px) {
+  .cards--media .card__figure + .card__body {
+    margin-left: 1.5em;
+  }
+}
+.cards--media .card__body {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+      flex-direction: column;
+  -ms-flex-align: start;
+      align-items: flex-start;
+  -ms-flex-pack: center;
+      justify-content: center;
+  -ms-flex-item-align: stretch;
+      align-self: stretch;
+  -ms-flex: 1 1 auto;
+      flex: 1 1 auto;
+}
+.cards--media .card__body > * {
+  margin-bottom: 0;
+}
+.cards--media .card__body > * + * {
+  margin-top: 0.75em;
+}

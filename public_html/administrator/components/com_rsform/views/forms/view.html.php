@@ -65,6 +65,10 @@ class RsformViewForms extends JViewLegacy
 			$this->tabposition = JFactory::getApplication()->input->getInt('tabposition', 0);
 			$this->tab 		   = JFactory::getApplication()->input->getInt('tab', 0);
 			$this->form 	   = $this->get('form');
+			if (empty($this->form->FormId))
+			{
+				throw new Exception(JText::_('COM_RSFORM_FORM_DOES_NOT_EXIST'));
+			}
 			$this->form_post   = $this->get('formPost');
 			$this->show_previews = RSFormProHelper::getConfig('global.grid_show_previews');
 			$this->show_caption  = RSFormProHelper::getConfig('global.grid_show_caption');
@@ -271,6 +275,8 @@ class RsformViewForms extends JViewLegacy
 			$this->today = JFactory::getDate();
 			$this->today->setTime(0, 0, 0);
 			$this->today = $this->today->format('Y-m-d');
+
+			$this->disable_multilanguage = RSFormProHelper::getConfig('global.disable_multilanguage');
 		}
 
 		parent::display($tpl);

@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class acymuserStatClass extends acymClass
 {
@@ -74,7 +75,7 @@ class acymuserStatClass extends acymClass
     {
         $mailClass = acym_get('class.mail');
 
-        $query = 'SELECT us.*, m.name, m.subject, u.email, c.id as campaign_id 
+        $query = 'SELECT us.*, m.name, m.subject, u.email, c.id as campaign_id, c.parent_id 
                     FROM #__acym_user_stat AS us
                     LEFT JOIN #__acym_user AS u ON us.user_id = u.id
                     INNER JOIN #__acym_mail AS m ON us.mail_id = m.id
@@ -108,7 +109,8 @@ class acymuserStatClass extends acymClass
             $query .= ' ORDER BY '.$table.'.'.acym_secureDBColumn($settings['ordering']).' '.acym_secureDBColumn(strtoupper($settings['ordering_sort_order']));
         }
 
-        $results['detailed_stats'] = $mailClass->decode(acym_loadObjectList($query, '', $settings['offset'], $settings['detailedStatsPerPage']));
+        $mails = acym_loadObjectList($query, '', $settings['offset'], $settings['detailedStatsPerPage']);
+        $results['detailed_stats'] = $mailClass->decode($mails);
         $results['total'] = acym_loadResult($queryCount);
 
         return $results;

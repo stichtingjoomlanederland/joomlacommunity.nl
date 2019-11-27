@@ -174,6 +174,11 @@
 			<option value="1">JYES</option>
 			<option value="0">JNO</option>
 		</field>
+		
+		<field name="show_og" type="list" label="COM_RSEVENTSPRO_CONF_SHOW_OG" description="COM_RSEVENTSPRO_CONF_SHOW_OG_DESC" default="1">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
 	</fieldset>
 	
 	<fieldset name="moderation" label="COM_RSEVENTSPRO_CONF_MODERATION" description="COM_RSEVENTSPRO_CONF_MODERATION_DESC">
@@ -395,6 +400,7 @@
 			<option value="1">JYES</option>
 			<option value="0">JNO</option>
 		</field>
+		<field name="google_calendars" type="gcalendars" label="COM_RSEVENTSPRO_CONF_GOOGLE_CALENDARS" description="COM_RSEVENTSPRO_CONF_GOOGLE_CALENDARS_DESC" multiple="multiple" default="" />
 	</fieldset>
 
 	<fieldset name="fb" label="COM_RSEVENTSPRO_CONF_FACEBOOK_CREDENTIALS">
@@ -482,5 +488,6 @@
 	</field>
 	
 	<field type="hidden" name="facebook_token" default="" />
+	<field type="hidden" name="google_access_token" default="" />
 
 </form>

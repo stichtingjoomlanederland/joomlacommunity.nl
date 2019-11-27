@@ -253,6 +253,10 @@ class EasyDiscussViewPost extends EasyDiscussView
 
 		$model = ED::model('Posts');
 
+		// Determine how the content should be formatted in editing layout.
+		// It will ignore this if that is creating operation
+		$post->formatEditContent('editing');
+
 		$composer = ED::composer(array('editing', $post));
 
 		// Test if reference is passed in query string.

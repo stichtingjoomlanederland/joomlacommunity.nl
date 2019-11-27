@@ -16,7 +16,8 @@ JHtml::_('behavior.tabstate');
 	</div>
 	<div id="j-main-container" class="span10">
 	<?php
-	foreach ($this->fieldsets as $name => $fieldset) {
+	foreach ($this->fieldsets as $name => $fieldset)
+	{
 		// add the tab title
 		$this->tabs->addTitle($fieldset->label, $fieldset->name);
 		
@@ -27,14 +28,19 @@ JHtml::_('behavior.tabstate');
 		$content = '';
 
         // set description if required
-        if (isset($this->fieldset->description) && !empty($this->fieldset->description)) {
+        if (isset($this->fieldset->description) && !empty($this->fieldset->description))
+        {
             $content .= '<p>' . JText::_($this->fieldset->description) . '</p>';
         }
 
         $content .= $this->field->startFieldset('', 'adminform form-horizontal', false);
-        foreach ($this->fields as $field) {
-            $content .= $this->field->showField($field->hidden ? '' : $field->label, $field->input, array(), false);
+
+        foreach ($this->fields as $field)
+        {
+			// This is a workaround because our fields are named "global." and Joomla! uses the dot as a separator and transforms the JSON into [global][disable_multilanguage] instead of [global.disable_multilanguage].
+			$content .= str_replace('"rsformConfig[global][', '"rsformConfig[global.', $this->form->renderField($field->fieldname));
         }
+
         $content .= $this->field->endFieldset(false);
 		
 		// add the tab content

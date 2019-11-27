@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class acymconditionClass extends acymClass
 {
@@ -60,11 +61,6 @@ class acymconditionClass extends acymClass
         $query = 'SELECT acycondition.* FROM #__acym_condition as acycondition LEFT JOIN #__acym_step AS step ON step.id = acycondition.step_id WHERE step.id = '.intval($id);
 
         return acym_loadObjectList($query);
-    }
-
-    public function getAll()
-    {
-        return acym_loadObjectList('SELECT * FROM #__acym_condition');
     }
 }
 

@@ -36,7 +36,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                         <?php echo $this->html('user.avatar', $user, array('status' => true, 'size' => 'l', 'popbox' => false)); ?>
                     </div>
                     <div class="o-flag__body">
-                        <a class="ed-user-name" href="<?php echo $user->getPermalink();?>"><?php echo $user->getName();?></a>
+                        <?php echo $this->html('user.username', $user, array()); ?>
                     </div>
                 </div>    
             </div>

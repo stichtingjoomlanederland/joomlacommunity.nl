@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
+?>
+<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
 	<input type="hidden" name="filename" id="filename" value="<?php echo acym_getVar('cmd', 'filename'); ?>" />
 	<input type="hidden" name="import_columns" id="import_columns" value="" />
 	<input type="hidden" name="new_list" id="acym__import__new-list" value="" />
@@ -30,7 +31,7 @@ defined('_JEXEC') or die('Restricted access');
 		</div>
 		<div class="grid-x grid-margin-y acym_area">
 			<div class="">
-				<div class="acym_area_title"><?php echo acym_translation("ACYM_FIELD_MATCHING"); ?></div>
+				<div class="acym_area_title"><?php echo acym_translation('ACYM_FIELD_MATCHING'); ?></div>
 				<p class="acym__users__import__generic__instructions"><?php echo acym_translation('ACYM_ASSIGN_COLUMNS'); ?></p>
 			</div>
 			<div class="cell">
@@ -44,7 +45,7 @@ defined('_JEXEC') or die('Restricted access');
 		</div>
 
 		<div class="grid-x acym_area">
-			<div class="acym_area_title"><?php echo acym_translation("ACYM_PARAMETERS"); ?></div>
+			<div class="acym_area_title"><?php echo acym_translation('ACYM_PARAMETERS'); ?></div>
 			<div class="cell grid-x">
 				<div class="cell large-6 grid-x">
 					<label for="acyencoding" class="cell medium-6">File charset</label>
@@ -54,7 +55,7 @@ defined('_JEXEC') or die('Restricted access');
                         $default = $encodingHelper->detectEncoding($this->content);
                         $urlEncodedFilename = urlencode($filename);
                         $attribs = 'data-filename="'.$urlEncodedFilename.'"';
-                        $encodingHelper->charsetField("acyencoding", $default, $attribs);
+                        echo $encodingHelper->charsetField("acyencoding", $default, $attribs);
                         ?>
 					</div>
 				</div>
@@ -62,14 +63,14 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="cell grid-x">
                 <?php if ($config->get('require_confirmation')) { ?>
 					<div class="cell large-6 grid-x">
-                        <?php echo acym_switch('import_confirmed_generic', 1, acym_translation("ACYM_IMPORT_USERS_AS_CONFIRMED")); ?>
+                        <?php echo acym_switch('import_confirmed_generic', 1, acym_translation('ACYM_IMPORT_USERS_AS_CONFIRMED')); ?>
 					</div>
                 <?php } ?>
 				<div class="cell large-6 grid-x">
-                    <?php echo acym_switch('import_generate_generic', 1, acym_translation("ACYM_GENERATE_NAME")); ?>
+                    <?php echo acym_switch('import_generate_generic', 1, acym_translation('ACYM_GENERATE_NAME')); ?>
 				</div>
 				<div class="cell large-6 grid-x">
-                    <?php echo acym_switch('import_overwrite_generic', 1, acym_translation("ACYM_OVERWRITE_EXISTING")); ?>
+                    <?php echo acym_switch('import_overwrite_generic', 1, acym_translation('ACYM_OVERWRITE_EXISTING')); ?>
 				</div>
 			</div>
 		</div>

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.4.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -375,7 +375,8 @@ class plgAcymWoocommerce extends acymPlugin
         $link = $element->guid;
         $varFields['{link}'] = $link;
 
-        $title = $element->post_title;
+        $title = '';
+        if (in_array('title', $tag->display)) $title = $element->post_title;
 
         $afterTitle = '';
         if (in_array('price', $tag->display)) {

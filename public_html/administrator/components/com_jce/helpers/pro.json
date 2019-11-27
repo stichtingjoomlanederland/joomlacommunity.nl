@@ -7,6 +7,14 @@
         "row": 4,
         "core": 1
     },
+    "columns": {
+        "title": "WF_COLUMNS_TITLE",
+        "description": "WF_COLUMNS_DESC",
+        "icon": "columns,columns_add,columns_delete",
+        "editable": 1,
+        "row": 4,
+        "core": 1
+    },
     "iframe": {
         "title": "WF_IFRAME_TITLE",
         "description": "WF_IFRAME_DESC",
@@ -67,7 +75,7 @@
         "title": "WF_TEXTPATTERN_TITLE",
         "description": "WF_TEXTPATTERN_DESC",
         "icon": "",
-        "editable": 1,
+        "editable": 0,
         "row": 0,
         "core": 1
     }

@@ -10,137 +10,88 @@
  */
 defined('JPATH_PLATFORM') or die;
 ?>
-<div class="media_option windowsmedia"><h4><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_OPTIONS'); ?></h4>
-	
-	<table border="0" cellpadding="4" cellspacing="0">
-		<tr>
-			<td colspan="2">
-			<table border="0" cellpadding="0" cellspacing="0">
-				<tr>
-					<td><input type="checkbox" class="checkbox"
-						id="windowsmedia_autostart" checked="checked" /></td>
-					<td><label for="windowsmedia_autostart"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_AUTOSTART'); ?></label></td>
-				</tr>
-			</table>
-			</td>
-	
-			<td colspan="2">
-			<table border="0" cellpadding="0" cellspacing="0">
-				<tr>
-					<td><input type="checkbox" class="checkbox"
-						id="windowsmedia_enabled" /></td>
-					<td><label for="windowsmedia_enabled"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_ENABLED'); ?></label></td>
-				</tr>
-			</table>
-			</td>
-		</tr>
-	
-		<tr>
-			<td colspan="2">
-			<table border="0" cellpadding="0" cellspacing="0">
-				<tr>
-					<td><input type="checkbox" class="checkbox"
-						id="windowsmedia_enablecontextmenu" checked="checked" /></td>
-					<td><label for="windowsmedia_enablecontextmenu"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_MENU'); ?></label></td>
-				</tr>
-			</table>
-			</td>
-	
-			<td colspan="2">
-			<table border="0" cellpadding="0" cellspacing="0">
-				<tr>
-					<td><input type="checkbox" class="checkbox"
-						id="windowsmedia_fullscreen" /></td>
-					<td><label for="windowsmedia_fullscreen"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_FULLSCREEN'); ?></label></td>
-				</tr>
-			</table>
-			</td>
-		</tr>
-	
-		<tr>
-			<td colspan="2">
-			<table border="0" cellpadding="0" cellspacing="0">
-				<tr>
-					<td><input type="checkbox" class="checkbox"
-						id="windowsmedia_invokeurls" checked="checked" /></td>
-					<td><label for="windowsmedia_invokeurls"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_INVOKEURLS'); ?></label></td>
-				</tr>
-			</table>
-			</td>
-	
-			<td colspan="2">
-			<table border="0" cellpadding="0" cellspacing="0">
-				<tr>
-					<td><input type="checkbox" class="checkbox" id="windowsmedia_mute" /></td>
-					<td><label for="windowsmedia_mute"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_MUTE'); ?></label></td>
-				</tr>
-			</table>
-			</td>
-		</tr>
-	
-		<tr>
-			<td colspan="2">
-			<table border="0" cellpadding="0" cellspacing="0">
-				<tr>
-					<td><input type="checkbox" class="checkbox"
-						id="windowsmedia_stretchtofit" /></td>
-					<td><label for="windowsmedia_stretchtofit"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_STRETCHTOFIT'); ?></label></td>
-				</tr>
-			</table>
-			</td>
-	
-			<td colspan="2">
-			<table border="0" cellpadding="0" cellspacing="0">
-				<tr>
-					<td><input type="checkbox" class="checkbox"
-						id="windowsmedia_windowlessvideo" /></td>
-					<td><label for="windowsmedia_windowlessvideo"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_WINDOWLESSVIDEO'); ?></label></td>
-				</tr>
-			</table>
-			</td>
-		</tr>
-	
-		<tr>
-			<td><label for="windowsmedia_balance"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_BALANCE'); ?></label></td>
-			<td><input type="text" id="windowsmedia_balance" /></td>
-	
-			<td><label for="windowsmedia_baseurl"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_BASEURL'); ?></label></td>
-			<td><input type="text" id="windowsmedia_baseurl" /></td>
-		</tr>
-	
-		<tr>
-			<td><label for="windowsmedia_captioningid"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_CAPTIONINGID'); ?></label></td>
-			<td><input type="text" id="windowsmedia_captioningid" /></td>
-	
-			<td><label for="windowsmedia_currentmarker"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_CURRENTMARKER'); ?></label></td>
-			<td><input type="text" id="windowsmedia_currentmarker" /></td>
-		</tr>
-	
-		<tr>
-			<td><label for="windowsmedia_currentposition"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_CURRENTPOSITION'); ?></label></td>
-			<td><input type="text" id="windowsmedia_currentposition" /></td>
-	
-			<td><label for="windowsmedia_defaultframe"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_DEFAULTFRAME'); ?></label></td>
-			<td><input type="text" id="windowsmedia_defaultframe" /></td>
-		</tr>
-	
-		<tr>
-			<td><label for="windowsmedia_playcount"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_PLAYCOUNT'); ?></label></td>
-			<td><input type="text" id="windowsmedia_playcount" /></td>
-	
-			<td><label for="windowsmedia_rate"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_RATE'); ?></label></td>
-			<td><input type="text" id="windowsmedia_rate" /></td>
-		</tr>
-	
-		<tr>
-			<td><label for="windowsmedia_uimode"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_UIMODE'); ?></label></td>
-			<td><input type="text" id="windowsmedia_uimode" /></td>
-	
-			<td><label for="windowsmedia_volume"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_VOLUME'); ?></label></td>
-			<td><input type="text" id="windowsmedia_volume" /></td>
-		</tr>
-	
-	</table>
+<div class="media_option windowsmedia">
+	<h4><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_OPTIONS'); ?></h4>
+	<div class="uk-form-row uk-grid uk-grid-small">
+		<label for="windowsmedia_autostart" class="uk-form-label uk-width-1-5"><input type="checkbox" id="windowsmedia_autostart" checked="checked" /> <?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_AUTOSTART'); ?></label>
+		<label for="windowsmedia_enabled" class="uk-form-label uk-width-1-5"><input type="checkbox" id="windowsmedia_enabled" /> <?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_ENABLED'); ?></label>
+	</div>
+	<div class="uk-form-row uk-grid uk-grid-small">
+		<label for="windowsmedia_enablecontextmenu" class="uk-form-label uk-width-1-5"><input type="checkbox" id="windowsmedia_enablecontextmenu" checked="checked" /> <?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_MENU'); ?></label>
+		<label for="windowsmedia_fullscreen" class="uk-form-label uk-width-1-5"><input type="checkbox" id="windowsmedia_fullscreen" /> <?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_FULLSCREEN'); ?></label>
+	</div>
+	<div class="uk-form-row uk-grid uk-grid-small">
+		<label for="windowsmedia_invokeurls" class="uk-form-label uk-width-1-5"><input type="checkbox" id="windowsmedia_invokeurls" checked="checked" /> <?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_INVOKEURLS'); ?></label>
+		<label for="windowsmedia_mute" class="uk-form-label uk-width-1-5"><input type="checkbox" id="windowsmedia_mute" /> <?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_MUTE'); ?></label>
+	</div>
+	<div class="uk-form-row uk-grid uk-grid-small">
+		<label for="windowsmedia_stretchtofit" class="uk-form-label uk-width-1-5"><input type="checkbox" id="windowsmedia_stretchtofit" /> <?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_STRETCHTOFIT'); ?></label>
+		<label for="windowsmedia_windowlessvideo" class="uk-form-label uk-width-1-5"><input type="checkbox" id="windowsmedia_windowlessvideo" /> <?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_WINDOWLESSVIDEO'); ?></label>
+	</div>
+	<div class="uk-form-row uk-grid uk-grid-small">
+		<label for="windowsmedia_balance" class="uk-form-label uk-width-1-5"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_BALANCE'); ?></label>
+		<div class="uk-width-4-5 uk-grid uk-grid-small">
+			<div class="uk-form-controls uk-width-2-5">
+				<input type="text" id="windowsmedia_balance" />
+			</div>
+			<label for="windowsmedia_baseurl" class="uk-form-label uk-width-1-5"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_BASEURL'); ?></label>
+			<div class="uk-form-controls uk-width-2-5">
+				<input type="text" id="windowsmedia_baseurl" />
+			</div>
+		</div>
+	</div>
+
+	<div class="uk-form-row uk-grid uk-grid-small">
+		<label for="windowsmedia_captioningid" class="uk-form-label uk-width-1-5"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_CAPTIONINGID'); ?></label>
+		<div class="uk-width-4-5 uk-grid uk-grid-small">
+			<div class="uk-form-controls uk-width-2-5">
+				<input type="text" id="windowsmedia_captioningid" />
+			</div>
+			<label for="windowsmedia_currentmarker" class="uk-form-label uk-width-1-5"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_CURRENTMARKER'); ?></label>
+			<div class="uk-form-controls uk-width-2-5">
+				<input type="text" id="windowsmedia_currentmarker" />
+			</div>
+		</div>
+	</div>
+
+	<div class="uk-form-row uk-grid uk-grid-small">
+		<label for="windowsmedia_currentposition" class="uk-form-label uk-width-1-5"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_CURRENTPOSITION'); ?></label>
+		<div class="uk-width-4-5 uk-grid uk-grid-small">
+			<div class="uk-form-controls uk-width-2-5">
+				<input type="text" id="windowsmedia_currentposition" />
+			</div>
+			<label for="windowsmedia_defaultframe" class="uk-form-label uk-width-1-5"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_DEFAULTFRAME'); ?></label>
+			<div class="uk-form-controls uk-width-2-5">
+				<input type="text" id="windowsmedia_defaultframe" />
+			</div>
+		</div>
+	</div>
+
+	<div class="uk-form-row uk-grid uk-grid-small">
+		<label for="windowsmedia_playcount" class="uk-form-label uk-width-1-5"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_PLAYCOUNT'); ?></label>
+		<div class="uk-width-4-5 uk-grid uk-grid-small">
+			<div class="uk-form-controls uk-width-2-5">
+				<input type="text" id="windowsmedia_playcount" />
+			</div>
+			<label for="windowsmedia_rate" class="uk-form-label uk-width-1-5"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_RATE'); ?></label>
+			<div class="uk-form-controls uk-width-2-5">
+				<input type="text" id="windowsmedia_rate" />
+			</div>
+		</div>
+	</div>
+
+	<div class="uk-form-row uk-grid uk-grid-small">
+		<label for="windowsmedia_uimode" class="uk-form-label uk-width-1-5"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_UIMODE'); ?></label>
+		<div class="uk-width-4-5 uk-grid uk-grid-small">
+			<div class="uk-form-controls uk-width-2-5">
+				<input type="text" id="windowsmedia_uimode" />
+			</div>
+			<label for="windowsmedia_volume" class="uk-form-label uk-width-1-5"><?php echo JText::_('WF_MEDIAMANAGER_WINDOWSMEDIA_VOLUME'); ?></label>
+			<div class="uk-form-controls uk-width-2-5">
+				<input type="text" id="windowsmedia_volume" />
+			</div>
+		</div>
+	</div>
 
 	<h6 class="notice">Windows Media is either a registered trademark or trademark of Microsoft Corporation in the United States and/or other countries.</h6>
 </div>

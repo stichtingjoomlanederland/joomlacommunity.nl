@@ -163,10 +163,17 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$db = ED::db();
 
 		$query	= array();
-		$query[] = 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__discuss_thread');
-		$query[] = 'WHERE ' . $db->nameQuote('published') . '=' . $db->Quote(1);
-		$query[] = 'AND ' . $db->nameQuote('isresolve') . '=' . $db->Quote(DISCUSS_ID_PUBLISHED);
-		$query[] = 'AND ' . $db->nameQuote('private') . '=' . $db->Quote(0);
+		$query[] = 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__discuss_thread') . ' as a';
+
+		// exclude blocked users #788
+		$query[] = " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+
+		$query[] = 'WHERE a.' . $db->nameQuote('published') . '=' . $db->Quote(1);
+		$query[] = 'AND a.' . $db->nameQuote('isresolve') . '=' . $db->Quote(DISCUSS_ID_PUBLISHED);
+		$query[] = 'AND a.' . $db->nameQuote('private') . '=' . $db->Quote(0);
+
+		// exclude blocked users #788
+		$query[] = 'AND (uu.block = 0 OR uu.id IS NULL)';
 
 		$query = implode(' ', $query);
 
@@ -211,6 +218,8 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$query = 'SELECT COUNT(a.`id`)';
 		$query .= ' FROM `#__discuss_posts` AS a';
 
+		$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+
 		if ($filteractive == 'myreplies') {
 			$query .= ' AND a.`parent_id` != 0 AND a.`published`=' . $db->Quote(1);
 		}
@@ -234,6 +243,8 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		}
 
 		$query .= $queryExclude;
+
+		$query .= ' and (uu.`block` = 0 OR uu.`id` is null)';
 
 		return $query;
 	}
@@ -381,6 +392,9 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$query .= " from " . $db->nameQuote('#__discuss_thread') . " as a";
 			$query .= " inner join " . $db->nameQuote('#__discuss_posts') . " as b on a.post_id = b.id";
 
+			// exclude blocked user posts
+			$query .= " left join `#__users` as uu on a.`user_id` = uu.`id`";
+
 			// where criteria
 			$where = array();
 			$where[] = "a.`published` = " . $db->Quote('1');
@@ -388,6 +402,8 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 			// category ACL:
 			$where[] = $catAccessSQL;
+
+			$where[] = "(uu.`block` = 0 OR uu.`id` IS NULL)";
 
 			$where = (count($where) ? " WHERE " . implode(' AND ', $where) : "");
 
@@ -438,6 +454,10 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$query .= " from " . $db->nameQuote('#__discuss_thread') . " as a";
 		$query .= " inner join " . $db->nameQuote('#__discuss_posts') . " as b on a.post_id = b.id";
 
+		//exclude blocked users posts.
+		$query .= " left join `#__users` as uu on a.`user_id` = uu.`id`";
+
+
 		// where criteria
 		$where = array();
 		$where[] = 'MATCH(a.`title`,a.`content`) AGAINST (' . $db->Quote($text) . $fulltextType . ')';
@@ -445,6 +465,9 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		// category ACL:
 		$where[] = $catAccessSQL;
+
+		$where[] = "(uu.`block` = 0 OR uu.`id` IS NULL)";
+
 
 		$where = (count($where) ? " WHERE " . implode(' AND ', $where) : "");
 
@@ -464,6 +487,8 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$tagQuery .= " inner join " . $db->nameQuote('#__discuss_posts') . " as b on a.`post_id` = b.`id`";
 			$tagQuery .= " INNER JOIN `#__discuss_posts_tags` as pt ON a.`post_id` = pt.`post_id`";
 
+			//exclude blocked users posts.
+			$tagQuery .= " left join `#__users` as uu on a.`user_id` = uu.`id`";
 
 			// where criteria
 			$where = array();
@@ -472,6 +497,8 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 			// category ACL:
 			$where[] = $catAccessSQL;
+
+			$where[] = "(uu.`block` = 0 OR uu.`id` IS NULL)";
 
 			$where = (count($where) ? " WHERE " . implode(' AND ', $where) : "");
 
@@ -505,6 +532,10 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$mainQuery = "select a.`post_id` as `id`, a.`alias`, a.`title`";
 		$mainQuery .= " from `#__discuss_thread` as a";
 		$mainQuery .= " inner join `#__discuss_category` as e on a.`category_id` = e.`id`";
+
+		// exclude blocked user posts
+		$mainQuery .= " left join `#__users` as uu on a.`user_id` = uu.`id`";
+
 		$mainQuery .= " where a.`published` = " . $db->Quote('1');
 
 		// category ACL:
@@ -545,6 +576,9 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		if ($filterLanguage) {
 			$mainQuery .= " and " . ED::getLanguageQuery('e.language');
 		}
+
+		// exclude blocked users
+		$mainQuery .= " and (uu.`block` = 0 OR uu.`id` IS NULL)";
 
 		foreach ($keys as $key) {
 			$query = '';
@@ -656,6 +690,9 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$query .= " from " . $db->nameQuote('#__discuss_thread') . " as a";
 		$query .= " inner join " . $db->nameQuote('#__discuss_posts') . " as b on a.post_id = b.id";
 
+		// exlude block users. #788
+		$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+
 
 		// Join with post types table
 		// The post type retrieving will be done in separate query to speed up the performance.
@@ -685,6 +722,10 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		// Build sql for pagination count
 		$countSQL = "select count(1)";
 		$countSQL .= " from " . $db->nameQuote('#__discuss_thread') . " as a";
+
+		// exlude block users.
+		$countSQL .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+
 		if (!$includeAnonymous) {
 			// to optimize the page load speed when using 'select count' query behavior
 			$countSQL .= " inner join " . $db->nameQuote('#__discuss_posts') . " as b on a.post_id = b.id";
@@ -861,6 +902,9 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		if ($filterLanguage) {
 			$where[] = ED::getLanguageQuery('e.language');
 		}
+
+		// exlude block users. #788
+		$where[] = "(uu.`block` = 0 or uu.`id` is null)";
 
 		$orderby = "";
 		$featuredOrdering = '';
@@ -1577,6 +1621,9 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		$query .= ' FROM `#__discuss_posts` AS a';
 
+		// exclude blocked users #788
+		$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+
 		// Join with category table.
 		$query .= '	LEFT JOIN ' . $db->nameQuote('#__discuss_category') . ' AS e ON a.`category_id`=e.`id`';
 
@@ -1602,6 +1649,9 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		// we do not want to show the reply marked as answer as the answered reply 
 		// will be display on top before the reply section in post page.
 		$where[] = ' a.`answered` = ' . $db->Quote('0');
+
+		// exclude blocked users #788
+		$where[] = ' (uu.`block` = 0 or uu.`id` is null)';
 
 		$where = (count($where) ? ' WHERE ' . implode(' AND ', $where) : '');
 		$query .= $where;
@@ -1682,6 +1732,10 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		$query = "select a.* from `#__discuss_posts` as a";
 		$query .= " inner join `#__discuss_thread` as b on a.thread_id = b.id";
+
+		//exclude blocked user's replies
+		$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+
 		$query .= ' where a.`published` = 1';
 		$query .= " and a.`parent_id` > 0";
 
@@ -1696,6 +1750,8 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$catAccessSQL = ED::category()->genCategoryAccessSQL('a.category_id', $catOptions);
 		$query .= " and " . $catAccessSQL;
 
+		//exclude blocked users replies
+		$query .= " AND (uu.`block` = 0 OR uu.`id` IS NULL)";
 
 		$query .= " order by a.`id` desc";
 		$query .= " limit $count";
@@ -1938,7 +1994,18 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		}
 
 		$db	= ED::db();
-		$query = 'SELECT * FROM `#__discuss_posts` WHERE ' . $db->nameQuote('parent_id') . ' = ' . $db->Quote($id) . ' ORDER BY '	. $db->nameQuote('created') . ' DESC LIMIT 1';
+		$query = 'SELECT * FROM `#__discuss_posts` as a';
+
+		// exclude blocked users #788
+		$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+
+		$query .= ' WHERE a.' . $db->nameQuote('parent_id') . ' = ' . $db->Quote($id);
+		$query .= ' AND a.`published` = ' . $db->Quote('1');
+
+		// exclude blocked users #788
+		$query .= " AND (uu.`block` = 0 OR uu.`id` is null)";
+
+		$query .= ' ORDER BY a.' . $db->nameQuote('created') . ' DESC LIMIT 1';
 		$db->setQuery($query);
 		$result = $db->loadObject();
 
@@ -1949,8 +2016,13 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 	public function getTotalReplies($id)
 	{
 		$db	= ED::db();
-		$query = 'SELECT COUNT(id) AS `replies` FROM `#__discuss_posts` WHERE `parent_id` = ' . $db->Quote($id);
-		$query .= ' AND `published` = ' . $db->Quote('1');
+		$query = 'SELECT COUNT(1) AS `replies`';
+		$query .= ' FROM `#__discuss_posts` as a';
+		$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+
+		$query .= ' WHERE a.`parent_id` = ' . $db->Quote($id);
+		$query .= ' AND a.`published` = ' . $db->Quote('1');
+		$query .= " AND (uu.`block` = 0 OR uu.`id` is null)";
 
 		$db->setQuery($query);
 		$result = $db->loadResult();
@@ -1969,8 +2041,14 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$db	= ED::db();
 
 		$query = "select count(1) from `#__discuss_thread` as a";
+
+		// exclude blocked users #788
+		$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+
 		$query .= " where a.`published` = " . $db->Quote(1);
 		$query .= " and a.`cluster_id` = " . $db->Quote(0);
+
+		$query .= " and (uu.`block` = 0 OR uu.`id` is null)";
 
 		$db->setQuery($query);
 		$result = $db->loadResult();
@@ -2100,6 +2178,9 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$query .= ' ON e.`id` = t.`category_id` ';
 		}
 
+		// exclude blocked users posts
+		$query .= " left join " . $db->nameQuote('#__users') . " as uu on t.`user_id` = uu.`id`";
+
 		$query .= $queryWhere;
 		$query .= ' AND t.`published` = ' . $db->Quote('1');
 
@@ -2120,6 +2201,9 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		// Do not include cluster item here.
 		$query .= ' AND t.`cluster_id` = ' . $db->Quote(0);
+
+		// exclude blocked users posts
+		$query .= ' AND (uu.`block` = 0 OR uu.`id` IS NULL)';
 
 		$orderby = '';
 
@@ -2225,27 +2309,38 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 				. ' a.* ';
 		$query	.= ' FROM `#__discuss_comments` AS a';
 
+		// exclude comments from blocked users #788
+		$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+
+
 		// $runSort = false;
+
+		$orderBy = '';
 
 		if (is_array($postId)) {
 			if (count($postId) == 1) {
 				$query .= ' WHERE a.`post_id` = ' . $db->Quote($postId);
-				$query .= ' ORDER BY a.`created` ASC';
+				$orderBy = ' ORDER BY a.`created` ASC';
 			} else {
 				$query .= ' WHERE a.`post_id` IN (' . implode(',', $postId) . ')';
-				$query .= ' ORDER BY a.post_id, a.`created` ASC';
+				$orderBy = ' ORDER BY a.post_id, a.`created` ASC';
 			}
 		} else {
-			$query .= ' WHERE a.`post_id` = ' . $db->Quote($postId);			
+			$query .= ' WHERE a.`post_id` = ' . $db->Quote($postId);
 		}
 
 		if (!is_array($postId)) {
 			if ($config->get('main_comment_ordering') == 'asc'){
-				$query .= ' ORDER BY a.`created` ASC';
+				$orderBy = ' ORDER BY a.`created` ASC';
 			} elseif ($config->get('main_comment_ordering') == 'desc'){
-				$query .= ' ORDER BY a.`created` DESC';
+				$orderBy = ' ORDER BY a.`created` DESC';
 			}
 		}
+
+		// exclude comments from blocked users #788
+		$query .= " and (uu.`block` = 0 OR uu.`id` IS NULL)";
+
+		$query .= $orderBy;
 
 		if ($limit !== null) {
 			if ($limitstart !== null) {
@@ -2322,6 +2417,9 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__discuss_thread') . ' AS a';
 
+		// exclude blocked users #788
+		$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+
 		if (!empty($tagId)) {
 			$query .= ' INNER JOIN `#__discuss_posts_tags` as c';
 			$query .= '	ON a.`id` = c.`post_id`';
@@ -2380,6 +2478,9 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		}
 
 		$query .= $queryExclude;
+
+		// exclude blocked users #788
+		$query .= ' AND (uu.`block` = 0 or uu.`id` is null)';
 
 		$db->setQuery($query);
 
@@ -2478,6 +2579,10 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		$query	= 'SELECT COUNT(a.`id`) FROM ' . $db->nameQuote('#__discuss_posts') . ' AS a';
 
+		// exclude blocked users #788
+		$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+
+
 		if (!empty($tagId)) {
 			$query .= ' INNER JOIN `#__discuss_posts_tags` as c';
 			$query .= '	ON a.`id` = c.`post_id`';
@@ -2530,6 +2635,9 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		$query .= $queryExclude;
 
+		// exclude blocked users #788
+		$query .= ' AND (uu.`block` = 0 or uu.`id` is null)';
+
 		$db->setQuery($query);
 
 		return $db->loadResult();
@@ -2552,6 +2660,9 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		$query = "select count(1)";
 		$query .= " from `#__discuss_thread` as a";
+
+		// exclude blocked users #788
+		$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
 
 		if (! empty($tagId)) {
 			$query .= " INNER JOIN `#__discuss_posts_tags` as c";
@@ -2595,6 +2706,9 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		}
 
 		$query .= $queryExclude;
+
+		// exclude blocked users #788
+		$query .= ' AND (uu.`block` = 0 or uu.`id` is null)';
 
 		$db->setQuery($query);
 
@@ -2655,6 +2769,10 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		}
 
 		$query = 'SELECT COUNT(1) FROM `#__discuss_posts`';
+
+		// exclude blocked users #788
+		$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+
 		$query .= ' WHERE `published` = ' . $db->Quote('1');
 		$query .= ' AND `parent_id` = ' . $db->Quote('0');
 
@@ -2680,6 +2798,9 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$query .= ' AND `legacy` = ' . $db->Quote('0');
 
 		$query .= $extraSQL;
+
+		// exclude blocked users #788
+		$query .= ' AND (uu.`block` = 0 or uu.`id` is null)';
 
 		$db->setQuery($query);
 		$result = $db->loadResult();

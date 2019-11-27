@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<field name="id" type="hidden" default="0" />
+	<field name="ide" type="hidden" default="0" />
+	<field name="name" type="text" class="input-xxlarge" label="COM_RSEVENTSPRO_NAME" size="70" required="true" />
+	<field name="email" type="email" class="input-xxlarge" label="COM_RSEVENTSPRO_EMAIL" size="70" required="true" />
+</form>

@@ -26,7 +26,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                             </div>
                         </div>
                         <div class="o-flag__body">
-                            <a class="ed-user-name t-lg-mb--sm" href="<?php echo $post->getOwner()->getPermalink();?>"><?php echo $post->getOwner()->getName();?></a>
+                            <?php echo $this->html('user.username', $post->getOwner(), array('lgMarginBottom' => true)); ?>
                             
                             <div class="ed-user-rank t-lg-mb--sm o-label o-label--<?php echo $post->getOwner()->getRoleLabelClassname()?>"><?php echo $post->getOwner()->getRole(); ?></div>
 

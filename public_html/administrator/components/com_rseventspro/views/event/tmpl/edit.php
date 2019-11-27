@@ -179,6 +179,14 @@ JText::script('COM_RSEVENTSPRO_END_REG_BIGGER_THAN_END_ERROR'); ?>
 			<!-- End Dashboard tab -->
 			<?php } ?>
 			
+			<?php if (rseventsproHelper::isRsmail()) { ?>
+			<!-- Start RSMail tab -->
+			<div class="tab-pane" id="rsepro-edit-rsmail">
+				<?php echo $this->loadTemplate('rsmail'); ?>
+			</div>
+			<!-- End RSMail tab -->
+			<?php } ?>
+			
 		</div>
 		
 		<div>

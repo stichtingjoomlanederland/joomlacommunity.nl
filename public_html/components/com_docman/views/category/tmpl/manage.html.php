@@ -18,6 +18,10 @@ if ($redirect === 'referrer' && isset($menu) && isset($menu->query['slug']) && $
     $show_delete = false;
 }
 
+if (isset($menu) && !$menu->params->get('allow_category_delete', 0) && !$category->canPerform('admin')) {
+    $show_delete = false;
+}
+
 if ($category->isNew()) {
     $show_delete = $show_edit = false;
 }

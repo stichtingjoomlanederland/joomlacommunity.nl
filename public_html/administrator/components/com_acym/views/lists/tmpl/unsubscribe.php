@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.4.0
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Restricted access');
 
         <?php
         $workflow = acym_get('helper.workflow');
-        echo $workflow->display($this->steps, $this->step, true);
+        echo $workflow->display($this->steps, $this->step);
         ?>
 
 		<div class="grid-x margin-bottom-0">
@@ -34,7 +34,7 @@ defined('_JEXEC') or die('Restricted access');
                     <?php echo acym_translation_sprintf('ACYM_LIST_MAIL_SELECT', '<b>'.strtolower(acym_translation('ACYM_UNSUBSCRIBE')).'</b>'); ?>
 				</div>
 				<div class="large-6 medium-8 cell">
-                    <?php echo acym_filterSearch($data['search'], 'unsubscribe_search', 'ACYM_SEARCH_TEMPLATE'); ?>
+                    <?php echo acym_filterSearch($data['search'], 'unsubscribe_search', 'ACYM_SEARCH'); ?>
 				</div>
             <?php } ?>
 		</div>

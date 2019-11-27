@@ -66,6 +66,21 @@ class ComDocmanControllerToolbarFlat extends ComKoowaControllerToolbarActionbar
 
     protected function _afterBrowse(KControllerContextInterface $context)
     {
-        // Do nothing
+        if (count($context->result)) {
+            $layout = $this->getObject('request')->query->get('layout', 'cmd');
+
+            if ($layout !== 'default' && $this->getObject('com://site/docman.controller.behavior.compressible')->isSupported()) {
+                $this->addCommand('download', array(
+                    'label'   => 'Download selected',
+                    'icon'    => 'k-icon-cloud-download',
+                    'href'    => '#',
+                    'attribs' => array(
+                        'class' => array('btn k-js-multi-download k-is-disabled')
+                    )
+                ));
+            }
+        }
+
+
     }
 }

@@ -5,13 +5,6 @@ http://developer.yahoo.net/yui/license.txt
 version: 2.2.2
 */
 
-.txtCal{
-	width: 210px;
-}
-.btnCal{
-	padding-left:5px;
-	padding-right: 5px;
-}
 .yui-calcontainer {
 	position:relative;
 	padding:5px;

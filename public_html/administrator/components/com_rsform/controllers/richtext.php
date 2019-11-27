@@ -37,7 +37,7 @@ class RsformControllerRichtext extends RsformController
 
 		$model->getForm();
 		$lang = $model->getLang();
-		if ($model->_form->Lang != $lang && !RSFormProHelper::getConfig('global.disable_multilanguage'))
+		if ($model->_form->Lang != $lang || (RSFormProHelper::getConfig('global.disable_multilanguage') && RSFormProHelper::getConfig('global.default_language') != 'en-GB'))
 		{
 			$model->saveFormRichtextTranslation($formId, $opener, $value, $lang);
 		}
@@ -57,9 +57,11 @@ class RsformControllerRichtext extends RsformController
         $app->enqueueMessage(JText::_('RSFP_CHANGES_SAVED'));
 
 		if ($this->getTask() == 'apply')
+		{
 			return $this->setRedirect('index.php?option=com_rsform&task=richtext.show&opener='.$opener.'&formId='.$formId.'&tmpl=component');
+		}
 
-        JFactory::getDocument()->addScriptDeclaration("window.close();");
+        JFactory::getDocument()->addScriptDeclaration('window.close();');
 	}
 	
 	public function preview()

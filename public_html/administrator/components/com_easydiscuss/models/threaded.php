@@ -47,7 +47,7 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 
 		if ($isQuestion) {
 			$query[] = 'SELECT a.*, b.`num_replies`';
-			$query[] = 'FROM ' . $db->qn('#__discuss_posts') . ' AS a FORCE INDEX (discuss_post_last_reply)';
+			$query[] = 'FROM ' . $db->qn('#__discuss_posts') . ' AS a';
 			$query[] = ' INNER JOIN  ' . $db->qn('#__discuss_thread') . ' AS b ON a.id = b.post_id' ;
 		} else {
 			$query[] = 'SELECT a.*';
@@ -60,40 +60,45 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 
 		$where = array();
 
-		// We only want to fetch the parent if needed
-		if (isset($options['questions']) && $options['questions']) {
-			$where[] = 'a.`parent_id` = ' . $db->Quote('0');
-		}
+		// Since we already introduce this thread table, we can just retrieve all the discussion post from this thread table #770
+		// // We only want to fetch the parent if needed
+		// if (isset($options['questions']) && $options['questions']) {
+		// 	$where[] = 'a.`parent_id` = ' . $db->Quote('0');
+		// }
+
+		$tblAlias = $isQuestion ? 'b.' : 'a.';
 
 		// We only want to fetch the parent if needed
 		if (isset($options['replies']) && $options['replies']) {
-			$where[] = 'a.`parent_id` != ' . $db->Quote('0');
+			$where[] = $tblAlias . '`parent_id` != ' . $db->Quote('0');
 		}
 
 		// Render only pending posts
-		if (isset($options['pending']) && $options['pending']) {
-			$where[] = 'a.' . $db->qn('published') . '=' . $db->Quote(DISCUSS_ID_PENDING);
-		} else {
-			$where[] = 'a.' . $db->qn('published') . '!=' . $db->Quote(DISCUSS_ID_PENDING);
+		if (!$filter) {
+			if (isset($options['pending']) && $options['pending']) {
+				$where[] = $tblAlias . $db->qn('published') . '=' . $db->Quote(DISCUSS_ID_PENDING);
+			} else {
+				$where[] = $tblAlias . $db->qn('published') . '!=' . $db->Quote(DISCUSS_ID_PENDING);
+			}
 		}
 
 		// Determines if we need to filter posts by category
 		if ($category) {
-			$where[] = 'a.' . $db->qn( 'category_id' ) . '=' . $db->Quote($category);
+			$where[] = $tblAlias . $db->qn('category_id') . '=' . $db->Quote($category);
 		}
 
 		// Filter posts that are published
 		if ($filter == 'published') {
-			$where[] = $db->qn('a.published') . '=' . $db->Quote('1');
+			$where[] = $tblAlias . $db->qn('published') . '=' . $db->Quote('1');
 		}
 
 		// Filter posts that are unpublished
 		if ($filter == 'unpublished') {
-			$where[] = $db->qn('a.published') . '=' . $db->Quote('0');
+			$where[] = $tblAlias . $db->qn('published') . '=' . $db->Quote('0');
 		}
 
 		if ($postStatus) {
-			$where[] = $db->qn('a.post_status') . '=' . $db->Quote($postStatus);
+			$where[] = $tblAlias . $db->qn('post_status') . '=' . $db->Quote($postStatus);
 		}
 
 		// Search queries
@@ -109,15 +114,15 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 		if ($search->type == 'standard') {
 
 			if ($search->query && $stateKey == 'posts') {
-				$where[] = ' LOWER( a.`title` ) LIKE ' . $db->Quote('%' . $search->query . '%');
+				$where[] = ' LOWER(' . $tblAlias . '`title` ) LIKE ' . $db->Quote('%' . $search->query . '%');
 			}
 
 			if ($search->query && $stateKey == 'replies') {
-				$where[] = ' LOWER(a.`content`) LIKE ' . $db->Quote('%' . $search->query . '%');
+				$where[] = ' LOWER(' . $tblAlias . '`content`) LIKE ' . $db->Quote('%' . $search->query . '%');
 			}
 
 			if ($search->query && $stateKey == 'pending') {
-				$where[] = ' (LOWER(a.`title`) LIKE ' . $db->Quote('%' . $search->query . '%') . ' OR LOWER(a.`content`) LIKE ' . $db->Quote('%' . $search->query . '%') . ')';
+				$where[] = ' (LOWER(' . $tblAlias . '`title`) LIKE ' . $db->Quote('%' . $search->query . '%') . ' OR LOWER(' . $tblAlias . '`content`) LIKE ' . $db->Quote('%' . $search->query . '%') . ')';
 			}
 		} else {
 			if ($search->type == 'author') {
@@ -125,7 +130,7 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 				$isUserId = (int) $search->query !== 0;
 
 				if ($isUserId) {
-					$where[] = 'a.`user_id`=' . $db->Quote($search->query);
+					$where[] = $tblAlias . '`user_id`=' . $db->Quote($search->query);
 				} else {
 
 					// Search by username or name. Instead of joining the table, we just fire another query
@@ -135,7 +140,7 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 					$userIds = $db->loadColumn();
 
 					if ($userIds) {
-						$where[] = 'a.`user_id` IN(' . implode(',', $userIds) . ')';
+						$where[] = $tblAlias . '`user_id` IN(' . implode(',', $userIds) . ')';
 					}
 				}
 			}
@@ -148,7 +153,7 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 		// prepare for count sql.
 		$queryCnt = $query;
 
-		$ordering = $this->app->getUserStateFromRequest('com_easydiscuss.' . $stateKey . '.filter_order', 'filter_order', 'a.id', 'cmd');
+		$ordering = $this->app->getUserStateFromRequest('com_easydiscuss.' . $stateKey . '.filter_order', 'filter_order', $tblAlias . 'id', 'cmd');
 		$direction = $this->app->getUserStateFromRequest('com_easydiscuss.' . $stateKey . '.filter_order_Dir', 'filter_order_Dir', 'DESC', 'word');
 
 		$query[] = 'ORDER BY ' . $ordering . ' ' . $direction;
@@ -172,6 +177,7 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 		// Get the pagination
 		$limitstart = $this->getState('limitstart');
 		$limit = $this->getState('limit');
+
 		if ($limit) {
 			$query .= ' LIMIT ' . $limitstart . ',' . $limit;
 		}

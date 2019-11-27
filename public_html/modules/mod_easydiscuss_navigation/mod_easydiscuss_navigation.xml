@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.0" client="site" method="upgrade">
+	<name>EasyDiscuss - Navigation</name>
+	<author>Stack Ideas Sdn Bhd</author>
+	<creationDate>10th October 2019</creationDate>
+	<copyright>Copyright 2009 - 2016 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
+	<license>GPL License v2</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://stackideas.com</authorUrl>
+	<version>4.1.12</version>
+	<description>
+		<![CDATA[
+			A nice module that provides category navigation in the site.
+		]]>
+	</description>
+	<languages>
+		<language tag="en-GB">en-GB.mod_easydiscuss_navigation.ini</language>
+	</languages>
+	<files>
+		<folder>tmpl</folder>
+		<filename module="mod_easydiscuss_navigation">mod_easydiscuss_navigation.php</filename>
+		<filename>mod_easydiscuss_navigation.xml</filename>
+	</files>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="display_empty_category" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_NAVIGATION_DISPLAY_EMPTY_CATEGORY" description="MOD_EASYDISCUSS_NAVIGATION_DISPLAY_EMPTY_CATEGORY_DESC">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="display_notification_button" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_NAVIGATION_DISPLAY_NOTIFICATION_BUTTON" description="MOD_EASYDISCUSS_NAVIGATION_DISPLAY_NOTIFICATION_BUTTON_DESC">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+			</fieldset>
+			<fieldset name="advanced">
+				<field name="moduleclass_sfx" type="text" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC" >
+					<option value="0">Never</option>
+				</field>
+			</fieldset>
+		</fields>
+	</config>
+</extension>

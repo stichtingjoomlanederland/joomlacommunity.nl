@@ -615,23 +615,27 @@ class RsformControllerForms extends RsformController
 		foreach ($cid as $formId)
 		{
 			if (empty($formId))
+			{
 				continue;
-				
+			}
+
 			$total++;
-			
+
 			$original = JTable::getInstance('RSForm_Forms', 'Table');
 			$original->load($formId);
 			$original->FormName .= ' copy';
 			$original->FormTitle .= ' copy';
 			$original->FormId = null;
-			
+
 			$copy = JTable::getInstance('RSForm_Forms', 'Table');
 			$copy->bind($original);
 			$copy->store();
-			
+
 			$copy->FormLayout = str_replace('rsform_'.$formId.'_page', 'rsform_'.$copy->FormId.'_page', $copy->FormLayout);
 			if ($copy->FormLayout != $original->FormLayout)
+			{
 				$copy->store();
+			}
 			
 			$newFormId = $copy->FormId;
 			
@@ -640,8 +644,12 @@ class RsformControllerForms extends RsformController
 			$emailRelations		= array();
 			
 			// copy language
-			$db->setQuery("SELECT * FROM #__rsform_translations WHERE `reference`='forms' AND `form_id`='".$formId."'");
-			if ($translations = $db->loadObjectList())
+			$query = $db->getQuery(true)
+				->select('*')
+				->from($db->qn('#__rsform_translations'))
+				->where($db->qn('reference') . ' = ' . $db->q('forms'))
+				->where($db->qn('form_id') . ' = ' . $db->q($formId));
+			if ($translations = $db->setQuery($query)->loadObjectList())
 			{
 				foreach ($translations as $translation)
 				{
@@ -653,8 +661,12 @@ class RsformControllerForms extends RsformController
 			}
 			
 			// copy additional emails
-			$db->setQuery("SELECT * FROM #__rsform_emails WHERE `type` = 'additional' AND `formId`='".$formId."'");
-			if ($emails = $db->loadObjectList()) {
+			$query = $db->getQuery(true)
+				->select('*')
+				->from($db->qn('#__rsform_emails'))
+				->where($db->qn('type') . ' = ' . $db->q('additional'))
+				->where($db->qn('formId') . ' = ' . $db->q($formId));
+			if ($emails = $db->setQuery($query)->loadObjectList()) {
 				foreach ($emails as $email) {
 					$new_email = JTable::getInstance('RSForm_Emails', 'Table');
 					$new_email->bind($email);
@@ -695,9 +707,14 @@ class RsformControllerForms extends RsformController
 			}
 			
 			// copy mappings
-			$db->setQuery("SELECT * FROM #__rsform_mappings WHERE `formId`='".$formId."'");
-			if ($mappings = $db->loadObjectList()) {
-				foreach ($mappings as $mapping) {
+			$query = $db->getQuery(true)
+				->select('*')
+				->from($db->qn('#__rsform_mappings'))
+				->where($db->qn('formId') . ' = ' . $db->q($formId));
+			if ($mappings = $db->setQuery($query)->loadObjectList())
+			{
+				foreach ($mappings as $mapping)
+				{
 					$new_mapping = JTable::getInstance('RSForm_Mappings', 'Table');
 					$new_mapping->bind($mapping);
 					$new_mapping->id = null;
@@ -707,72 +724,104 @@ class RsformControllerForms extends RsformController
 			}
 			
 			// copy post to location
-			$db->setQuery("SELECT * FROM #__rsform_posts WHERE form_id='".$formId."'");
-			if ($post = $db->loadObject())
+			$query = $db->getQuery(true)
+				->select('*')
+				->from($db->qn('#__rsform_posts'))
+				->where($db->qn('form_id') . ' = ' . $db->q($formId));
+			if ($post = $db->setQuery($query)->loadObject())
 			{
-				$db->setQuery("INSERT INTO #__rsform_posts SET `form_id`='".(int) $newFormId."', `enabled`='".(int) $post->enabled."', `method`='".(int) $post->method."', `fields`=".$db->q($post->fields).", `silent`='".(int) $post->silent."', `url`=".$db->quote($post->url));
-				$db->execute();
+				$post->form_id = $newFormId;
+
+				$db->insertObject('#__rsform_posts', $post);
 			}
 			
 			// copy calculations
-			$db->setQuery("SELECT * FROM #__rsform_calculations WHERE formId='".$formId."'");
-			if ($calculations = $db->loadObjectList()) {
-				foreach ($calculations as $calculation) {
-					$db->setQuery("INSERT INTO #__rsform_calculations SET `formId` = ".$db->q($newFormId).", `total` = ".$db->q($calculation->total).", `expression` = ".$db->q($calculation->expression).", `ordering` = ".$db->q($calculation->ordering));
-					$db->execute();
+			$query = $db->getQuery(true)
+				->select('*')
+				->from($db->qn('#__rsform_calculations'))
+				->where($db->qn('formId') . ' = ' . $db->q($formId));
+			if ($calculations = $db->setQuery($query)->loadObjectList())
+			{
+				foreach ($calculations as $calculation)
+				{
+					unset($calculation->id);
+					$calculation->formId = $newFormId;
+
+					$db->insertObject('#__rsform_calculations', $calculation);
+				}
+			}
+
+			$query = $db->getQuery(true)
+				->select($db->qn('ComponentId'))
+				->from($db->qn('#__rsform_components'))
+				->where($db->qn('FormId') . ' = ' . $db->q($formId))
+				->order($db->qn('Order'));
+
+			if ($components = $db->setQuery($query)->loadColumn())
+			{
+				foreach ($components as $r)
+				{
+					$componentRelations[$r] = $model->copyComponent($r, $newFormId);
 				}
 			}
 			
-			$db->setQuery("SELECT ComponentId FROM #__rsform_components WHERE FormId='".$formId."' ORDER BY `Order`");
-			$components = $db->loadColumn();
-			foreach ($components as $r)
-			{
-				$componentRelations[$r] = $model->copyComponent($r, $newFormId);
-			}
-			
 			// Handle dynamic properties
-			$db->setQuery("SELECT * FROM #__rsform_properties WHERE ComponentId IN (".implode(',', $componentRelations).") AND PropertyName IN ('EMAILATTACH', 'VALIDATIONCALENDAR')");
-			if ($properties = $db->loadObjectList())
+			if ($componentRelations)
 			{
-				foreach ($properties as $property)
+				$query = $db->getQuery(true)
+					->select('*')
+					->from($db->qn('#__rsform_properties'))
+					->where($db->qn('ComponentId') . ' IN (' . implode(',', $db->q($componentRelations)) . ')')
+					->where($db->qn('PropertyName') . ' IN (' . implode(',', $db->q(array('EMAILATTACH', 'VALIDATIONCALENDAR'))) . ')');
+				if ($properties = $db->setQuery($query)->loadObjectList())
 				{
-					if ($property->PropertyName == 'EMAILATTACH' && $property->PropertyValue)
+					foreach ($properties as $property)
 					{
-						$values 	= explode(',', $property->PropertyValue);
-						$newValues 	= array();
-						
-						foreach ($values as $value)
+						if ($property->PropertyName == 'EMAILATTACH' && $property->PropertyValue)
 						{
-							if (isset($emailRelations[$value]))
+							$values 	= explode(',', $property->PropertyValue);
+							$newValues 	= array();
+
+							foreach ($values as $value)
 							{
-								$newValues[] = $emailRelations[$value];
+								if (isset($emailRelations[$value]))
+								{
+									$newValues[] = $emailRelations[$value];
+								}
+								elseif (in_array($value, array('adminemail', 'useremail')))
+								{
+									$newValues[] = $value;
+								}
 							}
-							elseif (in_array($value, array('adminemail', 'useremail')))
+
+							$property->PropertyValue = implode(',', $newValues);
+						}
+
+						if ($property->PropertyName == 'VALIDATIONCALENDAR' && $property->PropertyValue)
+						{
+							list($type, $oldCalendarId) = explode(' ', $property->PropertyValue, 2);
+							if (isset($componentRelations[$oldCalendarId]))
 							{
-								$newValues[] = $value;
+								$property->PropertyValue = $type.' '.$componentRelations[$oldCalendarId];
 							}
 						}
-						
-						$property->PropertyValue = implode(',', $newValues);
+
+						$object = (object) array(
+							'PropertyValue' => $property->PropertyValue,
+							'PropertyId' => $property->PropertyId,
+						);
+
+						$db->updateObject('#__rsform_properties', $object, array('PropertyId'));
 					}
-					
-					if ($property->PropertyName == 'VALIDATIONCALENDAR' && $property->PropertyValue)
-					{
-						list($type, $oldCalendarId) = explode(' ', $property->PropertyValue, 2);
-						if (isset($componentRelations[$oldCalendarId]))
-						{
-							$property->PropertyValue = $type.' '.$componentRelations[$oldCalendarId];
-						}
-					}
-					
-					$db->setQuery("UPDATE #__rsform_properties SET PropertyValue=".$db->quote($property->PropertyValue)." WHERE PropertyId=".$db->quote($property->PropertyId));
-					$db->execute();
 				}
 			}
 			
 			// copy conditions
-			$db->setQuery("SELECT * FROM #__rsform_conditions WHERE form_id='".$formId."'");
-			if ($conditions = $db->loadObjectList())
+			$query = $db->getQuery(true)
+				->select('*')
+				->from($db->qn('#__rsform_conditions'))
+				->where($db->qn('form_id') . ' = ' . $db->q($formId));
+			if ($conditions = $db->setQuery($query)->loadObjectList())
 			{
 				foreach ($conditions as $condition)
 				{
@@ -785,9 +834,12 @@ class RsformControllerForms extends RsformController
 					
 					$conditionRelations[$condition->id] = $new_condition->id;
 				}
-				
-				$db->setQuery("SELECT * FROM #__rsform_condition_details WHERE condition_id IN (".implode(',', array_keys($conditionRelations)).")");
-				if ($details = $db->loadObjectList())
+
+				$query = $db->getQuery(true)
+					->select('*')
+					->from($db->qn('#__rsform_condition_details'))
+					->where($db->qn('condition_id') . ' IN (' . implode(',', $db->q(array_keys($conditionRelations))) . ')');
+				if ($details = $db->setQuery($query)->loadObjectList())
 				{
 					foreach ($details as $detail)
 					{
@@ -921,52 +973,74 @@ class RsformControllerForms extends RsformController
         $app->close();
     }
 	
-	public function calculations() {
+	public function calculations()
+	{
 		$db 		= JFactory::getDbo();
-		$formId 	= JFactory::getApplication()->input->getInt('formId');
-		$total		= JFactory::getApplication()->input->get('total', '', 'raw');
-		$expression	= JFactory::getApplication()->input->get('expression', '', 'raw');
+		$app		= JFactory::getApplication();
+		$formId 	= $app->input->getInt('formId');
+		$total		= $app->input->get('total', '', 'raw');
+		$expression	= $app->input->get('expression', '', 'raw');
+
+		$query = $db->getQuery(true)
+			->select('MAX(' . $db->qn('ordering') . ')')
+			->from($db->qn('#__rsform_calculations'))
+			->where($db->qn('formId') . ' = ' . $db->q($formId));
+
+		$ordering = (int) $db->setQuery($query)->loadResult() + 1;
+
+		$object = (object) array(
+			'formId' => $formId,
+			'total' => $total,
+			'expression' => $expression,
+			'ordering' => $ordering
+		);
+
+		$db->insertObject('#__rsform_calculations', $object, 'id');
 		
-		$db->setQuery("SELECT MAX(`ordering`) FROM #__rsform_calculations WHERE `formId` = ".$formId);
-		$ordering = (int) $db->loadResult() + 1;
-		
-		$db->setQuery("INSERT INTO #__rsform_calculations SET `formId` = ".$formId.", `total` = ".$db->q($total).", `expression` = ".$db->q($expression).", `ordering` = ".(int) $ordering." ");
-		$db->execute();
-		
-		echo $db->insertid().'|'.$ordering;
-		jexit();
+		echo $object->id . '|' . $ordering;
+
+		$app->close();
 	}
 	
-	public function removeCalculation() {
-		$db 		= JFactory::getDbo();
-		$id		 	= JFactory::getApplication()->input->getInt('id');
+	public function removeCalculation()
+	{
+		$db 	= JFactory::getDbo();
+		$app 	= JFactory::getApplication();
+		$id		= $app->input->getInt('id');
 
 		$query = $db->getQuery(true)
             ->delete($db->qn('#__rsform_calculations'))
             ->where($db->qn('id') . ' = ' . $db->q($id));
 		
 		$db->setQuery($query);
-		if ($db->execute()) {
-			echo 1;
-		} else {
-            echo 0;
-        }
 
-		jexit();
+		echo $db->execute() ? 1 : 0;
+
+		$app->close();
 	}
 	
-	public function saveCalculationsOrdering() {
+	public function saveCalculationsOrdering()
+	{
 		$db		= JFactory::getDbo();
-		$cids	= JFactory::getApplication()->input->get('cid', array(), 'array');
-		$formId	= JFactory::getApplication()->input->getInt('formId',0);
+		$app	= JFactory::getApplication();
+		$cids	= $app->input->get('cid', array(), 'array');
+		$formId	= $app->input->getInt('formId',0);
 		
-		foreach ($cids as $key => $order) {
-			$db->setQuery("UPDATE #__rsform_calculations SET `ordering`='".$order."' WHERE id='".$key."' AND `formId` = '".$formId."' ");
+		foreach ($cids as $key => $order)
+		{
+			$query = $db->getQuery(true)
+				->update($db->qn('#__rsform_calculations'))
+				->set($db->qn('ordering') . ' = ' . $db->q($order))
+				->where($db->qn('id') . ' = ' . $db->q($key))
+				->where($db->qn('formId') . ' = ' . $db->q($formId));
+
+			$db->setQuery($query);
 			$db->execute();
 		}
 		
 		echo 'Ok';
-		exit();
+
+		$app->close();
 	}
 	
 	public function saveGridLayout()

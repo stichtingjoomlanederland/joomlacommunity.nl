@@ -46,7 +46,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 		                        </div>
 		                    </div>
 		                    <div class="o-flag__body">
-		                        <a href="<?php echo $user->getLink(); ?>" class="ed-user-name t-lg-mt--md t-lg-mb--sm"><?php echo $user->getName(); ?></a>
+                                <?php echo $this->html('user.username', $user, array('lgMarginTop' => true, 'lgMarginBottom' => true)); ?>
 		                        <div class="ed-user-rank t-lg-mb--sm"><?php echo ED::ranks()->getRank($user->id); ?></div>
 		                    </div>
 		                </div>

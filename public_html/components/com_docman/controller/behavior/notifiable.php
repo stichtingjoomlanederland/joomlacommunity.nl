@@ -39,6 +39,7 @@ class ComDocmanControllerBehaviorNotifiable extends KControllerBehaviorAbstract
                     $template->loadFile('com://site/docman.email.upload.html', 'php');
 
                     $body = $template->render(array(
+                        'document' => $context->result,
                         'email'    => $email,
                         'title'    => $title,
                         'sitename' => $sitename,

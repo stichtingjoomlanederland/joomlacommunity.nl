@@ -169,6 +169,10 @@
                 <option value="1">JYES</option>
                 <option value="0">JNO</option>
             </field>
+            <field name="allow_multi_download" type="radio" class="btn-group btn-group-yesno" default="1" label="ALLOW_MULTI_DOWNLOAD" description="ALLOW_MULTI_DOWNLOAD_DESCRIPTION">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
 
             <field label="JGLOBAL_FIELDSET_ADVANCED" type="heading" />
 
@@ -193,7 +197,10 @@
                 <option value="1">JYES</option>
                 <option value="0">JNO</option>
             </field>
-
+            <field name="allow_category_delete" type="radio" class="btn-group btn-group-yesno" default="1" label="ALLOW_CATEGORY_DELETE" description="ALLOW_CATEGORY_DELETE_DESCRIPTION">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
             <field name="sort_categories" type="list" default="title" label="SORT_CATEGORIES_BY">
                 <option value="title">JGLOBAL_TITLE_ALPHABETICAL</option>
                 <option value="reverse_title">JGLOBAL_TITLE_REVERSE_ALPHABETICAL</option>

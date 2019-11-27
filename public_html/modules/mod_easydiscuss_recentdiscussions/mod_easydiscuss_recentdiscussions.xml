@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.0" client="site" method="upgrade">
+	<name>EasyDiscuss - Recent Discussions</name>
+	<author>Stack Ideas Sdn Bhd</author>
+	<creationDate>10th October 2019</creationDate>
+	<copyright>Copyright 2009 - 2016 Stack Ideas. All rights reserved.</copyright>
+	<license>GPL License</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://www.stackideas.com</authorUrl>
+	<version>4.1.12</version>
+	<description>Displays a recent list of discussions from the site.</description>
+	<languages>
+		<language tag="en-GB">en-GB.mod_easydiscuss_recentdiscussions.ini</language>
+	</languages>
+	<files>
+		<folder>tmpl</folder>
+		<filename>helper.php</filename>
+		<filename module="mod_easydiscuss_recentdiscussions">mod_easydiscuss_recentdiscussions.php</filename>
+		<filename>mod_easydiscuss_recentdiscussions.xml</filename>
+	</files>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="filter_option" type="list" default="0" label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_DISCUSSION_FILTER" description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SELECT_FILTER_DESC">
+					<option value="0">All Discussions</option>
+					<option value="1">Category Selection</option>
+					<option value="2">Tag Selection</option>
+					<option value="3">Featured Posts</option>
+					<option value="4">Unanswered Posts</option>
+				</field>
+
+				<field name="ordering_option" type="list" default="latest" label="MOD_ED_RECENTDISCUSSIONS_DISCUSSION_ORDERING" description="MOD_ED_RECENTDISCUSSIONS_DISCUSSION_ORDERING_DESC">
+					<option value="latest">By Ordering - Replied Date</option>
+					<option value="replylatest">By Ordering - Creation Date</option>
+				</field>
+
+				<field name="count" type="text" default="5" label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_DISCUSSION_COUNT" description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_DISCUSSION_COUNT_DESC" size="5" />
+
+				<field name="show_content" type="list" default="1" label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_CONTENT" description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_CONTENT_DESC" >
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="max_title" type="text" default="50" label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_TRUNCATE_TITLE" description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_TRUNCATE_TITLE_DESC" />
+				<field name="max_content" type="text" default="80" label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_TRUNCATE_CONTENT" description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_TRUNCATE_CONTENT_DESC" />
+				<field name="show_avatar" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_AVATAR" description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_AVATAR_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="show_category" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_CATEGORY" description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_CATEGORY_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showhits" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_HITS" description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_HITS_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="show_date" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_DATE" description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_DATE_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showpoststate" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_POST_STATE" description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_POST_STATE_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showpoststatus" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_POST_STATUS" description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_POST_STATUS_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showtags" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_TAGS" description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_TAGS_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showreplycount" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_REPLY_COUNT" description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_REPLY_COUNT_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showtotalvotes" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_TOTAL_VOTES" description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_TOTAL_VOTES_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+
+			</fieldset>
+
+			<fieldset name="filter_category">
+				<field
+					name="category"
+					type="sql"
+					default="0"
+					label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_DISCUSSION_CATEGORY"
+					description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_DISCUSSION_CATEGORY_DESC"
+					query="SELECT id, title FROM #__discuss_category"
+					key_field="id"
+					value_field="title"
+					multiple="multiple"
+				/>
+				<field name="include_subcategories" type="list" default="1" label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_INCLUDE_SUB_CATEGORIES" description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_INCLUDE_SUB_CATEGORIES_DESC">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+			</fieldset>
+			<fieldset name="filter_tags">
+				<field
+					name="tags"
+					type="sql"
+					default="0"
+					label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_DISCUSSION_TAGS"
+					description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_DISCUSSION_TAGS_DESC"
+					query="SELECT id, title FROM #__discuss_tags"
+					key_field="id"
+					value_field="title"
+				/>
+			</fieldset>
+
+			<fieldset name="advanced">
+				<field name="moduleclass_sfx" type="text" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC" >
+					<option value="1">JGLOBAL_USE_GLOBAL</option>
+					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+				</field>
+				<field name="cache_time" type="text" default="900" label="COM_MODULES_FIELD_CACHE_TIME_LABEL" description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>

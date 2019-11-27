@@ -38,8 +38,8 @@ class RsformControllerDirectory extends RsformController
 		$db 	= JFactory::getDbo();
 		$params = $app->getParams('com_rsform');
 		$menu	= $app->getMenu();
-		$active = $menu->getActive();
 		$formId = $params->get('formId');
+		$filename = str_replace(array('{alias}', '{formid}', '{domain}', '{date}'), array($menu->getActive()->alias, $formId, JUri::getInstance()->getHost(), JHtml::_('date', 'now', 'Y-m-d_H-i')), $directory->csvfilename);
 		$cids 	= $app->input->get('cid', array(), 'array');
 		$cids 	= array_map('intval', $cids);
 		$root 	= JUri::getInstance()->toString(array('scheme', 'host', 'port'));
@@ -136,8 +136,6 @@ class RsformControllerDirectory extends RsformController
 		
 		$enclosure = $params->get('enclosure', '"');
 		$delimiter = $params->get('delimiter', ',');
-		
-		$download_name = $active->alias.'.csv';
 
 		$app->setHeader('Cache-Control', 'public, must-revalidate');
 		$app->setHeader('Cache-Control', 'pre-check=0, post-check=0, max-age=0');
@@ -145,7 +143,7 @@ class RsformControllerDirectory extends RsformController
 		$app->setHeader('Expires', '0');
 		$app->setHeader('Content-Description', 'File Transfer');
 		$app->setHeader('Content-Type', 'text/csv');
-		$app->setHeader('Content-Disposition', 'attachment; filename="'.$download_name.'"');
+		$app->setHeader('Content-Disposition', 'attachment; filename="'.$filename.'"');
 		$app->setHeader('Transfer-Encoding', 'binary');
 
 		$app->sendHeaders();

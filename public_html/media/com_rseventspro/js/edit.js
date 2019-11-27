@@ -105,6 +105,11 @@ RSEventsPro.Event = {
 			RSEventsPro.Event.removeTicket(jQuery(this).data('id'));
 		});
 		
+		// Duplicate ticket
+		jQuery('.rsepro-ticket-duplicate').on('click', function(){
+			RSEventsPro.Event.duplicateTicket(jQuery(this).data('id'));
+		});
+		
 		// Overbooking
 		jQuery('#jform_overbooking').on('change', function() {
 			RSEventsPro.Event.overbooking();
@@ -113,6 +118,11 @@ RSEventsPro.Event = {
 		// Max tickets
 		jQuery('#jform_max_tickets').on('change', function() {
 			RSEventsPro.Event.maxticketsamount();
+		});
+		
+		// Waiting list
+		jQuery('#jform_waitinglist').on('change', function() {
+			RSEventsPro.Event.waitinglist();
 		});
 		
 		// Tickets configuration
@@ -228,6 +238,7 @@ RSEventsPro.Event = {
 		RSEventsPro.Event.allDay();
 		RSEventsPro.Event.overbooking();
 		RSEventsPro.Event.maxticketsamount();
+		RSEventsPro.Event.waitinglist();
 		RSEventsPro.Event.ticketsconfig();
 		RSEventsPro.Event.repeatType();
 		RSEventsPro.Event.repeatOnType();
@@ -352,6 +363,17 @@ RSEventsPro.Event = {
 			jQuery('#rsepro-max-tickets-amount').css('display','none');
 			jQuery('#jform_overbooking').prop('disabled',false);
 			jQuery('#jform_overbooking').parent().parent().removeClass('muted');
+		}
+	},
+	
+	// Waiting list
+	waitinglist: function() {
+		if (jQuery('#jform_waitinglist').is(':checked')) {
+			jQuery('#rsepro-waitinglist-limit').css('display','');
+			jQuery('#rsepro-waitinglist-time').css('display','');
+		} else {
+			jQuery('#rsepro-waitinglist-limit').css('display','none');
+			jQuery('#rsepro-waitinglist-time').css('display','none');
 		}
 	},
 	
@@ -878,8 +900,11 @@ RSEventsPro.Event = {
 			
 			// Add custom js codes
 			jQuery('#ticket_groups'+response.id).chosen();
-			jQuery('#rsepro-edit-ticket' + response.id + ' .rsepro-remove-ticket').on('click', function(){
+			jQuery('#rsepro-edit-ticket' + response.id + ' .rsepro-remove-ticket').on('click', function() {
 				RSEventsPro.Event.removeTicket(jQuery(this).data('id'));
+			});
+			jQuery('#rsepro-edit-ticket' + response.id + ' .rsepro-ticket-duplicate').on('click', function() {
+				RSEventsPro.Event.duplicateTicket(jQuery(this).data('id'));
 			});
 			jQuery('#rsepro-edit-ticket' + response.id + ' .rsepro-event-update').on('click', function() {
 				RSEventsPro.Event.save();
@@ -964,6 +989,77 @@ RSEventsPro.Event = {
 				}
 			});
 		}
+	},
+	
+	// Duplicate ticket
+	duplicateTicket: function(id) {
+		jQuery.ajax({
+			url: RSEventsPro.Event.root() + 'index.php?option=com_rseventspro',
+			type: 'post',
+			dataType: 'json',
+			data: {
+				task : 'event.duplicateticket',
+				id: id
+			}
+		}).done(function(response) {
+			jQuery('<li style="display:block;" class="rsepro-ticket rsepro-hide" id="ticket_' + response.id + '"><a data-toggle="tab" data-target="#rsepro-edit-ticket' + response.id + '" href="javascript:void(0);">' + response.name + ' <span class="fa fa-ticket"></span></a></li>').insertBefore(jQuery('ul li a[data-target="#rsepro-edit-tab6"]').parent());
+			jQuery(response.html).insertBefore(jQuery('#rsepro-edit-tab6'));
+			
+			// Add custom js codes
+			jQuery('#ticket_groups'+response.id).chosen();
+			jQuery('#rsepro-edit-ticket' + response.id + ' .rsepro-remove-ticket').on('click', function() {
+				RSEventsPro.Event.removeTicket(jQuery(this).data('id'));
+			});
+			jQuery('#rsepro-edit-ticket' + response.id + ' .rsepro-ticket-duplicate').on('click', function() {
+				RSEventsPro.Event.duplicateTicket(jQuery(this).data('id'));
+			});
+			jQuery('#rsepro-edit-ticket' + response.id + ' .rsepro-event-update').on('click', function() {
+				RSEventsPro.Event.save();
+			});
+			jQuery('#rsepro-edit-ticket' + response.id + ' .rsepro-event-cancel').on('click', function() {
+				RSEventsPro.Event.cancel();
+			});
+			
+			if (jQuery('#rsepro-time').val() == 1) {
+				jQuery('#tickets_' + response.id + '_from_datetimepicker').datetimepicker({
+					pickTime: true,
+					pick12HourFormat: true,
+					linkField: 'tickets_' + response.id + '_from',
+					format: 'yyyy-MM-dd HH:mm:ss PP'
+				});
+				jQuery('#tickets_' + response.id + '_to_datetimepicker').datetimepicker({
+					pickTime: true,
+					pick12HourFormat: true,
+					linkField: 'tickets_' + response.id + '_to',
+					format: 'yyyy-MM-dd HH:mm:ss PP'
+				});
+			} else {
+				jQuery('#tickets_' + response.id + '_from_datetimepicker').datetimepicker({
+					pickTime: true,
+					format: "yyyy-MM-dd hh:mm:ss"
+				});
+				jQuery('#tickets_' + response.id + '_to_datetimepicker').datetimepicker({
+					pickTime: true,
+					format: "yyyy-MM-dd hh:mm:ss"
+				});
+			}
+			
+			if ( typeof MooTools != 'undefined' ) {
+				(function($) {
+					$("div[id$='datetimepicker']").each(function (i,el) {
+						if (typeof $(el)[0] != 'undefined') {
+							$(el)[0].hide = null;
+						}
+					});
+				})(jQuery);
+			}
+			
+			// Go to the new ticket tab
+			jQuery('.rsepro-edit-event > ul > li > a[data-target="#rsepro-edit-ticket' + response.id + '"]').click();
+			
+			RSEventsPro.Event.orderTickets();
+		});
+		
 	},
 	
 	// Add coupon
@@ -1458,5 +1554,45 @@ RSEventsPro.Event = {
 		});
 
 		jQuery('#rsepro-edit-menu li').disableSelection();
+	},
+	
+	checkAll: function(obj, bid) {
+		if (jQuery(obj).prop('checked')) {
+			jQuery('#'+bid).find('input[type="checkbox"]').prop('checked', true);
+		} else {
+			jQuery('#'+bid).find('input[type="checkbox"]').prop('checked', false);
+		}
+	},
+	
+	subscribeUsers: function() {
+		if (jQuery('#jform_rsm_lists :selected').length) {
+			var doSubscribe = true;
+			
+			if (jQuery('#statuses :selected').length == 0) {
+				if (!confirm(Joomla.JText._('COM_RSEVENTSPRO_RSMAIL_NO_STATUS_SELECTED'))) {
+					doSubscribe = false;
+				}
+			}
+			
+			if (doSubscribe) {
+				jQuery('#rsepro-subscribe-users-loader').css('display','');
+				
+				jQuery.ajax({
+					url: RSEventsPro.Event.root() + 'index.php?option=com_rseventspro',
+					type: 'post',
+					data: {
+						task : 'event.subscribeUsers',
+						id: jQuery('#eventID').val(),
+						'lists': jQuery('#jform_rsm_lists').val(),
+						'status': jQuery('#statuses').val() || []
+					}
+				}).done(function(response) {
+					jQuery('#rsepro-subscribe-users-loader').css('display','none');
+					alert(Joomla.JText._('COM_RSEVENTSPRO_RSMAIL_IMPORTED_OK'));
+				});
+			}
+		} else {
+			alert(Joomla.JText._('COM_RSEVENTSPRO_RSMAIL_NO_LIST_SELECTED'));
+		}
 	}
 }

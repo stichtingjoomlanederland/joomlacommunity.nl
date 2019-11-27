@@ -529,6 +529,10 @@ class RseventsproViewRseventspro extends JViewLegacy
 			
 			$this->js = $this->config->multi_tickets ? 'rs_get_ticket(this);' : 'rsepro_add_single_ticket(this);';
 			
+			if (rseventsproHelper::validWaitingList($this->event->id) && $this->event->ticketsconfig) {
+				$this->event->ticketsconfig = false;
+			}
+			
 			if ($this->event->ticketsconfig) {
 				$this->updatefunction = 'rsepro_multi_seats_total();';
 			} else {
@@ -566,8 +570,10 @@ class RseventsproViewRseventspro extends JViewLegacy
 			}
 			
 			// Can the current user view the subscription form
-			if (!$this->cansubscribe['status'] && !$this->thankyou) {
-				rseventsproHelper::error($this->cansubscribe['err'], rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id)));
+			if (!rseventsproHelper::validWaitingList($this->event->id)) {
+				if (!$this->cansubscribe['status'] && !$this->thankyou) {
+					rseventsproHelper::error($this->cansubscribe['err'], rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id)));
+				}
 			}
 			
 			if (rseventsproHelper::getConfig('modal','int') == 1 || rseventsproHelper::getConfig('modal','int') == 2)
@@ -965,6 +971,49 @@ class RseventsproViewRseventspro extends JViewLegacy
 				
 			} else {
 				rseventsproHelper::error(JText::_('COM_RSEVENTSPRO_ERROR_RSVP_VIEW'), rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->row->id,$this->row->name),false,rseventsproHelper::itemid($this->row->id)));
+			}
+		} elseif ($layout == 'waiting') {
+			$this->event = $this->get('event');
+			
+			if (!rseventsproHelper::hasWaitingList($this->event->id)) {
+				rseventsproHelper::error(JText::_('COM_RSEVENTSPRO_WAITING_ERROR'), rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->row->id,$this->row->name),false,rseventsproHelper::itemid($this->row->id)));
+			}
+			
+			$theview = isset($menu->query['layout']) ? $menu->query['layout'] : 'rseventspro';
+			if (($menu && $theview != 'show') || !$menu)
+				$pathway->addItem($this->event->name,rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id)));
+			
+			$pathway->addItem(JText::_('COM_RSEVENTSPRO_BC_WAITING_LIST'));
+		} elseif ($layout == 'waitinglist') {
+			$this->event = $this->get('event');
+			
+			if ($this->admin || $this->event->owner == $user->get('id')) {
+				$this->data			= $this->get('WaitingData');
+				$this->total		= $this->get('WaitingTotal');
+				
+				$theview = isset($menu->query['layout']) ? $menu->query['layout'] : 'rseventspro';
+				if (($menu && $theview != 'show') || !$menu)
+					$pathway->addItem($this->event->name,rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id)));
+				
+				$pathway->addItem(JText::_('COM_RSEVENTSPRO_BC_WAITINGLIST'));
+			} else {
+				rseventsproHelper::error(JText::_('COM_RSEVENTSPRO_ERROR_WAITINGLIST_VIEW'), rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id)));
+			}
+		} elseif ($layout == 'editwaitinglist') {
+			$this->event = $this->get('event');
+			
+			if ($this->admin || $this->event->owner == $user->get('id')) {
+				$this->row			= $this->get('WaitingUser');
+				
+				$theview = isset($menu->query['layout']) ? $menu->query['layout'] : 'rseventspro';
+				if (($menu && $theview != 'show') || !$menu) {
+					$pathway->addItem($this->event->name,rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id)));
+					$pathway->addItem(JText::_('COM_RSEVENTSPRO_BC_WAITINGLIST'),rseventsproHelper::route('index.php?option=com_rseventspro&layout=waitinglist&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id)));
+				}
+				
+				$pathway->addItem(JText::_('COM_RSEVENTSPRO_BC_WAITINGLIST_EDIT'));
+			} else {
+				rseventsproHelper::error(JText::_('COM_RSEVENTSPRO_ERROR_WAITINGLIST_VIEW'), rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id)));
 			}
 		}
 		

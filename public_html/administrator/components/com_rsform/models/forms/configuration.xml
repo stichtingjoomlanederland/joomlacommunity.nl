@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<form>  
+<form addfieldpath="/administrator/components/com_rsform/models/fields">
 	<fieldset name="configuration" label="RSFP_CONFIG">
 		<field name="global.codemirror" type="radio" class="btn-group" description="RSFP_ENABLE_SYNTAX_HIGHLIGHTING_DESC" label="RSFP_ENABLE_SYNTAX_HIGHLIGHTING">
 			<option value="0">JNO</option>
@@ -10,6 +10,8 @@
 		<field name="global.disable_multilanguage" type="radio" class="btn-group" description="COM_RSFORM_DISABLE_MULTILANGUAGE_DESC" label="COM_RSFORM_DISABLE_MULTILANGUAGE" default="0">
 			<option value="0">JNO</option>
 			<option value="1">JYES</option>
+		</field>
+		<field name="global.default_language" type="lang" nodefault="1" description="COM_RSFORM_DEFAULT_LANGUAGE_DESC" label="COM_RSFORM_DEFAULT_LANGUAGE" default="en-GB" showon="global.disable_multilanguage:1">
 		</field>
 	</fieldset>
 	<fieldset name="grid" label="COM_RSFORM_GRID_SETTINGS">
@@ -22,12 +24,13 @@
 			<option value="1">JYES</option>
 		</field>
 	</fieldset>
-	<fieldset name="defaults" label="COM_RSFORM_DEFAULTS" addfieldpath="/administrator/components/com_rsform/models/fields">
+	<fieldset name="defaults" label="COM_RSFORM_DEFAULTS">
 		<field name="global.default_layout" type="formlayouts" default="responsive" description="COM_RSFORM_DEFAULT_LAYOUT_DESC" label="COM_RSFORM_DEFAULT_LAYOUT" />
 		<field name="global.default_load_layout_framework" type="radio" class="btn-group" description="COM_RSFORM_DEFAULT_LOAD_LAYOUT_FRAMEWORK_DESC" label="COM_RSFORM_DEFAULT_LOAD_LAYOUT_FRAMEWORK" default="1">
 			<option value="0">JNO</option>
 			<option value="1">JYES</option>
 		</field>
+		<field name="export.mask" type="text" default="0" description="COM_RSFORM_EXPORT_MASK_DESC" label="COM_RSFORM_EXPORT_MASK" />
 	</fieldset>
 	<fieldset name="security" label="RSFP_SECURITY">
 		<field name="global.filtering" type="list" description="RSFP_GLOBAL_XSS_FILTER_DESC" label="RSFP_GLOBAL_XSS_FILTER">
@@ -39,6 +42,7 @@
 			<option value="0">JNO</option>
 			<option value="1">JYES</option>
 		</field>
+		<field filter="raw" name="disposable_domains" type="textarea" label="COM_RSFORM_DISPOSABLE_EMAIL_ADDRESSES" description="COM_RSFORM_DISPOSABLE_EMAIL_ADDRESSES_DESC" cols="60" rows="7" />
 	</fieldset>
 	<fieldset name="backup" label="RSFP_BACKUP_SETTINGS">
 		<field name="request_timeout" type="text" default="0" description="RSFP_REQUEST_TIMEOUT_DESC" label="RSFP_REQUEST_TIMEOUT" />

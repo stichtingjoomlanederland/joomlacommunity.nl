@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class plgAcymUser extends acymPlugin
 {
@@ -20,16 +21,13 @@ class plgAcymUser extends acymPlugin
 
         global $acymCmsUserVars;
         $this->cmsUserVars = $acymCmsUserVars;
+
+        $this->pluginDescription->name = acym_translation_sprintf('ACYM_CMS_USER', 'Joomla');
     }
 
     public function dynamicText()
     {
-        $onePlugin = new stdClass();
-        $onePlugin->name = acym_translation_sprintf('ACYM_CMS_USER', 'Joomla');
-        $onePlugin->plugin = __CLASS__;
-        $onePlugin->help = 'plugin-taguser';
-
-        return $onePlugin;
+        return $this->pluginDescription;
     }
 
     public function textPopup()
@@ -69,7 +67,7 @@ class plgAcymUser extends acymPlugin
         $typeinfo[] = acym_selectOption('sender', 'ACYM_SENDER_INFORMATION');
         if (!empty($isAutomation)) $typeinfo[] = acym_selectOption('current', 'ACYM_USER_TRIGGERING_AUTOMATION');
 
-        $text .= acym_radio($typeinfo, 'typeinfo', 'receiver', null, ['onclick' => 'changeUserTag(selectedTag)']);
+        $text .= acym_radio($typeinfo, 'typeinfo', 'receiver', ['onclick' => 'changeUserTag(selectedTag)']);
 
         $fields = [
             $this->cmsUserVars->username => 'ACYM_LOGIN_NAME',
@@ -116,7 +114,7 @@ class plgAcymUser extends acymPlugin
 
     public function replaceUserInformation(&$email, &$user, $send = true)
     {
-        $extractedTags = $this->acympluginHelper->extractTags($email, 'usertag');
+        $extractedTags = $this->pluginHelper->extractTags($email, 'usertag');
         if (empty($extractedTags)) {
             return;
         }
@@ -257,10 +255,10 @@ class plgAcymUser extends acymPlugin
             }
 
             $tags[$i] = $replaceme;
-            $this->acympluginHelper->formatString($tags[$i], $mytag);
+            $this->pluginHelper->formatString($tags[$i], $mytag);
         }
 
-        $this->acympluginHelper->replaceTags($email, $tags);
+        $this->pluginHelper->replaceTags($email, $tags);
     }
 
     public function onAcymDeclareConditions(&$conditions)

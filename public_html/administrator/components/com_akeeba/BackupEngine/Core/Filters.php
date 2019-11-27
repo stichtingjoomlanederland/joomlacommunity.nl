@@ -215,13 +215,13 @@ class Filters extends BaseObject
 	/**
 	 * Extended filtering information of a given object. Applies only to exclusion filters.
 	 *
-	 * @param    string $test      The string to check for filter status (e.g. filename, dir name, table name, etc)
-	 * @param    string $root      The exclusion root test belongs to
-	 * @param    string $object    What type of object is it? dir|file|dbobject
-	 * @param    string $subtype   Filter subtype (all|content|children)
-	 * @param    string $by_filter [out] The filter name which first matched $test, or an empty string
+	 * @param   string|array  $test      The string to check for filter status (e.g. filename, dir name, table name, etc)
+	 * @param   string        $root      The exclusion root test belongs to
+	 * @param   string        $object    What type of object is it? dir|file|dbobject
+	 * @param   string        $subtype   Filter subtype (all|content|children)
+	 * @param   string        $by_filter [out] The filter name which first matched $test, or an empty string
 	 *
-	 * @return    bool    True if it is a filtered element
+	 * @return  bool  True if it is a filtered element
 	 */
 	public function isFilteredExtended($test, $root, $object, $subtype, &$by_filter)
 	{
@@ -267,12 +267,12 @@ class Filters extends BaseObject
 	/**
 	 * Returns the filtering status of a given object
 	 *
-	 * @param    string $test    The string to check for filter status (e.g. filename, dir name, table name, etc)
-	 * @param    string $root    The exclusion root test belongs to
-	 * @param    string $object  What type of object is it? dir|file|dbobject
-	 * @param    string $subtype Filter subtype (all|content|children)
+	 * @param   string|array  $test     The string to check for filter status (e.g. filename, dir name, table name, etc)
+	 * @param   string        $root     The exclusion root test belongs to
+	 * @param   string        $object   What type of object is it? dir|file|dbobject
+	 * @param   string        $subtype  Filter subtype (all|content|children)
 	 *
-	 * @return    bool    True if it is a filtered element
+	 * @return  bool  True if it is a filtered element
 	 */
 	public function isFiltered($test, $root, $object, $subtype)
 	{

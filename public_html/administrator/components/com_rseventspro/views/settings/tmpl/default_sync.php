@@ -8,7 +8,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 
 $hasFB = !empty($this->config->facebook_appid) && !empty($this->config->facebook_secret) && !empty($this->config->facebook_token);
 $fieldsets = array('google','fb','facebook');
-$redirectURI = JRoute::_('index.php?option=com_rseventspro&task=settings.savetoken', false, true); ?>
+$redirectURI = JRoute::_('index.php?option=com_rseventspro&task=settings.savetoken', false, 1); ?>
 
 <div class="alert alert-info"><?php echo JText::_('COM_RSEVENTSPRO_CONF_CRON_INFO'); ?></div>
 
@@ -38,7 +38,8 @@ foreach ($fieldsets as $fieldset) {
 	
 	if ($fieldset == 'google') {
 		if (!empty($this->config->google_client_id) && !empty($this->config->google_secret)) {
-			echo JHtml::_('rsfieldset.element', '<label>&nbsp;</label>', '<a href="'.$this->auth.'" class="btn btn-info button">'.JText::_('COM_RSEVENTSPRO_CONF_SYNC_BTN').'</a> <button type="button" class="btn btn-info button" onclick="jQuery(\'#rseproGoogleLog\').modal(\'show\')">'.JText::_('COM_RSEVENTSPRO_CONF_SYNC_LOG_BTN').'</button>');
+			$sync = $this->config->google_access_token ? '<a href="'.JRoute::_('index.php?option=com_rseventspro&task=settings.gimport').'" class="btn btn-info button">'.JText::_('COM_RSEVENTSPRO_CONF_SYNC_BTN').'</a>' : '';
+			echo JHtml::_('rsfieldset.element', '<label>&nbsp;</label>', '<a href="'.$this->auth.'" class="btn btn-info button">'.JText::_('COM_RSEVENTSPRO_CONF_AUTH_BTN').'</a> '.$sync.' <button type="button" class="btn btn-info button" onclick="jQuery(\'#rseproGoogleLog\').modal(\'show\')">'.JText::_('COM_RSEVENTSPRO_CONF_SYNC_LOG_BTN').'</button>');
 		} else {
 			echo JHtml::_('rsfieldset.element', '<label>&nbsp;</label>', JText::_('COM_RSEVENTSPRO_CONF_SYNC_SAVE_FIRST'));
 		}
@@ -52,3 +53,4 @@ foreach ($fieldsets as $fieldset) {
 }
 
 echo $this->form->getInput('facebook_token');
+echo $this->form->getInput('google_access_token');

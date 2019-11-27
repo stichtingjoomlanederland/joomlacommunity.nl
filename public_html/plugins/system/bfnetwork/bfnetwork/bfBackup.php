@@ -2,11 +2,9 @@
 
 /*
  * @package   bfNetwork
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
  *
- * @see       https://myJoomla.guru/
- * @see       https://myWP.guru/
  * @see       https://mySites.guru/
  * @see       https://www.phil-taylor.com/
  *
@@ -128,7 +126,7 @@ final class bfBackup
                 }
 
                 // Get a complex unique non-crypto string from mysites.guru
-                $string = file_get_contents('https://mysites.guru/public/rand?'.time());
+                $string = file_get_contents('https://manage.mysites.guru/public/rand?'.time());
 
                 $params->set('frontend_secret_word', $string);
                 $saveChanges = true;
@@ -184,7 +182,7 @@ final class bfBackup
                 } else {
                     if (!$params->frontend_secret_word || preg_match('/\&/', $params->frontend_secret_word)) {
                         // Get a complex unique non-crypto string from mysites.guru
-                        $string                       = file_get_contents('https://mysites.guru/public/rand?'.time());
+                        $string                       = file_get_contents('https://maange.mysites.guru/public/rand?'.time());
                         $params->frontend_secret_word = $string;
                         $secretWord                   = $params->frontend_secret_word;
                     }

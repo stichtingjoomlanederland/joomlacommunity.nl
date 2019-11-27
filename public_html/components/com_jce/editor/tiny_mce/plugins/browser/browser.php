@@ -17,7 +17,7 @@ class WFBrowserPlugin extends WFMediaManager
     /*
      * @var string
      */
-    protected $_filetypes = 'doc,docx,dot,dotx,ppt,pps,pptx,ppsx,xls,xlsx,gif,jpeg,jpg,png,webp,pdf,zip,tar,gz,swf,rar,mov,mp4,m4a,flv,mkv,webm,ogg,ogv,qt,wmv,asx,asf,avi,wav,mp3,aiff,oga,odt,odg,odp,ods,odf,rtf,txt,csv';
+    protected $_filetypes = 'doc,docx,dot,dotx,ppt,pps,pptx,ppsx,xls,xlsx,gif,jpeg,jpg,png,webp,apng,pdf,zip,tar,gz,swf,rar,mov,mp4,m4a,flv,mkv,webm,ogg,ogv,qt,wmv,asx,asf,avi,wav,mp3,aiff,oga,odt,odg,odp,ods,odf,rtf,txt,csv';
 
     public function __construct($config = array())
     {
@@ -87,6 +87,10 @@ class WFBrowserPlugin extends WFMediaManager
 
         $document = WFDocument::getInstance();
         $layout = $app->input->getCmd('layout', 'plugin');
+
+        // update some document variables
+        $document->setName('browser');
+        $document->setTitle(JText::_('WF_BROWSER_TITLE'));
 
         if ($document->get('standalone') == 1) {
             if ($layout === 'plugin') {

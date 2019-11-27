@@ -1153,6 +1153,8 @@ class Finalization extends Part
 		{
 			Factory::getLog()->log(LogLevel::DEBUG, "Remote file quotas applied successfully");
 
+			$this->apply_obsolete_quotas();
+
 			return true;
 		}
 	}
@@ -1404,6 +1406,7 @@ class Finalization extends Part
 					->where($db->qn('profile_id') . ' = ' . $db->q(Platform::getInstance()->get_active_profile()))
 					->where($db->qn('status') . ' = ' . $db->q('complete'))
 					->where($db->qn('filesexist') . '=' . $db->q('0'))
+					->where($db->qn('remote_filename') . '=' . $db->q(''))
 					->order($db->qn('id') . ' DESC');
 
 		$db->setQuery($query, $limit, 100000);

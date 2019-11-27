@@ -8,6 +8,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/field.php';
+require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/calendar.php';
 
 class RSFormProFieldJqueryCalendar extends RSFormProField
 {
@@ -25,7 +26,6 @@ class RSFormProFieldJqueryCalendar extends RSFormProField
 	// functions used for rendering in front view
 	
 	public function getFormInput() {
-		require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/calendar.php';
 		$calendar = RSFormProCalendar::getInstance('jQueryCalendar');
 		
 		$value 		= (string) $this->getValue();
@@ -57,8 +57,6 @@ class RSFormProFieldJqueryCalendar extends RSFormProField
 				}
 				if (JFactory::getLanguage()->getTag() != 'en-GB')
 				{
-					require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/calendar.php';
-
 					$value = RSFormProCalendar::fixValue($value, $format);
 				}
 				// Try to create a date to see if it's valid
@@ -151,12 +149,7 @@ class RSFormProFieldJqueryCalendar extends RSFormProField
 			}
 			
 			// Create the popup button
-			$button = '<input'.
-					  ' id="btnjQ'.$this->customId.'"'.
-					  ' type="button"'.
-					  ' value="'.$this->escape($label).'"'.
-					  $additional.
-					  ' />';
+			$button = $this->getButtonInput($label, $additional);
 		}
 		
 		// This is the calendar HTML container
@@ -182,6 +175,11 @@ class RSFormProFieldJqueryCalendar extends RSFormProField
 		
 		return $html;
 	}
+
+	protected function getButtonInput($label, $additional)
+	{
+		return '<input id="btnjQ' . $this->customId . '" type="button" value="' . $this->escape($label) . '" ' . $additional . '/>';
+	}
 	
 	// set the field output - function needed for overwriting in the layout classes
 	protected function setFieldOutput($input, $button, $container, $hidden, $layout) {
@@ -191,16 +189,7 @@ class RSFormProFieldJqueryCalendar extends RSFormProField
 	// @desc Gets the position of this calendar in the current form (eg. if it's the only calendar in the form, the position is 0,
 	//	if it's the second calendar the position is 1 and so on).
 	protected function getPosition() {
-		$componentTypeId = $this->getProperty('componentTypeId', RSFORM_FIELD_JQUERY_CALENDAR);
-		$calendars 	 = RSFormProHelper::componentExists($this->formId, $componentTypeId);
-		$componentId = $this->getProperty('componentId');
-		$position 	 = 0;
-		foreach ($calendars as $position => $calendar) {
-			if ($calendar == $componentId) {
-				break;
-			}
-		}
-		return $position;
+		return RSFormProCalendar::getInstance('jQueryCalendar')->getPosition($this->formId, $this->componentId);
 	}
 	
 	protected function getZIndex() {
@@ -251,8 +240,6 @@ class RSFormProFieldJqueryCalendar extends RSFormProField
 		{
 			if (JFactory::getLanguage()->getTag() != 'en-GB')
 			{
-				require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/calendar.php';
-
 				$value = RSFormProCalendar::fixValue($value, $format);
 			}
 

@@ -136,7 +136,8 @@ class RsformControllerComponents extends RsformController
             $properties = $db->loadColumn();
         }
 
-		if ($model->_form->Lang != $lang && !RSFormProHelper::getConfig('global.disable_multilanguage')) {
+		if ($model->_form->Lang != $lang || (RSFormProHelper::getConfig('global.disable_multilanguage') && RSFormProHelper::getConfig('global.default_language') != 'en-GB'))
+		{
             $model->saveFormPropertyTranslation($formId, $componentIdToEdit, $params, $lang, $just_added, $properties);
         }
 
@@ -229,8 +230,13 @@ class RsformControllerComponents extends RsformController
 				throw new Exception(JText::_('RSFP_SAVE_FIELD_NOT_VALID_NAME'), 0);
 			}
 
-			if ($name == 'elements') {
+			if ($name == 'elements' || $name == 'formId') {
 				throw new Exception(JText::sprintf('RSFP_SAVE_FIELD_RESERVED_NAME', $name), 0);
+			}
+
+			if (substr($name, 0, 2) === 'if')
+			{
+				throw new Exception(JText::_('RSFP_SAVE_FIELD_IF_NAME'), 0);
 			}
 
 			$componentType 		= $input->post->getInt('componentType');

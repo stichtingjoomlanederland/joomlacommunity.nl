@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class acymlistClass extends acymClass
 {
@@ -94,17 +95,7 @@ class acymlistClass extends acymClass
         if (empty($listsId)) {
             $countUserByList = [];
         } else {
-            acym_arrayToInteger($listsId);
-            $query = 'SELECT userList.list_id, COUNT(userList.user_id) AS users, SUM(acyuser.confirmed) AS sendable 
-                    FROM #__acym_user_has_list AS userList 
-                    JOIN #__acym_user AS acyuser 
-                        ON acyuser.id = userList.user_id 
-                    WHERE userList.list_id IN ('.implode(',', $listsId).') 
-                        AND userList.status = 1 
-                        AND acyuser.active = 1 
-                    GROUP BY userList.list_id';
-
-            $countUserByList = acym_loadObjectList($query);
+            $countUserByList = $this->getSubscribersCountPerStatusByListId($listsId);
         }
 
         foreach ($results['elements'] as $i => $list) {
@@ -199,11 +190,6 @@ class acymlistClass extends acymClass
         $results['total'] = acym_loadResult($queryCount);
 
         return $results;
-    }
-
-    public function getOneById($id)
-    {
-        return acym_loadObject('SELECT * FROM #__acym_list WHERE id = '.intval($id).' LIMIT 1');
     }
 
     public function getOneByName($name)
@@ -393,13 +379,6 @@ class acymlistClass extends acymClass
         return $listID;
     }
 
-    public function getAll($key = 'id')
-    {
-        $lists = acym_loadObjectList('SELECT * FROM #__acym_list', $key);
-
-        return $lists;
-    }
-
     public function getAllWithIdName()
     {
         $lists = acym_loadObjectList('SELECT id, name FROM #__acym_list', 'id');
@@ -550,6 +529,34 @@ class acymlistClass extends acymClass
     public function emptySubscribersOfList($listId)
     {
         return acym_query('DELETE FROM #__acym_user_has_list WHERE list_id = '.intval($listId));
+    }
+
+    public function getMailsByListId($listId)
+    {
+        $query = 'SELECT mail_id FROM #__acym_mail_has_list WHERE list_id = '.intval($listId);
+
+        return acym_loadResultArray($query);
+    }
+
+    public function getSubscribersCountPerStatusByListId($listIds = [])
+    {
+        $condList = '';
+        if (!empty($listIds)) {
+            if (!is_array($listIds)) $listIds = [$listIds];
+            acym_arrayToInteger($listIds);
+            $condList = 'AND userList.list_id IN ('.implode(',', $listIds).')';
+        }
+
+        $query = 'SELECT userList.list_id, COUNT(userList.user_id) AS users, SUM(acyuser.confirmed) AS sendable 
+                    FROM #__acym_user_has_list AS userList 
+                    JOIN #__acym_user AS acyuser 
+                        ON acyuser.id = userList.user_id 
+                    WHERE userList.status = 1 
+                        AND acyuser.active = 1
+                        '.$condList.' 
+                    GROUP BY userList.list_id';
+
+        return acym_loadObjectList($query);
     }
 }
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+ * @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
  * @license		GNU/GPL, see LICENSE.php
  *
  * EasyDiscuss is free software. This version may have been modified pursuant
@@ -125,10 +125,16 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 		if ($tags) {
 			$pquery .= '	INNER JOIN ' . $db->nameQuote( '#__discuss_posts_tags' ) . ' AS ptg ON a.`id`= ptg.`post_id`';
 		}
+
+		// exclude blocked user posts.
+		$pquery .= " left join `#__users` as uu on a.`user_id` = uu.`id`";
+
 		$pquery	.= $this->_buildQueryWhere('posts', 'a', $category, $postType);
 		if ($tags) {
 			$pquery .= ' AND ptg.tag_id IN (' . $db->implode($tags) . ')';
 		}
+
+		$pquery .= " and (uu.`block` = 0 OR uu.`id` IS NULL)";
 
 		// Categories
 		$cquery	= 'SELECT 0 as `noofdays`, ';
@@ -169,8 +175,9 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 
 			$includeCatChilds = true;
 
-			// Private discussions should not show up
-			$where[]	= $tbl . '.`private`=' . $db->Quote(0);
+			if (!ED::isSiteAdmin() && !ED::isModerator()) {
+				$where[] = $tbl . '.`private`=' . $db->Quote(0);
+			}
 
 			if ($categoryId) {
 				if (count($categoryId) == 1) {
@@ -289,6 +296,8 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 		if (empty($this->_data)) {
 
 			$query = $this->_buildQuery($sort, $filter, $category, false, $tags, $postType);
+
+			// echo $query;
 
 			if ($usePagination) {
 				$limitstart = is_null($limitstart) ? $this->getState('limitstart') : $limitstart;

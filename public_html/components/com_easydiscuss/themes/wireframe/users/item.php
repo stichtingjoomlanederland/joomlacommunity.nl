@@ -20,7 +20,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                 </div>
 
                 <div class="o-flag__body">
-                    <a class="ed-user-name t-lg-mb--sm" href="<?php echo $user->getPermalink();?>"><?php echo $user->getName();?></a>
+                    <?php echo $this->html('user.username', $user, array('lgMarginBottom' => true)); ?>
 
                     <?php echo $this->html('user.role', $user); ?>
 

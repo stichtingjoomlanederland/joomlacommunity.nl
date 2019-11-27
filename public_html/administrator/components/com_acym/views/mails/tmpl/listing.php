@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" enctype="multipart/form-data">
+?>
+<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" enctype="multipart/form-data">
 	<input type="hidden" id="acym_create_template_type_editor" name="type_editor">
 	<div id="acym__templates" class="acym__content">
         <?php if (empty($data['allMails']) && empty($data['search']) && empty($data['tag']) && empty($data['status'])) { ?>
@@ -66,7 +67,7 @@ defined('_JEXEC') or die('Restricted access');
         <?php } else { ?>
 			<div class="grid-x grid-margin-x">
 				<div class="large-3 medium-8 cell">
-                    <?php echo acym_filterSearch($data['search'], 'mails_search', 'ACYM_SEARCH_TEMPLATE'); ?>
+                    <?php echo acym_filterSearch($data['search'], 'mails_search', 'ACYM_SEARCH'); ?>
 				</div>
 				<div class="large-3 medium-4 cell">
                     <?php
@@ -123,19 +124,6 @@ defined('_JEXEC') or die('Restricted access');
                 <?php } else { ?>
 					<div class="cell grid-x margin-top-1">
 						<div class="grid-x cell auto">
-							<div class="small-11 cell">
-                                <?php
-                                $options = [
-                                    '' => ['ACYM_ALL', $data['mailNumberPerStatus']['all']],
-                                    'standard' => ['ACYM_STANDARD', $data['mailNumberPerStatus']['standard']],
-                                    'welcome' => ['ACYM_WELCOME_MAIL', $data['mailNumberPerStatus']['welcome']],
-                                    'unsubscribe' => ['ACYM_UNSUBSCRIBE_MAIL', $data['mailNumberPerStatus']['unsubscribe']],
-                                ];
-                                echo acym_filterStatus($options, $data["status"], 'mails_status');
-                                ?>
-							</div>
-						</div>
-						<div class="grid-x cell auto">
 							<div class="cell  acym_listing_sorty-by">
                                 <?php echo acym_sortBy(
                                     [
@@ -174,7 +162,7 @@ defined('_JEXEC') or die('Restricted access');
 									<div>
 										<i class='fa fa-trash-o acym__listing__block__delete__trash acym__color__white'></i>
 										<p class="acym__listing__block__delete__cancel acym__background-color__very-dark-gray acym__color__white">
-                                            <?php echo acym_translation("ACYM_CANCEL"); ?>
+                                            <?php echo acym_translation('ACYM_CANCEL'); ?>
 										</p>
 										<p class="acym__listing__block__delete__submit acym_toggle_delete acym__color__white" table="mail" elementid="<?php echo acym_escape($oneTemplate->id); ?>"><?php echo acym_translation('ACYM_DELETE'); ?></p>
 									</div>

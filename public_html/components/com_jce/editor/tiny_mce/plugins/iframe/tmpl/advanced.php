@@ -10,72 +10,64 @@
  */
 defined('JPATH_PLATFORM') or die;
 ?>
-<div class="uk-form-row">
+<div class="uk-form-row uk-grid uk-grid-small">
     <label for="style" class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_LABEL_STYLE_DESC'); ?>">
-            <?php echo JText::_('WF_LABEL_STYLE'); ?>
-        </label>
+        <?php echo JText::_('WF_LABEL_STYLE'); ?>
+    </label>
 
     <div class="uk-form-controls uk-width-4-5">
         <input id="style" type="text" value="" />
     </div>
 </div>
-<div class="uk-form-row">
+<div class="uk-form-row uk-grid uk-grid-small">
     <label class="uk-form-label uk-width-1-5" for="classes" class="hastip" title="<?php echo JText::_('WF_LABEL_CLASSES_DESC'); ?>"><?php echo JText::_('WF_LABEL_CLASSES'); ?></label>
-    <div class="uk-form-controls uk-width-4-5 uk-datalist">
-        <input type="text" id="classes" value="" />
-        <select id="classlist">
-          <option value=""><?php echo JText::_('WF_OPTION_NOT_SET'); ?></option>
-        </select>
+    <div class="uk-form-controls uk-width-4-5">
+        <select id="classes" class="uk-datalist" multiple="multiple"></select>
     </div>
 </div>
-<div class="uk-form-row">
+<div class="uk-form-row uk-grid uk-grid-small">
     <label for="title" class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_LABEL_TITLE_DESC'); ?>">
-            <?php echo JText::_('WF_LABEL_TITLE'); ?>
-        </label>
+        <?php echo JText::_('WF_LABEL_TITLE'); ?>
+    </label>
 
     <div class="uk-form-controls uk-width-4-5">
-        <input id="title" type="text" value=""/>
+        <input id="title" type="text" value="" />
     </div>
 </div>
-<div class="uk-form-row">
+<div class="uk-form-row uk-grid uk-grid-small">
     <label for="name" class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_LABEL_NAME_DESC'); ?>">
-            <?php echo JText::_('WF_LABEL_NAME'); ?>
-        </label>
+        <?php echo JText::_('WF_LABEL_NAME'); ?>
+    </label>
 
     <div class="uk-form-controls uk-width-4-5">
-        <input id="name" type="text" value=""/>
+        <input id="name" type="text" value="" />
     </div>
 </div>
-<div class="uk-form-row">
+<div class="uk-form-row uk-grid uk-grid-small">
     <label for="id" class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_LABEL_ID_DESC'); ?>">
-            <?php echo JText::_('WF_LABEL_ID'); ?>
-        </label>
+        <?php echo JText::_('WF_LABEL_ID'); ?>
+    </label>
 
     <div class="uk-form-controls uk-width-4-5">
-        <input id="id" type="text" value=""/>
+        <input id="id" type="text" value="" />
     </div>
 </div>
-<div class="uk-form-row">
-    <label for="allowtransparency" class="hastip uk-form-label uk-width-1-5"
-               title="<?php echo JText::_('WF_IFRAME_ALLOWTRANSPARENCY_DESC'); ?>">
-            <?php echo JText::_('WF_IFRAME_ALLOWTRANSPARENCY'); ?>
-        </label>
+<div class="uk-form-row uk-grid uk-grid-small">
+    <label for="allowtransparency" class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_IFRAME_ALLOWTRANSPARENCY_DESC'); ?>">
+        <?php echo JText::_('WF_IFRAME_ALLOWTRANSPARENCY'); ?>
+    </label>
 
     <div class="uk-form-controls uk-width-1-5">
         <select id="allowtransparency">
-            <option value="no">
-                <?php echo JText::_('JNO'); ?>
-            </option>
-            <option value="yes">
-                <?php echo JText::_('JYES'); ?>
-            </option>
+            <option value="no"><?php echo JText::_('JNO'); ?></option>
+            <option value="yes"><?php echo JText::_('JYES'); ?></option>
         </select>
     </div>
 </div>
-<div class="uk-form-row">
+<div class="uk-form-row uk-grid uk-grid-small">
     <label for="html" class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_LABEL_HTML_DESC'); ?>">
-            <?php echo JText::_('WF_LABEL_HTML'); ?>
-        </label>
+        <?php echo JText::_('WF_LABEL_HTML'); ?>
+    </label>
 
     <div class="uk-form-controls uk-width-4-5">
         <textarea id="html" value=""></textarea>

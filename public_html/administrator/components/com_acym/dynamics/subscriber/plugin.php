@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class plgAcymSubscriber extends acymPlugin
 {
@@ -21,14 +22,15 @@ class plgAcymSubscriber extends acymPlugin
         'user_subscribe' => 'ACYM_WHEN_USER_SUBSCRIBES',
     ];
 
+    public function __construct()
+    {
+        parent::__construct();
+        $this->pluginDescription->name = acym_translation('ACYM_SUBSCRIBER');
+    }
+
     public function dynamicText()
     {
-        $onePlugin = new stdClass();
-        $onePlugin->name = acym_translation('ACYM_SUBSCRIBER');
-        $onePlugin->plugin = __CLASS__;
-        $onePlugin->help = 'plugin-subscriber';
-
-        return $onePlugin;
+        return $this->pluginDescription;
     }
 
     public function textPopup()
@@ -42,7 +44,7 @@ class plgAcymSubscriber extends acymPlugin
             function changeUserTag(tagname, element) {
                 if (!tagname) return;
 
-                var finalTag = '{subtag:' + tagname;
+                var finalTag = '{<?php echo $this->name; ?>:' + tagname;
 
                 if (jQuery('input[name="typeinfo"]:checked').length > 0) {
                     finalTag += '|info:' + jQuery('input[name="typeinfo"]:checked').val() + '';
@@ -88,7 +90,7 @@ class plgAcymSubscriber extends acymPlugin
             $typeinfo = [];
             $typeinfo[] = acym_selectOption('receiver', 'ACYM_RECEIVER_INFORMATION');
             $typeinfo[] = acym_selectOption('current', 'ACYM_USER_TRIGGERING_AUTOMATION');
-            $text .= acym_radio($typeinfo, 'typeinfo', 'receiver', null, ['onclick' => 'changeUserTag(selectedTag)']);
+            $text .= acym_radio($typeinfo, 'typeinfo', 'receiver', ['onclick' => 'changeUserTag(selectedTag)']);
         }
         $text .= '<h1 class="acym__popup__plugin__title cell">'.acym_translation('ACYM_RECEIVER_INFORMATION').'</h1>
 					';
@@ -124,7 +126,12 @@ class plgAcymSubscriber extends acymPlugin
 
     public function replaceUserInformation(&$email, &$user, $send = true)
     {
-        $extractedTags = $this->acympluginHelper->extractTags($email, 'subtag');
+        $extractedTags = $this->pluginHelper->extractTags($email, $this->name);
+        $backwardsTags = $this->pluginHelper->extractTags($email, 'subtag');
+        foreach ($backwardsTags as $tag => $params) {
+            $extractedTags[$tag] = $params;
+        }
+
         if (empty($extractedTags)) return;
 
         $userClass = acym_get('class.user');
@@ -138,7 +145,7 @@ class plgAcymSubscriber extends acymPlugin
             $tags[$i] = empty($user->id) ? $oneTag->default : $this->replaceSubTag($oneTag, $user);
         }
 
-        $this->acympluginHelper->replaceTags($email, $tags);
+        $this->pluginHelper->replaceTags($email, $tags);
     }
 
     private function replaceSubTag(&$mytag, $user)
@@ -155,7 +162,7 @@ class plgAcymSubscriber extends acymPlugin
         }
         $replaceme = nl2br($replaceme);
 
-        $this->acympluginHelper->formatString($replaceme, $mytag);
+        $this->pluginHelper->formatString($replaceme, $mytag);
 
         return $replaceme;
     }
@@ -169,11 +176,11 @@ class plgAcymSubscriber extends acymPlugin
         }
     }
 
-    public function onAcymExecuteTrigger(&$step, &$execute, $data)
+    public function onAcymExecuteTrigger(&$step, &$execute, &$data)
     {
         if (empty($data['userId'])) return;
 
-        $triggers = json_decode($step->triggers, true);
+        $triggers = $step->triggers;
 
         foreach (self::TRIGGERS as $identifier => $name) {
             if (empty($triggers[$identifier])) continue;
@@ -204,23 +211,40 @@ class plgAcymSubscriber extends acymPlugin
                     $values[$value['value']] = $valueTmp;
                 }
                 $customFieldValues[$field->id] = '<div class="acym__automation__one-field intext_select_automation cell" style="display: none">';
-                $customFieldValues[$field->id] .= acym_select($values, '[conditions][__numor__][__numand__][acy_field][value]', null, 'class="acym__select acym__automation__conditions__fields__select" data-condition-field="'.$field->id.'"');
+                $customFieldValues[$field->id] .= acym_select(
+                    $values,
+                    '[conditions][__numor__][__numand__][acy_field][value]',
+                    null,
+                    'class="acym__select acym__automation__conditions__fields__select" data-condition-field="'.intval($field->id).'"'
+                );
                 $customFieldValues[$field->id] .= '</div>';
             } elseif ('date' == $field->type) {
                 $field->option = json_decode($field->option, true);
-                $customFieldValues[$field->id] = acym_tooltip('<input class="acym__automation__one-field acym__automation__conditions__fields__select intext_input_automation cell" type="text" name="[conditions][__numor__][__numand__][acy_field][value]" style="display: none" data-condition-field="'.$field->id.'">', acym_translation_sprintf('ACYM_DATE_AUTOMATION_INPUT', $field->option['format']), 'intext_select_automation cell');
+                $customFieldValues[$field->id] = acym_tooltip(
+                    '<input class="acym__automation__one-field acym__automation__conditions__fields__select intext_input_automation cell" type="text" name="[conditions][__numor__][__numand__][acy_field][value]" style="display: none" data-condition-field="'.intval($field->id).'">',
+                    acym_translation_sprintf('ACYM_DATE_AUTOMATION_INPUT', $field->option['format']),
+                    'intext_select_automation cell'
+                );
             }
         }
-
         $operator = acym_get('type.operator');
 
         $conditions['user']['acy_field'] = new stdClass();
         $conditions['user']['acy_field']->name = acym_translation('ACYM_ACYMAILING_FIELD');
         $conditions['user']['acy_field']->option = '<div class="intext_select_automation cell">';
-        $conditions['user']['acy_field']->option .= acym_select($fields, 'acym_condition[conditions][__numor__][__numand__][acy_field][field]', null, 'class="acym__select acym__automation__conditions__fields__dropdown"');
+        $conditions['user']['acy_field']->option .= acym_select(
+            $fields,
+            'acym_condition[conditions][__numor__][__numand__][acy_field][field]',
+            null,
+            'class="acym__select acym__automation__conditions__fields__dropdown"'
+        );
         $conditions['user']['acy_field']->option .= '</div>';
         $conditions['user']['acy_field']->option .= '<div class="intext_select_automation cell">';
-        $conditions['user']['acy_field']->option .= $operator->display('acym_condition[conditions][__numor__][__numand__][acy_field][operator]', '', 'acym__automation__conditions__operator__dropdown');
+        $conditions['user']['acy_field']->option .= $operator->display(
+            'acym_condition[conditions][__numor__][__numand__][acy_field][operator]',
+            '',
+            'acym__automation__conditions__operator__dropdown'
+        );
         $conditions['user']['acy_field']->option .= '</div>';
         $conditions['user']['acy_field']->option .= '<input class="acym__automation__one-field intext_input_automation cell acym__automation__condition__regular-field" type="text" name="acym_condition[conditions][__numor__][__numand__][acy_field][value]">';
         $conditions['user']['acy_field']->option .= implode(' ', $customFieldValues);
@@ -228,45 +252,7 @@ class plgAcymSubscriber extends acymPlugin
 
     public function onAcymDeclareFilters(&$filters)
     {
-        $userClass = acym_get('class.user');
-        $fieldClass = acym_get('class.field');
-        $fields = $userClass->getAllColumnsUserAndCustomField();
-        unset($fields['automation']);
-
-        $customFields = $fieldClass->getAllFieldsForUser();
-        $customFieldValues = [];
-        foreach ($customFields as $field) {
-            if (in_array($field->type, ['single_dropdown', 'radio', 'checkbox', 'multiple_dropdown']) && !empty($field->value)) {
-                $values = [];
-                $field->value = json_decode($field->value, true);
-                foreach ($field->value as $value) {
-                    $valueTmp = new stdClass();
-                    $valueTmp->text = $value['title'];
-                    $valueTmp->value = $value['value'];
-                    if ($value['disabled'] == 'y') $valueTmp->disable = true;
-                    $values[$value['value']] = $valueTmp;
-                }
-                $customFieldValues[$field->id] = '<div class="acym__automation__one-field intext_select_automation cell" style="display: none">';
-                $customFieldValues[$field->id] .= acym_select($values, '[filters][__numor__][__numand__][acy_field][value]', null, 'class="acym__select acym__automation__filters__fields__select" data-filter-field="'.$field->id.'"');
-                $customFieldValues[$field->id] .= '</div>';
-            } elseif ('date' == $field->type) {
-                $field->option = json_decode($field->option, true);
-                $customFieldValues[$field->id] = acym_tooltip('<input class="acym__automation__one-field acym__automation__filters__fields__select intext_input_automation cell" type="text" name="[filters][__numor__][__numand__][acy_field][value]" style="display: none" data-filter-field="'.$field->id.'">', acym_translation_sprintf('ACYM_DATE_AUTOMATION_INPUT', $field->option['format']), 'intext_select_automation cell');
-            }
-        }
-
-        $operator = acym_get('type.operator');
-
-        $filters['acy_field'] = new stdClass();
-        $filters['acy_field']->name = acym_translation('ACYM_ACYMAILING_FIELD');
-        $filters['acy_field']->option = '<div class="intext_select_automation cell">';
-        $filters['acy_field']->option .= acym_select($fields, 'acym_action[filters][__numor__][__numand__][acy_field][field]', null, 'class="acym__select acym__automation__filters__fields__dropdown"');
-        $filters['acy_field']->option .= '</div>';
-        $filters['acy_field']->option .= '<div class="intext_select_automation cell">';
-        $filters['acy_field']->option .= $operator->display('acym_action[filters][__numor__][__numand__][acy_field][operator]', '', 'acym__automation__filters__operator__dropdown');
-        $filters['acy_field']->option .= '</div>';
-        $filters['acy_field']->option .= '<input class="acym__automation__one-field intext_input_automation cell acym__automation__filter__regular-field" type="text" name="acym_action[filters][__numor__][__numand__][acy_field][value]">';
-        $filters['acy_field']->option .= implode(' ', $customFieldValues);
+        $this->filtersFromConditions($filters);
     }
 
     private function _processAcyField(&$query, &$options, $num)
@@ -286,7 +272,13 @@ class plgAcymSubscriber extends acymPlugin
             $query->leftjoin['userfield'.$num] = ' #__acym_user_has_field as userfield'.$num.' ON userfield'.$num.'.user_id = user.id AND userfield'.$num.'.field_id = '.intval($options['field']);
             $query->where[] = $query->convertQuery('userfield'.$num, 'value', $options['operator'], $options['value'], $type);
         } else {
-            if ($options['field'] == 'creation_date') $options['value'] = acym_date($options['value'], "Y-m-d H:i:s");
+            if (in_array($options['field'], ['creation_date', 'confirmation_date'])) {
+                $options['value'] = acym_replaceDate($options['value']);
+                if (!is_numeric($options['value'])) {
+                    $options['value'] = strtotime($options['value']);
+                }
+                $options['value'] = acym_date($options['value'], "Y-m-d H:i:s");
+            }
             $query->where[] = $query->convertQuery('user', $options['field'], $options['operator'], $options['value']);
         }
 
@@ -457,7 +449,7 @@ class plgAcymSubscriber extends acymPlugin
             if (!empty($query->where)) $execute .= ' WHERE ('.implode(') AND (', $query->where).')';
         } else {
             $customFieldAlreadyExists = acym_loadResult('SELECT COUNT(user_id) FROM #__acym_user_has_field WHERE field_id = '.intval($action['field']));
-            $execute = 'INSERT INTO #__acym_user_has_field ('.$allColumn.') SELECT id AS user_id, '.intval($action['field']).' AS field_id, '.$newValue.' as value FROM #__acym_user AS user WHERE ('.implode(') AND (', $query->where).') ON DUPLICATE KEY UPDATE '.$column.' = VALUES('.$column.')';
+            $execute = 'INSERT INTO #__acym_user_has_field ('.$allColumn.') SELECT id AS user_id, '.intval($action['field']).' AS field_id, '.$newValue.' AS value FROM #__acym_user AS user WHERE ('.implode(') AND (', $query->where).') ON DUPLICATE KEY UPDATE '.$column.' = VALUES('.$column.')';
         }
 
         $nbAffected = acym_query($execute);
@@ -521,33 +513,33 @@ class plgAcymSubscriber extends acymPlugin
         $automationClass->trigger('user_modification', ['userId' => $user->id]);
     }
 
-    public function onAcymDeclareSummary_conditions(&$automationCondition)
+    public function onAcymDeclareSummary_conditions(&$automation)
     {
-        if (!empty($automationCondition['acy_field'])) {
-
-            $usersColumns = acym_getColumns('user');
-
-            if (!in_array($automationCondition['acy_field']['field'], $usersColumns)) {
-                $fieldClass = acym_get('class.field');
-                $field = $fieldClass->getOneFieldById($automationCondition['acy_field']['field']);
-                $automationCondition['acy_field']['field'] = $field->name;
-            }
-            $automationCondition = acym_translation_sprintf('ACYM_CONDITION_ACY_FIELD_SUMMARY', $automationCondition['acy_field']['field'], $automationCondition['acy_field']['operator'], $automationCondition['acy_field']['value']);
-        }
+        $this->onAcymDeclareSummary_conditionsFilters($automation, 'ACYM_CONDITION_ACY_FIELD_SUMMARY');
     }
 
-    public function onAcymDeclareSummary_filters(&$automationFilter)
+    public function onAcymDeclareSummary_filters(&$automation)
     {
-        if (!empty($automationFilter['acy_field'])) {
+        $this->onAcymDeclareSummary_conditionsFilters($automation, 'ACYM_FILTER_ACY_FIELD_SUMMARY');
+    }
+
+    private function onAcymDeclareSummary_conditionsFilters(&$automation, $key)
+    {
+        if (!empty($automation['acy_field'])) {
 
             $usersColumns = acym_getColumns('user');
 
-            if (!in_array($automationFilter['acy_field']['field'], $usersColumns)) {
+            if (!in_array($automation['acy_field']['field'], $usersColumns)) {
                 $fieldClass = acym_get('class.field');
-                $field = $fieldClass->getOneFieldById($automationFilter['acy_field']['field']);
-                $automationFilter['acy_field']['field'] = $field->name;
+                $field = $fieldClass->getOneFieldById($automation['acy_field']['field']);
+                $automation['acy_field']['field'] = $field->name;
             }
-            $automationFilter = acym_translation_sprintf('ACYM_FILTER_ACY_FIELD_SUMMARY', $automationFilter['acy_field']['field'], $automationFilter['acy_field']['operator'], $automationFilter['acy_field']['value']);
+            $automation = acym_translation_sprintf(
+                $key,
+                $automation['acy_field']['field'],
+                $automation['acy_field']['operator'],
+                $automation['acy_field']['value']
+            );
         }
     }
 
@@ -615,6 +607,40 @@ class plgAcymSubscriber extends acymPlugin
             $userClass = acym_get('class.user');
             $userClass->confirm($userId);
         }
+    }
+
+    public function onAcymDeclareDataSourcesBirthdayTrigger(&$dataSources)
+    {
+        $data = [
+            'source_name' => 'AcyMailing',
+            'fields' => [],
+            'no_fields_error_message' => 'ACYM_NO_FIELDS_BIRTHDAY_TRIGGER',
+        ];
+
+        $fieldClass = acym_get('class.field');
+
+        $fieldsData = $fieldClass->getMatchingElements(['types' => ['date']]);
+        $fields = $fieldsData['elements'];
+
+        foreach ($fields as $oneField) {
+            $option = json_decode($oneField->option);
+
+            if (empty($option->format)) continue;
+
+            $format = explode('%', $option->format);
+            unset($format[0]);
+            $format = implode('/', $format);
+            $format = str_replace('y', 'Y', $format);
+
+            $data['fields'][] = [
+                'name' => $oneField->name,
+                'id' => $oneField->id,
+                'format' => $format,
+                'query' => 'SELECT user_id, value AS date FROM #__acym_user_has_field WHERE field_id = '.intval($oneField->id),
+            ];
+        }
+
+        $dataSources['acymailing'] = $data;
     }
 }
 

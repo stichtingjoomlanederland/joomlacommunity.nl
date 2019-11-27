@@ -131,6 +131,7 @@ class EasyDiscussViewCategories extends EasyDiscussView
 
 		$activeSort = $registry->get('sort');
 		$activeFilter = $this->input->get('filter', 'allposts', 'string');
+		$activeSort = $this->input->get('sort', $activeSort, 'string');
 
 		$options = array(
 						'sort' => $activeSort,

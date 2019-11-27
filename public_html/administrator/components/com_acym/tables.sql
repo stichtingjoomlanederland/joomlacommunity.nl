@@ -112,8 +112,12 @@ CREATE TABLE IF NOT EXISTS `#__acym_campaign` (
 	`draft` TINYINT(1) NULL,
 	`active` TINYINT(1) NOT NULL DEFAULT 1,
 	`mail_id` INT NULL,
-	`scheduled` TINYINT(1) NOT NULL DEFAULT 0,
 	`sent` TINYINT(1) NOT NULL DEFAULT 0,
+	`sending_type` VARCHAR(16) DEFAULT NULL,
+	`sending_params` TEXT DEFAULT NULL,
+	`parent_id` INT DEFAULT NULL,
+	`last_generated` INT DEFAULT NULL,
+	`next_trigger` INT DEFAULT NULL,
 	PRIMARY KEY (`id`),
 	INDEX `fk_#__acym_campaign_has_mail1`(`mail_id` ASC),
 	CONSTRAINT `fk_#__acym_campaign_has_mail1`
@@ -341,13 +345,13 @@ CREATE TABLE IF NOT EXISTS `#__acym_url_click` (
 	`click` INT NOT NULL DEFAULT 0,
 	`date_click` DATETIME NULL,
 	PRIMARY KEY (`mail_id`, `url_id`, `user_id`),
-	INDEX `fk_#__acym_url_click_#__acym_url1_idx`(`url_id` ASC),
-	CONSTRAINT `fk_#__acym_url_click_#__acym_mail1`
+	INDEX `fk_#__acym_url_has_url1`(`url_id` ASC),
+	CONSTRAINT `fk_#__acym_url_click_has_mail`
 		FOREIGN KEY (`mail_id`)
 			REFERENCES `#__acym_mail`(`id`)
 			ON DELETE NO ACTION
 			ON UPDATE NO ACTION,
-	CONSTRAINT `fk_#__acym_url_click_#__acym_url1`
+	CONSTRAINT `fk_#__acym_url_has_url`
 		FOREIGN KEY (`url_id`)
 			REFERENCES `#__acym_url`(`id`)
 			ON DELETE NO ACTION
@@ -479,7 +483,7 @@ CREATE TABLE IF NOT EXISTS `#__acym_condition` (
 
 
 -- -----------------------------------------------------
--- Table `#__acym_condition`
+-- Table `#__acym_action`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `#__acym_action` (
 	`id` INT NOT NULL AUTO_INCREMENT,
@@ -493,6 +497,29 @@ CREATE TABLE IF NOT EXISTS `#__acym_action` (
 			REFERENCES `#__acym_condition`(`id`)
 			ON DELETE NO ACTION
 			ON UPDATE NO ACTION
+)
+	ENGINE = InnoDB
+	/*!40100
+	DEFAULT CHARACTER SET utf8
+	COLLATE utf8_general_ci*/;
+
+
+-- -----------------------------------------------------
+-- Table `#__acym_plugin`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `#__acym_plugin` (
+	`id` INT NOT NULL AUTO_INCREMENT,
+	`title` VARCHAR (100) NOT NULL,
+	`folder_name` VARCHAR(100) NOT NULL,
+	`version` VARCHAR (10) NULL,
+	`active` INT NOT NULL,
+	`category` VARCHAR (100) NOT NULL,
+	`level` VARCHAR (50) NOT NULL,
+	`uptodate` INT NOT NULL,
+	`features` VARCHAR (255) NOT NULL,
+	`description` LONGTEXT NOT NULL,
+	`latest_version` VARCHAR (255) NOT NULL,
+	PRIMARY KEY (`id`)
 )
 	ENGINE = InnoDB
 	/*!40100

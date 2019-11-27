@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @copyright 	Copyright (c) 2009-2019 Ryan Demmer. All rights reserved
- * @license   	GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * @copyright     Copyright (c) 2009-2019 Ryan Demmer. All rights reserved
+ * @license       GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * JCE is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
@@ -10,119 +10,61 @@
  */
 defined('JPATH_PLATFORM') or die;
 ?>
-<div class="media_option real"><h4><?php echo JText::_('WF_MEDIAMANAGER_REAL_OPTIONS'); ?></h4>
-			
-	<table border="0" cellpadding="4" cellspacing="0">
-		<tr>
-			<td colspan="2">
-			<table border="0" cellpadding="0" cellspacing="0">
-				<tr>
-					<td><input type="checkbox" class="checkbox" id="real_autostart" /></td>
-					<td><label for="real_autostart"><?php echo JText::_('WF_MEDIAMANAGER_REAL_AUTOSTART'); ?></label></td>
-				</tr>
-			</table>
-			</td>
-	
-			<td colspan="2">
-			<table border="0" cellpadding="0" cellspacing="0">
-				<tr>
-					<td><input type="checkbox" class="checkbox" id="real_loop" /></td>
-					<td><label for="real_loop"><?php echo JText::_('WF_MEDIAMANAGER_REAL_LOOP'); ?></label></td>
-				</tr>
-			</table>
-			</td>
-		</tr>
-	
-		<tr>
-			<td colspan="2">
-			<table border="0" cellpadding="0" cellspacing="0">
-				<tr>
-					<td><input type="checkbox" class="checkbox" id="real_autogotourl"
-						checked="checked" /></td>
-					<td><label for="real_autogotourl"><?php echo JText::_('WF_MEDIAMANAGER_REAL_AUTOGOTOURL'); ?></label></td>
-				</tr>
-			</table>
-			</td>
-	
-			<td colspan="2">
-			<table border="0" cellpadding="0" cellspacing="0">
-				<tr>
-					<td><input type="checkbox" class="checkbox" id="real_center" /></td>
-					<td><label for="real_center"><?php echo JText::_('WF_MEDIAMANAGER_REAL_CENTER'); ?></label></td>
-				</tr>
-			</table>
-			</td>
-		</tr>
-	
-		<tr>
-			<td colspan="2">
-			<table border="0" cellpadding="0" cellspacing="0">
-				<tr>
-					<td><input type="checkbox" class="checkbox" id="real_imagestatus"
-						checked="checked" /></td>
-					<td><label for="real_imagestatus"><?php echo JText::_('WF_MEDIAMANAGER_REAL_IMAGESTATUS'); ?></label></td>
-				</tr>
-			</table>
-			</td>
-	
-			<td colspan="2">
-			<table border="0" cellpadding="0" cellspacing="0">
-				<tr>
-					<td><input type="checkbox" class="checkbox" id="real_maintainaspect" /></td>
-					<td><label for="real_maintainaspect"><?php echo JText::_('WF_MEDIAMANAGER_REAL_MAINTAINASPECT'); ?></label></td>
-				</tr>
-			</table>
-			</td>
-		</tr>
-	
-		<tr>
-			<td colspan="2">
-			<table border="0" cellpadding="0" cellspacing="0">
-				<tr>
-					<td><input type="checkbox" class="checkbox" id="real_nojava" /></td>
-					<td><label for="real_nojava"><?php echo JText::_('WF_MEDIAMANAGER_REAL_NOJAVA'); ?></label></td>
-				</tr>
-			</table>
-			</td>
-	
-			<td colspan="2">
-			<table border="0" cellpadding="0" cellspacing="0">
-				<tr>
-					<td><input type="checkbox" class="checkbox" id="real_prefetch" /></td>
-					<td><label for="real_prefetch"><?php echo JText::_('WF_MEDIAMANAGER_REAL_PREFETCH'); ?></label></td>
-				</tr>
-			</table>
-			</td>
-		</tr>
-	
-		<tr>
-			<td colspan="2">
-			<table border="0" cellpadding="0" cellspacing="0">
-				<tr>
-					<td><input type="checkbox" class="checkbox" id="real_shuffle" /></td>
-					<td><label for="real_shuffle"><?php echo JText::_('WF_MEDIAMANAGER_REAL_SHUFFLE'); ?></label></td>
-				</tr>
-			</table>
-			</td>
-	
-			<td colspan="2">&nbsp;</td>
-		</tr>
-	
-		<tr>
-			<td><label for="real_console"><?php echo JText::_('WF_MEDIAMANAGER_REAL_CONSOLE'); ?></label></td>
-			<td><input type="text" id="real_console" /></td>
-	
-			<td><label for="real_controls"><?php echo JText::_('WF_MEDIAMANAGER_REAL_CONTROLS'); ?></label></td>
-			<td><input type="text" id="real_controls" /></td>
-		</tr>
-	
-		<tr>
-			<td><label for="real_numloop"><?php echo JText::_('WF_MEDIAMANAGER_REAL_NUMLOOP'); ?></label></td>
-			<td><input type="text" id="real_numloop" /></td>
-	
-			<td><label for="real_scriptcallbacks"><?php echo JText::_('WF_MEDIAMANAGER_REAL_SCRIPTCALLBACKS'); ?></label></td>
-			<td><input type="text" id="real_scriptcallbacks" /></td>
-		</tr>
-	</table>
+<div class="media_option real">
+	<h4><?php echo JText::_('WF_MEDIAMANAGER_REAL_OPTIONS'); ?></h4>
+	<div class="uk-form-row uk-grid uk-grid-small">
+		<label for="real_autostart" class="uk-form-label uk-width-1-5"><input type="checkbox" class="checkbox" id="real_autostart" /> <?php echo JText::_('WF_MEDIAMANAGER_REAL_AUTOSTART'); ?></label>
+		<label for="real_loop" class="uk-form-label uk-width-1-5"><input type="checkbox" class="checkbox" id="real_loop" checked="checked" /> <?php echo JText::_('WF_MEDIAMANAGER_REAL_LOOP'); ?></label>
+
+		<label for="real_autogotourl" class="uk-form-label uk-width-1-5"><input type="checkbox" class="checkbox" id="real_autogotourl" /> <?php echo JText::_('WF_MEDIAMANAGER_REAL_AUTOGOTOURL'); ?></label>
+		<label for="real_center" class="uk-form-label uk-width-1-5"><input type="checkbox" class="checkbox" id="real_center" checked="checked" /> <?php echo JText::_('WF_MEDIAMANAGER_REAL_CENTER'); ?></label>
+	</div>
+
+	<div class="uk-form-row uk-grid uk-grid-small">
+		<label for="real_autostart" class="uk-form-label uk-width-1-5"><input type="checkbox" class="checkbox" id="real_autostart" /> <?php echo JText::_('WF_MEDIAMANAGER_REAL_AUTOSTART'); ?></label>
+		<label for="real_loop" class="uk-form-label uk-width-1-5"><input type="checkbox" class="checkbox" id="real_loop" checked="checked" /> <?php echo JText::_('WF_MEDIAMANAGER_REAL_LOOP'); ?></label>
+
+		<label for="real_imagestatus" class="uk-form-label uk-width-1-5"><input type="checkbox" class="checkbox" id="real_imagestatus" /> <?php echo JText::_('WF_MEDIAMANAGER_REAL_IMAGESTATUS'); ?></label>
+		<label for="real_maintainaspect" class="uk-form-label uk-width-1-5"><input type="checkbox" class="checkbox" id="real_maintainaspect" checked="checked" /> <?php echo JText::_('WF_MEDIAMANAGER_REAL_MAINTAINASPECT'); ?></label>
+	</div>
+
+	<div class="uk-form-row uk-grid uk-grid-small">
+		<label for="real_autostart" class="uk-form-label uk-width-1-5"><input type="checkbox" class="checkbox" id="real_autostart" /> <?php echo JText::_('WF_MEDIAMANAGER_REAL_AUTOSTART'); ?></label>
+		<label for="real_loop" class="uk-form-label uk-width-1-5"><input type="checkbox" class="checkbox" id="real_loop" checked="checked" /> <?php echo JText::_('WF_MEDIAMANAGER_REAL_LOOP'); ?></label>
+
+		<label for="real_nojava" class="uk-form-label uk-width-1-5"><input type="checkbox" class="checkbox" id="real_nojava" /> <?php echo JText::_('WF_MEDIAMANAGER_REAL_NOJAVA'); ?></label>
+		<label for="real_prefetch" class="uk-form-label uk-width-1-5"><input type="checkbox" class="checkbox" id="real_prefetch" checked="checked" /> <?php echo JText::_('WF_MEDIAMANAGER_REAL_PREFETCH'); ?></label>
+	</div>
+
+	<div class="uk-form-row uk-grid uk-grid-small">
+		<label for="real_shuffle" class="uk-form-label uk-width-1-5"><input type="checkbox" class="checkbox" id="real_shuffle" /> <?php echo JText::_('WF_MEDIAMANAGER_REAL_SHUFFLE'); ?></label>
+	</div>
+
+	<div class="uk-form-row uk-grid uk-grid-small">
+		<label for="real_console" class="uk-form-label uk-width-1-5"><?php echo JText::_('WF_MEDIAMANAGER_REAL_CONSOLE'); ?></label>
+		<div class="uk-width-4-5 uk-grid uk-grid-small">
+			<div class="uk-form-controls uk-width-2-5">
+				<input type="text" id="real_console" />
+			</div>
+			<label for="real_controls" class="uk-form-label uk-width-1-5"><?php echo JText::_('WF_MEDIAMANAGER_REAL_CONTROLS'); ?></label>
+			<div class="uk-form-controls uk-width-2-5">
+				<input type="text" id="real_controls" />
+			</div>
+		</div>
+	</div>
+
+	<div class="uk-form-row uk-grid uk-grid-small">
+		<label for="real_numloop" class="uk-form-label uk-width-1-5"><?php echo JText::_('WF_MEDIAMANAGER_REAL_NUMLOOP'); ?></label>
+		<div class="uk-width-4-5 uk-grid uk-grid-small">
+			<div class="uk-form-controls uk-width-2-5">
+				<input type="text" id="real_numloop" />
+			</div>
+			<label for="real_scriptcallbacks" class="uk-form-label uk-width-1-5"><?php echo JText::_('WF_MEDIAMANAGER_REAL_SCRIPTCALLBACKS'); ?></label>
+			<div class="uk-form-controls uk-width-2-5">
+				<input type="text" id="real_scriptcallbacks" />
+			</div>
+		</div>
+	</div>
+
 	<h6 class="notice">RealNetworks, Real, the Real logo, RealPlayer, and the RealPlayer logo are trademarks or registered trademarks of RealNetworks, Inc.</h6>
 </div>

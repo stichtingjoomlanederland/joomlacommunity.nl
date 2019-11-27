@@ -1,33 +1,33 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl').'&task='.acym_getVar('string', 'task').'&id='.acym_getVar('string', 'id')); ?>" method="post" name="acyForm" class="acym__form__campaign__edit">
+?>
+<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl').'&task='.acym_getVar('string', 'task').'&id='.acym_getVar('string', 'id')); ?>" method="post" name="acyForm" class="acym__form__campaign__edit">
 	<input type="hidden" value="<?php echo !empty($data['campaignInformation']) ? acym_escape($data['campaignInformation']) : ''; ?>" name="id" id="acym__campaign__recipients__form__campaign">
 	<input type="hidden" value="<?php echo !empty($data['showSelected']) ? $data['showSelected'] : ''; ?>" name="showSelected" id="acym__campaign__recipients__show-all-or-selected">
 	<div id="acym__campaigns__recipients" class="grid-x">
 		<div class="cell xxlarge-9 float-center grid-x acym__content">
             <?php
             $workflow = acym_get('helper.workflow');
-            echo $workflow->display($this->steps, $this->step, false);
+            echo $workflow->display($this->steps, $this->step);
 
             ?>
 			<div class="acym__campaigns__recipients__modal">
                 <?php if (!empty($data['currentCampaign']->sent && empty($data['currentCampaign']->active))) { ?>
 					<div class="acym__hide__div"></div>
-					<h3 class="acym__title__primary__color acym__middle_absolute__text text-center"><?php echo acym_translation('ACYM_CAMPAIGN_ALREADY_QUEUED') ?></h3>
+					<h3 class="acym__title__primary__color acym__middle_absolute__text text-center"><?php echo acym_translation('ACYM_CAMPAIGN_ALREADY_QUEUED'); ?></h3>
                 <?php }
                 $entityHelper = acym_get('helper.entitySelect');
 
                 echo $entityHelper->entitySelect('list', ['join' => 'join_mail-'.$data['currentCampaign']->mail_id], [0 => 'name', 1 => 'id', 'join' => 'maillist.mail_id']);
                 ?>
-				<hr class="cell">
 				<div class="cell grid-x acym__campaign__recipients__total-recipients acym__content acym_vcenter">
 					<p class="cell medium-8"><?php echo acym_translation('ACYM_CAMPAIGN_SENT_TO'); ?></p>
 					<div class="medium-4 acym__campaign__recipients__number-display cell grid-x align-right acym_vcenter">

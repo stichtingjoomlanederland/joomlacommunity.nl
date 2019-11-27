@@ -14,17 +14,18 @@ class WFFilemanagerPluginConfig
     {
         require_once __DIR__ . '/filemanager.php';
 
-        // set plugin
-        JFactory::getApplication()->input->set('plugin', 'filemanager');
-
         $plugin = new WFFileManagerPlugin();
 
+        $config = array();
+
         if ($plugin->getParam('inline_upload', 1)) {
-            $settings['filemanager_upload'] = array(
-                'max_size' => $plugin->getParam('max_size', 1024),
+            $config['upload'] = array(
+                'max_size'  => $plugin->getParam('max_size', 1024),
                 'filetypes' => $plugin->getFileTypes(),
             );
         }
+
+        $settings['filemanager'] = $config;
 
         // remove iframe if we have enabled google docs stuff
         if ($plugin->getParam('googledocs_enable', 1)) {

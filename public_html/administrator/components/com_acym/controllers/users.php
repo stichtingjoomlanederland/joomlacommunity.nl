@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class UsersController extends acymController
 {
@@ -24,7 +25,7 @@ class UsersController extends acymController
 
     public function listing()
     {
-        acym_setVar("layout", "listing");
+        acym_setVar('layout', 'listing');
 
         $searchFilter = acym_getVar('string', 'users_search', '');
         $status = acym_getVar('string', 'users_status', '');
@@ -34,17 +35,15 @@ class UsersController extends acymController
         $usersPerPage = acym_getCMSConfig('list_limit', 20);
         $page = acym_getVar('int', 'users_pagination_page', 1);
 
-        $userClass = acym_get('class.user');
-        $matchingUsers = $userClass->getMatchingElements(
-            [
-                'search' => $searchFilter,
-                'elementsPerPage' => $usersPerPage,
-                'offset' => ($page - 1) * $usersPerPage,
-                'status' => $status,
-                'ordering' => $ordering,
-                'ordering_sort_order' => $orderingSortOrder,
-            ]
-        );
+        $requestData = [
+            'search' => $searchFilter,
+            'elementsPerPage' => $usersPerPage,
+            'offset' => ($page - 1) * $usersPerPage,
+            'status' => $status,
+            'ordering' => $ordering,
+            'ordering_sort_order' => $orderingSortOrder,
+        ];
+        $matchingUsers = $this->getMatchingElementsFromData($requestData, 'user', $status);
 
         $pagination = acym_get('helper.pagination');
         $pagination->setStatus($matchingUsers['total'], $page, $usersPerPage);
@@ -85,8 +84,8 @@ class UsersController extends acymController
 
     public function edit()
     {
-        acym_setVar("layout", "edit");
-        $userId = acym_getVar("int", "id", 0);
+        acym_setVar('layout', 'edit');
+        $userId = acym_getVar('int', 'id', 0);
         $userClass = acym_get('class.user');
         $userStatClass = acym_get('class.userstat');
         $fieldClass = acym_get('class.field');
@@ -228,7 +227,7 @@ class UsersController extends acymController
 
     public function import()
     {
-        acym_setVar("layout", "import");
+        acym_setVar('layout', 'import');
 
         $tab = acym_get('helper.tab');
         $userClass = acym_get('class.user');
@@ -342,7 +341,7 @@ class UsersController extends acymController
 
     public function export()
     {
-        acym_setVar("layout", "export");
+        acym_setVar('layout', 'export');
         $this->breadcrumb[acym_translation('ACYM_EXPORT_USERS')] = acym_completeLink('users&task=export');
 
         $listClass = acym_get('class.list');
@@ -373,7 +372,7 @@ class UsersController extends acymController
 
         $usersToExport = acym_getVar('string', 'export_users-to-export', 'all');
         $listsToExport = json_decode(acym_getVar('string', 'acym__entity_select__selected'));
-        if ($usersToExport == "list" && empty($listsToExport)) {
+        if ($usersToExport == 'list' && empty($listsToExport)) {
             acym_enqueueMessage(acym_translation('ACYM_EXPORT_SELECT_LIST'), 'error');
 
             return $this->exportError(acym_translation('ACYM_EXPORT_SELECT_LIST'));
@@ -450,7 +449,7 @@ class UsersController extends acymController
         if (!empty($selectedUsersArray)) {
             acym_arrayToInteger($selectedUsersArray);
             $where[] = 'user.id IN ('.implode(',', $selectedUsersArray).')';
-        } elseif ($usersToExport == "list" && !empty($listsToExport)) {
+        } elseif ($usersToExport == 'list' && !empty($listsToExport)) {
             $query .= ' JOIN #__acym_user_has_list AS userlist ON userlist.user_id = user.id';
             acym_arrayToInteger($listsToExport);
             $where[] = 'userlist.list_id IN ('.implode(',', $listsToExport).')';
@@ -599,7 +598,7 @@ class UsersController extends acymController
         $columns = acym_getColumns($tableName, false, false);
         $allColumnsSelect = '<option value=""></option>';
         foreach ($columns as $oneColumn) {
-            $allColumnsSelect .= '<option value="'.$oneColumn.'">'.$oneColumn.'</option>';
+            $allColumnsSelect .= '<option value="'.acym_escape($oneColumn).'">'.$oneColumn.'</option>';
         }
 
         echo $allColumnsSelect;
@@ -657,7 +656,7 @@ class UsersController extends acymController
         foreach ($users['elements'] as $user) {
             $return .= '<div class="grid-x modal__pagination__users__listing__in-form__user cell">';
 
-            $return .= '<div class="cell shrink"><input type="checkbox" id="modal__pagination__users__listing__user'.$user->id.'" value="'.$user->id.'" class="modal__pagination__users__listing__user--checkbox" name="users_checked[]"';
+            $return .= '<div class="cell shrink"><input type="checkbox" id="modal__pagination__users__listing__user'.$user->id.'" value="'.intval($user->id).'" class="modal__pagination__users__listing__user--checkbox" name="users_checked[]"';
 
             if (!empty($matchingUsersData->idsSelected) && in_array($user->id, $matchingUsersData->idsSelected)) {
                 $return .= 'checked';
@@ -693,7 +692,7 @@ class UsersController extends acymController
                         $details .= $value.'<br />';
                         continue;
                     }
-                    list($part1, $part2) = explode("::", $value);
+                    list($part1, $part2) = explode('::', $value);
                     if (preg_match('#^[A-Z_]*$#', $part2)) $part2 = acym_translation($part2);
                     $details .= '<b>'.acym_escape(acym_translation($part1)).' : </b>'.acym_escape($part2).'<br />';
                 }
@@ -715,7 +714,7 @@ class UsersController extends acymController
                 $details = '<div><h5>'.acym_translation('ACYM_SOURCE').'</h5><br />';
                 foreach ($source as $value) {
                     if (!strpos($value, '::')) continue;
-                    list($part1, $part2) = explode("::", $value);
+                    list($part1, $part2) = explode('::', $value);
                     $details .= '<b>'.acym_escape($part1).' : </b>'.acym_escape($part2).'<br />';
                 }
                 $details .= '</div>';

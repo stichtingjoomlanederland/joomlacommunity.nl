@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class acymuserClass extends acymClass
 {
@@ -59,8 +60,19 @@ class acymuserClass extends acymClass
 
 
         if (!empty($settings['search'])) {
+            $completeSearchField = $this->searchForMultliplaValueField($settings['search']);
+            $completeSearch = '';
+            if (!empty($completeSearchField)) {
+                foreach ($completeSearchField as $oneField) {
+                    $completeSearch .= ' OR userfield.value LIKE '.acym_escapeDB('%'.$oneField.'%');
+                }
+            }
             $searchValue = acym_escapeDB('%'.$settings['search'].'%');
-            $filters[] = 'user.email LIKE '.$searchValue.' OR user.name LIKE '.$searchValue;
+            $searchFilter = 'user.email LIKE '.$searchValue.' OR user.name LIKE '.$searchValue;
+            $searchFilter .= ' OR user.id IN (SELECT userfield.user_id FROM #__acym_user_has_field AS userfield INNER JOIN #__acym_field AS field ON userfield.field_id = field.id 
+            WHERE field.backend_listing = 1 AND (userfield.value LIKE '.$searchValue.' '.$completeSearch.'))';
+
+            $filters[] = $searchFilter;
         }
 
         if (!empty($filters)) {
@@ -167,6 +179,22 @@ class acymuserClass extends acymClass
         return $results;
     }
 
+    private function searchForMultliplaValueField($search)
+    {
+        $return = [];
+        $fieldsWithMultipleValues = acym_loadObjectList('SELECT * FROM #__acym_field WHERE `value` LIKE '.acym_escapeDB('%"title":"'.$search.'"%'));
+        if (!empty($fieldsWithMultipleValues)) {
+            foreach ($fieldsWithMultipleValues as $oneField) {
+                $oneField->value = json_decode($oneField->value, true);
+                foreach ($oneField->value as $value) {
+                    if (stripos($value['title'], $search) !== false) $return[] = $value['value'];
+                }
+            }
+        }
+
+        return $return;
+    }
+
     public function getJoinForQuery($joinType)
     {
         if (strpos($joinType, 'join_list') !== false) {
@@ -178,23 +206,9 @@ class acymuserClass extends acymClass
         return '';
     }
 
-    public function getAll()
-    {
-        $query = 'SELECT * FROM #__acym_user';
-
-        return acym_loadObjectList($query);
-    }
-
-    public function getOneById($id)
-    {
-        $query = 'SELECT * FROM #__acym_user WHERE id = '.intval($id).' LIMIT 1';
-
-        return acym_loadObject($query);
-    }
-
     public function getOneByCMSId($id)
     {
-        $query = 'SELECT * FROM #__acym_user WHERE cms_id = '.intval($id).' LIMIT 1';
+        $query = 'SELECT * FROM #__acym_user WHERE cms_id = '.intval($id);
 
         return acym_loadObject($query);
     }
@@ -202,7 +216,7 @@ class acymuserClass extends acymClass
 
     public function getOneByEmail($email)
     {
-        $query = "SELECT * FROM #__acym_user WHERE email = ".acym_escapeDB($email)." LIMIT 1";
+        $query = 'SELECT * FROM #__acym_user WHERE email = '.acym_escapeDB($email);
 
         return acym_loadObject($query);
     }
@@ -250,7 +264,9 @@ class acymuserClass extends acymClass
 
     public function getSubscriptionStatus($userId, $listids = [])
     {
-        $query = 'SELECT status, list_id FROM #__acym_user_has_list WHERE user_id = '.intval($userId);
+        $query = 'SELECT status, list_id
+                    FROM #__acym_user_has_list  
+                    WHERE user_id = '.intval($userId);
         if (!empty($listids)) {
             acym_arrayToInteger($listids);
             $query .= ' AND list_id IN ('.implode(',', $listids).')';
@@ -261,8 +277,8 @@ class acymuserClass extends acymClass
 
     public function identify($onlyValue = false)
     {
-        $id = acym_getVar('int', "id", 0);
-        $key = acym_getVar('string', "key", '');
+        $id = acym_getVar('int', 'id', 0);
+        $key = acym_getVar('string', 'key', '');
 
         if (empty($id) || empty($key)) {
             $currentUserid = acym_currentUserId();
@@ -283,7 +299,7 @@ class acymuserClass extends acymClass
         }
 
         if (!$onlyValue) {
-            acym_enqueueMessage(acym_translation('INVALID_KEY'), 'error');
+            acym_enqueueMessage(acym_translation('ACYM_USER_NOT_FOUND'), 'error');
         }
 
         return false;
@@ -360,9 +376,7 @@ class acymuserClass extends acymClass
 
     public function unsubscribe($userIds, $lists)
     {
-        if (empty($lists)) {
-            return false;
-        }
+        if (empty($lists)) return false;
 
         if (!is_array($userIds)) {
             $userIds = [$userIds];
@@ -394,7 +408,7 @@ class acymuserClass extends acymClass
                 $subscription->user_id = $userId;
                 $subscription->list_id = $oneListId;
                 $subscription->status = 0;
-                $subscription->unsubscribe_date = date("Y-m-d H:i:s", time());
+                $subscription->unsubscribe_date = date('Y-m-d H:i:s', time());
 
                 if (empty($currentSubscription[$oneListId])) {
                     acym_insertObject('#__acym_user_has_list', $subscription);
@@ -477,6 +491,9 @@ class acymuserClass extends acymClass
             if (empty($user->name) && $config->get('generate_name', 1)) {
                 $user->name = ucwords(trim(str_replace(['.', '_', ')', ',', '(', '-', 1, 2, 3, 4, 5, 6, 7, 8, 9, 0], ' ', substr($user->email, 0, strpos($user->email, '@')))));
             }
+
+            $source = acym_getVar('cmd', 'acy_source', '');
+            if (empty($user->source) && !empty($source)) $user->source = $source;
 
             if (empty($user->key)) $user->key = acym_generateKey(14);
 
@@ -674,7 +691,7 @@ class acymuserClass extends acymClass
         $mailerHelper->checkEnabled = false;
         $mailerHelper->report = $config->get('confirm_message', 0);
 
-        $alias = "acy_confirm";
+        $alias = 'acy_confirm';
 
         $this->confirmationSentSuccess = $mailerHelper->sendOne($alias, $myuser);
         $this->confirmationSentError = $mailerHelper->reportMessage;
@@ -806,6 +823,8 @@ class acymuserClass extends acymClass
             } elseif ($cmsUser->id != $acyUser->id) {
                 $this->delete($acyUser->id);
             }
+        } else {
+            $cmsUser->source = $source;
         }
 
         $isnew = (bool)($isnew || empty($cmsUser->id));
@@ -874,6 +893,14 @@ class acymuserClass extends acymClass
         } else {
             acym_query('UPDATE #__acym_user SET `cms_id` = 0 WHERE `id` = '.intval($acyUser->id));
         }
+    }
+
+    public function getUsersLikeEmail($pattern)
+    {
+        $query = 'SELECT id, email FROM #__acym_user WHERE email LIKE '.acym_escapeDB('%'.$pattern.'%');
+        $res = acym_loadObjectList($query);
+
+        return $res;
     }
 }
 

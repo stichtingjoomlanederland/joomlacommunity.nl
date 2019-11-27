@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class acymheaderHelper
 {
@@ -252,6 +253,11 @@ class acymheaderHelper
         $notifications = json_decode($config->get('notifications', '[]'), true);
 
         $notif->message = strip_tags($notif->message);
+
+        foreach ($notifications as $key => $oneNotif) {
+            if ($oneNotif['message'] === $notif->message && $oneNotif['level'] === $notif->level) unset($notifications[$key]);
+        }
+        $notifications = array_values($notifications);
 
         $notif->id = uniqid();
         array_unshift($notifications, $notif);

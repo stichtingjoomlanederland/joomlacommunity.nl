@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class acymmailClass extends acymClass
 {
@@ -94,11 +95,11 @@ class acymmailClass extends acymClass
             $query .= ' ORDER BY mail.'.acym_secureDBColumn($settings['ordering']).' '.acym_secureDBColumn(strtoupper($settings['ordering_sort_order']));
         }
 
-        if(empty($settings['offset']) || $settings['offset'] < 0){
+        if (empty($settings['offset']) || $settings['offset'] < 0) {
             $settings['offset'] = 0;
         }
 
-        if(empty($settings['elementsPerPage']) || $settings['elementsPerPage'] < 1){
+        if (empty($settings['elementsPerPage']) || $settings['elementsPerPage'] < 1) {
             $settings['elementsPerPage'] = acym_getCMSConfig('list_limit', 20);
         }
 
@@ -121,9 +122,10 @@ class acymmailClass extends acymClass
         return $results;
     }
 
-    public function getAll()
+    public function getAll($key = null)
     {
-        return $this->decode(acym_loadObjectList('SELECT * FROM #__acym_mail'));
+        $allMails = parent::getAll($key);
+        return $this->decode($allMails);
     }
 
     public function getOneById($id)
@@ -229,8 +231,10 @@ class acymmailClass extends acymClass
         return acym_loadObjectList($query, 'id');
     }
 
-    public function save($mail)
+    public function save($mailToSave)
     {
+        $mail = clone $mailToSave;
+
         if (isset($mail->tags)) {
             $tags = $mail->tags;
             unset($mail->tags);

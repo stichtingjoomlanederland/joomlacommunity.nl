@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -23,7 +23,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 						</div>
 
 						<div class="o-flag__body">
-							<a href="<?php echo $profile->getPermalink();?>" class="ed-user-name t-lg-mb--sm"><?php echo $profile->getName(); ?></a>
+							<?php echo $this->html('user.username', $profile, array('lgMarginBottom' => true)); ?>
 
 							<?php if( $this->config->get('main_ranking')){ ?>
 							<div class="ed-rank-bar t-lg-mb--sm">

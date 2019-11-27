@@ -21,5 +21,43 @@ class WFTemplateManagerPluginConfig
         $settings['templatemanager_mdate_format'] = $wf->getParam('templatemanager.mdate_format', '%m/%d/%Y : %H:%M:%S', '%m/%d/%Y : %H:%M:%S');
 
         $settings['templatemanager_content_url'] = $wf->getParam('templatemanager.content_url', '');
+
+        $templates = $wf->getParam('templatemanager.templates', array());
+
+        if (is_string($templates)) {
+            $templates = json_decode(htmlspecialchars_decode($templates), true);
+        }
+
+        // associative array of template items
+        $list = array();
+
+        if (!empty($templates)) {
+            foreach ($templates as $template) {                
+                extract($template);
+
+                $value = "";
+
+                if (!empty($url)) {
+                    if (preg_match("#\.(htm|html|txt)$#", $url) && strpos('://', $url) === false) {
+                        if (is_file(JPATH_SITE . '/' . trim($url, '/'))) {
+                            $value = JURI::root() . '/' . trim($url, '/');
+                        }
+                    }
+                } else if (!empty($html)) {
+                    $value = htmlspecialchars_decode($html);
+                }
+
+                $list[$name] = $value;
+            }
+        } else {
+            require_once __DIR__ . '/templatemanager.php';
+
+            $plugin = new WFTemplateManagerPlugin();
+            $list = $plugin->getTemplateList();
+        }
+
+        if (!empty($list)) {
+            $settings['templatemanager_templates'] = $list;
+        }
     }
 }

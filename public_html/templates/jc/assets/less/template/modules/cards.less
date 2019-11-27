@@ -1,0 +1,49 @@
+.cards--media {
+  display: flex;
+  overflow: hidden;
+  flex-wrap: wrap;
+  align-items: stretch;
+
+  .lobotomizedOwl;
+
+  > * {
+    display: flex;
+    flex: 1 1 100%;
+  }
+
+  .card {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+
+
+    @media (max-width: @screen-xs) {
+      flex-wrap: wrap;
+
+      > * {
+        flex-basis: 100%;
+      }
+    }
+  }
+
+  .card__figure + .card__body {
+    @media (max-width: @screen-xs) {
+      margin-top: 1.5em;
+    }
+    @media (min-width: @screen-xs) {
+      margin-left: 1.5em;
+    }
+  }
+
+  .card__body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    align-self: stretch;
+    flex: 1 1 auto;
+
+    .lobotomizedOwl(.5);
+  }
+}
+

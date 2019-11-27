@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.0" client="site" method="upgrade">
+	<name>EasyDiscuss - Who Is Online</name>
+	<author>Stack Ideas Sdn Bhd</author>
+	<creationDate>10th October 2019</creationDate>
+	<copyright>Copyright 2009 - 2016 Stack Ideas. All rights reserved.</copyright>
+	<license>GPL License v2</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://stackideas.com</authorUrl>
+	<version>4.1.12</version>
+	<description><![CDATA[This module will list down all the users that currently online on the site.]]></description>
+	<languages>
+		<language tag="en-GB">en-GB.mod_easydiscuss_whos_online.ini</language>
+	</languages>
+	<files>
+		<folder>tmpl</folder>
+		<filename module="mod_easydiscuss_whos_online">mod_easydiscuss_whos_online.php</filename>
+		<filename>mod_easydiscuss_whos_online.xml</filename>
+	</files>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="showguest" type="radio" class="btn-group" default="1" label="MOD_WHOS_ONLINE_SHOW_GUEST" description="MOD_WHOS_ONLINE_SHOW_GUEST_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+			</fieldset>
+			<fieldset name="advanced">
+				<field name="moduleclass_sfx" type="textarea" rows="3" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC" >
+					<option value="1">JGLOBAL_USE_GLOBAL</option>
+					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+				</field>
+				<field name="cache_time" type="text" default="900" label="COM_MODULES_FIELD_CACHE_TIME_LABEL" description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>

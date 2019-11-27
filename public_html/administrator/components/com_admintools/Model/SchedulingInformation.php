@@ -9,25 +9,10 @@ namespace Akeeba\AdminTools\Admin\Model;
 
 defined('_JEXEC') or die;
 
-use Akeeba\Engine\Platform;
-use Akeeba\Engine\Util\Comconfig;
-use FOF30\Container\Container;
 use FOF30\Model\Model;
 
 class SchedulingInformation extends Model
 {
-	public function __construct(Container $container, array $config)
-	{
-		parent::__construct($container, $config);
-
-		// Load the Akeeba Engine autoloader
-		define('AKEEBAENGINE', 1);
-		require_once JPATH_ADMINISTRATOR . '/components/com_admintools/engine/Autoloader.php';
-
-		// Load the platform
-		Platform::addPlatform('filescan', JPATH_ADMINISTRATOR . '/components/com_admintools/platform/Filescan');
-	}
-
 	public function getPaths()
 	{
 		$ret = (object) array(
@@ -66,10 +51,10 @@ class SchedulingInformation extends Model
 			$ret->info->php_path = '/path/to/php';
 		}
 		// Get front-end backup secret key
-		$ret->info->secret    = Comconfig::getValue('frontend_secret_word', '');
-		$ret->info->feenabled = Comconfig::getValue('frontend_enable', false);
+		$ret->info->secret    = $this->container->params->get('frontend_secret_word', '');
+		$ret->info->feenabled = $this->container->params->get('frontend_enable', false);
 		// Get root URL
-		$ret->info->root_url = rtrim(Comconfig::getValue('siteurl', ''), '/');
+		$ret->info->root_url = rtrim($this->container->params->get('siteurl', ''), '/');
 
 		// Get information for CLI CRON script
 		$ret->cli->supported = true;

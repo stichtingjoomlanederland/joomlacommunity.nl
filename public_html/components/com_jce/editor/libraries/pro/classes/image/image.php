@@ -272,7 +272,7 @@ class WFImage
             throw new InvalidArgumentException('No watermark options set');
         }
 
-        if (array_key_exists($options, 'text') === false || array_key_exists($options, 'image') === false) {
+        if (array_key_exists('text', $options) === false || array_key_exists('image', $options) === false) {
             //throw new InvalidArgumentException('No watermark text or image');
         }
 

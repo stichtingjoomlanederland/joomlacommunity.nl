@@ -446,6 +446,7 @@ class RSFormProRestoreForm
 						->set(array(
 								$this->db->qn('formId')					.'='.$this->db->q($this->form->FormId),
 								$this->db->qn('filename')				.'='.$this->db->q((string) $directory->filename),
+								$this->db->qn('csvfilename')				.'='.$this->db->q((string) $directory->csvfilename),
 								$this->db->qn('enablepdf')				.'='.$this->db->q((string) $directory->enablepdf),
 								$this->db->qn('enablecsv')				.'='.$this->db->q((string) $directory->enablecsv),
 								$this->db->qn('HideEmptyValues')			.'='.$this->db->q((string) $directory->HideEmptyValues),

@@ -85,6 +85,7 @@ class RseventsproTableEvent extends JTable
 			
 			$this->owner = empty($this->owner) ? $user->get('id') : $this->owner;
 			$this->options = rseventsproHelper::getDefaultOptions();
+			$this->waitinglist_time = array(1,0,0);
 			
 			if ($user->get('guest')) {
 				$this->sid = JFactory::getSession()->getId();
@@ -261,6 +262,20 @@ class RseventsproTableEvent extends JTable
 			$this->gallery_tags = '';
 		}
 		
+		if (isset($this->rsm_lists) && is_array($this->rsm_lists)) {
+			$registry = new JRegistry;
+			$registry->loadArray($this->rsm_lists);
+			$this->rsm_lists = (string) $registry;
+		} else {
+			$this->rsm_lists = '';
+		}
+		
+		if (isset($this->waitinglist_time) && is_array($this->waitinglist_time)) {
+			$this->waitinglist_time = intval($this->waitinglist_time[0]) * 86400 + intval($this->waitinglist_time[1]) * 3600 + intval($this->waitinglist_time[2]) * 60;
+		} else {
+			$this->waitinglist_time = '';
+		}
+		
 		$updateOptions = true;
 		
 		if ($app->isClient('site')) {
@@ -360,7 +375,6 @@ class RseventsproTableEvent extends JTable
 		return rseventsproHelper::remove($pk);
 	}
 	
-	
 	public function verify(&$array) {
 		if (!isset($array['recurring'])) 				$array['recurring'] = 0;
 		if (!isset($array['allday']))					$array['allday'] = 0;
@@ -377,6 +391,7 @@ class RseventsproTableEvent extends JTable
 		if (!isset($array['notify_me_unsubscribe']))	$array['notify_me_unsubscribe'] = 0;
 		if (!isset($array['overbooking']))				$array['overbooking'] = 0;
 		if (!isset($array['max_tickets']))				$array['max_tickets'] = 0;
+		if (!isset($array['waitinglist']))				$array['waitinglist'] = 0;
 		if (!isset($array['show_registered']))			$array['show_registered']= 0;
 		if (!isset($array['automatically_approve']))	$array['automatically_approve'] = 0;
 		

@@ -277,6 +277,9 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 		var repliesWrapper = $('[data-ed-post-replies-wrapper]');
 		var replies = $('[data-ed-post-replies]');
 
+		// Get the post wrapper
+		var post = $('[data-ed-post-wrapper]');
+
 		// Add event handling for the iframe
 		var eventHandler = function() {
 
@@ -342,7 +345,7 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 				parent.remove();
 
 				// Now we need to replace the html contents back
-				var replyItem = replies.find('[data-ed-reply-item][data-id=' + result.id + ']');
+				var replyItem = post.find('[data-ed-reply-item][data-id=' + result.id + ']');
 
 				replyItem.replaceWith(result.html);
 			}

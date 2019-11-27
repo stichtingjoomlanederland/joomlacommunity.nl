@@ -59,6 +59,12 @@
             <table width="640" cellpadding="0" cellspacing="0"  border="0" class="wrapper" bgcolor="#ffffff">
                 <tbody>
                     <tr>
+                        <td style="padding-top:20px;padding-left:20px;">
+                            <img src="<?php echo $logo;?>" />
+                        </td>
+                    </tr>
+                    
+                    <tr>
                         <td height="20" style="line-height:20px; font-size:20px;"> </td><!-- Spacer -->
                     </tr>
                     <tr>

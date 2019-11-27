@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.2.1
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class plgSystemAcymtriggers extends JPlugin
 {
@@ -196,6 +197,14 @@ class plgSystemAcymtriggers extends JPlugin
             }
 
             $i++;
+        }
+    }
+
+    public function onAfterRoute()
+    {
+        if (!empty($_REQUEST['author']) && 'acymailing' === $_REQUEST['author'] && !empty($_REQUEST['task']) && 'file.upload' === $_REQUEST['task'] && !empty($_REQUEST['option']) && 'com_media' === $_REQUEST['option']) {
+            $session = JFactory::getSession();
+            $session->set('com_media.return_url', 'index.php?option=com_media&view=images&tmpl=component');
         }
     }
 }

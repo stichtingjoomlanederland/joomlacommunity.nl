@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class acympluginHelper
 {
@@ -426,33 +427,25 @@ class acympluginHelper
         $variables = ['subject', 'body', 'From', 'FromName', 'ReplyTo', 'ReplyName', 'bcc', 'cc', 'fromname', 'fromemail', 'replyname', 'replyemail', 'params'];
         $found = false;
         foreach ($variables as $var) {
-            if (empty($email->$var)) {
-                continue;
-            }
+            if (empty($email->$var)) continue;
+
             if (is_array($email->$var)) {
                 foreach ($email->$var as $i => $arrayField) {
-                    if (empty($arrayField)) {
-                        continue;
-                    }
+                    if (empty($arrayField)) continue;
+
                     if (is_array($arrayField)) {
                         foreach ($arrayField as $a => $oneval) {
                             $found = preg_match_all($match, $oneval, $results[$var.$i.'-'.$a]) || $found;
-                            if (empty($results[$var.$i.'-'.$a][0])) {
-                                unset($results[$var.$i.'-'.$a]);
-                            }
+                            if (empty($results[$var.$i.'-'.$a][0])) unset($results[$var.$i.'-'.$a]);
                         }
                     } else {
                         $found = preg_match_all($match, $arrayField, $results[$var.$i]) || $found;
-                        if (empty($results[$var.$i][0])) {
-                            unset($results[$var.$i]);
-                        }
+                        if (empty($results[$var.$i][0])) unset($results[$var.$i]);
                     }
                 }
             } else {
                 $found = preg_match_all($match, $email->$var, $results[$var]) || $found;
-                if (empty($results[$var][0])) {
-                    unset($results[$var]);
-                }
+                if (empty($results[$var][0])) unset($results[$var]);
             }
         }
 
@@ -481,7 +474,7 @@ class acympluginHelper
         $tag->id = $arguments[0];
         $tag->default = '';
         for ($i = 1, $a = count($arguments) ; $i < $a ; $i++) {
-            $args = explode(':', $arguments[$i]);
+            $args = explode(':', $arguments[$i], 2);
             $arg0 = trim($args[0]);
             if (empty($arg0)) continue;
 
@@ -609,7 +602,7 @@ class acympluginHelper
             }
             if (!empty($style)) $style = ' style="float:'.$style.': 7px; margin-bottom: 7px;"';
 
-            $image = '<img alt="" src="'.$format->imagePath.'"'.$style.' />';
+            $image = '<img class="content_main_image" alt="" src="'.$format->imagePath.'"'.$style.' />';
         }
 
         $result = '';
@@ -684,6 +677,7 @@ class acympluginHelper
         if (!empty($format->customFields)) {
             $result .= '<table style="width:100%;" class="customfieldsarea"><tr>';
 
+            $format->cols = empty($format->tag->nbcols) ? 1 : intval($format->tag->nbcols);
             if (empty($format->cols)) $format->cols = 1;
 
             $i = 0;
@@ -846,7 +840,8 @@ class acympluginHelper
             if (isset($defaultValues->{$option['name']})) $option['default'] = $defaultValues->{$option['name']};
 
             if ($option['type'] == 'pictures') {
-                $displayedPictures = isset($defaultValues->pict) ? $defaultValues->pict : 'resized';
+                $displayedPictures = isset($option['default']) ? $option['default'] : 'resized';
+                if (isset($defaultValues->pict)) $displayedPictures = $defaultValues->pict;
                 $resizeDisplay = 'resized' === $displayedPictures ? '' : 'style="display: none;"';
                 $maxWidth = isset($defaultValues->maxwidth) ? $defaultValues->maxwidth : 150;
                 $maxHeight = isset($defaultValues->maxheight) ? $defaultValues->maxheight : 150;
@@ -859,7 +854,6 @@ class acympluginHelper
                         $valImages,
                         'pict'.$suffix,
                         $displayedPictures,
-                        'pict'.$suffix,
                         ['onclick' => $updateFunction.'();']
                     ).'<br/>
                             <span id="pictsize'.$suffix.'" '.$resizeDisplay.'>
@@ -877,9 +871,6 @@ class acympluginHelper
                     }else{
                         jQuery("#pictsize'.$suffix.'").hide();
                     }';
-
-                $outputStructure['topOptions'][$currentLabel] = $currentOption;
-                continue;
             } elseif ($option['type'] == 'checkbox') {
                 if (!empty($option['default'])) {
                     $checkedValues = explode(',', $option['default']);
@@ -905,12 +896,7 @@ class acympluginHelper
                         _checked'.$option['name'].$suffix.'.push(jQuery(this).val());
                     });
                     if(_checked'.$option['name'].$suffix.'.length) otherinfo += "| '.$option['name'].':" + _checked'.$option['name'].$suffix.'.join("'.$option['separator'].'");';
-
-                $outputStructure['topOptions'][$currentLabel] = $currentOption;
-                continue;
-            }
-
-            if ($option['type'] == 'boolean') {
+            } elseif ($option['type'] == 'boolean') {
                 $currentOption .= acym_boolean(
                     $option['name'].$suffix,
                     $option['default'],
@@ -929,12 +915,8 @@ class acympluginHelper
                     $radioOptions,
                     $option['name'].$suffix,
                     $option['default'],
-                    $option['name'].$suffix,
                     ['onclick' => $updateFunction.'();'],
-                    'value',
-                    'text',
-                    false,
-                    true
+                    ['pluginMode' => true]
                 );
                 $jsOptionsMerge[] = 'otherinfo += "| '.$option['name'].':" + jQuery(\'input[name="'.$option['name'].$suffix.'"]:checked\').val();';
             } elseif ($option['type'] == 'select') {
@@ -997,8 +979,10 @@ class acympluginHelper
                 }
                 otherinfo += "| '.$option['name'].':" + selectedOptions.join(",");';
             } elseif ($option['type'] == 'text') {
+                if (!isset($option['default'])) $option['default'] = '';
                 $class = empty($option['class']) ? 'acym_plugin_text_field' : $option['class'];
-                $currentOption .= '<input type="text" name="'.$option['name'].$suffix.'" id="'.$option['name'].$suffix.'" onchange="'.$updateFunction.'();" value="'.acym_escape($option['default']).'" class="'.acym_escape($class).'" />';
+                $placeholder = empty($option['placeholder']) ? '' : ' placeholder="'.acym_escape($option['placeholder']).'"';
+                $currentOption .= '<input type="text" name="'.$option['name'].$suffix.'" id="'.$option['name'].$suffix.'" onchange="'.$updateFunction.'();" value="'.acym_escape($option['default']).'" class="'.acym_escape($class).'" '.$placeholder.'/>';
                 $jsOptionsMerge[] = 'otherinfo += "| '.$option['name'].':" + jQuery(\'input[name="'.$option['name'].$suffix.'"]\').val();';
             } elseif ($option['type'] == 'number') {
                 $min = empty($option['min']) ? '' : ' min="'.$option['min'].'"';
@@ -1021,6 +1005,11 @@ class acympluginHelper
                 $jsOptionsMerge[] = $option['js'];
             }
 
+            if (!empty($option['main']) || in_array($option['type'], ['pictures', 'checkbox'])) {
+                $outputStructure['topOptions'][$currentLabel] = $currentOption;
+                continue;
+            }
+
             $currentLabel = '<label class="cell large-4 acym_plugin_field acym_plugin_field_'.$option['type'].'" for="'.$option['name'].$suffix.'">'.acym_translation($currentLabel).'</label>';
             $outputStructure['options'][$currentLabel] = $currentOption;
         }
@@ -1038,7 +1027,7 @@ class acympluginHelper
         $output = '';
         if (!empty($outputStructure['topOptions'])) {
             foreach ($outputStructure['topOptions'] as $label => $oneOption) {
-                $output .= '<p class="acym__wysid__right__toolbar__p acym__wysid__right__toolbar__p__open">'.acym_translation($label).'<i class="acymicon-expand_more"></i></p>';
+                $output .= '<p class="acym__wysid__right__toolbar__p acym__wysid__right__toolbar__p__open">'.acym_translation($label).'<i class="acymicon-keyboard_arrow_up"></i></p>';
                 $output .= '<div class="acym__wysid__right__toolbar__design--show acym__wysid__right__toolbar__design acym__wysid__context__modal__container">';
                 $output .= $oneOption;
                 $output .= '</div>';

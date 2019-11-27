@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.0" client="site" method="upgrade">
+	<name>EasyDiscuss - Post Info</name>
+	<author>Stack Ideas Sdn Bhd</author>
+	<creationDate>10th October 2019</creationDate>
+	<copyright>Copyright 2009 - 2016 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
+	<license>GPL License v2</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://stackideas.com</authorUrl>
+	<version>4.1.12</version>
+	<description>
+			<![CDATA[This module will only appear on the single post view of a discussion. It will display and render post information within the module which will allow users to easily view the post's information.]]>
+	</description>
+	<languages>
+		<language tag="en-GB">en-GB.mod_easydiscuss_post_info.ini</language>
+	</languages>
+	<files>
+		<folder>tmpl</folder>
+		<filename module="mod_easydiscuss_post_info">mod_easydiscuss_post_info.php</filename>
+		<filename>mod_easydiscuss_post_info.xml</filename>
+	</files>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="showpoststate" type="radio" class="btn-group" default="1" label="MOD_POST_INFO_SHOW_POST_STATE" description="MOD_POST_INFO_SHOW_POST_STATE_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showauthor" type="radio" class="btn-group" default="1" label="MOD_POST_INFO_SHOW_AUTHOR" description="MOD_POST_INFO_SHOW_AUTHOR_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showcategory" type="radio" class="btn-group" default="1" label="MOD_POST_INFO_SHOW_CATEGORY" description="MOD_POST_INFO_SHOW_CATEGORY_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showposttype" type="radio" class="btn-group" default="1" label="MOD_POST_INFO_SHOW_POSTTYPE" description="MOD_POST_INFO_SHOW_POSTTYPE_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showpoststatus" type="radio" class="btn-group" default="1" label="MOD_POST_INFO_SHOW_POSTSTATUS" description="MOD_POST_INFO_SHOW_POSTSTATUS_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showtags" type="radio" class="btn-group" default="1" label="MOD_POST_INFO_SHOW_TAGS" description="MOD_POST_INFO_SHOW_TAGS_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showattachment" type="radio" class="btn-group" default="1" label="MOD_POST_INFO_SHOW_ATTACHMENT" description="MOD_POST_INFO_SHOW_ATTACHMENT_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showparticipants" type="radio" class="btn-group" default="1" label="MOD_POST_INFO_SHOW_PARTICIPANTS" description="MOD_POST_INFO_SHOW_PARTICIPANTS_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showreplycount" type="radio" class="btn-group" default="1" label="MOD_POST_INFO_SHOW_REPLY_COUNT" description="MOD_POST_INFO_SHOW_REPLY_COUNT_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+			</fieldset>
+			<fieldset name="advanced">
+				<field name="moduleclass_sfx" type="text" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC" >
+					<option value="1">JGLOBAL_USE_GLOBAL</option>
+					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+				</field>
+				<field name="cache_time" type="text" default="900" label="COM_MODULES_FIELD_CACHE_TIME_LABEL" description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>

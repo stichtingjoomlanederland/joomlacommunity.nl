@@ -19,6 +19,7 @@ class RSFormProField
 	
 	protected $name;
 	protected $namespace = 'form';
+	protected $id;
 	
 	// calculation handling
 	public $pricePattern = '#\[p([0-9\.\-\+]+)\]#s';
@@ -33,6 +34,7 @@ class RSFormProField
 		}
 
 		$this->name = $this->getProperty('NAME');
+		$this->id = $this->name;
 	}
 
 	public function __get($property) {
@@ -109,7 +111,12 @@ class RSFormProField
 	
 	// @desc Returns just the name to be used as an ID
 	public function getId() {
-		return $this->name;
+		return $this->id;
+	}
+
+	public function setId($id)
+	{
+		$this->id = $id;
 	}
 	
 	// @desc Parses attributes from HTML code.
@@ -210,6 +217,10 @@ class RSFormProField
 	public function addScript($path) {
 		RSFormProAssets::addScript($path);
 	}
+
+	public function addStyleSheet($path) {
+		RSFormProAssets::addStyleSheet($path);
+	}
 	
 	public function addCustomTag($tag) {
 		RSFormProAssets::addCustomTag($tag);
@@ -217,6 +228,10 @@ class RSFormProField
 	
 	public function addScriptDeclaration($script) {
 		RSFormProAssets::addScriptDeclaration($script);
+	}
+
+	public function addStyleDeclaration($style) {
+		RSFormProAssets::addStyleDeclaration($style);
 	}
 
 	// process field or file before storing it to the database

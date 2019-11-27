@@ -15,6 +15,9 @@
  */
 class ComFilesModelEntityNode extends KModelEntityAbstract
 {
+    /**
+     * @var ComFilesAdapterAbstract
+     */
 	protected $_adapter;
 
     protected $_container;

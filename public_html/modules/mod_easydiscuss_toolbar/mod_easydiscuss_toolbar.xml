@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="2.5" client="site" method="upgrade">
+	<name>EasyDiscuss - Toolbar</name>
+	<author>Stack Ideas Sdn Bhd</author>
+	<creationDate>10th October 2019</creationDate>
+	<copyright>Copyright 2009 - 2016 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
+	<license>GPL License v2</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://stackideas.com</authorUrl>
+	<version>4.1.12</version>
+	<description>
+		<![CDATA[
+			This module will display a EasyDiscuss's toolbar.
+		]]>
+	</description>
+	<languages>
+		<language tag="en-GB">en-GB.mod_easydiscuss_toolbar.ini</language>
+	</languages>
+	<files>
+		<folder>tmpl</folder>
+		<filename module="mod_easydiscuss_toolbar">mod_easydiscuss_toolbar.php</filename>
+		<filename>mod_easydiscuss_toolbar.xml</filename>
+	</files>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+
+				<field name="show_on_easydiscuss" type="radio" class="btn-group" default="0" label="MOD_EASYDISCUSS_TOOLBAR_DISPLAY_ON_EASYDISCUSS_PAGES" description="MOD_EASYDISCUSS_TOOLBAR_DISPLAY_ON_EASYDISCUSS_PAGES_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_header" type="radio" class="btn-group" default="0" label="MOD_EASYDISCUSS_TOOLBAR_SHOW_HEADER" description="MOD_EASYDISCUSS_TOOLBAR_SHOW_HEADER_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_search" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_TOOLBAR_SHOW_SEARCH" description="MOD_EASYDISCUSS_TOOLBAR_SHOW_SEARCH_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_home" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_TOOLBAR_SHOW_HOME" description="MOD_EASYDISCUSS_TOOLBAR_SHOW_HOME_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_recent" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_TOOLBAR_SHOW_RECENT" description="MOD_EASYDISCUSS_TOOLBAR_SHOW_RECENT_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_tags" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_TOOLBAR_SHOW_TAGS" description="MOD_EASYDISCUSS_TOOLBAR_SHOW_TAGS_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_categories" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_TOOLBAR_SHOW_CATEGORIES" description="MOD_EASYDISCUSS_TOOLBAR_SHOW_categories_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_users" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_TOOLBAR_SHOW_USERS" description="MOD_EASYDISCUSS_TOOLBAR_SHOW_USERS_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_badges" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_TOOLBAR_SHOW_BADGES" description="MOD_EASYDISCUSS_TOOLBAR_SHOW_BADGES_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_settings" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_TOOLBAR_SHOW_SETTINGS" description="MOD_EASYDISCUSS_TOOLBAR_SHOW_SETTINGS_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_login" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_TOOLBAR_SHOW_LOGIN" description="MOD_EASYDISCUSS_TOOLBAR_SHOW_LOGIN_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_conversations" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_TOOLBAR_SHOW_CONVERSATIONS" description="MOD_EASYDISCUSS_TOOLBAR_SHOW_CONVERSATIONS_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_notifications" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_TOOLBAR_SHOW_NOTIFICATIONS" description="MOD_EASYDISCUSS_TOOLBAR_SHOW_NOTIFICATIONS_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
+            </fieldset>
+
+			<fieldset name="advanced">
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC" >
+					<option value="1">JGLOBAL_USE_GLOBAL</option>
+					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+				</field>
+				<field name="cache_time" type="text" default="900" label="COM_MODULES_FIELD_CACHE_TIME_LABEL" description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>

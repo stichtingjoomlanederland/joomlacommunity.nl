@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.0" client="site" method="upgrade">
+	<name>EasyDiscuss - Tag Cloud</name>
+	<author>Stack Ideas Sdn Bhd</author>
+	<creationDate>10th October 2019</creationDate>
+	<copyright>Copyright 2009 - 2016 StackIdeas. All rights reserved.</copyright>
+	<license>GPL License v2</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://www.stackideas.com</authorUrl>
+	<version>4.1.12</version>
+	<description><![CDATA[This module will list down tags created through EasyDiscuss in a tag cloud layout.]]></description>
+	<languages>
+		<language tag="en-GB">en-GB.mod_easydiscuss_tag_cloud.ini</language>
+	</languages>
+	<files>
+		<folder>tmpl</folder>
+		<filename>helper.php</filename>
+		<filename module="mod_easydiscuss_tag_cloud">mod_easydiscuss_tag_cloud.php</filename>
+		<filename>mod_easydiscuss_tag_cloud.xml</filename>
+	</files>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="order" type="list" default="postcount" label="MOD_EASYDISCUSSTAGCLOUD_ORDERING" description="MOD_EASYDISCUSSTAGCLOUD_ORDERING_DESC" >
+					<option value="postcount">MOD_EASYDISCUSSTAGCLOUD_ORDERING_POSTCOUNT</option>
+					<option value="title">MOD_EASYDISCUSSTAGCLOUD_ORDERING_TITLE</option>
+				</field>
+				<field name="sort" type="list" default="desc" label="MOD_EASYDISCUSSTAGCLOUD_SORTING" description="MOD_EASYDISCUSSTAGCLOUD_SORTING_DESC" >
+					<option value="asc">MOD_EASYDISCUSSTAGCLOUD_SORTING_ASCENDING</option>
+					<option value="desc">MOD_EASYDISCUSSTAGCLOUD_SORTING_DESCENDING</option>
+				</field>
+				<field name="count" type="text" default="0" label="MOD_EASYDISCUSSTAGCLOUD_COUNT" description="MOD_EASYDISCUSSTAGCLOUD_COUNT_DESC" />
+				<field name="shuffleTags" type="list" default="1" label="MOD_EASYDISCUSSTAGCLOUD_SHUFFLE_TAGS" description="MOD_EASYDISCUSSTAGCLOUD_SHUFFLE_TAGS_DESC" >
+					<option value="0">MOD_EASYDISCUSSTAGCLOUD_SHUFFLE_TAGS_NO</option>
+					<option value="1">MOD_EASYDISCUSSTAGCLOUD_SHUFFLE_TAGS_YES</option>
+				</field>
+				<field name="minsize" type="text" default="10" label="MOD_EASYDISCUSSTAGCLOUD_MINIMUM_TAG_SIZE" description="MOD_EASYDISCUSSTAGCLOUD_MINIMUM_TAG_SIZE_DESC" />
+				<field name="maxsize" type="text" default="30" label="MOD_EASYDISCUSSTAGCLOUD_MAXIMUM_TAG_SIZE" description="MOD_EASYDISCUSSTAGCLOUD_MAXIMUM_TAG_SIZE_DESC" />
+			</fieldset>
+			<fieldset name="advanced">
+				<field name="moduleclass_sfx" type="text" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC" >
+					<option value="1">JGLOBAL_USE_GLOBAL</option>
+					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING
+					</option>
+				</field>
+				<field name="cache_time" type="text" default="900" label="COM_MODULES_FIELD_CACHE_TIME_LABEL" description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>

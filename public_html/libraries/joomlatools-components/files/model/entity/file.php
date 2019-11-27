@@ -22,6 +22,7 @@ class ComFilesModelEntityFile extends ComFilesModelEntityNode implements KComman
         parent::__construct($config);
 
         $this->addBehavior('com:files.database.behavior.thumbnailable');
+        $this->addCommandCallback('after.save', '_fixOrientation');
         $this->addCommandCallback('after.save', '_downsizeImage');
     }
 
@@ -46,6 +47,34 @@ class ComFilesModelEntityFile extends ComFilesModelEntityNode implements KComman
 
 		return $context->result;
 	}
+
+    protected function _fixOrientation(KDatabaseContext $context)
+    {
+        if ($this->isImage() && in_array($this->extension, ['jpeg', 'jpg'])) {
+            $exif = $this->_adapter->readExifData();
+
+            if (is_array($exif) && !empty($exif['Orientation']) && in_array($exif['Orientation'], [3,6,8])) {
+                $path  = $this->_adapter->getRealPath();
+                $image = imagecreatefromjpeg($path);
+
+                switch ($exif['Orientation']) {
+                    case 3:
+                        $image = imagerotate($image, 180, 0);
+                        break;
+
+                    case 6:
+                        $image = imagerotate($image, -90, 0);
+                        break;
+
+                    case 8:
+                        $image = imagerotate($image, 90, 0);
+                        break;
+                }
+
+                imagejpeg($image, $path);
+            }
+        }
+    }
 
 	protected function _downsizeImage(KDatabaseContext $context)
     {
@@ -178,16 +207,16 @@ class ComFilesModelEntityFile extends ComFilesModelEntityNode implements KComman
         return $this->_adapter->getMetadata();
     }
 
-		public function getPropertyExifComment()
-		{
-				if(!$this->isImage()){
-					 return false;
-				}
+    public function getPropertyExifComment()
+    {
+            if(!$this->isImage()){
+                 return false;
+            }
 
-				$exif = $this->_adapter->readExifData();
+            $exif = $this->_adapter->readExifData();
 
-				return isset($exif['COMMENT']) ? implode(' ', $exif['COMMENT']) : array();
-		}
+            return isset($exif['COMMENT']) ? implode(' ', $exif['COMMENT']) : array();
+    }
 
     public function toArray()
     {

@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
+?>
+<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
 	<div id="acym__users" class="acym__content cell">
         <?php if (empty($data['allUsers']) && empty($data['search']) && empty($data['status'])) { ?>
 			<div class="grid-x text-center">
@@ -31,7 +32,7 @@ defined('_JEXEC') or die('Restricted access');
         <?php } else { ?>
 			<div class="grid-x grid-margin-x cell">
 				<div class="large-auto medium-12 cell">
-                    <?php echo acym_filterSearch($data['search'], 'users_search', 'ACYM_SEARCH_USER'); ?>
+                    <?php echo acym_filterSearch($data['search'], 'users_search', 'ACYM_SEARCH'); ?>
 				</div>
 				<div class="large-auto show-for-xlarge cell"></div>
 				<div class="large-shrink medium-6 small-12 cell">
@@ -41,7 +42,7 @@ defined('_JEXEC') or die('Restricted access');
 				</div>
 				<div class="large-shrink medium-6 small-12 cell">
 					<button type="submit" data-task="export" class="button expanded button-secondary acy_button_submit">
-                        <?php echo acym_translation('ACYM_EXPORT'); ?> (<span id="acym__users__listing__number_to_export" data-default="<?php echo strtolower(acym_translation("ACYM_ALL")); ?>"><?php echo strtolower(acym_translation("ACYM_ALL")); ?></span>)
+                        <?php echo acym_translation('ACYM_EXPORT'); ?> (<span id="acym__users__listing__number_to_export" data-default="<?php echo strtolower(acym_translation('ACYM_ALL')); ?>"><?php echo strtolower(acym_translation('ACYM_ALL')); ?></span>)
 					</button>
 				</div>
 				<div class="large-shrink medium-6 small-12 cell">
@@ -54,7 +55,7 @@ defined('_JEXEC') or die('Restricted access');
                         null,
                         '',
                         'class="button button-secondary acym__user__button disabled expanded" id="acym__users__listing__button--add-to-list"'
-                    )
+                    );
                     ?>
 				</div>
 				<div class="large-shrink medium-6 small-12 cell">

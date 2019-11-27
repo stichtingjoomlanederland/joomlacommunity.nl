@@ -125,26 +125,41 @@ RSFormPro.showThankYouPopup = function (thankYouContainer){
 	var gotoUrl = thankYouContainer.querySelector('#rsfp-thankyou-popup-return-link').value;
 
 	// remove the html part from the layout
-	thankYouContainer.parentNode.removeChild( thankYouContainer );
+	thankYouContainer.parentNode.removeChild(thankYouContainer);
 
-	document.body.className = document.body.className+' rsfp_popup_activated';
-	document.body.innerHTML += '<div class="rsfp_thankyou_popup_outer" onclick="RSFormPro.accessLink(event,\''+gotoUrl+'\')"><div class="rsfp_thankyou_popup_inner" id="rsfp_thankyou_popup_inner"><div class="rsfp_thankou_popup_close_btn">&times;</div>'+content+'</div></div>';
+	RSFormProUtils.addClass(document.body, 'rsfp_popup_activated');
+
+	var outer = document.createElement('div');
+	outer.setAttribute('class', 'rsfp_thankyou_popup_outer');
+	outer.onclick = function() {
+		if (event && event.target && (RSFormProUtils.hasClass(event.target, 'rsfp_thankyou_popup_outer') || RSFormProUtils.hasClass(event.target, 'rsfp_thankou_popup_close_btn'))) {
+			if (gotoUrl.length > 0) {
+				document.location = gotoUrl;
+			} else {
+				document.location.reload(true);
+			}
+		}
+	};
+
+	var inner = document.createElement('div');
+	inner.setAttribute('class', 'rsfp_thankyou_popup_inner');
+	inner.setAttribute('id', 'rsfp_thankyou_popup_inner');
+	inner.innerHTML = content;
+
+	var close = document.createElement('div');
+	close.setAttribute('class', 'rsfp_thankou_popup_close_btn');
+	close.innerHTML = '&times;';
+
+	outer.appendChild(inner);
+	inner.appendChild(close);
+
+	document.body.appendChild(outer);
 
 	var popupWindowHeight = document.getElementById('rsfp_thankyou_popup_inner').offsetHeight;
 	var windowHeight = window.innerHeight;
 
 	var marginTop = (windowHeight - popupWindowHeight) / 2;
-	document.getElementById('rsfp_thankyou_popup_inner').style.marginTop = marginTop+'px';
-};
-RSFormPro.accessLink = function(event,link) {
-	var clickedElementClass = event.target.className;
-	if (clickedElementClass == 'rsfp_thankyou_popup_outer' || clickedElementClass == 'rsfp_thankou_popup_close_btn') {
-		if (link.length > 0) {
-			document.location = link;
-		} else {
-			document.location.reload();
-		}
-	}
+	document.getElementById('rsfp_thankyou_popup_inner').style.marginTop = marginTop + 'px';
 };
 
 /* Scroll to first error element */
@@ -165,12 +180,21 @@ RSFormPro.findAncestor = function(el, cls){
 	while(el = el.parentElement) {
 		var elementClasses = el.className;
 		elementClasses = elementClasses.split(' ');
-		if (elementClasses.indexOf(cls) >= 0) {
+		if (elementClasses.indexOf(cls) > -1) {
 			return el;
 		}
 	}
 
 	return false;
+};
+
+/* Reset all values, used with reset button for the submit */
+RSFormPro.resetElements = function(formId) {
+	var form 	= RSFormPro.getForm(formId);
+
+	if (form && form.elements.length) {
+		RSFormPro.resetValues(form.elements);
+	}
 };
 
 /* ScrollTo functions */
@@ -180,7 +204,7 @@ RSFormPro.scrollToElement = function(element){
 	var documentView = window.innerHeight + scrollTop;
 
 	// this is more specific for the modern browsers
-	if (typeof element.getBoundingClientRect == 'function') {
+	if (typeof element.getBoundingClientRect === 'function') {
 		to = element.getBoundingClientRect().top + scrollTop;
 	}
 
@@ -195,7 +219,7 @@ RSFormPro.scrollTo = function(to, duration) {
 	var difference = to - elementScrollTop;
 	var perTick = difference / duration * 10;
 	
-	setTimeout(function() {
+	window.setTimeout(function() {
 		var limitControl;
 		limitControl = window.pageYOffset ?  window.pageYOffset : document.documentElement.scrollTop;
 		limitControl = limitControl + perTick;
@@ -924,7 +948,7 @@ RSFormPro.HTML5 = {
 				// if the multiple form is present and also validation we will need to find in which page the element is located
 				if (form.elements[i].type == 'button') {
 					var onclick = form.elements[i].getAttribute('onclick');
-					if (typeof onclick == 'string' && onclick.indexOf('rsfp_changePage') >= 0){
+					if (typeof onclick == 'string' && (onclick.indexOf('rsfp_changePage') > -1 || onclick.indexOf('RSFormPro.Pages.change') > -1)) {
 						var countCommas = 0;
 						var pos = onclick.indexOf(',');
 						while (pos > -1) {
@@ -1007,13 +1031,13 @@ RSFormPro.Pages = {
 		for (var i = 0; i <= totalPages; i++) {
 			thePage = document.getElementById('rsform_' + formId + '_page_' + i);
 			if (thePage) {
-				rsfp_hidePage(thePage);
+				RSFormPro.Pages.hide(thePage);
 			}
 		}
 
 		thePage = document.getElementById('rsform_' + formId + '_page_' + page);
 		if (thePage) {
-			rsfp_showPage(thePage);
+			RSFormPro.Pages.show(thePage);
 			try {
 				var func = window["rsfp_showProgress_" + formId];
 				if (typeof func == "function") {
@@ -1804,7 +1828,7 @@ RSFormPro.Ajax = {
 						}
 					}
 
-					rsfp_changePage(formId, page, totalPages, false);
+					RSFormPro.Pages.change(formId, page, totalPages, false);
 				}
 
 				if (typeof ajaxExtraValidationScript[formId] === 'function')
@@ -1849,7 +1873,7 @@ RSFormPro.Ajax = {
 					// Change the page if the validation passes
 					if (page)
 					{
-						rsfp_changePage(formId, page, totalPages, false);
+						RSFormPro.Pages.change(formId, page, totalPages, false);
 						// The submits must be clickable again
 						for (i = 0; i < submits.length; i++)
 						{

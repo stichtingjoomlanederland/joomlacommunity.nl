@@ -31,6 +31,32 @@ use Psr\Log\LogLevel;
 class Mysql extends Base
 {
 	/**
+	 * The primary key structure of the currently backed up table. The keys contained are:
+	 * - table		The name of the table being backed up
+	 * - field		The name of the primary key field
+	 * - value		The last value of the PK field
+	 *
+	 * @var array
+	 */
+	protected $table_autoincrement = array(
+		'table'		=> null,
+		'field'		=> null,
+		'value'		=> null,
+	);
+
+	/**
+	 * Implements the constructor of the class
+	 *
+	 * @return  void
+	 */
+	public function __construct()
+	{
+		parent::__construct();
+
+		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: New instance");
+	}
+
+	/**
 	 * Return the current database name by querying the database connection object (e.g. SELECT DATABASE() in MySQL)
 	 *
 	 * @return  string
@@ -49,30 +75,6 @@ class Mysql extends Base
 		}
 
 		return empty($ret) ? '' : $ret;
-	}
-
-	/**
-	 * The primary key structure of the currently backed up table. The keys contained are:
-	 * - table		The name of the table being backed up
-	 * - field		The name of the primary key field
-	 * - value		The last value of the PK field
-	 *
-	 * @var array
-	 */
-	protected $table_autoincrement = array(
-		'table'		=> null,
-		'field'		=> null,
-		'value'		=> null,
-	);
-
-	/**
-	 * Implements the constructor of the class
-	 *
-	 * @return  Mysql
-	 */
-	public function __construct()
-	{
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: New instance");
 	}
 
 	/**
@@ -107,6 +109,8 @@ class Mysql extends Base
 	 * Performs one more step of dumping database data
 	 *
 	 * @return  void
+	 *
+	 * @throws \Akeeba\Engine\Driver\QueryException
 	 */
 	protected function stepDatabaseDump()
 	{
@@ -142,8 +146,8 @@ class Mysql extends Base
 		$tableName = $this->nextTable;
 		$this->setStep($tableName);
 		$this->setSubstep('');
-		$tableAbstract = trim($this->table_name_map[ $tableName ]);
-		$dump_records  = $this->tables_data[ $tableName ]['dump_records'];
+		$tableAbstract = trim($this->table_name_map[$tableName]);
+		$dump_records  = $this->tables_data[$tableName]['dump_records'];
 
 		// Restore any previously information about the largest query we had to run
 		$this->largest_query = Factory::getConfiguration()->get('volatile.database.largest_query', 0);
@@ -158,11 +162,11 @@ class Mysql extends Base
 
 			$outCreate = '';
 
-			if (is_array($this->tables_data[ $tableName ]))
+			if (is_array($this->tables_data[$tableName]))
 			{
-				if (array_key_exists('create', $this->tables_data[ $tableName ]))
+				if (array_key_exists('create', $this->tables_data[$tableName]))
 				{
-					$outCreate = $this->tables_data[ $tableName ]['create'];
+					$outCreate = $this->tables_data[$tableName]['create'];
 				}
 			}
 
@@ -170,17 +174,17 @@ class Mysql extends Base
 			{
 				// The CREATE command wasn't cached. Time to create it. The $type and $dependencies
 				// variables will be thrown away.
-				$type         = isset($this->tables_data[ $tableName ]['type']) ? $this->tables_data[ $tableName ]['type'] : 'table';
-				$dependencies = array();
+				$type         = isset($this->tables_data[$tableName]['type']) ? $this->tables_data[$tableName]['type'] : 'table';
+				$dependencies = [];
 				$outCreate    = $this->get_create($tableAbstract, $tableName, $type, $dependencies);
 			}
 
-            // Create drop statements if required (the key is defined by the scripting engine)
+			// Create drop statements if required (the key is defined by the scripting engine)
 			if (Factory::getEngineParamsProvider()->getScriptingParameter('db.dropstatements', 0))
 			{
-				if (array_key_exists('create', $this->tables_data[ $tableName ]))
+				if (array_key_exists('create', $this->tables_data[$tableName]))
 				{
-					$dropStatement = $this->createDrop($this->tables_data[ $tableName ]['create']);
+					$dropStatement = $this->createDrop($this->tables_data[$tableName]['create']);
 				}
 				else
 				{
@@ -193,7 +197,7 @@ class Mysql extends Base
 				{
 					$dropStatement .= "\n";
 
-					if (!$this->writeDump($dropStatement))
+					if (!$this->writeDump($dropStatement, true))
 					{
 						return;
 					}
@@ -201,7 +205,7 @@ class Mysql extends Base
 			}
 
 			// Write the CREATE command after any DROP command which might be necessary.
-			if (!$this->writeDump($outCreate))
+			if (!$this->writeDump($outCreate, true))
 			{
 				return;
 			}
@@ -244,7 +248,7 @@ class Mysql extends Base
 
 				if (!empty($preamble))
 				{
-					if (!$this->writeDump($preamble))
+					if (!$this->writeDump($preamble, true))
 					{
 						return;
 					}
@@ -259,8 +263,8 @@ class Mysql extends Base
 		}
 
 		// Load the active database root
-		$configuration    = Factory::getConfiguration();
-		$dbRoot           = $configuration->get('volatile.database.root', '[SITEDB]');
+		$configuration = Factory::getConfiguration();
+		$dbRoot        = $configuration->get('volatile.database.root', '[SITEDB]');
 
 		// Get the default and the current (optimal) batch size
 		$defaultBatchSize = $this->getDefaultBatchSize();
@@ -402,7 +406,7 @@ class Mysql extends Base
 
 					if ($numOfFields > 0)
 					{
-						$this->query = "INSERT INTO " . $db->nameQuote((!$use_abstract ? $tableName : $tableAbstract)) . " {$fieldList} VALUES ";
+						$this->query = "INSERT INTO " . $db->nameQuote((!$use_abstract ? $tableName : $tableAbstract)) . " {$fieldList} VALUES \n";
 					}
 				}
 				else
@@ -495,7 +499,7 @@ class Mysql extends Base
 							// We are about to exceed the packet size. Write the data so far.
 							$this->query .= ";\n";
 
-							if (!$this->writeDump($this->query))
+							if (!$this->writeDump($this->query, true))
 							{
 								return;
 							}
@@ -504,13 +508,13 @@ class Mysql extends Base
 							$fieldList = $this->getFieldListSQL($columns);
 
 							$this->query = '';
-							$this->query = "INSERT INTO " . $db->nameQuote((!$use_abstract ? $tableName : $tableAbstract)) . " {$fieldList} VALUES ";
+							$this->query = "INSERT INTO " . $db->nameQuote((!$use_abstract ? $tableName : $tableAbstract)) . " {$fieldList} VALUES \n";
 							$this->query .= $outData;
 						}
 						else
 						{
 							// We have room for more data. Append $outData to the query.
-							$this->query .= ', ';
+							$this->query .= ",\n";
 							$this->query .= $outData;
 						}
 					}
@@ -527,7 +531,7 @@ class Mysql extends Base
 							// This was a BIG query. Write the data to disk.
 							$this->query .= ";\n";
 
-							if (!$this->writeDump($this->query))
+							if (!$this->writeDump($this->query, true))
 							{
 								return;
 							}
@@ -544,7 +548,7 @@ class Mysql extends Base
 						// Write the data to disk.
 						$this->query .= ";\n";
 
-						if (!$this->writeDump($this->query))
+						if (!$this->writeDump($this->query, true))
 						{
 							return;
 						}
@@ -590,7 +594,7 @@ class Mysql extends Base
 		{
 			$this->query .= ";\n";
 
-			if (!$this->writeDump($this->query))
+			if (!$this->writeDump($this->query, true))
 			{
 				return;
 			}
@@ -612,7 +616,7 @@ class Mysql extends Base
 
 				if (!empty($epilogue))
 				{
-					if (!$this->writeDump($epilogue))
+					if (!$this->writeDump($epilogue, true))
 					{
 						return;
 					}
@@ -623,8 +627,7 @@ class Mysql extends Base
 			{
 				// We have finished dumping the database!
 				Factory::getLog()->log(LogLevel::INFO, "End of database detected; flushing the dump buffers...");
-				$null = null;
-				$this->writeDump($null);
+				$this->writeDump(null);
 				Factory::getLog()->log(LogLevel::INFO, "Database has been successfully dumped to SQL file(s)");
 				$this->setState('postrun');
 				$this->setStep('');
@@ -656,6 +659,8 @@ class Mysql extends Base
 	 * @param   string  $tableAbstract  The abstract name of the table (works with canonical names too, though)
 	 *
 	 * @return  void
+	 *
+	 * @throws  \Akeeba\Engine\Driver\QueryException
 	 */
 	protected function getRowCount($tableAbstract)
 	{
@@ -766,7 +771,7 @@ class Mysql extends Base
 	 *
 	 * @return  void
 	 */
-	protected function  get_tables_mapping()
+	protected function get_tables_mapping()
 	{
 		// Get a database connection
 		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Finding tables to include in the backup set");
@@ -796,6 +801,14 @@ class Mysql extends Base
 			if (substr($table_name, 0, 3) == '#__')
 			{
 				$this->setWarning(__CLASS__ . " :: Table $table_name has a prefix of #__. This would cause restoration errors; table skipped.");
+
+				continue;
+			}
+
+			if ((strpos($table_name, "\r") !== false) || (strpos($table_name, "\n") !== false))
+			{
+				$table_name = str_replace(["\r", "\n"], ['\\r', '\\n'], $table_name);
+				$this->setWarning(__CLASS__ . " :: [SECURITY] Table $table_name includes newline characters. Skipping table to protect you against possible MySQL vulnerability CVE-2017-3600 (“Bad Dump”).");
 
 				continue;
 			}
@@ -862,6 +875,14 @@ class Mysql extends Base
 				{
 					foreach ($all_entries as $entity_name)
 					{
+						if ((strpos($entity_name, "\r") !== false) || (strpos($entity_name, "\n") !== false))
+						{
+							$entity_name = str_replace(["\r", "\n"], ['\\r', '\\n'], $entity_name);
+							$this->setWarning(__CLASS__ . " :: [SECURITY] Procedure $entity_name includes newline characters. Skipping table to protect you against possible MySQL vulnerability CVE-2017-3600 (“Bad Dump”).");
+
+							continue;
+						}
+
 						$entity_abstract = $this->getAbstract($entity_name);
 
 						if (!(substr($entity_abstract, 0, 4) == 'bak_')) // Skip backup entities
@@ -896,6 +917,14 @@ class Mysql extends Base
 				{
 					foreach ($all_entries as $entity_name)
 					{
+						if ((strpos($entity_name, "\r") !== false) || (strpos($entity_name, "\n") !== false))
+						{
+							$entity_name = str_replace(["\r", "\n"], ['\\r', '\\n'], $entity_name);
+							$this->setWarning(__CLASS__ . " :: [SECURITY] Function $entity_name includes newline characters. Skipping table to protect you against possible MySQL vulnerability CVE-2017-3600 (“Bad Dump”).");
+
+							continue;
+						}
+
 						$entity_abstract = $this->getAbstract($entity_name);
 
 						if (!(substr($entity_abstract, 0, 4) == 'bak_')) // Skip backup entities
@@ -931,6 +960,14 @@ class Mysql extends Base
 				{
 					foreach ($all_entries as $entity_name)
 					{
+						if ((strpos($entity_name, "\r") !== false) || (strpos($entity_name, "\n") !== false))
+						{
+							$entity_name = str_replace(["\r", "\n"], ['\\r', '\\n'], $entity_name);
+							$this->setWarning(__CLASS__ . " :: [SECURITY] Trigger $entity_name includes newline characters. Skipping table to protect you against possible MySQL vulnerability CVE-2017-3600 (“Bad Dump”).");
+
+							continue;
+						}
+
 						$entity_abstract = $this->getAbstract($entity_name);
 
 						if (!(substr($entity_abstract, 0, 4) == 'bak_')) // Skip backup entities
@@ -1296,18 +1333,18 @@ class Mysql extends Base
 	 * @param   string  $type            The type of the entity to scan. If it's found to differ, the correct type is returned.
 	 * @param   array   $dependencies    The dependencies of this table
 	 *
-	 * @return  string  The CREATE command, w/out newlines
+	 * @return  string|null  The CREATE command
 	 */
 	protected function get_create($table_abstract, $table_name, &$type, &$dependencies)
 	{
 		$configuration = Factory::getConfiguration();
-		$notracking = $configuration->get('engine.dump.native.nodependencies', 0);
+		$notracking    = $configuration->get('engine.dump.native.nodependencies', 0);
 
 		$db = $this->getDB();
 
 		if ($this->getError())
 		{
-			return;
+			return null;
 		}
 
 		switch ($type)
@@ -1342,31 +1379,25 @@ class Mysql extends Base
 		{
 			// If the query failed we don't have the necessary SHOW privilege. Log the error and fake an empty reply.
 			$entityType = ($type == 'merge') ? 'table' : $type;
-			$msg = $e->getMessage();
+			$msg        = $e->getMessage();
 			$this->setWarning("Cannot get the structure of $entityType $table_abstract. Database returned error $msg running $sql  Please check your database privileges. Your database backup may be incomplete.");
 
 			$db->resetErrors();
 
-			$temp = array(
-				array('', '', '')
-			);
+			$temp = [
+				['', '', ''],
+			];
 		}
 
-		if (in_array($type, array('procedure', 'function', 'trigger')))
+		if (in_array($type, ['procedure', 'function', 'trigger']))
 		{
 			$table_sql = $temp[0][2];
 
-            // MySQL adds the database name into everything. We have to remove it.
-            $dbName = $db->qn($this->database) . '.`';
-            $table_sql = str_replace($dbName, '`', $table_sql);
+			// MySQL adds the database name into everything. We have to remove it.
+			$dbName    = $db->qn($this->database) . '.`';
+			$table_sql = str_replace($dbName, '`', $table_sql);
 
 			// These can contain comment lines, starting with a double dash. Remove them.
-			$table_sql = $this->removeMySQLComments($table_sql);
-			$table_sql = trim($table_sql);
-			$lines = explode("\n", $table_sql);
-			$lines = array_map('trim', $lines);
-
-			$table_sql = implode(' ', $lines);
 			$table_sql = trim($table_sql);
 
 			/**
@@ -1375,8 +1406,8 @@ class Mysql extends Base
 			 * If you're restoring on a different machine the definer will probably be invalid, therefore we need to
 			 * remove it from the (portable) output.
 			 */
-			$pattern = '/^CREATE(.*) ' . strtoupper($type) . ' (.*)/i';
-			$result = preg_match($pattern, $table_sql, $matches);
+			$pattern   = '/^CREATE(.*) ' . strtoupper($type) . ' (.*)/i';
+			$result    = preg_match($pattern, $table_sql, $matches);
 			$table_sql = 'CREATE ' . strtoupper($type) . ' ' . $matches[2];
 
 			if (substr($table_sql, -1) != ';')
@@ -1391,11 +1422,11 @@ class Mysql extends Base
 		unset($temp);
 
 		// Smart table type detection
-		if (in_array($type, array('table', 'merge', 'view')))
+		if (in_array($type, ['table', 'merge', 'view']))
 		{
 			// Check for CREATE VIEW
 			$pattern = '/^CREATE(.*) VIEW (.*)/i';
-			$result = preg_match($pattern, $table_sql, $matches);
+			$result  = preg_match($pattern, $table_sql, $matches);
 
 			if ($result === 1)
 			{
@@ -1458,7 +1489,7 @@ class Mysql extends Base
 			// As a result, we need to replace those referenced table names
 			// as well. On views and merge arrays, we have referenced tables
 			// by definition.
-			$dependencies = array();
+			$dependencies = [];
 
 			// Now, loop for all table entries
 			foreach ($this->table_name_map as $ref_normal => $ref_abstract)
@@ -1487,17 +1518,15 @@ class Mysql extends Base
 			$table_sql = $old_table_sql;
 		}
 
-		// Replace newlines with spaces
-		$table_sql = str_replace("\n", " ", $table_sql) . ";\n";
-		$table_sql = str_replace("\r", " ", $table_sql);
-		$table_sql = str_replace("\t", " ", $table_sql);
+		// Add final semicolon and newline character
+		$table_sql .= ";\n";
 
 		/**
 		 * Views, procedures, functions and triggers may contain the database name followed by the table name, always
 		 * quoted e.g. `db`.`table_name`  We need to replace all these instances with just the table name. The only
 		 * reliable way to do that is to look for "`db`.`" and replace it with "`"
 		 */
-		if (in_array($type, array('view', 'procedure', 'function', 'trigger')))
+		if (in_array($type, ['view', 'procedure', 'function', 'trigger']))
 		{
 			$dbName      = $db->qn($this->getDatabaseName());
 			$dummyQuote  = $db->qn('foo');
@@ -1521,7 +1550,7 @@ class Mysql extends Base
 
 				if ($algo_start !== false)
 				{
-					$algo_end = strpos($propstring, ' ', $algo_start);
+					$algo_end   = strpos($propstring, ' ', $algo_start);
 					$algostring = substr($propstring, $algo_start, $algo_end - $algo_start + 1);
 				}
 
@@ -1557,64 +1586,6 @@ class Mysql extends Base
 			}
 		}
 
-		// Add DROP statements for DB only backup
-		if (Factory::getEngineParamsProvider()->getScriptingParameter('db.dropstatements', 0))
-		{
-			if (($type == 'table') || ($type == 'merge'))
-			{
-				// Defense against CVE-2016-5483 ("Bad Dump") affecting MySQL, Percona, MariaDB and other MySQL clones
-				$table_name = str_replace(array("\r", "\n"), array('', ''), $table_name);
-
-				// Table or merge tables, get a DROP TABLE statement
-				$drop = "DROP TABLE IF EXISTS " . $db->quoteName($table_name) . ";\n";
-			}
-			elseif ($type == 'view')
-			{
-				// Defense against CVE-2016-5483 ("Bad Dump") affecting MySQL, Percona, MariaDB and other MySQL clones
-				$table_name = str_replace(array("\r", "\n"), array('', ''), $table_name);
-
-				// Views get a DROP VIEW statement
-				$drop = "DROP VIEW IF EXISTS " . $db->quoteName($table_name) . ";\n";
-			}
-			elseif ($type == 'procedure')
-			{
-				// Defense against CVE-2016-5483 ("Bad Dump") affecting MySQL, Percona, MariaDB and other MySQL clones
-				$table_name = str_replace(array("\r", "\n"), array('', ''), $table_name);
-
-				// Procedures get a DROP PROCEDURE statement and proper delimiter strings
-				$drop = "DROP PROCEDURE IF EXISTS " . $db->quoteName($table_name) . ";\n";
-				$drop .= "DELIMITER // ";
-				$table_sql = str_replace("\r", " ", $table_sql);
-				$table_sql = str_replace("\t", " ", $table_sql);
-				$table_sql = rtrim($table_sql, ";\n") . " // DELIMITER ;\n";
-			}
-			elseif ($type == 'function')
-			{
-				// Defense against CVE-2016-5483 ("Bad Dump") affecting MySQL, Percona, MariaDB and other MySQL clones
-				$table_name = str_replace(array("\r", "\n"), array('', ''), $table_name);
-
-				// Procedures get a DROP FUNCTION statement and proper delimiter strings
-				$drop = "DROP FUNCTION IF EXISTS " . $db->quoteName($table_name) . ";\n";
-				$drop .= "DELIMITER // ";
-				$table_sql = str_replace("\r", " ", $table_sql);
-				$table_sql = rtrim($table_sql, ";\n") . "// DELIMITER ;\n";
-			}
-			elseif ($type == 'trigger')
-			{
-				// Defense against CVE-2016-5483 ("Bad Dump") affecting MySQL, Percona, MariaDB and other MySQL clones
-				$table_name = str_replace(array("\r", "\n"), array('', ''), $table_name);
-
-				// Procedures get a DROP TRIGGER statement and proper delimiter strings
-				$drop = "DROP TRIGGER IF EXISTS " . $db->quoteName($table_name) . ";\n";
-				$drop .= "DELIMITER // ";
-				$table_sql = str_replace("\r", " ", $table_sql);
-				$table_sql = str_replace("\t", " ", $table_sql);
-				$table_sql = rtrim($table_sql, ";\n") . "// DELIMITER ;\n";
-			}
-
-			$table_sql = $drop . $table_sql;
-		}
-
 		return $table_sql;
 	}
 
@@ -1647,7 +1618,7 @@ class Mysql extends Base
 	 *
 	 * @return  void
 	 */
-	protected function  push_table($table_name, $stack = array(), $currentRecursionDepth = 0)
+	protected function push_table($table_name, $stack = [], $currentRecursionDepth = 0)
 	{
 		// Load information
 		$table_data = $this->tables_data[$table_name];
@@ -1658,7 +1629,7 @@ class Mysql extends Base
 		}
 		else
 		{
-			$referenced = array();
+			$referenced = [];
 		}
 
 		unset($table_data);
@@ -1720,7 +1691,7 @@ class Mysql extends Base
 						}
 					}
 
-					$my_position = array_search($table_name, $this->tables);
+					$my_position     = array_search($table_name, $this->tables);
 					$remove_position = array_search($depended_table, $this->tables);
 
 					if (($remove_position !== false) && ($remove_position < $my_position))
@@ -1770,20 +1741,17 @@ class Mysql extends Base
 			if (substr($restOfQuery, 0, 1) == '`')
 			{
 				// There is... Good, we'll just find the matching backtick
-				$pos = strpos($restOfQuery, '`', 1);
+				$pos       = strpos($restOfQuery, '`', 1);
 				$tableName = substr($restOfQuery, 1, $pos - 1);
 			}
 			else
 			{
 				// Nope, let's assume the table name ends in the next blank character
-				$pos = strpos($restOfQuery, ' ', 1);
+				$pos       = strpos($restOfQuery, ' ', 1);
 				$tableName = substr($restOfQuery, 0, $pos);
 			}
 
 			unset($restOfQuery);
-
-			// Defense against CVE-2016-5483 ("Bad Dump") affecting MySQL, Percona, MariaDB and other MySQL clones
-			$tableName = str_replace(array("\r", "\n"), array('', ''), $tableName);
 
 			// Try to drop the table anyway
 			$dropQuery = 'DROP TABLE IF EXISTS ' . $db->nameQuote($tableName) . ';';
@@ -1792,27 +1760,24 @@ class Mysql extends Base
 		elseif ((substr($query, 0, 7) == 'CREATE ') && (strpos($query, ' VIEW ') !== false))
 		{
 			// Try to get the view name
-			$view_pos = strpos($query, ' VIEW ');
+			$view_pos    = strpos($query, ' VIEW ');
 			$restOfQuery = trim(substr($query, $view_pos + 6)); // Rest of query, after VIEW string
 
 			// Is there a backtick?
 			if (substr($restOfQuery, 0, 1) == '`')
 			{
 				// There is... Good, we'll just find the matching backtick
-				$pos = strpos($restOfQuery, '`', 1);
+				$pos       = strpos($restOfQuery, '`', 1);
 				$tableName = substr($restOfQuery, 1, $pos - 1);
 			}
 			else
 			{
 				// Nope, let's assume the table name ends in the next blank character
-				$pos = strpos($restOfQuery, ' ', 1);
+				$pos       = strpos($restOfQuery, ' ', 1);
 				$tableName = substr($restOfQuery, 0, $pos);
 			}
 
 			unset($restOfQuery);
-
-			// Defense against CVE-2016-5483 ("Bad Dump") affecting MySQL, Percona, MariaDB and other MySQL clones
-			$tableName = str_replace(array("\r", "\n"), array('', ''), $tableName);
 
 			$dropQuery = 'DROP VIEW IF EXISTS ' . $db->nameQuote($tableName) . ';';
 		}
@@ -1821,27 +1786,24 @@ class Mysql extends Base
 		{
 			// Try to get the procedure name
 			$entity_keyword = ' PROCEDURE ';
-			$entity_pos = strpos($query, $entity_keyword);
-			$restOfQuery = trim(substr($query, $entity_pos + strlen($entity_keyword))); // Rest of query, after entity key string
+			$entity_pos     = strpos($query, $entity_keyword);
+			$restOfQuery    = trim(substr($query, $entity_pos + strlen($entity_keyword))); // Rest of query, after entity key string
 
 			// Is there a backtick?
 			if (substr($restOfQuery, 0, 1) == '`')
 			{
 				// There is... Good, we'll just find the matching backtick
-				$pos = strpos($restOfQuery, '`', 1);
+				$pos         = strpos($restOfQuery, '`', 1);
 				$entity_name = substr($restOfQuery, 1, $pos - 1);
 			}
 			else
 			{
 				// Nope, let's assume the entity name ends in the next blank character
-				$pos = strpos($restOfQuery, ' ', 1);
+				$pos         = strpos($restOfQuery, ' ', 1);
 				$entity_name = substr($restOfQuery, 0, $pos);
 			}
 
 			unset($restOfQuery);
-
-			// Defense against CVE-2016-5483 ("Bad Dump") affecting MySQL, Percona, MariaDB and other MySQL clones
-			$entity_name = str_replace(array("\r", "\n"), array('', ''), $entity_name);
 
 			$dropQuery = 'DROP' . $entity_keyword . 'IF EXISTS `' . $entity_name . '`;';
 		}
@@ -1850,27 +1812,24 @@ class Mysql extends Base
 		{
 			// Try to get the procedure name
 			$entity_keyword = ' FUNCTION ';
-			$entity_pos = strpos($query, $entity_keyword);
-			$restOfQuery = trim(substr($query, $entity_pos + strlen($entity_keyword))); // Rest of query, after entity key string
+			$entity_pos     = strpos($query, $entity_keyword);
+			$restOfQuery    = trim(substr($query, $entity_pos + strlen($entity_keyword))); // Rest of query, after entity key string
 
 			// Is there a backtick?
 			if (substr($restOfQuery, 0, 1) == '`')
 			{
 				// There is... Good, we'll just find the matching backtick
-				$pos = strpos($restOfQuery, '`', 1);
+				$pos         = strpos($restOfQuery, '`', 1);
 				$entity_name = substr($restOfQuery, 1, $pos - 1);
 			}
 			else
 			{
 				// Nope, let's assume the entity name ends in the next blank character
-				$pos = strpos($restOfQuery, ' ', 1);
+				$pos         = strpos($restOfQuery, ' ', 1);
 				$entity_name = substr($restOfQuery, 0, $pos);
 			}
 
 			unset($restOfQuery);
-
-			// Defense against CVE-2016-5483 ("Bad Dump") affecting MySQL, Percona, MariaDB and other MySQL clones
-			$entity_name = str_replace(array("\r", "\n"), array('', ''), $entity_name);
 
 			// Try to drop the entity anyway
 			$dropQuery = 'DROP' . $entity_keyword . 'IF EXISTS `' . $entity_name . '`;';
@@ -1880,27 +1839,24 @@ class Mysql extends Base
 		{
 			// Try to get the procedure name
 			$entity_keyword = ' TRIGGER ';
-			$entity_pos = strpos($query, $entity_keyword);
-			$restOfQuery = trim(substr($query, $entity_pos + strlen($entity_keyword))); // Rest of query, after entity key string
+			$entity_pos     = strpos($query, $entity_keyword);
+			$restOfQuery    = trim(substr($query, $entity_pos + strlen($entity_keyword))); // Rest of query, after entity key string
 
 			// Is there a backtick?
 			if (substr($restOfQuery, 0, 1) == '`')
 			{
 				// There is... Good, we'll just find the matching backtick
-				$pos = strpos($restOfQuery, '`', 1);
+				$pos         = strpos($restOfQuery, '`', 1);
 				$entity_name = substr($restOfQuery, 1, $pos - 1);
 			}
 			else
 			{
 				// Nope, let's assume the entity name ends in the next blank character
-				$pos = strpos($restOfQuery, ' ', 1);
+				$pos         = strpos($restOfQuery, ' ', 1);
 				$entity_name = substr($restOfQuery, 0, $pos);
 			}
 
 			unset($restOfQuery);
-
-			// Defense against CVE-2016-5483 ("Bad Dump") affecting MySQL, Percona, MariaDB and other MySQL clones
-			$entity_name = str_replace(array("\r", "\n"), array('', ''), $entity_name);
 
 			// Try to drop the entity anyway
 			$dropQuery = 'DROP' . $entity_keyword . 'IF EXISTS `' . $entity_name . '`;';
@@ -1937,22 +1893,6 @@ class Mysql extends Base
 	}
 
 	/**
-	 * Removes MySQL comments from the SQL command
-	 *
-	 * @param   string  $sql  Potentially commented SQL
-	 *
-	 * @return  string  SQL without comments
-	 *
-	 * @see     http://stackoverflow.com/questions/9690448/regular-expression-to-remove-comments-from-sql-statement
-	 */
-	protected function removeMySQLComments($sql)
-	{
-		$sqlComments = '@(([\'"]).*?[^\\\]\2)|((?:\#|--).*?$|/\*(?:[^/*]|/(?!\*)|\*(?!/)|(?R))*\*\/)\s*|(?<=;)\s+@ms';
-
-		return preg_replace($sqlComments, '$1', $sql);
-	}
-
-	/**
 	 * Get the default database dump batch size from the configuration
 	 *
 	 * @return  int
@@ -1964,7 +1904,7 @@ class Mysql extends Base
 		if (is_null($batchSize))
 		{
 			$configuration = Factory::getConfiguration();
-			$batchSize = intval($configuration->get('engine.dump.common.batchsize', 1000));
+			$batchSize     = intval($configuration->get('engine.dump.common.batchsize', 1000));
 
 			if ($batchSize <= 0)
 			{
@@ -2002,14 +1942,14 @@ class Mysql extends Base
 		}
 
 		// That's the average row size as reported by MySQL.
-		$avgRow      = str_replace(array(',', '.'), array('', ''), $info['Avg_row_length']);
+		$avgRow = str_replace([',', '.'], ['', ''], $info['Avg_row_length']);
 		// The memory available for manipulating data is less than the free memory
 		$memoryLimit = $this->getMemoryLimit();
 		$memoryLimit = empty($memoryLimit) ? 33554432 : $memoryLimit;
 		$usedMemory  = memory_get_usage();
 		$memoryLeft  = 0.75 * ($memoryLimit - $usedMemory);
 		// The 3.25 factor is empirical and leans on the safe side.
-		$maxRows     = (int) ($memoryLeft / (3.25 * $avgRow));
+		$maxRows = (int) ($memoryLeft / (3.25 * $avgRow));
 
 		return max(1, min($maxRows, $defaultBatchSize));
 	}
@@ -2024,7 +1964,7 @@ class Mysql extends Base
 	 */
 	protected function humanToIntegerBytes($setting)
 	{
-		$val = trim($setting);
+		$val  = trim($setting);
 		$last = strtolower($val{strlen($val) - 1});
 
 		if (is_numeric($last))
@@ -2108,7 +2048,7 @@ class Mysql extends Base
 		}
 
 		$totalColumns = count($tableCols);
-		$columnList = [];
+		$columnList   = [];
 
 		foreach ($tableCols as $col)
 		{

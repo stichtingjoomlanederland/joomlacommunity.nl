@@ -39,13 +39,13 @@ class EasyDiscussViewMypost extends EasyDiscussView
 		$options = array('filter' => 'questions', 'userId' => $profile->id, 'includeCluster' => true, 'private' => true);
 		$posts = $postsModel->getDiscussions($options);
 
+		// format resultset.
 		$posts = ED::formatPost($posts);
-
+		// now we need to attach the post status and types into the resultset.
 		$posts = ED::getPostStatusAndTypes($posts);
 
-		$filterArr = array('viewtype' => 'questions', "id" => $profile->id);
 		$pagination	= $postsModel->getPagination();
-		$pagination	= $pagination->getPagesLinks('mypost', $filterArr, true);
+		$pagination	= $pagination->getPagesLinks('mypost');
 
 		// Get user badges
 		$badges = $profile->getBadges();

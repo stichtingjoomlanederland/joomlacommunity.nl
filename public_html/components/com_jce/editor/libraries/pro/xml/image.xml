@@ -54,12 +54,15 @@
                 <option value="1">WF_OPTION_ON</option>
                 <option value="0">WF_OPTION_OFF</option>
             </field>
+
             <field type="repeatable" name="resize_width" default="640" label="WF_MANAGER_RESIZE_WIDTH" description="WF_MANAGER_RESIZE_WIDTH_DESC">
-                <field type="number" class="input-small" step="1" />
+                <field type="number" class="input-small" step="1" hiddenLabel="true" />
             </field>
+
             <field type="repeatable" name="resize_height" default="480" label="WF_MANAGER_RESIZE_HEIGHT" description="WF_MANAGER_RESIZE_HEIGHT_DESC">
-                <field type="number" class="input-small" step="1" />
+                <field type="number" class="input-small" step="1" hiddenLabel="true" />
             </field>
+
             <field name="resize_quality" type="list" default="100" label="WF_MANAGER_RESIZE_QUALITY" description="WF_MANAGER_RESIZE_QUALITY_DESC">
                 <option value="100">100</option>
                 <option value="90">90</option>
@@ -71,6 +74,11 @@
                 <option value="30">30</option>
                 <option value="20">20</option>
                 <option value="10">10</option>
+            </field>
+
+            <field name="upload_resize_crop" type="radio" default="0" label="WF_MANAGER_RESIZE_UPLOAD_CROP" description="WF_MANAGER_RESIZE_UPLOAD_CROP_DESC" class="btn-group btn-group-yesno">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
             </field>
 
             <field name="resize_presets" type="customlist" default="320x240,640x480,800x600,1024x768" multiple="true" class="editable" label="WF_MANAGER_RESIZE_PRESETS" description="WF_MANAGER_RESIZE_PRESETS_DESC">

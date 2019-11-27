@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate>
+?>
+<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate>
 	<input type="hidden" name="id" value="<?php echo empty($data['id']) ? '' : intval($data['id']); ?>">
 	<input type="hidden" id="conditions" value="<?php echo acym_escape($data['condition']->conditions); ?>">
 	<input type="hidden" name="stepAutomationId" value="<?php echo empty($data['step_automation_id']) ? '' : intval($data['step_automation_id']); ?>">
@@ -20,10 +21,9 @@ defined('_JEXEC') or die('Restricted access');
         <?php
         $workflow = acym_get('helper.workflow');
         if ('[]' == $data['condition']->conditions) {
-            $this->edition = 1;
             $workflow->disabledAfter = 'condition';
         }
-        echo $workflow->display($this->steps, 'condition', $this->edition);
+        echo $workflow->display($this->steps, 'condition');
         ?>
 		<div id="acym__automation__or__example" style="display: none;">
 			<h6 class="cell acym__content__title__light-blue margin-top-1"><?php echo acym_translation('ACYM_OR'); ?></h6>

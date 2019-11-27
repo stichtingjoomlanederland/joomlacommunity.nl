@@ -55,7 +55,7 @@ JS;
 		// Construct the array of sorting fields
 		$this->sortFields = array(
 			'id' => '#',
-			'backupstart' => JText::_('COM_ADMINTOOLS_LBL_SCAN_START'),
+			'scanstart' => JText::_('COM_ADMINTOOLS_LBL_SCAN_START'),
 		);
 
 		$this->addJavascriptFile('admin://components/com_admintools/media/js/Modal.min.js');

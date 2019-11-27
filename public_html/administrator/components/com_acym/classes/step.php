@@ -1,14 +1,15 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.3.0
+ * @version	6.5.2
  * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA S.A.R.L. All rights reserved.
+ * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die('Restricted access');
-?><?php
+?>
+<?php
 
 class acymstepClass extends acymClass
 {
@@ -34,24 +35,34 @@ class acymstepClass extends acymClass
         return acym_loadObject('SELECT * FROM #__acym_step WHERE automation_id = '.intval($automationId));
     }
 
-    public function getOneById($id)
-    {
-        return acym_loadObject('SELECT * FROM #__acym_step WHERE id = '.intval($id));
-    }
-
     public function getStepsByAutomationId($automationId)
     {
         return acym_loadObjectList('SELECT * FROM #__acym_step WHERE automation_id = '.intval($automationId));
     }
 
-    public function getActiveStepByTrigger($trigger)
+    public function getActiveStepByTrigger($triggers)
     {
-        return acym_loadObjectList(
-            'SELECT step.* 
+        if (empty($triggers)) return [];
+
+        if (!is_array($triggers)) $triggers = [$triggers];
+
+        $query = 'SELECT step.* 
             FROM #__acym_step AS step 
             LEFT JOIN #__acym_automation AS automation ON step.automation_id = automation.id 
-            WHERE step.triggers LIKE '.acym_escapeDB('%"'.$trigger.'"%').' AND automation.active = 1'
-        );
+            WHERE automation.active = 1';
+
+        foreach ($triggers as $i => $oneTrigger) {
+            $triggers[$i] = 'step.triggers LIKE '.acym_escapeDB('%"'.$oneTrigger.'"%');
+        }
+        $query .= ' AND ('.implode(' OR ', $triggers).')';
+
+        $steps = acym_loadObjectList($query);
+
+        foreach ($steps as $i => $oneStep) {
+            if (!empty($oneStep->triggers)) $steps[$i]->triggers = json_decode($oneStep->triggers, true);
+        }
+
+        return $steps;
     }
 
     public function delete($elements)

@@ -2,7 +2,7 @@
 <extension version="1.0.0" type="plugin" group="system">
 	<name>AcyMailing - JCE integration</name>
 	<creationDate>December 2018</creationDate>
-	<version>1.0.0</version>
+	<version>6.5.2</version>
 	<author>Acyba</author>
 	<authorEmail>dev@acyba.com</authorEmail>
 	<authorUrl>https://www.acyba.com</authorUrl>

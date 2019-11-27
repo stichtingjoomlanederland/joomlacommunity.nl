@@ -255,81 +255,107 @@ class DiscussComment extends EasyDiscussTable
 		// var_dump($addUnsubscribeLink, $replyAuthorEmail);
 		// exit;
 
-		// We should skip it all together if these 2 setting didn't enabled.
-		if (!$config->get('notify_comment_participants') && !$config->get('main_subscription_include_comments')) {
-			return false;
-		}
-
-		// Get the list of emails to be sent
-		$emails	= array();
-
-		// Send email to the post owner only if the commenter is not the post owner.
-		if ($post->user_id != 0 && $post->user_id != $my->id ) {
-			$user = JFactory::getUser($post->user_id);
-			$emails[] = $user->email;
-		}
-
-		if ($config->get('notify_comment_participants')) {
-
-			// Retrieve the list of user emails from the list of comments made on the post.
-			$existingComments = $post->getComments();
-
-			if ($existingComments) {
-
-				foreach ($existingComments as $existingComment) {
-					// Only add the email when the user id is not the current logged in user who is posting the comment.
-					// It should not send email to the post owner as well since the post owner will already get a notification.
-					if ($existingComment->user_id != 0 && $existingComment->user_id != $my->id && $existingComment->user_id != $post->user_id) {
-						$user = JFactory::getUser($existingComment->user_id);
-						$emails[] = $user->email;
-					}
-				}
-			}
-		}
-
-		// notify to site admin and moderator based on the notification setting
-		$administratorEmails = ED::mailer()->notifyAdministrators($emailData, array(), $config->get('notify_admin'), $config->get('notify_moderator'), true);
-
-		// if the subscription part enable include comment setting
-		if ($config->get('main_subscription_include_comments') && !$question->private) {
-
-			// Now we also need to get the site and category subscribers emails if they chose to include comments notification
-			if ($config->get('main_sitesubscription')) {
-				$siteSubscribers = ED::Mailer()->getSubscribers('site', 0, $post->category_id, array('emailOnly' => true), array($my->email));
-				$emails = array_merge($emails, $siteSubscribers);
-			}
-
-			if ($config->get('main_ed_categorysubscription')) {
-				$categorySubscribers = ED::Mailer()->getSubscribers('category', $post->category_id, $post->category_id, array('emailOnly' => true), array($my->email));
-				$emails = array_merge($emails, $categorySubscribers);
-			}
-
-			// We also need to notify to the post subcribers
-			if ($config->get('main_postsubscription')) {
-				$postSubscribers = ED::Mailer()->getSubscribers('post', $post->id, $post->category_id, array('emailOnly' => true), array($my->email));
-				$emails = array_merge($emails, $postSubscribers);
-			}
-		}
-
-		// Ensure the emails are all unique.
-		$emails = array_merge($emails, $administratorEmails);
-		$emails = array_unique($emails);
-
 		$subTitle = $question->title;
 		if (JString::strlen($question->title) > 100) {
 			$subTitle = JString::substr($question->title, 0, 100) . '...';
 		}
 
+		$isGroup = $question->cluster_id;
+
 		$notify = ED::notifications();
+		
+		// If notify all member setting is enabled we no need to check for other setting as this setting have
+		// higher predecence.
+		if ($config->get('notify_comment_all_members') && !$question->private && !$isGroup) {
+			$ignoreEmails = array();
+			$myId = JFactory::getUser($my->id);
+			$ignoreEmails[] = $myId->email;
 
-		// Only send email when email is not empty.
-		if (!empty($emails)) {
-			$notify->addQueue($emails, JText::sprintf('COM_EASYDISCUSS_EMAIL_TITLE_NEW_COMMENT', $post->id, $subTitle) , '', 'email.post.comment.new', $emailData);
-		}
+			$model = ED::model('Category');
 
-		// If the notify_actor is enabled, we directly send the email to the comment poster
-		if ($config->get('notify_actor')) {
-			$notify->addQueue($profile->getEmail(), JText::sprintf('COM_EASYDISCUSS_EMAIL_TITLE_YOU_ADDED_NEW_COMMENT', $subTitle) , '', 'email.comment.new', $emailData);
+			// action select is the user permission for view discussion
+			$allowViewPost = $model->getAssignedGroups( $post->category_id, 'view');
+
+			$guestUserGroupId = JComponentHelper::getParams('com_users')->get('guest_usergroup');
+
+			$includesGuest = true;
+			if (!in_array($guestUserGroupId, $allowViewPost)) {
+				$includesGuest = false;
+			}
+
+			// Generalize the email subject
+			$subject = JText::sprintf('COM_EASYDISCUSS_EMAIL_TITLE_NEW_COMMENT', $post->id, $subTitle);
+			$notify->sendToAllUsers($subject, $emailData, $ignoreEmails, 'email.post.comment.new', '', $allowViewPost, $includesGuest);
+		} else {
+			// We should skip it all together if these 2 setting didn't enabled.
+			if (!$config->get('notify_comment_participants') && !$config->get('main_subscription_include_comments')) {
+				return false;
+			}
+
+			// Get the list of emails to be sent
+			$emails	= array();
+
+			// Send email to the post owner only if the commenter is not the post owner.
+			if ($post->user_id != 0 && $post->user_id != $my->id ) {
+				$user = JFactory::getUser($post->user_id);
+				$emails[] = $user->email;
+			}
+
+			if ($config->get('notify_comment_participants')) {
+
+				// Retrieve the list of user emails from the list of comments made on the post.
+				$existingComments = $post->getComments();
+
+				if ($existingComments) {
+
+					foreach ($existingComments as $existingComment) {
+						// Only add the email when the user id is not the current logged in user who is posting the comment.
+						// It should not send email to the post owner as well since the post owner will already get a notification.
+						if ($existingComment->user_id != 0 && $existingComment->user_id != $my->id && $existingComment->user_id != $post->user_id) {
+							$user = JFactory::getUser($existingComment->user_id);
+							$emails[] = $user->email;
+						}
+					}
+				}
+			}
+
+			// notify to site admin and moderator based on the notification setting
+			$administratorEmails = ED::mailer()->notifyAdministrators($emailData, array(), $config->get('notify_admin'), $config->get('notify_moderator'), true);
+
+			// if the subscription part enable include comment setting
+			if ($config->get('main_subscription_include_comments') && !$question->private) {
+
+				// Now we also need to get the site and category subscribers emails if they chose to include comments notification
+				if ($config->get('main_sitesubscription')) {
+					$siteSubscribers = ED::Mailer()->getSubscribers('site', 0, $post->category_id, array('emailOnly' => true), array($my->email));
+					$emails = array_merge($emails, $siteSubscribers);
+				}
+
+				if ($config->get('main_ed_categorysubscription')) {
+					$categorySubscribers = ED::Mailer()->getSubscribers('category', $post->category_id, $post->category_id, array('emailOnly' => true), array($my->email));
+					$emails = array_merge($emails, $categorySubscribers);
+				}
+
+				// We also need to notify to the post subcribers
+				if ($config->get('main_postsubscription')) {
+					$postSubscribers = ED::Mailer()->getSubscribers('post', $post->id, $post->category_id, array('emailOnly' => true), array($my->email));
+					$emails = array_merge($emails, $postSubscribers);
+				}
+			}
+
+			// Ensure the emails are all unique.
+			$emails = array_merge($emails, $administratorEmails);
+			$emails = array_unique($emails);
+
+			// Only send email when email is not empty.
+			if (!empty($emails)) {
+				$notify->addQueue($emails, JText::sprintf('COM_EASYDISCUSS_EMAIL_TITLE_NEW_COMMENT', $post->id, $subTitle) , '', 'email.post.comment.new', $emailData);
+			}
+
+			// If the notify_actor is enabled, we directly send the email to the comment poster
+			if ($config->get('notify_actor')) {
+				$notify->addQueue($profile->getEmail(), JText::sprintf('COM_EASYDISCUSS_EMAIL_TITLE_YOU_ADDED_NEW_COMMENT', $subTitle) , '', 'email.comment.new', $emailData);
+			}
 		}
 
 		// Process comment triggers.

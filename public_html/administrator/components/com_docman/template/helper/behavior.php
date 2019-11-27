@@ -8,6 +8,46 @@
 
 class ComDocmanTemplateHelperBehavior extends ComKoowaTemplateHelperBehavior
 {
+    public function multidownload($config = []) {
+        $config = new KObjectConfigJson($config);
+        $config->append([]);
+
+        $html = '';
+
+        if (!static::isLoaded('docman-multidownload'))
+        {
+            $html = $this->jquery($config);
+            $html .= $this->tooltip($config);
+            $html .= $this->getTemplate()->helper('translator.script', ['strings' => [
+                'Preparing download',
+                'You are not authorized to download the selected file',
+                'Remote files cannot be downloaded in batch'
+            ]]);
+            $html .= '<ktml:script src="media://com_docman/js/multidownload.js" />';
+            $html .= '
+            <style>
+                /* get rid of the red-on-white button on hover */
+                .k-js-multi-download.disabled:hover {
+                    background-color: inherit !important;
+                    color: inherit !important;
+                }
+            </style>
+            <script>
+            
+                if (typeof Docman === "undefined") {
+                    Docman = {};
+                }
+            
+                Docman.token = '.json_encode($this->getObject('user')->getSession()->getToken()).';
+            </script>
+            ';
+
+            static::setLoaded('docman-multidownload');
+        }
+
+        return $html;
+    }
+
     public function downloadlabel($config = array())
     {
         $config = new KObjectConfigJson($config);

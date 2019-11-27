@@ -43,7 +43,7 @@ final class WFTemplateManagerPlugin extends WFMediaManager
         $document->addScriptDeclaration('TemplateManager.settings=' . json_encode($this->getSettings()) . ';');
     }
 
-    public function createTemplate($dir, $name, $type)
+    public function createTemplate($dir, $name)
     {
         $browser = $this->getFileBrowser();
 
@@ -70,7 +70,8 @@ final class WFTemplateManagerPlugin extends WFMediaManager
         // Remove any existing template div
         $data = preg_replace('/<div(.*?)class="mceTmpl"([^>]*?)>([\s\S]*?)<\/div>/i', '$3', $data);
 
-        if ($type == 'template') {
+        // if the template contains any variables, then treat it as a dynamic template
+        if ($this->isDynamicTemplate($data)) {
             $data = '<div class="mceTmpl">' . $data . '</div>';
         }
 
@@ -92,9 +93,31 @@ final class WFTemplateManagerPlugin extends WFMediaManager
         return $browser->getResult();
     }
 
+    protected function isDynamicTemplate($content)
+    {
+        return preg_match('/\{\$(.+?)\}/i', $content);
+    }
+
+    protected function replaceValuesToArray()
+    {
+        $data = array();
+        $params = $this->getParam('replace_values');
+
+        if ($params) {
+            foreach (explode(',', $params) as $param) {
+                list($key, $value) = preg_split('/[:=]/', $param);
+                $data[$key] = trim($value);
+            }
+        }
+
+        return $data;
+    }
+
     protected function replaceVars($matches)
     {
-        switch ($matches[1]) {
+        $key = $matches[1];
+        
+        switch ($key) {
             case 'modified':
                 return strftime($this->getParam('mdate_format', '%Y-%m-%d %H:%M:%S'));
                 break;
@@ -107,20 +130,17 @@ final class WFTemplateManagerPlugin extends WFMediaManager
             case 'email':
                 $user = JFactory::getUser();
 
-                return isset($user->$matches[1]) ? $user->$matches[1] : $matches[1];
+                return isset($user->$key) ? $user->$key : $key;
                 break;
             default:
 
                 // Replace other pre-defined variables
-                $params = $this->getParam('replace_values');
-                if ($params) {
-                    foreach (explode(',', $params) as $param) {
-                        $k = preg_split('/[:=]/', $param);
-                        if (trim($k[0]) == $matches[1]) {
-                            return trim($k[1]);
-                        }
-                    }
+                $values = $this->replaceValuesToArray();
+
+                if (isset($values[$key])) {
+                    return $values[$key];
                 }
+
                 break;
         }
     }
@@ -156,5 +176,25 @@ final class WFTemplateManagerPlugin extends WFMediaManager
         $config['position'] = 'bottom';
 
         return parent::getFileBrowserConfig($config);
+    }
+
+    public function getTemplateList()
+    {
+        $list   = array();
+        $items  = $this->getFileBrowser()->getItems('');
+
+        foreach($items['files'] as $item) {
+            
+            if ($item['name'] === "index.html") {
+                continue;
+            }
+
+            $name   = pathinfo($item['name'], PATHINFO_FILENAME);
+            $value  = $item['properties']['preview'];
+
+            $list[$name] = $value;
+        }
+
+        return $list;
     }
 }

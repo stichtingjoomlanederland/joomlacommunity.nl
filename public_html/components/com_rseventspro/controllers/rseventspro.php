@@ -882,4 +882,121 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		
 		JFactory::getApplication()->close();
 	}
+	
+	public function duplicateticket() {
+		// Get the model
+		$model = $this->getModel();
+		
+		$permission_denied = false;
+		$admin = rseventsproHelper::admin();
+		
+		if (!$admin) {
+			JFactory::getApplication()->input->set('from','ticket');
+			$user = $model->getUser();
+			$owner = $model->getOwner();
+			if (($user != $owner && empty($this->permissions['can_edit_events'])) || empty($user))
+				$permission_denied = true;
+		}
+		
+		if ($permission_denied)
+			throw new Exception(JText::_('COM_RSEVENTSPRO_ERROR_DUPLICATE_TICKET'), 500);
+		
+		$response = $model->duplicateticket();
+		
+		echo json_encode($response);
+		
+		JFactory::getApplication()->close();
+	}
+	
+	public function waiting() {
+		$app = JFactory::getApplication();
+		
+		// Get the model
+		$model = $this->getModel();
+		
+		// Get event details
+		$event = $model->getEvent();
+		
+		if (!rseventsproHelper::hasWaitingList($event->id)) {
+			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)), JText::_('COM_RSEVENTSPRO_WAITING_ERROR'));
+		}
+		
+		try {
+			$model->waiting();
+		} catch (Exception $e) {
+			$app->enqueueMessage($e->getMessage(), 'error');
+			$app->redirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=waiting&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)));
+		}
+		
+		return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)), JText::_('COM_RSEVENTSPRO_WAITING_ADDED'));
+	}
+	
+	public function approvewaiting() {
+		$app = JFactory::getApplication();
+		
+		// Get the model
+		$model = $this->getModel();
+		
+		// Get event details
+		$event = $model->getEvent();
+		
+		$admin = rseventsproHelper::admin();
+		$user  = $model->getUser();
+		
+		if ($admin || $event->owner == $user || $event->sid == $user) {
+			if ($model->approvewaiting()) {
+				$app->enqueueMessage(JText::_('COM_RSEVENTSPRO_WAITINGLIST_USER_APPROVED'));
+			} else {
+				$app->enqueueMessage(JText::_('COM_RSEVENTSPRO_WAITINGLIST_USER_APPROVED_ERROR'),'error');
+			}
+		} else {
+			$app->enqueueMessage(JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED'),'error');
+		}
+		
+		return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=waitinglist&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)));
+	}
+	
+	public function removewaiting() {
+		$app = JFactory::getApplication();
+		
+		// Get the model
+		$model = $this->getModel();
+		
+		// Get event details
+		$event = $model->getEvent();
+		
+		$admin = rseventsproHelper::admin();
+		$user  = $model->getUser();
+		
+		if ($admin || $event->owner == $user || $event->sid == $user) {
+			$model->removewaiting();
+			$app->enqueueMessage(JText::_('COM_RSEVENTSPRO_WAITINGLIST_USER_REMOVED'));
+		} else {
+			$app->enqueueMessage(JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED'),'error');
+		}
+		
+		return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=waitinglist&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)));
+	}
+	
+	public function savewaitinglist() {
+		$app = JFactory::getApplication();
+		
+		// Get the model
+		$model = $this->getModel();
+		
+		// Get event details
+		$event = $model->getEvent();
+		
+		$admin = rseventsproHelper::admin();
+		$user  = $model->getUser();
+		
+		if ($admin || $event->owner == $user || $event->sid == $user) {
+			$model->savewaitinglist();
+			$app->enqueueMessage(JText::_('COM_RSEVENTSPRO_WAITINGLIST_USER_SAVED'));
+		} else {
+			$app->enqueueMessage(JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED'),'error');
+		}
+		
+		return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=waitinglist&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)));
+	}
 }

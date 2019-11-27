@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -293,14 +293,13 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 
 		$limitstart = (int) $this->getState('limitstart', 0);
 
-		$query	=  'select SQL_CALC_FOUND_ROWS a.`id`, a.`title`, a.`alias`, a.`created`, count(c.`id`) as `post_count`';
-		$query	.= ' from #__discuss_tags as a';
-		$query	.= '	left join #__discuss_posts_tags as b';
-		$query	.= '	on a.`id` = b.`tag_id`';
-		$query	.= '	left join #__discuss_posts as c';
-		$query	.= '	on b.post_id = c.id';
-		$query	.= '	and c.`private`=' . $db->Quote(0);
-		$query	.= '	and c.`published` = ' . $db->Quote('1');
+		$query =  'select SQL_CALC_FOUND_ROWS a.`id`, a.`title`, a.`alias`, a.`created`, count(c.`id`) as `post_count`';
+		$query .= ' from #__discuss_tags as a';
+		$query .= ' left join #__discuss_posts_tags as b on a.`id` = b.`tag_id`';
+		$query .= ' left join #__discuss_posts as c';
+		$query .= '	on b.post_id = c.id';
+		$query .= '	and c.`private`=' . $db->Quote(0);
+		$query .= '	and c.`published` = ' . $db->Quote('1');
 
 		// Do not include cluster item here.
 		$query .= ' AND c.`cluster_id` = ' . $db->Quote(0);
@@ -311,15 +310,21 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 			$query .= ' AND c.`category_id` NOT IN(' . implode(',', $exclude) . ')';
 		}
 
+		// exclude blocked users posts.
+		$query .= " left join " . $db->nameQuote('#__users') . " as uu on c.`user_id` = uu.`id`";
 
-		$query	.= 	' where a.`published` = ' . $db->Quote('1');
+
+		$query .= ' where a.`published` = ' . $db->Quote('1');
 
 		if (!empty($userId)) {
-			$query	.= ' AND a.`user_id`=' . $db->Quote($userId);
+			$query .= ' AND a.`user_id`=' . $db->Quote($userId);
 		}
 
+		// exlude block users. #788
+		$query .= " AND (uu.`block` = 0 or uu.`id` is null)";
 
-		$query	.=  ' group by (a.`id`)';
+
+		$query .= ' group by (a.`id`)';
 
 		//order
 		switch ($order) {

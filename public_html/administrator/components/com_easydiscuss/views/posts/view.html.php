@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -41,13 +41,14 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		$limit = $this->app->getUserStateFromRequest('com_easydiscuss.posts.limit', 'limit', $this->app->getCfg('list_limit') , 'int');
 		$limitstart	= $this->input->get('limitstart', 0, 'int');
 
-		$filter = $this->getUserState('posts.filter_state', 'filter_state', '', 'word');
+		// default to 'published' to speed up the query. #770
+		$filter = $this->getUserState('posts.filter_state', 'filter_state', 'published', 'word');
 
 		$search = $this->getUserState('posts.search', 'search', '', 'string');
 		$search = trim(strtolower($search));
 
 		// Ordering
-		$order = $this->getUserState('posts.filter_order', 'filter_order', 'a.id', 'cmd');
+		$order = $this->getUserState('posts.filter_order', 'filter_order', 'b.id', 'cmd');
 		$orderDirection = $this->getUserState('posts.filter_order_Dir', 'filter_order_Dir', 'DESC', 'word');
 
 		// Filter by category
@@ -156,7 +157,8 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		$limitstart	= $this->input->get('limitstart', 0, 'int');
 
 		// Selected filter
-		$filter = $this->input->get('filter_state', '', 'word');
+		// default to 'published' to speed up the query. #770
+		$filter = $this->input->get('filter_state', 'published', 'word');
 
 		// Search query
 		$search = $this->input->get('search', '', 'string');

@@ -56,10 +56,10 @@ defined('JPATH_PLATFORM') or die;
 		</div>
 	</div>
 	<div class="uk-form-row uk-align-right uk-margin-top uk-margin-bottom">
-		<button id="resize_apply" class="uk-button uk-button-primary apply" data-function="resize">
+		<button  type="button" id="resize_apply" class="uk-button uk-button-primary apply" data-function="resize">
 			<?php echo JText::_('WF_LABEL_APPLY'); ?>
 		</button>
-		<button id="resize_reset" class="uk-button reset" data-function="resize">
+		<button  type="button" id="resize_reset" class="uk-button reset" data-function="resize">
 			<?php echo JText::_('WF_LABEL_RESET'); ?>
 		</button>
 	</div>

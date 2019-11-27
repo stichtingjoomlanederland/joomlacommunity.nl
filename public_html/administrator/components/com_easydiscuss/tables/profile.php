@@ -289,7 +289,7 @@ class DiscussProfile extends EasyDiscussTable
 
 			$config = ED::config();
 
-			if (!$config->get('layout_avatarLinking')) {
+			if (!$config->get('layout_avatarLinking') && $this->id) {
 				$items[$key] = EDR::_('view=profile&id=' . $this->id, false) . $anchor;
 			} else {
 				$items[$key] = $field['profileLink'];
