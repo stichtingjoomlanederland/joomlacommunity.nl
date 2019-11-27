@@ -44,6 +44,7 @@
     "js-yaml": ">=3.13.1",
     "load-grunt-configs": "^1.0.0",
     "node-normalize-scss": "^8.0.1",
+    "node-sass": "^4.12.0",
     "tar": "^4.4.11",
     "time-grunt": "^2.0.0",
     "vanilla-js-responsive-menu": "robinpoort/vanilla-js-responsive-menu"
