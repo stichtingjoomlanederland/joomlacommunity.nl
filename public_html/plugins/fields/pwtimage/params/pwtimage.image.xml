@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fields name="fieldparams">
+        <fieldset name="fieldparams">
+
+            <field  addfieldpath="components/com_pwtimage/models/fields"
+                    name="origin"
+                    type="pwtimage.profile"
+                    label="PLG_FIELDS_PWTIMAGE_XML_ORIGIN"
+                    description="PLG_FIELDS_PWTIMAGE_XML_ORIGIN_DESC"
+            />
+        </fieldset>
+    </fields>
+</form>

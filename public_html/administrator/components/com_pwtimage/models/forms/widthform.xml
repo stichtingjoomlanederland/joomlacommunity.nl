@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+    <field
+            name="width"
+            type="number"
+            label="COM_PWTIMAGE_CONFIG_RATIO_WIDTH_LABEL"
+            min="0"
+            required="true"/>
+</form>

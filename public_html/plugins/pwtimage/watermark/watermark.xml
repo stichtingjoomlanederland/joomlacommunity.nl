@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.8" type="plugin" group="pwtimage" method="upgrade">
+    <name>PLG_PWTIMAGE_WATERMARK</name>
+    <creationDate>2017-12-13</creationDate>
+    <copyright>Copyright (C) 2017 Perfect Web Team</copyright>
+    <license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
+    <author>Perfect Web Team</author>
+    <authorEmail>hallo@perfectwebteam.nl</authorEmail>
+    <authorUrl>https://perfectwebteam.nl/</authorUrl>
+    <version>1.3.2</version>
+    <description>PLG_PWTIMAGE_WATERMARK_XML_DESCRIPTION</description>
+
+    <files>
+        <folder>language</folder>
+        <filename plugin="watermark">watermark.php</filename>
+    </files>
+
+    <config>
+        <fields name="params">
+            <fieldset name="basic" addfieldpath="components/com_pwtimage/models/fields">
+                <field
+                        name="watermark_image"
+                        type="media"
+                        label="PLG_PWTIMAGE_CONFIG_WATERMARK_IMAGE_LABEL"
+                        description="PLG_PWTIMAGE_CONFIG_WATERMARK_IMAGE_DESC"
+                        class="input-xxlarge"
+                        default=""/>
+                
+                <field name="full_watermark_right"
+                       type="text"
+                       label="PLG_PWTIMAGE_CONFIG_WATERMARK_RIGHT_LABEL"
+                       description="PLG_PWTIMAGE_CONFIG_WATERMARK_RIGHT_DESC"
+                       size="3"
+                       default="0"
+                       class="input-small"/>
+
+                <field name="full_watermark_bottom"
+                       type="text"
+                       label="PLG_PWTIMAGE_CONFIG_WATERMARK_BOTTOM_LABEL"
+                       description="PLG_PWTIMAGE_CONFIG_WATERMARK_BOTTOM_DESC"
+                       size="3"
+                       default="0"
+                       class="input-small" />
+
+                <field name="profiles"
+                       type="pwtimage.profiles"
+                       label="PLG_PWTIMAGE_CONFIG_WATERMARK_PROFILES"
+                       description="PLG_PWTIMAGE_CONFIG_WATERMARK_PROFILES_DESC"
+                       multiple="true" />
+
+            </fieldset>
+        </fields>
+    </config>
+</extension>

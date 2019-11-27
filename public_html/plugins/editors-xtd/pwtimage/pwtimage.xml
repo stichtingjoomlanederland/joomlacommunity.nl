@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.8" type="plugin" group="editors-xtd" method="upgrade">
+    <name>PLG_PWTIMAGE</name>
+    <author>Perfect Web Team</author>
+    <creationDate>23 September 2019</creationDate>
+    <copyright>Copyright (C) 2016 - 2019 Perfect Web Team</copyright>
+    <license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
+    <authorEmail>extensions@perfectwebteam.com</authorEmail>
+    <authorUrl>https://extensions.perfectwebteam.com</authorUrl>
+    <version>1.3.2-beta</version>
+    <description>PLG_PWTIMAGE_XML_DESCRIPTION</description>
+
+    <scriptfile>script.php</scriptfile>
+
+    <files>
+        <filename plugin="pwtimage">pwtimage.php</filename>
+        <folder>language</folder>
+    </files>
+
+    <config>
+        <fields name="params">
+            <fieldset name="basic" addfieldpath="components/com_pwtimage/models/fields">
+                <field
+                        name="origin"
+                        type="pwtimage.profile"
+                        label="PLG_PWTIMAGE_XML_ORIGIN"
+                        description="PLG_PWTIMAGE_XML_ORIGIN_DESC"
+                />
+
+                <field
+                        name="injecttype"
+                        type="list"
+                        label="PLG_PWTIMAGE_XML_TAGORIMAGE"
+                        description="PLG_PWTIMAGE_XML_TAGORIMAGE_DESC"
+                        default="0"
+                >
+                    <option value="0">PLG_PWTIMAGE_XML_TAG</option>
+                    <option value="1">PLG_PWTIMAGE_XML_IMAGE</option>
+                </field>
+            </fieldset>
+        </fields>
+    </config>
+</extension>
