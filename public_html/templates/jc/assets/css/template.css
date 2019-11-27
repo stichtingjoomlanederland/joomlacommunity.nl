@@ -5886,10 +5886,10 @@ button.close {
   float: left !important;
 }
 .hide {
-  display: none !important;
+  display: none;
 }
 .show {
-  display: block !important;
+  display: block;
 }
 .invisible {
   visibility: hidden;
@@ -8965,6 +8965,221 @@ textarea.invalid {
 .rsc-results > li {
   cursor: pointer;
   margin-bottom: 5px;
+}
+.modal.option-com-rscomments {
+  display: unset;
+  overflow: unset;
+  position: unset;
+  top: unset;
+  right: unset;
+  bottom: unset;
+  left: unset;
+  z-index: unset;
+  -webkit-overflow-scrolling: unset;
+  outline: unset;
+  background-color: transparent;
+}
+.rscomments {
+  /*
+   * copied from
+   */
+}
+.rscomments .jviewport-height10 {
+  height: 10vh;
+}
+.rscomments .jviewport-height20 {
+  height: 20vh;
+}
+.rscomments .jviewport-height30 {
+  height: 30vh;
+}
+.rscomments .jviewport-height40 {
+  height: 40vh;
+}
+.rscomments .jviewport-height50 {
+  height: 50vh;
+}
+.rscomments .jviewport-height60 {
+  height: 60vh;
+}
+.rscomments .jviewport-height70 {
+  height: 70vh;
+}
+.rscomments .jviewport-height80 {
+  height: 80vh;
+}
+.rscomments .jviewport-height90 {
+  height: 90vh;
+}
+.rscomments .jviewport-height100 {
+  height: 100vh;
+}
+.rscomments .modal {
+  bottom: unset;
+}
+.rscomments div.modal {
+  position: fixed;
+  top: 5%;
+  left: 50%;
+  z-index: 1050;
+  width: 80%;
+  margin-left: -40%;
+  background-color: #fff;
+  border: 1px solid #999;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  *border: 1px solid #999;
+  border-radius: 6px;
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+  background-clip: padding-box;
+  outline: none;
+}
+.rscomments div.modal.fade {
+  transition: opacity 0.3s linear, top 0.3s ease-out;
+  top: -25%;
+}
+.rscomments div.modal.fade.in {
+  top: 5%;
+}
+@media (max-width: 767px) {
+  .rscomments div.modal {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    width: auto;
+    margin: 0;
+  }
+  .rscomments div.modal.fade {
+    top: -100px;
+  }
+  .rscomments div.modal.fade.in {
+    top: 20px;
+  }
+  .rscomments div.modal[class*="jviewport-width"] {
+    width: auto;
+    margin: 0;
+  }
+}
+@media (max-width: 480px) {
+  .rscomments div.modal {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+  }
+}
+.rscomments div.modal.jviewport-width10 {
+  width: 10vw;
+  margin-left: -5vw;
+}
+.rscomments div.modal.jviewport-width20 {
+  width: 20vw;
+  margin-left: -10vw;
+}
+.rscomments div.modal.jviewport-width30 {
+  width: 30vw;
+  margin-left: -15vw;
+}
+.rscomments div.modal.jviewport-width40 {
+  width: 40vw;
+  margin-left: -20vw;
+}
+.rscomments div.modal.jviewport-width50 {
+  width: 50vw;
+  margin-left: -25vw;
+}
+.rscomments div.modal.jviewport-width60 {
+  width: 60vw;
+  margin-left: -30vw;
+}
+.rscomments div.modal.jviewport-width70 {
+  width: 70vw;
+  margin-left: -35vw;
+}
+.rscomments div.modal.jviewport-width80 {
+  width: 80vw;
+  margin-left: -40vw;
+}
+.rscomments div.modal.jviewport-width90 {
+  width: 90vw;
+  margin-left: -45vw;
+}
+.rscomments div.modal.jviewport-width100 {
+  width: 100vw;
+}
+.rscomments .modal-backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1040;
+  background-color: #000;
+}
+.rscomments .modal-backdrop.fade {
+  opacity: 0;
+}
+.rscomments .modal-backdrop,
+.rscomments .modal-backdrop.fade.in {
+  opacity: 0.8;
+  filter: alpha(opacity=80);
+}
+.rscomments .modal-header {
+  padding: 9px 15px;
+  border-bottom: 1px solid #eee;
+}
+.rscomments .modal-header .close {
+  margin-top: 2px;
+}
+.rscomments .modal-header h3 {
+  margin: 0;
+  line-height: 30px;
+}
+.rscomments .modal-body {
+  width: 98%;
+  position: relative;
+  max-height: 400px;
+  padding: 1%;
+}
+.rscomments .modal-body iframe {
+  width: 100%;
+  max-height: none;
+  border: 0 !important;
+}
+.rscomments .modal-body[class^="jviewport-height"],
+.rscomments .modal-body[class*="jviewport-height"] {
+  max-height: none;
+}
+.rscomments .modal-form {
+  margin-bottom: 0;
+}
+.rscomments .modal-footer {
+  padding: 14px 15px 15px;
+  margin-bottom: 0;
+  text-align: right;
+  background-color: #f5f5f5;
+  border-top: 1px solid #ddd;
+  border-radius: 0 0 6px 6px;
+  box-shadow: inset 0 1px 0 #fff;
+  *zoom: 1;
+}
+.rscomments .modal-footer::before,
+.rscomments .modal-footer::after {
+  display: table;
+  content: "";
+  line-height: 0;
+}
+.rscomments .modal-footer::after {
+  clear: both;
+}
+.rscomments .modal-footer .btn + .btn {
+  margin-left: 5px;
+  margin-bottom: 0;
+}
+.rscomments .modal-footer .btn-group .btn + .btn {
+  margin-left: -1px;
+}
+.rscomments .modal-footer .btn-block + .btn-block {
+  margin-left: 0;
 }
 .panel-downloads {
   border-color: #e1ac00;
