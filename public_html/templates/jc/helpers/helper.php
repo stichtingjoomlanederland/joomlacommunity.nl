@@ -18,7 +18,7 @@ $helper = new ThisTemplateHelper();
 $helper->setMetadata($this);
 $helper->setFavicon();
 $helper->unloadCss();
-$helper->unloadJs();
+//$helper->unloadJs();
 $helper->unsetSqueezeBox();
 $helper->loadCss();
 $helper->loadJs();
