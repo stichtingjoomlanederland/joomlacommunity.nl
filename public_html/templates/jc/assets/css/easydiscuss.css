@@ -351,7 +351,7 @@
 }
 .atwho-view .cur strong {
   color: white;
-  font: bold;
+  font-weight: bold;
 }
 .atwho-view ul {
   /* width: 100px; */
@@ -743,7 +743,7 @@ e.g.:
 * @license      Proprietary Use License https://stackideas.com/licensing
 **/
   /**
-* Have to use aggresive method !important for state to prevent override by other components. #66 
+* Have to use aggresive method !important for state to prevent override by other components. #66
 */
   /**
 * Easydiscuss social buttons
@@ -6470,7 +6470,6 @@ fieldset[disabled] #ed .btn-link:focus {
   width: 16px;
   height: 16px;
   text-align: center;
-  background-color: ;
   position: relative;
   background-color: #d9534f;
 }
@@ -9037,7 +9036,7 @@ fieldset[disabled] #ed .btn-ed-favor.active {
     height: 28px;
     overflow: hidden;
     display: block;
-    transition: transition(width 0.2s, height 0.3s ease-in-out);
+    transition: width 0.2s, height 0.3s ease-in-out;
   }
   #ed .o-tabs:hover {
     height: 108px;
