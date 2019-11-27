@@ -112,6 +112,7 @@ class ThisTemplateHelper
 		$this->doc->setMetaData('apple-mobile-web-app-title', $template->params->get('sitetitle'));
 		$this->doc->setMetaData('X-UA-Compatible', 'IE=edge', true);
 		$this->doc->setGenerator($template->params->get('sitetitle'));
+		$this->doc->setMediaVersion($this->getFileMTime(JPATH_ROOT));
 	}
 
 	/**
@@ -553,6 +554,25 @@ class ThisTemplateHelper
 				}
 				break;
 		}
+	}
+
+	/**
+	 * Get file modification time
+	 *
+	 * @param $file
+	 *
+	 * @return false|int|null
+	 *
+	 * @since PerfectSite 5.11.0
+	 */
+	public function getFileMTime($file)
+	{
+		if (!file_exists($file) || filesize($file) == 0)
+		{
+			return null;
+		}
+
+		return filemtime($file);
 	}
 
 }
