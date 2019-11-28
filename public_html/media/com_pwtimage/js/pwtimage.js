@@ -7323,14 +7323,6 @@ var pwtImage = function () {
           if (pagination.length) {
             paginationBar.html("<div class=\"pwt-pagination__pages\">".concat(pagination.join(' '), "</div>"));
           }
-
-          jQuery('.pwt-gallery__item img').each(function () {
-            jQuery(this).load(function () {
-              if (this.width > this.height) {
-                jQuery(this).addClass('is-landscape');
-              }
-            });
-          });
         } // Filter the page
 
 
