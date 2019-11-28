@@ -25,7 +25,7 @@ $this->direction = $doc->direction;
 	<script src="<?php echo $this->baseurl ?>/media/jui/js/html5.js"></script>
 <![endif]-->
 </head>
-<body class="contentpane modal <?php echo 'option-' . str_replace('_', '-', $app->input->getString('option')); ?>">
+<body class="contentpane <?php echo 'option-' . str_replace('_', '-', $app->input->getString('option')); ?>">
 	<jdoc:include type="message" />
 	<jdoc:include type="component" />
 </body>

@@ -181,7 +181,11 @@ class PwtimageModelImage extends FormModel
 		$imageDetails = getimagesize($originalFile);
 
 		// Check if the user selected one or more sizes for resizing
-		if ($widths !== 'null' && $widths !== null && $widths !== 'undefined')
+		if ($widths !== 'null'
+			&& $widths !== null
+			&& $widths !== 'undefined'
+			&& strpos($widths, ',')
+		)
 		{
 			$widths = explode(',', $widths);
 		}

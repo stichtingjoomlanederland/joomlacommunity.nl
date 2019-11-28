@@ -2288,7 +2288,6 @@ select[multiple].input-lg {
   line-height: 1.7;
   border-radius: 4px;
   -webkit-user-select: none;
-  -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
@@ -9546,6 +9545,225 @@ textarea.invalid {
 }
 .laatste-nieuws .btn-nieuws {
   margin-bottom: 20px;
+}
+.bedrijvengids__figure {
+  border: 1px solid #95A5A6;
+  display: inline-block;
+  position: relative;
+  width: 100%;
+}
+.bedrijvengids__figure--partner {
+  border-width: 5px;
+  border-color: #fff;
+  background-color: #fff;
+}
+@media (min-width: 768px) {
+  .bedrijvengids__figure--partner {
+    position: relative;
+    bottom: -185px;
+    z-index: 1;
+  }
+}
+.bedrijvengids__figure:before {
+  content: "";
+  display: block;
+  margin-top: 100%;
+}
+.bedrijvengids__url--figure {
+  position: absolute;
+  display: block;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.bedrijvengids__image {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+}
+.bedrijvengids__title {
+  font-family: inherit;
+  font-weight: 600;
+  line-height: 1.2;
+  color: inherit;
+  margin-top: 27px;
+  margin-bottom: 13.5px;
+  font-size: 23px;
+}
+.bedrijvengids__title small,
+.bedrijvengids__title .small {
+  font-weight: normal;
+  line-height: 1;
+  color: #666666;
+}
+.bedrijvengids__title small,
+.bedrijvengids__title .small {
+  font-size: 65%;
+}
+@media (min-width: 768px) {
+  .bedrijvengids__title {
+    margin: 0;
+  }
+}
+.bedrijvengids__location {
+  color: #95A5A6;
+  margin-bottom: 3px;
+}
+.bedrijvengids__location .fa {
+  margin-right: 3px;
+}
+.bedrijvengids__text {
+  margin-bottom: 6px;
+  position: relative;
+}
+.bedrijvengids__description {
+  width: 90%;
+}
+.bedrijvengids__action {
+  position: absolute;
+  top: 50%;
+  right: 0;
+}
+.bedrijvengids__tags {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bedrijvengids__tags span {
+  font-size: 87%;
+}
+.bedrijvengids__tags .tag {
+  border-bottom-color: #8a9c9d;
+  border-bottom: 1px solid;
+  cursor: pointer;
+}
+.bedrijvengids__tags .tag:after {
+  content: ",";
+}
+.bedrijvengids__tags .tag:first-child {
+  color: inherit;
+  cursor: default;
+}
+.bedrijvengids__tags .tag:first-child:after {
+  content: "";
+}
+.bedrijvengids__tags .tag:last-child:after {
+  content: "";
+}
+.bedrijvengids__filter {
+  padding: 6px;
+}
+.bedrijvengids__filter--mobile {
+  display: none;
+}
+.mobile .bedrijvengids__filter--mobile,
+.phone .bedrijvengids__filter--mobile {
+  display: block;
+}
+.mobile .bedrijvengids__filter--filters,
+.phone .bedrijvengids__filter--filters {
+  display: none;
+}
+.bedrijvengids__filter .filter-list {
+  margin-bottom: 0;
+}
+.bedrijvengids__filter .checkbox {
+  margin: 0;
+}
+.bedrijvengids__filter .checkbox label {
+  padding-left: 35px;
+}
+.bedrijvengids__filter .checkbox input[type=checkbox] {
+  margin-left: -30px;
+  margin-top: 6px;
+}
+.bedrijvengids__filter input[type=checkbox] {
+  border: none;
+  box-shadow: none;
+}
+.bedrijvengids__countsorting {
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+.bedrijvengids__count {
+  font-weight: bold;
+}
+@media (min-width: 1200px) {
+  .bedrijvengids__sorting {
+    text-align: right;
+  }
+}
+.bedrijvengids__sorting-item {
+  color: #95A5A6;
+  padding: 0 1.5px;
+}
+.bedrijvengids__sorting-item input {
+  display: none;
+}
+.bedrijvengids__sorting-item:last-child {
+  color: #666666;
+}
+.bedrijvengids__specialisaties a {
+  margin-bottom: 5px;
+}
+.bedrijvengids .photoheader {
+  position: relative;
+}
+.bedrijvengids .company-logo {
+  border: 1px solid #95A5A6;
+  background: white;
+  padding: 5px;
+  max-width: 250px;
+  float: left;
+  margin: 15px;
+}
+@media (min-width: 992px) {
+  .bedrijvengids .company-logo {
+    position: absolute;
+    right: 30px;
+    top: -200px;
+    float: none;
+  }
+}
+@media (min-width: 1200px) {
+  .bedrijvengids .company-logo {
+    top: -240px;
+  }
+}
+.bedrijvengids .company-logo img {
+  max-width: 100%;
+}
+.bedrijvengids .certified {
+  float: right;
+  max-width: 200px;
+}
+.bedrijvengids .image-logo .pwt-image-preview,
+.bedrijvengids .image-logo img {
+  width: 250px;
+  height: 250px;
+}
+.bedrijvengids .image-foto .pwt-image-preview,
+.bedrijvengids .image-foto img {
+  width: 500px;
+  height: 200px;
+}
+.bedrijvengids .subform-repeatable .fa {
+  color: #fff;
+}
+.bedrijvengids .subform-repeatable .btn-toolbar {
+  padding-bottom: 5px;
+}
+.bedrijvengids .subform-repeatable-group {
+  border: 1px solid #95A5A6;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #f6f6f6;
+  border-radius: 5px;
+}
+.bedrijvengids .jform_com_fields_portfolio-lbl {
+  display: none;
 }
 .discuss-signature {
   border-top: 1px solid #eeeeee;
