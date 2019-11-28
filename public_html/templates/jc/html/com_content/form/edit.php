@@ -99,6 +99,10 @@ $this->form->setFieldAttribute('portfolio', 'layout', 'joomla.form.field.subform
 
 			<div class="alert alert-info" role="alert">Na het toevoegen van jouw bedrijf zullen de moderatoren van JoomlaCommunity.nl je toevoeging controleren en publiceren. Ook hier werken we met vrijwilligers, dus het kan een aantal dagen duren voordat je bedrijf zichtbaar wordt in de bedrijvengids.</div>
 
+			<?php if ($this->captchaEnabled) : ?>
+				<?php echo $this->form->renderField('captcha'); ?>
+			<?php endif; ?>
+
 			<div class="btn-toolbar">
 				<div class="btn-group">
 					<button type="button" class="btn btn-primary" onclick="Joomla.submitbutton('article.save')">
