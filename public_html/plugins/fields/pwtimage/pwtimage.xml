@@ -2,7 +2,7 @@
 <extension version="3.8" type="plugin" group="fields" method="upgrade">
     <name>PLG_FIELDS_PWTIMAGE</name>
     <author>Perfect Web Team</author>
-    <creationDate>23 September 2019</creationDate>
+    <creationDate>27 November 2019</creationDate>
     <copyright>Copyright (C) 2015 - 2019 Perfect Web Team</copyright>
     <license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
     <authorEmail>extensions@perfectwebteam.com</authorEmail>
