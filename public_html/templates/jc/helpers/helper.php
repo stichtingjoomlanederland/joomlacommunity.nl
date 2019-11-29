@@ -7,6 +7,8 @@
 
 // Prevent direct access
 use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
+
 defined('_JEXEC') or die();
 
 // Define the base-path of this template
@@ -317,9 +319,9 @@ class ThisTemplateHelper
 	public function unloadJs()
 	{
 		// Call JavaScript to be able to unset it correctly
-		JHtml::_('behavior.framework');
-		JHtml::_('bootstrap.framework');
-		JHtml::_('jquery.framework');
+		HTMLHelper::_('behavior.framework');
+		HTMLHelper::_('bootstrap.framework');
+		HTMLHelper::_('jquery.framework');
 
 		// Unset unwanted JavaScript
 		unset($this->doc->_scripts[$this->doc->baseurl . '/media/system/js/mootools-core.js']);
