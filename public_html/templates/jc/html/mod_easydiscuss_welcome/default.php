@@ -74,10 +74,10 @@ defined('_JEXEC') or die('Restricted access');
                 <li style="padding: 15px; padding-bottom: 0;">
                     <form action="<?php echo JRoute::_('index.php', true, $params->get('usesecure')); ?>" method="post" name="login" id="form-login">
                         <div class="form-group">
-                            <input type="text" id="username" name="username" class="form-control" placeholder="Gebruikersnaam" style="margin-bottom:15px;">
+                            <input type="text" id="username" name="username" class="form-control" placeholder="Gebruikersnaam" style="margin-bottom:15px;" autocomplete="username">
                         </div>
                         <div class="form-group">
-                            <input type="password" id="password" name="password" class="form-control" placeholder="Wachtwoord" style="margin-bottom:15px;">
+                            <input type="password" id="password" name="password" class="form-control" placeholder="Wachtwoord" style="margin-bottom:15px;" autocomplete="current-password">
                         </div>
                         <div class="row">
                             <div class="col-12">
