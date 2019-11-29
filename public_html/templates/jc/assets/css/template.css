@@ -2288,6 +2288,7 @@ select[multiple].input-lg {
   line-height: 1.7;
   border-radius: 4px;
   -webkit-user-select: none;
+  -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
@@ -9668,6 +9669,7 @@ textarea.invalid {
 }
 .bedrijvengids__filter .panel-filter .list-group-item {
   -webkit-user-select: none;
+     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
   font-weight: normal;
@@ -9740,7 +9742,6 @@ textarea.invalid {
   background: white;
   padding: 5px;
   max-width: 250px;
-  float: left;
   margin: 15px;
 }
 @media (min-width: 992px) {
@@ -9788,6 +9789,24 @@ textarea.invalid {
 }
 .bedrijvengids .jform_com_fields_portfolio-lbl {
   display: none;
+}
+.bedrijvengids .item-meta {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+}
+.bedrijvengids .item-meta .article-meta-label {
+  font-weight: 600;
+}
+.bedrijvengids .item-meta > *,
+.bedrijvengids .item-meta > * > * {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  -ms-flex-preferred-size: 100%;
+      flex-basis: 100%;
 }
 .discuss-signature {
   border-top: 1px solid #eeeeee;
