@@ -6,6 +6,9 @@
  */
 
 // Prevent direct access
+use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
+
 defined('_JEXEC') or die();
 
 // Define the base-path of this template
@@ -71,8 +74,8 @@ class ThisTemplateHelper
 	public function __construct()
 	{
 		// Fetch system variables
-		$this->doc      = JFactory::getDocument();
-		$this->app      = JFactory::getApplication();
+		$this->doc      = Factory::getDocument();
+		$this->app      = Factory::getApplication();
 		$this->head     = $this->doc->getHeadData();
 		$this->input    = $this->app->input;
 		$this->menu     = $this->app->getMenu();
@@ -80,7 +83,7 @@ class ThisTemplateHelper
 		$this->itemid   = $this->getItemId();
 
 		// Automatically reset the generator
-		$this->doc->setGenerator(JFactory::getConfig()->get('config.sitename'));
+		$this->doc->setGenerator(Factory::getConfig()->get('config.sitename'));
 	}
 
 	/**
@@ -176,7 +179,7 @@ class ThisTemplateHelper
 	 */
 	public function getSitename()
 	{
-		return JFactory::getConfig()->get('sitename');
+		return Factory::getConfig()->get('sitename');
 	}
 
 	/**
@@ -302,11 +305,11 @@ class ThisTemplateHelper
 	 */
 	public function loadCss()
 	{
-		$this->doc->addStyleSheet('templates/' . $this->template . '/css/template.css');
+		HTMLHelper::_('stylesheet', 'template.css', ['version' => 'auto', 'relative' => true]);
 
 		if ($this->isEasyDiscuss())
 		{
-			$this->doc->addStyleSheet('templates/' . $this->template . '/css/easydiscuss.css');
+			HTMLHelper::_('stylesheet', 'easydiscuss.css', ['version' => 'auto', 'relative' => true]);
 		}
 	}
 
@@ -316,9 +319,9 @@ class ThisTemplateHelper
 	public function unloadJs()
 	{
 		// Call JavaScript to be able to unset it correctly
-		JHtml::_('behavior.framework');
-		JHtml::_('bootstrap.framework');
-		JHtml::_('jquery.framework');
+		HTMLHelper::_('behavior.framework');
+		HTMLHelper::_('bootstrap.framework');
+		HTMLHelper::_('jquery.framework');
 
 		// Unset unwanted JavaScript
 		unset($this->doc->_scripts[$this->doc->baseurl . '/media/system/js/mootools-core.js']);
@@ -415,7 +418,7 @@ class ThisTemplateHelper
 	{
 		//$this->doc->addScript('templates/' . $this->template . '/js/modernizr.js');
 		//$this->doc->addScript('templates/' . $this->template . '/js/scripts.js');
-		$this->doc->addScript('templates/' . $this->template . '/js/bootstrap.min.js');
+		HTMLHelper::_('script', 'bootstrap.min.js', ['version' => 'auto', 'relative' => true]);
 	}
 
 	/**
