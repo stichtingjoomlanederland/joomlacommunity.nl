@@ -44,7 +44,6 @@ $this->form->setFieldAttribute('articletext', 'rows', 5);
 $this->form->setFieldAttribute('articletext', 'class', 'form-control');
 $this->form->setFieldAttribute('articletext', 'required', true);
 $this->form->setFieldAttribute('catid', 'type', 'hidden');
-$this->form->setFieldAttribute('language', 'type', 'hidden');
 $this->form->setFieldAttribute('certified', 'layout', 'joomla.form.field.subform.repeatable', 'com_fields');
 $this->form->setFieldAttribute('portfolio', 'layout', 'joomla.form.field.subform.repeatable', 'com_fields');
 ?>
@@ -117,7 +116,7 @@ $this->form->setFieldAttribute('portfolio', 'layout', 'joomla.form.field.subform
 			</div>
 
 			<?php echo $this->form->renderField('catid'); ?>
-			<?php echo $this->form->renderField('language'); ?>
+			<input type="hidden" name="jform[language]" value="*" />
 			<input type="hidden" name="task" value=""/>
 			<input type="hidden" name="return" value="<?php echo $this->return_page; ?>"/>
 			<?php echo HTMLHelper::_('form.token'); ?>
