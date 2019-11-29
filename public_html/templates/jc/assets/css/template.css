@@ -9666,22 +9666,46 @@ textarea.invalid {
 .phone .bedrijvengids__filter--filters {
   display: none;
 }
-.bedrijvengids__filter .filter-list {
-  margin-bottom: 0;
+.bedrijvengids__filter .panel-filter .list-group-item {
+  -webkit-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  font-weight: normal;
 }
-.bedrijvengids__filter .checkbox {
-  margin: 0;
+.bedrijvengids__filter .panel-filter .list-group input[type="checkbox"] {
+  display: none;
 }
-.bedrijvengids__filter .checkbox label {
-  padding-left: 35px;
+.bedrijvengids__filter .panel-filter .list-group input[type="checkbox"] + .list-group-item {
+  cursor: pointer;
 }
-.bedrijvengids__filter .checkbox input[type=checkbox] {
-  margin-left: -30px;
-  margin-top: 6px;
+.bedrijvengids__filter .panel-filter .list-group input[type="checkbox"] + .list-group-item:before {
+  content: "\2713";
+  color: transparent;
+  margin-right: 1em;
 }
-.bedrijvengids__filter input[type=checkbox] {
-  border: none;
-  box-shadow: none;
+.bedrijvengids__filter .panel-filter .list-group input[type="checkbox"]:checked + .list-group-item {
+  background-color: #e8ecec;
+}
+.bedrijvengids__filter .panel-filter .list-group input[type="checkbox"]:checked + .list-group-item:before {
+  color: inherit;
+}
+.bedrijvengids__filter .panel-filter .list-group input[type="radio"] {
+  display: none;
+}
+.bedrijvengids__filter .panel-filter .list-group input[type="radio"] + .list-group-item {
+  cursor: pointer;
+}
+.bedrijvengids__filter .panel-filter .list-group input[type="radio"] + .list-group-item:before {
+  content: "\2022";
+  color: transparent;
+  margin-right: 1em;
+}
+.bedrijvengids__filter .panel-filter .list-group input[type="radio"]:checked + .list-group-item {
+  background-color: #0275D8;
+  color: #FFF;
+}
+.bedrijvengids__filter .panel-filter .list-group input[type="radio"]:checked + .list-group-item:before {
+  color: inherit;
 }
 .bedrijvengids__countsorting {
   margin-top: 6px;
