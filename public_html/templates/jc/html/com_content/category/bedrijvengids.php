@@ -214,7 +214,7 @@ $companies = json_encode($companies, JSON_UNESCAPED_SLASHES);
 						</div>
 						<div class="bedrijvengids__content col-xs-12 col-sm-9 col-md-9 ">
 							<header class="bedrijvengids__header row">
-                                    <span class="bedrijvengids__title col-xs-12 col-sm-6">
+                                    <span class="bedrijvengids__title col-xs-12">
                                         <?php echo HTMLHelper::_('link', '<%=link%>', '<%=title%>', array('class' => 'bedrijvengids__url')); ?>
                                     </span>
 							</header>
