@@ -305,11 +305,11 @@ class ThisTemplateHelper
 	 */
 	public function loadCss()
 	{
-		$this->doc->addStyleSheet('templates/' . $this->template . '/css/template.css');
+		HTMLHelper::_('stylesheet', 'template.css', ['version' => 'auto', 'relative' => true]);
 
 		if ($this->isEasyDiscuss())
 		{
-			$this->doc->addStyleSheet('templates/' . $this->template . '/css/easydiscuss.css');
+			HTMLHelper::_('stylesheet', 'easydiscuss.css', ['version' => 'auto', 'relative' => true]);
 		}
 	}
 
@@ -418,7 +418,7 @@ class ThisTemplateHelper
 	{
 		//$this->doc->addScript('templates/' . $this->template . '/js/modernizr.js');
 		//$this->doc->addScript('templates/' . $this->template . '/js/scripts.js');
-		$this->doc->addScript('templates/' . $this->template . '/js/bootstrap.min.js');
+		HTMLHelper::_('script', 'bootstrap.min.js', ['version' => 'auto', 'relative' => true]);
 	}
 
 	/**
