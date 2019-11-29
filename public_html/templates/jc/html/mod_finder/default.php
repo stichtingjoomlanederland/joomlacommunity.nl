@@ -15,14 +15,12 @@ JHtml::addIncludePath(JPATH_SITE . '/components/com_finder/helpers/html');
 
 JHtml::_('jquery.framework');
 
-//JHtml::_('bootstrap.tooltip');
-
 // Load the smart search component language file.
 $lang = JFactory::getLanguage();
 $lang->load('com_finder', JPATH_SITE);
 
 $suffix = $params->get('moduleclass_sfx');
-$output = '<input type="text" name="q" id="mod-finder-searchword" class="form-control input-sm" placeholder="' . $params->get('alt_label', JText::_('JSEARCH_FILTER_SUBMIT')) . '" value="' . htmlspecialchars(JFactory::getApplication()->input->get('q', '', 'string')) . '" />';
+$output = '<input type="text" name="q" class="search-word form-control input-sm" placeholder="' . $params->get('alt_label', JText::_('JSEARCH_FILTER_SUBMIT')) . '" value="' . htmlspecialchars(JFactory::getApplication()->input->get('q', '', 'string')) . '" />';
 
 if ($params->get('show_label', 1))
 {
@@ -74,11 +72,9 @@ if ($params->get('show_button'))
 	}
 }
 
-//JHtml::stylesheet('com_finder/finder.css', false, true, false);
-
 $script = "
 jQuery(document).ready(function() {
-	var value, searchword = jQuery('#mod-finder-searchword');
+	var value, searchword = jQuery('.search-word');
 
 		// Set the input value if not already set.
 		if (!searchword.val())
@@ -107,7 +103,7 @@ jQuery(document).ready(function() {
 			}
 		});
 
-		jQuery('#mod-finder-searchform').on('submit', function(e){
+		jQuery('.site-search').on('submit', function(e){
 			e.stopPropagation();
 			var advanced = jQuery('#mod-finder-advanced');
 			// Disable select boxes with no value selected.
@@ -129,7 +125,7 @@ if ($params->get('show_autosuggest', 1))
 	JHtml::_('script', 'media/jui/js/jquery.autocomplete.min.js', false, false, false, false, true);
 
 	$script .= "
-	var suggest = jQuery('#mod-finder-searchword').autocomplete({
+	var suggest = jQuery('.search-word').autocomplete({
 		serviceUrl: '" . JRoute::_('index.php?option=com_finder&task=suggestions.suggest&format=json&tmpl=component', false) . "',
 		paramName: 'q',
 		minChars: 1,
@@ -145,7 +141,7 @@ $script .= "});";
 JFactory::getDocument()->addScriptDeclaration($script);
 ?>
 
-<form id="mod-finder-searchform" action="<?php echo JRoute::_($route); ?>" method="get" class="navbar-form navbar-right" role="search">
+<form action="<?php echo JRoute::_($route); ?>" method="get" class="navbar-form navbar-right site-search" role="search">
 	<div class="finder<?php echo $suffix; ?>">
 		<div class="form-group">
 			<?php
