@@ -9547,6 +9547,11 @@ textarea.invalid {
 .laatste-nieuws .btn-nieuws {
   margin-bottom: 20px;
 }
+@media (min-width: 1200px) {
+  .navbar-nav > li.item-2874 {
+    display: none;
+  }
+}
 .bedrijvengids__figure {
   border: 1px solid #95A5A6;
   display: inline-block;
