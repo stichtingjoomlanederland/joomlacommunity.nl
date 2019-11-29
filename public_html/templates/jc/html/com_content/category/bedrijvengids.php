@@ -106,63 +106,45 @@ $companies = json_encode($companies, JSON_UNESCAPED_SLASHES);
 					<input type="search" class="form-control" placeholder="Zoek in bedrijvengids..." id="searchbox"/>
 				</dd>
 
-				<div class="panel panel-home">
+				<div class="panel panel-home panel-filter">
 					<dt class="panel-heading bedrijvengids__filter-header--specialisms">
 						Specialiteiten <i class="fa fa-chevron-up pull-right"></i>
 					</dt>
 					<dd class="list-group list-group-flush bedrijvengids__filter-content bedrijvengids__filter-content--specialisms">
-						<ul class="list-group list-group-flush panel-home filter-list js-specialisms" id="filter_specialisms">
+						<div class="panel-home js-specialisms" id="filter_specialisms">
 							<?php foreach ($specialisms as $key => $value) : ?>
-								<li class="list-group-item">
-									<div class="checkbox">
-										<label>
-											<input type="checkbox" value="<?php echo $value; ?>" data-label="<?php echo $value; ?>">
-											<span><?php echo $value; ?></span>
-										</label>
-									</div>
-								</li>
+								<input type="checkbox" value="<?php echo $value; ?>" data-label="<?php echo $value; ?>">
+								<label class="list-group-item"><?php echo $value; ?></label>
 							<?php endforeach; ?>
-						</ul>
+						</div>
 					</dd>
 				</div>
 
-				<div class="panel panel-home">
+				<div class="panel panel-home panel-filter">
 					<dt class="panel-heading bedrijvengids__filter-header--province">
 						Provincie <i class="fa fa-chevron-up pull-right"></i>
 					</dt>
 					<dd class="list-group list-group-flush bedrijvengids__filter-content bedrijvengids__filter-content--province">
-						<ul class="list-group list-group-flush panel-home filter-list js-province" id="filter_province">
+						<div class="panel-home js-province" id="filter_province">
 							<?php foreach ($provinces as $key => $value) : ?>
-								<li class="list-group-item">
-									<div class="checkbox">
-										<label>
-											<input type="checkbox" value="<?php echo $value; ?>" data-label="<?php echo $value; ?>">
-											<span><?php echo $value; ?></span>
-										</label>
-									</div>
-								</li>
+								<input type="checkbox" value="<?php echo $value; ?>" data-label="<?php echo $value; ?>">
+								<label class="list-group-item"><?php echo $value; ?></label>
 							<?php endforeach; ?>
-						</ul>
+						</div>
 					</dd>
 				</div>
 
-				<div class="panel panel-home">
+				<div class="panel panel-home panel-filter">
 					<dt class="panel-heading bedrijvengids__filter-header--size">
 						Bedrijfsgrootte <i class="fa fa-chevron-up pull-right"></i>
 					</dt>
 					<dd class="list-group list-group-flush bedrijvengids__filter-content bedrijvengids__filter-content--size">
-						<ul class="list-group list-group-flush panel-home filter-list js-size" id="filter_size">
+						<div class="panel-home js-size" id="filter_size">
 							<?php foreach ($sizes as $key => $value) : ?>
-								<li class="list-group-item">
-									<div class="checkbox">
-										<label>
-											<input type="checkbox" value="<?php echo $value; ?>" data-label="<?php echo $value; ?>">
-											<span><?php echo $value; ?></span>
-										</label>
-									</div>
-								</li>
+								<input type="checkbox" value="<?php echo $value; ?>" data-label="<?php echo $value; ?>">
+								<label class="list-group-item"><?php echo $value; ?></label>
 							<?php endforeach; ?>
-						</ul>
+						</div>
 					</dd>
 				</div>
 

@@ -33,6 +33,11 @@
 			}
 		}
 
+		// Work-around for checkboxes
+		jQuery('.bedrijvengids__filter--filters .list-group-item').on('click', function () {
+			jQuery(this).prev('input[type="checkbox"]').click();
+		});
+
 		// we display after we have setup everything
 		listingManager.display();
 	});
@@ -250,7 +255,7 @@ var listingManager = (function () {
 					}
 				}
 
-				jQuery(this).siblings('span').html(jQuery(this).data('label') + ' (' + count + ')');
+				jQuery(this).next('label').html(jQuery(this).data('label') + ' (' + count + ')');
 			});
 		});
 
