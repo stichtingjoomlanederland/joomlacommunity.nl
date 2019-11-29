@@ -6,6 +6,7 @@
  */
 
 // Prevent direct access
+use Joomla\CMS\Factory;
 defined('_JEXEC') or die();
 
 // Define the base-path of this template
@@ -71,8 +72,8 @@ class ThisTemplateHelper
 	public function __construct()
 	{
 		// Fetch system variables
-		$this->doc      = JFactory::getDocument();
-		$this->app      = JFactory::getApplication();
+		$this->doc      = Factory::getDocument();
+		$this->app      = Factory::getApplication();
 		$this->head     = $this->doc->getHeadData();
 		$this->input    = $this->app->input;
 		$this->menu     = $this->app->getMenu();
@@ -80,7 +81,7 @@ class ThisTemplateHelper
 		$this->itemid   = $this->getItemId();
 
 		// Automatically reset the generator
-		$this->doc->setGenerator(JFactory::getConfig()->get('config.sitename'));
+		$this->doc->setGenerator(Factory::getConfig()->get('config.sitename'));
 	}
 
 	/**
@@ -176,7 +177,7 @@ class ThisTemplateHelper
 	 */
 	public function getSitename()
 	{
-		return JFactory::getConfig()->get('sitename');
+		return Factory::getConfig()->get('sitename');
 	}
 
 	/**
