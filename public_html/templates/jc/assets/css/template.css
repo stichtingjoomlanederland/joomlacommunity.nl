@@ -2288,7 +2288,6 @@ select[multiple].input-lg {
   line-height: 1.7;
   border-radius: 4px;
   -webkit-user-select: none;
-  -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
@@ -9588,6 +9587,7 @@ textarea.invalid {
   top: 0;
   bottom: 0;
   margin: auto;
+  padding: 5px;
 }
 .bedrijvengids__title {
   font-family: inherit;
@@ -9674,7 +9674,6 @@ textarea.invalid {
 }
 .bedrijvengids__filter .panel-filter .list-group-item {
   -webkit-user-select: none;
-     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
   font-weight: normal;
@@ -9745,7 +9744,7 @@ textarea.invalid {
 .bedrijvengids .company-logo {
   border: 1px solid #95A5A6;
   background: white;
-  padding: 5px;
+  padding: 10px;
   max-width: 250px;
   margin: 15px;
 }
