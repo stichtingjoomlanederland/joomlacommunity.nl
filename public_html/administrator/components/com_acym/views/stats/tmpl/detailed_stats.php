@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -16,14 +16,19 @@ defined('_JEXEC') or die('Restricted access');
 		<h1 class="acym__listing__empty__title text-center cell"><?php echo acym_translation('ACYM_DONT_HAVE_STATS_THIS_CAMPAIGN'); ?></a></h1>
     <?php } else { ?>
 		<div class="cell grid-x">
-			<div class="cell grid-x auto">
-				<div class="medium-5 small-12 cell acym_stats_detailed_search">
-                    <?php echo acym_filterSearch($data["search"], 'detailed_stats_search', 'ACYM_SEARCH'); ?>
+			<div class="cell grid-x">
+				<div class="cell grid-x auto">
+					<div class="medium-5 small-12 cell acym_stats_detailed_search">
+                        <?php echo acym_filterSearch($data['search'], 'detailed_stats_search', 'ACYM_SEARCH'); ?>
+					</div>
+					<div class="medium-4 small-12 cell acym__stats__campaign-choose">
+					</div>
 				</div>
-				<div class="medium-4 small-12 cell acym__stats__campaign-choose">
+				<div class="cell auto align-right grid-x">
+					<button type="button" class="cell shrink button primary acy_button_submit acym__stats__export__button smaller-button" data-task="exportDetailed"><?php echo acym_translation('ACYM_EXPORT'); ?></button>
 				</div>
 			</div>
-			<div class="grid-x cell auto">
+			<div class="grid-x cell align-right">
 				<div class="cell acym_listing_sorty-by">
                     <?php echo acym_sortBy(
                         [

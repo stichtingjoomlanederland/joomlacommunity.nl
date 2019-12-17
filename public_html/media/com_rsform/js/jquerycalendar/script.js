@@ -1,4 +1,4 @@
-if (typeof RSFormPro != 'object') {
+if (typeof RSFormPro !== 'object') {
 	var RSFormPro = {};
 }
 
@@ -9,7 +9,7 @@ if (!Object.keys) Object.keys = function(o) {
 	var k=[],p;
 	for (p in o) if (Object.prototype.hasOwnProperty.call(o,p)) k.push(p);
 	return k;
-}
+};
 
 // set the moment custom localization
 jQuery(document).ready(function(){
@@ -34,10 +34,10 @@ RSFormPro.jQueryCalendar = {
 	calendars:  {},
 	calendarsData: {},
 	setCalendar: function(formId, idCalendar, config) {
-		if (typeof RSFormPro.jQueryCalendar.calendarsData[formId] == 'undefined') {
+		if (typeof RSFormPro.jQueryCalendar.calendarsData[formId] === 'undefined') {
 			RSFormPro.jQueryCalendar.calendarsData[formId] = {};
 		}
-		if (typeof RSFormPro.jQueryCalendar.calendarsData[formId][idCalendar] == 'undefined') {
+		if (typeof RSFormPro.jQueryCalendar.calendarsData[formId][idCalendar] === 'undefined') {
 			RSFormPro.jQueryCalendar.calendarsData[formId][idCalendar] = {};
 		}
 		RSFormPro.jQueryCalendar.calendarsData[formId][idCalendar].config = config;
@@ -58,7 +58,7 @@ RSFormPro.jQueryCalendar = {
 		}
 	},
 	initCalendar: function(formId, idCalendar, config) {
-		if (typeof RSFormPro.jQueryCalendar.calendars[formId] == 'undefined') {
+		if (typeof RSFormPro.jQueryCalendar.calendars[formId] === 'undefined') {
 			RSFormPro.jQueryCalendar.calendars[formId] = {};
 		}
 
@@ -74,9 +74,9 @@ RSFormPro.jQueryCalendar = {
 		var hiddenDate 	 = jQuery('#hiddenjQ' + calendarId);
 		var calendarName = txtDate.attr('name').substring(5, txtDate.attr('name').length - 1);
 
-		if (typeof RSFormPro.jQueryCalendar.calendars[formId][calendarName] == 'undefined') {
+		if (typeof RSFormPro.jQueryCalendar.calendars[formId][calendarName] === 'undefined') {
 			// initiate the object
-			RSFormPro.jQueryCalendar.calendars[formId][calendarName] = {}
+			RSFormPro.jQueryCalendar.calendars[formId][calendarName] = {};
 			// check if the date format configured by the user has any time data in it
 			var hasTimeDateFormat = /H{1,2}|h{1,2}|a|A|m{1,2}|s{1,2}|S{1,3}|Z{1,2}/.test(config.format);
 			if (config.timepicker && !hasTimeDateFormat) {
@@ -89,19 +89,19 @@ RSFormPro.jQueryCalendar = {
 			}
 
 			// set the min and max Date
-			var minDate = typeof config.extra.minDate != 'undefined' ? config.extra.minDate : false;
-			var maxDate = typeof config.extra.maxDate != 'undefined' ? config.extra.maxDate : false;
+			var minDate = typeof config.extra.minDate !== 'undefined' ? config.extra.minDate : false;
+			var maxDate = typeof config.extra.maxDate !== 'undefined' ? config.extra.maxDate : false;
 
 			// set the min and max Time
-			var minTime = (typeof config.extra.minTime != 'undefined' && config.extra.minTime.indexOf(':') > -1) ? config.extra.minTime : false;
-			var maxTime = (typeof config.extra.maxTime != 'undefined' && config.extra.maxTime.indexOf(':') > -1) ? config.extra.maxTime : false;
+			var minTime = (typeof config.extra.minTime !== 'undefined' && config.extra.minTime.indexOf(':') > -1) ? config.extra.minTime : false;
+			var maxTime = (typeof config.extra.maxTime !== 'undefined' && config.extra.maxTime.indexOf(':') > -1) ? config.extra.maxTime : false;
 			// set the time step
-			var step = (typeof config.extra.step != 'undefined' && !isNaN(config.extra.step)) ? parseInt(config.extra.step) : 60;
+			var step = (typeof config.extra.step !== 'undefined' && !isNaN(config.extra.step)) ? parseInt(config.extra.step) : 60;
 
 			// set the allowDates
-			var allowDates = (typeof config.extra.allowDates != 'undefined' && jQuery.isArray(config.extra.allowDates)) ? config.extra.allowDates : [];
+			var allowDates = (typeof config.extra.allowDates === 'object' && jQuery.isArray(config.extra.allowDates)) ? config.extra.allowDates : [];
 			// set the allowDateRe
-			var allowDateRe = typeof config.extra.allowDateRe != 'undefined' ? config.extra.allowDateRe : null;
+			var allowDateRe = typeof config.extra.allowDateRe !== 'undefined' ? config.extra.allowDateRe : null;
 
 			// set the hidden field date format
 			var hiddenFormat = 'MM/DD/YYYY';
@@ -110,15 +110,21 @@ RSFormPro.jQueryCalendar = {
 			}
 
 			// set the rule
-			var operation = false;
+			var operation 	= false;
+			var offset 		= 1;
 			if (config.extra.rule) {
 				var rule 				= config.extra.rule.split('|');
-				var operation 			= rule[0];
 				var otherCalendarName   = rule[1];
+				operation 				= rule[0];
+
+				if (typeof rule[2] !== 'undefined')
+				{
+					offset = parseInt(rule[2]);
+				}
 			}
 
 			// set the timepicker format
-			if (typeof config.timepickerformat == 'undefined') {
+			if (typeof config.timepickerformat === 'undefined') {
 				config.timepickerformat = 'HH:mm';
 			}
 
@@ -139,7 +145,7 @@ RSFormPro.jQueryCalendar = {
 			}
 
 			// set the minDate and maxDate for the other calendar if the rule is present
-			if (operation && ((typeof config.value != 'undefined' && config.value != '') || minDate || maxDate)) {
+			if (operation && ((typeof config.value !== 'undefined' && config.value != '') || minDate || maxDate)) {
 				// configure the date and time regarding the rule for the other calendar
 				var referenceDate = false;
 				if (typeof config.value != 'undefined' && config.value != '') {
@@ -162,9 +168,9 @@ RSFormPro.jQueryCalendar = {
 					if (!config.timepicker) {
 						var newDateObject = new Date.parseDate(newDate, 'MM/DD/YYYY');
 						if (operation == 'min') {
-							var d = newDateObject.getDate() + 1;
+							var d = newDateObject.getDate() + offset;
 						} else {
-							var d = newDateObject.getDate() - 1;
+							var d = newDateObject.getDate() - offset;
 						}
 						newDateObject.setDate(d);
 						newDate = newDateObject.dateFormat('MM/DD/YYYY');
@@ -449,9 +455,9 @@ RSFormPro.jQueryCalendar = {
 							otherCalendarDate = Date.parse(selectedDateTime);
 							otherCalendarDate = new Date(otherCalendarDate);
 							if (operation == 'min') {
-								var d = otherCalendarDate.getDate() + 1;
+								var d = otherCalendarDate.getDate() + offset;
 							} else {
-								var d = otherCalendarDate.getDate() - 1;
+								var d = otherCalendarDate.getDate() - offset;
 							}
 
 							otherCalendarDate.setDate(d);
@@ -509,7 +515,6 @@ RSFormPro.jQueryCalendar = {
 				},
 
 				onAfterChanges : function(ct, $i) {
-
 					if (RSFormPro.jQueryCalendar.calendars[formId][calendarName].useTimeLogic) {
 						var inputParams = {formId: formId, calendarName: calendarName, config: config};
 						RSFormPro.jQueryCalendar.timeLogic(this, ct, inputParams, RSFormPro.jQueryCalendar.calendars[formId][calendarName].useTimeLogic);
@@ -518,8 +523,7 @@ RSFormPro.jQueryCalendar = {
 					var selectedDate = ct.dateFormat(hiddenFormat);
 					if (config.timepicker) {
 						// check timepicker state
-						var checkTimePicker = this.getOptions('timepicker');
-						if (!checkTimePicker) {
+						if (!this.getOptions('timepicker')) {
 							this.setOptions({timepicker: true});
 						}
 						var currentMinTime = this.getOptions('minTime');
@@ -584,6 +588,7 @@ RSFormPro.jQueryCalendar = {
 						}
 
 						var otherDate = RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName].currentDate;
+
 						if (otherDate != '') {
 							otherDate = Date.parseDate(otherDate, RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName].hiddenFormat);
 							if ((operation == 'min' && selectedDateTime.getTime() > otherDate.getTime()) || (operation == 'max' && selectedDateTime.getTime() < otherDate.getTime())) {
@@ -601,6 +606,12 @@ RSFormPro.jQueryCalendar = {
 								RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName].calendar.datetimepicker({startDate:startDateForceOther});
 								startForceCalendar = true;
 							}
+						}
+
+						if (operation === 'min') {
+							selectedDateTime.setDate(selectedDateTime.getDate() + offset);
+						} else {
+							selectedDateTime.setDate(selectedDateTime.getDate() - offset);
 						}
 
 						var selectedOtherDate = selectedDateTime.dateFormat('MM/DD/YYYY');
@@ -710,28 +721,26 @@ RSFormPro.jQueryCalendar = {
 		}
 
 		var timeLine = [];
-		var line_time = function(h,m) {
-			var newNow = now;
-			newNow.setHours(h);
-			h = parseInt(newNow.getHours(), 10);
-			newNow.setMinutes(m);
-			m = parseInt(newNow.getMinutes(), 10);
-
-			var is_disabled = false;
-			if((maxTime !== false && maxTimeDate.getTime() < newNow.getTime()) || (minTime !== false && minTimeDate.getTime() > newNow.getTime())) {
-				is_disabled = true;
-			}
-
-			if (!is_disabled) {
-				timeLine.push(newNow.dateFormat('HH:mm'));
-			}
-		}
+		var newNow = now;
+		var h, m;
 
 		for (i = 0, j = 0; i < 24; i += 1) {
 			for (j = 0; j < 60; j += step) {
 				h = (i < 10 ? '0' : '') + i;
 				m = (j < 10 ? '0' : '') + j;
-				line_time(h, m);
+
+				newNow.setHours(h);
+				h = parseInt(newNow.getHours(), 10);
+				newNow.setMinutes(m);
+				m = parseInt(newNow.getMinutes(), 10);
+
+				if (maxTime !== false && maxTimeDate.getTime() < newNow.getTime()) {
+					continue;
+				} else if (minTime !== false && minTimeDate.getTime() > newNow.getTime()) {
+					continue;
+				}
+
+				timeLine.push(newNow.dateFormat('HH:mm'));
 			}
 		}
 
@@ -955,4 +964,4 @@ RSFormPro.jQueryCalendar = {
 	},
 
 	shownCalendars: []
-}
+};

@@ -16,55 +16,55 @@ defined('_JEXEC') or die;
 
 <hr>
 <div class="sidebar-content hidden-phone">
-    <h4 class="page-header"><?php echo Text::_('COM_PWTACL_SIDEBAR_LEGEND'); ?></h4>
-    <table id="legend">
-        <tr class="hasTooltip" title="<?php echo Text::_('COM_PWTACL_SIDEBAR_NOT_ALLOWED_DESC'); ?>">
-            <td class="legend-icon action">
-                <span class="icon-not-ok"></span>
-            </td>
-            <td class="legend-title">
+	<h4 class="page-header"><?php echo Text::_('COM_PWTACL_SIDEBAR_LEGEND'); ?></h4>
+	<table id="legend">
+		<tr class="hasTooltip" title="<?php echo Text::_('COM_PWTACL_SIDEBAR_NOT_ALLOWED_DESC'); ?>">
+			<td class="legend-icon action">
+				<span class="icon-not-ok"></span>
+			</td>
+			<td class="legend-title">
 				<?php echo Text::_('COM_PWTACL_SIDEBAR_NOT_ALLOWED'); ?>
-            </td>
-        </tr>
-        <tr class="hasTooltip" title="<?php echo Text::_('COM_PWTACL_SIDEBAR_DENIED_DESC'); ?>">
-            <td class="legend-icon action denied">
-                <span class="icon-not-ok"></span>
-            </td>
-            <td class="legend-title">
+			</td>
+		</tr>
+		<tr class="hasTooltip" title="<?php echo Text::_('COM_PWTACL_SIDEBAR_DENIED_DESC'); ?>">
+			<td class="legend-icon action denied">
+				<span class="icon-not-ok"></span>
+			</td>
+			<td class="legend-title">
 				<?php echo Text::_('COM_PWTACL_SIDEBAR_DENIED'); ?>
-            </td>
-        </tr>
-        <tr class="hasTooltip" title="<?php echo Text::_('COM_PWTACL_SIDEBAR_INHERITED_DENIED_DESC'); ?>">
-            <td class="legend-icon action">
-                <span class="icon-lock"></span>
-            </td>
-            <td class="legend-title">
+			</td>
+		</tr>
+		<tr class="hasTooltip" title="<?php echo Text::_('COM_PWTACL_SIDEBAR_INHERITED_DENIED_DESC'); ?>">
+			<td class="legend-icon action">
+				<span class="icon-lock"></span>
+			</td>
+			<td class="legend-title">
 				<?php echo Text::_('COM_PWTACL_SIDEBAR_INHERITED_DENIED'); ?>
-            </td>
-        </tr>
-        <tr class="hasTooltip" title="<?php echo Text::_('COM_PWTACL_SIDEBAR_ALLOWED_DESC'); ?>">
-            <td class="legend-icon action allowed">
-                <span class="icon-ok"></span>
-            </td>
-            <td class="legend-title">
+			</td>
+		</tr>
+		<tr class="hasTooltip" title="<?php echo Text::_('COM_PWTACL_SIDEBAR_ALLOWED_DESC'); ?>">
+			<td class="legend-icon action allowed">
+				<span class="icon-ok"></span>
+			</td>
+			<td class="legend-title">
 				<?php echo Text::_('COM_PWTACL_SIDEBAR_ALLOWED'); ?>
-            </td>
-        </tr>
-        <tr class="hasTooltip" title="<?php echo Text::_('COM_PWTACL_SIDEBAR_INHERITED_ALLOWED_DESC'); ?>">
-            <td class="legend-icon action">
-                <span class="icon-ok"></span>
-            </td>
-            <td class="legend-title">
+			</td>
+		</tr>
+		<tr class="hasTooltip" title="<?php echo Text::_('COM_PWTACL_SIDEBAR_INHERITED_ALLOWED_DESC'); ?>">
+			<td class="legend-icon action">
+				<span class="icon-ok"></span>
+			</td>
+			<td class="legend-title">
 				<?php echo Text::_('COM_PWTACL_SIDEBAR_INHERITED_ALLOWED'); ?>
-            </td>
-        </tr>
-        <tr class="hasTooltip" title="<?php echo Text::_('COM_PWTACL_SIDEBAR_CONFLICT_DESC'); ?>">
-            <td class="legend-icon action conflict">
-                <span class="icon-warning"></span>
-            </td>
-            <td class="legend-title">
+			</td>
+		</tr>
+		<tr class="hasTooltip" title="<?php echo Text::_('COM_PWTACL_SIDEBAR_CONFLICT_DESC'); ?>">
+			<td class="legend-icon action conflict">
+				<span class="icon-warning"></span>
+			</td>
+			<td class="legend-title">
 				<?php echo Text::_('COM_PWTACL_SIDEBAR_CONFLICT'); ?>
-            </td>
-        </tr>
-    </table>
+			</td>
+		</tr>
+	</table>
 </div>

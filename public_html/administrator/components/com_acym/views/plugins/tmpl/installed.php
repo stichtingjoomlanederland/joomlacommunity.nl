@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -63,7 +63,7 @@ defined('_JEXEC') or die('Restricted access');
 										<vue-switch :plugin="plugin" :ischecked="isActivated(plugin.active)"></vue-switch>
 									</div>
 									<div class="cell grid-x acym_vcenter medium-4 align-right" v-show="plugin.uptodate === '0'">
-										<button data-tooltip="<?php echo acym_translation('ACYM_UPDATE'); ?>" type="button" class="acym__plugins__button shrink acym__plugins__button__update cell text-center" @click="updatePlugin(plugin)">
+										<button data-acym-tooltip="<?php echo acym_translation('ACYM_UPDATE'); ?>" type="button" class="acym__plugins__button shrink acym__plugins__button__update cell text-center" @click="updatePlugin(plugin)">
 											<span v-show="!updating[plugin.id]"><i class="acymicon-file_download"></i></span>
 											<span v-show="updating[plugin.id]"><?php echo acym_loaderLogo(); ?></span>
 										</button>

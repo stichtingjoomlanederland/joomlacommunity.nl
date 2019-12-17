@@ -1143,9 +1143,9 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.12.9</h2>
+	<h2>Changelog v1.12.11</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> View subscribers option from the 'Admin Options' was not showing anymore.</li>
+		<li><span class="version-fixed">Fix</span> Tickets could not be claimed for all day events.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>

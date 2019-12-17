@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -50,6 +50,7 @@ class plgAcymStatistics extends acymPlugin
             acym_selectOption('opened', 'ACYM_OPENED'),
             acym_selectOption('notopen', 'ACYM_NOTOPEN'),
             acym_selectOption('failed', 'ACYM_FAILED'),
+            acym_selectOption('sent', 'ACYM_SENT'),
             acym_selectOption('notsent', 'ACYM_NOTSENT'),
             acym_selectOption('bounced', 'ACYM_BOUNCED'),
         ];
@@ -85,7 +86,7 @@ class plgAcymStatistics extends acymPlugin
             return;
         }
 
-        if (empty($options['status']) || !in_array($options['status'], ['opened', 'notopen', 'failed', 'bounced', 'notsent'])) {
+        if (empty($options['status']) || !in_array($options['status'], ['opened', 'notopen', 'failed', 'bounced', 'notsent', 'sent'])) {
             acym_enqueueMessage(acym_translation_sprintf('ACYM_UNKNOWN_OPERATOR', $options['status']), 'warning');
 
             return;
@@ -106,9 +107,11 @@ class plgAcymStatistics extends acymPlugin
             $where = $alias.'.`bounce` > 0';
         } elseif ($options['status'] == 'notsent') {
             $where = $alias.'.`user_id` IS NULL';
+        } elseif ($options['status'] == 'sent') {
+            $where = $alias.'.`user_id` IS NOT NULL';
         }
 
-        $query->where[] = $where;
+        if (!empty($where)) $query->where[] = $where;
     }
 
     public function onAcymDeclareSummary_filters(&$automationFilter)

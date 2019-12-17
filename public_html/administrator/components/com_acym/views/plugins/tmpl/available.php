@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -47,7 +47,7 @@ defined('_JEXEC') or die('Restricted access');
 							<div class="cell grid-x acym__plugins__card__actions">
 								<div class="cell grid-x align-center" v-show="!rightLevel(plugin.level)">
 									<div class="cell grid-x">
-										<button :data-tooltip="<?php echo acym_escapeDB(acym_translation('ACYM_YOU_DONT_HAVE_THE_RIGHT_LEVEL')); ?> + ucfirst(plugin.level)" type="button" class=" acym__plugins__button acym__plugins__button-disabled acym__plugins__button__purchase cell text-center cell small-5">
+										<button :data-acym-tooltip="<?php echo acym_escapeDB(acym_translation('ACYM_YOU_DONT_HAVE_THE_RIGHT_LEVEL')); ?> + ucfirst(plugin.level)" type="button" class=" acym__plugins__button acym__plugins__button-disabled acym__plugins__button__purchase cell text-center cell small-5">
                                             <?php echo acym_translation('ACYM_DOWNLOAD'); ?><i class="acymicon-file_download"></i>
 										</button>
 										<div class="cell auto"></div>

@@ -85,7 +85,7 @@ class ContentModelArticles extends ContentModelArticlesCore
 		// Check for user permissions
 		for ($x = 0, $count = count($items); $x < $count; $x++)
 		{
-			//Check the access level. Remove articles the user shouldn't see
+			// Check the access level. Remove articles the user shouldn't see
 			$canEdit    = $user->authorise('core.edit', 'com_content.article.' . $items[$x]->id);
 			$canEditOwn = $user->authorise('core.edit.own', 'com_content.article.' . $items[$x]->id) && $items[$x]->created_by == $user->id;
 			$canChange  = $user->authorise('core.edit.state', 'com_content.article.' . $items[$x]->id);

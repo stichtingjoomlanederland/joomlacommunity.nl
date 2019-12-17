@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -127,20 +127,18 @@ class ToggleController extends acymController
 
     public function getIntroJSConfig()
     {
-        $config = acym_config();
-        echo $config->get('introjs', '[]');
+        echo $this->config->get('introjs', '[]');
         exit;
     }
 
     public function toggleIntroJS()
     {
-        $config = acym_config();
         $toggleElement = acym_getVar('string', 'where');
-        $intro = json_decode($config->get('introjs', '[]'), true);
+        $intro = json_decode($this->config->get('introjs', '[]'), true);
         $intro[$toggleElement] = 1;
         $newConfig = new stdClass();
         $newConfig->introjs = json_encode($intro);
-        $config->save($newConfig);
+        $this->config->save($newConfig);
         exit;
     }
 
@@ -156,14 +154,13 @@ class ToggleController extends acymController
             echo json_encode($return);
             exit;
         }
-        $config = acym_config();
-        $newConfig = new stdClass();
 
-        $newConfig->remindme = json_decode($config->get('remindme', '[]'));
+        $newConfig = new stdClass();
+        $newConfig->remindme = json_decode($this->config->get('remindme', '[]'));
         if (!in_array($newValue, $newConfig->remindme)) array_push($newConfig->remindme, $newValue);
         $newConfig->remindme = json_encode($newConfig->remindme);
 
-        if ($config->save($newConfig)) {
+        if ($this->config->save($newConfig)) {
             $return['message'] = acym_translation('ACYM_THANKS');
         } else {
             $return['error'] = acym_translation('ACYM_ERROR_SAVING');

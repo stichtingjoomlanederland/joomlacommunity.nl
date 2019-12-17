@@ -1457,8 +1457,8 @@ class RseventsproController extends JControllerLegacy
 		
 		if ($hash) {
 			$query->clear()
-				->select('w.*')->select($db->qn('e.name','ename'))
-				->select($db->qn('e.end'))->select($db->qn('e.start_registration'))
+				->select('w.*')->select($db->qn('e.name','ename'))->select($db->qn('e.allday'))
+				->select($db->qn('e.start'))->select($db->qn('e.end'))->select($db->qn('e.start_registration'))
 				->select($db->qn('e.end_registration'))->select($db->qn('e.waitinglist_time'))
 				->from($db->qn('#__rseventspro_waitinglist','w'))
 				->join('LEFT', $db->qn('#__rseventspro_events','e').' ON '.$db->qn('w.ide').' = '.$db->qn('e.id'))
@@ -1482,7 +1482,8 @@ class RseventsproController extends JControllerLegacy
 				}
 				
 				// The event has ended
-				if ($now > JFactory::getDate($data->end)->toUnix()) {
+				$enddate = $data->allday && $data->end == $db->getNullDate() ? $data->start : $data->end;
+				if ($now > JFactory::getDate($enddate)->toUnix()) {
 					$app->enqueueMessage(JText::_('COM_RSEVENTSPRO_WAITINGLIST_ERROR3'), 'error');
 					$app->redirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($data->ide,$data->ename),false,$itemid));
 				}

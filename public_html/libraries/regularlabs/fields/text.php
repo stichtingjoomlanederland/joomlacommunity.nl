@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -14,14 +14,14 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Language\Text as JText;
 use RegularLabs\Library\StringHelper as RL_String;
 
-require_once JPATH_LIBRARIES . '/joomla/form/fields/text.php';
-
 if ( ! is_file(JPATH_LIBRARIES . '/regularlabs/autoload.php'))
 {
 	return;
 }
 
 require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
+
+JFormHelper::loadFieldClass('text');
 
 class JFormFieldRL_Text extends JFormFieldText
 {

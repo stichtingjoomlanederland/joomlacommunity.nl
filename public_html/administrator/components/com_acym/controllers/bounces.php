@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -13,7 +13,6 @@ defined('_JEXEC') or die('Restricted access');
 
 class BouncesController extends acymController
 {
-
     public function __construct()
     {
         parent::__construct();
@@ -154,7 +153,6 @@ class BouncesController extends acymController
     {
         acym_increasePerf();
 
-        $config = acym_config();
         $bounceClass = acym_get('helper.bounce');
         $bounceClass->report = true;
         if (!$bounceClass->init()) {
@@ -170,7 +168,7 @@ class BouncesController extends acymController
         $disp .= "<style>body{font-size:12px;font-family: Arial,Helvetica,sans-serif;padding-top:30px;}</style>\n</head>\n<body>";
         echo $disp;
 
-        acym_display(acym_translation_sprintf('ACYM_BOUNCE_CONNECT_SUCC', $config->get('bounce_username')), 'success');
+        acym_display(acym_translation_sprintf('ACYM_BOUNCE_CONNECT_SUCC', $this->config->get('bounce_username')), 'success');
         $nbMessages = $bounceClass->getNBMessages();
         acym_display(acym_translation_sprintf('ACYM_NB_MAIL_MAILBOX', $nbMessages), 'info');
 
@@ -186,7 +184,7 @@ class BouncesController extends acymController
         $cronHelper->detailMessages = $bounceClass->messages;
         $cronHelper->saveReport();
 
-        if ($config->get('bounce_max', 0) != 0 && $nbMessages > $config->get('bounce_max', 0)) {
+        if ($this->config->get('bounce_max', 0) != 0 && $nbMessages > $this->config->get('bounce_max', 0)) {
             $url = acym_completeLink('bounces&task=process&continuebounce=1', true, true);
             if (acym_getVar('int', 'continuebounce')) {
                 echo '<script type="text/javascript" language="javascript">document.location.href=\''.$url.'\';</script>';
@@ -213,15 +211,14 @@ class BouncesController extends acymController
     {
         acym_checkToken();
 
-        $config = acym_config();
         $newConfig = acym_getVar('array', 'config', [], 'POST');
         if (!empty($newConfig['bounce_username'])) {
             $newConfig['bounce_username'] = acym_punycode($newConfig['bounce_username']);
         }
 
-        $newConfig['auto_bounce_next'] = min($config->get('auto_bounce_last', time()), time()) + $newConfig['auto_bounce_frequency'];
+        $newConfig['auto_bounce_next'] = min($this->config->get('auto_bounce_last', time()), time()) + $newConfig['auto_bounce_frequency'];
 
-        $status = $config->save($newConfig);
+        $status = $this->config->save($newConfig);
 
         if ($status) {
             acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'info');
@@ -229,7 +226,7 @@ class BouncesController extends acymController
             acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING'), 'error');
         }
 
-        $config->load();
+        $this->config->load();
     }
 
     public function chart()
@@ -253,14 +250,13 @@ class BouncesController extends acymController
         }
 
         acym_increasePerf();
-        $config = acym_config();
         $bounceClass = acym_get('helper.bounce');
         $bounceClass->report = true;
 
         if ($bounceClass->init()) {
             if ($bounceClass->connect()) {
                 $nbMessages = $bounceClass->getNBMessages();
-                acym_enqueueMessage(acym_translation_sprintf('ACYM_BOUNCE_CONNECT_SUCC', $config->get('bounce_username')), "success");
+                acym_enqueueMessage(acym_translation_sprintf('ACYM_BOUNCE_CONNECT_SUCC', $this->config->get('bounce_username')), "success");
                 $bounceClass->close();
                 if (!empty($nbMessages)) {
                     acym_enqueueMessage(
@@ -282,8 +278,8 @@ class BouncesController extends acymController
                 if (!empty($errors)) {
                     acym_enqueueMessage($errors, 'error');
                     $errorString = implode(' ', $errors);
-                    $port = $config->get('bounce_port', '');
-                    if (preg_match('#certificate#i', $errorString) && !$config->get('bounce_certif', false)) {
+                    $port = $this->config->get('bounce_port', '');
+                    if (preg_match('#certificate#i', $errorString) && !$this->config->get('bounce_certif', false)) {
                         acym_enqueueMessage(acym_translation_sprintf('ACYM_YOU_MAY_TURN_ON_OPTION', '<i>'.acym_translation('ACYM_SELF_SIGNED_CERTIFICATE').'</i>'), 'warning');
                     } elseif (!empty($port) && !in_array($port, ['993', '143', '110'])) {
                         acym_enqueueMessage(acym_translation('ACYM_BOUNCE_WRONG_PORT'), 'warning');

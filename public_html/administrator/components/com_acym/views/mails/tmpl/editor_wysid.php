@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -16,6 +16,7 @@ defined('_JEXEC') or die('Restricted access');
 <input type="hidden" class="acym__wysid__hidden__mailId" id="editor_mailid" name="editor_autoSave" value="<?php echo intval($this->mailId); ?>" />
 <input type="hidden" class="acym__wysid__hidden__save__auto" id="editor_autoSave" value="<?php echo acym_escape($this->autoSave); ?>">
 <input type="hidden" id="acym__template__preview">
+<input type="hidden" id="acym__wysid__block__html__content">
 
 <div id="acym__wysid__edit" class="cell grid-x">
 	<div class="cell grid-x padding-1 padding-bottom-0">
@@ -48,9 +49,9 @@ defined('_JEXEC') or die('Restricted access');
 						<i id="acym__wysid__view__smartphone" class="cell shrink acymicon-mobile text-center acym__wysid__top-toolbar__icon"></i>
 					</div>
 					<div class="cell grid-x small-4 align-right">
-						<button id="acym__wysid__cancel__button" type="button" class="cell small-6 medium-shrink margin-bottom-0"><i class="fa fa-ban acym__wysid__top-toolbar__button__icon" data-tooltip="<?php echo acym_translation('ACYM_CANCEL'); ?>"></i></button>
-						<button id="acym__wysid__test__button" type="button" class="cell small-6 medium-shrink margin-bottom-0"><i class="fa fa fa-send-o acym__wysid__top-toolbar__button__icon" data-tooltip="<?php echo acym_translation('ACYM_SEND_TEST'); ?>"></i></button>
-						<button id="acym__wysid__save__button" type="button" class="cell small-6 medium-shrink margin-bottom-0"><i class="fa fa-save acym__wysid__top-toolbar__button__icon" data-tooltip="<?php echo acym_translation('ACYM_APPLY'); ?>"></i></button>
+						<button id="acym__wysid__cancel__button" type="button" class="cell small-6 medium-shrink margin-bottom-0"><i class="fa fa-ban acym__wysid__top-toolbar__button__icon" data-acym-tooltip="<?php echo acym_translation('ACYM_CANCEL'); ?>"></i></button>
+						<button id="acym__wysid__test__button" type="button" class="cell small-6 medium-shrink margin-bottom-0"><i class="fa fa fa-send-o acym__wysid__top-toolbar__button__icon" data-acym-tooltip="<?php echo acym_translation('ACYM_SEND_TEST'); ?>"></i></button>
+						<button id="acym__wysid__save__button" type="button" class="cell small-6 medium-shrink margin-bottom-0"><i class="fa fa-save acym__wysid__top-toolbar__button__icon" data-acym-tooltip="<?php echo acym_translation('ACYM_APPLY'); ?>"></i></button>
 					</div>
 				</div>
 				<div class="cell grid-x align-left acym_vcenter" id="acym__wysid__top-toolbar__notification">
@@ -60,6 +61,13 @@ defined('_JEXEC') or die('Restricted access');
 				</div>
 			</div>
 
+			<div id="acym__wysid__editor__source">
+				<div class="acym__wysid__editor__source__buttons">
+					<button type="button" class="button acym__wysid__editor__source__button margin-right-1" id="acym__wysid__editor__source-revert" @click="revert"><?php echo acym_translation('ACYM_REVERT'); ?></button>
+					<button type="button" class="button acym__wysid__editor__source__button" id="acym__wysid__editor__source-keep" @click="keep"><?php echo acym_translation('ACYM_APPLY'); ?></button>
+				</div>
+				<vue-prism-editor v-model="code" :language="language" lineNumbers="true"></vue-prism-editor>
+			</div>
             <?php if (strpos($this->content, 'acym__wysid__template') !== false) {
                 echo $this->content;
             } else { ?>
@@ -69,26 +77,25 @@ defined('_JEXEC') or die('Restricted access');
 							<tr>
 								<td align="center" class="center acym__wysid__template__content" valign="top" style="background-color: rgb(120, 120, 120); padding: 30px 0 120px 0;">
 									<center>
-										<table align="center">
+										<table align="center" border="0" cellpadding="0" cellspacing="0">
 											<tbody>
 												<tr>
 													<td class="acym__wysid__row ui-droppable ui-sortable" bgcolor="#ffffff" style="background-color: rgb(255, 255, 255);">
-
-														<table class="row acym__wysid__row__element">
+														<table class="row acym__wysid__row__element" border="0" cellpadding="0" cellspacing="0">
 															<tbody>
 																<tr>
 																	<th class="small-12 medium-12 large-12 columns">
-																		<table class="acym__wysid__column acym__wysid__column__first" style="min-height: 75px; display: block;">
+																		<table class="acym__wysid__column acym__wysid__column__first" style="min-height: 75px; display: block;" border="0" cellpadding="0" cellspacing="0">
 																			<tbody class="ui-sortable" style="min-height: 75px; display: block;">
                                                                                 <?php
                                                                                 if (!empty($this->content)) {
                                                                                     echo '<tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;">
-																			<td class="large-12 acym__wysid__column__element__td" style="outline: rgb(0, 163, 254) dashed 0px; outline-offset: -1px;">
-																				<div class="acym__wysid__tinymce--text mce-content-body" id="mce_0" contenteditable="true" style="position: relative;" spellcheck="false">
-																					'.acym_absoluteURL($this->content).'
-																				</div>
-																			</td>
-																		</tr>';
+																							<td class="large-12 acym__wysid__column__element__td" style="outline: rgb(0, 163, 254) dashed 0px; outline-offset: -1px;">
+																								<div class="acym__wysid__tinymce--text mce-content-body" id="mce_0" contenteditable="true" style="position: relative;" spellcheck="false">
+																									'.acym_absoluteURL($this->content).'
+																								</div>
+																							</td>
+																						</tr>';
                                                                                 }
                                                                                 ?>
 																			</tbody>
@@ -136,6 +143,7 @@ defined('_JEXEC') or die('Restricted access');
 
 			<!--Right toolbar-->
 			<div id="acym__wysid__right-toolbar" class="grid-y cell">
+				<div id="acym__wysid__right-toolbar__overlay"></div>
 				<div class="acym__wysid__right-toolbar__content grid-y grid-padding-x small-12 cell" style="max-height: 829px;">
 
 					<div class="cell grid-x text-center">
@@ -422,6 +430,10 @@ defined('_JEXEC') or die('Restricted access');
 							<div class="cell grid-x acym__wysid__context__modal__container">
 								<label class="cell small-5"><?php echo acym_translation('ACYM_HTML_ID').acym_info(acym_translation('ACYM_HTML_ID_DESC')); ?></label>
 								<input type="text" class="acym__light__input cell small-6" id="acym__wysid__context__block__custom_id" placeholder="<?php echo acym_escape(acym_translation('ACYM_HTML_ID')); ?>">
+								<div class="cell grid-x acym__wysid__context__block__code-source">
+									<label class="cell small-5"><?php echo acym_translation('ACYM_EDIT_BLOCK_HTML').acym_info(acym_translation('ACYM_BECAREFUL_EDITING_SOURCE_CODE')); ?></label>
+									<button type="button" class="button button-secondary smaller-button" id="acym__wysid__context__block__edit-html"><?php echo acym_translation('ACYM_EDIT_HTML'); ?></button>
+								</div>
 							</div>
 						</div>
 						<div id="acym__wysid__context__button" class="grid-x padding-1 acym__wysid__context__modal" style="display: none">

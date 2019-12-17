@@ -16,23 +16,23 @@ defined('_JEXEC') or die;
 
 <hr>
 <div class="sidebar-content hidden-phone">
-    <h4 class="page-header"><?php echo Text::_('COM_PWTACL_SIDEBAR_LEGEND'); ?></h4>
-    <table id="legend">
-        <tr class="hasTooltip" title="<?php echo Text::_('COM_PWTACL_SIDEBAR_DENIED_DESC'); ?>">
-            <td class="legend-icon action">
-                <span class="icon-not-ok"></span>
-            </td>
-            <td class="legend-title">
+	<h4 class="page-header"><?php echo Text::_('COM_PWTACL_SIDEBAR_LEGEND'); ?></h4>
+	<table id="legend">
+		<tr class="hasTooltip" title="<?php echo Text::_('COM_PWTACL_SIDEBAR_DENIED_DESC'); ?>">
+			<td class="legend-icon action">
+				<span class="icon-not-ok"></span>
+			</td>
+			<td class="legend-title">
 				<?php echo Text::_('COM_PWTACL_SIDEBAR_DENIED'); ?>
-            </td>
-        </tr>
-        <tr class="hasTooltip" title="<?php echo Text::_('COM_PWTACL_SIDEBAR_ALLOWED_DESC'); ?>">
-            <td class="legend-icon action">
-                <span class="icon-ok"></span>
-            </td>
-            <td class="legend-title">
+			</td>
+		</tr>
+		<tr class="hasTooltip" title="<?php echo Text::_('COM_PWTACL_SIDEBAR_ALLOWED_DESC'); ?>">
+			<td class="legend-icon action">
+				<span class="icon-ok"></span>
+			</td>
+			<td class="legend-title">
 				<?php echo Text::_('COM_PWTACL_SIDEBAR_ALLOWED'); ?>
-            </td>
-        </tr>
-    </table>
+			</td>
+		</tr>
+	</table>
 </div>

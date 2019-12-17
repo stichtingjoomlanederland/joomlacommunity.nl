@@ -65,6 +65,24 @@
 	width: 100%;
 }
 
+.com_pwtsitemap form#adminForm td {
+	position: relative;
+}
+
 .com_pwtsitemap form#adminForm span.save-indication {
-	margin-left: 5px;
+	position: absolute;
+	left: 10px;
+	top: 15px;
+}
+
+.com_pwtsitemap form#adminForm span.save-indication-robots {
+	left: -10px;
+}
+
+.com_pwtsitemap .sitemap-create select {
+	margin-bottom: 0;
+}
+
+.table-vcenter > tbody > tr > td {
+	vertical-align: middle;
 }

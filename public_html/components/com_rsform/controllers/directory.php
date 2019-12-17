@@ -43,6 +43,12 @@ class RsformControllerDirectory extends RsformController
 		$cids 	= $app->input->get('cid', array(), 'array');
 		$cids 	= array_map('intval', $cids);
 		$root 	= JUri::getInstance()->toString(array('scheme', 'host', 'port'));
+
+		if (!$cids)
+		{
+			$app->enqueueMessage(JText::_('COM_RSFORM_SUBMISSIONS_DIRECTORY_NO_SUBMISSIONS_SELECTED'), 'warning');
+			return $app->redirect(JUri::root());
+		}
 		
 		$fields  = RSFormProHelper::getDirectoryFields($formId);
 		$headers = RSFormProHelper::getDirectoryStaticHeaders();

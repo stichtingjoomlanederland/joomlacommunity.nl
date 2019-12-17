@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -13,9 +13,9 @@ namespace RegularLabs\Library;
 
 defined('_JEXEC') or die;
 
-use Joomla\CMS\Filesystem\Folder as JFolder;
 use Joomla\CMS\Component\ComponentHelper as JComponentHelper;
 use Joomla\CMS\Factory as JFactory;
+use Joomla\CMS\Filesystem\Folder as JFolder;
 use Joomla\CMS\Helper\ModuleHelper as JModuleHelper;
 use Joomla\CMS\Installer\Installer as JInstaller;
 use Joomla\CMS\Language\Text as JText;

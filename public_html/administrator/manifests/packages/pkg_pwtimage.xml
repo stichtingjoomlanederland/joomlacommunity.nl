@@ -3,22 +3,22 @@
     <name>PWT Image - Package</name>
     <packagename>pwtimage</packagename>
     <author>Perfect Web Team</author>
-    <creationDate>27 November 2019</creationDate>
+    <creationDate>13 December 2019</creationDate>
     <copyright>Copyright (C) 2016 - 2019 Perfect Web Team</copyright>
     <license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
     <authorEmail>extensions@perfectwebteam.com</authorEmail>
     <authorUrl>https://extensions.perfectwebteam.com</authorUrl>
-    <version>1.3.2-beta</version>
+    <version>1.4.0</version>
     <description>PWT Image Package</description>
 
     <scriptfile>script.php</scriptfile>
 
     <files folder="packages">
-        <file type="component" id="com_pwtimage">com_pwtimage-1.3.2-beta.zip</file>
-        <file type="plugin" group="editors-xtd" id="pwtimage">plg_editors-xtd_pwtimage-1.3.2-beta.zip</file>
-        <file type="plugin" group="system" id="pwtimage">plg_system_pwtimage-1.3.2-beta.zip</file>
-        <file type="plugin" group="fields" id="pwtimage">plg_fields_pwtimage-1.3.2-beta.zip</file>
-        <file type="plugin" group="pwtimage" id="watermark">plg_pwtimage_watermark-1.3.2-beta.zip</file>
+        <file type="component" id="com_pwtimage">com_pwtimage-1.4.0.zip</file>
+        <file type="plugin" group="editors-xtd" id="pwtimage">plg_editors-xtd_pwtimage-1.4.0.zip</file>
+        <file type="plugin" group="system" id="pwtimage">plg_system_pwtimage-1.4.0.zip</file>
+        <file type="plugin" group="fields" id="pwtimage">plg_fields_pwtimage-1.4.0.zip</file>
+        <file type="plugin" group="pwtimage" id="watermark">plg_pwtimage_watermark-1.4.0.zip</file>
     </files>
 
     <updateservers>

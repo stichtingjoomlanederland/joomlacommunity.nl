@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -80,6 +80,14 @@ class acymController extends acymObject
             acym_addScript(false, ACYM_JS.'libraries/vue-infinite-scroll.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'vue-infinite-scroll.min.js'));
             acym_addScript(false, ACYM_JS.'vue/vue.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'vue'.DS.'vue.min.js'));
         }
+
+        if (in_array('vue-prism-editor', $scripts)) {
+            acym_addScript(false, ACYM_JS.'libraries/prism-editor.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'prism-editor.min.js'));
+            acym_addScript(false, ACYM_JS.'libraries/prism.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'prism.min.js'));
+            acym_addScript(false, 'https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.10.2/beautify-html.js');
+            acym_addStyle(false, ACYM_CSS.'libraries/prism.min.css?v='.filemtime(ACYM_MEDIA.'css'.DS.'libraries'.DS.'prism.min.css'));
+        }
+
     }
 
     public function setDefaultTask($task)
@@ -103,6 +111,8 @@ class acymController extends acymObject
         } else {
             $viewFolder = 'view_front';
         }
+
+        acym_prepareFrontViewDisplay($this->name);
 
         $view = acym_get($viewFolder.'.'.$this->getName());
         $view->display($data);

@@ -18,7 +18,7 @@
  * @author  Nick Ilyin <nick.ilyin@gmail.com>
  * Original author: Victor Stanciu <vic.stanciu@gmail.com>
  *
- * @version 2.8.32
+ * @version 2.8.33
  */
 
 namespace RegularLabs\Library;
@@ -915,10 +915,11 @@ class MobileDetect
 	 * Set the detection type. Must be one of self::DETECTION_TYPE_MOBILE or
 	 * self::DETECTION_TYPE_EXTENDED. Otherwise, nothing is set.
 	 *
-	 * @deprecated since version 2.6.9
-	 *
 	 * @param string $type The type. Must be a self::DETECTION_TYPE_* constant. The default
 	 *                     parameter is null which will default to self::DETECTION_TYPE_MOBILE.
+	 *
+	 * @deprecated since version 2.6.9
+	 *
 	 */
 	public function setDetectionType($type = null)
 	{
@@ -998,9 +999,9 @@ class MobileDetect
 	/**
 	 * Method gets the mobile detection rules. This method is used for the magic methods $detect->is*().
 	 *
+	 * @return array All the rules (but not extended).
 	 * @deprecated since version 2.6.9
 	 *
-	 * @return array All the rules (but not extended).
 	 */
 	public static function getMobileDetectionRules()
 	{
@@ -1025,9 +1026,9 @@ class MobileDetect
 	 * don't necessary imply mobile. This method is used inside
 	 * the new $detect->is('stuff') method.
 	 *
+	 * @return array All the rules + extended.
 	 * @deprecated since version 2.6.9
 	 *
-	 * @return array All the rules + extended.
 	 */
 	public function getMobileDetectionRulesExtended()
 	{
@@ -1051,9 +1052,9 @@ class MobileDetect
 	/**
 	 * Retrieve the current set of rules.
 	 *
+	 * @return array
 	 * @deprecated since version 2.6.9
 	 *
-	 * @return array
 	 */
 	public function getRules()
 	{
@@ -1117,8 +1118,8 @@ class MobileDetect
 	 * Magic overloading method.
 	 *
 	 * @method boolean is[...]()
-	 * @param  string $name
-	 * @param  array  $arguments
+	 * @param string $name
+	 * @param array  $arguments
 	 *
 	 * @return mixed
 	 * @throws BadMethodCallException when the method doesn't exist and doesn't start with 'is'
@@ -1141,7 +1142,7 @@ class MobileDetect
 	/**
 	 * Find a detection rule that matches the current User-agent.
 	 *
-	 * @param  null $userAgent deprecated
+	 * @param null $userAgent deprecated
 	 *
 	 * @return boolean
 	 */
@@ -1201,8 +1202,8 @@ class MobileDetect
 	 * Check if the device is mobile.
 	 * Returns true if any type of mobile device detected, including special ones
 	 *
-	 * @param  null $userAgent   deprecated
-	 * @param  null $httpHeaders deprecated
+	 * @param null $userAgent   deprecated
+	 * @param null $httpHeaders deprecated
 	 *
 	 * @return bool
 	 */
@@ -1245,8 +1246,8 @@ class MobileDetect
 	 * Check if the device is a tablet.
 	 * Return true if any type of tablet device is detected.
 	 *
-	 * @param  string $userAgent   deprecated
-	 * @param  array  $httpHeaders deprecated
+	 * @param string $userAgent   deprecated
+	 * @param array  $httpHeaders deprecated
 	 *
 	 * @return bool
 	 */
@@ -1278,13 +1279,14 @@ class MobileDetect
 	/**
 	 * This method checks for a certain property in the
 	 * userAgent.
-	 * @todo: The httpHeaders part is not yet used.
 	 *
-	 * @param  string $key
-	 * @param  string $userAgent   deprecated
-	 * @param  string $httpHeaders deprecated
+	 * @param string $key
+	 * @param string $userAgent   deprecated
+	 * @param string $httpHeaders deprecated
 	 *
 	 * @return bool|int|null
+	 * @todo: The httpHeaders part is not yet used.
+	 *
 	 */
 	public function is($key, $userAgent = null, $httpHeaders = null)
 	{
@@ -1314,7 +1316,7 @@ class MobileDetect
 	 * the User-Agent string.
 	 *
 	 * @param         $regex
-	 * @param  string $userAgent
+	 * @param string  $userAgent
 	 *
 	 * @return bool
 	 *
@@ -1346,11 +1348,11 @@ class MobileDetect
 	/**
 	 * Prepare the version number.
 	 *
-	 * @todo Remove the error supression from str_replace() call.
-	 *
 	 * @param string $ver The string version, like "2.6.21.2152";
 	 *
 	 * @return float
+	 * @todo Remove the error supression from str_replace() call.
+	 *
 	 */
 	public function prepareVersionNo($ver)
 	{

@@ -3,14 +3,14 @@
  * @package    Pwtsitemap
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2018 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
 
-use Joomla\Registry\Registry;
-
 defined('_JEXEC') or die;
+
+use Joomla\Registry\Registry;
 
 require_once JPATH_ADMINISTRATOR . '/components/com_menus/models/items.php';
 
@@ -24,7 +24,7 @@ class PwtSitemapModelItems extends MenusModelItems
 	/**
 	 * Get all available menu items
 	 *
-	 * @return  stdClass
+	 * @return  array List of menu items
 	 *
 	 * @since   1.0.0
 	 */
@@ -34,7 +34,7 @@ class PwtSitemapModelItems extends MenusModelItems
 
 		foreach ($items as $i => $item)
 		{
-			$item->params = new Registry(json_decode($item->params));
+			$item->params = new Registry(json_decode($item->params, true));
 		}
 
 		return $items;

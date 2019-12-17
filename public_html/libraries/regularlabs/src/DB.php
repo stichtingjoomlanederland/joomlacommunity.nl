@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -149,6 +149,8 @@ class DB
 
 		if (is_array($value))
 		{
+			$value = array_values($value);
+
 			$operator = self::getOperatorFromValue($value[0], $default);
 
 			// remove operators from other array values

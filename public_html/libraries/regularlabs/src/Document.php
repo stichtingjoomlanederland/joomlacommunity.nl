@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -277,11 +277,13 @@ class Document
 
 		JHtml::_('jquery.framework');
 
-		if (strpos($file, 'regularlabs/') !== false)
+		if (strpos($file, 'regularlabs/') !== false
+			&& strpos($file, 'regular.') === false
+		)
 		{
 			JHtml::_('behavior.core');
 			JHtml::_('script', 'jui/cms.js', ['version' => 'auto', 'relative' => true]);
-			$version = '19.8.25552';
+			$version = '19.12.9182';
 		}
 
 		if ( ! empty($version))
@@ -302,7 +304,7 @@ class Document
 	{
 		if (strpos($file, 'regularlabs/') === 0)
 		{
-			$version = '19.8.25552';
+			$version = '19.12.9182';
 		}
 
 		if ( ! $file = File::getMediaFile('css', $file))

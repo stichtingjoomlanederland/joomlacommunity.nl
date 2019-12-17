@@ -2,12 +2,12 @@
 <extension version="3.1" type="plugin" group="system" method="upgrade">
     <name>plg_system_pwtsitemap</name>
     <author>Perfect Web Team</author>
-    <creationDate>9 November 2018</creationDate>
-    <copyright>Copyright (C) 2016 - 2018 Perfect Web Team</copyright>
+    <creationDate>14 December 2019</creationDate>
+    <copyright>Copyright (C) 2016 - 2019 Perfect Web Team</copyright>
     <license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
     <authorEmail>extensions@perfectwebteam.com</authorEmail>
     <authorUrl>https://extensions.perfectwebteam.com</authorUrl>
-    <version>1.2.1</version>
+    <version>1.4.1</version>
     <description>PLG_SYSTEM_PWTSITEMAP_XML_DESCRIPTION</description>
 
     <files>

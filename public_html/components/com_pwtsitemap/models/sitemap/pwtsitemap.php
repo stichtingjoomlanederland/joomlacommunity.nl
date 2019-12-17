@@ -3,7 +3,7 @@
  * @package    Pwtsitemap
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2018 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
@@ -23,55 +23,31 @@ class PwtSitemap
 	 * @var    array
 	 * @since  1.0.0
 	 */
-	public $sitemapItems;
+	public $sitemapItems = [];
 
 	/**
 	 * Internal counter for the amount of sitemap arrays
 	 *
-	 * @var    int
+	 * @var    integer
 	 * @since  1.0.0
 	 */
-	public $sitemapArrays;
-
-	/**
-	 * Display Format of the sitemap, this can be XML or HTML
-	 *
-	 * @var    string
-	 * @since  1.0.0
-	 */
-	private $format;
+	public $sitemapArrays = 0;
 
 	/**
 	 * Maximum amount of items in the sitemap
 	 *
-	 * @var    int
+	 * @var    integer
 	 * @since  1.0.0
 	 */
-	private $maxCount;
+	private $maxCount = 50000;
 
 	/**
 	 * Amount of items in the last array of sitemapArrays
 	 *
-	 * @var    int
+	 * @var    integer
 	 * @since  1.0.0
 	 */
-	private $currentCount;
-
-	/**
-	 * Constructor
-	 *
-	 * @param   string  $format  The sitemap format (HTML/XML)
-	 *
-	 * @since  1.0.0
-	 */
-	public function __construct($format)
-	{
-		$this->format        = $format;
-		$this->maxCount      = 50000;
-		$this->currentCount  = 0;
-		$this->sitemapItems  = array();
-		$this->sitemapArrays = 0;
-	}
+	private $currentCount = 0;
 
 	/**
 	 * Add an item to the sitemap
@@ -79,18 +55,25 @@ class PwtSitemap
 	 * @param   mixed   $item   Array of PwtSitemapItem objects or a single object
 	 * @param   string  $group  Set the group the item belongs to
 	 *
-	 * @since  1.0.0
+	 * @return  void
+	 *
+	 * @since   1.0.0
 	 */
 	public function addItem($item, $group = '')
 	{
 		// Check if the group exist
 		if (!isset($this->sitemapItems[$group]))
 		{
-			$this->sitemapItems[$group][$this->sitemapArrays] = array();
+			$this->sitemapArrays                              = 0;
+			$this->currentCount                               = 0;
+			$this->sitemapItems[$group][$this->sitemapArrays] = [];
 		}
 
+		// Get the count of the last sitemapArray
+		$sitemapArrayCount = count($this->sitemapItems[$group][$this->sitemapArrays]);
+
 		// If the amount of maximum sitemap items is exceeded, create a new array
-		if (count($this->sitemapItems[$group][$this->sitemapArrays]) >= $this->maxCount)
+		if ($sitemapArrayCount >= $this->maxCount)
 		{
 			$this->addSitemapArray($group);
 		}
@@ -98,21 +81,42 @@ class PwtSitemap
 		// Add the new item or merge the array of new items
 		if (is_array($item))
 		{
-			$diff = (count($item) + $this->currentCount) - $this->maxCount;
+			// Get the item count
+			$itemCount = count($item);
+
+			// Get the difference to reach maxCount
+			$diff = ($itemCount + $this->currentCount) - $this->maxCount;
 
 			// The maxCount limit is reached
 			if ($diff > 0)
 			{
-				// Add first part of the array
-				$this->sitemapItems[$group][$this->sitemapArrays] = array_merge($this->sitemapItems[$group][$this->sitemapArrays], array_slice($item, 0, count($item) - $diff));
+				// Check if last sitemapArray is not full
+				$cut = $this->maxCount - $this->currentCount;
+
+				if ($diff < $this->maxCount && $sitemapArrayCount !== $this->maxCount)
+				{
+					$cut = count($item) - $diff;
+				}
+
+				// Slice the item array to add it to the array
+				$slice = array_slice($item, 0, $cut);
+
+				// If sitemapArray is not empty, merge it
+				$this->sitemapItems[$group][$this->sitemapArrays] = $slice;
+
+				if ($sitemapArrayCount > 0 && isset($this->sitemapItems[$group][$this->sitemapArrays]))
+				{
+					$this->sitemapItems[$group][$this->sitemapArrays] = array_merge($this->sitemapItems[$group][$this->sitemapArrays], $slice);
+				}
 
 				// Create new sitemap array and remaining items
-				$this->addItem(array_slice($item, -$diff));
+				$this->addItem(array_slice($item, -$diff), $group);
 			}
 			else
 			{
 				$this->sitemapItems[$group][$this->sitemapArrays] = array_merge($this->sitemapItems[$group][$this->sitemapArrays], $item);
-				$this->currentCount                               = $this->currentCount + count($item);
+
+				$this->currentCount += $itemCount;
 			}
 		}
 		else
@@ -143,6 +147,11 @@ class PwtSitemap
 			return $this->sitemapItems[$part];
 		}
 
+		if (!isset($this->sitemapItems[0]))
+		{
+			return reset($this->sitemapItems)[0];
+		}
+
 		return $this->sitemapItems;
 	}
 
@@ -157,7 +166,7 @@ class PwtSitemap
 	 */
 	private function addSitemapArray($group)
 	{
-		$this->sitemapItems[$group] = array();
+		$this->sitemapItems[$group] = isset($this->sitemapItems[$group]) ? $this->sitemapItems[$group] : [];
 		$this->currentCount         = 0;
 		$this->sitemapArrays++;
 	}
@@ -165,17 +174,12 @@ class PwtSitemap
 	/**
 	 * Check if a sitemapindex is needed to display the sitemap
 	 *
-	 * @return  bool  True when a index is needed, false otherwise
+	 * @return  boolean  True when a index is needed, false otherwise
 	 *
 	 * @since   1.0.0
 	 */
 	public function useSitemapIndex()
 	{
-		if ($this->sitemapArrays > 0)
-		{
-			return true;
-		}
-
-		return false;
+		return $this->sitemapArrays > 0;
 	}
 }

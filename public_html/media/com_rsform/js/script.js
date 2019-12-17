@@ -1096,22 +1096,32 @@ RSFormPro.Conditions = {
             items = [],
 			detail, isChecked, displayValue, match;
 
+		var i, c;
+
 		if (typeof condition.details === 'object')
 		{
-			for (var i = 0; i < condition.details.length; i++)
+			for (i = 0; i < condition.details.length; i++)
 			{
 				detail = condition.details[i];
                 isChecked = RSFormPro.isChecked(formId, detail.ComponentName, detail.value);
                 conditions.push(isChecked === (detail.operator === 'is'));
 			}
 
-			if (parseInt(condition.block) === 1)
+			items = [];
+
+			if (condition.ComponentNames)
 			{
-				items = RSFormPro.getBlock(formId, RSFormProUtils.getAlias(condition.ComponentName));
-			}
-			else
-			{
-				items = RSFormPro.getFieldsByName(formId, condition.ComponentName);
+				for (c = 0; c < condition.ComponentNames.length; c++)
+				{
+					if (parseInt(condition.block) === 1)
+					{
+						items = items.concat(RSFormPro.getBlock(formId, RSFormProUtils.getAlias(condition.ComponentNames[c])));
+					}
+					else
+					{
+						items = items.concat(RSFormPro.getFieldsByName(formId, condition.ComponentNames[c]));
+					}
+				}
 			}
 
 			if (items.length > 0)
@@ -1139,14 +1149,20 @@ RSFormPro.Conditions = {
 				RSFormProUtils.setDisplay(items, displayValue);
                 if (displayValue === 'none')
 				{
-					RSFormPro.resetValues(RSFormPro.getFieldsByName(formId, condition.ComponentName));
+					if (condition.ComponentNames)
+					{
+						for (c = 0; c < condition.ComponentNames.length; c++)
+						{
+							RSFormPro.resetValues(RSFormPro.getFieldsByName(formId, condition.ComponentNames[c]));
+						}
+					}
 				}
 			}
 		}
 	},
 	runAll: function(formId) {
-		var func = window["rsfp_runAllConditions" + formId];
-		if (typeof func == "function") {
+		var func = window['rsfp_runAllConditions' + formId];
+		if (typeof func === 'function') {
 			func();
 		}
 	},
@@ -1165,8 +1181,8 @@ RSFormPro.Conditions = {
 		}
 	},
 	delayRun: function(formId) {
-		var func = window["rsfp_runAllConditions" + formId];
-		if (typeof func == "function") {
+		var func = window['rsfp_runAllConditions' + formId];
+		if (typeof func === 'function') {
 			RSFormProUtils.addEvent(window, 'load', func);
 		}
 	}
@@ -1187,7 +1203,7 @@ RSFormPro.Calculations = {
 		});
 	},
 	_addEvents: function(formId, fields) {
-		var func 		= window["rsfp_Calculations" + formId];
+		var func 		= window['rsfp_Calculations' + formId];
 		var thefields	= fields ? fields : RSFormProPrices;
 		var event 		= 'change';
 		
@@ -1197,7 +1213,7 @@ RSFormPro.Calculations = {
 			for (var i = 0; i < resetElements.length; i++)
 			{
 				RSFormProUtils.addEvent(resetElements[i], 'click', function() {
-					if (typeof func == "function") {
+					if (typeof func === 'function') {
 						window.setTimeout(func, 1);
 					}
 				});
@@ -1313,8 +1329,8 @@ RSFormPro.Ajax = {
 				i,
 				j,
 				id,
+				r,
 				formComponent,
-				firstErrorElement,
 				elementBlock;
 
 			ids = data.response[0].split(',');
@@ -1337,7 +1353,7 @@ RSFormPro.Ajax = {
 										results = RSFormPro.getFieldsByName(formId, formComponents[id]);
 										if (results.length > 0)
 										{
-											for (var r = 0; r < results.length; r++)
+											for (r = 0; r < results.length; r++)
 											{
 												RSFormProUtils.removeClass(results[r], data.fieldErrorClass);
 											}
@@ -1398,7 +1414,7 @@ RSFormPro.Ajax = {
 							results = RSFormPro.getFieldsByName(formId, formComponents[id]);
 							if (results.length > 0)
 							{
-								for (var r = 0; r < results.length; r++)
+								for (r = 0; r < results.length; r++)
 								{									
 									if (typeof data.fieldErrorClass != 'undefined' && data.fieldErrorClass.length > 0)
 									{

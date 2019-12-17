@@ -23,7 +23,7 @@ class PwtaclViewNotauthorised extends HtmlView
 	/**
 	 * Display the view
 	 *
-	 * @param   string $tpl Template
+	 * @param   string  $tpl  Template
 	 *
 	 * @return  mixed
 	 * @since   3.0

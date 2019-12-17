@@ -84,7 +84,8 @@ class RSFormProFieldJqueryCalendar extends RSFormProField
 		
 		// set the calendar script
 		$config = array(
-			'inline' 	 		 => $layout=='FLAT',
+			'offset'			 => $this->getProperty('VALIDATIONCALENDAROFFSET', 1),
+			'inline' 	 		 => $layout == 'FLAT',
 			'timepicker' 	 	 => $this->getProperty('TIMEPICKER', 'NO'),
 			'timepickerformat' 	 => $this->getProperty('TIMEPICKERFORMAT', 'H:i'),
 			'theme' 	 		 => strtolower($this->getProperty('THEME', 'DEFAULT')),

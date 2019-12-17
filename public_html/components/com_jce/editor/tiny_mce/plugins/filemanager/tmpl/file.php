@@ -11,21 +11,21 @@
 defined('JPATH_PLATFORM') or die;
 ?>
 
-<div class="uk-grid uk-grid-small">
+<div class="uk-grid uk-grid-small uk-form-row">
     <label class="uk-form-label uk-width-1-5" for="href" class="hastip" title="<?php echo JText::_('WF_LABEL_URL_DESC'); ?>"><?php echo JText::_('WF_LABEL_URL'); ?></label>
     <div class="uk-form-controls uk-form-icon uk-form-icon-flip uk-width-4-5">
         <input id="href" type="text" value="" class="filebrowser" required />
     </div>
 </div>
 
-<div class="uk-grid uk-grid-small">
+<div class="uk-grid uk-grid-small uk-form-row">
   <label class="uk-form-label uk-width-1-5" for="title" class="hastip" title="<?php echo JText::_('WF_LABEL_TITLE_DESC'); ?>"><?php echo JText::_('WF_LABEL_TITLE'); ?></label>
   <div class="uk-form-controls uk-width-4-5">
       <input id="title" type="text" value="" />
   </div>
 </div>
 
-<div class="uk-grid uk-grid-small">
+<div class="uk-grid uk-grid-small uk-form-row">
   <label for="format" class="uk-form-label uk-width-1-5 hastip" title="<?php echo JText::_('WF_FILEMANAGER_FORMAT_DESC', 'Format'); ?>"><?php echo JText::_('WF_FILEMANAGER_FORMAT', 'Format'); ?></label>
   <div class="uk-form-controls uk-width-3-10">
       <select id="format">
@@ -45,7 +45,7 @@ defined('JPATH_PLATFORM') or die;
 </div>
 
 <div class="uk-placeholder filemanager-link-options">
-    <div class="uk-grid uk-grid-small">
+    <div class="uk-grid uk-grid-small uk-form-row">
         <label for="text" class="uk-form-label uk-width-2-10 hastip" title="<?php echo JText::_('WF_FILEMANAGER_TEXT_DESC'); ?>"><?php echo JText::_('WF_FILEMANAGER_TEXT'); ?></label>
         <div class="uk-form-controls uk-width-4-10">
         <input id="text" type="text" value="" required />
@@ -63,7 +63,7 @@ defined('JPATH_PLATFORM') or die;
             </select>
         </div>
     </div>
-    <div class="uk-grid uk-grid-small">
+    <div class="uk-grid uk-grid-small uk-form-row">
         <label class="uk-form-label uk-width-1-5 hastip"
                    title="<?php echo JText::_('WF_FILEMANAGER_LAYOUT_DESC'); ?>"><?php echo JText::_('WF_FILEMANAGER_LAYOUT'); ?></label>
         <div class="uk-width-4-5 uk-grid uk-grid-small" id="layout">
@@ -113,7 +113,7 @@ defined('JPATH_PLATFORM') or die;
           </div>
         </div>
     </div>
-    <div class="uk-grid uk-grid-small">
+    <div class="uk-grid uk-grid-small uk-form-row">
         <label for="size_class" class="uk-form-label uk-width-1-5 hastip"
                    title="<?php echo JText::_('WF_FILEMANAGER_SIZE_CLASS_DESC'); ?>"><?php echo JText::_('WF_FILEMANAGER_SIZE_CLASS'); ?></label>
             <div class="uk-form-controls uk-width-3-10">
@@ -127,7 +127,7 @@ defined('JPATH_PLATFORM') or die;
   </div>
 </div>
 <div class="uk-placeholder filemanager-embed-options">
-  <div class="uk-grid uk-grid-small">
+  <div class="uk-grid uk-grid-small uk-form-row">
       <label class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_LABEL_DIMENSIONS_DESC'); ?>">
                 <?php echo JText::_('WF_LABEL_DIMENSIONS'); ?>
             </label>
@@ -152,7 +152,7 @@ defined('JPATH_PLATFORM') or die;
             </div>
   </div>
 
-  <div class="uk-grid uk-grid-small">
+  <div class="uk-grid uk-grid-small uk-form-row">
       <label for="align" class="hastip uk-form-label uk-width-1-5"
              title="<?php echo JText::_('WF_LABEL_ALIGN_DESC'); ?>">
           <?php echo JText::_('WF_LABEL_ALIGN'); ?>

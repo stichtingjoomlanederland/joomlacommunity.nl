@@ -3,7 +3,7 @@
  * @package    Pwtsitemap
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2018 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
@@ -37,17 +37,17 @@ class PlgPwtSitemapNewsfeed extends PwtSitemapPlugin
 	/**
 	 * Run for every menuitem passed
 	 *
-	 * @param   StdClass $item         Menu items
-	 * @param   string   $format       Sitemap format that is rendered
-	 * @param   string   $sitemap_type Type of the sitemap that is build
+	 * @param   stdClass  $item         Menu items
+	 * @param   string    $format       Sitemap format that is rendered
+	 * @param   string    $sitemapType  Type of the sitemap that is build
 	 *
 	 * @return  array
 	 *
 	 * @since   1.0.0
 	 */
-	public function onPwtSitemapBuildSitemap($item, $format, $sitemap_type)
+	public function onPwtSitemapBuildSitemap($item, $format, $sitemapType)
 	{
-		$sitemap_items = [];
+		$sitemapItems = [];
 
 		if ($this->checkDisplayParameters($item, $format))
 		{
@@ -59,36 +59,36 @@ class PlgPwtSitemapNewsfeed extends PwtSitemapPlugin
 				{
 					$link = NewsfeedsHelperRoute::getNewsfeedRoute($newsfeed->id . ':' . $newsfeed->alias, $newsfeed->catid, $newsfeed->language);
 
-					if ($sitemap_type == 'multilanguage')
+					if ($sitemapType === 'multilanguage')
 					{
 						$item               = new PwtMultilanguageSitemapItem($newsfeed->name, $link, $item->level + 1);
 						$item->associations = $this->getAssociatedNewesfeeds($newsfeed);
 
-						$sitemap_items[] = $item;
+						$sitemapItems[] = $item;
 					}
 					else
 					{
-						$sitemap_items[] = new PwtSitemapItem($newsfeed->name, $link, $item->level + 1);
+						$sitemapItems[] = new PwtSitemapItem($newsfeed->name, $link, $item->level + 1);
 					}
 				}
 			}
 		}
 
-		return $sitemap_items;
+		return $sitemapItems;
 	}
 
 	/**
 	 * Get all newsfeeds from a category
 	 *
-	 * @param   int $id Category id
+	 * @param   int  $id  Category id
 	 *
 	 * @return  mixed  stdClass on success, false otherwise
 	 *
-	 * @since   1.0.0
+	 * @since   1.3.0
 	 */
 	private function getNewsfeeds($id)
 	{
-		$newsfeedsModel = new NewsfeedsModelCategory();
+		$newsfeedsModel = new NewsfeedsModelCategory;
 
 		// Calling getState before setState will prevent 'populateState' override the new state
 		$newsfeedsModel->getState();
@@ -100,26 +100,33 @@ class PlgPwtSitemapNewsfeed extends PwtSitemapPlugin
 	/**
 	 * Get language associated newsfeeds
 	 *
-	 * @param  $newsfeed  stdClass
+	 * @param   stdClass  $newsfeed  The newsfeed to get associated feeds for
 	 *
 	 * @return  array
 	 *
-	 * @since   1.0.0
+	 * @since   1.3.0
 	 */
 	private function getAssociatedNewesfeeds($newsfeed)
 	{
-		$helper       = new NewsfeedsAssociationsHelper();
+		$helper       = new NewsfeedsAssociationsHelper;
 		$associations = $helper->getAssociations('newsfeed', $newsfeed->id);
 
 		// Map associations to Article objects
-		$associations = array_map(function ($value) use ($helper) {
-			return $helper->getItem('newsfeed', explode(':', $value->id)[0]);
-		}, $associations);
+		$associations = array_map(
+			static function ($value) use ($helper) {
+				return $helper->getItem('newsfeed', explode(':', $value->id)[0]);
+			},
+			$associations
+		);
 
 		// Append links
 		foreach ($associations as $language => $association)
 		{
-			$association->link = NewsfeedsHelperRoute::getNewsfeedRoute($association->id . ':' . $association->alias, $association->catid, $association->language);
+			$association->link = NewsfeedsHelperRoute::getNewsfeedRoute(
+				$association->id . ':' . $association->alias,
+				$association->catid,
+				$association->language
+			);
 		}
 
 		return $associations;

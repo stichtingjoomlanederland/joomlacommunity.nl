@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -159,6 +159,26 @@ class acymPlugin extends acymObject
             $this->catvalues[] = acym_selectOption($cat->id, str_repeat(' - - ', $level).$cat->title);
             $this->handleChildrenCategories($cat->id, $level + 1);
         }
+    }
+
+    protected function autoCampaignOptions(&$options)
+    {
+        $options[] = [
+            'title' => 'ACYM_ONLY_NEWLY_CREATED',
+            'type' => 'boolean',
+            'name' => 'onlynew',
+            'default' => true,
+            'tooltip' => 'ACYM_ONLY_NEWLY_CREATED_DESC',
+            'section' => 'ACYM_AUTO_CAMPAIGNS_OPTIONS',
+        ];
+        $options[] = [
+            'title' => 'ACYM_MIN_NB_ELEMENTS',
+            'type' => 'number',
+            'name' => 'min',
+            'default' => 0,
+            'tooltip' => 'ACYM_MIN_NB_ELEMENTS_DESC',
+            'section' => 'ACYM_AUTO_CAMPAIGNS_OPTIONS',
+        ];
     }
 
     protected function getElementsListing($options)
@@ -374,9 +394,10 @@ class acymPlugin extends acymObject
 
     protected function finalizeElementFormat($result, $options, $data)
     {
-        if (file_exists(ACYM_MEDIA.'plugins'.DS.$this->name.'.php')) {
+        $customLayoutPath = ACYM_CUSTOM_PLUGIN_LAYOUT.$this->name.'.php';
+        if (file_exists($customLayoutPath)) {
             ob_start();
-            require(ACYM_MEDIA.'plugins'.DS.$this->name.'.php');
+            require $customLayoutPath;
             $result = ob_get_clean();
             $result = str_replace(array_keys($data), $data, $result);
         }

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -21,8 +21,7 @@ class FileController extends acymController
 
     public function select()
     {
-        $config = acym_config();
-        $uploadFolders = $config->get('uploadfolder', ACYM_UPLOAD_FOLDER);
+        $uploadFolders = $this->config->get('uploadfolder', ACYM_UPLOAD_FOLDER);
         $uploadFolder = acym_getVar('string', 'currentFolder', $uploadFolders);
         $uploadPath = acym_cleanPath(ACYM_ROOT.trim(str_replace('/', DS, trim($uploadFolder)), DS));
         $map = acym_getVar('string', 'id');
@@ -40,7 +39,7 @@ class FileController extends acymController
 
 
 
-        $allowedExtensions = explode(',', $config->get('allowed_files'));
+        $allowedExtensions = explode(',', $this->config->get('allowed_files'));
         $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'ico', 'bmp', 'svg'];
         $displayType = acym_getVar('string', 'displayType', 'icons');
 

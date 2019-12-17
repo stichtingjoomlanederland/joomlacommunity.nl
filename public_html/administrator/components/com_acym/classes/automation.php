@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -224,12 +224,20 @@ class acymautomationClass extends acymClass
     {
         if (empty($conditions)) return true;
         $userTriggeringAction = empty($data['userId']) ? 0 : $data['userId'];
+        $usersTriggeringAction = empty($data['userIds']) ? [] : $data['userIds'];
 
         $conditions = json_decode($conditions, true);
         $query = acym_get('class.query');
         $initialWhere = ['1 = 1'];
         if (!empty($conditions['type_condition']) && $conditions['type_condition'] == 'user') {
-            $initialWhere = ['user.id = '.intval($userTriggeringAction)];
+            if (empty($usersTriggeringAction)) {
+                if (empty($userTriggeringAction)) return false;
+
+                $initialWhere = ['user.id = '.intval($userTriggeringAction)];
+            } else {
+                acym_arrayToInteger($usersTriggeringAction);
+                $initialWhere = ['user.id IN ('.implode(', ', $usersTriggeringAction).')'];
+            }
         }
         unset($conditions['type_condition']);
 

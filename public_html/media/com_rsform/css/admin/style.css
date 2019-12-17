@@ -563,6 +563,9 @@ textarea.rs_textarea:focus {
 .calendar {
     line-height: 12px;
 }
+.rsform_spacer {
+	margin-right: 3px;
+}
 @media (max-width: 480px) {
     #search.rs_10 {
         width: 100% !important;

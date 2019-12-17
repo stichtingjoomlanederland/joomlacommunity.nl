@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -205,23 +205,23 @@ class ArrayHelper
 	/**
 	 * Check if any of the given values is found in the array
 	 *
-	 * @param array $values
-	 * @param array $array
+	 * @param array $needles
+	 * @param array $haystack
 	 *
 	 * @return boolean
 	 */
-	public static function find($values, $array)
+	public static function find($needles, $haystack)
 	{
-		if ( ! is_array($array) || empty($array))
+		if ( ! is_array($haystack) || empty($haystack))
 		{
 			return false;
 		}
 
-		$values = self::toArray($values);
+		$needles = self::toArray($needles);
 
-		foreach ($values as $value)
+		foreach ($needles as $value)
 		{
-			if (in_array($value, $array))
+			if (in_array($value, $haystack))
 			{
 				return true;
 			}

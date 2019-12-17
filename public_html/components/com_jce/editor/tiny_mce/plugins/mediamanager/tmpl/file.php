@@ -11,7 +11,7 @@
 defined('JPATH_PLATFORM') or die;
 
 ?>
-<div class="uk-form-row uk-grid uk-grid-small">
+<div class="uk-grid uk-grid-small">
     <div class="uk-width-4-5">
         <div class="uk-form-row uk-grid uk-grid-small">
             <label for="media_type" class="uk-form-label uk-width-1-5">
@@ -58,39 +58,42 @@ defined('JPATH_PLATFORM') or die;
         </div>
 
         <div class="uk-hidden-mini uk-grid uk-grid-small uk-form-row" id="attributes-align">
-            <label for="align" class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_LABEL_ALIGN_DESC'); ?>">
+            <label for="align" class="hastip uk-form-label uk-width-1-5"
+                title="<?php echo JText::_('WF_LABEL_ALIGN_DESC'); ?>">
                 <?php echo JText::_('WF_LABEL_ALIGN'); ?>
             </label>
-
-            <div class="uk-width-2-5">
-                <div class="uk-form-controls uk-width-9-10 uk-grid uk-grid-small">
-                    <select id="align">
-                        <option value=""><?php echo JText::_('WF_OPTION_NOT_SET'); ?></option>
-                        <optgroup label="------------">
-                            <option value="left"><?php echo JText::_('WF_OPTION_ALIGN_LEFT'); ?></option>
-                            <option value="center"><?php echo JText::_('WF_OPTION_ALIGN_CENTER'); ?></option>
-                            <option value="right"><?php echo JText::_('WF_OPTION_ALIGN_RIGHT'); ?></option>
-                        </optgroup>
-                        <optgroup label="------------">
-                            <option value="top"><?php echo JText::_('WF_OPTION_ALIGN_TOP'); ?></option>
-                            <option value="middle"><?php echo JText::_('WF_OPTION_ALIGN_MIDDLE'); ?></option>
-                            <option value="bottom"><?php echo JText::_('WF_OPTION_ALIGN_BOTTOM'); ?></option>
-                        </optgroup>
-                    </select>
+            <div class="uk-grid uk-grid-small uk-form-row uk-width-4-5">
+                <div class="uk-width-1-2">
+                    <div class="uk-form-controls uk-width-9-10">
+                        <select id="align">
+                            <option value=""><?php echo JText::_('WF_OPTION_NOT_SET'); ?></option>
+                            <optgroup label="------------">
+                                <option value="left"><?php echo JText::_('WF_OPTION_ALIGN_LEFT'); ?></option>
+                                <option value="center"><?php echo JText::_('WF_OPTION_ALIGN_CENTER'); ?></option>
+                                <option value="right"><?php echo JText::_('WF_OPTION_ALIGN_RIGHT'); ?></option>
+                            </optgroup>
+                            <optgroup label="------------">
+                                <option value="top"><?php echo JText::_('WF_OPTION_ALIGN_TOP'); ?></option>
+                                <option value="middle"><?php echo JText::_('WF_OPTION_ALIGN_MIDDLE'); ?></option>
+                                <option value="bottom"><?php echo JText::_('WF_OPTION_ALIGN_BOTTOM'); ?></option>
+                            </optgroup>
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <div class="uk-width-2-5 uk-hidden-mini uk-grid uk-grid-small uk-margin-remove">
-                <label for="clear" class="hastip uk-form-label uk-width-3-10" title="<?php echo JText::_('WF_LABEL_CLEAR_DESC'); ?>">
-                    <?php echo JText::_('WF_LABEL_CLEAR'); ?>
-                </label>
-                <div class="uk-form-controls uk-width-7-10">
-                    <select id="clear" disabled>
-                        <option value=""><?php echo JText::_('WF_OPTION_NOT_SET'); ?></option>
-                        <option value="none"><?php echo JText::_('WF_OPTION_CLEAR_NONE'); ?></option>
-                        <option value="both"><?php echo JText::_('WF_OPTION_CLEAR_BOTH'); ?></option>
-                        <option value="left"><?php echo JText::_('WF_OPTION_CLEAR_LEFT'); ?></option>
-                        <option value="right"><?php echo JText::_('WF_OPTION_CLEAR_RIGHT'); ?></option>
-                    </select>
+                <div class="uk-width-1-2 uk-hidden-mini">
+                    <label for="clear" class="hastip uk-form-label uk-width-3-10"
+                        title="<?php echo JText::_('WF_LABEL_CLEAR_DESC'); ?>">
+                        <?php echo JText::_('WF_LABEL_CLEAR'); ?>
+                    </label>
+                    <div class="uk-form-controls uk-width-7-10">
+                        <select id="clear" disabled>
+                            <option value=""><?php echo JText::_('WF_OPTION_NOT_SET'); ?></option>
+                            <option value="none"><?php echo JText::_('WF_OPTION_CLEAR_NONE'); ?></option>
+                            <option value="both"><?php echo JText::_('WF_OPTION_CLEAR_BOTH'); ?></option>
+                            <option value="left"><?php echo JText::_('WF_OPTION_CLEAR_LEFT'); ?></option>
+                            <option value="right"><?php echo JText::_('WF_OPTION_CLEAR_RIGHT'); ?></option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
@@ -135,7 +138,7 @@ defined('JPATH_PLATFORM') or die;
             </div>
         </div>
     </div>
-    <div class="uk-width-1-5">
+    <div class="uk-width-1-5 uk-hidden-small">
         <div class="preview">
             <img id="sample" src="<?php echo $this->plugin->image('sample.jpg', 'libraries'); ?>" alt="sample.jpg" />
             <?php echo JText::_('WF_LOREM_IPSUM'); ?>

@@ -9,7 +9,7 @@
 	<copyright>Copyright (C) 2006 - 2019 Ryan Demmer. All rights reserved</copyright>
 	<license>GNU/GPL Version 2 - http://www.gnu.org/licenses/gpl-2.0.html</license>
 	<description>Noneditable elements for JCE</description>
-	<icon>columns</icon>
+	<icon></icon>
 	<files></files>
 	<fields name="noneditable">
 		<fieldset name="config">

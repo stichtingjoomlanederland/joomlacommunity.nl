@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -13,7 +13,6 @@ defined('_JEXEC') or die('Restricted access');
 
 class acymhistoryClass extends acymClass
 {
-
     var $table = 'history';
 
     public function insert($userId, $action, $data = [], $mailid = 0)
@@ -43,14 +42,13 @@ class acymhistoryClass extends acymClass
         $date = $history->date;
 
         $history->mail_id = $mailid;
-        $config = acym_config();
-        if ($config->get('anonymous_tracking', 0) == 0) {
+        if ($this->config->get('anonymous_tracking', 0) == 0) {
             $history->ip = acym_getIP();
         }
 
         if (!empty($_SERVER)) {
             $source = [];
-            if ($config->get('anonymous_tracking', 0) == 0) {
+            if ($this->config->get('anonymous_tracking', 0) == 0) {
                 $vars = ['HTTP_REFERER', 'HTTP_USER_AGENT', 'HTTP_HOST', 'SERVER_ADDR', 'REMOTE_ADDR', 'REQUEST_URI', 'QUERY_STRING'];
             } else {
                 $vars = ['HTTP_REFERER', 'HTTP_HOST', 'SERVER_ADDR', 'REQUEST_URI', 'QUERY_STRING'];

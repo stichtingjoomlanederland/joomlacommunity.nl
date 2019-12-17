@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         DB Replacer
- * @version         6.3.4PRO
+ * @version         6.3.5PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -23,6 +23,8 @@ class Com_DBReplacerInstallerScript extends Com_DBReplacerInstallerScriptHelper
 	{
 		$this->deleteOldFiles();
 		$this->fixAssetsRules();
+
+		return parent::onAfterInstall($route);
 	}
 
 	private function deleteOldFiles()

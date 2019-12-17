@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -20,7 +20,7 @@ defined('_JEXEC') or die('Restricted access');
                 'automan' => acym_translation('ACYM_CONFIGURATION_QUEUE_AUTOMAN'),
                 'manual' => acym_translation('ACYM_CONFIGURATION_QUEUE_MANUAL'),
             ];
-            echo acym_radio($queueModes, 'config[queue_type]', $data['config']->get('queue_type', 'automan'));
+            echo acym_radio($queueModes, 'config[queue_type]', $this->config->get('queue_type', 'automan'));
             ?>
 		</div>
 		<div class="cell medium-3 margin-top-1"><?php echo acym_translation('ACYM_AUTO_SEND_PROCESS'); ?></div>
@@ -29,8 +29,8 @@ defined('_JEXEC') or die('Restricted access');
             $delayTypeAuto = acym_get('type.delay');
             echo acym_translation_sprintf(
                 'ACYM_SEND_X_EVERY_Y',
-                '<input class="intext_input" type="text" name="config[queue_nbmail_auto]" value="'.intval($data['config']->get('queue_nbmail_auto')).'" />',
-                $delayTypeAuto->display('config[cron_frequency]', $data['config']->get('cron_frequency'), 2)
+                '<input class="intext_input" type="text" name="config[queue_nbmail_auto]" value="'.intval($this->config->get('queue_nbmail_auto')).'" />',
+                $delayTypeAuto->display('config[cron_frequency]', $this->config->get('cron_frequency'), 2)
             ); ?>
 		</div>
 		<div class="cell medium-3 margin-top-1"><?php echo acym_translation('ACYM_MANUAL_SEND_PROCESS'); ?></div>
@@ -39,23 +39,23 @@ defined('_JEXEC') or die('Restricted access');
             $delayTypeAuto = acym_get('type.delay');
             echo acym_translation_sprintf(
                 'ACYM_SEND_X_WAIT_Y',
-                '<input class="intext_input" type="text" name="config[queue_nbmail]" value="'.intval($data['config']->get('queue_nbmail')).'" />',
-                $delayTypeAuto->display('config[queue_pause]', $data['config']->get('queue_pause'), 0)
+                '<input class="intext_input" type="text" name="config[queue_nbmail]" value="'.intval($this->config->get('queue_nbmail')).'" />',
+                $delayTypeAuto->display('config[queue_pause]', $this->config->get('queue_pause'), 0)
             ); ?>
 		</div>
 		<div class="cell medium-3 margin-top-1"><?php echo acym_tooltip('<span>'.acym_translation('ACYM_MAX_NB_TRY').'</span>', acym_translation('ACYM_MAX_NB_TRY_DESC')); ?></div>
 		<div class="cell medium-9 margin-top-1">
-            <?php echo acym_translation_sprintf('ACYM_CONFIG_TRY', '<input class="intext_input" type="text" name="config[queue_try]" value="'.intval($data['config']->get('queue_try')).'">');
+            <?php echo acym_translation_sprintf('ACYM_CONFIG_TRY', '<input class="intext_input" type="text" name="config[queue_try]" value="'.intval($this->config->get('queue_try')).'">');
 
             $failaction = acym_get('type.failaction');
-            echo ' '.acym_translation_sprintf('ACYM_CONFIG_TRY_ACTION', $failaction->display('maxtry', $data['config']->get('bounce_action_maxtry'))); ?>
+            echo ' '.acym_translation_sprintf('ACYM_CONFIG_TRY_ACTION', $failaction->display('maxtry', $this->config->get('bounce_action_maxtry'))); ?>
 		</div>
 		<div class="cell medium-3 margin-top-1"><?php echo acym_translation('ACYM_MAX_EXECUTION_TIME'); ?></div>
 		<div class="cell medium-9 margin-top-1">
             <?php
             echo acym_translation_sprintf('ACYM_TIMEOUT_SERVER', ini_get('max_execution_time')).'<br />';
-            $maxexecutiontime = intval($data['config']->get('max_execution_time'));
-            if (intval($data['config']->get('last_maxexec_check')) > (time() - 20)) {
+            $maxexecutiontime = intval($this->config->get('max_execution_time'));
+            if (intval($this->config->get('last_maxexec_check')) > (time() - 20)) {
                 echo acym_translation_sprintf('ACYM_TIMEOUT_CURRENT', $maxexecutiontime);
             } else {
                 if (!empty($maxexecutiontime)) {
@@ -75,7 +75,7 @@ defined('_JEXEC') or die('Restricted access');
             echo acym_select(
                 $ordering,
                 'config[sendorder]',
-                $data['config']->get('sendorder', 'user_id, ASC'),
+                $this->config->get('sendorder', 'user_id, ASC'),
                 'class="intext_select"',
                 'value',
                 'text',
@@ -93,7 +93,7 @@ if (acym_level(1)) {
 		<div class="grid-x grid-margin-x">
 			<div class="cell">
                 <?php
-                if ($data['config']->get('cron_last', 0) < (time() - 43200)) {
+                if ($this->config->get('cron_last', 0) < (time() - 43200)) {
                     echo '<p class="acym__color__red">'.acym_translation('ACYM_CREATE_CRON_REMINDER').'</p>';
                 }
 
@@ -109,8 +109,8 @@ if (acym_level(1)) {
 			</div>
             <?php
 
-            $expirationDate = $data['config']->get('expirationdate', 0);
-            if (empty($expirationDate) || (time() - 604800) > $data['config']->get('lastlicensecheck', 0)) {
+            $expirationDate = $this->config->get('expirationdate', 0);
+            if (empty($expirationDate) || (time() - 604800) > $this->config->get('lastlicensecheck', 0)) {
                 acym_checkVersion();
             }
 
@@ -142,8 +142,8 @@ if (acym_level(1)) {
                 echo acym_select(
                     $cronreportval,
                     'config[cron_sendreport]',
-                    $data['config']->get('cron_sendreport', 0),
-                    'class="acym_select_foundation"',
+                    $this->config->get('cron_sendreport', 0),
+                    'class="acym__select"',
                     'value',
                     'text',
                     'cronsendreport',
@@ -155,7 +155,7 @@ if (acym_level(1)) {
 			<div class="cell large-4 medium-9">
                 <?php
                 $emails = [];
-                $receivers = $data['config']->get('cron_sendto');
+                $receivers = $this->config->get('cron_sendto');
                 if (!empty($receivers)) {
                     $receivers = explode(',', $receivers);
                     foreach ($receivers as $value) {
@@ -175,8 +175,8 @@ if (acym_level(1)) {
                 echo acym_select(
                     $cronreportval,
                     'config[cron_savereport]',
-                    (int)$data['config']->get('cron_savereport', 2),
-                    'class="acym_select_foundation"',
+                    (int)$this->config->get('cron_savereport', 2),
+                    'class="acym__select"',
                     'value',
                     'text',
                     'cronsendreport',
@@ -186,7 +186,7 @@ if (acym_level(1)) {
 			</div>
 			<div class="cell large-2 medium-3"><label for="cron_savepath"><?php echo acym_tooltip(acym_translation('ACYM_REPORT_SAVE_TO'), acym_translation('ACYM_REPORT_SAVE_TO_DESC')); ?></label></div>
 			<div class="cell large-4 medium-9">
-				<input id="cron_savepath" type="text" name="config[cron_savepath]" value="<?php echo acym_escape($data['config']->get('cron_savepath')); ?>">
+				<input id="cron_savepath" type="text" name="config[cron_savepath]" value="<?php echo acym_escape($this->config->get('cron_savepath')); ?>">
 			</div>
 			<div class="cell">
                 <?php
@@ -211,10 +211,10 @@ if (acym_level(1)) {
 			<div class="cell medium-3"><?php echo acym_tooltip(acym_translation('ACYM_LAST_RUN'), acym_translation('ACYM_LAST_RUN_DESC')); ?></div>
 			<div class="cell medium-9">
                 <?php
-                $diff = intval((time() - $data['config']->get('cron_last', 0)) / 60);
+                $diff = intval((time() - $this->config->get('cron_last', 0)) / 60);
                 if ($diff > 500) {
-                    echo acym_getDate($data['config']->get('cron_last'));
-                    echo ' <span style="font-size:10px">('.acym_translation_sprintf('ACYM_CURRENT_TIME', acym_getDate(time())).')</span>';
+                    echo acym_date($this->config->get('cron_last'), 'd F Y H:i');
+                    echo ' <span style="font-size:10px">('.acym_translation_sprintf('ACYM_CURRENT_TIME', acym_date('now', 'd F Y H:i')).')</span>';
                 } else {
                     echo acym_translation_sprintf('ACYM_MINUTES_AGO', $diff);
                 }
@@ -222,11 +222,11 @@ if (acym_level(1)) {
 			</div>
 			<div class="cell medium-3"><?php echo acym_tooltip(null, acym_translation('ACYM_CRON_TRIGGERED_IP'), acym_translation('ACYM_CRON_TRIGGERED_IP_DESC')); ?></div>
 			<div class="cell medium-9">
-                <?php echo $data['config']->get('cron_fromip'); ?>
+                <?php echo $this->config->get('cron_fromip'); ?>
 			</div>
 			<div class="cell medium-3"><?php echo acym_tooltip(null, acym_translation('ACYM_REPORT'), acym_translation('ACYM_REPORT_DESC')); ?></div>
 			<div class="cell medium-9">
-                <?php echo nl2br($data['config']->get('cron_report')); ?>
+                <?php echo nl2br($this->config->get('cron_report')); ?>
 			</div>
 		</div>
 	</div>
@@ -243,14 +243,14 @@ if (acym_level(1)) {
                         $value = $i < 10 ? '0'.$i : $i;
                         $listHours[] = acym_selectOption($value, $value);
                     }
-                    $hours = acym_select($listHours, 'config[daily_hour]', $data['config']->get('daily_hour', '12'), 'class="intext_select"');
+                    $hours = acym_select($listHours, 'config[daily_hour]', $this->config->get('daily_hour', '12'), 'class="intext_select"');
 
                     $listMinutess = [];
                     for ($i = 0 ; $i < 60 ; $i += 5) {
                         $value = $i < 10 ? '0'.$i : $i;
                         $listMinutess[] = acym_selectOption($value, $value);
                     }
-                    $minutes = acym_select($listMinutess, 'config[daily_minute]', $data['config']->get('daily_minute', '00'), 'class="intext_select"');
+                    $minutes = acym_select($listMinutess, 'config[daily_minute]', $this->config->get('daily_minute', '00'), 'class="intext_select"');
 
                     echo acym_translation_sprintf('ACYM_DAILY_TASKS', $hours, $minutes);
 

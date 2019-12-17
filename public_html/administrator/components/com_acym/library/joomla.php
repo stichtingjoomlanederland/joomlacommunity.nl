@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -916,7 +916,7 @@ function acym_isPluginActive($plugin, $family = 'system')
 
 function acym_getPluginsPath($file, $dir)
 {
-    return '';
+    return rtrim(JPATH_ADMINISTRATOR, DS).DS.'components'.DS;
 }
 
 function acym_includeHeaders()
@@ -926,6 +926,14 @@ function acym_includeHeaders()
 function acym_getPluginPath($plugin)
 {
     return ACYM_ADDONS_FOLDER_PATH.$plugin.DS.'plugin.php';
+}
+
+function acym_prepareFrontViewDisplay($ctrl)
+{
+}
+
+function acym_isExtensionActive($extension){
+    return JComponentHelper::isEnabled($extension, true);
 }
 
 global $acymCmsUserVars;

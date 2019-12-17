@@ -56,6 +56,15 @@ class RsformModelBackuprestore extends JModelAdmin
 		if (empty($this->_data))
 		{
 			$this->_data = $this->_getList($this->_query);
+
+			// Count submissions
+			$db = JFactory::getDbo();
+			$query = $db->getQuery(true)
+				->select('COUNT(' . $db->qn('SubmissionId') . ') AS ' . $db->qn('total'))
+				->select($db->qn('FormId'))
+				->from($db->qn('#__rsform_submissions'))
+				->group($db->qn('FormId'));
+			$allSubmissions = $db->setQuery($query)->loadObjectList('FormId');
 			
 			foreach ($this->_data as $i => $row)
 			{
@@ -74,12 +83,7 @@ class RsformModelBackuprestore extends JModelAdmin
 					}
 				}
 
-				$query = $this->_db->getQuery(true)
-					->select('COUNT(' . $this->_db->qn('SubmissionId') . ')')
-					->from($this->_db->qn('#__rsform_submissions'))
-					->where($this->_db->qn('FormId') . ' = ' . $this->_db->q($row->FormId));
-
-				$row->_allSubmissions = $this->_db->setQuery($query)->loadResult();
+				$row->_allSubmissions = isset($allSubmissions[$row->FormId]) ? $allSubmissions[$row->FormId]->total : 0;
 			}
 		}
 		

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -29,7 +29,7 @@ class Article
 	/**
 	 * Method to get article data.
 	 *
-	 * @param   integer|string $id The id, alias or title of the article.
+	 * @param integer|string $id The id, alias or title of the article.
 	 *
 	 * @return  object|boolean Menu item data object on success, boolean false
 	 */

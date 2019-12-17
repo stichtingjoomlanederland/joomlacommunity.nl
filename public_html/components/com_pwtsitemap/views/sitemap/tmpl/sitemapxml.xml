@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <metadata>
-    <layout title="COM_PWTSITEMAP_VIEW_SITEMAP_DEFAULT_XML_TITLE">
-        <message>COM_PWTSITEMAP_VIEW_SITEMAP_DEFAULT_XML_DESC</message>
-    </layout>
+	<layout title="COM_PWTSITEMAP_VIEW_SITEMAP_DEFAULT_XML_TITLE">
+		<message>COM_PWTSITEMAP_VIEW_SITEMAP_DEFAULT_XML_DESC</message>
+	</layout>
 
-    <!-- Add fields to the request variables for the layout. -->
-    <fields name="request">
-        <fieldset name="request">
-            <field
-                name="format"
-                type="hidden"
-                label="Format"
-                description=""
-                default="xml"
-            />
-        </fieldset>
-    </fields>
+	<!-- Add fields to the request variables for the layout. -->
+	<fields name="request">
+		<fieldset name="request">
+			<field
+				name="format"
+				type="hidden"
+				label="Format"
+				description=""
+				default="xml"
+			/>
+		</fieldset>
+	</fields>
 </metadata>

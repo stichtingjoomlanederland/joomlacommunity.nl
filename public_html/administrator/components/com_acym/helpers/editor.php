@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Editor\Editor AS Editor;
 
-class acymeditorHelper
+class acymeditorHelper extends acymObject
 {
     var $width = '95%';
     var $height = '600';
@@ -243,6 +243,22 @@ class acymeditorHelper
         $this->addButtonAtPosition($buttons, 'backcolor', 'forecolor');
 
         return $buttons;
+    }
+
+    public function getSettingsStyle($settings)
+    {
+        if (empty($settings) || !is_array($settings)) return '';
+
+        $styles = '';
+        foreach ($settings as $element => $rules) {
+            $styles .= '#acym__wysid__template '.$element.'{';
+            foreach ($rules as $ruleName => $value) {
+                $styles .= $ruleName.': '.$value.';';
+            }
+            $styles .= '}';
+        }
+
+        return $styles;
     }
 }
 

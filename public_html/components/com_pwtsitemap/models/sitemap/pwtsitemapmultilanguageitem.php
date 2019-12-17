@@ -3,12 +3,15 @@
  * @package    Pwtsitemap
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2018 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
 
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\Registry\Registry;
 
 JLoader::register('BasePwtSitemapItem', JPATH_ROOT . '/components/com_pwtsitemap/models/sitemap/basepwtsitemapitem.php');
 
@@ -25,7 +28,7 @@ class PwtMultilanguageSitemapItem extends BasePwtSitemapItem
 	 * @var    array
 	 * @since  1.0.0
 	 */
-	public $associations;
+	public $associations = [];
 
 	/**
 	 * Render this item for a XML sitemap
@@ -36,22 +39,26 @@ class PwtMultilanguageSitemapItem extends BasePwtSitemapItem
 	 */
 	public function renderXML()
 	{
-		$item = '<url><loc>' . $this->link . '</loc>';
+		// Get the optional language code settings from plugin
+		$languagecode = PluginHelper::getPlugin('system', 'languagecode');
+		$params       = new Registry($languagecode->params);
 
-		if ($this->modified != null)
+		$item = '<url><loc>' . htmlspecialchars($this->link) . '</loc>';
+
+		if ($this->modified)
 		{
 			$item .= '<lastmod>' . $this->modified . '</lastmod>';
 		}
 
-		if ($this->associations != null)
+		if ($this->associations && is_array($this->associations))
 		{
 			foreach ($this->associations as $language => $association)
 			{
 				$item .= '
 				 <xhtml:link
 					rel="alternate"
-					hreflang="' . $language . '"
-					href="' . PwtSitemapUrlHelper::getURL($association->link . '&lang=' . $language) . '"
+					hreflang="' . $params->get(strtolower($language), $language) . '"
+					href="' . PwtSitemapUrlHelper::getURL('index.php?Itemid=' . $association->id . '&lang=' . $language) . '"
 	            />';
 			}
 		}

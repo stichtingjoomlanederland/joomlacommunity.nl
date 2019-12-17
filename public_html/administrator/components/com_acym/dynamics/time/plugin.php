@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -158,9 +158,8 @@ class plgAcymTime extends acymPlugin
 
         $nextExecutionDate = [];
 
-        $config = acym_config();
-        $dailyHour = $config->get('daily_hour', '12');
-        $dailyMinute = $config->get('daily_minute', '00');
+        $dailyHour = $this->config->get('daily_hour', '12');
+        $dailyMinute = $this->config->get('daily_minute', '00');
 
 
         if (!empty($triggers['asap'])) {

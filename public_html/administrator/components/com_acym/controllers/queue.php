@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -24,8 +24,7 @@ class QueueController extends acymController
     {
         acym_setVar('layout', 'campaigns');
 
-        $config = acym_config();
-        if (acym_level(1) && $config->get('cron_last', 0) < (time() - 43200)) {
+        if (acym_level(1) && $this->config->get('cron_last', 0) < (time() - 43200)) {
             acym_enqueueMessage(acym_translation('ACYM_CREATE_CRON_REMINDER').' <a id="acym__queue__configure-cron" href="'.acym_completeLink('configuration&tab=queue').'">'.acym_translation('ACYM_GOTO_CONFIG').'</a>', 'warning');
         }
 
@@ -114,9 +113,7 @@ class QueueController extends acymController
 
     public function continuesend()
     {
-        $config = acym_config();
-
-        if ($config->get('queue_type') == 'onlyauto') {
+        if ($this->config->get('queue_type') == 'onlyauto') {
             acym_setNoTemplate();
             acym_display(acym_translation('ACYM_ONLYAUTOPROCESS'), 'warning');
 
@@ -124,10 +121,10 @@ class QueueController extends acymController
         }
 
         $newcrontime = time() + 120;
-        if ($config->get('cron_next') < $newcrontime) {
+        if ($this->config->get('cron_next') < $newcrontime) {
             $newValue = new stdClass();
             $newValue->cron_next = $newcrontime;
-            $config->save($newValue);
+            $this->config->save($newValue);
         }
 
         $mailid = acym_getCID('id');
@@ -148,7 +145,7 @@ class QueueController extends acymController
         $helperQueue->report = true;
         $helperQueue->total = $totalSend;
         $helperQueue->start = $alreadySent;
-        $helperQueue->pause = $config->get('queue_pause');
+        $helperQueue->pause = $this->config->get('queue_pause');
         $helperQueue->process();
 
         acym_setNoTemplate();

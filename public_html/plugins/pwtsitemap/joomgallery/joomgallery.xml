@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.1" type="plugin" group="pwtsitemap" method="upgrade">
+	<name>plg_pwtsitemap_joomgallery</name>
+	<author>Perfect Web Team</author>
+	<creationDate>14 December 2019</creationDate>
+	<copyright>Copyright (C) 2018 - 2019 Perfect Web Team</copyright>
+	<license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
+	<authorEmail>extensions@perfectwebteam.com</authorEmail>
+	<authorUrl>https://extensions.perfectwebteam.com</authorUrl>
+	<version>1.4.1</version>
+	<description>PLG_PWTSITEMAP_JOOMGALLERY_XML_DESCRIPTION</description>
+
+	<files>
+		<folder>language</folder>
+		<filename plugin="joomgallery">joomgallery.php</filename>
+		<filename>joomgallery.xml</filename>
+	</files>
+
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field
+					name="limit"
+					label="PLG_PWTSITEMAP_JOOMGALLERY_CONFIG_LIMIT"
+					description="PLG_PWTSITEMAP_JOOMGALLERY_CONFIG_LIMIT_DESC"
+					type="number"
+				/>
+			</fieldset>
+		</fields>
+	</config>
+</extension>

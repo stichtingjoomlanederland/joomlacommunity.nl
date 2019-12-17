@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -33,8 +33,8 @@ class JFormFieldRL_Users extends \RegularLabs\Library\Field
 			$this->value = explode(',', $this->value);
 		}
 
-		$size     = (int) $this->get('size');
-		$multiple = $this->get('multiple');
+		$size         = (int) $this->get('size');
+		$multiple     = $this->get('multiple');
 		$show_current = $this->get('show_current');
 
 		return $this->selectListSimpleAjax(

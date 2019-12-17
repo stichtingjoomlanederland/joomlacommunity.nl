@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -61,7 +61,7 @@ defined('_JEXEC') or die('Restricted access');
 				</div>
 			</div>
 			<div class="cell grid-x">
-                <?php if ($config->get('require_confirmation')) { ?>
+                <?php if ($this->config->get('require_confirmation')) { ?>
 					<div class="cell large-6 grid-x">
                         <?php echo acym_switch('import_confirmed_generic', 1, acym_translation('ACYM_IMPORT_USERS_AS_CONFIRMED')); ?>
 					</div>

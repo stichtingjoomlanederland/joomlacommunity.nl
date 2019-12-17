@@ -371,8 +371,6 @@ class WFFileBrowser extends JObject
 
                     // filter match
                     if (false === empty(array_intersect_assoc($filter_parts, $path_parts))) {
-                        
-                        
                         return true;
                     }
 
@@ -421,6 +419,10 @@ class WFFileBrowser extends JObject
         $list = $filesystem->getFiles($relative, $filter, $sort, $limit, $start);
 
         $list = array_filter($list, function ($item) {
+            if (empty($item['id'])) {
+                return true;
+            }
+            
             return $this->checkPathAccess(dirname($item['id']));
         });
 
@@ -440,6 +442,10 @@ class WFFileBrowser extends JObject
         $list = $filesystem->getFolders($relative, $filter, $sort, $limit, $start);
 
         $list = array_filter($list, function ($item) {
+            if (empty($item['id'])) {
+                return true;
+            }
+            
             return $this->checkPathAccess($item['id']);
         });
 
@@ -525,6 +531,15 @@ class WFFileBrowser extends JObject
             $list = array_slice($list, $start, $limit);
         }
 
+        // get properties for found items
+        array_walk($list, function(&$item) use ($filesystem) {
+            $item['classes']    = '';
+
+            if (empty($item['properties'])) {
+                $item['properties'] = $filesystem->getFileDetails($item);
+            }
+        });
+
         $result['files'] = $list;
         $result['total']['files'] = $total;
 
@@ -594,18 +609,28 @@ class WFFileBrowser extends JObject
 
         $items = array_merge($folders, $files);
 
-        if ($items) {
+        if (count($items)) {
             if (intval($limit) > 0) {
                 $items = array_slice($items, $start, $limit);
             }
 
             foreach ($items as $item) {
                 $item['classes'] = '';
+
                 if ($item['type'] == 'folders') {
+                    if (empty($item['properties'])) {
+                        $item['properties'] = $filesystem->getFolderDetails($item);
+                    }
+
                     $folderArray[] = $item;
                 } else {
                     // check for selected item
-                    $item['selected'] = $filesystem->isMatch($item['url'], $path);
+                    $item['selected']   = $filesystem->isMatch($item['url'], $path);
+
+                    if (empty($item['properties'])) {
+                        $item['properties'] = $filesystem->getFileDetails($item);
+                    }
+
                     $fileArray[] = $item;
                 }
             }

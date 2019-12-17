@@ -72,6 +72,7 @@ class RSFormProFieldCalendar extends RSFormProField
 		
 		// set the calendar script
 		$config = array(
+			'offset'			 => $this->getProperty('VALIDATIONCALENDAROFFSET', 1),
 			'layout' 	 		 => $layout,
 			'dateFormat' 		 => $format,
 			'value' 	 		 => $hiddenValue,

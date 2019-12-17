@@ -1,90 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form>
-    <fieldset addfieldpath="/administrator/components/com_pwtacl/models/fields"/>
+	<field
+		name="group"
+		type="usergrouplist"
+		onchange="this.form.submit();"
+	>
+		<option value="">COM_PWTACL_ASSETS_FILTER_GROUP</option>
+	</field>
 
-    <field
-            name="group"
-            type="usergrouplist"
-            onchange="this.form.submit();"
-    >
-        <option value="">COM_PWTACL_ASSETS_FILTER_GROUP</option>
-    </field>
+	<field
+		name="user"
+		type="sql"
+		query="SELECT id, CONCAT(name, ' (', username, ')') as name FROM #__users"
+		key_field="id"
+		value_field="name"
+		onchange="this.form.submit();"
+	>
+		<option value="">COM_PWTACL_ASSETS_FILTER_USER</option>
+	</field>
 
-    <field
-            name="user"
-            type="sql"
-            query="SELECT id, CONCAT(name, ' (', username, ')') as name FROM #__users"
-            key_field="id"
-            value_field="name"
-            onchange="this.form.submit();"
-    >
-        <option value="">COM_PWTACL_ASSETS_FILTER_USER</option>
-    </field>
+	<fields name="filter">
+		<field
+			name="search"
+			type="text"
+			hint="JSEARCH_FILTER"
+			class="js-stools-search-string"
+		/>
 
-    <fields name="filter">
-        <field
-                name="search"
-                type="text"
-                hint="JSEARCH_FILTER"
-                class="js-stools-search-string"
-        />
+		<field
+			name="component"
+			type="assetcomponents"
+			onchange="this.form.submit();"
+		>
+			<option value="">COM_PWTACL_ASSETS_FILTER_COMPONENT</option>
+		</field>
 
-        <field
-                name="component"
-                type="assetcomponents"
-                onchange="this.form.submit();"
-        >
-            <option value="">COM_PWTACL_ASSETS_FILTER_COMPONENT</option>
-        </field>
+		<field
+			name="level_start"
+			type="assetlevels"
+			label="COM_USERS_FILTER_LEVEL_START_LABEL"
+			description="COM_USERS_FILTER_LEVEL_START_DESC"
+			onchange="this.form.submit();"
+		>
+			<option value="">COM_USERS_OPTION_SELECT_LEVEL_START</option>
+		</field>
 
-        <field
-                name="level_start"
-                type="assetlevels"
-                label="COM_USERS_FILTER_LEVEL_START_LABEL"
-                description="COM_USERS_FILTER_LEVEL_START_DESC"
-                onchange="this.form.submit();"
-        >
-            <option value="">COM_USERS_OPTION_SELECT_LEVEL_START</option>
-        </field>
+		<field
+			name="level_end"
+			type="assetlevels"
+			label="COM_USERS_FILTER_LEVEL_END_LABEL"
+			description="COM_USERS_FILTER_LEVEL_END_DESC"
+			onchange="this.form.submit();"
+		>
+			<option value="">COM_USERS_OPTION_SELECT_LEVEL_END</option>
+		</field>
 
-        <field
-                name="level_end"
-                type="assetlevels"
-                label="COM_USERS_FILTER_LEVEL_END_LABEL"
-                description="COM_USERS_FILTER_LEVEL_END_DESC"
-                onchange="this.form.submit();"
-        >
-            <option value="">COM_USERS_OPTION_SELECT_LEVEL_END</option>
-        </field>
+		<field
+			name="item"
+			type="list"
+			onchange="this.form.submit();"
+		>
+			<option value="">COM_PWTACL_ASSETS_FILTER_ITEM</option>
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
 
-        <field
-                name="item"
-                type="list"
-                onchange="this.form.submit();"
-        >
-            <option value="">COM_PWTACL_ASSETS_FILTER_ITEM</option>
-            <option value="1">JYES</option>
-            <option value="0">JNO</option>
-        </field>
+		<field
+			name="language"
+			type="contentlanguage"
+			label="JOPTION_FILTER_LANGUAGE"
+			description="JOPTION_FILTER_LANGUAGE_DESC"
+			onchange="this.form.submit();"
+		>
+			<option value="">JOPTION_SELECT_LANGUAGE</option>
+		</field>
 
-        <field
-                name="language"
-                type="contentlanguage"
-                label="JOPTION_FILTER_LANGUAGE"
-                description="JOPTION_FILTER_LANGUAGE_DESC"
-                onchange="this.form.submit();"
-        >
-            <option value="">JOPTION_SELECT_LANGUAGE</option>
-        </field>
-    </fields>
+		<field
+			name="fields"
+			type="list"
+			onchange="this.form.submit();"
+		>
+			<option value="">COM_PWTACL_ASSETS_FILTER_FIELDS</option>
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+	</fields>
 
-    <fields name="list">
-        <field
-                name="limit"
-                type="limitbox"
-                class="input-mini"
-                default="100"
-                onchange="this.form.submit();"
-        />
-    </fields>
+	<fields name="list">
+		<field
+			name="limit"
+			type="limitbox"
+			class="input-mini"
+			default="100"
+			onchange="this.form.submit();"
+		/>
+	</fields>
 </form>

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -13,6 +13,7 @@
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\Log\Log as JLog;
 
 if (is_file(JPATH_LIBRARIES . '/regularlabs/autoload.php'))
@@ -104,7 +105,7 @@ class RLAssignmentsGeo extends RLAssignment
 
 		$this->geo = $geo->get();
 
-		if (JDEBUG)
+		if (JFactory::getApplication()->get('debug'))
 		{
 			JLog::addLogger(['text_file' => 'regularlabs_geoip.log.php'], JLog::ALL, ['regularlabs_geoip']);
 			JLog::add(json_encode($this->geo), JLog::DEBUG, 'regularlabs_geoip');

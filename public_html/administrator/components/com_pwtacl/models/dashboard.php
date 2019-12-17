@@ -67,7 +67,7 @@ class PwtaclModelDashboard extends ListModel
 	/**
 	 * Get User Groups
 	 *
-	 * @param   string $where Search query
+	 * @param   string  $where  Search query
 	 *
 	 * @return  mixed
 	 * @since   3.0
@@ -116,7 +116,7 @@ class PwtaclModelDashboard extends ListModel
 	/**
 	 * Get User Groups
 	 *
-	 * @param   string $where Search query
+	 * @param   string  $where  Search query
 	 *
 	 * @return  mixed
 	 * @since   3.0
@@ -163,8 +163,8 @@ class PwtaclModelDashboard extends ListModel
 	/**
 	 * Get total items for table
 	 *
-	 * @param   string $table Table name
-	 * @param   string $where Search query
+	 * @param   string  $table  Table name
+	 * @param   string  $where  Search query
 	 *
 	 * @return  integer
 	 * @since   3.0

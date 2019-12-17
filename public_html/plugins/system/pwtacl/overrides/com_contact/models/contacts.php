@@ -85,7 +85,7 @@ class ContactModelContacts extends ContactModelContactsCore
 		// Check for user permissions
 		for ($x = 0, $count = count($items); $x < $count; $x++)
 		{
-			//Check the access level. Remove contacts the user shouldn't see
+			// Check the access level. Remove contacts the user shouldn't see
 			$canEdit    = $user->authorise('core.edit', 'com_contact.category.' . $items[$x]->catid);
 			$canEditOwn = $user->authorise('core.edit.own', 'com_contact.category.' . $items[$x]->catid) && $items[$x]->created_by == $user->id;
 			$canChange  = $user->authorise('core.edit.state', 'com_contact.category.' . $items[$x]->catid);

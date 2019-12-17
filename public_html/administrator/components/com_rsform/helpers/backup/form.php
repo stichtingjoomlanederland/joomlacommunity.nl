@@ -296,18 +296,24 @@ class RSFormProBackupForm
 	protected function storeConditions() {
 		// Add conditions #__rsform_conditions & #__rsform_condition_details
 		if ($conditions = $this->getConditions()) {
+			require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/conditions.php';
+
 			$this->xml->add('conditions');
 			foreach ($conditions as $condition) {
-				$component_id = $condition->component_id;
+				$component_ids = RSFormProConditions::parseComponentIds($condition->component_id);
 				
 				// No need
 				unset($condition->id, $condition->form_id, $condition->component_id);
-				
-				if (isset($this->fields[$component_id])) {
-					$condition->component_id = $this->fields[$component_id];
-				} else {
-					$condition->component_id = '';
+
+				$json_ids = array();
+				foreach ($component_ids as $component_id)
+				{
+					if (isset($this->fields[$component_id]))
+					{
+						$json_ids[] = $this->fields[$component_id];
+					}
 				}
+				$condition->component_id = json_encode($json_ids);
 				
 				$this->xml->add('condition');
 				foreach ($condition as $property => $value) {					
@@ -334,7 +340,6 @@ class RSFormProBackupForm
 	protected function getConditions() {
 		$db 		= &$this->db;
 		$query		= $db->getQuery(true);
-		$conditions = array();
 		
 		$query->select('*')
 			  ->from($db->qn('#__rsform_conditions'))

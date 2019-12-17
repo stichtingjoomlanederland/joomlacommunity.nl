@@ -45,7 +45,7 @@ class RsformController extends JControllerLegacy
 		$tab 		 = $tabposition ? '&tab='.$tab : '';
 		JFactory::getSession()->set('com_rsform.form.formId'.$formId.'.lang', JFactory::getApplication()->input->getString('Language'));
 
-		$this->setRedirect('index.php?option=com_rsform&task=forms.edit&formId='.$formId.'&tabposition='.$tabposition.$tab);
+		$this->setRedirect('index.php?option=com_rsform&view=forms&layout=edit&formId='.$formId.'&tabposition='.$tabposition.$tab);
 	}
 
 	public function changeEmailLanguage()

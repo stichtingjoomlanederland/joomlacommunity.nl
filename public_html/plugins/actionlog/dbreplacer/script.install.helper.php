@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         DB Replacer
- * @version         6.3.4PRO
+ * @version         6.3.5PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -42,6 +42,7 @@ class PlgActionlogDBReplacerInstallerScriptHelper
 		JFactory::getLanguage()->load('plg_system_regularlabsinstaller', JPATH_PLUGINS . '/system/regularlabsinstaller');
 
 		$this->installed_version = $this->getVersion($this->getInstalledXMLFile());
+
 
 		if ($this->show_message && $this->isInstalled())
 		{
@@ -358,7 +359,7 @@ class PlgActionlogDBReplacerInstallerScriptHelper
 	{
 		JFactory::getApplication()->enqueueMessage(
 			JText::sprintf(
-				JText::_($this->install_type == 'update' ? 'RLI_THE_EXTENSION_HAS_BEEN_UPDATED_SUCCESSFULLY' : 'RLI_THE_EXTENSION_HAS_BEEN_INSTALLED_SUCCESSFULLY'),
+				$this->install_type == 'update' ? 'RLI_THE_EXTENSION_HAS_BEEN_UPDATED_SUCCESSFULLY' : 'RLI_THE_EXTENSION_HAS_BEEN_INSTALLED_SUCCESSFULLY',
 				'<strong>' . JText::_($this->name) . '</strong>',
 				'<strong>' . $this->getVersion() . '</strong>',
 				$this->getFullType()
@@ -533,6 +534,7 @@ class PlgActionlogDBReplacerInstallerScriptHelper
 
 	public function onAfterInstall($route)
 	{
+		return true;
 	}
 
 	public function delete($files = [])

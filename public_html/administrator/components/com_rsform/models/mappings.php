@@ -7,6 +7,11 @@
 
 defined('_JEXEC') or die('Restricted access');
 
+define('RSFP_MAPPING_INSERT', 0);
+define('RSFP_MAPPING_DELETE', 2);
+define('RSFP_MAPPING_UPDATE', 1);
+define('RSFP_MAPPING_REPLACE', 3);
+
 class RsformModelMappings extends JModelLegacy
 {	
 	public function getMapping() {
@@ -21,27 +26,34 @@ class RsformModelMappings extends JModelLegacy
 		$row 		= JTable::getInstance('RSForm_Mappings', 'Table');
 		$db	 		= JFactory::getDbo();
 		
-		if (!$row->bind($post)) {
-			JError::raiseWarning(500, $row->getError());
+		if (!$row->bind($post))
+		{
 			return false;
 		}
 		
-		if (empty($row->id)) {
+		if (empty($row->id))
+		{
 			$row->ordering = $row->getNextOrder($db->qn('formId').'='.$db->q($row->formId));
 		}
 		
 		$data = $where = $extra = $andor = array();
 		
-		if (!empty($post)) {
-			foreach ($post as $key => $value) {
-				if (!strlen($value)) {
+		if (!empty($post))
+		{
+			foreach ($post as $key => $value)
+			{
+				if (!strlen($value))
+				{
 					continue;
 				}
 				
-				if (substr($key,0,2) == 'f_') {
+				if (substr($key,0,2) == 'f_')
+				{
 					$datakey 		= substr($key, 2);
 					$data[$datakey] = $value;
-				} elseif (substr($key,0,2) == 'w_') {
+				}
+				elseif (substr($key,0,2) == 'w_')
+				{
 					$wherekey 			= substr($key, 2);
 					$where[$wherekey] 	= $value;
 					$extra[$wherekey] 	= isset($post['o_'.$wherekey]) ? $post['o_'.$wherekey] : '=';
@@ -50,11 +62,13 @@ class RsformModelMappings extends JModelLegacy
 			}
 		}
 		
-		if (($row->method == 0 || $row->method == 1 || $row->method == 3) && empty($data)) {
+		if (in_array($row->method, array(RSFP_MAPPING_INSERT, RSFP_MAPPING_UPDATE, RSFP_MAPPING_REPLACE)) && empty($data))
+		{
 			return false;
 		}
 		
-		if ($row->method == 2 && empty($where)) {
+		if ($row->method == RSFP_MAPPING_DELETE && empty($where))
+		{
 			return false;
 		}
 		
@@ -63,12 +77,12 @@ class RsformModelMappings extends JModelLegacy
 		$row->extra 	= serialize($extra);
 		$row->andor 	= serialize($andor);
 		
-		if ($row->store()) {
-			return $row;
-		} else  {
-			JError::raiseWarning(500, $row->getError());
+		if (!$row->store())
+		{
 			return false;
 		}
+
+		return $row;
 	}
 	
 	public function remove() {

@@ -1,6 +1,6 @@
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -8,295 +8,305 @@
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
-var RegularLabsScripts = null;
+"use strict";
 
-(function($) {
-	"use strict";
+if (typeof window.RegularLabsScripts === 'undefined'
+	|| typeof RegularLabsScripts.version === 'undefined'
+	|| RegularLabsScripts.version < '19.12.9182') {
 
-	RegularLabsScripts = {
-		ajax_list        : [],
-		started_ajax_list: false,
-		ajax_list_timer  : null,
+	(function($) {
+		window.RegularLabsScripts = {
+			version: '19.12.9182',
 
-		loadajax: function(url, success, fail, query, timeout, dataType, cache) {
-			// console.log(url);
+			ajax_list        : [],
+			started_ajax_list: false,
+			ajax_list_timer  : null,
 
-			if (url.indexOf('index.php') !== 0 && url.indexOf('administrator/index.php') !== 0) {
-				url = url.replace('http://', '');
-				url = 'index.php?rl_qp=1&url=' + encodeURIComponent(url);
-				if (timeout) {
-					url += '&timeout=' + timeout;
-				}
-				if (cache) {
-					url += '&cache=' + cache;
-				}
-			}
-
-			var base = window.location.pathname;
-			base     = base.substring(0, base.lastIndexOf('/'));
-
-			if (
-				typeof Joomla !== 'undefined'
-				&& typeof Joomla.getOptions !== 'undefined'
-				&& Joomla.getOptions('system.paths')
-			) {
-				var paths = Joomla.getOptions('system.paths');
-				base      = paths.base;
-			}
-
-			// console.log(url);
-			// console.log(base + '/' + url);
-
-			$.ajax({
-				type    : 'post',
-				url     : base + '/' + url,
-				dataType: dataType ? dataType : '',
-				success : function(data) {
-					if (success) {
-						eval(success + ';');
+			loadajax: function(url, success, fail, query, timeout, dataType, cache) {
+				if (url.indexOf('index.php') !== 0 && url.indexOf('administrator/index.php') !== 0) {
+					url = url.replace('http://', '');
+					url = `index.php?rl_qp=1&url=${encodeURIComponent(url)}`;
+					if (timeout) {
+						url += `&timeout=${timeout}`;
 					}
-				},
-				error   : function(data) {
-					if (fail) {
-						eval(fail + ';');
+					if (cache) {
+						url += `&cache=${cache}`;
 					}
 				}
-			});
-		},
 
-		displayVersion: function(data, extension, version) {
-			if (!data) {
-				return;
-			}
+				let base = window.location.pathname;
 
-			var xml = this.getObjectFromXML(data);
+				base = base.substring(0, base.lastIndexOf('/'));
 
-			if (!xml) {
-				return;
-			}
+				if (
+					typeof Joomla !== 'undefined'
+					&& typeof Joomla.getOptions !== 'undefined'
+					&& Joomla.getOptions('system.paths')
+				) {
+					base = Joomla.getOptions('system.paths').base;
+				}
 
-			if (typeof xml[extension] === 'undefined') {
-				return;
-			}
+				// console.log(url);
+				// console.log(`${base}/${url}`);
 
-			var dat = xml[extension];
-
-			if (!dat || typeof dat.version === 'undefined' || !dat.version) {
-				return;
-			}
-
-			var new_version = dat.version;
-			var compare     = this.compareVersions(version, new_version);
-
-			if (compare != '<') {
-				return;
-			}
-
-			var el = $('#regularlabs_newversionnumber_' + extension);
-			if (el) {
-				el.text(new_version);
-			}
-
-			el = $('#regularlabs_version_' + extension);
-			if (el) {
-				el.css('display', 'block');
-				el.parent().removeClass('hide');
-			}
-		},
-
-		addToLoadAjaxList: function(url, success, error) {
-			// wrap inside the loadajax function (and escape string values)
-			var action = "RegularLabsScripts.loadajax(" +
-				"'" + url.replace(/'/g, "\\'") + "'," +
-				"'" + success.replace(/'/g, "\\'") + ";RegularLabsScripts.ajaxRun();'," +
-				"'" + error.replace(/'/g, "\\'") + ";RegularLabsScripts.ajaxRun();'" +
-				")";
-
-			this.addToAjaxList(action);
-		},
-
-		addToAjaxList: function(action) {
-			this.ajax_list.push(action);
-
-			if (!this.started_ajax_list) {
-				this.ajaxRun();
-			}
-		},
-
-		ajaxRun: function() {
-			if (typeof RegularLabsToggler !== 'undefined') {
-				RegularLabsToggler.initialize();
-			}
-
-			if (!this.ajax_list.length) {
-				return;
-			}
-
-			clearTimeout(this.ajax_list_timer);
-
-			this.started_ajax_list = true;
-
-			var action = this.ajax_list.shift();
-
-			eval(action + ';');
-
-			if (!this.ajax_list.length) {
-				return;
-			}
-
-			// Re-trigger this ajaxRun function just in case it hangs somewhere
-			this.ajax_list_timer = setTimeout(
-				function() {
-					RegularLabsScripts.ajaxRun();
-				},
-				5000
-			);
-		},
-
-		in_array: function(needle, haystack, casesensitive) {
-			if ({}.toString.call(needle).slice(8, -1) != 'Array') {
-				needle = [needle];
-			}
-			if ({}.toString.call(haystack).slice(8, -1) != 'Array') {
-				haystack = [haystack];
-			}
-
-			for (var h = 0; h < haystack.length; h++) {
-				for (var n = 0; n < needle.length; n++) {
-					if (casesensitive) {
-						if (haystack[h] == needle[n]) {
-							return true;
+				$.ajax({
+					type    : 'post',
+					url     : `${base}/${url}`,
+					dataType: dataType ? dataType : '',
+					success : function(data) {
+						if (success) {
+							eval(`${success};`);
 						}
-					} else {
+					},
+					error   : function(data) {
+						if (fail) {
+							eval(`${fail};`);
+						}
+					}
+				});
+			},
+
+			displayVersion: function(data, extension, version) {
+				if (!data) {
+					return;
+				}
+
+				const xml = this.getObjectFromXML(data);
+
+				if (!xml) {
+					return;
+				}
+
+				if (typeof xml[extension] === 'undefined') {
+					return;
+				}
+
+				const dat = xml[extension];
+
+				if (!dat || typeof dat.version === 'undefined' || !dat.version) {
+					return;
+				}
+
+				const new_version = dat.version;
+				const compare     = this.compareVersions(version, new_version);
+
+				if (compare != '<') {
+					return;
+				}
+
+				let el = $(`#regularlabs_newversionnumber_${extension}`);
+
+				if (el) {
+					el.text(new_version);
+				}
+
+				el = $(`#regularlabs_version_${extension}`);
+
+				if (el) {
+					el.css('display', 'block');
+					el.parent().removeClass('hide');
+				}
+			},
+
+			addToLoadAjaxList: function(url, success, error) {
+				// wrap inside the loadajax function (and escape string values)
+				url     = url.replace(/'/g, "\\'");
+				success = success.replace(/'/g, "\\'");
+				error   = error.replace(/'/g, "\\'");
+
+				const action = `RegularLabsScripts.loadajax(
+					'${url}',
+					'${success};RegularLabsScripts.ajaxRun();',
+					'${error};RegularLabsScripts.ajaxRun();'
+				)`;
+
+				this.addToAjaxList(action);
+			},
+
+			addToAjaxList: function(action) {
+				this.ajax_list.push(action);
+
+				if (!this.started_ajax_list) {
+					this.ajaxRun();
+				}
+			},
+
+			ajaxRun: function() {
+				if (typeof RegularLabsToggler !== 'undefined') {
+					RegularLabsToggler.initialize();
+				}
+
+				if (!this.ajax_list.length) {
+					return;
+				}
+
+				clearTimeout(this.ajax_list_timer);
+
+				this.started_ajax_list = true;
+
+				const action = this.ajax_list.shift();
+
+				eval(`${action};`);
+
+				if (!this.ajax_list.length) {
+					return;
+				}
+
+				// Re-trigger this ajaxRun function just in case it hangs somewhere
+				this.ajax_list_timer = setTimeout(
+					function() {
+						RegularLabsScripts.ajaxRun();
+					},
+					5000
+				);
+			},
+
+			in_array: function(needle, haystack, casesensitive) {
+				if ({}.toString.call(needle).slice(8, -1) !== 'Array') {
+					needle = [needle];
+				}
+				if ({}.toString.call(haystack).slice(8, -1) !== 'Array') {
+					haystack = [haystack];
+				}
+
+				for (let h = 0; h < haystack.length; h++) {
+					for (let n = 0; n < needle.length; n++) {
+						if (casesensitive) {
+							if (haystack[h] == needle[n]) {
+								return true;
+							}
+
+							continue;
+						}
+
 						if (haystack[h].toLowerCase() == needle[n].toLowerCase()) {
 							return true;
 						}
 					}
 				}
-			}
-			return false;
-		},
+				return false;
+			},
 
-		getObjectFromXML: function(xml) {
-			if (!xml) {
-				return;
-			}
+			getObjectFromXML: function(xml) {
+				if (!xml) {
+					return;
+				}
 
-			var obj = [];
-			$(xml).find('extension').each(function() {
-				var el = [];
-				$(this).children().each(function() {
-					el[this.nodeName.toLowerCase()] = String($(this).text()).trim();
+				const obj = [];
+				$(xml).find('extension').each(function() {
+					const el = [];
+					$(this).children().each(function() {
+						el[this.nodeName.toLowerCase()] = String($(this).text()).trim();
+					});
+					if (typeof el.alias !== 'undefined') {
+						obj[el.alias] = el;
+					}
+					if (typeof el.extname !== 'undefined' && el.extname != el.alias) {
+						obj[el.extname] = el;
+					}
 				});
-				if (typeof el.alias !== 'undefined') {
-					obj[el.alias] = el;
+
+				return obj;
+			},
+
+			compareVersions: function(number1, neumber2) {
+				number1  = number1.split('.');
+				neumber2 = neumber2.split('.');
+
+				let letter1 = '';
+				let letter2 = '';
+
+				const max = Math.max(number1.length, neumber2.length);
+				for (let i = 0; i < max; i++) {
+					if (typeof number1[i] === 'undefined') {
+						number1[i] = '0';
+					}
+					if (typeof neumber2[i] === 'undefined') {
+						neumber2[i] = '0';
+					}
+
+					letter1     = number1[i].replace(/^[0-9]*(.*)/, '$1');
+					number1[i]  = parseInt(number1[i]);
+					letter2     = neumber2[i].replace(/^[0-9]*(.*)/, '$1');
+					neumber2[i] = parseInt(neumber2[i]);
+
+					if (number1[i] < neumber2[i]) {
+						return '<';
+					}
+
+					if (number1[i] > neumber2[i]) {
+						return '>';
+					}
 				}
-				if (typeof el.extname !== 'undefined' && el.extname != el.alias) {
-					obj[el.extname] = el;
-				}
-			});
 
-			return obj;
-		},
-
-		compareVersions: function(num1, num2) {
-			num1 = num1.split('.');
-			num2 = num2.split('.');
-
-			var let1 = '';
-			var let2 = '';
-
-			var max = Math.max(num1.length, num2.length);
-			for (var i = 0; i < max; i++) {
-				if (typeof num1[i] === 'undefined') {
-					num1[i] = '0';
-				}
-				if (typeof num2[i] === 'undefined') {
-					num2[i] = '0';
+				// numbers are same, so compare trailing letters
+				if (letter2 && (!letter1 || letter1 > letter2)) {
+					return '>';
 				}
 
-				let1    = num1[i].replace(/^[0-9]*(.*)/, '$1');
-				num1[i] = parseInt(num1[i]);
-				let2    = num2[i].replace(/^[0-9]*(.*)/, '$1');
-				num2[i] = parseInt(num2[i]);
-
-				if (num1[i] < num2[i]) {
+				if (letter1 && (!letter2 || letter1 < letter2)) {
 					return '<';
 				}
 
-				if (num1[i] > num2[i]) {
-					return '>';
+				return '=';
+			},
+
+			getEditorSelection: function(editorID) {
+				const editor_textarea = document.getElementById(editorID);
+
+				if (!editor_textarea) {
+					return '';
 				}
-			}
 
-			// numbers are same, so compare trailing letters
-			if (let2 && (!let1 || let1 > let2)) {
-				return '>';
-			}
+				const editorIFrame = editor_textarea.parentNode.querySelector('iframe');
 
-			if (let1 && (!let2 || let1 < let2)) {
-				return '<';
-			}
+				if (!editorIFrame) {
+					return '';
+				}
 
-			return '=';
-		},
+				const contentWindow = editorIFrame.contentWindow;
 
-		getEditorSelection: function(editorname) {
-			var editor_textarea = document.getElementById(editorname);
+				if (typeof contentWindow.getSelection !== 'undefined') {
+					const sel = contentWindow.getSelection();
 
-			if (!editor_textarea) {
-				return '';
-			}
+					if (sel.rangeCount) {
+						const container = contentWindow.document.createElement('div');
+						const len       = sel.rangeCount;
 
-			var iframes = editor_textarea.parentNode.getElementsByTagName('iframe');
+						for (let i = 0; i < len; ++i) {
+							container.appendChild(sel.getRangeAt(i).cloneContents());
+						}
 
-			if (!iframes.length) {
-				return '';
-			}
-
-			var editor_frame  = iframes[0];
-			var contentWindow = editor_frame.contentWindow;
-
-			if (typeof contentWindow.getSelection !== 'undefined') {
-				var sel = contentWindow.getSelection();
-
-				if (sel.rangeCount) {
-					var container = contentWindow.document.createElement("div");
-					var len       = sel.rangeCount;
-					for (var i = 0; i < len; ++i) {
-						container.appendChild(sel.getRangeAt(i).cloneContents());
+						return container.innerHTML;
 					}
 
-					return container.innerHTML;
+					return '';
+				}
+
+				if (typeof contentWindow.document.selection !== 'undefined'
+					&& contentWindow.document.selection.type === 'Text') {
+					return contentWindow.document.selection.createRange().htmlText;
 				}
 
 				return '';
+			},
+
+			/* 2018-11-01: These methods have moved to RegularLabsForm. Keeping them here for backwards compatibility. */
+			setRadio                 : function(id, value) {
+			},
+			initCheckAlls            : function(id, classname) {
+			},
+			allChecked               : function(classname) {
+				return false;
+			},
+			checkAll                 : function(checkbox, classname) {
+			},
+			toggleSelectListSelection: function(id) {
+			},
+			prependTextarea          : function(id, content, separator) {
+			},
+			setToggleTitleClass      : function(input, value) {
 			}
-
-			if (typeof contentWindow.document.selection !== 'undefined') {
-				if (contentWindow.document.selection.type == "Text") {
-					return contentWindow.document.selection.createRange().htmlText;
-				}
-			}
-
-			return '';
-		},
-
-		/* 2018-11-01: These methods have moved to RegularLabsForm. Keeping them here for backwards compatibility. */
-		setRadio                 : function(id, value) {
-		},
-		initCheckAlls            : function(id, classname) {
-		},
-		allChecked               : function(classname) {
-			return false;
-		},
-		checkAll                 : function(checkbox, classname) {
-		},
-		toggleSelectListSelection: function(id) {
-		},
-		prependTextarea          : function(id, content, separator) {
-		},
-		setToggleTitleClass      : function(input, value) {
 		}
-	};
-})(jQuery);
+	})(jQuery);
+}

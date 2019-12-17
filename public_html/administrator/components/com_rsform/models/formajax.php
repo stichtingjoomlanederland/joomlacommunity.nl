@@ -15,15 +15,11 @@ class RsformModelFormajax extends JModelLegacy
 		return ($a->Ordering < $b->Ordering) ? -1 : 1;
 	}
 	
-	protected function getTooltip($name) {
-		static $lang;
-		if (!$lang) {
-			$lang = JFactory::getLanguage();
-		}
-		
+	protected function getTooltip($name)
+	{
 		$tooltip = '';
 		
-		if ($lang->hasKey('RSFP_COMP_FIELD_'.$name.'_DESC')) {
+		if (JFactory::getLanguage()->hasKey('RSFP_COMP_FIELD_'.$name.'_DESC')) {
 			$title = JText::_('RSFP_COMP_FIELD_'.$name);
 			$content = JText::_('RSFP_COMP_FIELD_'.$name.'_DESC');
 			$tooltip .= ' class="fieldHasTooltip" data-content="'. $content .'" data-title="' . $title . '"';

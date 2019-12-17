@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -13,10 +13,7 @@ defined('JPATH_PLATFORM') or die;
 
 use Joomla\CMS\HTML\HTMLHelper as JHtml;
 
-if ( ! class_exists('JFormFieldList'))
-{
-	require_once JPATH_LIBRARIES . '/joomla/form/fields/list.php';
-}
+JFormHelper::loadFieldClass('list');
 
 class JFormFieldRL_List extends JFormFieldList
 {

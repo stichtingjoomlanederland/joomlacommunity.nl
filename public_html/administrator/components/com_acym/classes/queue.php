@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -165,17 +165,19 @@ class acymqueueClass extends acymClass
             return false;
         }
 
+        $nbQueue = [];
+
         foreach ($mailReady as $mailid => $mail) {
-            $nbQueue = $this->queue($mailid, $mail->sending_date);
+            $nbQueue[$mailid] = $this->queue($mailid, $mail->sending_date);
             $this->messages[] = acym_translation_sprintf('ACYM_ADDED_QUEUE_SCHEDULE', $nbQueue, '<b>'.$mail->name.'</b>');
         }
 
         $mailIds = array_keys($mailReady);
         acym_arrayToInteger($mailIds);
-        $campaignsIDs = acym_loadResultArray('SELECT id FROM #__acym_campaign WHERE mail_id IN ('.implode(',', $mailIds).')');
+        $campaigns = acym_loadObjectList('SELECT id, mail_id FROM #__acym_campaign WHERE mail_id IN ('.implode(',', $mailIds).')');
         $campaignClass = acym_get('class.campaign');
-        foreach ($campaignsIDs as $campaignID) {
-            $campaignClass->send($campaignID, $nbQueue);
+        foreach ($campaigns as $campaign) {
+            $campaignClass->send($campaign->id, $nbQueue[$campaign->mail_id]);
         }
 
         return count($mailReady);
@@ -245,8 +247,7 @@ class acymqueueClass extends acymClass
             return [];
         }
 
-        $config = acym_config();
-        $order = $config->get('sendorder');
+        $order = $this->config->get('sendorder');
         if (empty($order)) {
             $order = 'queue.`user_id` ASC';
         } else {
@@ -264,7 +265,7 @@ class acymqueueClass extends acymClass
         $query .= ' LEFT JOIN #__acym_campaign AS campaign ON campaign.`mail_id` = mail.`id` ';
         $query .= ' WHERE queue.`sending_date` <= '.acym_escapeDB(acym_date('now', 'Y-m-d H:i:s', false)).' AND (campaign.mail_id IS NULL OR (campaign.`active` = 1 AND campaign.`draft` = 0 AND user.active = 1))';
 
-        if ($config->get('require_confirmation', 1) == 1) {
+        if ($this->config->get('require_confirmation', 1) == 1) {
             $query .= ' AND (user.confirmed = 1 OR mail.type = "notification")';
         }
 
@@ -342,9 +343,7 @@ class acymqueueClass extends acymClass
 
     private function queue($mailId, $sending_date)
     {
-        $config = acym_config();
-        $priority = $config->get('priority_newsletter', 3);
-
+        $priority = $this->config->get('priority_newsletter', 3);
 
         return acym_query(
             'INSERT IGNORE INTO #__acym_queue 
@@ -357,10 +356,9 @@ class acymqueueClass extends acymClass
 
     public function addQueue($userId, $mailId, $sendingDate)
     {
-        $config = acym_config();
-        $priority = $config->get('priority_newsletter', 3);
+        $priority = $this->config->get('priority_newsletter', 3);
 
-        return acym_query('INSERT IGNORE INTO #__acym_queue VALUES ('.intval($mailId).', '.intval($userId).', '.intval($sendingDate).', '.intval($priority).')');
+        return acym_query('INSERT IGNORE INTO #__acym_queue VALUES ('.intval($mailId).', '.intval($userId).', '.acym_escapeDB($sendingDate).', '.intval($priority).', 0)');
     }
 
     public function unpauseCampaign($campaignId, $active)

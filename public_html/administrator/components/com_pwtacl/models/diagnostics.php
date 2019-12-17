@@ -49,7 +49,7 @@ class PwtaclModelDiagnostics extends ListModel
 	/**
 	 * Constructor
 	 *
-	 * @param   array $config Optional parameters.
+	 * @param   array  $config  Optional parameters.
 	 *
 	 * @since   3.0
 	 */
@@ -88,7 +88,7 @@ class PwtaclModelDiagnostics extends ListModel
 	/**
 	 * Performs a quick scan to check for Asset Issues.
 	 *
-	 * @param   boolean $force Force quickscan without cache
+	 * @param   boolean  $force  Force quickscan without cache
 	 *
 	 * @return  boolean
 	 * @since   3.0
@@ -97,10 +97,11 @@ class PwtaclModelDiagnostics extends ListModel
 	public function getQuickScan($force = false)
 	{
 		// Get variables needed
-		$params = ComponentHelper::getParams('com_pwtacl');
-		$now    = time();
-		$last   = (int) $params->get('diagnosticslastrun', 0);
-		$issues = $params->get('diagnosticsissues', false);
+		$params       = ComponentHelper::getParams('com_pwtacl');
+		$now          = time();
+		$last         = (int) $params->get('diagnosticslastrun', 0);
+		$issues       = $params->get('diagnosticsissues', false);
+		$backendCheck = $params->get('diagnostics_backendcheck', 1);
 
 		// Run quickscan only if last quickscan was over 6 hours ago
 		if (!$force && abs($now - $last) < 21600)
@@ -244,7 +245,7 @@ class PwtaclModelDiagnostics extends ListModel
 		}
 
 		// Fix admin access conflict
-		if (!$issues)
+		if (!$issues && $backendCheck)
 		{
 			$issues = $this->fixAdminConflicts(
 				false
@@ -279,7 +280,7 @@ class PwtaclModelDiagnostics extends ListModel
 	/**
 	 * Run the diagnostics tool to check the #__assets table
 	 *
-	 * @param   integer $step Step to run
+	 * @param   integer  $step  Step to run
 	 *
 	 * @return  array Asset changes
 	 * @since   3.0
@@ -287,6 +288,10 @@ class PwtaclModelDiagnostics extends ListModel
 	 */
 	public function runDiagnostics($step, $cli = false)
 	{
+		// Get variables needed
+		$params       = ComponentHelper::getParams('com_pwtacl');
+		$backendCheck = $params->get('diagnostics_backendcheck', 1);
+
 		// Log changes made
 		if ($step == 1)
 		{
@@ -427,10 +432,13 @@ class PwtaclModelDiagnostics extends ListModel
 				break;
 
 			case 13:
-				// Fix admin access conflict
-				$this->fixAdminConflicts(
-					true
-				);
+				if ($backendCheck)
+				{
+					// Fix admin access conflict
+					$this->fixAdminConflicts(
+						true
+					);
+				}
 				break;
 
 			case 14:
@@ -480,7 +488,7 @@ class PwtaclModelDiagnostics extends ListModel
 	/**
 	 * Method to cleanup the assets table.
 	 *
-	 * @param   boolean $fix Fix issues
+	 * @param   boolean  $fix  Fix issues
 	 *
 	 * @return  integer
 	 * @since   3.0
@@ -509,7 +517,7 @@ class PwtaclModelDiagnostics extends ListModel
 	/**
 	 * Method to check for legacy issues and fix them.
 	 *
-	 * @param   boolean $fix Fix issues
+	 * @param   boolean  $fix  Fix issues
 	 *
 	 * @return  integer
 	 * @since   3.0
@@ -607,7 +615,7 @@ class PwtaclModelDiagnostics extends ListModel
 	/**
 	 * Method to check the root asset.
 	 *
-	 * @param   boolean $fix Fix issues
+	 * @param   boolean  $fix  Fix issues
 	 *
 	 * @return  integer
 	 * @since   3.0
@@ -675,7 +683,7 @@ class PwtaclModelDiagnostics extends ListModel
 	/**
 	 * Method to add, remove and check components.
 	 *
-	 * @param   boolean $fix Fix issues
+	 * @param   boolean  $fix  Fix issues
 	 *
 	 * @return  integer
 	 * @since   3.0
@@ -713,11 +721,11 @@ class PwtaclModelDiagnostics extends ListModel
 	/**
 	 * Method to add, remove and check assets.
 	 *
-	 * @param   boolean $fix        Fix issues
-	 * @param   string  $table      Name of the table.
-	 * @param   string  $extension  Name of the extension.
-	 * @param   string  $view       Name of the view.
-	 * @param   string  $parentjoin Parent join value.
+	 * @param   boolean  $fix         Fix issues
+	 * @param   string   $table       Name of the table.
+	 * @param   string   $extension   Name of the extension.
+	 * @param   string   $view        Name of the view.
+	 * @param   string   $parentjoin  Parent join value.
 	 *
 	 * @return  integer
 	 * @since   3.0
@@ -781,7 +789,7 @@ class PwtaclModelDiagnostics extends ListModel
 	/**
 	 * Delete assets from the #__assets table and log removals.
 	 *
-	 * @param   array $assets Array with the assets to remove.
+	 * @param   array  $assets  Array with the assets to remove.
 	 *
 	 * @return  void
 	 * @since   3.0
@@ -825,7 +833,7 @@ class PwtaclModelDiagnostics extends ListModel
 	/**
 	 * Add assets to the #__assets table and log additions.
 	 *
-	 * @param   array $assets Array with the assets to add.
+	 * @param   array  $assets  Array with the assets to add.
 	 *
 	 * @return  void
 	 * @since   3.0
@@ -854,8 +862,8 @@ class PwtaclModelDiagnostics extends ListModel
 	/**
 	 * Fixes the objects and log the changes.
 	 *
-	 * @param   string $table   The name of the table.
-	 * @param   array  $objects Array with the objects to fix.
+	 * @param   string  $table    The name of the table.
+	 * @param   array   $objects  Array with the objects to fix.
 	 *
 	 * @return  void
 	 * @since   3.0
@@ -938,9 +946,9 @@ class PwtaclModelDiagnostics extends ListModel
 	/**
 	 * Records which are present in the #__assets table, but not in the related table.
 	 *
-	 * @param   string $table     Name of the table.
-	 * @param   string $extension Name of the extension.
-	 * @param   string $view      Name of the view.
+	 * @param   string  $table      Name of the table.
+	 * @param   string  $extension  Name of the extension.
+	 * @param   string  $view       Name of the view.
 	 *
 	 * @return  array
 	 * @since   3.0
@@ -1064,10 +1072,10 @@ class PwtaclModelDiagnostics extends ListModel
 	/**
 	 * Records which are present in the related table, but not in the #__assets table.
 	 *
-	 * @param   string $table      Name of the table.
-	 * @param   string $extension  Name of the extension.
-	 * @param   string $view       Name of the view.
-	 * @param   string $parentjoin Parent join value.
+	 * @param   string  $table       Name of the table.
+	 * @param   string  $extension   Name of the extension.
+	 * @param   string  $view        Name of the view.
+	 * @param   string  $parentjoin  Parent join value.
 	 *
 	 * @return  array
 	 * @since   3.0
@@ -1163,9 +1171,9 @@ class PwtaclModelDiagnostics extends ListModel
 	/**
 	 * Records in the related table and #__assets, but with an incorrect asset_id.
 	 *
-	 * @param   string $table     Name of the table.
-	 * @param   string $extension Name of the extension.
-	 * @param   string $view      Name of the view.
+	 * @param   string  $table      Name of the table.
+	 * @param   string  $extension  Name of the extension.
+	 * @param   string  $view       Name of the view.
 	 *
 	 * @return  array
 	 * @since   3.0
@@ -1253,7 +1261,7 @@ class PwtaclModelDiagnostics extends ListModel
 	/**
 	 * Gets the incorrect root.1 asset with the corrected values.
 	 *
-	 * @param   integer $id The ID of the root.1 asset.
+	 * @param   integer  $id  The ID of the root.1 asset.
 	 *
 	 * @return  array
 	 * @since   3.0
@@ -1347,10 +1355,10 @@ class PwtaclModelDiagnostics extends ListModel
 	/**
 	 * Gets the incorrect assets with the corrected values.
 	 *
-	 * @param   string $table      Name of the table.
-	 * @param   string $extensions Name of the extension.
-	 * @param   string $view       Name of the view.
-	 * @param   string $parentjoin Parent join value.
+	 * @param   string  $table       Name of the table.
+	 * @param   string  $extensions  Name of the extension.
+	 * @param   string  $view        Name of the view.
+	 * @param   string  $parentjoin  Parent join value.
 	 *
 	 * @return  array
 	 * @since   3.0
@@ -1467,9 +1475,9 @@ class PwtaclModelDiagnostics extends ListModel
 	/**
 	 * Gets a comma seperated list or query of available components.
 	 *
-	 * @param   boolean $returnquery Should we return the query or the list.
-	 * @param   string  $table       Name of the table.
-	 * @param   string  $view        Name of the view.
+	 * @param   boolean  $returnquery  Should we return the query or the list.
+	 * @param   string   $table        Name of the table.
+	 * @param   string   $view         Name of the view.
 	 *
 	 * @return  string
 	 * @since   3.0
@@ -1530,7 +1538,7 @@ class PwtaclModelDiagnostics extends ListModel
 	/**
 	 * Fix admin access conflicts, groups with backend access but not part of the backend viewlevel.
 	 *
-	 * @param   boolean $fix Fix issues
+	 * @param   boolean  $fix  Fix issues
 	 *
 	 * @return  integer
 	 * @since   3.0
@@ -1546,7 +1554,8 @@ class PwtaclModelDiagnostics extends ListModel
 			->select('access')
 			->from($db->quoteName('#__modules'))
 			->where($db->quoteName('module') . ' = ' . $db->quote('mod_menu'))
-			->where($db->quoteName('client_id') . ' = 1');
+			->where($db->quoteName('client_id') . ' = 1')
+			->where($db->quoteName('published') . ' = 1');
 
 		try
 		{
@@ -1555,6 +1564,12 @@ class PwtaclModelDiagnostics extends ListModel
 		catch (RuntimeException $e)
 		{
 			throw new Exception($e->getMessage(), 500, $e);
+		}
+
+		// The site has a custom backend setup if no menu-items are published. So nothing to fix.
+		if (!$backendAccessLevels)
+		{
+			return 0;
 		}
 
 		// Get rules for backend access level
@@ -1687,10 +1702,10 @@ class PwtaclModelDiagnostics extends ListModel
 	/**
 	 * Log all changes made by the diagnostics tool.
 	 *
-	 * @param   string $action  Action made.
-	 * @param   string $type    Logging type.
-	 * @param   object $object  The object.
-	 * @param   array  $changes The changes made.
+	 * @param   string  $action   Action made.
+	 * @param   string  $type     Logging type.
+	 * @param   object  $object   The object.
+	 * @param   array   $changes  The changes made.
 	 *
 	 * @return  void
 	 * @since   3.0
@@ -1833,7 +1848,21 @@ class PwtaclModelDiagnostics extends ListModel
 			'access'    => 1
 		);
 
-		$this->getDbo()->insertObject('#__categories', $root);
+		// Do we need to update or insert?
+		$query = $db->getQuery(true);
+		$query
+			->select('id')
+			->from($db->quoteName('#__categories'))
+			->where($db->quoteName('id') . ' = 1');
+
+		try
+		{
+			$this->getDbo()->updateObject('#__categories', $root, 'id');
+		}
+		catch (Exception $e)
+		{
+			$this->getDbo()->insertObject('#__categories', $root);
+		}
 
 		return;
 	}
@@ -1984,7 +2013,7 @@ class PwtaclModelDiagnostics extends ListModel
 	/**
 	 * Store PWT ACL Params
 	 *
-	 * @param   Registry $params Extension params.
+	 * @param   Registry  $params  Extension params.
 	 *
 	 * @return   void
 	 * @since    3.2

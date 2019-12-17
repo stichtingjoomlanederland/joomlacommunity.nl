@@ -64,7 +64,7 @@ class PwtaclViewWizard extends HtmlView
 	/**
 	 * Display the view
 	 *
-	 * @param   string $tpl Template
+	 * @param   string  $tpl  Template
 	 *
 	 * @return  mixed
 	 * @since   3.0
@@ -122,7 +122,7 @@ class PwtaclViewWizard extends HtmlView
 	protected function addToolbar()
 	{
 		// Title
-		JToolBarHelper::title( Text::_('COM_PWTACL_SUBMENU_WIZARD'), 'pwtacl.png');
+		JToolBarHelper::title(Text::_('COM_PWTACL_SUBMENU_WIZARD'), 'pwtacl.png');
 
 		// Buttons
 		if (Factory::getUser()->authorise('core.admin', 'com_pwtacl'))

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -11,36 +11,29 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <?php
 
-class acymimportHelper
+class acymimportHelper extends acymObject
 {
     var $importUserInLists = [];
     var $totalInserted = 0;
     var $totalTry = 0;
     var $totalValid = 0;
     var $allSubid = [];
-    var $db;
-    var $dispatcher;
     var $forceconfirm = false;
-    var $charsetConvert;
     var $generatename = true;
     var $overwrite = false;
     var $importblocked = false;
     var $removeSep = 0;
     var $dispresults = true;
 
-    var $tablename = '';
-    var $equFields = [];
-    var $dbwhere = []; //handle where on import via filter to only import new users for example
+    var $dbwhere = [];
 
     var $subscribedUsers = [];
 
 
     public function __construct()
     {
+        parent::__construct();
         acym_increasePerf();
-
-        global $acymCmsUserVars;
-        $this->cmsUserVars = $acymCmsUserVars;
     }
 
 
@@ -55,10 +48,9 @@ class acymimportHelper
         }
 
         $extension = strtolower(acym_fileGetExt($importFile['name']));
-        $config = acym_config();
 
         if (!preg_match('#^(csv)$#Ui', $extension) || preg_match('#\.(php.?|.?htm.?|pl|py|jsp|asp|sh|cgi)$#Ui', $importFile['name'])) {
-            acym_enqueueMessage(acym_translation_sprintf('ACCEPTED_TYPE', acym_escape($extension), $config->get('allowed_files')), 'error');
+            acym_enqueueMessage(acym_translation_sprintf('ACCEPTED_TYPE', acym_escape($extension), $this->config->get('allowed_files')), 'error');
 
             return false;
         }

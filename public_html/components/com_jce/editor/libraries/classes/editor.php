@@ -291,8 +291,8 @@ class WFEditor
             $settings['width'] = $wf->getParam('editor.width');
             $settings['height'] = $wf->getParam('editor.height');
 
-            // assign skin
-            $settings['skin'] = $wf->getParam('editor.toolbar_theme', 'modern', 'modern');
+            // assign skin - new default is "modern"
+            $settings['skin'] = $wf->getParam('editor.toolbar_theme', 'default');
 
             $this->assignEditorSkin($settings);
 
@@ -331,7 +331,9 @@ class WFEditor
                 $settings['invalid_elements'] = array_values($settings['invalid_elements']);
             }
 
-        } // end profile
+        } else {
+            $settings['readonly'] = true;
+        }
 
         // get compression options stylesheet
         $settings['compress'] = $this->getCompressionOptions();
@@ -404,7 +406,7 @@ class WFEditor
         $wf = WFApplication::getInstance();
 
         // encode as json string
-        $tinymce = json_encode($settings, JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        $tinymce = json_encode($settings, JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES);
 
         $this->addScriptDeclaration('try{WFEditor.init(' . $tinymce . ');}catch(e){console.debug(e);}');
 
@@ -647,6 +649,16 @@ class WFEditor
                 }
             }
         }
+    }
+
+    /**
+     * Determine whether the editor has a profile assigned
+     *
+     * @return boolean
+     */
+    public function hasProfile()
+    {
+        return is_object($this->profile);
     }
 
     /**

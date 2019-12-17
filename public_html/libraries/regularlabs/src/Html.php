@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -71,23 +71,31 @@ class Html
 		// Force string to UTF-8
 		$html = StringHelper::convertToUtf8($html);
 
-		$html_split = explode('<body', $html, 2);
-		$pre        = $html_split[0];
-		$body       = '<body' . $html_split[1];
-		$body_split = explode('</body>', $body);
-		$post       = array_pop($body_split);
-		$body       = implode('</body>', $body_split) . '</body>';
+		$split = explode('<body', $html, 2);
+		$pre   = $split[0];
+
+		$split      = explode('>', $split[1], 2);
+		$body_start = '<body' . $split[0] . '>';
+		$body_end   = '</body>';
+
+		$split = explode('</body>', $split[1]);
+		$post  = array_pop($split);
+		$body  = implode('</body>', $split);
 
 		if ( ! $include_body_tag)
 		{
-			RegEx::match('^(<body[^>]*>\s*)(.*?)(\s*</body>)$', $body, $match);
-
-			$pre  = $pre . $match[1];
-			$body = $match[2];
-			$post = $match[3] . $post;
+			return [
+				$pre . $body_start,
+				$body,
+				$body_end . $post,
+			];
 		}
 
-		return [$pre, $body, $post];
+		return [
+			$pre,
+			$body_start . $body . $body_end,
+			$post,
+		];
 	}
 
 	/**

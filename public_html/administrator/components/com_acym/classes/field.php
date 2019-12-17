@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -118,8 +118,7 @@ class acymfieldClass extends acymClass
         if (!empty($_FILES['customField'])) {
             $uploadFolder = trim(acym_cleanPath(html_entity_decode(acym_getFilesFolder())), DS.' ').DS;
             $uploadPath = acym_cleanPath(ACYM_ROOT.$uploadFolder.'userfiles'.DS);
-            $config = acym_config();
-            $allowedExtensions = explode(',', $config->get('allowed_files'));
+            $allowedExtensions = explode(',', $this->config->get('allowed_files'));
 
             foreach ($_FILES['customField']['tmp_name'] as $key => $value) {
                 if (is_array($value) && isset($value[0])) $value = $value[0];
@@ -331,7 +330,7 @@ class acymfieldClass extends acymClass
         if ($field->type == 'text') $value = ' value="'.acym_escape($defaultValue).'"';
 
 
-        if ($field->type == 'date' || ($displayOutside && (in_array($field->id, [1, 2]) || in_array($field->type, ['text', 'textarea', 'single_dropdown', 'multiple_dropdown', 'custom_text'])))) {
+        if (($displayOutside && (in_array($field->id, [1, 2]) || in_array($field->type, ['text', 'textarea', 'single_dropdown', 'multiple_dropdown', 'custom_text'])))) {
             $return .= '<label '.$displayIf.' class="cell margin-top-1"><div class="acym__users__creation__fields__title">'.$field->name.'</div>';
         }
 
@@ -419,17 +418,18 @@ class acymfieldClass extends acymClass
         } elseif ($field->type == 'phone') {
             $defaultValue = !empty($defaultValue) ? explode(',', $defaultValue) : '';
 
-            if ($displayOutside) $return .= '<label '.$displayIf.' class="cell margin-top-1 grid-x grid-margin-x"><div class="acym__users__creation__fields__title cell">'.$field->name.'</div>';
+            if ($displayOutside) $return .= '<div '.$displayIf.' class="cell margin-top-1 grid-x grid-margin-x"><div class="acym__users__creation__fields__title cell">'.$field->name.'</div>';
             $return .= '<div class="medium-3">';
             $return .= acym_generateCountryNumber($name.'[code]', empty($defaultValue) ? '' : $defaultValue[0]);
             $return .= '</div>';
             $return .= '<input '.$placeholder.$required.$style.' class="medium-9 cell" type="tel" name="'.$name.'[phone]" value="'.acym_escape(empty($defaultValue) ? '' : $defaultValue[1]).'">';
+            if ($displayOutside) $return .= '</div>';
         } elseif ($field->type == 'custom_text') {
             $return .= $field->option->custom_text;
         }
 
 
-        if ($field->type == 'date' || ($displayOutside && (in_array($field->id, [1, 2]) || in_array($field->type, ['text', 'textarea', 'single_dropdown', 'multiple_dropdown', 'phone', 'custom_text'])))) {
+        if (($displayOutside && (in_array($field->id, [1, 2]) || in_array($field->type, ['text', 'textarea', 'single_dropdown', 'multiple_dropdown', 'phone', 'custom_text'])))) {
             $return .= '</label>';
         }
 

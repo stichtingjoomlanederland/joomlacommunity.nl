@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -100,10 +100,9 @@ class LanguageController extends acymController
             return;
         }
 
-        $config = acym_config();
         $mailer = acym_get('helper.mailer');
         $mailer->Subject = '[ACYMAILING LANGUAGE FILE] '.$code;
-        $mailer->Body = 'The website '.ACYM_LIVE.' using AcyMailing '.$config->get('level').' '.$config->get('version').' sent a language file : '.$code;
+        $mailer->Body = 'The website '.ACYM_LIVE.' using AcyMailing '.$this->config->get('level').' '.$this->config->get('version').' sent a language file : '.$code;
         $mailer->Body .= "\n\n\n".$bodyEmail;
 
         $file = acym_getLanguagePath(ACYM_ROOT, $code).DS.$code.'.com_acym.ini';

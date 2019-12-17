@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -59,8 +59,7 @@ defined('_JEXEC') or die('Restricted access');
 				<div class="grid-x">
 					<div class="auto cell">
                         <?php
-                        $config = acym_config();
-                        $sendingText = $config->get('cron_last', 0) < (time() - 43200) ? 'ACYM_QUEUE_READY' : 'ACYM_SENDING';
+                        $sendingText = $this->config->get('cron_last', 0) < (time() - 43200) ? 'ACYM_QUEUE_READY' : 'ACYM_SENDING';
 
                         $options = [
                             '' => ['ACYM_ALL', $data["numberPerStatus"]["all"]],
@@ -131,7 +130,7 @@ defined('_JEXEC') or die('Restricted access');
                                         $text = acym_translation('ACYM_SCHEDULED');
                                         $class = 'acym_status_scheduled';
                                     } else {
-                                        if ($config->get('cron_last', 0) < (time() - 43200)) {
+                                        if ($this->config->get('cron_last', 0) < (time() - 43200)) {
                                             $text = acym_translation('ACYM_QUEUE_READY');
                                             $class = 'acym_status_ready';
                                         } else {

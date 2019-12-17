@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -317,11 +317,10 @@ class acymuserClass extends acymClass
             $addLists = [$addLists];
         }
 
-        $config = acym_config();
         $listClass = acym_get('class.list');
         $historyClass = acym_get('class.history');
 
-        $confirmationRequired = $config->get('require_confirmation', 1);
+        $confirmationRequired = $this->config->get('require_confirmation', 1);
         $subscribedToLists = false;
         $historyData = acym_translation_sprintf('ACYM_LISTS_NUMBERS', implode(', ', $addLists));
 
@@ -475,12 +474,10 @@ class acymuserClass extends acymClass
             }
         }
 
-        $config = acym_config();
-
         if (empty($user->id)) {
             $currentUserid = acym_currentUserId();
             $currentEmail = acym_currentUserEmail();
-            if ($this->checkVisitor && !acym_isAdmin() && intval($config->get('allow_visitor', 1)) != 1 && (empty($currentUserid) || strtolower($currentEmail) != $user->email)) {
+            if ($this->checkVisitor && !acym_isAdmin() && intval($this->config->get('allow_visitor', 1)) != 1 && (empty($currentUserid) || strtolower($currentEmail) != $user->email)) {
                 $this->errors[] = acym_translation('ACYM_ONLY_LOGGED');
 
                 return false;
@@ -488,7 +485,7 @@ class acymuserClass extends acymClass
         }
 
         if (empty($user->id)) {
-            if (empty($user->name) && $config->get('generate_name', 1)) {
+            if (empty($user->name) && $this->config->get('generate_name', 1)) {
                 $user->name = ucwords(trim(str_replace(['.', '_', ')', ',', '(', '-', 1, 2, 3, 4, 5, 6, 7, 8, 9, 0], ' ', substr($user->email, 0, strpos($user->email, '@')))));
             }
 
@@ -558,9 +555,8 @@ class acymuserClass extends acymClass
 
     public function saveForm()
     {
-        $config = acym_config();
-        $allowUserModifications = (bool)($config->get('allow_modif', 'data') == 'all') || $this->allowModif;
-        $allowSubscriptionModifications = (bool)($config->get('allow_modif', 'data') != 'none') || $this->allowModif;
+        $allowUserModifications = (bool)($this->config->get('allow_modif', 'data') == 'all') || $this->allowModif;
+        $allowSubscriptionModifications = (bool)($this->config->get('allow_modif', 'data') != 'none') || $this->allowModif;
 
         $user = new stdClass();
         $user->id = acym_getCID('id');
@@ -678,8 +674,7 @@ class acymuserClass extends acymClass
     {
         if (!$this->forceConf && !$this->sendConf) return true;
 
-        $config = acym_config();
-        if ($config->get('require_confirmation', 1) != 1 || acym_isAdmin()) return false;
+        if ($this->config->get('require_confirmation', 1) != 1 || acym_isAdmin()) return false;
 
         $myuser = $this->getOneById($userID);
 
@@ -689,7 +684,7 @@ class acymuserClass extends acymClass
 
         $mailerHelper->checkConfirmField = false;
         $mailerHelper->checkEnabled = false;
-        $mailerHelper->report = $config->get('confirm_message', 0);
+        $mailerHelper->report = $this->config->get('confirm_message', 0);
 
         $alias = 'acy_confirm';
 
@@ -791,9 +786,7 @@ class acymuserClass extends acymClass
         $source = acym_getVar('cmd', 'acy_source', '');
         if (empty($source)) acym_setVar('acy_source', ACYM_CMS);
 
-        $config = acym_config();
-
-        if (!$config->get('regacy', 0)) return;
+        if (!$this->config->get('regacy', 0)) return;
 
         $this->checkVisitor = false;
         $this->sendConf = false;
@@ -802,7 +795,7 @@ class acymuserClass extends acymClass
         $cmsUser->email = trim(strip_tags($user['email']));
         if (!acym_isValidEmail($cmsUser->email)) return;
         if (!empty($user['name'])) $cmsUser->name = trim(strip_tags($user['name']));
-        if (!$config->get('regacy_forceconf', 0)) $cmsUser->confirmed = 1;
+        if (!$this->config->get('regacy_forceconf', 0)) $cmsUser->confirmed = 1;
         $cmsUser->active = 1 - intval($user['block']);
         $cmsUser->cms_id = $user['id'];
 
@@ -835,7 +828,7 @@ class acymuserClass extends acymClass
 
         $currentSubscription = $this->getSubscriptionStatus($id);
 
-        $autoLists = $isnew ? $config->get('regacy_autolists') : '';
+        $autoLists = $isnew ? $this->config->get('regacy_autolists') : '';
         $autoLists = explode(',', $autoLists);
         acym_arrayToInteger($autoLists);
 
@@ -872,7 +865,7 @@ class acymuserClass extends acymClass
         if (!empty($listsToSubscribe)) $this->subscribe($id, $listsToSubscribe);
 
         $acymailingUser = $this->getOneById($id);
-        if (!$config->get('regacy_forceconf', 0) || !empty($user['block']) || !empty($acymailingUser->confirmed)) return;
+        if (!$this->config->get('regacy_forceconf', 0) || !empty($user['block']) || !empty($acymailingUser->confirmed)) return;
 
 
         if ($isnew || !empty($oldUser['block'])) {
@@ -887,8 +880,7 @@ class acymuserClass extends acymClass
 
         if (empty($acyUser)) return;
 
-        $config = acym_config();
-        if ($config->get('regacy', '0') == 1 && $config->get('regacy_delete', '0') == 1) {
+        if ($this->config->get('regacy', '0') == 1 && $this->config->get('regacy_delete', '0') == 1) {
             $this->delete($acyUser->id);
         } else {
             acym_query('UPDATE #__acym_user SET `cms_id` = 0 WHERE `id` = '.intval($acyUser->id));

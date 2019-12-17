@@ -3,19 +3,23 @@
  * @package    Pwtsitemap
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2018 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Form\Form;
+use Joomla\CMS\MVC\Model\AdminModel;
+use Joomla\CMS\Table\Table;
+
 /**
  * PWT Sitemap Item model
  *
  * @since   1.0.0
  */
-class PwtSitemapModelItem extends JModelAdmin
+class PwtSitemapModelItem extends AdminModel
 {
 	/**
 	 * The type alias for this content type.
@@ -25,16 +29,19 @@ class PwtSitemapModelItem extends JModelAdmin
 	 */
 	public $typeAlias = 'com_pwtsitemap.item';
 
+	
 	/**
 	 * Allowed batch commands
 	 *
 	 * @var    array
 	 * @since  1.0.0
 	 */
-	protected $batch_commands = array(
-		'addtohtmlsitemap' => 'batchAddToHtmlSitemap',
-		'addtoxmlsitemap' => 'batchAddToXmlSitemap'
-	);
+	protected $batch_commands = [
+		'addtohtmlsitemap'     => 'batchAddToHtmlSitemap',
+		'addtoxmlsitemap'      => 'batchAddToXmlSitemap',
+		'changemenuitemrobots' => 'batchChangeMenuItemRobots'
+	];
+	
 
 	/**
 	 * Getting the form from the model.
@@ -42,11 +49,13 @@ class PwtSitemapModelItem extends JModelAdmin
 	 * @param   array    $data      Data for the form.
 	 * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
 	 *
-	 * @return  JForm|boolean  A JForm object on success, false on failure
+	 * @return  Form|boolean  A JForm object on success, false on failure
 	 *
-	 * @since   12.2
+	 * @since   1.0.0
+	 *
+	 * @throws  Exception
 	 */
-	public function getForm($data = array(), $loadData = true)
+	public function getForm($data = [], $loadData = true)
 	{
 		// Empty because the model is currently only used for batch operations
 
@@ -60,17 +69,17 @@ class PwtSitemapModelItem extends JModelAdmin
 	 * @param   string  $prefix   The class prefix. Optional.
 	 * @param   array   $options  Configuration array for model. Optional.
 	 *
-	 * @return  JTable  A JTable object
+	 * @return  Table   A JTable object
 	 *
 	 * @since   1.0.0
+	 *
 	 * @throws  Exception
 	 */
-	public function getTable($name = '', $prefix = 'Table', $options = array())
+	public function getTable($name = '', $prefix = 'Table', $options = [])
 	{
-		// Return the MenusTable because the batch functions expect us to use a table
-		JLoader::register('MenusTableMenu', JPATH_ADMINISTRATOR . '/components/com_menus/tables/menu.php');
+		Table::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_menus/tables');
 
-		return parent::getTable('Menu', 'MenusTable', $options);
+		return Table::getInstance('Menu', 'MenusTable', $options);
 	}
 
 	/**
@@ -80,14 +89,14 @@ class PwtSitemapModelItem extends JModelAdmin
 	 * @param   array    $pks       An array of row IDs.
 	 * @param   array    $contexts  An array of item contexts.
 	 *
-	 * @return  bool  True on success, boolean false on failure.
+	 * @return  boolean  True on success, boolean false on failure.
 	 *
 	 * @since   1.0.0
 	 */
 	public function batchAddToHtmlSitemap($value, $pks, $contexts)
 	{
 		// Use strings because 0 will be seen as empty with as result a failing batch operation
-		if ($value == 'yes')
+		if ($value === 'yes')
 		{
 			$value = 1;
 		}
@@ -98,7 +107,7 @@ class PwtSitemapModelItem extends JModelAdmin
 
 		foreach ($pks as $id)
 		{
-			PwtSitemapHelper::SaveMenuItemParameter($id, "addtohtmlsitemap", $value);
+			PwtSitemapHelper::saveMenuItemParameter($id, 'addtohtmlsitemap', $value);
 		}
 
 		return true;
@@ -111,14 +120,14 @@ class PwtSitemapModelItem extends JModelAdmin
 	 * @param   array    $pks       An array of row IDs.
 	 * @param   array    $contexts  An array of item contexts.
 	 *
-	 * @return  bool  True on success, boolean false on failure.
+	 * @return  boolean  True on success, boolean false on failure.
 	 *
 	 * @since   1.0.0
 	 */
 	public function batchAddToXmlSitemap($value, $pks, $contexts)
 	{
 		// Use strings because 0 will be seen as empty with as result a failing batch operation
-		if ($value == 'yes')
+		if ($value === 'yes')
 		{
 			$value = 1;
 		}
@@ -129,7 +138,28 @@ class PwtSitemapModelItem extends JModelAdmin
 
 		foreach ($pks as $id)
 		{
-			PwtSitemapHelper::SaveMenuItemParameter($id, "addtoxmlsitemap", $value);
+			PwtSitemapHelper::saveMenuItemParameter($id, 'addtoxmlsitemap', $value);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Batch to change the `ChangeMenuItemRobots` parameter
+	 *
+	 * @param   integer  $value     The new parameter value
+	 * @param   array    $pks       An array of row IDs.
+	 * @param   array    $contexts  An array of item contexts.
+	 *
+	 * @return  boolean  True on success, boolean false on failure.
+	 *
+	 * @since   1.0.0
+	 */
+	public function batchChangeMenuItemRobots($value, $pks, $contexts)
+	{
+		foreach ($pks as $id)
+		{
+			PwtSitemapHelper::saveMenuItemRobots($id, $value);
 		}
 
 		return true;
