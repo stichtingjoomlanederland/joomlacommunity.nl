@@ -2288,6 +2288,7 @@ select[multiple].input-lg {
   line-height: 1.7;
   border-radius: 4px;
   -webkit-user-select: none;
+  -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
@@ -6240,6 +6241,16 @@ ol.linenums li {
     color: #060;
   }
 }
+.module--with-acyform .acym_module_form {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+}
+.module--with-acyform .acysubbuttons {
+  -ms-flex: 1 1 100%;
+      flex: 1 1 100%;
+}
 .leaderboard-container {
   display: block;
   overflow: hidden;
@@ -9674,6 +9685,7 @@ textarea.invalid {
 }
 .bedrijvengids__filter .panel-filter .list-group-item {
   -webkit-user-select: none;
+     -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
   font-weight: normal;
