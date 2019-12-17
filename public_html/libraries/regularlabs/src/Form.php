@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -123,8 +123,13 @@ class Form
 				{
 					continue;
 				}
-				$repeat       = ($option->level - $first_level > 0) ? $option->level - $first_level : 0;
-				$option->text = str_repeat(' - ', $repeat) . $option->text;
+				$repeat = ($option->level - $first_level > 0) ? $option->level - $first_level : 0;
+				if ( ! $repeat)
+				{
+					continue;
+				}
+				//$option->text = str_repeat(' - ', $repeat) . $option->text;
+				$option->text = '[[:padding-left: ' . (5 + ($repeat * 15)) . 'px;:]]' . $option->text;
 			}
 		}
 
@@ -472,6 +477,11 @@ class Form
 		// Doing following replacement in 3 steps to prevent the Regular Expressions engine from exploding
 
 		// Replace style tags right after the html tags
+		$string = RegEx::replace(
+			';?:\]\]\s*\[\[:',
+			';',
+			$string
+		);
 		$string = RegEx::replace(
 			'>\s*\[\[\:(.*?)\:\]\]',
 			' style="\1">',

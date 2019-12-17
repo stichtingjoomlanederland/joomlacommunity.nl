@@ -11,7 +11,7 @@ defined('JPATH_PLATFORM') or die;
 
 ?>
 
-<div class="uk-form-row uk-grid uk-grid-small">
+<div class="uk-grid uk-grid-small">
     <div class="uk-width-4-5 uk-flex-item-auto">
         <div class="uk-form-row uk-grid uk-grid-small">
             <label for="src" class="hastip uk-form-label uk-width-1-1 uk-width-small-1-5"
@@ -197,7 +197,7 @@ defined('JPATH_PLATFORM') or die;
             </div>
         </div>
     </div>
-    <div class="uk-width-1-5 uk-hidden-mini">
+    <div class="uk-width-1-5 uk-hidden-small">
         <div class="preview">
             <img id="sample" src="<?php echo $this->plugin->image('sample.jpg', 'libraries'); ?>" alt="sample.jpg" />
             <?php echo JText::_('WF_LOREM_IPSUM'); ?>

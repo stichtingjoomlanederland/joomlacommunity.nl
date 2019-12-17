@@ -25,7 +25,7 @@ class PwtaclModelWizard extends ListModel
 	/**
 	 * Abstract method for getting the form from the model.
 	 *
-	 * @param   boolean $loadData True if the form is to load its own data (default case), false if not.
+	 * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
 	 *
 	 * @return  mixed  A JForm object on success, false on failure
 	 * @since   3.0
@@ -65,7 +65,7 @@ class PwtaclModelWizard extends ListModel
 	/**
 	 * Setup the permissions for a group
 	 *
-	 * @param   array $data Wizard data
+	 * @param   array  $data  Wizard data
 	 *
 	 * @return  integer $groupId
 	 * @since   3.0
@@ -124,7 +124,7 @@ class PwtaclModelWizard extends ListModel
 	/**
 	 * Method to create a new User Group
 	 *
-	 * @param   string $title Title of group
+	 * @param   string  $title  Title of group
 	 *
 	 * @return  integer new Group ID
 	 * @since   3.0

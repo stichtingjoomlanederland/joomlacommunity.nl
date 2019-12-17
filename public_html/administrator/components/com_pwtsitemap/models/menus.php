@@ -3,7 +3,7 @@
  * @package    Pwtsitemap
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2018 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
@@ -27,7 +27,7 @@ class PwtSitemapModelMenus extends MenusModelMenus
 	 * @see     JController
 	 * @since   1.0.0
 	 */
-	public function __construct($config = array())
+	public function __construct($config = [])
 	{
 		parent::__construct($config);
 
@@ -48,7 +48,14 @@ class PwtSitemapModelMenus extends MenusModelMenus
 		$db = $this->getDbo();
 		/** @var JDatabaseQuery $query */
 		$query = parent::getListQuery()
-			->select($db->quoteName('pwtsitemap_menu_types.ordering'))
+			->select(
+				$db->quoteName(
+					[
+						'pwtsitemap_menu_types.ordering',
+						'pwtsitemap_menu_types.custom_title'
+					]
+				)
+			)
 			->leftJoin(
 				$db->quoteName('#__pwtsitemap_menu_types', 'pwtsitemap_menu_types')
 				. ' ON ' . $db->quoteName('pwtsitemap_menu_types.menu_types_id') . ' = ' . $db->quoteName('a.id')
@@ -60,8 +67,8 @@ class PwtSitemapModelMenus extends MenusModelMenus
 	/**
 	 * Method to auto-populate the model state.
 	 *
-	 * @param   string  $ordering
-	 * @param   string  $direction
+	 * @param   string  $ordering   The column to order
+	 * @param   string  $direction  The direction of the order
 	 *
 	 * @return  void
 	 *
@@ -80,9 +87,9 @@ class PwtSitemapModelMenus extends MenusModelMenus
 	 *
 	 * @return  boolean  True on success | False on failure
 	 *
-	 * @throws  Exception
-	 *
 	 * @since   1.0.0
+	 *
+	 * @throws  Exception
 	 */
 	public function saveorder($pks, $order)
 	{
@@ -91,16 +98,18 @@ class PwtSitemapModelMenus extends MenusModelMenus
 
 		foreach ($pks as $index => $pk)
 		{
-			$query->delete($db->quoteName('#__pwtsitemap_menu_types'))
+			$query
+				->clear()
+				->update($db->quoteName('#__pwtsitemap_menu_types'))
+				->set($db->quoteName('ordering') . ' = ' . (int) $order[$index])
 				->where($db->quoteName('menu_types_id') . ' = ' . (int) $pk);
-			$db->setQuery($query)->execute();
-
-			$query->clear()
-				->insert($db->quoteName('#__pwtsitemap_menu_types'))
-				->values($pk . ',' . $order[$index]);
 			$db->setQuery($query);
 
-			if (!$db->execute())
+			try
+			{
+				$db->execute();
+			}
+			catch (JDatabaseExceptionExecuting $e)
 			{
 				return false;
 			}

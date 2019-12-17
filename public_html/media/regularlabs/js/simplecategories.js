@@ -1,6 +1,6 @@
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -8,9 +8,9 @@
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
-(function($) {
-	"use strict";
+"use strict";
 
+(function($) {
 	$(document).ready(function() {
 		// remove all empty control groups
 		$('div.rl_simplecategory').each(function(i, el) {

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -13,6 +13,7 @@ namespace RegularLabs\Library;
 
 defined('_JEXEC') or die;
 
+use ActionlogsModelActionlog;
 use JLoader;
 use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel as JModel;
@@ -34,6 +35,7 @@ class Log
 		JLoader::register('ActionlogsHelper', JPATH_ADMINISTRATOR . '/components/com_actionlogs/helpers/actionlogs.php');
 		JLoader::register('ActionlogsModelActionlog', JPATH_ADMINISTRATOR . '/components/com_actionlogs/models/actionlog.php');
 
+		/* @var ActionlogsModelActionlog $model */
 		$model = JModel::getInstance('Actionlog', 'ActionlogsModel');
 		$model->addLog([$message], $languageKey, $context, $user->id);
 	}

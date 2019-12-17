@@ -3,14 +3,17 @@
  * @package    Pwtsitemap
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2018 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
 
 defined('_JEXEC') or die;
 
-require_once JPATH_SITE . '/components/com_tags/helpers/route.php';
+use Joomla\CMS\Router\Route;
+use Joomla\Registry\Registry;
+
+JLoader::register('TagsHelperRoute', JPATH_SITE . '/components/com_tags/helpers/route.php');
 
 /**
  * PWT Sitemap Tag Plugin
@@ -35,8 +38,8 @@ class PlgPwtSitemapTag extends PwtSitemapPlugin
 	/**
 	 * Run for every menuitem passed
 	 *
-	 * @param   StdClass $item   Menu items
-	 * @param   string   $format Sitemap format that is rendered
+	 * @param   StdClass  $item    Menu items
+	 * @param   string    $format  Sitemap format that is rendered
 	 *
 	 * @return  array
 	 *
@@ -47,7 +50,7 @@ class PlgPwtSitemapTag extends PwtSitemapPlugin
 		// Register class here because register at the beginning of the file causes conflicts with the back-end model
 		JLoader::register('TagsModelTag', JPATH_SITE . '/components/com_tags/models/tag.php');
 
-		$sitemap_items = [];
+		$sitemapItems = [];
 
 		if ($this->checkDisplayParameters($item, $format))
 		{
@@ -57,41 +60,54 @@ class PlgPwtSitemapTag extends PwtSitemapPlugin
 			{
 				foreach ($tags as $tag)
 				{
-					$link = JRoute::_(TagsHelperRoute::getItemRoute($tag->content_item_id, $tag->core_alias, $tag->core_catid, $tag->core_language, $tag->type_alias, $tag->router));
+					
+					$link = Route::_(
+						TagsHelperRoute::getItemRoute(
+							$tag->content_item_id,
+							$tag->core_alias,
+							$tag->core_catid,
+							$tag->core_language,
+							$tag->type_alias,
+							$tag->router
+						)
+					);
 
-					$sitemap_items[] = new PwtSitemapItem($tag->core_title, $link, $item->level + 1);
+					$sitemapItems[] = new PwtSitemapItem($tag->core_title, $link, $item->level + 1);
+					
 				}
 			}
 		}
 
-		return $sitemap_items;
+		return $sitemapItems;
 	}
 
 	/**
 	 * Get all tagged items
 	 *
-	 * @param   array  $aId             Tag ids
-	 * @param   string $language        Language id
-	 * @param   bool   $include_subtags Include subtags
+	 * @param   array   $aId             Tag ids
+	 * @param   string  $language        Language id
+	 * @param   bool    $includeSubtags  Include subtags
 	 *
 	 * @return  stdClass
 	 *
 	 * @since   1.0.0
 	 */
-	private function getTaggedItems($aId, $language, $include_subtags)
+	private function getTaggedItems($aId, $language, $includeSubtags)
 	{
-		$tagModel = new TagsModelTag();
+		$tagModel = new TagsModelTag;
 
 		// Calling getState before setState will prevent 'populateState' override the new state
 		$tagModel->getState();
 		$tagModel->setState('tag.id', implode(',', $aId));
 
 		// Set Tag Model parameters
-		$tagModelParams                   = new stdClass();
-		$tagModelParams->include_children = $include_subtags;
-		$tagModel->setState('params', new \Joomla\Registry\Registry($tagModelParams));
+		$tagModelParams = new stdClass;
+		
+		$tagModelParams->include_children = $includeSubtags;
+		
+		$tagModel->setState('params', new Registry($tagModelParams));
 
-		if ($language != '*')
+		if ($language !== '*')
 		{
 			$tagModel->setState('tag.language', $language);
 		}

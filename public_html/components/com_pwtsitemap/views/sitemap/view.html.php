@@ -3,13 +3,14 @@
  * @package    Pwtsitemap
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2018 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\Registry\Registry;
 
 /**
@@ -17,7 +18,7 @@ use Joomla\Registry\Registry;
  *
  * @since  1.0.0
  */
-class PwtSitemapViewSitemap extends JViewLegacy
+class PwtSitemapViewSitemap extends HtmlView
 {
 	/**
 	 * Sitemap items
@@ -49,16 +50,18 @@ class PwtSitemapViewSitemap extends JViewLegacy
 	 * @var    string
 	 * @since  1.0.0
 	 */
-	protected $pageclass_sfx = '';
+	protected $pageclassSfx = '';
 
 	/**
 	 * Execute and display a template script.
 	 *
-	 * @param   string $tpl The name of the template file to parse; automatically searches through the template paths.
+	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
 	 *
 	 * @return  mixed  A string if successful, otherwise an Error object.
 	 *
 	 * @since   1.0.0
+	 *
+	 * @throws  Exception
 	 */
 	public function display($tpl = null)
 	{
@@ -95,8 +98,7 @@ class PwtSitemapViewSitemap extends JViewLegacy
 			$this->document->setMetadata('robots', $this->params->get('robots'));
 		}
 
-		// Get page class
-		$this->pageclass_sfx = htmlspecialchars($this->params->get('pageclass_sfx'));
+		$this->pageclassSfx = htmlspecialchars($this->params->get('pageclass_sfx'));
 
 		return parent::display($tpl);
 	}

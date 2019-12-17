@@ -27,7 +27,7 @@ defined('_JEXEC') or die('Restricted access');
 			<td><label for="cb<?php echo $i; ?>"><?php echo !empty($row->FormTitle) ? strip_tags($row->FormTitle) : '<em>' . JText::_('RSFP_FORM_DEFAULT_TITLE') . '</em>'; ?></label></td>
 			<td><?php echo $this->escape($row->FormName); ?></td>
 			<td width="1%"><?php echo $row->FormId; ?></td>
-			<td width="1%"><?php echo isset($this->submissions[$row->FormId]) ? $this->submissions[$row->FormId]->cnt : 0; ?></td>
+			<td width="1%"><?php echo $row->_allSubmissions; ?></td>
 		</tr>
 		<?php
 	}

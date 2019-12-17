@@ -10,7 +10,6 @@ defined('_JEXEC') or die('Restricted access');
 class RsformModelForms extends JModelList
 {
 	public $_mdata = null;
-	public $_conditionsdata;
 	public $_mtotal = 0;
 
 	/* @var TableRSForm_Forms */
@@ -860,59 +859,12 @@ class RsformModelForms extends JModelList
 
 	public function getConditions()
 	{
-		if (empty($this->_conditionsdata))
-		{
-			$db 	= JFactory::getDbo();
-			$formId	= JFactory::getApplication()->input->getInt('formId');
-			$lang	= $this->getLang();
+		require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/conditions.php';
 
-			$query = $db->getQuery(true)
-				->select('c.*')
-				->select($db->qn('p.PropertyValue', 'ComponentName'))
-				->from($db->qn('#__rsform_conditions', 'c'))
-				->join('left', $db->qn('#__rsform_properties', 'p') . ' ON (' . $db->qn('c.component_id') . ' = ' . $db->qn('p.ComponentId') . ')')
-				->where($db->qn('c.form_id') . ' = ' . $db->q($formId))
-				->where($db->qn('c.lang_code') . ' = ' . $db->q($lang))
-				->where($db->qn('p.PropertyName') . ' = ' . $db->q('NAME'))
-				->order($db->qn('c.id') . ' ' . $db->escape('asc'));
+		$formId	= JFactory::getApplication()->input->getInt('formId');
+		$lang	= $this->getLang();
 
-			$this->_conditionsdata = $db->setQuery($query)->loadObjectList('id');
-
-			if ($this->_conditionsdata)
-			{
-				$query->clear()
-					->select('*')
-					->select($db->qn('p.PropertyValue', 'ComponentName'))
-					->from($db->qn('#__rsform_condition_details', 'cd'))
-					->where($db->qn('cd.condition_id') . ' IN (' . implode(',', $db->q(array_keys($this->_conditionsdata))) . ')')
-					->join('left', $db->qn('#__rsform_properties', 'p') . ' ON (' . $db->qn('cd.component_id') . ' = ' . $db->qn('p.ComponentId') . ')')
-					->where($db->qn('p.PropertyName') . ' = ' . $db->q('NAME'));
-
-				if ($details = $db->setQuery($query)->loadObjectList())
-				{
-					foreach ($details as $detail)
-					{
-						if (empty($this->_conditionsdata[$detail->condition_id]))
-						{
-							continue;
-						}
-
-						if (empty($this->_conditionsdata[$detail->condition_id]->details))
-						{
-							$this->_conditionsdata[$detail->condition_id]->details = array();
-						}
-
-						$this->_conditionsdata[$detail->condition_id]->details[] = (object) array(
-							'name' 		=> $detail->ComponentName,
-							'operator' 	=> $detail->operator,
-							'value' 	=> $detail->value
-						);
-					}
-				}
-			}
-		}
-
-		return $this->_conditionsdata;
+		return RSFormProConditions::getConditions($formId, $lang, null);
 	}
 
 	public function getEmails()

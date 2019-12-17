@@ -2586,10 +2586,9 @@ class RSFormProHelper
 						// if the item is hidden, no need to validate it
 						if (($condition->action == 'show' && !$result) || ($condition->action == 'hide' && $result)) {
 							foreach ($components as $i => $component) {
-								if ($component->ComponentId == $condition->component_id) {
+								if (in_array($component->ComponentId, $condition->component_id)) {
 									// ... just remove it from the components array
 									unset($components[$i]);
-									break;
 								}
 							}
 						}

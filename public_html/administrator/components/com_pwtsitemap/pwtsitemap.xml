@@ -1,68 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="3.8" type="component" method="upgrade">
-    <name>com_pwtsitemap</name>
-    <author>Perfect Web Team</author>
-    <creationDate>9 November 2018</creationDate>
-    <copyright>Copyright (C) 2016 - 2018 Perfect Web Team</copyright>
-    <license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
-    <authorEmail>extensions@perfectwebteam.com</authorEmail>
-    <authorUrl>https://extensions.perfectwebteam.com</authorUrl>
-    <version>1.2.1</version>
-    <description>COM_PWTSITEMAP_XML_DESCRIPTION</description>
+	<name>com_pwtsitemap</name>
+	<author>Perfect Web Team</author>
+	<creationDate>14 December 2019</creationDate>
+	<copyright>Copyright (C) 2016 - 2019 Perfect Web Team</copyright>
+	<license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
+	<authorEmail>extensions@perfectwebteam.com</authorEmail>
+	<authorUrl>https://extensions.perfectwebteam.com</authorUrl>
+	<version>1.4.1</version>
+	<description>COM_PWTSITEMAP_XML_DESCRIPTION</description>
 
-    <!-- Script file -->
-    <scriptfile>script.php</scriptfile>
+	<!-- Script file -->
+	<scriptfile>script.php</scriptfile>
 
-    <!-- Runs on install -->
-    <install>
-        <sql>
-            <file driver="mysql" charset="utf8">sql/install/install.sql</file>
-        </sql>
-    </install>
+	<!-- Runs on install -->
+	<install>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/install/install.sql</file>
+		</sql>
+	</install>
 
-    <!-- Runs on update -->
-    <update>
-        <schemas>
-            <schemapath type="mysql">sql/updates</schemapath>
-        </schemas>
-    </update>
+	<!-- Runs on update -->
+	<update>
+		<schemas>
+			<schemapath type="mysql">sql/updates</schemapath>
+		</schemas>
+	</update>
 
-    <files folder="components/com_pwtsitemap">
-        <folder>helpers</folder>
-        <folder>language</folder>
-        <folder>models</folder>
-        <folder>views</folder>
-        <filename>controller.php</filename>
-        <filename>pwtsitemap.php</filename>
-        <filename>router.php</filename>
-    </files>
+	<files folder="components/com_pwtsitemap">
+		<folder>helpers</folder>
+		<folder>language</folder>
+		<folder>models</folder>
+		<folder>views</folder>
+		<filename>controller.php</filename>
+		<filename>pwtsitemap.php</filename>
+		<filename>router.php</filename>
+	</files>
 
-    <!-- Media files -->
-    <media folder="media/com_pwtsitemap" destination="com_pwtsitemap">
-        <folder>css</folder>
-        <folder>images</folder>
-    </media>
+	<!-- Media files -->
+	<media folder="media/com_pwtsitemap" destination="com_pwtsitemap">
+		<folder>css</folder>
+		<folder>images</folder>
+	</media>
 
-    <administration>
-        <menu>com_pwtsitemap</menu>
-        <submenu>
-            <menu view="dashboard">COM_PWTSITEMAP_TITLE_DASHBOARD</menu>
-            <menu view="menus">COM_PWTSITEMAP_TITLE_MENUS</menu>
-            <menu view="items">COM_PWTSITEMAP_TITLE_ITEMS</menu>
-        </submenu>
+	<administration>
+		<menu>com_pwtsitemap</menu>
+		<submenu>
+			<menu view="dashboard">COM_PWTSITEMAP_TITLE_DASHBOARD</menu>
+			<menu view="menus">COM_PWTSITEMAP_TITLE_MENUS</menu>
+			<menu view="items">COM_PWTSITEMAP_TITLE_ITEMS</menu>
+		</submenu>
 
-        <files folder="administrator/components/com_pwtsitemap">
-            <folder>controllers</folder>
-            <folder>helpers</folder>
-            <folder>language</folder>
-            <folder>models</folder>
-            <folder>sql</folder>
-            <folder>views</folder>
-            <filename>access.xml</filename>
-            <filename>config.xml</filename>
-            <filename>controller.php</filename>
-            <filename>pwtsitemap.php</filename>
-            <filename>script.php</filename>
-        </files>
-    </administration>
+		<files folder="administrator/components/com_pwtsitemap">
+			<folder>controllers</folder>
+			<folder>helpers</folder>
+			<folder>language</folder>
+			<folder>models</folder>
+			<folder>sql</folder>
+			<folder>tables</folder>
+			<folder>views</folder>
+			<filename>access.xml</filename>
+			<filename>config.xml</filename>
+			<filename>controller.php</filename>
+			<filename>pwtsitemap.php</filename>
+			<filename>script.php</filename>
+		</files>
+	</administration>
 </extension>

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         DB Replacer
- * @version         6.3.4PRO
+ * @version         6.3.5PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com

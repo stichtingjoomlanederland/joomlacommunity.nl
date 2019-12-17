@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <metadata>
-    <layout title="COM_PWTSITEMAP_VIEW_SITEMAP_DEFAULT_HTML_TITLE">
-        <message>COM_PWTSITEMAP_VIEW_SITEMAP_DEFAULT_HTML_DESC</message>
-    </layout>
+	<layout title="COM_PWTSITEMAP_VIEW_SITEMAP_DEFAULT_HTML_TITLE">
+		<message>COM_PWTSITEMAP_VIEW_SITEMAP_DEFAULT_HTML_DESC</message>
+	</layout>
 
-    <!-- Add fields to the parameters object for the layout. -->
-    <fields name="params">
+	<!-- Add fields to the parameters object for the layout. -->
+	<fields name="params">
 
-        <!-- Basic options. -->
-        <fieldset name="basic">
-            <field
-                    name="introtext"
-                    type="textarea"
-                    label="COM_PWTSITEMAP_FIELD_INTROTEXT"
-                    description="COM_PWTSITEMAP_FIELD_INTROTEXT_DESC"
-                    rows="3"
-            />
-            <field
-                    name="showTitle"
-                    type="radio"
-                    label="COM_PWTSITEMAP_SHOWTITLE_LABEL"
-                    description="COM_PWTSITEMAP_SHOWTITLE_DESC"
-                    default="1"
-                    class="btn-group btn-group-yesno"
-            >
-                <option value="1">JYES</option>
-                <option value="0">JNO</option>
-            </field>
-        </fieldset>
-    </fields>
+		<!-- Basic options. -->
+		<fieldset name="basic">
+			<field
+				name="introtext"
+				type="textarea"
+				label="COM_PWTSITEMAP_FIELD_INTROTEXT"
+				description="COM_PWTSITEMAP_FIELD_INTROTEXT_DESC"
+				rows="3"
+			/>
+			<field
+				name="showTitle"
+				type="radio"
+				label="COM_PWTSITEMAP_SHOWTITLE_LABEL"
+				description="COM_PWTSITEMAP_SHOWTITLE_DESC"
+				default="1"
+				class="btn-group btn-group-yesno"
+			>
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+		</fieldset>
+	</fields>
 </metadata>

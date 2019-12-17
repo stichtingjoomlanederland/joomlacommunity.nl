@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -19,9 +19,9 @@ class MailsController extends acymController
         $type = acym_getVar('string', 'type');
         $this->breadcrumb[acym_translation('automation' != $type ? 'ACYM_TEMPLATES' : 'ACYM_AUTOMATION')] = acym_completeLink('automation' != $type ? 'mails' : 'automation');
         $this->loadScripts = [
-            'edit' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'parse-css'],
-            'apply' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'parse-css'],
-            'test' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'parse-css'],
+            'edit' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'parse-css', 'vue-applications', 'vue-prism-editor'],
+            'apply' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'parse-css', 'vue-applications', 'vue-prism-editor'],
+            'test' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'parse-css', 'vue-applications', 'vue-prism-editor'],
         ];
         header('X-XSS-Protection:0');
     }
@@ -130,13 +130,14 @@ class MailsController extends acymController
 
     public function edit()
     {
-        $tempId = acym_getVar("int", "id");
+        $tempId = acym_getVar('int', 'id');
         $mailClass = acym_get('class.mail');
         $typeEditor = acym_getVar('string', 'type_editor');
         $notification = acym_getVar("cmd", "notification");
         $return = acym_getVar('string', 'return', '');
         $return = empty($return) ? '' : urldecode($return);
         $type = acym_getVar('string', 'type');
+        $fromId = acym_getVar('int', 'from');
 
         if (!empty($notification)) {
             $mail = $mailClass->getOneByName($notification);
@@ -147,8 +148,11 @@ class MailsController extends acymController
 
         $isAutomationAdmin = false;
 
+        $fromMail = '';
+
+        if (!empty($fromId)) $fromMail = $mailClass->getOneById($fromId);
+
         if (strpos($type, 'automation') !== false || empty($tempId)) {
-            $fromId = acym_getVar("int", "from");
             if ($type == 'automation_admin') {
                 $type = 'automation';
                 $isAutomationAdmin = true;
@@ -166,7 +170,8 @@ class MailsController extends acymController
                 $mail->headers = '';
                 $mail->thumbnail = null;
             } else {
-                $mail = $mailClass->getOneById($fromId);
+                $mail = $fromMail;
+                $mail->id = 0;
                 if (0 == $mail->drag_editor) {
                     $mail->editor = 'html';
                 } else {
@@ -180,6 +185,10 @@ class MailsController extends acymController
             $this->breadcrumb[acym_translation('automation' != $type ? 'ACYM_CREATE_TEMPLATE' : 'ACYM_NEW_EMAIL')] = acym_completeLink('mails&task=edit&type_editor='.$typeEditor.(!empty($fromId) ? '&from='.$fromId : '').'&type='.$type.(!empty($return) ? '&return='.urlencode($return) : ''));
         } else {
             $mail = $mailClass->getOneById($tempId);
+            if (!empty($fromMail)) {
+                $mail->drag_editor = $fromMail->drag_editor;
+                $mail->body = $fromMail->body;
+            }
             $mail->editor = $mail->drag_editor == 0 ? 'html' : 'acyEditor';
             if (!empty($typeEditor)) $mail->editor = $typeEditor;
 
@@ -203,14 +212,11 @@ class MailsController extends acymController
             }
         }
 
-        $config = acym_config();
-
         $data = [
             "mail" => $mail,
             'allTags' => acym_get('class.tag')->getAllTagsByType('mail'),
-            'config' => acym_config(),
             'isAutomationAdmin' => $isAutomationAdmin,
-            'social_icons' => $config->get('social_icons', '{}'),
+            'social_icons' => $this->config->get('social_icons', '{}'),
         ];
 
         if (!empty($return)) $data['return'] = $return;
@@ -328,6 +334,8 @@ class MailsController extends acymController
 
     public function getTemplateAjax()
     {
+        $id = acym_getVar('int', 'id');
+        $id = empty($id) ? '' : '&id='.$id;
         $searchFilter = acym_getVar('string', 'search', '');
         $tagFilter = acym_getVar('string', 'tag', 0);
         $ordering = 'creation_date';
@@ -336,7 +344,7 @@ class MailsController extends acymController
         $editor = acym_getVar('string', 'editor');
         $automation = acym_getVar('string', 'automation');
         $returnUrl = acym_getVar('string', 'return');
-        $returnUrl = empty($returnUrl) ? '' : '&return='.urlencode($returnUrl);
+        $returnUrl = empty($returnUrl) || 'undefined' == $returnUrl ? '' : '&return='.urlencode($returnUrl);
 
         $mailsPerPage = 12;
         $page = acym_getVar('int', 'pagination_page_ajax', 1);
@@ -352,7 +360,7 @@ class MailsController extends acymController
                 'offset' => ($page - 1) * $mailsPerPage,
                 'tag' => $tagFilter,
                 'editor' => $editor,
-                'automation' => $automation,
+                'onlyStandard' => true,
             ]
         );
 
@@ -362,14 +370,13 @@ class MailsController extends acymController
             $return .= '<div class="cell grid-x acym__templates__oneTpl acym__listing__block" id="'.acym_escape($oneTemplate->id).'">
                 <div class="cell acym__templates__pic text-center">';
 
-            $url = acym_getVar('cmd', 'ctrl').'&task=edit&step=editEmail&from='.intval($oneTemplate->id).$returnUrl.'&type='.$type;
+            $url = acym_getVar('cmd', 'ctrl').'&task=edit&step=editEmail&from='.intval($oneTemplate->id).$returnUrl.'&type='.$type.$id;
             if (!empty($this->data['campaignInformation'])) $url .= '&id='.intval($this->data['campaignInformation']);
-            $return .= '<a href="'.acym_completeLink($url, false, false, true).'">';
+            if ('true' != $automation || !empty($returnUrl)) $return .= '<a href="'.acym_completeLink($url, false, false, true).'">';
 
             $return .= '<img src="'.acym_escape(acym_getMailThumbnail($oneTemplate->thumbnail)).'" alt="template thumbnail"/>';
-            $return .= '</a>';
+            if ('true' != $automation || !empty($returnUrl)) $return .= '</a>';
             $return .= '<div class="acym__templates__choose__ribbon '.($oneTemplate->drag_editor ? 'acyeditor' : 'htmleditor').'">'.($oneTemplate->drag_editor ? 'AcyEditor' : 'HTML Editor').'</div>';
-
 
             if (strlen($oneTemplate->name) > 55) {
                 $oneTemplate->name = substr($oneTemplate->name, 0, 50).'...';
@@ -513,14 +520,12 @@ class MailsController extends acymController
         $contentThumbnail = acym_getVar('string', 'content', '');
         $file = acym_getVar('string', 'thumbnail', '');
 
-        $config = acym_config();
-
         if (empty($file) || strpos($file, 'http') === 0) {
-            $thumbNb = $config->get('numberThumbnail', 2);
+            $thumbNb = $this->config->get('numberThumbnail', 2);
             $file = 'thumbnail_'.($thumbNb + 1).'.png';
             $newConfig = new stdClass();
             $newConfig->numberThumbnail = $thumbNb + 1;
-            $config->save($newConfig);
+            $this->config->save($newConfig);
         }
 
         $extension = acym_fileGetExt($file);
@@ -566,15 +571,14 @@ class MailsController extends acymController
             exit;
         }
 
-        $config = acym_config();
         $newConfig = new stdClass();
-        $newConfig->social_icons = json_decode($config->get('social_icons', '{}'), true);
+        $newConfig->social_icons = json_decode($this->config->get('social_icons', '{}'), true);
 
         $newImg = acym_rootURI().$newPath;
 
         $newConfig->social_icons[$socialName] = $newImg;
         $newConfig->social_icons = json_encode($newConfig->social_icons);
-        $config->save($newConfig);
+        $this->config->save($newConfig);
 
         echo $newImg;
         exit;

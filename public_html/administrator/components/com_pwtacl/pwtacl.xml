@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="3.8" type="component" method="upgrade">
-    <name>PWT ACL</name>
-    <author>Perfect Web Team</author>
-    <creationDate>6 February 2019</creationDate>
-    <copyright>Copyright (C) 2011 - 2019 Perfect Web Team</copyright>
-    <license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
-    <authorEmail>extensions@perfectwebteam.com</authorEmail>
-    <authorUrl>https://extensions.perfectwebteam.com</authorUrl>
-    <version>3.2.2</version>
-    <description>PWT ACL - Joomla! ACL simplified</description>
+	<name>PWT ACL</name>
+	<author>Perfect Web Team</author>
+	<creationDate>11 December 2019</creationDate>
+	<copyright>Copyright (C) 2011 - 2019 Perfect Web Team</copyright>
+	<license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
+	<authorEmail>extensions@perfectwebteam.com</authorEmail>
+	<authorUrl>https://extensions.perfectwebteam.com</authorUrl>
+	<version>3.3.1</version>
+	<description>PWT ACL - Joomla! ACL simplified</description>
 
-    <!-- Media files -->
-    <media folder="media/com_pwtacl" destination="com_pwtacl">
-        <folder>css</folder>
-        <folder>images</folder>
-        <folder>js</folder>
-    </media>
+	<!-- Media files -->
+	<media folder="media/com_pwtacl" destination="com_pwtacl">
+		<folder>css</folder>
+		<folder>images</folder>
+		<folder>js</folder>
+	</media>
 
-    <administration>
-        <menu>com_pwtacl</menu>
-        <submenu>
-            <menu view="assets" link="option=com_pwtacl&amp;view=assets&amp;type=group">COM_PWTACL_SUBMENU_GROUP</menu>
-            <menu view="assets" link="option=com_pwtacl&amp;view=assets&amp;type=user">COM_PWTACL_SUBMENU_USER</menu>
-            <menu view="diagnostics">COM_PWTACL_SUBMENU_DIAGNOSTICS</menu>
-            <menu view="wizard">COM_PWTACL_SUBMENU_WIZARD</menu>
-        </submenu>
+	<administration>
+		<menu>com_pwtacl</menu>
+		<submenu>
+			<menu view="assets" link="option=com_pwtacl&amp;view=assets&amp;type=group">COM_PWTACL_SUBMENU_GROUP</menu>
+			<menu view="assets" link="option=com_pwtacl&amp;view=assets&amp;type=user">COM_PWTACL_SUBMENU_USER</menu>
+			<menu view="diagnostics">COM_PWTACL_SUBMENU_DIAGNOSTICS</menu>
+			<menu view="wizard">COM_PWTACL_SUBMENU_WIZARD</menu>
+		</submenu>
 
-        <files folder="administrator/components/com_pwtacl">
-            <folder>controllers</folder>
-            <folder>helpers</folder>
-            <folder>language</folder>
-            <folder>layouts</folder>
-            <folder>models</folder>
-            <folder>views</folder>
-            <filename>access.xml</filename>
-            <filename>config.xml</filename>
-            <filename>controller.php</filename>
-            <filename>pwtacl.php</filename>
-        </files>
-    </administration>
+		<files folder="administrator/components/com_pwtacl">
+			<folder>controllers</folder>
+			<folder>helpers</folder>
+			<folder>language</folder>
+			<folder>layouts</folder>
+			<folder>models</folder>
+			<folder>views</folder>
+			<filename>access.xml</filename>
+			<filename>config.xml</filename>
+			<filename>controller.php</filename>
+			<filename>pwtacl.php</filename>
+		</files>
+	</administration>
 </extension>

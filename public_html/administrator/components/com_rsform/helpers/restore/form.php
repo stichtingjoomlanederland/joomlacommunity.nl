@@ -399,17 +399,37 @@ class RSFormProRestoreForm
 	protected function restoreConditions() {
 		// Restore conditions #__rsform_conditions & #__rsform_condition_details
 		if (isset($this->xml->conditions)) {
+			require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/conditions.php';
+
 			foreach ($this->xml->conditions->children() as $condition) {
-				if (empty($this->fields[(string) $condition->component_id])) {
-					continue;
+				$component_ids = (string) $condition->component_id;
+
+				$tmp_ids = json_decode($component_ids);
+				if (is_array($tmp_ids))
+				{
+					$component_ids = $tmp_ids;
 				}
+				else
+				{
+					$component_ids = array($component_ids);
+				}
+
+				$json_ids = array();
+				foreach ($component_ids as $component_id)
+				{
+					if (isset($this->fields[$component_id]))
+					{
+						$json_ids[] = $this->fields[$component_id];
+					}
+				}
+				$json_ids = json_encode($json_ids);
 				$query = $this->db->getQuery(true);
 				$query	->insert('#__rsform_conditions')
 						->set(array(
 								$this->db->qn('form_id')		.'='.$this->db->q($this->form->FormId),
 								$this->db->qn('action')			.'='.$this->db->q((string) $condition->action),
 								$this->db->qn('block')			.'='.$this->db->q((string) $condition->block),
-								$this->db->qn('component_id')	.'='.$this->db->q($this->fields[(string) $condition->component_id]),
+								$this->db->qn('component_id')	.'='.$this->db->q($json_ids),
 								$this->db->qn('condition')		.'='.$this->db->q((string) $condition->condition),
 								$this->db->qn('lang_code')		.'='.$this->db->q((string) $condition->lang_code)
 						));

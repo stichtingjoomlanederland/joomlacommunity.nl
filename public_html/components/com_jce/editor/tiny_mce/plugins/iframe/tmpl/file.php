@@ -115,7 +115,7 @@ $document = WFDocument::getInstance();
             </div>
         </div>
     </div>
-    <div class="uk-width-1-5 uk-hidden-mini">
+    <div class="uk-width-1-5 uk-hidden-small">
         <div class="preview">
             <img id="sample" src="<?php echo $document->image('sample.jpg', 'libraries'); ?>" alt="sample.jpg" />
             <?php echo JText::_('WF_LOREM_IPSUM'); ?>

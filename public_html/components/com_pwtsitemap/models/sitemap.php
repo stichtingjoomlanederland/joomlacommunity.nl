@@ -3,17 +3,17 @@
  * @package    Pwtsitemap
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2018 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
+
+defined('_JEXEC') or die;
 
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Menu\MenuItem;
 use Joomla\CMS\MVC\Model\ItemModel;
-
-defined('_JEXEC') or die;
 
 /**
  * PWT Sitemap Component Model
@@ -22,6 +22,30 @@ defined('_JEXEC') or die;
  */
 class PwtSitemapModelSitemap extends ItemModel
 {
+	/**
+	 * PWT sitemap object instance
+	 *
+	 * @var    PwtSitemap
+	 * @since  1.0.0
+	 */
+	protected $sitemap;
+
+	/**
+	 * Display format
+	 *
+	 * @var    string
+	 * @since  1.0.0
+	 */
+	protected $format = '';
+
+	/**
+	 * Type of the sitemap that is generated
+	 *
+	 * @var    string
+	 * @since  1.0.0
+	 */
+	protected $type = '';
+
 	/**
 	 * JApplication instance
 	 *
@@ -39,47 +63,23 @@ class PwtSitemapModelSitemap extends ItemModel
 	private $jDispatcher;
 
 	/**
-	 * PWT sitemap object instance
-	 *
-	 * @var    PwtSitemap
-	 * @since  1.0.0
-	 */
-	protected $sitemap;
-
-	/**
-	 * Display format
-	 *
-	 * @var    string
-	 * @since  1.0.0
-	 */
-	protected $format;
-
-	/**
-	 * Type of the sitemap that is generated
-	 *
-	 * @var    string
-	 * @since  1.0.0
-	 */
-	protected $type;
-
-	/**
 	 * List of menu items
 	 *
 	 * @var    array
 	 * @since  1.0.0
 	 */
-	private $items = array();
+	private $items = [];
 
 	/**
 	 * Constructor
 	 *
 	 * @param   array  $config  An array of configuration options (name, state, dbo, table_path, ignore_request).
 	 *
-	 * @throws  Exception
-	 *
 	 * @since  1.0.0
+	 *
+	 * @throws  Exception
 	 */
-	public function __construct(array $config = array())
+	public function __construct($config = [])
 	{
 		$this->app         = Factory::getApplication();
 		$this->jDispatcher = JEventDispatcher::getInstance();
@@ -112,6 +112,114 @@ class PwtSitemapModelSitemap extends ItemModel
 	}
 
 	/**
+	 * Build the sitemap
+	 *
+	 * @return  PwtSitemap
+	 *
+	 * @since   1.0.0
+	 */
+	public function getSitemap()
+	{
+		$skippedItems = [];
+
+		// Get menu items
+		$groupedMenuItems = $this->getMenu();
+
+		// Filter menu items and add articles
+		foreach ($groupedMenuItems as $group => $menuItems)
+		{
+			// Allow for plugins to change the menu items
+			$this->jDispatcher->trigger('onPwtSitemapBeforeBuild', [&$menuItems, $this->type, $this->format]);
+
+			foreach ($menuItems as $menuitem)
+			{
+				// Filter menu items
+				if ($this->filter($menuitem))
+				{
+					$skippedItems[] = $menuitem->id;
+
+					continue;
+				}
+
+				
+				// Filter menu items we don't want to show for the display format and items where the parent is skipped
+				if ((int) $menuitem->params->get('addto' . $this->format . 'sitemap', 1) === 0
+					|| in_array($menuitem->parent_id, $skippedItems, true))
+				{
+					if ((int) $menuitem->params->get('addcontentto' . $this->format . 'sitemap', 0) === 0)
+					{
+						$skippedItems[] = $menuitem->id;
+						continue;
+					}
+
+					$menuitem->doNotAdd = true;
+				}
+				
+
+				// Generate link based on menu-item type
+				switch ($menuitem->type)
+				{
+					case 'component':
+						$menuitem->link = 'index.php?Itemid=' . $menuitem->id;
+						break;
+
+					case 'alias':
+						$menuitem->link = 'index.php?Itemid=' . $menuitem->params->get('aliasoptions');
+						break;
+
+					case 'url':
+						if (strpos($menuitem->link, 'http') !== false)
+						{
+							break;
+						}
+
+						if (strpos($menuitem->link, '/') !== 0)
+						{
+							$menuitem->link = '/' . $menuitem->link;
+						}
+
+						break;
+
+					default:
+						$menuitem->link = null;
+						break;
+				}
+
+				// Get the PWT Sitemap settings
+				$menuitem->addtohtmlsitemap = $menuitem->params->get('addtohtmlsitemap', 1);
+				$menuitem->addtoxmlsitemap  = $menuitem->params->get('addtoxmlsitemap', 1);
+
+				// Add item to sitemap
+				if (!isset($menuitem->doNotAdd) || (isset($menuitem->doNotAdd) && !$menuitem->doNotAdd))
+				{
+					// Trigger plugin event
+					$this->jDispatcher->trigger('onPwtSitemapAddMenuItemToSitemap', [$menuitem]);
+
+					$this->addMenuItemToSitemap($menuitem, $group);
+				}
+
+				// Trigger plugin event
+				$results = $this->jDispatcher->trigger('onPwtSitemapBuildSitemap',
+					[$menuitem, $this->format, $this->type]
+				);
+
+				foreach ($results as $sitemapItems)
+				{
+					if (!empty($sitemapItems))
+					{
+						$this->addItemsToSitemap($sitemapItems, $group);
+					}
+				}
+			}
+		}
+
+		// Allow for plugins to change the entire sitemap along with what was processed
+		$this->jDispatcher->trigger('onPwtSitemapAfterBuild', [&$this->sitemap->sitemapItems, $menuItems, $this->type]);
+
+		return $this->sitemap;
+	}
+
+	/**
 	 * Get the menu items for the sitemap.
 	 *
 	 * @return  array  List of menu items.
@@ -125,7 +233,7 @@ class PwtSitemapModelSitemap extends ItemModel
 		$query = $db->getQuery(true)
 			->select(
 				$db->quoteName(
-					array(
+					[
 						'menu.id',
 						'menu.menutype',
 						'menu.title',
@@ -143,24 +251,26 @@ class PwtSitemapModelSitemap extends ItemModel
 						'menu.template_style_id',
 						'menu.component_id',
 						'menu.parent_id'
-					)
+					]
 				)
 			)
 			->select(
 				$db->quoteName(
-					array(
+					[
 						'menu.path',
 						'extensions.element',
-						'menu_types.title'
-					),
-					array(
+						'menu_types.title',
+						'pwtsitemap_menu_types.custom_title'
+					],
+					[
 						'route',
 						'component',
-						'menuTitle'
-					)
+						'menuTitle',
+						'customTitle'
+					]
 				)
 			)
-			->from($db->quoteName('#__menu','menu'))
+			->from($db->quoteName('#__menu', 'menu'))
 			->leftJoin(
 				$db->quoteName('#__extensions', 'extensions')
 				. ' ON ' . $db->quoteName('menu.component_id') . ' = ' . $db->quoteName('extensions.extension_id')
@@ -182,161 +292,55 @@ class PwtSitemapModelSitemap extends ItemModel
 		// Set the query
 		$db->setQuery($query);
 
-		$this->items = $db->loadObjectList('id','Joomla\\CMS\\Menu\\MenuItem');
+		$this->items = $db->loadObjectList('id', MenuItem::class);
 
 		foreach ($this->items as &$item)
 		{
 			// Get parent information.
-			$parent_tree = array();
+			$parentTree = [];
 
+			
 			if (isset($this->items[$item->parent_id]))
 			{
-				$parent_tree = $this->items[$item->parent_id]->tree;
+				$parentTree = $this->items[$item->parent_id]->tree;
 			}
+			
 
 			// Create tree.
-			$parent_tree[] = $item->id;
-			$item->tree    = $parent_tree;
+			$parentTree[] = $item->id;
+			$item->tree   = $parentTree;
 
 			// Create the query array.
-			$url = str_replace('index.php?', '', $item->link);
-			$url = str_replace('&amp;', '&', $url);
+			$url = str_replace(array('index.php?', '&amp;'), array('', '&'), $item->link);
 
 			parse_str($url, $item->query);
 		}
 
 		// Group all menu items based on their parent
-		$groupedItems = array();
+		$groupedItems = [];
 
-		foreach ($this->items as $item)
+		foreach ($this->items as $groupedItem)
 		{
-			if (!isset($groupedItems[$item->menuTitle]))
+			if (isset($groupedItem->customTitle) && $groupedItem->customTitle && !isset($groupedItems[$groupedItem->customTitle]))
 			{
-				$groupedItems[$item->menuTitle] = array();
+				$groupedItems[$groupedItem->customTitle] = [];
+			}
+			elseif (isset($groupedItem->menuTitle) && !isset($groupedItems[$groupedItem->menuTitle]))
+			{
+				$groupedItems[$groupedItem->menuTitle] = [];
 			}
 
-			$groupedItems[$item->menuTitle][] = $item;
+			if (isset($groupedItem->customTitle) && $groupedItem->customTitle)
+			{
+				$groupedItems[$groupedItem->customTitle][] = $groupedItem;
+			}
+			else
+			{
+				$groupedItems[$groupedItem->menuTitle][] = $groupedItem;
+			}
 		}
 
 		return $groupedItems;
-	}
-
-	/**
-	 * Build the sitemap
-	 *
-	 * @return  PwtSitemap
-	 *
-	 * @since   1.0.0
-	 */
-	public function getSitemap()
-	{
-		$skipped_items = array();
-
-		// Get menu items
-		$groupedMenuItems = $this->getMenu();
-
-		// Filter menu items and add articles
-		foreach ($groupedMenuItems as $group => $menuItems)
-		{
-			// allow for plugins to change the menu items
-			$this->jDispatcher->trigger('onPwtSitemapBeforeBuild', array(&$menuItems, $this->type, $this->format));
-
-			foreach ($menuItems as $menuitem)
-			{
-				// Filter menu items
-				if ($this->filter($menuitem))
-				{
-					$skipped_items[] = $menuitem->id;
-
-					continue;
-				}
-
-				// Filter menu items we don't want to show for the display format and items where the parent is skipped
-				if ($menuitem->params->get('addto' . $this->format . 'sitemap', 1) == false || in_array($menuitem->parent_id, $skipped_items))
-				{
-					$skipped_items[] = $menuitem->id;
-					continue;
-				}
-
-				// Generate link based on menu-item type
-				switch ($menuitem->type)
-				{
-					case 'component':
-						$menuitem->link = 'index.php?Itemid=' . $menuitem->id;
-						break;
-
-					case 'alias':
-						$menuitem->link = 'index.php?Itemid=' . $menuitem->params->get('aliasoptions');
-						break;
-
-					case 'url':
-						break;
-
-					default:
-						$menuitem->link = null;
-						break;
-				}
-
-				// Get the PWT Sitemap settings
-				$menuitem->addtohtmlsitemap = $menuitem->params->get('addtohtmlsitemap', 1);
-				$menuitem->addtoxmlsitemap  = $menuitem->params->get('addtoxmlsitemap', 1);
-
-				// Trigger plugin event
-				$this->jDispatcher->trigger('onPwtSitemapAddMenuItemToSitemap', array($menuitem));
-
-				// Add item to sitemap
-				if (!$menuitem->doNotAdd)
-				{
-					$this->AddMenuItemToSitemap($menuitem, $group);
-				}
-
-				// Trigger plugin event
-				$results = $this->jDispatcher->trigger('onPwtSitemapBuildSitemap', array($menuitem, $this->format, $this->type));
-
-				foreach ($results as $sitemapItems)
-				{
-					if (!empty($sitemapItems))
-					{
-						$this->addItemsToSitemap($sitemapItems, $group);
-					}
-				}
-			}
-		}
-
-		// Allow for plugins to change the entire sitemap along with what was processed
-		$this->jDispatcher->trigger('onPwtSitemapAfterBuild', array(&$this->sitemap->sitemapItems, $menuItems, $this->type));
-
-		return $this->sitemap;
-	}
-
-	/**
-	 * Add a menu item to the sitemap
-	 *
-	 * @param   MenuItem  $menuitem  Menu item to add to the sitemap
-	 * @param   string    $group     Set the group the item belongs to
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0.0
-	 */
-	protected function AddMenuItemToSitemap($menuitem, $group)
-	{
-		$this->sitemap->addItem(new PwtSitemapItem($menuitem->title, $menuitem->link, $menuitem->level), $group);
-	}
-
-	/**
-	 * Add a array of PwtSitemapItems to the sitemap (used for the result of plugin triggers)
-	 *
-	 * @param   array   $items  Menu item to add to the sitemap
-	 * @param   string  $group  Set the group the item belongs to
-	 *
-	 * @return  void
-	 *
-	 * @since   1.0.0
-	 */
-	protected function AddItemsToSitemap($items, $group)
-	{
-		$this->sitemap->addItem($items, $group);
 	}
 
 	/**
@@ -353,8 +357,38 @@ class PwtSitemapModelSitemap extends ItemModel
 		$lang                   = Factory::getLanguage();
 		$authorizedAccessLevels = Factory::getUser()->getAuthorisedViewLevels();
 
-		return (($menuitem->language != $lang->getTag() and $menuitem->language != '*')
-			|| !in_array($menuitem->access, $authorizedAccessLevels)
+		return (($menuitem->language !== $lang->getTag() && $menuitem->language !== '*')
+			|| !in_array((int) $menuitem->access, $authorizedAccessLevels, true)
 		);
+	}
+
+	/**
+	 * Add a menu item to the sitemap
+	 *
+	 * @param   MenuItem  $menuitem  Menu item to add to the sitemap
+	 * @param   string    $group     Set the group the item belongs to
+	 *
+	 * @return  void
+	 *
+	 * @since   1.0.0
+	 */
+	protected function addMenuItemToSitemap($menuitem, $group)
+	{
+		$this->sitemap->addItem(new PwtSitemapItem($menuitem->title, $menuitem->link, $menuitem->level), $group);
+	}
+
+	/**
+	 * Add a array of PwtSitemapItems to the sitemap (used for the result of plugin triggers)
+	 *
+	 * @param   array   $items  Menu item to add to the sitemap
+	 * @param   string  $group  Set the group the item belongs to
+	 *
+	 * @return  void
+	 *
+	 * @since   1.0.0
+	 */
+	protected function addItemsToSitemap($items, $group)
+	{
+		$this->sitemap->addItem($items, $group);
 	}
 }

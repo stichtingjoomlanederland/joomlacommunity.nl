@@ -158,6 +158,11 @@ class RSFormProJQueryCalendar
 			$otherCalendarData = RSFormProHelper::getComponentProperties($otherCalendar);
 
 			$extras['rule'] = $rule.'|'.$otherCalendarData['NAME'];
+
+			if (isset($offset) && $offset != 1)
+			{
+				$extras['rule'] .= '|' . (int) $offset;
+			}
 		}
 
 		$extras = $this->parseJSProperties($extras);

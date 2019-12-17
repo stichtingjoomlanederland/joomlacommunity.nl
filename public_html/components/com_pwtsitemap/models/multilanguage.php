@@ -3,12 +3,14 @@
  * @package    Pwtsitemap
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2018 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
 
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Menu\MenuItem;
 
 JLoader::register('PwtSitemapModelSitemap', JPATH_ROOT . '/components/com_pwtsitemap/models/sitemap.php');
 JLoader::register('PwtMultilanguageSitemapItem', JPATH_ROOT . '/components/com_pwtsitemap/models/sitemap/pwtsitemapmultilanguageitem.php');
@@ -21,7 +23,16 @@ JLoader::register('MenusAssociationsHelper', JPATH_ROOT . '/administrator/compon
  */
 class PwtSitemapModelMultilanguage extends PwtSitemapModelSitemap
 {
-	public function __construct(array $config = array())
+	/**
+	 * Constructor
+	 *
+	 * @param   array  $config  An array of configuration options (name, state, dbo, table_path, ignore_request).
+	 *
+	 * @since   1.0.0
+	 *
+	 * @throws  Exception
+	 */
+	public function __construct(array $config = [])
 	{
 		parent::__construct($config);
 
@@ -31,8 +42,8 @@ class PwtSitemapModelMultilanguage extends PwtSitemapModelSitemap
 	/**
 	 * Add a menu item to the sitemap
 	 *
-	 * @param   JMenuItem $menuitem Menu item to add to the sitemap
-	 * @param   string    $group    Set the group the item belongs to
+	 * @param   MenuItem  $menuitem  Menu item to add to the sitemap
+	 * @param   string    $group     Set the group the item belongs to
 	 *
 	 * @return  void
 	 *
@@ -49,7 +60,7 @@ class PwtSitemapModelMultilanguage extends PwtSitemapModelSitemap
 	/**
 	 * Get language associated menu items
 	 *
-	 * @param   $menuitem  JMenuItem  Menu item to add
+	 * @param   MenuItem  $menuitem  Menu item to add to the sitemap
 	 *
 	 * @return  array
 	 *
@@ -57,12 +68,15 @@ class PwtSitemapModelMultilanguage extends PwtSitemapModelSitemap
 	 */
 	private function getAssociations($menuitem)
 	{
-		$helper = new MenusAssociationsHelper();
+		$helper = new MenusAssociationsHelper;
 
 		// Get associations and map to JMenu objects
-		$associations = array_map(function ($value) use ($helper) {
-			return $helper->getItem('item', explode(':', $value->id)[0]);
-		}, $helper->getAssociations('item', $menuitem->id));
+		$associations = array_map(
+			static function ($value) use ($helper) {
+				return $helper->getItem('item', explode(':', $value->id)[0]);
+			},
+			$helper->getAssociations('item', $menuitem->id)
+		);
 
 		return $associations;
 	}

@@ -4810,7 +4810,7 @@ class rseventsproHelper
 		return 0;
 	}
 	
-	public static function globalDiscount($id, $total, $tickets, $payment) {
+	public static function globalDiscount($id, $total, $tickets, $payment, $multiple = false) {
 		$db			= JFactory::getDbo();
 		$query		= $db->getQuery(true);
 		$jinput		= JFactory::getApplication()->input;
@@ -4821,6 +4821,8 @@ class rseventsproHelper
 		$codes		= array();
 		$names		= array();
 		$discounts	= array();
+		
+		$ticketsContainer = array();
 		
 		if (!empty($form['RSEProName']) && $jinput->get('option') == 'com_rseventspro')
 			$coupon		= @$form['RSEProCoupon'];
@@ -4854,6 +4856,8 @@ class rseventsproHelper
 					$groups = array();
 				}
 				
+				$ticketsContainer[$globalCoupon->id] = $tickets;
+				
 				// If we found a global discount code that coresponds to the one entered or one user group is found in the global discount groups
 				if ($globalCoupon->code == $thecoupon || array_intersect($groups, $usergroups)) {
 					// Event assignment is set to All events
@@ -4867,7 +4871,7 @@ class rseventsproHelper
 							// Unset tickets
 							foreach ($tickets as $eID => $ticket) {
 								if (!in_array($eID ,$events)) {
-									unset($tickets[$eID]);
+									unset($ticketsContainer[$globalCoupon->id][$eID]);
 								}
 							}
 						} else {
@@ -4883,7 +4887,7 @@ class rseventsproHelper
 							// Unset tickets
 							foreach ($tickets as $eID => $ticket) {
 								if (in_array($eID ,$events)) {
-									unset($tickets[$eID]);
+									unset($ticketsContainer[$globalCoupon->id][$eID]);
 								}
 							}
 						} else {
@@ -4938,7 +4942,7 @@ class rseventsproHelper
 					if ($cid->discounttype == 1) {
 						// Different tickets
 						if ($cid->different_tickets) {
-							if (count($tickets) <= (int) $cid->different_tickets) {
+							if (count($ticketsContainer[$cid->id]) <= (int) $cid->different_tickets) {
 								continue;
 							}
 						}
@@ -4954,13 +4958,13 @@ class rseventsproHelper
 							}
 							
 							if (is_array($id)) {
-								foreach ($tickets as $eventID => $thetickets) {
+								foreach ($ticketsContainer[$cid->id] as $eventID => $thetickets) {
 									foreach ($thetickets as $tid => $quantity) {
 										$nr += (int) $quantity;
 									}
 								}
 							} else {
-								foreach ($tickets as $tid => $quantity) {
+								foreach ($ticketsContainer[$cid->id] as $tid => $quantity) {
 									$nr += (int) $quantity;
 								}
 							}
@@ -4973,9 +4977,20 @@ class rseventsproHelper
 						// Same ticket
 						if ($cid->same_tickets) {
 							$ok = false;
-							foreach ($tickets as $ticket => $quantity) {
-								if ($quantity > $cid->same_tickets) {
-									$ok = true;
+							
+							if (is_array($id)) {
+								foreach ($ticketsContainer[$cid->id] as $eventID => $ticket) {
+									foreach ($ticket as $tid => $quantity) {
+										if ($quantity > $cid->same_tickets) {
+											$ok = true;
+										}
+									}
+								}
+							} else {
+								foreach ($ticketsContainer[$cid->id] as $ticket => $quantity) {
+									if ($quantity > $cid->same_tickets) {
+										$ok = true;
+									}
 								}
 							}
 							
@@ -5020,9 +5035,19 @@ class rseventsproHelper
 		
 		if (!empty($discounts)) {
 			arsort($discounts);
-			foreach ($discounts as $couponid => $discount) {
-				return array('id' => $couponid, 'discount' => $discount, 'code' => $codes[$couponid], 'name' => $names[$couponid]);
-				break;
+			
+			if ($multiple) {
+				$return = array();
+				foreach ($discounts as $couponid => $discount) {
+					$return[] = array('id' => $couponid, 'discount' => $discount, 'code' => $codes[$couponid], 'name' => $names[$couponid]);
+				}
+				
+				return $return;
+			} else {
+				foreach ($discounts as $couponid => $discount) {
+					return array('id' => $couponid, 'discount' => $discount, 'code' => $codes[$couponid], 'name' => $names[$couponid]);
+					break;
+				}
 			}
 		}
 		

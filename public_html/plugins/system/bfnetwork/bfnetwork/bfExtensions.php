@@ -80,6 +80,9 @@ final class bfExtensions
         // init Joomla
         require 'bfInitJoomla.php';
 
+        // ffs falang!
+        JFactory::$database = null;
+
         // Set the request vars
         $this->_dataObj = $dataObj;
     }

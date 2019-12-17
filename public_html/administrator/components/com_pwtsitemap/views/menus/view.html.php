@@ -3,42 +3,26 @@
  * @package    Pwtsitemap
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2018 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
 
+defined('_JEXEC') or die;
+
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Layout\FileLayout;
+use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Pagination\Pagination;
-use Joomla\CMS\Toolbar\Toolbar;
-
-defined('_JEXEC') or die;
+use Joomla\CMS\Toolbar\ToolbarHelper;
 
 /**
  * View class for a list of menuitems
  *
  * @since  1.0.0
  */
-class PwtSitemapViewMenus extends \Joomla\CMS\MVC\View\HtmlView
+class PwtSitemapViewMenus extends HtmlView
 {
-	/**
-	 * The item data.
-	 *
-	 * @var    array
-	 * @since  1.0.0
-	 */
-	protected $items = array();
-
-	/**
-	 * Pagination class
-	 *
-	 * @var    Pagination
-	 * @since  1.0.0
-	 */
-	protected $pagination;
-
 	/**
 	 * Filters form
 	 *
@@ -53,7 +37,23 @@ class PwtSitemapViewMenus extends \Joomla\CMS\MVC\View\HtmlView
 	 * @var    array
 	 * @since  1.0.0
 	 */
-	public $activeFilters = array();
+	public $activeFilters = [];
+
+	/**
+	 * The item data.
+	 *
+	 * @var    array
+	 * @since  1.0.0
+	 */
+	protected $items = [];
+
+	/**
+	 * Pagination class
+	 *
+	 * @var    Pagination
+	 * @since  1.0.0
+	 */
+	protected $pagination;
 
 	/**
 	 * The model state.
@@ -78,15 +78,14 @@ class PwtSitemapViewMenus extends \Joomla\CMS\MVC\View\HtmlView
 	 *
 	 * @return  mixed  A string if successful, otherwise an Error object.
 	 *
-	 * @throws  Exception
-	 *
 	 * @since   1.0.0
+	 *
+	 * @throws  Exception
 	 */
 	public function display($tpl = null)
 	{
 		/** @var PwtSitemapModelItems $model */
-		$model = $this->getModel();
-
+		$model               = $this->getModel();
 		$this->items         = $model->getItems();
 		$this->pagination    = $model->getPagination();
 		$this->filterForm    = $model->getFilterForm();
@@ -98,9 +97,9 @@ class PwtSitemapViewMenus extends \Joomla\CMS\MVC\View\HtmlView
 		$this->sidebar = JHtmlSidebar::render();
 
 		// Check for errors.
-		if (count($errors = $this->get('Errors')))
+		if (count($errors = $model->getErrors()))
 		{
-			throw new Exception(implode("\n", $errors), 500);
+			throw new RuntimeException(implode("\n", $errors), 500);
 		}
 
 		$this->addToolbar();
@@ -115,8 +114,8 @@ class PwtSitemapViewMenus extends \Joomla\CMS\MVC\View\HtmlView
 	 *
 	 * @since   1.0.0
 	 */
-	protected function addToolbar()
+	private function addToolbar()
 	{
-		JToolBarHelper::title(Text::_('COM_PWTSITEMAP_TITLE_MENUS'), 'pwtsitemap');
+		ToolbarHelper::title(Text::_('COM_PWTSITEMAP_TITLE_MENUS'), 'pwtsitemap');
 	}
 }

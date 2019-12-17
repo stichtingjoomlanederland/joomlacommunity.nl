@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -138,7 +138,7 @@ class DashboardController extends acymController
         $listClass = acym_get('class.list');
         $walkthroughParams = json_decode($this->config->get('walkthrough_params', '[]'), true);
 
-        $users = empty($walkthroughParams['list_id']) ? [] : $listClass->getSubscribersByListId($walkthroughParams['list_id']);
+        $users = empty($walkthroughParams['list_id']) ? [] : $listClass->getSubscribersForList($walkthroughParams['list_id'], 0, 500);
         $usersReturn = [];
         if (!empty($users)) {
             foreach ($users as $user) {

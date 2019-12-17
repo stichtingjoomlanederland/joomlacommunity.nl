@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -68,7 +68,7 @@ defined('_JEXEC') or die('Restricted access');
 							<button type="button" class="cell medium-6 small-12 button-radio acym__campaign__sendsettings__buttons-type <?php echo $class; ?>" id="acym__campaign__sendsettings__now" data-sending-type="<?php echo $data['campaignClass']::SENDING_TYPE_NOW; ?>"><?php echo acym_translation('ACYM_NOW'); ?></button>
 						</div>
                         <?php if (acym_level(1)) {
-                            $tooltip = acym_level(1) ? '' : 'data-tooltip="'.acym_translation_sprintf('ACYM_USE_THIS_FEATURE', 'AcyMailing Essential').'"';
+                            $tooltip = acym_level(1) ? '' : 'data-acym-tooltip="'.acym_translation_sprintf('ACYM_USE_THIS_FEATURE', 'AcyMailing Essential').'"';
                             $class = $data['currentCampaign']->send_scheduled ? '' : 'button-radio-unselected';
                             $class .= $data['currentCampaign']->draft ? '' : ' button-radio-disabled';
                             ?>
@@ -77,7 +77,7 @@ defined('_JEXEC') or die('Restricted access');
 							</div>
                         <?php }
                         if (acym_level(2)) {
-                            $tooltip = acym_level(2) ? '' : 'data-tooltip="'.acym_translation_sprintf('ACYM_USE_THIS_FEATURE', 'AcyMailing Enterprise').'"';
+                            $tooltip = acym_level(2) ? '' : 'data-acym-tooltip="'.acym_translation_sprintf('ACYM_USE_THIS_FEATURE', 'AcyMailing Enterprise').'"';
                             $class = $data['currentCampaign']->send_auto ? '' : 'button-radio-unselected';
                             $class .= $data['currentCampaign']->draft ? '' : ' button-radio-disabled';
                             ?>
@@ -97,9 +97,9 @@ defined('_JEXEC') or die('Restricted access');
 							<p id="acym__campaign__sendsettings__scheduled__send-date__label" class="cell shrink"><?php echo acym_translation('ACYM_CAMPAIGN_WILL_BE_SENT'); ?></p>
 							<label class="cell shrink" for="acym__campaign__sendsettings__send">
                                 <?php
-                                $value = empty($data['currentCampaign']->sending_date) ? '' : acym_date($data['currentCampaign']->sending_date,  'd M Y H:i');
+                                $value = empty($data['currentCampaign']->sending_date) ? '' : acym_date($data['currentCampaign']->sending_date, 'Y-m-d H:i');
                                 echo acym_tooltip(
-                                    '<input class="text-center acy_date_picker" type="text" name="sendingDate" id="acym__campaign__sendsettings__send-type-scheduled__date" value="'.acym_escape($value).'" readonly>',
+                                    '<input class="text-center acy_date_picker" data-acym-translate="0" type="text" name="sendingDate" id="acym__campaign__sendsettings__send-type-scheduled__date" value="'.acym_escape($value).'" readonly>',
                                     acym_translation('ACYM_CLICK_TO_EDIT')
                                 );
                                 ?>

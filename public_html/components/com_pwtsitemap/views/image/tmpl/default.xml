@@ -7,9 +7,9 @@
 	<fields name="request">
 		<fieldset name="request">
 			<field
-					name="format"
-					type="hidden"
-					default="xml"
+				name="format"
+				type="hidden"
+				default="xml"
 			/>
 		</fieldset>
 	</fields>

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -186,8 +186,7 @@ class plgAcymSubscription extends acymPlugin
             $mailto = $email->replyemail;
         }
         if (empty($mailto)) {
-            $config = acym_config();
-            $mailto = $config->get('replyto_email');
+            $mailto = $this->config->get('replyto_email');
         }
         $email->addCustomHeader('List-Unsubscribe: <'.$myLink.'>, <mailto:'.$mailto.'?subject=unsubscribe_user_'.$user->id.'&body=Please%20unsubscribe%20user%20ID%20'.$user->id.'>');
     }
@@ -475,7 +474,6 @@ class plgAcymSubscription extends acymPlugin
 
     private function _replaceSubscriptionTag(&$allresults, $i, &$email)
     {
-        $config = acym_config();
         $lang = empty($email->lang) ? '' : '&lang='.$email->lang;
 
         $parameters = $this->pluginHelper->extractTag($allresults[1][$i]);
@@ -493,7 +491,7 @@ class plgAcymSubscription extends acymPlugin
             }
             $lists = explode(',', $parameters->lists);
             acym_arrayToInteger($lists);
-            $captchaKey = $config->get('captcha', '') == 1 ? '&seckey='.$config->get('security_key', '') : '';
+            $captchaKey = $this->config->get('captcha', '') == 1 ? '&seckey='.$this->config->get('security_key', '') : '';
             $myLink = acym_frontendLink('frontusers&task=subscribe&hiddenlists='.implode(',', $lists).'&user[email]={subtag:email|urlencode}'.$lang.$captchaKey);
             if (empty($allresults[2][$i])) {
                 return $myLink;

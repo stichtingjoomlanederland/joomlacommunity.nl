@@ -22,15 +22,15 @@ HTMLHelper::_('formbehavior.chosen', 'select');
 ?>
 
 <form action="<?php echo Route::_('index.php?option=com_pwtacl&view=assets'); ?>" method="post" name="adminForm" id="adminForm" enctype="multipart/form-data">
-    <div id="j-sidebar-container" class="span2">
+	<div id="j-sidebar-container" class="span2">
 		<?php echo $this->sidebar; ?>
-		<?php echo LayoutHelper::render('pwtacl.legend.'. $this->type); ?>
-    </div>
-    <div id="j-main-container" class="span10">
+		<?php echo LayoutHelper::render('pwtacl.legend.' . $this->type); ?>
+	</div>
+	<div id="j-main-container" class="span10">
 		<?php echo LayoutHelper::render('joomla.searchtools.default', array('view' => $this)); ?>
 
 		<?php if ($this->group || $this->user): ?>
-            <table id="pwtacl" class="table table-bordered table-fixed-header">
+			<table id="pwtacl" class="table table-bordered table-fixed-header">
 				<?php echo LayoutHelper::render('pwtacl.table.assets.header'); ?>
 				<?php echo LayoutHelper::render(
 					'pwtacl.table.assets.body',
@@ -39,20 +39,20 @@ HTMLHelper::_('formbehavior.chosen', 'select');
 						'group'  => $this->group
 					)
 				); ?>
-            </table>
+			</table>
 			<?php echo $this->pagination->getListFooter(); ?>
 		<?php else: ?>
-            <div class="well">
-                <h3 class="text-center">
+			<div class="well">
+				<h3 class="text-center">
 					<?php if ($this->type == 'group'): ?>
 						<?php echo Text::_('COM_PWTACL_ASSETS_SELECT_GROUP'); ?>
 					<?php elseif ($this->type == 'user'): ?>
 						<?php echo Text::_('COM_PWTACL_ASSETS_SELECT_USER'); ?>
 					<?php endif; ?>
-                </h3>
-            </div>
+				</h3>
+			</div>
 		<?php endif; ?>
-    </div>
+	</div>
 
 	<?php echo JHtml::_(
 		'bootstrap.renderModal',
@@ -74,7 +74,7 @@ HTMLHelper::_('formbehavior.chosen', 'select');
 		$this->loadTemplate('copy_body')
 	); ?>
 
-    <input type="hidden" name="option" value="com_pwtacl"/>
-    <input type="hidden" name="task" value=""/>
+	<input type="hidden" name="option" value="com_pwtacl"/>
+	<input type="hidden" name="task" value=""/>
 	<?php echo HTMLHelper::_('form.token'); ?>
 </form>

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -22,7 +22,7 @@ class Tag
 {
 	public function pass()
 	{
-		if (! $this->request->id)
+		if ( ! $this->request->id)
 		{
 			return $this->_(false);
 		}

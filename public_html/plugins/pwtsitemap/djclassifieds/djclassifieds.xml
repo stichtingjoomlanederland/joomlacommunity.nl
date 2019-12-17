@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.1" type="plugin" group="pwtsitemap" method="upgrade">
+	<name>PLG_PWTSITEMAP_DJCLASSIFIEDS</name>
+	<author>Perfect Web Team</author>
+	<creationDate>04 October 2019</creationDate>
+	<copyright>Copyright (C) 2016 - 2019 Perfect Web Team</copyright>
+	<license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
+	<authorEmail>extensions@perfectwebteam.com</authorEmail>
+	<authorUrl>https://extensions.perfectwebteam.com</authorUrl>
+	<version>1.0.0</version>
+	<description>PLG_PWTSITEMAP_DJCLASSIFIEDS_XML_DESCRIPTION</description>
+
+	<files>
+		<folder>language</folder>
+		<filename plugin="djclassifieds">djclassifieds.php</filename>
+		<filename>djclassifieds.xml</filename>
+	</files>
+
+	<config>
+	</config>
+</extension>

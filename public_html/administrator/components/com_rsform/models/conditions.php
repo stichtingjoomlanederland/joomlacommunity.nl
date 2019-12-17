@@ -9,25 +9,9 @@ defined('_JEXEC') or die('Restricted access');
 
 class RsformModelConditions extends JModelLegacy
 {
-	public $_data 	= null;
-	public $_total  = 0;
-	public $_query  = '';
-	public $_db 	= null;
-
-	public function __construct($config = array())
-	{
-		parent::__construct($config);
-		$this->_db = JFactory::getDbo();
-	}
-	
 	public function getFormId()
 	{
-		static $formId;
-		if (empty($formId)) {
-            $formId = JFactory::getApplication()->input->getInt('formId');
-        }
-		
-		return $formId;
+		return JFactory::getApplication()->input->getInt('formId');
 	}
 	
 	public function getAllFields()
@@ -140,17 +124,6 @@ class RsformModelConditions extends JModelLegacy
 		$row = JTable::getInstance('RSForm_Conditions', 'Table');
 		$row->load($cid);
 		
-		$row->details = array();
-		if ($row->id)
-		{
-		    $query = $this->_db->getQuery(true);
-		    $query->select('*')
-                ->from($this->_db->qn('#__rsform_condition_details'))
-                ->where($this->_db->qn('condition_id') . ' = ' . $this->_db->q($row->id));
-			$this->_db->setQuery($query);
-			$row->details = $this->_db->loadObjectList();
-		}
-		
 		return $row;
 	}
 	
@@ -161,60 +134,34 @@ class RsformModelConditions extends JModelLegacy
 	
 	public function save()
 	{
-		$post		= RSFormProHelper::getRawPost();
-		$app        = JFactory::getApplication();
-        $input		= $app->input;
+		$post		= JFactory::getApplication()->input->post->getArray(array(), null, 'raw');
 		$condition 	= JTable::getInstance('RSForm_Conditions', 'Table');
 
 		try
         {
-            $condition->bind($post);
-            $condition->store();
-
-            $query = $this->_db->getQuery(true)
-                ->delete($this->_db->qn('#__rsform_condition_details'))
-                ->where($this->_db->qn('condition_id') . ' = ' . $this->_db->q($condition->id));
-            $this->_db->setQuery($query)
-                ->execute();
-
-            $component_ids 	= $input->get('detail_component_id', array(), 'array');
-            $operators 		= $input->get('operator', array(), 'array');
-            $values 		= $input->get('value', array(), 'raw');
-
-            for ($i=0; $i<count($component_ids); $i++)
-            {
-                $detail = JTable::getInstance('RSForm_Condition_Details', 'Table');
-                $detail->condition_id 	= $condition->id;
-                $detail->component_id 	= $component_ids[$i];
-                $detail->operator 		= $operators[$i];
-                $detail->value 			= $values[$i];
-                $detail->store();
-            }
-
+            $condition->save($post);
             return $condition->id;
         }
         catch (Exception $e)
 		{
-            $app->enqueueMessage($e->getMessage(), 'error');
+			JFactory::getApplication()->enqueueMessage($e->getMessage(), 'error');
 			return false;
 		}
 	}
 	
 	public function remove()
 	{
-		$cid = JFactory::getApplication()->input->getInt('cid');
+		$condition = JTable::getInstance('RSForm_Conditions', 'Table');
+		$cid	   = JFactory::getApplication()->input->getInt('cid');
 
-		$query = $this->_db->getQuery(true);
-
-		$query->delete($this->_db->qn('#__rsform_conditions'))
-            ->where($this->_db->qn('id') . ' = ' . $this->_db->q($cid));
-		$this->_db->setQuery($query)
-            ->execute();
-
-        $query->clear()
-            ->delete($this->_db->qn('#__rsform_condition_details'))
-            ->where($this->_db->qn('condition_id') . ' = ' . $this->_db->q($cid));
-        $this->_db->setQuery($query)
-            ->execute();
+		try
+		{
+			return $condition->delete($cid);
+		}
+		catch (Exception $e)
+		{
+			JFactory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+			return false;
+		}
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -23,7 +23,6 @@ class ConfigurationController extends acymController
     {
         acym_setVar('layout', 'listing');
 
-        $config = acym_config();
         $tabHelper = acym_get('helper.tab');
 
         $langs = acym_getLanguages();
@@ -62,7 +61,6 @@ class ConfigurationController extends acymController
         }
 
         $data = [
-            'config' => $config,
             'tab' => $tabHelper,
             'languages' => $languages,
             'lists' => $lists,
@@ -249,8 +247,7 @@ class ConfigurationController extends acymController
         }
 
 
-        $config = acym_config();
-        $status = $config->save($formData);
+        $status = $this->config->save($formData);
 
         if ($status) {
             acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success');
@@ -258,16 +255,15 @@ class ConfigurationController extends acymController
             acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING'), 'error');
         }
 
-        $config->load();
+        $this->config->load();
     }
 
     public function test()
     {
         $this->store();
 
-        $config = acym_config();
         $mailerHelper = acym_get('helper.mailer');
-        $addedName = $config->get('add_names', true) ? $mailerHelper->cleanText(acym_currentUserName()) : '';
+        $addedName = $this->config->get('add_names', true) ? $mailerHelper->cleanText(acym_currentUserName()) : '';
 
         $mailerHelper->AddAddress(acym_currentUserEmail(), $addedName);
         $mailerHelper->Subject = 'Test e-mail from '.ACYM_LIVE;
@@ -281,19 +277,19 @@ class ConfigurationController extends acymController
         $result = $mailerHelper->send();
 
         if (!$result) {
-            $sendingMethod = $config->get('mailer_method');
+            $sendingMethod = $this->config->get('mailer_method');
 
             if ($sendingMethod == 'smtp') {
-                if ($config->get('smtp_secured') == 'ssl' && !function_exists('openssl_sign')) {
+                if ($this->config->get('smtp_secured') == 'ssl' && !function_exists('openssl_sign')) {
                     acym_enqueueMessage(acym_translation('ACYM_OPENSSL'), 'notice');
                 }
 
-                if (!$config->get('smtp_auth') && strlen($config->get('smtp_password')) > 1) {
+                if (!$this->config->get('smtp_auth') && strlen($this->config->get('smtp_password')) > 1) {
                     acym_enqueueMessage(acym_translation('ACYM_ADVICE_SMTP_AUTH'), 'notice');
                 }
 
-                if ($config->get('smtp_port') && !in_array($config->get('smtp_port'), [25, 2525, 465, 587])) {
-                    acym_enqueueMessage(acym_translation_sprintf('ACYM_ADVICE_PORT', $config->get('smtp_port')), 'notice');
+                if ($this->config->get('smtp_port') && !in_array($this->config->get('smtp_port'), [25, 2525, 465, 587])) {
+                    acym_enqueueMessage(acym_translation_sprintf('ACYM_ADVICE_PORT', $this->config->get('smtp_port')), 'notice');
                 }
             }
 
@@ -301,7 +297,7 @@ class ConfigurationController extends acymController
                 acym_enqueueMessage(acym_translation('ACYM_ADVICE_LOCALHOST'), 'notice');
             }
 
-            $bounce = $config->get('bounce_email');
+            $bounce = $this->config->get('bounce_email');
             if (!empty($bounce) && !in_array($sendingMethod, ['smtp', 'elasticemail'])) {
                 acym_enqueueMessage(acym_translation_sprintf('ACYM_ADVICE_BOUNCE', '<b>'.$bounce.'</b>'), 'notice');
             }
@@ -351,15 +347,14 @@ class ConfigurationController extends acymController
 
     public function deletereport()
     {
-        $config = acym_config();
-        $path = trim(html_entity_decode($config->get('cron_savepath')));
+        $path = trim(html_entity_decode($this->config->get('cron_savepath')));
         if (!preg_match('#^[a-z0-9/_\-{}]*\.log$#i', $path)) {
             acym_enqueueMessage(acym_translation('ACYM_WRONG_LOG_NAME'), 'error');
 
             return;
         }
 
-        $path = str_replace(['{year}', '{month}'], [date('Y'), date('m')], $config->get('cron_savepath'));
+        $path = str_replace(['{year}', '{month}'], [date('Y'), date('m')], $this->config->get('cron_savepath'));
         $reportPath = acym_cleanPath(ACYM_ROOT.$path);
 
         if (is_file($reportPath)) {
@@ -380,9 +375,7 @@ class ConfigurationController extends acymController
     {
         acym_noCache();
 
-        $config = acym_config();
-
-        $path = trim(html_entity_decode($config->get('cron_savepath')));
+        $path = trim(html_entity_decode($this->config->get('cron_savepath')));
         if (!preg_match('#^[a-z0-9/_\-{}]*\.log$#i', $path)) {
             acym_display(acym_translation('ACYM_WRONG_LOG_NAME'), 'error');
         }
@@ -427,17 +420,15 @@ class ConfigurationController extends acymController
 
     public function redomigration()
     {
-        $config = acym_config();
         $newConfig = new stdClass();
         $newConfig->migration = 0;
-        $config->save($newConfig);
+        $this->config->save($newConfig);
 
         acym_redirect(acym_completeLink('dashboard', false, true));
     }
 
     public function removeNotification()
     {
-        $config = acym_config();
         $whichNotification = acym_getVar('string', 'id');
 
         if ($whichNotification != 0 && empty($whichNotification)) {
@@ -446,12 +437,12 @@ class ConfigurationController extends acymController
         }
 
         if ('all' === $whichNotification) {
-            $config->save(['notifications' => '[]']);
+            $this->config->save(['notifications' => '[]']);
             $notifications = [];
         } else {
-            $notifications = json_decode($config->get('notifications', '[]'), true);
+            $notifications = json_decode($this->config->get('notifications', '[]'), true);
             unset($notifications[$whichNotification]);
-            $config->save(['notifications' => json_encode($notifications)]);
+            $this->config->save(['notifications' => json_encode($notifications)]);
         }
         $helperHeader = acym_get('helper.header');
 
@@ -461,11 +452,9 @@ class ConfigurationController extends acymController
 
     public function markNotificationRead()
     {
-        $config = acym_config();
-
         $which = acym_getVar('string', 'id');
 
-        $notifications = json_decode($config->get('notifications', '[]'), true);
+        $notifications = json_decode($this->config->get('notifications', '[]'), true);
         if (empty($notifications)) {
             echo json_encode(['message' => 'done']);
             exit;
@@ -483,7 +472,7 @@ class ConfigurationController extends acymController
         }
 
 
-        $config->save(['notifications' => json_encode($notifications)]);
+        $this->config->save(['notifications' => json_encode($notifications)]);
 
         echo json_encode(['message' => 'done']);
         exit;

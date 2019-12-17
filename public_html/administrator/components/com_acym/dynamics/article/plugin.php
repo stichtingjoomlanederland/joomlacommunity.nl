@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -112,6 +112,8 @@ class plgAcymArticle extends acymPlugin
             ],
         ];
 
+        $this->autoCampaignOptions($catOptions);
+
         $displayOptions = array_merge($displayOptions, $catOptions);
 
         echo $this->displaySelectionZone($this->getCategoryListing());
@@ -199,6 +201,13 @@ class plgAcymArticle extends acymPlugin
             $where[] = 'element.state = 1';
             $where[] = '`publish_up` < '.acym_escapeDB(date('Y-m-d H:i:s', $time - date('Z')));
             $where[] = '`publish_down` > '.acym_escapeDB(date('Y-m-d H:i:s', $time - date('Z'))).' OR `publish_down` = 0';
+
+            if (!empty($parameter->onlynew)) {
+                $lastGenerated = $this->getLastGenerated($email->id);
+                if (!empty($lastGenerated)) {
+                    $where[] = 'element.publish_up > '.acym_escapeDB(acym_date($lastGenerated, 'Y-m-d H:i:s', false));
+                }
+            }
 
             $query .= ' WHERE ('.implode(') AND (', $where).')';
 

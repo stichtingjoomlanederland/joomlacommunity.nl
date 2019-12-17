@@ -1,6 +1,6 @@
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -8,14 +8,13 @@
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
+"use strict";
+
 (function($) {
-	"use strict";
-
 	$(document).ready(function() {
-
 		$('.rl_resize_textarea').click(function() {
 			var $el    = $(this);
-			var $field = $('#' + $el.attr('data-id'));
+			var $field = $(`#${$el.attr('data-id')}`);
 
 			if ($el.hasClass('rl_minimize')) {
 				$el.removeClass('rl_minimize').addClass('rl_maximize');

@@ -27,7 +27,8 @@
 			class="btn-group"
 			default="0"
 			label="COM_PWTACL_OPTIONS_ACL_CATEGORYMANAGER"
-			description="COM_PWTACL_OPTIONS_ACL_CATEGORYMANAGER_DESC">
+			description="COM_PWTACL_OPTIONS_ACL_CATEGORYMANAGER_DESC"
+		>
 			<option value="0">JNO</option>
 			<option value="1">JYES</option>
 		</field>
@@ -38,7 +39,8 @@
 			class="btn-group"
 			default="1"
 			label="COM_PWTACL_OPTIONS_ACL_EDITABLE_ONLY_ARTICLES"
-			description="COM_PWTACL_OPTIONS_ACL_EDITABLE_ONLY_ARTICLES_DESC">
+			description="COM_PWTACL_OPTIONS_ACL_EDITABLE_ONLY_ARTICLES_DESC"
+		>
 			<option value="0">JNO</option>
 			<option value="1">JYES</option>
 		</field>
@@ -49,7 +51,8 @@
 			class="btn-group"
 			default="1"
 			label="COM_PWTACL_OPTIONS_ACL_EDITABLE_ONLY_CONTACTS"
-			description="COM_PWTACL_OPTIONS_ACL_EDITABLE_ONLY_CONTACTS_DESC">
+			description="COM_PWTACL_OPTIONS_ACL_EDITABLE_ONLY_CONTACTS_DESC"
+		>
 			<option value="0">JNO</option>
 			<option value="1">JYES</option>
 		</field>
@@ -60,7 +63,8 @@
 			class="btn-group"
 			default="1"
 			label="COM_PWTACL_OPTIONS_ACL_EDITABLE_ONLY_MODULES"
-			description="COM_PWTACL_OPTIONS_ACL_EDITABLE_ONLY_MODULES_DESC">
+			description="COM_PWTACL_OPTIONS_ACL_EDITABLE_ONLY_MODULES_DESC"
+		>
 			<option value="0">JNO</option>
 			<option value="1">JYES</option>
 		</field>
@@ -77,7 +81,8 @@
 			class="btn-group"
 			default="1"
 			label="COM_PWTACL_OPTIONS_DIAGNOSTICS_CONTROLPANEL"
-			description="COM_PWTACL_OPTIONS_DIAGNOSTICS_CONTROLPANEL_DESC">
+			description="COM_PWTACL_OPTIONS_DIAGNOSTICS_CONTROLPANEL_DESC"
+		>
 			<option value="0">JNO</option>
 			<option value="1">JYES</option>
 		</field>
@@ -91,6 +96,18 @@
 			description="COM_PWTACL_OPTIONS_DIAGNOSTICS_TIMEOUT_DESC"
 			filter="integer"
 		/>
+
+		<field
+			name="diagnostics_backendcheck"
+			type="radio"
+			class="btn-group"
+			default="1"
+			label="COM_PWTACL_OPTIONS_DIAGNOSTICS_BACKENDCHECK"
+			description="COM_PWTACL_OPTIONS_DIAGNOSTICS_BACKENDCHECK_DESC"
+		>
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
 	</fieldset>
 
 	<fieldset

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -553,6 +553,7 @@ class Conditions
 					'content_keywords', 'keywords' => 'meta_keywords',
 					'authors',
 					'date', 'date_comparison', 'date_type', 'date_date', 'date_from', 'date_to',
+					'fields',
 				];
 				break;
 
@@ -609,7 +610,7 @@ class Conditions
 
 		$incs = self::getTypeParamValue($id, $params, 'inc', true);
 
-		if (empty($incs) && !empty($params->conditions[$id]) && ! isset($params->conditions[$id . '_inc']))
+		if (empty($incs) && ! empty($params->conditions[$id]) && ! isset($params->conditions[$id . '_inc']))
 		{
 			$incs = ['inc_items', 'inc_arts', 'inc_cats', 'inc_others', 'x'];
 		}

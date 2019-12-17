@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -11,19 +11,18 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <?php
 
-class acymheaderHelper
+class acymheaderHelper extends acymObject
 {
     public function display($breadcrumb)
     {
         $news = @simplexml_load_file(ACYM_ACYWEBSITE.'acymnews.xml');
-        $config = acym_config();
         $header = '';
         if (!empty($news->news)) {
 
             $currentLanguage = acym_getLanguageTag();
 
             $latestNews = null;
-            $doNotRemind = json_decode($config->get('remindme', '[]'));
+            $doNotRemind = json_decode($this->config->get('remindme', '[]'));
             foreach ($news->news as $oneNews) {
                 if (!empty($latestNews) && strtotime($latestNews->date) > strtotime($oneNews->date)) break;
 
@@ -33,11 +32,11 @@ class acymheaderHelper
 
                 if (!empty($oneNews->cms) && strtolower($oneNews->cms) != 'Joomla') continue;
 
-                if (!empty($oneNews->level) && strtolower($oneNews->level) != strtolower($config->get('level'))) continue;
+                if (!empty($oneNews->level) && strtolower($oneNews->level) != strtolower($this->config->get('level'))) continue;
 
                 if (!empty($oneNews->version)) {
                     list($version, $operator) = explode('_', $oneNews->version);
-                    if (!version_compare($config->get('version'), $version, $operator)) continue;
+                    if (!version_compare($this->config->get('version'), $version, $operator)) continue;
                 }
 
                 if (in_array($oneNews->name, $doNotRemind)) continue;
@@ -81,9 +80,7 @@ class acymheaderHelper
         $header .= $this->checkVersionArea();
         $header .= '</div>';
 
-        $config = acym_config();
-
-        $lastLicenseCheck = $config->get('lastlicensecheck', 0);
+        $lastLicenseCheck = $this->config->get('lastlicensecheck', 0);
         $time = time();
         $checking = '0';
         if ($time > $lastLicenseCheck + 604800) $checking = '1';
@@ -104,11 +101,9 @@ class acymheaderHelper
 
     public function checkVersionArea()
     {
-        $config = acym_config();
-
-        $currentLevel = $config->get('level', '');
-        $currentVersion = $config->get('version', '');
-        $latestVersion = $config->get('latestversion', '');
+        $currentLevel = $this->config->get('level', '');
+        $currentVersion = $this->config->get('version', '');
+        $latestVersion = $this->config->get('latestversion', '');
 
         $version = '<div id="acym_level_version_area" class="text-right">';
         $version .= '<div id="acym_level">'.ACYM_NAME.' '.$currentLevel.' ';
@@ -119,7 +114,7 @@ class acymheaderHelper
             if ('wordpress' === ACYM_CMS) {
                 $downloadLink = admin_url().'update-core.php';
             } else {
-                $downloadLink = ACYM_REDIRECT.'update-acymailing-'.$currentLevel.'&version='.$config->get('version').'" target="_blank';
+                $downloadLink = ACYM_REDIRECT.'update-acymailing-'.$currentLevel.'&version='.$this->config->get('version').'" target="_blank';
             }
             $version .= acym_tooltip(
                 '<span class="acy_updateversion acym__color__red">'.$currentVersion.'</span>',
@@ -134,7 +129,7 @@ class acymheaderHelper
 
         if (!acym_level(1)) return $version;
 
-        $expirationDate = $config->get('expirationdate', 0);
+        $expirationDate = $this->config->get('expirationdate', 0);
         if (empty($expirationDate) || $expirationDate == -1) return $version;
 
         $version .= '<div id="acym_expiration" class="text-right cell">';
@@ -162,8 +157,7 @@ class acymheaderHelper
 
     public function getNotificationCenter()
     {
-        $config = acym_config();
-        $notifications = json_decode($config->get('notifications', '{}'), true);
+        $notifications = json_decode($this->config->get('notifications', '{}'), true);
         $message = '';
         $notificationLevel = 0;
         if (!empty($_SESSION['acym_success'])) {
@@ -192,7 +186,7 @@ class acymheaderHelper
             case 1:
                 $iconToDisplay = 'fa-check-circle acym__color__green';
                 $notificationLevel = 'acym__header__notification__button__success acym__header__notification__pulse';
-                $tooltip = 'data-tooltip="'.acym_escape($message).'" data-tooltip-position="left"';
+                $tooltip = 'data-acym-tooltip="'.acym_escape($message).'" data-acym-tooltip-position="left"';
                 break;
             case 2:
                 $iconToDisplay = 'fa-bell-o acym__color__blue';
@@ -248,9 +242,8 @@ class acymheaderHelper
 
             return true;
         }
-        $config = acym_config();
 
-        $notifications = json_decode($config->get('notifications', '[]'), true);
+        $notifications = json_decode($this->config->get('notifications', '[]'), true);
 
         $notif->message = strip_tags($notif->message);
 
@@ -264,7 +257,7 @@ class acymheaderHelper
 
         if (count($notifications) > 10) unset($notifications[10]);
 
-        $config->save(['notifications' => json_encode($notifications)]);
+        $this->config->save(['notifications' => json_encode($notifications)]);
 
         return $notif->id;
     }

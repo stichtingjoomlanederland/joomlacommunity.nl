@@ -32,7 +32,7 @@ class RsformControllerComponents extends RsformController
 		$published			= $app->input->getInt('Published');
 
         $params = $app->input->post->get('param', array(), 'raw');
-		$params['EMAILATTACH'] = !empty($params['EMAILATTACH']) ? implode(',',$params['EMAILATTACH']) : '';
+
 		if (isset($params['VALIDATIONRULE']) && $params['VALIDATIONRULE'] == 'multiplerules') {
 			$params['VALIDATIONMULTIPLE'] = !empty($params['VALIDATIONMULTIPLE']) ? implode(',',$params['VALIDATIONMULTIPLE']) : '';
 			$params['VALIDATIONEXTRA'] = !empty($params['VALIDATIONEXTRA']) ? json_encode($params['VALIDATIONEXTRA']) : '';
@@ -159,6 +159,10 @@ class RsformControllerComponents extends RsformController
 
 					$val = implode('\r\n', $sanitized);
 				}
+				if ($key === 'EMAILATTACH')
+				{
+					$val = implode(',', $val);
+				}
 
 				$property = (object) array(
 				    'PropertyValue' => $val,
@@ -177,7 +181,7 @@ class RsformControllerComponents extends RsformController
 			}
 		}
 
-		$link = 'index.php?option=com_rsform&task=forms.edit&formId='.$formId;
+		$link = 'index.php?option=com_rsform&view=forms&layout=edit&formId='.$formId;
         if ($app->input->getInt('tabposition')) {
             $link .= '&tabposition=1';
             if ($tab = $app->input->getInt('tab')) {
@@ -303,7 +307,7 @@ class RsformControllerComponents extends RsformController
 			$model->copyComponent($cid, $toFormId);
 		}
 
-		$this->setRedirect('index.php?option=com_rsform&task=forms.edit&formId='.$toFormId, JText::sprintf('RSFP_COMPONENTS_COPIED', count($cids)));
+		$this->setRedirect('index.php?option=com_rsform&view=forms&layout=edit&formId='.$toFormId, JText::sprintf('RSFP_COMPONENTS_COPIED', count($cids)));
 	}
 
     public function copy()
@@ -316,7 +320,7 @@ class RsformControllerComponents extends RsformController
 			->where($db->qn('FormId') . ' != ' . $db->q($formId));
 		$db->setQuery($query);
 		if (!$db->loadResult())
-			return $this->setRedirect('index.php?option=com_rsform&task=forms.edit&formId='.$formId, JText::_('RSFP_NEED_MORE_FORMS'));
+			return $this->setRedirect('index.php?option=com_rsform&view=forms&layout=edit&formId='.$formId, JText::_('RSFP_NEED_MORE_FORMS'));
 
 		JFactory::getApplication()->input->set('view', 'forms');
 		JFactory::getApplication()->input->set('layout', 'component_copy');
@@ -327,7 +331,7 @@ class RsformControllerComponents extends RsformController
     public function copyCancel()
 	{
 		$formId = JFactory::getApplication()->input->getInt('formId');
-		$this->setRedirect('index.php?option=com_rsform&task=forms.edit&formId='.$formId);
+		$this->setRedirect('index.php?option=com_rsform&view=forms&layout=edit&formId='.$formId);
 	}
 
     public function duplicate()
@@ -343,7 +347,7 @@ class RsformControllerComponents extends RsformController
 			$model->copyComponent($cid, $formId);
 		}
 
-		$this->setRedirect('index.php?option=com_rsform&task=forms.edit&formId='.$formId, JText::sprintf('RSFP_COMPONENTS_COPIED', count($cids)));
+		$this->setRedirect('index.php?option=com_rsform&view=forms&layout=edit&formId='.$formId, JText::sprintf('RSFP_COMPONENTS_COPIED', count($cids)));
 	}
 
     public function changeStatus()
@@ -362,7 +366,7 @@ class RsformControllerComponents extends RsformController
 			if ($task == 'publish')
 				$msg = 'RSFP_ITEMS_PUBLISHED';
 
-			$this->setRedirect('index.php?option=com_rsform&task=forms.edit&formId='.$formId, JText::sprintf($msg, count($componentId)));
+			$this->setRedirect('index.php?option=com_rsform&view=forms&layout=edit&formId='.$formId, JText::sprintf($msg, count($componentId)));
 		}
 		// Ajax request
 		else
@@ -398,21 +402,19 @@ class RsformControllerComponents extends RsformController
 
 		// Escape IDs and implode them so they can be used in the queries below
 		$componentIds = $cids;
-		array_walk($componentIds, array('RSFormProHelper', 'quoteArray'));
-		$componentIds = implode(',', $componentIds);
 
 		if ($cids) {
 			// Delete form fields
 			$query = $db->getQuery(true)
 				->delete($db->qn('#__rsform_components'))
-				->where($db->qn('ComponentId').' IN ('.$componentIds.')');
+				->where($db->qn('ComponentId').' IN ('.implode(',', $db->q($componentIds)).')');
 			$db->setQuery($query)
 				->execute();
 
 			// Delete leftover properties
 			$query->clear()
 				->delete($db->qn('#__rsform_properties'))
-				->where($db->qn('ComponentId').' IN ('.$componentIds.')');
+				->where($db->qn('ComponentId').' IN ('.implode(',', $db->q($componentIds)).')');
 			$db->setQuery($query)
 				->execute();
 
@@ -426,27 +428,63 @@ class RsformControllerComponents extends RsformController
 				->execute();
 			
 			// Delete conditions
-			$query->clear()
-				->select($db->qn('id'))
-				->from($db->qn('#__rsform_conditions'))
-				->where($db->qn('component_id').' IN ('.$componentIds.')');
-			if ($condition_ids = $db->setQuery($query)->loadColumn())
+			foreach ($componentIds as $componentId)
 			{
 				$query->clear()
-					->delete($db->qn('#__rsform_condition_details'))
-					->where($db->qn('condition_id').' IN ('.implode(',', $condition_ids).')');
-				$db->setQuery($query)
-					->execute();
+					->select($db->qn('id'))
+					->select($db->qn('component_id'))
+					->from($db->qn('#__rsform_conditions'))
+					->where($db->qn('form_id') . ' = ' . $db->q($formId))
+					->where($db->qn('component_id') . ' LIKE ' . $db->q('%' . $componentId . '%'));
+				if ($conditions = $db->setQuery($query)->loadObjectList())
+				{
+					$conditionsToDelete = array();
+					require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/conditions.php';
 
-				$query->clear()
-					->delete($db->qn('#__rsform_conditions'))
-					->where($db->qn('component_id').' IN ('.$componentIds.')');
-				$db->setQuery($query)
-					->execute();
+					foreach ($conditions as $condition)
+					{
+						$condition->component_id = RSFormProConditions::parseComponentIds($condition->component_id);
+
+						if (($pos = array_search($componentId, $condition->component_id)) !== false)
+						{
+							unset($condition->component_id[$pos]);
+
+							if (empty($condition->component_id))
+							{
+								$conditionsToDelete[] = $condition->id;
+							}
+							else
+							{
+								// Update condition with new values
+								$query->clear()
+									->update($db->qn('#__rsform_conditions'))
+									->set($db->qn('component_id') . ' = ' . $db->q(json_encode(array_values($condition->component_id))))
+									->where($db->qn('id') . ' = ' . $db->q($condition->id));
+								$db->setQuery($query)->execute();
+							}
+						}
+					}
+
+					if ($conditionsToDelete)
+					{
+						$query->clear()
+							->delete($db->qn('#__rsform_condition_details'))
+							->where($db->qn('condition_id').' IN ('.implode(',', $conditionsToDelete).')');
+						$db->setQuery($query)
+							->execute();
+
+						$query->clear()
+							->delete($db->qn('#__rsform_conditions'))
+							->where($db->qn('id').' IN ('.implode(',', $db->q($conditionsToDelete)).')');
+						$db->setQuery($query)
+							->execute();
+					}
+				}
 			}
+
 			$query->clear()
 				->delete($db->qn('#__rsform_condition_details'))
-				->where($db->qn('component_id').' IN ('.$componentIds.')');
+				->where($db->qn('component_id').' IN ('.implode(',', $db->q($componentIds)).')');
 			$db->setQuery($query)
 				->execute();
 			
@@ -480,6 +518,6 @@ class RsformControllerComponents extends RsformController
 			$app->close();
 		}
 
-		$this->setRedirect('index.php?option=com_rsform&task=forms.edit&formId='.$formId, JText::sprintf('ITEMS REMOVED', count($cids)));
+		$this->setRedirect('index.php?option=com_rsform&view=forms&layout=edit&formId='.$formId, JText::sprintf('ITEMS REMOVED', count($cids)));
 	}
 }

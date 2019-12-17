@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -11,10 +11,11 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <?php
 
-class acympluginHelper
+class acympluginHelper extends acymObject
 {
     public $wraped = false;
     public $name = 'content';
+    public $mailerHelper;
 
     public function getFormattedResult($elements, $parameter)
     {
@@ -367,7 +368,7 @@ class acympluginHelper
         $html = str_replace(array_keys($replace), $replace, $html);
     }
 
-    public function replaceTags(&$email, &$tags, $html = false)
+    public function replaceTags(&$email, $tags, $html = false)
     {
         if (empty($tags)) return;
 
@@ -383,9 +384,7 @@ class acympluginHelper
 
             $textreplace = [];
             foreach ($tags as $i => $replacement) {
-                if (isset($textreplace[$i])) {
-                    continue;
-                }
+                if (isset($textreplace[$i])) continue;
                 $textreplace[$i] = $this->mailerHelper->textVersion($replacement, true);
             }
         } else {
@@ -394,7 +393,6 @@ class acympluginHelper
 
         foreach ($variables as $var) {
             if (empty($email->$var)) continue;
-
             $email->$var = $this->replaceDText($email->$var, in_array($var, $htmlVars) ? $tags : $textreplace);
         }
     }
@@ -408,9 +406,19 @@ class acympluginHelper
             }
         } elseif (is_string($text) && !empty($text)) {
             foreach ($replacement as $code => $value) {
-                $text = preg_replace('#<span[^>]+'.preg_quote($code, '#').'.+</em>[^<]*</span>#Uis', $value, $text);
+                $safePregValue = str_replace('$', '\$', $value);
 
-                $text = preg_replace('#(<tr[^>]+)data-dynamic="'.preg_quote($code, '#').'"([^>]+>[^<]*<td[^>]*>).+</i>[^<]*</td>[^<]*</tr>#Uis', '$1$2'.$value.'</td></tr>', $text);
+                $text = preg_replace(
+                    '#<span[^>]+'.preg_quote($code, '#').'.+</em>[^<]*</span>#Uis',
+                    $safePregValue,
+                    $text
+                );
+
+                $text = preg_replace(
+                    '#(<tr[^>]+)data-dynamic="'.preg_quote($code, '#').'"([^>]+>[^<]*<td[^>]*>).+</i>[^<]*</td>[^<]*</tr>#Uis',
+                    '$1$2'.$safePregValue.'</td></tr>',
+                    $text
+                );
 
                 $text = str_replace($code, $value, $text);
             }
@@ -498,20 +506,27 @@ class acympluginHelper
         if (!empty($tag->wrap)) $tag->wrap = intval($tag->wrap);
         if (empty($tag->wrap)) return $text;
 
-        $allowedTags = [];
-        $allowedTags[] = 'b';
-        $allowedTags[] = 'strong';
-        $allowedTags[] = 'i';
-        $allowedTags[] = 'em';
-        $allowedTags[] = 'a';
+        $allowedTags = [
+            'b',
+            'strong',
+            'i',
+            'em',
+            'a',
+            'p',
+            'div',
+            'h2',
+            'h3',
+            'h4',
+            'h5',
+            'h6',
+        ];
 
-        $aloneAllowedTags = [];
-        $aloneAllowedTags[] = 'br';
-        $aloneAllowedTags[] = 'img';
+        $aloneAllowedTags = [
+            'br',
+            'img',
+        ];
 
-        $newText = preg_replace('/<p[^>]*>/i', '<br />', $text);
-        $newText = preg_replace('/<div[^>]*>/i', '<br />', $newText);
-        $newText = strip_tags($newText, '<'.implode('><', array_merge($allowedTags, $aloneAllowedTags)).'>');
+        $newText = strip_tags($text, '<'.implode('><', array_merge($allowedTags, $aloneAllowedTags)).'>');
 
         $newText = preg_replace('/^(\s|\n|(<br[^>]*>))+/i', '', trim($newText));
         $newText = preg_replace('/(\s|\n|(<br[^>]*>))+$/i', '', trim($newText));
@@ -595,12 +610,23 @@ class acympluginHelper
         $image = '';
         if (!empty($format->imagePath)) {
             $style = '';
+            $linkStyle = '';
+
             if (in_array($format->tag->format, ['TOP_LEFT', 'TITLE_IMG'])) {
-                $style = 'left; margin-right';
+                $style = 'left';
             } elseif (in_array($format->tag->format, ['TOP_RIGHT', 'TITLE_IMG_RIGHT'])) {
-                $style = 'right; margin-left';
+                $style = 'right';
             }
-            if (!empty($style)) $style = ' style="float:'.$style.': 7px; margin-bottom: 7px;"';
+
+            if (!empty($style)) {
+                if ($style === 'left') {
+                    $style = ' style="float:left; margin-right: 7px; margin-bottom: 7px;"';
+                    $linkStyle = ' style="float:left;"';
+                } else {
+                    $style = ' style="float:right; margin-left: 7px; margin-bottom: 7px;"';
+                    $linkStyle = ' style="float:right;"';
+                }
+            }
 
             $image = '<img class="content_main_image" alt="" src="'.$format->imagePath.'"'.$style.' />';
         }
@@ -612,7 +638,7 @@ class acympluginHelper
         }
 
         if (!empty($format->link) && !empty($image)) {
-            $image = '<a target="_blank" href="'.$format->link.'" '.$style.'>'.$image.'</a>';
+            $image = '<a target="_blank" href="'.$format->link.'" '.$linkStyle.'>'.$image.'</a>';
         }
 
         if ($format->tag->format == 'TOP_IMG' && !empty($image)) {
@@ -730,7 +756,7 @@ class acympluginHelper
             $result = $imageHelper->removePictures($result);
         }
 
-        return $result;
+        return acym_absoluteURL($result);
     }
 
     public function getFormatOption($plugin, $default = 'TOP_LEFT', $singleElement = true, $function = 'updateTag')
@@ -1010,18 +1036,27 @@ class acympluginHelper
                 continue;
             }
 
-            $currentLabel = '<label class="cell large-4 acym_plugin_field acym_plugin_field_'.$option['type'].'" for="'.$option['name'].$suffix.'">'.acym_translation($currentLabel).'</label>';
-            $outputStructure['options'][$currentLabel] = $currentOption;
+            if (empty($option['section'])) $option['section'] = 'ACYM_OTHER_OPTIONS';
+
+            $currentLabel = acym_translation($currentLabel);
+            if (!empty($option['tooltip'])) {
+                $currentLabel .= '&nbsp;'.acym_info(acym_translation($option['tooltip']), 'acym_plugin_field_'.$option['name']);
+            }
+            $currentLabel = '<label class="cell large-5 acym_plugin_field acym_plugin_field_'.$option['type'].'" for="'.acym_escape($option['name'].$suffix).'">'.$currentLabel.'</label>';
+
+            $outputStructure['options'][$option['section']][$currentLabel] = $currentOption;
         }
 
         if (!empty($outputStructure['options'])) {
-            $otherOptions = '';
-            foreach ($outputStructure['options'] as $label => $option) {
-                $otherOptions .= '<div class="grid-x margin-bottom-1 small-12 cell">'.$label;
-                $otherOptions .= '<div class="cell large-8">'.$option.'</div>';
-                $otherOptions .= '</div>';
+            foreach ($outputStructure['options'] as $section => $options) {
+                $formattedOptions = '';
+                foreach ($options as $label => $option) {
+                    $formattedOptions .= '<div class="cell grid-x margin-bottom-1">'.$label;
+                    $formattedOptions .= '<div class="cell large-7">'.$option.'</div>';
+                    $formattedOptions .= '</div>';
+                }
+                $outputStructure['topOptions'][$section] = $formattedOptions;
             }
-            $outputStructure['topOptions']['ACYM_OTHER_OPTIONS'] = $otherOptions;
         }
 
         $output = '';
@@ -1039,12 +1074,10 @@ class acympluginHelper
                 <!--
                 var _selectedRows'.$suffix.' = [];
                 ';
-        if (!empty($defaultValues->id)) {
-            if (strpos($defaultValues->id, '-')) {
-                $selected = explode('-', $defaultValues->id);
-            } else {
-                $selected = explode(',', $defaultValues->id);
-            }
+        if (!empty($defaultValues->id) && (empty($defaultValues->defaultPluginTab) || $dynamicIdentifier === $defaultValues->defaultPluginTab)) {
+            $delimiter = strpos($defaultValues->id, '-') ? '-' : ',';
+            $selected = explode($delimiter, $defaultValues->id);
+
             foreach ($selected as $key => $value) {
                 if (empty($value)) continue;
                 $output .= '_selectedRows'.$suffix.'['.intval($value).'] = true;

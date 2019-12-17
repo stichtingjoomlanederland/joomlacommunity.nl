@@ -3,19 +3,21 @@
  * @package    Pwtsitemap
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2018 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
+
+defined('_JEXEC') or die;
 
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\FileLayout;
 use Joomla\CMS\MVC\View\HtmlView;
+use Joomla\CMS\Object\CMSObject;
 use Joomla\CMS\Pagination\Pagination;
 use Joomla\CMS\Toolbar\Toolbar;
-
-defined('_JEXEC') or die;
+use Joomla\CMS\Toolbar\ToolbarHelper;
 
 /**
  * View class for a list of menuitems
@@ -24,22 +26,6 @@ defined('_JEXEC') or die;
  */
 class PwtSitemapViewItems extends HtmlView
 {
-	/**
-	 * The item data.
-	 *
-	 * @var    array
-	 * @since  1.0.0
-	 */
-	protected $items = array();
-
-	/**
-	 * Pagination class
-	 *
-	 * @var    Pagination
-	 * @since  1.0.0
-	 */
-	protected $pagination;
-
 	/**
 	 * Filters form
 	 *
@@ -54,12 +40,28 @@ class PwtSitemapViewItems extends HtmlView
 	 * @var    array
 	 * @since  1.0.0
 	 */
-	public $activeFilters = array();
+	public $activeFilters = [];
+
+	/**
+	 * The item data.
+	 *
+	 * @var    array
+	 * @since  1.0.0
+	 */
+	protected $items = [];
+
+	/**
+	 * Pagination class
+	 *
+	 * @var    Pagination
+	 * @since  1.0.0
+	 */
+	protected $pagination;
 
 	/**
 	 * The model state.
 	 *
-	 * @var    JObject
+	 * @var    CMSObject
 	 * @since  1.0.0
 	 */
 	protected $state;
@@ -78,7 +80,7 @@ class PwtSitemapViewItems extends HtmlView
 	 * @var    array
 	 * @since  1.0.0
 	 */
-	protected $ordering = array();
+	protected $ordering = [];
 
 	/**
 	 * Execute and display a template script.
@@ -87,27 +89,28 @@ class PwtSitemapViewItems extends HtmlView
 	 *
 	 * @return  mixed  A string if successful, otherwise an Error object.
 	 *
-	 * @throws  Exception
-	 *
 	 * @since   1.0.0
+	 *
+	 * @throws  Exception
 	 */
 	public function display($tpl = null)
 	{
 		/** @var PwtSitemapModelItems $model */
-		$model = $this->getModel();
-
+		$model               = $this->getModel();
 		$this->items         = $model->getItems();
 		$this->pagination    = $model->getPagination();
 		$this->filterForm    = $model->getFilterForm();
 		$this->activeFilters = $model->getActiveFilters();
 		$this->state         = $model->getState();
 
-		$this->ordering = array();
+		$this->ordering = [];
 
 		// Preprocess the list of items to find ordering divisions.
 		foreach ($this->items as $item)
 		{
+			
 			$this->ordering[$item->parent_id][] = $item->id;
+			
 		}
 
 		// Add submenus
@@ -134,14 +137,14 @@ class PwtSitemapViewItems extends HtmlView
 	 */
 	protected function addToolbar()
 	{
-		JToolBarHelper::title(Text::_('COM_PWTSITEMAP_TITLE_ITEMS'), 'pwtsitemap');
+		ToolbarHelper::title(Text::_('COM_PWTSITEMAP_TITLE_ITEMS'), 'pwtsitemap');
 
 		$title = Text::_('JTOOLBAR_BATCH');
 
 		// Instantiate a new JLayoutFile instance and render the batch button
 		$layout = new FileLayout('joomla.toolbar.batch');
 
-		$dhtml = $layout->render(array('title' => $title));
+		$dhtml = $layout->render(['title' => $title]);
 		Toolbar::getInstance()->appendButton('Custom', $dhtml, 'batch');
 	}
 }

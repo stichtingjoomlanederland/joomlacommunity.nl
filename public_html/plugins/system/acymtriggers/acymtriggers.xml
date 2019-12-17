@@ -2,7 +2,7 @@
 <extension version="1.0.0" type="plugin" group="system">
 	<name>AcyMailing - Joomla integration</name>
 	<creationDate>April 2019</creationDate>
-	<version>6.5.2</version>
+	<version>6.6.1</version>
 	<author>Acyba</author>
 	<authorEmail>dev@acyba.com</authorEmail>
 	<authorUrl>https://www.acyba.com</authorUrl>

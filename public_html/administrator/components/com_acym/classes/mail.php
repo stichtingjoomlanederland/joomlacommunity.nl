@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -125,6 +125,7 @@ class acymmailClass extends acymClass
     public function getAll($key = null)
     {
         $allMails = parent::getAll($key);
+
         return $this->decode($allMails);
     }
 
@@ -140,9 +141,12 @@ class acymmailClass extends acymClass
         return $mail;
     }
 
-    public function getOneByName($name)
+    public function getOneByName($name, $library = false)
     {
-        $mail = $this->decode(acym_loadObject('SELECT * FROM #__acym_mail WHERE `name` = '.acym_escapeDB($name)));
+        $query = 'SELECT * FROM #__acym_mail WHERE `name` = '.acym_escapeDB($name);
+        if ($library) $query .= ' AND `library` = 1';
+
+        $mail = $this->decode(acym_loadObject($query));
 
         if (!empty($mail)) {
             $tagsClass = acym_get('class.tag');
@@ -200,8 +204,7 @@ class acymmailClass extends acymClass
                         AND userLists.status = 1
                         AND acyuser.active = 1 ';
 
-        $config = acym_config();
-        if ($config->get('require_confirmation', 1) == 1) {
+        if ($this->config->get('require_confirmation', 1) == 1) {
             $query .= ' AND acyuser.confirmed = 1 ';
         }
 
@@ -642,9 +645,8 @@ class acymmailClass extends acymClass
 
         $uploadsFolder = ACYM_UPLOAD_FOLDER_THUMBNAIL;
 
-        $config = acym_config();
         $newConfig = new stdClass();
-        $thumbNb = intval($config->get('numberThumbnail', 2));
+        $thumbNb = intval($this->config->get('numberThumbnail', 2));
 
         foreach ($allPictures as $folder => $pictfolders) {
             foreach ($pictfolders as $onePict) {
@@ -659,7 +661,7 @@ class acymmailClass extends acymClass
         }
 
         $newConfig->numberThumbnail = $thumbNb;
-        $config->save($newConfig);
+        $this->config->save($newConfig);
 
         $newTemplate->drag_editor = 0;
         $newTemplate->type = "standard";

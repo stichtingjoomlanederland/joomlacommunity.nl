@@ -19,34 +19,34 @@ defined('_JEXEC') or die;
 	<th width="23%"><?php echo Text::_('COM_PWTACL_TABLE_ASSET_TITLE'); ?></th>
 
 	<th width="12%" class="border-left">
-        <span class="hasTooltip" title="<?php echo Text::_('COM_CONFIG_ACTION_CREATE_DESC'); ?>">
-            <?php echo Text::_('JACTION_CREATE'); ?>
-        </span>
+		<span class="hasTooltip" title="<?php echo Text::_('COM_CONFIG_ACTION_CREATE_DESC'); ?>">
+			<?php echo Text::_('JACTION_CREATE'); ?>
+		</span>
 	</th>
 	<th width="12%">
-        <span class="hasTooltip" title="<?php echo Text::_('COM_CONFIG_ACTION_DELETE_DESC'); ?>">
-            <?php echo Text::_('JACTION_DELETE'); ?>
-        </span>
+		<span class="hasTooltip" title="<?php echo Text::_('COM_CONFIG_ACTION_DELETE_DESC'); ?>">
+			<?php echo Text::_('JACTION_DELETE'); ?>
+		</span>
 	</th>
 	<th width="12%">
-        <span class="hasTooltip" title="<?php echo Text::_('COM_CONFIG_ACTION_EDIT_DESC'); ?>">
-            <?php echo Text::_('JACTION_EDIT'); ?>
-        </span>
+		<span class="hasTooltip" title="<?php echo Text::_('COM_CONFIG_ACTION_EDIT_DESC'); ?>">
+			<?php echo Text::_('JACTION_EDIT'); ?>
+		</span>
 	</th>
 	<th width="12%">
-        <span class="hasTooltip" title="<?php echo Text::_('COM_CONFIG_ACTION_EDITSTATE_DESC'); ?>">
-            <?php echo Text::_('JACTION_EDITSTATE'); ?>
-        </span>
+		<span class="hasTooltip" title="<?php echo Text::_('COM_CONFIG_ACTION_EDITSTATE_DESC'); ?>">
+			<?php echo Text::_('JACTION_EDITSTATE'); ?>
+		</span>
 	</th>
 	<th width="12%">
-        <span class="hasTooltip" title="<?php echo Text::_('COM_CONFIG_ACTION_EDITOWN_DESC'); ?>">
-            <?php echo Text::_('JACTION_EDITOWN'); ?>
-        </span>
+		<span class="hasTooltip" title="<?php echo Text::_('COM_CONFIG_ACTION_EDITOWN_DESC'); ?>">
+			<?php echo Text::_('JACTION_EDITOWN'); ?>
+		</span>
 	</th>
 	<th width="12%">
-        <span class="hasTooltip" title="<?php echo Text::_('COM_CONFIG_ACTION_EDITVALUE_DESC'); ?>">
-            <?php echo Text::_('JACTION_EDITVALUE'); ?>
-        </span>
+		<span class="hasTooltip" title="<?php echo Text::_('COM_CONFIG_ACTION_EDITVALUE_DESC'); ?>">
+			<?php echo Text::_('JACTION_EDITVALUE'); ?>
+		</span>
 	</th>
 	<th width="5%" class="nowrap brlft border-left"></th>
 </tr>

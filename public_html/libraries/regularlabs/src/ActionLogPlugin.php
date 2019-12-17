@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -16,10 +16,6 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\Plugin\CMSPlugin as JPlugin;
-use RegularLabs\Library\ArrayHelper as RL_Array;
-use RegularLabs\Library\Extension as RL_Extension;
-use RegularLabs\Library\Log as RL_Log;
-use RegularLabs\Library\Parameters as RL_Parameters;
 
 /**
  * Class ActionLogPlugin
@@ -43,14 +39,14 @@ class ActionLogPlugin
 
 		Language::load('plg_actionlog_' . $this->alias);
 
-		$config = RL_Parameters::getInstance()->getComponentParams($this->alias);
+		$config = Parameters::getInstance()->getComponentParams($this->alias);
 
 		$enable_actionlog = isset($config->enable_actionlog) ? $config->enable_actionlog : true;
 		$this->events     = $enable_actionlog ? ['*'] : [];
 
 		if ($enable_actionlog && ! empty($config->actionlog_events))
 		{
-			$this->events = RL_Array::toArray($config->actionlog_events);
+			$this->events = ArrayHelper::toArray($config->actionlog_events);
 		}
 
 		$this->name   = JText::_($this->name);
@@ -66,7 +62,7 @@ class ActionLogPlugin
 
 		$event = $isNew ? 'create' : 'update';
 
-		if ( ! RL_Array::find(['*', $event], $this->events))
+		if ( ! ArrayHelper::find(['*', $event], $this->events))
 		{
 			return;
 		}
@@ -83,7 +79,7 @@ class ActionLogPlugin
 			'itemlink' => $item_url,
 		];
 
-		RL_Log::save($message, $context, $isNew);
+		Log::save($message, $context, $isNew);
 	}
 
 	public function onContentAfterDelete($context, $table)
@@ -93,7 +89,7 @@ class ActionLogPlugin
 			return;
 		}
 
-		if ( ! RL_Array::find(['*', 'delete'], $this->events))
+		if ( ! ArrayHelper::find(['*', 'delete'], $this->events))
 		{
 			return;
 		}
@@ -108,7 +104,7 @@ class ActionLogPlugin
 			'title' => $title,
 		];
 
-		RL_Log::delete($message, $context);
+		Log::delete($message, $context);
 	}
 
 	public function onContentChangeState($context, $ids, $value)
@@ -118,7 +114,7 @@ class ActionLogPlugin
 			return;
 		}
 
-		if ( ! RL_Array::find(['*', 'change_state'], $this->events))
+		if ( ! ArrayHelper::find(['*', 'change_state'], $this->events))
 		{
 			return;
 		}
@@ -151,7 +147,7 @@ class ActionLogPlugin
 				'itemlink' => $itemlink,
 			];
 
-			RL_Log::changeState($message, $context, $value);
+			Log::changeState($message, $context, $value);
 		}
 	}
 
@@ -180,12 +176,12 @@ class ActionLogPlugin
 			return;
 		}
 
-		if ( ! RL_Array::find(['*', 'install'], $this->events))
+		if ( ! ArrayHelper::find(['*', 'install'], $this->events))
 		{
 			return;
 		}
 
-		$extension = RL_Extension::getById($eid);
+		$extension = Extension::getById($eid);
 
 		if (empty($extension->manifest_cache))
 		{
@@ -206,7 +202,7 @@ class ActionLogPlugin
 			'extension_name' => JText::_($manifest->name),
 		];
 
-		RL_Log::install($message, 'com_regularlabsmanager', $manifest->type);
+		Log::install($message, 'com_regularlabsmanager', $manifest->type);
 	}
 
 	public function onExtensionAfterUninstall($installer, $eid, $result)
@@ -224,7 +220,7 @@ class ActionLogPlugin
 			return;
 		}
 
-		if ( ! RL_Array::find(['*', 'uninstall'], $this->events))
+		if ( ! ArrayHelper::find(['*', 'uninstall'], $this->events))
 		{
 			return;
 		}
@@ -248,7 +244,7 @@ class ActionLogPlugin
 			'extension_name' => JText::_($manifest->name),
 		];
 
-		RL_Log::uninstall($message, 'com_regularlabsmanager', $manifest->attributes()->type);
+		Log::uninstall($message, 'com_regularlabsmanager', $manifest->attributes()->type);
 	}
 
 	private function getItem($context)

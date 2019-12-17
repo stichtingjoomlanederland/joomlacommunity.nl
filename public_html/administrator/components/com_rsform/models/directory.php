@@ -238,19 +238,6 @@ class RsformModelDirectory extends JModelList
             $data['DeletionGroups'] = '';
         }
 
-		// Check if the entry exists
-		$query = $this->_db->getQuery(true)
-			->select($this->_db->qn('formId'))
-			->from($this->_db->qn('#__rsform_directory'))
-			->where($this->_db->qn('formId') . ' = ' . $this->_db->q($data['formId']));
-		if (!$this->_db->setQuery($query)->loadResult())
-		{
-			$tmp = (object) array(
-				'formId' => $data['formId']
-			);
-			$this->_db->insertObject('#__rsform_directory', $tmp);
-		}
-
 		if (!$table->save($data))
 		{
 			return false;

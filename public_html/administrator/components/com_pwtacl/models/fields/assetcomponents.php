@@ -56,9 +56,9 @@ class JFormFieldAssetComponents extends JFormFieldList
 			->where($db->quoteName('name') . ' NOT LIKE ' . $db->quote('com_contenthistory'))
 			->where($db->quoteName('name') . ' NOT LIKE ' . $db->quote('com_ajax'))
 			->where($db->quoteName('name') . ' NOT LIKE ' . $db->quote('com_fields'))
-			->where($db->quoteName('name') . ' NOT LIKE ' . $db->quote('com_languages'))
 			->where($db->quoteName('name') . ' NOT LIKE ' . $db->quote('com_actionlogs'))
-			->where($db->quoteName('name') . ' NOT LIKE ' . $db->quote('com_privacy'));
+			->where($db->quoteName('name') . ' NOT LIKE ' . $db->quote('com_privacy'))
+			->where($db->quoteName('name') . ' NOT LIKE ' . $db->quote('com_joomlaupdate'));
 
 		// Get the options.
 		$db->setQuery($query);

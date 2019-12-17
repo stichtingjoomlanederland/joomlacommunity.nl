@@ -31,8 +31,8 @@ class PwtaclController extends BaseController
 	/**
 	 * Method to display a view.
 	 *
-	 * @param   boolean $cachable  If true, the view output will be cached
-	 * @param   array   $urlparams An array of safe URL parameters and their variable types, for valid values see {@link JFilterInput::clean()}.
+	 * @param   boolean  $cachable   If true, the view output will be cached
+	 * @param   array    $urlparams  An array of safe URL parameters and their variable types, for valid values see {@link JFilterInput::clean()}.
 	 *
 	 * @return  BaseController
 	 * @since   3.0

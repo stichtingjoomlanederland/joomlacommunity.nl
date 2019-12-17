@@ -25,7 +25,7 @@ class PwtaclHelper
 	/**
 	 * Sidebar items
 	 *
-	 * @param   string $vName Active view name
+	 * @param   string  $vName  Active view name
 	 *
 	 * @return  void
 	 * @since   3.0
@@ -112,15 +112,18 @@ class PwtaclHelper
 
 		$extensions = $db->setQuery($query)->loadObjectList();
 
-		// Load the .sys languages for the extensions
+		// Load the languages for the extensions
 		if (count($extensions))
 		{
 			foreach ($extensions as &$extension)
 			{
-				// Load system language files for all extensions
+				$lang->load($extension->value, JPATH_ADMINISTRATOR, $lang->getDefault(), false, false);
 				$lang->load($extension->value . '.sys', JPATH_ADMINISTRATOR, $lang->getDefault(), false, false);
+				$lang->load($extension->value, JPATH_ADMINISTRATOR, null, false, false);
 				$lang->load($extension->value . '.sys', JPATH_ADMINISTRATOR, null, false, false);
+				$lang->load($extension->value, JPATH_ADMINISTRATOR . '/components/' . $extension->value, $lang->getDefault(), false, false);
 				$lang->load($extension->value . '.sys', JPATH_ADMINISTRATOR . '/components/' . $extension->value, $lang->getDefault(), false, false);
+				$lang->load($extension->value, JPATH_ADMINISTRATOR . '/components/' . $extension->value, null, false, false);
 				$lang->load($extension->value . '.sys', JPATH_ADMINISTRATOR . '/components/' . $extension->value, null, false, false);
 			}
 		}

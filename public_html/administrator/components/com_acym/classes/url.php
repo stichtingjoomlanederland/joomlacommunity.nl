@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -80,9 +80,10 @@ class acymurlClass extends acymClass
             $currentUrl = $this->getAdd($url);
 
             $allurls[$userid][0] = $url;
-            $allurls[$userid][1] = acym_frontendLink('fronturl&action=acymailing_frontrouter&task=click&urlid='.$currentUrl->id.'&userid='.$userid.'&mailid='.$mailid);
+            $allurls[$userid][1] = acym_frontendLink('fronturl&task=click&urlid='.$currentUrl->id.'&userid='.$userid.'&mailid='.$mailid);
         }
 
         return $allurls[$userid][1];
     }
 }
+

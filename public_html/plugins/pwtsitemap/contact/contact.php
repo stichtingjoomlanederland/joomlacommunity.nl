@@ -3,16 +3,19 @@
  * @package    Pwtsitemap
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2018 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
 
 defined('_JEXEC') or die;
 
-require_once JPATH_SITE . '/components/com_contact/helpers/route.php';
-require_once JPATH_ROOT . '/components/com_contact/models/category.php';
-require_once JPATH_ROOT . '/components/com_contact/models/featured.php';
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
+
+JLoader::register('ContactHelperRoute', JPATH_SITE . '/components/com_contact/helpers/route.php');
+JLoader::register('ContactModelCategory', JPATH_SITE . '/components/com_contact/models/category.php');
+JLoader::register('ContactModelFeatured', JPATH_SITE . '/components/com_contact/models/featured.php');
+BaseDatabaseModel::addIncludePath(JPATH_SITE . '/components/com_contact/models', 'ContactModel');
 
 /**
  * PWT Sitemap Contact
@@ -37,8 +40,8 @@ class PlgPwtSitemapContact extends PwtSitemapPlugin
 	/**
 	 * Run for every menuitem passed
 	 *
-	 * @param   StdClass $item   Menu items
-	 * @param   string   $format Sitemap format that is rendered
+	 * @param   StdClass  $item    Menu items
+	 * @param   string    $format  Sitemap format that is rendered
 	 *
 	 * @return  array
 	 *
@@ -46,11 +49,11 @@ class PlgPwtSitemapContact extends PwtSitemapPlugin
 	 */
 	public function onPwtSitemapBuildSitemap($item, $format)
 	{
-		$sitemap_items = [];
+		$sitemapItems = [];
 
 		if ($this->checkDisplayParameters($item, $format))
 		{
-			if ($item->query['view'] == 'featured')
+			if ($item->query['view'] === 'featured')
 			{
 				$contacts = $this->getFeaturedContacts();
 			}
@@ -59,25 +62,24 @@ class PlgPwtSitemapContact extends PwtSitemapPlugin
 				$contacts = $this->getContacts($item->query['id']);
 			}
 
-
 			if ($contacts !== false)
 			{
 				foreach ($contacts as $contact)
 				{
 					$link = ContactHelperroute::getContactRoute($contact->id . ':' . $contact->alias, $contact->catid, $contact->language);
 
-					$sitemap_items[] = new PwtSitemapItem($contact->name, $link, $item->level + 1);
+					$sitemapItems[] = new PwtSitemapItem($contact->name, $link, $item->level + 1);
 				}
 			}
 		}
 
-		return $sitemap_items;
+		return $sitemapItems;
 	}
 
 	/**
 	 * Get all contacts from a category
 	 *
-	 * @param   int $id Category id
+	 * @param   int  $id  Category id
 	 *
 	 * @return  mixed  stdClass on success, false otherwise
 	 *
@@ -85,7 +87,7 @@ class PlgPwtSitemapContact extends PwtSitemapPlugin
 	 */
 	private function getContacts($id)
 	{
-		$contactModel = new ContactModelCategory();
+		$contactModel = new ContactModelCategory;
 
 		// Calling getState before setState will prevent 'populateState' override the new state
 		$contactModel->getState();
@@ -103,6 +105,9 @@ class PlgPwtSitemapContact extends PwtSitemapPlugin
 	 */
 	private function getFeaturedContacts()
 	{
-		return JModelLegacy::getInstance('ContactModelFeatured')->getItems();
+		/** @var ContactModelFeatured $model */
+		$model = BaseDatabaseModel::getInstance('ContactModelFeatured');
+
+		return $model->getItems();
 	}
 }

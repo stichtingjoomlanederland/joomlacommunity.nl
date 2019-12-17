@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -120,6 +120,9 @@ class QuickPage
 		$html = RL_RegEx::replace('\s*<link [^>]*href="[^"]*templates/system/[^"]*\.css[^"]*"[^>]*( /)?>', '', $html);
 		$html = RL_RegEx::replace('(<body [^>]*class=")', '\1reglab-popup ', $html);
 		$html = str_replace('<body>', '<body class="reglab-popup"', $html);
+
+		// Move the template css down to last
+		$html = RL_RegEx::replace('(<link [^>]*href="[^"]*templates/isis/[^"]*\.css[^"]*"[^>]*(?: /)?>\s*)(.*?)(<script)', '\2\1\3', $html);
 
 		echo $html;
 

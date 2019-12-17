@@ -14,7 +14,7 @@ use Joomla\CMS\Layout\LayoutHelper;
 defined('_JEXEC') or die;
 ?>
 
-    <div class="js-stools-field-filter js-stools-group hidden-phone hidden-tablet">
+	<div class="js-stools-field-filter js-stools-group hidden-phone hidden-tablet">
 
 		<?php if ($displayData['view']->type == 'group'): ?>
 			<?php echo $displayData['view']->filterForm->getField('group')->input; ?>
@@ -23,8 +23,8 @@ defined('_JEXEC') or die;
 		<?php if ($displayData['view']->type == 'user'): ?>
 			<?php echo $displayData['view']->filterForm->getField('user')->input; ?>
 		<?php endif; ?>
-    </div>
+	</div>
 
 <?php
-// Display the main joomla layout
+// Display the main Joomla layout
 echo LayoutHelper::render('joomla.searchtools.default.bar', $displayData, null, array('component' => 'none'));

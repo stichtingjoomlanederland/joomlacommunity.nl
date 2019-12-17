@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -20,7 +20,7 @@ defined('_JEXEC') or die('Restricted access');
 				<p><span id="acym__users__export__check_all_field"><?php echo strtolower(acym_translation('ACYM_ALL')); ?></span> | <span id="acym__users__export__check_default_field"><?php echo strtolower(acym_translation('ACYM_DEFAULT')); ?></span></p>
 				<div class="margin-bottom-1">
                     <?php
-                    $defaultFields = explode(',', $data['config']->get('export_fields', 'name,email'));
+                    $defaultFields = explode(',', $this->config->get('export_fields', 'name,email'));
                     foreach ($data['fields'] as $fieldName) {
                         if (in_array($fieldName, ['id', 'automation'])) continue;
 
@@ -46,7 +46,7 @@ defined('_JEXEC') or die('Restricted access');
                         echo acym_radio(
                             [';' => acym_translation('ACYM_SEMICOLON'), ',' => acym_translation('ACYM_COMMA')],
                             "export_separator",
-                            $data['config']->get('export_separator', ',')
+                            $this->config->get('export_separator', ',')
                         );
                         ?>
 					</label>
@@ -55,13 +55,13 @@ defined('_JEXEC') or die('Restricted access');
 				<div class="grid-x">
 					<label class="cell medium-6 xxlarge-3"><?php echo acym_translation('ACYM_ENCODING'); ?>
                         <?php $encodingHelper = acym_get('helper.encoding');
-                        echo $encodingHelper->charsetField('export_charset', $data['config']->get('export_charset', 'UTF-8')); ?>
+                        echo $encodingHelper->charsetField('export_charset', $this->config->get('export_charset', 'UTF-8')); ?>
 					</label>
 					<div class="cell medium-auto"></div>
 				</div>
 				<div class="grid-x" id="userField_excel">
 					<label class="cell"><?php echo acym_tooltip(acym_translation('ACYM_EXCEL_SECURITY'), acym_translation('ACYM_EXCEL_SECURITY_DESC')); ?>
-                        <?php echo acym_boolean("export_excelsecurity", $data['config']->get('export_excelsecurity', 0)); ?>
+                        <?php echo acym_boolean("export_excelsecurity", $this->config->get('export_excelsecurity', 0)); ?>
 					</label>
 					<div class="cell medium-auto"></div>
 				</div>

@@ -2,24 +2,33 @@
 <extension version="3.8" type="package" method="upgrade">
 	<name>PWT Sitemap - Package</name>
 	<packagename>pwtsitemap</packagename>
-    <author>Perfect Web Team</author>
-	<creationDate>9 November 2018</creationDate>
-    <copyright>Copyright (C) 2016 - 2018 Perfect Web Team</copyright>
-    <license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
+	<author>Perfect Web Team</author>
+	<creationDate>14 December 2019</creationDate>
+	<copyright>Copyright (C) 2016 - 2019 Perfect Web Team</copyright>
+	<license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
 	<authorEmail>extensions@perfectwebteam.com</authorEmail>
 	<authorUrl>https://extensions.perfectwebteam.com</authorUrl>
-	<version>1.2.1</version>
+	<version>1.4.1</version>
 	<description>PWT Sitemap Package</description>
 
 	<scriptfile>script.php</scriptfile>
 
 	<files folder="packages">
-		<file type="component" id="com_pwtsitemap">com_pwtsitemap-1.2.1.zip</file>
-		<file type="plugin" group="system" id="pwtsitemap">plg_system_pwtsitemap-1.2.1.zip</file>
-		<file type="plugin" group="pwtsitemap" id="content">plg_pwtsitemap_content-1.2.1.zip</file>
-		<file type="plugin" group="pwtsitemap" id="contact">plg_pwtsitemap_contact-1.2.1.zip</file>
-		<file type="plugin" group="pwtsitemap" id="newsfeed">plg_pwtsitemap_newsfeed-1.2.1.zip</file>
-		<file type="plugin" group="pwtsitemap" id="tag">plg_pwtsitemap_tag-1.2.1.zip</file>
+		<file type="component" id="com_pwtsitemap">com_pwtsitemap-1.4.1.zip</file>
+		<file type="plugin" group="system" id="pwtsitemap">plg_system_pwtsitemap-1.4.1.zip</file>
+		<file type="plugin" group="pwtsitemap" id="contact">plg_pwtsitemap_contact-1.4.1.zip</file>
+		<file type="plugin" group="pwtsitemap" id="content">plg_pwtsitemap_content-1.4.1.zip</file>
+		<file type="plugin" group="pwtsitemap" id="djclassifieds">plg_pwtsitemap_djclassifieds-1.4.1.zip</file>
+		<file type="plugin" group="pwtsitemap" id="easydiscuss">plg_pwtsitemap_easydiscuss-1.4.1.zip</file>
+		<file type="plugin" group="pwtsitemap" id="hikashop">plg_pwtsitemap_hikashop-1.4.1.zip</file>
+		<file type="plugin" group="pwtsitemap" id="joomgallery">plg_pwtsitemap_joomgallery-1.4.1.zip</file>
+		<file type="plugin" group="pwtsitemap" id="k2">plg_pwtsitemap_k2-1.4.1.zip</file>
+		<file type="plugin" group="pwtsitemap" id="kunena">plg_pwtsitemap_kunena-1.4.1.zip</file>
+		<file type="plugin" group="pwtsitemap" id="newsfeed">plg_pwtsitemap_newsfeed-1.4.1.zip</file>
+		<file type="plugin" group="pwtsitemap" id="tag">plg_pwtsitemap_tag-1.4.1.zip</file>
+		<file type="plugin" group="pwtsitemap" id="virtuemart">plg_pwtsitemap_virtuemart-1.4.1.zip</file>
+		<file type="plugin" group="pwtsitemap" id="zoo">plg_pwtsitemap_zoo-1.4.1.zip</file>
+		<file type="file" id="pwtsitemap_cli">pwtsitemap_cli-1.4.1.zip</file>
 	</files>
 
 	<updateservers>

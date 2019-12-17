@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -11,7 +11,7 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <?php
 
-class acymupdateHelper
+class acymupdateHelper extends acymObject
 {
     var $errors = [];
 
@@ -19,22 +19,15 @@ class acymupdateHelper
 
     const FIRST_EMAIL_NAME_KEY = 'ACYM_FIRST_EMAIL_NAME';
 
-    public function __construct()
-    {
-        global $acymCmsUserVars;
-        $this->cmsUserVars = $acymCmsUserVars;
-    }
-
     public function installBounceRules()
     {
         $ruleClass = acym_get('class.rule');
         if ($ruleClass->getOrderingNumber() > 0) {
             return;
         }
-        $config = acym_config();
-        $replyTo = $config->get('replyto_email');
-        $bounce = $config->get('bounce_email');
-        $from = $config->get('from_email');
+        $replyTo = $this->config->get('replyto_email');
+        $bounce = $this->config->get('bounce_email');
+        $from = $this->config->get('from_email');
 
         $forwardEmail = $replyTo != $bounce ? $replyTo : $from;
         if (empty($forwardEmail)) $forwardEmail = acym_currentUserEmail();
@@ -61,18 +54,16 @@ class acymupdateHelper
 
         $newConfig = new stdClass();
         $newConfig->bounceVersion = $this->bounceVersion;
-        $config->save($newConfig);
+        $this->config->save($newConfig);
     }
 
     public function addUpdateSite()
     {
-        $config = acym_config();
-
         $newconfig = new stdClass();
         $newconfig->website = ACYM_LIVE;
         $newconfig->max_execution_time = 0;
 
-        $config->save($newconfig);
+        $this->config->save($newconfig);
 
         acym_query('DELETE FROM #__updates WHERE element = "com_acym"');
 
@@ -81,7 +72,7 @@ class acymupdateHelper
         $object = new stdClass();
         $object->name = 'AcyMailing';
         $object->type = 'extension';
-        $object->location = ACYM_UPDATEMEURL.'updatexml&component=acymailing&cms=joomla&level='.$config->get('level').'&version='.$config->get('version');
+        $object->location = ACYM_UPDATEMEURL.'updatexml&component=acymailing&cms=joomla&level='.$this->config->get('level').'&version='.$this->config->get('version');
         if (acym_level(1)) {
             $object->location .= '&li='.urlencode(base64_encode(ACYM_LIVE));
         }
@@ -161,12 +152,13 @@ class acymupdateHelper
             'ACYM_USERS',
             'ACYM_CUSTOM_FIELDS',
             'ACYM_LISTS',
-            'ACYM_TEMPLATES',
             'ACYM_CAMPAIGNS',
-            'ACYM_QUEUE',
+            'ACYM_TEMPLATES',
             'ACYM_AUTOMATION',
+            'ACYM_QUEUE',
             'ACYM_STATISTICS',
             'ACYM_BOUNCE_HANDLING',
+            'ACYM_ADD_ONS',
             'ACYM_CONFIGURATION',
             'ACYM_MENU_PROFILE',
             'ACYM_MENU_PROFILE_DESC',
@@ -228,12 +220,11 @@ class acymupdateHelper
         foreach ($names as $name) {
             $templatePath = $defaultTemplatesFolder.$name.DS;
             $mailName = str_replace('_', ' ', $name);
-            $oneMail = $mailClass->getOneByName($mailName);
+            $oneMail = $mailClass->getOneByName($mailName, true);
             if (!empty($oneMail)) continue;
 
             $tmplName = acym_escapeDB($mailName);
             $thumbnail = acym_escapeDB($name.'.png');
-            $body = acym_escapeDB(str_replace('{acym_media}', ACYM_IMAGES, file_get_contents($templatePath.'content.txt')));
             $settings = acym_escapeDB(file_get_contents($templatePath.'settings.txt'));
             if (file_exists($templatePath.'stylesheet.txt')) {
                 $stylesheet = acym_escapeDB(file_get_contents($templatePath.'stylesheet.txt'));
@@ -241,8 +232,16 @@ class acymupdateHelper
                 $stylesheet = '""';
             }
 
+            $template = new stdClass();
+            $template->body = str_replace(
+                '{acym_media}',
+                ACYM_IMAGES,
+                file_get_contents($templatePath.'content.txt')
+            );
+            $template = $mailClass->encode($template);
+
             $query = 'INSERT INTO `#__acym_mail` (`name`, `creation_date`, `thumbnail`, `drag_editor`, `library`, `type`, `body`, `subject`, `template`, `from_name`, `from_email`, `reply_to_name`, `reply_to_email`, `bcc`, `settings`, `stylesheet`, `attachments`, `creator_id`) VALUES
-                     ('.$tmplName.', '.$creationDate.', '.$thumbnail.', 1, 1, "standard", '.$body.', "", 1, NULL, NULL, NULL, NULL, NULL, '.$settings.', '.$stylesheet.', NULL, '.$currentUserId.');';
+                     ('.$tmplName.', '.$creationDate.', '.$thumbnail.', 1, 1, "standard", '.acym_escapeDB($template->body).', "", 1, NULL, NULL, NULL, NULL, NULL, '.$settings.', '.$stylesheet.', NULL, '.$currentUserId.');';
             acym_query($query);
         }
     }
@@ -398,180 +397,21 @@ class acymupdateHelper
                 $newUser->id = $userClass->save($newUser);
                 $user = $userClass->getOneById($newUser->id);
             }
+
+            $body = '<div id="acym__wysid__template" class="cell"><table class="body"><tbody><tr><td align="center" class="center acym__wysid__template__content" valign="top" style="background-color: rgb(245, 245, 245); padding: 30px 0px 120px;"><center><table align="center" border="0" cellpadding="0" cellspacing="0"><tbody><tr><td class="acym__wysid__row ui-droppable ui-sortable" bgcolor="#ffffff" style="background-color: rgb(255, 255, 255); min-height: 0px; display: table-cell;"><table class="row acym__wysid__row__element" border="0" cellpadding="0" cellspacing="0" style="z-index: 100; background-color: rgb(238, 238, 238);" bgcolor="#eeeeee"><tbody bgcolor="" style="background-color: inherit;"><tr><th class="small-12 medium-12 large-12 columns" style="height: auto;"><table class="acym__wysid__column" style="min-height: 0px; display: table; height: auto;" border="0" cellpadding="0" cellspacing="0"><tbody class="ui-sortable" style="min-height: 0px; display: table-row-group; height: auto;"><tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;"><td class="large-12 acym__wysid__column__element__td" style="outline-width: 0px;"><div class="acym__wysid__tinymce--text mce-content-body" style="position: relative;" spellcheck="false" id="mce_63" contenteditable="false"><p style="font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: rgb(165, 165, 165); word-break: break-word; text-align: center;" data-mce-style="font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: #000000; word-break: break-word; text-align: center;"><span style="font-size: 12px;" data-mce-style="font-size: 12px;">We need your feedback!</span></p><p style="font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: rgb(165, 165, 165); word-break: break-word; text-align: center;" data-mce-style="font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: #000000; word-break: break-word; text-align: center;"><span style="font-size: 12px;" data-mce-style="font-size: 12px;">Having trouble seeing this email?&nbsp;<span class="acym_dynamic mceNonEditable" contenteditable="false" data-dynamic="{readonline}View it online{/readonline}"><a style="text-decoration: none;" href="'.acym_frontendLink(
+                    'archive&task=view&id=id_view_it_online_first_test&userid='.$user->id.'-'.$user->key,
+                    true,
+                    true
+                ).'" target="_blank" rel="noopener" data-mce-href="" data-mce-style="text-decoration: none;"><span class="acym_online">View it online</span></a><em class="acym_remove_dynamic acymicon-close">&zwj;‍</em></span>&nbsp;</span></p></div></td></tr></tbody></table></th></tr></tbody></table><table class="row acym__wysid__row__element" bgcolor="#ffffff" style="background-color: rgb(255, 255, 255); z-index: 100;" cellpadding="0"><tbody bgcolor="" style="background-color: inherit;"><tr><th class="small-12 medium-12 large-12 columns acym__wysid__row__element__th" valign="top"><table class="acym__wysid__column" border="0" cellpadding="0" cellspacing="0" style="min-height: 0px; display: table;"><tbody class="ui-sortable" style="min-height: 0px; display: table-row-group;"><tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;"><td class="large-12 acym__wysid__column__element__td" style="outline-width: 0px;"><div class="acym__wysid__tinymce--image mce-content-body" style="position: relative;" spellcheck="false" id="mce_67" contenteditable="false"><p style="font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: #a5a5a5; word-break: break-word;" data-mce-style="font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: #a5a5a5; word-break: break-word;"><img class="acym__wysid__media__inserted" style="max-width: 100%; height: 85px; box-sizing: border-box; padding: 0px 5px; display: block; margin-left: auto; margin-right: auto; width: 306px;" src="'.ACYM_LIVE.ACYM_UPLOAD_FOLDER.'logo_acymailing_step_email.png" alt="logo_acymailing_step_email.png" height="85" width="306" data-mce-style="max-width: 100%; height: 85px; box-sizing: border-box; padding: 0px 5px; display: block; margin-left: auto; margin-right: auto;"></p></div></td></tr><tr class="acym__wysid__column__element acym__wysid__column__element__separator cursor-pointer ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;"><td class="large-12 acym__wysid__column__element__td" style="outline-width: 0px;"><hr style="border-bottom: 3px solid rgb(214, 214, 214); width: 24%; border-top: none; border-left: none; border-right: none;" class="acym__wysid__row__separator"></td></tr></tbody></table></th></tr></tbody></table><table class="row acym__wysid__row__element" bgcolor="#ffffff" style="background-color: rgb(255, 255, 255); z-index: 100;" cellpadding="0"><tbody bgcolor="" style="background-color: inherit;"><tr><th class="small-12 medium-12 large-12 columns acym__wysid__row__element__th" valign="top"><table class="acym__wysid__column" border="0" cellpadding="0" cellspacing="0" style="min-height: 0px; display: table;"><tbody class="ui-sortable" style="min-height: 0px; display: table-row-group;"><tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;"><td class="large-12 acym__wysid__column__element__td" style="outline-width: 0px;"><div class="acym__wysid__tinymce--text mce-content-body" style="position: relative;" spellcheck="false" id="mce_64" contenteditable="false"><h1 style="font-family: Helvetica; font-size: 34px; font-weight: normal; font-style: normal; color: rgb(0, 164, 255); text-align: center;" data-mce-style="font-family: Helvetica; font-size: 34px; font-weight: normal; font-style: normal; color: #00a4ff; text-align: center;">Dear&nbsp;<span class="acym_dynamic mceNonEditable" contenteditable="false" data-dynamic="{subscriber:name|part:first|ucfirst}">Admin<em class="acym_remove_dynamic acymicon-close">&zwj;‍</em></span>&nbsp;</h1></div></td></tr><tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;"><td class="large-12 acym__wysid__column__element__td" style="outline-width: 0px;"><div class="acym__wysid__tinymce--text mce-content-body" style="position: relative;" spellcheck="false" id="mce_65" contenteditable="false"><p style="word-break: break-word; font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: rgb(165, 165, 165); text-align: center;" data-mce-style="word-break: break-word; font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: #a5a5a5; text-align: center;"><span data-mce-style="color: #a5a5a5; font-family: Helvetica;" style="color: #a5a5a5; font-family: Helvetica;">Amazing, you are going to send your first email!</span></p><p style="word-break: break-word; font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: rgb(165, 165, 165); text-align: center;" data-mce-style="word-break: break-word; font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: #a5a5a5; text-align: center;">&nbsp;<br></p><p style="word-break: break-word; font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: rgb(165, 165, 165); text-align: center;" data-mce-style="word-break: break-word; font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: #a5a5a5; text-align: center;"><span data-mce-style="color: #a5a5a5; font-family: Helvetica;" style="color: #a5a5a5; font-family: Helvetica;">Feel free to drag &amp; drop some content and&nbsp;</span><span data-mce-style="color: #a5a5a5; font-family: Helvetica;" style="color: #a5a5a5; font-family: Helvetica;">try the AcyMailing editor.</span></p><p style="word-break: break-word; font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: rgb(165, 165, 165); text-align: center;" data-mce-style="word-break: break-word; font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: #a5a5a5; text-align: center;"><span data-mce-style="color: #a5a5a5; font-family: Helvetica;" style="color: #a5a5a5; font-family: Helvetica;">Once it is done, click on the "Apply" button.</span></p></div></td></tr></tbody></table></th></tr></tbody></table><table class="row acym__wysid__row__element" bgcolor="#ffffff" style="background-color: rgb(255, 255, 255); z-index: 100; padding: 0px;" cellpadding="0"><tbody bgcolor="" style="background-color: inherit;"><tr><th class="small-12 medium-12 large-12 columns acym__wysid__row__element__th" valign="top"><table class="acym__wysid__column" border="0" cellpadding="0" cellspacing="0" style="min-height: 0px; display: table;"><tbody class="ui-sortable" style="min-height: 0px; display: table-row-group;"><tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;"><td class="large-12 acym__wysid__column__element__td" style="outline-width: 0px;"><div class="acym__wysid__tinymce--image mce-content-body" style="position: relative;" spellcheck="false" id="mce_68" contenteditable="false"><p style="font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: #a5a5a5; word-break: break-word;" data-mce-style="font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: #a5a5a5; word-break: break-word;"><img class="acym__wysid__media__inserted" style="max-width: 100%; height: auto; box-sizing: border-box; padding: 0px 5px; display: block; margin-left: auto; margin-right: auto; width: 580px;" src="'.ACYM_LIVE.ACYM_UPLOAD_FOLDER.'image_mailing_step_email.jpg" alt="image_mailing_step_email.jpg" data-mce-style="max-width: 100%; height: auto; box-sizing: border-box; padding: 0 5px; display: block; margin-left: auto; margin-right: auto;" height="401" width="580"></p></div></td></tr></tbody></table></th></tr></tbody></table><table class="row acym__wysid__row__element" bgcolor="#303e47" style="background-color: rgb(48, 62, 71); z-index: 100;" cellpadding="0"><tbody bgcolor="" style="background-color: inherit;"><tr><th class="small-12 medium-12 large-12 columns acym__wysid__row__element__th" valign="top"><table class="acym__wysid__column" border="0" cellpadding="0" cellspacing="0" style="min-height: 0px; display: table;"><tbody class="ui-sortable" style="min-height: 0px; display: table-row-group;"><tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;"><td class="large-12 acym__wysid__column__element__td" style="outline-width: 0px;"><div class="acym__wysid__tinymce--text mce-content-body" style="position: relative;" spellcheck="false" id="mce_66" contenteditable="false"><p style="font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: rgb(165, 165, 165); text-align: center; word-break: break-word;" data-mce-style="font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: #a5a5a5; text-align: center;"><span class="acym_dynamic mceNonEditable" contenteditable="false" data-dynamic="{unsubscribe}Unsubscribe{/unsubscribe}"><a style="text-decoration: none;" href="'.acym_frontendLink(
+                    'frontusers&task=unsubscribe&id='.$user->id.'&key='.$user->key,
+                    true,
+                    true
+                ).'" target="_blank" rel="noopener" data-mce-href="" data-mce-style="text-decoration: none;"><span class="acym_unsubscribe">Unsubscribe</span></a><em class="acym_remove_dynamic acymicon-close">&zwj;‍</em></span></p></div></td></tr></tbody></table></th></tr></tbody></table></td></tr></tbody></table></center></td></tr></tbody></table></div>';
+
             $addNotif[] = [
                 'name' => acym_translation(self::FIRST_EMAIL_NAME_KEY),
                 'subject' => acym_translation('ACYM_YOUR_FIRST_EMAIL'),
-                'content' => '<div id="acym__wysid__template" class="cell">
-					<table class="body">
-						<tbody>
-							<tr>
-								<td align="center" class="center acym__wysid__template__content" valign="top" style="background-color: rgb(245, 245, 245); padding: 40px 0 40px;">
-									<center>
-										<table align="center">
-											<tbody>
-												<tr>
-													<td class="acym__wysid__row ui-droppable ui-sortable" bgcolor="#ffffff" style="background-color: rgb(255, 255, 255); min-height: 0px; display: table-cell;">
-														<table class="row acym__wysid__row__element" style="z-index: 100; background-color: rgb(238, 238, 238);" bgcolor="#eeeeee">
-															<tbody bgcolor="" style="background-color: inherit;">
-																<tr>
-																	<th class="small-12 medium-12 large-12 columns">
-																		<table class="acym__wysid__column" style="min-height: 0px; display: table;">
-																			<tbody class="ui-sortable" style="min-height: 0px; display: table-row-group;">
-                                                                                <tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;">
-                                                                                    <td class="large-12 acym__wysid__column__element__td" style="outline-width: 0px;">
-                                                                                        <div class="acym__wysid__tinymce--text mce-content-body" id="mce_0" style="position: relative;" spellcheck="false" contenteditable="false">
-                                                                                            <p style="font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: rgb(0, 0, 0); word-break: break-word; text-align: center;" data-mce-style="font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: #000000; word-break: break-word; text-align: center;">
-                                                                                                <span style="font-size: 12px; color: rgb(165, 165, 165);" data-mce-style="font-size: 12px; color: #a5a5a5;">We need your feedback!</span>
-                                                                                            </p>
-                                                                                            <p style="font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: rgb(0, 0, 0); word-break: break-word; text-align: center;" data-mce-style="font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: #000000; word-break: break-word; text-align: center;">
-                                                                                                <span style="font-size: 12px; color: rgb(165, 165, 165);" data-mce-style="font-size: 12px; color: #a5a5a5;">Having trouble seeing this email?</span>
-                                                                                                <span class="acym_dynamic mceNonEditable" contenteditable="false" data-dynamic="{readonline}Click here to view it online{/readonline}">
-                                                                                                    <a style="text-decoration: none;" href="'.acym_frontendLink(
-                        'archive&task=view&id=id_view_it_online_first_test&userid='.$user->id.'-'.$user->key,
-                        true,
-                        true
-                    ).' target="_blank" rel="noopener" data-mce-style="text-decoration: none;">
-                                                                                                        <span class="acym_online">Click here to view it online</span>
-                                                                                                    </a>
-                                                                                                    <em class="acym_remove_dynamic acymicon-close"></em>
-                                                                                                </span>
-                                                                                            </p>
-                                                                                        </div>
-                                                                                    </td>
-                                                                                </tr>
-                                                                            </tbody>
-																		</table>
-																	</th>
-																</tr>
-															</tbody>
-														</table>
-														<table class="row acym__wysid__row__element" bgcolor="#ffffff" style="background-color: rgb(255, 255, 255); z-index: 100;">
-														    <tbody bgcolor="" style="background-color: inherit;">
-														        <tr>
-														            <th class="small-12 medium-12 large-12 columns acym__wysid__row__element__th" valign="top">
-														                <table class="acym__wysid__column" style="min-height: 0px; display: table;">
-														                    <tbody class="ui-sortable" style="min-height: 0px; display: table-row-group;">
-														                        <tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;">
-														                            <td class="large-12 acym__wysid__column__element__td" style="outline-width: 0px;">
-														                                <div class="acym__wysid__tinymce--image mce-content-body" id="mce_9" style="position: relative;" spellcheck="false" contenteditable="false">
-														                                    <p style="font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: #000000; word-break: break-word;" data-mce-style="font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: #000000; word-break: break-word;">
-														                                        <img class="" src="'.ACYM_LIVE.ACYM_UPLOAD_FOLDER.'logo_acymailing_step_email.png" alt="logo_acymailing_step_email" style="max-width: 100%; height: 119px; box-sizing: border-box; padding: 0px 5px; display: block; margin-left: auto; margin-right: auto;" data-mce-style="max-width: 100%; height: 119px; box-sizing: border-box; padding: 0px 5px; display: block; margin-left: auto; margin-right: auto;" height="119" width="428">
-                                                                                            </p>
-                                                                                        </div>
-                                                                                    </td>
-                                                                                </tr>
-                                                                                <tr class="acym__wysid__column__element acym__wysid__column__element__separator cursor-pointer ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;">
-                                                                                    <td class="large-12 acym__wysid__column__element__td" style="outline-width: 0px;">
-                                                                                        <hr style="border-bottom: 3px solid rgb(214, 214, 214); width: 24%; border-top: none; border-left: none; border-right: none;" class="acym__wysid__row__separator">
-                                                                                    </td>
-                                                                                </tr>
-                                                                            </tbody>
-                                                                        </table>
-                                                                    </th>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                        <table class="row acym__wysid__row__element" bgcolor="#ffffff" style="background-color: rgb(255, 255, 255); z-index: 100;">
-                                                            <tbody bgcolor="" style="background-color: inherit;">
-                                                                <tr>
-                                                                    <th class="small-12 medium-12 large-12 columns acym__wysid__row__element__th" valign="top">
-                                                                        <table class="acym__wysid__column" style="min-height: 0px; display: table;">
-                                                                            <tbody class="ui-sortable" style="min-height: 0px; display: table-row-group;">
-                                                                                <tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;">
-                                                                                    <td class="large-12 acym__wysid__column__element__td" style="outline-width: 0px;">
-                                                                                        <div class="acym__wysid__tinymce--text mce-content-body" id="mce_10" style="position: relative;" spellcheck="false" contenteditable="false">
-                                                                                            <h1 style="font-family: Helvetica; font-size: 34px; font-weight: normal; font-style: normal; color: rgb(0, 0, 0); text-align: center;" data-mce-style="font-family: Helvetica; font-size: 34px; font-weight: normal; font-style: normal; color: #000000; text-align: center;">
-                                                                                                <span style="color: rgb(0, 164, 255);" data-mce-style="color: #00a4ff;">Dear&nbsp;</span><span class="acym_dynamic mceNonEditable" contenteditable="false" data-dynamic="{subtag:name|part:first|ucfirst}">Admin<em class="acym_remove_dynamic acymicon-close"></em></span><span style="color: rgb(0, 164, 255);" data-mce-style="color: #00a4ff;">,</span>
-                                                                                            </h1>
-                                                                                        </div>
-                                                                                    </td>
-                                                                                </tr>
-                                                                                <tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;">
-                                                                                    <td class="large-12 acym__wysid__column__element__td" style="outline-width: 0px;">
-                                                                                        <div class="acym__wysid__tinymce--text mce-content-body" id="mce_11" style="position: relative;" spellcheck="false" contenteditable="false">
-                                                                                            <p class="p1" data-mce-style="color: #000000; font-family: Helvetica; text-align: center; word-break: break-word; font-size: 16px; font-weight: normal; font-style: normal;" style="color: rgb(0, 0, 0); font-family: Helvetica; text-align: center; word-break: break-word; font-size: 16px; font-weight: normal; font-style: normal;">
-                                                                                                <span style="color: rgb(153, 153, 153); font-size: 18px;" data-mce-style="color: #999999; font-size: 18px;">Amazing, you are going to send your first email!&nbsp;</span>
-                                                                                            </p>
-                                                                                            <p class="p1" data-mce-style="color: #000000; font-family: Helvetica; text-align: center; word-break: break-word; font-size: 16px; font-weight: normal; font-style: normal;" style="color: rgb(0, 0, 0); font-family: Helvetica; text-align: center; word-break: break-word; font-size: 16px; font-weight: normal; font-style: normal;">
-                                                                                                <br>
-                                                                                            </p>
-                                                                                            <p class="p1" data-mce-style="color: #000000; font-family: Helvetica; text-align: center; word-break: break-word; font-size: 16px; font-weight: normal; font-style: normal;" style="color: rgb(0, 0, 0); font-family: Helvetica; text-align: center; word-break: break-word; font-size: 16px; font-weight: normal; font-style: normal;">
-                                                                                                <span style="color: rgb(153, 153, 153); font-size: 18px;" data-mce-style="color: #999999; font-size: 18px;">Feel free to drag &amp; drop some content and give</span>
-                                                                                            </p>
-                                                                                            <p class="p1" data-mce-style="color: #000000; font-family: Helvetica; text-align: center; word-break: break-word; font-size: 16px; font-weight: normal; font-style: normal;" style="color: rgb(0, 0, 0); font-family: Helvetica; text-align: center; word-break: break-word; font-size: 16px; font-weight: normal; font-style: normal;">
-                                                                                                <span style="color: rgb(153, 153, 153); font-size: 18px;" data-mce-style="color: #999999; font-size: 18px;">a try to the AcyMailing editor.</span><br><br>
-                                                                                                <span style="color: rgb(153, 153, 153); font-size: 18px;" data-mce-style="color: #999999; font-size: 18px;">Once it is done then click on the "Save" button</span>
-                                                                                            </p>
-                                                                                        </div>
-                                                                                    </td>
-                                                                                </tr>
-                                                                            </tbody>
-                                                                        </table>
-                                                                    </th>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                        <table class="row acym__wysid__row__element" bgcolor="#ffffff" style="background-color: rgb(255, 255, 255); z-index: 100; padding: 0px;">
-                                                            <tbody bgcolor="" style="background-color: inherit;">
-                                                                <tr>
-                                                                    <th class="small-12 medium-12 large-12 columns acym__wysid__row__element__th" valign="top">
-                                                                        <table class="acym__wysid__column" style="min-height: 0px; display: table;">
-                                                                            <tbody class="ui-sortable" style="min-height: 0px; display: table-row-group;">
-                                                                                <tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;">
-                                                                                    <td class="large-12 acym__wysid__column__element__td" style="outline-width: 0px;">
-                                                                                        <div class="acym__wysid__tinymce--image mce-content-body" id="mce_12" style="position: relative;" spellcheck="false" contenteditable="false">
-                                                                                            <p style="font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: #000000; word-break: break-word;" data-mce-style="font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: #000000; word-break: break-word;">
-                                                                                                <img class="" src="'.ACYM_LIVE.ACYM_UPLOAD_FOLDER.'image_mailing_step_email.jpg" alt="image_mailing_step_email" style="max-width: 100%; height: auto; box-sizing: border-box; padding: 0 5px; display: block; margin-left: auto; margin-right: auto;" data-mce-style="max-width: 100%; height: auto; box-sizing: border-box; padding: 0 5px; display: block; margin-left: auto; margin-right: auto;" height="401" width="580">
-                                                                                            </p>
-                                                                                        </div>
-                                                                                    </td>
-                                                                                </tr>
-                                                                            </tbody>
-                                                                        </table>
-                                                                    </th>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                        <table class="row acym__wysid__row__element" bgcolor="#303e47" style="background-color: rgb(48, 62, 71); z-index: 100;">
-                                                            <tbody bgcolor="" style="background-color: inherit;">
-                                                                <tr>
-                                                                    <th class="small-12 medium-12 large-12 columns acym__wysid__row__element__th" valign="top">
-                                                                        <table class="acym__wysid__column" style="min-height: 0px; display: table;">
-                                                                            <tbody class="ui-sortable" style="min-height: 0px; display: table-row-group;">
-                                                                                <tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;">
-                                                                                    <td class="large-12 acym__wysid__column__element__td" style="outline-width: 0px;">
-                                                                                        <div class="acym__wysid__tinymce--text mce-content-body" id="mce_13" style="position: relative;" spellcheck="false" contenteditable="false">
-                                                                                            <p style="font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: rgb(0, 0, 0); word-break: break-word; text-align: center;" data-mce-style="font-family: Helvetica; font-size: 16px; font-weight: normal; font-style: normal; color: #000000; word-break: break-word; text-align: center;">
-                                                                                                <span class="acym_dynamic mceNonEditable" contenteditable="false" data-dynamic="{unsubscribe}Unsubscribe{/unsubscribe}">
-                                                                                                    <a style="text-decoration: none;" href="'.acym_frontendLink(
-                        'frontusers&task=unsubscribe&id='.$user->id.'&key='.$user->key,
-                        true,
-                        true
-                    ).' target="_blank" rel="noopener" data-mce-style="text-decoration: none;">
-                                                                                                        <span class="acym_unsubscribe">Unsubscribe</span>
-                                                                                                    </a>
-                                                                                                    <em class="acym_remove_dynamic acymicon-close"></em>
-                                                                                                </span>
-                                                                                            </p>
-                                                                                        </div>
-                                                                                    </td>
-                                                                                </tr>
-                                                                            </tbody>
-                                                                        </table>
-                                                                    </th>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-													</td>
-												</tr>
-											</tbody>
-										</table>
-									</center>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>',
+                'content' => $body,
                 'template' => 1,
                 'settings' => '{"p":{"font-family":"Helvetica","font-size":"16px"},"#acym__wysid__background-colorpicker":{"background-color":"#f5f5f5"}}',
                 'type' => 'standard',
@@ -622,13 +462,13 @@ class acymupdateHelper
 
     private function getFormatedNotification($content)
     {
-        $begining = '<div id="acym__wysid__template" class="cell"><table class="body"><tbody><tr><td align="center" class="center acym__wysid__template__content" valign="top" style="background-color: rgb(239, 239, 239); padding: 40px 0 120px 0;"><center><table align="center"><tbody><tr><td class="acym__wysid__row ui-droppable ui-sortable" style="min-height: 0px; display: table-cell;"><table class="row acym__wysid__row__element" bgcolor="#dadada"><tbody style="background-color: rgb(218, 218, 218);" bgcolor="#ffffff"><tr><th class="small-12 medium-12 large-12 columns acym__wysid__row__element__th"><table class="acym__wysid__column" style="min-height: 0px; display: table;"><tbody class="ui-sortable" style="min-height: 0px; display: table-row-group;"><tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;"><td class="large-12 acym__wysid__column__element__td" style="outline: rgb(0, 163, 254) dashed 0px; outline-offset: -1px;"><span class="acy-editor__space acy-editor__space--focus" style="display: block; padding: 0px; margin: 0px; height: 10px;"></span></td></tr></tbody></table></th></tr></tbody></table><table class="row acym__wysid__row__element" bgcolor="#ffffff"><tbody style="background-color: rgb(255, 255, 255);" bgcolor="#ffffff"><tr><th class="small-12 medium-12 large-12 columns"><table class="acym__wysid__column" style="min-height: 0px; display: table;"><tbody class="ui-sortable" style="min-height: 0px; display: table-row-group;"><tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;"><td class="large-12 acym__wysid__column__element__td" style="outline: rgb(0, 163, 254) dashed 0px; outline-offset: -1px;"><div class="acym__wysid__tinymce--text mce-content-body" style="position: relative;" spellcheck="false">';
-        $ending = '</div></td></tr></tbody></table></th></tr></tbody></table><table class="row acym__wysid__row__element" bgcolor="#dadada" style="position: relative; z-index: 100; top: 0; left: 0;"><tbody style="background-color: rgb(218, 218, 218);" bgcolor="#ffffff"><tr><th class="small-12 medium-12 large-12 columns acym__wysid__row__element__th"><table class="acym__wysid__column" style="min-height: 0px; display: table;"><tbody class="ui-sortable" style="min-height: 0px; display: table-row-group;"><tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;"><td class="large-12 acym__wysid__column__element__td" style="outline: rgb(0, 163, 254) dashed 0px; outline-offset: -1px;"><span class="acy-editor__space acy-editor__space--focus" style="display: block; padding: 0px; margin: 0px; height: 10px;"></span></td></tr></tbody></table></th></tr></tbody></table></td></tr></tbody></table></center></td></tr></tbody></table></div>';
+        $begining = '<div id="acym__wysid__template" class="cell"><table class="body"><tbody><tr><td align="center" class="center acym__wysid__template__content" valign="top" style="background-color: rgb(239, 239, 239); padding: 40px 0 120px 0;"><center><table align="center" border="0" cellpadding="0" cellspacing="0"><tbody><tr><td class="acym__wysid__row ui-droppable ui-sortable" style="min-height: 0px; display: table-cell;"><table class="row acym__wysid__row__element" bgcolor="#dadada" border="0" cellpadding="0" cellspacing="0"><tbody style="background-color: rgb(218, 218, 218);" bgcolor="#ffffff"><tr><th class="small-12 medium-12 large-12 columns acym__wysid__row__element__th"><table class="acym__wysid__column" style="min-height: 0px; display: table;" border="0" cellpadding="0" cellspacing="0"><tbody class="ui-sortable" style="min-height: 0px; display: table-row-group;"><tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;"><td class="large-12 acym__wysid__column__element__td" style="outline: rgb(0, 163, 254) dashed 0px; outline-offset: -1px;"><span class="acy-editor__space acy-editor__space--focus" style="display: block; padding: 0px; margin: 0px; height: 10px;"></span></td></tr></tbody></table></th></tr></tbody></table><table class="row acym__wysid__row__element" bgcolor="#ffffff" border="0" cellpadding="0" cellspacing="0"><tbody style="background-color: rgb(255, 255, 255);" bgcolor="#ffffff"><tr><th class="small-12 medium-12 large-12 columns"><table class="acym__wysid__column" style="min-height: 0px; display: table;" border="0" cellpadding="0" cellspacing="0"><tbody class="ui-sortable" style="min-height: 0px; display: table-row-group;"><tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;"><td class="large-12 acym__wysid__column__element__td" style="outline: rgb(0, 163, 254) dashed 0px; outline-offset: -1px;"><div class="acym__wysid__tinymce--text mce-content-body" style="position: relative;" spellcheck="false">';
+        $ending = '</div></td></tr></tbody></table></th></tr></tbody></table><table class="row acym__wysid__row__element" bgcolor="#dadada" style="position: relative; z-index: 100; top: 0; left: 0;" border="0" cellpadding="0" cellspacing="0"><tbody style="background-color: rgb(218, 218, 218);" bgcolor="#ffffff"><tr><th class="small-12 medium-12 large-12 columns acym__wysid__row__element__th"><table class="acym__wysid__column" style="min-height: 0px; display: table;" border="0" cellpadding="0" cellspacing="0"><tbody class="ui-sortable" style="min-height: 0px; display: table-row-group;"><tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;"><td class="large-12 acym__wysid__column__element__td" style="outline: rgb(0, 163, 254) dashed 0px; outline-offset: -1px;"><span class="acy-editor__space acy-editor__space--focus" style="display: block; padding: 0px; margin: 0px; height: 10px;"></span></td></tr></tbody></table></th></tr></tbody></table></td></tr></tbody></table></center></td></tr></tbody></table></div>';
 
         return $begining.$content.$ending;
     }
 
-    public function installExtensions()
+    public function installExtensions($report = true)
     {
         $dirs = acym_getFolders(ACYM_BACK.'extensions');
         if (empty($dirs)) return;
@@ -650,7 +490,7 @@ class acymupdateHelper
 
         acym_query('UPDATE #__extensions SET `enabled` = 1 WHERE `type` = "plugin" AND `folder` = "system" AND `element` IN ("'.implode('", "', $extensionsToPublish).'")');
 
-        acym_deleteFolder(ACYM_BACK.'extensions');
+        acym_deleteFolder(ACYM_BACK.'extensions', $report);
     }
 }
 

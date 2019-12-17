@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -11,7 +11,7 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <?php
 
-class acymbounceHelper
+class acymbounceHelper extends acymObject
 {
     var $server;
     var $username;
@@ -25,7 +25,6 @@ class acymbounceHelper
     var $allowed_extensions = [];
     var $nbMessages = 0;
     var $report = false;
-    var $config;
     var $mailer;
     var $mailbox;
     var $_message;
@@ -43,7 +42,8 @@ class acymbounceHelper
 
     public function __construct()
     {
-        $this->config = acym_config();
+        parent::__construct();
+
         $this->mailer = acym_get('helper.mailer');
         $this->ruleClass = acym_get('class.rule');
         $this->mailer->report = false;

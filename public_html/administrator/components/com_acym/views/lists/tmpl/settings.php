@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -11,11 +11,19 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <div id="acym__list__settings" class="acym__content">
 	<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate>
-        <?php
-        $workflow = acym_get('helper.workflow');
-        if (empty($data['listInformation']->id)) $workflow->disabledAfter = $this->step;
-        echo $workflow->display($this->steps, $this->step);
-        ?>
+		<div class="cell grid-x text-right">
+			<h5 class="cell medium-auto margin-bottom-1 medium-text-left text-center font-bold"><?php echo acym_translation('ACYM_LIST'); ?></h5>
+            <?php if (!empty($data['listInformation']->id)) { ?>
+				<button type="button" id="acym__button--delete" class="cell shrink button acym__user__button alert acy_button_submit" data-task="deleteOne"><i class="acymicon-delete acym__list__display__delete__icon acym__color__white"></i></button>
+                <?php
+                if (!empty($data['subscribersEntitySelect'])) {
+                    echo $data['subscribersEntitySelect'];
+                }
+            }
+            ?>
+			<button type="submit" data-task="apply" class="cell acy_button_submit button-secondary button medium-shrink acym__user__button margin-right-1"><?php echo acym_translation('ACYM_SAVE'); ?></button>
+			<button type="submit" data-task="save" class="cell acy_button_submit button medium-shrink acym__user__button"><?php echo acym_translation('ACYM_SAVE_EXIT'); ?></button>
+		</div>
 		<div class="grid-x margin-bottom-1 grid-margin-x">
 			<div class="cell grid-x margin-bottom-1 xlarge-5 small-12 acym__content">
 				<div class="cell">
@@ -31,41 +39,40 @@ defined('_JEXEC') or die('Restricted access');
 					</label>
 				</div>
 				<div class="cell grid-x grid-margin-x margin-left-0 margin-right-0">
-					<div class="cell grid-x acym__list__settings__active medium-auto">
+					<div class="cell grid-x acym__list__settings__active small-6">
                         <?php echo acym_switch('list[active]', acym_escape($data['listInformation']->active), acym_translation('ACYM_ACTIVE'), [], 'shrink', 'shrink', 'tiny margin-0'); ?>
 					</div>
+					<p class="cell margin-bottom-1 small-6 text-center" id="acym__lists__settings__list-color">
+                        <?php echo acym_translation('ACYM_COLOR'); ?> :
+						<input type='text' name="list[color]" id="acym__list__settings__color-picker" value="<?php echo acym_escape($data["listInformation"]->color); ?>" />
+					</p>
+					<div class="cell grid-x acym__list__settings__visible small-6">
+                        <?php echo acym_switch('list[visible]', acym_escape($data['listInformation']->visible), acym_translation('ACYM_VISIBLE'), [], 'shrink', 'shrink', 'tiny margin-0'); ?>
+					</div>
                     <?php if (!empty($data['listInformation']->id)) { ?>
-						<p class="cell margin-bottom-1 medium-auto text-center" id="acym__lists__settings__list-color">
-                            <?php echo acym_translation('ACYM_COLOR'); ?> :
-							<input type='text' name="list[color]" id="acym__list__settings__color-picker" value="<?php echo acym_escape($data["listInformation"]->color); ?>" />
-						</p>
-						<p class="cell margin-bottom-1 medium-auto text-right" id="acym__list__settings__list-id"><?php echo acym_translation('ACYM_LIST_ID'); ?> : <b class="acym__color__blue"><?php echo acym_escape($data['listInformation']->id); ?></b></p>
-                    <?php } else { ?>
-						<p class="cell margin-bottom-1 medium-auto text-center" id="acym__lists__settings__list-color">
-                            <?php echo acym_translation('ACYM_COLOR'); ?> :
-							<input type='text' name="list[color]" id="acym__list__settings__color-picker" value="<?php echo acym_escape($data["listInformation"]->color); ?>" />
-						</p>
+						<p class="cell margin-bottom-1 small-6 text-center" id="acym__list__settings__list-id"><?php echo acym_translation('ACYM_LIST_ID'); ?> : <b class="acym__color__blue"><?php echo acym_escape($data['listInformation']->id); ?></b></p>
                     <?php } ?>
+
 				</div>
 			</div>
 			<div class="cell grid-x margin-bottom-1 xlarge-7 small-12 text-center">
 				<div class="cell grid-x acym__list__settings__tmpls acym__content">
-					<div class="cell grid-y medium-4 medium-margin-right-1 text-center acym__list__settings__subscribers">
-						<div class="cell large-2 small-4 acym__list__settings__tmpls__title grid-x align-center acym_vcenter"><label><?php echo acym_translation('ACYM_SUBSCRIBERS'); ?></label><i class="acymicon-group margin-left-1"></i></div>
-						<div class="cell large-10 small-8 align-center acym_vcenter acym__list__settings__subscribers__nb grid-x">
+					<div class="cell grid-y medium-4 medium-margin-right-1 text-center acym__list__settings__subscriber__nb">
+						<div class="cell small-2 acym__list__settings__tmpls__title grid-x align-center acym_vcenter"><label><?php echo acym_translation('ACYM_SUBSCRIBERS'); ?></label><i class="acymicon-group margin-left-1"></i></div>
+						<div class="cell small-10 align-center acym_vcenter acym__list__settings__subscriber__nb__display grid-x">
                             <?php
                             if ($this->config->get('require_confirmation', 1) == 1 && $data['listInformation']->subscribers['nbSubscribers'] != $data['listInformation']->subscribers['sendable']) {
                                 ?>
 								<div class="cell grid-x">
-									<div class="cell small-4 acym__color__blue text-right"><?= $data['listInformation']->subscribers['sendable']; ?>&nbsp;</div>
-									<div class="cell small-8 text-left"><?= acym_translation('ACYM_CONFIRMED'); ?></div>
-									<div class="cell small-4 acym__color__blue text-right"><?php echo($data['listInformation']->subscribers['nbSubscribers'] - $data['listInformation']->subscribers['sendable']); ?>&nbsp;</div>
-									<div class="cell small-8 text-left"><?= acym_translation('ACYM_PENDING'); ?></div>
+									<div class="cell small-4 text-right"><a href="#subscribers" class="acym__color__blue"><?= $data['listInformation']->subscribers['sendable']; ?>&nbsp;</a></div>
+									<div class="cell small-8 text-left"><a href="#subscribers"><?= acym_translation('ACYM_CONFIRMED'); ?></a></div>
+									<div class="cell small-4 text-right"><a href="#subscribers" class="acym__color__blue"><?php echo($data['listInformation']->subscribers['nbSubscribers'] - $data['listInformation']->subscribers['sendable']); ?>&nbsp;</a></div>
+									<div class="cell small-8 text-left"><a href="#subscribers"><?= acym_translation('ACYM_PENDING'); ?></a></div>
 								</div>
                             <?php } else { ?>
 								<div class="cell grid-x">
-									<div class="cell small-4 acym__color__blue text-right"><?= $data['listInformation']->subscribers['nbSubscribers']; ?>&nbsp;</div>
-									<div class="cell small-8 text-left"><?= acym_translation('ACYM_USERS'); ?></div>
+									<div class="cell small-4 text-right"><a href="#subscribers" class="acym__color__blue"><?= $data['listInformation']->subscribers['nbSubscribers']; ?>&nbsp;</a></div>
+									<div class="cell small-8 text-left"><a href="#subscribers"><?= acym_translation('ACYM_USERS'); ?></a></div>
 								</div>
                             <?php } ?>
 						</div>
@@ -158,20 +165,59 @@ defined('_JEXEC') or die('Restricted access');
                 ?>
 			</div>
 		</div>
-		<div class="cell grid-x">
-			<div class="cell medium-shrink medium-margin-bottom-0 margin-bottom-1 text-left">
-                <?php echo acym_backToListing("lists"); ?>
+
+		<div class="grid-x acym__list__settings__subscribers acym__content" id="acym__list__settings__subscribers">
+			<a name="subscribers"></a>
+			<input type="hidden" id="subscribers_subscribed" value="<?php echo acym_escape(json_encode($data['subscribers'])); ?>" />
+			<input type="hidden" id="requireConfirmation" value="<?php echo acym_escape($data['requireConfirmation']); ?>" />
+			<h5 class="cell font-bold"><?php echo acym_translation('ACYM_SUBSCRIBERS'); ?></h5>
+
+			<div class="cell grid-x acym__list__settings__subscribers__search">
+				<div class="medium-9"></div>
+				<div class="cell medium-3"><input type="text" class="acym__light__input" v-model="searchSubscribers" placeholder="<?= acym_translation('ACYM_SEARCH'); ?>"></div>
 			</div>
-			<div class="cell medium-auto grid-x text-right">
-				<div class="cell medium-auto"></div>
-				<button data-task="save" data-step="listing" type="submit" class="cell medium-shrink button medium-margin-bottom-0 margin-right-1 acy_button_submit button-secondary">
-                    <?php echo acym_translation('ACYM_SAVE_EXIT'); ?>
-				</button>
-				<button data-task="save" data-step="subscribers" type="submit" class="cell medium-shrink button margin-bottom-0 acy_button_submit">
-                    <?php echo acym_translation('ACYM_SAVE_CONTINUE'); ?><i class="fa fa-chevron-right"></i>
-				</button>
+			<div v-show="displayedSubscribers.length > 0" style="display:none;" class="cell grid-x">
+				<div class="grid-x cell acym__listing acym__listing__header hide-for-medium-only hide-for-small-only">
+					<div class="cell" :class="requireConfirmation==1?'large-4':'large-5'"><?= acym_translation('ACYM_EMAIL'); ?></div>
+					<div class="cell" :class="requireConfirmation==1?'large-3':'large-4'"><?= acym_translation('ACYM_NAME'); ?></div>
+					<div class="cell large-2"><?= acym_translation('ACYM_SUBSCRIPTION_DATE'); ?></div>
+					<div class="cell large-1" v-show="requireConfirmation==1"><?= acym_translation('ACYM_STATUS'); ?></div>
+					<div class="cell large-2"></div>
+				</div>
+				<div class="grid-x cell acym__listing acym__list__settings__subscribers__listing" v-infinite-scroll="loadMoreSubscriber" :infinite-scroll-disabled="busy">
+					<div class="grid-x cell acym__listing__row" v-for="(sub, index) in displayedSubscribers">
+						<div class="cell small-12 large-4">
+							<h6 :class="sub.confirmed==1 || requireConfirmation==0?'':'acym__color__dark-gray'">{{ sub.email }}</h6>
+						</div>
+						<div class="cell medium-7 small-10" :class="requireConfirmation==1?'large-3':'large-4'">
+							<span :class="sub.confirmed==1 || requireConfirmation==0?'':'acym__color__dark-gray'">{{ sub.name }}</span>
+						</div>
+						<div class="large-2 hide-for-medium-only hide-for-small-only cell">
+							<span :class="sub.confirmed==1 || requireConfirmation==0?'':'acym__color__dark-gray'">{{ sub.subscription_date }}</span>
+						</div>
+						<div class="cell large-1 hide-for-medium-only hide-for-small-only" v-show="requireConfirmation==1 && sub.confirmed==0">
+							<span class="acym__color__dark-gray">
+								<?= acym_translation('ACYM_PENDING'); ?>
+							</span>
+						</div>
+						<div class="cell large-1 hide-for-medium-only hide-for-small-only" v-show="requireConfirmation==1 && sub.confirmed==1">
+							<span><?= acym_translation('ACYM_CONFIRMED'); ?></span>
+						</div>
+						<div class="large-2 medium-5 small-2 cell acym__list__settings__subscribers__users--action acym__list__action--unsubscribe_one" v-on:click="unsubscribeUser(sub.id)">
+							<i class="fa fa-times-circle"></i><span class="hide-for-small-only"><?php echo strtolower(acym_translation('ACYM_UNSUBSCRIBE')); ?></span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="cell grid-x align-center acym__list__subscribers__loading margin-top-1" v-show="loading">
+				<div class="cell text-center acym__list__subscribers__loading__title"><?= acym_translation('ACYM_WE_ARE_LOADING_YOUR_DATA'); ?></div>
+				<div class="cell grid-x shrink margin-top-1"><?= $data['svg']; ?></div>
+			</div>
+			<div class="grid-x cell acym__listing v-align-top acym__list__settings__subscribers__listing" v-show="displayedSubscribers.length==0 && !loading" style="display:none;">
+				<span><?= acym_translation('ACYM_NO_USERS_FOUND'); ?></span>
 			</div>
 		</div>
+
 		<input type="hidden" name="id" value="<?php echo acym_escape($data['listInformation']->id); ?>">
 		<input type="hidden" name="list[welcome_id]" value="<?php echo acym_escape($data['listInformation']->welcome_id); ?>">
 		<input type="hidden" name="list[unsubscribe_id]" value="<?php echo acym_escape($data['listInformation']->unsubscribe_id); ?>">

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -65,6 +65,12 @@ class ContentArticle
 
 		// Pass Date
 		if ( ! $this->passItemByType($pass, 'Date'))
+		{
+			return $this->_(false);
+		}
+
+		// Pass Fields
+		if ( ! $this->passItemByType($pass, 'Field'))
 		{
 			return $this->_(false);
 		}

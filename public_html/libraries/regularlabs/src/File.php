@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -13,11 +13,11 @@ namespace RegularLabs\Library;
 
 defined('_JEXEC') or die;
 
-use Joomla\CMS\Filesystem\Path as JPath;
-use Joomla\CMS\Filesystem\Folder as JFolder;
 use Joomla\CMS\Client\ClientHelper as JClientHelper;
 use Joomla\CMS\Client\FtpClient as JFtpClient;
 use Joomla\CMS\Factory as JFactory;
+use Joomla\CMS\Filesystem\Folder as JFolder;
+use Joomla\CMS\Filesystem\Path as JPath;
 use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\Log\Log as JLog;
 use Joomla\CMS\Uri\Uri as JUri;
@@ -151,9 +151,9 @@ class File
 	/**
 	 * Delete a file or array of files
 	 *
-	 * @param   mixed   $file               The file name or an array of file names
-	 * @param   boolean $show_messages      Whether or not to show error messages
-	 * @param   int     $min_age_in_minutes Minimum last modified age in minutes
+	 * @param mixed   $file               The file name or an array of file names
+	 * @param boolean $show_messages      Whether or not to show error messages
+	 * @param int     $min_age_in_minutes Minimum last modified age in minutes
 	 *
 	 * @return  boolean  True on success
 	 *
@@ -216,9 +216,9 @@ class File
 	/**
 	 * Delete a folder.
 	 *
-	 * @param   string  $path               The path to the folder to delete.
-	 * @param   boolean $show_messages      Whether or not to show error messages
-	 * @param   int     $min_age_in_minutes Minimum last modified age in minutes
+	 * @param string  $path               The path to the folder to delete.
+	 * @param boolean $show_messages      Whether or not to show error messages
+	 * @param int     $min_age_in_minutes Minimum last modified age in minutes
 	 *
 	 * @return  boolean  True on success.
 	 */

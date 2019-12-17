@@ -3,7 +3,7 @@
  * @package    Pwtsitemap
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2018 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
@@ -20,11 +20,13 @@ abstract class BasePwtSitemap
 	/**
 	 * Add an item to the sitemap
 	 *
-	 * @param  mixed  $item  Array of PwtSitemapItem objects or a single object
+	 * @param   mixed  $item  Array of PwtSitemapItem objects or a single object
 	 *
-	 * @since  1.0.0
+	 * @return  void
+	 *
+	 * @since   1.0.0
 	 */
-	abstract function addItem($item);
+	abstract public function addItem($item);
 
 	/**
 	 * Get the items of the sitemap
@@ -35,5 +37,5 @@ abstract class BasePwtSitemap
 	 *
 	 * @since   1.0.0
 	 */
-	abstract function getSitemapItems($part = null);
+	abstract public function getSitemapItems($part = null);
 }

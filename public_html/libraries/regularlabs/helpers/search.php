@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -111,9 +111,9 @@ class SearchModelSearch extends JModel
 	/**
 	 * Method to set the search parameters
 	 *
-	 * @param   string $keyword  string search string
-	 * @param   string $match    matching option, exact|any|all
-	 * @param   string $ordering option, newest|oldest|popular|alpha|category
+	 * @param string $keyword  string search string
+	 * @param string $match    matching option, exact|any|all
+	 * @param string $ordering option, newest|oldest|popular|alpha|category
 	 *
 	 * @return  void
 	 *
@@ -226,8 +226,8 @@ class SearchModelSearch extends JModel
 	/**
 	 * Method to set the search areas
 	 *
-	 * @param   array $active areas
-	 * @param   array $search areas
+	 * @param array $active areas
+	 * @param array $search areas
 	 *
 	 * @return  void
 	 *

@@ -16,14 +16,14 @@ $asset  = $displayData['asset'];
 $action = $displayData['action'];
 ?>
 <td
-        class="<?php echo $action->class . ' ' . str_replace('.', '-', $action->name); ?>"
-        data-groupid="<?php echo $group; ?>"
-        data-assetid="<?php echo $asset->id; ?>"
-        data-action="<?php echo $action->name; ?>"
-        data-parentid="<?php echo $asset->parent_id; ?>"
-        data-setting="<?php echo $action->setting; ?>"
-        data-setting-calculated="<?php echo $action->setting_calculated; ?>"
-        data-setting-parent="<?php echo $action->setting_parent; ?>"
+	class="<?php echo $action->class . ' ' . str_replace('.', '-', $action->name); ?>"
+	data-groupid="<?php echo $group; ?>"
+	data-assetid="<?php echo $asset->id; ?>"
+	data-action="<?php echo $action->name; ?>"
+	data-parentid="<?php echo $asset->parent_id; ?>"
+	data-setting="<?php echo $action->setting; ?>"
+	data-setting-calculated="<?php echo $action->setting_calculated; ?>"
+	data-setting-parent="<?php echo $action->setting_parent; ?>"
 >
-    <span class="<?php echo $action->icon; ?>"></span>
+	<span class="<?php echo $action->icon; ?>"></span>
 </td>

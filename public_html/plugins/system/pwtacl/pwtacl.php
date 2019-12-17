@@ -8,7 +8,6 @@
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
 
-// No direct access.
 use Joomla\CMS\Access\Access;
 use Joomla\CMS\Access\Exception\NotAllowed;
 use Joomla\CMS\Component\ComponentHelper;
@@ -19,6 +18,7 @@ use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 
+// No direct access.
 defined('_JEXEC') or die;
 
 /**
@@ -37,21 +37,21 @@ class PlgSystemPwtacl extends JPlugin
 	protected $app;
 
 	/**
-	 * @var    String  base update url, to decide whether to process the event or not
+	 * @var    string  base update url, to decide whether to process the event or not
 	 *
 	 * @since  1.0.0
 	 */
 	private $baseUrl = 'https://extensions.perfectwebteam.com/pwt-acl';
 
 	/**
-	 * @var    String  Extension identifier, to retrieve its params
+	 * @var    string  Extension identifier, to retrieve its params
 	 *
 	 * @since  1.0.0
 	 */
 	private $extension = 'com_pwtacl';
 
 	/**
-	 * @var    String  Extension title, to retrieve its params
+	 * @var    string  Extension title, to retrieve its params
 	 *
 	 * @since  1.0.0
 	 */
@@ -60,8 +60,8 @@ class PlgSystemPwtacl extends JPlugin
 	/**
 	 * Constructor
 	 *
-	 * @param   object $subject   The object to observe
-	 * @param   array  $config    An optional associative array of configuration settings.
+	 * @param   object  $subject  The object to observe
+	 * @param   array   $config   An optional associative array of configuration settings.
 	 *                            Recognized key values include 'name', 'group', 'params', 'language'
 	 *                            (this list is not meant to be comprehensive).
 	 *
@@ -120,8 +120,8 @@ class PlgSystemPwtacl extends JPlugin
 	/**
 	 * Method to check for proper ACL setup
 	 *
-	 * @param   string  $component          Component name
-	 * @param   integer $aclCategoryManager Category ACL setting
+	 * @param   string   $component           Component name
+	 * @param   integer  $aclCategoryManager  Category ACL setting
 	 *
 	 * @return  boolean
 	 * @since   3.0
@@ -166,7 +166,8 @@ class PlgSystemPwtacl extends JPlugin
 			'com_wrapper',
 			'com_contenthistory',
 			'com_ajax',
-			'com_fields'
+			'com_fields',
+			'com_joomlaupdate'
 		);
 
 		// Add Categories Manager if not active
@@ -283,8 +284,8 @@ class PlgSystemPwtacl extends JPlugin
 	/**
 	 * Method to override a Joomla core class
 	 *
-	 * @param   string $class Class name
-	 * @param   string $file  File to override
+	 * @param   string  $class  Class name
+	 * @param   string  $file   File to override
 	 *
 	 * @return  void
 	 * @since   3.0
@@ -308,8 +309,8 @@ class PlgSystemPwtacl extends JPlugin
 	/**
 	 * Adding required headers for successful extension update
 	 *
-	 * @param   string $url     url from which package is going to be downloaded
-	 * @param   array  $headers headers to be sent along the download request (key => value format)
+	 * @param   string  $url      url from which package is going to be downloaded
+	 * @param   array   $headers  headers to be sent along the download request (key => value format)
 	 *
 	 * @return  boolean true    Always true, regardless of success
 	 *

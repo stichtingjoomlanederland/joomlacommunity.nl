@@ -527,12 +527,7 @@ class WFMediaManager extends WFMediaManagerBase
                     // Make relative
                     $source = str_replace($browser->getBaseDir(), '', $file);
 
-                    $box = array(
-                        'sx' => null,
-                        'sy' => null,
-                        'sw' => null,
-                        'sh' => null,
-                    );
+                    $box = array();
 
                     if ($crop) {
                         $box = $this->cropImage($dim[0], $dim[1], $tw, $th);

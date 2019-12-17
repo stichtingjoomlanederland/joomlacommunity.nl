@@ -30,36 +30,36 @@ HTMLHelper::_('bootstrap.tooltip');
 	<?php endif; ?>
 </div>
 <div id="j-main-container" class="span10">
-    <div id="pwtacl" class="row-fluid">
+	<div id="pwtacl" class="row-fluid">
 
 		<?php if ($this->step == 1): ?>
-            <div class="span12">
-                <div class="well well-large">
-                    <legend><?php echo Text::_('COM_PWTACL_WIZARD_STEP1'); ?></legend>
-                    <p class="lead"><?php echo Text::_('COM_PWTACL_WIZARD_STEP1_DESC'); ?></p>
-                </div>
-            </div>
-            <form action="<?php echo Route::_('index.php?option=com_pwtacl&view=wizard'); ?>" method="post" name="adminForm" id="item-form" class="form-validate">
-                <div class="form-horizontal">
+			<div class="span12">
+				<div class="well well-large">
+					<legend><?php echo Text::_('COM_PWTACL_WIZARD_STEP1'); ?></legend>
+					<p class="lead"><?php echo Text::_('COM_PWTACL_WIZARD_STEP1_DESC'); ?></p>
+				</div>
+			</div>
+			<form action="<?php echo Route::_('index.php?option=com_pwtacl&view=wizard'); ?>" method="post" name="adminForm" id="item-form" class="form-validate">
+				<div class="form-horizontal">
 					<?php echo $this->form->renderFieldset('default'); ?>
-                </div>
+				</div>
 
-                <input type="submit" class="btn btn-large btn-success btn-block" value="<?php echo Text::_('COM_PWTACL_WIZARD_STEP1_SUBMIT'); ?>"/>
-                <input type="hidden" name="task" value="wizard.groupSetup"/>
+				<input type="submit" class="btn btn-large btn-success btn-block" value="<?php echo Text::_('COM_PWTACL_WIZARD_STEP1_SUBMIT'); ?>"/>
+				<input type="hidden" name="task" value="wizard.groupSetup"/>
 				<?php echo HTMLHelper::_('form.token'); ?>
-            </form>
+			</form>
 		<?php endif; ?>
 
 		<?php if ($this->step == 2): ?>
-            <div class="span12">
-                <div class="well well-large">
-                    <legend><?php echo Text::_('COM_PWTACL_WIZARD_STEP2'); ?></legend>
-                    <p class="lead"><?php echo Text::_('COM_PWTACL_WIZARD_STEP2_DESC'); ?></p>
-                </div>
-            </div>
+			<div class="span12">
+				<div class="well well-large">
+					<legend><?php echo Text::_('COM_PWTACL_WIZARD_STEP2'); ?></legend>
+					<p class="lead"><?php echo Text::_('COM_PWTACL_WIZARD_STEP2_DESC'); ?></p>
+				</div>
+			</div>
 			<?php foreach ($this->components as $component): ?>
-                <h3><?php echo $component->title; ?></h3>
-                <table id="pwtacl" class="table table-bordered table-fixed-header managepermissions">
+				<h3><?php echo $component->title; ?></h3>
+				<table id="pwtacl" class="table table-bordered table-fixed-header managepermissions">
 					<?php echo LayoutHelper::render('pwtacl.table.wizard.header'); ?>
 					<?php echo LayoutHelper::render(
 						'pwtacl.table.wizard.body',
@@ -68,15 +68,15 @@ HTMLHelper::_('bootstrap.tooltip');
 							'group'  => $this->group
 						)
 					); ?>
-                </table>
+				</table>
 			<?php endforeach; ?>
-            <form action="<?php echo Route::_('index.php?option=com_pwtacl&view=wizard'); ?>" method="post" name="adminForm" id="item-form">
-                <input type="submit" class="btn btn-large btn-success btn-block" value="<?php echo Text::_('COM_PWTACL_WIZARD_STEP2_SUBMIT'); ?>"/>
-                <input type="hidden" name="groupid" value="<?php echo $this->group; ?>"/>
-                <input type="hidden" name="task" value="wizard.finalize"/>
+			<form action="<?php echo Route::_('index.php?option=com_pwtacl&view=wizard'); ?>" method="post" name="adminForm" id="item-form">
+				<input type="submit" class="btn btn-large btn-success btn-block" value="<?php echo Text::_('COM_PWTACL_WIZARD_STEP2_SUBMIT'); ?>"/>
+				<input type="hidden" name="groupid" value="<?php echo $this->group; ?>"/>
+				<input type="hidden" name="task" value="wizard.finalize"/>
 				<?php echo HTMLHelper::_('form.token'); ?>
-            </form>
+			</form>
 		<?php endif; ?>
 
-    </div>
+	</div>
 </div>

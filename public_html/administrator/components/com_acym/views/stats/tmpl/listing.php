@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -11,6 +11,10 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
 	<div class="acym__content acym__content__tab" id="acym_stats">
+		<div class="cell grid-x acym_vcenter" id="acym_stats__select">
+			<h2 class="cell medium-6 text-right acym_stats__title__choose"><?php echo acym_translation('ACYM_SELECT_A_MAIL'); ?></h2>
+			<div class="cell large-2 medium-4 margin-left-1"><?php echo $data['mail_filter']; ?></div>
+		</div>
         <?php
 
         $data['tab']->startTab(acym_translation('ACYM_GLOBAL_STATISTICS'));

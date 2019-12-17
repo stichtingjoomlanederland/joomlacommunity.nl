@@ -39,8 +39,7 @@ abstract class RSFormProToolbarHelper
 	}
 	
 	protected static function addEntry($lang_key, $url, $default = false) {
-		$lang_key = 'COM_RSFORM_'.$lang_key;
-		JHtmlSidebar::addEntry(JText::_($lang_key), JRoute::_($url), $default);
+		JHtmlSidebar::addEntry(JText::_('COM_RSFORM_' . $lang_key), JRoute::_($url), $default);
 	}
 	
 	public static function addFilter($text, $key, $options, $noDefault = false) {

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.1" type="plugin" group="pwtsitemap" method="upgrade">
+	<name>plg_pwtsitemap_zoo</name>
+	<creationDate>14 December 2019</creationDate>
+	<copyright>Copyright (C) 2018 - 2019 Perfect Web Team</copyright>
+	<license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
+	<author>Perfect Web Team</author>
+	<authorEmail>hallo@perfectwebteam.nl</authorEmail>
+	<authorUrl>https://perfectwebteam.nl/</authorUrl>
+	<version>1.4.1</version>
+	<description>PLG_PWTSITEMAP_ZOO_XML_DESCRIPTION</description>
+
+	<files>
+		<folder>language</folder>
+		<filename plugin="zoo">zoo.php</filename>
+		<filename>zoo.xml</filename>
+	</files>
+
+	<config>
+
+	</config>
+</extension>

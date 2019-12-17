@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -67,7 +67,7 @@ class UsersController extends acymController
         }
 
         $usersData = [
-            'require_confirmation' => acym_config()->get('require_confirmation', '0'),
+            'require_confirmation' => $this->config->get('require_confirmation', '0'),
             'allUsers' => $matchingUsers['elements'],
             'pagination' => $pagination,
             'search' => $searchFilter,
@@ -359,7 +359,6 @@ class UsersController extends acymController
             'checkedUsers' => $checkedUsers,
             'fields' => $fields,
             'customfields' => $customFields,
-            'config' => acym_config(),
         ];
 
         parent::display($data);
@@ -428,7 +427,6 @@ class UsersController extends acymController
         }
 
 
-        $config = acym_config();
         $newConfig = new stdClass();
         $newConfig->export_separator = $separator;
         $newConfig->export_charset = $charset;
@@ -437,7 +435,7 @@ class UsersController extends acymController
         if (empty($selectedUsers)) {
             $newConfig->export_lists = implode(',', $listsToExport);
         }
-        $config->save($newConfig);
+        $this->config->save($newConfig);
 
         foreach ($fieldsToExport as $oneField) {
             acym_secureDBColumn($oneField);

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.8" type="file" method="upgrade">
+	<name>PWT Sitemap - CLI scripts</name>
+	<author>Perfect Web Team</author>
+	<creationDate>14 December 2019</creationDate>
+	<copyright>Copyright (C) 2011 - 2019 Perfect Web Team</copyright>
+	<license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
+	<authorEmail>extensions@perfectwebteam.com</authorEmail>
+	<authorUrl>https://extensions.perfectwebteam.com</authorUrl>
+	<version>1.4.1</version>
+	<description>PWT Sitemap - CLI scripts</description>
+
+	<fileset>
+		<files target="cli">
+			<file>pwtsitemap.php</file>
+		</files>
+	</fileset>
+</extension>

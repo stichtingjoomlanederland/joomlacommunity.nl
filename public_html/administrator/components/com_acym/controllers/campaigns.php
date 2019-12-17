@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -18,8 +18,8 @@ class CampaignsController extends acymController
         parent::__construct();
         $this->breadcrumb[acym_translation('ACYM_CAMPAIGNS')] = acym_completeLink('campaigns');
         $this->loadScripts = [
-            'edit' => ['colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'parse-css', 'vue-applications'],
-            'save' => ['colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'parse-css', 'vue-applications'],
+            'edit' => ['colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'parse-css', 'vue-applications', 'vue-prism-editor'],
+            'save' => ['colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'parse-css', 'vue-applications', 'vue-prism-editor'],
             'duplicate' => ['colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'parse-css'],
         ];
         acym_setVar('edition', '1');
@@ -135,7 +135,6 @@ class CampaignsController extends acymController
         acym_setVar('numberattachment', '0');
         acym_setVar('step', 'editEmail');
 
-        $config = acym_config();
         $editor = acym_get('helper.editor');
         $mailClass = acym_get('class.mail');
 
@@ -235,7 +234,7 @@ class CampaignsController extends acymController
             'editor' => $editor,
             'maxupload' => $maxupload,
             'needDisplayStylesheet' => $needDisplayStylesheet,
-            'social_icons' => $config->get('social_icons', '{}'),
+            'social_icons' => $this->config->get('social_icons', '{}'),
         ];
 
         parent::display($data);
@@ -288,7 +287,6 @@ class CampaignsController extends acymController
         }
 
         $from = acym_getVar('string', 'from');
-        $config = acym_config();
 
         $campaignClass = acym_get('class.campaign');
         $currentCampaign = $campaignClass->getOneByIdWithMail($campaignId);
@@ -315,10 +313,10 @@ class CampaignsController extends acymController
         $campaign['senderInformations']->reply_to_name = empty($currentCampaign->reply_to_name) ? '' : $currentCampaign->reply_to_name;
         $campaign['senderInformations']->reply_to_email = empty($currentCampaign->reply_to_email) ? '' : $currentCampaign->reply_to_email;
 
-        $campaign['config_values']->from_name = $config->get('from_name', '');
-        $campaign['config_values']->from_email = $config->get('from_email', '');
-        $campaign['config_values']->reply_to_name = $config->get('replyto_name', '');
-        $campaign['config_values']->reply_to_email = $config->get('replyto_email', '');
+        $campaign['config_values']->from_name = $this->config->get('from_name', '');
+        $campaign['config_values']->from_email = $this->config->get('from_email', '');
+        $campaign['config_values']->reply_to_name = $this->config->get('replyto_name', '');
+        $campaign['config_values']->reply_to_email = $this->config->get('replyto_email', '');
 
         $triggers = [];
 
@@ -385,7 +383,6 @@ class CampaignsController extends acymController
 
         $newAttachments = [];
         $attachments = acym_getVar('array', 'attachments', []);
-        $config = acym_config();
         if (!empty($attachments)) {
             foreach ($attachments as $id => $filepath) {
                 if (empty($filepath)) {
@@ -397,7 +394,14 @@ class CampaignsController extends acymController
                 $extension = substr($attachment->filename, strrpos($attachment->filename, '.'));
 
                 if (preg_match('#\.(php.?|.?htm.?|pl|py|jsp|asp|sh|cgi)#Ui', $attachment->filename)) {
-                    acym_enqueueMessage(acym_translation_sprintf('ACYM_ACCEPTED_TYPE', substr($attachment->filename, strrpos($attachment->filename, '.') + 1), $config->get('allowed_files')), 'notice');
+                    acym_enqueueMessage(
+                        acym_translation_sprintf(
+                            'ACYM_ACCEPTED_TYPE',
+                            substr($attachment->filename, strrpos($attachment->filename, '.') + 1),
+                            $this->config->get('allowed_files')
+                        ),
+                        'notice'
+                    );
                     continue;
                 }
                 $attachment->filename = str_replace(['.', ' '], '_', substr($attachment->filename, 0, strpos($attachment->filename, $extension))).$extension;
@@ -627,7 +631,6 @@ class CampaignsController extends acymController
 
         $userClass = acym_get('class.user');
         $mailClass = acym_get('class.mail');
-        $config = acym_config();
 
         $nbSubscribers = 0;
         $campaignLists = $mailClass->getAllListsWithCountSubscribersByMailIds([$campaign->mail_id]);
@@ -647,24 +650,24 @@ class CampaignsController extends acymController
         }
 
         $mailData = $mailClass->getOneById($campaign->mail_id);
-        $mailData->from_name = empty($mailData->from_name) ? $config->get('from_name') : $mailData->from_name;
-        $mailData->from_email = empty($mailData->from_email) ? $config->get('from_email') : $mailData->from_email;
+        $mailData->from_name = empty($mailData->from_name) ? $this->config->get('from_name') : $mailData->from_name;
+        $mailData->from_email = empty($mailData->from_email) ? $this->config->get('from_email') : $mailData->from_email;
 
 
-        $useFromInReply = $config->get('from_as_replyto');
-        $replytoName = $config->get('replyto_name');
-        $replytoEmail = $config->get('replyto_email');
+        $useFromInReply = $this->config->get('from_as_replyto');
+        $replytoName = $this->config->get('replyto_name');
+        $replytoEmail = $this->config->get('replyto_email');
 
         if (!empty($mailData->reply_to_name)) {
             $replytoName = $mailData->reply_to_name;
         } elseif ($useFromInReply != 0 || empty($replytoName)) {
-            $replytoName = $config->get('from_name');
+            $replytoName = $this->config->get('from_name');
         }
 
         if (!empty($mailData->reply_to_email)) {
             $replytoEmail = $mailData->reply_to_email;
         } elseif ($useFromInReply != 0 || empty($replytoEmail)) {
-            $replytoEmail = $config->get('from_email');
+            $replytoEmail = $this->config->get('from_email');
         }
 
         $mailData->reply_to_name = $replytoName;
@@ -690,8 +693,11 @@ class CampaignsController extends acymController
             $textToDisplay = $textToDisplay->triggers;
         }
 
+        $editorHelper = acym_get('helper.editor');
+        $mailData->settings = json_decode($mailData->settings, true);
+        $mailData->stylesheet .= $editorHelper->getSettingsStyle($mailData->settings);
+
         $data = [
-            'config' => $config,
             'campaignClass' => $campaignClass,
             'campaignInformation' => $campaign,
             'mailInformation' => $mailData,
@@ -1002,8 +1008,7 @@ class CampaignsController extends acymController
 
     private function _redirectAfterQueued()
     {
-        $config = acym_config();
-        if (!acym_level(1) || $config->get('cron_last', 0) < (time() - 43200)) {
+        if (!acym_level(1) || $this->config->get('cron_last', 0) < (time() - 43200)) {
             acym_redirect(acym_completeLink('queue&task=campaigns', false, true));
         } else {
             $this->listing();
@@ -1379,10 +1384,9 @@ class CampaignsController extends acymController
         if (empty($campaign->mail_id)) {
             $result->message = acym_translation('ACYM_CAMPAIGN_NOT_FOUND');
         } else {
-            $config = acym_config();
             ob_start();
             $urlSite = trim(base64_encode(preg_replace('#https?://(www\.)?#i', '', ACYM_LIVE)), '=/');
-            $url = ACYM_SPAMURL.'spamTestSystem&component=acymailing&level='.strtolower($config->get('level', 'starter')).'&urlsite='.$urlSite;
+            $url = ACYM_SPAMURL.'spamTestSystem&component=acymailing&level='.strtolower($this->config->get('level', 'starter')).'&urlsite='.$urlSite;
             $spamtestSystem = acym_fileGetContent($url, 30);
             $warnings = ob_get_clean();
 
@@ -1561,7 +1565,6 @@ class CampaignsController extends acymController
 
         $campaignClass = acym_get('class.campaign');
         $mailClass = acym_get('class.mail');
-        $config = acym_config();
 
         $campaign = $campaignClass->getOneById($campaignId);
         if (empty($campaign)) return false;
@@ -1570,10 +1573,10 @@ class CampaignsController extends acymController
         if (empty($mail)) return false;
 
 
-        if (empty($mail->from_name)) $mail->from_name = $config->get('from_name');
-        if (empty($mail->from_email)) $mail->from_email = $config->get('from_email');
-        if (empty($mail->reply_to_name)) $mail->reply_to_name = $config->get('replyto_name');
-        if (empty($mail->reply_to_email)) $mail->reply_to_email = $config->get('replyto_email');
+        if (empty($mail->from_name)) $mail->from_name = $this->config->get('from_name');
+        if (empty($mail->from_email)) $mail->from_email = $this->config->get('from_email');
+        if (empty($mail->reply_to_name)) $mail->reply_to_name = $this->config->get('replyto_name');
+        if (empty($mail->reply_to_email)) $mail->reply_to_email = $this->config->get('replyto_email');
 
         return ['campaign' => $campaign, 'mail' => $mail];
     }

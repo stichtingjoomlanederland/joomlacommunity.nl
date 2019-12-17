@@ -17,7 +17,7 @@ class WFBrowserPlugin extends WFMediaManager
     /*
      * @var string
      */
-    protected $_filetypes = 'doc,docx,dot,dotx,ppt,pps,pptx,ppsx,xls,xlsx,gif,jpeg,jpg,png,webp,apng,pdf,zip,tar,gz,swf,rar,mov,mp4,m4a,flv,mkv,webm,ogg,ogv,qt,wmv,asx,asf,avi,wav,mp3,aiff,oga,odt,odg,odp,ods,odf,rtf,txt,csv';
+    protected $_filetypes = 'doc,docx,dot,dotx,ppt,pps,pptx,ppsx,xls,xlsx,gif,jpeg,jpg,png,webp,apng,pdf,zip,tar,gz,swf,rar,mov,mp4,m4a,flv,mkv,webm,ogg,ogv,qt,wmv,asx,asf,avi,wav,mp3,aiff,oga,odt,odg,odp,ods,odf,rtf,txt,csv,htm,html';
 
     public function __construct($config = array())
     {
@@ -37,8 +37,8 @@ class WFBrowserPlugin extends WFMediaManager
         // get mediatype from xml
         $mediatype = $app->input->getString('mediatype', $app->input->getString('filter', 'files'));
 
-        // clean filter value
-        $mediatype = (string) preg_replace('/[^\w_,]/i', '', $mediatype);
+        // clean and lowercase filter value
+        $mediatype = (string) preg_replace('/[^\w_,]/i', '', strtolower($mediatype));
 
         // get filetypes from params
         $filetypes = $this->getParam('browser.extensions', $this->get('_filetypes'));

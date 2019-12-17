@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -193,8 +193,8 @@ function acym_dateField($name, $value = '', $class = '', $attributes = '', $rela
 
     $result .= acym_select(
         [
-            '-' => acym_translation('ACYM_BEFORE'),
-            '+' => acym_translation('ACYM_AFTER'),
+            '-' => acym_translation('ACYM_IN_PAST'),
+            '+' => acym_translation('ACYM_IN_FUTURE'),
         ],
         'relativewhen_'.$name,
         $relativeDefault,
@@ -413,7 +413,7 @@ function acym_line_chart($id, $dataMonth, $dataDay, $dataHour)
                                 var text = [];
                                 for (var i = 0; i < chart.data.datasets.length; i++) {
                                   if (chart.data.datasets[i].label) {
-                                    text.push(\'<div onclick="updateDataset(event, \'+ chart.legend.legendItems[i].datasetIndex + \', this)" class="acym_chart_line_labels"><i class="fa fa-circle" style="color: \' + chart.data.datasets[i].borderColor + \'"></i><span>\' + chart.data.datasets[i].label+\'</span></div>\');
+                                    text.push(\'<div onclick="updateDataset(event, \'+ chart.legend.legendItems[i].datasetIndex + \', this)" class="acym_chart_line_labels"><div class="acym_chart_line_labels_circle" style="background-color: \' + chart.data.datasets[i].borderColor + \'"></div><span>\' + chart.data.datasets[i].label+\'</span></div>\');
 
                                   }
                                 }
@@ -440,6 +440,7 @@ function acym_line_chart($id, $dataMonth, $dataDay, $dataHour)
                         ci.update();
                     };
                     acymChartLineUpdate = function(elem, by){
+                        document.getElementById("acym__time__linechart__input").value = by;
                     	var chartLineLabels = document.getElementsByClassName("acym_chart_line_labels");
                     	for	(var i = 0; i < chartLineLabels.length; i++){
                     		chartLineLabels[i].getElementsByTagName("span")[0].style.textDecoration = "none";
@@ -485,6 +486,7 @@ function acym_line_chart($id, $dataMonth, $dataDay, $dataHour)
                         }
                         elem.classList.add("selected__choose_by");
                     }
+                    document.querySelector(".selected__choose_by").click();
                 </script>';
 
     return $return;
@@ -780,7 +782,21 @@ function acym_boolean($name, $selected = null, $id = null, $attributes = [], $ye
 function acym_select($data, $name, $selected = null, $attribs = null, $optKey = 'value', $optText = 'text', $idtag = false, $translate = false)
 {
     $idtag = str_replace(['[', ']', ' '], '', empty($idtag) ? $name : $idtag);
-    $dropdown = '<select id="'.acym_escape($idtag).'" name="'.acym_escape($name).'" '.(empty($attribs) ? '' : $attribs).'>';
+
+    $attributes = '';
+    if (!empty($attribs)) {
+        if (is_array($attribs)) {
+            foreach ($attribs as $attribName => $attribValue) {
+                if(is_array($attribValue) || is_object($attribValue)) $attribValue = json_encode($attribValue);
+                $attribName = str_replace([' ', '"', "'"], '_', $attribName);
+                $attributes .= ' '.$attribName.'="'.acym_escape($attribValue).'"';
+            }
+        } else {
+            $attributes = $attribs;
+        }
+    }
+
+    $dropdown = '<select id="'.acym_escape($idtag).'" name="'.acym_escape($name).'" '.$attributes.'>';
 
     foreach ($data as $key => $oneOption) {
         $disabled = false;
@@ -2180,36 +2196,41 @@ function acym_makeSafeFile($file)
     return trim(preg_replace($regex, '', $file));
 }
 
-function acym_tooltip($text, $tooltipText, $classContainer = '', $title = '', $link = '')
+function acym_tooltip($hoveredText, $textShownInTooltip, $classContainer = '', $titleShownInTooltip = '', $link = '')
 {
     if (!empty($link)) {
-        $text = '<a href="'.$link.'" title="'.acym_escape($title).'">'.$text.'</a>';
+        $hoveredText = '<a href="'.$link.'" title="'.acym_escape($titleShownInTooltip).'">'.$hoveredText.'</a>';
     }
 
-    if (!empty($title)) {
-        $title = '<span class="acym__tooltip__title">'.$title.'</span>';
+    if (!empty($titleShownInTooltip)) {
+        $titleShownInTooltip = '<span class="acym__tooltip__title">'.$titleShownInTooltip.'</span>';
     }
 
-    return '<span class="acym__tooltip '.$classContainer.'"><span class="acym__tooltip__text">'.$title.$tooltipText.'</span>'.$text.'</span>';
+    return '<span class="acym__tooltip '.$classContainer.'"><span class="acym__tooltip__text">'.$titleShownInTooltip.$textShownInTooltip.'</span>'.$hoveredText.'</span>';
 }
 
-function acym_info($tooltipText)
+function acym_info($tooltipText, $class = '')
 {
-    return acym_tooltip('<span class="acym__tooltip__info__container"><i class="acym__tooltip__info__icon fa fa-info-circle"></i></span>', $tooltipText, 'acym__tooltip__info');
+    return acym_tooltip(
+        '<span class="acym__tooltip__info__container '.$class.'"><i class="acym__tooltip__info__icon fa fa-info-circle"></i></span>',
+        $tooltipText,
+        'acym__tooltip__info'
+    );
 }
 
-function acym_deleteFolder($path)
+function acym_deleteFolder($path, $report = true)
 {
     $path = acym_cleanPath($path);
     if (!is_dir($path)) {
-        acym_enqueueMessage(acym_translation_sprintf('ACYM_IS_NOT_A_FOLDER', $path), 'error');
+        if ($report) acym_enqueueMessage(acym_translation_sprintf('ACYM_IS_NOT_A_FOLDER', $path), 'error');
 
         return false;
     }
-    $files = acym_getFiles($path);
+
+    $files = acym_getFiles($path, '.', false, false, [], []);
     if (!empty($files)) {
         foreach ($files as $oneFile) {
-            if (!acym_deleteFile($path.DS.$oneFile)) {
+            if (!acym_deleteFile($path.DS.$oneFile, $report)) {
                 return false;
             }
         }
@@ -2227,7 +2248,7 @@ function acym_deleteFolder($path)
     if (@rmdir($path)) {
         $ret = true;
     } else {
-        acym_enqueueMessage(acym_translation_sprintf('ACYM_COULD_NOT_DELETE_FOLDER', $path), 'error');
+        if ($report) acym_enqueueMessage(acym_translation_sprintf('ACYM_COULD_NOT_DELETE_FOLDER', $path), 'error');
         $ret = false;
     }
 
@@ -2452,11 +2473,11 @@ function acym_listFolderTree($path, $filter, $maxLevel = 3, $level = 0, $parent 
     return $dirs;
 }
 
-function acym_deleteFile($file)
+function acym_deleteFile($file, $report = true)
 {
     $file = acym_cleanPath($file);
     if (!is_file($file)) {
-        acym_enqueueMessage(acym_translation_sprintf('ACYM_IS_NOT_A_FILE', $file), 'error');
+        if ($report) acym_enqueueMessage(acym_translation_sprintf('ACYM_IS_NOT_A_FILE', $file), 'error');
 
         return false;
     }
@@ -2465,7 +2486,7 @@ function acym_deleteFile($file)
 
     if (!@unlink($file)) {
         $filename = basename($file);
-        acym_enqueueMessage(acym_translation_sprintf('ACYM_FAILED_DELETE', $filename), 'error');
+        if ($report) acym_enqueueMessage(acym_translation_sprintf('ACYM_FAILED_DELETE', $filename), 'error');
 
         return false;
     }
@@ -2861,6 +2882,7 @@ function acym_getJSMessages()
         'ACYM_REPLACE_CONFIRM',
         'ACYM_STATS_START_DATE_LOWER',
         'ACYM_ARE_YOU_SURE_DELETE_ADD_ON',
+        'ACYM_COULD_NOT_SUBMIT_FORM_CONTACT_ADMIN_WEBSITE',
     ];
 
     foreach ($keysToLoad as $oneKey) {
@@ -2916,9 +2938,13 @@ function acym_trigger($method, $args = [], $plugin = null)
     foreach ($acymPlugins as $class => $onePlugin) {
         if (!method_exists($onePlugin, $method)) continue;
         if (!empty($plugin) && $class != $plugin) continue;
-        $value = call_user_func_array([$onePlugin, $method], $args);
 
-        if (isset($value)) $result[] = $value;
+        try {
+            $value = call_user_func_array([$onePlugin, $method], $args);
+            if (isset($value)) $result[] = $value;
+        } catch (Exception $e) {
+
+        }
     }
 
     return $result;
@@ -2999,7 +3025,9 @@ function acym_getDatabases()
 
 function acym_getSvg($svgPath)
 {
-    if (class_exists('SimpleXMLElement') && $xml = simplexml_load_file($svgPath)) {
+    $xml = @simplexml_load_file($svgPath);
+
+    if (class_exists('SimpleXMLElement') && $xml !== false) {
         $res = $xml->asXML();
         if (!empty($res)) return $res;
     }

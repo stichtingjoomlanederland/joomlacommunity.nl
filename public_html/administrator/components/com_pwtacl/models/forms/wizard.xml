@@ -1,104 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form>
-    <fieldset name="default" addfieldpath="/administrator/components/com_pwtacl/models/fields">
+	<fieldset
+		name="default"
+		addfieldpath="/administrator/components/com_pwtacl/models/fields"
+	>
 
-        <field
-                type="spacer"
-                name="group"
-                label="COM_PWTACL_WIZARD_GROUP"
-        />
+		<field
+			type="spacer"
+			name="group"
+			label="COM_PWTACL_WIZARD_GROUP"
+		/>
 
-        <field
-                name="new"
-                type="radio"
-                label="COM_PWTACL_WIZARD_NEW"
-                class="btn-group btn-group-yesno"
-                default="0"
-        >
-            <option value="0">JNO</option>
-            <option value="1">JYES</option>
-        </field>
+		<field
+			name="new"
+			type="radio"
+			label="COM_PWTACL_WIZARD_NEW"
+			class="btn-group btn-group-yesno"
+			default="0"
+		>
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
 
-        <field
-                name="grouptitle"
-                type="text"
-                label="COM_PWTACL_WIZARD_GROUP_NEW"
-                showon="new:1"
-                hint="COM_PWTACL_WIZARD_GROUP_NEW_HINT"
-        />
+		<field
+			name="grouptitle"
+			type="text"
+			label="COM_PWTACL_WIZARD_GROUP_NEW"
+			showon="new:1"
+			hint="COM_PWTACL_WIZARD_GROUP_NEW_HINT"
+		/>
 
-        <field
-                name="groupid"
-                type="usergrouplist"
-                label="COM_PWTACL_WIZARD_SELECT_GROUP"
-                showon="new:0"
-        >
-            <option value="">JSELECT</option>
-        </field>
+		<field
+			name="groupid"
+			type="usergrouplist"
+			label="COM_PWTACL_WIZARD_SELECT_GROUP"
+			showon="new:0"
+		>
+			<option value="">JSELECT</option>
+		</field>
 
-        <field
-                type="note"
-                name="note22"
-                class="alert alert-info"
-                description="COM_PWTACL_WIZARD_SELECT_GROUP_NOTE"
-                showon="new:0"
-        />
+		<field
+			type="note"
+			name="note22"
+			class="alert alert-info"
+			description="COM_PWTACL_WIZARD_SELECT_GROUP_NOTE"
+			showon="new:0"
+		/>
 
-        <field
-                type="spacer"
-                name="permissions"
-                label="COM_PWTACL_WIZARD_PERMISSIONS"
-                showon="groupid!:[OR]grouptitle!:"
-        />
+		<field
+			type="spacer"
+			name="permissions"
+			label="COM_PWTACL_WIZARD_PERMISSIONS"
+			showon="groupid!:[OR]grouptitle!:"
+		/>
 
-        <field
-                name="core.login.site"
-                type="radio"
-                label="JACTION_LOGIN_SITE"
-                description="COM_CONFIG_ACTION_LOGIN_SITE_DESC"
-                class="btn-group btn-group-yesno"
-                default="0"
-                showon="groupid!:[OR]grouptitle!:"
-        >
-            <option value="0">JNO</option>
-            <option value="1">JYES</option>
-        </field>
+		<field
+			name="core.login.site"
+			type="radio"
+			label="JACTION_LOGIN_SITE"
+			description="COM_CONFIG_ACTION_LOGIN_SITE_DESC"
+			class="btn-group btn-group-yesno"
+			default="0"
+			showon="groupid!:[OR]grouptitle!:"
+		>
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
 
-        <field
-                name="core.login.admin"
-                type="radio"
-                label="JACTION_LOGIN_ADMIN"
-                description="COM_CONFIG_ACTION_LOGIN_ADMIN_DESC"
-                class="btn-group btn-group-yesno"
-                default="0"
-                showon="groupid!:[OR]grouptitle!:"
-        >
-            <option value="0">JNO</option>
-            <option value="1">JYES</option>
-        </field>
+		<field
+			name="core.login.admin"
+			type="radio"
+			label="JACTION_LOGIN_ADMIN"
+			description="COM_CONFIG_ACTION_LOGIN_ADMIN_DESC"
+			class="btn-group btn-group-yesno"
+			default="0"
+			showon="groupid!:[OR]grouptitle!:"
+		>
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
 
-        <field
-                name="core.login.offline"
-                type="radio"
-                label="JACTION_LOGIN_OFFLINE"
-                description="COM_CONFIG_ACTION_LOGIN_OFFLINE_DESC"
-                class="btn-group btn-group-yesno"
-                default="0"
-                showon="groupid!:[OR]grouptitle!:"
-        >
-            <option value="0">JNO</option>
-            <option value="1">JYES</option>
-        </field>
+		<field
+			name="core.login.offline"
+			type="radio"
+			label="JACTION_LOGIN_OFFLINE"
+			description="COM_CONFIG_ACTION_LOGIN_OFFLINE_DESC"
+			class="btn-group btn-group-yesno"
+			default="0"
+			showon="groupid!:[OR]grouptitle!:"
+		>
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
 
-        <field
-                name="core.manage"
-                type="assetcomponents"
-                label="COM_PWTACL_WIZARD_ACCESS_COMPONENTS"
-                description="JACTION_MANAGE_COMPONENT_DESC"
-                multiple="true"
-                class="multipleTags"
-                showon="groupid!:[OR]grouptitle!:"
-        />
+		<field
+			name="core.manage"
+			type="assetcomponents"
+			label="COM_PWTACL_WIZARD_ACCESS_COMPONENTS"
+			description="JACTION_MANAGE_COMPONENT_DESC"
+			multiple="true"
+			class="multipleTags"
+			showon="groupid!:[OR]grouptitle!:"
+		/>
 
-    </fieldset>
+	</fieldset>
 </form>

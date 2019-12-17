@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -60,14 +60,15 @@ class acymcampaignClass extends acymClass
     {
         $tagClass = acym_get('class.tag');
         $mailClass = acym_get('class.mail');
-        $statClass = acym_get('class.mailstat');
-        $query = 'SELECT campaign.*, mail.name FROM #__acym_campaign AS campaign';
+        
+        $query = 'SELECT campaign.*, mail.name, mail_stat.sent AS subscribers, mail_stat.open_unique FROM #__acym_campaign AS campaign';
         $queryCount = 'SELECT campaign.* FROM #__acym_campaign AS campaign';
         $filters = [];
         $mailIds = [];
 
         $query .= ' JOIN #__acym_mail AS mail ON campaign.mail_id = mail.id';
         $queryCount .= ' JOIN #__acym_mail AS mail ON campaign.mail_id = mail.id';
+        $query .= ' LEFT JOIN #__acym_mail_stat AS mail_stat ON campaign.mail_id = mail_stat.mail_id';
 
         if (!empty($settings['tag'])) {
             $tagJoin = ' JOIN #__acym_tag AS tag ON campaign.mail_id = tag.id_element';
@@ -122,7 +123,6 @@ class acymcampaignClass extends acymClass
 
         $tags = $tagClass->getAllTagsByTypeAndElementIds('mail', $mailIds);
         $lists = $mailClass->getAllListsWithCountSubscribersByMailIds($mailIds);
-        $totalStats = $statClass->getAllFromMailIds($mailIds);
 
         foreach ($results['elements'] as $i => $oneCampaign) {
             $results['elements'][$i]->tags = [];
@@ -141,13 +141,9 @@ class acymcampaignClass extends acymClass
                 }
             }
 
-            if (isset($totalStats[$oneCampaign->mail_id])) {
-                $oneCampaignStats = $totalStats[$oneCampaign->mail_id];
-                $results['elements'][$i]->subscribers = $oneCampaignStats->total_subscribers;
-                $results['elements'][$i]->open = 0;
-                if (!empty($oneCampaignStats->total_subscribers)) {
-                    $results['elements'][$i]->open = intval($oneCampaignStats->open_unique / $oneCampaignStats->total_subscribers * 100);
-                }
+            $results['elements'][$i]->open = 0;
+            if (!empty($results['elements'][$i]->subscribers)) {
+                $results['elements'][$i]->open = number_format($results['elements'][$i]->open_unique / $results['elements'][$i]->subscribers * 100, 2);
             }
         }
 
@@ -294,8 +290,7 @@ class acymcampaignClass extends acymClass
                 '`ul`.`status` = 1',
                 '`ul`.`list_id` IN ('.implode(',', $lists).')',
             ];
-            $config = acym_config();
-            if ($config->get('require_confirmation', 1) == 1) $conditions[] = '`user`.`confirmed` = 1';
+            if ($this->config->get('require_confirmation', 1) == 1) $conditions[] = '`user`.`confirmed` = 1';
 
             $insertQuery = 'INSERT IGNORE INTO `#__acym_queue` (`mail_id`, `user_id`, `sending_date`) 
                         SELECT '.intval($campaign->mail_id).', ul.`user_id`, '.acym_escapeDB($date).' 

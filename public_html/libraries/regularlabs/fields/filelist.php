@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -25,7 +25,7 @@ if ( ! is_file(JPATH_LIBRARIES . '/regularlabs/autoload.php'))
 
 require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
 
-require_once JPATH_LIBRARIES . '/joomla/form/fields/list.php';
+JFormHelper::loadFieldClass('list');
 
 class JFormFieldRL_FileList extends JFormFieldList
 {

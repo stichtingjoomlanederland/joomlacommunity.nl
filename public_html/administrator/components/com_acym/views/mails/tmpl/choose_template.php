@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -16,7 +16,10 @@ defined('_JEXEC') or die('Restricted access');
 			<h1 class="acym__listing__empty__subtitle cell"><?php echo acym_translation('ACYM_CREATE_CAMPAIGN_EMPTY_TEMPLATE'); ?></h1>
 			<div class="medium-4"></div>
 			<div class="medium-4 small-12 cell">
-				<a href="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl').'&task=edit&step=editEmail&from=-1&id='.acym_escape($data['campaignID'])); ?>" class="button expanded" id="acym__templates__choose__create__empty">
+				<a
+						href="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl').'&task=edit&step=editEmail&from=-1&type_editor=acyEditor&id='.acym_escape($data['campaignID'])); ?>"
+						class="button expanded"
+						id="acym__templates__choose__create__empty">
                     <?php echo acym_translation('ACYM_CREATE_EMPTY_TEMPLATE'); ?>
 				</a>
 			</div>

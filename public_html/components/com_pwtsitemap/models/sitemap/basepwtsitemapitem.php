@@ -3,7 +3,7 @@
  * @package    Pwtsitemap
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2018 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
@@ -26,7 +26,7 @@ abstract class BasePwtSitemapItem
 	 * @var    string
 	 * @since  1.0.0
 	 */
-	public $title;
+	public $title = '';
 
 	/**
 	 * Sitemap item link
@@ -34,15 +34,15 @@ abstract class BasePwtSitemapItem
 	 * @var    string
 	 * @since  1.0.0
 	 */
-	public $link;
+	public $link = '';
 
 	/**
 	 * Sitemap item level
 	 *
-	 * @var    int
+	 * @var    integer
 	 * @since  1.0.0
 	 */
-	public $level;
+	public $level = 0;
 
 	/**
 	 * Sitemap item modified date
@@ -50,7 +50,7 @@ abstract class BasePwtSitemapItem
 	 * @var    string
 	 * @since  1.0.0
 	 */
-	public $modified;
+	public $modified = '';
 
 	/**
 	 * Context of the sitemap item (ex: com_content.article.1)
@@ -58,7 +58,7 @@ abstract class BasePwtSitemapItem
 	 * @var    string
 	 * @since  1.0.0
 	 */
-	public $context;
+	public $context = '';
 
 	/**
 	 * Type of the sitemap item (placeholder or link)
@@ -66,7 +66,7 @@ abstract class BasePwtSitemapItem
 	 * @var    string
 	 * @since  1.0.1
 	 */
-	public $type;
+	public $type = '';
 
 	/**
 	 * Set if it is an external URL
@@ -79,20 +79,20 @@ abstract class BasePwtSitemapItem
 	/**
 	 * Constructor.
 	 *
-	 * @param   string  $title    Title
-	 * @param   string  $link     URL
-	 * @param   int     $level    Level
-	 * @param   mixed   $modified Modification date
-	 * @param   boolean $external Internal or External URL
+	 * @param   string   $title     Title
+	 * @param   string   $link      URL
+	 * @param   int      $level     Level
+	 * @param   mixed    $modified  Modification date
+	 * @param   boolean  $external  Internal or External URL
 	 *
-	 * @since  1.0.0
+	 * @since   1.0.0
 	 */
 	public function __construct($title, $link, $level, $modified = null, $external = false)
 	{
 		$this->title    = $title;
 		$this->link     = PwtSitemapUrlHelper::getURL($link);
 		$this->level    = $level;
-		$this->type     = ($link) ? 'link' : 'placeholder';
+		$this->type     = $link ? 'link' : 'placeholder';
 		$this->external = $external;
 
 		// Check if this is an external link
@@ -102,7 +102,7 @@ abstract class BasePwtSitemapItem
 		}
 
 		// Set modified date
-		if (!empty($modified) && $modified != JDatabaseDriver::getInstance()->getNullDate() && $modified !== '1001-01-01 00:00')
+		if (!empty($modified) && $modified !== '1001-01-01 00:00' && $modified !== JDatabaseDriver::getInstance()->getNullDate())
 		{
 			$this->modified = HTMLHelper::_('date', $modified, 'Y-m-d');
 		}
@@ -115,5 +115,5 @@ abstract class BasePwtSitemapItem
 	 *
 	 * @since   1.0.0
 	 */
-	abstract function renderXml();
+	abstract public function renderXml();
 }

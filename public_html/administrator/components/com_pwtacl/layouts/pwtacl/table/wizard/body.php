@@ -22,40 +22,40 @@ $group  = $displayData['group'];
 <tbody>
 <?php foreach ($assets as $asset) : ?>
 	<?php $oddclass = false; ?>
-    <tr<?php if ($odd = !$odd): ?> class="odd"<?php $oddclass = true; ?><?php endif; ?>>
-        <td class="title">
-            <div class="icons">
+	<tr<?php if ($odd = !$odd): ?> class="odd"<?php $oddclass = true; ?><?php endif; ?>>
+		<td class="title">
+			<div class="icons">
 				<?php echo str_repeat('<span class="gi">|&mdash;</span>', $asset->level); ?>
-                <span class="type icon-<?php echo $asset->icon; ?>"></span>
-            </div>
+				<span class="type icon-<?php echo $asset->icon; ?>"></span>
+			</div>
 			<?php echo $asset->title; ?>
-        </td>
+		</td>
 		<?php foreach ($asset->actions->core as $actionname => $action): ?>
 			<?php echo LayoutHelper::render('pwtacl.action', array('group' => $group, 'asset' => $asset, 'action' => $action)); ?>
 		<?php endforeach; ?>
-        <td class="center border-left padding-small">
+		<td class="center border-left padding-small">
 			<?php if ($asset->additional): ?>
-                <button type="button" class="btn btn-small" data-toggle="additional" data-target="#<?php echo 'pwtacl' . $asset->id; ?>">
-                    <span class="icon-arrow-right large-icon"></span>
-                </button>
+				<button type="button" class="btn btn-small" data-toggle="additional" data-target="#<?php echo 'pwtacl' . $asset->id; ?>">
+					<span class="icon-arrow-right large-icon"></span>
+				</button>
 			<?php endif; ?>
-        </td>
-    </tr>
+		</td>
+	</tr>
 	<?php if ($asset->additional): ?>
-        <tr id="<?php echo 'pwtacl' . $asset->id; ?>" class="additional<?php if ($oddclass): ?> odd<?php endif; ?>">
-            <td></td>
-            <td class="border-left no-action" colspan="4"></td>
-            <td class="border-left padding-none" colspan="3">
-                <table class="table table-additional">
+		<tr id="<?php echo 'pwtacl' . $asset->id; ?>" class="additional<?php if ($oddclass): ?> odd<?php endif; ?>">
+			<td></td>
+			<td class="border-left no-action" colspan="4"></td>
+			<td class="border-left padding-none" colspan="3">
+				<table class="table table-additional">
 					<?php foreach ($asset->actions->additional as $actionname => $action): ?>
-                        <tr>
-                            <td width="75%" class="border-right"><?php echo Text::_($action->title); ?></td>
+						<tr>
+							<td width="75%" class="border-right"><?php echo Text::_($action->title); ?></td>
 							<?php echo LayoutHelper::render('pwtacl.action', array('group' => $group, 'asset' => $asset, 'action' => $action)); ?>
-                        </tr>
+						</tr>
 					<?php endforeach; ?>
-                </table>
-            </td>
-        </tr>
+				</table>
+			</td>
+		</tr>
 	<?php endif; ?>
 <?php endforeach; ?>
 </tbody>

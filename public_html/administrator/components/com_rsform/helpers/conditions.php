@@ -9,7 +9,55 @@ defined('_JEXEC') or die;
 
 class RSFormProConditions
 {
-    public static function getConditions($formId, $lang = null)
+	protected static function getFields($formId, $published = 1)
+	{
+		static $cache = array();
+		
+		if (!isset($cache[$formId]))
+		{
+			$cache[$formId] = array();
+			
+			$db 	= JFactory::getDbo();
+			$query 	= $db->getQuery(true);
+			
+			$query->select($db->qn('p.PropertyValue', 'ComponentName'))
+				->select($db->qn('p.ComponentId'))
+				->from($db->qn('#__rsform_components', 'c'))
+				->join('LEFT', $db->qn('#__rsform_properties', 'p') . ' ON (' . $db->qn('c.ComponentId') . '=' . $db->qn('p.ComponentId') . ')')
+				->where($db->qn('c.FormId') . '=' . $db->q($formId))
+				->where($db->qn('p.PropertyName') . '=' . $db->q('NAME'))
+				->order($db->qn('c.Order') . ' ' . $db->escape('ASC'));
+
+			if ($published !== null)
+			{
+				$query->where($db->qn('c.Published') . ' = ' . $db->q($published));
+			}
+
+			$cache[$formId] = $db->setQuery($query)->loadObjectList('ComponentId');
+		}
+		
+		return $cache[$formId];
+	}
+
+	public static function parseComponentIds($value)
+	{
+		if ((int) $value)
+		{
+			return array((int) $value);
+		}
+		elseif (is_string($value))
+		{
+			$tmp_ids = json_decode($value);
+			if (is_array($tmp_ids))
+			{
+				return $tmp_ids;
+			}
+		}
+
+		return array();
+	}
+	
+    public static function getConditions($formId, $lang = null, $published = 1)
     {
         if ($lang === null)
         {
@@ -21,19 +69,15 @@ class RSFormProConditions
 			$lang = RSFormProHelper::getConfig('global.default_language');
 		}
 
-        $db = JFactory::getDbo();
+		$fields = self::getFields($formId, $published);
+        $db 	= JFactory::getDbo();
 
         $query = $db->getQuery(true)
-            ->select('c.*')
-            ->select($db->qn('p.PropertyValue', 'ComponentName'))
-            ->from($db->qn('#__rsform_conditions', 'c'))
-            ->leftJoin($db->qn('#__rsform_properties', 'p') . ' ON (' . $db->qn('c.component_id') . ' = ' . $db->qn('p.ComponentId') . ')')
-            ->leftJoin($db->qn('#__rsform_components', 'comp') . ' ON (' . $db->qn('comp.ComponentId') . ' = ' . $db->qn('p.ComponentId') . ')')
-            ->where($db->qn('c.form_id') . ' = ' . $db->q($formId))
-            ->where($db->qn('c.lang_code') . ' = ' . $db->q($lang))
-            ->where($db->qn('comp.Published') . ' = ' . $db->q(1))
-            ->where($db->qn('p.PropertyName') . ' = ' . $db->q('NAME'))
-            ->order($db->qn('c.id') . ' ' . $db->escape('ASC'));
+			->select('*')
+            ->from($db->qn('#__rsform_conditions'))
+            ->where($db->qn('form_id') . ' = ' . $db->q($formId))
+            ->where($db->qn('lang_code') . ' = ' . $db->q($lang))
+            ->order($db->qn('id') . ' ' . $db->escape('ASC'));
 
         if ($conditions = $db->setQuery($query)->loadObjectList())
         {
@@ -41,41 +85,54 @@ class RSFormProConditions
             $cids = array();
             foreach ($conditions as $condition)
             {
-                $cids[] = $condition->id;
-            }
+            	$condition->component_id = self::parseComponentIds($condition->component_id);
+            	$condition->ComponentNames = array();
 
-            $query->clear()
-                ->select('d.*')
-                ->select($db->qn('p.PropertyValue', 'ComponentName'))
-                ->from($db->qn('#__rsform_condition_details', 'd'))
-                ->leftJoin($db->qn('#__rsform_properties', 'p') . ' ON (' . $db->qn('d.component_id') . ' = ' . $db->qn('p.ComponentId') . ')')
-                ->leftJoin($db->qn('#__rsform_components', 'comp') . ' ON (' . $db->qn('comp.ComponentId') . ' = ' . $db->qn('p.ComponentId') . ')')
-                ->where($db->qn('comp.Published') . ' = ' . $db->q(1))
-                ->where($db->qn('p.PropertyName') . ' = ' . $db->q('NAME'));
+            	foreach ($condition->component_id as $component_id)
+				{
+					if (!isset($fields[$component_id]))
+					{
+						continue;
+					}
+
+					$condition->ComponentNames[] = $fields[$component_id]->ComponentName;
+				}
+
+				$cids[] = $condition->id;
+            }
 
             if ($cids)
             {
-                $query->where($db->qn('d.condition_id') . ' IN (' . implode(',', $db->q($cids)) . ')');
+				$query->clear()
+					->select('*')
+					->from($db->qn('#__rsform_condition_details'))
+					->where($db->qn('condition_id') . ' IN (' . implode(',', $db->q($cids)) . ')');
+
+				if ($details = $db->setQuery($query)->loadObjectList())
+				{
+					// arrange details within conditions
+					foreach ($conditions as $condition)
+					{
+						$condition->details = array();
+						foreach ($details as $detail)
+						{
+							if ($detail->condition_id != $condition->id || !isset($fields[$detail->component_id]))
+							{
+								continue;
+							}
+
+							$detail->ComponentName = $fields[$detail->component_id]->ComponentName;
+
+							$condition->details[] = $detail;
+						}
+					}
+				}
             }
 
-            $details = $db->setQuery($query)->loadObjectList();
-
-            // arrange details within conditions
-            foreach ($conditions as $condition)
-            {
-                $condition->details = array();
-                foreach ($details as $detail)
-                {
-                    if ($detail->condition_id != $condition->id)
-                    {
-                        continue;
-                    }
-                    $condition->details[] = $detail;
-                }
-            }
             // all done
             return $conditions;
         }
+
         // nothing found
         return false;
     }

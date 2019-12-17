@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -155,9 +155,7 @@ class acymlistClass extends acymClass
             }
         }
 
-
-        $config = acym_config();
-        $confirmed = $config->get('require_confirmation', 1) == 1 ? ' AND user.confirmed = 1 ' : '';
+        $confirmed = $this->config->get('require_confirmation', 1) == 1 ? ' AND user.confirmed = 1 ' : '';
         $query = 'SELECT list.id, list.name, list.color, list.active, COUNT(userList.user_id) AS subscribers
         FROM #__acym_list AS list
         LEFT JOIN #__acym_user_has_list AS userList
@@ -212,12 +210,12 @@ class acymlistClass extends acymClass
     public function getAllListUsers()
     {
         $query = 'SELECT #__acym_user_has_list.list_id, count(*) 
-        FROM #__acym_list AS list
-        JOIN #__acym_user_has_list
-        ON list.id = #__acym_user_has_list.list_id
-        JOIN #__acym_user
-        ON #__acym_user.id = #__acym_user_has_list.user_id
-        GROUP BY list.id';
+                FROM #__acym_list AS list
+                JOIN #__acym_user_has_list
+                ON list.id = #__acym_user_has_list.list_id
+                JOIN #__acym_user
+                ON #__acym_user.id = #__acym_user_has_list.user_id
+                GROUP BY list.id';
 
         return acym_loadObjectList($query);
     }
@@ -279,16 +277,15 @@ class acymlistClass extends acymClass
 
     public function getSubscribersCountByListId($id)
     {
-        $config = acym_config();
-        $confirmed = $config->get('require_confirmation', 1) == 1 ? ' AND users.confirmed = 1 ' : '';
+        $confirmed = $this->config->get('require_confirmation', 1) == 1 ? ' AND users.confirmed = 1 ' : '';
 
         $query = 'SELECT COUNT(userLists.user_id) AS subscribers
-        FROM #__acym_user_has_list AS userLists
-        JOIN #__acym_user AS users ON userLists.user_id = users.id
-        WHERE userLists.list_id = '.intval($id).'
-            AND userLists.status = 1
-            AND users.active = 1 '.$confirmed.'
-        GROUP BY userLists.list_id';
+                FROM #__acym_user_has_list AS userLists
+                JOIN #__acym_user AS users ON userLists.user_id = users.id
+                WHERE userLists.list_id = '.intval($id).'
+                    AND userLists.status = 1
+                    AND users.active = 1 '.$confirmed.'
+                GROUP BY userLists.list_id';
 
         $result = acym_loadResult($query);
 
@@ -301,12 +298,11 @@ class acymlistClass extends acymClass
         if (empty($listsIds)) return 0;
 
         $query = 'SELECT COUNT(DISTINCT user.id)
-        FROM #__acym_user AS user
-        JOIN #__acym_user_has_list AS userList ON user.id = userList.user_id
-        WHERE userList.list_id IN ('.implode(",", $listsIds).') AND userList.status = 1 AND user.active = 1';
+                FROM #__acym_user AS user
+                JOIN #__acym_user_has_list AS userList ON user.id = userList.user_id
+                WHERE userList.list_id IN ('.implode(",", $listsIds).') AND userList.status = 1 AND user.active = 1';
 
-        $config = acym_config();
-        if ($config->get('require_confirmation', 1) == 1) {
+        if ($this->config->get('require_confirmation', 1) == 1) {
             $query .= ' AND user.confirmed = 1';
         }
 
@@ -326,9 +322,21 @@ class acymlistClass extends acymClass
         return acym_loadResultArray($query);
     }
 
-    public function getSubscribersByListId($listId)
+    public function getSubscribersForList($listId, $offset = 0, $perCalls = 100, $status = '')
     {
-        return acym_loadObjectList('SELECT user.* FROM #__acym_user AS user LEFT JOIN #__acym_user_has_list AS user_list ON user.id = user_list.user_id WHERE user_list.list_id = '.intval($listId));
+        $statusCond = '';
+        if ($status !== '' && is_int($status)) $statusCond = ' AND user_list.status = '.intval($status);
+
+        $requestSub = 'SELECT user.email, user.name, user.id, user.confirmed, user_list.status, user_list.subscription_date FROM #__acym_user AS user';
+        $requestSub .= ' LEFT JOIN #__acym_user_has_list AS user_list ON user.id = user_list.user_id';
+        $requestSub .= ' WHERE user.active = 1 AND user_list.list_id = '.intval($listId).$statusCond;
+
+        return acym_loadObjectList(
+            $requestSub,
+            '',
+            $offset,
+            $perCalls
+        );
     }
 
     public function delete($elements)
@@ -440,9 +448,8 @@ class acymlistClass extends acymClass
         }
 
         $alreadySent = [];
-        $config = acym_config();
         $mailerHelper = acym_get('helper.mailer');
-        $mailerHelper->report = $config->get('welcome_message', 1);
+        $mailerHelper->report = $this->config->get('welcome_message', 1);
         foreach ($messages as $oneMessage) {
             $mailid = $oneMessage->welcome_id;
             if (empty($mailid)) continue;
@@ -475,9 +482,8 @@ class acymlistClass extends acymClass
         }
 
         $alreadySent = [];
-        $config = acym_config();
         $mailerHelper = acym_get('helper.mailer');
-        $mailerHelper->report = $config->get('unsub_message', 1);
+        $mailerHelper->report = $this->config->get('unsub_message', 1);
         foreach ($messages as $oneMessage) {
             if (!empty($oneMessage->unsubscribe_id)) {
                 $mailid = $oneMessage->unsubscribe_id;
@@ -518,8 +524,7 @@ class acymlistClass extends acymClass
                         AND hasList.list_id IN (".implode(',', $ids).")";
 
 
-        $config = acym_config();
-        if ($config->get('require_confirmation', 1) == 1) {
+        if ($this->config->get('require_confirmation', 1) == 1) {
             $query .= ' AND user.confirmed = 1 ';
         }
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.8.25552
+ * @version         19.12.9182
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -42,6 +42,7 @@ class RegularLabsInstallerScriptHelper
 		JFactory::getLanguage()->load('plg_system_regularlabsinstaller', JPATH_PLUGINS . '/system/regularlabsinstaller');
 
 		$this->installed_version = $this->getVersion($this->getInstalledXMLFile());
+
 
 		if ($this->show_message && $this->isInstalled())
 		{
@@ -358,7 +359,7 @@ class RegularLabsInstallerScriptHelper
 	{
 		JFactory::getApplication()->enqueueMessage(
 			JText::sprintf(
-				JText::_($this->install_type == 'update' ? 'RLI_THE_EXTENSION_HAS_BEEN_UPDATED_SUCCESSFULLY' : 'RLI_THE_EXTENSION_HAS_BEEN_INSTALLED_SUCCESSFULLY'),
+				$this->install_type == 'update' ? 'RLI_THE_EXTENSION_HAS_BEEN_UPDATED_SUCCESSFULLY' : 'RLI_THE_EXTENSION_HAS_BEEN_INSTALLED_SUCCESSFULLY',
 				'<strong>' . JText::_($this->name) . '</strong>',
 				'<strong>' . $this->getVersion() . '</strong>',
 				$this->getFullType()
@@ -533,6 +534,7 @@ class RegularLabsInstallerScriptHelper
 
 	public function onAfterInstall($route)
 	{
+		return true;
 	}
 
 	public function delete($files = [])
@@ -721,7 +723,7 @@ class RegularLabsInstallerScriptHelper
 			->from('#__update_sites')
 			->where($this->db->quoteName('location') . ' LIKE ' . $this->db->quote('%download.regularlabs.com%'))
 			->where($this->db->quoteName('location') . ' LIKE ' . $this->db->quote('%e=' . $this->alias . '%'))
-			->where($this->db->quoteName('location') . ' NOT LIKE ' . $this->db->quote('%pro=1%'));
+			->where($this->db->quoteName('location') . ' LIKE ' . $this->db->quote('%pro=1%'));
 		$this->db->setQuery($query, 0, 1);
 		$id = $this->db->loadResult();
 
@@ -736,11 +738,11 @@ class RegularLabsInstallerScriptHelper
 			$this->db->setQuery($query, 0, 1);
 			$id = $this->db->loadResult();
 
-			// Remove pro=1 from the found update site
+			// Add pro=1 to the found update site
 			$query->clear()
 				->update('#__update_sites')
 				->set($this->db->quoteName('location')
-					. ' = replace(' . $this->db->quoteName('location') . ', ' . $this->db->quote('&pro=1') . ', ' . $this->db->quote('') . ')')
+					. ' = replace(' . $this->db->quoteName('location') . ', ' . $this->db->quote('&type=') . ', ' . $this->db->quote('&pro=1&type=') . ')')
 				->where($this->db->quoteName('update_site_id') . ' = ' . (int) $id);
 			$this->db->setQuery($query);
 			$this->db->execute();

@@ -28,7 +28,7 @@ class PwtaclModelAssets extends ListModel
 	/**
 	 * Constructor.
 	 *
-	 * @param   array $config An optional associative array of configuration settings.
+	 * @param   array  $config  An optional associative array of configuration settings.
 	 *
 	 * @see     JController
 	 * @since   3.0
@@ -42,7 +42,8 @@ class PwtaclModelAssets extends ListModel
 				'level_start',
 				'level_end',
 				'item',
-				'language'
+				'language',
+				'fields'
 			);
 		}
 
@@ -52,10 +53,10 @@ class PwtaclModelAssets extends ListModel
 	/**
 	 * Method to save action
 	 *
-	 * @param   integer $assetId Asset ID
-	 * @param   string  $action  Action name
-	 * @param   integer $group   Group ID
-	 * @param   integer $setting Action setting
+	 * @param   integer  $assetId  Asset ID
+	 * @param   string   $action   Action name
+	 * @param   integer  $group    Group ID
+	 * @param   integer  $setting  Action setting
 	 *
 	 * @return  integer
 	 * @since   3.0
@@ -93,7 +94,7 @@ class PwtaclModelAssets extends ListModel
 	/**
 	 * Method to clear permissions for group
 	 *
-	 * @param   integer $group Group ID
+	 * @param   integer  $group  Group ID
 	 *
 	 * @return  void
 	 * @since   3.0
@@ -126,7 +127,7 @@ class PwtaclModelAssets extends ListModel
 	/**
 	 * Method to reset permissions for group
 	 *
-	 * @param   integer $group Group ID
+	 * @param   integer  $group  Group ID
 	 *
 	 * @return  void
 	 * @since   3.0
@@ -166,8 +167,8 @@ class PwtaclModelAssets extends ListModel
 	/**
 	 * Method to copy permissions for group
 	 *
-	 * @param   integer $group  Group ID
-	 * @param   integer $copyTo New Group ID
+	 * @param   integer  $group   Group ID
+	 * @param   integer  $copyTo  New Group ID
 	 *
 	 * @return  void
 	 * @since   3.0
@@ -209,7 +210,7 @@ class PwtaclModelAssets extends ListModel
 	/**
 	 * Method to export permissions for group
 	 *
-	 * @param   integer $group Group ID
+	 * @param   integer  $group  Group ID
 	 *
 	 * @return  array
 	 * @since   3.0
@@ -250,8 +251,8 @@ class PwtaclModelAssets extends ListModel
 	/**
 	 * Method to reset permissions for group
 	 *
-	 * @param   integer $group       Group ID
-	 * @param   array   $permissions Array with permissions for actions
+	 * @param   integer  $group        Group ID
+	 * @param   array    $permissions  Array with permissions for actions
 	 *
 	 * @return  void
 	 * @since   3.0
@@ -288,8 +289,8 @@ class PwtaclModelAssets extends ListModel
 	/**
 	 * Method to save rules for asset
 	 *
-	 * @param   string $asset Asset ID or Asset Name
-	 * @param   array  $rules Rules for asset
+	 * @param   string  $asset  Asset ID or Asset Name
+	 * @param   array   $rules  Rules for asset
 	 *
 	 * @return  mixed
 	 * @since   3.0
@@ -330,8 +331,8 @@ class PwtaclModelAssets extends ListModel
 	/**
 	 * Gets records from the #__assets table.
 	 *
-	 * @param   string $where Where query.
-	 * @param   string $key   LoadObjectList key.
+	 * @param   string  $where  Where query.
+	 * @param   string  $key    LoadObjectList key.
 	 *
 	 * @return  array
 	 * @since   3.0
@@ -374,8 +375,8 @@ class PwtaclModelAssets extends ListModel
 	/**
 	 * Method to auto-populate the model state.
 	 *
-	 * @param   string $ordering  An optional ordering field.
-	 * @param   string $direction An optional direction (asc|desc).
+	 * @param   string  $ordering   An optional ordering field.
+	 * @param   string  $direction  An optional direction (asc|desc).
 	 *
 	 * @return  void
 	 * @since   3.0
@@ -393,14 +394,14 @@ class PwtaclModelAssets extends ListModel
 		$this->setState('filter.level_end', $this->getUserStateFromRequest($this->context . '.filter.level_end', 'filter_level_end'));
 		$this->setState('filter.item', $this->getUserStateFromRequest($this->context . '.filter.item', 'filter_item'));
 		$this->setState('filter.language', $this->getUserStateFromRequest($this->context . '.filter.language', 'filter_language'));
+		$this->setState('filter.fields', $this->getUserStateFromRequest($this->context . '.filter.fields', 'filter_fields'));
 
-
-		if ($type == 'group')
+		if ($type === 'group')
 		{
 			$this->setState('user', null);
 		}
 
-		if ($type == 'user')
+		if ($type === 'user')
 		{
 			$this->setState('group', null);
 		}
@@ -415,10 +416,10 @@ class PwtaclModelAssets extends ListModel
 	/**
 	 * Method to get a store id based on model configuration state.
 	 *
-	 * @param   string $id A prefix for the store id.
+	 * @param   string  $id  A prefix for the store id.
 	 *
-	 * @since   3.0
 	 * @return  string  A store id.
+	 * @since   3.0
 	 */
 	protected function getStoreId($id = '')
 	{
@@ -432,6 +433,7 @@ class PwtaclModelAssets extends ListModel
 		$id .= ':' . $this->getState('filter.level_end');
 		$id .= ':' . $this->getState('filter.item');
 		$id .= ':' . $this->getState('filter.language');
+		$id .= ':' . $this->getState('filter.fields');
 
 		return parent::getStoreId($id);
 	}
@@ -516,7 +518,8 @@ class PwtaclModelAssets extends ListModel
 			->where($db->quoteName('a.name') . ' NOT LIKE ' . $db->quote('com_ajax'))
 			->where($db->quoteName('a.name') . ' NOT LIKE ' . $db->quote('com_fields'))
 			->where($db->quoteName('a.name') . ' NOT LIKE ' . $db->quote('com_actionlogs'))
-			->where($db->quoteName('a.name') . ' NOT LIKE ' . $db->quote('com_privacy'));
+			->where($db->quoteName('a.name') . ' NOT LIKE ' . $db->quote('com_privacy'))
+			->where($db->quoteName('a.name') . ' NOT LIKE ' . $db->quote('com_joomlaupdate'));
 
 		// Filter on the start and end levels.
 		$levelStart = (int) $this->getState('filter.level_start');
@@ -548,6 +551,16 @@ class PwtaclModelAssets extends ListModel
 				->where($db->quoteName('a.name') . ' NOT LIKE ' . $db->quote('com_content.article.%'))
 				->where($db->quoteName('a.name') . ' NOT LIKE ' . $db->quote('com_modules.module.%'))
 				->where($db->quoteName('a.name') . ' NOT LIKE ' . $db->quote('com_users.field.%'));
+		}
+
+		// Filter on the fieldgroups & fields.
+		$fields = $this->getState('filter.fields');
+
+		if (is_numeric($fields) && $fields == 0)
+		{
+			$query
+				->where($db->quoteName('a.name') . ' NOT LIKE ' . $db->quote('%.fieldgroup.%'))
+				->where($db->quoteName('a.name') . ' NOT LIKE ' . $db->quote('%.field.%'));
 		}
 
 		// Filter on the component.
@@ -613,10 +626,10 @@ class PwtaclModelAssets extends ListModel
 	/**
 	 * Method to prepare the assets for rendering
 	 *
-	 * @param   array   $assets Array of the assets
-	 * @param   string  $type   group or user
-	 * @param   integer $group  Group ID
-	 * @param   integer $user   User ID
+	 * @param   array    $assets  Array of the assets
+	 * @param   string   $type    group or user
+	 * @param   integer  $group   Group ID
+	 * @param   integer  $user    User ID
 	 *
 	 * @return  array
 	 *
@@ -871,8 +884,8 @@ class PwtaclModelAssets extends ListModel
 	/**
 	 * Method to get actions for asset.
 	 *
-	 * @param   string  $assetname   Name of asset.
-	 * @param   boolean $actionsonly Return only array of action names.
+	 * @param   string   $assetname    Name of asset.
+	 * @param   boolean  $actionsonly  Return only array of action names.
 	 *
 	 * @return  stdClass
 	 * @since   3.0
@@ -952,7 +965,7 @@ class PwtaclModelAssets extends ListModel
 	/**
 	 * Method to get default settings for group.
 	 *
-	 * @param   integer $group ID of group.
+	 * @param   integer  $group  ID of group.
 	 *
 	 * @return  array
 	 * @since   3.0

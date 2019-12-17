@@ -3,21 +3,26 @@
  * @package    Pwtsitemap
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2018 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
 
-use Joomla\CMS\Component\ComponentHelper;
-use Joomla\CMS\HTML\HTMLHelper;
-use Joomla\Registry\Registry;
-
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Menu\MenuItem;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
+use Joomla\CMS\Table\Table;
+use Joomla\Registry\Registry;
 
 JLoader::register('ContentHelperRoute', JPATH_SITE . '/components/com_content/helpers/route.php');
 JLoader::register('ContentHelperQuery', JPATH_SITE . '/components/com_content/helpers/query.php');
-JLoader::register('ContentAssociationsHelper', JPATH_ADMINISTRATOR . '/components/com_content/helpers/associations.php');
-JModelLegacy::addIncludePath(JPATH_SITE . '/components/com_content/models', 'ContentModel');
+JLoader::register('ContentAssociationsHelper',
+	JPATH_ADMINISTRATOR . '/components/com_content/helpers/associations.php'
+);
 
 /**
  * PWT Sitemap Content Plugin
@@ -33,151 +38,69 @@ class PlgPwtSitemapContent extends PwtSitemapPlugin
 	 *
 	 * @since   1.0.0
 	 */
-	function populateSitemapPlugin()
+	public function populateSitemapPlugin()
 	{
 		$this->component = 'com_content';
-		$this->views     = ['category'];
+		$this->views     = ['category', 'categories'];
 	}
 
 	/**
 	 * Run for every menuitem passed
 	 *
-	 * @param   JMenuItem $item         Menu items
-	 * @param   string    $format       Sitemap format that is rendered
-	 * @param   string    $sitemap_type Type of sitemap that is generated
+	 * @param   JMenuItem  $item         Menu items
+	 * @param   string     $format       Sitemap format that is rendered
+	 * @param   string     $sitemapType  Type of sitemap that is generated
 	 *
-	 * @return  array
+	 * @return  array List of sitemap items
 	 *
 	 * @since   1.0.0
+	 *
+	 * @throws  Exception
 	 */
-	public function onPwtSitemapBuildSitemap($item, $format, $sitemap_type = 'default')
+	public function onPwtSitemapBuildSitemap($item, $format, $sitemapType = 'default')
 	{
-		if ($this->checkDisplayParameters($item, $format, array('article')))
+		if ($this->checkDisplayParameters($item, $format, ['article']))
 		{
-			// Prepare article menu-item
-			if ($item->query['view'] === 'article')
+			// Prepare category menu-item
+			if ($item->query['view'] === 'category' && (int) $item->params->get('addcontentto' . $format . 'sitemap', 1))
 			{
-				return $this->buildSitemapArticle($item, $format, $sitemap_type);
+				return $this->buildSitemapCategory($item, $format, $sitemapType);
 			}
 
 			// Prepare category menu-item
-			if ($item->query['view'] === 'category')
+			if ($item->query['view'] === 'categories' && (int) $item->params->get('addcontentto' . $format . 'sitemap', 1))
 			{
-				return $this->buildSitemapCategory($item, $format, $sitemap_type);
+				return $this->buildSitemapCategories($item, $format, $sitemapType);
 			}
 		}
 
-		return array();
-	}
-
-	/**
-	 * Run before adding menu items to sitemap
-	 *
-	 * @param   JMenuItem $item Menu items
-	 *
-	 * @return  void
-	 *
-	 * @since   1.1.0
-	 */
-	public function onPwtSitemapAddMenuItemToSitemap($item)
-	{
-		// Don't add article items directly, we use buildSitemapArticle instead
-		if (isset($item->query['view']) && $item->query['view'] == 'article')
-		{
-			$item->doNotAdd = true;
-		}
-	}
-
-	/**
-	 * Build sitemap for com_content article view
-	 *
-	 * @param   JMenuItem $item         Menu items
-	 * @param   string    $format       Sitemap format that is rendered
-	 * @param   string    $sitemap_type Type of sitemap that is generated
-	 *
-	 * @return  array
-	 *
-	 * @since   1.1.0
-	 */
-	public function buildSitemapArticle($item, $format, $sitemap_type)
-	{
-		// Save new items
-		$sitemap_items = array();
-
-		// Get article
-		$article = JTable::getInstance('content');
-		$article->load($item->query['id']);
-
-		$link     = ContentHelperRoute::getArticleRoute($article->id . ':' . $article->alias, $article->catid, $article->language);
-		$modified = HTMLHelper::_('date', $article->modified, 'Y-m-d');
-
-		$sitemap_items[] = new PwtSitemapItem($item->title, $link, $item->level, $modified);
-
-		return $sitemap_items;
-	}
-
-	/**
-	 * Build sitemap for com_content category view
-	 *
-	 * @param   JMenuItem $item         Menu items
-	 * @param   string    $format       Sitemap format that is rendered
-	 * @param   string    $sitemap_type Type of sitemap that is generated
-	 *
-	 * @return  array
-	 *
-	 * @since   1.1.0
-	 */
-	public function buildSitemapCategory($item, $format, $sitemap_type)
-	{
-		// Save new items
-		$sitemap_items = array();
-
-		// Get articles for category
-		$articles = $this->getArticles($item->query['id'], $item->language, $item->params);
-
-		foreach ($articles as $article)
-		{
-			$oParam = new Registry;
-			$oParam->loadString($article->metadata);
-
-			if (strpos($oParam->get('robots'), 'noindex') !== false)
-			{
-				continue;
-			}
-
-			$link     = ContentHelperRoute::getArticleRoute($article->id . ':' . $article->alias, $article->catid, $article->language);
-			$modified = HTMLHelper::_('date', $article->modified, 'Y-m-d');
-
-			$sitemap_items[] = $this->convertToSitemapItem($article, $item, $link, $modified, $sitemap_type);
-		}
-
-		return $sitemap_items;
+		return [];
 	}
 
 	/**
 	 * Convert the given paramters to a PwtSitemapItem
 	 *
-	 * @param   $article       stdClass
-	 * @param   $item          JMenuItem
-	 * @param   $link          string
-	 * @param   $modified      string
-	 * @param   $sitemap_type  string
+	 * @param   stdClass  $article      The article
+	 * @param   MenuItem  $item         The menu item belonging to the article
+	 * @param   string    $link         An url to the article
+	 * @param   string    $modified     Last modified date
+	 * @param   string    $sitemapType  If the sitemap item is multilingual, an image or regular
 	 *
 	 * @return  BasePwtSitemapItem
 	 *
 	 * @since   1.0.0
 	 */
-	private function convertToSitemapItem($article, $item, $link, $modified, $sitemap_type)
+	private function convertToSitemapItem($article, $item, $link, $modified, $sitemapType)
 	{
-		switch ($sitemap_type)
+		switch ($sitemapType)
 		{
-			case "multilanguage":
+			case 'multilanguage':
 				$sitemapItem               = new PwtMultilanguageSitemapItem($article->title, $link, $item->level + 1, $modified);
 				$sitemapItem->associations = $this->getAssociatedArticles($article);
 
 				return $sitemapItem;
 				break;
-			case "image":
+			case 'image':
 				$sitemapItem         = new PwtSitemapImageItem($article->title, $link, $item->level + 1, $modified);
 				$sitemapItem->images = $this->getArticleImages($article);
 
@@ -189,16 +112,170 @@ class PlgPwtSitemapContent extends PwtSitemapPlugin
 	}
 
 	/**
-	 * Get articles from the #__content table
+	 * Get language associated articles
 	 *
-	 * @param   array  $categories Category id
-	 * @param   string $language   Language prefix
+	 * @param   stdClass  $article  Article to find associations
 	 *
-	 * @return  stdClass
+	 * @return  array List of associated articles
 	 *
 	 * @since   1.0.0
 	 */
-	private function getArticles($categories, $language, $params)
+	private function getAssociatedArticles($article)
+	{
+		$helper       = new ContentAssociationsHelper;
+		$associations = $helper->getAssociations('article', $article->id);
+
+		// Map associations to Article objects
+		$associations = array_map(
+			static function ($value) use ($helper) {
+				return $helper->getItem('article', explode(':', $value->id)[0]);
+			}, $associations
+		);
+
+		// Append links
+		foreach ($associations as $language => $association)
+		{
+			$association->link = ContentHelperRoute::getArticleRoute(
+				$association->id . ':' . $association->alias, $association->catid, $association->language
+			);
+		}
+
+		return $associations;
+	}
+
+	/**
+	 * Get the images of an article
+	 *
+	 * @param   stdClass  $article  Article
+	 *
+	 * @return  array List of images for the given article
+	 *
+	 * @since   1.0.0
+	 */
+	private function getArticleImages($article)
+	{
+		$images        = [];
+		$articleImages = json_decode($article->images, false);
+
+		
+		if (!empty($articleImages->image_intro))
+		{
+			$image          = new stdClass;
+			$image->url     = PwtSitemapUrlHelper::getURL('/' . $articleImages->image_intro);
+			$image->caption = !empty($articleImages->image_intro_caption) ? $articleImages->image_intro_caption
+				: $articleImages->image_intro_alt;
+
+			$images[] = $image;
+		}
+
+		if (!empty($articleImages->image_fulltext))
+		{
+			$image          = new stdClass;
+			$image->url     = PwtSitemapUrlHelper::getURL('/' . $articleImages->image_fulltext);
+			$image->caption = !empty($articleImages->image_fulltext_caption) ? $articleImages->image_fulltext_caption
+				: $articleImages->image_fulltext_alt;
+
+			$images[] = $image;
+		}
+
+		
+		return $images;
+	}
+
+	/**
+	 * Build sitemap for com_content category view
+	 *
+	 * @param   MenuItem  $item         Menu items
+	 * @param   string    $format       Sitemap format that is rendered
+	 * @param   string    $sitemapType  Type of sitemap that is generated
+	 *
+	 * @return  array List of sitemap category items
+	 *
+	 * @since   1.1.0
+	 *
+	 * @throws  Exception
+	 */
+	public function buildSitemapCategory($item, $format, $sitemapType)
+	{
+		// Save new items
+		$sitemapItems = [];
+
+		// Do we have tags set?
+		$tag = isset($item->query['filter_tag']) ? $item->query['filter_tag'] : null;
+
+		// Get articles for category
+		$articles = $this->getArticles($item->query['id'], $item->language, $item->params, 0, 0, $tag);
+
+		foreach ($articles as $article)
+		{
+			$oParam = new Registry;
+			$oParam->loadString($article->metadata);
+
+			// Only add article if no-index is not set
+			if (strpos($oParam->get('robots'), 'noindex') !== false)
+			{
+				continue;
+			}
+
+			$link = ContentHelperRoute::getArticleRoute($article->id . ':' . $article->alias, $article->catid,
+				$article->language
+			);
+
+			if ($article->modified == '0000-00-00 00:00:00')
+			{
+				$lastmod = HTMLHelper::_('date', $article->created, 'Y-m-d');
+			}
+			else
+			{
+				$lastmod = HTMLHelper::_('date', $article->modified, 'Y-m-d');
+			}
+
+			$sitemapItems[] = $this->convertToSitemapItem($article, $item, $link, $lastmod, $sitemapType);
+		}
+
+		return $sitemapItems;
+	}
+
+	/**
+	 * Get articles from the #__content table
+	 *
+	 * @param   mixed    $categories  Category id array or string
+	 * @param   string   $language    Language prefix
+	 * @param   array    $params      Additional params to pass on to the modal
+	 * @param   integer  $start       Starting index
+	 * @param   integer  $limit       A limit to the amount of returning articles
+	 * @param   array    $tag         Tag set for menu
+	 *
+	 * @return  array A list of articles
+	 *
+	 * @since   1.0.0
+	 */
+	private function getArticles($categories, $language, $params, $start = 0, $limit = 0, $tag)
+	{
+		$articles = $this->getArticlesModal($categories, $language, $params, $tag);
+
+		$articles->setState('list.start', $start);
+		$articles->setState('list.limit', $limit);
+
+		// Minimize the amount of resources required for the items
+		$articles->setState('list.select', 'a.id, a.title, a.metadata, a.alias, a.catid, a.modified, a.created, a.attribs, a.language, a.images');
+
+		return $articles->getItems();
+	}
+
+	/**
+	 * Get articles from the #__content table
+	 *
+	 * @param   mixed   $categories  Category id array or string
+	 * @param   string  $language    Language prefix
+	 * @param   array   $params      Additional params to pass on to the modal
+	 * @param   array   $tag         Tag set for menu
+	 *
+	 * @return  ContentModelArticles
+	 *
+	 * @since   1.0.0
+	 */
+	private function getArticlesModal($categories, $language, $params, $tag)
 	{
 		$globalParams = ComponentHelper::getParams('com_content');
 
@@ -207,14 +284,16 @@ class PlgPwtSitemapContent extends PwtSitemapPlugin
 		$articleOrderDate = $params->get('order_date', $globalParams->get('order_date', 'published'));
 		$secondary        = ContentHelperQuery::orderbySecondary($articleOrderby, $articleOrderDate);
 
-		// Get an instance of the generic articles model
-		$articles = JModelLegacy::getInstance('Articles', 'ContentModel', array('ignore_request' => true));
+		BaseDatabaseModel::addIncludePath(JPATH_SITE . '/components/com_content/models', 'ContentModel');
+		/** @var ContentModelArticles $articles */
+		$articles = BaseDatabaseModel::getInstance('Articles', 'ContentModel', ['ignore_request' => true]);
 
 		$articles->setState('params', $params);
 		$articles->setState('filter.published', 1);
 		$articles->setState('filter.access', 1);
 		$articles->setState('filter.language', $language);
 		$articles->setState('filter.category_id', $categories);
+		$articles->setState('filter.tag', $tag);
 		$articles->setState('list.start', 0);
 		$articles->setState('list.limit', 0);
 		$articles->setState('list.ordering', $secondary . ', a.created DESC');
@@ -225,74 +304,97 @@ class PlgPwtSitemapContent extends PwtSitemapPlugin
 
 		if ($showSubcategories)
 		{
-			$articles->setState('filter.max_category_levels', $showSubcategories);
+			// -1 actually means all, but we have to define an actual number
+			$articles->setState('filter.max_category_levels', $showSubcategories === '-1' ? 9999 : $showSubcategories);
 			$articles->setState('filter.subcategories', true);
 		}
 
-		// Get results
-		return $articles->getItems();
+		return $articles;
 	}
 
 	/**
-	 * Get language associated articles
+	 * Build sitemap for com_content categories view
 	 *
-	 * @param   $article  stdClass  Article to find associations
+	 * @param   MenuItem  $item         Menu items
+	 * @param   string    $format       Sitemap format that is rendered
+	 * @param   string    $sitemapType  Type of sitemap that is generated
 	 *
-	 * @return  array
+	 * @return  array List of sitemap category items
+	 *
+	 * @since   1.1.0
+	 *
+	 * @throws  Exception
+	 */
+	public function buildSitemapCategories($item, $format, $sitemapType)
+	{
+		// Save new items
+		$sitemapItems = [];
+
+		// Do we have tags set?
+		$tag = isset($item->query['filter_tag']) ? $item->query['filter_tag'] : null;
+
+		$categoryIds = $this->getChildCategoriesByCategoryId($item->query['id']);
+
+		// Get articles for category
+		$articles = $this->getArticles($categoryIds, $item->language, $item->params, 0, 0, $tag);
+
+		foreach ($articles as $article)
+		{
+			$oParam = new Registry;
+			$oParam->loadString($article->metadata);
+
+			if (strpos($oParam->get('robots'), 'noindex') !== false)
+			{
+				continue;
+			}
+
+			$link = ContentHelperRoute::getArticleRoute($article->id . ':' . $article->alias, $article->catid,
+				$article->language
+			);
+
+			if ($article->modified == '0000-00-00 00:00:00')
+			{
+				$lastmod = HTMLHelper::_('date', $article->created, 'Y-m-d');
+			}
+			else
+			{
+				$lastmod = HTMLHelper::_('date', $article->modified, 'Y-m-d');
+			}
+
+			$sitemapItems[] = $this->convertToSitemapItem($article, $item, $link, $lastmod, $sitemapType);
+		}
+
+		return $sitemapItems;
+	}
+
+	/**
+	 * Method to get all child categories of a given category id
+	 *
+	 * @param   int  $pk  The id of the parent category
+	 *
+	 * @return  array A list of id's of the children
 	 *
 	 * @since   1.0.0
 	 */
-	private function getAssociatedArticles($article)
+	private function getChildCategoriesByCategoryId($pk)
 	{
-		$helper       = new ContentAssociationsHelper();
-		$associations = $helper->getAssociations('article', $article->id);
+		BaseDatabaseModel::addIncludePath(JPATH_SITE . '/components/com_content/models', 'ContentModel');
 
-		// Map associations to Article objects
-		$associations = array_map(function ($value) use ($helper) {
-			return $helper->getItem('article', explode(':', $value->id)[0]);
-		}, $associations);
+		/** @var ContentModelCategory $categoryModel */
+		$categoryModel = BaseDatabaseModel::getInstance('Category', 'ContentModel', ['ignore_request' => true]);
 
-		// Append links
-		foreach ($associations as $language => $association)
+		$categoryModel->setState('category.id', $pk);
+		$categoryModel->setState('filter.published', 1);
+
+		$category = $categoryModel->getCategory();
+
+		$ids = [$pk];
+
+		foreach ($category->getChildren() as $category)
 		{
-			$association->link = ContentHelperRoute::getArticleRoute($association->id . ':' . $association->alias, $association->catid, $association->language);
+			$ids[] = $category->id;
 		}
 
-		return $associations;
-	}
-
-	/**
-	 * Get the images of an article
-	 *
-	 * @param $article stdClass  Article
-	 *
-	 * @return array
-	 *
-	 * @since version
-	 */
-	private function getArticleImages($article)
-	{
-		$images        = [];
-		$articleImages = json_decode($article->images);
-
-		if (!empty($articleImages->image_intro))
-		{
-			$image          = new stdClass();
-			$image->url     = PwtSitemapUrlHelper::getURL('/' . $articleImages->image_intro);
-			$image->caption = (!empty($articleImages->image_intro_caption)) ? $articleImages->image_intro_caption : $articleImages->image_intro_alt;
-
-			$images[] = $image;
-		}
-
-		if (!empty($articleImages->image_fulltext))
-		{
-			$image          = new stdClass();
-			$image->url     = PwtSitemapUrlHelper::getURL('/' . $articleImages->image_fulltext);
-			$image->caption = (!empty($articleImages->image_fulltext_caption)) ? $articleImages->image_fulltext_caption : $articleImages->image_fulltext_alt;
-
-			$images[] = $image;
-		}
-
-		return $images;
+		return $ids;
 	}
 }

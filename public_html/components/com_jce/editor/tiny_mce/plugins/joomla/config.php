@@ -12,6 +12,11 @@ class WFJoomlaPluginConfig
 {
     public static function getConfig(&$settings)
     {
+        // already set by editor display
+        if (isset($settings['joomla_xtd_buttons'])) {
+            return;
+        }
+        
         $plugins = JPluginHelper::getPlugin('editors-xtd');
 
         $list = array();
@@ -44,17 +49,22 @@ class WFJoomlaPluginConfig
                 continue;
             }
 
-            $button = $plugin->onDisplay('$jce', null, null);
+            $button = $plugin->onDisplay('__jce__', null, null);
 
-            if (empty($button)) {
+            if (empty($button) || !is_object($button)) {
+                continue;
+            }
+
+            // should be a CMSObject
+            if (!($button instanceof Joomla\CMS\Object\CMSObject)) {
                 continue;
             }
 
             // Set some vars
-            $name = 'button-' . $i . '-' . str_replace(' ', '-', $button->get('text'));
-            $title = $button->get('text');
-            $onclick = $button->get('onclick') ?: '';
-            $icon = $button->get('name');
+            $name       = 'button-' . $i . '-' . str_replace(' ', '-', $button->get('text'));
+            $title      = $button->get('text');
+            $onclick    = $button->get('onclick', '');
+            $icon       = $button->get('name');
 
             if ($button->get('link') !== '#') {
                 $href = JUri::base() . $button->get('link');

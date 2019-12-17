@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.1" type="plugin" group="pwtsitemap" method="upgrade">
+	<name>plg_pwtsitemap_kunena</name>
+	<author>Perfect Web Team</author>
+	<creationDate>14 December 2019</creationDate>
+	<copyright>Copyright (C) 2016 - 2019 Perfect Web Team</copyright>
+	<license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
+	<authorEmail>extensions@perfectwebteam.com</authorEmail>
+	<authorUrl>https://extensions.perfectwebteam.com</authorUrl>
+	<version>1.4.1</version>
+	<description>PLG_PWTSITEMAP_KUNENA_XML_DESCRIPTION</description>
+
+	<files>
+		<folder>language</folder>
+		<filename plugin="kunena">kunena.php</filename>
+		<filename>kunena.xml</filename>
+	</files>
+
+	<config>
+	</config>
+</extension>

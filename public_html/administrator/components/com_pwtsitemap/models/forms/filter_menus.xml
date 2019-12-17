@@ -2,23 +2,23 @@
 <form>
 	<fields name="filter">
 		<field
-				name="search"
-				type="text"
-				label="COM_PWTSITEMAP_FILTER_SEARCH_LABEL"
-				description="COM_PWTSITEMAP_FILTER_SEARCH_DESC"
-				hint="JSEARCH_FILTER"
+			name="search"
+			type="text"
+			label="COM_PWTSITEMAP_FILTER_SEARCH_LABEL"
+			description="COM_PWTSITEMAP_FILTER_SEARCH_DESC"
+			hint="JSEARCH_FILTER"
 		/>
 	</fields>
 	<fields name="list">
 		<field
-				name="fullordering"
-				type="list"
-				label="JGLOBAL_SORT_BY"
-				description="JGLOBAL_SORT_BY"
-				class="advancedSelect"
-				statuses="*,0,1,2,-2"
-				onchange="this.form.submit();"
-				default="a.lft ASC"
+			name="fullordering"
+			type="list"
+			label="JGLOBAL_SORT_BY"
+			description="JGLOBAL_SORT_BY"
+			class="advancedSelect"
+			statuses="*,0,1,2,-2"
+			onchange="this.form.submit();"
+			default="a.lft ASC"
 		>
 			<option value="">JGLOBAL_SORT_BY</option>
 			<option value="a.lft ASC">JGRID_HEADING_ORDERING_ASC</option>
@@ -31,13 +31,13 @@
 			<option value="language DESC">JGRID_HEADING_LANGUAGE_DESC</option>
 		</field>
 		<field
-				name="limit"
-				type="limitbox"
-				class="input-mini advancedSelect"
-				default="25"
-				label="COM_CONTENT_LIST_LIMIT"
-				description="COM_CONTENT_LIST_LIMIT_DESC"
-				onchange="this.form.submit();"
+			name="limit"
+			type="limitbox"
+			class="input-mini advancedSelect"
+			default="25"
+			label="COM_CONTENT_LIST_LIMIT"
+			description="COM_CONTENT_LIST_LIMIT_DESC"
+			onchange="this.form.submit();"
 		/>
 	</fields>
 </form>

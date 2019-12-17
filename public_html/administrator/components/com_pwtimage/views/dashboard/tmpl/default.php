@@ -48,7 +48,7 @@ defined('_JEXEC') or die;
                 </div>
 
                 <div class="pwt-section pwt-section--border-top">
-                    <p><strong><?php echo Text::sprintf('COM_PWTIMAGE_DASHBOARD_ABOUT_VERSION', '</strong>1.3.2-beta'); ?></p>
+                    <p><strong><?php echo Text::sprintf('COM_PWTIMAGE_DASHBOARD_ABOUT_VERSION', '</strong>1.4.0'); ?></p>
                 </div>
                 <!-- End PWT branding -->
 

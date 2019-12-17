@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -28,7 +28,6 @@ class FrontusersController extends acymController
     public function subscribe()
     {
         acym_checkRobots();
-        $config = acym_config();
 
         if (!acym_getVar('cmd', 'acy_source') && !empty($_GET['user'])) {
             acym_setVar('acy_source', 'url');
@@ -41,7 +40,7 @@ class FrontusersController extends acymController
         }
 
         $currentUserid = acym_currentUserId();
-        if ((int)$config->get('allow_visitor', 1) != 1 && empty($currentUserid)) {
+        if ((int)$this->config->get('allow_visitor', 1) != 1 && empty($currentUserid)) {
             if ($ajax) {
                 echo '{"message":"'.acym_translation('ACYM_ONLY_LOGGED', true).'","type":"error","code":"0"}';
                 exit;
@@ -53,7 +52,7 @@ class FrontusersController extends acymController
         }
 
         $currentUserid = acym_currentUserId();
-        if (empty($currentUserid) && $config->get('captcha', '') == 1) {
+        if (empty($currentUserid) && $this->config->get('captcha', '') == 1) {
             $captchaHelper = acym_get('helper.captcha');
             if (!$captchaHelper->check()) {
                 $this->displayMessage('ACYM_WRONG_CAPTCHA', $ajax);
@@ -117,7 +116,7 @@ class FrontusersController extends acymController
         $subscribed = $userClass->subscribe($myuser->id, $addLists);
 
         $msgtype = 'success';
-        if (empty($myuser->confirmed) && $config->get('require_confirmation', 1) == 1) {
+        if (empty($myuser->confirmed) && $this->config->get('require_confirmation', 1) == 1) {
             if ($userClass->confirmationSentSuccess) {
                 $msg = 'ACYM_CONFIRMATION_SENT';
                 $code = 2;
@@ -162,11 +161,50 @@ class FrontusersController extends acymController
         return true;
     }
 
+    private function unsubscribeDirectly($alreadyExists, $ajax)
+    {
+        $userClass = acym_get('class.user');
+        $visibleSubscription = acym_getVar('array', 'subscription', []);
+        $hiddenLists = trim(acym_getVar('string', 'hiddenlists', ''));
+        $hiddenSubscription = empty($hiddenLists) ? [] : explode(',', $hiddenLists);
+        $unsubscribeLists = array_merge($visibleSubscription, $hiddenSubscription);
+
+        $mailId = acym_getVar('int', 'mail_id', 0);
+        if (!empty($mailId)) {
+            $mailClass = acym_get('class.mail');
+            $unsubscribeLists = array_keys($mailClass->getAllListsByMailId($mailId));
+        }
+
+        if (empty($unsubscribeLists)) {
+            $msg = 'ACYM_NO_SUBSCRIPTION_LINKED_EMAIL';
+        } elseif (false === $userClass->unsubscribe($alreadyExists->id, $unsubscribeLists)) {
+            $msg = 'ACYM_UNSUBSCRIPTION_NOT_IN_LIST';
+        } else {
+            $msg = 'ACYM_UNSUBSCRIPTION_OK';
+        }
+
+        $msg = acym_translation($msg);
+
+        if ($ajax) {
+            echo '{"message":"'.str_replace('"', '\"', $msg).'","type":"success","code":"10"}';
+            exit;
+        }
+        acym_enqueueMessage($msg, 'info');
+
+        $redirectUrl = urldecode(acym_getVar('string', 'redirectunsub', ''));
+        if (empty($redirectUrl)) {
+            $redirectUrl = acym_rootURI();
+        }
+
+        acym_redirect($redirectUrl);
+    }
+
     public function unsubscribe()
     {
         acym_checkRobots();
-        $config = acym_config();
         $userClass = acym_get('class.user');
+
+        $redirectToUnsubPage = $this->config->get('unsubscribe_page', 1);
 
         $ajax = acym_getVar('int', 'ajax', 0);
         if ($ajax) {
@@ -176,7 +214,7 @@ class FrontusersController extends acymController
 
         $currentUserid = acym_currentUserId();
         $user = $userClass->identify();
-        if (empty($user) && empty($currentUserid) && $config->get('captcha', '') == 1) {
+        if (empty($user) && empty($currentUserid) && $this->config->get('captcha', '') == 1) {
             $captchaClass = acym_get('helper.captcha');
             if (!$captchaClass->check()) {
                 $this->displayMessage('ACYM_WRONG_CAPTCHA', $ajax);
@@ -212,39 +250,99 @@ class FrontusersController extends acymController
             $this->displayMessage('ACYM_NOT_IN_LIST', $ajax);
         }
 
-        $visibleSubscription = acym_getVar('array', 'subscription', []);
-        $hiddenLists = trim(acym_getVar('string', 'hiddenlists', ''));
-        $hiddenSubscription = empty($hiddenLists) ? [] : explode(',', $hiddenLists);
-        $unsubscribeLists = array_merge($visibleSubscription, $hiddenSubscription);
-
-        $mailId = acym_getVar('int', 'mail_id', 0);
-        if (!empty($mailId)) {
-            $mailClass = acym_get('class.mail');
-            $unsubscribeLists = array_keys($mailClass->getAllListsByMailId($mailId));
-        }
-
-        if (empty($unsubscribeLists)) {
-            $msg = 'ACYM_NO_SUBSCRIPTION_LINKED_EMAIL';
-        } elseif (false === $userClass->unsubscribe($alreadyExists->id, $unsubscribeLists)) {
-            $msg = 'ACYM_UNSUBSCRIPTION_NOT_IN_LIST';
+        if ($redirectToUnsubPage && !$ajax) {
+            $this->unsubscribePage($alreadyExists);
         } else {
-            $msg = 'ACYM_UNSUBSCRIPTION_OK';
+            $this->unsubscribeDirectly($alreadyExists, $ajax);
+        }
+    }
+
+    private function getUserFromUnsubPage()
+    {
+        $userID = acym_getVar('int', 'user_id');
+        $userClass = acym_get('class.user');
+
+        $user = $userClass->getOneById($userID);
+
+        if (empty($user)) {
+            acym_enqueueMessage(acym_translation('ACYM_USER_NOT_FOUND'), 'error');
+
+            acym_redirect(acym_rootURI());
         }
 
-        $msg = acym_translation($msg);
+        return $user;
+    }
 
-        if ($ajax) {
-            echo '{"message":"'.str_replace('"', '\"', $msg).'","type":"success","code":"10"}';
-            exit;
+    private function unsubscribeAllInner()
+    {
+        $userClass = acym_get('class.user');
+        $user = $this->getUserFromUnsubPage();
+
+        $allLists = $userClass->getUserSubscriptionById($user->id);
+        if (empty($allLists)) {
+            acym_enqueueMessage(acym_translation('ACYM_AN_ISSUE_OCCURED_WHILE_SAVING'), 'error');
+            acym_redirect(acym_rootURI());
         }
-        acym_enqueueMessage($msg, 'info');
 
-        $redirectUrl = urldecode(acym_getVar('string', 'redirectunsub', ''));
-        if (empty($redirectUrl)) {
-            $redirectUrl = acym_rootURI();
+        $lists = [];
+
+        foreach ($allLists as $list) {
+            $lists[] = $list->id;
         }
 
-        acym_redirect($redirectUrl);
+        $userClass->unsubscribe($user->id, $lists);
+    }
+
+    private function redirectUnsubWorked()
+    {
+        acym_enqueueMessage(acym_translation('ACYM_SUBSCRIPTION_UPDATED_OK'), 'success');
+        acym_redirect(acym_rootURI());
+    }
+
+    public function unsubscribeAll()
+    {
+        $this->unsubscribeAllInner();
+        $this->redirectUnsubWorked();
+    }
+
+    public function saveSubscriptions()
+    {
+        $userClass = acym_get('class.user');
+
+        $user = $this->getUserFromUnsubPage();
+
+        $listsChecked = acym_getVar('array', 'lists');
+        if (empty($listsChecked)) {
+            $this->unsubscribeAllInner();
+            $this->redirectUnsubWorked();
+        }
+        $listsChecked = array_keys($listsChecked);
+
+        $userSubscriptions = $userClass->getUserSubscriptionById($user->id);
+
+        $userClass->subscribe($user->id, $listsChecked);
+
+        $listsToUnsub = [];
+        foreach ($userSubscriptions as $subscription) {
+            if (!in_array($subscription->id, $listsChecked) && $subscription->status == 1) $listsToUnsub[] = $subscription->id;
+        }
+
+        $userClass->unsubscribe($user->id, $listsToUnsub);
+        $this->redirectUnsubWorked();
+    }
+
+    public function unsubscribePage($alreadyExists)
+    {
+        $userClass = acym_get('class.user');
+        $userSubscriptions = $userClass->getUserSubscriptionById($alreadyExists->id);
+
+        $data = [
+            'user' => $alreadyExists,
+            'subscriptions' => $userSubscriptions,
+        ];
+
+        acym_setVar('layout', 'unsubscribepage');
+        parent::display($data);
     }
 
     public function confirm()
@@ -294,8 +392,7 @@ class FrontusersController extends acymController
         $user = $userClass->identify(true);
 
         if (empty($user)) {
-            $config = acym_config();
-            $allowvisitor = $config->get('allow_visitor', 1);
+            $allowvisitor = $this->config->get('allow_visitor', 1);
             if (empty($allowvisitor)) {
                 acym_askLog(true, 'ACYM_ONLY_LOGGED', 'message');
 
@@ -495,10 +592,8 @@ class FrontusersController extends acymController
         }
         $values->fields = $fields;
 
-        $config = acym_config();
-
         $data = [
-            'config' => $config,
+            'config' => $this->config,
             'displayLists' => $displayLists,
             'user' => $user,
             'subscription' => $subscription,
@@ -517,11 +612,10 @@ class FrontusersController extends acymController
         acym_checkToken();
         acym_checkRobots();
 
-        $config = acym_config();
         $userClass = acym_get('class.user');
         $userClass->extendedEmailVerif = true;
 
-        if (acym_level(1) && $config->get('captcha') == 1 && $userClass->identify(true) === false) {
+        if (acym_level(1) && $this->config->get('captcha') == 1 && $userClass->identify(true) === false) {
             $captchaHelper = acym_get('helper.captcha');
             if (!$captchaHelper->check()) {
                 $this->displayMessage('ACYM_WRONG_CAPTCHA', true);

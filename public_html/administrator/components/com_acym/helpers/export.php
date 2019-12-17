@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -11,8 +11,12 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <?php
 
-class acymexportHelper
+class acymexportHelper extends acymObject
 {
+    var $eol = "\r\n";
+    var $before = '"';
+    var $after = '"';
+
     public function setDownloadHeaders($filename = 'export', $extension = 'csv')
     {
         header('Pragma: public');
@@ -27,21 +31,99 @@ class acymexportHelper
         header('Content-Transfer-Encoding: binary');
     }
 
+    public function exportStatsFormattedCSV($mailName, $globalDonutsData, $globaline, $timeLinechart)
+    {
+        $nbExport = $this->getExportLimit();
+        acym_displayErrors();
+
+        if ($timeLinechart == 'month') {
+            $timeLinechart = acym_translation('ACYM_MONTHLY_STATS');
+        } elseif ($timeLinechart == 'week') {
+            $timeLinechart = acym_translation('ACYM_WEEKLY_STATS');
+        } else {
+            $timeLinechart = acym_translation('ACYM_DAILY_STATS');
+        }
+
+        $separator = '","';
+
+        $csvLines = [];
+        $csvLines[] = $this->before.$mailName.$this->after;
+
+        $csvLines[] = $this->eol;
+
+        $globalDonutsTitle = [
+            acym_translation('ACYM_SUCCESSFULLY_SENT'),
+            acym_translation('ACYM_OPEN_RATE'),
+            acym_translation('ACYM_CLICK_RATE'),
+            acym_translation('ACYM_BOUNCE_RATE'),
+        ];
+
+        $csvLines[] = $this->before.implode($separator, $globalDonutsTitle).$this->after;
+        $csvLines[] = $this->before.implode($separator, $globalDonutsData).$this->after;
+
+        $csvLines[] = $this->eol;
+
+        $csvLines[] = $this->before.$timeLinechart.$separator.acym_translation('ACYM_OPEN').$separator.acym_translation('ACYM_CLICK').$this->after;
+
+        $i = 0;
+        foreach ($globaline as $date => $value) {
+            if ($i > $nbExport) break;
+            $csvLines[] = $this->before.$date.$separator.$value['open'].$separator.$value['click'].$this->after;
+            $i++;
+        }
+
+        $this->finishStatsExport($csvLines);
+    }
+
+    public function exportStatsFullCSV($query, $columns, $type = 'global')
+    {
+        $mailsStats = acym_loadObjectList($query);
+        $nbExport = $this->getExportLimit();
+        acym_displayErrors();
+
+        $separator = '","';
+        $csvLines = [];
+
+        $csvLines[] = $this->before.implode($separator, $columns).$this->after;
+
+        $i = 0;
+        foreach ($mailsStats as $mailStat) {
+            if ($i > $nbExport) break;
+            $oneLine = [];
+            foreach ($columns as $key => $trad) {
+                $key = explode('.', $key);
+                $oneLine[] = $mailStat->{$key[1]};
+            }
+            $csvLines[] = $this->before.implode($separator, $oneLine).$this->after;
+            $i++;
+        }
+
+        $this->finishStatsExport($csvLines, $type);
+    }
+
+    private function finishStatsExport($csvLines, $type = 'global')
+    {
+        $final = implode($this->eol, $csvLines);
+
+        @ob_clean();
+        $filename = 'export_stats_'.$type.'_'.date('Y-m-d');
+        $this->setDownloadHeaders($filename);
+        echo $final;
+
+        return '';
+    }
+
     public function exportCSV($query, $fieldsToExport, $customFieldsToExport, $separator = ',', $charset = 'UTF-8', $exportFile = null)
     {
         $nbExport = $this->getExportLimit();
         acym_displayErrors();
         $encodingClass = acym_get('helper.encoding');
-        $config = acym_config();
-        $excelSecure = $config->get('export_excelsecurity', 0);
+        $excelSecure = $this->config->get('export_excelsecurity', 0);
 
-        $eol = "\r\n";
-        $before = '"';
         if (!in_array($separator, [',', ';'])) $separator = ',';
         $separator = '"'.$separator.'"';
-        $after = '"';
 
-        $firstLine = $before.implode($separator, array_merge($fieldsToExport, $customFieldsToExport)).$after.$eol;
+        $firstLine = $this->before.implode($separator, array_merge($fieldsToExport, $customFieldsToExport)).$this->after.$this->eol;
 
         if (empty($exportFile)) {
             @ob_clean();
@@ -65,7 +147,7 @@ class acymexportHelper
             $start += $nbExport;
 
             if ($users === false) {
-                $errorLine = $eol.$eol.'Error: '.acym_getDBError();
+                $errorLine = $this->eol.$this->eol.'Error: '.acym_getDBError();
 
                 if (empty($exportFile)) {
                     echo $errorLine;
@@ -113,7 +195,7 @@ class acymexportHelper
                 $dataexport = implode($separator, $data);
                 unset($data);
 
-                $oneLine = $before.$encodingClass->change($dataexport, 'UTF-8', $charset).$after.$eol;
+                $oneLine = $this->before.$encodingClass->change($dataexport, 'UTF-8', $charset).$this->after.$this->eol;
                 if (empty($exportFile)) {
                     echo $oneLine;
                 } else {

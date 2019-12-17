@@ -1,7 +1,7 @@
 <?php
 /**
  * @package	AcyMailing for Joomla
- * @version	6.5.2
+ * @version	6.6.1
  * @author	acyba.com
  * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -78,25 +78,25 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="cell <?php echo $sizes; ?>">
 				<label>
                     <?php echo acym_translation('ACYM_FROM_NAME'); ?>
-					<input name="mail[from_name]" type="text" value="<?php echo acym_escape(empty($data['mail']->from_name) ? $data['config']->get('from_name') : $data['mail']->from_name); ?>">
+					<input name="mail[from_name]" type="text" value="<?php echo acym_escape(empty($data['mail']->from_name) ? $this->config->get('from_name') : $data['mail']->from_name); ?>">
 				</label>
 			</div>
 			<div class="cell <?php echo $sizes; ?>">
 				<label>
                     <?php echo acym_translation('ACYM_FROM_EMAIL'); ?>
-					<input name="mail[from_email]" type="text" value="<?php echo acym_escape(empty($data['mail']->from_email) ? $data['config']->get('from_email') : $data['mail']->from_email); ?>">
+					<input name="mail[from_email]" type="text" value="<?php echo acym_escape(empty($data['mail']->from_email) ? $this->config->get('from_email') : $data['mail']->from_email); ?>">
 				</label>
 			</div>
 			<div class="cell <?php echo $sizes; ?>">
 				<label>
                     <?php echo acym_translation('ACYM_REPLYTO_NAME'); ?>
-					<input name="mail[reply_to_name]" type="text" value="<?php echo acym_escape(empty($data['mail']->reply_to_name) ? $data['config']->get('replyto_name') : $data['mail']->reply_to_name); ?>">
+					<input name="mail[reply_to_name]" type="text" value="<?php echo acym_escape(empty($data['mail']->reply_to_name) ? $this->config->get('replyto_name') : $data['mail']->reply_to_name); ?>">
 				</label>
 			</div>
 			<div class="cell <?php echo $sizes; ?>">
 				<label>
                     <?php echo acym_translation('ACYM_REPLYTO_EMAIL'); ?>
-					<input name="mail[reply_to_email]" type="text" value="<?php echo acym_escape(empty($data['mail']->reply_to_email) ? $data['config']->get('replyto_email') : $data['mail']->reply_to_email); ?>">
+					<input name="mail[reply_to_email]" type="text" value="<?php echo acym_escape(empty($data['mail']->reply_to_email) ? $this->config->get('replyto_email') : $data['mail']->reply_to_email); ?>">
 				</label>
 			</div>
             <?php

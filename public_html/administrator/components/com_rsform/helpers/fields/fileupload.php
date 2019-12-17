@@ -285,6 +285,9 @@ class RSFormProFieldFileUpload extends RSFormProField
 
 					if (is_resource($image) && $newWidth > 0)
 					{
+						// Try to rotate it
+						$this->tryToRotate($image, $file);
+
 						// If we're downsizing, IMG_BICUBIC produces better results
 						if ($newWidth < imagesx($image))
 						{
@@ -336,6 +339,105 @@ class RSFormProFieldFileUpload extends RSFormProField
 		}
 
 		return $object;
+	}
+
+	protected function tryToRotate(&$image, $file)
+	{
+		if (!function_exists('exif_read_data') || !function_exists('exif_imagetype') || !function_exists('imagerotate'))
+		{
+			return false;
+		}
+
+		if (exif_imagetype($file) !== IMAGETYPE_JPEG)
+		{
+			return false;
+		}
+
+		$data = exif_read_data($file);
+
+		if ($data === false || !isset($data['Orientation']) || $data['Orientation'] == 1)
+		{
+			return false;
+		}
+
+		switch ($data['Orientation'])
+		{
+			case 2:
+				$image = $this->imageFlip($image, 2);
+				break;
+
+			case 3:
+				$image = $this->imageFlip($image, 3);
+				break;
+
+			case 4:
+				$image = $this->imageFlip($image, 3);
+				$image = $this->imageFlip($image, 2);
+				break;
+
+			case 5:
+				$image = imagerotate($image, 270, 0);
+				$image = $this->imageFlip($image, 2);
+				break;
+
+			case 6:
+				$image = imagerotate($image, 270, 0);
+				break;
+
+			case 7:
+				$image = $this->imageFlip($image, 2);
+				$image = imagerotate($image, 270, 0);
+				break;
+
+			case 8:
+				$image = imagerotate($image, 90, 0);
+				break;
+		}
+
+		return true;
+	}
+
+	protected function imageFlip($imgsrc, $mode)
+	{
+		$width  = imagesx($imgsrc);
+		$height = imagesy($imgsrc);
+
+		$src_x = 0;
+		$src_y = 0;
+		$src_width  = $width;
+		$src_height = $height;
+
+		switch ($mode)
+		{
+			case 1:
+				$src_y = $height - 1;
+				$src_height = -$height;
+				break;
+
+			case 2:
+				$src_x = $width - 1;
+				$src_width = -$width;
+				break;
+
+			case 3:
+				$src_x = $width - 1;
+				$src_y = $height - 1;
+				$src_width 	= -$width;
+				$src_height = -$height;
+				break;
+
+			default:
+				return $imgsrc;
+				break;
+		}
+
+		$imgdest = imagecreatetruecolor($width, $height);
+		if (imagecopyresampled($imgdest, $imgsrc, 0, 0, $src_x, $src_y , $width, $height, $src_width, $src_height))
+		{
+			return $imgdest;
+		}
+
+		return $imgsrc;
 	}
 
 	protected function sanitize($string)
@@ -445,6 +547,8 @@ class RSFormProFieldFileUpload extends RSFormProField
 			// Since we can't rely on counting $_FILES we need to count each correct file
 			$countFiles = 0;
 
+			$allowImages = $this->getProperty('ACCEPTEDFILESIMAGES', false);
+
 			foreach ($actualFiles as $actualFile)
 			{
 				$name 	= $actualFile['name'];
@@ -458,7 +562,7 @@ class RSFormProFieldFileUpload extends RSFormProField
 					$extParts 		= explode('.', $name);
 					$ext 			= strtolower(end($extParts));
 					$acceptedExts   = false;
-					if ($this->getProperty('ACCEPTEDFILESIMAGES', false))
+					if ($allowImages)
 					{
 						$acceptedExts = array('jpg', 'jpeg', 'png', 'gif');
 					}
@@ -480,6 +584,11 @@ class RSFormProFieldFileUpload extends RSFormProField
 								$accepted = true;
 								break;
 							}
+						}
+
+						if ($allowImages && function_exists('exif_imagetype') && exif_imagetype($actualFile['tmp_name']) === false)
+						{
+							throw new Exception(JText::sprintf('COM_RSFORM_FILE_DOES_NOT_SEEM_TO_BE_AN_IMAGE', basename($name)));
 						}
 
 						if (!$accepted)

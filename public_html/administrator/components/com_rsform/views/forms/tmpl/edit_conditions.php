@@ -32,12 +32,12 @@ JText::script('RSFP_CONDITION_DELETE_SURE');
 		<?php foreach ($this->conditions as $row) { ?>
 		<tr>
 			<td>
-				<a href="#" onclick="openRSModal('<?php echo JRoute::_('index.php?option=com_rsform&view=conditions&layout=edit&tmpl=component&formId='.$this->formId.'&cid='.$row->id); ?>', 'Conditions', '800x600'); return false;">(<?php echo JText::_('RSFP_CONDITION_'.$row->action); ?>) <?php echo $this->escape($row->ComponentName); ?></a>
+				<a href="#" onclick="openRSModal('<?php echo JRoute::_('index.php?option=com_rsform&view=conditions&layout=edit&tmpl=component&formId='.$this->formId.'&cid='.$row->id); ?>', 'Conditions', '800x600'); return false;">(<?php echo JText::_('RSFP_CONDITION_'.$row->action); ?>) <?php echo $this->escape(implode(', ', $row->ComponentNames)); ?></a>
 				<?php if (!empty($row->details)) { ?>
 					<ul>
 						<li><strong><?php echo JText::_('RSFP_CONDITION_' . $row->condition); ?></strong></li>
 					<?php foreach ($row->details as $detail) { ?>
-						<li><small><?php echo $this->escape($detail->name) . ' ' . JText::_('RSFP_CONDITION_' . $detail->operator) . ' ' . $this->escape($detail->value); ?></small></li>
+						<li><small><?php echo $this->escape($detail->ComponentName) . ' ' . JText::_('RSFP_CONDITION_' . $detail->operator) . ' ' . $this->escape($detail->value); ?></small></li>
 					<?php } ?>
 					</ul>
 				<?php } ?>

@@ -394,7 +394,7 @@ class RsformControllerForms extends RsformController
 		$session->clear('com_rsform.wizard.Thankyou');
 		$session->clear('com_rsform.wizard.ReturnUrl');
 		
-		$this->setRedirect('index.php?option=com_rsform&task=forms.edit&formId='.$row->FormId);
+		$this->setRedirect('index.php?option=com_rsform&view=forms&layout=edit&formId='.$row->FormId);
 	}
 	
 	public function getProperty($fieldData, $prop, $default=null) {
@@ -426,7 +426,7 @@ class RsformControllerForms extends RsformController
 			case 'apply':
 				$tabposition = JFactory::getApplication()->input->getInt('tabposition', 0);
 				$tab		 = JFactory::getApplication()->input->getInt('tab', 0);
-				$link		 = 'index.php?option=com_rsform&task=forms.edit&formId='.$formId.'&tabposition='.$tabposition.'&tab='.$tab;
+				$link		 = 'index.php?option=com_rsform&view=forms&layout=edit&formId='.$formId.'&tabposition='.$tabposition.'&tab='.$tab;
 			break;
 		}
 		
@@ -664,7 +664,6 @@ class RsformControllerForms extends RsformController
 			$query = $db->getQuery(true)
 				->select('*')
 				->from($db->qn('#__rsform_emails'))
-				->where($db->qn('type') . ' = ' . $db->q('additional'))
 				->where($db->qn('formId') . ' = ' . $db->q($formId));
 			if ($emails = $db->setQuery($query)->loadObjectList()) {
 				foreach ($emails as $email) {
@@ -823,14 +822,29 @@ class RsformControllerForms extends RsformController
 				->where($db->qn('form_id') . ' = ' . $db->q($formId));
 			if ($conditions = $db->setQuery($query)->loadObjectList())
 			{
+				require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/conditions.php';
+
 				foreach ($conditions as $condition)
 				{
+					$component_ids = RSFormProConditions::parseComponentIds($condition->component_id);
+					$json_ids = array();
+					foreach ($component_ids as $component_id)
+					{
+						if (isset($componentRelations[$component_id]))
+						{
+							$json_ids[] = $componentRelations[$component_id];
+						}
+					}
+
 					$new_condition = JTable::getInstance('RSForm_Conditions', 'Table');
-					$new_condition->bind($condition);
-					$new_condition->id = null;
-					$new_condition->form_id = $newFormId;
-					$new_condition->component_id = $componentRelations[$condition->component_id];
-					$new_condition->store();
+					$new_condition->save(array(
+						'form_id' 		=> $newFormId,
+						'action'  		=> $condition->action,
+						'block'			=> $condition->block,
+						'component_id'	=> $json_ids,
+						'condition'		=> $condition->condition,
+						'lang_code'		=> $condition->lang_code,
+					));
 					
 					$conditionRelations[$condition->id] = $new_condition->id;
 				}
@@ -849,6 +863,51 @@ class RsformControllerForms extends RsformController
 						$new_detail->condition_id = $conditionRelations[$detail->condition_id];
 						$new_detail->component_id = $componentRelations[$detail->component_id];
 						$new_detail->store();
+					}
+				}
+			}
+
+			// Copy directory
+			$query = $db->getQuery(true)
+				->select('*')
+				->from($db->qn('#__rsform_directory'))
+				->where($db->qn('formId') . ' = ' . $db->q($formId));
+			if ($directory = $db->setQuery($query)->loadObject())
+			{
+				$table = JTable::getInstance('RSForm_Directory', 'Table');
+
+				$table->bind($directory);
+				$table->formId = $newFormId;
+				if ($table->check())
+				{
+					$table->store();
+
+					// Copy directory fields
+					$query->clear()
+						->select('*')
+						->from($db->qn('#__rsform_directory_fields'))
+						->where($db->qn('formId') . ' = ' . $db->q($formId));
+					if ($dirFields = $db->setQuery($query)->loadObjectList())
+					{
+						foreach ($dirFields as $dirField)
+						{
+							$dirField->formId = $newFormId;
+
+							// Negative Field IDs are special fields from plugins, we keep them intact.
+							// Only positive IDs are mapped to new field IDs.
+							if ($dirField->componentId > 0)
+							{
+								// Field does not exist, skip this
+								if (!isset($componentRelations[$dirField->componentId]))
+								{
+									continue;
+								}
+
+								$dirField->componentId = $componentRelations[$dirField->componentId];
+							}
+
+							$db->insertObject('#__rsform_directory_fields', $dirField);
+						}
 					}
 				}
 			}
