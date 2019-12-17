@@ -93,7 +93,7 @@ if (!empty($termslink))
 			<?php echo acym_translation('ACYM_NO_JAVASCRIPT'); ?>
 		</div>
 	</noscript>
-	<input type="button" class="btn btn-primary button subbutton"
+	<input type="button" class="btn btn-success button subbutton"
 	       value="<?php echo acym_translation($subscribeText, true); ?>" name="Submit"
 	       onclick="try{ return submitAcymForm('subscribe','<?php echo $formName; ?>', 'acySubmitSubForm'); }catch(err){alert('The form could not be submitted '+err);return false;}"/>
 	<?php if ($params->get('unsub', '0') == '1' && !empty($countUnsub)) { ?>
