@@ -69,7 +69,6 @@ $organisers = Access::getUsersByGroup($usergroup);
     var rseproThousands = '<?php echo $this->escape($this->thousands); ?>';
 </script>
 
-
 <?php if ($this->category): ?>
     <div class="well">
 
@@ -134,7 +133,21 @@ $organisers = Access::getUsersByGroup($usergroup);
                 </div>
 
                 <div class="lead">
-                    <p><?php echo JHtml::_('content.prepare', $this->category->description, '', 'com_content.category'); ?></p>
+                    <p><?php echo HTMLHelper::_('content.prepare', $this->category->description, '', 'com_content.category'); ?></p>
+	                <?php
+	                $modules = ModuleHelper::getModules('gebruikersgroepen-lead');
+	                $attribs = array(
+		                'style' => 'tpl'
+	                );
+
+	                if (!empty($modules[0]))
+	                {
+		                foreach ($modules as $module)
+		                {
+			                echo ModuleHelper::renderModule($module, $attribs);
+		                }
+	                }
+	                ?>
                 </div>
             </div>
 
