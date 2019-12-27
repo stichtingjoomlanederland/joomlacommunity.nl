@@ -17,5 +17,9 @@ class WFMediamanagerPluginConfig
         if ($wf->getParam('mediamanager.aggregator.youtube.enable', 1) || $wf->getParam('mediamanager.aggregator.vimeo.enable', 1)) {
             $settings['invalid_elements'] = array_diff($settings['invalid_elements'], array('iframe'));
         }
+
+        if ($wf->getParam('mediamanager.quickmedia', 1) == 0) {
+            $settings['mediamanager_quickmedia'] = false;
+        }
     }
 }
