@@ -194,9 +194,10 @@ class plgEditorJCE extends JPlugin
             );
 
             JFactory::getDocument()->addScriptOptions('plg_editor_jce', $options, true);
-        }
 
-        $this->set('joomla_xtd_buttons', true);
+            // render empty container for dynamic buttons
+            $html .= JLayoutHelper::render('joomla.editors.buttons', array());
+        }
 
         return $html;
     }

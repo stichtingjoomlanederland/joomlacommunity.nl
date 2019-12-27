@@ -9,7 +9,7 @@
  */
 defined('JPATH_PLATFORM') or die;
 ?>
-<div class="uk-grid uk-grid-small">
+<div class="uk-form-row uk-grid uk-grid-small">
     <label for="align" class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_CAPTION_ALIGN_DESC'); ?>">
         <?php echo JText::_('WF_LABEL_ALIGN'); ?>
     </label>
@@ -31,7 +31,7 @@ defined('JPATH_PLATFORM') or die;
     </div>
 </div>
 
-<div class="uk-hidden-mini uk-grid uk-grid-small">
+<div class="uk-form-row uk-hidden-mini uk-grid uk-grid-small">
     <label class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_CAPTION_PADDING_DESC'); ?>">
         <?php echo JText::_('WF_CAPTION_PADDING'); ?>
     </label>
@@ -71,7 +71,7 @@ defined('JPATH_PLATFORM') or die;
     </div>
 </div>
 
-<div class="uk-hidden-mini uk-grid uk-grid-small">
+<div class="uk-form-row uk-hidden-mini uk-grid uk-grid-small">
     <label class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_CAPTION_MARGIN_DESC'); ?>">
         <?php echo JText::_('WF_CAPTION_MARGIN'); ?>
     </label>
@@ -111,7 +111,7 @@ defined('JPATH_PLATFORM') or die;
     </div>
 </div>
 
-<div class="uk-grid uk-grid-small">
+<div class="uk-form-row uk-grid uk-grid-small">
     <label for="border" class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_LABEL_BORDER_DESC'); ?>">
         <?php echo JText::_('WF_LABEL_BORDER'); ?>
     </label>
@@ -164,7 +164,7 @@ defined('JPATH_PLATFORM') or die;
     </div>
 </div>
 
-<div class="uk-form-row  uk-grid uk-grid-small">
+<div class="uk-form-row uk-form-row  uk-grid uk-grid-small">
     <label for="classes" class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_LABEL_CLASSES_DESC'); ?>">
         <?php echo JText::_('WF_LABEL_CLASSES'); ?>
     </label>

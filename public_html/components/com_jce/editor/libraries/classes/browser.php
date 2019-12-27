@@ -488,7 +488,7 @@ class WFFileBrowser extends JObject
 
         $filesystem = $this->getFileSystem();
 
-        if (method_exists($filesystem, 'searchFiles') === false) {
+        if (method_exists($filesystem, 'searchItems') === false) {
             return $this->getItems($path, $limit, $start, $query, $sort);
         }
 
@@ -517,31 +517,43 @@ class WFFileBrowser extends JObject
                 return $value === $extension;
             });
 
-            // reset keyword
-            $keyword = '';
+            $filter = '';
         }
 
         // get search depth
         $depth = (int) $this->get('search_depth', 3);
 
-        $list   = $filesystem->searchFiles($path, $keyword . '\.(?i)(' . implode('|', $filetypes) . ')$', $sort, $depth);
-        $total  = count($list);
+        $list = $filesystem->searchItems($path, $keyword, $filetypes, $sort, $depth);
+
+        $items = array_merge($list['folders'], $list['files']);
+
+        $result['total']['folder'] = count($list['folders']);
+        $result['total']['files'] = count($list['files']);
 
         if (intval($limit) > 0) {
-            $list = array_slice($list, $start, $limit);
+            $items = array_slice($items, $start, $limit);
         }
 
-        // get properties for found items
-        array_walk($list, function(&$item) use ($filesystem) {
-            $item['classes']    = '';
+        // get properties for found items by type
+        foreach($items as $item) {            
+            $type = $item['type'];
 
-            if (empty($item['properties'])) {
-                $item['properties'] = $filesystem->getFileDetails($item);
+            if ($type === 'files') {
+                $item['classes'] = '';
+
+                if (empty($item['properties'])) {
+                    $item['properties'] = $filesystem->getFileDetails($item);
+                }
             }
-        });
 
-        $result['files'] = $list;
-        $result['total']['files'] = $total;
+            if ($type === 'folders') {
+                if (empty($item['properties'])) {
+                    $item['properties'] = $filesystem->getFolderDetails($item);
+                }
+            }
+
+            $result[$type][] = $item;
+        }
 
         // Fire Event passing result as reference
         $this->fireEvent('onSearchItems', array(&$result));
@@ -625,7 +637,7 @@ class WFFileBrowser extends JObject
                     $folderArray[] = $item;
                 } else {
                     // check for selected item
-                    $item['selected']   = $filesystem->isMatch($item['url'], $path);
+                    $item['selected'] = $filesystem->isMatch($item['url'], $path);
 
                     if (empty($item['properties'])) {
                         $item['properties'] = $filesystem->getFileDetails($item);
