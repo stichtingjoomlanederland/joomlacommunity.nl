@@ -16,7 +16,6 @@ include_once JPATH_THEMES . '/' . $this->template . '/helpers/helper.php';
 <html class="html no-js" lang="<?php echo $this->language; ?>" dir="<?php echo $this->direction; ?>">
 <head>
     <jdoc:include type="head"/>
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600" rel="stylesheet">
     <script>
         jQuery(document).ready(function ($) {
             // Expand button for touch devices
