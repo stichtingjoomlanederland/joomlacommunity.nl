@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class acymClass extends acymObject
 {
@@ -26,8 +17,12 @@ class acymClass extends acymObject
     public function getMatchingElements($settings = [])
     {
         if (!empty($this->table) && !empty($this->pkey)) {
-            $query = 'SELECT * FROM #__acym_'.acym_secureDBColumn($this->table).' ORDER BY `'.acym_secureDBColumn($this->pkey).'` ASC';
+            $query = 'SELECT * FROM #__acym_'.acym_secureDBColumn($this->table);
             $queryCount = 'SELECT COUNT(*) FROM #__acym_'.acym_secureDBColumn($this->table);
+
+            if (empty($settings['ordering'])) $settings['ordering'] = $this->pkey;
+            $query .= ' ORDER BY `'.acym_secureDBColumn($settings['ordering']).'`';
+            if (!empty($settings['ordering_sort_order'])) $query .= ' '.acym_secureDBColumn(strtoupper($settings['ordering_sort_order']));
 
             $elements = acym_loadObjectList($query);
             $total = acym_loadResult($queryCount);
@@ -83,13 +78,8 @@ class acymClass extends acymObject
 
     public function delete($elements)
     {
-        if (!is_array($elements)) {
-            $elements = [$elements];
-        }
-
-        if (empty($elements)) {
-            return 0;
-        }
+        if (!is_array($elements)) $elements = [$elements];
+        if (empty($elements)) return 0;
 
         $column = is_numeric(reset($elements)) ? $this->pkey : $this->namekey;
 

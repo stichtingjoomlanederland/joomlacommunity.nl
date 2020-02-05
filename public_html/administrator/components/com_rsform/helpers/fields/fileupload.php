@@ -74,6 +74,15 @@ class RSFormProFieldFileUpload extends RSFormProField
 		{
 			$button .= ' data-rsfp-maxfiles="' . $maxFiles . '"';
 		}
+		$minFiles = (int) $this->getProperty('MINFILES', 0);
+		/*
+		 * We have only one maximum file => disable
+		 * We have a defined number of maximum files but we've set minimum files lower => disable
+		 */
+		if ($maxFiles === 1 || ($maxFiles > 0 && $minFiles >= $maxFiles))
+		{
+			$button .= ' disabled';
+		}
 
 		$button .= ' data-rsfp-formid="' . $this->formId . '"';
 

@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
+?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
 	<div id="acym__automation" class="acym__content">
         <?php if (empty($data['allAutomations']) && empty($data['search']) && empty($data['tag']) && empty($data['status'])) { ?>
 			<div class="grid-x text-center">
@@ -63,7 +54,7 @@ defined('_JEXEC') or die('Restricted access');
 						</div>
 					</div>
 					<div class="grid-x auto cell">
-						<div class="cell acym_listing_sorty-by">
+						<div class="cell acym_listing_sort-by">
                             <?php echo acym_sortBy(
                                 [
                                     'id' => strtolower(acym_translation('ACYM_ID')),
@@ -96,7 +87,7 @@ defined('_JEXEC') or die('Restricted access');
 						</div>
 					</div>
                     <?php foreach ($data['allAutomations'] as $automation) { ?>
-						<div elementid="<?php echo acym_escape($automation->id); ?>" class="grid-x cell acym__listing__row">
+						<div data-acy-elementid="<?php echo acym_escape($automation->id); ?>" class="grid-x cell acym__listing__row">
 							<div class="medium-shrink small-1 cell">
 								<input id="checkbox_<?php echo acym_escape($automation->id); ?>" type="checkbox" name="elements_checked[]" value="<?php echo acym_escape($automation->id); ?>">
 							</div>
@@ -121,8 +112,8 @@ defined('_JEXEC') or die('Restricted access');
 								<div class="xxlarge-2 small-3 cell acym__listing__controls grid-x">
 									<div class="text-center cell">
                                         <?php
-                                        $class = $automation->active == 1 ? 'fa-check-circle-o acym__color__green" newvalue="0' : 'fa-times-circle-o acym__color__red" newvalue="1';
-                                        echo '<i table="automation" field="active" elementid="'.acym_escape($automation->id).'" class="acym_toggleable fa '.$class.'"></i>';
+                                        $class = $automation->active == 1 ? 'acymicon-check-circle acym__color__green" data-acy-newvalue="0' : 'acymicon-times-circle acym__color__red" data-acy-newvalue="1';
+                                        echo '<i data-acy-table="automation" data-acy-field="active" data-acy-elementid="'.acym_escape($automation->id).'" class="acym_toggleable '.$class.'"></i>';
                                         ?>
 									</div>
 								</div>

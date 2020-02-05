@@ -31,7 +31,7 @@ header('Expires: Mon, 08 Mar 1978 05:00:00 GMT'); // Phil Taylor's Birthday and 
 header('Content-type: application/json');
 
 // buffer it!
-ob_start();
+//ob_start();
 
 $isWin = ('WIN' == substr(PHP_OS, 0, 3));
 $sep   = $isWin ? ';' : ':';

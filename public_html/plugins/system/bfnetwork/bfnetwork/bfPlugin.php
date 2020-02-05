@@ -29,6 +29,7 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 
+require_once 'bfEvents.php';
 require_once 'bfLog.php';
 require_once 'bfActivitylog.php';
 require_once 'bfPreferences.php';
@@ -47,24 +48,6 @@ if (class_exists('JPlugin') && !class_exists('PlgSystemBfnetwork')) {
             $prefs->getPreferences(); // force creation of prefs file if needed
 
             parent::__construct($subject, $config);
-        }
-
-        public function ____EXAMPLE____($one, $options = array())
-        {
-            bfLog::log('____EXAMPLE____');
-
-            bfActivitylog::getInstance()->log(
-                $this->user->name,            //$who = 'not me!',
-                $this->user->id,              //$who_id = 0,  User Id is not in
-                '____EXAMPLE____',            //$what = 'dunno',
-                '____EXAMPLE____',            //$where = 'er?',
-                '0',                          //$where_id = 0,
-                null,                         //$ip = NULL,
-                null,                         //$useragent = NULL
-                null,                         //$meta = NULL
-                $options['action'],           //$options = NULL
-                'alertname_something'         //$alertname = NULL
-            );
         }
 
         public function onAfterInitialise()
@@ -88,28 +71,18 @@ if (class_exists('JPlugin') && !class_exists('PlgSystemBfnetwork')) {
                     continue;
                 }
 
-                $createLock = false;
-
-                $pathinfo = pathinfo($file);
-
+                $createLock  = false;
+                $pathinfo    = pathinfo($file);
                 $md5LockFile = str_replace('//', '/', JPATH_SITE.$pathinfo['dirname'].'/.myjoomla.'.basename($file).'.md5');
-
-                bfLog::log('LOCK FILE = '.$md5LockFile);
-
-                $currentMd5 = md5_file(JPATH_SITE.$file);
-                bfLog::log('CURRENT MD5 = '.$currentMd5);
+                $currentMd5  = md5_file(JPATH_SITE.$file);
 
                 if (file_exists($md5LockFile)) {
-                    bfLog::log('LOCK FILE EXISTS = '.$md5LockFile);
                     $lastMd5 = file_get_contents($md5LockFile);
                 } else {
-                    bfLog::log('LOCK FILE NOT EXISTS = '.$md5LockFile);
                     $lastMd5 = md5_file(JPATH_SITE.$file);
 
-                    bfLog::log("CREATING LOCK FILE with $currentMd5");
                     // @ as not to upset crap servers :-(
                     $res = @file_put_contents($md5LockFile, $currentMd5);
-                    bfLog::log('file_put_contents was = '.$res);
 
                     // if we could not write the lock file then bail!
                     if (!file_exists($md5LockFile)) {
@@ -117,29 +90,26 @@ if (class_exists('JPlugin') && !class_exists('PlgSystemBfnetwork')) {
                     }
                 }
 
-                bfLog::log("COMPARING =   $lastMd5 !!! $currentMd5");
                 if ($lastMd5 !== $currentMd5) {
                     $createLock = true;
-                    bfLog::log("ALERTING COMPARING !==  >   $lastMd5 !!! $currentMd5");
                     bfActivitylog::getInstance()->log(
-                        'Someone',
-                        '-911',
-                        'modified file',
+                        '',
+                        '',
+                        'modified file detected: '.$file,
                         $file,
                         null,
                         'system',
                         null,
                         null,
                         null,
-                        'alerting_filewatchlist_alert'
+                        'alerting_filewatchlist_alert',
+                        bfEvents::onFileModified
                     );
                 }
 
                 if (true === $createLock) {
-                    bfLog::log("CREATING LOCK FILE with $currentMd5");
                     // @ as not to upset crap servers :-(
                     $res = @file_put_contents($md5LockFile, $currentMd5);
-                    bfLog::log('file_put_contents was = '.$res);
                 }
             }
             bfLog::log(__METHOD__);
@@ -254,7 +224,8 @@ if (class_exists('JPlugin') && !class_exists('PlgSystemBfnetwork')) {
                                     'username' => $data->username,
                                 )),
                                 $form->getName(),
-                                'alerting_viewuser'
+                                'alerting_viewuser',
+                                bfEvents::onUserViewed
                             );
                             break;
                         case 'POST':
@@ -275,7 +246,8 @@ if (class_exists('JPlugin') && !class_exists('PlgSystemBfnetwork')) {
                                 null,
                                 null,
                                 $form->getName(),
-                                'alerting_com_config_application_viewed'
+                                'alerting_com_config_application_viewed',
+                                bfEvents::onViewedGlobalConfig
                             );
                             break;
 
@@ -291,7 +263,8 @@ if (class_exists('JPlugin') && !class_exists('PlgSystemBfnetwork')) {
                                 null,
                                 null,
                                 $form->getName(),
-                                'alerting_com_config_application_saved'
+                                'alerting_com_config_application_saved',
+                                bfEvents::onSavedGlobalConfig
                             );
                             break;
                     }
@@ -310,7 +283,8 @@ if (class_exists('JPlugin') && !class_exists('PlgSystemBfnetwork')) {
                                 null,
                                 $com_name,
                                 $form->getName(),
-                                'alerting_com_config_component_viewed'
+                                'alerting_com_config_component_viewed',
+                                bfEvents::onViewedComponentOptions
                             );
                             break;
 
@@ -325,7 +299,8 @@ if (class_exists('JPlugin') && !class_exists('PlgSystemBfnetwork')) {
                                 null,
                                 $com_name,
                                 $form->getName(),
-                                'alerting_com_config_component_saved'
+                                'alerting_com_config_component_saved',
+                                bfEvents::onSavedComponentOptions
                             );
                             break;
                     }
@@ -369,15 +344,9 @@ if (class_exists('JPlugin') && !class_exists('PlgSystemBfnetwork')) {
             } // Joomla 3.5 fires this and onContentPrepareForm/POST
 
             /*
-             * Roksprocket Kills us :(
+             * Roksprocket and others kill us :(
              */
-            if (!$data) {
-                return;
-            }
-            if (!property_exists($data, 'element')) {
-                return;
-            }
-            if (!$context) {
+            if (!$data || !property_exists($data, 'element') || !$context) {
                 return;
             }
 
@@ -391,7 +360,8 @@ if (class_exists('JPlugin') && !class_exists('PlgSystemBfnetwork')) {
                 null,
                 json_encode($data),
                 $context,
-                'alerting_com_config_component_saved'
+                'alerting_com_config_component_saved',
+                bfEvents::onSavedComponentOptions
             );
         }
 
@@ -541,7 +511,8 @@ if (class_exists('JPlugin') && !class_exists('PlgSystemBfnetwork')) {
                     null,
                     json_encode($options),
                     $options['action'],
-                    $alert
+                    $alert,
+                    bfEvents::onAdminLogin
                 );
             }
         }
@@ -569,7 +540,8 @@ if (class_exists('JPlugin') && !class_exists('PlgSystemBfnetwork')) {
                     null,
                     json_encode($options),
                     (1 == $options['clientid'] ? 'core.logout.admin' : 'core.logout.site'),
-                    (1 == $options['clientid'] ? 'alerting_superadminlogout' : 'alerting_normaluserlogout')
+                    (1 == $options['clientid'] ? 'alerting_superadminlogout' : 'alerting_normaluserlogout'),
+                    (1 == $options['clientid'] ? bfEvents::onAdminLogout : bfEvents::onUserLogout)
                 );
             }
         }
@@ -639,7 +611,8 @@ if (class_exists('JPlugin') && !class_exists('PlgSystemBfnetwork')) {
                         'username' => $user['username'],
                     )),
                     'com_users',
-                    'alerting_newuser'
+                    'alerting_newuser',
+                    bfEvents::onUserCreated
                 );
             } else {
                 bfActivitylog::getInstance()->log(
@@ -655,7 +628,8 @@ if (class_exists('JPlugin') && !class_exists('PlgSystemBfnetwork')) {
                         'username' => $user['username'],
                     )),
                     'com_users',
-                    'alerting_saveuser'
+                    'alerting_saveuser',
+                    bfEvents::onUserModified
                 );
             }
         }

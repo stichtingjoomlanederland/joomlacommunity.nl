@@ -1,20 +1,20 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc\Connector;
 
-// Protection against direct access
+
+
 use Akeeba\Engine\Postproc\Connector\Cloudfiles\Exception\Http;
 use Akeeba\Engine\Postproc\Connector\Cloudfiles\Request;
-
-defined('AKEEBAENGINE') or die();
+use DateTime;
+use stdClass;
 
 /**
  * Generic OpenStack SWIFT object storage API implementation
@@ -81,10 +81,10 @@ class Swift
 	 * The endpoints of the SWIFT service, as returned by the Keystone service, indexed by region. Each endpoint is
 	 * raw object.
 	 *
-	 * @var    \stdClass[]
+	 * @var    stdClass[]
 	 * @since  6.1.0
 	 */
-	protected $endPoints = array();
+	protected $endPoints = [];
 
 	/**
 	 * A callable which is passed the authentication information and result to cater for non-standard SWIFT
@@ -93,7 +93,7 @@ class Swift
 	 * @var    callable
 	 * @since  6.1.0
 	 */
-	private $authenticationCallback;
+	protected $authenticationCallback;
 
 	/**
 	 * Swift constructor.
@@ -175,7 +175,7 @@ class Swift
 	}
 
 	/**
-	 * @param string $tenantId
+	 * @param   string  $tenantId
 	 *
 	 * @return Swift
 	 */
@@ -195,7 +195,7 @@ class Swift
 	}
 
 	/**
-	 * @param string $username
+	 * @param   string  $username
 	 *
 	 * @return Swift
 	 */
@@ -215,7 +215,7 @@ class Swift
 	}
 
 	/**
-	 * @param string $password
+	 * @param   string  $password
 	 *
 	 * @return Swift
 	 */
@@ -235,73 +235,11 @@ class Swift
 	}
 
 	/**
-	 * @return \stdClass[]
+	 * @return stdClass[]
 	 */
 	public function getEndPoints()
 	{
 		return $this->endPoints;
-	}
-
-	/**
-	 * Authenticate to the OpenStack cloud and retrieve a fresh token
-	 *
-	 * @throws  Http
-	 *
-	 * @return  string
-	 * @since   6.1.0
-	 */
-	protected function authenticate()
-	{
-		// Send the token request to Keystone
-		$message = array(
-			'auth' => array(
-				'tenantId'            => $this->tenantId,
-				'passwordCredentials' => array(
-					'username' => $this->username,
-					'password' => $this->password,
-				)
-			)
-		);
-		$json    = json_encode($message);
-		$url     = rtrim($this->authEndpoint, '/') . '/tokens';
-
-		$request       = new Request('POST', $url);
-		$request->data = $json;
-		$request->setHeader('Accept', 'application/json');
-		$request->setHeader('Content-Type', 'application/json');
-		$request->setHeader('Content-Length', strlen($request->data));
-
-		$response = $request->getResponse();
-
-		// Get the tenant ID
-		$this->tenantId = $response->body->access->token->tenant->id;
-
-		// Get the token and its expiration
-		$this->token           = $response->body->access->token->id;
-		$date                  = new \DateTime($response->body->access->token->expires);
-		$this->tokenExpiration = $date->getTimestamp();
-
-		// Loop through the serviceCatalog and index the Swift endpoints
-		foreach ($request->body->serviceCatalog as $service)
-		{
-			if ($service->name != 'swift')
-			{
-				continue;
-			}
-
-			foreach ($service->endpoints as $endpoint)
-			{
-				$this->endPoints[$endpoint->region] = $endpoint->publicURL;
-			}
-		}
-
-		// Callback
-		if (is_callable($this->authenticationCallback))
-		{
-			call_user_func_array($this->authenticationCallback, array(&$this, $response));
-		}
-
-		return $this->token;
 	}
 
 	/**
@@ -311,9 +249,9 @@ class Swift
 	 * @param   bool  $force  Tru to force re-authentication
 	 *
 	 * @return  string
+	 * @throws  Http
 	 * @since   6.1.0
 	 *
-	 * @throws  Http
 	 */
 	public function getToken($force = false)
 	{
@@ -345,10 +283,10 @@ class Swift
 	 * @param   string  $lastContainer  Start listing AFTER this last container (pagination)
 	 * @param   int     $limit          How many containers to list
 	 *
-	 * @return  \stdClass[]  Array or objects. Internal objects have keys count, bytes, name
+	 * @return  stdClass[]  Array or objects. Internal objects have keys count, bytes, name
 	 *
-	 * @since  6.1.0
 	 * @throws Http
+	 * @since  6.1.0
 	 */
 	public function listContainers($assoc = false, $lastContainer = null, $limit = 10000)
 	{
@@ -390,7 +328,7 @@ class Swift
 			return $response->body;
 		}
 
-		$ret = array();
+		$ret = [];
 
 		if (!empty($response->body))
 		{
@@ -413,9 +351,9 @@ class Swift
 	 * @param   string  $prefix     The common prefix of files to list
 	 *
 	 * @return  array   Array of objects. Object keys: hash, last_modified, bytes, name, content_type
+	 * @throws  Http
 	 * @since   6.1.0
 	 *
-	 * @throws  Http
 	 */
 	public function listContents($path = '', $assoc = false, $lastEntry = null, $limit = 1000, $prefix = '')
 	{
@@ -423,10 +361,10 @@ class Swift
 		$token = $this->getToken();
 
 		// Get the URL to list containers
-		$url = $this->getStorageEndpoint();
-		$url = rtrim($url, '\\/');
+		$url  = $this->getStorageEndpoint();
+		$url  = rtrim($url, '\\/');
 		$path = ltrim($path, '\\/');
-		$url .= '/' . $path;
+		$url  .= '/' . $path;
 
 		// Get the request object
 		$request = new Request('GET', $url);
@@ -464,7 +402,7 @@ class Swift
 			return $response->body;
 		}
 
-		$ret = array();
+		$ret = [];
 
 		if (!empty($response->body))
 		{
@@ -495,9 +433,9 @@ class Swift
 	 * @param   string        $path         The path inside the container of the uploaded file
 	 * @param   string        $contentType  The content type of the uploaded file
 	 *
+	 * @throws  Http
 	 * @since   6.1.0
 	 *
-	 * @throws  Http
 	 */
 	public function putObject($input, $path, $contentType = null)
 	{
@@ -505,10 +443,10 @@ class Swift
 		$token = $this->getToken();
 
 		// Get the URL to list containers
-		$url = $this->getStorageEndpoint();
-		$url = rtrim($url, '\\/');
+		$url  = $this->getStorageEndpoint();
+		$url  = rtrim($url, '\\/');
 		$path = ltrim($path, '\\/');
-		$url .= '/' . $path;
+		$url  .= '/' . $path;
 
 		// Get the request object
 		$request = new Request('PUT', $url);
@@ -517,10 +455,10 @@ class Swift
 		// Decide what to do based on the $input format
 		if (is_string($input))
 		{
-			$input = array(
+			$input = [
 				'data' => $input,
 				'size' => strlen($input),
-			);
+			];
 		}
 
 		// Data
@@ -574,26 +512,26 @@ class Swift
 	/**
 	 * Downloads a file from CloudFiles back to your server
 	 *
-	 * @param   string    $path       The path to the file to download
-	 * @param   resource  $fp         A file pointer, opened in write binary mode, to write out the downloaded file
-	 * @param   array     $headers    An array of headers to send during the download, e.g. ['Range' => '1-100']
+	 * @param   string    $path     The path to the file to download
+	 * @param   resource  $fp       A file pointer, opened in write binary mode, to write out the downloaded file
+	 * @param   array     $headers  An array of headers to send during the download, e.g. ['Range' => '1-100']
 	 *
 	 * @return  void
 	 *
+	 * @throws  Http
 	 * @since   6.1.0
 	 *
-	 * @throws  Http
 	 */
-	public function downloadObject($path, &$fp, $headers = array())
+	public function downloadObject($path, &$fp, $headers = [])
 	{
 		// Re-authenticate if necessary
 		$token = $this->getToken();
 
 		// Get the URL to list containers
-		$url = $this->getStorageEndpoint();
-		$url = rtrim($url, '\\/');
+		$url  = $this->getStorageEndpoint();
+		$url  = rtrim($url, '\\/');
 		$path = ltrim($path, '\\/');
-		$url .= '/' . $path;
+		$url  .= '/' . $path;
 
 		// Get the request object
 		$request = new Request('GET', $url);
@@ -601,7 +539,7 @@ class Swift
 
 		if (!empty($headers))
 		{
-			foreach($headers as $k => $v)
+			foreach ($headers as $k => $v)
 			{
 				$request->setHeader($k, $v);
 			}
@@ -615,13 +553,13 @@ class Swift
 	/**
 	 * Delete a file from CloudFiles
 	 *
-	 * @param   string  $path       The path to the file to download
+	 * @param   string  $path  The path to the file to download
 	 *
 	 * @return  void
 	 *
+	 * @throws  Http
 	 * @since   6.1.0
 	 *
-	 * @throws  Http
 	 */
 	public function deleteObject($path)
 	{
@@ -629,15 +567,85 @@ class Swift
 		$token = $this->getToken();
 
 		// Get the URL to list containers
-		$url = $this->getStorageEndpoint();
-		$url = rtrim($url, '\\/');
+		$url  = $this->getStorageEndpoint();
+		$url  = rtrim($url, '\\/');
 		$path = ltrim($path, '\\/');
-		$url .= '/' . $path;
+		$url  .= '/' . $path;
 
 		// Get the request object
 		$request = new Request('DELETE', $url);
 		$request->setHeader('X-Auth-Token', $token);
 
 		$request->getResponse();
+	}
+
+	/**
+	 * Authenticate to the OpenStack cloud and retrieve a fresh token
+	 *
+	 * @return  string
+	 * @throws  Http
+	 *
+	 * @since   6.1.0
+	 */
+	protected function authenticate()
+	{
+		// Send the token request to Keystone
+		$message = [
+			'auth' => [
+				'tenantId'            => $this->tenantId,
+				'passwordCredentials' => [
+					'username' => $this->username,
+					'password' => $this->password,
+				],
+			],
+		];
+		$json    = json_encode($message);
+		$url     = rtrim($this->authEndpoint, '/') . '/tokens';
+
+		$request       = new Request('POST', $url);
+		$request->data = $json;
+		$request->setHeader('Accept', 'application/json');
+		$request->setHeader('Content-Type', 'application/json');
+		$request->setHeader('Content-Length', strlen($request->data));
+
+		$response = $request->getResponse();
+
+		// Get the tenant ID
+		$this->tenantId = $response->body->access->token->tenant->id;
+
+		// Get the token and its expiration
+		$this->token           = $response->body->access->token->id;
+		$date                  = new DateTime($response->body->access->token->expires);
+		$this->tokenExpiration = $date->getTimestamp();
+
+		// Loop through the serviceCatalog and index the Swift endpoints
+		if (isset($request->body) && isset($request->body->serviceCatalog))
+		{
+			foreach ($request->body->serviceCatalog as $service)
+			{
+				if ($service->name != 'swift')
+				{
+					continue;
+				}
+
+				if (!isset($service->endpoints))
+				{
+					continue;
+				}
+
+				foreach ($service->endpoints as $endpoint)
+				{
+					$this->endPoints[$endpoint->region] = $endpoint->publicURL;
+				}
+			}
+		}
+
+		// Callback
+		if (is_callable($this->authenticationCallback))
+		{
+			call_user_func_array($this->authenticationCallback, [&$this, $response]);
+		}
+
+		return $this->token;
 	}
 }

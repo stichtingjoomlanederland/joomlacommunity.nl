@@ -1,17 +1,15 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Util;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
@@ -26,36 +24,59 @@ class ConfigurationCheck
 	 *
 	 * @var  array
 	 */
-	protected $configurationChecks = array
-	(
-		array('code' => '001', 'severity' => 'critical', 'callback' => array(null, 'q001'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q001'),
-		array('code' => '003', 'severity' => 'critical', 'callback' => array(null, 'q003'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q003'),
-		array('code' => '004', 'severity' => 'critical', 'callback' => array(null, 'q004'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q004'),
+	protected $configurationChecks = [
+		['code'        => '001', 'severity' => 'critical', 'callback' => [null, 'q001'],
+		 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q001',
+		],
+		['code'        => '003', 'severity' => 'critical', 'callback' => [null, 'q003'],
+		 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q003',
+		],
+		['code'        => '004', 'severity' => 'critical', 'callback' => [null, 'q004'],
+		 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q004',
+		],
 
-		array('code' => '101', 'severity' => 'high', 'callback' => array(null, 'q101'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q101'),
-		array('code' => '103', 'severity' => 'high', 'callback' => array(null, 'q103'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q103'),
-		array('code' => '104', 'severity' => 'high', 'callback' => array(null, 'q104'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q104'),
-		array('code' => '106', 'severity' => 'high', 'callback' => array(null, 'q106'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q106'),
+		['code'        => '101', 'severity' => 'high', 'callback' => [null, 'q101'],
+		 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q101',
+		],
+		['code'        => '103', 'severity' => 'high', 'callback' => [null, 'q103'],
+		 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q103',
+		],
+		['code'        => '104', 'severity' => 'high', 'callback' => [null, 'q104'],
+		 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q104',
+		],
+		['code'        => '106', 'severity' => 'high', 'callback' => [null, 'q106'],
+		 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q106',
+		],
 
-		array('code' => '201', 'severity' => 'medium', 'callback' => array(null, 'q201'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q201'),
-		array('code' => '202', 'severity' => 'medium', 'callback' => array(null, 'q202'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q202'),
-		array('code' => '204', 'severity' => 'medium', 'callback' => array(null, 'q204'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q204'),
+		['code'        => '201', 'severity' => 'medium', 'callback' => [null, 'q201'],
+		 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q201',
+		],
+		['code'        => '202', 'severity' => 'medium', 'callback' => [null, 'q202'],
+		 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q202',
+		],
+		['code'        => '204', 'severity' => 'medium', 'callback' => [null, 'q204'],
+		 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q204',
+		],
 
-		array('code' => '203', 'severity' => 'low', 'callback' => array(null, 'q203'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q203'),
-		array('code' => '401', 'severity' => 'low', 'callback' => array(null, 'q401'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q401'),
-	);
+		['code'        => '203', 'severity' => 'low', 'callback' => [null, 'q203'],
+		 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q203',
+		],
+		['code'        => '401', 'severity' => 'low', 'callback' => [null, 'q401'],
+		 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q401',
+		],
+	];
 
 	/**
 	 * The public constructor replaces the missing object reference in the configuration check callbacks
 	 */
 	function __construct()
 	{
-		$temp = array();
+		$temp = [];
 
 		foreach ($this->configurationChecks as $check)
 		{
-			$check['callback'] = array($this, $check['callback'][1]);
-			$temp[] = $check;
+			$check['callback'] = [$this, $check['callback'][1]];
+			$temp[]            = $check;
 		}
 
 		$this->configurationChecks = $temp;
@@ -76,7 +97,7 @@ class ConfigurationCheck
 
 			// Get output writable status
 			$registry = Factory::getConfiguration();
-			$outdir = $registry->get('akeeba.basic.output_directory');
+			$outdir   = $registry->get('akeeba.basic.output_directory');
 
 			foreach ($stock_dirs as $macro => $replacement)
 			{
@@ -99,7 +120,7 @@ class ConfigurationCheck
 	{
 		// Base the status on directory writeable status
 		$status = $this->getFolderStatus();
-		$ret = $status['output'];
+		$ret    = $status['output'];
 
 		// Scan for high severity configuration check errors
 		$detailedStatus = $this->getDetailedStatus();
@@ -133,7 +154,7 @@ class ConfigurationCheck
 	{
 		if (!is_callable($callback))
 		{
-			$callback = array($this, 'q' . $code);
+			$callback = [$this, 'q' . $code];
 		}
 
 		if (empty($description))
@@ -141,12 +162,12 @@ class ConfigurationCheck
 			$description = 'COM_AKEEBA_CPANEL_WARNING_Q' . $code;
 		}
 
-		$newConfigurationCheck = array(
+		$newConfigurationCheck = [
 			'code'        => $code,
 			'severity'    => $severity,
 			'description' => $description,
 			'callback'    => $callback,
-		);
+		];
 
 		$this->configurationChecks[$code] = $newConfigurationCheck;
 	}
@@ -154,7 +175,7 @@ class ConfigurationCheck
 	/**
 	 * Remove a configuration check definition
 	 *
-	 * @param   string $code The code of the configuration check to remove
+	 * @param   string  $code  The code of the configuration check to remove
 	 *
 	 * @return  void
 	 */
@@ -173,7 +194,7 @@ class ConfigurationCheck
 	 */
 	public function clearConfigurationCheckDefinitions()
 	{
-		$this->configurationChecks = array();
+		$this->configurationChecks = [];
 	}
 
 	/**
@@ -199,7 +220,7 @@ class ConfigurationCheck
 
 		if (is_null($detailedStatus) || $low_priority)
 		{
-			$detailedStatus = array();
+			$detailedStatus = [];
 
 			foreach ($this->configurationChecks as $quirkDef)
 			{
@@ -213,6 +234,85 @@ class ConfigurationCheck
 		}
 
 		return $detailedStatus;
+	}
+
+	/**
+	 * Checks if a path is restricted by open_basedirs
+	 *
+	 * @param   string  $check  The path to check
+	 *
+	 * @return  bool  True if the path is restricted (which is bad)
+	 */
+	public function checkOpenBasedirs($check)
+	{
+		static $paths;
+
+		if (empty($paths))
+		{
+			$open_basedir = ini_get('open_basedir');
+
+			if (empty($open_basedir))
+			{
+				return false;
+			}
+
+			$delimiter  = strpos($open_basedir, ';') !== false ? ';' : ':';
+			$paths_temp = explode($delimiter, $open_basedir);
+
+			// Some open_basedirs are using environemtn variables
+			$paths = [];
+
+			foreach ($paths_temp as $path)
+			{
+				if (array_key_exists($path, $_ENV))
+				{
+					$paths[] = $_ENV[$path];
+				}
+				else
+				{
+					$paths[] = $path;
+				}
+			}
+		}
+
+		if (empty($paths))
+		{
+			return false; // no restrictions
+		}
+		else
+		{
+			$newcheck = @realpath($check); // Resolve symlinks, like PHP does
+
+			if (!($newcheck === false))
+			{
+				$check = $newcheck;
+			}
+
+			$included = false;
+
+			foreach ($paths as $path)
+			{
+				$newpath = @realpath($path);
+
+				if (!($newpath === false))
+				{
+					$path = $newpath;
+				}
+
+				if (strlen($check) >= strlen($path))
+				{
+					// Only check if the path to check is longer than the inclusion path.
+					// Otherwise, I guarantee it's not included!!
+					// If the path to check begins with an inclusion path, it's permitted. Easy, huh?
+					if (substr($check, 0, strlen($path)) == $path)
+					{
+						$included = true;
+					}
+				}
+			}
+
+			return !$included;
+		}
 	}
 
 	/**
@@ -230,12 +330,12 @@ class ConfigurationCheck
 		{
 			$description = Platform::getInstance()->translate($quirkDef['description']);
 
-			$detailedStatus[(string)$quirkDef['code']] = array(
+			$detailedStatus[(string) $quirkDef['code']] = [
 				'code'        => $quirkDef['code'],
 				'severity'    => $quirkDef['severity'],
 				'description' => $description,
 				'help_url'    => sprintf($help_url_template, $quirkDef['code']),
-			);
+			];
 		}
 	}
 
@@ -261,7 +361,7 @@ class ConfigurationCheck
 		$stock_dirs = Platform::getInstance()->get_stock_directories();
 
 		$registry = Factory::getConfiguration();
-		$outdir = $registry->get('akeeba.basic.output_directory');
+		$outdir   = $registry->get('akeeba.basic.output_directory');
 
 		foreach ($stock_dirs as $macro => $replacement)
 		{
@@ -275,7 +375,7 @@ class ConfigurationCheck
 			$outdir = $outdir_real;
 		}
 
-		$siteroot = Platform::getInstance()->get_site_root();
+		$siteroot      = Platform::getInstance()->get_site_root();
 		$siteroot_real = @realpath($siteroot);
 
 		if (!empty($siteroot_real))
@@ -326,7 +426,7 @@ class ConfigurationCheck
 
 		// Get output writable status
 		$registry = Factory::getConfiguration();
-		$outdir = $registry->get('akeeba.basic.output_directory');
+		$outdir   = $registry->get('akeeba.basic.output_directory');
 
 		foreach ($stock_dirs as $macro => $replacement)
 		{
@@ -372,7 +472,7 @@ class ConfigurationCheck
 	private function q104()
 	{
 
-		$siteroot = Platform::getInstance()->get_site_root();
+		$siteroot      = Platform::getInstance()->get_site_root();
 		$siteroot_real = @realpath($siteroot);
 
 		if (!empty($siteroot_real))
@@ -380,7 +480,7 @@ class ConfigurationCheck
 			$siteroot = $siteroot_real;
 		}
 
-		$stockDirs = Platform::getInstance()->get_stock_directories();
+		$stockDirs      = Platform::getInstance()->get_stock_directories();
 		$temp_directory = $stockDirs['[SITETMP]'];
 		$temp_directory = @realpath($temp_directory);
 
@@ -399,7 +499,7 @@ class ConfigurationCheck
 	 */
 	private function q106()
 	{
-		$filters = Factory::getFilters();
+		$filters   = Factory::getFilters();
 		$databases = $filters->getInclusions('db');
 
 		foreach ($databases as $db)
@@ -458,7 +558,7 @@ class ConfigurationCheck
 		$stock_dirs = Platform::getInstance()->get_stock_directories();
 
 		$registry = Factory::getConfiguration();
-		$outdir = $registry->get('akeeba.basic.output_directory');
+		$outdir   = $registry->get('akeeba.basic.output_directory');
 
 		foreach ($stock_dirs as $macro => $replacement)
 		{
@@ -467,7 +567,7 @@ class ConfigurationCheck
 
 		$default = $stock_dirs['[DEFAULT_OUTPUT]'];
 
-		$outdir = Factory::getFilesystemTools()->TranslateWinPath($outdir);
+		$outdir  = Factory::getFilesystemTools()->TranslateWinPath($outdir);
 		$default = Factory::getFilesystemTools()->TranslateWinPath($default);
 
 		return $outdir == $default;
@@ -498,90 +598,11 @@ class ConfigurationCheck
 		return $archiver == 'zip';
 	}
 
-	/**
-	 * Checks if a path is restricted by open_basedirs
-	 *
-	 * @param   string  $check  The path to check
-	 *
-	 * @return  bool  True if the path is restricted (which is bad)
-	 */
-	public function checkOpenBasedirs($check)
-	{
-		static $paths;
-
-		if (empty($paths))
-		{
-			$open_basedir = ini_get('open_basedir');
-
-			if (empty($open_basedir))
-			{
-				return false;
-			}
-
-			$delimiter = strpos($open_basedir, ';') !== false ? ';' : ':';
-			$paths_temp = explode($delimiter, $open_basedir);
-
-			// Some open_basedirs are using environemtn variables
-			$paths = array();
-
-			foreach ($paths_temp as $path)
-			{
-				if (array_key_exists($path, $_ENV))
-				{
-					$paths[] = $_ENV[$path];
-				}
-				else
-				{
-					$paths[] = $path;
-				}
-			}
-		}
-
-		if (empty($paths))
-		{
-			return false; // no restrictions
-		}
-		else
-		{
-			$newcheck = @realpath($check); // Resolve symlinks, like PHP does
-
-			if (!($newcheck === false))
-			{
-				$check = $newcheck;
-			}
-
-			$included = false;
-
-			foreach ($paths as $path)
-			{
-				$newpath = @realpath($path);
-
-				if (!($newpath === false))
-				{
-					$path = $newpath;
-				}
-
-				if (strlen($check) >= strlen($path))
-				{
-					// Only check if the path to check is longer than the inclusion path.
-					// Otherwise, I guarantee it's not included!!
-					// If the path to check begins with an inclusion path, it's permitted. Easy, huh?
-					if (substr($check, 0, strlen($path)) == $path)
-					{
-						$included = true;
-					}
-				}
-			}
-
-			return !$included;
-		}
-	}
-
 	private function _return_bytes($setting)
 	{
-		$val = trim($setting);
+		$val  = trim($setting);
 		$last = strtolower(substr($val, -1));
-		$val = substr($val, 0, -1);
+		$val  = substr($val, 0, -1);
 
 		if (is_numeric($last))
 		{

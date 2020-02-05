@@ -1,20 +1,20 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Filter;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
+use DateTime;
+use DateTimeZone;
 
 /**
  * Incremental file filter
@@ -26,9 +26,9 @@ class Incremental extends Base
 
 	function __construct()
 	{
-		$this->object = 'file';
+		$this->object  = 'file';
 		$this->subtype = 'all';
-		$this->method = 'api';
+		$this->method  = 'api';
 
 		if (Factory::getKettenrad()->getTag() == 'restorepoint')
 		{
@@ -43,7 +43,7 @@ class Incremental extends Base
 
 		if (is_null($filter_switch))
 		{
-			$config = Factory::getConfiguration();
+			$config        = Factory::getConfiguration();
 			$filter_switch = Factory::getEngineParamsProvider()->getScriptingParameter('filter.incremental', 0);
 			$filter_switch = ($filter_switch == 1);
 
@@ -52,17 +52,18 @@ class Incremental extends Base
 			if (is_null($last_backup) && $filter_switch)
 			{
 				// Get a list of backups on this profile
-				$backups = Platform::getInstance()->get_statistics_list(array(
-					   'filters' => array(
-						   array(
-							   'field' => 'profile_id',
-							   'value' => Platform::getInstance()->get_active_profile())
-					   )
-				  ));
+				$backups = Platform::getInstance()->get_statistics_list([
+					'filters' => [
+						[
+							'field' => 'profile_id',
+							'value' => Platform::getInstance()->get_active_profile(),
+						],
+					],
+				]);
 
 				// Find this backup's ID
 				$model = Factory::getStatistics();
-				$id = $model->getId();
+				$id    = $model->getId();
 
 				if (is_null($id))
 				{
@@ -71,7 +72,7 @@ class Incremental extends Base
 
 				// Initialise
 				$last_backup = time();
-				$now = $last_backup;
+				$now         = $last_backup;
 
 				// Find the last time a successful backup with this profile was made
 				if (count($backups))
@@ -90,8 +91,8 @@ class Incremental extends Base
 							continue;
 						}
 
-						$tzUTC = new \DateTimeZone('UTC');
-						$dateTime = new \DateTime($backup['backupstart'], $tzUTC);
+						$tzUTC      = new DateTimeZone('UTC');
+						$dateTime   = new DateTime($backup['backupstart'], $tzUTC);
 						$backuptime = $dateTime->getTimestamp();
 
 						$last_backup = $backuptime;
@@ -119,9 +120,9 @@ class Incremental extends Base
 		}
 
 		// Get the filesystem path for $root
-		$config = Factory::getConfiguration();
-		$fsroot = $config->get('volatile.filesystem.current_root', '');
-		$ds = ($fsroot == '') || ($fsroot == '/') ? '' : DIRECTORY_SEPARATOR;
+		$config   = Factory::getConfiguration();
+		$fsroot   = $config->get('volatile.filesystem.current_root', '');
+		$ds       = ($fsroot == '') || ($fsroot == '/') ? '' : DIRECTORY_SEPARATOR;
 		$filename = $fsroot . $ds . $test;
 
 		// Get the timestamp of the file
@@ -136,7 +137,7 @@ class Incremental extends Base
 		// Compare it with the last backup timestamp and exclude if it's older than the last backup
 		if ($timestamp <= $last_backup)
 		{
-			//Factory::getLog()->log(LogLevel::DEBUG, "Excluding $filename due to incremental backup restrictions");
+			//Factory::getLog()->debug("Excluding $filename due to incremental backup restrictions");
 			return true;
 		}
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -12,10 +12,12 @@ defined('_JEXEC') or die();
 
 use Akeeba\Backup\Admin\Controller\Mixin\CustomACL;
 use Akeeba\Backup\Admin\Controller\Mixin\PredefinedTaskList;
-use Akeeba\Engine\Platform;
-use AliceUtilScripting;
+use Exception;
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
+use FOF30\Timer\Timer;
+use Joomla\CMS\Language\Text;
+use RuntimeException;
 
 /**
  * ALICE log analyzer controller
@@ -29,96 +31,86 @@ class Alice extends Controller
 		parent::__construct($container, $config);
 
 		$this->setPredefinedTaskList([
-			'main', 'ajax', 'domains', 'translate'
+			'main', 'start', 'step', 'result', 'error',
 		]);
 	}
 
 	/**
-	 * Execute a step through AJAX
+	 * Start scanning the log file. Calls step().
 	 *
-	 * @return  void
+	 * @throws Exception
+	 * @see  step()
+	 *
 	 */
-	public function ajax()
+	public function start()
 	{
+		// Make sure we have an anti-CSRF token
+		$this->csrfProtection = 3;
+		$this->csrfProtection();
+
+		// Reset the model state and tell which log file we'll be scanning
 		/** @var \Akeeba\Backup\Admin\Model\Alice $model */
 		$model = $this->getModel();
+		$model->reset($this->input->get('log', '', 'cmd'));
 
-		$model->setState('ajax', $this->input->get('ajax', '', 'cmd'));
-		$model->setState('log', $this->input->get('log', '', 'cmd'));
-
-		$ret_array = $model->runAnalysis();
-
-		@ob_end_clean();
-		header('Content-type: text/plain');
-		echo '###' . json_encode($ret_array) . '###';
-		flush();
-
-		$this->container->platform->closeApplication();
+		// Run the first step.
+		$this->step();
 	}
 
-	/**
-	 * Get a list of all the log analysis domain names
-	 *
-	 * @return  void
-	 */
-	public function domains()
+	public function step()
 	{
-		$return  = array();
-		$domains = AliceUtilScripting::getDomainChain();
+		// Make sure we have an anti-CSRF token
+		$this->csrfProtection = 3;
+		$this->csrfProtection();
 
-		foreach ($domains as $domain)
+		// Run a scanner step
+		/** @var \Akeeba\Backup\Admin\Model\Alice $model */
+		$model = $this->getModel();
+		$timer = new Timer(4, 75);
+
+		try
 		{
-			$return[] = array($domain['domain'], $domain['name']);
+			$finished = $model->analyze($timer);
+		}
+		catch (Exception $e)
+		{
+			// Error in the scanner: show the error page
+			$this->container->platform->setSessionVar('aliceException', $e, 'akeeba');
+			$this->setRedirect('index.php?option=com_akeeba&view=Alice&task=error');
+
+			return;
 		}
 
-		@ob_end_clean();
-		header('Content-type: text/plain');
-		echo '###' . json_encode($return) . '###';
-		flush();
+		if ($finished)
+		{
+			$this->getView()->setLayout('result');
+			$this->doTask = 'result';
+			$this->display(false, false);
 
-		$this->container->platform->closeApplication();
+			return;
+		}
+
+		$this->getView()->setLayout('step');
+		$this->display(false, false);
 	}
 
-	/**
-	 * Translates language key in English strings
-	 */
-	public function translate()
+	public function result()
 	{
-		$temp    = null;
-		$trans   = [];
-		$return  = [];
-		$strings = $this->input->getString('keys', '');
-		$strings = json_decode($strings);
+		$this->getView()->setLayout('result');
+		$this->display(false, false);
+	}
 
-		$lang = \JLanguage::getInstance('en-GB');
-		$lang->load('com_akeeba');
+	public function error()
+	{
+		// Don't use CRSF protection here. We check whether we have an error exception to display.
+		$exception = $this->container->platform->getSessionVar('aliceException', null, 'akeeba');
 
-		foreach ($strings as $string)
+		if (!is_object($exception) || !($exception instanceof Exception))
 		{
-			$temp['check'] = $lang->_($string->check);
-
-			// If I have an array, it means that I have to use sprintf to translate the error
-			if (is_array($string->error))
-			{
-				$trans[] = $lang->_($string->error[0]);
-				$args    = array_merge($trans, array_slice($string->error, 1));
-				$error   = call_user_func_array('sprintf', $args);
-			}
-			else
-			{
-				$error = $lang->_($string->error);
-			}
-
-			$temp['error'] = $error;
-
-			$return[] = $temp;
+			throw new RuntimeException(Text::_('JERROR_ALERTNOAUTHOR'), 403);
 		}
 
-		@ob_end_clean();
-		header('Content-type: text/plain');
-		echo '###' . json_encode($return) . '###';
-		flush();
-
-		$this->container->platform->closeApplication();
+		$this->getView()->setLayout('error');
+		$this->display(false, false);
 	}
 }

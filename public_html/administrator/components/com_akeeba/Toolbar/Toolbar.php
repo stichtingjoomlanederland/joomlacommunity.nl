@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -11,57 +11,14 @@ namespace Akeeba\Backup\Admin\Toolbar;
 defined('_JEXEC') or die();
 
 use FOF30\Toolbar\Toolbar as BaseToolbar;
+use JFactory;
+use JText;
 use JToolbar;
 use JToolbarHelper;
-use JText;
-use JFactory;
 
 class Toolbar extends BaseToolbar
 {
 	static $isJoomla3 = null;
-
-	protected function isJoomla3()
-	{
-		if (is_null(self::$isJoomla3))
-		{
-			self::$isJoomla3 = version_compare(JVERSION, '3.999.999', 'lt');
-		}
-
-		return self::$isJoomla3;
-	}
-
-	protected function setTitle($viewTitle)
-	{
-		$title = JText::_('COM_AKEEBA');
-
-		if ($this->isJoomla3())
-		{
-			$icon = 'akeeba';
-			$title .= ' <span style="display: none;"> - </span><small>';
-		}
-		else
-		{
-			$icon = 'akeeba-j4';
-			$title .= "<small> – ";
-		}
-
-		$title .= JText::_($viewTitle) . "</small>";
-
-		JToolbarHelper::title($title,$icon);
-	}
-
-	protected function backButton($label, $link)
-	{
-		if ($this->isJoomla3())
-		{
-			JToolbarHelper::back($label, $link);
-
-			return;
-		}
-
-		$bar = JToolbar::getInstance('toolbar');
-		$bar->appendButton('Link', 'chevron-left', $label, $link);
-	}
 
 	public function onAlices()
 	{
@@ -102,7 +59,10 @@ class Toolbar extends BaseToolbar
 
 		JToolbarHelper::spacer();
 
-		$bar->appendButton('Link', 'calendar', JText::_('COM_AKEEBA_SCHEDULE'), 'index.php?option=com_akeeba&view=Schedule');
+		if (AKEEBA_PRO)
+		{
+			$bar->appendButton('Link', 'calendar', JText::_('COM_AKEEBA_SCHEDULE'), 'index.php?option=com_akeeba&view=Schedule');
+		}
 
 		JToolbarHelper::spacer();
 		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/configuration.html');
@@ -155,7 +115,7 @@ JS;
 	{
 		$this->setTitle('COM_AKEEBA_FILEFILTERS');
 
-		JToolbarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_FILEFILTERS').'</small>','akeeba');
+		JToolbarHelper::title(JText::_('COM_AKEEBA') . ': <small>' . JText::_('COM_AKEEBA_FILEFILTERS') . '</small>', 'akeeba');
 		$this->backButton('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 		JToolbarHelper::spacer();
 		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/exclude-data-from-backup.html#files-and-directories-exclusion');
@@ -185,7 +145,7 @@ JS;
 
 		if (AKEEBA_PRO)
 		{
-			$bar = JToolbar::getInstance('toolbar');
+			$bar  = JToolbar::getInstance('toolbar');
 			$icon = $this->isJoomla3() ? 'restore' : 'search';
 			$bar->appendButton('Link', $icon, JText::_('COM_AKEEBA_DISCOVER'), 'index.php?option=com_akeeba&view=Discover');
 		}
@@ -196,7 +156,7 @@ JS;
 			'backup'    => $user->authorise('akeeba.backup', 'com_akeeba'),
 		];
 
-		if ($permissions['configure'])
+		if ($permissions['configure'] && AKEEBA_PRO)
 		{
 			JToolbarHelper::publish('restore', JText::_('COM_AKEEBA_BUADMIN_LABEL_RESTORE'));
 		}
@@ -359,8 +319,51 @@ JS;
 
 		$this->backButton('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 
-		$bar = JToolbar::getInstance('toolbar');
+		$bar  = JToolbar::getInstance('toolbar');
 		$icon = $this->isJoomla3() ? 'loop' : 'refresh';
 		$bar->appendButton('Link', $icon, 'COM_AKEEBA_TRANSFER_BTN_RESET', 'index.php?option=com_akeeba&view=Transfer&task=reset');
+	}
+
+	protected function isJoomla3()
+	{
+		if (is_null(self::$isJoomla3))
+		{
+			self::$isJoomla3 = version_compare(JVERSION, '3.999.999', 'lt');
+		}
+
+		return self::$isJoomla3;
+	}
+
+	protected function setTitle($viewTitle)
+	{
+		$title = JText::_('COM_AKEEBA');
+
+		if ($this->isJoomla3())
+		{
+			$icon  = 'akeeba';
+			$title .= ' <span style="display: none;"> - </span><small>';
+		}
+		else
+		{
+			$icon  = 'akeeba-j4';
+			$title .= "<small> – ";
+		}
+
+		$title .= JText::_($viewTitle) . "</small>";
+
+		JToolbarHelper::title($title, $icon);
+	}
+
+	protected function backButton($label, $link)
+	{
+		if ($this->isJoomla3())
+		{
+			JToolbarHelper::back($label, $link);
+
+			return;
+		}
+
+		$bar = JToolbar::getInstance('toolbar');
+		$bar->appendButton('Link', 'chevron-left', $label, $link);
 	}
 }

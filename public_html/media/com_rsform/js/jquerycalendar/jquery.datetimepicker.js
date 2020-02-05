@@ -494,7 +494,7 @@
 
 		scrollMonth: true,
 		scrollTime: true,
-		scrollInput: true,
+		scrollInput: false,
 
 		lazyInit: false,
 		mask: false,
@@ -1769,6 +1769,11 @@
 					input.val(_xdsoft_datetime.str());
 					if ((timerclick > 1 || (options.closeOnDateSelect === true || (options.closeOnDateSelect === 0 && !options.timepicker))) && !options.inline) {
 						datetimepicker.trigger('close.xdsoft');
+					}
+					
+					// if there is a startDate always set it to the current selection
+					if (options.startDate) {
+						datetimepicker.setOptions({startDate: currentTime});
 					}
 
 					datetimepicker.data('changed', true);

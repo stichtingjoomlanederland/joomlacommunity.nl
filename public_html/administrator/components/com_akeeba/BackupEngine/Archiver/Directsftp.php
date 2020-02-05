@@ -1,21 +1,19 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Archiver;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Util\Transfer\Sftp;
-use Psr\Log\LogLevel;
+use RuntimeException;
 
 /**
  * Direct Transfer Over SFTP archiver class
@@ -26,45 +24,37 @@ use Psr\Log\LogLevel;
  */
 class Directsftp extends Base
 {
-	/** @var Sftp SFTP resource handle */
-	private $sftpTransfer = false;
-
-	/** @var string SFTP hostname */
-	private $host;
-
-	/** @var string SFTP port */
-	private $port;
-
-	/** @var string SFTP username */
-	private $user;
-
-	/** @var string SFTP password */
-	private $pass;
-
-	/** @var string Private key file */
-	private $privkey;
-
-	/** @var string Private key file */
-	private $pubkey;
-
-	/** @var string FTP initial directory */
-	private $initdir;
-
 	/** @var bool Could we connect to the server? */
 	public $connect_ok = false;
+	/** @var Sftp SFTP resource handle */
+	private $sftpTransfer = false;
+	/** @var string SFTP hostname */
+	private $host;
+	/** @var string SFTP port */
+	private $port;
+	/** @var string SFTP username */
+	private $user;
+	/** @var string SFTP password */
+	private $pass;
+	/** @var string Private key file */
+	private $privkey;
+	/** @var string Private key file */
+	private $pubkey;
+	/** @var string FTP initial directory */
+	private $initdir;
 
 	/**
 	 * Initialises the archiver class, seeding the remote installation
 	 * from an existent installer's JPA archive.
 	 *
-	 * @param string $targetArchivePath Absolute path to the generated archive (ignored in this class)
-	 * @param array  $options           A named key array of options (optional)
+	 * @param   string  $targetArchivePath  Absolute path to the generated archive (ignored in this class)
+	 * @param   array   $options            A named key array of options (optional)
 	 *
 	 * @return  void
 	 */
-	public function initialize($targetArchivePath, $options = array())
+	public function initialize($targetArchivePath, $options = [])
 	{
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: new instance");
+		Factory::getLog()->debug(__CLASS__ . " :: new instance");
 
 		$registry = Factory::getConfiguration();
 
@@ -114,15 +104,15 @@ class Directsftp extends Base
 		// You can't fix stupid, but at least you get to shout at them
 		if (strtolower(substr($this->host, 0, 7)) == 'sftp://')
 		{
-			Factory::getLog()->log(LogLevel::WARNING, 'YOU ARE *** N O T *** SUPPOSED TO ENTER THE sftp:// PROTOCOL PREFIX IN THE FTP HOSTNAME FIELD OF THE DirectSFTP ARCHIVER ENGINE.');
-			Factory::getLog()->log(LogLevel::WARNING, 'I am trying to fix your bad configuration setting, but the backup might fail anyway. You MUST fix this in your configuration.');
+			Factory::getLog()->warning('YOU ARE *** N O T *** SUPPOSED TO ENTER THE sftp:// PROTOCOL PREFIX IN THE FTP HOSTNAME FIELD OF THE DirectSFTP ARCHIVER ENGINE.');
+			Factory::getLog()->warning('I am trying to fix your bad configuration setting, but the backup might fail anyway. You MUST fix this in your configuration.');
 
 			$this->host = substr($this->host, 7);
 		}
 
 		$this->connect_ok = $this->connectSFTP();
 
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: SFTP connection status: " . ($this->connect_ok ? 'success' : 'FAIL'));
+		Factory::getLog()->debug(__CLASS__ . " :: SFTP connection status: " . ($this->connect_ok ? 'success' : 'FAIL'));
 	}
 
 	/**
@@ -142,22 +132,60 @@ class Directsftp extends Base
 	}
 
 	/**
+	 * "Magic" function called just before serialization of the object. Disconnects
+	 * from the FTP server and allows PHP to serialize like normal.
+	 *
+	 * @return array The variables to serialize
+	 */
+	public function _onSerialize()
+	{
+		// Explicitally unset the sftpTransfer class so the destructor magic method is called (and the connection is closed)
+		unset($this->sftpTransfer);
+
+		return array_keys(get_object_vars($this));
+	}
+
+	/**
+	 * Tries to connect to the remote SFTP server and change into the initial directory
+	 *
+	 * @return bool True is connection successful, false otherwise
+	 */
+	protected function connectSFTP()
+	{
+		Factory::getLog()->debug('Connecting to remote SFTP server');
+
+		$options = [
+			'host'       => $this->host,
+			'port'       => $this->port,
+			'username'   => $this->user,
+			'password'   => $this->pass,
+			'directory'  => $this->initdir,
+			'privateKey' => $this->privkey,
+			'publicKey'  => $this->pubkey,
+		];
+
+		$this->sftpTransfer = new Sftp($options);
+
+		return true;
+	}
+
+	/**
 	 * The most basic file transaction: add a single entry (file or directory) to
 	 * the archive.
 	 *
-	 * @param bool   $isVirtual        If true, the next parameter contains file data instead of a file name
-	 * @param string $sourceNameOrData Absolute file name to read data from or the file data itself is $isVirtual is
-	 *                                 true
-	 * @param string $targetName       The (relative) file name under which to store the file in the archive
+	 * @param   bool    $isVirtual         If true, the next parameter contains file data instead of a file name
+	 * @param   string  $sourceNameOrData  Absolute file name to read data from or the file data itself is $isVirtual is
+	 *                                     true
+	 * @param   string  $targetName        The (relative) file name under which to store the file in the archive
 	 *
 	 * @return boolean True on success, false otherwise
 	 */
 	protected function _addFile($isVirtual, &$sourceNameOrData, $targetName)
 	{
 		// Are we connected to a server?
-		if ( !$this->sftpTransfer)
+		if (!$this->sftpTransfer)
 		{
-			if ( !$this->connectSFTP())
+			if (!$this->connectSFTP())
 			{
 				return false;
 			}
@@ -179,40 +207,10 @@ class Directsftp extends Base
 				// Create a temporary file, upload, rename it
 				$tempFileName = Factory::getTempFiles()->createRegisterTempFile();
 
-				if (function_exists('file_put_contents'))
+				// Easy writing using file_put_contents
+				if (@file_put_contents($tempFileName, $sourceNameOrData) === false)
 				{
-					// Easy writing using file_put_contents
-					if (@file_put_contents($tempFileName, $sourceNameOrData) === false)
-					{
-						$this->setError('Could not store virtual file ' . $targetName . ' to ' . $tempFileName . ' using file_put_contents() before uploading.');
-
-						return false;
-					}
-				}
-				else
-				{
-					// The long way, using fopen() and fwrite()
-					$fp = @fopen($tempFileName, 'wb');
-
-					if ($fp === false)
-					{
-						$this->setError('Could not store virtual file ' . $targetName . ' to ' . $tempFileName . ' using fopen() before uploading.');
-
-						return false;
-					}
-					else
-					{
-						$result = @fwrite($fp, $sourceNameOrData);
-
-						if ($result === false)
-						{
-							$this->setError('Could not store virtual file ' . $targetName . ' to ' . $tempFileName . ' using fwrite() before uploading.');
-
-							return false;
-						}
-
-						@fclose($fp);
-					}
+					throw new RuntimeException('Could not store virtual file ' . $targetName . ' to ' . $tempFileName . ' using file_put_contents() before uploading.');
 				}
 
 				// Upload the temporary file under the final name
@@ -231,51 +229,55 @@ class Directsftp extends Base
 		}
 	}
 
-	/**
-	 * "Magic" function called just before serialization of the object. Disconnects
-	 * from the FTP server and allows PHP to serialize like normal.
-	 *
-	 * @return array The variables to serialize
-	 */
-	public function _onSerialize()
+	protected function makeDirectory($dir)
 	{
-	    // Explicitally unset the sftpTransfer class so the destructor magic method is called (and the connection is closed)
-		unset($this->sftpTransfer);
+		$alldirs     = explode('/', $dir);
+		$previousDir = substr($this->initdir, -1) == '/' ? substr($this->initdir, 0, strlen($this->initdir) - 1) : $this->initdir;
+		$previousDir = substr($previousDir, 0, 1) == '/' ? $previousDir : '/' . $previousDir;
 
-		return array_keys(get_object_vars($this));
+		foreach ($alldirs as $curdir)
+		{
+			$check = $previousDir . '/' . $curdir;
+
+			if (!@$this->sftpTransfer->isDir($check))
+			{
+				if ($this->sftpTransfer->mkdir($check) === false)
+				{
+					throw new RuntimeException('Could not create directory ' . $check);
+				}
+			}
+
+			$previousDir = $check;
+		}
+
+		return true;
 	}
 
 	/**
-	 * Tries to connect to the remote SFTP server and change into the initial directory
+	 * Uploads a file to the remote server
 	 *
-	 * @return bool True is connection successful, false otherwise
+	 * @param $sourceName string The absolute path to the source local file
+	 * @param $targetName string The relative path to the targer remote file
+	 *
+	 * @return bool True if successful
 	 */
-	protected function connectSFTP()
+	protected function upload($sourceName, $targetName)
 	{
-		Factory::getLog()->log(LogLevel::DEBUG, 'Connecting to remote SFTP server');
+		// Try to change into the remote directory, possibly creating it if it doesn't exist
+		$dir = dirname($targetName);
 
-        $options = array(
-            'host'       => $this->host,
-            'port'       => $this->port,
-            'username'   => $this->user,
-            'password'   => $this->pass,
-            'directory'  => $this->initdir,
-            'privateKey' => $this->privkey,
-            'publicKey'  => $this->pubkey
-        );
+		if (!$this->sftp_chdir($dir))
+		{
+			return false;
+		}
 
-        try
-        {
-            $this->sftpTransfer = new Sftp($options);
-        }
-        catch(\RuntimeException $e)
-        {
-            $this->setWarning($e->getMessage());
+		// Upload
+		$realdir  = substr($this->initdir, -1) == '/' ? substr($this->initdir, 0, strlen($this->initdir) - 1) : $this->initdir;
+		$realdir  .= '/' . $dir;
+		$realdir  = substr($realdir, 0, 1) == '/' ? $realdir : '/' . $realdir;
+		$realname = $realdir . '/' . basename($targetName);
 
-            return false;
-        }
-
-		$this->resetErrors();
+		$this->sftpTransfer->upload($sourceName, $realname);
 
 		return true;
 	}
@@ -308,75 +310,11 @@ class Directsftp extends Base
 		if ($result === false)
 		{
 			// The directory doesn't exist, let's try to create it...
-			if ( !$this->makeDirectory($dir))
+			if (!$this->makeDirectory($dir))
 			{
 				return false;
 			}
 		}
-
-		return true;
-	}
-
-	protected function makeDirectory($dir)
-	{
-		$alldirs     = explode('/', $dir);
-		$previousDir = substr($this->initdir, -1) == '/' ? substr($this->initdir, 0, strlen($this->initdir) - 1) : $this->initdir;
-		$previousDir = substr($previousDir, 0, 1) == '/' ? $previousDir : '/' . $previousDir;
-
-		foreach ($alldirs as $curdir)
-		{
-			$check = $previousDir . '/' . $curdir;
-
-			if (!@$this->sftpTransfer->isDir($check))
-			{
-				if ($this->sftpTransfer->mkdir($check) === false)
-				{
-					$this->setError('Could not create directory ' . $check);
-
-					return false;
-				}
-			}
-
-			$previousDir = $check;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Uploads a file to the remote server
-	 *
-	 * @param $sourceName string The absolute path to the source local file
-	 * @param $targetName string The relative path to the targer remote file
-	 *
-	 * @return bool True if successful
-	 */
-	protected function upload($sourceName, $targetName)
-	{
-		// Try to change into the remote directory, possibly creating it if it doesn't exist
-		$dir = dirname($targetName);
-
-		if ( !$this->sftp_chdir($dir))
-		{
-			return false;
-		}
-
-		// Upload
-		$realdir = substr($this->initdir, -1) == '/' ? substr($this->initdir, 0, strlen($this->initdir) - 1) : $this->initdir;
-		$realdir .= '/' . $dir;
-		$realdir  = substr($realdir, 0, 1) == '/' ? $realdir : '/' . $realdir;
-		$realname = $realdir . '/' . basename($targetName);
-
-        try
-        {
-            $this->sftpTransfer->upload($sourceName, $realname);
-        }
-        catch(\RuntimeException $e)
-        {
-            $this->setWarning($e->getMessage());
-
-            return false;
-        }
 
 		return true;
 	}

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<extension version="3.8" type="file" method="upgrade">
+<extension version="3.9" type="file" method="upgrade">
 <name>nl-NL-rseventspro</name>
 <tag>nl-NL</tag>
-<version>1.12.7.1</version>
-<creationDate>2019-10-08</creationDate>
+<version>1.12.12.1</version>
+<creationDate>2020-02-02</creationDate>
 <author>Connecting Connections</author>
 <authorEmail>info@con-con.nl</authorEmail>
 <authorUrl>https://con-con.nl</authorUrl>
-<copyright>Copyright (C) 2007 - 2019. All rights reserved.</copyright>
+<copyright>Copyright (C) 2007 - 2020. All rights reserved.</copyright>
 <license>GNU/GPL http://www.gnu.org/licenses/gpl-3.0.html</license>
 <description><![CDATA[
   <div align="center">
@@ -38,7 +38,7 @@
 	    </tr>
 	    <tr>
 		    <td width="18%"><u><b>Vertaling voor versie:</b></u></td>
-		    <td width="80%">1.12.7.1</td>
+		    <td width="80%">1.12.12.1</td>
 	    </tr>
 	    <tr>
 		    <td width="100%" colspan="2">
@@ -67,6 +67,8 @@
 <filename>nl-NL.plg_finder_rseventspro.sys.ini</filename>
 <filename>nl-NL.plg_installer_rseventspro.ini</filename>
 <filename>nl-NL.plg_installer_rseventspro.sys.ini</filename>
+<filename>nl-NL.plg_privacy_rseventspro.ini</filename>
+<filename>nl-NL.plg_privacy_rseventspro.sys.ini</filename>
 <filename>nl-NL.plg_search_rseventspro.ini</filename>
 <filename>nl-NL.plg_search_rseventspro.sys.ini</filename>
 <filename>nl-NL.plg_system_rsepro2co.ini</filename>
@@ -99,27 +101,49 @@
 <filename>nl-NL.mod_rseventspro_calendar.sys.ini</filename>
 <filename>nl-NL.mod_rseventspro_cart.ini</filename>
 <filename>nl-NL.mod_rseventspro_cart.sys.ini</filename>
+<filename>nl-NL.mod_rseventspro_categories 2.ini</filename>
 <filename>nl-NL.mod_rseventspro_categories.ini</filename>
+<filename>nl-NL.mod_rseventspro_categories.sys 2.ini</filename>
 <filename>nl-NL.mod_rseventspro_categories.sys.ini</filename>
+<filename>nl-NL.mod_rseventspro_events 2.ini</filename>
 <filename>nl-NL.mod_rseventspro_events.ini</filename>
+<filename>nl-NL.mod_rseventspro_events.sys 2.ini</filename>
 <filename>nl-NL.mod_rseventspro_events.sys.ini</filename>
+<filename>nl-NL.mod_rseventspro_featured 2.ini</filename>
 <filename>nl-NL.mod_rseventspro_featured.ini</filename>
+<filename>nl-NL.mod_rseventspro_featured.sys 2.ini</filename>
 <filename>nl-NL.mod_rseventspro_featured.sys.ini</filename>
+<filename>nl-NL.mod_rseventspro_location 2.ini</filename>
 <filename>nl-NL.mod_rseventspro_location.ini</filename>
+<filename>nl-NL.mod_rseventspro_location.sys 2.ini</filename>
 <filename>nl-NL.mod_rseventspro_location.sys.ini</filename>
+<filename>nl-NL.mod_rseventspro_locations 2.ini</filename>
 <filename>nl-NL.mod_rseventspro_locations.ini</filename>
+<filename>nl-NL.mod_rseventspro_locations.sys 2.ini</filename>
 <filename>nl-NL.mod_rseventspro_locations.sys.ini</filename>
+<filename>nl-NL.mod_rseventspro_map 2.ini</filename>
 <filename>nl-NL.mod_rseventspro_map.ini</filename>
+<filename>nl-NL.mod_rseventspro_map.sys 2.ini</filename>
 <filename>nl-NL.mod_rseventspro_map.sys.ini</filename>
+<filename>nl-NL.mod_rseventspro_popular 2.ini</filename>
 <filename>nl-NL.mod_rseventspro_popular.ini</filename>
+<filename>nl-NL.mod_rseventspro_popular.sys 2.ini</filename>
 <filename>nl-NL.mod_rseventspro_popular.sys.ini</filename>
+<filename>nl-NL.mod_rseventspro_search 2.ini</filename>
 <filename>nl-NL.mod_rseventspro_search.ini</filename>
+<filename>nl-NL.mod_rseventspro_search.sys 2.ini</filename>
 <filename>nl-NL.mod_rseventspro_search.sys.ini</filename>
+<filename>nl-NL.mod_rseventspro_slider 2.ini</filename>
 <filename>nl-NL.mod_rseventspro_slider.ini</filename>
+<filename>nl-NL.mod_rseventspro_slider.sys 2.ini</filename>
 <filename>nl-NL.mod_rseventspro_slider.sys.ini</filename>
+<filename>nl-NL.mod_rseventspro_tags 2.ini</filename>
 <filename>nl-NL.mod_rseventspro_tags.ini</filename>
+<filename>nl-NL.mod_rseventspro_tags.sys 2.ini</filename>
 <filename>nl-NL.mod_rseventspro_tags.sys.ini</filename>
+<filename>nl-NL.mod_rseventspro_upcoming 2.ini</filename>
 <filename>nl-NL.mod_rseventspro_upcoming.ini</filename>
+<filename>nl-NL.mod_rseventspro_upcoming.sys 2.ini</filename>
 <filename>nl-NL.mod_rseventspro_upcoming.sys.ini</filename>
         </files>
       </fileset>

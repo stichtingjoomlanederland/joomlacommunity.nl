@@ -1,17 +1,15 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc\Connector\S3v4\Response;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 /**
  * S3 response error object
@@ -68,7 +66,7 @@ class Error
 	/**
 	 * Set the error code
 	 *
-	 * @param  int  $code  Set to zeroo or a negative value to clear errors
+	 * @param   int  $code  Set to zeroo or a negative value to clear errors
 	 *
 	 * @return  void
 	 */
@@ -97,7 +95,7 @@ class Error
 	/**
 	 * Set the error message
 	 *
-	 * @param  string  $message  The error message to set
+	 * @param   string  $message  The error message to set
 	 *
 	 * @return  void
 	 */

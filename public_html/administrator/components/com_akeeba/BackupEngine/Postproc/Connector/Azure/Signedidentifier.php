@@ -1,11 +1,10 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 /**
@@ -42,8 +41,9 @@
 
 namespace Akeeba\Engine\Postproc\Connector\Azure;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
+
+use Exception;
 
 /**
  * @category   Microsoft
@@ -69,26 +69,41 @@ class Signedidentifier
 	/**
 	 * Constructor
 	 *
-	 * @param string $id          Id for the signed identifier
-	 * @param string $start       The time at which the Shared Access Signature becomes valid.
-	 * @param string $expiry      The time at which the Shared Access Signature becomes invalid.
-	 * @param string $permissions Signed permissions - read (r), write (w), delete (d) and list (l)
+	 * @param   string  $id           Id for the signed identifier
+	 * @param   string  $start        The time at which the Shared Access Signature becomes valid.
+	 * @param   string  $expiry       The time at which the Shared Access Signature becomes invalid.
+	 * @param   string  $permissions  Signed permissions - read (r), write (w), delete (d) and list (l)
 	 */
 	public function __construct($id = '', $start = '', $expiry = '', $permissions = '')
 	{
-		$this->_data = array(
+		$this->_data = [
 			'id'          => $id,
 			'start'       => $start,
 			'expiry'      => $expiry,
-			'permissions' => $permissions
-		);
+			'permissions' => $permissions,
+		];
+	}
+
+	/**
+	 * Magic overload for getting properties
+	 *
+	 * @param   string  $name  Name of the property
+	 */
+	public function __get($name)
+	{
+		if (array_key_exists(strtolower($name), $this->_data))
+		{
+			return $this->_data[strtolower($name)];
+		}
+
+		throw new Exception("Unknown property: " . $name);
 	}
 
 	/**
 	 * Magic overload for setting properties
 	 *
-	 * @param string $name  Name of the property
-	 * @param string $value Value to set
+	 * @param   string  $name   Name of the property
+	 * @param   string  $value  Value to set
 	 */
 	public function __set($name, $value)
 	{
@@ -99,21 +114,6 @@ class Signedidentifier
 			return;
 		}
 
-		throw new \Exception("Unknown property: " . $name);
-	}
-
-	/**
-	 * Magic overload for getting properties
-	 *
-	 * @param string $name Name of the property
-	 */
-	public function __get($name)
-	{
-		if (array_key_exists(strtolower($name), $this->_data))
-		{
-			return $this->_data[strtolower($name)];
-		}
-
-		throw new \Exception("Unknown property: " . $name);
+		throw new Exception("Unknown property: " . $name);
 	}
 }

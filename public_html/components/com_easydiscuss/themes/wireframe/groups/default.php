@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -19,13 +19,19 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<div class="ed-forum__hd">
 					<div class="o-row">
 						<div class="o-col-sm o-col-sm--8">
-							<div class="ed-forum__hd-title">
-								<h2 class="ed-forum-item__title">
-									<a href="<?php echo EDR::getGroupsRoute($thread->group->id, 'listing'); ?>">
-										<img src="<?php echo $thread->group->getAvatar();?>" alt="<?php echo $this->html('string.escape', $thread->group->title);?>" width="24" />
-										<?php echo strtoupper($thread->group->title); ?>
+							<div class="o-flag">
+								<div class="o-flag__image o-flag--top">
+									<a href="<?php echo EDR::getGroupsRoute($thread->group->id, 'listing'); ?>" class="o-avatar o-avatar--md">
+										<img src="<?php echo $thread->group->getAvatar();?>" alt="<?php echo $this->html('string.escape', $thread->group->title);?>"  class="t-lg-mr--sm"/>
 									</a>
-								</h2>
+								</div>
+								<div class="o-flag__body">
+									<h2 class="ed-forum__hd-title">
+										<a href="<?php echo EDR::getGroupsRoute($thread->group->id, 'listing'); ?>">
+											<?php echo strtoupper($thread->group->title); ?>
+										</a>
+									</h2>
+								</div>
 							</div>
 						</div>
 						

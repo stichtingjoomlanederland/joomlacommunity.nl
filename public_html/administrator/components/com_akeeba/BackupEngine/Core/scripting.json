@@ -29,6 +29,7 @@
     "volatile.scripting.full.db.skipextradb": "0",
     "volatile.scripting.full.db.abstractnames": "1",
     "volatile.scripting.full.db.dropstatements": "0",
+    "volatile.scripting.full.db.delimiterstatements": "0",
     "volatile.scripting.full.core.createarchive": "1",
 
     "volatile.scripting.dbonly.chain": "init|packdb|finale",
@@ -38,6 +39,7 @@
     "volatile.scripting.dbonly.db.skipextradb": "1",
     "volatile.scripting.dbonly.db.abstractnames": "0",
     "volatile.scripting.dbonly.db.dropstatements": "1",
+    "volatile.scripting.dbonly.db.delimiterstatements": "1",
     "volatile.scripting.dbonly.core.forceextension": ".sql",
     "volatile.scripting.dbonly.core.createarchive": "0",
 
@@ -53,6 +55,7 @@
     "volatile.scripting.alldb.db.skipextradb": "0",
     "volatile.scripting.alldb.db.abstractnames": "1",
     "volatile.scripting.alldb.db.dropstatements": "0",
+    "volatile.scripting.alldb.db.delimiterstatements": "0",
     "volatile.scripting.alldb.db.finalizearchive": "1",
     "volatile.scripting.alldb.core.createarchive": "1",
 
@@ -67,6 +70,7 @@
     "volatile.scripting.incfull.db.skipextradb": "0",
     "volatile.scripting.incfull.db.abstractnames": "1",
     "volatile.scripting.incfull.db.dropstatements": "0",
+    "volatile.scripting.incfull.db.delimiterstatements": "0",
     "volatile.scripting.incfull.core.createarchive": "1",
     "volatile.scripting.incfull.filter.incremental": "1"
 }

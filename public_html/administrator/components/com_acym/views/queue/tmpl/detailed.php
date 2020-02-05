@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<div id="acym__queue" class="acym__content">
+?><div id="acym__queue" class="acym__content">
 	<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate>
 
         <?php
@@ -72,7 +63,7 @@ defined('_JEXEC') or die('Restricted access');
 						</div>
 					</div>
                     <?php foreach ($data["allElements"] as $row) { ?>
-						<div elementid="<?php echo acym_escape($row->id.'_'.$row->user_id); ?>" class="cell grid-x acym__listing__row">
+						<div data-acy-elementid="<?php echo acym_escape($row->id.'_'.$row->user_id); ?>" class="cell grid-x acym__listing__row">
 							<div class="cell large-2 medium-3">
                                 <?php echo acym_date($row->sending_date, 'j F Y H:i'); ?>
 							</div>
@@ -96,7 +87,7 @@ defined('_JEXEC') or die('Restricted access');
                                 <?php echo $row->try; ?>
 							</div>
 							<div class="cell medium-1 text-center">
-								<i class="fa fa-trash-o acym_toggle_delete acym_delete_queue" table="queue" method="deleteOne" elementid="<?php echo acym_escape($row->id.'_'.$row->user_id); ?>" confirmation="1"></i>
+								<i class="acymicon-trash-o acym_toggle_delete acym_delete_queue" data-acy-table="queue" data-acy-method="deleteOne" data-acy-elementid="<?php echo acym_escape($row->id.'_'.$row->user_id); ?>" confirmation="1"></i>
 							</div>
 						</div>
                     <?php } ?>

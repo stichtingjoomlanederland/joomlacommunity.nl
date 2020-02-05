@@ -1,18 +1,19 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc\Connector\Davclient;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
-
+use DOMDocument;
+use DOMElement;
+use DOMNode;
+use Exception;
+use InvalidArgumentException;
 
 /**
  * XML utilities for WebDAV
@@ -42,11 +43,11 @@ class Xml
 	 *
 	 * This function will return null if a nodetype other than an Element is passed.
 	 *
-	 * @param \DOMNode $dom
+	 * @param   DOMNode  $dom
 	 *
 	 * @return string
 	 */
-	static function toClarkNotation(\DOMNode $dom)
+	static function toClarkNotation(DOMNode $dom)
 	{
 
 		if ($dom->nodeType !== XML_ELEMENT_NODE)
@@ -74,23 +75,23 @@ class Xml
 	 *
 	 * If the string was invalid, it will throw an InvalidArgumentException.
 	 *
-	 * @param string $str
+	 * @param   string  $str
 	 *
-	 * @throws \InvalidArgumentException
 	 * @return array
+	 * @throws InvalidArgumentException
 	 */
 	static function parseClarkNotation($str)
 	{
 
 		if (!preg_match('/^{([^}]*)}(.*)$/', $str, $matches))
 		{
-			throw new \InvalidArgumentException('\'' . $str . '\' is not a valid clark-notation formatted string');
+			throw new InvalidArgumentException('\'' . $str . '\' is not a valid clark-notation formatted string');
 		}
 
-		return array(
+		return [
 			$matches[1],
-			$matches[2]
-		);
+			$matches[2],
+		];
 	}
 
 	/**
@@ -100,7 +101,7 @@ class Xml
 	 * This is unfortunately needed, because the DAV: namespace violates the xml namespaces
 	 * spec, and causes the DOM to throw errors
 	 *
-	 * @param string $xmlDocument
+	 * @param   string  $xmlDocument
 	 *
 	 * @return array|string|null
 	 */
@@ -118,18 +119,18 @@ class Xml
 	 * This method throws a Sabre\DAV\Exception\BadRequest exception for any xml errors.
 	 * It does not preserve whitespace, and it converts the DAV: namespace to urn:DAV.
 	 *
-	 * @param string $xml
+	 * @param   string  $xml
 	 *
-	 * @throws \Exception
+	 * @return DOMDocument
+	 * @throws Exception
 	 *
-	 * @return \DOMDocument
 	 */
 	static function loadDOMDocument($xml)
 	{
 
 		if (empty($xml))
 		{
-			throw new \Exception('Empty XML document sent');
+			throw new Exception('Empty XML document sent');
 		}
 
 		// The BitKinex client sends xml documents as UTF-16. PHP 5.3.1 (and presumably lower)
@@ -152,7 +153,7 @@ class Xml
 		// Clearing any previous errors
 		libxml_clear_errors();
 
-		$dom = new \DOMDocument();
+		$dom = new DOMDocument();
 
 		// We don't generally care about any whitespace
 		$dom->preserveWhiteSpace = false;
@@ -162,7 +163,7 @@ class Xml
 		if ($error = libxml_get_last_error())
 		{
 			libxml_clear_errors();
-			throw new \Exception('The request body had an invalid XML body. (message: ' . $error->message . ', errorcode: ' . $error->code . ', line: ' . $error->line . ')');
+			throw new Exception('The request body had an invalid XML body. (message: ' . $error->message . ', errorcode: ' . $error->code . ', line: ' . $error->line . ')');
 		}
 
 		// Restoring old mechanism for error handling
@@ -192,15 +193,15 @@ class Xml
 	 * When any of these properties are found, the unserialize() method will be
 	 * (statically) called. The result of this method is used as the value.
 	 *
-	 * @param \DOMElement $parentNode
-	 * @param array       $propertyMap
+	 * @param   DOMElement  $parentNode
+	 * @param   array       $propertyMap
 	 *
 	 * @return array
 	 */
-	static function parseProperties(\DOMElement $parentNode, array $propertyMap = array())
+	static function parseProperties(DOMElement $parentNode, array $propertyMap = [])
 	{
 
-		$propList = array();
+		$propList = [];
 		foreach ($parentNode->childNodes as $propNode)
 		{
 
@@ -221,7 +222,9 @@ class Xml
 				$propertyName = self::toClarkNotation($propNodeData);
 				if (isset($propertyMap[$propertyName]))
 				{
-					$propList[$propertyName] = call_user_func(array($propertyMap[$propertyName], 'unserializeNode'), $propNodeData);
+					$propList[$propertyName] = call_user_func([
+						$propertyMap[$propertyName], 'unserializeNode',
+					], $propNodeData);
 				}
 				else
 				{
@@ -233,9 +236,9 @@ class Xml
 		return $propList;
 	}
 
-	public static function unserializeNode(\DOMElement $dom)
+	public static function unserializeNode(DOMElement $dom)
 	{
-		$value = array();
+		$value = [];
 
 		foreach ($dom->childNodes as $child)
 		{

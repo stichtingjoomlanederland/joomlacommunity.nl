@@ -31,9 +31,11 @@ defined('_JEXEC') or die('Unauthorized Access');
 								</div>
 								<?php } ?>
 								<div class="o-flag__body">
-									<a class="ed-forum__hd-title" href="<?php echo EDR::getForumsRoute($thread->category->id); ?>">
-										<?php echo JString::strtoupper($thread->category->getTitle()); ?>
-									</a>
+									<h2 class="ed-forum__hd-title">
+										<a href="<?php echo EDR::getForumsRoute($thread->category->id); ?>">
+											<?php echo JString::strtoupper($thread->category->getTitle()); ?>
+										</a>
+									</h2>
 									<?php if ($thread->childs) { ?>
 										<div class="o-grid t-lg-mt--md">
 											<div class="o-grid__cell o-grid__cell--auto-size t-lg-pr--md t-fs--sm">
@@ -71,17 +73,17 @@ defined('_JEXEC') or die('Unauthorized Access');
 						<?php echo $this->output('site/forums/item', array('thread' => $thread->posts)); ?>
 					<?php } else { ?>
 						<div class="t-mt--xl is-empty">
-						  <div class="o-empty">
-							  <div class="o-empty__content">
-								  <i class="o-empty__icon fa fa-book"></i>
-								  <div class="o-empty__text"><?php echo JText::_('COM_EASYDISCUSS_FORUMS_CATEGORY_EMPTY_DISCUSSION_LIST'); ?></div>
-							  </div>
-						  </div>
+							<div class="o-empty">
+								<div class="o-empty__content">
+									<i class="o-empty__icon fa fa-book"></i>
+									<div class="o-empty__text"><?php echo JText::_('COM_EASYDISCUSS_FORUMS_CATEGORY_EMPTY_DISCUSSION_LIST'); ?></div>
+								</div>
+							</div>
 						</div>
 					<?php } ?>
 				</div>
 				<div class="ed-forum__ft">
-					<?php if ($thread->category->container || ($thread->posts && $this->my->id)) { ?>
+					<?php if ($thread->category->container || $thread->posts) { ?>
 					<ol class="t-lg-pull-left g-list-inline g-list-inline--dashed">
 						<?php if (!$thread->category->container) { ?>
 						<li>
@@ -101,11 +103,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 					</ol>
 					<?php } ?>
 
-					<?php if ($thread->posts) { ?>
 					<div class="t-lg-pull-right">
 						<?php echo JText::sprintf('COM_EASYDISCUSS_FORUMS_COUNT_POST', count($thread->posts), $thread->category->getTotalPosts()); ?>
 					</div>
-					<?php } ?>
 				</div>
 			</div>
 		<?php } ?>

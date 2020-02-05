@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class QueueController extends acymController
 {
@@ -23,6 +14,7 @@ class QueueController extends acymController
     public function campaigns()
     {
         acym_setVar('layout', 'campaigns');
+        $pagination = acym_get('helper.pagination');
 
         if (acym_level(1) && $this->config->get('cron_last', 0) < (time() - 43200)) {
             acym_enqueueMessage(acym_translation('ACYM_CREATE_CRON_REMINDER').' <a id="acym__queue__configure-cron" href="'.acym_completeLink('configuration&tab=queue').'">'.acym_translation('ACYM_GOTO_CONFIG').'</a>', 'warning');
@@ -32,7 +24,7 @@ class QueueController extends acymController
         $tagFilter = acym_getVar('string', 'cqueue_tag', '');
         $status = acym_getVar('string', 'cqueue_status', '');
 
-        $campaignsPerPage = acym_getCMSConfig('list_limit', 20);
+        $campaignsPerPage = $pagination->getListLimit();
         $page = acym_getVar('int', 'cqueue_pagination_page', 1);
 
         $queueClass = acym_get('class.queue');
@@ -48,7 +40,6 @@ class QueueController extends acymController
 
         $campaignClass = acym_get('class.campaign');
 
-        $pagination = acym_get('helper.pagination');
         $pagination->setStatus($matchingElements['total'], $page, $campaignsPerPage);
 
         $viewData = [
@@ -73,11 +64,12 @@ class QueueController extends acymController
     public function detailed()
     {
         acym_setVar("layout", "detailed");
+        $pagination = acym_get('helper.pagination');
 
         $searchFilter = acym_getVar('string', 'dqueue_search', '');
         $tagFilter = acym_getVar('string', 'dqueue_tag', '');
 
-        $elementsPerPage = acym_getCMSConfig('list_limit', 20);
+        $elementsPerPage = $pagination->getListLimit();
         $page = acym_getVar('int', 'dqueue_pagination_page', 1);
 
         $queueClass = acym_get('class.queue');
@@ -90,7 +82,6 @@ class QueueController extends acymController
             ]
         );
 
-        $pagination = acym_get('helper.pagination');
         $pagination->setStatus($matchingElements['total'], $page, $elementsPerPage);
 
         $viewData = [

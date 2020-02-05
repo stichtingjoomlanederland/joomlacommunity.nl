@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -10,6 +10,8 @@ namespace Akeeba\Backup\Admin\Model;
 // Protect from unauthorized access
 defined('_JEXEC') or die();
 
+use Akeeba\Backup\Admin\Model\Mixin\GetErrorsFromExceptions;
+use Akeeba\Engine\Archiver\Directftp;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
 use FOF30\Model\Model;
@@ -19,49 +21,28 @@ use JText;
 
 class Restore extends Model
 {
+	use GetErrorsFromExceptions;
+
+	/** @var   array  The backup record being restored */
 	private $data;
 
+	/** @var   string  The extension of the archive being restored */
 	private $extension;
 
+	/** @var   string  Absolute path to the archive being restored */
 	private $path;
 
+	/** @var   string  Random password, used to secure the restoration */
 	public $password;
-
-	public $id;
-
-	/**
-	 * Gets the list of IDs from the request data
-	 *
-	 * @return array
-	 */
-	protected function getIDsFromRequest()
-	{
-		// Get the ID or list of IDs from the request or the configuration
-		$cid = $this->input->get('cid', array(), 'array');
-		$id  = $this->input->getInt('id', 0);
-
-		$ids = array();
-
-		if (is_array($cid) && !empty($cid))
-		{
-			$ids = $cid;
-		}
-		elseif (!empty($id))
-		{
-			$ids = array($id);
-		}
-
-		return $ids;
-	}
 
 	/**
 	 * Generates a pseudo-random password
 	 *
-	 * @param   int $length The length of the password in characters
+	 * @param   int  $length  The length of the password in characters
 	 *
 	 * @return  string  The requested password string
 	 */
-	function makeRandomPassword($length = 32)
+	public function makeRandomPassword($length = 32)
 	{
 		\JLoader::import('joomla.user.helper');
 
@@ -134,7 +115,7 @@ class Restore extends Model
 		$lastdot   = strrpos($filename, '.');
 		$extension = strtoupper(substr($filename, $lastdot + 1));
 
-		if (!in_array($extension, array('JPS', 'JPA', 'ZIP')))
+		if (!in_array($extension, ['JPS', 'JPA', 'ZIP']))
 		{
 			return JText::_('COM_AKEEBA_RESTORE_ERROR_INVALID_TYPE');
 		}
@@ -180,7 +161,7 @@ class Restore extends Model
 	 *
 	 * @return  bool
 	 */
-	function createRestorationINI()
+	public function createRestorationINI()
 	{
 		// Get a password
 		$this->password = $this->makeRandomPassword(32);
@@ -198,7 +179,7 @@ class Restore extends Model
 		// Get min / max execution time
 		$min_exec = $this->getState('min_exec', 0, 'int');
 		$max_exec = $this->getState('max_exec', 5, 'int');
-		$bias	  = 75;
+		$bias     = 75;
 
 		$data = "<?php\ndefined('_AKEEBA_RESTORATION') or die();\n";
 		$data .= '$restoration_setup = array(' . "\n";
@@ -232,7 +213,7 @@ ENDDATA;
 		}
 
 		// If we're using the FTP or Hybrid engine we need to set up the FTP parameters
-		if (in_array($procengine, array('ftp', 'hybrid')))
+		if (in_array($procengine, ['ftp', 'hybrid']))
 		{
 			$ftp_host = $this->getState('ftp_host', '');
 			$ftp_port = $this->getState('ftp_port', '21');
@@ -242,7 +223,7 @@ ENDDATA;
 			$ftp_ssl  = $this->getState('ftp_ssl', 0);
 			$ftp_pasv = $this->getState('ftp_root', 1);
 			$tempdir  = $this->getState('tmp_path', '');
-			$data .= <<<ENDDATA
+			$data     .= <<<ENDDATA
 	,
 	'kickstart.ftp.ssl' => '$ftp_ssl',
 	'kickstart.ftp.passive' => '$ftp_pasv',
@@ -286,7 +267,7 @@ ENDDATA;
 
 		if (function_exists('wincache_refresh_if_changed'))
 		{
-			wincache_refresh_if_changed(array($configpath));
+			wincache_refresh_if_changed([$configpath]);
 		}
 
 		if (function_exists('xcache_asm'))
@@ -310,28 +291,29 @@ ENDDATA;
 			// FTP Connection test for DirectFTP
 			case 'testftp':
 				// Grab request parameters
-				$config = array(
+				$config = [
 					'host'    => $this->input->get('host', '', 'none', 2),
 					'port'    => $this->input->get('port', 21, 'int'),
 					'user'    => $this->input->get('user', '', 'none', 2),
 					'pass'    => $this->input->get('pass', '', 'none', 2),
 					'initdir' => $this->input->get('initdir', '', 'none', 2),
 					'usessl'  => $this->input->get('usessl', 'cmd') == 'true',
-					'passive' => $this->input->get('passive', 'cmd') == 'true'
-				);
+					'passive' => $this->input->get('passive', 'cmd') == 'true',
+				];
 
 				// Perform the FTP connection test
-				$test = new \Akeeba\Engine\Archiver\Directftp();
-				$test->initialize('', $config);
-				$errors = $test->getError();
-				if (empty($errors))
+				$test = new Directftp();
+
+				try
 				{
-					$result = true;
+					$test->initialize('', $config);
 				}
-				else
+				catch (\Exception $e)
 				{
-					$result = $errors;
+					return implode("\n", $this->getErrorsFromExceptions($e));
 				}
+
+				return true;
 				break;
 
 			// Unrecognized AJAX task
@@ -341,5 +323,31 @@ ENDDATA;
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Gets the list of IDs from the request data
+	 *
+	 * @return array
+	 */
+	protected function getIDsFromRequest()
+	{
+		// Get the ID or list of IDs from the request or the configuration
+		$cid = $this->input->get('cid', [], 'array');
+		$id  = $this->input->getInt('id', 0);
+
+		if (is_array($cid) && !empty($cid))
+		{
+			return array_unique(array_map(function ($x) {
+				return (int) $x;
+			}, $cid));
+		}
+
+		if (!empty($id))
+		{
+			return [$id];
+		}
+
+		return [];
 	}
 }

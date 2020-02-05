@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -10,10 +10,10 @@ namespace Akeeba\Engine\Driver;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Base\BaseObject;
 use Akeeba\Engine\Platform;
+use Exception;
 
-class Joomla extends BaseObject
+class Joomla
 {
 	/** @var Base The real database connection object */
 	private $dbo;
@@ -68,21 +68,23 @@ class Joomla extends BaseObject
 		}
 
 		$this->dbo = new $driver($options);
-
-		// Propagate errors
-		$this->propagateFromObject($this->dbo);
 	}
 
 	public function close()
 	{
-		if (method_exists($this->dbo, 'close'))
-		{
-			$this->dbo->close();
-		}
-		elseif (method_exists($this->dbo, 'disconnect'))
-		{
-			$this->dbo->disconnect();
-		}
+		/**
+		 * We should not, in fact, try to close the connection by calling the parent method.
+		 *
+		 * If you close the connection we ask PHP's mysql / mysqli / pdomysql driver to disconnect the MySQL connection
+		 * resource from the database server inside our instance of Akeeba Engine's database driver. However, this
+		 * identical resource is also present in Joomla's database driver. Joomla will also try to close the connection
+		 * to a now invalid resource, causing a PHP notice to be recorded.
+		 *
+		 * By setting the connection resource to null in our own driver object we prevent closing the resource,
+		 * delegating that responsibility to Joomla. It will gladly do so at the very least automatically, through its
+		 * db driver's __destruct.
+		 */
+		$this->dbo->setConnection(null);
 	}
 
 	public function open()
@@ -99,12 +101,14 @@ class Joomla extends BaseObject
 
 	/**
 	 * Magic method to proxy all calls to the loaded database driver object
+	 *
+	 * @throws  Exception
 	 */
 	public function __call($name, array $arguments)
 	{
 		if (is_null($this->dbo))
 		{
-			throw new \Exception('Akeeba Engine database driver is not loaded');
+			throw new Exception('Akeeba Engine database driver is not loaded');
 		}
 
 		if (method_exists($this->dbo, $name) || in_array($name, array('q', 'nq', 'qn')))
@@ -139,7 +143,7 @@ class Joomla extends BaseObject
 		}
 		else
 		{
-			throw new \Exception('Method ' . $name . ' not found in Akeeba Platform');
+			throw new Exception('Method ' . $name . ' not found in Akeeba Platform');
 		}
 	}
 
@@ -152,8 +156,11 @@ class Joomla extends BaseObject
 		else
 		{
 			$this->dbo->$name = null;
+
 			user_error('Database driver does not support property ' . $name);
 		}
+
+		return null;
 	}
 
 	public function __set($name, $value)

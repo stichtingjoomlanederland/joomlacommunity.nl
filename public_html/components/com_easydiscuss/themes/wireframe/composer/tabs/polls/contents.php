@@ -17,6 +17,13 @@ $choices = array();
 if ($poll && $poll->id) {
 	$choices = $poll->getChoices();
 }
+
+if (!$poll && isset($post->sessiondata) && $post->sessiondata) {
+	$dataPoll = $post->getInternalData('pollquestion');
+	$poll = ED::poll($dataPoll);
+	$choices = $post->getInternalData('polls');
+}
+
 ?>
 <div id="polls-<?php echo $editorId;?>" class="ed-editor-tab__content tab-pane">
 

@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class ListsController extends acymController
 {
@@ -17,11 +8,10 @@ class ListsController extends acymController
     {
         parent::__construct();
         $this->breadcrumb[acym_translation('ACYM_LISTS')] = acym_completeLink('lists');
-        $this->listClass = acym_get('class.list');
         $this->loadScripts = [
-            'settings' => ['colorpicker', 'vue-applications'],
-            'saveSubscribers' => ['colorpicker', 'vue-applications'],
-            'apply' => ['colorpicker', 'vue-applications'],
+            'settings' => ['colorpicker', 'vue-applications' => ['list_subscribers', 'entity_select']],
+            'saveSubscribers' => ['colorpicker', 'vue-applications' => ['list_subscribers', 'entity_select']],
+            'apply' => ['colorpicker', 'vue-applications' => ['list_subscribers', 'entity_select']],
         ];
     }
 
@@ -29,42 +19,16 @@ class ListsController extends acymController
     {
         acym_setVar('layout', 'listing');
 
-        $searchFilter = acym_getVar('string', 'lists_search', '');
-        $tagFilter = acym_getVar('string', 'lists_tag', '');
-        $ordering = acym_getVar('string', 'lists_ordering', 'id');
-        $status = acym_getVar('string', 'lists_status', '');
-        $format = acym_getVar('string', 'global_listingformat', 'list');
-        $orderingSortOrder = acym_getVar('string', 'lists_ordering_sort_order', 'desc');
+        $data = [];
+        $data['search'] = acym_getVar('string', 'lists_search', '');
+        $data['tag'] = acym_getVar('string', 'lists_tag', '');
+        $data['ordering'] = acym_getVar('string', 'lists_ordering', 'id');
+        $data['orderingSortOrder'] = acym_getVar('string', 'lists_ordering_sort_order', 'desc');
+        $data['status'] = acym_getVar('string', 'lists_status', '');
+        $data['tags'] = acym_get('class.tag')->getAllTagsByType('list');
+        $data['pagination'] = acym_get('helper.pagination');
 
-        $listsPerPage = acym_getCMSConfig('list_limit', 20);
-        $page = acym_getVar('int', 'lists_pagination_page', 1);
-
-        $requestData = [
-            'ordering' => $ordering,
-            'search' => $searchFilter,
-            'elementsPerPage' => $listsPerPage,
-            'offset' => ($page - 1) * $listsPerPage,
-            'tag' => $tagFilter,
-            'status' => $status,
-            'ordering_sort_order' => $orderingSortOrder,
-        ];
-        $matchingLists = $this->getMatchingElementsFromData($requestData, 'list', $status);
-
-        $pagination = acym_get('helper.pagination');
-        $pagination->setStatus($matchingLists['total'], $page, $listsPerPage);
-
-        $data = [
-            'lists' => $matchingLists['elements'],
-            'tags' => acym_get('class.tag')->getAllTagsByType('list'),
-            'pagination' => $pagination,
-            'search' => $searchFilter,
-            'tag' => $tagFilter,
-            'ordering' => $ordering,
-            'listNumberPerStatus' => $matchingLists['status'],
-            'status' => $status,
-            'format' => $format,
-            'orderingSortOrder' => $orderingSortOrder,
-        ];
+        $this->prepareListsListing($data);
 
         parent::display($data);
     }
@@ -72,112 +36,117 @@ class ListsController extends acymController
     public function settings()
     {
         acym_setVar('layout', 'settings');
+
+        $data = [];
+        $data['svg'] = acym_getSvg(ACYM_IMAGES.'loader.svg');
+
         $listId = acym_getVar('int', 'id', 0);
-        $welcomeId = acym_getVar('int', 'welcomemailid', 0);
-        $unsubId = acym_getVar('int', 'unsubmailid', 0);
-        $listTagsName = [];
-        $subscribers = [];
-        $subscribersEntitySelect = '';
 
-        $randColor = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+        if (!$this->prepareListSettings($data, $listId)) return;
+        $this->prepareTagsSettings($data, $listId);
+        $this->prepareSubscribersSettings($data, $listId);
+        $this->prepareSubscribersEntitySelect($data, $listId);
+        $this->prepareListStat($data, $listId);
+        $this->prepareWelcomeUnsubData($data);
 
-        if (!$listId) {
+        parent::display($data);
+    }
+
+    protected function prepareListsListing(&$data)
+    {
+        $listsPerPage = $data['pagination']->getListLimit();
+        $page = acym_getVar('int', 'lists_pagination_page', 1);
+
+        $matchingLists = $this->getMatchingElementsFromData(
+            [
+                'search' => $data['search'],
+                'tag' => $data['tag'],
+                'ordering' => $data['ordering'],
+                'ordering_sort_order' => $data['orderingSortOrder'],
+                'elementsPerPage' => $listsPerPage,
+                'offset' => ($page - 1) * $listsPerPage,
+                'status' => $data['status'],
+            ],
+            $data['status'],
+            $page
+        );
+        $data['pagination']->setStatus($matchingLists['total'], $page, $listsPerPage);
+
+        $data['lists'] = $matchingLists['elements'];
+        $data['listNumberPerStatus'] = $matchingLists['status'];
+    }
+
+    private function prepareListSettings(&$data, $listId)
+    {
+        if (empty($listId)) {
             $listInformation = new stdClass();
             $listInformation->id = '';
             $listInformation->name = '';
             $listInformation->active = 1;
             $listInformation->visible = 1;
+            $randColor = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
             $listInformation->color = '#'.$randColor[rand(0, 15)].$randColor[rand(0, 15)].$randColor[rand(0, 15)].$randColor[rand(0, 15)].$randColor[rand(0, 15)].$randColor[rand(0, 15)];
             $listInformation->subscribers = ['nbSubscribers' => 0, 'sendable' => 0];
             $listInformation->welcome_id = '';
             $listInformation->unsubscribe_id = '';
 
-            $listStats = ['deliveryRate' => 0, 'openRate' => 0, 'clickRate' => 0, 'failRate' => 0, 'bounceRate' => 0];
-            $tmplsData = [];
-
             $this->breadcrumb[acym_translation('ACYM_NEW_LIST')] = acym_completeLink('lists&task=settings');
         } else {
-
-            $listsTags = acym_get('class.tag')->getAllTagsByElementId('list', $listId);
-
-            foreach ($listsTags as $oneTag) {
-                $listTagsName[] = $oneTag;
-            }
-
-            $listInformation = $this->listClass->getOneById($listId);
+            $listInformation = $this->currentClass->getOneById($listId);
             if (is_null($listInformation)) {
                 acym_enqueueMessage(acym_translation('ACYM_LIST_DOESNT_EXIST'), 'error');
                 $this->listing();
 
-                return;
-            }
-
-            if (empty($listInformation->welcome_id) && !empty($welcomeId)) {
-                $listInformation->welcome_id = $welcomeId;
-                if (!$this->listClass->save($listInformation)) acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVE_LIST'), 'error');
-            }
-            if (empty($listInformation->unsubscribe_id) && !empty($unsubId)) {
-                $listInformation->unsubscribe_id = $unsubId;
-                if (!$this->listClass->save($listInformation)) acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVE_LIST'), 'error');
+                return false;
             }
 
             $listInformation->subscribers = ['nbSubscribers' => 0, 'sendable' => 0];
-            $subscribersCount = $this->listClass->getSubscribersCountPerStatusByListId([$listId]);
+            $subscribersCount = $this->currentClass->getSubscribersCountPerStatusByListId([$listId]);
             if (!empty($subscribersCount)) {
                 $listInformation->subscribers = [
                     'nbSubscribers' => $subscribersCount[0]->users,
                     'sendable' => $subscribersCount[0]->sendable,
                 ];
             }
-            $listStats = $this->prepareListStat($listId);
 
-            $tmplsData = $this->prepareWelcomeUnsubData($listInformation);
-
-            $this->breadcrumb[acym_escape($listInformation->name)] = acym_completeLink('lists&task=settings&id=').$listId;
-
-            $subscribers = $this->listClass->getSubscribersForList($listId, 0, 500, 1);
-            foreach ($subscribers as &$oneSub) {
-                $oneSub->subscription_date = acym_getDate($oneSub->subscription_date);
-            }
-            $subscribersEntitySelect = $this->getSubscribersEntitySelect($listId);
+            $this->breadcrumb[acym_escape($listInformation->name)] = acym_completeLink('lists&task=settings&id='.$listId);
         }
-        $svg = acym_getSvg(ACYM_IMAGES.'loader.svg');
 
-        $listData = [
-            'listInformation' => $listInformation,
-            'allTags' => acym_get('class.tag')->getAllTagsByType('list'),
-            'listTagsName' => $listTagsName,
-            'listStats' => $listStats,
-            'tmpls' => $tmplsData,
-            'subscribers' => $subscribers,
-            'svg' => $svg,
-            'subscribersEntitySelect' => $subscribersEntitySelect,
-            'requireConfirmation' => $this->config->get('require_confirmation', 0),
-        ];
+        $data['listInformation'] = $listInformation;
 
-        parent::display($listData);
+        return true;
     }
 
-    public function loadMoreSubscribers()
+    private function prepareTagsSettings(&$data, $listId)
     {
-        acym_checkToken();
-        $listId = acym_getVar('int', 'listid');
-        $offset = acym_getVar('int', 'offset');
-        $perCalls = acym_getVar('int', 'perCalls');
-        $status = acym_getVar('int', 'status');
-        $subscribers = $this->listClass->getSubscribersForList($listId, $offset, $perCalls, $status);
-        foreach ($subscribers as &$oneSub) {
+        $tagClass = acym_get('class.tag');
+        $data['allTags'] = $tagClass->getAllTagsByType('list');
+        $data['listTagsName'] = [];
+        $listsTags = $tagClass->getAllTagsByElementId('list', $listId);
+        foreach ($listsTags as $oneTag) {
+            $data['listTagsName'][] = $oneTag;
+        }
+    }
+
+    private function prepareSubscribersSettings(&$data, $listId)
+    {
+        $data['subscribers'] = $this->currentClass->getSubscribersForList($listId, 0, 500, 1);
+        foreach ($data['subscribers'] as &$oneSub) {
             $oneSub->subscription_date = acym_getDate($oneSub->subscription_date);
         }
-        echo json_encode(['data' => $subscribers]);
-        exit;
     }
 
-    public function getSubscribersEntitySelect($listId)
+    private function prepareSubscribersEntitySelect(&$data, $listId)
     {
+        if (empty($listId)) {
+            $data['subscribersEntitySelect'] = '';
+
+            return;
+        }
+
         $entityHelper = acym_get('helper.entitySelect');
 
-        return acym_modal(
+        $data['subscribersEntitySelect'] = acym_modal(
             acym_translation('ACYM_ADD_SUBSCRIPTION'),
             $entityHelper->entitySelect(
                 'user',
@@ -191,14 +160,68 @@ class ListsController extends acymController
             ),
             null,
             '',
-            'class="cell medium-shrink  auto margin-horizontal-1 button button-secondary acym__user__button"'
+            'class="cell medium-6 large-shrink button button-secondary"'
         );
+    }
+
+    private function prepareListStat(&$data, $listId)
+    {
+        $data['listStats'] = ['deliveryRate' => 0, 'openRate' => 0, 'clickRate' => 0, 'failRate' => 0, 'bounceRate' => 0];
+        if (empty($listId)) return;
+        $mails = $this->currentClass->getMailsByListId($listId);
+        if (empty($mails)) return;
+
+        $mailListClass = acym_get('class.mailstat');
+        $mailsStat = $mailListClass->getCumulatedStatsByMailIds($mails);
+
+        if (intval($mailsStat->sent) + intval($mailsStat->fails) === 0) return;
+
+        $totalSent = intval($mailsStat->sent) + intval($mailsStat->fails);
+        if (empty($mailsStat->open)) $mailsStat->open = 0;
+        if (empty($mailsStat->fails)) $mailsStat->fails = 0;
+        if (empty($mailsStat->bounces)) $mailsStat->bounces = 0;
+
+        $data['listStats']['openRate'] = number_format($mailsStat->open / $totalSent * 100, 2);
+        $data['listStats']['deliveryRate'] = number_format(($mailsStat->sent - $mailsStat->bounces) / $totalSent * 100, 2);
+        $data['listStats']['failRate'] = number_format($mailsStat->fails / $totalSent * 100, 2);
+        $data['listStats']['bounceRate'] = number_format($mailsStat->bounces / $totalSent * 100, 2);
+
+        $urlClickClass = acym_get('class.urlclick');
+        $nbClicks = $urlClickClass->getClickRateByMailIds($mails);
+        $data['listStats']['clickRate'] = number_format($nbClicks / $totalSent * 100, 2);
+    }
+
+    protected function prepareWelcomeUnsubData(&$data)
+    {
+        $data['tmpls'] = [];
+        if (empty($data['listInformation']->id)) return;
+
+        $mailClass = acym_get('class.mail');
+
+        foreach (['welcome' => 'welcome', 'unsubscribe' => 'unsub'] as $full => $short) {
+            $mailId = acym_getVar('int', $short.'mailid', 0);
+            if (empty($data['listInformation']->{$full.'_id'}) && !empty($mailId)) {
+                $data['listInformation']->{$full.'_id'} = $mailId;
+                $listInfoSave = clone $data['listInformation'];
+                unset($listInfoSave->subscribers);
+                if (!$this->currentClass->save($listInfoSave)) acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVE_LIST'), 'error');
+            }
+
+            $returnLink = acym_completeLink('lists&task=settings&id='.$data['listInformation']->id.'&edition=1&'.$short.'mailid={mailid}');
+            if (empty($data['listInformation']->{$full.'_id'})) {
+                $data['tmpls'][$short.'TmplUrl'] = acym_completeLink('mails&task=edit&step=editEmail&type='.$full.'&type_editor=acyEditor&return='.urlencode($returnLink));
+            } else {
+                $data['tmpls'][$short.'TmplUrl'] = acym_completeLink('mails&task=edit&id='.$data['listInformation']->{$full.'_id'}.'&return='.urlencode($returnLink));
+            }
+
+            $data['tmpls'][$full] = !empty($data['listInformation']->{$full.'_id'}) ? $mailClass->getOneById($data['listInformation']->{$full.'_id'}) : '';
+        }
     }
 
     public function unsetMail($type)
     {
         $id = acym_getVar('int', 'id', 0);
-        $list = $this->listClass->getOneById($id);
+        $list = $this->currentClass->getOneById($id);
 
         if (empty($list)) {
             acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVE_LIST'), 'error');
@@ -209,7 +232,7 @@ class ListsController extends acymController
 
         $list->$type = null;
 
-        if ($this->listClass->save($list)) {
+        if ($this->currentClass->save($list)) {
             acym_setVar('id', $id);
             $this->settings();
 
@@ -219,7 +242,7 @@ class ListsController extends acymController
             $this->listing();
 
             return;
-        };
+        }
     }
 
     public function unsetWelcome()
@@ -230,73 +253,6 @@ class ListsController extends acymController
     public function unsetUnsubscribe()
     {
         $this->unsetMail('unsubscribe_id');
-    }
-
-    protected function prepareListStat($listId)
-    {
-        $listStats = ['deliveryRate' => 0, 'openRate' => 0, 'clickRate' => 0, 'failRate' => 0, 'bounceRate' => 0];
-        $mails = $this->listClass->getMailsByListId($listId);
-        if (empty($mails)) return $listStats;
-
-        $mailListClass = acym_get('class.mailstat');
-        $mailsStat = $mailListClass->getCumulatedStatsByMailIds($mails);
-
-        if (empty(intval($mailsStat->sent) + intval($mailsStat->fails))) {
-            $openRate = 0;
-            $deliveryRate = 0;
-            $failRate = 0;
-            $bounceRate = 0;
-            $clickRate = 0;
-        } else {
-            $totalSent = intval($mailsStat->sent) + intval($mailsStat->fails);
-            if (empty($mailsStat->open)) $mailsStat->open = 0;
-            if (empty($mailsStat->fails)) $mailsStat->fails = 0;
-            if (empty($mailsStat->bounces)) $mailsStat->bounces = 0;
-
-            $openRate = $mailsStat->open / $totalSent * 100;
-            $deliveryRate = ($mailsStat->sent - $mailsStat->bounces) / $totalSent * 100;
-            $failRate = $mailsStat->fails / $totalSent * 100;
-            $bounceRate = $mailsStat->bounces / $totalSent * 100;
-
-            $urlClickClass = acym_get('class.urlclick');
-            $nbClicks = $urlClickClass->getClickRateByMailIds($mails);
-            $clickRate = $nbClicks / $totalSent * 100;
-        }
-
-        $listStats['openRate'] = number_format($openRate, 2);
-        $listStats['deliveryRate'] = number_format($deliveryRate, 2);
-        $listStats['failRate'] = number_format($failRate, 2);
-        $listStats['bounceRate'] = number_format($bounceRate, 2);
-        $listStats['clickRate'] = number_format($clickRate, 2);
-
-        return $listStats;
-    }
-
-    protected function prepareWelcomeUnsubData($listInformation)
-    {
-        $mailClass = acym_get('class.mail');
-
-        $returnWelcome = acym_completeLink('lists&task=settings&id='.$listInformation->id.'&edition=1&welcomemailid={mailid}');
-        if (empty($listInformation->welcome_id)) {
-            $welcomeTmplUrl = acym_completeLink('mails&task=edit&step=editEmail&type=welcome&type_editor=acyEditor&return='.urlencode($returnWelcome));
-        } else {
-            $welcomeTmplUrl = acym_completeLink('mails&task=edit&id='.$listInformation->welcome_id).'&return='.urlencode($returnWelcome);
-        }
-        $returnUnsub = acym_completeLink('lists&task=settings&id='.$listInformation->id.'&edition=1&unsubmailid={mailid}');
-        if (empty($listInformation->unsubscribe_id)) {
-            $unsubTmplUrl = acym_completeLink('mails&task=edit&step=editEmail&type=unsubscribe&type_editor=acyEditor&return='.urlencode($returnUnsub));
-        } else {
-            $unsubTmplUrl = acym_completeLink('mails&task=edit&id='.$listInformation->unsubscribe_id.'&return='.urlencode($returnUnsub));
-        }
-
-        $tmplsData = [
-            'welcome' => !empty($listInformation->welcome_id) ? $mailClass->getOneById($listInformation->welcome_id) : '',
-            'unsubscribe' => !empty($listInformation->unsubscribe_id) ? $mailClass->getOneById($listInformation->unsubscribe_id) : '',
-            'welcomeTmplUrl' => $welcomeTmplUrl,
-            'unsubTmplUrl' => $unsubTmplUrl,
-        ];
-
-        return $tmplsData;
     }
 
     public function apply()
@@ -328,7 +284,7 @@ class ListsController extends acymController
 
         $listInformation->tags = acym_getVar('array', 'list_tags', []);
 
-        $listId = $this->listClass->save($listInformation);
+        $listId = $this->currentClass->save($listInformation);
 
         if (!empty($listId)) {
             acym_setVar('id', $listId);
@@ -336,8 +292,8 @@ class ListsController extends acymController
             $this->_saveSubscribersTolist();
         } else {
             acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING'), 'error');
-            if (!empty($this->listClass->errors)) {
-                acym_enqueueMessage($this->listClass->errors, 'error');
+            if (!empty($this->currentClass->errors)) {
+                acym_enqueueMessage($this->currentClass->errors, 'error');
             }
         }
         if ($goToListing) {
@@ -345,14 +301,6 @@ class ListsController extends acymController
         } else {
             return $this->settings();
         }
-    }
-
-    public function deleteOne()
-    {
-        $listId = acym_getVar('int', 'id');
-        $this->listClass->delete($listId);
-
-        return $this->listing();
     }
 
     private function _saveSubscribersTolist()
@@ -392,7 +340,7 @@ class ListsController extends acymController
         $ids = acym_getVar('array', 'elements_checked', []);
 
         if (!empty($ids)) {
-            $this->listClass->setVisible($ids, 1);
+            $this->currentClass->setVisible($ids, 1);
         }
 
         $this->listing();
@@ -404,10 +352,25 @@ class ListsController extends acymController
         $ids = acym_getVar('array', 'elements_checked', []);
 
         if (!empty($ids)) {
-            $this->listClass->setVisible($ids, 0);
+            $this->currentClass->setVisible($ids, 0);
         }
 
         $this->listing();
+    }
+
+    public function loadMoreSubscribers()
+    {
+        acym_checkToken();
+        $listId = acym_getVar('int', 'listid');
+        $offset = acym_getVar('int', 'offset');
+        $perCalls = acym_getVar('int', 'perCalls');
+        $status = acym_getVar('int', 'status');
+        $subscribers = $this->currentClass->getSubscribersForList($listId, $offset, $perCalls, $status);
+        foreach ($subscribers as &$oneSub) {
+            $oneSub->subscription_date = acym_getDate($oneSub->subscription_date);
+        }
+        echo json_encode(['data' => $subscribers]);
+        exit;
     }
 
     public function setAjaxListing()
@@ -420,12 +383,9 @@ class ListsController extends acymController
         $matchingListsData->idsSelected = json_decode(acym_getVar('string', 'selectedLists'));
         $matchingListsData->idsAlready = json_decode(acym_getVar('string', 'alreadyLists'));
         $matchingListsData->page = acym_getVar('int', 'pagination_page_ajax');
+        if (empty($matchingListsData->page)) $matchingListsData->page = 1;
         $matchingListsData->needDisplaySub = acym_getVar('int', 'needDisplaySub');
         $matchingListsData->displayNonActive = acym_getVar('int', 'nonActive');
-        if (empty($matchingListsData->page)) {
-            $matchingListsData->page = 1;
-        }
-
 
         $params = [
             'ordering' => $matchingListsData->ordering,
@@ -439,7 +399,7 @@ class ListsController extends acymController
             $params['ids'] = $matchingListsData->idsSelected;
         }
 
-        $lists = $this->listClass->getListsWithIdNameCount($params);
+        $lists = $this->currentClass->getListsWithIdNameCount($params);
 
         $return = '';
 
@@ -448,9 +408,8 @@ class ListsController extends acymController
         }
 
         foreach ($lists['lists'] as $list) {
-            if (!empty($matchingListsData->displayNonActive) && $list->active == 0) {
-                continue;
-            }
+            if (!empty($matchingListsData->displayNonActive) && $list->active == 0) continue;
+
             $return .= '<div class="grid-x modal__pagination__listing__lists__in-form__list cell">';
 
             $return .= '<div class="cell shrink"><input type="checkbox" id="modal__pagination__listing__lists__list'.acym_escape($list->id).'" value="'.acym_escape($list->id).'" class="modal__pagination__listing__lists__list--checkbox" name="lists_checked[]"';
@@ -459,7 +418,7 @@ class ListsController extends acymController
                 $return .= 'checked';
             }
 
-            $return .= '></div><i class="cell shrink fa fa-circle" style="color:'.acym_escape($list->color).'"></i><label class="cell auto" for="modal__pagination__listing__lists__list'.acym_escape($list->id).'"> ';
+            $return .= '></div><i class="cell shrink acymicon-circle" style="color:'.acym_escape($list->color).'"></i><label class="cell auto" for="modal__pagination__listing__lists__list'.acym_escape($list->id).'"> ';
 
             $return .= '<span class="modal__pagination__listing__lists__list-name">'.acym_escape($list->name).'</span>';
 
@@ -486,18 +445,18 @@ class ListsController extends acymController
 
         $subscribedListsIds = explode(',', $subscribedListsIds);
 
-        $allLists = $this->listClass->getListsByIds($subscribedListsIds);
+        $allLists = $this->currentClass->getListsByIds($subscribedListsIds);
 
         foreach ($allLists as $list) {
             $echo .= '<div class="grid-x cell acym__listing__row">
                         <div class="grid-x medium-5 cell acym__users__display__list__name">
-                            <i class="cell shrink fa fa-circle" style="color:'.$list->color.'"></i>
+                            <i class="cell shrink acymicon-circle" style="color:'.$list->color.'"></i>
                             <h6 class="cell auto">'.$list->name.'</h6>
                         </div>
                         <div class="medium-2 hide-for-small-only cell text-center acym__users__display__subscriptions__opening"></div>
                         <div class="medium-2 hide-for-small-only cell text-center acym__users__display__subscriptions__clicking"></div>
                         <div id="'.$list->id.'" class="medium-3 cell acym__users__display__list--action acym__user__action--remove">
-                            <i class="fa fa-times-circle"></i>
+                            <i class="acymicon-times-circle"></i>
                             <span>'.acym_translation('ACYM_REMOVE').'</span>
                         </div>
                     </div>';

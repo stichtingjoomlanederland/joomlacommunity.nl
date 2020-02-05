@@ -28,7 +28,7 @@
         "description": "COM_AKEEBA_CONFIG_GOOGLESTORAGESECRETKEY_DESCRIPTION"
     },
     "engine.postproc.googlestorage.usessl": {
-        "default": "0",
+        "default": "1",
         "type": "bool",
         "title": "COM_AKEEBA_CONFIG_GOOGLESTORAGEUSESSL_TITLE",
         "description": "COM_AKEEBA_CONFIG_GOOGLESTORAGEUSESSL_DESCRIPTION"

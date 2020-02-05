@@ -169,6 +169,6 @@ class RSFormProYUICalendar
 		$calendarIds = array_keys($this->calendarOptions[$formId]);
 		$calendarIds = json_encode($calendarIds);
 
-		return "RSFormPro.callbacks.addCallback({$formId}, 'changePage', [RSFormPro.YUICalendar.hideAllPopupCalendars, {$formId}, {$calendarIds}]);";
+		return "RSFormPro.callbacks.addCallback({$formId}, 'changePage', [RSFormPro.YUICalendar.hideAllPopupCalendars, {$formId}, {$calendarIds}]); RSFormPro.YUICalendar.hideOnClick({$formId}, {$calendarIds});";
 	}
 }

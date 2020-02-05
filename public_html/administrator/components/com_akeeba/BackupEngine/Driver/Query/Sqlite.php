@@ -1,11 +1,10 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 /**
@@ -18,8 +17,10 @@
 
 namespace Akeeba\Engine\Driver\Query;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
+
+use PDO;
+use stdClass;
 
 /**
  * SQLite Query Building Class.
@@ -50,30 +51,30 @@ class Sqlite extends Base implements Preparable, Limitable
 	 * @var    mixed
 	 * @since  1.0
 	 */
-	protected $bounded = array();
+	protected $bounded = [];
 
 	/**
 	 * Method to add a variable to an internal array that will be bound to a prepared SQL statement before query execution. Also
 	 * removes a variable that has been bounded from the internal bounded array when the passed in value is null.
 	 *
-	 * @param   string|integer  $key            The key that will be used in your SQL query to reference the value. Usually of
-	 *                                          the form ':key', but can also be an integer.
-	 * @param   mixed           &$value         The value that will be bound. The value is passed by reference to support output
-	 *                                          parameters such as those possible with stored procedures.
-	 * @param   integer         $dataType       Constant corresponding to a SQL datatype.
-	 * @param   integer         $length         The length of the variable. Usually required for OUTPUT parameters.
-	 * @param   array           $driverOptions  Optional driver options to be used.
+	 * @param   string|integer   $key            The key that will be used in your SQL query to reference the value. Usually of
+	 *                                           the form ':key', but can also be an integer.
+	 * @param   mixed           &$value          The value that will be bound. The value is passed by reference to support output
+	 *                                           parameters such as those possible with stored procedures.
+	 * @param   integer          $dataType       Constant corresponding to a SQL datatype.
+	 * @param   integer          $length         The length of the variable. Usually required for OUTPUT parameters.
+	 * @param   array            $driverOptions  Optional driver options to be used.
 	 *
 	 * @return  Sqlite  Returns this object to allow chaining.
 	 *
 	 * @since   1.0
 	 */
-	public function bind($key = null, &$value = null, $dataType = \PDO::PARAM_STR, $length = 0, $driverOptions = array())
+	public function bind($key = null, &$value = null, $dataType = PDO::PARAM_STR, $length = 0, $driverOptions = [])
 	{
 		// Case 1: Empty Key (reset $bounded array)
 		if (empty($key))
 		{
-			$this->bounded = array();
+			$this->bounded = [];
 
 			return $this;
 		}
@@ -89,11 +90,11 @@ class Sqlite extends Base implements Preparable, Limitable
 			return $this;
 		}
 
-		$obj = new \stdClass;
+		$obj = new stdClass;
 
-		$obj->value = &$value;
-		$obj->dataType = $dataType;
-		$obj->length = $length;
+		$obj->value         = &$value;
+		$obj->dataType      = $dataType;
+		$obj->length        = $length;
 		$obj->driverOptions = $driverOptions;
 
 		// Case 3: Simply add the Key/Value into the bounded array
@@ -162,7 +163,7 @@ class Sqlite extends Base implements Preparable, Limitable
 		switch ($clause)
 		{
 			case null:
-				$this->bounded = array();
+				$this->bounded = [];
 				break;
 		}
 
@@ -235,7 +236,7 @@ class Sqlite extends Base implements Preparable, Limitable
 	 */
 	public function setLimit($limit = 0, $offset = 0)
 	{
-		$this->limit = (int) $limit;
+		$this->limit  = (int) $limit;
 		$this->offset = (int) $offset;
 
 		return $this;

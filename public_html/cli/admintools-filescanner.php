@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -10,31 +10,48 @@ use Akeeba\AdminTools\Site\Model\Scans;
 use FOF30\Container\Container;
 use Joomla\CMS\Factory;
 
+// Boilerplate -- START
 define('_JEXEC', 1);
 
-// Setup and import the base CLI script
-$minphp = '5.6.0';
-$curdir = getcwd();
-
-if (!@file_exists($curdir . '/' . basename(__FILE__)))
+foreach ([__DIR__, getcwd()] as $curdir)
 {
-	$curdir = __DIR__;
+	if (file_exists($curdir . '/defines.php'))
+	{
+		define('JPATH_BASE', realpath($curdir . '/..'));
+		require_once $curdir . '/defines.php';
+
+		break;
+	}
+
+	if (file_exists($curdir . '/../includes/defines.php'))
+	{
+		define('JPATH_BASE', realpath($curdir . '/..'));
+		require_once $curdir . '/../includes/defines.php';
+
+		break;
+	}
 }
 
-require_once $curdir . '/../administrator/components/com_admintools/assets/cli/base.php';
+defined('JPATH_LIBRARIES') || die ('This script must be placed in or run from the cli folder of your site.');
+
+require_once JPATH_LIBRARIES . '/fof30/Cli/Application.php';
+// Boilerplate -- END
 
 // Enable Akeeba Engine
 define('AKEEBAENGINE', 1);
 
+// Load the version file
+require_once JPATH_ADMINISTRATOR . '/components/com_admintools/version.php';
+
 /**
  * Admin Tools File Alteration Monitor (PHP File Change Scanner) CLI application
  */
-class AdminToolsFAM extends AdmintoolsCliBase
+class AdminToolsFAM extends FOFApplicationCLI
 {
 	/**
 	 * The main entry point of the application
 	 */
-	public function execute()
+	public function doExecute()
 	{
 		// Load the language files
 		$paths = [JPATH_ADMINISTRATOR, JPATH_ROOT];
@@ -212,7 +229,4 @@ ENDSTEPINFO;
 	}
 }
 
-// Load the version file
-require_once JPATH_ADMINISTRATOR . '/components/com_admintools/version.php';
-
-AdmintoolsCliBase::getInstance('AdminToolsFAM')->execute();
+FOFApplicationCLI::getInstance('AdminToolsFAM')->execute();

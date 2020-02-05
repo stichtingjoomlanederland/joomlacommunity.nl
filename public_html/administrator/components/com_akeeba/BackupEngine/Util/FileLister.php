@@ -1,31 +1,29 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Util;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Factory;
 
 /* Windows system detection */
-if ( !defined('_AKEEBA_IS_WINDOWS'))
+if (!defined('_AKEEBA_IS_WINDOWS'))
 {
+	$isWindows = DIRECTORY_SEPARATOR == '\\';
+
 	if (function_exists('php_uname'))
 	{
-		define('_AKEEBA_IS_WINDOWS', stristr(php_uname(), 'windows'));
+		$isWindows = stristr(php_uname(), 'windows');
 	}
-	else
-	{
-		define('_AKEEBA_IS_WINDOWS', DIRECTORY_SEPARATOR == '\\');
-	}
+
+	define('_AKEEBA_IS_WINDOWS', $isWindows);
 }
 
 /**
@@ -36,10 +34,10 @@ class FileLister
 	public function &getFiles($folder, $fullpath = false)
 	{
 		// Initialize variables
-		$arr   = array();
+		$arr   = [];
 		$false = false;
 
-		if ( !is_dir($folder) && !is_dir($folder . '/'))
+		if (!is_dir($folder) && !is_dir($folder . '/'))
 		{
 			return $false;
 		}
@@ -70,7 +68,7 @@ class FileLister
 				$isLink = @is_link($dir);
 
 				//if (!$isDir || ($isDir && $isLink && !$dereferencesymlinks) ) {
-				if ( !$isDir)
+				if (!$isDir)
 				{
 					if ($fullpath)
 					{
@@ -95,10 +93,10 @@ class FileLister
 	public function &getFolders($folder, $fullpath = false)
 	{
 		// Initialize variables
-		$arr   = array();
+		$arr   = [];
 		$false = false;
 
-		if ( !is_dir($folder) && !is_dir($folder . '/'))
+		if (!is_dir($folder) && !is_dir($folder . '/'))
 		{
 			return $false;
 		}

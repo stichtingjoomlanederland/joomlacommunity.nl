@@ -37,16 +37,23 @@ defined('_JEXEC') or die('Restricted access');
 		<div class="ed-forum__bd">
 			<?php echo $this->output('site/forums/item', array('thread' => $thread->posts)); ?>
 		</div>
+
 		<div class="ed-forum__ft">
+			<div class="t-lg-pull-right">
+				<?php echo JText::sprintf('COM_EASYDISCUSS_FORUMS_COUNT_POST', count($thread->posts), $thread->category->getTotalPosts()); ?>
+			</div>
 		</div>
 	</div>
 	<?php } ?>
 
 <?php } else { ?>
 	<div class="ed-forum">
-		<div class="ed-forum__hd">
-			<div class="o-row">
-				<?php echo JText::_('COM_EASYDISCUSS_FORUMS_EMPTY_THREAD');?>
+		<div class="ed-forum__empty t-mt--xl is-empty">
+			<div class="o-empty">
+				<div class="o-empty__content">
+					<i class="o-empty__icon fa fa-book"></i>
+					<div class="o-empty__text"><?php echo JText::_('COM_EASYDISCUSS_FORUMS_EMPTY_THREAD');?></div>
+				</div>
 			</div>
 		</div>
 	</div>

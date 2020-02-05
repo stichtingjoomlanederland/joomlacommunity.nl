@@ -1,359 +1,191 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Factory;
-use Akeeba\Engine\Platform;
 use Akeeba\Engine\Postproc\Connector\GoogleStorage as ConnectorGoogleStorage;
-use Psr\Log\LogLevel;
+use Akeeba\Engine\Postproc\Exception\BadConfiguration;
+use Akeeba\Engine\Postproc\Exception\RangeDownloadNotSupported;
+use Exception;
+use RuntimeException;
 
 class Googlestoragejson extends Base
 {
-	/** @var int The retry count of this file (allow up to 2 retries after the first upload failure) */
+	/**
+	 * The retry count of this file (allow up to 2 retries after the first upload failure)
+	 *
+	 * @var int
+	 */
 	private $tryCount = 0;
 
-	/** @var ConnectorGoogleStorage The Google Drive API instance */
-	private $connector;
-
-	/** @var string The currently configured bucket */
+	/**
+	 * The currently configured bucket
+	 *
+	 * @var string
+	 */
 	private $bucket;
 
-	/** @var string The currently configured directory */
+	/**
+	 * The currently configured directory
+	 *
+	 * @var string
+	 */
 	private $directory;
 
-	/** @var bool Are we using chunk uploads? */
-	private $chunked = false;
+	/**
+	 * Are we using chunk uploads?
+	 *
+	 * @var bool
+	 */
+	private $isChunked = false;
 
-	/** @var int Chunk size (MB) */
-	private $chunk_size = 10;
+	/**
+	 * Chunk size (MB)
+	 *
+	 * @var int
+	 */
+	private $chunkSize = 10;
 
-	/** @var array The decoded Google Cloud JSON configuration file */
-	private $config = array();
+	/**
+	 * The decoded Google Cloud JSON configuration file
+	 *
+	 * @var array
+	 */
+	private $config = [];
 
 	public function __construct()
 	{
-		$this->can_download_to_browser = false;
-		$this->can_delete = true;
-		$this->can_download_to_file = true;
+		$this->supportsDownloadToBrowser = false;
+		$this->supportsDelete            = true;
+		$this->supportsDownloadToFile    = true;
 	}
 
-	/**
-	 * This function takes care of post-processing a backup archive's part, or the
-	 * whole backup archive if it's not a split archive type. If the process fails
-	 * it should return false. If it succeeds and the entirety of the file has been
-	 * processed, it should return true. If only a part of the file has been uploaded,
-	 * it must return 1.
-	 *
-	 * @param   string $absolute_filename Absolute path to the part we'll have to process
-	 * @param   string $upload_as         Base name of the uploaded file, skip to use $absolute_filename's
-	 *
-	 * @return  boolean|integer  False on failure, true on success, 1 if more work is required
-	 */
-	public function processPart($absolute_filename, $upload_as = null)
+	public function processPart($localFilepath, $remoteBaseName = null)
 	{
-		// Make sure we can get a connector object
-		$validSettings = $this->initialiseConnector();
-
-		if ($validSettings === false)
+		if ($this->tryCount >= 2)
 		{
-			return false;
+			throw new RuntimeException(sprintf(
+				"%s - Maximum number of retries exceeded. The upload has failed. Check the log file for more information.",
+				__METHOD__
+			), 500);
 		}
+
+		// Do NOT remove. This is necessary to set up $this->directory used below.
+		/** @var ConnectorGoogleStorage $connector */
+		$connector = $this->getConnector();
+
+		/**
+		 * Store the absolute remote path in the object property.
+		 *
+		 * Something interesting. When the directory is empty (saving at the bucket's root) we MUST NOT use a slash
+		 * prefix. This means that the remotePath /foobar.jpa IS WRONG. The correct is foobar.jpa without a leading
+		 * slash. Hence the $directoryGlue variable below.
+		 */
+		$directory        = $this->directory;
+		$basename         = empty($remoteBaseName) ? basename($localFilepath) : $remoteBaseName;
+		$directoryGlue    = empty($directory) ? '' : '/';
+		$this->remotePath = $directory . $directoryGlue . $basename;
 
 		// Get a reference to the engine configuration
 		$config = Factory::getConfiguration();
 
-		// Store the absolute remote path in the class property
-		$directory         = $this->directory;
-		$basename          = empty($upload_as) ? basename($absolute_filename) : $upload_as;
-		$this->remote_path = $directory . '/' . $basename;
-
 		// Check if the size of the file is compatible with chunked uploading
 		clearstatcache();
-		$totalSize   = filesize($absolute_filename);
-		$isBigEnough = $this->chunked ? ($totalSize > $this->chunk_size) : false;
+		$totalSize   = filesize($localFilepath);
+		$isBigEnough = $this->isChunked ? ($totalSize > $this->chunkSize) : false;
 
 		// Chunked uploads if the feature is enabled and the file is at least as big as the chunk size.
-		if ($this->chunked && $isBigEnough)
+		if ($this->isChunked && $isBigEnough)
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Using chunked upload, part size {$this->chunk_size}");
-
-			$offset    = $config->get('volatile.engine.postproc.googlestoragejson.offset', 0);
-			$upload_id = $config->get('volatile.engine.postproc.googlestoragejson.upload_id', null);
-
-			if (empty($upload_id))
-			{
-				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Creating new upload session");
-
-				try
-				{
-					$upload_id = $this->connector->createUploadSession($this->bucket, $this->remote_path, $absolute_filename);
-				}
-				catch (\Exception $e)
-				{
-					$this->setWarning("The upload session for remote file {$this->remote_path} cannot be created. Debug info: #" . $e->getCode() . ' – ' . $e->getMessage());
-
-					return false;
-				}
-
-				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - New upload session $upload_id");
-				$config->set('volatile.engine.postproc.googlestoragejson.upload_id', $upload_id);
-			}
-
-			try
-			{
-				if (empty($offset))
-				{
-					$offset = 0;
-				}
-
-				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Uploading chunked part");
-
-				$result = $this->connector->uploadPart($upload_id, $absolute_filename, $offset, $this->chunk_size);
-
-				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Got uploadPart result " . print_r($result, true));
-			}
-			catch (\Exception $e)
-			{
-				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Got uploadPart Exception " . $e->getCode() . ': ' . $e->getMessage());
-
-				$this->setWarning($e->getMessage());
-
-				$result = false;
-			}
-
-			// Did we fail uploading?
-			if ($result === false)
-			{
-				// Let's retry
-				$this->tryCount++;
-
-				// However, if we've already retried twice, we stop retrying and call it a failure
-				if ($this->tryCount > 2)
-				{
-					Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Maximum number of retries exceeded. The upload has failed.");
-
-					return false;
-				}
-
-				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Error detected, retrying chunk upload");
-
-				return -1;
-			}
-
-			// Are we done uploading?
-			$nextOffset = $offset + $this->chunk_size - 1;
-
-			if (isset($result['name']) || ($nextOffset > $totalSize))
-			{
-				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Chunked upload is now complete");
-
-				$config->set('volatile.engine.postproc.googlestoragejson.offset', null);
-				$config->set('volatile.engine.postproc.googlestoragejson.upload_id', null);
-
-				return true;
-			}
-
-			// Otherwise, continue uploading
-			$config->set('volatile.engine.postproc.googlestoragejson.offset', $offset + $this->chunk_size);
-
-			return -1;
+			return $this->multipartUpload($localFilepath, $totalSize);
 		}
 
 		// Single part upload
-		try
-		{
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Performing simple upload.");
-
-			$result = $this->connector->simpleUpload($this->bucket, $this->remote_path, $absolute_filename);
-		}
-		catch (\Exception $e)
-		{
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Simple upload failed, " . $e->getCode() . ": " . $e->getMessage());
-
-			$this->setWarning($e->getMessage());
-
-			$result = false;
-		}
-
-		if ($result === false)
-		{
-			// Let's retry
-			$this->tryCount++;
-
-			// However, if we've already retried twice, we stop retrying and call it a failure
-			if ($this->tryCount > 2)
-			{
-				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Maximum number of retries exceeded. The upload has failed.");
-
-				return false;
-			}
-
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Error detected, retrying upload");
-
-			return -1;
-		}
-
-		// Upload complete. Reset the retry counter.
-		$this->tryCount = 0;
-
-		return true;
+		return $this->simpleUpload($localFilepath);
 	}
 
-	/**
-	 * Downloads a remote file to a local file, optionally doing a range download. If the
-	 * download fails we return false. If the download succeeds we return true. If range
-	 * downloads are not supported, -1 is returned and nothing is written to disk.
-	 *
-	 * @param $remotePath string The path to the remote file
-	 * @param $localFile  string The absolute path to the local file we're writing to
-	 * @param $fromOffset int|null The offset (in bytes) to start downloading from
-	 * @param $length     int|null The amount of data (in bytes) to download
-	 *
-	 * @return bool|int True on success, false on failure, -1 if ranges are not supported
-	 */
 	public function downloadToFile($remotePath, $localFile, $fromOffset = null, $length = null)
 	{
-		// Get settings
-		$settings = $this->initialiseConnector();
-
-		if ($settings === false)
-		{
-			return false;
-		}
-
 		if (!is_null($fromOffset))
 		{
 			// Ranges are not supported
-			return -1;
+			throw new RangeDownloadNotSupported();
 		}
+
+		/** @var ConnectorGoogleStorage $connector */
+		$connector = $this->getConnector();
 
 		// Download the file
-		try
-		{
-			$this->connector->download($this->bucket, $remotePath, $localFile);
-		}
-		catch (\Exception $e)
-		{
-			$this->setWarning($e->getMessage());
-
-			return false;
-		}
-
-		return true;
+		$connector->download($this->bucket, $remotePath, $localFile);
 	}
 
 	public function delete($path)
 	{
-		// Get settings
-		$settings = $this->initialiseConnector();
+		/** @var ConnectorGoogleStorage $connector */
+		$connector = $this->getConnector();
 
-		if ($settings === false)
-		{
-			return false;
-		}
-
-		try
-		{
-			$this->connector->delete($this->bucket, $path, true);
-		}
-		catch (\Exception $e)
-		{
-			$this->setWarning($e->getMessage());
-
-			return false;
-		}
-
-		return true;
+		$connector->delete($this->bucket, $path, true);
 	}
 
-	/**
-	 * Initialises the Google Storage connector object
-	 *
-	 * @return  bool  True on success, false if we cannot proceed
-	 */
-	protected function initialiseConnector()
+	protected function makeConnector()
 	{
 		// Retrieve engine configuration data
 		$config = Factory::getConfiguration();
 
-		if (!$this->canReadJsonConfig())
-		{
-			return false;
-		}
+		// Try to load and parse the Google JSON configuration
+		$this->parseJsonConfig();
 
-		$this->chunked    = $config->get('engine.postproc.googlestoragejson.chunk_upload', true);
-		$this->chunk_size = $config->get('engine.postproc.googlestoragejson.chunk_upload_size', 10) * 1024 * 1024;
+		$this->isChunked  = $config->get('engine.postproc.googlestoragejson.chunk_upload', true);
+		$this->chunkSize  = $config->get('engine.postproc.googlestoragejson.chunk_upload_size', 10) * 1024 * 1024;
 		$this->bucket     = $config->get('engine.postproc.googlestoragejson.bucket', null);
-		$this->directory  = $config->get('volatile.postproc.directory', null);
-
-		if (empty($this->directory))
-		{
-			$this->directory = $config->get('engine.postproc.googlestoragejson.directory', '');
-		}
+		$defaultDirectory = $config->get('engine.postproc.googlestoragejson.directory', '');
+		$this->directory  = $config->get('volatile.postproc.directory', $defaultDirectory);
 
 		// Environment checks
 		if (!function_exists('curl_init'))
 		{
-			$this->setWarning('cURL is not enabled, please enable it in order to post-process your archives');
-
-			return false;
+			throw new BadConfiguration('cURL is not enabled, please enable it in order to post-process your archives');
 		}
 
 		if (!function_exists('openssl_sign') || !function_exists('openssl_get_md_methods'))
 		{
-			$this->setWarning('The PHP module for OpenSSL integration is not enabled or openssl_sign() is disabled. Please contact your host and ask them to fix this issue for the version of PHP you are currently using on your site (PHP reports itself as version ' . PHP_VERSION . ').');
-
-			return false;
+			throw new BadConfiguration('The PHP module for OpenSSL integration is not enabled or openssl_sign() is disabled. Please contact your host and ask them to fix this issue for the version of PHP you are currently using on your site (PHP reports itself as version ' . PHP_VERSION . ').');
 		}
 
 		$openSSLAlgos = openssl_get_md_methods(true);
 
 		if (!in_array('sha256WithRSAEncryption', $openSSLAlgos))
 		{
-			$this->setWarning('The PHP module for OpenSSL integration does not support the sha256WithRSAEncryption signature algorithm. Please ask your host to compile BOTH a newer version of the OpenSSL library AND the OpenSSL module for PHP against this (new) OpenSSL library for the version of PHP you are currently using on your site (PHP reports itself as version ' . PHP_VERSION . ').');
-
-			return false;
-
+			throw new BadConfiguration('The PHP module for OpenSSL integration does not support the sha256WithRSAEncryption signature algorithm. Please ask your host to compile BOTH a newer version of the OpenSSL library AND the OpenSSL module for PHP against this (new) OpenSSL library for the version of PHP you are currently using on your site (PHP reports itself as version ' . PHP_VERSION . ').');
 		}
 
 		// Fix the directory name, if required
-		if (!empty($this->directory))
-		{
-			$this->directory = trim($this->directory);
-			$this->directory = ltrim(Factory::getFilesystemTools()->TranslateWinPath($this->directory), '/');
-		}
-		else
-		{
-			$this->directory = '';
-		}
-
-		// Parse tags
+		$this->directory = empty($this->directory) ? '' : $this->directory;
+		$this->directory = trim($this->directory);
+		$this->directory = ltrim(Factory::getFilesystemTools()->TranslateWinPath($this->directory), '/');
 		$this->directory = Factory::getFilesystemTools()->replace_archive_name_variables($this->directory);
 		$config->set('volatile.postproc.directory', $this->directory);
 
-		$this->connector = new ConnectorGoogleStorage($this->config['client_email'], $this->config['private_key']);
-
-		return true;
+		return new ConnectorGoogleStorage($this->config['client_email'], $this->config['private_key']);
 	}
 
 	/**
-	 * Tries to read the Google Cloud JSON credentials from the configuration. If something doesn't work out it will
-	 * return false.
+	 * Tries to read the Google Cloud JSON credentials from the configuration.
 	 *
-	 * @return  bool
+	 * @return  void
+	 *
+	 * @throws  RuntimeException  If the JSON credentials are missing or can not  be parsed.
 	 */
-	protected function canReadJsonConfig()
+	private function parseJsonConfig()
 	{
 		$config = Factory::getConfiguration();
 
@@ -397,12 +229,8 @@ class Googlestoragejson extends Base
 		if (!$hasJsonConfig)
 		{
 			$this->config = [];
-			$this->setWarning('You have not provided a valid Google Cloud JSON configuration (googlestorage.json) in the configuration page. As a result I cannot upload anything to Google Storage. Please fix this issue and try backing up again.');
-
-			return false;
+			throw new RuntimeException('You have not provided a valid Google Cloud JSON configuration (googlestorage.json) in the configuration page. As a result I cannot connect to Google Storage.');
 		}
-
-		return true;
 	}
 
 	/**
@@ -438,9 +266,175 @@ class Googlestoragejson extends Base
 		// Recode the private key
 		$innerPK = trim(substr($pk, 27, -25));
 		$innerPK = implode("\\n", str_split($innerPK, 64));
-		$pk   = "-----BEGIN PRIVATE KEY-----\\n" . $innerPK ."\\n-----END PRIVATE KEY-----";
+		$pk      = "-----BEGIN PRIVATE KEY-----\\n" . $innerPK . "\\n-----END PRIVATE KEY-----";
+		$pk      = str_replace("\\n\\n", "\\n", $pk);
 
 		// Assemble a usable JSON string
 		return rtrim(substr($jsonConfig, 0, $startPos)) . $pk . ltrim(substr($jsonConfig, $endPos));
+	}
+
+	/**
+	 * Performs a multipart (chunked) upload.
+	 *
+	 * @param   string  $localFilepath  The path to the local file we'll be uploading.
+	 * @param   int     $totalSize      The total size of the file, in bytes.
+	 *
+	 * @return  bool  True if the upload is complete, false if more work is necessary
+	 * @throws  Exception  If an upload error occurs
+	 */
+	private function multipartUpload($localFilepath, $totalSize)
+	{
+		/** @var ConnectorGoogleStorage $connector */
+		$connector = $this->getConnector();
+
+		// Get a reference to the engine configuration
+		$config = Factory::getConfiguration();
+
+		Factory::getLog()->debug(sprintf(
+			"%s - Using chunked upload, part size %d",
+			__METHOD__, $this->chunkSize
+		));
+
+		$offset    = $config->get('volatile.engine.postproc.googlestoragejson.offset', 0);
+		$upload_id = $config->get('volatile.engine.postproc.googlestoragejson.upload_id', null);
+
+		if (empty($upload_id))
+		{
+			Factory::getLog()->debug(sprintf(
+				"%s - Creating new upload session",
+				__METHOD__
+			));
+
+			try
+			{
+				$storageClass = $config->get('engine.postproc.googlestoragejson.storageclass', null, false);
+				$upload_id    = $connector->createUploadSession($this->bucket, $this->remotePath, $localFilepath, $storageClass);
+			}
+			catch (Exception $e)
+			{
+				// Note: do not pass the parent exception; it's a simple RuntimeException
+				throw new RuntimeException(sprintf("The upload session for remote file %s cannot be created", $this->remotePath));
+			}
+
+			Factory::getLog()->debug(sprintf(
+				"%s - New upload session $upload_id",
+				__METHOD__
+			));
+
+			$config->set('volatile.engine.postproc.googlestoragejson.upload_id', $upload_id);
+		}
+
+		try
+		{
+			if (empty($offset))
+			{
+				$offset = 0;
+			}
+
+			Factory::getLog()->debug(sprintf(
+				"%s - Uploading chunked part",
+				__METHOD__
+			));
+
+			$result = $connector->uploadPart($upload_id, $localFilepath, $offset, $this->chunkSize);
+
+			Factory::getLog()->debug(sprintf(
+				"%s - Got uploadPart result %s",
+				__METHOD__, print_r($result, true)
+			));
+		}
+		catch (Exception $e)
+		{
+			Factory::getLog()->debug(sprintf(
+				"%s - Got uploadPart Exception %s: %s",
+				__METHOD__, $e->getCode(), $e->getMessage()
+			));
+
+			// Let's retry
+			$this->tryCount++;
+
+			// However, if we've already retried twice, we stop retrying and call it a failure
+			if ($this->tryCount > 2)
+			{
+				throw new RuntimeException(sprintf(
+					"%s - Maximum number of retries exceeded. The upload has failed.",
+					__METHOD__
+				), 500, $e);
+			}
+
+			Factory::getLog()->debug(sprintf(
+				"%s - Error detected, retrying chunk upload",
+				__METHOD__
+			));
+
+			return false;
+		}
+
+		// Are we done uploading?
+		$nextOffset = $offset + $this->chunkSize - 1;
+
+		if (isset($result['name']) || ($nextOffset > $totalSize))
+		{
+			Factory::getLog()->debug(sprintf(
+				"%s - Chunked upload is now complete", __METHOD__
+			));
+
+			$config->set('volatile.engine.postproc.googlestoragejson.offset', null);
+			$config->set('volatile.engine.postproc.googlestoragejson.upload_id', null);
+
+			$this->tryCount = 0;
+
+			return true;
+		}
+
+		// Otherwise, continue uploading
+		$config->set('volatile.engine.postproc.googlestoragejson.offset', $offset + $this->chunkSize);
+
+		return false;
+	}
+
+	/**
+	 * Performs a single part upload
+	 *
+	 * @param   string  $localFilepath
+	 *
+	 * @return  bool  True if the upload is complete, false if more work is necessary
+	 * @throws  Exception  If an upload error occurs
+	 */
+	private function simpleUpload($localFilepath)
+	{
+		/** @var ConnectorGoogleStorage $connector */
+		$connector = $this->getConnector();
+
+		try
+		{
+			Factory::getLog()->debug(sprintf("%s - Performing simple upload.", __METHOD__));
+
+			$storageClass = Factory::getConfiguration()->get('engine.postproc.googlestoragejson.storageclass', null, false);
+
+			$connector->simpleUpload($this->bucket, $this->remotePath, $localFilepath, $storageClass);
+		}
+		catch (Exception $e)
+		{
+			Factory::getLog()->debug(sprintf("%s - Simple upload failed, %s: %s", __METHOD__, $e->getCode(), $e->getMessage()));
+
+			// Let's retry
+			$this->tryCount++;
+
+			// However, if we've already retried twice, we stop retrying and call it a failure
+			if ($this->tryCount > 2)
+			{
+				throw new RuntimeException(sprintf("%s - Maximum number of retries exceeded. The upload has failed.", __METHOD__), 500, $e);
+			}
+
+			Factory::getLog()->debug(sprintf("%s - Error detected, retrying upload", __METHOD__));
+
+			return false;
+		}
+
+		// Upload complete. Reset the retry counter.
+		$this->tryCount = 0;
+
+		return true;
 	}
 }

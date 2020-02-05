@@ -1,17 +1,15 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Util;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 /**
  * Generic Buffer stream handler
@@ -41,14 +39,14 @@ class Buffer
 	 *
 	 * @var    array
 	 */
-	public $_buffers = array();
+	public $_buffers = [];
 
 	/**
 	 * Function to open file or url
 	 *
-	 * @param   string  $path           The URL that was passed
-	 * @param   string  $mode           Mode used to open the file @see fopen
-	 * @param   integer $options        Flags used by the API, may be STREAM_USE_PATH and
+	 * @param   string   $path          The URL that was passed
+	 * @param   string   $mode          Mode used to open the file @see fopen
+	 * @param   integer  $options       Flags used by the API, may be STREAM_USE_PATH and
 	 *                                  STREAM_REPORT_ERRORS
 	 * @param   string  &$opened_path   Full path of the resource. Used with STREAM_USE_PATH option
 	 *
@@ -58,10 +56,10 @@ class Buffer
 	 */
 	public function stream_open($path, $mode, $options, &$opened_path)
 	{
-		$url = parse_url($path);
-		$this->name = $url["host"];
+		$url                         = parse_url($path);
+		$this->name                  = $url["host"];
 		$this->_buffers[$this->name] = null;
-		$this->position = 0;
+		$this->position              = 0;
 
 		return true;
 	}
@@ -69,7 +67,7 @@ class Buffer
 	/**
 	 * Read stream
 	 *
-	 * @param   integer $count How many bytes of data from the current position should be returned.
+	 * @param   integer  $count  How many bytes of data from the current position should be returned.
 	 *
 	 * @return  mixed    The data from the stream up to the specified number of bytes (all data if
 	 *                   the total number of bytes in the stream is less than $count. Null if
@@ -79,7 +77,7 @@ class Buffer
 	 */
 	public function stream_read($count)
 	{
-		$ret = substr($this->_buffers[$this->name], $this->position, $count);
+		$ret            = substr($this->_buffers[$this->name], $this->position, $count);
 		$this->position += strlen($ret);
 
 		return $ret;
@@ -88,7 +86,7 @@ class Buffer
 	/**
 	 * Write stream
 	 *
-	 * @param   string $data The data to write to the stream.
+	 * @param   string  $data  The data to write to the stream.
 	 *
 	 * @return  integer
 	 *
@@ -96,10 +94,10 @@ class Buffer
 	 */
 	public function stream_write($data)
 	{
-		$left = substr($this->_buffers[$this->name], 0, $this->position);
-		$right = substr($this->_buffers[$this->name], $this->position + strlen($data));
+		$left                        = substr($this->_buffers[$this->name], 0, $this->position);
+		$right                       = substr($this->_buffers[$this->name], $this->position + strlen($data));
 		$this->_buffers[$this->name] = $left . $data . $right;
-		$this->position += strlen($data);
+		$this->position              += strlen($data);
 
 		return strlen($data);
 	}
@@ -131,8 +129,8 @@ class Buffer
 	/**
 	 * The read write position updates in response to $offset and $whence
 	 *
-	 * @param   integer $offset    The offset in bytes
-	 * @param   integer $whence    Position the offset is added to
+	 * @param   integer  $offset   The offset in bytes
+	 * @param   integer  $whence   Position the offset is added to
 	 *                             Options are SEEK_SET, SEEK_CUR, and SEEK_END
 	 *
 	 * @return  boolean  True if updated

@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<div class="cell grid-x acym__content" id="acym__plugin__available">
+?><div class="cell grid-x acym__content" id="acym__plugin__available">
 	<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" class="cell grid-x acym__form__campaign__edit" data-abide>
         <?php
         $workflow = acym_get('helper.workflow');
@@ -41,7 +32,7 @@ defined('_JEXEC') or die('Restricted access');
 						<div class="acym__plugins__card__params cell grid-x">
 							<div class="cell grid-x acym_vcenter acym__plugins__card__params__first">
 								<h2 class="cell medium-10 acym__plugins__card__params__title">{{ plugin.name }}</h2>
-								<a target="_blank" :href="documentationUrl(plugin.file_name)" class="acym__plugins__link cell medium-2"><i class="fa fa-book"></i></a>
+								<a target="_blank" :href="documentationUrl(plugin.file_name)" class="acym__plugins__link cell medium-2"><i class="acymicon-book"></i></a>
 							</div>
 							<div ref="plugins" :class="isOverflown(index)" class="acym__plugins__card__params_desc cell" v-html="plugin.description"></div>
 							<div class="cell grid-x acym__plugins__card__actions">
@@ -53,7 +44,7 @@ defined('_JEXEC') or die('Restricted access');
 										<div class="cell auto"></div>
 										<a target="_blank" href="<?= ACYM_ACYWEBSITE; ?>acymailing.html#customwhichpack" class="acym__plugins__button cell small-5 acym__plugins__button__purchase text-center">
                                             <?php echo acym_translation('ACYM_PURCHASE'); ?>
-											<i class="fa fa-cart-arrow-down"></i>
+											<i class="acymicon-cart-arrow-down"></i>
 										</a>
 									</div>
 								</div>

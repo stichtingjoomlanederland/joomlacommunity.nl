@@ -1,20 +1,18 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Driver;
 
-use Akeeba\Engine\Base\BaseObject;
 use Akeeba\Engine\Driver\Query\Base as QueryBase;
+use RuntimeException;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 /**
  * Database driver superclass. Used as the base of all Akeeba Engine database drivers.
@@ -23,82 +21,83 @@ defined('AKEEBAENGINE') or die();
  * @method qn(string $name, string $as = null)  Alias for quoteName
  * @method q(string $text, bool $escape = true)  Alias for quote
  */
-abstract class Base extends BaseObject
+abstract class Base
 {
-	/** @var string The name of the database. */
-	protected $_database;
-
-	/** @var string The name of the database driver. */
-	public $name;
-
-	/** @var resource The db connection resource */
-	protected $connection = '';
-
-	/** @var    integer  The number of SQL statements executed by the database driver. */
-	protected $count = 0;
-
-	/** @var resource The database connection cursor from the last query. */
-	protected $cursor;
-
-	/** @var    boolean  The database driver debugging state. */
-	protected $debug = false;
-
-	/** @var int Query's limit */
-	protected $limit = 0;
-
-	/** @var    array  The log of executed SQL statements by the database driver. */
-	protected $log = array();
-
-	/** @var string Quote for named objects */
-	protected $nameQuote = '';
-
-	/** @var string  The null or zero representation of a timestamp for the database driver. */
-	protected $nullDate;
-
-	/** @var int Query's offset */
-	protected $offset = 0;
-
-	/** @var    array  Passed in upon instantiation and saved. */
-	protected $options;
-
-	/** @var mixed The SQL query string */
-	protected $sql = '';
-
-	/** @var string The prefix used in the database, if any */
-	protected $tablePrefix = '';
-
-	/** @var bool Support for UTF-8 */
-	protected $utf = true;
-
-	/** @var int The db server's error number */
-	protected $errorNum = 0;
-
-	/** @var string The db server's error string */
-	protected $errorMsg = '';
-
 	/** @var    array  JDatabaseDriver instances container. */
-	protected static $instances = array();
-
+	protected static $instances = [];
 	/** @var    string  The minimum supported database version. */
 	protected static $dbMinimum;
-
+	/** @var string The name of the database driver. */
+	public $name;
+	/** @var string The name of the database. */
+	protected $_database;
+	/** @var resource The db connection resource */
+	protected $connection = '';
+	/** @var    integer  The number of SQL statements executed by the database driver. */
+	protected $count = 0;
+	/** @var resource The database connection cursor from the last query. */
+	protected $cursor;
+	/** @var    boolean  The database driver debugging state. */
+	protected $debug = false;
+	/** @var int Query's limit */
+	protected $limit = 0;
+	/** @var    array  The log of executed SQL statements by the database driver. */
+	protected $log = [];
+	/** @var string Quote for named objects */
+	protected $nameQuote = '';
+	/** @var string  The null or zero representation of a timestamp for the database driver. */
+	protected $nullDate;
+	/** @var int Query's offset */
+	protected $offset = 0;
+	/** @var    array  Passed in upon instantiation and saved. */
+	protected $options;
+	/** @var mixed The SQL query string */
+	protected $sql = '';
+	/** @var string The prefix used in the database, if any */
+	protected $tablePrefix = '';
+	/** @var bool Support for UTF-8 */
+	protected $utf = true;
+	/** @var int The db server's error number */
+	protected $errorNum = 0;
+	/** @var string The db server's error string */
+	protected $errorMsg = '';
 	/** @var string Driver type. This should always be mysql as we don't support anything else anymore. */
 	protected $driverType = '';
 
 	/**
+	 * Database object constructor
+	 *
+	 * @param   array  $options  List of options used to configure the connection
+	 */
+	public function __construct($options)
+	{
+		$prefix     = array_key_exists('prefix', $options) ? $options['prefix'] : '';
+		$database   = array_key_exists('database', $options) ? $options['database'] : '';
+		$connection = array_key_exists('connection', $options) ? $options['connection'] : null;
+
+		$this->tablePrefix = $prefix;
+		$this->_database   = $database;
+		$this->connection  = $connection;
+		$this->errorNum    = 0;
+		$this->count       = 0;
+		$this->log         = [];
+		$this->options     = $options;
+	}
+
+	/**
 	 * Splits a string of multiple queries into an array of individual queries.
 	 *
-	 * @param   string $query Input SQL string with which to split into individual queries.
+	 * @param   string  $query  Input SQL string with which to split into individual queries.
 	 *
 	 * @return  array  The queries from the input string separated into an array.
 	 */
 	public static function splitSql($query)
 	{
-		$start = 0;
-		$open = false;
-		$char = '';
-		$end = strlen($query);
-		$queries = array();
+		$start   = 0;
+		$open    = false;
+		$char    = '';
+		$end     = strlen($query);
+		$queries = [];
 
 		for ($i = 0; $i < $end; $i++)
 		{
@@ -133,7 +132,7 @@ abstract class Base extends BaseObject
 			if (($current == ';' && !$open) || $i == $end - 1)
 			{
 				$queries[] = substr($query, $start, ($i - $start + 1));
-				$start = $i + 1;
+				$start     = $i + 1;
 			}
 		}
 
@@ -141,10 +140,31 @@ abstract class Base extends BaseObject
 	}
 
 	/**
+	 * Is this driver supported under the current system configuration?
+	 *
+	 * @return bool
+	 */
+	public static function test()
+	{
+		return self::isSupported();
+	}
+
+	/**
+	 * Is this driver class supported on this server? Child classes are supposed to override this and perform a
+	 * compatibility check.
+	 *
+	 * @return  bool  True if the driver class is supported on the server
+	 */
+	public static function isSupported()
+	{
+		return false;
+	}
+
+	/**
 	 * Magic method to provide method alias support for quote() and quoteName().
 	 *
-	 * @param   string $method The called method.
-	 * @param   array  $args   The array of arguments passed to the method.
+	 * @param   string  $method  The called method.
+	 * @param   array   $args    The array of arguments passed to the method.
 	 *
 	 * @return  string  The aliased method's return value or null.
 	 */
@@ -167,26 +187,6 @@ abstract class Base extends BaseObject
 		}
 
 		return null;
-	}
-
-	/**
-	 * Database object constructor
-	 *
-	 * @param   array  $options  List of options used to configure the connection
-	 */
-	public function __construct($options)
-	{
-		$prefix = array_key_exists('prefix', $options) ? $options['prefix'] : '';
-		$database = array_key_exists('database', $options) ? $options['database'] : '';
-		$connection = array_key_exists('connection', $options) ? $options['connection'] : null;
-
-		$this->tablePrefix = $prefix;
-		$this->_database = $database;
-		$this->connection = $connection;
-		$this->errorNum = 0;
-		$this->count = 0;
-		$this->log = array();
-		$this->options = $options;
 	}
 
 	/**
@@ -215,17 +215,17 @@ abstract class Base extends BaseObject
 	/**
 	 * Alter database's character set, obtaining query string from protected member.
 	 *
-	 * @param   string $dbName The database name that will be altered
+	 * @param   string  $dbName  The database name that will be altered
 	 *
 	 * @return  string  The query that alter the database query string
 	 *
-	 * @throws  \RuntimeException
+	 * @throws  RuntimeException
 	 */
 	public function alterDbCharacterSet($dbName)
 	{
 		if (is_null($dbName))
 		{
-			throw new \RuntimeException('Database name must not be null.');
+			throw new RuntimeException('Database name must not be null.');
 		}
 
 		$this->setQuery($this->getAlterDbCharacterSet($dbName));
@@ -277,27 +277,27 @@ abstract class Base extends BaseObject
 	 * Create a new database using information from $options object, obtaining query string
 	 * from protected member.
 	 *
-	 * @param   \stdClass $options         Object used to pass user and database name to database driver.
+	 * @param   object   $options         Object used to pass user and database name to database driver.
 	 *                                    This object must have "db_name" and "db_user" set.
 	 * @param   boolean  $utf             True if the database supports the UTF-8 character set.
 	 *
 	 * @return  string  The query that creates database
 	 *
-	 * @throws  \RuntimeException
+	 * @throws  RuntimeException
 	 */
 	public function createDatabase($options, $utf = true)
 	{
 		if (is_null($options))
 		{
-			throw new \RuntimeException('$options object must not be null.');
+			throw new RuntimeException('$options object must not be null.');
 		}
 		elseif (empty($options->db_name))
 		{
-			throw new \RuntimeException('$options object must have db_name set.');
+			throw new RuntimeException('$options object must have db_name set.');
 		}
 		elseif (empty($options->db_user))
 		{
-			throw new \RuntimeException('$options object must have db_user set.');
+			throw new RuntimeException('$options object must have db_user set.');
 		}
 
 		$this->setQuery($this->getCreateDatabaseQuery($options, $utf));
@@ -308,8 +308,8 @@ abstract class Base extends BaseObject
 	/**
 	 * Drops a table from the database.
 	 *
-	 * @param   string  $table    The name of the database table to drop.
-	 * @param   boolean $ifExists Optionally specify that the table must exist before it is dropped.
+	 * @param   string   $table     The name of the database table to drop.
+	 * @param   boolean  $ifExists  Optionally specify that the table must exist before it is dropped.
 	 *
 	 * @return  Base  Returns this object to support chaining.
 	 */
@@ -318,45 +318,26 @@ abstract class Base extends BaseObject
 	/**
 	 * Method to escape a string for usage in an SQL statement.
 	 *
-	 * @param   string  $text  The string to be escaped.
-	 * @param   boolean $extra Optional parameter to provide extra escaping.
+	 * @param   string   $text   The string to be escaped.
+	 * @param   boolean  $extra  Optional parameter to provide extra escaping.
 	 *
 	 * @return  string   The escaped string.
 	 */
 	abstract public function escape($text, $extra = false);
 
 	/**
-	 * Method to fetch a row from the result set cursor as an array.
-	 *
-	 * @param   mixed $cursor The optional result set cursor from which to fetch the row.
-	 *
-	 * @return  mixed  Either the next row from the result set or false if there are no more rows.
-	 */
-	abstract protected function fetchArray($cursor = null);
-
-	/**
 	 * Method to fetch a row from the result set cursor as an associative array.
 	 *
-	 * @param   mixed $cursor The optional result set cursor from which to fetch the row.
+	 * @param   mixed  $cursor  The optional result set cursor from which to fetch the row.
 	 *
 	 * @return  mixed  Either the next row from the result set or false if there are no more rows.
 	 */
 	abstract public function fetchAssoc($cursor = null);
 
 	/**
-	 * Method to fetch a row from the result set cursor as an object.
-	 *
-	 * @param   mixed  $cursor The optional result set cursor from which to fetch the row.
-	 * @param   string $class  The class name to use for the returned row object.
-	 *
-	 * @return  mixed   Either the next row from the result set or false if there are no more rows.
-	 */
-	abstract protected function fetchObject($cursor = null, $class = 'stdClass');
-
-	/**
 	 * Method to free up the memory used for the result set.
 	 *
-	 * @param   mixed $cursor The optional result set cursor from which to fetch the row.
+	 * @param   mixed  $cursor  The optional result set cursor from which to fetch the row.
 	 *
 	 * @return  void
 	 */
@@ -368,44 +349,6 @@ abstract class Base extends BaseObject
 	 * @return  integer  The number of affected rows.
 	 */
 	abstract public function getAffectedRows();
-
-	/**
-	 * Return the query string to alter the database character set.
-	 *
-	 * @param   string $dbName The database name
-	 *
-	 * @return  string  The query that alter the database query string
-	 */
-	protected function getAlterDbCharacterSet($dbName)
-	{
-		$query = 'ALTER DATABASE ' . $this->quoteName($dbName) . ' CHARACTER SET `utf8`';
-
-		return $query;
-	}
-
-	/**
-	 * Return the query string to create new Database.
-	 * Each database driver, other than MySQL, need to override this member to return correct string.
-	 *
-	 * @param   \stdClass $options         Object used to pass user and database name to database driver.
-	 *                                    This object must have "db_name" and "db_user" set.
-	 * @param   boolean  $utf             True if the database supports the UTF-8 character set.
-	 *
-	 * @return  string  The query that creates database
-	 */
-	protected function getCreateDatabaseQuery($options, $utf)
-	{
-		if ($utf)
-		{
-			$query = 'CREATE DATABASE ' . $this->quoteName($options->db_name) . ' CHARACTER SET `utf8`';
-		}
-		else
-		{
-			$query = 'CREATE DATABASE ' . $this->quoteName($options->db_name);
-		}
-
-		return $query;
-	}
 
 	/**
 	 * Method to get the database collation in use by sampling a text field of a table in the database.
@@ -428,7 +371,7 @@ abstract class Base extends BaseObject
 	 * Inherits the connection of another database driver. Useful for cloning
 	 * the CMS database connection into an Akeeba Engine database driver.
 	 *
-	 * @param resource $connection
+	 * @param   resource  $connection
 	 */
 	public function setConnection($connection)
 	{
@@ -445,16 +388,6 @@ abstract class Base extends BaseObject
 	public function getCount()
 	{
 		return $this->count;
-	}
-
-	/**
-	 * Gets the name of the database used by this connection.
-	 *
-	 * @return  string
-	 */
-	protected function getDatabase()
-	{
-		return $this->_database;
 	}
 
 	/**
@@ -504,7 +437,7 @@ abstract class Base extends BaseObject
 	/**
 	 * Get the number of returned rows for the previous executed SQL statement.
 	 *
-	 * @param   resource $cursor An optional database cursor resource to extract the row count from.
+	 * @param   resource  $cursor  An optional database cursor resource to extract the row count from.
 	 *
 	 * @return  integer   The number of returned rows.
 	 */
@@ -523,7 +456,7 @@ abstract class Base extends BaseObject
 	/**
 	 * Get the current query object or a new QueryBase object.
 	 *
-	 * @param   boolean $new False to return the current query object, True to return a new QueryBase object.
+	 * @param   boolean  $new  False to return the current query object, True to return a new QueryBase object.
 	 *
 	 * @return  QueryBase  The current query object or a new object extending the QueryBase class.
 	 */
@@ -532,8 +465,8 @@ abstract class Base extends BaseObject
 	/**
 	 * Retrieves field information about the given tables.
 	 *
-	 * @param   string  $table    The name of the database table.
-	 * @param   boolean $typeOnly True (default) to only return field types.
+	 * @param   string   $table     The name of the database table.
+	 * @param   boolean  $typeOnly  True (default) to only return field types.
 	 *
 	 * @return  array  An array of fields by table.
 	 */
@@ -542,7 +475,7 @@ abstract class Base extends BaseObject
 	/**
 	 * Shows the table CREATE statement that creates the given tables.
 	 *
-	 * @param   mixed $tables A table name or a list of table names.
+	 * @param   mixed  $tables  A table name or a list of table names.
 	 *
 	 * @return  array  A list of the create SQL for the tables.
 	 */
@@ -551,7 +484,7 @@ abstract class Base extends BaseObject
 	/**
 	 * Retrieves field information about the given tables.
 	 *
-	 * @param   mixed $tables A table name or a list of table names.
+	 * @param   mixed  $tables  A table name or a list of table names.
 	 *
 	 * @return  array  An array of keys for the table(s).
 	 */
@@ -625,16 +558,16 @@ abstract class Base extends BaseObject
 	/**
 	 * Inserts a row into a table based on an object's properties.
 	 *
-	 * @param   string $table   The name of the database table to insert into.
-	 * @param   object &$object A reference to an object whose public properties match the table fields.
-	 * @param   string $key     The name of the primary key. If provided the object property is updated.
+	 * @param   string  $table   The name of the database table to insert into.
+	 * @param   object &$object  A reference to an object whose public properties match the table fields.
+	 * @param   string  $key     The name of the primary key. If provided the object property is updated.
 	 *
 	 * @return  boolean    True on success.
 	 */
 	public function insertObject($table, &$object, $key = null)
 	{
-		$fields = array();
-		$values = array();
+		$fields = [];
+		$values = [];
 
 		// Iterate over the object variables to build the query fields and values.
 		foreach (get_object_vars($object) as $k => $v)
@@ -727,15 +660,15 @@ abstract class Base extends BaseObject
 	 * NOTE: Chosing to key the result array by a non-unique field name can result in unwanted
 	 * behavior and should be avoided.
 	 *
-	 * @param   string $key    The name of a field on which to key the result array.
-	 * @param   string $column An optional column name. Instead of the whole row, only this column value will be in
-	 *                         the result array.
+	 * @param   string  $key     The name of a field on which to key the result array.
+	 * @param   string  $column  An optional column name. Instead of the whole row, only this column value will be in
+	 *                           the result array.
 	 *
 	 * @return  mixed   The return value or null if the query failed.
 	 */
 	public function loadAssocList($key = null, $column = null)
 	{
-		$array = array();
+		$array = [];
 
 		// Execute the query and get the result set cursor.
 		if (!($cursor = $this->execute()))
@@ -767,13 +700,13 @@ abstract class Base extends BaseObject
 	 * Method to get an array of values from the <var>$offset</var> field in each row of the result set from
 	 * the database query.
 	 *
-	 * @param   integer $offset The row offset to use to build the result array.
+	 * @param   integer  $offset  The row offset to use to build the result array.
 	 *
 	 * @return  mixed    The return value or null if the query failed.
 	 */
 	public function loadColumn($offset = 0)
 	{
-		$array = array();
+		$array = [];
 
 		// Execute the query and get the result set cursor.
 		if (!($cursor = $this->execute()))
@@ -796,7 +729,7 @@ abstract class Base extends BaseObject
 	/**
 	 * Method to get the next row in the result set from the database query as an object.
 	 *
-	 * @param   string $class The class name to use for the returned row object.
+	 * @param   string  $class  The class name to use for the returned row object.
 	 *
 	 * @return  mixed   The result of the query as an array, false if there are no more rows.
 	 */
@@ -860,7 +793,7 @@ abstract class Base extends BaseObject
 	/**
 	 * Method to get the first row of the result set from the database query as an object.
 	 *
-	 * @param   string $class The class name to use for the returned row object.
+	 * @param   string  $class  The class name to use for the returned row object.
 	 *
 	 * @return  mixed   The return value or null if the query failed.
 	 */
@@ -893,14 +826,14 @@ abstract class Base extends BaseObject
 	 * NOTE: Choosing to key the result array by a non-unique field name can result in unwanted
 	 * behavior and should be avoided.
 	 *
-	 * @param   string $key   The name of a field on which to key the result array.
-	 * @param   string $class The class name to use for the returned row objects.
+	 * @param   string  $key    The name of a field on which to key the result array.
+	 * @param   string  $class  The class name to use for the returned row objects.
 	 *
 	 * @return  mixed   The return value or null if the query failed.
 	 */
 	public function loadObjectList($key = '', $class = 'stdClass')
 	{
-		$array = array();
+		$array = [];
 
 		// Execute the query and get the result set cursor.
 		if (!($cursor = $this->execute()))
@@ -989,13 +922,13 @@ abstract class Base extends BaseObject
 	 * NOTE: Choosing to key the result array by a non-unique field can result in unwanted
 	 * behavior and should be avoided.
 	 *
-	 * @param   string $key The name of a field on which to key the result array.
+	 * @param   string  $key  The name of a field on which to key the result array.
 	 *
 	 * @return  mixed   The return value or null if the query failed.
 	 */
 	public function loadRowList($key = null)
 	{
-		$array = array();
+		$array = [];
 
 		// Execute the query and get the result set cursor.
 		if (!($cursor = $this->execute()))
@@ -1025,7 +958,7 @@ abstract class Base extends BaseObject
 	/**
 	 * Locks a table in the database.
 	 *
-	 * @param   string $tableName The name of the table to unlock.
+	 * @param   string  $tableName  The name of the table to unlock.
 	 *
 	 * @return  Base  Returns this object to support chaining.
 	 */
@@ -1051,8 +984,8 @@ abstract class Base extends BaseObject
 	/**
 	 * Method to quote and optionally escape a string to database requirements for insertion into the database.
 	 *
-	 * @param   string  $text   The string to quote.
-	 * @param   boolean $escape True (default) to escape the string, false to leave it unchanged.
+	 * @param   string   $text    The string to quote.
+	 * @param   boolean  $escape  True (default) to escape the string, false to leave it unchanged.
 	 */
 	public function quote($text, $escape = true)
 	{
@@ -1063,9 +996,9 @@ abstract class Base extends BaseObject
 	 * Wrap an SQL statement identifier name such as column, table or database names in quotes to prevent injection
 	 * risks and reserved word conflicts.
 	 *
-	 * @param   mixed $name       The identifier name to wrap in quotes, or an array of identifier names to wrap in quotes.
+	 * @param   mixed  $name      The identifier name to wrap in quotes, or an array of identifier names to wrap in quotes.
 	 *                            Each type supports dot-notation name.
-	 * @param   mixed $as         The AS query part associated to $name. It can be string or array, in latter case it has to be
+	 * @param   mixed  $as        The AS query part associated to $name. It can be string or array, in latter case it has to be
 	 *                            same length of $name; if is null there will not be any AS part for string or array element.
 	 */
 	public function quoteName($name, $as = null)
@@ -1085,7 +1018,7 @@ abstract class Base extends BaseObject
 		}
 		else
 		{
-			$fin = array();
+			$fin = [];
 
 			if (is_null($as))
 			{
@@ -1108,55 +1041,23 @@ abstract class Base extends BaseObject
 	}
 
 	/**
-	 * Quote strings coming from quoteName call.
-	 *
-	 * @param   array $strArr Array of strings coming from quoteName dot-explosion.
-	 *
-	 * @return  string  Dot-imploded string of quoted parts.
-	 */
-	protected function quoteNameStr($strArr)
-	{
-		$parts = array();
-		$q = $this->nameQuote;
-
-		foreach ($strArr as $part)
-		{
-			if (is_null($part))
-			{
-				continue;
-			}
-
-			if (strlen($q) == 1)
-			{
-				$parts[] = $q . $part . $q;
-			}
-			else
-			{
-				$parts[] = $q[0] . $part . $q[1];
-			}
-		}
-
-		return implode('.', $parts);
-	}
-
-	/**
 	 * This function replaces a string identifier <var>$prefix</var> with the string held is the
 	 * <var>tablePrefix</var> class variable.
 	 *
-	 * @param   string $query  The SQL statement to prepare.
-	 * @param   string $prefix The common table prefix.
+	 * @param   string  $query   The SQL statement to prepare.
+	 * @param   string  $prefix  The common table prefix.
 	 *
 	 * @return  string  The processed SQL statement.
 	 */
 	public function replacePrefix($query, $prefix = '#__')
 	{
-		$escaped = false;
-		$startPos = 0;
+		$escaped   = false;
+		$startPos  = 0;
 		$quoteChar = '';
-		$literal = '';
+		$literal   = '';
 
 		$query = trim($query);
-		$n = strlen($query);
+		$n     = strlen($query);
 
 		while ($startPos < $n)
 		{
@@ -1171,7 +1072,7 @@ abstract class Base extends BaseObject
 			if (($k !== false) && (($k < $j) || ($j === false)))
 			{
 				$quoteChar = '"';
-				$j = $k;
+				$j         = $k;
 			}
 			else
 			{
@@ -1183,7 +1084,7 @@ abstract class Base extends BaseObject
 				$j = $n;
 			}
 
-			$literal .= str_replace($prefix, $this->tablePrefix, substr($query, $startPos, $j - $startPos));
+			$literal  .= str_replace($prefix, $this->tablePrefix, substr($query, $startPos, $j - $startPos));
 			$startPos = $j;
 
 			$j = $startPos + 1;
@@ -1196,14 +1097,14 @@ abstract class Base extends BaseObject
 			// Quote comes first, find end of quote
 			while (true)
 			{
-				$k = strpos($query, $quoteChar, $j);
+				$k       = strpos($query, $quoteChar, $j);
 				$escaped = false;
 				if ($k === false)
 				{
 					break;
 				}
 				$l = $k - 1;
-				while ($l >= 0 && $query{$l} == '\\')
+				while ($l >= 0 && $query[$l] == '\\')
 				{
 					$l--;
 					$escaped = !$escaped;
@@ -1220,7 +1121,7 @@ abstract class Base extends BaseObject
 				// Error in the query - no end quote; ignore it
 				break;
 			}
-			$literal .= substr($query, $startPos, $k - $startPos + 1);
+			$literal  .= substr($query, $startPos, $k - $startPos + 1);
 			$startPos = $k + 1;
 		}
 		if ($startPos < $n)
@@ -1234,10 +1135,10 @@ abstract class Base extends BaseObject
 	/**
 	 * Renames a table in the database.
 	 *
-	 * @param   string $oldTable The name of the table to be renamed
-	 * @param   string $newTable The new name for the table.
-	 * @param   string $backup   Table prefix
-	 * @param   string $prefix   For the table - used to rename constraints in non-mysql databases
+	 * @param   string  $oldTable  The name of the table to be renamed
+	 * @param   string  $newTable  The new name for the table.
+	 * @param   string  $backup    Table prefix
+	 * @param   string  $prefix    For the table - used to rename constraints in non-mysql databases
 	 *
 	 * @return  Base  Returns this object to support chaining.
 	 */
@@ -1246,7 +1147,7 @@ abstract class Base extends BaseObject
 	/**
 	 * Select a database for use.
 	 *
-	 * @param   string $database The name of the database to select for use.
+	 * @param   string  $database  The name of the database to select for use.
 	 *
 	 * @return  boolean  True if the database was successfully selected.
 	 */
@@ -1255,14 +1156,14 @@ abstract class Base extends BaseObject
 	/**
 	 * Sets the database debugging state for the driver.
 	 *
-	 * @param   boolean $level True to enable debugging.
+	 * @param   boolean  $level  True to enable debugging.
 	 *
 	 * @return  boolean  The old debugging level.
 	 */
 	public function setDebug($level)
 	{
-		$previous = $this->debug;
-		$this->debug = (bool)$level;
+		$previous    = $this->debug;
+		$this->debug = (bool) $level;
 
 		return $previous;
 	}
@@ -1270,17 +1171,17 @@ abstract class Base extends BaseObject
 	/**
 	 * Sets the SQL statement string for later execution.
 	 *
-	 * @param   mixed   $query  The SQL statement to set either as a QueryBase object or a string.
-	 * @param   integer $offset The affected row offset to set.
-	 * @param   integer $limit  The maximum affected rows to set.
+	 * @param   mixed    $query   The SQL statement to set either as a QueryBase object or a string.
+	 * @param   integer  $offset  The affected row offset to set.
+	 * @param   integer  $limit   The maximum affected rows to set.
 	 *
 	 * @return  self  This object to support method chaining.
 	 */
 	public function setQuery($query, $offset = 0, $limit = 0)
 	{
-		$this->sql = $query;
-		$this->limit = (int)$limit;
-		$this->offset = (int)$offset;
+		$this->sql    = $query;
+		$this->limit  = (int) $limit;
+		$this->offset = (int) $offset;
 
 		return $this;
 	}
@@ -1316,7 +1217,7 @@ abstract class Base extends BaseObject
 	/**
 	 * Method to truncate a table.
 	 *
-	 * @param   string $table The table to truncate
+	 * @param   string  $table  The table to truncate
 	 *
 	 * @return  void
 	 */
@@ -1329,26 +1230,26 @@ abstract class Base extends BaseObject
 	/**
 	 * Updates a row in a table based on an object's properties.
 	 *
-	 * @param   string  $table   The name of the database table to update.
-	 * @param   object  &$object A reference to an object whose public properties match the table fields.
-	 * @param   string  $key     The name of the primary key.
-	 * @param   boolean $nulls   True to update null fields or false to ignore them.
+	 * @param   string   $table   The name of the database table to update.
+	 * @param   object  &$object  A reference to an object whose public properties match the table fields.
+	 * @param   string   $key     The name of the primary key.
+	 * @param   boolean  $nulls   True to update null fields or false to ignore them.
 	 *
 	 * @return  boolean  True on success.
 	 */
 	public function updateObject($table, &$object, $key, $nulls = false)
 	{
-		$fields = array();
-		$where = array();
+		$fields = [];
+		$where  = [];
 
 		if (is_string($key))
 		{
-			$key = array($key);
+			$key = [$key];
 		}
 
 		if (is_object($key))
 		{
-			$key = (array)$key;
+			$key = (array) $key;
 		}
 
 		// Create the base update statement.
@@ -1450,16 +1351,14 @@ abstract class Base extends BaseObject
 		$this->errorNum = 0;
 		$this->errorMsg = '';
 
-		parent::resetErrors();
-
 		return $this;
 	}
 
 	/**
 	 * Method to escape a string for usage in an SQL statement.
 	 *
-	 * @param   string  $text  The string to be escaped.
-	 * @param   boolean $extra Optional parameter to provide extra escaping.
+	 * @param   string   $text   The string to be escaped.
+	 * @param   boolean  $extra  Optional parameter to provide extra escaping.
 	 *
 	 * @return  string  The escaped string.
 	 */
@@ -1471,14 +1370,14 @@ abstract class Base extends BaseObject
 	/**
 	 * Retrieves field information about the given tables.
 	 *
-	 * @param   mixed   $tables   A table name or a list of table names.
-	 * @param   boolean $typeOnly True to only return field types.
+	 * @param   mixed    $tables    A table name or a list of table names.
+	 * @param   boolean  $typeOnly  True to only return field types.
 	 *
 	 * @return  array  An array of fields by table.
 	 */
 	public function getTableFields($tables, $typeOnly = true)
 	{
-		$results = array();
+		$results = [];
 
 		settype($tables, 'array');
 
@@ -1494,7 +1393,7 @@ abstract class Base extends BaseObject
 	 * Method to get an array of values from the <var>$offset</var> field in each row of the result set from
 	 * the database query.
 	 *
-	 * @param   integer $offset The row offset to use to build the result array.
+	 * @param   integer  $offset  The row offset to use to build the result array.
 	 *
 	 * @return  mixed    The return value or null if the query failed.
 	 */
@@ -1507,7 +1406,7 @@ abstract class Base extends BaseObject
 	 * Wrap an SQL statement identifier name such as column, table or database names in quotes to prevent injection
 	 * risks and reserved word conflicts.
 	 *
-	 * @param   string $name The identifier name to wrap in quotes.
+	 * @param   string  $name  The identifier name to wrap in quotes.
 	 *
 	 * @return  string  The quote wrapped name.
 	 */
@@ -1571,23 +1470,101 @@ abstract class Base extends BaseObject
 	}
 
 	/**
-	 * Is this driver supported under the current system configuration?
+	 * Method to fetch a row from the result set cursor as an array.
 	 *
-	 * @return bool
+	 * @param   mixed  $cursor  The optional result set cursor from which to fetch the row.
+	 *
+	 * @return  mixed  Either the next row from the result set or false if there are no more rows.
 	 */
-	public static function test()
+	abstract protected function fetchArray($cursor = null);
+
+	/**
+	 * Method to fetch a row from the result set cursor as an object.
+	 *
+	 * @param   mixed   $cursor  The optional result set cursor from which to fetch the row.
+	 * @param   string  $class   The class name to use for the returned row object.
+	 *
+	 * @return  mixed   Either the next row from the result set or false if there are no more rows.
+	 */
+	abstract protected function fetchObject($cursor = null, $class = 'stdClass');
+
+	/**
+	 * Return the query string to alter the database character set.
+	 *
+	 * @param   string  $dbName  The database name
+	 *
+	 * @return  string  The query that alter the database query string
+	 */
+	protected function getAlterDbCharacterSet($dbName)
 	{
-		return self::isSupported();
+		$query = 'ALTER DATABASE ' . $this->quoteName($dbName) . ' CHARACTER SET `utf8`';
+
+		return $query;
 	}
 
 	/**
-	 * Is this driver class supported on this server? Child classes are supposed to override this and perform a
-	 * compatibility check.
+	 * Return the query string to create new Database.
+	 * Each database driver, other than MySQL, need to override this member to return correct string.
 	 *
-	 * @return  bool  True if the driver class is supported on the server
+	 * @param   object   $options         Object used to pass user and database name to database driver.
+	 *                                    This object must have "db_name" and "db_user" set.
+	 * @param   boolean  $utf             True if the database supports the UTF-8 character set.
+	 *
+	 * @return  string  The query that creates database
 	 */
-	public static function isSupported()
+	protected function getCreateDatabaseQuery($options, $utf)
 	{
-		return false;
+		if ($utf)
+		{
+			$query = 'CREATE DATABASE ' . $this->quoteName($options->db_name) . ' CHARACTER SET `utf8`';
+		}
+		else
+		{
+			$query = 'CREATE DATABASE ' . $this->quoteName($options->db_name);
+		}
+
+		return $query;
+	}
+
+	/**
+	 * Gets the name of the database used by this connection.
+	 *
+	 * @return  string
+	 */
+	protected function getDatabase()
+	{
+		return $this->_database;
+	}
+
+	/**
+	 * Quote strings coming from quoteName call.
+	 *
+	 * @param   array  $strArr  Array of strings coming from quoteName dot-explosion.
+	 *
+	 * @return  string  Dot-imploded string of quoted parts.
+	 */
+	protected function quoteNameStr($strArr)
+	{
+		$parts = [];
+		$q     = $this->nameQuote;
+
+		foreach ($strArr as $part)
+		{
+			if (is_null($part))
+			{
+				continue;
+			}
+
+			if (strlen($q) == 1)
+			{
+				$parts[] = $q . $part . $q;
+			}
+			else
+			{
+				$parts[] = $q[0] . $part . $q[1];
+			}
+		}
+
+		return implode('.', $parts);
 	}
 }

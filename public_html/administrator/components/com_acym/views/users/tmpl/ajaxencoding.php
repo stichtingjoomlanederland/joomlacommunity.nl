@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 $encodingHelper = acym_get('helper.encoding');
 $filename = strtolower(acym_getVar('cmd', 'filename'));
 $encoding = acym_getVar('cmd', 'encoding');
@@ -154,8 +145,10 @@ $nbLines = count($this->lines);
 
         $userClass = acym_get('class.user');
         $fields = $userClass->getAllColumnsUserAndCustomField();
-        $fields['listids'] = 'listids';
-        $fields['listname'] = 'listname';
+        if (acym_isAdmin()) {
+            $fields['listids'] = 'listids';
+            $fields['listname'] = 'listname';
+        }
 
         $cleanFields = [];
         foreach ($fields as $value => $label) {

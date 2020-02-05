@@ -1,18 +1,20 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Finalization;
 
-use Akeeba\Engine\Base\BaseObject;
+use AKAbstractUnarchiver;
 use Akeeba\Engine\Core\Domain\Finalization;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
-use Psr\Log\LogLevel;
+use AKFactory;
 use JText;
+use Psr\Log\LogLevel;
+use RuntimeException;
 
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
@@ -20,7 +22,7 @@ defined('AKEEBAENGINE') or die();
 /**
  * Performs a dry-run extraction to ensure the integrity of the backup archive.
  */
-class TestExtract extends BaseObject
+class TestExtract
 {
 	/**
 	 * Checks the archive's data integrity by performing a dry-run extraction (no data is written to disk, just making
@@ -52,24 +54,24 @@ class TestExtract extends BaseObject
 
 		// Make sure the "Process each part immediately" option is not enabled
 		$postProcImmediately = $config->get('engine.postproc.common.after_part', 0, false);
-		$postProcEngine = $config->get('akeeba.advanced.postproc_engine', 'none');
+		$postProcEngine      = $config->get('akeeba.advanced.postproc_engine', 'none');
 
 		if ($postProcImmediately && ($postProcEngine != 'none'))
 		{
-			$parent->setWarning(JText::_('COM_AKEEBA_ENGINE_TEXTEXTRACT_ERR_PROCESSIMMEDIATELY'));
+			Factory::getLog()->warning(JText::_('COM_AKEEBA_ENGINE_TEXTEXTRACT_ERR_PROCESSIMMEDIATELY'));
 
 			return true;
 		}
 
 		// Make sure an archiver engine producing backup archives of JPA, JPS or ZIP files is in use
-		$archiver = Factory::getArchiverEngine();
+		$archiver  = Factory::getArchiverEngine();
 		$extension = $archiver->getExtension();
 		$extension = strtoupper($extension);
 		$extension = ltrim($extension, '.');
 
-		if (!in_array($extension, array('JPA', 'JPS', 'ZIP')))
+		if (!in_array($extension, ['JPA', 'JPS', 'ZIP']))
 		{
-			$parent->setWarning(JText::_('COM_AKEEBA_ENGINE_TEXTEXTRACT_ERR_INVALIDARCHIVERTYPE'));
+			Factory::getLog()->warning(JText::_('COM_AKEEBA_ENGINE_TEXTEXTRACT_ERR_INVALIDARCHIVERTYPE'));
 
 			return true;
 		}
@@ -81,23 +83,14 @@ class TestExtract extends BaseObject
 		}
 
 		// Try to load Akeeba Restore
-		try
-		{
-			$this->loadAkeebaRestore();
-		}
-		catch (\RuntimeException $e)
-		{
-			$parent->setError($e->getMessage());
-
-			return true;
-		}
+		$this->loadAkeebaRestore();
 
 		// Set up the Akeeba Restore engine, either from a serialised factory or from scratch
 		$factory = $config->get('volatile.finalization.testextract.factory', null, false);
 
 		if (!is_null($factory) && is_string($factory))
 		{
-			\AKFactory::unserialize($factory);
+			AKFactory::unserialize($factory);
 		}
 		else
 		{
@@ -107,10 +100,10 @@ class TestExtract extends BaseObject
 		$parent->relayStep('Archive integrity check');
 		$parent->relaySubstep('Testing if archive can be extracted');
 
-		\AKFactory::set('kickstart.enabled', true);
+		AKFactory::set('kickstart.enabled', true);
 
-		/** @var \AKAbstractUnarchiver $engine */
-		$engine = \AKFactory::getUnarchiver();
+		/** @var AKAbstractUnarchiver $engine */
+		$engine   = AKFactory::getUnarchiver();
 		$observer = new FakeRestorationObserver();
 		$engine->attach($observer);
 
@@ -120,9 +113,7 @@ class TestExtract extends BaseObject
 		// Did an error occur?
 		if ($ret['Error'] != '')
 		{
-			$parent->setError(JText::sprintf('COM_AKEEBA_ENGINE_TEXTEXTRACT_ERR_INTEGRITYCHECKFAILED', $ret['Error']));
-
-			return true;
+			throw new RuntimeException(JText::sprintf('COM_AKEEBA_ENGINE_TEXTEXTRACT_ERR_INTEGRITYCHECKFAILED', $ret['Error']));
 		}
 
 		// Did we finish successfully?
@@ -135,7 +126,7 @@ class TestExtract extends BaseObject
 		}
 
 		// Step finished and we need one more step to proceed.
-		$factory = \AKFactory::serialize();
+		$factory = AKFactory::serialize();
 		$config->set('volatile.finalization.testextract.factory', $factory, false);
 
 		return false;
@@ -150,7 +141,7 @@ class TestExtract extends BaseObject
 
 		if (!file_exists($path) || !include_once($path))
 		{
-			throw new \RuntimeException(JText::_('COM_AKEEBA_ENGINE_TEXTEXTRACT_ERR_ENGINENOTFOUND'), 500);
+			throw new RuntimeException(JText::_('COM_AKEEBA_ENGINE_TEXTEXTRACT_ERR_ENGINENOTFOUND'), 500);
 		}
 	}
 
@@ -165,39 +156,39 @@ class TestExtract extends BaseObject
 		$maxTime = floor($maxTime);
 		$maxTime = max(2, $maxTime);
 
-		$statistics = Factory::getStatistics();
-		$stat = $statistics->getRecord();
+		$statistics   = Factory::getStatistics();
+		$stat         = $statistics->getRecord();
 		$backup_parts = Factory::getStatistics()->get_all_filenames($stat, false);
-		$filePath = array_shift($backup_parts);
+		$filePath     = array_shift($backup_parts);
 
 		$specialDirs = Platform::getInstance()->get_stock_directories();
-		$tmpPath = $specialDirs['[SITETMP]'];
+		$tmpPath     = $specialDirs['[SITETMP]'];
 
-		$archiver = Factory::getArchiverEngine();
+		$archiver  = Factory::getArchiverEngine();
 		$extension = $archiver->getExtension();
 		$extension = strtoupper($extension);
 		$extension = ltrim($extension, '.');
 
-		$ksOptions = array(
+		$ksOptions = [
 			'kickstart.tuning.max_exec_time' => $maxTime,
 			'kickstart.tuning.run_time_bias' => $config->get('akeeba.tuning.run_time_bias', 75),
 			'kickstart.tuning.min_exec_time' => '0',
-			'kickstart.procengine' => 'direct',
-			'kickstart.setup.sourcefile' => $filePath,
-			'kickstart.setup.destdir' => $tmpPath,
-			'kickstart.setup.restoreperms' => '0',
-			'kickstart.setup.filetype' => $extension,
-			'kickstart.setup.dryrun' => '1',
-			'kickstart.jps.password' => $config->get('engine.archiver.jps.key', '', false)
-		);
+			'kickstart.procengine'           => 'direct',
+			'kickstart.setup.sourcefile'     => $filePath,
+			'kickstart.setup.destdir'        => $tmpPath,
+			'kickstart.setup.restoreperms'   => '0',
+			'kickstart.setup.filetype'       => $extension,
+			'kickstart.setup.dryrun'         => '1',
+			'kickstart.jps.password'         => $config->get('engine.archiver.jps.key', '', false),
+		];
 
-		\AKFactory::nuke();
+		AKFactory::nuke();
 
 		foreach ($ksOptions as $k => $v)
 		{
-			\AKFactory::set($k, $v);
+			AKFactory::set($k, $v);
 		}
 
-		\AKFactory::set('kickstart.enabled', true);
+		AKFactory::set('kickstart.enabled', true);
 	}
 }

@@ -1,24 +1,22 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Dump;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
 
 use Akeeba\Engine\Base\Part;
 use Akeeba\Engine\Core\Domain\Pack;
 use Akeeba\Engine\Driver\Base as DriverBase;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
-use Psr\Log\LogLevel;
+use Exception;
+use RuntimeException;
 
 abstract class Base extends Part
 {
@@ -26,97 +24,129 @@ abstract class Base extends Part
 	// Configuration parameters
 	// **********************************************************************
 
+	/** @var int Current dump file part number */
+	public $partNumber = 0;
 	/** @var string Prefix to this database */
 	protected $prefix = '';
-
 	/** @var string MySQL database server host name or IP address */
 	protected $host = '';
-
 	/** @var string MySQL database server port (optional) */
 	protected $port = '';
-
 	/** @var string MySQL user name, for authentication */
 	protected $username = '';
-
 	/** @var string MySQL password, for authentication */
 	protected $password = '';
-
 	/** @var string MySQL database */
 	protected $database = '';
-
 	/** @var string The database driver to use */
 	protected $driver = '';
-
-	/** @var boolean Should I post process quoted values */
-	protected $postProcessValues = false;
 
 	// **********************************************************************
 	// File handling fields
 	// **********************************************************************
-
+	/** @var boolean Should I post process quoted values */
+	protected $postProcessValues = false;
 	/** @var string Absolute path to dump file; must be writable (optional; if left blank it is automatically calculated) */
 	protected $dumpFile = '';
-
 	/** @var string Data cache, used to cache data before being written to disk */
 	protected $data_cache = '';
-
-	/** @var int  */
+	/** @var int */
 	protected $largest_query = 0;
-
 	/** @var int Size of the data cache, default 128Kb */
 	protected $cache_size = 131072;
-
 	/** @var bool Should I process empty prefixes when creating abstracted names? */
 	protected $processEmptyPrefix = true;
-
-	/** @var int Current dump file part number */
-	public $partNumber = 0;
-
-	/** @var resource Filepointer to the current dump part */
-	private $fp = null;
-
 	/** @var string Absolute path to the temp file */
 	protected $tempFile = '';
-
 	/** @var string Relative path of how the file should be saved in the archive */
 	protected $saveAsName = '';
+	/** @var array Contains the sorted (by dependencies) list of tables/views to backup */
+	protected $tables = [];
 
 	// **********************************************************************
 	// Protected fields (data handling)
 	// **********************************************************************
-
-	/** @var array Contains the sorted (by dependencies) list of tables/views to backup */
-	protected $tables = array();
-
 	/** @var array Contains the configuration data of the tables */
-	protected $tables_data = array();
-
+	protected $tables_data = [];
 	/** @var array Maps database table names to their abstracted format */
-	protected $table_name_map = array();
-
+	protected $table_name_map = [];
 	/** @var array Contains the dependencies of tables and views (temporary) */
-	protected $dependencies = array();
-
+	protected $dependencies = [];
 	/** @var string The next table to backup */
 	protected $nextTable;
-
 	/** @var integer The next row of the table to start backing up from */
 	protected $nextRange;
-
 	/** @var integer Current table's row count */
 	protected $maxRange;
-
 	/** @var bool Use extended INSERTs */
 	protected $extendedInserts = false;
-
 	/** @var integer Maximum packet size for extended INSERTs, in bytes */
 	protected $packetSize = 0;
-
 	/** @var string Extended INSERT query, while it's being constructed */
 	protected $query = '';
-
 	/** @var int Dump part's maximum size */
 	protected $partSize = 0;
+	/** @var resource Filepointer to the current dump part */
+	private $fp = null;
+
+	/**
+	 * This method is called when the factory is being serialized and is used to perform necessary cleanup steps.
+	 *
+	 * @return  void
+	 */
+	public function _onSerialize()
+	{
+		$this->closeFile();
+	}
+
+	/**
+	 * This method is called when the object is destroyed and is used to perform necessary cleanup steps.
+	 */
+	public function __destruct()
+	{
+		$this->closeFile();
+	}
+
+	/**
+	 * Close any open SQL dump (output) file.
+	 */
+	public function closeFile()
+	{
+		if (!is_resource($this->fp))
+		{
+			return;
+		}
+
+		Factory::getLog()->debug("Closing SQL dump file.");
+
+		@fclose($this->fp);
+		$this->fp = null;
+	}
+
+	/**
+	 * Call a specific stage of the dump engine
+	 *
+	 * @param   string  $stage
+	 *
+	 * @throws Exception
+	 */
+	public function callStage($stage)
+	{
+		switch ($stage)
+		{
+			case '_prepare':
+				$this->_prepare();
+				break;
+
+			case '_run':
+				$this->_run();
+				break;
+
+			case '_finalize':
+				$this->_finalize();
+				break;
+		}
+	}
 
 	/**
 	 * Find where to store the backup files
@@ -125,12 +155,12 @@ abstract class Base extends Part
 	 */
 	protected function getBackupFilePaths($partNumber = 0)
 	{
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Getting temporary file");
+		Factory::getLog()->debug(__CLASS__ . " :: Getting temporary file");
 		$this->tempFile = Factory::getTempFiles()->registerTempFile(dechex(crc32(microtime())) . '.sql');
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Temporary file is {$this->tempFile}");
+		Factory::getLog()->debug(__CLASS__ . " :: Temporary file is {$this->tempFile}");
 		// Get the base name of the dump file
 		$partNumber = intval($partNumber);
-		$baseName = $this->dumpFile;
+		$baseName   = $this->dumpFile;
 		if ($partNumber > 0)
 		{
 			// The file names are in the format dbname.sql, dbname.s01, dbname.s02, etc
@@ -147,26 +177,26 @@ abstract class Base extends Part
 		if (empty($this->installerSettings))
 		{
 			// Fetch the installer settings
-			$this->installerSettings = (object)array(
+			$this->installerSettings = (object) [
 				'installerroot' => 'installation',
 				'sqlroot'       => 'installation/sql',
 				'databasesini'  => 1,
 				'readme'        => 1,
-				'extrainfo'     => 1
-			);
-			$config = Factory::getConfiguration();
-			$installerKey = $config->get('akeeba.advanced.embedded_installer');
-			$installerDescriptors = Factory::getEngineParamsProvider()->getInstallerList();
+				'extrainfo'     => 1,
+			];
+			$config                  = Factory::getConfiguration();
+			$installerKey            = $config->get('akeeba.advanced.embedded_installer');
+			$installerDescriptors    = Factory::getEngineParamsProvider()->getInstallerList();
 
 			if (array_key_exists($installerKey, $installerDescriptors))
 			{
 				// The selected installer exists, use it
-				$this->installerSettings = (object)$installerDescriptors[$installerKey];
+				$this->installerSettings = (object) $installerDescriptors[$installerKey];
 			}
 			elseif (array_key_exists('angie', $installerDescriptors))
 			{
 				// The selected installer doesn't exist, but ANGIE exists; use that instead
-				$this->installerSettings = (object)$installerDescriptors['angie'];
+				$this->installerSettings = (object) $installerDescriptors['angie'];
 			}
 		}
 
@@ -174,8 +204,8 @@ abstract class Base extends Part
 		{
 			case 'output':
 				// The SQL file will be stored uncompressed in the output directory
-				$statistics = Factory::getStatistics();
-				$statRecord = $statistics->getRecord();
+				$statistics       = Factory::getStatistics();
+				$statRecord       = $statistics->getRecord();
 				$this->saveAsName = $statRecord['absolute_path'];
 				break;
 
@@ -193,11 +223,11 @@ abstract class Base extends Part
 
 		if ($partNumber > 0)
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, "AkeebaDomainDBBackup :: Creating new SQL dump part #$partNumber");
+			Factory::getLog()->debug("AkeebaDomainDBBackup :: Creating new SQL dump part #$partNumber");
 		}
 
-		Factory::getLog()->log(LogLevel::DEBUG, "AkeebaDomainDBBackup :: SQL temp file is " . $this->tempFile);
-		Factory::getLog()->log(LogLevel::DEBUG, "AkeebaDomainDBBackup :: SQL file location in archive is " . $this->saveAsName);
+		Factory::getLog()->debug("AkeebaDomainDBBackup :: SQL temp file is " . $this->tempFile);
+		Factory::getLog()->debug("AkeebaDomainDBBackup :: SQL file location in archive is " . $this->saveAsName);
 	}
 
 	/**
@@ -206,7 +236,7 @@ abstract class Base extends Part
 	 */
 	protected function removeOldFiles()
 	{
-		Factory::getLog()->log(LogLevel::DEBUG, "AkeebaDomainDBBackup :: Deleting leftover files, if any");
+		Factory::getLog()->debug("AkeebaDomainDBBackup :: Deleting leftover files, if any");
 
 		if (file_exists($this->tempFile))
 		{
@@ -231,6 +261,7 @@ abstract class Base extends Part
 	/**
 	 * Implements the _prepare abstract method
 	 *
+	 * @throws Exception
 	 */
 	protected function _prepare()
 	{
@@ -238,18 +269,18 @@ abstract class Base extends Part
 		$this->setSubstep('');
 
 		// Process parameters, passed to us using the setup() public method
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Processing parameters");
+		Factory::getLog()->debug(__CLASS__ . " :: Processing parameters");
 		if (is_array($this->_parametersArray))
 		{
-			$this->driver = array_key_exists('driver', $this->_parametersArray) ? $this->_parametersArray['driver'] : $this->driver;
-			$this->host = array_key_exists('host', $this->_parametersArray) ? $this->_parametersArray['host'] : $this->host;
-			$this->port = array_key_exists('port', $this->_parametersArray) ? $this->_parametersArray['port'] : $this->port;
-			$this->username = array_key_exists('username', $this->_parametersArray) ? $this->_parametersArray['username'] : $this->username;
-			$this->username = array_key_exists('user', $this->_parametersArray) ? $this->_parametersArray['user'] : $this->username;
-			$this->password = array_key_exists('password', $this->_parametersArray) ? $this->_parametersArray['password'] : $this->password;
-			$this->database = array_key_exists('database', $this->_parametersArray) ? $this->_parametersArray['database'] : $this->database;
-			$this->prefix = array_key_exists('prefix', $this->_parametersArray) ? $this->_parametersArray['prefix'] : $this->prefix;
-			$this->dumpFile = array_key_exists('dumpFile', $this->_parametersArray) ? $this->_parametersArray['dumpFile'] : $this->dumpFile;
+			$this->driver             = array_key_exists('driver', $this->_parametersArray) ? $this->_parametersArray['driver'] : $this->driver;
+			$this->host               = array_key_exists('host', $this->_parametersArray) ? $this->_parametersArray['host'] : $this->host;
+			$this->port               = array_key_exists('port', $this->_parametersArray) ? $this->_parametersArray['port'] : $this->port;
+			$this->username           = array_key_exists('username', $this->_parametersArray) ? $this->_parametersArray['username'] : $this->username;
+			$this->username           = array_key_exists('user', $this->_parametersArray) ? $this->_parametersArray['user'] : $this->username;
+			$this->password           = array_key_exists('password', $this->_parametersArray) ? $this->_parametersArray['password'] : $this->password;
+			$this->database           = array_key_exists('database', $this->_parametersArray) ? $this->_parametersArray['database'] : $this->database;
+			$this->prefix             = array_key_exists('prefix', $this->_parametersArray) ? $this->_parametersArray['prefix'] : $this->prefix;
+			$this->dumpFile           = array_key_exists('dumpFile', $this->_parametersArray) ? $this->_parametersArray['dumpFile'] : $this->dumpFile;
 			$this->processEmptyPrefix = array_key_exists('process_empty_prefix', $this->_parametersArray) ? $this->_parametersArray['process_empty_prefix'] : $this->processEmptyPrefix;
 		}
 
@@ -261,10 +292,6 @@ abstract class Base extends Part
 
 		// Find tables to be included and put them in the $_tables variable
 		$this->getTablesToBackup();
-		if ($this->getError())
-		{
-			return;
-		}
 
 		// Find where to store the database backup files
 		$this->getBackupFilePaths($this->partNumber);
@@ -274,7 +301,7 @@ abstract class Base extends Part
 
 		// Initialize the extended INSERTs feature
 		$this->extendedInserts = ($configuration->get('engine.dump.common.extended_inserts', 0) != 0);
-		$this->packetSize = (int) $configuration->get('engine.dump.common.packet_size', 0);
+		$this->packetSize      = (int) $configuration->get('engine.dump.common.packet_size', 0);
 
 		if ($this->packetSize == 0)
 		{
@@ -293,18 +320,19 @@ abstract class Base extends Part
 		}
 
 		// Initialize the algorithm
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Initializing algorithm for first run");
+		Factory::getLog()->debug(__CLASS__ . " :: Initializing algorithm for first run");
 		$this->nextTable = array_shift($this->tables);
 
 		// If there is no table to back up we are done with the database backup
 		if (empty($this->nextTable))
 		{
-			$this->setState('postrun');
+			$this->setState(self::STATE_POSTRUN);
+
 			return;
 		}
 
 		$this->nextRange = 0;
-		$this->query = '';
+		$this->query     = '';
 
 		// FIX 2.2: First table of extra databases was not being written to disk.
 		// This deserved a place in the Bug Fix Hall Of Fame. In subsequent calls to _init, the $fp in
@@ -315,18 +343,20 @@ abstract class Base extends Part
 		$this->writeline($null);
 
 		// Finally, mark ourselves "prepared".
-		$this->setState('prepared');
+		$this->setState(self::STATE_PREPARED);
 	}
 
 	/**
 	 * Implements the _run() abstract method
+	 *
+	 * @throws Exception
 	 */
 	protected function _run()
 	{
 		// Check if we are already done
-		if ($this->getState() == 'postrun')
+		if ($this->getState() == self::STATE_POSTRUN)
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Already finished");
+			Factory::getLog()->debug(__CLASS__ . " :: Already finished");
 			$this->setStep("");
 			$this->setSubstep("");
 
@@ -334,7 +364,7 @@ abstract class Base extends Part
 		}
 
 		// Mark ourselves as still running (we will test if we actually do towards the end ;) )
-		$this->setState('running');
+		$this->setState(self::STATE_RUNNING);
 
 		/**
 		 * Resume packing / post-processing part files if necessary.
@@ -357,19 +387,16 @@ abstract class Base extends Part
 		 */
 		if (Factory::getEngineParamsProvider()->getScriptingParameter('db.saveasname', 'normal') != 'output')
 		{
-			$archiver      = Factory::getArchiverEngine();
-			$configuration = Factory::getConfiguration();
+			$archiver                     = Factory::getArchiverEngine();
+			$configuration                = Factory::getConfiguration();
 
-			// Case 1. Immediate post-processing was triggered in the previous step
-			if ($configuration->get('engine.postproc.common.after_part', 0) && !empty($archiver->finishedPart))
+			// Check whether we need to immediately post-processing a done part
+			if (Pack::postProcessDonePartFile($archiver, $configuration))
 			{
-				if (Pack::postProcessDonePartFile($this, $archiver, $configuration))
-				{
-					return;
-				}
+				return;
 			}
 
-			// We had already started archiving the db file, but it needs more time
+			// We had already started putting the DB dump file into the archive but it needs more time
 			if ($configuration->get('volatile.engine.archiver.processingfile', false))
 			{
 				/**
@@ -396,10 +423,11 @@ abstract class Base extends Part
 	/**
 	 * Implements the _finalize() abstract method
 	 *
+	 * @throws Exception
 	 */
 	protected function _finalize()
 	{
-		Factory::getLog()->log(LogLevel::DEBUG, "Adding any extra SQL statements imposed by the filters");
+		Factory::getLog()->debug("Adding any extra SQL statements imposed by the filters");
 		$filters = Factory::getFilters();
 		$this->writeline($filters->getExtraSQL($this->databaseRoot));
 
@@ -417,30 +445,16 @@ abstract class Base extends Part
 			if ($configuration->get('volatile.engine.archiver.processingfile', false))
 			{
 				// We had already started archiving the db file, but it needs more time
-				Factory::getLog()->log(LogLevel::DEBUG, "Continuing adding the SQL dump to the archive");
+				Factory::getLog()->debug("Continuing adding the SQL dump to the archive");
 				$archiver->addFile(null, null, null);
-
-				$this->propagateFromObject($archiver);
-
-				if ($this->getError())
-				{
-					return;
-				}
 
 				$finished = !$configuration->get('volatile.engine.archiver.processingfile', false);
 			}
 			else
 			{
 				// We have to add the dump file to the archive
-				Factory::getLog()->log(LogLevel::DEBUG, "Adding the final SQL dump to the archive");
+				Factory::getLog()->debug("Adding the final SQL dump to the archive");
 				$archiver->addFileRenamed($this->tempFile, $this->saveAsName);
-
-				$this->propagateFromObject($archiver);
-
-				if ($this->getError())
-				{
-					return;
-				}
 
 				$finished = !$configuration->get('volatile.engine.archiver.processingfile', false);
 			}
@@ -448,32 +462,33 @@ abstract class Base extends Part
 		else
 		{
 			// We just have to move the dump file to its final destination
-			Factory::getLog()->log(LogLevel::DEBUG, "Moving the SQL dump to its final location");
+			Factory::getLog()->debug("Moving the SQL dump to its final location");
 			$result = Platform::getInstance()->move($this->tempFile, $this->saveAsName);
 
 			if (!$result)
 			{
-				$this->setError('Could not move the SQL dump to its final location');
+				Factory::getLog()->debug("Removing temporary file of final SQL dump");
+				Factory::getTempFiles()->unregisterAndDeleteTempFile($this->tempFile, true);
+
+				throw new RuntimeException('Could not move the SQL dump to its final location');
 			}
 		}
 
 		// Make sure that if the archiver needs more time to process the file we can supply it
 		if ($finished)
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, "Removing temporary file of final SQL dump");
+			Factory::getLog()->debug("Removing temporary file of final SQL dump");
 			Factory::getTempFiles()->unregisterAndDeleteTempFile($this->tempFile, true);
 
-			if ($this->getError())
-			{
-				return;
-			}
-
-			$this->setState('finished');
+			$this->setState(self::STATE_FINISHED);
 		}
 	}
 
 	/**
 	 * Creates a new dump part
+	 *
+	 * @return bool
+	 * @throws Exception
 	 */
 	protected function getNextDumpPart()
 	{
@@ -484,8 +499,8 @@ abstract class Base extends Part
 		}
 
 		// Is the archiver still processing?
-		$configuration = Factory::getConfiguration();
-		$archiver      = Factory::getArchiverEngine();
+		$configuration   = Factory::getConfiguration();
+		$archiver        = Factory::getArchiverEngine();
 		$stillProcessing = $configuration->get('volatile.engine.archiver.processingfile', false);
 
 		if ($stillProcessing)
@@ -494,8 +509,8 @@ abstract class Base extends Part
 			 * The archiver is still adding the previous dump part. This means that we are called from the top few lines
 			 * of the _run method. We must continue adding the previous dump part.
 			 */
-			Factory::getLog()->log(LogLevel::DEBUG, "Continuing adding the SQL dump part to the archive");
-			$result = $archiver->addFile('', '', '');
+			Factory::getLog()->debug("Continuing adding the SQL dump part to the archive");
+			$archiver->addFile('', '', '');
 		}
 		else
 		{
@@ -504,17 +519,8 @@ abstract class Base extends Part
 			 * close it and ask the archiver to add it to the backup archive.
 			 */
 			$this->closeFile();
-			Factory::getLog()->log(LogLevel::DEBUG, "Adding the SQL dump part to the archive");
-			$result = $archiver->addFileRenamed($this->tempFile, $this->saveAsName);
-		}
-
-		// Propagate errors and warnings from the archiver
-		$this->propagateFromObject($archiver);
-
-		// Did the archiver return an error?
-		if ($this->getError())
-		{
-			return false;
+			Factory::getLog()->debug("Adding the SQL dump part to the archive");
+			$archiver->addFileRenamed($this->tempFile, $this->saveAsName);
 		}
 
 		// Return false if the file didn't finish getting added to the archive
@@ -531,7 +537,7 @@ abstract class Base extends Part
 		 */
 
 		// Remove the old file
-		Factory::getLog()->log(LogLevel::DEBUG, "Removing dump part's temporary file");
+		Factory::getLog()->debug("Removing dump part's temporary file");
 		Factory::getTempFiles()->unregisterAndDeleteTempFile($this->tempFile, true);
 
 		// Create the new dump part
@@ -547,6 +553,7 @@ abstract class Base extends Part
 	 * Creates a new dump part, but only if required to do so
 	 *
 	 * @return bool
+	 * @throws Exception
 	 */
 	protected function createNewPartIfRequired()
 	{
@@ -580,7 +587,7 @@ abstract class Base extends Part
 	/**
 	 * Returns a table's abstract name (replacing the prefix with the magic #__ string)
 	 *
-	 * @param string $tableName The canonical name, e.g. 'jos_content'
+	 * @param   string  $tableName  The canonical name, e.g. 'jos_content'
 	 *
 	 * @return string The abstract name, e.g. '#__content'
 	 */
@@ -630,6 +637,7 @@ abstract class Base extends Part
 	 * @param   bool    $addMarker  Should I prefix the data with a marker?
 	 *
 	 * @return  boolean  TRUE on successful write, FALSE otherwise
+	 * @throws  Exception
 	 */
 	protected function writeDump($data, $addMarker = false)
 	{
@@ -647,20 +655,17 @@ abstract class Base extends Part
 				$this->largest_query = strlen($data);
 				Factory::getConfiguration()->set('volatile.database.largest_query', $this->largest_query);
 			}
-
 		}
 
 		if ((strlen($this->data_cache) >= $this->cache_size) || (is_null($data) && (!empty($this->data_cache))))
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, "Writing " . strlen($this->data_cache) . " bytes to the dump file");
+			Factory::getLog()->debug("Writing " . strlen($this->data_cache) . " bytes to the dump file");
 			$result = $this->writeline($this->data_cache);
 
 			if (!$result)
 			{
-				$errorMessage = 'Couldn\'t write to the SQL dump file ' . $this->tempFile . '; check the temporary directory permissions and make sure you have enough disk space available.';
-				$this->setError($errorMessage);
-
-				return false;
+				$errorMessage = sprintf('Couldn\'t write to the SQL dump file %s; check the temporary directory permissions and make sure you have enough disk space available.', $this->tempFile);
+				throw new RuntimeException($errorMessage);
 			}
 
 			$this->data_cache = '';
@@ -673,9 +678,10 @@ abstract class Base extends Part
 	 * Saves the string in $fileData to the file $backupfile. Returns TRUE. If saving
 	 * failed, return value is FALSE.
 	 *
-	 * @param string $fileData Data to write. Set to null to close the file handle.
+	 * @param   string  $fileData  Data to write. Set to null to close the file handle.
 	 *
 	 * @return boolean TRUE is saving to the file succeeded
+	 * @throws Exception
 	 */
 	protected function writeline(&$fileData)
 	{
@@ -685,9 +691,7 @@ abstract class Base extends Part
 
 			if ($this->fp === false)
 			{
-				$this->setError('Could not open ' . $this->tempFile . ' for append, in DB dump.');
-
-				return false;
+				throw new RuntimeException('Could not open ' . $this->tempFile . ' for append, in DB dump.');
 			}
 		}
 
@@ -718,43 +722,11 @@ abstract class Base extends Part
 	}
 
 	/**
-	 * This method is called when the factory is being serialized and is used to perform necessary cleanup steps.
-	 *
-	 * @return  void
-	 */
-	function _onSerialize()
-	{
-		$this->closeFile();
-	}
-
-	/**
-	 * This method is called when the object is destroyed and is used to perform necessary cleanup steps.
-	 */
-	function __destruct()
-	{
-		$this->closeFile();
-	}
-
-	/**
-	 * Close any open SQL dump (output) file.
-	 */
-	public function closeFile()
-	{
-		if (!is_resource($this->fp))
-		{
-			return;
-		}
-
-		Factory::getLog()->log(LogLevel::DEBUG, "Closing SQL dump file.");
-
-		@fclose($this->fp);
-		$this->fp = null;
-	}
-
-	/**
 	 * Return an instance of DriverBase
 	 *
 	 * @return DriverBase|bool
+	 *
+	 * @throws Exception
 	 */
 	protected function &getDB()
 	{
@@ -764,27 +736,18 @@ abstract class Base extends Part
 		$driver   = $this->driver;
 		$database = $this->database;
 		$prefix   = is_null($this->prefix) ? '' : $this->prefix;
-		$options  = ['driver'   => $driver, 'host' => $host, 'user' => $user, 'password' => $password,
-		             'database' => $database, 'prefix' => $prefix,
+		$options  = [
+			'driver'   => $driver, 'host' => $host, 'user' => $user, 'password' => $password,
+			'database' => $database, 'prefix' => $prefix,
 		];
 
 		$db = Factory::getDatabase($options);
 
-		if ($error = $db->getError())
-		{
-			$this->setError(__CLASS__ . ' :: Database Error: ' . $error);
-			$false = false;
-
-			return $false;
-		}
-
 		if ($db->getErrorNum() > 0)
 		{
 			$error = $db->getErrorMsg();
-			$this->setError(__CLASS__ . ' :: Database Error: ' . $error);
-			$false = false;
 
-			return $false;
+			throw new RuntimeException(__CLASS__ . ' :: Database Error: ' . $error);
 		}
 
 		return $db;
@@ -814,34 +777,11 @@ abstract class Base extends Part
 	}
 
 	/**
-	 * Call a specific stage of the dump engine
-	 *
-	 * @param   string  $stage
-	 */
-	public function callStage($stage)
-	{
-		switch ($stage)
-		{
-			case '_prepare':
-				$this->_prepare();
-				break;
-
-			case '_run':
-				$this->_run();
-				break;
-
-			case '_finalize':
-				$this->_finalize();
-				break;
-		}
-	}
-
-	/**
 	 * Post process a quoted value before it's written to the database dump.
 	 * So far it's only required for SQL Server which has a problem escaping
 	 * newline characters...
 	 *
-	 * @param   string $value The quoted value to post-process
+	 * @param   string  $value  The quoted value to post-process
 	 *
 	 * @return  string
 	 */
@@ -857,9 +797,9 @@ abstract class Base extends Part
 	 *
 	 * Practical use: the SET IDENTITY_INSERT sometable ON required for SQL Server
 	 *
-	 * @param   string  $tableAbstract Abstract name of the table, e.g. #__foobar
-	 * @param   string  $tableName     Real name of the table, e.g. abc_foobar
-	 * @param   integer $maxRange      Row count on this table
+	 * @param   string   $tableAbstract  Abstract name of the table, e.g. #__foobar
+	 * @param   string   $tableName      Real name of the table, e.g. abc_foobar
+	 * @param   integer  $maxRange       Row count on this table
 	 *
 	 * @return  string   The SQL commands you want to be written in the dump file
 	 */
@@ -875,9 +815,9 @@ abstract class Base extends Part
 	 *
 	 * Practical use: the SET IDENTITY_INSERT sometable OFF required for SQL Server
 	 *
-	 * @param   string  $tableAbstract Abstract name of the table, e.g. #__foobar
-	 * @param   string  $tableName     Real name of the table, e.g. abc_foobar
-	 * @param   integer $maxRange      Row count on this table
+	 * @param   string   $tableAbstract  Abstract name of the table, e.g. #__foobar
+	 * @param   string   $tableName      Real name of the table, e.g. abc_foobar
+	 * @param   integer  $maxRange       Row count on this table
 	 *
 	 * @return  string   The SQL commands you want to be written in the dump file
 	 */
@@ -891,9 +831,10 @@ abstract class Base extends Part
 	 * required for Microsoft SQL Server because without it the SET IDENTITY_INSERT
 	 * has no effect.
 	 *
-	 * @param   array|string  $fieldNames   A list of field names in array format or '*' if it's all fields
+	 * @param   array|string  $fieldNames  A list of field names in array format or '*' if it's all fields
 	 *
 	 * @return  string
+	 * @throws Exception
 	 */
 	protected function getFieldListSQL($fieldNames)
 	{
@@ -920,5 +861,62 @@ abstract class Base extends Part
 	protected function getSelectColumns($tableAbstract)
 	{
 		return '*';
+	}
+
+	/**
+	 * Converts a human formatted size to integer representation of bytes,
+	 * e.g. 1M to 1024768
+	 *
+	 * @param   string  $setting  The value in human readable format, e.g. "1M"
+	 *
+	 * @return  integer  The value in bytes
+	 */
+	protected function humanToIntegerBytes($setting)
+	{
+		$val  = trim($setting);
+		$last = strtolower($val[strlen($val) - 1]);
+
+		if (is_numeric($last))
+		{
+			return $setting;
+		}
+
+		switch ($last)
+		{
+			case 't':
+				$val *= 1024;
+			case 'g':
+				$val *= 1024;
+			case 'm':
+				$val *= 1024;
+			case 'k':
+				$val *= 1024;
+		}
+
+		return (int) $val;
+	}
+
+	/**
+	 * Get the PHP memory limit in bytes
+	 *
+	 * @return int|null  Memory limit in bytes or null if we can't figure it out.
+	 */
+	protected function getMemoryLimit()
+	{
+		if (!function_exists('ini_get'))
+		{
+			return null;
+		}
+
+		$memLimit = ini_get("memory_limit");
+
+		if ((is_numeric($memLimit) && ($memLimit < 0)) || !is_numeric($memLimit))
+		{
+			$memLimit = 0; // 1.2a3 -- Rare case with memory_limit < 0, e.g. -1Mb!
+		}
+
+		$memLimit = $this->humanToIntegerBytes($memLimit);
+
+		return $memLimit;
 	}
 }

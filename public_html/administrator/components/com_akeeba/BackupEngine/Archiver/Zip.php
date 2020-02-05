@@ -1,23 +1,21 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Archiver;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Base\Exceptions\ErrorException;
 use Akeeba\Engine\Base\Exceptions\WarningException;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Util\CRC32;
-use Psr\Log\LogLevel;
+use RuntimeException;
 
 class Zip extends BaseArchiver
 {
@@ -54,16 +52,16 @@ class Zip extends BaseArchiver
 	/**
 	 * Class constructor - initializes internal operating parameters
 	 *
-	 * @return Zip
+	 * @return  void
 	 */
 	public function __construct()
 	{
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: New instance");
+		Factory::getLog()->debug(__CLASS__ . " :: New instance");
 
 		// Find the optimal chunk size for ZIP archive processing
 		$this->findOptimalChunkSize();
 
-		Factory::getLog()->log(LogLevel::DEBUG, "Chunk size for CRC is now " . $this->AkeebaPackerZIP_CHUNK_SIZE . " bytes");
+		Factory::getLog()->debug("Chunk size for CRC is now " . $this->AkeebaPackerZIP_CHUNK_SIZE . " bytes");
 
 		// Should I use Symlink Target Storage?
 		$this->enableSymlinkTargetStorage();
@@ -75,18 +73,18 @@ class Zip extends BaseArchiver
 	 * Initialises the archiver class, creating the archive from an existent
 	 * installer's JPA archive.
 	 *
-	 * @param string $sourceJPAPath     Absolute path to an installer's JPA archive
-	 * @param string $targetArchivePath Absolute path to the generated archive
-	 * @param array  $options           A named key array of options (optional). This is currently not supported
+	 * @param   string  $sourceJPAPath      Absolute path to an installer's JPA archive
+	 * @param   string  $targetArchivePath  Absolute path to the generated archive
+	 * @param   array   $options            A named key array of options (optional). This is currently not supported
 	 *
 	 * @return void
 	 */
-	public function initialize($targetArchivePath, $options = array())
+	public function initialize($targetArchivePath, $options = [])
 	{
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: initialize - archive $targetArchivePath");
+		Factory::getLog()->debug(__CLASS__ . " :: initialize - archive $targetArchivePath");
 
 		// Get names of temporary files
-		$this->_dataFileName            = $targetArchivePath;
+		$this->_dataFileName = $targetArchivePath;
 
 		// Should we enable split archive feature?
 		$this->enableSplitArchives();
@@ -107,14 +105,7 @@ class Zip extends BaseArchiver
 
 	public function finalize()
 	{
-		try
-		{
-			$this->finalizeZIPFile();
-		}
-		catch (ErrorException $e)
-		{
-			$this->setError($e->getMessage());
-		}
+		$this->finalizeZIPFile();
 	}
 
 	/**
@@ -129,9 +120,9 @@ class Zip extends BaseArchiver
 	{
 		// 1. Get size of central directory
 		clearstatcache();
-		$cdOffset = @filesize($this->_dataFileName);
+		$cdOffset                  = @filesize($this->_dataFileName);
 		$this->totalCompressedSize += $cdOffset;
-		$cdSize = @filesize($this->centralDirectoryFilename);
+		$cdSize                    = @filesize($this->centralDirectoryFilename);
 
 		// 2. Append Central Directory to data file and remove the CD temp file afterwards
 		if (!is_null($this->fp))
@@ -201,10 +192,10 @@ class Zip extends BaseArchiver
 			$this->fcloseByName($this->centralDirectoryFilename);
 			$this->cdfp = $this->fopen($this->centralDirectoryFilename, "rb");
 
+			// We tried reopening the central directory file and failed again. Time to report a fatal error.
 			if (!$this->cdfp)
 			{
-				// $this->setWarning("Finalization of the ZIP archive may have been interrupted (cannot get a file pointer for the Central Directory temporary file). Please check that you can extract your ZIP file.");
-				$this->setError("Cannot open central directory temporary file {$this->centralDirectoryFilename} for reading.");
+				throw new RuntimeException("Cannot open central directory temporary file {$this->centralDirectoryFilename} for reading.");
 			}
 		}
 
@@ -236,11 +227,6 @@ class Zip extends BaseArchiver
 		// 3. Write the rest of headers to the end of the ZIP file
 		$this->fwrite($this->fp, $this->centralDirectoryRecordEndSignature);
 
-		if ($this->getError())
-		{
-			return;
-		}
-
 		if ($this->useSplitArchive)
 		{
 			// Split ZIP files, enter relevant disk number information
@@ -270,15 +256,13 @@ class Zip extends BaseArchiver
 
 			if ($extension != '.zip')
 			{
-				Factory::getLog()->log(LogLevel::DEBUG, 'Renaming last ZIP part to .ZIP extension');
+				Factory::getLog()->debug('Renaming last ZIP part to .ZIP extension');
 
 				$newName = $this->dataFileNameWithoutExtension . '.zip';
 
 				if (!@rename($this->_dataFileName, $newName))
 				{
-					$this->setError('Could not rename last ZIP part to .ZIP extension.');
-
-					return;
+					throw new RuntimeException('Could not rename last ZIP part to .ZIP extension.');
 				}
 
 				$this->_dataFileName = $newName;
@@ -292,10 +276,7 @@ class Zip extends BaseArchiver
 			}
 		}
 
-		if (function_exists('chmod'))
-		{
-			@chmod($this->_dataFileName, 0644);
-		}
+		@chmod($this->_dataFileName, 0644);
 	}
 
 	/**
@@ -316,7 +297,7 @@ class Zip extends BaseArchiver
 	 */
 	protected function __bootstrap_code()
 	{
-		if ( !defined('_AKEEBA_COMPRESSION_THRESHOLD'))
+		if (!defined('_AKEEBA_COMPRESSION_THRESHOLD'))
 		{
 			$config = Factory::getConfiguration();
 			define("_AKEEBA_COMPRESSION_THRESHOLD", $config->get('engine.archiver.common.big_file_threshold')); // Don't compress files over this size
@@ -332,10 +313,10 @@ class Zip extends BaseArchiver
 	 * The most basic file transaction: add a single entry (file or directory) to
 	 * the archive.
 	 *
-	 * @param bool   $isVirtual        If true, the next parameter contains file data instead of a file name
-	 * @param string $sourceNameOrData Absolute file name to read data from or the file data itself is $isVirtual is
-	 *                                 true
-	 * @param string $targetName       The (relative) file name under which to store the file in the archive
+	 * @param   bool    $isVirtual         If true, the next parameter contains file data instead of a file name
+	 * @param   string  $sourceNameOrData  Absolute file name to read data from or the file data itself is $isVirtual is
+	 *                                     true
+	 * @param   string  $targetName        The (relative) file name under which to store the file in the archive
 	 *
 	 * @return bool True on success, false otherwise
 	 */
@@ -364,33 +345,33 @@ class Zip extends BaseArchiver
 		$compressionMethod = 1;
 		$zdata             = null;
 		// If we are continuing file packing we have an uncompressed, non-virtual file.
-		$isVirtual         = $continueProcessingFile ? false : $isVirtual;
-		$resume            = $continueProcessingFile ? 0 : null;
+		$isVirtual = $continueProcessingFile ? false : $isVirtual;
+		$resume    = $continueProcessingFile ? 0 : null;
 
 		if (!$continueProcessingFile)
 		{
 			// Log the file being added
 			$messageSource = $isVirtual ? '(virtual data)' : "(source: $sourceNameOrData)";
-			Factory::getLog()->log(LogLevel::DEBUG, "-- Adding $targetName to archive $messageSource");
+			Factory::getLog()->debug("-- Adding $targetName to archive $messageSource");
 
 			$this->writeFileHeader($sourceNameOrData, $targetName, $isVirtual, $isSymlink, $isDir,
 				$compressionMethod, $zdata, $unc_len,
-				$storedName , $crc, $c_len, $hexdtime, $old_offset);
+				$storedName, $crc, $c_len, $hexdtime, $old_offset);
 		}
 		else
 		{
 			// Since we are continuing archiving, it's an uncompressed regular file. Set up the variables.
-			$sourceNameOrData  = $configuration->get('volatile.engine.archiver.sourceNameOrData', '');
-			$resume            = $configuration->get('volatile.engine.archiver.resume', 0);
-			$unc_len           = $configuration->get('volatile.engine.archiver.unc_len');
-			$storedName        = $configuration->get('volatile.engine.archiver.storedName');
-			$crc               = $configuration->get('volatile.engine.archiver.crc');
-			$c_len             = $configuration->get('volatile.engine.archiver.c_len');
-			$hexdtime          = $configuration->get('volatile.engine.archiver.hexdtime');
-			$old_offset        = $configuration->get('volatile.engine.archiver.old_offset');
+			$sourceNameOrData = $configuration->get('volatile.engine.archiver.sourceNameOrData', '');
+			$resume           = $configuration->get('volatile.engine.archiver.resume', 0);
+			$unc_len          = $configuration->get('volatile.engine.archiver.unc_len');
+			$storedName       = $configuration->get('volatile.engine.archiver.storedName');
+			$crc              = $configuration->get('volatile.engine.archiver.crc');
+			$c_len            = $configuration->get('volatile.engine.archiver.c_len');
+			$hexdtime         = $configuration->get('volatile.engine.archiver.hexdtime');
+			$old_offset       = $configuration->get('volatile.engine.archiver.old_offset');
 
 			// Log the file we continue packing
-			Factory::getLog()->log(LogLevel::DEBUG, "-- Resuming adding file $sourceNameOrData to archive from position $resume (total size $unc_len)");
+			Factory::getLog()->debug("-- Resuming adding file $sourceNameOrData to archive from position $resume (total size $unc_len)");
 		}
 
 		/* "File data" segment. */
@@ -565,7 +546,7 @@ class Zip extends BaseArchiver
 
 		if ($isVirtual)
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, '  Virtual add:' . $targetName . ' (' . $unc_len . ') - ' . $compressionMethod);
+			Factory::getLog()->debug('  Virtual add:' . $targetName . ' (' . $unc_len . ') - ' . $compressionMethod);
 		}
 
 		/* "Local file header" segment. */
@@ -577,7 +558,7 @@ class Zip extends BaseArchiver
 		if (!$isSymlink && $isDir)
 		{
 			$storedName .= "/";
-			$unc_len = 0;
+			$unc_len    = 0;
 		}
 
 		// Test for non-existing or unreadable files
@@ -692,10 +673,10 @@ class Zip extends BaseArchiver
 	/**
 	 * Calculate the CRC-32 checksum
 	 *
-	 * @param   string  $sourceNameOrData   The path to the file being compressed, or the raw file data for virtual files
-	 * @param   bool    $isVirtual          Is this a virtual file?
-	 * @param   bool    $isSymlink          Is this a symlink?
-	 * @param   bool    $isDir              Is this a directory?
+	 * @param   string  $sourceNameOrData  The path to the file being compressed, or the raw file data for virtual files
+	 * @param   bool    $isVirtual         Is this a virtual file?
+	 * @param   bool    $isSymlink         Is this a symlink?
+	 * @param   bool    $isDir             Is this a directory?
 	 *
 	 * @return  int  The CRC-32
 	 */
@@ -740,7 +721,7 @@ class Zip extends BaseArchiver
 	 * (date in high 2-bytes, time in low 2-bytes allowing magnitude
 	 * comparison).
 	 *
-	 * @param integer $unixtime The current UNIX timestamp.
+	 * @param   integer  $unixtime  The current UNIX timestamp.
 	 *
 	 * @return integer  The current date in a 4-byte DOS format.
 	 */
@@ -769,7 +750,7 @@ class Zip extends BaseArchiver
 	/**
 	 * Creates a new part for the spanned archive
 	 *
-	 * @param   bool $finalPart Is this the final archive part?
+	 * @param   bool  $finalPart  Is this the final archive part?
 	 *
 	 * @return  bool  True on success
 	 */
@@ -816,7 +797,7 @@ class Zip extends BaseArchiver
 			$this->_dataFileName = $this->dataFileNameWithoutExtension . '.z' . sprintf('%02d', $this->currentPartNumber);
 		}
 
-		Factory::getLog()->log(LogLevel::INFO, 'Creating new ZIP part #' . $this->currentPartNumber . ', file ' . $this->_dataFileName);
+		Factory::getLog()->info('Creating new ZIP part #' . $this->currentPartNumber . ', file ' . $this->_dataFileName);
 
 		// Inform the backup engine that we have changed the multipart number
 		$statistics = Factory::getStatistics();
@@ -828,10 +809,7 @@ class Zip extends BaseArchiver
 		// Touch the new file
 		$result = @touch($this->_dataFileName);
 
-		if (function_exists('chmod'))
-		{
-			chmod($this->_dataFileName, 0666);
-		}
+		@chmod($this->_dataFileName, 0666);
 
 		return $result;
 	}
@@ -922,7 +900,7 @@ class Zip extends BaseArchiver
 
 		$this->centralDirectoryFilename = Factory::getTempFiles()->registerTempFile($this->centralDirectoryFilename);
 
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: CntDir Tempfile = " . $this->centralDirectoryFilename);
+		Factory::getLog()->debug(__CLASS__ . " :: CntDir Tempfile = " . $this->centralDirectoryFilename);
 
 		// Create temporary file
 		if (!@touch($this->centralDirectoryFilename))
@@ -930,9 +908,6 @@ class Zip extends BaseArchiver
 			throw new ErrorException("Could not open temporary file for ZIP archiver. Please check your temporary directory's permissions!");
 		}
 
-		if (function_exists('chmod'))
-		{
-			chmod($this->centralDirectoryFilename, 0666);
-		}
+		@chmod($this->centralDirectoryFilename, 0666);
 	}
 }

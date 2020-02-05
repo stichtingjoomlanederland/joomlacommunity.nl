@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class acymimportHelper extends acymObject
 {
@@ -807,21 +798,30 @@ class acymimportHelper extends acymObject
 
     public function _subscribeUsers()
     {
-
-        if (empty($this->allSubid)) {
-            return true;
-        }
+        if (empty($this->allSubid)) return true;
 
         $subdate = date('Y-m-d H:i:s', time());
 
         $listClass = acym_get('class.list');
         $lists = $this->getImportedLists();
 
+        if (!acym_isAdmin() && 'joomla' === ACYM_CMS) {
+            $listClass = acym_get('class.list');
+            $listManagementId = $listClass->getfrontManagementList();
+            if (empty($listManagementId)) {
+                acym_redirect(acym_rootURI(), 'ACYM_UNABLE_TO_CREATE_MANAGEMENT_LIST', 'error');
+            }
+
+            if (empty($lists)) {
+                $lists = [$listManagementId => 1];
+            } else {
+                $lists[$listManagementId] = 1;
+            }
+        }
+
         if (!empty($this->importUserInLists)) {
             foreach ($this->importUserInLists as $listid => $arrayEmails) {
-                if (empty($listid)) {
-                    continue;
-                }
+                if (empty($listid)) continue;
 
                 $listid = (int)$listid;
                 $query = 'INSERT IGNORE INTO #__acym_user_has_list (`list_id`,`user_id`,`subscription_date`,`status`) ';

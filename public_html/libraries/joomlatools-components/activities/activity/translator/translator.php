@@ -476,7 +476,7 @@ class ComActivitiesActivityTranslator extends KObjectDecorator implements ComAct
             $b      = sprintf("%0" . $elements . "b", $i);
             $member = array();
             for ($j = 0; $j < $elements; $j++) {
-                if ($b{$j} == '1') $member[] = $set[$j];
+                if ($b[$j] == '1') $member[] = $set[$j];
             }
 
             if (count($member) >= $min_length)

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -13,6 +13,7 @@ defined('_JEXEC') or die();
 use Akeeba\Backup\Admin\Controller\Mixin\CustomACL;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
+use Exception;
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
 use JText;
@@ -99,24 +100,25 @@ class RemoteFiles extends Controller
 
 		/** @var \Akeeba\Backup\Admin\Model\RemoteFiles $model */
 		$model = $this->getModel();
-		$model->setState('id', $id);
-		$model->setState('part', $part);
-		$model->setState('frag', $frag);
 
-		$result = $model->downloadToServer();
-
-		if ($result['finished'])
+		try
 		{
-			$url = 'index.php?option=com_akeeba&view=RemoteFiles&tmpl=component&task=listactions&id=' . $id;
-			$this->setRedirect($url, JText::_('COM_AKEEBA_REMOTEFILES_LBL_JUSTFINISHED'));
+			$result = $model->downloadToServer($id, $part, $frag);
+		}
+		catch (Exception $e)
+		{
+			$allErrors = $model->getErrorsFromExceptions($e);
+			$url       = 'index.php?option=com_akeeba&view=RemoteFiles&tmpl=component&task=listactions&id=' . $id;
+
+			$this->setRedirect($url, implode('<br/>', $allErrors), 'error');
 
 			return;
 		}
 
-		if ($result['error'])
+		if ($result === true)
 		{
 			$url = 'index.php?option=com_akeeba&view=RemoteFiles&tmpl=component&task=listactions&id=' . $id;
-			$this->setRedirect($url, $result['error'], 'error');
+			$this->setRedirect($url, JText::_('COM_AKEEBA_REMOTEFILES_LBL_JUSTFINISHED'));
 
 			return;
 		}
@@ -160,7 +162,7 @@ class RemoteFiles extends Controller
 		$filename        = $basename . '.' . $new_extension;
 		$remote_filename = substr($remote_filename, 0, -strlen($extension)) . $new_extension;
 
-		if ($engine->downloads_to_browser_inline)
+		if ($engine->doesInlineDownloadToBrowser())
 		{
 			@ob_end_clean();
 			@clearstatcache();
@@ -189,9 +191,27 @@ class RemoteFiles extends Controller
 			header('Pragma: no-cache');
 		}
 
-		$result = $engine->downloadToBrowser($remote_filename);
+		try
+		{
+			$result = $engine->downloadToBrowser($remote_filename);
+		}
+		catch (Exception $e)
+		{
+			// Failed to download. Get the messages from the engine.
+			$errors          = [];
+			$parentException = $e;
+			while ($parentException)
+			{
+				$errors[]        = $e->getMessage();
+				$parentException = $e->getPrevious();
+			}
 
-		if (is_string($result) && ($result !== true) && $result !== false)
+			// Redirect and convey the errors to the user
+			$url = 'index.php?option=com_akeeba&view=RemoteFiles&tmpl=component&task=listactions&id=' . $id;
+			$this->setRedirect($url, implode('<br/>', $errors), 'error');
+		}
+
+		if (!is_null($result))
 		{
 			// We have to redirect
 			$result = str_replace('://%2F', '://', $result);
@@ -200,13 +220,6 @@ class RemoteFiles extends Controller
 			flush();
 
 			$this->container->platform->closeApplication();
-		}
-
-		if ($result === false)
-		{
-			// Failed to download
-			$url = 'index.php?option=com_akeeba&view=RemoteFiles&tmpl=component&task=listactions&id=' . $id;
-			$this->setRedirect($url, $engine->getWarning(), 'error');
 		}
 	}
 
@@ -235,20 +248,24 @@ class RemoteFiles extends Controller
 		$model->setState('id', $id);
 		$model->setState('part', $part);
 
-		$result = $model->deleteRemoteFiles();
+		try
+		{
+			$result = $model->deleteRemoteFiles($id, $part);
+		}
+		catch (Exception $e)
+		{
+			$allErrors = $model->getErrorsFromExceptions($e);
+			$url       = 'index.php?option=com_akeeba&view=RemoteFiles&tmpl=component&task=listactions&id=' . $id;
+
+			$this->setRedirect($url, implode('<br/>', $allErrors), 'error');
+
+			return;
+		}
 
 		if ($result['finished'])
 		{
 			$url = 'index.php?option=com_akeeba&view=RemoteFiles&tmpl=component&task=listactions&id=' . $id;
 			$this->setRedirect($url, JText::_('COM_AKEEBA_REMOTEFILES_LBL_JUSTFINISHEDELETING'));
-
-			return;
-		}
-
-		if ($result['error'])
-		{
-			$url = 'index.php?option=com_akeeba&view=RemoteFiles&tmpl=component&task=listactions&id=' . $id;
-			$this->setRedirect($url, $result['error'], 'error');
 
 			return;
 		}

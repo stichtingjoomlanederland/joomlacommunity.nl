@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<div id="acym_fulldiv_acyprofileform" class="acym_front_page">
+?><div id="acym_fulldiv_acyprofileform" class="acym_front_page">
     <?php
     if (!empty($data['show_page_heading'])) {
         echo '<h1 class="contentheading'.$data['suffix'].'">'.$data['page_heading'].'</h1>';
@@ -20,7 +11,7 @@ defined('_JEXEC') or die('Restricted access');
     }
     ?>
 
-	<form enctype="multipart/form-data" action="<?php echo acym_frontendLink('frontusers', true, acym_isNoTemplate()); ?>" method="post" name="acyprofileform" id="acyprofileform" onsubmit="this.querySelector('input[type=submit]').click(); return false;">
+	<form enctype="multipart/form-data" action="<?php echo acym_frontendLink('frontusers'.(acym_isNoTemplate() ? '&'.acym_noTemplate() : '')); ?>" method="post" name="acyprofileform" id="acyprofileform" onsubmit="this.querySelector('input[type=submit]').click(); return false;">
 		<fieldset class="adminform acy_user_info">
 			<legend><span><?php echo acym_translation('ACYM_USER_INFORMATION'); ?></span></legend>
             <?php
@@ -120,7 +111,14 @@ defined('_JEXEC') or die('Restricted access');
                             }
 
                             echo '<div class="acym_list">
-                                    <div class="acystatus">'.acym_radio($values, "data[listsub][".$row->id."][status]", $row->status, [], ['id' => 'status'.$k++]).'</div>
+                                    <div class="acystatus">'.acym_radio(
+                                    $values,
+                                    'data[listsub]['.$row->id.'][status]',
+                                    $row->status,
+                                    [],
+                                    ['id' => 'status'.$k++],
+                                    true
+                                ).'</div>
                                     <div class="list_name">'.$row->name.'</div>
                                 </div>';
                         }

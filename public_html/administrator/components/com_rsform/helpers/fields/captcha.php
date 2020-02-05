@@ -132,7 +132,9 @@ class RSFormProFieldCaptcha extends RSFormProField
 			'type="text"',
 			'name="'.$word.'"',
 			'value=""',
-			'style="'.$style.'"'
+			'style="'.$style.'"',
+			'aria-hidden="true"',
+			'aria-label="do not use"',
 		);
 		shuffle($properties);
 		
@@ -188,6 +190,12 @@ class RSFormProFieldCaptcha extends RSFormProField
 
 	public function processValidation($validationType = 'form', $submissionId = 0)
 	{
+		// Skip directory editing since it makes no sense
+		if ($validationType == 'directory')
+		{
+			return true;
+		}
+
 		$form 			= RSFormProHelper::getForm($this->formId);
 		$captchaCode 	= JFactory::getSession()->get('com_rsform.captcha.captchaId' . $this->componentId);
 		$value			= $this->getValue();

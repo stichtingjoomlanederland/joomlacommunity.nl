@@ -321,7 +321,7 @@ class EasyDiscussNotifications extends EasyDiscuss
 		static $fromname = null;
 
 		if (!$fromname) {
-			
+
 			$fromname = $config->get('notification_sender_name', ED::jconfig()->getValue('fromname'));
 		}
 
@@ -560,7 +560,7 @@ class EasyDiscussNotifications extends EasyDiscuss
 
 		$query .= 'select distinct(a.`email`) ' . $collation . ' AS `email` from `#__users` as a';
 		$query .= ' INNER JOIN #__user_usergroup_map as b on b.`user_id` = a.`id`';
-		$query .= ' WHERE b.`group_id` IN (' . $userGroupIds. ')'; 
+		$query .= ' WHERE b.`group_id` IN (' . $userGroupIds. ')';
 		$query .= ' AND a.`block` = 0';
 
 		if ($includesGuest) {

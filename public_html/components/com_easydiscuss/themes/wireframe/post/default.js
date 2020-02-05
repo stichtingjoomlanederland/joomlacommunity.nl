@@ -504,7 +504,7 @@ ed.require(['edq', 'chosen'], function($) {
 
 			alertMessage
 				.html(message)
-				.addClass('alert alert-success');
+				.addClass('o-alert o-alert--success');
 
 		}).fail(function(message) {
 
@@ -514,7 +514,7 @@ ed.require(['edq', 'chosen'], function($) {
 			// Append the failed message on notifications
 			alertMessage
 				.html(message)
-				.addClass('alert alert-danger');
+				.addClass('o-alert o-alert--danger');
 		});
 
 	});

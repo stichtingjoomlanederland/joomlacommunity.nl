@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<div class="cell grid-x acym__content" id="acym__plugin__installed">
+?><div class="cell grid-x acym__content" id="acym__plugin__installed">
 	<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" class="cell grid-x acym__form__campaign__edit" data-abide>
 		<input type="hidden" name="all__plugins" id="acym__plugins__all" value="<?php echo empty($data['plugins']) ? '[]' : acym_escape($data['plugins']); ?>">
         <?php
@@ -20,7 +11,7 @@ defined('_JEXEC') or die('Restricted access');
             <?php if (strpos($data['plugins'], '"total":"0"') !== false) { ?>
 				<div class="cell grid-x align-center">
 					<h2 class="cell text-center acym__title__primary__color"><?php echo acym_translation('ACYM_YOU_DONT_HAVE_ADD_ONS'); ?></h2>
-					<a href="<?php echo acym_completeLink('plugins&task=available'); ?>" class="cell shrink button smaller-button text-center margin-top-1 margin-bottom-2"><?php echo acym_translation('ACYM_DOWNLOAD_MY_FIRST_ONE'); ?></a>
+					<a href="<?php echo acym_completeLink('plugins&task=available'); ?>" class="cell shrink button  text-center margin-top-1 margin-bottom-2"><?php echo acym_translation('ACYM_DOWNLOAD_MY_FIRST_ONE'); ?></a>
 				</div>
             <?php } else { ?>
 				<div class="cell grid-x grid-margin-x">
@@ -45,7 +36,7 @@ defined('_JEXEC') or die('Restricted access');
 					<div class="cell grid-x grid-margin-x grid-margin-y" v-show="!loading" style="display: none;" v-infinite-scroll="loadMorePlugins" :infinite-scroll-disabled="busy">
 						<div class="acym__plugins__card cell grid-x xlarge-3 large-4 medium-6" v-for="(plugin, index) in displayedPlugins" :key="plugin" :style="transitionDelay(index)">
 							<button @click="deletePlugin(plugin.id)" type="button" class="acym__plugins__button__delete">
-								<i class="fa fa-trash-o"></i>
+								<i class="acymicon-trash-o"></i>
 							</button>
 							<div class="acym__plugins__card__image margin-bottom-1 cell grid-x align-center">
 								<img :src="imageUrl(plugin.folder_name)" alt="plugin image" class="cell">
@@ -54,7 +45,7 @@ defined('_JEXEC') or die('Restricted access');
 							<div class="acym__plugins__card__params cell grid-x">
 								<div class="cell grid-x acym_vcenter acym__plugins__card__params__first">
 									<h2 class="cell medium-10 acym__plugins__card__params__title">{{ plugin.title }}</h2>
-									<a target="_blank" :href="documentationUrl(plugin.folder_name)" class="acym__plugins__link cell medium-2"><i class="fa fa-book"></i></a>
+									<a target="_blank" :href="documentationUrl(plugin.folder_name)" class="acym__plugins__link cell medium-2"><i class="acymicon-book"></i></a>
 								</div>
 								<div ref="plugins" :class="isOverflown(index)" class="acym__plugins__card__params_desc cell" v-html="plugin.description"></div>
 								<div class="acym__plugins__card__actions cell grid-x acym_vcenter" v-show="rightLevel(plugin.level)">

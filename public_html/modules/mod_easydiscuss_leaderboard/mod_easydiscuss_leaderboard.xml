@@ -2,12 +2,12 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Leaderboard</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>10th October 2019</creationDate>
+	<creationDate>14th January 2020</creationDate>
 	<copyright>Copyright 2009 - 2016 StackIdeas. All rights reserved.</copyright>
 	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>4.1.12</version>
+	<version>4.1.13</version>
 	<description><![CDATA[This module will display a list of users in a ranking order.]]></description>
 	<languages>
 		<language tag="en-GB">en-GB.mod_easydiscuss_leaderboard.ini</language>

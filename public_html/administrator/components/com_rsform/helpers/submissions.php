@@ -191,9 +191,9 @@ abstract class RSFormProSubmissionsHelper
 
                             	foreach ($file as $actualFile)
 								{
-									if (file_exists($file) && is_file($file))
+									if (file_exists($actualFile) && is_file($actualFile))
 									{
-										JFile::delete($file);
+										JFile::delete($actualFile);
 									}
 								}
                             }

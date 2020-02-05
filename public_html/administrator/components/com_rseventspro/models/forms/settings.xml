@@ -464,6 +464,10 @@
 				<option value="1">JYES</option>
 				<option value="0">JNO</option>
 			</field>
+			<field name="show_details_thumb" type="radio" class="btn-group" default="1" label="COM_RSEVENTSPRO_CONF_GALLERY_SHOW_DETAILS" description="COM_RSEVENTSPRO_CONF_GALLERY_SHOW_DETAILS_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
 		</fieldset>
 	</fields>
 	

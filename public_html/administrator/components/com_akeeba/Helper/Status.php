@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -74,9 +74,6 @@ class Status
 	 */
 	public function __construct()
 	{
-		$status               = Factory::getConfigurationChecks()->getFolderStatus();
-		$this->outputWritable = $this->status['output'];
-		$this->tempWritable   = $this->status['temporary'];
 		$this->status         = Factory::getConfigurationChecks()->getShortStatus();
 		$this->warnings       = Factory::getConfigurationChecks()->getDetailedStatus();
 	}

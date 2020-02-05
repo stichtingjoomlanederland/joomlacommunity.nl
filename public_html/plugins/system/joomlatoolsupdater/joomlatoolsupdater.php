@@ -11,6 +11,7 @@ class PlgSystemJoomlatoolsupdater extends JPlugin
     protected static $_extensions = array(
         'docman' => array('type' => 'component', 'element' => 'com_docman'),
         'fileman' => array('type' => 'component', 'element' => 'com_fileman'),
+        'leadman' => array('type' => 'component', 'element' => 'com_leadman'),
         'logman' => array('type' => 'component', 'element' => 'com_logman'),
         'textman' => array('type' => 'component', 'element' => 'com_textman'),
         'connect' => array('type' => 'plugin', 'element' => 'connect', 'folder' => 'koowa')

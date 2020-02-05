@@ -162,9 +162,38 @@ try {
         @unlink('../j25_30_bfnetwork.xml');
     }
 
+    if (!class_exists('bfEvents')) {
+        require 'bfEvents.php';
+    }
+
+    if (!class_exists('bfActivitylog')) {
+        require 'bfActivitylog.php';
+    }
+
+    if (!defined('_BF_AUDIT')) {
+        require 'bfInitJoomla.php';
+    }
+
+    // Log that the connector was upgraded
+    bfActivitylog::getInstance()->log(
+        'bfNetwork',
+        null,
+        'mySites.guru connector auto-upgraded to '.file_get_contents('./VERSION'),
+        'bfnetwork',
+        null,
+        null,
+        null,
+        'bfnetwork',
+        json_encode(array(
+            'version' => file_get_contents('./VERSION'),
+        )),
+        'onConnectorUpgrade',
+        bfEvents::onConnectorUpgrade
+    );
+
     // Reply with a great big high five!
     bfEncrypt::reply(bfReply::SUCCESS, array(
-        'version' => file_get_contents('VERSION'),
+        'version' => file_get_contents('./VERSION'),
     ));
 } catch (Exception $e) {
     bfEncrypt::reply(bfReply::ERROR, 'EXCEPTION: '.$e->getMessage());

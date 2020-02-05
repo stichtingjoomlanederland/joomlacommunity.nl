@@ -7,6 +7,8 @@
 
 defined('JPATH_PLATFORM') or die;
 
+require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/rsform.php';
+
 JFormHelper::loadFieldClass('list');
 
 class JFormFieldForms extends JFormFieldList

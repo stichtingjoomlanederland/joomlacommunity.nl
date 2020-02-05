@@ -82,7 +82,11 @@ class ComDocmanViewListHtml extends ComDocmanViewHtml
             $search_contents = $filter->search_contents === null ? true : $filter->search_contents;
 
             // Needs to come from request as category model does not have a status state
-            $status = $this->getObject('request')->query->status;
+            $query  = $this->getObject('request')->query;
+            $status = $query->status;
+            $offset = $state->offset ? $state->offset : ($query->offset ? $query->offset : $query->limitstart);
+
+            $state->offset = $offset;
 
             $model = $this->getObject('com://site/docman.controller.document')
                 ->enabled($state->enabled)

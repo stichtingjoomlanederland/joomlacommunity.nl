@@ -1,19 +1,19 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc\Connector\S3v4\Signature;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Postproc\Connector\S3v4\Signature;
+use DateTime;
+use DateTimeZone;
 
 /**
  * Implements the Amazon AWS v4 signatures
@@ -58,8 +58,8 @@ class V4 extends Signature
 	 * Get a pre-signed URL for the request. Typically used to pre-sign GET requests to objects, i.e. give shareable
 	 * pre-authorized URLs for downloading files from S3.
 	 *
-	 * @param   integer  $lifetime    Lifetime in seconds
-	 * @param   boolean  $https       Use HTTPS ($hostBucket should be false for SSL verification)?
+	 * @param   integer  $lifetime  Lifetime in seconds
+	 * @param   boolean  $https     Use HTTPS ($hostBucket should be false for SSL verification)?
 	 *
 	 * @return  string  The presigned URL
 	 */
@@ -126,7 +126,7 @@ class V4 extends Signature
 		}
 
 		// Get the credentials scope
-		$signatureDate = new \DateTime($headers['Date']);
+		$signatureDate = new DateTime($headers['Date']);
 
 		$credentialScope = $signatureDate->format('Ymd') . '/' .
 			$this->request->getConfiguration()->getRegion() . '/' .
@@ -141,13 +141,13 @@ class V4 extends Signature
 		if (isset($headers['Expires']))
 		{
 			$gmtDate = clone $signatureDate;
-			$gmtDate->setTimezone(new \DateTimeZone('GMT'));
+			$gmtDate->setTimezone(new DateTimeZone('GMT'));
 
-			$parameters['X-Amz-Algorithm']      = "AWS4-HMAC-SHA256";
-			$parameters['X-Amz-Credential']     = $this->request->getConfiguration()->getAccess() . '/' . $credentialScope;
-			$parameters['X-Amz-Date']           = $gmtDate->format('Ymd\THis\Z');
-			$parameters['X-Amz-Expires']        = sprintf('%u', $headers['Expires']);
-			$token                              = $this->request->getConfiguration()->getToken();
+			$parameters['X-Amz-Algorithm']  = "AWS4-HMAC-SHA256";
+			$parameters['X-Amz-Credential'] = $this->request->getConfiguration()->getAccess() . '/' . $credentialScope;
+			$parameters['X-Amz-Date']       = $gmtDate->format('Ymd\THis\Z');
+			$parameters['X-Amz-Expires']    = sprintf('%u', $headers['Expires']);
+			$token                          = $this->request->getConfiguration()->getToken();
 
 			if (!empty($token))
 			{
@@ -159,14 +159,14 @@ class V4 extends Signature
 			unset($headers['Content-MD5']);
 			unset($headers['Content-Type']);
 
-			$isPresignedURL  = true;
+			$isPresignedURL = true;
 		}
 
 		// ========== Step 1: Create a canonical request ==========
 		// See http://docs.aws.amazon.com/general/latest/gr/sigv4-create-canonical-request.html
 
-		$canonicalHeaders = "";
-		$signedHeadersArray = array();
+		$canonicalHeaders   = "";
+		$signedHeadersArray = [];
 
 		// Calculate the canonical headers and the signed headers
 		if ($isPresignedURL)
@@ -194,7 +194,7 @@ class V4 extends Signature
 				$v = "$v,$v";
 			}
 
-			$canonicalHeaders .= $lowercaseHeaderName . ':' . trim($v) . "\n";
+			$canonicalHeaders     .= $lowercaseHeaderName . ':' . trim($v) . "\n";
 			$signedHeadersArray[] = $lowercaseHeaderName;
 		}
 
@@ -236,7 +236,7 @@ class V4 extends Signature
 		if ($questionMarkPos !== false)
 		{
 			$canonicalURI = substr($canonicalURI, 0, $questionMarkPos);
-			$queryString = @substr($canonicalURI, $questionMarkPos + 1);
+			$queryString  = @substr($canonicalURI, $questionMarkPos + 1);
 			@parse_str($queryString, $extraQuery);
 
 			if (count($extraQuery))
@@ -254,7 +254,7 @@ class V4 extends Signature
 
 		if (!empty($parameters))
 		{
-			$temp = array();
+			$temp = [];
 
 			foreach ($parameters as $k => $v)
 			{
@@ -332,11 +332,11 @@ class V4 extends Signature
 	/**
 	 * Calculate the AWS4 signing key
 	 *
-	 * @param   \DateTime  $signatureDate  The date the signing key is good for
+	 * @param   DateTime  $signatureDate  The date the signing key is good for
 	 *
 	 * @return  string
 	 */
-	private function getSigningKey(\DateTime $signatureDate)
+	private function getSigningKey(DateTime $signatureDate)
 	{
 		$kSecret  = $this->request->getConfiguration()->getSecret();
 		$kDate    = hash_hmac('sha256', $signatureDate->format('Ymd'), 'AWS4' . $kSecret, true);

@@ -1,25 +1,12 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php //__START__enterprise_
+?><?php //__START__enterprise_
 if (acym_level(2)) {
     ?>
 	<div class="acym_area padding-vertical-1 padding-horizontal-2">
 		<div class="acym_area_title"><?php echo acym_translation('ACYM_BOUNCE_HANDLING'); ?></div>
 
 		<div class="grid-x">
-			<label class="cell grid-x">
-				<span class="cell medium-3"><?php echo acym_translation('ACYM_BOUNCE_EMAIL'); ?></span>
-				<input class="cell medium-4" type="email" name="config[bounce_email]" placeholder="<?php echo acym_translation('ACYM_BOUNCE_EMAIL_PLACEHOLDER'); ?>" value="<?php echo acym_escape($this->config->get('bounce_email')); ?>" />
-			</label>
 			<label class="cell grid-x">
 				<span class="cell medium-3"><?php echo acym_translation('ACYM_SMTP_SERVER'); ?></span>
 				<input class="cell medium-4" type="text" name="config[bounce_server]" value="<?php echo acym_escape($this->config->get('bounce_server')); ?>">
@@ -36,6 +23,7 @@ if (acym_level(2)) {
                         "" => "---",
                         'imap' => 'IMAP',
                         'pop3' => 'POP3',
+                        'pear' => 'POP3 ('.acym_translation('ACYM_WITHOUT_IMAP_EXT').')',
                     ];
 
                     echo acym_select(

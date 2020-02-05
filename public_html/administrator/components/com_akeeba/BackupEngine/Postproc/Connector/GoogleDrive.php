@@ -1,17 +1,18 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc\Connector;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
+
+use Exception;
+use RuntimeException;
 
 /**
  * Google Drive v3 API integration for Akeeba Engine
@@ -21,55 +22,49 @@ defined('AKEEBAENGINE') or die();
 class GoogleDrive
 {
 	/**
+	 * The root URL for the Google Drive v3 API
+	 */
+	const rootUrl = 'https://www.googleapis.com/drive/v3/';
+	/**
+	 * The root URL for the Google Drive v3 upload API
+	 */
+	const uploadUrl = 'https://www.googleapis.com/upload/drive/v3/';
+	/**
+	 * The URL of the helper script which is used to get fresh API tokens
+	 */
+	const helperUrl = 'https://www.akeebabackup.com/oauth2/googledrive.php';
+	/**
 	 * The access token for connecting to Google Drive
 	 *
 	 * @var string
 	 */
 	private $accessToken = '';
-
 	/**
 	 * The refresh token used to get a new access token for Google Drive
 	 *
 	 * @var string
 	 */
 	private $refreshToken = '';
-
-    /**
-     * Download ID to use with the helper URL
-     *
-     * @var string
-     */
-    private $dlid = '';
-
-    /**
-	 * The root URL for the Google Drive v3 API
-	 */
-	const rootUrl = 'https://www.googleapis.com/drive/v3/';
-
 	/**
-	 * The root URL for the Google Drive v3 upload API
+	 * Download ID to use with the helper URL
+	 *
+	 * @var string
 	 */
-	const uploadUrl = 'https://www.googleapis.com/upload/drive/v3/';
-
-	/**
-	 * The URL of the helper script which is used to get fresh API tokens
-	 */
-	const helperUrl = 'https://www.akeebabackup.com/oauth2/googledrive.php';
-
+	private $dlid = '';
 	/**
 	 * Default cURL options
 	 *
 	 * @var array
 	 */
-	private $defaultOptions = array(
+	private $defaultOptions = [
 		CURLOPT_SSL_VERIFYPEER => true,
 		CURLOPT_SSL_VERIFYHOST => true,
-		CURLOPT_VERBOSE        => true,
+		CURLOPT_VERBOSE        => false,
 		CURLOPT_HEADER         => false,
 		CURLINFO_HEADER_OUT    => false,
 		CURLOPT_RETURNTRANSFER => true,
 		CURLOPT_CAINFO         => AKEEBA_CACERT_PEM,
-	);
+	];
 
 	/**
 	 * Public constructor
@@ -94,18 +89,18 @@ class GoogleDrive
 	 *
 	 * If the refresh failed you'll get a RuntimeException.
 	 *
-	 * @param  bool  $forceRefresh  Set to true to forcibly refresh the tokens
+	 * @param   bool  $forceRefresh  Set to true to forcibly refresh the tokens
 	 *
 	 * @return  array
 	 *
-	 * @throws  \RuntimeException
+	 * @throws  RuntimeException
 	 */
 	public function ping($forceRefresh = false)
 	{
 		// Initialization
-		$response = array(
+		$response = [
 			'needs_refresh' => false,
-		);
+		];
 
 		// If we're not force refreshing the tokens try to get the drive information. It's our test to see if the token
 		// works.
@@ -115,7 +110,7 @@ class GoogleDrive
 			{
 				$dummy = $this->getDriveInformation();
 			}
-			catch (\RuntimeException $e)
+			catch (RuntimeException $e)
 			{
 				// If it failed we need to refresh the token
 				$response['needs_refresh'] = true;
@@ -133,7 +128,7 @@ class GoogleDrive
 		$refreshResponse = $this->fetch('GET', $refreshUrl);
 
 		$this->refreshToken = $refreshResponse['refresh_token'];
-		$this->accessToken = $refreshResponse['access_token'];
+		$this->accessToken  = $refreshResponse['access_token'];
 
 		return array_merge($response, $refreshResponse);
 	}
@@ -147,9 +142,9 @@ class GoogleDrive
 	{
 		$relativeUrl = 'about';
 
-		$result = $this->fetch('GET', $relativeUrl, array(
-			'fields'    => 'appInstalled,kind,maxUploadSize,storageQuota,user'
-		));
+		$result = $this->fetch('GET', $relativeUrl, [
+			'fields' => 'appInstalled,kind,maxUploadSize,storageQuota,user',
+		]);
 
 		return $result;
 	}
@@ -162,7 +157,7 @@ class GoogleDrive
 	 */
 	public function getTeamDrives()
 	{
-		$ret         = array();
+		$ret         = [];
 		$relativeUrl = 'drives';
 		$result      = $this->fetch('GET', $relativeUrl);
 
@@ -302,7 +297,7 @@ class GoogleDrive
 	 *
 	 * @return  null|string     Null if the file doesn't exist (but the path does), the ID otherwise
 	 *
-	 * @throws  \RuntimeException  When the path does not exist
+	 * @throws  RuntimeException  When the path does not exist
 	 */
 	public function getIdForFile($path, $createFolders = false, $teamDriveID = '')
 	{
@@ -318,7 +313,7 @@ class GoogleDrive
 
 		if (is_null($parentId))
 		{
-			throw new \RuntimeException("The path $parentPath does not exist in your Google Drive");
+			throw new RuntimeException("The path $parentPath does not exist in your Google Drive");
 		}
 
 		// Try to find the last part
@@ -441,7 +436,7 @@ JSON;
 	 *
 	 * @return  bool  True on success
 	 *
-	 * @throws  \Exception
+	 * @throws  Exception
 	 */
 	public function delete($fileId, $failOnError = true)
 	{
@@ -451,7 +446,7 @@ JSON;
 				'supportsAllDrives' => 'true',
 			]);
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			if (!$failOnError)
 			{
@@ -496,7 +491,7 @@ JSON;
 
 		if ($filesize > 5242880)
 		{
-			throw new \RuntimeException("File size too big for simpleUpload ($filesize bigger than 5Mb).", 500);
+			throw new RuntimeException("File size too big for simpleUpload ($filesize bigger than 5Mb).", 500);
 		}
 
 		// Make sure we have a remote name
@@ -517,7 +512,7 @@ JSON;
 
 		if (!isset($response['id']))
 		{
-			throw new \RuntimeException("Could not upload $localFile");
+			throw new RuntimeException("Could not upload $localFile");
 		}
 
 		$fileId = $response['id'];
@@ -649,7 +644,7 @@ JSON;
 
 		if ($fp === false)
 		{
-			throw new \RuntimeException("Could not open $localFile for reading", 500);
+			throw new RuntimeException("Could not open $localFile for reading", 500);
 		}
 
 		fseek($fp, $from);
@@ -670,7 +665,7 @@ JSON;
 	 *
 	 * @return  array  See https://developers.google.com/drive/v3/reference/files#resource-representations
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 *
 	 * @see https://developers.google.com/drive/api/v3/resumable-upload
 	 */
@@ -708,7 +703,7 @@ JSON;
 	 *
 	 * @return  array  See https://developers.google.com/drive/v3/reference/files#resource-representations
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function upload($path, $localFile, $partSize = 10485760, $mimeType = 'application/octet-stream', $teamDriveID = '')
 	{
@@ -732,6 +727,46 @@ JSON;
 	}
 
 	/**
+	 * Converts a human readable path into a folder ID and directory name. If any folder in the path does not exist it
+	 * will be created. If a file by the same name already exists in the folder it will be deleted.
+	 *
+	 * @param   string  $path         The human readable path to the file
+	 * @param   string  $teamDriveID  The ID of the Google Team Drive. Empty means we should use the personal Drive (default).
+	 *
+	 * @return  array  array($fileName, $folderId)
+	 *
+	 * @throws Exception
+	 */
+	public function preprocessUploadPath($path, $teamDriveID = '')
+	{
+		// Get the folder and file name
+		$folderName = dirname($path);
+		$fileName   = basename($path);
+		$folderName = trim($folderName, '/');
+		$folderId   = empty($teamDriveID) ? 'root' : $teamDriveID;
+
+		// Find or create the folder
+		if (!empty($folderName))
+		{
+			$folderId = $this->getIdForFolder($folderName, true, $teamDriveID);
+		}
+
+		// If I have a file by the same name in this directory, kill it
+		$search  = 'name = \'' . str_replace('\'', '\\\'', $fileName) . '\'';
+		$results = $this->getRawContents($folderId, $search, 1, null, 'folder,name', $teamDriveID);
+
+		if (!empty($results['files']))
+		{
+			$fileId = $results['files'][0]['id'];
+			$this->delete($fileId, false);
+
+			return [$fileName, $folderId];
+		}
+
+		return [$fileName, $folderId];
+	}
+
+	/**
 	 * Execute an API call
 	 *
 	 * @param   string  $method        The HTTP method
@@ -739,9 +774,9 @@ JSON;
 	 * @param   array   $additional    Additional parameters
 	 * @param   mixed   $explicitPost  Passed explicitly to POST requests if set, otherwise $additional is passed.
 	 *
-	 * @throws  \RuntimeException
-	 *
 	 * @return  array
+	 * @throws  RuntimeException
+	 *
 	 */
 	protected function fetch($method, $relativeUrl, array $additional = [], $explicitPost = null)
 	{
@@ -928,14 +963,14 @@ JSON;
 					@unlink($file);
 				}
 
-				throw new \RuntimeException("Unexpected HTTP status $lastHttpCode", $lastHttpCode);
+				throw new RuntimeException("Unexpected HTTP status $lastHttpCode", $lastHttpCode);
 			}
 		}
 
 		// Did we have a cURL error?
 		if ($errNo)
 		{
-			throw new \RuntimeException("cURL error $errNo: $error", 500);
+			throw new RuntimeException("cURL error $errNo: $error", 500);
 		}
 
 		if ($expectHttpStatus)
@@ -958,7 +993,7 @@ JSON;
 		// Did we get invalid JSON data?
 		if (!empty($originalResponse) && !$response)
 		{
-			throw new \RuntimeException("Invalid JSON data received: $originalResponse", 500);
+			throw new RuntimeException("Invalid JSON data received: $originalResponse", 500);
 		}
 		elseif (empty($originalResponse))
 		{
@@ -973,7 +1008,7 @@ JSON;
 			$error            = $response['error']['code'];
 			$errorDescription = isset($response['error']['message']) ? $response['error']['message'] : 'No error description provided';
 
-			throw new \RuntimeException("Error $error: $errorDescription", 500);
+			throw new RuntimeException("Error $error: $errorDescription", 500);
 		}
 
 		// Did we get an error response (from the helper script)?
@@ -982,49 +1017,9 @@ JSON;
 			$error            = $response['error'];
 			$errorDescription = isset($response['error_description']) ? $response['error_description'] : 'No error description provided';
 
-			throw new \RuntimeException("Error $error: $errorDescription", 500);
+			throw new RuntimeException("Error $error: $errorDescription", 500);
 		}
 
 		return $response;
-	}
-
-	/**
-	 * Converts a human readable path into a folder ID and directory name. If any folder in the path does not exist it
-	 * will be created. If a file by the same name already exists in the folder it will be deleted.
-	 *
-	 * @param   string  $path         The human readable path to the file
-	 * @param   string  $teamDriveID  The ID of the Google Team Drive. Empty means we should use the personal Drive (default).
-	 *
-	 * @return  array  array($fileName, $folderId)
-	 *
-	 * @throws \Exception
-	 */
-	public function preprocessUploadPath($path, $teamDriveID = '')
-	{
-		// Get the folder and file name
-		$folderName = dirname($path);
-		$fileName   = basename($path);
-		$folderName = trim($folderName, '/');
-		$folderId   = empty($teamDriveID) ? 'root' : $teamDriveID;
-
-		// Find or create the folder
-		if (!empty($folderName))
-		{
-			$folderId = $this->getIdForFolder($folderName, true, $teamDriveID);
-		}
-
-		// If I have a file by the same name in this directory, kill it
-		$search  = 'name = \'' . str_replace('\'', '\\\'', $fileName) . '\'';
-		$results = $this->getRawContents($folderId, $search, 1, null, 'folder,name', $teamDriveID);
-
-		if (!empty($results['files']))
-		{
-			$fileId = $results['files'][0]['id'];
-			$this->delete($fileId, false);
-
-			return [$fileName, $folderId];
-		}
-
-		return [$fileName, $folderId];
 	}
 }

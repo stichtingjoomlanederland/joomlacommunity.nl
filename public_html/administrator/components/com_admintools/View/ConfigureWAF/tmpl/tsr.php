@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -43,12 +43,12 @@ defined('_JEXEC') or die;
 	</label>
 
 	<div class="akeeba-form--inline">
-		<input class="input-mini pull-left" type="text" size="5" name="tsrstrikes"
+		<input type="text" size="5" name="tsrstrikes"
 			   value="<?php echo $this->escape($this->wafconfig['tsrstrikes']); ?>"/>
-		<span class="floatme"><?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_TSRNUMFREQ'); ?></span>
-		<input class="input-mini" type="text" size="5" name="tsrnumfreq"
+		<span><?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_TSRNUMFREQ'); ?></span>
+		<input type="text" size="5" name="tsrnumfreq"
 			   value="<?php echo $this->escape($this->wafconfig['tsrnumfreq']); ?>"/>
-		<?php echo Select::trsfreqlist('tsrfrequency', array('class' => 'input-small'), $this->wafconfig['tsrfrequency']); ?>
+		<?php echo Select::trsfreqlist('tsrfrequency', [], $this->wafconfig['tsrfrequency']); ?>
 	</div>
 </div>
 

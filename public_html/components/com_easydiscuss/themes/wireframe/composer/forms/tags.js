@@ -2,6 +2,7 @@ ed.require(['edq', 'select2'], function($) {
 
 	var selector = $('[data-ed-tags-select]');
 	selector.select2({
+		'theme': 'default select2-container--ed-front',
 		tags: <?php echo ($this->acl->allowed('add_tag')) ? 'true' : 'false' ?>,
 		maximumSelectionLength: <?php echo $this->config->get('max_tags_allowed'); ?>,
 		createTag: function(params) {

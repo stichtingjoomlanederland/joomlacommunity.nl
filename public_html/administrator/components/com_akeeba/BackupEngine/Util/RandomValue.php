@@ -1,17 +1,15 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Util;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 /**
  * Crypto-safe random value generator. Based on the Randval class of the Aura for PHP's Session package.
@@ -64,7 +62,7 @@ class RandomValue
 
 			if (extension_loaded('openssl') && (version_compare(PHP_VERSION, '5.3.4') >= 0 || IS_WIN))
 			{
-				$strong = false;
+				$strong    = false;
 				$randBytes = openssl_random_pseudo_bytes($bytes, $strong);
 
 				if ($strong)
@@ -92,16 +90,16 @@ class RandomValue
 	 * of 32 characters has an entropy of 192 bits whereas a random sequence of 32 bytes returned by generate()
 	 * has an entropy of 8 * 32 = 256 bits.
 	 *
-	 * @param int $characters
+	 * @param   int  $characters
 	 *
 	 * @return string
 	 */
 	public function generateString($characters = 32)
 	{
 		$sourceString = str_split('abcdefghijklmnopqrstuvwxyz-ABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789', 1);
-		$ret = '';
+		$ret          = '';
 
-		$bytes = ceil($characters / 4) * 3;
+		$bytes     = ceil($characters / 4) * 3;
 		$randBytes = $this->generate($bytes);
 
 		for ($i = 0; $i < $bytes; $i += 3)
@@ -111,7 +109,7 @@ class RandomValue
 			$subBytes = ord($subBytes[0]) * 65536 + ord($subBytes[1]) * 256 + ord($subBytes[2]);
 			$subBytes = $subBytes & bindec('00000000111111111111111111111111');
 
-			$b = array();
+			$b    = [];
 			$b[0] = $subBytes >> 18;
 			$b[1] = ($subBytes >> 12) & bindec('111111');
 			$b[2] = ($subBytes >> 6) & bindec('111111');
@@ -139,15 +137,15 @@ class RandomValue
 		 * Collect any entropy available in the system along with a number
 		 * of time measurements of operating system randomness.
 		 */
-		$bitsPerRound = 2;
-		$maxTimeMicro = 400;
+		$bitsPerRound  = 2;
+		$maxTimeMicro  = 400;
 		$shaHashLength = 20;
-		$randomStr = '';
-		$total = $length;
+		$randomStr     = '';
+		$total         = $length;
 
 		// Check if we can use /dev/urandom.
 		$urandom = false;
-		$handle = null;
+		$handle  = null;
 
 		// This is PHP 5.3.3 and up
 		if (function_exists('stream_set_read_buffer') && @is_readable('/dev/urandom'))
@@ -162,7 +160,7 @@ class RandomValue
 
 		while ($length > strlen($randomStr))
 		{
-			$bytes = ($total > $shaHashLength)? $shaHashLength : $total;
+			$bytes = ($total > $shaHashLength) ? $shaHashLength : $total;
 			$total -= $bytes;
 
 			/*
@@ -172,7 +170,7 @@ class RandomValue
 			$entropy = rand() . uniqid(mt_rand(), true) . $sslStr;
 			$entropy .= implode('', @fstat(fopen(__FILE__, 'r')));
 			$entropy .= memory_get_usage();
-			$sslStr = '';
+			$sslStr  = '';
 
 			if ($urandom)
 			{
@@ -188,13 +186,13 @@ class RandomValue
 				 *
 				 * Measure the time that the operations will take on average.
 				 */
-				$samples = 3;
+				$samples  = 3;
 				$duration = 0;
 
 				for ($pass = 0; $pass < $samples; ++$pass)
 				{
 					$microStart = microtime(true) * 1000000;
-					$hash = sha1(mt_rand(), true);
+					$hash       = sha1(mt_rand(), true);
 
 					for ($count = 0; $count < 50; ++$count)
 					{
@@ -202,7 +200,7 @@ class RandomValue
 					}
 
 					$microEnd = microtime(true) * 1000000;
-					$entropy .= $microStart . $microEnd;
+					$entropy  .= $microStart . $microEnd;
 
 					if ($microStart >= $microEnd)
 					{
@@ -229,7 +227,7 @@ class RandomValue
 				for ($pass = 0; $pass < $iter; ++$pass)
 				{
 					$microStart = microtime(true);
-					$hash = sha1(mt_rand(), true);
+					$hash       = sha1(mt_rand(), true);
 
 					for ($count = 0; $count < $rounds; ++$count)
 					{

@@ -379,7 +379,12 @@ class ComDocmanControllerBehaviorOrganizable extends KControllerBehaviorAbstract
         $name   = $this->_getUniqueFolderName($category, $folder);
 
         $controller = $this->_getFolderController();
-        $entity = $controller->getModel()->container('docman-files')->folder($folder)->name($name)->fetch();
+
+        try {
+            $entity = $controller->getModel()->container('docman-files')->folder($folder)->name($name)->fetch();
+        } catch (\UnexpectedValueException $e) {
+            $entity = [];
+        }
 
         if (!count($entity))
         {

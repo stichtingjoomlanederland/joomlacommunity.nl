@@ -50,7 +50,7 @@ defined('KOOWA') or die; ?>
                     data-level="<?= $category->level ?>"
                     data-item="<?= $category->id ?>"
                     data-parent="<?= $category->getParentId() ?>"
-                    data-parents="<?= implode($category->getParentIds(), ' ') ?>"
+                    data-parents="<?= implode(' ', $category->getParentIds()) ?>"
                     data-ordering="<?= $category->ordering ?>"
                 >
                     <td class="k-table-data--icon">

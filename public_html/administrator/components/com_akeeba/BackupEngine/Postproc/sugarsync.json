@@ -15,6 +15,18 @@
         "title": "COM_AKEEBA_CONFIG_DELETEAFTER_TITLE",
         "description": "COM_AKEEBA_CONFIG_DELETEAFTER_DESCRIPTION"
     },
+    "engine.postproc.sugarsync.access": {
+        "default": "",
+        "type": "string",
+        "title": "COM_AKEEBA_CONFIG_SUGARSYNC_ACCESS_TITLE",
+        "description": "COM_AKEEBA_CONFIG_SUGARSYNC_ACCESS_DESCRIPTION"
+    },
+    "engine.postproc.sugarsync.private": {
+        "default": "",
+        "type": "password",
+        "title": "COM_AKEEBA_CONFIG_SUGARSYNC_PRIVATE_TITLE",
+        "description": "COM_AKEEBA_CONFIG_SUGARSYNC_PRIVATE_DESCRIPTION"
+    },
     "engine.postproc.sugarsync.email": {
         "default": "",
         "type": "string",

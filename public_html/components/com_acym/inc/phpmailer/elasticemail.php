@@ -4,7 +4,7 @@ acym_cmsLoaded();
 
 
 /**
- * @copyright      Copyright (C) 2009-2019 ACYBA SAS - All rights reserved.
+ * @copyright      Copyright (C) 2009-2020 ACYBA SAS - All rights reserved.
  * @license        GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 class acyElasticemail

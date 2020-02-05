@@ -15,14 +15,6 @@
         "title": "COM_AKEEBA_CONFIG_DELETEAFTER_TITLE",
         "description": "COM_AKEEBA_CONFIG_DELETEAFTER_DESCRIPTION"
     },
-    "engine.postproc.dreamobjects.cluster": {
-        "default": "east",
-        "type": "enum",
-        "enumkeys": "COM_AKEEBA_CONFIG_DREAMOBJECTS_CLUSTER_WEST|COM_AKEEBA_CONFIG_DREAMOBJECTS_CLUSTER_EAST",
-        "enumvalues": "west|east",
-        "title": "COM_AKEEBA_CONFIG_DREAMOBJECTS_CLUSTER_TITLE",
-        "description": "COM_AKEEBA_CONFIG_DREAMOBJECTS_CLUSTER_DESCRIPTION"
-    },
     "engine.postproc.dreamobjects.accesskey": {
         "default": "",
         "type": "string",
@@ -36,7 +28,7 @@
         "description": "COM_AKEEBA_CONFIG_DREAMOBJECTSSECRETKEY_DESCRIPTION"
     },
     "engine.postproc.dreamobjects.usessl": {
-        "default": "0",
+        "default": "1",
         "type": "bool",
         "title": "COM_AKEEBA_CONFIG_DREAMOBJECTSUSESSL_TITLE",
         "description": "COM_AKEEBA_CONFIG_DREAMOBJECTSUSESSL_DESCRIPTION"

@@ -1,17 +1,17 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Util\Pushbullet;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
+
+use CURLFile;
 
 /**
  * Based on Pushbullet-for-PHP 2.10.1 – https://github.com/ivkos/Pushbullet-for-PHP/tree/v2
@@ -45,9 +45,6 @@ defined('AKEEBAENGINE') or die();
  */
 class Connector
 {
-	private $_apiKey;
-	private $_curlCallback;
-
 	const URL_PUSHES = 'https://api.pushbullet.com/v2/pushes';
 	const URL_DEVICES = 'https://api.pushbullet.com/v2/devices';
 	const URL_CONTACTS = 'https://api.pushbullet.com/v2/contacts';
@@ -57,11 +54,13 @@ class Connector
 	const URL_CHANNEL_INFO = 'https://api.pushbullet.com/v2/channel-info';
 	const URL_EPHEMERALS = 'https://api.pushbullet.com/v2/ephemerals';
 	const URL_PHONEBOOK = 'https://api.pushbullet.com/v2/permanents/phonebook';
+	private $_apiKey;
+	private $_curlCallback;
 
 	/**
 	 * Pushbullet constructor.
 	 *
-	 * @param string $apiKey API key.
+	 * @param   string  $apiKey  API key.
 	 *
 	 * @throws ApiException
 	 */
@@ -76,18 +75,46 @@ class Connector
 	}
 
 	/**
+	 * Parse recipient.
+	 *
+	 * @param   string  $recipient  Recipient string.
+	 * @param   array   $data       Data array to populate with the correct recipient parameter.
+	 */
+	private static function _parseRecipient($recipient, array &$data)
+	{
+		if (!empty($recipient))
+		{
+			if (filter_var($recipient, FILTER_VALIDATE_EMAIL) !== false)
+			{
+				$data['email'] = $recipient;
+			}
+			else
+			{
+				if (substr($recipient, 0, 1) == "#")
+				{
+					$data['channel_tag'] = substr($recipient, 1);
+				}
+				else
+				{
+					$data['device_iden'] = $recipient;
+				}
+			}
+		}
+	}
+
+	/**
 	 * Push a note.
 	 *
-	 * @param string $recipient Recipient. Can be device_iden, email or channel #tagname.
-	 * @param string $title     The note's title.
-	 * @param string $body      The note's message.
+	 * @param   string  $recipient  Recipient. Can be device_iden, email or channel #tagname.
+	 * @param   string  $title      The note's title.
+	 * @param   string  $body       The note's message.
 	 *
 	 * @return object Response.
 	 * @throws ApiException
 	 */
 	public function pushNote($recipient, $title, $body = null)
 	{
-		$data = array();
+		$data = [];
 
 		Connector::_parseRecipient($recipient, $data);
 		$data['type']  = 'note';
@@ -100,17 +127,17 @@ class Connector
 	/**
 	 * Push a link.
 	 *
-	 * @param string $recipient Recipient. Can be device_iden, email or channel #tagname.
-	 * @param string $title     The link's title.
-	 * @param string $url       The URL to open.
-	 * @param string $body      A message associated with the link.
+	 * @param   string  $recipient  Recipient. Can be device_iden, email or channel #tagname.
+	 * @param   string  $title      The link's title.
+	 * @param   string  $url        The URL to open.
+	 * @param   string  $body       A message associated with the link.
 	 *
 	 * @return object Response.
 	 * @throws ApiException
 	 */
 	public function pushLink($recipient, $title, $url, $body = null)
 	{
-		$data = array();
+		$data = [];
 
 		Connector::_parseRecipient($recipient, $data);
 		$data['type']  = 'link';
@@ -124,16 +151,16 @@ class Connector
 	/**
 	 * Push a checklist.
 	 *
-	 * @param string   $recipient Recipient. Can be device_iden, email or channel #tagname.
-	 * @param string   $title     The list's title.
-	 * @param string[] $items     The list items.
+	 * @param   string    $recipient  Recipient. Can be device_iden, email or channel #tagname.
+	 * @param   string    $title      The list's title.
+	 * @param   string[]  $items      The list items.
 	 *
 	 * @return object Response.
 	 * @throws ApiException
 	 */
 	public function pushList($recipient, $title, array $items)
 	{
-		$data = array();
+		$data = [];
 
 		Connector::_parseRecipient($recipient, $data);
 		$data['type']  = 'list';
@@ -146,20 +173,20 @@ class Connector
 	/**
 	 * Push a file.
 	 *
-	 * @param string $recipient   Recipient. Can be device_iden, email or channel #tagname.
-	 * @param string $filePath    The path of the file to push.
-	 * @param string $mimeType    The MIME type of the file. If null, we'll try to guess it.
-	 * @param string $title       The title of the push notification.
-	 * @param string $body        The body of the push notification.
-	 * @param string $altFileName Alternative file name to use instead of the original one.
-	 *                            For example, you might want to push 'someFile.tmp' as 'image.jpg'.
+	 * @param   string  $recipient    Recipient. Can be device_iden, email or channel #tagname.
+	 * @param   string  $filePath     The path of the file to push.
+	 * @param   string  $mimeType     The MIME type of the file. If null, we'll try to guess it.
+	 * @param   string  $title        The title of the push notification.
+	 * @param   string  $body         The body of the push notification.
+	 * @param   string  $altFileName  Alternative file name to use instead of the original one.
+	 *                                For example, you might want to push 'someFile.tmp' as 'image.jpg'.
 	 *
 	 * @return object Response.
 	 * @throws ApiException
 	 */
 	public function pushFile($recipient, $filePath, $mimeType = null, $title = null, $body = null, $altFileName = null)
 	{
-		$data = array();
+		$data = [];
 
 		$fullFilePath = realpath($filePath);
 
@@ -184,7 +211,7 @@ class Connector
 
 		if (version_compare(PHP_VERSION, '5.5.0', '>='))
 		{
-			$response->data->file = new \CURLFile($fullFilePath);
+			$response->data->file = new CURLFile($fullFilePath);
 		}
 		else
 		{
@@ -205,17 +232,17 @@ class Connector
 	/**
 	 * Get push history.
 	 *
-	 * @param int    $modifiedAfter Request pushes modified after this UNIX timestamp.
-	 * @param string $cursor        Request the next page via its cursor from a previous response. See the API
-	 *                              documentation (https://docs.pushbullet.com/http/) for a detailed description.
-	 * @param int    $limit         Maximum number of objects on each page.
+	 * @param   int     $modifiedAfter  Request pushes modified after this UNIX timestamp.
+	 * @param   string  $cursor         Request the next page via its cursor from a previous response. See the API
+	 *                                  documentation (https://docs.pushbullet.com/http/) for a detailed description.
+	 * @param   int     $limit          Maximum number of objects on each page.
 	 *
 	 * @return object Response.
 	 * @throws ApiException
 	 */
 	public function getPushHistory($modifiedAfter = 0, $cursor = null, $limit = null)
 	{
-		$data                   = array();
+		$data                   = [];
 		$data['modified_after'] = $modifiedAfter;
 
 		if ($cursor !== null)
@@ -234,20 +261,20 @@ class Connector
 	/**
 	 * Dismiss a push.
 	 *
-	 * @param string $pushIden push_iden of the push notification.
+	 * @param   string  $pushIden  push_iden of the push notification.
 	 *
 	 * @return object Response.
 	 * @throws ApiException
 	 */
 	public function dismissPush($pushIden)
 	{
-		return $this->_curlRequest(self::URL_PUSHES . '/' . $pushIden, 'POST', array('dismissed' => true));
+		return $this->_curlRequest(self::URL_PUSHES . '/' . $pushIden, 'POST', ['dismissed' => true]);
 	}
 
 	/**
 	 * Delete a push.
 	 *
-	 * @param string $pushIden push_iden of the push notification.
+	 * @param   string  $pushIden  push_iden of the push notification.
 	 *
 	 * @return object Response.
 	 * @throws ApiException
@@ -260,17 +287,17 @@ class Connector
 	/**
 	 * Get a list of available devices.
 	 *
-	 * @param int    $modifiedAfter Request devices modified after this UNIX timestamp.
-	 * @param string $cursor        Request the next page via its cursor from a previous response. See the API
-	 *                              documentation (https://docs.pushbullet.com/http/) for a detailed description.
-	 * @param int    $limit         Maximum number of objects on each page.
+	 * @param   int     $modifiedAfter  Request devices modified after this UNIX timestamp.
+	 * @param   string  $cursor         Request the next page via its cursor from a previous response. See the API
+	 *                                  documentation (https://docs.pushbullet.com/http/) for a detailed description.
+	 * @param   int     $limit          Maximum number of objects on each page.
 	 *
 	 * @return object Response.
 	 * @throws ApiException
 	 */
 	public function getDevices($modifiedAfter = 0, $cursor = null, $limit = null)
 	{
-		$data                   = array();
+		$data                   = [];
 		$data['modified_after'] = $modifiedAfter;
 
 		if ($cursor !== null)
@@ -300,63 +327,34 @@ class Connector
 	/**
 	 * Update preferences for the current user.
 	 *
-	 * @param array $preferences Preferences.
+	 * @param   array  $preferences  Preferences.
 	 *
 	 * @return object Response.
 	 * @throws ApiException
 	 */
 	public function updateUserPreferences($preferences)
 	{
-		return $this->_curlRequest(self::URL_USERS . '/me', 'POST', array('preferences' => $preferences));
+		return $this->_curlRequest(self::URL_USERS . '/me', 'POST', ['preferences' => $preferences]);
 	}
 
 	/**
 	 * Add a callback function that will be invoked right before executing each cURL request.
 	 *
-	 * @param callable $callback The callback function.
+	 * @param   callable  $callback  The callback function.
 	 */
 	public function addCurlCallback(callable $callback)
 	{
 		$this->_curlCallback = $callback;
 	}
 
-
-	/**
-	 * Parse recipient.
-	 *
-	 * @param string $recipient Recipient string.
-	 * @param array  $data      Data array to populate with the correct recipient parameter.
-	 */
-	private static function _parseRecipient($recipient, array &$data)
-	{
-		if (!empty($recipient))
-		{
-			if (filter_var($recipient, FILTER_VALIDATE_EMAIL) !== false)
-			{
-				$data['email'] = $recipient;
-			}
-			else
-			{
-				if (substr($recipient, 0, 1) == "#")
-				{
-					$data['channel_tag'] = substr($recipient, 1);
-				}
-				else
-				{
-					$data['device_iden'] = $recipient;
-				}
-			}
-		}
-	}
-
 	/**
 	 * Send a request to a remote server using cURL.
 	 *
-	 * @param string $url        URL to send the request to.
-	 * @param string $method     HTTP method.
-	 * @param array  $data       Query data.
-	 * @param bool   $sendAsJSON Send the request as JSON.
-	 * @param bool   $auth       Use the API key to authenticate
+	 * @param   string  $url         URL to send the request to.
+	 * @param   string  $method      HTTP method.
+	 * @param   array   $data        Query data.
+	 * @param   bool    $sendAsJSON  Send the request as JSON.
+	 * @param   bool    $auth        Use the API key to authenticate
 	 *
 	 * @return object Response.
 	 * @throws ApiException
@@ -384,10 +382,10 @@ class Connector
 			if ($sendAsJSON)
 			{
 				$data = json_encode($data);
-				curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+				curl_setopt($curl, CURLOPT_HTTPHEADER, [
 					'Content-Type: application/json',
-					'Content-Length: ' . strlen($data)
-				));
+					'Content-Length: ' . strlen($data),
+				]);
 			}
 
 			curl_setopt($curl, CURLOPT_POSTFIELDS, $data);

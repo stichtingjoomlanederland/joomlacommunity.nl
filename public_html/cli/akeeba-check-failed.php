@@ -1,30 +1,54 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
-// Define ourselves as a parent file
-define('_JEXEC', 1);
+use Akeeba\Engine\Platform;
+
+// Enable and include Akeeba Engine
+define('AKEEBAENGINE', 1);
 
 // Setup and import the base CLI script
 $minphp = '5.6.0';
-$curdir = __DIR__;
 
-require_once __DIR__ . '/../administrator/components/com_akeeba/Master/Cli/Base.php';
+// Boilerplate -- START
+define('_JEXEC', 1);
 
-// Enable Akeeba Engine
-define('AKEEBAENGINE', 1);
+foreach ([__DIR__, getcwd()] as $curdir)
+{
+	if (file_exists($curdir . '/defines.php'))
+	{
+		define('JPATH_BASE', realpath($curdir . '/..'));
+		require_once $curdir . '/defines.php';
 
-use Akeeba\Engine\Platform;
+		break;
+	}
+
+	if (file_exists($curdir . '/../includes/defines.php'))
+	{
+		define('JPATH_BASE', realpath($curdir . '/..'));
+		require_once $curdir . '/../includes/defines.php';
+
+		break;
+	}
+}
+
+defined('JPATH_LIBRARIES') || die ('This script must be placed in or run from the cli folder of your site.');
+
+require_once JPATH_LIBRARIES . '/fof30/Cli/Application.php';
+// Boilerplate -- END
+
+// Load the version file
+require_once JPATH_ADMINISTRATOR . '/components/com_akeeba/version.php';
 
 /**
  * Akeeba Backup Check failed application
  */
-class AkeebaBackupCheckfailed extends AkeebaCliBase
+class AkeebaBackupCheckfailed extends FOFApplicationCLI
 {
-	public function execute()
+	public function doExecute()
 	{
 		// Load the language files
 		$paths	 = array(JPATH_ADMINISTRATOR, JPATH_ROOT);
@@ -128,8 +152,6 @@ ENDBLOCK;
 		exit();
 	}
 }
-// Load the version file
-require_once JPATH_ADMINISTRATOR . '/components/com_akeeba/version.php';
 
-// Instanciate and run the application
-AkeebaCliBase::getInstance('AkeebaBackupCheckfailed')->execute();
+// Instantiate and run the application
+FOFApplicationCLI::getInstance('AkeebaBackupCheckfailed')->execute();

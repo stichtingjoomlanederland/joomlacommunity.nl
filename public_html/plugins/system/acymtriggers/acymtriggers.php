@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class plgSystemAcymtriggers extends JPlugin
 {
@@ -48,6 +39,9 @@ class plgSystemAcymtriggers extends JPlugin
     {
         if (is_object($user)) $user = get_object_vars($user);
         if ($success === false || empty($user['email']) || !$this->initAcy()) return true;
+
+        $listClass = acym_get('class.list');
+        $listClass->synchDeleteCmsList($user['id']);
 
         $userClass = acym_get('class.user');
         if (!method_exists($userClass, 'synchDeleteCmsUser')) return true;

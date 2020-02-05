@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class acymcampaignClass extends acymClass
 {
@@ -60,7 +51,7 @@ class acymcampaignClass extends acymClass
     {
         $tagClass = acym_get('class.tag');
         $mailClass = acym_get('class.mail');
-        
+
         $query = 'SELECT campaign.*, mail.name, mail_stat.sent AS subscribers, mail_stat.open_unique FROM #__acym_campaign AS campaign';
         $queryCount = 'SELECT campaign.* FROM #__acym_campaign AS campaign';
         $filters = [];
@@ -69,6 +60,10 @@ class acymcampaignClass extends acymClass
         $query .= ' JOIN #__acym_mail AS mail ON campaign.mail_id = mail.id';
         $queryCount .= ' JOIN #__acym_mail AS mail ON campaign.mail_id = mail.id';
         $query .= ' LEFT JOIN #__acym_mail_stat AS mail_stat ON campaign.mail_id = mail_stat.mail_id';
+
+        if (!acym_isAdmin()) {
+            $filters[] = 'mail.creator_id = '.intval(acym_currentUserId());
+        }
 
         if (!empty($settings['tag'])) {
             $tagJoin = ' JOIN #__acym_tag AS tag ON campaign.mail_id = tag.id_element';
@@ -111,7 +106,8 @@ class acymcampaignClass extends acymClass
         }
 
         if (empty($settings['elementsPerPage']) || $settings['elementsPerPage'] < 1) {
-            $settings['elementsPerPage'] = acym_getCMSConfig('list_limit', 20);
+            $pagination = acym_get('helper.pagination');
+            $settings['elementsPerPage'] = $pagination->getListLimit();
         }
 
         $results['elements'] = $this->decode(acym_loadObjectList($query, '', $settings['offset'], $settings['elementsPerPage']));
@@ -243,15 +239,29 @@ class acymcampaignClass extends acymClass
         return $campaignID;
     }
 
+    public function onlyManageableCampaigns(&$elements)
+    {
+        if (acym_isAdmin()) return;
+
+        $idCurrentUser = acym_currentUserId();
+        if (empty($idCurrentUser)) return;
+
+        $manageable = acym_loadResultArray(
+            'SELECT campaign.id 
+            FROM #__acym_campaign AS campaign 
+            JOIN #__acym_mail AS mail ON campaign.mail_id = mail.id 
+            WHERE mail.creator_id = '.intval($idCurrentUser)
+        );
+        $elements = array_intersect($elements, $manageable);
+    }
+
     public function delete($elements)
     {
-        if (!is_array($elements)) {
-            $elements = [$elements];
-        }
+        if (!is_array($elements)) $elements = [$elements];
+        acym_arrayToInteger($elements);
+        $this->onlyManageableCampaigns($elements);
 
-        if (empty($elements)) {
-            return 0;
-        }
+        if (empty($elements)) return 0;
 
         $mailsToDelete = [];
         foreach ($elements as $id) {
@@ -325,6 +335,8 @@ class acymcampaignClass extends acymClass
 
         $mailStat['total_subscribers'] += intval($result);
         $mailStat['send_date'] = $date;
+
+        if (!empty($mailStat['sent'])) unset($mailStat['sent']);
 
         $mailStatClass->save($mailStat);
 

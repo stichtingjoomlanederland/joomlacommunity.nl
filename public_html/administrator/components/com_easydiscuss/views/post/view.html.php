@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2020 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyBlog is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -24,20 +24,35 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 
 		$post = ED::post($id);
 
+		if ($post->isNew()) {
+			$this->getSessionData($post);
+		}
+
 		// Select top 20 tags.
 		$tagmodel = ED::model('Tags');
 		$tags = $tagmodel->getTagCloud('20','post_count','DESC');
 
+		// default to current logged in user
+		$author = ED::user();
+
 		$categoryModel = ED::model('Category');
 		$defaultCategory = $categoryModel->getDefaultCategory();
 
-		$nestedCategories = ED::populateCategories('', '', 'select', 'category_id', $defaultCategory->id, true, true, true, true, 'form-control');
+		$categoryId = $defaultCategory->id;
+
+		// check if there is category saved in session or not.
+		if (isset($post->sessiondata) && $post->sessiondata) {
+			$categoryId = $post->category_id;
+
+			$author = ED::user($post->user_id);
+		}
+
+		$nestedCategories = ED::populateCategories('', '', 'select', 'category_id', $categoryId, true, true, true, true, 'form-control');
 
 		// Get the composer library
 		$operation = $post->isNew() ? 'creating' : 'editing';
 		$composer = ED::composer($operation, $post);
 
-		$author = ED::user();
 		$creatorName = $author->getName();
 
 		$returnUrl = 'index.php?option=com_easydiscuss&view=posts';
@@ -70,14 +85,6 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 		$postModel = ED::model('Post');
 		$post->tags = $postModel->getPostTags($post->id);
 
-		// Convert html to bbcode content if the editor is bbcode.
-		if ($this->config->get('layout_editor') == 'bbcode') {
-			$post->content = ED::parser()->html2bbcode($post->content);
-		} else if ($this->config->get('layout_editor') != 'bbcode' && $post->content_type == 'bbcode') {
-			$post->content = ED::parser()->bbcode($post->content);
-			$post->content = nl2br($post->content);
-		}
-
 		// Select top 20 tags.
 		$tagmodel = ED::model('Tags');
 		$populartags = $tagmodel->getTagCloud('20','post_count','DESC');
@@ -100,6 +107,10 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 		// Render new composer
 		// Get the composer library
 		$operation = $post->isNew() ? 'creating' : 'editing';
+
+		// Determine how the content should be formatted in editing layout.
+		$post->formatEditContent($operation);
+
 		$composer = ED::composer($operation, $post);
 
 		$returnUrl = 'index.php?option=com_easydiscuss&view=posts';
@@ -171,6 +182,70 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 			JToolBarHelper::cancel();
 		} else {
 			JToolbarHelper::title(JText::_('COM_EASYDISCUSS_REVIEW_MODERATED_POST'), 'discussions');
+		}
+	}
+
+	private function getSessionData(&$post)
+	{
+		// Get form values from session.
+		$data = ED::getSession('NEW_POST_TOKEN');
+
+		if (!empty($data)) {
+
+			// Try to bind the data from the object.
+			$post->bind($data, true);
+
+			$post->tags	= array();
+			$post->attachments = array();
+
+			if (isset($data['tags'])) {
+
+				foreach ($data['tags'] as $tag) {
+					$obj = new stdClass();
+					$obj->title	= $tag;
+					$post->tags[] = $obj;
+				}
+			}
+
+			if (isset($data['pollitems']) && is_array($data['pollitems'])) {
+				$polls = array();
+
+				foreach ($data['pollitems'] as $key => $value) {
+					$poll = ED::table('Poll');
+					$poll->id = '';
+					$poll->value = $value;
+
+					$polls[] = $poll;
+				}
+
+				$post->post->setPolls($polls);
+
+				$poll = ED::table('PollQuestion');
+				$poll->title = isset($data['poll_question']) ? $data['poll_question'] : '';
+				$poll->multiple = isset($data['multiplePolls']) ? $data['multiplePolls'] : false;
+
+				$post->post->setPollQuestions($poll, true);
+			}
+
+			// Process custom fields.
+			$customfields = array();
+			$fieldIds = isset($data['customFields']) ? $data['customFields'] : '';
+
+			if (!empty($fieldIds)) {
+
+				foreach ($fieldIds as $fieldId) {
+
+					$fields	= isset($data['customFieldValue_'.$fieldId]) ? $data['customFieldValue_'.$fieldId] : '';
+
+					$customfields[] = array($fieldId => $fields);
+				}
+
+				$post->setCustomFields($customfields);
+			}
+
+			$post->bindParams($data);
+
+			$post->sessiondata = true;
 		}
 	}
 }

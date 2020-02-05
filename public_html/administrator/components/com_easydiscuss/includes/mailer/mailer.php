@@ -473,10 +473,10 @@ class EasyDiscussMailer extends EasyDiscuss
 			$db->setQuery($query);
 			$admins = $db->loadResultArray();
 
-			return $admins;			
+			return $admins;
 		}
 
-		return $admins;		
+		return $admins;
 	}
 
 	/**
@@ -804,20 +804,20 @@ class EasyDiscussMailer extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function trimEmail($content)
 	{
 		if ($this->config->get('layout_editor') != 'bbcode') {
 
-			$filterHtmlTag = '<p><div><table><tr><td><thead><tbody><br><br />';
+			if ($this->config->get('main_notification_max_length') > '0') {
+				$filterHtmlTag = '<p><div><table><tr><td><thead><tbody><br><br />';
 
-			// Remove html + img tags
-			$content = strip_tags($content, $filterHtmlTag);
+				// Remove html + img tags
+				$content = strip_tags($content, $filterHtmlTag);
 
-			// Truncate the content
-			$content = $this->truncate($content);
+				// Truncate the content
+				$content = $this->truncate($content);
+			}
 
 			return $content;
 		}
@@ -836,15 +836,15 @@ class EasyDiscussMailer extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function truncate($content)
 	{
 		// Convert HTML entities to characters e.g. &lt;br&gt; => <br>
-		$content = html_entity_decode($content);
+		// $content = html_entity_decode($content);
 
 		if ($this->config->get('main_notification_max_length') > '0') {
+			
+			$content = strip_tags($content);
 			$content = substr($content, 0, $this->config->get('main_notification_max_length'));
 			$content = $content . '...';
 		}

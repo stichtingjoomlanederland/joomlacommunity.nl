@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -1066,7 +1066,7 @@ Header set X-XSS-Protection "1; mode=block"
 </IfModule>
 
 # mod_headers cannot match based on the content-type, however,
-# the X-XSS-Protection response header should be send only for
+# the X-XSS-Protection response header should be sent only for
 # HTML documents and not for the other resources.
 
 <IfModule mod_headers.c>

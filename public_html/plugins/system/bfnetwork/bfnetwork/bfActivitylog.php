@@ -53,6 +53,7 @@ class bfActivitylog
                               `where_id` int(11) DEFAULT NULL,
                               `ip` varchar(20) DEFAULT NULL,
                               `useragent` varchar(255) DEFAULT NULL,
+                              `constkey` varchar(255) DEFAULT NULL,
                               `meta` text,
                               `action` varchar(255) DEFAULT NULL,
                               PRIMARY KEY (`id`),
@@ -61,10 +62,14 @@ class bfActivitylog
                               KEY `when` (`when`)
                             ) DEFAULT CHARSET=utf8';
 
+    private $table_migrate = array(
+        'ALTER TABLE `bf_activitylog` ADD `constkey` VARCHAR(255) NULL DEFAULT NULL AFTER `action`'
+    );
+
     private $table_insert = 'INSERT INTO `bf_activitylog`
-                              (`id`, `who`, `who_id`, `what`, `when`, `where`, `where_id`, `ip`, `useragent`, `meta`,`action`) 
+                              (`id`, `who`, `who_id`, `what`, `when`, `where`, `where_id`, `ip`, `useragent`, `meta`,`action`,`constkey`) 
                               VALUES 
-                             (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)';
+                             (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)';
 
     /**
      * @var mixed|stdClass
@@ -80,6 +85,23 @@ class bfActivitylog
         $this->prefs = $preferences->getPreferences();
         $this->db    = JFactory::getDBO();
         $this->ensureTableCreated();
+        $this->ensureTableMigrated();
+    }
+
+    public function ensureTableMigrated()
+    {
+        try {
+            foreach ($this->table_migrate as $sql) {
+                $this->db->setQuery($sql);
+                if (method_exists($this->db, 'query')) {
+                    $this->db->query();
+                } else {
+                    $this->db->execute();
+                }
+            }
+        } catch (Exception $exception) {
+            //ignore failure
+        }
     }
 
     public function ensureTableCreated()
@@ -117,15 +139,32 @@ class bfActivitylog
      *
      * @since version
      */
-    public function log($who = 'not me!', $who_id = 0, $what = 'dunno', $where = 'er?', $where_id = 0, $ip = null, $userAgent = null, $meta = '{}', $action = '', $alertName = '')
+    public function log($who = 'not me!', $who_id = 0, $what = 'dunno', $where = 'er?', $where_id = 0, $ip = null, $userAgent = null, $meta = '{}', $action = '', $alertName = '', $constKey = 'legacy', $when = null)
     {
-        $when = JFactory::getDate()->format('Y-m-d H:i:s', true);
+        if (null === $when) {
+            $d = JFactory::getDate();
+            if (method_exists($d, 'format')) {
+                $when = JFactory::getDate()->format('Y-m-d H:i:s', true);
+            } else {
+                $when = JFactory::getDate()->toformat('Y-m-d H:i:s', true);
+            }
+        }
 
         if (null == $ip) {
             $ip = str_replace('::ffff:', '', (@getenv('HTTP_X_FORWARDED_FOR') ? @getenv('HTTP_X_FORWARDED_FOR') : @$_SERVER['REMOTE_ADDR']));
         }
+
         if ('system' == $ip) {
             $ip = '';
+        }
+
+        if (!$userAgent && is_array($_SERVER) && array_key_exists('HTTP_USER_AGENT', $_SERVER)) {
+            $agent = $_SERVER['HTTP_USER_AGENT'];
+            if (!$agent) {
+                $agent = 'Unknown';
+            }
+        } else {
+            $agent = $userAgent;
         }
 
         $sql = sprintf($this->table_insert,
@@ -136,9 +175,10 @@ class bfActivitylog
             $this->db->quote($where),
             $this->db->quote($where_id),
             $this->db->quote($ip),
-            $this->db->quote(null),
+            $this->db->quote($agent),
             $this->db->quote($meta),
-            $this->db->quote($action)
+            $this->db->quote($action),
+            $this->db->quote($constKey)
         );
 
         $this->db->setQuery($sql);
@@ -182,7 +222,6 @@ class bfActivitylog
                 'who'        => $who,
                 'who_id'     => $who_id,
                 'what'       => $what,
-                'what'       => $what,
                 'when'       => $when,
                 'where'      => $where,
                 'where_id'   => $where_id,
@@ -195,14 +234,14 @@ class bfActivitylog
         );
 
         $opts = array('http' => array(
-                              'content'       => $postdata,
-                              'method'        => 'POST',
-                              'user_agent'    => JURI::base(),
-                              'max_redirects' => 1,
-                              'header'        => 'Content-type: application/x-www-form-urlencoded',
-                              'proxy'         => ('local' == getenv('APPLICATION_ENV') ? 'tcp://127.0.0.1:8888' : ''),
-                              'timeout'       => 5, //so we don't destroy live sites if the service is offline
-                          ),
+            'content'       => $postdata,
+            'method'        => 'POST',
+            'user_agent'    => JURI::base(),
+            'max_redirects' => 1,
+            'header'        => 'Content-type: application/x-www-form-urlencoded',
+            'proxy'         => ('local' == getenv('APPLICATION_ENV') ? 'tcp://127.0.0.1:8888' : ''),
+            'timeout'       => 5, //so we don't destroy live sites if the service is offline
+        ),
         );
 
         if ('local' == getenv('APPLICATION_ENV')) {
@@ -226,8 +265,8 @@ class bfActivitylog
     public function getHostID()
     {
         $files = array(
-            str_replace('/administrator', '', JPATH_BASE.'/plugins/system/bfnetwork/HOST_ID'),         //Joomla 1.5 gulp
-            str_replace('/administrator', '', JPATH_BASE.'/plugins/system/bfnetwork/bfnetwork/HOST_ID'), //Joomla 2+
+            str_replace(array('/administrator', '\administrator'), '', JPATH_BASE.'/plugins/system/bfnetwork/HOST_ID'),         //Joomla 1.5 gulp
+            str_replace(array('/administrator', '\administrator'), '', JPATH_BASE.'/plugins/system/bfnetwork/bfnetwork/HOST_ID'), //Joomla 2+
         );
 
         foreach ($files as $file) {

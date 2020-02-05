@@ -1,11 +1,10 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 /**
@@ -42,8 +41,7 @@
 
 namespace Akeeba\Engine\Postproc\Connector\Azure;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Postproc\Connector\Azure\Credentials\Sharedkey;
 use Akeeba\Engine\Postproc\Connector\Azure\Exception\Api;
@@ -180,17 +178,17 @@ class AzureStorage
 	/**
 	 * Creates a new AzureStorage instance
 	 *
-	 * @param string                 $host            Storage host name
-	 * @param string                 $accountName     Account name for Windows Azure
-	 * @param string                 $accountKey      Account key for Windows Azure
-	 * @param boolean                $usePathStyleUri Use path-style URI's
-	 * @param Retrypolicy $retryPolicy     Retry policy to use when making requests
+	 * @param   string       $host             Storage host name
+	 * @param   string       $accountName      Account name for Windows Azure
+	 * @param   string       $accountKey       Account key for Windows Azure
+	 * @param   boolean      $usePathStyleUri  Use path-style URI's
+	 * @param   Retrypolicy  $retryPolicy      Retry policy to use when making requests
 	 */
 	public function __construct($host = self::URL_DEV_BLOB, $accountName = Credentials::DEVSTORE_ACCOUNT, $accountKey = Credentials::DEVSTORE_KEY, $usePathStyleUri = false, Retrypolicy $retryPolicy = null)
 	{
-		$this->_host = $host;
-		$this->_accountName = $accountName;
-		$this->_accountKey = $accountKey;
+		$this->_host            = $host;
+		$this->_accountName     = $accountName;
+		$this->_accountKey      = $accountKey;
 		$this->_usePathStyleUri = $usePathStyleUri;
 
 		// Using local storage?
@@ -212,9 +210,33 @@ class AzureStorage
 	}
 
 	/**
+	 * Builds a query string from an array of elements
+	 *
+	 * @param   array     Array of elements
+	 *
+	 * @return string   Assembled query string
+	 */
+	public static function createQueryStringFromArray($queryString)
+	{
+		return count($queryString) > 0 ? '?' . implode('&', $queryString) : '';
+	}
+
+	/**
+	 * URL encode function
+	 *
+	 * @param   string  $value  Value to encode
+	 *
+	 * @return string        Encoded value
+	 */
+	public static function urlencode($value)
+	{
+		return str_replace(' ', '%20', $value);
+	}
+
+	/**
 	 * Set retry policy to use when making requests
 	 *
-	 * @param Retrypolicy $retryPolicy Retry policy to use when making requests
+	 * @param   Retrypolicy  $retryPolicy  Retry policy to use when making requests
 	 */
 	public function setRetryPolicy(Retrypolicy $retryPolicy = null)
 	{
@@ -228,16 +250,16 @@ class AzureStorage
 	/**
 	 * Set proxy
 	 *
-	 * @param boolean $useProxy         Use proxy?
-	 * @param string  $proxyUrl         Proxy URL
-	 * @param int     $proxyPort        Proxy port
-	 * @param string  $proxyCredentials Proxy credentials
+	 * @param   boolean  $useProxy          Use proxy?
+	 * @param   string   $proxyUrl          Proxy URL
+	 * @param   int      $proxyPort         Proxy port
+	 * @param   string   $proxyCredentials  Proxy credentials
 	 */
 	public function setProxy($useProxy = false, $proxyUrl = '', $proxyPort = 80, $proxyCredentials = '')
 	{
-		$this->_useProxy = $useProxy;
-		$this->_proxyUrl = $proxyUrl;
-		$this->_proxyPort = $proxyPort;
+		$this->_useProxy         = $useProxy;
+		$this->_proxyUrl         = $proxyUrl;
+		$this->_proxyPort        = $proxyPort;
 		$this->_proxyCredentials = $proxyCredentials;
 	}
 
@@ -254,13 +276,12 @@ class AzureStorage
 	/**
 	 * Set the connection SSL preference
 	 *
-	 * @param  boolean  $useSSL  True to use HTTPS
+	 * @param   boolean  $useSSL  True to use HTTPS
 	 */
 	public function setSSL($useSSL)
 	{
 		$this->useSSL = $useSSL ? true : false;
 	}
-
 
 	public function isSSL()
 	{
@@ -292,19 +313,6 @@ class AzureStorage
 	}
 
 	/**
-	 * Set Credentials instance
-	 *
-	 * @param Credentials $credentials Credentials instance to use for request signing.
-	 */
-	public function setCredentials(Credentials $credentials)
-	{
-		$this->_credentials = $credentials;
-		$this->_credentials->setAccountName($this->_accountName);
-		$this->_credentials->setAccountkey($this->_accountKey);
-		$this->_credentials->setUsePathStyleUri($this->_usePathStyleUri);
-	}
-
-	/**
 	 * Get Credentials instance
 	 *
 	 * @return Credentials
@@ -315,20 +323,52 @@ class AzureStorage
 	}
 
 	/**
+	 * Set Credentials instance
+	 *
+	 * @param   Credentials  $credentials  Credentials instance to use for request signing.
+	 */
+	public function setCredentials(Credentials $credentials)
+	{
+		$this->_credentials = $credentials;
+		$this->_credentials->setAccountName($this->_accountName);
+		$this->_credentials->setAccountkey($this->_accountKey);
+		$this->_credentials->setUsePathStyleUri($this->_usePathStyleUri);
+	}
+
+	/**
+	 * Generate ISO 8601 compliant date string in UTC time zone
+	 *
+	 * @param   int  $timestamp
+	 *
+	 * @return string
+	 */
+	public function isoDate($timestamp = null)
+	{
+		if (is_null($timestamp))
+		{
+			$timestamp = time();
+		}
+
+		$returnValue = @gmdate('Y-m-d\TH:i:s', $timestamp) . 'Z';
+
+		return $returnValue;
+	}
+
+	/**
 	 * Perform request using Transport channel
 	 *
-	 * @param string  $path               Path
-	 * @param string  $queryString        Query string
-	 * @param string  $httpVerb           HTTP verb the request will use
-	 * @param array   $headers            x-ms headers to add
-	 * @param boolean $forTableStorage    Is the request for table storage?
-	 * @param mixed   $inputObject        Optional RAW HTTP data to be sent over the wire
-	 * @param string  $resourceType       Resource type
-	 * @param string  $requiredPermission Required permission
+	 * @param   string   $path                Path
+	 * @param   string   $queryString         Query string
+	 * @param   string   $httpVerb            HTTP verb the request will use
+	 * @param   array    $headers             x-ms headers to add
+	 * @param   boolean  $forTableStorage     Is the request for table storage?
+	 * @param   mixed    $inputObject         Optional RAW HTTP data to be sent over the wire
+	 * @param   string   $resourceType        Resource type
+	 * @param   string   $requiredPermission  Required permission
 	 *
 	 * @return Response
 	 */
-	protected function performRequest($path = '/', $queryString = '', $httpVerb = Transport::VERB_GET, $headers = array(), $forTableStorage = false, Input $inputObject = null, $resourceType = AzureStorage::RESOURCE_UNKNOWN, $requiredPermission = Credentials::PERMISSION_READ)
+	protected function performRequest($path = '/', $queryString = '', $httpVerb = Transport::VERB_GET, $headers = [], $forTableStorage = false, Input $inputObject = null, $resourceType = AzureStorage::RESOURCE_UNKNOWN, $requiredPermission = Credentials::PERMISSION_READ)
 	{
 		// Clean path
 		if (strpos($path, '/') !== 0)
@@ -339,14 +379,14 @@ class AzureStorage
 		// Clean headers
 		if (is_null($headers))
 		{
-			$headers = array();
+			$headers = [];
 		}
 
 		// Add version header
 		$headers['x-ms-version'] = $this->_apiVersion;
 
 		// URL encoding
-		$path = self::urlencode($path);
+		$path        = self::urlencode($path);
 		$queryString = self::urlencode($queryString);
 
 		// Get the content length used for signing
@@ -363,7 +403,7 @@ class AzureStorage
 		}
 
 		// Generate URL and sign request
-		$requestUrl = $this->_credentials->signRequestUrl($this->getBaseUrl() . $path . $queryString, $resourceType, $requiredPermission);
+		$requestUrl     = $this->_credentials->signRequestUrl($this->getBaseUrl() . $path . $queryString, $resourceType, $requiredPermission);
 		$requestHeaders = $this->_credentials->signRequestHeaders($httpVerb, $path, $queryString, $headers, $forTableStorage, $resourceType, $requiredPermission);
 
 		$requestClient = Transport::createChannel();
@@ -374,8 +414,8 @@ class AzureStorage
 		}
 
 		$response = $this->_retryPolicy->execute(
-			array($requestClient, 'request'),
-			array($httpVerb, $requestUrl, array(), $requestHeaders, $inputObject)
+			[$requestClient, 'request'],
+			[$httpVerb, $requestUrl, [], $requestHeaders, $inputObject]
 		);
 
 		$requestClient = null;
@@ -385,21 +425,9 @@ class AzureStorage
 	}
 
 	/**
-	 * Builds a query string from an array of elements
-	 *
-	 * @param array     Array of elements
-	 *
-	 * @return string   Assembled query string
-	 */
-	public static function createQueryStringFromArray($queryString)
-	{
-		return count($queryString) > 0 ? '?' . implode('&', $queryString) : '';
-	}
-
-	/**
 	 * Parse result from Response
 	 *
-	 * @param Response $response Response from HTTP call
+	 * @param   Response  $response  Response from HTTP call
 	 *
 	 * @return object
 	 * @throws Api
@@ -429,40 +457,5 @@ class AzureStorage
 		}
 
 		return $xml;
-	}
-
-	/**
-	 * Generate ISO 8601 compliant date string in UTC time zone
-	 *
-	 * @param int $timestamp
-	 *
-	 * @return string
-	 */
-	public function isoDate($timestamp = null)
-	{
-		$tz = @date_default_timezone_get();
-		@date_default_timezone_set('UTC');
-
-		if (is_null($timestamp))
-		{
-			$timestamp = time();
-		}
-
-		$returnValue = str_replace('+00:00', '.0000000Z', @date('c', $timestamp));
-		@date_default_timezone_set($tz);
-
-		return $returnValue;
-	}
-
-	/**
-	 * URL encode function
-	 *
-	 * @param  string $value Value to encode
-	 *
-	 * @return string        Encoded value
-	 */
-	public static function urlencode($value)
-	{
-		return str_replace(' ', '%20', $value);
 	}
 }

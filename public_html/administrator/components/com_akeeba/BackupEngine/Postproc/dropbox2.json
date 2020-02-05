@@ -37,6 +37,12 @@
         "description": "COM_AKEEBA_CONFIG_BOX_OPENOAUTH_DESC",
         "hook": "akconfig_dropbox2_openoauth"
     },
+    "engine.postproc.dropbox2.team": {
+        "default": "0",
+        "type": "bool",
+        "title": "COM_AKEEBA_CONFIG_DROPBOX_TEAM_TITLE",
+        "description": "COM_AKEEBA_CONFIG_DROPBOX_TEAM_DESC"
+    },
     "engine.postproc.dropbox2.directory": {
         "default": "\/",
         "type": "string",

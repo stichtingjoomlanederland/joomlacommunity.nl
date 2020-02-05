@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class plgAcymSubscription extends acymPlugin
 {
@@ -98,10 +89,20 @@ class plgAcymSubscription extends acymPlugin
                     <h1 class="acym__popup__plugin__title cell">'.acym_translation('ACYM_SUBSCRIPTION').'</h1>
                     <div class="medium-1"></div>
                     <div class="medium-10 text-left">';
-        $text .= acym_modal_pagination_lists('', '', '', '', '', false, 'acym__popup__subscription__change', '', false, 'style="display: none;" id="acym__popup__plugin__subscription__lists__modal"');
+        $text .= acym_modal_pagination_lists(
+            '',
+            '',
+            '',
+            '',
+            '',
+            'acym__popup__subscription__change',
+            '',
+            false,
+            'style="display: none;" id="acym__popup__plugin__subscription__lists__modal"'
+        );
         $text .= '  </div>
                     <div class="medium-1"></div>
-					<div class="grid-x medium-12 cell acym__listing__row text-left">
+					<div class="grid-x medium-12 cell acym__row__no-listing text-left">
                         <div class="grid-x cell medium-5 small-12 acym__listing__title acym__listing__title__dynamics acym__subscription__subscription">
                             <label class="small-3" style="line-height: 40px;" for="acym__popup__subscription__tagtext">'.acym_translation('ACYM_TEXT').': </label>
                             <input class="small-9" type="text" name="tagtext" id="acym__popup__subscription__tagtext" onchange="setSubscriptionTag();">
@@ -120,7 +121,7 @@ class plgAcymSubscription extends acymPlugin
             if ($tagname == 'subscribe') {
                 $onclick .= 'displayLists();return false;';
             }
-            $text .= '<div class="grid-x small-12 cell acym__listing__row acym__listing__row__popup text-left"  onclick="'.$onclick.'" id="tr_'.$tagname.'" ><div class="cell small-12 acym__listing__title acym__listing__title__dynamics">'.$tag['name'].'</div></div>';
+            $text .= '<div class="grid-x small-12 cell acym__row__no-listing acym__listing__row__popup text-left"  onclick="'.$onclick.'" id="tr_'.$tagname.'" ><div class="cell small-12 acym__listing__title acym__listing__title__dynamics">'.$tag['name'].'</div></div>';
         }
         $text .= '</div></div>';
 
@@ -134,7 +135,7 @@ class plgAcymSubscription extends acymPlugin
 					<div class="cell grid-x">';
 
         foreach ($others as $tagname => $tag) {
-            $text .= '<div class="grid-x medium-12 cell acym__listing__row acym__listing__row__popup text-left" onclick="setTag(\'{list:'.$tagname.'}\', jQuery(this));" id="tr_'.$tagname.'" >
+            $text .= '<div class="grid-x medium-12 cell acym__row__no-listing acym__listing__row__popup text-left" onclick="setTag(\'{list:'.$tagname.'}\', jQuery(this));" id="tr_'.$tagname.'" >
                         <div class="cell medium-12 small-12 acym__listing__title acym__listing__title__dynamics">'.$tag.'</div>
                       </div>';
         }
@@ -147,7 +148,7 @@ class plgAcymSubscription extends acymPlugin
         $othersMail = ['campaignid', 'subject'];
 
         foreach ($othersMail as $tag) {
-            $text .= '<div class="grid-x medium-12 cell acym__listing__row acym__listing__row__popup text-left" onclick="setTag(\'{mail:'.$tag.'}\', jQuery(this));" id="tr_'.$tag.'" >
+            $text .= '<div class="grid-x medium-12 cell acym__row__no-listing acym__listing__row__popup text-left" onclick="setTag(\'{mail:'.$tag.'}\', jQuery(this));" id="tr_'.$tag.'" >
                         <div class="cell medium-12 small-12 acym__listing__title acym__listing__title__dynamics">'.$tag.'</div>
                       </div>';
         }
@@ -161,7 +162,7 @@ class plgAcymSubscription extends acymPlugin
         foreach ($autoMail as $tag => $oneTag) {
             $tagInserted = $tag;
             if (!empty($oneTag['default'])) $tagInserted = $tag.'|default:'.$oneTag['default'];
-            $text .= '<div class="grid-x medium-12 cell acym__listing__row acym__listing__row__popup text-left" onclick="setTag(\'{automail:'.$tagInserted.'}\', jQuery(this));" id="tr_'.$tag.'" >
+            $text .= '<div class="grid-x medium-12 cell acym__row__no-listing acym__listing__row__popup text-left" onclick="setTag(\'{automail:'.$tagInserted.'}\', jQuery(this));" id="tr_'.$tag.'" >
                         <div class="cell medium-12 small-12 acym__listing__title acym__listing__title__dynamics">'.$oneTag['name'].'</div>
                       </div>';
         }
@@ -809,6 +810,12 @@ class plgAcymSubscription extends acymPlugin
     {
         $automationClass = acym_get('class.automation');
         $automationClass->trigger('user_subscribe', ['userId' => $user->id]);
+    }
+
+    public function onAcymAfterUserUnsubscribe(&$user, $lists)
+    {
+        $automationClass = acym_get('class.automation');
+        $automationClass->trigger('user_unsubscribe', ['userId' => $user->id]);
     }
 }
 

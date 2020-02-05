@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<div class="acym__content acym__stats grid-x cell">
+?><div class="acym__content acym__stats grid-x cell">
 	<input type="hidden" name="time_linechart" id="acym__time__linechart__input">
 	<div class="cell acym__stats__campaign-choose  margin-bottom-1 large-3 medium-4 small-12">
         <?php if ($data['page_title']) { ?>
@@ -19,9 +10,16 @@ defined('_JEXEC') or die('Restricted access');
 	<div class="large-9 medium-8 small-12 margin-bottom-1 cell acym__stats__export grid-x align-right grid-margin-x">
         <?php if (!$data['page_title']) { ?>
 			<div class="cell shrink">
-                <?php echo acym_select(['charts' => acym_translation('ACYM_CHARTS'), 'formatted' => acym_translation('ACYM_FORMATTED_DATA'), 'full' => acym_translation('ACYM_FULL_DATA')], 'export_type', 'charts', 'class="acym__select"'); ?>
+                <?php
+                echo acym_select(
+                    ['charts' => acym_translation('ACYM_CHARTS'), 'formatted' => acym_translation('ACYM_FORMATTED_DATA'), 'full' => acym_translation('ACYM_FULL_DATA')],
+                    'export_type',
+                    'charts',
+                    'class="acym__select"'
+                );
+                ?>
 			</div>
-			<button type="button" class="cell shrink button primary acym__stats__export__button smaller-button acym__stats__export__global__charts" data-task="exportGlobal"><?php echo acym_translation('ACYM_EXPORT'); ?></button>
+			<button type="button" class="cell shrink button primary acym__stats__export__button acym__stats__export__global__charts" data-task="exportGlobal"><?php echo acym_translation('ACYM_EXPORT'); ?></button>
         <?php } ?>
 	</div>
 

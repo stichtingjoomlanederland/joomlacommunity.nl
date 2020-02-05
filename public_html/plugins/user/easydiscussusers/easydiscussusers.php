@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * Komento is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -17,7 +17,6 @@ jimport('joomla.filesystem.file');
 
 class plgUserEasyDiscussUsers extends JPlugin
 {
-
 	public function __construct(&$subject, $config)
 	{
 		parent::__construct($subject, $config);
@@ -28,8 +27,6 @@ class plgUserEasyDiscussUsers extends JPlugin
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
 	public function exists()
 	{
@@ -52,8 +49,6 @@ class plgUserEasyDiscussUsers extends JPlugin
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
 	public function onUserAfterSave($data, $isNew, $result)
 	{
@@ -71,8 +66,6 @@ class plgUserEasyDiscussUsers extends JPlugin
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
 	public function onUserBeforeDelete($user)
 	{
@@ -84,8 +77,6 @@ class plgUserEasyDiscussUsers extends JPlugin
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
 	public function onBeforeDeleteUser($user)
 	{
@@ -98,6 +89,7 @@ class plgUserEasyDiscussUsers extends JPlugin
 			//transfer ownership
 			$this->ownerTransferTags($userId, $newOwnerShip);
 			$this->ownerTransferPosts($userId, $newOwnerShip);
+			$this->ownerTransferThread($userId, $newOwnerShip);
 			$this->onwerTransferComments($userId, $newOwnerShip);
 
 			//remove user and his related daata that cannot be transferred.
@@ -116,8 +108,6 @@ class plgUserEasyDiscussUsers extends JPlugin
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
 	public function _getnewOwnerShip($curUserId)
 	{
@@ -194,8 +184,6 @@ class plgUserEasyDiscussUsers extends JPlugin
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
 	public function _verifyOnwerShip($id)
 	{
@@ -244,8 +232,6 @@ class plgUserEasyDiscussUsers extends JPlugin
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
 	public function ownerTransferTags($userId, $newOwnerShip)
 	{
@@ -268,8 +254,6 @@ class plgUserEasyDiscussUsers extends JPlugin
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
 	public function ownerTransferPosts($userId, $newOwnerShip)
 	{
@@ -288,12 +272,43 @@ class plgUserEasyDiscussUsers extends JPlugin
 	}
 
 	/**
+     * Transfer Posts to the new owner
+     *
+     * @since   4.1.13
+     * @access  public
+     */
+	public function ownerTransferThread($userId, $newOwnerShip)
+	{
+		$db = ED::db();
+
+		$query = 'UPDATE `#__discuss_thread`';
+		$query .= ' SET `user_id` = ' . $db->Quote($newOwnerShip->id);
+		$query .= ' WHERE `user_id` = ' . $db->Quote($userId);
+
+		$db->setQuery($query);
+		$db->query();
+
+		if ($db->getErrorNum()) {
+			JError::raiseError(500, $db->stderr());
+		}
+
+		$query = 'UPDATE `#__discuss_thread`';
+		$query .= ' SET `last_user_id` = ' . $db->Quote($newOwnerShip->id);
+		$query .= ' WHERE `last_user_id` = ' . $db->Quote($userId);
+
+		$db->setQuery($query);
+		$db->query();
+
+		if ($db->getErrorNum()) {
+			JError::raiseError(500, $db->stderr());
+		}	
+	}
+
+	/**
      * Transfer comments to the new owner
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
 	public function onwerTransferComments($userId, $newOwnerShip)
 	{
@@ -318,8 +333,6 @@ class plgUserEasyDiscussUsers extends JPlugin
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function removeConversations($userId)
 	{
@@ -385,8 +398,6 @@ class plgUserEasyDiscussUsers extends JPlugin
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
 	public function removeLikes($userId)
 	{
@@ -425,8 +436,6 @@ class plgUserEasyDiscussUsers extends JPlugin
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
 	public function removeSubscription($userId)
 	{
@@ -448,8 +457,6 @@ class plgUserEasyDiscussUsers extends JPlugin
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
 	public function removeVotes($userId)
 	{
@@ -495,8 +502,6 @@ class plgUserEasyDiscussUsers extends JPlugin
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
 	public function removeEasyDiscussUser($userId)
 	{
@@ -534,8 +539,6 @@ class plgUserEasyDiscussUsers extends JPlugin
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
 	public function removeBadges($userId)
 	{
@@ -552,8 +555,6 @@ class plgUserEasyDiscussUsers extends JPlugin
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
 	public function removeModerator($userId)
 	{

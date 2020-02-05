@@ -1,27 +1,31 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc\Connector\Backblaze\Exception;
 
-// Protection against direct access
 use Exception;
-
-defined('AKEEBAENGINE') or die();
 
 class APIError extends Base
 {
-	public function __construct($error = "", $errorDescription, $code = '500', Exception $previous = null)
+	/**
+	 * APIError constructor.
+	 *
+	 * @param   string          $error             Short error code
+	 * @param   string          $errorDescription  Long error description
+	 * @param   int             $code              Numeric error ID (default: 500)
+	 * @param   Exception|null  $previous          Previous exception
+	 */
+	public function __construct($error, $errorDescription, $code = 500, Exception $previous = null)
 	{
 		$message = "Backblaze B2 API Error $error: $errorDescription";
 
-		parent::__construct($message, (int)$code, $previous);
+		parent::__construct($message, (int) $code, $previous);
 	}
 
 }

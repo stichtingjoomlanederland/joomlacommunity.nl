@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class ToggleController extends acymController
 {
@@ -23,75 +14,71 @@ class ToggleController extends acymController
 
         $this->defaulttask = 'toggle';
 
+        $this->defineToggles();
+
+        acym_noCache();
+    }
+
+    protected function defineToggles()
+    {
         $this->toggleableColumns['automation'] = ['active' => 'id'];
-        $this->toggleableColumns['campaign'] = ['active' => 'id'];
-        $this->toggleableColumns['field'] = ['active' => 'id', 'required' => 'id', 'backend_profile' => 'id', 'backend_listing' => 'id', 'frontend_profile' => 'id', 'frontend_listing' => 'id'];
+        $this->toggleableColumns['field'] = ['active' => 'id', 'required' => 'id', 'backend_edition' => 'id', 'backend_listing' => 'id', 'frontend_edition' => 'id', 'frontend_listing' => 'id'];
         $this->toggleableColumns['list'] = ['active' => 'id', 'visible' => 'id'];
         $this->toggleableColumns['rule'] = ['active' => 'id'];
         $this->toggleableColumns['user'] = ['active' => 'id', 'confirmed' => 'id'];
 
-        $this->icons['automation']['active'][1] = 'fa fa-check-circle-o acym__color__green';
-        $this->icons['automation']['active'][0] = 'fa fa-times-circle-o acym__color__red';
-        $this->icons['campaign']['active'][0] = 'fa fa-play-circle-o';
-        $this->icons['campaign']['active'][1] = 'fa fa-pause-circle-o';
-        $this->icons['field']['active'][1] = 'fa fa-check-circle-o acym__color__green';
-        $this->icons['field']['active'][0] = 'fa fa-times-circle-o acym__color__red';
-        $this->icons['field']['required'][1] = 'fa fa-check-circle-o acym__color__green';
-        $this->icons['field']['required'][0] = 'fa fa-times-circle-o acym__color__red';
-        $this->icons['field']['backend_profile'][1] = 'fa fa-check-circle-o acym__color__green';
-        $this->icons['field']['backend_profile'][0] = 'fa fa-times-circle-o acym__color__red';
-        $this->icons['field']['backend_listing'][1] = 'fa fa-check-circle-o acym__color__green';
-        $this->icons['field']['backend_listing'][0] = 'fa fa-times-circle-o acym__color__red';
-        $this->icons['field']['frontend_profile'][1] = 'fa fa-check-circle-o acym__color__green';
-        $this->icons['field']['frontend_profile'][0] = 'fa fa-times-circle-o acym__color__red';
-        $this->icons['field']['frontend_listing'][1] = 'fa fa-check-circle-o acym__color__green';
-        $this->icons['field']['frontend_listing'][0] = 'fa fa-times-circle-o acym__color__red';
-        $this->icons['list']['active'][1] = 'fa fa-check-circle-o acym__color__green';
-        $this->icons['list']['active'][0] = 'fa fa-times-circle-o acym__color__red';
-        $this->icons['list']['visible'][1] = 'fa fa-eye';
-        $this->icons['list']['visible'][0] = 'fa fa-eye-slash acym__color__dark-gray';
-        $this->icons['rule']['active'][0] = 'fa fa-times-circle acym__color__red';
-        $this->icons['rule']['active'][1] = 'fa fa-check-circle acym__color__green';
-        $this->icons['user']['active'][1] = 'fa fa-check-circle-o acym__color__green';
-        $this->icons['user']['active'][0] = 'fa fa-times-circle-o acym__color__red';
-        $this->icons['user']['confirmed'][1] = 'fa fa-check-circle-o acym__color__green';
-        $this->icons['user']['confirmed'][0] = 'fa fa-times-circle-o acym__color__red';
+        $this->icons['automation']['active'][1] = 'acymicon-check-circle acym__color__green';
+        $this->icons['automation']['active'][0] = 'acymicon-times-circle acym__color__red';
+        $this->icons['field']['active'][1] = 'acymicon-check-circle acym__color__green';
+        $this->icons['field']['active'][0] = 'acymicon-times-circle acym__color__red';
+        $this->icons['field']['required'][1] = 'acymicon-check-circle acym__color__green';
+        $this->icons['field']['required'][0] = 'acymicon-times-circle acym__color__red';
+        $this->icons['field']['backend_edition'][1] = 'acymicon-check-circle acym__color__green';
+        $this->icons['field']['backend_edition'][0] = 'acymicon-times-circle acym__color__red';
+        $this->icons['field']['backend_listing'][1] = 'acymicon-check-circle acym__color__green';
+        $this->icons['field']['backend_listing'][0] = 'acymicon-times-circle acym__color__red';
+        $this->icons['field']['frontend_edition'][1] = 'acymicon-check-circle acym__color__green';
+        $this->icons['field']['frontend_edition'][0] = 'acymicon-times-circle acym__color__red';
+        $this->icons['field']['frontend_listing'][1] = 'acymicon-check-circle acym__color__green';
+        $this->icons['field']['frontend_listing'][0] = 'acymicon-times-circle acym__color__red';
+        $this->icons['list']['active'][1] = 'acymicon-check-circle acym__color__green';
+        $this->icons['list']['active'][0] = 'acymicon-times-circle acym__color__red';
+        $this->icons['list']['visible'][1] = 'acymicon-eye';
+        $this->icons['list']['visible'][0] = 'acymicon-eye-slash acym__color__dark-gray';
+        $this->icons['rule']['active'][0] = 'acymicon-times-circle acym__color__red';
+        $this->icons['rule']['active'][1] = 'acymicon-check-circle acym__color__green';
+        $this->icons['user']['active'][1] = 'acymicon-check-circle acym__color__green';
+        $this->icons['user']['active'][0] = 'acymicon-times-circle acym__color__red';
+        $this->icons['user']['confirmed'][1] = 'acymicon-check-circle acym__color__green';
+        $this->icons['user']['confirmed'][0] = 'acymicon-times-circle acym__color__red';
 
-        $this->deletableRows[] = 'list';
         $this->deletableRows[] = 'mail';
         $this->deletableRows[] = 'queue';
-
-        acym_noCache();
     }
 
     public function toggle()
     {
         acym_checkToken();
 
-
         $table = acym_getVar('word', 'table', '');
         $field = acym_getVar('cmd', 'field', '');
         $id = acym_getVar('int', 'id', 0);
         $newValue = acym_getVar('int', 'value', 0);
-        if (!empty($newValue)) {
-            $newValue = 1;
-        }
+        if (!empty($newValue)) $newValue = 1;
 
+        if (empty($table) || empty($field) || empty($id) || empty($this->toggleableColumns[$table][$field])) exit;
 
-        if (empty($table) || empty($field) || empty($id) || empty($this->toggleableColumns[$table][$field])) {
-            exit;
-        }
-        $pkey = $this->toggleableColumns[$table][$field];
-
-        $function = $table.$field;
-        if (method_exists($this, $function)) {
-            $this->$function($id, $newValue);
+        $preciseMethod = $table.ucfirst($field);
+        $globalMethod = $table.'Global';
+        if (method_exists($this, $preciseMethod)) {
+            $this->$preciseMethod($id, $table, $field, $newValue);
+        } elseif (method_exists($this, $globalMethod)) {
+            $this->$globalMethod($id, $table, $field, $newValue);
         } else {
-            acym_query('UPDATE '.acym_secureDBColumn(ACYM_DBPREFIX.$table).' SET `'.acym_secureDBColumn($field).'` = '.intval($newValue).' WHERE `'.acym_secureDBColumn($pkey).'` = '.intval($id).' LIMIT 1');
+            $this->doToggle($id, $table, $field, $newValue);
         }
 
         acym_trigger('onAcymToggle'.ucfirst($table).ucfirst($field), [&$id, &$newValue]);
-
 
         if (empty($this->icons[$table][$field][$newValue])) {
             echo 'test';
@@ -107,8 +94,18 @@ class ToggleController extends acymController
         exit;
     }
 
+    protected function doToggle($id, $table, $field, $newValue)
+    {
+        $updateQuery = 'UPDATE '.acym_secureDBColumn(ACYM_DBPREFIX.$table);
+        $updateQuery .= ' SET `'.acym_secureDBColumn($field).'` = '.intval($newValue);
+        $updateQuery .= ' WHERE `'.acym_secureDBColumn($this->toggleableColumns[$table][$field]).'` = '.intval($id);
+        $updateQuery .= ' LIMIT 1';
+        acym_query($updateQuery);
+    }
+
     public function delete()
     {
+        if (!acym_isAdmin()) exit;
         acym_checkToken();
 
         $table = acym_getVar('word', 'table', '');

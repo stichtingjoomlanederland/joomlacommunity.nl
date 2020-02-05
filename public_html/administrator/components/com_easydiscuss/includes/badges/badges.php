@@ -293,6 +293,7 @@ class EasyDiscussBadges extends EasyDiscuss
 			$theme->set('hasMoreBadges', $hasMoreBadges);
 			$theme->set('userBadges', $userBadges);
 			$theme->set('badges', $badges);
+			$theme->set('userId', $userId);
 			$data[$userId] = $theme->output('site/badges/post');
 		}
 		

@@ -1,17 +1,15 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc\Connector\S3v4\Signature;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Postproc\Connector\S3v4\Signature;
 
@@ -40,8 +38,8 @@ class V2 extends Signature
 	 * Get a pre-signed URL for the request. Typically used to pre-sign GET requests to objects, i.e. give shareable
 	 * pre-authorized URLs for downloading files from S3.
 	 *
-	 * @param   integer  $lifetime    Lifetime in seconds
-	 * @param   boolean  $https       Use HTTPS ($hostBucket should be false for SSL verification)?
+	 * @param   integer  $lifetime  Lifetime in seconds
+	 * @param   boolean  $https     Use HTTPS ($hostBucket should be false for SSL verification)?
 	 *
 	 * @return  string  The presigned URL
 	 */
@@ -70,22 +68,23 @@ class V2 extends Signature
 			$uri = substr($uri, strlen($search));
 		}
 
-		$queryParameters = array_merge($this->request->getParameters(), array(
-			'AWSAccessKeyId'	=> $accessKey,
-			'Expires'			=> sprintf('%u', $expires),
-			'Signature'			=> $signature,
-		));
+		$queryParameters = array_merge($this->request->getParameters(), [
+			'AWSAccessKeyId' => $accessKey,
+			'Expires'        => sprintf('%u', $expires),
+			'Signature'      => $signature,
+		]);
 
 		$query = http_build_query($queryParameters);
-		
+
 		// fix authenticated url for Google Cloud Storage - https://cloud.google.com/storage/docs/access-control/create-signed-urls-program
-		if ($this->request->getConfiguration()->getEndpoint() === "storage.googleapis.com") {
-		    // replace host with endpoint
-		    $headers['Host'] = 'storage.googleapis.com';
-		    // replace "AWSAccessKeyId" with "GoogleAccessId"
-		    $query = str_replace('AWSAccessKeyId', 'GoogleAccessId', $query);
-		    // add bucket to url
-		    $uri = '/' . $bucket . $uri;
+		if ($this->request->getConfiguration()->getEndpoint() === "storage.googleapis.com")
+		{
+			// replace host with endpoint
+			$headers['Host'] = 'storage.googleapis.com';
+			// replace "AWSAccessKeyId" with "GoogleAccessId"
+			$query = str_replace('AWSAccessKeyId', 'GoogleAccessId', $query);
+			// add bucket to url
+			$uri = '/' . $bucket . $uri;
 		}
 
 		$url = $protocol . '://' . $headers['Host'] . $uri;
@@ -110,7 +109,7 @@ class V2 extends Signature
 		$bucket         = $this->request->getBucket();
 		$isPresignedURL = false;
 
-		$amz       = array();
+		$amz       = [];
 		$amzString = '';
 
 		// Collect AMZ headers for signature
@@ -195,12 +194,12 @@ class V2 extends Signature
 		}
 
 		$raw = pack('H*', sha1(
-					(str_pad($secret, 64, chr(0x00)) ^ (str_repeat(chr(0x5c), 64))) .
-					pack('H*', sha1(
+				(str_pad($secret, 64, chr(0x00)) ^ (str_repeat(chr(0x5c), 64))) .
+				pack('H*', sha1(
 						(str_pad($secret, 64, chr(0x00)) ^ (str_repeat(chr(0x36), 64))) . $string
-						)
 					)
 				)
+			)
 		);
 
 		return base64_encode($raw);

@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class AutomationController extends acymController
 {
@@ -34,6 +25,7 @@ class AutomationController extends acymController
             $_SESSION['massAction'] = ['filters' => [], 'actions' => []];
             acym_setVar('layout', 'listing');
             $pageIdentifier = 'automation';
+            $pagination = acym_get('helper.pagination');
 
             $searchFilter = acym_getVar('string', 'automation_search', '');
             $status = acym_getVar('string', 'automation_status', '');
@@ -41,7 +33,7 @@ class AutomationController extends acymController
             $ordering = acym_getVar('string', 'automation_ordering', 'id');
             $orderingSortOrder = acym_getVar('string', 'automation_ordering_sort_order', 'asc');
 
-            $automationsPerPage = acym_getCMSConfig('list_limit', 20);
+            $automationsPerPage = $pagination->getListLimit();
             $page = acym_getVar('int', 'automation_pagination_page', 1);
 
 
@@ -54,9 +46,8 @@ class AutomationController extends acymController
                 'ordering_sort_order' => $orderingSortOrder,
                 'status' => $status,
             ];
-            $matchingAutomations = $this->getMatchingElementsFromData($requestData, 'automation', $status);
+            $matchingAutomations = $this->getMatchingElementsFromData($requestData, $status, $page);
 
-            $pagination = acym_get('helper.pagination');
             $pagination->setStatus($matchingAutomations['total']->total, $page, $automationsPerPage);
 
             $filters = [
@@ -164,10 +155,14 @@ class AutomationController extends acymController
 
         $currentConditions = empty($conditionObject->conditions) ? [] : json_decode($conditionObject->conditions, true);
         $currentTriggers = empty($step->triggers) ? [] : json_decode($step->triggers, true);
+        $typeCondition = 'classic';
         if (empty($currentConditions['type_condition'])) {
             $typeCondition = (empty($currentTriggers) || $currentTriggers['type_trigger'] != 'user') ? 'classic' : 'user';
-        } else {
+        } elseif ($currentConditions['type_condition'] == $currentTriggers['type_trigger']) {
             $typeCondition = $currentConditions['type_condition'];
+        } elseif ($currentConditions['type_condition'] == 'user' && $currentTriggers['type_trigger'] == 'classic') {
+            $conditionObject->conditions = [];
+            $typeCondition = $currentTriggers['type_trigger'];
         }
 
         $conditions = ['user' => [], 'classic' => []];

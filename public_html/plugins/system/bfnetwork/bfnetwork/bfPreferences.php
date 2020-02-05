@@ -84,8 +84,7 @@ final class bfPreferences
     {
         $this->ensurePrefsFileCreated();
 
-        $prefs = file_get_contents($this->_configFile);
-        $prefs = trim(str_replace($this->dieStatement, '', $prefs));
+        $prefs = trim(str_replace($this->dieStatement, '', str_replace(PHP_EOL, "\n", file_get_contents($this->_configFile))));
 
         if (trim($prefs)) {
             $data = json_decode($prefs);

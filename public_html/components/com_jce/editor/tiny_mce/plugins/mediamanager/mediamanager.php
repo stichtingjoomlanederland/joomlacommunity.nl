@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @copyright     Copyright (c) 2009-2019 Ryan Demmer. All rights reserved
+ * @copyright     Copyright (c) 2009-2020 Ryan Demmer. All rights reserved
  * @license       GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * JCE is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -89,6 +89,11 @@ class WFMediaManagerPlugin extends WFMediaManager
 
     protected function setMediaOption($name, $value)
     {
+        // prevent duplicates
+        if ($name === 'video' || $name === 'audio') {
+            return;
+        }
+        
         $options = $this->get('_media_options');
 
         $options[$name] = $value;
@@ -146,6 +151,11 @@ class WFMediaManagerPlugin extends WFMediaManager
         $extension = WFAggregatorExtension::getInstance();
 
         foreach ($extension->getAggregators() as $aggregator) {
+            
+            if ($aggregator->getName() === 'audio' || $aggregator->getName() === 'video') {
+                continue;
+            }
+            
             $tpl .= '<div class="media_option ' . $aggregator->getName() . '" id="' . $aggregator->getName() . '_options" style="display:none;"><h4>' . JText::_($aggregator->getTitle()) . '</h4>';
             $tpl .= $extension->loadTemplate($aggregator->getName());
             $tpl .= '</div>';

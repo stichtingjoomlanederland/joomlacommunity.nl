@@ -1,17 +1,15 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Factory;
 
@@ -22,28 +20,16 @@ use Akeeba\Engine\Factory;
  */
 class Googlestorage extends Amazons3
 {
-	/**
-	 * Used in log messages.
-	 *
-	 * @var  string
-	 */
-	protected $engineLogName = 'Google Storage';
-
-	/**
-	 * The prefix to use for volatile key storage
-	 *
-	 * @var  string
-	 */
-	protected $volatileKeyPrefix = 'volatile.postproc.googlestorage.';
-
 	public function __construct()
 	{
 		parent::__construct();
 
+		$this->engineLogName             = 'Google Storage';
+		$this->volatileKeyPrefix         = 'volatile.postproc.googlestorage.';
+		$this->supportsDownloadToBrowser = false;
+
 		Factory::getLog()->warning("The old Google Storage integration you are currently using, the one that makes use of the legacy S3 API, is deprecated and will be removed in a future version. Please switch to the new Upload to Google Storage (JSON API) integration.");
 
-		// You can't download directly to the browser
-		$this->can_download_to_browser = false;
 	}
 
 	/**
@@ -53,21 +39,26 @@ class Googlestorage extends Amazons3
 	 */
 	protected function getEngineConfiguration()
 	{
-		$akeebaConfig = Factory::getConfiguration();
+		$config   = Factory::getConfiguration();
+		$endpoint = 'storage.googleapis.com';
 
-		$ret = array(
-			'accessKey'        => $akeebaConfig->get('engine.postproc.googlestorage.accesskey', ''),
-			'secretKey'        => $akeebaConfig->get('engine.postproc.googlestorage.secretkey', ''),
-			'useSSL'           => $akeebaConfig->get('engine.postproc.googlestorage.usessl', 0),
-			'bucket'           => $akeebaConfig->get('engine.postproc.googlestorage.bucket', null),
-			'lowercase'        => $akeebaConfig->get('engine.postproc.googlestorage.lowercase', 1),
-			'customEndpoint'   => 'commondatastorage.googleapis.com',
-			'signatureMethod'  => 'v2',
-			'region'           => '',
-			'disableMultipart' => 1,
-			'directory'        => $akeebaConfig->get('engine.postproc.googlestorage.directory', null),
-			'rrs'              => 0,
-		);
+		Factory::getLog()->info("GoogleStorage: using S3 compatible endpoint $endpoint");
+
+		$ret = [
+			'accessKey'           => $config->get('engine.postproc.googlestorage.accesskey', ''),
+			'secretKey'           => $config->get('engine.postproc.googlestorage.secretkey', ''),
+			'token'               => '',
+			'useSSL'              => $config->get('engine.postproc.googlestorage.usessl', 1),
+			'customEndpoint'      => $endpoint,
+			'signatureMethod'     => 'v2',
+			'useLegacyPathAccess' => false,
+			'region'              => '',
+			'disableMultipart'    => 1,
+			'bucket'              => $config->get('engine.postproc.googlestorage.bucket', null),
+			'directory'           => $config->get('engine.postproc.googlestorage.directory', null),
+			'rrs'                 => 0,
+			'lowercase'           => $config->get('engine.postproc.googlestorage.lowercase', 1),
+		];
 
 		if ($ret['lowercase'] && !empty($ret['bucket']))
 		{

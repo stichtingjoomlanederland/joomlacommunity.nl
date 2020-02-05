@@ -1,18 +1,104 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
-class FrontusersController extends acymController
+include ACYM_CONTROLLER.'users.php';
+
+class FrontusersController extends UsersController
 {
+    public function __construct()
+    {
+        $this->authorizedFrontTasks = ['subscribe', 'unsubscribe', 'unsubscribeAll', 'saveSubscriptions', 'unsubscribePage', 'confirm', 'profile', 'prepareParams', 'savechanges', 'exportdata'];
+        $this->urlFrontMenu = 'index.php?option=com_acym&view=frontusers&layout=listing';
+        parent::__construct();
+    }
+
+    protected function prepareUsersFields(&$data)
+    {
+        $data['fields'] = [];
+
+        if (empty($data['allUsers'])) return;
+
+        $fieldClass = acym_get('class.field');
+        $fieldsToDisplay = $fieldClass->getAllFieldsFrontendListing();
+        if (empty($fieldsToDisplay['ids'])) return;
+
+        $userIds = [];
+        foreach ($data['allUsers'] as $user) {
+            $userIds[] = $user->id;
+        }
+
+        $fieldValue = $fieldClass->getAllFieldsListingByUserIds($userIds, $fieldsToDisplay['ids'], 'field.frontend_listing = 1');
+        foreach ($data['allUsers'] as &$user) {
+            $user->fields = [];
+            foreach ($fieldsToDisplay['ids'] as $fieldId) {
+                $user->fields[$fieldId] = empty($fieldValue[$fieldId.'-'.$user->id]) ? '' : $fieldValue[$fieldId.'-'.$user->id];
+            }
+        }
+
+        $data['fields'] = $fieldsToDisplay['names'];
+    }
+
+    protected function prepareUsersSubscriptions(&$data)
+    {
+        $usersId = [];
+        foreach ($data['allUsers'] as $oneUser) {
+            $usersId[] = $oneUser->id;
+        }
+
+        $subscriptions = [];
+
+        if (!empty($usersId)) {
+            $subscriptionsArray = $this->currentClass->getUsersSubscriptionsByIds($usersId, acym_currentUserId());
+
+            foreach ($subscriptionsArray as $oneSubscription) {
+                $subscriptions[$oneSubscription->user_id][$oneSubscription->id] = $oneSubscription;
+            }
+        }
+
+        $data['usersSubscriptions'] = $subscriptions;
+    }
+
+    protected function prepareFieldsEdit(&$data, $fieldVisibility = 'frontend_edition')
+    {
+        if (!acym_level(2) && acym_isAdmin()) {
+            acym_redirect(acym_rootURI(), 'ACYM_UNAUTHORIZED_ACCESS', 'warning');
+        }
+
+        parent::prepareFieldsEdit($data, $fieldVisibility);
+    }
+
+    protected function prepareUsersListing(&$data)
+    {
+        if (!acym_level(2)) {
+            acym_redirect(acym_rootURI(), 'ACYM_UNAUTHORIZED_ACCESS', 'warning');
+        }
+
+        $usersPerPage = $data['pagination']->getListLimit();
+        $page = acym_getVar('int', 'users_pagination_page', 1);
+        $currentUserId = acym_currentUserId();
+
+        if (empty($currentUserId)) return;
+
+        $matchingUsers = $this->getMatchingElementsFromData(
+            [
+                'search' => $data['search'],
+                'elementsPerPage' => $usersPerPage,
+                'offset' => ($page - 1) * $usersPerPage,
+                'status' => $data['status'],
+                'ordering' => $data['ordering'],
+                'ordering_sort_order' => $data['orderingSortOrder'],
+                'creator_id' => $currentUserId,
+            ],
+            $data['status'],
+            $page
+        );
+
+        $data['pagination']->setStatus($matchingUsers['total'], $page, $usersPerPage);
+
+        $data['allUsers'] = $matchingUsers['elements'];
+        $data['userNumberPerStatus'] = $matchingUsers['status'];
+    }
 
     private function displayMessage($message, $ajax, $type = 'error')
     {
@@ -132,6 +218,7 @@ class FrontusersController extends acymController
             } else {
                 $msg = 'ACYM_ALREADY_SUBSCRIBED';
                 $code = 5;
+                $enqueueMsgType = 'info';
             }
         }
 
@@ -147,7 +234,7 @@ class FrontusersController extends acymController
             echo '{"message":"'.$msg.'","type":"'.$msgtype.'","code":"'.$code.'"}';
             exit;
         } else {
-            acym_enqueueMessage($msg, 'info');
+            acym_enqueueMessage($msg, !empty($enqueueMsgType) ? $enqueueMsgType : $msgtype);
         }
 
         $redirectUrl = urldecode(acym_getVar('string', 'redirect', ''));
@@ -189,7 +276,7 @@ class FrontusersController extends acymController
             echo '{"message":"'.str_replace('"', '\"', $msg).'","type":"success","code":"10"}';
             exit;
         }
-        acym_enqueueMessage($msg, 'info');
+        acym_enqueueMessage($msg, 'success');
 
         $redirectUrl = urldecode(acym_getVar('string', 'redirectunsub', ''));
         if (empty($redirectUrl)) {
@@ -245,12 +332,14 @@ class FrontusersController extends acymController
 
         $alreadyExists = $userClass->getOneByEmail($email);
 
-
         if (empty($alreadyExists->id)) {
             $this->displayMessage('ACYM_NOT_IN_LIST', $ajax);
         }
 
-        if ($redirectToUnsubPage && !$ajax) {
+        $fromModuleOrWidget = acym_getVar('string', 'acysubmode', '');
+        if (!empty($fromModuleOrWidget) && ($fromModuleOrWidget == 'mod_acym' || $fromModuleOrWidget == 'widget_acym')) {
+            $this->unsubscribeDirectly($alreadyExists, $ajax);
+        } elseif ($redirectToUnsubPage && !$ajax) {
             $this->unsubscribePage($alreadyExists);
         } else {
             $this->unsubscribeDirectly($alreadyExists, $ajax);
@@ -424,7 +513,7 @@ class FrontusersController extends acymController
                 }
 
                 $params->lists = $menuparams->get('lists', 'none');
-                $params->listschecked = $menuparams->get('listschecked', 'all');
+                $params->listschecked = $menuparams->get('listschecked', 'none');
                 $params->dropdown = $menuparams->get('dropdown');
                 $params->hiddenlists = $menuparams->get('hiddenlists', 'None');
                 $params->fields = $menuparams->get('fields');
@@ -446,7 +535,7 @@ class FrontusersController extends acymController
             $values->lists = 'none';
         }
         if (!isset($values->listschecked)) {
-            $values->listschecked = 'all';
+            $values->listschecked = 'none';
         }
         if (!isset($values->dropdown)) {
             $values->dropdown = 0;
@@ -657,24 +746,24 @@ class FrontusersController extends acymController
         $userHelper->exportdata($user->id);
     }
 
-    public function delete()
+    public function apply($listing = false)
     {
-        acym_checkToken();
-
-        $userClass = acym_get('class.user');
-        $user = $userClass->identify(true);
-
-        if (empty($user->id)) {
-            acym_redirect(acym_rootURI());
+        $listsToSave = json_decode(acym_getVar('string', 'acym__entity_select__selected'));
+        if (empty($listsToSave)) {
+            $listClass = acym_get('class.list');
+            $listManagementId = $listClass->getfrontManagementList();
+            if (empty($listManagementId)) {
+                acym_redirect(acym_rootURI(), 'ACYM_UNABLE_TO_CREATE_MANAGEMENT_LIST', 'error');
+            }
+            $listsToAdd = json_encode([$listManagementId]);
+            acym_setVar('acym__entity_select__selected', $listsToAdd);
         }
+        parent::apply($listing);
+    }
 
-        if ($userClass->delete($user->id)) {
-            acym_enqueueMessage(acym_translation('ACYM_DATA_DELETED'), 'success');
-        } else {
-            acym_enqueueMessage(acym_translation('ACYM_ERROR_DELETE_DATA'), 'error');
-        }
-
-        acym_redirect(acym_rootURI());
+    public function save()
+    {
+        $this->apply(true);
     }
 }
 

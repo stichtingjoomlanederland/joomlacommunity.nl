@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<div id="acym__queue" class="acym__content">
+?><div id="acym__queue" class="acym__content">
 	<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate>
         <?php
         $workflow = acym_get('helper.workflow');
@@ -85,8 +76,8 @@ defined('_JEXEC') or die('Restricted access');
 						</div>
 						<div class="cell medium-2 hide-for-small-only"></div>
 					</div>
-                    <?php foreach ($data["allElements"] as $row) { ?>
-						<div elementid="<?php echo acym_escape($row->id); ?>" class="cell grid-x acym__listing__row">
+                    <?php foreach ($data['allElements'] as $row) { ?>
+						<div data-acy-elementid="<?php echo acym_escape($row->id); ?>" class="cell grid-x acym__listing__row">
 							<div class="cell medium-auto acym_vcenter">
 								<div class="acym__listing__title">
 									<h6 class="acym__listing__title__primary acym_text_ellipsis"><?php echo $row->name; ?></h6>
@@ -102,10 +93,10 @@ defined('_JEXEC') or die('Restricted access');
                                         echo $row->lists;
                                     } else {
                                         $i = 0;
-                                        $class = 'acym_subscription fa fa-circle';
+                                        $class = 'acym_subscription acymicon-circle';
                                         foreach ($row->lists as $oneList) {
                                             if ($i == 6) {
-                                                echo acym_tooltip('<i data-campaign="'.$row->id.'" class="acym_subscription fa fa-plus-circle"></i>', acym_translation('ACYM_SHOW_ALL_LISTS'));
+                                                echo acym_tooltip('<i data-campaign="'.$row->id.'" class="acym_subscription acymicon-plus-circle"></i>', acym_translation('ACYM_SHOW_ALL_LISTS'));
                                                 $class .= ' is-hidden';
                                             }
                                             echo acym_tooltip('<i class="'.$class.'" style="color:'.$oneList->color.'"></i>', $oneList->name);
@@ -162,7 +153,7 @@ defined('_JEXEC') or die('Restricted access');
                                             <?php
                                             $sendID = 'send_campaign_'.$row->id;
                                             echo acym_modal(
-                                                '<i class="fa fa-send" elementid="'.$row->id.'"></i> '.acym_translation('ACYM_SEND_NOW'),
+                                                '<i class="acymicon-paper-plane" data-acy-elementid="'.$row->id.'"></i> '.acym_translation('ACYM_SEND_NOW'),
                                                 '',
                                                 null,
                                                 'data-reveal-larger',
@@ -181,13 +172,13 @@ defined('_JEXEC') or die('Restricted access');
 
                                     $cancelText = 'ACYM_CANCEL_SCHEDULING';
                                     if (!empty($row->nbqueued) && $row->iscampaign) {
-                                        $class = 'fa fa-'.($row->active == 0 ? 'play' : 'pause').'-circle-o';
+                                        $class = $row->active == 0 ? 'acymicon-play_circle_filled' : 'acymicon-pause-circle';
                                         echo '<i campaignid="'.$row->campaign.'" class="'.$class.' acym__queue__play_pause__button"></i>';
                                         $cancelText = 'ACYM_CANCEL_CAMPAIGN';
                                     }
 
                                     $deleteID = 'cancel_campaign_'.$row->id;
-                                    echo acym_tooltip('<i class="fa fa-times-circle-o acym__queue__cancel__button" mailid="'.$row->id.'"></i>', acym_translation($cancelText));
+                                    echo acym_tooltip('<i class="acymicon-times-circle acym__queue__cancel__button" mailid="'.$row->id.'"></i>', acym_translation($cancelText));
                                     echo '</div>';
                                     ?>
 								</div>

@@ -115,7 +115,7 @@ defined('KOOWA') or die; ?>
 
                             <fieldset>
 
-                                <legend><?= translate('Automatic monitoring'); ?> <span class="label label-warning">BETA</span></legend>
+                                <legend><?= translate('Automatic monitoring'); ?></legend>
                                 <div class="k-well">
                                     <?= translate('Automatic monitoring explanation'); ?>
                                 </div>

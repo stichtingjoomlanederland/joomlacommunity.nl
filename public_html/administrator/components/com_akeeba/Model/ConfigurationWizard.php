@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -496,13 +496,11 @@ class ConfigurationWizard extends Model
 	private function applyminexec()
 	{
 		// Get the user parameters
-		$iframes = $this->input->get('iframes', 0, 'int');
 		$minexec = $this->input->get('minexec', 2.0, 'float');
 
 		// Save the settings
 		$profile_id   = Platform::getInstance()->get_active_profile();
 		$engineConfig = Factory::getConfiguration();
-		$engineConfig->set('akeeba.basic.useiframe', $iframes);
 		$engineConfig->set('akeeba.tuning.min_exec_time', $minexec * 1000);
 		Platform::getInstance()->save_configuration($profile_id);
 

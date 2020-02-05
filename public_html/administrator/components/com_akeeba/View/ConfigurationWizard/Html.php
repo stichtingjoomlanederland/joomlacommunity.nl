@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -20,9 +20,6 @@ class Html extends BaseView
 	{
 		// Push translations
 		// -- Wizard
-		JText::script('COM_AKEEBA_CONFWIZ_UI_TRYAJAX');
-		JText::script('COM_AKEEBA_CONFWIZ_UI_TRYIFRAME');
-		JText::script('COM_AKEEBA_CONFWIZ_UI_CANTUSEAJAX');
 		JText::script('COM_AKEEBA_CONFWIZ_UI_MINEXECTRY');
 		JText::script('COM_AKEEBA_CONFWIZ_UI_CANTSAVEMINEXEC');
 		JText::script('COM_AKEEBA_CONFWIZ_UI_SAVEMINEXEC');

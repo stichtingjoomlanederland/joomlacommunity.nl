@@ -1,11 +1,10 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 /**
@@ -42,10 +41,7 @@
 
 namespace Akeeba\Engine\Postproc\Connector\Azure\Http;
 
-// Protection against direct access
 use Akeeba\Engine\Postproc\Connector\S3v4\Input;
-
-defined('AKEEBAENGINE') or die();
 
 /**
  * @category   Microsoft
@@ -96,102 +92,12 @@ abstract class Transport
 	 * @var string
 	 */
 	protected $_proxyCredentials = '';
-
-	/**
-	 * Set proxy
-	 *
-	 * @param boolean $useProxy         Use proxy?
-	 * @param string  $proxyUrl         Proxy URL
-	 * @param int     $proxyPort        Proxy port
-	 * @param string  $proxyCredentials Proxy credentials
-	 */
-	public function setProxy($useProxy = false, $proxyUrl = '', $proxyPort = 80, $proxyCredentials = '')
-	{
-		$this->_useProxy = $useProxy;
-		$this->_proxyUrl = $proxyUrl;
-		$this->_proxyPort = $proxyPort;
-		$this->_proxyCredentials = $proxyCredentials;
-	}
-
 	/**
 	 * User agent string
 	 *
 	 * @var string
 	 */
 	protected $_userAgent = '\\Akeeba\\Engine\\Postproc\\Connector\\Azure\\Http\\Transport';
-
-	/**
-	 * Perform GET request
-	 *
-	 * @param string $url       Url to request
-	 * @param array  $variables Array of key-value pairs to use in the request
-	 * @param array  $headers   Array of key-value pairs to use as additional headers
-	 * @param string $rawBody   Raw body to send to server
-	 *
-	 * @return Response
-	 */
-	public function get($url, $variables = array(), $headers = array(), $rawBody = null)
-	{
-		return $this->request(self::VERB_GET, $url, $variables, $headers, $rawBody);
-	}
-
-	/**
-	 * Perform PUT request
-	 *
-	 * @param string $url       Url to request
-	 * @param array  $variables Array of key-value pairs to use in the request
-	 * @param array  $headers   Array of key-value pairs to use as additional headers
-	 * @param string $rawBody   Raw body to send to server
-	 *
-	 * @return Response
-	 */
-	public function put($url, $variables = array(), $headers = array(), $rawBody = null)
-	{
-		return $this->request(self::VERB_PUT, $url, $variables, $headers, $rawBody);
-	}
-
-	/**
-	 * Perform POST request
-	 *
-	 * @param string $url       Url to request
-	 * @param array  $variables Array of key-value pairs to use in the request
-	 * @param array  $headers   Array of key-value pairs to use as additional headers
-	 * @param string $rawBody   Raw body to send to server
-	 *
-	 * @return Response
-	 */
-	public function post($url, $variables = array(), $headers = array(), $rawBody = null)
-	{
-		return $this->request(self::VERB_POST, $url, $variables, $headers, $rawBody);
-	}
-
-	/**
-	 * Perform DELETE request
-	 *
-	 * @param string $url       Url to request
-	 * @param array  $variables Array of key-value pairs to use in the request
-	 * @param array  $headers   Array of key-value pairs to use as additional headers
-	 * @param string $rawBody   Raw body to send to server
-	 *
-	 * @return Response
-	 */
-	public function delete($url, $variables = array(), $headers = array(), $rawBody = null)
-	{
-		return $this->request(self::VERB_DELETE, $url, $variables, $headers, $rawBody);
-	}
-
-	/**
-	 * Perform request
-	 *
-	 * @param string $httpVerb    Http verb to use in the request
-	 * @param string $url         Url to request
-	 * @param array  $variables   Array of key-value pairs to use in the request
-	 * @param array  $headers     Array of key-value pairs to use as additional headers
-	 * @param string $inputObject Raw body to send to server
-	 *
-	 * @return Response
-	 */
-	public abstract function request($httpVerb, $url, $variables = array(), $headers = array(), Input $inputObject = null);
 
 	/**
 	 * Create channel
@@ -204,4 +110,93 @@ abstract class Transport
 	{
 		return new $type();
 	}
+
+	/**
+	 * Set proxy
+	 *
+	 * @param   boolean  $useProxy          Use proxy?
+	 * @param   string   $proxyUrl          Proxy URL
+	 * @param   int      $proxyPort         Proxy port
+	 * @param   string   $proxyCredentials  Proxy credentials
+	 */
+	public function setProxy($useProxy = false, $proxyUrl = '', $proxyPort = 80, $proxyCredentials = '')
+	{
+		$this->_useProxy         = $useProxy;
+		$this->_proxyUrl         = $proxyUrl;
+		$this->_proxyPort        = $proxyPort;
+		$this->_proxyCredentials = $proxyCredentials;
+	}
+
+	/**
+	 * Perform GET request
+	 *
+	 * @param   string  $url        Url to request
+	 * @param   array   $variables  Array of key-value pairs to use in the request
+	 * @param   array   $headers    Array of key-value pairs to use as additional headers
+	 * @param   string  $rawBody    Raw body to send to server
+	 *
+	 * @return Response
+	 */
+	public function get($url, $variables = [], $headers = [], $rawBody = null)
+	{
+		return $this->request(self::VERB_GET, $url, $variables, $headers, $rawBody);
+	}
+
+	/**
+	 * Perform PUT request
+	 *
+	 * @param   string  $url        Url to request
+	 * @param   array   $variables  Array of key-value pairs to use in the request
+	 * @param   array   $headers    Array of key-value pairs to use as additional headers
+	 * @param   string  $rawBody    Raw body to send to server
+	 *
+	 * @return Response
+	 */
+	public function put($url, $variables = [], $headers = [], $rawBody = null)
+	{
+		return $this->request(self::VERB_PUT, $url, $variables, $headers, $rawBody);
+	}
+
+	/**
+	 * Perform POST request
+	 *
+	 * @param   string  $url        Url to request
+	 * @param   array   $variables  Array of key-value pairs to use in the request
+	 * @param   array   $headers    Array of key-value pairs to use as additional headers
+	 * @param   string  $rawBody    Raw body to send to server
+	 *
+	 * @return Response
+	 */
+	public function post($url, $variables = [], $headers = [], $rawBody = null)
+	{
+		return $this->request(self::VERB_POST, $url, $variables, $headers, $rawBody);
+	}
+
+	/**
+	 * Perform DELETE request
+	 *
+	 * @param   string  $url        Url to request
+	 * @param   array   $variables  Array of key-value pairs to use in the request
+	 * @param   array   $headers    Array of key-value pairs to use as additional headers
+	 * @param   string  $rawBody    Raw body to send to server
+	 *
+	 * @return Response
+	 */
+	public function delete($url, $variables = [], $headers = [], $rawBody = null)
+	{
+		return $this->request(self::VERB_DELETE, $url, $variables, $headers, $rawBody);
+	}
+
+	/**
+	 * Perform request
+	 *
+	 * @param   string  $httpVerb     Http verb to use in the request
+	 * @param   string  $url          Url to request
+	 * @param   array   $variables    Array of key-value pairs to use in the request
+	 * @param   array   $headers      Array of key-value pairs to use as additional headers
+	 * @param   string  $inputObject  Raw body to send to server
+	 *
+	 * @return Response
+	 */
+	public abstract function request($httpVerb, $url, $variables = [], $headers = [], Input $inputObject = null);
 }

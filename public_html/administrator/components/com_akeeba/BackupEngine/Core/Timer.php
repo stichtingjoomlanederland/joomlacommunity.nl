@@ -1,26 +1,22 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Core;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Base\BaseObject;
+
 use Akeeba\Engine\Factory;
-use Psr\Log\LogLevel;
 
 /**
  * Timer class
  */
-class Timer extends BaseObject
+class Timer
 {
 
 	/** @var int Maximum execution time allowance per step */
@@ -32,7 +28,7 @@ class Timer extends BaseObject
 	/**
 	 * Public constructor, creates the timer object and calculates the execution time limits
 	 *
-	 * @return Timer
+	 * @return  void
 	 */
 	public function __construct()
 	{
@@ -78,20 +74,10 @@ class Timer extends BaseObject
 	}
 
 	/**
-	 * Returns the current timestamp in decimal seconds
-	 */
-	protected function microtime_float()
-	{
-		list($usec, $sec) = explode(" ", microtime());
-
-		return ((float)$usec + (float)$sec);
-	}
-
-	/**
 	 * Enforce the minimum execution time
 	 *
-	 * @param    bool $log             Should I log what I'm doing? Default is true.
-	 * @param    bool $serverSideSleep Should I sleep on the server side? If false we return the amount of time to wait in msec
+	 * @param   bool  $log              Should I log what I'm doing? Default is true.
+	 * @param   bool  $serverSideSleep  Should I sleep on the server side? If false we return the amount of time to wait in msec
 	 *
 	 * @return  int Wait time to reach min_execution_time in msec
 	 */
@@ -117,7 +103,7 @@ class Timer extends BaseObject
 
 		// Get the "minimum execution time per step" Akeeba Backup configuration variable
 		$configuration = Factory::getConfiguration();
-		$minexectime = $configuration->get('akeeba.tuning.min_exec_time', 0);
+		$minexectime   = $configuration->get('akeeba.tuning.min_exec_time', 0);
 		if (!is_numeric($minexectime))
 		{
 			$minexectime = 0;
@@ -141,14 +127,14 @@ class Timer extends BaseObject
 
 			if (!$serverSideSleep)
 			{
-				Factory::getLog()->log(LogLevel::DEBUG, "Asking client to sleep for $sleep_msec msec");
+				Factory::getLog()->debug("Asking client to sleep for $sleep_msec msec");
 				$clientSideSleep = $sleep_msec;
 			}
 			elseif (function_exists('usleep'))
 			{
 				if ($log)
 				{
-					Factory::getLog()->log(LogLevel::DEBUG, "Sleeping for $sleep_msec msec, using usleep()");
+					Factory::getLog()->debug("Sleeping for $sleep_msec msec, using usleep()");
 				}
 				usleep(1000 * $sleep_msec);
 			}
@@ -156,9 +142,9 @@ class Timer extends BaseObject
 			{
 				if ($log)
 				{
-					Factory::getLog()->log(LogLevel::DEBUG, "Sleeping for $sleep_msec msec, using time_nanosleep()");
+					Factory::getLog()->debug("Sleeping for $sleep_msec msec, using time_nanosleep()");
 				}
-				$sleep_sec = floor($sleep_msec / 1000);
+				$sleep_sec  = floor($sleep_msec / 1000);
 				$sleep_nsec = 1000000 * ($sleep_msec - ($sleep_sec * 1000));
 				time_nanosleep($sleep_sec, $sleep_nsec);
 			}
@@ -166,7 +152,7 @@ class Timer extends BaseObject
 			{
 				if ($log)
 				{
-					Factory::getLog()->log(LogLevel::DEBUG, "Sleeping for $sleep_msec msec, using time_sleep_until()");
+					Factory::getLog()->debug("Sleeping for $sleep_msec msec, using time_sleep_until()");
 				}
 				$until_timestamp = time() + $sleep_msec / 1000;
 				time_sleep_until($until_timestamp);
@@ -176,7 +162,7 @@ class Timer extends BaseObject
 				$sleep_sec = ceil($sleep_msec / 1000);
 				if ($log)
 				{
-					Factory::getLog()->log(LogLevel::DEBUG, "Sleeping for $sleep_sec seconds, using sleep()");
+					Factory::getLog()->debug("Sleeping for $sleep_sec seconds, using sleep()");
 				}
 				sleep($sleep_sec);
 			}
@@ -186,7 +172,7 @@ class Timer extends BaseObject
 			// No sleep required, even if user configured us to be able to do so.
 			if ($log)
 			{
-				Factory::getLog()->log(LogLevel::DEBUG, "No need to sleep; execution time: $elapsed_time msec; min. exec. time: $minexectime msec");
+				Factory::getLog()->debug("No need to sleep; execution time: $elapsed_time msec; min. exec. time: $minexectime msec");
 			}
 		}
 
@@ -199,5 +185,15 @@ class Timer extends BaseObject
 	public function resetTime()
 	{
 		$this->start_time = $this->microtime_float();
+	}
+
+	/**
+	 * Returns the current timestamp in decimal seconds
+	 */
+	protected function microtime_float()
+	{
+		list($usec, $sec) = explode(" ", microtime());
+
+		return ((float) $usec + (float) $sec);
 	}
 }

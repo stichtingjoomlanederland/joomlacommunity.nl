@@ -1,17 +1,15 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Driver\Query;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Driver\Query\Base as BaseQuery;
 
@@ -37,9 +35,9 @@ class Mysqli extends Base implements Limitable
 	 * additions to make the query limited to a particular number of
 	 * results, or start at a particular offset.
 	 *
-	 * @param   string  $query  The query in string format
-	 * @param   integer $limit  The limit for the result set
-	 * @param   integer $offset The offset for the result set
+	 * @param   string   $query   The query in string format
+	 * @param   integer  $limit   The limit for the result set
+	 * @param   integer  $offset  The offset for the result set
 	 *
 	 * @return string
 	 */
@@ -60,15 +58,15 @@ class Mysqli extends Base implements Limitable
 	 * $query->setLimit(100, 0); (retrieve 100 rows, starting at first record)
 	 * $query->setLimit(50, 50); (retrieve 50 rows, starting at 50th record)
 	 *
-	 * @param   integer $limit  The limit for the result set
-	 * @param   integer $offset The offset for the result set
+	 * @param   integer  $limit   The limit for the result set
+	 * @param   integer  $offset  The offset for the result set
 	 *
 	 * @return  BaseQuery  Returns this object to allow chaining.
 	 */
 	public function setLimit($limit = 0, $offset = 0)
 	{
-		$this->limit = (int)$limit;
-		$this->offset = (int)$offset;
+		$this->limit  = (int) $limit;
+		$this->offset = (int) $offset;
 
 		return $this;
 	}
@@ -76,8 +74,8 @@ class Mysqli extends Base implements Limitable
 	/**
 	 * Concatenates an array of column names or values.
 	 *
-	 * @param   array  $values    An array of values to concatenate.
-	 * @param   string $separator As separator to place between each value.
+	 * @param   array   $values     An array of values to concatenate.
+	 * @param   string  $separator  As separator to place between each value.
 	 *
 	 * @return  string  The concatenated values.
 	 */

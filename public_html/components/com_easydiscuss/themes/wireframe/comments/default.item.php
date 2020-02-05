@@ -12,12 +12,12 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="ed-comment-item" data-ed-comment-item data-id="<?php echo $comment->id;?>">
-	<div class="o-flag">
-		<div class="o-flag__image o-flag--top">
+	<div class="o-media o-media--top">
+		<div class="o-media__image ">
 			<?php echo $this->html('user.avatar', $comment->creator); ?>
 		</div>
 
-		<div class="o-flag__body">
+		<div class="o-media__body">
 			<div class="ed-comment-item__action">
 				<ol class="g-list-inline g-list-inline--dashed">
 					<li>

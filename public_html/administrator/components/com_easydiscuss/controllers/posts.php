@@ -312,7 +312,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		// Validate the posted data to ensure that we can really proceed
 		if (!$post->validate($data)) {
 
-			$files = $this->input->get('filedata', array(), 'FILES');
+			$files = $this->input->get('filedata', array(), 'raw');
 			$data['attachments'] = $files;
 
 			ED::storeSession($data, 'NEW_POST_TOKEN');

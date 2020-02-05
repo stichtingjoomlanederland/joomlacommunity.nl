@@ -1,54 +1,46 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc\Connector\Cloudfiles;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Postproc\Connector\Cloudfiles\Exception\Http;
+use stdClass;
 
 /**
  * RESTful API request abstraction
  */
 class Request
 {
-	/** @var string The HTTP verb to use, e.g. GET, POST, PUT, HEAD, DELETE */
-	private $verb;
-
-	/** @var string The API URL to call */
-	private $url;
-
-	/** @var array Query string parameters */
-	private $parameters = array();
-
-	/** @var array Headers to send with the request */
-	private $headers = array();
-
 	/** @var bool|resource File pointer for GET and POST data */
 	public $fp = false;
-
 	/** @var int Size of the POST data */
 	public $size = 0;
-
 	/** @var bool|string POST data */
 	public $data = false;
-
-	/** @var null|\stdClass The response object */
+	/** @var null|stdClass The response object */
 	public $response = null;
+	/** @var string The HTTP verb to use, e.g. GET, POST, PUT, HEAD, DELETE */
+	private $verb;
+	/** @var string The API URL to call */
+	private $url;
+	/** @var array Query string parameters */
+	private $parameters = [];
+	/** @var array Headers to send with the request */
+	private $headers = [];
 
 	/**
 	 * Constructor
 	 *
-	 * @param string $verb Verb
-	 * @param string $url  Object URI
+	 * @param   string  $verb  Verb
+	 * @param   string  $url   Object URI
 	 *
 	 * @return Request
 	 */
@@ -58,15 +50,15 @@ class Request
 
 		$this->url = $url;
 
-		$this->response = new \stdClass();
+		$this->response        = new stdClass();
 		$this->response->error = false;
 	}
 
 	/**
 	 * Set request parameter
 	 *
-	 * @param string $key   Key
-	 * @param string $value Value
+	 * @param   string  $key    Key
+	 * @param   string  $value  Value
 	 *
 	 * @return void
 	 */
@@ -79,8 +71,8 @@ class Request
 	/**
 	 * Set request header
 	 *
-	 * @param string $key   Key
-	 * @param string $value Value
+	 * @param   string  $key    Key
+	 * @param   string  $value  Value
 	 *
 	 * @return void
 	 */
@@ -137,7 +129,7 @@ class Request
 		curl_setopt($curl, CURLOPT_TIMEOUT, 0);
 
 		// Headers
-		$headers = array();
+		$headers = [];
 
 		foreach ($this->headers as $header => $value)
 		{
@@ -150,8 +142,8 @@ class Request
 		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($curl, CURLOPT_HEADER, false);
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, false);
-		curl_setopt($curl, CURLOPT_WRITEFUNCTION, array(&$this, '__responseWriteCallback'));
-		curl_setopt($curl, CURLOPT_HEADERFUNCTION, array(&$this, '__responseHeaderCallback'));
+		curl_setopt($curl, CURLOPT_WRITEFUNCTION, [&$this, '__responseWriteCallback']);
+		curl_setopt($curl, CURLOPT_HEADERFUNCTION, [&$this, '__responseHeaderCallback']);
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
 
 		// Request types
@@ -202,11 +194,11 @@ class Request
 		}
 		else
 		{
-			$this->response->error = array(
+			$this->response->error = [
 				'code'    => curl_errno($curl),
 				'message' => curl_error($curl),
-				'url'     => $this->url
-			);
+				'url'     => $this->url,
+			];
 		}
 
 		@curl_close($curl);
@@ -229,13 +221,13 @@ class Request
 				$body = json_encode($this->response->body);
 				$body = json_decode($body, true);
 
-				$this->response->code = '-1';
+				$this->response->code  = '-1';
 				$this->response->error = $this->response->body;
 
 				if (is_array($body))
 				{
-					$allKeys = array_keys($body);
-					$firstKey = array_shift($allKeys);
+					$allKeys   = array_keys($body);
+					$firstKey  = array_shift($allKeys);
 					$errorInfo = $body[$firstKey];
 
 					if (isset($errorInfo['code']))
@@ -257,7 +249,7 @@ class Request
 			if (empty($this->response->error) || empty($this->response->code))
 			{
 				$this->response->error = 'Timeout';
-				$this->response->code = 0;
+				$this->response->code  = 0;
 			}
 			throw new Http($this->response->error, $this->response->code);
 		}
@@ -275,14 +267,14 @@ class Request
 	/**
 	 * CURL write callback
 	 *
-	 * @param resource &$curl CURL resource
-	 * @param string   &$data Data
+	 * @param   resource &$curl  CURL resource
+	 * @param   string   &$data  Data
 	 *
 	 * @return integer
 	 */
-	protected function  __responseWriteCallback(&$curl, &$data)
+	protected function __responseWriteCallback(&$curl, &$data)
 	{
-		if (in_array($this->response->code, array(200, 206)) && $this->fp !== false)
+		if (in_array($this->response->code, [200, 206]) && $this->fp !== false)
 		{
 			return fwrite($this->fp, $data);
 		}
@@ -303,12 +295,12 @@ class Request
 	/**
 	 * CURL header callback
 	 *
-	 * @param resource &$curl CURL resource
-	 * @param string   &$data Data
+	 * @param   resource &$curl  CURL resource
+	 * @param   string   &$data  Data
 	 *
 	 * @return integer
 	 */
-	protected function  __responseHeaderCallback(&$curl, &$data)
+	protected function __responseHeaderCallback(&$curl, &$data)
 	{
 		$strlen = strlen($data);
 
@@ -319,12 +311,12 @@ class Request
 
 		if (substr($data, 0, 4) == 'HTTP')
 		{
-			$this->response->code = (int)substr($data, 9, 3);
+			$this->response->code = (int) substr($data, 9, 3);
 		}
 		else
 		{
 			list($header, $value) = explode(': ', trim($data), 2);
-			$this->response->headers[$header] = is_numeric($value) ? (int)$value : $value;
+			$this->response->headers[$header] = is_numeric($value) ? (int) $value : $value;
 		}
 
 		return $strlen;

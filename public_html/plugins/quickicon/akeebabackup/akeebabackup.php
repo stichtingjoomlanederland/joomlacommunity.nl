@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -195,13 +195,42 @@ class plgQuickiconAkeebabackup extends JPlugin
 			return;
 		}
 
+		/**
+		 * The context in which quickicons appear. There's a reason this is hardcoded now.
+		 *
+		 * Joomla 3. This is always mod_quickicon. Grouping is defined by the 'group' key of the returned array. This is
+		 * the sane way I personally wrote this feature when I contributed it to Joomla! 1.7. The whole point of the
+		 * 'context' was that you could have **extension specific** quick icon plugins. Think about how JCE shows icons
+		 * in its control panel. The incoming context determines which plugins to load, the returned group key
+		 * determines how the icons are grouped in the context.
+		 *
+		 * Joomla 4. The context defines the quick icon grouping. The 'group' key of the returned array is ignored. All
+		 * quick icon plugins which respond to the 'mod_quickicon' context are shown in the "Third party" backend
+		 * module. This is a nonsensical change.
+		 *
+		 * Unfortunately, this means that I have to remove the user-defined context option. The reason is that Joomla
+		 * renders plugin options based on a static XML file which is common for J3 and J4. However, the context has a
+		 * different meaning and requires a different setting for J3 and J4. I have to take the flexibility away from
+		 * the user and force a default context in J4 which puts our icon in Update Checks.
+		 *
+		 * Yes, I know that the Update Checks module is, at the very least, mislabeled. There are of course the updates
+		 * to Joomla and extensions but also privacy requests and overrides, the latter two not being updates in any
+		 * conceivable form and in any possible universe. Since this backend module is supposed to have everything I am
+		 * going to throw my backup check in there. At least my plugin shows "backup up-to-date" or "update needed"
+		 * which actually makes it FAR MORE RELEVANT in an "updates" area on the page than the friggin' privacy
+		 * requests!
+		 */
+		$configuredContext    = version_compare(JVERSION, '3.999.999', 'gt') ? 'update_quickicon' : 'mod_quickicon';
+
+		/**/
 		if (
-			$context != $this->params->get('context', 'mod_quickicon')
+			$context != $configuredContext
 			|| !JFactory::getUser()->authorise('core.manage', 'com_installer')
 		)
 		{
 			return;
 		}
+		/**/
 
 		// Necessary defines for Akeeba Engine
 		if (!defined('AKEEBAENGINE'))
@@ -330,7 +359,7 @@ class plgQuickiconAkeebabackup extends JPlugin
 					 * have to use some Javascript to achieve the same result. Grrrr...
 					 */
 					$j4WarningJavascript = true;
-					$ret['image'] = 'fa fa-akeeba-red';
+					$ret['image']        = 'fa fa-akeeba-red';
 				}
 				elseif (version_compare(JVERSION, '3.0', 'lt'))
 				{
@@ -366,19 +395,22 @@ class plgQuickiconAkeebabackup extends JPlugin
   -moz-osx-font-smoothing: grayscale;
 }
 
-span.fa-akeeba-black:before
+span.fa-akeeba-black:before,
+div.fa-akeeba-black:before
 {
   color: var(--success);
   background: transparent;
 }
 
-span.fa-akeeba-red:before
+span.fa-akeeba-red:before,
+div.fa-akeeba-red:before
 {
   color: var(--danger);
   background: transparent;
 }
 
-span[class*=fa-akeeba]:before
+span[class*=fa-akeeba]:before,
+div[class*=fa-akeeba]:before
 {
 	content: 'B';
 }
@@ -409,7 +441,7 @@ CSS;
 
 		if ($isJoomla4)
 		{
-			$myClass = $j4WarningJavascript ? 'danger' : 'success';
+			$myClass  = $j4WarningJavascript ? 'danger' : 'success';
 			$inlineJS = <<< JS
 // ; Defense against third party broken Javascript
 document.addEventListener('DOMContentLoaded', function() {
@@ -424,11 +456,10 @@ JS;
 		// Re-enable self
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true)
-		            ->update($db->qn('#__extensions'))
-		            ->set($db->qn('enabled') . ' = ' . $db->q('1'))
-		            ->where($db->qn('element') . ' = ' . $db->q('akeebabackup'))
-		            ->where($db->qn('folder') . ' = ' . $db->q('quickicon'))
-		;
+			->update($db->qn('#__extensions'))
+			->set($db->qn('enabled') . ' = ' . $db->q('1'))
+			->where($db->qn('element') . ' = ' . $db->q('akeebabackup'))
+			->where($db->qn('folder') . ' = ' . $db->q('quickicon'));
 		$db->setQuery($query);
 		$db->execute();
 

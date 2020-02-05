@@ -1,19 +1,18 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Util;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Factory;
+use Exception;
 
 /**
  * Management class for temporary storage of the serialised engine state.
@@ -28,23 +27,6 @@ class FactoryStorage
 	}
 
 	/**
-	 * Sets the storage engine which will be used
-	 *
-	 * @param   string  $engine  The storage engine (currently only db or file can be specified)
-	 */
-	public function setStorageEngine($engine = null)
-	{
-		if (empty($engine))
-		{
-			$config = Factory::getConfiguration();
-			$usedb = $config->get('akeeba.core.usedbstorage', 0);
-			$engine = $usedb ? 'db' : 'file';
-		}
-
-		$this->storageEngine = $engine;
-	}
-
-	/**
 	 * Returns the name of the storage engine
 	 *
 	 * @return  string
@@ -54,13 +36,30 @@ class FactoryStorage
 		return $this->storageEngine;
 	}
 
-    /**
-     * Returns the fully qualified path to the storage file
+	/**
+	 * Sets the storage engine which will be used
 	 *
-     * @param   string  $tag
-     *
-     * @return  string
-     */
+	 * @param   string  $engine  The storage engine (currently only db or file can be specified)
+	 */
+	public function setStorageEngine($engine = null)
+	{
+		if (empty($engine))
+		{
+			$config = Factory::getConfiguration();
+			$usedb  = $config->get('akeeba.core.usedbstorage', 0);
+			$engine = $usedb ? 'db' : 'file';
+		}
+
+		$this->storageEngine = $engine;
+	}
+
+	/**
+	 * Returns the fully qualified path to the storage file
+	 *
+	 * @param   string  $tag
+	 *
+	 * @return  string
+	 */
 	public function get_storage_filename($tag = null)
 	{
 		static $basepath = null;
@@ -86,12 +85,13 @@ class FactoryStorage
 		}
 	}
 
-    /**
-     * Resets the storage. This method removes all stored values.
-     * @param   null    $tag
-     *
-     * @return    bool    True on success
-     */
+	/**
+	 * Resets the storage. This method removes all stored values.
+	 *
+	 * @param   null  $tag
+	 *
+	 * @return    bool    True on success
+	 */
 	public function reset($tag = null)
 	{
 		switch ($this->storageEngine)
@@ -110,8 +110,8 @@ class FactoryStorage
 
 			case 'db':
 				$dbtag = $this->get_storage_filename($tag);
-				$db = Factory::getDatabase();
-				$sql = $db->getQuery(true)
+				$db    = Factory::getDatabase();
+				$sql   = $db->getQuery(true)
 					->delete($db->qn('#__ak_storage'))
 					->where($db->qn('tag') . ' = ' . $db->q($dbtag));
 				$db->setQuery($sql);
@@ -120,7 +120,7 @@ class FactoryStorage
 				{
 					$result = $db->query();
 				}
-				catch (\Exception $exc)
+				catch (Exception $exc)
 				{
 					return false;
 				}
@@ -140,25 +140,12 @@ class FactoryStorage
 		switch ($this->storageEngine)
 		{
 			case 'file':
-				// Remove old file (if exists)
 				if (file_exists($storage_filename))
 				{
 					@unlink($storage_filename);
 				}
 
-				// Open the new file
-				$fp = @fopen($storage_filename, 'wb');
-
-				if ($fp === false)
-				{
-					return false;
-				}
-
-				// Add a header
-				fwrite($fp, $this->encode($value));
-				fclose($fp);
-
-				return true;
+				return @file_put_contents($storage_filename, $this->encode($value)) !== false;
 
 				break;
 
@@ -175,7 +162,7 @@ class FactoryStorage
 				{
 					$result = $db->query();
 				}
-				catch (\Exception $exc)
+				catch (Exception $exc)
 				{
 					return false;
 				}
@@ -183,10 +170,10 @@ class FactoryStorage
 				// Add the new record
 				$sql = $db->getQuery(true)
 					->insert($db->qn('#__ak_storage'))
-					->columns(array(
-								   $db->qn('tag'),
-								   $db->qn('data'),
-							  ))->values($db->q($storage_filename) . ',' . $db->q($this->encode($value)));
+					->columns([
+						$db->qn('tag'),
+						$db->qn('data'),
+					])->values($db->q($storage_filename) . ',' . $db->q($this->encode($value)));
 
 				$db->setQuery($sql);
 
@@ -194,7 +181,7 @@ class FactoryStorage
 				{
 					$result = $db->query();
 				}
-				catch (\Exception $exc)
+				catch (Exception $exc)
 				{
 					return false;
 				}
@@ -203,6 +190,8 @@ class FactoryStorage
 
 				break;
 		}
+
+		return false;
 	}
 
 	public function &get($tag = null)
@@ -224,7 +213,7 @@ class FactoryStorage
 				break;
 
 			case 'db':
-				$db = Factory::getDatabase();
+				$db  = Factory::getDatabase();
 				$sql = $db->getQuery(true)
 					->select($db->qn('data'))
 					->from($db->qn('#__ak_storage'))
@@ -240,7 +229,7 @@ class FactoryStorage
 						return $ret;
 					}
 				}
-				catch (\Exception $e)
+				catch (Exception $e)
 				{
 					return $ret;
 				}

@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class acymtagClass extends acymClass
 {
@@ -52,6 +43,8 @@ class acymtagClass extends acymClass
 
     public function getAllTagsByElementId($type, $id)
     {
+        if (empty($id)) return [];
+
         $query = 'SELECT * FROM #__acym_tag WHERE type = '.acym_escapeDB($type).' AND id_element = '.intval($id);
         $tags = acym_loadResultArray($query);
 

@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" novalidate data-abide>
+?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" novalidate data-abide>
 	<div class="grid-x acym__content acym__content__tab">
 
         <?php
@@ -27,8 +18,8 @@ defined('_JEXEC') or die('Restricted access');
             'mail' => 'ACYM_CONFIGURATION_MAIL',
             'queue' => 'ACYM_CONFIGURATION_QUEUE',
             'subscription' => 'ACYM_CONFIGURATION_SUBSCRIPTION',
+            'interfaces' => 'ACYM_CONFIGURATION_INTERFACE',
             'bounce' => 'ACYM_BOUNCE_HANDLING',
-            'interface' => 'ACYM_INTERFACE',
             'data' => 'ACYM_CONFIGURATION_DATA_COLLECTION',
             'security' => 'ACYM_CONFIGURATION_SECURITY',
             'languages' => 'ACYM_CONFIGURATION_LANGUAGES',

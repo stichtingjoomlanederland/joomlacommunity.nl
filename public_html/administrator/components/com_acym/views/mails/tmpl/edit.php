@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<div id="acym__editor__content" class="grid-x acym__content acym__editor__area">
+?><div id="acym__editor__content" class="grid-x acym__content acym__editor__area">
 	<div class="cell grid-x align-right">
 		<input type="hidden" id="acym__mail__edit__editor" value="<?php echo acym_escape($data['mail']->editor); ?>">
 		<input type="hidden" class="acym__wysid__hidden__save__thumbnail" id="editor_thumbnail" name="editor_thumbnail" value="<?php echo acym_escape($data['mail']->thumbnail); ?>" />
@@ -31,7 +22,7 @@ defined('_JEXEC') or die('Restricted access');
         );
 
         ?>
-		<button id="apply" type="button" data-task="apply" class="cell medium-shrink button-secondary auto button acym__template__save acy_button_submit">
+		<button id="apply" type="button" data-task="apply" class="cell medium-shrink button-secondary auto button acym__template__save margin-left-1 acy_button_submit">
             <?php echo acym_translation('ACYM_SAVE'); ?>
 		</button>
 		<button style="display: none;" data-task="apply" class="acy_button_submit" id="data_apply"></button>
@@ -43,6 +34,7 @@ defined('_JEXEC') or die('Restricted access');
 	<div class="cell grid-x grid-padding-x acym__editor__content__options">
         <?php
         echo !empty($data['return']) ? '<input type="hidden" name="return" value="'.acym_escape($data['return']).'"/>' : '';
+        echo !empty($data['fromId']) ? '<input type="hidden" name="fromId" value="'.acym_escape($data['fromId']).'"/>' : '';
         $mainSize = 'xlarge-3 medium-6';
         if ($data['mail']->type == 'notification') {
             echo '<input type="hidden" name="notification" value="'.acym_escape($data['mail']->name).'"/>';

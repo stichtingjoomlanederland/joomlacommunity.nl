@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<form id="acym_form" action="<?php echo acym_prepareAjaxURL(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
+?><form id="acym_form" action="<?php echo acym_prepareAjaxURL(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
 	<div class="grid-x acym__content" id="acym__users__export">
 		<!--<div class="cell grid-x align-right margin-bottom-1">-->
 		<!--	<h5 class="cell auto font-bold">--><?php //echo acym_translation('ACYM_EXPORT'); ?><!--</h5>-->
@@ -41,15 +32,14 @@ defined('_JEXEC') or die('Restricted access');
                     ?>
 				</div>
 				<div class="grid-x margin-bottom-1" id="userField_separator">
-					<label class="cell"><?php echo acym_translation('ACYM_SEPARATOR'); ?>
-                        <?php
-                        echo acym_radio(
-                            [';' => acym_translation('ACYM_SEMICOLON'), ',' => acym_translation('ACYM_COMMA')],
-                            "export_separator",
-                            $this->config->get('export_separator', ',')
-                        );
-                        ?>
-					</label>
+					<label class="cell"><?php echo acym_translation('ACYM_SEPARATOR'); ?></label>
+                    <?php
+                    echo acym_radio(
+                        ['semicol' => acym_translation('ACYM_SEMICOLON'), 'comma' => acym_translation('ACYM_COMMA')],
+                        "export_separator",
+                        $this->config->get('export_separator', 'comma')
+                    );
+                    ?>
 					<div class="cell medium-auto"></div>
 				</div>
 				<div class="grid-x">
@@ -60,9 +50,8 @@ defined('_JEXEC') or die('Restricted access');
 					<div class="cell medium-auto"></div>
 				</div>
 				<div class="grid-x" id="userField_excel">
-					<label class="cell"><?php echo acym_tooltip(acym_translation('ACYM_EXCEL_SECURITY'), acym_translation('ACYM_EXCEL_SECURITY_DESC')); ?>
-                        <?php echo acym_boolean("export_excelsecurity", $this->config->get('export_excelsecurity', 0)); ?>
-					</label>
+					<label class="cell"><?php echo acym_tooltip(acym_translation('ACYM_EXCEL_SECURITY'), acym_translation('ACYM_EXCEL_SECURITY_DESC')); ?></label>
+                    <?php echo acym_boolean("export_excelsecurity", $this->config->get('export_excelsecurity', 0)); ?>
 					<div class="cell medium-auto"></div>
 				</div>
 			</div>

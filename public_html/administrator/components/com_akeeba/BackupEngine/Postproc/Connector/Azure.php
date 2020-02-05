@@ -1,11 +1,10 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 /**
@@ -45,8 +44,6 @@
 
 namespace Akeeba\Engine\Postproc\Connector;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
 
 use Akeeba\Engine\Postproc\Connector\Azure\AzureStorage;
 use Akeeba\Engine\Postproc\Connector\Azure\Blob\Container;
@@ -75,389 +72,6 @@ class Azure extends AzureStorage
 	 * ACL - Public access
 	 */
 	const ACL_PUBLIC = true;
-
-	/**
-	 * Get container
-	 *
-	 * @param   string  $containerName  Container name
-	 *
-	 * @return  Container
-	 *
-	 * @throws  Api
-	 */
-	public function getContainer($containerName = '')
-	{
-		if ($containerName === '')
-		{
-			throw new Api('Container name is not specified.');
-		}
-
-		if (!self::isValidContainerName($containerName))
-		{
-			throw new Api('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
-		}
-
-		// Perform request
-		$response =
-			$this->performRequest($containerName, '?restype=container', Transport::VERB_GET, array(), false, null, AzureStorage::RESOURCE_CONTAINER, Credentials::PERMISSION_READ);
-
-		if (!$response->isSuccessful())
-		{
-			throw new Api($this->getErrorMessage($response, 'Resource could not be accessed.'));
-		}
-
-		// Parse metadata
-		$metadata = array();
-
-		foreach ($response->getHeaders() as $key => $value)
-		{
-			if (substr(strtolower($key), 0, 10) == "x-ms-meta-")
-			{
-				$metadata[str_replace("x-ms-meta-", '', strtolower($key))] = $value;
-			}
-		}
-
-		// Return container
-		return new Container(
-			$containerName,
-			$response->getHeader('Etag'),
-			$response->getHeader('Last-modified'),
-			$metadata
-		);
-	}
-
-	/**
-	 * Put blob
-	 *
-	 * @param   string  $containerName       Container name
-	 * @param   string  $blobName            Blob name
-	 * @param   string  $localFileName       Local file name to be uploaded
-	 * @param   array   $metadata            Key/value pairs of meta data
-	 * @param   array   $additionalHeaders   Additional headers. See
-	 *                                       http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
-	 *
-	 * @return  object  Partial blob properties
-	 * @throws  Api
-	 */
-	public function putBlob($containerName = '', $blobName = '', $localFileName = '', $metadata = array(), $additionalHeaders = array())
-	{
-		if ($containerName === '')
-		{
-			throw new Api('Container name is not specified.');
-		}
-
-		if (!self::isValidContainerName($containerName))
-		{
-			throw new Api('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
-		}
-
-		if ($blobName === '')
-		{
-			throw new Api('Blob name is not specified.');
-		}
-
-		if ($localFileName === '')
-		{
-			throw new Api('Local file name is not specified.');
-		}
-
-		if (!file_exists($localFileName))
-		{
-			throw new Api('Local file not found.');
-		}
-
-		if (($containerName === '$root') && strpos($blobName, '/') !== false)
-		{
-			throw new Api('Blobs stored in the root container can not have a name containing a forward slash (/).');
-		}
-
-		// Mandatory headers for this API version, see https://msdn.microsoft.com/en-us/library/azure/dd179451.aspx
-		$headers = array(
-			'x-ms-blob-type' => 'BlockBlob'
-		);
-
-		// Create metadata headers
-		foreach ($metadata as $key => $value)
-		{
-			$headers["x-ms-meta-" . strtolower($key)] = $value;
-		}
-
-		// Additional headers?
-		foreach ($additionalHeaders as $key => $value)
-		{
-			$headers[$key] = $value;
-		}
-
-		// File contents – TODO This is a stupid way to upload files
-		$inputObject = Input::createFromFile($localFileName);
-
-		// Resource name
-		$resourceName = self::createResourceName($containerName, $blobName);
-
-		// Perform request
-		$response = $this->performRequest($resourceName, '', Transport::VERB_PUT, $headers, false, $inputObject, AzureStorage::RESOURCE_BLOB, Credentials::PERMISSION_WRITE);
-
-		if (!$response->isSuccessful())
-		{
-			throw new Api($this->getErrorMessage($response, 'Resource could not be accessed.'));
-		}
-
-		return new Instance(
-			$containerName,
-			$blobName,
-			$response->getHeader('Etag'),
-			$response->getHeader('Last-modified'),
-			$this->getBaseUrl() . '/' . $containerName . '/' . $blobName,
-			$inputObject->getSize(),
-			'',
-			'',
-			'',
-			false,
-			$metadata
-		);
-	}
-
-	/**
-	 * Set blob metadata
-	 *
-	 * Calling the Set Blob Metadata operation overwrites all existing metadata that is associated with the blob. It's
-	 * not possible to modify an individual name/value pair.
-	 *
-	 * @param   string  $containerName      Container name
-	 * @param   string  $blobName           Blob name
-	 * @param   array   $metadata           Key/value pairs of meta data
-	 * @param   array   $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx
-	 *                                      for more information.
-	 *
-	 * @throws  Api
-	 */
-	public function setBlobMetadata($containerName = '', $blobName = '', $metadata = array(), $additionalHeaders = array())
-	{
-		if ($containerName === '')
-		{
-			throw new Api('Container name is not specified.');
-		}
-
-		if (!self::isValidContainerName($containerName))
-		{
-			throw new Api('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
-		}
-
-		if ($blobName === '')
-		{
-			throw new Api('Blob name is not specified.');
-		}
-
-		if ($containerName === '$root' && strpos($blobName, '/') !== false)
-		{
-			throw new Api('Blobs stored in the root container can not have a name containing a forward slash (/).');
-		}
-
-		if (count($metadata) == 0)
-		{
-			return;
-		}
-
-		// Create metadata headers
-		$headers = array();
-
-		foreach ($metadata as $key => $value)
-		{
-			$headers["x-ms-meta-" . strtolower($key)] = $value;
-		}
-
-		// Additional headers?
-		foreach ($additionalHeaders as $key => $value)
-		{
-			$headers[$key] = $value;
-		}
-
-		// Perform request
-		$response =
-			$this->performRequest($containerName . '/' . $blobName, '?comp=metadata', Transport::VERB_PUT, $headers, false, null, AzureStorage::RESOURCE_BLOB, Credentials::PERMISSION_WRITE);
-
-		if (!$response->isSuccessful())
-		{
-			throw new Api($this->getErrorMessage($response, 'Resource could not be accessed.'));
-		}
-	}
-
-	/**
-	 * Get blob
-	 *
-	 * @param   string  $containerName      Container name
-	 * @param   string  $blobName           Blob name
-	 * @param   string  $localFileName      Local file name to store downloaded blob
-	 * @param   string  $snapshotId         Snapshot identifier
-	 * @param   string  $leaseId            Lease identifier
-	 * @param   array   $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx
-	 *                                      for more information.
-	 *
-	 * @throws  Api
-	 */
-	public function getBlob($containerName = '', $blobName = '', $localFileName = '', $snapshotId = null, $leaseId = null, $additionalHeaders = array())
-	{
-		if ($containerName === '')
-		{
-			throw new Api('Container name is not specified.');
-		}
-
-		if (!self::isValidContainerName($containerName))
-		{
-			throw new Api('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
-		}
-
-		if ($blobName === '')
-		{
-			throw new Api('Blob name is not specified.');
-		}
-
-		if ($localFileName === '')
-		{
-			throw new Api('Local file name is not specified.');
-		}
-
-		// Fetch data
-		file_put_contents($localFileName, $this->getBlobData($containerName, $blobName, $snapshotId, $leaseId, $additionalHeaders));
-	}
-
-	/**
-	 * Get blob data
-	 *
-	 * @param   string  $containerName      Container name
-	 * @param   string  $blobName           Blob name
-	 * @param   string  $snapshotId         Snapshot identifier
-	 * @param   string  $leaseId            Lease identifier
-	 * @param   array   $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx
-	 *                                      for more information.
-	 *
-	 * @return  mixed  Blob contents
-	 *
-	 * @throws  Api
-	 */
-	public function getBlobData($containerName = '', $blobName = '', $snapshotId = null, $leaseId = null, $additionalHeaders = array())
-	{
-		if ($containerName === '')
-		{
-			throw new Api('Container name is not specified.');
-		}
-
-		if (!self::isValidContainerName($containerName))
-		{
-			throw new Api('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
-		}
-
-		if ($blobName === '')
-		{
-			throw new Api('Blob name is not specified.');
-		}
-
-		// Build query string
-		$queryString = array();
-
-		if (!is_null($snapshotId))
-		{
-			$queryString[] = 'snapshot=' . $snapshotId;
-		}
-
-		$queryString = self::createQueryStringFromArray($queryString);
-
-		// Additional headers?
-		$headers = array();
-
-		if (!is_null($leaseId))
-		{
-			$headers['x-ms-lease-id'] = $leaseId;
-		}
-
-		foreach ($additionalHeaders as $key => $value)
-		{
-			$headers[$key] = $value;
-		}
-
-		// Resource name
-		$resourceName = self::createResourceName($containerName, $blobName);
-
-		// Perform request
-		$response = $this->performRequest($resourceName, $queryString, 'GET', $headers, false, null, self::RESOURCE_BLOB, Credentials::PERMISSION_READ);
-
-		if (!$response->isSuccessful())
-		{
-			throw new Api($this->getErrorMessage($response, 'Resource could not be accessed.'));
-		}
-
-		return $response->getBody();
-	}
-
-	/**
-	 * Delete blob
-	 *
-	 * @param   string  $containerName      Container name
-	 * @param   string  $blobName           Blob name
-	 * @param   string  $snapshotId         Snapshot identifier
-	 * @param   string  $leaseId            Lease identifier
-	 * @param   array   $additionalHeaders  Additional headers. See http://msdn.microsoft.com/en-us/library/dd179371.aspx
-	 *                                      for more information.
-	 *
-	 * @throws  Api
-	 */
-	public function deleteBlob($containerName = '', $blobName = '', $snapshotId = null, $leaseId = null, $additionalHeaders = array())
-	{
-		if ($containerName === '')
-		{
-			throw new Api('Container name is not specified.');
-		}
-
-		if (!self::isValidContainerName($containerName))
-		{
-			throw new Api('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
-		}
-
-		if ($blobName === '')
-		{
-			throw new Api('Blob name is not specified.');
-		}
-
-		if ($containerName === '$root' && strpos($blobName, '/') !== false)
-		{
-			throw new Api('Blobs stored in the root container can not have a name containing a forward slash (/).');
-		}
-
-		// Build query string
-		$queryString = array();
-
-		if (!is_null($snapshotId))
-		{
-			$queryString[] = 'snapshot=' . $snapshotId;
-		}
-
-		$queryString = self::createQueryStringFromArray($queryString);
-
-		// Additional headers?
-		$headers = array();
-
-		if (!is_null($leaseId))
-		{
-			$headers['x-ms-lease-id'] = $leaseId;
-		}
-
-		foreach ($additionalHeaders as $key => $value)
-		{
-			$headers[$key] = $value;
-		}
-
-		// Resource name
-		$resourceName = self::createResourceName($containerName, $blobName);
-
-		// Perform request
-		$response =
-			$this->performRequest($resourceName, $queryString, Transport::VERB_DELETE, $headers, false, null, self::RESOURCE_BLOB, Credentials::PERMISSION_WRITE);
-
-		if (!$response->isSuccessful())
-		{
-			throw new Api($this->getErrorMessage($response, 'Resource could not be accessed.'));
-		}
-	}
 
 	/**
 	 * Create resource name
@@ -528,6 +142,446 @@ class Azure extends AzureStorage
 	}
 
 	/**
+	 * Get container
+	 *
+	 * @param   string  $containerName  Container name
+	 *
+	 * @return  Container
+	 *
+	 * @throws  Api
+	 */
+	public function getContainer($containerName = '')
+	{
+		if ($containerName === '')
+		{
+			throw new Api('Container name is not specified.');
+		}
+
+		if (!self::isValidContainerName($containerName))
+		{
+			throw new Api('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+		}
+
+		// Perform request
+		$response =
+			$this->performRequest($containerName, '?restype=container', Transport::VERB_GET, [], false, null, AzureStorage::RESOURCE_CONTAINER, Credentials::PERMISSION_READ);
+
+		if (!$response->isSuccessful())
+		{
+			throw new Api($this->getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+
+		// Parse metadata
+		$metadata = [];
+
+		foreach ($response->getHeaders() as $key => $value)
+		{
+			if (substr(strtolower($key), 0, 10) == "x-ms-meta-")
+			{
+				$metadata[str_replace("x-ms-meta-", '', strtolower($key))] = $value;
+			}
+		}
+
+		// Return container
+		return new Container(
+			$containerName,
+			$response->getHeader('Etag'),
+			$response->getHeader('Last-modified'),
+			$metadata
+		);
+	}
+
+	/**
+	 * Put blob
+	 *
+	 * @param   string  $containerName       Container name
+	 * @param   string  $blobName            Blob name
+	 * @param   string  $localFileName       Local file name to be uploaded
+	 * @param   array   $metadata            Key/value pairs of meta data
+	 * @param   array   $additionalHeaders   Additional headers. See
+	 *                                       http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
+	 *
+	 * @return  Instance  Partial blob properties
+	 * @throws  Api
+	 */
+	public function putBlob($containerName = '', $blobName = '', $localFileName = '', $metadata = [], $additionalHeaders = [])
+	{
+		if ($containerName === '')
+		{
+			throw new Api('Container name is not specified.');
+		}
+
+		if (!self::isValidContainerName($containerName))
+		{
+			throw new Api('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+		}
+
+		if ($blobName === '')
+		{
+			throw new Api('Blob name is not specified.');
+		}
+
+		if ($localFileName === '')
+		{
+			throw new Api('Local file name is not specified.');
+		}
+
+		if (!file_exists($localFileName))
+		{
+			throw new Api('Local file not found.');
+		}
+
+		if (($containerName === '$root') && strpos($blobName, '/') !== false)
+		{
+			throw new Api('Blobs stored in the root container can not have a name containing a forward slash (/).');
+		}
+
+		// Mandatory headers for this API version, see https://msdn.microsoft.com/en-us/library/azure/dd179451.aspx
+		$headers = [
+			'x-ms-blob-type' => 'BlockBlob',
+		];
+
+		// Create metadata headers
+		foreach ($metadata as $key => $value)
+		{
+			$headers["x-ms-meta-" . strtolower($key)] = $value;
+		}
+
+		// Additional headers?
+		foreach ($additionalHeaders as $key => $value)
+		{
+			$headers[$key] = $value;
+		}
+
+		// File contents
+		$inputObject = Input::createFromFile($localFileName);
+
+		// Resource name
+		$resourceName = self::createResourceName($containerName, $blobName);
+
+		// Perform request
+		$response = $this->performRequest($resourceName, '', Transport::VERB_PUT, $headers, false, $inputObject, AzureStorage::RESOURCE_BLOB, Credentials::PERMISSION_WRITE);
+
+		if (!$response->isSuccessful())
+		{
+			throw new Api($this->getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+
+		return new Instance(
+			$containerName,
+			$blobName,
+			$response->getHeader('Etag'),
+			$response->getHeader('Last-modified'),
+			$this->getBaseUrl() . '/' . $containerName . '/' . $blobName,
+			$inputObject->getSize(),
+			'',
+			'',
+			'',
+			false,
+			$metadata
+		);
+	}
+
+	/**
+	 * Set blob metadata
+	 *
+	 * Calling the Set Blob Metadata operation overwrites all existing metadata that is associated with the blob. It's
+	 * not possible to modify an individual name/value pair.
+	 *
+	 * @param   string  $containerName      Container name
+	 * @param   string  $blobName           Blob name
+	 * @param   array   $metadata           Key/value pairs of meta data
+	 * @param   array   $additionalHeaders  Additional headers. See
+	 *                                      http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
+	 *
+	 * @throws  Api
+	 */
+	public function setBlobMetadata($containerName = '', $blobName = '', $metadata = [], $additionalHeaders = [])
+	{
+		if ($containerName === '')
+		{
+			throw new Api('Container name is not specified.');
+		}
+
+		if (!self::isValidContainerName($containerName))
+		{
+			throw new Api('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+		}
+
+		if ($blobName === '')
+		{
+			throw new Api('Blob name is not specified.');
+		}
+
+		if ($containerName === '$root' && strpos($blobName, '/') !== false)
+		{
+			throw new Api('Blobs stored in the root container can not have a name containing a forward slash (/).');
+		}
+
+		if (count($metadata) == 0)
+		{
+			return;
+		}
+
+		// Create metadata headers
+		$headers = [];
+
+		foreach ($metadata as $key => $value)
+		{
+			$headers["x-ms-meta-" . strtolower($key)] = $value;
+		}
+
+		// Additional headers?
+		foreach ($additionalHeaders as $key => $value)
+		{
+			$headers[$key] = $value;
+		}
+
+		// Perform request
+		$response =
+			$this->performRequest($containerName . '/' . $blobName, '?comp=metadata', Transport::VERB_PUT, $headers, false, null, AzureStorage::RESOURCE_BLOB, Credentials::PERMISSION_WRITE);
+
+		if (!$response->isSuccessful())
+		{
+			throw new Api($this->getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+	}
+
+	/**
+	 * Get blob
+	 *
+	 * @param   string  $containerName      Container name
+	 * @param   string  $blobName           Blob name
+	 * @param   string  $localFileName      Local file name to store downloaded blob
+	 * @param   string  $snapshotId         Snapshot identifier
+	 * @param   string  $leaseId            Lease identifier
+	 * @param   array   $additionalHeaders  Additional headers. See
+	 *                                      http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
+	 *
+	 * @throws  Api
+	 */
+	public function getBlob($containerName = '', $blobName = '', $localFileName = '', $snapshotId = null, $leaseId = null, $additionalHeaders = [])
+	{
+		if ($containerName === '')
+		{
+			throw new Api('Container name is not specified.');
+		}
+
+		if (!self::isValidContainerName($containerName))
+		{
+			throw new Api('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+		}
+
+		if ($blobName === '')
+		{
+			throw new Api('Blob name is not specified.');
+		}
+
+		if ($localFileName === '')
+		{
+			throw new Api('Local file name is not specified.');
+		}
+
+		// Fetch data
+		file_put_contents($localFileName, $this->getBlobData($containerName, $blobName, $snapshotId, $leaseId, $additionalHeaders));
+	}
+
+	/**
+	 * Get blob data
+	 *
+	 * @param   string  $containerName      Container name
+	 * @param   string  $blobName           Blob name
+	 * @param   string  $snapshotId         Snapshot identifier
+	 * @param   string  $leaseId            Lease identifier
+	 * @param   array   $additionalHeaders  Additional headers. See
+	 *                                      http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
+	 *
+	 * @return  mixed  Blob contents
+	 *
+	 * @throws  Api
+	 */
+	public function getBlobData($containerName = '', $blobName = '', $snapshotId = null, $leaseId = null, $additionalHeaders = [])
+	{
+		if ($containerName === '')
+		{
+			throw new Api('Container name is not specified.');
+		}
+
+		if (!self::isValidContainerName($containerName))
+		{
+			throw new Api('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+		}
+
+		if ($blobName === '')
+		{
+			throw new Api('Blob name is not specified.');
+		}
+
+		// Build query string
+		$queryString = [];
+
+		if (!is_null($snapshotId))
+		{
+			$queryString[] = 'snapshot=' . $snapshotId;
+		}
+
+		$queryString = self::createQueryStringFromArray($queryString);
+
+		// Additional headers?
+		$headers = [];
+
+		if (!is_null($leaseId))
+		{
+			$headers['x-ms-lease-id'] = $leaseId;
+		}
+
+		foreach ($additionalHeaders as $key => $value)
+		{
+			$headers[$key] = $value;
+		}
+
+		// Resource name
+		$resourceName = self::createResourceName($containerName, $blobName);
+
+		// Perform request
+		$response = $this->performRequest($resourceName, $queryString, 'GET', $headers, false, null, self::RESOURCE_BLOB, Credentials::PERMISSION_READ);
+
+		if (!$response->isSuccessful())
+		{
+			throw new Api($this->getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+
+		return $response->getBody();
+	}
+
+	/**
+	 * Delete blob
+	 *
+	 * @param   string  $containerName      Container name
+	 * @param   string  $blobName           Blob name
+	 * @param   string  $snapshotId         Snapshot identifier
+	 * @param   string  $leaseId            Lease identifier
+	 * @param   array   $additionalHeaders  Additional headers. See
+	 *                                      http://msdn.microsoft.com/en-us/library/dd179371.aspx for more information.
+	 *
+	 * @throws  Api
+	 */
+	public function deleteBlob($containerName = '', $blobName = '', $snapshotId = null, $leaseId = null, $additionalHeaders = [])
+	{
+		if ($containerName === '')
+		{
+			throw new Api('Container name is not specified.');
+		}
+
+		if (!self::isValidContainerName($containerName))
+		{
+			throw new Api('Container name does not adhere to container naming conventions. See http://msdn.microsoft.com/en-us/library/dd135715.aspx for more information.');
+		}
+
+		if ($blobName === '')
+		{
+			throw new Api('Blob name is not specified.');
+		}
+
+		if ($containerName === '$root' && strpos($blobName, '/') !== false)
+		{
+			throw new Api('Blobs stored in the root container can not have a name containing a forward slash (/).');
+		}
+
+		// Build query string
+		$queryString = [];
+
+		if (!is_null($snapshotId))
+		{
+			$queryString[] = 'snapshot=' . $snapshotId;
+		}
+
+		$queryString = self::createQueryStringFromArray($queryString);
+
+		// Additional headers?
+		$headers = [];
+
+		if (!is_null($leaseId))
+		{
+			$headers['x-ms-lease-id'] = $leaseId;
+		}
+
+		foreach ($additionalHeaders as $key => $value)
+		{
+			$headers[$key] = $value;
+		}
+
+		// Resource name
+		$resourceName = self::createResourceName($containerName, $blobName);
+
+		// Perform request
+		$response =
+			$this->performRequest($resourceName, $queryString, Transport::VERB_DELETE, $headers, false, null, self::RESOURCE_BLOB, Credentials::PERMISSION_WRITE);
+
+		if (!$response->isSuccessful())
+		{
+			throw new Api($this->getErrorMessage($response, 'Resource could not be accessed.'));
+		}
+	}
+
+	/**
+	 * Returns a signed download (GET) URL for a specific blob
+	 *
+	 * @param   string  $container         The name of the container where the Blob is in
+	 * @param   string  $remotePath        Remote path to the Blob, relative to the container's root
+	 * @param   int     $expiresInSeconds  How many seconds from now does the link expire (default: 900 seconds)
+	 *
+	 * @return  string  Signed download URL
+	 */
+	public function getSignedURL($container, $remotePath, $expiresInSeconds = 900)
+	{
+		$account      = $this->_accountName;
+		$canonicalURL = '/' . $account . '/' . $container . '/' . ltrim($remotePath, '/');
+
+		// Signing API version
+		$signedversion = '2012-02-12';
+		// Signature resource type (Blob)
+		$signedresource = 'b';
+		// Signed start
+		$signedstart = $this->isoDate(time());
+		// Signed expiration
+		$signedexpiry = $this->isoDate(time() + $expiresInSeconds);
+		// Signed permissions (read only)
+		$signedpermissions = 'r';
+
+		/**
+		 * Calculate the string to sign
+		 *
+		 * @see https://docs.microsoft.com/en-us/rest/api/storageservices/create-service-sas#version-2015-04-05-and-later
+		 */
+		// Signed Permissions
+		$stringToSign = $signedpermissions . "\n";
+		// Signed Start
+		$stringToSign .= $signedstart . "\n";
+		// Signed Expiry
+		$stringToSign .= $signedexpiry . "\n";
+		// Canonicalized resource
+		$stringToSign .= $canonicalURL . "\n";
+		// Signed Identifier
+		$stringToSign .= "\n";
+		// Signed Version
+		$stringToSign .= $signedversion;
+
+		$sig = base64_encode(hash_hmac('sha256', $stringToSign, base64_decode($this->_accountKey), true));
+
+		$query = http_build_query([
+			'sv'  => $signedversion,
+			'st'  => $signedstart,
+			'se'  => $signedexpiry,
+			'sr'  => $signedresource,
+			'sp'  => $signedpermissions,
+			'sig' => $sig,
+		]);
+
+		return $this->getBaseUrl() . '/' . $container . '/' . ltrim($remotePath, '/') . '?' . $query;
+	}
+
+	/**
 	 * Get error message from Response
 	 *
 	 * @param   Response  $rawResponse       Response
@@ -553,4 +607,5 @@ class Azure extends AzureStorage
 
 		return $alternativeError;
 	}
+
 }

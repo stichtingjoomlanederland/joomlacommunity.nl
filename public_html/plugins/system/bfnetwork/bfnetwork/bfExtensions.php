@@ -80,8 +80,13 @@ final class bfExtensions
         // init Joomla
         require 'bfInitJoomla.php';
 
-        // ffs falang!
-        JFactory::$database = null;
+        // Get some Joomla version
+        $VERSION = new JVersion();
+
+        if ('1.5' != $VERSION->RELEASE) {
+            // ffs falang!
+            JFactory::$database = null;
+        }
 
         // Set the request vars
         $this->_dataObj = $dataObj;

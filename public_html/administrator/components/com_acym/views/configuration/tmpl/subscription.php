@@ -1,22 +1,13 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<div class="acym__configuration__subscription acym__content acym_area padding-vertical-1 padding-horizontal-2">
+?><div class="acym__configuration__subscription acym__content acym_area padding-vertical-1 padding-horizontal-2">
 	<div class="acym_area_title"><?php echo acym_translation('ACYM_SUBSCRIPTION'); ?></div>
 	<div class="grid-x">
 		<div class="cell grid-x grid-margin-x">
-            <?php echo acym_switch('config[allow_visitor]', $this->config->get('allow_visitor'), acym_translation('ACYM_ALLOW_VISITOR'), [], 'xlarge-3 medium-5 small-9', "auto", "tiny", 'visitor_config'); ?>
+            <?php echo acym_switch('config[allow_visitor]', $this->config->get('allow_visitor'), acym_translation('ACYM_ALLOW_VISITOR'), [], 'xlarge-3 medium-5 small-9', "auto", "tiny"); ?>
 		</div>
 		<div class="cell grid-x grid-margin-x">
-            <?php echo acym_switch('config[generate_name]', $this->config->get('generate_name'), acym_translation('ACYM_GENERATE_NAME'), [], 'xlarge-3 medium-5 small-9', "auto", "tiny", 'generate_config'); ?>
+            <?php echo acym_switch('config[generate_name]', $this->config->get('generate_name'), acym_translation('ACYM_GENERATE_NAME'), [], 'xlarge-3 medium-5 small-9', "auto", "tiny"); ?>
 		</div>
 		<div class="cell grid-x grid-margin-x">
             <?php echo acym_switch('config[require_confirmation]', $this->config->get('require_confirmation'), acym_translation('ACYM_REQUIRE_CONFIRMATION'), [], 'xlarge-3 medium-5 small-9', "auto", "tiny", 'confirm_config'); ?>
@@ -25,7 +16,7 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="cell grid-x">
 				<div class="cell xlarge-3 medium-5"></div>
 				<div class="cell medium-auto">
-					<a class="smaller-button button" href="<?php echo acym_completeLink('mails&task=edit&notification=acy_confirm&type_editor=acyEditor'); ?>"><?php echo acym_translation('ACYM_EDIT_EMAIL'); ?></a>
+					<a class=" button" href="<?php echo acym_completeLink('mails&task=edit&notification=acy_confirm&type_editor=acyEditor'); ?>"><?php echo acym_translation('ACYM_EDIT_EMAIL'); ?></a>
 				</div>
 			</div>
 			<label for="confirm_redirect" class="cell grid-x margin-bottom-1">
@@ -43,20 +34,6 @@ defined('_JEXEC') or die('Restricted access');
                 'all' => acym_translation('ACYM_YES'),
             ];
             echo acym_radio($allowModif, 'config[allow_modif]', $this->config->get('allow_modif', 'data'));
-            ?>
-		</div>
-		<div class="cell grid-x grid-margin-x margin-top-1 acym_vcenter">
-            <?php
-            echo acym_switch(
-                'config[unsubscribe_page]',
-                $this->config->get('unsubscribe_page', 1),
-                acym_translation('ACYM_REDIRECT_ON_UNSUBSCRIBE_PAGE'),
-                [],
-                'xlarge-3 medium-5 small-9',
-                'auto',
-                'tiny',
-                'generate_config'
-            );
             ?>
 		</div>
 	</div>

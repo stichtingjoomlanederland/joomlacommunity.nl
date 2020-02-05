@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class UsersController extends acymController
 {
@@ -17,9 +8,10 @@ class UsersController extends acymController
     {
         parent::__construct();
         $this->breadcrumb[acym_translation('ACYM_USERS')] = acym_completeLink('users');
+        $this->currentClass = acym_get('class.user');
         $this->loadScripts = [
             'edit' => ['datepicker'],
-            'all' => ['vue-applications'],
+            'all' => ['vue-applications' => ['entity_select']],
         ];
     }
 
@@ -27,163 +19,305 @@ class UsersController extends acymController
     {
         acym_setVar('layout', 'listing');
 
-        $searchFilter = acym_getVar('string', 'users_search', '');
-        $status = acym_getVar('string', 'users_status', '');
-        $ordering = acym_getVar('string', 'users_ordering', 'id');
-        $orderingSortOrder = acym_getVar('string', 'users_ordering_sort_order', 'desc');
+        $data = [];
+        $data['search'] = acym_getVar('string', 'users_search', '');
+        $data['ordering'] = acym_getVar('string', 'users_ordering', 'id');
+        $data['orderingSortOrder'] = acym_getVar('string', 'users_ordering_sort_order', 'desc');
+        $data['status'] = acym_getVar('string', 'users_status', '');
+        $data['pagination'] = acym_get('helper.pagination');
 
-        $usersPerPage = acym_getCMSConfig('list_limit', 20);
+        $this->prepareUsersListing($data);
+        $this->prepareUsersSubscriptions($data);
+        $this->prepareUsersFields($data);
+
+        parent::display($data);
+    }
+
+    protected function prepareUsersListing(&$data)
+    {
+        $usersPerPage = $data['pagination']->getListLimit();
         $page = acym_getVar('int', 'users_pagination_page', 1);
 
-        $requestData = [
-            'search' => $searchFilter,
-            'elementsPerPage' => $usersPerPage,
-            'offset' => ($page - 1) * $usersPerPage,
-            'status' => $status,
-            'ordering' => $ordering,
-            'ordering_sort_order' => $orderingSortOrder,
-        ];
-        $matchingUsers = $this->getMatchingElementsFromData($requestData, 'user', $status);
+        $matchingUsers = $this->getMatchingElementsFromData(
+            [
+                'search' => $data['search'],
+                'elementsPerPage' => $usersPerPage,
+                'offset' => ($page - 1) * $usersPerPage,
+                'status' => $data['status'],
+                'ordering' => $data['ordering'],
+                'ordering_sort_order' => $data['orderingSortOrder'],
+            ],
+            $data['status'],
+            $page
+        );
 
-        $pagination = acym_get('helper.pagination');
-        $pagination->setStatus($matchingUsers['total'], $page, $usersPerPage);
+        $data['pagination']->setStatus($matchingUsers['total'], $page, $usersPerPage);
 
-        if (!empty($matchingUsers['elements'])) {
-            $fieldClass = acym_get('class.field');
-            $fieldsToDisplay = $fieldClass->getAllFieldsBackendListing();
-            if (!empty($fieldsToDisplay['ids'])) {
-                $userIds = [];
-                foreach ($matchingUsers['elements'] as $user) {
-                    $userIds[] = $user->id;
-                }
-                $fieldValue = $fieldClass->getAllfieldBackEndListingByUserIds($userIds, $fieldsToDisplay['ids']);
-                foreach ($matchingUsers['elements'] as $user) {
-                    $user->fields = [];
-                    foreach ($fieldsToDisplay['ids'] as $fieldId) {
-                        $user->fields[$fieldId] = empty($fieldValue[$fieldId.'-'.$user->id]) ? '' : $fieldValue[$fieldId.'-'.$user->id];
-                    }
-                }
+        $data['allUsers'] = $matchingUsers['elements'];
+        $data['userNumberPerStatus'] = $matchingUsers['status'];
+    }
+
+    protected function prepareUsersSubscriptions(&$data)
+    {
+        $usersId = [];
+        foreach ($data['allUsers'] as $oneUser) {
+            $usersId[] = $oneUser->id;
+        }
+
+        $subscriptions = [];
+
+        if (!empty($usersId)) {
+            $subscriptionsArray = $this->currentClass->getUsersSubscriptionsByIds($usersId);
+
+            foreach ($subscriptionsArray as $oneSubscription) {
+                $subscriptions[$oneSubscription->user_id][$oneSubscription->id] = $oneSubscription;
             }
         }
 
-        $usersData = [
-            'require_confirmation' => $this->config->get('require_confirmation', '0'),
-            'allUsers' => $matchingUsers['elements'],
-            'pagination' => $pagination,
-            'search' => $searchFilter,
-            'userNumberPerStatus' => $matchingUsers['status'],
-            'status' => $status,
-            'usersSubscriptions' => $this->getUsersSubscriptionsByIds($matchingUsers['elements']),
-            'orderingSortOrder' => $orderingSortOrder,
-            'ordering' => $ordering,
-            'fields' => empty($fieldsToDisplay['names']) ? '' : $fieldsToDisplay['names'],
-        ];
+        $data['usersSubscriptions'] = $subscriptions;
+    }
 
-        parent::display($usersData);
+    protected function prepareUsersFields(&$data)
+    {
+        $data['fields'] = [];
+
+        if (empty($data['allUsers'])) return;
+
+        $fieldClass = acym_get('class.field');
+        $fieldsToDisplay = $fieldClass->getAllFieldsBackendListing();
+        if (empty($fieldsToDisplay['ids'])) return;
+
+        $userIds = [];
+        foreach ($data['allUsers'] as $user) {
+            $userIds[] = $user->id;
+        }
+
+        $fieldValue = $fieldClass->getAllFieldsListingByUserIds($userIds, $fieldsToDisplay['ids'], 'field.backend_listing = 1');
+        foreach ($data['allUsers'] as &$user) {
+            $user->fields = [];
+            foreach ($fieldsToDisplay['ids'] as $fieldId) {
+                $user->fields[$fieldId] = !isset($fieldValue[$fieldId.'-'.$user->id]) ? '' : $fieldValue[$fieldId.'-'.$user->id];
+            }
+        }
+
+        $data['fields'] = $fieldsToDisplay['names'];
     }
 
     public function edit()
     {
         acym_setVar('layout', 'edit');
+
+        $data = [];
+        $data['tab'] = acym_get('helper.tab');
+
         $userId = acym_getVar('int', 'id', 0);
-        $userClass = acym_get('class.user');
-        $userStatClass = acym_get('class.userstat');
-        $fieldClass = acym_get('class.field');
-        $historyClass = acym_get('class.history');
 
-        $userData = [];
-        $fieldsElements = $fieldClass->getMatchingElements();
-        $allFields = $fieldsElements['elements'];
-        $userData['allFields'] = [];
-        $userData['pourcentageOpen'] = 0;
-        $userData['pourcentageClick'] = 0;
+        if (!$this->prepareUserEdit($data, $userId)) return;
+        $this->prepareEntitySelectEdit($data, $userId);
+        $this->prepareUserFieldsEdit($data, $userId);
+        $this->prepareSubscriptionsEdit($data, $userId);
+        $this->prepareStatsEdit($data, $userId);
+        $this->prepareHistoryEdit($data, $userId);
+        $this->prepareFieldsEdit($data);
 
-        if (!empty($userId)) {
-            $fieldsValues = $fieldClass->getFieldsValueByUserId($userId);
-            $userData['fieldsValues'] = [];
-            foreach ($fieldsValues as $one) {
-                $userData['fieldsValues'][$one->field_id] = $one->value;
-            }
-            $userData['user-information'] = $userClass->getOneById($userId);
+        parent::display($data);
+    }
 
-            if (empty($userData['user-information'])) {
+    private function prepareUserEdit(&$data, $userId)
+    {
+        if (empty($userId)) {
+            $data['user-information'] = new stdClass();
+            $data['user-information']->name = '';
+            $data['user-information']->email = '';
+            $data['user-information']->active = '1';
+            $data['user-information']->confirmed = '1';
+            $data['user-information']->cms_id = null;
+
+            $this->breadcrumb[acym_escape(acym_translation('ACYM_NEW_USER'))] = acym_completeLink('users&task=edit');
+        } else {
+            $data['user-information'] = $this->currentClass->getOneById($userId);
+
+            if (empty($data['user-information'])) {
                 acym_enqueueMessage(acym_translation('ACYM_USER_NOT_FOUND'), 'error');
                 $this->listing();
 
-                return;
+                return false;
             }
 
-            $userData['allSubscriptions'] = $userClass->getUserSubscriptionById($userId);
-
-            $userData['subscriptions'] = [];
-            $userData['unsubscribe'] = [];
-
-            foreach ($userData['allSubscriptions'] as $sub) {
-                if ($sub->status == 1) {
-                    $userData['subscriptions'][] = $sub;
-                } else {
-                    $userData['unsubscribe'][] = $sub;
-                }
-            }
-
-            $userData['subscriptionsIds'] = [];
-
-            if (!empty($userData['subscriptions'])) {
-                $userData['subscriptionsIds'] = [];
-                foreach ($userData['subscriptions'] as $list) {
-                    $userData['subscriptionsIds'][] = $list->id;
-                }
-
-                acym_arrayToInteger($userData['subscriptionsIds']);
-            }
-
-            $userStatFromDB = $userStatClass->getAllUserStatByUserId($userId);
-
-            if (!empty($userStatFromDB)) {
-                $userStat = new stdClass();
-                $userStat->totalSent = 0;
-                $userStat->open = 0;
-
-                foreach ($userStatFromDB as $oneStat) {
-                    if ($oneStat->sent > 0) {
-                        $userStat->totalSent++;
-                    }
-                    if ($oneStat->open > 0) {
-                        $userStat->open++;
-                    }
-                }
-
-                $userStat->pourcentageOpen = empty($userStat->open) ? 0 : intval(($userStat->open * 100) / $userStat->totalSent);
-
-                $userData['pourcentageOpen'] = $userStat->pourcentageOpen;
-                $userData['pourcentageClick'] = $userStat->pourcentageOpen;
-            }
-
-            $this->breadcrumb[acym_escape($userData['user-information']->email)] = acym_completeLink('users&task=edit&id='.$userId);
-
-            $userHistory = $historyClass->getHistoryOfOneById($userId);
-            $this->prepareHistoryContent($userHistory);
-            $userData['userHistory'] = $userHistory;
-        } else {
-            $userData['user-information'] = new stdClass();
-            $userData['user-information']->name = '';
-            $userData['user-information']->email = '';
-            $userData['user-information']->active = '1';
-            $userData['user-information']->confirmed = '1';
-            $userData['user-information']->cms_id = null;
-            $userData['subscriptions'] = [];
-            $userData['subscriptionsIds'] = [];
-            $userData['subscriptions'] = [];
-            $userData['unsubscribe'] = [];
-
-            $this->breadcrumb[acym_escape(acym_translation('ACYM_NEW_USER'))] = acym_completeLink('users&task=edit');
+            $this->breadcrumb[acym_escape($data['user-information']->email)] = acym_completeLink('users&task=edit&id='.$userId);
         }
+
+        return true;
+    }
+
+    private function prepareEntitySelectEdit(&$data, $userId)
+    {
+        if (empty($userId)) return;
+
+        $entityHelper = acym_get('helper.entitySelect');
+
+        $columnsToDisplay = [0 => 'name', 1 => 'id'];
+        $columnsToDisplay['join'] = 'userlist.list_id';
+
+        $data['entityselect'] = acym_modal(
+            acym_translation('ACYM_ADD_SUBSCRIPTION'),
+            $entityHelper->entitySelect(
+                'list',
+                ['join' => 'join_user-'.$userId],
+                $columnsToDisplay,
+                ['text' => acym_translation('ACYM_CONFIRM'), 'action' => 'apply'],
+                false
+            ),
+            null,
+            '',
+            'class="cell medium-6 large-shrink button button-secondary"'
+        );
+    }
+
+    private function prepareUserFieldsEdit(&$data, $userId)
+    {
+        $data['fieldsValues'] = [];
+
+        if (empty($userId)) return;
+
+        $fieldClass = acym_get('class.field');
+        $fieldsValues = $fieldClass->getFieldsValueByUserId($userId);
+        foreach ($fieldsValues as $one) {
+            $data['fieldsValues'][$one->field_id] = $one->value;
+        }
+    }
+
+    private function prepareSubscriptionsEdit(&$data, $userId)
+    {
+        $data['subscriptionsIds'] = [];
+        $data['subscriptions'] = [];
+        $data['unsubscribe'] = [];
+
+        if (empty($userId)) return;
+
+        $data['allSubscriptions'] = $this->currentClass->getUserSubscriptionById($userId);
+
+        $data['subscriptions'] = [];
+        $data['unsubscribe'] = [];
+
+        foreach ($data['allSubscriptions'] as $sub) {
+            if ($sub->status == 1) {
+                $data['subscriptions'][] = $sub;
+            } else {
+                $data['unsubscribe'][] = $sub;
+            }
+        }
+
+        $data['subscriptionsIds'] = [];
+
+        if (!empty($data['subscriptions'])) {
+            $data['subscriptionsIds'] = [];
+            foreach ($data['subscriptions'] as $list) {
+                $data['subscriptionsIds'][] = $list->id;
+            }
+
+            acym_arrayToInteger($data['subscriptionsIds']);
+        }
+    }
+
+    private function prepareStatsEdit(&$data, $userId)
+    {
+        $data['pourcentageOpen'] = 0;
+        $data['pourcentageClick'] = 0;
+
+        if (empty($userId)) return;
+
+        $userStatClass = acym_get('class.userstat');
+        $userStatFromDB = $userStatClass->getAllUserStatByUserId($userId);
+
+        if (empty($userStatFromDB)) return;
+
+        $userStat = new stdClass();
+        $userStat->totalSent = 0;
+        $userStat->open = 0;
+
+        foreach ($userStatFromDB as $oneStat) {
+            if ($oneStat->sent > 0) $userStat->totalSent++;
+            if ($oneStat->open > 0) $userStat->open++;
+        }
+
+        $userStat->pourcentageOpen = empty($userStat->open) ? 0 : intval(($userStat->open * 100) / $userStat->totalSent);
+
+        $data['pourcentageOpen'] = $userStat->pourcentageOpen;
+        $data['pourcentageClick'] = $userStat->pourcentageOpen;
+    }
+
+    private function prepareHistoryEdit(&$data, $userId)
+    {
+        if (empty($userId)) return;
+
+        $historyClass = acym_get('class.history');
+        $data['userHistory'] = $historyClass->getHistoryOfOneById($userId);
+        foreach ($data['userHistory'] as &$oneHistory) {
+            if (!empty($oneHistory->data)) {
+                $historyData = explode("\n", $oneHistory->data);
+                $details = '<div><h5>'.acym_translation('ACYM_DETAILS').'</h5><br />';
+                if (!empty($oneHistory->mail_id)) {
+                    $details .= '<b>'.acym_translation('NEWSLETTER').' : </b>';
+                    $details .= acym_escape($oneHistory->subject).' ( '.acym_translation('ACYM_ID').' : '.$oneHistory->mail_id.' )<br />';
+                }
+
+                foreach ($historyData as $value) {
+                    if (!strpos($value, '::')) {
+                        $details .= $value.'<br />';
+                        continue;
+                    }
+                    list($part1, $part2) = explode('::', $value);
+                    if (preg_match('#^[A-Z_]*$#', $part2)) $part2 = acym_translation($part2);
+                    $details .= '<b>'.acym_escape(acym_translation($part1)).' : </b>'.acym_escape($part2).'<br />';
+                }
+                $details .= '</div>';
+
+                $oneHistory->data = acym_modal(
+                    acym_translation('ACYM_VIEW_DETAILS'),
+                    $details,
+                    null,
+                    'style="word-break: break-word;"',
+                    'class="history_details"',
+                    true,
+                    false
+                );
+            }
+
+            if (!empty($oneHistory->source)) {
+                $source = explode("\n", $oneHistory->source);
+                $details = '<div><h5>'.acym_translation('ACYM_SOURCE').'</h5><br />';
+                foreach ($source as $value) {
+                    if (!strpos($value, '::')) continue;
+                    list($part1, $part2) = explode('::', $value);
+                    $details .= '<b>'.acym_escape($part1).' : </b>'.acym_escape($part2).'<br />';
+                }
+                $details .= '</div>';
+
+                $oneHistory->source = acym_modal(
+                    acym_translation('ACYM_VIEW_SOURCE'),
+                    $details,
+                    null,
+                    'style="word-break: break-word;"',
+                    'class="history_details"'
+                );
+            }
+        }
+    }
+
+    protected function prepareFieldsEdit(&$data, $fieldVisibility = 'backend_edition')
+    {
+        $data['allFields'] = [];
+
+        $fieldClass = acym_get('class.field');
+        $fieldsElements = $fieldClass->getMatchingElements();
+        $allFields = $fieldsElements['elements'];
 
         foreach ($allFields as $one) {
             $one->option = json_decode($one->option);
             $one->value = empty($one->value) ? '' : json_decode($one->value);
             $fieldDB = empty($one->option->fieldDB) ? '' : json_decode($one->option->fieldDB);
-            $displayIf = empty($one->option->display) ? '' : 'data-display-optional=\''.$one->option->display.'\'';
+
 
             $valuesArray = [];
             if (!empty($one->value)) {
@@ -203,26 +337,21 @@ class UsersController extends acymController
             }
 
             $one->display = empty($one->option->display) ? '' : json_decode($one->option->display);
-            $userData['allFields'][$one->id] = $one;
+            $data['allFields'][$one->id] = $one;
             if ($one->id == 1) {
-                $defaultValue = acym_escape(empty($userData['user-information']->id) ? '' : $userData['user-information']->name);
+                $defaultValue = acym_escape(empty($data['user-information']->id) ? '' : $data['user-information']->name);
             } elseif ($one->id == 2) {
-                $defaultValue = acym_escape(empty($userData['user-information']->id) ? '' : $userData['user-information']->email);
-            } elseif (!empty($userData['fieldsValues'][$one->id])) {
-                $defaultValue = is_null(json_decode($userData['fieldsValues'][$one->id])) ? $userData['fieldsValues'][$one->id] : json_decode($userData['fieldsValues'][$one->id]);
+                $defaultValue = acym_escape(empty($data['user-information']->id) ? '' : $data['user-information']->email);
+            } elseif (isset($data['fieldsValues'][$one->id]) && ((is_countable($data['fieldsValues'][$one->id]) && count($data['fieldsValues'][$one->id]) > 0) || (is_string($data['fieldsValues'][$one->id]) && strlen($data['fieldsValues'][$one->id]) > 0))) {
+                $decoded = json_decode($data['fieldsValues'][$one->id]);
+                $defaultValue = is_null($decoded) ? $data['fieldsValues'][$one->id] : $decoded;
             } else {
                 $defaultValue = $one->default_value;
             }
             $size = empty($one->option->size) ? '' : 'width:'.$one->option->size.'px';
 
-            $userData['allFields'][$one->id]->html = $fieldClass->displayField($one, $defaultValue, $size, $valuesArray, true, false, null, $one->backend_profile);
+            $data['allFields'][$one->id]->html = $fieldClass->displayField($one, $defaultValue, $size, $valuesArray, true, !acym_isAdmin(), null, $one->$fieldVisibility);
         }
-
-        $tabHelper = acym_get('helper.tab');
-
-        $userData['tab'] = $tabHelper;
-
-        parent::display($userData);
     }
 
     public function import()
@@ -230,9 +359,8 @@ class UsersController extends acymController
         acym_setVar('layout', 'import');
 
         $tab = acym_get('helper.tab');
-        $userClass = acym_get('class.user');
 
-        $nbUsersAcymailing = $userClass->getCountTotalUsers();
+        $nbUsersAcymailing = $this->currentClass->getCountTotalUsers();
         $nbUsersCMS = acym_loadResult('SELECT count('.$this->cmsUserVars->id.') FROM '.$this->cmsUserVars->table);
 
         $tables = acym_getTables();
@@ -269,12 +397,15 @@ class UsersController extends acymController
         $importHelper = acym_get('helper.import');
 
         if (empty($function) || !$importHelper->$function()) {
-            return $this->import();
+            $this->import();
+
+            return;
         }
 
         if ($function == 'textarea' || $function == 'file') {
-            if (file_exists(ACYM_MEDIA.'import'.DS.acym_getVar('cmd', 'filename'))) {
-                $importContent = file_get_contents(ACYM_MEDIA.'import'.DS.acym_getVar('cmd', 'filename'));
+            $importFile = ACYM_MEDIA.'import'.DS.acym_getVar('cmd', 'filename');
+            if (file_exists($importFile)) {
+                $importContent = file_get_contents($importFile);
             }
             if (empty($importContent)) {
                 acym_enqueueMessage(acym_translation('ACYM_EMPTY_TEXTAREA'), 'error');
@@ -282,8 +413,9 @@ class UsersController extends acymController
             } else {
                 acym_setVar('layout', 'genericimport');
                 $this->breadcrumb[acym_translation('ACYM_IMPORT')] = acym_completeLink('users&task=import');
+                parent::display();
 
-                return parent::display();
+                return;
             }
         } else {
             $this->listing();
@@ -313,30 +445,7 @@ class UsersController extends acymController
 
     public function getAll()
     {
-        $userClass = acym_get('class.user');
-
-        return $userClass->getAll();
-    }
-
-    public function getUsersSubscriptionsByIds($usersData)
-    {
-        $userClass = acym_get('class.user');
-        $usersId = [];
-        foreach ($usersData as $oneUser) {
-            $usersId[] = $oneUser->id;
-        }
-
-        $subscriptions = [];
-
-        if (!empty($usersId)) {
-            $subscriptionsArray = $userClass->getUsersSubscriptionsByIds($usersId);
-
-            foreach ($subscriptionsArray as $oneSubscription) {
-                $subscriptions[$oneSubscription->user_id][$oneSubscription->id] = $oneSubscription;
-            }
-        }
-
-        return $subscriptions;
+        return $this->currentClass->getAll();
     }
 
     public function export()
@@ -421,9 +530,10 @@ class UsersController extends acymController
 
         $charset = acym_getVar('string', 'export_charset', 'UTF-8');
         $excelsecurity = acym_getVar('string', 'export_excelsecurity', 0);
-        $separator = acym_getVar('string', 'export_separator', ',');
-        if (!in_array($separator, [',', ';'])) {
-            $separator = ',';
+        $separator = acym_getVar('string', 'export_separator', 'comma');
+        $realSeparators = ['comma' => ',', 'semicol' => ';'];
+        if (!in_array($separator, ['comma', 'semicol'])) {
+            $separator = 'comma';
         }
 
 
@@ -459,7 +569,7 @@ class UsersController extends acymController
         if (!empty($where)) $query .= ' WHERE ('.implode(') AND (', $where).')';
 
         $exportHelper = acym_get('helper.export');
-        $exportHelper->exportCSV($query, $fieldsToExport, $customFieldsToExport, $separator, $charset);
+        $exportHelper->exportCSV($query, $fieldsToExport, $customFieldsToExport, $realSeparators[$separator], $charset);
 
         exit;
     }
@@ -472,7 +582,7 @@ class UsersController extends acymController
         return acym_redirect(acym_completeLink('users&task=export', false, true));
     }
 
-    public function unsubscribe()
+    public function unsubscribeUser()
     {
         $userId = acym_getVar('int', 'id');
 
@@ -487,27 +597,25 @@ class UsersController extends acymController
             $lists = (array)$lists;
         }
 
-        $userClass = acym_get('class.user');
-        $userClass->unsubscribe($userId, $lists);
+        $this->currentClass->unsubscribe($userId, $lists);
 
         $this->edit();
     }
 
-    public function subscribe($listing = false)
+    public function subscribeUser($listing = false)
     {
-        $userClass = acym_get('class.user');
         $userId = acym_getVar('int', 'id');
         $lists = json_decode(acym_getVar('string', 'acym__entity_select__selected'));
 
         if (empty($userId)) {
-            $userId = $userClass->save();
+            $userId = $this->currentClass->save();
         }
 
         if (!is_array($lists)) {
             $lists = (array)$lists;
         }
 
-        $userClass->subscribe($userId, $lists);
+        $this->currentClass->subscribe($userId, $lists);
 
         if (!$listing) {
             $this->edit();
@@ -523,8 +631,6 @@ class UsersController extends acymController
 
     public function apply($listing = false)
     {
-        $userClass = acym_get('class.user');
-
         $userInformation = acym_getVar('array', 'user');
         $userId = acym_getVar('int', 'id');
         $listsToAdd = json_decode(acym_getVar('string', 'acym__entity_select__selected'));
@@ -545,25 +651,27 @@ class UsersController extends acymController
         }
 
         if (empty($userId)) {
-            $existingUser = $userClass->getOneByEmail($user->email);
-            if (!empty($existingUser)) {
+            $existingUser = $this->currentClass->getOneByEmail($user->email);
+            if (!empty($existingUser) && acym_isAdmin()) {
                 acym_enqueueMessage(acym_translation_sprintf('ACYM_X_ALREADY_EXIST', $user->email), 'error');
 
                 $this->edit();
 
                 return;
+            } elseif (!empty($existingUser)) {
+                $userId = $existingUser->id;
+            } else {
+                $user->creation_date = acym_date('now', 'Y-m-d H:i:s', false);
+                $userId = $this->currentClass->save($user, $customFields);
             }
-
-            $user->creation_date = acym_date('now', 'Y-m-d H:i:s', false);
-            $userId = $userClass->save($user, $customFields);
             acym_setVar('id', $userId);
         } else {
             $user->id = $userId;
-            $userClass->save($user, $customFields);
+            $this->currentClass->save($user, $customFields);
         }
 
         if (!empty($listsToAdd)) {
-            $this->subscribe($listing);
+            $this->subscribeUser($listing);
 
             return;
         }
@@ -574,17 +682,6 @@ class UsersController extends acymController
         } else {
             $this->edit();
         }
-    }
-
-    public function deleteOne()
-    {
-        $userClass = acym_get('class.user');
-
-        $userId = acym_getVar('int', 'id');
-
-        $userClass->delete($userId);
-
-        $this->listing();
     }
 
     public function getColumnsFromTable()
@@ -607,17 +704,14 @@ class UsersController extends acymController
     {
         $listsSelected = json_decode(acym_getVar('string', 'acym__entity_select__selected', ''));
         $userSelected = acym_getVar('array', 'elements_checked');
-        $userClass = acym_get('class.user');
         foreach ($userSelected as $user) {
-            $userClass->subscribe($user, $listsSelected);
+            $this->currentClass->subscribe($user, $listsSelected);
         }
         $this->listing();
     }
 
     public function setAjaxListing()
     {
-        $userClass = acym_get('class.user');
-
         $showSelected = acym_getVar('string', 'showSelected');
         $matchingUsersData = new stdClass();
         $matchingUsersData->ordering = 'name';
@@ -643,7 +737,7 @@ class UsersController extends acymController
             $options['showOnlySelected'] = true;
         }
 
-        $users = $userClass->getMatchingElements($options);
+        $users = $this->currentClass->getMatchingElements($options);
 
         $return = '';
 
@@ -672,60 +766,6 @@ class UsersController extends acymController
 
         echo $return;
         exit;
-    }
-
-    private function prepareHistoryContent(&$userHistory)
-    {
-        foreach ($userHistory as &$oneHistory) {
-            if (!empty($oneHistory->data)) {
-                $historyData = explode("\n", $oneHistory->data);
-                $details = '<div><h5>'.acym_translation('ACYM_DETAILS').'</h5><br />';
-                if (!empty($oneHistory->mail_id)) {
-                    $details .= '<b>'.acym_translation('NEWSLETTER').' : </b>';
-                    $details .= acym_escape($oneHistory->subject).' ( '.acym_translation('ACYM_ID').' : '.$oneHistory->mail_id.' )<br />';
-                }
-
-                foreach ($historyData as $value) {
-                    if (!strpos($value, '::')) {
-                        $details .= $value.'<br />';
-                        continue;
-                    }
-                    list($part1, $part2) = explode('::', $value);
-                    if (preg_match('#^[A-Z_]*$#', $part2)) $part2 = acym_translation($part2);
-                    $details .= '<b>'.acym_escape(acym_translation($part1)).' : </b>'.acym_escape($part2).'<br />';
-                }
-                $details .= '</div>';
-
-                $oneHistory->data = acym_modal(
-                    acym_translation('ACYM_VIEW_DETAILS'),
-                    $details,
-                    null,
-                    'style="word-break: break-word;"',
-                    'class="history_details"',
-                    true,
-                    false
-                );
-            }
-
-            if (!empty($oneHistory->source)) {
-                $source = explode("\n", $oneHistory->source);
-                $details = '<div><h5>'.acym_translation('ACYM_SOURCE').'</h5><br />';
-                foreach ($source as $value) {
-                    if (!strpos($value, '::')) continue;
-                    list($part1, $part2) = explode('::', $value);
-                    $details .= '<b>'.acym_escape($part1).' : </b>'.acym_escape($part2).'<br />';
-                }
-                $details .= '</div>';
-
-                $oneHistory->source = acym_modal(
-                    acym_translation('ACYM_VIEW_SOURCE'),
-                    $details,
-                    null,
-                    'style="word-break: break-word;"',
-                    'class="history_details"'
-                );
-            }
-        }
     }
 }
 

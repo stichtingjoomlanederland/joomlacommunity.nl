@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" enctype="multipart/form-data">
+?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" enctype="multipart/form-data">
 	<input type="hidden" id="acym_create_template_type_editor" name="type_editor">
 	<div id="acym__templates" class="acym__content">
         <?php if (empty($data['allMails']) && empty($data['search']) && empty($data['tag']) && empty($data['status'])) { ?>
@@ -124,7 +115,7 @@ defined('_JEXEC') or die('Restricted access');
                 <?php } else { ?>
 					<div class="cell grid-x margin-top-1">
 						<div class="grid-x cell auto">
-							<div class="cell  acym_listing_sorty-by">
+							<div class="cell  acym_listing_sort-by">
                                 <?php echo acym_sortBy(
                                     [
                                         'id' => strtolower(acym_translation('ACYM_ID')),
@@ -141,7 +132,7 @@ defined('_JEXEC') or die('Restricted access');
                         <?php
                         foreach ($data['allMails'] as $oneTemplate) {
                             ?>
-							<div class="cell grid-x acym__templates__oneTpl acym__listing__block text-center" elementid="<?php echo acym_escape($oneTemplate->id); ?>">
+							<div class="cell grid-x acym__templates__oneTpl acym__listing__block text-center" data-acy-elementid="<?php echo acym_escape($oneTemplate->id); ?>">
 								<a href="<?php echo acym_completeLink('mails&task=edit&id='.acym_escape($oneTemplate->id)); ?>" class="cell grid-x text-center">
 									<div class="cell acym__templates__pic">
                                         <?php echo '<img src="'.acym_escape(acym_getMailThumbnail($oneTemplate->thumbnail)).'" alt="'.acym_escape($oneTemplate->name).'"/>'; ?>
@@ -160,11 +151,11 @@ defined('_JEXEC') or die('Restricted access');
 								</a>
 								<div class="text-center cell acym__listing__block__delete acym__background-color__red">
 									<div>
-										<i class='fa fa-trash-o acym__listing__block__delete__trash acym__color__white'></i>
+										<i class='acymicon-trash-o acym__listing__block__delete__trash acym__color__white'></i>
 										<p class="acym__listing__block__delete__cancel acym__background-color__very-dark-gray acym__color__white">
                                             <?php echo acym_translation('ACYM_CANCEL'); ?>
 										</p>
-										<p class="acym__listing__block__delete__submit acym_toggle_delete acym__color__white" table="mail" elementid="<?php echo acym_escape($oneTemplate->id); ?>"><?php echo acym_translation('ACYM_DELETE'); ?></p>
+										<p class="acym__listing__block__delete__submit acym_toggle_delete acym__color__white" data-acy-table="mail" data-acy-elementid="<?php echo acym_escape($oneTemplate->id); ?>"><?php echo acym_translation('ACYM_DELETE'); ?></p>
 									</div>
 								</div>
 							</div>

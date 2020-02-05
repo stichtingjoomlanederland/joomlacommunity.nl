@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<div class="grid-x grid-margin-x acym__template__edit__choose-template__ajax">
+?><div class="grid-x grid-margin-x acym__template__edit__choose-template__ajax">
 	<input type="hidden" name="tag_template_choose" id="acym_tag_template_choose__ajax" value="">
 	<input type="hidden" name="search_template_choose" id="acym_search_template_choose__ajax" value="">
 	<div class="cell grid-x grid-margin-x">

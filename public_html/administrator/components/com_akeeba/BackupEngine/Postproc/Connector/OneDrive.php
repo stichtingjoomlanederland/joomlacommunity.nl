@@ -1,20 +1,35 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc\Connector;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
+use Exception;
+use RuntimeException;
 
 class OneDrive
 {
+
+	/**
+	 * The URL of the helper script which is used to get fresh API tokens
+	 */
+	const helperUrl = 'https://www.akeebabackup.com/oauth2/onedrive.php';
+
+	/**
+	 * Size limit for single part uploads
+	 */
+	const simpleUploadSizeLimit = 104857600;
+
+	/**
+	 * Item property to set the name conflict behavior
+	 */
+	const nameConflictBehavior = '@name.conflictBehavior';
 
 	/**
 	 * The access token for connecting to OneDrive
@@ -30,37 +45,32 @@ class OneDrive
 	 */
 	protected $refreshToken = '';
 
-    /**
-     * Download ID to use with the helper URL
-     *
-     * @var string
-     */
-    private $dlid = '';
-
-    /**
+	/**
 	 * The root URL for the OneDrive API, ref http://onedrive.github.io/README.htm
 	 */
 	protected $rootUrl = 'https://api.onedrive.com/v1.0/';
-
-	/**
-	 * The URL of the helper script which is used to get fresh API tokens
-	 */
-	const helperUrl = 'https://www.akeebabackup.com/oauth2/onedrive.php';
 
 	/**
 	 * Default cURL options
 	 *
 	 * @var array
 	 */
-	protected $defaultOptions = array(
+	protected $defaultOptions = [
 		CURLOPT_SSL_VERIFYPEER => true,
 		CURLOPT_SSL_VERIFYHOST => true,
-		CURLOPT_VERBOSE        => true,
+		CURLOPT_VERBOSE        => false,
 		CURLOPT_HEADER         => false,
 		CURLINFO_HEADER_OUT    => false,
 		CURLOPT_RETURNTRANSFER => true,
 		CURLOPT_CAINFO         => AKEEBA_CACERT_PEM,
-	);
+	];
+
+	/**
+	 * Download ID to use with the helper URL
+	 *
+	 * @var string
+	 */
+	protected $dlid = '';
 
 	/**
 	 * Public constructor
@@ -85,18 +95,18 @@ class OneDrive
 	 *
 	 * If the refresh failed you'll get a RuntimeException.
 	 *
-	 * @param  bool  $forceRefresh  Set to true to forcibly refresh the tokens
+	 * @param   bool  $forceRefresh  Set to true to forcibly refresh the tokens
 	 *
 	 * @return  array
 	 *
-	 * @throws  \RuntimeException
+	 * @throws  RuntimeException
 	 */
 	public function ping($forceRefresh = false)
 	{
 		// Initialization
-		$response = array(
+		$response = [
 			'needs_refresh' => false,
-		);
+		];
 
 		// If we're not force refreshing the tokens try to get the drive information. It's our test to see if the token
 		// works.
@@ -106,7 +116,7 @@ class OneDrive
 			{
 				$dummy = $this->getDriveInformation();
 			}
-			catch (\RuntimeException $e)
+			catch (RuntimeException $e)
 			{
 				// If it failed we need to refresh the token
 				$response['needs_refresh'] = true;
@@ -173,16 +183,17 @@ class OneDrive
 	 * @param   string  $path          The relative path of the folder to list its contents
 	 * @param   string  $searchString  If set returns only items matching the search criteria
 	 *
-	 * @return  array  Two arrays under keys folders and files. Each array's key is the file/folder name, the value is number of children (folder) or size in bytes (file)
+	 * @return  array  Two arrays under keys folders and files. Each array's key is the file/folder name, the value is
+	 *                 number of children (folder) or size in bytes (file)
 	 */
 	public function listContents($path = '/', $searchString = null)
 	{
 		$result = $this->getRawContents($path, $searchString);
 
-		$return = array(
-			'files' => array(),
-			'folders' => array(),
-		);
+		$return = [
+			'files'   => [],
+			'folders' => [],
+		];
 
 		if (!isset($result['value']) || !count($result['value']))
 		{
@@ -191,7 +202,7 @@ class OneDrive
 
 		foreach ($result['value'] as $item)
 		{
-			if (isset($item['folder']))
+			if (isset($item['folder']) && isset($item['folder']['childCount']))
 			{
 				$return['folders'][$item['name']] = $item['folder']['childCount'];
 
@@ -212,7 +223,7 @@ class OneDrive
 	 *
 	 * @return  bool  True on success
 	 *
-	 * @throws  \Exception
+	 * @throws  Exception
 	 */
 	public function delete($path, $failOnError = true)
 	{
@@ -220,9 +231,9 @@ class OneDrive
 
 		try
 		{
-			$result = $this->fetch('DELETE', $relativeUrl, array('expect-status' => '204'));
+			$result = $this->fetch('DELETE', $relativeUrl, ['expect-status' => '204']);
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			if (!$failOnError)
 			{
@@ -245,9 +256,9 @@ class OneDrive
 	{
 		$relativeUrl = $this->normalizeDrivePath($path, 'content');
 
-		$this->fetch('GET', $relativeUrl, array(
-			'file' => $localFile
-		));
+		$this->fetch('GET', $relativeUrl, [
+			'file' => $localFile,
+		]);
 	}
 
 	/**
@@ -262,15 +273,16 @@ class OneDrive
 	{
 		$relativeUrl = $this->normalizeDrivePath($path, 'content');
 
-		$additional = array('curl-options' => array(
-								CURLOPT_HEADER => 1,
-							),
-		                    'no-parse' => true,
-		                    'follow-redirect' => false,
-		);
+		$additional = [
+			'curl-options'    => [
+				CURLOPT_HEADER => 1,
+			],
+			'no-parse'        => true,
+			'follow-redirect' => false,
+		];
 
 		$response = $this->fetch('GET', $relativeUrl, $additional);
-		$lines = explode("\r\n", $response);
+		$lines    = explode("\r\n", $response);
 
 		foreach ($lines as $line)
 		{
@@ -290,7 +302,7 @@ class OneDrive
 			return $this->getSignedUrl($path, false);
 		}
 
-		throw new \RuntimeException('Could not get the download URL', 500);
+		throw new RuntimeException('Could not get the download URL', 500);
 	}
 
 	/**
@@ -307,20 +319,20 @@ class OneDrive
 		clearstatcache();
 		$filesize = @filesize($localFile);
 
-		if ($filesize > 104857600)
+		if ($filesize > static::simpleUploadSizeLimit)
 		{
-			throw new \RuntimeException("File size too big for simpleUpload ($filesize bigger than 100Mb).", 500);
+			throw new RuntimeException(sprintf("File size too big for simpleUpload (%s bigger than %u bytes).", $filesize, static::simpleUploadSizeLimit), 500);
 		}
 
 		// Get the relative URL
-		$relativeUrl = $this->normalizeDrivePath($path, 'content') . '?' . urlencode('@name.conflictBehavior') . '=replace';
+		$relativeUrl = $this->normalizeDrivePath($path, 'content') . '?' . urlencode(static::nameConflictBehavior) . '=replace';
 
-		$additional = array(
-			'file'  => $localFile,
-			'headers' => array(
-				'Content-Type: application/octet-stream'
-			)
-		);
+		$additional = [
+			'file'    => $localFile,
+			'headers' => [
+				'Content-Type: application/octet-stream',
+			],
+		];
 
 		$response = $this->fetch('PUT', $relativeUrl, $additional);
 
@@ -338,18 +350,20 @@ class OneDrive
 	{
 		$relativeUrl = $this->normalizeDrivePath($path, 'upload.createSession');
 
-		$explicitPost = (object)array(
-			'item' => array(
-				'@name.conflictBehavior' => 'replace',
-				'name'                   => basename($path),
-			)
-		);
+		$explicitPost = (object) [
+			'item' => [
+				static::nameConflictBehavior => 'replace',
+				'name'                       => basename($path),
+			],
+		];
 
 		$explicitPost = json_encode($explicitPost);
 
-		$info = $this->fetch('POST', $relativeUrl, array('headers' => array(
-			'Content-Type: application/json'
-		)), $explicitPost);
+		$info = $this->fetch('POST', $relativeUrl, [
+			'headers' => [
+				'Content-Type: application/json',
+			],
+		], $explicitPost);
 
 		return $info['uploadUrl'];
 	}
@@ -363,9 +377,9 @@ class OneDrive
 	 */
 	public function destroyUploadSession($url)
 	{
-		$this->fetch('DELETE', $url, array(
-			'expect-status' => 204
-		));
+		$this->fetch('DELETE', $url, [
+			'expect-status' => 204,
+		]);
 	}
 
 	/**
@@ -374,7 +388,8 @@ class OneDrive
 	 * @param   string  $sessionUrl  The upload session URL, see createUploadSession
 	 * @param   string  $localFile   Absolute filesystem path of the source file
 	 * @param   int     $from        Starting byte to begin uploading, default is 0 (start of file)
-	 * @param   int     $length      Chunk size in bytes, default 10Mb, must NOT be over 60Mb!  MUST be a multiple of 320Kb.
+	 * @param   int     $length      Chunk size in bytes, default 10Mb, must NOT be over 60Mb!  MUST be a multiple of
+	 *                               320Kb.
 	 *
 	 * @return  array  The upload information, see http://onedrive.github.io/items/upload_large_files.htm
 	 */
@@ -382,7 +397,7 @@ class OneDrive
 	{
 		clearstatcache();
 		$totalSize = filesize($localFile);
-		$to = $from + $length - 1;
+		$to        = $from + $length - 1;
 
 		if ($to > ($totalSize - 1))
 		{
@@ -393,18 +408,18 @@ class OneDrive
 
 		$range = "$from-$to/$totalSize";
 
-		$additional = array(
-			'headers' => array(
+		$additional = [
+			'headers' => [
 				'Content-Length: ' . $contentLength,
-				'Content-Range: bytes ' . $range
-			)
-		);
+				'Content-Range: bytes ' . $range,
+			],
+		];
 
 		$fp = @fopen($localFile, 'rb');
 
 		if ($fp === false)
 		{
-			throw new \RuntimeException("Could not open $localFile for reading", 500);
+			throw new RuntimeException("Could not open $localFile for reading", 500);
 		}
 
 		fseek($fp, $from);
@@ -415,18 +430,19 @@ class OneDrive
 	}
 
 	/**
-	 * Upload a file using multipart uploads. Useful for files over 100Mb and up to 2Gb.
+	 * Upload a file using multipart uploads. Useful for large files.
 	 *
 	 * @param   string  $path       Relative path in the Drive
 	 * @param   string  $localFile  Absolute filesystem path of the source file
-	 * @param   int     $partSize   Part size in bytes, default 10Mb, must NOT be over 60Mb! MUST be a multiple of 320Kb.
+	 * @param   int     $partSize   Part size in bytes, default 10Mb, must NOT be over 60Mb! MUST be a multiple of
+	 *                              320Kb.
 	 *
 	 * @return  array  See http://onedrive.github.io/items/upload_large_files.htm
 	 */
 	public function resumableUpload($path, $localFile, $partSize = 10485760)
 	{
 		$sessionUrl = $this->createUploadSession($path);
-		$from = 0;
+		$from       = 0;
 
 		while (true)
 		{
@@ -434,13 +450,13 @@ class OneDrive
 			{
 				$result = $this->uploadPart($sessionUrl, $localFile, $from, $partSize);
 			}
-			catch (\RuntimeException $e)
+			catch (RuntimeException $e)
 			{
 				try
 				{
 					$this->destroyUploadSession($sessionUrl);
 				}
-				catch (\RuntimeException $ex)
+				catch (RuntimeException $ex)
 				{
 				}
 
@@ -472,8 +488,8 @@ class OneDrive
 		clearstatcache();
 		$filesize = @filesize($localFile);
 
-		// Bigger than 100Mb: use resumable uploads with default (10Mb) parts
-		if ($filesize > 104857600)
+		// Bigger than the single part upload limit: use resumable uploads with default size (10Mb) parts
+		if ($filesize > static::simpleUploadSizeLimit)
 		{
 			return $this->resumableUpload($path, $localFile);
 		}
@@ -482,14 +498,14 @@ class OneDrive
 		return $this->simpleUpload($path, $localFile);
 	}
 
-    /**
-     * Make a directory (including all of its parent directories) if the directory doesn't exist. If it already exists
-     * nothing happens. If it doesn't exist and cannot be created an exception is raised.
-     *
-     * @param   string $path The path to create
-     *
-     * @throws \Exception
-     */
+	/**
+	 * Make a directory (including all of its parent directories) if the directory doesn't exist. If it already exists
+	 * nothing happens. If it doesn't exist and cannot be created an exception is raised.
+	 *
+	 * @param   string  $path  The path to create
+	 *
+	 * @throws Exception
+	 */
 	public function makeDirectory($path)
 	{
 		$path = trim($path, '/');
@@ -502,21 +518,21 @@ class OneDrive
 
 		// Get the parent path and the directory components of the path
 		$parentPath = '/';
-		$folder = $path;
+		$folder     = $path;
 
 		if (strpos($path, '/') !== false)
 		{
-			$pathParts = explode('/', $path);
-			$folder = array_pop($pathParts);
+			$pathParts  = explode('/', $path);
+			$folder     = array_pop($pathParts);
 			$parentPath = implode('/', $pathParts);
 		}
 
 		// Try to list parent contents. If an error occurs, it means the folder doesn't exist
-        try
+		try
 		{
 			$this->listContents($parentPath, $folder);
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			// The parent folder doesn't exist. Create it!
 			$this->makeDirectory($parentPath);
@@ -524,31 +540,50 @@ class OneDrive
 
 		// We have to create a new folder $folder in parent folder $parentPath.
 		$relativeUrl = $this->normalizeDrivePath($parentPath, 'children');
-		$request = (object)array(
-			'name' => $folder,
-			'folder' => (object)array()
-		);
+		$request     = (object) [
+			'name'   => $folder,
+			'folder' => (object) [],
+		];
 		$requestJSON = json_encode($request);
 
-        // We always try to create the directory and handle the exception. We have to do that since OneDrive
-        // has a kind of cache: this means that if we create a directory and then try to list the parent folder
-        // it *may* be not listed. So the only workaround is to always try to create it
-        // and ignore "nameAlreadyExists" exceptions
-        try
-        {
-            $this->fetch('POST', $relativeUrl, array('headers' => array(
-                'Content-Type: application/json'
-            )), $requestJSON);
-        }
-        // Seems OneDrive has no named exceptions, so I have to catch everything and re-throw it
-		catch(\Exception $e)
-        {
-            // If it's not an "already exist" error, re-throw it
-            if (stripos($e->getMessage(), 'nameAlreadyExists') === false)
-            {
-                throw $e;
-            }
-        }
+		// We always try to create the directory and handle the exception. We have to do that since OneDrive
+		// has a kind of cache: this means that if we create a directory and then try to list the parent folder
+		// it *may* be not listed. So the only workaround is to always try to create it
+		// and ignore "nameAlreadyExists" exceptions
+		try
+		{
+			$this->fetch('POST', $relativeUrl, [
+				'headers' => [
+					'Content-Type: application/json',
+				],
+			], $requestJSON);
+		}
+			// Seems OneDrive has no named exceptions, so I have to catch everything and re-throw it
+		catch (Exception $e)
+		{
+			// If it's not an "already exist" error, re-throw it
+			if (stripos($e->getMessage(), 'nameAlreadyExists') === false)
+			{
+				throw $e;
+			}
+		}
+	}
+
+	/**
+	 * Refresh the access token.
+	 *
+	 * @return array|string  The result coming from OneDrive
+	 */
+	public function refreshToken()
+	{
+		$refreshUrl = $this->getRefreshUrl();
+
+		$refreshResponse = $this->fetch('GET', $refreshUrl);
+
+		$this->refreshToken = $refreshResponse['refresh_token'];
+		$this->accessToken  = $refreshResponse['access_token'];
+
+		return $refreshResponse;
 	}
 
 	/**
@@ -559,11 +594,11 @@ class OneDrive
 	 * @param   array   $additional    Additional parameters
 	 * @param   mixed   $explicitPost  Passed explicitly to POST requests if set, otherwise $additional is passed.
 	 *
-	 * @throws  \RuntimeException
-	 *
 	 * @return  array|string
+	 * @throws  RuntimeException
+	 *
 	 */
-	protected function fetch($method, $relativeUrl, array $additional = array(), $explicitPost = null)
+	protected function fetch($method, $relativeUrl, array $additional = [], $explicitPost = null)
 	{
 		// Get full URL, if required
 		$url = $relativeUrl;
@@ -617,7 +652,7 @@ class OneDrive
 		}
 
 		// Set up custom headers
-		$headers = array();
+		$headers = [];
 
 		if (isset($additional['headers']))
 		{
@@ -628,11 +663,11 @@ class OneDrive
 		// Add the authorization header
 		$headers[] = 'Authorization: bearer ' . $this->accessToken;
 
-		$options[ CURLOPT_HTTPHEADER ] = $headers;
+		$options[CURLOPT_HTTPHEADER] = $headers;
 
 		// Handle files
 		$file = null;
-		$fp = null;
+		$fp   = null;
 
 		if (isset($additional['file']))
 		{
@@ -643,7 +678,7 @@ class OneDrive
 		if (!isset($additional['fp']) && !empty($file))
 		{
 			$mode = ($method == 'GET') ? 'wb' : 'rb';
-			$fp = @fopen($file, $mode);
+			$fp   = @fopen($file, $mode);
 		}
 		elseif (isset($additional['fp']))
 		{
@@ -654,10 +689,10 @@ class OneDrive
 		// Set up additional options
 		if ($method == 'GET' && $fp)
 		{
-			$options[ CURLOPT_RETURNTRANSFER ] = false;
-			$options[ CURLOPT_HEADER ]         = false;
-			$options[ CURLOPT_FILE ]           = $fp;
-			$options[ CURLOPT_BINARYTRANSFER ] = true;
+			$options[CURLOPT_RETURNTRANSFER] = false;
+			$options[CURLOPT_HEADER]         = false;
+			$options[CURLOPT_FILE]           = $fp;
+			$options[CURLOPT_BINARYTRANSFER] = true;
 
 			if (!$expectHttpStatus)
 			{
@@ -666,45 +701,45 @@ class OneDrive
 		}
 		elseif ($method == 'POST')
 		{
-			$options[ CURLOPT_POST ] = true;
+			$options[CURLOPT_POST] = true;
 
 			if ($explicitPost)
 			{
-				$options[ CURLOPT_POSTFIELDS ] = $explicitPost;
+				$options[CURLOPT_POSTFIELDS] = $explicitPost;
 			}
 			elseif (!empty($additional))
 			{
-				$options[ CURLOPT_POSTFIELDS ] = $additional;
+				$options[CURLOPT_POSTFIELDS] = $additional;
 			}
 		}
 		elseif ($method == 'PUT' && $fp)
 		{
-			$options[ CURLOPT_PUT ]    = true;
-			$options[ CURLOPT_INFILE ] = $fp;
+			$options[CURLOPT_PUT]    = true;
+			$options[CURLOPT_INFILE] = $fp;
 
 			if ($file)
 			{
 				clearstatcache();
-				$options[ CURLOPT_INFILESIZE ] = @filesize($file);
+				$options[CURLOPT_INFILESIZE] = @filesize($file);
 			}
 			else
 			{
-				$options[ CURLOPT_INFILESIZE ] = strlen(stream_get_contents($fp));
+				$options[CURLOPT_INFILESIZE] = strlen(stream_get_contents($fp));
 			}
 
 			fseek($fp, 0);
 		}
 		else // Any other HTTP method, e.g. DELETE
 		{
-			$options[ CURLOPT_CUSTOMREQUEST ] = $method;
+			$options[CURLOPT_CUSTOMREQUEST] = $method;
 
 			if ($explicitPost)
 			{
-				$options[ CURLOPT_POSTFIELDS ] = $explicitPost;
+				$options[CURLOPT_POSTFIELDS] = $explicitPost;
 			}
 			elseif (!empty($additional))
 			{
-				$options[ CURLOPT_POSTFIELDS ] = $additional;
+				$options[CURLOPT_POSTFIELDS] = $additional;
 			}
 		}
 
@@ -718,9 +753,9 @@ class OneDrive
 		}
 
 		// Execute and parse the response
-		$response = curl_exec($ch);
-		$errNo = curl_errno($ch);
-		$error = curl_error($ch);
+		$response     = curl_exec($ch);
+		$errNo        = curl_errno($ch);
+		$error        = curl_error($ch);
 		$lastHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
 		curl_close($ch);
@@ -737,21 +772,21 @@ class OneDrive
 					@unlink($file);
 				}
 
-				throw new \RuntimeException("Unexpected HTTP status $lastHttpCode", $lastHttpCode);
+				throw new RuntimeException("Unexpected HTTP status $lastHttpCode", $lastHttpCode);
 			}
 		}
 
 		// Did we have a cURL error?
 		if ($errNo)
 		{
-			throw new \RuntimeException("cURL error $errNo: $error", 500);
+			throw new RuntimeException("cURL error $errNo: $error", 500);
 		}
 
 		if ($expectHttpStatus)
 		{
 			if ($expectHttpStatus == $lastHttpCode)
 			{
-				return array();
+				return [];
 			}
 		}
 
@@ -766,68 +801,36 @@ class OneDrive
 		// Did we get invalid JSON data?
 		if (!$response)
 		{
-			throw new \RuntimeException("Invalid JSON data received", 500);
+			throw new RuntimeException("Invalid JSON data received", 500);
 		}
 
 		// Did we get an error response?
 		if (isset($response['error']) && is_array($response['error']))
 		{
-			$error = $response['error']['code'];
+			$error            = $response['error']['code'];
 			$errorDescription = isset($response['error']['message']) ? $response['error']['message'] : 'No error description provided';
 
-			throw new \RuntimeException("Error $error: $errorDescription", 500);
+			throw new RuntimeException("Error $error: $errorDescription", 500);
 		}
 
 		// Did we get an error response (from the helper script)?
 		if (isset($response['error']))
 		{
-			$error = $response['error'];
+			$error            = $response['error'];
 			$errorDescription = isset($response['error_description']) ? $response['error_description'] : 'No error description provided';
 
-			throw new \RuntimeException("Error $error: $errorDescription", 500);
+			throw new RuntimeException("Error $error: $errorDescription", 500);
 		}
 
 		return $response;
 	}
 
 	/**
-	 * Refresh the access token.
-	 *
-	 * @return array|string  The result coming from OneDrive
-	 */
-	public function refreshToken()
-	{
-		$refreshUrl = $this->getRefreshUrl();
-
-		$refreshResponse = $this->fetch('GET', $refreshUrl);
-
-		$this->refreshToken = $refreshResponse['refresh_token'];
-		$this->accessToken  = $refreshResponse['access_token'];
-
-		return $refreshResponse;
-	}
-
-	/**
-	 * Returns an fully qualified, authenticated URL from a relative URL
-	 *
-	 * @param   string $relativeUrl The URL to apply
-	 *
-	 * @return  string
-	 */
-	protected function getAuthenticatedUrl($relativeUrl)
-	{
-		$url = $this->rootUrl . ltrim($relativeUrl, '/');
-		$url .= (strpos($relativeUrl, '?') !== false) ? '&' : '?';
-		$url .= 'access_token=' . $this->accessToken;
-
-		return $url;
-	}
-
-	/**
 	 * Normalize the path of a resource inside the Drive
 	 *
 	 * @param   string  $relativePath  The relative path to the Drive's root
-	 * @param   string  $collection    The collection of the path you want to access or an action, e.g. 'children', 'content', 'action.copy' etc
+	 * @param   string  $collection    The collection of the path you want to access or an action, e.g. 'children',
+	 *                                 'content', 'action.copy' etc
 	 *
 	 * @return string
 	 */
@@ -864,6 +867,6 @@ class OneDrive
 	 */
 	protected function getRefreshUrl()
 	{
-		return self::helperUrl . '?refresh_token=' . urlencode($this->refreshToken) . '&dlid=' . $this->dlid;
+		return static::helperUrl . '?refresh_token=' . urlencode($this->refreshToken) . '&dlid=' . $this->dlid;
 	}
 }

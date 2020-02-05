@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ @package   akeebabackup
-  ~ @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+  ~ @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
   ~ @license   GNU General Public License version 3, or later
   -->
 
@@ -12,8 +12,8 @@
 	<authorUrl>http://www.akeebabackup.com</authorUrl>
 	<copyright>Copyright (c)2006-2019 Nicholas K. Dionysopoulos</copyright>
 	<license>GNU General Public License version 3, or later</license>
-	<creationDate>2019-10-21</creationDate>
-	<version>6.6.1</version>
+	<creationDate>2020-01-30</creationDate>
+	<version>7.0.1</version>
 	<description>PLG_QUICKICON_AKEEBABACKUP_XML_DESCRIPTION</description>
 	<files>
 		<filename plugin="akeebabackup">akeebabackup.php</filename>
@@ -28,13 +28,6 @@
 	<config addfieldpath="/administrator/components/com_akeeba/fields">
 		<fields name="params">
 			<fieldset name="basic">
-				<field name="context"
-					type="text"
-					default="mod_quickicon"
-					description="PLG_QUICKICON_AKEEBABACKUP_GROUP_DESC"
-					label="PLG_QUICKICON_AKEEBABACKUP_GROUP_LABEL"
-				/>
-
 				<field name="enablewarning" type="radio" label="PLG_QUICKICON_AKEEBABACKUP_LBL_WARNINGS"
 					description="PLG_QUICKICON_AKEEBABACKUP_DESC_WARNINGS" default="1">
 					<option value="0">JYES</option>

@@ -1,51 +1,37 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Postproc\Connector\S3v4\Configuration;
 use Akeeba\Engine\Postproc\Connector\S3v4\Connector;
 use Akeeba\Engine\Postproc\Connector\S3v4\Input;
-use Psr\Log\LogLevel;
+use Akeeba\Engine\Postproc\Exception\BadConfiguration;
+use DateTime;
+use Exception;
+use RuntimeException;
 
 /**
- * Upload to Amazon S3 (new version) post-processing engine for Akeeba Engine
- *
- * @package Akeeba\Engine\Postproc
+ * Amazon S3 post-processing engine
  */
 class Amazons3 extends Base
 {
-	/**
-	 * The upload ID of the multipart upload in progress
-	 *
-	 * @var   null|string
-	 */
-	protected $uploadId = null;
-
-	/**
-	 * The part number for the multipart upload in progress
-	 *
-	 * @var null|int
-	 */
-	protected $partNumber = null;
-
-	/**
-	 * The ETags of the uploaded chunks, used to finalise the multipart upload
-	 *
-	 * @var  array
-	 */
-	protected $eTags = array();
+	const STORAGE_STANDARD = 0;
+	const STORAGE_REDUCED_REDUNDANCY = 1;
+	const STORAGE_STANDARD_IA = 2;
+	const STORAGE_ONEZONE_IA = 3;
+	const STORAGE_INTELLIGENT_TIERING = 4;
+	const STORAGE_GLACIER = 5;
+	const STORAGE_DEEP_ARCHIVE = 6;
 
 	/**
 	 * Used in log messages. Check out children classes to understand why we have this here.
@@ -53,51 +39,56 @@ class Amazons3 extends Base
 	 * @var  string
 	 */
 	protected $engineLogName = 'Amazon S3';
-
 	/**
 	 * The prefix to use for volatile key storage
 	 *
 	 * @var  string
 	 */
 	protected $volatileKeyPrefix = 'volatile.postproc.amazons3.';
-
 	/**
 	 * HTTP headers. Used when trying to fetch the S3 credentials from an EC2 instance's attached role.
 	 *
 	 * @var  array
 	 */
-	protected $headers = array();
-
+	protected $headers = [];
 	/**
 	 * Cached copy of the S3 credentials provisioned by the EC2 instance's attached role.
 	 *
-	 * @var  null|array
+	 * @var  array|null
 	 */
 	protected $provisionedCredentials = null;
+	/**
+	 * The upload ID of the multipart upload in progress
+	 *
+	 * @var   string|null
+	 */
+	private $uploadId = null;
+	/**
+	 * The part number for the multipart upload in progress
+	 *
+	 * @var int|null
+	 */
+	private $partNumber = null;
+	/**
+	 * The ETags of the uploaded chunks, used to finalise the multipart upload
+	 *
+	 * @var  array
+	 */
+	private $eTags = [];
 
 	/**
 	 * Initialise the class, setting its capabilities
+	 *
+	 * @return  void
 	 */
 	public function __construct()
 	{
-		$this->can_delete              = true;
-		$this->can_download_to_browser = true;
-		$this->can_download_to_file    = true;
+		$this->supportsDelete            = true;
+		$this->supportsDownloadToBrowser = true;
+		$this->supportsDownloadToFile    = true;
 	}
 
-	/**
-	 * This function takes care of post-processing a backup archive's part, or the
-	 * whole backup archive if it's not a split archive type. If the process fails
-	 * it should return false. If it succeeds and the entirety of the file has been
-	 * processed, it should return true. If only a part of the file has been uploaded,
-	 * it must return 1.
-	 *
-	 * @param   string $absolute_filename Absolute path to the part we'll have to process
-	 * @param   string $upload_as         Base name of the uploaded file, skip to use $absolute_filename's
-	 *
-	 * @return  boolean|integer  False on failure, true on success, 1 if more work is required
-	 */
-	public function processPart($absolute_filename, $upload_as = null)
+	final public function processPart($localFilepath, $remoteBaseName = null)
 	{
 		// Retrieve engine configuration data
 		$akeebaConfig = Factory::getConfiguration();
@@ -146,7 +137,7 @@ class Amazons3 extends Base
 		$bucket = str_replace('/', '', $bucket);
 
 		// Get the file size and disable multipart uploads for files shorter than 5Mb
-		$fileSize = @filesize($absolute_filename);
+		$fileSize = @filesize($localFilepath);
 
 		if ($fileSize <= 5242880)
 		{
@@ -154,7 +145,7 @@ class Amazons3 extends Base
 		}
 
 		// Calculate relative remote filename
-		$remoteKey = empty($upload_as) ? basename($absolute_filename) : $upload_as;
+		$remoteKey = empty($remoteBaseName) ? basename($localFilepath) : $remoteBaseName;
 
 		if (!empty($directory) && ($directory != '/'))
 		{
@@ -162,15 +153,11 @@ class Amazons3 extends Base
 		}
 
 		// Store the absolute remote path in the class property
-		$this->remote_path = $remoteKey;
+		$this->remotePath = $remoteKey;
 
 		// Create the S3 client instance
-		$s3Client = $this->getS3Client();
-
-		if (!is_object($s3Client))
-		{
-			return false;
-		}
+		/** @var Connector $connector */
+		$connector = $this->getConnector();
 
 		// Are we already processing a multipart upload or asked to perform a multipart upload?
 		if (!empty($this->uploadId) || !$disableMultipart)
@@ -178,78 +165,37 @@ class Amazons3 extends Base
 			$this->partNumber = $akeebaConfig->get($this->volatileKeyPrefix . 'partNumber', null);
 			$this->eTags      = $akeebaConfig->get($this->volatileKeyPrefix . 'eTags', '{}');
 			$this->eTags      = json_decode($this->eTags, true);
-			$this->eTags      = empty($this->eTags) ? array() : $this->eTags;
+			$this->eTags      = empty($this->eTags) ? [] : $this->eTags;
 
-			return $this->multipartUpload($bucket, $remoteKey, $absolute_filename, $s3Client, 'bucket-owner-full-control', $storageType);
+			return $this->multipartUpload($bucket, $remoteKey, $localFilepath, $connector, 'bucket-owner-full-control', $storageType);
 		}
 
-		return $this->simpleUpload($bucket, $remoteKey, $absolute_filename, $s3Client, 'bucket-owner-full-control', $storageType);
+		return $this->simpleUpload($bucket, $remoteKey, $localFilepath, $connector, 'bucket-owner-full-control', $storageType);
 	}
 
-	/**
-	 * Deletes a remote file
-	 *
-	 * @param $path string Absolute path to the file we're deleting
-	 *
-	 * @return bool|int False on failure, true on success, 1 if more work is required
-	 */
-	public function delete($path)
+	final public function delete($path)
 	{
 		// Get the configuration parameters
+		/** @var Connector $connector */
+		$connector    = $this->getConnector();
 		$engineConfig = $this->getEngineConfiguration();
-		$bucket = $engineConfig['bucket'];
-		$bucket = str_replace('/', '', $bucket);
+		$bucket       = $engineConfig['bucket'];
+		$bucket       = str_replace('/', '', $bucket);
 
-		// Create the S3 client instance
-		$s3Client = $this->getS3Client();
-
-		if ( !is_object($s3Client))
-		{
-			return false;
-		}
-
-		try
-		{
-			$s3Client->deleteObject($bucket, $path);
-		}
-		catch (\Exception $e)
-		{
-			$this->setError($e->getCode() . ' :: ' . $e->getMessage());
-
-			return false;
-		}
-
-		return true;
+		$connector->deleteObject($bucket, $path);
 	}
 
-	/**
-	 * Downloads a remote file to a local file, optionally doing a range download. If the
-	 * download fails we return false. If the download succeeds we return true. If range
-	 * downloads are not supported, -1 is returned and nothing is written to disk.
-	 *
-	 * @param $remotePath string The path to the remote file
-	 * @param $localFile  string The absolute path to the local file we're writing to
-	 * @param $fromOffset int|null The offset (in bytes) to start downloading from
-	 * @param $length     int|null The amount of data (in bytes) to download
-	 *
-	 * @return bool|int True on success, false on failure, -1 if ranges are not supported
-	 */
 	public function downloadToFile($remotePath, $localFile, $fromOffset = null, $length = null)
 	{
 		// Get the configuration parameters
 		$engineConfig = $this->getEngineConfiguration();
-		$bucket = $engineConfig['bucket'];
-		$bucket = str_replace('/', '', $bucket);
+		$bucket       = $engineConfig['bucket'];
+		$bucket       = str_replace('/', '', $bucket);
 
 		// Create the S3 client instance
-		$s3Client = $this->getS3Client();
-
-		if ( !is_object($s3Client))
-		{
-			return false;
-		}
-
-		$toOffset = null;
+		/** @var Connector $connector */
+		$connector = $this->getConnector();
+		$toOffset  = null;
 
 		if ($fromOffset && $length)
 		{
@@ -257,366 +203,32 @@ class Amazons3 extends Base
 			$serviceArguments['Range'] = $fromOffset . '-' . $toOffset;
 		}
 
-		try
-		{
-			$s3Client->getObject($bucket, $remotePath, $localFile, $fromOffset, $toOffset);
-		}
-		catch (\Exception $e)
-		{
-			$this->setWarning($e->getCode() . ' :: ' . $e->getMessage());
-
-			return false;
-		}
-
-		return true;
+		$connector->getObject($bucket, $remotePath, $localFile, $fromOffset, $toOffset);
 	}
 
-	/**
-	 * Returns a public download URL or starts a browser-side download of a remote file.
-	 * In the case of a public download URL, a string is returned. If a browser-side
-	 * download is initiated, it returns true. In any other case (e.g. unsupported, not
-	 * found, etc) it returns false.
-	 *
-	 * @param $remotePath string The file to download
-	 *
-	 * @return string|bool
-	 */
 	public function downloadToBrowser($remotePath)
 	{
+		// Create the S3 client instance
+		/** @var Connector $connector */
+		$connector = $this->getConnector();
+
 		// Get the configuration parameters
 		$engineConfig = $this->getEngineConfiguration();
-		$bucket = $engineConfig['bucket'];
-		$bucket = str_replace('/', '', $bucket);
+		$bucket       = $engineConfig['bucket'];
+		$bucket       = str_replace('/', '', $bucket);
 
-		// Create the S3 client instance
-		$s3Client = $this->getS3Client();
+		// Add custom content headers so the file is always downloaded to the browser instead of read inline
+		$queryParameters = [
+			'response-content-type'        => 'application/octet-stream',
+			'response-content-disposition' => sprintf('attachment; filename="%s"', basename($remotePath)),
+		];
+		$uri = $remotePath . '?' . http_build_query($queryParameters);
 
-		if ( !is_object($s3Client))
-		{
-			return false;
-		}
-
-		return $s3Client->getAuthenticatedURL($bucket, $remotePath, 10, true);
+		return $connector->getAuthenticatedURL($bucket, $uri, 10, true);
 	}
 
 	/**
-	 * Start a multipart upload
-	 *
-	 * @param   string    $bucket      The bucket to upload to
-	 * @param   string    $remoteKey   The remote filename
-	 * @param   string    $sourceFile  The full path to the local source file
-	 * @param   Connector $s3Client    The S3 client object instance
-	 * @param   string    $acl         Canned ACL privileges to use
-	 * @param   int       $storageType The Amazon S3 storage type (0=standard, 1=RRS, 2=Standard-IA)
-	 *
-	 * @return  bool|int  True when we're done uploading, false if an error occurs, 1 if we have more parts
-	 */
-	protected function multipartUpload($bucket, $remoteKey, $sourceFile, $s3Client, $acl = 'bucket-owner-full-control', $storageType = 0)
-	{
-		$endpoint = $s3Client->getConfiguration()->getEndpoint();
-		$headers  = array();
-
-		if ($endpoint == 's3.amazonaws.com')
-		{
-			$headers = array();
-
-			switch ($storageType)
-			{
-				case 0:
-					$headers['X-Amz-Storage-Class'] = 'STANDARD';
-					break;
-
-				case 1:
-					$headers['X-Amz-Storage-Class'] = 'REDUCED_REDUNDANCY';
-					break;
-
-				case 2:
-					$headers['X-Amz-Storage-Class'] = 'STANDARD_IA';
-					break;
-
-				case 3:
-					$headers['X-Amz-Storage-Class'] = 'ONEZONE_IA';
-					break;
-			}
-		}
-
-		$input = Input::createFromFile($sourceFile, null, null);
-
-		if (empty($this->uploadId))
-		{
-			Factory::getLog()->log(LogLevel::DEBUG, "{$this->engineLogName} -- Beginning multipart upload of $sourceFile");
-
-			// Initialise the multipart upload if necessary
-			try
-			{
-				$this->uploadId   = $s3Client->startMultipart($input, $bucket, $remoteKey, $acl, $headers);
-				$this->partNumber = 1;
-				$this->eTags      = array();
-
-				Factory::getLog()->log(LogLevel::DEBUG, "{$this->engineLogName} -- Got uploadID {$this->uploadId}");
-			}
-			catch (\Exception $e)
-			{
-				Factory::getLog()
-					->log(LogLevel::DEBUG, "{$this->engineLogName} -- Failed to initialize multipart upload of $sourceFile");
-				$this->setWarning('Upload cannot be initialised. ' . $this->engineLogName . ' returned an error message: ' . $e->getCode() . ' :: ' . $e->getMessage());
-
-				return false;
-			}
-		}
-		else
-		{
-			Factory::getLog()
-				->log(LogLevel::DEBUG, "{$this->engineLogName} -- Continuing multipart upload of $sourceFile (UploadId: {$this->uploadId} –– Part number {$this->partNumber})");
-		}
-
-		// Upload a chunk
-		try
-		{
-			$input = Input::createFromFile($sourceFile, null, null);
-			$input->setUploadID($this->uploadId);
-			$input->setPartNumber($this->partNumber);
-			$input->setEtags($this->eTags);
-
-			// Do NOT send $headers when uploading parts. The RRS header MUST ONLY be sent when we're beginning the multipart upload.
-			$eTag = $s3Client->uploadMultipart($input, $bucket, $remoteKey);
-
-			if (!is_null($eTag))
-			{
-				$this->eTags[] = $eTag;
-				$this->partNumber = $input->getPartNumber();
-				$this->partNumber++;
-			}
-			else
-			{
-				// We just finished. Let's finalise the upload
-				$count = count($this->eTags);
-				Factory::getLog()
-					->log(LogLevel::DEBUG, "{$this->engineLogName} -- Finalising multipart upload of $sourceFile (UploadId: {$this->uploadId} –– $count parts in total");
-
-				$input = Input::createFromFile($sourceFile, null, null);
-				$input->setUploadID($this->uploadId);
-				$input->setPartNumber($this->partNumber);
-				$input->setEtags($this->eTags);
-
-				$s3Client->finalizeMultipart($input, $bucket, $remoteKey);
-
-				$this->uploadId = null;
-				$this->partNumber = null;
-				$this->eTags = array();
-			}
-		}
-		catch (\Exception $e)
-		{
-			Factory::getLog()
-				->log(LogLevel::DEBUG, "{$this->engineLogName} -- Multipart upload of $sourceFile has failed.");
-			$this->setWarning('Upload cannot proceed. ' . $this->engineLogName . ' returned an error message: ' . $e->getCode() . ' :: ' . $e->getMessage());
-
-			// Reset the multipart markers in temporary storage
-			$akeebaConfig = Factory::getConfiguration();
-			$akeebaConfig->set($this->volatileKeyPrefix . 'uploadId', null);
-			$akeebaConfig->set($this->volatileKeyPrefix . 'partNumber', null);
-			$akeebaConfig->set($this->volatileKeyPrefix . 'eTags', null);
-
-			return false;
-		}
-
-		// Save the internal tracking variables
-		$akeebaConfig = Factory::getConfiguration();
-		$akeebaConfig->set($this->volatileKeyPrefix . 'uploadId', $this->uploadId);
-		$akeebaConfig->set($this->volatileKeyPrefix . 'partNumber', $this->partNumber);
-		$akeebaConfig->set($this->volatileKeyPrefix . 'eTags', json_encode($this->eTags));
-
-		// If I have an upload ID I have to do more work
-		if (is_string($this->uploadId) && !empty($this->uploadId))
-		{
-			return 1;
-		}
-
-		// In any other case I'm done uploading the file
-		return true;
-	}
-
-	/**
-	 * Perform a single-step upload of a file
-	 *
-	 * @param   string    $bucket      The bucket to upload to
-	 * @param   string    $remoteKey   The remote filename
-	 * @param   string    $sourceFile  The full path to the local source file
-	 * @param   Connector $s3Client    The S3 client object instance
-	 * @param   string    $acl         Canned ACL privileges to use
-	 * @param   int       $storageType The Amazon S3 storage type (0=standard, 1=RRS, 2=Standard-IA)
-	 *
-	 * @return  bool|int  True when we're done uploading, false if an error occurs, 1 if we have more parts
-	 */
-	protected function simpleUpload($bucket, $remoteKey, $sourceFile, Connector $s3Client, $acl = 'bucket-owner-full-control', $storageType = 0)
-	{
-		Factory::getLog()
-			->log(LogLevel::DEBUG, "{$this->engineLogName} -- Legacy (single part) upload of " . basename($sourceFile));
-
-		$endpoint = $s3Client->getConfiguration()->getEndpoint();
-		$headers  = array();
-
-		if ($endpoint == 's3.amazonaws.com')
-		{
-			$headers = array();
-
-			switch ($storageType)
-			{
-				case 0:
-					$headers['X-Amz-Storage-Class'] = 'STANDARD';
-					break;
-
-				case 1:
-					$headers['X-Amz-Storage-Class'] = 'REDUCED_REDUNDANCY';
-					break;
-
-				case 2:
-					$headers['X-Amz-Storage-Class'] = 'STANDARD_IA';
-					break;
-
-				case 3:
-					$headers['X-Amz-Storage-Class'] = 'ONEZONE_IA';
-					break;
-			}
-		}
-
-		$input = Input::createFromFile($sourceFile, null, null);
-
-		try
-		{
-			$s3Client->putObject($input, $bucket, $remoteKey, $acl, $headers);
-		}
-		catch (\Exception $e)
-		{
-			$this->setWarning($e->getCode() . ' :: ' . $e->getMessage());
-
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Get a configured S3 client object.
-	 *
-	 * @return  Connector
-	 */
-	protected function &getS3Client()
-	{
-		// Retrieve engine configuration data
-		$config = $this->getEngineConfiguration();
-
-		// Get the configuration parameters
-		$accessKey           = $config['accessKey'];
-		$secretKey           = $config['secretKey'];
-		$useSSL              = $config['useSSL'];
-		$customEndpoint      = $config['customEndpoint'];
-		$signatureMethod     = $config['signatureMethod'];
-		$region              = $config['region'];
-		$useLegacyPathAccess = $config['useLegacyPathAccess'];
-		$disableMultipart    = $config['disableMultipart'];
-		$bucket              = $config['bucket'];
-
-		// Required since we're returning by reference
-		$null = null;
-
-		if ($signatureMethod == 's3')
-		{
-			$signatureMethod = 'v2';
-		}
-
-		Factory::getLog()
-			->log(LogLevel::DEBUG, "{$this->engineLogName} -- Using signature method $signatureMethod, " . ($disableMultipart ? 'single-part' : 'multipart') . ' uploads');
-
-		// Makes sure the custom endpoint has no protocol and no trailing slash
-		$customEndpoint = trim($customEndpoint);
-
-		if (!empty($customEndpoint))
-		{
-			$protoPos = strpos($customEndpoint, ':\\');
-
-			if ($protoPos !== false)
-			{
-				$customEndpoint = substr($customEndpoint, $protoPos + 3);
-			}
-
-			$customEndpoint = rtrim($customEndpoint, '/');
-
-			Factory::getLog()
-				->log(LogLevel::DEBUG, "{$this->engineLogName} -- Using custom endpoint $customEndpoint");
-		}
-
-		// Remove any slashes from the bucket
-		$bucket = str_replace('/', '', $bucket);
-
-		// Sanity checks
-		if (empty($accessKey))
-		{
-			$this->setError('You have not set up your ' . $this->engineLogName . ' Access Key');
-
-			return $null;
-		}
-
-		if (empty($secretKey))
-		{
-			$this->setError('You have not set up your ' . $this->engineLogName . ' Secret Key');
-
-			return $null;
-		}
-
-		if (!function_exists('curl_init'))
-		{
-			$this->setWarning('cURL is not enabled, please enable it in order to post-process your archives');
-
-			return null;
-		}
-
-		if (empty($bucket))
-		{
-			$this->setError('You have not set up your ' . $this->engineLogName . ' Bucket');
-
-			return $null;
-		}
-
-
-		// Prepare the configuration
-		$configuration = new Configuration($accessKey, $secretKey, $signatureMethod, $region);
-		$configuration->setSSL($useSSL);
-
-		if (!empty($config['token']))
-		{
-			$configuration->setToken($config['token']);
-		}
-
-		if ($customEndpoint)
-		{
-			$configuration->setEndpoint($customEndpoint);
-		}
-
-		// Set path-style vs virtual hosting style access
-		$configuration->setUseLegacyPathStyle($useLegacyPathAccess);
-
-		/**
-		 * If we're dealing with China AWS, we have to use the Legacy Paths.
-		 *
-		 * EDIT: There is no indication that this was ever required. Commenting out.
-		 */
-		/**
-		if ($region == 'cn-north-1')
-		{
-			$configuration->setUseLegacyPathStyle(true);
-		}
-		/**/
-
-		// Create the S3 client instance
-		$s3Client = new Connector($configuration);
-
-		return $s3Client;
-	}
-
-	/**
-	 * Get the configuration information for this post-processing engine
+	 * Get the configuration information for this post-processing engine. Can be overridden by subclasses.
 	 *
 	 * @return  array
 	 */
@@ -649,6 +261,96 @@ class Amazons3 extends Base
 		return $config;
 	}
 
+	final protected function makeConnector()
+	{
+		// Retrieve engine configuration data
+		$config = $this->getEngineConfiguration();
+
+		// Get the configuration parameters
+		$accessKey           = $config['accessKey'];
+		$secretKey           = $config['secretKey'];
+		$useSSL              = $config['useSSL'];
+		$customEndpoint      = $config['customEndpoint'];
+		$signatureMethod     = $config['signatureMethod'];
+		$region              = $config['region'];
+		$useLegacyPathAccess = $config['useLegacyPathAccess'];
+		$disableMultipart    = $config['disableMultipart'];
+		$bucket              = $config['bucket'];
+
+		if ($signatureMethod == 's3')
+		{
+			$signatureMethod = 'v2';
+		}
+
+		Factory::getLog()->debug(sprintf(
+			"%s -- Using signature method %s, %s uploads",
+			$this->engineLogName, $signatureMethod, $disableMultipart ? 'single-part' : 'multipart'
+		));
+
+		// Makes sure the custom endpoint has no protocol and no trailing slash
+		$customEndpoint = trim($customEndpoint);
+
+		if (!empty($customEndpoint))
+		{
+			$protoPos = strpos($customEndpoint, ':\\');
+
+			if ($protoPos !== false)
+			{
+				$customEndpoint = substr($customEndpoint, $protoPos + 3);
+			}
+
+			$customEndpoint = rtrim($customEndpoint, '/');
+
+			Factory::getLog()->debug(sprintf(
+				"%s -- Using custom endpoint %s", $this->engineLogName, $customEndpoint
+			));
+		}
+
+		// Remove any slashes from the bucket
+		$bucket = str_replace('/', '', $bucket);
+
+		// Sanity checks
+		if (!function_exists('curl_init'))
+		{
+			throw new BadConfiguration('cURL is not enabled, please enable it in order to post-process your archives');
+		}
+
+		if (empty($accessKey))
+		{
+			throw new BadConfiguration(sprintf("You have not set up your %s Access Key", $this->engineLogName));
+		}
+
+		if (empty($secretKey))
+		{
+			throw new BadConfiguration(sprintf("You have not set up your %s Secret Key", $this->engineLogName));
+		}
+
+		if (empty($bucket))
+		{
+			throw new BadConfiguration(sprintf("You have not set up your %s Bucket", $this->engineLogName));
+		}
+
+		// Prepare the configuration
+		$configuration = new Configuration($accessKey, $secretKey, $signatureMethod, $region);
+		$configuration->setSSL($useSSL);
+
+		if (!empty($config['token']))
+		{
+			$configuration->setToken($config['token']);
+		}
+
+		if ($customEndpoint)
+		{
+			$configuration->setEndpoint($customEndpoint);
+		}
+
+		// Set path-style vs virtual hosting style access
+		$configuration->setUseLegacyPathStyle($useLegacyPathAccess);
+
+		// Return the new S3 client instance
+		return new Connector($configuration);
+	}
+
 	/**
 	 * Try to automatically provision the S3 credentials. The credentials are searched in the following places (the
 	 * first one to be found wins):
@@ -667,7 +369,7 @@ class Amazons3 extends Base
 	 *
 	 * @return  array
 	 */
-	protected function provisionCredentials(array $config)
+	final private function provisionCredentials(array $config)
 	{
 		// First, try to fetch credentials from the volatile engine configuration
 		$akeebaConfig                 = Factory::getConfiguration();
@@ -701,9 +403,10 @@ class Amazons3 extends Base
 				$this->provisionedCredentials = $this->getEC2RoleCredentials();
 				$akeebaConfig->set($this->volatileKeyPrefix . 'provisionedCredentials', $this->provisionedCredentials);
 			}
-			catch (\RuntimeException $e)
+			catch (RuntimeException $e)
 			{
-				Factory::getLog()->debug("No Amazon S3 credentials found and I got the following error retrieving them from the EC2 instance's role: " . $e->getMessage());
+				Factory::getLog()->debug("No Amazon S3 credentials found. Moreover, I got an error trying to detect whether this site is running inside an Amazon EC2 instance and possibly retrieve Amazon S3 credentials from the EC2 instance's role.");
+				Factory::getLog()->debug($e->getMessage());
 
 				return $config;
 			}
@@ -726,66 +429,68 @@ class Amazons3 extends Base
 	 * processing engine.
 	 *
 	 * @return  array (access, secret, expiration)
+	 *
+	 * @throws  RuntimeException
 	 */
-	private function getEC2RoleCredentials()
+	final private function getEC2RoleCredentials()
 	{
 		$hasCurl = function_exists('curl_init') && function_exists('curl_exec') && function_exists('curl_close');
 
 		if (!$hasCurl)
 		{
-			throw new \RuntimeException('The PHP cURL module is not activated or installed on this server.');
+			throw new RuntimeException('The PHP cURL module is not activated or installed on this server.');
 		}
 
 		$roleName = $this->getURL('http://169.254.169.254/latest/meta-data/iam/security-credentials/');
 
 		if (empty($roleName))
 		{
-			throw new \RuntimeException("Could not find an attached IAM Role on this EC2 instance or we are not running on an EC2 instance.");
+			throw new RuntimeException("Could not find an attached IAM Role on this EC2 instance or we are not running on an EC2 instance.");
 		}
 
-		Factory::getLog()->debug("Getting S3 credentials from EC2 attached IAM Role ‘{$roleName}’.");
+		Factory::getLog()->debug(sprintf("Getting S3 credentials from EC2 attached IAM Role ‘%s’.", $roleName));
 
 		$credentialsDocument = $this->getURL('http://169.254.169.254/latest/meta-data/iam/security-credentials/' . $roleName);
 		$result              = @json_decode($credentialsDocument, true);
 
 		if (is_null($result) || empty($result))
 		{
-			throw new \RuntimeException("Cannot retrieve credentials from IAM role $roleName");
+			throw new RuntimeException(sprintf("Cannot retrieve credentials from IAM role %s", $roleName));
 		}
 
 		if (!array_key_exists('Code', $result) || ($result['Code'] != 'Success'))
 		{
-			throw new \RuntimeException("Querying the IAM role did not return a successful result.");
+			throw new RuntimeException("Querying the IAM role did not return a successful result.");
 		}
 
-		$keys = array('AccessKeyId', 'AccessKeyId', 'Expiration', 'Token');
+		$keys = ['AccessKeyId', 'AccessKeyId', 'Expiration', 'Token'];
 
 		foreach ($keys as $key)
 		{
 			if (!array_key_exists($key, $result))
 			{
-				throw new \RuntimeException("Cannot find key ‘{$key}’ in EC2 metadata document. Automatic provisioning of S3 credentials is not possible.");
+				throw new RuntimeException(sprintf("Cannot find key ‘%s’ in EC2 metadata document. Automatic provisioning of S3 credentials is not possible.", $key));
 			}
 		}
 
 		try
 		{
-			$expiresOn = new \DateTime($result['Expiration']);
+			$expiresOn = new DateTime($result['Expiration']);
 			$expires   = $expiresOn->getTimestamp();
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			Factory::getLog()->debug('Could not determine the expiration time of the automatically provisioned credentials. Assuming an expiration period of 10 minutes (minimum expiration period).');
 
 			$expires = time() + 600;
 		}
 
-		return array(
+		return [
 			'access'  => $result['AccessKeyId'],
 			'secret'  => $result['SecretAccessKey'],
 			'token'   => $result['Token'],
 			'expires' => $expires,
-		);
+		];
 	}
 
 	/**
@@ -795,8 +500,10 @@ class Amazons3 extends Base
 	 * @param   string  $url  The URL to fetch
 	 *
 	 * @return  string  The contents of the URL
+	 *
+	 * @throws  RuntimeException
 	 */
-	private function getURL($url)
+	final private function getURL($url)
 	{
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -808,7 +515,7 @@ class Amazons3 extends Base
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 		curl_setopt($ch, CURLOPT_SSLVERSION, 0);
 		curl_setopt($ch, CURLOPT_CAINFO, AKEEBA_CACERT_PEM);
-		curl_setopt($ch, CURLOPT_HEADERFUNCTION, array($this, 'reponseHeaderCallback'));
+		curl_setopt($ch, CURLOPT_HEADERFUNCTION, [$this, 'reponseHeaderCallback']);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 1);
 
@@ -837,10 +544,219 @@ class Amazons3 extends Base
 
 		if ($result === false)
 		{
-			throw new \RuntimeException($error, $errno);
+			throw new RuntimeException($error, $errno);
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Start a multipart upload
+	 *
+	 * @param   string     $bucket       The bucket to upload to
+	 * @param   string     $remoteKey    The remote filename
+	 * @param   string     $sourceFile   The full path to the local source file
+	 * @param   Connector  $connector    The S3 client object instance
+	 * @param   string     $acl          Canned ACL privileges to use
+	 * @param   int        $storageType  The Amazon S3 storage type. See the constants in this class.
+	 *
+	 * @return  bool  True when we're done uploading, false if we have more parts.
+	 *
+	 * @throws  Exception  When something goes wrong.
+	 */
+	final private function multipartUpload($bucket, $remoteKey, $sourceFile, Connector $connector, $acl = 'bucket-owner-full-control', $storageType = 0)
+	{
+		$endpoint                       = $connector->getConfiguration()->getEndpoint();
+		$headers                        = $this->getStorageTypeHeaders($storageType, $endpoint);
+		$input                          = Input::createFromFile($sourceFile, null, null);
+		$headers['Content-Disposition'] = sprintf('attachment; filename="%s"', basename($sourceFile));
+
+		if (empty($this->uploadId))
+		{
+			Factory::getLog()->debug(sprintf(
+				"%s -- Beginning multipart upload of %s", $this->engineLogName, $sourceFile
+			));
+
+			// Initialise the multipart upload if necessary
+			try
+			{
+				$this->uploadId   = $connector->startMultipart($input, $bucket, $remoteKey, $acl, $headers);
+				$this->partNumber = 1;
+				$this->eTags      = [];
+
+				Factory::getLog()->debug(sprintf(
+					"%s -- Got uploadID %s", $this->engineLogName, $this->uploadId
+				));
+			}
+			catch (Exception $e)
+			{
+				Factory::getLog()->debug(sprintf(
+					"%s -- Failed to initialize multipart upload of %s", $this->engineLogName, $sourceFile
+				));
+
+				throw new RuntimeException(sprintf(
+					'Upload cannot be initialised. %s returned an error.', $this->engineLogName
+				), 500, $e);
+			}
+		}
+		else
+		{
+			Factory::getLog()->debug(sprintf(
+				"%s -- Continuing multipart upload of %s (UploadId: %s –– Part number %d)",
+				$this->engineLogName, $sourceFile, $this->uploadId, $this->partNumber
+			));
+		}
+
+		// Upload a chunk
+		try
+		{
+			//$input = Input::createFromFile($sourceFile, null, null);
+			$input->setUploadID($this->uploadId);
+			$input->setPartNumber($this->partNumber);
+			$input->setEtags($this->eTags);
+
+			// Do NOT send $headers when uploading parts. The RRS header MUST ONLY be sent when we're beginning the multipart upload.
+			$eTag = $connector->uploadMultipart($input, $bucket, $remoteKey);
+
+			if (!is_null($eTag))
+			{
+				$this->eTags[]    = $eTag;
+				$this->partNumber = $input->getPartNumber();
+				$this->partNumber++;
+			}
+			else
+			{
+				// We just finished. Let's finalise the upload
+				$count = count($this->eTags);
+				Factory::getLog()->debug(sprintf(
+					"%s -- Finalising multipart upload of %s (UploadId: %s –– %d parts in total",
+					$this->engineLogName, $sourceFile, $this->uploadId, $count
+				));
+
+				//$input = Input::createFromFile($sourceFile, null, null);
+				$input->setUploadID($this->uploadId);
+				$input->setPartNumber($this->partNumber);
+				$input->setEtags($this->eTags);
+
+				$connector->finalizeMultipart($input, $bucket, $remoteKey);
+
+				$this->uploadId   = null;
+				$this->partNumber = null;
+				$this->eTags      = [];
+			}
+		}
+		catch (Exception $e)
+		{
+			Factory::getLog()->debug(sprintf(
+				"%s -- Multipart upload of %s has failed.", $this->engineLogName, $sourceFile
+			));
+
+			// Reset the multipart markers in temporary storage
+			$akeebaConfig = Factory::getConfiguration();
+			$akeebaConfig->set($this->volatileKeyPrefix . 'uploadId', null);
+			$akeebaConfig->set($this->volatileKeyPrefix . 'partNumber', null);
+			$akeebaConfig->set($this->volatileKeyPrefix . 'eTags', null);
+
+			throw new RuntimeException(sprintf(
+				"Upload cannot proceed. %s returned an error.", $this->engineLogName
+			), 500, $e);
+		}
+
+		// Save the internal tracking variables
+		$akeebaConfig = Factory::getConfiguration();
+		$akeebaConfig->set($this->volatileKeyPrefix . 'uploadId', $this->uploadId);
+		$akeebaConfig->set($this->volatileKeyPrefix . 'partNumber', $this->partNumber);
+		$akeebaConfig->set($this->volatileKeyPrefix . 'eTags', json_encode($this->eTags));
+
+		// If I have an upload ID I have to do more work
+		if (is_string($this->uploadId) && !empty($this->uploadId))
+		{
+			return false;
+		}
+
+		// In any other case I'm done uploading the file
+		return true;
+	}
+
+	/**
+	 * Get the Amazon request headers required to set the storage type of an upload to the specified type.
+	 *
+	 * @param   int     $storageType  The storage type. See the constants in this class.
+	 * @param   string  $endpoint     The API endpoint. Used to determine whether it's Amazon or a third party service.
+	 *
+	 * @return  array  The headers
+	 */
+	final private function getStorageTypeHeaders($storageType = self::STORAGE_STANDARD, $endpoint = 's3.amazonaws.com')
+	{
+		$headers = [];
+
+		if (!in_array($endpoint, ['s3.amazonaws.com', 'amazonaws.com.cn']))
+		{
+			return $headers;
+		}
+
+		switch ($storageType)
+		{
+			case self::STORAGE_STANDARD:
+				$headers['X-Amz-Storage-Class'] = 'STANDARD';
+				break;
+
+			case self::STORAGE_REDUCED_REDUNDANCY:
+				$headers['X-Amz-Storage-Class'] = 'REDUCED_REDUNDANCY';
+				break;
+
+			case self::STORAGE_STANDARD_IA:
+				$headers['X-Amz-Storage-Class'] = 'STANDARD_IA';
+				break;
+
+			case self::STORAGE_ONEZONE_IA:
+				$headers['X-Amz-Storage-Class'] = 'ONEZONE_IA';
+				break;
+
+			case self::STORAGE_INTELLIGENT_TIERING:
+				$headers['X-Amz-Storage-Class'] = 'INTELLIGENT_TIERING';
+				break;
+
+			case self::STORAGE_GLACIER:
+				$headers['X-Amz-Storage-Class'] = 'GLACIER';
+				break;
+
+			case self::STORAGE_DEEP_ARCHIVE:
+				$headers['X-Amz-Storage-Class'] = 'DEEP_ARCHIVE';
+				break;
+		}
+
+		return $headers;
+	}
+
+	/**
+	 * Perform a single-step upload of a file
+	 *
+	 * @param   string     $bucket       The bucket to upload to
+	 * @param   string     $remoteKey    The remote filename
+	 * @param   string     $sourceFile   The full path to the local source file
+	 * @param   Connector  $s3Client     The S3 client object instance
+	 * @param   string     $acl          Canned ACL privileges to use
+	 * @param   int        $storageType  The Amazon S3 storage type. See the constants in this class.
+	 *
+	 * @return  bool  True when we're done uploading, false if we have more parts
+	 *
+	 * @throws  Exception  When something goes wrong.
+	 */
+	final private function simpleUpload($bucket, $remoteKey, $sourceFile, Connector $s3Client, $acl = 'bucket-owner-full-control', $storageType = 0)
+	{
+		Factory::getLog()->debug(sprintf(
+			"%s -- Legacy (single part) upload of %s", $this->engineLogName, basename($sourceFile)
+		));
+
+		$endpoint                       = $s3Client->getConfiguration()->getEndpoint();
+		$headers                        = $this->getStorageTypeHeaders($storageType, $endpoint);
+		$input                          = Input::createFromFile($sourceFile, null, null);
+		$headers['Content-Disposition'] = sprintf('attachment; filename="%s"', basename($sourceFile));
+
+		$s3Client->putObject($input, $bucket, $remoteKey, $acl, $headers);
+
+		return true;
 	}
 
 	/**
@@ -851,7 +767,7 @@ class Amazons3 extends Base
 	 *
 	 * @return  int  The length of the $data string
 	 */
-	protected function reponseHeaderCallback(&$ch, &$data)
+	final private function reponseHeaderCallback(&$ch, &$data)
 	{
 		$strlen = strlen($data);
 

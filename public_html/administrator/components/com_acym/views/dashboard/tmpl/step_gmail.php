@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<h2 class="acym__walkthrough__title cell"><?php echo acym_translation('ACYM_YOUR_EMAIL_CONFIGURATION'); ?></h2>
+?><h2 class="acym__walkthrough__title cell"><?php echo acym_translation('ACYM_YOUR_EMAIL_CONFIGURATION'); ?></h2>
 
 <div class="cell grid-x">
 	<p class="cell text-center acym__walkthrough__text">
@@ -22,14 +13,14 @@ defined('_JEXEC') or die('Restricted access');
 	<div class="cell grid-x text-left margin-top-2">
 		<div class="cell">
 			<label>
-                <?php echo acym_translation('ACYM_FROM_NAME').acym_info(acym_translation('ACYM_FROM_NAME_INFO')); ?>
+                <?php echo acym_translation('ACYM_FROM_NAME').acym_info('ACYM_FROM_NAME_INFO'); ?>
 				<input type="text" name="from_name" class="acym__light__input" required>
 			</label>
 		</div>
 
 		<div class="cell">
 			<label>
-                <?php echo acym_translation('ACYM_FROM_MAIL_ADDRESS').acym_info(acym_translation('ACYM_FROM_ADDRESS_INFO')); ?>
+                <?php echo acym_translation('ACYM_FROM_MAIL_ADDRESS').acym_info('ACYM_FROM_ADDRESS_INFO'); ?>
 				<input type="email" name="from_address" class="acym__light__input" value="<?php echo empty($data['userEmail']) ? '' : acym_escape($data['userEmail']); ?>" required>
 			</label>
 		</div>

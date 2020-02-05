@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<div id="acym__dashboard">
+?><div id="acym__dashboard">
 	<div class="acym__dashboard__card cell grid-x large-up-3 grid-margin-x grid-margin-y medium-up-2 small-up-1 margin-right-0 margin-bottom-2">
 		<div class="cell acym__content acym__dashboard__one-card text-center grid-x">
 			<div class="cell acym__dashboard__card__picto__audience acym__dashboard__card__picto"><i class="acymicon-insert_chart acym__dashboard__card__icon__audience"></i></div>
@@ -28,7 +19,7 @@ defined('_JEXEC') or die('Restricted access');
 			<a class="acym__dashboard__card__link" href="<?php echo acym_completeLink('mails&task=edit&type_editor=acyEditor'); ?>"><?php echo acym_translation('ACYM_CREATE_TEMPLATE'); ?></a>
 		</div>
 		<div class="cell acym__content acym__dashboard__one-card text-center grid-x">
-			<div class="acym__dashboard__card__picto__automation acym__dashboard__card__picto"><i class="fa fa-gears acym__dashboard__card__icon__automation"></i></div>
+			<div class="acym__dashboard__card__picto__automation acym__dashboard__card__picto"><i class="acymicon-gears acym__dashboard__card__icon__automation"></i></div>
 			<h1 class="acym__dashboard__card__title"><?php echo acym_translation('ACYM_AUTOAMTION'); ?></h1>
 			<hr class="cell small-10">
 			<a class="acym__dashboard__card__link" href="<?php echo acym_completeLink('automation&task=listing'); ?>"><?php echo acym_translation('ACYM_VIEW_ALL_AUTOMATIONS'); ?></a>
@@ -37,7 +28,9 @@ defined('_JEXEC') or die('Restricted access');
 		</div>
 	</div>
 
-    <?php include ACYM_VIEW.'stats'.DS.'tmpl'.DS.'global_stats.php'; ?>
+	<div id="acym_stats">
+        <?php include ACYM_VIEW.'stats'.DS.'tmpl'.DS.'global_stats.php'; ?>
+	</div>
 
 	<div class="cell acym__dashboard__active-campaigns acym__content">
 		<h1 class="acym__dashboard__active-campaigns__title"><?php echo acym_translation('ACYM_CAMPAIGNS_SCHEDULED'); ?></h1>

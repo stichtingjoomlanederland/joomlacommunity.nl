@@ -1,28 +1,53 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
-// Define ourselves as a parent file
-define('_JEXEC', 1);
+use Akeeba\Engine\Platform;
+use Joomla\CMS\Plugin\PluginHelper;
+
+// Enable and include Akeeba Engine
+define('AKEEBAENGINE', 1);
 
 // Setup and import the base CLI script
 $minphp = '5.6.0';
-$curdir = __DIR__;
 
-require_once __DIR__ . '/../administrator/components/com_akeeba/Master/Cli/Base.php';
+// Boilerplate -- START
+define('_JEXEC', 1);
 
-// Enable Akeeba Engine
-define('AKEEBAENGINE', 1);
+foreach ([__DIR__, getcwd()] as $curdir)
+{
+	if (file_exists($curdir . '/defines.php'))
+	{
+		define('JPATH_BASE', realpath($curdir . '/..'));
+		require_once $curdir . '/defines.php';
 
-use Akeeba\Engine\Platform;
+		break;
+	}
+
+	if (file_exists($curdir . '/../includes/defines.php'))
+	{
+		define('JPATH_BASE', realpath($curdir . '/..'));
+		require_once $curdir . '/../includes/defines.php';
+
+		break;
+	}
+}
+
+defined('JPATH_LIBRARIES') || die ('This script must be placed in or run from the cli folder of your site.');
+
+require_once JPATH_LIBRARIES . '/fof30/Cli/Application.php';
+// Boilerplate -- END
+
+// Load the version file
+require_once JPATH_ADMINISTRATOR . '/components/com_akeeba/version.php';
 
 /**
  * Akeeba Backup CLI application
  */
-class AkeebaBackupAltCLI extends AkeebaCliBase
+class AkeebaBackupAltCLI extends FOFApplicationCLI
 {
 	/**
 	 * When making HTTPS connections, should we verify the certificate validity and that the hostname matches the one
@@ -32,7 +57,7 @@ class AkeebaBackupAltCLI extends AkeebaCliBase
 	 */
 	private $verifySSL = true;
 
-	public function execute()
+	public function doExecute()
 	{
 		// Has the user set the --no-verify option?
 		$noVerifyValue   = $this->input->get('no-verify', 999);
@@ -147,7 +172,7 @@ ENDTEXT;
 		}
 
 		// Get the front-end backup settings
-		$frontend_enabled = Platform::getInstance()->get_platform_configuration_option('frontend_enable', '');
+		$frontend_enabled = Platform::getInstance()->get_platform_configuration_option('akeebabackup', 'legacyapi_enabled');
 		$secret           = Platform::getInstance()->get_platform_configuration_option('frontend_secret_word', '');
 
 		if (!$frontend_enabled)
@@ -155,10 +180,10 @@ ENDTEXT;
 			echo <<<ENDTEXT
 ERROR:
 	Your Akeeba Backup installation's front-end backup feature is currently
-	disabled. Please log in to your site's back-end as a Super Administra-
-	tor, go to Akeeba Backup's Control Panel, click on the Options icon in
-	the top right corner and enable the front-end backup feature. Do not
-	forget to also set a Secret Word!
+	disabled. Please log in to your site's back-end as a Super User, go to 
+	Akeeba Backup's Control Panel, click on the Options icon in the top 
+	right corner and enable the front-end backup feature. Do not forget to
+	also set a Secret Word!
 
 ENDTEXT;
 			$startup_check = false;
@@ -493,8 +518,5 @@ ENDTEXT;
 	}
 }
 
-// Load the version file
-require_once JPATH_ADMINISTRATOR . '/components/com_akeeba/version.php';
-
-// Instanciate and run the application
-AkeebaCliBase::getInstance('AkeebaBackupAltCLI')->execute();
+// Instantiate and run the application
+FOFApplicationCLI::getInstance('AkeebaBackupAltCLI')->execute();

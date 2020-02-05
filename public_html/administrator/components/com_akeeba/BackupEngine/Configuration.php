@@ -1,46 +1,64 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine;
 
-// Protection against direct access
-use Akeeba\Engine\Util\ParseIni;
 
-defined('AKEEBAENGINE') or die();
+
+use DirectoryIterator;
+use stdClass;
 
 /**
  * The Akeeba Engine configuration registry class
  */
 class Configuration
 {
-	/** @var   string  Default NameSpace */
+	/**
+	 * The currently loaded profile
+	 *
+	 * @var   integer
+	 */
+	public $activeProfile = null;
+
+	/**
+	 * Default namespace
+	 *
+	 * @var   string
+	 */
 	private $defaultNameSpace = 'global';
 
-	/** @var   array  Array keys which may contain stock directory definitions */
-	private $directory_containing_keys = array(
-		'akeeba.basic.output_directory'
-	);
+	/**
+	 * Array keys which may contain stock directory definitions
+	 *
+	 * @var   array
+	 */
+	private $directory_containing_keys = [
+		'akeeba.basic.output_directory',
+	];
 
-	/** @var   array  Keys whose default values should never be overridden */
-	private $protected_nodes = array();
+	/**
+	 * Keys whose default values should never be overridden
+	 *
+	 * @var   array
+	 */
+	private $protected_nodes = [];
 
-	/** @var   array  The registry data */
-	private $registry = array();
-
-	/** @var   integer  The currently loaded profile */
-	public $activeProfile = null;
+	/** The registry data
+	 *
+	 * @var   array
+	 */
+	private $registry = [];
 
 	/**
 	 * Constructor
 	 *
-	 * @return  Configuration
+	 * @return  void
 	 */
 	public function __construct()
 	{
@@ -54,13 +72,13 @@ class Configuration
 	/**
 	 * Create a namespace
 	 *
-	 * @param   string $namespace Name of the namespace to create
+	 * @param   string  $namespace  Name of the namespace to create
 	 *
 	 * @return  void
 	 */
 	public function makeNameSpace($namespace)
 	{
-		$this->registry[$namespace] = array('data' => new \stdClass());
+		$this->registry[$namespace] = ['data' => new stdClass()];
 	}
 
 	/**
@@ -76,17 +94,17 @@ class Configuration
 	/**
 	 * Get a registry value
 	 *
-	 * @param   string  $regpath              Registry path (e.g. global.directory.temporary)
-	 * @param   mixed   $default              Optional default value
-	 * @param   boolean $process_special_vars Optional. If true (default), it processes special variables, e.g.
-	 *                                        [SITEROOT] in folder names
+	 * @param   string   $regpath               Registry path (e.g. global.directory.temporary)
+	 * @param   mixed    $default               Optional default value
+	 * @param   boolean  $process_special_vars  Optional. If true (default), it processes special variables, e.g.
+	 *                                          [SITEROOT] in folder names
 	 *
 	 * @return  mixed  Value of entry or null
 	 */
 	public function get($regpath, $default = null, $process_special_vars = true)
 	{
 		// Cache the platform-specific stock directories
-		static $stock_directories = array();
+		static $stock_directories = [];
 
 		if (empty($stock_directories))
 		{
@@ -104,7 +122,7 @@ class Configuration
 			if ($count < 2)
 			{
 				$namespace = $this->defaultNameSpace;
-				$nodes[1] = $nodes[0];
+				$nodes[1]  = $nodes[0];
 			}
 			else
 			{
@@ -113,7 +131,7 @@ class Configuration
 
 			if (isset($this->registry[$namespace]))
 			{
-				$ns = $this->registry[$namespace]['data'];
+				$ns        = $this->registry[$namespace]['data'];
 				$pathNodes = $count - 1;
 
 				for ($i = 1; $i < $pathNodes; $i++)
@@ -149,17 +167,17 @@ class Configuration
 	/**
 	 * Set a registry value
 	 *
-	 * @param   string $regpath              Registry Path (e.g. global.directory.temporary)
-	 * @param   mixed  $value                Value of entry
-	 * @param   bool   $process_special_vars Optional. If true (default), it processes special variables, e.g.
-	 *                                       [SITEROOT] in folder names
+	 * @param   string  $regpath               Registry Path (e.g. global.directory.temporary)
+	 * @param   mixed   $value                 Value of entry
+	 * @param   bool    $process_special_vars  Optional. If true (default), it processes special variables, e.g.
+	 *                                         [SITEROOT] in folder names
 	 *
 	 * @return  mixed  Value of old value or boolean false if operation failed
 	 */
 	public function set($regpath, $value, $process_special_vars = true)
 	{
 		// Cache the platform-specific stock directories
-		static $stock_directories = array();
+		static $stock_directories = [];
 
 		if (empty($stock_directories))
 		{
@@ -206,7 +224,7 @@ class Configuration
 			// If any node along the registry path does not exist, create it
 			if (!isset($ns->{$nodes[$i]}))
 			{
-				$ns->{$nodes[$i]} = new \stdClass();
+				$ns->{$nodes[$i]} = new stdClass();
 			}
 			$ns = $ns->{$nodes[$i]};
 		}
@@ -252,7 +270,7 @@ class Configuration
 	/**
 	 * Unset (remove) a registry value
 	 *
-	 * @param   string $regpath Registry Path (e.g. global.directory.temporary)
+	 * @param   string  $regpath  Registry Path (e.g. global.directory.temporary)
 	 *
 	 * @return  boolean  True if the node was removed
 	 */
@@ -312,7 +330,7 @@ class Configuration
 		// Load the Akeeba Engine INI files
 		$root_path = __DIR__;
 
-		$paths = array(
+		$paths = [
 			$root_path . '/Core',
 			$root_path . '/Archiver',
 			$root_path . '/Dump',
@@ -321,7 +339,7 @@ class Configuration
 			$root_path . '/Proc',
 			$root_path . '/Platform/Filter/Stack',
 			$root_path . '/Filter/Stack',
-		);
+		];
 
 		$platform_paths = Platform::getInstance()->getPlatformDirectories();
 
@@ -343,9 +361,9 @@ class Configuration
 				continue;
 			}
 
-			$di = new \DirectoryIterator($root);
+			$di = new DirectoryIterator($root);
 
-			/** @var \DirectoryIterator $file */
+			/** @var DirectoryIterator $file */
 			foreach ($di as $file)
 			{
 				if (!$file->isFile())
@@ -365,10 +383,10 @@ class Configuration
 	 * Merges an associative array of key/value pairs into the registry.
 	 * If noOverride is set, only non set or null values will be applied.
 	 *
-	 * @param    array $array                An associative array. Its keys are registry paths.
-	 * @param    bool  $noOverride           [optional] Do not override pre-set values.
-	 * @param    bool  $process_special_vars Optional. If true (default), it processes special variables, e.g.
-	 *                                       [SITEROOT] in folder names
+	 * @param   array  $array                 An associative array. Its keys are registry paths.
+	 * @param   bool   $noOverride            [optional] Do not override pre-set values.
+	 * @param   bool   $process_special_vars  Optional. If true (default), it processes special variables, e.g.
+	 *                                        [SITEROOT] in folder names
 	 */
 	public function mergeArray($array, $noOverride = false, $process_special_vars = true)
 	{
@@ -397,8 +415,8 @@ class Configuration
 	 * values. If noOverride is set, only non set or null values will be applied.
 	 * Top level keys beginning with an underscore will be ignored.
 	 *
-	 * @param   string  $jsonPath   The full path to the INI file to load
-	 * @param   boolean $noOverride [optional] Do not override pre-set values.
+	 * @param   string   $jsonPath    The full path to the INI file to load
+	 * @param   boolean  $noOverride  [optional] Do not override pre-set values.
 	 *
 	 * @return  boolean  True on success
 	 */
@@ -409,7 +427,7 @@ class Configuration
 			return false;
 		}
 
-		$rawData = file_get_contents($jsonPath);
+		$rawData  = file_get_contents($jsonPath);
 		$jsonData = empty($rawData) ? [] : json_decode($rawData, true);
 
 		foreach ($jsonData as $rootkey => $rootvalue)
@@ -462,7 +480,7 @@ class Configuration
 			return false;
 		}
 
-		$rawData = file_get_contents($jsonPath);
+		$rawData  = file_get_contents($jsonPath);
 		$jsonData = empty($rawData) ? [] : json_decode($rawData, true);
 
 		foreach ($jsonData as $section => $nodes)
@@ -539,7 +557,7 @@ class Configuration
 	 */
 	public function exportAsJSON()
 	{
-		$forJSON = [];
+		$forJSON    = [];
 		$namespaces = $this->getNameSpaces();
 
 		foreach ($namespaces as $namespace)
@@ -559,8 +577,8 @@ class Configuration
 	/**
 	 * Sets the protection status for a specific configuration key
 	 *
-	 * @param   string|array $node    The node to protect/unprotect
-	 * @param   boolean      $protect True to protect, false to unprotect
+	 * @param   string|array  $node     The node to protect/unprotect
+	 * @param   boolean       $protect  True to protect, false to unprotect
 	 *
 	 * @return  void
 	 */
@@ -581,8 +599,8 @@ class Configuration
 			}
 			else
 			{
-				$this->protected_nodes = array();
-				$protected = false;
+				$this->protected_nodes = [];
+				$protected             = false;
 			}
 
 			if ($protect)
@@ -620,13 +638,13 @@ class Configuration
 	 */
 	public function resetProtectedKeys()
 	{
-		$this->protected_nodes = array();
+		$this->protected_nodes = [];
 	}
 
 	/**
 	 * Sets the protected keys
 	 *
-	 * @param   array $keys A list of keys to protect
+	 * @param   array  $keys  A list of keys to protect
 	 *
 	 * @return  void
 	 */
@@ -635,5 +653,3 @@ class Configuration
 		$this->protected_nodes = $keys;
 	}
 }
-
-?>

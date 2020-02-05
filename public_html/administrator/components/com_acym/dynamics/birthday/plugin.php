@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class plgAcymBirthday extends acymPlugin
 {
@@ -65,7 +56,7 @@ class plgAcymBirthday extends acymPlugin
                         </div>';
 
         if (empty($this->dataSources[$defaultSource]['fields']) && !empty($this->dataSources[$defaultSource]['no_fields_error_message'])) {
-            $option .= '<div class="cell grid-x"><span class="cell small-1 vertical-align-middle"><i class="acymicon-error acym__color__orange"></i></span><span class="cell small-11"><b>'.acym_translation($this->dataSources[$defaultSource]['no_fields_error_message']).'</b></span></div>';
+            $option .= '<div class="cell grid-x"><span class="cell small-1 vertical-align-middle"><i class="acymicon-exclamation-circle acym__color__orange"></i></span><span class="cell small-11"><b>'.acym_translation($this->dataSources[$defaultSource]['no_fields_error_message']).'</b></span></div>';
         } else {
             $option .= '<div class="cell grid-x">
                             <div class="cell medium-shrink">
@@ -165,7 +156,9 @@ class plgAcymBirthday extends acymPlugin
         if (empty($users)) return;
 
         foreach ($users as $oneUser) {
+            if (empty($oneUser->date)) continue;
             $userBirthday = DateTime::createFromFormat($format, $oneUser->date);
+            if (empty($userBirthday)) continue;
             $userBirthday->sub(new DateInterval('P'.$dayBefore.'D'));
 
             if ($now->format('m-d') === $userBirthday->format('m-d')) {

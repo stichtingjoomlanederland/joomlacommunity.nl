@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -220,8 +220,8 @@ class QuickStart extends Model
 			'iplookupscheme'          => 'http',
 			'saveusersignupip'        => $state,
 			'whitelist_domains'       => '.googlebot.com,.search.msn.com',
-			'reasons_nolog'           => 'geoblocking',
-			'reasons_noemail'         => 'geoblocking',
+			'reasons_nolog'           => '',
+			'reasons_noemail'         => '',
 			'resetjoomlatfa'          => 0,
 			'email_throttle'          => 1,
 		    'selfprotect'             => 1,

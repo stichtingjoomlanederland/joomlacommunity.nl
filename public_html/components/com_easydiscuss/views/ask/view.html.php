@@ -109,6 +109,7 @@ class EasyDiscussViewAsk extends EasyDiscussView
 			$attachments = '';
 		}
 
+
 		$model = ED::model('Posts');
 
 		// @TODO: Very bad! Fix this
@@ -222,6 +223,10 @@ class EasyDiscussViewAsk extends EasyDiscussView
 			}
 		}
 
+		// This fix for elements with non-unique id. #818
+		$uid = uniqid();
+
+		$this->set('uid', $uid);
 		$this->set('defaultCategory', $defaultCategory);
 		$this->set('minimumTitle', $minimumTitle);
 		$this->set('cancel', $cancel);
@@ -246,6 +251,11 @@ class EasyDiscussViewAsk extends EasyDiscussView
 		// Get form values from session.
 		$data = ED::getSession('NEW_POST_TOKEN');
 
+		// echo '<pre>';
+		// var_dump($data);
+		// echo '</pre>';
+
+
 		if (!empty($data)) {
 
 			// Try to bind the data from the object.
@@ -259,31 +269,29 @@ class EasyDiscussViewAsk extends EasyDiscussView
 				foreach ($data['tags'] as $tag) {
 					$obj = new stdClass();
 					$obj->title	= $tag;
-
 					$post->tags[] = $obj;
 				}
 			}
 
-			if (isset($data['polls']) && isset($data['pollitems']) && is_array($data['pollitems'])) {
-
+			if (isset($data['pollitems']) && is_array($data['pollitems'])) {
 				$polls = array();
 
 				foreach ($data['pollitems'] as $key => $value) {
 					$poll = ED::table('Poll');
-					$poll->id = $key;
+					$poll->id = '';
 					$poll->value = $value;
 
 					$polls[] = $poll;
 				}
 
-				$post->setPolls($polls);
+				$post->post->setPolls($polls);
+
+				$poll = ED::table('PollQuestion');
+				$poll->title = isset($data['poll_question']) ? $data['poll_question'] : '';
+				$poll->multiple = isset($data['multiplePolls']) ? $data['multiplePolls'] : false;
+
+				$post->post->setPollQuestions($poll, true);
 			}
-
-			$poll = ED::table('PollQuestion');
-			$poll->title = isset($data['poll_question']) ? $data['poll_question'] : '';
-			$poll->multiple = isset($data['multiplePolls']) ? $data['multiplePolls'] : false;
-
-			// $post->setPollQuestions($poll);
 
 			// Process custom fields.
 			$customfields = array();

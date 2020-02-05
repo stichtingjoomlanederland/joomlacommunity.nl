@@ -1,21 +1,16 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Archiver;
 
-// Protection against direct access
 use Akeeba\Engine\Base\Exceptions\ErrorException;
 use Akeeba\Engine\Factory;
-use Psr\Log\LogLevel;
-
-defined('AKEEBAENGINE') or die();
 
 if (!function_exists('akstrlen'))
 {
@@ -44,10 +39,10 @@ abstract class BaseFileManagement extends Base
 	protected $cdfp = null;
 
 	/** @var   array  An array of open file pointers */
-	private $filePointers = array();
+	private $filePointers = [];
 
 	/** @var   array  An array of the last open files for writing and their last written to offsets */
-	private $fileOffsets = array();
+	private $fileOffsets = [];
 
 	/**
 	 * Release file pointers when the object is being serialized
@@ -82,8 +77,8 @@ abstract class BaseFileManagement extends Base
 	/**
 	 * Opens a file, if it's not already open, or returns its cached file pointer if it's already open
 	 *
-	 * @param   string $file The filename to open
-	 * @param   string $mode File open mode, defaults to binary write
+	 * @param   string  $file  The filename to open
+	 * @param   string  $mode  File open mode, defaults to binary write
 	 *
 	 * @return  resource
 	 */
@@ -91,7 +86,7 @@ abstract class BaseFileManagement extends Base
 	{
 		if (!array_key_exists($file, $this->filePointers))
 		{
-			//Factory::getLog()->log(LogLevel::DEBUG, "Opening backup archive $file with mode $mode");
+			//Factory::getLog()->debug("Opening backup archive $file with mode $mode");
 			$this->filePointers[$file] = @fopen($file, $mode);
 
 			// If we open a file for append we have to seek to the correct offset
@@ -99,7 +94,7 @@ abstract class BaseFileManagement extends Base
 			{
 				if (isset($this->fileOffsets[$file]))
 				{
-					Factory::getLog()->log(LogLevel::DEBUG, "Truncating backup archive file $file to " . $this->fileOffsets[$file] . " bytes");
+					Factory::getLog()->debug("Truncating backup archive file $file to " . $this->fileOffsets[$file] . " bytes");
 					@ftruncate($this->filePointers[$file], $this->fileOffsets[$file]);
 				}
 
@@ -113,7 +108,7 @@ abstract class BaseFileManagement extends Base
 	/**
 	 * Closes an already open file
 	 *
-	 * @param   resource $fp The file pointer to close
+	 * @param   resource  $fp  The file pointer to close
 	 *
 	 * @return  boolean
 	 */
@@ -153,9 +148,9 @@ abstract class BaseFileManagement extends Base
 	/**
 	 * Write to file, defeating magic_quotes_runtime settings (pure binary write)
 	 *
-	 * @param   resource $fp    Handle to a file
-	 * @param   string   $data  The data to write to the file
-	 * @param   integer  $p_len Maximum length of data to write
+	 * @param   resource  $fp     Handle to a file
+	 * @param   string    $data   The data to write to the file
+	 * @param   integer   $p_len  Maximum length of data to write
 	 *
 	 * @return  int  The number of bytes written
 	 *
@@ -183,7 +178,7 @@ abstract class BaseFileManagement extends Base
 			$fileExists  = @file_exists($filename) ? 'exists' : 'does NOT exist';
 			$currentSize = @filesize($filename);
 
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . "::_fwrite() ERROR!! Cannot write to archive file $filename. The file $fileExists. File size $currentSize bytes after writing $ret of $len bytes. Please check the output directory permissions and make sure you have enough disk space available. If this does not help, please set up a Part Size for Split Archives LOWER than this size and retry backing up.");
+			Factory::getLog()->debug(__CLASS__ . "::_fwrite() ERROR!! Cannot write to archive file $filename. The file $fileExists. File size $currentSize bytes after writing $ret of $len bytes. Please check the output directory permissions and make sure you have enough disk space available. If this does not help, please set up a Part Size for Split Archives LOWER than this size and retry backing up.");
 
 			throw new ErrorException('Couldn\'t write to the archive file; check the output directory permissions and make sure you have enough disk space available.' . "[len=$ret / $len]");
 		}

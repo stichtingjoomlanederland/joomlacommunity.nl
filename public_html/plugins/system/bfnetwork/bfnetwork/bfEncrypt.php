@@ -178,6 +178,7 @@ if ('f59fbbcf2dc5e3888a079d34f821a75a' !== md5(trim($validationResultHash))) {
 require 'bfConfig.php';
 
 // Require some logging
+require 'bfEvents.php';
 require 'bfLog.php';
 bfLog::init();
 

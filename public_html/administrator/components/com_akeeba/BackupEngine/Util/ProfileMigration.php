@@ -1,17 +1,17 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Util;
 
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
+use Exception;
 
 /**
  * This helper class is used to migrate Akeeba Backup profiles to the new storage format implemented since version
@@ -51,7 +51,7 @@ abstract class ProfileMigration
 
 			$rawData = $db->setQuery($sql)->loadAssoc();
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			return false;
 		}
@@ -95,7 +95,7 @@ abstract class ProfileMigration
 		{
 			$result = $db->query();
 		}
-		catch (\Exception $exc)
+		catch (Exception $exc)
 		{
 			return false;
 		}
@@ -114,8 +114,8 @@ abstract class ProfileMigration
 	 */
 	public static function decryptConfiguration($configData)
 	{
-		$noData         = empty($configData);
-		$signature      = ($noData || (strlen($configData) < 12)) ? '' : substr($configData, 0, 12);
+		$noData    = empty($configData);
+		$signature = ($noData || (strlen($configData) < 12)) ? '' : substr($configData, 0, 12);
 
 		if (in_array($signature, ['###AES128###', '###CTR128###']))
 		{
@@ -226,7 +226,7 @@ abstract class ProfileMigration
 
 		if (empty($filters))
 		{
-			$filters = array();
+			$filters = [];
 		}
 
 		return json_encode($filters, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_FORCE_OBJECT | JSON_PRETTY_PRINT);

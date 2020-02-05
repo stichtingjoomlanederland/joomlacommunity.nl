@@ -1,46 +1,73 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Platform\Base;
 use Akeeba\Engine\Platform\PlatformInterface;
+use DirectoryIterator;
+use Exception;
 
 /**
  * Platform abstraction. Manages the loading of platform connector objects and delegates calls to itself the them.
  *
  * @property string $tableNameProfiles The name of the table where backup profiles are stored
- * @property string $tableNameStats The name of the table where backup records are stored
+ * @property string $tableNameStats    The name of the table where backup records are stored
  *
  * @since    3.4
  */
 class Platform
 {
-	/** @var \Akeeba\Engine\Platform\Base|null The currently loaded platform connector object instance */
+	/** @var Base|null The currently loaded platform connector object instance */
 	protected static $platformConnectorInstance = null;
 
 	/** @var array A list of additional directories where platform classes can be found */
-	protected static $knownPlatformsDirectories = array();
+	protected static $knownPlatformsDirectories = [];
 
 	/** @var Platform The currently loaded object instance of this class. WARNING: This is NOT the platform connector! */
 	protected static $instance = null;
+
+	/**
+	 * Public class constructor
+	 *
+	 * @param   string  $platform  Optional; platform name. Leave blank to auto-detect.
+	 *
+	 * @throws  Exception  When the platform cannot be loaded
+	 */
+	public function __construct($platform = null)
+	{
+		if (empty($platform) || is_null($platform))
+		{
+			$platform = static::detectPlatform();
+		}
+
+		if (empty($platform))
+		{
+			throw new Exception('Can not find a suitable Akeeba Engine platform for your site');
+		}
+
+		static::$platformConnectorInstance = static::loadPlatform($platform);
+
+		if (!is_object(static::$platformConnectorInstance))
+		{
+			throw new Exception("Can not load Akeeba Engine platform $platform");
+		}
+	}
 
 	/**
 	 * Implements the Singleton pattern for this class
 	 *
 	 * @staticvar Platform $instance The static object instance
 	 *
-	 * @param string $platform Optional; platform name. Autodetect if blank.
+	 * @param   string  $platform  Optional; platform name. Autodetect if blank.
 	 *
 	 * @return PlatformInterface
 	 */
@@ -61,7 +88,7 @@ class Platform
 	 */
 	public static function getPlatformDirectories()
 	{
-		$defaultPath = array();
+		$defaultPath = [];
 
 		if (is_object(static::$platformConnectorInstance))
 		{
@@ -75,29 +102,70 @@ class Platform
 	}
 
 	/**
-	 * Public class constructor
+	 * Lists available platforms
 	 *
-	 * @param   string $platform Optional; platform name. Leave blank to auto-detect.
+	 * @staticvar   array   $platforms   Static cache of the available platforms
 	 *
-	 * @throws  \Exception  When the platform cannot be loaded
+	 * @return  array  The list of available platforms
 	 */
-	public function __construct($platform = null)
+	static public function listPlatforms()
 	{
-		if (empty($platform) || is_null($platform))
+		if (empty(static::$knownPlatformsDirectories))
 		{
-			$platform = static::detectPlatform();
+			$di = new DirectoryIterator(__DIR__ . '/Platform');
+
+			/** @var DirectoryIterator $file */
+			foreach ($di as $file)
+			{
+				if (!$file->isDir())
+				{
+					continue;
+				}
+
+				if ($file->isDot())
+				{
+					continue;
+				}
+
+				if ($file->getExtension() !== 'php')
+				{
+					continue;
+				}
+
+				$shortName = $file->getFilename();
+				$bareName  = basename($shortName, '.php');
+
+				/**
+				 * We never have dots in our filenames but some hosts will rename files similar to  foo.1.php when their
+				 * broken security scanners detect a false positive. This is our defence against that.
+				 */
+				if (strpos($bareName, '.') !== false)
+				{
+					continue;
+				}
+
+				static::$knownPlatformsDirectories[$shortName] = $file->getRealPath();
+			}
 		}
 
-		if (empty($platform))
-		{
-			throw new \Exception('Can not find a suitable Akeeba Engine platform for your site');
-		}
+		return static::$knownPlatformsDirectories;
+	}
 
-		static::$platformConnectorInstance = static::loadPlatform($platform);
-
-		if (!is_object(static::$platformConnectorInstance))
+	/**
+	 * Add a platform to the list of known platforms
+	 *
+	 * @param   string  $slug               Short name of the platform
+	 * @param   string  $platformDirectory  The path where you can find it
+	 *
+	 * @return  void
+	 */
+	public static function addPlatform($slug, $platformDirectory)
+	{
+		if (empty(static::$knownPlatformsDirectories))
 		{
-			throw new \Exception("Can not load Akeeba Engine platform $platform");
+			static::listPlatforms();
+
+			static::$knownPlatformsDirectories[$slug] = $platformDirectory;
 		}
 	}
 
@@ -106,7 +174,7 @@ class Platform
 	 *
 	 * @return  string
 	 *
-	 * @throws  \Exception  When no platform is detected
+	 * @throws  Exception  When no platform is detected
 	 */
 	protected static function detectPlatform()
 	{
@@ -114,13 +182,13 @@ class Platform
 
 		if (empty($platforms))
 		{
-			throw new \Exception('No Akeeba Engine platform class found');
+			throw new Exception('No Akeeba Engine platform class found');
 		}
 
-		$bestPlatform = (object)array(
+		$bestPlatform = (object) [
 			'name'     => null,
 			'priority' => 0,
-		);
+		];
 
 		foreach ($platforms as $platform => $path)
 		{
@@ -136,7 +204,7 @@ class Platform
 				if ($o->priority > $bestPlatform->priority)
 				{
 					$bestPlatform->priority = $o->priority;
-					$bestPlatform->name = $platform;
+					$bestPlatform->name     = $platform;
 				}
 			}
 		}
@@ -150,7 +218,7 @@ class Platform
 	 * @param   string  $platform  Platform name
 	 * @param   string  $path      The path to laod the platform from (optional)
 	 *
-	 * @return  \Akeeba\Engine\Platform\Base
+	 * @return  Base
 	 */
 	protected static function &loadPlatform($platform, $path = null)
 	{
@@ -190,74 +258,6 @@ class Platform
 	}
 
 	/**
-	 * Lists available platforms
-	 *
-	 * @staticvar   array   $platforms   Static cache of the available platforms
-	 *
-	 * @return  array  The list of available platforms
-	 */
-	static public function listPlatforms()
-	{
-		if (empty(static::$knownPlatformsDirectories))
-		{
-			$di = new \DirectoryIterator(__DIR__ . '/Platform');
-
-			/** @var \DirectoryIterator $file */
-			foreach ($di as $file)
-			{
-				if (!$file->isDir())
-				{
-					continue;
-				}
-
-				if ($file->isDot())
-				{
-					continue;
-				}
-
-				if ($file->getExtension() !== 'php')
-				{
-					continue;
-				}
-
-				$shortName = $file->getFilename();
-				$bareName = basename($shortName, '.php');
-
-				/**
-				 * We never have dots in our filenames but some hosts will rename files similar to  foo.1.php when their
-				 * broken security scanners detect a false positive. This is our defence against that.
-				 */
-				if (strpos($bareName, '.') !== false)
-				{
-					continue;
-				}
-
-				static::$knownPlatformsDirectories[$shortName] = $file->getRealPath();
-			}
-		}
-
-		return static::$knownPlatformsDirectories;
-	}
-
-	/**
-	 * Add a platform to the list of known platforms
-	 *
-	 * @param   string  $slug               Short name of the platform
-	 * @param   string  $platformDirectory  The path where you can find it
-	 *
-	 * @return  void
-	 */
-	public static function addPlatform($slug, $platformDirectory)
-	{
-		if (empty(static::$knownPlatformsDirectories))
-		{
-			static::listPlatforms();
-
-			static::$knownPlatformsDirectories[$slug] = $platformDirectory;
-		}
-	}
-
-	/**
 	 * Magic method to proxy all calls to the loaded platform object
 	 *
 	 * @param   string  $name       The name of the method to call
@@ -265,13 +265,13 @@ class Platform
 	 *
 	 * @return  mixed  The result of the method being called
 	 *
-	 * @throws  \Exception  When the platform isn't loaded or an non-existent method is called
+	 * @throws  Exception  When the platform isn't loaded or an non-existent method is called
 	 */
 	public function __call($name, array $arguments)
 	{
 		if (is_null(static::$platformConnectorInstance))
 		{
-			throw new \Exception('Akeeba Engine platform is not loaded');
+			throw new Exception('Akeeba Engine platform is not loaded');
 		}
 
 		if (method_exists(static::$platformConnectorInstance, $name))
@@ -300,13 +300,14 @@ class Platform
 					break;
 				default:
 					// Resort to using call_user_func_array for many segments
-					$result = call_user_func_array(array(static::$platformConnectorInstance, $name), $arguments);
+					$result = call_user_func_array([static::$platformConnectorInstance, $name], $arguments);
 			}
+
 			return $result;
 		}
 		else
 		{
-			throw new \Exception('Method ' . $name . ' not found in Akeeba Platform');
+			throw new Exception('Method ' . $name . ' not found in Akeeba Platform');
 		}
 	}
 
@@ -345,23 +346,5 @@ class Platform
 			static::$platformConnectorInstance->$name = null;
 			user_error(__CLASS__ . ' does not support property ' . $name, E_NOTICE);
 		}
-	}
-
-	/**
-	 * Force a platform connector object instance. This is used only in Unit Tests.
-	 *
-	 * @param \Akeeba\Engine\Platform\Base $platform The platform connector object to force
-	 *
-	 * @throws \Exception when used outside of Unit Tests
-	 */
-	public static function forcePlatformInstance(Base $platform)
-	{
-		if (!interface_exists('PHPUnit_Exception', false))
-		{
-			$method = __METHOD__;
-			throw new \Exception("You can only use $method in Unit Tests", 500);
-		}
-
-		static::$platformConnectorInstance = $platform;
 	}
 }

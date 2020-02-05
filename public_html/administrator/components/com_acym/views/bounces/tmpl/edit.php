@@ -1,22 +1,14 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate>
+?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate>
 	<input type="hidden" name="bounce[id]" value="<?php echo empty($data['rule']) ? '' : intval($data['rule']->id); ?>">
 	<input type="hidden" name="bounce[ordering]" value="<?php echo empty($data['rule']) ? '' : intval($data['rule']->ordering); ?>">
 	<div id="acym__bounces__listing" class="acym__content grid-x cell grid-margin-x margin-left-0">
-		<div class="cell grid-x">
-			<div class="hide-for-small-only medium-auto"></div>
-			<button type="button" data-task="apply" class="button button-secondary acy_button_submit cell large-shrink medium-shrink small-12"><?php echo acym_translation('ACYM_APPLY'); ?></button>
-			<button type="button" data-task="save" class="button margin-left-2 acy_button_submit cell large-shrink medium-shrink small-12"><?php echo acym_translation('ACYM_SAVE_EXIT'); ?></button>
+		<div class="cell grid-x text-right grid-margin-x margin-left-0 margin-right-0">
+			<div class="cell auto hide-for-small-only hide-for-medium-only"></div>
+            <?php echo acym_cancelButton(); ?>
+			<button type="button" data-task="apply" class="button button-secondary acy_button_submit cell medium-6 large-shrink"><?php echo acym_translation('ACYM_APPLY'); ?></button>
+			<button type="button" data-task="save" class="button margin-right-0 acy_button_submit cell medium-6 large-shrink"><?php echo acym_translation('ACYM_SAVE_EXIT'); ?></button>
 		</div>
 		<div class="acym__content cell grid-x large-6">
 			<h1 class="acym__title__light__blue cell"><?php echo acym_translation('ACYM_GLOBAL_INFORMATION'); ?></h1>

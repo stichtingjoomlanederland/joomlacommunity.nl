@@ -1,16 +1,16 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc\Connector\S3v4;
 
-// Protection against direct access
+
+
 use Akeeba\Engine\Postproc\Connector\S3v4\Exception\CannotDeleteFile;
 use Akeeba\Engine\Postproc\Connector\S3v4\Exception\CannotGetBucket;
 use Akeeba\Engine\Postproc\Connector\S3v4\Exception\CannotGetFile;
@@ -18,8 +18,8 @@ use Akeeba\Engine\Postproc\Connector\S3v4\Exception\CannotListBuckets;
 use Akeeba\Engine\Postproc\Connector\S3v4\Exception\CannotOpenFileForWrite;
 use Akeeba\Engine\Postproc\Connector\S3v4\Exception\CannotPutFile;
 use Akeeba\Engine\Postproc\Connector\S3v4\Response\Error;
-
-defined('AKEEBAENGINE') or die();
+use Exception;
+use SimpleXMLElement;
 
 class Connector
 {
@@ -33,7 +33,7 @@ class Connector
 	/**
 	 * Connector constructor.
 	 *
-	 * @param   Configuration   $configuration  The configuration object to use
+	 * @param   Configuration  $configuration  The configuration object to use
 	 */
 	public function __construct(Configuration $configuration)
 	{
@@ -53,7 +53,7 @@ class Connector
 	 *
 	 * @throws  CannotPutFile  If the upload is not possible
 	 */
-	public function putObject(Input $input, $bucket, $uri, $acl = Acl::ACL_PRIVATE, $requestHeaders = array())
+	public function putObject(Input $input, $bucket, $uri, $acl = Acl::ACL_PRIVATE, $requestHeaders = [])
 	{
 		$request = new Request('PUT', $bucket, $uri, $this->configuration);
 		$request->setInput($input);
@@ -104,7 +104,7 @@ class Connector
 				throw new CannotPutFile("Unexpected HTTP status {$response->code}", $response->code);
 			}
 
-			if (is_object($response->body) && ($response->body instanceof \SimpleXMLElement) && (strpos($input->getSize(), ',') === false))
+			if (is_object($response->body) && ($response->body instanceof SimpleXMLElement) && (strpos($input->getSize(), ',') === false))
 			{
 				// For some reason, trying to single part upload files on some hosts comes back with an inexplicable
 				// error from Amazon that we need to set Content-Length:5242880,5242880 instead of
@@ -112,7 +112,7 @@ class Connector
 				// 'workaround-braindead-error-from-amazon' and retry. Uh, OK?
 				if (isset($response->body->CanonicalRequest))
 				{
-					$amazonsCanonicalRequest = (string)$response->body->CanonicalRequest;
+					$amazonsCanonicalRequest = (string) $response->body->CanonicalRequest;
 					$lines                   = explode("\n", $amazonsCanonicalRequest);
 
 					foreach ($lines as $line)
@@ -139,7 +139,6 @@ class Connector
 				}
 			}
 		}
-
 
 
 		if ($response->error->isError())
@@ -203,7 +202,7 @@ class Connector
 			$response->error = new Error(
 				$response->code,
 				"Unexpected HTTP status {$response->code}"
-			) ;
+			);
 		}
 
 		if ($response->error->isError())
@@ -233,7 +232,7 @@ class Connector
 	 */
 	public function deleteObject($bucket, $uri)
 	{
-		$request = new Request('DELETE', $bucket, $uri, $this->configuration);
+		$request  = new Request('DELETE', $bucket, $uri, $this->configuration);
 		$response = $request->getResponse();
 
 		if (!$response->error->isError() && ($response->code !== 204))
@@ -241,7 +240,7 @@ class Connector
 			$response->error = new Error(
 				$response->code,
 				"Unexpected HTTP status {$response->code}"
-			) ;
+			);
 		}
 
 		if ($response->error->isError())
@@ -257,10 +256,10 @@ class Connector
 	/**
 	 * Get a query string authenticated URL
 	 *
-	 * @param   string   $bucket      Bucket name
-	 * @param   string   $uri         Object URI
-	 * @param   integer  $lifetime    Lifetime in seconds
-	 * @param   boolean  $https       Use HTTPS ($hostBucket should be false for SSL verification)?
+	 * @param   string   $bucket    Bucket name
+	 * @param   string   $uri       Object URI
+	 * @param   integer  $lifetime  Lifetime in seconds
+	 * @param   boolean  $https     Use HTTPS ($hostBucket should be false for SSL verification)?
 	 *
 	 * @return  string
 	 */
@@ -316,7 +315,7 @@ class Connector
 		$newConfig->setUseLegacyPathStyle(true);
 
 		// Create the request object.
-		$uri       = str_replace('%2F', '/', rawurlencode($uri));
+		$uri     = str_replace('%2F', '/', rawurlencode($uri));
 		$request = new Request('GET', $bucket, $uri, $newConfig);
 
 		if ($query)
@@ -339,7 +338,7 @@ class Connector
 	/**
 	 * Get the location (region) of a bucket. You need this to use the V4 API on that bucket!
 	 *
-	 * @param   string   $bucket  Bucket name
+	 * @param   string  $bucket  Bucket name
 	 *
 	 * @return  string
 	 */
@@ -446,7 +445,7 @@ class Connector
 			);
 		}
 
-		$results = array();
+		$results = [];
 
 		$nextMarker = null;
 
@@ -454,14 +453,14 @@ class Connector
 		{
 			foreach ($response->body->Contents as $c)
 			{
-				$results[(string)$c->Key] = array(
-					'name' => (string)$c->Key,
-					'time' => strtotime((string)$c->LastModified),
-					'size' => (int)$c->Size,
-					'hash' => substr((string)$c->ETag, 1, -1)
-				);
+				$results[(string) $c->Key] = [
+					'name' => (string) $c->Key,
+					'time' => strtotime((string) $c->LastModified),
+					'size' => (int) $c->Size,
+					'hash' => substr((string) $c->ETag, 1, -1),
+				];
 
-				$nextMarker = (string)$c->Key;
+				$nextMarker = (string) $c->Key;
 			}
 		}
 
@@ -469,12 +468,12 @@ class Connector
 		{
 			foreach ($response->body->CommonPrefixes as $c)
 			{
-				$results[(string)$c->Prefix] = array('prefix' => (string)$c->Prefix);
+				$results[(string) $c->Prefix] = ['prefix' => (string) $c->Prefix];
 			}
 		}
 
 		if ($response->hasBody() && isset($response->body->IsTruncated) &&
-			((string)$response->body->IsTruncated == 'false')
+			((string) $response->body->IsTruncated == 'false')
 		)
 		{
 			return $results;
@@ -482,11 +481,11 @@ class Connector
 
 		if ($response->hasBody() && isset($response->body->NextMarker))
 		{
-			$nextMarker = (string)$response->body->NextMarker;
+			$nextMarker = (string) $response->body->NextMarker;
 		}
 
 		// Loop through truncated results if maxKeys isn't specified
-		if ($maxKeys == null && $nextMarker !== null && ((string)$response->body->IsTruncated == 'true'))
+		if ($maxKeys == null && $nextMarker !== null && ((string) $response->body->IsTruncated == 'true'))
 		{
 			do
 			{
@@ -508,7 +507,7 @@ class Connector
 				{
 					$response = $request->getResponse();
 				}
-				catch (\Exception $e)
+				catch (Exception $e)
 				{
 					break;
 				}
@@ -517,14 +516,14 @@ class Connector
 				{
 					foreach ($response->body->Contents as $c)
 					{
-						$results[(string)$c->Key] = array(
-							'name' => (string)$c->Key,
-							'time' => strtotime((string)$c->LastModified),
-							'size' => (int)$c->Size,
-							'hash' => substr((string)$c->ETag, 1, -1)
-						);
+						$results[(string) $c->Key] = [
+							'name' => (string) $c->Key,
+							'time' => strtotime((string) $c->LastModified),
+							'size' => (int) $c->Size,
+							'hash' => substr((string) $c->ETag, 1, -1),
+						];
 
-						$nextMarker = (string)$c->Key;
+						$nextMarker = (string) $c->Key;
 					}
 				}
 
@@ -532,16 +531,15 @@ class Connector
 				{
 					foreach ($response->body->CommonPrefixes as $c)
 					{
-						$results[(string)$c->Prefix] = array('prefix' => (string)$c->Prefix);
+						$results[(string) $c->Prefix] = ['prefix' => (string) $c->Prefix];
 					}
 				}
 
 				if ($response->hasBody() && isset($response->body->NextMarker))
 				{
-					$nextMarker = (string)$response->body->NextMarker;
+					$nextMarker = (string) $response->body->NextMarker;
 				}
-			}
-			while (!$response->error->isError() && (string)$response->body->IsTruncated == 'true');
+			} while (!$response->error->isError() && (string) $response->body->IsTruncated == 'true');
 		}
 
 		return $results;
@@ -560,7 +558,7 @@ class Connector
 		$configuration = clone $this->configuration;
 		$configuration->setRegion('us-east-1');
 
-		$request = new Request('GET', '', '', $configuration);
+		$request  = new Request('GET', '', '', $configuration);
 		$response = $request->getResponse();
 
 		if (!$response->error->isError() && (($response->code !== 200)))
@@ -568,7 +566,7 @@ class Connector
 			$response->error = new Error(
 				$response->code,
 				"Unexpected HTTP status {$response->code}"
-			) ;
+			);
 		}
 
 		if ($response->error->isError())
@@ -579,7 +577,7 @@ class Connector
 			);
 		}
 
-		$results = array();
+		$results = [];
 
 		if (!isset($response->body->Buckets))
 		{
@@ -590,27 +588,27 @@ class Connector
 		{
 			if (isset($response->body->Owner, $response->body->Owner->ID, $response->body->Owner->DisplayName))
 			{
-				$results['owner'] = array(
-					'id' => (string)$response->body->Owner->ID,
-					'name' => (string)$response->body->Owner->DisplayName
-				);
+				$results['owner'] = [
+					'id'   => (string) $response->body->Owner->ID,
+					'name' => (string) $response->body->Owner->DisplayName,
+				];
 			}
 
-			$results['buckets'] = array();
+			$results['buckets'] = [];
 
 			foreach ($response->body->Buckets->Bucket as $b)
 			{
-				$results['buckets'][] = array(
-					'name' => (string)$b->Name,
-					'time' => strtotime((string)$b->CreationDate)
-				);
+				$results['buckets'][] = [
+					'name' => (string) $b->Name,
+					'time' => strtotime((string) $b->CreationDate),
+				];
 			}
 		}
 		else
 		{
 			foreach ($response->body->Buckets->Bucket as $b)
 			{
-				$results[] = (string)$b->Name;
+				$results[] = (string) $b->Name;
 			}
 		}
 
@@ -628,7 +626,7 @@ class Connector
 	 *
 	 * @return  string  The upload session ID (UploadId)
 	 */
-	public function startMultipart(Input $input, $bucket, $uri, $acl = Acl::ACL_PRIVATE, $requestHeaders = array())
+	public function startMultipart(Input $input, $bucket, $uri, $acl = Acl::ACL_PRIVATE, $requestHeaders = [])
 	{
 		$request = new Request('POST', $bucket, $uri, $this->configuration);
 		$request->setParameter('uploads', '');
@@ -675,7 +673,7 @@ class Connector
 			);
 		}
 
-		return (string)$response->body->UploadId;
+		return (string) $response->body->UploadId;
 	}
 
 	/**
@@ -689,7 +687,7 @@ class Connector
 	 *
 	 * @return  null|string  The ETag of the upload part of null if we have ran out of parts to upload
 	 */
-	public function uploadMultipart(Input $input, $bucket, $uri, $requestHeaders = array(), $chunkSize  = 5242880)
+	public function uploadMultipart(Input $input, $bucket, $uri, $requestHeaders = [], $chunkSize = 5242880)
 	{
 		if ($chunkSize < 5242880)
 		{
@@ -697,7 +695,7 @@ class Connector
 		}
 
 		// We need a valid UploadID and PartNumber
-		$UploadID = $input->getUploadID();
+		$UploadID   = $input->getUploadID();
 		$PartNumber = $input->getPartNumber();
 
 		if (empty($UploadID))
@@ -714,8 +712,8 @@ class Connector
 			);
 		}
 
-		$UploadID = urlencode($UploadID);
-		$PartNumber = (int)$PartNumber;
+		$UploadID   = urlencode($UploadID);
+		$PartNumber = (int) $PartNumber;
 
 		$request = new Request('PUT', $bucket, $uri, $this->configuration);
 		$request->setParameter('partNumber', $PartNumber);
@@ -804,7 +802,7 @@ class Connector
 				);
 			}
 
-			if (is_object($response->body) && ($response->body instanceof \SimpleXMLElement) && (strpos($input->getSize(), ',') === false))
+			if (is_object($response->body) && ($response->body instanceof SimpleXMLElement) && (strpos($input->getSize(), ',') === false))
 			{
 				// For some moronic reason, trying to multipart upload files on some hosts comes back with a crazy
 				// error from Amazon that we need to set Content-Length:5242880,5242880 instead of
@@ -812,8 +810,8 @@ class Connector
 				// 'workaround-braindead-error-from-amazon' and retry. Whatever.
 				if (isset($response->body->CanonicalRequest))
 				{
-					$amazonsCanonicalRequest = (string)$response->body->CanonicalRequest;
-					$lines = explode("\n", $amazonsCanonicalRequest);
+					$amazonsCanonicalRequest = (string) $response->body->CanonicalRequest;
+					$lines                   = explode("\n", $amazonsCanonicalRequest);
 
 					foreach ($lines as $line)
 					{
@@ -863,7 +861,7 @@ class Connector
 	 */
 	public function finalizeMultipart(Input $input, $bucket, $uri)
 	{
-		$etags = $input->getEtags();
+		$etags    = $input->getEtags();
 		$UploadID = $input->getUploadID();
 
 		if (empty($etags))
@@ -882,7 +880,7 @@ class Connector
 
 		// Create the message
 		$message = "<CompleteMultipartUpload>\n";
-		$part = 0;
+		$part    = 0;
 
 		foreach ($etags as $etag)
 		{

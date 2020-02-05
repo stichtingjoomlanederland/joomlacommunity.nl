@@ -1,11 +1,10 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 /**
@@ -42,8 +41,7 @@
 
 namespace Akeeba\Engine\Postproc\Connector\Azure\Http;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Postproc\Connector\Azure\Exception\Http;
 
@@ -64,7 +62,7 @@ class Response
 	 *
 	 * @var array
 	 */
-	protected static $_statusMessages = array(
+	protected static $_statusMessages = [
 		// Informational 1xx
 		100 => 'Continue',
 		101 => 'Switching Protocols',
@@ -115,8 +113,8 @@ class Response
 		503 => 'Service Unavailable',
 		504 => 'Gateway Timeout',
 		505 => 'HTTP Version Not Supported',
-		509 => 'Bandwidth Limit Exceeded'
-	);
+		509 => 'Bandwidth Limit Exceeded',
+	];
 
 	/**
 	 * The HTTP version (1.0, 1.1)
@@ -145,7 +143,7 @@ class Response
 	 *
 	 * @var array
 	 */
-	protected $_headers = array();
+	protected $_headers = [];
 
 	/**
 	 * The HTTP response body
@@ -157,10 +155,10 @@ class Response
 	/**
 	 * HTTP response constructor
 	 *
-	 * @param int    $code    Response code (200, 404, 500, ...)
-	 * @param array  $headers Headers array
-	 * @param string $body    Response body
-	 * @param string $version HTTP version
+	 * @param   int     $code     Response code (200, 404, 500, ...)
+	 * @param   array   $headers  Headers array
+	 * @param   string  $body     Response body
+	 * @param   string  $version  HTTP version
 	 *
 	 * @throws Http
 	 */
@@ -199,6 +197,175 @@ class Response
 				$this->_headers[ucwords(strtolower($name))] = trim($value);
 			}
 		}
+	}
+
+	/**
+	 * Extract the response code from a response string
+	 *
+	 * @param   string  $responseString
+	 *
+	 * @return int
+	 */
+	public static function extractCode($responseString)
+	{
+		preg_match("|^HTTP/[\d\.x]+ (\d+)|", $responseString, $m);
+
+		if (isset($m[1]))
+		{
+			return (int) $m[1];
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	/**
+	 * Extract the HTTP message from a response
+	 *
+	 * @param   string  $responseString
+	 *
+	 * @return string
+	 */
+	public static function extractMessage($responseString)
+	{
+		preg_match("|^HTTP/[\d\.x]+ \d+ ([^\r\n]+)|", $responseString, $m);
+
+		if (isset($m[1]))
+		{
+			return $m[1];
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	/**
+	 * Extract the HTTP version from a response
+	 *
+	 * @param   string  $responseString
+	 *
+	 * @return string
+	 */
+	public static function extractVersion($responseString)
+	{
+		preg_match("|^HTTP/([\d\.x]+) \d+|", $responseString, $m);
+
+		if (isset($m[1]))
+		{
+			return $m[1];
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	/**
+	 * Extract the headers from a response string
+	 *
+	 * @param   string  $responseString
+	 *
+	 * @return array
+	 */
+	public static function extractHeaders($responseString)
+	{
+		$headers = [];
+
+		// First, split body and headers
+		$parts = preg_split('|(?:\r?\n){2}|m', $responseString, 2);
+		if (!$parts[0])
+		{
+			return $headers;
+		}
+
+		// Split headers part to lines
+		$lines = explode("\n", $parts[0]);
+		unset($parts);
+		$last_header = null;
+
+		foreach ($lines as $line)
+		{
+			$line = trim($line, "\r\n");
+			if ($line == "")
+			{
+				break;
+			}
+
+			if (preg_match("|^([\w-]+):\s+(.+)|", $line, $m))
+			{
+				unset($last_header);
+				$h_name  = strtolower($m[1]);
+				$h_value = $m[2];
+
+				if (isset($headers[$h_name]))
+				{
+					if (!is_array($headers[$h_name]))
+					{
+						$headers[$h_name] = [$headers[$h_name]];
+					}
+
+					$headers[$h_name][] = $h_value;
+				}
+				else
+				{
+					$headers[$h_name] = $h_value;
+				}
+				$last_header = $h_name;
+			}
+			elseif (preg_match("|^\s+(.+)$|", $line, $m) && $last_header !== null)
+			{
+				if (is_array($headers[$last_header]))
+				{
+					end($headers[$last_header]);
+					$last_header_key                         = key($headers[$last_header]);
+					$headers[$last_header][$last_header_key] .= $m[1];
+				}
+				else
+				{
+					$headers[$last_header] .= $m[1];
+				}
+			}
+		}
+
+		return $headers;
+	}
+
+	/**
+	 * Extract the body from a response string
+	 *
+	 * @param   string  $response_str
+	 *
+	 * @return string
+	 */
+	public static function extractBody($responseString)
+	{
+		$parts = preg_split('|(?:\r?\n){2}|m', $responseString, 2);
+		if (isset($parts[1]))
+		{
+			return $parts[1];
+		}
+
+		return '';
+	}
+
+	/**
+	 * Create a new Response object from a string
+	 *
+	 * @param   string  $response_str
+	 *
+	 * @return Response
+	 */
+	public static function fromString($response_str)
+	{
+		$code    = self::extractCode($response_str);
+		$headers = self::extractHeaders($response_str);
+		$body    = self::extractBody($response_str);
+		$version = self::extractVersion($response_str);
+		$message = self::extractMessage($response_str);
+
+		return new Response($code, $headers, $body, $version, $message);
 	}
 
 	/**
@@ -277,7 +444,7 @@ class Response
 	{
 		if (!is_array($this->_headers))
 		{
-			$this->_headers = array();
+			$this->_headers = [];
 		}
 
 		return $this->_headers;
@@ -286,7 +453,7 @@ class Response
 	/**
 	 * Get a specific header as string, or null if it is not set
 	 *
-	 * @param string $header
+	 * @param   string  $header
 	 *
 	 * @return string|array|null
 	 */
@@ -309,174 +476,5 @@ class Response
 	public function getBody()
 	{
 		return $this->_body;
-	}
-
-	/**
-	 * Extract the response code from a response string
-	 *
-	 * @param string $responseString
-	 *
-	 * @return int
-	 */
-	public static function extractCode($responseString)
-	{
-		preg_match("|^HTTP/[\d\.x]+ (\d+)|", $responseString, $m);
-
-		if (isset($m[1]))
-		{
-			return (int)$m[1];
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	/**
-	 * Extract the HTTP message from a response
-	 *
-	 * @param string $responseString
-	 *
-	 * @return string
-	 */
-	public static function extractMessage($responseString)
-	{
-		preg_match("|^HTTP/[\d\.x]+ \d+ ([^\r\n]+)|", $responseString, $m);
-
-		if (isset($m[1]))
-		{
-			return $m[1];
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	/**
-	 * Extract the HTTP version from a response
-	 *
-	 * @param string $responseString
-	 *
-	 * @return string
-	 */
-	public static function extractVersion($responseString)
-	{
-		preg_match("|^HTTP/([\d\.x]+) \d+|", $responseString, $m);
-
-		if (isset($m[1]))
-		{
-			return $m[1];
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	/**
-	 * Extract the headers from a response string
-	 *
-	 * @param string $responseString
-	 *
-	 * @return array
-	 */
-	public static function extractHeaders($responseString)
-	{
-		$headers = array();
-
-		// First, split body and headers
-		$parts = preg_split('|(?:\r?\n){2}|m', $responseString, 2);
-		if (!$parts[0])
-		{
-			return $headers;
-		}
-
-		// Split headers part to lines
-		$lines = explode("\n", $parts[0]);
-		unset($parts);
-		$last_header = null;
-
-		foreach ($lines as $line)
-		{
-			$line = trim($line, "\r\n");
-			if ($line == "")
-			{
-				break;
-			}
-
-			if (preg_match("|^([\w-]+):\s+(.+)|", $line, $m))
-			{
-				unset($last_header);
-				$h_name = strtolower($m[1]);
-				$h_value = $m[2];
-
-				if (isset($headers[$h_name]))
-				{
-					if (!is_array($headers[$h_name]))
-					{
-						$headers[$h_name] = array($headers[$h_name]);
-					}
-
-					$headers[$h_name][] = $h_value;
-				}
-				else
-				{
-					$headers[$h_name] = $h_value;
-				}
-				$last_header = $h_name;
-			}
-			elseif (preg_match("|^\s+(.+)$|", $line, $m) && $last_header !== null)
-			{
-				if (is_array($headers[$last_header]))
-				{
-					end($headers[$last_header]);
-					$last_header_key = key($headers[$last_header]);
-					$headers[$last_header][$last_header_key] .= $m[1];
-				}
-				else
-				{
-					$headers[$last_header] .= $m[1];
-				}
-			}
-		}
-
-		return $headers;
-	}
-
-	/**
-	 * Extract the body from a response string
-	 *
-	 * @param string $response_str
-	 *
-	 * @return string
-	 */
-	public static function extractBody($responseString)
-	{
-		$parts = preg_split('|(?:\r?\n){2}|m', $responseString, 2);
-		if (isset($parts[1]))
-		{
-			return $parts[1];
-		}
-
-		return '';
-	}
-
-	/**
-	 * Create a new Response object from a string
-	 *
-	 * @param string $response_str
-	 *
-	 * @return Response
-	 */
-	public static function fromString($response_str)
-	{
-		$code = self::extractCode($response_str);
-		$headers = self::extractHeaders($response_str);
-		$body = self::extractBody($response_str);
-		$version = self::extractVersion($response_str);
-		$message = self::extractMessage($response_str);
-
-		return new Response($code, $headers, $body, $version, $message);
 	}
 }

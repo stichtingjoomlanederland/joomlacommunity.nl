@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -15,8 +15,8 @@ use Akeeba\Backup\Admin\Helper\SecretWord;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
 use FOF30\Container\Container;
-use FOF30\Dispatcher\Mixin\ViewAliases;
-use JFactory;
+use FOF30\Dispatcher\Exception\AccessForbidden;
+use \Joomla\CMS\Factory as JFactory;
 
 class Dispatcher extends AdminDispatcher
 {
@@ -51,6 +51,24 @@ class Dispatcher extends AdminDispatcher
 	 */
 	public function onBeforeDispatch()
 	{
+		// Make sure we have a version loaded
+		@include_once($this->container->backEndPath . '/version.php');
+
+		if (!defined('AKEEBA_VERSION'))
+		{
+			define('AKEEBA_VERSION', 'dev');
+			define('AKEEBA_DATE', date('Y-m-d'));
+		}
+
+		// Core version: there is no front-end, throw a 403
+		if (!defined('AKEEBA_PRO') || !AKEEBA_PRO)
+		{
+			throw new AccessForbidden(\JText::_('COM_AKEEBA_ERR_NO_FRONTEND_IN_CORE'));
+		}
+
+		$this->container->platform->importPlugin('akeebabackup');
+		$this->container->platform->runPlugins('onComAkeebaDispatcherBeforeDispatch', []);
+
 		$this->onBeforeDispatchViewAliases();
 
 		// Load the FOF language
@@ -101,15 +119,6 @@ class Dispatcher extends AdminDispatcher
 		// Make sure the front-end backup Secret Word is stored encrypted
 		$params = $this->container->params;
 		SecretWord::enforceEncryption($params, 'frontend_secret_word');
-
-		// Make sure we have a version loaded
-		@include_once($this->container->backEndPath . '/version.php');
-
-		if (!defined('AKEEBA_VERSION'))
-		{
-			define('AKEEBA_VERSION', 'dev');
-			define('AKEEBA_DATE', date('Y-m-d'));
-		}
 
 		// Create a media file versioning tag
 		$this->container->mediaVersion = md5(AKEEBA_VERSION . AKEEBA_DATE);

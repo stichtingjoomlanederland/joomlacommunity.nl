@@ -24,6 +24,9 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 	var limitEnabled = <?php echo $this->config->get('enable_attachment_limit'); ?>;
 	var limit = <?php echo $this->config->get('attachment_limit'); ?>;
 
+	// maximum upload file size in bytes
+	var maxSize = <?php echo $this->config->get('attachment_maxsize') * 1024 * 1024 ; ?>;
+
 	var info = wrapper.find('[data-ed-attachment-info]');
 
 	var list = wrapper.find('[data-ed-attachments-list]');
@@ -113,6 +116,11 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 		var fileInput = form.find("input:not(:hidden)");
 
+		var filesize = 0;
+		if ($(fileInput)[0] != undefined && $(fileInput)[0].files[0] != undefined) {
+			filesize = $(fileInput)[0].files[0].size;
+		}
+
 		// Get the file attributes
 		var file = {
 			title: fileInput.val(),
@@ -127,14 +135,30 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 		// reset message.
 		info.html('<?php echo JText::sprintf('COM_EASYDISCUSS_ATTACHMENTS_INFO', $allowedExtensions); ?>');
 
+		// file upload validation
+		var errorMsg = '';
+
 		if (!isExtensionAllowed(file)) {
 
 			var error = '<?php echo JText::_('COM_EASYDISCUSS_FILE_ATTACHMENTS_INVALID_EXTENSION', true); ?>';
 			errorMsg = error.replace('%1s', filename);
+		}
 
-			fullErrorMsg = '<label class="o-alert o-alert--icon o-alert--danger">' + errorMsg + '</label>';
+		if (filesize > 0 && maxSize > 0 && filesize > maxSize) {
+			var error = '<?php echo JText::_('COM_ED_FILE_ATTACHMENTS_EXCEEDED_MAXSIZE', true); ?>';
+			errorMsg = error.replace('%1s', filename);
+		}
 
+		if (errorMsg) {
+			var fullErrorMsg = '<label class="o-alert o-alert--icon o-alert--danger">' + errorMsg + '</label>';
 			info.html(fullErrorMsg);
+
+			// remove existing file input form
+			form.remove();
+
+			// reset the form
+			resetAttachmentForm();
+
 			return false;
 		}
 
@@ -155,6 +179,8 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 		// Add it into the list
 		form.appendTo(list);
+
+		console.log('here?');
 
 		var itemCount = list.find('.attachment-item');
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -11,15 +11,17 @@ namespace Akeeba\Backup\Admin\Controller;
 defined('_JEXEC') or die();
 
 use Akeeba\Backup\Admin\Controller\Mixin\CustomACL;
+use Akeeba\Backup\Admin\Model\Mixin\GetErrorsFromExceptions;
 use Akeeba\Backup\Admin\View\Upload\Html as UploadView;
 use Akeeba\Engine\Platform;
+use Exception;
 use FOF30\Controller\Controller;
 use JText;
-use RuntimeException;
 
 class Upload extends Controller
 {
 	use CustomACL;
+	use GetErrorsFromExceptions;
 
 	/**
 	 *
@@ -28,7 +30,7 @@ class Upload extends Controller
 	public function upload()
 	{
 		// Get the parameters from the URL
-		$id = $this->getAndCheckId();
+		$id   = $this->getAndCheckId();
 		$part = $this->input->get('part', 0, 'int');
 		$frag = $this->input->get('frag', 0, 'int');
 
@@ -41,66 +43,61 @@ class Upload extends Controller
 			return;
 		}
 
-		// Set the model state
-		/** @var \Akeeba\Backup\Admin\Model\Upload $model */
-		$model = $this->getModel();
-		$model->setState('id', $id);
-		$model->setState('part', $part);
-		$model->setState('frag', $frag);
+		/**
+		 * Get the View and initialize its layout
+		 * @var UploadView $view
+		 */
+		$view        = $this->getView();
+		$view->done  = 0;
+		$view->error = 0;
 
-		// Try uploading
-		$error = '';
+		$view->setLayout('uploading');
 
 		try
 		{
-			$result = $model->upload();
+			/** @var \Akeeba\Backup\Admin\Model\Upload $model */
+			$model  = $this->getModel();
+			$result = $model->upload($id, $part, $frag);
 		}
-		catch (RuntimeException $e)
+		catch (Exception $e)
 		{
-			$result = false;
-			$error = $e->getMessage();
+			// If we have an error we have to display it and stop the upload
+			$view->done         = 0;
+			$view->error        = 1;
+			$view->errorMessage = implode("\n", $this->getErrorsFromExceptions($e));
+
+			$view->setLayout('error');
+
+			// Also reset the saved post-processing engine
+			$this->container->platform->setSessionVar('upload_factory', null, 'akeeba');
+
+			$this->display(false, false);
+
+			return;
 		}
+		finally
+		{
+			// Get the modified model state
+			$part = $model->getState('part');
+			$stat = $model->getState('stat');
 
-		// Get the modified model state
-		$id = $model->getState('id');
-		$part = $model->getState('part');
-		$frag = $model->getState('frag');
-		$stat = $model->getState('stat');
-		$remote_filename = $model->getState('remotename');
-
-		// Push the state to the view. We assume we have to continue uploading. We only change that if we detect an
-		// upload completion or error condition in the if-blocks further below.
-		/** @var UploadView $view */
-		$view = $this->getView();
-
-		$view->setLayout('uploading');
-		$view->parts = $stat['multipart'];
-		$view->part = $part;
-		$view->frag = $frag;
-		$view->id = $id;
-		$view->done = 0;
-		$view->error = 0;
+			// Push the state to the view. We assume we have to continue uploading. We only change that if we detect an
+			// upload completion or error condition in the if-blocks further below.
+			$view->parts = $stat['multipart'];
+			$view->part  = $part;
+			$view->frag  = $model->getState('frag');
+			$view->id    = $model->getState('id');
+		}
 
 		if (($part >= 0) && ($result === true))
 		{
 			// If we are told the upload finished successfully we can display the "done" page
 			$view->setLayout('done');
-			$view->done = 1;
+			$view->done  = 1;
 			$view->error = 0;
 
 			// Also reset the saved post-processing engine
-			$this->container->platform->setSessionVar('postproc_engine', null, 'akeeba');
-		}
-		elseif ($result === false)
-		{
-			// If we have an error we have to display it and stop the upload
-			$view->done = 0;
-			$view->error = 1;
-			$view->errorMessage = $error;
-			$view->setLayout('error');
-
-			// Also reset the saved post-processing engine
-			$this->container->platform->setSessionVar('postproc_engine', null, 'akeeba');
+			$this->container->platform->setSessionVar('upload_factory', null, 'akeeba');
 		}
 
 		$this->display(false, false);
@@ -109,8 +106,8 @@ class Upload extends Controller
 	/**
 	 * This task is called when we have to cancel the upload
 	 *
-	 * @param bool $cachable
-	 * @param bool $urlparams
+	 * @param   bool  $cachable
+	 * @param   bool  $urlparams
 	 */
 	public function cancelled($cachable = false, $urlparams = false)
 	{
@@ -140,13 +137,13 @@ class Upload extends Controller
 		}
 
 		// Start by resetting the saved post-processing engine
-		$this->container->platform->setSessionVar('postproc_engine', null, 'akeeba');
+		$this->container->platform->setSessionVar('upload_factory', null, 'akeeba');
 
 		// Initialise the view
 		/** @var UploadView $view */
 		$view = $this->getView();
 
-		$view->done = 0;
+		$view->done  = 0;
 		$view->error = 0;
 
 		$view->id = $id;

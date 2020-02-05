@@ -1,17 +1,15 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Util\Log;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 /**
  * The interface for Akeeba Engine logger objects
@@ -22,7 +20,7 @@ interface LogInterface
 	 * Open a new log instance with the specified tag. If another log is already open it is closed before switching to
 	 * the new log tag. If the tag is null use the default log defined in the logging system.
 	 *
-	 * @param  string|null  $tag  The log to open
+	 * @param   string|null  $tag  The log to open
 	 *
 	 * @return void
 	 */
@@ -53,7 +51,7 @@ interface LogInterface
 	 *
 	 * @return  void
 	 */
-	public function log($level, $message, array $context = array());
+	public function log($level, $message, array $context = []);
 
 	/**
 	 * Temporarily pause log output. The log() method MUST respect this.

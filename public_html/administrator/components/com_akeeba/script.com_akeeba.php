@@ -1,11 +1,13 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 // Protect from unauthorized access
+use FOF30\Container\Container as FOFContainer;
+
 defined('_JEXEC') or die();
 
 // Load FOF if not already loaded
@@ -115,6 +117,7 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			'administrator/components/com_akeeba/Controller/RegExDatabaseFilters.php',
 			'administrator/components/com_akeeba/Controller/RegExFileFilters.php',
 			'administrator/components/com_akeeba/Controller/RemoteFiles.php',
+			'administrator/components/com_akeeba/Controller/Schedule.php',
 			'administrator/components/com_akeeba/Controller/S3Import.php',
 			'administrator/components/com_akeeba/Controller/Upload.php',
 
@@ -125,6 +128,7 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			'administrator/components/com_akeeba/Model/RegExDatabaseFilters.php',
 			'administrator/components/com_akeeba/Model/RegExFileFilters.php',
 			'administrator/components/com_akeeba/Model/RemoteFiles.php',
+			'administrator/components/com_akeeba/Model/Schedule.php',
 			'administrator/components/com_akeeba/Model/S3Import.php',
 			'administrator/components/com_akeeba/Model/Upload.php',
 
@@ -160,11 +164,42 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 
 			'administrator/components/com_akeeba/sql/xml/postgresql.xml',
 			'administrator/components/com_akeeba/sql/xml/sqlsrv.xml',
+
+			// Version 7
+			// -- Integrated restoration
+			'administrator/components/com_akeeba/Controller/Restore.php',
+			'administrator/components/com_akeeba/Model/Restore.php',
+			'administrator/components/com_akeeba/restore.php',
+			'media/com_akeeba/js/Restore.min.js',
+			'media/com_akeeba/js/Restore.js',
+
+			// -- Site Transfer Wizard
+			'administrator/components/com_akeeba/Controller/Transfer.php',
+			'administrator/components/com_akeeba/Model/Transfer.php',
+			'media/com_akeeba/js/Transfer.min.js',
+			'media/com_akeeba/js/Transfer.js',
+
+			// -- other non-Core JS
+			'media/com_akeeba/js/Alice.min.js',
+			'media/com_akeeba/js/Alice.js',
+			'media/com_akeeba/js/IncludeFolders.min.js',
+			'media/com_akeeba/js/IncludeFolders.js',
+			'media/com_akeeba/js/MultipleDatabases.min.js',
+			'media/com_akeeba/js/MultipleDatabases.js',
+			'media/com_akeeba/js/RegExDatabaseFilters.min.js',
+			'media/com_akeeba/js/RegExDatabaseFilters.js',
+			'media/com_akeeba/js/RegExFileFilters.min.js',
+			'media/com_akeeba/js/RegExFileFilters.js',
+			'media/com_akeeba/js/RegExFileFilters.min.js',
+			'media/com_akeeba/js/RegExFileFilters.js',
+
 		],
 		'folders' => [
 			// Pro component features
 			'administrator/components/com_akeeba/Alice',
+
 			'administrator/components/com_akeeba/BackupPlatform/Joomla3x/Config/Pro',
+
 			'administrator/components/com_akeeba/View/Alice',
 			'administrator/components/com_akeeba/View/Discover',
 			'administrator/components/com_akeeba/View/IncludeFolders',
@@ -172,12 +207,31 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			'administrator/components/com_akeeba/View/RegExDatabaseFilters',
 			'administrator/components/com_akeeba/View/RegExFileFilter',
 			'administrator/components/com_akeeba/View/RemoteFiles',
+			'administrator/components/com_akeeba/View/Schedule',
 			'administrator/components/com_akeeba/View/S3Import',
 			'administrator/components/com_akeeba/View/Upload',
+
 			'administrator/components/com_akeeba/BackupEngine/Postproc/Connector',
 
 			// PostgreSQL and MS SQL Server support
 			'administrator/components/com_akeeba/BackupEngine/Dump/Reverse',
+
+			// Version 7
+			// -- Integrated restoration
+			'administrator/components/com_akeeba/View/Restore',
+			'administrator/components/com_akeeba/ViewTemplates/Restore',
+
+			// -- Site Transfer Wizard
+			'administrator/components/com_akeeba/View/Transfer',
+			'administrator/components/com_akeeba/ViewTemplates/Transfer',
+
+			// -- JSON API, legacy backup feature, failed backup checks
+			'components/com_akeeba/Controller',
+			'components/com_akeeba/Model',
+
+			// -- Archive integrity check
+			'administrator/components/com_akeeba/BackupPlatform/Joomla3x/Finalization',
+
 		],
 	];
 
@@ -252,68 +306,6 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			// Integrity check (obsolete)
 			'administrator/components/com_akeeba/fileslist.php',
 
-			// Blade files (replaced by regular PHP view files)
-			"administrator/components/com_akeeba/View/Alice/tmpl/default.blade.php",
-			"administrator/components/com_akeeba/View/Backup/tmpl/default.blade.php",
-			"administrator/components/com_akeeba/View/Backup/tmpl/script.blade.php",
-			"administrator/components/com_akeeba/View/Browser/tmpl/default.blade.php",
-			"administrator/components/com_akeeba/View/CommonTemplates/tmpl/ErrorModal.blade.php",
-			"administrator/components/com_akeeba/View/CommonTemplates/tmpl/FolderBrowser.blade.php",
-			"administrator/components/com_akeeba/View/CommonTemplates/tmpl/FTPBrowser.blade.php",
-			"administrator/components/com_akeeba/View/CommonTemplates/tmpl/FTPConnectionTest.blade.php",
-			"administrator/components/com_akeeba/View/CommonTemplates/tmpl/ProfileName.blade.php",
-			"administrator/components/com_akeeba/View/CommonTemplates/tmpl/SFTPBrowser.blade.php",
-			"administrator/components/com_akeeba/View/Configuration/tmpl/confwiz_modal.blade.php",
-			"administrator/components/com_akeeba/View/Configuration/tmpl/default.blade.php",
-			"administrator/components/com_akeeba/View/ConfigurationWizard/tmpl/wizard.blade.php",
-			"administrator/components/com_akeeba/View/ControlPanel/tmpl/default.blade.php",
-			"administrator/components/com_akeeba/View/ControlPanel/tmpl/footer.blade.php",
-			"administrator/components/com_akeeba/View/ControlPanel/tmpl/icons_advanced.blade.php",
-			"administrator/components/com_akeeba/View/ControlPanel/tmpl/icons_basic.blade.php",
-			"administrator/components/com_akeeba/View/ControlPanel/tmpl/icons_includeexclude.blade.php",
-			"administrator/components/com_akeeba/View/ControlPanel/tmpl/icons_troubleshooting.blade.php",
-			"administrator/components/com_akeeba/View/ControlPanel/tmpl/oneclick.blade.php",
-			"administrator/components/com_akeeba/View/ControlPanel/tmpl/profile.blade.php",
-			"administrator/components/com_akeeba/View/ControlPanel/tmpl/sidebar_backup.blade.php",
-			"administrator/components/com_akeeba/View/ControlPanel/tmpl/sidebar_status.blade.php",
-			"administrator/components/com_akeeba/View/ControlPanel/tmpl/warning_phpversion.blade.php",
-			"administrator/components/com_akeeba/View/ControlPanel/tmpl/warnings.blade.php",
-			"administrator/components/com_akeeba/View/DatabaseFilters/tmpl/default.blade.php",
-			"administrator/components/com_akeeba/View/DatabaseFilters/tmpl/tabular.blade.php",
-			"administrator/components/com_akeeba/View/Discover/tmpl/default.blade.php",
-			"administrator/components/com_akeeba/View/Discover/tmpl/discover.blade.php",
-			"administrator/components/com_akeeba/View/FileFilters/tmpl/default.blade.php",
-			"administrator/components/com_akeeba/View/FileFilters/tmpl/tabular.blade.php",
-			"administrator/components/com_akeeba/View/IncludeFolders/tmpl/default.blade.php",
-			"administrator/components/com_akeeba/View/Log/tmpl/default.blade.php",
-			"administrator/components/com_akeeba/View/Manage/tmpl/comment.blade.php",
-			"administrator/components/com_akeeba/View/Manage/tmpl/default.blade.php",
-			"administrator/components/com_akeeba/View/Manage/tmpl/howtorestore_modal.blade.php",
-			"administrator/components/com_akeeba/View/Manage/tmpl/manage_column.blade.php",
-			"administrator/components/com_akeeba/View/MultipleDatabases/tmpl/default.blade.php",
-			"administrator/components/com_akeeba/View/Profiles/tmpl/default.blade.php",
-			"administrator/components/com_akeeba/View/Profiles/tmpl/form.blade.php",
-			"administrator/components/com_akeeba/View/RegExDatabaseFilters/tmpl/default.blade.php",
-			"administrator/components/com_akeeba/View/RegExFileFilter/tmpl/default.blade.php",
-			"administrator/components/com_akeeba/View/RemoteFiles/tmpl/default.blade.php",
-			"administrator/components/com_akeeba/View/RemoteFiles/tmpl/dlprogress.blade.php",
-			"administrator/components/com_akeeba/View/Restore/tmpl/default.blade.php",
-			"administrator/components/com_akeeba/View/Restore/tmpl/restore.blade.php",
-			"administrator/components/com_akeeba/View/S3Import/tmpl/default.blade.php",
-			"administrator/components/com_akeeba/View/S3Import/tmpl/downloading.blade.php",
-			"administrator/components/com_akeeba/View/Schedule/tmpl/default.blade.php",
-			"administrator/components/com_akeeba/View/Schedule/tmpl/default_checkbackups.blade.php",
-			"administrator/components/com_akeeba/View/Schedule/tmpl/default_runbackups.blade.php",
-			"administrator/components/com_akeeba/View/Transfer/tmpl/default.blade.php",
-			"administrator/components/com_akeeba/View/Transfer/tmpl/default_manualtransfer.blade.php",
-			"administrator/components/com_akeeba/View/Transfer/tmpl/default_prerequisites.blade.php",
-			"administrator/components/com_akeeba/View/Transfer/tmpl/default_remoteconnection.blade.php",
-			"administrator/components/com_akeeba/View/Transfer/tmpl/default_upload.blade.php",
-			"administrator/components/com_akeeba/View/Upload/tmpl/default.blade.php",
-			"administrator/components/com_akeeba/View/Upload/tmpl/done.blade.php",
-			"administrator/components/com_akeeba/View/Upload/tmpl/error.blade.php",
-			"administrator/components/com_akeeba/View/Upload/tmpl/uploading.blade.php",
-
 			// Dropbox v1 integration
 			'administrator/components/com_akeeba/BackupEngine/Postproc/dropbox.ini',
 			'administrator/components/com_akeeba/BackupEngine/Postproc/Dropbox.php',
@@ -333,7 +325,7 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			'media/com_akeeba/icons/akeeba-ui-32.png',
 			'media/com_akeeba/changelog.png',
 
-			// Microsoft sucks. Go get some real storage from a company that knows what they are doing.
+			// I would have loved including an OneDrive for Business connector but Microsoft killed the API :(
 			'administrator/components/com_akeeba/BackupEngine/Postproc/onedrivebusiness.ini',
 			'administrator/components/com_akeeba/BackupEngine/Postproc/Onedrivebusiness.php',
 			'administrator/components/com_akeeba/BackupEngine/Postproc/Connector/OneDriveBusiness.php',
@@ -400,6 +392,23 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 
 			// Obsolete eAccelerator warning
 			"administrator/components/com_akeeba/View/eaccelerator.php",
+
+			// Engine 7
+			'administrator/components/com_akeeba/BackupEngine/Base/BaseObject.php',
+
+			// ALICE refactoring
+			'media/com_akeeba/js/Stepper.min.js',
+
+			// Version 7 -- Remove non-RAW encapsulation
+			"components/com_akeeba/Model/Json/Encapsulation/AesCbc128.php",
+			"components/com_akeeba/Model/Json/Encapsulation/AesCbc256.php",
+			"components/com_akeeba/Model/Json/Encapsulation/AesCtr128.php",
+			"components/com_akeeba/Model/Json/Encapsulation/AesCtr256.php",
+
+			// pCloud
+//			"administrator/components/com_akeeba/BackupEngine/Postproc/Connector/Pcloud.php",
+//			"administrator/components/com_akeeba/BackupEngine/Postproc/pcloud.json",
+//			"administrator/components/com_akeeba/BackupEngine/Postproc/Pcloud.php",
 		],
 		'folders' => [
 			// Directories used up to version 4.1 (inclusive)
@@ -458,6 +467,40 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 
 			// Common tables (they're installed by FOF)
 			'administrator/components/com_akeeba/sql/common',
+
+			// ALICE refactoring
+			"administrator/components/com_akeeba/AliceEngine",
+
+			// Convert views to Blade
+			"administrator/components/com_akeeba/View/Alice/tmpl",
+			"administrator/components/com_akeeba/View/Backup/tmpl",
+			"administrator/components/com_akeeba/View/Browser/tmpl",
+			"administrator/components/com_akeeba/View/CommonTemplates",
+			"administrator/components/com_akeeba/View/Configuration/tmpl",
+			"administrator/components/com_akeeba/View/ConfigurationWizard/tmpl",
+			"administrator/components/com_akeeba/View/ControlPanel/tmpl",
+			"administrator/components/com_akeeba/View/DatabaseFilters/tmpl",
+			"administrator/components/com_akeeba/View/Discover/tmpl",
+			"administrator/components/com_akeeba/View/FileFilters/tmpl",
+			"administrator/components/com_akeeba/View/IncludeFolders/tmpl",
+			"administrator/components/com_akeeba/View/Log/tmpl",
+			"administrator/components/com_akeeba/View/Manage/tmpl",
+			"administrator/components/com_akeeba/View/MultipleDatabases/tmpl",
+			"administrator/components/com_akeeba/View/Profiles/tmpl",
+			"administrator/components/com_akeeba/View/RegExDatabaseFilters/tmpl",
+			"administrator/components/com_akeeba/View/RegExFileFilter/tmpl",
+			"administrator/components/com_akeeba/View/RemoteFiles/tmpl",
+			"administrator/components/com_akeeba/View/Restore/tmpl",
+			"administrator/components/com_akeeba/View/S3Import/tmpl",
+			"administrator/components/com_akeeba/View/Schedule/tmpl",
+			"administrator/components/com_akeeba/View/Transfer/tmpl",
+			"administrator/components/com_akeeba/View/Upload/tmpl",
+
+			// Base CLI script -- replaced with FOF
+			'administrator/components/com_akeeba/Master/Cli',
+
+			// 7.0.0 alpha base plugin
+			'administrator/components/com_akeeba/Master/AkeebaPlugin',
 		],
 	];
 
@@ -548,7 +591,7 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 		{
 			try
 			{
-				$container = \FOF30\Container\Container::getInstance('com_akeeba');
+				$container = FOFContainer::getInstance('com_akeeba');
 			}
 			catch (\Exception $e)
 			{
@@ -556,7 +599,7 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			}
 		}
 
-		if (is_object($container) && class_exists('FOF30\\Container\\Container') && ($container instanceof \FOF30\Container\Container))
+		if (is_object($container) && class_exists('FOF30\\Container\\Container') && ($container instanceof FOFContainer))
 		{
 			/** @var \Akeeba\Backup\Admin\Model\UsageStatistics $model */
 			try
@@ -600,6 +643,9 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 
 		// Replace the system plugin with the actionlog plugin for logging user actions
 		$this->switchActionLogPlugins();
+
+		// Upgrade the old, single switch for front-end backups to the new two, separate switches
+		$this->upgradeFrontendEnableOption();
 	}
 
 	/**
@@ -670,7 +716,7 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 		{
 			try
 			{
-				$container = \FOF30\Container\Container::getInstance('com_akeeba');
+				$container = FOFContainer::getInstance('com_akeeba');
 			}
 			catch (\Exception $e)
 			{
@@ -678,7 +724,7 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			}
 		}
 
-		if (is_object($container) && class_exists('FOF30\\Container\\Container') && ($container instanceof \FOF30\Container\Container))
+		if (is_object($container) && class_exists('FOF30\\Container\\Container') && ($container instanceof FOFContainer))
 		{
 			/** @var \Akeeba\Backup\Admin\Model\UsageStatistics $model */
 			try
@@ -1200,5 +1246,33 @@ HTML;
 		{
 			// I tried, I failed. Dear user, do NOT try to enable that old plugin. Bye!
 		}
+	}
+
+	/**
+	 * Upgrades the frontend_enable option to the two separate legacyapi_enabled and jsonapi_enabled options.
+	 *
+	 * Akeeba Backup 5 and 6 had a single component option, 'frontend_enable', to control both the Legacy Front-end
+	 * Backup Feature. Since Akeeba Backup 7.0.0.b1 we have two separate options, legacyapi_enabled and jsonapi_enabled.
+	 * This method detects the old-style component option and upgrades it to the two separate ones.
+	 *
+	 * @return  void
+	 * @since   7.0.0.b1
+	 */
+	private function upgradeFrontendEnableOption()
+	{
+		$container = FOFContainer::getInstance('com_akeeba');
+		$container->params->reload();
+		$oldValue = $container->params->get('frontend_enable', -1);
+
+		if (!in_array($oldValue, [0, 1]))
+		{
+			return;
+		}
+
+		$container->params->set('legacyapi_enabled', $oldValue);
+		$container->params->set('jsonapi_enabled', $oldValue);
+		$container->params->set('frontend_enable', -1);
+
+		$container->params->save();
 	}
 }

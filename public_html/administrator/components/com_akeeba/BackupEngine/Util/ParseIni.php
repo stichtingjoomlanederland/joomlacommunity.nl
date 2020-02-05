@@ -1,17 +1,15 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Util;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 /**
  * A utility class to parse INI files.
@@ -76,7 +74,9 @@ abstract class ParseIni
 			}
 
 			// !!! VERY IMPORTANT !!! Read the warning above before touching this line
-			return array_map([__CLASS__, 'recursiveUnescape'], parse_ini_string($file, $process_sections, INI_SCANNER_RAW));
+			return array_map([
+				__CLASS__, 'recursiveUnescape',
+			], parse_ini_string($file, $process_sections, INI_SCANNER_RAW));
 		}
 
 		if (!function_exists('parse_ini_file'))
@@ -111,9 +111,9 @@ abstract class ParseIni
 	 * Thanks to asohn ~at~ aircanopy ~dot~ net for posting this handy function on
 	 * the parse_ini_file page on http://gr.php.net/parse_ini_file
 	 *
-	 * @param    string $file             Filename to process
-	 * @param    bool   $process_sections True to also process INI sections
-	 * @param    bool   $rawdata          If true, the $file contains raw INI data, not a filename
+	 * @param   string  $file              Filename to process
+	 * @param   bool    $process_sections  True to also process INI sections
+	 * @param   bool    $rawdata           If true, the $file contains raw INI data, not a filename
 	 *
 	 * @return    array    An associative array of sections, keys and values
 	 */
@@ -128,24 +128,24 @@ abstract class ParseIni
 		else
 		{
 			$file = str_replace("\r", "", $file);
-			$ini = explode("\n", $file);
+			$ini  = explode("\n", $file);
 		}
 
 		if (!is_array($ini))
 		{
-			return array();
+			return [];
 		}
 
 		if (count($ini) == 0)
 		{
-			return array();
+			return [];
 		}
 
-		$sections = array();
-		$values = array();
-		$result = array();
-		$globals = array();
-		$i = 0;
+		$sections = [];
+		$values   = [];
+		$result   = [];
+		$globals  = [];
+		$i        = 0;
 		foreach ($ini as $line)
 		{
 			$line = trim($line);
@@ -160,7 +160,7 @@ abstract class ParseIni
 			// Sections
 			if ($line[0] == '[')
 			{
-				$tmp = explode(']', $line);
+				$tmp        = explode(']', $line);
 				$sections[] = trim(substr($tmp[0], 1));
 				$i++;
 				continue;
@@ -172,7 +172,7 @@ abstract class ParseIni
 			{
 				continue;
 			}
-			$key = trim($lineParts[0]);
+			$key   = trim($lineParts[0]);
 			$value = trim($lineParts[1]);
 			unset($lineParts);
 

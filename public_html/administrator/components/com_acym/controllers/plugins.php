@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class PluginsController extends acymController
 {
@@ -20,7 +11,7 @@ class PluginsController extends acymController
         parent::__construct();
         $this->breadcrumb[acym_translation('ACYM_ADD_ONS')] = acym_completeLink('plugins');
         $this->loadScripts = [
-            'all' => ['vue-applications'],
+            'all' => ['vue-applications' => ['available_plugins', 'installed_plugins']],
         ];
 
         $this->setDefaultTask('installed');
@@ -222,7 +213,7 @@ class PluginsController extends acymController
     public function getAllPlugins()
     {
         $pluginClass = acym_get('class.plugin');
-        $plugins = $pluginClass->getMatchingElements();
+        $plugins = $pluginClass->getMatchingElements(['ordering' => 'title']);
 
         return json_encode($plugins);
     }

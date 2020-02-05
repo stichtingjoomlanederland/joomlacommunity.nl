@@ -2,12 +2,12 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Top Members</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>10th October 2019</creationDate>
+	<creationDate>14th January 2020</creationDate>
 	<copyright>Copyright 2009 - 2016 Stack Ideas. All rights reserved.</copyright>
 	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://www.stackideas.com</authorUrl>
-	<version>4.1.12</version>
+	<version>4.1.13</version>
 	<description><![CDATA[Displays the top users from the site based on their contributions.]]></description>
 	<languages>
 		<language tag="en-GB">en-GB.mod_easydiscuss_top_members.ini</language>

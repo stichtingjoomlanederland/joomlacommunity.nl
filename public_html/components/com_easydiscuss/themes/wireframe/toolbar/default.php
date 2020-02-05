@@ -147,7 +147,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<?php if ($postTypes) { ?>
 				<div class="ed-toolbar__search-select">
 					<div class="o-select-group">
-						<?php echo $this->output('site/ask/post.types', array('selected' => $postTypeValue)); ?>
+						<?php echo $this->output('site/ask/post.types', array('selected' => $postTypeValue, 'uid' => uniqid())); ?>
 						<div class="o-select-group__drop"></div>
 					</div>
 				</div>

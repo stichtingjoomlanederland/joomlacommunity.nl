@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -50,11 +50,6 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
 	<a href="index.php?option=com_admintools&view=BadWords" class="akeeba-action--red">
         <span class="akion-flag"></span>
         <?php echo \JText::_('COM_ADMINTOOLS_TITLE_BADWORDS'); ?>
-	</a>
-
-	<a href="index.php?option=com_admintools&view=GeographicBlocking" class="akeeba-action--teal">
-        <span class="akion-earth"></span>
-        <?php echo \JText::_('COM_ADMINTOOLS_TITLE_GEOBLOCK'); ?>
 	</a>
 
 	<a href="index.php?option=com_admintools&view=SecurityExceptions" class="akeeba-action--grey">

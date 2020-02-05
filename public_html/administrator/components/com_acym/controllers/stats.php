@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class StatsController extends acymController
 {
@@ -66,12 +57,13 @@ class StatsController extends acymController
     private function prepareDetailedListing(&$data)
     {
         $userStatClass = acym_get('class.userstat');
+        $pagination = acym_get('helper.pagination');
 
         $search = acym_getVar('string', 'detailed_stats_search', '');
         $ordering = acym_getVar('string', 'detailed_stats_ordering', 'send_date');
         $orderingSortOrder = acym_getVar('string', 'detailed_stats_ordering_sort_order', 'desc');
 
-        $detailedStatsPerPage = acym_getCMSConfig('list_limit', 20);
+        $detailedStatsPerPage = $pagination->getListLimit();
         $page = acym_getVar('int', 'detailed_stats_pagination_page', 1);
 
         $matchingDetailedStats = $userStatClass->getDetailedStats(
@@ -85,7 +77,6 @@ class StatsController extends acymController
             ]
         );
 
-        $pagination = acym_get('helper.pagination');
         $pagination->setStatus($matchingDetailedStats['total'], $page, $detailedStatsPerPage);
 
         $data['search'] = $search;

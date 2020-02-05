@@ -36,12 +36,6 @@
         "title": "COM_AKEEBA_CONFIG_CLIENTSIDEWAIT_TITLE",
         "description": "COM_AKEEBA_CONFIG_CLIENTSIDEWAIT_DESCRIPTION"
     },
-    "akeeba.basic.useiframe": {
-        "default": "0",
-        "type": "bool",
-        "title": "COM_AKEEBA_CONFIG_USEIFRAMES_TITLE",
-        "description": "COM_AKEEBA_CONFIG_USEIFRAMES_DESCRIPTION"
-    },
     "akeeba.core.usedbstorage": {
         "default": "0",
         "type": "bool",

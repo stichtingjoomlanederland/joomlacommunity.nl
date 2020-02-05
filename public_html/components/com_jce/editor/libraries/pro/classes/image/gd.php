@@ -1,9 +1,9 @@
 <?php
 
 /**
- * @copyright 	Copyright (c) 2009-2019 Ryan Demmer. All rights reserved
+ * @copyright     Copyright (c) 2009-2020 Ryan Demmer. All rights reserved
  * @copyright   Copyright (C) 2005 - 2012 Open Source Matters, Inc. All rights reserved
- * @license   	GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * @license       GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * JCE is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
@@ -12,9 +12,6 @@
  * Based on JImage library from Joomla.Platform 11.3
  */
 defined('_JEXEC') or die;
-
-// load filter class
-require_once __DIR__.'/gd/filter.php';
 
 /**
  * Class to manipulate an image.
@@ -27,9 +24,9 @@ class WFImageGD
     protected $handle;
 
     /**
-     * @var string The source image path
+     * @var string The source image string or path
      */
-    protected $path = null;
+    protected $source = null;
 
     /**
      * @var array Whether or not different image formats are supported
@@ -70,7 +67,7 @@ class WFImageGD
 
         // If the source input is a resource, set it as the image handle.
         if (is_resource($source) && (get_resource_type($source) == 'gd')) {
-            $this->handle = &$source;
+            $this->handle = $source;
         } elseif (!empty($source) && is_string($source)) {
             // If the source input is not empty, assume it is a path and populate the image handle.
             $this->loadFile($source);
@@ -138,7 +135,7 @@ class WFImageGD
 
             $used = memory_get_usage(true);
 
-            return $image->width * $image->height * $channels * 1.7 < $limit - $used;
+            return $image->width * $image->height * $channels * 1.6 < $limit - $used;
         }
 
         return true;
@@ -179,13 +176,13 @@ class WFImageGD
     }
 
     /**
-     * Method to return the path.
+     * Method to return the source path or string.
      *
      * @return string
      */
-    public function getPath()
+    public function getSource()
     {
-        return $this->path;
+        return $this->source;
     }
 
     /**
@@ -247,9 +244,11 @@ class WFImageGD
 
                 // Attempt to create the image handle.
                 $handle = imagecreatefromgif($path);
+
                 if (!is_resource($handle)) {
                     throw new RuntimeException('Unable to process GIF image.');
                 }
+
                 $this->handle = $handle;
                 break;
 
@@ -261,9 +260,11 @@ class WFImageGD
 
                 // Attempt to create the image handle.
                 $handle = imagecreatefromjpeg($path);
+
                 if (!is_resource($handle)) {
                     throw new RuntimeException('Unable to process JPG image.');
                 }
+
                 $this->handle = $handle;
                 break;
 
@@ -275,19 +276,21 @@ class WFImageGD
 
                 // Attempt to create the image handle.
                 $handle = imagecreatefrompng($path);
+
                 if (!is_resource($handle)) {
                     throw new RuntimeException('Unable to process PNG image.');
                 }
+
                 $this->handle = $handle;
                 break;
 
             default:
-                throw new InvalidArgumentException('Attempting to load an image of unsupported type: '.$properties->mime);
+                throw new InvalidArgumentException('Attempting to load an image of unsupported type: ' . $properties->mime);
                 break;
         }
 
         // Set the filesystem path to the source image.
-        $this->path = $path;
+        $this->source = $path;
 
         // set type
         $this->setType(exif_imagetype($path));
@@ -303,10 +306,28 @@ class WFImageGD
      */
     public function loadString($string)
     {
+        // try and get image data from the first 32Kb of the string
+        $info = @getimagesizefromstring(substr($string, 0, 32768));
+
+        if ($info) {
+            $properties = (object) array(
+                'width' => $info[0],
+                'height' => $info[1],
+                'type' => $info[2],
+                'mime' => $info['mime'],
+            );
+
+            if (self::checkMem($properties) === false) {
+                throw new RuntimeException('Insufficient memory available to process this image.');
+            }
+        }
+
         $handle = imagecreatefromstring($string);
 
         if (is_resource($handle) && get_resource_type($handle) == 'gd') {
             $this->handle = $handle;
+            $this->source = $string;
+
         } else {
             imagedestroy($handle);
             throw new RuntimeException('Attempting to load an image of unsupported type.');
@@ -507,9 +528,6 @@ class WFImageGD
             return $this;
         }
 
-        // empty string
-        $string = '';
-
         $width = $this->getWidth();
         $height = $this->getHeight();
 
@@ -520,10 +538,7 @@ class WFImageGD
         imagecopyresampled($handle, $this->handle, 0, 0, 0, 0, $width, $height, $this->getWidth(), $this->getHeight());
 
         // Get GD image resource as JPEG string
-        ob_start();
-        imagejpeg($handle, '');
-        $string = ob_get_contents();
-        ob_end_clean();
+        $string = imagejpeg($handle);
 
         if ($string) {
             // change the JPEG header to resolution
@@ -677,7 +692,7 @@ class WFImageGD
         // Rotate the image
         $handle = imagerotate($handle, $angle, $background);
 
-        // If we are resizing to a new image, create a new JImage object.
+        // If we are resizing to a new image, create a new object.
         if ($createNew) {
             $new = new self($handle);
 
@@ -737,27 +752,60 @@ class WFImageGD
         }
     }
 
-    /**
-     * Method to apply a filter to the image by type.  Two examples are: grayscale and sketchy.
-     *
-     * @param string $type    The name of the image filter to apply
-     * @param array  $options An array of options for the filter
-     *
-     * @return WFImage
-     *
-     * @see     WFImageFilter
-     *
-     * @throws LogicException
-     * @throws RuntimeException
-     */
-    public function filter($type, array $options = array())
+    public function orientate()
     {
-        // Get the image filter instance.
-        $filter = $this->getFilterInstance($type);
+        // only resample jpeg images
+        if ($this->getType() !== IMAGETYPE_JPEG) {
+            return false;
+        }
 
-        // Execute the image filter.
-        $filter->execute($options);
+        $angle = 0;
 
+        // check if exif_read_data disabled...
+        if (function_exists('exif_read_data')) {
+            $source = $this->source;
+
+            $orientation = 0;
+
+            // get exif data from string
+            if (strlen($source) > 256) {
+                $source = "data://image/jpeg;base64," . base64_encode(substr($source, 0, 32768));
+            }
+
+            $exif = @exif_read_data($source, 'EXIF');
+
+            if ($exif && !empty($exif['Orientation'])) {
+                $orientation = (int) $exif['Orientation'];
+            }
+
+            // Fix Orientation
+            switch ($orientation) {
+                case 3:
+                    $angle = 180;
+                    break;
+                case 6:
+                    $angle = 90;
+                    break;
+                case 8:
+                    $angle = 270;
+                    break;
+            }
+        }
+
+        if ($angle) {
+            $rotation = imagerotate($this->handle, -$angle, 0);
+
+            if ($rotation) {
+                $this->handle = $rotation;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function removeExif()
+    {
         return $this;
     }
 
@@ -810,8 +858,6 @@ class WFImageGD
                 break;
         }
 
-        $this->destroy();
-
         return $result;
     }
 
@@ -829,41 +875,6 @@ class WFImageGD
         return $this->toFile(null, $type, $options);
     }
 
-    /**
-     * Method to get an image filter instance of a specified type.
-     *
-     * @param string $type The image filter type to get
-     *
-     * @return WFImageFilter
-     *
-     * @throws RuntimeException
-     */
-    protected function getFilterInstance($type)
-    {
-        // Sanitize the filter type.
-        $type = strtolower(preg_replace('#[^A-Z0-9_]#i', '', $type));
-
-        // load the filter
-        require_once dirname(__FILE__).'/gd/filters/'.$type.'.php';
-
-        // Verify that the filter type exists.
-        $className = 'WFImageGDFilter'.ucfirst($type);
-
-        if (!class_exists($className)) {
-            throw new RuntimeException('The '.ucfirst($type).' image filter is not available.');
-        }
-
-        // Instantiate the filter object.
-        $instance = new $className($this->handle);
-
-        // Verify that the filter type is valid.
-        if (!($instance instanceof WFImageGDFilter)) {
-            throw new RuntimeException('The '.ucfirst($type).' image filter is not valid.');
-        }
-
-        return $instance;
-    }
-
     public function getType()
     {
         return self::$type;
@@ -872,6 +883,35 @@ class WFImageGD
     public function setType($type)
     {
         self::$type = $type;
+    }
+
+    public function backup()
+    {
+        return $this->handle;
+    }
+
+    public function restore($resource)
+    {
+        if (!is_resource($resource) || get_resource_type($resource) !== 'gd') {
+            throw new LogicException('Invalid image resource');
+        }
+
+        imagedestroy($this->handle);
+
+        /*$width = imagesx($resource);
+        $height = imagesy($resource);
+
+        // Create the new truecolor image handle.
+        $clone = imagecreatetruecolor($width, $height);
+
+        // Allow transparency for the new image handle.
+        imagealphablending($clone, false);
+        imagesavealpha($clone, true);
+
+        // Copy the image
+        imagecopy($clone, $resource, 0, 0, 0, 0, $width, $height);*/
+
+        $this->handle = $resource;
     }
 
     public function destroy()

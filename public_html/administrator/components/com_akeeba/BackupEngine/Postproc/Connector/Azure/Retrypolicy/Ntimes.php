@@ -1,11 +1,10 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 /**
@@ -42,11 +41,11 @@
 
 namespace Akeeba\Engine\Postproc\Connector\Azure\Retrypolicy;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Postproc\Connector\Azure\Exception\Retrypolicy as RetrypolicyException;
 use Akeeba\Engine\Postproc\Connector\Azure\Retrypolicy;
+use Exception;
 
 /**
  * @category   Microsoft
@@ -74,26 +73,26 @@ class Ntimes extends Retrypolicy
 	/**
 	 * Constructor
 	 *
-	 * @param int $count                  Number of retries
-	 * @param int $intervalBetweenRetries Interval between retries (in milliseconds)
+	 * @param   int  $count                   Number of retries
+	 * @param   int  $intervalBetweenRetries  Interval between retries (in milliseconds)
 	 */
 	public function __construct($count = 1, $intervalBetweenRetries = 0)
 	{
-		$this->_retryCount = $count;
+		$this->_retryCount    = $count;
 		$this->_retryInterval = $intervalBetweenRetries;
 	}
 
 	/**
 	 * Execute function under retry policy
 	 *
-	 * @param string|array $function   Function to execute
-	 * @param array        $parameters Parameters for function call
+	 * @param   string|array  $function    Function to execute
+	 * @param   array         $parameters  Parameters for function call
 	 *
 	 * @return mixed
 	 *
 	 * @throws RetrypolicyException
 	 */
-	public function execute($function, $parameters = array())
+	public function execute($function, $parameters = [])
 	{
 		$returnValue = null;
 
@@ -105,7 +104,7 @@ class Ntimes extends Retrypolicy
 
 				return $returnValue;
 			}
-			catch (\Exception $ex)
+			catch (Exception $ex)
 			{
 				if ($retriesLeft == 1)
 				{

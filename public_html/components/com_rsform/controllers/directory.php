@@ -145,13 +145,13 @@ class RsformControllerDirectory extends RsformController
 
 		$app->setHeader('Cache-Control', 'public, must-revalidate');
 		$app->setHeader('Cache-Control', 'pre-check=0, post-check=0, max-age=0');
-		$app->setHeader('Pragma', 'must-revalidate');
+		$app->setHeader('Pragma', 'no-cache');
 		$app->setHeader('Expires', '0');
 		$app->setHeader('Content-Description', 'File Transfer');
+		$app->setHeader('Expires', 'Sat, 01 Jan 2000 01:00:00 GMT');
 		$app->setHeader('Content-Type', 'text/csv');
 		$app->setHeader('Content-Disposition', 'attachment; filename="'.$filename.'"');
-		$app->setHeader('Transfer-Encoding', 'binary');
-
+		$app->setHeader('Content-Transfer-Encoding', 'binary');
 		$app->sendHeaders();
 		
 		ob_end_clean();

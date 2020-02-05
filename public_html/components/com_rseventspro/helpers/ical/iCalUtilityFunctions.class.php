@@ -635,6 +635,8 @@ class iCalUtilityFunctions {
  * @return bool
  */
   public static function _isArrayDate( $input ) {
+	if (!is_array($input))
+		return FALSE;
     if( isset( $input['week'] ) || ( !in_array( count( $input ), array( 3, 6, 7 ))))
       return FALSE;
     if( 7 == count( $input ))

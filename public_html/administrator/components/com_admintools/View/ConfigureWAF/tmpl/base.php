@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -36,7 +36,8 @@ $timezoneName = $date->format('T', true);
 		<?php echo \JText::_('COM_ADMINTOOLS_CONFIGUREWAF_OPT_IPWORKAROUNDS'); ?>
 	</label>
 
-    <?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'ipworkarounds', $this->wafconfig['ipworkarounds']); ?>
+    <?php //echo \JHtml::_('FEFHelper.select.booleanswitch', 'ipworkarounds', $this->wafconfig['ipworkarounds']); ?>
+    <?php echo Select::ipworkarounds('ipworkarounds', '' , $this->wafconfig['ipworkarounds'])?>
 </div>
 
 <div class="akeeba-form-group">

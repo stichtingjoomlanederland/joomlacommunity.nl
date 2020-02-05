@@ -1,31 +1,55 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
-
-// Define ourselves as a parent file
-define('_JEXEC', 1);
-
-// Setup and import the base CLI script
-$minphp = '5.6.0';
-$curdir = __DIR__;
-
-require_once __DIR__ . '/../administrator/components/com_akeeba/Master/Cli/Base.php';
-
-// Enable and include Akeeba Engine
-define('AKEEBAENGINE', 1);
 
 use Akeeba\Engine\Platform;
 use Akeeba\Engine\Factory;
 
+// Enable and include Akeeba Engine
+define('AKEEBAENGINE', 1);
+
+// Setup and import the base CLI script
+$minphp = '5.6.0';
+
+// Boilerplate -- START
+define('_JEXEC', 1);
+
+foreach ([__DIR__, getcwd()] as $curdir)
+{
+	if (file_exists($curdir . '/defines.php'))
+	{
+		define('JPATH_BASE', realpath($curdir . '/..'));
+		require_once $curdir . '/defines.php';
+
+		break;
+	}
+
+	if (file_exists($curdir . '/../includes/defines.php'))
+	{
+		define('JPATH_BASE', realpath($curdir . '/..'));
+		require_once $curdir . '/../includes/defines.php';
+
+		break;
+	}
+}
+
+defined('JPATH_LIBRARIES') || die ('This script must be placed in or run from the cli folder of your site.');
+
+require_once JPATH_LIBRARIES . '/fof30/Cli/Application.php';
+// Boilerplate -- END
+
+// Load the version file
+require_once JPATH_ADMINISTRATOR . '/components/com_akeeba/version.php';
+
 /**
  * Akeeba Backup CLI application
  */
-class AkeebaBackupCLI extends AkeebaCliBase
+class AkeebaBackupCLI extends FOFApplicationCLI
 {
-	public function execute()
+	public function doExecute()
 	{
 		// Load the language files
 		$paths	 = array(JPATH_ADMINISTRATOR, JPATH_ROOT);
@@ -143,7 +167,7 @@ ENDBLOCK;
 		if ($verboseMode)
 		{
 			echo "Site paths determined by this script:\n";
-			echo "JPATH_BASE : " . JPATH_BASE . "\n";
+			echo "JPATH_BASE          : " . JPATH_BASE . "\n";
 			echo "JPATH_ADMINISTRATOR : " . JPATH_ADMINISTRATOR . "\n\n";
 		}
 
@@ -238,9 +262,12 @@ ENDBLOCK;
 				$stepWarnings = true;
 			}
 
+			$progress = sprintf('%u', array_key_exists('Progress', $array) ? $array['Progress'] : 0);
+
 			if (($verboseMode) || $stepWarnings)
 				echo <<<ENDSTEPINFO
 Last Tick   : $time
+Progress    : $progress %
 Domain      : {$array['Domain']}
 Step        : {$array['Step']}
 Substep     : {$array['Substep']}
@@ -395,14 +422,13 @@ An error has occurred:
 Could not decrypt settings for profile #$profile
 
 The settings for backup profile #$profile are stored encrypted in your database.
-However, PHP $phpversion ($phpenvironment) on your server -which you use to run this backup
-script- does not support encrypted settings. Since the settings cannot be read
-the backup has failed.
+This backup script tried decrypting them but failed. Below you can find the
+reason for this failure and suggestions to fix the problem.
 
-The detected errors are:
-
+Decryption failure reason:
 $flatErrors
 
+Suggestions for fixing it:
 $resolutionMessage
 ERROR;
 			$this->close(2);
@@ -410,8 +436,5 @@ ERROR;
 	}
 }
 
-// Load the version file
-require_once JPATH_ADMINISTRATOR . '/components/com_akeeba/version.php';
-
-// Instanciate and run the application
-AkeebaCliBase::getInstance('AkeebaBackupCLI')->execute();
+// Instantiate and run the application
+FOFApplicationCLI::getInstance('AkeebaBackupCLI')->execute();

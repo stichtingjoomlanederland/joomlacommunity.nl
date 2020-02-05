@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -299,8 +299,7 @@ class Manage extends Controller
 		$statistic['description'] = $description;
 		$statistic['comment']     = $comment;
 
-		$dummy  = null;
-		$result = Platform::getInstance()->set_or_update_statistics($id, $statistic, $dummy);
+		$result = Platform::getInstance()->set_or_update_statistics($id, $statistic);
 
 		$message = JText::_('COM_AKEEBA_BUADMIN_LOG_SAVEDOK');
 		$type    = 'message';

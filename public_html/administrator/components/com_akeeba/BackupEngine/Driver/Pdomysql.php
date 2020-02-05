@@ -1,19 +1,23 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Driver;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Driver\Query\Pdomysql as QueryPdomysql;
+use Exception;
+use PDO;
+use PDOException;
+use PDOStatement;
+use ReflectionClass;
+use RuntimeException;
 
 /**
  * PDO MySQL database driver for Akeeba Engine
@@ -22,29 +26,25 @@ use Akeeba\Engine\Driver\Query\Pdomysql as QueryPdomysql;
  */
 class Pdomysql extends Mysql
 {
-	/** @var \PDO The db connection resource */
-	protected $connection = null;
-
-	/** @var \PDOStatement The database connection cursor from the last query. */
-	protected $cursor;
-
-	/** @var string Connection character set */
-	protected $charset = 'utf8mb4';
-
-	/** @var array Driver options for PDO */
-	protected $driverOptions = array();
-
 	/**
 	 * The name of the database driver.
 	 *
 	 * @var    string
 	 */
 	public $name = 'pdomysql';
+	/** @var PDO The db connection resource */
+	protected $connection = null;
+	/** @var PDOStatement The database connection cursor from the last query. */
+	protected $cursor;
+	/** @var string Connection character set */
+	protected $charset = 'utf8mb4';
+	/** @var array Driver options for PDO */
+	protected $driverOptions = [];
 
 	/**
 	 * Database object constructor
 	 *
-	 * @param    array $options List of options used to configure the connection
+	 * @param   array  $options  List of options used to configure the connection
 	 */
 	public function __construct($options)
 	{
@@ -53,17 +53,17 @@ class Pdomysql extends Mysql
 		// Init
 		$this->nameQuote = '`';
 
-		$host = array_key_exists('host', $options) ? $options['host'] : 'localhost';
-		$port = array_key_exists('port', $options) ? $options['port'] : '';
-		$user = array_key_exists('user', $options) ? $options['user'] : '';
-		$password = array_key_exists('password', $options) ? $options['password'] : '';
-		$database = array_key_exists('database', $options) ? $options['database'] : '';
-		$prefix = array_key_exists('prefix', $options) ? $options['prefix'] : '';
-		$select = array_key_exists('select', $options) ? $options['select'] : true;
-		$charset = array_key_exists('charset', $options) ? $options['charset'] : 'utf8mb4';
-		$driverOptions = array_key_exists('driverOptions', $options) ? $options['driverOptions'] : array();
-		$connection = array_key_exists('connection', $options) ? $options['connection'] : null;
-		$socket = null;
+		$host          = array_key_exists('host', $options) ? $options['host'] : 'localhost';
+		$port          = array_key_exists('port', $options) ? $options['port'] : '';
+		$user          = array_key_exists('user', $options) ? $options['user'] : '';
+		$password      = array_key_exists('password', $options) ? $options['password'] : '';
+		$database      = array_key_exists('database', $options) ? $options['database'] : '';
+		$prefix        = array_key_exists('prefix', $options) ? $options['prefix'] : '';
+		$select        = array_key_exists('select', $options) ? $options['select'] : true;
+		$charset       = array_key_exists('charset', $options) ? $options['charset'] : 'utf8mb4';
+		$driverOptions = array_key_exists('driverOptions', $options) ? $options['driverOptions'] : [];
+		$connection    = array_key_exists('connection', $options) ? $options['connection'] : null;
+		$socket        = null;
 
 		// Figure out if a port is included in the host name
 		if (empty($port))
@@ -71,8 +71,8 @@ class Pdomysql extends Mysql
 			// Unlike mysql_connect(), mysqli_connect() takes the port and socket
 			// as separate arguments. Therefore, we have to extract them from the
 			// host string.
-			$port = null;
-			$socket = null;
+			$port       = null;
+			$socket     = null;
 			$targetSlot = substr(strstr($host, ":"), 1);
 			if (!empty($targetSlot))
 			{
@@ -97,26 +97,41 @@ class Pdomysql extends Mysql
 		}
 
 		// Open the connection
-		$this->host = $host;
-		$this->user = $user;
-		$this->password = $password;
-		$this->port = $port;
-		$this->socket = $socket;
-		$this->charset = $charset;
-		$this->_database = $database;
+		$this->host           = $host;
+		$this->user           = $user;
+		$this->password       = $password;
+		$this->port           = $port;
+		$this->socket         = $socket;
+		$this->charset        = $charset;
+		$this->_database      = $database;
 		$this->selectDatabase = $select;
-		$this->driverOptions = $driverOptions;
-		$this->tablePrefix = $prefix;
-		$this->connection = $connection;
-		$this->errorNum = 0;
-		$this->count = 0;
-		$this->log = array();
-		$this->options = $options;
+		$this->driverOptions  = $driverOptions;
+		$this->tablePrefix    = $prefix;
+		$this->connection     = $connection;
+		$this->errorNum       = 0;
+		$this->count          = 0;
+		$this->log            = [];
+		$this->options        = $options;
 
 		if (!is_object($this->connection))
 		{
 			$this->open();
 		}
+	}
+
+	/**
+	 * Test to see if the MySQL connector is available.
+	 *
+	 * @return  boolean  True on success, false otherwise.
+	 */
+	public static function isSupported()
+	{
+		if (!defined('\PDO::ATTR_DRIVER_NAME'))
+		{
+			return false;
+		}
+
+		return in_array('mysql', PDO::getAvailableDrivers());
 	}
 
 	public function open()
@@ -144,8 +159,8 @@ class Pdomysql extends Mysql
 			$format = 'mysql:socket=#SOCKET#;dbname=#DBNAME#;charset=#CHARSET#';
 		}
 
-		$replace = array('#HOST#', '#PORT#', '#SOCKET#', '#DBNAME#', '#CHARSET#');
-		$with = array($this->host, $this->port, $this->socket, $this->_database, $this->charset);
+		$replace = ['#HOST#', '#PORT#', '#SOCKET#', '#DBNAME#', '#CHARSET#'];
+		$with    = [$this->host, $this->port, $this->socket, $this->_database, $this->charset];
 
 		// Create the connection string:
 		$connectionString = str_replace($replace, $with, $format);
@@ -153,14 +168,14 @@ class Pdomysql extends Mysql
 		// connect to the server
 		try
 		{
-			$this->connection = new \PDO(
+			$this->connection = new PDO(
 				$connectionString,
 				$this->user,
 				$this->password,
 				$this->driverOptions
 			);
 		}
-		catch (\PDOException $e)
+		catch (PDOException $e)
 		{
 			// If we tried connecting through utf8mb4 and we failed let's retry with regular utf8
 			if ($this->charset == 'utf8mb4')
@@ -183,12 +198,12 @@ class Pdomysql extends Mysql
 			$this->connection->exec("SET @@SESSION.sql_mode = '';");
 		}
 			// Ignore any exceptions (incompatible MySQL versions)
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 		}
 
-		$this->connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-		$this->connection->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
+		$this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
 		if ($this->selectDatabase && !empty($this->_database))
 		{
@@ -215,8 +230,8 @@ class Pdomysql extends Mysql
 	/**
 	 * Method to escape a string for usage in an SQL statement.
 	 *
-	 * @param   string  $text  The string to be escaped.
-	 * @param   boolean $extra Optional parameter to provide extra escaping.
+	 * @param   string   $text   The string to be escaped.
+	 * @param   boolean  $extra  Optional parameter to provide extra escaping.
 	 *
 	 * @return  string  The escaped string.
 	 */
@@ -254,7 +269,7 @@ class Pdomysql extends Mysql
 		$this->freeResult();
 
 		// Take a local copy so that we don't modify the original query and cause issues later
-		$query = $this->replacePrefix((string)$this->sql);
+		$query = $this->replacePrefix((string) $this->sql);
 
 		if ($this->limit > 0 || $this->offset > 0)
 		{
@@ -280,14 +295,14 @@ class Pdomysql extends Mysql
 		{
 			$this->cursor = $this->connection->query($query);
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 		}
 
 		// If an error occurred handle it.
 		if (!$this->cursor)
 		{
-			$errorInfo = $this->connection->errorInfo();
+			$errorInfo      = $this->connection->errorInfo();
 			$this->errorNum = $errorInfo[1];
 			$this->errorMsg = $errorInfo[2] . ' SQL=' . $query;
 
@@ -303,13 +318,13 @@ class Pdomysql extends Mysql
 					$this->open();
 				}
 					// If connect fails, ignore that exception and throw the normal exception.
-				catch (\RuntimeException $e)
+				catch (RuntimeException $e)
 				{
-					throw new \RuntimeException($this->errorMsg, $this->errorNum);
+					throw new RuntimeException($this->errorMsg, $this->errorNum);
 				}
 
 				// Since we were able to reconnect, run the query again.
-				$result = $this->query();
+				$result         = $this->query();
 				$isReconnecting = false;
 
 				return $result;
@@ -317,26 +332,11 @@ class Pdomysql extends Mysql
 			// The server was not disconnected.
 			else
 			{
-				throw new \RuntimeException($this->errorMsg, $this->errorNum);
+				throw new RuntimeException($this->errorMsg, $this->errorNum);
 			}
 		}
 
 		return $this->cursor;
-	}
-
-	/**
-	 * Test to see if the MySQL connector is available.
-	 *
-	 * @return  boolean  True on success, false otherwise.
-	 */
-	public static function isSupported()
-	{
-		if (!defined('\PDO::ATTR_DRIVER_NAME'))
-		{
-			return false;
-		}
-
-		return in_array('mysql', \PDO::getAvailableDrivers());
 	}
 
 	/**
@@ -353,18 +353,18 @@ class Pdomysql extends Mysql
 
 		try
 		{
-			/** @var \PDOStatement $statement */
+			/** @var PDOStatement $statement */
 			$statement = $this->connection->prepare('SELECT 1');
 			$executed  = $statement->execute();
 			$ret       = 0;
 
 			if ($executed)
 			{
-				$row = array(0);
+				$row = [0];
 
-				if (!empty($statement) && $statement instanceof \PDOStatement)
+				if (!empty($statement) && $statement instanceof PDOStatement)
 				{
-					$row = $statement->fetch(\PDO::FETCH_NUM);
+					$row = $statement->fetch(PDO::FETCH_NUM);
 				}
 
 				$ret = $row[0];
@@ -376,7 +376,7 @@ class Pdomysql extends Mysql
 			$statement = null;
 		}
 			// If we catch an exception here, we must not be connected.
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			$status = false;
 		}
@@ -391,7 +391,7 @@ class Pdomysql extends Mysql
 	 */
 	public function getAffectedRows()
 	{
-		if ($this->cursor instanceof \PDOStatement)
+		if ($this->cursor instanceof PDOStatement)
 		{
 			return $this->cursor->rowCount();
 		}
@@ -402,18 +402,18 @@ class Pdomysql extends Mysql
 	/**
 	 * Get the number of returned rows for the previous executed SQL statement.
 	 *
-	 * @param   resource $cursor An optional database cursor resource to extract the row count from.
+	 * @param   resource  $cursor  An optional database cursor resource to extract the row count from.
 	 *
 	 * @return  integer   The number of returned rows.
 	 */
 	public function getNumRows($cursor = null)
 	{
-		if ($cursor instanceof \PDOStatement)
+		if ($cursor instanceof PDOStatement)
 		{
 			return $cursor->rowCount();
 		}
 
-		if ($this->cursor instanceof \PDOStatement)
+		if ($this->cursor instanceof PDOStatement)
 		{
 			return $this->cursor->rowCount();
 		}
@@ -424,7 +424,7 @@ class Pdomysql extends Mysql
 	/**
 	 * Get the current or query, or new JDatabaseQuery object.
 	 *
-	 * @param   boolean $new False to return the last query set, True to return a new JDatabaseQuery object.
+	 * @param   boolean  $new  False to return the last query set, True to return a new JDatabaseQuery object.
 	 *
 	 * @return  mixed  The current value of the internal SQL variable or a new JDatabaseQuery object.
 	 */
@@ -447,7 +447,7 @@ class Pdomysql extends Mysql
 	 */
 	public function getVersion()
 	{
-		return $this->connection->getAttribute(\PDO::ATTR_SERVER_VERSION);
+		return $this->connection->getAttribute(PDO::ATTR_SERVER_VERSION);
 	}
 
 	/**
@@ -459,7 +459,7 @@ class Pdomysql extends Mysql
 	{
 		$verParts = explode('.', $this->getVersion());
 
-		return ($verParts[0] == 5 || ($verParts[0] == 4 && $verParts[1] == 1 && (int)$verParts[2] >= 2));
+		return ($verParts[0] == 5 || ($verParts[0] == 4 && $verParts[1] == 1 && (int) $verParts[2] >= 2));
 	}
 
 	/**
@@ -476,7 +476,7 @@ class Pdomysql extends Mysql
 	/**
 	 * Select a database for use.
 	 *
-	 * @param   string $database The name of the database to select for use.
+	 * @param   string  $database  The name of the database to select for use.
 	 *
 	 * @return  boolean  True if the database was successfully selected.
 	 */
@@ -486,11 +486,12 @@ class Pdomysql extends Mysql
 		{
 			$this->connection->exec('USE ' . $this->quoteName($database));
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
-			$errorInfo = $this->connection->errorInfo();
+			$errorInfo      = $this->connection->errorInfo();
 			$this->errorNum = $errorInfo[1];
 			$this->errorMsg = $errorInfo[2];
+
 			return false;
 		}
 
@@ -538,32 +539,9 @@ class Pdomysql extends Mysql
 	}
 
 	/**
-	 * Method to fetch a row from the result set cursor as an array.
-	 *
-	 * @param   mixed $cursor The optional result set cursor from which to fetch the row.
-	 *
-	 * @return  mixed  Either the next row from the result set or false if there are no more rows.
-	 */
-	protected function fetchArray($cursor = null)
-	{
-		$ret = null;
-
-		if (!empty($cursor) && $cursor instanceof \PDOStatement)
-		{
-			$ret = $cursor->fetch(\PDO::FETCH_NUM);
-		}
-		elseif ($this->cursor instanceof \PDOStatement)
-		{
-			$ret = $this->cursor->fetch(\PDO::FETCH_NUM);
-		}
-
-		return $ret;
-	}
-
-	/**
 	 * Method to fetch a row from the result set cursor as an associative array.
 	 *
-	 * @param   mixed $cursor The optional result set cursor from which to fetch the row.
+	 * @param   mixed  $cursor  The optional result set cursor from which to fetch the row.
 	 *
 	 * @return  mixed  Either the next row from the result set or false if there are no more rows.
 	 */
@@ -571,37 +549,13 @@ class Pdomysql extends Mysql
 	{
 		$ret = null;
 
-		if (!empty($cursor) && $cursor instanceof \PDOStatement)
+		if (!empty($cursor) && $cursor instanceof PDOStatement)
 		{
-			$ret = $cursor->fetch(\PDO::FETCH_ASSOC);
+			$ret = $cursor->fetch(PDO::FETCH_ASSOC);
 		}
-		elseif ($this->cursor instanceof \PDOStatement)
+		elseif ($this->cursor instanceof PDOStatement)
 		{
-			$ret = $this->cursor->fetch(\PDO::FETCH_ASSOC);
-		}
-
-		return $ret;
-	}
-
-	/**
-	 * Method to fetch a row from the result set cursor as an object.
-	 *
-	 * @param   mixed  $cursor The optional result set cursor from which to fetch the row.
-	 * @param   string $class  The class name to use for the returned row object.
-	 *
-	 * @return  mixed   Either the next row from the result set or false if there are no more rows.
-	 */
-	protected function fetchObject($cursor = null, $class = 'stdClass')
-	{
-		$ret = null;
-
-		if (!empty($cursor) && $cursor instanceof \PDOStatement)
-		{
-			$ret =  $cursor->fetchObject($class);
-		}
-		elseif ($this->cursor instanceof \PDOStatement)
-		{
-			$ret = $this->cursor->fetchObject($class);
+			$ret = $this->cursor->fetch(PDO::FETCH_ASSOC);
 		}
 
 		return $ret;
@@ -610,19 +564,19 @@ class Pdomysql extends Mysql
 	/**
 	 * Method to free up the memory used for the result set.
 	 *
-	 * @param   mixed $cursor The optional result set cursor from which to fetch the row.
+	 * @param   mixed  $cursor  The optional result set cursor from which to fetch the row.
 	 *
 	 * @return  void
 	 */
 	public function freeResult($cursor = null)
 	{
-		if ($cursor instanceof \PDOStatement)
+		if ($cursor instanceof PDOStatement)
 		{
 			$cursor->closeCursor();
 			$cursor = null;
 		}
 
-		if ($this->cursor instanceof \PDOStatement)
+		if ($this->cursor instanceof PDOStatement)
 		{
 			$this->cursor->closeCursor();
 			$this->cursor = null;
@@ -632,7 +586,7 @@ class Pdomysql extends Mysql
 	/**
 	 * Method to get the next row in the result set from the database query as an object.
 	 *
-	 * @param   string $class The class name to use for the returned row object.
+	 * @param   string  $class  The class name to use for the returned row object.
 	 *
 	 * @return  mixed   The result of the query as an array, false if there are no more rows.
 	 */
@@ -694,9 +648,9 @@ class Pdomysql extends Mysql
 	 */
 	public function __sleep()
 	{
-		$serializedProperties = array();
+		$serializedProperties = [];
 
-		$reflect = new \ReflectionClass($this);
+		$reflect = new ReflectionClass($this);
 
 		// Get properties of the current class
 		$properties = $reflect->getProperties();
@@ -704,7 +658,7 @@ class Pdomysql extends Mysql
 		foreach ($properties as $property)
 		{
 			// Do not serialize properties that are \PDO
-			if ($property->isStatic() == false && !($this->{$property->name} instanceof \PDO))
+			if ($property->isStatic() == false && !($this->{$property->name} instanceof PDO))
 			{
 				array_push($serializedProperties, $property->name);
 			}
@@ -722,5 +676,52 @@ class Pdomysql extends Mysql
 	{
 		// Get connection back
 		$this->__construct($this->options);
+	}
+
+	/**
+	 * Method to fetch a row from the result set cursor as an array.
+	 *
+	 * @param   mixed  $cursor  The optional result set cursor from which to fetch the row.
+	 *
+	 * @return  mixed  Either the next row from the result set or false if there are no more rows.
+	 */
+	protected function fetchArray($cursor = null)
+	{
+		$ret = null;
+
+		if (!empty($cursor) && $cursor instanceof PDOStatement)
+		{
+			$ret = $cursor->fetch(PDO::FETCH_NUM);
+		}
+		elseif ($this->cursor instanceof PDOStatement)
+		{
+			$ret = $this->cursor->fetch(PDO::FETCH_NUM);
+		}
+
+		return $ret;
+	}
+
+	/**
+	 * Method to fetch a row from the result set cursor as an object.
+	 *
+	 * @param   mixed   $cursor  The optional result set cursor from which to fetch the row.
+	 * @param   string  $class   The class name to use for the returned row object.
+	 *
+	 * @return  mixed   Either the next row from the result set or false if there are no more rows.
+	 */
+	protected function fetchObject($cursor = null, $class = 'stdClass')
+	{
+		$ret = null;
+
+		if (!empty($cursor) && $cursor instanceof PDOStatement)
+		{
+			$ret = $cursor->fetchObject($class);
+		}
+		elseif ($this->cursor instanceof PDOStatement)
+		{
+			$ret = $this->cursor->fetchObject($class);
+		}
+
+		return $ret;
 	}
 }

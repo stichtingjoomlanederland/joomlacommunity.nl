@@ -14,7 +14,7 @@ $multi_download = object('com://site/docman.controller.behavior.compressible')->
 <?= helper('com://site/docman.behavior.thumbnail_modal'); ?>
 
 <? if ($multi_download): ?>
-    <?= helper('behavior.multidownload'); ?>
+    <?= helper('com://site/docman.behavior.multidownload'); ?>
 <? endif; ?>
 
 <? if ($params->track_downloads): ?>
