@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -94,13 +94,6 @@ class Html extends BaseView
 	 * @var  int
 	 */
 	public $runtimeBias = 75;
-
-	/**
-	 * Should we use an IFRAME to run the AJAX?
-	 *
-	 * @var  bool
-	 */
-	public $useIFRAME = false;
 
 	/**
 	 * URL to return to after the backup is complete
@@ -237,7 +230,6 @@ class Html extends BaseView
 		$this->domains                      = json_encode($this->getDomains());
 		$this->maxExecutionTime             = $maxexec;
 		$this->runtimeBias                  = $bias;
-		$this->useIFRAME                    = $engineConfiguration->get('akeeba.basic.useiframe', 0) == 1;
 		$this->returnURL                    = $returnurl;
 		$this->unwriteableOutput            = $unwritableOutput;
 		$this->autoStart                    = $model->getState('autostart', 0, 'boolean');

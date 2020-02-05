@@ -1,5 +1,11 @@
 <?php
 /**
+ * @package   admintools
+ * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
+ */
+
+/**
  * Diff
  *
  * A comprehensive library for generating differences between two strings

@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 define('ACYM_CMS', 'joomla');
 define('ACYM_CMS_TITLE', 'Joomla!');
@@ -54,6 +45,7 @@ $jversion = preg_replace('#[^0-9\.]#i', '', JVERSION);
 define('ACYM_CMSV', $jversion);
 define('ACYM_J30', version_compare($jversion, '3.0.0', '>='));
 define('ACYM_J37', version_compare($jversion, '3.7.0', '>='));
+define('ACYM_J39', version_compare($jversion, '3.9.0', '>='));
 define('ACYM_J40', version_compare($jversion, '4.0.0', '>='));
 
 define('ACYM_ALLOWRAW', defined('JREQUEST_ALLOWRAW') ? JREQUEST_ALLOWRAW : 2);
@@ -301,7 +293,7 @@ function acym_extractArchive($archive, $destination)
     return JArchive::extract($archive, $destination);
 }
 
-function acym_addScript($raw, $script, $type = "text/javascript", $defer = false, $async = false, $needTagScript = false, $deps = ['jquery'])
+function acym_addScript($raw, $script, $type = 'text/javascript', $defer = true, $async = false, $needTagScript = false, $deps = ['jquery'])
 {
     $acyDocument = acym_getGlobal('doc');
 
@@ -355,6 +347,7 @@ function acym_getCMSConfig($varname, $default = null)
 
 function acym_redirect($url, $msg = '', $msgType = 'message')
 {
+    $msg = acym_translation($msg);
     $acyapp = acym_getGlobal('app');
 
     if (ACYM_J40) {
@@ -670,32 +663,17 @@ function acym_askLog($current = true, $message = 'ACYM_NOTALLOWED', $type = 'err
     if ($current) {
         $url .= '&return='.base64_encode(acym_currentURL());
     }
-    acym_redirect($url, acym_translation($message), $type);
+    acym_redirect($url, $message, $type);
 }
 
-function acym_frontendLink($link, $complete = true, $popup = false)
+function acym_frontendLink($link, $complete = true)
 {
     if ($complete) {
         $link = 'index.php?option='.ACYM_COMPONENT.'&ctrl='.$link;
     }
 
-    if ($popup) {
-        $link .= '&'.acym_noTemplate();
-    }
-    $config = acym_config();
-
-    if (false && $config->get('use_sef', 0) && strpos($link, '&ctrl=cron') === false) {
-        $sefLink = acym_fileGetContent(acym_rootURI().'index.php?option='.ACYM_COMPONENT.'&ctrl=url&task=sef&urls[0]='.base64_encode($link));
-        $json = json_decode($sefLink, true);
-        if ($json == null) {
-            if (!empty($sefLink) && acym_isDebug()) {
-                acym_enqueueMessage(acym_translation('ACYM_ERROR_TRYING_GET_LINK', $sefLink), 'error');
-            }
-        } else {
-            $link = array_shift($json);
-
-            return $link;
-        }
+    if (ACYM_J39 && strpos($link, 'ctrl=cron') === false) {
+        return JRoute::link('site', $link, true, 0, true);
     }
 
     $mainurl = acym_mainURL($link);
@@ -852,11 +830,18 @@ function acym_articleSelectionPage()
     return 'index.php?option=com_content&amp;view=articles&amp;layout=modal&amp;tmpl=component&amp;object=content&amp;'.acym_getFormToken();
 }
 
-function acym_getPageOverride($name, $view)
+function acym_getPageOverride(&$ctrl, $view, $forceBackend = false)
 {
-    $app = JFactory::getApplication();
+    if ($forceBackend || acym_isAdmin()) {
+        $app = JFactory::getApplication('administrator');
+        $folder = JPATH_ADMINISTRATOR;
+    } else {
+        $app = JFactory::getApplication('site');
+        $folder = JPATH_SITE;
+        if (!file_exists(ACYM_VIEW_FRONT.$ctrl)) $ctrl = 'front'.$ctrl;
+    }
 
-    return (acym_isAdmin() ? JPATH_ADMINISTRATOR : JPATH_SITE).DS.'templates'.DS.$app->getTemplate().DS.'html'.DS.ACYM_COMPONENT.DS.$name.DS.$view.'.php';
+    return $folder.DS.'templates'.DS.$app->getTemplate().DS.'html'.DS.ACYM_COMPONENT.DS.$ctrl.DS.$view.'.php';
 }
 
 function acym_isLeftMenuNecessary()
@@ -876,14 +861,14 @@ function acym_getLeftMenu($name)
         'dashboard' => ['title' => 'ACYM_DASHBOARD', 'class-i' => 'acymicon-dashboard', 'span-class' => ''],
         'users' => ['title' => 'ACYM_USERS', 'class-i' => 'acymicon-group', 'span-class' => ''],
         'fields' => ['title' => 'ACYM_CUSTOM_FIELDS', 'class-i' => 'acymicon-text_fields', 'span-class' => ''],
-        'lists' => ['title' => 'ACYM_LISTS', 'class-i' => 'fa fa-address-book-o', 'span-class' => 'acym__joomla__left-menu__fa'],
+        'lists' => ['title' => 'ACYM_LISTS', 'class-i' => 'acymicon-address-book-o', 'span-class' => 'acym__joomla__left-menu__fa'],
         'campaigns' => ['title' => 'ACYM_CAMPAIGNS', 'class-i' => 'acymicon-email', 'span-class' => ''],
-        'mails' => ['title' => 'ACYM_TEMPLATES', 'class-i' => 'fa fa-pencil-square-o', 'span-class' => 'acym__joomla__left-menu__fa'],
-        'automation' => ['title' => 'ACYM_AUTOMATION', 'class-i' => 'fa fa-gears', 'span-class' => 'acym__joomla__left-menu__fa'],
-        'queue' => ['title' => 'ACYM_QUEUE', 'class-i' => 'fa fa-hourglass-half', 'span-class' => 'acym__joomla__left-menu__fa'],
-        'stats' => ['title' => 'ACYM_STATISTICS', 'class-i' => 'fa fa-bar-chart', 'span-class' => 'acym__joomla__left-menu__fa'],
-        'bounces' => ['title' => 'ACYM_BOUNCE_HANDLING', 'class-i' => 'fa fa-random', 'span-class' => 'acym__joomla__left-menu__fa'],
-        'plugins' => ['title' => $addOnsTitle, 'class-i' => 'fa fa-plug', 'span-class' => 'acym__joomla__left-menu__fa'],
+        'mails' => ['title' => 'ACYM_TEMPLATES', 'class-i' => 'acymicon-pencil-square-o', 'span-class' => 'acym__joomla__left-menu__fa'],
+        'automation' => ['title' => 'ACYM_AUTOMATION', 'class-i' => 'acymicon-gears', 'span-class' => 'acym__joomla__left-menu__fa'],
+        'queue' => ['title' => 'ACYM_QUEUE', 'class-i' => 'acymicon-hourglass-half', 'span-class' => 'acym__joomla__left-menu__fa'],
+        'stats' => ['title' => 'ACYM_STATISTICS', 'class-i' => 'acymicon-bar-chart', 'span-class' => 'acym__joomla__left-menu__fa'],
+        'bounces' => ['title' => 'ACYM_BOUNCE_HANDLING', 'class-i' => 'acymicon-random', 'span-class' => 'acym__joomla__left-menu__fa'],
+        'plugins' => ['title' => $addOnsTitle, 'class-i' => 'acymicon-plug', 'span-class' => 'acym__joomla__left-menu__fa'],
         'configuration' => ['title' => 'ACYM_CONFIGURATION', 'class-i' => 'acymicon-settings', 'span-class' => ''],
     ];
 
@@ -932,8 +917,61 @@ function acym_prepareFrontViewDisplay($ctrl)
 {
 }
 
-function acym_isExtensionActive($extension){
+function acym_isExtensionActive($extension)
+{
     return JComponentHelper::isEnabled($extension, true);
+}
+
+function acym_loadCmsScripts()
+{
+    $toggleController = acym_isAdmin() ? 'toggle' : 'fronttoggle';
+    acym_addScript(
+        true,
+        'var ACYM_TOGGLE_URL = "'.(acym_isAdmin() ? '' : acym_rootURI()).'index.php?option='.ACYM_COMPONENT.'&'.acym_noTemplate().'&ctrl='.$toggleController.'&'.acym_getFormToken().'";
+        var ACYM_AJAX_URL = "'.(acym_isAdmin() ? '' : acym_rootURI()).'index.php?option='.ACYM_COMPONENT.'&'.acym_noTemplate().'&'.acym_getFormToken().'";
+        var ACYM_JOOMLA_MEDIA_IMAGE = "'.ACYM_LIVE.'";
+        var ACYM_IS_ADMIN = '.(acym_isAdmin() ? 'true' : 'false').';'
+    );
+
+    JHtml::_('jquery.framework');
+    acym_addScript(false, 'https://code.jquery.com/ui/1.12.1/jquery-ui.min.js');
+}
+
+function acym_menuOnly($link)
+{
+    $menu = JFactory::getApplication('site')->getMenu()->getActive();
+    if (empty($menu) || $menu->link !== $link) {
+        acym_redirect(acym_rootURI(), 'ACYM_UNAUTHORIZED_ACCESS', 'error');
+    }
+}
+
+function acym_getAlias($name)
+{
+    return JFilterOutput::stringURLSafe($name);
+}
+
+function acym_replaceGroupTags($uploadFolder)
+{
+    if (strpos($uploadFolder, '{groupname}') === false) return $uploadFolder;
+
+    $groups = acym_getGroupsByUser(acym_currentUserId(), false);
+    acym_arrayToInteger($groups);
+
+    $group = acym_loadResult('SELECT title FROM #__usergroups WHERE id = '.intval(max($groups)));
+
+    $uploadFolder = str_replace(
+        '{groupname}',
+        strtolower(
+            str_replace(
+                '-',
+                '_',
+                acym_getAlias($group)
+            )
+        ),
+        $uploadFolder
+    );
+
+    return $uploadFolder;
 }
 
 global $acymCmsUserVars;

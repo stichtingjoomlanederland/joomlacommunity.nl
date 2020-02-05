@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -160,6 +160,9 @@ class Html extends BaseView
 	 */
 	public $permissions = array();
 
+	/** @var int Timestamp when the Core user last dismissed the upsell to Pro */
+	public $lastUpsellDismiss = 0;
+
 	/**
 	 * Executes before displaying the control panel page
 	 */
@@ -217,6 +220,7 @@ class Html extends BaseView
 			'download'  => $user->authorise('akeeba.download',  'com_akeeba'),
 		);
 
+		$this->lastUpsellDismiss = $this->container->params->get('lastUpsellDismiss', 0);
 
 		// Load the version constants
 		Platform::getInstance()->load_version_defines();

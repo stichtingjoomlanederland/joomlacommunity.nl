@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -177,7 +177,7 @@ defined('_JEXEC') or die;
 // Detect user registration and activation type
 $disabled = '';
 $message  = '';
-$classes  = array('class' => 'akeeba-input-mini');
+$classes = [];
 
 JLoader::import('cms.component.helper');
 $userParams = JComponentHelper::getParams('com_users');
@@ -197,8 +197,8 @@ elseif ($userParams->get('useractivation') == 2)
 // No user activation
 elseif ($userParams->get('useractivation') == 0)
 {
-	$classes['disabled'] = 'true';
-	$disabled = ' disabled="true" ';
+	$classes['disabled'] = 'disabled';
+	$disabled = ' disabled="disabled" ';
 	$message = '<div style="margin-top:10px" class="akeeba-block--info">' . JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_ALERT_NOUSERACTIVATION') . '</div>';
 }
 ?>

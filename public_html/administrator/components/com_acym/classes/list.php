@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class acymlistClass extends acymClass
 {
@@ -29,10 +20,13 @@ class acymlistClass extends acymClass
         $query = 'SELECT '.$columns.' FROM #__acym_list AS list';
         $queryCount = 'SELECT COUNT(list.id) FROM #__acym_list AS list';
         if (!empty($settings['join'])) $query .= $this->getJoinForQuery($settings['join']);
-
         $queryStatus = 'SELECT COUNT(id) AS number, active + (visible*2) AS score FROM #__acym_list AS list';
         $filters = [];
         $listsId = [];
+
+        if (!acym_isAdmin()) {
+            $filters[] = 'list.cms_user_id = '.intval(acym_currentUserId());
+        }
 
         if (!empty($settings['tag'])) {
             $tagJoin = ' JOIN #__acym_tag AS tag ON list.id = tag.id_element';
@@ -46,6 +40,8 @@ class acymlistClass extends acymClass
         if (!empty($settings['search'])) {
             $filters[] = 'list.name LIKE '.acym_escapeDB('%'.$settings['search'].'%');
         }
+
+        $filters[] = 'front_management IS NULL';
 
         if (!empty($filters)) {
             $queryStatus .= ' WHERE ('.implode(') AND (', $filters).')';
@@ -68,6 +64,7 @@ class acymlistClass extends acymClass
             $filters[] = $settings['where'];
         }
 
+
         if (!empty($filters)) {
             $query .= ' WHERE ('.implode(') AND (', $filters).')';
             $queryCount .= ' WHERE ('.implode(') AND (', $filters).')';
@@ -82,7 +79,8 @@ class acymlistClass extends acymClass
         }
 
         if (empty($settings['elementsPerPage']) || $settings['elementsPerPage'] < 1) {
-            $settings['elementsPerPage'] = acym_getCMSConfig('list_limit', 20);
+            $pagination = acym_get('helper.pagination');
+            $settings['elementsPerPage'] = $pagination->getListLimit();
         }
 
         $results['elements'] = acym_loadObjectList($query, '', $settings['offset'], $settings['elementsPerPage']);
@@ -324,6 +322,8 @@ class acymlistClass extends acymClass
 
     public function getSubscribersForList($listId, $offset = 0, $perCalls = 100, $status = '')
     {
+        if (empty($listId)) return [];
+
         $statusCond = '';
         if ($status !== '' && is_int($status)) $statusCond = ' AND user_list.status = '.intval($status);
 
@@ -341,13 +341,10 @@ class acymlistClass extends acymClass
 
     public function delete($elements)
     {
-        if (!is_array($elements)) {
-            $elements = [$elements];
-        }
+        if (!is_array($elements)) $elements = [$elements];
+        $this->onlyManageableLists($elements);
 
-        if (empty($elements)) {
-            return 0;
-        }
+        if (empty($elements)) return 0;
 
         foreach ($elements as $id) {
             acym_query('DELETE FROM #__acym_mail_has_list WHERE list_id = '.intval($id));
@@ -356,6 +353,13 @@ class acymlistClass extends acymClass
         }
 
         return parent::delete($elements);
+    }
+
+    public function synchDeleteCmsList($userId)
+    {
+        $query = 'SELECT * FROM #__acym_list WHERE front_management =  1 AND cms_user_id = '.intval($userId);
+        $listFrontManagement = acym_loadObject($query);
+        if (!empty($listFrontManagement)) $this->delete([$listFrontManagement->id]);
     }
 
     public function save($list)
@@ -389,7 +393,7 @@ class acymlistClass extends acymClass
 
     public function getAllWithIdName()
     {
-        $lists = acym_loadObjectList('SELECT id, name FROM #__acym_list', 'id');
+        $lists = acym_loadObjectList('SELECT id, name FROM #__acym_list WHERE front_management IS NULL', 'id');
 
         $listsToReturn = [];
 
@@ -402,7 +406,7 @@ class acymlistClass extends acymClass
 
     public function getAllForSelect()
     {
-        $lists = acym_loadObjectList('SELECT * FROM #__acym_list', 'id');
+        $lists = acym_loadObjectList('SELECT * FROM #__acym_list WHERE front_management IS NULL', 'id');
 
         $return = [];
 
@@ -413,6 +417,11 @@ class acymlistClass extends acymClass
         }
 
         return $return;
+    }
+
+    public function getAllWIthoutManagement()
+    {
+        return acym_loadObjectList('SELECT * FROM #__acym_list WHERE front_management IS NULL', 'id');
     }
 
     public function setVisible($elements, $status)
@@ -562,6 +571,41 @@ class acymlistClass extends acymClass
                     GROUP BY userList.list_id';
 
         return acym_loadObjectList($query);
+    }
+
+    public function getManageableLists()
+    {
+        $idCurrentUser = acym_currentUserId();
+        if (empty($idCurrentUser)) return [];
+
+        return acym_loadResultArray('SELECT id FROM #__acym_list WHERE cms_user_id = '.intval($idCurrentUser));
+    }
+
+    public function onlyManageableLists(&$elements)
+    {
+        if (acym_isAdmin()) return;
+
+        $manageableLists = $this->getManageableLists();
+        $elements = array_intersect($elements, $manageableLists);
+    }
+
+    public function getfrontManagementList()
+    {
+        $idCurrentUser = acym_currentUserId();
+        if (empty($idCurrentUser)) return 0;
+
+        $frontListId = acym_loadResult('SELECT id FROM #__acym_list WHERE front_management = 1 AND cms_user_id = '.intval($idCurrentUser));
+
+        if (!empty($frontListId)) return $frontListId;
+
+        $frontList = new stdClass();
+        $frontList->name = 'frontlist_'.$idCurrentUser;
+        $frontList->active = 1;
+        $frontList->visible = 0;
+        $frontList->cms_user_id = $idCurrentUser;
+        $frontList->front_management = 1;
+
+        return $this->save($frontList);
     }
 }
 

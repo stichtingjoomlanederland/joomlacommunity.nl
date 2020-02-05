@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="component" version="3.0.0" method="upgrade">
 	<name>com_easydiscuss</name>
-	<author>StackIdeas</author>
+	<creationDate>25th May 2018</creationDate>
+	<author>Stack Ideas Sdn Bhd</author>
 	<authorEmail>support@stackideas.com</authorEmail>
-	<authorUrl>http://www.stackideas.com</authorUrl>
-	<copyright>Copyright 2009 - 2012 Stack Ideas. All rights reserved</copyright>
-	<license>GPL License</license>
-	<version>4.1.12</version>
-	<creationDate>10th October 2019</creationDate>
+	<authorUrl>https://stackideas.com</authorUrl>
+	<copyright>Copyright 2009 - 2018 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
+	<license>GPL License v2</license>
+	<version>4.1.13</version>
 	<description>
-		Discussion extension for your Joomla! site.
+		EasyDiscuss is a Joomla! forum extension that allows users on your site to collaborate with one another.
 	</description>
-	<scriptfile>script.php</scriptfile>
+	<scriptfile>updater.php</scriptfile>
 	<administration>
 		<menu link="option=com_easydiscuss">COM_EASYDISCUSS</menu>
 		<submenu>
@@ -33,25 +33,7 @@
 			<menu view="languages">COM_EASYDISCUSS_ADMIN_MENU_LANGUAGES</menu>
 			<menu view="spools">COM_EASYDISCUSS_ADMIN_MENU_SPOOLS</menu>
 		</submenu>
-		<files folder="admin">
-			<folder>languages</folder>
-			<folder>setup</folder>
-			<file>access.xml</file>
-			<file>config.xml</file>
-			<file>easydiscuss.php</file>
-			<file>easydiscuss.xml</file>
-			<file>script.php</file>
-			<file>setup.php</file>
-			<file>setup.html</file>
-		</files>
-		<languages>
-			<language tag="en-GB">languages/admin/en-GB.com_easydiscuss.ini</language>
-			<language tag="en-GB">languages/admin/en-GB.com_easydiscuss.sys.ini</language>
-		</languages>
 	</administration>
-	<languages>
-		<language tag="en-GB">languages/site/en-GB.com_easydiscuss.ini</language>
-	</languages>
 	<updateservers>
 		<server type="extension" name="EasyDiscuss Update Site">https://stackideas.com/jupdates/manifest/easydiscuss</server>
 	</updateservers>

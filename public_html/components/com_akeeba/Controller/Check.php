@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -10,11 +10,11 @@ namespace Akeeba\Backup\Site\Controller;
 // Protect from unauthorized access
 defined('_JEXEC') or die();
 
-use Akeeba\Backup\Admin\Controller\Mixin\PredefinedTaskList;
 use Akeeba\Backup\Site\Controller\Mixin\FrontEndPermissions;
 use Akeeba\Backup\Site\Model\Statistics;
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
+use FOF30\Controller\Mixin\PredefinedTaskList;
 
 /**
  * Controller for the front-end Check Backups features

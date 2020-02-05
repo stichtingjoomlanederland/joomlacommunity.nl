@@ -1,22 +1,14 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate>
+?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate>
 	<input type="hidden" name="id" value="<?php echo empty($data['field']->id) ? '' : intval($data['field']->id); ?>">
 	<input type="hidden" name="namekey" value="<?php echo empty($data['field']->namekey) ? '' : acym_escape($data['field']->namekey); ?>">
 	<div id="acym__fields__edit" class="acym__content grid-x cell">
-		<div class="cell grid-x grid-margin-x">
-			<div class="cell auto hide-for-small-only"></div>
-			<button data-task="apply" class="cell button button-secondary medium-shrink small-12 acy_button_submit"><?php echo acym_translation('ACYM_SAVE'); ?></button>
-			<button data-task="save" class="cell button medium-shrink small-12 acy_button_submit"><?php echo acym_translation('ACYM_SAVE_EXIT'); ?></button>
+		<div class="cell grid-x text-right grid-margin-x margin-left-0 margin-right-0">
+			<div class="cell auto hide-for-small-only hide-for-medium-only"></div>
+            <?php echo acym_cancelButton(); ?>
+			<button data-task="apply" class="cell button button-secondary medium-6 large-shrink acy_button_submit"><?php echo acym_translation('ACYM_SAVE'); ?></button>
+			<button data-task="save" class="cell button medium-6 large-shrink margin-right-0 acy_button_submit"><?php echo acym_translation('ACYM_SAVE_EXIT'); ?></button>
 		</div>
 		<div class="cell grid-x grid-margin-x grid-margin-y">
 			<div class="<?php echo in_array($data['field']->id, [1, 2]) ? '' : 'medium-6 '; ?>cell grid-x acym__fields__edit__field acym__content grid-margin-x">
@@ -67,10 +59,27 @@ defined('_JEXEC') or die('Restricted access');
 					<input type="text" name="field[option][error_message_invalid]" value="<?php echo empty($data['field']->option->error_message_invalid) ? '' : $data['field']->option->error_message_invalid; ?>">
 				</label>
 				<label class="cell margin-top-1 large-5 acym__fields__change" id="acym__fields__default-value"><?php echo acym_translation('ACYM_DEFAULT_VALUE'); ?>
-					<input type="text" name="field[default_value]" value="<?php echo empty($data['field']->default_value) ? '' : $data['field']->default_value; ?>">
+					<input type="text" name="field[default_value]" value="<?php echo isset($data['field']->default_value) ? $data['field']->default_value : ''; ?>">
 				</label>
 				<label class="cell margin-top-1 large-5 acym__fields__change" id="acym__fields__format"><?php
-                    echo '<h6>'.acym_translation('ACYM_FORMAT').acym_info(acym_translation_sprintf('ACYM_X_TO_ENTER_X', '%d', acym_translation('ACYM_DAY')).'<br>'.acym_translation_sprintf('ACYM_X_TO_ENTER_X', '%m', acym_translation('ACYM_MONTH')).'<br>'.acym_translation_sprintf('ACYM_X_TO_ENTER_X', '%y', acym_translation('ACYM_YEAR')).'<br>'.acym_translation('ACYM_EXEMPLE_FORMAT')).'</h6>';
+                    echo '<h6>';
+                    echo acym_translation('ACYM_FORMAT');
+                    echo acym_info(
+                        acym_translation_sprintf(
+                            'ACYM_X_TO_ENTER_X',
+                            '%d',
+                            acym_translation('ACYM_DAY')
+                        ).'<br>'.acym_translation_sprintf(
+                            'ACYM_X_TO_ENTER_X',
+                            '%m',
+                            acym_translation('ACYM_MONTH')
+                        ).'<br>'.acym_translation_sprintf(
+                            'ACYM_X_TO_ENTER_X',
+                            '%y',
+                            acym_translation('ACYM_YEAR')
+                        ).'<br>'.acym_translation('ACYM_EXEMPLE_FORMAT')
+                    );
+                    echo '</h6>';
                     ?>
 					<input type="text" name="field[option][format]" value="<?php echo empty($data['field']->option->format) ? '%d%m%y' : $data['field']->option->format; ?>">
 				</label>
@@ -97,24 +106,26 @@ defined('_JEXEC') or die('Restricted access');
 				</label>
 				<div class="cell grid-x acym__fields__change large-11 acym__content margin-bottom-2" id="acym__fields__value">
 					<div class="grid-x acym__listing">
-						<div class="grid-x cell acym__listing__header">
-							<div class="medium-4 cell acym__listing__header__title margin-right-1 text-center">
+						<div class="grid-x cell acym__listing__fields__header">
+							<div class="medium-1 cell acym__listing__header__title"></div>
+							<div class="medium-4 cell acym__listing__header__title text-center">
                                 <?php echo acym_translation('ACYM_VALUE'); ?>
 							</div>
-							<div class="medium-4 cell acym__listing__header__title margin-right-1 text-center">
+							<div class="medium-4 cell acym__listing__header__title text-center">
                                 <?php echo acym_translation('ACYM_TITLE'); ?>
 							</div>
-							<div class="medium-3 cell acym__listing__header__title text-center">
+							<div class="medium-2 cell acym__listing__header__title text-center">
                                 <?php echo acym_translation('ACYM_DISABLE'); ?>
 							</div>
+							<div class="small-1 cell acym__listing__header__title"></div>
 						</div>
-						<div class="acym__fields__values__listing__sortable">
+						<div class="acym__fields__values__listing__sortable cell grid-x">
                             <?php if (empty($data['field']->value)) { ?>
 								<div class="grid-x cell acym__fields__value__sortable acym__content margin-bottom-1 grid-margin-x">
 									<div class="medium-1 cell acym_vcenter align-center acym__field__sortable__listing__handle">
 										<div class="grabbable acym__sortable__field__edit__handle grid-x">
-											<i class="fa fa-ellipsis-h cell acym__color__dark-gray"></i>
-											<i class="fa fa-ellipsis-h cell acym__color__dark-gray"></i>
+											<i class="acymicon-ellipsis-h cell acym__color__dark-gray"></i>
+											<i class="acymicon-ellipsis-h cell acym__color__dark-gray"></i>
 										</div>
 									</div>
 									<input type="text" name="field[value][value][]" class="cell medium-4" value="">
@@ -129,8 +140,8 @@ defined('_JEXEC') or die('Restricted access');
 									<div class="grid-x cell acym__fields__value__sortable acym__content margin-bottom-1 grid-margin-x">
 										<div class="medium-1 cell acym_vcenter align-center acym__field__sortable__listing__handle">
 											<div class="grabbable acym__sortable__field__edit__handle grid-x">
-												<i class="fa fa-ellipsis-h cell acym__color__dark-gray"></i>
-												<i class="fa fa-ellipsis-h cell acym__color__dark-gray"></i>
+												<i class="acymicon-ellipsis-h cell acym__color__dark-gray"></i>
+												<i class="acymicon-ellipsis-h cell acym__color__dark-gray"></i>
 											</div>
 										</div>
 										<input type="text" name="field[value][value][]" class="cell medium-4" value="<?php echo acym_escape($value->value); ?>">
@@ -174,7 +185,7 @@ defined('_JEXEC') or die('Restricted access');
                         ?>
 					</label>
 					<label class="cell margin-top-1 medium-4"><?php echo acym_translation('ACYM_WHERE_VALUE'); ?>
-						<input type="text" name="fieldDB[where_value]" value="<?php echo empty($data['field']->fieldDB->where_value) ? '' : acym_escape($data['field']->fieldDB->where_value); ?>">
+						<input type="text" name="fieldDB[where_value]" value="<?php echo isset($data['field']->fieldDB->where_value) && strlen($data['field']->fieldDB->where_value) > 0 ? acym_escape($data['field']->fieldDB->where_value) : ''; ?>">
 					</label>
 					<label class="cell margin-top-1 medium-5"><?php echo acym_translation('ACYM_ORDER_BY'); ?>
                         <?php echo acym_select(empty($data['field']->fieldDB->columns) ? [] : $data['field']->fieldDB->columns, 'fieldDB[order_by]', empty($data['field']->fieldDB->order_by) ? '' : $data['field']->fieldDB->order_by, 'class="acym__fields__edit__select acym__fields__database__columns"', 'value', 'name'); ?>
@@ -189,19 +200,19 @@ defined('_JEXEC') or die('Restricted access');
 				<div class="cell acym__content grid-x">
 					<h1 class="cell acym__title__listing margin-right-1"><?php echo acym_translation('ACYM_BACKEND'); ?></h1>
 					<div class="cell grid-x large-6  margin-top-1">
-                        <?php echo acym_switch('field[backend_profile]', $data['field']->backend_profile, acym_translation('ACYM_BACKEND').' '.strtolower(acym_translation('ACYM_PROFILE')), [], 'shrink', 'auto', 'tiny margin-0'); ?>
+                        <?php echo acym_switch('field[backend_edition]', $data['field']->backend_edition, acym_translation_sprintf('ACYM_BACKEND_X', acym_translation('ACYM_EDITION')), [], 'shrink', 'auto', 'tiny margin-0'); ?>
 					</div>
 					<div class="cell grid-x large-6  margin-top-1">
-                        <?php echo acym_switch('field[backend_listing]', $data['field']->backend_listing, acym_translation('ACYM_BACKEND').' '.strtolower(acym_translation('ACYM_LISTING')), [], 'shrink', 'auto', 'tiny margin-0'); ?>
+                        <?php echo acym_switch('field[backend_listing]', $data['field']->backend_listing, acym_translation_sprintf('ACYM_BACKEND_X', acym_translation('ACYM_LISTING')), [], 'shrink', 'auto', 'tiny margin-0'); ?>
 					</div>
 				</div>
-				<div class="cell acym__content grid-x margin-top-2 is-hidden">
+				<div class="cell acym__content grid-x margin-top-2">
 					<h1 class="cell acym__title__listing margin-right-1"><?php echo acym_translation('ACYM_FRONTEND'); ?></h1>
 					<div class="cell grid-x large-6">
-                        <?php echo acym_switch('field[frontend_form]', $data['field']->frontend_form, acym_translation('ACYM_FRONTEND').' '.strtolower(acym_translation('ACYM_FORM')), [], 'shrink', 'auto', 'tiny margin-0'); ?>
+                        <?php echo acym_switch('field[frontend_edition]', $data['field']->frontend_edition, acym_translation_sprintf('ACYM_FRONTEND_X', acym_translation('ACYM_EDITION')), [], 'shrink', 'auto', 'tiny margin-0'); ?>
 					</div>
 					<div class="cell grid-x large-6">
-                        <?php echo acym_switch('field[frontend_profile]', $data['field']->frontend_profile, acym_translation('ACYM_FRONTEND').' '.strtolower(acym_translation('ACYM_PROFILE')), [], 'shrink', 'auto', 'tiny margin-0'); ?>
+                        <?php echo acym_switch('field[frontend_listing]', $data['field']->frontend_listing, acym_translation_sprintf('ACYM_FRONTEND_X', acym_translation('ACYM_LISTING')), [], 'shrink', 'auto', 'tiny margin-0'); ?>
 					</div>
 				</div>
 			</div>
@@ -209,3 +220,4 @@ defined('_JEXEC') or die('Restricted access');
         <?php acym_formOptions(); ?>
 	</div>
 </form>
+

@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class acymView extends acymObject
 {
@@ -62,26 +53,18 @@ class acymView extends acymObject
         }
 
 
-        $outsideForm = ($name == 'mails' && $view == 'edit') || ($name == 'campaigns' && $view == 'edit_email');
+        $outsideForm = (strpos($name, 'mails') !== false && $view == 'edit') || (strpos($name, 'campaigns') !== false && $view == 'edit_email');
         if ($outsideForm) echo '<form id="acym_form" action="'.acym_completeLink(acym_getVar('cmd', 'ctrl')).'" class="acym__form__mail__edit" method="post" name="acyForm" data-abide novalidate>';
 
-        $class = empty($this->config->get('small_display', 0)) ? '' : 'acym__wrapper__small';
-
-        if (acym_getVar('cmd', 'task') != 'ajaxEncoding') echo '<div id="acym_wrapper" class="'.$name.'_'.$view.' '.$class.'">';
+        if (acym_getVar('cmd', 'task') != 'ajaxEncoding') echo '<div id="acym_wrapper" class="'.$name.'_'.$view.'">';
 
         if (acym_isLeftMenuNecessary()) echo acym_getLeftMenu($name).'<div id="acym_content">';
 
         if (!empty($data['header'])) echo $data['header'];
 
-        acym_displayMessages();
+        if (acym_isAdmin()) acym_displayMessages();
 
-        $overridePath = acym_getPageOverride($name, $view);
-
-        if (!empty($overridePath) && file_exists($overridePath)) {
-            include $overridePath;
-        } else {
-            include $viewFolder.$name.DS.'tmpl'.DS.$view.'.php';
-        }
+        include acym_getView($name, $view);
 
         if (acym_isLeftMenuNecessary()) echo '</div>';
         if (acym_getVar('cmd', 'task') != 'ajaxEncoding') echo '</div>';
@@ -93,7 +76,7 @@ class acymView extends acymObject
             echo '<div id="acym__reviews__footer" style="margin: 0 0 30px 30px;">';
             echo acym_translation_sprintf(
                 'ACYM_REVIEW_FOOTER',
-                '<a title="reviews" id="acym__reviews__footer__link" target="_blank" href="https://wordpress.org/support/plugin/acymailing/reviews/?rate=5#new-post"><i class="fa fa-star acym__color__light-blue"></i><i class="fa fa-star acym__color__light-blue"></i><i class="fa fa-star acym__color__light-blue"></i><i class="fa fa-star acym__color__light-blue"></i><i class="fa fa-star acym__color__light-blue"></i></a>'
+                '<a title="reviews" id="acym__reviews__footer__link" target="_blank" href="https://wordpress.org/support/plugin/acymailing/reviews/?rate=5#new-post"><i class="acymicon-star acym__color__light-blue"></i><i class="acymicon-star acym__color__light-blue"></i><i class="acymicon-star acym__color__light-blue"></i><i class="acymicon-star acym__color__light-blue"></i><i class="acymicon-star acym__color__light-blue"></i></a>'
             );
             echo '</div>';
         }

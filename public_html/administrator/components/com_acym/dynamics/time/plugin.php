@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class plgAcymTime extends acymPlugin
 {
@@ -42,7 +33,7 @@ class plgAcymTime extends acymPlugin
 
         $k = 0;
         foreach ($others as $tagname => $tag) {
-            $text .= '<div class="grid-x medium-12 cell acym__listing__row acym__listing__row__popup text-left" onclick="setTag(\''.$tagname.'\', jQuery(this));" >
+            $text .= '<div class="grid-x medium-12 cell acym__row__no-listing acym__listing__row__popup text-left" onclick="setTag(\''.$tagname.'\', jQuery(this));" >
                         <div class="cell medium-6 small-12 acym__listing__title acym__listing__title__dynamics">'.$tag.'</div>
                         <div class="cell medium-6 small-12 acym__listing__title acym__listing__title__dynamics">'.acym_getDate(time(), acym_translation($tag)).'</div>
                      </div>';

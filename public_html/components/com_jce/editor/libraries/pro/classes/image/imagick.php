@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright    Copyright (c) 2009-2019 Ryan Demmer. All rights reserved
+ * @copyright    Copyright (c) 2009-2020 Ryan Demmer. All rights reserved
  * @copyright   Copyright (C) 2005 - 2012 Open Source Matters, Inc. All rights reserved
  * @license    GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * JCE is free software. This version may have been modified pursuant
@@ -11,8 +11,6 @@
  * Based on JImage library from Joomla.Platform 11.3
  */
 defined('_JEXEC') or die;
-
-require_once dirname(__FILE__).'/imagick/filter.php';
 
 /**
  * Class to manipulate an image.
@@ -25,11 +23,14 @@ class WFImageImagick
     protected $handle;
 
     /**
-     * @var string The source image path
+     * @var string The source image string or path
      */
-    protected $path = null;
+    protected $source = null;
 
-    protected $type;
+    /**
+     * @var string File type, eg: jpg, gif, png
+     */
+    protected static $type;
 
     /**
      * Class constructor.
@@ -52,28 +53,6 @@ class WFImageImagick
             // If the source input is not empty, assume it is a path and populate the image handle.
             $this->loadFile($source);
         }
-    }
-
-    /**
-     * Method to apply a filter to the image by type.  Two examples are: grayscale and sketchy.
-     *
-     * @param string $type    The name of the image filter to apply
-     * @param array  $options An array of options for the filter
-     *
-     * @return WFImage
-     *
-     * @see     WFImageFilter
-     *
-     * @throws LogicException
-     * @throws RuntimeException
-     */
-    public function filter($type, array $options = array())
-    {
-        // Get the image filter instance.
-        $filter = $this->getFilterInstance($type);
-
-        // Execute the image filter.
-        $filter->execute($options);
     }
 
     /**
@@ -111,13 +90,13 @@ class WFImageImagick
     }
 
     /**
-     * Method to return the path.
+     * Method to return the source path or string.
      *
      * @return string
      */
-    public function getPath()
+    public function getSource()
     {
-        return $this->path;
+        return $this->source;
     }
 
     /**
@@ -155,7 +134,7 @@ class WFImageImagick
         $this->handle = new Imagick($path);
 
         // Set the filesystem path to the source image.
-        $this->path = $path;
+        $this->source = $path;
 
         // set type
         $this->setType(exif_imagetype($path));
@@ -175,6 +154,8 @@ class WFImageImagick
 
         if ($this->isLoaded()) {
             $this->handle->readImageBlob($string);
+
+            $this->source = $string;
         } else {
             $this->destroy();
             throw new RuntimeException('Attempting to load an image of unsupported type.');
@@ -187,7 +168,7 @@ class WFImageImagick
             $watermark = new ImagickDraw();
             $watermark->setFontSize((int) $options->font_size);
 
-            $options->font_color = '#'.preg_replace('#[^a-z0-9]+#i', '', $options->font_color);
+            $options->font_color = '#' . preg_replace('#[^a-z0-9]+#i', '', $options->font_color);
 
             if ($options->opacity > 1) {
                 $options->opacity = $options->opacity / 100;
@@ -353,7 +334,7 @@ class WFImageImagick
 
         // If we are resizing to a new image, create a new Imagick object.
         if ($createNew) {
-            $this->handle = $this->handle->clone();
+            $this->handle = clone $this->handle;
         }
 
         return $this->handle->resizeImage($width, $height, imagick::FILTER_LANCZOS, 1);
@@ -382,7 +363,7 @@ class WFImageImagick
 
         // If we are cropping to a new image, create a new JImage object.
         if ($createNew) {
-            $this->handle = $this->handle->clone();
+            $this->handle = clone $this->handle;
             // @codeCoverageIgnoreEnd
         }
 
@@ -410,7 +391,7 @@ class WFImageImagick
         }
 
         if ($createNew) {
-            $this->handle = $this->handle->clone();
+            $this->handle = clone $this->handle;
         }
 
         $this->handle->rotateImage(new ImagickPixel(), $angle);
@@ -456,7 +437,7 @@ class WFImageImagick
         }
     }
 
-    private function removeExif()
+    public function orientate()
     {
         $rotate = 0;
         $orientation = $this->handle->getImageOrientation();
@@ -475,18 +456,19 @@ class WFImageImagick
         }
 
         if ($rotate) {
-            $this->handle->rotateImage(new ImagickPixel(), $rotate);
+            if ($this->handle->rotateImage(new ImagickPixel(), $rotate)) {
+                $this->handle = clone $this->handle;
+
+                return true;
+            }
         }
 
-        // get iptcc
-        //$iptcc = $img->getImageProfile('iptcc');
+        return false;
+    }
 
+    public function removeExif()
+    {
         $this->handle->stripImage();
-
-        // add back iptcc
-        /*if (!empty($iptcc)) {
-            $img->profileImage($iptcc);
-        }*/
     }
 
     /**
@@ -602,49 +584,29 @@ class WFImageImagick
         $this->destroy();
     }
 
-    /**
-     * Method to get an image filter instance of a specified type.
-     *
-     * @param string $type The image filter type to get
-     *
-     * @return WFImageImagickFilter
-     *
-     * @throws RuntimeException
-     */
-    protected function getFilterInstance($type)
-    {
-        // Sanitize the filter type.
-        $type = strtolower(preg_replace('#[^A-Z0-9_]#i', '', $type));
-
-        // load the filter
-        require_once dirname(__FILE__).'/imagick/filters/'.$type.'.php';
-
-        // Verify that the filter type exists.
-        $className = 'WFImageImagickFilter'.ucfirst($type);
-
-        if (!class_exists($className)) {
-            throw new RuntimeException('The '.ucfirst($type).' image filter is not available.');
-        }
-
-        // Instantiate the filter object.
-        $instance = new $className($this->handle);
-
-        // Verify that the filter type is valid.
-        if (!($instance instanceof WFImageImagickFilter)) {
-            throw new RuntimeException('The '.ucfirst($type).' image filter is not valid.');
-        }
-
-        return $instance;
-    }
-
     public function getType()
     {
-        return $this->type;
+        return self::$type;
     }
 
     public function setType($type)
     {
-        $this->type = $type;
+        self::$type = $type;
+    }
+
+    public function backup()
+    {
+        return clone $this->handle;
+    }
+
+    public function restore($resource)
+    {
+        if (!is_object($resource) || ($resource instanceof Imagick === false)) {
+            throw new LogicException('Invalid image resource');
+        }
+
+        $this->handle->clear();
+        $this->handle = clone $resource;
     }
 
     public function destroy()

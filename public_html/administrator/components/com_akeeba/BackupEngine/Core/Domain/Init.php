@@ -1,22 +1,20 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Core\Domain;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Base\Part;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
-use Psr\Log\LogLevel;
+use RuntimeException;
 
 /**
  * Backup initialization domain
@@ -32,13 +30,74 @@ class Init extends Part
 	/**
 	 * Implements the constructor of the class
 	 *
-	 * @return  Init
+	 * @return  void
 	 */
 	public function __construct()
 	{
 		parent::__construct();
 
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: New instance");
+		Factory::getLog()->debug(__CLASS__ . " :: New instance");
+	}
+
+	/**
+	 * Converts a PHP error to a string
+	 *
+	 * @return  string
+	 */
+	public static function error2string()
+	{
+		if (!function_exists('error_reporting'))
+		{
+			return "Not applicable; host too restrictive";
+		}
+
+		$value       = error_reporting();
+		$level_names = [
+			E_ERROR         => 'E_ERROR', E_WARNING => 'E_WARNING',
+			E_PARSE         => 'E_PARSE', E_NOTICE => 'E_NOTICE',
+			E_CORE_ERROR    => 'E_CORE_ERROR', E_CORE_WARNING => 'E_CORE_WARNING',
+			E_COMPILE_ERROR => 'E_COMPILE_ERROR', E_COMPILE_WARNING => 'E_COMPILE_WARNING',
+			E_USER_ERROR    => 'E_USER_ERROR', E_USER_WARNING => 'E_USER_WARNING',
+			E_USER_NOTICE   => 'E_USER_NOTICE',
+		];
+
+		if (defined('E_STRICT'))
+		{
+			$level_names[E_STRICT] = 'E_STRICT';
+		}
+
+		$levels = [];
+
+		if (($value & E_ALL) == E_ALL)
+		{
+			$levels[] = 'E_ALL';
+			$value    &= ~E_ALL;
+		}
+
+		foreach ($level_names as $level => $name)
+		{
+			if (($value & $level) == $level)
+			{
+				$levels[] = $name;
+			}
+		}
+
+		return implode(' | ', $levels);
+	}
+
+	/**
+	 * Reports whether the error display (output to HTML) is enabled or not
+	 *
+	 * @return string
+	 */
+	public static function errordisplay()
+	{
+		if (!function_exists('ini_get'))
+		{
+			return "Not applicable; host too restrictive";
+		}
+
+		return ini_get('display_errors') ? 'on' : 'off';
 	}
 
 	/**
@@ -49,7 +108,7 @@ class Init extends Part
 	protected function _prepare()
 	{
 		// Load parameters (description and comment)
-		$jpskey = '';
+		$jpskey   = '';
 		$angiekey = '';
 
 		if (!empty($this->_parametersArray))
@@ -98,13 +157,13 @@ class Init extends Part
 
 		// Force load the tag -- do not delete!
 		$kettenrad = Factory::getKettenrad();
-		$tag = $kettenrad->getTag(); // Yes, this is an unused variable by we MUST run this method. DO NOT DELETE.
+		$tag       = $kettenrad->getTag(); // Yes, this is an unused variable by we MUST run this method. DO NOT DELETE.
 
 		// Push the comment and description in temp vars for use in the installer phase
 		$registry->set('volatile.core.description', $this->description);
 		$registry->set('volatile.core.comment', $this->comment);
 
-		$this->setState('prepared');
+		$this->setState(self::STATE_PREPARED);
 	}
 
 	/**
@@ -114,9 +173,9 @@ class Init extends Part
 	 */
 	protected function _run()
 	{
-		if ($this->getState() == 'postrun')
+		if ($this->getState() == self::STATE_POSTRUN)
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Already finished");
+			Factory::getLog()->debug(__CLASS__ . " :: Already finished");
 			$this->setStep('');
 			$this->setSubstep('');
 
@@ -124,7 +183,7 @@ class Init extends Part
 		}
 		else
 		{
-			$this->setState('running');
+			$this->setState(self::STATE_RUNNING);
 		}
 
 		// Initialise the extra notes variable, used by platform classes to return warnings and errors
@@ -139,25 +198,25 @@ class Init extends Part
 		$version = defined('AKEEBABACKUP_VERSION') ? AKEEBABACKUP_VERSION : AKEEBA_VERSION;
 		$date    = defined('AKEEBABACKUP_DATE') ? AKEEBABACKUP_DATE : AKEEBA_DATE;
 
-		Factory::getLog()->log(LogLevel::INFO, "--------------------------------------------------------------------------------");
-		Factory::getLog()->log(LogLevel::INFO, "Akeeba Backup " . $version . ' (' . $date . ')');
-		Factory::getLog()->log(LogLevel::INFO, "--------------------------------------------------------------------------------");
+		Factory::getLog()->info("--------------------------------------------------------------------------------");
+		Factory::getLog()->info("Akeeba Backup " . $version . ' (' . $date . ')');
+		Factory::getLog()->info("--------------------------------------------------------------------------------");
 
 		// PHP configuration variables are tried to be logged only for debug and info log levels
 		if ($registry->get('akeeba.basic.log_level') >= 2)
 		{
-			Factory::getLog()->log(LogLevel::INFO, "--- System Information ---");
-			Factory::getLog()->log(LogLevel::INFO, "PHP Version        :" . PHP_VERSION);
-			Factory::getLog()->log(LogLevel::INFO, "PHP OS             :" . PHP_OS);
-			Factory::getLog()->log(LogLevel::INFO, "PHP SAPI           :" . PHP_SAPI);
+			Factory::getLog()->info("--- System Information ---");
+			Factory::getLog()->info("PHP Version        :" . PHP_VERSION);
+			Factory::getLog()->info("PHP OS             :" . PHP_OS);
+			Factory::getLog()->info("PHP SAPI           :" . PHP_SAPI);
 
 			if (function_exists('php_uname'))
 			{
-				Factory::getLog()->log(LogLevel::INFO, "OS Version         :" . php_uname('s'));
+				Factory::getLog()->info("OS Version         :" . php_uname('s'));
 			}
 
 			$db = Factory::getDatabase();
-			Factory::getLog()->log(LogLevel::INFO, "DB Version         :" . $db->getVersion());
+			Factory::getLog()->info("DB Version         :" . $db->getVersion());
 
 			if (isset($_SERVER['SERVER_SOFTWARE']))
 			{
@@ -172,39 +231,39 @@ class Init extends Part
 				$server = 'n/a';
 			}
 
-			Factory::getLog()->log(LogLevel::INFO, "Web Server         :" . $server);
+			Factory::getLog()->info("Web Server         :" . $server);
 
-			$platform = 'Unknown platform';
-			$version = '(unknown version)';
+			$platform     = 'Unknown platform';
+			$version      = '(unknown version)';
 			$platformData = Platform::getInstance()->getPlatformVersion();
-			Factory::getLog()->log(LogLevel::INFO, $platformData['name'] . " version    :" . $platformData['version']);
+			Factory::getLog()->info($platformData['name'] . " version    :" . $platformData['version']);
 
 			if (isset($_SERVER['HTTP_USER_AGENT']))
 			{
-				Factory::getLog()->log(LogLevel::INFO, "User agent         :" . $_SERVER['HTTP_USER_AGENT']);
+				Factory::getLog()->info("User agent         :" . $_SERVER['HTTP_USER_AGENT']);
 			}
 
-			Factory::getLog()->log(LogLevel::INFO, "Safe mode          :" . ini_get("safe_mode"));
-			Factory::getLog()->log(LogLevel::INFO, "Display errors     :" . ini_get("display_errors"));
-			Factory::getLog()->log(LogLevel::INFO, "Error reporting    :" . self::error2string());
-			Factory::getLog()->log(LogLevel::INFO, "Error display      :" . self::errordisplay());
-			Factory::getLog()->log(LogLevel::INFO, "Disabled functions :" . ini_get("disable_functions"));
-			Factory::getLog()->log(LogLevel::INFO, "open_basedir restr.:" . ini_get('open_basedir'));
-			Factory::getLog()->log(LogLevel::INFO, "Max. exec. time    :" . ini_get("max_execution_time"));
-			Factory::getLog()->log(LogLevel::INFO, "Memory limit       :" . ini_get("memory_limit"));
+			Factory::getLog()->info("Safe mode          :" . ini_get("safe_mode"));
+			Factory::getLog()->info("Display errors     :" . ini_get("display_errors"));
+			Factory::getLog()->info("Error reporting    :" . self::error2string());
+			Factory::getLog()->info("Error display      :" . self::errordisplay());
+			Factory::getLog()->info("Disabled functions :" . ini_get("disable_functions"));
+			Factory::getLog()->info("open_basedir restr.:" . ini_get('open_basedir'));
+			Factory::getLog()->info("Max. exec. time    :" . ini_get("max_execution_time"));
+			Factory::getLog()->info("Memory limit       :" . ini_get("memory_limit"));
 
 			if (function_exists("memory_get_usage"))
 			{
-				Factory::getLog()->log(LogLevel::INFO, "Current mem. usage :" . memory_get_usage());
+				Factory::getLog()->info("Current mem. usage :" . memory_get_usage());
 			}
 
 			if (function_exists("gzcompress"))
 			{
-				Factory::getLog()->log(LogLevel::INFO, "GZIP Compression   : available (good)");
+				Factory::getLog()->info("GZIP Compression   : available (good)");
 			}
 			else
 			{
-				Factory::getLog()->log(LogLevel::INFO, "GZIP Compression   : n/a (no compression)");
+				Factory::getLog()->info("GZIP Compression   : n/a (no compression)");
 			}
 
 			$extraNotes = Platform::getInstance()->log_platform_special_directories();
@@ -215,7 +274,7 @@ class Init extends Part
 				{
 					foreach ($extraNotes['warnings'] as $warning)
 					{
-						$this->setWarning($warning);
+						Factory::getLog()->warning($warning);
 					}
 				}
 
@@ -223,19 +282,24 @@ class Init extends Part
 				{
 					foreach ($extraNotes['errors'] as $error)
 					{
-						$this->setError($error);
+						Factory::getLog()->error($error);
+					}
+
+					if (!empty($extraNotes['errors']))
+					{
+						throw new RuntimeException($extraNotes['errors'][0]);
 					}
 				}
 			}
 
 			$min_time = $registry->get('akeeba.tuning.min_exec_time');
 			$max_time = $registry->get('akeeba.tuning.max_exec_time');
-			$bias	  = $registry->get('akeeba.tuning.run_time_bias');
+			$bias     = $registry->get('akeeba.tuning.run_time_bias');
 
-			Factory::getLog()->log(LogLevel::INFO, "Min/Max/Bias       :" . $min_time.'/'.$max_time.'/'.$bias);
-			Factory::getLog()->log(LogLevel::INFO, "Output directory   :" . $registry->get('akeeba.basic.output_directory'));
-			Factory::getLog()->log(LogLevel::INFO, "Part size (bytes)  :" . $registry->get('engine.archiver.common.part_size', 0));
-			Factory::getLog()->log(LogLevel::INFO, "--------------------------------------------------------------------------------");
+			Factory::getLog()->info("Min/Max/Bias       :" . $min_time . '/' . $max_time . '/' . $bias);
+			Factory::getLog()->info("Output directory   :" . $registry->get('akeeba.basic.output_directory'));
+			Factory::getLog()->info("Part size (bytes)  :" . $registry->get('engine.archiver.common.part_size', 0));
+			Factory::getLog()->info("--------------------------------------------------------------------------------");
 		}
 
 		// Quirks reporting
@@ -243,43 +307,43 @@ class Init extends Part
 
 		if (!empty($quirks))
 		{
-			Factory::getLog()->log(LogLevel::INFO, "Akeeba Backup has detected the following potential problems:");
+			Factory::getLog()->info("Akeeba Backup has detected the following potential problems:");
 
 			foreach ($quirks as $q)
 			{
-				Factory::getLog()->log(LogLevel::INFO, '- ' . $q['code'] . ' ' . $q['description'] . ' (' . $q['severity'] . ')');
+				Factory::getLog()->info('- ' . $q['code'] . ' ' . $q['description'] . ' (' . $q['severity'] . ')');
 			}
 
-			Factory::getLog()->log(LogLevel::INFO, "You probably do not have to worry about them, but you should be aware of them.");
-			Factory::getLog()->log(LogLevel::INFO, "--------------------------------------------------------------------------------");
+			Factory::getLog()->info("You probably do not have to worry about them, but you should be aware of them.");
+			Factory::getLog()->info("--------------------------------------------------------------------------------");
 		}
 
 		$phpVersion = PHP_VERSION;
 
 		if (version_compare($phpVersion, '5.6.0', 'lt'))
 		{
-			$this->setWarning("You are using PHP $phpVersion which is officially End of Life. We recommend using PHP 7.0 or later for best results. Your version of PHP, $phpVersion, will stop being supported by this backup software in the future.");
+			Factory::getLog()->warning("You are using PHP $phpVersion which is officially End of Life. We recommend using PHP 7.0 or later for best results. Your version of PHP, $phpVersion, will stop being supported by this backup software in the future.");
 		}
 
 		// Report profile ID
 		$profile_id = Platform::getInstance()->get_active_profile();
-		Factory::getLog()->log(LogLevel::INFO, "Loaded profile #$profile_id");
+		Factory::getLog()->info("Loaded profile #$profile_id");
 
 		// Get archive name
 		list($relativeArchiveName, $absoluteArchiveName) = $this->getArchiveName();
 
 		// ==== Stats initialisation ===
-		$origin = Platform::getInstance()->get_backup_origin(); // Get backup origin
+		$origin     = Platform::getInstance()->get_backup_origin(); // Get backup origin
 		$profile_id = Platform::getInstance()->get_active_profile(); // Get active profile
 
-		$registry = Factory::getConfiguration();
+		$registry   = Factory::getConfiguration();
 		$backupType = $registry->get('akeeba.basic.backup_type');
-		Factory::getLog()->log(LogLevel::DEBUG, "Backup type is now set to '" . $backupType . "'");
+		Factory::getLog()->debug("Backup type is now set to '" . $backupType . "'");
 
 		// Substitute "variables" in the archive name
-		$fsUtils = Factory::getFilesystemTools();
+		$fsUtils     = Factory::getFilesystemTools();
 		$description = $fsUtils->replace_archive_name_variables($this->description);
-		$comment = $fsUtils->replace_archive_name_variables($this->comment);
+		$comment     = $fsUtils->replace_archive_name_variables($this->comment);
 
 		if ($registry->get('volatile.writer.store_on_server', true))
 		{
@@ -296,7 +360,7 @@ class Init extends Part
 
 		$kettenrad = Factory::getKettenrad();
 
-		$temp = array(
+		$temp = [
 			'description'   => $description,
 			'comment'       => $comment,
 			'backupstart'   => Platform::getInstance()->get_timestamp_database(),
@@ -310,39 +374,25 @@ class Init extends Part
 			'filesexist'    => 1,
 			'tag'           => $kettenrad->getTag(),
 			'backupid'      => $kettenrad->getBackupId(),
-		);
+		];
 
 		// Save the entry
 		$statistics = Factory::getStatistics();
 		$statistics->setStatistics($temp);
-
-		if ($statistics->getError())
-		{
-			$this->setError($statistics->getError());
-
-			return;
-		}
-
 		$statistics->release_multipart_lock();
 
 		// Initialize the archive.
 		if (Factory::getEngineParamsProvider()->getScriptingParameter('core.createarchive', true))
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, "Expanded archive file name: " . $absoluteArchiveName);
+			Factory::getLog()->debug("Expanded archive file name: " . $absoluteArchiveName);
 
-			Factory::getLog()->log(LogLevel::DEBUG, "Initializing archiver engine");
+			Factory::getLog()->debug("Initializing archiver engine");
 			$archiver = Factory::getArchiverEngine();
 			$archiver->initialize($absoluteArchiveName);
 			$archiver->setComment($comment); // Add the comment to the archive itself.
-			$archiver->propagateToObject($this);
-
-			if ($this->getError())
-			{
-				return;
-			}
 		}
 
-		$this->setState('postrun');
+		$this->setState(self::STATE_POSTRUN);
 	}
 
 	/**
@@ -352,71 +402,7 @@ class Init extends Part
 	 */
 	protected function _finalize()
 	{
-		$this->setState('finished');
-	}
-
-	/**
-	 * Converts a PHP error to a string
-	 *
-	 * @return  string
-	 */
-	public static function error2string()
-	{
-		if (function_exists('error_reporting'))
-		{
-			$value = error_reporting();
-		}
-		else
-		{
-			return "Not applicable; host too restrictive";
-		}
-
-		$level_names = array(
-			E_ERROR         => 'E_ERROR', E_WARNING => 'E_WARNING',
-			E_PARSE         => 'E_PARSE', E_NOTICE => 'E_NOTICE',
-			E_CORE_ERROR    => 'E_CORE_ERROR', E_CORE_WARNING => 'E_CORE_WARNING',
-			E_COMPILE_ERROR => 'E_COMPILE_ERROR', E_COMPILE_WARNING => 'E_COMPILE_WARNING',
-			E_USER_ERROR    => 'E_USER_ERROR', E_USER_WARNING => 'E_USER_WARNING',
-			E_USER_NOTICE   => 'E_USER_NOTICE'
-		);
-
-		if (defined('E_STRICT'))
-		{
-			$level_names[E_STRICT] = 'E_STRICT';
-		}
-
-		$levels = array();
-
-		if (($value & E_ALL) == E_ALL)
-		{
-			$levels[] = 'E_ALL';
-			$value &= ~E_ALL;
-		}
-
-		foreach ($level_names as $level => $name)
-		{
-			if (($value & $level) == $level)
-			{
-				$levels[] = $name;
-			}
-		}
-
-		return implode(' | ', $levels);
-	}
-
-	/**
-	 * Reports whether the error display (output to HTML) is enabled or not
-	 *
-	 * @return string
-	 */
-	public static function errordisplay()
-	{
-		if (!function_exists('ini_get'))
-		{
-			return "Not applicable; host too restrictive";
-		}
-
-		return ini_get('display_errors') ? 'on' : 'off';
+		$this->setState(self::STATE_FINISHED);
 	}
 
 	/**
@@ -434,7 +420,7 @@ class Init extends Part
 
 		if (is_null($force_extension))
 		{
-			$archiver = Factory::getArchiverEngine();
+			$archiver  = Factory::getArchiverEngine();
 			$extension = $archiver->getExtension();
 		}
 		else
@@ -444,18 +430,18 @@ class Init extends Part
 
 		// Get the template name
 		$templateName = $registry->get('akeeba.basic.archive_name');
-		Factory::getLog()->log(LogLevel::DEBUG, "Archive template name: $templateName");
+		Factory::getLog()->debug("Archive template name: $templateName");
 
 		// Parse all tags
-		$fsUtils = Factory::getFilesystemTools();
+		$fsUtils      = Factory::getFilesystemTools();
 		$templateName = $fsUtils->replace_archive_name_variables($templateName);
 
-		Factory::getLog()->log(LogLevel::DEBUG, "Expanded template name: $templateName");
+		Factory::getLog()->debug("Expanded template name: $templateName");
 
-		$ds = DIRECTORY_SEPARATOR;
+		$ds            = DIRECTORY_SEPARATOR;
 		$relative_path = $templateName . $extension;
 		$absolute_path = $fsUtils->TranslateWinPath($registry->get('akeeba.basic.output_directory') . $ds . $relative_path);
 
-		return array($relative_path, $absolute_path);
+		return [$relative_path, $absolute_path];
 	}
 }

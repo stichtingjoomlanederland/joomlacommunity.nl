@@ -1,17 +1,15 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Util;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
@@ -109,9 +107,9 @@ class FileSystem
 	 */
 	public function get_archive_name_variables()
 	{
-		$variables = array();
+		$variables = [];
 
-		$registry = Factory::getConfiguration();
+		$registry   = Factory::getConfiguration();
 		$serialized = $registry->get('volatile.core.archivenamevars', null);
 
 		if (!empty($serialized))
@@ -129,11 +127,11 @@ class FileSystem
 			$siteName = Platform::getInstance()->get_site_name();
 			$siteName = htmlentities(utf8_decode($siteName));
 			$siteName = preg_replace(
-				array('/&szlig;/', '/&(..)lig;/', '/&([aouAOU])uml;/', '/&(.)[^;]*;/'),
-				array('ss', "$1", "$1" . 'e', "$1"),
+				['/&szlig;/', '/&(..)lig;/', '/&([aouAOU])uml;/', '/&(.)[^;]*;/'],
+				['ss', "$1", "$1" . 'e', "$1"],
 				$siteName);
 			$siteName = trim(strtolower($siteName));
-			$siteName = preg_replace(array('/\s+/', '/[^A-Za-z0-9\-]/'), array('-', ''), $siteName);
+			$siteName = preg_replace(['/\s+/', '/[^A-Za-z0-9\-]/'], ['-', ''], $siteName);
 
 			if (strlen($siteName) > 50)
 			{
@@ -144,11 +142,11 @@ class FileSystem
 			 * Time components. Expressed in whatever timezone the Platform decides to use.
 			 */
 			// Raw timezone, e.g. "EEST"
-			$rawTz     = Platform::getInstance()->get_local_timestamp("T");
+			$rawTz = Platform::getInstance()->get_local_timestamp("T");
 			// Filename-safe timezone, e.g. "eest". Note the lowercase letters.
-			$fsSafeTZ  = strtolower(str_replace(array(' ', '/', ':'), array('_', '_', '_'), $rawTz));
+			$fsSafeTZ = strtolower(str_replace([' ', '/', ':'], ['_', '_', '_'], $rawTz));
 
-			$variables = array(
+			$variables = [
 				'[DATE]'             => Platform::getInstance()->get_local_timestamp("Ymd"),
 				'[YEAR]'             => Platform::getInstance()->get_local_timestamp("Y"),
 				'[MONTH]'            => Platform::getInstance()->get_local_timestamp("m"),
@@ -166,7 +164,7 @@ class FileSystem
 				'[PLATFORM_NAME]'    => $platformVars['name'],
 				'[PLATFORM_VERSION]' => $platformVars['version'],
 				'[SITENAME]'         => $siteName,
-			);
+			];
 		}
 
 		return $variables;
@@ -191,9 +189,9 @@ class FileSystem
 	 * Expand the platform-specific stock directories variables in the input string. For example "[SITEROOT]/foobar"
 	 * would be expanded to something like "/var/www/html/mysite/foobar"
 	 *
-	 * @param   string  $folder                The input string to expand
-	 * @param   bool    $translate_win_dirs    Should I translate Windows path separators to UNIX path separators? (default: false)
-	 * @param   bool    $trim_trailing_slash   Should I remove the trailing slash (default: false)
+	 * @param   string  $folder               The input string to expand
+	 * @param   bool    $translate_win_dirs   Should I translate Windows path separators to UNIX path separators? (default: false)
+	 * @param   bool    $trim_trailing_slash  Should I remove the trailing slash (default: false)
 	 *
 	 * @return  string  The expanded string
 	 */

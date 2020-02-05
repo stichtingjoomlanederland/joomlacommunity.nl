@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright 	Copyright (c) 2009-2019 Ryan Demmer. All rights reserved
+ * @copyright 	Copyright (c) 2009-2020 Ryan Demmer. All rights reserved
  * @license   	GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * JCE is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -13,16 +13,16 @@ defined('JPATH_PLATFORM') or die;
     <label for="itemtype" class="uk-form-label uk-width-3-10"><?php echo JText::_('WF_LABEL_TYPE'); ?></label>
 
     <div class="uk-form-controls uk-width-7-10">
-        <select id="itemtype" class="uk-datalist" disabled>
-            <option value=""></option>
-        </select>
+        <input type="text" id="itemtype" class="uk-datalist" list="itemtype_datalist" disabled />
+        <datalist id="itemtype_datalist"></datalist>
     </div>
 </div>
 
 <div class="uk-form-row uk-grid uk-grid-small">
     <label for="itemprop" class="uk-form-label uk-width-3-10"><?php echo JText::_('WF_LABEL_PROPERTY'); ?></label>
     <div class="uk-form-controls uk-width-7-10">
-        <select id="itemprop" class="uk-datalist" disabled></select>
+        <input type="text" id="itemprop" class="uk-datalist" list="itemprop_datalist" disabled />
+        <datalist id="itemprop_datalist"></datalist>
     </div>
 </div>
 

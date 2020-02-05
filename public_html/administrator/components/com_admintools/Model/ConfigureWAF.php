@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -20,7 +20,7 @@ class ConfigureWAF extends Model
 	 * @var array
 	 */
 	private $defaultConfig = [
-		'ipworkarounds'                   => 0,
+		'ipworkarounds'                   => 2,
 		'ipwl'                            => 0,
 		'ipbl'                            => 0,
 		'adminpw'                         => '',
@@ -74,8 +74,8 @@ class ConfigureWAF extends Model
 		'twofactorauth_secret'            => '',
 		'twofactorauth_panic'             => '',
 		'whitelist_domains'               => '.googlebot.com,.search.msn.com',
-		'reasons_nolog'                   => 'geoblocking',
-		'reasons_noemail'                 => 'geoblocking',
+		'reasons_nolog'                   => '',
+		'reasons_noemail'                 => '',
 		'resetjoomlatfa'                  => 0,
 		'email_throttle'                  => 1,
 		'permaban'                        => 0,
@@ -197,6 +197,24 @@ class ConfigureWAF extends Model
 			$db->setQuery($query);
 			$db->execute();
 		}
+	}
+
+	/**
+	 * Migrates IP Workarounds set on No to Auto
+	 */
+	public function migrateIpWorkarounds()
+	{
+		$config = $this->getConfig();
+
+		// Already enabled or on auto, nothing to do here
+		if ($config['ipworkarounds'] == 1 || $config['ipworkarounds'] == 2)
+		{
+			return;
+		}
+
+		$config['ipworkarounds'] = 2;
+
+		$this->saveConfig($config);
 	}
 
 	/**

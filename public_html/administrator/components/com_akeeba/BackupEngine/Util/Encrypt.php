@@ -1,21 +1,17 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Util;
 
-// Protection against direct access
 use Akeeba\Engine\Util\AesAdapter\AdapterInterface;
 use Akeeba\Engine\Util\AesAdapter\Mcrypt;
 use Akeeba\Engine\Util\AesAdapter\OpenSSL;
-
-defined('AKEEBAENGINE') or die();
 
 /**
  * AES implementation in PHP (c) Chris Veness 2005-2016.
@@ -29,7 +25,7 @@ class Encrypt
 {
 	// Sbox is pre-computed multiplicative inverse in GF(2^8) used in SubBytes and KeyExpansion [�5.1.1]
 	protected $Sbox =
-		array(
+		[
 			0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
 			0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
 			0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15,
@@ -45,25 +41,25 @@ class Encrypt
 			0xba, 0x78, 0x25, 0x2e, 0x1c, 0xa6, 0xb4, 0xc6, 0xe8, 0xdd, 0x74, 0x1f, 0x4b, 0xbd, 0x8b, 0x8a,
 			0x70, 0x3e, 0xb5, 0x66, 0x48, 0x03, 0xf6, 0x0e, 0x61, 0x35, 0x57, 0xb9, 0x86, 0xc1, 0x1d, 0x9e,
 			0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf,
-			0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16
-		);
+			0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16,
+		];
 
 	// Rcon is Round Constant used for the Key Expansion [1st col is 2^(r-1) in GF(2^8)] [�5.2]
-	protected $Rcon = array(
-		array(0x00, 0x00, 0x00, 0x00),
-		array(0x01, 0x00, 0x00, 0x00),
-		array(0x02, 0x00, 0x00, 0x00),
-		array(0x04, 0x00, 0x00, 0x00),
-		array(0x08, 0x00, 0x00, 0x00),
-		array(0x10, 0x00, 0x00, 0x00),
-		array(0x20, 0x00, 0x00, 0x00),
-		array(0x40, 0x00, 0x00, 0x00),
-		array(0x80, 0x00, 0x00, 0x00),
-		array(0x1b, 0x00, 0x00, 0x00),
-		array(0x36, 0x00, 0x00, 0x00)
-	);
+	protected $Rcon = [
+		[0x00, 0x00, 0x00, 0x00],
+		[0x01, 0x00, 0x00, 0x00],
+		[0x02, 0x00, 0x00, 0x00],
+		[0x04, 0x00, 0x00, 0x00],
+		[0x08, 0x00, 0x00, 0x00],
+		[0x10, 0x00, 0x00, 0x00],
+		[0x20, 0x00, 0x00, 0x00],
+		[0x40, 0x00, 0x00, 0x00],
+		[0x80, 0x00, 0x00, 0x00],
+		[0x1b, 0x00, 0x00, 0x00],
+		[0x36, 0x00, 0x00, 0x00],
+	];
 
-	protected $passwords = array();
+	protected $passwords = [];
 
 	/**
 	 * The algorithm to use for PBKDF2. Must be a supported hash_hmac algorithm. Default: sha1
@@ -96,9 +92,9 @@ class Encrypt
 	/**
 	 * AES Cipher function: encrypt 'input' with Rijndael algorithm
 	 *
-	 * @param string $input  message as byte-array (16 bytes)
-	 * @param array  $w      key schedule as 2D byte-array (Nr+1 x Nb bytes) -
-	 *                       generated from the cipher key by KeyExpansion()
+	 * @param   string  $input  message as byte-array (16 bytes)
+	 * @param   array   $w      key schedule as 2D byte-array (Nr+1 x Nb bytes) -
+	 *                          generated from the cipher key by KeyExpansion()
 	 *
 	 * @return      array  ciphertext as byte-array (16 bytes)
 	 */
@@ -108,11 +104,11 @@ class Encrypt
 		$Nb = 4; // block size (in words): no of columns in state (fixed at 4 for AES)
 		$Nr = count($w) / $Nb - 1; // no of rounds: 10/12/14 for 128/192/256-bit keys
 
-		$state = array(); // initialise 4xNb byte-array 'state' with input [�3.4]
+		$state = []; // initialise 4xNb byte-array 'state' with input [�3.4]
 
 		for ($i = 0; $i < 4 * $Nb; $i++)
 		{
-			$state[$i % 4][(int)floor($i / 4)] = $input[$i];
+			$state[$i % 4][(int) floor($i / 4)] = $input[$i];
 		}
 
 		$state = $this->AddRoundKey($state, $w, 0, $Nb);
@@ -130,98 +126,21 @@ class Encrypt
 		$state = $this->ShiftRows($state, $Nb);
 		$state = $this->AddRoundKey($state, $w, $Nr, $Nb);
 
-		$output = array(4 * $Nb); // convert state to 1-d array before returning [�3.4]
+		$output = [4 * $Nb]; // convert state to 1-d array before returning [�3.4]
 
 		for ($i = 0; $i < 4 * $Nb; $i++)
 		{
-			$output[$i] = $state[$i % 4][(int)floor($i / 4)];
+			$output[$i] = $state[$i % 4][(int) floor($i / 4)];
 		}
 
 		return $output;
-	}
-
-	protected function AddRoundKey($state, $w, $rnd, $Nb)
-	{
-		// xor Round Key into state S [�5.1.4]
-		for ($r = 0; $r < 4; $r++)
-		{
-			for ($c = 0; $c < $Nb; $c++)
-			{
-				$state[$r][$c] ^= $w[$rnd * 4 + $c][$r];
-			}
-		}
-
-		return $state;
-	}
-
-	protected function SubBytes($s, $Nb)
-	{
-		// apply SBox to state S [�5.1.1]
-		for ($r = 0; $r < 4; $r++)
-		{
-			for ($c = 0; $c < $Nb; $c++)
-			{
-				$s[$r][$c] = $this->Sbox[$s[$r][$c]];
-			}
-		}
-
-		return $s;
-	}
-
-	protected function ShiftRows($s, $Nb)
-	{
-		// shift row r of state S left by r bytes [�5.1.2]
-		$t = array(4);
-
-		for ($r = 1; $r < 4; $r++)
-		{
-			// shift into temp copy
-			for ($c = 0; $c < 4; $c++)
-			{
-				$t[$c] = $s[$r][($c + $r) % $Nb];
-			}
-
-			// and copy back
-			for ($c = 0; $c < 4; $c++)
-			{
-				$s[$r][$c] = $t[$c];
-			}
-
-		}
-		// note that this will work for Nb=4,5,6, but not 7,8 (always 4 for AES):
-
-		return $s; // see fp.gladman.plus.com/cryptography_technology/rijndael/aes.spec.311.pdf
-	}
-
-	protected function MixColumns($s, $Nb)
-	{
-		// combine bytes of each col of state S [�5.1.3]
-		for ($c = 0; $c < 4; $c++)
-		{
-			$a = array(4); // 'a' is a copy of the current column from 's'
-			$b = array(4); // 'b' is a�{02} in GF(2^8)
-
-			for ($i = 0; $i < 4; $i++)
-			{
-				$a[$i] = $s[$i][$c];
-				$b[$i] = $s[$i][$c] & 0x80 ? $s[$i][$c] << 1 ^ 0x011b : $s[$i][$c] << 1;
-			}
-
-			// a[n] ^ b[n] is a�{03} in GF(2^8)
-			$s[0][$c] = $b[0] ^ $a[1] ^ $b[1] ^ $a[2] ^ $a[3]; // 2*a0 + 3*a1 + a2 + a3
-			$s[1][$c] = $a[0] ^ $b[1] ^ $a[2] ^ $b[2] ^ $a[3]; // a0 * 2*a1 + 3*a2 + a3
-			$s[2][$c] = $a[0] ^ $a[1] ^ $b[2] ^ $a[3] ^ $b[3]; // a0 + a1 + 2*a2 + 3*a3
-			$s[3][$c] = $a[0] ^ $b[0] ^ $a[1] ^ $a[2] ^ $b[3]; // 3*a0 + a1 + a2 + 2*a3
-		}
-
-		return $s;
 	}
 
 	/**
 	 * Key expansion for Rijndael Cipher(): performs key expansion on cipher key
 	 * to generate a key schedule
 	 *
-	 * @param array $key cipher key byte-array (16 bytes)
+	 * @param   array  $key  cipher key byte-array (16 bytes)
 	 *
 	 * @return    array key schedule as 2D byte-array (Nr+1 x Nb bytes)
 	 */
@@ -232,22 +151,22 @@ class Encrypt
 		$Nk = count($key) / 4; // key length (in words): 4/6/8 for 128/192/256-bit keys
 		$Nr = $Nk + 6; // no of rounds: 10/12/14 for 128/192/256-bit keys
 
-		$w = array();
-		$temp = array();
+		$w    = [];
+		$temp = [];
 
 		for ($i = 0; $i < $Nk; $i++)
 		{
-			$r = array($key[4 * $i], $key[4 * $i + 1], $key[4 * $i + 2], $key[4 * $i + 3]);
+			$r     = [$key[4 * $i], $key[4 * $i + 1], $key[4 * $i + 2], $key[4 * $i + 3]];
 			$w[$i] = $r;
 		}
 
 		for ($i = $Nk; $i < ($Nb * ($Nr + 1)); $i++)
 		{
-			$w[(int)$i] = array();
+			$w[(int) $i] = [];
 
 			for ($t = 0; $t < 4; $t++)
 			{
-				$temp[$t] = $w[(int)$i - 1][$t];
+				$temp[$t] = $w[(int) $i - 1][$t];
 			}
 
 			if ($i % $Nk == 0)
@@ -256,7 +175,7 @@ class Encrypt
 
 				for ($t = 0; $t < 4; $t++)
 				{
-					$temp[$t] ^= $this->Rcon[(int)($i / $Nk)][$t];
+					$temp[$t] ^= $this->Rcon[(int) ($i / $Nk)][$t];
 				}
 			}
 			elseif ($Nk > 6 && $i % $Nk == 4)
@@ -266,64 +185,11 @@ class Encrypt
 
 			for ($t = 0; $t < 4; $t++)
 			{
-				$w[(int)$i][$t] = $w[(int)$i - $Nk][$t] ^ $temp[$t];
+				$w[(int) $i][$t] = $w[(int) $i - $Nk][$t] ^ $temp[$t];
 			}
 		}
 
 		return $w;
-	}
-
-	protected function SubWord($w)
-	{
-		// apply SBox to 4-byte word w
-		for ($i = 0; $i < 4; $i++)
-		{
-			$w[$i] = $this->Sbox[$w[$i]];
-		}
-
-		return $w;
-	}
-
-	protected function RotWord($w)
-	{
-		// rotate 4-byte word w left by one byte
-		$tmp = $w[0];
-
-		for ($i = 0; $i < 3; $i++)
-		{
-			$w[$i] = $w[$i + 1];
-		}
-
-		$w[3] = $tmp;
-
-		return $w;
-	}
-
-	/*
-	 * Unsigned right shift function, since PHP has neither >>> operator nor unsigned ints
-	 *
-	 * @param a  number to be shifted (32-bit integer)
-	 * @param b  number of bits to shift a to the right (0..31)
-	 * @return   a right-shifted and zero-filled by b bits
-	 */
-	protected function urs($a, $b)
-	{
-		$a &= 0xffffffff;
-		$b &= 0x1f; // (bounds check)
-
-		if ($a & 0x80000000 && $b > 0)
-		{
-			// if left-most bit set
-			$a = ($a >> 1) & 0x7fffffff; //   right-shift one bit & clear left-most bit
-			$a = $a >> ($b - 1); //   remaining right-shifts
-		}
-		else
-		{
-			// otherwise
-			$a = ($a >> $b); //   use normal right-shift
-		}
-
-		return $a;
 	}
 
 	/**
@@ -332,9 +198,9 @@ class Encrypt
 	 *
 	 * Unicode multi-byte character safe
 	 *
-	 * @param string $plaintext source text to be encrypted
-	 * @param string $password  the password to use to generate a key
-	 * @param int    $nBits     number of bits to be used in the key (128, 192, or 256)
+	 * @param   string  $plaintext  source text to be encrypted
+	 * @param   string  $password   the password to use to generate a key
+	 * @param   int     $nBits      number of bits to be used in the key (128, 192, or 256)
 	 *
 	 * @return string encrypted text
 	 */
@@ -352,8 +218,8 @@ class Encrypt
 
 		// use AES itself to encrypt password to get cipher key (using plain password as source for
 		// key expansion) - gives us well encrypted key
-		$nBytes = $nBits / 8; // no bytes in key
-		$pwBytes = array();
+		$nBytes  = $nBits / 8; // no bytes in key
+		$pwBytes = [];
 
 		for ($i = 0; $i < $nBytes; $i++)
 		{
@@ -365,10 +231,10 @@ class Encrypt
 
 		// initialise counter block (NIST SP800-38A �B.2): millisecond time-stamp for nonce in
 		// 1st 8 bytes, block counter in 2nd 8 bytes
-		$counterBlock = array();
-		$nonce = floor(microtime(true) * 1000); // timestamp: milliseconds since 1-Jan-1970
-		$nonceSec = floor($nonce / 1000);
-		$nonceMs = $nonce % 1000;
+		$counterBlock = [];
+		$nonce        = floor(microtime(true) * 1000); // timestamp: milliseconds since 1-Jan-1970
+		$nonceSec     = floor($nonce / 1000);
+		$nonceMs      = $nonce % 1000;
 
 		// encode nonce with seconds in 1st 4 bytes, and (repeated) ms part filling 2nd 4 bytes
 		for ($i = 0; $i < 4; $i++)
@@ -393,7 +259,7 @@ class Encrypt
 		$keySchedule = $this->KeyExpansion($key);
 
 		$blockCount = ceil(strlen($plaintext) / $blockSize);
-		$ciphertxt = array(); // ciphertext as array of strings
+		$ciphertxt  = []; // ciphertext as array of strings
 
 		for ($b = 0; $b < $blockCount; $b++)
 		{
@@ -413,7 +279,7 @@ class Encrypt
 
 			// block size is reduced on final block
 			$blockLength = $b < $blockCount - 1 ? $blockSize : (strlen($plaintext) - 1) % $blockSize + 1;
-			$cipherByte = array();
+			$cipherByte  = [];
 
 			for ($i = 0; $i < $blockLength; $i++)
 			{ // -- xor plaintext with ciphered counter byte-by-byte --
@@ -434,9 +300,9 @@ class Encrypt
 	/**
 	 * Decrypt a text encrypted by AES in counter mode of operation
 	 *
-	 * @param string $ciphertext source text to be decrypted
-	 * @param string $password   the password to use to generate a key
-	 * @param int    $nBits      number of bits to be used in the key (128, 192, or 256)
+	 * @param   string  $ciphertext  source text to be decrypted
+	 * @param   string  $password    the password to use to generate a key
+	 * @param   int     $nBits       number of bits to be used in the key (128, 192, or 256)
 	 *
 	 * @return string decrypted text
 	 */
@@ -453,8 +319,8 @@ class Encrypt
 		$ciphertext = base64_decode($ciphertext);
 
 		// use AES to encrypt password (mirroring encrypt routine)
-		$nBytes = $nBits / 8; // no bytes in key
-		$pwBytes = array();
+		$nBytes  = $nBits / 8; // no bytes in key
+		$pwBytes = [];
 
 		for ($i = 0; $i < $nBytes; $i++)
 		{
@@ -465,8 +331,8 @@ class Encrypt
 		$key = array_merge($key, array_slice($key, 0, $nBytes - 16)); // expand key to 16/24/32 bytes long
 
 		// recover nonce from 1st element of ciphertext
-		$counterBlock = array();
-		$ctrTxt = substr($ciphertext, 0, 8);
+		$counterBlock = [];
+		$ctrTxt       = substr($ciphertext, 0, 8);
 
 		for ($i = 0; $i < 8; $i++)
 		{
@@ -478,7 +344,7 @@ class Encrypt
 
 		// separate ciphertext into blocks (skipping past initial 8 bytes)
 		$nBlocks = ceil((strlen($ciphertext) - 8) / $blockSize);
-		$ct = array();
+		$ct      = [];
 
 		for ($b = 0; $b < $nBlocks; $b++)
 		{
@@ -488,7 +354,7 @@ class Encrypt
 		$ciphertext = $ct; // ciphertext is now array of block-length strings
 
 		// plaintext will get generated block-by-block into array of block-length strings
-		$plaintxt = array();
+		$plaintxt = [];
 
 		for ($b = 0; $b < $nBlocks; $b++)
 		{
@@ -505,7 +371,7 @@ class Encrypt
 
 			$cipherCntr = $this->Cipher($counterBlock, $keySchedule); // encrypt counter block
 
-			$plaintxtByte = array();
+			$plaintxtByte = [];
 
 			for ($i = 0; $i < strlen($ciphertext[$b]); $i++)
 			{
@@ -529,13 +395,13 @@ class Encrypt
 	 * The data length is tucked as a 32-bit unsigned integer (little endian)
 	 * after the ciphertext. It supports AES-128 only.
 	 *
-	 * @since  3.0.1
-	 * @author Nicholas K. Dionysopoulos
-	 *
 	 * @param   string  $plaintext  The data to encrypt
 	 * @param   string  $password   Encryption password
 	 *
 	 * @return  string  The ciphertext
+	 * @author Nicholas K. Dionysopoulos
+	 *
+	 * @since  3.0.1
 	 */
 	public function AESEncryptCBC($plaintext, $password)
 	{
@@ -550,7 +416,7 @@ class Encrypt
 		$rand          = new RandomValue();
 		$params        = $this->getKeyDerivationParameters();
 		$useStaticSalt = $params['useStaticSalt'];
-		$keySizeBytes = $params['keySize'];
+		$keySizeBytes  = $params['keySize'];
 
 		if ($useStaticSalt)
 		{
@@ -559,10 +425,10 @@ class Encrypt
 		else
 		{
 			// Create a salt and derive a key from the password using PBKDF2
-			$algorithm    = $params['algorithm'];
-			$iterations   = $params['iterations'];
-			$salt         = $rand->generate(64);
-			$key          = $this->pbkdf2($password, $salt, $algorithm, $iterations, $keySizeBytes);
+			$algorithm  = $params['algorithm'];
+			$iterations = $params['iterations'];
+			$salt       = $rand->generate(64);
+			$key        = $this->pbkdf2($password, $salt, $algorithm, $iterations, $keySizeBytes);
 		}
 
 
@@ -599,13 +465,13 @@ class Encrypt
 	 */
 	public function getKeyDerivationParameters()
 	{
-		return array(
+		return [
 			'keySize'       => 16,
 			'algorithm'     => $this->pbkdf2Algorithm,
 			'iterations'    => $this->pbkdf2Iterations,
 			'useStaticSalt' => $this->pbkdf2UseStaticSalt,
 			'staticSalt'    => $this->pbkdf2StaticSalt,
-		);
+		];
 	}
 
 	/**
@@ -616,13 +482,13 @@ class Encrypt
 	 * contain a little-endian unsigned long integer representing the unpadded
 	 * data length.
 	 *
-	 * @since  3.0.1
-	 * @author Nicholas K. Dionysopoulos
-	 *
 	 * @param   string  $ciphertext  The data to encrypt
 	 * @param   string  $password    Encryption password
 	 *
 	 * @return  string  The plaintext
+	 * @author Nicholas K. Dionysopoulos
+	 *
+	 * @since  3.0.1
 	 */
 	public function AESDecryptCBC($ciphertext, $password)
 	{
@@ -655,7 +521,7 @@ class Encrypt
 			$salt             = substr($salt, 4);
 			$rightStringLimit -= 68;
 
-			$key          = $this->pbkdf2($password, $salt, $algorithm, $iterations, $keySizeBytes);
+			$key = $this->pbkdf2($password, $salt, $algorithm, $iterations, $keySizeBytes);
 		}
 		elseif ($useStaticSalt)
 		{
@@ -710,22 +576,22 @@ class Encrypt
 	 */
 	function createTheWrongIV($password)
 	{
-		static $ivs = array();
+		static $ivs = [];
 
 		$key = md5($password);
 
 		if (!isset($ivs[$key]))
 		{
 			// Create an Initialization Vector (IV) based on the password, using the same technique as for the key
-			$nBytes = 16; // AES uses a 128 -bit (16 byte) block size, hence the IV size is always 16 bytes
-			$pwBytes = array();
+			$nBytes  = 16; // AES uses a 128 -bit (16 byte) block size, hence the IV size is always 16 bytes
+			$pwBytes = [];
 
 			for ($i = 0; $i < $nBytes; $i++)
 			{
 				$pwBytes[$i] = ord(substr($password, $i, 1)) & 0xff;
 			}
 
-			$iv = $this->Cipher($pwBytes, $this->KeyExpansion($pwBytes));
+			$iv    = $this->Cipher($pwBytes, $this->KeyExpansion($pwBytes));
 			$newIV = '';
 
 			foreach ($iv as $int)
@@ -738,6 +604,14 @@ class Encrypt
 
 		return $ivs[$key];
 	}
+
+	/*
+	 * Unsigned right shift function, since PHP has neither >>> operator nor unsigned ints
+	 *
+	 * @param a  number to be shifted (32-bit integer)
+	 * @param b  number of bits to shift a to the right (0..31)
+	 * @return   a right-shifted and zero-filled by b bits
+	 */
 
 	/**
 	 * Expand the password to an appropriate 128-bit encryption key. THIS CODE IS OBSOLETE. DO NOT USE.
@@ -765,7 +639,7 @@ class Encrypt
 		// use AES itself to encrypt password to get cipher key (using plain password as source for
 		// key expansion) - gives us well encrypted key.
 		$nBytes  = $nBits / 8; // Number of bytes in key
-		$pwBytes = array();
+		$pwBytes = [];
 
 		for ($i = 0; $i < $nBytes; $i++)
 		{
@@ -818,7 +692,7 @@ class Encrypt
 	/**
 	 * Returns the length of a string in BYTES, not characters
 	 *
-	 * @param string $string The string to get the length for
+	 * @param   string  $string  The string to get the length for
 	 *
 	 * @return int The size in BYTES
 	 */
@@ -883,7 +757,7 @@ class Encrypt
 			// Perform the other $count - 1 iterations
 			for ($j = 1; $j < $count; $j++)
 			{
-				$last = hash_hmac($algorithm, $last, $password, true);
+				$last      = hash_hmac($algorithm, $last, $password, true);
 				$xorResult ^= $last;
 			}
 
@@ -902,7 +776,8 @@ class Encrypt
 	}
 
 	/**
-	 * @param string $pbkdf2Algorithm
+	 * @param   string  $pbkdf2Algorithm
+	 *
 	 * @return Encrypt
 	 */
 	public function setPbkdf2Algorithm($pbkdf2Algorithm)
@@ -921,7 +796,8 @@ class Encrypt
 	}
 
 	/**
-	 * @param int $pbkdf2Iterations
+	 * @param   int  $pbkdf2Iterations
+	 *
 	 * @return Encrypt
 	 */
 	public function setPbkdf2Iterations($pbkdf2Iterations)
@@ -940,7 +816,8 @@ class Encrypt
 	}
 
 	/**
-	 * @param int $pbkdf2UseStaticSalt
+	 * @param   int  $pbkdf2UseStaticSalt
+	 *
 	 * @return Encrypt
 	 */
 	public function setPbkdf2UseStaticSalt($pbkdf2UseStaticSalt)
@@ -959,7 +836,8 @@ class Encrypt
 	}
 
 	/**
-	 * @param string $pbkdf2StaticSalt
+	 * @param   string  $pbkdf2StaticSalt
+	 *
 	 * @return Encrypt
 	 */
 	public function setPbkdf2StaticSalt($pbkdf2StaticSalt)
@@ -979,11 +857,11 @@ class Encrypt
 	 */
 	public function getStaticSaltExpandedKey($password)
 	{
-		$params        = $this->getKeyDerivationParameters();
-		$keySizeBytes  = $params['keySize'];
-		$algorithm     = $params['algorithm'];
-		$iterations    = $params['iterations'];
-		$staticSalt    = $params['staticSalt'];
+		$params       = $this->getKeyDerivationParameters();
+		$keySizeBytes = $params['keySize'];
+		$algorithm    = $params['algorithm'];
+		$iterations   = $params['iterations'];
+		$staticSalt   = $params['staticSalt'];
 
 		$lookupKey = "PBKDF2-$algorithm-$iterations-" . md5($password . $staticSalt);
 
@@ -993,5 +871,129 @@ class Encrypt
 		}
 
 		return $this->passwords[$lookupKey];
+	}
+
+	protected function AddRoundKey($state, $w, $rnd, $Nb)
+	{
+		// xor Round Key into state S [�5.1.4]
+		for ($r = 0; $r < 4; $r++)
+		{
+			for ($c = 0; $c < $Nb; $c++)
+			{
+				$state[$r][$c] ^= $w[$rnd * 4 + $c][$r];
+			}
+		}
+
+		return $state;
+	}
+
+	protected function SubBytes($s, $Nb)
+	{
+		// apply SBox to state S [�5.1.1]
+		for ($r = 0; $r < 4; $r++)
+		{
+			for ($c = 0; $c < $Nb; $c++)
+			{
+				$s[$r][$c] = $this->Sbox[$s[$r][$c]];
+			}
+		}
+
+		return $s;
+	}
+
+	protected function ShiftRows($s, $Nb)
+	{
+		// shift row r of state S left by r bytes [�5.1.2]
+		$t = [4];
+
+		for ($r = 1; $r < 4; $r++)
+		{
+			// shift into temp copy
+			for ($c = 0; $c < 4; $c++)
+			{
+				$t[$c] = $s[$r][($c + $r) % $Nb];
+			}
+
+			// and copy back
+			for ($c = 0; $c < 4; $c++)
+			{
+				$s[$r][$c] = $t[$c];
+			}
+
+		}
+
+		// note that this will work for Nb=4,5,6, but not 7,8 (always 4 for AES):
+
+		return $s; // see fp.gladman.plus.com/cryptography_technology/rijndael/aes.spec.311.pdf
+	}
+
+	protected function MixColumns($s, $Nb)
+	{
+		// combine bytes of each col of state S [�5.1.3]
+		for ($c = 0; $c < 4; $c++)
+		{
+			$a = [4]; // 'a' is a copy of the current column from 's'
+			$b = [4]; // 'b' is a�{02} in GF(2^8)
+
+			for ($i = 0; $i < 4; $i++)
+			{
+				$a[$i] = $s[$i][$c];
+				$b[$i] = $s[$i][$c] & 0x80 ? $s[$i][$c] << 1 ^ 0x011b : $s[$i][$c] << 1;
+			}
+
+			// a[n] ^ b[n] is a�{03} in GF(2^8)
+			$s[0][$c] = $b[0] ^ $a[1] ^ $b[1] ^ $a[2] ^ $a[3]; // 2*a0 + 3*a1 + a2 + a3
+			$s[1][$c] = $a[0] ^ $b[1] ^ $a[2] ^ $b[2] ^ $a[3]; // a0 * 2*a1 + 3*a2 + a3
+			$s[2][$c] = $a[0] ^ $a[1] ^ $b[2] ^ $a[3] ^ $b[3]; // a0 + a1 + 2*a2 + 3*a3
+			$s[3][$c] = $a[0] ^ $b[0] ^ $a[1] ^ $a[2] ^ $b[3]; // 3*a0 + a1 + a2 + 2*a3
+		}
+
+		return $s;
+	}
+
+	protected function SubWord($w)
+	{
+		// apply SBox to 4-byte word w
+		for ($i = 0; $i < 4; $i++)
+		{
+			$w[$i] = $this->Sbox[$w[$i]];
+		}
+
+		return $w;
+	}
+
+	protected function RotWord($w)
+	{
+		// rotate 4-byte word w left by one byte
+		$tmp = $w[0];
+
+		for ($i = 0; $i < 3; $i++)
+		{
+			$w[$i] = $w[$i + 1];
+		}
+
+		$w[3] = $tmp;
+
+		return $w;
+	}
+
+	protected function urs($a, $b)
+	{
+		$a &= 0xffffffff;
+		$b &= 0x1f; // (bounds check)
+
+		if ($a & 0x80000000 && $b > 0)
+		{
+			// if left-most bit set
+			$a = ($a >> 1) & 0x7fffffff; //   right-shift one bit & clear left-most bit
+			$a = $a >> ($b - 1); //   remaining right-shifts
+		}
+		else
+		{
+			// otherwise
+			$a = ($a >> $b); //   use normal right-shift
+		}
+
+		return $a;
 	}
 }

@@ -1,16 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ @package   akeebabackup
+  ~ @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+  ~ @license   GNU General Public License version 3, or later
+  -->
+
 <extension version="3.8.0" type="package" method="upgrade">
+    <dlid prefix="dlid=" suffix=""/>
     <name>Akeeba Backup package</name>
     <author>Nicholas K. Dionysopoulos</author>
-    <creationDate>2019-10-21</creationDate>
+    <creationDate>2020-01-30</creationDate>
     <packagename>akeeba</packagename>
-    <version>6.6.1</version>
+    <version>7.0.1</version>
     <url>https://www.akeebabackup.com</url>
     <packager>Akeeba Ltd</packager>
     <packagerurl>https://www.akeebabackup.com</packagerurl>
     <copyright>Copyright (c)2006-2019 Akeeba Ltd / Nicholas K. Dionysopoulos</copyright>
     <license>GNU GPL v3 or later</license>
-    <description>Akeeba Backup installation package v.6.6.1</description>
+    <description>Akeeba Backup installation package v.7.0.1</description>
 
     <!-- List of extensions to install -->
     <files>
@@ -33,7 +40,7 @@
         <!-- Plugins: actionlog -->
         <file type="plugin" group="actionlog" id="akeebabackup">plg_actionlog_akeebabackup.zip</file>
 
-        <!-- Plugins: installer -->
+        <!-- Plugins: installer (Pro only) -->
         <file type="plugin" group="installer" id="akeebabackup">plg_installer_akeebabackup.zip</file>
     </files>
 

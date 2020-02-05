@@ -633,8 +633,8 @@ class RSEventsProQuery
 	protected function filters($fromrequest = false) {
 		$app	= JFactory::getApplication();
 		$input	= $app->input;
-		$itemid = $input->getInt('Itemid');
-		$parent	= $input->getInt('parent');
+		$itemid = $input->getInt('Itemid',0);
+		$parent	= $input->getInt('parent',0);
 		
 		if ($fromrequest) {
 			$columns 	= $input->get('filter_from', 		array(), 'array');

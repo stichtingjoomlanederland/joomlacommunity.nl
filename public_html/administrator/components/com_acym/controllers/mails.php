@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class MailsController extends acymController
 {
@@ -19,9 +10,9 @@ class MailsController extends acymController
         $type = acym_getVar('string', 'type');
         $this->breadcrumb[acym_translation('automation' != $type ? 'ACYM_TEMPLATES' : 'ACYM_AUTOMATION')] = acym_completeLink('automation' != $type ? 'mails' : 'automation');
         $this->loadScripts = [
-            'edit' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'parse-css', 'vue-applications', 'vue-prism-editor'],
-            'apply' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'parse-css', 'vue-applications', 'vue-prism-editor'],
-            'test' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'parse-css', 'vue-applications', 'vue-prism-editor'],
+            'edit' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'introjs', 'parse-css', 'vue-applications' => ['code_editor'], 'vue-prism-editor', 'editor-wysid'],
+            'apply' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'introjs', 'parse-css', 'vue-applications' => ['code_editor'], 'vue-prism-editor', 'editor-wysid'],
+            'test' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'introjs', 'parse-css', 'vue-applications' => ['code_editor'], 'vue-prism-editor', 'editor-wysid'],
         ];
         header('X-XSS-Protection:0');
     }
@@ -36,7 +27,8 @@ class MailsController extends acymController
         $status = 'standard';
         $orderingSortOrder = acym_getVar('string', 'mails_ordering_sort_order', 'desc');
 
-        $mailsPerPage = 12;
+        $pagination = acym_get('helper.pagination');
+        $mailsPerPage = $pagination->getListLimit();
         $page = acym_getVar('int', 'mails_pagination_page', 1);
 
         $requestData = [
@@ -48,7 +40,7 @@ class MailsController extends acymController
             'status' => $status,
             'ordering_sort_order' => $orderingSortOrder,
         ];
-        $matchingMails = $this->getMatchingElementsFromData($requestData, 'mail', $status);
+        $matchingMails = $this->getMatchingElementsFromData($requestData, $status, $page);
 
         $matchingMailsNb = count($matchingMails['elements']);
 
@@ -66,7 +58,6 @@ class MailsController extends acymController
             }
         }
 
-        $pagination = acym_get('helper.pagination');
         $pagination->setStatus($matchingMails['total'], $page, $mailsPerPage);
 
         $mailsData = [
@@ -213,10 +204,11 @@ class MailsController extends acymController
         }
 
         $data = [
-            "mail" => $mail,
+            'mail' => $mail,
             'allTags' => acym_get('class.tag')->getAllTagsByType('mail'),
             'isAutomationAdmin' => $isAutomationAdmin,
             'social_icons' => $this->config->get('social_icons', '{}'),
+            'fromId' => $fromId,
         ];
 
         if (!empty($return)) $data['return'] = $return;
@@ -240,6 +232,7 @@ class MailsController extends acymController
         $formData = acym_getVar('array', 'mail', []);
         $mail = new stdClass();
         $allowedFields = acym_getColumns('mail');
+        $fromId = acym_getVar('int', 'fromId', '');
         $return = acym_getVar('string', 'return');
         $fromAutomation = false;
         if (!empty($return) && strpos($return, 'automation') !== false) $fromAutomation = true;
@@ -273,6 +266,12 @@ class MailsController extends acymController
         if (empty($mail->id)) {
             $mail->creation_date = acym_date('now', 'Y-m-d H:i:s', false);
         }
+
+        if (!empty($fromId) && empty($mail->thumbnail) && !$fromAutomation) {
+            $thumbname = $this->setThumbnailFrom($fromId);
+            if (!empty($thumbname)) $mail->thumbnail = $thumbname;
+        }
+
         $mailID = $mailClass->save($mail);
         if (!empty($mailID)) {
             if (!$ajax) acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success');
@@ -293,6 +292,29 @@ class MailsController extends acymController
 
             return false;
         }
+    }
+
+    protected function setThumbnailFrom($fromId)
+    {
+        $thumbNb = $this->config->get('numberThumbnail', 2);
+        $fileName = 'thumbnail_'.($thumbNb + 1).'.png';
+        $newConfig = new stdClass();
+        $newConfig->numberThumbnail = $thumbNb + 1;
+        $this->config->save($newConfig);
+
+        $mailClass = acym_get('class.mail');
+        $fromMail = $mailClass->getOneById($fromId);
+        $fromThumbnail = $fromMail->thumbnail;
+
+        $ret = acym_createFolder(ACYM_UPLOAD_FOLDER_THUMBNAIL);
+        if (!$ret) return '';
+
+        $fromThumbnailSource = acym_fileGetContent(acym_getMailThumbnail($fromThumbnail));
+        if (empty($fromThumbnailSource)) return '';
+
+        file_put_contents(ACYM_UPLOAD_FOLDER_THUMBNAIL.$fileName, $fromThumbnailSource);
+
+        return $fileName;
     }
 
     public function apply()
@@ -334,6 +356,7 @@ class MailsController extends acymController
 
     public function getTemplateAjax()
     {
+        $pagination = acym_get('helper.pagination');
         $id = acym_getVar('int', 'id');
         $id = empty($id) ? '' : '&id='.$id;
         $searchFilter = acym_getVar('string', 'search', '');
@@ -346,7 +369,7 @@ class MailsController extends acymController
         $returnUrl = acym_getVar('string', 'return');
         $returnUrl = empty($returnUrl) || 'undefined' == $returnUrl ? '' : '&return='.urlencode($returnUrl);
 
-        $mailsPerPage = 12;
+        $mailsPerPage = $pagination->getListLimit();
         $page = acym_getVar('int', 'pagination_page_ajax', 1);
         $page != 'undefined' ? : $page = '1';
 
@@ -361,6 +384,7 @@ class MailsController extends acymController
                 'tag' => $tagFilter,
                 'editor' => $editor,
                 'onlyStandard' => true,
+                'creator_id' => $this->setFrontEndParamsForTemplateChoose(),
             ]
         );
 
@@ -391,13 +415,17 @@ class MailsController extends acymController
 
         $return .= '</div>';
 
-        $pagination = acym_get('helper.pagination');
         $pagination->setStatus($matchingMails['total'], $page, $mailsPerPage);
 
         $return .= $pagination->displayAjax();
 
         echo $return;
         exit;
+    }
+
+    protected function setFrontEndParamsForTemplateChoose()
+    {
+        return '';
     }
 
     public function getMailContent()
@@ -564,9 +592,10 @@ class MailsController extends acymController
     {
         $socialName = acym_getVar('string', 'social', '');
         $extension = pathinfo($_FILES['file']['name']);
-        $newPath = ACYM_UPLOAD_FOLDER.'socials'.DS.$socialName.'.'.$extension['extension'];
+        $newPath = ACYM_UPLOAD_FOLDER.'socials'.DS.$socialName;
+        $newPathComplete = $newPath.'.'.$extension['extension'];
 
-        if (!acym_uploadFile($_FILES['file']['tmp_name'], ACYM_ROOT.$newPath) || empty($socialName)) {
+        if (!acym_uploadFile($_FILES['file']['tmp_name'], ACYM_ROOT.$newPathComplete) || empty($socialName)) {
             echo 'error';
             exit;
         }
@@ -574,13 +603,19 @@ class MailsController extends acymController
         $newConfig = new stdClass();
         $newConfig->social_icons = json_decode($this->config->get('social_icons', '{}'), true);
 
-        $newImg = acym_rootURI().$newPath;
+        $newImg = acym_rootURI().$newPathComplete;
+        $newImgWithoutExtension = acym_rootURI().$newPath;
 
         $newConfig->social_icons[$socialName] = $newImg;
         $newConfig->social_icons = json_encode($newConfig->social_icons);
         $this->config->save($newConfig);
 
-        echo $newImg;
+        echo json_encode(
+            [
+                'url' => $newImgWithoutExtension,
+                'extension' => $extension['extension'],
+            ]
+        );
         exit;
     }
 

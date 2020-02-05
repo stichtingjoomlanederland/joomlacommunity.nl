@@ -150,6 +150,24 @@ class EasyDiscussViewProfile extends EasyDiscussView
 			$pagination	= $model->getPagination();
 		}
 
+		if ($type == 'pending') {
+			if (ED::isModerator() || ($this->my->id == $profile->id)) {
+				$options = array(
+					'filter' => $type, 
+					'userId' => $profile->id, 
+					'includeAnonymous' => true, 
+					'includeCluster' => false,
+					'private' => true,
+					'published' => DISCUSS_ID_PENDING
+				);
+
+				$posts = $model->getDiscussions($options);
+				$paginationModel = $model->getPagination();
+			} else {
+				$posts = array();
+			}
+		}
+
 		// preload post items
 		ED::post($posts);
 

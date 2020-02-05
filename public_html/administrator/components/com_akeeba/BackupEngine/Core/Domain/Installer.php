@@ -1,22 +1,19 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Core\Domain;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Base\Part;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
-use Psr\Log\LogLevel;
 
 /**
  * Installer deployment
@@ -39,13 +36,13 @@ class Installer extends Part
 	/**
 	 * Public constructor
 	 *
-	 * @return Installer
+	 * @return  void
 	 */
 	public function __construct()
 	{
 		parent::__construct();
 
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: New instance");
+		Factory::getLog()->debug(__CLASS__ . " :: New instance");
 	}
 
 	/**
@@ -61,13 +58,13 @@ class Installer extends Part
 		if ($this->installerSettings->readme)
 		{
 			$data = $this->createReadme();
-			$archive->addVirtualFile('README.html', $this->installerSettings->installerroot, $data);
+			$archive->addFileVirtual('README.html', $this->installerSettings->installerroot, $data);
 		}
 
 		if ($this->installerSettings->extrainfo)
 		{
 			$data = $this->createExtrainfo();
-			$archive->addVirtualFile('extrainfo.json', $this->installerSettings->installerroot, $data);
+			$archive->addFileVirtual('extrainfo.json', $this->installerSettings->installerroot, $data);
 		}
 
 		if ($this->installerSettings->password)
@@ -76,14 +73,14 @@ class Installer extends Part
 
 			if (!empty($data))
 			{
-				$archive->addVirtualFile('password.php', $this->installerSettings->installerroot, $data);
+				$archive->addFileVirtual('password.php', $this->installerSettings->installerroot, $data);
 			}
 		}
 
 		$this->progress = 0;
 
 		// Set our state to prepared
-		$this->setState('prepared');
+		$this->setState(self::STATE_PREPARED);
 	}
 
 	/**
@@ -91,27 +88,24 @@ class Installer extends Part
 	 */
 	function _run()
 	{
-		if ($this->getState() == 'postrun')
+		if ($this->getState() == self::STATE_POSTRUN)
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Already finished");
+			Factory::getLog()->debug(__CLASS__ . " :: Already finished");
 			$this->setStep('');
 			$this->setSubstep('');
 		}
 		else
 		{
-			$this->setState('running');
+			$this->setState(self::STATE_RUNNING);
 		}
 
 		// Try to step the archiver
 		$archive = Factory::getArchiverEngine();
-		$ret = $archive->transformJPA($this->xformIndex, $this->offset);
+		$ret     = $archive->transformJPA($this->xformIndex, $this->offset);
 
-		// Error propagation
-		$this->propagateFromObject($archive);
-
-		if (($ret !== false) && ($archive->getError() == ''))
+		if ($ret !== false)
 		{
-			$this->offset = $ret['offset'];
+			$this->offset     = $ret['offset'];
 			$this->xformIndex = $ret['index'];
 			$this->setStep($ret['filename']);
 		}
@@ -119,8 +113,8 @@ class Installer extends Part
 		// Check for completion
 		if ($ret['done'])
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . ":: archive is initialized");
-			$this->setState('finished');
+			Factory::getLog()->debug(__CLASS__ . ":: archive is initialized");
+			$this->setState(self::STATE_FINISHED);
 		}
 
 		// Calculate percentage
@@ -138,8 +132,17 @@ class Installer extends Part
 	 */
 	function _finalize()
 	{
-		$this->setState('finished');
+		$this->setState(self::STATE_FINISHED);
 		$this->progress = 1;
+	}
+
+	/**
+	 * Implements the progress calculation based on how much of the installer image
+	 * archive we have processed so far.
+	 */
+	public function getProgress()
+	{
+		return $this->progress;
 	}
 
 	/**
@@ -191,11 +194,11 @@ ENDHTML;
 
 	protected function createExtrainfo()
 	{
-		$abversion = defined('AKEEBABACKUP_VERSION') ? AKEEBABACKUP_VERSION : AKEEBA_VERSION;
-		$host = Platform::getInstance()->get_host();
+		$abversion  = defined('AKEEBABACKUP_VERSION') ? AKEEBABACKUP_VERSION : AKEEBA_VERSION;
+		$host       = Platform::getInstance()->get_host();
 		$backupdate = gmdate('Y-m-d H:i:s');
 		$phpversion = PHP_VERSION;
-		$rootPath = Platform::getInstance()->get_site_root();
+		$rootPath   = Platform::getInstance()->get_site_root();
 
 		$data = [
 			'host'           => $host,
@@ -213,7 +216,7 @@ ENDHTML;
 	protected function createPasswordFile()
 	{
 		$config = Factory::getConfiguration();
-		$ret = '';
+		$ret    = '';
 
 		$password = $config->get('engine.installer.angie.key', '');
 
@@ -224,21 +227,11 @@ ENDHTML;
 
 		$randVal = Factory::getRandval();
 
-		$salt = $randVal->generateString(32);
+		$salt     = $randVal->generateString(32);
 		$passhash = md5($password . $salt) . ':' . $salt;
-		$ret = "<?php\n";
-		$ret .= "define('AKEEBA_PASSHASH', '" . $passhash . "');\n";
+		$ret      = "<?php\n";
+		$ret      .= "define('AKEEBA_PASSHASH', '" . $passhash . "');\n";
 
 		return $ret;
-	}
-
-
-	/**
-	 * Implements the progress calculation based on how much of the installer image
-	 * archive we have processed so far.
-	 */
-	public function getProgress()
-	{
-		return $this->progress;
 	}
 }

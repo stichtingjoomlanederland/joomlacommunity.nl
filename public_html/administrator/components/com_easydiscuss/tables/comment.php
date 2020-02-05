@@ -48,8 +48,10 @@ class DiscussComment extends EasyDiscussTable
 			jimport('joomla.filter.filterinput');
 			$filter	= JFilterInput::getInstance();
 
+			// $comment = $filter->clean($post->comment);
+			$comment = htmlentities($post->comment);
+
 			//replace a url to link
-			$comment = $filter->clean($post->comment);
 			$comment = ED::string()->url2link($comment);
 
 			$this->comment = $comment;

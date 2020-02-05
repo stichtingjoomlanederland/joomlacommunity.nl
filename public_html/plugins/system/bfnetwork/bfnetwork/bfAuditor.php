@@ -616,6 +616,42 @@ final class bfAudit
         @unlink(dirname(__FILE__).'/tmp/Files');
 
         bfLog::truncate();
+
+        $this->logStartAudit();
+    }
+
+    private function logfinishAudit()
+    {
+        bfActivitylog::getInstance()->log(
+            'bfNetwork',
+            '',
+            'Audit Finished',
+            'onAuditFinished',
+            'bfNetwork',
+            null,
+            null,
+            '',
+            bfEvents::onAuditFinished,
+            'onAuditFinished',
+            bfEvents::onAuditFinished
+        );
+    }
+
+    private function logStartAudit()
+    {
+        bfActivitylog::getInstance()->log(
+            'bfNetwork',
+            '',
+            'Audit Started',
+            'onAuditStarted',
+            'bfNetwork',
+            null,
+            null,
+            '',
+            bfEvents::onAuditStarted,
+            'onAuditStarted',
+            bfEvents::onAuditStarted
+        );
     }
 
     /**
@@ -1070,6 +1106,8 @@ final class bfAudit
         @unlink('tmp/Files');
 
         bfLog::log('===== AUDIT COMPLETE =====');
+
+        $this->logfinishAudit();
     }
 
     /**
@@ -1101,6 +1139,15 @@ final class bfAudit
     {
         // Ask Joomla API for some settings
         $config = JFactory::getApplication('site');
+
+        // Get some Joomla version
+        $VERSION = new JVersion();
+
+        if ('1.5' == $VERSION->RELEASE) {
+            $this->nextStepPlease();
+
+            return;
+        }
 
         try {
             // Send an email to see if we received it... Tests if the Joomla Global Config mailer settings are correct.
@@ -2199,11 +2246,33 @@ final class bfAudit
                                 }
                             }
 
-                            //100% Certain if a file matches this regex then its hacked
+                            // 100% Certain if a file matches this regex then its hacked
                             if (preg_match('/index\.html\.bak\.bak/i', $chunk)) {
                                 $isHacked = true;
-                            } else {
-                                $isHacked = false;
+                            }
+
+                            // 100% Certain if a file matches this regex then its hacked
+                            if (preg_match('/@include\s\"\\057hom/i', $chunk)) {
+                                $isHacked = true;
+                            }
+
+                            // 100% Certain if a file matches this regex then its hacked
+                            if (preg_match('/143o\";/i', $chunk)) {
+                                $isHacked = true;
+                            }
+
+                            // 100% Certain if a file matches this regex then its hacked
+                            // UTF-8 for GLOBALS
+//                            if (preg_match('/\\x47\\x4c\\x4fB\\x41\\x4c\\x53/i', $chunk)) {
+//                                $isHacked = true;
+//                            }
+
+                            // 100% Certain if a file matches this regex then its hacked
+                            if (preg_match('/well-known\/acme-challenge\/index\.php/', $file_to_scan->filewithpath)
+                                || preg_match('/well-known\/pki-validation\/index\.php/', $file_to_scan->filewithpath)
+                                || preg_match('/well-known\/index\.php/', $file_to_scan->filewithpath)
+                            ) {
+                                $isHacked = 1;
                             }
 
                             if (!$isHacked) {
@@ -2423,7 +2492,7 @@ final class bfAudit
 
         bfLog::log(' =Marking this number of files as _hacked = '.count($this->_hackedIds));
         if (count($this->_hackedIds)) {
-            $sql = 'UPDATE bf_files SET `hacked` = 1, queued = 0  WHERE id IN(%s)';
+            $sql = 'UPDATE bf_files SET `hacked` = 1, suspectcontent = 1, queued = 0  WHERE id IN(%s)';
             $sql = sprintf($sql, implode(', ', $this->_hackedIds));
             $this->db->setQuery($sql);
             if ($this->db->query()) {
@@ -2764,7 +2833,7 @@ filewithpath like '%utf8\-%'
         $this->encrypted_files = $this->db->LoadResult();
 
         // Report suspect files
-        $this->db->setQuery('SELECT COUNT(*) FROM bf_files WHERE suspectcontent = 1');
+        $this->db->setQuery('SELECT COUNT(*) FROM bf_files WHERE suspectcontent = 1 or hacked = 1');
         $this->suspectfiles = $this->db->LoadResult();
 
         // Report mailer files

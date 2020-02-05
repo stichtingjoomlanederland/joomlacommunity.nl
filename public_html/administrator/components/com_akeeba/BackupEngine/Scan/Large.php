@@ -1,31 +1,33 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Scan;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
 
+
+use Akeeba\Engine\Base\Exceptions\WarningException;
 use Akeeba\Engine\Factory;
+use DirectoryIterator;
+use Exception;
+use RuntimeException;
 
 /* Windows system detection */
 if (!defined('_AKEEBA_IS_WINDOWS'))
 {
+	$isWindows = DIRECTORY_SEPARATOR == '\\';
+
 	if (function_exists('php_uname'))
 	{
-		define('_AKEEBA_IS_WINDOWS', stristr(php_uname(), 'windows'));
+		$isWindows = stristr(php_uname(), 'windows');
 	}
-	else
-	{
-		define('_AKEEBA_IS_WINDOWS', DIRECTORY_SEPARATOR == '\\');
-	}
+
+	define('_AKEEBA_IS_WINDOWS', $isWindows);
 }
 
 /**
@@ -39,18 +41,14 @@ if (!defined('_AKEEBA_IS_WINDOWS'))
  */
 class Large extends Base
 {
-	public function &getFiles($folder, &$position)
+	public function getFiles($folder, &$position)
 	{
-		$result = $this->scanFolder($folder, $position, false, 'file', 100);
-
-		return $result;
+		return $this->scanFolder($folder, $position, false, 'file', 100);
 	}
 
-	public function &getFolders($folder, &$position)
+	public function getFolders($folder, &$position)
 	{
-		$result = $this->scanFolder($folder, $position, true, 'dir', 50);
-
-		return $result;
+		return $this->scanFolder($folder, $position, true, 'dir', 50);
 	}
 
 	protected function scanFolder($folder, &$position, $forFolders = true, $threshold_key = 'dir', $threshold_default = 50)
@@ -58,30 +56,31 @@ class Large extends Base
 		$registry = Factory::getConfiguration();
 
 		// Initialize variables
-		$arr = array();
+		$arr   = [];
 		$false = false;
 
 		if (!is_dir($folder) && !is_dir($folder . '/'))
 		{
-			return $false;
+			throw new WarningException('Cannot list contents of directory ' . $folder . ' -- PHP reports it as not a folder.');
+		}
+
+		if (!@is_readable($folder))
+		{
+			throw new WarningException('Cannot list contents of directory ' . $folder . ' -- PHP reports it as not readable.');
 		}
 
 		try
 		{
-			$di = new \DirectoryIterator($folder);
+			$di = new DirectoryIterator($folder);
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
-			$this->setWarning('Unreadable directory ' . $folder);
-
-			return $false;
+			throw new WarningException('Cannot list contents of directory ' . $folder . ' -- PHP\'s DirectoryIterator reports the path cannot be opened.', 0, $e);
 		}
 
 		if (!$di->valid())
 		{
-			$this->setWarning('Unreadable directory ' . $folder);
-
-			return $false;
+			throw new WarningException('Cannot list contents of directory ' . $folder . ' -- PHP\'s DirectoryIterator could open the folder but immediately reports itself as not valid. If this happens your server is about to die.');
 		}
 
 		if (!empty($position))
@@ -96,7 +95,7 @@ class Large extends Base
 			}
 		}
 
-		$counter = 0;
+		$counter    = 0;
 		$maxCounter = $registry->get("engine.scan.large.{$threshold_key}_threshold", $threshold_default);
 
 		while ($di->valid())
@@ -106,14 +105,15 @@ class Large extends Base
 			 * will get a RuntimeException (tested on PHP 5.3 onwards). Catching it lets us report the link as
 			 * unreadable without suffering a PHP Fatal Error.
 			 */
-			try {
+			try
+			{
 				$di->isLink();
 			}
-			catch (\RuntimeException $e)
+			catch (RuntimeException $e)
 			{
-				if (!in_array($di->getFilename(), array('.', '..')))
+				if (!in_array($di->getFilename(), ['.', '..']))
 				{
-					$this->setWarning(sprintf("Link %s is inaccessible. Check the open_basedir restrictions in your server's PHP configuration", $di->getPathname()));
+					Factory::getLog()->warning(sprintf("Link %s is inaccessible. Check the open_basedir restrictions in your server's PHP configuration", $di->getPathname()));
 				}
 
 				$di->next();
@@ -135,7 +135,7 @@ class Large extends Base
 				continue;
 			}
 
-			$ds = ($folder == '') || ($folder == '/') || (@substr($folder, -1) == '/') || (@substr($folder, -1) == DIRECTORY_SEPARATOR) ? '' : DIRECTORY_SEPARATOR;
+			$ds  = ($folder == '') || ($folder == '/') || (@substr($folder, -1) == '/') || (@substr($folder, -1) == DIRECTORY_SEPARATOR) ? '' : DIRECTORY_SEPARATOR;
 			$dir = $folder . $ds . $di->getFilename();
 
 			$data = _AKEEBA_IS_WINDOWS ? Factory::getFilesystemTools()->TranslateWinPath($dir) : $dir;
@@ -150,23 +150,14 @@ class Large extends Base
 			{
 				break;
 			}
-			else
-			{
-				$di->next();
-			}
+
+			$di->next();
 		}
 
 		// Determine the new value for the position
 		$di->next();
 
-		if ($di->valid())
-		{
-			$position = $di->key() - 1;
-		}
-		else
-		{
-			$position = null;
-		}
+		$position = $di->valid() ? ($di->key() - 1) : null;
 
 		return $arr;
 	}

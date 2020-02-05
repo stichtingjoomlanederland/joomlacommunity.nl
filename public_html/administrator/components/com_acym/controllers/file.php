@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class FileController extends acymController
 {
@@ -21,13 +12,16 @@ class FileController extends acymController
 
     public function select()
     {
-        $uploadFolders = $this->config->get('uploadfolder', ACYM_UPLOAD_FOLDER);
-        $uploadFolder = acym_getVar('string', 'currentFolder', $uploadFolders);
-        $uploadPath = acym_cleanPath(ACYM_ROOT.trim(str_replace('/', DS, trim($uploadFolder)), DS));
+        $uploadFolderBase = acym_getFilesFolder();
+        $currentFolder = acym_getVar('string', 'currentFolder', $uploadFolderBase);
+        if (strpos($currentFolder, $uploadFolderBase) !== 0) $currentFolder = $uploadFolderBase;
+
+        $uploadFolder = trim(str_replace('/', DS, trim($currentFolder)), DS);
+        $uploadPath = acym_cleanPath(ACYM_ROOT.$uploadFolder);
         $map = acym_getVar('string', 'id');
         acym_setVar('layout', 'select');
 
-        $folders = acym_generateArborescence([$uploadFolders]);
+        $folders = acym_generateArborescence([$uploadFolderBase]);
 
 
         $uploadedFile = acym_getVar('array', 'uploadedFile', [], 'files');

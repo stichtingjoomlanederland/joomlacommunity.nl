@@ -1,21 +1,17 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Platform\Exception;
 
-// Protection against direct access
 use Akeeba\Engine\Platform;
 use Exception;
 use RuntimeException;
-
-defined('AKEEBAENGINE') or die();
 
 /**
  * Thrown when the settings cannot be decrypted, e.g. when the server no longer has encyrption enabled or the key has

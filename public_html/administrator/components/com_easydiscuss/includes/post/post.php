@@ -1450,6 +1450,12 @@ class EasyDiscussPost extends EasyDiscuss
 	 */
 	public function validate($data = array(), $operation = null, $options = array())
 	{
+		// since this function is being called from backend as well,
+		// we need to ensure we've loaded frontend language files or else
+		// backend will not show the correct error message. #806
+		ED::loadLanguages();
+
+
 		// Perform captcha validation
 		if (!$this->validateCaptcha($data)) {
 			return false;
@@ -2206,6 +2212,21 @@ class EasyDiscussPost extends EasyDiscuss
 	}
 
 	/**
+	 * Determines if the current discussion is mine.
+	 *
+	 * @since   4.1
+	 * @access  public
+	 */
+	public function isMine()
+	{
+		if ($this->post->user_id == ED::user()->id) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Determines if the current user read the forum post before
 	 *
 	 * @since   4.0
@@ -2884,7 +2905,7 @@ class EasyDiscussPost extends EasyDiscuss
 					// let unset the last_user_id here so that system
 					// will get the next last replier
 					unset($this->last_user_id);
-				} 
+				}
 			}
 
 			if (isset($this->last_user_id)) {
@@ -3472,7 +3493,7 @@ class EasyDiscussPost extends EasyDiscuss
 			if ($this->post->user_id) {
 
 				// var_dump($this->post->anonymous && ($this->post->user_id != $this->my->id || !ED::isSiteAdmin()));
-				$showAsAnonymous = ($this->post->anonymous && ($this->post->user_id != $this->my->id && !ED::isSiteAdmin())) ? true : false;
+				$showAsAnonymous = ($this->post->anonymous && ($this->post->user_id != $this->my->id && !ED::isModerator())) ? true : false;
 
 				// Email section shouldn't show admin name if it post as anonymous
 				if ($isEmail && ED::isSiteAdmin() && $this->post->anonymous) {
@@ -4397,31 +4418,14 @@ class EasyDiscussPost extends EasyDiscuss
 
 	/**
 	 * filter the content length
+	 * Convert to use mailer library trimEmail function
 	 *
 	 * @since   4.0
 	 * @access  public
 	 */
 	public function trimEmail($content)
 	{
-		$config = ED::getConfig();
-
-		if ($config->get('layout_editor') != 'bbcode') {
-
-			$filterHtmlTag = '<p><div><table><tr><td><thead><tbody><br><br />';
-
-			// Remove html + img tags
-			$content = strip_tags($content, $filterHtmlTag);
-
-			return $content;
-		}
-
-		if ($config->get('main_notification_max_length') > '0') {
-
-			$content = $this->truncateContentByLength($content, '0', $config->get('main_notification_max_length'));
-		}
-
-		// Remove video codes from the e-mail since it will not appear on e-mails
-		$content = ED::videos()->strip($content);
+		$content = ED::Mailer()->trimEmail($content);
 
 		return $content;
 	}
@@ -4597,8 +4601,20 @@ class EasyDiscussPost extends EasyDiscuss
 		$emailData['postLink'] =  EDR::getRoutedURL($this->getReplyPermalink(), false, true);
 
 		$emailContent = $this->post->content;
-		$emailContent = ED::bbcodeHtmlSwitcher($this, 'reply', $isEditing);
-		$emailContent = $this->trimEmail($emailContent);
+		// $emailContent = ED::bbcodeHtmlSwitcher($this, 'reply', $isEditing);
+
+		// If the current content type is bbcode, we need to send it to the parser to parse it.
+		if ($this->getContentType() != 'html') {
+			$emailContent = $this->post->preview;
+		}
+
+		// This process is already being handled in trimEmail method. #765
+		// If post is html type we need to strip off html codes.
+		// if ($this->getContentType() == 'html') {
+		// 	$emailContent = strip_tags($this->post->content);
+		// }
+
+		$emailContent = ED::Mailer()->trimEmail($emailContent);
 
 		// Ensure that content image style attribute set to max-width
 		$emailContent = ED::parser()->normaliseImageStyle($emailContent);
@@ -4782,9 +4798,9 @@ class EasyDiscussPost extends EasyDiscuss
 			$notify = ED::notifications();
 
 			$notify->sendToAllUsers($subject, $emailData, $ignoreEmails, 'email.post.reply.new', '', $allowViewReply, $includesGuest);
-			
+
 		}
-		
+
 		$isBeingApproved = $this->prevPostStatus == DISCUSS_ID_PENDING && $this->isPublished();
 		$isBeingRejected = $this->isRejected;
 
@@ -4969,12 +4985,14 @@ class EasyDiscussPost extends EasyDiscuss
 			$emailContent = $this->preview;
 		}
 
+		// This process is already being handled in trimEmail method. #765
 		// If post is html type we need to strip off html codes.
-		if ($this->getContentType() == 'html') {
-			$emailContent = strip_tags($this->post->content);
-		}
+		// if ($this->getContentType() == 'html') {
+			// $emailContent = strip_tags($this->post->content);
+		// }
 
 		$emailContent = ED::Mailer()->trimEmail($emailContent);
+
 		$attachments = $this->getAttachments();
 
 		// Ensure that content image style attribute set to max-width
@@ -5453,7 +5471,7 @@ class EasyDiscussPost extends EasyDiscuss
 		} else if ($editorType != 'bbcode' && $this->post->content_type == 'bbcode') {
 			$this->post->content = ED::parser()->bbcode($this->post->content);
 			$this->post->content = nl2br($this->post->content);
-		
+
 		} else if ($editorType != 'bbcode' && $this->post->content_type == 'html') {
 			$this->post->content = htmlentities($this->post->content);
 		}
@@ -6170,6 +6188,9 @@ class EasyDiscussPost extends EasyDiscuss
 		// filter html content
 		$emailContent = $this->trimEmail($emailContent);
 
+		// Ensure that content image style attribute set to max-width
+		$emailContent = ED::parser()->normaliseImageStyle($emailContent);
+
 		$email = array();
 
 		if (empty($this->post->user_id)) {
@@ -6290,6 +6311,9 @@ class EasyDiscussPost extends EasyDiscuss
 
 			$emailContent = $this->getContent();
 			$emailContent = $this->trimEmail($emailContent);
+
+			// Ensure that content image style attribute set to max-width
+			$emailContent = ED::parser()->normaliseImageStyle($emailContent);
 
 			$emailData['replyContent'] = $emailContent;
 
@@ -7077,5 +7101,16 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		return false;
-	}		
+	}
+
+	/**
+	 * Method to access the internal _data property
+	 *
+	 * @since	4.1.12
+	 * @access	public
+	 */
+	public function getInternalData($key)
+	{
+		return $this->post->getData($key);
+	}
 }

@@ -1,21 +1,38 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
 
+
+use Akeeba\Engine\Base\Part;
 use Akeeba\Engine\Core\Database;
+use Akeeba\Engine\Core\Filters;
+use Akeeba\Engine\Core\Kettenrad;
+use Akeeba\Engine\Core\Timer;
+use Akeeba\Engine\Driver\Base;
+use Akeeba\Engine\Postproc\PostProcInterface;
+use Akeeba\Engine\Util\ConfigurationCheck;
+use Akeeba\Engine\Util\CRC32;
+use Akeeba\Engine\Util\Encrypt;
+use Akeeba\Engine\Util\EngineParameters;
+use Akeeba\Engine\Util\FactoryStorage;
+use Akeeba\Engine\Util\FileLister;
+use Akeeba\Engine\Util\FileSystem;
+use Akeeba\Engine\Util\Logger;
 use Akeeba\Engine\Util\PushMessages;
-use Psr\Log\LogLevel;
+use Akeeba\Engine\Util\RandomValue;
+use Akeeba\Engine\Util\SecureSettings;
+use Akeeba\Engine\Util\Statistics;
+use Akeeba\Engine\Util\TemporaryFiles;
+use Exception;
+use RuntimeException;
 
 // Try to kill errors display
 if (function_exists('ini_set') && !defined('AKEEBADEBUG'))
@@ -33,160 +50,35 @@ require_once __DIR__ . '/Autoloader.php';
  *
  * This class is responsible for instantiating all Akeeba Engine classes
  */
-class Factory
+abstract class Factory
 {
+	/**
+	 * The absolute path to Akeeba Engine's installation
+	 *
+	 * @var  string
+	 */
+	private static $root;
+
+	/**
+	 * Partial class names of the loaded engines e.g. 'archiver' => 'Archiver\\Jpa'. Survives serialization.
+	 *
+	 * @var  array
+	 */
+	private static $engineClassnames = [];
+
 	/**
 	 * A list of instantiated objects which will persist after serialisation / unserialisation
 	 *
 	 * @var   array
 	 */
-	protected $objectList = array();
+	private static $objectList = [];
 
 	/**
 	 * A list of instantiated objects which will NOT persist after serialisation / unserialisation
 	 *
 	 * @var   array
 	 */
-	protected $temporaryObjectList = array();
-
-	/**
-	 * The absolute path to Akeeba Engine's installation
-	 *
-	 * @var  string
-	 */
-    private static $root;
-
-	/**
-	 * Private constructor makes sure we can't directly instantiate the class
-	 */
-	private function __construct()
-	{
-	}
-
-	/**
-	 * The magic __sleep method is called before serialising this object. We need to return an array with the properties
-	 * which will be serialised.
-	 *
-	 * @return  array
-	 */
-	function __sleep()
-	{
-		return array('objectList');
-	}
-
-	/**
-	 * Gets a single, internally used instance of the Factory
-	 *
-	 * @param   string  $serialized_data  [optional] Serialized data to spawn the instance from
-	 *
-	 * @return  Factory  A reference to the unique Factory object instance
-	 */
-	public static function &getInstance($serialized_data = null)
-	{
-		static $myInstance;
-
-		if (!is_null($serialized_data))
-		{
-			$myInstance = unserialize($serialized_data);
-		}
-
-		if (!is_object($myInstance))
-		{
-			$myInstance = new self();
-		}
-
-		return $myInstance;
-	}
-
-	/**
-	 * Internal function which instantiates an object of a class named $class_name.
-	 *
-	 * @param   string  $class_name
-	 *
-	 * @return  object
-	 */
-	protected static function &getObjectInstance($class_name)
-	{
-		$self = self::getInstance();
-
-		if (!isset($self->objectList[$class_name]))
-		{
-			$self->objectList[$class_name] = false;
-
-			if (class_exists($class_name, true))
-			{
-				$self->objectList[$class_name] = new $class_name;
-			}
-		}
-
-		return $self->objectList[$class_name];
-	}
-
-	/**
-	 * Internal function which removes the object of the class named $class_name
-	 *
-	 * @param  string $class_name
-	 *
-	 * @return void
-	 */
-	protected static function unsetObjectInstance($class_name)
-	{
-		$self = self::getInstance();
-
-		if (isset($self->objectList[$class_name]))
-		{
-			$self->objectList[$class_name] = null;
-			unset($self->objectList[$class_name]);
-		}
-	}
-
-	/**
-	 * Internal function which instantiates an object of a class named $class_name. This is a temporary instance which
-	 * will not survive serialisation and subsequent unserialisation.
-	 *
-	 * @param   string  $class_name
-	 *
-	 * @return  object
-	 */
-	protected static function &getTempObjectInstance($class_name)
-	{
-		$self = self::getInstance();
-
-		if (!isset($self->temporaryObjectList[$class_name]))
-		{
-			$self->temporaryObjectList[$class_name] = false;
-
-			if (class_exists($class_name, true))
-			{
-				$self->temporaryObjectList[$class_name] = new $class_name;
-			}
-		}
-
-		return $self->temporaryObjectList[$class_name];
-	}
-
-	/**
-	 * Internal function which removes the object of the class named $class_name. This is a temporary instance which
-	 * will not survive serialisation and subsequent unserialisation.
-	 *
-	 * @param   string  $class_name  The class name of the object to remove
-	 *
-	 * @return  void
-	 */
-	protected static function unsetTempObjectInstance($class_name)
-	{
-		$self = self::getInstance();
-
-		if (isset($self->temporaryObjectList[$class_name]))
-		{
-			$self->temporaryObjectList[$class_name] = null;
-			unset($self->temporaryObjectList[$class_name]);
-		}
-	}
-
-	// ========================================================================
-	// Public factory interface
-	// ========================================================================
+	private static $temporaryObjectList = [];
 
 	/**
 	 * Gets a serialized snapshot of the Factory for safekeeping (hibernate)
@@ -195,24 +87,24 @@ class Factory
 	 */
 	public static function serialize()
 	{
-		// Call _onSerialize in all classes known to the factory
-		$self = self::getInstance();
-
-		if (!empty($self->objectList))
+		// Call _onSerialize in all objects known to the factory
+		foreach (static::$objectList as $class_name => $object)
 		{
-			foreach ($self->objectList as $class_name => $object)
+			if (method_exists($object, '_onSerialize'))
 			{
-				$o = $self->objectList[$class_name];
-
-				if (method_exists($o, '_onSerialize'))
-				{
-					call_user_func(array($o, '_onSerialize'));
-				}
+				call_user_func([$object, '_onSerialize']);
 			}
 		}
 
+		// Serialise an array with all the engine information
+		$engineInfo = [
+			'root'             => static::$root,
+			'objectList'       => static::$objectList,
+			'engineClassnames' => static::$engineClassnames,
+		];
+
 		// Serialize the factory
-		return serialize(self::getInstance());
+		return serialize($engineInfo);
 	}
 
 	/**
@@ -224,7 +116,14 @@ class Factory
 	 */
 	public static function unserialize($serialized_data)
 	{
-		self::getInstance($serialized_data);
+		static::nuke();
+
+		$engineInfo = unserialize($serialized_data);
+
+		static::$root                = isset($engineInfo['root']) ? $engineInfo['root'] : '';
+		static::$objectList          = isset($engineInfo['objectList']) ? $engineInfo['objectList'] : [];
+		static::$engineClassnames    = isset($engineInfo['engineClassnames']) ? $engineInfo['engineClassnames'] : [];
+		static::$temporaryObjectList = [];
 	}
 
 	/**
@@ -234,14 +133,18 @@ class Factory
 	 */
 	public static function nuke()
 	{
-		$self = self::getInstance();
-
-		foreach ($self->objectList as $key => $object)
+		foreach (static::$objectList as $key => $object)
 		{
-			$self->objectList[$key] = null;
+			$object = null;
 		}
 
-		$self->objectList = array();
+		foreach (static::$temporaryObjectList as $key => $object)
+		{
+			$object = null;
+		}
+
+		static::$objectList          = [];
+		static::$temporaryObjectList = [];
 	}
 
 	/**
@@ -252,11 +155,11 @@ class Factory
 	 *
 	 * @return  void
 	 *
-	 * @throws  \RuntimeException  When the state save fails for any reason
+	 * @throws  RuntimeException  When the state save fails for any reason
 	 */
 	public static function saveState($tag = null, $backupId = null)
 	{
-		$kettenrad = self::getKettenrad();
+		$kettenrad = static::getKettenrad();
 
 		if (empty($tag))
 		{
@@ -269,35 +172,35 @@ class Factory
 		}
 
 		$saveTag = $tag . (empty($backupId) ? '' : ('.' . $backupId));
-
-		$ret = $kettenrad->getStatusArray();
+		$ret     = $kettenrad->getStatusArray();
 
 		if ($ret['HasRun'] == 1)
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, "Will not save a finished Kettenrad instance");
+			Factory::getLog()->debug("Will not save a finished Kettenrad instance");
 
 			return;
 		}
 
-		Factory::getLog()->log(LogLevel::DEBUG, "Saving Kettenrad instance $tag");
+		Factory::getLog()->debug("Saving Kettenrad instance $tag");
 
 		// Save a Factory snapshot
-		$factoryStorage = self::getFactoryStorage();
-		$engine = self::getConfiguration()->get('akeeba.core.usedbstorage', 0) ? 'db' : 'file';
+		$factoryStorage = static::getFactoryStorage();
+		$engine         = static::getConfiguration()->get('akeeba.core.usedbstorage', 0) ? 'db' : 'file';
 		$factoryStorage->setStorageEngine($engine);
 
-		$logger = self::getLog();
+		$logger = static::getLog();
+		$logger->resetWarnings();
 
-		$serializedFactoryData = self::serialize();
-		$result = $factoryStorage->set($serializedFactoryData, $saveTag);
+		$serializedFactoryData = static::serialize();
+		$result                = $factoryStorage->set($serializedFactoryData, $saveTag);
 
-		if (!$result)
+		if ($result === false)
 		{
-			$saveKey = $factoryStorage->get_storage_filename($saveTag);
+			$saveKey      = $factoryStorage->get_storage_filename($saveTag);
 			$errorMessage = "Cannot save factory state in $engine storage, storage key $saveKey";
 			$logger->error($errorMessage);
 
-			throw new \RuntimeException($errorMessage);
+			throw new RuntimeException($errorMessage);
 		}
 	}
 
@@ -334,7 +237,7 @@ class Factory
 
 		// In order to load anything, we need to have the correct profile loaded. Let's assume
 		// that the latest backup record in this tag has the correct profile number set.
-		$config = self::getConfiguration();
+		$config = static::getConfiguration();
 
 		if (empty($config->activeProfile))
 		{
@@ -343,18 +246,18 @@ class Factory
 			if (empty($profile) || ($profile <= 1))
 			{
 				// Only bother loading a configuration if none has been already loaded
-				$statList = Platform::getInstance()->get_statistics_list(array(
-						'filters'  => array(
-							array('field' => 'tag', 'value' => $tag)
-						), 'order' => array(
-							'by' => 'id', 'order' => 'DESC'
-						)
-					)
+				$statList = Platform::getInstance()->get_statistics_list([
+						'filters'  => [
+							['field' => 'tag', 'value' => $tag],
+						], 'order' => [
+							'by' => 'id', 'order' => 'DESC',
+						],
+					]
 				);
 
 				if (is_array($statList))
 				{
-					$stat = array_pop($statList);
+					$stat    = array_pop($statList);
 					$profile = $stat['profile_id'];
 				}
 			}
@@ -365,19 +268,19 @@ class Factory
 		$profile = $config->activeProfile;
 
 		Factory::getLog()->open($loadTag);
-		Factory::getLog()->log(LogLevel::DEBUG, "Kettenrad :: Attempting to load from database ($tag) [$loadTag]");
+		Factory::getLog()->debug("Kettenrad :: Attempting to load from database ($tag) [$loadTag]");
 
-		$serialized_factory = self::getFactoryStorage()->get($loadTag);
+		$serialized_factory = static::getFactoryStorage()->get($loadTag);
 
 		if ($serialized_factory === false)
 		{
 			if ($failIfMissing)
 			{
 				// Find the new storage engine we need to use
-				$previousEngine = self::getFactoryStorage()->getStorageEngine();
-				$newEngine = ($previousEngine == 'file') ? 'db' : 'file';
+				$previousEngine = static::getFactoryStorage()->getStorageEngine();
+				$newEngine      = ($previousEngine == 'file') ? 'db' : 'file';
 
-				Factory::getLog()->log(LogLevel::DEBUG, "Failed loading temporary data using $previousEngine storage engine. Switching to $newEngine. The backup has failed and MUST be restarted.");
+				Factory::getLog()->debug("Failed loading temporary data using $previousEngine storage engine. Switching to $newEngine. The backup has failed and MUST be restarted.");
 
 				// Switch the engine
 				Factory::getConfiguration()->reset();
@@ -386,24 +289,30 @@ class Factory
 				$config->set('akeeba.core.usedbstorage', ($newEngine == 'db'));
 				Platform::getInstance()->save_configuration();
 
-				throw new \RuntimeException("Akeeba Engine detected a problem while saving temporary data. Please restart your backup.", 500);
+				throw new RuntimeException("Akeeba Engine detected a problem while saving temporary data. Please restart your backup.", 500);
 			}
 
 			// There is no serialized factory. Nuke the in-memory factory.
-			Factory::getLog()->log(LogLevel::DEBUG, " -- Stored Akeeba Factory ($tag) [$loadTag] not found - hard reset");
-			self::nuke();
+			Factory::getLog()->debug(" -- Stored Akeeba Factory ($tag) [$loadTag] not found - hard reset");
+			static::nuke();
 			Platform::getInstance()->load_configuration($profile);
 		}
 
-		Factory::getLog()->log(LogLevel::DEBUG, " -- Loaded stored Akeeba Factory ($tag) [$loadTag]");
-		self::unserialize($serialized_factory);
+		Factory::getLog()->debug(" -- Loaded stored Akeeba Factory ($tag) [$loadTag]");
+		static::unserialize($serialized_factory);
 
 		unset($serialized_factory);
 	}
 
+	// ========================================================================
+	// Public factory interface
+	// ========================================================================
+
 	/**
-	 * Resets the engine state, wiping out any pending backups and/or stale temporary data. The configuration parameters
-	 * are:
+	 * Resets the engine state, wiping out any pending backups and/or stale temporary data.
+	 *
+	 * The configuration parameters are:
+	 *
 	 * global  bool  True to reset all origins, false to only reset the current origin (default: true)
 	 * log     bool  True to log our actions (default: false)
 	 * maxrun  int   Only backup records older than this number of seconds will be reset (default: 180)
@@ -411,16 +320,17 @@ class Factory
 	 * @param   array  $config  Configuration parameters for the reset operation
 	 *
 	 * @return  void
+	 * @throws Exception
 	 */
-	public static function resetState($config = array())
+	public static function resetState($config = [])
 	{
-		$default_config = array(
+		$default_config = [
 			'global' => true, // Reset all origins when true
 			'log'    => false, // Log our actions
 			'maxrun' => 180, // Consider "pending" backups as failed after this many seconds
-		);
+		];
 
-		$config = (object)array_merge($default_config, $config);
+		$config = (object) array_merge($default_config, $config);
 
 		// Pause logging if so desired
 		if (!$config->log)
@@ -437,14 +347,14 @@ class Factory
 		}
 
 		// Cache the factory before proceeding
-		$factory = self::serialize();
+		$factory = static::serialize();
 
 		$runningList = Platform::getInstance()->get_running_backups($originTag);
 
 		// Origins we have to clean
-		$origins = array(
-			Platform::getInstance()->get_backup_origin()
-		);
+		$origins = [
+			Platform::getInstance()->get_backup_origin(),
+		];
 
 		// 1. Detect failed backups
 		if (is_array($runningList) && !empty($runningList))
@@ -485,7 +395,7 @@ class Factory
 					{
 						if (file_exists($failedArchive))
 						{
-							$totalSize += (int)@filesize($failedArchive);
+							$totalSize += (int) @filesize($failedArchive);
 							Platform::getInstance()->unlink($failedArchive);
 						}
 					}
@@ -497,10 +407,10 @@ class Factory
 					$running['total_size'] = $totalSize;
 				}
 
-				$running['status'] = 'fail';
+				$running['status']    = 'fail';
 				$running['multipart'] = 0;
-				$dummy = null;
-				Platform::getInstance()->set_or_update_statistics($running['id'], $running, $dummy);
+
+				Platform::getInstance()->set_or_update_statistics($running['id'], $running);
 
 				$backupId = isset($running['backupid']) ? ('.' . $running['backupid']) : '';
 
@@ -514,16 +424,16 @@ class Factory
 
 			foreach ($origins as $originTag)
 			{
-				self::loadState($originTag, null, false);
+				static::loadState($originTag, null, false);
 				// Remove temporary files
 				Factory::getTempFiles()->deleteTempFiles();
 				// Delete any stale temporary data
-				self::getFactoryStorage()->reset($originTag);
+				static::getFactoryStorage()->reset($originTag);
 			}
 		}
 
 		// Reload the factory
-		self::unserialize($factory);
+		static::unserialize($factory);
 		unset($factory);
 
 		// Unpause logging if it was previously paused
@@ -533,28 +443,24 @@ class Factory
 		}
 	}
 
-	// ========================================================================
-	// Core objects which are part of the engine state
-	// ========================================================================
-
 	/**
 	 * Returns an Akeeba Configuration object
 	 *
-	 * @return  \Akeeba\Engine\Configuration  The Akeeba Configuration object
+	 * @return  Configuration  The Akeeba Configuration object
 	 */
-	public static function &getConfiguration()
+	public static function getConfiguration()
 	{
-		return self::getObjectInstance('\\Akeeba\\Engine\\Configuration');
+		return static::getObjectInstance('Configuration');
 	}
 
 	/**
 	 * Returns a statistics object, used to track current backup's progress
 	 *
-	 * @return  \Akeeba\Engine\Util\Statistics
+	 * @return  Statistics
 	 */
-	public static function &getStatistics()
+	public static function getStatistics()
 	{
-		return self::getObjectInstance('\\Akeeba\\Engine\\Util\\Statistics');
+		return static::getObjectInstance('Util\\Statistics');
 	}
 
 	/**
@@ -562,35 +468,15 @@ class Factory
 	 *
 	 * @param   bool  $reset  Should I try to forcible create a new instance?
 	 *
-	 * @return  \Akeeba\Engine\Archiver\Base
+	 * @return  Archiver\Base
 	 */
-	public static function &getArchiverEngine($reset = false)
+	public static function getArchiverEngine($reset = false)
 	{
-		static $class_name;
-
-		if ($reset)
-		{
-			$class_name = null;
-		}
-
-		if (empty($class_name))
-		{
-			$registry = self::getConfiguration();
-			$engine = $registry->get('akeeba.advanced.archiver_engine');
-			$class_name = '\\Akeeba\\Engine\\Archiver\\' . ucfirst($engine);
-
-			if (!class_exists($class_name, true))
-			{
-				$class_name = '\\Akeeba\\Engine\\Archiver\\Jpa';
-			}
-		}
-
-		if ($reset)
-		{
-			self::unsetObjectInstance($class_name);
-		}
-
-		return self::getObjectInstance($class_name);
+		return static::getEngineInstance(
+			'archiver', 'akeeba.advanced.archiver_engine',
+			'Archiver\\', 'Archiver\\Jpa',
+			$reset
+		);
 	}
 
 	/**
@@ -598,30 +484,15 @@ class Factory
 	 *
 	 * @param   boolean  $reset  Should I try to forcible create a new instance?
 	 *
-	 * @return  \Akeeba\Engine\Dump\Base
+	 * @return  Dump\Base
 	 */
-	public static function &getDumpEngine($reset = false)
+	public static function getDumpEngine($reset = false)
 	{
-		static $class_name;
-
-		if (empty($class_name))
-		{
-			$registry = self::getConfiguration();
-			$engine = $registry->get('akeeba.advanced.dump_engine');
-			$class_name = '\\Akeeba\\Engine\\Dump\\' . ucfirst($engine);
-
-			if (!class_exists($class_name, true))
-			{
-				$class_name = '\\Akeeba\\Engine\\Dump\\Native';
-			}
-		}
-
-		if ($reset)
-		{
-			self::unsetObjectInstance($class_name);
-		}
-
-		return self::getObjectInstance($class_name);
+		return static::getEngineInstance(
+			'dump', 'akeeba.advanced.dump_engine',
+			'Dump\\', 'Dump\\Native',
+			$reset
+		);
 	}
 
 	/**
@@ -629,35 +500,15 @@ class Factory
 	 *
 	 * @param   bool  $reset  Should I try to forcible create a new instance?
 	 *
-	 * @return  \Akeeba\Engine\Scan\Base  The scanner engine
+	 * @return  Scan\Base  The scanner engine
 	 */
-	public static function &getScanEngine($reset = false)
+	public static function getScanEngine($reset = false)
 	{
-		static $class_name;
-
-		if ($reset)
-		{
-			$class_name = null;
-		}
-
-		if (empty($class_name))
-		{
-			$registry = self::getConfiguration();
-			$engine = $registry->get('akeeba.advanced.scan_engine');
-			$class_name = '\\Akeeba\\Engine\\Scan\\' . ucfirst($engine);
-
-			if (!class_exists($class_name, true))
-			{
-				$class_name = '\\Akeeba\\Engine\\Scan\\Large';
-			}
-		}
-
-		if ($reset)
-		{
-			self::unsetObjectInstance($class_name);
-		}
-
-		return self::getObjectInstance($class_name);
+		return static::getEngineInstance(
+			'scan', 'akeeba.advanced.scan_engine',
+			'Scan\\', 'Scan\\Large',
+			$reset
+		);
 	}
 
 	/**
@@ -666,40 +517,36 @@ class Factory
 	 *
 	 * @param   string  $engine  The name of the post-processing class to forcibly return
 	 *
-	 * @return  \Akeeba\Engine\Postproc\Base
+	 * @return  PostProcInterface
 	 */
-	public static function &getPostprocEngine($engine = null)
+	public static function getPostprocEngine($engine = null)
 	{
-		$class_name = '\\Akeeba\\Engine\\Postproc\\Fake';
-
 		if (!is_null($engine))
 		{
-			$class_name = '\\Akeeba\\Engine\\Postproc\\' . ucfirst($engine);
+			static::$engineClassnames['postproc'] = 'Postproc\\' . ucfirst($engine);
+
+			return static::getObjectInstance(static::$engineClassnames['postproc']);
 		}
 
-		if (is_null($engine) || !class_exists($class_name, true))
-		{
-			$registry = self::getConfiguration();
-			$engine = $registry->get('akeeba.advanced.postproc_engine');
-			$class_name = '\\Akeeba\\Engine\\Postproc\\' . ucfirst($engine);
-
-			if (!class_exists($class_name, true))
-			{
-				$class_name = '\\Akeeba\\Engine\\Postproc\\None';
-			}
-		}
-
-		return self::getObjectInstance($class_name);
+		return static::getEngineInstance(
+			'postproc', 'akeeba.advanced.postproc_engine',
+			'Postproc\\', 'Postproc\\None',
+			true
+		);
 	}
+
+	// ========================================================================
+	// Core objects which are part of the engine state
+	// ========================================================================
 
 	/**
 	 * Returns an instance of the Filters feature class
 	 *
-	 * @return  \Akeeba\Engine\Core\Filters  The Filters feature class' object instance
+	 * @return  Filters  The Filters feature class' object instance
 	 */
-	public static function &getFilters()
+	public static function getFilters()
 	{
-		return self::getObjectInstance('\\Akeeba\\Engine\\Core\\Filters');
+		return static::getObjectInstance('Core\\Filters');
 	}
 
 	/**
@@ -708,11 +555,11 @@ class Factory
 	 *
 	 * @param   string  $filter_name  The filter class to load, without AEFilter prefix
 	 *
-	 * @return  \Akeeba\Engine\Filter\Base  The filter class' object instance
+	 * @return  Filter\Base  The filter class' object instance
 	 */
-	public static function &getFilterObject($filter_name)
+	public static function getFilterObject($filter_name)
 	{
-		return self::getObjectInstance('\\Akeeba\\Engine\\Filter\\' . ucfirst($filter_name));
+		return static::getObjectInstance('Filter\\' . ucfirst($filter_name));
 	}
 
 	/**
@@ -720,11 +567,11 @@ class Factory
 	 *
 	 * @param   string  $domain_name  The name of the domain, e.g. installer for AECoreDomainInstaller
 	 *
-	 * @return  \Akeeba\Engine\Base\Part
+	 * @return  Part
 	 */
-	public static function &getDomainObject($domain_name)
+	public static function getDomainObject($domain_name)
 	{
-		return self::getObjectInstance('\\Akeeba\\Engine\\Core\\Domain\\' . ucfirst($domain_name));
+		return static::getObjectInstance('Core\\Domain\\' . ucfirst($domain_name));
 	}
 
 	/**
@@ -732,9 +579,9 @@ class Factory
 	 *
 	 * @param   array  $options  Options to use when instantiating the database connection
 	 *
-	 * @return  \Akeeba\Engine\Driver\Base
+	 * @return  Base
 	 */
-	public static function &getDatabase($options = null)
+	public static function getDatabase($options = null)
 	{
 		if (is_null($options))
 		{
@@ -754,7 +601,7 @@ class Factory
 	 *
 	 * @param   array  $options  Options to use when instantiating the database connection
 	 *
-	 * @return  \Akeeba\Engine\Driver\Base
+	 * @return  void
 	 */
 	public static function unsetDatabase($options = null)
 	{
@@ -772,21 +619,81 @@ class Factory
 	/**
 	 * Get the a reference to the Akeeba Engine's timer
 	 *
-	 * @return  \Akeeba\Engine\Core\Timer
+	 * @return  Timer
 	 */
-	public static function &getTimer()
+	public static function getTimer()
 	{
-		return self::getObjectInstance('\\Akeeba\\Engine\\Core\\Timer');
+		return static::getObjectInstance('Core\\Timer');
 	}
 
 	/**
 	 * Get a reference to Akeeba Engine's main controller called Kettenrad
 	 *
-	 * @return  \Akeeba\Engine\Core\Kettenrad
+	 * @return  Kettenrad
 	 */
-	public static function &getKettenrad()
+	public static function getKettenrad()
 	{
-		return self::getObjectInstance('\\Akeeba\\Engine\\Core\\Kettenrad');
+		return static::getObjectInstance('Core\\Kettenrad');
+	}
+
+	/**
+	 * Returns an instance of the factory storage class (formerly Tempvars)
+	 *
+	 * @return  FactoryStorage
+	 */
+	public static function getFactoryStorage()
+	{
+		return static::getTempObjectInstance('Util\\FactoryStorage');
+	}
+
+	/**
+	 * Returns an instance of the encryption class
+	 *
+	 * @return  Encrypt
+	 */
+	public static function getEncryption()
+	{
+		return static::getTempObjectInstance('Util\\Encrypt');
+	}
+
+	/**
+	 * Returns an instance of the CRC32 calculations class
+	 *
+	 * @return  CRC32
+	 */
+	public static function getCRC32Calculator()
+	{
+		return static::getTempObjectInstance('Util\\CRC32');
+	}
+
+	/**
+	 * Returns an instance of the crypto-safe random value generator class
+	 *
+	 * @return  RandomValue
+	 */
+	public static function getRandval()
+	{
+		return static::getTempObjectInstance('Util\\RandomValue');
+	}
+
+	/**
+	 * Returns an instance of the filesystem tools class
+	 *
+	 * @return  FileSystem
+	 */
+	public static function getFilesystemTools()
+	{
+		return static::getTempObjectInstance('Util\\FileSystem');
+	}
+
+	/**
+	 * Returns an instance of the filesystem tools class
+	 *
+	 * @return  FileLister
+	 */
+	public static function getFileLister()
+	{
+		return static::getTempObjectInstance('Util\\FileLister');
 	}
 
 	// ========================================================================
@@ -794,114 +701,54 @@ class Factory
 	// ========================================================================
 
 	/**
-	 * Returns an instance of the factory storage class (formerly Tempvars)
-	 *
-	 * @return  \Akeeba\Engine\Util\FactoryStorage
-	 */
-	public static function &getFactoryStorage()
-	{
-		return self::getTempObjectInstance('\\Akeeba\\Engine\\Util\\FactoryStorage');
-	}
-
-	/**
-	 * Returns an instance of the encryption class
-	 *
-	 * @return  \Akeeba\Engine\Util\Encrypt
-	 */
-	public static function &getEncryption()
-	{
-		return self::getTempObjectInstance('\\Akeeba\\Engine\\Util\\Encrypt');
-	}
-
-	/**
-	 * Returns an instance of the CRC32 calculations class
-	 *
-	 * @return  \Akeeba\Engine\Util\CRC32
-	 */
-	public static function &getCRC32Calculator()
-	{
-		return self::getTempObjectInstance('\\Akeeba\\Engine\\Util\\CRC32');
-	}
-
-	/**
-	 * Returns an instance of the crypto-safe random value generator class
-	 *
-	 * @return  \Akeeba\Engine\Util\RandomValue
-	 */
-	public static function &getRandval()
-	{
-		return self::getTempObjectInstance('\\Akeeba\\Engine\\Util\\RandomValue');
-	}
-
-	/**
-	 * Returns an instance of the filesystem tools class
-	 *
-	 * @return  \Akeeba\Engine\Util\FileSystem
-	 */
-	public static function &getFilesystemTools()
-	{
-		return self::getTempObjectInstance('\\Akeeba\\Engine\\Util\\FileSystem');
-	}
-
-	/**
-	 * Returns an instance of the filesystem tools class
-	 *
-	 * @return  \Akeeba\Engine\Util\FileLister
-	 */
-	public static function &getFileLister()
-	{
-		return self::getTempObjectInstance('\\Akeeba\\Engine\\Util\\FileLister');
-	}
-
-	/**
 	 * Returns an instance of the engine parameters provider which provides information on scripting, GUI configuration
 	 * elements and engine parts
 	 *
-	 * @return  \Akeeba\Engine\Util\EngineParameters
+	 * @return  EngineParameters
 	 */
-	public static function &getEngineParamsProvider()
+	public static function getEngineParamsProvider()
 	{
-		return self::getTempObjectInstance('\\Akeeba\\Engine\\Util\\EngineParameters');
+		return static::getTempObjectInstance('Util\\EngineParameters');
 	}
 
 	/**
 	 * Returns an instance of the log object
 	 *
-	 * @return  \Akeeba\Engine\Util\Logger
+	 * @return  Logger
 	 */
-	public static function &getLog()
+	public static function getLog()
 	{
-		return self::getTempObjectInstance('\\Akeeba\\Engine\\Util\\Logger');
+		return static::getTempObjectInstance('Util\\Logger');
 	}
 
 	/**
 	 * Returns an instance of the configuration checks object
 	 *
-	 * @return  \Akeeba\Engine\Util\ConfigurationCheck
+	 * @return  ConfigurationCheck
 	 */
-	public static function &getConfigurationChecks()
+	public static function getConfigurationChecks()
 	{
-		return self::getTempObjectInstance('\\Akeeba\\Engine\\Util\\ConfigurationCheck');
+		return static::getTempObjectInstance('Util\\ConfigurationCheck');
 	}
 
 	/**
 	 * Returns an instance of the secure settings handling object
 	 *
-	 * @return  \Akeeba\Engine\Util\SecureSettings
+	 * @return  SecureSettings
 	 */
-	public static function &getSecureSettings()
+	public static function getSecureSettings()
 	{
-		return self::getTempObjectInstance('\\Akeeba\\Engine\\Util\\SecureSettings');
+		return static::getTempObjectInstance('Util\\SecureSettings');
 	}
 
 	/**
 	 * Returns an instance of the secure settings handling object
 	 *
-	 * @return  \Akeeba\Engine\Util\TemporaryFiles
+	 * @return  TemporaryFiles
 	 */
-	public static function &getTempFiles()
+	public static function getTempFiles()
 	{
-		return self::getTempObjectInstance('\\Akeeba\\Engine\\Util\\TemporaryFiles');
+		return static::getTempObjectInstance('Util\\TemporaryFiles');
 	}
 
 	/**
@@ -909,14 +756,10 @@ class Factory
 	 *
 	 * @return  PushMessages
 	 */
-	public static function &getPush()
+	public static function getPush()
 	{
-		return self::getObjectInstance('Akeeba\\Engine\\Util\\PushMessages');
+		return static::getObjectInstance('Util\\PushMessages');
 	}
-
-	// ========================================================================
-	// Handy functions
-	// ========================================================================
 
 	/**
 	 * Returns the absolute path to Akeeba Engine's installation
@@ -925,78 +768,127 @@ class Factory
 	 */
 	public static function getAkeebaRoot()
 	{
-		if (empty(self::$root))
+		if (empty(static::$root))
 		{
-			self::$root = __DIR__;
+			static::$root = __DIR__;
 		}
 
-		return self::$root;
-	}
-
-	// ========================================================================
-	// Used in unit testing
-	// ========================================================================
-
-	/**
-	 * Force an object instance which will survive serialisation. This is supposed to be used only in Unit Tests.
-	 *
-	 * @param   string       $class_name  The class name used internally by the Factory
-	 * @param   object|null  $object      The object to push. Use null to unset the object
-	 *
-	 * @return  void
-	 *
-	 * @throws  \Exception  when you try using it outside of Unit Tests
-	 */
-	public static function forceObjectInstance($class_name, $object)
-	{
-		if (!interface_exists('PHPUnit_Exception', false))
-		{
-			$method = __METHOD__;
-
-			throw new \Exception("You can only use $method in Unit Tests", 500);
-		}
-
-		$self = self::getInstance();
-
-		if (is_null($object) && isset($self->objectList[$class_name]))
-		{
-			unset($self->objectList[$class_name]);
-
-			return;
-		}
-
-		$self->objectList[$class_name] = $object;
+		return static::$root;
 	}
 
 	/**
-	 * Force an object instance which will not survive serialisation. This is supposed to be used only in Unit Tests.
+	 * @param   string  $engineType  Engine type, e.g. 'archiver', 'postproc', ...
+	 * @param   string  $configKey   Profile config key with configured engine e.g. 'akeeba.advanced.archiver_engine'
+	 * @param   string  $prefix      Prefix for engine classes, e.g. 'Archiver\\'
+	 * @param   string  $fallback    Fallback class if the configured one doesn't exist e.g. 'Archiver\\Jpa'. Empty for
+	 *                               no fallback.
+	 * @param   bool    $reset       Should I force-reload the engine? Default: false.
 	 *
-	 * @param   string       $class_name  The class name used internally by the Factory
-	 * @param   object|null  $object      The object to push. Use null to unset the object
+	 * @return  mixed  The Singleton engine object instance
+	 */
+	protected static function getEngineInstance($engineType, $configKey, $prefix, $fallback, $reset = false)
+	{
+		if (!$reset && !empty(static::$engineClassnames[$engineType]))
+		{
+			return static::getObjectInstance(static::$engineClassnames[$engineType]);
+		}
+
+		// Unset the existing engine object
+		if (!empty(static::$engineClassnames[$engineType]))
+		{
+			static::unsetObjectInstance(static::$engineClassnames[$engineType]);
+		}
+
+		// Get the engine name from the backup profile, construct a class name and check if it exists
+		$registry                              = static::getConfiguration();
+		$engine                                = $registry->get($configKey);
+		static::$engineClassnames[$engineType] = $prefix . ucfirst($engine);
+		$object                                = static::getObjectInstance(static::$engineClassnames[$engineType]);
+
+		// If the engine object does not exist, fall back to the default
+		if (!empty($fallback) && $object === false)
+		{
+			static::unsetObjectInstance(static::$engineClassnames[$engineType]);
+
+			static::$engineClassnames[$engineType] = $fallback;
+		}
+
+		return static::getObjectInstance(static::$engineClassnames[$engineType]);
+	}
+
+	/**
+	 * Internal function which instantiates an object of a class named $class_name.
+	 *
+	 * @param   string  $class_name
+	 *
+	 * @return  mixed
+	 */
+	protected static function getObjectInstance($class_name)
+	{
+		$class_name = trim($class_name, '\\');
+
+		if (isset(static::$objectList[$class_name]))
+		{
+			return static::$objectList[$class_name];
+		}
+
+		static::$objectList[$class_name] = false;
+
+		$searchClass = '\\Akeeba\\Engine\\' . $class_name;
+
+		if (class_exists($searchClass))
+		{
+			static::$objectList[$class_name] = new $searchClass;
+		}
+
+		return static::$objectList[$class_name];
+	}
+
+	// ========================================================================
+	// Handy functions
+	// ========================================================================
+
+	/**
+	 * Internal function which removes the object of the class named $class_name
+	 *
+	 * @param   string  $class_name
 	 *
 	 * @return  void
-	 *
-	 * @throws  \Exception  when you try using it outside of Unit Tests
 	 */
-	public static function forceTempObjectInstance($class_name, $object)
+	protected static function unsetObjectInstance($class_name)
 	{
-		if (!interface_exists('PHPUnit_Exception', false))
+		if (isset(static::$objectList[$class_name]))
 		{
-			$method = __METHOD__;
+			static::$objectList[$class_name] = null;
+			unset(static::$objectList[$class_name]);
+		}
+	}
 
-			throw new \Exception("You can only use $method in Unit Tests", 500);
+	/**
+	 * Internal function which instantiates an object of a class named $class_name. This is a temporary instance which
+	 * will not survive serialisation and subsequent unserialisation.
+	 *
+	 * @param   string  $class_name
+	 *
+	 * @return  mixed
+	 */
+	protected static function getTempObjectInstance($class_name)
+	{
+		$class_name = trim($class_name, '\\');
+
+		if (!isset(static::$temporaryObjectList[$class_name]))
+		{
+			static::$temporaryObjectList[$class_name] = false;
+
+			$searchClassname = '\\Akeeba\\Engine\\' . $class_name;
+
+			if (class_exists($searchClassname))
+			{
+				static::$temporaryObjectList[$class_name] = new $searchClassname;
+			}
 		}
 
-		$self = self::getInstance();
-
-		if (is_null($object) && isset($self->temporaryObjectList[ $class_name ]))
-		{
-			unset($self->temporaryObjectList[ $class_name ]);
-
-			return;
-		}
-
-		$self->temporaryObjectList[ $class_name ] = $object;
+		return static::$temporaryObjectList[$class_name];
 	}
 }
 
@@ -1009,7 +901,7 @@ function AkeebaTimeoutTrap()
 {
 	if (connection_status() >= 2)
 	{
-		Factory::getLog()->log(LogLevel::ERROR, 'Akeeba Engine has timed out');
+		Factory::getLog()->error('Akeeba Engine has timed out');
 	}
 }
 

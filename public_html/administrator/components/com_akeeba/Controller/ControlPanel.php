@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -19,7 +19,8 @@ use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
-use JUri, JFactory, JText;
+use JText;
+use JUri;
 
 /**
  * The Control Panel controller class
@@ -28,47 +29,14 @@ class ControlPanel extends Controller
 {
 	use CustomACL, PredefinedTaskList;
 
-	public function __construct(Container $container, array $config = array())
+	public function __construct(Container $container, array $config = [])
 	{
 		parent::__construct($container, $config);
 
 		$this->setPredefinedTaskList([
-			'main', 'SwitchProfile', 'UpdateInfo', 'applydlid', 'resetSecretWord', 'reloadUpdateInformation', 'forceUpdateDb'
+			'main', 'SwitchProfile', 'UpdateInfo', 'applydlid', 'resetSecretWord', 'reloadUpdateInformation',
+			'forceUpdateDb', 'dismissUpsell',
 		]);
-	}
-
-	protected function onBeforeMain()
-	{
-		/** @var \Akeeba\Backup\Admin\Model\ControlPanel $model */
-		$model = $this->getModel();
-
-		$engineConfig = Factory::getConfiguration();
-
-		// Invalidate stale backups
-		$params = $this->container->params;
-
-		Factory::resetState(array(
-			'global' => true,
-			'log'    => false,
-			'maxrun' => $params->get('failure_timeout', 180)
-		));
-
-		// Just in case the reset() loaded a stale configuration...
-		Platform::getInstance()->load_configuration();
-		Platform::getInstance()->apply_quirk_definitions();
-
-		// Let's make sure the temporary and output directories are set correctly and writable...
-		/** @var ConfigurationWizard $wizmodel */
-		$wizmodel = $this->container->factory->model('ConfigurationWizard')->tmpInstance();
-		$wizmodel->autofixDirectories();
-
-		// Check if we need to toggle the settings encryption feature
-		$model->checkSettingsEncryption();
-
-		// Run the automatic update site refresh
-		/** @var Updates $updateModel */
-		$updateModel = $this->container->factory->model('Updates')->tmpInstance();
-		$updateModel->refreshUpdateSite();
 	}
 
 	public function SwitchProfile()
@@ -102,18 +70,18 @@ class ControlPanel extends Controller
 		/** @var Updates $updateModel */
 		$updateModel = $this->container->factory->model('Updates')->tmpInstance();
 		$infoArray   = $updateModel->getUpdates();
-		$updateInfo  = (object)$infoArray;
+		$updateInfo  = (object) $infoArray;
 
 		$result = '';
 
 		if ($updateInfo->hasUpdate)
 		{
-			$strings = array(
+			$strings = [
 				'header'  => JText::sprintf('COM_AKEEBA_CPANEL_MSG_UPDATEFOUND', $updateInfo->version),
 				'button'  => JText::sprintf('COM_AKEEBA_CPANEL_MSG_UPDATENOW', $updateInfo->version),
 				'infourl' => $updateInfo->infoURL,
 				'infolbl' => JText::_('COM_AKEEBA_CPANEL_MSG_MOREINFO'),
-			);
+			];
 
 			$result = <<<HTML
 	<div class="akeeba-block--warning">
@@ -151,14 +119,18 @@ HTML;
 		$msgType = 'error';
 		$dlid    = $this->input->getString('dlid', '');
 
+		/** @var Updates $updateModel */
+		$updateModel = $this->container->factory->model('Updates')->tmpInstance();
+		$dlid        = $updateModel->sanitizeLicenseKey($dlid);
+		$isValidDLID = $updateModel->isValidLicenseKey($dlid);
+
 		// If the Download ID seems legit let's apply it
-		if (preg_match('/^([0-9]{1,}:)?[0-9a-f]{32}$/i', $dlid))
+		if ($isValidDLID)
 		{
 			$msg     = null;
 			$msgType = null;
 
-			$this->container->params->set('update_dlid', $dlid);
-			$this->container->params->save();
+			$updateModel->setLicenseKey($dlid);
 		}
 
 		// Redirect back to the control panel
@@ -238,4 +210,53 @@ HTML;
 
 		$this->setRedirect('index.php?option=com_akeeba');
 	}
+
+	protected function onBeforeMain()
+	{
+		/** @var \Akeeba\Backup\Admin\Model\ControlPanel $model */
+		$model = $this->getModel();
+
+		$engineConfig = Factory::getConfiguration();
+
+		// Invalidate stale backups
+		$params = $this->container->params;
+
+		Factory::resetState([
+			'global' => true,
+			'log'    => false,
+			'maxrun' => $params->get('failure_timeout', 180),
+		]);
+
+		// Just in case the reset() loaded a stale configuration...
+		Platform::getInstance()->load_configuration();
+		Platform::getInstance()->apply_quirk_definitions();
+
+		// Let's make sure the temporary and output directories are set correctly and writable...
+		/** @var ConfigurationWizard $wizmodel */
+		$wizmodel = $this->container->factory->model('ConfigurationWizard')->tmpInstance();
+		$wizmodel->autofixDirectories();
+
+		// Check if we need to toggle the settings encryption feature
+		$model->checkSettingsEncryption();
+
+		// Run the automatic update site refresh
+		/** @var Updates $updateModel */
+		$updateModel = $this->container->factory->model('Updates')->tmpInstance();
+		$updateModel->refreshUpdateSite();
+	}
+
+	/**
+	 * Dismisses the Core to Pro upsell for 15 days
+	 *
+	 * @return  void
+	 */
+	public function dismissUpsell()
+	{
+		// Reset the flag so the updates could take place
+		$this->container->params->set('lastUpsellDismiss', time());
+		$this->container->params->save();
+
+		$this->setRedirect('index.php?option=com_akeeba');
+	}
+
 }

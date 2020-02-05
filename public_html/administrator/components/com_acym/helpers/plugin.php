@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class acympluginHelper extends acymObject
 {
@@ -620,15 +611,17 @@ class acympluginHelper extends acymObject
 
             if (!empty($style)) {
                 if ($style === 'left') {
-                    $style = ' style="float:left; margin-right: 7px; margin-bottom: 7px;"';
-                    $linkStyle = ' style="float:left;"';
+                    $style = 'style="float:left; margin-right: 7px; margin-bottom: 7px;"';
+                    $linkStyle = 'style="float:left;"';
                 } else {
-                    $style = ' style="float:right; margin-left: 7px; margin-bottom: 7px;"';
-                    $linkStyle = ' style="float:right;"';
+                    $style = 'style="float:right; margin-left: 7px; margin-bottom: 7px;"';
+                    $linkStyle = 'style="float:right;"';
                 }
             }
 
-            $image = '<img class="content_main_image" alt="" src="'.$format->imagePath.'"'.$style.' />';
+            preg_match('#src="([^"]+)"#Uis', $format->imagePath, $matches);
+            if (!empty($matches[1])) $format->imagePath = $matches[1];
+            $image = '<img class="content_main_image" alt="" src="'.$format->imagePath.'" '.$style.' />';
         }
 
         $result = '';
@@ -880,7 +873,9 @@ class acympluginHelper extends acymObject
                         $valImages,
                         'pict'.$suffix,
                         $displayedPictures,
-                        ['onclick' => $updateFunction.'();']
+                        ['onclick' => $updateFunction.'();'],
+                        [],
+                        !acym_isAdmin()
                     ).'<br/>
                             <span id="pictsize'.$suffix.'" '.$resizeDisplay.'>
                                 '.acym_translation('ACYM_WIDTH').' <input class="intext_input" name="pictwidth'.$suffix.'" type="number" onchange="'.$updateFunction.'();" value="'.intval($maxWidth).'"/>
@@ -942,7 +937,8 @@ class acympluginHelper extends acymObject
                     $option['name'].$suffix,
                     $option['default'],
                     ['onclick' => $updateFunction.'();'],
-                    ['pluginMode' => true]
+                    ['pluginMode' => true],
+                    !acym_isAdmin()
                 );
                 $jsOptionsMerge[] = 'otherinfo += "| '.$option['name'].':" + jQuery(\'input[name="'.$option['name'].$suffix.'"]:checked\').val();';
             } elseif ($option['type'] == 'select') {
@@ -1040,7 +1036,7 @@ class acympluginHelper extends acymObject
 
             $currentLabel = acym_translation($currentLabel);
             if (!empty($option['tooltip'])) {
-                $currentLabel .= '&nbsp;'.acym_info(acym_translation($option['tooltip']), 'acym_plugin_field_'.$option['name']);
+                $currentLabel .= '&nbsp;'.acym_info($option['tooltip'], 'acym_plugin_field_'.$option['name']);
             }
             $currentLabel = '<label class="cell large-5 acym_plugin_field acym_plugin_field_'.$option['type'].'" for="'.acym_escape($option['name'].$suffix).'">'.$currentLabel.'</label>';
 
@@ -1144,7 +1140,7 @@ class acympluginHelper extends acymObject
         }
 
         $output .= '
-                    jQuery.insertDContent(tag);
+                    acym_editorWysidDynammic.insertDContent(tag);
                 }
                 //-->
             </script>';

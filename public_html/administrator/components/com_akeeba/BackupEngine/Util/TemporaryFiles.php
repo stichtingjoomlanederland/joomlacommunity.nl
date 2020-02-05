@@ -1,20 +1,17 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Util;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Factory;
-use Psr\Log\LogLevel;
 
 /**
  * Temporary files management class. Handles creation, tracking and cleanup.
@@ -51,10 +48,10 @@ class TemporaryFiles
 	public function registerTempFile($fileName)
 	{
 		$configuration = Factory::getConfiguration();
-		$tempFiles = $configuration->get('volatile.tempfiles', false);
+		$tempFiles     = $configuration->get('volatile.tempfiles', false);
 		if ($tempFiles === false)
 		{
-			$tempFiles = array();
+			$tempFiles = [];
 		}
 		else
 		{
@@ -62,7 +59,7 @@ class TemporaryFiles
 
 			if ($tempFiles === false)
 			{
-				$tempFiles = array();
+				$tempFiles = [];
 			}
 		}
 
@@ -106,7 +103,7 @@ class TemporaryFiles
 		$configuration = Factory::getConfiguration();
 
 		$serialised = $configuration->get('volatile.tempfiles', false);
-		$tempFiles = array();
+		$tempFiles  = [];
 
 		if ($serialised !== false)
 		{
@@ -124,14 +121,14 @@ class TemporaryFiles
 		}
 
 		$file = $configuration->get('akeeba.basic.output_directory') . '/' . $fileName;
-		Factory::getLog()->log(LogLevel::DEBUG, "-- Removing temporary file $fileName");
+		Factory::getLog()->debug("-- Removing temporary file $fileName");
 		$platform = strtoupper(PHP_OS);
 
-		// TODO What exactly are we doing here? chown won't work on Windows. Huh...?
+		// Chown normally doesn't work on Windows but many years ago I found it necessary to delete temp files. No idea.
 		if ((substr($platform, 0, 6) == 'CYGWIN') || (substr($platform, 0, 3) == 'WIN'))
 		{
 			// On Windows we have to chown() the file first to make it owned by Nobody
-			Factory::getLog()->log(LogLevel::DEBUG, "-- Windows hack: chowning $fileName");
+			Factory::getLog()->debug("-- Windows hack: chowning $fileName");
 			@chown($file, 600);
 		}
 
@@ -164,7 +161,7 @@ class TemporaryFiles
 		$configuration = Factory::getConfiguration();
 
 		$serialised = $configuration->get('volatile.tempfiles', false);
-		$tempFiles = array();
+		$tempFiles  = [];
 
 		if ($serialised !== false)
 		{
@@ -173,7 +170,7 @@ class TemporaryFiles
 
 		if (!is_array($tempFiles))
 		{
-			$tempFiles = array();
+			$tempFiles = [];
 		}
 
 		$fileName = null;
@@ -182,11 +179,11 @@ class TemporaryFiles
 		{
 			foreach ($tempFiles as $fileName)
 			{
-				Factory::getLog()->log(LogLevel::DEBUG, "-- Removing temporary file $fileName");
-				$file = $configuration->get('akeeba.basic.output_directory') . '/' . $fileName;
+				Factory::getLog()->debug("-- Removing temporary file $fileName");
+				$file     = $configuration->get('akeeba.basic.output_directory') . '/' . $fileName;
 				$platform = strtoupper(PHP_OS);
 
-				// TODO Like above, this shouldn't even work on Windows. I wonder why it's necessary.
+				// Chown normally doesn't work on Windows but many years ago I found it necessary to delete temp files. No idea.
 				if ((substr($platform, 0, 6) == 'CYGWIN') || (substr($platform, 0, 3) == 'WIN'))
 				{
 					// On Windows we have to chwon() the file first to make it owned by Nobody
@@ -197,7 +194,7 @@ class TemporaryFiles
 			}
 		}
 
-		$tempFiles = array();
+		$tempFiles = [];
 		$configuration->set('volatile.tempfiles', serialize($tempFiles));
 	}
 

@@ -152,8 +152,8 @@ class RseventsproController extends JControllerLegacy
 	 */
 	public function clear() {
 		$app		= JFactory::getApplication();
-		$itemid		= $app->input->getInt('Itemid');
-		$parent		= $app->input->getInt('parent');
+		$itemid		= $app->input->getInt('Itemid',0);
+		$parent		= $app->input->getInt('parent',0);
 		$from		= $app->input->get('from');
 		
 		$app->setUserState('com_rseventspro.events.filter_columns'.$itemid.$parent,array());

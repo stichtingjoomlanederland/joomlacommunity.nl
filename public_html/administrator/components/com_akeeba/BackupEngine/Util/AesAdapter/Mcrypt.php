@@ -1,19 +1,15 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Util\AesAdapter;
 
-// Protection against direct access
 use Akeeba\Engine\Util\RandomValue;
-
-defined('AKEEBAENGINE') or die();
 
 class Mcrypt extends AbstractAdapter implements AdapterInterface
 {
@@ -61,8 +57,8 @@ class Mcrypt extends AbstractAdapter implements AdapterInterface
 
 		if (empty($iv))
 		{
-			$randVal   = new RandomValue();
-			$iv        = $randVal->generate($iv_size);
+			$randVal = new RandomValue();
+			$iv      = $randVal->generate($iv_size);
 		}
 
 		$cipherText = mcrypt_encrypt($this->cipherType, $key, $plainText, $this->cipherMode, $iv);

@@ -34,7 +34,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<?php if (!$this->my->id) { ?>
 				<?php echo ED::getLoginForm('COM_EASYDISCUSS_PLEASE_LOGIN_TO_REPLY', base64_encode('index.php?option=com_easydiscuss&view=post&id=' . $post->id)); ?>
 			<?php } elseif ($post->isUserBanned()) { ?>
-				<div class="o-alert o-alert--notice"><?php echo JText::_('COM_EASYDISCUSS_NOT_ALLOWED_YOU_REPLY_BECAUSE_GET_BANNED');?></div>
+				<div class="o-alert o-alert--warning"><?php echo JText::_('COM_EASYDISCUSS_NOT_ALLOWED_YOU_REPLY_BECAUSE_GET_BANNED');?></div>
 			<?php } ?>
 		<?php } ?>
 	</div>

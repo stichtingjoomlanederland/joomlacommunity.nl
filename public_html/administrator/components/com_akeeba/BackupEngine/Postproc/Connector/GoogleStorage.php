@@ -1,56 +1,21 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc\Connector;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
+
+use Exception;
+use RuntimeException;
 
 class GoogleStorage
 {
-	/**
-	 * The access token for connecting to Google Storage
-	 *
-	 * @var   string
-	 */
-	private $accessToken = '';
-
-	/**
-	 * The PEM-encoded private key for the Google Cloud Service Account we are going to use. This is given to you by
-	 * Google in a JSON file.
-	 *
-	 * @var   string
-	 */
-	private $privateKey = '';
-
-	/**
-	 * The Google Cloud Service Account (fake) email address. This is given to you by Google in a JSON file.
-	 *
-	 * @var   string
-	 */
-	private $clientEmail = '';
-
-	/**
-	 * When does the access token expire (in UNIX epoch)?
-	 *
-	 * @var   int
-	 */
-	private $expires = 0;
-
-	/**
-	 * A pre-calculated JWT assertion, used to make a request for an access token to Google's servers
-	 *
-	 * @var   string
-	 */
-	private $jwtAssertion = '';
-
 	/**
 	 * The root URL for the Google Storage v1 JSON API
 	 *
@@ -60,33 +25,61 @@ class GoogleStorage
 	 * @see  https://cloud.google.com/storage/docs/json_api/v1/
 	 */
 	const rootUrl = 'https://storage.googleapis.com/storage/v1/';
-
 	/**
 	 * The upload URL for the Google Storage v1 file storage API
 	 *
 	 * @see  https://cloud.google.com/storage/docs/json_api/v1/how-tos/simple-upload
 	 */
 	const uploadUrl = 'https://www.googleapis.com/upload/storage/v1/';
-
 	/**
 	 * The URL of the OAuth2 token service
 	 */
 	const tokenUrl = 'https://www.googleapis.com/oauth2/v4/token';
-
+	/**
+	 * The access token for connecting to Google Storage
+	 *
+	 * @var   string
+	 */
+	private $accessToken = '';
+	/**
+	 * The PEM-encoded private key for the Google Cloud Service Account we are going to use. This is given to you by
+	 * Google in a JSON file.
+	 *
+	 * @var   string
+	 */
+	private $privateKey = '';
+	/**
+	 * The Google Cloud Service Account (fake) email address. This is given to you by Google in a JSON file.
+	 *
+	 * @var   string
+	 */
+	private $clientEmail = '';
+	/**
+	 * When does the access token expire (in UNIX epoch)?
+	 *
+	 * @var   int
+	 */
+	private $expires = 0;
+	/**
+	 * A pre-calculated JWT assertion, used to make a request for an access token to Google's servers
+	 *
+	 * @var   string
+	 */
+	private $jwtAssertion = '';
 	/**
 	 * Default cURL options
 	 *
 	 * @var array
 	 */
-	private $defaultOptions = array(
+	private $defaultOptions = [
 		CURLOPT_SSL_VERIFYPEER => true,
 		CURLOPT_SSL_VERIFYHOST => true,
-		CURLOPT_VERBOSE        => true,
+		CURLOPT_VERBOSE        => false,
 		CURLOPT_HEADER         => false,
 		CURLINFO_HEADER_OUT    => false,
 		CURLOPT_RETURNTRANSFER => true,
 		CURLOPT_CAINFO         => AKEEBA_CACERT_PEM,
-	);
+	];
 
 	/**
 	 * Public constructor. Both parameters are given to you by Google in a JSON file.
@@ -114,120 +107,6 @@ class GoogleStorage
 	}
 
 	/**
-	 * Returns the service access token.
-	 *
-	 * If there is no access token, or if it has expired, we are fetching a new one.
-	 *
-	 * @return null|string
-	 */
-	protected function getToken()
-	{
-		// Less than a minute before the token expires? Expire it immediately.
-		if ($this->expires < (time() - 60))
-		{
-			$this->accessToken = '';
-		}
-
-		if (empty($this->accessToken))
-		{
-			$explicitPost = 'grant_type=' . urlencode('urn:ietf:params:oauth:grant-type:jwt-bearer') .
-				'&assertion=' . $this->getJWTAssertion($this->clientEmail, $this->privateKey);
-
-			$result = $this->fetch('POST', self::tokenUrl, array(
-				'authenticated_request' => false,
-				'headers'               => array(
-					'Content-Type: application/x-www-form-urlencoded',
-				),
-			), $explicitPost);
-
-			if (!is_array($result) || empty($result) || !isset($result['access_token']) || !isset($result['expires_in']))
-			{
-				throw new \RuntimeException("Cannot get access token from Google Cloud: invalid response", 500);
-			}
-
-			$this->accessToken = $result['access_token'];
-			$this->expires     = time() + (int) $result['expires_in'];
-		}
-
-		return $this->accessToken;
-	}
-
-	/**
-	 * Utility method to base sixty four encode data and then URL encode the result in a format that's compatible with
-	 * Google Cloud.
-	 *
-	 * @param   string  $data  The data to encode
-	 *
-	 * @return  string
-	 */
-	private function bsfUrlEncode($data)
-	{
-		/**
-		 * Working around hosts with broken malware scanners. Ironically, the best way for benign software like ours to
-		 * do that is by following the same code obscuring techniques as legitimate malware. You know, of the kind that
-		 * these hosts' malware scanners fail to catch.
-		 */
-		$funcName   = substr('baseball', 0, 4);
-		$funcName   .= (string) (4 * 4 * 4);
-		$funcName   .= '_' . substr('length', 1, 2);
-		$funcName   .= substr('barcode', -4);
-		$bsfEncData = call_user_func_array($funcName, array($data));
-
-		return rtrim(strtr($bsfEncData, '+/', '-_'), '=');
-	}
-
-	/**
-	 * Returns a pre-calculated JWT assertion which you need to retrieve an access token from Google. If the assertion
-	 * does not exist it will be calculated.
-	 *
-	 * @param   string  $serviceAccountEmail  The Google Cloud Service Account (fake) email address
-	 * @param   string  $privateKey           The Google Cloud Service Account private key in PEM format
-	 *
-	 * @return  string  The JWT assertion
-	 */
-	private function getJWTAssertion($serviceAccountEmail, $privateKey)
-	{
-		if (empty($this->jwtAssertion))
-		{
-			// Base Sixty Four Encoded JSON header
-			$jwtHeader = $this->bsfUrlEncode(json_encode(array(
-				"alg" => "RS256",
-				"typ" => "JWT",
-			)));
-
-			/**
-			 * Base Sixty Four Encoded JSON claim set.
-			 *
-			 * If you need multiple scopes they must be SPACE-DELIMITED in the scope field below. Yes, SPACE, NOT COMMA.
-			 * For valid scopes see https://developers.google.com/identity/protocols/googlescopes#storagev1
-			 */
-			$now      = time();
-			$jwtClaim = $this->bsfUrlEncode(json_encode(array(
-				"iss"   => $serviceAccountEmail,
-				"scope" => "https://www.googleapis.com/auth/devstorage.full_control",
-				"aud"   => "https://www.googleapis.com/oauth2/v4/token",
-				"exp"   => $now + 3600,
-				"iat"   => $now,
-			)));
-
-			// The base string for the signature: {Encoded JSON header}.{Encoded JSON claim set}
-			openssl_sign(
-				$jwtHeader . "." . $jwtClaim,
-				$jwtSig,
-				$privateKey,
-				"sha256WithRSAEncryption"
-			);
-
-			$jwtSign = $this->bsfUrlEncode($jwtSig);
-
-			//{Base64url encoded JSON header}.{Base64url encoded JSON claim set}.{Base64url encoded signature}
-			$this->jwtAssertion = $jwtHeader . "." . $jwtClaim . "." . $jwtSign;
-		}
-
-		return $this->jwtAssertion;
-	}
-
-	/**
 	 * List all buckets under the user's account
 	 *
 	 * @param   string  $project_id  A valid API project identifier
@@ -246,10 +125,10 @@ class GoogleStorage
 	/**
 	 * Get the raw listing of a bucket (either root or a specific path)
 	 *
-	 * @param   string  $bucket        The bucket containing the path
-	 * @param   string  $path          The relative path of the folder to list its contents
-	 * @param   int     $maxResults    Maximum number of results to return per page
-	 * @param   string  $pageToken     Page token returned by the API, for resuming listing paginated results
+	 * @param   string  $bucket      The bucket containing the path
+	 * @param   string  $path        The relative path of the folder to list its contents
+	 * @param   int     $maxResults  Maximum number of results to return per page
+	 * @param   string  $pageToken   Page token returned by the API, for resuming listing paginated results
 	 *
 	 * @return  array  See http://onedrive.github.io/items/list.htm
 	 *
@@ -284,17 +163,17 @@ class GoogleStorage
 	/**
 	 * Get the processed listing of a folder. Goes through all the pages of the results.
 	 *
-	 * @param   string  $bucket        The bucket containing the path to list
-	 * @param   string  $path          The relative path of the folder to list its contents
+	 * @param   string  $bucket  The bucket containing the path to list
+	 * @param   string  $path    The relative path of the folder to list its contents
 	 *
 	 * @return  array  Two arrays under keys folders and files. Folders is a list of folders (prefixes). Files has the file name as key and size in bytes as value
 	 */
 	public function listContents($bucket, $path = '/')
 	{
-		$return = array(
-			'files'   => array(),
-			'folders' => array(),
-		);
+		$return = [
+			'files'   => [],
+			'folders' => [],
+		];
 
 		$pageToken = null;
 
@@ -335,7 +214,7 @@ class GoogleStorage
 	 *
 	 * @return  bool  True on success
 	 *
-	 * @throws  \Exception
+	 * @throws  Exception
 	 */
 	public function delete($bucket, $path, $failOnError = true)
 	{
@@ -345,7 +224,7 @@ class GoogleStorage
 		{
 			$result = $this->fetch('DELETE', $relativeUrl);
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			if (!$failOnError)
 			{
@@ -369,41 +248,50 @@ class GoogleStorage
 	{
 		$relativeUrl = 'b/' . $bucket . '/o/' . $this->normalizePath($path) . '?alt=media';
 
-		$this->fetch('GET', $relativeUrl, array(
+		$this->fetch('GET', $relativeUrl, [
 			'file' => $localFile,
-		));
+		]);
 	}
 
 	/**
 	 * Uploads a file. You should only use it for files up to 5Mb.
 	 *
-	 * @param   string  $bucket     The bucket containing the path
-	 * @param   string  $path       The path of the file in Google Storage
-	 * @param   string  $localFile  The absolute local filesystem path to upload from
+	 * @param   string       $bucket        The bucket containing the path
+	 * @param   string       $path          The path of the file in Google Storage
+	 * @param   string       $localFile     The absolute local filesystem path to upload from
+	 * @param   null|string  $storageClass  Storage Class. Leave null to use the bucket's default storage class.
 	 *
 	 * @return  array  See
 	 *
 	 * @see  https://cloud.google.com/storage/docs/json_api/v1/how-tos/simple-upload
 	 */
-	public function simpleUpload($bucket, $path, $localFile)
+	public function simpleUpload($bucket, $path, $localFile, $storageClass = null)
 	{
-		// Make sure this file is 100Mb or smaller
+		// Get the file size
 		clearstatcache();
 		$filesize = @filesize($localFile);
+
+		// Normalize the storage class
+		$storageClass = $this->normalizeStorageClass($storageClass);
 
 		// Get the relative URL
 		$relativeUrl =
 			self::uploadUrl .
 			'b/' . $bucket . '/o?uploadType=media&name=' . $this->normalizePath($path);
 
-		$additional = array(
-			'file'  => $localFile,
-			'headers' => array(
+		if (!empty($storageClass))
+		{
+			$relativeUrl .= '&storageClass=' . urlencode($storageClass);
+		}
+
+		$additional = [
+			'file'     => $localFile,
+			'headers'  => [
 				'Content-Type: application/octet-stream',
 				'Content-Length: ' . $filesize,
-			),
+			],
 			'no-parse' => true,
-		);
+		];
 
 		$response = $this->fetch('POST', $relativeUrl, $additional);
 
@@ -413,24 +301,23 @@ class GoogleStorage
 	/**
 	 * Creates a new resumable upload session and returns its upload URL
 	 *
-	 * @param   string  $bucket     The bucket containing the path
-	 * @param   string  $path       The path of the file in Google Storage
-	 * @param   string  $localFile  The absolute local filesystem path to upload from
+	 * @param   string       $bucket        The bucket containing the path
+	 * @param   string       $path          The path of the file in Google Storage
+	 * @param   string       $localFile     The absolute local filesystem path to upload from
+	 * @param   null|string  $storageClass  Storage Class. Leave null to use the bucket's default storage class.
 	 *
 	 * @return  string  The upload URL for the session
 	 *
 	 * @see  https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
 	 */
-	public function createUploadSession($bucket, $path, $localFile)
+	public function createUploadSession($bucket, $path, $localFile, $storageClass = null)
 	{
-		// Make sure this file is 100Mb or smaller
+		// Get the file size
 		clearstatcache();
 		$filesize = @filesize($localFile);
 
-//		if ($filesize < 10485760)
-//		{
-//			throw new \RuntimeException("File size too small for resumable upload ($filesize smaller than 10MB).", 500);
-//		}
+		// Normalize the storage class
+		$storageClass = $this->normalizeStorageClass($storageClass);
 
 		// Get the relative URL
 		$relativeUrl =
@@ -443,22 +330,29 @@ class GoogleStorage
 		 *            need to pass it raw to json_encode and let the JSON encoder escape it. This is completely against
 		 *            the documentation and completely different to literally every other API call!
 		 */
-		$json = json_encode(array(
-			'name' => $path
-		));
+		$payloadData = [
+			'name' => $path,
+		];
 
-		$response = $this->fetch('POST', $relativeUrl, array(
-			'headers'         => array(
+		if (!empty($storageClass))
+		{
+			$payloadData['storageClass'] = $storageClass;
+		}
+
+		$json = json_encode($payloadData);
+
+		$response = $this->fetch('POST', $relativeUrl, [
+			'headers'         => [
 				'Content-Type: application/json; charset=UTF-8',
 				'X-Upload-Content-Type: application/octet-stream',
 				'X-Upload-Content-Length: ' . (int) $filesize,
-			),
-			'curl-options'    => array(
+			],
+			'curl-options'    => [
 				CURLOPT_HEADER => 1,
-			),
+			],
 			'no-parse'        => true,
 			'follow-redirect' => false,
-		), $json);
+		], $json);
 
 		$lines = explode("\r\n", $response);
 
@@ -472,7 +366,7 @@ class GoogleStorage
 			}
 		}
 
-		throw new \RuntimeException('Could not start an upload session', 500);
+		throw new RuntimeException('Could not start an upload session', 500);
 	}
 
 	/**
@@ -491,7 +385,7 @@ class GoogleStorage
 	{
 		clearstatcache();
 		$totalSize = filesize($localFile);
-		$to = $from + $length - 1;
+		$to        = $from + $length - 1;
 
 		if ($to > ($totalSize - 1))
 		{
@@ -502,19 +396,19 @@ class GoogleStorage
 
 		$range = "$from-$to/$totalSize";
 
-		$additional = array(
-			'headers' => array(
+		$additional = [
+			'headers'       => [
 				'Content-Length: ' . $contentLength,
-				'Content-Range: bytes ' . $range
-			),
-			'expect-status' => array(308, 200, 201)
-		);
+				'Content-Range: bytes ' . $range,
+			],
+			'expect-status' => [308, 200, 201],
+		];
 
 		$fp = @fopen($localFile, 'rb');
 
 		if ($fp === false)
 		{
-			throw new \RuntimeException("Could not open $localFile for reading", 500);
+			throw new RuntimeException("Could not open $localFile for reading", 500);
 		}
 
 		fseek($fp, $from);
@@ -582,6 +476,45 @@ class GoogleStorage
 	}
 
 	/**
+	 * Returns the service access token.
+	 *
+	 * If there is no access token, or if it has expired, we are fetching a new one.
+	 *
+	 * @return null|string
+	 */
+	protected function getToken()
+	{
+		// Less than a minute before the token expires? Expire it immediately.
+		if ($this->expires < (time() - 60))
+		{
+			$this->accessToken = '';
+		}
+
+		if (empty($this->accessToken))
+		{
+			$explicitPost = 'grant_type=' . urlencode('urn:ietf:params:oauth:grant-type:jwt-bearer') .
+				'&assertion=' . $this->getJWTAssertion($this->clientEmail, $this->privateKey);
+
+			$result = $this->fetch('POST', self::tokenUrl, [
+				'authenticated_request' => false,
+				'headers'               => [
+					'Content-Type: application/x-www-form-urlencoded',
+				],
+			], $explicitPost);
+
+			if (!is_array($result) || empty($result) || !isset($result['access_token']) || !isset($result['expires_in']))
+			{
+				throw new RuntimeException("Cannot get access token from Google Cloud: invalid response", 500);
+			}
+
+			$this->accessToken = $result['access_token'];
+			$this->expires     = time() + (int) $result['expires_in'];
+		}
+
+		return $this->accessToken;
+	}
+
+	/**
 	 * Execute an API call
 	 *
 	 * @param   string  $method        The HTTP method
@@ -589,11 +522,11 @@ class GoogleStorage
 	 * @param   array   $additional    Additional parameters
 	 * @param   mixed   $explicitPost  Passed explicitly to POST requests if set, otherwise $additional is passed.
 	 *
-	 * @throws  \RuntimeException
-	 *
 	 * @return  array
+	 * @throws  RuntimeException
+	 *
 	 */
-	protected function fetch($method, $relativeUrl, array $additional = array(), $explicitPost = null)
+	protected function fetch($method, $relativeUrl, array $additional = [], $explicitPost = null)
 	{
 		// Get full URL, if required
 		$url = $relativeUrl;
@@ -647,7 +580,7 @@ class GoogleStorage
 		}
 
 		// Set up custom headers
-		$headers = array();
+		$headers = [];
 
 		if (isset($additional['headers']))
 		{
@@ -807,7 +740,7 @@ class GoogleStorage
 						@unlink($file);
 					}
 
-					throw new \RuntimeException("Unexpected HTTP status $lastHttpCode", $lastHttpCode);
+					throw new RuntimeException("Unexpected HTTP status $lastHttpCode", $lastHttpCode);
 				}
 			}
 		}
@@ -815,14 +748,14 @@ class GoogleStorage
 		// Did we have a cURL error?
 		if ($errNo)
 		{
-			throw new \RuntimeException("cURL error $errNo: $error", 500);
+			throw new RuntimeException("cURL error $errNo: $error", 500);
 		}
 
 		if ($expectHttpStatus)
 		{
 			if ($expectHttpStatus == $lastHttpCode)
 			{
-				return array();
+				return [];
 			}
 		}
 
@@ -833,7 +766,7 @@ class GoogleStorage
 
 		if (empty($response))
 		{
-			return array();
+			return [];
 		}
 
 		// Parse the response
@@ -842,7 +775,7 @@ class GoogleStorage
 		// Did we get invalid JSON data?
 		if (!$response)
 		{
-			throw new \RuntimeException("Invalid JSON data received", 500);
+			throw new RuntimeException("Invalid JSON data received from Google Storage (something is broken on Google's side).", 500);
 		}
 
 		// Did we get an error response?
@@ -851,7 +784,7 @@ class GoogleStorage
 			$error            = $response['error']['code'];
 			$errorDescription = isset($response['error']['message']) ? $response['error']['message'] : 'No error description provided';
 
-			throw new \RuntimeException("Error $error: $errorDescription", 500);
+			throw new RuntimeException("Error $error: $errorDescription", 500);
 		}
 
 		// Did we get an error response (from the helper script)?
@@ -860,7 +793,7 @@ class GoogleStorage
 			$error            = $response['error'];
 			$errorDescription = isset($response['error_description']) ? $response['error_description'] : 'No error description provided';
 
-			throw new \RuntimeException("Error $error: $errorDescription", 500);
+			throw new RuntimeException("Error $error: $errorDescription", 500);
 		}
 
 		return $response;
@@ -891,13 +824,13 @@ class GoogleStorage
 			return $path;
 		}
 
-		$safeChars = array(
+		$safeChars = [
 			'-', '.', '_', '~', '!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=', ':', '@',
 			'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
 			'u', 'v', 'w', 'x', 'y', 'z',
 			'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
 			'U', 'V', 'W', 'X', 'Y', 'Z',
-		);
+		];
 		$ret       = '';
 		$chars     = str_split($path);
 
@@ -921,5 +854,111 @@ class GoogleStorage
 		}
 
 		return $ret;
+	}
+
+	/**
+	 * Utility method to base sixty four encode data and then URL encode the result in a format that's compatible with
+	 * Google Cloud.
+	 *
+	 * @param   string  $data  The data to encode
+	 *
+	 * @return  string
+	 */
+	private function bsfUrlEncode($data)
+	{
+		/**
+		 * Working around hosts with broken malware scanners. Ironically, the best way for benign software like ours to
+		 * do that is by following the same code obscuring techniques as legitimate malware. You know, of the kind that
+		 * these hosts' malware scanners fail to catch.
+		 */
+		$funcName   = substr('baseball', 0, 4);
+		$funcName   .= (string) (4 * 4 * 4);
+		$funcName   .= '_' . substr('length', 1, 2);
+		$funcName   .= substr('barcode', -4);
+		$bsfEncData = call_user_func_array($funcName, [$data]);
+
+		return rtrim(strtr($bsfEncData, '+/', '-_'), '=');
+	}
+
+	/**
+	 * Returns a pre-calculated JWT assertion which you need to retrieve an access token from Google. If the assertion
+	 * does not exist it will be calculated.
+	 *
+	 * @param   string  $serviceAccountEmail  The Google Cloud Service Account (fake) email address
+	 * @param   string  $privateKey           The Google Cloud Service Account private key in PEM format
+	 *
+	 * @return  string  The JWT assertion
+	 */
+	private function getJWTAssertion($serviceAccountEmail, $privateKey)
+	{
+		if (empty($this->jwtAssertion))
+		{
+			// Base Sixty Four Encoded JSON header
+			$jwtHeader = $this->bsfUrlEncode(json_encode([
+				"alg" => "RS256",
+				"typ" => "JWT",
+			]));
+
+			/**
+			 * Base Sixty Four Encoded JSON claim set.
+			 *
+			 * If you need multiple scopes they must be SPACE-DELIMITED in the scope field below. Yes, SPACE, NOT COMMA.
+			 * For valid scopes see https://developers.google.com/identity/protocols/googlescopes#storagev1
+			 */
+			$now      = time();
+			$jwtClaim = $this->bsfUrlEncode(json_encode([
+				"iss"   => $serviceAccountEmail,
+				"scope" => "https://www.googleapis.com/auth/devstorage.full_control",
+				"aud"   => "https://www.googleapis.com/oauth2/v4/token",
+				"exp"   => $now + 3600,
+				"iat"   => $now,
+			]));
+
+			// The base string for the signature: {Encoded JSON header}.{Encoded JSON claim set}
+			openssl_sign(
+				$jwtHeader . "." . $jwtClaim,
+				$jwtSig,
+				$privateKey,
+				"sha256WithRSAEncryption"
+			);
+
+			$jwtSign = $this->bsfUrlEncode($jwtSig);
+
+			//{Base64url encoded JSON header}.{Base64url encoded JSON claim set}.{Base64url encoded signature}
+			$this->jwtAssertion = $jwtHeader . "." . $jwtClaim . "." . $jwtSign;
+		}
+
+		return $this->jwtAssertion;
+	}
+
+	/**
+	 * Normalizes the name of a Google Storage storage class. If an unsupported class is provided it returns null.
+	 *
+	 * This is compatible with how the rest of this API implementation expects the storage class to be provided. If it's
+	 * a string it's passed straight to the Google Storage JSON API. If it's null we do not pass a storage class,
+	 * letting Google Storage use the storage class of the bucket.
+	 *
+	 * @param   null|string  $storageClass  The Google Storage storage class to normalize.
+	 *
+	 * @return  string|null
+	 * @since   7.0.0.a1
+	 *
+	 * @see     https://cloud.google.com/storage/docs/storage-classes#available_storage_classes
+	 */
+	private function normalizeStorageClass($storageClass)
+	{
+		if (empty($storageClass))
+		{
+			return null;
+		}
+
+		$storageClass = strtolower($storageClass);
+
+		if (in_array($storageClass, ['standard', 'nearline', 'coldline']))
+		{
+			return $storageClass;
+		}
+
+		return null;
 	}
 }

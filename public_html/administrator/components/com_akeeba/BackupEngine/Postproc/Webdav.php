@@ -1,184 +1,184 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Postproc\Connector\Davclient as ConnectorDavclient;
-use Psr\Log\LogLevel;
+use Akeeba\Engine\Postproc\Exception\BadConfiguration;
+use Akeeba\Engine\Postproc\Exception\RangeDownloadNotSupported;
+use Exception;
+use RuntimeException;
 
 class Webdav extends Base
 {
-	/** @var string Username */
+	/**
+	 * WebDAV username
+	 *
+	 * @var string
+	 */
 	protected $username;
 
-	/** @var string Password */
+	/**
+	 * WebDAV password
+	 *
+	 * @var string
+	 */
 	protected $password;
 
-	/** @var int The retry count of this file (allow up to 2 retries after the first upload failure) */
+	/**
+	 * The retry count of this file (allow up to 2 retries after the first upload failure)
+	 *
+	 * @var int
+	 */
 	protected $tryCount = 0;
 
-	/** @var ConnectorDavclient  WebDAV client */
-	protected $webdav;
-
-	/** @var string The currently configured directory */
+	/**
+	 * The currently configured directory
+	 *
+	 * @var string
+	 */
 	protected $directory;
 
-	/** @var string The key used for storing settings in the Configuration registry */
+	/**
+	 * The key used for storing settings in the Configuration registry
+	 *
+	 * @var string
+	 */
 	protected $settingsKey = 'webdav';
 
 	public function __construct()
 	{
-		$this->can_download_to_browser = false;
-		$this->can_delete = true;
-		$this->can_download_to_file = true;
+		$this->supportsDownloadToBrowser = false;
+		$this->supportsDelete            = true;
+		$this->supportsDownloadToFile    = true;
 	}
 
-	public function processPart($absolute_filename, $upload_as = null)
+	public function processPart($localFilepath, $remoteBaseName = null)
 	{
-		$settings = $this->getSettings();
-
-		if ($settings === false)
-		{
-			return false;
-		}
-
 		$directory = $this->directory;
-
-		$basename = empty($upload_as) ? basename($absolute_filename) : $upload_as;
+		$basename  = empty($remoteBaseName) ? basename($localFilepath) : $remoteBaseName;
 
 		try
 		{
-			$result = $this->putFile($absolute_filename, $directory, $basename);
+			$this->putFile($localFilepath, $directory, $basename);
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
-			$result = false;
-			$this->setWarning($e->getMessage());
-		}
+			// Upload failed. Let's log the failure first.
+			Factory::getLog()->debug(sprintf("%s - WebDAV upload failed, %s: %s", __METHOD__, $e->getCode(), $e->getMessage()));
 
-		if ($result === false)
-		{
-			// Let's retry
+			// Increase the try counter
 			$this->tryCount++;
+
 			// However, if we've already retried twice, we stop retrying and call it a failure
 			if ($this->tryCount > 2)
 			{
-				return false;
+				Factory::getLog()->debug(sprintf("%s - Maximum number of retries exceeded. The upload has failed.", __METHOD__));
+
+				throw new RuntimeException('Uploading to WebDAV failed.', 500, $e);
 			}
 
-			return -1;
-		}
-		else
-		{
-			// Upload complete. Reset the retry counter.
-			$this->tryCount = 0;
+			Factory::getLog()->debug(sprintf("%s - The upload will be retried", __METHOD__));
 
-			return true;
+			return false;
 		}
+
+		// Upload complete. Reset the retry counter.
+		$this->tryCount = 0;
+
+		return true;
 	}
 
 	public function downloadToFile($remotePath, $localFile, $fromOffset = null, $length = null)
 	{
-		// Get settings
-		$settings = $this->getSettings();
-		if ($settings === false)
-		{
-			return false;
-		}
-
 		if (!is_null($fromOffset))
 		{
 			// Ranges are not supported
-			return -1;
+			throw new RangeDownloadNotSupported();
 		}
 
-		// Download the file
-		$done = false;
-		try
-		{
-			$handle = fopen($localFile, 'w+');
-			$this->webdav->request('GET', $remotePath, $handle);
-			$done = true;
+		/** @var ConnectorDavclient $connector */
+		$connector = $this->getConnector();
+		$try       = 0;
 
-			fclose($handle);
-		}
-		catch (\Exception $e)
-		{
-			fclose($handle);
-		}
-
-		if (!$done)
+		while ($try < 2)
 		{
 			try
 			{
 				$handle = fopen($localFile, 'w+');
-				$this->webdav->request('GET', $remotePath, $handle);
-				fclose($handle);
+
+				if ($handle === false)
+				{
+					throw new RuntimeException(sprintf('Can not open file %s for writing.', $localFile));
+				}
+
+				$connector->request('GET', $remotePath, $handle);
+
+				return;
 			}
-			catch (\Exception $e)
+			catch (Exception $e)
+			{
+				if ($try > 0)
+				{
+					throw $e;
+				}
+
+				$try++;
+			}
+			finally
 			{
 				fclose($handle);
-				$this->setWarning($e->getMessage());
-
-				return false;
 			}
 		}
 
-		return true;
+		throw new RuntimeException('WebDAV download failed without a reason we can report. This should never happen.');
 	}
 
 	public function delete($path)
 	{
-		// Get settings
-		$settings = $this->getSettings();
+		/** @var ConnectorDavclient $connector */
+		$connector = $this->getConnector();
 
-		if ($settings === false)
-		{
-			return false;
-		}
-
-		// Remove starting slash, or CloudMe will read it as an absolute path
+		// Remove starting slash, or some servers will read it as an absolute path
 		$path = '/' . ltrim($path, '/');
+		$try  = 0;
 
-		$done = false;
-		try
-		{
-			$this->webdav->request('DELETE', $path);
-			$done = true;
-		}
-		catch (\Exception $e)
-		{
-			//Do nothing
-		}
-
-		if (!$done)
+		while ($try < 2)
 		{
 			try
 			{
-				$this->webdav->request('DELETE', $path);
+				$connector->request('DELETE', $path);
 			}
-			catch (\Exception $e)
+			catch (Exception $e)
 			{
-				$this->setWarning($e->getMessage());
+				if ($try > 0)
+				{
+					throw $e;
+				}
 
-				return false;
+				$try++;
 			}
 		}
 
-		return true;
+		throw new RuntimeException('WebDAV file delete failed without a reason we can report. This should never happen.');
 	}
 
+	/**
+	 * Get the WebDAV settings from the backup profile configuration
+	 *
+	 * @return  array
+	 *
+	 * @throws  BadConfiguration  If there's a configuration issue
+	 */
 	protected function getSettings()
 	{
 		// Retrieve engine configuration data
@@ -186,58 +186,49 @@ class Webdav extends Base
 
 		$username = trim($config->get('engine.postproc.' . $this->settingsKey . '.username', ''));
 		$password = trim($config->get('engine.postproc.' . $this->settingsKey . '.password', ''));
-		$url = trim($config->get('engine.postproc.' . $this->settingsKey . '.url', ''));
+		$url      = trim($config->get('engine.postproc.' . $this->settingsKey . '.url', ''));
 
-		$this->directory = $config->get('volatile.postproc.directory', null);
-
-		if (empty($this->directory))
-		{
-			$this->directory = $config->get('engine.postproc.' . $this->settingsKey . '.directory', '');
-		}
+		$defaultDirectory = $config->get('engine.postproc.' . $this->settingsKey . '.directory', '');
+		$this->directory  = $config->get('volatile.postproc.directory', $defaultDirectory);
 
 		// Sanity checks
 		if (empty($username) || empty($password))
 		{
-			$this->setError('You have not linked Akeeba Backup with your WebDav account');
-
-			return false;
+			throw new BadConfiguration('You have not linked Akeeba Backup with your WebDav account');
 		}
 
-        if(!function_exists('curl_init'))
-        {
-            $this->setWarning('cURL is not enabled, please enable it in order to post-process your archives');
-
-            return false;
-        }
+		if (!function_exists('curl_init'))
+		{
+			throw new BadConfiguration('cURL is not enabled, please enable it in order to post-process your archives');
+		}
 
 		// Fix the directory name, if required
-		if (!empty($this->directory))
-		{
-			$this->directory = trim($this->directory);
-			$this->directory = ltrim(Factory::getFilesystemTools()->TranslateWinPath($this->directory), '/');
-		}
-		else
-		{
-			$this->directory = '';
-		}
-
-		// Parse tags
+		$this->directory = empty($this->directory) ? '' : $this->directory;
+		$this->directory = trim($this->directory);
+		$this->directory = ltrim(Factory::getFilesystemTools()->TranslateWinPath($this->directory), '/');
 		$this->directory = Factory::getFilesystemTools()->replace_archive_name_variables($this->directory);
 		$config->set('volatile.postproc.directory', $this->directory);
 
-		$settings = array(
+		$settings = [
 			'baseUri'  => $url,
 			'userName' => $username,
 			'password' => $password,
-		);
+		];
 
 		// Last chance to modify the settings!
 		$this->modifySettings($settings);
 
-		$this->webdav = new ConnectorDavclient($settings);
-		$this->webdav->addTrustedCertificates(AKEEBA_CACERT_PEM);
+		return $settings;
+	}
 
-		return true;
+	protected function makeConnector()
+	{
+		$settings = $this->getSettings();
+
+		$connector = new ConnectorDavclient($settings);
+		$connector->addTrustedCertificates(AKEEBA_CACERT_PEM);
+
+		return $connector;
 	}
 
 	/**
@@ -252,26 +243,40 @@ class Webdav extends Base
 		// No changes made in the default class. Only subclasses implement this.
 	}
 
+	/**
+	 * Sends a file to WebDAV. It checks if the path to the file already exists. If not, it creates it.
+	 *
+	 * @param   string  $absolute_filename  The path to the local file which will be uploaded to WebDAV.
+	 * @param   string  $directory          The WebDAV directory where the file will be uploaded to.
+	 * @param   string  $basename           The name
+	 *
+	 * @return array
+	 *
+	 * @throws Exception
+	 */
 	protected function putFile($absolute_filename, $directory, $basename)
 	{
+		/** @var ConnectorDavclient $connector */
+		$connector = $this->getConnector();
+
 		// Normalize double slashes
 		$directory = str_replace('//', '/', $directory);
 		$basename  = str_replace('//', '/', $basename);
 
 		// Store the absolute remote path in the class property
 		// Let's remove the starting slash, otherwise it read as an absolute path
-		$this->remote_path = trim(trim($directory, '/') . '/' . trim($basename, '/'), '/');
-		$this->remote_path = str_replace('//', '/', $this->remote_path);
+		$this->remotePath = trim(trim($directory, '/') . '/' . trim($basename, '/'), '/');
+		$this->remotePath = str_replace('//', '/', $this->remotePath);
 
 		// A directory is supplied, let's check if it really exists or not
 		if ($directory)
 		{
 			$checkPath = '';
-			$parts = explode('/', $directory);
+			$parts     = explode('/', $directory);
 
 			foreach ($parts as $part)
 			{
-				if (!$part)
+				if (empty($part))
 				{
 					continue;
 				}
@@ -280,43 +285,35 @@ class Webdav extends Base
 
 				try
 				{
-					Factory::getLog()->log(LogLevel::DEBUG, "Checking if the following remote path exists: " . $checkPath);
-					$this->webdav->propFind($checkPath, array('{DAV:}resourcetype'));
-				}
-				catch (\Exception $e)
-				{
-					Factory::getLog()->log(LogLevel::DEBUG, "Received the following exception while checking if the remote folder exists: " . $e->getCode() . ' - ' . $e->getMessage());
+					Factory::getLog()->debug("Checking if the following remote path exists: " . $checkPath);
 
-					// If the folder doesn't exists an error 404 is returned
+					$connector->propFind($checkPath, ['{DAV:}resourcetype']);
+				}
+				catch (Exception $e)
+				{
+					/**
+					 * If the folder doesn't exists an error 404 is returned and I can suppress it. If the error code,
+					 * however, is anything different then something went wrong and I have to re-throw the exception and
+					 * let it bubble up.
+					 */
 					if ($e->getCode() != 404)
 					{
-						Factory::getLog()->log(LogLevel::DEBUG, "Error code different than 404, this means that a real error occurred");
-
-						return false;
+						throw new $e;
 					}
 
-					Factory::getLog()->log(LogLevel::DEBUG, "Remote path $checkPath does not exists, I'm going to create it");
+					Factory::getLog()->debug(sprintf("Remote path %s does not exists, I'm going to create it", $checkPath));
 
-					// Folder doesn't exist, let's create it
-					try
-					{
-						$this->webdav->request('MKCOL', $checkPath);
-					}
-					catch (\Exception $e)
-					{
-						Factory::getLog()->log(LogLevel::DEBUG, "The following error occurred while creating the remote folder $checkPath: " . $e->getCode() . ' - ' . $e->getMessage());
+					// Folder doesn't exist, let's create it. Throws exception if it fails.
+					$connector->request('MKCOL', $checkPath);
 
-						return false;
-					}
-
-					Factory::getLog()->log(LogLevel::DEBUG, "Remote path $checkPath created");
+					Factory::getLog()->debug(sprintf("Remote path %s created", $checkPath));
 				}
 			}
 		}
 
-		$this->remote_path = '/' . ltrim($this->remote_path, '/');
+		$this->remotePath = '/' . ltrim($this->remotePath, '/');
 
-		$result = $this->webdav->request('PUT', $this->remote_path, file_get_contents($absolute_filename));
+		$result = $connector->request('PUT', $this->remotePath, file_get_contents($absolute_filename));
 
 		return $result;
 	}

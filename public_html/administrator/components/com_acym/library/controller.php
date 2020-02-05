@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class acymController extends acymObject
 {
@@ -19,6 +10,9 @@ class acymController extends acymObject
     var $defaulttask = 'listing';
     var $breadcrumb = [];
     var $loadScripts = [];
+    var $currentClass = null;
+    var $authorizedFrontTasks = [];
+    var $urlFrontMenu = '';
 
     public function __construct()
     {
@@ -27,16 +21,14 @@ class acymController extends acymObject
         $classname = get_class($this);
         $ctrlpos = strpos($classname, 'Controller');
         $this->name = strtolower(substr($classname, 0, $ctrlpos));
+        $this->currentClass = acym_get('class.'.rtrim(str_replace('front', '', $this->name), 's'));
 
         $this->breadcrumb['AcyMailing'] = acym_completeLink('dashboard');
     }
 
     public function loadScripts($task)
     {
-
-        if (empty($this->loadScripts)) {
-            return;
-        }
+        if (empty($this->loadScripts)) return;
 
         $scripts = [];
         if (!empty($this->loadScripts['all'])) {
@@ -47,9 +39,7 @@ class acymController extends acymObject
             $scripts = array_merge($scripts, $this->loadScripts[$task]);
         }
 
-        if (empty($scripts)) {
-            return;
-        }
+        if (empty($scripts)) return;
 
         if (in_array('colorpicker', $scripts)) {
             acym_addScript(false, ACYM_JS.'libraries/spectrum.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'spectrum.min.js'));
@@ -69,16 +59,30 @@ class acymController extends acymObject
 
         if (in_array('foundation-email', $scripts)) {
             acym_addStyle(false, ACYM_CSS.'libraries/foundation_email.min.css?v='.filemtime(ACYM_MEDIA.'css'.DS.'libraries'.DS.'foundation_email.min.css'));
+            acym_addStyle(true, acym_getEmailCssFixes());
+        }
+
+        if (in_array('introjs', $scripts)) {
+            acym_addStyle(false, ACYM_CSS.'libraries/introjs.min.css?v='.filemtime(ACYM_MEDIA.'css'.DS.'libraries'.DS.'introjs.min.css'));
+            acym_addScript(false, ACYM_JS.'libraries/intro.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'intro.min.js'));
         }
 
         if (in_array('parse-css', $scripts)) {
             acym_addScript(false, ACYM_JS.'libraries/parse-css.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'parse-css.min.js'));
         }
 
-        if (in_array('vue-applications', $scripts)) {
+        if (in_array('editor-wysid', $scripts)) {
+            acym_addStyle(false, ACYM_CSS.'editorWYSID.min.css?v='.filemtime(ACYM_MEDIA.'css'.DS.'editorWYSID.min.css'));
+            acym_addScript(false, ACYM_JS.'editor_wysid_utils.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'editor_wysid_utils.min.js'));
+        }
+
+        if (!empty($scripts['vue-applications'])) {
             acym_addScript(false, ACYM_JS.'libraries/vuejs.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'vuejs.min.js'));
             acym_addScript(false, ACYM_JS.'libraries/vue-infinite-scroll.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'vue-infinite-scroll.min.js'));
-            acym_addScript(false, ACYM_JS.'vue/vue.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'vue'.DS.'vue.min.js'));
+            acym_addScript(false, ACYM_JS.'vue/vue_components.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'vue'.DS.'vue_components.min.js'));
+            foreach ($scripts['vue-applications'] as $script) {
+                acym_addScript(false, ACYM_JS.'vue/'.$script.'.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'vue'.DS.$script.'.min.js'));
+            }
         }
 
         if (in_array('vue-prism-editor', $scripts)) {
@@ -87,7 +91,6 @@ class acymController extends acymObject
             acym_addScript(false, 'https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.10.2/beautify-html.js');
             acym_addStyle(false, ACYM_CSS.'libraries/prism.min.css?v='.filemtime(ACYM_MEDIA.'css'.DS.'libraries'.DS.'prism.min.css'));
         }
-
     }
 
     public function setDefaultTask($task)
@@ -191,9 +194,8 @@ class acymController extends acymObject
         $currentPage = explode('_', acym_getVar('string', 'page'));
         $pageNumber = acym_getVar('int', end($currentPage).'_pagination_page');
 
-        if (!empty($ids)) {
-            $listClass = acym_get('class.'.rtrim($this->name, 's'));
-            $listClass->delete($ids);
+        if (!empty($ids) && !empty($this->currentClass)) {
+            $this->currentClass->delete($ids);
             if ($allChecked == 'on') {
                 acym_setVar(end($currentPage).'_pagination_page', $pageNumber - 1);
             }
@@ -208,8 +210,7 @@ class acymController extends acymObject
         $ids = acym_getVar('array', 'elements_checked', []);
 
         if (!empty($ids)) {
-            $elementClass = acym_get('class.'.rtrim($this->name, 's'));
-            $elementClass->setActive($ids);
+            $this->currentClass->setActive($ids);
         }
 
         $this->listing();
@@ -221,25 +222,42 @@ class acymController extends acymObject
         $ids = acym_getVar('array', 'elements_checked', []);
 
         if (!empty($ids)) {
-            $elementClass = acym_get('class.'.rtrim($this->name, 's'));
-            $elementClass->setInactive($ids);
+            $this->currentClass->setInactive($ids);
         }
 
         $this->listing();
     }
 
-    protected function getMatchingElementsFromData($requestData, $className, &$status)
+    protected function getMatchingElementsFromData($requestData, &$status, &$page)
     {
-        $elementClass = acym_get('class.'.$className);
-        $matchingElement = $elementClass->getMatchingElements($requestData);
+        $matchingElement = $this->currentClass->getMatchingElements($requestData);
 
-        if (empty($matchingElement['elements']) && !empty($status) && empty($requestData['search']) && empty($requestData['tag'])) {
-            $status = '';
-            $requestData['status'] = $status;
-            $matchingElement = $elementClass->getMatchingElements($requestData);
+        if (empty($matchingElement['elements'])) {
+            if (!empty($status) && empty($requestData['search']) && empty($requestData['tag'])) {
+                $status = '';
+                $requestData['status'] = $status;
+            } elseif (!empty($requestData['offset'])) {
+                $page = 1;
+                $requestData['offset'] = 0;
+            }
+            $matchingElement = $this->currentClass->getMatchingElements($requestData);
         }
 
         return $matchingElement;
+    }
+
+    public function checkTaskFront($task)
+    {
+        if (!in_array($task, $this->authorizedFrontTasks)) {
+            acym_menuOnly($this->urlFrontMenu);
+            $currentUserid = acym_currentUserId();
+            if (empty($currentUserid)) {
+                acym_askLog(true, 'ACYM_ONLY_LOGGED', 'info');
+
+                return;
+            }
+        }
+        $this->$task();
     }
 }
 

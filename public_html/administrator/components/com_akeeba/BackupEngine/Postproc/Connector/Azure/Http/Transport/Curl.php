@@ -1,11 +1,10 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 /**
@@ -42,8 +41,7 @@
 
 namespace Akeeba\Engine\Postproc\Connector\Azure\Http\Transport;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Postproc\Connector\Azure\Exception\Transport as TransportException;
 use Akeeba\Engine\Postproc\Connector\Azure\Http\Response;
@@ -73,15 +71,15 @@ class Curl extends Transport
 	/**
 	 * Perform request
 	 *
-	 * @param string $httpVerb    Http verb to use in the request
-	 * @param string $url         Url to request
-	 * @param array  $variables   Array of key-value pairs to use in the request
-	 * @param array  $headers     Array of key-value pairs to use as additional headers
-	 * @param string $inputObject Raw body to send to server
+	 * @param   string  $httpVerb     Http verb to use in the request
+	 * @param   string  $url          Url to request
+	 * @param   array   $variables    Array of key-value pairs to use in the request
+	 * @param   array   $headers      Array of key-value pairs to use as additional headers
+	 * @param   string  $inputObject  Raw body to send to server
 	 *
 	 * @return Response
 	 */
-	public function request($httpVerb, $url, $variables = array(), $headers = array(), Input $inputObject = null)
+	public function request($httpVerb, $url, $variables = [], $headers = [], Input $inputObject = null)
 	{
 		// Create a new cURL instance
 		$curlHandle = curl_init();
@@ -215,7 +213,7 @@ class Curl extends Transport
 		$headers["Expect"] = '';
 
 		// Add additional headers to cURL instance
-		$curlHeaders = array();
+		$curlHeaders = [];
 
 		foreach ($headers as $key => $value)
 		{
@@ -228,7 +226,7 @@ class Curl extends Transport
 
 		// Execute request
 		$rawResponse = curl_exec($curlHandle);
-		$response = null;
+		$response    = null;
 		if ($rawResponse)
 		{
 			$response = Response::fromString($rawResponse);

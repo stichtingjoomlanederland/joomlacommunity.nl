@@ -1,11 +1,10 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 /**
@@ -26,16 +25,24 @@
 
 namespace Akeeba\Engine\Postproc\Connector;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Postproc\Connector\Davclient\Xml;
-use Psr\Log\LogLevel;
+use Exception;
+use InvalidArgumentException;
 
 class Davclient
 {
 
+	/**
+	 * Basic authentication
+	 */
+	const AUTH_BASIC = 1;
+	/**
+	 * Digest authentication
+	 */
+	const AUTH_DIGEST = 2;
 	/**
 	 * The propertyMap is a key-value array.
 	 *
@@ -48,25 +55,13 @@ class Davclient
 	 *
 	 * @var array
 	 */
-	public $propertyMap = array();
-
+	public $propertyMap = [];
 	protected $headers = '';
 	protected $baseUri;
 	protected $userName;
 	protected $password;
 	protected $proxy;
 	protected $trustedCertificates;
-
-	/**
-	 * Basic authentication
-	 */
-	const AUTH_BASIC = 1;
-
-	/**
-	 * Digest authentication
-	 */
-	const AUTH_DIGEST = 2;
-
 	/**
 	 * The authentication type we're using.
 	 *
@@ -97,24 +92,24 @@ class Davclient
 	 *   * password (optional)
 	 *   * proxy (optional)
 	 *
-	 * @param array $settings
+	 * @param   array  $settings
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 */
 	public function __construct(array $settings)
 	{
 
 		if (!isset($settings['baseUri']))
 		{
-			throw new \InvalidArgumentException('A baseUri must be provided');
+			throw new InvalidArgumentException('A baseUri must be provided');
 		}
 
-		$validSettings = array(
+		$validSettings = [
 			'baseUri',
 			'userName',
 			'password',
 			'proxy',
-		);
+		];
 
 		foreach ($validSettings as $validSetting)
 		{
@@ -145,7 +140,7 @@ class Davclient
 	 * The parameter certificates should be a absolute path to a file
 	 * which contains all trusted certificates
 	 *
-	 * @param string $certificates
+	 * @param   string  $certificates
 	 */
 	public function addTrustedCertificates($certificates)
 	{
@@ -155,7 +150,7 @@ class Davclient
 	/**
 	 * Enables/disables SSL peer verification
 	 *
-	 * @param boolean $value
+	 * @param   boolean  $value
 	 */
 	public function setVerifyPeer($value)
 	{
@@ -178,9 +173,9 @@ class Davclient
 	 * Depth should be either 0 or 1. A depth of 1 will cause a request to be
 	 * made to the server to also return all child resources.
 	 *
-	 * @param string $url
-	 * @param array  $properties
-	 * @param int    $depth
+	 * @param   string  $url
+	 * @param   array   $properties
+	 * @param   int     $depth
 	 *
 	 * @return array
 	 */
@@ -208,10 +203,10 @@ class Davclient
 		$body .= '  </d:prop>' . "\n";
 		$body .= '</d:propfind>';
 
-		$response = $this->request('PROPFIND', $url, $body, array(
+		$response = $this->request('PROPFIND', $url, $body, [
 			'Depth'        => $depth,
-			'Content-Type' => 'application/xml'
-		));
+			'Content-Type' => 'application/xml',
+		]);
 
 		$result = $this->parseMultiStatus($response['body']);
 
@@ -221,14 +216,14 @@ class Davclient
 			reset($result);
 			$result = current($result);
 
-			return isset($result[200]) ? $result[200] : array();
+			return isset($result[200]) ? $result[200] : [];
 		}
 
-		$newResult = array();
+		$newResult = [];
 
 		foreach ($result as $href => $statusList)
 		{
-			$newResult[$href] = isset($statusList[200]) ? $statusList[200] : array();
+			$newResult[$href] = isset($statusList[200]) ? $statusList[200] : [];
 		}
 
 		return $newResult;
@@ -241,11 +236,8 @@ class Davclient
 	 * and the actual (string) value for the value. If the value is null, an
 	 * attempt is made to delete the property.
 	 *
-	 * @todo Must be building the request using the DOM, and does not yet
-	 *       support complex properties.
-	 *
-	 * @param string $url
-	 * @param array  $properties
+	 * @param   string  $url
+	 * @param   array   $properties
 	 *
 	 * @return void
 	 */
@@ -304,9 +296,9 @@ class Davclient
 
 		$body .= '</d:propertyupdate>';
 
-		$this->request('PROPPATCH', $url, $body, array(
-			'Content-Type' => 'application/xml'
-		));
+		$this->request('PROPPATCH', $url, $body, [
+			'Content-Type' => 'application/xml',
+		]);
 	}
 
 	/**
@@ -324,7 +316,7 @@ class Davclient
 
 		if (!isset($result['headers']['dav']))
 		{
-			return array();
+			return [];
 		}
 
 		$features = explode(',', $result['headers']['dav']);
@@ -349,39 +341,39 @@ class Davclient
 	 *   * headers - a list of response http headers. The header names have
 	 *     been lowercased.
 	 *
-	 * @param string $method
-	 * @param string $url
-	 * @param string $body
-	 * @param array  $headers
-	 *
-	 * @throws \Exception
+	 * @param   string  $method
+	 * @param   string  $url
+	 * @param   string  $body
+	 * @param   array   $headers
 	 *
 	 * @return array
+	 * @throws Exception
+	 *
 	 */
-	public function request($method, $url = '', $body = null, $headers = array())
+	public function request($method, $url = '', $body = null, $headers = [])
 	{
 		$this->headers = '';
 
-		Factory::getLog()->log(LogLevel::DEBUG, "Remote relative WebDav URL: " . $url);
+		Factory::getLog()->debug("Remote relative WebDav URL: " . $url);
 
 		$url = $this->getAbsoluteUrl($url);
 
 		// WebDAV requires spaces (AND SPACES ONLY!) to be encoded
 		$url = str_replace(' ', '%20', $url);
 
-		Factory::getLog()->log(LogLevel::DEBUG, "Absolute WebDav URL: " . $url);
+		Factory::getLog()->debug("Absolute WebDav URL: " . $url);
 
-		$curlSettings = array(
+		$curlSettings = [
 			CURLOPT_RETURNTRANSFER => true,
 			// I can't get the headers in the response, since it would corrupt my downloads
 			CURLOPT_HEADER         => false,
-			CURLOPT_HEADERFUNCTION => array($this, 'storeHeaders'),
+			CURLOPT_HEADERFUNCTION => [$this, 'storeHeaders'],
 			CURLOPT_POSTFIELDS     => $body,
 			// Automatically follow redirects
 			CURLOPT_FOLLOWLOCATION => true,
 			CURLOPT_MAXREDIRS      => 5,
 			CURLOPT_CAINFO         => AKEEBA_CACERT_PEM,
-		);
+		];
 
 		if ($this->verifyPeer !== null)
 		{
@@ -402,7 +394,7 @@ class Davclient
 				// specs...) cURL does unfortunately return an error in this case ("transfer closed transfer closed with
 				// ... bytes remaining to read") this can be circumvented by explicitly telling cURL to ignore the
 				// response body
-				$curlSettings[CURLOPT_NOBODY] = true;
+				$curlSettings[CURLOPT_NOBODY]        = true;
 				$curlSettings[CURLOPT_CUSTOMREQUEST] = 'HEAD';
 				break;
 			case 'GET':
@@ -428,8 +420,8 @@ class Davclient
 		}
 
 		// Adding HTTP headers
-        // OwnCloud needs the the Content-Type header to be set
-		$nHeaders = array('Content-Type: application/octet-stream');
+		// OwnCloud needs the the Content-Type header to be set
+		$nHeaders = ['Content-Type: application/octet-stream'];
 
 		foreach ($headers as $key => $value)
 		{
@@ -458,22 +450,22 @@ class Davclient
 			}
 
 			$curlSettings[CURLOPT_HTTPAUTH] = $curlType;
-			$curlSettings[CURLOPT_USERPWD] = $this->userName . ':' . $this->password;
+			$curlSettings[CURLOPT_USERPWD]  = $this->userName . ':' . $this->password;
 		}
 
 		list($response, $curlInfo, $curlErrNo, $curlError) = $this->curlRequest($url, $curlSettings);
 
 		$this->parseHeaders();
 
-		$response = array(
+		$response = [
 			'body'       => $response,
 			'statusCode' => $curlInfo['http_code'],
-			'headers'    => $this->headers
-		);
+			'headers'    => $this->headers,
+		];
 
 		if ($curlErrNo)
 		{
-			throw new \Exception('[CURL] Error while making request: ' . $curlError . ' (error code: ' . $curlErrNo . ')');
+			throw new Exception('[CURL] Error while making request: ' . $curlError . ' (error code: ' . $curlErrNo . ')');
 		}
 
 		if ($response['statusCode'] >= 400)
@@ -481,37 +473,108 @@ class Davclient
 			switch ($response['statusCode'])
 			{
 				case 400 :
-					throw new \Exception('Bad request', 400);
+					throw new Exception('Bad request', 400);
 				case 401 :
-					throw new \Exception('Not authenticated', 401);
+					throw new Exception('Not authenticated', 401);
 				case 402 :
-					throw new \Exception('Payment required', 402);
+					throw new Exception('Payment required', 402);
 				case 403 :
-					throw new \Exception('Forbidden', 403);
+					throw new Exception('Forbidden', 403);
 				case 404:
-					throw new \Exception('Resource not found.', 404);
+					throw new Exception('Resource not found.', 404);
 				case 405 :
-					throw new \Exception('Method not allowed', 405);
+					throw new Exception('Method not allowed', 405);
 				case 409 :
-					throw new \Exception('Conflict', 409);
+					throw new Exception('Conflict', 409);
 				case 412 :
-					throw new \Exception('Precondition failed', 412);
+					throw new Exception('Precondition failed', 412);
 				case 413 :
-					throw new \Exception('Request Entity Too Large', 413);
+					throw new Exception('Request Entity Too Large', 413);
 				case 416 :
-					throw new \Exception('Requested Range Not Satisfiable', 416);
+					throw new Exception('Requested Range Not Satisfiable', 416);
 				case 500 :
-					throw new \Exception('Internal server error', 500);
+					throw new Exception('Internal server error', 500);
 				case 501 :
-					throw new \Exception('Not Implemented', 501);
+					throw new Exception('Not Implemented', 501);
 				case 507 :
-					throw new \Exception('Insufficient storage', 507);
+					throw new Exception('Insufficient storage', 507);
 				default:
-					throw new \Exception('HTTP error response. (errorcode ' . $response['statusCode'] . ')');
+					throw new Exception('HTTP error response. (errorcode ' . $response['statusCode'] . ')');
 			}
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Parses a WebDAV multistatus response body
+	 *
+	 * This method returns an array with the following structure
+	 *
+	 * array(
+	 *   'url/to/resource' => array(
+	 *     '200' => array(
+	 *        '{DAV:}property1' => 'value1',
+	 *        '{DAV:}property2' => 'value2',
+	 *     ),
+	 *     '404' => array(
+	 *        '{DAV:}property1' => null,
+	 *        '{DAV:}property2' => null,
+	 *     ),
+	 *   )
+	 *   'url/to/resource2' => array(
+	 *      .. etc ..
+	 *   )
+	 * )
+	 *
+	 *
+	 * @param   string  $body  xml body
+	 *
+	 * @return  array
+	 * @throws  InvalidArgumentException
+	 *
+	 */
+	public function parseMultiStatus($body)
+	{
+
+		$body = Xml::convertDAVNamespace($body);
+
+		$responseXML = simplexml_load_string($body, null, LIBXML_NOBLANKS | LIBXML_NOCDATA);
+
+		if ($responseXML === false)
+		{
+			throw new InvalidArgumentException('The passed data is not valid XML');
+		}
+
+		$responseXML->registerXPathNamespace('d', 'urn:DAV');
+
+		$propResult = [];
+
+		foreach ($responseXML->xpath('d:response') as $response)
+		{
+			$response->registerXPathNamespace('d', 'urn:DAV');
+			$href = $response->xpath('d:href');
+			$href = (string) $href[0];
+
+			$properties = [];
+
+			foreach ($response->xpath('d:propstat') as $propStat)
+			{
+
+				$propStat->registerXPathNamespace('d', 'urn:DAV');
+				$status = $propStat->xpath('d:status');
+				list($httpVersion, $statusCode, $message) = explode(' ', (string) $status[0], 3);
+
+				// Only using the propertymap for results with status 200.
+				$propertyMap = $statusCode === '200' ? $this->propertyMap : [];
+
+				$properties[$statusCode] = Xml::parseProperties(dom_import_simplexml($propStat), $propertyMap);
+			}
+
+			$propResult[$href] = $properties;
+		}
+
+		return $propResult;
 	}
 
 	/**
@@ -520,8 +583,8 @@ class Davclient
 	 * failures, but we can't add them to the response body since this would corrupt downloaded files (and doing a
 	 * substr on a potentially 100Mb file is not efficient)
 	 *
-	 * @param   resource $ch         Pointer to a cURL resource
-	 * @param   string   $ch_headers Header
+	 * @param   resource  $ch          Pointer to a cURL resource
+	 * @param   string    $ch_headers  Header
 	 *
 	 * @return  int         Length of the header
 	 */
@@ -550,7 +613,7 @@ class Davclient
 		// Splitting headers
 		$headerBlob = explode("\r\n", $headerBlob);
 
-		$headers = array();
+		$headers = [];
 		foreach ($headerBlob as $header)
 		{
 			$parts = explode(':', $header, 2);
@@ -570,8 +633,8 @@ class Davclient
 	 * The only reason this was split out in a separate method, is so it
 	 * becomes easier to unittest.
 	 *
-	 * @param   string $url
-	 * @param   array  $settings
+	 * @param   string  $url
+	 * @param   array   $settings
 	 *
 	 * @return  array
 	 */
@@ -581,7 +644,7 @@ class Davclient
 		$curl = curl_init($url);
 
 		$followLocation = false;
-		$maxRedirs = 5;
+		$maxRedirs      = 5;
 
 		if (isset($settings[CURLOPT_FOLLOWLOCATION]))
 		{
@@ -603,19 +666,19 @@ class Davclient
 			@curl_setopt($curl, CURLOPT_MAXREDIRS, $maxRedirs);
 		}
 
-		return array(
+		return [
 			curl_exec($curl),
 			curl_getinfo($curl),
 			curl_errno($curl),
-			curl_error($curl)
-		);
+			curl_error($curl),
+		];
 	}
 
 	/**
 	 * Returns the full url based on the given url (which may be relative). All
 	 * urls are expanded based on the base url as given by the server.
 	 *
-	 * @param   string $url
+	 * @param   string  $url
 	 *
 	 * @return  string
 	 */
@@ -630,76 +693,5 @@ class Davclient
 		$parts = parse_url($this->baseUri);
 
 		return $parts['scheme'] . '://' . $parts['host'] . (isset($parts['port']) ? ':' . $parts['port'] : '') . $parts['path'] . '/' . ltrim($url, '/');
-	}
-
-	/**
-	 * Parses a WebDAV multistatus response body
-	 *
-	 * This method returns an array with the following structure
-	 *
-	 * array(
-	 *   'url/to/resource' => array(
-	 *     '200' => array(
-	 *        '{DAV:}property1' => 'value1',
-	 *        '{DAV:}property2' => 'value2',
-	 *     ),
-	 *     '404' => array(
-	 *        '{DAV:}property1' => null,
-	 *        '{DAV:}property2' => null,
-	 *     ),
-	 *   )
-	 *   'url/to/resource2' => array(
-	 *      .. etc ..
-	 *   )
-	 * )
-	 *
-	 *
-	 * @param   string $body xml body
-	 *
-	 * @throws  \InvalidArgumentException
-	 *
-	 * @return  array
-	 */
-	public function parseMultiStatus($body)
-	{
-
-		$body = Xml::convertDAVNamespace($body);
-
-		$responseXML = simplexml_load_string($body, null, LIBXML_NOBLANKS | LIBXML_NOCDATA);
-
-		if ($responseXML === false)
-		{
-			throw new \InvalidArgumentException('The passed data is not valid XML');
-		}
-
-		$responseXML->registerXPathNamespace('d', 'urn:DAV');
-
-		$propResult = array();
-
-		foreach ($responseXML->xpath('d:response') as $response)
-		{
-			$response->registerXPathNamespace('d', 'urn:DAV');
-			$href = $response->xpath('d:href');
-			$href = (string)$href[0];
-
-			$properties = array();
-
-			foreach ($response->xpath('d:propstat') as $propStat)
-			{
-
-				$propStat->registerXPathNamespace('d', 'urn:DAV');
-				$status = $propStat->xpath('d:status');
-				list($httpVersion, $statusCode, $message) = explode(' ', (string)$status[0], 3);
-
-				// Only using the propertymap for results with status 200.
-				$propertyMap = $statusCode === '200' ? $this->propertyMap : array();
-
-				$properties[$statusCode] = Xml::parseProperties(dom_import_simplexml($propStat), $propertyMap);
-			}
-
-			$propResult[$href] = $properties;
-		}
-
-		return $propResult;
 	}
 }

@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class ArchiveController extends acymController
 {
@@ -17,6 +8,7 @@ class ArchiveController extends acymController
     {
         parent::__construct();
         $this->setDefaultTask('view');
+        $this->authorizedFrontTasks = ['view', 'listing', 'showArchive'];
     }
 
     public function view()
@@ -82,7 +74,7 @@ class ArchiveController extends acymController
         if (strpos($oneMail->body, 'acym__wysid__template') !== false) {
             acym_addStyle(false, ACYM_CSS.'libraries/foundation_email.min.css?v='.filemtime(ACYM_MEDIA.'css'.DS.'libraries'.DS.'foundation_email.min.css'));
         }
-        acym_addStyle(false, ACYM_CSS.'email.min.css?v='.filemtime(ACYM_MEDIA.'css'.DS.'email.min.css'));
+        acym_addStyle(true, acym_getEmailCssFixes());
         if (!empty($oneMail->stylesheet)) {
             acym_addStyle(true, $oneMail->stylesheet);
         }

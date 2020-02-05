@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ @package   akeebabackup
-  ~ @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+  ~ @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
   ~ @license   GNU General Public License version 3, or later
   -->
 
@@ -12,8 +12,8 @@
 	<authorUrl>http://www.akeebabackup.com</authorUrl>
 	<copyright>Copyright (c)2006-2019 Nicholas K. Dionysopoulos</copyright>
 	<license>GNU General Public License version 3, or later</license>
-	<creationDate>2019-10-21</creationDate>
-	<version>6.6.1</version>
+	<creationDate>2020-01-30</creationDate>
+	<version>7.0.1</version>
 	<description>PLG_SYSTEM_BACKUPONUPDATE_XML_DESCRIPTION</description>
 	<files>
 		<filename plugin="backuponupdate">backuponupdate.php</filename>
@@ -32,7 +32,12 @@
                        label="PLG_SYSTEM_BACKUPONUPDATE_PROFILE_LABEL"
                        description="PLG_SYSTEM_BACKUPONUPDATE_PROFILE_DESC"
                 />
-            </fieldset>
+
+				<field name="description" type="text" default="" size="30"
+					   label="COM_AKEEBA_CONFIG_DESCRIPTION_LABEL"
+					   description="COM_AKEEBA_CONFIG_DESCRIPTION_DESC"/>
+
+			</fieldset>
         </fields>
     </config>
 

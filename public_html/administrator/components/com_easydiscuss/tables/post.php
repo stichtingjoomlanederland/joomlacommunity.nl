@@ -142,9 +142,13 @@ class DiscussPost extends EasyDiscussTable
 		return parent::bind(self::$_loaded[$sig]);
 	}
 
-	public function setPollQuestions($obj)
+	public function setPollQuestions($obj, $isSessionData = false)
 	{
-		self::$_pollsQuestion[$this->id] = $obj;
+		if ($isSessionData) {
+			$this->_data['pollquestion'] = $obj;
+		} else {
+			self::$_pollsQuestion[$this->id] = $obj;
+		}
 	}
 
 	public function setPollQuestionsBatch($ids = array())
@@ -189,6 +193,17 @@ class DiscussPost extends EasyDiscussTable
 	public function setCustomFields($obj)
 	{
 		$this->_data['customfields'] = $obj;
+	}
+
+
+	/**
+	 * Method to access the internal _data property
+	 *
+	 * @since	4.1.12
+	 * @access	public
+	 */
+	public function getData($key) {
+		return isset($this->_data[$key]) ? $this->_data[$key] : false;
 	}
 
 

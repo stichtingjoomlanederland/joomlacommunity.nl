@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" class="acym__form__migrate">
+?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" class="acym__form__migrate">
 	<div id="acym_migrate" class="cell grid-x">
 		<div class="text-center cell acym__migrate__titles">
 			<h1 class="acym__migrate__title"><?php echo acym_translation('ACYM_THANKS_FOR_INSTALLING_ACYM'); ?></h1>
@@ -17,7 +8,7 @@ defined('_JEXEC') or die('Restricted access');
 		</div>
 		<div class="cell large-3"></div>
 
-		<div class="acym__content__reduced cell large-6 grid-x">
+		<div class="acym__content acym__content__reduced cell large-6 grid-x">
 			<div class="text-center cell acym__migrate__content__titles">
 				<h1 class="acym__migrate__content__title"><?php echo acym_translation('ACYM_WHICH_DATA_TO_MIGRATE'); ?></h1>
 				<p class="acym__color__red"><b><?php echo acym_translation('ACYM_MIGRATE_WARNING_DATA_OVERWRITE_MESSAGE'); ?></b></p>

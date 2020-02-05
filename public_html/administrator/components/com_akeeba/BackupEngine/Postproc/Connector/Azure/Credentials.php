@@ -1,11 +1,10 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 /**
@@ -42,10 +41,7 @@
 
 namespace Akeeba\Engine\Postproc\Connector\Azure;
 
-// Protection against direct access
 use Akeeba\Engine\Postproc\Connector\Azure\Http\Transport;
-
-defined('AKEEBAENGINE') or die();
 
 /**
  * @category   Microsoft
@@ -106,21 +102,21 @@ abstract class Credentials
 	/**
 	 * Creates a new Credentials instance
 	 *
-	 * @param string  $accountName     Account name for Windows Azure
-	 * @param string  $accountKey      Account key for Windows Azure
-	 * @param boolean $usePathStyleUri Use path-style URI's
+	 * @param   string   $accountName      Account name for Windows Azure
+	 * @param   string   $accountKey       Account key for Windows Azure
+	 * @param   boolean  $usePathStyleUri  Use path-style URI's
 	 */
 	public function __construct($accountName = Credentials::DEVSTORE_ACCOUNT, $accountKey = Credentials::DEVSTORE_KEY, $usePathStyleUri = false)
 	{
-		$this->_accountName = $accountName;
-		$this->_accountKey = base64_decode($accountKey);
+		$this->_accountName     = $accountName;
+		$this->_accountKey      = base64_decode($accountKey);
 		$this->_usePathStyleUri = $usePathStyleUri;
 	}
 
 	/**
 	 * Set account name for Windows Azure
 	 *
-	 * @param string $value
+	 * @param   string  $value
 	 */
 	public function setAccountName($value = Credentials::DEVSTORE_ACCOUNT)
 	{
@@ -130,7 +126,7 @@ abstract class Credentials
 	/**
 	 * Set account key for Windows Azure
 	 *
-	 * @param string $value
+	 * @param   string  $value
 	 */
 	public function setAccountkey($value = Credentials::DEVSTORE_KEY)
 	{
@@ -140,7 +136,7 @@ abstract class Credentials
 	/**
 	 * Set use path-style URI's
 	 *
-	 * @param boolean $value
+	 * @param   boolean  $value
 	 */
 	public function setUsePathStyleUri($value = false)
 	{
@@ -150,9 +146,9 @@ abstract class Credentials
 	/**
 	 * Sign request URL with credentials
 	 *
-	 * @param string $requestUrl         Request URL
-	 * @param string $resourceType       Resource type
-	 * @param string $requiredPermission Required permission
+	 * @param   string  $requestUrl          Request URL
+	 * @param   string  $resourceType        Resource type
+	 * @param   string  $requiredPermission  Required permission
 	 *
 	 * @return string Signed request URL
 	 */
@@ -161,13 +157,13 @@ abstract class Credentials
 	/**
 	 * Sign request headers with credentials
 	 *
-	 * @param string  $httpVerb           HTTP verb the request will use
-	 * @param string  $path               Path for the request
-	 * @param string  $queryString        Query string for the request
-	 * @param array   $headers            x-ms headers to add
-	 * @param boolean $forTableStorage    Is the request for table storage?
-	 * @param string  $resourceType       Resource type
-	 * @param string  $requiredPermission Required permission
+	 * @param   string   $httpVerb            HTTP verb the request will use
+	 * @param   string   $path                Path for the request
+	 * @param   string   $queryString         Query string for the request
+	 * @param   array    $headers             x-ms headers to add
+	 * @param   boolean  $forTableStorage     Is the request for table storage?
+	 * @param   string   $resourceType        Resource type
+	 * @param   string   $requiredPermission  Required permission
 	 *
 	 * @return array Array of headers
 	 */
@@ -177,7 +173,7 @@ abstract class Credentials
 	/**
 	 * Prepare query string for signing
 	 *
-	 * @param  string $value Original query string
+	 * @param   string  $value  Original query string
 	 *
 	 * @return string        Query string for signing
 	 */

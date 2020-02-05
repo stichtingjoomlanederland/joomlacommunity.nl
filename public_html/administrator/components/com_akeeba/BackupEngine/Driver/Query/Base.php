@@ -1,17 +1,15 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Driver\Query;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Driver\Base as DriverBase;
 use Akeeba\Engine\Driver\Query\Element as QueryElement;
@@ -136,10 +134,20 @@ abstract class Base
 	protected $unionAll = null;
 
 	/**
+	 * Class constructor.
+	 *
+	 * @param   DriverBase  $db  The database connector resource.
+	 */
+	public function __construct(DriverBase $db = null)
+	{
+		$this->db = $db;
+	}
+
+	/**
 	 * Magic method to provide method alias support for quote() and quoteName().
 	 *
-	 * @param   string $method The called method.
-	 * @param   array  $args   The array of arguments passed to the method.
+	 * @param   string  $method  The called method.
+	 * @param   array   $args    The array of arguments passed to the method.
 	 *
 	 * @return  string  The aliased method's return value or null.
 	 */
@@ -167,16 +175,6 @@ abstract class Base
 	}
 
 	/**
-	 * Class constructor.
-	 *
-	 * @param   DriverBase $db The database connector resource.
-	 */
-	public function __construct(DriverBase $db = null)
-	{
-		$this->db = $db;
-	}
-
-	/**
 	 * Magic function to convert the query to a string.
 	 *
 	 * @return  string    The completed query.
@@ -193,107 +191,107 @@ abstract class Base
 		switch ($this->type)
 		{
 			case 'element':
-				$query .= (string)$this->element;
+				$query .= (string) $this->element;
 				break;
 
 			case 'select':
-				$query .= (string)$this->select;
-				$query .= (string)$this->from;
+				$query .= (string) $this->select;
+				$query .= (string) $this->from;
 
 				if ($this->join)
 				{
 					// Special case for joins
 					foreach ($this->join as $join)
 					{
-						$query .= (string)$join;
+						$query .= (string) $join;
 					}
 				}
 
 				if ($this->where)
 				{
-					$query .= (string)$this->where;
+					$query .= (string) $this->where;
 				}
 
 				if ($this->group)
 				{
-					$query .= (string)$this->group;
+					$query .= (string) $this->group;
 				}
 
 				if ($this->having)
 				{
-					$query .= (string)$this->having;
+					$query .= (string) $this->having;
 				}
 
 				if ($this->order)
 				{
-					$query .= (string)$this->order;
+					$query .= (string) $this->order;
 				}
 
 				break;
 
 			case 'union':
-				$query .= (string)$this->union;
+				$query .= (string) $this->union;
 				break;
 
 			case 'unionAll':
-				$query .= (string)$this->unionAll;
+				$query .= (string) $this->unionAll;
 				break;
 
 			case 'delete':
-				$query .= (string)$this->delete;
-				$query .= (string)$this->from;
+				$query .= (string) $this->delete;
+				$query .= (string) $this->from;
 
 				if ($this->join)
 				{
 					// Special case for joins
 					foreach ($this->join as $join)
 					{
-						$query .= (string)$join;
+						$query .= (string) $join;
 					}
 				}
 
 				if ($this->where)
 				{
-					$query .= (string)$this->where;
+					$query .= (string) $this->where;
 				}
 
 				break;
 
 			case 'update':
-				$query .= (string)$this->update;
+				$query .= (string) $this->update;
 
 				if ($this->join)
 				{
 					// Special case for joins
 					foreach ($this->join as $join)
 					{
-						$query .= (string)$join;
+						$query .= (string) $join;
 					}
 				}
 
-				$query .= (string)$this->set;
+				$query .= (string) $this->set;
 
 				if ($this->where)
 				{
-					$query .= (string)$this->where;
+					$query .= (string) $this->where;
 				}
 
 				break;
 
 			case 'insert':
-				$query .= (string)$this->insert;
+				$query .= (string) $this->insert;
 
 				// Set method
 				if ($this->set)
 				{
-					$query .= (string)$this->set;
+					$query .= (string) $this->set;
 				}
 				// Columns-Values method
 				elseif ($this->values)
 				{
 					if ($this->columns)
 					{
-						$query .= (string)$this->columns;
+						$query .= (string) $this->columns;
 					}
 
 					$elements = $this->values->getElements();
@@ -303,17 +301,17 @@ abstract class Base
 						$query .= ' VALUES ';
 					}
 
-					$query .= (string)$this->values;
+					$query .= (string) $this->values;
 				}
 
 				break;
 
 			case 'call':
-				$query .= (string)$this->call;
+				$query .= (string) $this->call;
 				break;
 
 			case 'exec':
-				$query .= (string)$this->exec;
+				$query .= (string) $this->exec;
 				break;
 		}
 
@@ -328,7 +326,7 @@ abstract class Base
 	/**
 	 * Magic function to get protected variable value
 	 *
-	 * @param   string $name The name of the variable.
+	 * @param   string  $name  The name of the variable.
 	 *
 	 * @return  mixed
 	 */
@@ -347,7 +345,7 @@ abstract class Base
 	 * $query->call('a.*')->call('b.id');
 	 * $query->call(array('a.*', 'b.id'));
 	 *
-	 * @param   mixed $columns A string or an array of field names.
+	 * @param   mixed  $columns  A string or an array of field names.
 	 *
 	 * @return  Base  Returns this object to allow chaining.
 	 */
@@ -375,7 +373,7 @@ abstract class Base
 	 * Usage:
 	 * $query->select($query->castAsChar('a'));
 	 *
-	 * @param   string $value The value to cast as a char.
+	 * @param   string  $value  The value to cast as a char.
 	 *
 	 * @return  string  Returns the cast value.
 	 */
@@ -392,9 +390,9 @@ abstract class Base
 	 * Usage:
 	 * $query->select($query->charLength('a'));
 	 *
-	 * @param   string $field     A value.
-	 * @param   string $operator  Comparison operator between charLength integer value and $condition
-	 * @param   string $condition Integer value to compare charLength with.
+	 * @param   string  $field      A value.
+	 * @param   string  $operator   Comparison operator between charLength integer value and $condition
+	 * @param   string  $condition  Integer value to compare charLength with.
 	 *
 	 * @return  string  The required char length call.
 	 */
@@ -406,7 +404,7 @@ abstract class Base
 	/**
 	 * Clear data from the query or a specific clause of the query.
 	 *
-	 * @param   string $clause Optionally, the name of the clause to clear, or nothing to clear the whole query.
+	 * @param   string  $clause  Optionally, the name of the clause to clear, or nothing to clear the whole query.
 	 *
 	 * @return  Base  Returns this object to allow chaining.
 	 */
@@ -418,22 +416,22 @@ abstract class Base
 		{
 			case 'select':
 				$this->select = null;
-				$this->type = null;
+				$this->type   = null;
 				break;
 
 			case 'delete':
 				$this->delete = null;
-				$this->type = null;
+				$this->type   = null;
 				break;
 
 			case 'update':
 				$this->update = null;
-				$this->type = null;
+				$this->type   = null;
 				break;
 
 			case 'insert':
-				$this->insert = null;
-				$this->type = null;
+				$this->insert             = null;
+				$this->type               = null;
 				$this->autoIncrementField = null;
 				break;
 
@@ -485,7 +483,7 @@ abstract class Base
 
 			case 'limit':
 				$this->offset = 0;
-				$this->limit = 0;
+				$this->limit  = 0;
 				break;
 
 			case 'union':
@@ -497,27 +495,27 @@ abstract class Base
 				break;
 
 			default:
-				$this->type = null;
-				$this->select = null;
-				$this->delete = null;
-				$this->update = null;
-				$this->insert = null;
-				$this->from = null;
-				$this->join = null;
-				$this->set = null;
-				$this->where = null;
-				$this->group = null;
-				$this->having = null;
-				$this->order = null;
-				$this->columns = null;
-				$this->values = null;
+				$this->type               = null;
+				$this->select             = null;
+				$this->delete             = null;
+				$this->update             = null;
+				$this->insert             = null;
+				$this->from               = null;
+				$this->join               = null;
+				$this->set                = null;
+				$this->where              = null;
+				$this->group              = null;
+				$this->having             = null;
+				$this->order              = null;
+				$this->columns            = null;
+				$this->values             = null;
 				$this->autoIncrementField = null;
-				$this->exec = null;
-				$this->call = null;
-				$this->union = null;
-				$this->unionAll = null;
-				$this->offset = 0;
-				$this->limit = 0;
+				$this->exec               = null;
+				$this->call               = null;
+				$this->union              = null;
+				$this->unionAll           = null;
+				$this->offset             = 0;
+				$this->limit              = 0;
 				break;
 		}
 
@@ -527,7 +525,7 @@ abstract class Base
 	/**
 	 * Adds a column, or array of column names that would be used for an INSERT INTO statement.
 	 *
-	 * @param   mixed $columns A column name, or array of column names.
+	 * @param   mixed  $columns  A column name, or array of column names.
 	 *
 	 * @return  Base  Returns this object to allow chaining.
 	 */
@@ -551,8 +549,8 @@ abstract class Base
 	 * Usage:
 	 * $query->select($query->concatenate(array('a', 'b')));
 	 *
-	 * @param   array  $values    An array of values to concatenate.
-	 * @param   string $separator As separator to place between each value.
+	 * @param   array   $values     An array of values to concatenate.
+	 * @param   string  $separator  As separator to place between each value.
 	 *
 	 * @return  string  The concatenated values.
 	 */
@@ -620,13 +618,13 @@ abstract class Base
 	 * Usage:
 	 * $query->delete('#__a')->where('id = 1');
 	 *
-	 * @param   string $table The name of the table to delete from.
+	 * @param   string  $table  The name of the table to delete from.
 	 *
 	 * @return  Base  Returns this object to allow chaining.
 	 */
 	public function delete($table = null)
 	{
-		$this->type = 'delete';
+		$this->type   = 'delete';
 		$this->delete = new QueryElement('DELETE', null);
 
 		if (!empty($table))
@@ -645,8 +643,8 @@ abstract class Base
 	 *
 	 * Note that 'e' is an alias for this method as it is in DriverBase.
 	 *
-	 * @param   string  $text  The string to be escaped.
-	 * @param   boolean $extra Optional parameter to provide extra escaping.
+	 * @param   string   $text   The string to be escaped.
+	 * @param   boolean  $extra  Optional parameter to provide extra escaping.
 	 *
 	 * @return  string  The escaped string.
 	 */
@@ -670,7 +668,7 @@ abstract class Base
 	 * $query->exec('a.*')->exec('b.id');
 	 * $query->exec(array('a.*', 'b.id'));
 	 *
-	 * @param   mixed $columns A string or an array of field names.
+	 * @param   mixed  $columns  A string or an array of field names.
 	 *
 	 * @return  Base  Returns this object to allow chaining.
 	 */
@@ -698,10 +696,10 @@ abstract class Base
 	 * Usage:
 	 * $query->select('*')->from('#__a');
 	 *
-	 * @param   mixed  $tables          A string or array of table names.
+	 * @param   mixed   $tables         A string or array of table names.
 	 *                                  This can be a Base object (or a child of it) when used
 	 *                                  as a subquery in FROM clause along with a value for $subQueryAlias.
-	 * @param   string $subQueryAlias   Alias used when $tables is a Base.
+	 * @param   string  $subQueryAlias  Alias used when $tables is a Base.
 	 *
 	 * @return  Base  Returns this object to allow chaining.
 	 */
@@ -716,7 +714,7 @@ abstract class Base
 					throw new QueryException('Null subquery defined');
 				}
 
-				$tables = '( ' . (string)$tables . ' ) AS ' . $this->quoteName($subQueryAlias);
+				$tables = '( ' . (string) $tables . ' ) AS ' . $this->quoteName($subQueryAlias);
 			}
 
 			$this->from = new QueryElement('FROM', $tables);
@@ -735,7 +733,7 @@ abstract class Base
 	 * Usage:
 	 * $query->select($query->year($query->quoteName('dateColumn')));
 	 *
-	 * @param   string $date Date column containing year to be extracted.
+	 * @param   string  $date  Date column containing year to be extracted.
 	 *
 	 * @return  string  Returns string to extract year from a date.
 	 */
@@ -750,7 +748,7 @@ abstract class Base
 	 * Usage:
 	 * $query->select($query->month($query->quoteName('dateColumn')));
 	 *
-	 * @param   string $date Date column containing month to be extracted.
+	 * @param   string  $date  Date column containing month to be extracted.
 	 *
 	 * @return  string  Returns string to extract month from a date.
 	 */
@@ -765,7 +763,7 @@ abstract class Base
 	 * Usage:
 	 * $query->select($query->day($query->quoteName('dateColumn')));
 	 *
-	 * @param   string $date Date column containing day to be extracted.
+	 * @param   string  $date  Date column containing day to be extracted.
 	 *
 	 * @return  string  Returns string to extract day from a date.
 	 */
@@ -780,7 +778,7 @@ abstract class Base
 	 * Usage:
 	 * $query->select($query->hour($query->quoteName('dateColumn')));
 	 *
-	 * @param   string $date Date column containing hour to be extracted.
+	 * @param   string  $date  Date column containing hour to be extracted.
 	 *
 	 * @return  string  Returns string to extract hour from a date.
 	 */
@@ -795,7 +793,7 @@ abstract class Base
 	 * Usage:
 	 * $query->select($query->minute($query->quoteName('dateColumn')));
 	 *
-	 * @param   string $date Date column containing minute to be extracted.
+	 * @param   string  $date  Date column containing minute to be extracted.
 	 *
 	 * @return  string  Returns string to extract minute from a date.
 	 */
@@ -810,7 +808,7 @@ abstract class Base
 	 * Usage:
 	 * $query->select($query->second($query->quoteName('dateColumn')));
 	 *
-	 * @param   string $date Date column containing second to be extracted.
+	 * @param   string  $date  Date column containing second to be extracted.
 	 *
 	 * @return  string  Returns string to extract second from a date.
 	 */
@@ -825,7 +823,7 @@ abstract class Base
 	 * Usage:
 	 * $query->group('id');
 	 *
-	 * @param   mixed $columns A string or array of ordering columns.
+	 * @param   mixed  $columns  A string or array of ordering columns.
 	 *
 	 * @return  Base  Returns this object to allow chaining.
 	 */
@@ -849,8 +847,8 @@ abstract class Base
 	 * Usage:
 	 * $query->group('id')->having('COUNT(id) > 5');
 	 *
-	 * @param   mixed  $conditions A string or array of columns.
-	 * @param   string $glue       The glue by which to join the conditions. Defaults to AND.
+	 * @param   mixed   $conditions  A string or array of columns.
+	 * @param   string  $glue        The glue by which to join the conditions. Defaults to AND.
 	 *
 	 * @return  Base  Returns this object to allow chaining.
 	 */
@@ -858,7 +856,7 @@ abstract class Base
 	{
 		if (is_null($this->having))
 		{
-			$glue = strtoupper($glue);
+			$glue         = strtoupper($glue);
 			$this->having = new QueryElement('HAVING', $conditions, " $glue ");
 		}
 		else
@@ -875,7 +873,7 @@ abstract class Base
 	 * Usage:
 	 * $query->innerJoin('b ON b.id = a.id')->innerJoin('c ON c.id = b.id');
 	 *
-	 * @param   string $condition The join condition.
+	 * @param   string  $condition  The join condition.
 	 *
 	 * @return  Base  Returns this object to allow chaining.
 	 */
@@ -896,15 +894,15 @@ abstract class Base
 	 * $query->insert('#__a')->columns('id, title')->values('1,2')->values('3,4');
 	 * $query->insert('#__a')->columns('id, title')->values(array('1,2', '3,4'));
 	 *
-	 * @param   mixed   $table          The name of the table to insert data into.
-	 * @param   boolean $incrementField The name of the field to auto increment.
+	 * @param   mixed    $table           The name of the table to insert data into.
+	 * @param   boolean  $incrementField  The name of the field to auto increment.
 	 *
 	 * @return  Base  Returns this object to allow chaining.
 	 */
 	public function insert($table, $incrementField = false)
 	{
-		$this->type = 'insert';
-		$this->insert = new QueryElement('INSERT INTO', $table);
+		$this->type               = 'insert';
+		$this->insert             = new QueryElement('INSERT INTO', $table);
 		$this->autoIncrementField = $incrementField;
 
 		return $this;
@@ -916,8 +914,8 @@ abstract class Base
 	 * Usage:
 	 * $query->join('INNER', 'b ON b.id = a.id);
 	 *
-	 * @param   string $type       The type of join. This string is prepended to the JOIN keyword.
-	 * @param   string $conditions A string or array of conditions.
+	 * @param   string  $type        The type of join. This string is prepended to the JOIN keyword.
+	 * @param   string  $conditions  A string or array of conditions.
 	 *
 	 * @return  Base  Returns this object to allow chaining.
 	 */
@@ -925,7 +923,7 @@ abstract class Base
 	{
 		if (is_null($this->join))
 		{
-			$this->join = array();
+			$this->join = [];
 		}
 		$this->join[] = new QueryElement(strtoupper($type) . ' JOIN', $conditions);
 
@@ -938,7 +936,7 @@ abstract class Base
 	 * Usage:
 	 * $query->leftJoin('b ON b.id = a.id')->leftJoin('c ON c.id = b.id');
 	 *
-	 * @param   string $condition The join condition.
+	 * @param   string  $condition  The join condition.
 	 *
 	 * @return  Base  Returns this object to allow chaining.
 	 */
@@ -957,7 +955,7 @@ abstract class Base
 	 * Usage:
 	 * query->where($query->length('a').' > 3');
 	 *
-	 * @param   string $value The string to measure.
+	 * @param   string  $value  The string to measure.
 	 *
 	 * @return  int
 	 */
@@ -975,7 +973,7 @@ abstract class Base
 	 * Usage:
 	 * $query->where('modified_date <> '.$query->nullDate());
 	 *
-	 * @param   boolean $quoted Optionally wraps the null date in database quotes (true by default).
+	 * @param   boolean  $quoted  Optionally wraps the null date in database quotes (true by default).
 	 *
 	 * @return  string  Null or zero representation of a timestamp.
 	 */
@@ -1003,7 +1001,7 @@ abstract class Base
 	 * $query->order('foo')->order('bar');
 	 * $query->order(array('foo','bar'));
 	 *
-	 * @param   mixed $columns A string or array of ordering columns.
+	 * @param   mixed  $columns  A string or array of ordering columns.
 	 *
 	 * @return  Base  Returns this object to allow chaining.
 	 */
@@ -1027,7 +1025,7 @@ abstract class Base
 	 * Usage:
 	 * $query->outerJoin('b ON b.id = a.id')->outerJoin('c ON c.id = b.id');
 	 *
-	 * @param   string $condition The join condition.
+	 * @param   string  $condition  The join condition.
 	 *
 	 * @return  Base  Returns this object to allow chaining.
 	 */
@@ -1051,8 +1049,8 @@ abstract class Base
 	 * $query->q('fulltext');
 	 * $query->q(array('option', 'fulltext'));
 	 *
-	 * @param   mixed   $text   A string or an array of strings to quote.
-	 * @param   boolean $escape True to escape the string, false to leave it unchanged.
+	 * @param   mixed    $text    A string or an array of strings to quote.
+	 * @param   boolean  $escape  True to escape the string, false to leave it unchanged.
 	 *
 	 * @return  string  The quoted input string.
 	 *
@@ -1081,9 +1079,9 @@ abstract class Base
 	 * $query->quoteName('#__a');
 	 * $query->qn('#__a');
 	 *
-	 * @param   mixed $name   The identifier name to wrap in quotes, or an array of identifier names to wrap in quotes.
+	 * @param   mixed  $name  The identifier name to wrap in quotes, or an array of identifier names to wrap in quotes.
 	 *                        Each type supports dot-notation name.
-	 * @param   mixed $as     The AS query part associated to $name. It can be string or array, in latter case it has
+	 * @param   mixed  $as    The AS query part associated to $name. It can be string or array, in latter case it has
 	 *                        to be same length of $name; if is null there will not be any AS part for string or array
 	 *                        element.
 	 *
@@ -1107,7 +1105,7 @@ abstract class Base
 	 * Usage:
 	 * $query->rightJoin('b ON b.id = a.id')->rightJoin('c ON c.id = b.id');
 	 *
-	 * @param   string $condition The join condition.
+	 * @param   string  $condition  The join condition.
 	 *
 	 * @return  Base  Returns this object to allow chaining.
 	 */
@@ -1128,7 +1126,7 @@ abstract class Base
 	 * $query->select('a.*')->select('b.id');
 	 * $query->select(array('a.*', 'b.id'));
 	 *
-	 * @param   mixed $columns A string or an array of field names.
+	 * @param   mixed  $columns  A string or an array of field names.
 	 *
 	 * @return  Base  Returns this object to allow chaining.
 	 */
@@ -1155,8 +1153,8 @@ abstract class Base
 	 * $query->set('a = 1')->set('b = 2');
 	 * $query->set(array('a = 1', 'b = 2');
 	 *
-	 * @param   mixed  $conditions   A string or array of string conditions.
-	 * @param   string $glue         The glue by which to join the condition strings. Defaults to ,.
+	 * @param   mixed   $conditions  A string or array of string conditions.
+	 * @param   string  $glue        The glue by which to join the condition strings. Defaults to ,.
 	 *                               Note that the glue is set on first use and cannot be changed.
 	 *
 	 * @return  Base  Returns this object to allow chaining.
@@ -1165,7 +1163,7 @@ abstract class Base
 	{
 		if (is_null($this->set))
 		{
-			$glue = strtoupper($glue);
+			$glue      = strtoupper($glue);
 			$this->set = new QueryElement('SET', $conditions, "\n\t$glue ");
 		}
 		else
@@ -1184,7 +1182,7 @@ abstract class Base
 	 * Usage:
 	 * $query->setQuery('select * from #__users');
 	 *
-	 * @param   mixed $query An SQL Query
+	 * @param   mixed  $query  An SQL Query
 	 *
 	 * @return  QueryElement  Returns this object to allow chaining.
 	 */
@@ -1203,13 +1201,13 @@ abstract class Base
 	 * Usage:
 	 * $query->update('#__foo')->set(...);
 	 *
-	 * @param   string $table A table to update.
+	 * @param   string  $table  A table to update.
 	 *
 	 * @return  Base  Returns this object to allow chaining.
 	 */
 	public function update($table)
 	{
-		$this->type = 'update';
+		$this->type   = 'update';
 		$this->update = new QueryElement('UPDATE', $table);
 
 		return $this;
@@ -1222,7 +1220,7 @@ abstract class Base
 	 * $query->values('1,2,3')->values('4,5,6');
 	 * $query->values(array('1,2,3', '4,5,6'));
 	 *
-	 * @param   string $values A single tuple, or array of tuples.
+	 * @param   string  $values  A single tuple, or array of tuples.
 	 *
 	 * @return  Base  Returns this object to allow chaining.
 	 */
@@ -1247,8 +1245,8 @@ abstract class Base
 	 * $query->where('a = 1')->where('b = 2');
 	 * $query->where(array('a = 1', 'b = 2'));
 	 *
-	 * @param   mixed  $conditions   A string or array of where conditions.
-	 * @param   string $glue         The glue by which to join the conditions. Defaults to AND.
+	 * @param   mixed   $conditions  A string or array of where conditions.
+	 * @param   string  $glue        The glue by which to join the conditions. Defaults to AND.
 	 *                               Note that the glue is set on first use and cannot be changed.
 	 *
 	 * @return  Base  Returns this object to allow chaining.
@@ -1257,7 +1255,7 @@ abstract class Base
 	{
 		if (is_null($this->where))
 		{
-			$glue = strtoupper($glue);
+			$glue        = strtoupper($glue);
 			$this->where = new QueryElement('WHERE', $conditions, " $glue ");
 		}
 		else
@@ -1299,9 +1297,9 @@ abstract class Base
 	 * $query->union('SELECT name FROM  #__foo','distinct')
 	 * $query->union(array('SELECT name FROM  #__foo','SELECT name FROM  #__bar'))
 	 *
-	 * @param   mixed   $query    The Base object or string to union.
-	 * @param   boolean $distinct True to only return distinct rows from the union.
-	 * @param   string  $glue     The glue by which to join the conditions.
+	 * @param   mixed    $query     The Base object or string to union.
+	 * @param   boolean  $distinct  True to only return distinct rows from the union.
+	 * @param   string   $glue      The glue by which to join the conditions.
 	 *
 	 * @return  mixed    The Base object on success or boolean false on failure.
 	 */
@@ -1347,8 +1345,8 @@ abstract class Base
 	 * Usage:
 	 * $query->unionDistinct('SELECT name FROM  #__foo')
 	 *
-	 * @param   mixed  $query The Base object or string to union.
-	 * @param   string $glue  The glue by which to join the conditions.
+	 * @param   mixed   $query  The Base object or string to union.
+	 * @param   string  $glue   The glue by which to join the conditions.
 	 *
 	 * @return  mixed   The Base object on success or boolean false on failure.
 	 */
@@ -1401,19 +1399,18 @@ abstract class Base
 	 * The argument specifier is optional but recommended for clarity.
 	 * The argument index used for unspecified tokens is incremented only when used.
 	 *
-	 * @param   string $format The formatting string.
+	 * @param   string  $format  The formatting string.
 	 *
 	 * @return  string  Returns a string produced according to the formatting string.
 	 */
 	public function format($format)
 	{
 		$query = $this;
-		$args = array_slice(func_get_args(), 1);
+		$args  = array_slice(func_get_args(), 1);
 		array_unshift($args, null);
 
-		$i = 1;
-		$func = function ($match) use ($query, $args, &$i)
-		{
+		$i    = 1;
+		$func = function ($match) use ($query, $args, &$i) {
 			if (isset($match[6]) && $match[6] == '%')
 			{
 				return '%';
@@ -1436,11 +1433,10 @@ abstract class Base
 			}
 
 			// Increment the argument index only if argument specifier not provided.
-			$index = is_numeric($match[4]) ? (int)$match[4] : $i++;
+			$index = is_numeric($match[4]) ? (int) $match[4] : $i++;
 
 			if (!$index || !isset($args[$index]))
 			{
-				// TODO - What to do? sprintf() throws a Warning in these cases.
 				$replacement = '';
 			}
 			else
@@ -1553,9 +1549,9 @@ abstract class Base
 	 * Prefixing the interval with a - (negative sign) will cause subtraction to be used.
 	 * Note: Not all drivers support all units.
 	 *
-	 * @param   string    $date     The SQL-formatted date to add to. May be a date or datetime string.
-	 * @param   string    $interval The string representation of the appropriate number of units
-	 * @param   string    $datePart The part of the date to perform the addition on
+	 * @param   string  $date      The SQL-formatted date to add to. May be a date or datetime string.
+	 * @param   string  $interval  The string representation of the appropriate number of units
+	 * @param   string  $datePart  The part of the date to perform the addition on
 	 *
 	 * @return  string  The string with the appropriate sql for addition of dates
 	 *
@@ -1575,9 +1571,9 @@ abstract class Base
 	 * $query->union('SELECT name FROM  #__foo','distinct')
 	 * $query->union(array('SELECT name FROM  #__foo','SELECT name FROM  #__bar'))
 	 *
-	 * @param   mixed   $query    The Base object or string to union.
-	 * @param   boolean $distinct True to only return distinct rows from the union.
-	 * @param   string  $glue     The glue by which to join the conditions.
+	 * @param   mixed    $query     The Base object or string to union.
+	 * @param   boolean  $distinct  True to only return distinct rows from the union.
+	 * @param   string   $glue      The glue by which to join the conditions.
 	 *
 	 * @return  mixed    The Base object on success or boolean false on failure.
 	 */

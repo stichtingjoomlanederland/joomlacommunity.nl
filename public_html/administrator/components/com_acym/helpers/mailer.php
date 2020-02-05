@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 require_once ACYM_INC.'phpmailer'.DS.'exception.php';
 require_once ACYM_INC.'phpmailer'.DS.'smtp.php';
@@ -259,7 +250,11 @@ class acymmailerHelper extends acyPHPMailer
             $this->addCustomHeader('referral:2f0447bb-173a-459d-ab1a-ab8cbebb9aab');
         }
 
-        $this->Subject = str_replace(['’', '“', '”', '–'], ["'", '"', '"', '-'], $this->Subject);
+        $this->Subject = str_replace(
+            ['’', '“', '”', '–'],
+            ["'", '"', '"', '-'],
+            $this->Subject
+        );
 
         $this->Body = str_replace(" ", ' ', $this->Body);
 
@@ -274,9 +269,7 @@ class acymmailerHelper extends acyPHPMailer
             if (strpos($this->Body, 'acym__wysid__template') !== false) $style['foundation'] = $foundationCSS;
 
             static $emailFixes = null;
-            if (empty($emailFixes)) {
-                $emailFixes = acym_fileGetContent(ACYM_MEDIA.'css'.DS.'email.min.css');
-            }
+            if (empty($emailFixes)) $emailFixes = acym_getEmailCssFixes();
             $style[] = $emailFixes;
 
             if (!empty($this->stylesheet)) $style[] = $this->stylesheet;
@@ -550,6 +543,7 @@ class acymmailerHelper extends acyPHPMailer
 
         if (!$isTest) {
             $this->statPicture($this->id, $receiver->id);
+            $this->body = acym_absoluteURL($this->body);
             $this->statClick($this->id, $receiver->id);
         }
 
@@ -605,6 +599,15 @@ class acymmailerHelper extends acyPHPMailer
         $urls = [];
 
         $trackingSystemExternalWebsite = $this->config->get('trackingsystemexternalwebsite', 1);
+        $trackingSystem = $this->config->get('trackingsystem', 'acymailing');
+        if (false === strpos($trackingSystem, 'acymailing') && false === strpos($trackingSystem, 'google')) return;
+
+        if (strpos($trackingSystem, 'google') !== false) {
+            $mailClass = acym_get('class.mail');
+            $mail = $mailClass->getOneById($mailId);
+
+            $utmCampaign = acym_getAlias($mail->subject);
+        }
 
         preg_match_all('#href[ ]*=[ ]*"(?!mailto:|\#|ymsgr:|callto:|file:|ftp:|webcal:|skype:|tel:)([^"]+)"#Ui', $this->body, $results);
         if (empty($results)) return;
@@ -643,8 +646,6 @@ class acymmailerHelper extends acyPHPMailer
             $simplifiedWebsite = str_replace(['https://', 'http://', 'www.'], '', ACYM_LIVE);
             $internalUrl = strpos($simplifiedUrl, rtrim($simplifiedWebsite, '/')) === 0;
 
-            $isFile = false;
-
             $subfolder = false;
             if ($internalUrl) {
                 $urlWithoutBase = str_replace($simplifiedWebsite, '', $simplifiedUrl);
@@ -656,17 +657,15 @@ class acymmailerHelper extends acyPHPMailer
                 }
             }
 
+            if ((!$internalUrl || $subfolder) && $trackingSystemExternalWebsite != 1) {
+                continue;
+            }
 
-            $trackingSystem = $this->config->get('trackingsystem', 'acymailing');
-
-            if (strpos($url, 'utm_source') === false && !$isFile && strpos($trackingSystem, 'google') !== false) {
-                if ((!$internalUrl || $subfolder) && $trackingSystemExternalWebsite != 1) {
-                    continue;
-                }
+            if (strpos($url, 'utm_source') === false && strpos($trackingSystem, 'google') !== false) {
                 $args = [];
                 $args[] = 'utm_source=newsletter_'.$mailId;
                 $args[] = 'utm_medium=email';
-                $args[] = 'utm_campaign='.@$this->alias;
+                $args[] = 'utm_campaign='.$utmCampaign;
                 $anchor = '';
                 if (strpos($url, '#') !== false) {
                     $anchor = substr($url, strpos($url, '#'));
@@ -685,17 +684,11 @@ class acymmailerHelper extends acyPHPMailer
             }
 
             if (strpos($trackingSystem, 'acymailing') !== false) {
-                if ($trackingSystemExternalWebsite != 1) {
-                    continue;
-                }
-                if (preg_match('#subid|passw|modify|\{|%7B#i', $url)) {
-                    continue;
-                }
-                if (!$fromStat) $mytracker = $urlClass->getUrl($url, $mailId, $userid);
+                if (preg_match('#subid|passw|modify|\{|%7B#i', $url)) continue;
 
-                if (empty($mytracker)) {
-                    continue;
-                }
+                if (!$fromStat) $mytracker = $urlClass->getUrl($url, $mailId, $userid);
+                if (empty($mytracker)) continue;
+
                 $urls[$results[0][$i]] = str_replace($results[1][$i], $mytracker, $results[0][$i]);
             }
         }

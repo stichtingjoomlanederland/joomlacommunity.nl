@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -17,12 +17,12 @@ use Akeeba\Engine\Platform;
 use FOF30\Container\Container;
 use FOF30\Dispatcher\Dispatcher as BaseDispatcher;
 use FOF30\Dispatcher\Mixin\ViewAliases;
-use FOF30\Factory\Exception\ModelNotFound;
-use JFactory;
+use Joomla\CMS\Factory as JFactory;
 
 class Dispatcher extends BaseDispatcher
 {
-	use ViewAliases {
+	use ViewAliases
+	{
 		onBeforeDispatch as onBeforeDispatchViewAliases;
 	}
 
@@ -72,6 +72,9 @@ class Dispatcher extends BaseDispatcher
 	 */
 	public function onBeforeDispatch()
 	{
+		$this->container->platform->importPlugin('akeebabackup');
+		$this->container->platform->runPlugins('onComAkeebaDispatcherBeforeDispatch', []);
+
 		$this->onBeforeDispatchViewAliases();
 
 		// Load the FOF language
@@ -89,9 +92,17 @@ class Dispatcher extends BaseDispatcher
 		}
 
 		// FEF Renderer options. Used to load the common CSS file.
+		$darkMode  = $this->container->params->get('dark_mode', -1);
+		$customCss = 'media://com_akeeba/css/akeebaui.min.css';
+
+		if ($darkMode != 0)
+		{
+			$customCss .= ', media://com_akeeba/css/dark.min.css';
+		}
+
 		$this->container->renderer->setOptions([
-			'custom_css' => 'media://com_akeeba/css/akeebaui.min.css',
-			//'fef_dark'   => 0,
+			'custom_css' => $customCss,
+			'fef_dark'   => $darkMode,
 		]);
 
 		// Load Akeeba Engine
@@ -169,6 +180,59 @@ class Dispatcher extends BaseDispatcher
 		$this->container->renderer->setOption('linkbar_style', 'classic');
 	}
 
+	public function onAfterDispatch()
+	{
+		// See the after_render.php file for an explanation. TL;DR: CloudFlare Rocket Loader is a broken pile of crap.
+		if ($this->input->get('format', 'html') != 'html')
+		{
+			return;
+		}
+
+		if (!function_exists('akeebaBackupOnAfterRenderToFixBrokenCloudFlareRocketLoader'))
+		{
+			require_once __DIR__ . '/after_render.php';
+		}
+
+		JFactory::getApplication()->registerEvent('onAfterRender', 'akeebaBackupOnAfterRenderToFixBrokenCloudFlareRocketLoader');
+	}
+
+	public function loadAkeebaEngine()
+	{
+		// Necessary defines for Akeeba Engine
+		if (!defined('AKEEBAENGINE'))
+		{
+			define('AKEEBAENGINE', 1);
+			define('AKEEBAROOT', $this->container->backEndPath . '/BackupEngine');
+			define('ALICEROOT', $this->container->backEndPath . '/AliceEngine');
+		}
+
+		// Make sure we have a profile set throughout the component's lifetime
+		$profile_id = $this->container->platform->getSessionVar('profile', null, 'akeeba');
+
+		if (is_null($profile_id))
+		{
+			$this->container->platform->setSessionVar('profile', 1, 'akeeba');
+		}
+
+		// Load Akeeba Engine
+		$basePath = $this->container->backEndPath;
+		require_once $basePath . '/BackupEngine/Factory.php';
+
+		// Load ALICE (Pro version only)
+		if (@file_exists($basePath . '/AliceEngine/factory.php'))
+		{
+			require_once $basePath . '/AliceEngine/factory.php';
+		}
+	}
+
+	public function loadAkeebaEngineConfiguration()
+	{
+		Platform::addPlatform('joomla3x', $this->container->backEndPath . '/BackupPlatform/Joomla3x');
+		$akeebaEngineConfig = Factory::getConfiguration();
+		Platform::getInstance()->load_configuration();
+		unset($akeebaEngineConfig);
+	}
+
 	/**
 	 * Loads the Javascript files which are common across many views of the component.
 	 *
@@ -222,58 +286,5 @@ class Dispatcher extends BaseDispatcher
 
 		// Update magic parameters if necessary
 		$model->updateMagicParameters();
-	}
-
-	public function onAfterDispatch()
-	{
-		// See the after_render.php file for an explanation. TL;DR: CloudFlare Rocket Loader is a broken pile of crap.
-		if ($this->input->get('format', 'html') != 'html')
-		{
-			return;
-		}
-
-		if (!function_exists('akeebaBackupOnAfterRenderToFixBrokenCloudFlareRocketLoader'))
-		{
-			require_once __DIR__ . '/after_render.php';
-		}
-
-		JFactory::getApplication()->registerEvent('onAfterRender', 'akeebaBackupOnAfterRenderToFixBrokenCloudFlareRocketLoader');
-	}
-
-	public function loadAkeebaEngine()
-	{
-		// Necessary defines for Akeeba Engine
-		if (!defined('AKEEBAENGINE'))
-		{
-			define('AKEEBAENGINE', 1);
-			define('AKEEBAROOT', $this->container->backEndPath . '/BackupEngine');
-			define('ALICEROOT', $this->container->backEndPath . '/AliceEngine');
-		}
-
-		// Make sure we have a profile set throughout the component's lifetime
-		$profile_id = $this->container->platform->getSessionVar('profile', null, 'akeeba');
-
-		if (is_null($profile_id))
-		{
-			$this->container->platform->setSessionVar('profile', 1, 'akeeba');
-		}
-
-		// Load Akeeba Engine
-		$basePath = $this->container->backEndPath;
-		require_once $basePath . '/BackupEngine/Factory.php';
-
-		// Load ALICE (Pro version only)
-		if (@file_exists($basePath . '/AliceEngine/factory.php'))
-		{
-			require_once $basePath . '/AliceEngine/factory.php';
-		}
-	}
-
-	public function loadAkeebaEngineConfiguration()
-	{
-		Platform::addPlatform('joomla3x', $this->container->backEndPath . '/BackupPlatform/Joomla3x');
-		$akeebaEngineConfig = Factory::getConfiguration();
-		Platform::getInstance()->load_configuration();
-		unset($akeebaEngineConfig);
 	}
 }

@@ -1,22 +1,21 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Dump;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
 
+
+use Akeeba\Engine\Base\Exceptions\ErrorException;
 use Akeeba\Engine\Base\Part;
 use Akeeba\Engine\Dump\Base as DumpBase;
 use Akeeba\Engine\Factory;
-use Psr\Log\LogLevel;
+use RuntimeException;
 
 class Native extends Part
 {
@@ -32,7 +31,7 @@ class Native extends Part
 	{
 		parent::__construct();
 
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: New instance");
+		Factory::getLog()->debug(__CLASS__ . " :: New instance");
 	}
 
 	/**
@@ -43,7 +42,7 @@ class Native extends Part
 	 */
 	protected function _prepare()
 	{
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Processing parameters");
+		Factory::getLog()->debug(__CLASS__ . " :: Processing parameters");
 
 		$options = null;
 
@@ -75,32 +74,33 @@ class Native extends Part
 		}
 
 		$db         = Factory::getDatabase($options);
+
+		if ($db->getErrorNum() > 0)
+		{
+			$error = $db->getErrorMsg();
+
+			throw new RuntimeException(__CLASS__ . ' :: Database Error: ' . $error);
+		}
+
 		$driverType = $db->getDriverType();
 		$className  = '\\Akeeba\\Engine\\Dump\\Native\\' . ucfirst($driverType);
 
 		// Check if we have a native dump driver
 		if (!class_exists($className, true))
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Native database dump engine $className not found; trying Reverse Engineering instead");
-			// Native driver nor found, I will try falling back to reverse engineering
-			$className = '\\Akeeba\\Engine\\Dump\\Reverse\\' . ucfirst($driverType);
+			$this->setState(self::STATE_ERROR);
+
+			throw new ErrorException('Akeeba Engine does not have a native dump engine for ' . $driverType . ' databases');
 		}
 
-		if (!class_exists($className, true))
-		{
-			$this->setState('error', 'Akeeba Engine does not have a native dump engine for ' . $driverType . ' databases');
-
-			return;
-		}
-
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Instanciating new native database dump engine $className");
+		Factory::getLog()->debug(__CLASS__ . " :: Instanciating new native database dump engine $className");
 
 		$this->_engine = new $className;
 
 		$this->_engine->setup($this->_parametersArray);
+
 		$this->_engine->callStage('_prepare');
-		$this->setState($this->_engine->getState(), $this->_engine->getError());
-		$this->propagateFromObject($this->_engine);
+		$this->setState($this->_engine->getState());
 	}
 
 	/**
@@ -112,8 +112,7 @@ class Native extends Part
 	protected function _finalize()
 	{
 		$this->_engine->callStage('_finalize');
-		$this->setState($this->_engine->getState(), $this->_engine->getError());
-		$this->propagateFromObject($this->_engine);
+		$this->setState($this->_engine->getState());
 	}
 
 	/**
@@ -127,8 +126,7 @@ class Native extends Part
 	protected function _run()
 	{
 		$this->_engine->callStage('_run');
-		$this->propagateFromObject($this->_engine);
-		$this->setState($this->_engine->getState(), $this->_engine->getError());
+		$this->setState($this->_engine->getState());
 		$this->setStep($this->_engine->getStep());
 		$this->setSubstep($this->_engine->getSubstep());
 		$this->partNumber = $this->_engine->partNumber;

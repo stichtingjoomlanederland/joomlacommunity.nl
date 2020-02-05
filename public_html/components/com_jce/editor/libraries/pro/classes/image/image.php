@@ -1,8 +1,8 @@
 <?php
 /**
- * @copyright 	Copyright (c) 2009-2019 Ryan Demmer. All rights reserved
+ * @copyright     Copyright (c) 2009-2020 Ryan Demmer. All rights reserved
  * @copyright   Copyright (C) 2005 - 2012 Open Source Matters, Inc. All rights reserved
- * @license   	GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * @license       GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * JCE is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
@@ -62,11 +62,17 @@ class WFImage
     protected $path = null;
 
     /**
+     * @var array An array of image resource backups
+     *
+     */
+    protected $backups = array();
+
+    /**
      * @var string The image library object
      *
      * @since  2.1
      */
-    protected static $lib = null;
+    protected static $driver = null;
 
     /**
      * @var bool Use IMagick if available
@@ -111,7 +117,7 @@ class WFImage
         }
 
         // create image library instance
-        self::getLib();
+        self::getDriver();
 
         if ($source && is_file($source)) {
             $this->loadFile($source);
@@ -125,32 +131,33 @@ class WFImage
      *
      * @throws RuntimeException
      */
-    public static function getLib($lib = null)
+    public static function getDriver()
     {
-        if (!isset(self::$lib)) {
+        if (!isset(self::$driver)) {
             if (extension_loaded('imagick')) {
-                $lib = 'Imagick';
+                $driver = 'Imagick';
             } elseif (extension_loaded('gd')) {
-                $lib = 'GD';
+                $driver = 'GD';
             } else {
                 throw new RuntimeException('No supported Image library available.');
             }
 
-            if ($lib == 'Imagick' && self::$preferImagick === false) {
-                $lib = 'GD';
+            if ($driver == 'Imagick' && self::$preferImagick === false) {
+                $driver = 'GD';
             }
 
-            require_once dirname(__FILE__).'/'.strtolower($lib).'.php';
-            $class = 'WFImage'.$lib;
+            require_once __DIR__ . '/' . strtolower($driver) . '.php';
+
+            $class = 'WFImage' . $driver;
 
             if (class_exists($class)) {
-                self::$lib = new $class();
+                self::$driver = new $class();
             } else {
-                throw new RuntimeException('Class '.$class.' not found');
+                throw new RuntimeException('Class ' . $class . ' not found');
             }
         }
 
-        return self::$lib;
+        return self::$driver;
     }
 
     /**
@@ -176,6 +183,7 @@ class WFImage
 
         // Get the image file information.
         $info = getimagesize($path);
+
         if (!$info) {
             throw new RuntimeException('Unable to get properties for the image.');
         }
@@ -195,19 +203,6 @@ class WFImage
     }
 
     /**
-     * Method to apply a filter to the image by type.
-     *
-     * @param string $type    The name of the image filter to apply
-     * @param array  $options An array of options for the filter
-     *
-     * @since   2.1
-     */
-    public function filter($type, array $options = array())
-    {
-        return self::getLib()->filter($type, $options);
-    }
-
-    /**
      * Method to get the height of the image in pixels.
      *
      * @return int
@@ -216,7 +211,7 @@ class WFImage
      */
     public function getHeight()
     {
-        return self::getLib()->getHeight();
+        return self::getDriver()->getHeight();
     }
 
     /**
@@ -228,7 +223,7 @@ class WFImage
      */
     public function getWidth()
     {
-        return self::getLib()->getWidth();
+        return self::getDriver()->getWidth();
     }
 
     /**
@@ -240,7 +235,7 @@ class WFImage
      */
     public function loadFile($path)
     {
-        self::getLib()->loadFile($path);
+        self::getDriver()->loadFile($path);
     }
 
     /**
@@ -258,12 +253,53 @@ class WFImage
             throw new InvalidArgumentException('String does not contain image data.');
         }
 
-        self::getLib()->loadString($string);
+        self::getDriver()->loadString($string);
+    }
+
+    protected function getBox($dw, $dh)
+    {
+        $sw = (int) $this->getWidth();
+        $sh = (int) $this->getHeight();
+        
+        $sx = 0;
+        $sy = 0;
+        $w = $dw;
+        $h = $dh;
+
+        if ($w / $h > $sw / $w) {
+            $h = floor($h * ($sw / $w));
+            $w = $sw;
+            if ($h > $sh) {
+                $w = floor($w * ($sh / $h));
+                $h = $sh;
+            }
+        } else {
+            $w = floor($w * ($sh / $h));
+            $h = $sh;
+            if ($w > $sw) {
+                $h = floor($h * ($sw / $w));
+                $w = $sw;
+            }
+        }
+
+        if ($w < $sw) {
+            $sx = floor(($sw - $w) / 2);
+        } else {
+            $sx = 0;
+        }
+
+        if ($h < $sh) {
+            $sy = floor(($sh - $h) / 2);
+        } else {
+            $sy = 0;
+        }
+
+        return array('sx' => $sx, 'sy' => $sy, 'sw' => $w, 'sh' => $h);
     }
 
     public function resample($resolution = 72)
     {
-        return self::getLib()->resample($resolution);
+        return self::getDriver()->resample($resolution);
     }
 
     public function watermark($options = array())
@@ -277,19 +313,19 @@ class WFImage
         }
 
         $options = (object) array(
-                    'type' => $options['type'],
-                    'text' => $options['text'],
-                    'image' => $options['image'],
-                    'font_style' => isset($options['font_style']) ? $options['font_style'] : 'sans-serif',
-                    'font_size' => isset($options['font_size']) ? $options['font_size'] : '36',
-                    'font_color' => isset($options['font_color']) ? $options['font_color'] : '#FFFFFF',
-                    'opacity' => isset($options['opacity']) ? $options['opacity'] : 50,
-                    'position' => isset($options['position']) ? $options['position'] : 'center',
-                    'margin' => isset($options['margin']) ? (int) $options['margin'] : 10,
-                    'angle' => isset($options['angle']) ? (int) $options['angle'] : 0,
-                );
+            'type' => $options['type'],
+            'text' => $options['text'],
+            'image' => $options['image'],
+            'font_style' => isset($options['font_style']) ? $options['font_style'] : 'sans-serif',
+            'font_size' => isset($options['font_size']) ? $options['font_size'] : '36',
+            'font_color' => isset($options['font_color']) ? $options['font_color'] : '#FFFFFF',
+            'opacity' => isset($options['opacity']) ? $options['opacity'] : 50,
+            'position' => isset($options['position']) ? $options['position'] : 'center',
+            'margin' => isset($options['margin']) ? (int) $options['margin'] : 10,
+            'angle' => isset($options['angle']) ? (int) $options['angle'] : 0,
+        );
 
-        return self::getLib()->watermark($options);
+        return self::getDriver()->watermark($options);
     }
 
     /**
@@ -316,7 +352,22 @@ class WFImage
         // Prepare the dimensions for the resize operation.
         $dimensions = $this->prepareDimensions($width, $height, $scaleMethod);
 
-        return self::getLib()->resize($dimensions->width, $dimensions->height, $createNew);
+        return self::getDriver()->resize($dimensions->width, $dimensions->height, $createNew);
+    }
+
+    public function fit($width, $height, $createNew = false, $scaleMethod = self::SCALE_INSIDE)
+    {
+        // Sanitize width.
+        $width = $this->sanitizeWidth($width, $height);
+
+        // Sanitize height.
+        $height = $this->sanitizeHeight($height, $width);
+
+        $box = $this->getBox($width, $height);
+
+        $this->crop($box['sw'], $box['sh'], $box['sx'], $box['sy']);
+
+        return $this->resize($width, $height, $createNew);
     }
 
     /**
@@ -347,7 +398,7 @@ class WFImage
         // Sanitize top.
         $top = $this->sanitizeOffset($top);
 
-        return self::getLib()->crop($width, $height, $left, $top, $createNew);
+        return self::getDriver()->crop($width, $height, $left, $top, $createNew);
     }
 
     /**
@@ -367,7 +418,7 @@ class WFImage
         // Sanitize input
         $angle = floatval($angle);
 
-        return self::getLib()->rotate($angle, $background, $createNew);
+        return self::getDriver()->rotate($angle, $background, $createNew);
     }
 
     /**
@@ -400,7 +451,17 @@ class WFImage
                 break;
         }
 
-        return self::getLib()->flip($direction, $createNew);
+        return self::getDriver()->flip($direction, $createNew);
+    }
+
+    public function orientate()
+    {
+        return self::getDriver()->orientate();
+    }
+
+    public function removeExif()
+    {
+        return self::getDriver()->removeExif();
     }
 
     /**
@@ -416,14 +477,13 @@ class WFImage
      */
     public function toFile($path, $type = 'jpeg', array $options = array())
     {
-
         // remove exif data before saving?
         $options['removeExif'] = self::$removeExif;
 
         // resample on saving?
         $options['resampleImage'] = self::$resampleImage;
 
-        return self::getLib()->toFile($path, $type, $options);
+        return self::getDriver()->toFile($path, $type, $options);
     }
 
     /**
@@ -446,7 +506,7 @@ class WFImage
         // resample on saving?
         $options['resampleImage'] = self::$resampleImage;
 
-        self::getLib()->toString($type, $options);
+        self::getDriver()->toString($type, $options);
 
         return ob_get_clean();
     }
@@ -577,6 +637,9 @@ class WFImage
             case 'png':
                 return IMAGETYPE_PNG;
                 break;
+            case 'tiff':
+                return IMAGETYPE_TIFF_II;
+                break;
             case 'gif':
                 return IMAGETYPE_GIF;
                 break;
@@ -585,12 +648,12 @@ class WFImage
 
     public function destroy()
     {
-        self::getLib()->destroy();
+        self::getDriver()->destroy();
     }
 
     public function getType()
     {
-        self::getLib()->getType();
+        self::getDriver()->getType();
     }
 
     public function setType($type)
@@ -599,6 +662,30 @@ class WFImage
         $type = self::getImageType($type);
 
         // set type
-        self::getLib()->setType($type);
+        self::getDriver()->setType($type);
+    }
+
+    public function backup($name = null)
+    {
+        $name = is_null($name) ? 'default' : $name;
+        
+        $resource = self::getDriver()->backup();
+        
+        $this->backups[$name] = $resource;
+        
+        return $resource;
+    }
+
+    public function restore($name = null)
+    {
+        $name = is_null($name) ? 'default' : $name;
+        
+        if (array_key_exists($name, $this->backups)) {
+            $resource = $this->backups[$name];
+
+            if ($resource) {
+                self::getDriver()->restore($resource);
+            }
+        }
     }
 }

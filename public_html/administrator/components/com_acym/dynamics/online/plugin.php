@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class plgAcymOnline extends acymPlugin
 {
@@ -57,7 +48,7 @@ class plgAcymOnline extends acymPlugin
 		</script>
 
 		<div class="acym__popup__listing text-center grid-x">
-			<div class="grid-x medium-12 cell acym__listing__row text-left">
+			<div class="grid-x medium-12 cell acym__row__no-listing text-left">
 				<div class="grid-x cell medium-5 small-12 acym__listing__title acym__listing__title__dynamics">
 					<label class="small-3" style="line-height: 40px;" for="acym__popup__online__tagtext"><?php echo acym_translation('ACYM_TEXT'); ?>: </label>
 					<input class="small-9" type="text" name="tagtext" id="acym__popup__online__tagtext" onchange="setOnlineTag();">
@@ -68,7 +59,7 @@ class plgAcymOnline extends acymPlugin
             <?php
             foreach ($others as $tagname => $tag) {
                 $onclick = 'changeOnlineTag(\''.$tagname.'\');';
-                echo '<div class="grid-x small-12 cell acym__listing__row acym__listing__row__popup text-left"  onclick="'.$onclick.'" id="tr_'.$tagname.'" ><div class="cell small-12 acym__listing__title acym__listing__title__dynamics">'.$tag['desc'].'</div></div>';
+                echo '<div class="grid-x small-12 cell acym__row__no-listing acym__listing__row__popup text-left"  onclick="'.$onclick.'" id="tr_'.$tagname.'" ><div class="cell small-12 acym__listing__title acym__listing__title__dynamics">'.$tag['desc'].'</div></div>';
             }
             ?>
 		</div>

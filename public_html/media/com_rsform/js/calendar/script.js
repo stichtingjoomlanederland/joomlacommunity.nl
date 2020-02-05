@@ -267,7 +267,7 @@ RSFormPro.YUICalendar = {
 	},
 	
 	showHideCalendar: function(calContainerId){
-		cal = document.getElementById(calContainerId);
+		var cal = document.getElementById(calContainerId);
 		if(cal.style.display == 'none') {
 			cal.style.display = '';
 		} else  {
@@ -276,15 +276,49 @@ RSFormPro.YUICalendar = {
 	},
 	
 	hideAllPopupCalendars: function(formId, calendarsIds) {
-		if (typeof RSFormPro.YUICalendar.calendars[formId] != 'undefined') {
+		if (typeof RSFormPro.YUICalendar.calendars[formId] !== 'undefined') {
 			for (var i = 0; i < calendarsIds.length; i++){
 				var calId = 'cal'+calendarsIds[i]+'Container';
-				cal = document.getElementById(calId);
-				if(cal.style.display != 'none' && cal.style.position == 'absolute') {
+				var cal = document.getElementById(calId);
+				if (cal.style.display != 'none' && cal.style.position == 'absolute') {
 					cal.style.display = 'none';
 				}
 			}
 		}
+	},
+
+	hideOnClick: function(formId, calendarsIds) {
+		RSFormProUtils.addEvent(window, 'DOMContentLoaded', function() {
+			if ('body' in document) {
+				RSFormProUtils.addEvent(document.body, 'click', function(event) {
+					if (!event || !event.target) {
+						return true;
+					}
+
+					var tagName = event.target.tagName || event.target.nodeName;
+
+					if (tagName === 'INPUT' || tagName === 'BUTTON') {
+						if (event.target.id) {
+							if (event.target.id.indexOf('txtcal' + formId + '_') === 0 || event.target.id.indexOf('btn' + formId + '_') === 0) {
+								return true;
+							}
+						}
+					}
+
+					var parents = RSFormProUtils.getParents(event.target);
+
+					if (parents.length) {
+						for (var i = 0; i < parents.length; i++) {
+							if (RSFormProUtils.hasClass(parents[i], 'yui-calcontainer')) {
+								return true;
+							}
+						}
+					}
+
+					RSFormPro.YUICalendar.hideAllPopupCalendars(formId, calendarsIds);
+				});
+			}
+		});
 	},
 	
 	dateFormat: function () {
@@ -376,4 +410,4 @@ RSFormPro.YUICalendar = {
 		isoDateTime:     "yyyy-mm-dd'T'HH:MM:ss",
 		isoFullDateTime: "yyyy-mm-dd'T'HH:MM:ss.lo"
 	}
-}
+};

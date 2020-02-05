@@ -1,29 +1,29 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc\Connector\Backblaze;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
+
+use DomainException;
 
 /**
  * An immutable object which contains the information returned by Backblaze b2_list_buckets API method
  *
  * @see  https://www.backblaze.com/b2/docs/b2_list_buckets.html
  *
- * @property-read  string  accountId       Backblaze account ID
- * @property-read  string  bucketId        The ID of the bucket (you will need to use this in the API)
- * @property-read  array   bucketInfo      User data stored in this bucket
- * @property-read  string  bucketName      The unique name of the bucket, i.e. what the user calls the bucket by
- * @property-read  string  bucketType      allPublic, allPrivate, snapshot (possibly more values in the future)
- * @property-read  array   lifecycleRules  List of lifecycle rules for this bucket
+ * @property-read  string accountId       Backblaze account ID
+ * @property-read  string bucketId        The ID of the bucket (you will need to use this in the API)
+ * @property-read  array  bucketInfo      User data stored in this bucket
+ * @property-read  string bucketName      The unique name of the bucket, i.e. what the user calls the bucket by
+ * @property-read  string bucketType      allPublic, allPrivate, snapshot (possibly more values in the future)
+ * @property-read  array  lifecycleRules  List of lifecycle rules for this bucket
  */
 class BucketInformation
 {
@@ -48,7 +48,7 @@ class BucketInformation
 	/**
 	 * Construct an BucketInformation object from a key-value array
 	 *
-	 * @param   array $data The raw data array returned by the Backblaze B2 API
+	 * @param   array  $data  The raw data array returned by the Backblaze B2 API
 	 */
 	public function __construct(array $data)
 	{
@@ -70,11 +70,11 @@ class BucketInformation
 	 * Magic getter, channels the private property values. This lets the object have immutable, publicly accessible
 	 * properties.
 	 *
-	 * @param   string $name The property name being read
+	 * @param   string  $name  The property name being read
 	 *
 	 * @return  mixed
 	 *
-	 * @throws  \DomainException  If you ask for a property that's not there
+	 * @throws  DomainException  If you ask for a property that's not there
 	 */
 	public function __get($name)
 	{
@@ -83,6 +83,6 @@ class BucketInformation
 			return $this->$name;
 		}
 
-		throw new \DomainException(sprintf("Property %s does not exist in class %s", $name, __CLASS__));
+		throw new DomainException(sprintf("Property %s does not exist in class %s", $name, __CLASS__));
 	}
 }

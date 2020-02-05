@@ -1,18 +1,9 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<h2 class="cell acym__walkthrough__title margin-bottom-2"><?php echo acym_translation('ACYM_WALKTHROUGH_HOUSTON'); ?></h2>
+?><h2 class="cell acym__walkthrough__title margin-bottom-2"><?php echo acym_translation('ACYM_WALKTHROUGH_HOUSTON'); ?></h2>
 
 <div class="cell margin-top-2 margin-bottom-2">
-	<i class="fa fa-ambulance" style="font-size: 8rem;"></i>
+	<i class="acymicon-ambulance" style="font-size: 8rem;"></i>
 </div>
 
 <div class="cell margin-top-2 margin-bottom-3">

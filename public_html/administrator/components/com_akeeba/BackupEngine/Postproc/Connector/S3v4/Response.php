@@ -1,28 +1,27 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc\Connector\S3v4;
 
 use Akeeba\Engine\Postproc\Connector\S3v4\Exception\PropertyNotFound;
 use Akeeba\Engine\Postproc\Connector\S3v4\Response\Error;
+use SimpleXMLElement;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 /**
  * Amazon S3 API response object
  *
- * @property   Error  $error    Response error object
- * @property   mixed  $body     Body data
- * @property   int    $code     Response code
- * @property   array  $headers  Any headers we may have
+ * @property   Error $error    Response error object
+ * @property   mixed $body     Body data
+ * @property   int   $code     Response code
+ * @property   array $headers  Any headers we may have
  */
 class Response
 {
@@ -36,7 +35,7 @@ class Response
 	/**
 	 * Response body
 	 *
-	 * @var  \SimpleXMLElement|string|null
+	 * @var  SimpleXMLElement|string|null
 	 */
 	private $body = null;
 
@@ -52,7 +51,7 @@ class Response
 	 *
 	 * @var  array
 	 */
-	private $headers = array();
+	private $headers = [];
 
 	/**
 	 * Response constructor.
@@ -105,7 +104,7 @@ class Response
 	/**
 	 * Get the response body
 	 *
-	 * @return null|string|\SimpleXMLElement
+	 * @return null|string|SimpleXMLElement
 	 */
 	public function getBody()
 	{
@@ -115,7 +114,7 @@ class Response
 	/**
 	 * Set the response body. If it's a string we'll try to parse it as XML.
 	 *
-	 * @param   null|string|\SimpleXMLElement  $body
+	 * @param   null|string|SimpleXMLElement  $body
 	 */
 	public function setBody($body)
 	{
@@ -165,7 +164,7 @@ class Response
 			$this->body = simplexml_load_string($this->body);
 		}
 
-		if (is_object($this->body) && ($this->body instanceof \SimpleXMLElement))
+		if (is_object($this->body) && ($this->body instanceof SimpleXMLElement))
 		{
 			$this->parseBody();
 		}
@@ -320,18 +319,18 @@ class Response
 	 */
 	protected function parseBody()
 	{
-		if (!in_array($this->code, array(200, 204)) &&
+		if (!in_array($this->code, [200, 204]) &&
 			isset($this->body->Code, $this->body->Message)
 		)
 		{
 			$this->error = new Error(
-				(string)$this->body->Code,
-				(string)$this->body->Message
+				(string) $this->body->Code,
+				(string) $this->body->Message
 			);
 
 			if (isset($this->body->Resource))
 			{
-				$this->error->setResource((string)$this->body->Resource);
+				$this->error->setResource((string) $this->body->Resource);
 			}
 		}
 	}

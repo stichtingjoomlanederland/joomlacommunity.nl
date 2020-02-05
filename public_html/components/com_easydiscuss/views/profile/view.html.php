@@ -50,8 +50,7 @@ class EasyDiscussViewProfile extends EasyDiscussView
 			$fields = array('facebook', 'linkedin', 'twitter', 'website', 'skype');
 
 			foreach ($fields as $field) {
-				if ($socialParams->$field) {
-
+				if (isset($socialParams->$field)) {
 					$value = $socialParams->$field;
 					$showProfile = 'show_' . $field;
 
@@ -130,14 +129,31 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		}
 
 		if ($viewType == 'favourites') {
-
 			$options = array(
 				'userId' => $profile->id,
 				'filter' => 'favourites'
 				);
 
-			// $posts = $model->getData(true, 'latest', null, 'favourites');
 			$posts = $postsModel->getDiscussions($options);
+		}
+
+		// Pending post shall only shown to the owner and moderator.
+		if ($viewType == 'pending') {
+			if (ED::isModerator() || ($this->my->id == $profile->id)) {
+				$options = array(
+					'filter' => $viewType, 
+					'userId' => $profile->id, 
+					'includeAnonymous' => true, 
+					'includeCluster' => false,
+					'private' => true,
+					'published' => DISCUSS_ID_PENDING
+				);
+
+				$posts = $postsModel->getDiscussions($options);
+				$paginationModel = $postsModel->getPagination();
+			} else {
+				$posts = array();
+			}
 		}
 
 		$contents = '';

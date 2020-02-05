@@ -1,21 +1,21 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Core\Domain;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Base\Part;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
+use DateTime;
+use Exception;
 use Psr\Log\LogLevel;
 
 /**
@@ -24,16 +24,16 @@ use Psr\Log\LogLevel;
 class Finalization extends Part
 {
 	/** @var array The finalisation actions we have to execute (FIFO queue) */
-	private $action_queue = array();
+	private $action_queue = [];
 
 	/** @var array Additional objects which will also handle finalisation tasks */
-	private $action_handlers = array();
+	private $action_handlers = [];
 
 	/** @var string The current method, shifted from the action queye */
 	private $current_method = '';
 
 	/** @var array A list of all backup parts to process */
-	private $backup_parts = array();
+	private $backup_parts = [];
 
 	/** @var int The backup part we are currently processing */
 	private $backup_parts_index = -1;
@@ -54,6 +54,49 @@ class Finalization extends Part
 	private $substeps_done = 0;
 
 	/**
+	 * Get the percentage of finalization steps done
+	 *
+	 * @return  float
+	 */
+	public function getProgress()
+	{
+		if ($this->steps_total <= 0)
+		{
+			return 0;
+		}
+
+		$overall = $this->steps_done / $this->steps_total;
+		$local   = 0;
+
+		if ($this->substeps_total > 0)
+		{
+			$local = $this->substeps_done / $this->substeps_total;
+		}
+
+		return $overall + ($local / $this->steps_total);
+	}
+
+	/**
+	 * Used by additional handler classes to relay their step to us
+	 *
+	 * @param   string  $step  The current step
+	 */
+	public function relayStep($step)
+	{
+		$this->setStep($step);
+	}
+
+	/**
+	 * Used by additional handler classes to relay their substep to us
+	 *
+	 * @param   string  $substep  The current sub-step
+	 */
+	public function relaySubstep($substep)
+	{
+		$this->setSubstep($substep);
+	}
+
+	/**
 	 * Implements the abstract method
 	 */
 	protected function _prepare()
@@ -63,7 +106,7 @@ class Finalization extends Part
 		$configuration->get('volatile.breakflag', false);
 
 		// Populate actions queue
-		$this->action_queue = array(
+		$this->action_queue = [
 			'remove_temp_files',
 			'update_statistics',
 			'update_filesizes',
@@ -72,8 +115,9 @@ class Finalization extends Part
 			'apply_quotas',
 			'apply_remote_quotas',
 			'mail_administrators',
-			'update_statistics', // Run it a second time to update the backup end time after post processing, emails, etc ;)
-		);
+			'update_statistics',
+			// Run it a second time to update the backup end time after post processing, emails, etc ;)
+		];
 
 		// Remove the Kickstart post-processing if we do not have the option set
 		$uploadKickstart = $configuration->get('akeeba.advanced.uploadkickstart', 0);
@@ -92,16 +136,16 @@ class Finalization extends Part
 			{
 				$this->action_handlers[] = $handler;
 			}
-        }
+		}
 
 		// Do we have a custom action queue set in volatile.core.finalization.action_queue?
-		$customQueue = $configuration->get('volatile.core.finalization.action_queue', null);
+		$customQueue       = $configuration->get('volatile.core.finalization.action_queue', null);
 		$customQueueBefore = $configuration->get('volatile.core.finalization.action_queue_before', null);
 
 		if (is_array($customQueue) && !empty($customQueue))
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, 'Overriding finalization action queue');
-			$this->action_queue = array();
+			Factory::getLog()->debug('Overriding finalization action queue');
+			$this->action_queue = [];
 
 			foreach ($customQueue as $action)
 			{
@@ -126,7 +170,7 @@ class Finalization extends Part
 		if (is_array($customQueueBefore) && !empty($customQueueBefore))
 		{
 			// Get all actions before run_post_processing
-			$temp = array();
+			$temp   = [];
 			$temp[] = array_shift($this->action_queue);
 			$temp[] = array_shift($this->action_queue);
 			$temp[] = array_shift($this->action_queue);
@@ -161,18 +205,18 @@ class Finalization extends Part
 			}
 		}
 
-		Factory::getLog()->log(LogLevel::DEBUG, 'Finalization action queue: ' . implode(', ', $this->action_queue));
+		Factory::getLog()->debug('Finalization action queue: ' . implode(', ', $this->action_queue));
 
-		$this->steps_total = count($this->action_queue);
-		$this->steps_done = 0;
+		$this->steps_total    = count($this->action_queue);
+		$this->steps_done     = 0;
 		$this->substeps_total = 0;
-		$this->substeps_done = 0;
+		$this->substeps_done  = 0;
 
 		// Seed the method
 		$this->current_method = array_shift($this->action_queue);
 
 		// Set ourselves to running state
-		$this->setState('running');
+		$this->setState(self::STATE_RUNNING);
 	}
 
 	/**
@@ -184,7 +228,7 @@ class Finalization extends Part
 	{
 		$configuration = Factory::getConfiguration();
 
-		if ($this->getState() == 'postrun')
+		if ($this->getState() == self::STATE_POSTRUN)
 		{
 			return;
 		}
@@ -193,12 +237,12 @@ class Finalization extends Part
 
 		if ($finished)
 		{
-			$this->setState('postrun');
+			$this->setState(self::STATE_POSTRUN);
 
 			return;
 		}
 
-		$this->setState('running');
+		$this->setState(self::STATE_RUNNING);
 
 		$timer = Factory::getTimer();
 
@@ -209,7 +253,7 @@ class Finalization extends Part
 
 			if (method_exists($this, $method))
 			{
-				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . "::_run() Running built-in method $method");
+				Factory::getLog()->debug(__CLASS__ . "::_run() Running built-in method $method");
 				$status = $this->$method();
 			}
 			else
@@ -222,7 +266,7 @@ class Finalization extends Part
 					{
 						if (method_exists($handler, $method))
 						{
-							Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . "::_run() Running add-on method $method");
+							Factory::getLog()->debug(__CLASS__ . "::_run() Running add-on method $method");
 							$status = $handler->$method($this);
 							break;
 						}
@@ -240,14 +284,14 @@ class Finalization extends Part
 				{
 					$this->current_method = array_shift($this->action_queue);
 					$this->substeps_total = 0;
-					$this->substeps_done = 0;
+					$this->substeps_done  = 0;
 				}
 			}
 		}
 
 		if ($finished)
 		{
-			$this->setState('postrun');
+			$this->setState(self::STATE_POSTRUN);
 			$this->setStep('');
 			$this->setSubstep('');
 		}
@@ -260,7 +304,7 @@ class Finalization extends Part
 	 */
 	protected function _finalize()
 	{
-		$this->setState('finished');
+		$this->setState(self::STATE_FINISHED);
 	}
 
 	/**
@@ -293,25 +337,25 @@ class Finalization extends Part
 			return true;
 		}
 
-		Factory::getLog()->log(LogLevel::DEBUG, "Preparing to send e-mail to administrators");
+		Factory::getLog()->debug("Preparing to send e-mail to administrators");
 
 		$email = Platform::getInstance()->get_platform_configuration_option('frontend_email_address', '');
 		$email = trim($email);
 
 		if (!empty($email))
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, "Using pre-defined list of emails");
+			Factory::getLog()->debug("Using pre-defined list of emails");
 			$emails = explode(',', $email);
 		}
 		else
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, "Fetching list of Super Administrator emails");
+			Factory::getLog()->debug("Fetching list of Super Administrator emails");
 			$emails = Platform::getInstance()->get_administrator_emails();
 		}
 
 		if (!empty($emails))
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, "Creating email subject and body");
+			Factory::getLog()->debug("Creating email subject and body");
 			// Fetch user's preferences
 			$subject = trim(Platform::getInstance()->get_platform_configuration_option('frontend_email_subject', ''));
 			$body    = trim(Platform::getInstance()->get_platform_configuration_option('frontend_email_body', ''));
@@ -401,13 +445,13 @@ class Finalization extends Part
 
 			foreach ($emails as $email)
 			{
-				Factory::getLog()->log(LogLevel::DEBUG, "Sending email to $email");
+				Factory::getLog()->debug("Sending email to $email");
 				Platform::getInstance()->send_email($email, $subject, $body);
 			}
 		}
 		else
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, "No email recipients found! Skipping email.");
+			Factory::getLog()->debug("No email recipients found! Skipping email.");
 		}
 
 		return true;
@@ -422,7 +466,7 @@ class Finalization extends Part
 	{
 		$this->setStep('Removing temporary files');
 		$this->setSubstep('');
-		Factory::getLog()->log(LogLevel::DEBUG, "Removing temporary files");
+		Factory::getLog()->debug("Removing temporary files");
 		Factory::getTempFiles()->deleteTempFiles();
 
 		return true;
@@ -443,36 +487,36 @@ class Finalization extends Part
 
 		$engine_name = $configuration->get('akeeba.advanced.postproc_engine');
 
-		Factory::getLog()->log(LogLevel::DEBUG, "Loading post-processing engine object ($engine_name)");
+		Factory::getLog()->debug("Loading post-processing engine object ($engine_name)");
 
 		$post_proc = Factory::getPostprocEngine($engine_name);
 
 		// Initialize the archive part list if required
 		if (empty($this->backup_parts))
 		{
-			Factory::getLog()->log(LogLevel::INFO, 'Initializing post-processing engine');
+			Factory::getLog()->info('Initializing post-processing engine');
 
 			// Initialize the flag for multistep post-processing of parts
 			$configuration->set('volatile.postproc.filename', null);
 			$configuration->set('volatile.postproc.directory', null);
 
 			// Populate array w/ absolute names of backup parts
-			$statistics = Factory::getStatistics();
-			$stat = $statistics->getRecord();
+			$statistics         = Factory::getStatistics();
+			$stat               = $statistics->getRecord();
 			$this->backup_parts = Factory::getStatistics()->get_all_filenames($stat, false);
 
 			if (is_null($this->backup_parts))
 			{
 				// No archive produced, or they are all already post-processed
-				Factory::getLog()->log(LogLevel::INFO, 'No archive files found to post-process');
+				Factory::getLog()->info('No archive files found to post-process');
 
 				return true;
 			}
 
-			Factory::getLog()->log(LogLevel::DEBUG, count($this->backup_parts) . ' files to process found');
+			Factory::getLog()->debug(count($this->backup_parts) . ' files to process found');
 
 			$this->substeps_total = count($this->backup_parts);
-			$this->substeps_done = 0;
+			$this->substeps_done  = 0;
 
 			$this->backup_parts_index = 0;
 
@@ -483,11 +527,11 @@ class Finalization extends Part
 			}
 
 			// Break step before processing?
-			if ($post_proc->break_before && !Factory::getConfiguration()
-													  ->get('akeeba.tuning.nobreak.finalization', 0)
+			if ($post_proc->recommendsBreakBefore() && !Factory::getConfiguration()
+					->get('akeeba.tuning.nobreak.finalization', 0)
 			)
 			{
-				Factory::getLog()->log(LogLevel::DEBUG, 'Breaking step before post-processing run');
+				Factory::getLog()->debug('Breaking step before post-processing run');
 				$configuration->set('volatile.breakflag', true);
 
 				return false;
@@ -503,71 +547,85 @@ class Finalization extends Part
 		if (empty($filename))
 		{
 			$filename = $this->backup_parts[$this->backup_parts_index];
-			Factory::getLog()->log(LogLevel::INFO, 'Beginning post processing file ' . $filename);
+			Factory::getLog()->info('Beginning post processing file ' . $filename);
 		}
 		else
 		{
-			Factory::getLog()->log(LogLevel::INFO, 'Continuing post processing file ' . $filename);
+			Factory::getLog()->info('Continuing post processing file ' . $filename);
 		}
 
 		$this->setStep('Post-processing');
 		$this->setSubstep(basename($filename));
-		$timer = Factory::getTimer();
-		$startTime = $timer->getRunningTime();
-		$result = $post_proc->processPart($filename);
-		$this->propagateFromObject($post_proc);
+		$timer               = Factory::getTimer();
+		$startTime           = $timer->getRunningTime();
+		$processingException = null;
 
-		if ($result === false)
+		try
 		{
-			$this->setWarning('Failed to process file ' . $filename);
-			Factory::getLog()->log(LogLevel::WARNING, 'Error received from the post-processing engine:');
-			Factory::getLog()->log(LogLevel::WARNING, implode("\n", array_merge($this->getWarnings(), $this->getErrors())));
+			$finishedProcessing = $post_proc->processPart($filename);
 		}
-		elseif ($result === true)
+		catch (Exception $e)
+		{
+			$finishedProcessing  = false;
+			$processingException = $e;
+		}
+
+		if (!is_null($processingException))
+		{
+			Factory::getLog()->warning('Failed to process file ' . $filename);
+			Factory::getLog()->warning('Error received from the post-processing engine:');
+			self::logErrorsFromException($processingException, LogLevel::WARNING);
+		}
+		elseif ($finishedProcessing === true)
 		{
 			// The post-processing of this file ended successfully
-			Factory::getLog()->log(LogLevel::INFO, 'Finished post-processing file ' . $filename);
+			Factory::getLog()->info('Finished post-processing file ' . $filename);
 			$configuration->set('volatile.postproc.filename', null);
 		}
 		else
 		{
 			// More work required
-			Factory::getLog()->log(LogLevel::INFO, 'More post-processing steps required for file ' . $filename);
+			Factory::getLog()->info('More post-processing steps required for file ' . $filename);
 			$configuration->set('volatile.postproc.filename', $filename);
 
 			// Do we need to break the step?
-			$endTime = $timer->getRunningTime();
+			$endTime  = $timer->getRunningTime();
 			$stepTime = $endTime - $startTime;
 			$timeLeft = $timer->getTimeLeft();
 
+			// By default, we assume that we have enough time to run yet another step
+			$configuration->set('volatile.breakflag', false);
+
+			/**
+			 * However, if the last step took longer than the time we already have left on the timer we can predict
+			 * that we are running out of time, therefore we need to break the step.
+			 */
 			if ($timeLeft < $stepTime)
 			{
-				// We predict that running yet another step would cause a timeout
 				$configuration->set('volatile.breakflag', true);
-			}
-			else
-			{
-				// We have enough time to run yet another step
-				$configuration->set('volatile.breakflag', false);
 			}
 		}
 
 		// Should we delete the file afterwards?
-		if (
+		$canAndShouldDeleteFileAfterwards =
 			$configuration->get('engine.postproc.common.delete_after', false)
-			&& $post_proc->allow_deletes
-			&& ($result === true)
-		)
+			&& $post_proc->isFileDeletionAfterProcessingAdvisable();
+
+		if ($canAndShouldDeleteFileAfterwards && $finishedProcessing)
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, 'Deleting already processed file ' . $filename);
+			Factory::getLog()->debug('Deleting already processed file ' . $filename);
 			Platform::getInstance()->unlink($filename);
+		}
+		elseif ($canAndShouldDeleteFileAfterwards && !$finishedProcessing)
+		{
+			Factory::getLog()->debug('Not removing the non-processed file ' . $filename);
 		}
 		else
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, 'Not removing processed file ' . $filename);
+			Factory::getLog()->debug('Not removing processed file ' . $filename);
 		}
 
-		if ($result === true)
+		if ($finishedProcessing === true)
 		{
 			// Move the index forward if the part finished processing
 			$this->backup_parts_index++;
@@ -576,7 +634,7 @@ class Finalization extends Part
 			$this->substeps_done++;
 
 			// Break step after processing?
-			if ($post_proc->break_after && !Factory::getConfiguration()->get('akeeba.tuning.nobreak.finalization', 0))
+			if ($post_proc->recommendsBreakAfter() && !Factory::getConfiguration()->get('akeeba.tuning.nobreak.finalization', 0))
 			{
 				$configuration->set('volatile.breakflag', true);
 			}
@@ -584,15 +642,15 @@ class Finalization extends Part
 			// If we just finished processing the first archive part, save its remote path in the statistics.
 			if (($this->substeps_done == 1) || ($this->substeps_total == 0))
 			{
-				if (!empty($post_proc->remote_path))
+				if (!empty($post_proc->getRemotePath()))
 				{
-					$statistics = Factory::getStatistics();
+					$statistics      = Factory::getStatistics();
 					$remote_filename = $engine_name . '://';
-					$remote_filename .= $post_proc->remote_path;
-					$data = array(
-						'remote_filename' => $remote_filename
-					);
-					$remove_after = $configuration->get('engine.postproc.common.delete_after', false);
+					$remote_filename .= $post_proc->getRemotePath();
+					$data            = [
+						'remote_filename' => $remote_filename,
+					];
+					$remove_after    = $configuration->get('engine.postproc.common.delete_after', false);
 
 					if ($remove_after)
 					{
@@ -600,23 +658,23 @@ class Finalization extends Part
 					}
 
 					$statistics->setStatistics($data);
-					$this->propagateFromObject($statistics);
 				}
 			}
 
 			// Are we past the end of the array (i.e. we're finished)?
 			if ($this->backup_parts_index >= count($this->backup_parts))
 			{
-				Factory::getLog()->log(LogLevel::INFO, 'Post-processing has finished for all files');
+				Factory::getLog()->info('Post-processing has finished for all files');
 
 				return true;
 			}
 		}
-		elseif ($result === false)
+
+		if (!is_null($processingException))
 		{
 			// If the post-processing failed, make sure we don't process anything else
 			$this->backup_parts_index = count($this->backup_parts);
-			$this->setWarning('Post-processing interrupted -- no more files will be transferred');
+			Factory::getLog()->warning('Post-processing interrupted -- no more files will be transferred');
 
 			return true;
 		}
@@ -642,13 +700,13 @@ class Finalization extends Part
 
 		if (!$uploadKickstart)
 		{
-			Factory::getLog()->log(LogLevel::INFO, "Getting ready to upload Kickstart");
+			Factory::getLog()->info("Getting ready to upload Kickstart");
 
 			return true;
 		}
 
 		$engine_name = $configuration->get('akeeba.advanced.postproc_engine');
-		Factory::getLog()->log(LogLevel::DEBUG, "Loading post-processing engine object ($engine_name)");
+		Factory::getLog()->debug("Loading post-processing engine object ($engine_name)");
 		$post_proc = Factory::getPostprocEngine($engine_name);
 
 		// Set $filename to kickstart's source file
@@ -659,26 +717,33 @@ class Finalization extends Part
 
 		if (!@file_exists($filename) || !is_file($filename))
 		{
-			$this->setWarning('Failed to upload kickstart.php. Missing file ' . $filename);
+			Factory::getLog()->warning('Failed to upload kickstart.php. Missing file ' . $filename);
 
 			// Indicate we're done.
 			return true;
 		}
 
-		$result = $post_proc->processPart($filename, 'kickstart.php');
-		$this->propagateFromObject($post_proc);
+		$exception = null;
 
-		if ($result === false)
+		try
 		{
-			$this->setWarning('Failed to upload kickstart.php');
-
-			Factory::getLog()->log(LogLevel::WARNING, 'Error received from the post-processing engine:');
-			Factory::getLog()->log(LogLevel::WARNING, implode("\n", $this->getWarnings()));
+			$finishedProcessing = $post_proc->processPart($filename, 'kickstart.php');
 		}
-		elseif ($result === true)
+		catch (Exception $e)
+		{
+			$exception = $e;
+		}
+
+		if (!is_null($exception))
+		{
+			Factory::getLog()->warning('Failed to upload kickstart.php');
+			Factory::getLog()->warning('Error received from the post-processing engine:');
+			self::logErrorsFromException($exception, LogLevel::WARNING);
+		}
+		elseif ($finishedProcessing === true)
 		{
 			// The post-processing of this file ended successfully
-			Factory::getLog()->log(LogLevel::INFO, 'Finished uploading kickstart.php');
+			Factory::getLog()->info('Finished uploading kickstart.php');
 			$configuration->set('volatile.postproc.filename', null);
 		}
 
@@ -696,16 +761,24 @@ class Finalization extends Part
 		$this->setStep('Updating backup record information');
 		$this->setSubstep('');
 
-		Factory::getLog()->log(LogLevel::DEBUG, "Updating statistics");
+		Factory::getLog()->debug("Updating statistics");
 		// We finished normally. Fetch the stats record
 		$statistics = Factory::getStatistics();
-		$registry = Factory::getConfiguration();
-		$data = array(
+		$registry   = Factory::getConfiguration();
+		$data       = [
 			'backupend' => Platform::getInstance()->get_timestamp_database(),
 			'status'    => 'complete',
-			'multipart' => $registry->get('volatile.statistics.multipart', 0)
-		);
-		$result = $statistics->setStatistics($data);
+			'multipart' => $registry->get('volatile.statistics.multipart', 0),
+		];
+
+		try
+		{
+			$result = $statistics->setStatistics($data);
+		}
+		catch (Exception $e)
+		{
+			$result = false;
+		}
 
 		if ($result === false)
 		{
@@ -716,9 +789,7 @@ class Finalization extends Part
 			return false;
 		}
 
-		$this->propagateFromObject($statistics);
-
-		$stat = (object)$statistics->getRecord();
+		$stat = (object) $statistics->getRecord();
 		Platform::getInstance()->remove_duplicate_backup_records($stat->archivename);
 
 		return true;
@@ -728,13 +799,13 @@ class Finalization extends Part
 	{
 		$this->setStep('Updating file sizes');
 		$this->setSubstep('');
-		Factory::getLog()->log(LogLevel::DEBUG, "Updating statistics with file sizes");
+		Factory::getLog()->debug("Updating statistics with file sizes");
 
 		// Fetch the stats record
 		$statistics = Factory::getStatistics();
-		$record = $statistics->getRecord();
-		$filenames = $statistics->get_all_filenames($record);
-		$filesize = 0.0;
+		$record     = $statistics->getRecord();
+		$filenames  = $statistics->get_all_filenames($record);
+		$filesize   = 0.0;
 
 		// Calculate file sizes of files remaining on the server
 		if (!empty($filenames))
@@ -752,10 +823,10 @@ class Finalization extends Part
 
 		// Get the part size in volatile storage, set from the immediate part uploading effected by the
 		// "Process each part immediately" option, and add it to the total file size
-		$config = Factory::getConfiguration();
+		$config              = Factory::getConfiguration();
 		$postProcImmediately = $config->get('engine.postproc.common.after_part', 0, false);
-		$deleteAfter = $config->get('engine.postproc.common.delete_after', 0, false);
-		$postProcEngine = $config->get('akeeba.advanced.postproc_engine', 'none');
+		$deleteAfter         = $config->get('engine.postproc.common.delete_after', 0, false);
+		$postProcEngine      = $config->get('akeeba.advanced.postproc_engine', 'none');
 
 		if ($postProcImmediately && $deleteAfter && ($postProcEngine != 'none'))
 		{
@@ -767,14 +838,13 @@ class Finalization extends Part
 			}
 		}
 
-		$data = array(
-			'total_size' => $filesize
-		);
+		$data = [
+			'total_size' => $filesize,
+		];
 
-		Factory::getLog()->log(LogLevel::DEBUG, "Total size of backup archive (in bytes): $filesize");
+		Factory::getLog()->debug("Total size of backup archive (in bytes): $filesize");
 
 		$statistics->setStatistics($data);
-		$this->propagateFromObject($statistics);
 
 		return true;
 	}
@@ -783,6 +853,8 @@ class Finalization extends Part
 	 * Applies the size and count quotas
 	 *
 	 * @return bool True on success
+	 *
+	 * @throws Exception
 	 */
 	protected function apply_quotas()
 	{
@@ -790,35 +862,35 @@ class Finalization extends Part
 		$this->setSubstep('');
 
 		// If no quota settings are enabled, quit
-		$registry = Factory::getConfiguration();
-		$useDayQuotas = $registry->get('akeeba.quota.maxage.enable');
+		$registry       = Factory::getConfiguration();
+		$useDayQuotas   = $registry->get('akeeba.quota.maxage.enable');
 		$useCountQuotas = $registry->get('akeeba.quota.enable_count_quota');
-		$useSizeQuotas = $registry->get('akeeba.quota.enable_size_quota');
+		$useSizeQuotas  = $registry->get('akeeba.quota.enable_size_quota');
 
 		if (!($useDayQuotas || $useCountQuotas || $useSizeQuotas))
 		{
 			$this->apply_obsolete_quotas();
 
-			Factory::getLog()->log(LogLevel::DEBUG, "No quotas were defined; old backup files will be kept intact");
+			Factory::getLog()->debug("No quotas were defined; old backup files will be kept intact");
 
 			return true; // No quota limits were requested
 		}
 
 		// Try to find the files to be deleted due to quota settings
-		$statistics = Factory::getStatistics();
+		$statistics     = Factory::getStatistics();
 		$latestBackupId = $statistics->getId();
 
 		// Get quota values
-		$countQuota = $registry->get('akeeba.quota.count_quota');
-		$sizeQuota = $registry->get('akeeba.quota.size_quota');
-		$daysQuota = $registry->get('akeeba.quota.maxage.maxdays');
+		$countQuota  = $registry->get('akeeba.quota.count_quota');
+		$sizeQuota   = $registry->get('akeeba.quota.size_quota');
+		$daysQuota   = $registry->get('akeeba.quota.maxage.maxdays');
 		$preserveDay = $registry->get('akeeba.quota.maxage.keepday');
 
 		// Get valid-looking backup ID's
-		$validIDs = Platform::getInstance()->get_valid_backup_records(true, array('NOT', 'restorepoint'));
+		$validIDs = Platform::getInstance()->get_valid_backup_records(true, ['NOT', 'restorepoint']);
 
 		// Create a list of valid files
-		$allFiles = array();
+		$allFiles = [];
 
 		if (count($validIDs))
 		{
@@ -828,20 +900,20 @@ class Finalization extends Part
 
 				try
 				{
-					$backupstart = new \DateTime($stat['backupstart']);
-					$backupTS = $backupstart->format('U');
-					$backupDay = $backupstart->format('d');
+					$backupstart = new DateTime($stat['backupstart']);
+					$backupTS    = $backupstart->format('U');
+					$backupDay   = $backupstart->format('d');
 				}
-				catch (\Exception $e)
+				catch (Exception $e)
 				{
-					$backupTS = 0;
+					$backupTS  = 0;
 					$backupDay = 0;
 				}
 
 				// Get the log file name
-				$tag = $stat['tag'];
+				$tag      = $stat['tag'];
 				$backupId = isset($stat['backupid']) ? $stat['backupid'] : '';
-				$logName = '';
+				$logName  = '';
 
 				if (!empty($backupId))
 				{
@@ -861,14 +933,14 @@ class Finalization extends Part
 						$filesize += @filesize($filename);
 					}
 
-					$allFiles[] = array(
+					$allFiles[] = [
 						'id'          => $id,
 						'filenames'   => $filenames,
 						'size'        => $filesize,
 						'backupstart' => $backupTS,
 						'day'         => $backupDay,
 						'logname'     => $logName,
-					);
+					];
 				}
 			}
 		}
@@ -878,21 +950,21 @@ class Finalization extends Part
 		// If there are no files, exit early
 		if (count($allFiles) == 0)
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, "There were no old backup files to apply quotas on");
+			Factory::getLog()->debug("There were no old backup files to apply quotas on");
 
 			return true;
 		}
 
 		// Init arrays
-		$killids = array();
-		$killLogs = array();
-		$ret = array();
-		$leftover = array();
+		$killids  = [];
+		$killLogs = [];
+		$ret      = [];
+		$leftover = [];
 
 		// Do we need to apply maximum backup age quotas?
 		if ($useDayQuotas)
 		{
-			$killDatetime = new \DateTime();
+			$killDatetime = new DateTime();
 			$killDatetime->modify('-' . $daysQuota . ($daysQuota == 1 ? ' day' : ' days'));
 			$killTS = $killDatetime->format('U');
 
@@ -916,7 +988,7 @@ class Finalization extends Part
 				// Otherwise, check the timestamp
 				if ($file['backupstart'] < $killTS)
 				{
-					$ret[] = $file['filenames'];
+					$ret[]     = $file['filenames'];
 					$killids[] = $file['id'];
 
 					if (!empty($file['logname']))
@@ -947,11 +1019,11 @@ class Finalization extends Part
 			}
 			else
 			{
-				Factory::getLog()->log(LogLevel::DEBUG, "Processing count quotas");
+				Factory::getLog()->debug("Processing count quotas");
 				// Yes, aply the quota setting. Add to $ret all entries minus the last
 				// $countQuota ones.
 				$totalRecords = count($allFiles);
-				$checkLimit = $totalRecords - $countQuota;
+				$checkLimit   = $totalRecords - $countQuota;
 
 				// Only process if at least one file (current backup!) is to be left
 				for ($count = 0; $count < $totalRecords; $count++)
@@ -967,7 +1039,7 @@ class Finalization extends Part
 					{
 						if ($latestBackupId != $def['id'])
 						{
-							$ret[] = $def['filenames'];
+							$ret[]     = $def['filenames'];
 							$killids[] = $def['id'];
 
 							if (!empty($def['logname']))
@@ -998,7 +1070,7 @@ class Finalization extends Part
 		// Do we need to apply size quotas?
 		if ($useSizeQuotas && is_numeric($sizeQuota) && !($sizeQuota <= 0) && (count($leftover) > 0) && !$useDayQuotas)
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, "Processing size quotas");
+			Factory::getLog()->debug("Processing size quotas");
 			// OK, let's start counting bytes!
 			$runningSize = 0;
 
@@ -1006,7 +1078,7 @@ class Finalization extends Part
 			{
 				// Each time, remove the last element of the backup array and calculate
 				// running size. If it's over the limit, add the archive to the return array.
-				$def = array_pop($leftover);
+				$def         = array_pop($leftover);
 				$runningSize += $def['size'];
 
 				if ($runningSize >= $sizeQuota)
@@ -1017,7 +1089,7 @@ class Finalization extends Part
 					}
 					else
 					{
-						$ret[] = $def['filenames'];
+						$ret[]     = $def['filenames'];
 						$killids[] = $def['id'];
 
 						if (!empty($def['logname']))
@@ -1035,7 +1107,7 @@ class Finalization extends Part
 		}
 
 		// Convert the $ret 2-dimensional array to single dimensional
-		$quotaFiles = array();
+		$quotaFiles = [];
 
 		foreach ($ret as $temp)
 		{
@@ -1050,21 +1122,21 @@ class Finalization extends Part
 		{
 			foreach ($killids as $id)
 			{
-				$data = array('filesexist' => '0');
-				Platform::getInstance()->set_or_update_statistics($id, $data, $this);
+				$data = ['filesexist' => '0'];
+				Platform::getInstance()->set_or_update_statistics($id, $data);
 			}
 		}
 
 		// Apply quotas to backup archives
 		if (count($quotaFiles) > 0)
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, "Applying quotas");
+			Factory::getLog()->debug("Applying quotas");
 
 			foreach ($quotaFiles as $file)
 			{
 				if (!@Platform::getInstance()->unlink($file))
 				{
-					$this->setWarning("Failed to remove old backup file " . $file);
+					Factory::getLog()->warning("Failed to remove old backup file " . $file);
 				}
 			}
 		}
@@ -1072,7 +1144,7 @@ class Finalization extends Part
 		// Apply quotas to log files
 		if (!empty($killLogs))
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, "Removing obsolete log files");
+			Factory::getLog()->debug("Removing obsolete log files");
 
 			foreach ($killLogs as $logPath)
 			{
@@ -1095,7 +1167,7 @@ class Finalization extends Part
 		$this->setStep('Applying remote storage quotas');
 		$this->setSubstep('');
 		// Make sure we are enabled
-		$config = Factory::getConfiguration();
+		$config       = Factory::getConfiguration();
 		$enableRemote = $config->get('akeeba.quota.remote', 0);
 
 		if (!$enableRemote)
@@ -1106,12 +1178,12 @@ class Finalization extends Part
 		// Get the list of files to kill
 		if (empty($this->remote_files_killlist))
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, 'Applying remote file quotas');
+			Factory::getLog()->debug('Applying remote file quotas');
 			$this->remote_files_killlist = $this->get_remote_quotas();
 
 			if (empty($this->remote_files_killlist))
 			{
-				Factory::getLog()->log(LogLevel::DEBUG, 'No remote files to apply quotas to were found');
+				Factory::getLog()->debug('No remote files to apply quotas to were found');
 
 				return true;
 			}
@@ -1128,30 +1200,36 @@ class Finalization extends Part
 
 			$engine = Factory::getPostprocEngine($engineName);
 
-			if (!$engine->can_delete)
+			if (!$engine->supportsDelete())
 			{
 				continue;
 			}
 
-			Factory::getLog()->log(LogLevel::DEBUG, "Removing $filename");
-			$result = $engine->delete($path);
+			Factory::getLog()->debug("Removing $filename");
 
-			if (!$result)
+			try
 			{
-				Factory::getLog()->log(LogLevel::DEBUG, "Removal failed: " . $engine->getWarning());
+				$engine->delete($path);
 			}
+			catch (Exception $e)
+			{
+				Factory::getLog()->debug("Removal failed: " . $e->getMessage());
+
+				$result = false;
+			}
+
 		}
 
 		// Return false if we have more work to do or true if we're done
 		if (count($this->remote_files_killlist))
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, "Remote file removal will continue in the next step");
+			Factory::getLog()->debug("Remote file removal will continue in the next step");
 
 			return false;
 		}
 		else
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, "Remote file quotas applied successfully");
+			Factory::getLog()->debug("Remote file quotas applied successfully");
 
 			$this->apply_obsolete_quotas();
 
@@ -1162,7 +1240,9 @@ class Finalization extends Part
 	/**
 	 * Applies the size and count quotas
 	 *
-	 * @return bool True on success
+	 * @return array
+	 *
+	 * @throws Exception
 	 */
 	protected function get_remote_quotas()
 	{
@@ -1172,15 +1252,15 @@ class Finalization extends Part
 		// Bail out if no records found
 		if (empty($allRecords))
 		{
-			return array();
+			return [];
 		}
 
 		// Try to find the files to be deleted due to quota settings
-		$statistics = Factory::getStatistics();
+		$statistics     = Factory::getStatistics();
 		$latestBackupId = $statistics->getId();
 
 		// Filter out the current record
-		$temp = array();
+		$temp = [];
 
 		foreach ($allRecords as $item)
 		{
@@ -1190,7 +1270,7 @@ class Finalization extends Part
 			}
 
 			$item['files'] = $this->get_remote_files($item['remote_filename'], $item['multipart']);
-			$temp[] = $item;
+			$temp[]        = $item;
 		}
 
 		$allRecords = $temp;
@@ -1198,34 +1278,34 @@ class Finalization extends Part
 		// Bail out if only the current backup was included in the list
 		if (count($allRecords) == 0)
 		{
-			return array();
+			return [];
 		}
 
 		// Get quota values
-		$registry = Factory::getConfiguration();
-		$countQuota = $registry->get('akeeba.quota.count_quota');
-		$sizeQuota = $registry->get('akeeba.quota.size_quota');
+		$registry       = Factory::getConfiguration();
+		$countQuota     = $registry->get('akeeba.quota.count_quota');
+		$sizeQuota      = $registry->get('akeeba.quota.size_quota');
 		$useCountQuotas = $registry->get('akeeba.quota.enable_count_quota');
-		$useSizeQuotas = $registry->get('akeeba.quota.enable_size_quota');
-		$useDayQuotas = $registry->get('akeeba.quota.maxage.enable');
-		$daysQuota = $registry->get('akeeba.quota.maxage.maxdays');
-		$preserveDay = $registry->get('akeeba.quota.maxage.keepday');
+		$useSizeQuotas  = $registry->get('akeeba.quota.enable_size_quota');
+		$useDayQuotas   = $registry->get('akeeba.quota.maxage.enable');
+		$daysQuota      = $registry->get('akeeba.quota.maxage.maxdays');
+		$preserveDay    = $registry->get('akeeba.quota.maxage.keepday');
 
-		$leftover = array();
-		$ret = array();
-		$killids = array();
+		$leftover = [];
+		$ret      = [];
+		$killids  = [];
 
 		if ($useDayQuotas)
 		{
-			$killDatetime = new \DateTime();
+			$killDatetime = new DateTime();
 			$killDatetime->modify('-' . $daysQuota . ($daysQuota == 1 ? ' day' : ' days'));
 			$killTS = $killDatetime->format('U');
 
 			foreach ($allRecords as $def)
 			{
-				$backupstart = new \DateTime($def['backupstart']);
-				$backupTS = $backupstart->format('U');
-				$backupDay = $backupstart->format('d');
+				$backupstart = new DateTime($def['backupstart']);
+				$backupTS    = $backupstart->format('U');
+				$backupDay   = $backupstart->format('d');
 
 				// Is this on a preserve day?
 				if ($preserveDay > 0)
@@ -1240,7 +1320,7 @@ class Finalization extends Part
 				// Otherwise, check the timestamp
 				if ($backupTS < $killTS)
 				{
-					$ret[] = $def['files'];
+					$ret[]     = $def['files'];
 					$killids[] = $def['id'];
 				}
 				else
@@ -1262,7 +1342,7 @@ class Finalization extends Part
 			}
 			else
 			{
-				Factory::getLog()->log(LogLevel::DEBUG, "Processing remote count quotas");
+				Factory::getLog()->debug("Processing remote count quotas");
 				// Yes, apply the quota setting.
 				$totalRecords = count($allRecords);
 
@@ -1272,7 +1352,7 @@ class Finalization extends Part
 
 					if (count($leftover) >= $countQuota)
 					{
-						$ret[] = $def['files'];
+						$ret[]     = $def['files'];
 						$killids[] = $def['id'];
 					}
 					else
@@ -1293,7 +1373,7 @@ class Finalization extends Part
 		// Do we need to apply size quotas?
 		if ($useSizeQuotas && ($sizeQuota > 0) && (count($leftover) > 0) && !$useDayQuotas)
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, "Processing remote size quotas");
+			Factory::getLog()->debug("Processing remote size quotas");
 			// OK, let's start counting bytes!
 			$runningSize = 0;
 
@@ -1301,19 +1381,19 @@ class Finalization extends Part
 			{
 				// Each time, remove the last element of the backup array and calculate
 				// running size. If it's over the limit, add the archive to the $ret array.
-				$def = array_pop($leftover);
+				$def         = array_pop($leftover);
 				$runningSize += $def['total_size'];
 
 				if ($runningSize >= $sizeQuota)
 				{
-					$ret[] = $def['files'];
+					$ret[]     = $def['files'];
 					$killids[] = $def['id'];
 				}
 			}
 		}
 
 		// Convert the $ret 2-dimensional array to single dimensional
-		$quotaFiles = array();
+		$quotaFiles = [];
 
 		foreach ($ret as $temp)
 		{
@@ -1338,8 +1418,8 @@ class Finalization extends Part
 					continue;
 				}
 
-				$data = array('remote_filename' => '');
-				Platform::getInstance()->set_or_update_statistics($id, $data, $this);
+				$data = ['remote_filename' => ''];
+				Platform::getInstance()->set_or_update_statistics($id, $data);
 			}
 		}
 
@@ -1349,17 +1429,17 @@ class Finalization extends Part
 	/**
 	 * Get the full paths to all remote backup parts
 	 *
-	 * @param  string  $filename   The full filename of the last part stored in the database
-	 * @param  int     $multipart  How many parts does this archive consist of?
+	 * @param   string  $filename   The full filename of the last part stored in the database
+	 * @param   int     $multipart  How many parts does this archive consist of?
 	 *
 	 * @return array A list of the full paths of all remotely stored backup archive parts
 	 */
 	protected function get_remote_files($filename, $multipart)
 	{
-		$result = array();
+		$result = [];
 
 		$extension = substr($filename, -3);
-		$base = substr($filename, 0, -4);
+		$base      = substr($filename, 0, -4);
 
 		$result[] = $filename;
 
@@ -1367,7 +1447,7 @@ class Finalization extends Part
 		{
 			for ($i = 1; $i < $multipart; $i++)
 			{
-				$newExt = substr($extension, 0, 1) . sprintf('%02u', $i);
+				$newExt   = substr($extension, 0, 1) . sprintf('%02u', $i);
 				$result[] = $base . '.' . $newExt;
 			}
 		}
@@ -1385,8 +1465,8 @@ class Finalization extends Part
 		$this->setStep('Applying quota limit on obsolete backup records');
 		$this->setSubstep('');
 		$registry = Factory::getConfiguration();
-		$limit = $registry->get('akeeba.quota.obsolete_quota', 0);
-		$limit = (int)$limit;
+		$limit    = $registry->get('akeeba.quota.obsolete_quota', 0);
+		$limit    = (int) $limit;
 
 		if ($limit <= 0)
 		{
@@ -1394,20 +1474,25 @@ class Finalization extends Part
 		}
 
 		$statsTable = Platform::getInstance()->tableNameStats;
-		$db = Factory::getDatabase(Platform::getInstance()->get_platform_database_options());
-		$query = $db->getQuery(true)
-					->select(array(
-						$db->qn('id'),
-						$db->qn('tag'),
-						$db->qn('backupid'),
-						$db->qn('absolute_path'),
-					))
-					->from($db->qn($statsTable))
-					->where($db->qn('profile_id') . ' = ' . $db->q(Platform::getInstance()->get_active_profile()))
-					->where($db->qn('status') . ' = ' . $db->q('complete'))
-					->where($db->qn('filesexist') . '=' . $db->q('0'))
-					->where($db->qn('remote_filename') . '=' . $db->q(''))
-					->order($db->qn('id') . ' DESC');
+		$db         = Factory::getDatabase(Platform::getInstance()->get_platform_database_options());
+		$query      = $db->getQuery(true)
+			->select([
+				$db->qn('id'),
+				$db->qn('tag'),
+				$db->qn('backupid'),
+				$db->qn('absolute_path'),
+			])
+			->from($db->qn($statsTable))
+			->where($db->qn('profile_id') . ' = ' . $db->q(Platform::getInstance()->get_active_profile()))
+			->where($db->qn('status') . ' = ' . $db->q('complete'))
+			->where($db->qn('filesexist') . '=' . $db->q('0'))
+			->where(
+				'('.
+				$db->qn('remote_filename') . '=' . $db->q('').' OR '.
+				$db->qn('remote_filename') . ' IS NULL'
+				.')'
+			)
+			->order($db->qn('id') . ' DESC');
 
 		$db->setQuery($query, $limit, 100000);
 		$records = $db->loadAssocList();
@@ -1417,7 +1502,7 @@ class Finalization extends Part
 			return;
 		}
 
-		$array = array();
+		$array = [];
 
 		// Delete backup-specific log files if they exist and add the IDs of the records to delete in the $array
 		foreach ($records as $stat)
@@ -1431,7 +1516,7 @@ class Finalization extends Part
 			}
 
 			$logFileName = 'akeeba.' . $stat['tag'] . '.' . $stat['backupid'] . '.log';
-			$logPath = dirname($stat['absolute_path']) . '/' . $logFileName;
+			$logPath     = dirname($stat['absolute_path']) . '/' . $logFileName;
 
 			if (file_exists($logPath))
 			{
@@ -1439,7 +1524,7 @@ class Finalization extends Part
 			}
 		}
 
-		$ids = array();
+		$ids = [];
 
 		foreach ($array as $id)
 		{
@@ -1449,52 +1534,9 @@ class Finalization extends Part
 		$ids = implode(',', $ids);
 
 		$query = $db->getQuery(true)
-					->delete($db->qn($statsTable))
-					->where($db->qn('id') . " IN ($ids)");
+			->delete($db->qn($statsTable))
+			->where($db->qn('id') . " IN ($ids)");
 		$db->setQuery($query);
 		$db->query();
-	}
-
-	/**
-	 * Get the percentage of finalization steps done
-	 *
-	 * @return  float
-	 */
-	public function getProgress()
-	{
-		if ($this->steps_total <= 0)
-		{
-			return 0;
-		}
-
-		$overall = $this->steps_done / $this->steps_total;
-		$local = 0;
-
-		if ($this->substeps_total > 0)
-		{
-			$local = $this->substeps_done / $this->substeps_total;
-		}
-
-		return $overall + ($local / $this->steps_total);
-	}
-
-	/**
-	 * Used by additional handler classes to relay their step to us
-	 *
-	 * @param string $step The current step
-	 */
-	public function relayStep($step)
-	{
-		$this->setStep($step);
-	}
-
-	/**
-	 * Used by additional handler classes to relay their substep to us
-	 *
-	 * @param string $substep The current sub-step
-	 */
-	public function relaySubstep($substep)
-	{
-		$this->setSubstep($substep);
 	}
 }

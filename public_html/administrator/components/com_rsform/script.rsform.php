@@ -990,20 +990,12 @@ class com_rsformInstallerScript
 				<p>It seems you are still using legacy layouts - they have been removed from RSForm! Pro since they are no longer usable today as they do not provide responsive features.<br>If you still want to keep using them, please install the <a href="https://www.rsjoomla.com/support/documentation/rsform-pro/plugins-and-modules/plugin-legacy-layouts.html" target="_blank">Legacy Layouts Plugin</a>.</p>
 			</div>
 		<?php } ?>
-		<h2>Changelog v2.3.0</h2>
+		<h2>Changelog v2.3.6</h2>
 		<ul class="version-history">
-			<li><span class="version-upgraded">Upg</span> Conditions can now show or hide multiple fields.</li>
-			<li><span class="version-upgraded">Upg</span> Can now configure an 'Offset' for 'Calendar' fields with the 'Date Modifier' property.</li>
-			<li><span class="version-upgraded">Upg</span> Further validation for images in the 'File Upload' field.</li>
-			<li><span class="version-upgraded">Upg</span> Thumbnails created through the 'File Upload' field will now try to be rotated according to the EXIF data.</li>
-			<li><span class="version-upgraded">Upg</span> UIkit updated to 3.2.4</li>
-			<li><span class="version-upgraded">Upg</span> Some queries improved in the backend.</li>
-			<li><span class="version-fixed">Fix</span> When duplicating a form the Directory settings were not carried over.</li>
-			<li><span class="version-fixed">Fix</span> The 'Validation Message' property on calendars would only show up when 'Required' was set to 'Yes'.</li>
-			<li><span class="version-fixed">Fix</span> When clicking on 'Add To Menu' next to a form there was no toolbar on the next page.</li>
-			<li><span class="version-fixed">Fix</span> Uninstalling would incorrectly remove tables from some RSForm! Pro plugins as well.</li>
-			<li><span class="version-fixed">Fix</span> Show an error message if no submissions are selected when attempting to export to CSV in the frontend.</li>
-			<li><span class="version-fixed">Fix</span> Some deprecated code has been removed.</li>
+			<li><span class="version-fixed">Fix</span> There were 2 file inputs possible if 'Maximum Uploads' was set to 1.</li>
+			<li><span class="version-fixed">Fix</span> 'Add another files' is no longer disabled when 'Maximum Uploads' is set to 0 (unlimited).</li>
+			<li><span class="version-fixed">Fix</span> Label 'for' attribute was not generated correctly for 'Captcha' fields.</li>
+			<li><span class="version-fixed">Fix</span> 'Captcha' is no longer validated when editing a submission in the frontend.</li>
 		</ul>
 		<a class="btn btn-large btn-primary" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="btn" href="https://www.rsjoomla.com/support/documentation/rsform-pro.html" target="_blank">Read the RSForm! Pro User Guide</a>

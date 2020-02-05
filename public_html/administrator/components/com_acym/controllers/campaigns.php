@@ -1,86 +1,94 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class CampaignsController extends acymController
 {
+    var $stepContainerClass = '';
+
     public function __construct()
     {
         parent::__construct();
         $this->breadcrumb[acym_translation('ACYM_CAMPAIGNS')] = acym_completeLink('campaigns');
         $this->loadScripts = [
-            'edit' => ['colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'parse-css', 'vue-applications', 'vue-prism-editor'],
-            'save' => ['colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'parse-css', 'vue-applications', 'vue-prism-editor'],
-            'duplicate' => ['colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'parse-css'],
+            'edit' => ['colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'introjs', 'parse-css', 'vue-applications' => ['code_editor', 'entity_select'], 'vue-prism-editor', 'editor-wysid'],
+            'save' => ['colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'introjs', 'parse-css', 'vue-applications' => ['code_editor', 'entity_select'], 'vue-prism-editor', 'editor-wysid'],
+            'duplicate' => ['colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'parse-css', 'editor-wysid', 'vue-applications' => ['code_editor', 'entity_select'], 'vue-prism-editor',],
+            'all' => ['introjs'],
         ];
         acym_setVar('edition', '1');
+        if (acym_isAdmin()) $this->stepContainerClass = 'xxlarge-9';
         header('X-XSS-Protection:0');
     }
 
     public function listing()
     {
         acym_setVar('layout', 'listing');
-        $status = acym_getVar('string', 'campaigns_status', '');
-        $searchFilter = acym_getVar('string', 'campaigns_search', '');
-        $tagFilter = acym_getVar('string', 'campaigns_tag', '');
-        $ordering = acym_getVar('string', 'campaigns_ordering', 'id');
-        $orderingSortOrder = acym_getVar('string', 'campaigns_ordering_sort_order', 'desc');
 
-        $campaignsPerPage = acym_getCMSConfig('list_limit', 20);
+        $data = [];
+        $data['search'] = acym_getVar('string', 'campaigns_search', '');
+        $data['ordering'] = acym_getVar('string', 'campaigns_ordering', 'id');
+        $data['orderingSortOrder'] = acym_getVar('string', 'campaigns_ordering_sort_order', 'desc');
+        $data['status'] = acym_getVar('string', 'campaigns_status', '');
+        $data['tag'] = acym_getVar('string', 'campaigns_tag', '');
+        $data['allTags'] = acym_get('class.tag')->getAllTagsByType('mail');
+        $data['pagination'] = acym_get('helper.pagination');
+
+        $this->prepareCampaignsListing($data);
+        $this->getIsPendingGenerated($data);
+
+        parent::display($data);
+    }
+
+    private function prepareCampaignsListing(&$data)
+    {
+        $campaignsPerPage = $data['pagination']->getListLimit();
         $page = acym_getVar('int', 'campaigns_pagination_page', 1);
 
         $campaignClass = acym_get('class.campaign');
-        $requestData = [
-            'ordering' => $ordering,
-            'search' => $searchFilter,
-            'elementsPerPage' => $campaignsPerPage,
-            'offset' => ($page - 1) * $campaignsPerPage,
-            'tag' => $tagFilter,
-            'ordering_sort_order' => $orderingSortOrder,
-            'status' => $status,
-        ];
-        $matchingCampaigns = $this->getMatchingElementsFromData($requestData, 'campaign', $status);
-
-        $countStatusFilter = $this->getCountStatusFilter($matchingCampaigns['total']);
-        $totalElement = empty($status) ? $countStatusFilter->all : $countStatusFilter->$status;
-
-        $pagination = acym_get('helper.pagination');
-        $pagination->setStatus($totalElement, $page, $campaignsPerPage);
+        $matchingCampaigns = $this->getMatchingElementsFromData(
+            [
+                'ordering' => $data['ordering'],
+                'search' => $data['search'],
+                'elementsPerPage' => $campaignsPerPage,
+                'offset' => ($page - 1) * $campaignsPerPage,
+                'tag' => $data['tag'],
+                'ordering_sort_order' => $data['orderingSortOrder'],
+                'status' => $data['status'],
+            ],
+            $status,
+            $page
+        );
 
         foreach ($matchingCampaigns['elements'] as $key => $campaign) {
-            $campaign->scheduled = $campaignClass::SENDING_TYPE_SCHEDULED == $campaign->sending_type;
+            $matchingCampaigns['elements'][$key]->scheduled = $campaignClass::SENDING_TYPE_SCHEDULED == $campaign->sending_type;
         }
 
-        $data = [
-            'allCampaigns' => $matchingCampaigns['elements'],
-            'allTags' => acym_get('class.tag')->getAllTagsByType('mail'),
-            'allStatusFilter' => $countStatusFilter,
-            'pagination' => $pagination,
-            'search' => $searchFilter,
-            'ordering' => $ordering,
-            'status' => $status,
-            'tag' => $tagFilter,
-            'orderingSortOrder' => $orderingSortOrder,
-            'statusAuto' => $campaignClass::SENDING_TYPE_AUTO,
-            'generatedPending' => $this->getIsPendingGenerated($matchingCampaigns['total']),
-        ];
+        $data['allStatusFilter'] = $this->getCountStatusFilter($matchingCampaigns['total']);
+        $totalElement = empty($status) ? $data['allStatusFilter']->all : $data['allStatusFilter']->$status;
+        $data['pagination']->setStatus($totalElement, $page, $campaignsPerPage);
 
-        parent::display($data);
+        $data['allCampaigns'] = $matchingCampaigns['elements'];
+        $data['statusAuto'] = $campaignClass::SENDING_TYPE_AUTO;
+    }
+
+    private function getIsPendingGenerated(&$data)
+    {
+        $campaignClass = acym_get('class.campaign');
+        foreach ($data['allCampaigns'] as $oneCampaign) {
+            if ($campaignClass::SENDING_TYPE_NOW == $oneCampaign->sending_type && $oneCampaign->draft && $oneCampaign->active && !$oneCampaign->sent && !empty($oneCampaign->parent_id)) {
+                $data['generatedPending'] = true;
+            }
+        }
+
+        $data['generatedPending'] = false;
     }
 
     public function chooseTemplate()
     {
         acym_setVar('layout', 'choose_email');
         acym_setVar('step', 'chooseTemplate');
+        $pagination = acym_get('helper.pagination');
 
         $campaignId = acym_getVar('int', 'id', 0);
         $campaignClass = acym_get('class.campaign');
@@ -96,7 +104,7 @@ class CampaignsController extends acymController
             $this->breadcrumb[acym_translation('ACYM_NEW_CAMPAIGN')] = '';
         }
 
-        $mailsPerPage = 12;
+        $mailsPerPage = $pagination->getListLimit();
         $page = acym_getVar('int', 'mailchoose_pagination_page', 1);
 
         $mailClass = acym_get('class.mail');
@@ -109,10 +117,10 @@ class CampaignsController extends acymController
                 'offset' => ($page - 1) * $mailsPerPage,
                 'tag' => $tagFilter,
                 'onlyStandard' => true,
+                'creator_id' => $this->setFrontEndParamsForTemplateChoose(),
             ]
         );
 
-        $pagination = acym_get('helper.pagination');
         $pagination->setStatus($matchingMails['total'], $page, $mailsPerPage);
 
         $data = [
@@ -127,6 +135,11 @@ class CampaignsController extends acymController
 
 
         parent::display($data);
+    }
+
+    protected function setFrontEndParamsForTemplateChoose()
+    {
+        return '';
     }
 
     public function editEmail()
@@ -166,7 +179,7 @@ class CampaignsController extends acymController
             $editLink .= '&id='.$campaignId;
         }
 
-        if ($mailId == -1) {
+        if ($mailId == -1 || (empty($campaignId) && empty($mailId))) {
             $campaign->name = '';
             $campaign->tags = [];
             $campaign->subject = '';
@@ -176,6 +189,7 @@ class CampaignsController extends acymController
             $campaign->attachments = [];
             $campaign->stylesheet = '';
             $campaign->headers = '';
+            $typeEditor = 'acyEditor';
         } elseif (!empty($mailId)) {
             $mail = $mailClass->getOneById($mailId);
             $campaign->tags = $mail->tags;
@@ -235,6 +249,7 @@ class CampaignsController extends acymController
             'maxupload' => $maxupload,
             'needDisplayStylesheet' => $needDisplayStylesheet,
             'social_icons' => $this->config->get('social_icons', '{}'),
+            'containerClass' => $this->stepContainerClass,
         ];
 
         parent::display($data);
@@ -259,6 +274,7 @@ class CampaignsController extends acymController
         $campaign = [
             'campaignInformation' => $campaignId,
             'currentCampaign' => $currentCampaign,
+            'containerClass' => $this->stepContainerClass,
         ];
 
         if (!empty($currentCampaign->mail_id)) {
@@ -330,6 +346,8 @@ class CampaignsController extends acymController
             $campaign['triggers_select'][$key] = $trigger->name;
             $campaign['triggers_display'][$key] = $trigger->option;
         }
+
+        $campaign['containerClass'] = $this->stepContainerClass;
 
         return parent::display($campaign);
     }
@@ -703,6 +721,7 @@ class CampaignsController extends acymController
             'mailInformation' => $mailData,
             'listsReceiver' => $campaignLists,
             'nbSubscribers' => $nbSubscribers,
+            'containerClass' => $this->stepContainerClass,
             'automatic' => ['isAuto' => $isAuto, 'text' => empty($textToDisplay) ? '' : acym_translation('ACYM_THIS_WILL_GENERATE_CAMPAIGN_AUTOMATICALLY').' '.strtolower($textToDisplay[key($textToDisplay)])],
         ];
 
@@ -916,19 +935,6 @@ class CampaignsController extends acymController
         return $allCountStatus;
     }
 
-    public function getIsPendingGenerated($allCampaigns)
-    {
-        $campaignClass = acym_get('class.campaign');
-        foreach ($allCampaigns as $oneCampaign) {
-            if ($campaignClass::SENDING_TYPE_NOW == $oneCampaign->sending_type && $oneCampaign->draft && $oneCampaign->active && !$oneCampaign->sent && !empty($oneCampaign->parent_id)) {
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public function cancelDashboardAndGetCampaignsAjax()
     {
         $campaignId = acym_getVar('int', 'id');
@@ -1008,7 +1014,7 @@ class CampaignsController extends acymController
 
     private function _redirectAfterQueued()
     {
-        if (!acym_level(1) || $this->config->get('cron_last', 0) < (time() - 43200)) {
+        if (acym_isAdmin() && (!acym_level(1) || $this->config->get('cron_last', 0) < (time() - 43200))) {
             acym_redirect(acym_completeLink('queue&task=campaigns', false, true));
         } else {
             $this->listing();
@@ -1359,7 +1365,7 @@ class CampaignsController extends acymController
             $headers = @get_headers($oneURL);
             $headers = is_array($headers) ? implode("\n ", $headers) : $headers;
 
-            if (empty($headers) || preg_match('#^HTTP/.*\s+[(200|301|302)]+\s#i', $headers) !== 1) {
+            if (empty($headers) || preg_match('#^HTTP/.*\s+[(200|301|302|304)]+\s#i', $headers) !== 1) {
                 $errors[] = '<a target="_blank" href="'.$oneURL.'">'.(strlen($oneURL) > 50 ? substr($oneURL, 0, 25).'...'.substr($oneURL, strlen($oneURL) - 20) : $oneURL).'</a>';
             }
         }

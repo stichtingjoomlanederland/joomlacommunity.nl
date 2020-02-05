@@ -1492,21 +1492,23 @@ class RSFormProHelper
 		$jconfig 	= JFactory::getConfig();
 		$u 			= RSFormProHelper::getURL();
 		$formId 	= (int) $formId;
-
 		$logged     = $user->id;
-
-		$mainframe->triggerEvent('rsfp_f_onBeforeShowForm');
-
-		$form = RSFormProHelper::getForm($formId);
+		$form 		= RSFormProHelper::getForm($formId);
 
 		$lang 		  = RSFormProHelper::getCurrentLanguage();
 		$translations = RSFormProHelper::getTranslations('forms', $form->FormId, $lang);
 		if ($translations)
+		{
 			foreach ($translations as $field => $value)
 			{
-				if (isset($form->$field))
-					$form->$field = $value;
+				if (isset($form->{$field}))
+				{
+					$form->{$field} = $value;
+				}
 			}
+		}
+
+		$mainframe->triggerEvent('rsfp_f_onBeforeShowForm', array($formId, &$form));
 
 		if ($form->JS)
 			RSFormProAssets::addCustomTag($form->JS);
@@ -1756,7 +1758,8 @@ class RSFormProHelper
 		$mainframe->triggerEvent('rsfp_f_onInitFormDisplay', array(array(
 			'find'		 => &$find,
 			'replace'	 => &$replace,
-			'formLayout' => &$formLayout
+			'formLayout' => &$formLayout,
+			'formId'	 => $formId
 		)));
 
 		// Global placeholders

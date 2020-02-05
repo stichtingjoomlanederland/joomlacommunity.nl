@@ -1,17 +1,18 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Util\Transfer;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
+
+use Exception;
+use RuntimeException;
 
 /**
  * FTP transfer object, using PHP as the transport backend
@@ -84,11 +85,11 @@ class Ftp implements TransferInterface, RemoteResourceInterface
 	/**
 	 * Public constructor
 	 *
-	 * @param   array       $options    Configuration options
+	 * @param   array  $options  Configuration options
 	 *
-	 * @return  self
+	 * @return  void
 	 *
-	 * @throws  \RuntimeException
+	 * @throws  RuntimeException
 	 */
 	public function __construct(array $options)
 	{
@@ -99,7 +100,7 @@ class Ftp implements TransferInterface, RemoteResourceInterface
 
 		if (isset($options['port']))
 		{
-			$this->port = (int)$options['port'];
+			$this->port = (int) $options['port'];
 		}
 
 		if (isset($options['username']))
@@ -136,13 +137,50 @@ class Ftp implements TransferInterface, RemoteResourceInterface
 	}
 
 	/**
+	 * Is this transfer method blocked by a server firewall?
+	 *
+	 * @param   array  $params  Any additional parameters you might need to pass
+	 *
+	 * @return  boolean  True if the firewall blocks connections to a known host
+	 */
+	public static function isFirewalled(array $params = [])
+	{
+		try
+		{
+			$connector = new static([
+				'host'      => 'test.rebex.net',
+				'port'      => 21,
+				'username'  => 'demo',
+				'password'  => 'password',
+				'directory' => '',
+				'ssl'       => isset($params['ssl']) ? $params['ssl'] : false,
+				'passive'   => true,
+				'timeout'   => 5,
+			]);
+
+			$data = $connector->read('readme.txt');
+
+			if (empty($data))
+			{
+				return true;
+			}
+		}
+		catch (Exception $e)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Save all parameters on serialization except the connection resource
 	 *
 	 * @return  array
 	 */
 	public function __sleep()
 	{
-		return array('host', 'port', 'username', 'password', 'directory', 'ssl', 'passive', 'timeout');
+		return ['host', 'port', 'username', 'password', 'directory', 'ssl', 'passive', 'timeout'];
 	}
 
 	/**
@@ -158,7 +196,7 @@ class Ftp implements TransferInterface, RemoteResourceInterface
 	/**
 	 * Connect to the FTP server
 	 *
-	 * @throws  \RuntimeException
+	 * @throws  RuntimeException
 	 */
 	public function connect()
 	{
@@ -172,7 +210,8 @@ class Ftp implements TransferInterface, RemoteResourceInterface
 			else
 			{
 				$this->connection = false;
-				throw new \RuntimeException('ftp_ssl_connect not available on this server', 500);
+
+				throw new RuntimeException('ftp_ssl_connect not available on this server', 500);
 			}
 		}
 		else
@@ -182,7 +221,7 @@ class Ftp implements TransferInterface, RemoteResourceInterface
 
 		if ($this->connection === false)
 		{
-			throw new \RuntimeException(sprintf('Cannot connect to FTP server [host:port] = %s:%s', $this->host, $this->port), 500);
+			throw new RuntimeException(sprintf('Cannot connect to FTP server [host:port] = %s:%s', $this->host, $this->port), 500);
 		}
 
 		// Attempt to authenticate
@@ -191,7 +230,7 @@ class Ftp implements TransferInterface, RemoteResourceInterface
 			@ftp_close($this->connection);
 			$this->connection = null;
 
-			throw new \RuntimeException(sprintf('Cannot log in to FTP server [username:password] = %s:%s', $this->username, $this->password), 500);
+			throw new RuntimeException(sprintf('Cannot log in to FTP server [username:password] = %s:%s', $this->username, $this->password), 500);
 		}
 
 		// Attempt to change to the initial directory
@@ -200,48 +239,11 @@ class Ftp implements TransferInterface, RemoteResourceInterface
 			@ftp_close($this->connection);
 			$this->connection = null;
 
-			throw new \RuntimeException(sprintf('Cannot change to initial FTP directory "%s" – make sure the folder exists and that you have adequate permissions to it', $this->directory), 500);
+			throw new RuntimeException(sprintf('Cannot change to initial FTP directory "%s" – make sure the folder exists and that you have adequate permissions to it', $this->directory), 500);
 		}
 
 		// Apply the passive mode preference
 		@ftp_pasv($this->connection, $this->passive);
-	}
-
-	/**
-	 * Is this transfer method blocked by a server firewall?
-	 *
-	 * @param   array  $params  Any additional parameters you might need to pass
-	 *
-	 * @return  boolean  True if the firewall blocks connections to a known host
-	 */
-	public static function isFirewalled(array $params = array())
-	{
-		try
-		{
-			$connector = new static(array(
-				'host'			=> 'test.rebex.net',
-				'port'			=> 21,
-				'username'		=> 'demo',
-				'password'		=> 'password',
-				'directory'		=> '',
-				'ssl'			=> isset($params['ssl']) ? $params['ssl'] : false,
-				'passive'		=> true,
-				'timeout'		=> 5,
-			));
-
-			$data = $connector->read('readme.txt');
-
-			if (empty($data))
-			{
-				return true;
-			}
-		}
-		catch (\Exception $e)
-		{
-			return true;
-		}
-
-		return false;
 	}
 
 	/**
@@ -296,7 +298,7 @@ class Ftp implements TransferInterface, RemoteResourceInterface
 		{
 			if ($useExceptions)
 			{
-				throw new \RuntimeException("Unreadable local file $localFilename");
+				throw new RuntimeException("Unreadable local file $localFilename");
 			}
 
 			return false;
@@ -328,7 +330,7 @@ class Ftp implements TransferInterface, RemoteResourceInterface
 		if ($result === false)
 		{
 			fclose($handle);
-			throw new \RuntimeException("Can not download remote file $fileName");
+			throw new RuntimeException("Can not download remote file $fileName");
 		}
 
 		rewind($handle);
@@ -360,7 +362,7 @@ class Ftp implements TransferInterface, RemoteResourceInterface
 
 		if (!$ret && $useExceptions)
 		{
-			throw new \RuntimeException("Cannot download remote file $remoteFilename through FTP.");
+			throw new RuntimeException("Cannot download remote file $remoteFilename through FTP.");
 		}
 
 		return $ret;
@@ -464,17 +466,17 @@ class Ftp implements TransferInterface, RemoteResourceInterface
 		foreach ($directories as $dir)
 		{
 			if (!$dir)
-            {
-                continue;
-            }
+			{
+				continue;
+			}
 
 			$remoteDir .= '/' . $dir;
 
-            // Continue if the folder already exists. Otherwise I'll get a an error even if everything is fine
-            if ($this->isDir($remoteDir))
-            {
-                continue;
-            }
+			// Continue if the folder already exists. Otherwise I'll get a an error even if everything is fine
+			if ($this->isDir($remoteDir))
+			{
+				continue;
+			}
 
 			$ret = @ftp_mkdir($this->connection, $remoteDir);
 
@@ -489,29 +491,29 @@ class Ftp implements TransferInterface, RemoteResourceInterface
 		return true;
 	}
 
-    /**
-     * Checks if the given directory exists
-     *
-     * @param   string   $path         The full path of the remote directory to check
-     *
-     * @return  boolean  True if the directory exists
-     */
-    public function isDir($path)
-    {
-        $cur_dir = ftp_pwd($this->connection);
+	/**
+	 * Checks if the given directory exists
+	 *
+	 * @param   string  $path  The full path of the remote directory to check
+	 *
+	 * @return  boolean  True if the directory exists
+	 */
+	public function isDir($path)
+	{
+		$cur_dir = ftp_pwd($this->connection);
 
-        if (@ftp_chdir($this->connection, $path ) )
-        {
-            // If it is a directory, then change the directory back to the original directory
-            ftp_chdir($this->connection, $cur_dir);
+		if (@ftp_chdir($this->connection, $path))
+		{
+			// If it is a directory, then change the directory back to the original directory
+			ftp_chdir($this->connection, $cur_dir);
 
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 
 	/**
 	 * Get the current working directory
@@ -553,23 +555,23 @@ class Ftp implements TransferInterface, RemoteResourceInterface
 	 *
 	 * @return  array|bool  A list of folders, or false if we could not get a listing
 	 *
-	 * @throws  \RuntimeException  When the server is incompatible with our FTP folder scanner
+	 * @throws  RuntimeException  When the server is incompatible with our FTP folder scanner
 	 */
 	public function listFolders($dir = null)
 	{
 		if (!@ftp_chdir($this->connection, $dir))
 		{
-			throw new \RuntimeException(sprintf('Cannot change to FTP directory "%s" – make sure the folder exists and that you have adequate permissions to it', $dir), 500);
+			throw new RuntimeException(sprintf('Cannot change to FTP directory "%s" – make sure the folder exists and that you have adequate permissions to it', $dir), 500);
 		}
 
 		$list = @ftp_rawlist($this->connection, '.');
 
 		if ($list === false)
 		{
-			throw new \RuntimeException("Sorry, your FTP server doesn't support our FTP directory browser.");
+			throw new RuntimeException("Sorry, your FTP server doesn't support our FTP directory browser.");
 		}
 
-		$folders = array();
+		$folders = [];
 
 		foreach ($list as $v)
 		{
@@ -579,7 +581,7 @@ class Ftp implements TransferInterface, RemoteResourceInterface
 			{
 				$perms = $vInfo[0];
 
-				if (substr($perms,0,1) == 'd')
+				if (substr($perms, 0, 1) == 'd')
 				{
 					$folders[] = $vInfo[8];
 				}
@@ -612,7 +614,7 @@ class Ftp implements TransferInterface, RemoteResourceInterface
 	/**
 	 * Return the raw server listing for the requested folder.
 	 *
-	 * @param   string  $folder        The path name to list
+	 * @param   string  $folder  The path name to list
 	 *
 	 * @return  string
 	 */

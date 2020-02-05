@@ -58,7 +58,7 @@ defined('_JEXEC') or die('Restricted access');
 					<?php echo $this->html('user.avatar', $post->getOwner(), array('rank' => false, 'status' => true)); ?>
 				</div>
 				<div class="o-col ed-dashboard-item__col-btn-group">
-					<button data-ed-moderation-post-approve class="btn btn-primary btn-sm is-loading"><?php echo JText::_('COM_EASYDISCUSS_DASHBOARD_MANAGE_POST_APPROVE');?></button>
+					<button data-ed-moderation-post-approve class="btn btn-success btn-sm is-loading"><?php echo JText::_('COM_EASYDISCUSS_DASHBOARD_MANAGE_POST_APPROVE');?></button>
 					<button data-ed-moderation-post-reject class="btn btn-danger btn-sm"><?php echo JText::_('COM_EASYDISCUSS_DASHBOARD_MANAGE_POST_REJECT');?></button>
 				</div>
 				

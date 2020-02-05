@@ -120,6 +120,12 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 		$pquery	.= ' IF(a.`replied` = '.$db->Quote('0000-00-00 00:00:00') . ', a.`created`, a.`replied`) as `lastupdate`';
 		$pquery	.= ' ,a.`legacy`, pt.`suffix` AS post_type_suffix, pt.`title` AS post_type_title, a.`thread_id`';
 		$pquery	.= ' FROM `#__discuss_posts` AS a';
+
+		if (!ED::isSiteAdmin() && !ED::isModerator()) {
+			$pquery	.= ' INNER JOIN ' . $db->nameQuote('#__discuss_thread') .' AS tp on a.`thread_id` = tp.`id`';
+		}
+
+
 		$pquery .= '	LEFT JOIN ' . $db->nameQuote( '#__discuss_category' ) . ' AS b ON a.`category_id`=b.`id`';
 		$pquery .= '	LEFT JOIN ' . $db->nameQuote( '#__discuss_post_types' ) . ' AS pt ON a.`post_type`= pt.`alias`';
 		if ($tags) {
@@ -160,6 +166,7 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 	{
 		$mainframe = $this->app;
 		$db = $this->db;
+		$my = ED::user();
 
 		$search = $this->input->get('query', '', 'string');
 
@@ -176,7 +183,14 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 			$includeCatChilds = true;
 
 			if (!ED::isSiteAdmin() && !ED::isModerator()) {
-				$where[] = $tbl . '.`private`=' . $db->Quote(0);
+
+				$tmp = '(tp.`private`=' . $db->Quote(0);
+				if ($my->id) {
+					$tmp .= ' OR (tp.`private` = ' . $db->Quote(1) . ' AND tp.`user_id` = ' . $db->Quote($my->id) . ')';
+				}
+				$tmp .= ')';
+
+				$where[] = $tmp;
 			}
 
 			if ($categoryId) {

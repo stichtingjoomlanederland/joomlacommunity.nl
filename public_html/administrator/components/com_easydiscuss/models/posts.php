@@ -89,6 +89,54 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 	/**
 	 * Removes all finder indexed items for replies
 	 *
+	 * @since	4.1
+	 * @access	public
+	 */
+	public function getTotalPending($userId, $clusterId = null)
+	{
+		$db = ED::db();
+		$query = array();
+
+		$query[] = 'SELECT COUNT(1) FROM `#__discuss_posts` as a';
+		$query[] = 'INNER JOIN `#__discuss_thread` as b';
+		$query[] = 'ON a.`id` = b.`post_id`';
+		
+		$query[] = 'WHERE a.`parent_id` = ' . $db->Quote(0);
+		$query[] = 'AND b.`published` = ' . $db->Quote(DISCUSS_ID_PENDING);
+
+		// Im moderator and viewing cluster.
+		if ($clusterId && ED::isModerator()) {
+			$query[] = 'AND b.`cluster_id` = ' . $db->Quote($clusterId);
+		} 
+		// Im not a moderator and viewing cluster.
+		// I should only see my own pending post.
+		else if ($clusterId && !ED::isModerator()) {
+			$query[] = 'AND b.`user_id` = ' . $db->Quote($userId);
+			$query[] = 'AND b.`cluster_id` = ' . $db->Quote($clusterId);
+		} 
+		// Im not viewing cluster but Im moderator.
+		// I should see all pending post except clusters.
+		else if (!$clusterId && ED::isModerator()) {
+			$query[] = 'AND b.`user_id` = ' . $db->Quote($userId);
+			$query[] = 'AND b.`cluster_id` = ' . $db->Quote(0);
+		}
+		// Im not viewing cluster and not a moderator.
+		// Im should be seeing my own posts.
+		else if (!$clusterId) {
+			$query[] = 'AND b.`user_id` = ' . $db->Quote($userId);
+			$query[] = 'AND b.`cluster_id` = ' . $db->Quote(0);
+		}
+
+		$query = implode(' ', $query);
+		// echo str_replace('#_', 'jos', $query);exit;
+
+		$db->setQuery($query);
+		return $db->loadResult();
+	} 
+
+	/**
+	 * Removes all finder indexed items for replies
+	 *
 	 * @since	3.0
 	 * @access	public
 	 */
@@ -636,6 +684,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$includeCluster = isset($options['includeCluster']) ? $options['includeCluster'] : null;
 		$includeAnonymous = isset($options['includeAnonymous']) ? $options['includeAnonymous'] : true;
 		$respectSearch = isset($options['respectSearch']) ? $options['respectSearch'] : true;
+		$published = isset($options['published']) ? $options['published'] : DISCUSS_ID_PUBLISHED;
 
 		$search = $respectSearch ? $db->getEscaped($this->input->get('query', '', 'string')) : '';
 		$filteractive = (empty($filter)) ? $this->input->get('filter', 'allpost', 'string') : $filter;
@@ -647,26 +696,26 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$filteractive = '';
 		}
 
-		// unsure what is this. need to find out what and where this come from.
+		// This $user_id is coming from ES ajax on viewing profile.
+		// apps/user/discuss/themes/default/profile/default.js
 		$user_id = $this->input->get('user_id', 0, 'int');
 
 		$useFoundRows = $config->get('system_query', 'default') == 'default' ? true : false;
 		$countSql = array();
-
 
 		$query = "select SQL_CALC_FOUND_ROWS";
 		if (! $useFoundRows) {
 			$query = "select";
 		}
 
-		$query .= " b.*, a.`has_polls` as `polls_cnt`, a.`num_fav` as `totalFavourites`, a.`num_replies`, a.`num_attachments` as attachments_cnt,";
+		$query .= " b.*, a.`has_polls` as `polls_cnt`, a.`num_fav` as `totalFavourites`, a.`num_replies`, a.`num_attachments` as `attachments_cnt`,";
 		$query .= " a.`num_likes` as `likeCnt`, a.`sum_totalvote` as `VotedCnt`,";
-		$query .=  " a.`replied` as `lastupdate`, a.vote as `total_vote_cnt`,";
+		$query .=  " a.`replied` as `lastupdate`, a.`vote` as `total_vote_cnt`,";
 
 		$query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`,";
 
 		if ($config->get('main_anonymous_posting')){
-			$query .= " (select cc.anonymous from `#__discuss_posts` as cc where cc.`thread_id` = a.`id` and cc.created = a.replied limit 1) as `last_user_anonymous`,";
+			$query .= " (select cc.`anonymous` from `#__discuss_posts` as cc where cc.`thread_id` = a.`id` and cc.`created` = a.`replied` limit 1) as `last_user_anonymous`,";
 		} else {
 			$query .= " 0 as `last_user_anonymous`,";
 		}
@@ -688,7 +737,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$query	.= " e.`title` AS `category`";
 
 		$query .= " from " . $db->nameQuote('#__discuss_thread') . " as a";
-		$query .= " inner join " . $db->nameQuote('#__discuss_posts') . " as b on a.post_id = b.id";
+		$query .= " inner join " . $db->nameQuote('#__discuss_posts') . " as b on a.`post_id` = b.`id`";
 
 		// exlude block users. #788
 		$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
@@ -748,10 +797,9 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$countSQL	.= " 	AND ref." . $db->nameQuote('reference_id') . " = " . $db->Quote($referenceId);
 		}
 
-
 		// conditions start here.
 		$where = array();
-		$where[] = "a.`published` = " . $db->Quote('1');
+		$where[] = "a.`published` = " . $published;
 
 		if (!ED::isSiteAdmin() && !ED::isModerator() && !$private && $filter != 'mine') {
 			$privateQuery = "a.`private` = " . $db->Quote(0);
@@ -877,7 +925,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			return array();
 		}
 
-		$where[] = "a.category_id IN (" . implode(',', $catIds) . ")";
+		$where[] = "a.`category_id` IN (" . implode(',', $catIds) . ")";
 
 		if ($filteractive == 'featured' || $featured === true) {
 			$where[] = "a.`featured` = " . $db->Quote('1');
@@ -898,8 +946,23 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$where[] = "a.`user_id`= " . $db->Quote($userId);
 		}
 
+		// Privacy of pending post.
+		if ($filteractive == 'pending' && !empty($userId)) {
+			// User should not be able to see other's pending post except his.
+			if ($userId != $this->my->id && !ED::isModerator()) {
+				return array();
+			}
+
+			if ($clusterId && !ED::isModerator()) {
+				$where[] = "a.`user_id`= " . $db->Quote($userId);
+			} else if (!$clusterId) {
+				$where[] = "a.`user_id`= " . $db->Quote($userId);
+			}
+		}
+
 		$filterLanguage = JFactory::getApplication()->getLanguageFilter();
 		if ($filterLanguage) {
+			// Do not put 'e.`language`' as getLanguageQuery() already appended that.
 			$where[] = ED::getLanguageQuery('e.language');
 		}
 
@@ -912,7 +975,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$featuredSticky = isset($options['featuredSticky']) ? $options['featuredSticky'] : false;
 
 		if ($featuredSticky) {
-			$featuredOrdering = "a.featured DESC, ";
+			$featuredOrdering = "a.`featured` DESC, ";
 		}
 
 		if ($featured && $config->get('layout_featuredpost_style') != '0') {
@@ -990,7 +1053,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			}
 		}
 
-		// echo $query;
+		// echo str_replace('#_', 'jos', $query);
 		// echo '<br><br>';
 
 		$db->setQuery($query);
@@ -1631,6 +1694,8 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		// query used in replies count
 		$cntQuery = "select count(1) from `#__discuss_posts` AS a";
+		// exclude blocked users #788
+		$cntQuery .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
 
 		$where = array();
 
@@ -2762,13 +2827,13 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$readPosts = unserialize($readPosts);
 			if (count($readPosts) > 1) {
 				$extraSQL = implode(',', $readPosts);
-				$extraSQL = ' AND `id` NOT IN (' . $extraSQL . ')';
+				$extraSQL = ' AND a.`id` NOT IN (' . $extraSQL . ')';
 			} else {
-				$extraSQL = ' AND `id` != ' . $db->Quote($readPosts[0]);
+				$extraSQL = ' AND a.`id` != ' . $db->Quote($readPosts[0]);
 			}
 		}
 
-		$query = 'SELECT COUNT(1) FROM `#__discuss_posts`';
+		$query = 'SELECT COUNT(1) FROM `#__discuss_posts` as a';
 
 		// exclude blocked users #788
 		$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";

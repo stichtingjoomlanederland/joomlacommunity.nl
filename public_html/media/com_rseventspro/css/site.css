@@ -1207,3 +1207,6 @@ textarea.invalid {
 .rsepro-map-directions {
 	text-align: center;
 }
+#rsepro-image-frame {
+	height: 70vh !important;
+}

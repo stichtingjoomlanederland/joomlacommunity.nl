@@ -1,60 +1,80 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class acymheaderHelper extends acymObject
 {
     public function display($breadcrumb)
     {
+        $header = '<div class="cell large-6 xlarge-7 xxlarge-8 grid-x">';
+        $header .= $this->getBreadcrumb($breadcrumb);
+        $header .= '</div>';
+
+        $header .= '<div class="cell large-6 xlarge-5 xxlarge-4 grid-x">';
+
+        $header .= '<div id="checkVersionArea" class="cell auto grid-x align-right check-version-area acym_vcenter padding-right-1">';
+        $header .= $this->checkVersionArea();
+        $header .= '</div>';
+
+        $header .= '<div class="cell shrink grid-x align-right">';
+        $header .= $this->getCheckVersionButton();
+        $header .= $this->getDocumentationButton();
+        $header .= $this->getNotificationCenter();
+        $header .= '</div>';
+
+        $header .= '</div>';
+
+        $header = '<div id="acym_header" class="grid-x hide-for-small-only margin-bottom-1">'.$header.'</div>';
+
+        return $this->getLastNews().$header;
+    }
+
+    private function getLastNews()
+    {
         $news = @simplexml_load_file(ACYM_ACYWEBSITE.'acymnews.xml');
-        $header = '';
-        if (!empty($news->news)) {
+        if (empty($news->news)) return '';
 
-            $currentLanguage = acym_getLanguageTag();
 
-            $latestNews = null;
-            $doNotRemind = json_decode($this->config->get('remindme', '[]'));
-            foreach ($news->news as $oneNews) {
-                if (!empty($latestNews) && strtotime($latestNews->date) > strtotime($oneNews->date)) break;
+        $currentLanguage = acym_getLanguageTag();
+        $latestNews = null;
+        $doNotRemind = json_decode($this->config->get('remindme', '[]'));
 
-                if (empty($oneNews->published) || (strtolower($oneNews->language) != strtolower($currentLanguage) && (strtolower($oneNews->language) != 'default' || !empty($latestNews)))) continue;
+        foreach ($news->news as $oneNews) {
+            if (!empty($latestNews) && strtotime($latestNews->date) > strtotime($oneNews->date)) break;
 
-                if (!empty($oneNews->extension) && strtolower($oneNews->extension) != 'acymailing') continue;
+            if (empty($oneNews->published) || (strtolower($oneNews->language) != strtolower($currentLanguage) && (strtolower($oneNews->language) != 'default' || !empty($latestNews)))) continue;
 
-                if (!empty($oneNews->cms) && strtolower($oneNews->cms) != 'Joomla') continue;
+            if (!empty($oneNews->extension) && strtolower($oneNews->extension) != 'acymailing') continue;
 
-                if (!empty($oneNews->level) && strtolower($oneNews->level) != strtolower($this->config->get('level'))) continue;
+            if (!empty($oneNews->cms) && strtolower($oneNews->cms) != 'Joomla') continue;
 
-                if (!empty($oneNews->version)) {
-                    list($version, $operator) = explode('_', $oneNews->version);
-                    if (!version_compare($this->config->get('version'), $version, $operator)) continue;
-                }
+            if (!empty($oneNews->level) && strtolower($oneNews->level) != strtolower($this->config->get('level'))) continue;
 
-                if (in_array($oneNews->name, $doNotRemind)) continue;
-
-                $latestNews = $oneNews;
+            if (!empty($oneNews->version)) {
+                list($version, $operator) = explode('_', $oneNews->version);
+                if (!version_compare($this->config->get('version'), $version, $operator)) continue;
             }
 
-            if (!empty($latestNews)) {
-                $header .= '<div id="acym__header__banner__news" data-news="'.acym_escape($latestNews->name).'">';
+            if (in_array($oneNews->name, $doNotRemind)) continue;
 
-                if (!empty($latestNews)) {
-                    $header .= $latestNews->content;
-                }
-
-                $header .= '</div>';
-            }
+            $latestNews = $oneNews;
         }
 
+        if (empty($latestNews)) return '';
+
+        $newsDisplay = '<div id="acym__header__banner__news" data-news="'.acym_escape($latestNews->name).'">';
+
+        if (!empty($latestNews)) {
+            $newsDisplay .= $latestNews->content;
+        }
+
+        $newsDisplay .= '</div>';
+
+        return $newsDisplay;
+    }
+
+    private function getBreadcrumb($breadcrumb)
+    {
         $links = [];
         foreach ($breadcrumb as $oneLevel => $link) {
             if (!empty($link)) {
@@ -64,37 +84,15 @@ class acymheaderHelper extends acymObject
         }
 
         if (count($links) > 1) {
-            $links[count($links) - 1] = str_replace('<li>', '<li class="last_link cell auto"><span class="show-for-sr">Current: </span>', $links[count($links) - 1]);
+            $links[count($links) - 1] = str_replace('<li>', '<li class="last_link cell shrink"><span class="show-for-sr">Current: </span>', $links[count($links) - 1]);
         }
 
-
-        $header .= '<div id="acym_header" class="grid-x hide-for-small-only margin-bottom-1">';
-
-        $header .= '<i class="cell medium-shrink acym-logo"></i>';
-
-        $header .= '<div id="acym_global_navigation" class="cell medium-auto"><nav aria-label="You are here:" role="navigation"><ul class="breadcrumbs grid-x">';
-        $header .= implode('', $links);
-        $header .= '</ul></nav></div>';
-
-        $header .= '<div id="checkVersionArea" class="cell grid-x align-right large-auto check-version-area acym_vcenter margin-right-1">';
-        $header .= $this->checkVersionArea();
-        $header .= '</div>';
-
-        $lastLicenseCheck = $this->config->get('lastlicensecheck', 0);
-        $time = time();
-        $checking = '0';
-        if ($time > $lastLicenseCheck + 604800) $checking = '1';
-        if (empty($lastLicenseCheck)) $lastLicenseCheck = $time;
-
-        $header .= '<div class="cell grid-x align-right large-shrink">';
-        $header .= acym_tooltip(
-            '<a id="checkVersionButton" type="button" class="grid-x align-center button_header medium-shrink acym_vcenter" data-check="'.acym_escape($checking).'"><i class="cell shrink acymicon-autorenew"></i></a>',
-            acym_translation('ACYM_LAST_CHECK').' <span id="acym__check__version__last__check">'.acym_date($lastLicenseCheck, 'Y/m/d H:i').'</span>'
-        );
-
-        $header .= acym_tooltip('<a type="button" class="grid-x align-center button_header medium-shrink acym_vcenter" target="_blank" href="'.ACYM_DOCUMENTATION.'"><i class="cell shrink fa fa-book"></i></a>', acym_translation('ACYM_DOCUMENTATION'));
-        $header .= $this->getNotificationCenter();
-        $header .= '</div></div>';
+        $header = '<i class="cell shrink acym-logo"></i>';
+        $header .= '<div id="acym_global_navigation" class="cell auto">
+                        <nav aria-label="You are here:" role="navigation">
+                            <ul class="breadcrumbs grid-x">'.implode('', $links).'</ul>
+                        </nav>
+                    </div>';
 
         return $header;
     }
@@ -155,6 +153,27 @@ class acymheaderHelper extends acymObject
         return $version;
     }
 
+    private function getCheckVersionButton()
+    {
+        $lastLicenseCheck = $this->config->get('lastlicensecheck', 0);
+        $time = time();
+        $checking = ($time > $lastLicenseCheck + 604800) ? $checking = '1' : '0';
+        if (empty($lastLicenseCheck)) $lastLicenseCheck = $time;
+
+        return acym_tooltip(
+            '<a id="checkVersionButton" type="button" class="grid-x align-center button_header medium-shrink acym_vcenter" data-check="'.acym_escape($checking).'"><i class="cell shrink acymicon-autorenew"></i></a>',
+            acym_translation('ACYM_LAST_CHECK').' <span id="acym__check__version__last__check">'.acym_date($lastLicenseCheck, 'Y/m/d H:i').'</span>'
+        );
+    }
+
+    private function getDocumentationButton()
+    {
+        return acym_tooltip(
+            '<a type="button" class="grid-x align-center button_header medium-shrink acym_vcenter" target="_blank" href="'.ACYM_DOCUMENTATION.'"><i class="cell shrink acymicon-book"></i></a>',
+            acym_translation('ACYM_DOCUMENTATION')
+        );
+    }
+
     public function getNotificationCenter()
     {
         $notifications = json_decode($this->config->get('notifications', '{}'), true);
@@ -180,32 +199,34 @@ class acymheaderHelper extends acymObject
 
         switch ($notificationLevel) {
             case 0:
-                $iconToDisplay = 'fa-bell-o';
+                $iconToDisplay = 'acymicon-bell-o';
                 $notificationLevel = '';
                 break;
             case 1:
-                $iconToDisplay = 'fa-check-circle acym__color__green';
+                $iconToDisplay = 'acymicon-check-circle acym__color__green';
                 $notificationLevel = 'acym__header__notification__button__success acym__header__notification__pulse';
                 $tooltip = 'data-acym-tooltip="'.acym_escape($message).'" data-acym-tooltip-position="left"';
                 break;
             case 2:
-                $iconToDisplay = 'fa-bell-o acym__color__blue';
+                $iconToDisplay = 'acymicon-bell-o acym__color__blue';
                 $notificationLevel = 'acym__header__notification__button__info';
                 break;
             case 3:
-                $iconToDisplay = 'fa-exclamation-triangle acym__color__orange';
+                $iconToDisplay = 'acymicon-exclamation-triangle acym__color__orange';
                 $notificationLevel = 'acym__header__notification__button__warning';
                 break;
             case 4:
-                $iconToDisplay = 'fa-exclamation-circle acym__color__red';
+                $iconToDisplay = 'acymicon-exclamation-circle acym__color__red';
                 $notificationLevel = 'acym__header__notification__button__error';
                 break;
         }
 
-        $notificationCenter = '<div class="cell grid-x align-center acym_vcenter medium-shrink acym__header__notification '.$notificationLevel.' button_header cursor-pointer" '.$tooltip.'><i class="fa '.$iconToDisplay.'"></i>';
+        $notificationCenter = '<div class="cell grid-x align-center acym_vcenter medium-shrink acym__header__notification '.$notificationLevel.' button_header cursor-pointer" '.$tooltip.'>';
+        $notificationCenter .= '<i class="'.$iconToDisplay.'"></i>';
         $notificationCenter .= '<div class="cell grid-x acym__header__notification__center align-center">';
         $notificationCenter .= $this->getNotificationCenterInner($notifications);
-        $notificationCenter .= '</div></div>';
+        $notificationCenter .= '</div>';
+        $notificationCenter .= '</div>';
 
         return $notificationCenter;
     }
@@ -221,10 +242,10 @@ class acymheaderHelper extends acymObject
             $notificationCenter .= '<div class="cell grid-x acym__header__notification__toolbox"><p class="cell auto">'.acym_translation('ACYM_NOTIFICATIONS').'</p><div class="cell shrink cursor-pointer acym__header__notification__toolbox__remove text-right">'.acym_translation('ACYM_DELETE_ALL').'</div></div>';
             foreach ($notifications as $key => $notif) {
                 if (strlen($notif['message']) > 150) $notif['message'] = substr($notif['message'], 0, 150).'...';
-                $logo = $notif['level'] == 'info' ? 'fa-bell' : ($notif['level'] == 'warning' ? 'fa-exclamation-triangle' : 'fa-exclamation-circle');
+                $logo = $notif['level'] == 'info' ? 'acymicon-bell' : ($notif['level'] == 'warning' ? 'acymicon-exclamation-triangle' : 'acymicon-exclamation-circle');
                 $read = $notif['read'] ? 'acym__header__notification__one__read' : '';
                 $notificationCenter .= '<div class="'.$read.' cell grid-x acym__header__notification__one acym_vcenter acym_vcenter acym__header__notification__one__'.$notif['level'].'">';
-                $notificationCenter .= '<div class="cell small-3 align-center acym__header__notification__one__icon"><i class="cell fa '.$logo.'"></i></div>';
+                $notificationCenter .= '<div class="cell small-3 align-center grid-x acym__header__notification__one__icon"><i class="cell '.$logo.'"></i></div>';
                 $notificationCenter .= '<div class="cell grid-x small-8"><p class="cell acym__header__notification__message">'.$notif['message'];
                 $notificationCenter .= '<div class="cell acym__header__notification__one__date">'.acym_date($notif['date']).'</div></div>';
                 $notificationCenter .= '<i class="cell small-1 acym__header__notification__one__delete acymicon-close" data-id="'.acym_escape($key).'"></i>';

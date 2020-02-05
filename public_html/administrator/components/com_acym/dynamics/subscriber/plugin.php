@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class plgAcymSubscriber extends acymPlugin
 {
@@ -20,6 +11,8 @@ class plgAcymSubscriber extends acymPlugin
         'user_click' => 'ACYM_WHEN_USER_CLICKS_MAIL',
         'user_open' => 'ACYM_WHEN_USER_OPEN_MAIL',
         'user_subscribe' => 'ACYM_WHEN_USER_SUBSCRIBES',
+        'user_unsubscribe' => 'ACYM_WHEN_USER_UNSUBSCRIBES',
+        'user_confirmation' => 'ACYM_WHEN_USER_CONFIRMS_SUBSCRIPTION',
     ];
 
     public function __construct()
@@ -100,7 +93,7 @@ class plgAcymSubscriber extends acymPlugin
         $others['name|part:last|ucfirst'] = ['name' => acym_translation('ACYM_USER_LASTPART'), 'desc' => acym_translation('ACYM_USER_LASTPART_DESC')];
 
         foreach ($others as $tagname => $tag) {
-            $text .= '<div style="cursor:pointer" class="grid-x medium-12 cell acym__listing__row acym__listing__row__popup text-left" onclick="changeUserTag(\''.$tagname.'\', jQuery(this));" ><div class="cell medium-6 small-12 acym__listing__title acym__listing__title__dynamics">'.$tag['name'].'</div><div class="cell medium-6 small-12 acym__listing__title acym__listing__title__dynamics">'.$tag['desc'].'</div></div>';
+            $text .= '<div style="cursor:pointer" class="grid-x medium-12 cell acym__row__no-listing acym__listing__row__popup text-left" onclick="changeUserTag(\''.$tagname.'\', jQuery(this));" ><div class="cell medium-6 small-12 acym__listing__title acym__listing__title__dynamics">'.$tag['name'].'</div><div class="cell medium-6 small-12 acym__listing__title acym__listing__title__dynamics">'.$tag['desc'].'</div></div>';
         }
 
         foreach ($fields as $fieldname) {
@@ -113,7 +106,7 @@ class plgAcymSubscriber extends acymPlugin
                 $type = '|type:time';
             }
 
-            $text .= '<div style="cursor:pointer" class="grid-x medium-12 cell acym__listing__row acym__listing__row__popup text-left" onclick="changeUserTag(\''.$fieldname.$type.'\', jQuery(this));" >
+            $text .= '<div style="cursor:pointer" class="grid-x medium-12 cell acym__row__no-listing acym__listing__row__popup text-left" onclick="changeUserTag(\''.$fieldname.$type.'\', jQuery(this));" >
                         <div class="cell medium-6 small-12 acym__listing__title acym__listing__title__dynamics">'.$fieldname.'</div>
                         <div class="cell medium-6 small-12 acym__listing__title acym__listing__title__dynamics">'.$descriptions[$fieldname].'</div>
                      </div>';
@@ -156,7 +149,7 @@ class plgAcymSubscriber extends acymPlugin
             $replaceme = (isset($user->$field) && strlen($user->$field) > 0) ? $user->$field : $mytag->default;
         } else {
             $fieldId = explode(',', $field)[1];
-            $value = empty($user->id) ? '' : $fieldClass->getAllfieldBackEndListingByUserIds($user->id, $fieldId);
+            $value = empty($user->id) ? '' : $fieldClass->getAllFieldsListingByUserIds($user->id, $fieldId);
 
             $replaceme = empty($value) ? $mytag->default : $value[$fieldId.'-'.$user->id];
         }
@@ -367,11 +360,11 @@ class plgAcymSubscriber extends acymPlugin
 
         $actions['acy_add_queue'] = new stdClass();
         $actions['acy_add_queue']->name = acym_translation('ACYM_ADD_EMAIL_QUEUE');
-        $actions['acy_add_queue']->option = '<button class="shrink grid-x cell acy_button_submit button smaller-button" type="button" data-task="createMail" data-and="__and__">'.acym_translation('ACYM_CREATE_MAIL').'</button>';
+        $actions['acy_add_queue']->option = '<button class="shrink grid-x cell acy_button_submit button " type="button" data-task="createMail" data-and="__and__">'.acym_translation('ACYM_CREATE_MAIL').'</button>';
         $actions['acy_add_queue']->option .= '<input type="hidden" name="acym_action[actions][__and__][acy_add_queue][mail_id]">';
         $actions['acy_add_queue']->option .= '<div class="shrink acym__automation__action__mail__name"></div>';
         $actions['acy_add_queue']->option .= '<div class="shrink margin-left-1 margin-right-1">'.strtolower(acym_translation('ACYM_OR')).' </div>';
-        $actions['acy_add_queue']->option .= '<button type="button" data-modal-name="acym__template__choose__modal__and__" data-open="acym__template__choose__modal" aria-controls="acym__template__choose__modal" tabindex="0" aria-haspopup="true" class="cell medium-shrink button-secondary auto button smaller-button">'.acym_translation('ACYM_CHOOSE_EXISTING').'</button>';
+        $actions['acy_add_queue']->option .= '<button type="button" data-modal-name="acym__template__choose__modal__and__" data-open="acym__template__choose__modal" aria-controls="acym__template__choose__modal" tabindex="0" aria-haspopup="true" class="cell medium-shrink button-secondary auto button ">'.acym_translation('ACYM_CHOOSE_EXISTING').'</button>';
         $actions['acy_add_queue']->option .= '<div class="medium-4 grid-x cell">';
         $actions['acy_add_queue']->option .= acym_dateField('acym_action[actions][__and__][acy_add_queue][time]', '[time]');
         $actions['acy_add_queue']->option .= '</div>';
@@ -599,6 +592,8 @@ class plgAcymSubscriber extends acymPlugin
         if (!empty($automation->triggers['user_modification'])) $automation->triggers['user_modification'] = acym_translation('ACYM_ON_USER_MODIFICATION');
         if (!empty($automation->triggers['user_creation'])) $automation->triggers['user_creation'] = acym_translation('ACYM_ON_USER_CREATION');
         if (!empty($automation->triggers['user_subscribe'])) $automation->triggers['user_subscribe'] = acym_translation('ACYM_WHEN_USER_SUBSCRIBES');
+        if (!empty($automation->triggers['user_unsubscribe'])) $automation->triggers['user_unsubscribe'] = acym_translation('ACYM_WHEN_USER_UNSUBSCRIBES');
+        if (!empty($automation->triggers['user_confirmation'])) $automation->triggers['user_confirmation'] = acym_translation('ACYM_WHEN_USER_CONFIRMS_SUBSCRIPTION');
     }
 
     public function onAcymToggleUserConfirmed($userId, $newValue)

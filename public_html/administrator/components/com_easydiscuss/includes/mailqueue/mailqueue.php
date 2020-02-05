@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2020 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -345,14 +345,14 @@ class EasyDiscussMailQueue extends EasyDiscuss
 			// @task: Increment the count.
 			$total	+= 1;
 
-			$attachments	= array();
-			$attachments	= $message->getAttachment();
+			$attachments = array();
+			$attachments = $message->getAttachment();
+			$totalAttachments = 0;
 
 			if ($attachments) {
 
 				$tmp_dir = JPATH_ROOT . '/' . 'tmp' . '/';
 				$allowed = explode( ',', $config->get('main_attachment_extension'));
-
 
 				foreach ($attachments as $file) {
 
@@ -403,15 +403,35 @@ class EasyDiscussMailQueue extends EasyDiscuss
 					$attachment = ED::attachment();
 					$attachment->upload($post, $file);
 
+					$totalAttachments++;
+				}
+			}
+
+			// We need to update the thread's num_attachments again is because the thread has been created and stored before the attachments from the email being uploaded if not it will always be 0. #811
+			if ($totalAttachments) {
+				
+				$threadId = 0;
+				$table = ED::table('Post');
+				$table->load($post->id);
+
+				if ($table->id) {
+					$threadId = $table->thread_id;
+				}
+
+				$thread = ED::table('Thread');
+				$thread->load($threadId);
+
+				if ($thread->id) {
+					$thread->num_attachments = $totalAttachments;
+					$thread->store();
 				}
 			}
 
 			// all done. now mark this email as 'read'
 			$mailer->markAsRead($mailer, $sequence);
 
-			echo JText::sprintf( 'COM_EASYDISCUSS_EMAIL_PARSED' , $total );
+			echo JText::sprintf('COM_EASYDISCUSS_EMAIL_PARSED' , $total);
 		}
-
 	}
 
 	public function replyNotifyUsers( $reply , $user , $senderName )

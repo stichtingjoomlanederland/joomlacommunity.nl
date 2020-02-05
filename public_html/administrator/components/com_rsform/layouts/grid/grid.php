@@ -147,4 +147,42 @@ class RSFormProGrid
     {
         return '{if ' . $placeholder . '}' . $then . '{/if}';
     }
+
+    protected function generateFor($data)
+	{
+		switch ($data->ComponentTypeId)
+		{
+			default:
+				return ' for="' . $data->ComponentName . '"';
+				break;
+
+			case RSFORM_FIELD_JQUERY_CALENDAR:
+				require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/calendar.php';
+
+				return ' for="txtjQcal' . $this->formId . '_' . RSFormProCalendar::getInstance('jQueryCalendar')->getPosition($this->formId, $data->ComponentId) . '"';
+				break;
+
+			case RSFORM_FIELD_CALENDAR:
+				require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/calendar.php';
+
+				return ' for="txtcal' . $this->formId . '_' . RSFormProCalendar::getInstance('YUICalendar')->getPosition($this->formId, $data->ComponentId) . '"';
+				break;
+
+			case RSFORM_FIELD_RANGE_SLIDER:
+				require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/rangeslider.php';
+
+				return ' for="rs-range-slider' . $this->formId . '_' . RSFormProRangeSlider::getInstance()->getPosition($this->formId, $data->ComponentId) . '"';
+				break;
+
+			case RSFORM_FIELD_CAPTCHA:
+				return ' for="captchaTxt' . $data->ComponentId . '"';
+				break;
+
+			case RSFORM_FIELD_CHECKBOXGROUP:
+			case RSFORM_FIELD_RADIOGROUP:
+			case RSFORM_FIELD_BIRTHDAY:
+				return '';
+				break;
+		}
+	}
 }

@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 if (!include_once(rtrim(JPATH_ADMINISTRATOR, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.'components'.DIRECTORY_SEPARATOR.'com_acym'.DIRECTORY_SEPARATOR.'helpers'.DIRECTORY_SEPARATOR.'helper.php')) {
     echo 'This module cannot work without AcyMailing';
@@ -40,7 +31,7 @@ acym_arrayToInteger($allfields);
 $listClass = acym_get('class.list');
 $fieldClass = acym_get('class.field');
 
-$allLists = $listClass->getAll();
+$allLists = $listClass->getAllWIthoutManagement();
 $visibleLists = array_intersect($visibleLists, array_keys($allLists));
 $hiddenLists = array_intersect($hiddenLists, array_keys($allLists));
 $allfields = $fieldClass->getFieldsByID($allfields);
@@ -189,10 +180,11 @@ echo "<script type=\"text/javascript\">
                 ?>
 
 				<input type="hidden" name="ajax" value="<?php echo acym_escape($ajax); ?>" />
-				<input type="hidden" name="acy_source" value="<?php echo acym_escape($params->get('source', '')); ?>" />
+				<input type="hidden" name="acy_source" value="<?php echo acym_escape($params->get('source', 'mod_'.$module->id)); ?>" />
 				<input type="hidden" name="hiddenlists" value="<?php echo implode(',', $hiddenLists); ?>" />
 				<input type="hidden" name="fields" value="<?php echo 'name,email'; ?>" />
 				<input type="hidden" name="acyformname" value="<?php echo acym_escape($formName); ?>" />
+				<input type="hidden" name="acysubmode" value="mod_acym" />
 
                 <?php
                 $postText = $params->get('posttext', '');

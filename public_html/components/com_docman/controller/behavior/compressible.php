@@ -20,6 +20,15 @@
  */
 class ComDocmanControllerBehaviorCompressible extends KControllerBehaviorAbstract
 {
+    protected function _initialize(KObjectConfig $config)
+    {
+        $config->append([
+            'priority' => static::PRIORITY_HIGH
+        ]);
+
+        parent::_initialize($config);
+    }
+
     public function isSupported()
     {
         $supported = parent::isSupported() && class_exists('\ZipArchive');
@@ -120,6 +129,16 @@ class ComDocmanControllerBehaviorCompressible extends KControllerBehaviorAbstrac
 
             if (!$result || !is_dir($folder)) {
                 throw new KControllerExceptionActionFailed('Unable to create directory for multidownload files');
+            }
+        }
+
+        $query = $context->getRequest()->getQuery();
+
+        if ($query->has('Itemid') && $query->has('slug')) {
+            $page = JFactory::getApplication()->getMenu()->getItem($query->Itemid);
+
+            if (isset($page) && isset($page->query['slug']) && $page->query['slug'] === $query->slug) {
+                $query->slug = null;
             }
         }
 

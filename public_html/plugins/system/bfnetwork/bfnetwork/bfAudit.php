@@ -35,6 +35,7 @@ require 'bfEncrypt.php';
  * else cannot run the code below.....
  * ... ...
  */
+require 'bfActivitylog.php';
 
 // Get the steps
 require 'bfStep.php';

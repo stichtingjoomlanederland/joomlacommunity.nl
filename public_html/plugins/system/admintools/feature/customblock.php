@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -24,13 +24,16 @@ class AtsystemFeatureCustomblock extends AtsystemFeatureAbstract
 		$input->set('option', 'com_admintools');
 		$input->set('view', 'Blocks');
 		$input->set('task', 'browse');
+		$input->set('layout', 'default');
 
 		if (class_exists('JRequest'))
 		{
-			JRequest::set(array(
+			JRequest::set([
 				'option' => 'com_admintools',
-				'view' => 'blocks'
-			), 'get', true);
+				'view'   => 'Blocks',
+				'task'   => 'browse',
+				'layout' => 'default',
+			], 'get', true);
 		}
 	}
 }

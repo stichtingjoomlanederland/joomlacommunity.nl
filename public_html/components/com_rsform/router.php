@@ -131,16 +131,9 @@ function rsformBuildRoute(&$query)
 			{
 				$segments[] = JText::_('COM_RSFORM_SEF_FORM');
 				
-				$formId = (int) $query['formId'];
+				$formId 	= (int) $query['formId'];
+				$formName 	= JFilterOutput::stringURLSafe(rsformGetFormTitle($formId));
 
-                $db = JFactory::getDbo();
-				$sql = $db->getQuery(true)
-                    ->select($db->qn('FormTitle'))
-                    ->from($db->qn('#__rsform_forms'))
-                    ->where($db->qn('FormId') . ' = ' . $db->q($formId));
-
-				$formName = JFilterOutput::stringURLSafe($db->setQuery($sql)->loadResult());
-				
 				$segments[] = $formId . (!empty($formName) ? ':' . $formName : '');
 				
 				unset($query['formId'], $query['view']);
@@ -287,4 +280,39 @@ function rsformParseRoute($segments)
 	$app->triggerEvent('rsfp_onAfterFormParseRoute', array(&$segments, &$query));
 	
 	return $query;
+}
+
+function rsformGetFormTitle($formId)
+{
+	require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/rsform.php';
+
+	static $titles = array();
+
+	$lang = RSFormProHelper::getCurrentLanguage($formId);
+
+	if (!isset($titles[$lang]))
+	{
+		$titles[$lang] = array();
+	}
+
+	if (!isset($titles[$lang][$formId]))
+	{
+		$db = JFactory::getDbo();
+
+		$query = $db->getQuery(true)
+			->select($db->qn('FormTitle'))
+			->from($db->qn('#__rsform_forms'))
+			->where($db->qn('FormId') . ' = ' . $db->q($formId));
+		$titles[$lang][$formId] = $db->setQuery($query)->loadResult();
+
+		if ($translations = RSFormProHelper::getTranslations('forms', $formId, $lang))
+		{
+			if (isset($translations['FormTitle']))
+			{
+				$titles[$lang][$formId] = $translations['FormTitle'];
+			}
+		}
+	}
+
+	return $titles[$lang][$formId];
 }

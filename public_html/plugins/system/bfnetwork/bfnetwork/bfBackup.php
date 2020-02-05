@@ -118,15 +118,22 @@ final class bfBackup
                 }
 
                 $frontend_enable      = $params->get('frontend_enable');
-                $frontend_secret_word = $params->get('frontend_secret_word');
 
                 if (1 != $frontend_enable) {
                     $params->set('frontend_enable', 1);
-                    $saveChanges = true;
                 }
 
                 // Get a complex unique non-crypto string from mysites.guru
                 $string = file_get_contents('https://manage.mysites.guru/public/rand?'.time());
+
+                if (!$string) {
+                    // try again... grrr
+                    $string = file_get_contents('https://manage.mysites.guru/public/rand?'.time());
+                }
+
+                if (!$string) {
+                    bfEncrypt::reply('error', 'Could not generate secure secret');
+                }
 
                 $params->set('frontend_secret_word', $string);
                 $saveChanges = true;
@@ -188,7 +195,12 @@ final class bfBackup
                     }
                 }
 
+                // Akeeba 7+
+                $params->jsonapi_enabled = 1;
+
+                // Akeeba 7-
                 $params->frontend_enable = 1;
+
                 $params                  = json_encode($params);
 
                 $sql = 'UPDATE #__extensions SET params = \'%s\' WHERE extension_id = %s';

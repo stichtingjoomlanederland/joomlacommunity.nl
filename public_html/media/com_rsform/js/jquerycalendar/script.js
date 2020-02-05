@@ -43,8 +43,8 @@ RSFormPro.jQueryCalendar = {
 		RSFormPro.jQueryCalendar.calendarsData[formId][idCalendar].config = config;
 	},
 	renderCalendars: function() {
-		var countForms = Object.keys(RSFormPro.jQueryCalendar.calendarsData).length;
 		var forms = Object.keys(RSFormPro.jQueryCalendar.calendarsData);
+		var countForms = forms.length;
 
 		if (countForms > 0) {
 			for (var i = 0; i < countForms; i++) {
@@ -300,7 +300,7 @@ RSFormPro.jQueryCalendar = {
 				timepicker: config.timepicker,
 				theme: config.theme,
 				closeOnDateSelect: config.timepicker == '1' ? false : true,
-				closeOnWithoutClick: false,
+				closeOnWithoutClick: true,
 				minDate: minDate,
 				maxDate: maxDate,
 				minTime: minTime,

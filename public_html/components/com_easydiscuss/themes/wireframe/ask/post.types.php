@@ -18,7 +18,7 @@ if (isset($selected)) {
 	$value = $post->post_type;
 }
 ?>
-<select id="post_type" class="form-control" name="post_type">
+<select id="post_type-<?php echo $uid;?>" class="form-control" name="post_type">
 	<option value=""><?php echo JText::_('COM_EASYDISCUSS_SELECT_POST_TYPES'); ?></option>
 	<?php foreach ($postTypes as $type) { ?>
 		<option <?php echo $type->alias == $value ? 'selected="selected"' : '' ?> value="<?php echo $type->alias; ?>"><?php echo JText::_($type->title); ?></option>

@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class DashboardController extends acymController
 {
@@ -18,7 +9,7 @@ class DashboardController extends acymController
         parent::__construct();
 
         $this->loadScripts = [
-            'all' => ['colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'parse-css', 'vue-applications'],
+            'all' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'introjs', 'parse-css', 'vue-applications' => ['code_editor'], 'vue-prism-editor', 'editor-wysid'],
         ];
     }
 
@@ -367,8 +358,16 @@ class DashboardController extends acymController
             return;
         }
 
+        if ($fromFunction == 'stepFaillocal' && acym_isLocalWebsite()) {
+            $fromMessage = 'ACYM_GMAIL_TRY';
+        } elseif ($fromFunction == 'stepFaillocal') {
+            $fromMessage = 'ACYM_GMAIL_PHP_TRY';
+        } else {
+            $fromMessage = 'ACYM_PHP_TRY';
+        }
+
         $handle = curl_init();
-        $url = ACYM_UPDATEMEURL.'contact&task=contactme&email='.urlencode($email).'&version='.$this->config->get('version', '6').'&cms='.ACYM_CMS;
+        $url = ACYM_UPDATEMEURL.'contact&task=contactme&email='.urlencode($email).'&version='.$this->config->get('version', '6').'&cms='.ACYM_CMS.'&message_key='.$fromMessage;
         curl_setopt($handle, CURLOPT_URL, $url);
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
         $output = curl_exec($handle);

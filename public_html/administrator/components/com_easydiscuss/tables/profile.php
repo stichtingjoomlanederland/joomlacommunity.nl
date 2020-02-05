@@ -1079,6 +1079,28 @@ class DiscussProfile extends EasyDiscussTable
 	}
 
 	/**
+	 * Retrieves the total number of pending post the user made
+	 *
+	 * @since	4.1
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getTotalPending()
+	{
+		static $cache = array();
+
+		if (!isset($cache[$this->id])) {
+			$model = ED::model('Posts');
+			$total = $model->getTotalPending($this->id);
+
+			$cache[$this->id] = $total;
+		}
+
+		return $cache[$this->id];
+	}
+
+	/**
 	 * Retrieves the total number of resolved post the user made
 	 *
 	 * @since	4.0
@@ -1651,6 +1673,10 @@ class DiscussProfile extends EasyDiscussTable
 
 		if ($filter == 'unresolved') {
 			return $this->getNumTopicUnresolved();
+		}
+
+		if ($filter == 'pending') {
+			return $this->getTotalPending();
 		}
 
 		if ($filter == 'favourites' || $filter == 'assigned' || $filter == 'replies') {

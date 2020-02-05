@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate>
+?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate>
 	<input type="hidden" name="id" value="<?php echo empty($data['id']) ? '' : intval($data['id']); ?>">
 	<div class="cell grid-x">
 		<div class="cell auto"></div>
@@ -19,7 +10,7 @@ defined('_JEXEC') or die('Restricted access');
             echo $workflow->display($this->steps, 'summary');
             if (!empty($data['id'])) {
                 ?>
-				<div class="acym__automation__summary__info cell grid-x acym__content">
+				<div class="acym__automation__summary__info cell grid-x acym__content margin-top-2">
 					<h6 class="cell acym__content__title__light-blue"><?php echo acym_translation('ACYM_INFORMATION'); ?></h6>
                     <?php if (!empty($data['automation']->admin)) {
                         $data['automation']->name = acym_translation($data['automation']->name);
@@ -73,7 +64,7 @@ defined('_JEXEC') or die('Restricted access');
 				<div class="cell acym__automation__summary__information__one grid-x">
                     <?php
                     if (!empty($data['action']->actions)) {
-                        echo '<span class="acym__automation__summary__information__one__title">'.acym_translation_sprintf('ACYM_ACTIONS_USER_WILL', acym_translation(empty($data['id']) ? 'ACYM_MASS_ACTION' : 'ACYM_AUTOMATION')).'</span></div><div class="acym__automation__summary__information__one">';
+                        echo '<span class="acym__automation__summary__information__one__title">'.acym_translation_sprintf('ACYM_ACTIONS_USER_WILL', strtolower(acym_translation(empty($data['id']) ? 'ACYM_MASS_ACTION' : 'ACYM_AUTOMATION'))).'</span></div><div class="acym__automation__summary__information__one">';
                         $andNum = 0;
                         foreach ($data['action']->actions as $and => $andValue) {
                             if ($andNum > 0) echo '<span class="acym__automation__summary__information__one__title">'.acym_translation('ACYM_AND').'</span><br />';
@@ -93,7 +84,7 @@ defined('_JEXEC') or die('Restricted access');
                     if (!empty($data['action']->filters)) {
                         $orNum = 0;
                         $andNum = 0;
-                        echo '<span class="acym__automation__summary__information__one__title">'.acym_translation_sprintf('ACYM_FILTERS_APPLY_TO', acym_translation(empty($data['id']) ? 'ACYM_MASS_ACTION' : 'ACYM_AUTOMATION'), acym_translation($data['action']->filters['type_filter'] == 'classic' ? 'ACYM_ALL_ACYMAILING_USERS' : 'ACYM_ONE_ACYMAILING_USER')).'</span></div><div class="acym__automation__summary__information__one">';
+                        echo '<span class="acym__automation__summary__information__one__title">'.acym_translation_sprintf('ACYM_FILTERS_APPLY_TO', strtolower(acym_translation(empty($data['id']) ? 'ACYM_MASS_ACTION' : 'ACYM_AUTOMATION')), acym_translation($data['action']->filters['type_filter'] == 'classic' ? 'ACYM_ALL_ACYMAILING_USERS' : 'ACYM_ONE_ACYMAILING_USER')).'</span></div><div class="acym__automation__summary__information__one">';
                         foreach ($data['action']->filters as $or => $orValues) {
                             if ($or === 'type_filter') continue;
                             $andNum = 0;

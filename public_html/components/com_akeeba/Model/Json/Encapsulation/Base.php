@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -120,6 +120,7 @@ abstract class Base implements EncapsulationInterface
 	 */
 	public function decode($serverKey, $data)
 	{
+		return $data;
 	}
 
 	/**
@@ -140,26 +141,6 @@ abstract class Base implements EncapsulationInterface
 	 */
 	public function encode($serverKey, $data)
 	{
-	}
-
-	/**
-	 * Returns an encryption object normalized for use in the JSON API: PBKDF2 uses a dynamic salt with SHA1 algorithm.
-	 * This is necessary when we are running a backup against a profile which uses a static salt. In this case the
-	 * static salt is not included in the ciphertext, making it impossible for the remote side to decipher our message,
-	 * leading to backup failure.
-	 *
-	 * @return  Encrypt
-	 */
-	protected function getEncryption()
-	{
-		if (is_null($this->encryption))
-		{
-			$encryption = Factory::getEncryption();
-			$this->encryption = clone $encryption;
-			$this->encryption->setPbkdf2UseStaticSalt(false);
-			$this->encryption->setPbkdf2Algorithm('sha1');
-		}
-
-		return $this->encryption;
+		return $data;
 	}
 }

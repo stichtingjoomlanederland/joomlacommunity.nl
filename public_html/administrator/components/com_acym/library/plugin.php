@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class acymPlugin extends acymObject
 {
@@ -200,7 +191,7 @@ class acymPlugin extends acymObject
             if (!empty($this->defaultValues->id)) $selected = [$this->defaultValues->id];
 
             foreach ($options['rows'] as $row) {
-                $class = 'cell grid-x acym__listing__row__popup';
+                $class = 'cell grid-x acym__row__no-listing acym__listing__row__popup';
                 if (in_array($row->{$options['id']}, $selected)) $class .= ' selected_row';
 
                 $listing .= '<div class="'.$class.'" data-id="'.intval($row->{$options['id']}).'" onclick="applyContent'.acym_escape($this->name).'('.intval($row->{$options['id']}).', this);">';
@@ -224,7 +215,7 @@ class acymPlugin extends acymObject
 
         $pagination = acym_get('helper.pagination');
         $pagination->setStatus($this->pageInfo->total, $this->pageInfo->page, $this->pageInfo->limit);
-        $listing .= $pagination->displayAjax();
+        $listing .= $pagination->displayAjax(true);
         $listing .= '</div>';
 
         return $listing;
@@ -243,7 +234,7 @@ class acymPlugin extends acymObject
         foreach ($this->catvalues as $oneCat) {
             if (empty($oneCat->value)) continue;
 
-            $class = 'cell grid-x acym__listing__row acym__listing__row__popup';
+            $class = 'cell grid-x acym__row__no-listing acym__listing__row__popup';
             if (in_array($oneCat->value, $selected)) $class .= ' selected_row';
             $listing .= '<div class="'.$class.'" data-id="'.intval($oneCat->value).'" onclick="applyContentauto'.acym_escape($this->name).'('.intval($oneCat->value).', this);">
                         <div class="cell medium-5">'.acym_escape($oneCat->text).'</div>

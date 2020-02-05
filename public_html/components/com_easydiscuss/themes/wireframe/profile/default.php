@@ -12,7 +12,7 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="ed-profile t-lg-mt--lg" data-profile-item data-id="<?php echo $profile->id; ?>">
-	<div class="ed-user-profile">
+	<div class="ed-user-profile t-lg-mb--lg">
 		<div class="ed-user-profile__hd">
 			<div class="o-row">
 				<div class="o-col">
@@ -135,23 +135,47 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 			<div class="ed-profile-container__side-bd">
 				<ul class="o-nav  o-nav--stacked ed-profile-container__side-nav">
-					<li data-profile-tab data-filter-type="questions" <?php echo ($viewType == 'questions')? 'class="active"' : '' ?>><a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_QUESTIONS');?> (<?php echo $profile->getNumTopicPosted(); ?>)</a></li>
+					<li data-profile-tab data-filter-type="questions" <?php echo ($viewType == 'questions')? 'class="active"' : '' ?>>
+						<a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_QUESTIONS');?> (<?php echo $profile->getNumTopicPosted(); ?>)</a>
+					</li>
+					
 					<?php if ($this->config->get('main_qna')) { ?>
-					<li data-profile-tab data-filter-type="unresolved" <?php echo ($viewType == 'unresolved')? 'class="active"' : '' ?>><a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_UNRESOLVED');?> (<?php echo $profile->getNumTopicUnresolved(); ?>)</a></li>
+						<li data-profile-tab data-filter-type="unresolved" <?php echo ($viewType == 'unresolved')? 'class="active"' : '' ?>>
+							<a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_UNRESOLVED');?> (<?php echo $profile->getNumTopicUnresolved(); ?>)</a>
+						</li>
 					<?php } ?>
+					
 					<?php if ($this->config->get('main_favorite')) { ?>
-					<li data-profile-tab data-filter-type="favourites" <?php echo ($viewType == 'favourites')? 'class="active"' : '' ?>><a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_FAVOURITES');?> (<?php echo $profile->getTotalFavourites(); ?>)</a></li>
+						<li data-profile-tab data-filter-type="favourites" <?php echo ($viewType == 'favourites')? 'class="active"' : '' ?>>
+							<a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_FAVOURITES');?> (<?php echo $profile->getTotalFavourites(); ?>)</a>
+						</li>
 					<?php } ?>
-					<li data-profile-tab data-filter-type="assigned" <?php echo ($viewType == 'assigned')? 'class="active"' : '' ?>><a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_ASSIGNED');?> (<?php echo $profile->getTotalAssigned(); ?>)</a></li>
-					<li data-profile-tab data-filter-type="replies" <?php echo ($viewType == 'replies')? 'class="active"' : '' ?>><a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_REPLIES');?> (<?php echo $profile->getTotalReplies(); ?>)</a></li>
+					
+					<li data-profile-tab data-filter-type="assigned" <?php echo ($viewType == 'assigned')? 'class="active"' : '' ?>>
+						<a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_ASSIGNED');?> (<?php echo $profile->getTotalAssigned(); ?>)</a>
+					</li>
+					<li data-profile-tab data-filter-type="replies" <?php echo ($viewType == 'replies')? 'class="active"' : '' ?>>
+						<a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_REPLIES');?> (<?php echo $profile->getTotalReplies(); ?>)</a>
+					</li>
+
+					<?php if (ED::isModerator() || ED::isMine($profile->id)) { ?>
+						<li data-profile-tab data-filter-type="pending" <?php echo ($viewType == 'pending')? 'class="active"' : '' ?>>
+							<a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_FILTER_PENDING');?> (<?php echo $profile->getTotalPending(); ?>)</a>
+						</li>
+					<?php } ?>
+					
 					<li class="ed-profile-container__side-divider"></li>
 					
 					<?php if ($easyblogExists) { ?>
-					<li data-profile-tab data-filter-type="easyblog" <?php echo ($viewType == 'easyblog')? 'class="active"' : '' ?>><a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_EASYBLOG');?> (<?php echo $blogCount; ?>)</a></li>
+						<li data-profile-tab data-filter-type="easyblog" <?php echo ($viewType == 'easyblog')? 'class="active"' : '' ?>>
+							<a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_EASYBLOG');?> (<?php echo $blogCount; ?>)</a>
+						</li>
 					<?php } ?>
 					
 					<?php if ($this->config->get('integrations_komento_profile') && $komentoExists) { ?>
-					<li data-profile-tab data-filter-type="komento" <?php echo ($viewType == 'komento')? 'class="active"' : '' ?>><a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_KOMENTO');?> (<?php echo $commentCount; ?>)</a></li>
+						<li data-profile-tab data-filter-type="komento" <?php echo ($viewType == 'komento')? 'class="active"' : '' ?>>
+							<a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_KOMENTO');?> (<?php echo $commentCount; ?>)</a>
+						</li>
 					<?php } ?>
 				</ul>
 			</div>

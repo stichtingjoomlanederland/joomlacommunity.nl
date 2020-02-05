@@ -1,19 +1,17 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Filter\Stack;
 
 use Akeeba\Engine\Filter\Base;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 
 /**
@@ -21,29 +19,29 @@ defined('AKEEBAENGINE') or die();
  */
 class StackHoststats extends Base
 {
-    public function __construct()
-    {
-        $this->object  = 'dir';
-        $this->subtype = 'all';
-        $this->method  = 'api';
+	public function __construct()
+	{
+		$this->object  = 'dir';
+		$this->subtype = 'all';
+		$this->method  = 'api';
 
-        if (empty($this->filter_name))
-        {
-            $this->filter_name = strtolower(basename(__FILE__, '.php'));
-        }
+		if (empty($this->filter_name))
+		{
+			$this->filter_name = strtolower(basename(__FILE__, '.php'));
+		}
 
-        parent::__construct();
-    }
+		parent::__construct();
+	}
 
-    protected function is_excluded_by_api($test, $root)
-    {
-        if($test == 'stats')
-        {
-            return true;
-        }
+	protected function is_excluded_by_api($test, $root)
+	{
+		if ($test == 'stats')
+		{
+			return true;
+		}
 
-        // No match? Just include the file!
-        return false;
-    }
+		// No match? Just include the file!
+		return false;
+	}
 
 }

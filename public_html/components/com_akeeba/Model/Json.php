@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -10,6 +10,7 @@ namespace Akeeba\Backup\Site\Model;
 // Protect from unauthorized access
 defined('_JEXEC') or die();
 
+use Akeeba\Backup\Site\Controller\Mixin\FrontEndPermissions;
 use Akeeba\Backup\Site\Model\Json\Encapsulation;
 use Akeeba\Backup\Site\Model\Json\Task;
 use Akeeba\Engine\Platform;
@@ -41,6 +42,8 @@ if (!defined('AKEEBA_BACKUP_ORIGIN'))
  */
 class Json extends Model
 {
+	use FrontEndPermissions;
+
 	const    COM_AKEEBA_CPANEL_LBL_STATUS_OK = 200; // Normal reply
 	const    STATUS_NOT_AUTH = 401; // Invalid credentials
 	const    STATUS_NOT_ALLOWED = 403; // Not enough privileges
@@ -84,7 +87,7 @@ class Json extends Model
 	public function execute($json)
 	{
 		// Check if we're activated
-		$enabled = Platform::getInstance()->get_platform_configuration_option('frontend_enable', 0);
+		$enabled = $this->container->params->get('jsonapi_enabled', 0) == 1;
 
 		// Is the Secret Key strong enough?
 		$validKey = $this->serverKey();
@@ -95,6 +98,11 @@ class Json extends Model
 		}
 
 		$rawEncapsulation = $this->encapsulation->getEncapsulationByCode('ENCAPSULATION_RAW');
+
+		if (!$this->confirmDates())
+		{
+			return $this->getResponse('Your version of Akeeba Backup is too old. Please update it to re-enable the remote backup and administration features.', 402);
+		}
 
 		if (!$enabled)
 		{

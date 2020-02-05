@@ -58,10 +58,10 @@ defined('_JEXEC') or die('Restricted access');
 
 				<div class="o-col o-col--top t-lg-pr--md t-xs-pr--no">
 					<div class="form-group">
-						<label for="post_type"><?php echo JText::_('COM_EASYDISCUSS_SELECT_A_POST_TYPE');?></label>
+						<label for="post_type-<?php echo $uid;?>"><?php echo JText::_('COM_EASYDISCUSS_SELECT_A_POST_TYPE');?></label>
 
 						<div data-post-types-wrapper>
-							<?php echo $this->output('site/ask/post.types'); ?>
+							<?php echo $this->output('site/ask/post.types', array('uid' => $uid)); ?>
 						</div>
 					</div>
 				</div>

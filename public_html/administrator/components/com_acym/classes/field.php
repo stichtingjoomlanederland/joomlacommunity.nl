@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class acymfieldClass extends acymClass
 {
@@ -107,7 +98,7 @@ class acymfieldClass extends acymClass
     {
         $query = 'SELECT '.acym_secureDBColumn($fieldDB->value).' AS value, '.acym_secureDBColumn($fieldDB->title).' AS title
                     FROM '.acym_secureDBColumn($fieldDB->database).'.'.acym_secureDBColumn($fieldDB->table);
-        $query .= empty($fieldDB->where_value) ? '' : ' WHERE `'.acym_secureDBColumn($fieldDB->where).'` '.$fieldDB->where_sign.' '.acym_escapeDB($fieldDB->where_value);
+        $query .= isset($fieldDB->where_value) && strlen($fieldDB->where_value) > 0 ? ' WHERE `'.acym_secureDBColumn($fieldDB->where).'` '.$fieldDB->where_sign.' '.acym_escapeDB($fieldDB->where_value) : '';
         if (!empty($fieldDB->order_by)) $query .= ' ORDER BY '.acym_secureDBColumn($fieldDB->order_by).' '.acym_secureDBColumn($fieldDB->sort_order);
 
         return acym_loadObjectList($query);
@@ -116,7 +107,7 @@ class acymfieldClass extends acymClass
     public function store($userID, $fields, $ajax = false)
     {
         if (!empty($_FILES['customField'])) {
-            $uploadFolder = trim(acym_cleanPath(html_entity_decode(acym_getFilesFolder())), DS.' ').DS;
+            $uploadFolder = trim(acym_cleanPath(html_entity_decode(acym_getFilesFolder(true))), DS.' ').DS;
             $uploadPath = acym_cleanPath(ACYM_ROOT.$uploadFolder.'userfiles'.DS);
             $allowedExtensions = explode(',', $this->config->get('allowed_files'));
 
@@ -186,15 +177,15 @@ class acymfieldClass extends acymClass
         }
     }
 
-    public function getAllfieldBackEndListingByUserIds($userIds, $fieldIds, $forBackEnd = false)
+    public function getAllFieldsListingByUserIds($userIds, $fieldIds, $listing = '')
     {
-        $query = 'SELECT field.type AS type, field.value AS value, field.name AS field_name, user_field.user_id AS user_id, user_field.field_id AS field_id, user_field.value AS field_value 
+        $query = 'SELECT field.type AS `type`, field.value AS `value`, field.name AS field_name, user_field.user_id AS user_id, user_field.field_id AS field_id, user_field.value AS field_value, field.active 
                     FROM #__acym_user_has_field AS user_field
                     LEFT JOIN #__acym_field AS field ON user_field.field_id = field.id';
 
         $conditions = [];
 
-        if ($forBackEnd) $conditions[] = 'field.backend_listing = 1';
+        if (!empty($listing)) $conditions[] = $listing;
 
         if (!is_array($userIds)) $userIds = [$userIds];
         acym_arrayToInteger($userIds);
@@ -213,6 +204,8 @@ class acymfieldClass extends acymClass
         $values = acym_loadObjectList($query);
         $fieldsTypeWithInField = ['radio', 'checkbox', 'single_dropdown', 'multiple_dropdown'];
         foreach ($values as $one) {
+            if ($one->active === '0') continue;
+
             if (!in_array($one->type, $fieldsTypeWithInField)) {
                 $decoded = json_decode($one->field_value);
                 $fieldValues[$one->field_id.'-'.$one->user_id] = is_array($decoded) ? implode(', ', $decoded) : $one->field_value;
@@ -233,7 +226,24 @@ class acymfieldClass extends acymClass
 
     public function getAllFieldsBackendListing()
     {
-        $query = 'SELECT id, name FROM #__acym_field WHERE backend_listing = 1 AND id NOT IN (1, 2)';
+        $query = 'SELECT id, name FROM #__acym_field WHERE backend_listing = 1 AND active = 1 AND id NOT IN (1, 2)';
+
+        $return = [
+            'names' => [],
+            'ids' => [],
+        ];
+
+        foreach (acym_loadObjectList($query) as $one) {
+            $return['names'][] = $one->name;
+            $return['ids'][] = $one->id;
+        }
+
+        return $return;
+    }
+
+    public function getAllFieldsFrontendListing()
+    {
+        $query = 'SELECT id, name FROM #__acym_field WHERE frontend_listing = 1 AND active = 1 AND id NOT IN (1, 2)';
 
         $return = [
             'names' => [],
@@ -330,8 +340,11 @@ class acymfieldClass extends acymClass
         if ($field->type == 'text') $value = ' value="'.acym_escape($defaultValue).'"';
 
 
-        if (($displayOutside && (in_array($field->id, [1, 2]) || in_array($field->type, ['text', 'textarea', 'single_dropdown', 'multiple_dropdown', 'custom_text'])))) {
+        if (($displayOutside && (in_array($field->id, [1, 2]) || in_array($field->type, ['text', 'textarea', 'single_dropdown', 'multiple_dropdown', 'custom_text', 'file'])))) {
             $return .= '<label '.$displayIf.' class="cell margin-top-1"><div class="acym__users__creation__fields__title">'.$field->name.'</div>';
+        }
+        if ($displayOutside && in_array($field->type, ['date', 'radio', 'checkbox'])) {
+            $return .= '<div '.$displayIf.' class="cell margin-top-1"><div class="acym__users__creation__fields__title">'.$field->name.'</div>';
         }
 
         if ($field->id == 1) {
@@ -347,22 +360,21 @@ class acymfieldClass extends acymClass
         } elseif ($field->type == 'textarea') {
             $return .= '<textarea '.$nameAttribute.$required.' rows="'.intval($field->option->rows).'" cols="'.intval($field->option->columns).'">'.(empty($defaultValue) ? $field->name : $defaultValue).'</textarea>';
         } elseif ($field->type == 'radio') {
+            $defaultValue = strlen($defaultValue) === 0 ? null : $defaultValue;
             if ($displayFront) {
-                $return .= '<div '.$displayIf.' class="cell acym__content"><div class="acym__users__creation__fields__title">'.$field->name.'</div>';
-                $defaultValue = empty($defaultValue) ? null : (is_array($defaultValue) ? $defaultValue[0] : $defaultValue);
                 foreach ($valuesArray as $key => $oneValue) {
-                    $defaultValue = $defaultValue == $key ? 'checked' : '';
-                    $return .= '<label>'.$oneValue.'<input '.$nameAttribute.$required.' type="radio" value="'.acym_escape($key).'" '.$defaultValue.'></label>';
+                    $isCkecked = $defaultValue == $key ? 'checked' : '';
+                    $return .= '<label>'.$oneValue.'<input '.$nameAttribute.$required.' type="radio" value="'.acym_escape($key).'" '.$isCkecked.'></label>';
                 }
-                $return .= '</div>';
             } else {
-                $return .= '<div '.$displayIf.' class="cell acym__content"><div class="cell">';
-                $return .= '<div class="acym__users__creation__fields__title">'.$field->name.'</div>';
-                $return .= acym_radio($valuesArray, $name.'[]', empty($defaultValue) ? null : (is_array($defaultValue) ? $defaultValue[0] : $defaultValue), ($field->required ? ['data-required' => $requiredJson] : []));
-                $return .= '</div></div>';
+                $return .= acym_radio(
+                    $valuesArray,
+                    $name.'[]',
+                    $defaultValue,
+                    $field->required ? ['data-required' => $requiredJson] : []
+                );
             }
         } elseif ($field->type == 'checkbox') {
-            $return .= '<div '.$displayIf.' class="cell margin-top-1"><div class="acym__users__creation__fields__title margin-bottom-1">'.$field->name.'</div>';
             if ($displayFront) {
                 $defaultValue = empty($defaultValue) ? null : (explode(',', $defaultValue));
                 foreach ($valuesArray as $key => $oneValue) {
@@ -391,7 +403,6 @@ class acymfieldClass extends acymClass
                     $return .= '<input '.$attributes.' type="checkbox" name="'.$name.'['.acym_escape($key).']" class="acym__users__creation__fields__checkbox"></label>';
                 }
             }
-            $return .= '</div>';
         } elseif ($field->type == 'single_dropdown') {
             $return .= acym_select($valuesArray, $name, empty($defaultValue) ? '' : $defaultValue, 'class="acym__custom__fields__select__form"'.$style.$required);
         } elseif ($field->type == 'multiple_dropdown') {
@@ -410,8 +421,7 @@ class acymfieldClass extends acymClass
         } elseif ($field->type == 'file') {
             $defaultValue = is_array($defaultValue) ? $defaultValue[0] : $defaultValue;
             if ($displayFront) {
-                $return .= '<label '.$displayIf.' class="cell margin-top-1 grid-x grid-margin-x"><div class="acym__users__creation__fields__title cell">'.$field->name.'</div>';
-                $return .= '<input '.$nameAttribute.$required.' type="file"></label>';
+                $return .= '<input '.$nameAttribute.$required.' type="file">';
             } else {
                 $return .= acym_inputFile($name.'[]', $defaultValue, '', '', $required);
             }
@@ -429,8 +439,11 @@ class acymfieldClass extends acymClass
         }
 
 
-        if (($displayOutside && (in_array($field->id, [1, 2]) || in_array($field->type, ['text', 'textarea', 'single_dropdown', 'multiple_dropdown', 'phone', 'custom_text'])))) {
+        if (($displayOutside && (in_array($field->id, [1, 2]) || in_array($field->type, ['text', 'textarea', 'single_dropdown', 'multiple_dropdown', 'custom_text', 'file'])))) {
             $return .= '</label>';
+        }
+        if ($displayOutside && in_array($field->type, ['date', 'radio', 'checkbox'])) {
+            $return .= '</div>';
         }
 
         return $return;

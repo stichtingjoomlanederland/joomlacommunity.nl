@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -17,11 +17,10 @@ use Akeeba\Engine\Platform;
 use Akeeba\Engine\Util\RandomValue;
 use FOF30\Database\Installer;
 use FOF30\Model\Model;
-use JFactory;
 use JFile;
 use JFolder;
-use JHtml;
 use JLoader;
+use Joomla\CMS\Plugin\PluginHelper;
 use JUri;
 use RuntimeException;
 
@@ -42,12 +41,12 @@ class ControlPanel extends Model
 		$db = $this->container->db;
 
 		$query = $db->getQuery(true)
-					->select(array(
-						$db->qn('id'),
-						$db->qn('description')
-					))->from($db->qn('#__ak_profiles'))
-					->where($db->qn('quickicon') . ' = ' . $db->q(1))
-					->order($db->qn('id') . " ASC");
+			->select([
+				$db->qn('id'),
+				$db->qn('description'),
+			])->from($db->qn('#__ak_profiles'))
+			->where($db->qn('quickicon') . ' = ' . $db->q(1))
+			->order($db->qn('id') . " ASC");
 
 		$db->setQuery($query);
 
@@ -55,7 +54,7 @@ class ControlPanel extends Model
 
 		if (empty($ret))
 		{
-			$ret = array();
+			$ret = [];
 		}
 
 		return $ret;
@@ -72,12 +71,12 @@ class ControlPanel extends Model
 	 */
 	public function _makeIconDefinition($iconFile, $label, $view = null, $task = null)
 	{
-		return array(
+		return [
 			'icon'  => $iconFile,
 			'label' => $label,
 			'view'  => $view,
-			'task'  => $task
-		);
+			'task'  => $task,
+		];
 	}
 
 	/**
@@ -88,7 +87,7 @@ class ControlPanel extends Model
 	public function isLastBackupFailed()
 	{
 		// Get the last backup record ID
-		$list = Platform::getInstance()->get_statistics_list(array('limitstart' => 0, 'limit' => 1));
+		$list = Platform::getInstance()->get_statistics_list(['limitstart' => 0, 'limit' => 1]);
 
 		if (empty($list))
 		{
@@ -227,110 +226,6 @@ class ControlPanel extends Model
 	}
 
 	/**
-	 * Disables the encryption of profile settings. If the settings were already encrypted they are automatically
-	 * decrypted.
-	 *
-	 * @return  void
-	 */
-	private function disableSettingsEncryption()
-	{
-		// Load the server key file if necessary
-
-		$filename = JPATH_COMPONENT_ADMINISTRATOR . '/BackupEngine/serverkey.php';
-		$key      = Factory::getSecureSettings()->getKey();
-
-		// Loop all profiles and decrypt their settings
-		/** @var Profiles $profilesModel */
-		$profilesModel = $this->container->factory->model('Profiles')->tmpInstance();
-		$profiles      = $profilesModel->get(true);
-		$db            = $this->container->db;
-
-		/** @var Profiles $profile */
-		foreach ($profiles as $profile)
-		{
-			$id     = $profile->getId();
-			$config = Factory::getSecureSettings()->decryptSettings($profile->configuration, $key);
-			$sql    = $db->getQuery(true)
-						 ->update($db->qn('#__ak_profiles'))
-						 ->set($db->qn('configuration') . ' = ' . $db->q($config))
-						 ->where($db->qn('id') . ' = ' . $db->q($id));
-			$db->setQuery($sql);
-			$db->execute();
-		}
-
-		// Decrypt the Secret Word settings in the database
-		$params = $this->container->params;
-		SecretWord::enforceDecrypted($params, 'frontend_secret_word', $key);
-
-		// Finally, remove the key file
-		if (!@unlink($filename))
-		{
-			JLoader::import('joomla.filesystem.file');
-			JFile::delete($filename);
-		}
-	}
-
-	/**
-	 * Enabled the encryption of profile settings. Existing settings are automatically encrypted.
-	 *
-	 * @return  void
-	 */
-	private function enableSettingsEncryption()
-	{
-		$key = $this->createSettingsKey();
-
-		if (empty($key) || ($key == false))
-		{
-			return;
-		}
-
-		// Loop all profiles and encrypt their settings
-		/** @var \Akeeba\Backup\Admin\Model\Profiles $profilesModel */
-		$profilesModel = $this->container->factory->model('Profiles')->tmpInstance();
-		$profiles      = $profilesModel->get(true);
-		$db            = $this->container->db;
-		if (!empty($profiles))
-		{
-			foreach ($profiles as $profile)
-			{
-				$id     = $profile->id;
-				$config = Factory::getSecureSettings()->encryptSettings($profile->configuration, $key);
-				$sql    = $db->getQuery(true)
-							 ->update($db->qn('#__ak_profiles'))
-							 ->set($db->qn('configuration') . ' = ' . $db->q($config))
-							 ->where($db->qn('id') . ' = ' . $db->q($id));
-				$db->setQuery($sql);
-				$db->execute();
-			}
-		}
-	}
-
-	/**
-	 * Creates an encryption key for the settings and saves it in the <component>/BackupEngine/serverkey.php path
-	 *
-	 * @return  bool|string  FALSE on failure, the encryptions key otherwise
-	 */
-	private function createSettingsKey()
-	{
-		$randVal = new RandomValue();
-		$rawKey  = $randVal->generate(64);
-		$key     = base64_encode($rawKey);
-
-		$filecontents = "<?php defined('AKEEBAENGINE') or die(); define('AKEEBA_SERVERKEY', '$key'); ?>";
-		$filename     = $this->container->backEndPath . '/BackupEngine/serverkey.php';
-
-		JLoader::import('joomla.filesystem.file');
-		$result = JFile::write($filename, $filecontents);
-
-		if (!$result)
-		{
-			return false;
-		}
-
-		return $rawKey;
-	}
-
-	/**
 	 * Updates some internal settings:
 	 *
 	 * - The stored URL of the site, used for the front-end backup feature (altbackup.php)
@@ -358,22 +253,18 @@ class ControlPanel extends Model
 	 */
 	public function mustWarnAboutDownloadIDInCore()
 	{
-		$ret   = false;
-		$isPro = AKEEBA_PRO;
+		/** @var Updates $updateModel */
+		$updateModel = $this->container->factory->model('Updates')->tmpInstance();
+		$isPro       = defined('AKEEBA_PRO') ? AKEEBA_PRO : 0;
 
 		if ($isPro)
 		{
-			return $ret;
+			return false;
 		}
 
-		$dlid = $this->container->params->get('update_dlid', '');
+		$dlid = $updateModel->sanitizeLicenseKey($updateModel->getLicenseKey());
 
-		if (preg_match('/^([0-9]{1,}:)?[0-9a-f]{32}$/i', $dlid))
-		{
-			$ret = true;
-		}
-
-		return $ret;
+		return $updateModel->isValidLicenseKey($dlid);
 	}
 
 	/**
@@ -383,33 +274,34 @@ class ControlPanel extends Model
 	 */
 	public function needsDownloadID()
 	{
+		/** @var Updates $updateModel */
+		$updateModel = $this->container->factory->model('Updates')->tmpInstance();
+
+		// Migrate J3 to J4 settings
+		$updateModel->upgradeLicenseKey();
+
+		// Save the J4 license key in the component options, if necessary
+		$updateModel->backportLicenseKey();
+
 		// Do I need a Download ID?
-		$ret   = true;
-		$isPro = AKEEBA_PRO;
+		$isPro = defined('AKEEBA_PRO') ? AKEEBA_PRO : 0;
 
 		if (!$isPro)
 		{
-			$ret = false;
-		}
-		else
-		{
-			$dlid = $this->container->params->get('update_dlid', '');
-
-			if (preg_match('/^([0-9]{1,}:)?[0-9a-f]{32}$/i', $dlid))
-			{
-				$ret = false;
-			}
+			return false;
 		}
 
-		return $ret;
+		$dlid = $updateModel->sanitizeLicenseKey($updateModel->getLicenseKey());
+
+		return !$updateModel->isValidLicenseKey($dlid);
 	}
 
 	/**
 	 * Checks the database for missing / outdated tables and runs the appropriate SQL scripts if necessary.
 	 *
+	 * @return  $this
 	 * @throws  RuntimeException    If the previous database update is stuck
 	 *
-	 * @return  $this
 	 */
 	public function checkAndFixDatabase()
 	{
@@ -456,10 +348,10 @@ class ControlPanel extends Model
 		$db = $this->container->db;
 
 		$query = $db->getQuery(true)
-					->select(array(
-						$db->qn('id'),
-					))->from($db->qn('#__ak_profiles'))
-					->order($db->qn('id') . " ASC");
+			->select([
+				$db->qn('id'),
+			])->from($db->qn('#__ak_profiles'))
+			->order($db->qn('id') . " ASC");
 		$db->setQuery($query);
 		$profiles = $db->loadColumn();
 
@@ -490,7 +382,9 @@ class ControlPanel extends Model
 	public function getFrontendSecretWordError()
 	{
 		// Is frontend backup enabled?
-		$febEnabled = Platform::getInstance()->get_platform_configuration_option('frontend_enable', 0) != 0;
+		$febEnabled =
+			($this->container->params->get('legacyapi_enabled', 0) != 0) ||
+			($this->container->params->get('jsonapi_enabled', 0) != 0);
 
 		if (!$febEnabled)
 		{
@@ -529,6 +423,110 @@ class ControlPanel extends Model
 	public function checkMbstring()
 	{
 		return function_exists('mb_strlen') && function_exists('mb_convert_encoding') &&
-		function_exists('mb_substr') && function_exists('mb_convert_case');
+			function_exists('mb_substr') && function_exists('mb_convert_case');
+	}
+
+	/**
+	 * Disables the encryption of profile settings. If the settings were already encrypted they are automatically
+	 * decrypted.
+	 *
+	 * @return  void
+	 */
+	private function disableSettingsEncryption()
+	{
+		// Load the server key file if necessary
+
+		$filename = JPATH_COMPONENT_ADMINISTRATOR . '/BackupEngine/serverkey.php';
+		$key      = Factory::getSecureSettings()->getKey();
+
+		// Loop all profiles and decrypt their settings
+		/** @var Profiles $profilesModel */
+		$profilesModel = $this->container->factory->model('Profiles')->tmpInstance();
+		$profiles      = $profilesModel->get(true);
+		$db            = $this->container->db;
+
+		/** @var Profiles $profile */
+		foreach ($profiles as $profile)
+		{
+			$id     = $profile->getId();
+			$config = Factory::getSecureSettings()->decryptSettings($profile->configuration, $key);
+			$sql    = $db->getQuery(true)
+				->update($db->qn('#__ak_profiles'))
+				->set($db->qn('configuration') . ' = ' . $db->q($config))
+				->where($db->qn('id') . ' = ' . $db->q($id));
+			$db->setQuery($sql);
+			$db->execute();
+		}
+
+		// Decrypt the Secret Word settings in the database
+		$params = $this->container->params;
+		SecretWord::enforceDecrypted($params, 'frontend_secret_word', $key);
+
+		// Finally, remove the key file
+		if (!@unlink($filename))
+		{
+			JLoader::import('joomla.filesystem.file');
+			JFile::delete($filename);
+		}
+	}
+
+	/**
+	 * Enabled the encryption of profile settings. Existing settings are automatically encrypted.
+	 *
+	 * @return  void
+	 */
+	private function enableSettingsEncryption()
+	{
+		$key = $this->createSettingsKey();
+
+		if (empty($key) || ($key == false))
+		{
+			return;
+		}
+
+		// Loop all profiles and encrypt their settings
+		/** @var \Akeeba\Backup\Admin\Model\Profiles $profilesModel */
+		$profilesModel = $this->container->factory->model('Profiles')->tmpInstance();
+		$profiles      = $profilesModel->get(true);
+		$db            = $this->container->db;
+		if (!empty($profiles))
+		{
+			foreach ($profiles as $profile)
+			{
+				$id     = $profile->id;
+				$config = Factory::getSecureSettings()->encryptSettings($profile->configuration, $key);
+				$sql    = $db->getQuery(true)
+					->update($db->qn('#__ak_profiles'))
+					->set($db->qn('configuration') . ' = ' . $db->q($config))
+					->where($db->qn('id') . ' = ' . $db->q($id));
+				$db->setQuery($sql);
+				$db->execute();
+			}
+		}
+	}
+
+	/**
+	 * Creates an encryption key for the settings and saves it in the <component>/BackupEngine/serverkey.php path
+	 *
+	 * @return  bool|string  FALSE on failure, the encryptions key otherwise
+	 */
+	private function createSettingsKey()
+	{
+		$randVal = new RandomValue();
+		$rawKey  = $randVal->generate(64);
+		$key     = base64_encode($rawKey);
+
+		$filecontents = "<?php defined('AKEEBAENGINE') or die(); define('AKEEBA_SERVERKEY', '$key'); ?>";
+		$filename     = $this->container->backEndPath . '/BackupEngine/serverkey.php';
+
+		JLoader::import('joomla.filesystem.file');
+		$result = JFile::write($filename, $filecontents);
+
+		if (!$result)
+		{
+			return false;
+		}
+
+		return $rawKey;
 	}
 }

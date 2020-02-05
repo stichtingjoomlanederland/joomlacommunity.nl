@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -27,7 +27,7 @@ class EasyDiscussViewComment extends EasyDiscussView
 		ED::checkToken();
 
 		$id = $this->input->get('id','','int');
-		$message = $this->input->get('comments','', 'string');
+		$message = $this->input->get('comments','', 'raw');
 		$acceptedTerms = $this->input->get('tncCheckbox','');
 
 		// Load the post item.

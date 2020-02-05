@@ -120,7 +120,7 @@ class EasyDiscussParser extends EasyDiscuss
 	public function normaliseImageStyle($content)
 	{
 		// we need to remove anything style attribute then reformat to show width 100%
-		$content = preg_replace('/(<[^>]+) style=".*?"/i', '$1', $content);
+		$content = preg_replace('/(<img[^>]+)style=".*?"/i', '$1', $content);
 		$pattern = '/<img[^>]+>/ims';
 
 		if (preg_match_all($pattern, $content, $matches)) {

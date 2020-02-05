@@ -1163,8 +1163,8 @@ class RseventsproModelRseventspro extends JModelLegacy
 	
 	// Get filters
 	public function getFilters($fromrequest = false) {
-		$itemid 	= $this->_app->input->getInt('Itemid');
-		$parent		= $this->_app->input->getInt('parent');
+		$itemid 	= $this->_app->input->getInt('Itemid',0);
+		$parent		= $this->_app->input->getInt('parent',0);
 		
 		if ($fromrequest) {
 			$columns 	= $this->_app->input->get('filter_from', 		array(), 'array');
@@ -1277,8 +1277,8 @@ class RseventsproModelRseventspro extends JModelLegacy
 	
 	// Set filter
 	public function setFilter($type,$value) {
-		$itemid 	= $this->_app->input->getInt('Itemid');
-		$parent		= $this->_app->input->getInt('parent');
+		$itemid 	= $this->_app->input->getInt('Itemid',0);
+		$parent		= $this->_app->input->getInt('parent',0);
 		
 		$this->_app->setUserState('com_rseventspro.events.filter_columns'.$itemid.$parent,array($type));
 		$this->_app->setUserState('com_rseventspro.events.filter_operators'.$itemid.$parent,array('is'));

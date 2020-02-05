@@ -1,21 +1,20 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Archiver;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Util\Transfer\Ftp;
-use Psr\Log\LogLevel;
+use Exception;
+use RuntimeException;
 
 /**
  * Direct Transfer Over FTP archiver class
@@ -26,45 +25,37 @@ use Psr\Log\LogLevel;
  */
 class Directftp extends Base
 {
-	/** @var Ftp FTP resource handle */
-	protected $ftpTransfer;
-
-	/** @var string FTP hostname */
-	protected $host;
-
-	/** @var string FTP port */
-	protected $port;
-
-	/** @var string FTP username */
-	protected $user;
-
-	/** @var string FTP password */
-	protected $pass;
-
-	/** @var bool Should we use FTP over SSL? */
-	protected $usessl;
-
-	/** @var bool Should we use passive FTP? */
-	protected $passive;
-
-	/** @var string FTP initial directory */
-	protected $initdir;
-
 	/** @var bool Could we connect to the server? */
 	public $connect_ok = false;
+	/** @var Ftp FTP resource handle */
+	protected $ftpTransfer;
+	/** @var string FTP hostname */
+	protected $host;
+	/** @var string FTP port */
+	protected $port;
+	/** @var string FTP username */
+	protected $user;
+	/** @var string FTP password */
+	protected $pass;
+	/** @var bool Should we use FTP over SSL? */
+	protected $usessl;
+	/** @var bool Should we use passive FTP? */
+	protected $passive;
+	/** @var string FTP initial directory */
+	protected $initdir;
 
 	/**
 	 * Initialises the archiver class, seeding the remote installation
 	 * from an existent installer's JPA archive.
 	 *
-	 * @param string $targetArchivePath Absolute path to the generated archive (ignored in this class)
-	 * @param array  $options           A named key array of options (optional)
+	 * @param   string  $targetArchivePath  Absolute path to the generated archive (ignored in this class)
+	 * @param   array   $options            A named key array of options (optional)
 	 *
 	 * @return  void
 	 */
-	public function initialize($targetArchivePath, $options = array())
+	public function initialize($targetArchivePath, $options = [])
 	{
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: new instance");
+		Factory::getLog()->debug(__CLASS__ . " :: new instance");
 
 		$registry = Factory::getConfiguration();
 
@@ -114,14 +105,14 @@ class Directftp extends Base
 		// You can't fix stupid, but at least you get to shout at them
 		if (strtolower(substr($this->host, 0, 6)) == 'ftp://')
 		{
-			Factory::getLog()->log(LogLevel::WARNING, 'YOU ARE *** N O T *** SUPPOSED TO ENTER THE ftp:// PROTOCOL PREFIX IN THE FTP HOSTNAME FIELD OF THE DirectFTP ARCHIVER ENGINE.');
-			Factory::getLog()->log(LogLevel::WARNING, 'I am trying to fix your bad configuration setting, but the backup might fail anyway. You MUST fix this in your configuration.');
+			Factory::getLog()->warning('YOU ARE *** N O T *** SUPPOSED TO ENTER THE ftp:// PROTOCOL PREFIX IN THE FTP HOSTNAME FIELD OF THE DirectFTP ARCHIVER ENGINE.');
+			Factory::getLog()->warning('I am trying to fix your bad configuration setting, but the backup might fail anyway. You MUST fix this in your configuration.');
 			$this->host = substr($this->host, 6);
 		}
 
 		$this->connect_ok = $this->connectFTP();
 
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: FTP connection status: " . ($this->connect_ok ? 'success' : 'FAIL'));
+		Factory::getLog()->debug(__CLASS__ . " :: FTP connection status: " . ($this->connect_ok ? 'success' : 'FAIL'));
 	}
 
 	/**
@@ -141,22 +132,36 @@ class Directftp extends Base
 	}
 
 	/**
+	 * "Magic" function called just before serialization of the object. Disconnects
+	 * from the FTP server and allows PHP to serialize like normal.
+	 *
+	 * @return array The variables to serialize
+	 */
+	public function _onSerialize()
+	{
+		// Explicitally unset the ftpTransfer class so the destructor magic method is called (and the connection is closed)
+		unset($this->ftpTransfer);
+
+		return array_keys(get_object_vars($this));
+	}
+
+	/**
 	 * The most basic file transaction: add a single entry (file or directory) to
 	 * the archive.
 	 *
-	 * @param bool   $isVirtual        If true, the next parameter contains file data instead of a file name
-	 * @param string $sourceNameOrData Absolute file name to read data from or the file data itself is $isVirtual is
-	 *                                 true
-	 * @param string $targetName       The (relative) file name under which to store the file in the archive
+	 * @param   bool    $isVirtual         If true, the next parameter contains file data instead of a file name
+	 * @param   string  $sourceNameOrData  Absolute file name to read data from or the file data itself is $isVirtual is
+	 *                                     true
+	 * @param   string  $targetName        The (relative) file name under which to store the file in the archive
 	 *
 	 * @return boolean True on success, false otherwise
 	 */
 	protected function _addFile($isVirtual, &$sourceNameOrData, $targetName)
 	{
 		// Are we connected to a server?
-		if ( !$this->ftpTransfer)
+		if (!$this->ftpTransfer)
 		{
-			if ( !$this->connectFTP())
+			if (!$this->connectFTP())
 			{
 				return false;
 			}
@@ -178,40 +183,10 @@ class Directftp extends Base
 				// Create a temporary file, upload, rename it
 				$tempFileName = Factory::getTempFiles()->createRegisterTempFile();
 
-				if (function_exists('file_put_contents'))
+				// Easy writing using file_put_contents
+				if (@file_put_contents($tempFileName, $sourceNameOrData) === false)
 				{
-					// Easy writing using file_put_contents
-					if (@file_put_contents($tempFileName, $sourceNameOrData) === false)
-					{
-						$this->setError('Could not store virtual file ' . $targetName . ' to ' . $tempFileName . ' using file_put_contents() before uploading.');
-
-						return false;
-					}
-				}
-				else
-				{
-					// The long way, using fopen() and fwrite()
-					$fp = @fopen($tempFileName, 'wb');
-
-					if ($fp === false)
-					{
-						$this->setError('Could not store virtual file ' . $targetName . ' to ' . $tempFileName . ' using fopen() before uploading.');
-
-						return false;
-					}
-					else
-					{
-						$result = @fwrite($fp, $sourceNameOrData);
-
-						if ($result === false)
-						{
-							$this->setError('Could not store virtual file ' . $targetName . ' to ' . $tempFileName . ' using fwrite() before uploading.');
-
-							return false;
-						}
-
-						@fclose($fp);
-					}
+					throw new RuntimeException('Could not store virtual file ' . $targetName . ' to ' . $tempFileName . ' using file_put_contents() before uploading.');
 				}
 
 				// Upload the temporary file under the final name
@@ -231,50 +206,28 @@ class Directftp extends Base
 	}
 
 	/**
-	 * "Magic" function called just before serialization of the object. Disconnects
-	 * from the FTP server and allows PHP to serialize like normal.
-	 *
-	 * @return array The variables to serialize
-	 */
-	public function _onSerialize()
-	{
-        // Explicitally unset the ftpTransfer class so the destructor magic method is called (and the connection is closed)
-		unset($this->ftpTransfer);
-
-		return array_keys(get_object_vars($this));
-	}
-
-	/**
 	 * Tries to connect to the remote FTP server and change into the initial directory
 	 *
 	 * @return bool True is connection successful, false otherwise
+	 *
+	 * @throws Exception
 	 */
 	protected function connectFTP()
 	{
-		Factory::getLog()->log(LogLevel::DEBUG, 'Connecting to remote FTP');
+		Factory::getLog()->debug('Connecting to remote FTP');
 
-        $options = array(
-            'host'      => $this->host,
-            'port'      => $this->port,
-            'username'  => $this->user,
-            'password'  => $this->pass,
-            'directory' => $this->initdir,
-            'ssl'       => $this->usessl,
-            'passive'   => $this->passive
-        );
+		$options = [
+			'host'      => $this->host,
+			'port'      => $this->port,
+			'username'  => $this->user,
+			'password'  => $this->pass,
+			'directory' => $this->initdir,
+			'ssl'       => $this->usessl,
+			'passive'   => $this->passive,
+		];
 
-        try
-        {
-            $this->ftpTransfer = new Ftp($options);
-        }
-        catch(\RuntimeException $e)
-        {
-            $this->setError($e->getMessage());
-
-            return false;
-        }
-
-		$this->resetErrors();
+		// Let the exceptions bubble up
+		$this->ftpTransfer = new Ftp($options);
 
 		return true;
 	}
@@ -292,7 +245,7 @@ class Directftp extends Base
 	protected function ftp_chdir($dir)
 	{
 		// Calculate "real" (absolute) FTP path
-        $realdir = $this->ftpTransfer->getPath($dir);
+		$realdir = $this->ftpTransfer->getPath($dir);
 
 		if ($this->initdir == $realdir)
 		{
@@ -305,11 +258,11 @@ class Directftp extends Base
 		if ($result === false)
 		{
 			// The directory doesn't exist, let's try to create it...
-			if ( !$this->makeDirectory($dir))
+			if (!$this->makeDirectory($dir))
 			{
 				return false;
 			}
-        }
+		}
 
 		return true;
 	}
@@ -317,7 +270,7 @@ class Directftp extends Base
 	/**
 	 * Recursively create a directory in the FTP server
 	 *
-	 * @param   string $dir The directory to create
+	 * @param   string  $dir  The directory to create
 	 *
 	 * @return  bool  True on success
 	 */
@@ -331,13 +284,11 @@ class Directftp extends Base
 		{
 			$check = $previousDir . '/' . $curdir;
 
-			if ( !$this->ftpTransfer->isDir($check))
+			if (!$this->ftpTransfer->isDir($check))
 			{
 				if (@$this->ftpTransfer->mkdir($check) === false)
 				{
-					$this->setError('Could not create directory ' . $dir);
-
-					return false;
+					throw new RuntimeException('Could not create directory ' . $dir);
 				}
 			}
 
@@ -360,47 +311,41 @@ class Directftp extends Base
 		// Try to change into the remote directory, possibly creating it if it doesn't exist
 		$dir = dirname($targetName);
 
-		if ( !$this->ftp_chdir($dir))
+		if (!$this->ftp_chdir($dir))
 		{
 			return false;
 		}
 
 		// Upload
-		$realdir = substr($this->initdir, -1) == '/' ? substr($this->initdir, 0, strlen($this->initdir) - 1) : $this->initdir;
-		$realdir .= '/' . $dir;
+		$realdir  = substr($this->initdir, -1) == '/' ? substr($this->initdir, 0, strlen($this->initdir) - 1) : $this->initdir;
+		$realdir  .= '/' . $dir;
 		$realdir  = substr($realdir, 0, 1) == '/' ? $realdir : '/' . $realdir;
 		$realname = $realdir . '/' . basename($targetName);
 
-        try
-        {
-            $res = $this->ftpTransfer->upload($sourceName, $realname);
-        }
-        catch(\RuntimeException $e)
-        {
-            $res = false;
-        }
+		try
+		{
+			$res = $this->ftpTransfer->upload($sourceName, $realname);
+		}
+		catch (RuntimeException $e)
+		{
+			$res = false;
+		}
 
-		if ( !$res)
+		if (!$res)
 		{
 			// If the file was unreadable, just skip it...
 			if (is_readable($sourceName))
 			{
-				$this->setError('Uploading ' . $targetName . ' has failed.');
-
-				return false;
+				throw new RuntimeException('Uploading ' . $targetName . ' has failed.');
 			}
-			else
-			{
-				$this->setWarning('Uploading ' . $targetName . ' has failed because the file is unreadable.');
 
-				return true;
-			}
-		}
-		else
-		{
-            $this->ftpTransfer->chmod($realdir, 0644);
+			Factory::getLog()->warning('Uploading ' . $targetName . ' has failed because the file is unreadable.');
 
 			return true;
 		}
+
+		$this->ftpTransfer->chmod($realdir, 0644);
+
+		return true;
 	}
 }

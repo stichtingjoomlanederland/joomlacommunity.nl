@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -20,7 +20,14 @@ class Html extends BaseView
 	 *
 	 * @var  array
 	 */
-	public $actions;
+	public $actions = [];
+
+	/**
+	 * The capabilities of the remote storage engine
+	 *
+	 * @var  array
+	 */
+	public $capabilities = [];
 
 	/**
 	 * Total size of the file(s) to download
@@ -70,9 +77,10 @@ class Html extends BaseView
 	public function onBeforeListactions()
 	{
 		/** @var RemoteFiles $model */
-		$model         = $this->getModel();
-		$actions       = $model->getActions();
-		$this->actions = $actions;
+		$model              = $this->getModel();
+		$this->id           = $model->getState('id', -1);
+		$this->actions      = $model->getActions($this->id);
+		$this->capabilities = $model->getCapabilities($this->id);
 
 		$css = <<< CSS
 dt.message { display: none; }
@@ -91,25 +99,12 @@ CSS;
 		$this->setLayout('dlprogress');
 
 		// Get progress bar stats
-		$total   = $this->container->platform->getSessionVar('dl_totalsize', 0, 'akeeba');
-		$done    = $this->container->platform->getSessionVar('dl_donesize', 0, 'akeeba');
-
-		$percent = 0;
-
-		if ($total > 0)
-		{
-			$percent = (int)(100 * ($done / $total));
-			$percent = max(0, $percent);
-			$percent = min(100, $percent);
-		}
-
-		$this->total   = $total;
-		$this->done    = $done;
-		$this->percent = $percent;
-
-		$this->id   = $model->getState('id', 0, 'int');
-		$this->part = $model->getState('part', 0, 'int');
-		$this->frag = $model->getState('frag', 0, 'int');
+		$this->total   = $this->container->platform->getSessionVar('dl_totalsize', 0, 'akeeba');
+		$this->done    = $this->container->platform->getSessionVar('dl_donesize', 0, 'akeeba');
+		$this->percent = ($this->total > 0) ? min(100, (int) (100 * (abs($this->done) / abs($this->total)))) : 0;
+		$this->id      = $model->getState('id', 0, 'int');
+		$this->part    = $model->getState('part', 0, 'int');
+		$this->frag    = $model->getState('frag', 0, 'int');
 
 		// Render the progress bar
 		$script = <<<JS

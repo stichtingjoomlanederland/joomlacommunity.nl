@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class plgAcymArticle extends acymPlugin
 {
@@ -19,7 +10,7 @@ class plgAcymArticle extends acymPlugin
         $this->cms = 'Joomla';
 
         $this->pluginDescription->name = acym_translation('ACYM_ARTICLE');
-        $this->pluginDescription->icon = '<i class="cell fa fa-joomla"></i>';
+        $this->pluginDescription->icon = '<i class="cell acymicon-joomla"></i>';
         $this->pluginDescription->icontype = 'raw';
     }
 

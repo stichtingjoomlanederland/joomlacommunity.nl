@@ -1,24 +1,21 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Archiver;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Base\Exceptions\ErrorException;
 use Akeeba\Engine\Base\Exceptions\WarningException;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Util\Encrypt;
 use Akeeba\Engine\Util\RandomValue;
-use Psr\Log\LogLevel;
 
 if (!defined('_JPS_MAJOR'))
 {
@@ -84,62 +81,55 @@ class Jps extends BaseArchiver
 	 * Initialises the archiver class, creating the archive from an existent
 	 * installer's JPA archive.
 	 *
-	 * @param    string $targetArchivePath Absolute path to the generated archive
-	 * @param    array  $options           A named key array of options (optional)
+	 * @param   string  $targetArchivePath  Absolute path to the generated archive
+	 * @param   array   $options            A named key array of options (optional)
 	 *
 	 * @return  void
 	 */
-	public function initialize($targetArchivePath, $options = array())
+	public function initialize($targetArchivePath, $options = [])
 	{
-		try
+		Factory::getLog()->debug(__CLASS__ . " :: new instance - archive $targetArchivePath");
+
+		$this->_dataFileName = $targetArchivePath;
+
+		// Make sure the encryption functions are all there
+		$this->testEncryptionAvailability();
+
+		// Get and memorise the password
+		$config         = Factory::getConfiguration();
+		$this->password = $config->get('engine.archiver.jps.key', '');
+
+		if (empty($this->password))
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: new instance - archive $targetArchivePath");
-
-			$this->_dataFileName = $targetArchivePath;
-
-			// Make sure the encryption functions are all there
-			$this->testEncryptionAvailability();
-
-			// Get and memorise the password
-			$config         = Factory::getConfiguration();
-			$this->password = $config->get('engine.archiver.jps.key', '');
-
-			if (empty($this->password))
-			{
-				$this->setWarning('You are using an empty password. This is not secure at all!');
-			}
-
-			// Set up the key expansion based on preferences
-			$pbkdf2UseStaticSalt = $config->get('engine.archiver.jps.pbkdf2usestaticsalt', 1);
-			$this->encryptionObject
-				->setPbkdf2Algorithm('sha1')
-				->setPbkdf2Iterations($pbkdf2UseStaticSalt ? 128000 : 2500)
-				->setPbkdf2UseStaticSalt($pbkdf2UseStaticSalt);
-
-			// If a static salt is to be used let's create one
-			if ($pbkdf2UseStaticSalt)
-			{
-				$rand             = new RandomValue();
-				$this->staticSalt = $rand->generate(64);
-				$this->encryptionObject->setPbkdf2StaticSalt($this->staticSalt);
-			}
-
-			// Should we enable split archive feature?
-			$this->enableSplitArchives();
-
-			// Should I use Symlink Target Storage?
-			$this->enableSymlinkTargetStorage();
-
-			// Create the new backup archive
-			$this->createNewBackupArchive();
-
-			// Write the initial instance of the archive header
-			$this->writeArchiveHeader();
+			Factory::getLog()->warning('You are using an empty password. This is not secure at all!');
 		}
-		catch (ErrorException $e)
+
+		// Set up the key expansion based on preferences
+		$pbkdf2UseStaticSalt = $config->get('engine.archiver.jps.pbkdf2usestaticsalt', 1);
+		$this->encryptionObject
+			->setPbkdf2Algorithm('sha1')
+			->setPbkdf2Iterations($pbkdf2UseStaticSalt ? 128000 : 2500)
+			->setPbkdf2UseStaticSalt($pbkdf2UseStaticSalt);
+
+		// If a static salt is to be used let's create one
+		if ($pbkdf2UseStaticSalt)
 		{
-			$this->setError($e->getMessage());
+			$rand             = new RandomValue();
+			$this->staticSalt = $rand->generate(64);
+			$this->encryptionObject->setPbkdf2StaticSalt($this->staticSalt);
 		}
+
+		// Should we enable split archive feature?
+		$this->enableSplitArchives();
+
+		// Should I use Symlink Target Storage?
+		$this->enableSymlinkTargetStorage();
+
+		// Create the new backup archive
+		$this->createNewBackupArchive();
+
+		// Write the initial instance of the archive header
+		$this->writeArchiveHeader();
 	}
 
 	/**
@@ -162,18 +152,11 @@ class Jps extends BaseArchiver
 
 		$this->_closeAllFiles();
 
-		try
-		{
-			// If spanned JPS and there is no .jps file, rename the last part to .jps
-			$this->renameLastPartToJps();
+		// If spanned JPS and there is no .jps file, rename the last part to .jps
+		$this->renameLastPartToJps();
 
-			// Write the end of archive header
-			$this->writeEndOfArchiveHeader();
-		}
-		catch (ErrorException $e)
-		{
-			$this->setError($e->getMessage());
-		}
+		// Write the end of archive header
+		$this->writeEndOfArchiveHeader();
 	}
 
 	/**
@@ -190,7 +173,7 @@ class Jps extends BaseArchiver
 	/**
 	 * Returns the length of a string in BYTES, not characters
 	 *
-	 * @param string $string The string to get the length for
+	 * @param   string  $string  The string to get the length for
 	 *
 	 * @return int The size in BYTES
 	 */
@@ -248,10 +231,7 @@ class Jps extends BaseArchiver
 		$this->writeKeyExpansionArchiveExtraHeader();
 
 		// Change the permissions of the file
-		if (function_exists('chmod'))
-		{
-			@chmod($this->_dataFileName, 0644);
-		}
+		@chmod($this->_dataFileName, 0644);
 	}
 
 	/**
@@ -292,7 +272,7 @@ class Jps extends BaseArchiver
 		// Set up the key expansion
 		$this->encryptionObject = Factory::getEncryption();
 
-		$config         = Factory::getConfiguration();
+		$config              = Factory::getConfiguration();
 		$pbkdf2UseStaticSalt = $config->get('engine.archiver.jps.pbkdf2usestaticsalt', 1);
 		$this->encryptionObject
 			->setPbkdf2Algorithm('sha1')
@@ -311,10 +291,10 @@ class Jps extends BaseArchiver
 	 * The most basic file transaction: add a single entry (file or directory) to
 	 * the archive.
 	 *
-	 * @param bool   $isVirtual        If true, the next parameter contains file data instead of a file name
-	 * @param string $sourceNameOrData Absolute file name to read data from or the file data itself is $isVirtual is
-	 *                                 true
-	 * @param string $targetName       The (relative) file name under which to store the file in the archive
+	 * @param   bool    $isVirtual         If true, the next parameter contains file data instead of a file name
+	 * @param   string  $sourceNameOrData  Absolute file name to read data from or the file data itself is $isVirtual is
+	 *                                     true
+	 * @param   string  $targetName        The (relative) file name under which to store the file in the archive
 	 *
 	 * @return boolean True on success, false otherwise
 	 */
@@ -324,7 +304,7 @@ class Jps extends BaseArchiver
 		$configuration = Factory::getConfiguration();
 
 		// Is this a virtual file?
-		$isVirtual     = (bool) $isVirtual;
+		$isVirtual = (bool) $isVirtual;
 
 		// Open data file for output
 		$this->openArchiveForOutput();
@@ -337,11 +317,11 @@ class Jps extends BaseArchiver
 		$isDir     = false;
 		$isSymlink = false;
 
-		if ( !$continueProcessingFile)
+		if (!$continueProcessingFile)
 		{
 			// Log the file being added
 			$messageSource = $isVirtual ? '(virtual data)' : "(source: $sourceNameOrData)";
-			Factory::getLog()->log(LogLevel::DEBUG, "-- Adding $targetName to archive $messageSource");
+			Factory::getLog()->debug("-- Adding $targetName to archive $messageSource");
 
 			$this->writeFileHeader($sourceNameOrData, $targetName, $isVirtual, $isSymlink, $isDir, $compressionMethod, $fileSize);
 		}
@@ -352,7 +332,7 @@ class Jps extends BaseArchiver
 			$fileSize         = $configuration->get('volatile.engine.archiver.unc_len', 0);
 
 			// Log the file we continue packing
-			Factory::getLog()->log(LogLevel::DEBUG, "-- Resuming adding file $sourceNameOrData to archive from position $resume (total size $fileSize)");
+			Factory::getLog()->debug("-- Resuming adding file $sourceNameOrData to archive from position $resume (total size $fileSize)");
 		}
 
 		if ($isSymlink)
@@ -391,7 +371,7 @@ class Jps extends BaseArchiver
 		$encryptedSize = akstrlen($data);
 
 		// Initialize the value with something suitable for single part archives
-		$free_space    = $encryptedSize + 8;
+		$free_space = $encryptedSize + 8;
 
 		// Do we have enough space to store the 8 byte header?
 		if ($this->useSplitArchive)
@@ -424,9 +404,9 @@ class Jps extends BaseArchiver
 		while ($encryptedSize > 0)
 		{
 			// Split between parts - Write first part
-			$dataMD5 = md5($data);
-			$firstPart  = aksubstr($data, 0, $free_space);
-			$data = aksubstr($data, $free_space);
+			$dataMD5         = md5($data);
+			$firstPart       = aksubstr($data, 0, $free_space);
+			$data            = aksubstr($data, $free_space);
 			$firstPartLength = akstrlen($firstPart);
 
 			if (md5($firstPart . $data) != $dataMD5)
@@ -436,10 +416,10 @@ class Jps extends BaseArchiver
 
 			// Try to write to the archive. We can only write as much bytes as the free space in the backup archive OR
 			// the total data bytes left, whichever is lower.
-			$bytesWritten    = $this->fwrite($this->fp, $firstPart, $firstPartLength);
+			$bytesWritten = $this->fwrite($this->fp, $firstPart, $firstPartLength);
 
 			// Since we may have written fewer bytes than anticipated we use the real bytes written for calculations
-			$free_space -= $bytesWritten;
+			$free_space    -= $bytesWritten;
 			$encryptedSize -= $bytesWritten;
 
 			// Not all bytes were written. The rest must be placed in front of the remaining data so we can write it
@@ -509,7 +489,7 @@ class Jps extends BaseArchiver
 				$this->dataFileNameWithoutExtension . '.j' . sprintf('%02d', $this->currentPartNumber);
 		}
 
-		Factory::getLog()->log(LogLevel::INFO, 'Creating new JPS part #' . $this->currentPartNumber . ', file ' . $this->_dataFileName);
+		Factory::getLog()->info('Creating new JPS part #' . $this->currentPartNumber . ', file ' . $this->_dataFileName);
 
 		// Inform that we have chenged the multipart number
 		$statistics = Factory::getStatistics();
@@ -521,12 +501,57 @@ class Jps extends BaseArchiver
 		// Touch the new file
 		$result = @touch($this->_dataFileName);
 
-		if (function_exists('chmod'))
-		{
-			chmod($this->_dataFileName, 0666);
-		}
+		@chmod($this->_dataFileName, 0666);
 
 		return $result;
+	}
+
+	/**
+	 * Write the header for key expansion into the archive
+	 *
+	 * @return  void
+	 *
+	 * @since   5.3.0
+	 */
+	protected function writeKeyExpansionArchiveExtraHeader()
+	{
+		$expansionParams = $this->encryptionObject->getKeyDerivationParameters();
+
+		switch ($expansionParams['algorithm'])
+		{
+			default:
+			case 'sha1':
+				$algo = 0;
+				break;
+
+			case 'sha256':
+				$algo = 1;
+				break;
+
+			case 'sha512':
+				$algo = 2;
+				break;
+		}
+
+		$hasStaticSalt = $expansionParams['useStaticSalt'];
+		$staticSalt    = $expansionParams['staticSalt'];
+
+		if (!$hasStaticSalt)
+		{
+			$staticSalt = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+			$staticSalt .= "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+			$staticSalt .= "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+			$staticSalt .= "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+		}
+
+		// -- Header
+		$this->fwrite($this->fp, "JH\x00\x01");
+		// -- Field length (with header)
+		$this->fwrite($this->fp, pack('v', 12 + $this->stringLength($staticSalt)));
+		// -- Algorithm, iterations, has static salt
+		$this->fwrite($this->fp, pack('CVC', $algo, $expansionParams['iterations'], $hasStaticSalt));
+		// -- Static salt
+		$this->fwrite($this->fp, $staticSalt);
 	}
 
 	/**
@@ -573,7 +598,7 @@ class Jps extends BaseArchiver
 			return;
 		}
 
-		Factory::getLog()->log(LogLevel::DEBUG, 'Renaming last JPS part to .JPS extension');
+		Factory::getLog()->debug('Renaming last JPS part to .JPS extension');
 		$newName = $this->dataFileNameWithoutExtension . '.jps';
 
 		if (!@rename($this->_dataFileName, $newName))
@@ -768,7 +793,7 @@ class Jps extends BaseArchiver
 		{
 			$resume = $configuration->get('volatile.engine.archiver.resume', 0);
 
-			Factory::getLog()->log(LogLevel::DEBUG, "(cont) Source: $sourceNameOrData - Size: $fileSize - Resume: $resume");
+			Factory::getLog()->debug("(cont) Source: $sourceNameOrData - Size: $fileSize - Resume: $resume");
 		}
 
 		// Open the file
@@ -799,10 +824,10 @@ class Jps extends BaseArchiver
 
 		while (!@feof($zdatafp) && ($timer->getTimeLeft() > 0) && ($fileSize > 0))
 		{
-			$zdata = @fread($zdatafp, AKEEBA_CHUNK);
+			$zdata    = @fread($zdatafp, AKEEBA_CHUNK);
 			$fileSize -= min(akstrlen($zdata), AKEEBA_CHUNK);
-			$zdata = gzcompress($zdata);
-			$zdata = aksubstr(aksubstr($zdata, 0, -4), 2);
+			$zdata    = gzcompress($zdata);
+			$zdata    = aksubstr(aksubstr($zdata, 0, -4), 2);
 
 			try
 			{
@@ -826,7 +851,7 @@ class Jps extends BaseArchiver
 		{
 			// We have to break, or we'll time out!
 			$mustResume = true;
-			$resume = @ftell($zdatafp);
+			$resume     = @ftell($zdatafp);
 		}
 
 		$configuration->set('volatile.engine.archiver.resume', $resume);
@@ -835,53 +860,5 @@ class Jps extends BaseArchiver
 		@fclose($zdatafp);
 
 		return $mustResume;
-	}
-
-	/**
-	 * Write the header for key expansion into the archive
-	 *
-	 * @return  void
-	 *
-	 * @since   5.3.0
-	 */
-	protected function writeKeyExpansionArchiveExtraHeader()
-	{
-		$expansionParams = $this->encryptionObject->getKeyDerivationParameters();
-
-		switch ($expansionParams['algorithm'])
-		{
-			default:
-			case 'sha1':
-				$algo = 0;
-				break;
-
-			case 'sha256':
-				$algo = 1;
-				break;
-
-			case 'sha512':
-				$algo = 2;
-				break;
-		}
-
-		$hasStaticSalt = $expansionParams['useStaticSalt'];
-		$staticSalt = $expansionParams['staticSalt'];
-
-		if (!$hasStaticSalt)
-		{
-			$staticSalt = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
-			$staticSalt .= "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
-			$staticSalt .= "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
-			$staticSalt .= "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
-		}
-
-		// -- Header
-		$this->fwrite($this->fp, "JH\x00\x01");
-		// -- Field length (with header)
-		$this->fwrite($this->fp, pack('v', 12 + $this->stringLength($staticSalt)));
-		// -- Algorithm, iterations, has static salt
-		$this->fwrite($this->fp, pack('CVC', $algo, $expansionParams['iterations'], $hasStaticSalt));
-		// -- Static salt
-		$this->fwrite($this->fp, $staticSalt);
 	}
 }

@@ -1,21 +1,21 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Dump\Native;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
 
+
+use Akeeba\Engine\Driver\QueryException;
 use Akeeba\Engine\Dump\Base;
 use Akeeba\Engine\Factory;
-use Psr\Log\LogLevel;
+use Exception;
+use RuntimeException;
 
 /**
  * A generic MySQL database dump class.
@@ -32,17 +32,17 @@ class Mysql extends Base
 {
 	/**
 	 * The primary key structure of the currently backed up table. The keys contained are:
-	 * - table		The name of the table being backed up
-	 * - field		The name of the primary key field
-	 * - value		The last value of the PK field
+	 * - table        The name of the table being backed up
+	 * - field        The name of the primary key field
+	 * - value        The last value of the PK field
 	 *
 	 * @var array
 	 */
-	protected $table_autoincrement = array(
-		'table'		=> null,
-		'field'		=> null,
-		'value'		=> null,
-	);
+	protected $table_autoincrement = [
+		'table' => null,
+		'field' => null,
+		'value' => null,
+	];
 
 	/**
 	 * Implements the constructor of the class
@@ -53,7 +53,7 @@ class Mysql extends Base
 	{
 		parent::__construct();
 
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: New instance");
+		Factory::getLog()->debug(__CLASS__ . " :: New instance");
 	}
 
 	/**
@@ -69,7 +69,7 @@ class Mysql extends Base
 		{
 			$ret = $db->setQuery('SELECT DATABASE()')->loadResult();
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			return '';
 		}
@@ -86,18 +86,13 @@ class Mysql extends Base
 	{
 		$db = $this->getDB();
 
-		if ($this->getError())
-		{
-			return;
-		}
-
 		// Try to enforce SQL_BIG_SELECTS option
 		try
 		{
 			$db->setQuery('SET sql_big_selects=1');
 			$db->query();
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			// Do nothing; some versions of MySQL don't allow you to use the BIG_SELECTS option.
 		}
@@ -110,33 +105,22 @@ class Mysql extends Base
 	 *
 	 * @return  void
 	 *
-	 * @throws \Akeeba\Engine\Driver\QueryException
+	 * @throws QueryException
+	 * @throws Exception
 	 */
 	protected function stepDatabaseDump()
 	{
 		// Initialize local variables
 		$db = $this->getDB();
 
-		if ($this->getError())
-		{
-			return;
-		}
-
 		if (!is_object($db) || ($db === false))
 		{
-			$this->setError(__CLASS__ . '::_run() Could not connect to database?!');
-
-			return;
+			throw new RuntimeException(__CLASS__ . '::_run() Could not connect to database?!');
 		}
 
 		$outData = ''; // Used for outputting INSERT INTO commands
 
 		$this->enforceSQLCompatibility(); // Apply MySQL compatibility option
-
-		if ($this->getError())
-		{
-			return;
-		}
 
 		// Touch SQL dump file
 		$nada = "";
@@ -155,11 +139,6 @@ class Mysql extends Base
 		// If it is the first run, find number of rows and get the CREATE TABLE command
 		if ($this->nextRange == 0)
 		{
-			if ($this->getError())
-			{
-				return;
-			}
-
 			$outCreate = '';
 
 			if (is_array($this->tables_data[$tableName]))
@@ -204,6 +183,20 @@ class Mysql extends Base
 				}
 			}
 
+			/**
+			 * If we have a PROCEDURE, FUNCTION or TRIGGER and we are doing a SQL export meant to be run directly by
+			 * MySQL (the scripting db.delimiterstatements flag is set to 1) we need to surround the CREATE statement
+			 * with DELIMITER $$ commands.
+			 */
+			if (
+				(Factory::getEngineParamsProvider()->getScriptingParameter('db.delimiterstatements', 0) == 1)
+				&& in_array($this->tables_data[$tableName]['type'], ['trigger', 'function', 'procedure'])
+			)
+			{
+				$outCreate = rtrim($outCreate, ";\n");
+				$outCreate = "DELIMITER $$\n$outCreate$$\nDELIMITER ;\n";
+			}
+
 			// Write the CREATE command after any DROP command which might be necessary.
 			if (!$this->writeDump($outCreate, true))
 			{
@@ -227,7 +220,7 @@ class Mysql extends Base
 				 * Do NOT move this line to the if-block below. We need to only log this message on tables which are
 				 * filtered, not on tables we simply cannot get the row count information for!
 				 */
-				Factory::getLog()->log(LogLevel::INFO, "Skipping dumping data of " . $tableAbstract);
+				Factory::getLog()->info("Skipping dumping data of " . $tableAbstract);
 			}
 
 			// The table is either filtered or we cannot get the row count. Either way we should not dump any data.
@@ -243,7 +236,7 @@ class Mysql extends Base
 			// Output any data preamble commands, e.g. SET IDENTITY_INSERT for SQL Server
 			if ($dump_records && Factory::getEngineParamsProvider()->getScriptingParameter('db.dropstatements', 0))
 			{
-				Factory::getLog()->log(LogLevel::DEBUG, "Writing data dump preamble for " . $tableAbstract);
+				Factory::getLog()->debug("Writing data dump preamble for " . $tableAbstract);
 				$preamble = $this->getDataDumpPreamble($tableAbstract, $tableName, $this->maxRange);
 
 				if (!empty($preamble))
@@ -295,8 +288,8 @@ class Mysql extends Base
 
 				// First run, get a cursor to all records
 				$db->setQuery($sql, 0, $batchSize);
-				Factory::getLog()->log(LogLevel::INFO, "Beginning dump of " . $tableAbstract);
-				Factory::getLog()->log(LogLevel::DEBUG, "Up to $batchSize records will be read at once.");
+				Factory::getLog()->info("Beginning dump of " . $tableAbstract);
+				Factory::getLog()->debug("Up to $batchSize records will be read at once.");
 			}
 			else
 			{
@@ -307,14 +300,14 @@ class Mysql extends Base
 				if (!is_null($this->table_autoincrement['field']) && !is_null($this->table_autoincrement['value']))
 				{
 					Factory::getLog()
-						->log(LogLevel::INFO, "Continuing dump of " . $tableAbstract . " from record #{$this->nextRange} using auto_increment column {$this->table_autoincrement['field']} and value {$this->table_autoincrement['value']}");
+						->info("Continuing dump of " . $tableAbstract . " from record #{$this->nextRange} using auto_increment column {$this->table_autoincrement['field']} and value {$this->table_autoincrement['value']}");
 					$sql->where($db->qn($this->table_autoincrement['field']) . ' > ' . $db->q($this->table_autoincrement['value']));
 					$db->setQuery($sql, 0, $batchSize);
 				}
 				else
 				{
 					Factory::getLog()
-						->log(LogLevel::INFO, "Continuing dump of " . $tableAbstract . " from record #{$this->nextRange}");
+						->info("Continuing dump of " . $tableAbstract . " from record #{$this->nextRange}");
 					$db->setQuery($sql, $this->nextRange, $batchSize);
 				}
 			}
@@ -330,12 +323,12 @@ class Mysql extends Base
 			{
 				$cursor = $db->query();
 			}
-			catch (\Exception $exc)
+			catch (Exception $exc)
 			{
 				// Issue a warning about the failure to dump data
 				$errno = $exc->getCode();
 				$error = $exc->getMessage();
-				$this->setWarning("Failed dumping $tableAbstract from record #{$this->nextRange}. MySQL error $errno: $error");
+				Factory::getLog()->warning("Failed dumping $tableAbstract from record #{$this->nextRange}. MySQL error $errno: $error");
 
 				// Reset the database driver's state (we will try to dump other tables anyway)
 				$db->resetErrors();
@@ -572,7 +565,7 @@ class Mysql extends Base
 				if ($timer->getTimeLeft() <= 0)
 				{
 					Factory::getLog()
-						->log(LogLevel::DEBUG, "Breaking dump of $tableAbstract after $numRows rows; will continue on next step");
+						->debug("Breaking dump of $tableAbstract after $numRows rows; will continue on next step");
 
 					break;
 				}
@@ -606,12 +599,12 @@ class Mysql extends Base
 		if (!($this->nextRange < $this->maxRange))
 		{
 			// Tell the user we are done with the table
-			Factory::getLog()->log(LogLevel::DEBUG, "Done dumping " . $tableAbstract);
+			Factory::getLog()->debug("Done dumping " . $tableAbstract);
 
 			// Output any data preamble commands, e.g. SET IDENTITY_INSERT for SQL Server
 			if ($dump_records && Factory::getEngineParamsProvider()->getScriptingParameter('db.dropstatements', 0))
 			{
-				Factory::getLog()->log(LogLevel::DEBUG, "Writing data dump epilogue for " . $tableAbstract);
+				Factory::getLog()->debug("Writing data dump epilogue for " . $tableAbstract);
 				$epilogue = $this->getDataDumpEpilogue($tableAbstract, $tableName, $this->maxRange);
 
 				if (!empty($epilogue))
@@ -626,20 +619,25 @@ class Mysql extends Base
 			if (count($this->tables) == 0)
 			{
 				// We have finished dumping the database!
-				Factory::getLog()->log(LogLevel::INFO, "End of database detected; flushing the dump buffers...");
+				Factory::getLog()->info("End of database detected; flushing the dump buffers...");
 				$this->writeDump(null);
-				Factory::getLog()->log(LogLevel::INFO, "Database has been successfully dumped to SQL file(s)");
-				$this->setState('postrun');
+				Factory::getLog()->info("Database has been successfully dumped to SQL file(s)");
+				$this->setState(self::STATE_POSTRUN);
 				$this->setStep('');
 				$this->setSubstep('');
 				$this->nextTable = '';
 				$this->nextRange = 0;
 
-				// At the end of the database dump, if any query was longer than 1Mb, let's put a warning file in the installation folder
-				if ($this->largest_query >= 1024 * 1024)
+				/**
+				 * At the end of the database dump, if any query was longer than 1Mb, let's put a warning file in the
+				 * installation folder, but ONLY if the backup is not a SQL-only backup (which has no backup archive).
+				 */
+				$isSQLOnly = $configuration->get('akeeba.basic.backup_type') == 'dbonly';
+
+				if (!$isSQLOnly && ($this->largest_query >= 1024 * 1024))
 				{
 					$archive = Factory::getArchiverEngine();
-					$archive->addVirtualFile('large_tables_detected', $this->installerSettings->installerroot, $this->largest_query);
+					$archive->addFileVirtual('large_tables_detected', $this->installerSettings->installerroot, $this->largest_query);
 				}
 			}
 			elseif (count($this->tables) != 0)
@@ -660,20 +658,15 @@ class Mysql extends Base
 	 *
 	 * @return  void
 	 *
-	 * @throws  \Akeeba\Engine\Driver\QueryException
+	 * @throws  QueryException
 	 */
 	protected function getRowCount($tableAbstract)
 	{
 		$db = $this->getDB();
 
-		if ($this->getError())
-		{
-			return;
-		}
-
 		$sql = $db->getQuery(true)
-		          ->select('COUNT(*)')
-		          ->from($db->nameQuote($tableAbstract));
+			->select('COUNT(*)')
+			->from($db->nameQuote($tableAbstract));
 
 		$errno = 0;
 		$error = '';
@@ -689,21 +682,21 @@ class Mysql extends Base
 				$error = $db->getErrorMsg(false);
 			}
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			$this->maxRange = null;
-			$errno = $e->getCode();
-			$error = $e->getMessage();
+			$errno          = $e->getCode();
+			$error          = $e->getMessage();
 		}
 
 		if (is_null($this->maxRange))
 		{
-			$this->setWarning("Cannot get number of rows of $tableAbstract. MySQL error $errno: $error");
+			Factory::getLog()->warning("Cannot get number of rows of $tableAbstract. MySQL error $errno: $error");
 
 			return;
 		}
 
-		Factory::getLog()->log(LogLevel::DEBUG, "Rows on " . $tableAbstract . " : " . $this->maxRange);
+		Factory::getLog()->debug("Rows on " . $tableAbstract . " : " . $this->maxRange);
 	}
 
 // =============================================================================
@@ -722,24 +715,15 @@ class Mysql extends Base
 		$this->enforceSQLCompatibility();
 
 		$configuration = Factory::getConfiguration();
-		$notracking = $configuration->get('engine.dump.native.nodependencies', 0);
+		$notracking    = $configuration->get('engine.dump.native.nodependencies', 0);
 
 		// First, get a map of table names <--> abstract names
 		$this->get_tables_mapping();
-
-		if ($this->getError())
-		{
-			return;
-		}
 
 		if ($notracking)
 		{
 			// Do not process table & view dependencies
 			$this->get_tables_data_without_dependencies();
-			if ($this->getError())
-			{
-				return;
-			}
 		}
 		// Process table & view dependencies (default)
 		else
@@ -747,21 +731,11 @@ class Mysql extends Base
 			// Find the type and CREATE command of each table/view in the database
 			$this->get_tables_data();
 
-			if ($this->getError())
-			{
-				return;
-			}
-
 			// Process dependencies and rearrange tables respecting them
 			$this->process_dependencies();
 
-			if ($this->getError())
-			{
-				return;
-			}
-
 			// Remove dependencies array
-			$this->dependencies = array();
+			$this->dependencies = [];
 		}
 	}
 
@@ -774,16 +748,11 @@ class Mysql extends Base
 	protected function get_tables_mapping()
 	{
 		// Get a database connection
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Finding tables to include in the backup set");
+		Factory::getLog()->debug(__CLASS__ . " :: Finding tables to include in the backup set");
 		$db = $this->getDB();
 
-		if ($this->getError())
-		{
-			return;
-		}
-
 		// Reset internal tables
-		$this->table_name_map = array();
+		$this->table_name_map = [];
 
 		// Get the list of all database tables
 		$sql = "SHOW TABLES";
@@ -791,7 +760,7 @@ class Mysql extends Base
 		$all_tables = $db->loadResultArray();
 
 		$registry = Factory::getConfiguration();
-		$root = $registry->get('volatile.database.root', '[SITEDB]');
+		$root     = $registry->get('volatile.database.root', '[SITEDB]');
 
 		// If we have filters, make sure the tables pass the filtering
 		$filters = Factory::getFilters();
@@ -800,7 +769,7 @@ class Mysql extends Base
 		{
 			if (substr($table_name, 0, 3) == '#__')
 			{
-				$this->setWarning(__CLASS__ . " :: Table $table_name has a prefix of #__. This would cause restoration errors; table skipped.");
+				Factory::getLog()->warning(__CLASS__ . " :: Table $table_name has a prefix of #__. This would cause restoration errors; table skipped.");
 
 				continue;
 			}
@@ -808,7 +777,7 @@ class Mysql extends Base
 			if ((strpos($table_name, "\r") !== false) || (strpos($table_name, "\n") !== false))
 			{
 				$table_name = str_replace(["\r", "\n"], ['\\r', '\\n'], $table_name);
-				$this->setWarning(__CLASS__ . " :: [SECURITY] Table $table_name includes newline characters. Skipping table to protect you against possible MySQL vulnerability CVE-2017-3600 (“Bad Dump”).");
+				Factory::getLog()->warning(__CLASS__ . " :: [SECURITY] Table $table_name includes newline characters. Skipping table to protect you against possible MySQL vulnerability CVE-2017-3600 (“Bad Dump”).");
 
 				continue;
 			}
@@ -820,17 +789,17 @@ class Mysql extends Base
 				// Apply exclusion filters
 				if (!$filters->isFiltered($table_abstract, $root, 'dbobject', 'all'))
 				{
-					Factory::getLog()->log(LogLevel::INFO, __CLASS__ . " :: Adding $table_name (internal name $table_abstract)");
+					Factory::getLog()->info(__CLASS__ . " :: Adding $table_name (internal name $table_abstract)");
 					$this->table_name_map[$table_name] = $table_abstract;
 				}
 				else
 				{
-					Factory::getLog()->log(LogLevel::INFO, __CLASS__ . " :: Skipping $table_name (internal name $table_abstract)");
+					Factory::getLog()->info(__CLASS__ . " :: Skipping $table_name (internal name $table_abstract)");
 				}
 			}
 			else
 			{
-				Factory::getLog()->log(LogLevel::INFO, __CLASS__ . " :: Backup table $table_name automatically skipped.");
+				Factory::getLog()->info(__CLASS__ . " :: Backup table $table_name automatically skipped.");
 			}
 		}
 
@@ -839,15 +808,15 @@ class Mysql extends Base
 		// not MySQL 4! Also, if dependency tracking is disabled, we won't dump triggers,
 		// functions and procedures.
 		$enable_entities = $registry->get('engine.dump.native.advanced_entitites', true);
-		$notracking = $registry->get('engine.dump.native.nodependencies', 0);
+		$notracking      = $registry->get('engine.dump.native.nodependencies', 0);
 
 		if (!$enable_entities)
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: NOT listing stored PROCEDUREs, FUNCTIONs and TRIGGERs (you told me not to)");
+			Factory::getLog()->debug(__CLASS__ . " :: NOT listing stored PROCEDUREs, FUNCTIONs and TRIGGERs (you told me not to)");
 		}
 		elseif ($notracking != 0)
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: NOT listing stored PROCEDUREs, FUNCTIONs and TRIGGERs (you have disabled dependency tracking, therefore I can't handle advanced entities)");
+			Factory::getLog()->debug(__CLASS__ . " :: NOT listing stored PROCEDUREs, FUNCTIONs and TRIGGERs (you have disabled dependency tracking, therefore I can't handle advanced entities)");
 		}
 
 		if ($enable_entities && ($notracking == 0))
@@ -855,7 +824,7 @@ class Mysql extends Base
 			// Cache the database name if this is the main site's database
 
 			// 1. Stored procedures
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Listing stored PROCEDUREs");
+			Factory::getLog()->debug(__CLASS__ . " :: Listing stored PROCEDUREs");
 			$sql = "SHOW PROCEDURE STATUS WHERE `Db`=" . $db->quote($this->database);
 			$db->setQuery($sql);
 
@@ -863,9 +832,9 @@ class Mysql extends Base
 			{
 				$all_entries = $db->loadResultArray(1);
 			}
-			catch (\Exception $e)
+			catch (Exception $e)
 			{
-				$all_entries = array();
+				$all_entries = [];
 			}
 
 			// If we have filters, make sure the tables pass the filtering
@@ -878,7 +847,7 @@ class Mysql extends Base
 						if ((strpos($entity_name, "\r") !== false) || (strpos($entity_name, "\n") !== false))
 						{
 							$entity_name = str_replace(["\r", "\n"], ['\\r', '\\n'], $entity_name);
-							$this->setWarning(__CLASS__ . " :: [SECURITY] Procedure $entity_name includes newline characters. Skipping table to protect you against possible MySQL vulnerability CVE-2017-3600 (“Bad Dump”).");
+							Factory::getLog()->warning(__CLASS__ . " :: [SECURITY] Procedure $entity_name includes newline characters. Skipping table to protect you against possible MySQL vulnerability CVE-2017-3600 (“Bad Dump”).");
 
 							continue;
 						}
@@ -897,7 +866,7 @@ class Mysql extends Base
 			}
 
 			// 2. Stored functions
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Listing stored FUNCTIONs");
+			Factory::getLog()->debug(__CLASS__ . " :: Listing stored FUNCTIONs");
 			$sql = "SHOW FUNCTION STATUS WHERE `Db`=" . $db->quote($this->database);
 			$db->setQuery($sql);
 
@@ -905,9 +874,9 @@ class Mysql extends Base
 			{
 				$all_entries = $db->loadResultArray(1);
 			}
-			catch (\Exception $e)
+			catch (Exception $e)
 			{
-				$all_entries = array();
+				$all_entries = [];
 			}
 
 			// If we have filters, make sure the tables pass the filtering
@@ -920,7 +889,7 @@ class Mysql extends Base
 						if ((strpos($entity_name, "\r") !== false) || (strpos($entity_name, "\n") !== false))
 						{
 							$entity_name = str_replace(["\r", "\n"], ['\\r', '\\n'], $entity_name);
-							$this->setWarning(__CLASS__ . " :: [SECURITY] Function $entity_name includes newline characters. Skipping table to protect you against possible MySQL vulnerability CVE-2017-3600 (“Bad Dump”).");
+							Factory::getLog()->warning(__CLASS__ . " :: [SECURITY] Function $entity_name includes newline characters. Skipping table to protect you against possible MySQL vulnerability CVE-2017-3600 (“Bad Dump”).");
 
 							continue;
 						}
@@ -940,7 +909,7 @@ class Mysql extends Base
 			}
 
 			// 3. Triggers
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Listing stored TRIGGERs");
+			Factory::getLog()->debug(__CLASS__ . " :: Listing stored TRIGGERs");
 			$sql = "SHOW TRIGGERS";
 			$db->setQuery($sql);
 
@@ -948,9 +917,9 @@ class Mysql extends Base
 			{
 				$all_entries = $db->loadResultArray();
 			}
-			catch (\Exception $e)
+			catch (Exception $e)
 			{
-				$all_entries = array();
+				$all_entries = [];
 			}
 
 			// If we have filters, make sure the tables pass the filtering
@@ -963,7 +932,7 @@ class Mysql extends Base
 						if ((strpos($entity_name, "\r") !== false) || (strpos($entity_name, "\n") !== false))
 						{
 							$entity_name = str_replace(["\r", "\n"], ['\\r', '\\n'], $entity_name);
-							$this->setWarning(__CLASS__ . " :: [SECURITY] Trigger $entity_name includes newline characters. Skipping table to protect you against possible MySQL vulnerability CVE-2017-3600 (“Bad Dump”).");
+							Factory::getLog()->warning(__CLASS__ . " :: [SECURITY] Trigger $entity_name includes newline characters. Skipping table to protect you against possible MySQL vulnerability CVE-2017-3600 (“Bad Dump”).");
 
 							continue;
 						}
@@ -982,6 +951,10 @@ class Mysql extends Base
 				}
 			}
 		} // if MySQL 5
+
+		// Store all abstract entity names (tables, views, triggers etc etc ) into a volatile variable,
+		// so we can fetch it later when creating the databases.json file
+		$registry->set('volatile.database.table_names', array_values($this->table_name_map));
 	}
 
 	/**
@@ -992,33 +965,28 @@ class Mysql extends Base
 	 */
 	protected function get_tables_data()
 	{
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Starting CREATE TABLE and dependency scanning");
+		Factory::getLog()->debug(__CLASS__ . " :: Starting CREATE TABLE and dependency scanning");
 
 		// Get a database connection
 		$db = $this->getDB();
 
-		if ($this->getError())
-		{
-			return;
-		}
-
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Got database connection");
+		Factory::getLog()->debug(__CLASS__ . " :: Got database connection");
 
 		// Reset internal tables
-		$this->tables_data = array();
-		$this->dependencies = array();
+		$this->tables_data  = [];
+		$this->dependencies = [];
 
 		// Get a list of tables where their engine type is shown
 		$sql = 'SHOW TABLES';
 		$db->setQuery($sql);
 		$metadata_list = $db->loadRowList();
 
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Got SHOW TABLES");
+		Factory::getLog()->debug(__CLASS__ . " :: Got SHOW TABLES");
 
 		// Get filters and filter root
 		$registry = Factory::getConfiguration();
-		$root = $registry->get('volatile.database.root', '[SITEDB]');
-		$filters = Factory::getFilters();
+		$root     = $registry->get('volatile.database.root', '[SITEDB]');
+		$filters  = Factory::getFilters();
 
 		foreach ($metadata_list as $table_metadata)
 		{
@@ -1029,16 +997,16 @@ class Mysql extends Base
 			}
 
 			// Basic information
-			$table_name = $table_metadata[0];
+			$table_name     = $table_metadata[0];
 			$table_abstract = $this->table_name_map[$table_metadata[0]];
-			$new_entry = array(
+			$new_entry      = [
 				'type'         => 'table',
-				'dump_records' => true
-			);
+				'dump_records' => true,
+			];
 
 			// Get the CREATE command
-			$dependencies = array();
-			$new_entry['create'] = $this->get_create($table_abstract, $table_name, $new_entry['type'], $dependencies);
+			$dependencies              = [];
+			$new_entry['create']       = $this->get_create($table_abstract, $table_name, $new_entry['type'], $dependencies);
 			$new_entry['dependencies'] = $dependencies;
 
 			if ($new_entry['type'] == 'view')
@@ -1055,8 +1023,8 @@ class Mysql extends Base
 
 			if ($new_entry['type'] == 'table')
 			{
-				$engine = 'MyISAM'; // So that even with MySQL 4 hosts we don't screw this up
-				$engine_keys = array('ENGINE=', 'TYPE=');
+				$engine      = 'MyISAM'; // So that even with MySQL 4 hosts we don't screw this up
+				$engine_keys = ['ENGINE=', 'TYPE='];
 
 				foreach ($engine_keys as $engine_key)
 				{
@@ -1082,9 +1050,9 @@ class Mysql extends Base
 
 							if (empty($engine))
 							{
-								Factory::getLog()->log(LogLevel::DEBUG, "*** DEBUG *** $table_name - engine $engine");
-								Factory::getLog()->log(LogLevel::DEBUG, $new_entry['create']);
-								Factory::getLog()->log(LogLevel::DEBUG, "start $start_pos - end $end_pos");
+								Factory::getLog()->debug("*** DEBUG *** $table_name - engine $engine");
+								Factory::getLog()->debug($new_entry['create']);
+								Factory::getLog()->debug("start $start_pos - end $end_pos");
 							}
 						}
 					}
@@ -1105,7 +1073,7 @@ class Mysql extends Base
 
 				// Merge tables
 				case 'MRG_MYISAM':
-					$new_entry['type'] = 'merge';
+					$new_entry['type']         = 'merge';
 					$new_entry['dump_records'] = false;
 
 					break;
@@ -1133,14 +1101,14 @@ class Mysql extends Base
 			$this->tables_data[$table_name] = $new_entry;
 		}
 
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Got table list");
+		Factory::getLog()->debug(__CLASS__ . " :: Got table list");
 
 		// If we have MySQL > 5.0 add stored procedures, stored functions and triggers
 		$enable_entities = $registry->get('engine.dump.native.advanced_entitites', true);
 
 		if ($enable_entities)
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Listing MySQL entities");
+			Factory::getLog()->debug(__CLASS__ . " :: Listing MySQL entities");
 			// Get a list of procedures
 			$sql = 'SHOW PROCEDURE STATUS WHERE `Db`=' . $db->quote($this->database);
 			$db->setQuery($sql);
@@ -1149,7 +1117,7 @@ class Mysql extends Base
 			{
 				$metadata_list = $db->loadRowList();
 			}
-			catch (\Exception $e)
+			catch (Exception $e)
 			{
 				$metadata_list = null;
 			}
@@ -1167,12 +1135,12 @@ class Mysql extends Base
 						}
 
 						// Basic information
-						$entity_name = $entity_metadata[1];
+						$entity_name     = $entity_metadata[1];
 						$entity_abstract = $this->table_name_map[$entity_metadata[1]];
-						$new_entry = array(
+						$new_entry       = [
 							'type'         => 'procedure',
-							'dump_records' => false
-						);
+							'dump_records' => false,
+						];
 
 						// There's no point trying to add a non-procedure entity
 						if ($entity_metadata[2] != 'PROCEDURE')
@@ -1180,9 +1148,9 @@ class Mysql extends Base
 							continue;
 						}
 
-						$dependencies = array();
-						$new_entry['create'] = $this->get_create($entity_abstract, $entity_name, $new_entry['type'], $dependencies);
-						$new_entry['dependencies'] = $dependencies;
+						$dependencies                    = [];
+						$new_entry['create']             = $this->get_create($entity_abstract, $entity_name, $new_entry['type'], $dependencies);
+						$new_entry['dependencies']       = $dependencies;
 						$this->tables_data[$entity_name] = $new_entry;
 					}
 				}
@@ -1196,7 +1164,7 @@ class Mysql extends Base
 			{
 				$metadata_list = $db->loadRowList();
 			}
-			catch (\Exception $e)
+			catch (Exception $e)
 			{
 				$metadata_list = null;
 			}
@@ -1214,12 +1182,12 @@ class Mysql extends Base
 						}
 
 						// Basic information
-						$entity_name = $entity_metadata[1];
+						$entity_name     = $entity_metadata[1];
 						$entity_abstract = $this->table_name_map[$entity_metadata[1]];
-						$new_entry = array(
+						$new_entry       = [
 							'type'         => 'function',
-							'dump_records' => false
-						);
+							'dump_records' => false,
+						];
 
 						// There's no point trying to add a non-function entity
 						if ($entity_metadata[2] != 'FUNCTION')
@@ -1227,9 +1195,9 @@ class Mysql extends Base
 							continue;
 						}
 
-						$dependencies = array();
-						$new_entry['create'] = $this->get_create($entity_abstract, $entity_name, $new_entry['type'], $dependencies);
-						$new_entry['dependencies'] = $dependencies;
+						$dependencies                    = [];
+						$new_entry['create']             = $this->get_create($entity_abstract, $entity_name, $new_entry['type'], $dependencies);
+						$new_entry['dependencies']       = $dependencies;
 						$this->tables_data[$entity_name] = $new_entry;
 					}
 				}
@@ -1243,7 +1211,7 @@ class Mysql extends Base
 			{
 				$metadata_list = $db->loadRowList();
 			}
-			catch (\Exception $e)
+			catch (Exception $e)
 			{
 				$metadata_list = null;
 			}
@@ -1261,29 +1229,29 @@ class Mysql extends Base
 						}
 
 						// Basic information
-						$entity_name = $entity_metadata[0];
+						$entity_name     = $entity_metadata[0];
 						$entity_abstract = $this->table_name_map[$entity_metadata[0]];
-						$new_entry = array(
+						$new_entry       = [
 							'type'         => 'trigger',
-							'dump_records' => false
-						);
+							'dump_records' => false,
+						];
 
-						$dependencies = array();
-						$new_entry['create'] = $this->get_create($entity_abstract, $entity_name, $new_entry['type'], $dependencies);
-						$new_entry['dependencies'] = $dependencies;
+						$dependencies                    = [];
+						$new_entry['create']             = $this->get_create($entity_abstract, $entity_name, $new_entry['type'], $dependencies);
+						$new_entry['dependencies']       = $dependencies;
 						$this->tables_data[$entity_name] = $new_entry;
 					}
 				}
 			} // foreach
 
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Got MySQL entities list");
+			Factory::getLog()->debug(__CLASS__ . " :: Got MySQL entities list");
 		}
 
 		/**
-		// Only store unique values
-		if(count($dependencies) > 0)
-			$dependencies = array_unique($dependencies);
-		/**/
+		 * // Only store unique values
+		 * if(count($dependencies) > 0)
+		 * $dependencies = array_unique($dependencies);
+		 * /**/
 	}
 
 	/**
@@ -1294,23 +1262,23 @@ class Mysql extends Base
 	 */
 	protected function get_tables_data_without_dependencies()
 	{
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Pushing table data (without dependency tracking)");
+		Factory::getLog()->debug(__CLASS__ . " :: Pushing table data (without dependency tracking)");
 
 		// Reset internal tables
-		$this->tables_data = array();
-		$this->dependencies = array();
+		$this->tables_data  = [];
+		$this->dependencies = [];
 
 		// Get filters and filter root
 		$registry = Factory::getConfiguration();
-		$root = $registry->get('volatile.database.root', '[SITEDB]');
-		$filters = Factory::getFilters();
+		$root     = $registry->get('volatile.database.root', '[SITEDB]');
+		$filters  = Factory::getFilters();
 
 		foreach ($this->table_name_map as $table_name => $table_abstract)
 		{
-			$new_entry = array(
+			$new_entry = [
 				'type'         => 'table',
-				'dump_records' => true
-			);
+				'dump_records' => true,
+			];
 
 			// Table Data Filter - skip dumping table contents of filtered out tables
 			if ($filters->isFiltered($table_abstract, $root, 'dbobject', 'content'))
@@ -1319,10 +1287,10 @@ class Mysql extends Base
 			}
 
 			$this->tables_data[$table_name] = $new_entry;
-			$this->tables[] = $table_name;
+			$this->tables[]                 = $table_name;
 		} // foreach
 
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Got table list");
+		Factory::getLog()->debug(__CLASS__ . " :: Got table list");
 	}
 
 	/**
@@ -1341,11 +1309,6 @@ class Mysql extends Base
 		$notracking    = $configuration->get('engine.dump.native.nodependencies', 0);
 
 		$db = $this->getDB();
-
-		if ($this->getError())
-		{
-			return null;
-		}
 
 		switch ($type)
 		{
@@ -1375,12 +1338,12 @@ class Mysql extends Base
 		{
 			$temp = $db->loadRowList();
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			// If the query failed we don't have the necessary SHOW privilege. Log the error and fake an empty reply.
 			$entityType = ($type == 'merge') ? 'table' : $type;
 			$msg        = $e->getMessage();
-			$this->setWarning("Cannot get the structure of $entityType $table_abstract. Database returned error $msg running $sql  Please check your database privileges. Your database backup may be incomplete.");
+			Factory::getLog()->warning("Cannot get the structure of $entityType $table_abstract. Database returned error $msg running $sql  Please check your database privileges. Your database backup may be incomplete.");
 
 			$db->resetErrors();
 
@@ -1405,15 +1368,17 @@ class Mysql extends Base
 			 * CREATE DEFINER=`myuser`@`localhost` PROCEDURE `abc_myProcedure`() ...
 			 * If you're restoring on a different machine the definer will probably be invalid, therefore we need to
 			 * remove it from the (portable) output.
+			 *
+			 * Remember, $table_sql may be multiline. Therefore we need to process only the first line and append any
+			 * further lines to the CREATE statement.
 			 */
+			$table_sql = trim($table_sql);
+			$lines     = explode("\n", $table_sql);
+			$firstLine = array_shift($lines);
 			$pattern   = '/^CREATE(.*) ' . strtoupper($type) . ' (.*)/i';
-			$result    = preg_match($pattern, $table_sql, $matches);
-			$table_sql = 'CREATE ' . strtoupper($type) . ' ' . $matches[2];
-
-			if (substr($table_sql, -1) != ';')
-			{
-				$table_sql .= ';';
-			}
+			$result    = preg_match($pattern, $firstLine, $matches);
+			$table_sql = 'CREATE ' . strtoupper($type) . ' ' . $matches[2] . "\n" . implode("\n", $lines);
+			$table_sql = trim($table_sql);
 		}
 		else
 		{
@@ -1455,6 +1420,23 @@ class Mysql extends Base
 
 				// Translate TYPE= to ENGINE=
 				$table_sql = str_replace('TYPE=', 'ENGINE=', $table_sql);
+
+				/**
+				 * Remove the TABLESPACE option.
+				 *
+				 * The format of the TABLESPACE table option is:
+				 * TABLESPACE tablespace_name [STORAGE {DISK|MEMORY}]
+				 * where tablespace_name can be a quoted or unquoted identifier.
+				 */
+				list($validCharRegEx, $unicodeFlag) = $this->getMySQLIdentifierCharacterRegEx();
+				$tablespaceName = "((($validCharRegEx){1,})|(`.*`))";
+				$suffix         = 'STORAGE\s{1,}(DISK|MEMORY)';
+				$regex          = "#TABLESPACE\s{1,}$tablespaceName\s{0,}($suffix){0,1}#i" . $unicodeFlag;
+				$table_sql      = preg_replace($regex, '', $table_sql);
+
+				// Remove table options {DATA|INDEX} DIRECTORY
+				$regex     = "#(DATA|INDEX)\s{1,}DIRECTORY\s*=?\s*'.*'#i";
+				$table_sql = preg_replace($regex, '', $table_sql);
 			}
 
 			// Is it a VIEW but we don't have SHOW VIEW privileges?
@@ -1475,42 +1457,19 @@ class Mysql extends Base
 			$old_table_sql = $table_sql;
 		}
 
-		// Replace the table name with the abstract version.
-		// We have to quote the table name. If we don't we'll get wrong results. Imagine that you have a column whose name starts
-		// with the string literal of the table name itself.
-		// Example: table `poll`, column `poll_id` would become #__poll, #__poll_id
-		// By quoting before we make sure this won't happen.
-		$table_sql = str_replace($db->quoteName($table_name), $db->quoteName($table_abstract), $table_sql);
-
-		// Return dependency information only if dependency tracking is enabled
-		if (!$notracking)
-		{
-			// Even on simple tables, we may have foreign key references.
-			// As a result, we need to replace those referenced table names
-			// as well. On views and merge arrays, we have referenced tables
-			// by definition.
-			$dependencies = [];
-
-			// Now, loop for all table entries
-			foreach ($this->table_name_map as $ref_normal => $ref_abstract)
-			{
-				if ($pos = strpos($table_sql, "`$ref_normal`"))
-				{
-					// Add a reference hit
-					$this->dependencies[$ref_normal][] = $table_name;
-					// Add the dependency to this table's metadata
-					$dependencies[] = $ref_normal;
-					// Do the replacement
-					$table_sql = str_replace("`$ref_normal`", "`$ref_abstract`", $table_sql);
-				}
-			}
-
-			// Finally, replace the prefix if it's not empty (used in constraints)
-			if (!empty($this->prefix))
-			{
-				$table_sql = str_replace('`' . $this->prefix, '`#__', $table_sql);
-			}
-		}
+		/**
+		 * Replace the table names in the CREATE command with the abstract versions.
+		 *
+		 * Moreover, it updates the dependency tracking information.
+		 *
+		 * We have to quote the table name. If we don't we'll get wrong results. Imagine that you have a column whose
+		 * name starts with the string literal of the table name itself.
+		 *
+		 * Example: table `poll`, column `poll_id` would become #__poll, #__poll_id
+		 *
+		 * By quoting before we make sure this won't happen.
+		 */
+		list($dependencies, $table_sql) = $this->replaceTableNamesWithAbstracts($table_name, $table_sql, !$notracking);
 
 		// On DB only backup we don't want any replacing to take place, do we?
 		if (!Factory::getEngineParamsProvider()->getScriptingParameter('db.abstractnames', 1))
@@ -1590,6 +1549,101 @@ class Mysql extends Base
 	}
 
 	/**
+	 * Replaces the table names in the CREATE query with their abstract form. Optionally updates dependencies.
+	 *
+	 * @param   string  $tableName        The table name the CREATE query is for
+	 * @param   string  $tableSql         The CREATE query itself
+	 * @param   bool    $withDependecies  Should I update dependencies?
+	 *
+	 * @return  array [$dependencies, $modifiedSQLQuery] - Dependency information for the table (if $withDependencies)
+	 *                and the new CREATE query with all table names replaced with abstract versions.
+	 *
+	 * @throws  Exception  When we cannot get the DB object
+	 */
+	public function replaceTableNamesWithAbstracts($tableName, $tableSql, $withDependecies = false)
+	{
+		// Initialization
+		$dependencies = [];
+		$tableNameMap = $this->table_name_map;
+		$db           = $this->getDB();
+
+		if (!array_key_exists($tableName, $tableNameMap))
+		{
+			$tableNameMap[$tableName] = $this->getAbstract($tableName);
+		}
+
+		foreach ($tableNameMap as $fullName => $abstractName)
+		{
+			$quotedFullName     = $db->quoteName($fullName);
+			$quotedAbstractName = $db->quoteName($abstractName);
+			$pos                = strpos($tableSql, $quotedFullName);
+			$numReplacements    = 0;
+
+			if ($pos !== false)
+			{
+				$numReplacements = 1;
+
+				// Do the replacement
+				$tableSql = str_replace($quotedFullName, $quotedAbstractName, $tableSql);
+			}
+			else
+			{
+				$offset                   = 0;
+				$fullNameLength           = strlen($fullName);
+				$quotedAbstractNameLength = strlen($quotedAbstractName);
+
+				/**
+				 * We need to detect the edges of table names. If they are enclosed in backticks it's pretty clear. If they are
+				 * not, e.g. in the definitions of TRIGGERs, we need to base our detection on the valid characters for
+				 * unquoted MySQL table names per https://dev.mysql.com/doc/refman/5.7/en/identifiers.html
+				 */
+				list($bareCharRegex, $regexFlags) = $this->getMySQLIdentifierCharacterRegEx();
+				$fullCharRegex = "/$bareCharRegex/$regexFlags";
+
+				while (true)
+				{
+					$pos = strpos($tableSql, $fullName, $offset);
+
+					if ($pos === false)
+					{
+						break;
+					}
+
+					$previousChar    = ($pos > 0) ? substr($tableSql, $pos - 1, 1) : '';
+					$nextChar        = ($pos < (strlen($tableSql) - $fullNameLength)) ? substr($tableSql, $pos + $fullNameLength, 1) : '';
+					$prevIsTableChar = empty($previousChar) ? false : preg_match($fullCharRegex, $previousChar);
+					$nextIsTableChar = empty($nextChar) ? false : preg_match($fullCharRegex, $nextChar);
+
+					if ($prevIsTableChar || $nextIsTableChar)
+					{
+						$offset = $pos + 1;
+
+						continue;
+					}
+
+					$before = ($pos > 0) ? substr($tableSql, 0, $pos) : '';
+					$after  = ($pos < (strlen($tableSql) - $fullNameLength)) ? substr($tableSql, $pos + $fullNameLength) : '';
+
+					$numReplacements++;
+					$tableSql = $before . $quotedAbstractName . $after;
+
+					$offset = $pos + $quotedAbstractNameLength;
+				}
+			}
+
+			if ($withDependecies && $numReplacements && ($fullName != $tableName))
+			{
+				// Add a reference hit
+				$this->dependencies[$fullName][] = $tableName;
+				// Add the dependency to this table's metadata
+				$dependencies[] = $fullName;
+			}
+		}
+
+		return [$dependencies, $tableSql];
+	}
+
+	/**
 	 * Process all table dependencies
 	 *
 	 * @return  void
@@ -1604,7 +1658,7 @@ class Mysql extends Base
 			}
 		}
 
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Processed dependencies");
+		Factory::getLog()->debug(__CLASS__ . " :: Processed dependencies");
 	}
 
 	/**
@@ -1873,21 +1927,21 @@ class Mysql extends Base
 	 */
 	protected function setAutoIncrementInfo()
 	{
-		$this->table_autoincrement = array(
-			'table'		=> $this->nextTable,
-			'field'		=> null,
-			'value'		=> null,
-		);
+		$this->table_autoincrement = [
+			'table' => $this->nextTable,
+			'field' => null,
+			'value' => null,
+		];
 
 		$db = $this->getDB();
 
-		$query = 'SHOW COLUMNS FROM ' . $db->qn($this->nextTable) . ' WHERE ' . $db->qn('Extra') . ' = ' .
+		$query   = 'SHOW COLUMNS FROM ' . $db->qn($this->nextTable) . ' WHERE ' . $db->qn('Extra') . ' = ' .
 			$db->q('auto_increment') . ' AND ' . $db->qn('Null') . ' = ' . $db->q('NO');
 		$keyInfo = $db->setQuery($query)->loadAssocList();
 
 		if (!empty($keyInfo))
 		{
-			$row = array_shift($keyInfo);
+			$row                                = array_shift($keyInfo);
 			$this->table_autoincrement['field'] = $row['Field'];
 		}
 	}
@@ -1931,7 +1985,7 @@ class Mysql extends Base
 		{
 			$info = $db->setQuery('SHOW TABLE STATUS LIKE ' . $db->q($tableAbstract))->loadAssoc();
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			return $defaultBatchSize;
 		}
@@ -1952,63 +2006,6 @@ class Mysql extends Base
 		$maxRows = (int) ($memoryLeft / (3.25 * $avgRow));
 
 		return max(1, min($maxRows, $defaultBatchSize));
-	}
-
-	/**
-	 * Converts a human formatted size to integer representation of bytes,
-	 * e.g. 1M to 1024768
-	 *
-	 * @param   string  $setting  The value in human readable format, e.g. "1M"
-	 *
-	 * @return  integer  The value in bytes
-	 */
-	protected function humanToIntegerBytes($setting)
-	{
-		$val  = trim($setting);
-		$last = strtolower($val{strlen($val) - 1});
-
-		if (is_numeric($last))
-		{
-			return $setting;
-		}
-
-		switch ($last)
-		{
-			case 't':
-				$val *= 1024;
-			case 'g':
-				$val *= 1024;
-			case 'm':
-				$val *= 1024;
-			case 'k':
-				$val *= 1024;
-		}
-
-		return (int) $val;
-	}
-
-	/**
-	 * Get the PHP memory limit in bytes
-	 *
-	 * @return int|null  Memory limit in bytes or null if we can't figure it out.
-	 */
-	protected function getMemoryLimit()
-	{
-		if (!function_exists('ini_get'))
-		{
-			return null;
-		}
-
-		$memLimit = ini_get("memory_limit");
-
-		if ((is_numeric($memLimit) && ($memLimit < 0)) || !is_numeric($memLimit))
-		{
-			$memLimit = 0; // 1.2a3 -- Rare case with memory_limit < 0, e.g. -1Mb!
-		}
-
-		$memLimit = $this->humanToIntegerBytes($memLimit);
-
-		return $memLimit;
 	}
 
 	/**
@@ -2042,7 +2039,7 @@ class Mysql extends Base
 
 			$tableCols = $db->loadAssocList();
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			return $columnList;
 		}
@@ -2071,4 +2068,41 @@ class Mysql extends Base
 		return $columnList;
 	}
 
+	/**
+	 * Get a regular expression and its options for valid characters of an unquoted MySQL identifier.
+	 *
+	 * This is used wherever we need to detect an arbitrary, unquoted MySQL identifier per
+	 * https://dev.mysql.com/doc/refman/5.7/en/identifiers.html
+	 *
+	 * Normally, we can use a pretty simple regular expression that makes use of the \X property (extended grapheme
+	 * cluster) to describe the supported characters outside the 0-9, a-Z, A-Z, dollar and underscore ASCII ranges.
+	 *
+	 * HOWEVER! We discovered that Ubuntu 18.04 ships with a version of PCRE which does not support the \X property
+	 * in character classes (the stuff between brackets). In this case we have to fall back to a long-winded regex
+	 * that explicitly adds the \u0080 - \uFFFF range as an alternative.
+	 *
+	 * Also what if Unicode support is not compiled in PCRE? In this case we will fall back to a much simpler regex
+	 * which only supports the ASCII subset of the allowed characters. In this case your database dump will be wrong
+	 * if you use table names with non-ASCII characters.
+	 *
+	 * Since the detection is horribly slow we cache its results in an internal static variable.
+	 *
+	 * @return  array  In the format [$regex, $flags]
+	 * @since   7.0.0
+	 */
+	protected function getMySQLIdentifierCharacterRegEx()
+	{
+		static $validCharRegEx = null;
+		static $unicodeFlag = null;
+
+		if (is_null($validCharRegEx) || is_null($unicodeFlag))
+		{
+			$brokenPCRE     = @preg_match('/[0-9a-zA-Z$_\X]/u', 's') === false;
+			$noUnicode      = @preg_match('/\p{L}/u', 'σ') !== 1;
+			$unicodeFlag    = $noUnicode ? '' : 'u';
+			$validCharRegEx = $noUnicode ? '[0-9a-zA-Z$_]' : ($brokenPCRE ? '[0-9a-zA-Z$_]|[\x{0080}-\x{FFFF}]' : '[0-9a-zA-Z$_\X]');
+		}
+
+		return [$validCharRegEx, $unicodeFlag];
+	}
 }

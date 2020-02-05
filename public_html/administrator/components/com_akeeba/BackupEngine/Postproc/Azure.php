@@ -1,85 +1,49 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
 
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Postproc\Connector\Azure as AzureConnector;
 use Akeeba\Engine\Postproc\Connector\Azure\AzureStorage as AzureStorage;
 use Akeeba\Engine\Postproc\Connector\Azure\Retrypolicy\None as AzureRetryNone;
+use Akeeba\Engine\Postproc\Exception\BadConfiguration;
+use Akeeba\Engine\Postproc\Exception\RangeDownloadNotSupported;
 
 class Azure extends Base
 {
 	public function __construct()
 	{
-		$this->can_delete = true;
+		$this->supportsDelete            = true;
+		$this->supportsDownloadToFile    = true;
+		$this->supportsDownloadToBrowser = true;
+		$this->inlineDownloadToBrowser   = false;
 	}
 
-	public function processPart($absolute_filename, $upload_as = null)
+	public function processPart($localFilepath, $remoteBaseName = null)
 	{
 		// Retrieve engine configuration data
-		$config = Factory::getConfiguration();
+		$config           = Factory::getConfiguration();
+		$container        = $config->get('engine.postproc.azure.container', 0);
+		$defaultDirectory = $config->get('engine.postproc.azure.directory', '');
+		$directory        = $config->get('volatile.postproc.directory', $defaultDirectory);
 
-		$account 	= trim($config->get('engine.postproc.azure.account', ''));
-		$key 		= trim($config->get('engine.postproc.azure.key', ''));
-		$container 	= $config->get('engine.postproc.azure.container', 0);
-		$useSSL		= $config->get('engine.postproc.azure.usessl', 1);
-		$directory 	= $config->get('volatile.postproc.directory', null);
-
-		if (empty($directory))
-		{
-			$directory = $config->get('engine.postproc.azure.directory', 0);
-		}
-
-		// Sanity checks
-		if (empty($account))
-		{
-			$this->setWarning('You have not set up your Windows Azure account name');
-
-			return false;
-		}
-
-		if (empty($key))
-		{
-			$this->setWarning('You have not set up your Windows Azure key');
-
-			return false;
-		}
-
-		if (empty($container))
-		{
-			$this->setWarning('You have not set up your Windows Azure container');
-
-			return false;
-		}
-
-		// Fix the directory name, if required
-		if (!empty($directory))
-		{
-			$directory = trim($directory);
-			$directory = ltrim(Factory::getFilesystemTools()->TranslateWinPath($directory), '/');
-		}
-		else
-		{
-			$directory = '';
-		}
-
-		// Parse tags
+		// Treat directory and place it in volatile storage
+		$directory = trim($directory);
+		$directory = ltrim(Factory::getFilesystemTools()->TranslateWinPath($directory), '/');
+		$directory = empty($directory) ? '' : $directory;
 		$directory = Factory::getFilesystemTools()->replace_archive_name_variables($directory);
 		$config->set('volatile.postproc.directory', $directory);
 
 		// Calculate relative remote filename
-		$filename = basename($absolute_filename);
+		$filename = basename($localFilepath);
 
 		if (!empty($directory) && ($directory != '/'))
 		{
@@ -87,71 +51,80 @@ class Azure extends Base
 		}
 
 		// Store the absolute remote path in the class property
-		$this->remote_path = $filename;
+		$this->remotePath = $filename;
 
 		// Connect and send
-		try
-		{
-			$blob = new AzureConnector(AzureStorage::URL_CLOUD_BLOB, $account, $key);
-			$policyNone = new AzureRetryNone();
-			$blob->setRetryPolicy($policyNone);
-			$blob->putBlob($container, $filename, $absolute_filename);
-		}
-		catch (\Exception $e)
-		{
-			$this->setWarning($e->getMessage());
+		$blob = $this->getConnector();
 
-			return false;
-		}
+		$blob->putBlob($container, $filename, $localFilepath);
 
 		return true;
 	}
 
 	public function delete($path)
 	{
-		$config = Factory::getConfiguration();
+		$connector = $this->getConnector();
+		$config    = Factory::getConfiguration();
+		$container = $config->get('engine.postproc.azure.container', 0);
 
-		$account = trim($config->get('engine.postproc.azure.account', ''));
-		$key = trim($config->get('engine.postproc.azure.key', ''));
+		$connector->deleteBlob($container, $path);
+	}
+
+	public function downloadToFile($remotePath, $localFile, $fromOffset = null, $length = null)
+	{
+		if (!is_null($fromOffset))
+		{
+			// Ranges are not supported
+			throw new RangeDownloadNotSupported();
+		}
+
+		/** @var AzureConnector $connector */
+		$connector = $this->getConnector();
+		$config    = Factory::getConfiguration();
+		$container = $config->get('engine.postproc.azure.container', 0);
+
+		$connector->getBlob($container, $remotePath, $localFile);
+	}
+
+	public function downloadToBrowser($remotePath)
+	{
+		/** @var AzureConnector $connector */
+		$connector = $this->getConnector();
+		$config    = Factory::getConfiguration();
+		$container = $config->get('engine.postproc.azure.container', 0);
+
+		return $connector->getSignedURL($container, $remotePath, 600);
+	}
+
+	protected function makeConnector()
+	{
+		$config    = Factory::getConfiguration();
+		$account   = trim($config->get('engine.postproc.azure.account', ''));
+		$key       = trim($config->get('engine.postproc.azure.key', ''));
 		$container = $config->get('engine.postproc.azure.container', 0);
 
 		// Sanity checks
 		if (empty($account))
 		{
-			$this->setWarning('You have not set up your Windows Azure account name');
-
-			return false;
+			throw new BadConfiguration('You have not set up your Microsoft Azure account name');
 		}
 
 		if (empty($key))
 		{
-			$this->setWarning('You have not set up your Windows Azure key');
-
-			return false;
+			throw new BadConfiguration('You have not set up your Microsoft Azure key');
 		}
 
 		if (empty($container))
 		{
-			$this->setWarning('You have not set up your Windows Azure container');
-
-			return false;
+			throw new BadConfiguration('You have not set up your Microsoft Azure container');
 		}
 
-		// Actually delete the BLOB
-		try
-		{
-			$blob = new AzureConnector(AzureStorage::URL_CLOUD_BLOB, $account, $key);
-			$policyNone = new AzureRetryNone();
-			$blob->setRetryPolicy($policyNone);
-			$blob->deleteBlob($container, $path);
-		}
-		catch (\Exception $e)
-		{
-			$this->setWarning($e->getMessage());
+		$host       = ($account == 'devstoreaccount1') ? AzureStorage::URL_DEV_BLOB : AzureStorage::URL_CLOUD_BLOB;
+		$connector  = new AzureConnector($host, $account, $key);
+		$policyNone = new AzureRetryNone();
 
-			return false;
-		}
+		$connector->setRetryPolicy($policyNone);
 
-		return true;
+		return $connector;
 	}
 }

@@ -1,21 +1,13 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 $isSent = !empty($data['campaignInformation']->sent) && !empty($data['campaignInformation']->active);
+$campaignController = acym_isAdmin() ? 'campaigns' : 'frontcampaigns';
 ?>
 <form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" class="acym__form__campaign__edit" data-abide novalidate>
 	<div class="grid-x">
 		<div class="cell medium-auto"></div>
-		<div class="cell xxlarge-9 acym__content">
+		<div class="cell <?= $data['containerClass']; ?> acym__content">
 
             <?php
             $workflow = acym_get('helper.workflow');
@@ -28,7 +20,7 @@ $isSent = !empty($data['campaignInformation']->sent) && !empty($data['campaignIn
 						<b><?php echo acym_translation('ACYM_EMAIL'); ?></b>
 					</h5>
 					<div class="cell auto acym__campaign__summary__modify">
-						<a href="<?php echo acym_completeLink('campaigns&task=edit&step=editEmail&edition=1&id='.intval($data['campaignInformation']->id)); ?>"><i class="fa fa-pencil"></i><span> <?php echo acym_translation('ACYM_EDIT'); ?></span></a>
+						<a href="<?php echo acym_completeLink($campaignController.'&task=edit&step=editEmail&edition=1&id='.intval($data['campaignInformation']->id)); ?>"><i class="acymicon-pencil"></i><span> <?php echo acym_translation('ACYM_EDIT'); ?></span></a>
 					</div>
 					<div class="cell grid-x">
 						<p class="cell medium-6 acym__campaign__summary__email__information">
@@ -60,7 +52,7 @@ $isSent = !empty($data['campaignInformation']->sent) && !empty($data['campaignIn
 							<b><?php echo acym_translation('ACYM_ATTACHMENTS'); ?></b>
 						</h5>
 						<div class="cell auto acym__campaign__summary__modify">
-							<a href="<?php echo acym_completeLink('campaigns&task=edit&step=editEmail&edition=1&id='.intval($data['campaignInformation']->id)); ?>"><i class="fa fa-pencil"></i><span> <?php echo acym_translation('ACYM_EDIT'); ?></span></a>
+							<a href="<?php echo acym_completeLink($campaignController.'&task=edit&step=editEmail&edition=1&id='.intval($data['campaignInformation']->id)); ?>"><i class="acymicon-pencil"></i><span> <?php echo acym_translation('ACYM_EDIT'); ?></span></a>
 						</div>
                         <?php foreach (json_decode($data['mailInformation']->attachments) as $key => $oneAttachment) {
                             $onlyFilename = explode("/", $oneAttachment->filename);
@@ -70,7 +62,7 @@ $isSent = !empty($data['campaignInformation']->sent) && !empty($data['campaignIn
                             if (strlen($onlyFilename) > 40) {
                                 $onlyFilename = substr($onlyFilename, 0, 15)."...".substr($onlyFilename, strlen($onlyFilename) - 15);
                             }
-                            echo acym_tooltip('<div class="acym__listing__row cell" data-toggle="path_attachment_'.$key.'">'.$onlyFilename.'</div>', $oneAttachment->filename, 'cell');
+                            echo acym_tooltip('<div class="acym__row__no-listing cell" data-toggle="path_attachment_'.$key.'">'.$onlyFilename.'</div>', $oneAttachment->filename, 'cell');
                         } ?>
 					</div>
                 <?php } ?>
@@ -79,11 +71,11 @@ $isSent = !empty($data['campaignInformation']->sent) && !empty($data['campaignIn
 						<b><?php echo acym_translation('ACYM_RECIPIENTS'); ?></b>
 					</h5>
 					<div class="cell auto acym__campaign__summary__modify">
-						<a href="<?php echo acym_completeLink('campaigns&task=edit&step=recipients&edition=1&id='.intval($data['campaignInformation']->id)); ?>"><i class="fa fa-pencil"></i><span> <?php echo acym_translation('ACYM_EDIT'); ?></span></a>
+						<a href="<?php echo acym_completeLink($campaignController.'&task=edit&step=recipients&edition=1&id='.intval($data['campaignInformation']->id)); ?>"><i class="acymicon-pencil"></i><span> <?php echo acym_translation('ACYM_EDIT'); ?></span></a>
 					</div>
                     <?php foreach ($data['listsReceiver'] as $oneList) {
-                        echo '<div class="cell grid-x acym__listing__row">
-							<span class="cell medium-6"><i class="fa fa-circle acym__campaign__summary__recipients__list__color" style="color: '.$oneList->color.'"></i> <b>'.$oneList->name.'</b></span> <span class="cell medium-6"><b>'.$oneList->subscribers.'</b> '.strtolower(acym_translation('ACYM_SUBSCRIBERS')).'</span>
+                        echo '<div class="cell grid-x acym__row__no-listing">
+							<span class="cell medium-6"><i class="acymicon-circle acym__campaign__summary__recipients__list__color" style="color: '.$oneList->color.'"></i> <b>'.$oneList->name.'</b></span> <span class="cell medium-6"><b>'.$oneList->subscribers.'</b> '.strtolower(acym_translation('ACYM_SUBSCRIBERS')).'</span>
 						</div>';
                     } ?>
 					<p class="cell">
@@ -100,7 +92,7 @@ $isSent = !empty($data['campaignInformation']->sent) && !empty($data['campaignIn
 						<b><?php echo acym_translation('ACYM_SEND_SETTINGS'); ?></b>
 					</h5>
 					<div class="cell auto acym__campaign__summary__modify">
-						<a href="<?php echo acym_completeLink('campaigns&task=edit&step=sendSettings&edition=1&id='.intval($data['campaignInformation']->id)); ?>"><i class="fa fa-pencil"></i><span> <?php echo acym_translation('ACYM_EDIT'); ?></span></a>
+						<a href="<?php echo acym_completeLink($campaignController.'&task=edit&step=sendSettings&edition=1&id='.intval($data['campaignInformation']->id)); ?>"><i class="acymicon-pencil"></i><span> <?php echo acym_translation('ACYM_EDIT'); ?></span></a>
 					</div>
 					<div class="cell grid-x grid-margin-x">
 						<div class="acym__tag__full cell shrink">
@@ -148,7 +140,8 @@ $isSent = !empty($data['campaignInformation']->sent) && !empty($data['campaignIn
                                 'resend_target',
                                 null,
                                 [],
-                                ['required' => true]
+                                ['required' => true],
+                                !acym_isAdmin()
                             );
                             ?>
 						</div>
@@ -156,7 +149,7 @@ $isSent = !empty($data['campaignInformation']->sent) && !empty($data['campaignIn
                     }
                     ?>
 					<div class="cell medium-shrink medium-margin-bottom-0 margin-bottom-1 text-left">
-                        <?php echo acym_backToListing('campaigns'); ?>
+                        <?php echo acym_backToListing($campaignController); ?>
 					</div>
 					<div class="cell medium-auto grid-x text-right">
 						<div class="cell auto hide-for-small-only"></div>

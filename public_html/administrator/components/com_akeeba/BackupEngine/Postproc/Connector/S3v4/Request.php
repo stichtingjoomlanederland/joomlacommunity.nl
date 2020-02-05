@@ -1,19 +1,17 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc\Connector\S3v4;
 
 use Akeeba\Engine\Postproc\Connector\S3v4\Response\Error;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 
 class Request
@@ -51,26 +49,26 @@ class Request
 	 *
 	 * @var  array
 	 */
-	private $parameters = array();
+	private $parameters = [];
 
 	/**
 	 * Amazon-specific headers to pass to the request
 	 *
 	 * @var  array
 	 */
-	private $amzHeaders = array();
+	private $amzHeaders = [];
 
 	/**
 	 * Regular HTTP headers to send in the request
 	 *
 	 * @var  array
 	 */
-	private $headers = array(
-		'Host' => '',
-		'Date' => '',
-		'Content-MD5' => '',
-		'Content-Type' => ''
-	);
+	private $headers = [
+		'Host'         => '',
+		'Date'         => '',
+		'Content-MD5'  => '',
+		'Content-Type' => '',
+	];
 
 	/**
 	 * Input data for the request
@@ -118,7 +116,7 @@ class Request
 	 *
 	 * @return  void
 	 */
-	function __construct($verb, $bucket = '', $uri = '', Configuration $configuration)
+	function __construct($verb, $bucket, $uri, Configuration $configuration)
 	{
 		$this->verb          = $verb;
 		$this->bucket        = $bucket;
@@ -327,7 +325,7 @@ class Request
 	}
 
 	/**
-	 * @param null|string $caCertLocation
+	 * @param   null|string  $caCertLocation
 	 */
 	public function setCaCertLocation($caCertLocation)
 	{
@@ -348,8 +346,8 @@ class Request
 	 * Get a pre-signed URL for the request. Typically used to pre-sign GET requests to objects, i.e. give shareable
 	 * pre-authorized URLs for downloading files from S3.
 	 *
-	 * @param   integer  $lifetime    Lifetime in seconds
-	 * @param   boolean  $https       Use HTTPS ($hostBucket should be false for SSL verification)?
+	 * @param   integer  $lifetime  Lifetime in seconds
+	 * @param   boolean  $https     Use HTTPS ($hostBucket should be false for SSL verification)?
 	 *
 	 * @return  string  The presigned URL
 	 */
@@ -382,7 +380,7 @@ class Request
 		// of us not knowing the region of the bucket, therefore having to use a special endpoint which lets us query
 		// the region of the bucket without knowing its region. See
 		// http://stackoverflow.com/questions/27091816/retrieve-buckets-objects-without-knowing-buckets-region-with-aws-s3-rest-api
-		if ((substr($this->uri, - 10) == '/?location') && ($this->headers['Host'] == 's3-external-1.amazonaws.com'))
+		if ((substr($this->uri, -10) == '/?location') && ($this->headers['Host'] == 's3-external-1.amazonaws.com'))
 		{
 			$this->headers['Host'] = 's3.amazonaws.com';
 		}
@@ -416,7 +414,7 @@ class Request
 			 * Caveat: if your bucket contains dots in the name we have to turn off host verification due to the way the
 			 * S3 SSL certificates are set up.
 			 */
-			$isAmazonS3 = (substr($this->headers['Host'], -14) == '.amazonaws.com') ||
+			$isAmazonS3  = (substr($this->headers['Host'], -14) == '.amazonaws.com') ||
 				substr($this->headers['Host'], -16) == 'amazonaws.com.cn';
 			$tooManyDots = substr_count($this->headers['Host'], '.') > 3;
 
@@ -432,7 +430,7 @@ class Request
 		$signer->preProcessHeaders($this->headers, $this->amzHeaders);
 
 		// Headers
-		$headers = array();
+		$headers = [];
 
 		foreach ($this->amzHeaders as $header => $value)
 		{
@@ -455,8 +453,8 @@ class Request
 		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($curl, CURLOPT_HEADER, false);
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, false);
-		curl_setopt($curl, CURLOPT_WRITEFUNCTION, array($this, '__responseWriteCallback'));
-		curl_setopt($curl, CURLOPT_HEADERFUNCTION, array($this, '__responseHeaderCallback'));
+		curl_setopt($curl, CURLOPT_WRITEFUNCTION, [$this, '__responseWriteCallback']);
+		curl_setopt($curl, CURLOPT_HEADERFUNCTION, [$this, '__responseHeaderCallback']);
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
 
 		// Request types
@@ -557,9 +555,9 @@ class Request
 	 *
 	 * @return  int  Length in bytes
 	 */
-	protected function  __responseWriteCallback(&$curl, &$data)
+	protected function __responseWriteCallback(&$curl, &$data)
 	{
-		if (in_array($this->response->code, array(200, 206)) && !is_null($this->fp) && is_resource($this->fp))
+		if (in_array($this->response->code, [200, 206]) && !is_null($this->fp) && is_resource($this->fp))
 		{
 			return fwrite($this->fp, $data);
 		}
@@ -577,7 +575,7 @@ class Request
 	 *
 	 * @return  int  Length in bytes
 	 */
-	protected function  __responseHeaderCallback(&$curl, &$data)
+	protected function __responseHeaderCallback(&$curl, &$data)
 	{
 		if (($strlen = strlen($data)) <= 2)
 		{
@@ -586,7 +584,7 @@ class Request
 
 		if (substr($data, 0, 4) == 'HTTP')
 		{
-			$this->response->code = (int)substr($data, 9, 3);
+			$this->response->code = (int) substr($data, 9, 3);
 
 			return $strlen;
 		}
@@ -600,7 +598,7 @@ class Request
 				break;
 
 			case 'content-length':
-				$this->response->setHeader('size', (int)$value);
+				$this->response->setHeader('size', (int) $value);
 				break;
 
 			case 'content-type':
@@ -614,10 +612,11 @@ class Request
 			default:
 				if (preg_match('/^x-amz-meta-.*$/', $header))
 				{
-					$this->setHeader($header, is_numeric($value) ? (int)$value : $value);
+					$this->setHeader($header, is_numeric($value) ? (int) $value : $value);
 				}
 				break;
 		}
+
 		return $strlen;
 	}
 
@@ -647,7 +646,7 @@ class Request
 				}
 			}
 
-			$query = substr($query, 0, -1);
+			$query     = substr($query, 0, -1);
 			$this->uri .= $query;
 
 			if (array_key_exists('acl', $this->parameters) ||

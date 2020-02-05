@@ -1,17 +1,15 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc\Connector\S3v4;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 /**
  * Holds the Amazon S3 confiugration credentials
@@ -79,10 +77,10 @@ class Configuration
 	/**
 	 * Public constructor
 	 *
-	 * @param   string  $access            Amazon S3 Access Key
-	 * @param   string  $secret            Amazon S3 Secret Key
-	 * @param   string  $singatureMethod   Signature method (v2 or v4)
-	 * @param   string  $region            Region, only required for v4 signatures
+	 * @param   string  $access           Amazon S3 Access Key
+	 * @param   string  $secret           Amazon S3 Secret Key
+	 * @param   string  $singatureMethod  Signature method (v2 or v4)
+	 * @param   string  $region           Region, only required for v4 signatures
 	 */
 	function __construct($access, $secret, $singatureMethod = 'v2', $region = '')
 	{
@@ -159,7 +157,7 @@ class Configuration
 	/**
 	 * Set the security token. Only for temporary credentials provisioned through an EC2 instance.
 	 *
-	 * @param  string  $token
+	 * @param   string  $token
 	 */
 	public function setToken($token)
 	{
@@ -188,7 +186,7 @@ class Configuration
 		$signatureMethod = strtolower($signatureMethod);
 		$signatureMethod = trim($signatureMethod);
 
-		if (!in_array($signatureMethod, array('v2', 'v4')))
+		if (!in_array($signatureMethod, ['v2', 'v4']))
 		{
 			throw new Exception\InvalidSignatureMethod;
 		}
@@ -264,7 +262,7 @@ class Configuration
 	/**
 	 * Set the connection SSL preference
 	 *
-	 * @param  boolean  $useSSL  True to use HTTPS
+	 * @param   boolean  $useSSL  True to use HTTPS
 	 */
 	public function setSSL($useSSL)
 	{
@@ -319,7 +317,7 @@ class Configuration
 	/**
 	 * Set the flag for using legacy, path-style access to the bucket
 	 *
-	 * @param  boolean  $useLegacyPathStyle
+	 * @param   boolean  $useLegacyPathStyle
 	 */
 	public function setUseLegacyPathStyle($useLegacyPathStyle)
 	{

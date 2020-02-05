@@ -125,7 +125,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 								</a>
 							<?php } ?>
 						<?php } else { ?>
-							<?php echo $post->getLastReplier()->poster_name; ?>
+							<?php echo $post->getLastReplier()->user->name; ?>
 						<?php } ?>
 						<a class="ml-5" href="<?php echo EDR::getPostRoute($post->id) . '#' . JText::_('MOD_EASYDISCUSS_REPLY_PERMALINK') . '-' . $lastReply->id;?>" title="<?php echo JText::_('MOD_EASYDISCUSS_VIEW_LAST_REPLY'); ?>"><?php echo JText::_('MOD_EASYDISCUSS_VIEW_LAST_REPLY');?></a>
 					</div>

@@ -1,24 +1,15 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<div class="acym__content acym_area padding-vertical-1 padding-horizontal-2 margin-bottom-2">
+?><div class="acym__content acym_area padding-vertical-1 padding-horizontal-2 margin-bottom-2">
 	<div class="acym_area_title"><?php echo acym_translation('ACYM_DEFAULT_SENDER'); ?></div>
 	<div class="grid-x grid-margin-x">
-		<div class="cell medium-4">
+		<div class="cell large-6 xlarge-4">
 			<label class="cell grid-x">
 				<span class="cell"><?php echo acym_translation('ACYM_FROM_NAME'); ?></span>
 				<input type="text" name="config[from_name]" placeholder="<?php echo acym_translation('ACYM_FROM_NAME_PLACEHOLDER'); ?>" value="<?php echo acym_escape($this->config->get('from_name')); ?>" />
 			</label>
 		</div>
-		<div class="cell medium-4">
+		<div class="cell large-6 xlarge-4">
 			<label class="cell grid-x">
 				<span class="cell"><?php echo acym_translation('ACYM_FROM_EMAIL'); ?></span>
 				<input type="email" name="config[from_email]" placeholder="<?php echo acym_translation('ACYM_FROM_EMAIL_PLACEHOLDER'); ?>" value="<?php echo acym_escape($this->config->get('from_email')); ?>" />
@@ -37,21 +28,30 @@ defined('_JEXEC') or die('Restricted access');
 			</label>
 		</div>
 
-		<div class="cell medium-4 acy_toggle_replyto">
+		<div class="cell large-6 xlarge-4 acy_toggle_replyto">
 			<label class="cell grid-x">
 				<span class="cell"><?php echo acym_translation('ACYM_REPLYTO_NAME'); ?></span>
 				<input type="text" name="config[replyto_name]" placeholder="<?php echo acym_translation('ACYM_REPLYTO_NAME_PLACEHOLDER'); ?>" value="<?php echo acym_escape($this->config->get('replyto_name')); ?>" />
 			</label>
 		</div>
-		<div class="cell medium-4 acy_toggle_replyto">
+		<div class="cell large-6 xlarge-4 acy_toggle_replyto">
 			<label class="cell grid-x">
 				<span class="cell"><?php echo acym_translation('ACYM_REPLYTO_EMAIL'); ?></span>
 				<input type="email" name="config[replyto_email]" placeholder="<?php echo acym_translation('ACYM_REPLYTO_EMAIL_PLACEHOLDER'); ?>" value="<?php echo acym_escape($this->config->get('replyto_email')); ?>" />
 			</label>
 		</div>
-		<div class="medium-4 acy_toggle_replyto"></div>
-		<div class="cell large-4 medium-6 grid-x">
-            <?php echo acym_switch('config[add_names]', $this->config->get('add_names'), acym_translation('ACYM_ADD_NAMES')); ?>
+
+		<div class="cell grid-x">
+			<div class="cell medium-6 large-4 xlarge-3 grid-x">
+                <?php echo acym_switch('config[add_names]', $this->config->get('add_names'), acym_translation('ACYM_ADD_NAMES')); ?>
+			</div>
+		</div>
+
+		<div class="cell grid-x">
+			<label class="cell large-6 xlarge-4 grid-x">
+				<span class="cell"><?php echo acym_translation('ACYM_BOUNCE_EMAIL'); ?></span>
+				<input type="text" name="config[bounce_email]" placeholder="<?php echo acym_translation('ACYM_BOUNCE_EMAIL_PLACEHOLDER'); ?>" value="<?php echo acym_escape($this->config->get('bounce_email')); ?>" />
+			</label>
 		</div>
 	</div>
 </div>
@@ -170,43 +170,69 @@ defined('_JEXEC') or die('Restricted access');
 	<div class="acym_area_title"><?php echo acym_translation('ACYM_CONFIGURATION_ADVANCED'); ?></div>
 	<div class="grid-x grid-margin-x">
 		<div class="cell medium-6 grid-x">
-			<div class="cell large-6 medium-5">
+			<div class="cell large-6">
 				<label for="config_encoding"><?php echo acym_translation('ACYM_CONFIGURATION_ENCODING'); ?></label>
 			</div>
-			<div class="cell medium-auto">
+			<div class="cell large-6">
                 <?php
                 $encodingHelper = acym_get('helper.encoding');
                 $encodingHelper->encodingField('config[encoding_format]', $this->config->get('encoding_format', '8bit'));
                 ?>
 			</div>
 		</div>
+
 		<div class="cell medium-6 grid-x">
-			<div class="cell large-6 medium-5">
+			<div class="cell large-6">
 				<label for="config_charset"><?php echo acym_translation('ACYM_CONFIGURATION_CHARSET'); ?></label>
 			</div>
-			<div class="cell medium-auto">
+			<div class="cell large-6">
                 <?php
                 echo $encodingHelper->charsetField('config[charset]', $this->config->get('charset'));
                 ?>
 			</div>
 		</div>
+
+        <?php
+        $options = [
+            'use_https' => 'ACYM_CONFIGURATION_HTTPS',
+            'special_chars' => 'ACYM_SPECIAL_CHARS',
+            'embed_images' => 'ACYM_CONFIGURATION_EMBED_IMAGES',
+            'embed_files' => 'ACYM_CONFIGURATION_EMBED_ATTACHMENTS',
+            'multiple_part' => 'ACYM_CONFIGURATION_MULTIPART',
+            'prevent_hyphens' => 'ACYM_PREVENT_HYPHENS',
+        ];
+
+        foreach ($options as $oneOption => $label) {
+            echo '<div class="cell medium-6 grid-x">';
+
+            $description = $label.'_DESC';
+            $translatedDescription = acym_translation($description);
+            $label = acym_translation($label);
+            if ($translatedDescription !== $description) {
+                $label .= acym_info(
+                    $description
+                );
+            }
+            echo acym_switch(
+                'config['.$oneOption.']',
+                $this->config->get($oneOption),
+                $label
+            );
+
+            echo '</div>';
+        }
+        ?>
 		<div class="cell medium-6 grid-x">
-            <?php echo acym_switch('config[use_https]', $this->config->get('use_https'), acym_translation('ACYM_CONFIGURATION_HTTPS')); ?>
-		</div>
-		<div class="cell medium-6 grid-x">
-            <?php echo acym_switch('config[special_chars]', $this->config->get('special_chars'), acym_translation('ACYM_SPECIAL_CHARS')); ?>
-		</div>
-		<div class="cell medium-6 grid-x">
-            <?php echo acym_switch('config[embed_images]', $this->config->get('embed_images'), acym_translation('ACYM_CONFIGURATION_EMBED_IMAGES')); ?>
-		</div>
-		<div class="cell medium-6 grid-x">
-            <?php echo acym_switch('config[embed_files]', $this->config->get('embed_files'), acym_translation('ACYM_CONFIGURATION_EMBED_ATTACHMENTS')); ?>
-		</div>
-		<div class="cell medium-6 grid-x">
-            <?php echo acym_switch('config[multiple_part]', $this->config->get('multiple_part'), acym_translation('ACYM_CONFIGURATION_MULTIPART')); ?>
-		</div>
-		<div class="cell medium-6 grid-x">
-            <?php echo acym_switch('config[dkim]', $this->config->get('dkim'), acym_translation('ACYM_CONFIGURATION_DKIM'), [], 'medium-6 small-9', "auto", "tiny", 'dkim_config'); ?>
+            <?php echo acym_switch(
+                'config[dkim]',
+                $this->config->get('dkim'),
+                acym_translation('ACYM_CONFIGURATION_DKIM'),
+                [],
+                'medium-6 small-9',
+                'auto',
+                'tiny',
+                'dkim_config'
+            ); ?>
 		</div>
 	</div>
 </div>
@@ -300,7 +326,7 @@ defined('_JEXEC') or die('Restricted access');
     ?>
 
 
-	<a class="smaller-button button button-secondary margin-bottom-0 margin-top-1" target="_blank" href="<?php echo ACYM_HELPURL; ?>dkim">
+	<a class=" button button-secondary margin-bottom-0 margin-top-1" target="_blank" href="<?php echo ACYM_HELPURL; ?>dkim">
         <?php echo acym_translation('ACYM_HELP'); ?>
 	</a>
 

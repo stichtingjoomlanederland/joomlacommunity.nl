@@ -1,11 +1,10 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 /**
@@ -42,8 +41,7 @@
 
 namespace Akeeba\Engine\Postproc\Connector\Azure\Credentials;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Postproc\Connector\Azure\AzureStorage;
 use Akeeba\Engine\Postproc\Connector\Azure\Credentials;
@@ -60,9 +58,9 @@ class Sharedkey extends Credentials
 	/**
 	 * Sign request URL with credentials
 	 *
-	 * @param string $requestUrl         Request URL
-	 * @param string $resourceType       Resource type
-	 * @param string $requiredPermission Required permission
+	 * @param   string  $requestUrl          Request URL
+	 * @param   string  $resourceType        Resource type
+	 * @param   string  $requiredPermission  Required permission
 	 *
 	 * @return string Signed request URL
 	 */
@@ -74,13 +72,13 @@ class Sharedkey extends Credentials
 	/**
 	 * Sign request headers with credentials
 	 *
-	 * @param string  $httpVerb           HTTP verb the request will use
-	 * @param string  $path               Path for the request
-	 * @param string  $queryString        Query string for the request
-	 * @param array   $headers            x-ms headers to add
-	 * @param boolean $forTableStorage    Is the request for table storage?
-	 * @param string  $resourceType       Resource type
-	 * @param string  $requiredPermission Required permission
+	 * @param   string   $httpVerb            HTTP verb the request will use
+	 * @param   string   $path                Path for the request
+	 * @param   string   $queryString         Query string for the request
+	 * @param   array    $headers             x-ms headers to add
+	 * @param   boolean  $forTableStorage     Is the request for table storage?
+	 * @param   string   $resourceType        Resource type
+	 * @param   string   $requiredPermission  Required permission
 	 *
 	 * @return array Array of headers
 	 */
@@ -105,7 +103,7 @@ class Sharedkey extends Credentials
 		$queryString = $this->prepareQueryStringForSigning($queryString);
 
 		// Canonicalized headers
-		$canonicalizedHeaders = array();
+		$canonicalizedHeaders = [];
 
 		// Request date
 		$requestDate = '';
@@ -116,7 +114,7 @@ class Sharedkey extends Credentials
 		}
 		else
 		{
-			$requestDate = gmdate('D, d M Y H:i:s', time()) . ' GMT'; // RFC 1123
+			$requestDate            = gmdate('D, d M Y H:i:s', time()) . ' GMT'; // RFC 1123
 			$canonicalizedHeaders[] = self::PREFIX_STORAGE_HEADER . 'date:' . $requestDate;
 		}
 
@@ -155,7 +153,7 @@ class Sharedkey extends Credentials
 		}
 
 		// Create string to sign
-		$stringToSign = array();
+		$stringToSign   = [];
 		$stringToSign[] = strtoupper($httpVerb); // VERB
 		$stringToSign[] = ""; // Content-Encoding
 		$stringToSign[] = ""; // Content-Language
@@ -177,13 +175,13 @@ class Sharedkey extends Credentials
 		}
 
 		$stringToSign[] = $canonicalizedResource; // Canonicalized resource
-		$stringToSign = implode("\n", $stringToSign);
+		$stringToSign   = implode("\n", $stringToSign);
 
 		$signString = base64_encode(hash_hmac('sha256', $stringToSign, $this->_accountKey, true));
 
 		// Sign request
 		$headers[self::PREFIX_STORAGE_HEADER . 'date'] = $requestDate;
-		$headers['Authorization'] = 'SharedKey ' . $this->_accountName . ':' . $signString;
+		$headers['Authorization']                      = 'SharedKey ' . $this->_accountName . ':' . $signString;
 
 		// Return headers
 		return $headers;

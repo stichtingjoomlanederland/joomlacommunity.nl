@@ -158,7 +158,7 @@ class ComDocmanJobCategories extends ComSchedulerJobAbstract
         if ($this->getObject('com://admin/docman.model.entity.config')->automatic_humanized_titles) {
             $title = $this->getObject('com://admin/docman.template.helper.string')->humanize(array(
                 'string' => $name,
-                'strip_extension' => true
+                'strip_extension' => false
             ));
         } else {
             $title = $name;

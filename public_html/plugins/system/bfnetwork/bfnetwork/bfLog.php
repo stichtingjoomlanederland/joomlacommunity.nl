@@ -93,12 +93,8 @@ class bfLog
         @unlink('tmp/log.tmp');
         @unlink('tmp/log.php');
 
-        // temp change to allow debugging of logs - 82.112.150.169 is a static office IP for Phil.
-//        if ($prefs->_BF_LOG) {
-        /*            file_put_contents(dirname(__FILE__).bfLog::FILE, '<?php if ($_SERVER["REMOTE_ADDR"] != "82.112.150.169") die("NOTAUTH"); ?>'.PHP_EOL);*/
-//        } else {
-        file_put_contents(dirname(__FILE__).bfLog::FILE, '<?php die(); ?>'.PHP_EOL);
-//        }
+        @file_put_contents(dirname(__FILE__).bfLog::FILE, '<?php die(); ?>'.PHP_EOL);
+
         bfLog::log('Log file truncated');
 
         // populate the config into the log

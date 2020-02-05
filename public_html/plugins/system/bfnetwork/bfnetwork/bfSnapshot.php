@@ -55,6 +55,8 @@ final class bfSnapshot
         // Connect to the database
         $this->initDb();
 
+        $this->logSnapshot();
+
         $session_save_path = @ini_get('session_save_path') ? ini_get('session_save_path') : '/tmp';
 
         $this->_data = array(
@@ -142,6 +144,23 @@ final class bfSnapshot
             'privacyconfirmedexport'     => (int) $this->getPrivacyconfirmedexport(),
             'enablepurge30days'          => (int) $this->getPurge30Days(),
             'extensionsjson'             => $this->getExtensions(),
+        );
+    }
+
+    private function logSnapshot()
+    {
+        bfActivitylog::getInstance()->log(
+            'bfNetwork',
+            '',
+            'Snapshot Taken',
+            'onSnapshotTaken',
+            'bfNetwork',
+            null,
+            null,
+            '',
+            bfEvents::onSnapshotTaken,
+            'onSnapshotTaken',
+            bfEvents::onSnapshotTaken
         );
     }
 

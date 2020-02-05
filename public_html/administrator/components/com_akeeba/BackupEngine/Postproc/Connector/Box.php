@@ -1,11 +1,10 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc\Connector;
@@ -14,8 +13,8 @@ use Akeeba\Engine\Postproc\Connector\Box\Exception\APIError;
 use Akeeba\Engine\Postproc\Connector\Box\Exception\cURLError;
 use Akeeba\Engine\Postproc\Connector\Box\Exception\InvalidJSON;
 use Akeeba\Engine\Postproc\Connector\Box\Exception\UnexpectedHTTPStatus;
-
-defined('AKEEBAENGINE') or die();
+use CURLFile;
+use RuntimeException;
 
 /**
  * Box.com API connector
@@ -76,7 +75,7 @@ class Box
 	private $defaultOptions = [
 		CURLOPT_SSL_VERIFYPEER => true,
 		CURLOPT_SSL_VERIFYHOST => 2,
-		CURLOPT_VERBOSE        => true,
+		CURLOPT_VERBOSE        => false,
 		CURLOPT_HEADER         => false,
 		CURLINFO_HEADER_OUT    => false,
 		CURLOPT_RETURNTRANSFER => true,
@@ -106,18 +105,18 @@ class Box
 	 *
 	 * If the refresh failed you'll get a RuntimeException.
 	 *
-	 * @param  bool  $forceRefresh  Set to true to forcibly refresh the tokens
+	 * @param   bool  $forceRefresh  Set to true to forcibly refresh the tokens
 	 *
 	 * @return  array
 	 *
-	 * @throws  \RuntimeException
+	 * @throws  RuntimeException
 	 */
 	public function ping($forceRefresh = false)
 	{
 		// Initialization
-		$response = array(
+		$response = [
 			'needs_refresh' => false,
-		);
+		];
 
 		// If we're not force refreshing the tokens try to get the drive information. It's our test to see if the token
 		// works.
@@ -183,8 +182,8 @@ class Box
 	/**
 	 * Lists the contents of a folder.
 	 *
-	 * @param   int $parentId The ID of the folder to list. 0 is the root folder.
-	 * @param   int $offset   Offset of the pagianted listing, 0 to start from the very beginning.
+	 * @param   int  $parentId  The ID of the folder to list. 0 is the root folder.
+	 * @param   int  $offset    Offset of the pagianted listing, 0 to start from the very beginning.
 	 *
 	 * @return  array  An array with keys files and folders. Each sub-array is keyed on file/folder name and the value
 	 *                 is the file's/folder's numeric ID.
@@ -257,8 +256,8 @@ class Box
 	/**
 	 * Create a folder
 	 *
-	 * @param   string $name     The name of the folder to create
-	 * @param   int    $parentId The ID of the parent folder. 0 is always the root folder
+	 * @param   string  $name      The name of the folder to create
+	 * @param   int     $parentId  The ID of the parent folder. 0 is always the root folder
 	 *
 	 * @return  int  The ID of the created folder
 	 */
@@ -299,9 +298,9 @@ class Box
 	/**
 	 * Look for a folder relative to the $parentId folder and return its ID
 	 *
-	 * @param   string $path          The folder path to look for
-	 * @param   int    $parentId      The parent folder to start searching in (0 = root)
-	 * @param   bool   $createMissing Should I create any missing folders? Default: true.
+	 * @param   string  $path           The folder path to look for
+	 * @param   int     $parentId       The parent folder to start searching in (0 = root)
+	 * @param   bool    $createMissing  Should I create any missing folders? Default: true.
 	 *
 	 * @return  int  The folder ID
 	 *
@@ -383,7 +382,7 @@ class Box
 
 		// Delete the file
 		$this->fetch('DELETE', self::rootUrl, "files/$fileId", [
-			'expect-status' => 204
+			'expect-status' => 204,
 		]);
 
 		return true;
@@ -482,14 +481,14 @@ class Box
 		 */
 		if (class_exists('\CURLFile'))
 		{
-			$postfields['file'] = new \CURLFile($localFile);
+			$postfields['file'] = new CURLFile($localFile);
 		}
 
 		$additional = [
 			'headers' => [
 				// Yes, the header is named wrong. It's actually the SHA1 hash, not the MD5.
 				'Content-MD5' => $sha1,
-			]
+			],
 		];
 
 		if (empty($sha1))
@@ -519,14 +518,14 @@ class Box
 
 		if ($fileId === false)
 		{
-			throw new \RuntimeException("The file $remoteFile does not exist in your Box.com account");
+			throw new RuntimeException("The file $remoteFile does not exist in your Box.com account");
 		}
 
 		$fp = @fopen($localFile, 'wb');
 
 		if ($fp === false)
 		{
-			throw new \RuntimeException("Cannot open local file $localFile for writing");
+			throw new RuntimeException("Cannot open local file $localFile for writing");
 		}
 
 		$this->fetch('GET', self::rootUrl, "files/$fileId/content", [
@@ -540,15 +539,15 @@ class Box
 	/**
 	 * Execute an API call
 	 *
-	 * @param   string $method       The HTTP method
-	 * @param   string $baseUrl      The base URL. Use one of self::rootUrl or self::contentRootUrl
-	 * @param   string $relativeUrl  The relative URL to ping
-	 * @param   array  $additional   Additional parameters
-	 * @param   mixed  $explicitPost Passed explicitly to POST requests if set, otherwise $additional is passed.
-	 *
-	 * @throws  \RuntimeException
+	 * @param   string  $method        The HTTP method
+	 * @param   string  $baseUrl       The base URL. Use one of self::rootUrl or self::contentRootUrl
+	 * @param   string  $relativeUrl   The relative URL to ping
+	 * @param   array   $additional    Additional parameters
+	 * @param   mixed   $explicitPost  Passed explicitly to POST requests if set, otherwise $additional is passed.
 	 *
 	 * @return  array
+	 * @throws  RuntimeException
+	 *
 	 */
 	protected function fetch($method, $baseUrl, $relativeUrl, array $additional = [], $explicitPost = null)
 	{

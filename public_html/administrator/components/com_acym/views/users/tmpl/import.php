@@ -1,31 +1,22 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<form id="acym_form" enctype="multipart/form-data" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
+?><form id="acym_form" enctype="multipart/form-data" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
 	<div class="acym__content acym__content__tab">
         <?php
         $data['tab']->startTab(acym_translation('ACYM_IMPORT_FROM_FILE'));
-        include(dirname(__FILE__).DS.'importfromfile.php');
+        include acym_getView('users', 'importfromfile', true);
         $data['tab']->endTab();
 
         $data['tab']->startTab(acym_translation('ACYM_IMPORT_FROM_TEXT'));
-        include(dirname(__FILE__).DS.'importfromtext.php');
+        include acym_getView('users', 'importfromtext', true);
         $data['tab']->endTab();
 
         $data['tab']->startTab(acym_translation_sprintf('ACYM_CMS_USERS', ACYM_CMS_TITLE));
-        include(dirname(__FILE__).DS.'importcmsusers.php');
+        include acym_getView('users', 'importcmsusers', true);
         $data['tab']->endTab();
 
         $data['tab']->startTab(acym_translation('ACYM_DATABASE'));
-        include(dirname(__FILE__).DS.'importfromdatabase.php');
+        include acym_getView('users', 'importfromdatabase', true);
         $data['tab']->endTab();
 
         $data['tab']->display('import');

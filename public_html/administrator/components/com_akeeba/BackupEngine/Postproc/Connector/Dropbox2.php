@@ -1,22 +1,21 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc\Connector;
 
-// Protection against direct access
+
 use Akeeba\Engine\Postproc\Connector\Dropbox2\Exception\APIError;
 use Akeeba\Engine\Postproc\Connector\Dropbox2\Exception\cURLError;
 use Akeeba\Engine\Postproc\Connector\Dropbox2\Exception\InvalidJSON;
 use Akeeba\Engine\Postproc\Connector\Dropbox2\Exception\UnexpectedHTTPStatus;
-
-defined('AKEEBAENGINE') or die();
+use Exception;
+use RuntimeException;
 
 /**
  * Dropbox (API v2) post-processing engine for Akeeba Engine
@@ -26,20 +25,6 @@ defined('AKEEBAENGINE') or die();
 class Dropbox2
 {
 	/**
-	 * The access token for connecting to Dropbox
-	 *
-	 * @var   string
-	 */
-	private $accessToken = '';
-
-    /**
-     * Download ID to use with the helper URL
-     *
-     * @var string
-     */
-    private $dlid = '';
-
-    /**
 	 * The root URL for the Dropbox RPC API, ref https://www.dropbox.com/developers/documentation/http
 	 */
 	const rootUrl = 'https://api.dropboxapi.com/2/';
@@ -55,19 +40,35 @@ class Dropbox2
 	const helperUrl = 'https://www.akeebabackup.com/oauth2/dropbox.php';
 
 	/**
+	 * The access token for connecting to Dropbox
+	 *
+	 * @var   string
+	 */
+	private $accessToken = '';
+
+	/**
+	 * Download ID to use with the helper URL
+	 *
+	 * @var string
+	 */
+	private $dlid = '';
+
+	/**
 	 * Default cURL options
 	 *
 	 * @var array
 	 */
-	private $defaultOptions = array(
+	private $defaultOptions = [
 		CURLOPT_SSL_VERIFYPEER => true,
 		CURLOPT_SSL_VERIFYHOST => 2,
-		CURLOPT_VERBOSE        => true,
+		CURLOPT_VERBOSE        => false,
 		CURLOPT_HEADER         => false,
 		CURLINFO_HEADER_OUT    => false,
 		CURLOPT_RETURNTRANSFER => true,
 		CURLOPT_CAINFO         => AKEEBA_CACERT_PEM,
-	);
+	];
+
+	private $namespaceId = '';
 
 	/**
 	 * Public constructor
@@ -90,9 +91,11 @@ class Dropbox2
 	{
 		$relativeUrl = 'users/get_current_account';
 
-		$result = $this->fetch('POST', self::rootUrl, $relativeUrl, array('headers' => array(
-			'Content-Type: application/json; charset=utf-8'
-		)), 'null');
+		$result = $this->fetch('POST', self::rootUrl, $relativeUrl, [
+			'headers' => [
+				'Content-Type: application/json; charset=utf-8',
+			],
+		], 'null');
 
 		return $result;
 	}
@@ -112,17 +115,19 @@ class Dropbox2
 
 		$path = $this->normalizePath($path);
 
-		$params = array(
+		$params = [
 			'path'               => $path,
 			'recursive'          => $recursive ? true : false,
 			'include_media_info' => $includeMediaInfo ? true : false,
-		);
+		];
 
 		$paramsForPost = json_encode($params);
 
-		$result = $this->fetch('POST', self::rootUrl, $relativeUrl, array('headers' => array(
-			'Content-Type: application/json; charset=utf-8'
-		)), $paramsForPost);
+		$result = $this->fetch('POST', self::rootUrl, $relativeUrl, [
+			'headers' => [
+				'Content-Type: application/json; charset=utf-8',
+			],
+		], $paramsForPost);
 
 		return $result;
 	}
@@ -130,23 +135,26 @@ class Dropbox2
 	/**
 	 * Get the raw listing of a folder
 	 *
-	 * @param   string  $cursor            The cursor recieved from getRawContents
+	 * @param   string  $cursor  The cursor recieved from getRawContents
 	 *
-	 * @return  array  See https://www.dropbox.com/developers/documentation/http#documentation-files-list_folder-continue
+	 * @return  array  See
+	 *                 https://www.dropbox.com/developers/documentation/http#documentation-files-list_folder-continue
 	 */
 	public function getRawContentsContinue($cursor)
 	{
 		$relativeUrl = 'files/list_folder/continue';
 
-		$params = array(
-			'cursor'             => $cursor,
-		);
+		$params = [
+			'cursor' => $cursor,
+		];
 
 		$paramsForPost = json_encode($params);
 
-		$result = $this->fetch('POST', self::rootUrl, $relativeUrl, array('headers' => array(
-			'Content-Type: application/json; charset=utf-8'
-		)), $paramsForPost);
+		$result = $this->fetch('POST', self::rootUrl, $relativeUrl, [
+			'headers' => [
+				'Content-Type: application/json; charset=utf-8',
+			],
+		], $paramsForPost);
 
 		return $result;
 	}
@@ -154,28 +162,29 @@ class Dropbox2
 	/**
 	 * Get the processed listing of a folder
 	 *
-	 * @param   string  $path          The relative path of the folder to list its contents
+	 * @param   string  $path  The relative path of the folder to list its contents
 	 *
-	 * @return  array  Two arrays under keys folders and files. Each array's key is the file/folder name, the value is the Dropbox Folder ID (folder) or size in bytes (file)
+	 * @return  array  Two arrays under keys folders and files. Each array's key is the file/folder name, the value is
+	 *                 the Dropbox Folder ID (folder) or size in bytes (file)
 	 */
 	public function listContents($path = '/')
 	{
-		$result = array();
+		$result = [];
 
 		$rawContents = $this->getRawContents($path);
-		$result = $rawContents['entries'];
+		$result      = $rawContents['entries'];
 
 		while ($rawContents['has_more'])
 		{
-			$cursor = $rawContents['cursor'];
+			$cursor      = $rawContents['cursor'];
 			$rawContents = $this->getRawContentsContinue($cursor);
-			$result = array_merge($result, $rawContents['entries']);
+			$result      = array_merge($result, $rawContents['entries']);
 		}
 
-		$return = array(
-			'files' => array(),
-			'folders' => array(),
-		);
+		$return = [
+			'files'   => [],
+			'folders' => [],
+		];
 
 		foreach ($result as $item)
 		{
@@ -206,16 +215,18 @@ class Dropbox2
 
 		$path = $this->normalizePath($path);
 
-		$params = array(
+		$params = [
 			'path'               => $path,
 			'include_media_info' => $includeMediaInfo ? true : false,
-		);
+		];
 
 		$paramsForPost = json_encode($params);
 
-		$result = $this->fetch('POST', self::rootUrl, $relativeUrl, array('headers' => array(
-			'Content-Type: application/json; charset=utf-8'
-		)), $paramsForPost);
+		$result = $this->fetch('POST', self::rootUrl, $relativeUrl, [
+			'headers' => [
+				'Content-Type: application/json; charset=utf-8',
+			],
+		], $paramsForPost);
 
 		return $result;
 	}
@@ -228,25 +239,27 @@ class Dropbox2
 	 *
 	 * @return  bool  True on success
 	 *
-	 * @throws  \Exception
+	 * @throws  Exception
 	 */
 	public function delete($path, $failOnError = true)
 	{
 		$relativeUrl = 'files/delete_v2';
-		$path = $this->normalizePath($path);
+		$path        = $this->normalizePath($path);
 
-		$params = array(
-			'path' => $path
-		);
+		$params        = [
+			'path' => $path,
+		];
 		$paramsForPost = json_encode($params);
 
 		try
 		{
-			$result = $this->fetch('POST', self::rootUrl, $relativeUrl, array('headers' => array(
-				'Content-Type: application/json; charset=utf-8'
-			)), $paramsForPost);
+			$result = $this->fetch('POST', self::rootUrl, $relativeUrl, [
+				'headers' => [
+					'Content-Type: application/json; charset=utf-8',
+				],
+			], $paramsForPost);
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			if (!$failOnError)
 			{
@@ -268,21 +281,21 @@ class Dropbox2
 	public function download($path, $localFile)
 	{
 		$relativeUrl = 'files/download';
-		$path = $this->normalizePath($path);
+		$path        = $this->normalizePath($path);
 
-		$params = array(
-			'path' => $path
-		);
+		$params        = [
+			'path' => $path,
+		];
 		$paramsForPost = json_encode($params);
 
-		$this->fetch('GET', self::contentRootUrl, $relativeUrl, array(
-			'headers'   => array(
+		$this->fetch('GET', self::contentRootUrl, $relativeUrl, [
+			'headers'   => [
 				'Content-Type:', // WARNING: Content-Type MUST be empty!
-				'Dropbox-API-Arg: ' . $paramsForPost
-			),
+				'Dropbox-API-Arg: ' . $paramsForPost,
+			],
 			'file'      => $localFile,
 			'file_mode' => 'wb',
-		));
+		]);
 	}
 
 	/**
@@ -298,21 +311,23 @@ class Dropbox2
 	public function getSharedUrl($path, $expires = null)
 	{
 		$relativeUrl = 'sharing/create_shared_link_with_settings';
-		$path = $this->normalizePath($path);
+		$path        = $this->normalizePath($path);
 
-		$settings      = array(
-			'requested_visibility' => 'public'
-		);
+		$settings = [
+			'requested_visibility' => 'public',
+		];
 
-		$params        = array(
-			'path' => $path,
-			'settings' => $settings
-		);
+		$params        = [
+			'path'     => $path,
+			'settings' => $settings,
+		];
 		$paramsForPost = json_encode($params);
 
-		$result = $this->fetch('POST', self::rootUrl, $relativeUrl, array('headers' => array(
-			'Content-Type: application/json; charset=utf-8'
-		)), $paramsForPost);
+		$result = $this->fetch('POST', self::rootUrl, $relativeUrl, [
+			'headers' => [
+				'Content-Type: application/json; charset=utf-8',
+			],
+		], $paramsForPost);
 
 		return $result['url'];
 	}
@@ -329,15 +344,15 @@ class Dropbox2
 	{
 		$path = $this->normalizePath($path);
 
-		$params = array(
-			'path' => $path
-		);
+		$params = [
+			'path' => $path,
+		];
 
 		$paramsForURL = json_encode($params);
 
 		$url = self::contentRootUrl . 'files/download';
 		$url .= '?authorization=Bearer%20' . urlencode($this->accessToken);
-		$url .= '&arg=' .urlencode($paramsForURL);
+		$url .= '&arg=' . urlencode($paramsForURL);
 
 		return $url;
 	}
@@ -353,9 +368,11 @@ class Dropbox2
 	{
 		$relativeUrl = 'files/upload_session/start';
 
-		$info = $this->fetch('POST', self::contentRootUrl, $relativeUrl, array('headers' => array(
-			'Content-Type: application/octet-stream'
-		)));
+		$info = $this->fetch('POST', self::contentRootUrl, $relativeUrl, [
+			'headers' => [
+				'Content-Type: application/octet-stream',
+			],
+		]);
 
 		return $info['session_id'];
 	}
@@ -368,42 +385,44 @@ class Dropbox2
 	 * @param   int     $offset     The file size that's been already uploaded
 	 * @param   bool    $mute       If true, the Dropbox desktop/mobile app will NOT notify users of the uploaded file
 	 *
-	 * @return  array  See https://www.dropbox.com/developers/documentation/http#documentation-files-upload_session-finish
+	 * @return  array  See
+	 *                 https://www.dropbox.com/developers/documentation/http#documentation-files-upload_session-finish
 	 */
 	public function finishUploadSession($sessionId, $path, $offset, $mute = false)
 	{
 		$relativeUrl = 'files/upload_session/finish';
-		$path = $this->normalizePath($path);
+		$path        = $this->normalizePath($path);
 
-		$params = array(
-			'cursor' => array(
+		$params        = [
+			'cursor' => [
 				'session_id' => $sessionId,
-				'offset'     => $offset
-			),
-			'commit' => array(
+				'offset'     => $offset,
+			],
+			'commit' => [
 				'path'       => $path,
 				'mode'       => 'overwrite',
 				'autorename' => false,
-				'mute'       => $mute ? true : false
-			)
-		);
+				'mute'       => $mute ? true : false,
+			],
+		];
 		$paramsForPost = json_encode($params);
 
-		return $this->fetch('POST', self::contentRootUrl, $relativeUrl, array(
-			'headers' => array(
+		return $this->fetch('POST', self::contentRootUrl, $relativeUrl, [
+			'headers' => [
 				'Content-Type: application/octet-stream',
-				'Dropbox-API-Arg: ' . $paramsForPost
-			)
-		));
+				'Dropbox-API-Arg: ' . $paramsForPost,
+			],
+		]);
 	}
 
 	/**
 	 * Upload a part
 	 *
 	 * @param   string  $sessionId  The upload session URL, see createUploadSession
-	 * @param   string  $localFile   Absolute filesystem path of the source file
-	 * @param   int     $from        Starting byte to begin uploading, default is 0 (start of file)
-	 * @param   int     $length      Chunk size in bytes, default 10Mb, must NOT be over 60Mb!  MUST be a multiple of 320Kb.
+	 * @param   string  $localFile  Absolute filesystem path of the source file
+	 * @param   int     $from       Starting byte to begin uploading, default is 0 (start of file)
+	 * @param   int     $length     Chunk size in bytes, default 10Mb, must NOT be over 60Mb!  MUST be a multiple of
+	 *                              320Kb.
 	 *
 	 * @return  void
 	 */
@@ -413,7 +432,7 @@ class Dropbox2
 
 		clearstatcache();
 		$totalSize = filesize($localFile);
-		$to = $from + $length - 1;
+		$to        = $from + $length - 1;
 
 		if ($to > ($totalSize - 1))
 		{
@@ -422,28 +441,28 @@ class Dropbox2
 
 		$contentLength = $to - $from + 1;
 
-		$params = array(
-			'cursor' => array(
+		$params        = [
+			'cursor' => [
 				'session_id' => $sessionId,
 				'offset'     => $from,
-			),
-			'close' => false
-		);
+			],
+			'close'  => false,
+		];
 		$paramsForPost = json_encode($params);
 
-		$additional = array(
-			'headers' => array(
+		$additional = [
+			'headers'  => [
 				'Content-Type: application/octet-stream',
-				'Dropbox-API-Arg: ' . $paramsForPost
-			),
-		    'no-parse' => true
-		);
+				'Dropbox-API-Arg: ' . $paramsForPost,
+			],
+			'no-parse' => true,
+		];
 
 		$fp = @fopen($localFile, 'rb');
 
 		if ($fp === false)
 		{
-			throw new \RuntimeException("Could not open $localFile for reading", 500);
+			throw new RuntimeException("Could not open $localFile for reading", 500);
 		}
 
 		fseek($fp, $from);
@@ -461,7 +480,8 @@ class Dropbox2
 	 * @param   int     $partSize   Part size in bytes, default 10Mb.
 	 * @param   bool    $mute       If true, the Dropbox desktop/mobile app will NOT notify users of the uploaded file
 	 *
-	 * @return  array  See https://www.dropbox.com/developers/documentation/http#documentation-files-upload_session-finish
+	 * @return  array  See
+	 *                 https://www.dropbox.com/developers/documentation/http#documentation-files-upload_session-finish
 	 */
 	public function resumableUpload($path, $localFile, $partSize = 10485760, $mute = false)
 	{
@@ -469,7 +489,7 @@ class Dropbox2
 		$totalSize = filesize($localFile);
 
 		$sessionId = $this->createUploadSession();
-		$from = 0;
+		$from      = 0;
 
 		while (true)
 		{
@@ -494,7 +514,8 @@ class Dropbox2
 	 * @param   string  $path       The remote path relative to Dropbox root
 	 * @param   string  $localFile  The absolute local filesystem path
 	 *
-	 * @return  array  See https://www.dropbox.com/developers/documentation/http#documentation-files-upload_session-finish
+	 * @return  array  See
+	 *                 https://www.dropbox.com/developers/documentation/http#documentation-files-upload_session-finish
 	 */
 	public function upload($path, $localFile)
 	{
@@ -521,7 +542,7 @@ class Dropbox2
 		{
 			$ownMetaData = $this->getMetadata($path);
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			$ownMetaData = null;
 		}
@@ -529,17 +550,17 @@ class Dropbox2
 		// Empty path means that it already exists (it's the root)
 		if (empty($path))
 		{
-			return array($ownMetaData);
+			return [$ownMetaData];
 		}
 
 		// Get the parent path and the directory components of the path
 		$parentPath = '/';
-		$folder = $path;
+		$folder     = $path;
 
 		if (strpos($path, '/') !== false)
 		{
-			$pathParts = explode('/', $path);
-			$folder = array_pop($pathParts);
+			$pathParts  = explode('/', $path);
+			$folder     = array_pop($pathParts);
 			$parentPath = implode('/', $pathParts);
 		}
 
@@ -553,7 +574,7 @@ class Dropbox2
 				$parentMetaData = $this->getMetadata($parentPath);
 			}
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			// The parent folder doesn't exist. Create it!
 			$this->makeDirectory($parentPath);
@@ -565,16 +586,48 @@ class Dropbox2
 		}
 
 		// We have to create a new folder $folder in parent folder $parentPath.
-		$relativeUrl = 'files/create_folder_v2';
-		$params = array(
-			'path' => $path,
+		$relativeUrl   = 'files/create_folder_v2';
+		$params        = [
+			'path'       => $path,
 			'autorename' => false,
-		);
+		];
 		$paramsForPost = json_encode($params);
 
-		return $this->fetch('POST', self::rootUrl, $relativeUrl, array('headers' => array(
-			'Content-Type: application/json'
-		)), $paramsForPost);
+		return $this->fetch('POST', self::rootUrl, $relativeUrl, [
+			'headers' => [
+				'Content-Type: application/json',
+			],
+		], $paramsForPost);
+	}
+
+	/**
+	 * Get the namespace ID.
+	 *
+	 * This is used for Dropbox for Business only.
+	 *
+	 * @see     https://www.dropbox.com/developers/reference/namespace-guide
+	 *
+	 * @return  string
+	 */
+	public function getNamespaceId()
+	{
+		return $this->namespaceId;
+	}
+
+	/**
+	 * Set the namespace ID. Set to empty to use the user's personal space (default behavior).
+	 *
+	 * This is used for Dropbox for Business only.
+	 *
+	 * @param   string  $namespaceId  The namespace ID. Get it with $this->getCurrentAccount
+	 *
+	 * @see     https://www.dropbox.com/developers/reference/namespace-guide
+	 *
+	 * @return  void
+	 */
+	public function setNamespaceId($namespaceId)
+	{
+		$this->namespaceId = $namespaceId;
 	}
 
 	/**
@@ -586,11 +639,11 @@ class Dropbox2
 	 * @param   array   $additional    Additional parameters
 	 * @param   mixed   $explicitPost  Passed explicitly to POST requests if set, otherwise $additional is passed.
 	 *
-	 * @throws  \RuntimeException
-	 *
 	 * @return  array
+	 * @throws  RuntimeException
+	 *
 	 */
-	protected function fetch($method, $baseUrl, $relativeUrl, array $additional = array(), $explicitPost = null)
+	protected function fetch($method, $baseUrl, $relativeUrl, array $additional = [], $explicitPost = null)
 	{
 		// Get full URL, if required
 		$url = $relativeUrl;
@@ -644,7 +697,7 @@ class Dropbox2
 		}
 
 		// Set up custom headers
-		$headers = array();
+		$headers = [];
 
 		if (isset($additional['headers']))
 		{
@@ -655,11 +708,22 @@ class Dropbox2
 		// Add the authorization header
 		$headers[] = 'Authorization: Bearer ' . $this->accessToken;
 
-		$options[ CURLOPT_HTTPHEADER ] = $headers;
+		// Add the Dropbox-API-Path-Root header
+		$apiRootHeader = '{".tag": "home"}';
+
+		if (!empty($this->namespaceId))
+		{
+			$apiRootHeader = sprintf('{".tag": "namespace_id", "namespace_id": "%s"}', $this->namespaceId);
+		}
+
+		$headers[] = 'Dropbox-API-Path-Root: ' . $apiRootHeader;
+
+		// Apply the headers
+		$options[CURLOPT_HTTPHEADER] = $headers;
 
 		// Handle files
-		$file = null;
-		$fp = null;
+		$file     = null;
+		$fp       = null;
 		$fileMode = null;
 
 		if (isset($additional['file']))
@@ -692,10 +756,10 @@ class Dropbox2
 		// Set up additional options
 		if ($method == 'GET' && $fp)
 		{
-			$options[ CURLOPT_RETURNTRANSFER ] = false;
-			$options[ CURLOPT_HEADER ]         = false;
-			$options[ CURLOPT_FILE ]           = $fp;
-			$options[ CURLOPT_BINARYTRANSFER ] = true;
+			$options[CURLOPT_RETURNTRANSFER] = false;
+			$options[CURLOPT_HEADER]         = false;
+			$options[CURLOPT_FILE]           = $fp;
+			$options[CURLOPT_BINARYTRANSFER] = true;
 
 			if (!$expectHttpStatus)
 			{
@@ -704,50 +768,50 @@ class Dropbox2
 		}
 		elseif ($method == 'POST')
 		{
-			$options[ CURLOPT_POST ] = true;
+			$options[CURLOPT_POST] = true;
 
 			if ($explicitPost)
 			{
-				$options[ CURLOPT_POSTFIELDS ] = $explicitPost;
+				$options[CURLOPT_POSTFIELDS] = $explicitPost;
 			}
 			elseif (!empty($additional))
 			{
-				$options[ CURLOPT_POSTFIELDS ] = $additional;
+				$options[CURLOPT_POSTFIELDS] = $additional;
 			}
 			// This is required for some broken servers, e.g. SiteGround
 			else
 			{
-				$options[ CURLOPT_POSTFIELDS ] = '';
+				$options[CURLOPT_POSTFIELDS] = '';
 			}
 		}
 		elseif ($method == 'PUT' && $fp)
 		{
-			$options[ CURLOPT_PUT ]    = true;
-			$options[ CURLOPT_INFILE ] = $fp;
+			$options[CURLOPT_PUT]    = true;
+			$options[CURLOPT_INFILE] = $fp;
 
 			if ($file)
 			{
 				clearstatcache();
-				$options[ CURLOPT_INFILESIZE ] = @filesize($file);
+				$options[CURLOPT_INFILESIZE] = @filesize($file);
 			}
 			else
 			{
-				$options[ CURLOPT_INFILESIZE ] = strlen(stream_get_contents($fp));
+				$options[CURLOPT_INFILESIZE] = strlen(stream_get_contents($fp));
 			}
 
 			fseek($fp, 0);
 		}
 		else // Any other HTTP method, e.g. DELETE
 		{
-			$options[ CURLOPT_CUSTOMREQUEST ] = $method;
+			$options[CURLOPT_CUSTOMREQUEST] = $method;
 
 			if ($explicitPost)
 			{
-				$options[ CURLOPT_POSTFIELDS ] = $explicitPost;
+				$options[CURLOPT_POSTFIELDS] = $explicitPost;
 			}
 			elseif (!empty($additional))
 			{
-				$options[ CURLOPT_POSTFIELDS ] = $additional;
+				$options[CURLOPT_POSTFIELDS] = $additional;
 			}
 		}
 
@@ -761,9 +825,9 @@ class Dropbox2
 		}
 
 		// Execute and parse the response
-		$response = curl_exec($ch);
-		$errNo = curl_errno($ch);
-		$error = curl_error($ch);
+		$response     = curl_exec($ch);
+		$errNo        = curl_errno($ch);
+		$error        = curl_error($ch);
 		$lastHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
 		curl_close($ch);
@@ -794,7 +858,7 @@ class Dropbox2
 		{
 			if ($expectHttpStatus == $lastHttpCode)
 			{
-				return array();
+				return [];
 			}
 		}
 
@@ -805,7 +869,7 @@ class Dropbox2
 
 		// Parse the response
 		$originalResponse = $response;
-		$response = json_decode($response, true);
+		$response         = json_decode($response, true);
 
 		// Did we get invalid JSON data?
 		if (!$response)
@@ -826,7 +890,7 @@ class Dropbox2
 		// Did we get an error response (from the helper script)?
 		if (isset($response['error']))
 		{
-			$error = $response['error'];
+			$error            = $response['error'];
 			$errorDescription = isset($response['error_description']) ? $response['error_description'] : 'No error description provided';
 
 			throw new APIError($error, $errorDescription, 500);
@@ -889,10 +953,10 @@ class Dropbox2
 	protected function decodeError($error)
 	{
 		// Initialise
-		$ret = array(
+		$ret = [
 			'code'        => 'unknown',
-			'description' => 'No error description provided. Raw error: ' . print_r($error, true)
-		);
+			'description' => 'No error description provided. Raw error: ' . print_r($error, true),
+		];
 
 		// Make sure there's an error tag
 		if (!isset($error['.tag']))

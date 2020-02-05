@@ -1,21 +1,20 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc\Connector;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Postproc\Connector\Cloudfiles\Exception\Missing\Apikey as MissingApikey;
 use Akeeba\Engine\Postproc\Connector\Cloudfiles\Exception\Missing\Username as MissingUsername;
 use Akeeba\Engine\Postproc\Connector\Cloudfiles\Request;
+use DateTime;
 
 /**
  * Self-contained implementation of the RackSpace CloudFiles in PHP
@@ -29,14 +28,14 @@ class Cloudfiles extends Swift
 	protected $authEndpoint = 'https://identity.api.rackspacecloud.com/v2.0';
 
 	/** @var array List of storage endpoints per region */
-	protected $storageEndpoints = array(
+	protected $storageEndpoints = [
 		'ORD' => 'https://storage101.ord1.clouddrive.com',
 		'DFW' => 'https://storage101.dfw1.clouddrive.com',
 		'HKG' => 'https://storage101.hkg1.clouddrive.com',
 		'LON' => 'https://storage101.lon3.clouddrive.com',
 		'IAD' => 'https://storage101.iad3.clouddrive.com',
 		'SYD' => 'https://storage101.syd2.clouddrive.com',
-	);
+	];
 
 	/** @var string The region of the account. It is kindly reported by the Swift API, no need to set it. */
 	protected $region = 'LON';
@@ -49,14 +48,14 @@ class Cloudfiles extends Swift
 	/**
 	 * Public constructor
 	 *
-	 * @param string $username The CloudFiles username
-	 * @param string $apiKey   The CloudFiles API key
-	 * @param array  $options  Configuration options (authEndpoint, storageEndpoint, apiVersion, userContract, tenantId, tokenExpiration, token)
+	 * @param   string  $username  The CloudFiles username
+	 * @param   string  $apiKey    The CloudFiles API key
+	 * @param   array   $options   Configuration options (authEndpoint, storageEndpoint, apiVersion, userContract, tenantId, tokenExpiration, token)
 	 *
 	 * @throws MissingUsername  You have not given me a username
 	 * @throws MissingApikey    You have not given me an API key
 	 */
-	public function __construct($username, $apiKey, $options = array())
+	public function __construct($username, $apiKey, $options = [])
 	{
 		// Data validation
 		if (empty($username))
@@ -76,7 +75,7 @@ class Cloudfiles extends Swift
 		{
 			foreach ($options as $key => $value)
 			{
-				if (in_array($key, array('username', 'password', 'apiKey')))
+				if (in_array($key, ['username', 'password', 'apiKey']))
 				{
 					continue;
 				}
@@ -96,7 +95,7 @@ class Cloudfiles extends Swift
 	 */
 	public function getCurrentOptions()
 	{
-		return array(
+		return [
 			'token'           => $this->token,
 			'tokenExpiration' => $this->tokenExpiration,
 			'tenantId'        => $this->tenantId,
@@ -106,13 +105,13 @@ class Cloudfiles extends Swift
 			'region'          => $this->region,
 			'storageEndpoint' => $this->storageEndpoint,
 			'apiVersion'      => $this->apiVersion,
-		);
+		];
 	}
 
 	/**
 	 * Authenticate the user and obtain a new token. If there is a token and it's not expired yet we will reuse it.
 	 *
-	 * @param bool $force Force authentication?
+	 * @param   bool  $force  Force authentication?
 	 */
 	public function authenticate($force = false)
 	{
@@ -131,16 +130,16 @@ class Cloudfiles extends Swift
 
 		$request = new Request('POST', $this->authEndpoint . '/tokens');
 
-		$dataRaw = (object)array(
-			'auth' => array(
-				"RAX-KSKEY:apiKeyCredentials" => array(
+		$dataRaw = (object) [
+			'auth' => [
+				"RAX-KSKEY:apiKeyCredentials" => [
 					'username' => $this->username,
 					'apiKey'   => $this->password,
-				)
-			)
-		);
+				],
+			],
+		];
 
-		$dataForPost = json_encode($dataRaw);
+		$dataForPost   = json_encode($dataRaw);
 		$request->data = $dataForPost;
 		$request->setHeader('Accept', 'application/json');
 		$request->setHeader('Content-Type', 'application/json');
@@ -148,24 +147,24 @@ class Cloudfiles extends Swift
 
 		$response = $request->getResponse();
 
-		$this->token = $response->body->access->token->id;
+		$this->token    = $response->body->access->token->id;
 		$this->tenantId = $response->body->access->token->tenant->id;
 
-		$date = new \DateTime($response->body->access->token->expires);
+		$date                  = new DateTime($response->body->access->token->expires);
 		$this->tokenExpiration = $date->getTimestamp();
 
 		$raxAuthRegionKey = 'RAX-AUTH:defaultRegion';
-		$defaultRegion = $response->body->access->user->$raxAuthRegionKey;
+		$defaultRegion    = $response->body->access->user->$raxAuthRegionKey;
 
-        $this->region = strtoupper($defaultRegion);
+		$this->region = strtoupper($defaultRegion);
 
-        $needsEndpoint = false;
+		$needsEndpoint = false;
 
 		if (empty($this->storageEndpoint))
 		{
 			$this->storageEndpoint = $this->storageEndpoints[$this->region];
 
-            $needsEndpoint = true;
+			$needsEndpoint = true;
 		}
 
 		foreach ($response->body->access->serviceCatalog as $service)
@@ -188,9 +187,9 @@ class Cloudfiles extends Swift
 		}
 
 		// Finally, set up the storage endpoint in the way the API class expects it
-        if ($needsEndpoint)
-        {
-		    $this->storageEndpoint .= '/' . $this->apiVersion . '/' . $this->userContract . '/' . $this->container;
-        }
+		if ($needsEndpoint)
+		{
+			$this->storageEndpoint .= '/' . $this->apiVersion . '/' . $this->userContract . '/' . $this->container;
+		}
 	}
 }

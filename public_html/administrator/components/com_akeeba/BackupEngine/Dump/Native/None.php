@@ -1,26 +1,22 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Dump\Native;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Dump\Base;
 use Akeeba\Engine\Factory;
-use Psr\Log\LogLevel;
 
 
 /**
  * Dump class for the "None" database driver (ie no database used by the application)
- *
  */
 class None extends Base
 {
@@ -45,9 +41,9 @@ class None extends Base
 	 */
 	protected function stepDatabaseDump()
 	{
-		Factory::getLog()->log(LogLevel::INFO, "Reminder: database definitions using the 'None' driver result in no data being backed up.");
+		Factory::getLog()->info("Reminder: database definitions using the 'None' driver result in no data being backed up.");
 
-		$this->setState('finished');
+		$this->setState(self::STATE_FINISHED);
 	}
 
 	/**

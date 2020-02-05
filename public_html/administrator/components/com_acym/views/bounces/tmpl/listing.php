@@ -1,19 +1,10 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
+?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
 	<div id="acym__bounces" class="acym__content">
 		<div class="grid-x grid-margin-x">
 			<div class="cell medium-shrink">
-				<h1 class="acym__title__listing "><?php echo acym_translation('ACYM_BOUNCES_RULES'); ?></h1>
+				<h1 class="acym__title__listing"><?php echo acym_translation('ACYM_BOUNCES_RULES'); ?></h1>
 			</div>
 			<div class="medium-auto hide-for-small-only cell"></div>
 			<div class="medium-shrink cell">
@@ -64,8 +55,8 @@ defined('_JEXEC') or die('Restricted access');
 						</div>
 						<div class="medium-1 cell acym_vcenter align-center acym__bounce__listing__handle">
 							<div class="grabbable acym__sortable__listing__handle grid-x">
-								<i class="fa fa-ellipsis-h cell acym__color__dark-gray"></i>
-								<i class="fa fa-ellipsis-h cell acym__color__dark-gray"></i>
+								<i class="acymicon-ellipsis-h cell acym__color__dark-gray"></i>
+								<i class="acymicon-ellipsis-h cell acym__color__dark-gray"></i>
 							</div>
 						</div>
 						<div class="grid-x medium-auto small-11 cell acym__field__listing acym_vcenter">
@@ -113,8 +104,8 @@ defined('_JEXEC') or die('Restricted access');
 							</div>
 							<div class="cell medium-1 text-center acym__listing__controls">
                                 <?php
-                                $class = $oneRule->active == 1 ? 'fa-check-circle acym__color__green" newvalue="0' : 'fa-times-circle acym__color__red" newvalue="1';
-                                echo '<i table="rule" field="active" elementid="'.acym_escape($oneRule->id).'" class="acym_toggleable cursor-pointer '.' fa '.$class.'"></i>';
+                                $class = $oneRule->active == 1 ? 'acymicon-check-circle acym__color__green" data-acy-newvalue="0' : 'acymicon-times-circle acym__color__red" data-acy-newvalue="1';
+                                echo '<i data-acy-table="rule" data-acy-field="active" data-acy-elementid="'.acym_escape($oneRule->id).'" class="acym_toggleable cursor-pointer '.$class.'"></i>';
                                 ?>
 							</div>
 						</div>

@@ -1,17 +1,15 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Util\AesAdapter;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 /**
  * Abstract AES encryption class
@@ -21,8 +19,8 @@ abstract class AbstractAdapter
 	/**
 	 * Trims or zero-pads a key / IV
 	 *
-	 * @param   string $key  The key or IV to treat
-	 * @param   int    $size The block size of the currently used algorithm
+	 * @param   string  $key   The key or IV to treat
+	 * @param   int     $size  The block size of the currently used algorithm
 	 *
 	 * @return  null|string  Null if $key is null, treated string of $size byte length otherwise
 	 */
@@ -61,8 +59,8 @@ abstract class AbstractAdapter
 	/**
 	 * Returns null bytes to append to the string so that it's zero padded to the specified block size
 	 *
-	 * @param   string $string    The binary string which will be zero padded
-	 * @param   int    $blockSize The block size
+	 * @param   string  $string     The binary string which will be zero padded
+	 * @param   int     $blockSize  The block size
 	 *
 	 * @return  string  The zero bytes to append to the string to zero pad it to $blockSize
 	 */

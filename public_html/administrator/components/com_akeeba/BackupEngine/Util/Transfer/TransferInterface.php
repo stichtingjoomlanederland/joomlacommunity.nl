@@ -1,17 +1,17 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Util\Transfer;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
+
+use RuntimeException;
 
 /**
  * An interface for Transfer adapters, used to transfer files to remote servers over FTP, FTPS, SFTP and possibly other
@@ -24,7 +24,7 @@ interface TransferInterface
 	/**
 	 * Creates the uploader
 	 *
-	 * @param array $config
+	 * @param   array  $config
 	 */
 	public function __construct(array $config);
 
@@ -35,7 +35,7 @@ interface TransferInterface
 	 *
 	 * @return  boolean  True if the firewall blocks connections to a known host
 	 */
-	public static function isFirewalled(array $params = array());
+	public static function isFirewalled(array $params = []);
 
 	/**
 	 * Write the contents into the file
@@ -128,14 +128,14 @@ interface TransferInterface
 	 */
 	public function mkdir($dirName, $permissions = 0755);
 
-    /**
-     * Checks if the given directory exists
-     *
-     * @param   string   $path         The full path of the remote directory to check
-     *
-     * @return  boolean  True if the directory exists
-     */
-    public function isDir($path);
+	/**
+	 * Checks if the given directory exists
+	 *
+	 * @param   string  $path  The full path of the remote directory to check
+	 *
+	 * @return  boolean  True if the directory exists
+	 */
+	public function isDir($path);
 
 	/**
 	 * Get the current working directory
@@ -161,7 +161,7 @@ interface TransferInterface
 	 *
 	 * @return  array|bool  A list of folders, or false if we could not get a listing
 	 *
-	 * @throws  \RuntimeException  When the server is incompatible with our folder scanner
+	 * @throws  RuntimeException  When the server is incompatible with our folder scanner
 	 */
 	public function listFolders($dir = null);
 }

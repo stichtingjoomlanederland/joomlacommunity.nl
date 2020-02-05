@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class acymentitySelectHelper extends acymObject
 {
@@ -82,7 +73,8 @@ class acymentitySelectHelper extends acymObject
         if (empty($entityClass)) return false;
 
         if (empty($entityParams['elementsPerPage']) || $entityParams['elementsPerPage'] < 1) {
-            $entityParams['elementsPerPage'] = acym_getCMSConfig('list_limit', 20);
+            $paginationHelper = acym_get('helper.pagination');
+            $entityParams['elementsPerPage'] = $paginationHelper->getListLimit();
         }
 
         if (!empty($columnJoin)) $columnJoin = 'data-column-join="'.$columnJoin[1].'" data-table-join="'.$columnJoin[0].'"';
@@ -91,7 +83,7 @@ class acymentitySelectHelper extends acymObject
 
         $display .= $this->_getListing('available', 'select', $entity, $columnsToDisplay);
 
-        $display .= '<div class="cell medium-shrink text-center grid-x acym_vcenter"><i class="fa fa-arrows-h cell"></i></div>';
+        $display .= '<div class="cell medium-shrink text-center grid-x acym_vcenter"><i class="acymicon-arrows-h cell"></i></div>';
 
         $display .= $this->_getListing('selected', 'unselect', $entity, $columnsToDisplay);
 

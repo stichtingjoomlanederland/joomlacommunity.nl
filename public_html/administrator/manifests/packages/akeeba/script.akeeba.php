@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -58,13 +58,24 @@ class Pkg_AkeebaInstallerScript
 	];
 
 	/**
-	 * Like above, but enable these extensions on installation OR update. Use this sparringly. It overrides the
+	 * Like above, but enable these extensions on installation OR update. Use this sparingly. It overrides the
 	 * preferences of the user. Ideally, this should only be used for installer plugins.
 	 *
 	 * @var array
 	 */
 	protected $extensionsToAlwaysEnable = [
 		['plugin', 'akeebabackup', 1, 'installer'],
+	];
+
+	/**
+	 * A list of plugins to uninstall when installing or updating the package. Each item has two values, in this order:
+	 * name (element), folder.
+	 *
+	 * @var array
+	 */
+	protected $uninstallPlugins = [
+		['jsonapi', 'akeebabackup'],
+		['legacyapi', 'akeebabackup'],
 	];
 
 	/**
@@ -146,6 +157,22 @@ class Pkg_AkeebaInstallerScript
 	 */
 	public function postflight($type, $parent)
 	{
+		// Always uninstall these plugins
+		if (isset($this->uninstallPlugins) && !empty($this->uninstallPlugins))
+		{
+			foreach ($this->uninstallPlugins as $pluginInfo)
+			{
+				try
+				{
+					$this->uninstallPlugin($pluginInfo[1], $pluginInfo[0]);
+				}
+				catch (Exception $e)
+				{
+					// No op.
+				}
+			}
+		}
+
 		// Always enable these extensions
 		if (isset($this->extensionsToAlwaysEnable) && !empty($this->extensionsToAlwaysEnable))
 		{
@@ -631,5 +658,75 @@ class Pkg_AkeebaInstallerScript
 		$dependencies = $this->getDependencies($package);
 
 		return in_array($dependency, $dependencies);
+	}
+
+	private function uninstallPlugin($folder, $element)
+	{
+		$db = \Joomla\CMS\Factory::getDbo();
+
+		// Does the plugin exist?
+		$query = $db->getQuery(true)
+			->select('*')
+			->from('#__extensions')
+			->where($db->qn('type') . ' = ' . $db->q('plugin'))
+			->where($db->qn('folder') . ' = ' . $db->q($folder))
+			->where($db->qn('element') . ' = ' . $db->q($element));
+		try
+		{
+			$result = $db->setQuery($query)->loadAssoc();
+
+			if (empty($result))
+			{
+				return;
+			}
+
+			$eid = $result['extension_id'];
+		}
+		catch (Exception $e)
+		{
+			return;
+		}
+
+		/**
+		 * Here's a bummer. If you try to uninstall a plugin Joomla throws a nonsensical error message about the
+		 * plugin's XML manifest missing -- after it has already uninstalled the plugin! This error causes the package
+		 * installation to fail which results in the extension being installed BUT the database record of the package
+		 * NOT being present which makes it impossible to uninstall.
+		 *
+		 * So I have to hack my way around it which is ugly but the only viable alternative :(
+		 */
+		try
+		{
+			// Safely delete the row in the extensions table
+			$row = JTable::getInstance('extension');
+			$row->load((int) $eid);
+			$row->delete($eid);
+
+			// Delete the plugin's files
+			$pluginPath = sprintf("%s/%s/%s", JPATH_PLUGINS, $folder, $element);
+
+			if (is_dir($pluginPath))
+			{
+				JFolder::delete($pluginPath);
+			}
+
+			// Delete the plugin's language files
+			$langFiles = [
+				sprintf("%s/language/en-GB/en-GB.plg_%s_%s.ini", JPATH_ADMINISTRATOR, $folder, $element),
+				sprintf("%s/language/en-GB/en-GB.plg_%s_%s.sys.ini", JPATH_ADMINISTRATOR, $folder, $element),
+			];
+
+			foreach ($langFiles as $file)
+			{
+				if (@is_file($file))
+				{
+					JFile::delete($file);
+				}
+			}
+		}
+		catch (Exception $e)
+		{
+			// I tried, I failed. Dear user, do NOT try to enable that old plugin. Bye!
+		}
 	}
 }

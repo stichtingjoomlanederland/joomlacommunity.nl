@@ -482,7 +482,7 @@ class EasyDiscussRouter extends EasyDiscuss
 
 		// We know that the view=categories&layout=listings&id=xxx because there's only 1 segment
 		// and the active menu is view=categories
-	
+
 
 		if (isset($item) && $item->query['view'] == 'categories' && count($segments) >= 1 && !in_array($segments[0], $views) ) {
 
@@ -520,6 +520,7 @@ class EasyDiscussRouter extends EasyDiscuss
 				$catAliases = $model->getCategoryPermalinks();
 				$tagAliass = $model->getTagPermalinks();
 
+
 				$testItem = JString::str_ireplace(':', '-', $segments[$numSegments - 1]);
 				$testFirstItem = JString::str_ireplace(':', '-', $segments[0]);
 
@@ -554,6 +555,11 @@ class EasyDiscussRouter extends EasyDiscuss
 						array_unshift($segments, $xView);
 
 					} else {
+
+						// the last segment could be a post's reply sortings.
+						if (in_array($segments[count($segments) - 1], $repliesSorting)) {
+							$testItem = $segments[count($segments) - 2];
+						}
 
 						if ($config->get('main_sef') == 'simple') {
 							$postId = EDR::decodeAlias($testFirstItem, 'Post');
@@ -600,8 +606,7 @@ class EasyDiscussRouter extends EasyDiscuss
 
 			// second elements
 			if (in_array($segments[count($segments) - 1], $repliesSorting)) {
-				$idx = 1;
-
+				$idx = $count - 2; // second last segment
 				$vars['sort'] = $segments[count($segments) - 1];
 			}
 
@@ -1025,4 +1030,3 @@ function EasyDiscussParseRoute($segments)
 
 	return $router->parse($segments);
 }
-

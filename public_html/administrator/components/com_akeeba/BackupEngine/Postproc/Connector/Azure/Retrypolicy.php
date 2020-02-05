@@ -1,11 +1,10 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 /**
@@ -42,8 +41,7 @@
 
 namespace Akeeba\Engine\Postproc\Connector\Azure;
 
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
+
 
 use Akeeba\Engine\Postproc\Connector\Azure\Retrypolicy\None;
 use Akeeba\Engine\Postproc\Connector\Azure\Retrypolicy\Ntimes;
@@ -58,16 +56,6 @@ use Akeeba\Engine\Postproc\Connector\Azure\Retrypolicy\Ntimes;
 abstract class Retrypolicy
 {
 	/**
-	 * Execute function under retry policy
-	 *
-	 * @param string|array $function   Function to execute
-	 * @param array        $parameters Parameters for function call
-	 *
-	 * @return mixed
-	 */
-	public abstract function execute($function, $parameters = array());
-
-	/**
 	 * Create a None instance
 	 *
 	 * @return None
@@ -80,8 +68,8 @@ abstract class Retrypolicy
 	/**
 	 * Create a Ntimes instance
 	 *
-	 * @param int $count                  Number of retries
-	 * @param int $intervalBetweenRetries Interval between retries (in milliseconds)
+	 * @param   int  $count                   Number of retries
+	 * @param   int  $intervalBetweenRetries  Interval between retries (in milliseconds)
 	 *
 	 * @return Ntimes
 	 */
@@ -89,4 +77,14 @@ abstract class Retrypolicy
 	{
 		return new Ntimes($count, $intervalBetweenRetries);
 	}
+
+	/**
+	 * Execute function under retry policy
+	 *
+	 * @param   string|array  $function    Function to execute
+	 * @param   array         $parameters  Parameters for function call
+	 *
+	 * @return mixed
+	 */
+	public abstract function execute($function, $parameters = []);
 }

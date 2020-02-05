@@ -1121,16 +1121,13 @@ class ED
 		$data = null;
 
 		$mySess = JFactory::getSession();
-		if($mySess->has($key, $ns))
-		{
+		if ($mySess->has($key, $ns)) {
 			$data = $mySess->get($key, '', $ns);
 			$mySess->clear($key, $ns);
 			return $data;
 		}
-		else
-		{
-			return $data;
-		}
+
+		return $data;
 	}
 
 	public static function isNew( $noofdays )

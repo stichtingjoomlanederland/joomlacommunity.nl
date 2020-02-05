@@ -25,11 +25,11 @@ defined('_JEXEC') or die('Unauthorized Access');
 		data-ed-popbox-offset="4" 
 		data-ed-popbox-type="ed-badges-list" 
 		data-ed-popbox-component="ed" 
-		data-ed-popbox-target="[data-ed-badges-list]">
+		data-ed-popbox-target="[data-ed-badges-list-<?php echo $userId; ?>]">
 		<i class="fa fa-ellipsis-h"></i>
 	</a>
 
-	<div class="t-hidden" data-ed-badges-list>			
+	<div class="t-hidden" data-ed-badges-list-<?php echo $userId;?>>
 		<div class="ed-popbox-badges">
 			<?php foreach ($userBadges as $userBadge) { ?>
 			<a href="<?php echo $userBadge->getPermalink();?>" data-ed-provide="tooltip" data-title="<?php echo $this->html('string.escape', JText::_($userBadge->title));?>">

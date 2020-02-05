@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class FieldsController extends acymController
 {
@@ -53,11 +44,11 @@ class FieldsController extends acymController
             $field->option = '';
             $field->default_value = '';
             $field->required = 0;
-            $field->backend_profile = 1;
+            $field->backend_edition = 1;
             $field->backend_listing = 0;
             $field->backend_filter = 1;
-            $field->frontend_form = 1;
-            $field->frontend_profile = 1;
+            $field->frontend_edition = 1;
+            $field->frontend_listing = 1;
             $field->frontend_filter = 1;
             $field->access = 1;
             $field->fieldDB = new stdClass();
@@ -137,20 +128,17 @@ class FieldsController extends acymController
 
     public function apply()
     {
-        $fieldClass = acym_get('class.field');
-        $newField = $this->setFieldToSave();
-        $id = $fieldClass->save($newField);
-        if (!empty($id)) {
-            acym_setVar('id', $id);
-            acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success');
-        } else {
-            acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING'), 'error');
-        }
-
+        $this->saveField();
         $this->edit();
     }
 
     public function save()
+    {
+        $this->saveField();
+        $this->listing();
+    }
+
+    protected function saveField()
     {
         $fieldClass = acym_get('class.field');
         $newField = $this->setFieldToSave();
@@ -161,7 +149,6 @@ class FieldsController extends acymController
         } else {
             acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING'), 'error');
         }
-        $this->listing();
     }
 
     private function setFieldToSave()
@@ -215,9 +202,9 @@ class FieldsController extends acymController
         $newField->option = json_encode($field['option']);
         $newField->value = $field['value'];
         $newField->default_value = $field['default_value'];
-        $newField->frontend_form = $field['frontend_form'];
-        $newField->frontend_profile = $field['frontend_profile'];
-        $newField->backend_profile = $field['backend_profile'];
+        $newField->frontend_edition = $field['frontend_edition'];
+        $newField->frontend_listing = $field['frontend_listing'];
+        $newField->backend_edition = $field['backend_edition'];
         $newField->backend_listing = $field['backend_listing'];
         $newField->backend_filter = 1;
         $newField->frontend_filter = 1;

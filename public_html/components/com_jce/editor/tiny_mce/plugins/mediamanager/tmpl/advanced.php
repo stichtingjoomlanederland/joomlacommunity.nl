@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright    Copyright (c) 2009-2019 Ryan Demmer. All rights reserved
+ * @copyright    Copyright (c) 2009-2020 Ryan Demmer. All rights reserved
  * @license    GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * JCE is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -16,7 +16,8 @@ defined('JPATH_PLATFORM') or die;
 <div class="uk-form-row uk-grid uk-grid-small">
     <label class="uk-form-label uk-width-2-10" for="classes" class="hastip" title="<?php echo JText::_('WF_LABEL_CLASSES_DESC'); ?>"><?php echo JText::_('WF_LABEL_CLASSES'); ?></label>
     <div class="uk-form-controls uk-width-8-10">
-        <select id="classes" class="uk-datalist" multiple="multiple"></select>
+        <input type="text" id="classes" class="uk-datalist" list="classes_datalist" multiple />
+        <datalist id="classes_datalist"></datalist>
     </div>
 </div>
 <div class="uk-form-row uk-grid uk-grid-small">
@@ -41,8 +42,9 @@ defined('JPATH_PLATFORM') or die;
         <div class="uk-width-1-5">
             <label for="border_width" class="hastip uk-form-label uk-width-4-10" title="<?php echo JText::_('WF_LABEL_BORDER_WIDTH_DESC'); ?>"><?php echo JText::_('WF_LABEL_WIDTH'); ?></label>
             <div class="uk-form-controls uk-width-6-10">
-                <select pattern="[0-9]+" id="border_width" class="uk-datalist">
-                    <option value=""></option>
+                <input type="text" pattern="[0-9]+" id="border_width" class="uk-datalist" list="border_width_datalist">
+                <datalist id="border_width_datalist">
+                    <option value="">--</option>
                     <option value="0">0</option>
                     <option value="1">1</option>
                     <option value="2">2</option>
@@ -56,7 +58,7 @@ defined('JPATH_PLATFORM') or die;
                     <option value="thin"><?php echo JText::_('WF_OPTION_BORDER_THIN'); ?></option>
                     <option value="medium"><?php echo JText::_('WF_OPTION_BORDER_MEDIUM'); ?></option>
                     <option value="thick"><?php echo JText::_('WF_OPTION_BORDER_THICK'); ?></option>
-                </select>
+                </datalist>
             </div>
         </div>
 
@@ -64,7 +66,7 @@ defined('JPATH_PLATFORM') or die;
             <label for="border_style" class="hastip uk-form-label uk-width-4-10" title="<?php echo JText::_('WF_LABEL_BORDER_STYLE_DESC'); ?>"><?php echo JText::_('WF_LABEL_STYLE'); ?></label>
             <div class="uk-form-controls uk-width-6-10">
                 <select id="border_style">
-                    <option value=""><?php echo JText::_('WF_OPTION_NOT_SET'); ?></option>
+                    <option value="">--</option>
                     <option value="none"><?php echo JText::_('WF_OPTION_BORDER_NONE'); ?></option>
                     <option value="solid"><?php echo JText::_('WF_OPTION_BORDER_SOLID'); ?></option>
                     <option value="dashed"><?php echo JText::_('WF_OPTION_BORDER_DASHED'); ?></option>

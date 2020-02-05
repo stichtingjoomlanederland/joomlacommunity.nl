@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<div class="acym__content acym__stats" id="acym_stats_detailed">
+?><div class="acym__content acym__stats" id="acym_stats_detailed">
     <?php if (!empty($data['emptyDetailed']) && $data['emptyDetailed'] == 'campaigns') { ?>
 		<h1 class="acym__listing__empty__title text-center cell"><?php echo acym_translation('ACYM_DONT_HAVE_STATS_CAMPAIGN'); ?> <a href="<?php echo acym_completeLink('campaigns&task=edit&step=chooseTemplate'); ?>"><?php echo acym_translation('ACYM_CREATE_ONE'); ?></a></h1>
     <?php } elseif (!empty($data['emptyDetailed']) && $data['emptyDetailed'] == 'stats') { ?>
@@ -25,11 +16,11 @@ defined('_JEXEC') or die('Restricted access');
 					</div>
 				</div>
 				<div class="cell auto align-right grid-x">
-					<button type="button" class="cell shrink button primary acy_button_submit acym__stats__export__button smaller-button" data-task="exportDetailed"><?php echo acym_translation('ACYM_EXPORT'); ?></button>
+					<button type="button" class="cell shrink button primary acy_button_submit acym__stats__export__button " data-task="exportDetailed"><?php echo acym_translation('ACYM_EXPORT'); ?></button>
 				</div>
 			</div>
 			<div class="grid-x cell align-right">
-				<div class="cell acym_listing_sorty-by">
+				<div class="cell acym_listing_sort-by">
                     <?php echo acym_sortBy(
                         [
                             'send_date' => acym_translation('ACYM_SEND_DATE'),
@@ -113,8 +104,8 @@ defined('_JEXEC') or die('Restricted access');
 						</div>
 						<div class="large-1 medium-1  small-1 cell acym__listing__detailed__stats__content text-center cursor-default">
                             <?php
-                            $targetSuccess = '<i class="acymicon-check_circle acym__listing__detailed_stats_sent__success" ></i>';
-                            $targetFail = '<i class="acymicon-error acym__listing__detailed_stats_sent__fail" ></i>';
+                            $targetSuccess = '<i class="acymicon-check acym__listing__detailed_stats_sent__success" ></i>';
+                            $targetFail = '<i class="acymicon-times acym__listing__detailed_stats_sent__fail" ></i>';
                             echo acym_tooltip(empty($detailed_stat->fail) ? $targetSuccess : $targetFail, acym_translation('ACYM_SENT').' : '.$detailed_stat->sent.' '.acym_translation('ACYM_FAIL').' : '.$detailed_stat->fail);
                             ?>
 						</div>

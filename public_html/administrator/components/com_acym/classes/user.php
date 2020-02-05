@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<?php
+?><?php
 
 class acymuserClass extends acymClass
 {
@@ -51,13 +42,23 @@ class acymuserClass extends acymClass
             $columns = implode(', ', $settings['columns']);
         }
 
-        $query = 'SELECT '.$columns.' FROM #__acym_user AS user';
-        $queryCount = 'SELECT COUNT(user.id) FROM #__acym_user AS user';
-        $queryStatus = 'SELECT COUNT(id) AS number, active FROM #__acym_user AS user';
+        $query = 'SELECT DISTINCT '.$columns.' FROM #__acym_user AS user';
+        $queryCount = 'SELECT COUNT(DISTINCT user.id) FROM #__acym_user AS user';
+        $queryStatus = 'SELECT COUNT(DISTINCT user.id) AS number, user.active FROM #__acym_user AS user';
         $filters = [];
 
         if (!empty($settings['join'])) $query .= $this->getJoinForQuery($settings['join']);
 
+        if (!acym_isAdmin()) {
+            $settings['creator_id'] = acym_currentUserId();
+            if (empty($settings['creator_id'])) $settings['creator_id'] = '-1';
+        }
+        if (!empty($settings['creator_id'])) {
+            $joinList = ' JOIN #__acym_user_has_list as user_list ON user_list.user_id = user.id JOIN #__acym_list AS list ON list.id = user_list.list_id AND list.cms_user_id = '.intval($settings['creator_id']);
+            $query .= $joinList;
+            $queryCount .= $joinList;
+            $queryStatus .= $joinList;
+        }
 
         if (!empty($settings['search'])) {
             $completeSearchField = $this->searchForMultliplaValueField($settings['search']);
@@ -158,7 +159,8 @@ class acymuserClass extends acymClass
         }
 
         if (empty($settings['elementsPerPage']) || $settings['elementsPerPage'] < 1) {
-            $settings['elementsPerPage'] = acym_getCMSConfig('list_limit', 20);
+            $pagination = acym_get('helper.pagination');
+            $settings['elementsPerPage'] = $pagination->getListLimit();
         }
 
         $results['elements'] = acym_loadObjectList($query, '', $settings['offset'], $settings['elementsPerPage']);
@@ -227,7 +229,8 @@ class acymuserClass extends acymClass
                 FROM #__acym_list AS list 
                 JOIN #__acym_user_has_list AS userlist 
                     ON list.id = userlist.list_id 
-                WHERE userlist.user_id = '.intval($userId);
+                WHERE userlist.user_id = '.intval($userId).'
+                AND list.front_management IS NULL';
 
         return acym_loadObjectList($query, $key);
     }
@@ -243,14 +246,17 @@ class acymuserClass extends acymClass
         return acym_loadObjectList($query, $key);
     }
 
-    public function getUsersSubscriptionsByIds($usersId)
+    public function getUsersSubscriptionsByIds($usersId, $creatorId = 0)
     {
         $query = 'SELECT id, user_id, l.color, l.name
                 FROM #__acym_list AS l
                 JOIN #__acym_user_has_list AS userlist 
                     ON l.id = userlist.list_id
                 WHERE user_id IN ('.implode(',', $usersId).')
-                AND userlist.status = 1';
+                AND userlist.status = 1
+                AND l.front_management is NULL';
+
+        if (!empty($creatorId)) $query .= ' AND l.cms_user_id = '.intval($creatorId);
 
         return acym_loadObjectList($query);
     }
@@ -388,6 +394,9 @@ class acymuserClass extends acymClass
         $listClass = acym_get('class.list');
         $unsubscribedFromLists = false;
         foreach ($userIds as $userId) {
+            $user = $this->getOneById($userId);
+            if (empty($user)) continue;
+
             $currentSubscription = $this->getUserSubscriptionById($userId);
 
             $currentlyUnsubscribed = [];
@@ -423,7 +432,7 @@ class acymuserClass extends acymClass
             $historyData = acym_translation_sprintf('ACYM_LISTS_NUMBERS', implode(', ', $lists));
             $historyClass->insert($userId, 'unsubscribed', [$historyData]);
 
-            acym_trigger('onAcymAfterUserUnsubscribe', [&$userId, &$unsubscribedLists]);
+            acym_trigger('onAcymAfterUserUnsubscribe', [&$user, &$unsubscribedLists]);
 
             $listClass->sendUnsubscribe($userId, $unsubscribedLists);
         }
@@ -431,32 +440,66 @@ class acymuserClass extends acymClass
         return $unsubscribedFromLists;
     }
 
-    public function removeSubscription($userId, $listIds = null)
+    public function removeSubscription($userIds, $listIds = null)
     {
-        if (!is_array($userId)) $userId = [$userId];
-        if (!is_array($listIds) || empty($listIds) || empty($userId)) return false;
+        if (!is_array($userIds)) $userIds = [$userIds];
+        if (!is_array($listIds) || empty($listIds) || empty($userIds)) return false;
 
         acym_arrayToInteger($listIds);
-        $query = 'DELETE FROM #__acym_user_has_list WHERE user_id IN ('.implode(',', $userId).')';
+        $query = 'DELETE FROM #__acym_user_has_list WHERE user_id IN ('.implode(',', $userIds).')';
         if (!empty($listIds)) $query .= ' AND list_id IN ('.implode(',', $listIds).')';
 
         return acym_query($query);
+    }
+
+    public function onlyManageableUsers(&$elements)
+    {
+        if (acym_isAdmin()) return;
+
+        $listClass = acym_get('class.list');
+        $manageableLists = $listClass->getManageableLists();
+        if (empty($manageableLists)) return;
+
+        $elements = acym_loadResultArray(
+            'SELECT user_id 
+            FROM #__acym_user_has_list 
+            WHERE `list_id` IN ('.implode(',', $manageableLists).') 
+                AND `user_id` IN ('.implode(',', $elements).')'
+        );
     }
 
     public function delete($elements)
     {
         if (!is_array($elements)) $elements = [$elements];
         acym_arrayToInteger($elements);
+        $this->onlyManageableUsers($elements);
 
         if (empty($elements)) return 0;
 
-        acym_trigger('onAcymBeforeUserDelete', [&$elements]);
+        if (acym_isAdmin() || 'delete' === $this->config->get('frontend_delete_button', 'delete')) {
+            acym_trigger('onAcymBeforeUserDelete', [&$elements]);
 
-        acym_query('DELETE FROM #__acym_user_has_list WHERE user_id IN ('.implode(',', $elements).')');
-        acym_query('DELETE FROM #__acym_queue WHERE user_id IN ('.implode(',', $elements).')');
-        acym_query('DELETE FROM #__acym_user_has_field WHERE user_id IN ('.implode(',', $elements).')');
+            acym_query('DELETE FROM #__acym_user_has_list WHERE user_id IN ('.implode(',', $elements).')');
+            acym_query('DELETE FROM #__acym_queue WHERE user_id IN ('.implode(',', $elements).')');
+            acym_query('DELETE FROM #__acym_user_has_field WHERE user_id IN ('.implode(',', $elements).')');
+            acym_query('DELETE FROM #__acym_history WHERE user_id IN ('.implode(',', $elements).')');
 
-        return parent::delete($elements);
+            return parent::delete($elements);
+        } else {
+            $listClass = acym_get('class.list');
+            $manageableLists = $listClass->getManageableLists();
+            $this->removeSubscription($elements, $manageableLists);
+            acym_query(
+                'DELETE queue 
+                FROM #__acym_queue AS queue 
+                JOIN #__acym_mail_has_list AS maillist 
+                    ON queue.mail_id = maillist.mail_id 
+                WHERE queue.user_id IN ('.implode(',', $elements).') 
+                    AND maillist.list_id IN ('.implode(',', $manageableLists).')'
+            );
+
+            return count($elements);
+        }
     }
 
     public function save($user, $customFields = null, $ajax = false)
@@ -500,6 +543,8 @@ class acymuserClass extends acymClass
             if (!empty($oldUser) && empty($oldUser->confirmed)) {
                 $user->confirmation_date = date('Y-m-d H:i:s', time());
                 $user->confirmation_ip = acym_getIP();
+
+                acym_trigger('onAcymAfterUserConfirm', [&$user]);
             }
         }
 
@@ -699,6 +744,11 @@ class acymuserClass extends acymClass
 
     public function confirm($userId)
     {
+        $user = $this->getOneById($userId);
+        if (empty($user)) {
+            return;
+        }
+
         $confirmDate = date('Y-m-d H:i:s', time());
         $ip = acym_getIP();
         $query = 'UPDATE `#__acym_user`';
@@ -711,6 +761,7 @@ class acymuserClass extends acymClass
             exit;
         }
 
+        acym_trigger('onAcymAfterUserConfirm', [&$user]);
 
         $historyClass = acym_get('class.history');
         $historyClass->insert($userId, 'confirmed');

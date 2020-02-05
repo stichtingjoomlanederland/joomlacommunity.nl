@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -12,6 +12,7 @@ defined('_JEXEC') or die();
 
 use FOF30\View\DataView\Html as BaseView;
 use JHtml;
+use Joomla\CMS\HTML\HTMLHelper;
 
 class Html extends BaseView
 {
@@ -75,7 +76,7 @@ class Html extends BaseView
 
 		if ($this->done)
 		{
-			JHtml::_('behavior.modal');
+			HTMLHelper::_('behavior.modal');
 			$this->setLayout('done');
 		}
 
@@ -106,7 +107,7 @@ class Html extends BaseView
 
 		if ($this->done)
 		{
-			JHtml::_('behavior.modal');
+			HTMLHelper::_('behavior.modal');
 			$this->setLayout('done');
 		}
 

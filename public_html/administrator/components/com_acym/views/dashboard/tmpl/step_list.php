@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<h2 class="cell acym__walkthrough__title"><?php echo acym_translation('ACYM_FIRST_LIST'); ?></h2>
+?><h2 class="cell acym__walkthrough__title"><?php echo acym_translation('ACYM_FIRST_LIST'); ?></h2>
 <div class="cell margin-top-1 margin-bottom-2">
 	<p class="acym__walkthrough__text">
         <?php echo acym_translation('ACYM_TEST_LIST_TEXT_1'); ?><br />
@@ -25,7 +16,7 @@ defined('_JEXEC') or die('Restricted access');
         <?php foreach ($data['users'] as $user) { ?>
 			<tr>
 				<td><input type="hidden" name="addresses[]" value="<?php echo acym_escape($user); ?>"><?php echo acym_escape($user); ?></td>
-				<td><i class="fa fa-remove acym__walkthrough__list__receivers__remove"></i></td>
+				<td><i class="acymicon-remove acym__walkthrough__list__receivers__remove"></i></td>
 			</tr>
         <?php } ?>
 	</table>

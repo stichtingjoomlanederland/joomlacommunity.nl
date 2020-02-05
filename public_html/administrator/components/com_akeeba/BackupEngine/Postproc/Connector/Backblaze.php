@@ -1,16 +1,16 @@
 <?php
 /**
  * Akeeba Engine
- * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\Engine\Postproc\Connector;
 
-// Protection against direct access
+
+
 use Akeeba\Engine\Postproc\Connector\Backblaze\AccountInformation;
 use Akeeba\Engine\Postproc\Connector\Backblaze\BucketInformation;
 use Akeeba\Engine\Postproc\Connector\Backblaze\Exception\APIError;
@@ -20,43 +20,39 @@ use Akeeba\Engine\Postproc\Connector\Backblaze\Exception\NotAllowed;
 use Akeeba\Engine\Postproc\Connector\Backblaze\Exception\UnexpectedHTTPStatus;
 use Akeeba\Engine\Postproc\Connector\Backblaze\FileInformation;
 use Akeeba\Engine\Postproc\Connector\Backblaze\UploadURL;
-
-defined('AKEEBAENGINE') or die();
+use DomainException;
+use OutOfBoundsException;
+use RuntimeException;
 
 /**
  * Backblaze B2 API connector
  */
 class Backblaze
 {
+	/** The API entry point URL, only used to retrieve the authorization token */
+	const apiURL = "https://api.backblazeb2.com/b2api/v1/";
 	/** @var  string  The Backblaze B2 Account ID */
 	private $accountId;
-
-	/** @var  string  The Backblaze B2 Application Key  */
+	/** @var  string  The Backblaze B2 Application Key */
 	private $applicationKey;
-
 	/** @var  AccountInformation  Account information returned from authorizeAccount */
 	private $accountInformation;
-
 	/**
 	 * Default cURL options
 	 *
 	 * @var  array
 	 */
-	private $defaultOptions = array(
+	private $defaultOptions = [
 		CURLOPT_SSL_VERIFYPEER => true,
 		CURLOPT_SSL_VERIFYHOST => 2,
-		CURLOPT_VERBOSE        => true,
+		CURLOPT_VERBOSE        => false,
 		CURLOPT_HEADER         => false,
 		CURLINFO_HEADER_OUT    => false,
 		CURLOPT_RETURNTRANSFER => true,
 		CURLOPT_CAINFO         => AKEEBA_CACERT_PEM,
-	);
-
+	];
 	/** @var  BucketInformation[]  A list of the buckets in this account, used by getBucketId */
 	private $buckets;
-
-	/** The API entry point URL, only used to retrieve the authorization token */
-	const apiURL = "https://api.backblazeb2.com/b2api/v1/";
 
 	/**
 	 * Creates a new Backblaze B2 API Connector object.
@@ -66,7 +62,7 @@ class Backblaze
 	 */
 	public function __construct($accountId, $applicationKey)
 	{
-		$this->accountId = $accountId;
+		$this->accountId      = $accountId;
 		$this->applicationKey = $applicationKey;
 	}
 
@@ -109,34 +105,6 @@ class Backblaze
 	}
 
 	/**
-	 * Return the API URL for all operations except file downloads. It includes the all important trailing slash which
-	 * fetch() expects to be present.
-	 *
-	 * @return  string
-	 */
-	protected function getApiUrl()
-	{
-		$apiUrl = $this->getAccountInformation()->apiUrl;
-		$apiUrl = rtrim($apiUrl, '/');
-
-		return $apiUrl . '/';
-	}
-
-	/**
-	 * Return the API URL for file download operations only. It includes the all important trailing slash which fetch()
-	 * expects to be present.
-	 *
-	 * @return  string
-	 */
-	protected function getDownloadUrl()
-	{
-		$downloadUrl = $this->getAccountInformation()->downloadUrl;
-		$downloadUrl = rtrim($downloadUrl, '/');
-
-		return $downloadUrl . '/';
-	}
-
-	/**
 	 * List all of the buckets in the account
 	 *
 	 * @return  BucketInformation[]
@@ -151,17 +119,17 @@ class Backblaze
 		}
 
 		$apiUrl       = $this->getApiUrl();
-		$explicitPost = json_encode(array(
+		$explicitPost = json_encode([
 			'accountId' => $this->getAccountInformation()->accountId,
-		));
-		$additional = array(
-			'headers' => array(
-				'Accept: application/json'
-			)
-		);
+		]);
+		$additional   = [
+			'headers' => [
+				'Accept: application/json',
+			],
+		];
 
 		$apiReturn = $this->fetch('POST', $apiUrl, 'b2api/v1/b2_list_buckets', $additional, $explicitPost);
-		$return    = array();
+		$return    = [];
 
 		foreach ($apiReturn['buckets'] as $bucket)
 		{
@@ -201,7 +169,7 @@ class Backblaze
 			}
 		}
 
-		throw new \DomainException(sprintf('Bucket %s not found under this BackBlaze B2 account', $name));
+		throw new DomainException(sprintf('Bucket %s not found under this BackBlaze B2 account', $name));
 	}
 
 	/**
@@ -219,14 +187,14 @@ class Backblaze
 		}
 
 		$apiUrl       = $this->getApiUrl();
-		$explicitPost = json_encode(array(
+		$explicitPost = json_encode([
 			'bucketId' => $bucketId,
-		));
-		$additional = array(
-			'headers' => array(
-				'Accept: application/json'
-			)
-		);
+		]);
+		$additional   = [
+			'headers' => [
+				'Accept: application/json',
+			],
+		];
 
 		$apiReturn = $this->fetch('POST', $apiUrl, 'b2api/v1/b2_get_upload_url', $additional, $explicitPost);
 
@@ -258,11 +226,11 @@ class Backblaze
 		$uploadUrl = $this->getUploadUrl($bucketId);
 
 		clearstatcache(false, $localFile);
-		$sha1              = sha1_file($localFile);
-		$contentLength     = filesize($localFile);
+		$sha1          = sha1_file($localFile);
+		$contentLength = filesize($localFile);
 
-		$additional = array(
-			'headers' => array(
+		$additional = [
+			'headers' => [
 				'Accept: application/json',
 				sprintf('X-Bz-File-Name: %s', $remoteFile),
 				sprintf('Content-Type: %s', $contentType),
@@ -270,9 +238,9 @@ class Backblaze
 				sprintf('X-Bz-Content-Sha1: %s', $sha1),
 				// WARNING: Uploads use a different authorization token than the API itself!
 				sprintf('Authorization: %s', $uploadUrl->authorizationToken),
-			),
+			],
 			'file'    => $localFile,
-		);
+		];
 
 		$apiReturn = $this->fetch('POST', $uploadUrl->uploadUrl, '', $additional);
 
@@ -302,17 +270,17 @@ class Backblaze
 			throw new NotAllowed("Accessing the $remoteFile file; the prefix (directory) is not allowed)");
 		}
 
-		$apiUrl            = $this->getApiUrl();
-		$explicitPost      = json_encode(array(
+		$apiUrl       = $this->getApiUrl();
+		$explicitPost = json_encode([
 			'bucketId'    => $bucketId,
 			'fileName'    => $remoteFile,
 			'contentType' => $contentType,
-		));
-		$additional        = array(
-			'headers' => array(
+		]);
+		$additional   = [
+			'headers' => [
 				'Accept: application/json',
-			),
-		);
+			],
+		];
 
 		$apiReturn = $this->fetch('POST', $apiUrl, 'b2api/v1/b2_start_large_file', $additional, $explicitPost);
 
@@ -336,15 +304,15 @@ class Backblaze
 			throw new NotAllowed('Writing to files');
 		}
 
-		$apiUrl = $this->getApiUrl();
-		$explicitPost = json_encode(array(
+		$apiUrl       = $this->getApiUrl();
+		$explicitPost = json_encode([
 			'fileId' => $fileId,
-		));
-		$additional = array(
-			'headers' => array(
-				'Accept: application/json'
-			)
-		);
+		]);
+		$additional   = [
+			'headers' => [
+				'Accept: application/json',
+			],
+		];
 
 		$apiReturn = $this->fetch('POST', $apiUrl, 'b2api/v1/b2_get_upload_part_url', $additional, $explicitPost);
 
@@ -378,7 +346,7 @@ class Backblaze
 		// Sanity check: does this part even exist?
 		if ($filesize <= $offset)
 		{
-			throw new \OutOfBoundsException(sprintf("Cannot read part %d of file %s. The file only has %d bytes, requested offset is at %d bytes.", $partNumber, $localFile, $filesize, $offset));
+			throw new OutOfBoundsException(sprintf("Cannot read part %d of file %s. The file only has %d bytes, requested offset is at %d bytes.", $partNumber, $localFile, $filesize, $offset));
 		}
 
 		// Read the part off the file and calculate the information required by Backblaze
@@ -386,14 +354,14 @@ class Backblaze
 
 		if ($fp === false)
 		{
-			throw new \RuntimeException(sprintf('Failed to multipart upload file %s to BackBlaze: cannot open file for reading', $localFile));
+			throw new RuntimeException(sprintf('Failed to multipart upload file %s to BackBlaze: cannot open file for reading', $localFile));
 		}
 
 		if (fseek($fp, $offset) == -1)
 		{
 			@fclose($fp);
 
-			throw new \RuntimeException(sprintf('Failed to multipart upload file %s to BackBlaze: cannot seek to offset %d', $localFile, $offset));
+			throw new RuntimeException(sprintf('Failed to multipart upload file %s to BackBlaze: cannot seek to offset %d', $localFile, $offset));
 		}
 
 		$data = fread($fp, $partSize);
@@ -402,23 +370,23 @@ class Backblaze
 		{
 			@fclose($fp);
 
-			throw new \RuntimeException(sprintf('Failed to multipart upload file %s to BackBlaze: cannot read from file at offset %d, data length %d', $localFile, $offset, $partSize));
+			throw new RuntimeException(sprintf('Failed to multipart upload file %s to BackBlaze: cannot read from file at offset %d, data length %d', $localFile, $offset, $partSize));
 		}
 
 		@fclose($fp);
 
 		$sha1          = sha1($data);
 		$contentLength = strlen($data);
-		$additional = array(
-			'headers' => array(
+		$additional    = [
+			'headers' => [
 				'Accept: application/json',
 				sprintf('Content-Length: %s', $contentLength),
 				sprintf('X-Bz-Part-Number: %d', $partNumber),
 				sprintf('X-Bz-Content-Sha1: %s', $sha1),
 				// WARNING: Uploads use a different authorization token than the API itself!
 				sprintf('Authorization: %s', $uploadUrl->authorizationToken),
-			)
-		);
+			],
+		];
 
 		$apiReturn = $this->fetch('POST', $uploadUrl->uploadUrl, '', $additional, $data);
 
@@ -440,17 +408,17 @@ class Backblaze
 			throw new NotAllowed('Writing to files');
 		}
 
-		$apiUrl = $this->getApiUrl();
-		$explicitPost = json_encode(array(
-			'fileId' => $fileId,
-			'partSha1Array' => $sha1PerPart
-		));
-		$additional = array(
-			'headers' => array(
+		$apiUrl       = $this->getApiUrl();
+		$explicitPost = json_encode([
+			'fileId'        => $fileId,
+			'partSha1Array' => $sha1PerPart,
+		]);
+		$additional   = [
+			'headers' => [
 				'Accept: application/json',
-			)
-		);
-		$apiReturn = $this->fetch('POST', $apiUrl, 'b2api/v1/b2_finish_large_file', $additional, $explicitPost);
+			],
+		];
+		$apiReturn    = $this->fetch('POST', $apiUrl, 'b2api/v1/b2_finish_large_file', $additional, $explicitPost);
 
 		return new FileInformation($apiReturn);
 	}
@@ -469,16 +437,16 @@ class Backblaze
 			throw new NotAllowed('Writing to files');
 		}
 
-		$apiUrl = $this->getApiUrl();
-		$explicitPost = array(
+		$apiUrl       = $this->getApiUrl();
+		$explicitPost = [
 			'fileId' => $fileId,
-		);
-		$additional = array(
-			'headers' => array(
+		];
+		$additional   = [
+			'headers' => [
 				'Accept: application/json',
-			)
-		);
-		$apiReturn = $this->fetch('POST', $apiUrl, 'b2api/v1/b2_cancel_large_file', $additional, $explicitPost);
+			],
+		];
+		$apiReturn    = $this->fetch('POST', $apiUrl, 'b2api/v1/b2_cancel_large_file', $additional, $explicitPost);
 
 		return new FileInformation($apiReturn);
 	}
@@ -507,18 +475,18 @@ class Backblaze
 		}
 
 		$fileStartInfo = $this->startUpload($bucketId, $remoteFile, $contentType);
-		$uploadUrl = $this->getPartUploadUrl($fileStartInfo->fileId);
-		$partNumber = 0;
-		$sha1Array = array();
+		$uploadUrl     = $this->getPartUploadUrl($fileStartInfo->fileId);
+		$partNumber    = 0;
+		$sha1Array     = [];
 
 		while (true)
 		{
 			try
 			{
-				$partInfo = $this->uploadPart($uploadUrl, $localFile, ++$partNumber, $partSize);
+				$partInfo    = $this->uploadPart($uploadUrl, $localFile, ++$partNumber, $partSize);
 				$sha1Array[] = $partInfo->contentSha1;
 			}
-			catch (\OutOfBoundsException $e)
+			catch (OutOfBoundsException $e)
 			{
 				// I am done uploading parts
 				break;
@@ -586,19 +554,19 @@ class Backblaze
 		}
 
 		$apiUrl = $this->getApiUrl();
-		$body   = array(
+		$body   = [
 			'bucketId' => $bucketId,
 			'prefix'   => $fileName,
-		);
+		];
 
-		$additional = array(
-			'headers' => array(
+		$additional = [
+			'headers' => [
 				'Accept: application/json',
-			),
-		);
+			],
+		];
 
-		$apiReturn        = $this->fetch('POST', $apiUrl, '/b2api/v1/b2_list_file_versions', $additional, json_encode($body));
-		$return           = array();
+		$apiReturn = $this->fetch('POST', $apiUrl, '/b2api/v1/b2_list_file_versions', $additional, json_encode($body));
+		$return    = [];
 
 		foreach ($apiReturn['files'] as $file)
 		{
@@ -664,15 +632,15 @@ class Backblaze
 		}
 
 		$apiUrl     = $this->getApiUrl();
-		$body       = array(
+		$body       = [
 			'fileName' => $fileName,
 			'fileId'   => $fileId,
-		);
-		$additional = array(
-			'headers' => array(
+		];
+		$additional = [
+			'headers' => [
 				'Accept: application/json',
-			),
-		);
+			],
+		];
 
 		$this->fetch('POST', $apiUrl, '/b2api/v1/b2_delete_file_version', $additional, json_encode($body));
 	}
@@ -702,16 +670,16 @@ class Backblaze
 
 		// Use b2_get_download_authorization to get a temporary authorization code
 		$apiUrl     = $this->getApiUrl();
-		$body       = array(
+		$body       = [
 			'bucketId'               => $bucketId,
 			'fileNamePrefix'         => $fileName,
 			'validDurationInSeconds' => $expiresIn,
-		);
-		$additional = array(
-			'headers' => array(
+		];
+		$additional = [
+			'headers' => [
 				'Accept: application/json',
-			),
-		);
+			],
+		];
 
 		$authResponse = $this->fetch('POST', $apiUrl, '/b2api/v1/b2_get_download_authorization', $additional, json_encode($body));
 
@@ -736,7 +704,7 @@ class Backblaze
 	 *
 	 * @see https://www.backblaze.com/b2/docs/b2_download_file_by_name.html
 	 */
-	public function downloadFile($bucketName, $fileName, $localFile, $headers = array())
+	public function downloadFile($bucketName, $fileName, $localFile, $headers = [])
 	{
 		if (!$this->getAccountInformation()->allowed->canReadFiles())
 		{
@@ -757,25 +725,25 @@ class Backblaze
 		$url         = rtrim($accountInfo->downloadUrl, '/') . '/';
 		$relativeUrl = 'file/' . $bucketName . '/' . ltrim($fileName, '/');
 
-		$this->fetch('GET', $url, $relativeUrl, array(
+		$this->fetch('GET', $url, $relativeUrl, [
 			'headers'   => $headers,
 			'file'      => $localFile,
 			'file_mode' => 'wb',
-		));
+		]);
 	}
 
 	/**
 	 * Download a file when you know its ID
 	 *
-	 * @param   string  $fileId      The file ID returned when uploading or by getFileVersions
-	 * @param   string  $localFile   The path of the file in your local filesystem (download target)
-	 * @param   array   $headers     HTTP headers to pass, see the link below
+	 * @param   string  $fileId     The file ID returned when uploading or by getFileVersions
+	 * @param   string  $localFile  The path of the file in your local filesystem (download target)
+	 * @param   array   $headers    HTTP headers to pass, see the link below
 	 *
 	 * @return  void
 	 *
 	 * @see https://www.backblaze.com/b2/docs/b2_download_file_by_id.html
 	 */
-	public function downloadFileById($fileId, $localFile, $headers = array())
+	public function downloadFileById($fileId, $localFile, $headers = [])
 	{
 		if (!$this->getAccountInformation()->allowed->canReadFiles())
 		{
@@ -783,14 +751,42 @@ class Backblaze
 		}
 
 		$accountInfo = $this->getAccountInformation();
-		$url = rtrim($accountInfo->downloadUrl, '/') . '/';
+		$url         = rtrim($accountInfo->downloadUrl, '/') . '/';
 		$relativeUrl = 'api/b2_download_file_by_id?fileId=' . $fileId;
 
-		$this->fetch('GET', $url, $relativeUrl, array(
+		$this->fetch('GET', $url, $relativeUrl, [
 			'headers'   => $headers,
 			'file'      => $localFile,
 			'file_mode' => 'wb',
-		));
+		]);
+	}
+
+	/**
+	 * Return the API URL for all operations except file downloads. It includes the all important trailing slash which
+	 * fetch() expects to be present.
+	 *
+	 * @return  string
+	 */
+	protected function getApiUrl()
+	{
+		$apiUrl = $this->getAccountInformation()->apiUrl;
+		$apiUrl = rtrim($apiUrl, '/');
+
+		return $apiUrl . '/';
+	}
+
+	/**
+	 * Return the API URL for file download operations only. It includes the all important trailing slash which fetch()
+	 * expects to be present.
+	 *
+	 * @return  string
+	 */
+	protected function getDownloadUrl()
+	{
+		$downloadUrl = $this->getAccountInformation()->downloadUrl;
+		$downloadUrl = rtrim($downloadUrl, '/');
+
+		return $downloadUrl . '/';
 	}
 
 	/**
@@ -806,12 +802,12 @@ class Backblaze
 	 */
 	protected function authorizeAccount()
 	{
-		$additional = array(
-			'headers' => array(
+		$additional = [
+			'headers' => [
 				sprintf('Authorization: Basic %s', base64_encode($this->accountId . ':' . $this->applicationKey)),
-				'Accept: application/json'
-			)
-		);
+				'Accept: application/json',
+			],
+		];
 
 		$apiReturn = $this->fetch('GET', static::apiURL, 'b2_authorize_account', $additional);
 
@@ -827,11 +823,11 @@ class Backblaze
 	 * @param   array   $additional    Additional parameters
 	 * @param   mixed   $explicitPost  Passed explicitly to POST requests if set, otherwise $additional is passed.
 	 *
-	 * @throws  \RuntimeException
-	 *
 	 * @return  array
+	 * @throws  RuntimeException
+	 *
 	 */
-	protected function fetch($method, $baseUrl, $relativeUrl, array $additional = array(), $explicitPost = null)
+	protected function fetch($method, $baseUrl, $relativeUrl, array $additional = [], $explicitPost = null)
 	{
 		// Get full URL, if required
 		$url = $relativeUrl;
@@ -842,7 +838,7 @@ class Backblaze
 		}
 
 		// Should I expect a specific header?
-		$expectHttpStatus = array();
+		$expectHttpStatus = [];
 
 		if (isset($additional['expect-status']))
 		{
@@ -850,7 +846,7 @@ class Backblaze
 
 			if (!is_array($expectHttpStatus))
 			{
-				$expectHttpStatus = array($expectHttpStatus);
+				$expectHttpStatus = [$expectHttpStatus];
 			}
 
 			unset($additional['expect-status']);
@@ -891,7 +887,7 @@ class Backblaze
 		}
 
 		// Set up custom headers
-		$headers = array();
+		$headers                = [];
 		$hasAuthorizationHeader = false;
 
 		if (isset($additional['headers']))
@@ -913,11 +909,11 @@ class Backblaze
 			$headers[] = 'Authorization: ' . $this->getAccountInformation()->authorizationToken;
 		}
 
-		$options[ CURLOPT_HTTPHEADER ] = $headers;
+		$options[CURLOPT_HTTPHEADER] = $headers;
 
 		// Handle files
-		$file = null;
-		$fp = null;
+		$file     = null;
+		$fp       = null;
 		$fileMode = null;
 
 		if (isset($additional['file']))
@@ -950,62 +946,62 @@ class Backblaze
 		// Set up additional options
 		if ($method == 'GET' && $fp)
 		{
-			$options[ CURLOPT_RETURNTRANSFER ] = false;
-			$options[ CURLOPT_HEADER ]         = false;
-			$options[ CURLOPT_FILE ]           = $fp;
-			$options[ CURLOPT_BINARYTRANSFER ] = true;
+			$options[CURLOPT_RETURNTRANSFER] = false;
+			$options[CURLOPT_HEADER]         = false;
+			$options[CURLOPT_FILE]           = $fp;
+			$options[CURLOPT_BINARYTRANSFER] = true;
 
 			if (empty($expectHttpStatus))
 			{
-				$expectHttpStatus = array(200, 206);
+				$expectHttpStatus = [200, 206];
 			}
 		}
-		elseif (in_array($method, array('POST', 'PUT')) && $fp)
+		elseif (in_array($method, ['POST', 'PUT']) && $fp)
 		{
-			$options[ CURLOPT_POST ]    = true;
-			$options[ CURLOPT_INFILE ] = $fp;
+			$options[CURLOPT_POST]   = true;
+			$options[CURLOPT_INFILE] = $fp;
 
 			if ($file)
 			{
 				clearstatcache();
-				$options[ CURLOPT_INFILESIZE ] = @filesize($file);
+				$options[CURLOPT_INFILESIZE] = @filesize($file);
 			}
 			else
 			{
-				$options[ CURLOPT_INFILESIZE ] = strlen(stream_get_contents($fp));
+				$options[CURLOPT_INFILESIZE] = strlen(stream_get_contents($fp));
 			}
 
 			fseek($fp, 0);
 		}
 		elseif ($method == 'POST')
 		{
-			$options[ CURLOPT_POST ] = true;
+			$options[CURLOPT_POST] = true;
 
 			if ($explicitPost)
 			{
-				$options[ CURLOPT_POSTFIELDS ] = $explicitPost;
+				$options[CURLOPT_POSTFIELDS] = $explicitPost;
 			}
 			elseif (!empty($additional))
 			{
-				$options[ CURLOPT_POSTFIELDS ] = $additional;
+				$options[CURLOPT_POSTFIELDS] = $additional;
 			}
 			// This is required for some broken servers, e.g. SiteGround
 			else
 			{
-				$options[ CURLOPT_POSTFIELDS ] = '';
+				$options[CURLOPT_POSTFIELDS] = '';
 			}
 		}
 		else // Any other HTTP method, e.g. DELETE
 		{
-			$options[ CURLOPT_CUSTOMREQUEST ] = $method;
+			$options[CURLOPT_CUSTOMREQUEST] = $method;
 
 			if ($explicitPost)
 			{
-				$options[ CURLOPT_POSTFIELDS ] = $explicitPost;
+				$options[CURLOPT_POSTFIELDS] = $explicitPost;
 			}
 			elseif (!empty($additional))
 			{
-				$options[ CURLOPT_POSTFIELDS ] = $additional;
+				$options[CURLOPT_POSTFIELDS] = $additional;
 			}
 		}
 
@@ -1019,9 +1015,9 @@ class Backblaze
 		}
 
 		// Execute and parse the response
-		$response = curl_exec($ch);
-		$errNo = curl_errno($ch);
-		$error = curl_error($ch);
+		$response     = curl_exec($ch);
+		$errNo        = curl_errno($ch);
+		$error        = curl_error($ch);
 		$lastHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
 		curl_close($ch);
@@ -1055,7 +1051,7 @@ class Backblaze
 
 		if (!empty($expectHttpStatus) && in_array($lastHttpCode, $expectHttpStatus))
 		{
-			return array();
+			return [];
 		}
 
 		if ($noParse)
@@ -1065,7 +1061,7 @@ class Backblaze
 
 		// Parse the response
 		$originalResponse = $response;
-		$response = json_decode($response, true);
+		$response         = json_decode($response, true);
 
 		// Did we get invalid JSON data?
 		if (!$response)
@@ -1077,7 +1073,7 @@ class Backblaze
 
 		if (!empty($response) && ($lastHttpCode != 200))
 		{
-			$response = array('error' => $response);
+			$response = ['error' => $response];
 		}
 
 		// Did we get an error response?

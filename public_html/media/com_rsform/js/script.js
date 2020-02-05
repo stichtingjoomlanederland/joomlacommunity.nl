@@ -1553,12 +1553,26 @@ RSFormPro.Ajax = {
 
 								filesLength = 0;
 								filesCollection = [];
-								for (var tmp = 0; tmp < identicalFiles.length; tmp++)
+
+								if (typeof identicalFiles === 'object')
 								{
-									if (identicalFiles[tmp].files.length > 0)
+									// NodeList (multiple inputs)
+									if (typeof identicalFiles.length !== 'undefined' && identicalFiles.length > 0)
 									{
-										filesLength += identicalFiles[tmp].files.length;
-										filesCollection = filesCollection.concat(identicalFiles[tmp].files[0]);
+										for (var tmp = 0; tmp < identicalFiles.length; tmp++)
+										{
+											if (identicalFiles[tmp].files.length > 0)
+											{
+												filesLength += identicalFiles[tmp].files.length;
+												filesCollection = filesCollection.concat(identicalFiles[tmp].files[0]);
+											}
+										}
+									}
+									else if (typeof identicalFiles.files !== 'undefined')
+									{
+										// Just one input
+										filesLength += identicalFiles.files.length;
+										filesCollection = filesCollection.concat(identicalFiles.files[0]);
 									}
 								}
 							}

@@ -24,8 +24,8 @@ RSFormPro.ionSlider = {
 		RSFormPro.ionSlider.slidersData[formId][sliderId].config = config;
 	},
 	renderSliders: function () {
-		var countForms = Object.keys(RSFormPro.ionSlider.slidersData).length;
 		var forms = Object.keys(RSFormPro.ionSlider.slidersData);
+		var countForms = forms.length;
 		
 		if (countForms > 0) {
 			for (i = 0; i < countForms; i++) {
@@ -42,13 +42,16 @@ RSFormPro.ionSlider = {
 		if (typeof RSFormPro.ionSlider.sliders[formId] == 'undefined') {
 			RSFormPro.ionSlider.sliders[formId] = {};
 		}
-		var sliderName   = jQuery('#rs-range-slider'+sliderId).attr('name').substring(5, jQuery('#rs-range-slider'+sliderId).attr('name').length - 1);
+		var slider 		 = jQuery('#rs-range-slider'+sliderId);
+		var sliderName   = slider.attr('name').substring(5, slider.attr('name').length - 1);
 		
 		if (typeof RSFormPro.ionSlider.sliders[formId][sliderName] == 'undefined') {
 			// initiate the object
 			RSFormPro.ionSlider.sliders[formId][sliderName] = {};
-			RSFormPro.ionSlider.sliders[formId][sliderName].slider = jQuery('#rs-range-slider'+sliderId);
+			RSFormPro.ionSlider.sliders[formId][sliderName].slider = slider;
 			RSFormPro.ionSlider.sliders[formId][sliderName].slider.ionRangeSlider(config);
 		}
 	}
 };
+
+jQuery(document).ready(function(){ RSFormPro.ionSlider.renderSliders(); });

@@ -1,9 +1,12 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
+
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
 
 defined('_JEXEC') or die();
 /**
@@ -25,7 +28,13 @@ defined('_JEXEC') or die();
  * instead of the file in plugins/system/backuponupdate.
  */
 
-$document = JFactory::getDocument();
+$document = Factory::getApplication()->getDocument();
+
+if (empty($document))
+{
+	return;
+}
+
 $document->addScript('../media/com_akeeba/js/System.min.js');
 
 $token = urlencode(JFactory::getSession()->getToken());
@@ -40,52 +49,40 @@ function akeeba_backup_on_update_toggle()
 }
 
 akeeba.System.documentReady(function() {
-    var newListItemArray = document.getElementById('akeebabackup-bou-container').querySelectorAll('ul > li');
-    var headerLinks = document.getElementById('header').querySelectorAll('div.header-items ul.nav');
-    var newItem = newListItemArray[0];
-    var headerLink = headerLinks[0];
+    var myItem = document.getElementById('plg_system_backuponupdate');
+    var myContainer = myItem.parentElement;
+    var headerIconsContainer = myContainer.parentElement.parentElement;
+    var headerIcons = headerIconsContainer.querySelectorAll('div.header-item');
     
-    if (headerLink.childNodes.length < 2)
+    if (headerIcons.length < 2)
 	{
-		headerLink.appendChild(newItem);
+		headerIconsContainer.appendChild(myItem);
 	}
     else
 	{
-		headerLink.insertBefore(newItem, headerLink.childNodes[headerLink.childNodes.length - 2]);		
+		headerIconsContainer.insertBefore(myItem, headerIcons[1]);
 	}
     
-    var oldChild = document.getElementById('akeebabackup-bou-container');
-    oldChild.parentElement.removeChild(oldChild);
+    headerIconsContainer.removeChild(myContainer);
 })
 
 JS;
 
-$document = JFactory::getApplication()->getDocument();
-
-if (empty($document))
-{
-	$document = JFactory::getDocument();
-}
-
-if (empty($document))
-{
-	return;
-}
-
 $document->addScriptDeclaration($js);
 
 ?>
-<div id="akeebabackup-bou-container">
-	<ul>
-		<li class="nav-item">
-			<a class="nav-link dropdown-toggle" href="javascript:akeeba_backup_on_update_toggle()"
-			   title="<?php echo JText::_('PLG_SYSTEM_BACKUPONUPDATE_LBL_POPOVER_CONTENT_' . ($params['active'] ? 'ACTIVE' : 'INACTIVE')) ?>">
-				<span class="fa fa-akbou <?php echo $params['active'] ? 'fa-akbou-active' : 'fa-akbou-inactive' ?>"
-					  aria-hidden="true"></span>
-				<span class="sr-only">
-					<?php echo JText::_('PLG_SYSTEM_BACKUPONUPDATE_LBL_' . ($params['active'] ? 'ACTIVE' : 'INACTIVE')) ?>
-				</span>
-			</a>
-		</li>
-	</ul>
+<div class="header-item d-flex" id="plg_system_backuponupdate">
+	<div class="header-item-content">
+		<a class="d-flex" href="javascript:akeeba_backup_on_update_toggle()"
+		   title="<?= Text::_('PLG_SYSTEM_BACKUPONUPDATE_LBL_POPOVER_CONTENT_' . ($params['active'] ? 'ACTIVE' : 'INACTIVE')) ?>">
+
+			<div class="d-flex align-items-end mx-auto">
+					<span class="fa fa-akbou <?= $params['active'] ? 'fa-akbou-active' : 'fa-akbou-inactive' ?>"
+						  aria-hidden="true"></span>
+			</div>
+			<div class="align-items-center tiny">
+				<?= JText::_('PLG_SYSTEM_BACKUPONUPDATE_LBL_' . ($params['active'] ? 'ACTIVE' : 'INACTIVE')) ?>
+			</div>
+		</a>
+	</div>
 </div>

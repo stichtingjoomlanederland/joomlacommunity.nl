@@ -1,15 +1,6 @@
 <?php
-/**
- * @package	AcyMailing for Joomla
- * @version	6.6.1
- * @author	acyba.com
- * @copyright	(C) 2009-2019 ACYBA SAS - All rights reserved.
- * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
- */
-
 defined('_JEXEC') or die('Restricted access');
-?>
-<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate>
+?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate>
 	<input type="hidden" name="id" value="<?php echo !empty($data['automation']->id) ? intval($data['automation']->id) : ''; ?>">
 	<input type="hidden" name="stepAutomationId" value="<?php echo empty($data['step']->id) ? '' : intval($data['step']->id); ?>">
 	<input type="hidden" name="automation[admin]" value="<?php echo empty($data['automation']->admin) ? '' : intval($data['automation']->admin); ?>">
@@ -22,7 +13,7 @@ defined('_JEXEC') or die('Restricted access');
         echo $workflow->display($this->steps, $this->step);
         ?>
 		<div class="cell grid-x grid-margin-x">
-			<div class="medium-12 small-12 cell grid-x acym__content acym__automation__info__first">
+			<div class="medium-12 small-12 cell grid-x acym__content acym__automation__info__first margin-top-2">
 				<h6 class="cell acym__content__title__light-blue"><?php echo acym_translation('ACYM_INFORMATION'); ?></h6>
 				<label class="cell medium-6">
 					<h6 class=""><?php echo acym_translation('ACYM_NAME'); ?></h6>
