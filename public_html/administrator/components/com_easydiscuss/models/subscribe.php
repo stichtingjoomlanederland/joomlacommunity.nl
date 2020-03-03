@@ -679,7 +679,7 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 	{
 		$db = ED::db();
 
-		$userId = isset($options['userid']) ? $options['userid'] : null;
+		$userId = isset($options['userid']) ? (int) $options['userid'] : null;
 		$type = isset($options['type']) ? $options['type'] : 'post';
 		$limit = isset($options['limit']) ? $options['limit'] : null;
 		$limitstart = isset($options['limitstart']) ? $options['limitstart'] : null;

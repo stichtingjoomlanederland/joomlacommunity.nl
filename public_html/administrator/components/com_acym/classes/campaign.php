@@ -526,16 +526,20 @@ class acymcampaignClass extends acymClass
             $step->last_execution = $campaign->last_generated;
             $step->next_execution = $campaign->next_trigger;
 
-            $execute = false;
             $data = ['time' => $time];
+            $execute = !empty($step->next_execution) && $step->next_execution <= $data['time'];
             acym_trigger('onAcymExecuteTrigger', [&$step, &$execute, &$data], 'plgAcymTime');
-            if (!$execute) continue;
+            $campaign->next_trigger = $step->next_execution;
+            unset($campaign->name);
+            if (!$execute) {
+                $this->save($campaign);
+                continue;
+            }
 
             $campaignMail = $mailClass->getOneById($campaign->mail_id);
 
             $lastGenerated = $campaign->last_generated;
-            $shouldGenerate = $this->_updateAutoCampaign($campaign, $campaignMail, $time, $step->next_execution);
-            unset($campaign->name);
+            $shouldGenerate = $this->_updateAutoCampaign($campaign, $campaignMail, $time);
             $this->save($campaign);
 
             if (!$shouldGenerate) continue;
@@ -561,10 +565,8 @@ class acymcampaignClass extends acymClass
         return true;
     }
 
-    private function _updateAutoCampaign(&$campaign, $campaignMail, $time, $nextTrigger)
+    private function _updateAutoCampaign(&$campaign, $campaignMail, $time)
     {
-        $campaign->next_trigger = $nextTrigger;
-
         if (!$this->shouldGenerateCampaign($campaign, $campaignMail)) return false;
 
         if (empty($campaign->sending_params['number_generated'])) {

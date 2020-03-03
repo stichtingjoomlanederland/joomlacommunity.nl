@@ -672,7 +672,7 @@ function acym_frontendLink($link, $complete = true)
         $link = 'index.php?option='.ACYM_COMPONENT.'&ctrl='.$link;
     }
 
-    if (ACYM_J39 && strpos($link, 'ctrl=cron') === false) {
+    if (ACYM_J39 && strpos($link, 'ctrl=cron') === false && strpos($link, 'ctrl=fronturl') === false) {
         return JRoute::link('site', $link, true, 0, true);
     }
 
@@ -972,6 +972,11 @@ function acym_replaceGroupTags($uploadFolder)
     );
 
     return $uploadFolder;
+}
+
+function acym_getCmsUserEdit($userId)
+{
+    return 'index.php?option=com_users&task=user.edit&id='.intval($userId);
 }
 
 global $acymCmsUserVars;

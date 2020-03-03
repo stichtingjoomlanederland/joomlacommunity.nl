@@ -12,5 +12,7 @@ class WFTextpatternPluginConfig
 {
     public static function getConfig(&$settings)
     {
+        $wf = WFApplication::getInstance();
+        $settings['textpattern_use_markdown'] = $wf->getParam('textpattern.use_markdown', 1, 1);
     }
 }

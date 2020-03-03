@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Restricted access');
         'emails_test',
         $this->emailsTest,
         [
-            'id' => 'acym__test__field',
+            'class' => 'acym__multiselect__email',
             'placeholder' => acym_translation('ACYM_TEST_ADDRESS'),
         ]
     ); ?>
@@ -21,3 +21,4 @@ defined('_JEXEC') or die('Restricted access');
 		<button type="button" class="cell shrink button" id="acym__wysid__send__test__button"><?php echo acym_translation('ACYM_SAVE_AND_SEND_TEST'); ?></button>
 	</div>
 </div>
+

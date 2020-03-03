@@ -17,10 +17,14 @@ class EasyDiscussViewRatings extends EasyDiscussView
 {
 	public function submit()
 	{
-		$score = $this->input->get('score');
-		$postId = $this->input->get('postId');
+		$score = $this->input->get('score', 0, 'int');
+		$postId = $this->input->get('postId', 0, 'int');
 
 		$post = ED::post($postId);
+
+		if (!$postId || !$post->id) {
+			return $this->ajax->reject();
+		}
 
 		// Check if the current user already rated this item.
 		$rated = $post->hasRated();

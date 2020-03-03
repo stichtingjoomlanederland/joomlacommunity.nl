@@ -33,7 +33,7 @@ defined('_JEXEC') or die('Restricted access');
 <div class="grid-x grid-margin-x">
 	<div id="acym__wysid" class="grid-x margin-0 grid-margin-x acym__content cell" style="display: none;">
 		<!--Template & top toolbar-->
-		<div id="acym__wysid__wrap" class="grid-y large-8 small-9 cell grid-padding-x grid-padding-y">
+		<div id="acym__wysid__wrap" class="grid-y auto cell grid-padding-x grid-padding-y">
 			<!--Top toolbar-->
             <?php
             include acym_getView('mails', 'editor_wysid_top_toolbar', true);

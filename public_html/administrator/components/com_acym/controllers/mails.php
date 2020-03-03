@@ -14,7 +14,7 @@ class MailsController extends acymController
             'apply' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'introjs', 'parse-css', 'vue-applications' => ['code_editor'], 'vue-prism-editor', 'editor-wysid'],
             'test' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'introjs', 'parse-css', 'vue-applications' => ['code_editor'], 'vue-prism-editor', 'editor-wysid'],
         ];
-        header('X-XSS-Protection:0');
+        acym_header('X-XSS-Protection:0');
     }
 
     public function listing()
@@ -78,7 +78,7 @@ class MailsController extends acymController
 
     public function choose()
     {
-        acym_setVar("layout", "choose");
+        acym_setVar('layout', 'choose');
 
         $this->breadcrumb[acym_translation('ACYM_CREATE')] = "";
 
@@ -112,7 +112,7 @@ class MailsController extends acymController
             'search' => $searchFilter,
             'tag' => $tagFilter,
             'ordering' => $ordering,
-            'type' => $type,
+            'type' => acym_getVar('string', 'type'),
         ];
 
 
@@ -179,6 +179,8 @@ class MailsController extends acymController
             if (!empty($fromMail)) {
                 $mail->drag_editor = $fromMail->drag_editor;
                 $mail->body = $fromMail->body;
+                $mail->stylesheet = $fromMail->stylesheet;
+                $mail->settings = $fromMail->settings;
             }
             $mail->editor = $mail->drag_editor == 0 ? 'html' : 'acyEditor';
             if (!empty($typeEditor)) $mail->editor = $typeEditor;
@@ -241,6 +243,12 @@ class MailsController extends acymController
                 continue;
             }
             $mail->{$name} = $data;
+        }
+
+        $saveAsTmpl = acym_getVar('int', 'saveAsTmpl', 0);
+        if ($saveAsTmpl === 1) {
+            unset($mail->id);
+            $mail->type = 'standard';
         }
 
         if ($fromAutomation) {

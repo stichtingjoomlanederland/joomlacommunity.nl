@@ -43,14 +43,18 @@ JText::script('RSFP_EXPORT_PLEASE_SELECT');
         var previewArray = [];
         var orderArray = [];
 
-        for (var i=1; i<=totalHeaders; i++)
-            if (document.getElementById('header' + i).checked)
-            {
-                var header = document.getElementById('header' + i).value;
+        var i, header, order;
 
-                var order = document.getElementsByName('ExportOrder[' + header + ']')[0].value;
-                orderArray.push(order + '_' + header);
-            }
+        for (i = 1; i <= totalHeaders; i++)
+		{
+			if (document.getElementById('header' + i).checked)
+			{
+				header = document.getElementById('header' + i).value;
+
+				order = document.getElementsByName('ExportOrder[' + header + ']')[0].value;
+				orderArray.push(order + '_' + header);
+			}
+		}
 
         orderArray.sort(function (a,b) {
                 a = a.split('_');
@@ -60,10 +64,10 @@ JText::script('RSFP_EXPORT_PLEASE_SELECT');
                 return a - b;
             });
 
-        for (var i=0; i<orderArray.length; i++)
+        for (i = 0; i < orderArray.length; i++)
         {
-            var header = orderArray[i].split('_');
-            var header = enclosure + header[1] + enclosure;
+            header = orderArray[i].split('_');
+            header = enclosure + header[1] + enclosure;
 
             headers.push(header);
         }
@@ -71,10 +75,9 @@ JText::script('RSFP_EXPORT_PLEASE_SELECT');
         headersPre.innerHTML = headers.join(delimiter);
         headersPre.style.display = form.ExportHeaders.checked ? '' : 'none';
 
-        for (var i=1; i<=headers.length; i++)
+        for (i = 1; i <= headers.length; i++)
         {
-            var item = enclosure + 'Value ' + i + enclosure;
-            previewArray.push(item);
+            previewArray.push(enclosure + 'Value ' + i + enclosure);
         }
 
         rowPre.innerHTML = previewArray.join(delimiter);
@@ -86,8 +89,10 @@ JText::script('RSFP_EXPORT_PLEASE_SELECT');
         var tocheck = document.getElementById('checkColumns').checked;
         var totalHeaders = <?php echo count($this->previewArray); ?>;
 
-        for (var i=1; i<=totalHeaders; i++)
-            document.getElementById('header' + i).checked = tocheck;
+        for (var i = 1; i <= totalHeaders; i++)
+		{
+			document.getElementById('header' + i).checked = tocheck;
+		}
 
         updateCSVPreview();
     }

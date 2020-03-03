@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.12.9182
+ * @version         20.2.16442
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2019 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -75,7 +75,7 @@ class JFormFieldRL_ConditionSelection extends \RegularLabs\Library\Field
 		$html[] = '<div class="' . $class . '">';
 		if ($showclose && JFactory::getUser()->authorise('core.admin'))
 		{
-			$html[] = '<button type="button" class="close">&times;</button>';
+			$html[] = '<button type="button" class="close" aria-label="Close">&times;</button>';
 		}
 
 		$html[] = '<div class="control-group">';

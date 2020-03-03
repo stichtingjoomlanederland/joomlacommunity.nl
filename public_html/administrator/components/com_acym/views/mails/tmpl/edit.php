@@ -1,32 +1,38 @@
 <?php
 defined('_JEXEC') or die('Restricted access');
 ?><div id="acym__editor__content" class="grid-x acym__content acym__editor__area">
-	<div class="cell grid-x align-right">
+	<div class="cell grid-x grid-margin-x margin-left-0 margin-right-0 align-right">
 		<input type="hidden" id="acym__mail__edit__editor" value="<?php echo acym_escape($data['mail']->editor); ?>">
 		<input type="hidden" class="acym__wysid__hidden__save__thumbnail" id="editor_thumbnail" name="editor_thumbnail" value="<?php echo acym_escape($data['mail']->thumbnail); ?>" />
 		<input type="hidden" id="acym__mail__edit__editor__social__icons" value="<?php echo empty($data['social_icons']) ? '{}' : acym_escape($data['social_icons']); ?>">
 		<input type="hidden" id="acym__mail__type" name="mail[type]" value="<?php echo empty($data['mail']->type) ? 'standard' : $data['mail']->type; ?>">
         <?php
+        $cancelUrl = empty($data['return']) ? '' : $data['return'];
+        echo acym_cancelButton('ACYM_CANCEL', $cancelUrl);
+
         if ($data['mail']->editor != 'acyEditor') {
             ?>
-			<button type="submit" data-task="test" class="cell medium-shrink button-secondary auto button acy_button_submit acym__template__save acy_button_submit margin-right-1">
+			<button type="submit" data-task="test" class="cell large-shrink button-secondary medium-6 button acy_button_submit acym__template__save acy_button_submit">
                 <?php echo acym_translation('ACYM_SEND_TEST'); ?>
 			</button>
             <?php
         }
         echo acym_modal_include(
-            '<button type="button" id="acym__template__start-from" class="cell medium-shrink button-secondary auto button">'.acym_translation('ACYM_START_FROM').'</button>',
+            '<button type="button" id="acym__template__start-from" class="cell button-secondary button">'.acym_translation('ACYM_START_FROM').'</button>',
             dirname(__FILE__).DS.'choose_template_ajax.php',
             'acym__template__choose__modal',
-            $data
+            $data,
+            '',
+            '',
+            'class="cell large-shrink medium-6"'
         );
 
         ?>
-		<button id="apply" type="button" data-task="apply" class="cell medium-shrink button-secondary auto button acym__template__save margin-left-1 acy_button_submit">
+		<button id="apply" type="button" data-task="apply" class="cell large-shrink button-secondary medium-6 button acym__template__save acy_button_submit">
             <?php echo acym_translation('ACYM_SAVE'); ?>
 		</button>
 		<button style="display: none;" data-task="apply" class="acy_button_submit" id="data_apply"></button>
-		<button id="save" type="button" data-task="save" class="cell medium-shrink auto button margin-left-1 acy_button_submit">
+		<button id="save" type="button" data-task="save" class="cell large-shrink medium-6 button acy_button_submit">
             <?php echo acym_translation('ACYM_SAVE_EXIT'); ?>
 		</button>
 		<button style="display: none;" data-task="save" class="acy_button_submit" id="data_save"></button>

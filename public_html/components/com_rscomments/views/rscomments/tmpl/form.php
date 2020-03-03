@@ -99,54 +99,66 @@ $required	= $this->config->anonymous ? '' : ' *'; ?>
 		<?php } ?>
 		
 		<div class="row-fluid">
-			<?php if (!empty($icons) || !empty($emoticons)) { ?>
-			<div class="control-group span12">
-				<div class="rscomm-editor-buttons">
-					<div class="btn-toolbar">						
-					<?php 
-					if (!empty($icons)) {
-						if ($iconchunks = array_chunk($icons,4)) {
-							foreach ($iconchunks as $iconchunk) {
-								echo '<div class="btn-group">';
-								foreach ($iconchunk as $i => $icon) {
-									echo $icon."\n";
-								}
-								echo '</div>';
-							}
-						}
-					}
-					?>
-					</div>
-					
-					<?php if ($this->config->enable_smiles == 1 && !empty($emoticons)) { ?>
-					<div class="btn-toolbar rsc_emoticons" style="display: none;">
-					<?php 
-					if ($emoticonschuncks = array_chunk($emoticons,4)) {
-						foreach ($emoticonschuncks as $emoticonschunck) {
-							echo '<div class="btn-group">';
-							foreach ($emoticonschunck as $emoticon) { 
-								echo $emoticon."\n";
-							}
-							echo '</div>';
-						}
-					}
-					?>
-					</div>
-					<?php } ?>
-				</div>
-			</div>
-			<?php } ?>
-		</div>
-		
-		<div class="row-fluid">
-			<?php if ($this->config->show_counter == 1) { ?>
-			<div class="control-group pull-right">
-				<p class="char-left muted"><span class="comment_length"><?php echo $clength; ?></span> <?php echo JText::_('COM_RSCOMMENTS_CHARS_LEFT'); ?></p>
-			</div>
-			<?php } ?>
 			<div class="rscomments-comment-area control-group">
 				<div class="controls">
-					<textarea data-rsc-task="commentform" class="input-block-level required" name="jform[comment]" rows="5" maxlength="<?php echo $clength; ?>" placeholder="<?php echo JText::_('COM_RSCOMMENTS_COMMENT_COMMENT'); ?>"></textarea>
+					<div class="rscomment-comment-area">
+						
+						<?php if (!empty($icons) || !empty($emoticons)) { ?>
+						<div class="rscomment-comment-area-actions">
+							<div class="btn-toolbar rscomments-action-btns">						
+								<?php 
+								if (!empty($icons)) {
+									if ($iconchunks = array_chunk($icons,4)) {
+										foreach ($iconchunks as $iconchunk) {
+											echo '<div class="btn-group">';
+											foreach ($iconchunk as $i => $icon) {
+												echo $icon."\n";
+											}
+											echo '</div>';
+										}
+									}
+								}
+								?>
+							</div>
+							
+							<?php if ($this->config->enable_smiles == 1 && !empty($emoticons)) { ?>
+							<div class="btn-toolbar rsc_emoticons rscomments-action-btns" style="display: none;">
+							<?php 
+							if ($emoticonschuncks = array_chunk($emoticons,4)) {
+								foreach ($emoticonschuncks as $emoticonschunck) {
+									echo '<div class="btn-group">';
+									foreach ($emoticonschunck as $emoticon) { 
+										echo $emoticon."\n";
+									}
+									echo '</div>';
+								}
+							}
+							?>
+							</div>
+							<?php } ?>
+							
+							<div class="btn-toolbar rscomments-close-preview" style="display:none;">
+								<a href="javascript:void(0);" data-rsc-task="closepreview" class="btn btn-small <?php echo RSTooltip::tooltipClass(); ?>" title="<?php echo RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_CLOSE_PREVIEW')); ?>"><i class="fa fa-times"></i></a>
+							</div>
+						</div>
+						<?php } ?>
+						
+						<textarea data-rsc-task="commentform" class="input-block-level required" name="jform[comment]" rows="5" maxlength="<?php echo $clength; ?>" placeholder="<?php echo JText::_('COM_RSCOMMENTS_COMMENT_COMMENT'); ?>"></textarea>
+						<div class="rscomments-preview-area"></div>
+						
+						<div class="rscomments-remaining-chars">
+							<span class="rsc_loading_preview" style="display:none;">
+								<?php echo JHtml::image('com_rscomments/loader.gif', '', array(), true); ?>
+							</span>
+							
+							<?php if ($this->config->show_counter == 1) { ?>
+							<div class="control-group pull-right">
+								<p class="char-left muted"><span class="comment_length"><?php echo $clength; ?></span> <?php echo JText::_('COM_RSCOMMENTS_CHARS_LEFT'); ?></p>
+							</div>
+							<?php } ?>
+							<div class="clearfix"></div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -223,7 +235,10 @@ $required	= $this->config->anonymous ? '' : ' *'; ?>
 		<div class="row-fluid">
 			<span class="rsc_loading_form" style="display:none;">
 				<?php echo JHtml::image('com_rscomments/loader.gif', '', array(), true); ?>
-			</span>		
+			</span>
+			<?php if (isset($this->permissions['enable_preview']) && $this->permissions['enable_preview']) { ?>
+			<button type="button" class="btn" data-rsc-task="preview"><?php echo JText::_('COM_RSCOMMENTS_PREVIEW'); ?></button>
+			<?php } ?>
 			<button type="button" class="btn btn-primary" data-rsc-task="validate" data-rsc-upload="<?php echo $upload; ?>" data-rsc-captcha="<?php echo RSCommentsHelper::route('index.php?option=com_rscomments&task=captcha'); ?>"><?php echo JText::_('COM_RSCOMMENTS_SEND'); ?></button>
 			<button type="button" class="btn" data-rsc-task="reset"><?php echo JText::_('COM_RSCOMMENTS_RESET'); ?></button>
 			<button type="button" class="btn rsc_cancel_btn" style="display:none;"><?php echo JText::_('COM_RSCOMMENTS_CANCEL'); ?></button>

@@ -100,27 +100,27 @@ class EasyDiscussViewIndex extends EasyDiscussView
 	 */
 	public function subscribe()
 	{
-        $type = $this->input->get('type', 'site', 'cmd');
-        $cid = $this->input->get('id', 0, 'int');
-        $url = EDR::_('view=index', false);
+		$type = $this->input->get('type', 'site', 'cmd');
+		$cid = $this->input->get('id', 0, 'int');
+		$url = EDR::_('view=index', false);
 
-        $model = ED::model('Subscribe');
-        $interval = '';
-        $subscription = $model->isSiteSubscribed($type, $this->my->email, $cid);
-        if ($subscription) {
-        	$interval = $subscription->interval;
-        }
+		$model = ED::model('Subscribe');
+		$interval = '';
+		$subscription = $model->isSiteSubscribed($type, $this->my->email, $cid);
+		if ($subscription) {
+			$interval = $subscription->interval;
+		}
 
-        $theme = ED::themes();
-        $theme->set('type', $type);
-        $theme->set('cid', $cid);
-        $theme->set('url', base64_encode($url));
-        $theme->set('subscription', $subscription);
-        $theme->set('interval', $interval);
+		$theme = ED::themes();
+		$theme->set('type', $type);
+		$theme->set('cid', $cid);
+		$theme->set('url', base64_encode($url));
+		$theme->set('subscription', $subscription);
+		$theme->set('interval', $interval);
 
-        $contents = $theme->output('site/toolbar/dialogs/subscribe');
+		$contents = $theme->output('site/toolbar/dialogs/subscribe');
 
-        return $this->ajax->resolve($contents);
+		return $this->ajax->resolve($contents);
 	}
 
 	/**
@@ -455,18 +455,25 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		$limit = ($limit == '-2') ? ED::getListLimit() : $limit;
 		$limit = ($limit == '-1') ? ED::jconfig()->get('list_limit') : $limit;
 
-		// Get normal discussion posts.
-		$options 	= array(
-						'sort'		=> $sort,
-						'postStatus' => $postStatus,
-						'category'	=> $categoryIds,
-						'filter'	=> $filterType,
-						'limit'		=> $limit,
-						'featured'	=> false
-					);
 
+		// Get normal discussion posts.
+		$options = array(
+						'sort' => $sort,
+						'postStatus' => $postStatus,
+						'filter' => $filterType,
+						'limit' => $limit,
+						'featured' => false
+		);
+
+		// Sanitize category value
 		if ($categoryIds) {
 			$options['category'] = explode(',', $categoryIds);
+
+			foreach ($options['category'] as &$cid) {
+				$cid = (int) $cid;
+			}
+
+			$categoryIds = implode(',', $options['category']);
 		}
 
 		$posts = $postModel->getDiscussions($options);
@@ -477,7 +484,6 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		$posts = ED::formatPost($posts, false, true);
 
 		$pagination = '';
-		// $pagination = $postModel->getPagination(0, $sort, $filterType, $categoryId, false);
 		$pagination = $postModel->getPagination();
 
 		$filtering = array( 'filter' => $filterType,

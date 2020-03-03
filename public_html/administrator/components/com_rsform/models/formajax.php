@@ -35,12 +35,14 @@ class RsformModelFormajax extends JModelLegacy
 		$return = array(
 			'general'		=> array(),
 			'validations' 	=> array(),
-			'attributes' 	=> array()
+			'attributes' 	=> array(),
+			'editor'		=> array()
 		);
 		$data = $this->getComponentData();
 
-		$general		= array('NAME','CAPTION','LABEL','DEFAULTVALUE','ITEMS','TEXT','DESCRIPTION','COMPONENTTYPE');
+		$general		= array('NAME','CAPTION','LABEL','DEFAULTVALUE','ITEMS','DESCRIPTION','COMPONENTTYPE');
 		$validations	= array('REQUIRED','VALIDATIONRULE','VALIDATIONMESSAGE','VALIDATIONEXTRA', 'VALIDATIONDATE');
+		$editor			= array('TEXT');
 
 		$componentId = $this->getComponentId();
 		$componentType = $this->getComponentType();
@@ -215,6 +217,8 @@ class RsformModelFormajax extends JModelLegacy
 				$return['general'][] = $field;
 			elseif (in_array($field->name, $validations) || strpos($field->name, 'VALIDATION') !== false)
 				$return['validations'][] = $field;
+			elseif (in_array($field->name, $editor))
+				$return['editor'][] = $field;
 			else
 				$return['attributes'][] = $field;
 		}

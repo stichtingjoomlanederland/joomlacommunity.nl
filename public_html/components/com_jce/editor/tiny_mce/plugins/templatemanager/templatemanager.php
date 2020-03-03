@@ -10,9 +10,13 @@
  */
 require_once WF_EDITOR_LIBRARIES . '/classes/manager.php';
 
+JLoader::registerNamespace('Michelf', __DIR__ . '/vendor/php-markdown/Michelf', false, false, 'psr4');
+
+use Michelf\Markdown;
+
 final class WFTemplateManagerPlugin extends WFMediaManager
 {
-    protected $_filetypes = 'html=html,htm;text=txt';
+    protected $_filetypes = 'html=html,htm;text=txt,md';
 
     public function __construct($config = array())
     {
@@ -41,6 +45,29 @@ final class WFTemplateManagerPlugin extends WFMediaManager
         $document->addStyleSheet(array('templatemanager'), 'plugins');
 
         $document->addScriptDeclaration('TemplateManager.settings=' . json_encode($this->getSettings()) . ';');
+    }
+
+    public function onUpload($file, $relative = '')
+    {
+        parent::onUpload($file, $relative);
+
+        $app = JFactory::getApplication();
+
+        if ($app->input->getInt('inline', 0) === 1) {
+            $result = array(
+                'file' => $relative,
+                'name' => basename($file),
+            );
+
+            // get the relative filesystem path
+            $relative = $this->getFileBrowser()->getFileSystem()->toRelative($file);
+
+            $result['data'] = $this->loadTemplate($relative);
+
+            return $result;
+        }
+
+        return array();
     }
 
     public function createTemplate($dir, $name)
@@ -116,7 +143,7 @@ final class WFTemplateManagerPlugin extends WFMediaManager
     protected function replaceVars($matches)
     {
         $key = $matches[1];
-        
+
         switch ($key) {
             case 'modified':
                 return strftime($this->getParam('mdate_format', '%Y-%m-%d %H:%M:%S'));
@@ -152,11 +179,19 @@ final class WFTemplateManagerPlugin extends WFMediaManager
         // check path
         WFUtility::checkPath($file);
 
+        $ext = WFUtility::getExtension($file);
+
+        // read content
         $content = $browser->getFileSystem()->read($file);
 
         // Remove body etc.
         if (preg_match('/<body[^>]*>([\s\S]+?)<\/body>/', $content, $matches)) {
             $content = trim($matches[1]);
+        }
+
+        // process markdown
+        if (strtolower($ext) === 'md') {
+            $content = Markdown::defaultTransform($content);
         }
 
         // Replace variables
@@ -180,17 +215,16 @@ final class WFTemplateManagerPlugin extends WFMediaManager
 
     public function getTemplateList()
     {
-        $list   = array();
-        $items  = $this->getFileBrowser()->getItems('');
+        $list = array();
+        $items = $this->getFileBrowser()->getItems('', 0);
 
-        foreach($items['files'] as $item) {
-            
+        foreach ($items['files'] as $item) {
             if ($item['name'] === "index.html") {
                 continue;
             }
 
-            $name   = pathinfo($item['name'], PATHINFO_FILENAME);
-            $value  = $item['properties']['preview'];
+            $name = WFUtility::getFilename($item['name']);
+            $value = $item['properties']['preview'];
 
             $list[$name] = $value;
         }

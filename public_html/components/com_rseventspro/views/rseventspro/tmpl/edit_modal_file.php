@@ -49,5 +49,11 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 			</label>
 		</div>
 	</div>
+	<?php if ($this->config->modaltype == 2) { ?>
+	<div class="control-group">
+		<div class="control-label"><label>&nbsp;</label></div>
+		<div class="controls"><button class="btn btn-primary" type="button" id="rsepro-save-file"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button></div>
+	</div>
+	<?php } ?>
 </div>
 <input type="hidden" name="rsepro-file-id" id="rsepro-file-id" value="" />

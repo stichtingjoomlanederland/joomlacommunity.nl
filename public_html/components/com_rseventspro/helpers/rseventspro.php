@@ -140,6 +140,8 @@ class rseventsproHelper
 		self::loadFA();
 		
 		$doc->addScriptDeclaration("var rsepro_root = '".addslashes(JURI::root(true).'/'.($app->isClient('administrator') ? 'administrator/' : ''))."';");
+		$doc->addScriptDeclaration("var rsepro_modal_width = '".rseventsproHelper::getConfig('modal_width','int', 800)."';");
+		$doc->addScriptDeclaration("var rsepro_modal_height = '".rseventsproHelper::getConfig('modal_height','int', 600)."';");
 		
 		// Load admin or site scripts
 		if ($app->isClient('administrator')) {
@@ -159,6 +161,9 @@ class rseventsproHelper
 			if ($doc->getType() == 'html') {
 				$doc->addCustomTag('<script src="'.JHtml::script('com_rseventspro/site.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
 			}
+			
+			// Load jQuery modal
+			self::loadModal();
 		}
 	}
 	
@@ -190,6 +195,17 @@ class rseventsproHelper
 	public static function loadFA() {
 		if (rseventsproHelper::getConfig('fontawesome','int',1)) {
 			JHtml::stylesheet('com_rseventspro/font-awesome.min.css', array('relative' => true, 'version' => 'auto'));
+		}
+	}
+	
+	// Load jQuery modal
+	public static function loadModal() {
+		if (rseventsproHelper::getConfig('modaltype','int',1) == 2) {
+			if (JFactory::getDocument()->getType() == 'html') {
+				JFactory::getDocument()->addCustomTag('<script src="'.JHtml::script('com_rseventspro/jquery.colorbox.min.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
+			}
+			
+			JHtml::stylesheet('com_rseventspro/colorbox.css', array('relative' => true, 'version' => 'auto'));
 		}
 	}
 	
@@ -716,12 +732,8 @@ class rseventsproHelper
 	
 	// Close the modal
 	public static function modalClose($script = true, $parent = false) {
-		$modal	= rseventsproHelper::getConfig('modal', 'int', 0);
+		$modal	= rseventsproHelper::getConfig('modaltype', 'int', 1);
 		$html	= '';
-		
-		if ($modal == 0) {
-			return false;
-		}
 		
 		if ($script) {
 			$html .= '<script type="text/javascript">';
@@ -731,7 +743,7 @@ class rseventsproHelper
 			$html .= 'window.parent.';
 		}
 		
-		if ($modal == 1) {
+		if ($modal == 2) {
 			$html .= 'jQuery.colorbox.close();';
 		} else {
 			$html .= 'jQuery(\'.modal.in .close\').click();';
@@ -4543,7 +4555,8 @@ class rseventsproHelper
 	
 	// Get Cancel link
 	public static function redirect($js = false,$message = null,$url = null,$reload = false, $sticky = false) {
-		$link	= rseventsproHelper::getConfig('modal','int');
+		$modal	= rseventsproHelper::getConfig('modal','int');
+		$link	= rseventsproHelper::getConfig('modaltype','int');
 		$reload = $reload ? 'window.parent.location.reload();' : '';
 		
 		if ($reload) {
@@ -4553,31 +4566,31 @@ class rseventsproHelper
 				$redirect = 'window.parent.location = "'.addslashes($url).'";';
 		} else $redirect = '';
 		
-		
-		if ($link == 1) {
-			if ($js)
-			{
-				$return = '<div class="rs_message_info">'.$message.'</div>';
-				if (!$sticky)
-					$return .= '<script type="text/javascript">window.top.setTimeout(\''.$redirect.'window.parent.jQuery.colorbox.close();\',1200);</script>';
-				return $return;
-			} 
-			else return '<a href="javascript:void(0)" onclick="window.parent.jQuery.colorbox.close();">'.$message.'</a>';
-		} 
-		elseif ($link == 2) {
-			if ($js) {
-				$return = '<div class="rs_message_info">'.$message.'</div>';
-				
-				if (!$sticky)
-					$return .= '<script type="text/javascript">window.top.setTimeout(\''.$redirect.'window.parent.jQuery(".modal.in .close").click();\',1200);</script>';
-				return $return;
-			} 
-			else return '<a href="javascript:void(0)" onclick="window.parent.jQuery(\'.modal.in .close\').click();">'.$message.'</a>';
-		} else {
+		if ($modal == 0) {
 			if ($js) {
 				JFactory::getApplication()->enqueueMessage($message);
 				JFactory::getApplication()->redirect($url);
 			} else return '<a href="'.$url.'">'.$message.'</a>';
+		} else {		
+			if ($link == 2) {
+				if ($js)
+				{
+					$return = '<div class="rs_message_info">'.$message.'</div>';
+					if (!$sticky)
+						$return .= '<script type="text/javascript">window.top.setTimeout(\''.$redirect.'window.parent.jQuery.colorbox.close();\',1200);</script>';
+					return $return;
+				} 
+				else return '<a href="javascript:void(0)" onclick="window.parent.jQuery.colorbox.close();">'.$message.'</a>';
+			} else {
+				if ($js) {
+					$return = '<div class="rs_message_info">'.$message.'</div>';
+					
+					if (!$sticky)
+						$return .= '<script type="text/javascript">window.top.setTimeout(\''.$redirect.'window.parent.jQuery(".modal.in .close").click();\',1200);</script>';
+					return $return;
+				} 
+				else return '<a href="javascript:void(0)" onclick="window.parent.jQuery(\'.modal.in .close\').click();">'.$message.'</a>';
+			}
 		}
 	}
 	
@@ -7698,9 +7711,33 @@ class rseventsproHelper
 		$html[] = JHtml::_('rseventspro.timezones','timezone');
 		$html[] = '</div>';
 		$html[] = '</div>';
+		
+		if (rseventsproHelper::getConfig('modaltype','int') == 2) {		
+			$html[] = '<div class="control-group">';
+			$html[] = '<div class="control-label">';
+			$html[] = '<label>&nbsp;</label>';
+			$html[] = '</div>';
+			$html[] = '<div class="controls">';
+			$html[] = '<button class="btn btn-primary" type="button" onclick="document.timezoneForm.submit();">'.JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE').'</button>';
+			$html[] = '</div>';
+			$html[] = '</div>';
+		}
+		
 		$html[] = '<input type="hidden" name="task" value="timezone" />';
 		$html[] = '<input type="hidden" name="return" value="'.$return.'" />';
 		$html[] = '</form>';
+		
+		if (rseventsproHelper::getConfig('modaltype','int') == 2) {
+			$modalJS = array();
+			$modalJS[] = '<script type="text/javascript">';
+			$modalJS[] = 'jQuery(document).ready(function(){';
+			$modalJS[] = 'jQuery("a[rel=\'rs_timezone\']").colorbox({inline:true, href: \'#timezoneModalInline\', title:\''.JText::_('COM_RSEVENTSPRO_CHANGE_TIMEZONE',true).'\'});';
+			$modalJS[] = '});';
+			$modalJS[] = '</script>';
+			JFactory::getDocument()->addCustomTag(implode("\n", $modalJS));
+			
+			return '<div id="timezoneModalContainer" style="display:none;"><div id="timezoneModalInline">'. implode("\n", $html).'</div></div>';
+		}
 		
 		return JHtml::_('bootstrap.renderModal', 'timezoneModal', array('title' => JText::_('COM_RSEVENTSPRO_CHANGE_TIMEZONE'), 'bodyHeight' => 30, 'modalWidth' => 30, 'footer' => implode("\n", $footer)), implode("\n", $html));
 	}

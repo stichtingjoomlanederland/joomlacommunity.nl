@@ -1,16 +1,17 @@
 <?php
 /**
  * @package         DB Replacer
- * @version         6.3.5PRO
+ * @version         6.3.7PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2019 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
 defined('_JEXEC') or die;
 
+use DBReplacerModelDefault as Model;
 use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\HTML\HTMLHelper as JHtml;
 use Joomla\CMS\Language\Text as JText;
@@ -22,6 +23,8 @@ if (JFactory::getApplication()->isClient('site'))
 {
 	die();
 }
+
+require_once __DIR__ . '/models/default.php';
 
 echo (new DBReplacer)->render();
 die;
@@ -78,7 +81,7 @@ class DBReplacer
 	private function renderColumns()
 	{
 		$table    = $this->params->table;
-		$selected = $this->implodeParams($this->params->columns);
+		$selected = Model::implodeParams($this->params->columns);
 
 		$options = [];
 		if ($table)
@@ -96,21 +99,6 @@ class DBReplacer
 		return $html;
 	}
 
-	private function getTableColumns()
-	{
-		if (RL_RegEx::match('[^a-z0-9-_\#]', $this->params->table))
-		{
-			die('Invalid data found in URL!');
-		}
-
-		$db = JFactory::getDbo();
-
-		$query = 'SHOW COLUMNS FROM `' . trim($this->params->table) . '`';
-		$db->setQuery($query);
-
-		return $db->loadColumn();
-	}
-
 	private function renderRows()
 	{
 		// Load plugin language
@@ -124,11 +112,9 @@ class DBReplacer
 			return '';
 		}
 
-		$seach_columns = $this->implodeParams($this->params->columns);
+		$seach_columns = Model::implodeParams($this->params->columns);
 
-		$columns = $this->getTableColumns();
-
-		$rows = $this->getRows($columns, $max);
+		$rows = $this->getRows($max);
 
 		if (is_null($rows))
 		{
@@ -139,6 +125,8 @@ class DBReplacer
 		{
 			return $this->getMessage(JText::_('DBR_ROW_COUNT_NONE'));
 		}
+
+		$columns = $this->getTableColumns();
 
 		$html = [];
 
@@ -214,7 +202,7 @@ class DBReplacer
 
 	private function getCellData($row, $col)
 	{
-		$columns = $this->implodeParams($this->params->columns);
+		$columns = Model::implodeParams($this->params->columns);
 
 		$class = '';
 		$value = $row->{$col};
@@ -337,7 +325,7 @@ class DBReplacer
 	private function prepareResultString($value, $match, $search, $replace, $options)
 	{
 		// If there is no search, show entire cell content
-		if ( $search == '')
+		if ($search == '')
 		{
 			$value = $this->replacePlaceholders($value);
 
@@ -519,7 +507,7 @@ class DBReplacer
 		return $parts;
 	}
 
-	private function getRows($columns, $max = 100)
+	private function getRows($max = 100)
 	{
 		if (RL_RegEx::match('[^a-z0-9-_\#]', $this->params->table))
 		{
@@ -529,162 +517,55 @@ class DBReplacer
 		$db    = JFactory::getDbo();
 		$table = $this->params->table;
 
-		$select_columns = $columns;
-		array_walk($select_columns, function (&$column, $key, $db) {
+		$columns = $this->getTableColumns();
+		array_walk($columns, function (&$column, $key, $db) {
 			$column = $db->quoteName($column);
 		}, $db);
 
 		$query = $db->getQuery(true)
-			->select($select_columns)
+			->select($columns)
 			->from($db->quoteName(trim($table)));
 
-		$where = $this->getWhereClause();
-		if ( ! empty($where))
-		{
-			$query->where('(' . implode(' OR ', $where) . ')');
-		}
+		$this->addWhereClause($query);
 
-		$custom_where = $this->getCustomWhereClause($columns);
-		if ( ! empty($custom_where))
-		{
-			$query->where($custom_where);
-		}
+		$this->addCustomWhereClause($query);
 
 		$db->setQuery($query, 0, $max);
 
 		return $db->loadObjectList();
 	}
 
-	private function getWhereClause()
+	private function getTableColumns()
 	{
-		$columns = $this->params->columns;
-
-		if (empty($columns))
-		{
-			return false;
-		}
-
-		$s = str_replace('||space||', ' ', $this->params->search);
-
-		if (empty($s))
-		{
-			return false;
-		}
-
-		$likes = [];
-
-		switch ($s)
-		{
-			case 'NULL' :
-				$likes[] = 'IS NULL';
-				$likes[] = '= ""';
-				break;
-
-			case '*':
-				//$likes[] = ' != \'-something it would never be!!!-\'';
-				break;
-
-			default:
-				$dbs = $s;
-
-				if ( ! $this->params->regex)
-				{
-					$dbs = RL_RegEx::quote($dbs);
-					// replace multiple whitespace (with at least one enter) with regex whitespace match
-					$dbs = RL_RegEx::replace('\s*\n\s*', '\s*', $dbs);
-				}
-
-				// escape slashes
-				$dbs = str_replace('\\', '\\\\', $dbs);
-				// escape single quotes
-				$dbs = str_replace('\'', '\\\'', $dbs);
-				// remove the lazy character: doesn't work in mysql
-				$dbs = str_replace(['*?', '+?'], ['*', '+'], $dbs);
-				// change \s to [[:space:]]
-				$dbs = str_replace('\s', '[[:space:]]', $dbs);
-
-				$likes[] = $this->params->case
-					? 'RLIKE BINARY \'' . $dbs . '\''
-					: 'RLIKE \'' . $dbs . '\'';
-				break;
-		}
-
-		$db      = JFactory::getDbo();
-		$columns = $this->implodeParams($columns);
-		$where   = [];
-
-		foreach ($columns as $column)
-		{
-			foreach ($likes as $like)
-			{
-				$where[] = $db->quoteName(trim($column)) . ' ' . $like;
-			}
-		}
-
-		return $where;
+		return Model::getTableColumns($this->params->table);
 	}
 
-	private function getCustomWhereClause($cols = [])
+	private function addWhereClause(&$query)
 	{
-		if (empty($this->params->where))
+		$where = Model::getWhereClause(
+			$this->params->search,
+			$this->params->columns,
+			$this->params->case,
+			$this->params->regex
+		);
+
+		if (empty($where))
 		{
-			return false;
+			return;
 		}
 
-		$custom_where = trim(str_replace('WHERE ', '', trim($this->params->where)));
-
-		if (empty($custom_where))
-		{
-			return false;
-		}
-
-		if (empty($cols))
-		{
-			return $custom_where;
-		}
-
-		$cols = RL_RegEx::quote($cols);
-
-		$regex = '(^| )' . $cols . '( +(?:=|\!|IS |IN |LIKE ))';
-		RL_RegEx::matchAll($regex, $custom_where, $matches);
-
-		if (empty($matches))
-		{
-			return $custom_where;
-		}
-
-		$db = JFactory::getDbo();
-
-		foreach ($matches as $match)
-		{
-			$custom_where = str_replace(
-				$match[0],
-				$match[1] . $db->quoteName($match[2]) . $match[3],
-				$custom_where
-			);
-		}
-
-		return $custom_where;
+		$query->where($where);
 	}
 
-	private function implodeParams($params)
+	private function addCustomWhereClause(&$query)
 	{
-		if (is_array($params))
+		$where = Model::prepareCustomWhereClause($this->params->where, $this->params->table);
+
+		if (empty($where))
 		{
-			return $params;
+			return;
 		}
 
-		$params = explode(',', $params);
-		$p      = [];
-
-		foreach ($params as $param)
-		{
-			if (trim($param) != '')
-			{
-				$p[] = trim($param);
-			}
-		}
-
-		return array_unique($p);
+		$query->where($where);
 	}
 }

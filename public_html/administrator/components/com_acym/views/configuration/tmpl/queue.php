@@ -170,7 +170,7 @@ if (acym_level(1)) {
                     'class="acym__select"',
                     'value',
                     'text',
-                    'cronsendreport',
+                    'cronsavereport',
                     true
                 );
                 ?>

@@ -1,17 +1,20 @@
 <?php
 /**
- * @package     Joomla.Site
- * @subpackage  Layout
- *
- * @copyright   Copyright (C) 2005 - 2019 Open Source Matters, Inc. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @package         Regular Labs Library
+ * @version         20.2.16442
+ * 
+ * @author          Peter van Westen <info@regularlabs.com>
+ * @link            http://www.regularlabs.com
+ * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
 defined('_JEXEC') or die;
 
 /**
- * Make thing clear
- *
+ * Layout variables
+ * -----------------
+ * @var array  $displayData
  * @var JForm  $form      The form instance for render the section
  * @var string $basegroup The base group name
  * @var string $group     Current group name

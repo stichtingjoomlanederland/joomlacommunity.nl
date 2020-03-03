@@ -50,6 +50,7 @@ class RsformViewSubmissions extends JViewLegacy
 			$this->formTitle = $this->get('formTitle');
 			$this->exportSelected = $this->get('exportSelected');
 			$this->exportSelectedCount = count($this->exportSelected);
+			$this->exportFilteredCount = $this->get('Total');
 			$this->exportAll = $this->exportSelectedCount == 0;
 			$this->exportType = $this->get('exportType');
 			$this->exportFile = $this->get('exportFile');
@@ -89,7 +90,7 @@ class RsformViewSubmissions extends JViewLegacy
         }
 		elseif ($layout == 'exportprocess')
 		{
-			$this->limit        = 500;
+			$this->limit        = RSFormProHelper::getConfig('export.limit');
 			$this->total        = $this->get('exportTotal');
 			$this->file         = JFactory::getApplication()->input->getCmd('ExportFile');
 			$this->exportType   = JFactory::getApplication()->input->getCmd('exportType');

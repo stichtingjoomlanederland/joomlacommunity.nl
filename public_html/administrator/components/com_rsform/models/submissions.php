@@ -10,8 +10,8 @@ defined('_JEXEC') or die('Restricted access');
 class RsformModelSubmissions extends JModelLegacy
 {
 	public $_data = array();
-	public $_total = 0;
-	public $_query = '';
+	public $_total;
+	public $_query;
 	public $_pagination = null;
 	public $_db = null;
 	
@@ -54,99 +54,101 @@ class RsformModelSubmissions extends JModelLegacy
 	
 	public function _buildQuery()
 	{
-		$sortColumn = $this->getSortColumn();
-		$sortOrder = $this->getSortOrder();
-		$formId = $this->getFormId();
-		$filter = $this->_db->escape($this->getFilter());
-		
-		$language_filter = $this->getLang();
+		$sortColumn 	= $this->getSortColumn();
+		$sortOrder 		= $this->getSortOrder();
+		$formId 		= $this->getFormId();
+		$filter 		= $this->getFilter();
+		$languageFilter	= $this->getLang();
+		$isStaticHeader = in_array($sortColumn, $this->getStaticHeaders());
+		$join			= false;
+
+		$query = $this->_db->getQuery(true)
+			->select('s.*')
+			->from($this->_db->qn('#__rsform_submissions', 's'))
+			->where($this->_db->qn('s.FormId') . ' = ' . $this->_db->q($formId));
+
+		// Only for export - export selected rows
+		if ($this->export && !empty($this->rows))
+		{
+			$query->where($this->_db->qn('s.SubmissionId') . ' IN (' . implode(',', $this->_db->q($this->rows)) . ')');
+		}
+
+		// Check if there's a filter (search) set
+		if (!$this->export)
+		{
+			if ($filter !== '')
+			{
+				$or 			= array();
+				$join 			= true;
+				$escapedFilter  = $this->_db->q('%' . $this->_db->escape($filter) . '%', false);
+
+				if (!preg_match('#([^0-9\-: ])#', $filter))
+				{
+					$or[] = $this->_db->qn('s.DateSubmitted') . ' LIKE ' . $escapedFilter;
+				}
+				$or[] = $this->_db->qn('s.Username') . ' LIKE ' . $escapedFilter;
+				$or[] = $this->_db->qn('s.UserIp') . ' LIKE ' . $escapedFilter;
+
+				if ($isStaticHeader)
+				{
+					$or[] = $this->_db->qn('sv.FieldValue') . ' LIKE ' . $escapedFilter;
+				}
+
+				else
+				{
+					$subquery = $this->_db->getQuery(true)
+						->select($this->_db->qn('SubmissionId'))
+						->from($this->_db->qn('#__rsform_submission_values'))
+						->where($this->_db->qn('FormId') . ' = ' . $this->_db->q($formId))
+						->where($this->_db->qn('FieldValue') . ' LIKE ' . $escapedFilter);
+
+					$or[] = $this->_db->qn('s.SubmissionId') . ' IN (' . $subquery . ')';
+				}
+
+				$query->where('(' . implode(' OR ', $or) . ')');
+			}
+
+			if ($languageFilter)
+			{
+				$query->where($this->_db->qn('s.Lang') . ' = ' . $this->_db->q($languageFilter));
+			}
+
+			if ($from = $this->getDateFrom())
+			{
+				$from = JFactory::getDate($from, JFactory::getConfig()->get('offset'))->toSql();
+
+				$query->where($this->_db->qn('s.DateSubmitted') . ' >= ' . $this->_db->q($from));
+			}
+
+			if ($to = $this->getDateTo())
+			{
+				$to = JFactory::getDate($to, JFactory::getConfig()->get('offset'))->toSql();
+
+				$query->where($this->_db->qn('s.DateSubmitted') . ' <= ' . $this->_db->q($to));
+			}
+		}
 
 		// Order by static headers
-		if (in_array($sortColumn, $this->getStaticHeaders()))
+		if ($isStaticHeader)
 		{
-			$query  = "SELECT SQL_CALC_FOUND_ROWS DISTINCT(sv.SubmissionId), s.* FROM #__rsform_submissions s";
-			$query .= " LEFT JOIN #__rsform_submission_values sv ON (s.SubmissionId=sv.SubmissionId)";
-			$query .= " WHERE s.FormId='".$formId."'";
-			
-			// Only for export - export selected rows
-			if ($this->export && !empty($this->rows))
-				$query .= " AND s.SubmissionId IN (".implode(",", $this->rows).")";
-			
-			// Check if there's a filter (search) set
-			if (!$this->export)
-			{
-				if ($filter)
-				{
-					$query .= " AND (sv.FieldValue LIKE '%".$filter."%'";
-					if (!preg_match('#([^0-9\-: ])#', $filter))
-						$query .= " OR s.DateSubmitted LIKE '%".$filter."%'";
-					$query .= " OR s.Username LIKE '%".$filter."%'";
-					$query .= " OR s.UserIp LIKE '%".$filter."%')";
-				}
-				
-				if ($language_filter)
-				{
-					$query .= " AND s.Lang='" . $this->_db->escape($language_filter) . "'";
-				}
-				
-				$from = $this->getDateFrom();				
-				if ($from) {
-					$from = JFactory::getDate($from, JFactory::getConfig()->get('offset'))->toSql();
-					$query .= " AND s.DateSubmitted >= '".$this->_db->escape($from)."'";
-				}
-				
-				$to = $this->getDateTo();
-				if ($to) {
-					$to = JFactory::getDate($to, JFactory::getConfig()->get('offset'))->toSql();
-					$query .= " AND s.DateSubmitted <= '".$this->_db->escape($to)."'";
-				}
-			}
-			$query .= " ORDER BY " . $this->_db->qn('s.' . $sortColumn) . " " . $this->_db->escape($sortOrder);
+			$query->order($this->_db->qn('s.' . $sortColumn) . ' ' . $this->_db->escape($sortOrder));
 		}
-		// Order by dynamic headers (form fields)
 		else
 		{
-			$query  = "SELECT SQL_CALC_FOUND_ROWS DISTINCT(sv.SubmissionId), s.* FROM #__rsform_submissions s";
-			$query .= " LEFT JOIN #__rsform_submission_values sv ON (s.SubmissionId=sv.SubmissionId)";
-			$query .= " WHERE s.FormId='".$formId."'";
-			
-			// Only for export - export selected rows
-			if ($this->export && !empty($this->rows))
-				$query .= " AND s.SubmissionId IN (".implode(",", $this->rows).")";
-			
-			// Check if there's a filter (search) set
-			if (!$this->export)
+			$join = true;
+
+			if ($this->isOrderingPossible($sortColumn))
 			{
-				if ($filter)
-				{
-					$query .= " AND (s.DateSubmitted LIKE '%".$filter."%'";
-					$query .= " OR s.Username LIKE '%".$filter."%'";
-					$query .= " OR s.UserIp LIKE '%".$filter."%'";
-					$query .= " OR s.SubmissionId IN (SELECT DISTINCT(SubmissionId) FROM #__rsform_submission_values WHERE FieldValue LIKE '%".$filter."%'))";
-				}
-				
-				if ($language_filter)
-				{
-					$query .= " AND s.Lang='" . $this->_db->escape($language_filter) . "'";
-				}
-				
-				$from = $this->getDateFrom();				
-				if ($from)
-				{
-					$query .= " AND s.DateSubmitted >= '" . $this->_db->escape($from) . "'";
-				}
-				
-				$to = $this->getDateTo();
-				if ($to)
-				{
-					$query .= " AND s.DateSubmitted <= '" . $this->_db->escape($to) . "'";
-				}
+				$query->where($this->_db->qn('sv.FieldName') . ' = ' . $this->_db->q($sortColumn));
 			}
-			
-			if ($this->checkOrderingPossible($sortColumn))
-				$query .= " AND sv.FieldName=".$this->_db->q($sortColumn);
-				
-			$query .= " ORDER BY `FieldValue` ".$this->_db->escape($sortOrder);
+
+			$query->order($this->_db->qn('sv.FieldValue') . ' ' . $this->_db->escape($sortOrder));
+		}
+
+		if ($join)
+		{
+			$query->join('left', $this->_db->qn('#__rsform_submission_values', 'sv') . ' ON (' . $this->_db->qn('s.SubmissionId') . ' = ' . $this->_db->qn('sv.SubmissionId') . ')')
+				->group(array($this->_db->qn('s.SubmissionId')));
 		}
 
 		// set the current filters hash
@@ -173,7 +175,7 @@ class RsformModelSubmissions extends JModelLegacy
 		return $hash;
 	}
 	
-	public function checkOrderingPossible($field)
+	public function isOrderingPossible($field)
 	{
 		$query = $this->_db->getQuery(true)
 			->select($this->_db->qn('SubmissionValueId'))
@@ -267,8 +269,7 @@ class RsformModelSubmissions extends JModelLegacy
 			$submissionIds = array();
 			
 			$results = $this->_getList($this->_query, $this->getState('com_rsform.submissions.limitstart'), $this->getState('com_rsform.submissions.limit'));
-			$this->_db->setQuery("SELECT FOUND_ROWS();");
-			$this->_total = $this->_db->loadResult();
+
 			foreach ($results as $result)
 			{
 				$submissionIds[] = $result->SubmissionId;
@@ -358,11 +359,20 @@ class RsformModelSubmissions extends JModelLegacy
 
 		return $this->_db->setQuery($query)->loadObject();
 	}
+
+	protected function getSkippedFields()
+	{
+		$skippedFields = array(RSFORM_FIELD_BUTTON, RSFORM_FIELD_CAPTCHA, RSFORM_FIELD_FREETEXT, RSFORM_FIELD_SUBMITBUTTON);
+		$skippedFields = array_merge($skippedFields, RSFormProHelper::$captchaFields);
+
+		JFactory::getApplication()->triggerEvent('rsfp_bk_onGetSkippedFields', array(&$skippedFields));
+
+		return $skippedFields;
+	}
 	
 	public function getHeaders()
 	{
-		$db 	= JFactory::getDbo();
-		$task 	= strtolower(JFactory::getApplication()->input->getWord('task'));
+		$db = JFactory::getDbo();
 
 		$query = $db->getQuery(true)
 			->select($db->qn('p.PropertyValue'))
@@ -372,10 +382,7 @@ class RsformModelSubmissions extends JModelLegacy
 			->where($db->qn('c.FormId') . ' = ' . $db->q($this->getFormId()))
 			->where($db->qn('c.Published') . ' = ' . $db->q(1));
 
-		if (strpos($task, 'submissionsexport') !== false)
-		{
-			$query->where($db->qn('ct.ComponentTypeId') . ' NOT IN (' . implode(',', $db->q(array(RSFORM_FIELD_BUTTON, RSFORM_FIELD_CAPTCHA, RSFORM_FIELD_FREETEXT, RSFORM_FIELD_SUBMITBUTTON))) . ')');
-		}
+		$query->where($db->qn('ct.ComponentTypeId') . ' NOT IN (' . implode(',', $db->q($this->getSkippedFields())) . ')');
 
 		$query->order($db->qn('c.Order'));
 
@@ -466,7 +473,12 @@ class RsformModelSubmissions extends JModelLegacy
 	}
 	
 	public function getTotal()
-	{		
+	{
+		if ($this->_total === null)
+		{
+			$this->_total = $this->_getListCount($this->_query);
+		}
+
 		return $this->_total;
 	}
 	
@@ -474,7 +486,6 @@ class RsformModelSubmissions extends JModelLegacy
 	{
 		if (empty($this->_pagination))
 		{
-			jimport('joomla.html.pagination');
 			$this->_pagination = new JPagination($this->getTotal(), $this->getState('com_rsform.submissions.limitstart'), $this->getState('com_rsform.submissions.limit'));
 		}
 		
@@ -638,6 +649,10 @@ class RsformModelSubmissions extends JModelLegacy
             ->where($db->qn('p.PropertyName') . ' = ' . $db->q('NAME'))
             ->where($db->qn('c.Published') . ' = ' . $db->q(1))
             ->order($db->qn('c.Order') . ' ' . $db->escape('asc'));
+
+        // Skip some fields
+		$query->where($db->qn('ct.ComponentTypeId') . ' NOT IN (' . implode(',', $db->q($this->getSkippedFields())) . ')');
+
         $fields = $db->setQuery($query)->loadObjectList();
 
 		if (empty($fields))
@@ -1034,21 +1049,27 @@ class RsformModelSubmissions extends JModelLegacy
 	
 	public function getExportTotal()
 	{
-		$formId = $this->getFormId();
-		
-		$ExportRows = JFactory::getApplication()->input->get('ExportRows', '', 'string');
-		if (empty($ExportRows))
+		$rows = JFactory::getApplication()->input->get('ExportRows', '', 'string');
+
+		switch ($rows)
 		{
-		    $query = $this->_db->getQuery(true)
-                ->select('COUNT(' . $this->_db->qn('SubmissionId') . ')')
-                ->from($this->_db->qn('#__rsform_submissions'))
-                ->where($this->_db->qn('FormId') . ' = ' . $this->_db->q($formId));
-			$this->_db->setQuery($query);
-			return $this->_db->loadResult();
+			case '0':
+				$query = $this->_db->getQuery(true)
+					->select('COUNT(' . $this->_db->qn('SubmissionId') . ')')
+					->from($this->_db->qn('#__rsform_submissions'))
+					->where($this->_db->qn('FormId') . ' = ' . $this->_db->q($this->getFormId()));
+				$this->_db->setQuery($query);
+				return $this->_db->loadResult();
+				break;
+
+			case '-1':
+				return $this->getTotal();
+				break;
+
+			default:
+				return count(explode(',', $rows));
+				break;
 		}
-		
-		$ExportRows = explode(',', $ExportRows);
-		return count($ExportRows);
 	}
 
 	public function getImportTotal()
@@ -1061,7 +1082,7 @@ class RsformModelSubmissions extends JModelLegacy
 	
 	public function getLanguages()
 	{
-		$languages 	= JFactory::getLanguage()->getKnownLanguages(JPATH_SITE);
+		$languages 	= JLanguageHelper::getKnownLanguages(JPATH_SITE);
 		$return 	= array();
 
 		$return[] = JHtml::_('select.option', '', JText::_('RSFP_SUBMISSIONS_ALL_LANGUAGES'));

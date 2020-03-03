@@ -101,7 +101,7 @@ class RSFormProFieldRangeSlider extends RSFormProField
 
 	public function processValidation($validationType = 'form', $submissionId = 0)
 	{
-		$required 	= $this->getProperty('REQUIRED', false);
+		$required 	= $this->isRequired();
 		$value 		= trim($this->getValue());
 
 		if ($required && empty($value))

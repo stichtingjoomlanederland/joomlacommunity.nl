@@ -959,7 +959,6 @@ class com_rseventsproInstallerScript
 				}
 			}
 			
-			
 			$updateData = array();
 			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'rsvp', 'type' => 'TINYINT(2)', 'default' => '0');
 			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'rsvp_quota', 'type' => 'INT(11)', 'default' => '0');
@@ -1032,6 +1031,15 @@ class com_rseventsproInstallerScript
 				$db->setQuery("DELETE FROM `#__rseventspro_taxonomy` WHERE `type` = 'rating'");
 				$db->execute();
 			}
+			
+			 $db->setQuery("SELECT `value` FROM `#__rseventspro_config` WHERE `name` = 'modal'");
+			 $modal = $db->loadResult();
+			 if ($modal == 2) {
+				$db->setQuery("UPDATE `#__rseventspro_config` SET `value` = '1' WHERE `name` = 'modaltype'");
+				$db->execute();
+				$db->setQuery("UPDATE `#__rseventspro_config` SET `value` = '1' WHERE `name` = 'modal'");
+				$db->execute();
+			 }
 		}
 		
 		$jversion = new JVersion();
@@ -1143,9 +1151,9 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.12.12</h2>
+	<h2>Changelog v1.12.13</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> Clear event filters was not working correctly when the search option was disabled.</li>
+		<li><span class="version-new">Add</span> Select the modal type for the frontend area.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>
@@ -1212,7 +1220,7 @@ class com_rseventsproInstallerScript
 				'rseprovmerchant' => '1.2',
 				'rseprostripe' => '1.2',
 				'rseprooffline' => '1.3',
-				'rseprocart' => '1.1.17'
+				'rseprocart' => '1.1.19'
 			)
 		);
 		

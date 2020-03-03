@@ -20,5 +20,33 @@ class acymactionClass extends acymClass
 
         return acym_loadObjectList($query);
     }
+
+    public function getAllActionsIdByConditionsId($elements)
+    {
+        acym_arrayToInteger($elements);
+        $actions = acym_loadResultArray('SELECT id FROM #__acym_action WHERE condition_id IN ('.implode(',', $elements).')');
+
+        return $actions;
+    }
+
+    public function delete($elements)
+    {
+        acym_arrayToInteger($elements);
+        $actions = acym_loadObjectList('SELECT * FROM #__acym_action WHERE id IN ('.implode(',', $elements).')');
+        if (empty($actions)) return;
+
+        $mailClass = acym_get('class.mail');
+
+        foreach ($actions as $action) {
+            $action->actions = json_decode($action->actions, true);
+            if (!empty($action->actions)) {
+                foreach ($action->actions as $innerAction) {
+                    if (!empty($innerAction['acy_add_queue']) && !empty($innerAction['acy_add_queue']['mail_id'])) $mailClass->delete($innerAction['acy_add_queue']['mail_id']);
+                }
+            }
+        }
+
+        parent::delete($elements);
+    }
 }
 

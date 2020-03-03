@@ -87,9 +87,9 @@ function acym_checkRobots()
 
 function acym_noCache()
 {
-    header('Cache-Control: no-store, no-cache, must-revalidate');
-    header('Cache-Control: post-check=0, pre-check=0', false);
-    header('Pragma: no-cache');
-    header('Expires: Wed, 17 Sep 1975 21:32:10 GMT');
+    acym_header('Cache-Control: no-store, no-cache, must-revalidate');
+    acym_header('Cache-Control: post-check=0, pre-check=0', false);
+    acym_header('Pragma: no-cache');
+    acym_header('Expires: Wed, 17 Sep 1975 21:32:10 GMT');
 }
 

@@ -801,7 +801,14 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		$sig = (string) $idOnly;
 
 		if (is_array($categoryId) && $categoryId) {
+
+			// We need to ensure that the items are valid integers
+			foreach ($categoryId as &$cid) {
+				$cid = (int) $cid;
+			}
+
 			$sig .= implode('-', $categoryId);
+
 		} else if($categoryId) {
 			$sig .= (string) $categoryId;
 		}

@@ -202,8 +202,10 @@ class FieldsController extends acymController
         $newField->option = json_encode($field['option']);
         $newField->value = $field['value'];
         $newField->default_value = $field['default_value'];
-        $newField->frontend_edition = $field['frontend_edition'];
-        $newField->frontend_listing = $field['frontend_listing'];
+        if (ACYM_CMS == 'joomla') {
+            $newField->frontend_edition = $field['frontend_edition'];
+            $newField->frontend_listing = $field['frontend_listing'];
+        }
         $newField->backend_edition = $field['backend_edition'];
         $newField->backend_listing = $field['backend_listing'];
         $newField->backend_filter = 1;

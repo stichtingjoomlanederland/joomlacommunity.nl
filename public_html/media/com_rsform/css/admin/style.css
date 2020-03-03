@@ -844,3 +844,16 @@ textarea.rs_textarea:focus {
 	padding: 1px;
 	font-size: 11px;
 }
+
+#rsfp-editor-container {
+	padding: 5px;
+	width: 95%;
+}
+
+.rsfp-hidden {
+	position: absolute;
+	left: -20000px;
+	top: -20000px;
+	opacity: 0;
+	visibility: hidden;
+}

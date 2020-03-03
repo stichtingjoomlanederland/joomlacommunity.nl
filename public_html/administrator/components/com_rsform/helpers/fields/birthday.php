@@ -209,6 +209,12 @@ class RSFormProFieldBirthDay extends RSFormProFieldSelectList
 		// Check for invalid here so that we can add 'rsform-error'
 		if ($this->invalid[$this->processing]) {
 			$attr['class'] .= ' ' . $this->fieldErrorClass;
+			$attr['aria-invalid'] = 'true';
+		}
+
+		if ($this->isRequired())
+		{
+			$attr['aria-required'] = 'true';
 		}
 		
 		// Must add an onchange event when we don't allow incorrect dates eg. 31 feb
@@ -340,7 +346,7 @@ class RSFormProFieldBirthDay extends RSFormProFieldSelectList
 			}
 		}
 
-		if ($this->getProperty('REQUIRED', false))
+		if ($this->isRequired())
 		{
 			if (($showDay && empty($value['d'])) || ($showMonth && empty($value['m'])) || ($showYear && empty($value['y'])))
 			{

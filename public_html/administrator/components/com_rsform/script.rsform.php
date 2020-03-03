@@ -990,12 +990,14 @@ class com_rsformInstallerScript
 				<p>It seems you are still using legacy layouts - they have been removed from RSForm! Pro since they are no longer usable today as they do not provide responsive features.<br>If you still want to keep using them, please install the <a href="https://www.rsjoomla.com/support/documentation/rsform-pro/plugins-and-modules/plugin-legacy-layouts.html" target="_blank">Legacy Layouts Plugin</a>.</p>
 			</div>
 		<?php } ?>
-		<h2>Changelog v2.3.6</h2>
+		<h2>Changelog v2.3.8</h2>
 		<ul class="version-history">
-			<li><span class="version-fixed">Fix</span> There were 2 file inputs possible if 'Maximum Uploads' was set to 1.</li>
-			<li><span class="version-fixed">Fix</span> 'Add another files' is no longer disabled when 'Maximum Uploads' is set to 0 (unlimited).</li>
-			<li><span class="version-fixed">Fix</span> Label 'for' attribute was not generated correctly for 'Captcha' fields.</li>
-			<li><span class="version-fixed">Fix</span> 'Captcha' is no longer validated when editing a submission in the frontend.</li>
+			<li><span class="version-upgraded">Upg</span> Fields will now have 'aria-required' and 'aria-invalid' attributes for better accessibility compliance.</li>
+			<li><span class="version-upgraded">Upg</span> Global placeholders are now shown in the 'Toggle Quick Add' sections.</li>
+			<li><span class="version-fixed">Fix</span> Geolocation search inside a 'Google Map' field would trigger too many requests and sometimes provide duplicate results.</li>
+			<li><span class="version-fixed">Fix</span> Selecting a date in the 'Date and Time Picker' field using a mobile device would jump the focus to an incorrect field.</li>
+			<li><span class="version-fixed">Fix</span> In some cases deleting a calculation would trigger a Javascript error.</li>
+			<li><span class="version-fixed">Fix</span> TinyMCE dialogs inside the Free Text editing modal were not clickable.</li>
 		</ul>
 		<a class="btn btn-large btn-primary" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="btn" href="https://www.rsjoomla.com/support/documentation/rsform-pro.html" target="_blank">Read the RSForm! Pro User Guide</a>

@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.12.9182
+ * @version         20.2.16442
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2019 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -118,7 +118,7 @@ class Document
 				in_array($option, ['com_contentsubmit', 'com_cckjseblod'])
 				|| ($option == 'com_comprofiler' && in_array($task, ['', 'userdetails']))
 				|| in_array($task, ['edit', 'form', 'submission'])
-				|| in_array($view, ['edit', 'form'])
+				|| in_array($view, ['edit', 'editor', 'form', 'gridbox'])
 				|| in_array($input->get('do'), ['edit', 'form'])
 				|| in_array($input->get('layout'), ['edit', 'form', 'write'])
 				|| self::isAdmin()
@@ -268,7 +268,7 @@ class Document
 	 * @param string $file
 	 * @param string $version
 	 */
-	public static function script($file, $version = '')
+	public static function script($file, $version = '', $options = [], $attribs = [])
 	{
 		if ( ! $url = File::getMediaFile('js', $file))
 		{
@@ -283,7 +283,7 @@ class Document
 		{
 			JHtml::_('behavior.core');
 			JHtml::_('script', 'jui/cms.js', ['version' => 'auto', 'relative' => true]);
-			$version = '19.12.9182';
+			$version = '20.2.16442';
 		}
 
 		if ( ! empty($version))
@@ -291,7 +291,7 @@ class Document
 			$url .= '?v=' . $version;
 		}
 
-		JFactory::getDocument()->addScript($url);
+		JFactory::getDocument()->addScript($url, $options, $attribs);
 	}
 
 	/**
@@ -304,7 +304,7 @@ class Document
 	{
 		if (strpos($file, 'regularlabs/') === 0)
 		{
-			$version = '19.12.9182';
+			$version = '20.2.16442';
 		}
 
 		if ( ! $file = File::getMediaFile('css', $file))

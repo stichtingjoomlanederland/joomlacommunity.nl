@@ -41,6 +41,8 @@ class acymmailerHelper extends acyPHPMailer
     public $stylesheet = '';
     public $settings;
 
+    public $parameters = [];
+
     public function __construct()
     {
         parent::__construct();
@@ -136,6 +138,8 @@ class acymmailerHelper extends acyPHPMailer
         @ini_set('pcre.backtrack_limit', 1000000);
 
         $this->SMTPOptions = ["ssl" => ["verify_peer" => false, "verify_peer_name" => false, "allow_self_signed" => true]];
+
+        $this->addParamInfo();
     }
 
     protected function elasticemailSend($MIMEHeader, $MIMEBody)
@@ -538,6 +542,7 @@ class acymmailerHelper extends acyPHPMailer
         $this->replyname = $this->defaultMail[$mailId]->reply_to_name;
         $this->replyemail = $this->defaultMail[$mailId]->reply_to_email;
         $this->id = $this->defaultMail[$mailId]->id;
+        $this->creator_id = $this->defaultMail[$mailId]->creator_id;
         $this->type = $this->defaultMail[$mailId]->type;
         $this->stylesheet = &$this->stylesheet;
 
@@ -808,32 +813,27 @@ class acymmailerHelper extends acyPHPMailer
 
     private function replaceParams()
     {
-        if (empty($this->parameters)) {
-            return;
-        }
+        if (empty($this->parameters)) return;
 
         $helperPlugin = acym_get('helper.plugin');
 
         $this->generateAllParams();
-        $this->Subject = $helperPlugin->replaceDText($this->Subject, $this->parameters);
-        $this->Body = $helperPlugin->replaceDText($this->Body, $this->parameters);
-        if (!empty($this->AltBody)) {
-            $this->AltBody = $helperPlugin->replaceDText($this->AltBody, $this->parameters);
+
+        $vars = [
+            'Subject',
+            'Body',
+            'From',
+            'FromName',
+            'replyname',
+            'replyemail',
+        ];
+
+        foreach ($vars as $oneVar) {
+            if (!empty($this->$oneVar)) {
+                $this->$oneVar = $helperPlugin->replaceDText($this->$oneVar, $this->parameters);
+            }
         }
 
-        if (!empty($this->From)) {
-            $this->From = $helperPlugin->replaceDText($this->From, $this->parameters);
-        }
-        if (!empty($this->FromName)) {
-            $this->FromName = $helperPlugin->replaceDText($this->FromName, $this->parameters);
-        }
-
-        if (!empty($this->replyname)) {
-            $this->replyname = $helperPlugin->replaceDText($this->replyname, $this->parameters);
-        }
-        if (!empty($this->replyemail)) {
-            $this->replyemail = $helperPlugin->replaceDText($this->replyemail, $this->parameters);
-        }
         if (!empty($this->ReplyTo)) {
             foreach ($this->ReplyTo as $i => $replyto) {
                 foreach ($replyto as $a => $oneval) {
@@ -847,13 +847,12 @@ class acymmailerHelper extends acyPHPMailer
     {
         $result = '<table style="border:1px solid;border-collapse:collapse;" border="1" cellpadding="10"><tr><td>Tag</td><td>Value</td></tr>';
         foreach ($this->parameters as $name => $value) {
-            if (!is_string($value)) {
-                continue;
-            }
-            $result .= '<tr><td>'.$name.'</td><td>'.$value.'</td></tr>';
+            if (!is_string($value)) continue;
+
+            $result .= '<tr><td>'.trim($name, '{}').'</td><td>'.$value.'</td></tr>';
         }
         $result .= '</table>';
-        $this->addParam('alltags', $result);
+        $this->addParam('allshortcodes', $result);
     }
 
     public function addParamInfo()

@@ -1,10 +1,10 @@
 /**
  * @package         DB Replacer
- * @version         6.3.5PRO
+ * @version         6.3.7PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2019 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 @import "../../regularlabs/less/init.less";
@@ -15,15 +15,18 @@ div.dbr {
 		width:  100%;
 		height: 70px;
 	}
+
 	textarea {
 		width: 98%;
 	}
+
 	h4 {
 		margin-top: 0;
 	}
 
 	div.columns {
 		min-height: 280px;
+
 		select {
 			height: 220px;
 		}
@@ -33,8 +36,10 @@ div.dbr {
 		textarea {
 			height: 40px;
 		}
+
 		div.columns {
 			min-height: 360px;
+
 			select {
 				height: 300px;
 			}
@@ -58,6 +63,7 @@ div.dbr {
 			td.ghosted {
 				display: none;
 			}
+
 			th.is_id,
 			td.is_id {
 				display: table-cell;
@@ -103,6 +109,7 @@ div.dbr {
 			background-color: @infoBackground;
 			border:           1px solid @infoBorder;
 			color:            @infoText;
+
 			&:before {
 				content: '\2026';
 			}
@@ -112,6 +119,7 @@ div.dbr {
 			display:  block;
 			position: absolute;
 			left:     -17px;
+
 			&:before {
 				content: '✕';
 			}

@@ -96,7 +96,8 @@ defined('_JEXEC') or die('Restricted access');
 			<button class="btn" type="button" onclick="toggleQuickAdd();"><?php echo JText::_('RSFP_TOGGLE_QUICKADD'); ?></button>
 			<div id="QuickAdd3">
 				<h3><?php echo JText::_('RSFP_QUICK_ADD');?></h3>
-				<?php echo JText::_('RSFP_QUICK_ADD_DESC');?><br/><br/>
+
+				<?php echo RSFormProHelper::generateQuickAddGlobal(); ?>
 				<?php foreach($this->quickfields as $field) {
 					echo RSFormProHelper::generateQuickAdd($field, 'display');
 				}?>

@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Restricted access');
                 $class = $data['currentCampaign']->send_now ? '' : 'button-radio-unselected';
                 $class .= $data['currentCampaign']->draft ? '' : ' button-radio-disabled';
                 ?>
-				<button type="button" class="cell medium-6 small-12 button-radio acym__campaign__sendsettings__buttons-type <?php echo $class; ?>" id="acym__campaign__sendsettings__now" data-sending-type="<?php echo $data['campaignClass']::SENDING_TYPE_NOW; ?>"><?php echo acym_translation('ACYM_NOW'); ?></button>
+				<button type="button" class="cell medium-9 small-12 button-radio acym__campaign__sendsettings__buttons-type <?php echo $class; ?>" id="acym__campaign__sendsettings__now" data-sending-type="<?php echo $data['campaignClass']::SENDING_TYPE_NOW; ?>"><?php echo acym_translation('ACYM_NOW'); ?></button>
 			</div>
             <?php if (acym_level(1)) {
                 $tooltip = acym_level(1) ? '' : 'data-acym-tooltip="'.acym_translation_sprintf('ACYM_USE_THIS_FEATURE', 'AcyMailing Essential').'"';
@@ -21,7 +21,7 @@ defined('_JEXEC') or die('Restricted access');
                 $class .= $data['currentCampaign']->draft ? '' : ' button-radio-disabled';
                 ?>
 				<div class="cell auto grid-x align-center">
-					<button type="button" <?php echo $tooltip; ?> class="cell medium-6 small-12 button-radio acym__campaign__sendsettings__buttons-type <?php echo $class; ?>" id="acym__campaign__sendsettings__scheduled" data-sending-type="<?php echo $data['campaignClass']::SENDING_TYPE_SCHEDULED; ?>"><?php echo acym_translation('ACYM_SCHEDULED'); ?></button>
+					<button type="button" <?php echo $tooltip; ?> class="cell medium-9 small-12 button-radio acym__campaign__sendsettings__buttons-type <?php echo $class; ?>" id="acym__campaign__sendsettings__scheduled" data-sending-type="<?php echo $data['campaignClass']::SENDING_TYPE_SCHEDULED; ?>"><?php echo acym_translation('ACYM_SCHEDULED'); ?></button>
 				</div>
             <?php }
             if (acym_level(2)) {
@@ -30,7 +30,7 @@ defined('_JEXEC') or die('Restricted access');
                 $class .= $data['currentCampaign']->draft ? '' : ' button-radio-disabled';
                 ?>
 				<div class="cell auto grid-x align-right">
-					<button type="button" <?php echo $tooltip; ?> class="cell medium-6 small-12 button-radio acym__campaign__sendsettings__buttons-type <?php echo $class; ?>" id="acym__campaign__sendsettings__auto" data-sending-type="<?php echo $data['campaignClass']::SENDING_TYPE_AUTO; ?>"><?php echo acym_translation('ACYM_AUTO'); ?></button>
+					<button type="button" <?php echo $tooltip; ?> class="cell medium-9 small-12 button-radio acym__campaign__sendsettings__buttons-type <?php echo $class; ?>" id="acym__campaign__sendsettings__auto" data-sending-type="<?php echo $data['campaignClass']::SENDING_TYPE_AUTO; ?>"><?php echo acym_translation('ACYM_AUTO'); ?></button>
 				</div>
             <?php } ?>
 		</div>
@@ -96,3 +96,4 @@ defined('_JEXEC') or die('Restricted access');
 		</div>
 	</div>
 </div>
+

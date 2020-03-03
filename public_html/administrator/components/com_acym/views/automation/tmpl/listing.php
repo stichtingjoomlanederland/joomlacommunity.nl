@@ -40,7 +40,7 @@ defined('_JEXEC') or die('Restricted access');
                             'setActive' => acym_translation('ACYM_ENABLE'),
                             'setInactive' => acym_translation('ACYM_DISABLE'),
                         ];
-                        echo acym_listingActions($actions);
+                        echo acym_listingActions($actions, acym_translation('ACYM_BE_CAREFUL_THIS_DELETE_ELEMENTS_LINKED_AUTOMATION'));
                         ?>
 						<div class="auto cell">
                             <?php
@@ -61,7 +61,9 @@ defined('_JEXEC') or die('Restricted access');
                                     "name" => acym_translation('ACYM_NAME'),
                                     "active" => acym_translation('ACYM_ACTIVE'),
                                 ],
-                                "automation"
+                                "automation",
+                                '',
+                                'asc'
                             ); ?>
 						</div>
 					</div>

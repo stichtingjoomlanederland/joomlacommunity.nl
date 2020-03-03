@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         DB Replacer
- * @version         6.3.5PRO
+ * @version         6.3.7PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2019 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -39,76 +39,23 @@ class DBReplacerModelDefault extends JModel
 			return;
 		}
 
-		$where = '';
-		$s     = str_replace('||space||', ' ', $params->search);
-		$r     = str_replace('||space||', ' ', $params->replace);
+		$where = self::getWhereClause(
+			$params->search,
+			$params->columns,
+			$params->case,
+			$params->regex
+		);
 
-		$likes = [];
-		if ($s != '')
-		{
-			if ($s == 'NULL')
-			{
-				$likes[] = '= ""';
-				$likes[] = 'IS NULL';
-			}
-			else if ($s == '*')
-			{
-				$likes[] = ' != \'something it would never be!!!\'';
-			}
-			else
-			{
-				$dbs = $s;
+		$custom_where = self::prepareCustomWhereClause($params->where, $params->table);
 
-				if ( ! $params->regex)
-				{
-					$dbs = RL_RegEx::quote($dbs);
-					// replace multiple whitespace (with at least one enter) with regex whitespace match
-					$dbs = RL_RegEx::replace('\s*\n\s*', '\s*', $dbs);
-				}
-
-				// escape slashes
-				$dbs = str_replace('\\', '\\\\', $dbs);
-				// escape single quotes
-				$dbs = str_replace('\'', '\\\'', $dbs);
-				// remove the lazy character: doesn't work in mysql
-				$dbs = str_replace(['*?', '+?'], ['*', '+'], $dbs);
-				// change \s to [:space:]
-				$dbs = str_replace('\s', '[[:space:]]', $dbs);
-
-				if ($params->case)
-				{
-					$likes[] = 'RLIKE BINARY \'' . $dbs . '\'';
-				}
-				else
-				{
-					$likes[] = 'RLIKE \'' . $dbs . '\'';
-				}
-			}
-		}
-		if ( ! empty($likes))
-		{
-			$where = [];
-			foreach ($params->columns as $column)
-			{
-				foreach ($likes as $like)
-				{
-					$where[] = '`' . trim($column) . '` ' . $like;
-				}
-			}
-			$where = ' WHERE ( ' . implode(' OR ', $where) . ' )';
-		}
-
-		$params->where = trim(str_replace('WHERE ', '', $params->where));
-		if ($params->where)
+		if ($custom_where)
 		{
 			if ($where)
 			{
-				$where .= ' AND ( ' . $params->where . ' )';
+				$where .= ' AND ';
 			}
-			else
-			{
-				$where = ' WHERE ' . $params->where;
-			}
+
+			$where .= $custom_where;
 		}
 
 		$query = 'SHOW COLUMNS FROM `' . $params->table . '`';
@@ -144,11 +91,14 @@ class DBReplacerModelDefault extends JModel
 
 		$query = 'SELECT `' . implode('`,`', $select_columns) . '`'
 			. ' FROM `' . $params->table . '`'
-			. $where
+			. ($where ? ' WHERE ' . $where : '')
 			. ' LIMIT ' . (int) $params->max;
 		$this->_db->setQuery($query);
 
 		$rows = $this->_db->loadObjectList();
+
+		$search  = str_replace('||space||', ' ', $params->search);
+		$replace = str_replace('||space||', ' ', $params->replace);
 
 		$count = 0;
 		foreach ($rows as $row)
@@ -168,22 +118,22 @@ class DBReplacerModelDefault extends JModel
 					continue;
 				}
 
-				if ($s == 'NULL')
+				if ($search == 'NULL')
 				{
 					if ($val == '' || $val === null || $val == '0000-00-00')
 					{
-						$set[] = $this->_db->quoteName(trim($key)) . ' = ' . $this->_db->quote($r);
+						$set[] = $this->_db->quoteName(trim($key)) . ' = ' . $this->_db->quote($replace);
 					}
 					continue;
 				}
 
-				if ($s == '*')
+				if ($search == '*')
 				{
-					$set[] = $this->_db->quoteName(trim($key)) . ' = ' . $this->_db->quote($r);
+					$set[] = $this->_db->quoteName(trim($key)) . ' = ' . $this->_db->quote($replace);
 					continue;
 				}
 
-				$dbs = $s;
+				$dbs = $search;
 				if ( ! $params->regex)
 				{
 					$dbs = RL_RegEx::quote($dbs);
@@ -207,7 +157,7 @@ class DBReplacerModelDefault extends JModel
 					continue;
 				}
 
-				$set[] = $this->_db->quoteName(trim($key)) . ' = ' . $this->_db->quote(RL_RegEx::replace($dbs, $r, $val, $options));
+				$set[] = $this->_db->quoteName(trim($key)) . ' = ' . $this->_db->quote(RL_RegEx::replace($dbs, $replace, $val, $options));
 			}
 
 			// No specific indexed columns found, so add search columns to where
@@ -225,9 +175,10 @@ class DBReplacerModelDefault extends JModel
 			}
 
 			$where = ' WHERE (' . implode(' AND ', $where) . ')';
-			if ($params->where)
+			if ($custom_where)
 			{
-				$where .= ' AND (' . $params->where . ')';
+
+				$where .= ' AND (' . $custom_where . ')';
 			}
 
 			$query = 'UPDATE `' . $params->table . '`'
@@ -256,5 +207,154 @@ class DBReplacerModelDefault extends JModel
 		JEventDispatcher::getInstance()->trigger('onAfterDatabaseReplace', ['com_dbreplacer', $table]);
 
 		JFactory::getApplication()->enqueueMessage(JText::sprintf('DBR_ROWS_UPDATED', $count), 'message');
+	}
+
+	public static function getWhereClause($search, $columns = [], $case = false, $regex = false)
+	{
+		if (empty($columns))
+		{
+			return false;
+		}
+
+		$s = str_replace('||space||', ' ', $search);
+
+		if (empty($s))
+		{
+			return false;
+		}
+
+		$likes = [];
+
+		switch ($s)
+		{
+			case 'NULL' :
+				$likes[] = 'IS NULL';
+				$likes[] = '= ""';
+				break;
+
+			case '*':
+				//$likes[] = ' != \'-something it would never be!!!-\'';
+				break;
+
+			default:
+				$dbs = $s;
+
+				if ( ! $regex)
+				{
+					$dbs = RL_RegEx::quote($dbs);
+					// replace multiple whitespace (with at least one enter) with regex whitespace match
+					$dbs = RL_RegEx::replace('\s*\n\s*', '\s*', $dbs);
+				}
+
+				// escape slashes
+				$dbs = str_replace('\\', '\\\\', $dbs);
+				// escape single quotes
+				$dbs = str_replace('\'', '\\\'', $dbs);
+				// remove the lazy character: doesn't work in mysql
+				$dbs = str_replace(['*?', '+?'], ['*', '+'], $dbs);
+				// change \s to [[:space:]]
+				$dbs = str_replace('\s', '[[:space:]]', $dbs);
+
+				$likes[] = $case
+					? 'RLIKE BINARY \'' . $dbs . '\''
+					: 'RLIKE \'' . $dbs . '\'';
+				break;
+		}
+
+		$db      = JFactory::getDbo();
+		$columns = self::implodeParams($columns);
+
+		$wheres = [];
+
+		foreach ($columns as $column)
+		{
+			foreach ($likes as $like)
+			{
+				$wheres[] = $db->quoteName(trim($column)) . ' ' . $like;
+			}
+		}
+
+		if (empty($wheres))
+		{
+			return false;
+		}
+
+		return '(' . implode(' OR ', $wheres) . ')';
+	}
+
+	public static function prepareCustomWhereClause($where, $table = '')
+	{
+		$where = trim(RL_Regex::replace('^\s*WHERE ', '', $where));
+
+		if (empty($where))
+		{
+			return false;
+		}
+
+		$columns = self::getTableColumns($table);
+
+		if (empty($columns))
+		{
+			return $where;
+		}
+
+		$columns = RL_RegEx::quote($columns);
+
+		$regex = '(^| )' . $columns . '( +(?:=|\!|IS |IN |LIKE ))';
+		RL_RegEx::matchAll($regex, $where, $matches);
+
+		if (empty($matches))
+		{
+			return $where;
+		}
+
+		$db = JFactory::getDbo();
+
+		foreach ($matches as $match)
+		{
+			$where = str_replace(
+				$match[0],
+				$match[1] . $db->quoteName($match[2]) . $match[3],
+				$where
+			);
+		}
+
+		return $where;
+	}
+
+	public static function getTableColumns($table)
+	{
+		if (RL_RegEx::match('[^a-z0-9-_\#]', trim($table)))
+		{
+			die('Invalid data found in URL!');
+		}
+
+		$db = JFactory::getDbo();
+
+		$query = 'SHOW COLUMNS FROM `' . trim($table) . '`';
+		$db->setQuery($query);
+
+		return $db->loadColumn();
+	}
+
+	public static function implodeParams($params)
+	{
+		if (is_array($params))
+		{
+			return $params;
+		}
+
+		$params = explode(',', $params);
+		$p      = [];
+
+		foreach ($params as $param)
+		{
+			if (trim($param) != '')
+			{
+				$p[] = trim($param);
+			}
+		}
+
+		return array_unique($p);
 	}
 }

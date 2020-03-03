@@ -657,7 +657,9 @@ RSFormPro.jQueryCalendar = {
 
 					hiddenDate.val(selectedDateObject.selectedDate);
 					RSFormPro.jQueryCalendar.calendars[formId][calendarName].currentDate = selectedDateObject.selectedDate;
-
+					
+					// lose focus on selection
+					jQuery(':focus').blur();
 				},
 
 				onShow: function() {
@@ -692,6 +694,18 @@ RSFormPro.jQueryCalendar = {
 
 					// hold the calendar instance so that users cand work with it
 					RSFormPro.jQueryCalendar.calendars[formId][calendarName].calendarInstance =  this;
+					
+					// try and focus out other focused fields if anything is pressed inside the calendar, only when inline
+					if (this.getOptions('inline'))
+					{
+						var currentCalendar = jQuery(this);
+
+						currentCalendar.click(function (e) {
+							if (jQuery(e.target).parents(".xdsoft_datetimepicker").length) {
+								jQuery(':focus').blur();
+							}
+						});
+					}
 				}
 			});
 		}

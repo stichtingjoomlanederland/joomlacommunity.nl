@@ -2,8 +2,8 @@
 <extension version="3.9" type="plugin" group="system" method="upgrade">
 	<name>plg_system_regularlabs</name>
 	<description>PLG_SYSTEM_REGULARLABS_DESC</description>
-	<version>19.12.9182</version>
-	<creationDate>December 2019</creationDate>
+	<version>20.2.16442</version>
+	<creationDate>February 2020</creationDate>
 	<author>Regular Labs (Peter van Westen)</author>
 	<authorEmail>info@regularlabs.com</authorEmail>
 	<authorUrl>https://www.regularlabs.com</authorUrl>

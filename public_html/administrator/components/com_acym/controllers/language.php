@@ -25,7 +25,7 @@ class LanguageController extends acymController
         $result = acym_writeFile($path, $content);
         if ($result) {
             acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success');
-            acym_addScript(true, "window.top.document.getElementById('image$code').innerHTML = 'edit'");
+            acym_addScript(true, 'let langIcon = window.top.document.getElementById("image'.$code.'"); langIcon.className = langIcon.className.replace("acymicon-add", "") + " acymicon-edit"');
 
             $updateHelper = acym_get('helper.update');
             $updateHelper->installBackLanguages($code);
@@ -147,7 +147,7 @@ class LanguageController extends acymController
 
     public function displayLanguage()
     {
-        acym_setVar("layout", "default");
+        acym_setVar('layout', 'default');
 
         $code = acym_getVar('string', 'code');
         if (empty($code)) {

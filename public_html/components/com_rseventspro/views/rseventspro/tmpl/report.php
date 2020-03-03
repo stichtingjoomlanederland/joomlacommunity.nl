@@ -12,7 +12,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	<br /><br />
 	<div style="text-align: right;">
 		<button type="submit" class="btn btn-primary button" onclick="return rsepro_validate_report();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SEND'); ?></button>
-		<button type="button" class="btn button" onclick="window.parent.jQuery('#rseReportModal').modal('hide');"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
+		<button type="button" class="btn button" onclick="<?php echo rseventsproHelper::modalClose(false, true); ?>"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
 	</div>
 
 	<?php echo JHTML::_('form.token')."\n"; ?>

@@ -56,7 +56,7 @@ class FrontStatsController extends acymController
             exit;
         }
 
-        header("Content-type: image/png");
+        acym_header('Content-type: image/png');
         $contents = fread($handle, filesize($imagename));
         fclose($handle);
         echo $contents;

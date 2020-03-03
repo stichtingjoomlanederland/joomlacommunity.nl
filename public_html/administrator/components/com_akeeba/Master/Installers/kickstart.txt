@@ -8,6 +8,15 @@
  * @license   GNU General Public License version 3, or later
  */
 
+/**
+ * Akeeba Kickstart
+ * An AJAX-powered archive extraction tool
+ *
+ * @package   kickstart
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
+ */
+
 // Uncomment the following line to enable Kickstart's debug mode
 //define('KSDEBUG', 1);
 
@@ -18,7 +27,7 @@ define('KICKSTART', 1);
 
 if (!defined('VERSION'))
 {
-	define('VERSION', 'rev4DBD803');
+	define('VERSION', 'rev6EE4079');
 }
 
 if (!defined('KICKSTARTPRO'))
@@ -226,7 +235,7 @@ importKickstartFeatures(KSROOTDIR);
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -368,7 +377,7 @@ function debugMsg($msg)
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -646,7 +655,7 @@ abstract class AKAbstractObject
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -1018,7 +1027,7 @@ abstract class AKAbstractPart extends AKAbstractObject
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -1753,7 +1762,7 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -1822,7 +1831,7 @@ abstract class AKAbstractPostproc extends AKAbstractObject
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -1843,7 +1852,7 @@ abstract class AKAbstractPartObserver
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -1978,7 +1987,7 @@ class AKPostprocDirect extends AKAbstractPostproc
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -2552,7 +2561,7 @@ class AKPostprocFTP extends AKAbstractPostproc
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -3196,7 +3205,7 @@ class AKPostprocSFTP extends AKAbstractPostproc
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -3957,7 +3966,7 @@ class AKPostprocHybrid extends AKAbstractPostproc
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -4747,7 +4756,7 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -5075,7 +5084,7 @@ class AKUnarchiverZIP extends AKUnarchiverJPA
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -5966,7 +5975,7 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -6162,7 +6171,7 @@ class AKCoreTimer extends AKAbstractObject
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -6267,7 +6276,7 @@ class AKUtilsLister extends AKAbstractObject
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -7065,7 +7074,7 @@ function runZapper(AKAbstractPartObserver $observer = null)
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -7634,7 +7643,7 @@ class AKText extends AKAbstractObject
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -7949,7 +7958,7 @@ class AKFactory
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -7988,7 +7997,7 @@ interface AKEncryptionAESAdapterInterface
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -8075,7 +8084,7 @@ abstract class AKEncryptionAESAdapterAbstract
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -8176,7 +8185,7 @@ class Mcrypt extends AKEncryptionAESAdapterAbstract implements AKEncryptionAESAd
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -8280,7 +8289,7 @@ class OpenSSL extends AKEncryptionAESAdapterAbstract implements AKEncryptionAESA
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -8953,7 +8962,7 @@ class AKEncryptionAES
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -9269,7 +9278,7 @@ function masterSetup()
  * An AJAX-powered archive extraction library for JPA, JPS and ZIP archives
  *
  * @package   restore
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -9564,7 +9573,7 @@ function recursive_remove_directory($directory)
  * An AJAX-powered archive extraction tool
  *
  * @package   kickstart
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 class AKKickstartUtils
@@ -9774,7 +9783,7 @@ class AKKickstartUtils
  * An AJAX-powered archive extraction tool
  *
  * @package   kickstart
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 class ExtractionObserver extends AKAbstractPartObserver
@@ -9829,7 +9838,7 @@ class ExtractionObserver extends AKAbstractPartObserver
  * An AJAX-powered archive extraction tool
  *
  * @package   kickstart
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -9878,7 +9887,7 @@ function callExtraFeature($method = null, array $params = array())
  * An AJAX-powered archive extraction tool
  *
  * @package   kickstart
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -10271,7 +10280,7 @@ ENDHTACCESS;
  * An AJAX-powered archive extraction tool
  *
  * @package   kickstart
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -10827,7 +10836,7 @@ CSS;
  * An AJAX-powered archive extraction tool
  *
  * @package   kickstart
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -10852,7 +10861,7 @@ function echoHeadJavascript()
  * An AJAX-powered archive extraction tool
  *
  * @package   kickstart
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -11270,7 +11279,7 @@ if (typeof JSON !== "object")
  * An AJAX-powered archive extraction tool
  *
  * @package   kickstart
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -11842,7 +11851,7 @@ if (!Object.keys)
  * An AJAX-powered archive extraction tool
  *
  * @package   kickstart
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -12534,7 +12543,7 @@ akeeba.System.toggleClass = function(element, aClass)
  * An AJAX-powered archive extraction tool
  *
  * @package   kickstart
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -12887,7 +12896,7 @@ akeeba.Ajax.processQueue = function ()
  * An AJAX-powered archive extraction tool
  *
  * @package   kickstart
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -12930,7 +12939,7 @@ function trans(key)
  * An AJAX-powered archive extraction tool
  *
  * @package   kickstart
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -13012,7 +13021,7 @@ akeeba.System.documentReady(function () {
  * An AJAX-powered archive extraction tool
  *
  * @package   kickstart
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -13083,7 +13092,7 @@ function closeLightbox(event)
  * An AJAX-powered archive extraction tool
  *
  * @package   kickstart
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -13222,7 +13231,7 @@ function onTestFTPClick(event)
  * An AJAX-powered archive extraction tool
  *
  * @package   kickstart
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -13414,7 +13423,7 @@ function processRestorationStep(data)
  * An AJAX-powered archive extraction tool
  *
  * @package   kickstart
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -13487,7 +13496,7 @@ function onRealRunCleanupClick()
  * An AJAX-powered archive extraction tool
  *
  * @package   kickstart
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -13544,7 +13553,7 @@ function echoPage()
 		<div id="header">
 			<div class="title">
 				<span id="logo" alt="Akeeba Kickstart logo"></span>
-				Akeeba Kickstart <?php echo $edition ?> rev4DBD803
+				Akeeba Kickstart <?php echo $edition ?> rev6EE4079
 			</div>
 		</div>
 
@@ -13782,7 +13791,7 @@ function echoPage()
  * An AJAX-powered archive extraction tool
  *
  * @package   kickstart
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -13970,7 +13979,7 @@ function rollbackAutomaticRenames(AKAbstractUnarchiver $unarchiver, AKAbstractPo
  * An AJAX-powered archive extraction tool
  *
  * @package   kickstart
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -14202,7 +14211,7 @@ function kickstart_application_cli()
 	if (!$silent)
 	{
 		echo <<< BANNER
-Akeeba Kickstart CLI rev4DBD803
+Akeeba Kickstart CLI rev6EE4079
 Copyright (c) 2008-$year Akeeba Ltd / Nicholas K. Dionysopoulos
 -------------------------------------------------------------------------------
 Akeeba Kickstart is Free Software, distributed under the terms of the GNU General
@@ -14403,7 +14412,7 @@ BANNER;
  * An AJAX-powered archive extraction tool
  *
  * @package   kickstart
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -14728,7 +14737,7 @@ function kickstart_application_web()
  * An AJAX-powered archive extraction tool
  *
  * @package   kickstart
- * @copyright Copyright (c)2008-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2008-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 

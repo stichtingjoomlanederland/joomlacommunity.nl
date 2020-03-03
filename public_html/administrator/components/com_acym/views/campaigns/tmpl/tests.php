@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Restricted access');
 				<div id="spam_test_zone" class="cell large-5">
 					<h6 class="acym_zone_title"><?php echo acym_translation('ACYM_SAFE_CHECK'); ?></h6>
                     <?php if (!empty($data['upgrade'])) {
-                        include(ACYM_VIEW.'dashboard'.DS.'tmpl'.DS.'upgrade.php');
+                        include acym_getView('dashboard', 'upgrade', true);
                     } else { ?>
 						<p><?php echo acym_translation('ACYM_SAFE_CHECK_DESC'); ?></p>
 						<div class="grid-x">
@@ -64,10 +64,10 @@ defined('_JEXEC') or die('Restricted access');
 
                     echo acym_selectMultiple(
                         $data['test_emails'],
-                        "test_emails",
+                        'test_emails',
                         $data['test_emails'],
                         [
-                            'id' => 'acym__test__field',
+                            'class' => 'acym__multiselect__email',
                             'placeholder' => acym_translation('ACYM_TEST_ADDRESS'),
                         ]
                     );

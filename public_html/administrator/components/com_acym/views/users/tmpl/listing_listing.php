@@ -66,6 +66,11 @@ defined('_JEXEC') or die('Restricted access');
 				<div class="medium-auto hide-for-small-only cell acym__listing__header__title">
                     <?php echo acym_translation('ACYM_LISTS'); ?>
 				</div>
+                <?php if (acym_isAdmin()) { ?>
+					<div class="medium-1 hide-for-small-only text-center cell acym__listing__header__title">
+                        <?php echo acym_translation_sprintf('ACYM_CMS_USER', ACYM_CMS_TITLE); ?>
+					</div>
+                <?php } ?>
 				<div class="medium-1 small-5 text-right medium-text-center cell acym__listing__header__title">
                     <?php echo acym_translation('ACYM_ACTIVE'); ?>
 				</div>
@@ -127,6 +132,17 @@ defined('_JEXEC') or die('Restricted access');
                         } ?>
 
 					</div>
+                    <?php if (acym_isAdmin()) { ?>
+						<div class="cell hide-for-small-only medium-1 text-center">
+                            <?php
+                            if (empty($user->cms_id)) {
+                                echo '-';
+                            } else {
+                                echo '<a href="'.acym_getCmsUserEdit($user->cms_id).'" target="_blank">'.$user->cms_id.'</a>';
+                            }
+                            ?>
+						</div>
+                    <?php } ?>
 					<div class="acym__listing__controls acym__users__controls small-1 text-center cell">
                         <?php
                         $class = $user->active == 1 ? 'acymicon-check-circle acym__color__green" data-acy-newvalue="0' : 'acymicon-times-circle acym__color__red" data-acy-newvalue="1';

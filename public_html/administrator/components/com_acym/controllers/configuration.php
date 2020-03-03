@@ -17,15 +17,22 @@ class ConfigurationController extends acymController
     {
         acym_setVar('layout', 'listing');
 
-        $tabHelper = acym_get('helper.tab');
+        $data = [];
+        $data['tab'] = acym_get('helper.tab');
+        $this->prepareLanguages($data);
+        $this->prepareLists($data);
+        $this->prepareNotifications($data);
 
+        parent::display($data);
+    }
+
+    private function prepareLanguages(&$data)
+    {
         $langs = acym_getLanguages();
-        $languages = [];
+        $data['languages'] = [];
 
         foreach ($langs as $lang => $obj) {
-            if (strlen($lang) != 5 || $lang == "xx-XX") {
-                continue;
-            }
+            if (strlen($lang) != 5 || $lang == "xx-XX") continue;
 
             $oneLanguage = new stdClass();
             $oneLanguage->language = $lang;
@@ -43,9 +50,12 @@ class ConfigurationController extends acymController
                 false
             );
 
-            $languages[] = $oneLanguage;
+            $data['languages'][] = $oneLanguage;
         }
+    }
 
+    private function prepareLists(&$data)
+    {
         $listClass = acym_get('class.list');
         $lists = $listClass->getAllWIthoutManagement();
         foreach ($lists as $i => $oneList) {
@@ -53,14 +63,37 @@ class ConfigurationController extends acymController
                 unset($lists[$i]);
             }
         }
+        $data['lists'] = $lists;
+    }
 
-        $data = [
-            'tab' => $tabHelper,
-            'languages' => $languages,
-            'lists' => $lists,
+    private function prepareNotifications(&$data)
+    {
+        $data['notifications'] = [
+            'acy_notification_create' => [
+                'label' => 'ACYM_NOTIFICATION_CREATE',
+                'tooltip' => '',
+            ],
+            'acy_notification_unsub' => [
+                'label' => 'ACYM_NOTIFICATION_UNSUB',
+                'tooltip' => '',
+            ],
+            'acy_notification_unsuball' => [
+                'label' => 'ACYM_NOTIFICATION_UNSUBALL',
+                'tooltip' => '',
+            ],
+            'acy_notification_subform' => [
+                'label' => 'ACYM_NOTIFICATION_SUBFORM',
+                'tooltip' => '',
+            ],
+            'acy_notification_profile' => [
+                'label' => 'ACYM_NOTIFICATION_PROFILE',
+                'tooltip' => '',
+            ],
+            'acy_notification_confirm' => [
+                'label' => 'ACYM_NOTIFICATION_CONFIRM',
+                'tooltip' => '',
+            ],
         ];
-
-        parent::display($data);
     }
 
     public function checkDB()
@@ -231,15 +264,12 @@ class ConfigurationController extends acymController
         acym_checkToken();
 
         $formData = acym_getVar('array', 'config', []);
-        if (empty($formData)) {
-            return false;
-        }
+        if (empty($formData)) return false;
 
         if ($formData['from_as_replyto'] == 1) {
             $formData['replyto_name'] = $formData['from_name'];
             $formData['replyto_email'] = $formData['from_email'];
         }
-
 
         $status = $this->config->save($formData);
 
@@ -250,6 +280,8 @@ class ConfigurationController extends acymController
         }
 
         $this->config->load();
+
+        return true;
     }
 
     public function test()

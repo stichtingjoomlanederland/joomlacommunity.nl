@@ -208,16 +208,6 @@ class RsformViewDirectory extends JViewLegacy
 	
 	public function pdfLink($id)
 	{
-		$has_suffix = JFactory::getConfig()->get('sef') && JFactory::getConfig()->get('sef_suffix');
-
-		$pdf_link = JRoute::_('index.php?option=com_rsform&view=directory&layout=view&id='.$id.'&format=pdf');
-
-		if ($has_suffix)
-		{
-			$pdf_link .= strpos($pdf_link, '?') === false ? '?' : '&';
-			$pdf_link .= 'format=pdf';
-		}
-		
-		return $pdf_link;
+		return JRoute::_('index.php?option=com_rsform&view=directory&layout=view&id=' . $id . '&format=pdf');
 	}
 }

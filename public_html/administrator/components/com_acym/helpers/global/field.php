@@ -732,12 +732,12 @@ function acym_info($tooltipText, $class = '')
     );
 }
 
-function acym_sortBy($options, $listing, $default = '')
+function acym_sortBy($options, $listing, $default = '', $defaultSortOrdering = 'desc')
 {
     $default = empty($default) ? reset($options) : $default;
 
     $selected = acym_getVar('string', $listing.'_ordering', $default);
-    $orderingSortOrder = acym_getVar('string', $listing.'_ordering_sort_order', 'desc');
+    $orderingSortOrder = acym_getVar('string', $listing.'_ordering_sort_order', $defaultSortOrdering);
     $classSortOrder = $orderingSortOrder == 'asc' ? 'acymicon-sort-amount-asc' : 'acymicon-sort-amount-desc';
 
     $display = '<span class="acym__color__dark-gray">'.acym_translation('ACYM_SORT_BY').'</span>

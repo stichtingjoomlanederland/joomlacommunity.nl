@@ -1,22 +1,25 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.12.9182
+ * @version         20.2.16442
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2019 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
 namespace RegularLabs\Library;
 
 use FieldsHelper;
+use JLoader;
 use Joomla\CMS\Date\Date as JDate;
 use Joomla\CMS\Factory as JFactory;
 use RegularLabs\Plugin\System\ArticlesAnywhere\Replace as AA_Replace;
 
 defined('_JEXEC') or die;
+
+JLoader::register('FieldsHelper', JPATH_ADMINISTRATOR . '/components/com_fields/helpers/fields.php');
 
 /**
  * Class ConditionContent

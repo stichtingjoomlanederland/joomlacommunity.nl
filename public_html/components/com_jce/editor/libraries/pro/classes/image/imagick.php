@@ -551,15 +551,23 @@ class WFImageImagick
 
         // set format
         $this->handle->setImageFormat($type);
+        $this->handle->setFormat($type);
 
         // remove exif data
         if (!empty($options['removeExif'])) {
             $this->removeExif();
         }
 
+        // convert type to imagetype constant
+        if (is_string($type)) {
+            $type = WFImage::getImageType($type);
+        }
+
         switch ($type) {
             case IMAGETYPE_PNG:
-                $this->handle->setImageCompression(imagick::COMPRESSION_ZIP);
+                $this->handle->setImageCompression(Imagick::COMPRESSION_ZIP);
+                $this->handle->setCompression(Imagick::COMPRESSION_ZIP);
+
                 $quality = (array_key_exists('quality', $options)) ? $options['quality'] : 0;
 
                 // get as value from 0-9
@@ -577,6 +585,7 @@ class WFImageImagick
             default:
                 $this->handle->setImageCompression(Imagick::COMPRESSION_JPEG);
                 $this->handle->setImageCompressionQuality((array_key_exists('quality', $options)) ? $options['quality'] : 100);
+                break;
         }
 
         echo $this->handle->getImageBlob();

@@ -48,6 +48,10 @@
 				<option value="0">JNO</option>
 				<option value="1">JYES</option>
 			</field>
+			<field name="enable_preview" type="radio" class="btn-group" label="COM_RSCOMMENTS_ENABLE_PREVIEW" description="COM_RSCOMMENTS_ENABLE_PREVIEW_DESC" default="1">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
 		</fieldset>
 		
 		<fieldset name="publishing" label="COM_RSCOMMENTS_PUBLISHING">

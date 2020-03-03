@@ -45,13 +45,4 @@ class WFCaptionPlugin extends WFEditorPlugin
         // add link scripts last
         $document->addScript(array('caption'), 'plugins');
     }
-
-    public function getSettings($settings = array())
-    {
-        $settings = array(
-            'defaults' => $this->getDefaults(),
-        );
-
-        return parent::getSettings($settings);
-    }
 }

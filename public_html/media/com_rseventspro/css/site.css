@@ -1208,5 +1208,11 @@ textarea.invalid {
 	text-align: center;
 }
 #rsepro-image-frame {
-	height: 70vh !important;
+	max-height: 70vh !important;
+	border: none;
+}
+
+.rsepro-crop-actions {
+	text-align: center;
+	padding-bottom: 15px;
 }

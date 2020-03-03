@@ -14,19 +14,25 @@ class WFTemplateManagerPluginConfig
     {
         $wf = WFApplication::getInstance();
 
-        $settings['templatemanager_selected_content_classes'] = $wf->getParam('templatemanager.selected_content_classes', '');
-        $settings['templatemanager_cdate_classes'] = $wf->getParam('templatemanager.cdate_classes', 'cdate creationdate', 'cdate creationdate');
-        $settings['templatemanager_mdate_classes'] = $wf->getParam('templatemanager.mdate_classes', 'mdate modifieddate', 'mdate modifieddate');
-        $settings['templatemanager_cdate_format'] = $wf->getParam('templatemanager.cdate_format', '%m/%d/%Y : %H:%M:%S', '%m/%d/%Y : %H:%M:%S');
-        $settings['templatemanager_mdate_format'] = $wf->getParam('templatemanager.mdate_format', '%m/%d/%Y : %H:%M:%S', '%m/%d/%Y : %H:%M:%S');
+        $config = array();
 
-        $settings['templatemanager_content_url'] = $wf->getParam('templatemanager.content_url', '');
+        $config['selected_content_classes'] = $wf->getParam('templatemanager.selected_content_classes', '');
+        $config['cdate_classes'] = $wf->getParam('templatemanager.cdate_classes', 'cdate creationdate', 'cdate creationdate');
+        $config['mdate_classes'] = $wf->getParam('templatemanager.mdate_classes', 'mdate modifieddate', 'mdate modifieddate');
+        $config['cdate_format'] = $wf->getParam('templatemanager.cdate_format', '%m/%d/%Y : %H:%M:%S', '%m/%d/%Y : %H:%M:%S');
+        $config['mdate_format'] = $wf->getParam('templatemanager.mdate_format', '%m/%d/%Y : %H:%M:%S', '%m/%d/%Y : %H:%M:%S');
+
+        $config['content_url'] = $wf->getParam('templatemanager.content_url', '');
 
         $templates = $wf->getParam('templatemanager.templates', array());
 
         if (is_string($templates)) {
             $templates = json_decode(htmlspecialchars_decode($templates), true);
         }
+
+        require_once __DIR__ . '/templatemanager.php';
+
+        $plugin = new WFTemplateManagerPlugin();
 
         // associative array of template items
         $list = array();
@@ -50,14 +56,20 @@ class WFTemplateManagerPluginConfig
                 $list[$name] = $value;
             }
         } else {
-            require_once __DIR__ . '/templatemanager.php';
-
-            $plugin = new WFTemplateManagerPlugin();
             $list = $plugin->getTemplateList();
         }
 
-        if (!empty($list)) {
-            $settings['templatemanager_templates'] = $list;
+        if ($plugin->getParam('inline_upload', 1)) {
+            $config['upload'] = array(
+                'max_size'  => $plugin->getParam('max_size', 1024),
+                'filetypes' => $plugin->getFileTypes()
+            );
         }
+
+        if (!empty($list)) {
+            $config['templates'] = $list;
+        }
+
+        $settings['templatemanager'] = $config;
     }
 }

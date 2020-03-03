@@ -118,7 +118,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	
 	<label class="checkbox">
 		<input id="jform_show_registered" name="jform[show_registered]" type="checkbox" value="1" <?php echo $this->item->show_registered ? 'checked="checked"' : ''; ?> />
-		<?php echo JText::_('COM_RSEVENTSPRO_EVENT_SHOW_GUESTS'); ?></label>
+		<?php echo JText::_('COM_RSEVENTSPRO_EVENT_SHOW_GUESTS'); ?>
 	</label>
 	
 	<label class="checkbox">
@@ -140,7 +140,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 
 <div class="control-group" id="rsepro-tickets-configuration" style="display: none;">
 	<div class="controls">
-		<a class="btn rsepro-tickets-config" onclick="jQuery('#rseTicketsModal').modal('show');" href="javascript:void(0);">
+		<a class="btn rsepro-tickets-config" rel="rs_etickets" <?php if ($this->config->modaltype == 1) { ?>onclick="jQuery('#rseTicketsModal').modal('show');" href="javascript:void(0);"<?php } else { ?>href="<?php echo JRoute::_('index.php?option=com_rseventspro&layout=seats&tmpl=component&id='.rseventsproHelper::sef($this->item->id,$this->item->name),false); ?>"<?php } ?>>
 			<?php echo JText::_('COM_RSEVENTSPRO_TICKETS_CONFIGURATION'); ?>
 		</a>
 	</div>
@@ -154,7 +154,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 		<label><?php echo JText::_('COM_RSEVENTSPRO_EVENT_REGISTRATION_FORM'); ?></label>
 	</div>
 	<div class="controls">
-		<a class="btn rsepro-event-form" onclick="jQuery('#rseFromModal').modal('show');" href="javascript:void(0);">
+		<a class="btn rsepro-event-form" rel="rs_rsform" <?php if ($this->config->modaltype == 1) { ?>onclick="jQuery('#rseFromModal').modal('show');" href="javascript:void(0);"<?php } else { ?>href="<?php echo JRoute::_('index.php?option=com_rseventspro&layout=forms&tmpl=component&id='.rseventsproHelper::sef($this->item->id,$this->item->name), false); ?>"<?php } ?>>
 			<?php echo $this->eventClass->getForm(); ?>
 		</a>
 		&mdash; <a href="http://www.rsjoomla.com/joomla-extensions/joomla-form.html" target="_blank"><?php echo JText::_('COM_RSEVENTSPRO_RSFORMPRO'); ?></a>
@@ -179,6 +179,6 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	<button class="btn btn-danger rsepro-event-cancel" type="button"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
 </div>
 
-<?php echo JHtml::_('bootstrap.renderModal', 'rseFromModal', array('title' => JText::_('COM_RSEVENTSPRO_SELECT_FORM'), 'url' => JRoute::_('index.php?option=com_rseventspro&layout=forms&tmpl=component&id='.rseventsproHelper::sef($this->item->id,$this->item->name), false), 'bodyHeight' => 70)); ?>
+<?php if ($this->config->modaltype == 1) echo JHtml::_('bootstrap.renderModal', 'rseFromModal', array('title' => JText::_('COM_RSEVENTSPRO_SELECT_FORM'), 'url' => JRoute::_('index.php?option=com_rseventspro&layout=forms&tmpl=component&id='.rseventsproHelper::sef($this->item->id,$this->item->name), false), 'bodyHeight' => 70)); ?>
 
-<?php echo JHtml::_('bootstrap.renderModal', 'rseTicketsModal', array('title' => '&nbsp;', 'url' => JRoute::_('index.php?option=com_rseventspro&layout=seats&tmpl=component&id='.rseventsproHelper::sef($this->item->id,$this->item->name),false), 'bodyHeight' => 70, 'width' => rseventsproHelper::getConfig('seats_width','int','1280'), 'height' => rseventsproHelper::getConfig('seats_height','int','800') )); ?>
+<?php if ($this->config->modaltype == 1) echo JHtml::_('bootstrap.renderModal', 'rseTicketsModal', array('title' => '&nbsp;', 'url' => JRoute::_('index.php?option=com_rseventspro&layout=seats&tmpl=component&id='.rseventsproHelper::sef($this->item->id,$this->item->name),false), 'bodyHeight' => 70, 'width' => rseventsproHelper::getConfig('seats_width','int','1280'), 'height' => rseventsproHelper::getConfig('seats_height','int','800'))); ?>

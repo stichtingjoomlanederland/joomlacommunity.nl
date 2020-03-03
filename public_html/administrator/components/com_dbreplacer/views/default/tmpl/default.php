@@ -1,18 +1,17 @@
 <?php
 /**
  * @package         DB Replacer
- * @version         6.3.5PRO
+ * @version         6.3.7PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2019 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory as JFactory;
-use Joomla\CMS\HTML\HTMLHelper as JHtml;
 use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\Uri\Uri as JUri;
 use RegularLabs\Library\Document as RL_Document;
@@ -45,7 +44,7 @@ $script = "
 	var DBR_INVALID_QUERY = '" . addslashes(JText::_('DBR_INVALID_QUERY')) . "';
 ";
 RL_Document::scriptDeclaration($script);
-RL_Document::script('dbreplacer/script.min.js', '6.3.5.p');
+RL_Document::script('dbreplacer/script.min.js', '6.3.7.p');
 
 // Version check
 
@@ -135,11 +134,11 @@ $class = 'pro';
 							</div>
 							<div class="span4">
 								<?php echo RL_ShowOn::open('regex:1'); ?>
-									<label for="dbr_utf8" class="checkbox">
-										<input type="checkbox" value="1" name="utf8" id="dbr_utf8"
-										       class="element" <?php echo JFactory::getApplication()->input->getInt('utf8', 0) ? 'checked="checked"' : ''; ?>>
-										<?php echo JText::_('RL_UTF8'); ?>
-									</label>
+								<label for="dbr_utf8" class="checkbox">
+									<input type="checkbox" value="1" name="utf8" id="dbr_utf8"
+									       class="element" <?php echo JFactory::getApplication()->input->getInt('utf8', 0) ? 'checked="checked"' : ''; ?>>
+									<?php echo JText::_('RL_UTF8'); ?>
+								</label>
 								<?php echo RL_ShowOn::close(); ?>
 							</div>
 						</div>

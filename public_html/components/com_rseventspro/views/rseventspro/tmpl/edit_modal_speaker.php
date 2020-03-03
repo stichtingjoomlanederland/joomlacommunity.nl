@@ -23,6 +23,12 @@ $form = JForm::getInstance('location', JPATH_ADMINISTRATOR.'/components/com_rsev
 		<?php if ($field->fieldname == 'published' || $field->fieldname == 'id') continue; ?>
 		<?php echo $form->renderField($field->fieldname); ?>
 		<?php } ?>
+		<?php if ($this->config->modaltype == 2) { ?>
+		<div class="control-group">
+			<div class="control-label"><label>&nbsp;</label></div>
+			<div class="controls"><button type="button" onclick="Joomla.submitbutton('rseventspro.savespeaker')" class="btn btn-primary"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button></div>
+		</div>
+		<?php } ?>
 	</div>
 	
 	<button id="rsepro-save-speaker" type="button" onclick="Joomla.submitbutton('rseventspro.savespeaker')" style="display:none;"></button>

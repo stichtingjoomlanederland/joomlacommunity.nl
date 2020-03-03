@@ -824,8 +824,13 @@ class RscommentsModelComments extends JModelLegacy
 					$username = empty($user->username) ? JText::_('COM_RSCOMMENTS_GUEST') : $user->username;
 				}
 				
-				$replace = array('{username}', '{email}', '{ip}', '{link}', '{message}');
-				$with = array($username, $uemail, $row->ip, $preview, $comment);
+				$name = $row->name;
+				if ($config->anonymous) {
+					$name = empty($name) ? JText::_('COM_RSCOMMENTS_ANONYMOUS') : $name;
+				}
+				
+				$replace = array('{username}', '{author}', '{email}', '{ip}', '{link}', '{message}');
+				$with = array($username, $name, $uemail, $row->ip, $preview, $comment);
 				
 				$message = str_replace($replace,$with,$message);
 				$message = html_entity_decode($message,ENT_COMPAT,'UTF-8');

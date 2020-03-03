@@ -664,11 +664,11 @@ class Joomla3x extends BasePlatform
 	{
 		$ret = array();
 
-		Factory::getLog()->log(LogLevel::INFO, "JPATH_BASE         :" . JPATH_BASE);
-		Factory::getLog()->log(LogLevel::INFO, "JPATH_SITE         :" . JPATH_SITE);
-		Factory::getLog()->log(LogLevel::INFO, "JPATH_ROOT         :" . JPATH_ROOT);
-		Factory::getLog()->log(LogLevel::INFO, "JPATH_CACHE        :" . JPATH_CACHE);
-		Factory::getLog()->log(LogLevel::INFO, "Computed root      :" . $this->get_site_root());
+		Factory::getLog()->log(LogLevel::INFO, "JPATH_BASE         :" . JPATH_BASE, ['translate_root' => false]);
+		Factory::getLog()->log(LogLevel::INFO, "JPATH_SITE         :" . JPATH_SITE, ['translate_root' => false]);
+		Factory::getLog()->log(LogLevel::INFO, "JPATH_ROOT         :" . JPATH_ROOT, ['translate_root' => false]);
+		Factory::getLog()->log(LogLevel::INFO, "JPATH_CACHE        :" . JPATH_CACHE, ['translate_root' => false]);
+		Factory::getLog()->log(LogLevel::INFO, "Computed <root>    :" . $this->get_site_root(), ['translate_root' => false]);
 
 		// If the release is older than 3 months, issue a warning
 		if (defined('AKEEBA_DATE'))

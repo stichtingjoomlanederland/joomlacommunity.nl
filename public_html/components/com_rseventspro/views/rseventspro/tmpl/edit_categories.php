@@ -13,7 +13,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 			<?php echo JHtml::_('select.options', $this->categories,'value','text',$this->eventClass->getCategories()); ?>
 		</select>
 		 <?php if (!empty($this->permissions['can_create_categories']) || $this->admin) { ?>
-		<a href="#rsepro-add-new-categ" data-toggle="modal" class="btn" type="button"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_ADD_CATEGORY'); ?></a>
+		<a rel="rs_category" <?php if ($this->config->modaltype == 1) { ?>href="#rsepro-add-new-categ" data-toggle="modal"<?php } ?> class="btn" type="button"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_ADD_CATEGORY'); ?></a>
 		<?php } ?>
 	</div>
 </div>

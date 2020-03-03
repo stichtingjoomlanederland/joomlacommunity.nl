@@ -97,7 +97,7 @@ class acymuserStatClass extends acymClass
             } else {
                 $table = 'us';
             }
-            $query .= ' ORDER BY '.$table.'.'.acym_secureDBColumn($settings['ordering']).' '.acym_secureDBColumn(strtoupper($settings['ordering_sort_order']));
+            $query .= ' ORDER BY '.$table.'.'.acym_secureDBColumn($settings['ordering']).' '.acym_secureDBColumn(strtoupper($settings['ordering_sort_order'])).', u.email ASC';
         }
 
         $mails = acym_loadObjectList($query, '', $settings['offset'], $settings['detailedStatsPerPage']);

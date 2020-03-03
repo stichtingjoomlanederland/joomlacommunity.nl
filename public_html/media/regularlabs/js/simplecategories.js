@@ -1,10 +1,10 @@
 /**
  * @package         Regular Labs Library
- * @version         19.12.9182
+ * @version         20.2.16442
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2019 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -27,8 +27,8 @@
 				$el.find('.rl_simplecategory_value').val(new_value);
 			};
 
-			$el.find('.rl_simplecategory_select select').bind('change', func).bind('keyup', func);
-			$el.find('.rl_simplecategory_new input').bind('change', func).bind('keyup', func);
+			$el.find('.rl_simplecategory_select select').on('change', func).on('keyup', func);
+			$el.find('.rl_simplecategory_new input').on('change', func).on('keyup', func);
 		});
 	});
 })(jQuery);

@@ -2,8 +2,8 @@
 <extension version="3.9" type="component" method="upgrade">
 	<name>com_dbreplacer</name>
 	<description>COM_DBREPLACER_DESC</description>
-	<version>6.3.5PRO</version>
-	<creationDate>December 2019</creationDate>
+	<version>6.3.7PRO</version>
+	<creationDate>February 2020</creationDate>
 	<author>Regular Labs (Peter van Westen)</author>
 	<authorEmail>info@regularlabs.com</authorEmail>
 	<authorUrl>https://www.regularlabs.com</authorUrl>

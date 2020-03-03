@@ -12,13 +12,12 @@ class RsformModelDirectory extends JModelLegacy
     protected $fields;
     protected $_db;
     protected $_app;
+
+	/* @var $params Joomla\Registry\Registry */
     public $params;
 
     protected $validation;
 
-    /**
-     *    Main constructor
-     */
     public function __construct($config = array())
     {
         $this->_app     = JFactory::getApplication();
@@ -28,10 +27,18 @@ class RsformModelDirectory extends JModelLegacy
         $this->context  = 'com_rsform.directory' . $this->itemid;
 
         // Check for a valid form
-        if (!$this->isValid())
-        {
-            throw new Exception($this->getError(), 500);
-        }
+        $this->isValid();
+
+		// For legacy menu items
+		$userId	= $this->params->get('userId');
+		if ($userId === '0')
+		{
+			$this->params->set('show_all_submissions', 1);
+		}
+		elseif ($userId == 'login')
+		{
+			$this->params->set('show_logged_in_submissions', 1);
+		}
 
         $this->getFields();
 
@@ -39,22 +46,23 @@ class RsformModelDirectory extends JModelLegacy
     }
 
     /**
-     *    Check if we are allowed to show content
+     * Check if we are allowed to show content
+	 *
+	 * @throws Exception
+	 *
      */
     public function isValid()
     {
         if (!$this->params->get('enable_directory', 0))
         {
-            $this->setError(JText::_('RSFP_VIEW_DIRECTORY_NOT_ENABLED_FORGOT'));
-            return false;
+            throw new Exception(JText::_('RSFP_VIEW_DIRECTORY_NOT_ENABLED_FORGOT'));
         }
 
         // Do we have a valid formId
         $formId = $this->params->get('formId', 0);
         if (empty($formId))
         {
-            $this->setError(JText::sprintf('RSFP_VIEW_DIRECTORY_NO_VALID_FORMID', $formId));
-            return false;
+			throw new Exception(JText::sprintf('RSFP_VIEW_DIRECTORY_NO_VALID_FORMID', $formId));
         }
 
         // Check if the directory exists
@@ -65,8 +73,7 @@ class RsformModelDirectory extends JModelLegacy
 
         if (!$this->_db->setQuery($query)->loadResult())
         {
-            $this->setError(JText::_('RSFP_VIEW_DIRECTORY_NOT_SAVED_YET'));
-            return false;
+			throw new Exception(JText::_('RSFP_VIEW_DIRECTORY_NOT_SAVED_YET'));
         }
 
         return true;
@@ -127,28 +134,36 @@ class RsformModelDirectory extends JModelLegacy
             $query->where($db->qn('s.Lang') . '=' . $db->q($lang));
         }
 
-        // Check if we need to show only submissions related to UserId.
-        $userId = $this->params->def('userId', 0);
-        if ($userId == 'login')
-        {
-            // Get only logged in user's submissions
-            $user = JFactory::getUser();
-
-            // Do not continue if he's a guest.
-            if ($user->guest) {
-                return false;
-            }
-
-            $query->where($db->qn('s.UserId') . '=' . $db->q($user->get('id')));
-        }
-        elseif ($userId)
+        if (!$this->params->get('show_all_submissions'))
 		{
-            // Show only the submissions of these users
-            $userIds = explode(',', $userId);
-            $userIds = array_map('intval', $userIds);
+			// Check if we need to show only submissions related to UserId.
+			$userId = $this->params->get('userId');
 
-            $query->where($db->qn('s.UserId') . ' IN (' . implode(',', $userIds) . ')');
-        }
+			if ($this->params->get('show_logged_in_submissions'))
+			{
+				// Get only logged in user's submissions
+				$user = JFactory::getUser();
+
+				// Do not continue if he's a guest.
+				if ($user->guest)
+				{
+					return false;
+				}
+
+				$query->where($db->qn('s.UserId') . '=' . $db->q($user->get('id')));
+			}
+			elseif ($userId)
+			{
+				// Show only the submissions of these users
+				$userIds = explode(',', $userId);
+				$userIds = array_map('intval', $userIds);
+
+				if ($userIds)
+				{
+					$query->where($db->qn('s.UserId') . ' IN (' . implode(',', $userIds) . ')');
+				}
+			}
+		}
 
         $needsSelect = array();
 		if ($filters = $this->params->get('filter_values', array()))
@@ -414,11 +429,11 @@ class RsformModelDirectory extends JModelLegacy
         $cid 		= $this->_app->input->getInt('id', 0);
         $format 	= $this->_app->input->get('format');
         $user 		= JFactory::getUser();
-        $userId 	= $this->params->def('userId', 0);
+        $userId 	= $this->params->get('userId');
         $directory 	= $this->getDirectory();
         $template 	= $directory->ViewLayout;
 
-        if ($userId != 'login' && $userId != 0)
+        if (!$this->params->get('show_logged_in_submissions') && !$this->params->get('show_all_submissions'))
         {
             $userId = explode(',', $userId);
             $userId = array_map('intval', $userId);
@@ -438,7 +453,7 @@ class RsformModelDirectory extends JModelLegacy
         // Submission doesn't belong to the configured form ID OR
         // can view only own submissions and not his own OR
         // can view only specified user IDs and this doesn't belong to any of the IDs
-        if (($submission->FormId != $this->params->get('formId')) || ($userId == 'login' && $submission->UserId != $user->get('id')) || (is_array($userId) && !in_array($user->get('id'), $userId)))
+        if (($submission->FormId != $this->params->get('formId')) || ($this->params->get('show_logged_in_submissions') && $submission->UserId != $user->get('id')) || (is_array($userId) && !in_array($user->get('id'), $userId)))
         {
             $this->_app->enqueueMessage(JText::sprintf('RSFP_SUBMISSION_NOT_ALLOWED', $cid), 'warning');
             return $this->_app->redirect(JRoute::_('index.php?option=com_rsform&view=directory', false));
@@ -452,10 +467,9 @@ class RsformModelDirectory extends JModelLegacy
 
         $confirmed = $submission->confirmed ? JText::_('RSFP_YES') : JText::_('RSFP_NO');
 
-        list($replace, $with) = RSFormProHelper::getReplacements($cid, true);
-        list($replace2, $with2) = $this->getReplacements($submission->UserId);
-        $replace = array_merge($replace, $replace2, array('{global:userip}', '{global:date_added}', '{global:submissionid}', '{global:submission_id}', '{global:confirmed}', '{global:lang}', '{global:formid}'));
-        $with = array_merge($with, $with2, array($submission->UserIp, RSFormProHelper::getDate($submission->DateSubmitted), $cid, $cid, $confirmed, $submission->Lang, $submission->FormId));
+        list($replace, $with) = RSFormProHelper::getReplacements($cid);
+        $replace = array_merge($replace, array('{global:confirmed}', '{global:lang}'));
+        $with = array_merge($with, array($confirmed, $submission->Lang));
 
         if ($format == 'pdf')
         {
@@ -484,37 +498,6 @@ class RsformModelDirectory extends JModelLegacy
         $directory->filename = str_replace($replace, $with, $directory->filename);
 
         return $detailsLayout;
-    }
-
-    public function getReplacements($user_id)
-    {
-        static $sitename, $siteurl, $mailfrom, $fromname;
-
-        if (is_null($siteurl))
-        {
-            $config = JFactory::getConfig();
-			$siteurl = JUri::root();
-
-            $sitename = $config->get('sitename');
-            $mailfrom = $config->get('mailfrom');
-            $fromname = $config->get('fromname');
-        }
-
-        $user = JFactory::getUser((int)$user_id);
-
-        $placeholders = array(
-			'{global:sitename}' 	=> $sitename,
-			'{global:siteurl}' 		=> $siteurl,
-			'{global:userid}' 		=> $user->id,
-			'{global:username}' 	=> $user->username,
-			'{global:email}' 		=> $user->email,
-			'{global:useremail}' 	=> $user->email,
-			'{global:fullname}' 	=> $user->name,
-			'{global:mailfrom}' 	=> $mailfrom,
-			'{global:fromname}' 	=> $fromname,
-		);
-
-        return array(array_keys($placeholders), array_values($placeholders));
     }
 
     public function delete($id)

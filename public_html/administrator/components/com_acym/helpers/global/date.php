@@ -92,7 +92,7 @@ function acym_dateField($name, $value = '', $class = '', $attributes = '', $rela
             $replaceValues[] = substr(acym_translation('ACYM_'.strtoupper($oneMonth)), 0, 3);
         }
 
-        $shownValue = str_replace($months, $replaceValues, date('d F Y H:i', $value));
+        $shownValue = str_replace($months, $replaceValues, acym_date($value, 'd F Y H:i'));
     } else {
         $shownValue = $value;
     }
@@ -111,9 +111,7 @@ function acym_dateField($name, $value = '', $class = '', $attributes = '', $rela
 
 function acym_getDate($time = 0, $format = '%d %B %Y %H:%M')
 {
-    if (empty($time)) {
-        return '';
-    }
+    if (empty($time)) return '';
 
     if (is_numeric($format)) {
         $format = acym_translation('ACYM_DATE_FORMAT_LC'.$format);
@@ -176,19 +174,14 @@ function acym_secondsToTime($seconds)
 
 function acym_displayDateFormat($format, $name = 'date', $default = '', $attributes = '')
 {
-    $formatForDate = explode('%', $format);
-    unset($formatForDate[0]);
-    $formatForDate = implode('/', $formatForDate);
-    $formatForDate = str_replace('y', 'Y', $formatForDate);
-
     $attributes = empty($attributes) ? 'class="acym__custom__fields__select__form "' : $attributes;
-    $default = empty($default) ? acym_date('now', $formatForDate) : $default;
     $return = '<div class="cell grid-x grid-margin-x">';
-    $days = [];
+    $days = ['' => acym_translation('ACYM_DAY')];
     for ($i = 1 ; $i <= 31 ; $i++) {
         $days[$i < 10 ? '0'.$i : $i] = $i < 10 ? '0'.$i : $i;
     }
     $month = [
+        '' => acym_translation('ACYM_MONTH'),
         '01' => acym_translation('ACYM_JANUARY'),
         '02' => acym_translation('ACYM_FEBRUARY'),
         '03' => acym_translation('ACYM_MARCH'),
@@ -202,24 +195,24 @@ function acym_displayDateFormat($format, $name = 'date', $default = '', $attribu
         '11' => acym_translation('ACYM_NOVEMBER'),
         '12' => acym_translation('ACYM_DECEMBER'),
     ];
-    $year = [];
+    $year = ['' => acym_translation('ACYM_YEAR')];
     for ($i = 1900 ; $i <= (acym_date('now', 'Y') + 10) ; $i++) {
         $year[$i] = $i;
     }
     $formatToDisplay = explode('%', $format);
-    $defaultDate = explode('/', $default);
+    $defaultDate = empty($default) ? '' : explode('/', $default);
 
     $i = 0;
     unset($formatToDisplay[0]);
     foreach ($formatToDisplay as $one) {
         if ($one == 'd') {
-            $return .= '<div class="medium-3 cell">'.acym_select($days, $name, $defaultDate[$i], $attributes, 'value', 'text', $name.'-'.$one).'</div>';
+            $return .= '<div class="medium-3 cell">'.acym_select($days, $name, empty($default) ? '' : $defaultDate[$i], $attributes, 'value', 'text', $name.'-'.$one).'</div>';
         }
         if ($one == 'm') {
-            $return .= '<div class="medium-5 cell">'.acym_select($month, $name, $defaultDate[$i], $attributes, 'value', 'text', $name.'-'.$one).'</div>';
+            $return .= '<div class="medium-5 cell">'.acym_select($month, $name, empty($default) ? '' : $defaultDate[$i], $attributes, 'value', 'text', $name.'-'.$one).'</div>';
         }
         if ($one == 'y') {
-            $return .= '<div class="medium-4 cell">'.acym_select($year, $name, $defaultDate[$i], $attributes, 'value', 'text', $name.'-'.$one).'</div>';
+            $return .= '<div class="medium-4 cell">'.acym_select($year, $name, empty($default) ? '' : $defaultDate[$i], $attributes, 'value', 'text', $name.'-'.$one).'</div>';
         }
         $i++;
     }

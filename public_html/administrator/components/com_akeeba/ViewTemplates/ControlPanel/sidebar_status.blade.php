@@ -53,12 +53,11 @@ defined('_JEXEC') or die();
 
         {{-- Donation CTA --}}
         @if( ! (AKEEBA_PRO))
-            <form action="https://www.paypal.com/cgi-bin/webscr" method="post" style="display: inline-block">
-                <input type="hidden" name="cmd" value="_s-xclick" />
-                <input type="hidden" name="hosted_button_id" value="10903325" />
-                <input type="submit" class="akeeba-btn--green" value="Donate via PayPal" />
-                <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
-            </form>
+            <a
+                    href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KDVQPB4EREBPY&source=url"
+                    class="akeeba-btn-green">
+                Donate via PayPal
+            </a>
         @endif
 
         {{-- Reload update information --}}

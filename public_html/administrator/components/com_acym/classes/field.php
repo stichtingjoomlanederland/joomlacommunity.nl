@@ -166,7 +166,7 @@ class acymfieldClass extends acymClass
                 } elseif ($fullField->type == 'checkbox') {
                     $field = implode(',', array_keys($field));
                 } elseif ($fullField->type == 'date') {
-                    $field = implode('/', $field);
+                    $field = $this->isDateEmpty($field) ? '' : implode('/', $field);
                 } else {
                     $field = json_encode($field);
                 }
@@ -175,6 +175,16 @@ class acymfieldClass extends acymClass
             $query .= ' ON DUPLICATE KEY UPDATE `value`= VALUES(`value`)';
             acym_query($query);
         }
+    }
+
+    private function isDateEmpty($date)
+    {
+        $return = count($date);
+        foreach ($date as $value) {
+            if (empty($value)) $return--;
+        }
+
+        return empty($return);
     }
 
     public function getAllFieldsListingByUserIds($userIds, $fieldIds, $listing = '')
@@ -412,12 +422,14 @@ class acymfieldClass extends acymClass
                 'class' => 'acym__custom__fields__select__multiple__form',
                 'style' => $size,
             ];
-            if ($field->required) $attributes['data-required'] = $requiredJson;
+            if ($field->required) $attributes['data-required'] = $displayFront ? acym_escape($requiredJson) : $requiredJson;
 
             $return .= acym_selectMultiple($valuesArray, $name, empty($defaultValue) ? [] : $defaultValue, $attributes);
         } elseif ($field->type == 'date') {
             $defaultValue = is_array($defaultValue) ? implode('/', $defaultValue) : $defaultValue;
-            $return .= acym_displayDateFormat($field->option->format, $name.'[]', $defaultValue);
+            $attributes = 'class="acym__custom__fields__select__form " acym-field-type="date" ';
+            if ($field->required) $attributes .= $required;
+            $return .= acym_displayDateFormat($field->option->format, $name.'[]', $defaultValue, $attributes);
         } elseif ($field->type == 'file') {
             $defaultValue = is_array($defaultValue) ? $defaultValue[0] : $defaultValue;
             if ($displayFront) {

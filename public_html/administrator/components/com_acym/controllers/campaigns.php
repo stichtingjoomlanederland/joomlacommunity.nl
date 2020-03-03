@@ -18,7 +18,7 @@ class CampaignsController extends acymController
         ];
         acym_setVar('edition', '1');
         if (acym_isAdmin()) $this->stepContainerClass = 'xxlarge-9';
-        header('X-XSS-Protection:0');
+        acym_header('X-XSS-Protection:0');
     }
 
     public function listing()
@@ -739,7 +739,7 @@ class CampaignsController extends acymController
             return;
         }
 
-        acym_redirect(acym_completeLink('queue').'&task=playPauseSending&acym__queue__play_pause__active__new_value=1&acym__queue__play_pause__campaign_id='.$id);
+        acym_redirect(acym_completeLink('queue', false, true).'&task=playPauseSending&acym__queue__play_pause__active__new_value=1&acym__queue__play_pause__campaign_id='.$id);
 
         return;
     }
@@ -1441,6 +1441,14 @@ class CampaignsController extends acymController
     {
         $return = $this->saveEditEmail(true);
         echo json_encode(['error' => !$return ? acym_translation('ACYM_ERROR_SAVING') : '', 'data' => $return]);
+        exit;
+    }
+
+    public function saveAsTmplAjax()
+    {
+        $mailController = acym_get('controller.mails');
+        $isWellSaved = $mailController->store(true);
+        echo json_encode(['error' => $isWellSaved ? '' : acym_translation('ACYM_ERROR_SAVING'), 'data' => $isWellSaved]);
         exit;
     }
 

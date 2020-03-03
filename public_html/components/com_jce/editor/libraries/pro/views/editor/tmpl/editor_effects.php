@@ -11,7 +11,7 @@
 defined('JPATH_PLATFORM') or die;
 ?>
 
-<div id="editor_effects" class="uk-flex uk-flex-wrap uk-flex-space-around"></div>
+<div id="editor_effects" class="uk-flex uk-flex-wrap uk-flex-space-around uk-grid uk-grid-mini"></div>
 <div class="uk-form-row uk-align-right uk-margin-top">
   <button type="button" id="effects_apply" class="uk-button" data-function="effects"><?php echo JText::_('WF_LABEL_APPLY'); ?></button>
 </div>

@@ -18,6 +18,9 @@ defined('_JEXEC') or die();
  * to set up a custom return URL
  */
 ?>
+@if (version_compare(JVERSION, '3.999.999', 'lt'))
+	@jhtml('formbehavior.chosen')
+@endif
 <div class="akeeba-panel">
 	<form action="index.php" method="post" name="switchActiveProfileForm" id="switchActiveProfileForm">
 		<input type="hidden" name="option" value="com_akeeba" />

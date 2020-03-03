@@ -133,11 +133,12 @@ class EasyDiscussPagination extends EasyDiscuss
 		$queries = '';
 		if (!empty($filtering)) {
 			
-			if (isset($filtering['category_id']) && count($filtering['category_id']) > 0) {
+			if (isset($filtering['category_id']) && $filtering['category_id']) {
 				
 				if (is_array($filtering['category_id'])) {
 					$filtering['category_id'] = $filtering['category_id'][0];
 				}
+
 				$queries .= '&layout=listings&category_id=' . $filtering['category_id'];
 			}
 

@@ -105,7 +105,7 @@ class FrontusersController extends UsersController
         if ($ajax) {
             echo '{"message":"'.acym_translation($message, true).'","type":"'.$type.'","code":"1"}';
         } else {
-            header("Content-type:text/html; charset=utf-8");
+            acym_header('Content-type:text/html; charset=utf-8');
             echo "<script>alert(\"".acym_translation($message, true)."\"); window.history.go(-1);</script>";
         }
         exit;
@@ -122,7 +122,7 @@ class FrontusersController extends UsersController
         $ajax = acym_getVar('int', 'ajax', 0);
         if ($ajax) {
             @ob_end_clean();
-            header("Content-type:text/html; charset=utf-8");
+            acym_header('Content-type:text/html; charset=utf-8');
         }
 
         $currentUserid = acym_currentUserId();
@@ -184,6 +184,7 @@ class FrontusersController extends UsersController
         }
 
         $customFields = acym_getVar('array', 'customField');
+        $isNew = empty($user->id);
         $user->id = $userClass->save($user, $customFields, $ajax);
         if (!empty($userClass->errors)) $this->displayMessage(implode('<br /><br />', $userClass->errors), $ajax);
 
@@ -221,6 +222,11 @@ class FrontusersController extends UsersController
                 $enqueueMsgType = 'info';
             }
         }
+
+        $userClass->sendNotification(
+            $myuser->id,
+            $isNew ? 'acy_notification_create' : 'acy_notification_subform'
+        );
 
         $replace = [];
         foreach ($myuser as $oneProp => $oneVal) {
@@ -296,7 +302,7 @@ class FrontusersController extends UsersController
         $ajax = acym_getVar('int', 'ajax', 0);
         if ($ajax) {
             @ob_end_clean();
-            header("Content-type:text/html; charset=utf-8");
+            acym_header('Content-type:text/html; charset=utf-8');
         }
 
         $currentUserid = acym_currentUserId();
@@ -374,11 +380,12 @@ class FrontusersController extends UsersController
         }
 
         $lists = [];
-
         foreach ($allLists as $list) {
             $lists[] = $list->id;
         }
 
+        $userClass->sendNotification($user->id, 'acy_notification_unsuball');
+        $userClass->blockNotifications = true;
         $userClass->unsubscribe($user->id, $lists);
     }
 

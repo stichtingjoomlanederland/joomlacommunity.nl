@@ -64,12 +64,11 @@ class Webdav extends Base
 
 	public function processPart($localFilepath, $remoteBaseName = null)
 	{
-		$directory = $this->directory;
 		$basename  = empty($remoteBaseName) ? basename($localFilepath) : $remoteBaseName;
 
 		try
 		{
-			$this->putFile($localFilepath, $directory, $basename);
+			$this->putFile($localFilepath, $basename);
 		}
 		catch (Exception $e)
 		{
@@ -247,20 +246,19 @@ class Webdav extends Base
 	 * Sends a file to WebDAV. It checks if the path to the file already exists. If not, it creates it.
 	 *
 	 * @param   string  $absolute_filename  The path to the local file which will be uploaded to WebDAV.
-	 * @param   string  $directory          The WebDAV directory where the file will be uploaded to.
 	 * @param   string  $basename           The name
 	 *
 	 * @return array
 	 *
 	 * @throws Exception
 	 */
-	protected function putFile($absolute_filename, $directory, $basename)
+	protected function putFile($absolute_filename, $basename)
 	{
 		/** @var ConnectorDavclient $connector */
 		$connector = $this->getConnector();
 
 		// Normalize double slashes
-		$directory = str_replace('//', '/', $directory);
+		$directory = str_replace('//', '/', $this->directory);
 		$basename  = str_replace('//', '/', $basename);
 
 		// Store the absolute remote path in the class property

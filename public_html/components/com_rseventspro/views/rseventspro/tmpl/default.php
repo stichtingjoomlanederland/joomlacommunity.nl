@@ -52,7 +52,7 @@ JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 	
 	<?php if ($rss || $ical || $this->config->timezone) { ?>
 	<?php if ($this->config->timezone) { ?>
-	<a href="#timezoneModal" data-toggle="modal" class="<?php echo rseventsproHelper::tooltipClass(); ?> rsepro-timezone" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_CHANGE_TIMEZONE')); ?>">
+	<a rel="rs_timezone" <?php if (rseventsproHelper::getConfig('modaltype','int') == 1) echo ' href="#timezoneModal" data-toggle="modal"'; else echo ' href="javascript:void(0)"'; ?> class="<?php echo rseventsproHelper::tooltipClass(); ?> rsepro-timezone" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_CHANGE_TIMEZONE')); ?>">
 		<i class="fa fa-clock-o"></i>
 	</a>
 	<?php } ?>

@@ -184,8 +184,15 @@ class Logger implements LoggerInterface, LogInterface, WarningsLoggerInterface
 			return;
 		}
 
+		$translateRoot = true;
+
+		if (array_key_exists('root_translate', $context))
+		{
+			$translateRoot = ($context['root_translate'] === 1) || ($context['root_translate'] === '1') || ($context['root_translate'] === true);
+		}
+
 		// Replace the site's root with <root> in the log file
-		if (!defined('AKEEBADEBUG'))
+		if ($translateRoot && !defined('AKEEBADEBUG'))
 		{
 			$message = str_replace($this->site_root_untranslated, "<root>", $message);
 			$message = str_replace($this->site_root, "<root>", $message);

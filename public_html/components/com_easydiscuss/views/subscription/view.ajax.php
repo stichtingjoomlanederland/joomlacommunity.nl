@@ -153,7 +153,7 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 		}
 
 		if ($type == 'post') {
-			
+
 			// Load the post
 			$post = ED::post($cid);
 
@@ -241,7 +241,7 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 		JRequest::setVar('limitstart', 0);
 
 		$type = $this->input->get('type', '', 'cmd');
-		$id = $this->input->get('id', '', 'cmd');
+		$id = $this->input->get('id', '', 'int');
 
 		// Load subscription library.
 		$subscription = ED::subscription();

@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.12.9182
+ * @version         20.2.16442
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2019 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -312,17 +312,26 @@ class Html
 
 		list($pre, $body, $post) = Html::getBody($string, false);
 
-		// Add temporary surrounding div
-		$body = '<div>' . $body . '</div>';
+		// Add temporary document structures
+		$body = '<html><body><div>' . $body . '</div></body></html>';
 
 		@$doc->loadHTML($body);
+
 		$body = $doc->saveHTML();
 
-		// Remove html document structures
-		$body = RegEx::replace('^<[^>]*>(.*?)<html>.*?(?:<head>(.*)</head>.*?)?<body>(.*)</body>.*?$', '\1\2\3', $body);
+		if (strpos($doc->documentElement->textContent, 'Ã') !== false)
+		{
+			// Need to do this utf8 workaround to deal with special characters
+			// DOMDocument doesn't seem to deal with them very well
+			// See: https://stackoverflow.com/questions/8218230/php-domdocument-loadhtml-not-encoding-utf-8-correctly/47396055#47396055
+			$body = utf8_decode($doc->saveHTML($doc->documentElement));
+		}
 
-		// Remove temporary surrounding div
-		$body = RegEx::replace('^\s*<div>(.*)</div>\s*$', '\1', $body);
+		// Remove temporary document structures and surrounding div
+		$body = RegEx::replace('^.*?<html>.*?(?:<head>(.*)</head>.*?)?<body>\s*<div>(.*)</div>\s*</body>.*?$', '\1\2', $body);
+
+		// Remove leading/trailing empty paragraph
+		$body = RegEx::replace('(^\s*<div>\s*</div>|<div>\s*</div>\s*$)', '', $body);
 
 		// Remove leading/trailing empty paragraph
 		$body = RegEx::replace('(^\s*<div>\s*</div>|<div>\s*</div>\s*$)', '', $body);

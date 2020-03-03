@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <metadata>
 	<layout title="RSFP_SUBMISSION_LAYOUT">
-		<message>
-			<![CDATA[RSFP_SUBMISSION_LAYOUT_DESC]]>
-		</message>
+		<message>RSFP_SUBMISSION_LAYOUT_DESC</message>
 	</layout>
 	<config>
 	<fields name="params">
@@ -14,17 +12,30 @@
 				<option value="0">JNO</option>
 				<option value="1">JYES</option>
 			</field>
+			<field name="export_filename" type="text" default="export.pdf" label="COM_RSFORM_SUBMISSIONS_EXPORT_FILENAME" description="COM_RSFORM_SUBMISSIONS_EXPORT_FILENAME_DESC" />
 			<field name="show_search" type="radio" class="btn-group" default="0" label="RSFP_ENABLE_SUBMISSIONS_SEARCH" description="RSFP_ENABLE_SUBMISSIONS_SEARCH_DESC">
 				<option value="0">JNO</option>
 				<option value="1">JYES</option>
 			</field>
-			<field name="sort_submissions" type="radio" class="btn-group" default="0" label="RSFP_SORT_SUBMISSIONS" description="RSFP_SORT_SUBMISSIONS_DESC">
-				<option value="0">RSFP_DESC</option>
-				<option value="1">RSFP_ASC</option>
+			<field name="search_in" type="checkboxes" default="DateSubmitted,Username,UserIp,FieldValue" label="COM_RSFORM_SEARCH_IN" description="COM_RSFORM_SEARCH_IN_DESC" showon="show_search:1">
+				<option value="DateSubmitted">COM_RSFORM_SEARCH_DATE_SUBMITTED</option>
+				<option value="Username">COM_RSFORM_SEARCH_USERNAME</option>
+				<option value="UserIp">COM_RSFORM_SEARCH_USERIP</option>
+				<option value="FieldValue">COM_RSFORM_SEARCH_FIELD_VALUE</option>
 			</field>
-			
-			<field name="@spacer" type="spacer" default="" label="" description="" />
-			<field name="userId" type="text" default="0" label="RSFP_SHOW_SUBMISSIONS_FOR_USERID" description="RSFP_SHOW_SUBMISSIONS_FOR_USERID_DESC" />
+			<field name="sort_submissions" type="list" default="0" label="RSFP_SORT_SUBMISSIONS" description="RSFP_SORT_SUBMISSIONS_DESC">
+				<option value="0">JGLOBAL_ORDER_DESCENDING</option>
+				<option value="1">JGLOBAL_ORDER_ASCENDING</option>
+			</field>
+			<field name="show_all_submissions" type="radio" class="btn-group" default="0" label="COM_RSFORM_SHOW_ALL_SUBMISSIONS" description="COM_RSFORM_SHOW_ALL_SUBMISSIONS_DESC" showon="show_logged_in_submissions:0">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="show_logged_in_submissions" type="radio" class="btn-group" default="0" label="COM_RSFORM_SHOW_LOGGED_IN_SUBMISSIONS" description="COM_RSFORM_SHOW_LOGGED_IN_SUBMISSIONS_DESC" showon="show_all_submissions:0">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="userId" type="text" default="" label="RSFP_SHOW_SUBMISSIONS_FOR_USERID" description="RSFP_SHOW_SUBMISSIONS_FOR_USERID_DESC" showon="show_all_submissions:0[AND]show_logged_in_submissions:0" />
 			<field name="show_confirmed" type="radio" class="btn-group" default="0" label="RSFP_SHOW_CONFIRMED_SUBMISSIONS" description="RSFP_SHOW_CONFIRMED_SUBMISSIONS_DESC">
 				<option value="0">JNO</option>
 				<option value="1">JYES</option>

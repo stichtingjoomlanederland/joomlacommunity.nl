@@ -827,6 +827,7 @@ class WFImageGD
             throw new LogicException('No valid image was loaded');
         }
 
+        // convert type to imagetype constant
         if (is_string($type)) {
             $type = WFImage::getImageType($type);
         }

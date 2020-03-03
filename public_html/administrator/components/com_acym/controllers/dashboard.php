@@ -577,6 +577,11 @@ class DashboardController extends acymController
         $firstMail->from_name = $fromName;
         $firstMail->from_email = $fromAddress;
 
+        if ($this->config->get('replyto_email') === '') {
+            $firstMail->reply_to_name = $fromName;
+            $firstMail->reply_to_email = $fromAddress;
+        }
+
         $statusSaveMail = $mailClass->save($firstMail);
 
         if (empty($statusSaveMail)) {
@@ -647,11 +652,7 @@ class DashboardController extends acymController
             if ($mailerHelper->sendOne($firstMail->id, $subscriberId, true)) $nbSent++;
         }
 
-        if ($nbSent === 0) {
-            return false;
-        }
-
-        return true;
+        return $nbSent !== 0;
     }
 
     private function _saveWalkthrough($params)

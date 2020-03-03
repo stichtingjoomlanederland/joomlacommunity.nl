@@ -33,6 +33,23 @@ defined('_JEXEC') or die('Restricted access');
 				<input type="number" max="20" min="0" class="cell small-2 acym__wysid__context__block__padding" data-block-padding="bottom">
 			</div>
 		</div>
+        <?php
+        if (acym_level(1)) { ?>
+			<p class="cell acym__wysid__right__toolbar__p acym__wysid__context__modal__container--structure"><?php echo acym_translation('ACYM_STRUCTURE'); ?><i class="acymicon-keyboard_arrow_up"></i></p>
+			<div class="cell grid-x acym__wysid__context__modal__container acym__wysid__context__modal__container--structure acym__wysid__context__modal__container--structure--container">
+				<div class="cell grid-x grid-margin-x acym_vcenter">
+					<h6 class="cell shrink"><?php echo acym_translation('ACYM_RESIZE_COLUMNS_OF_ROW'); ?></h6>
+					<div class="cell auto hide-for-medium-only hide-for-small-only"></div>
+					<a href="<?= ACYM_DOCUMENTATION; ?>" target="_blank"><i class="acymicon-book"></i></a>
+				</div>
+				<div class="grid-x cell acym__wysid__context__modal__container__block-settings grid-margin-y acym-grid-margin-x">
+				</div>
+				<div class="cell grid-x acym__wysid__context__modal__block-padding">
+				</div>
+			</div>
+            <?php
+        }
+        ?>
 		<p class="cell acym__wysid__right__toolbar__p"><?php echo acym_translation('ACYM_BORDER'); ?><i class="acymicon-keyboard_arrow_up"></i></p>
 		<div class="cell grid-x acym__wysid__context__modal__container">
 			<div class="cell grid-x">
@@ -59,6 +76,25 @@ defined('_JEXEC') or die('Restricted access');
 		</div>
 	</div>
 	<div id="acym__wysid__context__button" class="grid-x padding-1 acym__wysid__context__modal" style="display: none">
+		<p class="cell acym__wysid__right__toolbar__p__open acym__wysid__right__toolbar__p"><?php echo acym_translation('ACYM_BUTTON_TYPE'); ?><i class="acymicon-keyboard_arrow_up"></i></p>
+		<div class="grid-x cell acym__wysid__context__modal__container grid-margin-x">
+			<button type="button" class="button-radio button-radio-disabled cell medium-4 acym__wysid__context__button--type" acym-data-type="call-action"><?php echo acym_translation('ACYM_CALL_TO_ACTION'); ?></button>
+            <?php echo acym_tooltip('<button type="button" class="button-radio button-radio-disabled cell acym__wysid__context__button--type" acym-data-type="unsubscribe">'.acym_translation('ACYM_UNSUBSCRIBE').'</button>', acym_translation('ACYM_UNSUBSCRIBE_BUTTON_DESC'), 'cell medium-4 grid-x') ?>
+            <?php echo acym_tooltip('<button type="button" class="button-radio button-radio-disabled cell acym__wysid__context__button--type" acym-data-type="confirm">'.acym_translation('ACYM_SUBSCRIPTION_CONFIRMATION').'</button>', acym_translation('ACYM_SUBSCRIPTION_CONFIRMATION_BUTTON_DESC'), 'cell medium-4 grid-x') ?>
+		</div>
+		<p class="cell acym__wysid__right__toolbar__p__open acym__wysid__right__toolbar__p"><?php echo acym_translation('ACYM_CONTENT'); ?><i class="acymicon-keyboard_arrow_up"></i></p>
+		<div class="cell grid-x acym__wysid__context__modal__container">
+			<div class="grid-x cell acym__wysid__context__button__text__container">
+				<label class="cell small-5"><?php echo acym_translation('ACYM_TEXT'); ?></label>
+				<input id="acym__wysid__context__button__text" class="auto cell" type="text" placeholder="<?php echo acym_translation('ACYM_MY_BUTTON'); ?>">
+			</div>
+			<div class="grid-x cell acym__wysid__context__button__link__container">
+				<div class="input-group cell grid-x">
+					<label class="cell small-5" for="acym__wysid__context__button__link"><?php echo acym_translation('ACYM_LINK'); ?></label>
+					<input id="acym__wysid__context__button__link" class="input-group-field cell auto" type="text" placeholder="https://www.example.com">
+				</div>
+			</div>
+		</div>
 		<p class="cell acym__wysid__right__toolbar__p__open acym__wysid__right__toolbar__p"><?php echo acym_translation('ACYM_FONT'); ?><i class="acymicon-keyboard_arrow_up"></i></p>
 		<div class="grid-x cell acym__wysid__context__modal__container">
 			<div class="cell grid-x">
@@ -130,19 +166,6 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="cell grid-x">
 				<label class="cell small-5"><?php echo acym_translation('ACYM_COLOR'); ?></label>
 				<input type="text" id="acym__wysid__context__button__border-color" class="small-5 cell">
-			</div>
-		</div>
-		<p class="cell acym__wysid__right__toolbar__p__open acym__wysid__right__toolbar__p"><?php echo acym_translation('ACYM_CONTENT'); ?><i class="acymicon-keyboard_arrow_up"></i></p>
-		<div class="cell grid-x acym__wysid__context__modal__container">
-			<div class="grid-x cell">
-				<label class="cell small-5"><?php echo acym_translation('ACYM_TEXT'); ?></label>
-				<input id="acym__wysid__context__button__text" class="auto cell" type="text" placeholder="<?php echo acym_translation('ACYM_MY_BUTTON'); ?>">
-			</div>
-			<div class="grid-x cell">
-				<div class="input-group cell grid-x">
-					<label class="cell small-5" for="acym__wysid__context__button__link"><?php echo acym_translation('ACYM_LINK'); ?></label>
-					<input id="acym__wysid__context__button__link" class="input-group-field cell auto" type="text" placeholder="https://my-website.com">
-				</div>
 			</div>
 		</div>
 		<p class="cell acym__wysid__right__toolbar__p__open acym__wysid__right__toolbar__p"><?php echo acym_translation('ACYM_OTHER'); ?><i class="acymicon-keyboard_arrow_up"></i></p>
@@ -330,6 +353,7 @@ defined('_JEXEC') or die('Restricted access');
 		</div>
 	</div>
 
-	<div id="acym__wysid__context__plugins" class="grid-x padding-1 acym__wysid__context__modal" style="display: none">
+	<div id="acym__wysid__context__plugins" class="grid-x padding-1 acym__wysid__context__modal margin-top-1" style="display: none">
 	</div>
 </div>
+

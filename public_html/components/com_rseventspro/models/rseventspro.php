@@ -3085,6 +3085,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 					$object->name = $guest->name;
 				}
 				
+				$object->id		= $guest->id;
 				$object->url	= !empty($guest->id) ? rseventsproHelper::getProfile('guests', $guest->id) : '';
 				$object->avatar = rseventsproHelper::getAvatar($guest->id,$guest->email);
 				$return[] = $object;

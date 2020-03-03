@@ -4,7 +4,7 @@ if (typeof RSFormPro != 'object') {
 
 RSFormPro.Validations = {
 	Numeric: function () {
-		jQuery('.rsform_hide').on("keyup", '[data-properties="numeric"]', function () {
+		jQuery('#rsfp-tabs').on("keyup", '[data-properties="numeric"]', function () {
 			/**
 			 * jQuery.isNumeric
 			 * https://api.jquery.com/jQuery.isNumeric/#jQuery-isNumeric-value
@@ -16,7 +16,7 @@ RSFormPro.Validations = {
 	},
 	
 	Float: function () {
-		jQuery('.rsform_hide').on("keyup", '[data-properties="float"]', function () {
+		jQuery('#rsfp-tabs').on("keyup", '[data-properties="float"]', function () {
 			/**
 			 * jQuery.isNumeric
 			 * https://api.jquery.com/jQuery.isNumeric/#jQuery-isNumeric-value
@@ -121,7 +121,7 @@ jQuery(document).ready(function () {
 	 * Bind the functions to the event created
 	 * in administrator\components\com_rsform\assets\js\script.js
 	 */
-	jQuery('.rsform_hide').on('renderedLayout',
+	jQuery('#rsfp-tabs').on('renderedLayout',
 		function (objectEvent, $field) {
 
 			RSFormPro.Validations.Tags($field);
