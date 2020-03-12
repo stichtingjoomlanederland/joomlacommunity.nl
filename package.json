@@ -20,7 +20,7 @@
   ],
   "devDependencies": {
     "apollo.js": "toddmotto/apollo",
-    "diff": "^4.0.1",
+    "diff": "^4.0.2",
     "font-face": "^2.3.2",
     "fstream": "^1.0.12",
     "grunt": "^1.0.4",
@@ -32,7 +32,7 @@
     "grunt-contrib-less": "^2.0.0",
     "grunt-contrib-uglify": "^4.0.1",
     "grunt-contrib-watch": "^1.1.0",
-    "grunt-modernizr": "^2.1.0",
+    "grunt-modernizr": "^2.1.1",
     "grunt-sass": "^3.1.0",
     "grunt-shell": "^3.0.1",
     "grunt-svgstore": "^2.0.0",
@@ -44,8 +44,8 @@
     "js-yaml": "^3.13.1",
     "load-grunt-configs": "^1.0.0",
     "node-normalize-scss": "^8.0.1",
-    "node-sass": "^4.13.0",
-    "tar": "^5.0.5",
+    "node-sass": "^4.13.1",
+    "tar": "^6.0.1",
     "time-grunt": "^2.0.0",
     "vanilla-js-responsive-menu": "robinpoort/vanilla-js-responsive-menu"
   }
