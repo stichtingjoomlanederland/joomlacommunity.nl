@@ -440,7 +440,10 @@ abstract class RSCommentsHelper
 		if ($config->enable_smiles == 1) {
 			$smileys = array('<a href="javascript:void(0);" data-rsc-task="emoticons" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_EMOTICONS')).'"><i class="fa fa-smile-o"></i></a>');
 			$icons = array_merge($icons, $smileys);
-			
+		}
+		
+		if (isset($permissions['enable_preview']) && $permissions['enable_preview']) {
+			$icons[] = '<a href="javascript:void(0);" data-rsc-task="preview" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_PREVIEW')).'"><i class="fa fa-search"></i></a>';
 		}
 		
 		return $icons;
@@ -743,7 +746,7 @@ abstract class RSCommentsHelper
 			'vote_comments' => 1, 'auto_subscribe_thread' => 0, 'close_thread' => 0, 'enable_reply' => 1, 'publish_comments' => 0, 'autopublish' => 0, 
 			'show_emails' => 0, 'view_ip' => 0, 'captcha' => 1, 'censored' => 1, 'flood_control' => 1, 'check_names' => 1, 
 			'bb_bold' => 1, 'bb_italic' => 1, 'bb_underline' => 1, 'bb_stroke' => 1, 'bb_quote' => 1, 'bb_lists' => 0, 
-			'bb_image' => 0, 'bb_url' => 0, 'bb_code' => 0, 'bb_videos' => 0
+			'bb_image' => 0, 'bb_url' => 0, 'bb_code' => 0, 'bb_videos' => 0, 'enable_preview' => 1
 		);
 	}
 	

@@ -5,32 +5,66 @@
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            https://github.com/regularlabs/regularjs
  * @copyright       Copyright © 2019 Regular Labs - All Rights Reserved
- * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
+ * @license         https://github.com/regularlabs/regularjs/blob/master/LICENCE MIT
  */
 
-/*jslint node: true */
 "use strict";
 
 if (typeof window.Regular === 'undefined'
 	|| typeof Regular.version === 'undefined'
-	|| Regular.version < 1.1) {
+	|| Regular.version < 1.2) {
 
-	window.Regular = {
-		version: 1.1,
+	window.Regular = new function() {
+		/**
+		 *
+		 * PUBLIC PROPERTIES
+		 *
+		 */
+
+		this.version = 1.2;
 
 		/**
-		 * Returns a boolean based on whether the element contains one or more of the given class names
 		 *
-		 * @param el        An element object
-		 * @param classes   A string or array of class names
-		 * @param matchAll  Optional boolean whether the element should have all given classes (true) or at least one (false)
+		 * PUBLIC METHODS
+		 *
+		 */
+
+		/**
+		 * Sets a global alias for the Regular class.
+		 *
+		 * @param word  A string (character or word) representing the alias for the Regular class.
 		 *
 		 * @return boolean
 		 */
-		hasClasses: function(el, classes, matchAll = true) {
-			if (!el) {
+		this.alias = function(word) {
+			if (typeof window[word] !== 'undefined') {
+				console.error(`Cannot set '${word}' as am alias of Regular, as it already exists.`);
+
 				return false;
 			}
+
+			window[word] = $;
+
+			return true;
+		};
+
+		/**
+		 * Returns a boolean based on whether the element contains one or more of the given class names.
+		 *
+		 * @param selector  A CSS selector string or a HTMLElement object.
+		 * @param classes   A string or array of class names.
+		 * @param matchAll  Optional boolean whether the element should have all given classes (true) or at least one (false).
+		 *
+		 * @return boolean
+		 */
+		this.hasClasses = function(selector, classes, matchAll = true) {
+			if (!selector) {
+				return false;
+			}
+
+			const element = typeof selector === 'string'
+				? document.querySelectorAll(selector)
+				: selector;
 
 			if (typeof classes === 'string') {
 				classes = classes.split(' ');
@@ -38,8 +72,8 @@ if (typeof window.Regular === 'undefined'
 
 			let hasClass = false;
 
-			for (let i in classes) {
-				hasClass = el.classList.contains(classes[i]);
+			for (const clss of classes) {
+				hasClass = element.classList.contains(clss);
 
 				if (matchAll && !hasClass) {
 					return false;
@@ -51,117 +85,152 @@ if (typeof window.Regular === 'undefined'
 			}
 
 			return hasClass;
-		},
+		};
 
 		/**
-		 * Adds given class name(s) to the element
+		 * Adds given class name(s) to the element(s).
 		 *
-		 * @param el       An element object
-		 * @param classes  A string or array of class names
+		 * @param selector  A CSS selector string, a HTMLElement object or a collection of HTMLElement objects.
+		 * @param classes   A string or array of class names.
 		 */
-		addClasses: function(el, classes) {
-			this.doClasses('add', el, classes);
-		},
+		this.addClasses = function(selector, classes) {
+			doClasses('add', selector, classes);
+		};
 
 		/**
-		 * Removes given class name(s) from the element
+		 * Removes given class name(s) from the element(s).
 		 *
-		 * @param el       An element object
-		 * @param classes  A string or array of class names
+		 * @param selector  A CSS selector string, a HTMLElement object or a collection of HTMLElement objects.
+		 * @param classes   A string or array of class names.
 		 */
-		removeClasses: function(el, classes) {
-			this.doClasses('remove', el, classes);
-		},
+		this.removeClasses = function(selector, classes) {
+			doClasses('remove', selector, classes);
+		};
 
 		/**
-		 * Toggles given class name(s) of the element
+		 * Toggles given class name(s) of the element(s).
 		 *
-		 * @param el       An element object
-		 * @param classes  A string or array of class names
+		 * @param selector  A CSS selector string, a HTMLElement object or a collection of HTMLElement objects.
+		 * @param classes   A string or array of class names.
 		 */
-		toggleClasses: function(el, classes) {
-			this.doClasses('toggle', el, classes);
-		},
+		this.toggleClasses = function(selector, classes) {
+			doClasses('toggle', selector, classes);
+		};
 
 		/**
-		 * Executes an action on the element to add/remove/toggle classes
+		 * Shows the given element(s) (changes opacity and display attributes).
 		 *
-		 * @param action  A string that identifies the action: add|remove|toggle
-		 * @param el      An element object
-		 * @param action  A string or array of class names
+		 * @param selector  A CSS selector string, a HTMLElement object or a collection of HTMLElement objects.
 		 */
-		doClasses: function(action, el, classes) {
-			if (!el) {
-				return el;
+		this.show = function(selector) {
+			if (!selector) {
+				return;
 			}
 
-			if (typeof classes === 'string') {
-				classes = classes.split(' ');
+			const element = typeof selector === 'string'
+				? document.querySelectorAll(selector)
+				: selector;
+
+			if ('forEach' in element) {
+				element.forEach(subElement => $.show(subElement));
+				return;
 			}
 
-			for (let i in classes) {
-				el.classList[action](classes[i]);
+			let computedDisplay = getComputedStyle(element, 'display');
+
+			if (!('origDisplay' in element)) {
+				element.origDisplay = computedDisplay == 'none'
+					? getDefaultComputedStyle(element, 'display')
+					: computedDisplay;
 			}
-		},
 
-		/**
-		 * Shows the given element (changes opacity and display attributes)
-		 *
-		 * @param el  An element object
-		 *
-		 * @return element
-		 */
-		show: function(el) {
-			el.style.opacity = 1;
-
-			if (el.style.display == 'none') {
-				el.style.display = 'block';
+			if (computedDisplay == 'none') {
+				element.style.display = ('origDisplay' in element) ? element.origDisplay : '';
 			}
-		},
+
+			computedDisplay = getComputedStyle(element, 'display');
+			if (computedDisplay == 'none') {
+				element.style.display = 'block';
+			}
+
+			element.style.visibility = 'visible';
+			element.style.opacity    = 1;
+		};
 
 		/**
-		 * Hides the given element (changes opacity and display attributes)
+		 * Hides the given element(s) (changes opacity and display attributes).
 		 *
-		 * @param el  An element object
+		 * @param selector  A CSS selector string, a HTMLElement object or a collection of HTMLElement objects.
 		 */
-		hide: function(el) {
-			el.style.opacity = 0;
-			el.style.display = 'none';
-		},
+		this.hide = function(selector) {
+			if (!selector) {
+				return;
+			}
+
+			const element = typeof selector === 'string'
+				? document.querySelectorAll(selector)
+				: selector;
+
+			if ('forEach' in element) {
+				element.forEach(subElement => $.hide(subElement));
+				return;
+			}
+
+			const computedDisplay = getComputedStyle(element, 'display');
+
+			if (computedDisplay != 'none' && !('origDisplay' in element)) {
+				element.origDisplay = computedDisplay;
+			}
+
+			element.style.display    = 'none';
+			element.style.visibility = 'hidden';
+			element.style.opacity    = 0;
+		};
 
 		/**
-		 * Fades in the the given element
+		 * Fades in the the given element(s).
 		 *
-		 * @param el An       element object
-		 * @param duration    Optional duration of the effect in milliseconds
-		 * @param oncomplete  Optional callback function to execute when effect is completed
+		 * @param selector    A CSS selector string, a HTMLElement object or a collection of HTMLElement objects.
+		 * @param duration    Optional duration of the effect in milliseconds.
+		 * @param oncomplete  Optional callback function to execute when effect is completed.
 		 */
-		fadeIn: function(el, duration = 250, oncomplete = '') {
-			el.setAttribute('data-fading', 'in');
+		this.fadeIn = function(selector, duration = 250, oncomplete) {
+			if (!selector) {
+				return;
+			}
 
-			const self = this;
+			const element = typeof selector === 'string'
+				? document.querySelectorAll(selector)
+				: selector;
+
+			if ('forEach' in element) {
+				element.forEach(subElement => $.fadeIn(subElement, duration, oncomplete));
+				return;
+			}
+
+			element.setAttribute('data-fading', 'in');
 
 			const wait        = 50; // amount of time between steps
 			const nr_of_steps = duration / wait;
 			const change      = 1 / nr_of_steps; // time to wait before next step
 
-			if (!el.style.opacity || el.style.opacity == 1) {
-				el.style.opacity = 0;
+			if (!element.style.opacity || element.style.opacity == 1) {
+				element.style.opacity = 0;
 			}
-			if (el.style.display == 'none') {
-				el.style.display = 'block';
+			if (element.style.display == 'none') {
+				element.style.display = 'block';
 			}
 
 			(function fade() {
-				if (el.getAttribute('data-fading') == 'out') {
+				if (element.getAttribute('data-fading') == 'out') {
 					return;
 				}
-				el.style.opacity = parseFloat(el.style.opacity) + change;
-				if (el.style.opacity >= 1) {
-					self.show(el);
-					el.setAttribute('data-fading', '');
+				element.style.opacity = parseFloat(element.style.opacity) + change;
+				if (element.style.opacity >= 1) {
+					$.show(element);
+					element.setAttribute('data-fading', '');
 					if (oncomplete) {
-						oncomplete.call();
+						oncomplete.call(element);
 					}
 					return;
 				}
@@ -169,38 +238,49 @@ if (typeof window.Regular === 'undefined'
 					fade.call();
 				}, wait);
 			})();
-		},
+		};
 
 		/**
-		 * Fades out the the given element
+		 * Fades out the the given element(s).
 		 *
-		 * @param el          An element object
-		 * @param duration    Optional duration of the effect in milliseconds
-		 * @param oncomplete  Optional callback function to execute when effect is completed
+		 * @param selector    A CSS selector string, a HTMLElement object or a collection of HTMLElement objects.
+		 * @param duration    Optional duration of the effect in milliseconds.
+		 * @param oncomplete  Optional callback function to execute when effect is completed.
 		 */
-		fadeOut: function(el, duration = 250, oncomplete = '') {
-			el.setAttribute('data-fading', 'out');
+		this.fadeOut = function(selector, duration = 250, oncomplete) {
+			if (!selector()) {
+				return;
+			}
 
-			const self = this;
+			const element = typeof selector === 'string'
+				? document.querySelectorAll(selector)
+				: selector;
+
+			if ('forEach' in element) {
+				element.forEach(subElement => $.fadeOut(subElement, duration, oncomplete));
+				return;
+			}
+
+			element.setAttribute('data-fading', 'out');
 
 			const wait        = 50; // amount of time between steps
 			const nr_of_steps = duration / wait;
 			const change      = 1 / nr_of_steps; // time to wait before next step
 
-			if (!el.style.opacity || el.style.opacity == 0) {
-				el.style.opacity = 1;
+			if (!element.style.opacity || element.style.opacity == 0) {
+				element.style.opacity = 1;
 			}
 
 			(function fade() {
-				if (el.getAttribute('data-fading') == 'in') {
+				if (element.getAttribute('data-fading') == 'in') {
 					return;
 				}
-				el.style.opacity = parseFloat(el.style.opacity) - change;
-				if (el.style.opacity <= 0) {
-					self.hide(el);
-					el.setAttribute('data-fading', '');
+				element.style.opacity = parseFloat(element.style.opacity) - change;
+				if (element.style.opacity <= 0) {
+					$.hide(element);
+					element.setAttribute('data-fading', '');
 					if (oncomplete) {
-						oncomplete.call();
+						oncomplete.call(element);
 					}
 					return;
 				}
@@ -208,39 +288,41 @@ if (typeof window.Regular === 'undefined'
 					fade.call();
 				}, wait);
 			})();
-		},
+		};
 
 		/**
-		 * Runs a function when the document is loaded (on ready state)
+		 * Runs a function when the document is loaded (on ready state).
 		 *
-		 * @param func  Callback function to execute when document is ready
+		 * @param func  Callback function to execute when document is ready.
 		 */
-		onReady: function(func) {
+		this.onReady = function(func) {
 			/in/.test(document.readyState)
-				? setTimeout(`Regular.onReady(${func})`, 9)
-				: func();
-		},
+				? setTimeout(() => {
+					Regular.onReady(func);
+				}, 9)
+				: func.call();
+		};
 
 		/**
-		 * Converts a string with HTML code to 'DOM' elements
+		 * Converts a string with HTML code to 'DOM' elements.
 		 *
-		 * @param html  String with HTML code
+		 * @param html  String with HTML code.
 		 *
 		 * @return element
 		 */
-		createElementFromHTML: function(html) {
+		this.createElementFromHTML = function(html) {
 			return document.createRange().createContextualFragment(html);
-		},
+		};
 
 		/**
-		 * Loads a url with POST data and optionally calls a function hen ready
+		 * Loads a url with optional POST data and optionally calls a function on success or fail.
 		 *
-		 * @param url      String containing the url to load
-		 * @param data     Optional string representing the POST data to send along
-		 * @param success  Optional callback function to execute when the url loads successfully (status 200)
-		 * @param fail     Optional callback function to execute when the url fails to load
+		 * @param url      String containing the url to load.
+		 * @param data     Optional string representing the POST data to send along.
+		 * @param success  Optional callback function to execute when the url loads successfully (status 200).
+		 * @param fail     Optional callback function to execute when the url fails to load.
 		 */
-		loadUrl: function(url, data = '', success = '', fail = '') {
+		this.loadUrl = function(url, data, success, fail) {
 			const request = new XMLHttpRequest();
 
 			request.open("POST", url, true);
@@ -252,51 +334,110 @@ if (typeof window.Regular === 'undefined'
 					return;
 				}
 
-				// data and result can be used in the callback functions to reference the response
-				let data   = this.responseText;
-				let result = this.responseText;
-
 				if (this.status == 200) {
-					if (success) {
-						eval(`${success};`);
-					}
+					success && success.call(null, this.responseText, this.status, this);
 					return;
 				}
 
-				if (fail) {
-					eval(`${fail};`);
-				}
+				fail && fail.call(null, this.responseText, this.status, this);
 			};
 
 			request.send(data);
-		},
+		};
 
 		/**
-		 * Alias of Regular.hasClass
+		 *
+		 * ALIASES
+		 *
 		 */
-		hasClass: function(el, classes, matchAll = false) {
-			return this.hasClasses(el, classes, matchAll);
-		},
+
+		this.as = this.alias;
+		this.hasClass    = this.hasClasses;
+		this.addClass    = this.addClasses;
+		this.removeClass = this.removeClasses;
+		this.toggleClass = this.toggleClasses;
 
 		/**
-		 * Alias of Regular.addClasses
+		 *
+		 * PRIVATE FUNCTIONS
+		 *
 		 */
-		addClass: function(el, classes) {
-			this.addClasses(el, classes);
-		},
 
 		/**
-		 * Alias of Regular.removeClasses
+		 * Executes an action on the element(s) to add/remove/toggle classes.
+		 *
+		 * @param action    A string that identifies the action: add|remove|toggle.
+		 * @param selector  A CSS selector string, a HTMLElement object or a collection of HTMLElement objects.
+		 * @param classes   A string or array of class names.
 		 */
-		removeClass: function(el, classes) {
-			this.removeClasses(el, classes);
-		},
+		const doClasses = function(action, selector, classes) {
+			if (!selector) {
+				return;
+			}
+
+			const element = typeof selector === 'string'
+				? document.querySelectorAll(selector)
+				: selector;
+
+			if ('forEach' in element) {
+				element.forEach(subElement => doClasses(action, subElement, classes));
+				return;
+			}
+
+			if (typeof classes === 'string') {
+				classes = classes.split(' ');
+			}
+
+			element.classList[action](...classes);
+		};
 
 		/**
-		 * Alias of Regular.toggleClasses
+		 * Finds the computed style of an element.
+		 *
+		 * @param element   A HTMLElement object.
+		 * @param property  The style property that needs to be returned.
+		 *
+		 * @returns mixed
 		 */
-		toggleClass: function(el, classes) {
-			this.toggleClasses(el, classes);
-		},
+		const getComputedStyle = function(element, property) {
+			if (!element) {
+				return null;
+			}
+
+			return window.getComputedStyle(element).getPropertyValue(property);
+		};
+
+		/**
+		 * Finds the default computed style of an element by its type.
+		 *
+		 * @param element   A HTMLElement object.
+		 * @param property  The style property that needs to be returned.
+		 *
+		 * @returns mixed
+		 */
+		const getDefaultComputedStyle = function(element, property) {
+			if (!element) {
+				return null;
+			}
+
+			const defaultElement = document.createElement(element.nodeName);
+
+			document.body.append(defaultElement);
+			let propertyValue = window.getComputedStyle(defaultElement).getPropertyValue(property);
+			defaultElement.remove();
+
+			return propertyValue;
+		};
+
+		/**
+		 *
+		 * PRIVATE VARIABLES
+		 *
+		 */
+
+		/**
+		 * @param  $  internal shorthand for the 'this' keyword.
+		 */
+		const $ = this;
 	};
 }

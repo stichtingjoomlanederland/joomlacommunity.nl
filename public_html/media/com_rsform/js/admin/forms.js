@@ -16,15 +16,24 @@ RSFormPro.editModal = {
 		// Focus on textbox once
 		var focused = false;
 		jQuery(this.selector).on('shown.bs.modal', function() {
-			if (!focused && jQuery('#NAME').length > 0) {
+
+			// Solves issues with TinyMCE dialogs inside a Bootstrap Modal
+			jQuery(document).off('focusin.modal');
+
+			var name = jQuery('#NAME');
+
+			if (!focused && name.length > 0) {
 				focused = true;
-				jQuery('#NAME').focus();
+				name.focus();
 			}
 		});
 	},
 	
 	close: function() {
 		jQuery(this.selector).modal('hide');
+
+		// Doing this to prevent editors from showing 'data entered on the page may not be saved'
+		window.onbeforeunload = function() {};
 	},
 	
 	save: function() {
@@ -64,7 +73,7 @@ RSFormPro.editModal = {
 		{
 			document.getElementById('componentIdToEdit').value = -1;
 		}
-		
+
 		jQuery.ajax({
 			url: 'index.php',
 			data: urlParams,
@@ -77,19 +86,44 @@ RSFormPro.editModal = {
 			success: function(responseText) {
 				$component.removeClass('rsform_loading_btn');
 				var response = responseText.split('{rsfsep}');
-				
+				var tabTitle, tabContent;
+				var editorContainer = jQuery('#rsfp-editor-container');
+				var editorValue;
+
+				editorContainer.addClass('rsfp-hidden');
+
 				// Display tabs
 				for (var r = 0; r < response.length; r++)
 				{
-					jQuery('[href="#rsfptab' + r + '"]').show();
-					jQuery('#rsfptab' + r).html(response[r]);
-					
-					if (response[r].trim() == '')
+					tabTitle = jQuery('[href="#rsfptab' + r + '"]');
+					tabContent = jQuery('#rsfptab' + r);
+
+					tabTitle.show();
+
+					if (r === 3)
 					{
-						jQuery('[href="#rsfptab' + r + '"]').hide();
+						editorValue = '';
+						if (jQuery(response[r]).find('#TEXT').length > 0)
+						{
+							editorContainer.removeClass('rsfp-hidden');
+							editorValue = jQuery(response[r]).find('#TEXT').val();
+						}
+
+						try {
+							Joomla.editors.instances['TEXT'].setValue(editorValue);
+						} catch (err) {}
+					}
+					else
+					{
+						tabContent.html(response[r]);
+					}
+
+					if (response[r].trim() === '')
+					{
+						tabTitle.hide();
 					}
 				}
-				
+
 				// Switch to 1st tab.
 				jQuery('[href="#rsfptab0"]').click();
 
@@ -104,13 +138,13 @@ RSFormPro.editModal = {
 						selector: $name
 					};
 
-					if (jQuery(this).attr('data-properties') == 'toggler') {
+					if (jQuery(this).attr('data-properties') === 'toggler') {
 						$object[$name].data = jQuery.parseJSON( jQuery(this).attr('data-toggle') );
 					}
 				});
 
-				jQuery('.rsform_hide').trigger('renderedLayout', $object);
-				
+				jQuery('#rsfp-tabs').trigger('renderedLayout', $object);
+
 				RSFormPro.editModal.open();
 			}
 		});

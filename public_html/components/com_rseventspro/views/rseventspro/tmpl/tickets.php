@@ -8,7 +8,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 JText::script('COM_RSEVENTSPRO_TICKETS'); 
 JText::script('COM_RSEVENTSPRO_SEATS'); 
 JText::script('COM_RSEVENTSPRO_SELECT_TICKETS');
-$modal = $this->config->modal == 1 || $this->config->modal == 2; ?>
+$modal = $this->config->modal == 1; ?>
 
 <script type="text/javascript">
 	<?php foreach ($this->tickets as $ticket) { ?>
@@ -36,7 +36,11 @@ var ticket_limit_<?php echo $ticket->id; ?> = <?php echo (int) rseventsproHelper
 	});
 	
 	function rsepro_close() {
-		<?php if ($modal) { ?>thedocument.<?php echo $this->event->form == 0 ? 'rsepro_multi_seats_total()' : 'rsepro_update_total()'; ?>;window.close();<?php } else { ?>window.parent.jQuery('#rseTicketsModal').modal('hide');<?php } ?>
+		<?php if ($modal) { ?>
+		thedocument.<?php echo $this->event->form == 0 ? 'rsepro_multi_seats_total()' : 'rsepro_update_total()'; ?>;window.close();
+		<?php } else { ?>
+		<?php echo rseventsproHelper::modalClose(false, true); ?>
+		<?php } ?>
 	}
 	
 	function rsepro_seats_select(id, place, name, price) {

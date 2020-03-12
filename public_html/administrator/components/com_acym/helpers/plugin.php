@@ -944,7 +944,11 @@ class acympluginHelper extends acymObject
             } elseif ($option['type'] == 'select') {
                 $selectOptions = [];
                 foreach ($option['options'] as $value => $title) {
-                    $selectOptions[] = acym_selectOption($value, $title);
+                    if (is_object($title)) {
+                        $selectOptions[] = acym_selectOption($title->value, $title->text);
+                    } else {
+                        $selectOptions[] = acym_selectOption($value, $title);
+                    }
                 }
 
                 $default = empty($option['default']) ? null : $option['default'];

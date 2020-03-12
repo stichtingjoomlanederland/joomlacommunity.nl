@@ -178,15 +178,47 @@ JText::script('COM_RSEVENTSPRO_CONSENT_INFO'); ?>
 		</div>
 	</form>
 	
-	<?php echo JHtml::_('bootstrap.renderModal', 'rsepro-edit-event-photo', array('title' => JText::_('COM_RSEVENTSPRO_EVENT_PHOTO'), 'footer' => $this->loadTemplate('modal_icon_footer'), 'bodyHeight' => 70), $this->loadTemplate('modal_icon')); ?>
-	<?php echo JHtml::_('bootstrap.renderModal', 'rsepro-edit-event-file', array('title' => JText::_('COM_RSEVENTSPRO_EVENT_EDIT_FILE'), 'footer' => $this->loadTemplate('modal_file_footer'), 'bodyHeight' => 70), $this->loadTemplate('modal_file')); ?>
+	<?php 
+		if ($this->config->modaltype == 1) {
+			echo JHtml::_('bootstrap.renderModal', 'rsepro-edit-event-photo', array('title' => JText::_('COM_RSEVENTSPRO_EVENT_PHOTO'), 'footer' => $this->loadTemplate('modal_icon_footer'), 'bodyHeight' => 70), $this->loadTemplate('modal_icon'));
+			echo JHtml::_('bootstrap.renderModal', 'rsepro-edit-event-file', array('title' => JText::_('COM_RSEVENTSPRO_EVENT_EDIT_FILE'), 'footer' => $this->loadTemplate('modal_file_footer'), 'bodyHeight' => 70), $this->loadTemplate('modal_file'));
+			
+			if (!empty($this->permissions['can_add_speaker']) || $this->admin) {
+				echo JHtml::_('bootstrap.renderModal', 'rsepro-add-new-speaker', array('title' => JText::_('COM_RSEVENTSPRO_EVENT_ADD_SPEAKER'), 'footer' => $this->loadTemplate('modal_speaker_footer'), 'bodyHeight' => 70, 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&view=rseventspro&layout=edit&id='.$this->item->id.'&tpl=modal_speaker', false)),'');
+			}
+			
+			if (!empty($this->permissions['can_create_categories']) || $this->admin) {
+				echo JHtml::_('bootstrap.renderModal', 'rsepro-add-new-categ', array('title' => JText::_('COM_RSEVENTSPRO_EVENT_ADD_CATEGORY'), 'footer' => $this->loadTemplate('modal_category_footer'), 'bodyHeight' => 70), $this->loadTemplate('modal_category'));
+			}
+		} else {
+	?>
+	<div style="display:none;">
+		<div id="rsIconFrame">
+			<?php echo $this->loadTemplate('modal_icon'); ?>
+		</div>
+		<div id="rsCategoryFrame">
+			<?php echo $this->loadTemplate('modal_category'); ?>
+		</div>
+		<div id="rsFileFrame">
+			<?php echo $this->loadTemplate('modal_file'); ?>
+		</div>
+	</div>
 	
-	<?php if (!empty($this->permissions['can_add_speaker']) || $this->admin) { ?>
-	<?php echo JHtml::_('bootstrap.renderModal', 'rsepro-add-new-speaker', array('title' => JText::_('COM_RSEVENTSPRO_EVENT_ADD_SPEAKER'), 'footer' => $this->loadTemplate('modal_speaker_footer'), 'bodyHeight' => 70, 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&view=rseventspro&layout=edit&id='.$this->item->id.'&tpl=modal_speaker', false)),''); ?>
-	<?php } ?>
-	
-	<?php if (!empty($this->permissions['can_create_categories']) || $this->admin) { ?>
-	<?php echo JHtml::_('bootstrap.renderModal', 'rsepro-add-new-categ', array('title' => JText::_('COM_RSEVENTSPRO_EVENT_ADD_CATEGORY'), 'footer' => $this->loadTemplate('modal_category_footer'), 'bodyHeight' => 70), $this->loadTemplate('modal_category')); ?>
+	<script type="text/javascript">
+	jQuery(document).ready(function(){
+		jQuery("a[rel='rs_icon']").colorbox({inline:true, href:'#rsIconFrame', innerWidth: '<?php echo $this->modal_width; ?>', innerHeight: '<?php echo $this->modal_height; ?>', maxWidth:'95%', maxHeight:'95%', title:'<?php echo JText::_('COM_RSEVENTSPRO_EVENT_PHOTO'); ?>', onLoad: function() { rsepro_reset_frame(); }});
+		
+		<?php if (!empty($this->permissions['can_create_categories']) || $this->admin) { ?>
+		jQuery("a[rel='rs_category']").colorbox({inline:true, href:'#rsCategoryFrame', innerWidth: '<?php echo $this->modal_width; ?>', innerHeight: '<?php echo $this->modal_height; ?>', maxWidth:'95%', maxHeight:'95%', title:'<?php echo JText::_('COM_RSEVENTSPRO_EVENT_ADD_CATEGORY'); ?>'});
+		<?php } ?>
+		
+		<?php if (!empty($this->permissions['can_add_speaker']) || $this->admin) { ?>
+		jQuery("a[rel='rs_speaker']").colorbox({iframe:true, maxWidth:'95%', maxHeight:'95%', innerWidth: '<?php echo $this->modal_width; ?>', innerHeight: '<?php echo $this->modal_height; ?>', title:'<?php echo JText::_('COM_RSEVENTSPRO_EVENT_ADD_SPEAKER',true); ?>'});
+		<?php } ?>
+		
+		jQuery(".rsepro-edit-file").colorbox({inline:true, href:'#rsFileFrame', innerWidth: '<?php echo $this->modal_width; ?>', innerHeight: '<?php echo $this->modal_height; ?>', maxWidth:'95%', maxHeight:'95%', title:'<?php echo JText::_('COM_RSEVENTSPRO_EVENT_EDIT_FILE'); ?>'});
+	});
+	</script>
 	<?php } ?>
 	
 	<?php JFactory::getApplication()->triggerEvent('rsepro_eventNewFieldModal', array(array('view' => $this))); ?>

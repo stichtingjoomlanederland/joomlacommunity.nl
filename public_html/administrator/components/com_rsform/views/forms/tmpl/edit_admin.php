@@ -40,6 +40,10 @@ defined('_JEXEC') or die('Restricted access');
 						<td><input name="AdminEmailReplyTo" placeholder="<?php echo JText::_('RSFP_EMAILS_REPLY_TO_PLACEHOLDER'); ?>" class="rs_inp rs_80" id="AdminEmailReplyTo" value="<?php echo $this->escape($this->form->AdminEmailReplyTo); ?>" data-delimiter="," data-filter-type="include" data-filter="value,global" data-placeholders="display"/></td>
 					</tr>
 					<tr>
+						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo RSFormProHelper::translateIcon(); ?> <?php echo JText::_('RSFP_EMAILS_REPLY_TO_NAME'); ?></td>
+						<td><input name="AdminEmailReplyToName" placeholder="<?php echo JText::_('RSFP_EMAILS_REPLY_TO_NAME_PLACEHOLDER'); ?>" class="rs_inp rs_80" id="AdminEmailReplyToName" value="<?php echo $this->escape($this->form->AdminEmailReplyToName); ?>" data-delimiter="," data-filter-type="include" data-filter="value,global" data-placeholders="display"/></td>
+					</tr>
+					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_EMAILS_CC'); ?></td>
 						<td><input name="AdminEmailCC" placeholder="<?php echo JText::_('RSFP_EMAILS_CC_PLACEHOLDER'); ?>" class="rs_inp rs_80" id="AdminEmailCC" value="<?php echo $this->escape($this->form->AdminEmailCC); ?>" data-delimiter="," data-filter-type="include" data-filter="value,global" data-placeholders="display" /></td>
 					</tr>
@@ -73,7 +77,8 @@ defined('_JEXEC') or die('Restricted access');
 			<button class="btn" type="button" onclick="toggleQuickAdd();"><?php echo JText::_('RSFP_TOGGLE_QUICKADD'); ?></button>
 			<div id="QuickAdd4">
 				<h3><?php echo JText::_('RSFP_QUICK_ADD');?></h3>
-				<?php echo JText::_('RSFP_QUICK_ADD_DESC');?><br/><br/>
+
+				<?php echo RSFormProHelper::generateQuickAddGlobal(); ?>
 				<?php foreach($this->quickfields as $field) {
 					echo RSFormProHelper::generateQuickAdd($field, 'display');
 				}?>

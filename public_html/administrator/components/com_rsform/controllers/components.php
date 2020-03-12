@@ -37,6 +37,11 @@ class RsformControllerComponents extends RsformController
 			$params['VALIDATIONMULTIPLE'] = !empty($params['VALIDATIONMULTIPLE']) ? implode(',',$params['VALIDATIONMULTIPLE']) : '';
 			$params['VALIDATIONEXTRA'] = !empty($params['VALIDATIONEXTRA']) ? json_encode($params['VALIDATIONEXTRA']) : '';
 		}
+		
+		if ($componentType == RSFORM_FIELD_FILEUPLOAD && !isset($params['EMAILATTACH']))
+		{
+			$params['EMAILATTACH'] = array();
+		}
 
 		$just_added = false;
 		if ($componentIdToEdit < 1)
@@ -518,6 +523,6 @@ class RsformControllerComponents extends RsformController
 			$app->close();
 		}
 
-		$this->setRedirect('index.php?option=com_rsform&view=forms&layout=edit&formId='.$formId, JText::sprintf('ITEMS REMOVED', count($cids)));
+		$this->setRedirect('index.php?option=com_rsform&view=forms&layout=edit&formId='.$formId, JText::sprintf('COM_RSFORM_FIELDS_REMOVED', count($cids)));
 	}
 }

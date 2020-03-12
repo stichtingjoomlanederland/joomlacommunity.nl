@@ -24,6 +24,8 @@ class WFMediaManager extends WFMediaManagerBase
     public $can_edit_images = 0;
 
     public $show_view_mode = 0;
+    
+    protected $exifCache = array();
 
     public function __construct($config = array())
     {
@@ -226,14 +228,51 @@ class WFMediaManager extends WFMediaManagerBase
         return true;
     }
 
+    /**
+     * Get and temporarily store the exif data of an image
+     *
+     * @param [String] $file The aboslute path to the image
+     * @param [String] $key The key to store the data under
+     * @return void
+     */
+    protected function getExifData($file, $key = null)
+    {
+        // use file name as key
+        if (empty($key)) {
+            $key = $file;
+        }
+
+        if (array_key_exists($key, $this->exifCache)) {
+            return $this->exifCache[$key];
+        }
+        
+        $exif = null;
+        
+        if (!function_exists('exif_read_data') || !is_file($file)) {
+            return $exif;
+        }
+
+        $exif = @exif_read_data($file, 'EXIF');
+
+        if ($exif && is_array($exif)) {
+            $this->exifCache[$key] = $exif;
+        }
+
+        return $exif;
+    }
+
     public function onBeforeUpload(&$file, &$dir, &$name)
     {
         // check for and reset image orientation
         if (preg_match('#\.(jpg|jpeg)$#i', $file['name'])) {
 
+            // store exif data
+            $exif = $this->getExifData($file['tmp_name'], $file['name']);
+
             $remove_exif = (bool) $this->getParam('editor.upload_remove_exif', false);
 
-            if ($remove_exif) {
+            // data exists and we are allowed to remove it
+            if ($exif && $remove_exif) {
                 if (false == $this->removeExifData($file['tmp_name'])) {
                     throw new InvalidArgumentException(JText::_('WF_MANAGER_UPLOAD_EXIF_REMOVE_ERROR'));
                 }
@@ -705,7 +744,7 @@ class WFMediaManager extends WFMediaManagerBase
     protected function canResampleImage()
     {
         $resample = (bool) $this->getParam('editor.resample_image', false);
-        $imagick  = (bool) $this->getParam('editor.prefer_imagick', true);
+        $imagick = (bool) $this->getParam('editor.prefer_imagick', true);
 
         return $resample && $imagick && extension_loaded('imagick');
     }
@@ -1330,15 +1369,13 @@ class WFMediaManager extends WFMediaManagerBase
         self::validateImagePath($file);
 
         $browser = $this->getFileBrowser();
+        $filesystem = $browser->getFileSystem();
 
         $thumb = WFUtility::makePath($this->getThumbDir($file, true), $this->getThumbName($file));
 
-        $path = WFUtility::makePath($browser->getBaseDir(), $file);
-        $thumb = WFUtility::makePath($browser->getBaseDir(), $thumb);
-
         $extension = WFUtility::getExtension($file);
 
-        $instance = $this->getImageLab($path);
+        $instance = $this->getImageLab($file);
 
         if ($instance) {
             if ($box) {
@@ -1348,8 +1385,13 @@ class WFMediaManager extends WFMediaManagerBase
 
             $instance->resize($width, $height);
 
-            if (!$instance->toFile($thumb, $extension, array('quality' => $quality))) {
-                $browser->setResult(JText::_('WF_IMGMANAGER_EXT_THUMBNAIL_ERROR'), 'error');
+            $data = $instance->toString($extension, array('quality' => $quality));
+
+            if ($data) {
+                // write to file
+                if (!$filesystem->write($thumb, $data)) {
+                    $browser->setResult(JText::_('WF_IMGMANAGER_EXT_THUMBNAIL_ERROR'), 'error');
+                }
             }
         }
 
@@ -1412,23 +1454,21 @@ class WFMediaManager extends WFMediaManagerBase
         } elseif (extension_loaded('gd')) {
             try {
 
-                if ($rotate) {
-                    $handle = imagecreatefromjpeg($file);
+                $handle = imagecreatefromjpeg($file);
 
-                    if (is_resource($handle)) {
-                        if ($rotate) {
-                            $rotation = imagerotate($handle, -$rotate, 0);
+                if (is_resource($handle)) {
+                    if ($rotate) {
+                        $rotation = imagerotate($handle, -$rotate, 0);
 
-                            if ($rotation) {
-                                $handle = $rotation;
-                            }
+                        if ($rotation) {
+                            $handle = $rotation;
                         }
-
-                        imagejpeg($handle, $file);
-                        @imagedestroy($handle);
-
-                        return true;
                     }
+
+                    imagejpeg($handle, $file);
+                    @imagedestroy($handle);
+
+                    return true;
                 }
             } catch (Exception $e) {
             }

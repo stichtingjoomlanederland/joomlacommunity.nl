@@ -22,7 +22,15 @@
 				<option value="0">JNO</option>
 				<option value="1">JYES</option>
 			</field>
-			<field name="userId" type="text" default="0" label="RSFP_SUBM_DIR_USERID" description="RSFP_SUBM_DIR_USERID_DESC" />
+			<field name="show_all_submissions" type="radio" class="btn-group" default="1" label="COM_RSFORM_SHOW_ALL_SUBMISSIONS" description="COM_RSFORM_SHOW_ALL_SUBMISSIONS_DESC" showon="show_logged_in_submissions:0">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="show_logged_in_submissions" type="radio" class="btn-group" default="0" label="COM_RSFORM_SHOW_LOGGED_IN_SUBMISSIONS" description="COM_RSFORM_SHOW_LOGGED_IN_SUBMISSIONS_DESC" showon="show_all_submissions:0">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="userId" type="text" default="" label="RSFP_SUBM_DIR_USERID" description="RSFP_SUBM_DIR_USERID_DESC" showon="show_all_submissions:0[AND]show_logged_in_submissions:0" />
 			<field name="display_num" type="list" default="10" label="RSFP_SUBM_DIR_ITEMS" description="RSFP_SUBM_DIR_ITEMS_DESC">
 				<option value="5">5</option>
 				<option value="10">10</option>

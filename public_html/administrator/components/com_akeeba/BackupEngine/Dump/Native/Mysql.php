@@ -952,9 +952,37 @@ class Mysql extends Base
 			}
 		} // if MySQL 5
 
-		// Store all abstract entity names (tables, views, triggers etc etc ) into a volatile variable,
-		// so we can fetch it later when creating the databases.json file
+		/**
+		 * Store all abstract entity names (tables, views, triggers etc etc ) into a volatile variable, so we can fetch
+		 * it later when creating the databases.json file
+		 */
+		ksort($this->table_name_map);
 		$registry->set('volatile.database.table_names', array_values($this->table_name_map));
+
+		/**
+		 * IMPORTANT -- DO NOT REMOVE
+		 *
+		 * We now need to reverse sort the table_name_map. This is of paramount importance in how the
+		 * replaceTableNamesWithAbstracts method works. Consider the following case:
+		 * foo_test_2 => #__test_2
+		 * foo_test_20 => #__test_20
+		 * If foo_test_2 comes before foo_test_2 (alpha sort) the CREATE command of foo_test_20 will end up as
+		 * CREATE TABLE ``#__test_2`0` (...)
+		 * instead of the correct
+		 * CREATE TABLE `#__test_20` (...)
+		 * That's because the first table replacement done there will be foo_test_2 => `#__test_2`. Ouch.
+		 *
+		 * By doing a reverse alpha sort on the keys we ENSURE that the longer table names which may be a superset of
+		 * another table's name will always end up first on the list.
+		 *
+		 * In our example the first replacement made is foo_test_20 => `#__test_20`. When we reach the next possible
+		 * replacement (foo_test_2) we no longer have the concrete table name foo_test_2 therefore we won't accidentally
+		 * break the CREATE command.
+		 *
+		 * Of course the same replacement problem exists within VIEWs, TRIGGERs, PROCEDUREs and FUNCTIONs. Again, the
+		 * reverse alpha sort by concrete table name solves this issue elegantly.
+		 */
+		krsort($this->table_name_map);
 	}
 
 	/**

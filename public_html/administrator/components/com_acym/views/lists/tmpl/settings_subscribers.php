@@ -8,14 +8,14 @@ defined('_JEXEC') or die('Restricted access');
 
 	<div class="cell grid-x acym__list__settings__subscribers__search">
 		<div class="medium-9"></div>
-		<div class="cell medium-3"><input type="text" class="acym__light__input" v-model="searchSubscribers" placeholder="<?= acym_translation('ACYM_SEARCH'); ?>"></div>
+		<div class="cell medium-3"><input type="text" class="acym__light__input" v-model="searchSubscribers" placeholder="<?php echo acym_translation('ACYM_SEARCH'); ?>"></div>
 	</div>
 	<div v-show="displayedSubscribers.length > 0" style="display:none;" class="cell grid-x acym__listing">
 		<div class="grid-x cell acym__listing__header hide-for-medium-only hide-for-small-only">
-			<div class="cell acym__listing__header__title large-4"><?= acym_translation('ACYM_EMAIL'); ?></div>
-			<div class="cell acym__listing__header__title" :class="requireConfirmation==1?'large-3':'large-4'"><?= acym_translation('ACYM_NAME'); ?></div>
-			<div class="cell large-2 acym__listing__header__title"><?= acym_translation('ACYM_SUBSCRIPTION_DATE'); ?></div>
-			<div class="cell large-1 acym__listing__header__title" v-show="requireConfirmation==1"><?= acym_translation('ACYM_STATUS'); ?></div>
+			<div class="cell acym__listing__header__title large-4"><?php echo acym_translation('ACYM_EMAIL'); ?></div>
+			<div class="cell acym__listing__header__title" :class="requireConfirmation==1?'large-3':'large-4'"><?php echo acym_translation('ACYM_NAME'); ?></div>
+			<div class="cell large-2 acym__listing__header__title"><?php echo acym_translation('ACYM_SUBSCRIPTION_DATE'); ?></div>
+			<div class="cell large-1 acym__listing__header__title" v-show="requireConfirmation==1"><?php echo acym_translation('ACYM_STATUS'); ?></div>
 			<div class="cell large-2 acym__listing__header__title"></div>
 		</div>
 		<div class="grid-x cell acym__list__settings__subscribers__listing" v-infinite-scroll="loadMoreSubscriber" :infinite-scroll-disabled="busy">
@@ -31,11 +31,11 @@ defined('_JEXEC') or die('Restricted access');
 				</div>
 				<div class="cell large-1 hide-for-medium-only hide-for-small-only acym_word-break" v-show="requireConfirmation==1 && sub.confirmed==0">
 							<span class="acym__color__dark-gray">
-								<?= acym_translation('ACYM_PENDING'); ?>
+								<?php echo acym_translation('ACYM_PENDING'); ?>
 							</span>
 				</div>
 				<div class="cell large-1 hide-for-medium-only hide-for-small-only acym_word-break" v-show="requireConfirmation==1 && sub.confirmed==1">
-					<span><?= acym_translation('ACYM_CONFIRMED'); ?></span>
+					<span><?php echo acym_translation('ACYM_CONFIRMED'); ?></span>
 				</div>
 				<div class="large-2 medium-5 small-2 cell acym__list__settings__subscribers__users--action acym__list__action--unsubscribe_one acym_word-break" v-on:click="unsubscribeUser(sub.id)">
 					<i class="acymicon-times-circle"></i><span class="hide-for-small-only"><?php echo strtolower(acym_translation('ACYM_UNSUBSCRIBE')); ?></span>
@@ -44,11 +44,11 @@ defined('_JEXEC') or die('Restricted access');
 		</div>
 	</div>
 	<div class="cell grid-x align-center acym__list__subscribers__loading margin-top-1" v-show="loading">
-		<div class="cell text-center acym__list__subscribers__loading__title"><?= acym_translation('ACYM_WE_ARE_LOADING_YOUR_DATA'); ?></div>
-		<div class="cell grid-x shrink margin-top-1"><?= $data['svg']; ?></div>
+		<div class="cell text-center acym__list__subscribers__loading__title"><?php echo acym_translation('ACYM_WE_ARE_LOADING_YOUR_DATA'); ?></div>
+		<div class="cell grid-x shrink margin-top-1"><?php echo $data['svg']; ?></div>
 	</div>
 	<div class="grid-x cell acym__listing v-align-top acym__list__settings__subscribers__listing" v-show="displayedSubscribers.length==0 && !loading" style="display:none;">
-		<span><?= acym_translation('ACYM_NO_USERS_FOUND'); ?></span>
+		<span><?php echo acym_translation('ACYM_NO_USERS_FOUND'); ?></span>
 	</div>
 </div>
 

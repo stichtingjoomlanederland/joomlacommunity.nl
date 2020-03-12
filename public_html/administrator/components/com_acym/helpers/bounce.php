@@ -315,14 +315,14 @@ class acymbounceHelper extends acymObject
                                 }
 
                                 if (strpos($onePart, "Content-Type: text/plain") !== false) {
-                                    $this->_message->text = $content;
+                                    $this->_message->text .= ' '.$content;
                                 }
                                 if (strpos($onePart, "Content-Type: text/html") !== false) {
-                                    $this->_message->html = $content;
+                                    $this->_message->html .= ' '.$content;
                                 }
                             }
                         } else {
-                            $this->_message->html = trim(preg_replace('#(charset=".*?\r\n)|Content-(Type|ID|Disposition|Transfer-Encoding):.*?\r\n#is', "", $segment));
+                            $this->_message->html .= ' '.trim(preg_replace('#(charset=".*?\r\n)|Content-(Type|ID|Disposition|Transfer-Encoding):.*?\r\n#is', "", $segment));
                         }
                     } elseif (preg_match("#Content-Type: .*?/(png|jpg|jpeg|gif)#i", $segment) !== false) {
                         preg_match('#name="([^"]+)"#i', $segment, $filename);

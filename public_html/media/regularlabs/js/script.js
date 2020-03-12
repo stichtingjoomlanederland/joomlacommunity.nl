@@ -1,10 +1,10 @@
 /**
  * @package         Regular Labs Library
- * @version         19.12.9182
+ * @version         20.2.16442
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2019 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -12,11 +12,11 @@
 
 if (typeof window.RegularLabsScripts === 'undefined'
 	|| typeof RegularLabsScripts.version === 'undefined'
-	|| RegularLabsScripts.version < '19.12.9182') {
+	|| RegularLabsScripts.version < '20.2.16442') {
 
 	(function($) {
 		window.RegularLabsScripts = {
-			version: '19.12.9182',
+			version: '20.2.16442',
 
 			ajax_list        : [],
 			started_ajax_list: false,
@@ -55,12 +55,14 @@ if (typeof window.RegularLabsScripts === 'undefined'
 					dataType: dataType ? dataType : '',
 					success : function(data) {
 						if (success) {
-							eval(`${success};`);
+							success = `data = data ? data : ''; ${success};`.replace(/;\s*;/g, ';');
+							eval(success);
 						}
 					},
 					error   : function(data) {
 						if (fail) {
-							eval(`${fail};`);
+							fail = `data = data ? data : ''; ${fail};`.replace(/;\s*;/g, ';');
+							eval(fail);
 						}
 					}
 				});
@@ -307,6 +309,6 @@ if (typeof window.RegularLabsScripts === 'undefined'
 			},
 			setToggleTitleClass      : function(input, value) {
 			}
-		}
+		};
 	})(jQuery);
 }

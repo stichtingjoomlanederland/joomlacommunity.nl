@@ -18,16 +18,16 @@ function acym_modal($button, $data, $id = null, $attributesModal = '', $attribut
     return $modal;
 }
 
-function acym_modal_include($button, $file, $id, $data, $attributes = '', $classModal = "")
+function acym_modal_include($button, $file, $id, $data, $attributes = '', $classModal = '', $containerAttributes = '')
 {
     if (empty($id)) {
         $id = 'acymodal_'.rand(1000, 9000);
     }
 
-    $modal = '<div data-open="'.acym_escape($id).'">'.$button;
+    $modal = '<div data-open="'.acym_escape($id).'" '.$containerAttributes.'>'.$button;
     $modal .= '<div class="reveal '.$classModal.'" id="'.acym_escape($id).'" '.$attributes.' data-reveal>';
     ob_start();
-    include($file);
+    include $file;
     $modal .= ob_get_clean();
     $modal .= '<button type="button" class="close-button" data-close aria-label="Close reveal">';
     $modal .= '<span aria-hidden="true">&times;</span>';

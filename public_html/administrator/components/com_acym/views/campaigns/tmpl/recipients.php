@@ -4,7 +4,7 @@ defined('_JEXEC') or die('Restricted access');
 	<input type="hidden" value="<?php echo !empty($data['campaignInformation']) ? acym_escape($data['campaignInformation']) : ''; ?>" name="id" id="acym__campaign__recipients__form__campaign">
 	<input type="hidden" value="<?php echo !empty($data['showSelected']) ? $data['showSelected'] : ''; ?>" name="showSelected" id="acym__campaign__recipients__show-all-or-selected">
 	<div id="acym__campaigns__recipients" class="grid-x">
-		<div class="cell <?= $data['containerClass']; ?> float-center grid-x acym__content">
+		<div class="cell <?php echo $data['containerClass']; ?> float-center grid-x acym__content">
             <?php
             $workflow = acym_get('helper.workflow');
             echo $workflow->display($this->steps, $this->step);

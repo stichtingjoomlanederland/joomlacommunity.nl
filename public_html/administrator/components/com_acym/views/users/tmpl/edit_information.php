@@ -19,7 +19,7 @@ defined('_JEXEC') or die('Restricted access');
                 <?php echo acym_translation('ACYM_DATE_CREATED'); ?> : <b><?php echo !empty($data['user-information']->id) ? acym_date($data['user-information']->creation_date, 'M. j, Y') : acym_date(time(), 'M. j, Y'); ?></b>
 			</div>
 			<div class="cell medium-6 small-12">
-                <?php echo acym_translation('ACYM_SOURCE'); ?> : <b><?= $data['user-information']->source; ?></b>
+                <?php echo acym_translation('ACYM_SOURCE'); ?> : <b><?php echo $data['user-information']->source; ?></b>
 			</div>
 		</div>
     <?php } else { ?>

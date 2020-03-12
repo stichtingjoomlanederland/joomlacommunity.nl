@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="component" version="2.5" method="upgrade">
 	<name>Acym</name>
-	<creationDate>January 2020</creationDate>
-	<version>6.7.5</version>
+	<creationDate>March 2020</creationDate>
+	<version>6.9.1</version>
 	<level>enterprise</level>
 	<author>Acyba</author>
 	<authorEmail>dev@acyba.com</authorEmail>
 	<authorUrl>https://www.acyba.com</authorUrl>
 	<copyright>Copyright (C) 2009-2020 ACYBA SAS - All rights reserved.</copyright>
 	<description>Manage your Mailing lists and e-mail marketing campaigns</description>
-	<license>GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html</license>
+	<license>GNU/GPLv3 https://www.gnu.org/licenses/gpl-3.0.html</license>
 	<languages folder="language">
 		<language tag="en-GB">en-GB.com_acym.ini</language>
 		<language tag="en-US">en-US.com_acym.ini</language>

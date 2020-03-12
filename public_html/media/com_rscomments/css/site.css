@@ -418,3 +418,13 @@ textarea.invalid {
 	padding-left: 20px;
 	padding-right: 20px;
 }
+
+.rscomment-comment-area {
+	padding: 5px;
+	border: 1px solid #e5e5e5;
+	border-radius: 3px;
+}
+
+.rscomment-comment-area-actions {
+	padding: 5px; 
+}

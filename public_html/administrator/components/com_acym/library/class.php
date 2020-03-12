@@ -51,16 +51,22 @@ class acymClass extends acymObject
 
     public function save($element)
     {
-        foreach ($element as $column => $value) {
+        $tableColumns = acym_getColumns($this->table);
+        $cloneElement = clone $element;
+        foreach ($cloneElement as $column => $value) {
+            if (!in_array($column, $tableColumns)) {
+                unset($cloneElement->$column);
+                continue;
+            }
             acym_secureDBColumn($column);
         }
 
         $pkey = $this->pkey;
 
-        if (empty($element->$pkey)) {
-            $status = acym_insertObject('#__acym_'.$this->table, $element);
+        if (empty($cloneElement->$pkey)) {
+            $status = acym_insertObject('#__acym_'.$this->table, $cloneElement);
         } else {
-            $status = acym_updateObject('#__acym_'.$this->table, $element, $pkey);
+            $status = acym_updateObject('#__acym_'.$this->table, $cloneElement, $pkey);
         }
 
         if (!$status) {
@@ -73,7 +79,7 @@ class acymClass extends acymObject
             return false;
         }
 
-        return empty($element->$pkey) ? $status : $element->$pkey;
+        return empty($cloneElement->$pkey) ? $status : $cloneElement->$pkey;
     }
 
     public function delete($elements)

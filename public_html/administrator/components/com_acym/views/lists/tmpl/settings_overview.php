@@ -8,15 +8,15 @@ defined('_JEXEC') or die('Restricted access');
             if ($this->config->get('require_confirmation', 1) == 1 && $data['listInformation']->subscribers['nbSubscribers'] != $data['listInformation']->subscribers['sendable']) {
                 ?>
 				<div class="cell grid-x">
-					<div class="cell small-4 text-right"><a href="#subscribers" class="acym__color__blue"><?= $data['listInformation']->subscribers['sendable']; ?>&nbsp;</a></div>
-					<div class="cell small-8 text-left"><a href="#subscribers"><?= acym_translation('ACYM_CONFIRMED'); ?></a></div>
+					<div class="cell small-4 text-right"><a href="#subscribers" class="acym__color__blue"><?php echo $data['listInformation']->subscribers['sendable']; ?>&nbsp;</a></div>
+					<div class="cell small-8 text-left"><a href="#subscribers"><?php echo acym_translation('ACYM_CONFIRMED'); ?></a></div>
 					<div class="cell small-4 text-right"><a href="#subscribers" class="acym__color__blue"><?php echo($data['listInformation']->subscribers['nbSubscribers'] - $data['listInformation']->subscribers['sendable']); ?>&nbsp;</a></div>
-					<div class="cell small-8 text-left"><a href="#subscribers"><?= acym_translation('ACYM_PENDING'); ?></a></div>
+					<div class="cell small-8 text-left"><a href="#subscribers"><?php echo acym_translation('ACYM_PENDING'); ?></a></div>
 				</div>
             <?php } else { ?>
 				<div class="cell grid-x">
-					<div class="cell small-4 text-right"><a href="#subscribers" class="acym__color__blue"><?= $data['listInformation']->subscribers['nbSubscribers']; ?>&nbsp;</a></div>
-					<div class="cell small-8 text-left"><a href="#subscribers"><?= acym_translation('ACYM_USERS'); ?></a></div>
+					<div class="cell small-4 text-right"><a href="#subscribers" class="acym__color__blue"><?php echo $data['listInformation']->subscribers['nbSubscribers']; ?>&nbsp;</a></div>
+					<div class="cell small-8 text-left"><a href="#subscribers"><?php echo acym_translation('ACYM_USERS'); ?></a></div>
 				</div>
             <?php } ?>
 		</div>
@@ -31,7 +31,7 @@ defined('_JEXEC') or die('Restricted access');
             if (empty($data['listInformation']->id)) {
                 echo acym_tooltip('<i class="acymicon-ban acym__list__button__add__mail__disabled"></i>', acym_translation('ACYM_SAVE_LIST_FIRST'));
             } elseif (empty($data['listInformation']->welcome_id)) { ?>
-				<a class="acym_vcenter text-center align-center acym__color__white acym__list__button__add__mail__welcome__unsub" href="<?= $data['tmpls']['welcomeTmplUrl']; ?>">
+				<a class="acym_vcenter text-center align-center acym__color__white acym__list__button__add__mail__welcome__unsub" href="<?php echo $data['tmpls']['welcomeTmplUrl']; ?>">
 					<i class="acymicon-add"></i>
 				</a>
             <?php } else { ?>
@@ -45,7 +45,7 @@ defined('_JEXEC') or die('Restricted access');
 							<p class="acym__listing__block__delete__submit acym__color__white acy_button_submit" data-task="unsetWelcome"><?php echo acym_translation('ACYM_DELETE'); ?></p>
 						</div>
 					</div>
-					<a href="<?= $data['tmpls']['welcomeTmplUrl']; ?>">
+					<a href="<?php echo $data['tmpls']['welcomeTmplUrl']; ?>">
 						<div class="cell grid-x text-center">
 							<div class="cell acym__templates__pic text-center">
 								<img src="<?php echo acym_getMailThumbnail($data['tmpls']['welcome']->thumbnail); ?>" alt="<?php echo acym_escape($data['tmpls']['welcome']->name); ?>" />
@@ -69,7 +69,7 @@ defined('_JEXEC') or die('Restricted access');
             if (empty($data['listInformation']->id)) {
                 echo acym_tooltip('<i class="acymicon-ban acym__list__button__add__mail__disabled"></i>', acym_translation('ACYM_SAVE_LIST_FIRST'));
             } elseif (empty($data['listInformation']->unsubscribe_id)) { ?>
-				<a class="acym_vcenter text-center align-center acym__color__white acym__list__button__add__mail__welcome__unsub" href="<?= $data['tmpls']['unsubTmplUrl']; ?>">
+				<a class="acym_vcenter text-center align-center acym__color__white acym__list__button__add__mail__welcome__unsub" href="<?php echo $data['tmpls']['unsubTmplUrl']; ?>">
 					<i class="acymicon-add"></i>
 				</a>
             <?php } else { ?>
@@ -83,7 +83,7 @@ defined('_JEXEC') or die('Restricted access');
 							<p class="acym__listing__block__delete__submit acym__color__white acy_button_submit" data-task="unsetUnsubscribe"><?php echo acym_translation('ACYM_DELETE'); ?></p>
 						</div>
 					</div>
-					<a href="<?= $data['tmpls']['unsubTmplUrl']; ?>">
+					<a href="<?php echo $data['tmpls']['unsubTmplUrl']; ?>">
 						<div class="cell grid-x text-center">
 							<div class="cell acym__templates__pic text-center">
 								<img src="<?php echo acym_getMailThumbnail($data['tmpls']['unsubscribe']->thumbnail); ?>" alt="<?php echo acym_escape($data['tmpls']['unsubscribe']->name); ?>" />

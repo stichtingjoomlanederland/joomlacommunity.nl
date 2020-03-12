@@ -8,7 +8,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 class RSEventsProVersion {
-	public $version  = '1.12.12';
+	public $version  = '1.12.13';
 	public $key		 = 'EV8PR413H1';
 	// Unused
 	public $revision = null;

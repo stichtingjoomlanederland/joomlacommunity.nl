@@ -18,13 +18,16 @@ $ongoing	= rseventsproHelper::ongoing($this->event->id);
 $featured 	= $event->featured ? ' rs_featured_event' : ''; 
 $description= empty($event->description) ? $event->small_description : $event->description;
 $links		= rseventsproHelper::getConfig('modal','int');
+$modal		= rseventsproHelper::getConfig('modaltype','int');
 $tmpl		= $links == 0 ? '' : '&tmpl=component';
 
-$subscribeURL	= $links == 2 ? 'javascript:void(0);' : rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe&id='.rseventsproHelper::sef($event->id,$event->name).$tmpl);
-$waitinglistURL	= $links == 2 ? 'javascript:void(0);' : rseventsproHelper::route('index.php?option=com_rseventspro&layout=waiting&id='.rseventsproHelper::sef($event->id,$event->name).$tmpl);
-$inviteURL		= $links == 2 ? 'javascript:void(0);' : rseventsproHelper::route('index.php?option=com_rseventspro&layout=invite&id='.rseventsproHelper::sef($event->id,$event->name).$tmpl);
-$messageURL		= $links == 2 ? 'javascript:void(0);' : rseventsproHelper::route('index.php?option=com_rseventspro&layout=message&id='.rseventsproHelper::sef($event->id,$event->name).$tmpl);
-$unsubscribeURL	= $links == 0 || $links == 2 ? 'javascript:void(0);' : rseventsproHelper::route('index.php?option=com_rseventspro&layout=unsubscribe&id='.rseventsproHelper::sef($event->id,$event->name).'&tmpl=component');
+$subscribeURL	= $links == 1 && $modal == 1 ? 'javascript:void(0);' : rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe&id='.rseventsproHelper::sef($event->id,$event->name).$tmpl);
+$waitinglistURL	= $links == 1 && $modal == 1 ? 'javascript:void(0);' : rseventsproHelper::route('index.php?option=com_rseventspro&layout=waiting&id='.rseventsproHelper::sef($event->id,$event->name).$tmpl);
+$inviteURL		= $links == 1 && $modal == 1 ? 'javascript:void(0);' : rseventsproHelper::route('index.php?option=com_rseventspro&layout=invite&id='.rseventsproHelper::sef($event->id,$event->name).$tmpl);
+$messageURL		= $links == 1 && $modal == 1 ? 'javascript:void(0);' : rseventsproHelper::route('index.php?option=com_rseventspro&layout=message&id='.rseventsproHelper::sef($event->id,$event->name).$tmpl);
+$unsubscribeURL	= $modal == 1 ? 'javascript:void(0);' : rseventsproHelper::route('index.php?option=com_rseventspro&layout=unsubscribe&id='.rseventsproHelper::sef($event->id,$event->name).'&tmpl=component');
+$reportURL		= $modal == 1 ? 'javascript:void(0);' : rseventsproHelper::route('index.php?option=com_rseventspro&layout=report&tmpl=component&id='.rseventsproHelper::sef($event->id,$event->name));
+$imageURL		= $modal == 1 ? 'javascript:void(0);' : $details['image'];
 
 rseventsproHelper::richSnippet($details); ?>
 
@@ -115,7 +118,7 @@ rseventsproMapHelper::loadMap($mapParams);
 				</li>
 				<?php } ?>
 				<li>
-					<a href="<?php echo $messageURL; ?>" rel="rs_message"<?php if ($links == 2) echo ' onclick="jQuery(\'#rseMessageModal\').modal(\'show\');"'; ?>>
+					<a href="<?php echo $messageURL; ?>" rel="rs_message"<?php if ($links == 1 && $modal == 1) echo ' onclick="jQuery(\'#rseMessageModal\').modal(\'show\');"'; ?>>
 						<i class="fa fa-envelope-o fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_MESSAGE_TO_GUESTS'); ?>
 					</a>
 				</li>
@@ -169,7 +172,7 @@ rseventsproMapHelper::loadMap($mapParams);
 
 	<!-- Invite/Join/Unsubscribe -->	
 		<?php if ($this->cansubscribe['status'] || rseventsproHelper::validWaitingList($event->id)) { ?>
-		<a href="<?php echo $subscribeURL; ?>" class="btn" rel="rs_subscribe"<?php if ($links == 2) echo ' onclick="jQuery(\'#rseSubscribeModal\').modal(\'show\');"'; ?>>
+		<a href="<?php echo $subscribeURL; ?>" class="btn" rel="rs_subscribe"<?php if ($links == 1 && $modal == 1) echo ' onclick="jQuery(\'#rseSubscribeModal\').modal(\'show\');"'; ?>>
 			<i class="fa fa-check fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_JOIN'); ?>
 		</a>
 		<?php } ?>
@@ -177,7 +180,7 @@ rseventsproMapHelper::loadMap($mapParams);
 		<?php $fullEvent = rseventsproHelper::eventisfull($this->event->id, false); ?>
 		<?php $fullEvent = $this->event->overbooking ? $fullEvent && !$this->cansubscribe['status'] : $fullEvent; ?>
 		<?php if ($fullEvent && !$this->eventended && rseventsproHelper::hasWaitingList($event->id)) { ?>
-		<a href="<?php echo $waitinglistURL; ?>" class="btn" rel="rs_subscribe"<?php if ($links == 2) echo ' onclick="jQuery(\'#rseSubscribeModal\').modal(\'show\');"'; ?>>
+		<a href="<?php echo $waitinglistURL; ?>" class="btn" rel="rs_subscribe"<?php if ($links == 1 && $modal == 1) echo ' onclick="jQuery(\'#rseSubscribeModal\').modal(\'show\');"'; ?>>
 			<i class="fa fa-check fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_WAITING_LIST'); ?>
 		</a>
 		<?php } ?>
@@ -190,7 +193,7 @@ rseventsproMapHelper::loadMap($mapParams);
 			<i class="fa fa-times fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_UNSUBSCRIBE'); ?>
 		</a>
 		<?php } else { ?>
-		<a href="<?php echo $unsubscribeURL; ?>" class="btn" <?php echo $links == 1 ? 'rel="rs_unsubscribe"' : 'onclick="jQuery(\'#rseUnsubscribeModal\').modal(\'show\');"'; ?>>
+		<a href="<?php echo $unsubscribeURL; ?>" class="btn" <?php echo $modal == 2 ? 'rel="rs_unsubscribe"' : 'onclick="jQuery(\'#rseUnsubscribeModal\').modal(\'show\');"'; ?>>
 			<i class="fa fa-times fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_UNSUBSCRIBE'); ?>
 		</a>
 		<?php } ?>
@@ -204,15 +207,15 @@ rseventsproMapHelper::loadMap($mapParams);
 			<ul class="dropdown-menu">
 				<?php if (!$this->eventended && !empty($this->options['show_invite'])) { ?>
 				<li>
-					<a href="<?php echo $inviteURL; ?>" rel="rs_invite"<?php if ($links == 2) echo ' onclick="jQuery(\'#rseInviteModal\').modal(\'show\');"'; ?>>
+					<a href="<?php echo $inviteURL; ?>" rel="rs_invite"<?php if ($links == 1 && $modal == 1) echo ' onclick="jQuery(\'#rseInviteModal\').modal(\'show\');"'; ?>>
 						<i class="fa fa-plus fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_INVITE'); ?>
 					</a>
 				</li>
 				<?php } ?>
 				
 				<?php if ($this->report) { ?>
-				<li>			
-					<a href="javascript:void(0);" onclick="jQuery('#rseReportModal').modal('show');">
+				<li>
+					<a href="<?php echo $reportURL; ?>" rel="rs_report"<?php if ($modal == 1) echo ' onclick="jQuery(\'#rseReportModal\').modal(\'show\');"'; ?>>
 						<i class="fa fa-flag fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_REPORT'); ?>
 					</a>
 				</li>
@@ -236,7 +239,7 @@ rseventsproMapHelper::loadMap($mapParams);
 				
 				<?php if ($this->config->timezone) { ?>
 				<li>
-					<a href="#timezoneModal" data-toggle="modal">
+					<a rel="rs_timezone"<?php if ($modal == 1) echo ' href="#timezoneModal" data-toggle="modal"'; else echo ' href="javascript:void(0)"'; ?>>
 						<i class="fa fa-clock-o fa-fw"></i> <?php echo rseventsproHelper::getTimezone(); ?>
 					</a> 
 				</li>
@@ -297,7 +300,7 @@ rseventsproMapHelper::loadMap($mapParams);
 	<!-- Image -->
 	<?php if (!empty($details['image_b'])) { ?>
 	<div class="rs_image">
-		<a href="javascript:void(0);" onclick="rsepro_show_image('<?php echo $details['image']; ?>');" class="thumbnail">
+		<a href="<?php echo $imageURL; ?>" rel="rs_image"<?php if ($modal == 1) echo 'onclick=" rsepro_show_image(\''.$details['image'].'\');"' ?> class="thumbnail">
 			<img src="<?php echo $details['image_b']; ?>" alt="<?php echo $this->escape($event->name); ?>" width="<?php echo rseventsproHelper::getConfig('icon_big_width','int'); ?>px" />
 		</a>
 	</div>
@@ -669,14 +672,20 @@ rseventsproMapHelper::loadMap($mapParams);
 <?php echo rseventsproHelper::timezoneModal(); ?>
 <?php } ?>
 
-<?php 
-if ($this->report) {
-	echo JHtml::_('bootstrap.renderModal', 'rseReportModal', array('title' => '&nbsp;', 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=report&tmpl=component&id='.rseventsproHelper::sef($event->id,$event->name)), 'bodyHeight' => 70));
+<?php
+if ($modal == 1) {
+	echo JHtml::_('bootstrap.renderModal', 'rseImageModal', array('title' => '&nbsp;', 'bodyHeight' => 70));
+	
+	if ($this->report) {
+		echo JHtml::_('bootstrap.renderModal', 'rseReportModal', array('title' => '&nbsp;', 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=report&tmpl=component&id='.rseventsproHelper::sef($event->id,$event->name)), 'bodyHeight' => 70));
+	}
+	
+	if (!$this->eventended && $this->canunsubscribe && $this->issubscribed != 1) {
+		echo JHtml::_('bootstrap.renderModal', 'rseUnsubscribeModal', array('title' => JText::_('COM_RSEVENTSPRO_UNSUBSCRIBE_UNSUBSCRIBE'), 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=unsubscribe&id='.rseventsproHelper::sef($event->id,$event->name).'&tmpl=component'), 'bodyHeight' => 70));
+	}
 }
 
-echo JHtml::_('bootstrap.renderModal', 'rseImageModal', array('title' => '&nbsp;', 'bodyHeight' => 70));
-
-if ($links == 2) {
+if ($links == 1 && $modal == 1) {
 	if ($this->cansubscribe['status']) {
 		echo JHtml::_('bootstrap.renderModal', 'rseSubscribeModal', array('title' => JText::_('COM_RSEVENTSPRO_EVENT_JOIN'), 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe&id='.rseventsproHelper::sef($event->id,$event->name).$tmpl), 'bodyHeight' => 70));
 	}
@@ -687,12 +696,6 @@ if ($links == 2) {
 	
 	if (!$this->eventended && !empty($this->options['show_invite'])) {
 		echo JHtml::_('bootstrap.renderModal', 'rseInviteModal', array('title' => JText::_('COM_RSEVENTSPRO_EVENT_INVITE'), 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=invite&id='.rseventsproHelper::sef($event->id,$event->name).$tmpl), 'bodyHeight' => 70));
-	}
-}
-
-if ($links != 1) {
-	if (!$this->eventended && $this->canunsubscribe && $this->issubscribed != 1) {
-		echo JHtml::_('bootstrap.renderModal', 'rseUnsubscribeModal', array('title' => JText::_('COM_RSEVENTSPRO_UNSUBSCRIBE_UNSUBSCRIBE'), 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=unsubscribe&id='.rseventsproHelper::sef($event->id,$event->name).'&tmpl=component'), 'bodyHeight' => 70));
 	}
 }
 ?>

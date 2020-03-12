@@ -43,6 +43,11 @@ class bfRemoteLog
     private $_dataObj;
 
     /**
+     * @var JDatabase
+     */
+    private $db;
+
+    /**
      * PHP 5 Constructor,
      * I inject the request to the object.
      *
@@ -52,6 +57,7 @@ class bfRemoteLog
     {
         // Set the request vars
         $this->_dataObj = $dataObj;
+        $this->db       = JFactory::getDBO();
     }
 
     private function remotelog()
@@ -74,7 +80,28 @@ class bfRemoteLog
     }
 
     /**
-     * I'm the controller - I run methods based on the request integer.
+     * Retrieve Log Rows for reporting purposes.
+     */
+    private function getdata()
+    {
+        $fromDateTime = $this->_dataObj->f;
+        $toDateTime   = $this->_dataObj->t;
+
+        $sql = "select * from bf_activitylog WHERE
+                `when` >= '%s' 
+                AND 
+                `when` <= '%s'
+                ";
+
+        bfLog::log($sql);
+
+        $this->db->setQuery(sprintf($sql, $fromDateTime, $toDateTime));
+
+        bfEncrypt::reply('success', $this->db->loadObjectList());
+    }
+
+    /**
+     * I'm the controller - I run methods based on the requested action.
      */
     public function run()
     {

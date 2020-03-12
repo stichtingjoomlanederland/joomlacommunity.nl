@@ -540,11 +540,6 @@ class acymlistClass extends acymClass
         return intval(acym_loadResult($query));
     }
 
-    public function emptySubscribersOfList($listId)
-    {
-        return acym_query('DELETE FROM #__acym_user_has_list WHERE list_id = '.intval($listId));
-    }
-
     public function getMailsByListId($listId)
     {
         $query = 'SELECT mail_id FROM #__acym_mail_has_list WHERE list_id = '.intval($listId);

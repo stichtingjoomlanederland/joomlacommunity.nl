@@ -1682,7 +1682,7 @@ function rsepro_update_speakers(data) {
 		window.parent.jQuery('#speakers').append(jQuery('<option>', { 'text': el.text, 'value': el.value }));
 	});
 	
-	if (selected.length) {
+	if (selected && selected.length) {
 		window.parent.jQuery('#speakers').val(selected);
 	}
 	

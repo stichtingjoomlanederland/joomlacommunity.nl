@@ -104,7 +104,7 @@ VALUES
 (8, 'RESETLABEL', 'Reset'),
 (8, 'ADDITIONALATTRIBUTES', ''),
 (9, 'NAME', 'Footer'),
-(9, 'TEXT', 'This form is an example. Please check our knowledgebase for articles related to how you should build your form. Articles are updated daily. <a href="http://www.rsjoomla.com/" target="_blank">http://www.rsjoomla.com/</a>');
+(9, 'TEXT', 'This form is an example. Please check our knowledgebase for articles related to how you should build your form. Articles are updated daily. <a href="https://www.rsjoomla.com/" target="_blank">https://www.rsjoomla.com/</a>');
 
 INSERT IGNORE INTO `#__rsform_forms` SET
   `FormId` = 2,
@@ -222,7 +222,7 @@ INSERT IGNORE INTO `#__rsform_properties` (`ComponentId`, `PropertyName`, `Prope
 (17, 'DISPLAYPROGRESSMSG', '<div>\r\n <p><em>Page <strong>{page}</strong> of {total}</em></p>\r\n <div class="rsformProgressContainer">\r\n  <div class="rsformProgressBar" style="width: {percent}%;"></div>\r\n </div>\r\n</div>'),
 (17, 'PREVBUTTON', '< Prev'),
 (18, 'NAME', 'Footer'),
-(18, 'TEXT', 'This form is an example. Please check our knowledgebase for articles related to how you should build your form. Articles are updated daily. <a href="http://www.rsjoomla.com/" target="_blank">http://www.rsjoomla.com/</a>'),
+(18, 'TEXT', 'This form is an example. Please check our knowledgebase for articles related to how you should build your form. Articles are updated daily. <a href="https://www.rsjoomla.com/" target="_blank">https://www.rsjoomla.com/</a>'),
 (19, 'NAME', 'Page1'),
 (19, 'NEXTBUTTON', 'Next >'),
 (19, 'PREVBUTTON', '< Prev'),

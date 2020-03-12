@@ -145,7 +145,7 @@ defined('JPATH_PLATFORM') or die;
         <label for="border_style" class="hastip uk-form-label uk-width-1-10 uk-margin-small-left" title="<?php echo JText::_('WF_LABEL_BORDER_STYLE_DESC'); ?>"><?php echo JText::_('WF_LABEL_STYLE'); ?></label>
         <div class="uk-form-controls uk-width-2-10">
             <select id="border_style">
-                <option value="inherit"><?php echo JText::_('WF_OPTION_NOT_SET'); ?></option>
+                <option value="inherit">--</option>
                 <option value="none"><?php echo JText::_('WF_OPTION_BORDER_NONE'); ?></option>
                 <option value="solid"><?php echo JText::_('WF_OPTION_BORDER_SOLID'); ?></option>
                 <option value="dashed"><?php echo JText::_('WF_OPTION_BORDER_DASHED'); ?></option>

@@ -18,7 +18,7 @@ class CampaignsController extends acymController
         ];
         acym_setVar('edition', '1');
         if (acym_isAdmin()) $this->stepContainerClass = 'xxlarge-9';
-        header('X-XSS-Protection:0');
+        acym_header('X-XSS-Protection:0');
     }
 
     public function listing()
@@ -739,7 +739,7 @@ class CampaignsController extends acymController
             return;
         }
 
-        acym_redirect(acym_completeLink('queue').'&task=playPauseSending&acym__queue__play_pause__active__new_value=1&acym__queue__play_pause__campaign_id='.$id);
+        acym_redirect(acym_completeLink('queue', false, true).'&task=playPauseSending&acym__queue__play_pause__active__new_value=1&acym__queue__play_pause__campaign_id='.$id);
 
         return;
     }
@@ -1042,10 +1042,14 @@ class CampaignsController extends acymController
         if (!empty($mailid) && $attachid >= 0) {
             $mailClass = acym_get('class.mail');
 
-            return $mailClass->deleteOneAttachment($mailid, $attachid);
-        } else {
-            echo 'error';
+            if ($mailClass->deleteOneAttachment($mailid, $attachid)) {
+                echo json_encode(['message' => acym_translation('ACYM_ATTACHMENT_WELL_DELETED')]);
+                exit;
+            }
         }
+
+        echo json_encode(['error' => acym_translation('ACYM_COULD_NOT_DELETE_ATTACHMENT')]);
+        exit;
     }
 
     public function test()
@@ -1444,9 +1448,17 @@ class CampaignsController extends acymController
         exit;
     }
 
+    public function saveAsTmplAjax()
+    {
+        $mailController = acym_get('controller.mails');
+        $isWellSaved = $mailController->store(true);
+        echo json_encode(['error' => $isWellSaved ? '' : acym_translation('ACYM_ERROR_SAVING'), 'data' => $isWellSaved]);
+        exit;
+    }
+
     public function searchTestReceivers()
     {
-        $search = acym_getVar('cmd', 'search', '');
+        $search = acym_getVar('string', 'search', '');
         $userClass = acym_get('class.user');
         $users = $userClass->getUsersLikeEmail($search);
 

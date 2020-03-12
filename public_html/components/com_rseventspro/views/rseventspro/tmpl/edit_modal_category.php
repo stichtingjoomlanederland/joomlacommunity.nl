@@ -25,4 +25,12 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 			</select>
 		</div>
 	</div>
+	<?php if ($this->config->modaltype == 2) { ?>
+	<div class="control-group">
+		<div class="control-label"><label>&nbsp;</label></div>
+		<div class="controls">
+			<button class="btn btn-primary rsepro-event-add-category"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_ADD_CATEGORY_ADD'); ?></button>
+		</div>
+	</div>
+	<?php } ?>
 </div>

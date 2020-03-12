@@ -15,7 +15,13 @@ defined('_JEXEC') or die('Restricted access');
 		<div class="cell grid-x small-4 align-right">
 			<button id="acym__wysid__cancel__button" type="button" class="cell small-6 medium-shrink margin-bottom-0"><i class="acymicon-ban acym__wysid__top-toolbar__button__icon" data-acym-tooltip="<?php echo acym_translation('ACYM_CANCEL'); ?>"></i></button>
 			<button id="acym__wysid__test__button" type="button" class="cell small-6 medium-shrink margin-bottom-0"><i class="acymicon-send-o acym__wysid__top-toolbar__button__icon" data-acym-tooltip="<?php echo acym_translation('ACYM_SEND_TEST'); ?>"></i></button>
-			<button id="acym__wysid__save__button" type="button" class="cell small-6 medium-shrink margin-bottom-0"><i class="acymicon-save acym__wysid__top-toolbar__button__icon" data-acym-tooltip="<?php echo acym_translation('ACYM_APPLY'); ?>"></i></button>
+            <?php
+            $ctrl = acym_getVar('cmd', 'ctrl', 'dashboard');
+            if (acym_isAdmin() && 'campaigns' === $ctrl) {
+                ?>
+				<button id="acym__wysid__saveastmpl__button" type="button" class="cell small-6 medium-shrink margin-bottom-0"><i class="acymicon-save acym__wysid__top-toolbar__button__icon" data-acym-tooltip="<?php echo acym_translation('ACYM_SAVE_AS_TMPL'); ?>"></i></button>
+            <?php } ?>
+			<button id="acym__wysid__save__button" type="button" class="cell small-6 medium-shrink margin-bottom-0"><i class="acymicon-check-circle acym__wysid__top-toolbar__button__icon" data-acym-tooltip="<?php echo acym_translation('ACYM_APPLY'); ?>"></i></button>
 		</div>
 	</div>
 	<div class="cell grid-x align-left acym_vcenter" id="acym__wysid__top-toolbar__notification">

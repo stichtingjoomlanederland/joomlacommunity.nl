@@ -25,8 +25,11 @@ function acym_checkVersion($ajax = false)
         'version' => $config->get('version'), // Tell the user if a newer version is available
         'cms' => ACYM_CMS, // We may delay some new Acy versions depending on the CMS
         'cmsv' => ACYM_CMSV, // Acy isn't available for some versions
-        'php' => PHP_VERSION, // Return a warning if Acy cannot be installed with this version
     ];
+
+    if (acym_level(1)) {
+        $paramsForLicenseCheck['php'] = PHP_VERSION; // Return a warning if Acy cannot be installed with this version
+    }
 
     foreach ($paramsForLicenseCheck as $param => $value) {
         $url .= '&'.$param.'='.urlencode($value);

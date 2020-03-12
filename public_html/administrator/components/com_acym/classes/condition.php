@@ -25,7 +25,9 @@ class acymconditionClass extends acymClass
             return 0;
         }
 
-        acym_query('DELETE FROM #__acym_action WHERE condition_id IN ('.implode(',', $elements).')');
+        $actionClass = acym_get('class.action');
+        $actionsIds = $actionClass->getAllActionsIdByConditionsId($elements);
+        $actionClass->delete($actionsIds);
 
         return parent::delete($elements);
     }

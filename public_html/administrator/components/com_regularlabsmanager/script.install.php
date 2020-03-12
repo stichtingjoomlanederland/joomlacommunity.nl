@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Extension Manager
- * @version         7.4.3
+ * @version         7.4.4
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2019 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -32,7 +32,14 @@ class Com_RegularLabsManagerInstallerScript extends Com_RegularLabsManagerInstal
 
 	public function onBeforeInstall($route)
 	{
+		if ( ! parent::onBeforeInstall($route))
+		{
+			return false;
+		}
+
 		$this->is_nonumber = (JFactory::getApplication()->input->get('option') == 'com_nonumbermanager');
+
+		return true;
 	}
 
 	public function onAfterInstall($route)
@@ -54,6 +61,8 @@ class Com_RegularLabsManagerInstallerScript extends Com_RegularLabsManagerInstal
 		}
 
 		$this->uninstallNoNumberExtensionManager();
+
+		return parent::onAfterInstall($route);
 	}
 
 	private function uninstallNoNumberExtensionManager()

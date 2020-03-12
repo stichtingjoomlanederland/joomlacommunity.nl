@@ -242,7 +242,9 @@ RSFormPro.refreshCaptcha = function(componentId, captchaPath) {
 	document.getElementById('captchaTxt' + componentId).focus();
 };
 
-RSFormPro.initGeoLocation = function(term, id, mapid,  map, marker, geocoder, type) {
+RSFormPro.geoLocationTimeouts = {};
+
+RSFormPro.initGeoLocation = function(term, id, mapid, map, marker, geocoder, type) {
 	var content = document.getElementById('rsform_geolocation'+id);
 	var address	= document.getElementById(mapid).clientWidth;
 
@@ -250,37 +252,44 @@ RSFormPro.initGeoLocation = function(term, id, mapid,  map, marker, geocoder, ty
 	document.getElementById('rsform_geolocation'+id).style.display = 'none';
 	document.getElementById('rsform_geolocation'+id).innerHTML = '';
 
+	if (typeof RSFormPro.geoLocationTimeouts[id] !== 'undefined')
+	{
+		window.clearTimeout(RSFormPro.geoLocationTimeouts[id]);
+	}
+
 	if (term != '') {
-		geocoder.geocode( {'address': term }, function(results, status) {
-			if (status == 'OK') {
-				for (var i=0; i<results.length; i++) {
-					var item	= results[i];
-					var theli	= document.createElement('li');
-					var thea	= document.createElement('a');
+		RSFormPro.geoLocationTimeouts[id] = window.setTimeout(function(){
+			geocoder.geocode( {'address': term }, function(results, status) {
+				if (status == 'OK') {
+					for (var i=0; i<results.length; i++) {
+						var item	= results[i];
+						var theli	= document.createElement('li');
+						var thea	= document.createElement('a');
 
-					thea.setAttribute('href','javascript:void(0)');
-					thea.innerHTML = item.formatted_address;
+						thea.setAttribute('href','javascript:void(0)');
+						thea.innerHTML = item.formatted_address;
 
-					RSFormProUtils.addEvent(thea,'click', (function() {
-						var mapValue = type ? item.formatted_address : item.geometry.location.lat().toFixed(5) + ',' + item.geometry.location.lng().toFixed(5);
-						var mapId	 = mapid;
-						var location = new google.maps.LatLng(item.geometry.location.lat().toFixed(5), item.geometry.location.lng().toFixed(5));
+						RSFormProUtils.addEvent(thea,'click', (function() {
+							var mapValue = type ? item.formatted_address : item.geometry.location.lat().toFixed(5) + ',' + item.geometry.location.lng().toFixed(5);
+							var mapId	 = mapid;
+							var location = new google.maps.LatLng(item.geometry.location.lat().toFixed(5), item.geometry.location.lng().toFixed(5));
 
-						return function() {
-							document.getElementById(mapId).value = mapValue;
-							marker.setPosition(location);
-							map.setCenter(location);
-							document.getElementById('rsform_geolocation'+id).style.display = 'none';
-						}
-					})());
+							return function() {
+								document.getElementById(mapId).value = mapValue;
+								marker.setPosition(location);
+								map.setCenter(location);
+								document.getElementById('rsform_geolocation'+id).style.display = 'none';
+							}
+						})());
 
-					theli.appendChild(thea);
-					content.appendChild(theli);
+						theli.appendChild(thea);
+						content.appendChild(theli);
+					}
+
+					document.getElementById('rsform_geolocation'+id).style.display = '';
 				}
-
-				document.getElementById('rsform_geolocation'+id).style.display = '';
-			}
-		});
+			});
+		}, 500);
 	}
 };
 
@@ -994,13 +1003,21 @@ RSFormPro.HTML5 = {
 		}
 
 		if (typeof RSFormPro.HTML5.componentIds[formId][elementAlias] == 'undefined') {
+			RSFormPro.HTML5.componentIds[formId][elementAlias] = false;
 			var block = RSFormPro.getBlock(formId, RSFormProUtils.getAlias(elementAlias));
-			var componentIdBlock = RSFormProUtils.getElementsByClassName('formNoError', 'span', block[0]);
-			if (componentIdBlock.length) {
-				var componentId = componentIdBlock[0].getAttribute('id');
-				RSFormPro.HTML5.componentIds[formId][elementAlias] = componentId.replace('component', '');
-			} else {
-				RSFormPro.HTML5.componentIds[formId][elementAlias] = false;
+
+			if (typeof block[0] !== 'undefined') {
+				var componentIdBlock;
+
+				componentIdBlock = RSFormProUtils.getElementsByClassName('formNoError', 'span', block[0]);
+				if (componentIdBlock.length === 0) {
+					componentIdBlock = RSFormProUtils.getElementsByClassName('formError', 'span', block[0]);
+				}
+
+				if (componentIdBlock.length > 0) {
+					var componentId = componentIdBlock[0].getAttribute('id');
+					RSFormPro.HTML5.componentIds[formId][elementAlias] = componentId.replace('component', '');
+				}
 			}
 		}
 
@@ -1325,42 +1342,57 @@ RSFormPro.Ajax = {
 	},
 	displayValidationErrors: function(formComponents, task, formId, data) {
 		if (task == 'afterSend') {
-			var ids,
-				i,
-				j,
-				id,
-				r,
-				formComponent,
-				elementBlock;
+			var ids, i, j, id, formComponent, elementBlock;
+			var parentErrorClass = typeof data.parentErrorClass !== 'undefined' && data.parentErrorClass.length > 0 ? data.parentErrorClass : false;
+			var fieldErrorClass = typeof data.fieldErrorClass !== 'undefined' && data.fieldErrorClass.length > 0 ? data.fieldErrorClass : false;
 
 			ids = data.response[0].split(',');
-			for (i = 0; i < ids.length; i++) {
+			for (i = 0; i < ids.length; i++)
+			{
 				id = parseInt(ids[i]);
-				if (!isNaN(id) && typeof formComponents[id] != 'undefined') {
-					formComponent = RSFormPro.getFieldsByName(formId, formComponents[id]);
-					if (formComponent && formComponent.length > 0) {
-						for (j = 0; j < formComponent.length; j++) {
-							if (formComponent[j]) {
-								RSFormProUtils.removeClass(formComponent[j], 'rsform-error');
-								if (typeof data.parentErrorClass != 'undefined' && data.parentErrorClass.length > 0) {
-									try {
-										elementBlock = RSFormPro.getBlock(formId, RSFormProUtils.getAlias(formComponents[id]));
-										RSFormProUtils.removeClass(elementBlock[0], data.parentErrorClass);
-									} catch (err) {}
-								}
-								if (typeof data.fieldErrorClass != 'undefined' && data.fieldErrorClass.length > 0) {
-									try {
-										results = RSFormPro.getFieldsByName(formId, formComponents[id]);
-										if (results.length > 0)
-										{
-											for (r = 0; r < results.length; r++)
-											{
-												RSFormProUtils.removeClass(results[r], data.fieldErrorClass);
-											}
-										}
-									} catch (err) {}
+
+				if (isNaN(id))
+				{
+					continue;
+				}
+
+				if (typeof formComponents[id] === 'undefined')
+				{
+					continue;
+				}
+
+				formComponent = RSFormPro.getFieldsByName(formId, formComponents[id]);
+
+				if (!formComponent || formComponent.length < 1)
+				{
+					continue;
+				}
+
+				for (j = 0; j < formComponent.length; j++)
+				{
+					if (formComponent[j])
+					{
+						RSFormProUtils.removeClass(formComponent[j], 'rsform-error');
+						formComponent[j].removeAttribute('aria-invalid');
+						if (formComponent[j].getAttribute('aria-describedby') === 'component' + id) {
+							formComponent[j].removeAttribute('aria-describedby');
+						}
+
+						if (parentErrorClass)
+						{
+							try
+							{
+								if (elementBlock = RSFormPro.getBlock(formId, RSFormProUtils.getAlias(formComponents[id])))
+								{
+									RSFormProUtils.removeClass(elementBlock[0], parentErrorClass);
 								}
 							}
+							catch (err) {}
+						}
+
+						if (fieldErrorClass)
+						{
+							RSFormProUtils.removeClass(formComponent[j], fieldErrorClass);
 						}
 					}
 				}
@@ -1378,12 +1410,13 @@ RSFormPro.Ajax = {
 					continue;
 				}
 				
-				if (typeof formComponents[id] == 'undefined')
+				if (typeof formComponents[id] === 'undefined')
 				{
 					continue;
 				}
 				
 				formComponent = RSFormPro.getFieldsByName(formId, formComponents[id]);
+
 				if (!formComponent || formComponent.length < 1)
 				{
 					continue;
@@ -1400,36 +1433,35 @@ RSFormPro.Ajax = {
 							doScroll = true;
 						}
 						
-						if (typeof data.parentErrorClass != 'undefined' && data.parentErrorClass.length > 0)
+						if (parentErrorClass)
 						{
 							try
 							{
-								elementBlock = RSFormPro.getBlock(formId, RSFormProUtils.getAlias(formComponents[id]));
-								RSFormProUtils.addClass(elementBlock[0], data.parentErrorClass);
+								if (elementBlock = RSFormPro.getBlock(formId, RSFormProUtils.getAlias(formComponents[id])))
+								{
+									RSFormProUtils.addClass(elementBlock[0], parentErrorClass);
+								}
 							}
 							catch (err) {}
 						}
-						try
+
+						if (fieldErrorClass)
 						{
-							results = RSFormPro.getFieldsByName(formId, formComponents[id]);
-							if (results.length > 0)
-							{
-								for (r = 0; r < results.length; r++)
-								{									
-									if (typeof data.fieldErrorClass != 'undefined' && data.fieldErrorClass.length > 0)
-									{
-										RSFormProUtils.addClass(results[r], data.fieldErrorClass);
-									}
-									
-									if (!doFocus)
-									{
-										results[r].focus();
-										doFocus = true;
-									}
+							RSFormProUtils.addClass(formComponent[j], fieldErrorClass);
+						}
+
+						if (['INPUT', 'SELECT', 'TEXTAREA'].indexOf(formComponent[j].nodeName) > -1)
+						{
+							if (formComponent[j].getAttribute('type') !== 'button') {
+								formComponent[j].setAttribute('aria-invalid', 'true');
+								formComponent[j].setAttribute('aria-describedby', 'component' + id);
+
+								if (!doFocus && typeof formComponent[j].focus === 'function') {
+									formComponent[j].focus();
+									doFocus = true;
 								}
 							}
 						}
-						catch (err) {}
 					}
 				}
 			}
@@ -2066,7 +2098,15 @@ var RSFormProUtils = {
 		}
 	},
 	setDisplay: function (items, value) {
+		if (!items || !items.length) {
+			return false;
+		}
+
 		for (var i = 0; i < items.length; i++) {
+			if (!items[i]) {
+				continue;
+			}
+
 			if (!RSFormPro.usePositioning) {
 				items[i].style.display = value;
 			} else {

@@ -899,7 +899,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 						'workingon' => DISCUSS_POST_STATUS_WORKING_ON, 
 						'rejected' => DISCUSS_POST_STATUS_REJECT);
 
-		if ($postStatus) {
+		if ($postStatus && isset($statuses[$postStatus])) {
 			$where[] = "a.`post_status` = " . $db->Quote($statuses[$postStatus]);
 		}
 

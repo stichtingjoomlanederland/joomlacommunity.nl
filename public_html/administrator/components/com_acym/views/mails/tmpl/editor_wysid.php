@@ -12,7 +12,13 @@ defined('_JEXEC') or die('Restricted access');
 <div id="acym__wysid__edit" class="cell grid-x">
 	<div class="cell grid-x padding-1 padding-bottom-0">
 		<div class="cell medium-auto hide-for-small-only"></div>
-		<button id="acym__wysid__edit__button" type="button" class="cell button xlarge-3 medium-4 margin-bottom-0"><i class="acymicon-edit" style="vertical-align: middle"></i><?php echo acym_translation(acym_getVar('string', 'ctrl') == 'campaigns' ? 'ACYM_EDIT_MAIL' : ($this->walkThrough ? 'ACYM_EDIT' : 'ACYM_EDIT_TEMPLATE')); ?></button>
+		<button id="acym__wysid__edit__button" type="button" class="cell button xlarge-3 medium-4 margin-bottom-0">
+			<i class="acymicon-edit" style="vertical-align: middle"></i>
+            <?php
+            $ctrl = acym_getVar('string', 'ctrl');
+            echo acym_translation(in_array($ctrl, ['campaigns', 'frontcampaigns']) ? 'ACYM_EDIT_MAIL' : ($this->walkThrough ? 'ACYM_EDIT' : 'ACYM_EDIT_TEMPLATE'));
+            ?>
+		</button>
 		<div class="cell medium-auto hide-for-small-only"></div>
 	</div>
 	<div class="cell grid-x" id="acym__wysid__edit__preview">
@@ -33,7 +39,7 @@ defined('_JEXEC') or die('Restricted access');
 <div class="grid-x grid-margin-x">
 	<div id="acym__wysid" class="grid-x margin-0 grid-margin-x acym__content cell" style="display: none;">
 		<!--Template & top toolbar-->
-		<div id="acym__wysid__wrap" class="grid-y large-8 small-9 cell grid-padding-x grid-padding-y">
+		<div id="acym__wysid__wrap" class="grid-y auto cell grid-padding-x grid-padding-y">
 			<!--Top toolbar-->
             <?php
             include acym_getView('mails', 'editor_wysid_top_toolbar', true);
@@ -97,7 +103,7 @@ defined('_JEXEC') or die('Restricted access');
 			</div>
 			<div class="grid-x cell small-12"></div>
 			<button id="acym__wysid__fullscreen__modal__close" class="close-button padding-1" aria-label="Dismiss alert" type="button" data-close="">
-				<span aria-hidden="true" style="font-size: 39px">×</span>
+				<span aria-hidden="true">×</span>
 			</button>
 		</div>
 

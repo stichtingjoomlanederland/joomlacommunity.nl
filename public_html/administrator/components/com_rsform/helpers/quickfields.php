@@ -65,10 +65,12 @@ class RSFormProQuickFields
 							if (isset($properties['DESCRIPTION']))
 							{
 								$componentPlaceholders['generate'][] = '{' . $properties['NAME'] . ':description}';
+								$componentPlaceholders['generate'][] = '{' . $properties['NAME'] . ':descriptionhtml}';
 							}
 							
 							// Validation placeholder
 							$componentPlaceholders['generate'][] = '{' . $properties['NAME'] . ':validation}';
+							$componentPlaceholders['generate'][] = '{' . $properties['NAME'] . ':errorClass}';
 
 							// Value placeholder
 							$componentPlaceholders['display'][] = '{' . $properties['NAME'] . ':value}';

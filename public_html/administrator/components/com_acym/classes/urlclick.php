@@ -44,13 +44,13 @@ class acymurlClickClass extends acymClass
         acym_query($query);
     }
 
-    public function getClickRate($mailid = '')
+    public function getNumberUsersClicked($mailid = '')
     {
-        $query = 'SELECT COUNT(DISTINCT user_id) as click FROM #__acym_url_click ';
-        $query .= empty($mailid) ? '' : ' WHERE `mail_id` = '.intval($mailid);
-        $query .= ' ORDER BY user_id';
+        $query = 'SELECT COUNT(DISTINCT user_id) FROM #__acym_url_click ';
+        if (!empty($mailid)) $query .= ' WHERE `mail_id` = '.intval($mailid);
+        $clickNb = acym_loadResult($query);
 
-        return acym_loadObject($query);
+        return empty($clickNb) ? 0 : $clickNb;
     }
 
     public function getAllClickByMailMonth($mailid = '', $start = '', $end = '')
@@ -120,10 +120,9 @@ class acymurlClickClass extends acymClass
             acym_arrayToInteger($mailsIds);
             $conditionMailId = 'WHERE mail_id IN ('.implode(',', $mailsIds).')';
         }
-        $query = 'SELECT COUNT(groupStat.user_id) as nbClick FROM (SELECT user_id FROM #__acym_url_click '.$conditionMailId.' GROUP BY mail_id, user_id) AS groupStat';
-        $result = acym_loadResult($query);
+        $query = 'SELECT COUNT(groupStat.user_id) AS nbClick FROM (SELECT user_id FROM #__acym_url_click '.$conditionMailId.' GROUP BY mail_id, user_id) AS groupStat';
 
-        return $result;
+        return acym_loadResult($query);
     }
 }
 

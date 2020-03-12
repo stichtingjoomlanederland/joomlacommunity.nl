@@ -78,6 +78,15 @@ class ArchiveController extends acymController
         if (!empty($oneMail->stylesheet)) {
             acym_addStyle(true, $oneMail->stylesheet);
         }
+        $editorHelper = acym_get('helper.editor');
+        $settings = json_decode($oneMail->settings, true);
+        if (!empty($settings)) {
+            $settings = $editorHelper->getSettingsStyle($settings);
+
+            if (!empty($settings)) {
+                acym_addStyle(true, $settings);
+            }
+        }
 
         $oneMail->body = preg_replace('#background\-image: url\(&quot;([^)]*)&quot;\)#Uis', 'background-image: url($1)', $oneMail->body);
 

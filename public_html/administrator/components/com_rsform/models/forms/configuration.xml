@@ -31,6 +31,7 @@
 			<option value="1">JYES</option>
 		</field>
 		<field name="export.mask" type="text" default="0" description="COM_RSFORM_EXPORT_MASK_DESC" label="COM_RSFORM_EXPORT_MASK" />
+		<field name="export.limit" type="text" default="500" description="COM_RSFORM_EXPORT_LIMIT_DESC" label="COM_RSFORM_EXPORT_LIMIT" />
 	</fieldset>
 	<fieldset name="security" label="RSFP_SECURITY">
 		<field name="global.filtering" type="list" description="RSFP_GLOBAL_XSS_FILTER_DESC" label="RSFP_GLOBAL_XSS_FILTER">

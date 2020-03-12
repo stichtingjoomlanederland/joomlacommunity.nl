@@ -629,13 +629,13 @@ function changeValidation(elem) {
 		
 		var clonedElement = document.getElementById('idVALIDATIONEXTRA').cloneNode(true);
 		clonedElement.removeAttribute('id');
-		clonedElement.removeClass('hideVALIDATIONEXTRA');
+		jQuery(clonedElement).removeClass('hideVALIDATIONEXTRA');
 		
 		var afterElement = document.getElementById('idVALIDATIONMULTIPLE');
 		
-		for(i = 0; i < selectedValues.length; i++) {
+		for (var i = 0; i < selectedValues.length; i++) {
 			var newclonedElement = clonedElement.cloneNode(true);
-			newclonedElement.addClass('mValidation '+selectedValues[i]);
+			jQuery(newclonedElement).addClass('mValidation '+selectedValues[i]);
 			
 			var captionElement = newclonedElement.querySelector('#captionVALIDATIONEXTRA');
 			var validationElement = newclonedElement.querySelector('#VALIDATIONEXTRA');
@@ -1114,7 +1114,7 @@ function addCalculation(formId) {
 
 	stateLoading();
 
-	params = [];
+	var params = [];
 	params.push('formId=' + formId);
 	params.push('total=' + document.getElementById('rsfp_total_add').value);
 	params.push('expression=' + encodeURIComponent(document.getElementById('rsfp_expression').value));
@@ -1122,7 +1122,7 @@ function addCalculation(formId) {
 	params.push('randomTime=' + Math.random());
 	params = params.join('&');
 
-	xmlHttp = buildXmlHttp();
+	var xmlHttp = buildXmlHttp();
 	xmlHttp.open("POST", 'index.php?option=com_rsform&task=calculations&controller=forms', true);
 
 	//Send the proper header information along with the request
@@ -1234,18 +1234,23 @@ function removeCalculation(id) {
 	
 	stateLoading();
 
-	params = 'id=' + id + '&tmpl=component&randomTime=' + Math.random();
+	var params = 'id=' + id + '&tmpl=component&randomTime=' + Math.random();
 
-	xmlHttp = buildXmlHttp();
-	xmlHttp.open("POST", 'index.php?option=com_rsform&task=removeCalculation&controller=forms', true);
+	var xmlHttp = buildXmlHttp();
+	xmlHttp.open('POST', 'index.php?option=com_rsform&task=removeCalculation&controller=forms', true);
 
 	//Send the proper header information along with the request
 	xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
 	xmlHttp.onreadystatechange = function () {//Call a function when the state changes.
 		if (xmlHttp.readyState == 4) {
-			if (xmlHttp.responseText == 1)
-				document.getElementById('calculationRow' + id).dispose();
+			if (xmlHttp.responseText == 1) {
+				var el = document.getElementById('calculationRow' + id);
+
+				if (typeof el !== 'undefined') {
+					el.parentNode.removeChild(el);
+				}
+			}
 
 			stateDone();
 		}
@@ -1297,6 +1302,8 @@ function validateEmailFields() {
     var fieldName, field, fieldValue, values, value, match;
     var pattern = /{.*?}/g;
 
+    var hasPlaceholder, wrongPlaceholder, notAnEmail, wrongDelimiter;
+
     for (var i = 0; i < fields.length; i++) {
         // Grab field name from array
         fieldName 	= fields[i];
@@ -1324,9 +1331,9 @@ function validateEmailFields() {
                 if (hasPlaceholder) {
                     do {
                         match = pattern.exec(value);
-                        if (match && typeof match[0] != 'undefined') {
+                        if (match && typeof match[0] !== 'undefined') {
                             // Wrong placeholder
-                            if (RSFormPro.Placeholders.indexOf(match[0]) == -1) {
+                            if (RSFormPro.Placeholders.indexOf(match[0]) === -1) {
                                 wrongPlaceholder = true;
                             }
                         }
@@ -1334,13 +1341,13 @@ function validateEmailFields() {
                 }
 
                 // Not an email
-                notAnEmail = !hasPlaceholder && value.indexOf('@') == -1;
+                notAnEmail = !hasPlaceholder && value.indexOf('@') === -1;
                 // A situation where we have a wrong delimiter thus ending up in multiple @ addresses
                 wrongDelimiter = !hasPlaceholder && (value.match(/@/g) || []).length > 1;
 
                 if (wrongPlaceholder || notAnEmail || wrongDelimiter) {
                     // Switch to the correct tab only on the first error
-                    if (result == true) {
+                    if (result === true) {
                         jQuery('#properties').click();
                         if (fieldName.indexOf('User') > -1) {
                             jQuery('#useremails').click();

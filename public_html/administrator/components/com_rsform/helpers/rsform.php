@@ -125,15 +125,7 @@ class RSFormProHelper
 		
 		if ($use_editor)
 		{
-            $jversion = new JVersion;
-            if ($jversion->isCompatible('3.8.0'))
-			{
-				$instance = new \Joomla\CMS\Editor\Editor($editor);
-			}
-			else
-			{
-				$instance = new JEditor($editor);
-			}
+			$instance = new \Joomla\CMS\Editor\Editor($editor);
 			
 			$html = $instance->display($name, static::htmlEscape($html), '100%', 300, 75, 20, $buttons = false, $options['id'], $asset = null, $author = null, array('syntax' => $options['syntax'], 'readonly' => $options['readonly']));
 			
@@ -370,16 +362,7 @@ class RSFormProHelper
             $editor = JFactory::getConfig()->get('editor');
         }
 
-        $jversion = new JVersion;
-
-        if ($jversion->isCompatible('3.8.0'))
-        {
-            return \Joomla\CMS\Editor\Editor::getInstance($editor);
-        }
-        else
-        {
-            return JEditor::getInstance($editor);
-        }
+		return \Joomla\CMS\Editor\Editor::getInstance($editor);
     }
 
 	public static function WYSIWYG($name, $content, $hiddenField, $width, $height, $col, $row)
@@ -938,6 +921,10 @@ class RSFormProHelper
                 $placeholders[] = '{'.$property['NAME'].':description}';
                 $values[] = isset($property['DESCRIPTION']) ? $property['DESCRIPTION'] : '';
 
+                // {component:descriptionhtml}
+				$placeholders[] = '{'.$property['NAME'].':descriptionhtml}';
+				$values[] = isset($property['DESCRIPTION']) ? self::htmlEscape($property['DESCRIPTION']) : '';
+
                 // {component:name}
                 $placeholders[] = '{'.$property['NAME'].':name}';
                 $values[] = $property['NAME'];
@@ -1070,7 +1057,6 @@ class RSFormProHelper
 					{
 						$values[] = '';
 					}
-
 				}
 
                 // {component:path}
@@ -1220,16 +1206,17 @@ class RSFormProHelper
 		}
 
 		$userEmail = array(
-			'to'        => str_replace($placeholders, $values, $form->UserEmailTo),
-			'cc'        => str_replace($placeholders, $values, $form->UserEmailCC),
-			'bcc'       => str_replace($placeholders, $values, $form->UserEmailBCC),
-			'from'      => str_replace($placeholders, $values, $form->UserEmailFrom),
-			'replyto'   => str_replace($placeholders, $values, $form->UserEmailReplyTo),
-			'fromName'  => str_replace($placeholders, $values, $form->UserEmailFromName),
-			'text'      => str_replace($placeholders, $values, $form->UserEmailText),
-			'subject'   => str_replace($placeholders, $values, $form->UserEmailSubject),
-			'mode'      => $form->UserEmailMode,
-			'files'     => array()
+			'to'        	=> str_replace($placeholders, $values, $form->UserEmailTo),
+			'cc'        	=> str_replace($placeholders, $values, $form->UserEmailCC),
+			'bcc'       	=> str_replace($placeholders, $values, $form->UserEmailBCC),
+			'from'      	=> str_replace($placeholders, $values, $form->UserEmailFrom),
+			'replyto'   	=> str_replace($placeholders, $values, $form->UserEmailReplyTo),
+			'replytoName'   => str_replace($placeholders, $values, $form->UserEmailReplyToName),
+			'fromName'  	=> str_replace($placeholders, $values, $form->UserEmailFromName),
+			'text'      	=> str_replace($placeholders, $values, $form->UserEmailText),
+			'subject'   	=> str_replace($placeholders, $values, $form->UserEmailSubject),
+			'mode'      	=> $form->UserEmailMode,
+			'files'     	=> array()
 		);
 
 		// user cc
@@ -1272,16 +1259,17 @@ class RSFormProHelper
 		}
 
 		$adminEmail = array(
-			'to'        => str_replace($placeholders, $values, $form->AdminEmailTo),
-			'cc'        => str_replace($placeholders, $values, $form->AdminEmailCC),
-			'bcc'       => str_replace($placeholders, $values, $form->AdminEmailBCC),
-			'from'      => str_replace($placeholders, $values, $form->AdminEmailFrom),
-			'replyto'   => str_replace($placeholders, $values, $form->AdminEmailReplyTo),
-			'fromName'  => str_replace($placeholders, $values, $form->AdminEmailFromName),
-			'text'      => str_replace($placeholders, $values, $form->AdminEmailText),
-			'subject'   => str_replace($placeholders, $values, $form->AdminEmailSubject),
-			'mode'      => $form->AdminEmailMode,
-			'files'     => array()
+			'to'        	=> str_replace($placeholders, $values, $form->AdminEmailTo),
+			'cc'        	=> str_replace($placeholders, $values, $form->AdminEmailCC),
+			'bcc'       	=> str_replace($placeholders, $values, $form->AdminEmailBCC),
+			'from'      	=> str_replace($placeholders, $values, $form->AdminEmailFrom),
+			'replyto'   	=> str_replace($placeholders, $values, $form->AdminEmailReplyTo),
+			'replytoName'   => str_replace($placeholders, $values, $form->AdminEmailReplyToName),
+			'fromName'  	=> str_replace($placeholders, $values, $form->AdminEmailFromName),
+			'text'      	=> str_replace($placeholders, $values, $form->AdminEmailText),
+			'subject'   	=> str_replace($placeholders, $values, $form->AdminEmailSubject),
+			'mode'      	=> $form->AdminEmailMode,
+			'files'     	=> array()
 		);
 
 		// admin cc
@@ -1318,7 +1306,7 @@ class RSFormProHelper
 		{
 			$recipients = explode(',', $userEmail['to']);
 
-			RSFormProHelper::sendMail($userEmail['from'], $userEmail['fromName'], $recipients, $userEmail['subject'], $userEmail['text'], $userEmail['mode'], !empty($userEmail['cc']) ? $userEmail['cc'] : null, !empty($userEmail['bcc']) ? $userEmail['bcc'] : null, $userEmail['files'], !empty($userEmail['replyto']) ? $userEmail['replyto'] : '');
+			RSFormProHelper::sendMail($userEmail['from'], $userEmail['fromName'], $recipients, $userEmail['subject'], $userEmail['text'], $userEmail['mode'], !empty($userEmail['cc']) ? $userEmail['cc'] : null, !empty($userEmail['bcc']) ? $userEmail['bcc'] : null, $userEmail['files'], !empty($userEmail['replyto']) ? $userEmail['replyto'] : '', !empty($userEmail['replytoName']) ? $userEmail['replytoName'] : null);
 		}
 
 		$mainframe->triggerEvent('rsfp_beforeAdminEmail', array(array('form' => &$form, 'placeholders' => &$placeholders, 'values' => &$values, 'submissionId' => $SubmissionId, 'adminEmail'=>&$adminEmail)));
@@ -1331,7 +1319,7 @@ class RSFormProHelper
 		{
 			$recipients = explode(',', $adminEmail['to']);
 
-			RSFormProHelper::sendMail($adminEmail['from'], $adminEmail['fromName'], $recipients, $adminEmail['subject'], $adminEmail['text'], $adminEmail['mode'], !empty($adminEmail['cc']) ? $adminEmail['cc'] : null, !empty($adminEmail['bcc']) ? $adminEmail['bcc'] : null, $adminEmail['files'], !empty($adminEmail['replyto']) ? $adminEmail['replyto'] : '');
+			RSFormProHelper::sendMail($adminEmail['from'], $adminEmail['fromName'], $recipients, $adminEmail['subject'], $adminEmail['text'], $adminEmail['mode'], !empty($adminEmail['cc']) ? $adminEmail['cc'] : null, !empty($adminEmail['bcc']) ? $adminEmail['bcc'] : null, $adminEmail['files'], !empty($adminEmail['replyto']) ? $adminEmail['replyto'] : '', !empty($adminEmail['replytoName']) ? $adminEmail['replytoName'] : null);
 		}
 
 		// Additional emails
@@ -1347,7 +1335,7 @@ class RSFormProHelper
 
 			foreach ($emails as $email)
 			{
-			    foreach (array('fromname', 'subject', 'message') as $value)
+			    foreach (array('fromname', 'subject', 'message', 'replytoname') as $value)
                 {
                     if (isset($translations[$email->id . '.' . $value]))
                     {
@@ -1369,16 +1357,17 @@ class RSFormProHelper
 				}
 
 				$additionalEmail = array(
-					'to'        => str_replace($placeholders, $values, $email->to),
-					'cc'        => str_replace($placeholders, $values, $email->cc),
-					'bcc'       => str_replace($placeholders, $values, $email->bcc),
-					'from'      => str_replace($placeholders, $values, $email->from),
-					'replyto'   => str_replace($placeholders, $values, $email->replyto),
-					'fromName'  => str_replace($placeholders, $values, $email->fromname),
-					'text'      => str_replace($placeholders, $values, $email->message),
-					'subject'   => str_replace($placeholders, $values, $email->subject),
-					'mode'      => $email->mode,
-					'files'     => array()
+					'to'        	=> str_replace($placeholders, $values, $email->to),
+					'cc'        	=> str_replace($placeholders, $values, $email->cc),
+					'bcc'       	=> str_replace($placeholders, $values, $email->bcc),
+					'from'      	=> str_replace($placeholders, $values, $email->from),
+					'replyto'   	=> str_replace($placeholders, $values, $email->replyto),
+					'replytoName'   => str_replace($placeholders, $values, $email->replytoname),
+					'fromName'  	=> str_replace($placeholders, $values, $email->fromname),
+					'text'      	=> str_replace($placeholders, $values, $email->message),
+					'subject'   	=> str_replace($placeholders, $values, $email->subject),
+					'mode'      	=> $email->mode,
+					'files'     	=> array()
 				);
 
 				if (isset($additionalEmailUploads, $additionalEmailUploads[$email->id]))
@@ -1412,7 +1401,7 @@ class RSFormProHelper
 				{
 					$recipients = explode(',', $additionalEmail['to']);
 
-					RSFormProHelper::sendMail($additionalEmail['from'], $additionalEmail['fromName'], $recipients, $additionalEmail['subject'], $additionalEmail['text'], $additionalEmail['mode'], !empty($additionalEmail['cc']) ? $additionalEmail['cc'] : null, !empty($additionalEmail['bcc']) ? $additionalEmail['bcc'] : null, $additionalEmail['files'], !empty($additionalEmail['replyto']) ? $additionalEmail['replyto'] : '');
+					RSFormProHelper::sendMail($additionalEmail['from'], $additionalEmail['fromName'], $recipients, $additionalEmail['subject'], $additionalEmail['text'], $additionalEmail['mode'], !empty($additionalEmail['cc']) ? $additionalEmail['cc'] : null, !empty($additionalEmail['bcc']) ? $additionalEmail['bcc'] : null, $additionalEmail['files'], !empty($additionalEmail['replyto']) ? $additionalEmail['replyto'] : '', !empty($additionalEmail['replytoName']) ? $additionalEmail['replytoName'] : null);
 				}
 			}
 		}
@@ -1737,6 +1726,10 @@ class RSFormProHelper
 			}
 			$find[] 	= '{'.$component->name.':description}';
 			$replace[] 	= $description;
+
+			// {component:descriptionhtml}
+			$find[] = '{'.$component->name.':descriptionhtml}';
+			$replace[] = self::htmlEscape($description);
 
 			// Validation message
 			$validationMessage 	= '';
@@ -2819,27 +2812,25 @@ class RSFormProHelper
 		// build the reference hash
 		$hash = md5($reference.$formId.$lang.$select);
 
-		if (!isset($selections[$hash])) {
-			$acceptedReferences = array('forms', 'emails', 'properties');
+		if (!isset($selections[$hash]))
+		{
+			$selections[$hash] = array();
 
-			if (in_array($reference, $acceptedReferences)) {
-				$selections[$hash] = array();
-				$lang_code = $db->escape($lang);
-				// build the proper SQL Query
-				$query->clear()
-					->select('*')
-					->from('#__rsform_translations')
-					->where($db->qn('form_id').' = '.$db->q($formId))
-					->where($db->qn('lang_code').' = '.$db->q($lang_code))
-					->where($db->qn('reference').' = '.$db->q($reference));
-				$db->setQuery($query);
+			// build the proper SQL Query
+			$query->clear()
+				->select('*')
+				->from('#__rsform_translations')
+				->where($db->qn('form_id').' = '.$db->q($formId))
+				->where($db->qn('lang_code').' = '.$db->q($lang))
+				->where($db->qn('reference').' = '.$db->q($reference));
+			$db->setQuery($query);
 
-				$results = $db->loadObjectList();
-				foreach ($results as $result) {
+			if ($results = $db->loadObjectList())
+			{
+				foreach ($results as $result)
+				{
 					$selections[$hash][$result->reference_id] = ($select == '*') ? $result : (isset($result->$select) ? $result->$select : false);
 				}
-			} else {
-				$selections[$hash] = false;
 			}
 		}
 
@@ -3341,6 +3332,62 @@ class RSFormProHelper
 
 	public static function getRawPost() {
 		return JFactory::getApplication()->input->post->getArray(array(), null, 'raw');
+	}
+
+	public static function generateQuickAddGlobal($type = 'display')
+	{
+		switch ($type)
+		{
+			default:
+			case 'display':
+				$placeholders = array(
+					'{global:formid}',
+					'{global:username}',
+					'{global:userip}',
+					'{global:userid}',
+					'{global:useremail}',
+					'{global:fullname}',
+					'{global:sitename}',
+					'{global:siteurl}',
+					'{global:mailfrom}',
+					'{global:fromname}',
+					'{global:confirmation}',
+					'{global:deletion}',
+					'{global:submissionid}',
+					'{global:submission_id}',
+					'{global:date_added}',
+					'{global:language}'
+				);
+				break;
+
+			case 'generate':
+				$placeholders = array(
+					'{error}',
+					'{global:formid}',
+					'{global:formtitle}',
+					'{global:username}',
+					'{global:userip}',
+					'{global:userid}',
+					'{global:useremail}',
+					'{global:fullname}',
+					'{global:sitename}',
+					'{global:siteurl}',
+					'{global:mailfrom}',
+					'{global:fromname}'
+				);
+				break;
+		}
+
+		$html = '<strong><u>' . JText::_('COM_RSFORM_GLOBAL_PLACEHOLDERS') . '</u></strong><br />';
+
+		foreach ($placeholders as $placeholder)
+		{
+			$html .= '<pre>' . $placeholder . '</pre>';
+		}
+
+		$html .= '<br />';
+
+		return $html;
 	}
 
 	public static function generateQuickAdd($field, $key){

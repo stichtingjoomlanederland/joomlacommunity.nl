@@ -72,6 +72,10 @@ class com_rsformInstallerScript
 			$db->setQuery("ALTER TABLE #__rsform_forms ADD `UserEmailReplyTo` VARCHAR (255) NOT NULL AFTER `UserEmailBCC`");
 			$db->execute();
 		}
+		if (!isset($columns['UserEmailReplyToName'])) {
+			$db->setQuery("ALTER TABLE #__rsform_forms ADD `UserEmailReplyToName` VARCHAR (255) NOT NULL AFTER `UserEmailReplyTo`");
+			$db->execute();
+		}
 		if (!isset($columns['AdminEmailCC'])) {
 			$db->setQuery("ALTER TABLE #__rsform_forms ADD `AdminEmailCC` VARCHAR (255) NOT NULL AFTER `AdminEmailTo`");
 			$db->execute();
@@ -82,6 +86,10 @@ class com_rsformInstallerScript
 		}
 		if (!isset($columns['AdminEmailReplyTo'])) {
 			$db->setQuery("ALTER TABLE #__rsform_forms ADD `AdminEmailReplyTo` VARCHAR (255) NOT NULL AFTER `AdminEmailBCC`");
+			$db->execute();
+		}
+		if (!isset($columns['AdminEmailReplyToName'])) {
+			$db->setQuery("ALTER TABLE #__rsform_forms ADD `AdminEmailReplyToName` VARCHAR (255) NOT NULL AFTER `AdminEmailReplyTo`");
 			$db->execute();
 		}
 		if (!isset($columns['LoadFormLayoutFramework'])) {
@@ -237,6 +245,11 @@ class com_rsformInstallerScript
             $db->setQuery("ALTER TABLE #__rsform_forms ADD `DeletionEmailReplyTo` varchar(255) NOT NULL AFTER `DeletionEmailFrom`");
             $db->execute();
         }
+		if (!isset($columns['DeletionEmailReplyToName']))
+		{
+			$db->setQuery("ALTER TABLE #__rsform_forms ADD `DeletionEmailReplyToName` varchar(255) NOT NULL AFTER `DeletionEmailReplyTo`");
+			$db->execute();
+		}
         if (!isset($columns['DeletionEmailFromName']))
         {
             $db->setQuery("ALTER TABLE #__rsform_forms ADD `DeletionEmailFromName` varchar(255) NOT NULL default '' AFTER `DeletionEmailReplyTo`");
@@ -271,6 +284,10 @@ class com_rsformInstallerScript
 			$db->setQuery("ALTER TABLE `#__rsform_emails` ADD `type` VARCHAR( 255 ) NOT NULL AFTER `formId`");
 			$db->execute();
 			$db->setQuery("UPDATE `#__rsform_emails` SET `type` = 'additional'");
+			$db->execute();
+		}
+		if (!isset($columns['replytoname'])) {
+			$db->setQuery("ALTER TABLE `#__rsform_emails` ADD `replytoname` VARCHAR( 255 ) NOT NULL AFTER `replyto`");
 			$db->execute();
 		}
 		
@@ -863,7 +880,7 @@ class com_rsformInstallerScript
 				$queries = $db->splitSql($buffer);
 				foreach ($queries as $query) {
 					$query = trim($query);
-					if ($query != '' && $query{0} != '#') {
+					if ($query != '') {
 						$db->setQuery($query);
 						try
                         {
@@ -990,12 +1007,17 @@ class com_rsformInstallerScript
 				<p>It seems you are still using legacy layouts - they have been removed from RSForm! Pro since they are no longer usable today as they do not provide responsive features.<br>If you still want to keep using them, please install the <a href="https://www.rsjoomla.com/support/documentation/rsform-pro/plugins-and-modules/plugin-legacy-layouts.html" target="_blank">Legacy Layouts Plugin</a>.</p>
 			</div>
 		<?php } ?>
-		<h2>Changelog v2.3.6</h2>
+		<h2>Changelog v2.3.9</h2>
 		<ul class="version-history">
-			<li><span class="version-fixed">Fix</span> There were 2 file inputs possible if 'Maximum Uploads' was set to 1.</li>
-			<li><span class="version-fixed">Fix</span> 'Add another files' is no longer disabled when 'Maximum Uploads' is set to 0 (unlimited).</li>
-			<li><span class="version-fixed">Fix</span> Label 'for' attribute was not generated correctly for 'Captcha' fields.</li>
-			<li><span class="version-fixed">Fix</span> 'Captcha' is no longer validated when editing a submission in the frontend.</li>
+			<li><span class="version-new">New</span> 'Reply To Name' configurable for User, Admin, Deletion, Additional and Directory Emails.</li>
+			<li><span class="version-upgraded">Upg</span> 'Show All Submissions' now defaults to 'Yes' on Submissions - View and Directory menu items.</li>
+			<li><span class="version-upgraded">Upg</span> Auto-generating a layout will now render hidden fields (from plugins) without creating an empty space in the form.</li>
+			<li><span class="version-upgraded">Upg</span> Fields now generate an 'aria-describedby' attribute when a validation error occurs.</li>
+			<li><span class="version-fixed">Fix</span> 'aria-invalid' was being wrongly added to button inputs.</li>
+			<li><span class="version-fixed">Fix</span> 'File Uploads' fields - could not deselect emails from 'Attach file to' once configured.</li>
+			<li><span class="version-fixed">Fix</span> In some cases Conditional Fields were not working when 'Auto Generate Layout' was set to 'No'.</li>
+			<li><span class="version-fixed">Fix</span> Removing multiple fields would show an 'ITEMS REMOVED' message with no translation.</li>
+			<li><span class="version-fixed">Fix</span> PHP 7.4 would throw a Deprecated message when installing RSForm! Pro.</li>
 		</ul>
 		<a class="btn btn-large btn-primary" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="btn" href="https://www.rsjoomla.com/support/documentation/rsform-pro.html" target="_blank">Read the RSForm! Pro User Guide</a>

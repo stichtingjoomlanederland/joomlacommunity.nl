@@ -12,6 +12,7 @@ if (!include_once $helperFile) {
 
     return;
 }
+acym_loadLanguage();
 
 if (acym_isDebug()) acym_displayErrors();
 

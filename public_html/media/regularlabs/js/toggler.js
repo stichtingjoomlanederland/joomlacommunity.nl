@@ -1,10 +1,10 @@
 /**
  * @package         Regular Labs Library
- * @version         19.12.9182
+ * @version         20.2.16442
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2019 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -16,7 +16,7 @@
 
 if (typeof window.RegularLabsToggler === 'undefined'
 	|| typeof RegularLabsToggler.version === 'undefined'
-	|| RegularLabsToggler.version < '19.12.9182') {
+	|| RegularLabsToggler.version < '20.2.16442') {
 
 	(function($) {
 		$(document).ready(function() {
@@ -35,7 +35,7 @@ if (typeof window.RegularLabsToggler === 'undefined'
 		});
 
 		window.RegularLabsToggler = {
-			version: '19.12.9182',
+			version: '20.2.16442',
 
 			togglers: {}, // holds all the toggle areas
 			elements: {}, // holds all the elements and their values that affect toggle areas
@@ -54,7 +54,7 @@ if (typeof window.RegularLabsToggler === 'undefined'
 				const self = this;
 
 				let newTogglers = {};
-				this.elements    = {};
+				this.elements   = {};
 
 				$.each(this.togglers, function(i, toggler) {
 					// init togglers
@@ -99,7 +99,7 @@ if (typeof window.RegularLabsToggler === 'undefined'
 				});
 
 				this.togglers = newTogglers;
-				newTogglers  = null;
+				newTogglers   = null;
 
 				this.setElements();
 
@@ -258,24 +258,14 @@ if (typeof window.RegularLabsToggler === 'undefined'
 					self.toggle(name);
 				};
 
-				switch (type) {
-					case 'radio':
-					case 'checkbox':
-						$(el).bind('click', func).bind('keyup', func);
-						break;
-					case 'select':
-					case 'select-one':
-					case 'text':
-					case 'textarea':
-						$(el).bind('change', func).bind('keyup', func);
-						break;
-					default:
-						$(el).bind('change', func);
-						break;
+				$(el).on('input', func);
+
+				if (typeof jQuery !== 'undefined' && type == 'select' || field.type == 'select-one') {
+					$(el).on('change', func);
 				}
 
 				$(el).attr('togglerEventAdded', 1);
 			}
-		}
+		};
 	})(jQuery);
 }

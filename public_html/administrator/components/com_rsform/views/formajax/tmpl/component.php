@@ -41,5 +41,5 @@ $count = 0;
 			</div>
 		</div>
 	<?php } ?>
-	<?php if ($fieldType != 'attributes') { ?>{rsfsep}<?php } ?>
+	<?php if ($fieldType != 'editor') { ?>{rsfsep}<?php } ?>
 <?php } ?>

@@ -128,7 +128,7 @@ class acymimportHelper extends acymObject
 
         acym_query('UPDATE #__acym_configuration SET `value` = '.intval($time).' WHERE `name` = \'last_import\'');
 
-        acym_enqueueMessage(acym_translation_sprintf('ACYM_IMPORT_NEW', $insertedUsers), 'success');
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_IMPORT_NEW', $insertedUsers), 'info');
 
         $lists = $this->getImportedLists();
         $listsSubscribe = [];
@@ -214,7 +214,7 @@ class acymimportHelper extends acymObject
 
         acym_query('UPDATE #__acym_configuration SET `value` = '.intval($time).' WHERE `name` = "last_import"');
 
-        acym_enqueueMessage(acym_translation_sprintf('ACYM_IMPORT_NEW', $affectedRows), "success");
+        acym_enqueueMessage(acym_translation_sprintf('ACYM_IMPORT_NEW', $affectedRows), 'info');
 
         $lists = $this->getImportedLists();
         $listsSubscribe = [];
@@ -262,6 +262,13 @@ class acymimportHelper extends acymObject
         $this->forceconfirm = acym_getVar('int', 'import_confirmed_generic');
         $this->generatename = acym_getVar('int', 'import_generate_generic');
         $this->overwrite = acym_getVar('int', 'import_overwrite_generic');
+
+        $newConfig = new stdClass();
+        $newConfig->import_confirmed = $this->forceconfirm;
+        $newConfig->import_generate = $this->generatename;
+        $newConfig->import_overwrite = $this->overwrite;
+        $this->config->save($newConfig);
+
         $filename = str_replace(['.', ' '], '_', substr($filename, 0, strpos($filename, $extension))).$extension;
         $uploadPath = ACYM_MEDIA.'import'.DS.$filename;
 
@@ -552,7 +559,10 @@ class acymimportHelper extends acymObject
                 $filename = str_replace(['.', ' '], '_', substr($filename, 0, strpos($filename, $extension))).$extension;
                 $errorFile = implode("\n", $errorLines);
                 acym_writeFile(ACYM_MEDIA.'import'.DS.'error_'.$filename, $errorFile);
-                acym_enqueueMessage('<a target="_blank" href="'.acym_completeLink('users&task=downloadImport').'&filename=error_'.preg_replace('#\.[^.]*$#', '', $filename).'&'.acym_noTemplate().'" >'.acym_translation('ACYM_DOWNLOAD_IMPORT_ERRORS').'</a>', 'notice');
+                acym_enqueueMessage(
+                    '<a target="_blank" href="'.acym_prepareAjaxURL((acym_isAdmin() ? '' : 'front').'users&task=downloadImport').'&filename=error_'.preg_replace('#\.[^.]*$#', '', $filename).'&'.acym_noTemplate().'" >'.acym_translation('ACYM_DOWNLOAD_IMPORT_ERRORS').'</a>',
+                    'notice'
+                );
             }
         }
 
@@ -562,7 +572,16 @@ class acymimportHelper extends acymObject
         $this->totalInserted = $countUsersAfterImport - $countUsersBeforeImport;
 
         if ($this->dispresults) {
-            acym_enqueueMessage(acym_translation_sprintf('ACYM_IMPORT_REPORT', $this->totalTry, $this->totalInserted, $this->totalTry - $this->totalValid, $this->totalValid - $this->totalInserted));
+            acym_enqueueMessage(
+                acym_translation_sprintf(
+                    'ACYM_IMPORT_REPORT',
+                    $this->totalTry,
+                    $this->totalInserted,
+                    $this->totalTry - $this->totalValid,
+                    $this->totalValid - $this->totalInserted
+                ),
+                'info'
+            );
         }
 
         $this->_subscribeUsers();

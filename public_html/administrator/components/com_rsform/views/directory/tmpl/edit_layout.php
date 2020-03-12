@@ -44,7 +44,8 @@ defined('_JEXEC') or die('Restricted access'); ?>
 				<span class="rsform_clear_both"></span>
 				<div id="QuickAdd1">
 					<h3><?php echo JText::_('RSFP_QUICK_ADD');?></h3>
-					<?php echo JText::_('RSFP_QUICK_ADD_DESC');?><br/><br/>
+
+					<?php echo RSFormProHelper::generateQuickAddGlobal(); ?>
 					<?php foreach($this->quickfields as $field) {
 						echo RSFormProHelper::generateQuickAdd($field, 'display');
 					}?>

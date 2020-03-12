@@ -29,7 +29,7 @@ class WFImgManager_ExtPlugin extends WFMediaManager
         $config = array(
             'can_edit_images' => 1,
             'show_view_mode' => 1,
-            'colorpicker' => true
+            'colorpicker' => true,
         );
 
         parent::__construct($config);
@@ -118,6 +118,30 @@ class WFImgManager_ExtPlugin extends WFMediaManager
         }
     }
 
+    private function cleanExifString($string)
+    {
+        $string = (string) filter_var($string, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
+        return htmlspecialchars($string);
+    }
+
+    private function getImageDescription($image)
+    {
+        $description = '';
+
+        // must be a jpeg
+        if (!preg_match('#\.(jpg|jpeg)$#', strtolower($image))) {
+            return $description;
+        }
+
+        $data = $this->getExifData($image, WFUtility::mb_basename($image));
+
+        if (!empty($data) && isset($data['ImageDescription'])) {
+            $description = $this->cleanExifString($data['ImageDescription']);
+        }
+
+        return $description;
+    }
+
     public function onUpload($file, $relative = '')
     {
         parent::onUpload($file, $relative);
@@ -140,6 +164,12 @@ class WFImgManager_ExtPlugin extends WFMediaManager
             }
 
             $defaults = $this->getDefaultAttributes();
+
+            $description = $this->getImageDescription($file);
+
+            if ($description) {
+                $result['alt'] = $description;
+            }
 
             return array_merge($result, $defaults);
         }
@@ -202,6 +232,13 @@ class WFImgManager_ExtPlugin extends WFMediaManager
             // add trigger properties
             $properties['trigger'] = implode(',', $trigger);
 
+            $image = $filesystem->toAbsolute($file['id']);
+            $description = $this->getImageDescription($image);
+
+            if ($description) {
+                $properties['description'] = $description;
+            }
+
             $result['files'][$i] = array_merge($file,
                 array(
                     'classes' => implode(' ', array_merge(explode(' ', $file['classes']), $classes)),
@@ -209,20 +246,6 @@ class WFImgManager_ExtPlugin extends WFMediaManager
                 )
             );
         }
-    }
-
-    private function getExifData($relative)
-    {
-        $data = array();
-
-        $browser = $this->getFileBrowser();
-        $image = WFUtility::makePath($browser->getBaseDir(), $relative);
-
-        if (function_exists('exif_read_data')) {
-            $data = exif_read_data($image);
-        }
-
-        return $data;
     }
 
     /**
@@ -326,15 +349,21 @@ class WFImgManager_ExtPlugin extends WFMediaManager
         );
 
         foreach ($values as $key => $default) {
-            $fallback = $this->getParam('editor.upload_' . $key, $default);
+            $fallback = $this->getParam('editor.upload_' . $key, '', '$');
             $value = $this->getParam('imgmanager_ext.' . $key, '', '$');
 
             // indicates an unset value, so use the global value or default
             if ($value === '$') {
-                $value = $fallback;
+                $value = $fallback === '$' ? $default : $fallback;
             }
 
             $options['upload_' . $key] = $value;
+        }
+
+        // unset thumbnail width and height if both are empty, use global values
+        if ($options['upload_thumbnail_width'] === '' && $options['upload_thumbnail_height'] === '') {
+            unset($options['upload_thumbnail_width']);
+            unset($options['upload_thumbnail_height']);
         }
 
         foreach ($states as $key => $default) {
@@ -352,8 +381,8 @@ class WFImgManager_ExtPlugin extends WFMediaManager
 
     protected function getDefaultAttributes()
     {
-        $attribs    = array();
-        $defaults   = $this->getDefaults();
+        $attribs = array();
+        $defaults = $this->getDefaults();
 
         unset($defaults['always_include_dimensions']);
 
@@ -436,7 +465,7 @@ class WFImgManager_ExtPlugin extends WFMediaManager
                 // merge with specific styles array
                 $styles = array_merge($attribs['style'], $styles);
             }
-            
+
             $attribs['style'] = $styles;
         }
 
@@ -459,8 +488,8 @@ class WFImgManager_ExtPlugin extends WFMediaManager
             ),
             'always_include_dimensions' => $this->getParam('imgmanager_ext.always_include_dimensions', 0),
             'can_edit_images' => 1,
-            'thumbnail_width' => $this->getParam('imgmanager_ext.thumbnail_width', '', 120),
-            'thumbnail_height' => $this->getParam('imgmanager_ext.thumbnail_height', '', 90),
+            'thumbnail_width' => $this->getParam('imgmanager_ext.thumbnail_width', ''),
+            'thumbnail_height' => $this->getParam('imgmanager_ext.thumbnail_height', ''),
         );
 
         return parent::getSettings($settings);

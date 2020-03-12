@@ -253,10 +253,7 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		} else {
 			JFactory::getApplication()->input->set('tmpl','component');
 			echo '<div class="rs_message_info">'.$result['message'].'</div>';
-			if (rseventsproHelper::getConfig('modal','int') == 0 || rseventsproHelper::getConfig('modal','int') == 2)
-				echo '<script type="text/javascript">window.top.setTimeout(\'window.parent.location.reload();window.parent.jQuery("#rseUnsubscribeModal").modal("hide");\',1200);</script>';
-			else
-				echo '<script type="text/javascript">window.top.setTimeout(\'window.parent.location.reload();window.parent.jQuery.colorbox.close();\',1200);</script>';
+			echo '<script type="text/javascript">window.top.setTimeout(\'window.parent.location.reload();'.addslashes(rseventsproHelper::modalClose(false,true)).'\',1200);</script>';
 		}
 	}
 	
@@ -669,7 +666,7 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		}
 		
 		echo '<script type="text/javascript">'."\n";
-		echo 'window.parent.jQuery(\'#rseTicketsModal\').modal(\'hide\')'."\n";
+		echo rseventsproHelper::modalClose(false,true)."\n";
 		echo '</script>'."\n";
 		JFactory::getApplication()->close();
 	}
@@ -690,10 +687,10 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		if ($model->getCanreport()) {
 			$model->report();
 			echo '<div class="rs_message_info">'.JText::_('COM_RSEVENTSPRO_REPORT_ADDED').'</div>';
-			echo '<script type="text/javascript">window.top.setTimeout(\'window.parent.jQuery(\'#rseReportModal\').modal(\'hide\');\',1200);</script>';
+			echo '<script type="text/javascript">window.top.setTimeout(\''.rseventsproHelper::modalClose(false,true).'\',1200);</script>';
 		} else {
 			echo '<script type="text/javascript">'."\n";
-			echo 'window.parent.jQuery(\'#rseReportModal\').modal(\'hide\');'."\n";
+			echo rseventsproHelper::modalClose(false,true)."\n";
 			echo '</script>'."\n";
 		}
 	}
@@ -877,7 +874,7 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		echo '<script type="text/javascript">'."\n";
 		echo 'var data = '.json_encode($speakers).';'."\n";
 		echo 'window.parent.rsepro_update_speakers(data);'."\n";
-		echo 'window.parent.jQuery("#rsepro-add-new-speaker").modal("hide")'."\n";
+		echo rseventsproHelper::modalClose(false, true)."\n";
 		echo '</script>';
 		
 		JFactory::getApplication()->close();

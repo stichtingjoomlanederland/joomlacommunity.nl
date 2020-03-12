@@ -1,10 +1,10 @@
 /**
  * @package         Regular Labs Library
- * @version         19.12.9182
+ * @version         20.2.16442
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2019 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -12,11 +12,11 @@
 
 if (typeof window.RegularLabsForm === 'undefined'
 	|| typeof RegularLabsForm.version === 'undefined'
-	|| RegularLabsForm.version < '19.12.9182') {
+	|| RegularLabsForm.version < '20.2.16442') {
 
 	(function($) {
 		window.RegularLabsForm = {
-			version: '19.12.9182',
+			version: '20.2.16442',
 
 			getValue: function(name, escape) {
 				let $field = $(`[name="${name}"]`);
@@ -191,7 +191,7 @@ if (typeof window.RegularLabsForm === 'undefined'
 
 		$(document).ready(function() {
 			removeEmptyControlGroups();
-			addKeyUpOnShowOn();
+			addShowOnTriggers();
 
 			function removeEmptyControlGroups() {
 				// remove all empty control groups
@@ -219,7 +219,7 @@ if (typeof window.RegularLabsForm === 'undefined'
 			/**
 			 * Adds keyup triggers to fields to trigger show/hide of showon fields
 			 */
-			function addKeyUpOnShowOn() {
+			function addShowOnTriggers() {
 				const fieldIDs = [];
 
 				$('[data-showon]').each(function() {
@@ -234,7 +234,7 @@ if (typeof window.RegularLabsForm === 'undefined'
 				});
 
 				// Trigger the change event on keyup
-				$(fieldIDs.join(',')).on('keyup', function() {
+				$(fieldIDs.join(',')).on('input', function() {
 					$(this).change();
 				});
 			}

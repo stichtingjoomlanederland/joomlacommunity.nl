@@ -237,4 +237,9 @@ class RSFormProFieldCaptcha extends RSFormProField
 
 		return true;
 	}
+
+	public function isRequired()
+	{
+		return true;
+	}
 }

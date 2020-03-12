@@ -635,9 +635,11 @@ class com_rscommentsInstallerScript
 	</div>
 	<?php } ?>
 	
-	<h2>Changelog v1.13.17</h2>
+	<h2>Changelog v1.13.18</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> Email subscriptions were not sent from the backend and from the approval link.</li>
+		<li><span class="version-new">Add</span> Preview comment before submitting the form.</li>
+		<li><span class="version-new">Add</span> Added a new placeholder to the notification email: {author}.</li>
+		<li><span class="version-upgraded">Upg</span> Activation of the moderated comment.</li>
 	</ul>
 	<a class="com-rscomments-button" href="index.php?option=com_rscomments">Start using RSComments!</a>
 	<a class="com-rscomments-button" href="http://www.rsjoomla.com/support/documentation/view-knowledgebase/95-rscomments.html" target="_blank">Read the RSComments! User Guide</a>

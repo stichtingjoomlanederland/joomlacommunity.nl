@@ -212,6 +212,8 @@ class RSFormProFieldJqueryCalendar extends RSFormProField
 				$attr['class'] .= ' txtCal';
 			}
 		} elseif ($type == 'button') {
+			unset($attr['aria-required'], $attr['aria-invalid'], $attr['aria-describedby']);
+
 			$attr['class'] .= 'btnCal rsform-calendar-button';
 			if (!empty($attr['onclick'])) {
 				$attr['onclick'] .= ' ';
@@ -228,7 +230,7 @@ class RSFormProFieldJqueryCalendar extends RSFormProField
 	public function processValidation($validationType = 'form', $submissionId = 0)
 	{
 		$validate 	= $this->getProperty('VALIDATIONDATE', true);
-		$required 	= $this->getProperty('REQUIRED', false);
+		$required 	= $this->isRequired();
 		$format 	= $this->getProperty('DATEFORMAT');
 		$value 		= $this->getValue();
 

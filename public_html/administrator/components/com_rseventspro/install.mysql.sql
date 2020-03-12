@@ -578,7 +578,7 @@ INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('recaptcha_
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('recaptcha_theme', 'light');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('recaptcha_type', 'image');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('modal_width', '800');
-INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('modal_heigth', '600');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('modal_height', '600');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('timezone', '0');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('fontawesome', '1');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('canonical', '1');
@@ -609,6 +609,7 @@ INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('openstreet
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('mysubscriptions', '1');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('consent', '1');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('show_og', '1');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('modaltype', '1');
 
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Afghanistan');
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Akrotiri');

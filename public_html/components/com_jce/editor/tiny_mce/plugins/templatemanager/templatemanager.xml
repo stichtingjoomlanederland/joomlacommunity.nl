@@ -1,8 +1,8 @@
 <?xml version="1.0" ?>
 <extension version="3.4" type="plugin" group="jce" method="upgrade">
 	<name>WF_TEMPLATEMANAGER_TITLE</name>
-	<version>2.8.5</version>
-	<creationDate>29-01-2020</creationDate>
+	<version>2.8.9</version>
+	<creationDate>29-02-2020</creationDate>
 	<author>Ryan Demmer</author>
 	<authorEmail>info@joomlacontenteditor.net</authorEmail>
 	<authorUrl>https://www.joomlacontenteditor.net/</authorUrl>
@@ -23,7 +23,7 @@
 		<fieldset name="config" addfieldpath="/components/com_jce/editor/tiny_mce/plugins/templatemanager/fields">
 			<field name="dir" type="text" default="" size="50" label="WF_PARAM_DIRECTORY" description="WF_PARAM_DIRECTORY_DESC"/>
 			<field name="max_size" class="input-small" hint="1024" max="" type="uploadmaxsize" step="128" label="WF_PARAM_UPLOAD_SIZE" description="WF_PARAM_UPLOAD_SIZE_DESC" />
-			<field name="extensions" type="extension" class="extensions" default="html=html,htm,txt" label="WF_PARAM_EXTENSIONS" description="WF_PARAM_EXTENSIONS_DESC" />
+			<field name="extensions" type="extension" class="extensions" default="html=html,htm,txt,md" label="WF_PARAM_EXTENSIONS" description="WF_PARAM_EXTENSIONS_DESC" />
 			<field name="filesystem" type="filesystem" default="" label="WF_PARAM_FILESYSTEM" description="WF_PARAM_FILESYSTEM_DESC">
                 <option value="">WF_OPTION_INHERIT</option>
             </field>

@@ -37,6 +37,7 @@ class TableRSForm_Forms extends JTable
 	public $UserEmailBCC = '';
 	public $UserEmailFrom = '{global:mailfrom}';
 	public $UserEmailReplyTo = '';
+	public $UserEmailReplyToName = '';
 	public $UserEmailFromName = '{global:fromname}';
 	public $UserEmailSubject = '';
 	public $UserEmailMode = 1;
@@ -48,6 +49,7 @@ class TableRSForm_Forms extends JTable
 	public $AdminEmailBCC = '';
 	public $AdminEmailFrom = '';
 	public $AdminEmailReplyTo = '';
+	public $AdminEmailReplyToName = '';
 	public $AdminEmailFromName = '';
 	public $AdminEmailSubject = '';
 	public $AdminEmailMode = 1;
@@ -57,6 +59,7 @@ class TableRSForm_Forms extends JTable
     public $DeletionEmailBCC = '';
     public $DeletionEmailFrom = '{global:mailfrom}';
     public $DeletionEmailReplyTo = '';
+    public $DeletionEmailReplyToName = '';
     public $DeletionEmailFromName = '{global:fromname}';
     public $DeletionEmailSubject = '';
     public $DeletionEmailMode = 1;

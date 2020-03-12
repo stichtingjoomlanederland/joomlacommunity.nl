@@ -206,15 +206,17 @@ defined('_JEXEC') or die('Restricted access');
                         <?php echo acym_switch('field[backend_listing]', $data['field']->backend_listing, acym_translation_sprintf('ACYM_BACKEND_X', acym_translation('ACYM_LISTING')), [], 'shrink', 'auto', 'tiny margin-0'); ?>
 					</div>
 				</div>
-				<div class="cell acym__content grid-x margin-top-2">
-					<h1 class="cell acym__title__listing margin-right-1"><?php echo acym_translation('ACYM_FRONTEND'); ?></h1>
-					<div class="cell grid-x large-6">
-                        <?php echo acym_switch('field[frontend_edition]', $data['field']->frontend_edition, acym_translation_sprintf('ACYM_FRONTEND_X', acym_translation('ACYM_EDITION')), [], 'shrink', 'auto', 'tiny margin-0'); ?>
+                <?php if ('joomla' === ACYM_CMS) { ?>
+					<div class="cell acym__content grid-x margin-top-2">
+						<h1 class="cell acym__title__listing margin-right-1"><?php echo acym_translation('ACYM_FRONTEND'); ?></h1>
+						<div class="cell grid-x large-6">
+                            <?php echo acym_switch('field[frontend_edition]', $data['field']->frontend_edition, acym_translation_sprintf('ACYM_FRONTEND_X', acym_translation('ACYM_EDITION')), [], 'shrink', 'auto', 'tiny margin-0'); ?>
+						</div>
+						<div class="cell grid-x large-6">
+                            <?php echo acym_switch('field[frontend_listing]', $data['field']->frontend_listing, acym_translation_sprintf('ACYM_FRONTEND_X', acym_translation('ACYM_LISTING')), [], 'shrink', 'auto', 'tiny margin-0'); ?>
+						</div>
 					</div>
-					<div class="cell grid-x large-6">
-                        <?php echo acym_switch('field[frontend_listing]', $data['field']->frontend_listing, acym_translation_sprintf('ACYM_FRONTEND_X', acym_translation('ACYM_LISTING')), [], 'shrink', 'auto', 'tiny margin-0'); ?>
-					</div>
-				</div>
+                <?php } ?>
 			</div>
 		</div>
         <?php acym_formOptions(); ?>

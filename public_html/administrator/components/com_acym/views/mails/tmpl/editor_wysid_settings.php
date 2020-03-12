@@ -11,10 +11,16 @@ defined('_JEXEC') or die('Restricted access');
 				<input type="text" id="acym__wysid__background-colorpicker" class="cell medium-shrink small-4" />
 			</div>
 		</div>
-		<div class="grid-x margin-bottom-1 small-12 cell">
+		<div class="grid-x small-12 cell">
 			<label class="cell grid-x">
 				<span class="cell large-6 small-8"><?php echo acym_translation('ACYM_MARGIN_TOP_CONTENT'); ?></span>
 				<input type="number" min="0" value="20" id="acym__wysid__padding__top__content" class="cell small-4">
+			</label>
+		</div>
+		<div class="grid-x margin-bottom-1 small-12 cell">
+			<label class="cell grid-x">
+				<span class="cell large-6 small-8"><?php echo acym_translation('ACYM_MARGIN_BOTTOM_CONTENT'); ?></span>
+				<input type="number" min="0" value="20" id="acym__wysid__padding__bottom__content" class="cell small-4">
 			</label>
 		</div>
 	</div>

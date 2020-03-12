@@ -198,7 +198,7 @@ function rs_validate_subscr() {
 		<?php if ($event->ticketsconfig && rseventsproHelper::hasSeats($subscriber->id) && !$this->user) { ?>
 		<tr>
 			<td width="160">&nbsp;</td>
-			<td><a class="btn" onclick="jQuery('#rseModal').modal('show');" href="javascript:void(0);"><?php echo JText::_('COM_RSEVENTSPRO_SEATS_CONFIGURATION'); ?></a></td>
+			<td><a class="btn" rel="rs_seats" <?php if (rseventsproHelper::getConfig('modaltype','int') == 1) echo 'onclick="jQuery(\'#rseModal\').modal(\'show\');" href="javascript:void(0);"'; else echo 'href="'.rseventsproHelper::route('index.php?option=com_rseventspro&layout=userseats&tmpl=component&id='.rseventsproHelper::sef($subscriber->id,$subscriber->name)).'"'; ?>><?php echo JText::_('COM_RSEVENTSPRO_SEATS_CONFIGURATION'); ?></a></td>
 		</tr>
 		<?php } ?>
 		<tr>
@@ -250,4 +250,4 @@ function rs_validate_subscr() {
 	<input type="hidden" name="code" value="<?php echo JFactory::getApplication()->input->getString('code'); ?>" />
 </form>
 
-<?php echo JHtml::_('bootstrap.renderModal', 'rseModal', array('title' => '&nbsp;', 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=userseats&tmpl=component&id='.rseventsproHelper::sef($subscriber->id,$subscriber->name)), 'bodyHeight' => 70, 'width' => rseventsproHelper::getConfig('seats_width','int','1280'), 'height' => rseventsproHelper::getConfig('seats_height','int','800'))); ?>
+<?php if (rseventsproHelper::getConfig('modaltype','int') == 1) echo JHtml::_('bootstrap.renderModal', 'rseModal', array('title' => '&nbsp;', 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=userseats&tmpl=component&id='.rseventsproHelper::sef($subscriber->id,$subscriber->name)), 'bodyHeight' => 70, 'width' => rseventsproHelper::getConfig('seats_width','int','1280'), 'height' => rseventsproHelper::getConfig('seats_height','int','800'))); ?>

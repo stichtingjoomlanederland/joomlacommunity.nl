@@ -224,7 +224,7 @@ class plgAcymArticle extends acymPlugin
         $completeId = $element->id;
         if (!empty($element->alias)) $completeId .= ':'.$element->alias;
 
-        $link = ContentHelperRoute::getArticleRoute($completeId, $element->catid);
+        $link = ContentHelperRoute::getArticleRoute($completeId, $element->catid, $element->language);
         $link = acym_frontendLink($link, false);
         $varFields['{link}'] = $link;
 

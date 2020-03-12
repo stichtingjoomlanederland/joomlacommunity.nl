@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.12.9182
+ * @version         20.2.16442
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2019 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -14,7 +14,7 @@ namespace RegularLabs\Library;
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Filesystem\Folder as JFolder;
-use Joomla\CMS\Image\Image as JImage;
+use Joomla\Image\Image as JImage;
 use Joomla\CMS\Uri\Uri as JUri;
 
 class Image
@@ -210,7 +210,13 @@ class Image
 			return $source;
 		}
 
-		$image = new JImage($source_path);
+		try {
+			$image = new JImage($source_path);
+		}
+		catch(\InvalidArgumentException $e)
+		{
+			return $source;
+		}
 
 		$destination      = self::getNewPath($source, $width, $height, $destination_folder);
 		$destination_path = JPATH_SITE . '/' . $destination;
@@ -254,7 +260,13 @@ class Image
 			return false;
 		}
 
-		$image = new JImage($source_path);
+		try {
+			$image = new JImage($source_path);
+		}
+		catch(\InvalidArgumentException $e)
+		{
+			return false;
+		}
 
 		$original_width  = $image->getWidth();
 		$original_height = $image->getHeight();
@@ -315,7 +327,16 @@ class Image
 			];
 		}
 
-		$image = new JImage(JPATH_SITE . '/' . $source);
+		try {
+			$image = new JImage(JPATH_SITE . '/' . $source);
+		}
+		catch(\InvalidArgumentException $e)
+		{
+			return (object) [
+				'width'  => 0,
+				'height' => 0,
+			];
+		}
 
 		return (object) [
 			'width'  => $image->getWidth(),

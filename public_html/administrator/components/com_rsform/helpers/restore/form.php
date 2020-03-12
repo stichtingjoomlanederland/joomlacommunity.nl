@@ -528,16 +528,17 @@ class RSFormProRestoreForm
 				$query	->insert('#__rsform_emails')
 						->set(array(
 								$this->db->qn('formId')		.'='.$this->db->q($this->form->FormId),
-								$this->db->qn('type')		.'='.$this->db->q((string) $email->type),
-								$this->db->qn('from')		.'='.$this->db->q((string) $email->from),
-								$this->db->qn('fromname')	.'='.$this->db->q((string) $email->fromname),
-								$this->db->qn('replyto')	.'='.$this->db->q((string) $email->replyto),
+								$this->db->qn('type')			.'='.$this->db->q((string) $email->type),
+								$this->db->qn('from')			.'='.$this->db->q((string) $email->from),
+								$this->db->qn('fromname')		.'='.$this->db->q((string) $email->fromname),
+								$this->db->qn('replyto')		.'='.$this->db->q((string) $email->replyto),
+								$this->db->qn('replytoname')	.'='.$this->db->q((string) $email->replytoname),
 								$this->db->qn('to')			.'='.$this->db->q((string) $email->to),
 								$this->db->qn('cc')			.'='.$this->db->q((string) $email->cc),
-								$this->db->qn('bcc')		.'='.$this->db->q((string) $email->bcc),
-								$this->db->qn('subject')	.'='.$this->db->q((string) $email->subject),
-								$this->db->qn('mode')		.'='.$this->db->q((string) $email->mode),
-								$this->db->qn('message')	.'='.$this->db->q((string) $email->message)
+								$this->db->qn('bcc')			.'='.$this->db->q((string) $email->bcc),
+								$this->db->qn('subject')		.'='.$this->db->q((string) $email->subject),
+								$this->db->qn('mode')			.'='.$this->db->q((string) $email->mode),
+								$this->db->qn('message')		.'='.$this->db->q((string) $email->message)
 						));
 				$this->db->setQuery($query)->execute();
 				

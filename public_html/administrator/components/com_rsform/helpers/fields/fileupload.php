@@ -157,7 +157,7 @@ class RSFormProFieldFileUpload extends RSFormProField
 	{
 		$html = '';
 
-		if ($this->getProperty('REQUIRED'))
+		if ($this->isRequired())
 		{
 			$html .= ' data-rsfp-required="true"';
 		}
@@ -500,7 +500,7 @@ class RSFormProFieldFileUpload extends RSFormProField
 	public function processValidation($validationType = 'form', $submissionId = 0)
 	{
 		$db 		= JFactory::getDbo();
-		$required 	= $this->getProperty('REQUIRED', false);
+		$required 	= $this->isRequired();
 		$multiple 	= $this->getProperty('MULTIPLE', false);
 		$files 		= JFactory::getApplication()->input->files->get('form', null, 'raw');
 

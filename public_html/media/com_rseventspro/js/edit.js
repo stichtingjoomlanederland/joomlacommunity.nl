@@ -658,7 +658,12 @@ RSEventsPro.Event = {
 			jQuery('#categories').trigger('liszt:updated');
 			jQuery('#rsepro-new-category').val('');
 			jQuery('#rsepro-add-category-loader').css('display','none');
-			jQuery('#rsepro-add-new-categ').modal('hide');
+			
+			if (jQuery('#rsepro-add-new-categ').length) {
+				jQuery('#rsepro-add-new-categ').modal('hide');
+			} else {
+				jQuery.colorbox.close();
+			}
 		});
 	},
 	
@@ -787,6 +792,7 @@ RSEventsPro.Event = {
 	editFile: function(id) {
 		// Reset values
 		jQuery('#rsepro-edit-event-file input[type="checkbox"]').prop('checked',false);
+		jQuery('#rsFileFrame input[type="checkbox"]').prop('checked',false);
 		jQuery('#rsepro-file-name').val('');
 		jQuery('#rsepro-file-name').removeClass('invalid');
 		jQuery('label[for="rsepro-file-name"]').removeClass('invalid');
@@ -812,7 +818,10 @@ RSEventsPro.Event = {
 				}
 				
 				jQuery('#rsepro-file-loader').css('display','none');
-				jQuery('#rsepro-edit-event-file').modal('show');
+				
+				if (jQuery('#rsepro-edit-event-file').length) {
+					jQuery('#rsepro-edit-event-file').modal('show');
+				}
 			}
 		});
 	},
@@ -843,7 +852,12 @@ RSEventsPro.Event = {
 			}
 		}).done(function(response ) {
 			jQuery('.rsepro-event-files li#' + jQuery('#rsepro-file-id').val() + ' a.rsepro-edit-file').text(jQuery('#rsepro-file-name').val());
-			jQuery('#rsepro-edit-event-file').modal('hide');
+			
+			if (jQuery('#rsepro-edit-event-file').length) {
+				jQuery('#rsepro-edit-event-file').modal('hide');
+			} else {
+				jQuery.colorbox.close();
+			}
 		});
 		
 	},

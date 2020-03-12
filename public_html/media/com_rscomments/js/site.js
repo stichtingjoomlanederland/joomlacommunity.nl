@@ -28,7 +28,8 @@ RSComments = {
 		jQuery('[data-rsc-task="pagination"]').on('click', RSComments.pagination);
 		jQuery('[data-rsc-task="detectaddress"]').on('click', RSComments.detectAddress);
 		jQuery('[data-rsc-task="searchaddress"]').on('keyup', RSComments.searchAddress);
-		
+		jQuery('[data-rsc-task="preview"]').on('click', RSComments.previewComment);
+		jQuery('[data-rsc-task="closepreview"]').on('click', RSComments.closePreview);
 		
 		RSComments.initTooltips();
 		RSComments.initModal();
@@ -182,6 +183,7 @@ RSComments = {
 		
 		if (commentContainer.find('form').length) {
 			commentContainer.find('form')[0].reset();
+			commentContainer.find('[data-rsc-task="closepreview"]').click();
 			commentContainer.find('.rscomments-form-message').css('display','none');
 			commentContainer.find('.rscomments-form-message').html('');
 			
@@ -202,6 +204,7 @@ RSComments = {
 		object.find('.rscomments-comment-form').append(object.find('.rscomment-form'));
 		object.find('input[name="jform[IdParent]"]').val(0);
 		object.find('.rsc_cancel_btn').css('display','none').off('click');
+		object.find('[data-rsc-task="closepreview"]').click();
 		
 		RSComments.resetForm(object);
 	},
@@ -232,6 +235,7 @@ RSComments = {
 	
 	reset: function() {
 		RSComments.resetForm(jQuery(this).parents('.rscomments'));
+		jQuery(this).parents('.rscomments').find('[data-rsc-task="closepreview"]').click();
 	},
 	
 	addBBCode: function() {
@@ -546,6 +550,8 @@ RSComments = {
 						var cid = jQuery(object).parents('[data-rsc-task="form"]').find('.g-recaptcha-response').parents('div[id^="rsc-g-recaptcha-"]').prop('id').replace('rsc-g-recaptcha-', '');
 						grecaptcha.reset(RSCommentsReCAPTCHAv2.ids[cid]);
 					}
+					
+					jQuery(object).parents('[data-rsc-task="form"]').find('[data-rsc-task="closepreview"]').click();
 				}
 			}
 		});
@@ -629,12 +635,15 @@ RSComments = {
 						var cid = jQuery(object).parents('[data-rsc-task="form"]').find('.g-recaptcha-response').parents('div[id^="rsc-g-recaptcha-"]').prop('id').replace('rsc-g-recaptcha-', '');
 						grecaptcha.reset(RSCommentsReCAPTCHAv2.ids[cid]);
 					}
+					
+					jQuery(object).parents('[data-rsc-task="form"]').find('[data-rsc-task="closepreview"]').click();
 				} else {
 					jQuery(object).parents('[data-rsc-task="form"]').find('.rscomments-form-message').addClass('alert-danger');
 					jQuery(object).parents('[data-rsc-task="form"]').find('.rscomments-form-message').html('<p>' + response.error + '</p>');
 					jQuery(object).parents('[data-rsc-task="form"]').find('.rscomments-form-message').css('display', '');
 					
 					RSComments.animate(jQuery(object).parents('[data-rsc-task="form"]').find('.rscomments-form-message'));
+					jQuery(object).parents('[data-rsc-task="form"]').find('[data-rsc-task="closepreview"]').click();
 				}
 			}
 		});
@@ -677,6 +686,7 @@ RSComments = {
 						
 						jQuery(object).parents('.rscomments').find('[data-rsc-task="form"]').find('input[name="jform[name]"]').prop('disabled',false);
 						jQuery(object).parents('.rscomments').find('[data-rsc-task="form"]').find('input[name="jform[email]"]').prop('disabled',false);
+						jQuery(object).parents('.rscomments').find('[data-rsc-task="closepreview"]').click();
 						
 						RSComments.animate(jQuery(object).parents('.rscomments').find('[data-rsc-task="form"]').find('[data-rsc-task="commentform"]'));
 					}
@@ -968,7 +978,7 @@ RSComments = {
 		
 		var id = jQuery(object).parents('.rscomments').data('rsc-id');
 		var option = jQuery(object).parents('.rscomments').data('rsc-option');
-		var override = jQuery(object).data('rsc-override');
+		var override = jQuery(object).data('task-override');
 		
 		jQuery(object).parents('.rscomments').find('.rsc_loading_pages').css('display','');
 		
@@ -1062,6 +1072,41 @@ RSComments = {
 				});
 			} catch(err) {}
 		}
+	},
+	
+	previewComment: function() {
+		var object  = jQuery(this);
+		var comment = jQuery(this).parents('.rscomments').find('textarea[name="jform[comment]"]').val();
+		
+		if (comment.length) {
+			object.parents('.rscomments').find('.rsc_loading_preview').css('display','');
+			
+			jQuery.ajax({
+				type: 'POST',
+				url: RSComments.root() + 'index.php?option=com_rscomments',
+				data: 'task=preview&comment[]=' + encodeURIComponent(comment) + '&randomTime='+Math.random(),
+				dataType: 'html',
+				success: function(response) {
+					object.parents('.rscomments').find('.rsc_loading_preview').css('display','none');
+					object.parents('.rscomments').find('.rscomments-action-btns').css('display', 'none');
+					object.parents('.rscomments').find('[data-rsc-task="emoticons"]').removeClass('btn-success');
+					object.parents('.rscomments').find('.rscomments-close-preview').css('display', '');
+					object.parents('.rscomments').find('textarea[name="jform[comment]"]').css('display', 'none');
+					
+					object.parents('.rscomments').find('.rscomments-preview-area').css('min-height', object.parents('.rscomments').find('textarea[name="jform[comment]"]').height());
+					object.parents('.rscomments').find('.rscomments-preview-area').html(response);
+					object.parents('.rscomments').find('.rscomments-preview-area').css('display', '');
+				}
+			});
+		}
+	},
+	
+	closePreview: function() {
+		jQuery(this).parents('.rscomments').find('.rscomments-action-btns').css('display', '');
+		jQuery(this).parents('.rscomments').find('.rsc_emoticons').css('display', 'none');
+		jQuery(this).parents('.rscomments').find('.rscomments-close-preview').css('display', 'none');
+		jQuery(this).parents('.rscomments').find('textarea[name="jform[comment]"]').css('display', '');
+		jQuery(this).parents('.rscomments').find('.rscomments-preview-area').css('display', 'none');
 	},
 	
 	isIE: function() {

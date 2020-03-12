@@ -409,13 +409,30 @@ class RscommentsController extends JControllerLegacy
 		}
 	}
 	
+	public function preview() {
+		$comment		= JFactory::getApplication()->input->get('comment', array(), 'array');
+		$permissions	= RSCommentsHelper::getPermissions();
+		
+		if (isset($permissions['enable_preview']) && $permissions['enable_preview']) {
+			echo RSCommentsHelper::parseComment($comment[0], $permissions, true);
+		}
+		
+		JFactory::getApplication()->close();
+	}
+	
 	protected function checkPermission($id, $hash) {
 		$config = RSCommentsHelper::getConfig();
 		$secret	= JFactory::getConfig()->get('secret');
-		$email	= JFactory::getUser()->get('email');
 		
-		if ($hash == md5($email.$id.$secret)) {
-			return true;
+		if ($emails	= $config->notification_emails) {
+			if ($emails = explode(',',$emails)) {
+				foreach ($emails as $email) {
+					$email = trim($email);
+					if ($hash == md5($email.$id.$secret)) {
+						return true;
+					}
+				}
+			}
 		}
 		
 		return false;

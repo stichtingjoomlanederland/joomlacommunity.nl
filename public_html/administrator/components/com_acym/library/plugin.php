@@ -288,6 +288,9 @@ class acymPlugin extends acymObject
         if (!empty($parameter->min) && count($elements) < $parameter->min) {
             $this->generateCampaignResult->status = false;
             $this->generateCampaignResult->message = acym_translation_sprintf('ACYM_GENERATE_CAMPAIGN_NOT_ENOUGH_CONTENT', $this->pluginDescription->name, count($elements), $parameter->min);
+        } elseif (!empty($elements)) {
+            $this->generateCampaignResult->status = true;
+            $this->generateCampaignResult->message = '';
         }
 
         if (empty($elements)) return '';

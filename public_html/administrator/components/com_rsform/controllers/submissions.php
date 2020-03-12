@@ -183,8 +183,7 @@ class RsformControllerSubmissions extends RsformController
 	
 	public function export()
 	{
-		$config   = JFactory::getConfig();
-		$tmp_path = $config->get('tmp_path');
+		$tmp_path = JFactory::getConfig()->get('tmp_path');
 		if (!is_writable($tmp_path))
 		{
             $app = JFactory::getApplication();
@@ -429,23 +428,22 @@ class RsformControllerSubmissions extends RsformController
 	
 	public function exportProcess()
 	{
-		$mainframe = JFactory::getApplication();
-		
-		$config = JFactory::getConfig();
-	
+		$mainframe 	= JFactory::getApplication();
+		$session 	= JFactory::getSession();
+
 		// Get post
-		$session = JFactory::getSession();
 		$post = $session->get('com_rsform.export.data', serialize(array()));
 		$post = unserialize($post);
 		
 		// Limit
 		$start = $mainframe->input->getInt('exportStart');
+		$limit = $mainframe->input->getInt('exportLimit', RSFormProHelper::getConfig('export.limit'));
+
 		$mainframe->setUserState('com_rsform.submissions.limitstart', $start);
-		$limit = $mainframe->input->getInt('exportLimit', 500);
 		$mainframe->setUserState('com_rsform.submissions.limit', $limit);
 		
 		// Tmp path
-		$tmp_path = $config->get('tmp_path');
+		$tmp_path = JFactory::getConfig()->get('tmp_path');
 		$file = $tmp_path.'/'.$post['ExportFile'];
 		
 		$formId = $post['formId'];
@@ -453,22 +451,21 @@ class RsformControllerSubmissions extends RsformController
 		// Type
 		$type = strtolower($post['exportType']);
 		
-		// Selected rows or all rows
-		$rows = !empty($post['ExportRows']) ? explode(',', $post['ExportRows']) : '';
-		
-		// Use headers ?
+		// Use headers
 		$use_headers = !empty($post['ExportHeaders']);
 		
 		// Headers and ordering
-		$staticHeaders = $post['ExportSubmission'];
-		$headers = $post['ExportComponent'];
-		$order = $post['ExportOrder'];
+		$staticHeaders 	= $post['ExportSubmission'];
+		$headers 		= $post['ExportComponent'];
+		$order 			= $post['ExportOrder'];
 		
 		// Remove headers that we're not going to export
 		foreach ($order as $name => $id)
 		{
 			if (!isset($staticHeaders[$name]) && !isset($headers[$name]))
+			{
 				unset($order[$name]);
+			}
 		}
 		
 		// Adjust order array
@@ -476,8 +473,28 @@ class RsformControllerSubmissions extends RsformController
 		ksort($order);
 		
 		$model = $this->getModel('submissions');
-		$model->export = true;
-		$model->rows = $rows;
+
+		switch ($post['ExportRows'])
+		{
+			// All rows
+			case '0':
+				$model->export = true;
+				$model->rows = null;
+				break;
+
+			// Filtered rows
+			case '-1':
+				$model->export = false;
+				$model->rows = null;
+				break;
+
+			// Selected rows
+			default:
+				$model->export = true;
+				$model->rows = explode(',', $post['ExportRows']);
+				break;
+		}
+
 		$model->_query = $model->_buildQuery();
 		$submissions = $model->getSubmissions();
 		
@@ -748,9 +765,8 @@ class RsformControllerSubmissions extends RsformController
 	
 	public function exportFile()
 	{
-		$config = JFactory::getConfig();
 		$file = JFactory::getApplication()->input->getCmd('ExportFile');
-		$file = $config->get('tmp_path').'/'.$file;
+		$file = JFactory::getConfig()->get('tmp_path').'/'.$file;
 		
 		$type = JFactory::getApplication()->input->getCmd('ExportType');
 		

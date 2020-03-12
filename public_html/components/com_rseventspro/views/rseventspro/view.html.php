@@ -33,6 +33,8 @@ class RseventsproViewRseventspro extends JViewLegacy
 		$this->operator		= $this->get('Operator');
 		$this->document		= JFactory::getDocument();
 		$this->root			= JUri::getInstance()->toString(array('scheme','host','port'));
+		$this->modal_width 	= !empty($this->config->modal_width) ? (int) $this->config->modal_width : 800;
+		$this->modal_height = !empty($this->config->modal_height) ? (int) $this->config->modal_height : 600;
 		
 		$this->timezoneReturn	= base64_encode(JUri::getInstance());
 		$this->timezone			= JFactory::getConfig()->get('offset');
@@ -204,6 +206,23 @@ class RseventsproViewRseventspro extends JViewLegacy
 					$this->document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/edit.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
 				}
 				JHtml::stylesheet('com_rseventspro/edit.css', array('relative' => true, 'version' => 'auto'));
+				
+				if (rseventsproHelper::getConfig('modaltype','int') == 2) {
+					$modalInit = array();
+					
+					$modalInit[] = 'jQuery("a[rel=\'rs_rsform\']").colorbox({iframe:true, maxWidth:\'95%\', maxHeight:\'95%\', innerWidth:'.$this->modal_width.', innerHeight:'.$this->modal_height.', title:\''.JText::_('COM_RSEVENTSPRO_SELECT_FORM',true).'\'});';
+					$modalInit[] = 'jQuery("a[rel=\'rs_etickets\']").colorbox({iframe:true, maxWidth:\'95%\', maxHeight:\'95%\', innerWidth:'.$this->modal_width.', innerHeight:'.$this->modal_height.', title:\'\'});';
+					
+					if ($modalInit) {
+						$modalJS = array();
+						$modalJS[] = '<script type="text/javascript">';
+						$modalJS[] = 'jQuery(document).ready(function(){';
+						$modalJS[] = implode("\n", $modalInit);
+						$modalJS[] = '});';
+						$modalJS[] = '</script>';
+						$this->document->addCustomTag(implode("\n", $modalJS));
+					}	
+				}
 			}
 			
 			JHtml::_('jquery.ui', array('core', 'sortable'));
@@ -489,20 +508,33 @@ class RseventsproViewRseventspro extends JViewLegacy
 			$this->guests		= $this->get('guests');
 			$this->RSVPguests	= $this->get('RSVPGuests');
 			
-			$this->modal_width = !empty($this->config->modal_width) ? (int) $this->config->modal_width : 800;
-			$this->modal_height = !empty($this->config->modal_height) ? (int) $this->config->modal_height : 600;
-			
 			// Load jQuery Colorbox modal
-			if (rseventsproHelper::getConfig('modal','int') == 1 && $layout == 'show') {
-				JHtml::script('com_rseventspro/jquery.colorbox.min.js', array('relative' => true, 'version' => 'auto'));
-				JHtml::stylesheet('com_rseventspro/colorbox.css', array('relative' => true, 'version' => 'auto'));
-				$this->document->addCustomTag('<script type="text/javascript">jQuery(document).ready(function(){
-					jQuery("a[rel=\'rs_subscribe\']").colorbox({iframe:true, innerWidth:'.$this->modal_width.', innerHeight:'.$this->modal_height.' , title:\''.JText::_('COM_RSEVENTSPRO_EVENT_JOIN',true).'\'});
-					jQuery("a[rel=\'rs_invite\']").colorbox({iframe:true, innerWidth:'.$this->modal_width.', innerHeight:'.$this->modal_height.', title:\''.JText::_('COM_RSEVENTSPRO_EVENT_INVITE',true).'\'});
-					jQuery("a[rel=\'rs_message\']").colorbox({iframe:true, innerWidth:'.$this->modal_width.', innerHeight:'.$this->modal_height.', title:\''.JText::_('COM_RSEVENTSPRO_EVENT_MESSAGE_TO_GUESTS',true).'\'});
-					jQuery("a[rel=\'rs_unsubscribe\']").colorbox({iframe:true, innerWidth:'.$this->modal_width.', innerHeight:'.$this->modal_height.', title:\''.JText::_('COM_RSEVENTSPRO_UNSUBSCRIBE_UNSUBSCRIBE',true).'\'});
-					});</script>
-				');
+			$modalInit = array();
+			if ($layout == 'show') {
+				if (rseventsproHelper::getConfig('modaltype','int') == 2) {
+					if (rseventsproHelper::getConfig('modal','int') == 1) {
+						$modalInit[] = 'jQuery("a[rel=\'rs_subscribe\']").colorbox({iframe:true, maxWidth:\'95%\', maxHeight:\'95%\', innerWidth:'.$this->modal_width.', innerHeight:'.$this->modal_height.' , title:\''.JText::_('COM_RSEVENTSPRO_EVENT_JOIN',true).'\'});';
+						$modalInit[] = 'jQuery("a[rel=\'rs_invite\']").colorbox({iframe:true, maxWidth:\'95%\', maxHeight:\'95%\', innerWidth:'.$this->modal_width.', innerHeight:'.$this->modal_height.', title:\''.JText::_('COM_RSEVENTSPRO_EVENT_INVITE',true).'\'});';
+						$modalInit[] = 'jQuery("a[rel=\'rs_message\']").colorbox({iframe:true, maxWidth:\'95%\', maxHeight:\'95%\', innerWidth:'.$this->modal_width.', innerHeight:'.$this->modal_height.', title:\''.JText::_('COM_RSEVENTSPRO_EVENT_MESSAGE_TO_GUESTS',true).'\'});';
+					}
+					
+					if ($this->report) {
+						$modalInit[] = 'jQuery("a[rel=\'rs_report\']").colorbox({iframe:true, maxWidth:\'95%\', maxHeight:\'95%\', innerWidth:'.$this->modal_width.', innerHeight:'.$this->modal_height.', title:\'\'});';
+					}
+					
+					$modalInit[] = 'jQuery("a[rel=\'rs_unsubscribe\']").colorbox({iframe:true, maxWidth:\'95%\', maxHeight:\'95%\', innerWidth:'.$this->modal_width.', innerHeight:'.$this->modal_height.', title:\''.JText::_('COM_RSEVENTSPRO_UNSUBSCRIBE_UNSUBSCRIBE',true).'\'});';
+					$modalInit[] = 'jQuery("a[rel=\'rs_image\']").colorbox({photo:true, maxWidth:\'95%\', maxHeight:\'95%\', innerWidth:'.$this->modal_width.', innerHeight:'.$this->modal_height.', title:\'\'});';
+				}
+				
+				if ($modalInit) {
+					$modalJS = array();
+					$modalJS[] = '<script type="text/javascript">';
+					$modalJS[] = 'jQuery(document).ready(function(){';
+					$modalJS[] = implode("\n", $modalInit);
+					$modalJS[] = '});';
+					$modalJS[] = '</script>';
+					$this->document->addCustomTag(implode("\n", $modalJS));
+				}
 			}
 			
 			//set the pathway
@@ -576,7 +608,7 @@ class RseventsproViewRseventspro extends JViewLegacy
 				}
 			}
 			
-			if (rseventsproHelper::getConfig('modal','int') == 1 || rseventsproHelper::getConfig('modal','int') == 2)
+			if (rseventsproHelper::getConfig('modal','int') == 1)
 				$app->input->set('tmpl','component');
 			
 			$this->form = rseventsproHelper::rsform();
@@ -701,6 +733,16 @@ class RseventsproViewRseventspro extends JViewLegacy
 				$this->tparams = $tparams;
 				
 				$this->user = ($this->data['data']->idu == $user->get('id') || $this->data['data']->email == $this->email) && $this->data['event']->owner != $user->get('id');
+				
+				if (rseventsproHelper::getConfig('modaltype','int') == 2) {
+					$modalJS = array();
+					$modalJS[] = '<script type="text/javascript">';
+					$modalJS[] = 'jQuery(document).ready(function(){';
+					$modalJS[] = 'jQuery("a[rel=\'rs_seats\']").colorbox({iframe:true, maxWidth:\'95%\', maxHeight:\'95%\', innerWidth:'.$this->modal_width.', innerHeight:'.$this->modal_height.', title:\'\'});';
+					$modalJS[] = '});';
+					$modalJS[] = '</script>';
+					$this->document->addCustomTag(implode("\n", $modalJS));
+				}
 				
 				//set the pathway
 				$theview = isset($menu->query['layout']) ? $menu->query['layout'] : 'rseventspro';
@@ -855,7 +897,7 @@ class RseventsproViewRseventspro extends JViewLegacy
 			
 			$this->tickets = rseventsproHelper::getTickets(JFactory::getApplication()->input->getInt('id',0));
 		} elseif ($layout == 'seats') {
-			
+			$id = JFactory::getApplication()->input->getInt('id',0);
 			$permission_denied = false;
 			if (!$this->admin) {
 				if (!$id) {

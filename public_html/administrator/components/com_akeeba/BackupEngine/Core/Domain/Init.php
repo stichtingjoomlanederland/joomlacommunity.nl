@@ -297,7 +297,7 @@ class Init extends Part
 			$bias     = $registry->get('akeeba.tuning.run_time_bias');
 
 			Factory::getLog()->info("Min/Max/Bias       :" . $min_time . '/' . $max_time . '/' . $bias);
-			Factory::getLog()->info("Output directory   :" . $registry->get('akeeba.basic.output_directory'));
+			Factory::getLog()->info("Output directory   :" . $registry->get('akeeba.basic.output_directory'), ['root_translate' => false]);
 			Factory::getLog()->info("Part size (bytes)  :" . $registry->get('engine.archiver.common.part_size', 0));
 			Factory::getLog()->info("--------------------------------------------------------------------------------");
 		}
@@ -320,9 +320,9 @@ class Init extends Part
 
 		$phpVersion = PHP_VERSION;
 
-		if (version_compare($phpVersion, '5.6.0', 'lt'))
+		if (version_compare($phpVersion, '7.2.0', 'lt'))
 		{
-			Factory::getLog()->warning("You are using PHP $phpVersion which is officially End of Life. We recommend using PHP 7.0 or later for best results. Your version of PHP, $phpVersion, will stop being supported by this backup software in the future.");
+			Factory::getLog()->warning("You are using PHP $phpVersion which is officially End of Life. We recommend using PHP 7.3 or later for best results. Your version of PHP, $phpVersion, will stop being supported by this backup software in the future.");
 		}
 
 		// Report profile ID

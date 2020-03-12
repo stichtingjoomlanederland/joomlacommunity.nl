@@ -46,7 +46,7 @@ class acymheaderHelper extends acymObject
 
             if (!empty($oneNews->extension) && strtolower($oneNews->extension) != 'acymailing') continue;
 
-            if (!empty($oneNews->cms) && strtolower($oneNews->cms) != 'Joomla') continue;
+            if (!empty($oneNews->cms) && strtolower($oneNews->cms) != strtolower('Joomla')) continue;
 
             if (!empty($oneNews->level) && strtolower($oneNews->level) != strtolower($this->config->get('level'))) continue;
 

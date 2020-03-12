@@ -1,17 +1,20 @@
 <?php
 /**
- * @package     Joomla.Site
- * @subpackage  Layout
- *
- * @copyright   Copyright (C) 2005 - 2019 Open Source Matters, Inc. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @package         Regular Labs Library
+ * @version         20.2.16442
+ * 
+ * @author          Peter van Westen <info@regularlabs.com>
+ * @link            http://www.regularlabs.com
+ * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
 defined('_JEXEC') or die;
 
 /**
- * Make thing clear
- *
+ * Layout variables
+ * -----------------
+ * @var array  $displayData
  * @var JForm  $tmpl            The Empty form for template
  * @var array  $forms           Array of JForm instances for render the rows
  * @var bool   $multiple        The multiple state for the form field
@@ -24,6 +27,7 @@ defined('_JEXEC') or die;
  * @var array  $buttons         Array of the buttons that will be rendered
  * @var bool   $groupByFieldset Whether group the subform fields by it`s fieldset
  */
+
 extract($displayData);
 
 // Add script

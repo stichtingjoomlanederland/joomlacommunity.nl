@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Extension Manager
- * @version         7.4.3
+ * @version         7.4.4
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2019 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -35,8 +35,8 @@ $options = [
 RL_Document::scriptOptions($options, 'Extension Manager');
 JText::script('RLEM_INSTALLATION_FAILED');
 
-RL_Document::script('regularlabsmanager/process.min.js', '7.4.3');
-RL_Document::style('regularlabsmanager/process.min.css', '7.4.3');
+RL_Document::script('regularlabsmanager/process.min.js', '7.4.4');
+RL_Document::style('regularlabsmanager/process.min.css', '7.4.4');
 ?>
 
 <div id="rlem">

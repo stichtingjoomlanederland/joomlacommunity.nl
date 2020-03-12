@@ -3,7 +3,36 @@ defined('_JEXEC') or die('Restricted access');
 ?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" enctype="multipart/form-data">
 	<input type="hidden" id="acym_create_template_type_editor" name="type_editor">
 	<div id="acym__templates" class="acym__content">
-        <?php if (empty($data['allMails']) && empty($data['search']) && empty($data['tag']) && empty($data['status'])) { ?>
+        <?php
+
+        $postMaxSize = ini_get('post_max_size');
+        $uploadMaxSize = ini_get('upload_max_filesize');
+        $maxSize = acym_translation_sprintf(
+            'ACYM_MAX_UPLOAD',
+            acym_bytes($uploadMaxSize) > acym_bytes($postMaxSize) ? $postMaxSize : $uploadMaxSize
+        );
+        $templateTips = '<div class="text-center padding-0 cell grid-x text-center align-center">
+							<input type="file" style="width:auto" name="uploadedfile" class="cell"/>
+							<div class="cell">'.$maxSize.'</div>
+						</div>
+						<div class="cell margin-top-2 margin-bottom-2">
+							'.acym_translation('ACYM_IMPORT_INFO').'
+							<ul>
+								<li>'.acym_translation('ACYM_TEMLPATE_ZIP_IMPORT').'</li>
+								<ul>
+									<li>/template.html -> '.acym_translation('ACYM_TEMPLATE_HTML_IMPORT').'</li>
+									<li>/css -> '.acym_translation('ACYM_TEMPLATE_CSS_IMPORT').'</li>
+									<li>/images -> '.acym_translation('ACYM_TEMPLATE_IMAGES_IMPORT').'</li>
+									<li>/thumbnail.png -> '.acym_translation('ACYM_TEMPLATE_THUMBNAIL_IMPORT').'</li>
+								</ul>
+							</ul>
+						</div>
+					   <div class="cell grid-x align-center">
+							<button type="button" data-task="doUploadTemplate" class="acy_button_submit button cell shrink margin-1">'.acym_translation('ACYM_IMPORT').'</button>
+					   </div>';
+
+        if (empty($data['allMails']) && empty($data['search']) && empty($data['tag']) && empty($data['status'])) {
+            ?>
 			<div class="grid-x text-center">
 				<h1 class="acym__listing__empty__title cell"><?php echo acym_translation('ACYM_YOU_DONT_HAVE_ANY_TEMPLATE'); ?></h1>
 				<h1 class="acym__listing__empty__subtitle cell"><?php echo acym_translation('ACYM_CREATE_AN_AMAZING_TEMPLATE_WITH_OUR_AMAZING_EDITOR'); ?></h1>
@@ -26,26 +55,7 @@ defined('_JEXEC') or die('Restricted access');
                         <?php
                         echo acym_modal(
                             acym_translation('ACYM_IMPORT'),
-                            '<div class="text-center padding-0 cell grid-x text-center align-center">
-										<input type="file" style="width:auto" name="uploadedfile" class="cell"/>
-										<div class="cell">'.(acym_translation_sprintf('ACYM_MAX_UPLOAD', (acym_bytes(ini_get('upload_max_filesize')) > acym_bytes(ini_get('post_max_size'))) ? ini_get('post_max_size') : ini_get('upload_max_filesize'))).'</div>
-									</div>
-									<div class="cell margin-top-2 margin-bottom-2">
-										'.acym_translation('ACYM_IMPORT_INFO').'
-										<ul>
-											<li>'.acym_translation('ACYM_TEMLPATE_ZIP_IMPORT').'</li>
-											<ul>
-												<li>/template.html -> '.acym_translation('ACYM_TEMPLATE_HTML_IMPORT').'</li>
-												<li>/css -> '.acym_translation('ACYM_TEMPLATE_CSS_IMPORT').'</li>
-												<li>/images -> '.acym_translation('ACYM_TEMPLATE_IMAGES_IMPORT').'</li>
-												<li>/thumbnail.png -> '.acym_translation('ACYM_TEMPLATE_THUMBNAIL_IMPORT').'</li>
-											</ul>
-										</ul>
-									</div>
-									<a class="downloadmore" href="'.ACYM_ACYWEBSITE.'acymailing/templates-pack.html" target="_blank">'.acym_translation('ACYM_MORE_TEMPLATES').'</a>
-								   <div class="cell grid-x align-center">
-										<button type="button" data-task="doUploadTemplate" class="acy_button_submit button cell shrink margin-1">'.acym_translation('ACYM_IMPORT').'</button>
-								   </div>',
+                            $templateTips,
                             null,
                             '',
                             'class="button cell medium-auto button-secondary" data-reload="true" data-ajax="false"'
@@ -67,7 +77,14 @@ defined('_JEXEC') or die('Restricted access');
                     $allTags->value = '';
                     array_unshift($data["allTags"], $allTags);
 
-                    echo acym_select($data["allTags"], 'mails_tag', acym_escape($data["tag"]), 'class="acym__templates__filter__tags"', 'value', 'name'); ?>
+                    echo acym_select(
+                        $data["allTags"],
+                        'mails_tag',
+                        acym_escape($data["tag"]),
+                        'class="acym__templates__filter__tags"',
+                        'value',
+                        'name'
+                    ); ?>
 				</div>
 				<div class="xlarge-1 medium-shrink"></div>
 				<div class="xlarge-4 medium-auto cell text-center cell grid-x grid-margin-x text-right">
@@ -84,26 +101,7 @@ defined('_JEXEC') or die('Restricted access');
                     <?php
                     echo acym_modal(
                         acym_translation('ACYM_IMPORT'),
-                        '<div class="text-center padding-0 cell grid-x text-center align-center">
-										<input type="file" style="width:auto" name="uploadedfile" class="cell"/>
-										<div class="cell">'.(acym_translation_sprintf('ACYM_MAX_UPLOAD', (acym_bytes(ini_get('upload_max_filesize')) > acym_bytes(ini_get('post_max_size'))) ? ini_get('post_max_size') : ini_get('upload_max_filesize'))).'</div>
-									</div>
-									<div class="cell margin-top-2 margin-bottom-2">
-										'.acym_translation('ACYM_IMPORT_INFO').'
-										<ul>
-											<li>'.acym_translation('ACYM_TEMLPATE_ZIP_IMPORT').'</li>
-											<ul>
-												<li>/template.html -> '.acym_translation('ACYM_TEMPLATE_HTML_IMPORT').'</li>
-												<li>/css -> '.acym_translation('ACYM_TEMPLATE_CSS_IMPORT').'</li>
-												<li>/images -> '.acym_translation('ACYM_TEMPLATE_IMAGES_IMPORT').'</li>
-												<li>/thumbnail.png -> '.acym_translation('ACYM_TEMPLATE_THUMBNAIL_IMPORT').'</li>
-											</ul>
-										</ul>
-									</div>
-									<a class="downloadmore" href="'.ACYM_ACYWEBSITE.'acymailing/templates-pack.html" target="_blank">'.acym_translation('ACYM_MORE_TEMPLATES').'</a>
-								   <div class="cell grid-x align-center">
-										<button type="button" data-task="doUploadTemplate" class="acy_button_submit button cell shrink margin-1">'.acym_translation('ACYM_IMPORT').'</button>
-								   </div>',
+                        $templateTips,
                         null,
                         '',
                         'class="button acym__mails__listing__import-button cell medium-auto  button-secondary" data-reload="true" data-ajax="false"'
@@ -116,7 +114,8 @@ defined('_JEXEC') or die('Restricted access');
 					<div class="cell grid-x margin-top-1">
 						<div class="grid-x cell auto">
 							<div class="cell  acym_listing_sort-by">
-                                <?php echo acym_sortBy(
+                                <?php
+                                echo acym_sortBy(
                                     [
                                         'id' => strtolower(acym_translation('ACYM_ID')),
                                         'creation_date' => acym_translation('ACYM_DATE_CREATED'),
@@ -124,7 +123,8 @@ defined('_JEXEC') or die('Restricted access');
                                         'type' => acym_translation('ACYM_TYPE'),
                                     ],
                                     'mails'
-                                ); ?>
+                                );
+                                ?>
 							</div>
 						</div>
 					</div>

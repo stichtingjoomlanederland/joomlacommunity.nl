@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         19.12.9182
+ * @version         20.2.16442
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2019 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -29,11 +29,13 @@ class Article
 	/**
 	 * Method to get article data.
 	 *
-	 * @param integer|string $id The id, alias or title of the article.
+	 * @param integer $id              The id, alias or title of the article.
+	 * @param boolean $get_unpublished Whether to also return the article if it is not published
+	 * @param array   $selects         Option array of stuff to select. Note: requires correct table alias prefixes
 	 *
 	 * @return  object|boolean Menu item data object on success, boolean false
 	 */
-	public static function get($id = null, $get_unpublished = false)
+	public static function get($id = null, $get_unpublished = false, $selects = [])
 	{
 		$id = ! empty($id) ? $id : (int) self::getId();
 
@@ -45,8 +47,10 @@ class Article
 		$db   = JFactory::getDbo();
 		$user = JFactory::getUser();
 
+		$custom_selects = ! empty($selects);
+
 		$query = $db->getQuery(true)
-			->select(
+			->select($custom_selects ? $selects :
 				[
 					'a.id', 'a.asset_id', 'a.title', 'a.alias', 'a.introtext', 'a.fulltext',
 					'a.state', 'a.catid', 'a.created', 'a.created_by', 'a.created_by_alias',
@@ -73,33 +77,45 @@ class Article
 		}
 
 		// Join on category table.
-		$query->select([
-			$db->quoteName('c.title', 'category_title'),
-			$db->quoteName('c.alias', 'category_alias'),
-			$db->quoteName('c.access', 'category_access'),
-		])
-			->innerJoin($db->quoteName('#__categories', 'c') . ' ON ' . $db->quoteName('c.id') . ' = ' . $db->quoteName('a.catid'))
+		if ( ! $custom_selects)
+		{
+			$query->select([
+				$db->quoteName('c.title', 'category_title'),
+				$db->quoteName('c.alias', 'category_alias'),
+				$db->quoteName('c.access', 'category_access'),
+			]);
+		}
+		$query->innerJoin($db->quoteName('#__categories', 'c') . ' ON ' . $db->quoteName('c.id') . ' = ' . $db->quoteName('a.catid'))
 			->where($db->quoteName('c.published') . ' > 0');
 
 		// Join on user table.
-		$query->select($db->quoteName('u.name', 'author'))
-			->join('LEFT', $db->quoteName('#__users', 'u') . ' ON ' . $db->quoteName('u.id') . ' = ' . $db->quoteName('a.created_by'));
+		if ( ! $custom_selects)
+		{
+			$query->select($db->quoteName('u.name', 'author'));
+		}
+		$query->join('LEFT', $db->quoteName('#__users', 'u') . ' ON ' . $db->quoteName('u.id') . ' = ' . $db->quoteName('a.created_by'));
 
 		// Join over the categories to get parent category titles
-		$query->select([
-			$db->quoteName('parent.title', 'parent_title'),
-			$db->quoteName('parent.id', 'parent_id'),
-			$db->quoteName('parent.path', 'parent_route'),
-			$db->quoteName('parent.alias', 'parent_alias'),
-		])
-			->join('LEFT', $db->quoteName('#__categories', 'parent') . ' ON ' . $db->quoteName('parent.id') . ' = ' . $db->quoteName('c.parent_id'));
+		if ( ! $custom_selects)
+		{
+			$query->select([
+				$db->quoteName('parent.title', 'parent_title'),
+				$db->quoteName('parent.id', 'parent_id'),
+				$db->quoteName('parent.path', 'parent_route'),
+				$db->quoteName('parent.alias', 'parent_alias'),
+			]);
+		}
+		$query->join('LEFT', $db->quoteName('#__categories', 'parent') . ' ON ' . $db->quoteName('parent.id') . ' = ' . $db->quoteName('c.parent_id'));
 
 		// Join on voting table
-		$query->select([
-			'ROUND(v.rating_sum / v.rating_count, 0) AS rating',
-			$db->quoteName('v.rating_count', 'rating_count'),
-		])
-			->join('LEFT', $db->quoteName('#__content_rating', 'v') . ' ON ' . $db->quoteName('v.content_id') . ' = ' . $db->quoteName('a.id'));
+		if ( ! $custom_selects)
+		{
+			$query->select([
+				'ROUND(v.rating_sum / v.rating_count, 0) AS rating',
+				$db->quoteName('v.rating_count', 'rating_count'),
+			]);
+		}
+		$query->join('LEFT', $db->quoteName('#__content_rating', 'v') . ' ON ' . $db->quoteName('v.content_id') . ' = ' . $db->quoteName('a.id'));
 
 		if ( ! $get_unpublished
 			&& ( ! $user->authorise('core.edit.state', 'com_content'))
@@ -126,9 +142,17 @@ class Article
 			return false;
 		}
 
-		// Convert parameter fields to objects.
-		$data->params   = new Registry($data->attribs);
-		$data->metadata = new Registry($data->metadata);
+		if (isset($data->attribs))
+		{
+			// Convert parameter field to object.
+			$data->params = new Registry($data->attribs);
+		}
+
+		if (isset($data->metadata))
+		{
+			// Convert metadata field to object.
+			$data->metadata = new Registry($data->metadata);
+		}
 
 		self::$articles[$id] = $data;
 

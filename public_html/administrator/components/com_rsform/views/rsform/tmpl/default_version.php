@@ -17,11 +17,11 @@ defined('_JEXEC') or die('Restricted access');
 			</tr>
 			<tr>
 				<td nowrap="nowrap" class="text-right"><strong><?php echo JText::_('COM_RSFORM_COPYRIGHT_NAME') ?>: </strong></td>
-				<td nowrap="nowrap">&copy; 2007 - <?php echo gmdate('Y'); ?> <a href="http://www.rsjoomla.com" target="_blank">RSJoomla!</a></td>
+				<td nowrap="nowrap">&copy; 2007 - <?php echo gmdate('Y'); ?> <a href="https://www.rsjoomla.com" target="_blank">RSJoomla!</a></td>
 			</tr>
 			<tr>
 				<td nowrap="nowrap" class="text-right"><strong><?php echo JText::_('COM_RSFORM_LICENSE_NAME') ?>: </strong></td>
-				<td nowrap="nowrap"><a href="https://www.gnu.org/licenses/gpl.html" target="_blank">GNU/GPL</a> Commercial</a></td>
+				<td nowrap="nowrap"><a href="https://www.gnu.org/licenses/gpl.html" target="_blank">GNU/GPL</a> <?php echo JText::_('COM_RSFORM_COMMERCIAL'); ?></td>
 			</tr>
 			<tr>
 				<td nowrap="nowrap" class="text-right"><strong><?php echo JText::_('COM_RSFORM_UPDATE_CODE') ?>: </strong></td>

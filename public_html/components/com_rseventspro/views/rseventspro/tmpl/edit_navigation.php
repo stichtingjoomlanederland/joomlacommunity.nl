@@ -7,7 +7,7 @@
 defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 
 <ul id="rsepro-edit-menu" class="nav nav-tabs">
-	<li><a href="javascript:void(0);" data-toggle="modal" data-target="#rsepro-edit-event-photo" class="center" onclick="rsepro_reset_frame();"><?php echo $this->loadTemplate('icon'); ?></a></li>
+	<li><a rel="rs_icon" href="javascript:void(0);" class="center" <?php if ($this->config->modaltype == 1) { ?>data-toggle="modal" data-target="#rsepro-edit-event-photo" onclick="rsepro_reset_frame();"<?php } ?>><?php echo $this->loadTemplate('icon'); ?></a></li>
 	
 	<?php if ($this->item->completed) { ?>
 	<li><a href="javascript:void(0);" data-target="#rsepro-edit-tabd" data-toggle="tab"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TAB_DASHBOARD'); ?> <span class="fa fa-tachometer"></span></a></li>

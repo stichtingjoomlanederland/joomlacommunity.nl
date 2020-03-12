@@ -6,7 +6,7 @@ defined('_JEXEC') or die('Restricted access');
             include acym_getView('campaigns', 'listing_empty', true);
         } else {
             include acym_getView('campaigns', 'listing_header', true);
-            include acym_getView('campaigns', 'listing_listing');
+            include acym_getView('campaigns', 'listing_listing', true);
         } ?>
         <?php acym_formOptions(); ?>
 	</div>

@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Extension Manager
- * @version         7.4.3
+ * @version         7.4.4
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2019 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -52,8 +52,8 @@ JText::script('RLEM_ALERT_NO_ITEMS_SELECTED');
 JText::script('RLEM_ALERT_FAIL');
 JText::script('RLEM_ALERT_NO_DATA');
 
-RL_Document::script('regularlabsmanager/script.min.js', '7.4.3');
-RL_Document::style('regularlabsmanager/style.min.css', '7.4.3');
+RL_Document::script('regularlabsmanager/script.min.js', '7.4.4');
+RL_Document::style('regularlabsmanager/style.min.css', '7.4.4');
 
 $script = "
 	jQuery(document).ready(function() {

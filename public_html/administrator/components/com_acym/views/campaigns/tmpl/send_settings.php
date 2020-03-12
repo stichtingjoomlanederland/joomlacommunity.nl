@@ -6,7 +6,7 @@ defined('_JEXEC') or die('Restricted access');
 		<input type="hidden" value="<?php echo acym_escape($data['from']); ?>" name="from">
 		<input type="hidden" name="sending_type" value="<?php echo $data['currentCampaign']->sending_type; ?>">
 		<div class="large-auto"></div>
-		<div id="acym__campaigns" class="cell <?= $data['containerClass']; ?> grid-x grid-margin-x acym__content">
+		<div id="acym__campaigns" class="cell <?php echo $data['containerClass']; ?> grid-x grid-margin-x acym__content">
 
             <?php
             $workflow = acym_get('helper.workflow');

@@ -154,8 +154,8 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 		<select name="speakers[]" id="speakers" multiple="multiple" class="rsepro-chosen">
 			<?php echo JHtml::_('select.options', $this->eventClass->speakers(),'value','text',$this->eventClass->getSpeakers()); ?>
 		</select>
-		 <?php if (!empty($this->permissions['can_add_speaker']) || $this->admin) { ?>
-		<a href="#rsepro-add-new-speaker" data-toggle="modal" class="btn" type="button"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_ADD_SPEAKER'); ?></a>
+		<?php if (!empty($this->permissions['can_add_speaker']) || $this->admin) { ?>
+		<a rel="rs_speaker" <?php if ($this->config->modaltype == 1) { ?>href="#rsepro-add-new-speaker" data-toggle="modal"<?php } else { ?>href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&view=rseventspro&layout=edit&id='.$this->item->id.'&tpl=modal_speaker', false); ?>"<?php } ?> class="btn" type="button"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_ADD_SPEAKER'); ?></a>
 		<?php } ?>
 	</div>
 </div>

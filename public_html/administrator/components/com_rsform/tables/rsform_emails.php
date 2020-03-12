@@ -20,6 +20,7 @@ class TableRSForm_Emails extends JTable
 	public $from = null;
 	public $fromname = null;
 	public $replyto = null;
+	public $replytoname = null;
 	public $to = null;
 	public $cc = null;
 	public $bcc = null;

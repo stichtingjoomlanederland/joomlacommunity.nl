@@ -7,7 +7,7 @@ defined('_JEXEC') or die('Restricted access');
         if (acym_level(2)) {
             ?>
 			<div class="grid-x grid-margin-x">
-				<div class="cell medium-3"><?= acym_translation('ACYM_FRONT_DELETE_BUTTON').acym_info('ACYM_FRONT_DELETE_BUTTON_DESC'); ?></div>
+				<div class="cell medium-3"><?php echo acym_translation('ACYM_FRONT_DELETE_BUTTON').acym_info('ACYM_FRONT_DELETE_BUTTON_DESC'); ?></div>
 				<div class="cell medium-9">
                     <?php
                     echo acym_radio(

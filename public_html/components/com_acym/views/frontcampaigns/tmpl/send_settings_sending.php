@@ -8,7 +8,7 @@ defined('_JEXEC') or die('Restricted access');
 			<h3 class="acym__title__primary__color acym__middle_absolute__text text-center"><?php echo acym_translation('ACYM_CAMPAIGN_ALREADY_QUEUED'); ?></h3>
         <?php } ?>
 		<div class="cell grid-x grid-margin-x margin-bottom-2">
-			<div class="cell auto grid-x align-left">
+			<div class="cell auto grid-x align-center">
                 <?php
                 $class = $data['currentCampaign']->send_now ? '' : 'button-radio-unselected';
                 $class .= $data['currentCampaign']->draft ? '' : ' button-radio-disabled';
@@ -46,3 +46,4 @@ defined('_JEXEC') or die('Restricted access');
 		</div>
 	</div>
 </div>
+
