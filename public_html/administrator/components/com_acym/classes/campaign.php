@@ -120,6 +120,7 @@ class acymcampaignClass extends acymClass
         $tags = $tagClass->getAllTagsByTypeAndElementIds('mail', $mailIds);
         $lists = $mailClass->getAllListsWithCountSubscribersByMailIds($mailIds);
 
+        $urlClickClass = acym_get('class.urlclick');
         foreach ($results['elements'] as $i => $oneCampaign) {
             $results['elements'][$i]->tags = [];
             $results['elements'][$i]->lists = [];
@@ -140,6 +141,9 @@ class acymcampaignClass extends acymClass
             $results['elements'][$i]->open = 0;
             if (!empty($results['elements'][$i]->subscribers)) {
                 $results['elements'][$i]->open = number_format($results['elements'][$i]->open_unique / $results['elements'][$i]->subscribers * 100, 2);
+
+                $clicksNb = $urlClickClass->getNumberUsersClicked($results['elements'][$i]->mail_id);
+                $results['elements'][$i]->click = number_format($clicksNb / $results['elements'][$i]->subscribers * 100, 2);
             }
         }
 
@@ -530,7 +534,6 @@ class acymcampaignClass extends acymClass
             $execute = !empty($step->next_execution) && $step->next_execution <= $data['time'];
             acym_trigger('onAcymExecuteTrigger', [&$step, &$execute, &$data], 'plgAcymTime');
             $campaign->next_trigger = $step->next_execution;
-            unset($campaign->name);
             if (!$execute) {
                 $this->save($campaign);
                 continue;

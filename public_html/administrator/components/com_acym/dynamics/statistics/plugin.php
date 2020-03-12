@@ -8,27 +8,41 @@ class plgAcymStatistics extends acymPlugin
     {
         $id = acym_getVar('int', 'id');
         if (!empty($id)) {
-            $subject = acym_loadResult('SELECT `subject` FROM #__acym_mail WHERE `id` = '.intval($id));
-            if (empty($subject)) $subject = '';
-            echo json_encode(['value' => $subject.' ['.acym_translation('ACYM_ID').' '.$id.']']);
+            $mail = acym_loadObject(
+                'SELECT mail.`subject`, campaign.`id` AS campaignId 
+                FROM #__acym_mail AS mail 
+                LEFT JOIN #__acym_campaign AS campaign ON mail.`id` = campaign.`mail_id` 
+                WHERE mail.`id` = '.intval($id)
+            );
+            if (empty($mail)) {
+                $subject = '';
+            } else {
+                $subject = $mail->subject;
+                if (!empty($mail->campaignId)) {
+                    $subject .= ' ['.acym_translation('ACYM_ID').' '.$mail->campaignId.']';
+                }
+            }
+            echo json_encode(['value' => $subject]);
             exit;
         }
 
         $return = [];
-        $search = acym_getVar('cmd', 'search', '');
+        $search = acym_getVar('string', 'search', '');
 
         $mails = acym_loadObjectList(
-            'SELECT `id`, `subject` 
-            FROM #__acym_mail 
-            WHERE `subject` LIKE '.acym_escapeDB('%'.$search.'%').' 
-            ORDER BY `subject` ASC'
+            'SELECT mail.`id`, mail.`subject`, campaign.`id` AS campaignId 
+            FROM #__acym_mail AS mail 
+            LEFT JOIN #__acym_campaign AS campaign ON mail.`id` = campaign.`mail_id` 
+            WHERE mail.`subject` LIKE '.acym_escapeDB('%'.$search.'%').' OR mail.`name` LIKE '.acym_escapeDB('%'.$search.'%').' 
+            ORDER BY mail.`subject` ASC'
         );
 
         $mailClass = acym_get('class.mail');
         $mails = $mailClass->decode($mails);
 
         foreach ($mails as $oneMail) {
-            $return[] = [$oneMail->id, $oneMail->subject.' ['.acym_translation('ACYM_ID').' '.$oneMail->id.']'];
+            $campaignId = empty($oneMail->campaignId) ? '' : ' ['.acym_translation('ACYM_ID').' '.$oneMail->campaignId.']';
+            $return[] = [$oneMail->id, $oneMail->subject.$campaignId];
         }
 
         echo json_encode($return);

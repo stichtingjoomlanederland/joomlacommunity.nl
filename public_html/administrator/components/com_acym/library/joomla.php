@@ -804,7 +804,7 @@ function acym_getArticleURL($id, $popup, $text, $titleModal = '')
         require_once $contentHelper;
     }
 
-    $query = 'SELECT article.id, article.alias, article.catid, cat.alias AS catalias 
+    $query = 'SELECT article.id, article.alias, article.catid, cat.alias AS catalias, article.language
         FROM #__content AS article 
         LEFT JOIN #__categories AS cat ON cat.id = article.catid 
         WHERE article.id = '.intval($id);
@@ -813,7 +813,7 @@ function acym_getArticleURL($id, $popup, $text, $titleModal = '')
     $category = $article->catid.(empty($article->catalias) ? '' : ':'.$article->catalias);
     $articleid = $article->id.(empty($article->alias) ? '' : ':'.$article->alias);
 
-    $url = ContentHelperRoute::getArticleRoute($articleid, $category);
+    $url = ContentHelperRoute::getArticleRoute($articleid, $category, $article->language);
 
     if ($popup == 1) {
         $url .= (strpos($url, '?') ? '&' : '?').acym_noTemplate();
@@ -977,6 +977,10 @@ function acym_replaceGroupTags($uploadFolder)
 function acym_getCmsUserEdit($userId)
 {
     return 'index.php?option=com_users&task=user.edit&id='.intval($userId);
+}
+
+function acym_disableCmsEditor()
+{
 }
 
 global $acymCmsUserVars;

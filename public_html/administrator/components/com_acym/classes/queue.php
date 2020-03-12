@@ -332,7 +332,7 @@ class acymqueueClass extends acymClass
         );
     }
 
-    private function queue($mailId, $sending_date)
+    public function queue($mailId, $sending_date)
     {
         $priority = $this->config->get('priority_newsletter', 3);
 
@@ -361,19 +361,25 @@ class acymqueueClass extends acymClass
         }
     }
 
-    public function removeUnconfirmedUsersEmails()
-    {
-        return acym_query(
-            'DELETE `queue`.* 
-                    FROM `#__acym_queue` AS `queue` 
-                    JOIN `#__acym_user` AS `user` ON `queue`.`user_id` = `user`.`id` 
-                    WHERE `user`.`confirmed` = 0 OR `user`.`active` = 0'
-        );
-    }
-
     public function emptyQueue()
     {
         return acym_query('DELETE FROM `#__acym_queue`');
+    }
+
+    public function cleanQueue()
+    {
+        $twoDaysEarlier = acym_date(time() - 172800, 'Y-m-d H:i:s', false);
+
+        $condition = '`user`.`active` = 0';
+        if ($this->config->get('require_confirmation', 1) == 1) $condition .= ' OR `user`.`confirmed` = 0';
+
+        return acym_query(
+            'DELETE `queue`.* 
+            FROM `#__acym_queue` AS `queue` 
+            JOIN `#__acym_user` AS `user` ON `queue`.`user_id` = `user`.`id` 
+            WHERE ('.$condition.') 
+                AND `queue`.`sending_date` < '.acym_escapeDB($twoDaysEarlier)
+        );
     }
 }
 

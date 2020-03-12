@@ -28,6 +28,7 @@ class acymeditorHelper extends acymObject
     public function display()
     {
         if ($this->isDragAndDrop()) {
+            acym_disableCmsEditor();
             $currentEmail = acym_currentUserEmail();
             $this->emailsTest = [$currentEmail => $currentEmail];
             acym_addScript(false, ACYM_JS.'tinymce/tinymce.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'tinymce/tinymce.min.js'));
@@ -129,7 +130,7 @@ class acymeditorHelper extends acymObject
     private function getWYSIDSettings()
     {
         $ctrl = acym_getVar('string', 'ctrl');
-        if ($this->isResetCampaign() || !in_array($ctrl, ['mails', 'campaigns'])) return '{}';
+        if ($this->isResetCampaign() || !in_array($ctrl, ['mails', 'campaigns', 'frontmails', 'frontcampaigns'])) return '{}';
 
         $id = acym_getVar('int', 'from', 0);
         if ($this->settings != 'editor_settings' && empty($id)) return $this->settings;
@@ -150,7 +151,7 @@ class acymeditorHelper extends acymObject
     private function getWYSIDStylesheet()
     {
         $ctrl = acym_getVar('string', 'ctrl');
-        if ($this->isResetCampaign() || !in_array($ctrl, ['mails', 'campaigns'])) return '';
+        if ($this->isResetCampaign() || !in_array($ctrl, ['mails', 'campaigns', 'frontmails', 'frontcampaigns'])) return '';
 
         $id = acym_getVar('int', 'from', 0);
         if ($this->stylesheet != 'editor_stylesheet' && !empty($id)) return $this->stylesheet;
@@ -164,17 +165,18 @@ class acymeditorHelper extends acymObject
 
 
         if (!empty($id)) {
-            $query = '';
-
-            if (in_array($ctrl, ['mails', 'campaigns'])) {
-                $query = 'SELECT stylesheet FROM #__acym_mail WHERE id = '.intval($id);
+            if (in_array($ctrl, ['mails', 'campaigns', 'frontmails', 'frontcampaigns'])) {
+                $stylesheet = acym_loadResult('SELECT stylesheet FROM #__acym_mail WHERE id = '.intval($id));
             }
-
-            $stylesheet = acym_loadResult($query);
 
             return empty($stylesheet) ? '' : $stylesheet;
         } elseif (!empty($notification)) {
-            $stylesheet = acym_loadResult('SELECT stylesheet FROM #__acym_mail WHERE `type` = "notification" AND `name` = '.acym_escapeDB($notification));
+            $stylesheet = acym_loadResult(
+                'SELECT stylesheet 
+                FROM #__acym_mail 
+                WHERE `type` = "notification" 
+                    AND `name` = '.acym_escapeDB($notification)
+            );
 
             return empty($stylesheet) ? '' : $stylesheet;
         }

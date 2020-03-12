@@ -37,6 +37,7 @@ $hiddenLists = array_intersect($hiddenLists, array_keys($allLists));
 $allfields = $fieldClass->getFieldsByID($allfields);
 $fields = [];
 foreach ($allfields as $field) {
+    if($field->active === '0') continue;
     $fields[$field->id] = $field;
 }
 
@@ -156,9 +157,9 @@ echo "<script type=\"text/javascript\">
                     $app = JFactory::getApplication('site');
                     $template = $app->getTemplate();
                     if (file_exists(str_replace(DS, '/', ACYM_ROOT).'templates/'.$template.'/html/mod_acym/'.$view)) {
-                        include(ACYM_ROOT.'templates'.DS.$template.DS.'html'.DS.'mod_acym'.DS.$view);
+                        include ACYM_ROOT.'templates'.DS.$template.DS.'html'.DS.'mod_acym'.DS.$view;
                     } else {
-                        include(__DIR__.DS.'tmpl'.DS.$view);
+                        include __DIR__.DS.'tmpl'.DS.$view;
                     }
 
                     ?>

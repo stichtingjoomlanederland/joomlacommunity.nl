@@ -342,7 +342,13 @@ class acymmailClass extends acymClass
         }
         $decodedAttach = json_decode($attachments, true);
         unset($decodedAttach[$idAttachment]);
-        $attachdb = json_encode($decodedAttach);
+        $newAttachments = [];
+        if (!empty($decodedAttach)) {
+            foreach ($decodedAttach as $oneAttach) {
+                $newAttachments[] = $oneAttach;
+            }
+        }
+        $attachdb = json_encode($newAttachments);
 
         return acym_query('UPDATE #__acym_mail SET attachments = '.acym_escapeDB($attachdb).' WHERE id = '.intval($mailid).' LIMIT 1');
     }

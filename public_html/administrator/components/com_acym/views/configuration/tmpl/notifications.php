@@ -7,8 +7,8 @@ defined('_JEXEC') or die('Restricted access');
         foreach ($data['notifications'] as $identifier => $notification) {
             ?>
 			<div class="cell xxlarge-4 large-5 medium-6">
-				<label for="acym__config__<?= acym_escape($identifier); ?>">
-                    <?= acym_escape(acym_translation($notification['label'])); ?>
+				<label for="acym__config__<?php echo acym_escape($identifier); ?>">
+                    <?php echo acym_escape(acym_translation($notification['label'])); ?>
 				</label>
 			</div>
 			<div class="cell xlarge-4 large-5 medium-6">
@@ -33,8 +33,8 @@ defined('_JEXEC') or die('Restricted access');
                 ?>
 			</div>
 			<div class="cell large-2 medium-4 shrink">
-				<a class="button" href="<?= acym_completeLink('mails&task=edit&notification='.$identifier.'&type_editor=acyEditor'); ?>">
-                    <?= acym_translation('ACYM_EDIT_EMAIL'); ?>
+				<a class="button" href="<?php echo acym_completeLink('mails&task=edit&notification='.$identifier.'&type_editor=acyEditor'); ?>">
+                    <?php echo acym_translation('ACYM_EDIT_EMAIL'); ?>
 				</a>
 			</div>
 			<div class="cell xxlarge-2 xlarge-1 hide-for-large-only medium-8 hide-for-small-only"></div>

@@ -101,7 +101,7 @@ class ConfigurationController extends acymController
         $messages = [];
 
         $queries = file_get_contents(ACYM_BACK.'tables.sql');
-        $tables = explode("CREATE TABLE IF NOT EXISTS ", $queries);
+        $tables = explode('CREATE TABLE IF NOT EXISTS ', $queries);
         $structure = [];
         $createTable = [];
         $indexes = [];
@@ -122,7 +122,7 @@ class ConfigurationController extends acymController
 
                 if (substr($oneField, 0, 1) == '`') {
                     $columnName = substr($oneField, 1, strpos($oneField, '`', 1) - 1);
-                    $structure[$tableName][$columnName] = trim($oneField, ",");
+                    $structure[$tableName][$columnName] = trim($oneField, ',');
                     continue;
                 }
 
@@ -135,7 +135,7 @@ class ConfigurationController extends acymController
                     $indexes[$tableName][$indexName] = $oneField;
                 }
             }
-            $createTable[$tableName] = "CREATE TABLE IF NOT EXISTS ".$oneTable;
+            $createTable[$tableName] = 'CREATE TABLE IF NOT EXISTS '.$oneTable;
         }
 
 
@@ -144,7 +144,7 @@ class ConfigurationController extends acymController
 
         foreach ($tableNames as $oneTableName) {
             try {
-                $columns = acym_loadObjectList("SHOW COLUMNS FROM ".$oneTableName);
+                $columns = acym_loadObjectList('SHOW COLUMNS FROM '.$oneTableName);
             } catch (Exception $e) {
                 $columns = null;
             }
@@ -158,7 +158,7 @@ class ConfigurationController extends acymController
 
 
             $errorMessage = (isset($e) ? $e->getMessage() : substr(strip_tags(acym_getDBError()), 0, 200));
-            $messages[] = "<span style=\"color:blue\">Could not load columns from the table ".$oneTableName." : ".$errorMessage."</span>";
+            $messages[] = '<span style="color:blue">'.acym_translation_sprintf('ACYM_CHECKDB_LOAD_COLUMNS_ERROR', $oneTableName, $errorMessage).'</span>';
 
             if (strpos($errorMessage, 'marked as crashed')) {
                 $repairQuery = 'REPAIR TABLE '.$oneTableName;
@@ -171,9 +171,9 @@ class ConfigurationController extends acymController
 
                 if ($isError === null) {
                     $errorMessage = (isset($e) ? $e->getMessage() : substr(strip_tags(acym_getDBError()), 0, 200));
-                    $messages[] = "<span style=\"color:red\">[ERROR]Could not repair the table ".$oneTableName." : ".$errorMessage."</span>";
+                    $messages[] = '<span style="color:red">'.acym_translation_sprintf('ACYM_CHECKDB_REPAIR_TABLE_ERROR', $oneTableName, $errorMessage).'</span>';
                 } else {
-                    $messages[] = "<span style=\"color:green\">[OK]Problem solved : Table ".$oneTableName." repaired</span>";
+                    $messages[] = '<span style="color:green">'.acym_translation_sprintf('ACYM_CHECKDB_REPAIR_TABLE_SUCCESS', $oneTableName).'</span>';
                 }
                 continue;
             }
@@ -186,23 +186,21 @@ class ConfigurationController extends acymController
 
             if ($isError === null) {
                 $errorMessage = (isset($e) ? $e->getMessage() : substr(strip_tags(acym_getDBError()), 0, 200));
-                $messages[] = "<span style=\"color:red\">[ERROR]Could not create the table ".$oneTableName." : ".$errorMessage."</span>";
+                $messages[] = '<span style="color:red">'.acym_translation_sprintf('ACYM_CHECKDB_CREATE_TABLE_ERROR', $oneTableName, $errorMessage).'</span>';
             } else {
-                $messages[] = "<span style=\"color:green\">[OK]Problem solved : Table ".$oneTableName." created</span>";
+                $messages[] = '<span style="color:green">'.acym_translation_sprintf('ACYM_CHECKDB_CREATE_TABLE_SUCCESS', $oneTableName).'</span>';
             }
         }
 
         foreach ($tableNames as $oneTableName) {
-            if (empty($columnNames[$oneTableName])) {
-                continue;
-            }
+            if (empty($columnNames[$oneTableName])) continue;
 
             $idealColumnNames = array_keys($structure[$oneTableName]);
             $missingColumns = array_diff($idealColumnNames, $columnNames[$oneTableName]);
 
             if (!empty($missingColumns)) {
                 foreach ($missingColumns as $oneColumn) {
-                    $messages[] = "<span style=\"color:blue\">Column ".$oneColumn." missing in ".$oneTableName."</span>";
+                    $messages[] = '<span style="color:blue">'.acym_translation_sprintf('ACYM_CHECKDB_MISSING_COLUMN', $oneColumn, $oneTableName).'</span>';
                     try {
                         $isError = acym_query('ALTER TABLE '.$oneTableName.' ADD '.$structure[$oneTableName][$oneColumn]);
                     } catch (Exception $e) {
@@ -210,14 +208,12 @@ class ConfigurationController extends acymController
                     }
                     if ($isError === null) {
                         $errorMessage = (isset($e) ? $e->getMessage() : substr(strip_tags(acym_getDBError()), 0, 200));
-                        $messages[] = '<span style="color:red">[ERROR]Could not add the column '.$oneColumn.' on the table '.$oneTableName.' : '.$errorMessage.'</span>';
+                        $messages[] = '<span style="color:red">'.acym_translation_sprintf('ACYM_CHECKDB_ADD_COLUMN_ERROR', $oneColumn, $oneTableName, $errorMessage).'</span>';
                     } else {
-                        $messages[] = '<span style="color:green">[OK]Problem solved : Added '.$oneColumn.' in '.$oneTableName.'</span>';
+                        $messages[] = '<span style="color:green">'.acym_translation_sprintf('ACYM_CHECKDB_ADD_COLUMN_SUCCESS', $oneColumn, $oneTableName).'</span>';
                     }
                 }
             }
-
-
 
 
             $results = acym_loadObjectList('SHOW INDEX FROM '.$oneTableName, 'Key_name');
@@ -227,14 +223,12 @@ class ConfigurationController extends acymController
 
             foreach ($indexes[$oneTableName] as $name => $query) {
                 $name = acym_prepareQuery($name);
-                if (in_array($name, array_keys($results))) {
-                    continue;
-                }
+                if (in_array($name, array_keys($results))) continue;
 
 
                 $keyName = $name == 'PRIMARY' ? 'primary key' : 'index '.$name;
 
-                $messages[] = "<span style=\"color:blue\">".$keyName." missing in ".$oneTableName."</span>";
+                $messages[] = '<span style="color:blue">'.acym_translation_sprintf('ACYM_CHECKDB_MISSING_INDEX', $keyName, $oneTableName).'</span>';
                 try {
                     $isError = acym_query('ALTER TABLE '.$oneTableName.' ADD '.$query);
                 } catch (Exception $e) {
@@ -243,10 +237,43 @@ class ConfigurationController extends acymController
 
                 if ($isError === null) {
                     $errorMessage = (isset($e) ? $e->getMessage() : substr(strip_tags(acym_getDBError()), 0, 200));
-                    $messages[] = "<span style=\"color:red\">[ERROR]Could not add the ".$keyName." on the table ".$oneTableName." : ".$errorMessage."</span>";
+                    $messages[] = '<span style="color:red">'.acym_translation_sprintf('ACYM_CHECKDB_ADD_INDEX_ERROR', $keyName, $oneTableName, $errorMessage).'</span>';
                 } else {
-                    $messages[] = "<span style=\"color:green\">[OK]Problem solved : Added ".$keyName." to ".$oneTableName."</span>";
+                    $messages[] = '<span style="color:green">'.acym_translation_sprintf('ACYM_CHECKDB_ADD_INDEX_SUCCESS', $keyName, $oneTableName).'</span>';
                 }
+            }
+        }
+
+        $urlClass = acym_get('class.url');
+        $duplicatedUrls = $urlClass->getDuplicatedUrls();
+
+        if (!empty($duplicatedUrls)) {
+            $time = time();
+            $interrupted = false;
+            $messages[] = '<span style="color:blue">'.acym_translation('ACYM_CHECKDB_DUPLICATED_URLS').'</span>';
+
+            $maxexecutiontime = intval($this->config->get('max_execution_time'));
+            if (empty($maxexecutiontime) || $maxexecutiontime - 20 < 20) {
+                $maxexecutiontime = 20;
+            } else {
+                $maxexecutiontime -= 20;
+            }
+
+            acym_increasePerf();
+            while (!empty($duplicatedUrls)) {
+                $urlClass->delete($duplicatedUrls);
+
+                if (time() - $time > $maxexecutiontime) {
+                    $interrupted = true;
+                    break;
+                }
+
+                $duplicatedUrls = $urlClass->getDuplicatedUrls();
+            }
+            if (empty($interrupted)) {
+                $messages[] = '<span style="color:green">'.acym_translation('ACYM_CHECKDB_DUPLICATED_URLS_SUCCESS').'</span>';
+            } else {
+                $messages[] = '<span style="color:blue">'.acym_translation('ACYM_CHECKDB_DUPLICATED_URLS_REMAINING').'</span>';
             }
         }
 
@@ -270,6 +297,22 @@ class ConfigurationController extends acymController
             $formData['replyto_name'] = $formData['from_name'];
             $formData['replyto_email'] = $formData['from_email'];
         }
+
+        $select2Fields = [
+            'regacy_lists',
+            'regacy_checkedlists',
+            'regacy_autolists',
+            'acy_notification_create',
+            'acy_notification_unsub',
+            'acy_notification_unsuball',
+            'acy_notification_subform',
+            'acy_notification_profile',
+            'acy_notification_confirm',
+        ];
+        foreach ($select2Fields as $oneField) {
+            $formData[$oneField] = !empty($formData[$oneField]) ? $formData[$oneField] : [];
+        }
+        acym_trigger('onBeforeSaveConfigFields', [&$formData]);
 
         $status = $this->config->save($formData);
 

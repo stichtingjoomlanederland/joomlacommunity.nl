@@ -40,7 +40,7 @@ defined('_JEXEC') or die('Restricted access');
 				<div class="cell grid-x grid-margin-x acym_vcenter">
 					<h6 class="cell shrink"><?php echo acym_translation('ACYM_RESIZE_COLUMNS_OF_ROW'); ?></h6>
 					<div class="cell auto hide-for-medium-only hide-for-small-only"></div>
-					<a href="<?= ACYM_DOCUMENTATION; ?>" target="_blank"><i class="acymicon-book"></i></a>
+					<a href="<?php echo ACYM_DOCUMENTATION; ?>" target="_blank"><i class="acymicon-book"></i></a>
 				</div>
 				<div class="grid-x cell acym__wysid__context__modal__container__block-settings grid-margin-y acym-grid-margin-x">
 				</div>

@@ -8,7 +8,7 @@ defined('_JEXEC') or die('Restricted access');
 	<input type="hidden" name="editor_headers" value="<?php echo acym_escape($data['mailInformation']->headers); ?>">
 	<div class="grid-x">
 		<div class="cell medium-auto"></div>
-		<div class="cell <?= $data['containerClass']; ?> grid-x grid-margin-x acym__content acym__editor__area">
+		<div class="cell <?php echo $data['containerClass']; ?> grid-x grid-margin-x acym__content acym__editor__area">
             <?php
             $workflow = acym_get('helper.workflow');
             if (empty($data['campaignID'])) {

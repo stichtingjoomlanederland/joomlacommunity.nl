@@ -750,17 +750,12 @@ class RsformModelDirectory extends JModelLegacy
 
 			foreach ($emails as $email)
 			{
-				if (isset($etranslations[$email->id.'.fromname']))
+				foreach (array('fromname', 'subject', 'message', 'replytoname') as $value)
 				{
-					$email->fromname = $etranslations[$email->id.'.fromname'];
-				}
-				if (isset($etranslations[$email->id.'.subject']))
-				{
-					$email->subject = $etranslations[$email->id.'.subject'];
-				}
-				if (isset($etranslations[$email->id.'.message']))
-				{
-					$email->message = $etranslations[$email->id.'.message'];
+					if (isset($etranslations[$email->id . '.' . $value]))
+					{
+						$email->{$value} = $etranslations[$email->id . '.' . $value];
+					}
 				}
 
 				if (empty($email->fromname) || empty($email->subject) || empty($email->message))
@@ -769,16 +764,17 @@ class RsformModelDirectory extends JModelLegacy
 				}
 
 				$directoryEmail = array(
-					'to' 		=> $email->to,
-					'cc' 		=> $email->cc,
-					'bcc' 		=> $email->bcc,
-					'from' 		=> $email->from,
-					'replyto' 	=> $email->replyto,
-					'fromName' 	=> $email->fromname,
-					'text' 		=> $email->message,
-					'subject' 	=> $email->subject,
-					'mode' 		=> $email->mode,
-					'files' 	=> array()
+					'to' 			=> $email->to,
+					'cc' 			=> $email->cc,
+					'bcc' 			=> $email->bcc,
+					'from' 			=> $email->from,
+					'replyto' 		=> $email->replyto,
+					'replytoName' 	=> $email->replytoname,
+					'fromName' 		=> $email->fromname,
+					'text' 			=> $email->message,
+					'subject' 		=> $email->subject,
+					'mode' 			=> $email->mode,
+					'files' 		=> array()
 				);
 				
 				eval($directory->EmailsCreatedScript);
@@ -819,7 +815,7 @@ class RsformModelDirectory extends JModelLegacy
 					{
 						if (!empty($recipient))
 						{
-							RSFormProHelper::sendMail($directoryEmail['from'], $directoryEmail['fromName'], $recipient, $directoryEmail['subject'], $directoryEmail['text'], $directoryEmail['mode'], !empty($directoryEmail['cc']) ? $directoryEmail['cc'] : null, !empty($directoryEmail['bcc']) ? $directoryEmail['bcc'] : null, $directoryEmail['files'], !empty($directoryEmail['replyto']) ? $directoryEmail['replyto'] : '');
+							RSFormProHelper::sendMail($directoryEmail['from'], $directoryEmail['fromName'], $recipient, $directoryEmail['subject'], $directoryEmail['text'], $directoryEmail['mode'], !empty($directoryEmail['cc']) ? $directoryEmail['cc'] : null, !empty($directoryEmail['bcc']) ? $directoryEmail['bcc'] : null, $directoryEmail['files'], !empty($directoryEmail['replyto']) ? $directoryEmail['replyto'] : '', !empty($directoryEmail['replytoName']) ? $directoryEmail['replytoName'] : null);
 						}
 					}
 				}

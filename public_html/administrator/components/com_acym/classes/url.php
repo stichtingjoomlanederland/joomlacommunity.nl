@@ -9,9 +9,7 @@ class acymurlClass extends acymClass
 
     public function save($url)
     {
-        if (empty($url)) {
-            return false;
-        }
+        if (empty($url)) return false;
 
         foreach ($url as $oneAttribute => $value) {
             if (empty($value)) {
@@ -26,22 +24,17 @@ class acymurlClass extends acymClass
 
     public function getOneUrlById($id)
     {
-        $query = 'SELECT * from #__acym_url WHERE id = '.intval($id);
-
-        return acym_loadObject($query);
+        return acym_loadObject('SELECT * FROM #__acym_url WHERE `id` = '.intval($id));
     }
 
-    public function get($url)
+    public function getOneByUrl($url)
     {
-        $column = is_numeric($url) ? 'id' : 'url';
-        $query = 'SELECT * FROM #__acym_url WHERE '.$column.' = '.acym_escapeDB($url).' LIMIT 1';
-
-        return acym_loadObject($query);
+        return acym_loadObject('SELECT * FROM #__acym_url WHERE `url` = '.acym_escapeDB($url));
     }
 
     public function getAdd($url)
     {
-        $currentUrl = $this->get($url);
+        $currentUrl = $this->getOneByUrl($url);
         if (empty($currentUrl->id)) {
             $currentUrl = new stdClass();
             $currentUrl->name = $url;
@@ -49,7 +42,7 @@ class acymurlClass extends acymClass
             $currentUrl->id = $this->save($currentUrl);
 
             if (empty($currentUrl->id)) {
-                return;
+                return null;
             }
         }
 
@@ -58,20 +51,34 @@ class acymurlClass extends acymClass
 
     public function getUrl($url, $mailid, $userid)
     {
-        if (empty($url) || empty($mailid) || empty($userid)) return;
+        if (empty($url) || empty($mailid) || empty($userid)) return '';
 
         static $allurls;
 
         $url = str_replace('&amp;', '&', $url);
 
-        if (empty($allurls[$userid][0]) || $allurls[$userid][0] !== $url) {
-            $currentUrl = $this->getAdd($url);
-
-            $allurls[$userid][0] = $url;
-            $allurls[$userid][1] = acym_frontendLink('fronturl&task=click&urlid='.$currentUrl->id.'&userid='.$userid.'&mailid='.$mailid);
+        if (empty($allurls[$url])) {
+            $allurls[$url] = $this->getAdd($url);
         }
 
-        return $allurls[$userid][1];
+        if (empty($allurls[$url]->id)) {
+            return $url;
+        }
+
+        return acym_frontendLink('fronturl&task=click&urlid='.$allurls[$url]->id.'&userid='.$userid.'&mailid='.$mailid);
+    }
+
+    public function getDuplicatedUrls()
+    {
+        return acym_loadResultArray(
+            'SELECT DISTINCT duplicates.id
+            FROM #__acym_url AS duplicates
+            JOIN #__acym_url AS original ON duplicates.url = original.url
+            JOIN #__acym_url_click AS clickoriginal ON original.id = clickoriginal.url_id
+            LEFT JOIN #__acym_url_click AS click ON duplicates.id = click.url_id
+            WHERE click.url_id IS NULL
+            LIMIT 500'
+        );
     }
 }
 

@@ -21,6 +21,8 @@ class RSFormProGrid
 	protected $formOptions;
 	protected $requiredMarker;
 	protected $showFormTitle;
+
+	protected $hiddenComponents = array();
 	
 	public function __construct($data, $formId, $formOptions, $requiredMarker, $showFormTitle)
 	{
@@ -29,7 +31,10 @@ class RSFormProGrid
 		$this->requiredMarker 	= $requiredMarker;
 		$this->showFormTitle 	= $showFormTitle;
 		$this->components 		= $this->getComponents();
-		
+		$this->hiddenComponents = array(RSFORM_FIELD_HIDDEN, RSFORM_FIELD_TICKET);
+
+		JFactory::getApplication()->triggerEvent('rsfp_onDefineHiddenComponents', array(&$this->hiddenComponents));
+
 		$data = json_decode($data, true);
 		if (is_array($data) && isset($data[0], $data[1]))
 		{

@@ -8,7 +8,7 @@ defined('_JEXEC') or die('Restricted access');
 			<h3 class="acym__title__primary__color acym__middle_absolute__text text-center"><?php echo acym_translation('ACYM_CAMPAIGN_ALREADY_QUEUED'); ?></h3>
         <?php } ?>
 		<div class="cell grid-x grid-margin-x margin-bottom-2">
-			<div class="cell auto grid-x align-left">
+			<div class="cell auto grid-x align-center">
                 <?php
                 $class = $data['currentCampaign']->send_now ? '' : 'button-radio-unselected';
                 $class .= $data['currentCampaign']->draft ? '' : ' button-radio-disabled';
@@ -29,7 +29,7 @@ defined('_JEXEC') or die('Restricted access');
                 $class = $data['currentCampaign']->send_auto ? '' : 'button-radio-unselected';
                 $class .= $data['currentCampaign']->draft ? '' : ' button-radio-disabled';
                 ?>
-				<div class="cell auto grid-x align-right">
+				<div class="cell auto grid-x align-center">
 					<button type="button" <?php echo $tooltip; ?> class="cell medium-9 small-12 button-radio acym__campaign__sendsettings__buttons-type <?php echo $class; ?>" id="acym__campaign__sendsettings__auto" data-sending-type="<?php echo $data['campaignClass']::SENDING_TYPE_AUTO; ?>"><?php echo acym_translation('ACYM_AUTO'); ?></button>
 				</div>
             <?php } ?>

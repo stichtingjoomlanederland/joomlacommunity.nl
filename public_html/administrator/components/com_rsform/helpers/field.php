@@ -190,6 +190,7 @@ class RSFormProField
 		if ($this->invalid)
         {
         	$return['aria-invalid'] = 'true';
+        	$return['aria-describedby'] = 'component' . $this->componentId;
 
 			if (strlen($this->fieldErrorClass))
 			{

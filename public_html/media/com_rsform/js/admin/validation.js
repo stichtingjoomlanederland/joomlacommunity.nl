@@ -5,22 +5,20 @@ if (typeof RSFormPro != 'object') {
 RSFormPro.Validations = {
 	Numeric: function () {
 		jQuery('#rsfp-tabs').on("keyup", '[data-properties="numeric"]', function () {
-			/**
-			 * jQuery.isNumeric
-			 * https://api.jquery.com/jQuery.isNumeric/#jQuery-isNumeric-value
-			 */
 			if (!jQuery.isNumeric(jQuery(this).val()) && jQuery(this).val() != '') {
 				jQuery(this).val(jQuery(this).val().replace(/[^0-9]/g, ''));
 			}
 		});
 	},
+
+	Alphanumeric: function() {
+		jQuery('#rsfp-tabs').on("keyup", '[data-properties="alphanumeric"]', function () {
+			jQuery(this).val(jQuery(this).val().replace(/[^A-Za-z0-9]/g, ''));
+		});
+	},
 	
 	Float: function () {
 		jQuery('#rsfp-tabs').on("keyup", '[data-properties="float"]', function () {
-			/**
-			 * jQuery.isNumeric
-			 * https://api.jquery.com/jQuery.isNumeric/#jQuery-isNumeric-value
-			 */
 			if (!jQuery.isNumeric(jQuery(this).val()) && jQuery(this).val() != '') {
 				jQuery(this).val(jQuery(this).val().replace(/\.{1,}/g, '.').replace(/[^0-9\.]/g, ''));
 			}
@@ -116,6 +114,7 @@ RSFormPro.Validations = {
  */
 jQuery(document).ready(function () {
     RSFormPro.Validations.Numeric();
+    RSFormPro.Validations.Alphanumeric();
     RSFormPro.Validations.Float();
 	/**
 	 * Bind the functions to the event created

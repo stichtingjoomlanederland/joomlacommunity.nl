@@ -27,7 +27,7 @@
 				<option value="0">JGLOBAL_ORDER_DESCENDING</option>
 				<option value="1">JGLOBAL_ORDER_ASCENDING</option>
 			</field>
-			<field name="show_all_submissions" type="radio" class="btn-group" default="0" label="COM_RSFORM_SHOW_ALL_SUBMISSIONS" description="COM_RSFORM_SHOW_ALL_SUBMISSIONS_DESC" showon="show_logged_in_submissions:0">
+			<field name="show_all_submissions" type="radio" class="btn-group" default="1" label="COM_RSFORM_SHOW_ALL_SUBMISSIONS" description="COM_RSFORM_SHOW_ALL_SUBMISSIONS_DESC" showon="show_logged_in_submissions:0">
 				<option value="0">JNO</option>
 				<option value="1">JYES</option>
 			</field>

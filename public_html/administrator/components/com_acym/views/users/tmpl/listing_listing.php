@@ -50,7 +50,7 @@ defined('_JEXEC') or die('Restricted access');
                     <?php echo acym_translation('ACYM_EMAIL'); ?>
 				</div>
 				<div class="cell hide-for-small-only hide-for-medium-only large-2 acym__listing__header__title">
-                    <?= acym_translation('ACYM_NAME'); ?>
+                    <?php echo acym_translation('ACYM_NAME'); ?>
 				</div>
                 <?php
                 if (!empty($data['fields'])) {
@@ -98,7 +98,7 @@ defined('_JEXEC') or die('Restricted access');
 						</a>
 					</div>
 					<div class="cell hide-for-small-only hide-for-medium-only large-2 acym__listing__header__title">
-                        <?= acym_escape($user->name); ?>
+                        <?php echo acym_escape($user->name); ?>
 					</div>
                     <?php
                     if (!empty($user->fields)) {

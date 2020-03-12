@@ -210,6 +210,7 @@ class RSFormProFieldBirthDay extends RSFormProFieldSelectList
 		if ($this->invalid[$this->processing]) {
 			$attr['class'] .= ' ' . $this->fieldErrorClass;
 			$attr['aria-invalid'] = 'true';
+			$attr['aria-describedby'] = 'component' . $this->componentId;
 		}
 
 		if ($this->isRequired())

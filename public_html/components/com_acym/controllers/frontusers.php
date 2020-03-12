@@ -684,6 +684,7 @@ class FrontusersController extends UsersController
         $allfields = $fieldClass->getFieldsByID($values->fields);
         $fields = [];
         foreach ($allfields as $field) {
+            if($field->active === '0') continue;
             $fields[$field->id] = $field;
         }
         $values->fields = $fields;

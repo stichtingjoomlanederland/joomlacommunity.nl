@@ -1042,10 +1042,14 @@ class CampaignsController extends acymController
         if (!empty($mailid) && $attachid >= 0) {
             $mailClass = acym_get('class.mail');
 
-            return $mailClass->deleteOneAttachment($mailid, $attachid);
-        } else {
-            echo 'error';
+            if ($mailClass->deleteOneAttachment($mailid, $attachid)) {
+                echo json_encode(['message' => acym_translation('ACYM_ATTACHMENT_WELL_DELETED')]);
+                exit;
+            }
         }
+
+        echo json_encode(['error' => acym_translation('ACYM_COULD_NOT_DELETE_ATTACHMENT')]);
+        exit;
     }
 
     public function test()
@@ -1454,7 +1458,7 @@ class CampaignsController extends acymController
 
     public function searchTestReceivers()
     {
-        $search = acym_getVar('cmd', 'search', '');
+        $search = acym_getVar('string', 'search', '');
         $userClass = acym_get('class.user');
         $users = $userClass->getUsersLikeEmail($search);
 

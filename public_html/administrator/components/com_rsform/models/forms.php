@@ -701,7 +701,7 @@ class RsformModelForms extends JModelList
             return true;
         }
 
-		$fields 	  = array('FormTitle', 'UserEmailFromName', 'UserEmailSubject', 'AdminEmailFromName', 'AdminEmailSubject', 'DeletionEmailFromName', 'DeletionEmailSubject', 'MetaDesc', 'MetaKeywords');
+		$fields 	  = array('FormTitle', 'UserEmailFromName', 'UserEmailSubject', 'AdminEmailFromName', 'AdminEmailSubject', 'DeletionEmailFromName', 'DeletionEmailSubject', 'DeletionEmailReplyToName', 'MetaDesc', 'MetaKeywords', 'UserEmailReplyToName', 'AdminEmailReplyToName');
 		$translations = RSFormProHelper::getTranslations('forms', $form->FormId, $lang, 'id');
 		foreach ($fields as $field)
 		{
@@ -919,12 +919,16 @@ class RsformModelForms extends JModelList
 
 		$translations = RSFormProHelper::getTranslations('emails', $row->formId, $this->getEmailLang());
 
-		if (isset($translations[$row->id.'.fromname']))
-			$row->fromname = $translations[$row->id.'.fromname'];
-		if (isset($translations[$row->id.'.subject']))
-			$row->subject = $translations[$row->id.'.subject'];
-		if (isset($translations[$row->id.'.message']))
-			$row->message = $translations[$row->id.'.message'];
+		$translatable = array('fromname', 'subject', 'message', 'replytoname');
+		foreach ($translatable as $property)
+		{
+			$reference = $row->id . '.' . $property;
+
+			if (isset($translations[$reference]))
+			{
+				$row->{$property} = $translations[$reference];
+			}
+		}
 
 		return $row;
 	}
@@ -977,7 +981,7 @@ class RsformModelForms extends JModelList
 			return false;
 		}
 
-		$fields 	  = array('fromname', 'subject', 'message');
+		$fields 	  = array('fromname', 'subject', 'message', 'replytoname');
 		$translations = RSFormProHelper::getTranslations('emails', $email->formId, $lang, 'id');
 
 		// $translations is false when we're trying to get translations (en-GB) for the same language the form is in (en-GB)

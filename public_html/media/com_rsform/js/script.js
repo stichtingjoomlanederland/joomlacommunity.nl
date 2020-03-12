@@ -1374,6 +1374,9 @@ RSFormPro.Ajax = {
 					{
 						RSFormProUtils.removeClass(formComponent[j], 'rsform-error');
 						formComponent[j].removeAttribute('aria-invalid');
+						if (formComponent[j].getAttribute('aria-describedby') === 'component' + id) {
+							formComponent[j].removeAttribute('aria-describedby');
+						}
 
 						if (parentErrorClass)
 						{
@@ -1449,12 +1452,14 @@ RSFormPro.Ajax = {
 
 						if (['INPUT', 'SELECT', 'TEXTAREA'].indexOf(formComponent[j].nodeName) > -1)
 						{
-							formComponent[j].setAttribute('aria-invalid', 'true');
+							if (formComponent[j].getAttribute('type') !== 'button') {
+								formComponent[j].setAttribute('aria-invalid', 'true');
+								formComponent[j].setAttribute('aria-describedby', 'component' + id);
 
-							if (!doFocus && typeof formComponent[j].focus === 'function')
-							{
-								formComponent[j].focus();
-								doFocus = true;
+								if (!doFocus && typeof formComponent[j].focus === 'function') {
+									formComponent[j].focus();
+									doFocus = true;
+								}
 							}
 						}
 					}
@@ -2093,7 +2098,15 @@ var RSFormProUtils = {
 		}
 	},
 	setDisplay: function (items, value) {
+		if (!items || !items.length) {
+			return false;
+		}
+
 		for (var i = 0; i < items.length; i++) {
+			if (!items[i]) {
+				continue;
+			}
+
 			if (!RSFormPro.usePositioning) {
 				items[i].style.display = value;
 			} else {

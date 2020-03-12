@@ -25,6 +25,21 @@ class FrontUrlController extends acymController
             return acym_raiseError(E_ERROR, 404, acym_translation('Page not found'));
         }
 
+        $mailClass = acym_get('class.mail');
+        $mail = $mailClass->getOneById($mailid);
+        if (empty($mail)) {
+            $urlObject->url = preg_replace(
+                [
+                    '#&idU=[0-9]+#Uis',
+                    '#idU=[0-9]+&#Uis',
+                    '#\?idU=[0-9]+#Uis',
+                ],
+                '',
+                $urlObject->url
+            );
+            acym_redirect($urlObject->url);
+        }
+
         $urlClickClass = acym_get('class.urlclick');
         if (!acym_isRobot()) {
             $urlClick = [
@@ -51,7 +66,6 @@ class FrontUrlController extends acymController
                 $mailStatClass->save($mailStatToInsert);
             }
         }
-
 
         acym_redirect($urlObject->url);
     }

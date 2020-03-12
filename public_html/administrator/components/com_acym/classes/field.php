@@ -70,9 +70,14 @@ class acymfieldClass extends acymClass
 
     public function getAllFieldsForModuleFront()
     {
-        $query = 'SELECT * FROM #__acym_field WHERE id != 2 ORDER BY `ordering` ASC';
-
-        return acym_loadObjectList($query, 'id');
+        return acym_loadObjectList(
+            'SELECT * 
+            FROM #__acym_field 
+            WHERE id != 2 
+                AND active = 1 
+            ORDER BY `ordering` ASC',
+            'id'
+        );
     }
 
     public function getFieldsValueByUserId($userId)

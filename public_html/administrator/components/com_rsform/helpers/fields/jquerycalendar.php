@@ -212,7 +212,7 @@ class RSFormProFieldJqueryCalendar extends RSFormProField
 				$attr['class'] .= ' txtCal';
 			}
 		} elseif ($type == 'button') {
-			unset($attr['aria-required'], $attr['aria-invalid']);
+			unset($attr['aria-required'], $attr['aria-invalid'], $attr['aria-describedby']);
 
 			$attr['class'] .= 'btnCal rsform-calendar-button';
 			if (!empty($attr['onclick'])) {

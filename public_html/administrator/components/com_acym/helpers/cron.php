@@ -71,11 +71,11 @@ class acymcronHelper extends acymObject
             }
         }
 
-        if ($this->config->get('require_confirmation', 1) == 1) {
-            $deletedNb = $queueClass->removeUnconfirmedUsersEmails();
+        if (!in_array('cleanqueue', $this->skip)) {
+            $deletedNb = $queueClass->cleanQueue();
 
             if (!empty($deletedNb)) {
-                $this->messages[] = acym_translation_sprintf('ACYM_EMAILS_REMOVED_QUEUE_UNCONFIRMED', $deletedNb);
+                $this->messages[] = acym_translation_sprintf('ACYM_EMAILS_REMOVED_QUEUE_CLEAN', $deletedNb);
                 $this->processed = true;
             }
         }

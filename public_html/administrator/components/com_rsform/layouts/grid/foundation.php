@@ -99,7 +99,7 @@ class RSFormProGridFoundation extends RSFormProGrid
 			$html[] = "\t"."\t"."\t"."\t"."\t".$placeholders['body'];
 			$html[] = "\t"."\t"."\t".'</div>';
 		}
-		elseif (in_array($data->ComponentTypeId, array(RSFORM_FIELD_HIDDEN, RSFORM_FIELD_TICKET)))
+		elseif (in_array($data->ComponentTypeId, $this->hiddenComponents))
 		{
 			$html[] = "\t"."\t"."\t"."\t"."\t".$placeholders['body'];
 		}

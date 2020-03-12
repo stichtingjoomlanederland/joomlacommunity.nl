@@ -18,7 +18,7 @@ defined('_JEXEC') or die('Restricted access');
 						<p><?php echo acym_translation('ACYM_SAFE_CHECK_DESC'); ?></p>
 						<div class="grid-x">
 							<div class="cell">
-								<button id="launch_spamtest" class="button hollow" type="button"><?= acym_translation('ACYM_RUN_SPAM_TEST'); ?></button>
+								<button id="launch_spamtest" class="button hollow" type="button"><?php echo acym_translation('ACYM_RUN_SPAM_TEST'); ?></button>
 							</div>
 
 							<div class="cell grid-x is-hidden" id="safe_check_results">
@@ -51,7 +51,7 @@ defined('_JEXEC') or die('Restricted access');
                                 ?>
 								<div class="cell acym_check_results"></div>
 								<div class="cell text-center is-hidden" id="acym_spam_test_details">
-									<button type="button" class="button button-secondary"><?= acym_translation('ACYM_DETAILS'); ?></button>
+									<button type="button" class="button button-secondary"><?php echo acym_translation('ACYM_DETAILS'); ?></button>
 								</div>
 							</div>
 						</div>

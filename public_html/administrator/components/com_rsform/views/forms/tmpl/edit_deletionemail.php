@@ -44,6 +44,12 @@ defined('_JEXEC') or die('Restricted access');
 						</td>
 					</tr>
 					<tr>
+						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo RSFormProHelper::translateIcon(); ?> <?php echo JText::_('RSFP_EMAILS_REPLY_TO_NAME'); ?></td>
+						<td>
+							<input name="DeletionEmailReplyToName" placeholder="<?php echo JText::_('RSFP_EMAILS_REPLY_TO_NAME_PLACEHOLDER'); ?>" class="rs_inp rs_80" id="DeletionEmailReplyToName" value="<?php echo $this->escape($this->form->DeletionEmailReplyToName); ?>"  data-delimiter="," data-filter-type="include" data-filter="value,global" data-placeholders="display" />
+						</td>
+					</tr>
+					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_EMAILS_CC'); ?></td>
 						<td><input name="DeletionEmailCC" placeholder="<?php echo JText::_('RSFP_EMAILS_CC_PLACEHOLDER'); ?>" class="rs_inp rs_80" id="DeletionEmailCC" value="<?php echo $this->escape($this->form->DeletionEmailCC); ?>"  data-delimiter="," data-filter-type="include" data-filter="value,global" data-placeholders="display" /></td>
 					</tr>

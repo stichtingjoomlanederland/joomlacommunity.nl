@@ -42,7 +42,7 @@ defined('_JEXEC') or die('Restricted access');
                                             <?php echo acym_translation('ACYM_DOWNLOAD'); ?><i class="acymicon-file_download"></i>
 										</button>
 										<div class="cell auto"></div>
-										<a target="_blank" href="<?= ACYM_ACYWEBSITE; ?>acymailing.html#customwhichpack" class="acym__plugins__button cell small-5 acym__plugins__button__purchase text-center">
+										<a target="_blank" href="<?php echo ACYM_ACYWEBSITE; ?>acymailing.html#customwhichpack" class="acym__plugins__button cell small-5 acym__plugins__button__purchase text-center">
                                             <?php echo acym_translation('ACYM_PURCHASE'); ?>
 											<i class="acymicon-cart-arrow-down"></i>
 										</a>

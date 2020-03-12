@@ -145,6 +145,7 @@ function acym_getJSMessages()
         'ACYM_BUTTON',
         'ACYM_SPACE_BETWEEN_BLOCK',
         'ACYM_X1_AND_X2',
+        'ACYM_COULD_NOT_SAVE_THUMBNAIL_ERROR_X',
     ];
 
     foreach ($keysToLoad as $oneKey) {

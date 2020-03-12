@@ -46,7 +46,7 @@ defined('_JEXEC') or die('Restricted access');
                         $default = $encodingHelper->detectEncoding($this->content);
                         $urlEncodedFilename = urlencode($filename);
                         $attribs = 'data-filename="'.$urlEncodedFilename.'"';
-                        echo $encodingHelper->charsetField("acyencoding", $default, $attribs);
+                        echo $encodingHelper->charsetField('acyencoding', $default, $attribs);
                         ?>
 					</div>
 				</div>
@@ -54,18 +54,36 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="cell grid-x">
                 <?php if ($this->config->get('require_confirmation')) { ?>
 					<div class="cell large-6 grid-x">
-                        <?php echo acym_switch('import_confirmed_generic', 1, acym_translation('ACYM_IMPORT_USERS_AS_CONFIRMED')); ?>
+                        <?php
+                        echo acym_switch(
+                            'import_confirmed_generic',
+                            $this->config->get('import_confirmed', 1),
+                            acym_translation('ACYM_IMPORT_USERS_AS_CONFIRMED')
+                        );
+                        ?>
 					</div>
                 <?php } ?>
 				<div class="cell large-6 grid-x">
-                    <?php echo acym_switch('import_generate_generic', 1, acym_translation('ACYM_GENERATE_NAME')); ?>
+                    <?php
+                    echo acym_switch(
+                        'import_generate_generic',
+                        $this->config->get('import_generate', 1),
+                        acym_translation('ACYM_GENERATE_NAME')
+                    );
+                    ?>
 				</div>
 				<div class="cell large-6 grid-x">
-                    <?php echo acym_switch('import_overwrite_generic', 1, acym_translation('ACYM_OVERWRITE_EXISTING')); ?>
+                    <?php
+                    echo acym_switch(
+                        'import_overwrite_generic',
+                        $this->config->get('import_overwrite', 1),
+                        acym_translation('ACYM_OVERWRITE_EXISTING')
+                    );
+                    ?>
 				</div>
 			</div>
 		</div>
 	</div>
-    <?php acym_formOptions(true, "finalizeImport"); ?>
+    <?php acym_formOptions(true, 'finalizeImport'); ?>
 </form>
 
