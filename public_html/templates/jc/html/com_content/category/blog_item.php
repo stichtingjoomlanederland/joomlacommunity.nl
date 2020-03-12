@@ -72,6 +72,22 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
 
             <div class="item-meta">
 				<?php if ($showArticleInformation != false) : ?>
+					<?php if ($this->item->state == 0) : ?>
+                        <div class="article-meta item-state">
+                            <span class="label label-warning"><?php echo Text::_('JUNPUBLISHED'); ?></span>
+                        </div>
+					<?php endif; ?>
+					<?php if (strtotime($this->item->publish_up) > strtotime(Factory::getDate())) : ?>
+                        <div class="article-meta item-state">
+                            <span class="label label-warning"><?php echo Text::_('JNOTPUBLISHEDYET'); ?></span>
+                        </div>
+					<?php endif; ?>
+					<?php if ((strtotime($this->item->publish_down) < strtotime(Factory::getDate())) && $this->item->publish_down != Factory::getDbo()->getNullDate()) : ?>
+                        <div class="article-meta item-state">
+                            <span class="label label-warning"><?php echo Text::_('JEXPIRED'); ?></span>
+                        </div>
+					<?php endif; ?>
+
 					<?php if ($params->get('show_create_date')) : ?>
                         <div class="article-meta item-datum">
                             <p class="article-meta-label">datum</p>
