@@ -57,10 +57,10 @@ $this->form->setFieldAttribute('portfolio', 'layout', 'joomla.form.field.subform
 			<div class="panel-body">
 				<p>Hallo <?php echo $user->name; ?>,</p>
 				<p>Leuk dat je jouw bedrijf een plekje in de Joomla-bedrijvengids wilt geven!</p>
-				<p>We gaan er vanuit dat je dit naar waarheid invult zodat we snel je bedrijf kunnen goedkeuren en kunnen publiceren in de bedrijvengids.</p>
+				<p>We gaan er vanuit dat je dit naar waarheid invult zodat we snel je bedrijf kunnen goedkeuren en kunnen publiceren in deze bedrijvengids. Bij het vertrekken van onjuiste informatie zal (ook na publicatie) je bedrijf uit de gids worden verwijderd.</p>
+				<p>Stichting Joomla Nederland behoudt zich het recht voor om zonder opgave van redenen aanmeldingen niet te accepteren.</p>
 				<p>Heb je nog vragen of suggesties voor de Joomla-bedrijvengids? Neem dan even
 					<a href="/contact">contact</a> met ons op.</p>
-				<p>Team JoomlaCommunity.nl</p>
 			</div>
 		</div>
 	</div>
