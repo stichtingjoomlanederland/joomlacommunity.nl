@@ -40,7 +40,7 @@
     "grunt-webfont": "^1.7.2",
     "illusion": "timble/illusion",
     "jit-grunt": "^0.10.0",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "js-yaml": "^3.13.1",
     "load-grunt-configs": "^1.0.0",
     "node-normalize-scss": "^8.0.1",
