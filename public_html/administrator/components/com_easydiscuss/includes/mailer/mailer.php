@@ -703,19 +703,6 @@ class EasyDiscussMailer extends EasyDiscuss
 		return $sitename;
 	}
 
-	public static function getHeadingTitle()
-	{
-		static $title = null;
-
-		if (!$title) {
-			$config = ED::config();
-			$jConfig = ED::jconfig();
-			$title = $config->get('notify_email_title') ? $config->get('notify_email_title') : $jConfig->getValue('sitename');
-		}
-
-		return $title;
-	}
-
 	public static function getReplyBreaker()
 	{
 		static $string = null;
@@ -776,12 +763,9 @@ class EasyDiscussMailer extends EasyDiscuss
 		$contents = $theme->output($file, array('emails' => true));
 
 
-		$emailTitle	= self::getHeadingTitle();
-
 		$unsubscribeLink = isset($data['unsubscribeLink']) ? $data['unsubscribeLink'] : '';
 		$subscriptionsLink = self::getSubscriptionsManagerLink();
 
-		$theme->set('emailTitle', $emailTitle);
 		$theme->set('contents', $contents);
 		$theme->set('unsubscribeLink', $unsubscribeLink);
 		$theme->set('subscriptionsLink', $subscriptionsLink);
@@ -927,6 +911,8 @@ class EasyDiscussMailer extends EasyDiscuss
 				self::_storeQueue($email, $data);
 			}
 		}
+
+		return $emails;
 	}
 
 	/**

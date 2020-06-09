@@ -5,6 +5,7 @@ defined('_JEXEC') or die('Restricted access');
 define('ACYM_NAME', 'AcyMailing');
 define('ACYM_DBPREFIX', '#__acym_');
 define('ACYM_LANGUAGE_FILE', 'com_acym');
+define('ACYM_ACYMAILLING_WEBSITE', 'https://www.acymailing.com/');
 define('ACYM_ACYWEBSITE', 'https://www.acyba.com/');
 define('ACYM_UPDATEMEURL', ACYM_ACYWEBSITE.'index.php?option=com_updateme&ctrl=');
 define('ACYM_SPAMURL', ACYM_UPDATEMEURL.'spamsystem&task=');
@@ -12,6 +13,7 @@ define('ACYM_HELPURL', ACYM_UPDATEMEURL.'doc&component='.ACYM_NAME.'&page=');
 define('ACYM_REDIRECT', ACYM_UPDATEMEURL.'redirect&page=');
 define('ACYM_UPDATEURL', ACYM_UPDATEMEURL.'update&task=');
 define('ACYM_DOCUMENTATION', ACYM_UPDATEMEURL.'doc&task=getLink');
+define('ACYM_COMPONENT_NAME_API', 'acymailing');
 if (!defined('DS')) define('DS', DIRECTORY_SEPARATOR);
 
 include_once rtrim(dirname(__DIR__), DS).DS.'library'.DS.strtolower('Joomla.php');
@@ -25,6 +27,7 @@ if (is_callable('date_default_timezone_set')) {
 
 include_once ACYM_HELPER_GLOBAL.'addon.php';
 include_once ACYM_HELPER_GLOBAL.'chart.php';
+include_once ACYM_HELPER_GLOBAL.'curl.php';
 include_once ACYM_HELPER_GLOBAL.'date.php';
 include_once ACYM_HELPER_GLOBAL.'email.php';
 include_once ACYM_HELPER_GLOBAL.'field.php';

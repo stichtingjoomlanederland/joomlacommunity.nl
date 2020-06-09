@@ -72,7 +72,7 @@ if (is_array($_SERVER) && array_key_exists('REQUEST_URI', $_SERVER)) {
 // Load the required user from the database - Bail out if that user doesnt exist
 if (!$user->id) {
     header('Location: '.$subfolderIfAny.'/');
-    die;
+    exit;
 }
 
 // Construct a faked response-object

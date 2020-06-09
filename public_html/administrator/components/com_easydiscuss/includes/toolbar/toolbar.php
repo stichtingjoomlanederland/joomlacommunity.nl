@@ -43,14 +43,13 @@ class EasyDiscussToolbar extends EasyDiscuss
 		$showTags = isset($options['showTags']) ? $options['showTags'] : $this->config->get('layout_toolbartags');
 		$showCategories = isset($options['showCategories']) ? $options['showCategories'] : $this->config->get('layout_toolbarcategories');
 		$showUsers = isset($options['showUsers']) ? $options['showUsers'] : $this->showUserMenu();
-		$showBadges = isset($options['showBadges']) ? $options['showBadges'] : $this->config->get('layout_toolbarbadges');
+		$showBadges = isset($options['showBadges']) ? $options['showBadges'] : $this->config->get('layout_toolbarbadges') && $this->config->get('main_badges');
 		$showSettings = isset($options['showSettings']) ? $options['showSettings'] : $this->config->get('layout_toolbarprofile');
 		$showLogin = isset($options['showLogin']) ? $options['showLogin'] : $this->config->get('layout_toolbarlogin');
 		$showConversation = isset($options['showConversation']) ? $options['showConversation'] : $this->config->get('layout_toolbar_conversation');
 		$showNotification = isset($options['showNotification']) ? $options['showNotification'] : ($this->config->get('layout_toolbar_notification') && $this->config->get('main_notifications'));
 		$processLogic = isset($options['processLogic']) ? $options['processLogic'] : true;
 		$renderToolbarModule = isset($options['renderToolbarModule']) ? $options['renderToolbarModule'] : true;
-
 
 		// Get the headers for the toolbar
 		$headers = new stdClass;
@@ -236,6 +235,13 @@ class EasyDiscussToolbar extends EasyDiscuss
 			$showManageSubscription = false;
 		}
 
+		$showNavigationMenu = true;
+
+		// determine whether need to show the mobile toolbar toggle menu icon
+		if (!$this->my->id && (ED::responsive()->isMobile() || ED::responsive()->isTablet()) && (!$showRecent && !$showCategories && !$showTags && !$showUsers && !$showBadges && !$group)) {
+			$showNavigationMenu = false;
+		}
+
 		$theme = ED::themes();
 		$theme->set('active', $active);
 		$theme->set('messageObject', $messageObject);
@@ -271,6 +277,7 @@ class EasyDiscussToolbar extends EasyDiscuss
 		$theme->set('renderToolbarModule', $renderToolbarModule);
 		$theme->set('userMenuLink', $userMenuLink);
 		$theme->set('showManageSubscription', $showManageSubscription);
+		$theme->set('showNavigationMenu', $showNavigationMenu);
 
 		return $theme->output('site/toolbar/default');
 	}

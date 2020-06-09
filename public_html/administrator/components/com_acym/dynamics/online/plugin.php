@@ -69,54 +69,28 @@ class plgAcymOnline extends acymPlugin
 
     public function replaceContent(&$email, $send = true)
     {
-        $match = '#(?:{|%7B)(readonline)([^}]*)(?:}|%7D)(.*)(?:{|%7B)/(readonline)(?:}|%7D)#Uis';
-        $variables = ['body'];
-        $found = false;
-        $results = [];
-        foreach ($variables as $var) {
-            if (empty($email->$var)) continue;
+        if (empty($email->body)) return;
 
-            $found = preg_match_all($match, $email->$var, $results[$var]) || $found;
-            if (empty($results[$var][0])) unset($results[$var]);
-        }
+        $match = '#(?:{|%7B)readonline(?:}|%7D)(.*)(?:{|%7B)/readonline(?:}|%7D)#Uis';
+        $results = [];
+        $found = preg_match_all($match, $email->body, $results);
 
         if (!$found) return;
 
         $tags = [];
+        foreach ($results[0] as $i => $oneTag) {
+            if (isset($tags[$oneTag])) continue;
 
-        foreach ($results as $var => $allresults) {
-            foreach ($allresults[0] as $i => $oneTag) {
-                if (isset($tags[$oneTag])) continue;
+            $link = 'archive&task=view&id='.$email->id.'&userid={subtag:id}-{subtag:key}&'.acym_noTemplate();
+            $link .= $this->getLanguage($email->links_language);
+            if (!empty($email->key)) $link .= '&key='.$email->key;
 
-                $arguments = explode('|', strip_tags(str_replace('%7C', '|', $allresults[2][$i])));
-                $tag = new stdClass();
-                $tag->type = $allresults[1][$i];
-                for ($j = 0, $a = count($arguments) ; $j < $a ; $j++) {
-                    $args = explode(':', $arguments[$j]);
-                    $arg0 = trim($args[0]);
-                    if (empty($arg0)) {
-                        continue;
-                    }
-                    if (isset($args[1])) {
-                        $tag->$arg0 = $args[1];
-                    } else {
-                        $tag->$arg0 = true;
-                    }
-                }
+            $link = acym_frontendLink($link);
 
-                $addkey = empty($email->key) ? '' : '&key='.$email->key;
-                $lang = empty($email->lang) ? '' : '&lang='.$email->lang;
-
-                $link = '';
-                if ($tag->type == 'readonline') {
-                    $link = acym_frontendLink('archive&task=view&id='.$email->id.'&userid={subtag:id}-{subtag:key}'.$addkey.$lang.'&'.acym_noTemplate());
-                }
-
-                if (empty($allresults[3][$i])) {
-                    $tags[$oneTag] = $link;
-                } else {
-                    $tags[$oneTag] = '<a style="text-decoration:none;" href="'.$link.'" target="_blank"><span class="acym_online">'.$allresults[3][$i].'</span></a>';
-                }
+            if (empty($results[1][$i])) {
+                $tags[$oneTag] = $link;
+            } else {
+                $tags[$oneTag] = '<a style="text-decoration:none;" href="'.$link.'" target="_blank"><span class="acym_online">'.$results[1][$i].'</span></a>';
             }
         }
 

@@ -3,7 +3,7 @@
  * @package    PwtAcl
  *
  * @author     Sander Potjer - Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2011 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2011 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
@@ -18,7 +18,6 @@ use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 
-// No direct access.
 defined('_JEXEC') or die;
 
 /**
@@ -67,7 +66,7 @@ class PlgSystemPwtacl extends JPlugin
 	 *
 	 * @since   1.0
 	 */
-	public function __construct(&$subject, array $config = array())
+	public function __construct(&$subject, array $config = [])
 	{
 		parent::__construct($subject, $config);
 	}
@@ -96,19 +95,19 @@ class PlgSystemPwtacl extends JPlugin
 		}
 
 		// Article Manager overrides
-		if ($aclContentOnlyEditable && $option == 'com_content' && (($view == 'articles') || (!$view)))
+		if ($aclContentOnlyEditable && $option === 'com_content' && (($view === 'articles') || (!$view)))
 		{
 			$this->overrideJoomlaCoreClass('ContentModelArticles', 'com_content/models/articles.php');
 		}
 
 		// Contact Manager overrides
-		if ($aclContactOnlyEditable && $option == 'com_contact' && (($view == 'contacts') || (!$view)))
+		if ($aclContactOnlyEditable && $option === 'com_contact' && (($view === 'contacts') || (!$view)))
 		{
 			$this->overrideJoomlaCoreClass('ContactModelContacts', 'com_contact/models/contacts.php');
 		}
 
 		// Module Manager overrides
-		if ($aclModulesOnlyEditable && $option == 'com_modules' && (($view == 'modules') || (!$view)))
+		if ($aclModulesOnlyEditable && $option === 'com_modules' && (($view === 'modules') || (!$view)))
 		{
 			$this->overrideJoomlaCoreClass('ModulesModelModules', 'com_modules/models/modules.php');
 		}
@@ -157,7 +156,7 @@ class PlgSystemPwtacl extends JPlugin
 		}
 
 		// Core components without ACL
-		$coreNoAcl = array(
+		$coreNoAcl = [
 			'com_admin',
 			'com_config',
 			'com_cpanel',
@@ -168,7 +167,7 @@ class PlgSystemPwtacl extends JPlugin
 			'com_ajax',
 			'com_fields',
 			'com_joomlaupdate'
-		);
+		];
 
 		// Add Categories Manager if not active
 		if (!$aclCategoryManager)
@@ -219,19 +218,19 @@ class PlgSystemPwtacl extends JPlugin
 		$view                = $this->app->input->getCmd('view');
 
 		// Do not proceed for Control Panel if disabled
-		if ($option == 'com_cpanel' && !$displayControlPanel)
+		if ($option === 'com_cpanel' && !$displayControlPanel)
 		{
 			return;
 		}
 
 		// Display assets
-		if (($option == 'com_cpanel' || $option == 'com_pwtacl') && $view != 'diagnostics')
+		if (($option === 'com_cpanel' || $option === 'com_pwtacl') && $view !== 'diagnostics')
 		{
 			// Load the model
 			BaseDatabaseModel::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_pwtacl/models', 'PwtaclModel');
 
 			/** @var PwtaclModelDiagnostics $diagnostics */
-			$diagnostics = BaseDatabaseModel::getInstance('Diagnostics', 'PwtaclModel', array('ignore_request' => true));
+			$diagnostics = BaseDatabaseModel::getInstance('Diagnostics', 'PwtaclModel', ['ignore_request' => true]);
 			$issues      = $diagnostics->getQuickScan();
 
 			// Issues detected in quickscan
@@ -250,7 +249,7 @@ class PlgSystemPwtacl extends JPlugin
 
 				Factory::getDocument()->addScriptDeclaration(implode('', $script));
 
-				HTMLHelper::_('script', 'media/com_pwtacl/js/assetissues.js', array('version' => 'auto'), array('defer' => true));
+				HTMLHelper::_('script', 'media/com_pwtacl/js/assetissues.js', ['version' => 'auto'], ['defer' => true]);
 			}
 		}
 	}
@@ -296,12 +295,12 @@ class PlgSystemPwtacl extends JPlugin
 		if (!class_exists($class . 'Core', false))
 		{
 			$core = str_replace($class, $class . 'Core', file_get_contents(JPATH_ADMINISTRATOR . '/components/' . $file));
-			$core = preg_replace('/^\\<\\?php[^A-z]/', '', $core);
+			$core = preg_replace('/^<\\?php[^A-z]/', '', $core);
 
 			// We need this here...
 			eval($core);
 
-			JLoader::register($class, dirname(__FILE__) . '/overrides/' . $file);
+			JLoader::register($class, __DIR__ . '/overrides/' . $file);
 			JLoader::load($class);
 		}
 	}
@@ -332,7 +331,7 @@ class PlgSystemPwtacl extends JPlugin
 		$jLanguage->load('com_pwtacl', JPATH_ADMINISTRATOR . '/components/com_pwtacl/', null, true, false);
 
 		// Append key to url if not set yet
-		if (strpos($url, 'key') == false)
+		if (strpos($url, 'key') === false)
 		{
 			// Get the Download ID from component params
 			$downloadId = ComponentHelper::getComponent($this->extension)->params->get('downloadid', '');
@@ -357,7 +356,7 @@ class PlgSystemPwtacl extends JPlugin
 		}
 
 		// Append domain to url if not set yet
-		if (strpos($url, 'domain') == false)
+		if (strpos($url, 'domain') === false)
 		{
 			// Get the domain for this site
 			$domain = preg_replace('(^https?://)', '', rtrim(Uri::root(), '/'));

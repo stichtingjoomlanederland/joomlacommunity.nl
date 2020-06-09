@@ -14,25 +14,18 @@ use Akeeba\Backup\Admin\View\ViewTraits\ProfileIdAndName;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
 use FOF30\View\DataView\Html as BaseView;
-use JText;
+use Joomla\CMS\Language\Text as JText;
 
 class Html extends BaseView
 {
 	use ProfileIdAndName;
 
 	/**
-	 * The configuration definition and values in JSON format, for use by the configuration GUI renderer
-	 *
-	 * @var  string
-	 */
-	public $json = '';
-
-	/**
 	 * Status of the settings encryption: -1 disabled by user, 0 not available, 1 enabled and active
 	 *
 	 * @var  int
 	 */
-	public $securesettings = 0;
+	public $secureSettings = 0;
 
 	/**
 	 * Should I show the Configuration Wizard popup prompt?
@@ -46,19 +39,32 @@ class Html extends BaseView
 	 */
 	public function onBeforeMain()
 	{
-		$this->addJavascriptFile('media://com_akeeba/js/Configuration.min.js');
-
-		// Get a JSON representation of GUI data
-		$json       = Factory::getEngineParamsProvider()->getJsonGuiDefinition();
-		$this->json = $json;
+		$this->container->template->addJS('media://com_akeeba/js/Configuration.min.js');
 
 		$this->getProfileIdAndName();
 
 		// Are the settings secured?
-		$this->securesettings = $this->getSecureSettingsOption();
+		$this->secureSettings = $this->getSecureSettingsOption();
 
 		// Should I show the Configuration Wizard popup prompt?
 		$this->promptForConfigurationWizard = Factory::getConfiguration()->get('akeeba.flag.confwiz', 0) != 1;
+
+		// Push script options
+		$urls = array(
+			'browser'      => addslashes('index.php?option=com_akeeba&view=Browser&processfolder=1&tmpl=component&folder='),
+			'ftpBrowser'   => addslashes('index.php?option=com_akeeba&view=FTPBrowser'),
+			'sftpBrowser'  => addslashes('index.php?option=com_akeeba&view=SFTPBrowser'),
+			'testFtp'      => addslashes('index.php?option=com_akeeba&view=Configuration&task=testftp'),
+			'testSftp'     => addslashes('index.php?option=com_akeeba&view=Configuration&task=testsftp'),
+			'dpeauthopen'  => addslashes('index.php?option=com_akeeba&view=Configuration&task=dpeoauthopen&format=raw'),
+			'dpecustomapi' => addslashes('index.php?option=com_akeeba&view=Configuration&task=dpecustomapi&format=raw'),
+		);
+
+		// Push script options
+		$platform = $this->container->platform;
+		$platform->addScriptOptions('akeeba.Configuration.URLs', $urls);
+		$platform->addScriptOptions('akeeba.Configuration.GUIData', json_decode(Factory::getEngineParamsProvider()->getJsonGuiDefinition(), true));
+
 
 		// Push translations
 		JText::script('COM_AKEEBA_CONFIG_UI_BROWSE');

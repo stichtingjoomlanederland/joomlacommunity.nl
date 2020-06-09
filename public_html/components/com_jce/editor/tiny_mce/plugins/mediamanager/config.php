@@ -12,14 +12,33 @@ class WFMediamanagerPluginConfig
 {
     public static function getConfig(&$settings)
     {
-        $wf = WFApplication::getInstance();
+        require_once __DIR__ . '/mediamanager.php';
 
-        if ($wf->getParam('mediamanager.aggregator.youtube.enable', 1) || $wf->getParam('mediamanager.aggregator.vimeo.enable', 1)) {
+        $plugin = new WFMediaManagerPlugin();
+
+        $config = array();
+
+        if ($plugin->getParam('quickmedia', 1) == 0) {
+            $config['quickmedia'] = false;
+        }
+
+        if ($plugin->getParam('aggregator.youtube.enable', 1) || $plugin->getParam('aggregator.vimeo.enable', 1)) {
             $settings['invalid_elements'] = array_diff($settings['invalid_elements'], array('iframe'));
         }
 
-        if ($wf->getParam('mediamanager.quickmedia', 1) == 0) {
-            $settings['mediamanager_quickmedia'] = false;
+        if ($plugin->getParam('inline_upload', 1)) {
+            // get the list of filetypes supported
+            $filetypes = array_values($plugin->getFileTypes());
+
+            // only allow a limited set that are support by the <video> and <audio> tags
+            $filetypes = array_intersect($filetypes, array('mp3', 'oga', 'm4a', 'mp4', 'm4v', 'ogg', 'webm', 'ogv'));
+
+            $config['upload'] = array(
+                'max_size' => $plugin->getParam('max_size', 1024),
+                'filetypes' => array_values($filetypes),
+            );
         }
+
+        $settings['mediamanager'] = $config;
     }
 }

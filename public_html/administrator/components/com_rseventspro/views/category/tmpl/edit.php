@@ -11,7 +11,6 @@ JHtml::_('behavior.keepalive'); ?>
 <script type="text/javascript">
 	Joomla.submitbutton = function(task) {
 		if (task == 'category.cancel' || document.formvalidator.isValid(document.getElementById('adminForm'))) {
-			<?php echo $this->form->getField('description')->save(); ?>
 			Joomla.submitform(task, document.getElementById('adminForm'));
 		}
 	}

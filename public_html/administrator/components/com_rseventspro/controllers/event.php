@@ -234,4 +234,17 @@ class RseventsproControllerEvent extends JControllerForm
 		
 		JFactory::getApplication()->close();
 	}
+	
+	public function copy() {
+		// Get the model
+		$model = $this->getModel();
+		
+		$id = JFactory::getApplication()->input->getInt('id',0);
+		
+		$id = $model->save2copy($id);
+		
+		$this->setMessage(JText::_('COM_RSEVENTSPRO_EVENT_DUPLICATE_OK'));
+		
+		return $this->setRedirect(JRoute::_('index.php?option=com_rseventspro&view=event&layout=edit&id='.$id,false));
+	}
 }

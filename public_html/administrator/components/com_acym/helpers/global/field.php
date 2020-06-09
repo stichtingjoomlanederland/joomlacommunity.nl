@@ -132,7 +132,7 @@ function acym_select($data, $name, $selected = null, $attribs = null, $optKey = 
     return $dropdown;
 }
 
-function acym_selectMultiple($data, $name, $selected = [], $attribs = [], $optValue = "value", $optText = "text", $translate = false)
+function acym_selectMultiple($data, $name, $selected = [], $attribs = [], $optValue = 'value', $optText = 'text', $translate = false)
 {
     if (substr($name, -2) !== '[]') {
         $name .= '[]';
@@ -723,12 +723,12 @@ function acym_tooltip($hoveredText, $textShownInTooltip, $classContainer = '', $
     return '<span class="acym__tooltip '.$classContainer.'"><span class="acym__tooltip__text">'.$titleShownInTooltip.$textShownInTooltip.'</span>'.$hoveredText.'</span>';
 }
 
-function acym_info($tooltipText, $class = '')
+function acym_info($tooltipText, $class = '', $containerClass = '')
 {
     return acym_tooltip(
         '<span class="acym__tooltip__info__container '.$class.'"><i class="acym__tooltip__info__icon acymicon-info-circle"></i></span>',
         acym_translation($tooltipText),
-        'acym__tooltip__info'
+        'acym__tooltip__info '.$containerClass
     );
 }
 

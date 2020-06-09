@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_events` (
   `end` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `description` text NOT NULL,
   `small_description` text NOT NULL,
-  `location` int(2) NOT NULL DEFAULT '0',
+  `location` int(12) NOT NULL DEFAULT '0',
   `owner` int(11) NOT NULL DEFAULT '0',
   `URL` varchar(500) NOT NULL DEFAULT '',
   `email` varchar(255) NOT NULL DEFAULT '',
@@ -173,6 +173,8 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_events` (
   `waitinglist` tinyint(2) NOT NULL DEFAULT '0',
   `waitinglist_limit` int(11) NOT NULL DEFAULT '0',
   `waitinglist_time` varchar(50) NOT NULL DEFAULT '',
+  `waitinglist_user` tinyint(2) NOT NULL DEFAULT '0',
+  `waitinglist_admin` tinyint(2) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `location` (`location`),
   KEY `owner` (`owner`),
@@ -375,6 +377,16 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_tmp` (
   KEY `new` (`new`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `#__rseventspro_unsubscribers` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ide` int(11) NOT NULL DEFAULT '0',
+  `name` varchar(255) NOT NULL DEFAULT '',
+  `email` varchar(255) NOT NULL DEFAULT '',
+  `date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`),
+  KEY `ide` (`ide`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `#__rseventspro_users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `ide` int(11) NOT NULL DEFAULT '0',
@@ -458,12 +470,14 @@ INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mod
 INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES(8, 'en-GB', 'moderation', 1, 1, 0, 'Event {EventName} requires moderation.', '<p>A new event requires moderation. <br /> In order to approve it please click this <a href="{EventApprove}">link</a> or you can view it <a href="{EventLink}">here</a>.</p>');
 INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES(9, 'en-GB', 'tag_moderation', 1, 1, 0, 'Some tags require moderation.', '<p>The following tags require moderation:</p>\r\n<p>{TagsApprove}</p>\r\n<p>They have been added on the following event: {EventName} by: {OwnerUsername}</p>');
 INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES(10, 'en-GB', 'notify_me', 1, 1, 0, 'You have a new subscription for {EventName} from {SubscriberName}!', '<p>Hello {OwnerName},</p>\r\n<p>a new subscription to your event {EventName} has been made.</p>\r\n<p><strong>Subscriber info:</strong></p>\r\n<ul>\r\n<li>Date: {SubscribeDate}</li>\r\n<li>Username: {SubscriberUsername}</li>\r\n<li>Name: {SubscriberName}</li>\r\n<li>Email: {SubscriberEmail}</li>\r\n<li>IP: {SubscriberIP}</li>\r\n</ul>\r\n<p><strong>Payment related info (if available):</strong></p>\r\n<ul>\r\n<li>Gateway: {PaymentGateway}</li>\r\n<li>Tickets: {TicketInfo}</li>\r\n<li>Total: {TicketsTotal}</li>\r\n<li>Discount: {TicketsDiscount}</li>\r\n</ul>');
-INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES('', 'en-GB', 'report', 0, 1, 0, 'New report for {EventName}', '<p>Hello,</p>\r\n<p>A new report for <strong>{EventName}</strong> has been added. Here are the details for this report:</p>\r\n<p>User: {ReportUser}</p>\r\n<p>IP: {ReportIP}</p>\r\n<p>Message: {ReportMessage}</p>');
-INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES('', 'en-GB', 'approval', 1, 1, 0, 'Your event ''{EventName}'' has been approved.', '<p>Hello {Owner},</p>\r\n<p>Your event {EventName} has been approved by one of our staff members. You can view your event by clicking <a href="{EventLink}">here</a>.</p>');
-INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES('', 'en-GB', 'rsvpgoing', 1, 1, 0, 'Going to {EventName}', '<p>Hello {user},</p>\r\n<p>Thank you for your participation to <strong>{EventName}</strong> that will start on {EventStartDate}.</p>');
-INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES('', 'en-GB', 'rsvpinterested', 1, 1, 0, 'Interested in going to {EventName}', '<p>Hello {user},</p>\r\n<p>Thank you for your interest in the <strong>{EventName}</strong> event. We hope to see you at this event.</p>\r\n<p>A quick reminder: this event starts on {EventStartDate} and ends on {EventEndDate}.</p>');
-INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES('', 'en-GB', 'rsvpnotgoing', 1, 1, 0, 'Not going to {EventName}', '<p>Hello {user},</p>\r\n<p>We are sorry to see that you cannot come to the <strong>{EventName}</strong> event. Hope you will change your mind.</p>');
-INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES('', 'en-GB', 'waitinglist', 1, 1, 0, 'Claim your ticket to {EventName}', '<p>Congratulations {user}!</p>\r\n<p>A spot has opened up for you at {EventName}. In order to register please click <a href=\"{claim}\">here</a>. Please note that you can claim your ticket before {claimdate}.</p>');
+INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES(11, 'en-GB', 'report', 0, 1, 0, 'New report for {EventName}', '<p>Hello,</p>\r\n<p>A new report for <strong>{EventName}</strong> has been added. Here are the details for this report:</p>\r\n<p>User: {ReportUser}</p>\r\n<p>IP: {ReportIP}</p>\r\n<p>Message: {ReportMessage}</p>');
+INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES(12, 'en-GB', 'approval', 1, 1, 0, 'Your event ''{EventName}'' has been approved.', '<p>Hello {Owner},</p>\r\n<p>Your event {EventName} has been approved by one of our staff members. You can view your event by clicking <a href="{EventLink}">here</a>.</p>');
+INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES(13, 'en-GB', 'rsvpgoing', 1, 1, 0, 'Going to {EventName}', '<p>Hello {user},</p>\r\n<p>Thank you for your participation to <strong>{EventName}</strong> that will start on {EventStartDate}.</p>');
+INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES(14, 'en-GB', 'rsvpinterested', 1, 1, 0, 'Interested in going to {EventName}', '<p>Hello {user},</p>\r\n<p>Thank you for your interest in the <strong>{EventName}</strong> event. We hope to see you at this event.</p>\r\n<p>A quick reminder: this event starts on {EventStartDate} and ends on {EventEndDate}.</p>');
+INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES(15, 'en-GB', 'rsvpnotgoing', 1, 1, 0, 'Not going to {EventName}', '<p>Hello {user},</p>\r\n<p>We are sorry to see that you cannot come to the <strong>{EventName}</strong> event. Hope you will change your mind.</p>');
+INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES(16, 'en-GB', 'waitinglist', 1, 1, 0, 'Claim your ticket to {EventName}', '<p>Congratulations {user}!</p>\r\n<p>A spot has opened up for you at {EventName}. In order to register please click <a href=\"{claim}\">here</a>. Please note that you can claim your ticket before {claimdate}.</p>');
+INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES(17, 'en-GB', 'waitinglistuser', 1, 1, 0, 'Waiting list confirmation for \'{EventName}\'', '<p>Hello <strong>{user}</strong>,</p>\r\n<p>Thank you for joining our waiting list for the event <strong>{EventName}</strong>.</p>');
+INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES(18, 'en-GB', 'waitinglistadmin', 1, 1, 0, 'New addition to \'{EventName}\' waiting list', '<p>Hello <strong>{OwnerName}</strong>,</p>\r\n<p><strong>{user}</strong> has been added to the waiting list of <strong>{EventName}</strong>.</p>');
 
 
 INSERT IGNORE INTO `#__rseventspro_locations` (`id`, `name`, `url`, `address`, `description`, `coordinates`, `gallery_tags`, `ordering`, `published`) VALUES(1, 'RSEvents!Pro Location', 'http://www.rsjoomla.com', 'Colorado, USA', '<p>This is the location description.</p>', '39.5500507,-105.7820674', '', 0, 1);
@@ -610,6 +624,8 @@ INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('mysubscrip
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('consent', '1');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('show_og', '1');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('modaltype', '1');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('facebook_groups', '');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('cancel_to', '0,1');
 
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Afghanistan');
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Akrotiri');

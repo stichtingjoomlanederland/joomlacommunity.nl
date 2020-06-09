@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2020 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -204,7 +204,7 @@ class plgContentEasyDiscuss extends JPlugin
 		if ($this->extension == 'com_easydiscuss' ||
 			$this->loaded ||
 			(isset($article->easydiscuss) && $article->easydiscuss == true) ||
-			($this->extension == 'com_content' && !$article->state)) {
+			($this->extension == 'com_content' && isset($artcile->state) && !$article->state)) {
 			return;
 		}
 

@@ -24,8 +24,6 @@ class RSTabs {
 	 * @return  void
 	 */
 	public function __construct($id) {
-		JHtml::_('behavior.tabstate');
-		
 		$this->id = preg_replace('#[^A-Z0-9_\. -]#i', '', $id);
 	}
 

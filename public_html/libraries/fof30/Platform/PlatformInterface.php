@@ -1,8 +1,8 @@
 <?php
 /**
- * @package     FOF
- * @copyright   Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license     GNU GPL version 2 or later
+ * @package   FOF
+ * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 2, or later
  */
 
 namespace FOF30\Platform;
@@ -11,7 +11,9 @@ use Exception;
 use FOF30\Container\Container;
 use FOF30\Date\Date;
 use FOF30\Input\Input;
+use Joomla\CMS\User\User;
 use Joomla\Registry\Registry;
+use JsonSerializable;
 
 defined('_JEXEC') or die;
 
@@ -75,15 +77,15 @@ interface PlatformInterface
 	 * which is running inside our main application (CMS, web app).
 	 *
 	 * The return is a table with the following keys:
-	 * * main	The normal location of component files. For a back-end Joomla!
+	 * * main    The normal location of component files. For a back-end Joomla!
 	 *          component this is the administrator/components/com_example
 	 *          directory.
-	 * * alt	The alternate location of component files. For a back-end
+	 * * alt    The alternate location of component files. For a back-end
 	 *          Joomla! component this is the front-end directory, e.g.
 	 *          components/com_example
-	 * * site	The location of the component files serving the public part of
+	 * * site    The location of the component files serving the public part of
 	 *          the application.
-	 * * admin	The location of the component files serving the administrative
+	 * * admin    The location of the component files serving the administrative
 	 *          part of the application.
 	 *
 	 * All paths MUST be absolute. All four paths MAY be the same if the
@@ -158,12 +160,12 @@ interface PlatformInterface
 	 * value will be used. If $setUserState is set to true, the retrieved
 	 * variable will be stored in the user session.
 	 *
-	 * @param   string    $key           The user state key for the variable
-	 * @param   string    $request       The request variable name for the variable
-	 * @param   Input     $input         The Input object with the request (input) data
-	 * @param   mixed     $default       The default value. Default: null
-	 * @param   string    $type          The filter type for the variable data. Default: none (no filtering)
-	 * @param   boolean   $setUserState  Should I set the user state with the fetched value?
+	 * @param   string   $key           The user state key for the variable
+	 * @param   string   $request       The request variable name for the variable
+	 * @param   Input    $input         The Input object with the request (input) data
+	 * @param   mixed    $default       The default value. Default: null
+	 * @param   string   $type          The filter type for the variable data. Default: none (no filtering)
+	 * @param   boolean  $setUserState  Should I set the user state with the fetched value?
 	 *
 	 * @return  mixed  The value of the variable
 	 */
@@ -227,9 +229,9 @@ interface PlatformInterface
 	/**
 	 * Returns an object to handle dates
 	 *
-	 * @param   mixed   $time       The initial time
-	 * @param   null    $tzOffest   The timezone offset
-	 * @param   bool    $locale     Should I try to load a specific class for current language?
+	 * @param   mixed  $time      The initial time
+	 * @param   null   $tzOffest  The timezone offset
+	 * @param   bool   $locale    Should I try to load a specific class for current language?
 	 *
 	 * @return  Date object
 	 */
@@ -374,10 +376,11 @@ interface PlatformInterface
 	 * @param   string|array  $title      A title, or an array of additional fields to add to the log entry
 	 * @param   string        $logText    The translation key to the log text
 	 * @param   string        $extension  The name of the extension logging this entry
+	 * @param   User|null     $user       The user the action is being logged for
 	 *
 	 * @return  void
 	 */
-	public function logUserAction($title, $logText, $extension);
+	public function logUserAction($title, $logText, $extension, $user = null);
 
 	/**
 	 * Returns the root URI for the request.
@@ -393,7 +396,8 @@ interface PlatformInterface
 	 * Returns the base URI for the request.
 	 *
 	 * @param   boolean  $pathonly  If false, prepend the scheme, host and port information. Default is false.
-	 * |
+	 *                              |
+	 *
 	 * @return  string  The base URI string
 	 */
 	public function URIbase($pathonly = false);
@@ -510,4 +514,30 @@ interface PlatformInterface
 	 * @param   bool  $allowPluginsInCli
 	 */
 	public function setAllowPluginsInCli($allowPluginsInCli);
+
+	/**
+	 * Set a script option.
+	 *
+	 * This allows the backend code to set up configuration options for frontend (JavaScript) code in a way that's safe
+	 * for async / deferred scripts. The options are stored in the document's head as an inline JSON document. This
+	 * JSON document is then parsed by a JavaScript helper function which makes the options available to the scripts
+	 * that consume them.
+	 *
+	 * @param   string                  $key     The option key
+	 * @param   mixed|JsonSerializable  $value   The option value. Must be a scalar or a JSON serializable object
+	 * @param   bool                    $merge   Should I merge an array value with existing stored values? Default:
+	 *                                           true
+	 *
+	 * @return  void
+	 */
+	public function addScriptOptions($key, $value, $merge = true);
+
+	/**
+	 * Get a script option, or all of the script options
+	 *
+	 * @param   string|null  $key  The script option to retrieve. Null for all options.
+	 *
+	 * @return  array|mixed  Options for given $key, or all script options
+	 */
+	public function getScriptOptions($key = null);
 }

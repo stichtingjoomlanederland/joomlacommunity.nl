@@ -28,6 +28,107 @@ $cloudFlareTestFile .= '?' . $this->getContainer()->mediaVersion;
     </div>
 @endif
 
+{{-- Potentially web accessible output directory --}}
+@if ($this->isOutputDirectoryUnderSiteRoot)
+    <!--
+    Oh, hi there! It looks like you got curious and are peeking around your browser's developer tools – or just the
+    source code of the page that loaded on your browser. Cool! May I explain what we are seeing here?
+
+    Just to let you know, the next three DIVs (outDirSystem, insecureOutputDirectory and missingRandomFromFilename) are
+    HIDDEN and their existence doesn't mean that your site has an insurmountable security issue. To the contrary.
+    Whenever Akeeba Backup detects that the backup output directory is under your site's root it will CHECK its security
+    i.e. if it's really accessible over the web. This check is performed with an AJAX call to your browser so if it
+    takes forever or gets stuck you won't see a frustrating blank page in your browser. If AND ONLY IF a problem is
+    detected said JavaScript will display one of the following DIVs, depending on what is applicable.
+
+    So, to recap. These hidden DIVs? They don't indicate a problem with your site. If one becomes visible then – and
+    ONLY then – should you do something about it, as instructed. But thank you for being curious. Curiosity is how you
+    get involved with and better at web development. Stay curious!
+    -->
+    {{-- Web accessible output directory that coincides with or is inside in a CMS system folder --}}
+    <div class="akeeba-block--failure" id="outDirSystem" style="display: none">
+        <h3>@lang('COM_AKEEBA_CPANEL_HEAD_OUTDIR_INVALID')</h3>
+        <p>
+            @sprintf('COM_AKEEBA_CPANEL_LBL_OUTDIR_LISTABLE', realpath($this->getModel()->getOutputDirectory()))
+        </p>
+        <p>
+            @lang('COM_AKEEBA_CPANEL_LBL_OUTDIR_ISSYSTEM')
+        </p>
+        <p>
+            @lang('COM_AKEEBA_CPANEL_LBL_OUTDIR_ISSYSTEM_FIX')
+            @lang('COM_AKEEBA_CPANEL_LBL_OUTDIR_DELETEORBEHACKED')
+        </p>
+    </div>
+
+    {{-- Output directory can be listed over the web --}}
+    <div class="akeeba-block--{{ $this->hasOutputDirectorySecurityFiles ? 'failure' : 'warning' }}" id="insecureOutputDirectory" style="display: none">
+        <h3>
+            @if ($this->hasOutputDirectorySecurityFiles)
+            @lang('COM_AKEEBA_CPANEL_HEAD_OUTDIR_UNFIXABLE')
+            @else
+            @lang('COM_AKEEBA_CPANEL_HEAD_OUTDIR_INSECURE')
+            @endif
+        </h3>
+        <p>
+            @sprintf('COM_AKEEBA_CPANEL_LBL_OUTDIR_LISTABLE', realpath($this->getModel()->getOutputDirectory()))
+        </p>
+        @if (!$this->hasOutputDirectorySecurityFiles)
+        <p>
+            @lang('COM_AKEEBA_CPANEL_LBL_OUTDIR_CLICKTHEBUTTON')
+        </p>
+        <p>
+            @lang('COM_AKEEBA_CPANEL_LBL_OUTDIR_FIX_SECURITYFILES')
+        </p>
+
+        <form action="index.php" method="POST" class="akeeba-form--inline">
+            <input type="hidden" name="option" value="com_akeeba">
+            <input type="hidden" name="view" value="ControlPanel">
+            <input type="hidden" name="task" value="fixOutputDirectory">
+            <input type="hidden" name="@token()" value="1">
+
+            <button type="submit" class="akeeba-btn--block--green">
+                <span class="akion-hammer"></span>
+                @lang('COM_AKEEBA_CPANEL_BTN_FIXSECURITY')
+            </button>
+        </form>
+        @else
+        <p>
+            @lang('COM_AKEEBA_CPANEL_LBL_OUTDIR_TRASHHOST')
+            @lang('COM_AKEEBA_CPANEL_LBL_OUTDIR_DELETEORBEHACKED')
+        </p>
+        @endif
+    </div>
+
+    {{-- Output directory cannot be listed over the web but I can download files --}}
+    <div class="akeeba-block--warning" id="missingRandomFromFilename" style="display: none">
+        <h3>
+            @lang('COM_AKEEBA_CPANEL_HEAD_OUTDIR_INSECURE_ALT')
+        </h3>
+        <p>
+            @sprintf('COM_AKEEBA_CPANEL_LBL_OUTDIR_FILEREADABLE', realpath($this->getModel()->getOutputDirectory()))
+        </p>
+        <p>
+            @lang('COM_AKEEBA_CPANEL_LBL_OUTDIR_CLICKTHEBUTTON')
+        </p>
+        <p>
+            @lang('COM_AKEEBA_CPANEL_LBL_OUTDIR_FIX_RANDOM')
+        </p>
+
+        <form action="index.php" method="POST" class="akeeba-form--inline">
+            <input type="hidden" name="option" value="com_akeeba">
+            <input type="hidden" name="view" value="ControlPanel">
+            <input type="hidden" name="task" value="addRandomToFilename">
+            <input type="hidden" name="@token()" value="1">
+
+            <button type="submit" class="akeeba-btn--block--green">
+                <span class="akion-hammer"></span>
+                @lang('COM_AKEEBA_CPANEL_BTN_FIXSECURITY')
+            </button>
+        </form>
+    </div>
+
+@endif
+
 {{-- mbstring warning --}}
 @unless($this->checkMbstring)
     <div class="akeeba-block--warning">

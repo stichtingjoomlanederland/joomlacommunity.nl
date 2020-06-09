@@ -55,6 +55,10 @@ if (!empty($this->data))
 			echo ' <small class="muted">'.JText::_('COM_RSEVENTSPRO_GLOBAL_INCOMPLETE_EVENT').'</small>';
 		}
 		
+		if ($row->published == 3) {
+			echo ' <small class="muted text-error">'.JText::_('COM_RSEVENTSPRO_GLOBAL_CANCELED_EVENT').'</small>';
+		}
+		
 		echo ' '.rseventsproHelper::report($row->id);
 		echo '</p>';
 					
@@ -67,6 +71,7 @@ if (!empty($this->data))
 		$availabletickets = $row->registration ? $this->getTickets($row->id) : false;
 		$subscriptions = $row->registration ? $this->getSubscribers($row->id) : false;
 		$waitinglist = $row->registration ? $this->getWaitingList($row->id) : false;
+		$unsubscribers = $row->registration ? $this->getUnsubscribers($row->id) : false;
 					
 		if ($availabletickets) { 
 			echo '<p><small class="muted">'.$availabletickets.'</small></p>';
@@ -80,9 +85,13 @@ if (!empty($this->data))
 		if ($waitinglist) {
 			echo '<a class="btn btn-small" href="'.JRoute::_('index.php?option=com_rseventspro&view=waitinglist&id='.$row->id).'">'.JText::_('COM_RSEVENTSPRO_WAITINGLIST').'</a> ';
 		}
-						
+		
 		if ($row->rsvp) {
 			echo '<a class="btn btn-small" href="'.JRoute::_('index.php?option=com_rseventspro&view=rsvp&id='.$row->id).'">'.JText::_('COM_RSEVENTSPRO_RSVP_GUESTS').'</a> ';
+		}
+		
+		if ($unsubscribers) {
+			echo '<a class="btn btn-small" href="'.JRoute::_('index.php?option=com_rseventspro&view=unsubscribers&id='.$row->id).'">'.JText::_('COM_RSEVENTSPRO_UNSUBSCRIBERS').'</a> ';
 		}
 		
 		echo '</p>';

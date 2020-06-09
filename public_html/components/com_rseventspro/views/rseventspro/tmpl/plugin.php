@@ -9,7 +9,7 @@ $event = $this->details['event'];
 $categories = (isset($this->details['categories']) && !empty($this->details['categories'])) ? JText::_('COM_RSEVENTSPRO_GLOBAL_CATEGORIES').': '.$this->details['categories'] : '';
 $tags = (isset($this->details['tags']) && !empty($this->details['tags'])) ? JText::_('COM_RSEVENTSPRO_GLOBAL_TAGS').': '.$this->details['tags'] : ''; ?>
 
-<div class="rsepro_plugin_container">
+<div class="rsepro_plugin_container<?php if ($event->published == 3) echo ' rsepro_plugin_canceled'; ?>">
 	
 	<?php if (!empty($event->options['show_icon_list'])) { ?>
 	<div class="rsepro_plugin_image">
@@ -23,7 +23,7 @@ $tags = (isset($this->details['tags']) && !empty($this->details['tags'])) ? JTex
 		<div class="rsepro-title-block">
 			<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name).$this->itemid); ?>" class="rsepro_plugin_link">
 				<?php echo $event->name; ?>
-			</a>
+			</a> <?php if ($event->published == 3) echo '<small class="text-error">('.JText::_('COM_RSEVENTSPRO_EVENT_CANCELED_TEXT').')</small>'; ?>
 		</div>
 		<div class="rsepro-date-block">
 			<?php if ($event->allday) { ?>

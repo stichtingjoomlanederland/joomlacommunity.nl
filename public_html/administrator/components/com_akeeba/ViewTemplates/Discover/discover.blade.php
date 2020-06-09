@@ -36,7 +36,7 @@ $hasFiles = !empty($this->files);
 
         <div class="akeeba-form-group--pull-right">
             <div class="akeeba-form-group--actions">
-                <button class="akeeba-btn--primary" onclick="this.form.submit(); return false;">
+                <button class="akeeba-btn--primary" type="submit">
                     <span class="akion-ios-upload"></span>
                     @lang('COM_AKEEBA_DISCOVER_LABEL_IMPORT')
                 </button>
@@ -49,7 +49,7 @@ $hasFiles = !empty($this->files);
             @lang('COM_AKEEBA_DISCOVER_ERROR_NOFILES')
         </div>
         <p>
-            <button class="akeeba-btn--orange" onclick="this.form.submit(); return false;">
+            <button class="akeeba-btn--orange" type="submit">
                 <span class="akion-arrow-left-a"></span>
                 @lang('COM_AKEEBA_DISCOVER_LABEL_GOBACK')
             </button>

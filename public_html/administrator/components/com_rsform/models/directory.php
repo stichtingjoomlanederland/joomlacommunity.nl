@@ -116,9 +116,16 @@ class RsformModelDirectory extends JModelList
 			$query->join('left', $this->_db->qn('#__rsform_translations', 't') . ' ON (' . implode(' AND ', $on) . ')');
 		}
 
-		if (!empty($filter_search))
+		if (strlen($filter_search))
 		{
-			$query->having('(' . $this->_db->qn('FormTitle') . ' LIKE ' . $this->_db->q('%' . $filter_search . '%') . ' OR ' . $this->_db->qn('FormName') . ' LIKE ' . $this->_db->q('%' . $filter_search . '%') . ')');
+			if (stripos($filter_search, 'id:') === 0)
+			{
+				$query->where($this->_db->qn('f.FormId') . ' = ' . (int) substr($filter_search, 3));
+			}
+			else
+			{
+				$query->having('(' . $this->_db->qn('FormTitle') . ' LIKE ' . $this->_db->q('%' . $filter_search . '%') . ' OR ' . $this->_db->qn('FormName') . ' LIKE ' . $this->_db->q('%' . $filter_search . '%') . ')');
+			}
 		}
 
 		$query->join('left', $this->_db->qn('#__rsform_directory', 'd') . ' ON (' . $this->_db->qn('f.FormId') . ' = ' . $this->_db->qn('d.formId') . ')');
@@ -439,6 +446,7 @@ class RsformModelDirectory extends JModelList
 		// Search filter
 		$options['search'] = array(
 			'label' => JText::_('JSEARCH_FILTER'),
+			'tooltip' => JText::_('COM_RSFORM_SEARCH_FILTER_PLACEHOLDER'),
 			'value' => $this->getState('filter_search')
 		);
 		$options['reset_button'] = true;

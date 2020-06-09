@@ -22,6 +22,115 @@ class acymexportHelper extends acymObject
         acym_header('Content-Transfer-Encoding: binary');
     }
 
+    public function exportTemplate($template)
+    {
+        $name = preg_replace('#[^a-z0-9]#Uis', '_', $template->name);
+        $name = preg_replace('#_+#s', '_', $name);
+        $exportFolder = ACYM_ROOT.ACYM_MEDIA_FOLDER.DS.'tmp'.DS.$name;
+        acym_createFolder($exportFolder);
+
+        $template->body = acym_absoluteURL($template->body);
+        $images = [];
+        preg_match_all('#<img[^>]* src="([^"]+)"#Uis', $template->body, $images);
+
+        if (!empty($images[1])) {
+            $imagesFolder = $exportFolder.DS.'images';
+            acym_createFolder($imagesFolder);
+
+            $replace = [];
+            foreach ($images[1] as $oneImage) {
+                if (isset($replace[$oneImage])) continue;
+
+                $location = str_replace(
+                    [ACYM_LIVE, '/'],
+                    [ACYM_ROOT, DS],
+                    $oneImage
+                );
+                if (strpos($location, 'http') === 0) continue;
+
+                if (!file_exists($location)) continue;
+
+                $filename = basename($location);
+                while (file_exists($imagesFolder.DS.$filename)) {
+                    $filename = rand(0, 99).$filename;
+                }
+
+                acym_copyFile($location, $imagesFolder.DS.$filename);
+                $replace[$oneImage] = 'images/'.$filename;
+            }
+
+            $template->body = str_replace(array_keys($replace), $replace, $template->body);
+        }
+
+        $structure = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />';
+
+        $dataToCopy = [
+            'fromname',
+            'fromemail',
+            'replyname',
+            'replyemail',
+            'subject',
+            'settings',
+        ];
+        foreach ($dataToCopy as $oneData) {
+            if (empty($template->$oneData)) continue;
+            $structure .= "\n".'<meta name="'.$oneData.'" content="'.acym_escape($template->$oneData).'" />';
+        }
+
+        $structure .= "\n".'<title>'.$template->name.'</title>
+</head>
+<body>
+'.$template->body.'
+</body>
+</html>';
+
+        acym_writeFile($exportFolder.DS.'template.html', $structure);
+
+        $thumbnail = acym_getMailThumbnail($template->thumbnail);
+        $thumbnail = str_replace(ACYM_LIVE, ACYM_ROOT, $thumbnail);
+        acym_copyFile($thumbnail, $exportFolder.DS.'thumbnail.png');
+
+        if (!empty($template->stylesheet)) {
+            acym_createFolder($exportFolder.DS.'css');
+            acym_writeFile($exportFolder.DS.'css'.DS.'custom.css', $template->stylesheet);
+        }
+
+        $zipFiles = [];
+        $folders = acym_getFolders($exportFolder, '.', true, true);
+        array_push($folders, $exportFolder);
+        foreach ($folders as $folder) {
+            $files = acym_getFiles($folder, '.', false, true);
+            foreach ($files as $file) {
+                $posSlash = strrpos($file, '/');
+                $posASlash = strrpos($file, '\\');
+                $pos = ($posSlash < $posASlash) ? $posASlash : $posSlash;
+                if (!empty($pos)) $file = substr_replace($file, DS, $pos, 1);
+
+                $data = acym_fileGetContent($file);
+                $zipFiles[] = [
+                    'name' => str_replace(
+                        $exportFolder.DS,
+                        '',
+                        $file
+                    ),
+                    'data' => $data,
+                ];
+            }
+        }
+        acym_createArchive($exportFolder, $zipFiles);
+
+        acym_deleteFolder($exportFolder);
+
+        $this->setDownloadHeaders($name, 'zip');
+        echo acym_fileGetContent($exportFolder.'.zip');
+        acym_deleteFile($exportFolder.'.zip');
+
+        exit;
+    }
+
     public function exportStatsFormattedCSV($mailName, $globalDonutsData, $globaline, $timeLinechart)
     {
         $nbExport = $this->getExportLimit();
@@ -77,13 +186,15 @@ class acymexportHelper extends acymObject
 
         $csvLines[] = $this->before.implode($separator, $columns).$this->after;
 
+        $valueNeedNumber = ['click'];
+
         $i = 0;
         foreach ($mailsStats as $mailStat) {
             if ($i > $nbExport) break;
             $oneLine = [];
             foreach ($columns as $key => $trad) {
                 $key = explode('.', $key);
-                $oneLine[] = $mailStat->{$key[1]};
+                $oneLine[] = in_array($key[1], $valueNeedNumber) && empty($mailStat->{$key[1]}) ? 0 : $mailStat->{$key[1]};
             }
             $csvLines[] = $this->before.implode($separator, $oneLine).$this->after;
             $i++;
@@ -96,7 +207,7 @@ class acymexportHelper extends acymObject
     {
         $final = implode($this->eol, $csvLines);
 
-        @ob_clean();
+        @ob_get_clean();
         $filename = 'export_stats_'.$type.'_'.date('Y-m-d');
         $this->setDownloadHeaders($filename);
         echo $final;
@@ -117,7 +228,7 @@ class acymexportHelper extends acymObject
         $firstLine = $this->before.implode($separator, array_merge($fieldsToExport, $customFieldsToExport)).$this->after.$this->eol;
 
         if (empty($exportFile)) {
-            @ob_clean();
+            @ob_get_clean();
             $filename = 'export_'.date('Y-m-d');
             $this->setDownloadHeaders($filename);
             echo $firstLine;

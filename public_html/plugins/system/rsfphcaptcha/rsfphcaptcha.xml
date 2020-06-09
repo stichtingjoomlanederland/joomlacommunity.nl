@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.0" type="plugin" group="system" method="upgrade">
+	<name>System - RSForm! Pro hCaptcha</name>
+	<author>RSJoomla!</author>
+	<creationDate>April 2020</creationDate>
+	<copyright>(C) 2020 www.rsjoomla.com</copyright>
+	<license>GNU General Public License</license>
+	<authorEmail>support@rsjoomla.com</authorEmail>
+	<authorUrl>www.rsjoomla.com</authorUrl>
+	<version>1.0.0</version>
+	<description><![CDATA[PLG_SYSTEM_RSFPHCAPTCHA_DESC]]></description>
+	<scriptfile>script.php</scriptfile>
+	
+	<updateservers>
+        <server type="extension" priority="1" name="RSForm! Pro - hCaptcha Plugin">https://www.rsjoomla.com/updates/com_rsform/Plugins/plg_hcaptcha.xml</server>
+    </updateservers>
+	
+	<install>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/mysql/install.sql</file>
+		</sql>
+	</install>
+	<uninstall>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/mysql/uninstall.sql</file>
+		</sql>
+	</uninstall>
+
+	<files>
+		<folder>forms</folder>
+		<folder>sql</folder>
+		<filename plugin="rsfphcaptcha">rsfphcaptcha.php</filename>
+		<filename>index.html</filename>
+	</files>
+	
+	<media destination="plg_system_rsfphcaptcha" folder="media">
+		<folder>images</folder>
+		<folder>js</folder>
+	</media>
+	
+	<languages folder="language">
+		<language tag="en-GB">en-GB/en-GB.plg_system_rsfphcaptcha.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_system_rsfphcaptcha.sys.ini</language>
+	</languages>
+</extension>

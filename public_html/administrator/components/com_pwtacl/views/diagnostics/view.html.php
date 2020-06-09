@@ -3,7 +3,7 @@
  * @package    PwtAcl
  *
  * @author     Sander Potjer - Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2011 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2011 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
@@ -15,8 +15,8 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\View\HtmlView;
+use Joomla\CMS\Toolbar\ToolbarHelper;
 
-// No direct access.
 defined('_JEXEC') or die;
 
 /**
@@ -24,7 +24,7 @@ defined('_JEXEC') or die;
  *
  * @since   3.0
  */
-class PwtaclViewDiagnostics extends HtmlView
+class PwtAclViewDiagnostics extends HtmlView
 {
 	/**
 	 * @var     $params
@@ -63,8 +63,8 @@ class PwtaclViewDiagnostics extends HtmlView
 	{
 		$this->params = ComponentHelper::getParams('com_pwtacl');
 
-		/** @var PwtaclModelDiagnostics $diagnostics */
-		$diagnostics  = BaseDatabaseModel::getInstance('Diagnostics', 'PwtaclModel', array('ignore_request' => true));
+		/** @var PwtAclModelDiagnostics $diagnostics */
+		$diagnostics  = BaseDatabaseModel::getInstance('Diagnostics', 'PwtAclModel', ['ignore_request' => true]);
 		$this->steps  = $diagnostics->getDiagnosticsSteps();
 		$this->issues = $diagnostics->getQuickScan(true);
 
@@ -84,13 +84,13 @@ class PwtaclViewDiagnostics extends HtmlView
 		HTMLHelper::_('jquery.framework');
 
 		// Load Javascript.
-		HTMLHelper::_('script', 'media/com_pwtacl/js/diagnostics.js', array('version' => 'auto'));
+		HTMLHelper::_('script', 'media/com_pwtacl/js/diagnostics.js', ['version' => 'auto']);
 
 		// Load the toolbar
 		$this->addToolbar();
 
 		// Load the sidebar
-		PwtaclHelper::addSubmenu('diagnostics');
+		PwtAclHelper::addSubmenu('diagnostics');
 		$this->sidebar = JHtmlSidebar::render();
 
 		// Check for errors.
@@ -112,14 +112,14 @@ class PwtaclViewDiagnostics extends HtmlView
 	protected function addToolbar()
 	{
 		// Title
-		JToolBarHelper::title(Text::_('COM_PWTACL_SUBMENU_DIAGNOSTICS'), 'pwtacl.png');
+		ToolbarHelper::title(Text::_('COM_PWTACL_SUBMENU_DIAGNOSTICS'), 'pwtacl.png');
 
 		// Buttons
 		if (Factory::getUser()->authorise('core.admin', 'com_pwtacl'))
 		{
-			JToolBarHelper::custom('diagnostics.rebuild', 'refresh.png', 'refresh_f2.png', 'COM_PWTACL_DIAGNOSTICS_STEP_REBUILD', false);
-			JToolBarHelper::divider();
-			JToolBarHelper::preferences('com_pwtacl');
+			ToolbarHelper::custom('diagnostics.rebuild', 'refresh.png', 'refresh_f2.png', 'COM_PWTACL_DIAGNOSTICS_STEP_REBUILD', false);
+			ToolbarHelper::divider();
+			ToolbarHelper::preferences('com_pwtacl');
 		}
 	}
 }

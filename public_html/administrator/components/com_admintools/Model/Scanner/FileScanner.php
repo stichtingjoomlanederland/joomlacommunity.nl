@@ -12,8 +12,6 @@ use Akeeba\AdminTools\Admin\Model\Scanner\Logger\Logger;
 use Akeeba\AdminTools\Admin\Model\Scanner\Util\Configuration;
 use Akeeba\AdminTools\Admin\Model\Scanner\Util\Filesystem;
 use Akeeba\AdminTools\Admin\Model\Scanner\Util\Session;
-use Diff;
-use Diff_Renderer_Text_Unified;
 use Exception;
 use FOF30\Container\Container;
 use JDatabaseDriver;

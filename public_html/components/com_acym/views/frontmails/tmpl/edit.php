@@ -68,13 +68,12 @@ defined('_JEXEC') or die('Restricted access');
 						<div class="cell medium-shrink">
 							<label for="acym__mail__edit__preheader">
                                 <?php
-                                echo acym_tooltip(
-                                    acym_translation('ACYM_EMAIL_PREHEADER'),
-                                    acym_translation('ACYM_EMAIL_PREHEADER_DESC')
-                                ); ?>
+                                echo acym_translation('ACYM_EMAIL_PREHEADER');
+                                echo acym_info('ACYM_EMAIL_PREHEADER_DESC');
+                                ?>
 							</label>
 						</div>
-						<input id="acym__mail__edit__preheader" name="mail[preheader]" type="text" value="<?php echo acym_escape($data['mail']->preheader); ?>">
+						<input id="acym__mail__edit__preheader" name="mail[preheader]" type="text" maxlength="255" value="<?php echo acym_escape($data['mail']->preheader); ?>">
 					</div>
 				</div>
 			</div>

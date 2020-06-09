@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -112,7 +112,8 @@ class EasyDiscussControllerAttachment extends EasyDiscussController
 
 		header('Content-Description: File Transfer');
 		header('Content-Type: ' . $attachment->mime);
-		header('Content-Disposition: inline; filename="' . $attachment->title . '"');
+		// header('Content-Disposition: inline; filename="' . $attachment->title . '"');
+		header('Content-Disposition: attachment; filename="' . $attachment->title . '"');
 		header('Content-Transfer-Encoding: binary');
 		header('Content-Length: ' . filesize($file));
 		header("Cache-Control: private, max-age=10800, pre-check=10800");
@@ -143,19 +144,19 @@ class EasyDiscussControllerAttachment extends EasyDiscussController
 			die('Invalid request');
 		}
 
-        // Load the attachments
+		// Load the attachments
 		$attachment = ED::attachment($id);
 		$file = $attachment->getAbsolutePath();
 
-        // Get the storage relative path
-        $relativePath = $attachment->getStoragePath(true) . '/' . $attachment->path;
+		// Get the storage relative path
+		$relativePath = $attachment->getStoragePath(true) . '/' . $attachment->path;
 
-        $storage = ED::storage('amazon');
-        $link = $storage->getPermalink($relativePath);
+		$storage = ED::storage('amazon');
+		$link = $storage->getPermalink($relativePath);
 
-        if (!$link) {
-        	return JError::raiseError(500, JText::_('File cannot be found'));
-        }
+		if (!$link) {
+			return JError::raiseError(500, JText::_('File cannot be found'));
+		}
 
 		$relativePath = str_ireplace(JPATH_ROOT, '', $attachment->getAbsolutePath());
 		$targetFile = $attachment->getAbsolutePath();

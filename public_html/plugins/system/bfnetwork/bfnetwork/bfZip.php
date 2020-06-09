@@ -257,7 +257,7 @@ class PclZip
         }
 
         if (!function_exists('gzopen')) {
-            die('Abort '.basename(__FILE__).' : Missing zlib extensions');
+            exit('Abort '.basename(__FILE__).' : Missing zlib extensions');
         }
 
         // ----- Set the attributes

@@ -29,7 +29,9 @@ function installAcym()
     $updateHelper->fromVersion = $installClass->fromVersion;
     $updateHelper->installList();
     $updateHelper->installNotifications();
-    $updateHelper->installTemplates();
+    if (!$installClass->update) {
+        $updateHelper->installTemplates();
+    }
     $updateHelper->installFields();
     $updateHelper->installLanguages();
     $updateHelper->installBackLanguages();

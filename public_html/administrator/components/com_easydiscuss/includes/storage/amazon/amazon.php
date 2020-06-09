@@ -73,7 +73,7 @@ class EasyDiscussStorageAmazon implements EasyDiscussStorageInterface
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function init()
 	{
@@ -103,7 +103,7 @@ class EasyDiscussStorageAmazon implements EasyDiscussStorageInterface
 	 * @since	1.4.6
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function containerExists($bucket)
 	{
@@ -123,7 +123,7 @@ class EasyDiscussStorageAmazon implements EasyDiscussStorageInterface
 	 * @since	1.4.6
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function createContainer($container)
 	{
@@ -134,7 +134,7 @@ class EasyDiscussStorageAmazon implements EasyDiscussStorageInterface
 		if ($this->region != 'us-east-1') {
 			$options->LocationConstraint = $this->region;
 		}
-		
+
 		$options = (array) $options;
 
 		$result = $this->client->createBucket($options);
@@ -152,7 +152,7 @@ class EasyDiscussStorageAmazon implements EasyDiscussStorageInterface
 	 * @since	1.4.6
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getContainers()
 	{
@@ -170,16 +170,11 @@ class EasyDiscussStorageAmazon implements EasyDiscussStorageInterface
 	/**
 	 * Returns the absolute path to the object
 	 *
-	 * @since	1.0
+	 * @since	4.1.15
 	 * @access	public
-	 * @param	int		The storage id
-	 * @return	string	The absolute URI to the object
 	 */
 	public function getPermalink($relativePath)
 	{
-		// Ensure that the preceeding / is removed
-		$relativePath = ltrim($relativePath, '/');
-
 		$paths = explode('/', $this->bucket);
 
 		$subfolder = false;
@@ -192,16 +187,15 @@ class EasyDiscussStorageAmazon implements EasyDiscussStorageInterface
 
 		$url = $this->secure ? 'https://' : 'http://';
 
-		if ($url == 'https://' || stristr($base, '_') !== false) {
-			$url .= $this->endpoint . '/' . $base . '/';
-		} else {
-			$url .= $this->endpoint . '/' . $base . '/';
-		}
+		// Use virtual-host style for dns #842
+		$url .= $base . '.' . $this->endpoint . '/';
 
 		if ($subfolder) {
 			$url .= rtrim($subfolder, '/') . '/';
 		}
 
+		// Ensure that the preceeding / is removed
+		$relativePath = ltrim($relativePath, '/');
 		$url .= $relativePath;
 
 		return $url;
@@ -243,7 +237,7 @@ class EasyDiscussStorageAmazon implements EasyDiscussStorageInterface
 			if ($deleteOriginalFile) {
 				JFile::delete($source);
 			}
-			
+
 			return true;
 		}
 
@@ -278,7 +272,7 @@ class EasyDiscussStorageAmazon implements EasyDiscussStorageInterface
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function delete($path)
 	{

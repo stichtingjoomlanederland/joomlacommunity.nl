@@ -190,5 +190,6 @@ class Swift extends Base
 		Factory::getLog()->debug('Authenticating to OpenStack Swift');
 		$connector->getToken();
 
+		return $connector;
 	}
 }

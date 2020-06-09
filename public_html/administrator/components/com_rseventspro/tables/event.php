@@ -388,6 +388,8 @@ class RseventsproTableEvent extends JTable
 		if (!isset($array['rsvp_notgoing']))			$array['rsvp_notgoing'] = 0;
 		if (!isset($array['comments']))					$array['comments'] = 0;
 		if (!isset($array['notify_me']))				$array['notify_me'] = 0;
+		if (!isset($array['waitinglist_user']))			$array['waitinglist_user'] = 0;
+		if (!isset($array['waitinglist_admin']))		$array['waitinglist_admin'] = 0;
 		if (!isset($array['notify_me_unsubscribe']))	$array['notify_me_unsubscribe'] = 0;
 		if (!isset($array['overbooking']))				$array['overbooking'] = 0;
 		if (!isset($array['max_tickets']))				$array['max_tickets'] = 0;

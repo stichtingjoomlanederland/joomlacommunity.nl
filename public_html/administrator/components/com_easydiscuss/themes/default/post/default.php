@@ -101,20 +101,20 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 					<div class="ed-editor ed-editor--<?php echo $composer->getEditorClass();?> <?php echo $composer->hasTabs() ? '' : 'has-no-tab'; ?>" <?php echo $composer->uid;?>>
 						<div class="ed-editor-widget ed-editor-widget--no-pad">
-			        		<?php echo $composer->renderEditor(); ?>
+							<?php echo $composer->renderEditor(); ?>
 
-			        		<?php echo $composer->renderTabs(); ?>
-			        	</div>
+							<?php echo $composer->renderTabs(); ?>
+						</div>
 
-	        			<div class="control-group">
-	        				<?php if ($this->config->get('main_master_tags') && $this->acl->allowed('add_tag') && !$post->isReply()) { ?>
-	        					<?php echo $this->output('site/composer/forms/tags', array('post' => $post)); ?>
-	        	            <?php } ?>
+						<div class="control-group">
+							<?php if ($this->config->get('main_master_tags') && $this->acl->allowed('add_tag') && !$post->isReply()) { ?>
+								<?php echo $this->output('site/composer/forms/tags', array('post' => $post)); ?>
+							<?php } ?>
 
-	        	            <?php if ($this->config->get('main_location_discussion')) { ?>
-	        	            	<?php echo $this->output('site/composer/forms/location', array('post' => $post, 'editorId' => $composer->uid, 'operation' => $operation)); ?>
-	        	            <?php } ?>
-	        			</div>
+							<?php if ($this->config->get('main_location_discussion')) { ?>
+								<?php echo $this->output('site/composer/forms/location', array('post' => $post, 'editorId' => $composer->uid, 'operation' => $operation)); ?>
+							<?php } ?>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -133,37 +133,67 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 			<div id="publishoptions" class="panel-body">
 				<div class="form-horizontal">
 					<div class="form-group">
-						<div class="col-md-3 control-label">
+						<div class="col-md-4 control-label">
 							<label for="title"><?php echo JText::_( 'COM_EASYDISCUSS_CATEGORY' );?></label>
 						</div>
-						<div class="col-md-9">
+						<div class="col-md-8">
 							<?php echo $nestedCategories; ?>
 						</div>
 					</div>
 
 					<div class="form-group">
-						<div class="col-md-3 control-label">
+						<div class="col-md-4 control-label">
+							<label for="title"><?php echo JText::_( 'COM_EASYDISCUSS_SELECT_A_POST_TYPE' );?></label>
+						</div>
+						<div class="col-md-8">
+							<select id="post_type" class="form-control" name="post_type">
+								<option value=""><?php echo JText::_('COM_EASYDISCUSS_SELECT_POST_TYPES'); ?></option>
+								<?php foreach ($postTypes as $type) { ?>
+									<option <?php echo $type->alias == $post->post_type ? 'selected="selected"' : '' ?> value="<?php echo $type->alias; ?>"><?php echo JText::_($type->title); ?></option>
+								<?php } ?>
+							</select>
+						</div>
+					</div>
+
+					<?php if ($this->config->get('post_priority')) { ?>
+					<div class="form-group">
+						<div class="col-md-4 control-label">
+							<label for="title"><?php echo JText::_( 'COM_EASYDISCUSS_SELECT_PRIORITY' );?></label>
+						</div>
+						<div class="col-md-8">
+							<select name="priority" class="form-control" id="priority">
+								<option value=""><?php echo JText::_('COM_EASYDISCUSS_SELECT_A_PRIORITY');?></option>
+								<?php foreach ($priorities as $priority) { ?>
+								<option value="<?php echo $priority->id;?>"<?php echo ($post->priority == $priority->id) ? ' selected="selected"' : ''; ?>><?php echo JText::_($priority->title);?></option>
+								<?php } ?>
+							</select>
+						</div>
+					</div>
+					<?php } ?>
+
+					<div class="form-group">
+						<div class="col-md-4 control-label">
 							<label><?php echo JText::_( 'COM_EASYDISCUSS_POST_AUTHOR' ); ?></label>
 						</div>
-						<div class="col-md-9">
+						<div class="col-md-8">
 							<div class="input-group t-lg-mb--lg">
-						    	<input type="text" disabled="disabled" id="user_name" value="<?php echo $creatorName;?>" class="form-control" />
-						    	<span class="input-group-btn">
-						        	<a href="index.php?option=com_easydiscuss&view=users&tmpl=component&browse=1&browsefunction=selectUser" class="btn btn-primary modal" rel="{handler: 'iframe', size: {x: 700, y: 500}}">
-						        		<i class="fa fa-plus"></i> <?php echo JText::_( 'COM_EASYDISCUSS_BROWSE_USERS' ); ?>
-						        	</a>
-						    	</span>
-						  	</div>
+								<input type="text" disabled="disabled" id="user_name" value="<?php echo $creatorName;?>" class="form-control" />
+								<span class="input-group-btn">
+									<a href="index.php?option=com_easydiscuss&view=users&tmpl=component&browse=1&browsefunction=selectUser" class="btn btn-primary modal" rel="{handler: 'iframe', size: {x: 700, y: 500}}">
+										<i class="fa fa-plus"></i> <?php echo JText::_( 'COM_EASYDISCUSS_BROWSE_USERS' ); ?>
+									</a>
+								</span>
+							</div>
 
 							<input type="hidden" name="user_id" id="user_id" value="<?php echo $post->user_id;?>" />
 
 						</div>
 					</div>
 					<div class="form-group">
-						<div class="col-md-3 control-label">
+						<div class="col-md-4 control-label">
 							<label><?php echo JText::_( 'COM_EASYDISCUSS_PUBLISHED' ); ?></label>
 						</div>
-						<div class="col-md-9">
+						<div class="col-md-8">
 							<?php echo $this->html('form.boolean', 'published', $post->published); ?>
 						</div>
 					</div>

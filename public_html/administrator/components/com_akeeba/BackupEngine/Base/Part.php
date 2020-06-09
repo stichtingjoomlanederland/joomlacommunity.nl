@@ -573,7 +573,7 @@ abstract class Part
 		 * remote JSON API and CLI backups must always use server-side sleep since they do not support client-side
 		 * sleep.
 		 */
-		if (!in_array($this->getTag(), ['backend', 'restorepoint']))
+		if (!in_array($this->getTag(), ['backend']))
 		{
 			return true;
 		}

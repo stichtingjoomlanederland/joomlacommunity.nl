@@ -83,5 +83,6 @@ CREATE TABLE IF NOT EXISTS `#__rsform_forms` (
   `ConfirmSubmission` tinyint(1) NOT NULL DEFAULT '0',
   `ConfirmSubmissionUrl` text NOT NULL,
   `Access` varchar(5) NOT NULL,
+  `LimitSubmissions` int(11) NOT NULL default '0',
   PRIMARY KEY  (`FormId`)
 ) DEFAULT CHARSET=utf8;

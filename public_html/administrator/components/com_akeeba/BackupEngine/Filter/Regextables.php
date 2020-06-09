@@ -18,21 +18,17 @@ use Akeeba\Engine\Factory;
  */
 class Regextables extends Base
 {
-	function __construct()
+	public function __construct()
 	{
 		$this->object  = 'dbobject';
 		$this->subtype = 'all';
 		$this->method  = 'regex';
 
-		if (Factory::getKettenrad()->getTag() == 'restorepoint')
-		{
-			$this->enabled = false;
-		}
-
 		if (empty($this->filter_name))
 		{
 			$this->filter_name = strtolower(basename(__FILE__, '.php'));
 		}
+
 		parent::__construct();
 	}
 }

@@ -195,7 +195,6 @@ switch ($_REQUEST['SPEED']) {
         break;
 
     case 'CRAPPYWEBHOST':
-
         @ini_set('max_execution_time', 60);
 
         // used in bfConfig     default: Something stupid large like 90

@@ -14,15 +14,18 @@ use Akeeba\Backup\Admin\Helper\SecretWord;
 use Akeeba\Backup\Admin\Model\Mixin\Chmod;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
+use Akeeba\Engine\Util\Complexify;
 use Akeeba\Engine\Util\RandomValue;
 use FOF30\Database\Installer;
+use FOF30\Download\Download;
 use FOF30\Model\Model;
 use JFile;
 use JFolder;
 use JLoader;
-use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\CMS\Uri\Uri;
 use JUri;
 use RuntimeException;
+use stdClass;
 
 /**
  * ControlPanel model. Generic maintenance tasks used mainly from the ControlPanel page.
@@ -31,10 +34,36 @@ class ControlPanel extends Model
 {
 	use Chmod;
 
+	protected static $systemFolders = [
+		'administrator',
+		'administrator/cache/',
+		'administrator/components/',
+		'administrator/help/',
+		'administrator/includes/',
+		'administrator/language/',
+		'administrator/logs/',
+		'administrator/manifests/',
+		'administrator/modules/',
+		'administrator/templates/',
+		'cache/',
+		'cli/',
+		'components/',
+		'images/',
+		'includes/',
+		'language/',
+		'layouts/',
+		'libraries/',
+		'media/',
+		'modules/',
+		'plugins/',
+		'templates/',
+		'tmp/',
+	];
+
 	/**
 	 * Gets a list of profiles which will be displayed as quick icons in the interface
 	 *
-	 * @return  \stdClass[]  Array of objects; each has the properties `id` and `description`
+	 * @return  stdClass[]  Array of objects; each has the properties `id` and `description`
 	 */
 	public function getQuickIconProfiles()
 	{
@@ -301,7 +330,6 @@ class ControlPanel extends Model
 	 *
 	 * @return  $this
 	 * @throws  RuntimeException    If the previous database update is stuck
-	 *
 	 */
 	public function checkAndFixDatabase()
 	{
@@ -395,7 +423,7 @@ class ControlPanel extends Model
 
 		try
 		{
-			\Akeeba\Engine\Util\Complexify::isStrongEnough($secretWord);
+			Complexify::isStrongEnough($secretWord);
 		}
 		catch (RuntimeException $e)
 		{
@@ -404,7 +432,7 @@ class ControlPanel extends Model
 
 			if (empty($newSecret))
 			{
-				$random    = new \Akeeba\Engine\Util\RandomValue();
+				$random    = new RandomValue();
 				$newSecret = $random->generateString(32);
 				$this->container->platform->setSessionVar('newSecretWord', $newSecret, 'akeeba.cpanel');
 			}
@@ -424,6 +452,407 @@ class ControlPanel extends Model
 	{
 		return function_exists('mb_strlen') && function_exists('mb_convert_encoding') &&
 			function_exists('mb_substr') && function_exists('mb_convert_case');
+	}
+
+	/**
+	 * Is the output directory under the configured site root?
+	 *
+	 * @param   string|null  $outDir  The output directory to check. NULL for the currently configured one.
+	 *
+	 * @return  bool  True if the output directory is under the site's web root.
+	 *
+	 * @since   7.0.3
+	 */
+	public function isOutputDirectoryUnderSiteRoot($outDir = null)
+	{
+		// Make sure I have an output directory to check
+		$outDir = is_null($outDir) ? $this->getOutputDirectory() : $outDir;
+		$outDir = @realpath($outDir);
+
+		// If I can't reliably determine the output directory I can't figure out where it's placed in.
+		if ($outDir === false)
+		{
+			return false;
+		}
+
+		// Get the site's root
+		$siteRoot = $this->getSiteRoot();
+		$siteRoot = @realpath($siteRoot);
+
+		// If I can't reliably determine the site's root I can't figure out its relation to the output directory
+		if ($siteRoot === false)
+		{
+			return false;
+		}
+
+		return strpos($outDir, $siteRoot) === 0;
+	}
+
+	/**
+	 * Did the user set up an output directory inside a folder intended for CMS files?
+	 *
+	 * The idea is that this will cause trouble for two reasons. First, you are mixing user-generated with system
+	 * content which might be a REALLY BAD idea in and of itself. Second, some if not all of these folders are meant to
+	 * be web-accessible. I cannot possibly protect them against web access without breaking anything.
+	 *
+	 * @param   string|null  $outDir  The output directory to check. NULL for the currently configured one.
+	 *
+	 * @return  bool  True if the output directory is inside a CMS system folder
+	 *
+	 * @since   7.0.3
+	 */
+	public function isOutputDirectoryInSystemFolder($outDir = null)
+	{
+		// Make sure I have an output directory to check
+		$outDir = is_null($outDir) ? $this->getOutputDirectory() : $outDir;
+		$outDir = @realpath($outDir);
+
+		// If I can't reliably determine the output directory I can't figure out where it's placed in.
+		if ($outDir === false)
+		{
+			return false;
+		}
+
+		// If the directory is not under the site's root it doesn't belong to the CMS. Simple, huh?
+		if (!$this->isOutputDirectoryUnderSiteRoot($outDir))
+		{
+			return false;
+		}
+
+		// Check if we are using the default output directory. This is always allowed.
+		$stockDirs     = Platform::getInstance()->get_stock_directories();
+		$defaultOutDir = realpath($stockDirs['[DEFAULT_OUTPUT]']);
+
+		// If I can't reliably determine the default output folder I can't figure out its relation to the output folder
+		if ($defaultOutDir === false)
+		{
+			return false;
+		}
+
+		// Get the site's root
+		$siteRoot = $this->getSiteRoot();
+		$siteRoot = @realpath($siteRoot);
+
+		// If I can't reliably determine the site's root I can't figure out its relation to the output directory
+		if ($siteRoot === false)
+		{
+			return false;
+		}
+
+		foreach ($this->getSystemFolders() as $folder)
+		{
+			// Is this a partial or an absolute search?
+			$partialSearch = substr($folder, -1) == '/';
+
+			clearstatcache(true);
+
+			$absolutePath = realpath($siteRoot . '/' . $folder);
+
+			if ($absolutePath === false)
+			{
+				continue;
+			}
+
+			if (!$partialSearch)
+			{
+				if (trim($outDir, '/\\') == trim($absolutePath, '/\\'))
+				{
+					return true;
+				}
+
+				continue;
+			}
+
+			// Partial search
+			if (strpos($outDir, $absolutePath . DIRECTORY_SEPARATOR) === 0)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Does the output directory contain the security-enhancing files?
+	 *
+	 * This only checks for the presence of .htaccess, web.config, index.php, index.html and index.html but not their
+	 * contents. The idea is that an advanced user may want to customise them for some reason or another.
+	 *
+	 * @param   string|null  $outDir  The output directory to check. NULL for the currently configured one.
+	 *
+	 * @return  bool  True if all of the security-enhancing files are present.
+	 *
+	 * @since   7.0.3
+	 */
+	public function hasOutputDirectorySecurityFiles($outDir = null)
+	{
+		// Make sure I have an output directory to check
+		$outDir = is_null($outDir) ? $this->getOutputDirectory() : $outDir;
+		$outDir = @realpath($outDir);
+
+		// If I can't reliably determine the output directory I can't figure out where it's placed in.
+		if ($outDir === false)
+		{
+			return true;
+		}
+
+		$files = [
+			'.htaccess',
+			'web.config',
+			'index.php',
+			'index.html',
+			'index.htm',
+		];
+
+		foreach ($files as $file)
+		{
+			$filePath = $outDir . '/' . $file;
+
+			if (!@file_exists($filePath) || !is_file($filePath))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Checks whether the given output directory is directly accessible over the web.
+	 *
+	 * @param   string|null  $outDir  The output directory to check. NULL for the currently configured one.
+	 *
+	 * @return  array
+	 *
+	 * @since   7.0.3
+	 */
+	public function getOutputDirectoryWebAccessibleState($outDir = null)
+	{
+		$ret = [
+			'readFile'   => false,
+			'listFolder' => false,
+			'isSystem'   => $this->isOutputDirectoryInSystemFolder(),
+			'hasRandom'  => $this->backupFilenameHasRandom(),
+		];
+
+		// Make sure I have an output directory to check
+		$outDir = is_null($outDir) ? $this->getOutputDirectory() : $outDir;
+		$outDir = @realpath($outDir);
+
+		// If I can't reliably determine the output directory I can't figure out its web path
+		if ($outDir === false)
+		{
+			return $ret;
+		}
+
+		$checkFile     = $this->getAccessCheckFile($outDir);
+		$checkFilePath = $outDir . '/' . $checkFile;
+
+		if (is_null($checkFile))
+		{
+			return $ret;
+		}
+
+		$webPath = $this->getOutputDirectoryWebPath($outDir);
+
+		if (is_null($webPath))
+		{
+			@unlink($checkFilePath);
+
+			return $ret;
+		}
+
+		// Construct a URL for the check file
+		$baseURL = rtrim(Uri::base(), '/');
+
+		if (substr($baseURL, -14) == '/administrator')
+		{
+			$baseURL = substr($baseURL, 0, -14);
+		}
+
+		$baseURL  = rtrim($baseURL, '/');
+		$checkURL = $baseURL . '/' . $webPath . '/' . $checkFile;
+
+		// Try to download the file's contents
+		$downloader = new Download($this->container);
+
+		$options = [
+			CURLOPT_SSL_VERIFYPEER => 0,
+			CURLOPT_SSL_VERIFYHOST => 0,
+			CURLOPT_FOLLOWLOCATION => 1,
+			CURLOPT_TIMEOUT        => 10,
+		];
+
+		if ($downloader->getAdapterName() == 'fopen')
+		{
+			$options = [
+				'http' => [
+					'follow_location' => true,
+					'timeout'         => 10,
+				],
+				'ssl'  => [
+					'verify_peer' => false,
+				],
+			];
+		}
+
+		$downloader->setAdapterOptions($options);
+
+		$result = $downloader->getFromURL($checkURL);
+
+		if ($result === 'AKEEBA BACKUP WEB ACCESS CHECK')
+		{
+			$ret['readFile'] = true;
+		}
+
+		// Can I list the directory contents?
+		$folderURL     = $baseURL . '/' . $webPath . '/';
+		$folderListing = $downloader->getFromURL($folderURL);
+
+		@unlink($checkFilePath);
+
+		if (($folderListing !== false) && (strpos($folderListing, basename($checkFile, '.txt')) !== false))
+		{
+			$ret['listFolder'] = true;
+		}
+
+		return $ret;
+	}
+
+	/**
+	 * Get the web path, relative to the site's root, for the output directory.
+	 *
+	 * Returns the relative path or NULL if determining it was not possible.
+	 *
+	 * @param   string|null  $outDir  The output directory to check. NULL for the currently configured one.
+	 *
+	 * @return  string|null  The relative web path to the output directory
+	 *
+	 * @since   7.0.3
+	 */
+	public function getOutputDirectoryWebPath($outDir = null)
+	{
+		// Make sure I have an output directory to check
+		$outDir = is_null($outDir) ? $this->getOutputDirectory() : $outDir;
+		$outDir = @realpath($outDir);
+
+		// If I can't reliably determine the output directory I can't figure out its web path
+		if ($outDir === false)
+		{
+			return null;
+		}
+
+		// Get the site's root
+		$siteRoot = $this->getSiteRoot();
+		$siteRoot = @realpath($siteRoot);
+
+		// If I can't reliably determine the site's root I can't figure out its relation to the output directory
+		if ($siteRoot === false)
+		{
+			return null;
+		}
+
+		// The output directory is NOT under the site's root.
+		if (strpos($outDir, $siteRoot) !== 0)
+		{
+			return null;
+		}
+
+		$relPath = trim(substr($outDir, strlen($siteRoot)), '/\\');
+		$isWin   = DIRECTORY_SEPARATOR == '\\';
+
+		if ($isWin)
+		{
+			$relPath = str_replace('\\', '/', $relPath);
+		}
+
+		return $relPath;
+	}
+
+	/**
+	 * Get the semi-random name of a .txt file used to check the output folder's direct web access.
+	 *
+	 * If the file does not exist we will create it.
+	 *
+	 * Returns the file name or NULL if creating it was not possible.
+	 *
+	 * @param   string|null  $outDir  The output directory to check. NULL for the currently configured one.
+	 *
+	 * @return  string|null  The base name of the check file
+	 *
+	 * @since   7.0.3
+	 */
+	public function getAccessCheckFile($outDir = null)
+	{
+		// Make sure I have an output directory to check
+		$outDir = is_null($outDir) ? $this->getOutputDirectory() : $outDir;
+		$outDir = @realpath($outDir);
+
+		// If I can't reliably determine the output directory I can't put a file in it
+		if ($outDir === false)
+		{
+			return null;
+		}
+
+		$secureSettings = Factory::getSecureSettings();
+		$something      = md5($outDir . $secureSettings->getKey());
+		$fileName       = 'akaccesscheck_' . $something . '.txt';
+		$filePath       = $outDir . '/' . $fileName;
+
+		$result = @file_put_contents($filePath, 'AKEEBA BACKUP WEB ACCESS CHECK');
+
+		return ($result === false) ? null : $fileName;
+	}
+
+	/**
+	 * Does the backup filename contain the [RANDOM] variable?
+	 *
+	 * @return  bool
+	 *
+	 * @since   7.0.3
+	 */
+	public function backupFilenameHasRandom()
+	{
+		$registry     = Factory::getConfiguration();
+		$templateName = $registry->get('akeeba.basic.archive_name');
+
+		return strpos($templateName, '[RANDOM]') !== false;
+	}
+
+	/**
+	 * Return the configured output directory for the currently loaded backup profile
+	 *
+	 * @return  string
+	 * @since   7.0.3
+	 */
+	public function getOutputDirectory()
+	{
+		$registry = Factory::getConfiguration();
+
+		return $registry->get('akeeba.basic.output_directory', '[DEFAULT_OUTPUT]', true);
+	}
+
+	/**
+	 * Return the currently configured site root directory
+	 *
+	 * @return  string
+	 * @since   7.0.3
+	 */
+	protected function getSiteRoot()
+	{
+		return Platform::getInstance()->get_site_root();
+	}
+
+	/**
+	 * Return the list of system folders, relative to the site's root
+	 *
+	 * @return  array
+	 * @since   7.0.3
+	 */
+	protected function getSystemFolders()
+	{
+		return self::$systemFolders;
 	}
 
 	/**
@@ -485,7 +914,7 @@ class ControlPanel extends Model
 		}
 
 		// Loop all profiles and encrypt their settings
-		/** @var \Akeeba\Backup\Admin\Model\Profiles $profilesModel */
+		/** @var Profiles $profilesModel */
 		$profilesModel = $this->container->factory->model('Profiles')->tmpInstance();
 		$profiles      = $profilesModel->get(true);
 		$db            = $this->container->db;

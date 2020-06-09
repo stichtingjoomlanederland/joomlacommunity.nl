@@ -141,6 +141,11 @@ class RSFormProFieldRadioGroup extends RSFormProFieldMultiple
 		} else {
 			$output .= $this->start.implode($this->glue, $parsed).$this->end;
 		}
+
+		if ($this->isRequired())
+		{
+			$output = '<div aria-required="true">' . $output . '</div>';
+		}
 		
 		return $output;
 	}
@@ -200,13 +205,20 @@ class RSFormProFieldRadioGroup extends RSFormProFieldMultiple
 		}
 	}
 	
-	// @desc All select lists should have a 'rsform-radio' class for easy styling
-	public function getAttributes() {
+	// @desc All radio inputs should have a 'rsform-radio' class for easy styling
+	public function getAttributes()
+	{
 		$attr = parent::getAttributes();
-		if (strlen($attr['class'])) {
+		if (strlen($attr['class']))
+		{
 			$attr['class'] .= ' ';
 		}
 		$attr['class'] .= 'rsform-radio';
+
+		if ($this->isRequired())
+		{
+			unset($attr['aria-required']);
+		}
 		
 		return $attr;
 	}

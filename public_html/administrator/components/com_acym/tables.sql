@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `#__acym_mail` (
 	`thumbnail` LONGTEXT NULL,
 	`drag_editor` TINYINT(1) NULL,
 	`library` TINYINT(1) NULL,
-	`type` VARCHAR(200) NOT NULL,
+	`type` VARCHAR(30) NOT NULL,
 	`body` LONGTEXT NOT NULL,
 	`subject` VARCHAR(255) NULL,
 	`template` TINYINT(1) NOT NULL,
@@ -57,10 +57,11 @@ CREATE TABLE IF NOT EXISTS `#__acym_mail` (
 	`stylesheet` TEXT NULL,
 	`attachments` TEXT NULL,
 	`creator_id` INT NOT NULL,
-	`media_folder` VARCHAR(255) NULL,
+	`media_folder` VARCHAR(100) NULL,
 	`headers` TEXT NULL,
 	`autosave` LONGTEXT NULL,
 	`preheader` VARCHAR(255) NULL,
+	`links_language` varchar(10) NOT NULL DEFAULT '',
 	PRIMARY KEY (`id`)
 )
 	ENGINE = InnoDB
@@ -380,10 +381,8 @@ CREATE TABLE IF NOT EXISTS `#__acym_field` (
 	`core` TINYINT(3) NULL,
 	`backend_edition` TINYINT(3) NULL,
 	`backend_listing` TINYINT(3) NULL,
-	`backend_filter` TINYINT(3) NULL,
 	`frontend_edition` TINYINT(3) NULL,
 	`frontend_listing` TINYINT(3) NULL,
-	`frontend_filter` TINYINT(3) NULL,
 	`access` VARCHAR(255) NULL,
 	`namekey` VARCHAR(255) NOT NULL,
 	PRIMARY KEY (`id`)

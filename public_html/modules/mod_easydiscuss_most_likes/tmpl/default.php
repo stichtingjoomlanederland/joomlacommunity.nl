@@ -1,15 +1,15 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div id="ed" class="ed-mod m-most-likes">
 	<div class="ed-list--vertical has-dividers--bottom-space">
@@ -123,7 +123,7 @@ defined('_JEXEC') or die('Restricted access');
 					<ul class="o-nav">
 					<?php foreach ($post->getTags() as $tag) { ?>
 						<li class="t-lg-mr--md">
-							<span class="o-label o-label--default-o">#<?php echo $tag->title; ?></span>
+							<span class="o-label o-label--default-o">#<?php echo ED::string()->escape($tag->title); ?></span>
 						</li>
 					<?php } ?>
 					</ul>
@@ -139,7 +139,7 @@ defined('_JEXEC') or die('Restricted access');
 								</a>
 							<?php } ?>
 						<?php } else { ?>
-							<?php echo $post->getLastReplier()->poster_name; ?>
+							<?php echo $post->getLastReplier()->getName(); ?>
 						<?php } ?>
 						<a class="ml-5" href="<?php echo EDR::getPostRoute($post->id) . '#' . JText::_('MOD_EASYDISCUSS_REPLY_PERMALINK') . '-' . $lastReply->id;?>" title="<?php echo JText::_('MOD_EASYDISCUSS_VIEW_LAST_REPLY'); ?>"><?php echo JText::_('MOD_EASYDISCUSS_VIEW_LAST_REPLY');?></a>
 					</div>

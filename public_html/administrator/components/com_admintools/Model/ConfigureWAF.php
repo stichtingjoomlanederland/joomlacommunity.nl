@@ -56,7 +56,7 @@ class ConfigureWAF extends Model
 		'spammermessage'                  => 'You are a spammer, hacker or an otherwise bad person.',
 		'uploadshield'                    => 1,
 		'nofesalogin'                     => 0,
-		'tmplwhitelist'                   => 'component,system,raw,koowa',
+		'tmplwhitelist'                   => 'component,system,raw,koowa,cartupdate',
 		'neverblockips'                   => '',
 		'emailafteripautoban'             => '',
 		'custom403msg'                    => '',

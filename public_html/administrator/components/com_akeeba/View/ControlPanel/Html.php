@@ -18,25 +18,17 @@ use Akeeba\Backup\Admin\View\ViewTraits\ProfileList;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
 use FOF30\View\DataView\Html as BaseView;
-use JHtml;
 
 class Html extends BaseView
 {
 	use ProfileList, ProfileIdAndName;
 
 	/**
-	 * Active backup profile ID
-	 *
-	 * @var   int
-	 */
-	public $profileId = 1;
-
-	/**
 	 * List of profiles to display as Quick Icons in the control panel page
 	 *
 	 * @var   array  Array of stdClass objects
 	 */
-	public $quickIconProfiles = array();
+	public $quickIconProfiles = [];
 
 	/**
 	 * The HTML for the backup status cell
@@ -158,10 +150,31 @@ class Html extends BaseView
 	 *
 	 * @since 5.3.0
 	 */
-	public $permissions = array();
+	public $permissions = [];
 
-	/** @var int Timestamp when the Core user last dismissed the upsell to Pro */
+	/**
+	 * Timestamp when the Core user last dismissed the upsell to Pro
+	 *
+	 * @var   int
+	 * @since 7.0.0
+	 */
 	public $lastUpsellDismiss = 0;
+
+	/**
+	 * Is the output directory under the site's root?
+	 *
+	 * @var   bool
+	 * @since 7.0.3
+	 */
+	public $isOutputDirectoryUnderSiteRoot = false;
+
+	/**
+	 * Does the output directory have the expected security files?
+	 *
+	 * @var   bool
+	 * @since 7.0.3
+	 */
+	public $hasOutputDirectorySecurityFiles = false;
 
 	/**
 	 * Executes before displaying the control panel page
@@ -177,7 +190,7 @@ class Html extends BaseView
 		try
 		{
 			/** @var UsageStatistics $usageStatsModel */
-			$usageStatsModel   = $this->container->factory->model('UsageStatistics')->tmpInstance();
+			$usageStatsModel = $this->container->factory->model('UsageStatistics')->tmpInstance();
 
 			if (
 				is_object($usageStatsModel)
@@ -197,28 +210,30 @@ class Html extends BaseView
 		$this->getProfileList();
 		$this->getProfileIdAndName();
 
-		$this->quickIconProfiles            = $model->getQuickIconProfiles();
-		$this->statusCell                   = $statusHelper->getStatusCell();
-		$this->detailsCell                  = $statusHelper->getQuirksCell();
-		$this->latestBackupCell             = $statusHelper->getLatestBackupDetails();
-		$this->areMediaPermissionsFixed     = $model->fixMediaPermissions();
-		$this->checkMbstring                = $model->checkMbstring();
-		$this->needsDownloadID              = $model->needsDownloadID() ? 1 : 0;
-		$this->coreWarningForDownloadID     = $model->mustWarnAboutDownloadIDInCore();
-		$this->extension_id                 = $model->getState('extension_id', 0, 'int');
-		$this->frontEndSecretWordIssue      = $model->getFrontendSecretWordError();
-		$this->newSecretWord                = $this->container->platform->getSessionVar('newSecretWord', null, 'akeeba.cpanel');
-		$this->desktopNotifications         = $this->container->params->get('desktop_notifications', '0') ? 1 : 0;
-		$this->formattedChangelog           = $this->formatChangelog();
-		$this->promptForConfigurationWizard = Factory::getConfiguration()->get('akeeba.flag.confwiz', 0) == 0;
-		$this->countWarnings                = count(Factory::getConfigurationChecks()->getDetailedStatus());
-		$this->stuckUpdates                 = ($this->container->params->get('updatedb', 0) == 1);
-		$user                               = $this->container->platform->getUser();
-		$this->permissions                  = array(
+		$this->quickIconProfiles               = $model->getQuickIconProfiles();
+		$this->statusCell                      = $statusHelper->getStatusCell();
+		$this->detailsCell                     = $statusHelper->getQuirksCell();
+		$this->latestBackupCell                = $statusHelper->getLatestBackupDetails();
+		$this->areMediaPermissionsFixed        = $model->fixMediaPermissions();
+		$this->checkMbstring                   = $model->checkMbstring();
+		$this->needsDownloadID                 = $model->needsDownloadID() ? 1 : 0;
+		$this->coreWarningForDownloadID        = $model->mustWarnAboutDownloadIDInCore();
+		$this->extension_id                    = $model->getState('extension_id', 0, 'int');
+		$this->frontEndSecretWordIssue         = $model->getFrontendSecretWordError();
+		$this->newSecretWord                   = $this->container->platform->getSessionVar('newSecretWord', null, 'akeeba.cpanel');
+		$this->desktopNotifications            = $this->container->params->get('desktop_notifications', '0') ? 1 : 0;
+		$this->formattedChangelog              = $this->formatChangelog();
+		$this->promptForConfigurationWizard    = Factory::getConfiguration()->get('akeeba.flag.confwiz', 0) == 0;
+		$this->countWarnings                   = count(Factory::getConfigurationChecks()->getDetailedStatus());
+		$this->stuckUpdates                    = ($this->container->params->get('updatedb', 0) == 1);
+		$user                                  = $this->container->platform->getUser();
+		$this->permissions                     = [
 			'configure' => $user->authorise('akeeba.configure', 'com_akeeba'),
-			'backup'    => $user->authorise('akeeba.backup',    'com_akeeba'),
-			'download'  => $user->authorise('akeeba.download',  'com_akeeba'),
-		);
+			'backup'    => $user->authorise('akeeba.backup', 'com_akeeba'),
+			'download'  => $user->authorise('akeeba.download', 'com_akeeba'),
+		];
+		$this->isOutputDirectoryUnderSiteRoot  = $model->isOutputDirectoryUnderSiteRoot();
+		$this->hasOutputDirectorySecurityFiles = $model->hasOutputDirectorySecurityFiles();
 
 		$this->lastUpsellDismiss = $this->container->params->get('lastUpsellDismiss', 0);
 
@@ -226,23 +241,20 @@ class Html extends BaseView
 		Platform::getInstance()->load_version_defines();
 
 		// Add the Javascript to the document
-		$this->addJavascriptFile('media://com_akeeba/js/ControlPanel.min.js');
-		$this->inlineJavascript();
+		$this->container->template->addJS('media://com_akeeba/js/ControlPanel.min.js');
+		$this->addJSScriptOptions();
 	}
 
 	/**
 	 * Adds inline Javascript to the document
 	 */
-	protected function inlineJavascript()
+	protected function addJSScriptOptions()
 	{
-		$script = <<<JS
-
-;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
-// due to missing trailing semicolon and/or newline in their code.
-akeeba.System.notification.hasDesktopNotification = {$this->desktopNotifications}; 
-akeeba.ControlPanel.needsDownloadID = {$this->needsDownloadID};
-JS;
-		$this->addJavascriptInline($script);
+		$platform = $this->container->platform;
+		$platform->addScriptOptions('akeeba.System.notification.hasDesktopNotification', (bool)$this->desktopNotifications);
+		$platform->addScriptOptions('akeeba.ControlPanel.needsDownloadID', (bool) $this->needsDownloadID);
+		$platform->addScriptOptions('akeeba.ControlPanel.outputDirUnderSiteRoot', (bool) $this->isOutputDirectoryUnderSiteRoot);
+		$platform->addScriptOptions('akeeba.ControlPanel.hasSecurityFiles', (bool) $this->hasOutputDirectorySecurityFiles);
 	}
 
 	protected function formatChangelog($onlyLast = false)

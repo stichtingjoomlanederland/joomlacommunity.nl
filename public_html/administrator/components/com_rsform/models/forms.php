@@ -120,9 +120,16 @@ class RsformModelForms extends JModelList
 			$query->join('left', $this->_db->qn('#__rsform_translations', 't') . ' ON (' . implode(' AND ', $on) . ')');
 		}
 
-		if (!empty($filter_search))
+		if (strlen($filter_search))
 		{
-			$query->having('(' . $this->_db->qn('FormTitle') . ' LIKE ' . $this->_db->q('%' . $filter_search . '%') . ' OR ' . $this->_db->qn('FormName') . ' LIKE ' . $this->_db->q('%' . $filter_search . '%') . ')');
+			if (stripos($filter_search, 'id:') === 0)
+			{
+				$query->where($this->_db->qn('f.FormId') . ' = ' . (int) substr($filter_search, 3));
+			}
+			else
+			{
+				$query->having('(' . $this->_db->qn('FormTitle') . ' LIKE ' . $this->_db->q('%' . $filter_search . '%') . ' OR ' . $this->_db->qn('FormName') . ' LIKE ' . $this->_db->q('%' . $filter_search . '%') . ')');
+			}
 		}
 
 		$query->order($this->_db->qn($this->getSortColumn()) . ' ' . $this->_db->escape($this->getSortOrder()));
@@ -203,6 +210,7 @@ class RsformModelForms extends JModelList
 		// Search filter
 		$options['search'] = array(
 			'label' => JText::_('JSEARCH_FILTER'),
+			'tooltip' => JText::_('COM_RSFORM_SEARCH_FILTER_PLACEHOLDER'),
 			'value' => $this->getState('filter_search')
 		);
 		$options['reset_button'] = true;
@@ -658,6 +666,17 @@ class RsformModelForms extends JModelList
 					);
 				}
 			}
+			$form_post['headers'] 	= array();
+			if (isset($form_post['headers_name'], $form_post['headers_value']) && is_array($form_post['headers_name']) && is_array($form_post['headers_value']))
+			{
+				for ($i = 0; $i < count($form_post['headers_name']); $i++)
+				{
+					$form_post['headers'][] = array(
+						'name'  => $form_post['headers_name'][$i],
+						'value' => $form_post['headers_value'][$i],
+					);
+				}
+			}
 
 			$row->bind($form_post);
 			$row->store();
@@ -701,7 +720,7 @@ class RsformModelForms extends JModelList
             return true;
         }
 
-		$fields 	  = array('FormTitle', 'UserEmailFromName', 'UserEmailSubject', 'AdminEmailFromName', 'AdminEmailSubject', 'DeletionEmailFromName', 'DeletionEmailSubject', 'DeletionEmailReplyToName', 'MetaDesc', 'MetaKeywords', 'UserEmailReplyToName', 'AdminEmailReplyToName');
+		$fields 	  = array('FormTitle', 'UserEmailFromName', 'UserEmailSubject', 'AdminEmailFromName', 'AdminEmailSubject', 'DeletionEmailFromName', 'DeletionEmailSubject', 'DeletionEmailReplyToName', 'MetaDesc', 'MetaKeywords', 'UserEmailReplyToName', 'AdminEmailReplyToName', 'ReturnUrl');
 		$translations = RSFormProHelper::getTranslations('forms', $form->FormId, $lang, 'id');
 		foreach ($fields as $field)
 		{
@@ -1022,13 +1041,22 @@ class RsformModelForms extends JModelList
 		return RSFormProToolbarHelper::render();
 	}
 
-	public function getTotalFields() {
+	public function getTotalFields()
+	{
 		$options = array();
 
-		if ($fields = $this->getFields()) {
-			foreach ($fields as $field) {
-				if (in_array($field->type_id, array(1,11)))
-					$options[] = JHtml::_('select.option',$field->name,$field->name);
+		$types = array(RSFORM_FIELD_TEXTBOX, RSFORM_FIELD_HIDDEN);
+
+		JFactory::getApplication()->triggerEvent('rsfp_onDefineTotalFields', array(&$types));
+
+		if ($fields = $this->getFields())
+		{
+			foreach ($fields as $field)
+			{
+				if (in_array($field->type_id, $types))
+				{
+					$options[] = JHtml::_('select.option', $field->name, $field->name);
+				}
 			}
 		}
 

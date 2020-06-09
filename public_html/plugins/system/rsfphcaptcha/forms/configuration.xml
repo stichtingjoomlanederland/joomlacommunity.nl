@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset name="params">
+		<field name="hcaptcha.sitekey" type="text" label="PLG_SYSTEM_RSFPHCAPTCHA_SITE_KEY" size="100" />
+		<field name="hcaptcha.secret" type="text" label="PLG_SYSTEM_RSFPHCAPTCHA_SECRET" size="100" />
+		<field name="hcaptcha.language" type="list" label="PLG_SYSTEM_RSFPHCAPTCHA_LANGUAGE">
+			<option value="auto">PLG_SYSTEM_HCAPTCHA_AUTO</option>
+			<option value="site">PLG_SYSTEM_HCAPTCHA_SITE</option>
+		</field>
+	</fieldset>
+</form>

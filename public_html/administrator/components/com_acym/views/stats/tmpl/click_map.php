@@ -2,7 +2,7 @@
 defined('_JEXEC') or die('Restricted access');
 ?><div id="acym__stats__click-map" class="acym__content">
 	<input type="hidden" id="acym__stats_click__map__all-links__click" value="<?php echo empty($data['url_click']) ? '' : acym_escape($data['url_click']); ?>">
-	<div style="display: none" class="acym__hidden__mail__content"><?php echo acym_absoluteURL($data['mailInformation']->body); ?></div>
+	<input type="hidden" class="acym__hidden__mail__content" value="<?php echo acym_escape(acym_absoluteURL($data['mailInformation']->body)); ?>">
 	<div style="display: none" class="acym__hidden__mail__stylesheet"><?php echo $data['mailInformation']->stylesheet; ?></div>
 	<div class="cell grid-x">
 		<div class="cell grid-x align-right">

@@ -12,50 +12,58 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="cell grid-x grid-margin-x" id="campaigns_tests_step">
 				<div id="spam_test_zone" class="cell large-5">
 					<h6 class="acym_zone_title"><?php echo acym_translation('ACYM_SAFE_CHECK'); ?></h6>
-                    <?php if (!empty($data['upgrade'])) {
-                        include acym_getView('dashboard', 'upgrade', true);
-                    } else { ?>
-						<p><?php echo acym_translation('ACYM_SAFE_CHECK_DESC'); ?></p>
-						<div class="grid-x">
-							<div class="cell">
+					<p class="margin-bottom-1"><?php echo acym_translation('ACYM_SAFE_CHECK_DESC'); ?></p>
+					<div class="grid-x align-center">
+						<div class="cell">
+                            <?php
+                            if (empty($data['upgrade'])) { ?>
 								<button id="launch_spamtest" class="button hollow" type="button"><?php echo acym_translation('ACYM_RUN_SPAM_TEST'); ?></button>
+                            <?php }
+                            ?>
+						</div>
+                        <?php
+                        $icon = empty($data['upgrade']) ? '<i></i>' : acym_tooltip('<i class="acymicon-question-circle-o"></i>', acym_translation('ACYM_ONLY_PRO_VERSION'));
+                        ?>
+						<div class="cell grid-x <?php echo !empty($data['upgrade']) ? 'acym__campaigns__tests__starter' : 'is-hidden'; ?>" id="safe_check_results">
+							<div class="cell grid-x acym_vcenter" id="check_words">
+								<div class="cell small-10"><?php echo acym_translation('ACYM_TESTS_SAFE_CONTENT'); ?></div>
+								<div class="cell small-2 text-center acym_icon_container"><?php echo $icon; ?></div>
 							</div>
+							<div class="cell acym_check_results"></div>
 
-							<div class="cell grid-x is-hidden" id="safe_check_results">
-								<div class="cell grid-x acym_vcenter" id="check_words">
-									<div class="cell small-10"><?php echo acym_translation('ACYM_TESTS_SAFE_CONTENT'); ?></div>
-									<div class="cell small-2 text-center acym_icon_container"><i></i></div>
-								</div>
-								<div class="cell acym_check_results"></div>
+							<div class="cell grid-x acym_vcenter" id="check_links">
+								<div class="cell small-10"><?php echo acym_translation('ACYM_TESTS_LINKS'); ?></div>
+								<div class="cell small-2 text-center acym_icon_container"><?php echo $icon; ?></div>
+							</div>
+							<div class="cell acym_check_results"></div>
 
-								<div class="cell grid-x acym_vcenter" id="check_links">
-									<div class="cell small-10"><?php echo acym_translation('ACYM_TESTS_LINKS'); ?></div>
-									<div class="cell small-2 text-center acym_icon_container"><i></i></div>
-								</div>
-								<div class="cell acym_check_results"></div>
-
-                                <?php
-                                $spamtestRow = '<div class="cell grid-x acym_vcenter" id="check_spam" data-iframe="spamtestpopup">
+                            <?php
+                            $spamtestRow = '<div class="cell grid-x acym_vcenter" id="check_spam" data-iframe="spamtestpopup">
 													<div class="cell small-10">'.acym_translation('ACYM_TESTS_SPAM').'</div>
-													<div class="cell small-2 text-center acym_icon_container"><i></i></div>
+													<div class="cell small-2 text-center acym_icon_container">'.$icon.'</div>
 												</div>';
 
-                                echo acym_modal(
-                                    $spamtestRow,
-                                    '',
-                                    'spamtestpopup',
-                                    'data-reveal-larger',
-                                    '',
-                                    false
-                                );
-                                ?>
-								<div class="cell acym_check_results"></div>
-								<div class="cell text-center is-hidden" id="acym_spam_test_details">
-									<button type="button" class="button button-secondary"><?php echo acym_translation('ACYM_DETAILS'); ?></button>
-								</div>
+                            echo acym_modal(
+                                $spamtestRow,
+                                '',
+                                'spamtestpopup',
+                                'data-reveal-larger',
+                                '',
+                                false
+                            );
+                            ?>
+							<div class="cell acym_check_results"></div>
+							<div class="cell text-center is-hidden" id="acym_spam_test_details">
+								<button type="button" class="button button-secondary"><?php echo acym_translation('ACYM_DETAILS'); ?></button>
 							</div>
 						</div>
-                    <?php } ?>
+                        <?php if (!empty($data['upgrade'])) {
+                            echo '<div class="cell grid-x grid-margin-x margin-top-2 align-center">';
+                            echo '<a href="https://docs.acymailing.com/main-pages/campaigns/tests" target="_blank" class="button button-secondary cell shrink">'.acym_translation('ACYM_SEE_MORE').'</a>';
+                            echo acym_buttonGetProVersion();
+                            echo '</div>';
+                        } ?>
+					</div>
 				</div>
 				<div class="cell large-1 margin-top-2 acym_zone_separator"></div>
 				<div id="send_test_zone" class="cell large-6">

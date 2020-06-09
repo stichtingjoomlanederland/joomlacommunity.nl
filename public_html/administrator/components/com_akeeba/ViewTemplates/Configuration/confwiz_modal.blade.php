@@ -19,25 +19,23 @@ if (defined('AKEEBA_VIEW_JAVASCRIPT_CONFWIZ_MODAL'))
 define('AKEEBA_VIEW_JAVASCRIPT_CONFWIZ_MODAL', 1);
 
 $js = <<< JS
+akeeba.System.documentReady(function(){
+	akeeba.System.addEventListener('comAkeebaConfigurationWizardModalClose', 'click', function() {
+	  akeeba.System.configurationWizardModal.close();
+	});
 
-;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
-// due to missing trailing semicolon and/or newline in their code.
-function akeeba_confwiz_modal_open()
-{
-	akeeba.System.configurationWizardModal = akeeba.Modal.open({
+	setTimeout(function() {
+	  akeeba.System.configurationWizardModal = akeeba.Modal.open({
 		inherit: '#akeeba-config-confwiz-bubble',
 		width: '80%'
 	});
-};
-
-akeeba.System.documentReady(function(){
-	setTimeout(akeeba_confwiz_modal_open, 500);
+	}, 500);
 });
 
 JS;
 
+$this->container->template->addJSInline($js);
 ?>
-@inlineJs($js)
 
 <div id="akeeba-config-confwiz-bubble" class="modal fade" role="dialog"
      aria-labelledby="DialogLabel" aria-hidden="true" style="display: none;">
@@ -61,7 +59,7 @@ JS;
             </p>
         </div>
         <div>
-            <a href="#" class="akeeba-btn--ghost akeeba-btn--small"
+            <a href="#" class="akeeba-btn--ghost akeeba-btn--small" id="comAkeebaConfigurationWizardModalClose"
                onclick="akeeba.System.configurationWizardModal.close();">
                 <span class="akion-close"></span>
                 @lang('JCANCEL')

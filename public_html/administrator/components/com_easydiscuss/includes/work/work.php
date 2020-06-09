@@ -1,8 +1,8 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -158,7 +158,7 @@ class EasyDiscussWork extends EasyDiscuss
 	 */
 	public function html()
 	{
-		if (! $this->enabled) {
+		if (!$this->enabled) {
 			return '';
 		}
 
@@ -171,7 +171,6 @@ class EasyDiscussWork extends EasyDiscuss
 		if ($this->isHoliday) {
 			$namespace .= 'holiday';
 			$label = JText::_('COM_EASYDISCUSS_WORK_OFFLINE');
-
 		} else if ($this->isOnline) {
 			$namespace .= 'online';
 
@@ -216,25 +215,28 @@ class EasyDiscussWork extends EasyDiscuss
 		$exception = array();
 		$idx = 0;
 
-		$days = array('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun');
-		foreach($days as $dd) {
-			if ($this->config->get('main_work_' . $dd)) {
-				$workdays[] = JText::_('COM_EASYDISCUSS_WORK_' . strtoupper($dd));
-			} else {
-				$exception[] = JText::_('COM_EASYDISCUSS_WORK_' . strtoupper($dd));
-			}
-		}
+		$workDaysList = $this->getWorkdaysList();
+			
+		$workdays = $workDaysList->workdays;
+		$exception = $workDaysList->exception;
 
 		$isEverydayWork = false;
 
 		$workDayLabel = '';
 		$workExceptionLabel = '';
+
 		if ($workdays) {
 			$workDayLabel = $workdays[0] . ' ' . JText::_('COM_EASYDISCUSS_WORK_TO') . ' ' . $workdays[count($workdays)-1];
 
+			// Every day
 			if (count($workdays) == 7) {
 				$workDayLabel = JText::_('COM_EASYDISCUSS_WORK_EVERYDAY');
 				$isEverydayWork = true;
+			}
+
+			// Only a single day
+			if (count($workdays) == 1) {
+				$workDayLabel = $workdays[0];
 			}
 
 			if ($exception) {
@@ -249,6 +251,7 @@ class EasyDiscussWork extends EasyDiscuss
 		}
 
 		$workTimeLabel = JText::sprintf('COM_EASYDISCUSS_WORK_TIME_FROM_TO', $startTime, $endTime);
+
 
 		// Get the current offset
 		$offset = $this->inputdate->getOffset() / 60 / 60;
@@ -271,6 +274,50 @@ class EasyDiscussWork extends EasyDiscuss
 		return $content;
 	}
 
+	/**
+	 * Generates the workdays and off days list 
+	 *
+	 * @since	4.1.15
+	 * @access	public
+	 */
+	public function getWorkdaysList()
+	{
+		$days = array('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun');
+
+		$workdaysTmp = array();
+		$exceptionTmp = array();
+		$i = 0;
+
+		foreach ($days as $dd) {
+			if ($this->config->get('main_work_' . $dd)) {
+				$workdaysTmp[$i] = JText::_('COM_EASYDISCUSS_WORK_' . strtoupper($dd));
+			} else {
+				$exceptionTmp[$i] = JText::_('COM_EASYDISCUSS_WORK_' . strtoupper($dd));
+			}
+
+			$i++;
+		}
+
+		if ($workdaysTmp) {
+			$firstWorkDay = min(array_keys($workdaysTmp));
+			$lastWorkDay = max(array_keys($workdaysTmp));
+
+			if ($exceptionTmp && $workdaysTmp) {
+				foreach ($exceptionTmp as $key => $value) {
+					if ($key < $firstWorkDay || $key > $lastWorkDay) {
+						unset($exceptionTmp[$key]);
+					}
+				}
+			}
+		}
+		
+		$result = new stdClass();
+		$result->workdays = array_values($workdaysTmp);
+		$result->exception = array_values($exceptionTmp);
+
+		return $result;
+	}
+
 	public function getData()
 	{
 		$workDayLabel = '';
@@ -279,18 +326,25 @@ class EasyDiscussWork extends EasyDiscuss
 		$workdays = array();
 		$exception = array();
 
-		$days = array('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun');
-		foreach($days as $dd) {
-			if ($this->config->get('main_work_' . $dd)) {
-				$workdays[] = JText::_('COM_EASYDISCUSS_WORK_' . strtoupper($dd));
-			} else {
-				$exception[] = JText::_('COM_EASYDISCUSS_WORK_' . strtoupper($dd));
-			}
-		}
+		$workDaysList = $this->getWorkdaysList();
+			
+		$workdays = $workDaysList->workdays;
+		$exception = $workDaysList->exception;
 
 		if ($workdays) {
 			$workDayLabel = $workdays[0] . ' ' . JText::_('COM_EASYDISCUSS_WORK_TO') . ' ' . $workdays[count($workdays)-1];
 
+			// Every day
+			if (count($workdays) == 7) {
+				$workDayLabel = JText::_('COM_EASYDISCUSS_WORK_EVERYDAY');
+				$isEverydayWork = true;
+			}
+
+			// Only a single day
+			if (count($workdays) == 1) {
+				$workDayLabel = $workdays[0];
+			}
+			
 			if ($exception) {
 				if (count($exception) > 1) {
 					$last = array_pop($exception);

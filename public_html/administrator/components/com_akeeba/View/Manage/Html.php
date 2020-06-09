@@ -16,10 +16,10 @@ use Akeeba\Engine\Platform;
 use DateTimeZone;
 use FOF30\Date\Date;
 use FOF30\View\DataView\Html as BaseView;
-use JHtml;
 use JLoader;
-use JText;
-use JUri;
+use Joomla\CMS\HTML\HTMLHelper as JHtml;
+use Joomla\CMS\Language\Text as JText;
+use Joomla\CMS\Uri\Uri as JUri;
 
 /**
  * View controller for the Backup Now page
@@ -164,7 +164,7 @@ class Html extends BaseView
 	public function onBeforeMain()
 	{
 		// Load custom Javascript for this page
-		$this->addJavascriptFile('media://com_akeeba/js/Manage.min.js');
+		$this->container->template->addJS('media://com_akeeba/js/Manage.min.js');
 
 		// Load core classes used in the view template
 		JLoader::import('joomla.utilities.date');
@@ -183,45 +183,8 @@ class Html extends BaseView
 		$this->enginesPerProfile = $enginesPerPprofile;
 
 		// "Show warning first" download button.
-		$confirmationText = JText::_('COM_AKEEBA_BUADMIN_LOG_DOWNLOAD_CONFIRM', true, false);
-		$confirmationText = str_replace('\\\\n', '\\n', $confirmationText);
-		$baseURI          = JUri::base();
-		$js               = <<<JS
-
-;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
-// due to missing trailing semicolon and/or newline in their code.
-function confirmDownloadButton()
-{
-	var answer = confirm("$confirmationText");
-	if (answer)
-	{
-		submitbutton('download')
-	}
-}
-
-function confirmDownload(id, part)
-{
-	var answer = confirm("$confirmationText");
-	var newURL = '$baseURI';
-	if (answer)
-	{
-		newURL += 'index.php?option=com_akeeba&view=Manage&task=download&id='+id;
-		
-		if (part != '')
-		{
-			newURL += '&part=' + part
-		}
-		
-		window.location = newURL;
-	}
-}
-
-akeeba.System.documentReady(function(){
-	akeeba.Tooltip.enableFor(document.querySelectorAll('.akeebaCommentPopover'), false);
-});
-
-JS;
-		$this->addJavascriptInline($js);
+		JText::script('COM_AKEEBA_BUADMIN_LOG_DOWNLOAD_CONFIRM', false);
+		$this->container->platform->addScriptOptions('akeeba.Manage.baseURI', JUri::base());
 
 		if (version_compare(JVERSION, '3.999.999', 'le'))
 		{
@@ -428,10 +391,6 @@ JS;
 				$originIcon = 'akion-code';
 				break;
 
-			case 'restorepoint':
-				$originIcon = 'akion-refresh';
-				break;
-
 			case 'lazy':
 				$originIcon = 'akion-cube';
 				break;
@@ -624,13 +583,6 @@ JS;
 				'value'   => (int) $this->fltProfile,
 			];
 		}
-
-		$filters[] = [
-			'field'   => 'tag',
-			'operand' => '<>',
-			'value'   => 'restorepoint',
-		];
-
 
 		if (empty($filters))
 		{

@@ -61,5 +61,28 @@ class acymconfigurationClass extends acymClass
 
         return $status;
     }
+
+    public function setLicenseKeyByDomain()
+    {
+        if (!acym_level(1)) return true;
+        $licenseKey = $this->config->get('license_key', '');
+        if (!empty($licenseKey)) return true;
+
+        $url = ACYM_UPDATEMEURL.'license&task=getLicenseKeyByWebsite';
+
+        $result = acym_makeCurlCall($url, ['domain' => ACYM_LIVE]);
+
+        if (empty($result) || empty($result['message']) || $result['type'] == 'error') {
+            acym_enqueueMessage(acym_translation('ACYM_COULD_SET_LICENSE_KEY'), 'warning');
+
+            return false;
+        }
+
+        if (!empty($result['message'])) {
+            $this->config->save(['license_key' => $result['message']]);
+
+            return true;
+        }
+    }
 }
 

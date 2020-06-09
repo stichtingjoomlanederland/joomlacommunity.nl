@@ -11,9 +11,9 @@ namespace Akeeba\Backup\Admin\View\RegExDatabaseFilters;
 use Akeeba\Backup\Admin\Model\DatabaseFilters;
 use Akeeba\Backup\Admin\Model\RegExDatabaseFilters;
 use Akeeba\Backup\Admin\View\ViewTraits\ProfileIdAndName;
-use Akeeba\Engine\Platform;
-use JHtml;
-use JText;
+use Joomla\CMS\HTML\HTMLHelper as JHtml;
+use Joomla\CMS\Language\Text as JText;
+use Joomla\CMS\Uri\Uri as JUri;
 
 defined('_JEXEC') or die();
 
@@ -36,20 +36,13 @@ class Html extends \FOF30\View\DataView\Html
 	public $roots = [];
 
 	/**
-	 * The view's interface data encoded in JSON format
-	 *
-	 * @var  string
-	 */
-	public $json = '';
-
-	/**
 	 * Main page
 	 */
 	public function onBeforeMain()
 	{
 		// Load Javascript files
-		$this->addJavascriptFile('media://com_akeeba/js/FileFilters.min.js');
-		$this->addJavascriptFile('media://com_akeeba/js/RegExDatabaseFilters.min.js');
+		$this->container->template->addJS('media://com_akeeba/js/FileFilters.min.js');
+		$this->container->template->addJS('media://com_akeeba/js/RegExDatabaseFilters.min.js');
 
 		/** @var RegExDatabaseFilters $model */
 		$model = $this->getModel();
@@ -59,28 +52,30 @@ class Html extends \FOF30\View\DataView\Html
 
 		// Get a JSON representation of the available roots
 		$root_info = $dbFilterModel->get_roots();
-		$roots     = array();
-		$options   = array();
+		$roots     = [];
+		$options   = [];
 
 		if (!empty($root_info))
 		{
 			// Loop all dir definitions
 			foreach ($root_info as $def)
 			{
-				$roots[] = $def->value;
+				$roots[]   = $def->value;
 				$options[] = JHtml::_('select.option', $def->value, $def->text);
 			}
 		}
 
-		$site_root = '[SITEDB]';
-		$attribs = 'onchange="akeeba.Regexdbfilters.activeRootChanged();"';
+		$site_root         = '[SITEDB]';
+		$this->root_select = JHtml::_('select.genericlist', $options, 'root', [
+			'list.select' => $site_root,
+			'id'          => 'active_root',
+		]);
+		$this->roots       = $roots;
 
-		$this->root_select = JHtml::_('select.genericlist', $options, 'root', $attribs, 'value', 'text', $site_root, 'active_root');
-		$this->roots = $roots;
-
-		// Get a JSON representation of the directory data
-		$json = json_encode($model->get_regex_filters($site_root));
-		$this->json = $json;
+		// Pass script options
+		$platform = $this->container->platform;
+		$platform->addScriptOptions('akeeba.System.params.AjaxURL', JUri::base() . 'index.php?option=com_akeeba&view=RegExDatabaseFilters&task=ajax');
+		$platform->addScriptOptions('akeeba.RegExDatabaseFilters.guiData', $model->get_regex_filters($site_root));
 
 		$this->getProfileIdAndName();
 

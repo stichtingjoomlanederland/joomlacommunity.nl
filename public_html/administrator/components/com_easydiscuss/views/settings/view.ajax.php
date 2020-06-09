@@ -33,4 +33,18 @@ class EasyDiscussViewSettings extends EasyDiscussAdminView
 		$result	= ED::Mailbox()->testConnect( $server , $port , $service , $ssl , 'INBOX' , $user , $pass  );
 		return $this->ajax->resolve($result);
 	}
+
+	/**
+	 * Display dialog confirmation of restore email logo
+	 *
+	 * @since	4.1.15
+	 * @access	public
+	 */
+	public function confirmRestoreEmailLogo()
+	{
+		$theme = ED::themes();
+		$contents = $theme->output('admin/dialogs/restore.email.logo.confirmation');
+
+		return $this->ajax->resolve($contents);
+	}
 }

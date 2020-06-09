@@ -147,6 +147,11 @@ class RSFormProFieldCheckboxGroup extends RSFormProFieldMultiple
         {
             $this->addScriptDeclaration("RSFormPro.limitSelections({$this->formId}, '{$id}', {$max});");
         }
+
+		if ($this->isRequired())
+		{
+			$output = '<div aria-required="true">' . $output . '</div>';
+		}
 		
 		return $output;
 	}
@@ -206,13 +211,21 @@ class RSFormProFieldCheckboxGroup extends RSFormProFieldMultiple
 		}
 	}
 	
-	// @desc All select lists should have a 'rsform-checkbox' class for easy styling
-	public function getAttributes() {
+	// @desc All checkbox inputs should have a 'rsform-checkbox' class for easy styling
+	public function getAttributes()
+	{
 		$attr = parent::getAttributes();
-		if (strlen($attr['class'])) {
+
+		if (strlen($attr['class']))
+		{
 			$attr['class'] .= ' ';
 		}
 		$attr['class'] .= 'rsform-checkbox';
+
+		if ($this->isRequired())
+		{
+			unset($attr['aria-required']);
+		}
 		
 		return $attr;
 	}

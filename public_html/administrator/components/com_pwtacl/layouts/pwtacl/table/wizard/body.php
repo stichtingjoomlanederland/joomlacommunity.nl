@@ -3,7 +3,7 @@
  * @package    PwtAcl
  *
  * @author     Sander Potjer - Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2011 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2011 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
@@ -11,7 +11,6 @@
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\LayoutHelper;
 
-// No direct access.
 defined('_JEXEC') or die;
 
 $odd    = false;
@@ -31,7 +30,11 @@ $group  = $displayData['group'];
 			<?php echo $asset->title; ?>
 		</td>
 		<?php foreach ($asset->actions->core as $actionname => $action): ?>
-			<?php echo LayoutHelper::render('pwtacl.action', array('group' => $group, 'asset' => $asset, 'action' => $action)); ?>
+			<?php echo LayoutHelper::render('pwtacl.action', [
+				'group'  => $group,
+				'asset'  => $asset,
+				'action' => $action
+			]); ?>
 		<?php endforeach; ?>
 		<td class="center border-left padding-small">
 			<?php if ($asset->additional): ?>
@@ -50,7 +53,11 @@ $group  = $displayData['group'];
 					<?php foreach ($asset->actions->additional as $actionname => $action): ?>
 						<tr>
 							<td width="75%" class="border-right"><?php echo Text::_($action->title); ?></td>
-							<?php echo LayoutHelper::render('pwtacl.action', array('group' => $group, 'asset' => $asset, 'action' => $action)); ?>
+							<?php echo LayoutHelper::render('pwtacl.action', [
+								'group'  => $group,
+								'asset'  => $asset,
+								'action' => $action
+							]); ?>
 						</tr>
 					<?php endforeach; ?>
 				</table>

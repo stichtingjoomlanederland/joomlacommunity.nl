@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -14,7 +14,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 $file = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php';
 $exists = JFile::exists($file);
 
-if (! JFile::exists($file)) {
+if (!JFile::exists($file)) {
     return;
 }
 
@@ -28,6 +28,16 @@ $order = (string) $params->get('rank_type', 'points');
 $count = (int) trim($params->get('count', 20));
 
 $options = array('order' => $order, 'count' => $count);
+
+$excludeUser = $params->get('exclusion', 0);
+$excludeUser = explode(',', $excludeUser);
+
+// Exclude users
+if (!empty($excludeUser)) {
+	$excludeUser = array_filter($excludeUser, 'is_numeric');
+	$options['exclude'] = $excludeUser;
+}
+
 $model = ED::model('Users');
 $users = $model->getTopUsers($options);
 

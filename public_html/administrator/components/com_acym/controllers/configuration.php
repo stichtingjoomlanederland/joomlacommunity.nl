@@ -22,6 +22,7 @@ class ConfigurationController extends acymController
         $this->prepareLanguages($data);
         $this->prepareLists($data);
         $this->prepareNotifications($data);
+        $this->prepareAcl($data);
 
         parent::display($data);
     }
@@ -94,6 +95,11 @@ class ConfigurationController extends acymController
                 'tooltip' => '',
             ],
         ];
+    }
+
+    private function prepareAcl(&$data)
+    {
+        $data['acl'] = acym_cmsPermission();
     }
 
     public function checkDB()
@@ -308,6 +314,7 @@ class ConfigurationController extends acymController
             'acy_notification_subform',
             'acy_notification_profile',
             'acy_notification_confirm',
+            'wp_access',
         ];
         foreach ($select2Fields as $oneField) {
             $formData[$oneField] = !empty($formData[$oneField]) ? $formData[$oneField] : [];
@@ -382,7 +389,12 @@ class ConfigurationController extends acymController
             exit;
         }
 
-        $tests = [25 => 'smtp.sendgrid.com', 2525 => 'smtp.sendgrid.com', 587 => 'smtp.sendgrid.com', 465 => 'ssl://smtp.sendgrid.com'];
+        $tests = [
+            25 => 'smtp.sendgrid.com',
+            2525 => 'smtp.sendgrid.com',
+            587 => 'smtp.sendgrid.com',
+            465 => 'ssl://smtp.gmail.com',
+        ];
         $total = 0;
         foreach ($tests as $port => $server) {
             $fp = @fsockopen($server, $port, $errno, $errstr, 5);
@@ -585,6 +597,164 @@ class ConfigurationController extends acymController
         }
 
         exit;
+    }
+
+    public function unlinkLicense()
+    {
+        $this->deactivateCron(false);
+
+        $url = ACYM_UPDATEMEURL.'license&task=unlinkWebsiteFromLicense';
+        $fields = [
+            'domain' => ACYM_LIVE,
+            'license_key' => $this->config->get('license_key', ''),
+            'level' => $this->config->get('level', ''),
+            'component' => ACYM_COMPONENT_NAME_API,
+        ];
+
+        $result = acym_makeCurlCall($url, $fields);
+
+        if (empty($result)) {
+            $this->displayMessage('');
+            $this->listing();
+
+            return true;
+        }
+
+        $messageOK = $this->displayMessage($result['message']);
+
+        if ($result['type'] == 'info' && $messageOK) {
+            $this->config->save(['license_key' => '']);
+        }
+
+        $this->listing();
+
+        return true;
+    }
+
+    public function attachLicense()
+    {
+        $this->store();
+
+        $licenseKey = $this->config->get('license_key', '');
+        if (empty($licenseKey)) {
+            $this->displayMessage('LICENSE_NOT_FOUND');
+            $this->listing();
+
+            return true;
+        }
+
+        $url = ACYM_UPDATEMEURL.'license&task=attachWebsiteKey';
+
+        $fields = [
+            'domain' => ACYM_LIVE,
+            'license_key' => $licenseKey,
+        ];
+
+        $result = acym_makeCurlCall($url, $fields);
+
+
+        if (empty($result)) {
+            $this->config->save(['license_key' => '']);
+
+            $this->displayMessage('');
+            $this->listing();
+
+            return true;
+        }
+
+        if ($result['type'] == 'error' || !$this->displayMessage($result['message'])) {
+            $this->config->save(['license_key' => '']);
+        }
+
+        $this->listing();
+
+        return true;
+    }
+
+    public function activateCron()
+    {
+        $result = $this->modifyCron('activateCron');
+        if ($result !== false && $this->displayMessage($result['message'])) $this->config->save(['active_cron' => 1]);
+        $this->listing();
+
+        return true;
+    }
+
+    public function deactivateCron($listing = true)
+    {
+        $result = $this->modifyCron('deactivateCron');
+        if ($result !== false && $this->displayMessage($result['message'])) $this->config->save(['active_cron' => 0]);
+        if ($listing) $this->listing();
+
+        return true;
+    }
+
+    private function modifyCron($functionToCall)
+    {
+        $this->store();
+
+        $licenseKey = $this->config->get('license_key', '');
+        if (empty($licenseKey)) {
+            $this->displayMessage('LICENSE_NOT_FOUND');
+
+            return false;
+        }
+
+        $url = ACYM_UPDATEMEURL.'launcher&task='.$functionToCall;
+
+        $fields = [
+            'domain' => ACYM_LIVE,
+            'license_key' => $licenseKey,
+            'cms' => ACYM_CMS,
+            'frequency' => $this->config->get('cron_updateme_frequency', 900),
+            'level' => $this->config->get('level', ''),
+        ];
+
+        $result = acym_makeCurlCall($url, $fields);
+
+
+        if (empty($result)) {
+            $this->displayMessage('');
+
+            return false;
+        }
+
+        if ($result['type'] == 'error') {
+            $this->displayMessage($result['message']);
+
+            return false;
+        }
+
+        return $result;
+    }
+
+    private function displayMessage($message)
+    {
+        $correspondences = [
+            'WEBSITE_NOT_FOUND' => ['message' => 'ACYM_WEBSITE_NOT_FOUND', 'type' => 'error'],
+            'LICENSE_NOT_FOUND' => ['message' => 'ACYM_LICENSE_NOT_FOUND', 'type' => 'error'],
+            'WELL_ATTACH' => ['message' => 'ACYM_LICENSE_WELL_ATTACH', 'type' => 'info'],
+            'ISSUE_WHILE_ATTACH' => ['message' => 'ACYM_ISSUE_WHILE_ATTACHING_LICENSE', 'type' => 'error'],
+            'ALREADY_ATTACH' => ['message' => 'ACYM_LICENSE_ALREADY_ATTACH', 'type' => 'info'],
+            'LICENSES_DONT_MATCH' => ['message' => 'ACYM_CANT_UNLINK_WEBSITE_LICENSE_DONT_MATCH', 'type' => 'error'],
+            'MAX_SITES_ATTACH' => ['message' => 'ACYM_YOU_REACH_THE_MAX_SITE_ATTACH', 'type' => 'error'],
+            'SITE_NOT_FOUND' => ['message' => 'ACYM_ISSUE_WHILE_ATTACHING_LICENSE', 'type' => 'error'],
+            'UNLINK_SUCCESSFUL' => ['message' => 'ACYM_LICENSE_UNLINK_SUCCESSFUL', 'type' => 'info'],
+            'UNLINK_FAILED' => ['message' => 'ACYM_ERROR_WHILE_UNLINK_LICENSE', 'type' => 'error'],
+            'CRON_WELL_ACTIVATED' => ['message' => 'ACYM_AUTOMATIC_SEND_PROCESS_WELL_ACTIVATED', 'type' => 'info'],
+            'CRON_WELL_DEACTIVATED' => ['message' => 'ACYM_AUTOMATIC_SEND_PROCESS_WELL_DEACTIVATED', 'type' => 'info'],
+            'CRON_NOT_SAVED' => ['message' => 'ACYM_AUTOMATIC_SEND_PROCESS_NOT_ENABLED', 'type' => 'error'],
+        ];
+
+        if (empty($message) || empty($correspondences[$message])) {
+            acym_enqueueMessage(acym_translation('ACYM_ERROR_ON_CALL_ACYBA_WEBSITE'), 'error');
+
+            return false;
+        }
+
+        acym_enqueueMessage(acym_translation($correspondences[$message]['message']), $correspondences[$message]['type']);
+
+        return $correspondences[$message]['type'] == 'info';
     }
 }
 

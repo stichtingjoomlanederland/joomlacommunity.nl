@@ -385,6 +385,7 @@ class RSFormProRestoreForm
 								$this->db->qn('enabled').'='.$this->db->q((string) $post->enabled),
 								$this->db->qn('method')	.'='.$this->db->q((string) $post->method),
 								$this->db->qn('fields')	.'='.$this->db->q((string) $post->fields),
+								$this->db->qn('headers')	.'='.$this->db->q((string) $post->headers),
 								$this->db->qn('silent')	.'='.$this->db->q((string) $post->silent),
 								$this->db->qn('url')	.'='.$this->db->q((string) $post->url)
 						));

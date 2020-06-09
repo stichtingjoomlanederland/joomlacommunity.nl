@@ -148,7 +148,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 <?php if (!empty($this->config->map)) { ?>
 <div id="map-canvas" style="width: <?php echo $this->escape($this->width); ?>; height: <?php echo $this->escape($this->height); ?>"></div>
 <?php if ($this->params->get('enable_radius', 0) && $this->params->get('display_results', 1)) { ?>
-<table id="rsepro-map-results-table" class="table table-striped" style="display: none;">
+<table id="rsepro-map-results-table" class="table table-striped table-bordered" style="display: none;">
 	<tbody id="rsepro-map-results"></tbody>
 </table>
 <?php } ?>

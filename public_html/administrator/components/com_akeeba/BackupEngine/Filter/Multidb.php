@@ -24,15 +24,11 @@ class Multidb extends Base
 		$this->subtype = 'inclusion';
 		$this->method  = 'direct';
 
-		if (Factory::getKettenrad()->getTag() == 'restorepoint')
-		{
-			$this->enabled = false;
-		}
-
 		if (empty($this->filter_name))
 		{
 			$this->filter_name = strtolower(basename(__FILE__, '.php'));
 		}
+
 		parent::__construct();
 	}
 }

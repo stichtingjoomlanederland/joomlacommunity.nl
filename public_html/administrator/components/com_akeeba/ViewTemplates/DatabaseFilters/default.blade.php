@@ -7,34 +7,8 @@
 
 defined('_JEXEC') or die();
 
-$ajaxUrl    = addslashes('index.php?option=com_akeeba&view=DatabaseFilters&task=ajax');
-$this->json = addcslashes($this->json, "'\\");
-$js         = <<< JS
-
-;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
-// due to missing trailing semicolon and/or newline in their code.
-/**
- * Callback function for changing the active root in Database Table filters
- */
-function akeeba_active_root_changed()
-{
-	var elRoot = document.getElementById('active_root');
-	var data = {
-		'root': elRoot.options[elRoot.selectedIndex].value
-	};
-    akeeba.Dbfilters.load(data);
-}
-
-akeeba.System.documentReady(function(){
-    akeeba.System.params.AjaxURL = '$ajaxUrl';
-	var data = JSON.parse('{$this->json}');
-    akeeba.Dbfilters.render(data);
-});
-
-JS;
-
+/** @var \Akeeba\Backup\Admin\View\DatabaseFilters\Html $this */
 ?>
-@inlineJs($js)
 @include('admin:com_akeeba/CommonTemplates/ErrorModal')
 @include('admin:com_akeeba/CommonTemplates/ProfileName')
 
@@ -44,11 +18,11 @@ JS;
         {{ $this->root_select }}
     </div>
     <div class="akeeba-form-group--actions">
-        <button class="akeeba-btn--green" onclick="akeeba.Dbfilters.excludeNonCMS(); return false;">
+        <button class="akeeba-btn--green" id="comAkeebaDatabaseFiltersExcludeNonCMS">
             <span class="akion-ios-flag"></span>
             @lang('COM_AKEEBA_DBFILTER_LABEL_EXCLUDENONCORE')
         </button>
-        <button class="akeeba-btn--red" onclick="akeeba.Dbfilters.nuke(); return false;">
+        <button class="akeeba-btn--red" id="comAkeebaDatabaseFiltersNuke">
             <span class="akion-ios-loop-strong"></span>
             @lang('COM_AKEEBA_DBFILTER_LABEL_NUKEFILTERS')
         </button>

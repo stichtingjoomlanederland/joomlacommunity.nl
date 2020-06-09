@@ -212,7 +212,7 @@ class QuickStart extends Model
 			'dfishield'               => $state,
 			'uploadshield'            => $uploadShieldState,
 			'sessionshield'           => $state,
-			'tmplwhitelist'           => 'component,system,raw,koowa',
+			'tmplwhitelist'           => 'component,system,raw,koowa,cartupdate',
 			'allowsitetemplate'       => 0,
 			'trackfailedlogins'       => $state,
 			'use403view'              => 0,

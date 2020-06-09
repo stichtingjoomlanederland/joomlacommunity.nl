@@ -28,23 +28,23 @@ class Directftpcurl extends Directftp
 	/** @var bool Could we connect to the server? */
 	public $connect_ok = false;
 	/** @var Ftp FTP resource handle */
-	private $ftpTransfer;
+	protected $ftpTransfer;
 	/** @var string FTP hostname */
-	private $host;
+	protected $host;
 	/** @var string FTP port */
-	private $port;
+	protected $port;
 	/** @var string FTP username */
-	private $user;
+	protected $user;
 	/** @var string FTP password */
-	private $pass;
+	protected $pass;
 	/** @var bool Should we use FTP over SSL? */
-	private $usessl;
+	protected $usessl;
 	/** @var bool Should we use passive FTP? */
-	private $passive;
+	protected $passive;
 	/** @var bool Enable the passive mode workaround? */
-	private $passiveWorkaround = true;
+	protected $passiveWorkaround = true;
 	/** @var string FTP initial directory */
-	private $initdir;
+	protected $initdir;
 
 	/**
 	 * Initialises the archiver class, seeding the remote installation

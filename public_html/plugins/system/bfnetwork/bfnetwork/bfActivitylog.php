@@ -30,19 +30,8 @@ require_once 'bfPreferences.php';
 
 class bfActivitylog
 {
-    /**
-     * @var
-     */
     protected static $instance;
-
-    /**
-     * @var
-     */
     private $db;
-
-    /**
-     * @var string
-     */
     private $table_create = 'CREATE TABLE IF NOT EXISTS `bf_activitylog` (
                               `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
                               `who` varchar(255) DEFAULT NULL,
@@ -51,7 +40,7 @@ class bfActivitylog
                               `when` datetime DEFAULT NULL,
                               `where` varchar(255) DEFAULT NULL,
                               `where_id` int(11) DEFAULT NULL,
-                              `ip` varchar(20) DEFAULT NULL,
+                              `ip` varchar(255) DEFAULT NULL,
                               `useragent` varchar(255) DEFAULT NULL,
                               `constkey` varchar(255) DEFAULT NULL,
                               `meta` text,
@@ -63,7 +52,7 @@ class bfActivitylog
                             ) DEFAULT CHARSET=utf8';
 
     private $table_migrate = array(
-        'ALTER TABLE `bf_activitylog` ADD `constkey` VARCHAR(255) NULL DEFAULT NULL AFTER `action`'
+        'ALTER TABLE `bf_activitylog` CHANGE `ip` `ip` VARCHAR(255) NULL DEFAULT NULL'
     );
 
     private $table_insert = 'INSERT INTO `bf_activitylog`
@@ -71,26 +60,39 @@ class bfActivitylog
                               VALUES 
                              (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)';
 
-    /**
-     * @var mixed|stdClass
-     */
     private $prefs;
 
-    /**
-     * bfActivitylog constructor.
-     */
     public function __construct()
     {
-        $preferences = new bfPreferences();
-        $this->prefs = $preferences->getPreferences();
-        $this->db    = JFactory::getDBO();
-        $this->ensureTableCreated();
-        $this->ensureTableMigrated();
+        try {
+            $preferences = new bfPreferences();
+            $this->prefs = $preferences->getPreferences();
+            $this->db    = JFactory::getDBO();
+            $this->ensureTableCreated();
+            $this->ensureTableMigrated();
+        } catch (Exception $exception) {
+            //ignore failure as not to output anything to the public website
+        }
     }
 
     public function ensureTableMigrated()
     {
         try {
+            // Doh... cant think how else to do this in a nice way but need a quick fix.
+            $sql = 'SHOW COLUMNS FROM bf_activitylog where Field = \'constkey\'';
+            $this->db->setQuery($sql);
+            $res = $this->db->loadObject();
+            if (null === $res) {
+                $sql = 'ALTER TABLE `bf_activitylog` ADD `constkey` VARCHAR(255) NULL DEFAULT NULL AFTER `action`';
+                $this->db->setQuery($sql);
+                if (method_exists($this->db, 'query')) {
+                    $this->db->query();
+                } else {
+                    $this->db->execute();
+                }
+            }
+
+            // process any
             foreach ($this->table_migrate as $sql) {
                 $this->db->setQuery($sql);
                 if (method_exists($this->db, 'query')) {
@@ -100,7 +102,7 @@ class bfActivitylog
                 }
             }
         } catch (Exception $exception) {
-            //ignore failure
+            //ignore failure as not to output anything to the public website
         }
     }
 
@@ -136,60 +138,62 @@ class bfActivitylog
      * @param int    $where_id
      * @param null   $ip
      * @param null   $userAgent
-     *
-     * @since version
      */
     public function log($who = 'not me!', $who_id = 0, $what = 'dunno', $where = 'er?', $where_id = 0, $ip = null, $userAgent = null, $meta = '{}', $action = '', $alertName = '', $constKey = 'legacy', $when = null)
     {
-        if (null === $when) {
-            $d = JFactory::getDate();
-            if (method_exists($d, 'format')) {
-                $when = JFactory::getDate()->format('Y-m-d H:i:s', true);
+        try {
+            if (null === $when) {
+                $d = JFactory::getDate();
+                if (method_exists($d, 'format')) {
+                    $when = JFactory::getDate()->format('Y-m-d H:i:s', true);
+                } else {
+                    $when = JFactory::getDate()->toformat('Y-m-d H:i:s', true);
+                }
+            }
+
+            if (null == $ip) {
+                $ip = str_replace('::ffff:', '', (@getenv('HTTP_X_FORWARDED_FOR') ? @getenv('HTTP_X_FORWARDED_FOR') : @$_SERVER['REMOTE_ADDR']));
+            }
+
+            if ('system' == $ip) {
+                $ip = '';
+            }
+
+            if (!$userAgent && is_array($_SERVER) && array_key_exists('HTTP_USER_AGENT', $_SERVER)) {
+                $agent = $_SERVER['HTTP_USER_AGENT'];
+                if (!$agent) {
+                    $agent = 'Unknown';
+                }
             } else {
-                $when = JFactory::getDate()->toformat('Y-m-d H:i:s', true);
+                $agent = $userAgent;
             }
-        }
 
-        if (null == $ip) {
-            $ip = str_replace('::ffff:', '', (@getenv('HTTP_X_FORWARDED_FOR') ? @getenv('HTTP_X_FORWARDED_FOR') : @$_SERVER['REMOTE_ADDR']));
-        }
+            $sql = sprintf($this->table_insert,
+                $this->db->quote($who),
+                $this->db->quote($who_id),
+                $this->db->quote($what),
+                $this->db->quote($when),
+                $this->db->quote($where),
+                $this->db->quote($where_id),
+                $this->db->quote($ip),
+                $this->db->quote($agent),
+                $this->db->quote($meta),
+                $this->db->quote($action),
+                $this->db->quote($constKey)
+            );
 
-        if ('system' == $ip) {
-            $ip = '';
-        }
-
-        if (!$userAgent && is_array($_SERVER) && array_key_exists('HTTP_USER_AGENT', $_SERVER)) {
-            $agent = $_SERVER['HTTP_USER_AGENT'];
-            if (!$agent) {
-                $agent = 'Unknown';
+            $this->db->setQuery($sql);
+            if (method_exists($this->db, 'execute')) {
+                $this->db->execute();
+            } else {
+                $this->db->query();
             }
-        } else {
-            $agent = $userAgent;
-        }
 
-        $sql = sprintf($this->table_insert,
-            $this->db->quote($who),
-            $this->db->quote($who_id),
-            $this->db->quote($what),
-            $this->db->quote($when),
-            $this->db->quote($where),
-            $this->db->quote($where_id),
-            $this->db->quote($ip),
-            $this->db->quote($agent),
-            $this->db->quote($meta),
-            $this->db->quote($action),
-            $this->db->quote($constKey)
-        );
-
-        $this->db->setQuery($sql);
-        if (method_exists($this->db, 'execute')) {
-            $this->db->execute();
-        } else {
-            $this->db->query();
-        }
-
-        if (property_exists($this->prefs, $alertName) && $this->prefs->$alertName == 1) {
-            $this->sendLogAlert($who, $who_id, $what, $when, $where, $where_id, $ip, $userAgent, $meta, $action, $alertName);
+            if (property_exists($this->prefs, $alertName) && $this->prefs->$alertName == 1) {
+                $this->sendLogAlert($who, $who_id, $what, $when, $where, $where_id, $ip, $userAgent, $meta, $action, $alertName);
+            }
+        } catch (Exception $exception) {
+            //ignore failure as not to output anything to the public website
         }
     }
 
@@ -210,52 +214,56 @@ class bfActivitylog
      */
     public function sendLogAlert($who = 'not me!', $who_id = 0, $what = 'dunno', $when, $where = 'er?', $where_id = 0, $ip = null, $userAgent = null, $meta = '{}', $action = '', $alertName = '')
     {
-        $host_id = $this->getHostID();
+        try {
+            $host_id = $this->getHostID();
 
-        if (!$host_id) {
-            return;
-        }
+            if (!$host_id) {
+                return;
+            }
 
-        $postdata = http_build_query(
-            array(
-                'HOST_ID'    => $host_id,
-                'who'        => $who,
-                'who_id'     => $who_id,
-                'what'       => $what,
-                'when'       => $when,
-                'where'      => $where,
-                'where_id'   => $where_id,
-                'ip'         => $ip,
-                'userAgent'  => $userAgent,
-                'meta'       => $meta,
-                'action'     => $action,
-                'alert_name' => $alertName,
-            )
-        );
-
-        $opts = array('http' => array(
-            'content'       => $postdata,
-            'method'        => 'POST',
-            'user_agent'    => JURI::base(),
-            'max_redirects' => 1,
-            'header'        => 'Content-type: application/x-www-form-urlencoded',
-            'proxy'         => ('local' == getenv('APPLICATION_ENV') ? 'tcp://127.0.0.1:8888' : ''),
-            'timeout'       => 5, //so we don't destroy live sites if the service is offline
-        ),
-        );
-
-        if ('local' == getenv('APPLICATION_ENV')) {
-            $opts = array_merge($opts, array(
-                    'ssl' => array(
-                        'verify_peer'      => false,
-                        'verify_peer_name' => false,
-                    ), )
+            $postdata = http_build_query(
+                array(
+                    'HOST_ID'    => $host_id,
+                    'who'        => $who,
+                    'who_id'     => $who_id,
+                    'what'       => $what,
+                    'when'       => $when,
+                    'where'      => $where,
+                    'where_id'   => $where_id,
+                    'ip'         => $ip,
+                    'userAgent'  => $userAgent,
+                    'meta'       => $meta,
+                    'action'     => $action,
+                    'alert_name' => $alertName,
+                )
             );
 
-            return @file_get_contents('https://dev.mysites.guru/api/log', false, stream_context_create($opts));
-        } else {
-            // Using @ so we don't destroy live sites if the service is offline
-            return @file_get_contents('https://manage.mysites.guru/api/log', false, stream_context_create($opts));
+            $opts = array('http' => array(
+                'content'       => $postdata,
+                'method'        => 'POST',
+                'user_agent'    => JURI::base(),
+                'max_redirects' => 1,
+                'header'        => 'Content-type: application/x-www-form-urlencoded',
+                'proxy'         => ('local' == getenv('APPLICATION_ENV') ? 'tcp://127.0.0.1:8888' : ''),
+                'timeout'       => 5, //so we don't destroy live sites if the service is offline
+            ),
+            );
+
+            if ('local' == getenv('APPLICATION_ENV')) {
+                $opts = array_merge($opts, array(
+                        'ssl' => array(
+                            'verify_peer'      => false,
+                            'verify_peer_name' => false,
+                        ), )
+                );
+
+                return @file_get_contents('https://dev.mysites.guru/api/log', false, stream_context_create($opts));
+            } else {
+                // Using @ so we don't destroy live sites if the service is offline
+                return @file_get_contents('https://manage.mysites.guru/api/log', false, stream_context_create($opts));
+            }
+        } catch (Exception $exception) {
+            //ignore failure as not to output anything to the public website
         }
     }
 

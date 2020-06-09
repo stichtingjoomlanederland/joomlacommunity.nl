@@ -53,7 +53,7 @@ class RseventsproModelCalendar extends JModelLegacy
 		$tpl		= $this->_app->input->get('tpl');
 		$query		= RSEventsProQuery::getInstance($params);
 		
-		$query->select(array('e.id', 'e.name', 'e.start', 'e.end', 'e.allday'));
+		$query->select(array('e.id', 'e.name', 'e.start', 'e.end', 'e.allday', 'e.published'));
 		
 		if ($layout == '' || $layout == 'default') {
 			list($start, $end) = $this->getStartEndCurrentMonth($params);

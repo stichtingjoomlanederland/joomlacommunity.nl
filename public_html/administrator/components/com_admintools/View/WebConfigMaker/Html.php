@@ -36,6 +36,13 @@ class Html extends BaseView
 	 */
 	public $isSupported;
 
+	/**
+	 * Should I enable www and non-www redirects, based on the value of $live_site?
+	 *
+	 * @var bool
+	 */
+	public $enableRedirects;
+
 	protected function onBeforePreview()
 	{
 		/** @var WebConfigMaker $model */
@@ -47,8 +54,9 @@ class Html extends BaseView
 	protected function onBeforeMain()
 	{
 		/** @var WebConfigMaker $model */
-		$model             = $this->getModel();
-		$this->wcconfig    = $model->loadConfiguration();
-		$this->isSupported = ServerTechnology::isWebConfigSupported();
+		$model                 = $this->getModel();
+		$this->wcconfig        = $model->loadConfiguration();
+		$this->isSupported     = ServerTechnology::isWebConfigSupported();
+		$this->enableRedirects = $model->enableRedirects();
 	}
 }

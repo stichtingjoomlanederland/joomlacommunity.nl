@@ -116,6 +116,7 @@ Joomla.submitbutton = function(task) {
 											<li><a href="javascript:void(0);" rel="1"><?php echo JText::_('JPUBLISHED'); ?></a></li>
 											<li><a href="javascript:void(0);" rel="0"><?php echo JText::_('JUNPUBLISHED'); ?></a></li>
 											<li><a href="javascript:void(0);" rel="2"><?php echo JText::_('JARCHIVED'); ?></a></li>
+											<li><a href="javascript:void(0);" rel="3"><?php echo JText::_('COM_RSEVENTSPRO_CANCELED_STATUS'); ?></a></li>
 										</ul>
 									</li>
 									<li id="rsepro-filter-start" class="navbar-search center" style="display: none;">
@@ -181,7 +182,7 @@ Joomla.submitbutton = function(task) {
 						<li id="<?php echo sha1('status'.$status); ?>">
 							<div class="btn-group">
 								<span class="btn btn-small"><?php echo JText::_('COM_RSEVENTSPRO_FILTER_STATUS'); ?></span>
-								<span class="btn btn-small"><?php if ($status == 0) echo JText::_('JUNPUBLISHED'); elseif ($status == 1) echo JText::_('JPUBLISHED'); elseif ($status == 2) echo JText::_('JARCHIVED'); ?></span>
+								<span class="btn btn-small"><?php if ($status == 0) echo JText::_('JUNPUBLISHED'); elseif ($status == 1) echo JText::_('JPUBLISHED'); elseif ($status == 2) echo JText::_('JARCHIVED'); elseif ($status == 3) echo JText::_('COM_RSEVENTSPRO_CANCELED_STATUS'); ?></span>
 								<input type="hidden" name="filter_status[]" value="<?php echo $this->escape($status); ?>">
 								<a href="javascript:void(0)" class="btn btn-small rsepro-close">
 									<i class="icon-delete"></i>&nbsp;

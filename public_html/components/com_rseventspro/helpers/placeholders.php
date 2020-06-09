@@ -245,7 +245,8 @@ class RSEventsProPlaceholders {
 			'{useremail}'	 		=> 'COM_RSEVENTSPRO_PLACEHOLDER_USER_EMAIL',
 			'{EventIconSmallPdf}'	=> 'COM_RSEVENTSPRO_PLACEHOLDER_EVENT_SMALL_ICON',
 			'{EventIconBigPdf}'		=> 'COM_RSEVENTSPRO_PLACEHOLDER_EVENT_BIG_ICON',
-			'{EventIconPdf}'		=> 'COM_RSEVENTSPRO_PLACEHOLDER_EVENT_ICON'
+			'{EventIconPdf}'		=> 'COM_RSEVENTSPRO_PLACEHOLDER_EVENT_ICON',
+			'{date}'				=> 'COM_RSEVENTSPRO_PLACEHOLDER_CURRENT_DATE'
 		);
 		
 		unset(self::$globals['{EventIconSmall}']);
@@ -290,5 +291,29 @@ class RSEventsProPlaceholders {
 		);
 		
 		return array_merge(self::$globals, $waitinglist);
+	}
+	
+	public static function waitinglistuser() {
+		$waitinglistuser = array(
+			'{user}'			=> 'COM_RSEVENTSPRO_PLACEHOLDER_USER'
+		);
+		
+		return array_merge(self::$globals, $waitinglistuser);
+	}
+	
+	public static function waitinglistadmin() {
+		$waitinglistadmin = array(
+			'{user}'			=> 'COM_RSEVENTSPRO_PLACEHOLDER_USER'
+		);
+		
+		return array_merge(self::$globals, $waitinglistadmin);
+	}
+	
+	public static function cancel() {
+		$cancel = array(
+			'{user}'			=> 'COM_RSEVENTSPRO_PLACEHOLDER_USER'
+		);
+		
+		return array_merge(self::$globals, $cancel);
 	}
 }

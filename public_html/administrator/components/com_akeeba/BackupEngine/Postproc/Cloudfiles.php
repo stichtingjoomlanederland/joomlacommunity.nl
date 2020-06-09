@@ -61,6 +61,8 @@ class Cloudfiles extends Base
 		];
 
 		$connector->putObject($input, $filename, 'application/octet-stream');
+
+		return true;
 	}
 
 	public function delete($path)

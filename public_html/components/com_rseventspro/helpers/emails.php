@@ -954,6 +954,7 @@ class rseventsproEmails
 			$app	= JFactory::getApplication();
 			$db		= JFactory::getDBO();
 			$query	= $db->getQuery(true);
+			$now	= rseventsproHelper::showdate('now');
 			
 			$query->clear()
 				->select($db->qn('t').'.*')->select($db->qn('ut.quantity'))
@@ -1022,7 +1023,7 @@ class rseventsproEmails
 							$layout = str_replace('{barcode}', $barcodeHTML, $layout);
 						}
 						
-						$layout = str_replace(array('{useremail}', '{barcodetext}'), array($to, $barcodetext), $layout);
+						$layout = str_replace(array('{useremail}', '{barcodetext}', '{date}'), array($to, $barcodetext, $now), $layout);
 						
 						$app->triggerEvent('rsepro_activationEmail', array(array('id' => &$ide, 'name' => $ticket->name.' '.$i, 'attachment' => &$attachments, 'layout' => &$layout)));
 					}
@@ -1187,11 +1188,151 @@ class rseventsproEmails
 		return true;
 	}
 	
+	public static function waitinglist_email($type, $to, $ide, $name, $lang = 'en-GB') {
+		$config		= rseventsproHelper::getConfig();
+		$email		= rseventsproEmails::email($type, null, null, $lang);
+		
+		if (empty($email))
+			return false;
+			
+		$from		= $config->email_from;
+		$fromName	= $config->email_fromname;
+		$mode		= $email->mode;
+		$replyto	= $config->email_replyto;
+		$replyname	= $config->email_replytoname;
+		$cc			= $config->email_cc;
+		$bcc		= $config->email_bcc;
+		$cc			= !empty($cc) ? $cc : null;
+		$bcc		= !empty($bcc) ? $bcc : null;
+		$subject	= $email->subject;
+		$body		= $email->message;
+		
+		$replacer	= array(
+			'from'		=> $from,
+			'fromName'	=> $fromName,
+			'replyto'	=> $replyto,
+			'replyname' => $replyname,
+			'cc'		=> $cc,
+			'bcc'		=> $bcc,
+			'subject'	=> $subject,
+			'body'		=> $body
+		);
+		
+		$text				= rseventsproEmails::placeholders($replacer, $ide, $name);
+		$text['cc']			= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
+		$text['bcc']		= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text['replyto']	= isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
+		$text['replyname']	= isset($text['replyname']) && !empty($text['replyname']) ? explode(',',$text['replyname']) : null;
+		
+		$mailer	= JFactory::getMailer();
+		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		
+		return true;
+	}
+	
+	public static function cancel($ide) {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		$status	= rseventsproHelper::getConfig('cancel_to');
+		
+		$query->clear()
+			->select($db->qn('registration'))->select($db->qn('rsvp'))
+			->from($db->qn('#__rseventspro_events'))
+			->where($db->qn('id').' = '.$db->q($ide));
+		$db->setQuery($query);
+		$event = $db->loadObject();
+		
+		if ($event->registration) {
+			$query->clear()
+				->select($db->qn('u.name'))->select($db->qn('u.email'))
+				->select($db->qn('u.lang'))
+				->from($db->qn('#__rseventspro_users','u'))
+				->where($db->qn('u.ide').' = '.$db->q($ide))
+				->group($db->qn('u.email'));
+			
+			if ($status) {
+				$query->where($db->qn('u.state').' IN ('.$status.')');
+			}
+			
+			JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query, 'rule' => 'u.ide')));	
+		} else if ($event->rsvp) {
+			$query->clear()
+				->select($db->qn('u.name'))->select($db->qn('u.email'))
+				->select("CAST('en-GB' AS CHAR) AS lang")
+				->from($db->qn('#__users','u'))
+				->join('LEFT', $db->qn('#__rseventspro_rsvp_users','r').' ON '.$db->qn('u.id').' = '.$db->qn('r.uid'))
+				->where($db->qn('r.ide').' = '.$db->q($ide));
+			
+			if ($status) {
+				if ($statuses = explode(',',$status)) {
+					foreach ($statuses as $i => $statusID) {
+						if ($statusID == 0) $statuses[$i] = $db->q('interested');
+						elseif ($statusID == 1) $statuses[$i] = $db->q('going');
+						elseif ($statusID == 2) $statuses[$i] = $db->q('notgoing');
+					}
+					
+					$status = implode(',', $statuses);
+					$query->where($db->qn('r.rsvp').' IN ('.$status.')');
+				}
+			}
+		} else {
+			return false;
+		}
+		
+		$db->setQuery($query);
+		if ($subscribers = $db->loadObjectList()) {
+			foreach ($subscribers as $subscriber) {
+				rseventsproEmails::cancelemail($subscriber->email, $ide, $subscriber->name, $subscriber->lang);
+			}
+		}
+	}
+	
+	protected static function cancelemail($to, $ide, $name, $lang) {
+		$config		= rseventsproHelper::getConfig();
+		$email		= rseventsproEmails::email('cancel', null, null, $lang);
+		
+		if (empty($email) || !$email->enable) {
+			return false;
+		}
+		
+		$from		= $config->email_from;
+		$fromName	= $config->email_fromname;
+		$mode		= $email->mode;
+		$replyto	= $config->email_replyto;
+		$replyname	= $config->email_replytoname;
+		$cc			= $config->email_cc;
+		$bcc		= $config->email_bcc;
+		$cc			= !empty($cc) ? $cc : null;
+		$bcc		= !empty($bcc) ? $bcc : null;
+		$subject	= $email->subject;
+		$body		= $email->message;
+		
+		$replacer	= array(
+			'from'		=> $from,
+			'fromName'	=> $fromName,
+			'replyto'	=> $replyto,
+			'replyname' => $replyname,
+			'cc'		=> $cc,
+			'bcc'		=> $bcc,
+			'subject'	=> $subject,
+			'body'		=> $body
+		);
+		
+		$text				= rseventsproEmails::placeholders($replacer, $ide, $name);
+		$text['cc']			= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
+		$text['bcc']		= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text['replyto']	= isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
+		$text['replyname']	= isset($text['replyname']) && !empty($text['replyname']) ? explode(',',$text['replyname']) : null;
+		
+		$mailer	= JFactory::getMailer();
+		return $mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+	}
+	
 	/*
 	*	Get RSVP email
 	*/
 	
-	protected function rsvpemail($type, $to, $ide) {
+	protected static function rsvpemail($type, $to, $ide) {
 		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);
 		$check	= str_replace('rsvp', 'rsvp_', $type);

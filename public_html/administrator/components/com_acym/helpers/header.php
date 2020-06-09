@@ -31,7 +31,7 @@ class acymheaderHelper extends acymObject
 
     private function getLastNews()
     {
-        $news = @simplexml_load_file(ACYM_ACYWEBSITE.'acymnews.xml');
+        $news = @simplexml_load_file(ACYM_ACYMAILLING_WEBSITE.'acymnews.xml');
         if (empty($news->news)) return '';
 
 

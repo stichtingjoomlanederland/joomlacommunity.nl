@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `#__rscomments_comments` (
   `emails` tinyint(2) NOT NULL DEFAULT '0',
   `published` int(2) NOT NULL DEFAULT '0',
   PRIMARY KEY (`IdComment`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `#__rscomments_groups` (
   `IdGroup` int(2) NOT NULL AUTO_INCREMENT,
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `#__rscomments_groups` (
   `gid` int(5) NOT NULL DEFAULT '0',
   `permissions` text NOT NULL,
   PRIMARY KEY (`IdGroup`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `#__rscomments_subscriptions` (
   `IdSubscription` int(10) NOT NULL AUTO_INCREMENT,
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `#__rscomments_subscriptions` (
   `email` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`IdSubscription`),
   KEY `IdComment` (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `#__rscomments_votes` (
   `IdVote` int(5) NOT NULL AUTO_INCREMENT,
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS `#__rscomments_votes` (
   `value` enum('positive','negative') NOT NULL DEFAULT 'positive',
   PRIMARY KEY (`IdVote`),
   KEY `IdComment` (`IdComment`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `#__rscomments_threads` (
   `IdThread` int(5) NOT NULL AUTO_INCREMENT,
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `#__rscomments_threads` (
   `id` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`IdThread`),
   KEY `id` (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `#__rscomments_messages` (
   `id` int(4) NOT NULL AUTO_INCREMENT,
@@ -67,15 +67,14 @@ CREATE TABLE IF NOT EXISTS `#__rscomments_messages` (
   `tag` varchar(10) NOT NULL DEFAULT '',
   `content` text NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `#__rscomments_emoticons` (
 	`id` INT NOT NULL AUTO_INCREMENT,
 	`replace` VARCHAR( 225 ) NOT NULL DEFAULT '',
 	`with` TEXT NOT NULL,
 	PRIMARY KEY ( `id` )
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
-
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `#__rscomments_reports` (
 	`id` INT NOT NULL AUTO_INCREMENT,
@@ -86,8 +85,7 @@ CREATE TABLE IF NOT EXISTS `#__rscomments_reports` (
 	`date` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
 	PRIMARY KEY ( `id` ),
 	INDEX ( `IdComment` )
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
-
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO `#__rscomments_messages` (`id`, `type`, `tag`, `content`) VALUES(1, 'terms', 'en-GB', '<p>By checking this, you agree with the following: <br /><br />1. To accept full responsibility for the comment that you submit.<br />2. To use this function only for lawful purposes.<br />3. Not to post defamatory, abusive, offensive, racist, sexist, threatening, vulgar, obscene, hateful or otherwise inappropriate comments, or to post comments which will constitute a criminal offense or give rise to civil liability.<br />4. Not to post or make available any material which is protected by copyright, trade mark or other proprietary right without the express permission of the owner of the copyright, trade mark or any other proprietary right.<br />5. To evaluate for yourself the accuracy of any opinion, advice or other content.</p>');
 INSERT IGNORE INTO `#__rscomments_messages` (`id`, `type`, `tag`, `content`) VALUES(2, 'comments_closed', 'en-GB', 'Comments closed!');

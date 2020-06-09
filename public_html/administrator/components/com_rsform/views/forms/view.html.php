@@ -105,7 +105,7 @@ class RsformViewForms extends JViewLegacy
 
 			$lists['post_enabled'] 	= $this->renderHTML('select.booleanlist', 'form_post[enabled]', '', $this->form_post->enabled);
 			$lists['post_method'] 	= $this->renderHTML('select.booleanlist', 'form_post[method]', '', $this->form_post->method, JText::_('RSFP_POST_METHOD_POST'), JText::_('RSFP_POST_METHOD_GET'));
-			$lists['post_silent'] 	= $this->renderHTML('select.booleanlist', 'form_post[silent]', '', $this->form_post->silent);
+			$lists['post_silent'] 	= $this->renderHTML('select.booleanlist', 'form_post[silent]', 'onchange="document.getElementById(\'com-rsform-post-headers-container\').style.display = this.value == \'1\' ? \'\' : \'none\';"', $this->form_post->silent);
 
 			$this->lang = $this->get('lang');
 
@@ -288,7 +288,6 @@ class RsformViewForms extends JViewLegacy
 
 	protected function renderHTML() {
 		$args = func_get_args();
-
 		if ($args[0] == 'select.booleanlist') {
 			// 0 - type
 			// 1 - name
@@ -301,11 +300,11 @@ class RsformViewForms extends JViewLegacy
 			$radio = JFormHelper::loadFieldType('radio');
 
 			// setup the properties
-			$name	 	= $this->escape($args[1]);
+			$name	 	= htmlspecialchars($args[1], ENT_COMPAT, 'utf-8');
 			$additional = isset($args[2]) ? (string) $args[2] : '';
 			$value		= $args[3];
-			$yes 	 	= isset($args[4]) ? $this->escape($args[4]) : 'JYES';
-			$no 	 	= isset($args[5]) ? $this->escape($args[5]) : 'JNO';
+			$yes 	 	= isset($args[4]) ? htmlspecialchars($args[4], ENT_COMPAT, 'utf-8') : 'JYES';
+			$no 	 	= isset($args[5]) ? htmlspecialchars($args[5], ENT_COMPAT, 'utf-8') : 'JNO';
 
 			// prepare the xml
 			$element = new SimpleXMLElement('<field name="'.$name.'" type="radio" class="btn-group"><option '.$additional.' value="0">'.$no.'</option><option '.$additional.' value="1">'.$yes.'</option></field>');

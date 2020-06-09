@@ -226,14 +226,17 @@ class acymuserClass extends acymClass
         return acym_loadObject($query);
     }
 
-    public function getUserSubscriptionById($userId, $key = 'id')
+    public function getUserSubscriptionById($userId, $key = 'id', $includeManagement = false)
     {
         $query = 'SELECT list.id, list.name, list.color, list.active, list.visible, userlist.status, userlist.subscription_date, userlist.unsubscribe_date 
                 FROM #__acym_list AS list 
                 JOIN #__acym_user_has_list AS userlist 
                     ON list.id = userlist.list_id 
-                WHERE userlist.user_id = '.intval($userId).'
-                AND list.front_management IS NULL';
+                WHERE userlist.user_id = '.intval($userId);
+
+        if (empty($includeManagement)) {
+            $query .= ' AND list.front_management IS NULL';
+        }
 
         return acym_loadObjectList($query, $key);
     }
@@ -337,7 +340,7 @@ class acymuserClass extends acymClass
             $user = $this->getOneById($userId);
             if (empty($user)) continue;
 
-            $currentSubscription = $this->getUserSubscriptionById($userId);
+            $currentSubscription = $this->getUserSubscriptionById($userId, 'id', true);
 
             $currentlySubscribed = [];
             $currentlyUnsubscribed = [];
@@ -491,6 +494,7 @@ class acymuserClass extends acymClass
             acym_query('DELETE FROM #__acym_queue WHERE user_id IN ('.implode(',', $elements).')');
             acym_query('DELETE FROM #__acym_user_has_field WHERE user_id IN ('.implode(',', $elements).')');
             acym_query('DELETE FROM #__acym_history WHERE user_id IN ('.implode(',', $elements).')');
+            acym_query('DELETE FROM #__acym_user_stat WHERE user_id IN ('.implode(',', $elements).')');
 
             return parent::delete($elements);
         } else {
@@ -947,15 +951,17 @@ class acymuserClass extends acymClass
         if ($isnew) $this->sendNotification($id, 'acy_notification_create');
 
         $acymailingUser = $this->getOneById($id);
-        if (!$this->config->get('regacy_forceconf', 0) || !empty($user['block']) || !empty($acymailingUser->confirmed)) return;
+        if (!empty($user['block']) || !empty($acymailingUser->confirmed)) return;
 
+        $confirmationRequired = $this->config->get('require_confirmation', 1);
 
         if ($isnew || !empty($oldUser['block'])) {
-            $this->forceConf = true;
-            $this->sendConfirmation($id);
+            if ($confirmationRequired && $this->config->get('regacy_forceconf', 0)) {
+                $this->forceConf = true;
+                $this->sendConfirmation($id);
+            }
 
-            $confirmationRequired = $this->config->get('require_confirmation', 1);
-            if (!$confirmationRequired) {
+            if (!$confirmationRequired && !empty($oldUser['email'])) {
                 $listIDs = acym_loadResultArray('SELECT `list_id` FROM `#__acym_user_has_list` WHERE `status` = 1 AND `user_id` = '.intval($id));
                 if (empty($listIDs)) return;
                 $listsClass->sendWelcome($id, $listIDs);

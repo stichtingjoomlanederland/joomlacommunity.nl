@@ -9,6 +9,10 @@ defined('_JEXEC') or die('Restricted access');
 
 JText::script('RSFP_POST_NAME_PLACEHOLDER');
 JText::script('RSFP_POST_VALUE_PLACEHOLDER');
+JText::script('RSFP_POST_HEADERS_NAME_PLACEHOLDER');
+JText::script('RSFP_POST_HEADERS_VALUE_PLACEHOLDER');
+JText::script('RSFP_POST_ARE_YOU_SURE_DELETE_THIS_FIELD');
+JText::script('RSFP_POST_ARE_YOU_SURE_DELETE_THIS_HEADER');
 ?>
 <fieldset>
 <h3 class="rsfp-legend"><?php echo JText::_('RSFP_POST_TO_LOCATION'); ?></h3>
@@ -53,4 +57,29 @@ JText::script('RSFP_POST_VALUE_PLACEHOLDER');
 	<?php } ?>
 	</tbody>
 </table>
+    <div id="com-rsform-post-headers-container"<?php if (!$this->form_post->silent) { ?> style="display: none;"<?php } ?>>
+    <h3 class="rsfp-legend"><?php echo JText::_('RSFP_POST_TO_LOCATION_HEADERS'); ?></h3>
+    <table width="100%" class="com-rsform-table-props" id="com-rsform-post-headers">
+        <thead>
+        <tr>
+            <th class="text-left" align="left" colspan="3"><button type="button" onclick="RSFormPro.Post.addHeader();" class="btn btn-primary"><?php echo JText::_('RSFP_ADD_POST_VALUE'); ?></button></th>
+        </tr>
+        <tr>
+            <th><?php echo JText::_('RSFP_POST_NAME'); ?></th>
+            <th colspan="2"><?php echo JText::_('RSFP_POST_VALUE'); ?></th>
+        </tr>
+        </thead>
+        <tbody>
+		<?php if (!empty($this->form_post->headers) && is_array($this->form_post->headers)) { $i = 0;?>
+			<?php foreach ($this->form_post->headers as $header) { ?>
+                <tr>
+                    <td><input type="text" class="rs_inp rs_80" name="form_post[headers_name][]" id="form_post_headers_name<?php echo $i ?>" placeholder="<?php echo $this->escape(JText::_('RSFP_POST_HEADERS_NAME_PLACEHOLDER')); ?>" data-delimiter=" " data-placeholders="display" value="<?php echo $this->escape($header->name); ?>" /></td>
+                    <td><input type="text" class="rs_inp rs_80" name="form_post[headers_value][]" id="form_post_headers_value<?php echo $i ?>" placeholder="<?php echo $this->escape(JText::_('RSFP_POST_HEADERS_VALUE_PLACEHOLDER')); ?>" data-delimiter=" " data-placeholders="display" data-filter-type="include" data-filter="value,global" value="<?php echo $this->escape($header->value); ?>" /></td>
+                    <td><button type="button" onclick="RSFormPro.Post.deleteHeader.call(this);" class="btn btn-danger btn-mini"><i class="rsficon rsficon-remove"></i></button></td>
+                </tr>
+				<?php $i++; } ?>
+		<?php } ?>
+        </tbody>
+    </table>
+    </div>
 </fieldset>

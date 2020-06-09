@@ -18,24 +18,9 @@ if (defined('AKEEBA_VIEW_JAVASCRIPT_HOWTORESTORE'))
 
 define('AKEEBA_VIEW_JAVASCRIPT_HOWTORESTORE', 1);
 
-$js = <<< JS
-
-;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
-// due to missing trailing semicolon and/or newline in their code.
-akeeba.System.documentReady(function(){
-	setTimeout(function(){
-		akeeba.System.howToRestoreModal = akeeba.Modal.open({
-		inherit: '#akeeba-config-howtorestore-bubble',
-		width: '80%'
-	});
-	}, 500);
-});
-
-JS;
+$this->container->platform->getDocument()->addScriptOptions('akeeba.Manage.ShowHowToRestoreModal', 1);
 
 ?>
-@inlineJs($js)
-
 <div id="akeeba-config-howtorestore-bubble">
     <div class="akeeba-renderer-fef">
         <h4>@lang('COM_AKEEBA_BUADMIN_LABEL_HOWDOIRESTORE_LEGEND')</h4>
@@ -49,8 +34,7 @@ JS;
         </p>
 
         <div>
-            <a href="#" class="akeeba-btn--primary"
-               onclick="akeeba.System.howToRestoreModal.close(); document.getElementById('akeeba-config-howtorestore-bubble').style.display = 'none'">
+            <a class="akeeba-btn--primary" id="comAkeebaManageCloseHowToRestoreModal">
                 <span class="akion-close"></span>
                 @lang('COM_AKEEBA_BUADMIN_BTN_REMINDME')
             </a>

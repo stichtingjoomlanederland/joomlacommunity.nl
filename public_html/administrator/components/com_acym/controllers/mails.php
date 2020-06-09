@@ -23,9 +23,9 @@ class MailsController extends acymController
 
         $searchFilter = acym_getVar('string', 'mails_search', '');
         $tagFilter = acym_getVar('string', 'mails_tag', '');
-        $ordering = acym_getVar('string', 'mails_ordering', 'id');
+        $ordering = acym_getVar('string', 'mails_ordering', 'name');
         $status = 'standard';
-        $orderingSortOrder = acym_getVar('string', 'mails_ordering_sort_order', 'desc');
+        $orderingSortOrder = acym_getVar('string', 'mails_ordering_sort_order', 'asc');
 
         $pagination = acym_get('helper.pagination');
         $mailsPerPage = $pagination->getListLimit();
@@ -42,20 +42,14 @@ class MailsController extends acymController
         ];
         $matchingMails = $this->getMatchingElementsFromData($requestData, $status, $page);
 
+
         $matchingMailsNb = count($matchingMails['elements']);
 
-        if (empty($matchingMailsNb)) {
-            if ($page > 1) {
-                acym_setVar('mails_pagination_page', 1);
-                $this->listing();
+        if (empty($matchingMailsNb) && $page > 1) {
+            acym_setVar('mails_pagination_page', 1);
+            $this->listing();
 
-                return;
-            } elseif (!empty($status)) {
-                acym_setVar('mails_status', '');
-                $this->listing();
-
-                return;
-            }
+            return;
         }
 
         $pagination->setStatus($matchingMails['total'], $page, $mailsPerPage);
@@ -80,7 +74,7 @@ class MailsController extends acymController
     {
         acym_setVar('layout', 'choose');
 
-        $this->breadcrumb[acym_translation('ACYM_CREATE')] = "";
+        $this->breadcrumb[acym_translation('ACYM_CREATE')] = '';
 
         $searchFilter = acym_getVar('string', 'mailchoose_search', '');
         $tagFilter = acym_getVar('string', 'mailchoose_tag', 0);
@@ -124,7 +118,7 @@ class MailsController extends acymController
         $tempId = acym_getVar('int', 'id');
         $mailClass = acym_get('class.mail');
         $typeEditor = acym_getVar('string', 'type_editor');
-        $notification = acym_getVar("cmd", "notification");
+        $notification = acym_getVar('cmd', 'notification');
         $return = acym_getVar('string', 'return', '');
         $return = empty($return) ? '' : urldecode($return);
         $type = acym_getVar('string', 'type');
@@ -160,6 +154,7 @@ class MailsController extends acymController
                 $mail->editor = 'automation' == $type ? 'acyEditor' : $typeEditor;
                 $mail->headers = '';
                 $mail->thumbnail = null;
+                $mail->links_language = '';
             } else {
                 $mail = $fromMail;
                 $mail->id = 0;
@@ -211,17 +206,18 @@ class MailsController extends acymController
             'isAutomationAdmin' => $isAutomationAdmin,
             'social_icons' => $this->config->get('social_icons', '{}'),
             'fromId' => $fromId,
+            'langChoice' => acym_languageOption($mail->links_language, 'mail[links_language]'),
         ];
 
         if (!empty($return)) $data['return'] = $return;
 
-        acym_setVar("layout", "edit");
+        acym_setVar('layout', 'edit');
         parent::display($data);
     }
 
     public function editor_wysid()
     {
-        acym_setVar("layout", "editor_wysid");
+        acym_setVar('layout', 'editor_wysid');
 
         parent::display();
     }
@@ -261,7 +257,7 @@ class MailsController extends acymController
             return false;
         }
 
-        $mail->tags = acym_getVar("array", "template_tags", []);
+        $mail->tags = acym_getVar('array', 'template_tags', []);
         $mail->body = acym_getVar('string', 'editor_content', '', 'REQUEST', ACYM_ALLOWRAW);
         $mail->settings = acym_getVar('string', 'editor_settings', '', 'REQUEST', ACYM_ALLOWRAW);
         $mail->stylesheet = acym_getVar('string', 'editor_stylesheet', '', 'REQUEST', ACYM_ALLOWRAW);
@@ -373,7 +369,7 @@ class MailsController extends acymController
         $orderingSortOrder = 'DESC';
         $type = acym_getVar('string', 'type', 'custom');
         $editor = acym_getVar('string', 'editor');
-        $automation = acym_getVar('string', 'automation');
+        $automation = acym_getVar('boolean', 'automation', false);
         $returnUrl = acym_getVar('string', 'return');
         $returnUrl = empty($returnUrl) || 'undefined' == $returnUrl ? '' : '&return='.urlencode($returnUrl);
 
@@ -390,7 +386,7 @@ class MailsController extends acymController
                 'elementsPerPage' => $mailsPerPage,
                 'offset' => ($page - 1) * $mailsPerPage,
                 'tag' => $tagFilter,
-                'editor' => $editor,
+                'automation' => $automation,
                 'onlyStandard' => true,
                 'creator_id' => $this->setFrontEndParamsForTemplateChoose(),
             ]
@@ -404,10 +400,10 @@ class MailsController extends acymController
 
             $url = acym_getVar('cmd', 'ctrl').'&task=edit&step=editEmail&from='.intval($oneTemplate->id).$returnUrl.'&type='.$type.$id;
             if (!empty($this->data['campaignInformation'])) $url .= '&id='.intval($this->data['campaignInformation']);
-            if ('true' != $automation || !empty($returnUrl)) $return .= '<a href="'.acym_completeLink($url, false, false, true).'">';
+            if (!$automation || !empty($returnUrl)) $return .= '<a href="'.acym_completeLink($url, false, false, true).'">';
 
             $return .= '<img src="'.acym_escape(acym_getMailThumbnail($oneTemplate->thumbnail)).'" alt="template thumbnail"/>';
-            if ('true' != $automation || !empty($returnUrl)) $return .= '</a>';
+            if (!$automation || !empty($returnUrl)) $return .= '</a>';
             $return .= '<div class="acym__templates__choose__ribbon '.($oneTemplate->drag_editor ? 'acyeditor' : 'htmleditor').'">'.($oneTemplate->drag_editor ? 'AcyEditor' : 'HTML Editor').'</div>';
 
             if (strlen($oneTemplate->name) > 55) {
@@ -603,8 +599,20 @@ class MailsController extends acymController
         $newPath = ACYM_UPLOAD_FOLDER.'socials'.DS.$socialName;
         $newPathComplete = $newPath.'.'.$extension['extension'];
 
-        if (!acym_uploadFile($_FILES['file']['tmp_name'], ACYM_ROOT.$newPathComplete) || empty($socialName)) {
-            echo 'error';
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'ico', 'bmp', 'svg'];
+        if (!in_array($extension['extension'], $allowedExtensions)) {
+            $errorMessage = acym_translation_sprintf('ACYM_ACCEPTED_TYPE', $extension['extension'], implode(', ', $allowedExtensions));
+        } elseif (empty($socialName) || !acym_uploadFile($_FILES['file']['tmp_name'], ACYM_ROOT.$newPathComplete)) {
+            $errorMessage = acym_translation_sprintf('ACYM_ERROR_UPLOADING_FILE_X', $newPathComplete);
+        }
+
+        if (!empty($errorMessage)) {
+            echo json_encode(
+                [
+                    'type' => 'error',
+                    'message' => $errorMessage,
+                ]
+            );
             exit;
         }
 
@@ -620,6 +628,8 @@ class MailsController extends acymController
 
         echo json_encode(
             [
+                'type' => 'success',
+                'message' => acym_translation('ACYM_ICON_IMPORTED'),
                 'url' => $newImgWithoutExtension,
                 'extension' => $extension['extension'],
             ]
@@ -692,6 +702,30 @@ class MailsController extends acymController
     {
         $return = $this->store(true);
         echo json_encode(['error' => !$return ? acym_translation('ACYM_ERROR_SAVING') : '', 'data' => $return]);
+        exit;
+    }
+
+    public function installDefaultTmpl()
+    {
+        $updateHelper = acym_get('helper.update');
+        $updateHelper->installTemplates();
+
+        $this->listing();
+    }
+
+    public function export()
+    {
+        acym_checkToken();
+
+        $templateId = acym_getVar('int', 'templateId', 0);
+
+        if (empty($templateId)) exit;
+
+        $template = $this->currentClass->getOneById($templateId);
+
+        $exportHelper = acym_get('helper.export');
+        $exportHelper->exportTemplate($template);
+
         exit;
     }
 }

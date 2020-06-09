@@ -12,9 +12,9 @@
     <authorUrl>https://www.akeebabackup.com</authorUrl>
     <copyright>Copyright (c)2010-2019 Akeeba Ltd / Nicholas K. Dionysopoulos</copyright>
     <license>GNU GPL v3 or later</license>
-    <version>5.5.0</version>
-    <creationDate>2020-01-03</creationDate>
-    <description>Admin Tools CLI scripts v.5.5.0</description>
+    <version>5.6.0</version>
+    <creationDate>2020-03-20</creationDate>
+    <description>Admin Tools CLI scripts v.5.6.0</description>
 
     <fileset>
         <files target="cli">

@@ -55,6 +55,7 @@ class DynamicsController extends acymController
             $email->reply_to_name = '';
             $email->reply_to_email = '';
             $email->bcc = '';
+            $email->links_language = '';
         }
 
         $email->creation_date = acym_date('now', 'Y-m-d H:i:s', false);

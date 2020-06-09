@@ -15,7 +15,8 @@ class RSFormProFieldUikit3Fileupload extends RSFormProFieldFileUpload
     {
 		$multipleplus = $this->getProperty('MULTIPLEPLUS', false);
 
-    	$html = '<div uk-form-custom="target: true">' .
+	    $target = $this->getProperty('ACCEPTEDFILESIMAGES') && $this->getProperty('SHOWIMAGEPREVIEW') ? 'false' : 'true';
+    	$html = '<div uk-form-custom="target: ' . $target . '">' .
 			$this->getFileInput() .
 			'<input class="uk-input uk-form-width-medium" type="text" placeholder="' . JText::_('COM_RSFORM_SELECT_FILE_PLACEHOLDER') . '" disabled>' .
 			'<button class="uk-button uk-button-default" type="button" tabindex="-1">' . JText::_('JSELECT') . '</button>' .

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -1585,7 +1585,7 @@ class ED
 			$comment = ED::table('Comment');
 			$comment->bind($row);
 			
-            $comment->duration = ED::date()->toLapsed($comment->modified);
+			$comment->duration = ED::date()->toLapsed($comment->modified);
 
 			$creator = ED::user($comment->user_id);
 			$comment->creator = $creator;
@@ -3165,8 +3165,6 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function requireLogin()
 	{
@@ -3175,12 +3173,27 @@ class ED
 
 		if ($user->guest) {
 
+			$config = ED::config();
+			$provider = $config->get('main_login_provider');
+
 			// Set the callback so it can be use later.
 			$currentUrl = EDR::current();
+
+			// default login page
+			$url = EDR::_('view=login', false);
+
+			// this one for default login session
 			ED::setCallback($currentUrl);
 
-			ED::setMessageQueue(JText::_( 'COM_EASYDISCUSS_SIGNIN_PLEASE_LOGIN' ), 'info');
-			return $app->redirect(EDR::_('view=login', false));
+			// if the login provider set to other extension
+			if ($provider == 'easysocial' && ED::easysocial()->exists()) {
+
+				$returnURL = '?return=' . base64_encode($currentUrl);	
+				
+				$url = ESR::login(array(), false) . $returnURL;
+			}
+
+			return $app->redirect($url);
 		}
 	}
 
@@ -3189,8 +3202,6 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function getErrorRedirection($message = null)
 	{
@@ -3211,6 +3222,7 @@ class ED
 
 			// If it reached here means the user is already logged in.
 			ED::setMessageQueue($message, 'error');
+
 			return $app->redirect(EDR::_('view=index'), false);
 		}
 
@@ -3562,10 +3574,10 @@ class ED
 			}
 
 			// if that is menu ask item with category id
-			if ($item->query['view'] == 'ask' && (isset($options['category']) && $options['category'])) {
+			if (isset($item->query['view']) && $item->query['view'] == 'ask' && (isset($options['category']) && $options['category'])) {
 				$text = $customPageTitle;
 
-			} elseif ($item->query['view'] != 'ask' && (isset($options['category']) && $options['category'])) {
+			} elseif (isset($item->query['view']) && $item->query['view'] != 'ask' && (isset($options['category']) && $options['category'])) {
 				$text = $originalText;
 			}
 		}
@@ -3580,11 +3592,11 @@ class ED
 			$siteTitle = $jConfig->get('sitename');
 
 			if ($addTitle == 1) {
-				$text = $siteTitle . ' - ' . $text;
+				$text = JText::sprintf('COM_ED_PAGE_TITLE', $siteTitle, $text);
 			}
 
 			if ($addTitle == 2) {
-				$text = $text . ' - ' . $siteTitle;
+				$text = JText::sprintf('COM_ED_PAGE_TITLE', $text, $siteTitle);
 			}
 		}
 
@@ -3593,7 +3605,7 @@ class ED
 
 			if ($paginationNumber > 1) {
 				$paginationText = JText::sprintf('COM_EASYDISCUSS_PAGINATION_TEXT', $paginationNumber);
-				$text = $text . ' - ' . $paginationText;
+				$text = JText::sprintf('COM_ED_PAGE_TITLE', $text, $paginationText);
 			}
 		}
 
@@ -4675,6 +4687,30 @@ class ED
 	}
 
 	/**
+	 * Determine if the site has custom email logo or not
+	 *
+	 * @since   4.1.15
+	 * @access  public
+	 */
+	public static function hasCustomEmailLogo()
+	{
+		static $exists = null;
+
+		if (is_null($exists)) {
+			$currentTemplate = self::getCurrentTemplate();
+			$override = JPATH_ROOT . '/templates/' . $currentTemplate . '/html/com_easydiscuss/emails/logo.png';
+
+			if (JFile::exists($override)) {
+				return true;
+			}
+
+			return false;
+		}
+
+		return $exists;
+	}
+
+	/**
 	 * Retrieves the logo that should be used site wide
 	 *
 	 * @since   4.1.12
@@ -4758,6 +4794,73 @@ class ED
 
 		return false;
 	}
+
+	/**
+	 * Generates a default placeholder image from the discussion post
+	 *
+	 * @since	4.1.15
+	 * @access	public
+	 */
+	public static function getPlaceholderImage()
+	{
+		static $image = null;
+	
+		if (is_null($image)) {
+
+			$app = JFactory::getApplication();
+
+			$image = rtrim(JURI::root(), '/') . '/components/com_easydiscuss/themes/wireframe/images/placeholder-facebook.png';
+
+			// Default post image if the post doesn't contain any image
+			$override = JPATH_ROOT . '/templates/' . $app->getTemplate() . '/html/com_easydiscuss/images/placeholder-facebook.png';
+
+			$exists = JFile::exists($override);
+
+			if ($exists) {
+				$image = rtrim(JURI::root(), '/') . '/templates/' . $app->getTemplate() . '/html/com_easydiscuss/images/placeholder-facebook.png';
+			}
+		}
+
+		return $image;
+	}
+
+
+	/**
+	 * Retrieve the map location request URL
+	 *
+	 * @since	4.1.16
+	 * @access	public
+	 */
+	public static function getMapRequestURL($post, $scale = false)
+	{
+		$config = ED::config();
+
+		$scaleParameter = '';
+
+		$mapType = strtolower($config->get('main_location_map_type'));
+
+		$zoom = $config->get('main_location_default_zoom', 15);
+
+		$gMapKey = $config->get('main_location_gmaps_key');
+
+		$mapLanguage = $config->get('main_location_language');
+
+		$requestURL = "https://maps.googleapis.com/maps/api/staticmap?center=";
+
+		if ($scale) {
+			$scaleParameter = "&scale=2";
+		}
+
+		$additionalParams = "&size=800x200" . $scaleParameter . "&sensor=true&markers=color:red|label:S|";
+
+		$mapUrl = $requestURL . $post->latitude . "," . $post->longitude . "&maptype=" . $mapType . "&zoom=" . $zoom . $additionalParams . $post->latitude . "," . $post->longitude . "&key=" . $gMapKey;
+
+		if ($mapLanguage) {
+			$mapUrl .= "&language=" . $mapLanguage;
+		}
+
+		return $mapUrl;
+	}	
 }
 
 // Backwards compatibility

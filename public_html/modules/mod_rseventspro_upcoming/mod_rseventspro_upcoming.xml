@@ -7,7 +7,7 @@
 	<authorUrl>www.rsjoomla.com</authorUrl>
 	<copyright>(C) 2009-2014 www.rsjoomla.com</copyright>
 	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license> 
-	<version>1.5</version>
+	<version>1.6</version>
 	<description>MOD_RSEVENTSPRO_UPCOMING_DESCRIPTION</description>
 	<scriptfile>script.php</scriptfile>
 	
@@ -75,6 +75,11 @@
 					<option value="0">MOD_RSEVENTSPRO_UPCOMING_EVENTS_ACTIVE_UPCOMING</option>
 					<option value="1">MOD_RSEVENTSPRO_UPCOMING_EVENTS_ACTIVE</option>
 					<option value="2">MOD_RSEVENTSPRO_UPCOMING_EVENTS_UPCOMING</option>
+				</field>
+				
+				<field name="canceled" type="list" default="1" label="MOD_RSEVENTSPRO_UPCOMING_SHOW_CANCELED_EVENTS" description="MOD_RSEVENTSPRO_UPCOMING_SHOW_CANCELED_EVENTS_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
 				</field>
 				
 				<field name="limit" type="text" default="4" label="MOD_RSEVENTSPRO_UPCOMING_LIMIT" description="MOD_RSEVENTSPRO_UPCOMING_LIMIT_DESC" />

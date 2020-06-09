@@ -75,13 +75,8 @@ class CampaignsController extends acymController
     private function getIsPendingGenerated(&$data)
     {
         $campaignClass = acym_get('class.campaign');
-        foreach ($data['allCampaigns'] as $oneCampaign) {
-            if ($campaignClass::SENDING_TYPE_NOW == $oneCampaign->sending_type && $oneCampaign->draft && $oneCampaign->active && !$oneCampaign->sent && !empty($oneCampaign->parent_id)) {
-                $data['generatedPending'] = true;
-            }
-        }
-
-        $data['generatedPending'] = false;
+        $campaingsGenerated = $campaignClass->getAllCampaignsGenerated();
+        $data['generatedPending'] = !empty($campaingsGenerated);
     }
 
     public function chooseTemplate()
@@ -168,6 +163,7 @@ class CampaignsController extends acymController
             $campaign->preheader = '';
             $campaign->body = '';
             $campaign->settings = null;
+            $campaign->links_language = '';
 
             $editLink .= '&from='.$mailId;
         } else {
@@ -200,6 +196,7 @@ class CampaignsController extends acymController
             $campaign->stylesheet = $mail->stylesheet;
             $campaign->headers = $mail->headers;
             $campaign->attachments = empty($mail->attachments) ? [] : json_decode($mail->attachments);
+            $campaign->links_language = $mail->links_language;
 
             if ($checkAutosave) {
                 $campaign->autosave = $mail->autosave;
@@ -348,6 +345,7 @@ class CampaignsController extends acymController
         }
 
         $campaign['containerClass'] = $this->stepContainerClass;
+        $campaign['langChoice'] = acym_languageOption($campaign['currentCampaign']->links_language, 'senderInformation[links_language]');
 
         return parent::display($campaign);
     }
@@ -554,6 +552,7 @@ class CampaignsController extends acymController
         $currentMail->reply_to_name = $senderInformation['reply_to_name'];
         $currentMail->reply_to_email = $senderInformation['reply_to_email'];
         $currentMail->bcc = $senderInformation['bcc'];
+        if (isset($senderInformation['links_language'])) $currentMail->links_language = $senderInformation['links_language'];
 
         $mailClass->save($currentMail);
 
@@ -1120,7 +1119,7 @@ class CampaignsController extends acymController
         $data = [
             'id' => $campaign->id,
             'test_emails' => $defaultEmails,
-            'upgrade' => !acym_level(2) ? true : false,
+            'upgrade' => !acym_level(1) ? true : false,
             'version' => 'enterprise',
         ];
 

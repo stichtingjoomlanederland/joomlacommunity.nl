@@ -1,0 +1,5 @@
+{
+    "require": {
+        "willdurand/email-reply-parser": "^2.9"
+    }
+}

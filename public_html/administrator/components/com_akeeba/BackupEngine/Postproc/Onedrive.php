@@ -10,7 +10,6 @@
 namespace Akeeba\Engine\Postproc;
 
 
-
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
 use Akeeba\Engine\Postproc\Connector\OneDrive as ConnectorOneDrive;
@@ -308,10 +307,29 @@ class Onedrive extends Base
 			}
 			catch (Exception $e)
 			{
-				throw new RuntimeException(sprintf(
-					"The upload session for remote file %s cannot be created",
-					$remotePath
-				), 500, $e);
+				Factory::getLog()->debug(sprintf(
+					"%s - Failed to create a new upload session; will try to refresh the tokens first",
+					__METHOD__
+				));
+
+				$upload_id = null;
+			}
+
+			if (is_null($upload_id))
+			{
+				try
+				{
+					$this->forceRefreshTokens();
+
+					$upload_id = $connector->createUploadSession($remotePath);
+				}
+				catch (Exception $e)
+				{
+					throw new RuntimeException(sprintf(
+						"The upload session for remote file %s cannot be created",
+						$remotePath
+					), 500, $e);
+				}
 			}
 
 			Factory::getLog()->debug(sprintf(

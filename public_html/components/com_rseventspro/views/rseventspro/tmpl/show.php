@@ -71,7 +71,7 @@ rseventsproMapHelper::loadMap($mapParams);
 
 <?php JFactory::getApplication()->triggerEvent('rsepro_onBeforeEventDisplay',array(array('event' => &$event, 'categories' => &$categories, 'tags' => &$tags))); ?>
 
-<div id="rs_event_show">
+<div id="rs_event_show"<?php echo $event->published == 3 ? ' class="rsepro_canceled_event_show"' : ''; ?>>
 	
 	<!-- Event Message -->
 	<?php if ($full && $event->event_full && !$this->eventended) { ?>
@@ -83,7 +83,10 @@ rseventsproMapHelper::loadMap($mapParams);
 	<!-- end Event Message -->
 
 	<!-- Event Title -->
-	<h1 class="<?php echo $full ? ' rs_event_full' : ''; ?><?php echo $ongoing ? ' rs_event_ongoing' : ''; ?><?php echo $featured; ?>"><?php echo $this->escape($event->name); ?></h1>
+	<h1 class="<?php echo $full ? ' rs_event_full' : ''; ?><?php echo $ongoing ? ' rs_event_ongoing' : ''; ?><?php echo $featured; ?>">
+		<?php echo $this->escape($event->name); ?>
+		<?php if ($event->published == 3) { ?><small class="text-error">(<?php echo JText::_('COM_RSEVENTSPRO_EVENT_CANCELED_TEXT'); ?>)</small><?php } ?>
+	</h1>
 	<!--//end Event Title -->
 
 	<div class="rs_controls">
@@ -110,6 +113,15 @@ rseventsproMapHelper::loadMap($mapParams);
 					</a>
 				</li>
 				<?php } ?>
+				
+				<?php if (rseventsproHelper::hasUnsubscribers($event->id)) { ?>
+				<li>
+					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=unsubscribers&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
+						<i class="fa fa-users fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_UNSUBSCRIBERS'); ?>
+					</a>
+				</li>
+				<?php } ?>
+				
 				<?php if (rseventsproHelper::hasWaitingList($event->id)) { ?>
 				<li>
 					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=waitinglist&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
@@ -148,6 +160,13 @@ rseventsproMapHelper::loadMap($mapParams);
 						<i class="fa fa-barcode fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_SCAN_TICKET'); ?>
 					</a>
 				</li>
+				<?php if ($event->published != 3) { ?>
+				<li>
+					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.cancelevent&id='.rseventsproHelper::sef($event->id,$event->name)); ?>" onclick="return confirm('<?php echo JText::_('COM_RSEVENTSPRO_EVENT_CANCEL_CONFIRMATION', true); ?>');">
+						<i class="fa fa-times fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_CANCEL_EVENT'); ?>
+					</a>
+				</li>
+				<?php } ?>
 				<li>
 					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.remove&id='.rseventsproHelper::sef($event->id,$event->name)); ?>" onclick="return confirm('<?php echo JText::_('COM_RSEVENTSPRO_EVENT_DELETE_CONFIRMATION'); ?>');">
 						<i class="fa fa-trash fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_DELETE_EVENT'); ?>
@@ -300,7 +319,7 @@ rseventsproMapHelper::loadMap($mapParams);
 	<!-- Image -->
 	<?php if (!empty($details['image_b'])) { ?>
 	<div class="rs_image">
-		<a href="<?php echo $imageURL; ?>" rel="rs_image"<?php if ($modal == 1) echo 'onclick=" rsepro_show_image(\''.$details['image'].'\');"' ?> class="thumbnail">
+		<a href="<?php echo $imageURL; ?>" rel="rs_image"<?php if ($modal == 1) echo ' onclick=" rsepro_show_image(\''.$details['image'].'\');"' ?> class="thumbnail">
 			<img src="<?php echo $details['image_b']; ?>" alt="<?php echo $this->escape($event->name); ?>" width="<?php echo rseventsproHelper::getConfig('icon_big_width','int'); ?>px" />
 		</a>
 	</div>

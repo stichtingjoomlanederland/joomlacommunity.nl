@@ -12,8 +12,8 @@
 	<authorUrl>http://www.akeebabackup.com</authorUrl>
 	<copyright>Copyright (c)2010-2019 Nicholas K. Dionysopoulos</copyright>
 	<license>GNU General Public License version 3, or later</license>
-	<creationDate>2020-01-03</creationDate>
-	<version>5.5.0</version>
+	<creationDate>2020-03-20</creationDate>
+	<version>5.6.0</version>
 	<description>PLG_SYSTEM_ADMINTOOLS_XML_DESCRIPTION</description>
 	<files>
 		<filename plugin="admintools">admintools.php</filename>
@@ -33,6 +33,9 @@
 			<fieldset name="basic">
 				<field name="language_override" type="text" default="" size="5" label="ADMINTOOLS_LANGUAGE_OVERRIDE_LBL" description="ADMINTOOLS_LANGUAGE_OVERRIDE_DESC" />
 				<field name="@spacer" type="spacer" default="" label="" description="" />
+
+				<field name="autoimport_url" type="text" default="" size="5" label="ADMINTOOLS_AUTOIMPORTURL" description="ADMINTOOLS_AUTOIMPORTURL_DESC" />
+				<field name="autoimport_freq" type="text" default="" size="5" label="ADMINTOOLS_AUTOIMPORTFREQ" description="ADMINTOOLS_AUTOIMPORTFREQ_DESC" />
 
 				<field name="rescueurl" type="list" default="1" label="ADMINTOOLS_RESCUEURL" description="ADMINTOOLS_RESCUEURL_DESC">
 					<option value="0">JNo</option>

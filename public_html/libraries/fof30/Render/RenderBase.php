@@ -1,8 +1,8 @@
 <?php
 /**
- * @package     FOF
- * @copyright   Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license     GNU GPL version 2 or later
+ * @package   FOF
+ * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 2, or later
  */
 
 namespace FOF30\Render;
@@ -106,6 +106,7 @@ abstract class RenderBase implements RenderInterface
 	 */
 	function preRender($view, $task)
 	{
+		$this->loadCustomCss();
 	}
 
 	/**
@@ -275,6 +276,35 @@ abstract class RenderBase implements RenderInterface
 		else
 		{
 			return in_array('active', $classes) ? 2 : 1;
+		}
+	}
+
+	/**
+	 * Loads the custom CSS files defined in the custom_css renderer option.
+	 */
+	protected function loadCustomCss()
+	{
+		$custom_css_raw = $this->getOption('custom_css', '');
+		$custom_css_raw = trim($custom_css_raw);
+
+		if (empty($custom_css_raw))
+		{
+			return;
+		}
+
+		$files        = explode(',', $custom_css_raw);
+		$mediaVersion = $this->container->mediaVersion;
+
+		foreach ($files as $file)
+		{
+			$file = trim($file);
+
+			if (empty($file))
+			{
+				continue;
+			}
+
+			$this->container->template->addCSS($file, $mediaVersion);
 		}
 	}
 }

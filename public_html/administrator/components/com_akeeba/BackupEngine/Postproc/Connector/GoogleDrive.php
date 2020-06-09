@@ -159,7 +159,9 @@ class GoogleDrive
 	{
 		$ret         = [];
 		$relativeUrl = 'drives';
-		$result      = $this->fetch('GET', $relativeUrl);
+		$result      = $this->fetch('GET', $relativeUrl, [
+			'pageSize' => 100
+		]);
 
 		if (!isset($result['drives']) || empty($result['drives']))
 		{

@@ -10,24 +10,9 @@ defined('_JEXEC') or die();
 
 /** @var \Akeeba\Backup\Admin\View\Discover\Html $this */
 
-$js = <<< JS
-
-;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
-// due to missing trailing semicolon and/or newline in their code.
-var akeeba_browser_callback = null;
-
-akeeba.System.documentReady(function(){
-	akeeba.Configuration.URLs['browser'] = 'index.php?option=com_akeeba&view=Browser&processfolder=1&tmpl=component&folder=';
-	akeeba.System.addEventListener(document.getElementById('browserbutton'), 'click', function(el){
-		var directory = document.getElementById('directory');
-		akeeba.Configuration.onBrowser( directory.value, directory );
-    });
-})
-
-JS;
-
+$document = $this->container->platform->getDocument();
+$document->addScriptOptions('akeeba.Configuration.URLs.browser', 'index.php?option=com_akeeba&view=Browser&processfolder=1&tmpl=component&folder=');
 ?>
-@inlineJs($js)
 @include('admin:com_akeeba/CommonTemplates/FolderBrowser')
 
 <div class="akeeba-block--info">
@@ -51,7 +36,7 @@ JS;
         <div class="akeeba-input-group">
             <input type="text" name="directory" id="directory" value="{{{ $this->directory }}}" />
             <span class="akeeba-input-group-btn">
-                <button class="akeeba-btn--inverse" onclick="return false;" id="browserbutton">
+                <button class="akeeba-btn--inverse" id="browserbutton">
                     <span class="akion-folder"></span>
                     @lang('COM_AKEEBA_CONFIG_UI_BROWSE')
                 </button>
@@ -64,7 +49,7 @@ JS;
 
     <div class="akeeba-form-group--pull-right">
         <div class="akeeba-form-group--actions">
-            <button class="akeeba-btn--primary" onclick="this.form.submit(); return false;">
+            <button class="akeeba-btn--primary" type="submit">
                 @lang('COM_AKEEBA_DISCOVER_LABEL_SCAN')
             </button>
         </div>

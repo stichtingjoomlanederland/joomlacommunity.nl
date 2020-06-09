@@ -1443,7 +1443,30 @@ RSFormPro.Post.addField = function () {
 };
 
 RSFormPro.Post.deleteField = function () {
-	jQuery(this).parents('tr').remove();
+    if (confirm(Joomla.JText._('RSFP_POST_ARE_YOU_SURE_DELETE_THIS_FIELD'))) {
+        jQuery(this).parents('tr').remove();
+    }
+};
+
+RSFormPro.Post.addHeader = function () {
+    var $table = jQuery('#com-rsform-post-headers tbody');
+    var $row = jQuery('<tr>');
+
+    var $inputName = jQuery('<td><input type="text" id="form_post_headers_name'+ Math.floor((Math.random() * 100000) + 1) +'" data-delimiter=" " data-placeholders="display" name="form_post[headers_name][]" placeholder="' + Joomla.JText._('RSFP_POST_HEADERS_NAME_PLACEHOLDER') + '" class="rs_inp rs_80"></td>');
+    var $inputValue = jQuery('<td><input type="text" id="form_post_headers_value'+ Math.floor((Math.random() * 100000) + 1) +'" data-delimiter=" " data-placeholders="display" data-filter-type="include" data-filter="value,global" name="form_post[headers_value][]" placeholder="' + Joomla.JText._('RSFP_POST_HEADERS_VALUE_PLACEHOLDER') + '" class="rs_inp rs_80"></td>');
+    var $deleteBtn = jQuery('<td>').append(jQuery('<button type="button" class="btn btn-danger btn-mini"><i class="rsficon rsficon-remove"></i></button>').click(RSFormPro.Post.deleteHeader));
+
+    $row.append($inputName, $inputValue, $deleteBtn);
+    $table.append($row);
+    var $object = [$inputName, $inputValue];
+    jQuery(document).trigger('renderedSilentPostField', $object);
+};
+
+RSFormPro.Post.deleteHeader = function () {
+	if (confirm(Joomla.JText._('RSFP_POST_ARE_YOU_SURE_DELETE_THIS_HEADER'))) {
+        jQuery(this).parents('tr').remove();
+	}
+
 };
 
 RSFormPro.removeFile = function(button) {

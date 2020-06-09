@@ -22,8 +22,10 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 		<label for="jform_published"><?php echo JText::_('COM_RSEVENTSPRO_PUBLISH_EVENT'); ?></label>
 	</div>
 	<div class="controls">
+		<?php $states = JHtml::_('jgrid.publishedOptions', $this->states); ?>
+		<?php $states[] = (object) array('value' => 3, 'text' => JText::_('COM_RSEVENTSPRO_CANCELED_STATUS')); ?>
 		<select name="jform[published]" id="jform_published" class="input-medium">
-			<?php echo JHtml::_('select.options', JHtml::_('jgrid.publishedOptions', $this->states), 'value', 'text', $this->item->published, true); ?>
+			<?php echo JHtml::_('select.options', $states, 'value', 'text', $this->item->published, true); ?>
 		</select>
 	</div>
 </div>

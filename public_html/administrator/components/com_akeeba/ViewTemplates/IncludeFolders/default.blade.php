@@ -7,25 +7,9 @@
 
 defined('_JEXEC') or die();
 
-$urlIncludeFolders = addslashes(JUri::base() . 'index.php?option=com_akeeba&view=IncludeFolders&task=ajax');
-$urlBrowser        = addslashes(JUri::base() . 'index.php?option=com_akeeba&view=Browser&processfolder=1&tmpl=component&folder=');
-$this->json        = addcslashes($this->json, "'\\");
-$js                = <<< JS
-
-;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
-// due to missing trailing semicolon and/or newline in their code.
-akeeba.System.documentReady(function(){
-	akeeba.System.params.AjaxURL                       = '$urlIncludeFolders';
-	akeeba.Configuration.URLs['browser']               = '$urlBrowser';
-	akeeba.Configuration.enablePopoverFor(document.querySelectorAll('[rel="popover"]'));
-	var data = JSON.parse('{$this->json}');
-	akeeba.Extradirs.render(data);
-});
-
-JS;
+/** @var \Akeeba\Backup\Admin\View\IncludeFolders\Html $this */
 
 ?>
-@inlineJs($js)
 @include('admin:com_akeeba/CommonTemplates/ErrorModal')
 @include('admin:com_akeeba/CommonTemplates/FolderBrowser')
 @include('admin:com_akeeba/CommonTemplates/ProfileName')

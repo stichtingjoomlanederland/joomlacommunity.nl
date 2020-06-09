@@ -240,8 +240,19 @@ $nginxConfPath = rtrim(JPATH_ROOT, '/\\') . '/nginx.conf';
         </div>
         <div class="akeeba-form-group">
             <label for="wwwredir"><?php echo \JText::_('COM_ADMINTOOLS_LBL_HTACCESSMAKER_WWWREDIR'); ?></label>
-    
-            <?php echo Select::wwwredirs('wwwredir', null, $config->wwwredir); ?>
+
+	        <?php
+	        $value = $config->wwwredir;
+	        $attribs = null;
+
+	        if (!$this->enableRedirects)
+	        {
+		        $value = 0;
+		        $attribs = ['disabled' => 'disabled'];
+	        }
+
+	        echo Select::wwwredirs('wwwredir', $attribs, $value);
+	        ?>
         </div>
         <div class="akeeba-form-group">
             <label for="olddomain"><?php echo \JText::_('COM_ADMINTOOLS_LBL_HTACCESSMAKER_OLDDOMAIN'); ?></label>

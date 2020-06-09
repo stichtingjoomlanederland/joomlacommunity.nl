@@ -299,7 +299,7 @@ defined('_JEXEC') or die('Restricted access');
 
     <?php } else {
 
-        if ($this->config->get('dkim_private', '') == '' || $this->config->get('dkim_public', '') == '') {
+        if ($this->config->get('dkim', 0) == 1 && ($this->config->get('dkim_private', '') == '' || $this->config->get('dkim_public', '') == '')) {
             echo acym_translation('ACYM_DKIM_SAVE');
             acym_addScript(false, ACYM_UPDATEMEURL.'generatedkim');
             ?>

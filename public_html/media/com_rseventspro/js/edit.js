@@ -371,9 +371,11 @@ RSEventsPro.Event = {
 		if (jQuery('#jform_waitinglist').is(':checked')) {
 			jQuery('#rsepro-waitinglist-limit').css('display','');
 			jQuery('#rsepro-waitinglist-time').css('display','');
+			jQuery('#rsepro-waitinglist-emails').css('display','');
 		} else {
 			jQuery('#rsepro-waitinglist-limit').css('display','none');
 			jQuery('#rsepro-waitinglist-time').css('display','none');
+			jQuery('#rsepro-waitinglist-emails').css('display','none');
 		}
 	},
 	

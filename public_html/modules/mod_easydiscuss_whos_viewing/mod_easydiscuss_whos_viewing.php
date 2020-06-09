@@ -19,13 +19,28 @@ if (!JFile::exists($path)) {
 	return;
 }
 
+// check if this is single post page or not.
+$app = JFactory::getApplication();
+$option = $app->input->get('option', '', 'cmd');
+$view = $app->input->get('view', '', 'cmd');
+$layout = $app->input->get('layout', '', 'cmd');
+$id = $app->input->get('id', '', 'int');
+
+// make sure this module only appear in single post page.
+if ($option != 'com_easydiscuss' || $view != 'post' || ($view == 'post' && $layout == 'edit') || !$id) {
+	return;
+}
+
 require_once($path);
 
 ED::init();
 
 $config	= ED::config();
 
-$hash = md5(JRequest::getURI());
+// hash on current post page.
+$post = ED::post($id);
+
+$hash = md5($post->getNonSEFLink());
 
 $model = ED::model('Users');
 $users = $model->getPageViewers($hash);
@@ -35,6 +50,3 @@ if (!$users) {
 }
 
 require(JModuleHelper::getLayoutPath('mod_easydiscuss_whos_viewing'));
-
-
-

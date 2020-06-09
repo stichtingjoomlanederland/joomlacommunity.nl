@@ -1,6 +1,6 @@
 <?php
 defined('_JEXEC') or die('Restricted access');
-?><div class="cell grid-x" id="acym__campaigns__edit_email__attachments">
+?><div class="cell grid-x margin-top-1" id="acym__campaigns__edit_email__attachments">
 	<label class="cell"><?php echo acym_translation('ACYM_ATTACHMENTS'); ?></label>
     <?php if (!empty($data['mailInformation']->attachments)) { ?>
         <?php
@@ -35,3 +35,4 @@ defined('_JEXEC') or die('Restricted access');
 	<a href="javascript:void(0);" id="acym__campaigns__attach__add"><?php echo acym_translation('ACYM_ADD_ATTACHMENT'); ?></a>
     <?php echo acym_translation_sprintf('ACYM_MAX_UPLOAD', $data['maxupload']); ?>
 </div>
+

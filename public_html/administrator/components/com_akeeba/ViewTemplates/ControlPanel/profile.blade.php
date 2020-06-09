@@ -21,6 +21,7 @@ defined('_JEXEC') or die();
 @if (version_compare(JVERSION, '3.999.999', 'lt'))
 	@jhtml('formbehavior.chosen')
 @endif
+
 <div class="akeeba-panel">
 	<form action="index.php" method="post" name="switchActiveProfileForm" id="switchActiveProfileForm">
 		<input type="hidden" name="option" value="com_akeeba" />
@@ -32,11 +33,18 @@ defined('_JEXEC') or die();
 		<input type="hidden" name="@token(true)" value="1" />
 
 	    <label>
-			@lang('COM_AKEEBA_CPANEL_PROFILE_TITLE'): #{{ $this->profileid }}
+			@lang('COM_AKEEBA_CPANEL_PROFILE_TITLE'): #{{ $this->profileId }}
 
 		</label>
-		@jhtml('select.genericlist', $this->profileList, 'profileid', 'onchange="document.forms.switchActiveProfileForm.submit()" class="advancedSelect"', 'value', 'text', $this->profileid)
-		<button class="akeeba-btn akeeba-hidden-phone" onclick="this.form.submit(); return false;">
+
+		{{-- Joomla 3.x: Chosen does not work with attached event handlers, only with inline event scripts (e.g. onchange) --}}
+		@if (version_compare(JVERSION, '3.999.999', 'lt'))
+			@jhtml('select.genericlist', $this->profileList, 'profileid', ['list.select' => $this->profileId, 'id' => 'comAkeebaControlPanelProfileSwitch', 'list.attr' => ['class' => 'advancedSelect', 'onchange' => 'document.forms.switchActiveProfileForm.submit();']])
+		@else
+			@jhtml('select.genericlist', $this->profileList, 'profileid', ['list.select' => $this->profileId, 'id' => 'comAkeebaControlPanelProfileSwitch', 'list.attr' => ['class' => 'advancedSelect']])
+		@endif
+
+		<button class="akeeba-btn akeeba-hidden-phone" type="submit">
 			<span class="akion-forward"></span>
 			@lang('COM_AKEEBA_CPANEL_PROFILE_BUTTON')
 		</button>

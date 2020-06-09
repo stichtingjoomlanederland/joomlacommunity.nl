@@ -17,9 +17,10 @@ use Akeeba\Engine\Platform\Base as BasePlatform;
 use DateTimeZone;
 use FOF30\Container\Container;
 use FOF30\Date\Date;
+use Joomla\CMS\Access\Access;
 use Psr\Log\LogLevel;
 
-if ( !defined('DS'))
+if (!defined('DS'))
 {
 	define('DS', DIRECTORY_SEPARATOR); // Still required by Joomla! :(
 }
@@ -30,26 +31,29 @@ if ( !defined('DS'))
 class Joomla3x extends BasePlatform
 {
 	/**
+	 * Override profile ID, for use in automated testing only
+	 *
+	 * @var   int|null
+	 */
+	public static $profile_id = null;
+	/**
 	 * Platform class priority
 	 *
 	 * @var  int
 	 */
 	public $priority = 53;
-
 	/**
 	 * This platform's name
 	 *
 	 * @var  string
 	 */
 	public $platformName = 'joomla3x';
-
 	/**
 	 * The container of the Akeeba Backup component
 	 *
 	 * @var  Container
 	 */
 	protected $container = null;
-
 	/**
 	 * Flash variables for the CLI application. We use this array since we're hell bent on NOT using Joomla's broken
 	 * session package.
@@ -58,30 +62,23 @@ class Joomla3x extends BasePlatform
 	 *
 	 * @since 5.3.5
 	 */
-	protected $flashVariables = array();
-
-	/**
-	 * Override profile ID, for use in automated testing only
-	 *
-	 * @var   int|null
-	 */
-	public static $profile_id = null;
+	protected $flashVariables = [];
 
 	/**
 	 * Public constructor
 	 */
 	function __construct()
 	{
-		$configOverrides = array();
+		$configOverrides = [];
 
 		if (class_exists('Akeeba\\Engine\\Finalization\\TestExtract'))
 		{
-			$configOverrides['volatile.core.finalization.action_handlers'] = array(
-				new TestExtract()
-			);
-			$configOverrides['volatile.core.finalization.action_queue_before'] = array(
+			$configOverrides['volatile.core.finalization.action_handlers']     = [
+				new TestExtract(),
+			];
+			$configOverrides['volatile.core.finalization.action_queue_before'] = [
 				'test_extract',
-			);
+			];
 		}
 
 		// Apply the configuration overrides, please
@@ -90,6 +87,77 @@ class Joomla3x extends BasePlatform
 		$this->container = Container::getInstance('com_akeeba');
 	}
 
+	public static function quirk_013()
+	{
+		$stock_dirs  = Platform::getInstance()->get_stock_directories();
+		$default_out = @realpath($stock_dirs['[DEFAULT_OUTPUT]']);
+
+		$registry = Factory::getConfiguration();
+		$outdir   = $registry->get('akeeba.basic.output_directory');
+
+		foreach ($stock_dirs as $macro => $replacement)
+		{
+			$outdir = str_replace($macro, $replacement, $outdir);
+		}
+
+		$outdir_real = @realpath($outdir);
+
+		// If the output folder is the default one (or any subdir), we are safe
+		if (strpos($outdir_real, $default_out) !== false)
+		{
+			return false;
+		}
+
+		$component_path = @realpath(JPATH_ADMINISTRATOR . '/components/com_akeeba');
+
+		$forbiddenPaths = [
+			'akeeba',
+			'AliceChecks',
+			'AliceEngine',
+			'alice',
+			'assets',
+			'Assets',
+			'BackupEngine',
+			'BackupPlatform',
+			'Controller',
+			'controllers',
+			'Dispatcher',
+			'engine',
+			'fields',
+			'Helper',
+			'helpers',
+			'Master',
+			'Model',
+			'models',
+			'platform',
+			'plugins',
+			'sql',
+			'tables',
+			'Toolbar',
+			'View',
+			'views',
+			'ViewTemplates',
+		];
+
+		foreach ($forbiddenPaths as $subdir)
+		{
+			$checkPath = realpath($component_path . '/' . $subdir);
+
+			if ($checkPath === false)
+			{
+				continue;
+			}
+
+			$checkPath .= DIRECTORY_SEPARATOR;
+
+			if (strpos($outdir_real, $checkPath) === 0)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	/**
 	 * Loads the current configuration off the database table
@@ -104,13 +172,13 @@ class Joomla3x extends BasePlatform
 		parent::load_configuration($profile_id, $reset);
 
 		// If there is no embedded installer or the wrong embedded installer is selected, fix it automatically
-		$config = Factory::getConfiguration();
+		$config             = Factory::getConfiguration();
 		$embedded_installer = $config->get('akeeba.advanced.embedded_installer', null);
 
 		if (empty($embedded_installer) || ($embedded_installer == 'angie-joomla'))
 		{
 			$protectedKeys = $config->getProtectedKeys();
-			$config->setProtectedKeys(array());
+			$config->setProtectedKeys([]);
 			$config->set('akeeba.advanced.embedded_installer', 'angie');
 			$config->setProtectedKeys($protectedKeys);
 		}
@@ -128,13 +196,13 @@ class Joomla3x extends BasePlatform
 	public function save_configuration($profile_id = null)
 	{
 		// If there is no embedded installer or the wrong embedded installer is selected, fix it automatically
-		$config = Factory::getConfiguration();
+		$config             = Factory::getConfiguration();
 		$embedded_installer = $config->get('akeeba.advanced.embedded_installer', null);
 
 		if (empty($embedded_installer) || ($embedded_installer == 'angie-joomla'))
 		{
 			$protectedKeys = $config->getProtectedKeys();
-			$config->setProtectedKeys(array());
+			$config->setProtectedKeys([]);
 			$config->set('akeeba.advanced.embedded_installer', 'angie');
 			$config->setProtectedKeys($protectedKeys);
 		}
@@ -142,7 +210,6 @@ class Joomla3x extends BasePlatform
 		// Save the configuration
 		return parent::save_configuration($profile_id);
 	}
-
 
 	/**
 	 * Performs heuristics to determine if this platform object is the ideal
@@ -153,19 +220,19 @@ class Joomla3x extends BasePlatform
 	public function isThisPlatform()
 	{
 		// Make sure _JEXEC is defined
-		if ( !defined('_JEXEC'))
+		if (!defined('_JEXEC'))
 		{
 			return false;
 		}
 
 		// We need JVERSION to be defined
-		if ( !defined('JVERSION'))
+		if (!defined('JVERSION'))
 		{
 			return false;
 		}
 
 		// Check if JFactory exists
-		if ( !class_exists('JFactory'))
+		if (!class_exists('JFactory'))
 		{
 			return false;
 		}
@@ -176,7 +243,7 @@ class Joomla3x extends BasePlatform
 		$appExists = $appExists || class_exists('JApplicationCli');
 		$appExists = $appExists || class_exists('AkeebaCliBase');
 
-		if ( !$appExists)
+		if (!$appExists)
 		{
 			return false;
 		}
@@ -191,12 +258,12 @@ class Joomla3x extends BasePlatform
 	 */
 	public function get_stock_directories()
 	{
-		static $stock_directories = array();
+		static $stock_directories = [];
 
 		if (empty($stock_directories))
 		{
-			$jreg = $this->container->platform->getConfig();
-			$tmpdir = $jreg->get('tmp_path');
+			$jreg                                  = $this->container->platform->getConfig();
+			$tmpdir                                = $jreg->get('tmp_path');
 			$stock_directories['[SITEROOT]']       = $this->get_site_root();
 			$stock_directories['[ROOTPARENT]']     = @realpath($this->get_site_root() . '/..');
 			$stock_directories['[SITETMP]']        = $tmpdir;
@@ -320,13 +387,13 @@ class Joomla3x extends BasePlatform
 		{
 			$id = $this->get_active_profile();
 		}
-		$id = (int)$id;
+		$id = (int) $id;
 
 		$db  = Factory::getDatabase($this->get_platform_database_options());
 		$sql = $db->getQuery(true)
-		          ->select($db->qn('description'))
-		          ->from($db->qn('#__ak_profiles'))
-		          ->where($db->qn('id') . ' = ' . $db->q($id));
+			->select($db->qn('description'))
+			->from($db->qn('#__ak_profiles'))
+			->where($db->qn('id') . ' = ' . $db->q($id));
 		$db->setQuery($sql);
 
 		return $db->loadResult();
@@ -360,7 +427,7 @@ class Joomla3x extends BasePlatform
 	/**
 	 * Returns a MySQL-formatted timestamp out of the current date
 	 *
-	 * @param string $date [optional] The timestamp to use. Omit to use current timestamp.
+	 * @param   string  $date  [optional] The timestamp to use. Omit to use current timestamp.
 	 *
 	 * @return string
 	 */
@@ -387,7 +454,7 @@ class Joomla3x extends BasePlatform
 	 * Returns the current timestamp, taking into account any TZ information,
 	 * in the format specified by $format.
 	 *
-	 * @param string $format Timestamp format string (standard PHP format string)
+	 * @param   string  $format  Timestamp format string (standard PHP format string)
 	 *
 	 * @return string
 	 */
@@ -412,7 +479,6 @@ class Joomla3x extends BasePlatform
 
 		return $dateNow->format($format, true);
 	}
-
 
 	/**
 	 * Returns the current host name
@@ -441,25 +507,26 @@ class Joomla3x extends BasePlatform
 	public function get_site_name()
 	{
 		$jconfig = $this->container->platform->getConfig();
+
 		return $jconfig->get('sitename', '');
 	}
 
 	/**
 	 * Gets the best matching database driver class, according to CMS settings
 	 *
-	 * @param bool $use_platform If set to false, it will forcibly try to assign one of the primitive type
-	 *                           (Mysql/Mysqli) and NEVER tell you to use a platform driver.
+	 * @param   bool  $use_platform  If set to false, it will forcibly try to assign one of the primitive type
+	 *                               (Mysql/Mysqli) and NEVER tell you to use a platform driver.
 	 *
 	 * @return string
 	 */
 	public function get_default_database_driver($use_platform = true)
 	{
 		$jconfig = $this->container->platform->getConfig();
-		$driver = $jconfig->get('dbtype');
-		$driver = strtolower($driver);
+		$driver  = $jconfig->get('dbtype');
+		$driver  = strtolower($driver);
 
-		$hasPdo = class_exists('\PDO');
-		$hasMySQL = function_exists('mysql_connect');
+		$hasPdo    = class_exists('\PDO');
+		$hasMySQL  = function_exists('mysql_connect');
 		$hasMySQLi = function_exists('mysqli_connect');
 
 		// Prime with a default return value, favoring PDO MySQL if available
@@ -588,14 +655,14 @@ class Joomla3x extends BasePlatform
 
 		if (empty($options))
 		{
-			$conf = $this->container->platform->getConfig();
-			$options = array(
+			$conf    = $this->container->platform->getConfig();
+			$options = [
 				'host'     => $conf->get('host'),
 				'user'     => $conf->get('user'),
 				'password' => $conf->get('password'),
 				'database' => $conf->get('db'),
-				'prefix'   => $conf->get('dbprefix')
-			);
+				'prefix'   => $conf->get('dbprefix'),
+			];
 		}
 
 		return $options;
@@ -604,7 +671,7 @@ class Joomla3x extends BasePlatform
 	/**
 	 * Provides a platform-specific translation function
 	 *
-	 * @param string $key The translation key
+	 * @param   string  $key  The translation key
 	 *
 	 * @return string
 	 */
@@ -625,15 +692,15 @@ class Joomla3x extends BasePlatform
 			require_once($basePath . '/version.php');
 		}
 
-		if ( !defined('AKEEBA_VERSION'))
+		if (!defined('AKEEBA_VERSION'))
 		{
 			define("AKEEBA_VERSION", "dev");
 		}
-		if ( !defined('AKEEBA_PRO'))
+		if (!defined('AKEEBA_PRO'))
 		{
 			define('AKEEBA_PRO', false);
 		}
-		if ( !defined('AKEEBA_DATE'))
+		if (!defined('AKEEBA_DATE'))
 		{
 			\JLoader::import('joomla.utilities.date');
 			$date = new Date();
@@ -644,17 +711,17 @@ class Joomla3x extends BasePlatform
 	/**
 	 * Returns the platform name and version
 	 *
-	 * @param string $platform_name Name of the platform, e.g. Joomla!
-	 * @param string $version       Full version of the platform
+	 * @param   string  $platform_name  Name of the platform, e.g. Joomla!
+	 * @param   string  $version        Full version of the platform
 	 */
 	public function getPlatformVersion()
 	{
 		$v = new \JVersion();
 
-		return array(
+		return [
 			'name'    => 'Joomla!',
-			'version' => $v->getShortVersion()
-		);
+			'version' => $v->getShortVersion(),
+		];
 	}
 
 	/**
@@ -662,7 +729,7 @@ class Joomla3x extends BasePlatform
 	 */
 	public function log_platform_special_directories()
 	{
-		$ret = array();
+		$ret = [];
 
 		Factory::getLog()->log(LogLevel::INFO, "JPATH_BASE         :" . JPATH_BASE, ['translate_root' => false]);
 		Factory::getLog()->log(LogLevel::INFO, "JPATH_SITE         :" . JPATH_SITE, ['translate_root' => false]);
@@ -677,12 +744,12 @@ class Joomla3x extends BasePlatform
 
 			if (time() - $releaseDate->toUnix() > 10368000)
 			{
-				if ( !isset($ret['warnings']))
+				if (!isset($ret['warnings']))
 				{
-					$ret['warnings'] = array();
-					$ret['warnings'] = array_merge($ret['warnings'], array(
-						'Your version of Akeeba Backup is more than 120 days old and most likely already out of date. Please check if a newer version is published and install it.'
-					));
+					$ret['warnings'] = [];
+					$ret['warnings'] = array_merge($ret['warnings'], [
+						'Your version of Akeeba Backup is more than 120 days old and most likely already out of date. Please check if a newer version is published and install it.',
+					]);
 				}
 			}
 
@@ -693,17 +760,17 @@ class Joomla3x extends BasePlatform
 		{
 			if ((substr(JPATH_ROOT, 0, 2) == '\\\\') || (substr(JPATH_ROOT, 0, 2) == '//'))
 			{
-				if ( !isset($ret['warnings']))
+				if (!isset($ret['warnings']))
 				{
-					$ret['warnings'] = array();
+					$ret['warnings'] = [];
 				}
 
-				$ret['warnings'] = array_merge($ret['warnings'], array(
+				$ret['warnings'] = array_merge($ret['warnings'], [
 					'Your site\'s root is using a UNC path (e.g. \\\\SERVER\\path\\to\\root). PHP has known bugs which may',
 					'prevent it from working properly on a site like this. Please take a look at',
 					'https://bugs.php.net/bug.php?id=40163 and https://bugs.php.net/bug.php?id=52376. As a result your',
-					'backup may fail.'
-				));
+					'backup may fail.',
+				]);
 			}
 		}
 
@@ -718,8 +785,8 @@ class Joomla3x extends BasePlatform
 	/**
 	 * Loads a platform-specific software configuration option
 	 *
-	 * @param string $key
-	 * @param mixed  $default
+	 * @param   string  $key
+	 * @param   mixed   $default
 	 *
 	 * @return mixed
 	 */
@@ -747,75 +814,39 @@ class Joomla3x extends BasePlatform
 	public function get_administrator_emails()
 	{
 		$options = $this->get_platform_database_options();
-		$db = Factory::getDatabase($options);
+		$db      = Factory::getDatabase($options);
 
-		// Load the root asset node and read the rules
-		$query = $db->getQuery(true)
-					->select($db->qn('rules'))
-					->from('#__assets')
-					->where($db->qn('name') . ' = ' . $db->q('root.1'));
-		$db->setQuery($query);
-		$jsonRules = $db->loadResult();
+		// Get all usergroups with Super User access
+		$q      = $db->getQuery(true)
+			->select([$db->qn('id')])
+			->from($db->qn('#__usergroups'));
+		$groups = $db->setQuery($q)->loadColumn();
 
-		$rules       = json_decode($jsonRules, true);
-		$adminGroups = array();
-		$mails       = array();
+		// Get the groups that are Super Users
+		$groups = array_filter($groups, function ($gid) {
+			return Access::checkGroup($gid, 'core.admin');
+		});
 
-		if (array_key_exists('core.admin', $rules))
+		$mails = [];
+
+		foreach ($groups as $gid)
 		{
-			$rawGroups = $rules['core.admin'];
-
-			if ( !empty($rawGroups))
-			{
-				foreach ($rawGroups as $group => $allowed)
-				{
-					if ($allowed)
-					{
-						$adminGroups[] = $db->q($group);
-					}
-				}
-			}
+			$uids = Access::getUsersByGroup($gid);
+			array_walk($uids, function ($uid, $index) use (&$mails) {
+				$mails[] = $this->container->platform->getUser($uid)->email;
+			});
 		}
 
-		if (empty($adminGroups))
-		{
-			return $mails;
-		}
-
-		$adminGroups = implode(',', $adminGroups);
-
-		$query = $db->getQuery(true)
-					->select(array(
-						$db->qn('u') . '.' . $db->qn('name'),
-						$db->qn('u') . '.' . $db->qn('email'),
-					))
-					->from($db->qn('#__users') . ' AS ' . $db->qn('u'))
-					->join(
-						'INNER', $db->qn('#__user_usergroup_map') . ' AS ' . $db->qn('m') . ' ON (' .
-						$db->qn('m') . '.' . $db->qn('user_id') . ' = ' . $db->qn('u') . '.' . $db->qn('id') . ')'
-					)
-					->where($db->qn('m') . '.' . $db->qn('group_id') . ' IN (' . $adminGroups . ')');
-		$db->setQuery($query);
-		$superAdmins = $db->loadAssocList();
-
-		if ( !empty($superAdmins))
-		{
-			foreach ($superAdmins as $admin)
-			{
-				$mails[] = $admin['email'];
-			}
-		}
-
-		return $mails;
+		return array_unique($mails);
 	}
 
 	/**
 	 * Sends a very simple email using the platform's mailer facility
 	 *
-	 * @param   string $to         The recipient's email address
-	 * @param   string $subject    The subject of the email
-	 * @param   string $body       The body of the email
-	 * @param   string $attachFile The file to attach (null to not attach any files)
+	 * @param   string  $to          The recipient's email address
+	 * @param   string  $subject     The subject of the email
+	 * @param   string  $body        The body of the email
+	 * @param   string  $attachFile  The file to attach (null to not attach any files)
 	 *
 	 * @return  boolean
 	 */
@@ -833,7 +864,7 @@ class Joomla3x extends BasePlatform
 			$mailer = null;
 		}
 
-		if ( !is_object($mailer))
+		if (!is_object($mailer))
 		{
 			Factory::getLog()->log(LogLevel::WARNING, "Could not send email to $to - Joomla! cannot send e-mails. Please check your From EMail and From Name fields in Global Configuration.");
 
@@ -844,7 +875,7 @@ class Joomla3x extends BasePlatform
 
 		try
 		{
-			$recipient = array($to);
+			$recipient = [$to];
 
 			$mailer->addRecipient($recipient);
 			$mailer->setSubject($subject);
@@ -859,18 +890,18 @@ class Joomla3x extends BasePlatform
 
 		try
 		{
-			if ( !empty($attachFile))
+			if (!empty($attachFile))
 			{
-				Factory::getLog()->log(LogLevel::WARNING, "-- Attaching $attachFile");
+				Factory::getLog()->log(LogLevel::INFO, "-- Attaching $attachFile");
 
-				if ( !file_exists($attachFile) || !(is_file($attachFile) || is_link($attachFile)))
+				if (!file_exists($attachFile) || !(is_file($attachFile) || is_link($attachFile)))
 				{
 					Factory::getLog()->log(LogLevel::WARNING, "The file does not exist, or it's not a file; no email sent");
 
 					return false;
 				}
 
-				if ( !is_readable($attachFile))
+				if (!is_readable($attachFile))
 				{
 					Factory::getLog()->log(LogLevel::WARNING, "The file is not readable; no email sent");
 
@@ -882,7 +913,7 @@ class Joomla3x extends BasePlatform
 				if ($filesize)
 				{
 					// Check that we have AT LEAST 2.5 times free RAM as the filesize (that's how much we'll need)
-					if ( !function_exists('ini_get'))
+					if (!function_exists('ini_get'))
 					{
 						// Assume 8Mb of PHP memory limit (worst case scenario)
 						$totalRAM = 8388608;
@@ -892,19 +923,19 @@ class Joomla3x extends BasePlatform
 						$totalRAM = ini_get('memory_limit');
 						if (strstr($totalRAM, 'M'))
 						{
-							$totalRAM = (int)$totalRAM * 1048576;
+							$totalRAM = (int) $totalRAM * 1048576;
 						}
 						elseif (strstr($totalRAM, 'K'))
 						{
-							$totalRAM = (int)$totalRAM * 1024;
+							$totalRAM = (int) $totalRAM * 1024;
 						}
 						elseif (strstr($totalRAM, 'G'))
 						{
-							$totalRAM = (int)$totalRAM * 1073741824;
+							$totalRAM = (int) $totalRAM * 1073741824;
 						}
 						else
 						{
-							$totalRAM = (int)$totalRAM;
+							$totalRAM = (int) $totalRAM;
 						}
 						if ($totalRAM <= 0)
 						{
@@ -912,7 +943,7 @@ class Joomla3x extends BasePlatform
 							$totalRAM = 1086373952;
 						}
 					}
-					if ( !function_exists('memory_get_usage'))
+					if (!function_exists('memory_get_usage'))
 					{
 						$usedRAM = 8388608;
 					}
@@ -976,7 +1007,7 @@ class Joomla3x extends BasePlatform
 	/**
 	 * Deletes a file from the local server using direct file access or FTP
 	 *
-	 * @param string $file
+	 * @param   string  $file
 	 *
 	 * @return bool
 	 */
@@ -986,7 +1017,7 @@ class Joomla3x extends BasePlatform
 		{
 			\JLoader::import('joomla.filesystem.file');
 			$result = \JFile::delete($file);
-			if ( !$result)
+			if (!$result)
 			{
 				$result = @unlink($file);
 			}
@@ -1002,8 +1033,8 @@ class Joomla3x extends BasePlatform
 	/**
 	 * Moves a file around within the local server using direct file access or FTP
 	 *
-	 * @param string $from
-	 * @param string $to
+	 * @param   string  $from
+	 * @param   string  $to
 	 *
 	 * @return bool
 	 */
@@ -1014,16 +1045,16 @@ class Joomla3x extends BasePlatform
 			\JLoader::import('joomla.filesystem.file');
 			$result = \JFile::move($from, $to);
 			// JFile failed. Let's try rename()
-			if ( !$result)
+			if (!$result)
 			{
 				$result = @rename($from, $to);
 			}
 			// Rename failed, too. Let's try copy/delete
-			if ( !$result)
+			if (!$result)
 			{
 				// Try copying with JFile. If it fails, use copy().
 				$result = \JFile::copy($from, $to);
-				if ( !$result)
+				if (!$result)
 				{
 					$result = @copy($from, $to);
 				}
@@ -1044,35 +1075,6 @@ class Joomla3x extends BasePlatform
 	}
 
 	/**
-	 * Registers Akeeba Engine's core classes with JLoader
-	 *
-	 * @param string $path_prefix The path prefix to look in
-	 */
-	protected function register_akeeba_engine_classes($path_prefix)
-	{
-		global $Akeeba_Class_Map;
-		\JLoader::import('joomla.filesystem.folder');
-		foreach ($Akeeba_Class_Map as $class_prefix => $path_suffix)
-		{
-			// Bail out if there is such directory, so as not to have Joomla! throw errors
-			if ( !@is_dir($path_prefix . '/' . $path_suffix))
-			{
-				continue;
-			}
-
-			$file_list = \JFolder::files($path_prefix . '/' . $path_suffix, '.*\.php');
-			if (is_array($file_list) && !empty($file_list))
-			{
-				foreach ($file_list as $file)
-				{
-					$class_suffix = ucfirst(basename($file, '.php'));
-					\JLoader::register($class_prefix . $class_suffix, $path_prefix . '/' . $path_suffix . '/' . $file);
-				}
-			}
-		}
-	}
-
-	/**
 	 * Joomla!-specific function to get an instance of the mailer class
 	 *
 	 * @return \JMail
@@ -1080,7 +1082,7 @@ class Joomla3x extends BasePlatform
 	public function &getMailer()
 	{
 		$mailer = \JFactory::getMailer();
-		if ( !is_object($mailer))
+		if (!is_object($mailer))
 		{
 			Factory::getLog()->log(LogLevel::WARNING, "Fetching Joomla!'s mailer was impossible; imminent crash!");
 		}
@@ -1096,8 +1098,8 @@ class Joomla3x extends BasePlatform
 	/**
 	 * Stores a flash (temporary) variable in the session.
 	 *
-	 * @param   string $name  The name of the variable to store
-	 * @param   string $value The value of the variable to store
+	 * @param   string  $name   The name of the variable to store
+	 * @param   string  $value  The value of the variable to store
 	 *
 	 * @return  void
 	 */
@@ -1117,8 +1119,8 @@ class Joomla3x extends BasePlatform
 	 * Return the value of a flash (temporary) variable from the session and
 	 * immediately removes it.
 	 *
-	 * @param   string $name    The name of the flash variable
-	 * @param   mixed  $default Default value, if the variable is not defined
+	 * @param   string  $name     The name of the flash variable
+	 * @param   mixed   $default  Default value, if the variable is not defined
 	 *
 	 * @return  mixed  The value of the variable or $default if it's not set
 	 */
@@ -1137,7 +1139,7 @@ class Joomla3x extends BasePlatform
 			return $ret;
 		}
 
-		$ret     = $this->container->platform->getSessionVar($name, $default, 'akeebabackup');
+		$ret = $this->container->platform->getSessionVar($name, $default, 'akeebabackup');
 		$this->container->platform->setSessionVar($name, null, 'akeebabackup');
 
 		return $ret;
@@ -1146,7 +1148,7 @@ class Joomla3x extends BasePlatform
 	/**
 	 * Perform an immediate redirection to the defined URL
 	 *
-	 * @param   string $url The URL to redirect to
+	 * @param   string  $url  The URL to redirect to
 	 *
 	 * @return  void
 	 */
@@ -1157,38 +1159,38 @@ class Joomla3x extends BasePlatform
 
 	public function apply_quirk_definitions()
 	{
-		Factory::getConfigurationChecks()->addConfigurationCheckDefinition('013', 'critical', 'COM_AKEEBA_CPANEL_WARNING_Q013', array('\\Akeeba\\Engine\\Platform\\Joomla3x', 'quirk_013'));
+		Factory::getConfigurationChecks()->addConfigurationCheckDefinition('013', 'critical', 'COM_AKEEBA_CPANEL_WARNING_Q013', [
+			'\\Akeeba\\Engine\\Platform\\Joomla3x', 'quirk_013',
+		]);
 	}
 
-	public static function quirk_013()
+	/**
+	 * Registers Akeeba Engine's core classes with JLoader
+	 *
+	 * @param   string  $path_prefix  The path prefix to look in
+	 */
+	protected function register_akeeba_engine_classes($path_prefix)
 	{
-		$stock_dirs  = Platform::getInstance()->get_stock_directories();
-		$default_out = @realpath($stock_dirs['[DEFAULT_OUTPUT]']);
-
-		$registry = Factory::getConfiguration();
-		$outdir = $registry->get('akeeba.basic.output_directory');
-
-		foreach ($stock_dirs as $macro => $replacement)
+		global $Akeeba_Class_Map;
+		\JLoader::import('joomla.filesystem.folder');
+		foreach ($Akeeba_Class_Map as $class_prefix => $path_suffix)
 		{
-			$outdir = str_replace($macro, $replacement, $outdir);
+			// Bail out if there is such directory, so as not to have Joomla! throw errors
+			if (!@is_dir($path_prefix . '/' . $path_suffix))
+			{
+				continue;
+			}
+
+			$file_list = \JFolder::files($path_prefix . '/' . $path_suffix, '.*\.php');
+			if (is_array($file_list) && !empty($file_list))
+			{
+				foreach ($file_list as $file)
+				{
+					$class_suffix = ucfirst(basename($file, '.php'));
+					\JLoader::register($class_prefix . $class_suffix, $path_prefix . '/' . $path_suffix . '/' . $file);
+				}
+			}
 		}
-
-		$outdir_real = @realpath($outdir);
-
-		// If the output folder is the default one (or any subdir), we are safe
-		if (strpos($outdir_real, $default_out) !== false)
-		{
-			return false;
-		}
-
-		$component_path = @realpath(JPATH_ROOT.'/administrator/components/com_akeeba');
-
-		if (strpos($outdir_real, $component_path) !== false)
-		{
-			return true;
-		}
-
-		return false;
 	}
 
 	/**

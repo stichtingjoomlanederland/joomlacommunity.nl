@@ -44,8 +44,11 @@ defined('_JEXEC') or die('Restricted access');
 					<div class="large-2 medium-3 small-3 cell acym__listing__header__title">
                         <?php echo acym_translation('ACYM_NAME'); ?>
 					</div>
-					<div class="large-3 medium-4 small-4 cell acym__listing__header__title">
+					<div class="large-2 medium-3 small-4 cell acym__listing__header__title">
                         <?php echo acym_translation('ACYM_USER'); ?>
+					</div>
+					<div class="large-1 medium-1 small-1 cell acym__listing__header__title text-center">
+                        <?php echo acym_translation('ACYM_TOTAL_CLICK'); ?>
 					</div>
 					<div class="large-1 medium-1 small-1 cell acym__listing__header__title text-center">
                         <?php echo acym_translation('ACYM_OPENED'); ?>
@@ -87,8 +90,11 @@ defined('_JEXEC') or die('Restricted access');
 
                             ?>
 						</div>
-						<div class="large-3 medium-4 small-4 cell acym__listing__detailed__stats__content">
+						<div class="large-2 medium-3 small-4 cell acym__listing__detailed__stats__content">
 							<a href="<?php echo acym_completeLink('users&task=edit&id='.$detailed_stat->user_id); ?>" class="acym__color__blue word-break"><?php echo $detailed_stat->email; ?></a>
+						</div>
+						<div class="large-1 medium-1 small-1 cell acym__listing__detailed__stats__content text-center">
+							<p class="hide-for-medium-only hide-for-small-only"><?php echo empty($detailed_stat->total_click) ? 0 : $detailed_stat->total_click; ?></p>
 						</div>
 						<div class="large-1 medium-1 small-1 cell acym__listing__detailed__stats__content text-center">
 							<p class="hide-for-medium-only hide-for-small-only"><?php echo $detailed_stat->open; ?></p>

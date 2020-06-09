@@ -41,7 +41,7 @@ class acymimportHelper extends acymObject
         $extension = strtolower(acym_fileGetExt($importFile['name']));
 
         if (!preg_match('#^(csv)$#Ui', $extension) || preg_match('#\.(php.?|.?htm.?|pl|py|jsp|asp|sh|cgi)$#Ui', $importFile['name'])) {
-            acym_enqueueMessage(acym_translation_sprintf('ACCEPTED_TYPE', acym_escape($extension), $this->config->get('allowed_files')), 'error');
+            acym_enqueueMessage(acym_translation_sprintf('ACYM_ACCEPTED_TYPE', acym_escape($extension), $this->config->get('allowed_files')), 'error');
 
             return false;
         }
@@ -591,9 +591,7 @@ class acymimportHelper extends acymObject
 
     public function _insertUsers($users, $timestamp)
     {
-        if (empty($users)) {
-            return true;
-        }
+        if (empty($users)) return true;
 
         $importedCols = array_keys(get_object_vars($users[0]));
         unset($importedCols[array_search('customfields', $importedCols)]);
@@ -680,8 +678,12 @@ class acymimportHelper extends acymObject
 
             if (!empty($insertValues)) {
                 $queryInsertCustomFields = 'INSERT'.($this->overwrite ? '' : ' IGNORE').' INTO #__acym_user_has_field (`user_id`, `field_id`, `value`) VALUES '.implode(',', $insertValues);
-                if ($this->overwrite) $queryInsertCustomFields .= ' ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)';
+                if ($this->overwrite) {
+                    $queryInsertCustomFields .= ' ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)';
+                }
                 acym_query($queryInsertCustomFields);
+
+                acym_query('DELETE FROM #__acym_user_has_field WHERE `value` = ""');
             }
         }
 

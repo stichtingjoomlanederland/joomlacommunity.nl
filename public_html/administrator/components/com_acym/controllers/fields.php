@@ -46,10 +46,8 @@ class FieldsController extends acymController
             $field->required = 0;
             $field->backend_edition = 1;
             $field->backend_listing = 0;
-            $field->backend_filter = 1;
             $field->frontend_edition = 1;
             $field->frontend_listing = 1;
-            $field->frontend_filter = 1;
             $field->access = 1;
             $field->fieldDB = new stdClass();
         } else {
@@ -208,8 +206,6 @@ class FieldsController extends acymController
         }
         $newField->backend_edition = $field['backend_edition'];
         $newField->backend_listing = $field['backend_listing'];
-        $newField->backend_filter = 1;
-        $newField->frontend_filter = 1;
         $newField->access = 'all';
         if (empty($id)) {
             $newField->ordering = $fieldClass->getOrdering()->ordering_number + 1;

@@ -1,4 +1,39 @@
 <?php die();?>
+Akeeba Backup 7.1.4
+================================================================================
+~ Now getting Super Users list using core Joomla API instead of direct database queries
+# [LOW] Multipart upload to BackBlaze B2 might fail due to a silent B2 behavior change
+# [LOW] OneDrive upload failure if a part upload starts >3600s after token issuance
+
+Akeeba Backup 7.1.3
+================================================================================
+~ Got rid of the Optimize JavaScript feature.
+
+Akeeba Backup 7.1.2
+================================================================================
+# [LOW] The Optimize JavaScript was not working properly on some low end servers due to the way browsers parse deferred scripts at the bottom of the HTML body
+
+Akeeba Backup 7.1.1
+================================================================================
+~ Possible exception when the user has erroneously put their backup output directory to the site's root with open_basedir restrictions restricting access to its parent folder.
+# [HIGH] The Optimize JavaScript option causes a missing class fatal error on Joomla! 3.8 sites
+# [LOW] Missing icon in Manage Backups page, Import Archive toolbar button
+
+Akeeba Backup 7.1.0
+================================================================================
++ Automatic security check of the backup output directory
++ Automatic JavaScript bundling for improved performance
+~ Improved storage of temporary data during backup [akeeba/engine#114]
+~ Log files now have a .php extension to prevent unauthorized access in very rare cases
+~ Enforce the recommended, sensible security measures when using the default backup output directory
+~ Ongoing JavaScript refactoring
+~ Google Drive: fetch up to 100 shared drives (previously: up to 10)
+# [HIGH] An invalid output directory (e.g. by importing a backup profile) will cause a fatal exception in the Control Panel (gh-667)
+# [MEDIUM] CloudFiles post-processing engine: Fixed file uploads
+# [MEDIUM] Swift post-processing engine: Fixed file uploads
+# [LOW] Send by Email reported a successful email sent as a warning
+# [LOW] Database dump: foreign keys' (constraints) and local indices' names did not get their prefix replaced like tables, views etc do
+
 Akeeba Backup 7.0.2
 ================================================================================
 ~ Log the full path to the computed site's root, without <root> replacement

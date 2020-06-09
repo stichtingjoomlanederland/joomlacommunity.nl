@@ -38,6 +38,9 @@ class Upload extends Model
 		$stat         = Platform::getInstance()->get_statistics($id);
 		$returnStatus = false;
 
+		// The number of parts must be AT LEAST 1. If it's 0 it's from a backup record of a VERY old release.
+		$stat['multipart'] = max($stat['multipart'], 1);
+
 		// Load the Factory
 		$savedFactory = $this->container->platform->getSessionVar('upload_factory', null, 'akeeba');
 		$logger       = Factory::getLog();
@@ -123,8 +126,24 @@ class Upload extends Model
 			$remote_filename = $config->get('akeeba.advanced.postproc_engine', '') . '://';
 			$remote_filename .= $engine->getRemotePath();
 
-			// Am I already finished?
-			if (($part >= 0) && ($part > $stat['multipart']))
+			/**
+			 * Am I already finished?
+			 *
+			 * Parts are uploaded in the order 0, 1, 2, ... Part 0 is the .jpa/.jps/.zip file. Part 1 is .j01/.z01 and
+			 * so forth.
+			 *
+			 * $stat['multipart'] contains the total number of parts. Let's say it's 5. This means that we need to
+			 * upload parts 0, 1, 2, 3 and 4. When $part is 5 (or greater, even though that'd be a bug) we must stop
+			 * at one.
+			 *
+			 * In the edge case where $stat['multipart'] is 1 the same thing applies. The only part we must transfer is
+			 * 0. If $part is 1 we're done.
+			 *
+			 * Therefore the condition for checking whether we're all done is that $part is greater than zero (we have
+			 * already uploaded the first and possibly only part) AND $part is greater than OR EQUAL to the total number
+			 * of parts in the backup archive set.
+			 */
+			if (($part >= 0) && ($part >= $stat['multipart']))
 			{
 				Factory::getLog()->info(sprintf(
 					'Finished transfer of backup record #%d',

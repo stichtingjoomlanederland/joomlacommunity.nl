@@ -45,8 +45,19 @@ class Alice extends Model
 	public function reset($log)
 	{
 		// Absolute filesystem path to the log being analyzed
+		$logFile = Factory::getLog()->getLogFilename($log);
+
+		if (!@is_file($logFile) && @file_exists(substr($logFile, 0, -4)))
+		{
+			/**
+			 * Transitional period: the log file akeeba.tag.log.php may not exist but the akeeba.tag.log does. This
+			 * addresses this transition.
+			 */
+			$logFile = substr($logFile, 0, -4);
+		}
+
 		$this->setState('log', $log);
-		$this->setState('logToAnalyze', Factory::getLog()->getLogFilename($log));
+		$this->setState('logToAnalyze', $logFile);
 		// List of checks we need to run
 		$checks = [
 			'Requirements'  => $this->getChecksFor('Requirements'),

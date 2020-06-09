@@ -697,12 +697,13 @@ class RseventsproViewRseventspro extends JViewLegacy
 			
 			if ($this->admin || $this->row->owner == $user->get('id')) {
 				$states = array_merge(array(JHTML::_('select.option', '-', JText::_('COM_RSEVENTSPRO_GLOBAL_SELECT_STATE'))), $this->get('statuses'));
-				$lists['state'] = JHTML::_('select.genericlist', $states, 'state', 'size="1" onchange="document.adminForm.submit();" class="input-small"','value','text',$app->getUserState('com_rseventspro.subscriptions.state.frontend'));
+				$lists['state'] = JHTML::_('select.genericlist', $states, 'state', 'size="1" onchange="document.adminForm.submit();" class="input-large"','value','text',$app->getUserState('com_rseventspro.subscriptions.state.frontend'));
 				
 				$lists['tickets'] = JHTML::_('select.genericlist', $this->get('ticketsfromevent'), 'ticket', 'size="1" onchange="document.adminForm.submit();" class="input-large"','value','text',$app->getUserState('com_rseventspro.subscriptions.ticket.frontend'));
 				
 				$this->data			= $this->get('subscribers');
 				$this->total		= $this->get('totalsubscribers');
+				$this->tickets		= rseventsproHelper::getTickets($this->row->id, false);
 				$this->filter_word	= $app->getUserState('com_rseventspro.subscriptions.search_frontend');
 				
 				//set the pathway
@@ -1021,6 +1022,10 @@ class RseventsproViewRseventspro extends JViewLegacy
 				rseventsproHelper::error(JText::_('COM_RSEVENTSPRO_WAITING_ERROR'), rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->row->id,$this->row->name),false,rseventsproHelper::itemid($this->row->id)));
 			}
 			
+			if (rseventsproHelper::isInWaitingList()) {
+				$app->enqueueMessage(JText::sprintf('COM_RSEVENTSPRO_USER_IN_WAITINGLIST', $user->get('email')));
+			}
+			
 			$theview = isset($menu->query['layout']) ? $menu->query['layout'] : 'rseventspro';
 			if (($menu && $theview != 'show') || !$menu)
 				$pathway->addItem($this->event->name,rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id)));
@@ -1056,6 +1061,23 @@ class RseventsproViewRseventspro extends JViewLegacy
 				$pathway->addItem(JText::_('COM_RSEVENTSPRO_BC_WAITINGLIST_EDIT'));
 			} else {
 				rseventsproHelper::error(JText::_('COM_RSEVENTSPRO_ERROR_WAITINGLIST_VIEW'), rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id)));
+			}
+		} elseif ($layout == 'unsubscribers') {
+			$this->row = $this->get('event');
+			
+			if ($this->admin || $this->row->owner == $user->get('id')) {
+				$this->filter_word	= $app->getUserState('com_rseventspro.unsubscribers.search');
+				$this->data			= $this->get('UnsubscribersData');
+				$this->total		= $this->get('UnsubscribersTotal');
+				
+				$theview = isset($menu->query['layout']) ? $menu->query['layout'] : 'rseventspro';
+				if (($menu && $theview != 'show') || !$menu)
+					$pathway->addItem($this->row->name,rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->row->id,$this->row->name),false,rseventsproHelper::itemid($this->row->id)));
+				
+				$pathway->addItem(JText::_('COM_RSEVENTSPRO_BC_UNSUBSCRIBERS'));
+				
+			} else {
+				rseventsproHelper::error(JText::_('COM_RSEVENTSPRO_ERROR_UNSUBSCRIBERS_VIEW'), rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->row->id,$this->row->name),false,rseventsproHelper::itemid($this->row->id)));
 			}
 		}
 		

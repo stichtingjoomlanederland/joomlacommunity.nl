@@ -83,6 +83,7 @@ class RseventsproViewEvent extends JViewLegacy
 		$this->item->name ? JToolBarHelper::title(JText::sprintf('COM_RSEVENTSPRO_EDIT_EVENT',$this->item->name),'rseventspro48') : JToolBarHelper::title(JText::_('COM_RSEVENTSPRO_ADD_EVENT'),'rseventspro48');
 		JToolBarHelper::apply('event.apply');
 		JToolBarHelper::save('event.save');
+		JToolBarHelper::save2copy('event.copy');
 		JToolBarHelper::custom('preview','zoom-in','zoom-in',JText::_('COM_RSEVENTSPRO_PREVIEW_EVENT'),false);
 		JToolBarHelper::cancel('event.cancel');
 		

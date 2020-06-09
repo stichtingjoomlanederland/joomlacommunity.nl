@@ -572,15 +572,8 @@
 				var $cell 	= $('<td>').append($image);
 				$row.append($cell);
 				
-				// Title + Location
-				var $title		= $(element.link)
-				var $location 	= $('<p>').text(element.address);
-				var $cell 		= $('<td>').append($title).append($location);
-				$row.append($cell);
-				
-				// Button
-				var $cell 	= $('<td>');
-				var $button = $('<button type="button" class="btn"><i class="fa fa-map-marker"></i></button>').click(function(e){ 
+				// Info
+				var $button = $('<button type="button" class="btn btn-block"><i class="fa fa-map-marker"></i></button>').click(function(e){ 
 					e.preventDefault();
 					base.map.setCenter(base.createLatLng(element.coords));
 					google.maps.event.trigger(marker, 'click');
@@ -588,7 +581,10 @@
 						scrollTop: $(base.el).offset().top
 					}, 1000);
 				});
+				
+				var $cell = $('<td>').append(element.info);
 				$cell.append($button);
+				
 				$row.append($cell);
 				
 				// Append row

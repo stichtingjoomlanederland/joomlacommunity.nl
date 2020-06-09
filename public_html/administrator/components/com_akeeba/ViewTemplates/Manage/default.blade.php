@@ -9,16 +9,11 @@
 defined('_JEXEC') or die();
 
 /** @var  \Akeeba\Backup\Admin\View\Manage\Html $this */
-
-$urlIncludeFolders = addslashes(JUri::base() . 'index.php?option=com_akeeba&view=IncludeFolders&task=ajax');
-$urlBrowser = addslashes(JUri::base() . 'index.php?option=com_akeeba&view=Browser&processfolder=1&tmpl=component&folder=');
-
 ?>
 @if (version_compare(JVERSION, '3.999.999', 'lt'))
 @jhtml('formbehavior.chosen')
 @endif
 
-@inlineJs(JHtml::_('FEFHelper.browse.orderjs', $this->lists->order, true))
 @if($this->promptForBackupRestoration)
     @include('admin:com_akeeba/Manage/howtorestore_modal')
 @endif
@@ -57,13 +52,19 @@ $urlBrowser = addslashes(JUri::base() . 'index.php?option=com_akeeba&view=Browse
 
                 <div class="akeeba-filter-element akeeba-form-group">
                     <button class="akeeba-btn--grey akeeba-btn--icon-only akeeba-btn--small akeeba-hidden-phone"
-                            onclick="this.form.submit();" title="@lang('JSEARCH_FILTER_SUBMIT')">
+                            type="submit" title="@lang('JSEARCH_FILTER_SUBMIT')">
                         <span class="akion-search"></span>
                     </button>
                 </div>
 
                 <div class="akeeba-filter-element akeeba-form-group">
-                    @jhtml('select.genericlist', $this->profilesList, 'profile', 'onchange="document.forms.adminForm.submit()" class="advancedSelect"', 'value', 'text', $this->fltProfile)
+                    {{-- Joomla 3.x: Chosen does not work with attached event handlers, only with inline event scripts (e.g. onchange) --}}
+                    @if (version_compare(JVERSION, '3.999.999', 'lt'))
+                        @jhtml('select.genericlist', $this->profilesList, 'profile', ['list.select' => $this->fltProfile, 'list.attr' => ['class' => 'advancedSelect', 'onchange' => 'document.forms.adminForm.submit();'], 'id' => 'comAkeebaManageProfileSelector'])
+                    @else
+                        @jhtml('select.genericlist', $this->profilesList, 'profile', ['list.select' => $this->fltProfile, 'list.attr' => ['class' => 'advancedSelect'], 'id' => 'comAkeebaManageProfileSelector'])
+                    @endif
+
                 </div>
             </div>
 

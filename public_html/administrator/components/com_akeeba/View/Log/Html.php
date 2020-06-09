@@ -13,9 +13,8 @@ defined('_JEXEC') or die();
 use Akeeba\Backup\Admin\Model\Log;
 use Akeeba\Backup\Admin\View\ViewTraits\ProfileIdAndName;
 use Akeeba\Engine\Factory;
-use Akeeba\Engine\Platform;
 use FOF30\View\DataView\Html as BaseView;
-use JHtml;
+use Joomla\CMS\HTML\HTMLHelper;
 
 /**
  * View controller for the Log Viewer page
@@ -25,37 +24,33 @@ class Html extends BaseView
 	use ProfileIdAndName;
 
 	/**
+	 * Big log file threshold: 2Mb
+	 */
+	const bigLogSize = 2097152;
+	/**
 	 * JHtml list of available log files
 	 *
 	 * @var  array
 	 */
 	public $logs = [];
-
 	/**
 	 * Currently selected log file tag
 	 *
 	 * @var  string
 	 */
 	public $tag;
-
 	/**
 	 * Is the select log too big for being
 	 *
 	 * @var bool
 	 */
 	public $logTooBig = false;
-
 	/**
 	 * Size of the log file
-	 * 
+	 *
 	 * @var int
 	 */
 	public $logSize = 0;
-
-	/**
-	 * Big log file threshold: 2Mb
-	 */
-	const bigLogSize = 2097152;
 
 	/**
 	 * The main page of the log viewer. It allows you to select a profile to display. When you do it displays the IFRAME
@@ -65,6 +60,14 @@ class Html extends BaseView
 	 */
 	public function onBeforeMain()
 	{
+		// Load the view-specific Javascript
+		$this->container->template->addJS('media://com_akeeba/js/Log.min.js');
+
+		if (version_compare(JVERSION, '3.999.999', 'lt'))
+		{
+			HTMLHelper::_('formbehavior.chosen');
+		}
+
 		// Get a list of log names
 		/** @var Log $model */
 		$model      = $this->getModel();
@@ -82,11 +85,20 @@ class Html extends BaseView
 		// Let's check if the file is too big to display
 		if ($this->tag)
 		{
-			$file = Factory::getLog()->getLogFilename($this->tag);
+			$logFile = Factory::getLog()->getLogFilename($this->tag);
 
-			if (@file_exists($file))
+			if (!@is_file($logFile) && @file_exists(substr($logFile, 0, -4)))
 			{
-				$this->logSize   = filesize($file);
+				/**
+				 * Transitional period: the log file akeeba.tag.log.php may not exist but the akeeba.tag.log does. This
+				 * addresses this transition.
+				 */
+				$logFile = substr($logFile, 0, -4);
+			}
+
+			if (@file_exists($logFile))
+			{
+				$this->logSize   = filesize($logFile);
 				$this->logTooBig = ($this->logSize >= self::bigLogSize);
 			}
 		}
@@ -94,23 +106,8 @@ class Html extends BaseView
 		if ($this->logTooBig)
 		{
 			$src = 'index.php?option=com_akeeba&view=Log&task=inlineRaw&&tag=' . urlencode($this->tag) . '&tmpl=component';
-			$js  = <<<JS
-
-;// Prevent broken 3PD Javascript from causing errors
-akeeba.System.documentReady(function (){
-	akeeba.System.addEventListener(document.getElementById('showlog'), 'click', function(){
-		var iFrameHolder = document.getElementById('iframe-holder');
-		iFrameHolder.style.display = 'block';
-		iFrameHolder.insertAdjacentHTML('beforeend', '<iframe width="99%" src="$src" height="400px"/>');
-		this.parentNode.style.display = 'none';
-    });
-});
-
-JS;
-
-			$this->addJavascriptInline($js);
+			$this->container->platform->addScriptOptions('akeeba.Log.iFrameSrc', $src);
 		}
-
 
 		$this->getProfileIdAndName();
 	}

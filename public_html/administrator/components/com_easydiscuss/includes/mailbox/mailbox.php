@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2020 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -44,7 +44,7 @@ class EasyDiscussMailbox extends EasyDiscuss
 	 */
 	public function __construct()
 	{
-        parent::__construct();
+		parent::__construct();
 
 
 		$this->enabled			= $this->config->get( 'main_email_parser' );
@@ -77,39 +77,25 @@ class EasyDiscussMailbox extends EasyDiscuss
 	 */
 	public function connect( $username = '', $password = '' )
 	{
-		if (!$this->initiated)
-		{
+		if (!$this->initiated) {
 			$this->init();
 		}
 
-		if (!$this->enabled || !function_exists('imap_open') || !function_exists('imap_fetchheader') || !function_exists('imap_body'))
-		{
+
+		if (!$this->enabled || !function_exists('imap_open') || !function_exists('imap_fetchheader') || !function_exists('imap_body')) {
 			$this->setError('PHP IMAP not available.');
 			return false;
 		}
 
-
-
-
 		/*
 		 * Connect to mailbox
 		 */
-		// if( !empty($username) && !empty($password) )
-		// {
-			// echo JText::sprintf( 'COM_EASYDISCUSS_CONNECTING_TO', $username );
-			$this->stream	= imap_open( $this->mailbox_params, $username, $password );
-		// }
-		// else
-		// {
-		// 	$this->stream	= imap_open( $this->mailbox_params, $this->username, $this->password );
-		// }
+		$this->stream = imap_open($this->mailbox_params, $username, $password);
 
-		if( $this->stream === false )
-		{
-			$this->setError( imap_errors() );
+		if ($this->stream === false) {
+			$this->setError(imap_errors());
 			return false;
 		}
-
 
 		return true;
 	}

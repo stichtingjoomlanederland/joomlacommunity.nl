@@ -27,6 +27,7 @@ class AcymRouter extends AcymRouterBase
             'Itemid',
             'key',
             'lang',
+            'language',
             'limit',
             'limitstart',
             'mail_id',

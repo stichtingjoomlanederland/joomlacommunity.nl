@@ -7,7 +7,17 @@ defined('_JEXEC') or die('Restricted access');
             <?php echo acym_switch('config[allow_visitor]', $this->config->get('allow_visitor'), acym_translation('ACYM_ALLOW_VISITOR'), [], 'xlarge-3 medium-5 small-9', "auto", "tiny"); ?>
 		</div>
 		<div class="cell grid-x grid-margin-x">
-            <?php echo acym_switch('config[generate_name]', $this->config->get('generate_name'), acym_translation('ACYM_GENERATE_NAME'), [], 'xlarge-3 medium-5 small-9', "auto", "tiny"); ?>
+            <?php
+            echo acym_switch(
+                'config[generate_name]',
+                $this->config->get('generate_name'),
+                acym_translation('ACYM_GENERATE_NAME').acym_info('ACYM_GENERATE_NAME_DESC'),
+                [],
+                'xlarge-3 medium-5 small-9',
+                'auto',
+                'tiny'
+            );
+            ?>
 		</div>
 		<div class="cell grid-x grid-margin-x">
             <?php echo acym_switch('config[require_confirmation]', $this->config->get('require_confirmation'), acym_translation('ACYM_REQUIRE_CONFIRMATION'), [], 'xlarge-3 medium-5 small-9', "auto", "tiny", 'confirm_config'); ?>
@@ -36,6 +46,50 @@ defined('_JEXEC') or die('Restricted access');
             echo acym_radio($allowModif, 'config[allow_modif]', $this->config->get('allow_modif', 'data'));
             ?>
 		</div>
+	</div>
+</div>
+
+<div class="acym__content acym_area padding-vertical-1 padding-horizontal-2 margin-bottom-2">
+	<div class="acym_area_title"><?php echo acym_translation('ACYM_NOTIFICATIONS'); ?></div>
+	<div class="grid-x grid-margin-x">
+        <?php
+        foreach ($data['notifications'] as $identifier => $notification) {
+            ?>
+			<div class="cell xxlarge-4 large-5 medium-6">
+				<label for="acym__config__<?php echo acym_escape($identifier); ?>">
+                    <?php echo acym_escape(acym_translation($notification['label'])); ?>
+				</label>
+			</div>
+			<div class="cell xlarge-4 large-5 medium-6">
+                <?php
+                $saved = explode(',', $this->config->get($identifier));
+                $selected = [];
+                foreach ($saved as $i => $value) {
+                    if (acym_isValidEmail($value)) {
+                        $selected[$value] = $value;
+                    }
+                }
+
+                echo acym_selectMultiple(
+                    $selected,
+                    'config['.acym_escape($identifier).']',
+                    $selected,
+                    [
+                        'id' => 'acym__config__'.acym_escape($identifier),
+                        'class' => 'acym__multiselect__email',
+                    ]
+                );
+                ?>
+			</div>
+			<div class="cell large-2 medium-4 shrink">
+				<a class="button" href="<?php echo acym_completeLink('mails&task=edit&notification='.$identifier.'&type_editor=acyEditor'); ?>">
+                    <?php echo acym_translation('ACYM_EDIT_EMAIL'); ?>
+				</a>
+			</div>
+			<div class="cell xxlarge-2 xlarge-1 hide-for-large-only medium-8 hide-for-small-only"></div>
+            <?php
+        }
+        ?>
 	</div>
 </div>
 
@@ -92,6 +146,8 @@ defined('_JEXEC') or die('Restricted access');
                 );
                 ?>
 			</div>
+
+            <?php acym_trigger('onRegacyUseExternalPlugins', []); ?>
 
 			<div class="cell xlarge-3 medium-5">
 				<label for="acym__config__regacy-text" title="<?php echo acym_escape(acym_translation('ACYM_SUBSCRIBE_CAPTION_DESC')); ?>">

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -42,7 +42,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					}
 				}
 			?>
-			<option value="<?php echo $tag->title;?>"<?php echo $selected; ?>><?php echo $tag->title;?></option>
+			<option value="<?php echo $this->html('string.escape', $tag->title);?>"<?php echo $selected; ?>><?php echo $this->html('string.escape', $tag->title);?></option>
 			<?php } ?>
 
 			<?php 
@@ -60,7 +60,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 						}
 						if ($add) {
 			?>
-							<option value="<?php echo $ptag->title;?>" selected="selected"><?php echo $ptag->title;?></option>
+							<option value="<?php echo $this->html('string.escape', $ptag->title);?>" selected="selected"><?php echo $this->html('string.escape', $ptag->title);?></option>
 			<?php
 						
 						}

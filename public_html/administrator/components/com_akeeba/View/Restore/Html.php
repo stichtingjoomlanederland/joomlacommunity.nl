@@ -13,13 +13,12 @@ defined('_JEXEC') or die();
 use Akeeba\Backup\Admin\Model\Restore;
 use Akeeba\Engine\Platform;
 use FOF30\View\DataView\Html as BaseView;
-use JFactory;
-use JHtml;
-use JText;
+use Joomla\CMS\HTML\HTMLHelper as JHtml;
+use Joomla\CMS\Language\Text as JText;
+use Joomla\CMS\Uri\Uri as JUri;
 
 class Html extends BaseView
 {
-	public $password;
 	public $id;
 	public $ftpparams;
 	public $extractionmodes;
@@ -36,8 +35,15 @@ class Html extends BaseView
 		$this->ftpparams       = $this->getFTPParams();
 		$this->extractionmodes = $this->getExtractionModes();
 
-		$backup = Platform::getInstance()->get_statistics($this->id);
-		$this->extension       = strtolower(substr($backup['absolute_path'], -3));
+		$backup          = Platform::getInstance()->get_statistics($this->id);
+		$this->extension = strtolower(substr($backup['absolute_path'], -3));
+
+		$platform = $this->container->platform;
+		$platform->addScriptOptions('akeeba.Configuration.URLs', [
+			'browser'    => 'index.php?view=Browser&tmpl=component&processfolder=1&folder=',
+			'ftpBrowser' => 'index.php?option=com_akeeba&view=FTPBrowser',
+			'testFtp'    => 'index.php?option=com_akeeba&view=Restore&task=ajax&ajax=testftp',
+		]);
 	}
 
 	protected function onBeforeStart()
@@ -47,9 +53,16 @@ class Html extends BaseView
 		/** @var Restore $model */
 		$model = $this->getModel();
 
-		$password       = $model->getState('password');
-		$this->password = $password;
 		$this->setLayout('restore');
+
+		// Pass script options
+		$adminRootUrl = rtrim(JUri::base(), '/');
+		$platform     = $this->container->platform;
+
+		$platform->addScriptOptions('akeeba.Restore.password', $model->getState('password'));
+		$platform->addScriptOptions('akeeba.Restore.ajaxURL', $adminRootUrl . '/components/com_akeeba/restore.php');
+		$platform->addScriptOptions('akeeba.Restore.mainURL', $adminRootUrl . '/index.php');
+		$platform->addScriptOptions('akeeba.Restore.inMainRestoration', true);
 	}
 
 	/**
@@ -59,7 +72,7 @@ class Html extends BaseView
 	 */
 	private function getExtractionModes()
 	{
-		$options   = array();
+		$options   = [];
 		$options[] = JHtml::_('select.option', 'hybrid', JText::_('COM_AKEEBA_RESTORE_LABEL_EXTRACTIONMETHOD_HYBRID'));
 		$options[] = JHtml::_('select.option', 'direct', JText::_('COM_AKEEBA_RESTORE_LABEL_EXTRACTIONMETHOD_DIRECT'));
 		$options[] = JHtml::_('select.option', 'ftp', JText::_('COM_AKEEBA_RESTORE_LABEL_EXTRACTIONMETHOD_FTP'));
@@ -76,21 +89,21 @@ class Html extends BaseView
 	{
 		$config = $this->container->platform->getConfig();
 
-		return array(
+		return [
 			'procengine' => $config->get('ftp_enable', 0) ? 'hybrid' : 'direct',
 			'ftp_host'   => $config->get('ftp_host', 'localhost'),
 			'ftp_port'   => $config->get('ftp_port', '21'),
 			'ftp_user'   => $config->get('ftp_user', ''),
 			'ftp_pass'   => $config->get('ftp_pass', ''),
 			'ftp_root'   => $config->get('ftp_root', ''),
-			'tempdir'    => $config->get('tmp_path', '')
-		);
+			'tempdir'    => $config->get('tmp_path', ''),
+		];
 	}
 
 	private function loadCommonJavascript()
 	{
-		$this->addJavascriptFile('media://com_akeeba/js/Configuration.min.js');
-		$this->addJavascriptFile('media://com_akeeba/js/Restore.min.js');
+		$this->container->template->addJS('media://com_akeeba/js/Configuration.min.js');
+		$this->container->template->addJS('media://com_akeeba/js/Restore.min.js');
 
 		// Push translations
 		JText::script('COM_AKEEBA_CONFIG_UI_BROWSE');

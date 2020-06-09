@@ -13,14 +13,23 @@ use Akeeba\Engine\Factory;
 
 // -- Get the log's file name
 $tag     = $this->tag;
-$logName = Factory::getLog()->getLogFilename($tag);
+$logFile = Factory::getLog()->getLogFilename($tag);
+
+if (!@is_file($logFile) && @file_exists(substr($logFile, 0, -4)))
+{
+	/**
+	 * Transitional period: the log file akeeba.tag.log.php may not exist but the akeeba.tag.log does. This
+	 * addresses this transition.
+	 */
+	$logFile = substr($logFile, 0, -4);
+}
 
 // Load JFile class
 JLoader::import('joomla.filesystem.file');
 
 @ob_end_clean();
 
-if (!JFile::exists($logName))
+if (!@file_exists($logFile))
 {
 	// Oops! The log doesn't exist!
 	echo '<p>' . JText::_('COM_AKEEBA_LOG_ERROR_LOGFILENOTEXISTS') . '</p>';
@@ -30,7 +39,7 @@ if (!JFile::exists($logName))
 else
 {
 	// Allright, let's load and render it
-	$fp = fopen($logName, "rt");
+	$fp = fopen($logFile, "rt");
 	if ($fp === FALSE)
 	{
 		// Oops! The log isn't readable?!
@@ -45,6 +54,7 @@ else
 		if (!$line) return;
 		$exploded = explode("|", $line, 3);
 		unset($line);
+		if (count($exploded) < 3) continue;
 		switch (trim($exploded[0]))
 		{
 			case "ERROR":

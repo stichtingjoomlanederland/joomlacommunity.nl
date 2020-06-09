@@ -3,7 +3,7 @@
  * @package    PwtAcl
  *
  * @author     Sander Potjer - Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2011 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2011 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
@@ -16,7 +16,6 @@ use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Session\Session;
 
-// No direct access.
 defined('_JEXEC') or die;
 
 /**
@@ -24,7 +23,7 @@ defined('_JEXEC') or die;
  *
  * @since   3.0
  */
-class PwtaclControllerAssets extends BaseController
+class PwtAclControllerAssets extends BaseController
 {
 	/**
 	 * Clear permissions for group.
@@ -40,7 +39,7 @@ class PwtaclControllerAssets extends BaseController
 		// Initialise variables.
 		$group = $this->input->get('group', 0);
 
-		/** @var PwtaclModelAssets $model */
+		/** @var PwtAclModelAssets $model */
 		$model = $this->getModel('assets');
 		$model->clear($group);
 
@@ -63,7 +62,7 @@ class PwtaclControllerAssets extends BaseController
 		// Initialise variables.
 		$group = $this->input->get('group', 0);
 
-		/** @var PwtaclModelAssets $model */
+		/** @var PwtAclModelAssets $model */
 		$model = $this->getModel('assets');
 		$model->reset($group);
 
@@ -86,7 +85,7 @@ class PwtaclControllerAssets extends BaseController
 		$groupId = $this->input->getInt('groupid');
 		$setting = $this->input->get('setting');
 
-		/** @var PwtaclModelAssets $model */
+		/** @var PwtAclModelAssets $model */
 		$model = $this->getModel('assets');
 		$model->saveAction($assetId, $action, $groupId, $setting);
 
@@ -108,7 +107,7 @@ class PwtaclControllerAssets extends BaseController
 		$group  = $this->input->get('group', 0);
 		$copyTo = $this->input->getInt('copy-group');
 
-		/** @var PwtaclModelAssets $model */
+		/** @var PwtAclModelAssets $model */
 		$model = $this->getModel('assets');
 		$model->copy($group, $copyTo);
 
@@ -131,7 +130,7 @@ class PwtaclControllerAssets extends BaseController
 		// Initialise variables.
 		$group = $this->input->get('group', 0);
 
-		/** @var PwtaclModelAssets $model */
+		/** @var PwtAclModelAssets $model */
 		$model  = $this->getModel('assets');
 		$export = $model->export($group);
 
@@ -199,7 +198,7 @@ class PwtaclControllerAssets extends BaseController
 		$permissions = $response['permissions'];
 
 		// Store the permissions
-		/** @var PwtaclModelAssets $model */
+		/** @var PwtAclModelAssets $model */
 		$model = $this->getModel('assets');
 		$model->import($group, $permissions);
 

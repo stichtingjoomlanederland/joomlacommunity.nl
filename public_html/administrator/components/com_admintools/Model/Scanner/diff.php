@@ -5,6 +5,8 @@
  * @license   GNU General Public License version 3, or later
  */
 
+namespace Akeeba\AdminTools\Admin\Model\Scanner;
+
 /**
  * Diff
  *

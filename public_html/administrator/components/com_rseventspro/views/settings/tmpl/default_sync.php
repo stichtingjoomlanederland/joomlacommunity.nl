@@ -6,6 +6,9 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
+JText::script('COM_RSEVENTSPRO_FACEBOOK_NO_EVENTS');
+JText::script('COM_RSEVENTSPRO_FACEBOOK_IMPORT_SUCCESS');
+
 $hasFB = !empty($this->config->facebook_appid) && !empty($this->config->facebook_secret) && !empty($this->config->facebook_token);
 $fieldsets = array('google','fb','facebook');
 $redirectURI = JRoute::_('index.php?option=com_rseventspro&task=settings.savetoken', false, 1); ?>
@@ -46,7 +49,8 @@ foreach ($fieldsets as $fieldset) {
 	}
 	
 	if ($hasFB && $fieldset == 'facebook') {
-		echo JHtml::_('rsfieldset.element', '<label>&nbsp;</label>', '<button type="button" class="btn btn-info button" onclick="Joomla.submitbutton(\'settings.facebook\')">'.JText::_('COM_RSEVENTSPRO_CONF_SYNC_BTN').'</button> <button type="button" class="btn btn-info button" onclick="jQuery(\'#rseproFacebookLog\').modal(\'show\')">'.JText::_('COM_RSEVENTSPRO_CONF_SYNC_LOG_BTN').'</button>');
+		echo JHtml::_('rsfieldset.element', '<label>&nbsp;</label>', '<button id="fbBtn" type="button" class="btn btn-info button" onclick="rsepro_import_facebook()">'.JHtml::image('com_rseventspro/loader.gif', '', array('id' => 'rsepro-facebook-loader', 'style' => 'display: none;'), true).' '.JText::_('COM_RSEVENTSPRO_CONF_SYNC_BTN').'</button> <button type="button" class="btn btn-info button" onclick="jQuery(\'#rseproFacebookLog\').modal(\'show\')">'.JText::_('COM_RSEVENTSPRO_CONF_SYNC_LOG_BTN').'</button>');
+		echo JHtml::_('rsfieldset.element', '<label>&nbsp;</label>', '<div id="fbMessage" class="alert alert-info span5" style="display:none;"></div>');
 	}
 	
 	echo JHtml::_('rsfieldset.end');

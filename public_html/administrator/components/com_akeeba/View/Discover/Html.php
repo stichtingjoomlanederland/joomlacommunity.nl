@@ -13,7 +13,7 @@ defined('_JEXEC') or die();
 use Akeeba\Backup\Admin\Model\Discover;
 use Akeeba\Engine\Factory;
 use FOF30\View\DataView\Html as BaseView;
-use JText;
+use Joomla\CMS\Language\Text as JText;
 
 class Html extends BaseView
 {
@@ -33,23 +33,26 @@ class Html extends BaseView
 
 	public function onBeforeMain()
 	{
-		$this->addJavascriptFile('media://com_akeeba/js/Configuration.min.js');
+		$this->container->template->addJS('media://com_akeeba/js/Configuration.min.js');
+		$this->container->template->addJS('media://com_akeeba/js/Discover.min.js');
 
 		/** @var Discover $model */
 		$model = $this->getModel();
 
-		$this->directory = '';
-		$directory = $model->getState('directory', '', 'path');
+		$directory       = $model->getState('directory', '', 'path');
+		$this->directory = $directory;
 
 		if (empty($directory))
 		{
-			$config = Factory::getConfiguration();
+			$config          = Factory::getConfiguration();
 			$this->directory = $config->get('akeeba.basic.output_directory', '[DEFAULT_OUTPUT]');
 		}
 
 		// Push translations
 		JText::script('COM_AKEEBA_CONFIG_UI_BROWSE');
 		JText::script('COM_AKEEBA_FILEFILTERS_LABEL_UIROOT');
+
+		$this->container->platform->addScriptOptions('akeeba.Discover.URLs.browser', 'index.php?option=com_akeeba&view=Browser&processfolder=1&tmpl=component&folder=');
 	}
 
 	public function onBeforeDiscover()
@@ -62,7 +65,7 @@ class Html extends BaseView
 
 		$files = $model->getFiles();
 
-		$this->files = $files;
+		$this->files     = $files;
 		$this->directory = $directory;
 	}
 }

@@ -147,18 +147,19 @@ class WFFileManagerPlugin extends WFMediaManager
                 'name' => basename($file),
             );
 
-            $result['method'] = $this->getParam('filemanager.method', 'link');
+            $result['method'] = $this->getParam('filemanager.format', 'link');
 
             if ($result['method'] === 'embed') {
                 $result['openwith'] = $this->getParam('filemanager.method_openwith', '');
 
-                // add embedded flag
-                if ($google == 'embed') {
-                    $result['width'] = $this->getParam('filemanager.embed_width', '100%');
-                    $result['height'] = $this->getParam('filemanager.embed_height', '100%');
+                $result['width']    = $this->getParam('filemanager.embed_width', 640);
+                $result['height']   = $this->getParam('filemanager.embed_height', 480);
 
-                    return $result;
-                }
+                // remove px if present
+                $result['width'] = str_replace('px', '', $result['width']);
+                $result['height'] = str_replace('px', '', $result['height']);
+
+                return $result;
             }
 
             $defaults = $this->getDefaults();

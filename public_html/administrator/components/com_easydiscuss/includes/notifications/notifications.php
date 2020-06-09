@@ -488,7 +488,6 @@ class EasyDiscussNotifications extends EasyDiscuss
 
 		$theme->set('logo', $logo);
 
-		$theme->set('emailTitle', $config->get('notify_email_title', $jConfig->get('sitename')));
 		$theme->set('contents', $contents);
 		$theme->set('unsubscribeLink', $data['unsubscribeLink']);
 		$theme->set('subscriptionsLink', ED::mailer()->getSubscriptionsManagerLink());

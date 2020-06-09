@@ -54,8 +54,19 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 		$composer = ED::composer($operation, $post);
 
 		$creatorName = $author->getName();
-
 		$returnUrl = 'index.php?option=com_easydiscuss&view=posts';
+
+		// Get post types list
+		$postTypesModel = ED::model('PostTypes');
+		$postTypes = $postTypesModel->getPostTypes($categoryId);
+
+		// Get post priorities
+		$priorities = array();
+
+		if ($this->config->get('post_priority')) {
+			$prioritiesModel = ED::model('Priorities');
+			$priorities = $prioritiesModel->getPriorities();
+		}
 
 		$this->set('post', $post);
 		$this->set('creatorName', $creatorName);
@@ -64,6 +75,8 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 		$this->set('operation', $operation);
 		$this->set('composer', $composer);
 		$this->set('returnUrl', $returnUrl);
+		$this->set('priorities', $priorities);
+		$this->set('postTypes', $postTypes);
 
 		parent::display('post/default');
 	}
@@ -123,6 +136,19 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 			$returnUrl .= '&layout=pending';
 		}
 
+		// Get post types list
+		$categoryId = $post->category_id;
+		$postTypesModel = ED::model('PostTypes');
+		$postTypes = $postTypesModel->getPostTypes($categoryId);
+
+		// Get post priorities
+		$priorities = array();
+
+		if ($this->config->get('post_priority')) {
+			$prioritiesModel = ED::model('Priorities');
+			$priorities = $prioritiesModel->getPriorities();
+		}
+
 		$this->set('creatorName', $creatorName);
 		$this->set('post', $post);
 		$this->set('populartags', $populartags);
@@ -134,6 +160,8 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 		$this->set('composer', $composer);
 		$this->set('tags', $tags);
 		$this->set('returnUrl', $returnUrl);
+		$this->set('priorities', $priorities);
+		$this->set('postTypes', $postTypes);
 
 		parent::display('post/default');
 	}

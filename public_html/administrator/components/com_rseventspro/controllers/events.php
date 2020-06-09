@@ -234,4 +234,24 @@ class RseventsproControllerEvents extends JControllerAdmin
 		// Preset the redirect
 		$this->setRedirect('index.php?option=com_rseventspro&view=events');
 	}
+	
+	/**
+	 * Method to cancel events.
+	 */
+	public function cancel() {
+		JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
+
+		// Set the model
+		$model	= $this->getModel();
+		$pks    = JFactory::getApplication()->input->get('cid', array(), 'array');
+		
+		if (!$model->cancelevent($pks)) {
+			throw new Exception($model->getError(), 500);
+		} else {
+			JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_EVENTS_CANCELED'));
+		}
+		
+		// Preset the redirect
+		$this->setRedirect('index.php?option=com_rseventspro&view=events');
+	}
 }

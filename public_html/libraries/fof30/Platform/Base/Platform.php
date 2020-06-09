@@ -1,8 +1,8 @@
 <?php
 /**
- * @package     FOF
- * @copyright   Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license     GNU GPL version 2 or later
+ * @package   FOF
+ * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 2, or later
  */
 
 namespace FOF30\Platform\Base;
@@ -11,6 +11,7 @@ use Exception;
 use FOF30\Container\Container;
 use FOF30\Input\Input;
 use FOF30\Platform\PlatformInterface;
+use Joomla\CMS\User\User;
 
 defined('_JEXEC') or die;
 
@@ -357,10 +358,11 @@ abstract class Platform implements PlatformInterface
 	 * @param   string|array  $title      A title, or an array of additional fields to add to the log entry
 	 * @param   string        $logText    The translation key to the log text
 	 * @param   string        $extension  The name of the extension logging this entry
+	 * @param   User|null     $user       The user the action is being logged for
 	 *
 	 * @return  void
 	 */
-	public function logUserAction($title, $logText, $extension)
+	public function logUserAction($title, $logText, $extension, $user = null)
 	{
 		// The default implementation does nothing. Override this in your platform classes.
 	}

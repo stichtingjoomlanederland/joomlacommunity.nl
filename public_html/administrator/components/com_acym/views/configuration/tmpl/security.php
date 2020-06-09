@@ -1,6 +1,15 @@
 <?php
 defined('_JEXEC') or die('Restricted access');
-?><div class="acym__content acym_area padding-vertical-1 padding-horizontal-2 margin-bottom-2">
+?><?php if (!empty($data['acl'])) { ?>
+	<div class="acym__content acym_area padding-vertical-1 padding-horizontal-2 margin-bottom-2">
+		<div class="acym_area_title"><?php echo acym_translation('ACYM_PERMISSIONS'); ?></div>
+		<div class="grid-x grid-margin-x">
+            <?php echo $data['acl']; ?>
+		</div>
+	</div>
+<?php } ?>
+
+<div class="acym__content acym_area padding-vertical-1 padding-horizontal-2 margin-bottom-2">
 	<div class="acym_area_title"><?php echo acym_translation('ACYM_CONFIGURATION_CAPTCHA'); ?></div>
 	<div class="grid-x grid-margin-x">
 		<div class="cell medium-6 grid-x">

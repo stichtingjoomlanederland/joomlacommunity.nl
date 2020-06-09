@@ -19,8 +19,20 @@ use Akeeba\Engine\Platform;
  */
 class FileSystem
 {
-	/** @var bool Are we running under Windows? */
+	/**
+	 * Are we running under Windows?
+	 *
+	 * @var   bool
+	 */
 	private $isWindows = false;
+
+	/**
+	 * Local cache of the platform stock directories
+	 *
+	 * @var   array|null
+	 * @since 7.0.3
+	 */
+	protected static $stockDirs = null;
 
 	/**
 	 * Initialise the object
@@ -146,6 +158,8 @@ class FileSystem
 			// Filename-safe timezone, e.g. "eest". Note the lowercase letters.
 			$fsSafeTZ = strtolower(str_replace([' ', '/', ':'], ['_', '_', '_'], $rawTz));
 
+			$randVal = new RandomValue();
+
 			$variables = [
 				'[DATE]'             => Platform::getInstance()->get_local_timestamp("Ymd"),
 				'[YEAR]'             => Platform::getInstance()->get_local_timestamp("Y"),
@@ -159,11 +173,11 @@ class FileSystem
 				'[TZ_RAW]'           => $rawTz,
 				'[GMT_OFFSET]'       => Platform::getInstance()->get_local_timestamp("O"),
 				'[HOST]'             => empty($host) ? 'unknown_host' : $host,
-				'[RANDOM]'           => md5(microtime()),
 				'[VERSION]'          => $version,
 				'[PLATFORM_NAME]'    => $platformVars['name'],
 				'[PLATFORM_VERSION]' => $platformVars['version'],
 				'[SITENAME]'         => $siteName,
+				'[RANDOM]'           => $randVal->generateString(16),
 			];
 		}
 
@@ -195,18 +209,16 @@ class FileSystem
 	 *
 	 * @return  string  The expanded string
 	 */
-	function translateStockDirs($folder, $translate_win_dirs = false, $trim_trailing_slash = false)
+	public function translateStockDirs($folder, $translate_win_dirs = false, $trim_trailing_slash = false)
 	{
-		static $stock_dirs;
-
-		if (empty($stock_dirs))
+		if (is_null(self::$stockDirs))
 		{
-			$stock_dirs = Platform::getInstance()->get_stock_directories();
+			self::$stockDirs = Platform::getInstance()->get_stock_directories();
 		}
 
 		$temp = $folder;
 
-		foreach ($stock_dirs as $find => $replace)
+		foreach (self::$stockDirs as $find => $replace)
 		{
 			$temp = str_replace($find, $replace, $temp);
 		}
@@ -223,5 +235,155 @@ class FileSystem
 
 		return $temp;
 	}
-}
 
+	/**
+	 * Generates a set of files which prevent direct web access or at least web listing of the folder contents.
+	 *
+	 * This method generates a .htaccess for Apache, Lighttpd and Litespeed; a web.config file for IIS 7 or later; an
+	 * index.php, index.html and index.htm file for all other browsers.
+	 *
+	 * Despite this security precaution it is STRONGLY advised to keep your backup archives in a directory outside the
+	 * site's web root as explained in the Security Information chapter of the documentation. This method is designed
+	 * to only provide a defence of last resort.
+	 *
+	 * @param   string  $dir    The output directory to secure against web access
+	 * @param   bool    $force  Forcibly overwrite existing files
+	 *
+	 * @return  void
+	 * @since   7.0.3
+	 */
+	public function ensureNoAccess($dir, $force = false)
+	{
+		// Create a .htaccess file to prevent all web access (Apache 1.3+, Lightspeed, Lighttpd, ...)
+		if (!is_file($dir . '/.htaccess') || $force)
+		{
+			$htaccess = <<< APACHE
+## This file was generated automatically by the Akeeba Backup Engine
+##
+## DO NOT REMOVE THIS FILE
+##
+## This file makes sure that your backup output directory is not directly accessible from the web if you are using
+## the Apache, Lighttpd and Litespeed web server. This prevents unauthorized access to your backup archive files and
+## backup log files. Removing this file could have security implications for your site.
+##
+## You are strongly advised to never delete or modify any of the files automatically created in this folder by the
+## Akeeba Backup Engine, namely:
+##
+## * .htaccess
+## * web.config
+## * index.html
+## * index.htm
+## * index.php
+##
+<IfModule !mod_authz_core.c>
+Order deny,allow
+Deny from all
+</IfModule>
+<IfModule mod_authz_core.c>
+  <RequireAll>
+    Require all denied
+  </RequireAll>
+</IfModule>
+APACHE;
+
+			@file_put_contents($dir . '/.htaccess', $htaccess);
+		}
+
+		// Create a web.config to prevent all web access (IIS 7+)
+		if (!is_file($dir . '/web.config') || $force)
+		{
+			$webConfig = <<< XML
+<?xml version="1.0"?>
+<!--
+This file was generated automatically by the Akeeba Backup Engine
+
+DO NOT REMOVE THIS FILE
+
+This file makes sure that your backup output directory is not directly accessible from the web if you are using the
+Microsoft Internet Information Services (IIS) web server, version 7 or later. This prevents unauthorized access to your
+backup archive files and backup log files. Removing this file could have security implications for your site.
+
+As noted above, this only works on IIS 7 or later.
+See https://www.iis.net/configreference/system.webserver/security/requestfiltering/fileextensions
+
+You are strongly advised to never delete or modify any of the files automatically created in this folder by the
+Akeeba Backup Engine, namely:
+
+* .htaccess
+* web.config
+* index.html
+* index.htm
+* index.php
+
+-->
+<configuration>
+    <system.webServer>
+        <security>
+            <requestFiltering>
+                <fileExtensions allowUnlisted="false" >
+                    <clear />
+                    <add fileExtension=".html" allowed="true"/>
+                </fileExtensions>
+            </requestFiltering>
+        </security>
+    </system.webServer>
+</configuration>
+XML;
+			@file_put_contents($dir . '/web.config', $webConfig);
+		}
+
+		// Create a blank index.html or index.htm to prevent directory listings (all servers)
+		$blankHtml = <<< HTML
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Access Denied</title>
+  </head>
+  <body>
+	  <h1>Access Denied</h1>
+  </body>
+</html>
+HTML;
+
+		if (!is_file($dir . '/index.html') || $force)
+		{
+			@file_put_contents($dir . '/index.html', $blankHtml);
+		}
+
+		if (!is_file($dir . '/index.htm') || $force)
+		{
+			@file_put_contents($dir . '/index.htm', $blankHtml);
+		}
+
+		// Create a default index.php to prevent directory listings with an error (all servers)
+		if (!is_file($dir . '/index.php') || $force)
+		{
+			$deadPHP = '<' . '?' . 'php header(\'HTTP/1.1 403 Forbidden\'); return;' . '?' . ">\n";
+			$deadPHP .= <<< TEXT
+This file was generated automatically by the Akeeba Backup Engine
+
+DO NOT REMOVE THIS FILE
+
+This file tells your web server to not list the contents of this directory, instead returning an HTTP 403 Forbidden
+error. This makes it implausible for a malicious third party to successfully guess the filenames of your backup
+archives. Therefore, even if this folder is directly web accessible – despite the .htaccess and web.config file already
+put in place by the Akeeba Backup Engine – it will still be reasonably protected against malicious users trying to
+download your backup archives.
+
+Please do not remove this file as it could have security implications for your site.
+
+You are strongly advised to never delete or modify any of the files automatically created in this folder by the
+Akeeba Backup Engine, namely:
+
+* .htaccess
+* web.config
+* index.html
+* index.htm
+* index.php
+
+TEXT;
+
+			@file_put_contents($dir . '/index.php', $deadPHP);
+		}
+	}
+}

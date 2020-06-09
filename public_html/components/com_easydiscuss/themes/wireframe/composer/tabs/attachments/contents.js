@@ -180,8 +180,6 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 		// Add it into the list
 		form.appendTo(list);
 
-		console.log('here?');
-
 		var itemCount = list.find('.attachment-item');
 
 		// if reached the limit, don't reset form

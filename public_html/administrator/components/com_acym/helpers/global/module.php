@@ -17,9 +17,12 @@ function acym_initModule($params = null)
     }
     $loaded = true;
 
+    $loadJsInModule = false;
+
     if (method_exists($params, 'get')) {
         $nameCaption = $params->get('nametext');
         $emailCaption = $params->get('emailtext');
+        $loadJsInModule = $params->get('includejs') == 'module';
     }
 
     if (empty($nameCaption)) {
@@ -43,8 +46,13 @@ function acym_initModule($params = null)
     $config = acym_config();
     $version = str_replace('.', '', $config->get('version'));
 
-    $scriptName = acym_addScript(false, ACYM_JS.'module.min.js?v='.$version);
-    acym_addScript(true, $js, 'text/javascript', false, false, false, ['script_name' => $scriptName]);
+    if ($loadJsInModule) {
+        echo '<script type="text/javascript" src="'.ACYM_JS.'module.min.js?v='.$version.'"></script>';
+        echo '<script type="text/javascript">'.$js.'</script>';
+    } else {
+        $scriptName = acym_addScript(false, ACYM_JS.'module.min.js?v='.$version);
+        acym_addScript(true, $js, 'text/javascript', false, false, false, ['script_name' => $scriptName]);
+    }
 
     if ('wordpress' === ACYM_CMS) {
         wp_enqueue_style('style_acymailing_module', ACYM_CSS.'module.min.css?v='.$version);

@@ -78,7 +78,8 @@ class EasyDiscussViewPost extends EasyDiscussView
 		}
 
 		// Mark as viewed for notifications.
-		$this->logView();
+		// to avoid issue with multilingual, we need to pass the url manually.
+		$this->logView($post->getNonSEFLink());
 
 		// Update hit count for this discussion.
 		$post->hit();

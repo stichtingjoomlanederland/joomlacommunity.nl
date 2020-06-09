@@ -2,12 +2,12 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Search Discussion Module</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>7th February 2020</creationDate>
+	<creationDate>27th May 2020</creationDate>
 	<copyright>Copyright (C) 2009 - 2016 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>4.1.14</version>
+	<version>4.1.16</version>
 	<description><![CDATA[This module provides simple form which allows user to search for discussions.]]></description>
 	<files>
 		<folder>tmpl</folder>

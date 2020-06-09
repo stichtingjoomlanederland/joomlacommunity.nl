@@ -159,12 +159,14 @@ class plgAcymTime extends acymPlugin
         }
 
         if (!empty($triggers['day'])) {
-            $todaysDate = acym_getTime('today '.$triggers['day']['hour'].':'.$triggers['day']['minutes']);
+            $dayBasedOnCMSTimezone = acym_date('now', 'Y-m-d');
 
-            if ($time < $todaysDate) {
-                $nextExecutionDate[] = $todaysDate;
+            $dayBasedOnCMSTimezoneAtSpecifiedHour = acym_getTimeFromCMSDate($dayBasedOnCMSTimezone.' '.$triggers['day']['hour'].':'.$triggers['day']['minutes']);
+
+            if ($time < $dayBasedOnCMSTimezoneAtSpecifiedHour) {
+                $nextExecutionDate[] = $dayBasedOnCMSTimezoneAtSpecifiedHour;
             } else {
-                $nextExecutionDate[] = acym_getTime('tomorrow '.$triggers['day']['hour'].':'.$triggers['day']['minutes']);
+                $nextExecutionDate[] = $dayBasedOnCMSTimezoneAtSpecifiedHour + 86400;
 
                 if (empty($step->last_execution)) $execute = true;
             }
@@ -172,17 +174,35 @@ class plgAcymTime extends acymPlugin
 
         if (!empty($triggers['weeks_on'])) {
             foreach ($triggers['weeks_on']['day'] as $day) {
-                if ($day == strtolower(date('l'))) {
-                    $todaysDate = acym_getTime('today '.$dailyHour.':'.$dailyMinute);
-                    if ($time < $todaysDate) {
-                        $nextExecutionDate[] = $todaysDate;
-                    } else {
-                        $nextExecutionDate[] = acym_getTime('next '.$day.' '.$dailyHour.':'.$dailyMinute);
+                $dayBasedOnCMSTimezone = acym_date('now', 'Y-m-d');
 
-                        if (empty($step->last_execution) || acym_date($step->last_execution, 'Y-m-d') !== acym_date('now', 'Y-m-d')) $execute = true;
+                $dayBasedOnCMSTimezoneAtSpecifiedHour = acym_getTimeFromCMSDate($dayBasedOnCMSTimezone.' '.$dailyHour.':'.$dailyMinute);
+
+                if ($day == strtolower(acym_date('now', 'l'))) {
+                    if ($time < $dayBasedOnCMSTimezoneAtSpecifiedHour) {
+                        $nextExecutionDate[] = $dayBasedOnCMSTimezoneAtSpecifiedHour;
+                    } else {
+                        $nextExecutionDate[] = $dayBasedOnCMSTimezoneAtSpecifiedHour + 604800;
+
+                        if (empty($step->last_execution) || acym_date($step->last_execution, 'Y-m-d') !== $dayBasedOnCMSTimezone) $execute = true;
                     }
                 } else {
-                    $nextExecutionDate[] = acym_getTime('next '.$day.' '.$dailyHour.':'.$dailyMinute);
+                    $days = [
+                        'monday',
+                        'tuesday',
+                        'wednesday',
+                        'thursday',
+                        'friday',
+                        'saturday',
+                        'sunday',
+                    ];
+                    $currentDayOfWeek = acym_date('now', 'N') - 1;
+                    $wantedDayOfWeek = array_search($day, $days);
+
+                    $shift = $wantedDayOfWeek - $currentDayOfWeek;
+                    if ($shift < 0) $shift += 7;
+
+                    $nextExecutionDate[] = $dayBasedOnCMSTimezoneAtSpecifiedHour + 86400 * $shift;
                 }
             }
         }

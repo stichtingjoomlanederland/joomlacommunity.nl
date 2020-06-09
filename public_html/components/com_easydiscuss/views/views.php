@@ -242,38 +242,44 @@ class EasyDiscussView extends JViewLegacy
 		return $toolbar->render();
 	}
 
-	public function logView()
+	/**
+	 * Log viewers
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function logView($uri = '')
 	{
-		$my		= JFactory::getUser();
+		$my	= JFactory::getUser();
 
-		if( $my->id > 0 )
-		{
-			$db 		= DiscussHelper::getDBO();
-			$query 		= 'SELECT `id` FROM ' . $db->nameQuote( '#__discuss_views' );
-			$query 		.= ' WHERE ' . $db->nameQuote( 'user_id' ) . '=' . $db->Quote( $my->id );
+		if ($my->id > 0) {
+			$db = ED::db();
+			$query = 'SELECT `id` FROM ' . $db->nameQuote('#__discuss_views');
+			$query .= ' WHERE ' . $db->nameQuote('user_id') . '=' . $db->Quote($my->id);
 
-			$db->setQuery( $query );
-			$id		= $db->loadResult();
+			$db->setQuery($query);
+			$id = $db->loadResult();
 
-			$hash 		= md5( JRequest::getURI() );
-			if( !$id )
-			{
-				// Create a new log view
-				$view 	= DiscussHelper::getTable( 'Views' );
-				$view->updateView( $my->id , $hash );
+			$hash = md5(JRequest::getURI());
+
+			if ($uri) {
+				$hash = md5($uri);
 			}
-			else
-			{
-				$query 	= 'UPDATE ' . $db->nameQuote( '#__discuss_views' );
-				$query 	.= ' SET ' . $db->nameQuote( 'hash' ) . '=' . $db->Quote( $hash );
-				$query	.= ', ' . $db->nameQuote( 'created' ) . '=' . $db->Quote( ED::date()->toSql() );
-				$query	.= ', ' . $db->nameQuote( 'ip' ) . '=' . $db->Quote( $_SERVER[ 'REMOTE_ADDR' ] );
-				$query  .= ' WHERE ' . $db->nameQuote( 'id' ) . '=' . $db->Quote( $id );
 
-				$db->setQuery( $query );
+			if (!$id) {
+				// Create a new log view
+				$view = ED::table('Views');
+				$view->updateView($my->id, $hash);
+			} else {
+				$query = 'UPDATE ' . $db->nameQuote('#__discuss_views');
+				$query .= ' SET ' . $db->nameQuote('hash') . '=' . $db->Quote($hash);
+				$query .= ', ' . $db->nameQuote('created') . '=' . $db->Quote(ED::date()->toSql());
+				$query .= ', ' . $db->nameQuote('ip') . '=' . $db->Quote($_SERVER[ 'REMOTE_ADDR' ]);
+				$query .= ' WHERE ' . $db->nameQuote('id') . '=' . $db->Quote($id);
+
+				$db->setQuery($query);
 				$db->query();
 			}
-
 		}
 	}
 }

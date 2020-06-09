@@ -224,8 +224,8 @@ class plgAcymArticle extends acymPlugin
         $completeId = $element->id;
         if (!empty($element->alias)) $completeId .= ':'.$element->alias;
 
-        $link = ContentHelperRoute::getArticleRoute($completeId, $element->catid, $element->language);
-        $link = acym_frontendLink($link, false);
+        $link = ContentHelperRoute::getArticleRoute($completeId, $element->catid, $this->getLanguage($element->language, true));
+        $link = $this->finalizeLink($link);
         $varFields['{link}'] = $link;
 
         $title = '';
@@ -251,7 +251,7 @@ class plgAcymArticle extends acymPlugin
         if (in_array('cat', $tag->display)) {
             $category = acym_loadResult('SELECT title FROM #__categories WHERE id = '.intval($element->catid));
             $customFields[] = [
-                '<a href="index.php?option=com_content&view=category&id='.$element->catid.'" target="_blank">'.acym_escape($category).'</a>',
+                '<a href="'.$this->finalizeLink('index.php?option=com_content&view=category&id='.$element->catid).'" target="_blank">'.acym_escape($category).'</a>',
                 acym_translation('ACYM_CATEGORY'),
             ];
         }

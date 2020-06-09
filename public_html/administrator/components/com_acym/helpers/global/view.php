@@ -115,7 +115,6 @@ function acym_getJSMessages()
         'ACYM_CHOOSE_COLUMN',
         'ACYM_AUTOSAVE_USE',
         'ACYM_SELECT_NEW_ICON',
-        'ACYM_ICON_IMPORTED',
         'ACYM_SESSION_IS_GOING_TO_END',
         'ACYM_CLICKS_OUT_OF',
         'ACYM_OF_CLICKS',
@@ -146,6 +145,10 @@ function acym_getJSMessages()
         'ACYM_SPACE_BETWEEN_BLOCK',
         'ACYM_X1_AND_X2',
         'ACYM_COULD_NOT_SAVE_THUMBNAIL_ERROR_X',
+        'ACYM_REQUEST_FAILED_TIMEOUT',
+        'ACYM_INSERT_DYNAMIC_TEXT',
+        'ACYM_PLEASE_SET_A_LICENSE_KEY',
+        'ACYM_COULD_NOT_UPLOAD_CSV_FILE',
     ];
 
     foreach ($keysToLoad as $oneKey) {

@@ -484,7 +484,7 @@ class EasyDiscussRouter extends EasyDiscuss
 		// and the active menu is view=categories
 
 
-		if (isset($item) && $item->query['view'] == 'categories' && count($segments) >= 1 && !in_array($segments[0], $views) ) {
+		if (isset($item->query['view']) && $item->query['view'] == 'categories' && count($segments) >= 1 && !in_array($segments[0], $views) ) {
 
 			$catId = EDR::decodeAlias($segments[0], 'Category');
 

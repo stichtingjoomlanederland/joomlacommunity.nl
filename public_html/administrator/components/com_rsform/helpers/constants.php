@@ -27,3 +27,11 @@ define('RSFORM_FIELD_TICKET', 15);
 define('RSFORM_FIELD_PAGEBREAK', 41);
 define('RSFORM_FIELD_BIRTHDAY', 211);
 define('RSFORM_FIELD_GMAPS', 212);
+
+// Submission editing constants
+define('RSFORM_DIR_CAPTION', 0);
+define('RSFORM_DIR_INPUT', 1);
+define('RSFORM_DIR_REQUIRED', 2);
+define('RSFORM_DIR_NAME', 3);
+define('RSFORM_DIR_VALIDATION', 4);
+define('RSFORM_DIR_DESCRIPTION', 5);

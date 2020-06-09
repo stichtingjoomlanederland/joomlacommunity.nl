@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -29,8 +29,6 @@ class EasyDiscussViewUsers extends EasyDiscussView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function display($tmpl = null)
 	{
@@ -44,10 +42,6 @@ class EasyDiscussViewUsers extends EasyDiscussView
 		// If being searched
 		$search = $this->input->get('search', '', 'string');
 
-		if ($search) {
-			$pageTitle = $pageTitle . ' - ' . $search;
-		}
-
 		// check if the public user have permission to access
 		if (!$this->my->id && !$this->config->get('main_profile_public')) {
 			ED::setMessage('COM_EASYDISCUSS_LOGIN_TO_VIEW_USER_LISTING_PAGE');
@@ -58,7 +52,9 @@ class EasyDiscussViewUsers extends EasyDiscussView
 		// Get the list of users
 		$model = ED::model('Users');
 		$users = $model->getData($search);
-		$pagination	= $model->getPagination();
+		$pagination	= $model->getPaginationFrontend($search);
+
+		$pagination->setVar('search', $search);
 
 		// Format the result
 		$users = ED::formatUsers($users);

@@ -560,6 +560,79 @@ function rsepro_delete_speaker_image(id) {
 	});
 }
 
+function rsepro_import_facebook(pages, owners, step, names, types, total) {
+	var init	= typeof pages == 'undefined' && typeof owners == 'undefined' && typeof names == 'undefined' ? 1 : 0;
+	var step 	= step || 0;
+	var total 	= total || 0;
+	var pages 	= pages || [];
+	var owners 	= owners || [];
+	var names 	= names || [];
+	var types 	= types || [];
+	
+	jQuery('#fbBtn').prop('disabled', true);
+	jQuery('#rsepro-facebook-loader').css('display', '');
+	
+	jQuery.ajax({
+		url: 'index.php?option=com_rseventspro&task=settings.importFacebookEvents',
+		type: 'post',
+		dataType: 'json',
+		data: {
+			'init' : init,
+			'fbpages' : pages,
+			'owners': owners,
+			'names': names,
+			'types': types,
+			'total': total,
+			'step': step
+		}
+	}).done(function( response ) {
+		if (typeof response.message != 'undefined') {
+			jQuery('#fbBtn').prop('disabled', false);
+			jQuery('#rsepro-facebook-loader').css('display', 'none');
+			jQuery('#fbMessage').html(response.message);
+			jQuery('#fbMessage').removeClass('alert-info').addClass('alert-danger');
+			jQuery('#fbMessage').css('display', '');
+			
+			setTimeout(function() {
+				jQuery('#fbMessage').animate({
+					opacity: 0
+				}, 500, function() {
+					jQuery(this).html('');
+					jQuery(this).removeClass('alert-danger').addClass('alert-info');
+					jQuery(this).css('opacity','1');
+					jQuery(this).css('display','none');
+				});
+			},3500);
+			
+		} else {		
+			if (response.fbpages.length) {
+				rsepro_import_facebook(response.fbpages, response.owners, response.step, response.names, response.types, response.total);
+			} else {
+				jQuery('#fbBtn').prop('disabled', false);
+				jQuery('#rsepro-facebook-loader').css('display', 'none');
+				
+				if (response.total == 0) {
+					jQuery('#fbMessage').html(Joomla.JText._('COM_RSEVENTSPRO_FACEBOOK_NO_EVENTS'));
+				} else {
+					jQuery('#fbMessage').html(Joomla.JText._('COM_RSEVENTSPRO_FACEBOOK_IMPORT_SUCCESS').replace('%d', response.total));
+				}
+				
+				jQuery('#fbMessage').css('display', '');
+				
+				setTimeout(function() {
+					jQuery('#fbMessage').animate({
+						opacity: 0
+					}, 500, function() {
+						jQuery(this).html('');
+						jQuery(this).css('opacity','1');
+						jQuery(this).css('display','none');
+					});
+				},3500);
+			}
+		}
+	});
+}
+
 /****** DEPRECATED ******/
 function rs_stop() {}
 function rs_search() {}

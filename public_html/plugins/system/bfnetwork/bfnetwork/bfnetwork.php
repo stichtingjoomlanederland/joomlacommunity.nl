@@ -27,7 +27,7 @@
  */
 
 // no direct access
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or exit('Restricted access');
 
 /*
  * All our code is in the sub folder, as that is what is auto-upgraded

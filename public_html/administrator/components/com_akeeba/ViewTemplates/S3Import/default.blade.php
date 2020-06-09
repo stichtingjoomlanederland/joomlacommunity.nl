@@ -9,25 +9,7 @@
 defined('_JEXEC') or die();
 
 /** @var \Akeeba\Backup\Admin\View\S3Import\Html $this */
-
-// Work around Safari which ignores autocomplete=off (FOR CRYING OUT LOUD!)
-$s3AccessEscaped = addslashes($this->s3access);
-$s3SecretEscaped = addslashes($this->s3secret);
-$js = <<< JS
-
-;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
-// due to missing trailing semicolon and/or newline in their code.
-akeeba.System.documentReady(function() {
-	setTimeout(function(){
-		document.getElementById('s3access').value = '$s3AccessEscaped';
-		document.getElementById('s3secret').value = '$s3SecretEscaped';
-	}, 500);
-});
-
-JS;
-
 ?>
-@inlineJs($js)
 <form action="index.php" method="post" name="adminForm" id="adminForm">
 
     <div class="akeeba-hidden-fields-container">
@@ -53,7 +35,7 @@ JS;
 
             @if(empty($this->buckets))
                 <div class="akeeba-form-group">
-                    <button class="akeeba-btn--primary" type="submit" onclick="ak_s3import_resetroot();">
+                    <button class="akeeba-btn--primary" id="akeebaS3ImportResetRoot" type="submit">
                         <span class="akion-wifi"></span>
                         @lang('COM_AKEEBA_S3IMPORT_LABEL_CONNECT')
                     </button>
@@ -64,7 +46,7 @@ JS;
                 </div>
 
                 <div class="akeeba-form-group">
-                    <button class="akeeba-btn--primary" type="submit" onclick="ak_s3import_resetroot();">
+                    <button class="akeeba-btn--primary" id="akeebaS3ImportResetRoot" type="submit">
                         <span class="akion-folder"></span>
                         @lang('COM_AKEEBA_S3IMPORT_LABEL_CHANGEBUCKET')
                     </button>
@@ -77,7 +59,7 @@ JS;
         <div id="ak_crumbs_container">
             <ul class="breadcrumb">
                 <li>
-                    <a href="javascript:ak_s3import_chdir('');">&lt;root&gt;</a>
+                    <a data-s3prefix="{{ base64_encode('') }}" class="akeebaS3ImportChangeDirectory">&lt; root &gt;</a>
                     <span class="divider">/</span>
                 </li>
 
@@ -86,7 +68,10 @@ JS;
                     @foreach($this->crumbs as $crumb)
 						<?php $runningCrumb .= $crumb . '/'; $i++; ?>
                         <li>
-                            <a href="javascript:ak_s3import_chdir('{{ addslashes($runningCrumb) }}');">
+                            <a
+                                    class="akeebaS3ImportChangeDirectory"
+                                    data-s3prefix="{{ base64_encode($runningCrumb) }}"
+                            >
                                 {{{ $crumb }}}
                             </a>
                             @if($i < count($this->crumbs))
@@ -111,12 +96,13 @@ JS;
                 <div id="folders">
                     @if(!empty($this->contents['folders']))
                         @foreach($this->contents['folders'] as $name => $record)
-                            <div class="folder-container"
-                                 onclick="ak_s3import_chdir('{{ addslashes($record['prefix']) }}');">
+                            <div class="folder-container">
                                 <span class="folder-icon-container">
                                     <span class="akion-ios-folder"></span>
                                 </span>
-                                <span class="folder-name">
+                                <span class="folder-name akeebaS3ImportChangeDirectory"
+                                      data-s3prefix="{{ base64_encode($record['prefix']) }}"
+                                >
                                     {{{ rtrim($name, '/') }}}
                                 </span>
                             </div>
@@ -136,12 +122,12 @@ JS;
                 <div id="files">
                     @if(!empty($this->contents['files']))
                         @foreach($this->contents['files'] as $name => $record)
-                            <div class="file-container"
-                                 onclick="window.location='index.php?option=com_akeeba&view=S3Import&task=dltoserver&part=-1&frag=-1&layout=downloading&file={{{ $name }}}';">
+                            <div class="file-container">
                                 <span class="file-icon-container">
                                     <span class="akion-document"></span>
                                 </span>
-                                <span class="file-name file-clickable">
+                                <span class="file-name file-clickable akeebaS3ImportObjectDownload"
+                                      data-s3object="{{ base64_encode($name) }}">
                                     {{{ basename($record['name']) }}}
                                 </span>
                             </div>

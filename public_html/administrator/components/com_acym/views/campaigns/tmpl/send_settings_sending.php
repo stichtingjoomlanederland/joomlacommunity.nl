@@ -35,28 +35,29 @@ defined('_JEXEC') or die('Restricted access');
             <?php } ?>
 		</div>
 	</div>
-	<h5 class="cell margin-top-1 margin-bottom-1 acym__campaign__sendsettings__title-settings"><?php echo acym_translation('ACYM_ADDITIONAL_SETTINGS'); ?></h5>
+</div>
+
+<h5 class="cell margin-top-1 margin-bottom-1 acym__campaign__sendsettings__title-settings"><?php echo acym_translation('ACYM_ADDITIONAL_SETTINGS'); ?></h5>
+<div class="cell grid-x margin-top-1">
 	<div class="cell medium-11 grid-margin-x grid-x acym__campaign__sendsettings__params" data-show="acym__campaign__sendsettings__now" <?php echo $data['currentCampaign']->send_now ? '' : 'style="display: none"'; ?>>
 		<p class="cell"><?php echo acym_translation('ACYM_SENT_AS_SOON_CAMPAIGN_SAVE'); ?></p>
 	</div>
-	<div class="cell grid-x medium-11 grid-margin-x acym__campaign__sendsettings__params" data-show="acym__campaign__sendsettings__scheduled" <?php echo $data['currentCampaign']->send_scheduled ? '' : 'style="display: none"'; ?>>
-		<div class="grid-x cell">
-			<div class="cell grid-x acym__campaign__sendsettings__display-send-type-scheduled">
-				<p id="acym__campaign__sendsettings__scheduled__send-date__label" class="cell shrink"><?php echo acym_translation('ACYM_CAMPAIGN_WILL_BE_SENT'); ?></p>
-				<label class="cell shrink" for="acym__campaign__sendsettings__send">
-                    <?php
-                    $value = empty($data['currentCampaign']->sending_date) ? '' : acym_date($data['currentCampaign']->sending_date, 'Y-m-d H:i');
-                    echo acym_tooltip(
-                        '<input class="text-center acy_date_picker" data-acym-translate="0" type="text" name="sendingDate" id="acym__campaign__sendsettings__send-type-scheduled__date" value="'.acym_escape($value).'" readonly>',
-                        acym_translation('ACYM_CLICK_TO_EDIT')
-                    );
-                    ?>
-				</label>
-			</div>
+	<div class="cell grid-x acym__campaign__sendsettings__params" data-show="acym__campaign__sendsettings__scheduled" <?php echo $data['currentCampaign']->send_scheduled ? '' : 'style="display: none"'; ?>>
+		<div class="cell grid-x acym__campaign__sendsettings__display-send-type-scheduled">
+			<p id="acym__campaign__sendsettings__scheduled__send-date__label" class="cell shrink"><?php echo acym_translation('ACYM_CAMPAIGN_WILL_BE_SENT'); ?></p>
+			<label class="cell shrink" for="acym__campaign__sendsettings__send">
+                <?php
+                $value = empty($data['currentCampaign']->sending_date) ? '' : acym_date($data['currentCampaign']->sending_date, 'Y-m-d H:i');
+                echo acym_tooltip(
+                    '<input class="text-center acy_date_picker" data-acym-translate="0" type="text" name="sendingDate" id="acym__campaign__sendsettings__send-type-scheduled__date" value="'.acym_escape($value).'" readonly>',
+                    acym_translation('ACYM_CLICK_TO_EDIT')
+                );
+                ?>
+			</label>
 		</div>
 	</div>
 	<div class="cell grid-x align-center">
-		<div class="cell medium-11 grid-margin-x grid-x align-center acym__campaign__sendsettings__params" data-show="acym__campaign__sendsettings__auto" <?php echo $data['currentCampaign']->send_auto ? '' : 'style="display: none"'; ?>>
+		<div class="cell grid-x align-center acym__campaign__sendsettings__params" data-show="acym__campaign__sendsettings__auto" <?php echo $data['currentCampaign']->send_auto ? '' : 'style="display: none"'; ?>>
 			<div class="cell grid-x acym_vcenter">
 				<p class="cell shrink"><?php echo acym_translation('ACYM_THIS_WILL_GENERATE_CAMPAIGN_AUTOMATICALLY'); ?></p>
 				<div class="cell shrink grid-x margin-left-1">
@@ -81,7 +82,7 @@ defined('_JEXEC') or die('Restricted access');
 					</div>
 				</div>
 			</div>
-			<div class="cell grid-x margin-top-2">
+			<div class="cell grid-x margin-top-1">
                 <?php
                 echo acym_switch(
                     'need_confirm',
@@ -95,5 +96,18 @@ defined('_JEXEC') or die('Restricted access');
 			</div>
 		</div>
 	</div>
+    <?php if (!empty($data['langChoice'])) { ?>
+		<div class="cell grid-x margin-top-1">
+			<label class="cell medium-7 large-4">
+                <?php
+                echo acym_translation('ACYM_EMAIL_LANGUAGE');
+                echo acym_info('ACYM_EMAIL_LANGUAGE_DESC');
+                ?>
+			</label>
+			<div class="cell medium-5 large-3">
+                <?php echo $data['langChoice']; ?>
+			</div>
+		</div>
+    <?php } ?>
 </div>
 

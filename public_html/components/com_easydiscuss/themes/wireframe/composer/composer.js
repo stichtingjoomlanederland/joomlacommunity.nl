@@ -388,7 +388,7 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 			if (result.type == 'success' || result.type == 'success.edit') {
 				// now the contents are append into the doc.
 				// we need to replade the div back to proper script tag and use iframe to load.
-				$('[data-gist-div').each(function() {
+				$('[data-gist-div]').each(function() {
 
 					var url = $(this).data('url');
 

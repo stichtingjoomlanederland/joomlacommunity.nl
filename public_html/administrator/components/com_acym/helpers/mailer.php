@@ -545,6 +545,7 @@ class acymmailerHelper extends acyPHPMailer
         $this->creator_id = $this->defaultMail[$mailId]->creator_id;
         $this->type = $this->defaultMail[$mailId]->type;
         $this->stylesheet = &$this->stylesheet;
+        $this->links_language = $this->defaultMail[$mailId]->links_language;
 
         if (!$isTest) {
             $this->statPicture($this->id, $receiver->id);
@@ -554,7 +555,7 @@ class acymmailerHelper extends acyPHPMailer
 
         $this->replaceParams();
 
-        if (strpos($receiver->email, '@mail-tester.com') !== false) {
+        if (strpos($receiver->email, '@mailtester.acyba.com') !== false) {
             $currentUser = $this->userClass->getOneByEmail(acym_currentUserEmail());
             if (empty($currentUser)) {
                 $currentUser = $receiver;

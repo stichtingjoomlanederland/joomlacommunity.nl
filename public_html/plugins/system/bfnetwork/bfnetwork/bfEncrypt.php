@@ -32,7 +32,7 @@ header('X-MYJOOMLA: HIT');
  * Some high level request checks
  * Only accept POSTs, if a GET then just expose the fact we are listening
  */
-count($_POST) or die('Ready');
+count($_POST) or exit('Ready');
 
 /**
  * Provide some code so that pathetic extensions code can be worked around.
@@ -151,7 +151,7 @@ if ($overrideVMethod !== 'C'.'U'.'R'.'L' && true == ini_get('allow_url_fopen') &
         if (false == $validationResultHash) {
             echo 'C'.'U'.'R'.'L ERROR: ';
             echo curl_error($ch);
-            die;
+            exit;
         }
     }
 
@@ -169,7 +169,7 @@ if ('f59fbbcf2dc5e3888a079d34f821a75a' !== md5(trim($validationResultHash))) {
     echo '<br/><br/>Debug: We tried the validation with PHP methods: '.$vMethod;
     echo '<br/><br/>Debug: env was '.$APPLICATION_ENV;
     echo '<br/><br/>Debug: response was '.print_r($validationResultHash, true);
-    die();
+    exit();
 }
 
 /* IF WE GET HERE THEN THE REQUEST IS VALIDATED AS GENUINE, BUT IS STILL ENCRYPTED */
@@ -219,7 +219,6 @@ switch (@$_POST['METHOD']) {
      * proceed.
      */
     case 'EncryptedHeaderWithNotEncryptedData':
-
         // This is an NOTENCRYPTED connection - beware!
         define('BF_REQUEST_ENCRYPTED', false);
         $dataObj = bfEncrypt::decrypt($rsa);
@@ -227,7 +226,7 @@ switch (@$_POST['METHOD']) {
         break;
 
     default:
-        die(json_encode(array(
+        exit(json_encode(array(
             'METHOD'       => 'NOTENCRYPTED',
             'RESULT'       => bfReply::ERROR,
             'NOTENCRYPTED' => array(
@@ -253,7 +252,7 @@ if (property_exists($dataObj, 'SET_HOST_ID')) {
 
 // Some basic tests, not really security but some basics
 if (!is_object($dataObj)) {
-    die(json_encode(array(
+    exit(json_encode(array(
         'METHOD'       => 'NOTENCRYPTED',
         'RESULT'       => bfReply::ERROR,
         'NOTENCRYPTED' => array(
@@ -301,7 +300,7 @@ class bfEncrypt
         if (!$header) {
             // If we get here then then the KEYS are wrong, or the request are
             // wrong
-            die(json_encode(array(
+            exit(json_encode(array(
                 'METHOD'       => 'NOTENCRYPTED',
                 'RESULT'       => bfReply::ERROR,
                 'NOTENCRYPTED' => array(
@@ -321,6 +320,19 @@ class bfEncrypt
 
         // Set the encryption key to send data back with
         define('RC4_KEY', $header->RC4_KEY);
+
+        /*
+         * NOTE: We are not using RC4 encryption on the reply for security reasons
+         * The reason we do it is to bypass firewall filters and hide our replies from over zealous
+         * firewalls and other system level request filters like mod_security
+         *
+         * We do not reply on a request being encrypted on its return. Its optional.
+         */
+        if (array_key_exists('DO_NOT_ENCRYPT_REPLY', $_POST)) {
+            define('ENCRYPT_REPLY', false);
+        } else {
+            define('ENCRYPT_REPLY', true);
+        }
 
         // attempt to ensure our tmp folder is writable
         if (!is_writeable(dirname(__FILE__).'/tmp')) {
@@ -384,7 +396,7 @@ class bfEncrypt
         } else {
             // If we get here then then the KEYS are wrong, or the request are
             // wrong
-            die(json_encode(array(
+            exit(json_encode(array(
                 'METHOD'       => 'NOTENCRYPTED',
                 'RESULT'       => bfReply::ERROR,
                 'NOTENCRYPTED' => array(
@@ -430,13 +442,26 @@ class bfEncrypt
             $returnJson->HEY_HUMAN = 'If you can read this then you probably need to upgrade your connector - do this by manually running a snapshot and then try again. This is perfectly normal if we have pushed a new connector version and your site has not had chance to auto-update which happens within 24 hours or on first interaction with your snapshot.'; // This is NOT encrypted
         }
 
-        $returnJson->METHOD = 'Encrypted'; // This is NOT encrypted
-        $returnJson->RESULT = $result; // This is NOT encrypted
+        /*
+         * NOTE: mySites.guru is not relying on using RC4 encryption on the reply for security reasons
+         *
+         * The reason we do it is to hide from filters and hide our replies from over zealous
+         * firewalls and other system level request filters like mod_security
+         *
+         * We do not rely on a request being encrypted on its return. Its optional.
+         */
+        if (ENCRYPT_REPLY === true) {
+            $returnJson->METHOD    = 'ENCRYPTED'; // This is NOT encrypted
+            $returnJson->ENCRYPTED = bfEncrypt::getEncrypted($msg);
+        } else {
+            $returnJson->METHOD            = 'NOTENCRYPTED'; // This is NOT encrypted
+            $returnJson->NOTENCRYPTED      = new stdClass();
+            $returnJson->NOTENCRYPTED->msg = $msg;
+        }
 
-        // This is encrypted
-        $returnJson->ENCRYPTED = bfEncrypt::getEncrypted($msg);
+        $returnJson->RESULT = $result; // This is never encrypted, just a success ro error
 
-        // This is NOT encrypted
+        // This is NOT encrypted - just a version number
         $returnJson->CLIENT_VER = file_get_contents('./VERSION');
 
         /**
@@ -450,7 +475,7 @@ class bfEncrypt
         }
 
         bfLog::log('Returning encrypted status to server');
-        die(json_encode($returnJson));
+        exit(json_encode($returnJson));
     }
 
     /**
@@ -475,7 +500,7 @@ class bfEncrypt
 
         if (!defined('RC4_KEY')) {
             bfLog::log('NO RC4_KEY FOUND!!');
-            die('No Encryption Key');
+            exit('No Encryption Key');
         }
 
         // Use the one time encryption key the requester provided

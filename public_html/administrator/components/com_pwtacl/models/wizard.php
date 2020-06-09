@@ -3,16 +3,16 @@
  * @package    PwtAcl
  *
  * @author     Sander Potjer - Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2011 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2011 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
 
 use Joomla\CMS\Access\Access;
 use Joomla\CMS\Factory;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\Model\ListModel;
 
-// No direct access.
 defined('_JEXEC') or die;
 
 /**
@@ -20,7 +20,7 @@ defined('_JEXEC') or die;
  *
  * @since   3.0
  */
-class PwtaclModelWizard extends ListModel
+class PwtAclModelWizard extends ListModel
 {
 	/**
 	 * Abstract method for getting the form from the model.
@@ -35,10 +35,10 @@ class PwtaclModelWizard extends ListModel
 		$form = $this->loadForm(
 			'com_pwtacl.wizard',
 			'wizard',
-			array(
+			[
 				'control'   => 'jform',
 				'load_data' => $loadData
-			)
+			]
 		);
 
 		if (empty($form))
@@ -59,7 +59,7 @@ class PwtaclModelWizard extends ListModel
 	protected function loadFormData()
 	{
 		// Check the session for previously entered form data.
-		return Factory::getApplication()->getUserState('com_pwtacl.wizard', array());
+		return Factory::getApplication()->getUserState('com_pwtacl.wizard', []);
 	}
 
 	/**
@@ -77,16 +77,16 @@ class PwtaclModelWizard extends ListModel
 		$groupId = $data['groupid'];
 
 		// Create new group
-		if ($data['new'] == 1)
+		if ((int) $data['new'] === 1)
 		{
 			$groupId = $this->createGroup($data['grouptitle']);
 		}
 
 		// Get the parent of all groups
-		JModelLegacy::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_pwtacl/models/', 'PwtaclModel');
+		BaseDatabaseModel::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_pwtacl/models/', 'PwtAclModel');
 
-		/** @var PwtaclModelAssets $assetsModel */
-		$assetsModel = JModelLegacy::getInstance('Assets', 'PwtaclModel');
+		/** @var PwtAclModelAssets $assetsModel */
+		$assetsModel = BaseDatabaseModel::getInstance('Assets', 'PwtAclModel');
 
 		// Clear Permissions first
 		$assetsModel->clear($groupId);
@@ -95,19 +95,19 @@ class PwtaclModelWizard extends ListModel
 		Access::clearStatics();
 
 		// Set login site action
-		if ($data['core.login.site'] == 1)
+		if ((int) $data['core.login.site'] === 1)
 		{
 			$assetsModel->saveAction('root.1', 'core.login.site', $groupId, 1);
 		}
 
 		// Set login admin action
-		if ($data['core.login.admin'] == 1)
+		if ((int) $data['core.login.admin'] === 1)
 		{
 			$assetsModel->saveAction('root.1', 'core.login.admin', $groupId, 1);
 		}
 
 		// Set login offline action
-		if ($data['core.login.offline'] == 1)
+		if ((int) $data['core.login.offline'] === 1)
 		{
 			$assetsModel->saveAction('root.1', 'core.login.offline', $groupId, 1);
 		}
@@ -132,34 +132,32 @@ class PwtaclModelWizard extends ListModel
 	protected function createGroup($title)
 	{
 		// Get the parent of all groups
-		JModelLegacy::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_pwtacl/models/', 'PwtaclModel');
+		BaseDatabaseModel::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_pwtacl/models/', 'PwtAclModel');
 
-		/** @var PwtaclModelAssets $assetsModel */
-		$assetsModel = JModelLegacy::getInstance('Assets', 'PwtaclModel');
+		/** @var PwtAclModelAssets $assetsModel */
+		$assetsModel = BaseDatabaseModel::getInstance('Assets', 'PwtAclModel');
 
 		// Get parent of all groups
 		$rootGroup = $assetsModel->getGroupsParent();
 
 		// Get the Groups model
-		JModelLegacy::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_users/models/', 'UsersModel');
+		BaseDatabaseModel::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_users/models/', 'UsersModel');
 
 		/** @var UsersModelGroup $groupModel */
-		$groupModel = JModelLegacy::getInstance('Group', 'UsersModel');
+		$groupModel = BaseDatabaseModel::getInstance('Group', 'UsersModel');
 
 		// The new group data
-		$newroup = array(
+		$newGroup = [
 			'title'     => $title,
 			'parent_id' => $rootGroup,
 			'id'        => 0
-		);
+		];
 
 		// Save group
-		$groupModel->save($newroup);
+		$groupModel->save($newGroup);
 
 		// Get the group ID of the new group
-		$groupId = (int) $groupModel->getState('group.id');
-
-		return $groupId;
+		return (int) $groupModel->getState('group.id');
 	}
 
 	/**
@@ -197,10 +195,10 @@ class PwtaclModelWizard extends ListModel
 		$where = rtrim($where, ' OR');
 
 		// Get Assets Model
-		JModelLegacy::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_pwtacl/models/', 'PwtaclModel');
+		BaseDatabaseModel::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_pwtacl/models/', 'PwtAclModel');
 
-		/** @var PwtaclModelAssets $assetsModel */
-		$assetsModel = JModelLegacy::getInstance('Assets', 'PwtaclModel');
+		/** @var PwtAclModelAssets $assetsModel */
+		$assetsModel = BaseDatabaseModel::getInstance('Assets', 'PwtAclModel');
 
 		// Get the assets
 		$assets = $assetsModel->prepareAssets($assetsModel->getAssets($where, 'name'), 'group', $group, null);
@@ -215,15 +213,17 @@ class PwtaclModelWizard extends ListModel
 			$actions = json_decode($asset->rules);
 
 			// Remove actions not displayed
-			unset($actions->{'core.admin'});
-			unset($actions->{'core.options'});
-			unset($actions->{'core.manage'});
-			unset($asset->actions->core->{'core.admin'});
-			unset($asset->actions->core->{'core.options'});
-			unset($asset->actions->core->{'core.manage'});
+			unset(
+				$actions->{'core.admin'},
+				$actions->{'core.options'},
+				$actions->{'core.manage'},
+				$asset->actions->core->{'core.admin'},
+				$asset->actions->core->{'core.options'},
+				$asset->actions->core->{'core.manage'}
+			);
 
 			// Correct level for this view
-			$asset->level = $asset->level - 1;
+			--$asset->level;
 
 			// Prepare components array
 			$components->{$asset->component}->{'assets'}[] = $asset;

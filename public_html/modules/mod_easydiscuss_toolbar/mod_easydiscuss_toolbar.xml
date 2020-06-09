@@ -2,12 +2,12 @@
 <extension type="module" version="2.5" client="site" method="upgrade">
 	<name>EasyDiscuss - Toolbar</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>7th February 2020</creationDate>
+	<creationDate>27th May 2020</creationDate>
 	<copyright>Copyright 2009 - 2016 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
 	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>4.1.14</version>
+	<version>4.1.16</version>
 	<description>
 		<![CDATA[
 			This module will display a EasyDiscuss's toolbar.

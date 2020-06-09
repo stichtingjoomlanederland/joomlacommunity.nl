@@ -48,6 +48,13 @@ class ServerConfigMaker extends Controller
 		$model = $this->getModel();
 
 		$data = $this->input->getData();
+
+		// Wrong $live_site value, force no wwwredir
+		if (!$model->enableRedirects())
+		{
+			$data['wwwredir'] = 0;
+		}
+
 		$model->saveConfiguration($data);
 
 		$this->setRedirect('index.php?option=com_admintools&view=' . $this->view, JText::_($this->langKeyPrefix . 'SAVED'));
@@ -59,6 +66,12 @@ class ServerConfigMaker extends Controller
 		$model = $this->getModel();
 
 		$data = $this->input->getData();
+
+		// Wrong $live_site value, force no wwwredir
+		if (!$model->enableRedirects())
+		{
+			$data['wwwredir'] = 0;
+		}
 
 		$this->sendTroubelshootingEmail($this->getName());
 		$model->saveConfiguration($data);

@@ -256,12 +256,10 @@ HTML;
 
 		foreach ($alteredFiles as $fileName => $fileSet)
 		{
-			list($oldInfo, $curInfo) = $fileSet;
-
-			$oldTime = Date::getInstance($oldInfo['timestamp']);
-			$curTime = Date::getInstance($curInfo['timestamp']);
-			$oldInfo['timestamp'] = $oldTime->format(JText::_('DATE_FORMAT_LC2'));
-			$curInfo['timestamp'] = $curTime->format(JText::_('DATE_FORMAT_LC2'));
+			if (empty($fileName))
+			{
+				continue;
+			}
 
 			$htmlAlteredFiles .= <<< HTML
 	<li>

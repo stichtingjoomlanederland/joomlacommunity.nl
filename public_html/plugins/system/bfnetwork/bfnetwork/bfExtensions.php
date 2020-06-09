@@ -26,7 +26,7 @@
  * If you have any questions regarding this code, please contact phil@phil-taylor.com
  */
 
-/**
+/*
  * If we have not already included bfEncrypt then this must be a direct call, and
  * so we need to decrypt the incoming request.
  */
@@ -70,9 +70,6 @@ final class bfExtensions
     );
 
     /**
-     * PHP 5 Constructor,
-     * I inject the request to the object.
-     *
      * @param stdClass $dataObj
      */
     public function __construct($dataObj = null)
@@ -349,7 +346,7 @@ final class bfExtensions
                 }
             } catch (Exception $e) {
                 bfLog::log('EXCEPTION = '.$ext->xmlFile.' '.$e->getMessage());
-                die('Could not process XML file at: '.str_replace(JPATH_BASE, '', $ext->xmlFile));
+                exit('Could not process XML file at: '.str_replace(JPATH_BASE, '', $ext->xmlFile));
             }
 
             $ext->name  = JText::_($ext->name);
@@ -424,7 +421,6 @@ final class bfExtensions
                 $last[] = JPATH_BASE.'/modules/'.$ext->module.'/';
                 break;
             case 'template':
-
                 $try[] = JPATH_ADMINISTRATOR.'/templates/'.$ext->element.'/templateDetails.xml';
                 $try[] = JPATH_BASE.'/templates/'.$ext->element.'/templateDetails.xml';
                 if (property_exists($ext, 'template')) {

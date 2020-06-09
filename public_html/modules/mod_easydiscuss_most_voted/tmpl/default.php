@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -123,7 +123,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<ul class="o-nav">
 					<?php foreach ($post->getTags() as $tag) { ?>
 						<li class="t-lg-mr--md">
-							<span class="o-label o-label--default-o">#<?php echo $tag->title; ?></span>
+							<span class="o-label o-label--default-o">#<?php echo ED::string()->escape($tag->title); ?></span>
 						</li>
 					<?php } ?>
 					</ul>

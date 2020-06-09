@@ -180,8 +180,6 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			'media/com_akeeba/js/Transfer.js',
 
 			// -- other non-Core JS
-			'media/com_akeeba/js/Alice.min.js',
-			'media/com_akeeba/js/Alice.js',
 			'media/com_akeeba/js/IncludeFolders.min.js',
 			'media/com_akeeba/js/IncludeFolders.js',
 			'media/com_akeeba/js/MultipleDatabases.min.js',
@@ -397,6 +395,9 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			'administrator/components/com_akeeba/BackupEngine/Base/BaseObject.php',
 
 			// ALICE refactoring
+			'media/com_akeeba/js/Alice.js',
+			'media/com_akeeba/js/Alice.min.js',
+			'media/com_akeeba/js/Stepper.js',
 			'media/com_akeeba/js/Stepper.min.js',
 
 			// Version 7 -- Remove non-RAW encapsulation
@@ -405,10 +406,8 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			"components/com_akeeba/Model/Json/Encapsulation/AesCtr128.php",
 			"components/com_akeeba/Model/Json/Encapsulation/AesCtr256.php",
 
-			// pCloud
-//			"administrator/components/com_akeeba/BackupEngine/Postproc/Connector/Pcloud.php",
-//			"administrator/components/com_akeeba/BackupEngine/Postproc/pcloud.json",
-//			"administrator/components/com_akeeba/BackupEngine/Postproc/Pcloud.php",
+			// Optimize JavaScript support
+			"administrator/componetns/com_akeeba/Helper/JsBundler.php",
 		],
 		'folders' => [
 			// Directories used up to version 4.1 (inclusive)

@@ -10,7 +10,7 @@
 defined('JPATH_PLATFORM') or die('RESTRICTED');
 
 class pkg_jceInstallerScript
-{
+{    
     private function addIndexfiles($paths)
     {
         jimport('joomla.filesystem.folder');
@@ -72,17 +72,32 @@ class pkg_jceInstallerScript
         $language->load('com_jce', JPATH_ADMINISTRATOR, null, true);
         $language->load('com_jce.sys', JPATH_ADMINISTRATOR, null, true);
 
-        $message = '<div id="jce" class="mt-4 mb-4 p-4 card border-dark hero-unit" style="text-align:left;">';
+        // set layout base path
+        JLayoutHelper::$defaultBasePath = JPATH_ADMINISTRATOR . '/components/com_jce/layouts';
 
-        $message .= '<div class="card-header"><h2>' . JText::_('COM_JCE') . ' ' . $parent->manifest->version . '</h2></div>';
-        $message .= '<div class="card-body">';
-        $message .= JText::_('COM_JCE_XML_DESCRIPTION');
+        // override existing message
+        $message  = '';
+        $message .= '<div id="jce" class="mt-4 mb-4 p-4 card border-dark well" style="text-align:left;">';
+        $message .= '   <div class="card-header"><h1>' . JText::_('COM_JCE') . ' ' . $parent->manifest->version . '</h1></div>';
+        $message .= '   <div class="card-body">';
 
-        if ((string) $parent->manifest->variant !== 'pro') {
-            $message .= file_get_contents(JPATH_ADMINISTRATOR . '/components/com_jce/views/cpanel/tmpl/default_pro.php');
+        // variant messates
+        if ((string) $parent->manifest->variant != 'pro') {
+            $message .= JLayoutHelper::render('message.upgrade');
+        } else {
+            // show core to pro upgrade message
+            if ($parent->isUpgrade()) {
+                $variant = (string) $parent->get('current_variant', 'core');
+    
+                if ($variant == 'core') {
+                    $message .= JLayoutHelper::render('message.welcome');
+                }
+            }
         }
 
-        $message .= '</div>';
+        $message .= JText::_('COM_JCE_XML_DESCRIPTION');
+
+        $message .= '   </div>';
         $message .= '</div>';
 
         $parent->set('message', $message);
@@ -145,6 +160,23 @@ class pkg_jceInstallerScript
         return $this->install($installer);
     }
 
+    protected function getCurrentVersion()
+    {
+        // get current package version
+        $manifest = JPATH_ADMINISTRATOR . '/manifests/packages/pkg_jce.xml';
+        $version = 0;
+        $variant = "core";
+
+        if (is_file($manifest)) {
+            if ($xml = @simplexml_load_file($manifest)) {
+                $version = (string) $xml->version;
+                $variant = (string) $xml->variant;
+            }
+        }
+
+        return array($version, $variant);
+    }
+
     public function preflight($route, $installer)
     {
         // skip on uninstall etc.
@@ -168,18 +200,8 @@ class pkg_jceInstallerScript
 
         $parent = $installer->getParent();
 
-        // get current package version
-        $manifest = JPATH_ADMINISTRATOR . '/manifests/packages/pkg_jce.xml';
-        $version = 0;
-        $variant = "core";
-
-        if (is_file($manifest)) {
-            if ($xml = @simplexml_load_file($manifest)) {
-                $version = (string) $xml->version;
-
-                $variant = (string) $xml->variant;
-            }
-        }
+        // set current package version and variant
+        list($version, $variant) = $this->getCurrentVersion();
 
         // set current version
         $parent->set('current_version', $version);
@@ -190,15 +212,6 @@ class pkg_jceInstallerScript
         // core cannot be installed over pro
         if ($variant === "pro" && (string) $parent->manifest->variant === "core") {
             throw new RuntimeException('JCE Core cannot be installed over JCE Pro. Please install JCE Pro. To downgrade, please first uninstall JCE Pro.');
-        }
-
-        // remove branding plugin
-        if ((string) $parent->manifest->variant === "pro") {
-            $branding = JPATH_SITE . '/components/com_jce/editor/tiny_mce/plugins/branding';
-
-            if (is_dir($branding)) {
-                JFolder::delete($branding);
-            }
         }
 
         // end here if not an upgrade
@@ -280,6 +293,16 @@ class pkg_jceInstallerScript
         if ($route == 'update') {
             $version = (string) $parent->manifest->version;
             $current_version = (string) $parent->get('current_version');
+
+            // process core to pro upgrade - remove branding plugin
+            if ((string) $parent->manifest->variant === "pro") {
+                // remove branding plugin
+                $branding = JPATH_SITE . '/components/com_jce/editor/tiny_mce/plugins/branding';
+
+                if (is_dir($branding)) {
+                    JFolder::delete($branding);
+                }
+            }
 
             $theme = '';
 
@@ -373,6 +396,7 @@ class pkg_jceInstallerScript
         $site = JPATH_SITE . '/components/com_jce';
 
         $folders = array();
+        $files = array();
 
         $folders['2.6.38'] = array(
             // admin
@@ -425,6 +449,18 @@ class pkg_jceInstallerScript
             $site . '/editor/tiny_mce/plugins/xhtmlxtras/classes',
         );
 
+        // remove flexicontent
+        if (!JComponentHelper::isInstalled('com_flexicontent')) {
+            $files['2.7'] = array(
+                $site . '/editor/extensions/links/flexicontentlinks.php',
+                $site . '/editor/extensions/links/flexicontentlinks.xml',
+            );
+
+            $folders['2.7'] = array(
+                $site . '/editor/extensions/links/flexicontentlinks'
+            );
+        }
+
         // remove inlinepopups
         $folders['2.7.13'] = array(
             $site . '/editor/tiny_mce/plugins/inlinepopups',
@@ -441,46 +477,10 @@ class pkg_jceInstallerScript
             $admin . '/views/help'
         );
 
-        foreach ($folders as $version => $list) {
-            // version check
-            if (version_compare($version, $current_version, 'gt')) {
-                continue;
-            }
-
-            foreach ($list as $folder) {
-                if (!@is_dir($folder)) {
-                    continue;
-                }
-
-                $files = JFolder::files($folder, '.', false, true, array(), array());
-
-                foreach ($files as $file) {
-                    if (!@unlink($file)) {
-                        try {
-                            JFile::delete($file);
-                        } catch (Exception $e) {}
-                    }
-                }
-
-                $folders = JFolder::folders($folder, '.', false, true, array(), array());
-
-                foreach ($folders as $dir) {
-                    if (!@rmdir($dir)) {
-                        try {
-                            JFolder::delete($dir);
-                        } catch (Exception $e) {}
-                    }
-                }
-
-                if (!@rmdir($folder)) {
-                    try {
-                        JFolder::delete($folder);
-                    } catch (Exception $e) {}
-                }
-            }
-        }
-
-        $files = array();
+        // remove mediaplayer
+        $folders['2.8.11'] = array(
+            $site . '/editor/libraries/mediaplayer'
+        );
 
         $files['2.6.38'] = array(
             $admin . '/install.php',
@@ -563,6 +563,49 @@ class pkg_jceInstallerScript
             $admin . '/media/css/help.min.css',
             $admin . '/media/js/help.min.js'
         );
+
+        $files['2.8.11'] = array(
+            $admin . '/views/cpanel/default_pro.php'
+        );
+
+        foreach ($folders as $version => $list) {
+            // version check
+            if (version_compare($version, $current_version, 'gt')) {
+                continue;
+            }
+
+            foreach ($list as $folder) {
+                if (!@is_dir($folder)) {
+                    continue;
+                }
+
+                $items = JFolder::files($folder, '.', false, true, array(), array());
+
+                foreach ($items as $file) {
+                    if (!@unlink($file)) {
+                        try {
+                            JFile::delete($file);
+                        } catch (Exception $e) {}
+                    }
+                }
+
+                $items = JFolder::folders($folder, '.', false, true, array(), array());
+
+                foreach ($items as $dir) {
+                    if (!@rmdir($dir)) {
+                        try {
+                            JFolder::delete($dir);
+                        } catch (Exception $e) {}
+                    }
+                }
+
+                if (!@rmdir($folder)) {
+                    try {
+                        JFolder::delete($folder);
+                    } catch (Exception $e) {}
+                }
+            }
+        }
 
         foreach ($files as $version => $list) {
             // version check

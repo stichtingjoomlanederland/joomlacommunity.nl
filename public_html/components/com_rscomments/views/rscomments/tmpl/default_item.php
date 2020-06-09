@@ -147,30 +147,19 @@ $canEdit	= ((isset($this->permissions['edit_own_comment']) && $this->permissions
 					
 					<?php $positive = '<a class="'.RSTooltip::tooltipClass().'" href="javascript:void(0);" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_GOOD_COMMENT')).'" data-rsc-task="voteup"><i class="rscomm-meta-icon fa fa-thumbs-up"></i></a>'; ?>
 					<?php $negative = '<a class="'.RSTooltip::tooltipClass().'" href="javascript:void(0);" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_BAD_COMMENT')).'" data-rsc-task="votedown"><i class="rscomm-meta-icon fa fa-thumbs-down"></i></a>'; ?>
-					
+					<?php $vote_no = $this->comment->pos - $this->comment->neg; ?>
 					
 					<?php if (isset($this->permissions['vote_comments']) && $this->permissions['vote_comments']) { ?>
 					<?php $voted = RSCommentsHelper::voted($this->comment->IdComment); ?>
 					<?php if (empty($voted)) { ?>
-					<span id="rsc_voting<?php echo $this->comment->IdComment; ?>"><?php echo $positive.' '.$negative; ?></span>
+					<span id="rsc_voting<?php echo $this->comment->IdComment; ?>"><?php echo $positive.' '.$negative; ?><span class="rsc_<?php echo $vote_no > 0 ? 'green' : 'red'; ?>"><?php echo $vote_no; ?></span></span>
 					<?php } else { ?>
-					<?php if ($this->comment->pos - $this->comment->neg > 0) { ?>
-					<i class="rscomm-meta-icon fa fa-thumbs-up"></i>
-					<span class="rsc_green"><?php echo $this->comment->pos - $this->comment->neg; ?></span>
-					<?php } else { ?>
-					<i class="rscomm-meta-icon fa fa-thumbs-down"></i>
-					<span class="rsc_red"><?php echo $this->comment->pos - $this->comment->neg; ?></span>
+					<i class="rscomm-meta-icon fa fa-thumbs-<?php echo $vote_no > 0 ? 'up' : 'down'; ?>"></i>
+					<span class="rsc_<?php echo $vote_no > 0 ? 'green' : 'red'; ?>"><?php echo $vote_no; ?></span>
 					<?php } ?>
-					<?php } ?>
-					
 					<?php } else { ?>
-					<?php if ($this->comment->pos - $this->comment->neg > 0) { ?>
-					<i class="rscomm-meta-icon fa fa-thumbs-up"></i>
-					<span class="rsc_green"><?php echo $this->comment->pos - $this->comment->neg; ?></span>
-					<?php } else { ?>
-					<i class="rscomm-meta-icon fa fa-thumbs-down"></i>
-					<span class="rsc_red"><?php echo $this->comment->pos - $this->comment->neg; ?></span>
-					<?php } ?>
+					<i class="rscomm-meta-icon fa fa-thumbs-<?php echo $vote_no > 0 ? 'up' : 'down'; ?>"></i>
+					<span class="rsc_<?php echo $vote_no > 0 ? 'green' : 'red'; ?>"><?php echo $vote_no; ?></span>
 					<?php } ?>
 
 				</span>

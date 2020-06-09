@@ -26,7 +26,7 @@
  * If you have any questions regarding this code, please contact phil@phil-taylor.com
  */
 
-defined('_JEXEC') or die();
+defined('_JEXEC') or exit();
 
 /*
  * Our very own myJoomla implementation of some core Joomla features

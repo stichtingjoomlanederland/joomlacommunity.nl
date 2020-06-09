@@ -915,7 +915,7 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 
 		$idOnly = isset($options['id_only']) ? $options['id_only'] : false;
 		$pagination = isset($options['pagination']) ? $options['pagination'] : true;
-		
+
 		$limitstart = isset($options['limitstart']) ? $options['limitstart'] : $this->input->get('limitstart', 0);
 		$limitstart = (int) $limitstart;
 
@@ -1117,11 +1117,10 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		return $result;
 	}
 
-
 	/**
 	 * search categories based on title and used in search filter.
 	 *
-	 * @since 	4.0
+	 * @since 	4.1.15
 	 * @access 	public
 	 **/
 	public function suggestCategories($text)
@@ -1131,10 +1130,13 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		$query = "select a.`id`, a.`title`";
 		$query .= " from `#__discuss_category` as a";
 		$query .= " where a.`published` = " . $db->Quote('1');
+		$query .= " and a.`container` != " . $db->Quote('1');
 		$query .= " and a.`title` LIKE " . $db->Quote('%' . $text . '%');
 
 		$catAccessSQL = ED::category()->genCategoryAccessSQL('a.id', array());
 		$query .= " and " . $catAccessSQL;
+
+		$query .= " order by a.`lft`";
 
 		$db->setQuery($query);
 		$results = $db->loadObjectList();
@@ -1145,4 +1147,6 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 
 		return $results;
 	}
+
+
 }

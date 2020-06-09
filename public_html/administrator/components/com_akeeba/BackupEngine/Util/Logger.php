@@ -10,7 +10,6 @@
 namespace Akeeba\Engine\Util;
 
 
-
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
 use Akeeba\Engine\Util\Log\LogInterface;
@@ -93,6 +92,7 @@ class Logger implements LoggerInterface, LogInterface, WarningsLoggerInterface
 
 		if ($fp !== false)
 		{
+			fputs($fp, '<' . '?' . 'php die(); ' . '?' . '>' . "\n");
 			@fclose($fp);
 		}
 
@@ -242,11 +242,11 @@ class Logger implements LoggerInterface, LogInterface, WarningsLoggerInterface
 	{
 		if (empty($tag))
 		{
-			$fileName = 'akeeba.log';
+			$fileName = 'akeeba.log.php';
 		}
 		else
 		{
-			$fileName = "akeeba.$tag.log";
+			$fileName = "akeeba.$tag.log.php";
 		}
 
 		// Get output directory
@@ -349,7 +349,17 @@ class Logger implements LoggerInterface, LogInterface, WarningsLoggerInterface
 	 */
 	public function getLastTimestamp($tag = null)
 	{
-		$fileName  = $this->getLogFilename($tag);
+		$fileName = $this->getLogFilename($tag);
+
+		/**
+		 * Transitional period: the log file akeeba.tag.log.php may not exist but the akeeba.tag.log does. This if-block
+		 * addresses this transition.
+		 */
+		if (!@file_exists($fileName) && @file_exists(substr($fileName, 0, -4)))
+		{
+			$fileName = substr($fileName, 0, -4);
+		}
+
 		$timestamp = @filemtime($fileName);
 
 		if ($timestamp === false)

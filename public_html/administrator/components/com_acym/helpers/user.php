@@ -176,6 +176,5 @@ class acymuserHelper extends acymObject
         unlink($tempFolder.'export_data_user_'.$id.'.zip');
         exit;
     }
-
 }
 

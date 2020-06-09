@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2020 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -13,6 +13,30 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussMailQueue extends EasyDiscuss
 {
+	/**
+	 * Detects the content of a replied e-mail
+	 *
+	 * @since	4.1.15
+	 * @access	public
+	 */
+	public function detectEmailContent($content)
+	{
+		require_once(DISCUSS_ADMIN_INCLUDES . '/vendor/autoload.php');
+
+		// Another method to just extract the contents
+		// $visibleText = \EmailReplyParser\EmailReplyParser::parseReply($content);
+
+		// Remove all known <blockquotes>
+		$content = preg_replace('/\<blockquote.*?>.*\<\/blockquote\>/is', ' ', $content);
+
+		$email = (new EmailReplyParser\Parser\EmailParser())->parse($content);
+
+		$fragment = current($email->getFragments());
+		$content = $fragment->getContent();
+
+		return $content;
+	}
+
 	/**
 	 * Processes e-mails from the queue and dispatch them out
 	 *
@@ -170,6 +194,7 @@ class EasyDiscussMailQueue extends EasyDiscuss
 		$filter = JFilterInput::getInstance();
 		$total = 0;
 
+		$intelligentReplyDetection = $this->config->get('mail_reply_breaker_intelligent');
 		$replyBreaker = $this->config->get('mail_reply_breaker');
 
 		foreach ($unread as $sequence) {
@@ -199,12 +224,18 @@ class EasyDiscussMailQueue extends EasyDiscuss
 			}
 
 			// Get the subject of the email and clean it to avoid any unclose html tags
-			$subject = $filter->clean($info->subject);
+			$subject = '';
+			$matches = array();
 
-			// @rule: Detect if this is actually a reply.
-			preg_match('/\[\#(.*)\]/is', $subject, $matches);
+			if (isset($info->subject) && $info->subject) {
+				$subject = $info->subject;
 
-			$isReply = !empty( $matches );
+				$subject = $filter->clean($subject);
+				
+				preg_match('/\[\#(.*)\]/is', $subject, $matches);
+			}
+
+			$isReply = !empty($matches);
 			$message = ED::MailerMessage($mailer->stream, $sequence);
 
 			// Load up the post object
@@ -214,6 +245,11 @@ class EasyDiscussMailQueue extends EasyDiscuss
 
 			// Get the html output
 			$html = $message->getHTML();
+
+			// Intelligently detect content
+			if ($intelligentReplyDetection) {
+				$html = $this->detectEmailContent($html);
+			}
 
 			// Default allowed html codes
 			$allowed = '<img>,<a>,<br>,<table>,<tbody>,<th>,<tr>,<td>,<div>,<span>,<p>,<h1>,<h2>,<h3>,<h4>,<h5>,<h6>,<b>,<i>,<u>';
@@ -235,10 +271,10 @@ class EasyDiscussMailQueue extends EasyDiscuss
 				$html = JString::str_ireplace('&nbsp;', ' ', $html);
 
 				// Switch html back to bbcode
-				$html 	= ED::parser()->html2bbcode( $html );
+				$html = ED::parser()->html2bbcode($html);
 
 				// Update the quote messages
-				$html 	= ED::parser()->quoteBbcode( $html );
+				$html = ED::parser()->quoteBbcode($html);
 
 				//since the editor is a bbcode, we should not allow any html tags.
 				$html = strip_tags($html);
@@ -283,9 +319,10 @@ class EasyDiscussMailQueue extends EasyDiscuss
 				$parentId = (int) $matches[1];
 				$data['parent_id'] = $parentId;
 
-				// Trim content, get text before the defined line
-				if( $replyBreaker ) {
-					if( $pos = JString::strpos($data['content'], $replyBreaker) ) {
+				if (!$intelligentReplyDetection && $replyBreaker) {
+					$pos = JString::strpos($data['content'], $replyBreaker);
+
+					if ($pos) {
 						$data['content'] = JString::substr($data['content'], 0, $pos);
 					}
 				}
@@ -342,6 +379,7 @@ class EasyDiscussMailQueue extends EasyDiscuss
 			}
 
 			$post->save($saveOptions);
+
 			// @task: Increment the count.
 			$total	+= 1;
 
@@ -558,26 +596,88 @@ class EasyDiscussMailQueue extends EasyDiscuss
 	 */
 	public function isSenderAllowed($sender)
 	{
-		// filter email according to the whitelist
-		$filter = JFilterInput::getInstance();
-		$whitelist = $this->config->get('main_email_parser_sender_whitelist');
-		$whitelist = $filter->clean($whitelist, 'string');
-		$whitelist = trim($whitelist);
+		// Check if there are any blacklisted e-mails
+		if ($this->isBlacklisted($sender)) {
+			return false;
+		}
 
-		if (empty($whitelist)) {
+		// filter email according to the whitelist
+		if ($this->isWhitelisted($sender)) {
 			return true;
 		}
 
-		$pattern = '([\w\.\-]+\@(?:[a-z0-9\.\-]+\.)+(?:[a-z0-9\-]{2,4}))';
 
-		preg_match_all($pattern, $whitelist, $matches);
-		$emails = $matches[0];
+		return true;
+	}
 
-		if (!in_array($sender, $emails)) {
-			$this->setError(JText::sprintf('COM_ED_MAILBOX_NOT_WHITELISTED', $sender));
+	/**
+	 * Determines if an e-mail address is blacklisted
+	 *
+	 * @since	4.1.15
+	 * @access	public
+	 */
+	private function isBlacklisted($email)
+	{
+		$list = $this->config->get('main_email_parser_sender_blacklist');
+		$emails = $this->getEmailsFromList($list);
+
+		if (!$emails) {
+			return false;
+		}
+
+		if (in_array($email, $emails)) {
+			$this->setError(JText::sprintf('COM_ED_MAILBOX_BLACKLISTED', $email));
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Determines if an e-mail address is blacklisted
+	 *
+	 * @since	4.1.15
+	 * @access	public
+	 */
+	private function isWhitelisted($email)
+	{
+		$list = $this->config->get('main_email_parser_sender_whitelist');
+		$emails = $this->getEmailsFromList($list);
+
+		if (!$emails) {
+			return true;
+		}
+
+		if (!in_array($email, $emails)) {
+			$this->setError(JText::sprintf('COM_ED_MAILBOX_NOT_WHITELISTED', $email));
 			return false;
 		}
 
 		return true;
+	}
+
+	/**
+	 * Given the list of e-mails, clean up the content
+	 *
+	 * @since	4.1.15
+	 * @access	public
+	 */
+	private function getEmailsFromList($list)
+	{
+		$filter = JFilterInput::getInstance();
+
+		$list = $filter->clean($list, 'string');
+		$list = JString::trim($list);
+
+		if (!$list) {
+			return array();
+		}
+
+		$pattern = '([\w\.\-]+\@(?:[a-z0-9\.\-]+\.)+(?:[a-z0-9\-]{2,4}))';
+
+		preg_match_all($pattern, $list, $matches);
+		$emails = @$matches[0];
+
+		return $emails;
 	}
 }

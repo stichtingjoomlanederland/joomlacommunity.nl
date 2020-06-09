@@ -82,7 +82,7 @@ class acymfieldClass extends acymClass
 
     public function getFieldsValueByUserId($userId)
     {
-        $query = 'SELECT * FROM #__acym_user_has_field  WHERE user_id = '.intval($userId);
+        $query = 'SELECT * FROM #__acym_user_has_field WHERE user_id = '.intval($userId);
 
         return acym_loadObjectList($query, 'field_id');
     }
@@ -90,10 +90,16 @@ class acymfieldClass extends acymClass
     public function generateNamekey($name, $namekey = '')
     {
         $fieldsNamekey = acym_loadResultArray('SELECT namekey FROM #__acym_field');
+        $columnsUser = acym_getColumns('user');
+        $namekeyForbidden = array_merge($fieldsNamekey, $columnsUser);
 
         $namekey = empty($namekey) ? substr(preg_replace('#[^a-z0-9_]#i', '', strtolower($name)), 0, 50) : $namekey;
-        if (in_array($namekey, $fieldsNamekey)) {
-            $namekey = $namekey.'_'.count($fieldsNamekey);
+        $baseNamekey = $namekey;
+        $baseCount = count($namekeyForbidden);
+
+        while (in_array($namekey, $namekeyForbidden)) {
+            $namekey = $baseNamekey.'_'.$baseCount;
+            $baseCount++;
         }
 
         return $namekey;
@@ -162,22 +168,33 @@ class acymfieldClass extends acymClass
         }
 
         if (empty($fields)) return;
-        foreach ($fields as $id => $field) {
+
+        foreach ($fields as $id => $value) {
             $query = 'INSERT INTO #__acym_user_has_field (`user_id`, `field_id`, `value`) VALUES ';
-            if (is_array($field)) {
-                $fullField = $this->getOneFieldByID($id);
-                if (in_array($fullField->type, ['multiple_dropdown', 'radio', 'phone'])) {
-                    $field = implode(',', $field);
-                } elseif ($fullField->type == 'checkbox') {
-                    $field = implode(',', array_keys($field));
-                } elseif ($fullField->type == 'date') {
-                    $field = $this->isDateEmpty($field) ? '' : implode('/', $field);
+
+            if (is_array($value)) {
+                $field = $this->getOneFieldByID($id);
+                if (in_array($field->type, ['multiple_dropdown', 'radio', 'phone'])) {
+                    $value = implode(',', $value);
+                    if ($value === ',') $value = '';
+                } elseif ($field->type == 'checkbox') {
+                    $value = implode(',', array_keys($value));
+                } elseif ($field->type == 'date') {
+                    $value = $this->isDateEmpty($value) ? '' : implode('/', $value);
                 } else {
-                    $field = json_encode($field);
+                    $value = json_encode($value);
                 }
             }
-            $query .= '('.intval($userID).', '.intval($id).', '.acym_escapeDB($field).')';
-            $query .= ' ON DUPLICATE KEY UPDATE `value`= VALUES(`value`)';
+
+            if (strlen($value) === 0) {
+                $query = 'DELETE FROM `#__acym_user_has_field` 
+                          WHERE `user_id` = '.intval($userID).' 
+                            AND `field_id` = '.intval($id);
+            } else {
+                $query .= '('.intval($userID).', '.intval($id).', '.acym_escapeDB($value).')';
+                $query .= ' ON DUPLICATE KEY UPDATE `value`= VALUES(`value`)';
+            }
+
             acym_query($query);
         }
     }
@@ -373,7 +390,7 @@ class acymfieldClass extends acymClass
             $authorizedContent = ' data-authorized-content="'.acym_escape(json_encode($field->option->authorized_content)).'"';
             $return .= '<input '.$nameAttribute.$placeholder.$required.$value.$authorizedContent.$style.' type="text">';
         } elseif ($field->type == 'textarea') {
-            $return .= '<textarea '.$nameAttribute.$required.' rows="'.intval($field->option->rows).'" cols="'.intval($field->option->columns).'">'.(empty($defaultValue) ? $field->name : $defaultValue).'</textarea>';
+            $return .= '<textarea '.$nameAttribute.$required.' rows="'.intval($field->option->rows).'" cols="'.intval($field->option->columns).'">'.(empty($defaultValue) ? '' : $defaultValue).'</textarea>';
         } elseif ($field->type == 'radio') {
             $defaultValue = strlen($defaultValue) === 0 ? null : $defaultValue;
             if ($displayFront) {

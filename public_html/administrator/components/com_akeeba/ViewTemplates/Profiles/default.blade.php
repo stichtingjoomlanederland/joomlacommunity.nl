@@ -6,6 +6,7 @@
  */
 
 defined('_JEXEC') or die();
+
 ?>
 
 <form action="index.php" method="post" name="adminForm" id="adminForm" class="akeeba-form akeeba-form--with-hidden">
@@ -16,7 +17,7 @@ defined('_JEXEC') or die();
             <div class="akeeba-filter-element akeeba-form-group">
                 <input type="text" name="description" id="description"
                        value="{{{ $this->getModel()->getState('description', '', 'string') }}}" size="30"
-                       onchange="document.adminForm.submit();"
+                       class="akeebaGridViewAutoSubmitOnChange"
                        placeholder="@lang('COM_AKEEBA_PROFILES_COLLABEL_DESCRIPTION')"
                 />
             </div>
@@ -33,8 +34,8 @@ defined('_JEXEC') or die();
                 <label for="directionTable" class="element-invisible">
                     @lang('JFIELD_ORDERING_DESC')
                 </label>
-                <select name="directionTable" id="directionTable" class="input-medium custom-select"
-                        onchange="Joomla.orderTable()">
+                <select name="directionTable" id="directionTable"
+                        class="input-medium custom-select akeebaGridViewOrderTable">
                     <option value="">
                         @lang('JFIELD_ORDERING_DESC')
                     </option>
@@ -51,8 +52,7 @@ defined('_JEXEC') or die();
                 <label for="sortTable" class="element-invisible">
                     @lang('JGLOBAL_SORT_BY')
                 </label>
-                <select name="sortTable" id="sortTable" class="input-medium custom-select"
-                        onchange="Joomla.orderTable()">
+                <select name="sortTable" id="sortTable" class="input-medium custom-select akeebaGridViewOrderTable">
                     <option value="">
                         @lang('JGLOBAL_SORT_BY')
                     </option>
@@ -66,7 +66,7 @@ defined('_JEXEC') or die();
         <thead>
         <tr>
             <th width="20">
-                <input type="checkbox" name="toggle" value="" onclick="Joomla.checkAll(this);" />
+                <input type="checkbox" name="toggle" value="" class="akeebaGridViewCheckAll" />
             </th>
             <th width="40">
                 @jhtml('grid.sort', 'JGRID_HEADING_ID', 'id', $this->lists->order_Dir, $this->lists->order, 'browse')

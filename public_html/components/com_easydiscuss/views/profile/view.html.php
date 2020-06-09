@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -36,9 +36,9 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		// Load the user's profile
 		$profile = ED::user($user->id);
 
-		// If profile is invalid, throw an error.
+		// If profile is invalid, means the user is viewing from the user profile menu item and is not logged in yet.
 		if (!$profile->id) {
-			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_USER_ACCOUNT_NOT_FOUND'));
+			return ED::requireLogin();
 		}
 
 		$socialUrls = array();

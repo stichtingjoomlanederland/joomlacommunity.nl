@@ -532,6 +532,7 @@ END;
 	ExpiresByType image/vnd.wap.wbmp "now plus 1 month"
 	ExpiresByType application/vnd.wap.wbxml "now plus 1 month"
 	ExpiresByType application/smil "now plus 1 month"
+	ExpiresByType image/web "now plus 1 month"
 	
 	# Font files expiration: 1 week after request
 	ExpiresByType application/vnd.ms-fontobject "now plus 1 week"
@@ -564,6 +565,20 @@ END;
 	ExpiresByType video/x-la-asf "now plus 1 month"
 	ExpiresByType video/x-ms-asf "now plus 1 month"
 </IfModule>
+
+# Disable caching of administrator/index.php
+<Files "administrator/index.php">
+	<IfModule mod_expires.c>
+		ExpiresActive Off
+	</IfModule>
+	<IfModule mod_headers.c>
+		Header unset ETag
+		Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
+		Header set Pragma "no-cache"
+		Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
+	</IfModule>
+</Files>
+
 ##### Optimal default expiration time - END
 
 

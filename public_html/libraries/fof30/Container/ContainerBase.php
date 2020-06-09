@@ -1,8 +1,8 @@
 <?php
 /**
- * @package     FOF
- * @copyright   Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license     GNU GPL version 2 or later
+ * @package   FOF
+ * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 2, or later
  */
 
 namespace FOF30\Container;
@@ -37,6 +37,14 @@ class ContainerBase extends Container
 	 */
 	function __set($name, $value)
 	{
+		// Special backwards compatible handling for the mediaVersion service
+		if ($name == 'mediaVersion')
+		{
+			$this[$name]->setMediaVersion($value);
+
+			return;
+		}
+
 		$this->offsetSet($name, $value);
 	}
 }

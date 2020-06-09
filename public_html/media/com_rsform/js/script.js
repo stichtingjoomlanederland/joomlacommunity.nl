@@ -21,7 +21,7 @@ RSFormPro.setHTML5Validation = function (formId, isDisabledSubmit, errorClasses,
 	for (i = 0; i < submitElement.length; i++) {
 		if (RSFormProUtils.hasClass(submitElement[i],'rsform-submit-button')) {
 			RSFormProUtils.addEvent(submitElement[i], 'click', (function (event) {
-				errorElements = RSFormPro.HTML5.validation(formId);
+				var errorElements = RSFormPro.HTML5.validation(formId);
 				if (errorElements.length) {
 					var errorPagesFound = [];
 					for (j = 0; j < errorElements.length; j++) {
@@ -133,11 +133,8 @@ RSFormPro.showThankYouPopup = function (thankYouContainer){
 	outer.setAttribute('class', 'rsfp_thankyou_popup_outer');
 	outer.onclick = function() {
 		if (event && event.target && (RSFormProUtils.hasClass(event.target, 'rsfp_thankyou_popup_outer') || RSFormProUtils.hasClass(event.target, 'rsfp_thankou_popup_close_btn'))) {
-			if (gotoUrl.length > 0) {
-				document.location = gotoUrl;
-			} else {
-				document.location.reload(true);
-			}
+            destroyPopup();
+            redirectUrl();
 		}
 	};
 
@@ -155,11 +152,30 @@ RSFormPro.showThankYouPopup = function (thankYouContainer){
 
 	document.body.appendChild(outer);
 
-	var popupWindowHeight = document.getElementById('rsfp_thankyou_popup_inner').offsetHeight;
-	var windowHeight = window.innerHeight;
+	document.getElementById('rsfp_thankyou_popup_inner').style.marginTop = (window.innerHeight - document.getElementById('rsfp_thankyou_popup_inner').offsetHeight) / 2 + 'px';
 
-	var marginTop = (windowHeight - popupWindowHeight) / 2;
-	document.getElementById('rsfp_thankyou_popup_inner').style.marginTop = marginTop + 'px';
+	var continueButton = outer.querySelector('[name=continue]');
+	if (continueButton) {
+		continueButton.removeAttribute('onclick');
+		continueButton.onclick = function() {
+			destroyPopup();
+			redirectUrl();
+		}
+	}
+
+	var redirectUrl = function() {
+        if (gotoUrl.length > 0) {
+            document.location = gotoUrl;
+        } else {
+            document.location.reload(true);
+        }
+	};
+
+	var destroyPopup = function() {
+        RSFormProUtils.removeClass(document.body, 'rsfp_popup_activated');
+
+        document.body.removeChild(outer);
+	};
 };
 
 /* Scroll to first error element */
@@ -574,6 +590,11 @@ RSFormPro.getValue = function(formId, name) {
 										var selectedDate = Date.parseDate(RSFormPro.jQueryCalendar.calendars[formId][name].currentDate, RSFormPro.jQueryCalendar.calendars[formId][name].hiddenFormat);
 										return (selectedDate.getTime() / 1000).toString();
 									}
+
+                                if (element.hasOwnProperty('rsfpGetValue'))
+                                {
+                                    return element.rsfpGetValue();
+                                }
 								
 								return element.value;
 								break;
@@ -945,11 +966,16 @@ RSFormPro.HTML5 = {
 		var form = RSFormPro.getForm(formId);
 		var errorElements = [];
 		var html5types = ['number', 'email', 'range', 'url', 'tel'];
+		var multipleTypes = ['radio'];
 
 		var checkValidityExists = true;
 		var page = 0;
+		var componentId;
+		var elementId;
+		var match;
+
 		if (form.elements.length) {
-			for (i=0; i<form.elements.length; i++) {
+			for (var i = 0; i < form.elements.length; i++) {
 				if (!checkValidityExists) {
 					break;
 				}
@@ -965,21 +991,29 @@ RSFormPro.HTML5 = {
 							pos = onclick.indexOf(',', ++pos);
 						}
 
-
 						if (countCommas > 2) {
 							page++;
 						}
 					}
 				}
-				if (html5types.indexOf(form.elements[i].type) >= 0) {
-					if ( typeof(form.elements[i].checkValidity) == "function" && checkValidityExists) {
+				if (html5types.indexOf(form.elements[i].type) > -1) {
+					if ( typeof(form.elements[i].checkValidity) === 'function' && checkValidityExists) {
 						if (!form.elements[i].checkValidity()) {
 							var elementObj = {
 								field: form.elements[i],
 								page: page
 							};
 							// try to get the componentId
-							var componentId = RSFormPro.HTML5.getComponentId(formId, form.elements[i].getAttribute('id'));
+							elementId = form.elements[i].getAttribute('id');
+							if (multipleTypes.indexOf(form.elements[i].type) > -1)
+							{
+								if (match = form.elements[i].getAttribute('name').match(/form\[(.*)\]/))
+								{
+									elementId = match[1];
+								}
+							}
+							componentId = RSFormPro.HTML5.getComponentId(formId, elementId);
+
 							if (componentId) {
 								elementObj.componentId = componentId;
 							}
@@ -1214,6 +1248,9 @@ RSFormPro.Calculations = {
 	toHours: function(seconds) {
 		return Math.round(parseFloat(seconds) / 86400 * 24);
 	},
+	toMinutes: function(seconds) {
+        return Math.round(parseFloat(seconds) / 86400 * 24 * 60);
+    },
 	addEvents: function(formId, fields) {
 		RSFormProUtils.addEvent(window, 'load', function(){
 			RSFormPro.Calculations._addEvents(formId, fields);
@@ -1223,6 +1260,7 @@ RSFormPro.Calculations = {
 		var func 		= window['rsfp_Calculations' + formId];
 		var thefields	= fields ? fields : RSFormProPrices;
 		var event 		= 'change';
+		var objects, tagName;
 		
 		var resetElements = RSFormPro.getElementByType(formId, 'reset');
 		if (resetElements.length > 0)
@@ -1246,9 +1284,9 @@ RSFormPro.Calculations = {
 			for(i = 0; i < objects.length;i++) {
 				tagName = objects[i].tagName || objects[i].nodeName;
 
-				if (tagName == 'INPUT' || tagName == 'SELECT') {
+				if (tagName === 'INPUT' || tagName === 'SELECT') {
 					event = 'change';
-					if (tagName == 'INPUT' && typeof objects[i].type == 'string') {
+					if (tagName === 'INPUT' && typeof objects[i].type == 'string') {
 						switch (objects[i].type.toUpperCase())
 						{
 							default:
@@ -1259,33 +1297,38 @@ RSFormPro.Calculations = {
 							case 'TEXT':
 								event = 'input';
 								
-								if (typeof RSFormPro.jQueryCalendar != 'undefined' &&
-									typeof RSFormPro.jQueryCalendar.calendars[formId] != 'undefined' &&
-									typeof RSFormPro.jQueryCalendar.calendars[formId][field] != 'undefined')
+								if (typeof RSFormPro.jQueryCalendar !== 'undefined' &&
+									typeof RSFormPro.jQueryCalendar.calendars[formId] !== 'undefined' &&
+									typeof RSFormPro.jQueryCalendar.calendars[formId][field] !== 'undefined')
 									{
 										RSFormPro.jQueryCalendar.calendars[formId][field].calendarInstance.setOptions({onChangeDateTime: function() {
-											if (typeof func == "function") {
+											if (typeof func === 'function') {
 												func();
 											}
 										}});
 									}
 								
-								if (typeof RSFormPro.YUICalendar != 'undefined' &&
-									typeof RSFormPro.YUICalendar.calendars[formId] != 'undefined' &&
-									typeof RSFormPro.YUICalendar.calendars[formId][field] != 'undefined')
+								if (typeof RSFormPro.YUICalendar !== 'undefined' &&
+									typeof RSFormPro.YUICalendar.calendars[formId] !== 'undefined' &&
+									typeof RSFormPro.YUICalendar.calendars[formId][field] !== 'undefined')
 									{
 										RSFormPro.YUICalendar.calendars[formId][field].selectEvent.subscribe(function() {
-											if (typeof func == "function") {
+											if (typeof func === 'function') {
 												func();
 											}
 										}, RSFormPro.YUICalendar.calendars[formId][field], true);
 									}
+
+								if (objects[i].hasOwnProperty('rsfpOnChange'))
+								{
+									objects[i].rsfpOnChange(func);
+								}
 							break;
 						}
 					}
 
 					RSFormProUtils.addEvent(objects[i], event, function() {
-						if (typeof func == "function") {
+						if (typeof func === 'function') {
 							func();
 						}
 					});

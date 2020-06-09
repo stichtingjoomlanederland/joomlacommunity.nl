@@ -402,18 +402,20 @@ class RseventsproController extends JControllerLegacy
 	 * @return string
 	 */
 	public function ajax() {
-		$db		= JFactory::getDbo();
-		$query	= $db->getQuery(true);
-		$search = JFactory::getApplication()->input->getString('search');
-		$itemid = JFactory::getApplication()->input->getInt('iid');
-		$opener = JFactory::getApplication()->input->getInt('opener',0);
+		$db			= JFactory::getDbo();
+		$query		= $db->getQuery(true);
+		$search 	= JFactory::getApplication()->input->getString('search');
+		$itemid 	= JFactory::getApplication()->input->getInt('iid');
+		$opener		= JFactory::getApplication()->input->getInt('opener',0);
+		$canceled	= JFactory::getApplication()->input->getInt('canceled',1);
+		$state		= $canceled ? '1,3' : '1';
 		
 		$query->clear()
-			->select($db->qn('id'))->select($db->qn('name'))
+			->select($db->qn('id'))->select($db->qn('name'))->select($db->qn('published'))
 			->from($db->qn('#__rseventspro_events'))
 			->where('('.$db->qn('name').' LIKE '.$db->q('%'.$search.'%').' OR '.$db->qn('description').' LIKE '.$db->q('%'.$search.'%').' )')
 			->where($db->qn('completed').' = 1')
-			->where($db->qn('published').' = 1');
+			->where($db->qn('published').' IN ('.$state.')');
 		
 		$db->setQuery($query);
 		$events = $db->loadObjectList();
@@ -430,7 +432,7 @@ class RseventsproController extends JControllerLegacy
 				$iid	= rseventsproHelper::itemid($event->id);
 				$iid	= empty($iid) ? $itemid : $iid;
 				
-				$html .= '<li><a '.$open.' href="'.rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),true,$iid).'">'.$event->name.'</a></li>';
+				$html .= '<li><a '.$open.' href="'.rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),true,$iid).'">'.$event->name.($event->published == 3 ? ' <small class="text-alert">('.JText::_('COM_RSEVENTSPRO_EVENT_CANCELED_TEXT').')</small>' : '').'</a></li>';
 			}
 		}
 		$html .= 'RS_DELIMITER1';

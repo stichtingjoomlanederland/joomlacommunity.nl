@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS `#__rsform_posts` (
   `enabled` tinyint(1) NOT NULL,
   `method` tinyint(1) NOT NULL,
   `fields` MEDIUMTEXT NOT NULL,
+  `headers` MEDIUMTEXT NOT NULL,
   `silent` tinyint(1) NOT NULL,
   `url` text NOT NULL,
   PRIMARY KEY (`form_id`)
