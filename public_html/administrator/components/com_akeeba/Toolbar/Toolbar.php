@@ -68,14 +68,15 @@ class Toolbar extends BaseToolbar
 		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/configuration.html');
 
 		$js = <<< JS
-;;
-
-jQuery(document).ready(function(){
-	jQuery('#toolbar-lightning>button').addClass('btn-primary');
+akeeba.System.documentReady(function(){
+    var elButtons = document.querySelectorAll('#toolbar-lightning>button');
+    akeeba.System.iterateNodes(elButtons, function (elButton) {
+		akeeba.System.addClass(elButton, 'btn-primary');        
+    });
 });
 
 JS;
-		JFactory::getDocument()->addScriptDeclaration($js);
+		$this->container->template->addJSInline($js);
 	}
 
 	public function onConfigurationWizardsMain()
@@ -146,7 +147,7 @@ JS;
 		if (AKEEBA_PRO)
 		{
 			$bar  = JToolbar::getInstance('toolbar');
-			$icon = $this->isJoomla3() ? 'restore' : 'search';
+			$icon = $this->isJoomla3() ? 'folder-open' : 'search';
 			$bar->appendButton('Link', $icon, JText::_('COM_AKEEBA_DISCOVER'), 'index.php?option=com_akeeba&view=Discover');
 		}
 

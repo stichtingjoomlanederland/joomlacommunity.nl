@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * Komento is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -103,17 +103,21 @@ class EasyDiscussMigratorVbulletin extends EasyDiscussMigratorBase
 			}
 
 			// For contents, we need to get the raw data.
-	        $data['content'] = $childItem->pagetext;
-	        $data['parent_id'] = $post->id;
+			$data['content'] = $childItem->pagetext;
+			$data['parent_id'] = $post->id;
 
-	        $saveOptions = array('migration' => true);
+			$saveOptions = array('migration' => true);
 
-	        // Load the post library
-	        $post = ED::post();
-	        $post->bind($data);
+			// Load the post library
+			$post = ED::post();
+			$post->bind($data);
 
-	        // Try to save the post now
-	        $state = $post->save($saveOptions);
+			// Try to save the post now
+			$state = $post->save($saveOptions);
+
+			// lets process attachments.
+			$this->processAttachments($childItem, $post, $prefix);
+
 		}
 	}
 
@@ -163,10 +167,128 @@ class EasyDiscussMigratorVbulletin extends EasyDiscussMigratorBase
 		$saveOptions = array('migration' => true);
 
 		$post->bind($data);
-        $post->save($saveOptions);
+		$post->save($saveOptions);
 
-        // Add this to migrators table
+		// lets process attachments.
+		$this->processAttachments($item, $post, $prefix);
+
+		// Add this to migrators table
 		$this->added('vbulletin', $post->id, $item->postid, 'post');
+	}
+
+	/**
+	 * Process attachments
+	 *
+	 * @since	4.1
+	 * @access	public
+	 */
+	public function processAttachments($item, $post, $prefix)
+	{
+		$config = ED::config();
+
+		$numAttachments = 0;
+		$rebuildPreview = false;
+
+		// if this post has attachments
+		if ($item->attach) {
+
+			$db = ED::db();
+
+			// now we check if attachments stored in db or not.
+			$query = "select a.`contentid`, a.`attachmentid`, a.`filename`, f.* ";
+			$query .= " from " . $db->nameQuote($prefix . 'attachment') . ' as a'; 
+			$query .= " inner join " . $db->nameQuote($prefix . 'filedata') . ' as f on a.`filedataid` = f.`filedataid`';
+			$query .= " where a.`contentid` = " . $db->Quote($item->postid);
+
+			$db->setQuery($query);
+			$attachments = $db->loadObjectList();
+
+			if ($attachments) {
+				foreach ($attachments as $aitem) {
+
+					$data = $aitem->filedata;
+					$filename = $aitem->filename;
+					$extension = $aitem->extension == 'jpg' ? 'jpeg' : $aitem->extension;
+					$attachmentId = $aitem->attachmentid;
+
+					$hash = ED::getHash($filename . ED::date()->toSql() . uniqid());
+
+					$storagePath = ED::attachment()->getStoragePath();
+					$storage = $storagePath . '/' . $hash;
+
+					if (!JFolder::exists($storagePath)) {
+						JFolder::create($storagePath);
+						JFile::copy(DISCUSS_ROOT . '/index.html', $storagePath . '/index.html');
+					}
+
+					// write the image data directly into folder.
+					$state = JFile::write($storage, $data);
+
+					if ($state && ED::image()->isImage($storage)) {
+
+						// create thumbnail
+						$image = ED::simpleimage();
+
+						@$image->load($storage);
+						@$image->resizeToFill(160, 120);
+						@$image->save($storage . '_thumb', $image->image_type);
+					}
+
+					$mime = '';
+					if(class_exists('finfo')) { // php 5.3+
+						$finfo = new finfo(FILEINFO_MIME);
+						$mime = explode('; ', $finfo->file($storage));
+						$mime = $mime[0];
+					} elseif(function_exists('mime_content_type')) { // PHP 5.2
+						$mime = mime_content_type($storage);
+					}
+
+					// now we add the record into attachment table.
+					$attachment	= ED::table('Attachments');
+					$attachment->set('title', $filename);
+
+					$attachment->set('uid', $post->id);
+					$attachment->set('size', $aitem->filesize);
+				
+					$attachment->set('published', DISCUSS_ID_PUBLISHED);
+					$attachment->set('mime', $mime);
+
+					$attachment->set('path', $hash);
+					$attachment->created = ED::date()->toSql();
+
+					$attachment->store();
+
+					// now we need to replace the content if there is this [ATTACH=CONFIG]37[/ATTACH]
+					$pattern = '[ATTACH=CONFIG]' . $attachmentId . '[/ATTACH]';
+
+					if (strpos($post->post->content, $pattern) !== false) {
+
+						$newString = '[attachment]' . $filename . '[/attachment]';
+						$post->post->content = JString::str_ireplace($pattern, $newString, $post->post->content);
+
+						$rebuildPreview = true;
+					}
+
+					$numAttachments++;
+				}
+			}
+
+			if ($numAttachments && $post->post->parent_id == 0) {
+				// lets update thread table.
+				$thread = ED::table('Thread');
+				$thread->load($post->post->thread_id);
+
+				$thread->num_attachments = $numAttachments;
+				$thread->store();
+			}
+
+			if ($rebuildPreview) {
+				$preview = $post->formatContent(false, true, true);
+				$post->post->preview = $preview;
+				$post->post->store();
+			}
+		}
+
 	}
 
 	public function migrateCategory($item, $prefix)
@@ -242,12 +364,12 @@ class EasyDiscussMigratorVbulletin extends EasyDiscussMigratorBase
 		$db->setQuery($query);
 		$items = $db->loadObjectList();
 
-		if ($items) {	
+		if ($items) {
 			foreach ($items as $item) {
-				$item->catid 	= $item->forumid;
-				$item->hits  	= $item->views;
-				$item->created  = $item->dateline;
-				$item->replied  = $item->lastpost;
+				$item->catid = $item->forumid;
+				$item->hits = $item->views;
+				$item->created = $item->dateline;
+				$item->replied = $item->lastpost;
 			}
 		}
 		return $items;

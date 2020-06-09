@@ -123,6 +123,7 @@ class Crawler extends Part
 		$this->directoryQueue    = [];
 		$this->fileQueue         = [];
 		$this->currentDirectory  = Filesystem::normalizePath(JPATH_ROOT);
+		$this->currentDirectory  = empty($this->currentDirectory) ? '/' : $this->currentDirectory;
 		$this->hasScannedFolders = false;
 		$this->hasScannedFiles   = false;
 

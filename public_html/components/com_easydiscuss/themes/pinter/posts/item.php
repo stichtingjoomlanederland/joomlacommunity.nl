@@ -150,7 +150,7 @@ defined('_JEXEC') or die('Restricted access');
 					<?php foreach ($post->getTags() as $tag) { ?>
 					<li>
 						<a href="<?php echo EDR::_('view=tags&id=' . $tag->id);?>">
-							<i class="fa fa-tag"></i>&nbsp; <?php echo $tag->title;?>
+							<i class="fa fa-tag"></i>&nbsp; <?php echo $this->html('string.escape', $tag->title);?>
 						</a>
 					</li>
 					<?php } ?>

@@ -3,7 +3,7 @@
  * @package    PwtAcl
  *
  * @author     Sander Potjer - Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2011 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2011 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
@@ -12,7 +12,6 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 
-// No direct access.
 defined('_JEXEC') or die;
 
 /**
@@ -20,7 +19,7 @@ defined('_JEXEC') or die;
  *
  * @since   3.0
  */
-class PwtaclHelper
+class PwtAclHelper
 {
 	/**
 	 * Sidebar items
@@ -36,21 +35,21 @@ class PwtaclHelper
 		JHtmlSidebar::addEntry(
 			Text::_('COM_PWTACL_SUBMENU_DASHBOARD'),
 			'index.php?option=com_pwtacl&view=dashboard',
-			$vName == 'dashboard'
+			$vName === 'dashboard'
 		);
 
 		// Group
 		JHtmlSidebar::addEntry(
 			Text::_('COM_PWTACL_SUBMENU_GROUP'),
 			'index.php?option=com_pwtacl&view=assets&type=group',
-			$vName == 'group'
+			$vName === 'group'
 		);
 
 		// User
 		JHtmlSidebar::addEntry(
 			Text::_('COM_PWTACL_SUBMENU_USER'),
 			'index.php?option=com_pwtacl&view=assets&type=user',
-			$vName == 'user'
+			$vName === 'user'
 		);
 
 		// Diagnostic
@@ -59,7 +58,7 @@ class PwtaclHelper
 			JHtmlSidebar::addEntry(
 				Text::_('COM_PWTACL_SUBMENU_DIAGNOSTICS'),
 				'index.php?option=com_pwtacl&view=diagnostics',
-				$vName == 'diagnostics'
+				$vName === 'diagnostics'
 			);
 		}
 
@@ -69,7 +68,7 @@ class PwtaclHelper
 			JHtmlSidebar::addEntry(
 				Text::_('COM_PWTACL_SUBMENU_WIZARD'),
 				'index.php?option=com_pwtacl&view=wizard',
-				$vName == 'wizard'
+				$vName === 'wizard'
 			);
 		}
 	}
@@ -82,7 +81,6 @@ class PwtaclHelper
 	 */
 	public static function getLanguages()
 	{
-		// Initialise variable
 		$lang  = Factory::getLanguage();
 		$db    = Factory::getDbo();
 		$query = $db->getQuery(true);
@@ -127,8 +125,6 @@ class PwtaclHelper
 				$lang->load($extension->value . '.sys', JPATH_ADMINISTRATOR . '/components/' . $extension->value, null, false, false);
 			}
 		}
-
-		return;
 	}
 
 	/**
@@ -139,19 +135,17 @@ class PwtaclHelper
 	 */
 	public static function getLevelsOptions()
 	{
-		// Build the filter options.
-		$options   = array();
-		$options[] = HTMLHelper::_('select.option', '1', '1 (' . strtolower(Text::_('MOD_MENU_CONFIGURATION')) . ')');
-		$options[] = HTMLHelper::_('select.option', '2', Text::sprintf('COM_USERS_OPTION_LEVEL_COMPONENT', 2));
-		$options[] = HTMLHelper::_('select.option', '3', Text::sprintf('COM_USERS_OPTION_LEVEL_CATEGORY', 3));
-		$options[] = HTMLHelper::_('select.option', '4', Text::sprintf('COM_USERS_OPTION_LEVEL_DEEPER', 4));
-		$options[] = HTMLHelper::_('select.option', '5', '5');
-		$options[] = HTMLHelper::_('select.option', '6', '6');
-		$options[] = HTMLHelper::_('select.option', '7', '7');
-		$options[] = HTMLHelper::_('select.option', '8', '8');
-		$options[] = HTMLHelper::_('select.option', '9', '9');
-		$options[] = HTMLHelper::_('select.option', '10', '10');
-
-		return $options;
+		return [
+			HTMLHelper::_('select.option', 1, '1 (' . strtolower(Text::_('MOD_MENU_CONFIGURATION')) . ')'),
+			HTMLHelper::_('select.option', 2, Text::sprintf('COM_USERS_OPTION_LEVEL_COMPONENT', 2)),
+			HTMLHelper::_('select.option', 3, Text::sprintf('COM_USERS_OPTION_LEVEL_CATEGORY', 3)),
+			HTMLHelper::_('select.option', 4, Text::sprintf('COM_USERS_OPTION_LEVEL_DEEPER', 4)),
+			HTMLHelper::_('select.option', 5, '5'),
+			HTMLHelper::_('select.option', 6, '6'),
+			HTMLHelper::_('select.option', 7, '7'),
+			HTMLHelper::_('select.option', 8, '8'),
+			HTMLHelper::_('select.option', 9, '9'),
+			HTMLHelper::_('select.option', 10, '10')
+		];
 	}
 }

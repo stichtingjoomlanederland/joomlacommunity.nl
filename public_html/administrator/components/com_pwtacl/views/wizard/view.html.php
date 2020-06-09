@@ -3,7 +3,7 @@
  * @package    PwtAcl
  *
  * @author     Sander Potjer - Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2011 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2011 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
@@ -14,8 +14,8 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\View\HtmlView;
+use Joomla\CMS\Toolbar\ToolbarHelper;
 
-// No direct access.
 defined('_JEXEC') or die;
 
 /**
@@ -23,7 +23,7 @@ defined('_JEXEC') or die;
  *
  * @since   3.0
  */
-class PwtaclViewWizard extends HtmlView
+class PwtAclViewWizard extends HtmlView
 {
 	/**
 	 * @var     $params
@@ -107,7 +107,7 @@ class PwtaclViewWizard extends HtmlView
 		HTMLHelper::_('jquery.framework');
 
 		// Load Javascript.
-		HTMLHelper::_('script', 'media/com_pwtacl/js/permissions.js', array('version' => 'auto'));
+		HTMLHelper::_('script', 'media/com_pwtacl/js/permissions.js', ['version' => 'auto']);
 
 		// Display the view
 		return parent::display($tpl);
@@ -122,12 +122,12 @@ class PwtaclViewWizard extends HtmlView
 	protected function addToolbar()
 	{
 		// Title
-		JToolBarHelper::title(Text::_('COM_PWTACL_SUBMENU_WIZARD'), 'pwtacl.png');
+		ToolbarHelper::title(Text::_('COM_PWTACL_SUBMENU_WIZARD'), 'pwtacl.png');
 
 		// Buttons
 		if (Factory::getUser()->authorise('core.admin', 'com_pwtacl'))
 		{
-			JToolBarHelper::preferences('com_pwtacl');
+			ToolbarHelper::preferences('com_pwtacl');
 		}
 	}
 }

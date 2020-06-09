@@ -71,7 +71,7 @@ class EasyDiscussControllerReports extends EasyDiscussController
 		$redirectMessage = JText::_('COM_EASYDISCUSS_REPORT_SUBMITTED');
 
 		// Check if the number of reports for this post exceeded the threshold.
-		if ($totalReports > $threshold) {
+		if ($totalReports >= $threshold) {
 			$owner = $post->getOwner();
 			$date = ED::date($post->created);
 

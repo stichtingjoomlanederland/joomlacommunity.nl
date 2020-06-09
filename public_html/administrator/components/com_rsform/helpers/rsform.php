@@ -324,6 +324,23 @@ class RSFormProHelper
 			}
 		}
 
+		// Check if the configured limit of submissions has been reached
+		if (!empty($form->LimitSubmissions))
+		{
+			$db = JFactory::getDbo();
+			$query = $db->getQuery(true)
+				->select('COUNT(*)')
+				->from($db->qn('#__rsform_submissions'))
+				->where($db->qn('FormId') . ' = ' . $db->q($formId));
+
+			$limit = $db->setQuery($query)->loadResult();
+
+			if ($limit >= $form->LimitSubmissions)
+			{
+				return JText::_('COM_RSFORM_LIMIT_SUBMISSIONS_HAS_BEEN_REACHED');
+			}
+		}
+
 		if ($form->DisableSubmitButton)
 		{
 			RSFormProAssets::addScriptDeclaration("RSFormProUtils.addEvent(window, 'load', function(){ RSFormPro.setDisabledSubmit('{$formId}', " . ($form->AjaxValidation ? 'true' : 'false') . "); });");
@@ -1943,7 +1960,7 @@ class RSFormProHelper
 			$formLayout .= "\n".'}';
 			$formLayout .= "\n".'rsfp_Calculations'.$formId.'();';
 			$formLayout .= RSFormProCalculations::getFields($calculations,$formId);
-			$formLayout .= "\n".'rsfp_setCalculationsEvents('.$formId.',rsfpCalculationFields'.$formId.');';
+			$formLayout .= "\n".'RSFormPro.Calculations.addEvents('.$formId.',rsfpCalculationFields'.$formId.');';
 			$formLayout .= "\n".'</script>';
 		}
 
@@ -2230,6 +2247,13 @@ class RSFormProHelper
 				}
 			}
 
+			if ($silentPost && !empty($silentPost->headers)) {
+				$silentPost->headers = json_decode($silentPost->headers);
+				if (!is_array($silentPost->headers)) {
+					$silentPost->headers = array();
+				}
+			}
+
 			eval($form->ScriptProcess2);
 
 			if ($form->ScrollToThankYou)
@@ -2355,15 +2379,39 @@ class RSFormProHelper
 				try {
 					// Do we need to send data silently?
 					if ($silentPost->silent) {
+                        // Map headers
+						$silentPostHeaders = array();
+						if (!empty($silentPost->headers))
+						{
+							$hasJson = false;
+							foreach ($silentPost->headers as $field)
+							{
+								$headerName  = str_replace($replace, $with, $field->name);
+								$headerValue = str_replace($replace, $with, $field->value);
+								$silentPostHeaders[$headerName] = $headerValue;
+
+								if (strtolower($headerName) === 'content-type' && strpos(strtolower($headerValue), 'json') !== false)
+								{
+									$hasJson = true;
+								}
+							}
+
+							if ($hasJson)
+							{
+								parse_str($data, $dataArray);
+								$data = json_encode($dataArray);
+							}
+						}
+
 						// Get HTTP connector
 						$http = JHttpFactory::getHttp();
 
 						if ($silentPost->method) {
 							// POST
-							$http->post($url, $data);
+							$http->post($url, $data, $silentPostHeaders);
 						} else {
 							// GET
-							$http->get($url.(strpos($url, '?') === false ? '?' : '&').$data);
+							$http->get($url.(strpos($url, '?') === false ? '?' : '&').$data, $silentPostHeaders);
 						}
 					} else {
 						// Try to follow the URL
@@ -2929,7 +2977,8 @@ class RSFormProHelper
 			$mail->addRecipient($recipient);
 			$mail->addCC($cc);
 			$mail->addBCC($bcc);
-			$mail->addAttachment($attachment);
+			// If we leave $type = '' then PHPMailer will try to auto-detect the mime type.
+			$mail->addAttachment($attachment, '', 'base64', '');
 
 			// Take care of reply email addresses
 			if (!is_array($replyto)) {
@@ -3302,9 +3351,13 @@ class RSFormProHelper
 		// Relative path
 		// First check - Unix server and the path doesn't start with /
 		// Second check - Windows server, path doesn't start with DRIVE:
-		if (($destination[0] != '/' && DIRECTORY_SEPARATOR == '/') || (DIRECTORY_SEPARATOR == '\\' && $destination[1] != ':')) {
-			$destination = JPATH_SITE.'/'.$destination;
-		}
+        if (strlen($destination))
+        {
+	        if ((DIRECTORY_SEPARATOR === '/' && substr($destination, 0, 1) !== '/') || (DIRECTORY_SEPARATOR === '\\' && substr($destination, 1, 1) != ':'))
+	        {
+		        $destination = JPATH_SITE . '/' . $destination;
+	        }
+        }
 
 		return $destination;
 	}
@@ -3379,6 +3432,8 @@ class RSFormProHelper
 		}
 
 		$html = '<strong><u>' . JText::_('COM_RSFORM_GLOBAL_PLACEHOLDERS') . '</u></strong><br />';
+
+		JFactory::getApplication()->triggerEvent('rsfp_onAfterCreateQuickAddGlobalPlaceholders', array(&$placeholders, $type));
 
 		foreach ($placeholders as $placeholder)
 		{

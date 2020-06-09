@@ -182,6 +182,12 @@
 			<option value="1">JYES</option>
 			<option value="0">JNO</option>
 		</field>
+		
+		<field name="cancel_to" type="list" label="COM_RSEVENTSPRO_CONF_CANCEL_TO" multiple="true" description="COM_RSEVENTSPRO_CONF_CANCEL_TO_DESC">
+			<option value="0">COM_RSEVENTSPRO_RULE_STATUS_INCOMPLETE</option>
+			<option value="1">COM_RSEVENTSPRO_RULE_STATUS_COMPLETE</option>
+			<option value="2">COM_RSEVENTSPRO_RULE_STATUS_DENIED</option>
+		</field>
 	</fieldset>
 	
 	<fieldset name="moderation" label="COM_RSEVENTSPRO_CONF_MODERATION" description="COM_RSEVENTSPRO_CONF_MODERATION_DESC">
@@ -427,6 +433,7 @@
 			<option value="1">JYES</option>
 			<option value="0">JNO</option>
 		</field>
+		<field name="facebook_groups" type="fbgroups" label="COM_RSEVENTSPRO_CONF_FACEBOOK_GROUPS" description="COM_RSEVENTSPRO_CONF_FACEBOOK_GROUPS_DESC" size="5" default="" multiple="true" />
 		<field name="facebook_expired" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_FACEBOOK_EXPIRED" description="COM_RSEVENTSPRO_CONF_FACEBOOK_EXPIRED_DESC" default="1">
 			<option value="1">JYES</option>
 			<option value="0">JNO</option>

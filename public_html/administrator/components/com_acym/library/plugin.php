@@ -29,6 +29,7 @@ class acymPlugin extends acymObject
     var $generateCampaignResult;
 
     var $defaultValues;
+    var $emailLanguage = '';
 
     public function __construct()
     {
@@ -339,6 +340,7 @@ class acymPlugin extends acymObject
         if (empty($tags)) return;
 
         if (false === $this->loadLibraries($email)) return;
+        $this->emailLanguage = $email->links_language;
 
         $tagsReplaced = [];
         foreach ($tags as $i => $oneTag) {
@@ -410,6 +412,178 @@ class acymPlugin extends acymObject
                 $filters[$oneFilterName] = $oneFilter;
             }
         }
+    }
+
+    protected function getElementTags($type, $id)
+    {
+        $tags = acym_loadObjectList(
+            'SELECT tags.`title`, tags.`alias`, tags.`id` 
+                FROM #__tags AS tags 
+                JOIN #__contentitem_tag_map AS map ON tags.`id` = map.`tag_id` 
+                WHERE map.`type_alias` = '.acym_escapeDB($type).'
+                    AND map.`content_item_id` = '.intval($id)
+        );
+
+        if (empty($tags)) return [];
+
+        $displayTags = [];
+        foreach ($tags as $oneTag) {
+            $displayTags[] = '<a href="index.php?option=com_tags&view=tag&id='.$oneTag->id.':'.$oneTag->alias.'" target="_blank">'.$oneTag->title.'</a>';
+        }
+
+        return $displayTags;
+    }
+
+    protected function getFormattedValue(&$fieldValues)
+    {
+        $field = $fieldValues[0];
+
+        if (!empty($field->fieldparams) && !is_array($field->fieldparams)) {
+            $field->fieldparams = json_decode($field->fieldparams, true);
+        }
+
+        switch ($field->type) {
+            case 'calendar':
+                $format = $field->fieldparams['showtime'] == '1' ? 'Y-m-d H:i' : 'Y-m-d';
+                $field->value = acym_date(strtotime($field->value), $format);
+                break;
+
+            case 'checkboxes':
+            case 'list':
+            case 'radio':
+                $values = [];
+                foreach ($fieldValues as $oneValue) {
+                    foreach ($field->fieldparams['options'] as $oneOPT) {
+                        if ($oneOPT['value'] == $oneValue->value) {
+                            $values[] = $oneOPT['name'];
+                            break;
+                        }
+                    }
+                }
+
+                $field->value = implode(',', $values);
+                break;
+
+            case 'dpcalendar':
+                if (empty($field->value)) {
+                    $field->value = '';
+                    break;
+                }
+
+                $title = acym_loadResult('SELECT `title` FROM #__categories WHERE `id` = '.intval($field->value));
+                if (empty($title)) {
+                    $field->value = '';
+                } else {
+                    $date = '#year='.acym_date('now', 'Y').'&month='.acym_date('now', 'm').'&day='.acym_date('now', 'd').'&view=month';
+                    $field->value = '<a target="_blank" href="index.php?option=com_dpcalendar&view=calendar&id='.intval($field->value).$date.'">'.$title.'</a>';
+                }
+                break;
+
+            case 'imagelist':
+                if (!empty($field->fieldparams['directory']) && strlen($field->fieldparams['directory']) > 1) {
+                    $field->value = '/'.$field->value;
+                } else {
+                    $field->fieldparams['directory'] = '';
+                }
+                $field->value = '<img src="images/'.$field->fieldparams['directory'].$field->value.'" />';
+                break;
+
+            case 'media':
+                $field->value = '<img src="'.$field->value.'" alt="" />';
+                break;
+
+            case 'repeatable':
+                if (!empty($field->value)) {
+                    $values = json_decode($field->value);
+                    $formattedValues = [];
+                    foreach ($values as $oneSetOfValues) {
+                        $formattedSet = [];
+                        foreach ($oneSetOfValues as $oneLabel => $oneValue) {
+                            if (empty($oneValue)) continue;
+
+                            foreach ($field->fieldparams['fields'] as $oneField) {
+                                if ($oneField['fieldname'] !== $oneLabel) continue;
+
+                                if ($oneField['fieldtype'] === 'media') {
+                                    $oneValue = '<img src="'.$oneValue.'" alt="" />';
+                                }
+
+                                $formattedSet[] = $oneValue;
+                                break;
+                            }
+                        }
+
+                        if (empty($formattedSet)) continue;
+                        $formattedValues[] = implode(', ', $formattedSet);
+                    }
+
+                    $field->value = empty($formattedSet) ? '' : '<ul><li>'.implode('</li><li>', $formattedValues).'</li></ul>';
+                }
+                break;
+
+            case 'sql':
+                if (empty($field->options)) {
+                    $field->options = acym_loadObjectList($field->fieldparams['query'], 'value');
+                }
+
+                $field->value = $field->options[$field->value]->text;
+                break;
+
+            case 'url':
+                $field->value = '<a target="_blank" href="'.$field->value.'">'.$field->value.'</a>';
+                break;
+
+            case 'user':
+                $field->value = acym_currentUserName($field->value);
+                break;
+
+            case 'usergrouplist':
+                if (empty($field->usergroups)) {
+                    $field->usergroups = acym_loadObjectList('SELECT id, title FROM #__usergroups', 'id');
+                }
+
+                if (empty($field->usergroups[$field->value])) {
+                    $field->value = '';
+                    break;
+                }
+                $field->value = $field->usergroups[$field->value]->title;
+                break;
+        }
+
+        return $field->value;
+    }
+
+    protected function getLanguage($elementLanguage = null, $onlyValue = false)
+    {
+        $value = $this->emailLanguage;
+        if (!empty($elementLanguage) && $elementLanguage !== '*') $value = $elementLanguage;
+
+        if (empty($value)) return '';
+
+        if ($onlyValue) return $value;
+
+        if (acym_isPluginActive('languagefilter')) {
+            return '&lang='.substr($value, 0, strpos($value, '-'));
+        } else {
+            return '&language='.$value;
+        }
+    }
+
+    protected function finalizeLink($link)
+    {
+        if (acym_isPluginActive('languagefilter')) {
+            if (strpos($link, 'lang=') === false && !empty($this->emailLanguage)) {
+                $link .= strpos($link, '?') === false ? '?' : '&';
+                $link .= 'lang='.substr($this->emailLanguage, 0, strpos($this->emailLanguage, '-'));
+            }
+        } else {
+            if (strpos($link, 'language=') === false && !empty($this->emailLanguage)) {
+                $link .= strpos($link, '?') === false ? '?' : '&';
+                $link .= 'language='.$this->emailLanguage;
+            }
+        }
+
+        return acym_frontendLink($link, false);
     }
 }
 

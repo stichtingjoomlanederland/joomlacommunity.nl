@@ -185,7 +185,7 @@ class Html extends BaseView
 	public function onBeforeMain()
 	{
 		// Load the view-specific Javascript
-		$this->addJavascriptFile('media://com_akeeba/js/Backup.min.js');
+		$this->container->template->addJS('media://com_akeeba/js/Backup.min.js');
 
 		// Preload Joomla! behaviours
 		JLoader::import('joomla.utilities.date');
@@ -227,7 +227,7 @@ class Html extends BaseView
 		$this->description                  = $backup_description;
 		$this->defaultDescription           = $default_description;
 		$this->comment                      = $comment;
-		$this->domains                      = json_encode($this->getDomains());
+		$this->domains                      = $this->getDomains();
 		$this->maxExecutionTime             = $maxexec;
 		$this->runtimeBias                  = $bias;
 		$this->returnURL                    = $returnurl;
@@ -248,17 +248,6 @@ class Html extends BaseView
 		// Always show ANGIE password: we add that feature to the Core version as well
 		$this->showANGIEPassword = 1;
 		$this->ANGIEPassword     = $engineConfiguration->get('engine.installer.angie.key', '');
-
-		// Push language strings to Javascript
-		JText::script('COM_AKEEBA_BACKUP_TEXT_LASTRESPONSE');
-		JText::script('COM_AKEEBA_BACKUP_TEXT_BACKUPSTARTED');
-		JText::script('COM_AKEEBA_BACKUP_TEXT_BACKUPFINISHED');
-		JText::script('COM_AKEEBA_BACKUP_TEXT_BACKUPHALT');
-		JText::script('COM_AKEEBA_BACKUP_TEXT_BACKUPRESUME');
-		JText::script('COM_AKEEBA_BACKUP_TEXT_BACKUPHALT_DESC');
-		JText::script('COM_AKEEBA_BACKUP_TEXT_BACKUPFAILED');
-		JText::script('COM_AKEEBA_BACKUP_TEXT_BACKUPWARNING');
-		JText::script('COM_AKEEBA_BACKUP_TEXT_AVGWARNING');
 	}
 
 	/**

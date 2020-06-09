@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -24,13 +24,6 @@ class plgFinderEasyDiscuss extends FinderIndexerAdapter
 	protected $type_title = 'EasyDiscuss';
 	protected $table = '#__discuss_posts';
 
-	/**
-	 * Constructor
-	 *
-	 * @param   object  &$subject  The object to observe
-	 * @param   array   $config    An array that holds the plugin configuration
-	 *
-	 */
 	public function __construct(&$subject, $config)
 	{
 		parent::__construct($subject, $config);
@@ -40,14 +33,10 @@ class plgFinderEasyDiscuss extends FinderIndexerAdapter
 	}
 
 	/**
-	 * Method to remove the link information for items that have been deleted.
+	 * Method to remove the link information for items that have been deleted
 	 *
-	 * @param   string  $context  The context of the action being performed.
-	 * @param   JTable  $table    A JTable object containing the record to be deleted
-	 *
-	 * @return  boolean  True on success.
-	 *
-	 * @throws  Exception on database error.
+	 * @since	4.1.15
+	 * @access	public
 	 */
 	public function onFinderAfterDelete($context, $table)
 	{
@@ -73,15 +62,10 @@ class plgFinderEasyDiscuss extends FinderIndexerAdapter
 	}
 
 	/**
-	 * Method to determine if the access level of an item changed.
+	 * Method to remove the link information for items that have been deleted
 	 *
-	 * @param   string   $context  The context of the content passed to the plugin.
-	 * @param   JTable   $row      A JTable object
-	 * @param   boolean  $isNew    If the content has just been created
-	 *
-	 * @return  boolean  True on success.
-	 *
-	 * @throws  Exception on database error.
+	 * @since	4.1.15
+	 * @access	public
 	 */
 	public function onFinderAfterSave($context, $row, $isNew)
 	{
@@ -97,14 +81,10 @@ class plgFinderEasyDiscuss extends FinderIndexerAdapter
 	}
 
 	/**
-	 * Method to index an item. The item must be a FinderIndexerResult object.
+	 * Method to index an item. The item must be a FinderIndexerResult object
 	 *
-	 * @param   FinderIndexerResult  $item    The item to index as an FinderIndexerResult object.
-	 * @param   string               $format  The item format
-	 *
-	 * @return  void
-	 *
-	 * @throws  Exception on database error.
+	 * @since	4.1.15
+	 * @access	public
 	 */
 	protected function index(FinderIndexerResult $item, $format = 'html')
 	{
@@ -184,37 +164,12 @@ class plgFinderEasyDiscuss extends FinderIndexerAdapter
 		$item->addTaxonomy('Category', $item->category, $item->cat_state, $item->cat_access);
 
 		// Add the language taxonomy data.
-		if (empty($item->language)) {
-			$item->language = '*';
-		}
+		$item->language = $this->getPostCatLang($item->category_id);
 
 		$item->addTaxonomy('Language', $item->language);
 
-		//lets try to get image
-		$editor = ED::getEditorType('question');
-
-		if ($editor == 'html') {
-			// @rule: Match images from content
-			$pattern = '/<\s*img [^\>]*src\s*=\s*[\""\']?([^\""\'\s>]*)/i';
-		} else {
-			$pattern = '/\[img\](.*?)\[\/img\]/ims';
-		}
-
-		preg_match($pattern, $item->body, $matches);
-
-		$image = '';
-
-		if ($matches) {
-			$image = isset($matches[1]) ? $matches[1] : '';
-
-			if (JString::stristr($matches[1], 'https://') === false && JString::stristr($matches[1], 'http://') === false && !empty($image)) {
-				$image	= rtrim(JURI::root(), '/') . '/' . ltrim( $image, '/');
-			}
-		}
-
-		if (!$image) {
-			$image = rtrim( JURI::root() , '/' ) . '/media/com_easydiscuss/images/default_facebook.png';
-		}
+		// Retrieve the content image
+		$image = $this->getImage($item->id); 
 
 		$registry = new JRegistry();
 		$registry->set('image', $image);
@@ -232,6 +187,12 @@ class plgFinderEasyDiscuss extends FinderIndexerAdapter
 		}
 	}
 
+	/**
+	 * Remove the administrator segment if the URL contain any
+	 *
+	 * @since	4.1.15
+	 * @access	public
+	 */
 	private function removeAdminSegment($url = '')
 	{
 		if ($url) {
@@ -243,10 +204,88 @@ class plgFinderEasyDiscuss extends FinderIndexerAdapter
 	}
 
 	/**
-	 * Method to setup the indexer to be run.
+	 * Retrieve the post category language
 	 *
-	 * @return  boolean  True on success.
+	 * @since	4.1.15
+	 * @access	public
+	 */
+	private function getPostCatLang($categoryId)
+	{
+		$languageCode = '*';
+
+		if (!$categoryId) {
+			return $languageCode;
+		}
+
+		$category = ED::category($categoryId);
+
+		if ($category->language) {
+			$languageCode = $category->language;
+		}
+
+		return $languageCode;
+	}
+
+	/**
+	 * Retrieve the image from the discussion post
 	 *
+	 * @since	4.1.15
+	 * @access	public
+	 */
+	private function getImage($postId)
+	{
+		$contentImage = ED::getPlaceholderImage();
+
+		if (!$postId) {
+			return $contentImage;
+		}
+
+		$post = ED::post($postId);
+
+		$content = $post->preview;
+
+		$images = array();
+		$pattern = '/<img[^>]*>/is';
+
+		preg_match_all($pattern, $content, $matches);
+
+		if (!$matches) {
+			return $contentImage;
+		}
+
+		// If there's a match, get hold of the image as we need to run some processing.
+		if ($matches && isset($matches[0])) {
+			$result = $matches[0];
+
+			if ($result) {
+				foreach ($result as $item) {
+
+					// Try to just get the image url.
+					$pattern = '/src\s*=\s*"(.+?)"/i';
+
+					preg_match($pattern, $item, $matches);
+
+					if ($matches && isset($matches[1]) && stristr($matches[1], 'emoticon-') === false) {
+						$image = $matches[1];
+						$images[] = ED::image()->rel2abs($image, DISCUSS_JURIROOT);
+					}
+				}
+			}
+		}
+
+		if (isset($images) && isset($images[0]) && $images[0]) {
+			$contentImage = $images[0];
+		}
+
+		return $contentImage;
+	}
+
+
+	/**
+	 * Method to setup the indexer to be run
+	 *
+	 * @since	4.1.15
+	 * @access	public
 	 */
 	protected function setup()
 	{
@@ -266,10 +305,8 @@ class plgFinderEasyDiscuss extends FinderIndexerAdapter
 	/**
 	 * Method to get the SQL query used to retrieve the list of content items.
 	 *
-	 * @param   mixed  $sql  A JDatabaseQuery object or null.
-	 *
-	 * @return  JDatabaseQuery  A database object.
-	 *
+	 * @since	4.1.15
+	 * @access	public
 	 */
 	protected function getListQuery($sql = null)
 	{

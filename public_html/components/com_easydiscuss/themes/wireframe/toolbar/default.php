@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -105,7 +105,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			</div>
 			<?php } ?>
 
-			<?php if ($showBadges && $this->config->get('main_badges')) { ?>
+			<?php if ($showBadges) { ?>
 			<div class="o-nav__item <?php echo $active == 'badges' ? ' is-active' : '';?>">
 				<a href="<?php echo EDR::_('view=badges');?>" class="o-nav__link ed-toolbar__link">
 					<i class="fa fa-certificate t-sm-visible"></i>
@@ -522,11 +522,13 @@ defined('_JEXEC') or die('Unauthorized Access');
 				</div>
 			<?php } ?>
 
+			<?php if ($showNavigationMenu) { ?>
 			<div class="o-nav__item ed-toolbar__item--mobile-toggle">
 				<a href="javascript:void(0);" class="o-nav__link ed-toolbar__link" data-ed-toolbar-toggle>
 					<i class="fa fa-bars"></i>
 				</a>
 			</div>
+			<?php } ?>
 		</nav>
 	</div>
 </div>

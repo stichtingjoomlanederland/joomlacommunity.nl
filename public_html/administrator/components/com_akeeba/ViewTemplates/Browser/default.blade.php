@@ -8,29 +8,14 @@
 // Protect from unauthorized access
 defined('_JEXEC') or die();
 
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Uri\Uri;
+
 /** @var \Akeeba\Backup\Admin\View\Browser\Html $this */
 
-$rootDirWarning = JText::_('COM_AKEEBA_CONFIG_UI_ROOTDIR', true);
-
-$script = <<<JS
-
-	;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
-	// due to missing trailing semicolon and/or newline in their code.
-	function akeeba_browser_useThis()
-	{
-		var rawFolder = document.forms.adminForm.folderraw.value;
-		if (rawFolder === '[SITEROOT]') {
-			alert('$rootDirWarning');
-			rawFolder = '[SITETMP]';
-		}
-		window.parent.akeeba.Configuration.onBrowserCallback( rawFolder );
-	}
-
-JS;
+Text::script('COM_AKEEBA_CONFIG_UI_ROOTDIR', true);
 
 ?>
-@inlineJs($script, 'text/javascript')
-
 @if(empty($this->folder))
     <form action="index.php" method="post" name="adminForm" id="adminForm">
         <input type="hidden" name="option" value="com_akeeba" />
@@ -55,12 +40,12 @@ JS;
                 </span>
                 <input type="text" name="folder" id="folder" value="{{{ $this->folder }}}" />
 
-                <button class="akeeba-btn--primary" onclick="document.form.adminForm.submit(); return false;">
+                <button class="akeeba-btn--primary" id="comAkeebaBrowserGo">
                     <span class="akion-folder"></span>
                     @lang('COM_AKEEBA_BROWSER_LBL_GO')
                 </button>
 
-                <button class="akeeba-btn--green" onclick="akeeba_browser_useThis(); return false;">
+                <button class="akeeba-btn--green" id="comAkeebaBrowserUseThis">
                     <span class="akion-share"></span>
                     @lang('COM_AKEEBA_BROWSER_LBL_USE')
                 </button>
@@ -86,7 +71,7 @@ JS;
 						<?php $i++; ?>
                         <li class="{{ ($i < count($this->breadcrumbs)) ? '' : 'active' }}">
                             @if($i < count($this->breadcrumbs))
-                                <a href="{{{ JUri::base() . "index.php?option=com_akeeba&view=Browser&tmpl=component&folder=" . urlencode($crumb['folder']) }}}">
+                                <a href="{{{ Uri::base() . "index.php?option=com_akeeba&view=Browser&tmpl=component&folder=" . urlencode($crumb['folder']) }}}">
                                     {{{ $crumb['label'] }}}
                                 </a>
                                 <span class="divider">&bull;</span>
@@ -107,7 +92,7 @@ JS;
                     <tr>
                         <td>
                             <a class="akeeba-btn--dark--small"
-                               href="{{{ JUri::base() }}}index.php?option=com_akeeba&view=Browser&tmpl=component&folder={{{ $this->parent }}}">
+                               href="{{{ Uri::base() }}}index.php?option=com_akeeba&view=Browser&tmpl=component&folder={{{ $this->parent }}}">
                                 <span class="akion-arrow-up-a"></span>
                                 @lang('COM_AKEEBA_BROWSER_LBL_GOPARENT')
                             </a>
@@ -116,7 +101,7 @@ JS;
                     @foreach($this->subfolders as $subfolder)
                         <tr>
                             <td>
-                                <a class="akeeba-browser-folder" href="{{{ JUri::base() }}}index.php?option=com_akeeba&view=Browser&tmpl=component&folder={{{ $this->folder . '/' . $subfolder }}}">{{{ $subfolder }}}</a>
+                                <a class="akeeba-browser-folder" href="{{{ Uri::base() }}}index.php?option=com_akeeba&view=Browser&tmpl=component&folder={{{ $this->folder . '/' . $subfolder }}}">{{{ $subfolder }}}</a>
                             </td>
                         </tr>
                     @endforeach
@@ -139,7 +124,7 @@ JS;
                         <tr>
                             <td>
                                 <a class="akeeba-btn--dark--small"
-                                   href="{{{ JUri::base() }}}index.php?option=com_akeeba&view=Browser&tmpl=component&folder={{{ $this->parent }}}">
+                                   href="{{{ Uri::base() }}}index.php?option=com_akeeba&view=Browser&tmpl=component&folder={{{ $this->parent }}}">
                                     <span class="akion-arrow-up-a"></span>
                                     @lang('COM_AKEEBA_BROWSER_LBL_GOPARENT')
                                 </a>

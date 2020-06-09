@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2020 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -73,6 +73,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo $this->html('settings.toggle', 'main_email_parser_appendemail', 'COM_EASYDISCUSS_EMAIL_PARSER_APPEND_EMAIL_ADDRESS_IN_CONTENT'); ?>
 					<?php echo $this->html('settings.toggle', 'main_email_parser_receipt', 'COM_EASYDISCUSS_EMAIL_PARSER_SEND_RECEIPT'); ?>
 					<?php echo $this->html('settings.toggle', 'main_email_parser_replies', 'COM_EASYDISCUSS_EMAIL_PARSER_ALLOW_REPLIES'); ?>
+
+					<?php echo $this->html('settings.toggle', 'mail_reply_breaker_intelligent', 'COM_ED_INTELLIGENTLY_DETECT_REPLY_BREAKS'); ?>
 					<?php echo $this->html('settings.textbox', 'mail_reply_breaker', 'COM_EASYDISCUSS_SETTINGS_REPLYBREAK'); ?>
 					<?php echo $this->html('settings.toggle', 'main_email_parser_moderation', 'COM_EASYDISCUSS_EMAIL_PARSER_MODERATE_POSTS'); ?>
 
@@ -95,7 +97,17 @@ defined('_JEXEC') or die('Unauthorized Access');
 						</div>
 
 						<div class="col-md-7">
-							<textarea class="form-control" id="main_email_parser_sender_whitelist" name="main_email_parser_sender_whitelist" data-mailbox-whitelist><?php echo $this->config->get('main_email_parser_sender_whitelist');?></textarea>
+							<textarea class="form-control" id="main_email_parser_sender_whitelist" name="main_email_parser_sender_whitelist"><?php echo $this->config->get('main_email_parser_sender_whitelist');?></textarea>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_ED_SETTINGS_MAILBOX_BLACK_LIST'); ?>
+						</div>
+
+						<div class="col-md-7">
+							<textarea class="form-control" id="main_email_parser_sender_blacklist" name="main_email_parser_sender_blacklist"><?php echo $this->config->get('main_email_parser_sender_blacklist');?></textarea>
 						</div>
 					</div>
 				</div>

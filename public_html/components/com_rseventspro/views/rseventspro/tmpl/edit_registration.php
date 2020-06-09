@@ -104,6 +104,18 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	</div>
 </div>
 
+<div class="control-group" id="rsepro-waitinglist-emails" style="display: none;">
+	<label class="checkbox">
+		<input id="jform_waitinglist_user" name="jform[waitinglist_user]" type="checkbox" value="1" <?php echo $this->item->waitinglist_user ? 'checked="checked"' : ''; ?> />
+		<?php echo JText::_('COM_RSEVENTSPRO_EVENT_WAITINGLIST_USER'); ?>
+	</label>
+	
+	<label class="checkbox">
+		<input id="jform_waitinglist_admin" name="jform[waitinglist_admin]" type="checkbox" value="1" <?php echo $this->item->waitinglist_admin ? 'checked="checked"' : ''; ?> />
+		<?php echo JText::_('COM_RSEVENTSPRO_EVENT_WAITINGLIST_ADMIN'); ?>
+	</label>
+</div>
+
 <div class="control-group">
 	
 	<label class="checkbox">

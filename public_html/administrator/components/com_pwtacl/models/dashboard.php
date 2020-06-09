@@ -3,7 +3,7 @@
  * @package    PwtAcl
  *
  * @author     Sander Potjer - Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2011 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2011 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
@@ -12,15 +12,14 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\ListModel;
 use Joomla\CMS\Router\Route;
 
-// No direct access.
 defined('_JEXEC') or die;
 
 /**
- * Pwtacl Model
+ * PwtAcl Model
  *
  * @since   3.0
  */
-class PwtaclModelDashboard extends ListModel
+class PwtAclModelDashboard extends ListModel
 {
 	/**
 	 * Get Table data.
@@ -38,7 +37,7 @@ class PwtaclModelDashboard extends ListModel
 		$db        = Factory::getDbo();
 
 		// In case of groups
-		if ($type == 'groups')
+		if ($type === 'groups')
 		{
 			$where = ($searchkey) ? $db->quoteName('a.title') . ' LIKE ' . $db->quote('%' . $searchkey . '%') : '';
 			$data  = $this->getGroups($where);
@@ -46,7 +45,7 @@ class PwtaclModelDashboard extends ListModel
 		}
 
 		// In case of users
-		if ($type == 'users')
+		if ($type === 'users')
 		{
 			$where = ($searchkey) ? '(' . $db->quoteName('name') . ' LIKE ' . $db->quote('%' . $searchkey . '%') . ' OR ' .
 				$db->quoteName('username') . ' LIKE ' . $db->quote('%' . $searchkey . '%') . ')' : '';
@@ -55,11 +54,11 @@ class PwtaclModelDashboard extends ListModel
 		}
 
 		// Prepare response
-		$output = array(
+		$output = [
 			'iTotalRecords'        => count($data),
 			'iTotalDisplayRecords' => $total,
 			'data'                 => $data
-		);
+		];
 
 		return $output;
 	}
@@ -85,7 +84,7 @@ class PwtaclModelDashboard extends ListModel
 			->select('a.id, a.title, COUNT(DISTINCT b.id) AS level')
 			->from('#__usergroups AS a')
 			->join('LEFT', $db->quoteName('#__usergroups') . ' AS b ON a.lft > b.lft AND a.rgt < b.rgt')
-			->group(array('a.id, a.title, a.lft, a.rgt, a.parent_id'))
+			->group(['a.id, a.title, a.lft, a.rgt, a.parent_id'])
 			->order('a.lft ASC');
 
 		// Filter on search

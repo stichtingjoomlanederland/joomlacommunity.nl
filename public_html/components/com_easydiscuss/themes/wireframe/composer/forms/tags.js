@@ -46,4 +46,7 @@ ed.require(['edq', 'select2'], function($) {
 
 	// Bind chosen tags
 	selector.on('change', checkCount);
+
+	// Trigger the change event once
+	selector.trigger('change');
 });

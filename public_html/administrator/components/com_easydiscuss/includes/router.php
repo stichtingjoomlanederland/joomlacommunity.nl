@@ -500,10 +500,38 @@ class EDR
 		return $loaded[$key];
 	}
 
+	/**
+	 * Determiens if SEF is enabled on the site
+	 *
+	 * @since	4.1
+	 * @access	public
+	 */
 	public static function isSefEnabled()
 	{
-		$jConfig	= ED::jconfig();
-		$isSef		= false;
+		static $_isSef = null;
+
+		if (is_null($_isSef)) {
+			$_isSef = self::isSh404Enabled();
+
+			// if sh404sef not enabled, we check on joomla
+			if (! $_isSef) {
+				$jConfig = ED::jconfig();
+				$_isSef = $jConfig->get('sef');
+			}
+		}
+
+		return $_isSef;
+	}
+
+	/**
+	 * Determiens if sh404sef is enabled on the site
+	 *
+	 * @since	4.1
+	 * @access	public
+	 */
+	public static function isSh404Enabled()
+	{
+		$isEnabled = false;
 
 		//check if sh404sef enabled or not.
 		if ( defined('sh404SEF_AUTOLOADER_LOADED') && JFile::exists(JPATH_ADMINISTRATOR . '/components/com_sh404sef/sh404sef.class.php')) {
@@ -512,17 +540,12 @@ class EDR
 				$sefConfig = shRouter::shGetConfig();
 
 				if ($sefConfig->Enabled) {
-					$isSef  = true;
+					$isEnabled  = true;
 				}
 			}
 		}
 
-		// if sh404sef not enabled, we check on joomla
-		if (! $isSef) {
-			$isSef = $jConfig->get('sef');
-		}
-
-		return $isSef;
+		return $isEnabled;
 	}
 
 	public static function getCategoryAliases( $categoryId )
@@ -773,31 +796,29 @@ class EDR
 		$mainframe = JFactory::getApplication();
 		$uri = JURI::getInstance(JURI::base());
 
-		if ($mainframe->isAdmin() && EDR::isSefEnabled()) {
 
-			$base64Url = base64_encode($url);
+		// flag to determine if we should sef the link or not.
+		$sefUrl = true;
 
-			// lets send to frontend to process the sef link.
-			$targetUrl = rtrim(JURI::root(), '/') . '/index.php?option=com_easydiscuss&controller=route&task=sef&url=' . $base64Url;
-
-			$connector = ED::connector();
-			$connector->addUrl($targetUrl);
-			$connector->execute();
-			$response = $connector->getResult($targetUrl);
-
-			$data = json_decode($response);
-
-			if (($data && isset($data->link) && $data->link) || $forceRouted) {
-				$routedUrl = $data->link;
-				$routedUrl = $uri->toString(array('scheme', 'host', 'port')) . '/' . ltrim($routedUrl, '/');
-
-				return $routedUrl;
-			}
-
-			return $url;
+		if ($mainframe->isAdmin() && EDR::isSh404Enabled()) {
+			// dont sef the url since sh404sef will not work from backend.
+			$sefUrl = false;
 		}
 
-		$url = EDR::_($url, $xhtml);
+		// Address issues with JRoute as it will include the /administrator/ portion in the url if this link
+		// is being generated from the back end.
+		if ($mainframe->isAdmin() && EDR::isSefEnabled() && $sefUrl) {
+
+			$routedUrl = self::siteLink($url, $xhtml);
+
+			if ($routedUrl && stristr($routedUrl, 'http://') === false && stristr($routedUrl, 'https://') === false) {
+				$routedUrl = $uri->toString(array('scheme', 'host', 'port')) . '/' . ltrim($routedUrl, '/');
+			}
+
+			return $routedUrl;
+		}
+
+		$url = EDR::_($url, $xhtml, null, $sefUrl);
 		$url = str_replace('/administrator/', '/', $url);
 		$url = ltrim($url, '/');
 
@@ -805,6 +826,91 @@ class EDR
 		// since $url already has the subfolder.
 		return $uri->toString(array('scheme', 'host', 'port')) . '/' . $url;
 	}
+
+
+	/**
+	 * Method to get frontend sef links
+	 *
+	 * @since	4.1
+	 * @access	public
+	 */
+	public static function siteLink($url, $xhtml = true, $ssl = null)
+	{
+		static $_router = null;
+
+		// if Jroute already support link method, lets use it.
+		// Joomla 3.9 and above should work with this Jroute::link.
+		if (method_exists('JRoute', 'link')) {
+
+			// to have ItemId in the url before we call JRoute::link
+			$url = self::_($url, $xhtml, $ssl, false, false, false);
+			$sef = JRoute::link('site', $url, $xhtml, $ssl);
+			return $sef;
+		}
+
+		// look like JRoute::link not found. 
+		// lets manually generate the link.
+
+		$client = 'site';
+
+		if (is_null($_router)) {
+			$app = JApplication::getInstance($client);
+			$_router = $app->getRouter($client);
+		}
+
+		// If we cannot process this $url exit early.
+		if (!is_array($url) && (strpos($url, '&') !== 0) && (strpos($url, 'index.php') !== 0)) {
+			return $url;
+		}
+
+		// Make sure that we have our router
+		if (is_null($_router) || !$_router) {
+			return $url;
+		}
+
+		// Build route.
+		$uri = $_router->build($url);
+
+
+		$scheme = array('path', 'query', 'fragment');
+
+		/*
+		 * Get the secure/unsecure URLs.
+		 *
+		 * If the first 5 characters of the BASE are 'https', then we are on an ssl connection over
+		 * https and need to set our secure URL to the current request URL, if not, and the scheme is
+		 * 'http', then we need to do a quick string manipulation to switch schemes.
+		 */
+		if ((int) $ssl || $uri->isSsl()) {
+			static $host_port;
+
+			if (!is_array($host_port)) {
+				$uri2 = Uri::getInstance();
+				$host_port = array($uri2->getHost(), $uri2->getPort());
+			}
+
+			// Determine which scheme we want.
+			$uri->setScheme(((int) $ssl === 1 || $uri->isSsl()) ? 'https' : 'http');
+			$uri->setHost($host_port[0]);
+			$uri->setPort($host_port[1]);
+			$scheme = array_merge($scheme, array('host', 'port', 'scheme'));
+		}
+
+		$url = $uri->toString($scheme);
+
+		// just to make sure the url has no 'administrator' segment
+		$url = str_replace('/administrator/', '/', $url);
+
+		// Replace spaces.
+		$url = preg_replace('/\s/u', '%20', $url);
+
+		if ($xhtml) {
+			$url = htmlspecialchars($url, ENT_COMPAT, 'UTF-8');
+		}
+
+		return $url;
+	}
+
 
 	public static function _isAliasExists($alias, $type='post', $id='0')
 	{

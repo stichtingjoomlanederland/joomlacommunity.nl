@@ -980,6 +980,8 @@ class com_rseventsproInstallerScript
 			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'waitinglist', 'type' => 'TINYINT(2)', 'default' => '0', 'after' => 'rsm_lists');
 			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'waitinglist_limit', 'type' => 'INT(11)', 'default' => '0', 'after' => 'waitinglist');
 			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'waitinglist_time', 'type' => 'VARCHAR(50)', 'default' => '', 'after' => 'waitinglist_limit');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'waitinglist_user', 'type' => 'TINYINT(2)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'waitinglist_admin', 'type' => 'TINYINT(2)', 'default' => '0');
 			
 			foreach ($updateData as $data) {
 				$checkQuery = 'SHOW COLUMNS FROM '.$db->qn($data['table']).' WHERE '.$db->qn('Field').' = '.$db->q($data['field']);
@@ -993,6 +995,13 @@ class com_rseventsproInstallerScript
 					$db->setQuery($updateQuery);
 					$db->execute();
 				}
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_events` WHERE `Field` = 'location'");
+			$eventsTable = $db->loadObject();
+			if (strtolower($eventsTable->Type) == 'int(2)') {
+				$db->setQuery("ALTER TABLE `#__rseventspro_events` CHANGE `location` `location` INT(12) NOT NULL DEFAULT '0'");
+				$db->execute();
 			}
 			
 			// Run queries
@@ -1011,13 +1020,65 @@ class com_rseventsproInstallerScript
 			
 			// Process each query in the $queries array (split out of sql file).
 			foreach ($queries as $query) {
-				$query = trim($query);
-				if ($query != '' && $query{0} != '#') {
-					$db->setQuery($query);
-					if (!$db->execute()) {
-						throw new Exception(JText::sprintf('JLIB_INSTALLER_ERROR_SQL_ERROR', $db->stderr(true)), 1);
-					}
+				$db->setQuery($query);
+				if (!$db->execute()) {
+					throw new Exception(JText::sprintf('JLIB_INSTALLER_ERROR_SQL_ERROR', $db->stderr(true)), 1);
 				}
+			}
+			
+			// Check for email messages
+			$db->setQuery("SELECT `id` FROM `#__rseventspro_emails` WHERE `lang` = 'en-GB' AND `type` = 'report'");
+			if (!$db->loadResult()) {
+				$db->setQuery("INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES ('', 'en-GB', 'report', 0, 1, 0, 'New report for {EventName}', '<p>Hello,</p>\r\n<p>A new report for <strong>{EventName}</strong> has been added. Here are the details for this report:</p>\r\n<p>User: {ReportUser}</p>\r\n<p>IP: {ReportIP}</p>\r\n<p>Message: {ReportMessage}</p>');");
+				$db->execute();
+			}
+			
+			$db->setQuery("SELECT `id` FROM `#__rseventspro_emails` WHERE `lang` = 'en-GB' AND `type` = 'approval'");
+			if (!$db->loadResult()) {
+				$db->setQuery("INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES ('', 'en-GB', 'approval', 1, 1, 0, 'Your event \"{EventName}\" has been approved.', '<p>Hello {Owner},</p>\r\n<p>Your event {EventName} has been approved by one of our staff members. You can view your event by clicking <a href=\"{EventLink}\">here</a>.</p>');");
+				$db->execute();
+			}
+			
+			$db->setQuery("SELECT `id` FROM `#__rseventspro_emails` WHERE `lang` = 'en-GB' AND `type` = 'rsvpgoing'");
+			if (!$db->loadResult()) {
+				$db->setQuery("INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES ('', 'en-GB', 'rsvpgoing', 1, 1, 0, 'Going to {EventName}', '<p>Hello {user},</p>\r\n<p>Thank you for your participation to <strong>{EventName}</strong> that will start on {EventStartDate}.</p>');");
+				$db->execute();
+			}
+			
+			$db->setQuery("SELECT `id` FROM `#__rseventspro_emails` WHERE `lang` = 'en-GB' AND `type` = 'rsvpinterested'");
+			if (!$db->loadResult()) {
+				$db->setQuery("INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES ('', 'en-GB', 'rsvpinterested', 1, 1, 0, 'Interested in going to {EventName}', '<p>Hello {user},</p>\r\n<p>Thank you for your interest in the <strong>{EventName}</strong> event. We hope to see you at this event.</p>\r\n<p>A quick reminder: this event starts on {EventStartDate} and ends on {EventEndDate}.</p>');");
+				$db->execute();
+			}
+			
+			$db->setQuery("SELECT `id` FROM `#__rseventspro_emails` WHERE `lang` = 'en-GB' AND `type` = 'rsvpnotgoing'");
+			if (!$db->loadResult()) {
+				$db->setQuery("INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES ('', 'en-GB', 'rsvpnotgoing', 1, 1, 0, 'Not going to {EventName}', '<p>Hello {user},</p>\r\n<p>We are sorry to see that you cannot come to the <strong>{EventName}</strong> event. Hope you will change your mind.</p>');");
+				$db->execute();
+			}
+			
+			$db->setQuery("SELECT `id` FROM `#__rseventspro_emails` WHERE `lang` = 'en-GB' AND `type` = 'waitinglist'");
+			if (!$db->loadResult()) {
+				$db->setQuery("INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES ('', 'en-GB', 'waitinglist', 1, 1, 0, 'Claim your ticket to {EventName}', '<p>Congratulations {user}!</p>\r\n<p>A spot has opened up for you at {EventName}. In order to register please click <a href=\"{claim}\">here</a>. Please note that you can claim your ticket before {claimdate}.</p>');");
+				$db->execute();
+			}
+			
+			$db->setQuery("SELECT `id` FROM `#__rseventspro_emails` WHERE `lang` = 'en-GB' AND `type` = 'waitinglistuser'");
+			if (!$db->loadResult()) {
+				$db->setQuery("INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES ('', 'en-GB', 'waitinglistuser', 1, 1, 0, 'Waiting list confirmation for \"{EventName}\"', '<p>Hello <strong>{user}</strong>,</p>\r\n<p>Thank you for joining our waiting list for the event <strong>{EventName}</strong>.</p>');");
+				$db->execute();
+			}
+			
+			$db->setQuery("SELECT `id` FROM `#__rseventspro_emails` WHERE `lang` = 'en-GB' AND `type` = 'waitinglistadmin'");
+			if (!$db->loadResult()) {
+				$db->setQuery("INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES ('', 'en-GB', 'waitinglistadmin', 1, 1, 0, 'New addition to \"{EventName}\" waiting list', '<p>Hello <strong>{OwnerName}</strong>,</p>\r\n<p><strong>{user}</strong> has been added to the waiting list of <strong>{EventName}</strong>.</p>');");
+				$db->execute();
+			}
+			
+			$db->setQuery("SELECT `id` FROM `#__rseventspro_emails` WHERE `lang` = 'en-GB' AND `type` = 'cancel'");
+			if (!$db->loadResult()) {
+				$db->setQuery("INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES ('', 'en-GB', 'cancel', 1, 1, 0, 'Event {EventName} has been canceled.', '<p>Hello {user},</p>\r\n<p>We are sorry to say, that <strong>{EventName}</strong> has been canceled.</p>');");
+				$db->execute();
 			}
 			
 			// Add old rating to the new rating table
@@ -1151,9 +1212,9 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.12.13</h2>
+	<h2>Changelog v1.12.15</h2>
 	<ul class="version-history">
-		<li><span class="version-new">Add</span> Select the modal type for the frontend area.</li>
+		<li><span class="version-fixed">Fix</span> Mapbox Tile type was not working correctly.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>
@@ -1205,22 +1266,22 @@ class com_rseventsproInstallerScript
 		
 		$plugins = array(
 			'content' => array(
-				'rseventspro' => '1.2'
+				'rseventspro' => '1.3'
 			),
 			'system' => array(
-				'rsepropdf' => '1.15',
+				'rsepropdf' => '1.17',
 				'rsfprseventspro' => '1.51.17',
 				'rsepro2co' => '1.1',
 				'rseproanzegate' => '1.2',
 				'rseproauthorize' => '1.2',
 				'rseproeway' => '1.5',
-				'rseproideal' => '1.7',
+				'rseproideal' => '1.9',
 				'rsepromygate' => '1.1',
 				'rsepropaypal' => '1.2',
 				'rseprovmerchant' => '1.2',
 				'rseprostripe' => '1.2',
 				'rseprooffline' => '1.3',
-				'rseprocart' => '1.1.19'
+				'rseprocart' => '1.1.20'
 			)
 		);
 		
@@ -1244,18 +1305,18 @@ class com_rseventsproInstallerScript
 		$modules = array(
 			'mod_rseventspro_archived' => '1.4',
 			'mod_rseventspro_attendees' => '1.3',
-			'mod_rseventspro_calendar' => '1.8',
+			'mod_rseventspro_calendar' => '1.9',
 			'mod_rseventspro_categories' => '1.4',
-			'mod_rseventspro_events' => '1.7',
-			'mod_rseventspro_featured' => '1.4',
-			'mod_rseventspro_location' => '1.4',
+			'mod_rseventspro_events' => '1.8',
+			'mod_rseventspro_featured' => '1.6',
+			'mod_rseventspro_location' => '1.5',
 			'mod_rseventspro_locations' => '1.3',
-			'mod_rseventspro_map' => '1.9',
-			'mod_rseventspro_popular' => '1.5',
-			'mod_rseventspro_search' => '1.5',
-			'mod_rseventspro_slider' => '1.7.3',
+			'mod_rseventspro_map' => '1.10',
+			'mod_rseventspro_popular' => '1.6',
+			'mod_rseventspro_search' => '1.6',
+			'mod_rseventspro_slider' => '1.7.4',
 			'mod_rseventspro_tags' => '1.1',
-			'mod_rseventspro_upcoming' => '1.5'
+			'mod_rseventspro_upcoming' => '1.6'
 		);
 		
 		// Check modules version

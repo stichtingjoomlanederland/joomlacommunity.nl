@@ -130,18 +130,18 @@ defined('JPATH_PLATFORM') or die;
     <label class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_LABEL_DIMENSIONS_DESC'); ?>">
       <?php echo JText::_('WF_LABEL_DIMENSIONS'); ?>
     </label>
-    <div class="uk-form-controls uk-width-4-5 uk-form-constrain">
+    <div class="uk-form-control uk-width-1-1 uk-width-small-4-5 uk-form-constrain uk-flex">
 
       <div class="uk-form-controls">
-        <input type="text" id="width" value="" aria-label="<?php echo JText::_('WF_LABEL_WIDTH'); ?>" />
+        <input type="text" id="embed_width" value="" />
       </div>
 
       <div class="uk-form-controls">
-        <strong class="uk-form-label uk-text-center uk-vertical-align-middle" role="presentation">&times;</strong>
+        <strong class="uk-form-label uk-text-center uk-vertical-align-middle">&times;</strong>
       </div>
 
       <div class="uk-form-controls">
-        <input type="text" id="height" value="" aria-label="<?php echo JText::_('WF_LABEL_HEIGHT'); ?>" />
+        <input type="text" id="embed_height" value="" />
       </div>
 
       <label class="uk-form-label">

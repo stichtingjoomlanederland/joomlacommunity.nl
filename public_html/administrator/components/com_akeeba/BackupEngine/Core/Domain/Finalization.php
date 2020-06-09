@@ -10,7 +10,6 @@
 namespace Akeeba\Engine\Core\Domain;
 
 
-
 use Akeeba\Engine\Base\Part;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
@@ -887,7 +886,7 @@ class Finalization extends Part
 		$preserveDay = $registry->get('akeeba.quota.maxage.keepday');
 
 		// Get valid-looking backup ID's
-		$validIDs = Platform::getInstance()->get_valid_backup_records(true, ['NOT', 'restorepoint']);
+		$validIDs = Platform::getInstance()->get_valid_backup_records(true);
 
 		// Create a list of valid files
 		$allFiles = [];
@@ -917,7 +916,7 @@ class Finalization extends Part
 
 				if (!empty($backupId))
 				{
-					$logName = 'akeeba.' . $tag . '.' . $backupId . '.log';
+					$logName = 'akeeba.' . $tag . '.' . $backupId . '.log.php';
 				}
 
 				// Multipart processing
@@ -997,7 +996,19 @@ class Finalization extends Part
 
 						if (!empty($filePath))
 						{
-							$killLogs[] = dirname($filePath) . '/' . $file['logname'];
+							if (@file_exists(dirname($filePath) . '/' . $file['logname']))
+							{
+								$killLogs[] = dirname($filePath) . '/' . $file['logname'];
+							}
+							elseif (@file_exists(dirname($filePath) . '/' . substr($file['logname'], 0, -4)))
+							{
+								/**
+								 * Transitional period: the log file akeeba.tag.log.php may not exist but the
+								 * akeeba.tag.log does. This addresses this transition.
+								 */
+								$killLogs[] = dirname($filePath) . '/' . substr($file['logname'], 0, -4);
+							}
+
 						}
 					}
 				}
@@ -1048,7 +1059,19 @@ class Finalization extends Part
 
 								if (!empty($filePath))
 								{
-									$killLogs[] = dirname($filePath) . '/' . $def['logname'];
+									if (@file_exists(dirname($filePath) . '/' . $def['logname']))
+									{
+										$killLogs[] = dirname($filePath) . '/' . $def['logname'];
+
+									}
+									elseif(@file_exists(dirname($filePath) . '/' . substr($def['logname'], 0, -4)))
+									{
+										/**
+										 * Transitional period: the log file akeeba.tag.log.php may not exist but the
+										 * akeeba.tag.log does. This addresses this transition.
+										 */
+										$killLogs[] = dirname($filePath) . '/' . substr($def['logname'], 0, -4);
+									}
 								}
 							}
 						}
@@ -1487,10 +1510,10 @@ class Finalization extends Part
 			->where($db->qn('status') . ' = ' . $db->q('complete'))
 			->where($db->qn('filesexist') . '=' . $db->q('0'))
 			->where(
-				'('.
-				$db->qn('remote_filename') . '=' . $db->q('').' OR '.
+				'(' .
+				$db->qn('remote_filename') . '=' . $db->q('') . ' OR ' .
 				$db->qn('remote_filename') . ' IS NULL'
-				.')'
+				. ')'
 			)
 			->order($db->qn('id') . ' DESC');
 
@@ -1515,10 +1538,21 @@ class Finalization extends Part
 				continue;
 			}
 
-			$logFileName = 'akeeba.' . $stat['tag'] . '.' . $stat['backupid'] . '.log';
+			$logFileName = 'akeeba.' . $stat['tag'] . '.' . $stat['backupid'] . '.log.php';
 			$logPath     = dirname($stat['absolute_path']) . '/' . $logFileName;
 
-			if (file_exists($logPath))
+			if (@file_exists($logPath))
+			{
+				@unlink($logPath);
+			}
+
+			/**
+			 * Transitional period: the log file akeeba.tag.log.php may not exist but the akeeba.tag.log does. This
+			 * addresses this transition.
+			 */
+			$logPath = dirname($stat['absolute_path']) . '/' . substr($logFileName, 0, -4);
+
+			if (@file_exists($logPath))
 			{
 				@unlink($logPath);
 			}

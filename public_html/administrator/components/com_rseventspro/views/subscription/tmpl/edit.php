@@ -101,8 +101,11 @@ JHtml::_('behavior.keepalive'); ?>
 			<?php echo JHtml::_('rsfieldset.element', '<label>'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_IP').'</label>', '<span class="rsextra">'.$this->item->ip.'</span>'); ?>
 			
 			<?php $event = $this->getEvent($this->item->ide); ?>
+			
+			<?php if ($event) { ?>
 			<?php $date = $event->allday ? rseventsproHelper::showdate($event->start, rseventsproHelper::getConfig('global_date')) : rseventsproHelper::showdate($event->start).' - '.rseventsproHelper::showdate($event->end); ?>
 			<?php echo JHtml::_('rsfieldset.element', '<label title="'.rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EVENT_DESC')).'" class="'.rseventsproHelper::tooltipClass().'">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EVENT').'</label>', '<span class="rsextra"><a href="'.JRoute::_('index.php?option=com_rseventspro&task=event.edit&id='.$event->id).'">'.$event->name.'</a> ('.$date.')</span>'); ?>
+			<?php } ?>
 			
 			<?php echo JHtml::_('rsfieldset.element', '<label title="'.rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_PAYMENT_DESC')).'" class="'.rseventsproHelper::tooltipClass().'">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_PAYMENT').'</label>', '<span class="rsextra">'.rseventsproHelper::getPayment($this->item->gateway).'</span>'); ?>
 			
@@ -163,9 +166,13 @@ JHtml::_('behavior.keepalive'); ?>
 			<?php echo JHtml::_('rsfieldset.element', '<label>'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TAX').'</label>', '<span class="rsextra">'.rseventsproHelper::currency($this->item->tax).'</span>'); ?>
 			<?php } ?>
 			
+			<?php if ($event) { ?>
 			<?php if ($event->ticketsconfig && rseventsproHelper::hasSeats($this->item->id)) echo JHtml::_('rsfieldset.element', '<label>&nbsp;</label>', '<span class="rsextra"><a class="btn" href="javascript:void(0)" onclick="jQuery(\'#rseModal\').modal(\'show\');">'.JText::_('COM_RSEVENTSPRO_SEATS_CONFIGURATION').'</a></span>'); ?>
+			<?php } ?>
 			
-			<?php echo JHtml::_('rsfieldset.element', '<label>'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TOTAL').'</label>', '<span class="rsextra">'.rseventsproHelper::currency(rseventsproHelper::total($this->item->id)).'</span>'); ?>
+			<?php $total = rseventsproHelper::total($this->item->id); ?>
+			<?php $total = $total > 0 ? $total : 0; ?>
+			<?php echo JHtml::_('rsfieldset.element', '<label>'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TOTAL').'</label>', '<span class="rsextra">'.rseventsproHelper::currency($total).'</span>'); ?>
 			
 			<?php } else { ?>
 			<?php JText::script('COM_RSEVENTSPRO_SUBSCRIBER_PLEASE_SELECT_TICKET'); ?>

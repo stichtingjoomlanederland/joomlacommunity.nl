@@ -75,7 +75,7 @@ class EasyDiscussViewSearch extends EasyDiscussView
 
 				$tag = ED::table('Tags');
 				$tag->load($id);
-				
+
 				$obj = new stdClass();
 				$obj->id = (int) $item;
 				$obj->title = JText::_($tag->title);
@@ -120,6 +120,9 @@ class EasyDiscussViewSearch extends EasyDiscussView
 			$postTypes = $postTypesModel->getPostTypes(null, 'ASC', true);
 		}
 
+		// This fix for elements with non-unique id. #818
+		$uid = uniqid();
+
 		$this->set('query', $query);
 		$this->set('posts', $items);
 		$this->set('paginationType', DISCUSS_SEARCH_TYPE);
@@ -130,7 +133,8 @@ class EasyDiscussViewSearch extends EasyDiscussView
 
 		$this->set('tagFilters', $tagItems);
 		$this->set('catFilters', $catItems);
-
+		$this->set('uid', $uid);
+		
 		parent::display('search/default');
 	}
 }

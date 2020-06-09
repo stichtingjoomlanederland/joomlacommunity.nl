@@ -118,7 +118,7 @@ class bfUpgrade
         $retArray = $api->importFromURL($params);
 
         // tock back to myjoomla
-        bfEncrypt::reply('success', json_encode($retArray));
+        bfEncrypt::reply('success', $retArray);
     }
 
     /**

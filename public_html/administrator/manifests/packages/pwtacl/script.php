@@ -3,7 +3,7 @@
  * @package    PwtAcl
  *
  * @author     Sander Potjer - Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2011 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2011 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
@@ -28,8 +28,8 @@ class Pkg_PwtAclInstallerScript
 	/**
 	 * Method to run before an install/update/uninstall method
 	 *
-	 * @param   string $type   The type of change (install, update or discover_install).
-	 * @param   object $parent The class calling this method.
+	 * @param   string  $type    The type of change (install, update or discover_install).
+	 * @param   object  $parent  The class calling this method.
 	 *
 	 * @return  bool  True on success | False on failure
 	 *
@@ -65,7 +65,7 @@ class Pkg_PwtAclInstallerScript
 	/**
 	 * Run after installing.
 	 *
-	 * @param   object $parent The calling class.
+	 * @param   object  $parent  The calling class.
 	 *
 	 * @return  bool  True on success | False on failure.
 	 *
@@ -129,11 +129,11 @@ class Pkg_PwtAclInstallerScript
 	/**
 	 * Method to remove extension
 	 *
-	 * @param   string $type    The extension type
-	 * @param   string $element The extension element
+	 * @param   string  $type     The extension type
+	 * @param   string  $element  The extension element
 	 *
-	 * @since 3.0
 	 * @return void
+	 * @since 3.0
 	 */
 	private function removeExtension($type, $element)
 	{
@@ -206,7 +206,7 @@ class Pkg_PwtAclInstallerScript
 	/**
 	 * Function to remove old files
 	 *
-	 * @param   array $files Files to remove
+	 * @param   array  $files  Files to remove
 	 *
 	 * @return  void
 	 *

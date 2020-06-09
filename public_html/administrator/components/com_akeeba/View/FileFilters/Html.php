@@ -13,11 +13,10 @@ defined('_JEXEC') or die();
 use Akeeba\Backup\Admin\Model\FileFilters;
 use Akeeba\Backup\Admin\View\ViewTraits\ProfileIdAndName;
 use Akeeba\Engine\Factory;
-use Akeeba\Engine\Platform;
 use FOF30\View\DataView\Html as BaseView;
-use JHtml;
-use JText;
-use JUri;
+use Joomla\CMS\HTML\HTMLHelper as JHtml;
+use Joomla\CMS\Language\Text as JText;
+use Joomla\CMS\Uri\Uri as JUri;
 
 class Html extends BaseView
 {
@@ -38,18 +37,11 @@ class Html extends BaseView
 	public $roots = [];
 
 	/**
-	 * The view's interface data encoded in JSON format
-	 *
-	 * @var  string
-	 */
-	public $json = '';
-
-	/**
 	 * @return  void
 	 */
 	public function onBeforeMain()
 	{
-		$this->addJavascriptFile('media://com_akeeba/js/FileFilters.min.js');
+		$this->container->template->addJS('media://com_akeeba/js/FileFilters.min.js');
 
 		/** @var FileFilters $model */
 		$model = $this->getModel();
@@ -72,8 +64,8 @@ class Html extends BaseView
 		// Get a JSON representation of the available roots
 		$filters   = Factory::getFilters();
 		$root_info = $filters->getInclusions('dir');
-		$roots     = array();
-		$options   = array();
+		$roots     = [];
+		$options   = [];
 
 		if (!empty($root_info))
 		{
@@ -93,11 +85,20 @@ class Html extends BaseView
 				$options[] = JHtml::_('select.option', $dir_definition[0], $dir_definition[0]);
 			}
 		}
-		$site_root         = $roots[0];
-		$attribs           = 'onchange="akeeba.Fsfilters.activeRootChanged();"';
-		$this->root_select =
-			JHtml::_('select.genericlist', $options, 'root', $attribs, 'value', 'text', $site_root, 'active_root');
+
+		$siteRoot      = $roots[0];
+		$selectOptions = [
+			'list.select' => $siteRoot,
+			'id'          => 'active_root',
+		];
+
+		$this->root_select = JHtml::_('select.genericlist', $options, 'root', $selectOptions);
 		$this->roots       = $roots;
+		$platform          = $this->container->platform;
+
+		// Add script options
+		$platform->addScriptOptions('akeeba.System.params.AjaxURL', 'index.php?option=com_akeeba&view=FileFilters&task=ajax');
+		$platform->addScriptOptions('akeeba.Fsfilters.loadingGif', $this->container->template->parsePath('media://com_akeeba/icons/loading.gif'));
 
 		switch ($task)
 		{
@@ -106,9 +107,8 @@ class Html extends BaseView
 				$this->setLayout('default');
 
 				// Get a JSON representation of the directory data
-				$model      = $this->getModel();
-				$json       = json_encode($model->make_listing($site_root, array(), ''));
-				$this->json = $json;
+				$platform->addScriptOptions('akeeba.FileFilters.guiData', $model->make_listing($siteRoot, [], ''));
+				$platform->addScriptOptions('akeeba.FileFilters.viewType', "list");
 
 				break;
 
@@ -116,9 +116,8 @@ class Html extends BaseView
 				$this->setLayout('tabular');
 
 				// Get a JSON representation of the tabular filter data
-				$model      = $this->getModel();
-				$json       = json_encode($model->get_filters($site_root));
-				$this->json = $json;
+				$platform->addScriptOptions('akeeba.FileFilters.guiData', $model->get_filters($siteRoot));
+				$platform->addScriptOptions('akeeba.FileFilters.viewType', "tabular");
 
 				break;
 		}

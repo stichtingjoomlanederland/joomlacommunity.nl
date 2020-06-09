@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,7 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
 require_once dirname(__FILE__) . '/model.php';
 
@@ -92,17 +92,23 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 		$jConfig = ED::getJConfig();
 		$lifespan = $jConfig->getValue('lifetime');
 		$online = time() - ($lifespan * 60);
+		$sharedSess = $jConfig->get('shared_session', 0);
 
-		$db		= $this->db;
-		$query	= 'SELECT a.* FROM ' . $db->nameQuote('#__discuss_views') . ' AS a '
-				. 'INNER JOIN ' . $db->nameQuote('#__users') . ' AS b '
-				. 'ON a.' . $db->nameQuote('user_id') . ' = b.' . $db->nameQuote('id')
-				. 'INNER JOIN ' . $db->nameQuote('#__session') . ' AS c '
-				. 'ON c.' . $db->nameQuote('userid') . ' = b.' . $db->nameQuote('id')
-				. 'WHERE a.' . $db->nameQuote('user_id') . ' !=' . $db->Quote(0)
-				. 'AND c.' . $db->nameQuote('time') . ' >= ' . $db->Quote($online) . ' '
-				. 'AND c.' . $db->nameQuote('client_id') . ' = ' . $db->Quote('0') . ' '
-				. 'GROUP BY a.' . $db->nameQuote('user_id');
+
+		$db = $this->db;
+		$query = 'SELECT a.* FROM ' . $db->nameQuote('#__discuss_views') . ' AS a ';
+		$query .= ' INNER JOIN ' . $db->nameQuote('#__users') . ' AS b ';
+		$query .= ' ON a.' . $db->nameQuote('user_id') . ' = b.' . $db->nameQuote('id');
+		$query .= ' INNER JOIN ' . $db->nameQuote('#__session') . ' AS c ';
+		$query .= ' ON c.' . $db->nameQuote('userid') . ' = b.' . $db->nameQuote('id');
+		$query .= ' WHERE a.' . $db->nameQuote('user_id') . ' !=' . $db->Quote(0);
+		$query .= ' AND c.' . $db->nameQuote('time') . ' >= ' . $db->Quote($online);
+
+		if (!$sharedSess) {
+			$query .= ' AND c.' . $db->nameQuote('client_id') . ' = ' . $db->Quote('0');
+		}
+
+		$query .= ' GROUP BY a.' . $db->nameQuote('user_id');
 
 		$db->setQuery( $query );
 		$result	= $db->loadObjectList();
@@ -214,16 +220,14 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 	 * @access public
 	 * @return integer
 	 */
-	public function getTotal()
+	public function getTotal($search = null)
 	{
-		$db = DiscussHelper::getDBO();
-
+		$db = ED::db();
 
 		// Lets load the content if it doesn't already exist
-		if (empty($this->_total))
-		{
-			$query = $this->_buildQuery( true );
-			$db->setQuery( $query );
+		if (empty($this->_total)) {
+			$query = $this->_buildQuery(true, $search);
+			$db->setQuery($query);
 
 			//$this->_total = $this->_getListCount($query);
 			$this->_total = $db->loadResult();
@@ -255,8 +259,23 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 	{
 		// Lets load the content if it doesn't already exist
 		if (empty($this->_pagination)) {
-			// jimport('joomla.html.pagination');
 			$this->_pagination = ED::getPagination($this->getTotal(), $this->getState('limitstart'), $this->getState('limit'));
+		}
+
+		return $this->_pagination;
+	}
+
+	/**
+	 * Method to get a pagination object for the categories
+	 *
+	 * @access public
+	 * @return integer
+	 */
+	public function getPaginationFrontend($search = '')
+	{
+		// Lets load the content if it doesn't already exist
+		if (empty($this->_pagination)) {
+			$this->_pagination = ED::getPagination($this->getTotal($search), $this->getState('limitstart'), $this->getState('limit'));
 		}
 
 		return $this->_pagination;
@@ -268,24 +287,26 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 	 * @access private
 	 * @return string
 	 */
-	public function _buildQuery( $isTotalCnt = false, $name = '' )
+	public function _buildQuery($isTotalCnt = false, $name = '')
 	{
 		// Get the WHERE and ORDER BY clauses for the query
-		$where		= $this->_buildQueryWhere( $name );
-		$orderby	= $this->_buildQueryOrderBy();
-		$db			= DiscussHelper::getDBO();
-
+		$where = $this->_buildQueryWhere($name);
+		$orderby = $this->_buildQueryOrderBy();
+		$db = ED::db();
 
 		if ($isTotalCnt) {
-			$query  = 'select count(id) from `#__users` as u';
+			$query = 'SELECT COUNT(u.`id`) from `#__users` as u ';
+			$query .= 'LEFT JOIN ' . $db->nameQuote('#__discuss_users') . ' AS d ON d.`id`= u.`id`';
 			$query .= $where;
-		} else {
-			$query		= 'SELECT u.`id`, u.`name`, u.`username`, u.`email`, u.`registerDate`, u.`lastvisitDate`, u.`params`, u.`block` '
-						. ', d.`nickname`, d.`avatar`, d.`description`, d.`url`, d.`alias` '
-						. 'FROM ' . $db->nameQuote( '#__users' ) . ' AS u '
-						. 'LEFT JOIN ' . $db->nameQuote( '#__discuss_users' ) . ' AS d ON d.`id` = u.`id` '
-						. $where
-						. $orderby;
+		} 
+
+		if (!$isTotalCnt) {
+			$query = 'SELECT u.`id`, u.`name`, u.`username`, u.`email`, u.`registerDate`, u.`lastvisitDate`, u.`params`, u.`block` '
+					. ', d.`nickname`, d.`avatar`, d.`description`, d.`url`, d.`alias` '
+					. 'FROM ' . $db->nameQuote( '#__users' ) . ' AS u '
+					. 'LEFT JOIN ' . $db->nameQuote( '#__discuss_users' ) . ' AS d ON d.`id` = u.`id` '
+					. $where
+					. $orderby;
 		}
 
 		// echo $query;exit;
@@ -293,50 +314,42 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 		return $query;
 	}
 
-	public function _buildQueryWhere( $name = '' )
+	public function _buildQueryWhere($name = null)
 	{
-		$mainframe = JFactory::getApplication();
+		$app = JFactory::getApplication();
 		$db = ED::db();
 
-		$config = DiscussHelper::getConfig();
-		$filter_state = $mainframe->getUserStateFromRequest( 'com_easydiscuss.users.filter_state', 'filter_state', '', 'word' );
-		$search = $mainframe->getUserStateFromRequest( 'com_easydiscuss.users.search', 'search', '', 'string' );
-		$search = $db->getEscaped( trim(JString::strtolower( $search ) ) );
+		$config = ED::config();
 
-
-		// Sanity checks!!
-		$name = $db->getEscaped( $name );
+		// Used in administration
+		$filter_state = $app->getUserStateFromRequest('com_easydiscuss.users.filter_state', 'filter_state', '', 'word');
+		$search = $app->getUserStateFromRequest('com_easydiscuss.users.search', 'search', '', 'string');
+		$search = $db->getEscaped(trim(JString::strtolower($search)));
 
 		$where = array();
 
 		$where[] = 'u.`block`=' . $db->Quote( 0 );
 
+		// Backend user searching
+		if ($app->isAdmin()) {
+			$where[] = ' (LOWER(`name`) LIKE ' . $db->Quote('%' . $search . '%') . ') OR (LOWER(`username`) LIKE ' . $db->Quote('%' . $search . '%') . ')';
+		} 
 
-		if ($search) {
-			if ($mainframe->isAdmin()) {
-				$where[] = ' (LOWER(`name`) LIKE ' . $db->Quote('%' . $search . '%') . ') OR (LOWER(`username`) LIKE ' . $db->Quote('%' . $search . '%') . ')';
-			} else {
-				$where[] = ' (LOWER(`name`) LIKE ' . $db->Quote('%' . $search . '%') . ')';
-			}
-		} elseif (!empty($name)) {
-
+		// Frontend user searches
+		if (!$app->isAdmin() && $name) {
 			$displayname = $config->get('layout_nameformat');
 
-			switch ($displayname) {
-				case "name" :
-					$where[] = ' LOWER( name ) LIKE \'%' . $name . '%\' ';
-					break;
-				case "username" :
-					$where[] = ' LOWER( username ) LIKE \'%' . $name . '%\' ';
-					break;
-				case "nickname" :
-				default :
-					// nickname and name is the same, just different table
-					$where[] = ' LOWER( d.nickname ) LIKE \'%' . $name . '%\' ';
-					break;
+			if ($displayname == 'name') {
+				$where[] = ' LOWER( name ) LIKE \'%' . $name . '%\' ';
 			}
 
-			// $where[] = ' LOWER( name ) LIKE \'%' . $name . '%\' ';
+			if ($displayname == 'username') {
+				$where[] = ' LOWER(`username`) LIKE \'%' . $name . '%\' ';
+			}
+
+			if ($displayname == 'nickname') {
+				$where[] = ' LOWER( d.nickname ) LIKE \'%' . $name . '%\' ';
+			}
 		}
 
 		$where[] = 'u.`id` != ' . $db->Quote( 0 );
@@ -349,12 +362,12 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 
 	public function _buildQueryOrderBy()
 	{
-		$mainframe			= JFactory::getApplication();
+		$app = JFactory::getApplication();
 
-		$filter_order		= $mainframe->getUserStateFromRequest( 'com_easydiscuss.users.filter_order', 		'filter_order', 	'name', 'cmd' );
-		$filter_order_Dir	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.users.filter_order_Dir',	'filter_order_Dir',		'asc', 'word' );
+		$filter_order = $app->getUserStateFromRequest( 'com_easydiscuss.users.filter_order', 		'filter_order', 	'name', 'cmd' );
+		$filter_order_Dir = $app->getUserStateFromRequest( 'com_easydiscuss.users.filter_order_Dir',	'filter_order_Dir',		'asc', 'word' );
 
-		$orderby			= ' ORDER BY '.$filter_order.' '.$filter_order_Dir;
+		$orderby = ' ORDER BY '.$filter_order.' '.$filter_order_Dir;
 
 		return $orderby;
 	}
@@ -367,12 +380,12 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 	 */
 	public function getData($name = '' )
 	{
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
 		// Lets load the content if it doesn't already exist
-		if (empty($this->_data))
-		{
-			$query = $this->_buildQuery( false, $name );
+		if (empty($this->_data)) {
+
+			$query = $this->_buildQuery(false, $name);
 
 			$result = $this->_getList($query, $this->getState('limitstart'), $this->getState('limit'));
 
@@ -388,16 +401,17 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 	 * @access public
 	 * @return array
 	 */
-	public function getUsers( $usePagination = true)
+	public function getUsers($usePagination = true)
 	{
 		// Lets load the content if it doesn't already exist
-		if (empty($this->_data))
-		{
+		if (empty($this->_data)) {
 			$query = $this->_buildQuery();
-			if($usePagination)
+
+			if ($usePagination) {
 				$this->_data = $this->_getList($query, $this->getState('limitstart'), $this->getState('limit'));
-			else
+			} else {
 				$this->_data = $this->_getList($query);
+			}
 		}
 
 		return $this->_data;
@@ -408,8 +422,6 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function search($search = '', $excludeUsers = array())
 	{
@@ -836,11 +848,11 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 	}
 
 	/**
-     * Reset all users' point
-     *
-     * @since   4.0
-     * @access  public
-     */
+	 * Reset all users' point
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function resetPoints()
 	{
 		$db	= ED::db();
@@ -852,11 +864,11 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 
 
 	/**
-     * Retrieve user profile data for GDPR
-     *
-     * @since   4.1
-     * @access  public
-     */
+	 * Retrieve user profile data for GDPR
+	 *
+	 * @since   4.1
+	 * @access  public
+	 */
 	public function getProfileDataGDPR($options = array())
 	{
 		$db = ED::db();

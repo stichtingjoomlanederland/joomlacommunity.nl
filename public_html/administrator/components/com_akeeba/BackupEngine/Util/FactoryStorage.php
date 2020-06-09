@@ -10,48 +10,16 @@
 namespace Akeeba\Engine\Util;
 
 
-
 use Akeeba\Engine\Factory;
-use Exception;
+use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * Management class for temporary storage of the serialised engine state.
  */
 class FactoryStorage
 {
-	protected $storageEngine = '';
-
-	public function __construct($storageEngine = null)
-	{
-		$this->setStorageEngine($storageEngine);
-	}
-
-	/**
-	 * Returns the name of the storage engine
-	 *
-	 * @return  string
-	 */
-	public function getStorageEngine()
-	{
-		return $this->storageEngine;
-	}
-
-	/**
-	 * Sets the storage engine which will be used
-	 *
-	 * @param   string  $engine  The storage engine (currently only db or file can be specified)
-	 */
-	public function setStorageEngine($engine = null)
-	{
-		if (empty($engine))
-		{
-			$config = Factory::getConfiguration();
-			$usedb  = $config->get('akeeba.core.usedbstorage', 0);
-			$engine = $usedb ? 'db' : 'file';
-		}
-
-		$this->storageEngine = $engine;
-	}
+	protected static $tempFileStoragePath;
 
 	/**
 	 * Returns the fully qualified path to the storage file
@@ -62,27 +30,28 @@ class FactoryStorage
 	 */
 	public function get_storage_filename($tag = null)
 	{
-		static $basepath = null;
+		if (is_null(self::$tempFileStoragePath))
+		{
+			$registry                  = Factory::getConfiguration();
+			self::$tempFileStoragePath = $registry->get('akeeba.basic.output_directory', '');
 
-		if ($this->storageEngine == 'db')
-		{
-			return empty($tag) ? 'storage' : $tag;
-		}
-		else
-		{
-			if (is_null($basepath))
+			if (empty(self::$tempFileStoragePath))
 			{
-				$registry = Factory::getConfiguration();
-				$basepath = $registry->get('akeeba.basic.output_directory') . DIRECTORY_SEPARATOR;
+				throw new InvalidArgumentException('You have not set a backup output directory.');
 			}
 
-			if (empty($tag))
-			{
-				$tag = 'storage';
-			}
+			self::$tempFileStoragePath = rtrim(self::$tempFileStoragePath, '/\\');
 
-			return $basepath . 'akeeba_' . $tag;
+			if (!is_writable(self::$tempFileStoragePath) || !is_readable(self::$tempFileStoragePath))
+			{
+				throw new InvalidArgumentException(sprintf('Backup output directory %s needs to be both readable and writeable to PHP for this backup software to function correctly.', self::$tempFileStoragePath));
+			}
 		}
+
+		$tag      = empty($tag) ? '' : $tag;
+		$filename = sprintf("akstorage%s%s.php", empty($tag) ? '' : '_', $tag);
+
+		return self::$tempFileStoragePath . DIRECTORY_SEPARATOR . $filename;
 	}
 
 	/**
@@ -94,185 +63,155 @@ class FactoryStorage
 	 */
 	public function reset($tag = null)
 	{
-		switch ($this->storageEngine)
+		$filename = $this->get_storage_filename($tag);
+
+		if (!is_file($filename) && !is_link($filename))
 		{
-			case 'file':
-				$filename = $this->get_storage_filename($tag);
-
-				if (!is_file($filename) && !is_link($filename))
-				{
-					return false;
-				}
-
-				return @unlink($this->get_storage_filename($tag));
-
-				break;
-
-			case 'db':
-				$dbtag = $this->get_storage_filename($tag);
-				$db    = Factory::getDatabase();
-				$sql   = $db->getQuery(true)
-					->delete($db->qn('#__ak_storage'))
-					->where($db->qn('tag') . ' = ' . $db->q($dbtag));
-				$db->setQuery($sql);
-
-				try
-				{
-					$result = $db->query();
-				}
-				catch (Exception $exc)
-				{
-					return false;
-				}
-
-				return ($result !== false);
-
-				break;
+			return false;
 		}
 
-		return false;
+		return @unlink($this->get_storage_filename($tag));
 	}
 
+	/**
+	 * Stores a value to the storage
+	 *
+	 * @param   string       $value
+	 * @param   string|null  $tag
+	 *
+	 * @return  bool  True on success
+	 */
 	public function set($value, $tag = null)
 	{
 		$storage_filename = $this->get_storage_filename($tag);
 
-		switch ($this->storageEngine)
+		if (file_exists($storage_filename))
 		{
-			case 'file':
-				if (file_exists($storage_filename))
-				{
-					@unlink($storage_filename);
-				}
-
-				return @file_put_contents($storage_filename, $this->encode($value)) !== false;
-
-				break;
-
-			case 'db':
-				$db = Factory::getDatabase();
-
-				// Delete any old records
-				$sql = $db->getQuery(true)
-					->delete($db->qn('#__ak_storage'))
-					->where($db->qn('tag') . ' = ' . $db->q($storage_filename));
-				$db->setQuery($sql);
-
-				try
-				{
-					$result = $db->query();
-				}
-				catch (Exception $exc)
-				{
-					return false;
-				}
-
-				// Add the new record
-				$sql = $db->getQuery(true)
-					->insert($db->qn('#__ak_storage'))
-					->columns([
-						$db->qn('tag'),
-						$db->qn('data'),
-					])->values($db->q($storage_filename) . ',' . $db->q($this->encode($value)));
-
-				$db->setQuery($sql);
-
-				try
-				{
-					$result = $db->query();
-				}
-				catch (Exception $exc)
-				{
-					return false;
-				}
-
-				return ($result !== false);
-
-				break;
+			@unlink($storage_filename);
 		}
 
-		return false;
+		return @file_put_contents($storage_filename, $this->encode($value)) !== false;
 	}
 
+	/**
+	 * Retrieves a value from storage
+	 *
+	 * @param   string|null  $tag
+	 *
+	 * @return  false|string
+	 */
 	public function &get($tag = null)
 	{
+		$ret              = false;
 		$storage_filename = $this->get_storage_filename($tag);
+		$data             = @file_get_contents($storage_filename);
 
-		$ret = false;
-
-		switch ($this->storageEngine)
+		if ($data === false)
 		{
-			case 'file':
-				$data = @file_get_contents($storage_filename);
-
-				if ($data === false)
-				{
-					return $ret;
-				}
-
-				break;
-
-			case 'db':
-				$db  = Factory::getDatabase();
-				$sql = $db->getQuery(true)
-					->select($db->qn('data'))
-					->from($db->qn('#__ak_storage'))
-					->where($db->qn('tag') . ' = ' . $db->q($storage_filename));
-				$db->setQuery($sql);
-
-				try
-				{
-					$data = $db->loadResult();
-
-					if (empty($data))
-					{
-						return $ret;
-					}
-				}
-				catch (Exception $e)
-				{
-					return $ret;
-				}
-
-				break;
+			return $ret;
 		}
 
-		$ret = $this->decode($data);
+		try
+		{
+			$ret = $this->decode($data);
+		}
+		catch (RuntimeException $e)
+		{
+			$ret = false;
+		}
+
 		unset($data);
 
 		return $ret;
 	}
 
+	/**
+	 * Encodes the (serialized) data in a format suitable for storing in a deliberately web-inaccessible PHP file
+	 *
+	 * @param   string  $data  The data to encode
+	 *
+	 * @return  string  The encoded data
+	 */
 	public function encode(&$data)
 	{
-		// Should I base64-encode?
-		if (function_exists('base64_encode') && function_exists('base64_decode'))
+		$encodingMethod = $this->getEncodingMethod();
+		switch ($encodingMethod)
 		{
-			return base64_encode($data);
+			case 'base64':
+				$ret = base64_encode($data);
+				break;
+
+			case 'uuencode':
+				$ret = convert_uuencode($data);
+				break;
+
+			case 'plain':
+			default:
+				$ret = $data;
+				break;
 		}
-		elseif (function_exists('convert_uuencode') && function_exists('convert_uudecode'))
+
+		return '<' . '?' . 'php die(); ' . '>' . '?' . "\n" .
+			$encodingMethod . "\n" . $ret;
+	}
+
+	/**
+	 * Decodes the data read from the deliberately web-inaccessible PHP file.
+	 *
+	 * @param   string  $data  The data read from the file
+	 *
+	 * @return  false|string  The decoded data. False if the decoding failed.
+	 */
+	public function decode(&$data)
+	{
+		// Parts: 0 = PHP die line; 1 = encoding mode; 2 = data
+		$parts = explode("\n", $data, 3);
+
+		if (count($parts) != 3)
 		{
-			return convert_uuencode($data);
+			throw new RuntimeException("Invalid backup temporary data (memory file)");
 		}
-		else
+
+		switch ($parts[1])
 		{
-			return $data;
+			case 'base64';
+				return base64_decode($parts[2]);
+				break;
+
+			case 'uuencode':
+				return convert_uudecode($parts[2]);
+				break;
+
+			case 'plain':
+				return $parts[2];
+				break;
+
+			default:
+				throw new RuntimeException(sprintf('Unsupported encoding method “%s”', $parts[1]));
+				break;
 		}
 	}
 
-	public function decode(&$data)
+	/**
+	 * Get the recommended method for encoding the temporary data
+	 *
+	 * @return string
+	 */
+	protected function getEncodingMethod()
 	{
+		// Preferred encoding: base sixty four, handled by PHP
 		if (function_exists('base64_encode') && function_exists('base64_decode'))
 		{
-			return base64_decode($data);
+			return 'base64';
 		}
-		elseif (function_exists('convert_uuencode') && function_exists('convert_uudecode'))
+
+		// Fallback: UUencoding
+		if (function_exists('convert_uuencode') && function_exists('convert_uudecode'))
 		{
-			return convert_uudecode($data);
+			return 'uuencode';
 		}
-		else
-		{
-			return $data;
-		}
+
+		// Final fallback (should NOT be necessary): plain text encoding
+		return 'plain';
 	}
 }

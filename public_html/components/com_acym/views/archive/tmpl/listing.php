@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Restricted access');
     ?>
 
 	<div class="acym__front__archive">
-		<form method="post" action="<?php echo acym_completeLink('archive'); ?>" id="acym_form">
+		<form method="post" action="<?php echo acym_completeLink(ACYM_CMS == 'wordpress' ? 'archive' : ''); ?>" id="acym_form">
 			<h1 class="acym__front__archive__title"><?php echo acym_translation('ACYM_NEWSLETTERS'); ?></h1>
 
             <?php

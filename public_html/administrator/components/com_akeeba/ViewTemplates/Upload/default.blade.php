@@ -7,18 +7,7 @@
 
 // Protect from unauthorized access
 defined('_JEXEC') or die();
-
-$js = <<< JS
-
-;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
-// due to missing trailing semicolon and/or newline in their code.
-akeeba.System.documentReady(function(){
-    document.forms.akeebaform.submit();
-});
-
-JS;
 ?>
-@inlineJs($js)
 <form action="index.php" method="get" name="akeebaform" id="akeebaform">
     <input type="hidden" name="option" value="com_akeeba" />
     <input type="hidden" name="view" value="Upload" />

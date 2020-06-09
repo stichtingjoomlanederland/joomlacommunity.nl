@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -135,9 +135,20 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 			return $this->app->redirect($redirect);			
 		}
 
+		$hashkey = ED::table('HashKeys');
+
 		// Try to unpublish these selected posts
 		foreach ($posts as $item) {
 			$post = ED::post($item);
+
+			if ($post->isPending()) {
+				$state = $hashkey->load(array('uid' => $post->id));
+
+				if ($state) {
+					$hashkey->delete();
+				}
+			}
+
 			$post->publish(1);
 		}
 
@@ -428,11 +439,22 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 			return $this->app->redirect($redirect);
 		}
 
+		$hashkey = ED::table('HashKeys');
+
 		// Multiple rejection
 		if ($ids) {
 			// Try to reject each posts
 			foreach ($ids as $id) {
 				$post = ED::post($id);
+
+				if ($post->isPending()) {
+					$state = $hashkey->load(array('uid' => $post->id));
+
+					if ($state) {
+						$hashkey->delete();
+					}
+				}
+
 				$post->publish(0, true);
 			}			
 		} else {

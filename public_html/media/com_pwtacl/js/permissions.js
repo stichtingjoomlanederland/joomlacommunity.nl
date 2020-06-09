@@ -21,7 +21,6 @@ jQuery(document).ready(function ($) {
 			var assetid = parseInt($(this).attr('data-assetid')),
 				action = $(this).attr('data-action'),
 				groupid = parseInt($(this).attr('data-groupid')),
-				parentid = parseInt($(this).attr('data-parentid')),
 				setting = parseInt($(this).attr('data-setting')),
 				setting_calculated = parseInt($(this).attr('data-setting-calculated')),
 				setting_parent = parseInt($(this).attr('data-setting-parent')),
@@ -30,9 +29,9 @@ jQuery(document).ready(function ($) {
 				newcalculatedsetting = null;
 
 			// Double-check to prevent Super User access revoking...
-			if (assetid === 1 && action == 'core.admin' && setting === 1) {
+			if (assetid === 1 && action === 'core.admin' && setting === 1) {
 				var retVal = confirm(options.superuseralert);
-				if (retVal == false) {
+				if (retVal === false) {
 					return false;
 				}
 			}
@@ -204,7 +203,7 @@ jQuery(document).ready(function ($) {
 			data: request,
 			url: 'index.php?option=com_pwtacl&task=assets.saveAction',
 			success: function (response) {
-				if (assetid === 1 && action == 'core.admin') {
+				if (assetid === 1 && action === 'core.admin') {
 					location.reload();
 				}
 			}

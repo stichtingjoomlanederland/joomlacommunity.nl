@@ -58,12 +58,12 @@ class ConfigurationCheck
 		 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q204',
 		],
 
-		['code'        => '203', 'severity' => 'low', 'callback' => [null, 'q203'],
+		['code'        => '203', 'severity' => 'medium', 'callback' => [null, 'q203'],
 		 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q203',
 		],
-		['code'        => '401', 'severity' => 'low', 'callback' => [null, 'q401'],
-		 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q401',
-		],
+//		['code'        => '401', 'severity' => 'low', 'callback' => [null, 'q401'],
+//		 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q401',
+//		],
 	];
 
 	/**

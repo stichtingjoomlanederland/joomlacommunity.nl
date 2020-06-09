@@ -26,7 +26,7 @@
  * If you have any questions regarding this code, please contact phil@phil-taylor.com
  */
 
-/**
+/*
  * Provide some code so that pathetic sh404sef doesn't cause Internal Server Errors
  * We tried to "educate" them but they do not care enough to understand what they are doing is against Best Practice
  * and placing global functions in the global scope is highly frowned upon by professional developers, would have been better to

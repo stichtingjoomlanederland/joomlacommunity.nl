@@ -18,7 +18,7 @@ use Akeeba\Engine\Factory;
  */
 class Files extends Base
 {
-	function __construct()
+	public function __construct()
 	{
 		$this->object  = 'file';
 		$this->subtype = 'all';
@@ -27,11 +27,6 @@ class Files extends Base
 		if (empty($this->filter_name))
 		{
 			$this->filter_name = strtolower(basename(__FILE__, '.php'));
-		}
-
-		if (Factory::getKettenrad()->getTag() == 'restorepoint')
-		{
-			$this->enabled = false;
 		}
 
 		parent::__construct();

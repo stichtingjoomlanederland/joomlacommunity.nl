@@ -196,16 +196,25 @@ class acymbounceHelper extends acymObject
             }
         }
 
-
         if (!empty($port)) {
             $serverName .= ':'.$port;
         }
+
         if (!empty($secure)) {
             $serverName .= '/'.$secure;
         }
+
+        $email = trim($this->username);
+        if (strpos($email, '\\') !== false) {
+            list($user, $authuser) = explode('\\', $email);
+            list($x, $domain) = explode('@', $user);
+            $serverName .= '/authuser='.$user.'/user='.$authuser.'@'.$domain;
+        }
+
         if ($this->selfSigned) {
             $serverName .= '/novalidate-cert';
         }
+
         if (!empty($protocol)) {
             $serverName .= '/service='.$protocol;
         }

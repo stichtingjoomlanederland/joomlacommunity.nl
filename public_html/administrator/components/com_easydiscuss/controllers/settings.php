@@ -1,8 +1,8 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2020 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -87,6 +87,20 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 			}
 		}
 
+		// If the user is enabling intelligent mail reply breaker detection, we need to ensure that
+		// the current server's php version is >= 5.6.0
+		if (isset($post['mail_reply_breaker_intelligent']) && $post['mail_reply_breaker_intelligent']) {
+			$allowed = version_compare(phpversion(), '5.6.0') !== -1;
+
+			if (!$allowed) {
+				ED::setMessage(JText::_('The minimum required version of PHP is PHP 5.6.x if you want to enable the option "<b>Intelligently Detect Reply Breaks</b>"'), 'error');
+
+				$redirect = 'index.php?option=com_easydiscuss&view=settings&layout=' . $layout . '&active=' . $active;
+
+				return $this->app->redirect($redirect);
+			}
+		}
+
 		// Since we allow users to change the storage path, if they rename the path, we would also need to 
 		// rename the folder
 		if (isset($post['storage_path']) && !empty($post['storage_path'])) {
@@ -158,6 +172,12 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 			}
 		}
 
+		$file = $this->input->files->get('email_logo', '');
+
+		if (isset($file['tmp_name']) && !$file['error']) {
+			$this->updateEmailLogo($file);
+		}
+
 		// Default message
 		$message = 'COM_EASYDISCUSS_CONFIGURATION_SAVED';
 
@@ -225,5 +245,44 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 		// Unset the token
 		$token = ED::getToken();
 		unset($post['token']);
+	}
+
+	/**
+	 * Restore Email Logo to default
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function restoreEmailLogo()
+	{
+		$currentTemplate = ED::getCurrentTemplate();
+		$override = JPATH_ROOT . '/templates/' . $currentTemplate . '/html/com_easydiscuss/emails/logo.png';
+
+		if (JFile::exists($override)) {
+			JFile::delete($override);		
+		}
+ 		
+ 		return $this->ajax->resolve('index.php?option=com_easydiscuss&view=settings&layout=notifications');
+	}
+
+	/**
+	 * Override the email logo
+	 *
+	 * @since	4.1.15
+	 * @access	public
+	 */
+	public function updateEmailLogo($file)
+	{
+		if (empty($file) || !isset($file['tmp_name'])) {
+			return;
+		}
+
+		$currentTemplate = ED::getCurrentTemplate();
+
+		$source = $file['tmp_name'];
+		$override = JPATH_ROOT . '/templates/' . $currentTemplate . '/html/com_easydiscuss/emails/logo.png';
+
+		// Update the email logo
+		JFile::upload($source, $override);
 	}
 }

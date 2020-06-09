@@ -616,39 +616,37 @@ class RsformModelDirectory extends JModelLegacy
 		}
 
 		// Update fields
-		foreach ($form as $field => $value)
+		if ($allowed)
 		{
-			if (!in_array($field, $allowed))
+			foreach ($allowed as $field)
 			{
-				continue;
-			}
+				$value = isset($form[$field]) ? $form[$field] : '';
+				if (is_array($value))
+				{
+					$value = implode("\n", $value);
+				}
 
-			if (is_array($value))
-			{
-				$value = implode("\n", $value);
-			}
+				// Dynamic field - update value.
+				$object = (object) array(
+					'FormId' 		=> $formId,
+					'SubmissionId' 	=> $cid,
+					'FieldName'		=> $field,
+					'FieldValue'	=> $value
+				);
 
-			// Dynamic field - update value.
-			$object = (object) array(
-				'FormId' 		=> $formId,
-				'SubmissionId' 	=> $cid,
-				'FieldName'		=> $field,
-				'FieldValue'	=> $value
-			);
-
-			if (!isset($submission->values[$field]))
-			{
-				$db->insertObject('#__rsform_submission_values', $object);
-			}
-			elseif ($submission->values[$field] !== $value)
-			{
-				// Update only if we've changed something
-				$db->updateObject('#__rsform_submission_values', $object, array('SubmissionId', 'FormId', 'FieldName'));
+				if (!isset($submission->values[$field]))
+				{
+					$db->insertObject('#__rsform_submission_values', $object);
+				}
+				elseif ($submission->values[$field] !== $value)
+				{
+					// Update only if we've changed something
+					$db->updateObject('#__rsform_submission_values', $object, array('SubmissionId', 'FormId', 'FieldName'));
+				}
 			}
 		}
 
 		$offset = JFactory::getConfig()->get('offset');
-
 		if ($static && $staticFields)
 		{
 			// Static, update submission
@@ -670,50 +668,6 @@ class RsformModelDirectory extends JModelLegacy
 
 				$query->set($db->qn($field) . '=' . $db->q($static[$field]));
 			}
-
-			$db->setQuery($query)->execute();
-		}
-
-		// Checkboxes don't send a value if nothing is checked
-		$query = $db->getQuery(true)
-			->select($db->qn('p.PropertyValue'))
-			->from($db->qn('#__rsform_components', 'c'))
-			->join('left', $db->qn('#__rsform_properties', 'p') . ' ON (' . $db->qn('c.ComponentId') . ' = ' . $db->qn('p.ComponentId') . ')')
-			->where($db->qn('c.ComponentTypeId') . ' = ' . $db->q(RSFORM_FIELD_CHECKBOXGROUP))
-			->where($db->qn('p.PropertyName') . ' = ' . $db->q('NAME'))
-			->where($db->qn('c.FormId') . ' = ' . $db->q($formId));
-
-		if ($editFields = $this->getEditFields())
-		{
-			$allowedFields = array();
-
-			foreach ($editFields as $field)
-			{
-				$allowedFields[] = $this->_db->q($field[3]);
-			}
-
-			if (!empty($allowedFields))
-			{
-				$query->where($db->qn('p.PropertyValue') . ' IN (' . implode(',', $db->q($allowedFields)) . ')');
-			}
-		}
-
-		$checkboxes = $this->_db->setQuery($query)->loadColumn();
-
-		foreach ($checkboxes as $checkbox)
-		{
-			$value = isset($form[$checkbox]) ? $form[$checkbox] : '';
-			if (is_array($value))
-			{
-				$value = implode("\n", $value);
-			}
-
-			$query = $db->getQuery(true)
-				->update($db->qn('#__rsform_submission_values'))
-				->set($db->qn('FieldValue') . ' = ' . $db->q($value))
-				->where($db->qn('FieldName') . ' = ' . $db->q($checkbox))
-				->where($db->qn('FormId') . ' = ' . $db->q($formId))
-				->where($db->qn('SubmissionId') . ' = ' . $db->q($cid));
 
 			$db->setQuery($query)->execute();
 		}
@@ -935,6 +889,7 @@ class RsformModelDirectory extends JModelLegacy
 		$query = $db->getQuery(true);
 		$query->select($db->qn('ct.ComponentTypeName', 'type'))
 			->select($db->qn('c.ComponentId'))
+			->select($db->qn('ct.ComponentTypeId'))
 			->from($db->qn('#__rsform_components', 'c'))
 			->join('left', $db->qn('#__rsform_component_types', 'ct').' ON ('.$db->qn('c.ComponentTypeId').'='.$db->qn('ct.ComponentTypeId').')')
 			->where($db->qn('c.FormId').'='.$db->q($submission->FormId))
@@ -976,6 +931,9 @@ class RsformModelDirectory extends JModelLegacy
 			}
 		}
 
+		$YUICalendars = false;
+		$jQueryCalendars = false;
+
 		foreach ($formFields as $field)
 		{
 			if (!$field->editable) {
@@ -984,17 +942,20 @@ class RsformModelDirectory extends JModelLegacy
 
 			$invalid		= !empty($validation) && in_array($field->id,$validation) ? ' rsform-error' : '';
 			$data			= $field->id > 0 ? $properties[$field->id] : array('NAME' => $field->name);
-			$new_field		= array();
-			$new_field[0]	= !empty($data['CAPTION']) ? $data['CAPTION'] : $field->name;
-			$new_field[2]	= isset($data['REQUIRED']) && $data['REQUIRED'] == 'YES' ? '<strong class="formRequired">(*)</strong>' : '';
-			$new_field[3]	= $field->name;
 			$name			= $field->name;
+			$new_field		= array(
+				RSFORM_DIR_CAPTION      => !empty($data['CAPTION']) ? $data['CAPTION'] : $field->name,
+				RSFORM_DIR_INPUT        => '',
+				RSFORM_DIR_REQUIRED     => isset($data['REQUIRED']) && $data['REQUIRED'] == 'YES' ? '<strong class="formRequired">(*)</strong>' : '',
+				RSFORM_DIR_NAME         => $field->name,
+				RSFORM_DIR_DESCRIPTION  => isset($data['DESCRIPTION']) ? $data['DESCRIPTION'] : ''
+			);
 
 			if ($invalid)
 			{
 				if (isset($data['VALIDATIONMESSAGE']))
 				{
-					$new_field[4] = '<div id="component' . $field->id . '" class="dirError">' . $data['VALIDATIONMESSAGE'] . '</span>';
+					$new_field[RSFORM_DIR_VALIDATION] = '<div id="component' . $field->id . '" class="dirError">' . $data['VALIDATIONMESSAGE'] . '</span>';
 				}
 			}
 
@@ -1008,28 +969,37 @@ class RsformModelDirectory extends JModelLegacy
 				$value = isset($submission->{$field->name}) ? $submission->{$field->name} : '';
 			}
 
+			$placeholder = '';
+			if (isset($data['PLACEHOLDER']))
+			{
+				$placeholder = 'placeholder="' . RSFormProHelper::htmlEscape($data['PLACEHOLDER']) . '"';
+			}
+
 			switch ($field->type)
 			{
 				case 'static':
-					$new_field[0] = JText::_('RSFP_'.$field->name);
+					$new_field[RSFORM_DIR_CAPTION] = JText::_('RSFP_'.$field->name);
 
 					// Show a dropdown for yes/no
-					if ($field->name == 'confirmed') {
+					if ($field->name == 'confirmed')
+					{
 						$options = array(
 							JHtml::_('select.option', 0, JText::_('RSFP_NO')),
 							JHtml::_('select.option', 1, JText::_('RSFP_YES'))
 						);
 
-						$new_field[1] = JHtml::_('select.genericlist', $options, 'formStatic[confirmed]', null, 'value', 'text', $value);
-					} else {
-						$new_field[1] = '<input class="rs_inp rs_80" type="text" name="formStatic['.$name.']" value="'.RSFormProHelper::htmlEscape($value).'" />';
+						$new_field[RSFORM_DIR_INPUT] = JHtml::_('select.genericlist', $options, 'formStatic[confirmed]', null, 'value', 'text', $value);
+					}
+					else
+					{
+						$new_field[RSFORM_DIR_INPUT] = '<input class="rs_inp rs_80" type="text" name="formStatic['.$name.']" value="'.RSFormProHelper::htmlEscape($value).'" />';
 					}
 					break;
 
 				// skip this field for now, no need to edit it
 				case 'freeText':
-					$new_field[0] = '';
-					$new_field[1] = RSFormProHelper::isCode($data['TEXT']);
+					$new_field[RSFORM_DIR_CAPTION] = '';
+					$new_field[RSFORM_DIR_INPUT] = RSFormProHelper::isCode($data['TEXT']);
 					break;
 
 				default:
@@ -1038,33 +1008,99 @@ class RsformModelDirectory extends JModelLegacy
 						$value = implode($form->MultipleSeparator, $value);
 					}
 
-					if (strpos($value, "\n") !== false || strpos($value, "\r") !== false) {
-						$new_field[1] = '<textarea style="width: 95%" class="rs_textarea'.$invalid.'" rows="10" cols="60" name="form['.$name.']">'.RSFormProHelper::htmlEscape($value).'</textarea>';
-					} else {
-						$new_field[1] = '<input class="rs_inp rs_80'.$invalid.'" type="text" name="form['.$name.']" value="'.RSFormProHelper::htmlEscape($value).'" />';
+					if (strpos($value, "\n") !== false || strpos($value, "\r") !== false)
+					{
+						$new_field[RSFORM_DIR_INPUT] = '<textarea ' . $placeholder . ' style="width: 95%" class="rs_textarea'.$invalid.'" rows="10" cols="60" name="form['.$name.']">'.RSFormProHelper::htmlEscape($value).'</textarea>';
+					}
+					else
+					{
+						$new_field[RSFORM_DIR_INPUT] = '<input class="rs_inp rs_80'.$invalid.'" type="text" name="form['.$name.']" value="'.RSFormProHelper::htmlEscape($value).'" ' . $placeholder . ' />';
 					}
 					break;
 
 				case 'textArea':
 					if (isset($data['WYSIWYG']) && $data['WYSIWYG'] == 'YES')
-						$new_field[1] = RSFormProHelper::WYSIWYG('form['.$name.']', RSFormProHelper::htmlEscape($value), '', 600, 100, 60, 10);
+					{
+						$new_field[RSFORM_DIR_INPUT] = RSFormProHelper::WYSIWYG('form['.$name.']', RSFormProHelper::htmlEscape($value), '', 600, 100, 60, 10);
+					}
 					else
-						$new_field[1] = '<textarea style="width: 95%" class="rs_textarea'.$invalid.'" rows="10" cols="60" name="form['.$name.']">'.RSFormProHelper::htmlEscape($value).'</textarea>';
+					{
+						$new_field[RSFORM_DIR_INPUT] = '<textarea ' . $placeholder . ' style="width: 95%" class="rs_textarea'.$invalid.'" rows="10" cols="60" name="form['.$name.']">'.RSFormProHelper::htmlEscape($value).'</textarea>';
+					}
 					break;
 
-				case 'radioGroup':
 				case 'checkboxGroup':
+				case 'radioGroup':
+					$options = array();
+					$value = !empty($values) ? $value : RSFormProHelper::explode($value);
+					$value = (array) $value;
+
+					if ($field->type === 'checkboxGroup')
+					{
+						$htmlType = 'checkbox';
+						$htmlName = 'form[' . RSFormProHelper::htmlEscape($name) . '][]';
+					}
+					else
+					{
+						$htmlName = 'form[' . RSFormProHelper::htmlEscape($name) . ']';
+						$htmlType = 'radio';
+					}
+
+					require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/fields/fielditem.php';
+					require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/fieldmultiple.php';
+					$f = new RSFormProFieldMultiple(array(
+						'formId' 			=> $submission->FormId,
+						'componentId' 		=> $field->id,
+						'data' 				=> $data,
+						'value' 			=> array('formId' => $submission->FormId, $data['NAME'] => $value),
+						'invalid' 			=> in_array($field->id, $validation)
+					));
+
+					if ($items = $f->getItems())
+					{
+						$i = 0;
+						foreach ($items as $item)
+						{
+							$item = new RSFormProFieldItem($item);
+
+							$html = '<label><input type="' . $htmlType . '" ' .
+							' name="' . $htmlName . '"' .
+							' value="' . RSFormProHelper::htmlEscape($item->value) . '"' .
+							' id="' . RSFormProHelper::htmlEscape($name) . $i . '"';
+
+							if ($item->flags['disabled']) {
+								$html .= ' disabled="disabled"';
+							}
+
+							if (in_array($item->value, $value)) {
+								$html .= ' checked="checked"';
+							}
+
+							if ($invalid)
+							{
+								$html .= ' class="' . $invalid . '"';
+							}
+
+							$html .= '> ' . $item->label . '</label>';
+
+							$options[] = $html;
+
+							$i++;
+						}
+					}
+
+					if ($max = (int) $f->getProperty('MAXSELECTIONS'))
+					{
+						$id = $f->getId();
+						RSFormProAssets::addScriptDeclaration("RSFormPro.limitSelections({$submission->FormId}, '{$id}', {$max});");
+					}
+
+					$new_field[RSFORM_DIR_INPUT] = '<p>' . implode('</p><p>', $options) . '</p>';
+
+					break;
+
 				case 'selectList':
 					$options = array();
-					if ($field->type == 'radioGroup') {
-						$data['SIZE'] = 0;
-						$data['MULTIPLE'] = 'NO';
-						$options[] = JHtml::_('select.option', '', JText::_('COM_RSFORM_NO_VALUE'));
-
-					} elseif ($field->type == 'checkboxGroup') {
-						$data['SIZE'] = 5;
-						$data['MULTIPLE'] = 'YES';
-					}
 
 					$value = !empty($values) ? $value : RSFormProHelper::explode($value);
 
@@ -1113,7 +1149,7 @@ class RsformModelDirectory extends JModelLegacy
 
 					$attribs = implode(' ', $attribs);
 
-					$new_field[1] = JHtml::_('select.genericlist', $options, 'form['.$name.'][]', $attribs, 'value', 'text', $value);
+					$new_field[RSFORM_DIR_INPUT] = JHtml::_('select.genericlist', $options, 'form['.$name.'][]', $attribs, 'value', 'text', $value);
 					break;
 
 				case 'fileUpload':
@@ -1126,23 +1162,113 @@ class RsformModelDirectory extends JModelLegacy
 						$files = array();
 					}
 
-					$new_field[1] = '<div>';
+					$new_field[RSFORM_DIR_INPUT] = '<div>';
 
 					foreach ($files as $file)
 					{
-						$new_field[1] .= '<p><button type="button" class="btn btn-small" onclick="RSFormProDirectory.clearUpload(\'' . $name . '\', this, \'' . md5($file) . '\');">' . JText::_('COM_RSFORM_CLEAR') . '</button> <span' . ($invalid ? ' class="' . $invalid . '"' : '') . '>' . RSFormProHelper::htmlEscape(basename($file)) . '</span></p>';
+						$new_field[RSFORM_DIR_INPUT] .= '<p><button type="button" class="btn btn-small" onclick="RSFormProDirectory.clearUpload(\'' . $name . '\', this, \'' . md5($file) . '\');">' . JText::_('COM_RSFORM_CLEAR') . '</button> <span' . ($invalid ? ' class="' . $invalid . '"' : '') . '>' . RSFormProHelper::htmlEscape(basename($file)) . '</span></p>';
 					}
 
-					$new_field[1] .= '</div>';
+					$new_field[RSFORM_DIR_INPUT] .= '</div>';
 
 					$multiple =  !empty($data['MULTIPLE']) && $data['MULTIPLE'] == 'YES';
 
-					$new_field[1] .= '<input size="45" type="file" name="form['.$name.']' . ($multiple ? '[]' : '') . '" ' . ($multiple ? 'multiple' : '') . ' />';
+					$new_field[RSFORM_DIR_INPUT] .= '<input size="45" type="file" name="form['.$name.']' . ($multiple ? '[]' : '') . '" ' . ($multiple ? 'multiple' : '') . ' />';
+					break;
+
+				case 'jQueryCalendar':
+				case 'calendar':
+					if ($field->type === 'jQueryCalendar')
+					{
+						$jQueryCalendars = true;
+					}
+
+					if ($field->type === 'calendar')
+					{
+						$YUICalendars = true;
+					}
+
+					$type = (string) preg_replace('/[^A-Z0-9_\.-]/i', '', strtolower($field->type));
+					$type = ltrim($type, '.');
+					// For legacy reasons...
+					$r = array(
+						'ComponentTypeId' => $field->FieldType,
+						'Order'			  => isset($data['Order']) ? $data['Order'] : 0
+					);
+
+					// Emulate variables
+					$out = '';
+					$formId = $submission->FormId;
+					$val = isset($values[$field->name]) ? $values : $submission->values;
+					$data['componentTypeId'] 	= $field->FieldType;
+					$data['ComponentTypeName'] 	= $field->type;
+					$data['Order'] 				= $field->ordering;
+
+					$app->triggerEvent('rsfp_bk_onBeforeCreateFrontComponentBody', array(array(
+						'out' 			=> &$out,
+						'formId' 		=> $submission->FormId,
+						'componentId' 	=> $field->componentId,
+						'data' 			=> &$data,
+						'value' 		=> &$val
+					)));
+
+					$config = array(
+						'formId' 			=> $formId,
+						'componentId' 		=> $field->componentId,
+						'data' 				=> $data,
+						'value' 			=> $val,
+						'invalid' 			=> $invalid,
+						'errorClass' 		=> '',
+						'fieldErrorClass' 	=> ''
+					);
+
+					require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/fields/' . $type . '.php';
+
+					$class = 'RSFormProField' . $type;
+
+					// Create the field
+					$fieldClass = new $class($config);
+
+					$out .= $fieldClass->output;
+
+					$app->triggerEvent('rsfp_bk_onAfterCreateFrontComponentBody', array(array(
+						'out' 			=> &$out,
+						'formId' 		=> $formId,
+						'componentId' 	=> $fieldClass->componentId,
+						'data' 			=> $data,
+						'value' 		=> $val,
+						'r'				=> $r,
+						'invalid' 		=> $invalid
+					)));
+
+					$new_field[RSFORM_DIR_INPUT] = $out;
+
 					break;
 			}
 
 			$return[$field->id] = $new_field;
 		}
+
+		if ($YUICalendars || $jQueryCalendars)
+		{
+			require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/calendar.php';
+
+			// render the YUI Calendars
+			if ($YUICalendars)
+			{
+				$calendar = RSFormProCalendar::getInstance('YUICalendar');
+				RSFormProAssets::addScriptDeclaration($calendar->printInlineScript($formId));
+			}
+
+			// render the jQuery Calendars
+			if ($jQueryCalendars)
+			{
+				$calendar = RSFormProCalendar::getInstance('jQueryCalendar');
+				RSFormProAssets::addScriptDeclaration($calendar->printInlineScript($formId));
+			}
+		}
+
+		RSFormProAssets::addScript(JHtml::script('com_rsform/script.js', array('pathOnly' => true, 'relative' => true)));
 
 		JFactory::getApplication()->triggerEvent('rsfp_f_onGetEditFields', array(&$return, $submission));
 

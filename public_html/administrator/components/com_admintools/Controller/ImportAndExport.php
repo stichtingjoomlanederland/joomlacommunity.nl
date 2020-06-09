@@ -81,7 +81,7 @@ class ImportAndExport extends Controller
 
 		try
 		{
-			$model->importData();
+			$model->importDataFromRequest();
 
 			$type = null;
 			$msg  = \JText::_('COM_ADMINTOOLS_IMPORTANDEXPORT_IMPORT_OK');

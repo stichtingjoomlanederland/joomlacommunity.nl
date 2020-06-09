@@ -77,7 +77,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 						<?php foreach ($post->getTags() as $tag) { ?>
 						<li>
 							<a href="<?php echo EDR::getTagRoute($tag->id);?>">
-								<i class="fa fa-tag"></i>&nbsp; <?php echo $tag->title;?>
+								<i class="fa fa-tag"></i>&nbsp; <?php echo $this->html('string.escape', $tag->title);?>
 							</a>
 						</li>
 						<?php } ?>

@@ -652,7 +652,7 @@ location ~* \.(css|js)$ {
 }
 
 # Image files : 1 month
-location ~* \.(bmp|gif|jpg|jpeg|jp2|png|svg|tif|tiff|ico|wbmp|wbxml|smil)$ {
+location ~* \.(bmp|gif|jpg|jpeg|jp2|png|svg|tif|tiff|ico|wbmp|wbxml|smil|webp)$ {
 		access_log off; log_not_found off;
 		expires 1M;
 }

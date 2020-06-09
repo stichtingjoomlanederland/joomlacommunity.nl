@@ -13,21 +13,15 @@ defined('_JEXEC') or die;
 /** @var  \Akeeba\Backup\Admin\View\Alice\Html $this */
 
 $js = <<< JS
-
-;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
-// due to missing trailing semicolon and/or newline in their code.
-function postMyForm()
-{
-	document.forms.adminForm.submit();
-}
-
 akeeba.System.documentReady(function(){
-	window.setTimeout(postMyForm, 250);
+	window.setTimeout(function() {
+	  document.forms.adminForm.submit()
+	}, 500);
 });
 
 JS;
+$this->container->template->addJSInline($js)
 ?>
-@inlineJs($js)
 
 <div class="akeeba-panel--info">
 	<header class="akeeba-block-header">

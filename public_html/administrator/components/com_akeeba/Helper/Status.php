@@ -175,8 +175,7 @@ class Status
 		$db    = Container::getInstance('com_akeeba')->db;
 		$query = $db->getQuery(true)
 			->select('MAX(' . $db->qn('id') . ')')
-			->from($db->qn('#__ak_stats'))
-			->where($db->qn('origin') . ' != ' . $db->q('restorepoint'));
+			->from($db->qn('#__ak_stats'));
 		$db->setQuery($query);
 		$id = $db->loadResult();
 

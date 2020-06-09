@@ -343,6 +343,53 @@ abstract class ServerConfigMaker extends Model
 	}
 
 	/**
+	 * Checks if current redirection rules do match the URL saved inside the live_site variable. For example:
+	 * - live_site: www.example.com - Redirect www to non-www   WRONG!
+	 * - live_site: www.example.com - Redirect non-www to www   CORRECT!
+	 *
+	 * @return bool Are the live_site variable and current redirection rules compatible?
+	 */
+	public function enableRedirects()
+	{
+		$live_site = $this->container->platform->getConfig()->get('live_site', '');
+
+		// No value set (90% of cases), we're good to go
+		if (!$live_site)
+		{
+			return true;
+		}
+
+		// The user put the protocol in the live site? That's an hard no
+		if (stripos($live_site, 'http') !== false)
+		{
+			return false;
+		}
+
+		$config = $this->loadConfiguration();
+
+		// No redirection set? We're good to go
+		if (!$config->wwwredir)
+		{
+			return true;
+		}
+
+		// Got www site and a redirect from www to non-www, that's wrong
+		if ((stripos($live_site, 'www.') === 0) && ($config->wwwredir === 2) )
+		{
+			return false;
+		}
+
+		// Got non-www site and a redirect from non-www to www, that's wrong
+		if ((stripos($live_site, 'www.') === false) && ($config->wwwredir === 1) )
+		{
+			return false;
+		}
+
+		// Otherwise we're good to go
+		return true;
+	}
+
+	/**
 	 * Escapes a string so that it's a neutral string inside a regular expression.
 	 *
 	 * @param   string  $str  The string to escape

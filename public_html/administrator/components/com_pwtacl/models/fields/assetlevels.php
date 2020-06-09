@@ -3,15 +3,16 @@
  * @package    PwtAcl
  *
  * @author     Sander Potjer - Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2011 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2011 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
 
-// No direct access.
+use Joomla\CMS\Form\FormHelper;
+
 defined('_JEXEC') or die;
 
-JFormHelper::loadFieldClass('list');
+FormHelper::loadFieldClass('list');
 
 /**
  * Levels Field class.
@@ -36,6 +37,6 @@ class JFormFieldAssetLevels extends JFormFieldList
 	 */
 	protected function getOptions()
 	{
-		return array_merge(parent::getOptions(), PwtaclHelper::getLevelsOptions());
+		return array_merge(parent::getOptions(), PwtAclHelper::getLevelsOptions());
 	}
 }

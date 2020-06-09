@@ -121,7 +121,7 @@ class bfLog
 
         // Give Up!
         if (!is_writeable(dirname(__FILE__).'/tmp')) {
-            die('Our '.dirname(__FILE__).'/tmp folder on your site is not writable!');
+            exit('Our '.dirname(__FILE__).'/tmp folder on your site is not writable!');
         }
 
         // attempt to ensure our folder is writable
@@ -136,7 +136,7 @@ class bfLog
 
         // Give Up!
         if (!is_writeable(dirname(__FILE__))) {
-            die(dirname(__FILE__).'/ folder not writeable');
+            exit(dirname(__FILE__).'/ folder not writeable');
         }
     }
 

@@ -6,9 +6,12 @@
 */
 
 defined('_JEXEC') or die('Restricted access');
-JHtml::_('behavior.keepalive'); ?>
 
-<form action="index.php?option=com_rsform" method="post" name="adminForm" id="adminForm">
+JHtml::_('bootstrap.tooltip');
+JHtml::_('behavior.keepalive');
+?>
+
+<form action="index.php?option=com_rsform&amp;view=directory" method="post" name="adminForm" id="adminForm">
 
 	<div id="j-sidebar-container" class="span2">
 		<?php echo $this->sidebar; ?>

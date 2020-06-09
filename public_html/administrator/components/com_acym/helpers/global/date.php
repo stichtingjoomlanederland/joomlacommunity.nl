@@ -222,3 +222,18 @@ function acym_displayDateFormat($format, $name = 'date', $default = '', $attribu
     return $return;
 }
 
+function acym_getTimeFromUTCDate($date)
+{
+    return strtotime($date) + date('Z');
+}
+
+function acym_getTimeFromCMSDate($date)
+{
+    return acym_getTimeFromUTCDate($date) - acym_getTimeOffsetCMS();
+}
+
+function acym_getTime($date)
+{
+    return acym_getTimeFromCMSDate($date);
+}
+

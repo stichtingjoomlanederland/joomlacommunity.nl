@@ -68,7 +68,7 @@ defined('_JEXEC') or die('Restricted access');
                     echo acym_switch(
                         'import_generate_generic',
                         $this->config->get('import_generate', 1),
-                        acym_translation('ACYM_GENERATE_NAME')
+                        acym_translation('ACYM_GENERATE_NAME').acym_info('ACYM_GENERATE_NAME_DESC')
                     );
                     ?>
 				</div>

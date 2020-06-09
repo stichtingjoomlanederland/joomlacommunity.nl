@@ -13,14 +13,17 @@ defined('_JEXEC') or die();
 use Akeeba\Backup\Admin\Controller\Mixin\CustomACL;
 use Akeeba\Backup\Admin\Controller\Mixin\PredefinedTaskList;
 use Akeeba\Backup\Admin\Helper\Utils;
+use Akeeba\Backup\Admin\Model\Backup as BackupModel;
 use Akeeba\Backup\Admin\Model\ConfigurationWizard;
 use Akeeba\Backup\Admin\Model\Updates;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
+use Exception;
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
 use JText;
 use JUri;
+use RuntimeException;
 
 /**
  * The Control Panel controller class
@@ -35,7 +38,7 @@ class ControlPanel extends Controller
 
 		$this->setPredefinedTaskList([
 			'main', 'SwitchProfile', 'UpdateInfo', 'applydlid', 'resetSecretWord', 'reloadUpdateInformation',
-			'forceUpdateDb', 'dismissUpsell',
+			'forceUpdateDb', 'dismissUpsell', 'fixOutputDirectory', 'checkOutputDirectory', 'addRandomToFilename',
 		]);
 	}
 
@@ -211,6 +214,115 @@ HTML;
 		$this->setRedirect('index.php?option=com_akeeba');
 	}
 
+	/**
+	 * Dismisses the Core to Pro upsell for 15 days
+	 *
+	 * @return  void
+	 */
+	public function dismissUpsell()
+	{
+		// Reset the flag so the updates could take place
+		$this->container->params->set('lastUpsellDismiss', time());
+		$this->container->params->save();
+
+		$this->setRedirect('index.php?option=com_akeeba');
+	}
+
+	/**
+	 * Check the security of the backup output directory and return the results for consumption through AJAX
+	 *
+	 * @return  void
+	 *
+	 * @throws  Exception
+	 *
+	 * @since   7.0.3
+	 */
+	public function checkOutputDirectory()
+	{
+		/** @var \Akeeba\Backup\Admin\Model\ControlPanel $model */
+		$model  = $this->getModel();
+		$outDir = $model->getOutputDirectory();
+
+		try
+		{
+			$result = $model->getOutputDirectoryWebAccessibleState($outDir);
+		}
+		catch (RuntimeException $e)
+		{
+			$result = [
+				'readFile'   => false,
+				'listFolder' => false,
+				'isSystem'   => $model->isOutputDirectoryInSystemFolder(),
+				'hasRandom'  => $model->backupFilenameHasRandom(),
+			];
+		}
+
+		@ob_end_clean();
+
+		echo '###' . json_encode($result) . '###';
+
+		$this->container->platform->closeApplication();
+	}
+
+	/**
+	 * Add security files to the output directory of the currently configured backup profile
+	 *
+	 * @return  void
+	 *
+	 * @throws  Exception
+	 *
+	 * @since   7.0.3
+	 */
+	public function fixOutputDirectory()
+	{
+		// CSRF prevention
+		$this->csrfProtection();
+
+		/** @var \Akeeba\Backup\Admin\Model\ControlPanel $model */
+		$model  = $this->getModel();
+		$outDir = $model->getOutputDirectory();
+
+		$fsUtils = Factory::getFilesystemTools();
+		$fsUtils->ensureNoAccess($outDir, true);
+
+		$this->setRedirect('index.php?option=com_akeeba');
+	}
+
+	/**
+	 * Adds the [RANDOM] variable to the backup output filename, save the configuration and reload the Control Panel.
+	 *
+	 * @return  void
+	 *
+	 * @throws  Exception
+	 *
+	 * @since   7.0.3
+	 */
+	public function addRandomToFilename()
+	{
+		// CSRF prevention
+		$this->csrfProtection();
+		$registry     = Factory::getConfiguration();
+		$templateName = $registry->get('akeeba.basic.archive_name');
+
+		if (strpos($templateName, '[RANDOM]') === false)
+		{
+			$templateName .= '-[RANDOM]';
+			$registry->set('akeeba.basic.archive_name', $templateName);
+			Platform::getInstance()->save_configuration();
+		}
+
+		$this->setRedirect('index.php?option=com_akeeba');
+	}
+
+	/**
+	 * Run everything necessary to display the Control Panel page
+	 *
+	 * @return  void
+	 *
+	 * @throws  Exception
+	 *
+	 * @since   5.0.0
+	 */
 	protected function onBeforeMain()
 	{
 		/** @var \Akeeba\Backup\Admin\Model\ControlPanel $model */
@@ -221,11 +333,18 @@ HTML;
 		// Invalidate stale backups
 		$params = $this->container->params;
 
-		Factory::resetState([
-			'global' => true,
-			'log'    => false,
-			'maxrun' => $params->get('failure_timeout', 180),
-		]);
+		try
+		{
+			Factory::resetState([
+				'global' => true,
+				'log'    => false,
+				'maxrun' => $params->get('failure_timeout', 180),
+			]);
+		}
+		catch (Exception $e)
+		{
+			// This will die if the output directory is invalid. Let it die, then.
+		}
 
 		// Just in case the reset() loaded a stale configuration...
 		Platform::getInstance()->load_configuration();
@@ -239,24 +358,15 @@ HTML;
 		// Check if we need to toggle the settings encryption feature
 		$model->checkSettingsEncryption();
 
+		// Convert existing log files to the new .log.php format
+		/** @var BackupModel $backupModel */
+		$backupModel = $this->container->factory->model('Backup')->tmpInstance();
+		$backupModel->convertLogFiles();
+
 		// Run the automatic update site refresh
 		/** @var Updates $updateModel */
 		$updateModel = $this->container->factory->model('Updates')->tmpInstance();
 		$updateModel->refreshUpdateSite();
-	}
-
-	/**
-	 * Dismisses the Core to Pro upsell for 15 days
-	 *
-	 * @return  void
-	 */
-	public function dismissUpsell()
-	{
-		// Reset the flag so the updates could take place
-		$this->container->params->set('lastUpsellDismiss', time());
-		$this->container->params->save();
-
-		$this->setRedirect('index.php?option=com_akeeba');
 	}
 
 }

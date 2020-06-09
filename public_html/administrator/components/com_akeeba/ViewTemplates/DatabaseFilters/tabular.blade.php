@@ -7,31 +7,8 @@
 
 defined('_JEXEC') or die();
 
-$ajaxUrl    = addslashes('index.php?option=com_akeeba&view=DatabaseFilters&task=ajax');
-$this->json = addcslashes($this->json, "'\\");
-$js         = <<< JS
-
-;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
-// due to missing trailing semicolon and/or newline in their code.
-/**
- * Callback function for changing the active root in Filesystem Filters
- */
-function akeeba_active_root_changed()
-{
-	var elRoot = document.getElementById('active_root');
-	akeeba.Dbfilters.loadTab(elRoot.options[elRoot.selectedIndex].value);
-}
-
-akeeba.System.documentReady(function(){
-    akeeba.System.params.AjaxURL = '$ajaxUrl';
-	var data = JSON.parse('{$this->json}');
-    akeeba.Dbfilters.renderTab(data);
-});
-
-JS;
-
+/** @var \Akeeba\Backup\Admin\View\DatabaseFilters\Html $this */
 ?>
-@inlineJs($js)
 @include('admin:com_akeeba/CommonTemplates/ErrorModal')
 @include('admin:com_akeeba/CommonTemplates/ProfileName')
 
@@ -45,11 +22,11 @@ JS;
             @lang('COM_AKEEBA_FILEFILTERS_LABEL_ADDNEWFILTER')
         </label>
 
-        <button class="akeeba-btn--grey" onclick="akeeba.Dbfilters.addNew('tables'); return false;">
+        <button class="akeeba-btn--grey" id="comAkeebaDatabaseFiltersAddNewTables">
             @lang('COM_AKEEBA_DBFILTER_TYPE_TABLES')
         </button>
 
-        <button class="akeeba-btn--grey" onclick="akeeba.Dbfilters.addNew('tabledata'); return false;">
+        <button class="akeeba-btn--grey" id="comAkeebaDatabaseFiltersAddNewTableData">
             @lang('COM_AKEEBA_DBFILTER_TYPE_TABLEDATA')
         </button>
     </div>

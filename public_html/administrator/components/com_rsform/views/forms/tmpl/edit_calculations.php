@@ -14,7 +14,7 @@ JText::script('RSFP_DELETE_SURE_CALCULATION');
 	<?php echo JText::_('RSFP_CALCULATION_INFO'); ?>
 </div>
 <br />
-<table class="admintable">
+<table class="admintable" cellpadding="5">
 	<tr>
 		<td>
 			<select name="rsfp_total_add" id="rsfp_total_add" size="1" style="margin-bottom:0px;">

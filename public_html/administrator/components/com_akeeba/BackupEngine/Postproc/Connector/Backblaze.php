@@ -1079,9 +1079,28 @@ class Backblaze
 		// Did we get an error response?
 		if (isset($response['error']) && is_array($response['error']))
 		{
-			$decodedError = $response['error'];
+			$decodedError    = $response['error'];
+			$actualException = new APIError($decodedError['code'], $decodedError['message'], 500);
 
-			throw new APIError($decodedError['code'], $decodedError['message'], 500);
+			/**
+			 * BackBlaze's blog post (see below) states that we need to retry getting an upload URL upon HTTP error 500
+			 * or 503. However, the reality is different. We get an HTTP 200 with an error document that contains the
+			 * error code literal 'service_unavailable'. In this case we'd simply throw an APIError exception and stop
+			 * the upload attempt. In an effort to keep the error handling code simple (since PHP doesn't allow catching
+			 * two disparate exception types in a single catch) we will simulate an HTTP exception here, attaching the
+			 * actual APIException as its previous exception to facilitate troubleshooting. The UnexpectedHTTPStatus
+			 * exception bubbles up to Akeeba\Engine\Postproc\Backblaze where it's intercepted, allowing us to ask for a
+			 * new upload URL and continue the upload.
+			 *
+			 * @see https://www.backblaze.com/blog/b2-503-500-server-error/
+			 * @see https://www.akeebabackup.com/support/32973
+			 */
+			if ($decodedError['code'] == 'service_unavailable')
+			{
+				throw new UnexpectedHTTPStatus('503 (Simulated – received API error code ‘service_unavailable’ per parent exception)', 503, $actualException);
+			}
+
+			throw $actualException;
 		}
 
 		return $response;

@@ -1,8 +1,8 @@
 <?php
 /**
- * @package     FOF
- * @copyright   Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license     GNU GPL version 2 or later
+ * @package   FOF
+ * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 2, or later
  */
 
 namespace FOF30\Platform\Joomla;
@@ -13,16 +13,18 @@ use FOF30\Date\Date;
 use FOF30\Date\DateDecorator;
 use FOF30\Input\Input;
 use FOF30\Platform\Base\Platform as BasePlatform;
-use JApplicationCli;
-use JApplicationCms;
-use JApplicationWeb;
-use JAuthentication;
-use JAuthenticationResponse;
-use JCache;
-use JFactory;
+use Joomla\CMS\Application\CliApplication as JApplicationCli;
+use Joomla\CMS\Application\CMSApplication as JApplicationCms;
+use Joomla\CMS\Application\WebApplication as JApplicationWeb;
+use Joomla\CMS\Authentication\Authentication as JAuthentication;
+use Joomla\CMS\Authentication\AuthenticationResponse as JAuthenticationResponse;
+use Joomla\CMS\Cache\Cache as JCache;
+use Joomla\CMS\Document\HtmlDocument;
+use Joomla\CMS\Factory as JFactory;
+use Joomla\CMS\Session\Session as JSession;
+use Joomla\CMS\Uri\Uri as JUri;
+use Joomla\CMS\User\User;
 use Joomla\Registry\Registry;
-use JSession;
-use JUri;
 
 defined('_JEXEC') or die;
 
@@ -84,9 +86,9 @@ class Platform extends BasePlatform
 	/**
 	 * Checks if the current script is run inside a valid CMS execution
 	 *
+	 * @return  bool
 	 * @see     PlatformInterface::checkExecution()
 	 *
-	 * @return  bool
 	 */
 	public function checkExecution()
 	{
@@ -109,112 +111,53 @@ class Platform extends BasePlatform
 	}
 
 	/**
-	 * Main function to detect if we're running in a CLI environment and we're admin
-	 *
-	 * @return  array  isCLI and isAdmin. It's not an associative array, so we can use list().
-	 */
-	protected function isCliAdmin()
-	{
-		if (is_null(static::$isCLI) && is_null(static::$isAdmin))
-		{
-			static::$isCLI   = false;
-			static::$isAdmin = false;
-
-			try
-			{
-				if (is_null(JFactory::$application))
-				{
-					static::$isCLI = true;
-					static::$isAdmin = false;
-
-					return [static::$isCLI, static::$isAdmin];
-				}
-				else
-				{
-					$app           = JFactory::getApplication();
-					static::$isCLI = $app instanceof \Exception || $app instanceof JApplicationCli;
-				}
-			}
-			catch (\Exception $e)
-			{
-				static::$isCLI = true;
-			}
-
-			if (static::$isCLI)
-			{
-				return [static::$isCLI, static::$isAdmin];
-			}
-
-			try
-			{
-				$app = JFactory::getApplication();
-			}
-			catch (Exception $e)
-			{
-				return [static::$isCLI, static::$isAdmin];
-			}
-
-			if (method_exists($app, 'isAdmin'))
-			{
-				static::$isAdmin = $app->isAdmin();
-			}
-			elseif (method_exists($app, 'isClient'))
-			{
-				static::$isAdmin = $app->isClient('administrator');
-			}
-		}
-
-		return array(static::$isCLI, static::$isAdmin);
-	}
-
-	/**
 	 * Returns absolute path to directories used by the CMS.
 	 *
+	 * @return  array  A hash array with keys root, public, admin, tmp and log.
 	 * @see PlatformInterface::getPlatformBaseDirs()
 	 *
-	 * @return  array  A hash array with keys root, public, admin, tmp and log.
 	 */
 	public function getPlatformBaseDirs()
 	{
-		return array(
+		return [
 			'root'   => JPATH_ROOT,
 			'public' => JPATH_SITE,
 			'media'  => JPATH_SITE . '/media',
 			'admin'  => JPATH_ADMINISTRATOR,
 			'tmp'    => JFactory::getConfig()->get('tmp_path'),
-			'log'    => JFactory::getConfig()->get('log_path')
-		);
+			'log'    => JFactory::getConfig()->get('log_path'),
+		];
 	}
 
 	/**
 	 * Returns the base (root) directories for a given component.
 	 *
-	 * @param   string $component   The name of the component. For Joomla! this
+	 * @param   string  $component  The name of the component. For Joomla! this
 	 *                              is something like "com_example"
 	 *
+	 * @return  array  A hash array with keys main, alt, site and admin.
 	 * @see PlatformInterface::getComponentBaseDirs()
 	 *
-	 * @return  array  A hash array with keys main, alt, site and admin.
 	 */
 	public function getComponentBaseDirs($component)
 	{
 		if (!$this->isBackend())
 		{
 			$mainPath = JPATH_SITE . '/components/' . $component;
-			$altPath = JPATH_ADMINISTRATOR . '/components/' . $component;
+			$altPath  = JPATH_ADMINISTRATOR . '/components/' . $component;
 		}
 		else
 		{
 			$mainPath = JPATH_ADMINISTRATOR . '/components/' . $component;
-			$altPath = JPATH_SITE . '/components/' . $component;
+			$altPath  = JPATH_SITE . '/components/' . $component;
 		}
 
-		return array(
+		return [
 			'main'  => $mainPath,
 			'alt'   => $altPath,
 			'site'  => JPATH_SITE . '/components/' . $component,
 			'admin' => JPATH_ADMINISTRATOR . '/components/' . $component,
-		);
+		];
 	}
 
 	/**
@@ -237,13 +180,13 @@ class Platform extends BasePlatform
 	 */
 	public function getTemplateSuffixes()
 	{
-		$jversion = new \JVersion;
+		$jversion     = new \JVersion;
 		$versionParts = explode('.', $jversion->getShortVersion());
 		$majorVersion = array_shift($versionParts);
-		$suffixes = array(
+		$suffixes     = [
 			'.j' . str_replace('.', '', $jversion->getHelpVersion()),
 			'.j' . $majorVersion,
-		);
+		];
 
 		return $suffixes;
 	}
@@ -254,8 +197,8 @@ class Platform extends BasePlatform
 	 * files instead of the regular component directories. If the application
 	 * does not have such a thing as template overrides return an empty string.
 	 *
-	 * @param   string  $component The name of the component for which to fetch the overrides
-	 * @param   boolean $absolute  Should I return an absolute or relative path?
+	 * @param   string   $component  The name of the component for which to fetch the overrides
+	 * @param   boolean  $absolute   Should I return an absolute or relative path?
 	 *
 	 * @return  string  The path to the template overrides directory
 	 */
@@ -297,22 +240,22 @@ class Platform extends BasePlatform
 	/**
 	 * Load the translation files for a given component.
 	 *
-	 * @param   string $component   The name of the component. For Joomla! this
+	 * @param   string  $component  The name of the component. For Joomla! this
 	 *                              is something like "com_example"
 	 *
+	 * @return  void
 	 * @see PlatformInterface::loadTranslations()
 	 *
-	 * @return  void
 	 */
 	public function loadTranslations($component)
 	{
 		if ($this->isBackend())
 		{
-			$paths = array(JPATH_ROOT, JPATH_ADMINISTRATOR);
+			$paths = [JPATH_ROOT, JPATH_ADMINISTRATOR];
 		}
 		else
 		{
-			$paths = array(JPATH_ADMINISTRATOR, JPATH_ROOT);
+			$paths = [JPATH_ADMINISTRATOR, JPATH_ROOT];
 		}
 
 		$jlang = $this->getLanguage();
@@ -325,11 +268,11 @@ class Platform extends BasePlatform
 	/**
 	 * Authorise access to the component in the back-end.
 	 *
-	 * @param   string $component The name of the component.
-	 *
-	 * @see PlatformInterface::authorizeAdmin()
+	 * @param   string  $component  The name of the component.
 	 *
 	 * @return  boolean  True to allow loading the component, false to halt loading
+	 * @see PlatformInterface::authorizeAdmin()
+	 *
 	 */
 	public function authorizeAdmin($component)
 	{
@@ -352,12 +295,12 @@ class Platform extends BasePlatform
 	/**
 	 * Return a user object.
 	 *
-	 * @param   integer $id   The user ID to load. Skip or use null to retrieve
+	 * @param   integer  $id  The user ID to load. Skip or use null to retrieve
 	 *                        the object for the currently logged in user.
 	 *
+	 * @return  \JUser  The JUser object for the specified user
 	 * @see PlatformInterface::getUser()
 	 *
-	 * @return  \JUser  The JUser object for the specified user
 	 */
 	public function getUser($id = null)
 	{
@@ -381,9 +324,9 @@ class Platform extends BasePlatform
 	/**
 	 * Returns the JDocument object which handles this component's response.
 	 *
+	 * @return  \JDocument
 	 * @see PlatformInterface::getDocument()
 	 *
-	 * @return  \JDocument
 	 */
 	public function getDocument()
 	{
@@ -407,9 +350,9 @@ class Platform extends BasePlatform
 	/**
 	 * Returns an object to handle dates
 	 *
-	 * @param   mixed $time     The initial time
-	 * @param   null  $tzOffest The timezone offset
-	 * @param   bool  $locale   Should I try to load a specific class for current language?
+	 * @param   mixed  $time      The initial time
+	 * @param   null   $tzOffest  The timezone offset
+	 * @param   bool   $locale    Should I try to load a specific class for current language?
 	 *
 	 * @return  Date object
 	 */
@@ -456,16 +399,16 @@ class Platform extends BasePlatform
 	/**
 	 * This method will try retrieving a variable from the request (input) data.
 	 *
-	 * @param   string   $key          The user state key for the variable
-	 * @param   string   $request      The request variable name for the variable
-	 * @param   Input    $input        The Input object with the request (input) data
-	 * @param   mixed    $default      The default value. Default: null
-	 * @param   string   $type         The filter type for the variable data. Default: none (no filtering)
-	 * @param   boolean  $setUserState Should I set the user state with the fetched value?
-	 *
-	 * @see PlatformInterface::getUserStateFromRequest()
+	 * @param   string   $key           The user state key for the variable
+	 * @param   string   $request       The request variable name for the variable
+	 * @param   Input    $input         The Input object with the request (input) data
+	 * @param   mixed    $default       The default value. Default: null
+	 * @param   string   $type          The filter type for the variable data. Default: none (no filtering)
+	 * @param   boolean  $setUserState  Should I set the user state with the fetched value?
 	 *
 	 * @return  mixed  The value of the variable
+	 * @see PlatformInterface::getUserStateFromRequest()
+	 *
 	 */
 	public function getUserStateFromRequest($key, $request, $input, $default = null, $type = 'none', $setUserState = true)
 	{
@@ -523,13 +466,13 @@ class Platform extends BasePlatform
 	 * Load plugins of a specific type. Obviously this seems to only be required
 	 * in the Joomla! CMS.
 	 *
-	 * @param   string $type The type of the plugins to be loaded
-	 *
-	 * @see PlatformInterface::importPlugin()
+	 * @param   string  $type  The type of the plugins to be loaded
 	 *
 	 * @return void
 	 *
 	 * @codeCoverageIgnore
+	 * @see PlatformInterface::importPlugin()
+	 *
 	 */
 	public function importPlugin($type)
 	{
@@ -547,14 +490,14 @@ class Platform extends BasePlatform
 	 * Execute plugins (system-level triggers) and fetch back an array with
 	 * their return values.
 	 *
-	 * @param   string $event The event (trigger) name, e.g. onBeforeScratchMyEar
-	 * @param   array  $data  A hash array of data sent to the plugins as part of the trigger
-	 *
-	 * @see PlatformInterface::runPlugins()
+	 * @param   string  $event  The event (trigger) name, e.g. onBeforeScratchMyEar
+	 * @param   array   $data   A hash array of data sent to the plugins as part of the trigger
 	 *
 	 * @return  array  A simple array containing the results of the plugins triggered
 	 *
 	 * @codeCoverageIgnore
+	 * @see PlatformInterface::runPlugins()
+	 *
 	 */
 	public function runPlugins($event, $data)
 	{
@@ -577,7 +520,7 @@ class Platform extends BasePlatform
 			catch (Exception $e)
 			{
 				// If I can't get JApplication I cannot run the plugins.
-				return array();
+				return [];
 			}
 
 			return $app->triggerEvent($event, $data);
@@ -585,19 +528,19 @@ class Platform extends BasePlatform
 		else
 		{
 			// I am not allowed to run plugins
-			return array();
+			return [];
 		}
 	}
 
 	/**
 	 * Perform an ACL check.
 	 *
-	 * @param   string $action    The ACL privilege to check, e.g. core.edit
-	 * @param   string $assetname The asset name to check, typically the component's name
-	 *
-	 * @see PlatformInterface::authorise()
+	 * @param   string  $action     The ACL privilege to check, e.g. core.edit
+	 * @param   string  $assetname  The asset name to check, typically the component's name
 	 *
 	 * @return  boolean  True if the user is allowed this action
+	 * @see PlatformInterface::authorise()
+	 *
 	 */
 	public function authorise($action, $assetname)
 	{
@@ -615,9 +558,9 @@ class Platform extends BasePlatform
 	/**
 	 * Is this the administrative section of the component?
 	 *
+	 * @return  boolean
 	 * @see PlatformInterface::isBackend()
 	 *
-	 * @return  boolean
 	 */
 	public function isBackend()
 	{
@@ -629,9 +572,9 @@ class Platform extends BasePlatform
 	/**
 	 * Is this the public section of the component?
 	 *
+	 * @return  boolean
 	 * @see PlatformInterface::isFrontend()
 	 *
-	 * @return  boolean
 	 */
 	public function isFrontend()
 	{
@@ -643,9 +586,9 @@ class Platform extends BasePlatform
 	/**
 	 * Is this a component running in a CLI application?
 	 *
+	 * @return  boolean
 	 * @see PlatformInterface::isCli()
 	 *
-	 * @return  boolean
 	 */
 	public function isCli()
 	{
@@ -658,11 +601,11 @@ class Platform extends BasePlatform
 	 * Is AJAX re-ordering supported? This is 100% Joomla!-CMS specific. All
 	 * other platforms should return false and never ask why.
 	 *
-	 * @see PlatformInterface::supportsAjaxOrdering()
-	 *
 	 * @return  boolean
 	 *
 	 * @codeCoverageIgnore
+	 * @see PlatformInterface::supportsAjaxOrdering()
+	 *
 	 */
 	public function supportsAjaxOrdering()
 	{
@@ -682,29 +625,11 @@ class Platform extends BasePlatform
 	}
 
 	/**
-	 * Saves something to the cache. This is supposed to be used for system-wide
-	 * F0F data, not application data.
-	 *
-	 * @param   string $key     The key of the data to save
-	 * @param   string $content The actual data to save
-	 *
-	 * @return  boolean  True on success
-	 */
-	public function setCache($key, $content)
-	{
-		$registry = $this->getCacheObject();
-
-		$registry->set($key, $content);
-
-		return $this->saveCache();
-	}
-
-	/**
 	 * Retrieves data from the cache. This is supposed to be used for system-side
 	 * F0F data, not application data.
 	 *
-	 * @param   string $key     The key of the data to retrieve
-	 * @param   string $default The default value to return if the key is not found or the cache is not populated
+	 * @param   string  $key      The key of the data to retrieve
+	 * @param   string  $default  The default value to return if the key is not found or the cache is not populated
 	 *
 	 * @return  string  The cached value
 	 */
@@ -716,54 +641,21 @@ class Platform extends BasePlatform
 	}
 
 	/**
-	 * Gets a reference to the cache object, loading it from the disk if
-	 * needed.
+	 * Saves something to the cache. This is supposed to be used for system-wide
+	 * F0F data, not application data.
 	 *
-	 * @param   boolean $force Should I forcibly reload the registry?
-	 *
-	 * @return  \JRegistry|Registry
-	 */
-	private function &getCacheObject($force = false)
-	{
-		// Check if we have to load the cache file or we are forced to do that
-		if (is_null($this->_cache) || $force)
-		{
-			// Try to get data from Joomla!'s cache
-			$cache = JFactory::getCache('fof', '');
-			$this->_cache = $cache->get('cache', 'fof');
-
-			\JLoader::import('joomla.registry.registry');
-
-			$isRegistry = is_object($this->_cache);
-
-			if ($isRegistry)
-			{
-				$isRegistry = class_exists('JRegistry') ? ($this->_cache instanceof \JRegistry) : ($this->_cache instanceof Registry);
-			}
-
-			if (!$isRegistry)
-			{
-				// Create a new Registry object
-				$this->_cache = class_exists('JRegistry') ? new \JRegistry() : new Registry();
-			}
-		}
-
-		return $this->_cache;
-	}
-
-	/**
-	 * Save the cache object back to disk
+	 * @param   string  $key      The key of the data to save
+	 * @param   string  $content  The actual data to save
 	 *
 	 * @return  boolean  True on success
 	 */
-	private function saveCache()
+	public function setCache($key, $content)
 	{
-		// Get the Registry object of our cached data
 		$registry = $this->getCacheObject();
 
-		$cache = JFactory::getCache('fof', '');
+		$registry->set($key, $content);
 
-		return $cache->store($registry, 'cache', 'fof');
+		return $this->saveCache();
 	}
 
 	/**
@@ -797,7 +689,7 @@ class Platform extends BasePlatform
 	/**
 	 * logs in a user
 	 *
-	 * @param   array $authInfo authentification information
+	 * @param   array  $authInfo  authentification information
 	 *
 	 * @return  boolean  True on success
 	 */
@@ -805,7 +697,7 @@ class Platform extends BasePlatform
 	{
 		\JLoader::import('joomla.user.authentication');
 
-		$options      = ['remember' => false];
+		$options = ['remember' => false];
 
 		$response         = new JAuthenticationResponse();
 		$response->type   = 'fof';
@@ -920,13 +812,13 @@ class Platform extends BasePlatform
 	public function logoutUser()
 	{
 		\JLoader::import('joomla.user.authentication');
-		$app = JFactory::getApplication();
-		$user = $this->getUser();
-		$options = array('remember' => false);
-		$parameters = array(
+		$app        = JFactory::getApplication();
+		$user       = $this->getUser();
+		$options    = ['remember' => false];
+		$parameters = [
 			'username' => $user->username,
-			'id' => $user->id
-		);
+			'id'       => $user->id,
+		];
 
 		// Set clientid in the options array if it hasn't been set already and shared sessions are not enabled.
 		if (!$app->get('shared_session', '0'))
@@ -934,7 +826,7 @@ class Platform extends BasePlatform
 			$options['clientid'] = $app->getClientId();
 		}
 
-		$ret = $app->triggerEvent('onUserLogout', array($parameters, $options));
+		$ret = $app->triggerEvent('onUserLogout', [$parameters, $options]);
 
 		return !in_array(false, $ret, true);
 	}
@@ -950,14 +842,14 @@ class Platform extends BasePlatform
 	 */
 	public function logAddLogger($file)
 	{
-		\JLog::addLogger(array('text_file' => $file), \JLog::ALL, array('fof'));
+		\JLog::addLogger(['text_file' => $file], \JLog::ALL, ['fof']);
 	}
 
 	/**
 	 * Logs a deprecated practice. In Joomla! this results in the $message being output in the
 	 * deprecated log file, found in your site's log directory.
 	 *
-	 * @param   string $message The deprecated practice log message
+	 * @param   string  $message  The deprecated practice log message
 	 *
 	 * @return  void
 	 *
@@ -988,35 +880,49 @@ class Platform extends BasePlatform
 	 * @param   string|array  $title      A title, or an array of additional fields to add to the log entry
 	 * @param   string        $logText    The translation key to the log text
 	 * @param   string        $extension  The name of the extension logging this entry
+	 * @param   User|null     $user       The user the action is being logged for
 	 *
 	 * @return  void
 	 */
-	public function logUserAction($title, $logText, $extension)
+	public function logUserAction($title, $logText, $extension, $user = null)
 	{
 		static $joomlaModelAdded = false;
 
-		// User Actions Log is available only under Joomla 3.9+
-		if (version_compare(JVERSION, '3.9', 'lt'))
+		// Find out which Joomla version I am running under
+		$isJoomla4 = version_compare(JVERSION, '3.999.999', 'gt');
+		$isJoomla3 = !$isJoomla4 && version_compare(JVERSION, '3.9.0', 'ge');
+
+		// I need Joomla! 3.9 or later
+		if (!$isJoomla4 && !$isJoomla3)
 		{
 			return;
 		}
 
-		// Do not perform logging if we're under CLI. Even if we _could_ have a logged user in CLI, ActionlogsModelActionlog
-		// model always uses JFactory to fetch the current user, fetching data from the session. This means that under the CLI
-		// (where there is no session) such session is started, causing warnings because usually output was already started before
-		if ($this->isCli())
+		/**
+		 * Do not perform user actions logging under CLI and Joomla 3.
+		 *
+		 * In Joomla 3 the ActionlogsModelActionlog always goes through JFactory to get the current user. However, this
+		 * goes through the session which is normally not initialized under CLI – that's why we needed to come up with
+		 * our own CLI implementation to begin with.
+		 *
+		 * Joomla 4 doesn't have that problem. J4 CLI scripts use a CLI-aware session service provider.
+		 */
+		if ($isJoomla3 && $this->isCli())
 		{
 			return;
 		}
 
-		// Include required Joomla Model
-		if (!$joomlaModelAdded)
+		// Include required Joomla Model. Only applicable on Joomla 3.
+		if ($isJoomla3  && !$joomlaModelAdded)
 		{
 			\JModelLegacy::addIncludePath(JPATH_ROOT . '/administrator/components/com_actionlogs/models', 'ActionlogsModel');
 			$joomlaModelAdded = true;
 		}
 
-		$user = $this->getUser();
+		if (is_null($user))
+		{
+			$user = $this->getUser();
+		}
 
 		// No log for guest users
 		if ($user->guest)
@@ -1024,11 +930,11 @@ class Platform extends BasePlatform
 			return;
 		}
 
-		$message = array(
-			'title'    	  => $title,
-			'username' 	  => $user->username,
-			'accountlink' => 'index.php?option=com_users&task=user.edit&id=' . $user->id
-		);
+		$message = [
+			'title'       => $title,
+			'username'    => $user->username,
+			'accountlink' => 'index.php?option=com_users&task=user.edit&id=' . $user->id,
+		];
 
 		if (is_array($title))
 		{
@@ -1037,23 +943,48 @@ class Platform extends BasePlatform
 			$message = array_merge($message, $title);
 		}
 
-		/** @var \ActionlogsModelActionlog $model **/
+		if (version_compare(JVERSION, '3.999.999', 'le'))
+		{
+			/** @var \ActionlogsModelActionlog $model * */
+			try
+			{
+				$model = \JModelLegacy::getInstance('Actionlog', 'ActionlogsModel');
+			}
+			catch (\Exception $e)
+			{
+				return;
+			}
+		}
+		else
+		{
+			try
+			{
+				/** @var \Joomla\CMS\MVC\Factory\MVCFactoryInterface $factory */
+				$factory = JFactory::getApplication()->bootComponent('com_actionlogs')->getMVCFactory();
+				/** @var \Joomla\Component\Actionlogs\Administrator\Model\ActionlogModel $model */
+				$model = $factory->createModel('Actionlog', 'Administrator');
+			}
+			catch (Exception $e)
+			{
+				return;
+			}
+		}
+
 		try
 		{
-			$model = \JModelLegacy::getInstance('Actionlog', 'ActionlogsModel');
-			$model->addLog(array($message), $logText, $extension, $user->id);
+			$model->addLog([$message], $logText, $extension, $user->id);
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
-			// Ignore any error
+			return;
 		}
 	}
 
 	/**
 	 * Returns the root URI for the request.
 	 *
-	 * @param   boolean $pathonly If false, prepend the scheme, host and port information. Default is false.
-	 * @param   string  $path     The path
+	 * @param   boolean  $pathonly  If false, prepend the scheme, host and port information. Default is false.
+	 * @param   string   $path      The path
 	 *
 	 * @return  string  The root URI string.
 	 *
@@ -1069,7 +1000,7 @@ class Platform extends BasePlatform
 	/**
 	 * Returns the base URI for the request.
 	 *
-	 * @param   boolean $pathonly If false, prepend the scheme, host and port information. Default is false.
+	 * @param   boolean  $pathonly  If false, prepend the scheme, host and port information. Default is false.
 	 *
 	 * @return  string  The base URI string
 	 *
@@ -1086,9 +1017,9 @@ class Platform extends BasePlatform
 	 * Method to set a response header.  If the replace flag is set then all headers
 	 * with the given name will be replaced by the new one (only if the current platform supports header caching)
 	 *
-	 * @param   string  $name    The name of the header to set.
-	 * @param   string  $value   The value of the header to set.
-	 * @param   boolean $replace True to replace any headers with the same name.
+	 * @param   string   $name     The name of the header to set.
+	 * @param   string   $value    The value of the header to set.
+	 * @param   boolean  $replace  True to replace any headers with the same name.
 	 *
 	 * @return  void
 	 *
@@ -1288,6 +1219,144 @@ class Platform extends BasePlatform
 		return $this->container->session->getToken($forceNew);
 	}
 
+	/** @inheritDoc */
+	public function addScriptOptions($key, $value, $merge = true)
+	{
+		/** @var HtmlDocument $document */
+		$document = $this->getDocument();
+
+		if (!method_exists($document, 'addScriptOptions'))
+		{
+			return;
+		}
+
+		$document->addScriptOptions($key, $value, $merge);
+	}
+
+	/** @inheritDoc */
+	public function getScriptOptions($key = null)
+	{
+		/** @var HtmlDocument $document */
+		$document = $this->getDocument();
+
+		if (!method_exists($document, 'getScriptOptions'))
+		{
+			return [];
+		}
+
+		return $document->getScriptOptions($key);
+	}
+
+	/**
+	 * Main function to detect if we're running in a CLI environment and we're admin
+	 *
+	 * @return  array  isCLI and isAdmin. It's not an associative array, so we can use list().
+	 */
+	protected function isCliAdmin()
+	{
+		if (is_null(static::$isCLI) && is_null(static::$isAdmin))
+		{
+			static::$isCLI   = false;
+			static::$isAdmin = false;
+
+			try
+			{
+				if (is_null(JFactory::$application))
+				{
+					static::$isCLI   = true;
+					static::$isAdmin = false;
+
+					return [static::$isCLI, static::$isAdmin];
+				}
+				else
+				{
+					$app           = JFactory::getApplication();
+					static::$isCLI = $app instanceof \Exception || $app instanceof JApplicationCli;
+				}
+			}
+			catch (\Exception $e)
+			{
+				static::$isCLI = true;
+			}
+
+			if (static::$isCLI)
+			{
+				return [static::$isCLI, static::$isAdmin];
+			}
+
+			try
+			{
+				$app = JFactory::getApplication();
+			}
+			catch (Exception $e)
+			{
+				return [static::$isCLI, static::$isAdmin];
+			}
+
+			if (method_exists($app, 'isAdmin'))
+			{
+				static::$isAdmin = $app->isAdmin();
+			}
+			elseif (method_exists($app, 'isClient'))
+			{
+				static::$isAdmin = $app->isClient('administrator');
+			}
+		}
+
+		return [static::$isCLI, static::$isAdmin];
+	}
+
+	/**
+	 * Gets a reference to the cache object, loading it from the disk if
+	 * needed.
+	 *
+	 * @param   boolean  $force  Should I forcibly reload the registry?
+	 *
+	 * @return  \JRegistry|Registry
+	 */
+	private function &getCacheObject($force = false)
+	{
+		// Check if we have to load the cache file or we are forced to do that
+		if (is_null($this->_cache) || $force)
+		{
+			// Try to get data from Joomla!'s cache
+			$cache        = JFactory::getCache('fof', '');
+			$this->_cache = $cache->get('cache', 'fof');
+
+			\JLoader::import('joomla.registry.registry');
+
+			$isRegistry = is_object($this->_cache);
+
+			if ($isRegistry)
+			{
+				$isRegistry = class_exists('JRegistry') ? ($this->_cache instanceof \JRegistry) : ($this->_cache instanceof Registry);
+			}
+
+			if (!$isRegistry)
+			{
+				// Create a new Registry object
+				$this->_cache = class_exists('JRegistry') ? new \JRegistry() : new Registry();
+			}
+		}
+
+		return $this->_cache;
+	}
+
+	/**
+	 * Save the cache object back to disk
+	 *
+	 * @return  boolean  True on success
+	 */
+	private function saveCache()
+	{
+		// Get the Registry object of our cached data
+		$registry = $this->getCacheObject();
+
+		$cache = JFactory::getCache('fof', '');
+
+		return $cache->store($registry, 'cache', 'fof');
+	}
+
 	/**
 	 * Joomla! 3.7 has a broken System - Page Cache plugin. When this plugin is enabled it FORCES the caching of all
 	 * pages as soon as Joomla! starts loading, before the plugin has a chance to request to not be cached. Event worse,
@@ -1311,11 +1380,11 @@ class Platform extends BasePlatform
 		}
 
 		// Forcibly uncache the current request
-		$options = array(
+		$options = [
 			'defaultgroup' => 'page',
 			'browsercache' => false,
 			'caching'      => false,
-		);
+		];
 
 		$cache_key = JUri::getInstance()->toString();
 		JCache::getInstance('page', $options)->cache->remove($cache_key, 'page');

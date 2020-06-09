@@ -73,6 +73,8 @@
 	<field name="waitinglist" type="hidden" />
 	<field name="waitinglist_limit" type="hidden" />
 	<field name="waitinglist_time" type="hidden" />
+	<field name="waitinglist_user" type="hidden" />
+	<field name="waitinglist_admin" type="hidden" />
 	
 	<field name="created" type="hidden" filter="unset" />
 	<field name="icon" type="hidden" filter="unset" />

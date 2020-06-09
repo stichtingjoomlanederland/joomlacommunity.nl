@@ -18,6 +18,8 @@ final class WFTemplateManagerPlugin extends WFMediaManager
 {
     protected $_filetypes = 'html=html,htm;text=txt,md';
 
+    protected $name = 'templatemanager';
+
     public function __construct($config = array())
     {
         parent::__construct($config);
@@ -53,16 +55,27 @@ final class WFTemplateManagerPlugin extends WFMediaManager
 
         $app = JFactory::getApplication();
 
+        $browser = $this->getFileBrowser();
+
+        // get the relative filesystem path
+        $path = $browser->getFileSystem()->toRelative($file);
+
+        // write back if html
+        if (preg_match('#\.(htm|html)$#', $file)) {
+            $data = $this->processTemplate($path);
+
+            if (!empty($data)) {
+                $browser->getFileSystem()->write($path, stripslashes($data));
+            }
+        }
+
         if ($app->input->getInt('inline', 0) === 1) {
             $result = array(
                 'file' => $relative,
-                'name' => basename($file),
+                'name' => WFUtility::mb_basename($file),
             );
 
-            // get the relative filesystem path
-            $relative = $this->getFileBrowser()->getFileSystem()->toRelative($file);
-
-            $result['data'] = $this->loadTemplate($relative);
+            $result['data'] = $this->loadTemplate($path);
 
             return $result;
         }
@@ -102,18 +115,7 @@ final class WFTemplateManagerPlugin extends WFMediaManager
             $data = '<div class="mceTmpl">' . $data . '</div>';
         }
 
-        $content = "<!DOCTYPE html>\n";
-        $content .= "<html>\n";
-        $content .= "<head>\n";
-        $content .= '<title>' . $name . "</title>\n";
-        $content .= "<meta charset=\"utf-8\">\n";
-        $content .= "</head>\n";
-        $content .= "<body>\n";
-        $content .= $data;
-        $content .= "\n</body>\n";
-        $content .= '</html>';
-
-        if (!$browser->getFileSystem()->write($path, stripslashes($content))) {
+        if (!$browser->getFileSystem()->write($path, stripslashes($data))) {
             $browser->setResult(JText::_('WF_TEMPLATEMANAGER_WRITE_ERROR'), 'error');
         }
 
@@ -172,22 +174,33 @@ final class WFTemplateManagerPlugin extends WFMediaManager
         }
     }
 
-    public function loadTemplate($file)
+    private function processTemplate($file)
     {
         $browser = $this->getFileBrowser();
 
         // check path
         WFUtility::checkPath($file);
 
-        $ext = WFUtility::getExtension($file);
-
         // read content
         $content = $browser->getFileSystem()->read($file);
+
+        if (empty($content)) {
+            return '';
+        }
 
         // Remove body etc.
         if (preg_match('/<body[^>]*>([\s\S]+?)<\/body>/', $content, $matches)) {
             $content = trim($matches[1]);
         }
+
+        return $content;
+    }
+
+    public function loadTemplate($file)
+    {
+        $content = $this->processTemplate($file);
+        
+        $ext = WFUtility::getExtension($file);
 
         // process markdown
         if (strtolower($ext) === 'md') {

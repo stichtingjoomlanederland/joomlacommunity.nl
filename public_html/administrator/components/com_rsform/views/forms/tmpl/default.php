@@ -11,7 +11,7 @@ JHtml::_('bootstrap.tooltip');
 JText::script('COM_RSFORM_ARE_YOU_SURE_YOU_WANT_TO_CLEAR');
 ?>
 
-<form action="index.php?option=com_rsform" method="post" name="adminForm" id="adminForm">
+<form action="index.php?option=com_rsform&amp;view=forms" method="post" name="adminForm" id="adminForm">
 	<div id="j-sidebar-container" class="span2">
 		<?php echo $this->sidebar; ?>
 	</div>

@@ -3,19 +3,19 @@
  * @package    PwtAcl
  *
  * @author     Sander Potjer - Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2011 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2011 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
 
 use Joomla\CMS\Access\Access;
+use Joomla\CMS\Access\Rules;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\LanguageHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Model\ListModel;
 
-// No direct access.
 defined('_JEXEC') or die;
 
 /**
@@ -23,7 +23,7 @@ defined('_JEXEC') or die;
  *
  * @since   3.0
  */
-class PwtaclModelAssets extends ListModel
+class PwtAclModelAssets extends ListModel
 {
 	/**
 	 * Constructor.
@@ -33,18 +33,18 @@ class PwtaclModelAssets extends ListModel
 	 * @see     JController
 	 * @since   3.0
 	 */
-	public function __construct($config = array())
+	public function __construct($config = [])
 	{
 		if (empty($config['filter_fields']))
 		{
-			$config['filter_fields'] = array(
+			$config['filter_fields'] = [
 				'component',
 				'level_start',
 				'level_end',
 				'item',
 				'language',
 				'fields'
-			);
+			];
 		}
 
 		parent::__construct($config);
@@ -65,30 +65,30 @@ class PwtaclModelAssets extends ListModel
 	public function saveAction($assetId, $action, $group, $setting)
 	{
 		// Get rules of asset
-		$assetrules = Access::getAssetRules($assetId, false, false);
-		$assetrules = json_decode($assetrules, true);
+		$assetRules = Access::getAssetRules($assetId, false, false);
+		$assetRules = json_decode($assetRules, true);
 
 		// Change the action setting
-		if ($setting == 9)
+		if ((int) $setting === 9)
 		{
-			unset($assetrules[$action][$group]);
+			unset($assetRules[$action][$group]);
 		}
 
-		if ($setting == 1 || $setting == 0)
+		if ((int) $setting === 1 || (int) $setting === 0)
 		{
-			$assetrules[$action][$group] = $setting;
+			$assetRules[$action][$group] = (int) $setting;
 		}
 
 		// Save new asset rules
-		$this->saveAssetRules($assetId, $assetrules);
+		$this->saveAssetRules($assetId, $assetRules);
 
 		// Get new action permission
-		$newsetting = Access::checkGroup($group, $action, $assetId);
+		$newSetting = Access::checkGroup($group, $action, $assetId);
 
 		// Clear Statics to prevent cached results
 		Access::clearStatics();
 
-		return (int) $newsetting;
+		return (int) $newSetting;
 	}
 
 	/**
@@ -109,19 +109,17 @@ class PwtaclModelAssets extends ListModel
 		foreach ($assets as $asset)
 		{
 			// Get current rules
-			$assetrules = json_decode($asset->rules, true);
+			$assetRules = json_decode($asset->rules, true);
 
 			// Remove action setting
-			foreach ($assetrules as $action => $values)
+			foreach ($assetRules as $action => $values)
 			{
-				unset($assetrules[$action][$group]);
+				unset($assetRules[$action][$group]);
 			}
 
 			// Save new asset rules
-			$this->saveAssetRules($asset->id, $assetrules);
+			$this->saveAssetRules($asset->id, $assetRules);
 		}
-
-		return;
 	}
 
 	/**
@@ -145,23 +143,21 @@ class PwtaclModelAssets extends ListModel
 		$defaults = $this->defaultSettings($group);
 
 		// Combine asset rules with new settings and save it
-		foreach ($defaults as $assetname => $actions)
+		foreach ($defaults as $assetName => $actions)
 		{
 			// Load current rules
-			$assetrules = Access::getAssetRules($assetname);
-			$assetrules = json_decode($assetrules, true);
+			$assetRules = Access::getAssetRules($assetName);
+			$assetRules = json_decode($assetRules, true);
 
 			// Add new action settings
 			foreach ($actions as $action => $setting)
 			{
-				$assetrules[$action][$group] = $setting;
+				$assetRules[$action][$group] = $setting;
 			}
 
 			// Save new asset rules
-			$this->saveAssetRules($assetname, $assetrules);
+			$this->saveAssetRules($assetName, $assetRules);
 		}
-
-		return;
 	}
 
 	/**
@@ -189,22 +185,20 @@ class PwtaclModelAssets extends ListModel
 		foreach ($assets as $asset)
 		{
 			// Get current rules
-			$assetrules = json_decode($asset->rules, true);
+			$assetRules = json_decode($asset->rules, true);
 
 			// Remove action setting
-			foreach ($assetrules as $action => $values)
+			foreach ($assetRules as $action => $values)
 			{
 				if (isset($values[$group]))
 				{
-					$assetrules[$action][$copyTo] = $values[$group];
+					$assetRules[$action][$copyTo] = $values[$group];
 				}
 			}
 
 			// Save new asset rules
-			$this->saveAssetRules($asset->id, $assetrules);
+			$this->saveAssetRules($asset->id, $assetRules);
 		}
-
-		return;
 	}
 
 	/**
@@ -221,19 +215,19 @@ class PwtaclModelAssets extends ListModel
 		// Load default group settings
 		$assets = $this->getAssets($this->_db->quoteName('rules') . ' LIKE ' . $this->_db->quote('%"' . $group . '"%'), 'name');
 
-		$export = array(
+		$export = [
 			'generator'   => 'PWT ACL',
-			'permissions' => array()
-		);
+			'permissions' => []
+		];
 
 		// Remove group settings for each asset
 		foreach ($assets as $asset)
 		{
 			// Get current rules
-			$assetrules = json_decode($asset->rules, true);
+			$assetRules = json_decode($asset->rules, true);
 
 			// Remove action setting
-			foreach ($assetrules as $action => $values)
+			foreach ($assetRules as $action => $values)
 			{
 				if (isset($values[$group]))
 				{
@@ -242,7 +236,7 @@ class PwtaclModelAssets extends ListModel
 			}
 
 			// Save new asset rules
-			$this->saveAssetRules($asset->id, $assetrules);
+			$this->saveAssetRules($asset->id, $assetRules);
 		}
 
 		return $export;
@@ -267,23 +261,21 @@ class PwtaclModelAssets extends ListModel
 		Access::clearStatics();
 
 		// Combine asset rules with new settings and save it
-		foreach ($permissions as $assetname => $actions)
+		foreach ($permissions as $assetName => $actions)
 		{
 			// Load current rules
-			$assetrules = Access::getAssetRules($assetname);
-			$assetrules = json_decode($assetrules, true);
+			$assetRules = Access::getAssetRules($assetName);
+			$assetRules = json_decode($assetRules, true);
 
 			// Add new action settings
 			foreach ($actions as $action => $setting)
 			{
-				$assetrules[$action][$group] = $setting;
+				$assetRules[$action][$group] = $setting;
 			}
 
 			// Save new asset rules
-			$this->saveAssetRules($assetname, $assetrules);
+			$this->saveAssetRules($assetName, $assetRules);
 		}
-
-		return;
 	}
 
 	/**
@@ -299,7 +291,7 @@ class PwtaclModelAssets extends ListModel
 	public function saveAssetRules($asset, $rules)
 	{
 		// Convert rules to AccessRules
-		$rules = new JAccessRules($rules);
+		$rules = new Rules($rules);
 
 		// Save asset in database
 		$db    = $this->getDbo();
@@ -342,7 +334,7 @@ class PwtaclModelAssets extends ListModel
 	{
 		if (!$where)
 		{
-			return array();
+			return [];
 		}
 
 		$db    = $this->getDbo();
@@ -350,13 +342,15 @@ class PwtaclModelAssets extends ListModel
 
 		$query
 			->select(
-				array('*',
+				[
+					'*',
 					'SUBSTRING_INDEX(name, ".", 1) AS component',
 					'SUBSTRING_INDEX(name, ".", -1) AS objectid',
 					'"" AS additional',
 					'IF(name LIKE "com_%.%", SUBSTRING_INDEX(SUBSTRING_INDEX(name, ".", 2), ".", -1), 
 						IF(name = "root.1", "config", "component"
-						))  AS type')
+						))  AS type'
+				]
 			)
 			->from($db->quoteName('#__assets'))
 			->where($where)
@@ -458,7 +452,7 @@ class PwtaclModelAssets extends ListModel
 		// Select the required fields from the table.
 		$query
 			->select(
-				array(
+				[
 					'a.id AS id',
 					'a.name AS name',
 					'a.title AS title',
@@ -488,7 +482,7 @@ class PwtaclModelAssets extends ListModel
 						IF(fields.language IS NOT NULL, fields.language, 
 						IF(fieldsgroups.language IS NOT NULL, fieldsgroups.language, "*"
 						))))) AS language'
-				)
+				]
 			)
 			->from($db->quoteName('#__assets') . ' AS a')
 			->leftJoin($db->quoteName('#__content', 'content') . ' ON content.asset_id = a.id')
@@ -545,7 +539,7 @@ class PwtaclModelAssets extends ListModel
 		// Filter on the items.
 		$item = $this->getState('filter.item');
 
-		if (is_numeric($item) && $item == 0)
+		if (is_numeric($item) && (int) $item === 0)
 		{
 			$query
 				->where($db->quoteName('a.name') . ' NOT LIKE ' . $db->quote('com_content.article.%'))
@@ -556,7 +550,7 @@ class PwtaclModelAssets extends ListModel
 		// Filter on the fieldgroups & fields.
 		$fields = $this->getState('filter.fields');
 
-		if (is_numeric($fields) && $fields == 0)
+		if (is_numeric($fields) && (int) $fields === 0)
 		{
 			$query
 				->where($db->quoteName('a.name') . ' NOT LIKE ' . $db->quote('%.fieldgroup.%'))
@@ -657,7 +651,7 @@ class PwtaclModelAssets extends ListModel
 
 			// Variables
 			$actions    = $this->getActions($asset->name, false);
-			$assetRules = new JAccessRules($asset->rules);
+			$assetRules = new Rules($asset->rules);
 
 			// ACL by PWT ACL
 			$asset->pwtacl = $actions->pwtacl;
@@ -695,7 +689,7 @@ class PwtaclModelAssets extends ListModel
 				$asset->actions->{$actiontype}->{$action->name}->name  = $action->name;
 
 				// Group actions
-				if ($type == 'group')
+				if ($type === 'group')
 				{
 					$setting           = $assetRules->allow($action->name, $group);
 					$settingCalculated = Access::checkGroup($group, $action->name, $asset->id);
@@ -703,12 +697,12 @@ class PwtaclModelAssets extends ListModel
 				}
 
 				// User actions
-				if ($type == 'user' && $superUser)
+				if ($type === 'user' && $superUser)
 				{
 					$settingCalculated = 1;
 					$settingParent     = 1;
 				}
-				elseif ($type == 'user')
+				elseif ($type === 'user')
 				{
 					$settingCalculated = Access::check($user, $action->name, $asset->id);
 					$settingParent     = Access::check($user, $action->name, $asset->parent_id);
@@ -720,24 +714,24 @@ class PwtaclModelAssets extends ListModel
 				$settingParent     = isset($settingParent) ? $settingParent : 9;
 
 				// Not set - inherited
-				if ($settingCalculated == 9)
+				if ((int) $settingCalculated === 9)
 				{
 					$asset->actions->{$actiontype}->{$action->name}->class = 'action';
 					$asset->actions->{$actiontype}->{$action->name}->icon  = 'icon-not-ok';
 				}
 
 				// Allowed - inherited
-				if ($settingCalculated == 1)
+				if ((int) $settingCalculated === 1)
 				{
 					// Action Not set
-					if ($setting == 9)
+					if ((int) $setting === 9)
 					{
 						$asset->actions->{$actiontype}->{$action->name}->class = 'action';
 						$asset->actions->{$actiontype}->{$action->name}->icon  = 'icon-ok';
 					}
 
 					// Action Allowed
-					if ($setting == 1)
+					if ((int) $setting === 1)
 					{
 						$asset->actions->{$actiontype}->{$action->name}->class = 'action allowed';
 						$asset->actions->{$actiontype}->{$action->name}->icon  = 'icon-ok';
@@ -745,30 +739,30 @@ class PwtaclModelAssets extends ListModel
 				}
 
 				// Denied - inherited
-				if ($settingCalculated == 0)
+				if ((int) $settingCalculated === 0)
 				{
 					// Action Not set
-					if ($setting == 9)
+					if ((int) $setting === 9)
 					{
 						$asset->actions->{$actiontype}->{$action->name}->class = 'action';
 						$asset->actions->{$actiontype}->{$action->name}->icon  = 'icon-lock';
 
 						// Set correct icon for user view
-						if ($type == 'user')
+						if ($type === 'user')
 						{
 							$asset->actions->{$actiontype}->{$action->name}->icon = 'icon-not-ok';
 						}
 					}
 
 					// Action Allowed (so we have a conflict here)
-					if ($setting == 1)
+					if ((int) $setting === 1)
 					{
 						$asset->actions->{$actiontype}->{$action->name}->class = 'action conflict';
 						$asset->actions->{$actiontype}->{$action->name}->icon  = 'icon-warning';
 					}
 
 					// Action Denied
-					if ($setting == 0)
+					if ((int) $setting === 0)
 					{
 						$asset->actions->{$actiontype}->{$action->name}->class = 'action denied';
 						$asset->actions->{$actiontype}->{$action->name}->icon  = 'icon-not-ok';
@@ -776,15 +770,15 @@ class PwtaclModelAssets extends ListModel
 				}
 
 				// Add class for user view
-				if ($type == 'group' && $canEdit)
+				if ($type === 'group' && $canEdit)
 				{
-					if ($superUserGroup && $action->name == 'core.admin' && $asset->name == 'root.1')
+					if ($superUserGroup && $action->name === 'core.admin' && $asset->name === 'root.1')
 					{
-						$asset->actions->{$actiontype}->{$action->name}->class = $asset->actions->{$actiontype}->{$action->name}->class . ' edit';
+						$asset->actions->{$actiontype}->{$action->name}->class .= ' edit';
 					}
 					elseif (!$superUserGroup)
 					{
-						$asset->actions->{$actiontype}->{$action->name}->class = $asset->actions->{$actiontype}->{$action->name}->class . ' edit';
+						$asset->actions->{$actiontype}->{$action->name}->class .= ' edit';
 					}
 					elseif ($superUserGroup)
 					{
@@ -795,11 +789,11 @@ class PwtaclModelAssets extends ListModel
 				}
 
 				// Make sure the root.1 assets have correct parent settings
-				if ($asset->name == 'root.1' && $groupsparent == $group)
+				if ($asset->name === 'root.1' && $groupsparent === $group)
 				{
 					$settingParent = 9;
 				}
-				elseif ($asset->name == 'root.1')
+				elseif ($asset->name === 'root.1')
 				{
 					$settingParent = $settingCalculated;
 				}
@@ -873,8 +867,8 @@ class PwtaclModelAssets extends ListModel
 			// Set language image
 			if (isset($asset->language))
 			{
-				$asset->languageimage = ($asset->language == '*') ? '' : $languages[$asset->language]->image;
-				$asset->languagetitle = ($asset->language == '*') ? '' : $languages[$asset->language]->title;
+				$asset->languageimage = (!$asset->language || $asset->language === '*') ? '' : $languages[$asset->language]->image;
+				$asset->languagetitle = (!$asset->language || $asset->language === '*') ? '' : $languages[$asset->language]->title;
 			}
 		}
 
@@ -884,16 +878,16 @@ class PwtaclModelAssets extends ListModel
 	/**
 	 * Method to get actions for asset.
 	 *
-	 * @param   string   $assetname    Name of asset.
-	 * @param   boolean  $actionsonly  Return only array of action names.
+	 * @param   string   $assetName    Name of asset.
+	 * @param   boolean  $actionsOnly  Return only array of action names.
 	 *
 	 * @return  stdClass
 	 * @since   3.0
 	 */
-	public function getActions($assetname, $actionsonly = false)
+	public function getActions($assetName, $actionsOnly = false)
 	{
 		// Get parts of the asset name
-		$asset = explode('.', $assetname);
+		$asset = explode('.', $assetName);
 
 		// Set section to component if not set
 		$section = isset($asset[1]) ? $asset[1] : 'component';
@@ -901,10 +895,10 @@ class PwtaclModelAssets extends ListModel
 		// Array with the actions
 		$actions         = new stdClass;
 		$actions->pwtacl = false;
-		$actions->items  = array();
+		$actions->items  = [];
 
 		// Load actions for root asset
-		if ($assetname == 'root.1')
+		if ($assetName === 'root.1')
 		{
 			$actions->items = Access::getActionsFromFile(
 				JPATH_ADMINISTRATOR . '/components/com_config/model/form/application.xml',
@@ -913,7 +907,7 @@ class PwtaclModelAssets extends ListModel
 		}
 
 		// Load actions from component for section
-		if ($assetname != 'root.1')
+		if ($assetName !== 'root.1')
 		{
 			// Get actions from access.xml
 			$actions->items = Access::getActionsFromFile(
@@ -944,19 +938,19 @@ class PwtaclModelAssets extends ListModel
 		}
 
 		// Make simple actions array if needed
-		if ($actionsonly)
+		if ($actionsOnly)
 		{
-			$simpleactions = array();
+			$simpleActions = [];
 
 			if ($actions->items)
 			{
 				foreach ($actions->items as $action)
 				{
-					$simpleactions[] = $action->name;
+					$simpleActions[] = $action->name;
 				}
 			}
 
-			$actions->items = $simpleactions;
+			$actions->items = $simpleActions;
 		}
 
 		return $actions;
@@ -972,83 +966,105 @@ class PwtaclModelAssets extends ListModel
 	 */
 	protected function defaultSettings($group)
 	{
-		$defaults = array();
+		$defaults = [];
 
 		switch ($group)
 		{
 			case 2:
-				$defaults = array(
-					'root.1' => array('core.login.site' => 1)
-				);
+				$defaults = [
+					'root.1' => ['core.login.site' => 1]
+				];
 				break;
 
 			case 3:
-				$defaults = array(
-					'root.1'      => array('core.create' => 1, 'core.edit.own' => 1),
-					'com_content' => array('core.create' => 1),
-					'com_media'   => array('core.create' => 1)
-				);
+				$defaults = [
+					'root.1'      => [
+						'core.create'   => 1,
+						'core.edit.own' => 1
+					],
+					'com_content' => ['core.create' => 1],
+					'com_media'   => ['core.create' => 1]
+				];
 				break;
 
 			case 4:
-				$defaults = array(
-					'root.1'      => array('core.edit' => 1),
-					'com_content' => array('core.edit' => 1)
-				);
+				$defaults = [
+					'root.1'      => ['core.edit' => 1],
+					'com_content' => ['core.edit' => 1]
+				];
 				break;
 
 			case 5:
-				$defaults = array(
-					'root.1'      => array('core.edit.state' => 1),
-					'com_content' => array('core.edit.state' => 1),
-					'com_media'   => array('core.delete' => 1)
-				);
+				$defaults = [
+					'root.1'      => ['core.edit.state' => 1],
+					'com_content' => ['core.edit.state' => 1],
+					'com_media'   => ['core.delete' => 1]
+				];
 				break;
 
 			case 6:
-				$defaults = array(
-					'root.1'        => array(
-						'core.login.site' => 1, 'core.login.admin' => 1, 'core.login.offline' => 1, 'core.create' => 1,
-						'core.delete'     => 1, 'core.edit' => 1, 'core.edit.state' => 1, 'core.edit.own' => 1
-					),
-					'com_banners'   => array('core.manage' => 1),
-					'com_contact'   => array('core.manage' => 1),
-					'com_content'   => array('core.manage' => 1),
-					'com_media'     => array('core.manage' => 1),
-					'com_newsfeeds' => array('core.manage' => 1),
-					'com_search'    => array('core.manage' => 1),
-					'com_finder'    => array('core.manage' => 1)
-				);
+				$defaults = [
+					'root.1'        => [
+						'core.login.site'    => 1,
+						'core.login.admin'   => 1,
+						'core.login.offline' => 1,
+						'core.create'        => 1,
+						'core.delete'        => 1,
+						'core.edit'          => 1,
+						'core.edit.state'    => 1,
+						'core.edit.own'      => 1
+					],
+					'com_banners'   => ['core.manage' => 1],
+					'com_contact'   => ['core.manage' => 1],
+					'com_content'   => ['core.manage' => 1],
+					'com_media'     => ['core.manage' => 1],
+					'com_newsfeeds' => ['core.manage' => 1],
+					'com_search'    => ['core.manage' => 1],
+					'com_finder'    => ['core.manage' => 1]
+				];
 				break;
 
 			case 7:
-				$defaults = array(
-					'root.1'        => array('core.manage' => 1),
-					'com_banners'   => array('core.admin' => 1),
-					'com_cache'     => array('core.admin' => 1, 'core.manage' => 1),
-					'com_checkin'   => array('core.admin' => 1, 'core.manage' => 1),
-					'com_contact'   => array('core.admin' => 1),
-					'com_content'   => array('core.admin' => 1),
-					'com_installer' => array('core.manage' => 0, 'core.delete' => 0, 'core.edit.state' => 0),
-					'com_languages' => array('core.admin' => 1),
-					'com_media'     => array('core.admin' => 1),
-					'com_menus'     => array('core.admin' => 1),
-					'com_messages'  => array('core.admin' => 1, 'core.manage' => 1),
-					'com_modules'   => array('core.admin' => 1),
-					'com_newsfeeds' => array('core.admin' => 1),
-					'com_plugins'   => array('core.admin' => 1),
-					'com_redirect'  => array('core.admin' => 1),
-					'com_search'    => array('core.admin' => 1),
-					'com_templates' => array('core.admin' => 1),
-					'com_users'     => array('core.admin' => 1),
-					'com_finder'    => array('core.admin' => 1)
-				);
+				$defaults = [
+					'root.1'        => ['core.manage' => 1],
+					'com_banners'   => ['core.admin' => 1],
+					'com_cache'     => [
+						'core.admin'  => 1,
+						'core.manage' => 1
+					],
+					'com_checkin'   => [
+						'core.admin'  => 1,
+						'core.manage' => 1]
+					,
+					'com_contact'   => ['core.admin' => 1],
+					'com_content'   => ['core.admin' => 1],
+					'com_installer' => [
+						'core.manage'     => 0,
+						'core.delete'     => 0,
+						'core.edit.state' => 0
+					],
+					'com_languages' => ['core.admin' => 1],
+					'com_media'     => ['core.admin' => 1],
+					'com_menus'     => ['core.admin' => 1],
+					'com_messages'  => [
+						'core.admin'  => 1,
+						'core.manage' => 1
+					],
+					'com_modules'   => ['core.admin' => 1],
+					'com_newsfeeds' => ['core.admin' => 1],
+					'com_plugins'   => ['core.admin' => 1],
+					'com_redirect'  => ['core.admin' => 1],
+					'com_search'    => ['core.admin' => 1],
+					'com_templates' => ['core.admin' => 1],
+					'com_users'     => ['core.admin' => 1],
+					'com_finder'    => ['core.admin' => 1]
+				];
 				break;
 
 			case 8:
-				$defaults = array(
-					'root.1' => array('core.admin' => 1)
-				);
+				$defaults = [
+					'root.1' => ['core.admin' => 1]
+				];
 				break;
 		}
 

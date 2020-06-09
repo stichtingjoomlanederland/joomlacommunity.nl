@@ -38,7 +38,7 @@ class RSFormProGridBootstrap4 extends RSFormProGrid
 				{
 					$size = $row['sizes'][$column_index];
 					
-					$html[] = "\t"."\t".'<div class="col-' . (int) $size . '">';
+					$html[] = "\t"."\t".'<div class="col-md-' . (int) $size . '">';
 					
 					foreach ($fields as $field)
 					{

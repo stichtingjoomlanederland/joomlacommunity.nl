@@ -476,7 +476,7 @@ class DashboardController extends acymController
 
         $updateHelper = acym_get('helper.update');
         $updateHelper->installNotifications();
-        $updateHelper->installTemplates();
+        $updateHelper->installTemplates(true);
 
         $this->listing();
     }

@@ -39,7 +39,7 @@
 					url: options.root + 'index.php?option=com_rseventspro&task=rseventspro.rate',
 					dataType: 'json',
 					type: 'post',
-					data: { feedback: vote, id: options.id }
+					data: { feedback: vote, id: options.id, 'Itemid' : options.Itemid }
 				}).done(function( response ) {
 					$('#rsepro_rating_loading img').css('display','none');
 					if (typeof response.error != 'undefined') {
@@ -51,6 +51,9 @@
 						for (var l = 0; l < response.rating; l++) {
 							$(ratingElements[l]).removeClass('fa-star-o').addClass('fa-star');
 						}
+						
+						$(self).append(response.remove);
+						$('.rseprotooltip').tooltip({"html": true,"container": "body"});
 						
 						ratingElements.off('mouseenter');
 						$('#rsepro_rating_loading span').html(response.message);

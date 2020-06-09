@@ -3,7 +3,7 @@
  * @package    Pwtsitemap
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
@@ -46,7 +46,7 @@ class PlgPwtSitemapK2 extends PwtSitemapPlugin
 	public function populateSitemapPlugin()
 	{
 		$this->component = 'com_k2';
-		$this->views     = ['latest'];
+		$this->views     = ['latest', 'itemlist'];
 	}
 
 	/**
@@ -65,7 +65,7 @@ class PlgPwtSitemapK2 extends PwtSitemapPlugin
 	{
 		$sitemapItems = [];
 
-		if ($this->checkDisplayParameters($item, $format))
+		if ($this->checkDisplayParameters($item, $format) && (int) $item->params->get('addk2to' . $format . 'sitemap', 1))
 		{
 			$k2items = $this->getK2Items($item);
 
@@ -74,15 +74,17 @@ class PlgPwtSitemapK2 extends PwtSitemapPlugin
 				foreach ($k2items as $k2item)
 				{
 					
-					$link           = Route::_(
+					$link = Route::_(
 						'index.php?option=com_k2&view=item&Itemid=' . $item->id .
 						'&id=' . $k2item->id . ':' . urlencode($k2item->alias)
 					);
-					$modified       = HTMLHelper::_(
+
+					$modified = HTMLHelper::_(
 						'date',
 						$k2item->modified === '0000-00-00 00:00:00' ? $k2item->publish_up : $k2item->modified,
 						'Y-m-d'
 					);
+
 					$sitemapItems[] = new PwtSitemapItem($k2item->title, $link, $item->level + 1, $modified);
 					
 				}
@@ -91,7 +93,6 @@ class PlgPwtSitemapK2 extends PwtSitemapPlugin
 
 		return $sitemapItems;
 	}
-
 
 	/**
 	 * Method to get items from K2
@@ -108,43 +109,65 @@ class PlgPwtSitemapK2 extends PwtSitemapPlugin
 	{
 		$items = [];
 
-		$model = new K2ModelItemlist;
-
-		switch ($item->params->get('source'))
+		if ($item->query['view'] === 'latest')
 		{
-			// Category
-			case 1 :
-				if ($item->params->get('categoryIDs'))
+			if ($item->params->get('source') === 1 && $item->params->get('categoryIDs'))
+			{
+				foreach ($item->params->get('categoryIDs') as $categoryId)
 				{
-					foreach ($item->params->get('categoryIDs') as $categoryId)
-					{
-						$jinput = Factory::getApplication()->input;
-						$jinput->set('view', 'itemlist');
-						$jinput->set('task', 'category');
-						$jinput->set('id', $categoryId);
-						$jinput->set('featured', 1);
-						$jinput->set('limit', $item->params->get('latestItemsLimit'));
-						$jinput->set('clearFlag', true);
-
-						$newItems = $model->getData();
-						$items    = array_merge($items, $newItems);
-					}
+					$newItems = $this->getK2ItemsCategory($categoryId);
+					$items    = array_merge($items, $newItems);
 				}
-				break;
+			}
 
-			// User
-			case 0:
-				if ($item->params->get('userIDs'))
+			if ($item->params->get('source') === 0 && $item->params->get('userIDs'))
+			{
+				foreach ($item->params->get('userIDs') as $userId)
 				{
-					foreach ($item->params->get('userIDs') as $userId)
-					{
-						$newItems = $model->getAuthorLatest(0, $item->params->get('latestItemsLimit'), (int) $userId);
-						$items    = array_merge($items, $newItems);
-					}
+					$model    = new K2ModelItemlist;
+					$newItems = $model->getAuthorLatest(0, $item->params->get('latestItemsLimit'), (int) $userId);
+					$items    = array_merge($items, $newItems);
 				}
-				break;
+			}
+		}
+
+		if ($item->query['view'] === 'itemlist')
+		{
+			if ($item->params->get('categories'))
+			{
+				foreach ($item->params->get('categories') as $categoryId)
+				{
+					$newItems = $this->getK2ItemsCategory($categoryId);
+					$items    = array_merge($items, $newItems);
+				}
+			}
 		}
 
 		return $items;
+	}
+
+	/**
+	 * Method to get items by K2 category
+	 *
+	 * @param   integer  $categoryId  K2 category ID
+	 *
+	 * @return array
+	 *
+	 * @since 1.4.2
+	 * @throws Exception
+	 */
+	private function getK2ItemsCategory($categoryId)
+	{
+		$model = new K2ModelItemlist;
+
+		$jinput = Factory::getApplication()->input;
+		$jinput->set('view', 'itemlist');
+		$jinput->set('task', 'category');
+		$jinput->set('id', $categoryId);
+		$jinput->set('featured', 1);
+		$jinput->set('limit', 0);
+		$jinput->set('clearFlag', true);
+
+		return $model->getData();
 	}
 }

@@ -392,7 +392,9 @@ class StatsController extends acymController
         $selectedMailid = acym_getVar('int', 'mail_id', '');
 
         $where = '';
-        if (!empty($selectedMailid)) $where = 'WHERE mail_id = '.intval($selectedMailid);
+        if (!empty($selectedMailid)) $where = 'WHERE userstat.`mail_id` = '.intval($selectedMailid);
+
+        $groupBy = ' GROUP BY userstat.mail_id, userstat.user_id ';
 
         $columnsMailStat = acym_getColumns('user_stat');
         $columnsToExport = [];
@@ -408,7 +410,11 @@ class StatsController extends acymController
             $columnsToExport['userstat.'.$column] = $trad;
         }
 
-        $query = 'SELECT '.implode(', ', array_keys($columnsToExport)).' FROM #__acym_user_stat AS userstat LEFT JOIN #__acym_user AS user ON user.id = userstat.user_id LEFT JOIN #__acym_mail AS mail ON mail.id = userstat.mail_id '.$where;
+        $query = 'SELECT '.implode(', ', array_keys($columnsToExport)).', SUM(urlclick.click) as click FROM #__acym_user_stat AS userstat 
+                  LEFT JOIN #__acym_user AS user ON user.id = userstat.user_id 
+                  LEFT JOIN #__acym_mail AS mail ON mail.id = userstat.mail_id 
+                  LEFT JOIN #__acym_url_click AS urlclick ON urlclick.user_id = userstat.user_id AND userstat.mail_id = urlclick.mail_id  '.$where.$groupBy;
+        $columnsToExport['urlclick.click'] = acym_translation('ACYM_TOTAL_CLICK');
         $exportHelper->exportStatsFullCSV($query, $columnsToExport, 'detailed');
         exit;
     }

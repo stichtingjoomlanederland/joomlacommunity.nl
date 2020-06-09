@@ -88,7 +88,8 @@ class TableRSForm_Forms extends JTable
 	public $ConfirmSubmission = 0;
 	public $ConfirmSubmissionUrl = '';
 	public $Access = '';
-	
+	public $LimitSubmissions = 0;
+
 	public $Published = 1;
 		
 	public function __construct(& $db) {

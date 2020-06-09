@@ -16,6 +16,8 @@ class acymstepClass extends acymClass
             $step->$oneAttribute = strip_tags($value);
         }
 
+        if (empty($step->name)) $step->name = 'step_'.time();
+
         return parent::save($step);
     }
 

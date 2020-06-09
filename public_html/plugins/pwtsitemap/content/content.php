@@ -3,7 +3,7 @@
  * @package    Pwtsitemap
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
@@ -23,6 +23,7 @@ JLoader::register('ContentHelperQuery', JPATH_SITE . '/components/com_content/he
 JLoader::register('ContentAssociationsHelper',
 	JPATH_ADMINISTRATOR . '/components/com_content/helpers/associations.php'
 );
+BaseDatabaseModel::addIncludePath(JPATH_SITE . '/components/com_content/models', 'ContentModel');
 
 /**
  * PWT Sitemap Content Plugin
@@ -284,7 +285,6 @@ class PlgPwtSitemapContent extends PwtSitemapPlugin
 		$articleOrderDate = $params->get('order_date', $globalParams->get('order_date', 'published'));
 		$secondary        = ContentHelperQuery::orderbySecondary($articleOrderby, $articleOrderDate);
 
-		BaseDatabaseModel::addIncludePath(JPATH_SITE . '/components/com_content/models', 'ContentModel');
 		/** @var ContentModelArticles $articles */
 		$articles = BaseDatabaseModel::getInstance('Articles', 'ContentModel', ['ignore_request' => true]);
 
@@ -300,7 +300,7 @@ class PlgPwtSitemapContent extends PwtSitemapPlugin
 		$articles->setState('list.direction', '');
 
 		// Include subcategories
-		$showSubcategories = $params->get('show_subcategory_content', '0');
+		$showSubcategories = $params->get('show_subcategory_content', $params->get('maxLevel', '0'));
 
 		if ($showSubcategories)
 		{
@@ -333,7 +333,8 @@ class PlgPwtSitemapContent extends PwtSitemapPlugin
 		// Do we have tags set?
 		$tag = isset($item->query['filter_tag']) ? $item->query['filter_tag'] : null;
 
-		$categoryIds = $this->getChildCategoriesByCategoryId($item->query['id']);
+		$categoryIds = [];
+		$this->getChildCategoriesByCategoryId($categoryIds, $item->query['id']);
 
 		// Get articles for category
 		$articles = $this->getArticles($categoryIds, $item->language, $item->params, 0, 0, $tag);
@@ -368,18 +369,15 @@ class PlgPwtSitemapContent extends PwtSitemapPlugin
 	}
 
 	/**
-	 * Method to get all child categories of a given category id
+	 * Method to get all child categories of a given category id (and their respective children)
 	 *
-	 * @param   int  $pk  The id of the parent category
-	 *
-	 * @return  array A list of id's of the children
+	 * @param   array  $ids  The array to fill with the id's
+	 * @param   int    $pk   The id of the parent category
 	 *
 	 * @since   1.0.0
 	 */
-	private function getChildCategoriesByCategoryId($pk)
+	private function getChildCategoriesByCategoryId(&$ids, $pk)
 	{
-		BaseDatabaseModel::addIncludePath(JPATH_SITE . '/components/com_content/models', 'ContentModel');
-
 		/** @var ContentModelCategory $categoryModel */
 		$categoryModel = BaseDatabaseModel::getInstance('Category', 'ContentModel', ['ignore_request' => true]);
 
@@ -388,13 +386,11 @@ class PlgPwtSitemapContent extends PwtSitemapPlugin
 
 		$category = $categoryModel->getCategory();
 
-		$ids = [$pk];
-
 		foreach ($category->getChildren() as $category)
 		{
-			$ids[] = $category->id;
+			$this->getChildCategoriesByCategoryId($ids, $category->id);
 		}
 
-		return $ids;
+		$ids[] = $pk;
 	}
 }

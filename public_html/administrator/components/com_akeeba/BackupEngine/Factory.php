@@ -185,8 +185,6 @@ abstract class Factory
 
 		// Save a Factory snapshot
 		$factoryStorage = static::getFactoryStorage();
-		$engine         = static::getConfiguration()->get('akeeba.core.usedbstorage', 0) ? 'db' : 'file';
-		$factoryStorage->setStorageEngine($engine);
 
 		$logger = static::getLog();
 		$logger->resetWarnings();
@@ -197,7 +195,7 @@ abstract class Factory
 		if ($result === false)
 		{
 			$saveKey      = $factoryStorage->get_storage_filename($saveTag);
-			$errorMessage = "Cannot save factory state in $engine storage, storage key $saveKey";
+			$errorMessage = "Cannot save factory state in storage, storage filename $saveKey";
 			$logger->error($errorMessage);
 
 			throw new RuntimeException($errorMessage);
@@ -276,19 +274,6 @@ abstract class Factory
 		{
 			if ($failIfMissing)
 			{
-				// Find the new storage engine we need to use
-				$previousEngine = static::getFactoryStorage()->getStorageEngine();
-				$newEngine      = ($previousEngine == 'file') ? 'db' : 'file';
-
-				Factory::getLog()->debug("Failed loading temporary data using $previousEngine storage engine. Switching to $newEngine. The backup has failed and MUST be restarted.");
-
-				// Switch the engine
-				Factory::getConfiguration()->reset();
-				Platform::getInstance()->load_configuration($profile);
-				$config = Factory::getConfiguration();
-				$config->set('akeeba.core.usedbstorage', ($newEngine == 'db'));
-				Platform::getInstance()->save_configuration();
-
 				throw new RuntimeException("Akeeba Engine detected a problem while saving temporary data. Please restart your backup.", 500);
 			}
 

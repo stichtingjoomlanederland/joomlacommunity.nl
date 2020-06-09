@@ -179,8 +179,9 @@ class plgAcymSubscription extends acymPlugin
             return;
         }
 
-        $lang = empty($email->lang) ? '' : '&lang='.$email->lang;
-        $myLink = acym_frontendLink('frontusers&subid='.intval($user->id).'&task=unsubscribe&id='.$email->id.'&key='.urlencode($user->key).$lang.'&'.acym_noTemplate());
+        $link = 'frontusers&subid='.intval($user->id).'&task=unsubscribe&id='.$email->id.'&key='.urlencode($user->key).'&'.acym_noTemplate();
+        $link .= $this->getLanguage($email->links_language);
+        $myLink = acym_frontendLink($link);
 
         $this->listunsubscribe = true;
         if (!empty($email->replyemail)) {
@@ -475,9 +476,9 @@ class plgAcymSubscription extends acymPlugin
 
     private function _replaceSubscriptionTag(&$allresults, $i, &$email)
     {
-        $lang = empty($email->lang) ? '' : '&lang='.$email->lang;
-
         $parameters = $this->pluginHelper->extractTag($allresults[1][$i]);
+
+        $lang = $this->getLanguage($email->links_language);
 
         if ($parameters->id == 'confirm') {
             $myLink = acym_frontendLink('frontusers&task=confirm&id={subtag:id}&key={subtag:key|urlencode}'.$lang);
@@ -488,7 +489,7 @@ class plgAcymSubscription extends acymPlugin
             return '<a target="_blank" href="'.$myLink.'">'.$allresults[2][$i].'</a>';
         } elseif ($parameters->id == 'subscribe') {
             if (empty($parameters->lists)) {
-                return 'You must select at least one list';
+                return acym_translation('ACYM_EXPORT_SELECT_LIST');
             }
             $lists = explode(',', $parameters->lists);
             acym_arrayToInteger($lists);
@@ -633,7 +634,7 @@ class plgAcymSubscription extends acymPlugin
                 $options['date-min'] = strtotime($options['date-min']);
             }
             if (!empty($options['date-min'])) {
-                $otherConditions .= ' AND userlist'.$num.'.'.acym_secureDBColumn($options['date-type']).' > '.acym_escapeDB(acym_date($options['date-min'], "Y-m-d H:i:s"));
+                $otherConditions .= ' AND userlist'.$num.'.'.acym_secureDBColumn($options['date-type']).' > '.acym_escapeDB(acym_date($options['date-min'], "Y-m-d H:i:s", false));
             }
         }
         if (!empty($options['date-max'])) {
@@ -642,7 +643,7 @@ class plgAcymSubscription extends acymPlugin
                 $options['date-max'] = strtotime($options['date-max']);
             }
             if (!empty($options['date-max'])) {
-                $otherConditions .= ' AND userlist'.$num.'.'.acym_secureDBColumn($options['date-type']).' < '.acym_escapeDB(acym_date($options['date-max'], "Y-m-d H:i:s"));
+                $otherConditions .= ' AND userlist'.$num.'.'.acym_secureDBColumn($options['date-type']).' < '.acym_escapeDB(acym_date($options['date-max'], "Y-m-d H:i:s", false));
             }
         }
 

@@ -14,19 +14,16 @@ if (!defined('_WF_EXT')) {
     define('_WF_EXT', 1);
 }
 
-/**
- * MediaManager Class.
- *
- * @author $Author: Ryan Demmer
- */
 class WFMediaManagerPlugin extends WFMediaManager
 {
     /*
      * @var string
      */
 
-    public $_filetypes = 'windowsmedia=avi,wmv,wm,asf,asx,wmx,wvx;quicktime=mov,qt,mpg,mpeg,m4a;flash=swf;shockwave=dcr;real=rm,ra,ram;divx=divx;video=mp4,ogv,ogg,webm,flv,f4v;audio=mp3,ogg,wav;silverlight=xap';
+    public $_filetypes = 'windowsmedia=avi,wmv,wm,asf,asx,wmx,wvx;quicktime=mov,qt,mpg,mpeg;flash=swf;shockwave=dcr;real=rm,ra,ram;divx=divx;video=mp4,ogv,ogg,webm,flv,f4v;audio=mp3,ogg,wav,m4a;silverlight=xap';
 
+    protected $name = 'mediamanager';
+    
     public function __construct($config = array())
     {
         parent::__construct($config);
@@ -67,6 +64,34 @@ class WFMediaManagerPlugin extends WFMediaManager
 
         // Load video aggregators (Youtube, Vimeo etc)
         $this->loadAggregators();
+    }
+
+    public function onUpload($file, $relative = '')
+    {
+        parent::onUpload($file, $relative);
+
+        $app = JFactory::getApplication();
+
+        if ($app->input->getInt('inline', 0) === 1) {
+            
+            // get the list of filetypes supported
+            $filetypes = array_values($this->getFileTypes());
+            
+            // only allow a limited set that are support by the <video> and <audio> tags
+            $filetypes = array_intersect($filetypes, array('mp3','oga', 'm4a', 'mp4','m4v','ogg','webm','ogv'));
+            
+            // check for support
+            if (preg_match('#\.(' . implode($filetypes, '|') . ')$#', $relative)) {
+                $result = array(
+                    'file' => $relative,
+                    'name' => basename($file),
+                );
+    
+                return $result;
+            }
+        }
+
+        return array();
     }
 
     /**

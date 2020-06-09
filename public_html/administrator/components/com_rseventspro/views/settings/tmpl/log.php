@@ -28,12 +28,12 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 				<td>
 					<?php 
 						if (!in_array($log->page, array('0','1')) && JFactory::getApplication()->input->get('from') == 'facebook') {
-							echo $log->page == 'FBUSER' ? '['.JText::_('COM_RSEVENTSPRO_SYNC_LOG_USER').'] ' : '['.JText::sprintf('COM_RSEVENTSPRO_SYNC_LOG_PAGE', $log->page).'] ';
+							echo $log->page == 'FBUSER' ? '['.JText::_('COM_RSEVENTSPRO_SYNC_LOG_USER').'] ' : '['.$log->page.'] ';
 						}
 						if ($log->imported == 1) {
-							echo JText::sprintf('COM_RSEVENTSPRO_SYNC_LOG_'.strtoupper(JFactory::getApplication()->input->get('from')).'_1', $log->name, $log->from);
+							echo JText::sprintf('COM_RSEVENTSPRO_SYNC_LOG_'.strtoupper(JFactory::getApplication()->input->get('from')).'_1', $log->name, ($log->from ? $log->from : '&mdash;'));
 						} else {
-							echo JText::sprintf('COM_RSEVENTSPRO_SYNC_LOG_'.strtoupper(JFactory::getApplication()->input->get('from')).'_2', $log->name, $log->from, $log->message);
+							echo JText::sprintf('COM_RSEVENTSPRO_SYNC_LOG_'.strtoupper(JFactory::getApplication()->input->get('from')).'_2', $log->name, ($log->from ? $log->from : '&mdash;'), $log->message);
 						}
 					?>
 				</td>

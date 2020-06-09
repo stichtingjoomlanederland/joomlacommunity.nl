@@ -3,11 +3,12 @@
  * @package    PwtAcl
  *
  * @author     Sander Potjer - Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2011 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2011 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
 
+use Joomla\CMS\Application\CliApplication;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 
@@ -16,6 +17,7 @@ const _JEXEC = 1;
 
 error_reporting(E_ALL | E_NOTICE);
 ini_set('display_errors', 1);
+ini_set('session.use_cookies', 0);
 
 // Load system defines
 if (file_exists(dirname(__DIR__) . '/defines.php'))
@@ -43,7 +45,7 @@ define('JDEBUG', false);
  *
  * @since   3.0
  */
-class PwtaclFix extends JApplicationCli
+class PwtAclFix extends CliApplication
 {
 	/**
 	 * Entry point for the script
@@ -55,10 +57,11 @@ class PwtaclFix extends JApplicationCli
 	public function doExecute()
 	{
 		// Run as administrator application
+		$_SERVER['HTTP_HOST'] = 'domain.com';
 		Factory::getApplication('administrator');
 
 		// Load the model.
-		BaseDatabaseModel::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_pwtacl/models', 'PwtaclModel');
+		BaseDatabaseModel::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_pwtacl/models', 'PwtAclModel');
 
 		// Start the rebuild
 		$this->out('============================');
@@ -70,8 +73,8 @@ class PwtaclFix extends JApplicationCli
 
 			try
 			{
-				/** @var PwtaclModelDiagnostics $model */
-				$model = BaseDatabaseModel::getInstance('Diagnostics', 'PwtaclModel', array('ignore_request' => true));
+				/** @var PwtAclModelDiagnostics $model */
+				$model = BaseDatabaseModel::getInstance('Diagnostics', 'PwtAclModel', array('ignore_request' => true));
 				$model->runDiagnostics($step, true);
 			}
 			catch (Exception $e)
@@ -85,4 +88,4 @@ class PwtaclFix extends JApplicationCli
 	}
 }
 
-JApplicationCli::getInstance('PwtaclFix')->execute();
+CliApplication::getInstance('PwtAclFix')->execute();

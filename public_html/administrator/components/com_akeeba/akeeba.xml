@@ -7,13 +7,13 @@
 
 <extension version="3.8.0" type="component" method="upgrade">
 	<name>Akeeba</name>
-	<creationDate>2020-02-11</creationDate>
+	<creationDate>2020-05-21</creationDate>
 	<author>Nicholas K. Dionysopoulos</author>
 	<authorEmail>nicholas@dionysopoulos.me</authorEmail>
 	<authorUrl>http://www.akeebabackup.com</authorUrl>
 	<copyright>Copyright (c)2006-2019 Akeeba Ltd / Nicholas K. Dionysopoulos</copyright>
 	<license>GNU GPL v3 or later</license>
-	<version>7.0.2</version>
+	<version>7.1.4</version>
 	<description>Akeeba Backup Pro - Full Joomla! site backup solution, Professional Edition</description>
 
 	<!-- Public front end files -->
@@ -67,6 +67,7 @@
 			<filename>config.xml</filename>
 			<filename>access.xml</filename>
 			<filename>CHANGELOG.php</filename>
+			<filename>Container.php</filename>
 		</files>
 
 		<!-- Back-end translation files -->

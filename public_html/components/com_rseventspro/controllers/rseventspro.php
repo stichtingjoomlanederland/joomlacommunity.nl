@@ -203,6 +203,24 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		JFactory::getApplication()->close();
 	}
 	
+	// Event - delete vote
+	public function deletevote() {
+		// Get the model
+		$model = $this->getModel('rseventspro');
+		
+		// Get event details
+		$event = $model->getEvent();
+		
+		if ($model->deletevote()) {
+			JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_VOTE_REMOVED'));
+		} else {
+			JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_REMOVE_VOTE_ERROR'), 'error');
+		}
+		
+		$url = rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id));
+		JFactory::getApplication()->redirect($url);
+	}
+	
 	// Events - save edited location
 	public function savelocations() {
 		// Check for request forgeries
@@ -995,5 +1013,62 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		}
 		
 		return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=waitinglist&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)));
+	}
+	
+	public function exportunsubscribers() {
+		// Get the model
+		$model = $this->getModel('rseventspro');
+		
+		// Get event details
+		$event = $model->getEvent();
+		
+		$admin = rseventsproHelper::admin();
+		$user  = $model->getUser();
+		
+		if ($admin || $event->owner == $user || $event->sid == $user) {
+			$model->exportunsubscribers();
+		} else {
+			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)), JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED'));
+		}
+	}
+	
+	public function removeunsubscriber() {
+		// Get the model
+		$model = $this->getModel('rseventspro');
+		
+		// Get event details
+		$event = $model->getEvent();
+		
+		$admin = rseventsproHelper::admin();
+		$user  = $model->getUser();
+		
+		if ($admin || $event->owner == $user || $event->sid == $user) {
+			$model->removeunsubscriber();
+			$msg = JText::_('COM_RSEVENTSPRO_UNSUBSCRIBER_REMOVED');
+			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=unsubscribers&id='.rseventsproHelper::sef($event->id,$event->name),false),$msg);
+		} else {
+			$msg = JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED');
+			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false),$msg);
+		}
+	}
+	
+	public function cancelevent() {
+		// Get the model
+		$model = $this->getModel('rseventspro');
+		
+		// Get event details
+		$event = $model->getEvent();
+		
+		$admin = rseventsproHelper::admin();
+		$user  = $model->getUser();
+		
+		if ($admin || $event->owner == $user || $event->sid == $user) {
+			$model->cancel();
+			$msg = JText::_('COM_RSEVENTSPRO_EVENT_CANCELED');
+			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false),$msg);
+		} else {
+			$msg = JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED');
+			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false),$msg);
+		}
 	}
 }

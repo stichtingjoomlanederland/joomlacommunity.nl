@@ -1,8 +1,8 @@
 <?php
 /**
- * @package     FOF
- * @copyright   Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license     GNU GPL version 2 or later
+ * @package   FOF
+ * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 2, or later
  */
 
 namespace FOF30\View;
@@ -280,15 +280,17 @@ class ViewTemplateFinder
 			$paths[] = $templatePath . '/' . $parts['view'];
 		}
 
-		// Add this side of the application
-		$paths[] = ($isAdmin ? $componentPaths['admin'] : $componentPaths['site']) . '/ViewTemplates/' . $parts['view'];
-		$paths[] = ($isAdmin ? $componentPaths['admin'] : $componentPaths['site']) . '/View/' . $parts['view'] . '/tmpl';
+		// Add the requested side of the application
+		$requestedAdmin = ($parts['admin'] == -1) ? $isAdmin : $parts['admin'];
+
+		$paths[] = ($requestedAdmin ? $componentPaths['admin'] : $componentPaths['site']) . '/ViewTemplates/' . $parts['view'];
+		$paths[] = ($requestedAdmin ? $componentPaths['admin'] : $componentPaths['site']) . '/View/' . $parts['view'] . '/tmpl';
 
 		// Add the other side of the application for "any:" URIs
 		if ($parts['admin'] == -1)
 		{
-			$paths[] = ($isAdmin ? $componentPaths['site'] : $componentPaths['admin']) . '/ViewTemplates/' . $parts['view'];
-			$paths[] = ($isAdmin ? $componentPaths['site'] : $componentPaths['admin']) . '/View/' . $parts['view'] . '/tmpl';
+			$paths[] = ($requestedAdmin ? $componentPaths['site'] : $componentPaths['admin']) . '/ViewTemplates/' . $parts['view'];
+			$paths[] = ($requestedAdmin ? $componentPaths['site'] : $componentPaths['admin']) . '/View/' . $parts['view'] . '/tmpl';
 		}
 
 		// Add extra paths
@@ -307,15 +309,40 @@ class ViewTemplateFinder
 			array_unshift($paths, str_replace($parts['template'], $layoutTemplate, $apath));
 		}
 
+		// Get the Joomla! version template suffixes
+		$jVersionSuffixes = array_merge($this->container->platform->getTemplateSuffixes(), ['']);
 		$filesystem = $this->container->filesystem;
 
 		foreach ($this->extensions as $extension)
 		{
-			$filenameToFind = $parts['template'] . $extension;
+			foreach ($jVersionSuffixes as $JVersionSuffix)
+			{
+				$filenameToFind = $parts['template'] . $JVersionSuffix . $extension;
+
+				$fileName = $filesystem->pathFind($paths, $filenameToFind);
+
+				if (!empty($fileName))
+				{
+					return $fileName;
+				}
+			}
+		}
+
+		/**
+		 * If no view template was found for the component fall back to FOF's core Blade templates -- located in
+		 * <libdir>/ViewTemplates/<viewName>/<templateName> -- and their template overrides.
+		 */
+		$paths = [];
+		$paths[] = $this->container->platform->getTemplateOverridePath('lib_fof30') . '/' . $parts['view'];
+		$paths[] = realpath(__DIR__ . '/..') . '/ViewTemplates/' . $parts['view'];
+
+		foreach ($jVersionSuffixes as $JVersionSuffix)
+		{
+			$filenameToFind = $parts['template'] . $JVersionSuffix . '.blade.php';
 
 			$fileName = $filesystem->pathFind($paths, $filenameToFind);
 
-			if ($fileName)
+			if (!empty($fileName))
 			{
 				return $fileName;
 			}

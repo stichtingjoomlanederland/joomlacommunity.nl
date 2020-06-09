@@ -288,7 +288,7 @@ function acym_deleteFolder($path, $report = true)
     $folders = acym_getFolders($path, '.', false, false, []);
     if (!empty($folders)) {
         foreach ($folders as $oneFolder) {
-            if (!acym_deleteFolder($path.DS.$oneFolder)) {
+            if (!acym_deleteFolder($path.DS.$oneFolder, $report)) {
                 return false;
             }
         }

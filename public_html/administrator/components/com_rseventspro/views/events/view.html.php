@@ -106,9 +106,10 @@ class RseventsproViewEvents extends JViewLegacy
 		JToolBarHelper::divider();
 		JToolBarHelper::deleteList(JText::_('COM_RSEVENTSPRO_REMOVE_EVENTS'),'events.delete');
 		JToolBarHelper::custom('events.copy', 'copy.png', 'copy_f2.png', 'COM_RSEVENTSPRO_COPY_EVENT' );
-		JToolBarHelper::archiveList('events.archive');
 		JToolBarHelper::publishList('events.publish');
 		JToolBarHelper::unpublishList('events.unpublish');
+		JToolBarHelper::archiveList('events.archive');
+		JToolbarHelper::custom('events.cancel', 'cancel', 'cancel', JText::_('COM_RSEVENTSPRO_CANCEL_EVENT'), true);
 		JToolbarHelper::custom('events.featured', 'featured.png', 'featured_f2.png', 'JFEATURED', true);
 		JToolBarHelper::custom('events.exportical','arrow-down','arrow-down',JText::_('COM_RSEVENTSPRO_EXPORT_ICAL'));
 		JToolBarHelper::custom('events.exportcsv','arrow-down','arrow-down',JText::_('COM_RSEVENTSPRO_EXPORT_CSV'));
@@ -209,6 +210,19 @@ class RseventsproViewEvents extends JViewLegacy
 		$query->clear()
 			->select('COUNT('.$db->qn('id').')')
 			->from($db->qn('#__rseventspro_waitinglist'))
+			->where($db->qn('ide').' = '.(int) $id);
+		
+		$db->setQuery($query);
+		return (int) $db->loadResult();
+	}
+	
+	protected function getUnsubscribers($id) {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		
+		$query->clear()
+			->select('COUNT('.$db->qn('id').')')
+			->from($db->qn('#__rseventspro_unsubscribers'))
 			->where($db->qn('ide').' = '.(int) $id);
 		
 		$db->setQuery($query);

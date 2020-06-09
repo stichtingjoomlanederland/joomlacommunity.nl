@@ -86,7 +86,7 @@ class RseventsproModelMessage extends JModelAdmin
 	 * @since	1.6
 	 */
 	public function getTypes() {
-		return array('registration','activation','unsubscribe','denied','invite','reminder','preminder','moderation','tag_moderation','notify_me','notify_me_unsubscribe','report','approval','rsvpgoing','rsvpinterested','rsvpnotgoing','waitinglist');
+		return array('registration','activation','unsubscribe','denied','invite','reminder','preminder','moderation','tag_moderation','notify_me','notify_me_unsubscribe','report','approval','rsvpgoing','rsvpinterested','rsvpnotgoing','waitinglist','waitinglistuser','waitinglistadmin', 'cancel');
 	}
 	
 	/**

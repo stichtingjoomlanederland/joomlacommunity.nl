@@ -72,51 +72,32 @@ defined('_JEXEC') or die('Restricted access');
                 'text',
                 'sendorderid'
             );
-            ?>
-		</div>
-	</div>
-</div>
-<?php
-if (acym_level(1)) {
-    ?>
-	<div class="acym__configuration__cron acym__content acym_area padding-vertical-1 padding-horizontal-2 margin-bottom-2">
-		<div class="acym_area_title"><?php echo acym_translation('ACYM_CRON'); ?></div>
-		<div class="grid-x grid-margin-x">
-			<div class="cell">
-                <?php
-                if ($this->config->get('cron_last', 0) < (time() - 43200)) {
-                    echo '<p class="acym__color__red">'.acym_translation('ACYM_CREATE_CRON_REMINDER').'</p>';
+
+            echo '</div>';
+
+            if (acym_level(1)) {
+                $expirationDate = $this->config->get('expirationdate', 0);
+                if (empty($expirationDate) || (time() - 604800) > $this->config->get('lastlicensecheck', 0)) {
+                    acym_checkVersion();
                 }
 
                 $cronUrl = acym_frontendLink('cron');
-                echo acym_modal(
-                    acym_translation('ACYM_CREATE_CRON'),
-                    '<iframe src="'.ACYM_UPDATEMEURL.'launcher&task=edit&component=acymailing&cronurl='.urlencode($cronUrl).'"></iframe>',
-                    null,
-                    'data-reveal-larger',
-                    'class="button"'
-                );
-                ?>
-			</div>
-            <?php
 
-            $expirationDate = $this->config->get('expirationdate', 0);
-            if (empty($expirationDate) || (time() - 604800) > $this->config->get('lastlicensecheck', 0)) {
-                acym_checkVersion();
-            }
-
-            if ($expirationDate > time()) {
-                ?>
-				<div class="cell medium-3"><?php echo acym_tooltip(acym_translation('ACYM_CRON_URL'), acym_translation('ACYM_CRON_URL_DESC')); ?></div>
-				<div class="cell medium-9">
-					<a class="acym__color__blue" href="<?php echo acym_escape($cronUrl, true); ?>" target="_blank"><?php echo $cronUrl; ?></a>
-				</div>
-                <?php
+                if ($expirationDate > time()) {
+                    ?>
+					<div class="cell medium-3 margin-top-1"><?php echo acym_tooltip(acym_translation('ACYM_CRON_URL'), acym_translation('ACYM_CRON_URL_DESC')); ?></div>
+					<div class="cell medium-9 margin-top-1">
+						<a class="acym__color__blue" href="<?php echo acym_escape($cronUrl, true); ?>" target="_blank"><?php echo $cronUrl; ?></a>
+					</div>
+                    <?php
+                }
             }
             ?>
 		</div>
 	</div>
-
+    <?php
+    if (acym_level(1)) {
+    ?>
 	<div class="acym__content acym_area padding-vertical-1 padding-horizontal-2 margin-bottom-2">
 		<div class="acym_area_title"><?php echo acym_translation('ACYM_REPORT'); ?></div>
 		<div class="grid-x grid-margin-x">
@@ -202,10 +183,15 @@ if (acym_level(1)) {
 			<div class="cell medium-3"><?php echo acym_tooltip(acym_translation('ACYM_LAST_RUN'), acym_translation('ACYM_LAST_RUN_DESC')); ?></div>
 			<div class="cell medium-9">
                 <?php
-                $diff = intval((time() - $this->config->get('cron_last', 0)) / 60);
+                $cronLast = $this->config->get('cron_last', 0);
+                $diff = intval((time() - $cronLast) / 60);
                 if ($diff > 500) {
-                    echo acym_date($this->config->get('cron_last'), 'd F Y H:i');
-                    echo ' <span style="font-size:10px">('.acym_translation_sprintf('ACYM_CURRENT_TIME', acym_date('now', 'd F Y H:i')).')</span>';
+                    if (empty($cronLast)) {
+                        echo acym_translation('ACYM_NEVER');
+                    } else {
+                        echo acym_date($cronLast, 'd F Y H:i');
+                        echo ' <span style="font-size:10px">('.acym_translation_sprintf('ACYM_CURRENT_TIME', acym_date('now', 'd F Y H:i')).')</span>';
+                    }
                 } else {
                     echo acym_translation_sprintf('ACYM_MINUTES_AGO', $diff);
                 }
@@ -221,35 +207,34 @@ if (acym_level(1)) {
 			</div>
 		</div>
 	</div>
-    <?php if (acym_level(1)) { ?>
-		<div class="acym__content acym_area padding-vertical-1 padding-horizontal-2">
-			<div class="acym_area_title"><?php echo acym_translation('ACYM_AUTOMATED_TASKS'); ?></div>
-			<div class="grid-x grid-margin-x">
-				<div class="cell acym_auto_tasks">
+	<div class="acym__content acym_area padding-vertical-1 padding-horizontal-2">
+		<div class="acym_area_title"><?php echo acym_translation('ACYM_AUTOMATED_TASKS'); ?></div>
+		<div class="grid-x grid-margin-x">
+			<div class="cell acym_auto_tasks">
 
-                    <?php
+                <?php
 
-                    $listHours = [];
-                    for ($i = 0 ; $i < 24 ; $i++) {
-                        $value = $i < 10 ? '0'.$i : $i;
-                        $listHours[] = acym_selectOption($value, $value);
-                    }
-                    $hours = acym_select($listHours, 'config[daily_hour]', $this->config->get('daily_hour', '12'), 'class="intext_select"');
+                $listHours = [];
+                for ($i = 0 ; $i < 24 ; $i++) {
+                    $value = $i < 10 ? '0'.$i : $i;
+                    $listHours[] = acym_selectOption($value, $value);
+                }
+                $hours = acym_select($listHours, 'config[daily_hour]', $this->config->get('daily_hour', '12'), 'class="intext_select"');
 
-                    $listMinutess = [];
-                    for ($i = 0 ; $i < 60 ; $i += 5) {
-                        $value = $i < 10 ? '0'.$i : $i;
-                        $listMinutess[] = acym_selectOption($value, $value);
-                    }
-                    $minutes = acym_select($listMinutess, 'config[daily_minute]', $this->config->get('daily_minute', '00'), 'class="intext_select"');
+                $listMinutess = [];
+                for ($i = 0 ; $i < 60 ; $i += 5) {
+                    $value = $i < 10 ? '0'.$i : $i;
+                    $listMinutess[] = acym_selectOption($value, $value);
+                }
+                $minutes = acym_select($listMinutess, 'config[daily_minute]', $this->config->get('daily_minute', '00'), 'class="intext_select"');
 
-                    echo acym_translation_sprintf('ACYM_DAILY_TASKS', $hours, $minutes);
+                echo acym_translation_sprintf('ACYM_DAILY_TASKS', $hours, $minutes);
 
-                    ?>
-				</div>
+                ?>
 			</div>
 		</div>
-    <?php }
+	</div>
+<?php
 }
 if (!acym_level(1)) {
     $data['version'] = 'essential';

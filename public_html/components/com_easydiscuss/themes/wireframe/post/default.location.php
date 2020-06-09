@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -22,6 +22,7 @@ if (!$post->isQuestion() && !$this->config->get('main_location_reply')) {
 if ($post->isQuestion() && !$this->config->get('main_location_discussion')) {
 	return;
 }
+
 ?>
 <div class="ed-post-map" data-ed-location>
     <div class="ed-post-map__hd">
@@ -35,12 +36,12 @@ if ($post->isQuestion() && !$this->config->get('main_location_discussion')) {
     
     <div class="ed-location" data-ed-location-map-wrapper>
 	    <?php if ($this->config->get('main_location_static')) { ?>
-            <div class="ed-location__map-static" style="background-image:url('http://maps.googleapis.com/maps/api/staticmap?center=<?php echo $post->latitude;?>,<?php echo $post->longitude;?>&language=<?php echo $this->config->get('main_location_language'); ?>&maptype=<?php echo strtolower($this->config->get('main_location_map_type'));?>&zoom=<?php echo $this->config->get('main_location_default_zoom');?>&size=800x200&sensor=true&markers=color:red|label:S|<?php echo $post->latitude;?>,<?php echo $post->longitude;?>');">
+            <div class="ed-location__map-static" style="background-image:url('<?php echo ED::getMapRequestURL($post); ?>');">
             </div>
             <style>
             @media print {
                 .ed-location__map-static:before {
-                    content: url('http://maps.googleapis.com/maps/api/staticmap?center=<?php echo $post->latitude;?>,<?php echo $post->longitude;?>&language=<?php echo $this->config->get('main_location_language'); ?>&maptype=<?php echo strtolower($this->config->get('main_location_map_type'));?>&zoom=<?php echo $this->config->get('main_location_default_zoom');?>&size=800x200&scale=2&sensor=true&markers=color:red|label:S|<?php echo $post->latitude;?>,<?php echo $post->longitude;?>');
+                    content: url('<?php echo ED::getMapRequestURL($post, true); ?>');
                 }
             }</style>
 	    <?php } else { ?>

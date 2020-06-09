@@ -23,7 +23,7 @@ class RSFormProCalculations
 			foreach ($matches[0] as $i => $match) {
 				$field	 = self::clean($matches[1][$i]."_".$formId);
 				$return .= "\t total".$field." = 0;\n";
-				$return .= "\t values".$field." = rsfp_getValue(".$formId.", '".$matches[1][$i]."');\n";
+				$return .= "\t values".$field." = RSFormPro.getValue(".$formId.", '".$matches[1][$i]."');\n";
 				$return .= "\t if (typeof values".$field." == 'object') { \n";
 				$return .= "\t\t for(i=0;i<values".$field.".length;i++) {\n";
 				$return .= "\t\t\t thevalue = values".$field."[i]; \n";

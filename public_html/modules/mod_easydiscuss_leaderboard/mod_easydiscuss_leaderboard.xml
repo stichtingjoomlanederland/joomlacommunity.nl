@@ -2,12 +2,12 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Leaderboard</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>7th February 2020</creationDate>
+	<creationDate>27th May 2020</creationDate>
 	<copyright>Copyright 2009 - 2016 StackIdeas. All rights reserved.</copyright>
 	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>4.1.14</version>
+	<version>4.1.16</version>
 	<description><![CDATA[This module will display a list of users in a ranking order.]]></description>
 	<languages>
 		<language tag="en-GB">en-GB.mod_easydiscuss_leaderboard.ini</language>
@@ -21,6 +21,7 @@
 		<fields name="params">
 			<fieldset name="basic">
 				<field name="count" type="text" default="5" label="MOD_EASYDISCUSS_LEADERBOARD_COUNT" description="MOD_EASYDISCUSS_LEADERBOARD_COUNT_DESC" />
+				<field name="exclusion" type="text" default="" label="MOD_EASYDISCUSS_LEADERBOARD_EXCLUDE" description="MOD_EASYDISCUSS_LEADERBOARD_EXCLUDE_DESC" />
 				<field name="rank_type" type="list" default="points" label="Ranking by" description="Set the ranking type">
 					<option value="points">MOD_EASYDISCUSS_LEADERBOARD_POINTS</option>
 					<option value="answers">MOD_EASYDISCUSS_LEADERBOARD_ANSWERS</option>

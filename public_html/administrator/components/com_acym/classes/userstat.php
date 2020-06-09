@@ -66,11 +66,12 @@ class acymuserStatClass extends acymClass
     {
         $mailClass = acym_get('class.mail');
 
-        $query = 'SELECT us.*, m.name, m.subject, u.email, c.id as campaign_id, c.parent_id 
+        $query = 'SELECT us.*, m.name, m.subject, u.email, c.id as campaign_id, c.parent_id, SUM(urlclick.click) as total_click
                     FROM #__acym_user_stat AS us
                     LEFT JOIN #__acym_user AS u ON us.user_id = u.id
                     INNER JOIN #__acym_mail AS m ON us.mail_id = m.id
-                    LEFT JOIN #__acym_campaign AS c ON m.id = c.mail_id';
+                    LEFT JOIN #__acym_campaign AS c ON m.id = c.mail_id
+                    LEFT JOIN #__acym_url_click AS urlclick ON urlclick.user_id = us.user_id AND us.mail_id = urlclick.mail_id ';
         $queryCount = 'SELECT COUNT(*) FROM #__acym_user_stat as us
                         LEFT JOIN #__acym_user AS u ON us.user_id = u.id
                         INNER JOIN #__acym_mail AS m ON us.mail_id = m.id';
@@ -88,6 +89,8 @@ class acymuserStatClass extends acymClass
             $query .= ' WHERE ('.implode(') AND (', $where).')';
             $queryCount .= ' WHERE ('.implode(') AND (', $where).')';
         }
+
+        $query .= ' GROUP BY us.mail_id, us.user_id';
 
         if (!empty($settings['ordering']) && !empty($settings['ordering_sort_order'])) {
             if ($settings['ordering'] == 'email') {

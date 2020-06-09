@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -32,6 +32,7 @@ class EasyDiscussControllerSearch extends EasyDiscussController
 		$postType = $this->input->get_('post_type', '', 'default');
 
 		$catQuery = '';
+		$postTypeQuery = '';
 
 		if ($categories) {
 			$i = 0;

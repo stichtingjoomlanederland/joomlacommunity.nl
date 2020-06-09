@@ -48,7 +48,7 @@ defined('_JEXEC') or die('Restricted access');
 					</div>
 				</div>
 				<div class="cell grid-x acym__campaign__summary__generated__mail__one">
-					<div style="display: none" class="acym__hidden__mail__content"><?php echo acym_absoluteURL($data['mail']->body); ?></div>
+					<input type="hidden" class="acym__hidden__mail__content" value="<?php echo acym_escape(acym_absoluteURL($data['mail']->body)); ?>">
 					<div style="display: none" class="acym__hidden__mail__stylesheet"><?php echo $data['mail']->stylesheet; ?></div>
 					<div class="cell grid-x acym__campaign__summary__generated__mail__preview">
 						<i class="acymicon-unsorted acym__campaign__summary__generated__mail__toogle__preview"></i>

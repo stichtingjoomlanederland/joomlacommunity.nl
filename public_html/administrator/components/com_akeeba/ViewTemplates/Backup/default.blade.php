@@ -63,14 +63,14 @@ defined('_JEXEC') or die();
 
         <div class="akeeba-form-group">
             <label>
-		        @lang('COM_AKEEBA_CPANEL_PROFILE_TITLE'): #{{ $this->profileid }}
+		        @lang('COM_AKEEBA_CPANEL_PROFILE_TITLE'): #{{ $this->profileId }}
 
             </label>
-	        @jhtml('select.genericlist', $this->profileList, 'profileid', 'onchange="akeeba.Backup.flipProfile();" class="advancedSelect"', 'value', 'text', $this->profileid)
+	        @jhtml('select.genericlist', $this->profileList, 'profileid', ['list.select' => $this->profileId, 'id' => 'comAkeebaBackupProfileDropdown', 'list.attr' => ['class' => 'advancedSelect']])
         </div>
 
         <div class="akeeba-form-group--actions">
-            <button class="akeeba-btn--grey" onclick="akeeba.Backup.flipProfile(); return false;">
+            <button class="akeeba-btn--grey" id="comAkeebaBackupFlipProfile">
                 <span class="akion-refresh"></span>
 		        @lang('COM_AKEEBA_CPANEL_PROFILE_BUTTON')
             </button>
@@ -126,7 +126,7 @@ defined('_JEXEC') or die();
 
         <div class="akeeba-form-group--pull-right">
             <div class="akeeba-form-group--actions">
-                <button class="akeeba-btn--primary" id="backup-start" onclick="return false;">
+                <button class="akeeba-btn--primary" id="backup-start">
                     <span class="akion-play"></span>
 			        @lang('COM_AKEEBA_BACKUP_LABEL_START')
                 </button>
@@ -253,11 +253,11 @@ defined('_JEXEC') or die();
 					@lang('COM_AKEEBA_BACKUP_TEXT_WILLRETRYSECONDS')
 				</strong>
 				<br/>
-				<button class="akeeba-btn--red--small" onclick="akeeba.Backup.cancelResume(); return false;">
+				<button class="akeeba-btn--red--small" id="comAkeebaBackupCancelResume">
 					<span class="akion-android-cancel"></span>
 					@lang('COM_AKEEBA_MULTIDB_GUI_LBL_CANCEL')
 				</button>
-				<button class="akeeba-btn--green--small" onclick="akeeba.Backup.resumeBackup(); return false;">
+				<button class="akeeba-btn--green--small" id="comAkeebaBackupResumeBackup">
 					<span class="akion-ios-redo"></span>
 					@lang('COM_AKEEBA_BACKUP_TEXT_BTNRESUME')
 				</button>

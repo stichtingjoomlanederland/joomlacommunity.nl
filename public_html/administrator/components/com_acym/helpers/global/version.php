@@ -82,3 +82,8 @@ function acym_existsAcyMailing59()
     return version_compare($version, '5.9.0', '>=');
 }
 
+function acym_buttonGetProVersion($class = 'cell shrink')
+{
+    return '<a href="https://www.acyba.com/acymailing.html#customwhichpack" target="_blank" class="button '.$class.'">'.acym_translation('ACYM_GET_PRO_VERSION').'</a>';
+}
+

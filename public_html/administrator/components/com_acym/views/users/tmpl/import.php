@@ -11,11 +11,11 @@ defined('_JEXEC') or die('Restricted access');
         include acym_getView('users', 'importfromtext', true);
         $data['tab']->endTab();
 
-        $data['tab']->startTab(acym_translation_sprintf('ACYM_CMS_USERS', ACYM_CMS_TITLE));
+        $data['tab']->startTab(acym_translation_sprintf('ACYM_IMPORT_CMS_USERS', ACYM_CMS_TITLE));
         include acym_getView('users', 'importcmsusers', true);
         $data['tab']->endTab();
 
-        $data['tab']->startTab(acym_translation('ACYM_DATABASE'));
+        $data['tab']->startTab(acym_translation('ACYM_IMPORT_DATABASE'));
         include acym_getView('users', 'importfromdatabase', true);
         $data['tab']->endTab();
 

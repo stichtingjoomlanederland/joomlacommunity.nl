@@ -27,9 +27,7 @@ class WFFilemanagerPluginConfig
 
         $settings['filemanager'] = $config;
 
-        // remove iframe if we have enabled google docs stuff
-        if ($plugin->getParam('googledocs_enable', 1)) {
-            $settings['invalid_elements'] = array_diff($settings['invalid_elements'], array('iframe'));
-        }
+        // remove iframe
+        $settings['invalid_elements'] = array_diff($settings['invalid_elements'], array('iframe'));
     }
 }

@@ -12,33 +12,30 @@ defined('_JEXEC') or die();
 
 use Akeeba\Backup\Admin\Model\IncludeFolders;
 use Akeeba\Backup\Admin\View\ViewTraits\ProfileIdAndName;
-use Akeeba\Engine\Platform;
 use FOF30\View\DataView\Html as BaseView;
 use JText;
+use JUri;
 
 class Html extends BaseView
 {
 	use ProfileIdAndName;
 
-	/**
-	 * The view's interface data encoded in JSON format
-	 *
-	 * @var  string
-	 */
-	public $json = '';
-
 	public function onBeforeMain()
 	{
-		$this->addJavascriptFile('media://com_akeeba/js/Configuration.min.js');
-		$this->addJavascriptFile('media://com_akeeba/js/FileFilters.min.js');
-		$this->addJavascriptFile('media://com_akeeba/js/IncludeFolders.min.js');
+		$this->container->template->addJS('media://com_akeeba/js/Configuration.min.js');
+		$this->container->template->addJS('media://com_akeeba/js/FileFilters.min.js');
+		$this->container->template->addJS('media://com_akeeba/js/IncludeFolders.min.js');
 
 		// Get a JSON representation of the directories data
 		/** @var IncludeFolders $model */
-		$model = $this->getModel();
-		$directories = $model->get_directories();
-		$json = json_encode($directories);
-		$this->json = $json;
+		$model       = $this->getModel();
+
+		$platform = $this->container->platform;
+		$platform->addScriptOptions('akeeba.System.params.AjaxURL', JUri::base() . 'index.php?option=com_akeeba&view=IncludeFolders&task=ajax');
+		$platform->addScriptOptions('akeeba.Configuration.URLs', [
+			'browser' => JUri::base() . 'index.php?option=com_akeeba&view=Browser&processfolder=1&tmpl=component&folder=',
+		]);
+		$platform->addScriptOptions('akeeba.IncludeFolders.guiData', $model->get_directories());
 
 		$this->getProfileIdAndName();
 

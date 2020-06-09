@@ -10,8 +10,7 @@ namespace Akeeba\Backup\Site\Model\Json\Task;
 // Protect from unauthorized access
 defined('_JEXEC') or die();
 
-use Akeeba\Engine\Factory;
-use Akeeba\Engine\Platform;
+use Akeeba\Backup\Admin\Model\Log as LogModel;
 
 /**
  * Get the log contents
@@ -21,25 +20,29 @@ class Log extends AbstractTask
 	/**
 	 * Execute the JSON API task
 	 *
-	 * @param   array $parameters The parameters to this task
+	 * @param   array  $parameters  The parameters to this task
 	 *
 	 * @return  mixed
 	 *
 	 * @throws  \RuntimeException  In case of an error
 	 */
-	public function execute(array $parameters = array())
+	public function execute(array $parameters = [])
 	{
 		// Get the passed configuration values
-		$defConfig = array(
-			'tag' => 'remote'
-		);
+		$defConfig = [
+			'tag' => 'remote',
+		];
 
 		$defConfig = array_merge($defConfig, $parameters);
+		$tag       = (int) $defConfig['tag'];
 
-		$tag = (int)$defConfig['tag'];
+		/** @var LogModel $model */
+		$model = $this->container->factory->model('Log')->tmpInstance();
+		$model->setState('tag', $tag);
 
-		$filename = Factory::getLog()->getLogFilename($tag);
+		@ob_start();
+		$model->echoRawLog(false);
 
-		return file_get_contents($filename);
+		return @ob_get_clean();
 	}
 }

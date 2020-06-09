@@ -407,7 +407,7 @@ class acympluginHelper extends acymObject
 
                 $text = preg_replace(
                     '#(<tr[^>]+)data-dynamic="'.preg_quote($code, '#').'"([^>]+>[^<]*<td[^>]*>).+</i>[^<]*</td>[^<]*</tr>#Uis',
-                    '$1$2'.$safePregValue.'</td></tr>',
+                    '$1$2&zwj;'.$safePregValue.'</td></tr>',
                     $text
                 );
 

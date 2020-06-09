@@ -24,12 +24,6 @@ class WFTemplateManagerPluginConfig
 
         $config['content_url'] = $wf->getParam('templatemanager.content_url', '');
 
-        $templates = $wf->getParam('templatemanager.templates', array());
-
-        if (is_string($templates)) {
-            $templates = json_decode(htmlspecialchars_decode($templates), true);
-        }
-
         require_once __DIR__ . '/templatemanager.php';
 
         $plugin = new WFTemplateManagerPlugin();
@@ -37,32 +31,40 @@ class WFTemplateManagerPluginConfig
         // associative array of template items
         $list = array();
 
-        if (!empty($templates)) {
-            foreach ($templates as $template) {                
-                extract($template);
+        if ($wf->getParam('templatemanager.template_list', 1)) {
+            $templates = $wf->getParam('templatemanager.templates', array());
 
-                $value = "";
-
-                if (!empty($url)) {
-                    if (preg_match("#\.(htm|html|txt)$#", $url) && strpos('://', $url) === false) {
-                        if (is_file(JPATH_SITE . '/' . trim($url, '/'))) {
-                            $value = JURI::root() . '/' . trim($url, '/');
-                        }
-                    }
-                } else if (!empty($html)) {
-                    $value = htmlspecialchars_decode($html);
-                }
-
-                $list[$name] = $value;
+            if (is_string($templates)) {
+                $templates = json_decode(htmlspecialchars_decode($templates), true);
             }
-        } else {
-            $list = $plugin->getTemplateList();
+
+            if (!empty($templates)) {
+                foreach ($templates as $template) {
+                    extract($template);
+
+                    $value = "";
+
+                    if (!empty($url)) {
+                        if (preg_match("#\.(htm|html|txt)$#", $url) && strpos('://', $url) === false) {
+                            if (is_file(JPATH_SITE . '/' . trim($url, '/'))) {
+                                $value = JURI::root() . '/' . trim($url, '/');
+                            }
+                        }
+                    } else if (!empty($html)) {
+                        $value = htmlspecialchars_decode($html);
+                    }
+
+                    $list[$name] = $value;
+                }
+            } else {
+                $list = $plugin->getTemplateList();
+            }
         }
 
         if ($plugin->getParam('inline_upload', 1)) {
             $config['upload'] = array(
-                'max_size'  => $plugin->getParam('max_size', 1024),
-                'filetypes' => $plugin->getFileTypes()
+                'max_size' => $plugin->getParam('max_size', 1024),
+                'filetypes' => $plugin->getFileTypes(),
             );
         }
 

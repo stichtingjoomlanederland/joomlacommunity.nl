@@ -24,6 +24,7 @@ DROP TABLE IF EXISTS
 `#__rseventspro_taxonomy`,
 `#__rseventspro_tickets`,
 `#__rseventspro_tmp`,
+`#__rseventspro_unsubscribers`,
 `#__rseventspro_users`,
 `#__rseventspro_user_seats`,
 `#__rseventspro_user_tickets`;

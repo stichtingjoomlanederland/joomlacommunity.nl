@@ -27,7 +27,7 @@
  */
 
 // no direct access
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or exit('Restricted access');
 
 require_once 'bfEvents.php';
 require_once 'bfLog.php';
@@ -205,7 +205,6 @@ if (class_exists('JPlugin') && !class_exists('PlgSystemBfnetwork')) {
                 case 'com_users.user':
                     switch ($_SERVER['REQUEST_METHOD']) {
                         case 'GET':
-
                             // a blank form, before creating a new user
                             if (0 == $data->id) {
                                 return;
@@ -233,7 +232,6 @@ if (class_exists('JPlugin') && !class_exists('PlgSystemBfnetwork')) {
                     }
                     break;
                 case 'com_config.application':
-
                     switch ($_SERVER['REQUEST_METHOD']) {
                         case 'GET':
                             bfActivitylog::getInstance()->log(
@@ -252,7 +250,6 @@ if (class_exists('JPlugin') && !class_exists('PlgSystemBfnetwork')) {
                             break;
 
                         case 'POST':
-
                             bfActivitylog::getInstance()->log(
                                 $this->user->name,
                                 $this->user->id,
@@ -697,7 +694,7 @@ if (class_exists('JPlugin') && !class_exists('PlgSystemBfnetwork')) {
                 var_dump($row);
             }
             echo '</pre>';
-            die;
+            exit;
         }
     }
 }

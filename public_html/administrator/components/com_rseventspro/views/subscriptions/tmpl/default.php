@@ -66,7 +66,9 @@ $listDirn	= $this->escape($this->state->get('list.direction','desc')); ?>
 							<?php echo rseventsproHelper::getUserTickets($item->id, true); ?>
 						</td>
 						<td class="center hidden-phone">
-							<?php echo rseventsproHelper::currency(rseventsproHelper::total($item->id)); ?>
+							<?php $total = rseventsproHelper::total($item->id); ?>
+							<?php $total = $total > 0 ? $total : 0; ?>
+							<?php echo rseventsproHelper::currency($total); ?>
 						</td>
 						<td class="center hidden-phone">
 							<?php $payment = rseventsproHelper::getPayment($item->gateway); ?>

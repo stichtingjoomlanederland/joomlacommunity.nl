@@ -108,7 +108,6 @@ final class bfBackup
 
         switch ($VERSION->RELEASE) {
             case '1.5':
-
                 $params = JComponentHelper::getParams('com_akeeba');
                 if (!count($params->toArray())) {
                     // send back the totals
@@ -150,7 +149,6 @@ final class bfBackup
                 break;
             default:
             case '2.5':
-
                 $this->_db->setQuery('SELECT extension_id, params FROM #__extensions WHERE NAME="akeeba" AND element = "com_akeeba"');
                 $data = $this->_db->loadObject();
 

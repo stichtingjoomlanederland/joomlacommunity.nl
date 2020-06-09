@@ -42,12 +42,18 @@ class RSFilterBar
 		if ($this->sortFields || $this->orderDir) {
             JHtml::script('com_rsform/admin/ordertable.js', array('relative' => true, 'version' => 'auto'));
 		}
+
+		$tooltip = '';
+		if (isset($this->search['tooltip']))
+        {
+            $tooltip = 'class="hasTooltip" title="' . $this->escape($this->search['tooltip']) . '"';
+        }
 		?>
 		<div id="filter-bar" class="btn-toolbar">
 			<?php if ($this->search) { ?>
 			<div class="filter-search btn-group pull-left">
 				<label for="filter_search" class="element-invisible"><?php echo $this->search['label']; ?></label>
-				<input type="text" name="filter_search" id="filter_search" placeholder="<?php echo $this->escape($this->search['label']); ?>" value="<?php echo $this->escape($this->search['value']); ?>" title="<?php echo $this->escape($this->search['label']); ?>" />
+				<input type="text" name="filter_search" id="filter_search" placeholder="<?php echo $this->escape($this->search['label']); ?>" value="<?php echo $this->escape($this->search['value']); ?>" <?php echo $tooltip; ?> />
 			</div>
 			<div class="btn-group hidden-phone">
 				<button class="btn" type="submit" title="<?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>"><i class="icon-search"></i></button>

@@ -8,30 +8,8 @@
 // Protect from unauthorized access
 defined('_JEXEC') or die();
 
-$this->loadHelper('escape');
-
-$escapedPassword = addslashes($this->password);
-$escapedJuriBase = addslashes(JUri::base());
-$js              = <<< JS
-
-;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
-// due to missing trailing semicolon and/or newline in their code.
-akeeba.Restore.password = '$escapedPassword';
-akeeba.Restore.ajaxURL = '{$escapedJuriBase}/components/com_akeeba/restore.php';
-akeeba.Restore.mainURL = '{$escapedJuriBase}/index.php';
-
-akeeba.System.documentReady(function(){
-    akeeba.Restore.pingRestoration();
-
-    akeeba.System.addEventListener(document.getElementById('restoration-runinstaller'), 'click', akeeba.Restore.runInstaller);
-    akeeba.System.addEventListener(document.getElementById('restoration-finalize'), 'click', akeeba.Restore.finalize);
-});
-
-
-JS;
-
+/** @var \Akeeba\Backup\Admin\View\Restore\Html $this */
 ?>
-@inlineJs($js)
 
 <div class="akeeba-block--info">
     <p>
@@ -42,8 +20,8 @@ JS;
 
 <div id="restoration-progress">
     <h4>
-		@lang('COM_AKEEBA_RESTORE_LABEL_INPROGRESS')
-	</h4>
+        @lang('COM_AKEEBA_RESTORE_LABEL_INPROGRESS')
+    </h4>
 
     <table class="akeeba-table--striped">
         <tr>
@@ -85,8 +63,8 @@ JS;
         </h4>
         <div id="errorframe">
             <p>
-				@lang('COM_AKEEBA_RESTORE_LABEL_FAILED_INFO')
-			</p>
+                @lang('COM_AKEEBA_RESTORE_LABEL_FAILED_INFO')
+            </p>
             <p id="backup-error-message"></p>
         </div>
     </div>
@@ -106,13 +84,13 @@ JS;
     </div>
 
     <p>
-        <button class="akeeba-btn--primary" id="restoration-runinstaller" onclick="return false;">
+        <button class="akeeba-btn--primary" id="restoration-runinstaller">
             <span class="akion-android-share"></span>
             @lang('COM_AKEEBA_RESTORE_LABEL_RUNINSTALLER')
         </button>
     </p>
     <p>
-        <button class="akeeba-btn--green" id="restoration-finalize" style="display: none" onclick="return false;">
+        <button class="akeeba-btn--green" id="restoration-finalize" style="display: none">
             <span class="akion-android-exit"></span>
             @lang('COM_AKEEBA_RESTORE_LABEL_FINALIZE')
         </button>

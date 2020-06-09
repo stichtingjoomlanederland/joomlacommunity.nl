@@ -3,18 +3,14 @@
  * @package    PwtAcl
  *
  * @author     Sander Potjer - Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2011 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2011 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Layout\LayoutHelper;
-use Joomla\CMS\Router\Route;
 
-// No direct access.
 defined('_JEXEC') or die;
 ?>
 
@@ -125,7 +121,7 @@ defined('_JEXEC') or die;
 
 				<!-- PWT branding -->
 				<div class="pwt-section">
-					<?php echo HTMLHelper::_('image', 'com_pwtacl/pwt-acl.png', 'PWT ACL', array('class' => 'pwt-extension-logo'), true); ?>
+					<?php echo HTMLHelper::_('image', 'com_pwtacl/pwt-acl.png', 'PWT ACL', ['class' => 'pwt-extension-logo'], true); ?>
 					<p class="pwt-heading"><?php echo Text::_('COM_PWTACL_DASHBOARD_ABOUT_HEADER'); ?></p>
 					<p><?php echo Text::_('COM_PWTACL_DASHBOARD_ABOUT_DESC'); ?></p>
 					<p>
@@ -145,7 +141,7 @@ defined('_JEXEC') or die;
 
 				<div class="pwt-section pwt-section--border-top">
 					<p>
-						<strong><?php echo Text::sprintf('COM_PWTACL_DASHBOARD_ABOUT_VERSION', '</strong>3.3.1'); ?>
+						<strong><?php echo Text::sprintf('COM_PWTACL_DASHBOARD_ABOUT_VERSION', '</strong>3.3.4'); ?>
 					</p>
 				</div>
 				<!-- End PWT branding -->

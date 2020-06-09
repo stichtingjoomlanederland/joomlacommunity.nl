@@ -911,6 +911,16 @@ HTML;
 	 */
 	private function migrateIpWorkarounds($container)
 	{
+		/**
+		 * The ConfigureWAF model does not exist in the Core version. Moreover, the Core version lacks the IP
+		 * Workarounds feature. It makes no sense running this when installing Core. Worse, since the model is not
+		 * present it causes an installation failure.
+		 */
+		if (!$this->isPaid)
+		{
+			return;
+		}
+
 		// Value already migrated, stop here
 		if ($container->params->get('ipworkarounds_migrated', 0))
 		{

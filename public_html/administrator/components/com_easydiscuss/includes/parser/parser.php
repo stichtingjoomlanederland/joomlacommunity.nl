@@ -49,7 +49,8 @@ class EasyDiscussParser extends EasyDiscuss
 						 '/\[right\](.*?)\[\/right\]/ims',
 						 '/\[ul\](.*?)\[\/ul\]/ims',
 						 '/\[ol\](.*?)\[\/ol\]/ims',
-						 '/\[li\](.*?)\[\/li\]/ims'
+						 '/\[li\](.*?)\[\/li\]/ims',
+						 '/\[email\](.*?)\[\/email\]/ims'
 		);
 
 		// And replace them by...
@@ -65,7 +66,8 @@ class EasyDiscussParser extends EasyDiscuss
 						 '<p style="text-align: right;">\1</p>',
 						 '<ul>\1</ul>',
 						 '<ol>\1</ol>',
-						 '<li>\1</li>'
+						 '<li>\1</li>',
+						 '<a href="mailto:\1">\1</a>'
 		);
 
 		// @rule: Replace URL links.
@@ -106,7 +108,6 @@ class EasyDiscussParser extends EasyDiscuss
 
 		// Replace smileys before anything else
 		$text = $this->replaceSmileys($text);
-
 
 		return $text;
 	}

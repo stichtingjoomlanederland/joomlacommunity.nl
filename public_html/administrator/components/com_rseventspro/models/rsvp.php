@@ -37,7 +37,7 @@ class RseventsproModelRsvp extends JModelList
 		$id		= JFactory::getApplication()->input->getInt('id',0);
 		
 		// Select fields
-		$query->select('r.*')->select($db->qn('u.name'));
+		$query->select('r.*')->select($db->qn('u.name'))->select($db->qn('u.email'));
 		
 		// Select from table
 		$query->from($db->qn('#__rseventspro_rsvp_users', 'r'));

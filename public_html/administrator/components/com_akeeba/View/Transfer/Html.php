@@ -12,9 +12,8 @@ defined('_JEXEC') or die();
 
 use Akeeba\Backup\Admin\Model\Transfer;
 use FOF30\View\DataView\Html as BaseView;
-use JFactory;
-use JHtml;
-use JText;
+use Joomla\CMS\HTML\HTMLHelper as JHtml;
+use Joomla\CMS\Language\Text as JText;
 
 class Html extends BaseView
 {
@@ -27,37 +26,37 @@ class Html extends BaseView
 	/** @var   array  Space required on the target server */
 	public $spaceRequired = [
 		'size'   => 0,
-		'string' => '0.00 Kb'
+		'string' => '0.00 Kb',
 	];
 
 	/** @var   string  The URL to the site we are restoring to (from the session) */
 	public $newSiteUrl = '';
 
-	/** @var   string   */
+	/** @var   string */
 	public $newSiteUrlResult = '';
 
 	/** @var   array  Results of support and firewall status of the known file transfer methods */
 	public $ftpSupport = [
-		'supported'	=> [
-			'ftp'	=> false,
-			'ftps'	=> false,
-			'sftp'	=> false,
+		'supported'  => [
+			'ftp'  => false,
+			'ftps' => false,
+			'sftp' => false,
 		],
-		'firewalled'	=> [
-			'ftp'	=> false,
-			'ftps'	=> false,
-			'sftp'	=> false
-		]
+		'firewalled' => [
+			'ftp'  => false,
+			'ftps' => false,
+			'sftp' => false,
+		],
 	];
 
 	/** @var   array  Available transfer options, for use by JHTML */
 	public $transferOptions = [];
 
 	/** @var   array  Available chunk options, for use by JHTML */
-	public $chunkOptions = array();
+	public $chunkOptions = [];
 
 	/** @var   array  Available chunk size options, for use by JHTML */
-	public $chunkSizeOptions = array();
+	public $chunkSizeOptions = [];
 
 	/** @var   bool  Do I have supported but firewalled methods? */
 	public $hasFirewalledMethods = false;
@@ -110,50 +109,51 @@ class Html extends BaseView
 
 	protected function onBeforeMain()
 	{
-		$this->addJavascriptFile('media://com_akeeba/js/Transfer.min.js');
+		$this->container->template->addJS('media://com_akeeba/js/Transfer.min.js');
 
 		/** @var Transfer $model */
-		$model   = $this->getModel();
+		$model    = $this->getModel();
+		$platform = $this->container->platform;
 
 		$this->latestBackup     = $model->getLatestBackupInformation();
 		$this->spaceRequired    = $model->getApproximateSpaceRequired();
-		$this->newSiteUrl       = $this->container->platform->getSessionVar('transfer.url', '', 'akeeba');
-		$this->newSiteUrlResult = $this->container->platform->getSessionVar('transfer.url_status', '', 'akeeba');
-		$this->ftpSupport       = $this->container->platform->getSessionVar('transfer.ftpsupport', null, 'akeeba');
-		$this->transferOption   = $this->container->platform->getSessionVar('transfer.transferOption', null, 'akeeba');
-		$this->chunkMode        = $this->container->platform->getSessionVar('transfer.chunkMode', 'chunked', 'akeeba');
-		$this->chunkSize        = $this->container->platform->getSessionVar('transfer.chunkSize', 5242880, 'akeeba');
-		$this->ftpHost          = $this->container->platform->getSessionVar('transfer.ftpHost', null, 'akeeba');
-		$this->ftpPort          = $this->container->platform->getSessionVar('transfer.ftpPort', null, 'akeeba');
-		$this->ftpUsername      = $this->container->platform->getSessionVar('transfer.ftpUsername', null, 'akeeba');
-		$this->ftpPassword      = $this->container->platform->getSessionVar('transfer.ftpPassword', null, 'akeeba');
-		$this->ftpPubKey        = $this->container->platform->getSessionVar('transfer.ftpPubKey', null, 'akeeba');
-		$this->ftpPrivateKey    = $this->container->platform->getSessionVar('transfer.ftpPrivateKey', null, 'akeeba');
-		$this->ftpDirectory     = $this->container->platform->getSessionVar('transfer.ftpDirectory', null, 'akeeba');
-		$this->ftpPassive       = $this->container->platform->getSessionVar('transfer.ftpPassive', 1, 'akeeba');
-		$this->ftpPassiveFix    = $this->container->platform->getSessionVar('transfer.ftpPassiveFix', 1, 'akeeba');
+		$this->newSiteUrl       = $platform->getSessionVar('transfer.url', '', 'akeeba');
+		$this->newSiteUrlResult = $platform->getSessionVar('transfer.url_status', '', 'akeeba');
+		$this->ftpSupport       = $platform->getSessionVar('transfer.ftpsupport', null, 'akeeba');
+		$this->transferOption   = $platform->getSessionVar('transfer.transferOption', null, 'akeeba');
+		$this->chunkMode        = $platform->getSessionVar('transfer.chunkMode', 'chunked', 'akeeba');
+		$this->chunkSize        = $platform->getSessionVar('transfer.chunkSize', 5242880, 'akeeba');
+		$this->ftpHost          = $platform->getSessionVar('transfer.ftpHost', null, 'akeeba');
+		$this->ftpPort          = $platform->getSessionVar('transfer.ftpPort', null, 'akeeba');
+		$this->ftpUsername      = $platform->getSessionVar('transfer.ftpUsername', null, 'akeeba');
+		$this->ftpPassword      = $platform->getSessionVar('transfer.ftpPassword', null, 'akeeba');
+		$this->ftpPubKey        = $platform->getSessionVar('transfer.ftpPubKey', null, 'akeeba');
+		$this->ftpPrivateKey    = $platform->getSessionVar('transfer.ftpPrivateKey', null, 'akeeba');
+		$this->ftpDirectory     = $platform->getSessionVar('transfer.ftpDirectory', null, 'akeeba');
+		$this->ftpPassive       = $platform->getSessionVar('transfer.ftpPassive', 1, 'akeeba');
+		$this->ftpPassiveFix    = $platform->getSessionVar('transfer.ftpPassiveFix', 1, 'akeeba');
 
 		// We get this option from the request
 		$this->force = $this->input->getInt('force', 0);
 
 		if (!empty($this->latestBackup))
 		{
-			$lastBackupDate       = $this->getContainer()->platform->getDate($this->latestBackup['backupstart'], 'UTC');
-			$tz                  = new \DateTimeZone($this->container->platform->getUser()->getParam('timezone', $this->container->platform->getConfig()->get('offset')));
+			$lastBackupDate = $this->getContainer()->platform->getDate($this->latestBackup['backupstart'], 'UTC');
+			$tz             = new \DateTimeZone($platform->getUser()->getParam('timezone', $platform->getConfig()->get('offset')));
 			$lastBackupDate->setTimezone($tz);
 
 			$this->lastBackupDate = $lastBackupDate->format(JText::_('DATE_FORMAT_LC2'), true);
 
-			$this->container->platform->setSessionVar('transfer.lastBackup', $this->latestBackup, 'akeeba');
+			$platform->setSessionVar('transfer.lastBackup', $this->latestBackup, 'akeeba');
 		}
 
 		if (empty($this->ftpSupport))
 		{
 			$this->ftpSupport = $model->getFTPSupport();
-			$this->container->platform->setSessionVar('transfer.ftpsupport', $this->ftpSupport, 'akeeba');
+			$platform->setSessionVar('transfer.ftpsupport', $this->ftpSupport, 'akeeba');
 		}
 
-		$this->transferOptions = $this->getTransferMethodOptions();
+		$this->transferOptions  = $this->getTransferMethodOptions();
 		$this->chunkOptions     = $this->getChunkOptions();
 		$this->chunkSizeOptions = $this->getChunkSizeOptions();
 
@@ -172,33 +172,9 @@ class Html extends BaseView
 		JText::script('COM_AKEEBA_FILEFILTERS_LABEL_UIROOT');
 		JText::script('COM_AKEEBA_CONFIG_DIRECTFTP_TEST_FAIL');
 
-		$js = <<< JS
-akeeba.System.documentReady(function(){
-	// AJAX URL endpoint
-	akeeba.System.params.AjaxURL = 'index.php?option=com_akeeba&view=Transfer&format=raw&force={$this->force}';
-
-	// Last results of new site URL processing
-	akeeba.Transfer.lastUrl = '{$this->newSiteUrl}';
-	akeeba.Transfer.lastResult = '{$this->newSiteUrlResult}';
-
-	// Auto-process URL change event
-	if (document.getElementById('akeeba-transfer-url').value)
-	{
-		akeeba.Transfer.onUrlChange();
-	}
-	
-	// Remote connection hooks
-	if (document.getElementById('akeeba-transfer-ftp-method'))
-	{
-		akeeba.System.addEventListener(document.getElementById('akeeba-transfer-ftp-method'), 'change', akeeba.Transfer.onTransferMethodChange);
-		//akeeba.System.addEventListener(document.getElementById('akeeba-transfer-ftp-directory-browse'), 'click', akeeba.Transfer.initFtpSftpBrowser);
-		akeeba.System.addEventListener(document.getElementById('akeeba-transfer-btn-apply'), 'click', akeeba.Transfer.applyConnection);
-		akeeba.System.addEventListener(document.getElementById('akeeba-transfer-err-url-notexists-btn-ignore'), 'click', akeeba.Transfer.showConnectionDetails);
-	}
-});
-JS;
-
-		$this->addJavascriptInline($js);
+		$platform->addScriptOptions('akeeba.System.params.AjaxURL', sprintf("index.php?option=com_akeeba&view=Transfer&format=raw&force=%d", $this->force));
+		$platform->addScriptOptions('akeeba.Transfer.lastUrl', $this->newSiteUrl);
+		$platform->addScriptOptions('akeeba.Transfer.lastResult', $this->newSiteUrlResult);
 	}
 
 	/**
@@ -239,10 +215,10 @@ JS;
 	 */
 	private function getChunkOptions()
 	{
-		$options = array();
+		$options = [];
 
-		$options[] = array('value' => 'chunked', 'text' => JText::_('COM_AKEEBA_TRANSFER_LBL_TRANSFERMODE_CHUNKED'));
-		$options[] = array('value' => 'post', 'text' => JText::_('COM_AKEEBA_TRANSFER_LBL_TRANSFERMODE_POST'));
+		$options[] = ['value' => 'chunked', 'text' => JText::_('COM_AKEEBA_TRANSFER_LBL_TRANSFERMODE_CHUNKED')];
+		$options[] = ['value' => 'post', 'text' => JText::_('COM_AKEEBA_TRANSFER_LBL_TRANSFERMODE_POST')];
 
 		return $options;
 	}
@@ -254,18 +230,18 @@ JS;
 	 */
 	private function getChunkSizeOptions()
 	{
-		$options    = array();
+		$options    = [];
 		$multiplier = 1048576;
 
-		$options[] = array('value' => 0.5 * $multiplier, 'text' => '512 KB');
-		$options[] = array('value' => 1 * $multiplier, 'text' => '1 MB');
-		$options[] = array('value' => 2 * $multiplier, 'text' => '2 MB');
-		$options[] = array('value' => 5 * $multiplier, 'text' => '5 MB');
-		$options[] = array('value' => 10 * $multiplier, 'text' => '10 MB');
-		$options[] = array('value' => 20 * $multiplier, 'text' => '20 MB');
-		$options[] = array('value' => 30 * $multiplier, 'text' => '30 MB');
-		$options[] = array('value' => 50 * $multiplier, 'text' => '50 MB');
-		$options[] = array('value' => 100 * $multiplier, 'text' => '100 MB');
+		$options[] = ['value' => 0.5 * $multiplier, 'text' => '512 KB'];
+		$options[] = ['value' => 1 * $multiplier, 'text' => '1 MB'];
+		$options[] = ['value' => 2 * $multiplier, 'text' => '2 MB'];
+		$options[] = ['value' => 5 * $multiplier, 'text' => '5 MB'];
+		$options[] = ['value' => 10 * $multiplier, 'text' => '10 MB'];
+		$options[] = ['value' => 20 * $multiplier, 'text' => '20 MB'];
+		$options[] = ['value' => 30 * $multiplier, 'text' => '30 MB'];
+		$options[] = ['value' => 50 * $multiplier, 'text' => '50 MB'];
+		$options[] = ['value' => 100 * $multiplier, 'text' => '100 MB'];
 
 		return $options;
 	}

@@ -252,9 +252,9 @@ class WFMediaManager extends WFMediaManagerBase
             return $exif;
         }
 
-        $exif = @exif_read_data($file, 'EXIF');
+        $exif = @exif_read_data($file);
 
-        if ($exif && is_array($exif)) {
+        if ($exif && is_array($exif) && array_key_exists('EXIF', $exif)) {
             $this->exifCache[$key] = $exif;
         }
 

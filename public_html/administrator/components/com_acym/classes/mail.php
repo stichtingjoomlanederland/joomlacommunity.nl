@@ -40,29 +40,27 @@ class acymmailClass extends acymClass
             }
         }
 
-        if (empty($settings['automation']) || !$settings['automation']) {
-
-            if (!empty($settings['editor'])) {
-                if ($settings['editor'] == 'html') {
-                    $filters[] .= 'mail.drag_editor = 0';
-                } else {
-                    $filters[] .= 'mail.drag_editor = 1';
-                }
-            }
-
-            if (empty($settings['onlyStandard'])) {
-                $filters[] = 'mail.type != \'notification\'';
+        if (!empty($settings['editor'])) {
+            if ($settings['editor'] == 'html') {
+                $filters[] .= 'mail.drag_editor = 0';
             } else {
-                $filters[] = 'mail.type = \'standard\'';
+                $filters[] .= 'mail.drag_editor = 1';
             }
+        }
 
+        if (!empty($settings['automation']) || empty($settings['onlyStandard'])) {
+            $filters[] = 'mail.type != "notification"';
+        } else {
+            $filters[] = 'mail.type = "standard"';
+        }
+
+        if (empty($settings['automation'])) {
             $filters[] = 'mail.template = 1';
         }
 
         if (!empty($settings['creator_id'])) {
             $filters[] = 'mail.creator_id = '.intval($settings['creator_id']).' OR (mail.template = 1 AND mail.library = 1)';
         }
-
 
         if (!empty($filters)) {
             $queryStatus .= ' WHERE ('.implode(') AND (', $filters).')';
@@ -248,7 +246,7 @@ class acymmailClass extends acymClass
 
         $mail->autosave = null;
 
-        if (empty($mail->thumbnail)) unset($mail->thumbnail);
+        if (empty($mail->thumbnail) || strpos($mail->thumbnail, 'data:image/png;base64') !== false) unset($mail->thumbnail);
 
         foreach ($mail as $oneAttribute => $value) {
             if (empty($value) || in_array($oneAttribute, ['thumbnail', 'settings'])) {
@@ -422,19 +420,19 @@ class acymmailClass extends acymClass
         if ($fileError > 0) {
             switch ($fileError) {
                 case 1:
-                    acym_enqueueMessage(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_1'), 'error');
+                    acym_enqueueMessage(acym_translation('ACYM_FILE_UPLOAD_ERROR_1'), 'error');
 
                     return false;
                 case 2:
-                    acym_enqueueMessage(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_2'), 'error');
+                    acym_enqueueMessage(acym_translation('ACYM_FILE_UPLOAD_ERROR_2'), 'error');
 
                     return false;
                 case 3:
-                    acym_enqueueMessage(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_3'), 'error');
+                    acym_enqueueMessage(acym_translation('ACYM_FILE_UPLOAD_ERROR_3'), 'error');
 
                     return false;
                 case 4:
-                    acym_enqueueMessage(acym_translation_sprintf('ACYM_FILE_UPLOAD_ERROR_4'), 'error');
+                    acym_enqueueMessage(acym_translation('ACYM_FILE_UPLOAD_ERROR_4'), 'error');
 
                     return false;
                 default:
@@ -559,11 +557,12 @@ class acymmailClass extends acymClass
         $newTemplate->name = trim(preg_replace('#[^a-z0-9]#i', ' ', substr(dirname($filepath), strpos($filepath, '_template'))));
         if (preg_match('#< *title[^>]*>(.*)< */ *title *>#Uis', $fileContent, $results) && !empty($results[1])) $newTemplate->name = $results[1];
 
-        if (preg_match('#< *meta *name="description" *content="([^"]*)"#Uis', $fileContent, $results) && !empty($results[1])) $newTemplate->description = $results[1];
         if (preg_match('#< *meta *name="fromname" *content="([^"]*)"#Uis', $fileContent, $results) && !empty($results[1])) $newTemplate->fromname = $results[1];
         if (preg_match('#< *meta *name="fromemail" *content="([^"]*)"#Uis', $fileContent, $results) && !empty($results[1])) $newTemplate->fromemail = $results[1];
         if (preg_match('#< *meta *name="replyname" *content="([^"]*)"#Uis', $fileContent, $results) && !empty($results[1])) $newTemplate->replyname = $results[1];
         if (preg_match('#< *meta *name="replyemail" *content="([^"]*)"#Uis', $fileContent, $results) && !empty($results[1])) $newTemplate->replyemail = $results[1];
+        if (preg_match('#< *meta *name="subject" *content="([^"]*)"#Uis', $fileContent, $results) && !empty($results[1])) $newTemplate->subject = $results[1];
+        if (preg_match('#< *meta *name="settings" *content="([^"]*)"#Uis', $fileContent, $results) && !empty($results[1])) $newTemplate->settings = htmlspecialchars_decode($results[1]);
 
         $newFolder = preg_replace('#[^a-z0-9]#i', '_', strtolower($newTemplate->name));
         $newTemplateFolder = $newFolder;
@@ -683,7 +682,6 @@ class acymmailClass extends acymClass
 
     public function sendAutomation($mailId, $userIds, $sendingDate, $automationAdmin = [])
     {
-
         if (empty($mailId)) return acym_translation_sprintf('ACYM_EMAILS_ADDED_QUEUE', 0);
         if (empty($sendingDate)) return acym_translation('ACYM_WRONG_DATE');
         if (empty($userIds)) return acym_translation('ACYM_USER_NOT_FOUND');

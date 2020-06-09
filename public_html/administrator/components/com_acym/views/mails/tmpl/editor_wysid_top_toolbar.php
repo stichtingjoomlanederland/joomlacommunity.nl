@@ -30,3 +30,5 @@ defined('_JEXEC') or die('Restricted access');
 		<i class="cell grid-x shrink acymicon-close cursor-pointer" id="acym__wysid__top-toolbar__notification__close"></i>
 	</div>
 </div>
+<div id="acym__wysid__text__tinymce__editor"></div>
+

@@ -7,26 +7,8 @@
 
 defined('_JEXEC') or die();
 
-$ajaxUrl    = addslashes('index.php?option=com_akeeba&view=FileFilters&task=ajax');
-$loadingUrl = addslashes($this->container->template->parsePath('media://com_akeeba/icons/loading.gif'));
-$json       = addcslashes($this->json, "'");
-$js         = <<< JS
-
-;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
-// due to missing trailing semicolon and/or newline in their code.
-akeeba.System.documentReady(function() {
-    akeeba.System.params.AjaxURL = '$ajaxUrl';
-    akeeba.Fsfilters.loadingGif = '$loadingUrl';
-
-	// Bootstrap the page display
-	var data = JSON.parse('{$json}');
-    akeeba.Fsfilters.renderTab(data);
-});
-
-JS;
-
+/** @var \Akeeba\Backup\Admin\View\FileFilters\Html $this */
 ?>
-@inlineJs($js)
 @include('admin:com_akeeba/CommonTemplates/ErrorModal')
 @include('admin:com_akeeba/CommonTemplates/ProfileName')
 
@@ -39,14 +21,18 @@ JS;
         <label>
             @lang('COM_AKEEBA_FILEFILTERS_LABEL_ADDNEWFILTER')
         </label>
-        <button class="akeeba-btn--grey"
-                onclick="akeeba.Fsfilters.addNew('directories'); return false;">@lang('COM_AKEEBA_FILEFILTERS_TYPE_DIRECTORIES')</button>
-        <button class="akeeba-btn--grey"
-                onclick="akeeba.Fsfilters.addNew('skipfiles'); return false;">@lang('COM_AKEEBA_FILEFILTERS_TYPE_SKIPFILES')</button>
-        <button class="akeeba-btn--grey"
-                onclick="akeeba.Fsfilters.addNew('skipdirs'); return false;">@lang('COM_AKEEBA_FILEFILTERS_TYPE_SKIPDIRS')</button>
-        <button class="akeeba-btn--grey"
-                onclick="akeeba.Fsfilters.addNew('files'); return false;">@lang('COM_AKEEBA_FILEFILTERS_TYPE_FILES')</button>
+        <button class="akeeba-btn--grey" id="comAkeebaFileFiltersAddDirectories">
+            @lang('COM_AKEEBA_FILEFILTERS_TYPE_DIRECTORIES')
+        </button>
+        <button class="akeeba-btn--grey" id="comAkeebaFileFiltersAddSkipfiles">
+            @lang('COM_AKEEBA_FILEFILTERS_TYPE_SKIPFILES')
+        </button>
+        <button class="akeeba-btn--grey" id="comAkeebaFileFiltersAddSkipdirs">
+            @lang('COM_AKEEBA_FILEFILTERS_TYPE_SKIPDIRS')
+        </button>
+        <button class="akeeba-btn--grey" id="comAkeebaFileFiltersAddFiles">
+            @lang('COM_AKEEBA_FILEFILTERS_TYPE_FILES')
+        </button>
     </div>
 </div>
 

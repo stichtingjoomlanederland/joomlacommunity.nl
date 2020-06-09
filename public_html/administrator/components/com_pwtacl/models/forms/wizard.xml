@@ -4,7 +4,6 @@
 		name="default"
 		addfieldpath="/administrator/components/com_pwtacl/models/fields"
 	>
-
 		<field
 			type="spacer"
 			name="group"
@@ -102,6 +101,5 @@
 			class="multipleTags"
 			showon="groupid!:[OR]grouptitle!:"
 		/>
-
 	</fieldset>
 </form>

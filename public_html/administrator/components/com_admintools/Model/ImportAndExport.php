@@ -18,9 +18,8 @@ class ImportAndExport extends Model
 {
 	public function exportData()
 	{
-		$return = array();
-
-		$exportData = $this->input->get('exportdata', array(), 'array', 2);
+		$return     = [];
+		$exportData = $this->input->get('exportdata', [], 'array', 2);
 
 		if (isset($exportData['wafconfig']) && $exportData['wafconfig'])
 		{
@@ -81,13 +80,15 @@ class ImportAndExport extends Model
 		return $return;
 	}
 
-	public function importData()
+	/**
+	 * Handles settings data coming from a file upload
+	 *
+	 * @throws \Exception
+	 */
+	public function importDataFromRequest()
 	{
-		$db = $this->container->db;
-
 		$input  = new Input('files');
 		$file   = $input->get('importfile', null, 'file', 2);
-		$errors = array();
 
 		// Sanity checks
 		if (!$file)
@@ -102,7 +103,22 @@ class ImportAndExport extends Model
 			throw new \Exception(JText::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_READING_FILE'));
 		}
 
-		$data = json_decode($data, true);
+		$this->importData($data);
+	}
+
+	/**
+	 * Imports passed data inside Admin Tools
+	 *
+	 * @param string $new_settings  String in JSON format containing the new settings
+	 *
+	 * @throws \Exception
+	 */
+	public function importData($new_settings)
+	{
+		$db     = $this->container->db;
+		$errors = [];
+
+		$data = json_decode($new_settings, true);
 
 		if (!$data)
 		{
@@ -110,7 +126,6 @@ class ImportAndExport extends Model
 		}
 
 		// Everything seems ok, let's start importing data
-
 		if (isset($data['wafconfig']))
 		{
 			/** @var ConfigureWAF $config */
@@ -128,7 +143,7 @@ class ImportAndExport extends Model
 				{
 					$insert = $db->getQuery(true)
 					             ->insert($db->qn('#__admintools_wafblacklists'))
-					             ->columns(array(
+					             ->columns([
 						             $db->qn('option'),
 						             $db->qn('view'),
 						             $db->qn('task'),
@@ -136,7 +151,7 @@ class ImportAndExport extends Model
 						             $db->qn('query_type'),
 						             $db->qn('query_content'),
 						             $db->qn('verb')
-					             ));
+					             ]);
 
 					// I could have several records, let's create a single big query
 					foreach ($data['wafblacklist'] as $row)
@@ -167,9 +182,9 @@ class ImportAndExport extends Model
 				{
 					$insert = $db->getQuery(true)
 					             ->insert($db->qn('#__admintools_wafexceptions'))
-					             ->columns(array(
+					             ->columns([
 						             $db->qn('option'), $db->qn('view'), $db->qn('query')
-					             ));
+					             ]);
 
 					// I could have several records, let's create a single big query
 					foreach ($data['wafexceptions'] as $row)
@@ -222,7 +237,7 @@ class ImportAndExport extends Model
 					// I could have several records, let's create a single big query
 					$insert = $db->getQuery(true)
 					             ->insert($db->qn('#__admintools_adminiplist'))
-					             ->columns(array($db->qn('ip'), $db->qn('description')));
+					             ->columns([$db->qn('ip'), $db->qn('description')]);
 
 					foreach ($data['ipwhitelist'] as $row)
 					{
@@ -249,7 +264,7 @@ class ImportAndExport extends Model
 					// I could have several records, let's create a single big query
 					$insert = $db->getQuery(true)
 					             ->insert($db->qn('#__admintools_badwords'))
-					             ->columns(array($db->qn('word')));
+					             ->columns([$db->qn('word')]);
 
 					foreach ($data['badwords'] as $row)
 					{
@@ -319,7 +334,7 @@ class ImportAndExport extends Model
 	 */
 	protected function importBlackListRows($data = null)
 	{
-		static $cache = array();
+		static $cache = [];
 
 		// Let's enqueue the data
 		if($data)
@@ -335,7 +350,7 @@ class ImportAndExport extends Model
 
 			$query = $db->getQuery(true)
 						->insert($db->qn('#__admintools_ipblock'))
-						->columns(array($db->qn('ip'), $db->qn('description')));
+						->columns([$db->qn('ip'), $db->qn('description')]);
 
 			foreach ($cache as $row)
 			{
@@ -344,7 +359,7 @@ class ImportAndExport extends Model
 
 			$db->setQuery($query)->execute();
 
-			$cache = array();
+			$cache = [];
 		}
 	}
 }

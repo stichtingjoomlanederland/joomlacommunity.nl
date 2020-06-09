@@ -35,18 +35,12 @@ class Html extends BaseView
 		// -- Backup
 		JText::script('COM_AKEEBA_BACKUP_TEXT_LASTRESPONSE', true);
 
-		// Set up the head Javascript
-		$js = <<< JS
-akeeba.System.documentReady(function() {
-    akeeba.System.params.AjaxURL = 'index.php?option=com_akeeba&view=ConfigurationWizard&task=ajax';
-	akeeba.Wizard.boot();
-});
-JS;
-
 		// Load the Configuration Wizard Javascript file
-		$this->addJavascriptFile('media://com_akeeba/js/Backup.min.js');
-		$this->addJavascriptFile('media://com_akeeba/js/ConfigurationWizard.min.js');
-		$this->addJavascriptInline($js);
+		$this->container->template->addJS('media://com_akeeba/js/Backup.min.js');
+		$this->container->template->addJS('media://com_akeeba/js/ConfigurationWizard.min.js');
+
+		$platform = $this->container->platform;
+		$platform->addScriptOptions('akeeba.System.params.AjaxURL', 'index.php?option=com_akeeba&view=ConfigurationWizard&task=ajax');
 
 		// Set the layour
 		$this->setLayout('wizard');

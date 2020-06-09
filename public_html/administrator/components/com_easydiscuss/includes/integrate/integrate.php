@@ -111,7 +111,6 @@ class EasyDiscussIntegrate extends EasyDiscuss
 
 	private static function jsn($profile)
 	{
-
 		$file = JPATH_ROOT . '/components/com_jsn/helpers/helper.php';
 
 		if (!JFile::exists($file)) {
@@ -120,10 +119,28 @@ class EasyDiscussIntegrate extends EasyDiscuss
 	
 		require_once($file);
 
+		$app = JFactory::getApplication(); 
+		$menu = $app->getMenu();
+
 		$user = JsnHelper::getUser($profile->id);
 
-		$avatarLink = '/' . $user->avatar;
-		$profileLink = EDR::_('index.php?option=com_easydiscuss&view=profile&id='.$profile->id, false);
+		// Retrieve the default avatar from the user
+		$avatarImg = JsnHelper::defaultAvatar();
+
+		if (isset($user->avatar) && $user->avatar) {
+			$avatarImg = $user->avatar;
+		}
+
+		$avatarLink = '/' . $avatarImg;	
+
+		// check the EasyProfile is it got created user profile menu item
+		$menuItem = $menu->getItems('link', 'index.php?option=com_jsn&view=profile', true);
+
+		$profileLink = JRoute::_('index.php?option=com_jsn&view=profile&id=' . $profile->id, false);
+
+		if (!empty($menuItem->id)) {
+			$profileLink = JRoute::_('index.php?option=com_jsn&view=profile&id=' . $profile->id . '&Itemid=' . $menuItem->id, false);
+		}
 
 		return array($avatarLink, $profileLink);
 	}

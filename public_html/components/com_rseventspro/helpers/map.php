@@ -79,7 +79,7 @@ class rseventsproMapHelper
 				if (isset($params['markers']))				$script[] = "\t\tmarkers: ".json_encode($params['markers']).",";
 				
 				$script[] = "\t\ttileLayer: '".$tileLayer."',";
-				$script[] = "\t\ttileType: '".$tileType."',";
+				$script[] = "\t\ttileType: '".self::legacy($tileType)."',";
 				$script[] = "\t\tattribution: '".$attribution."',";
 				$script[] = "\t\taccessToken: '".$accessToken."'";
 				
@@ -99,7 +99,7 @@ class rseventsproMapHelper
 			'openstreetmapbox'    => array(
 				'tileType'        => $config->openstreet_mapbox_tile_type,
 				'accessToken'     => $config->openstreet_mapbox_access_token,
-				'tileLayer'       => 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
+				'tileLayer'       => 'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}',
 				'attribution'     => 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery  &copy; <a href="https://www.mapbox.com/">Mapbox</a>'
 			),
 			'openstreetthunderforest' => array(
@@ -160,6 +160,22 @@ class rseventsproMapHelper
 				JHtml::script('com_rseventspro/jquery.map.os.js', array('relative' => true, 'version' => 'auto'));
 			}
 		}
+	}
+	
+	protected static function legacy($type) {
+		if ($type == 'mapbox.streets') {
+			return 'mapbox/streets-v11';
+		} elseif ($type == 'mapbox.dark') {
+			return 'mapbox/dark-v10';
+		} elseif ($type == 'mapbox.light') {
+			return 'mapbox/light-v10';
+		} elseif ($type == 'mapbox.outdoors') {
+			return 'mapbox/outdoors-v11';
+		} elseif ($type == 'mapbox.satellite') {
+			return 'mapbox/satellite-streets-v11';
+		}
+		
+		return $type;
 	}
 	
 	public static function markers($locations) {

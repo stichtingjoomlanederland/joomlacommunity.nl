@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -27,6 +27,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo $this->html('settings.toggle', 'notify_admin_onreply', 'COM_EASYDISCUSS_NOTIFY_ADMINS_ON_NEW_REPLY'); ?>
 					<?php echo $this->html('settings.toggle', 'notify_moderator', 'COM_EASYDISCUSS_NOTIFY_MODERATORS_ON_NEW_POST'); ?>
 					<?php echo $this->html('settings.toggle', 'notify_moderator_onreply', 'COM_EASYDISCUSS_NOTIFY_MODERATORS_ON_NEW_REPLY'); ?>
+
 					<?php echo $this->html('settings.toggle', 'notify_all', 'COM_EASYDISCUSS_NOTIFY_ALL_USERS_ON_NEW_POST'); ?>
 					<?php echo $this->html('settings.toggle', 'notify_reply_all_members', 'COM_ED_NOTIFY_ALL_USERS_ON_NEW_REPLY'); ?>
 					<?php echo $this->html('settings.toggle', 'notify_all_respect_category', 'COM_EASYDISCUSS_NOTIFY_ALL_USERS_RESPECT_CATEGORY_PERMISSIONS'); ?>
@@ -59,21 +60,34 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<div class="col-md-6">
 
 		<div class="panel">
-			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_NOTIFICATIONS_EMAIL_TEMPLATES'); ?>
-
-			<div class="panel-body">
-				<div class="form-horizontal">
-					<?php echo $this->html('settings.textbox', 'notify_email_title', 'COM_EASYDISCUSS_SETTINGS_NOTIFICATIONS_EMAIL_TITLE'); ?>	
-				</div>
-			</div>
-		</div>
-
-		<div class="panel">
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_MAIL_SPOOL'); ?>
 
 			<div class="panel-body">
 				<?php echo $this->html('settings.toggle', 'main_mailqueueonpageload', 'COM_EASYDISCUSS_SEND_EMAIL_ON_PAGE_LOAD'); ?>
 				<?php echo $this->html('settings.toggle', 'notify_html_format', 'COM_EASYDISCUSS_NOTIFICATIONS_HTML_FORMAT'); ?>
+
+				<div class="form-group " data-email-logo-wrapper>
+					<div class="col-md-5 control-label">
+						<?php echo $this->html('form.label', 'COM_ED_EMAIL_LOGO_SETTINGS'); ?>
+					</div>
+
+					<div class="col-md-7" data-email-logo>
+						<div class="mb-20">
+							<div class="ed-img-holder">
+								<div class="ed-img-holder__remove <?php echo !ED::hasCustomEmailLogo() ? 't-hidden' : '';?>">
+									<a href="javascript:void(0);" data-email-logo-restore>
+										<i class="fa fa-times"></i>&nbsp; <?php echo JText::_('COM_ED_EMAIL_LOGO_SETTINGS_REMOVE_BUTTON'); ?>
+									</a>
+								</div>
+								<img src="<?php echo ED::getLogo(); ?>" width="200" data-email-logo-image />
+							</div>
+						</div>
+						<div>
+							<input type="file" name="email_logo" class="input" />
+						</div>
+					</div>
+				</div>
+
 				<?php echo $this->html('settings.textbox', 'main_mailqueuenumber', 'COM_EASYDISCUSS_MAILNUMBER_PERLOAD', '', array('postfix' => 'E-mails', 'size' => 8), '', 'form-control-sm text-center'); ?>
 				<?php echo $this->html('settings.textbox', 'main_notification_max_length', 'COM_EASYDISCUSS_TRUNCATE_EMAIL_LENGTH', '', array('postfix' => 'Characters', 'size' => 9), '', 'form-control-sm text-center'); ?>
 			</div>

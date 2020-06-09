@@ -201,6 +201,7 @@ function rs_validate_subscr() {
 			<td><a class="btn" rel="rs_seats" <?php if (rseventsproHelper::getConfig('modaltype','int') == 1) echo 'onclick="jQuery(\'#rseModal\').modal(\'show\');" href="javascript:void(0);"'; else echo 'href="'.rseventsproHelper::route('index.php?option=com_rseventspro&layout=userseats&tmpl=component&id='.rseventsproHelper::sef($subscriber->id,$subscriber->name)).'"'; ?>><?php echo JText::_('COM_RSEVENTSPRO_SEATS_CONFIGURATION'); ?></a></td>
 		</tr>
 		<?php } ?>
+		<?php $total = $total > 0 ? $total : 0; ?>
 		<tr>
 			<td width="160"><b><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_TOTAL'); ?></b></td>
 			<td><span id="total"><?php echo rseventsproHelper::currency($total); ?></span></td>

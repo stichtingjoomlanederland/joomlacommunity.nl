@@ -3,7 +3,7 @@
  * @package    PwtAcl
  *
  * @author     Sander Potjer - Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2011 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2011 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
@@ -14,9 +14,11 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Helper\ContentHelper;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\Layout\FileLayout;
 use Joomla\CMS\MVC\View\HtmlView;
+use Joomla\CMS\Toolbar\Toolbar;
+use Joomla\CMS\Toolbar\ToolbarHelper;
 
-// No direct access.
 defined('_JEXEC') or die;
 
 /**
@@ -24,7 +26,7 @@ defined('_JEXEC') or die;
  *
  * @since   3.0
  */
-class PwtaclViewAssets extends HtmlView
+class PwtAclViewAssets extends HtmlView
 {
 	/**
 	 * @var     $items
@@ -134,7 +136,7 @@ class PwtaclViewAssets extends HtmlView
 		}
 
 		// Show recommendation to not edit the groupsParent
-		if ($this->group == $this->groupsParent)
+		if ($this->group === $this->groupsParent)
 		{
 			Factory::getApplication()->enqueueMessage(Text::_('COM_PWTACL_ASSETS_NOTICE_PUBLIC_PERMISSIONS'), 'info');
 		}
@@ -145,22 +147,19 @@ class PwtaclViewAssets extends HtmlView
 			Factory::getApplication()->enqueueMessage(Text::_('COM_PWTACL_ASSETS_NOTICE_USER_PERMISSIONS'), 'info');
 		}
 
-		// Include jQuery
 		HTMLHelper::_('jquery.framework');
-
-		// Load Javascript.
-		HTMLHelper::_('script', 'media/com_pwtacl/js/permissions.js', array('version' => 'auto'));
+		HTMLHelper::_('script', 'media/com_pwtacl/js/permissions.js', ['version' => 'auto']);
 
 		// Add options for JS
-		Factory::getDocument()->addScriptOptions('pwtacl', array(
-				'superuseralert' => Text::_('COM_PWTACL_ASSETS_NOTICE_SUPERUSER_ACCESS'))
-		);
+		Factory::getDocument()->addScriptOptions('pwtacl', [
+			'superuseralert' => Text::_('COM_PWTACL_ASSETS_NOTICE_SUPERUSER_ACCESS')
+		]);
 
 		// Load the toolbar
 		$this->addToolbar();
 
 		// Load the sidebar
-		PwtaclHelper::addSubmenu($this->type);
+		PwtAclHelper::addSubmenu($this->type);
 		$this->sidebar = JHtmlSidebar::render();
 
 		return parent::display($tpl);
@@ -174,7 +173,7 @@ class PwtaclViewAssets extends HtmlView
 	 */
 	protected function addToolbar()
 	{
-		$bar = JToolbar::getInstance('toolbar');
+		$bar = Toolbar::getInstance('toolbar');
 
 		// Toolbar Title
 		$title = Text::_('COM_PWTACL_SUBMENU_' . $this->type);
@@ -191,59 +190,55 @@ class PwtaclViewAssets extends HtmlView
 			$title .= ' - ' . Factory::getUser($this->user)->get('name');
 		}
 
-		JToolBarHelper::title($title, 'pwtacl');
+		ToolbarHelper::title($title, 'pwtacl');
 
-		// Toolbar buttons based on permisisons
+		// Toolbar buttons based on permissions
 		$canDo = ContentHelper::getActions('com_pwtacl');
 
 		// Reset & clear buttons for group
 		if ($this->group && $canDo->get('core.edit'))
 		{
-			// Clear permissions buttonfor non-Super-User groups
+			// Clear permissions button for non-Super-User groups
 			if (!Access::checkGroup($this->group, 'core.admin', 'root.1'))
 			{
-				JToolBarHelper::custom('assets.clear', 'delete.png', 'delete.png', 'COM_PWTACL_TOOLBAR_CLEAR', false);
+				ToolbarHelper::custom('assets.clear', 'delete.png', 'delete.png', 'COM_PWTACL_TOOLBAR_CLEAR', false);
 			}
 
 			// Reset button for default user groups
 			if ($this->group <= 9)
 			{
-				JToolBarHelper::custom('assets.reset', 'refresh.png', 'refresh.png', 'COM_PWTACL_TOOLBAR_REVERT', false);
+				ToolbarHelper::custom('assets.reset', 'refresh.png', 'refresh.png', 'COM_PWTACL_TOOLBAR_REVERT', false);
 			}
 
-			// Instantiate a new JLayoutFile instance and render the copy button
-			$layout = new JLayoutFile('joomla.toolbar.modal');
+			// Instantiate a new FileLayout instance and render the copy button
+			$layout = new FileLayout('joomla.toolbar.modal');
 
 			// Copy button
-			$dhtml = $layout->render(
-				array(
-					'selector' => 'copyModal',
-					'icon'     => 'copy',
-					'text'     => JText::_('COM_PWTACL_TOOLBAR_COPY'),
-				)
-			);
+			$copyButton = $layout->render([
+				'selector' => 'copyModal',
+				'icon'     => 'copy',
+				'text'     => Text::_('COM_PWTACL_TOOLBAR_COPY'),
+			]);
 
-			$bar->appendButton('Custom', $dhtml, 'copy');
+			$bar->appendButton('Custom', $copyButton, 'copy');
 
 			// Export button
-			JToolBarHelper::custom('assets.export', 'download.png', 'download.png', 'COM_PWTACL_TOOLBAR_EXPORT', false);
+			ToolbarHelper::custom('assets.export', 'download.png', 'download.png', 'COM_PWTACL_TOOLBAR_EXPORT', false);
 
 			// Import button
-			$dhtml = $layout->render(
-				array(
-					'selector' => 'importModal',
-					'icon'     => 'upload',
-					'text'     => Text::_('COM_PWTACL_TOOLBAR_IMPORT'),
-				)
-			);
+			$importButton = $layout->render([
+				'selector' => 'importModal',
+				'icon'     => 'upload',
+				'text'     => Text::_('COM_PWTACL_TOOLBAR_IMPORT'),
+			]);
 
-			$bar->appendButton('Custom', $dhtml, 'copy');
+			$bar->appendButton('Custom', $importButton, 'copy');
 		}
 
 		// Options button
 		if ($canDo->get('core.admin') || $canDo->get('core.options'))
 		{
-			JToolbarHelper::preferences('com_pwtacl');
+			ToolbarHelper::preferences('com_pwtacl');
 		}
 	}
 }

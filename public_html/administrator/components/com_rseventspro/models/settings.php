@@ -43,6 +43,10 @@ class RseventsproModelSettings extends JModelAdmin
 	protected function loadFormData() {
 		$data = (array) $this->getConfig();
 		
+		if (isset($data['cancel_to'])) {
+			$data['cancel_to'] = explode(',',$data['cancel_to']);
+		}
+		
 		if (isset($data['gallery_params'])) {
 			try {
 				$registry = new JRegistry;
@@ -176,11 +180,25 @@ class RseventsproModelSettings extends JModelAdmin
 			$data['facebook_pages'] = '';
 		}
 		
+		// Save Facebook groups
+		if (isset($data['facebook_groups'])) {
+			$data['facebook_groups'] = is_array($data['facebook_groups']) ? implode(',', $data['facebook_groups']) : $data['facebook_groups'];
+		} else {
+			$data['facebook_groups'] = '';
+		}
+		
 		// Save Google calendars
 		if (isset($data['google_calendars'])) {
 			$data['google_calendars'] = is_array($data['google_calendars']) ? implode(',', $data['google_calendars']) : $data['google_calendars'];
 		} else {
 			$data['google_calendars'] = '';
+		}
+		
+		// Save cancel email status
+		if (isset($data['cancel_to'])) {
+			$data['cancel_to'] = is_array($data['cancel_to']) ? implode(',', $data['cancel_to']) : $data['cancel_to'];
+		} else {
+			$data['cancel_to'] = '';
 		}
 		
 		// Save gallery params
@@ -295,44 +313,6 @@ class RseventsproModelSettings extends JModelAdmin
 	}
 	
 	/**
-	 * Method to import Facebook events.
-	 *
-	 * @return	boolean		True if success.
-	 * @since	1.6
-	 */
-	public function facebook() {
-		$config 	= $this->getConfig();
-		$jform		= JFactory::getApplication()->input->get('jform', array(),'array');
-		$parsed		= 0;
-		$total		= 0;
-		
-		if (empty($config->facebook_token)) {
-			$this->setError(JText::_('COM_RSEVENTSPRO_FACEBOOK_NO_CONNECTION'));
-			return false;
-		}
-		
-		try {
-			list($parsed, $total) = rseventsproHelper::facebookEvents($jform);
-		} catch (Exception $e) {
-			$this->setError($e->getMessage());
-			return false;
-		}
-		
-		if (!$total) {
-			$this->setError(JText::_('COM_RSEVENTSPRO_FACEBOOK_NO_EVENTS'));
-			return false;
-		}
-		
-		if (!$parsed) {
-			$this->setError(JText::_('COM_RSEVENTSPRO_FACEBOOK_NO_EVENTS_IMPORTED'));
-			return false;
-		}
-		
-		JFactory::getApplication()->enqueueMessage(JText::sprintf('COM_RSEVENTSPRO_FACEBOOK_IMPORT_SUCCESS', $parsed));
-		return true;
-	}
-	
-	/**
 	 * Method to auth Google events.
 	 *
 	 * @return	boolean		True if success.
@@ -431,7 +411,7 @@ class RseventsproModelSettings extends JModelAdmin
 				));
 				
 				$helper = $facebook->getRedirectLoginHelper();
-				$permissions = array('user_events', 'manage_pages');
+				$permissions = array('user_events', 'manage_pages', 'publish_to_groups');
 
 				return $helper->getLoginUrl($redirectURI, $permissions);
 				
@@ -441,5 +421,149 @@ class RseventsproModelSettings extends JModelAdmin
 		}
 		
 		return false;
+	}
+	
+	public function importFacebookEvents() {
+		$config 		= rseventsproHelper::getConfig();
+		$input			= JFactory::getApplication()->input;
+		$init			= $input->getInt('init', 0);
+		$step			= $input->getInt('step', 0);
+		$total			= $input->getInt('total', 0);
+		$fbpages		= $input->get('fbpages', array(), 'array');
+		$owners			= $input->get('owners', array(), 'array');
+		$names			= $input->get('names', array(), 'array');
+		$types			= $input->get('types', array(), 'array');
+		$allowedPages	= $config->facebook_pages;
+		$allowedPages	= !empty($allowedPages) ? explode(',',$allowedPages) : '';
+		$allowedGroups	= $config->facebook_groups;
+		$allowedGroups	= !empty($allowedGroups) ? explode(',',$allowedGroups) : '';
+		$profile		= isset($config->facebook_profile) ? $config->facebook_profile : 1;
+		$data			= new stdClass();
+		$reset			= false;
+		$limit			= 50;
+		
+		try {
+			require_once JPATH_SITE.'/components/com_rseventspro/helpers/facebook/autoload.php';
+			
+			$facebook = new Facebook\Facebook(array(
+				'app_id' => $config->facebook_appid,
+				'app_secret' => $config->facebook_secret,
+				'default_graph_version' => 'v4.0',
+				'default_access_token' => $config->facebook_token,
+				'pseudo_random_string_generator' => 'openssl'
+			));
+			
+			if ($init) {
+				$fbRequest	= $facebook->get('me');
+				$user		= $fbRequest->getDecodedBody();
+				$uid 		= $user['id'];
+				$fbpages	= array();
+				$owners[]	= $uid;
+				
+				if ($profile) {
+					$fbpages[] = 'me';
+					$names['me'] = 'FBUSER';
+					$types['me'] = 'user';
+				}
+				
+				if (!empty($allowedPages)) {
+					$fbRequest	= $facebook->get('me/accounts?fields=id,name&limit=200');
+					$pages		= $fbRequest->getDecodedBody();
+					
+					if (!empty($pages) && !empty($pages['data'])) {
+						foreach($pages['data'] as $page) {
+							foreach ($allowedPages as $pid) {
+								$pid = trim($pid);
+								if ($pid == $page['id']) {
+									$fbpages[] = $page['id'];
+									$owners[] = $page['id'];
+									$names[$page['id']] = $page['name'];
+									$types[$page['id']] = 'page';
+								}
+							}
+						}
+					}
+				}
+				
+				if (!empty($allowedGroups)) {
+					$fbRequest	= $facebook->get('me/groups?fields=id,name&limit=200');
+					$groups		= $fbRequest->getDecodedBody();
+					
+					if (!empty($groups) && !empty($groups['data'])) {
+						foreach($groups['data'] as $group) {
+							foreach ($allowedGroups as $pid) {
+								$pid = trim($pid);
+								if ($pid == $group['id']) {
+									$fbpages[] = $group['id'];
+									$owners[] = $group['id'];
+									$names[$group['id']] = $group['name'];
+									$types[$group['id']] = 'group';
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			if (!empty($fbpages)) {
+				reset($fbpages);
+				if ($pageid = current($fbpages)) {
+					$stop = false;
+					$response = $facebook->get('/'.$pageid.'/events?fields=id,name,start_time,end_time,timezone,description,owner,cover,place,event_times&limit='.$limit);
+					
+					// Get the first page
+					if ($feed = $response->getGraphEdge()) {
+						// Parse the first page
+						if ($step == 0) {
+							if ($events = $feed->asArray()) {
+								foreach ($events as $event) {
+									$total += rseventsproHelper::parseFacebookEvent($event, $names[$pageid], $owners, $types[$pageid]);
+								}
+							}
+						}
+						
+						// Go to the next page
+						if ($step > 0) {
+							for($i=0;$step>$i;$i++) {
+								if ($feed) {
+									$feed = $facebook->next($feed);
+								} else {
+									$stop = true;
+								}
+							}
+							
+							// Parse events from current page
+							if ($feed) {
+								$events = $feed->asArray();
+								foreach ($events as $event) {
+									$total += rseventsproHelper::parseFacebookEvent($event, $names[$pageid], $owners, $types[$pageid]);
+								}
+							} else {
+								$stop = true;
+							}
+						}
+					} else {
+						$stop = true;
+					}
+					
+					if ($stop) {
+						// All pages were parsed, and we remove the page ID and reset the $step value
+						array_shift($fbpages);
+						$reset = true;
+					}
+				}
+			}
+			
+			$data->fbpages	= $fbpages;
+			$data->owners	= $owners;
+			$data->names	= $names;
+			$data->types	= $types;
+			$data->total	= $total;
+			$data->step		= $reset ? 0 : $step + 1;			
+		} catch (Exception $e) {
+			$data->message = $e->getMessage();
+		}
+		
+		return json_encode($data);
 	}
 }

@@ -356,7 +356,17 @@ class acymmigrationHelper extends acymObject
 
     public function migrateUsers_fields($params = [])
     {
-        $fieldsV5 = acym_loadObjectList('SELECT `namekey`, `type` FROM #__acymailing_fields WHERE `namekey` NOT IN ("name", "email", "html") AND `type` NOT IN ("customtext", "category", "gravatar")', 'namekey');
+        $fieldsV5InDB = acym_loadObjectList('SELECT `namekey`, `type` FROM #__acymailing_fields WHERE `namekey` NOT IN ("name", "email", "html") AND `type` NOT IN ("customtext", "category", "gravatar")', 'namekey');
+
+        if (empty($fieldsV5InDB)) return true;
+
+        $columnUserTable = acym_getColumns('acymailing_subscriber', false);
+
+        $fieldsV5 = [];
+
+        foreach ($fieldsV5InDB as $key => $field) {
+            if (in_array($field, $columnUserTable)) $fieldsV5[$key] = '`'.$field.'`';
+        }
 
         if (empty($fieldsV5)) return true;
 
@@ -392,13 +402,14 @@ class acymmigrationHelper extends acymObject
                         $user->$fieldKey = implode('/', $final);
                     }
                 }
+
+                if (strlen($user->$fieldKey) === 0 || ($fieldImported[$fieldKey]->type === 'phone' && $user->$fieldKey === ',')) continue;
+
                 $valuesToInsert[] = '('.intval($user->subid).', '.acym_escapeDB($user->$fieldKey).', '.intval($fieldImported[$fieldKey]->id).')';
             }
         }
 
-        if (empty($valuesToInsert)) {
-            return true;
-        }
+        if (empty($valuesToInsert)) return true;
 
         return acym_query('INSERT IGNORE INTO #__acym_user_has_field (`user_id`, `value`, `field_id`) VALUES '.implode(', ', $valuesToInsert));
     }
@@ -1165,7 +1176,16 @@ class acymmigrationHelper extends acymObject
 
         if ('users_fields' == $element) {
             $fields = acym_loadResultArray('SELECT namekey FROM #__acymailing_fields WHERE `namekey` NOT IN ("name", "email", "html") AND `type` NOT IN ("customtext", "category", "gravatar")');
-            $connection[$element]['where'] = implode(' IS NOT NULL OR ', $fields);
+            $columnUserTable = acym_getColumns('acymailing_subscriber', false);
+
+            $fieldToCkeck = [];
+
+            foreach ($fields as $key => $field) {
+                if (in_array($field, $columnUserTable)) $fieldToCkeck[$key] = '`'.$field.'`';
+            }
+
+            $connection[$element]['where'] = implode(' IS NOT NULL OR ', $fieldToCkeck);
+            if (!empty($fieldToCkeck)) $connection[$element]['where'] .= ' IS NOT NULL;';
         }
 
         $where = !empty($connection[$element]['where']) ? 'WHERE '.$connection[$element]['where'] : '';

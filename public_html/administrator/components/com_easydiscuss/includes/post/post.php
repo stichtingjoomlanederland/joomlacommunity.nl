@@ -2748,6 +2748,21 @@ class EasyDiscussPost extends EasyDiscuss
 	}
 
 	/**
+	 * return non-sef link of a post.
+	 *
+	 * @since   4.1.15
+	 * @access  public
+	 */
+	public function getNonSEFLink()
+	{
+		$uri = 'index.php?option=com_easydiscuss&view=post&id=' . $this->post->id;
+		if ($this->isReply()) {
+			$uri = 'index.php?option=com_easydiscuss&view=post&id=' . $this->post->parent_d . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $this->post->id;
+		}
+		return $uri;
+	}
+
+	/**
 	 * Retrieves the alias of a post
 	 *
 	 * @since   5.0
@@ -4240,6 +4255,10 @@ class EasyDiscussPost extends EasyDiscuss
 				// we need to update the post table for the thread id
 				$thread->updatePostThreadId($this->post->id);
 
+				// update current post object to have the thread id as well.
+				$this->post->thread_id = $thread->id;
+				$this->thread_id = $thread->id;
+
 			} else {
 
 				// Update thread last_user_id and last update date
@@ -4661,19 +4680,19 @@ class EasyDiscussPost extends EasyDiscuss
 			$model = ED::model('Category');
 			$moderators = $model->getModerators($this->post->category_id);
 
-			// // We need to notify admin and moderator through system notification as well
+			// We need to notify admin and moderator through system notification as well
 			foreach ($moderators as $moderator) {
-			$notification = ED::table('Notifications');
+				$notification = ED::table('Notifications');
 
-				$notification->bind(array(
-					'title' => JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_MODERATE', $question->title),
-					'cid' => $question->id,
-					'type' => DISCUSS_NOTIFICATIONS_MODERATE_REPLY,
-					'target' => $moderator,
-					'author' => $this->post->user_id,
-					'permalink' => 'index.php?option=com_easydiscuss&' . $this->getReplyPermalink()
-				));
-			$notification->store();
+					$notification->bind(array(
+						'title' => JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_MODERATE', $question->title),
+						'cid' => $question->id,
+						'type' => DISCUSS_NOTIFICATIONS_MODERATE_REPLY,
+						'target' => $moderator,
+						'author' => $this->post->user_id,
+						'permalink' => 'index.php?option=com_easydiscuss&' . $this->getReplyPermalink()
+					));
+				$notification->store();
 			}
 
 		} elseif ((($this->isPublished() && $this->isNew()) || (!$this->isNew() && $this->prevPostStatus == DISCUSS_ID_PENDING)) && !$this->config->get('notify_reply_all_members')) {
@@ -4690,27 +4709,46 @@ class EasyDiscussPost extends EasyDiscuss
 			return;
 		}
 
-		if (($this->config->get('main_sitesubscription') ||  $this->config->get('main_postsubscription') ||  $this->config->get('main_ed_categorysubscription')) && $this->config->get('notify_subscriber') && $this->isPublished() && !$question->private && !$this->config->get('notify_reply_all_members')) {
+		if (($this->config->get('main_sitesubscription') ||  $this->config->get('main_postsubscription') ||  $this->config->get('main_ed_categorysubscription')) 
+			&& $this->config->get('notify_subscriber') && $this->isPublished() && !$question->private && !$this->config->get('notify_reply_all_members')) {
 			$emailData['emailTemplate'] = 'email.subscription.reply.new.php';
 			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $question->id , $question->title);
 
 			$posterEmail = array($posterEmail, $this->my->email);
 			$excludeEmails = array_merge($posterEmail, $administratorEmails);
-			$excludeEmails = array_unique($excludeEmails);
+
+			// we need to filter out the user emails who are a participants too.
+			// if a user is a subsciber and also a participant, the email this user should be as participants (no unsubsribe link in the email)
+			// #843
+			$excludeEmails2 = $excludeEmails;
+
+			if ($this->config->get('notify_participants') && !$this->config->get('notify_reply_all_members')) {
+				$threadParticipants = ED::mailer()->_getParticipants($this->post->parent_id, $this->post->category_id);
+
+				// now we merge the participant email into $excludeEmails2 so that,
+				// 1. the subscriber emails will not consist of any of the participants,
+				// 2. we do not want to include participant into email exclude lists so that at later when we process notify_partipants,
+				//    these users will receive emails notification that has no unsubsribe link.
+				// #843
+
+				$excludeEmails2 = array_merge($excludeEmails, $threadParticipants);
+			}
+
+			$excludeEmails2 = array_unique($excludeEmails2);
 
 			// Get the emails of user who subscribe to this post only
 			// This does not send to subscribers whom subscribe to site and category
-			$subcribersEmails = ED::mailer()->notifyThreadSubscribers($emailData, $excludeEmails, DISCUSS_CATEGORY_ACL_ACTION_VIEWREPLY);
+			$subcribersEmails = ED::mailer()->notifyThreadSubscribers($emailData, $excludeEmails2, DISCUSS_CATEGORY_ACL_ACTION_VIEWREPLY);
 
 			// If the include_replies is enabled, we need to notify the site subscribers whenever the replies is made
 			if ($this->config->get('main_sitesubscription') && $this->config->get('main_subscription_include_replies')) {
-				$siteSubscribers = ED::Mailer()->notifySubscribers($emailData, $excludeEmails, DISCUSS_CATEGORY_ACL_ACTION_VIEWREPLY);
+				$siteSubscribers = ED::Mailer()->notifySubscribers($emailData, $excludeEmails2, DISCUSS_CATEGORY_ACL_ACTION_VIEWREPLY);
 				$subcribersEmails = array_merge($subcribersEmails, $siteSubscribers);
 			}
 
 			// Same goes to category subscription
 			if ($this->config->get('main_ed_categorysubscription') && $this->config->get('main_subscription_include_replies')) {
-				$categorySubscribers = ED::Mailer()->notifySubscribers($emailData , $excludeEmails, DISCUSS_CATEGORY_ACL_ACTION_VIEWREPLY);
+				$categorySubscribers = ED::Mailer()->notifySubscribers($emailData , $excludeEmails2, DISCUSS_CATEGORY_ACL_ACTION_VIEWREPLY);
 				$subcribersEmails = array_merge($subcribersEmails, $categorySubscribers);
 			}
 
@@ -4760,7 +4798,7 @@ class EasyDiscussPost extends EasyDiscuss
 			$emailData['post_id'] = $this->post->parent_id;
 			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $question->id , $question->title);
 			$emailData['emailTemplate'] = 'email.post.reply.new.php';
-			$emailData['commentContent'] = $this->comment;
+			$emailData['commentContent'] = isset($this->comment) ? $this->comment : "";
 
 			$excludeEmails = array_merge($excludeEmails, $administratorEmails);
 			$excludeEmails = array_unique($excludeEmails);
@@ -4963,6 +5001,7 @@ class EasyDiscussPost extends EasyDiscuss
 		$posterEmail = $profile->user->email;
 		$excludeEmails = array($posterEmail);
 		$subcribersEmails = array();
+		$userGroupsEmails = array();
 
 		// For use within the emails.
 		$emailData = array();
@@ -5069,9 +5108,13 @@ class EasyDiscussPost extends EasyDiscuss
 					}
 				}
 
+				// exclude the subscribers user since it already sent
+				$excludeEmails = array_merge($subcribersEmails, $excludeEmails);
+				$excludeEmails = array_unique($excludeEmails);
+
 				// Notify user groups
-				if ($this->config->get('notify_joomla_groups') && !$this->config->get('notify_all') && ((!$this->isModerate && $this->isNew() && $this->isPublished()) || $this->prevPostStatus == DISCUSS_ID_PENDING)) {
-					ED::Mailer()->notifyUserGroups($emailData, $excludeEmails);
+				if ($this->config->get('notify_joomla_groups') && !$this->config->get('notify_all') && ((!$this->isModerate && $this->isNew() && $this->isPublished()) || $this->prevPostStatus == DISCUSS_ID_PENDING)) {					
+					$userGroupsEmails = ED::Mailer()->notifyUserGroups($emailData, $excludeEmails);
 				}
 
 				// Notify EVERYBODY
@@ -5079,8 +5122,7 @@ class EasyDiscussPost extends EasyDiscuss
 					ED::mailer()->notifyAllMembers($emailData, $excludeEmails);
 				}
 
-				$excludeEmails[] = $posterEmail;
-				$excludeEmails = array_merge($excludeEmails, $subcribersEmails);
+				$excludeEmails = array_merge($excludeEmails, $userGroupsEmails);
 				$excludeEmails = array_unique($excludeEmails);
 			}
 		}
@@ -5654,7 +5696,7 @@ class EasyDiscussPost extends EasyDiscuss
 		$this->updateReplyCount();
 
 		// @trigger: onAfterDelete
-		ED::events()->onContentAfterDelete('post', $post);
+		ED::events()->onContentAfterDelete('post', $this->post);
 
 		// If the post owner is registered user, assign points to the post owner
 		if ($this->post->user_id) {

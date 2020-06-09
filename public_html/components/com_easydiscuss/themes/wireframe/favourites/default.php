@@ -94,7 +94,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 								<?php if ($post->getTags()) { ?>
 									<ol class="g-list-inline ed-post-item__post-meta">
 										<?php foreach ($post->getTags() as $tag) { ?>
-											<li><a href="<?php echo EDR::getTagRoute($tag->id); ?>">#<?php echo $tag->title; ?></a></li>
+											<li><a href="<?php echo EDR::getTagRoute($tag->id); ?>">#<?php echo $this->html('string.escape', $tag->title); ?></a></li>
 										<?php } ?>
 									</ol>
 								<?php } ?>

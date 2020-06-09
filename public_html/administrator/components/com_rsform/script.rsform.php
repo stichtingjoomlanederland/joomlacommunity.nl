@@ -191,6 +191,10 @@ class com_rsformInstallerScript
 			$db->setQuery("ALTER TABLE `#__rsform_forms` ADD `Access` VARCHAR( 5 ) NOT NULL");
 			$db->execute();
 		}
+		if (!isset($columns['LimitSubmissions'])) {
+			$db->setQuery("ALTER TABLE `#__rsform_forms` ADD `LimitSubmissions` INT( 11 ) NOT NULL default '0'");
+			$db->execute();
+		}
 		if (!isset($columns['ScrollToThankYou'])) {
 			$db->setQuery("ALTER TABLE #__rsform_forms ADD `ScrollToThankYou` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `ShowThankyou`");
 			$db->execute();
@@ -679,6 +683,10 @@ class com_rsformInstallerScript
 			$db->setQuery("ALTER TABLE `#__rsform_posts` ADD `fields` MEDIUMTEXT NOT NULL AFTER `method`");
 			$db->execute();
 		}
+		if (!isset($columns['headers'])) {
+			$db->setQuery("ALTER TABLE `#__rsform_posts` ADD `headers` MEDIUMTEXT NOT NULL AFTER `fields`");
+			$db->execute();
+		}
 		
 		// Update DESTINATION to relative path format.
 		$query = $db->getQuery(true);
@@ -1007,17 +1015,10 @@ class com_rsformInstallerScript
 				<p>It seems you are still using legacy layouts - they have been removed from RSForm! Pro since they are no longer usable today as they do not provide responsive features.<br>If you still want to keep using them, please install the <a href="https://www.rsjoomla.com/support/documentation/rsform-pro/plugins-and-modules/plugin-legacy-layouts.html" target="_blank">Legacy Layouts Plugin</a>.</p>
 			</div>
 		<?php } ?>
-		<h2>Changelog v2.3.9</h2>
+		<h2>Changelog v2.3.16</h2>
 		<ul class="version-history">
-			<li><span class="version-new">New</span> 'Reply To Name' configurable for User, Admin, Deletion, Additional and Directory Emails.</li>
-			<li><span class="version-upgraded">Upg</span> 'Show All Submissions' now defaults to 'Yes' on Submissions - View and Directory menu items.</li>
-			<li><span class="version-upgraded">Upg</span> Auto-generating a layout will now render hidden fields (from plugins) without creating an empty space in the form.</li>
-			<li><span class="version-upgraded">Upg</span> Fields now generate an 'aria-describedby' attribute when a validation error occurs.</li>
-			<li><span class="version-fixed">Fix</span> 'aria-invalid' was being wrongly added to button inputs.</li>
-			<li><span class="version-fixed">Fix</span> 'File Uploads' fields - could not deselect emails from 'Attach file to' once configured.</li>
-			<li><span class="version-fixed">Fix</span> In some cases Conditional Fields were not working when 'Auto Generate Layout' was set to 'No'.</li>
-			<li><span class="version-fixed">Fix</span> Removing multiple fields would show an 'ITEMS REMOVED' message with no translation.</li>
-			<li><span class="version-fixed">Fix</span> PHP 7.4 would throw a Deprecated message when installing RSForm! Pro.</li>
+			<li><span class="version-new">New</span> 'Show Descriptions' option in the 'Submissions - Directory' menu item.</li>
+			<li><span class="version-upgraded">Upg</span> Placeholders are now shown when editing a submission through the Directory.</li>
 		</ul>
 		<a class="btn btn-large btn-primary" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="btn" href="https://www.rsjoomla.com/support/documentation/rsform-pro.html" target="_blank">Read the RSForm! Pro User Guide</a>

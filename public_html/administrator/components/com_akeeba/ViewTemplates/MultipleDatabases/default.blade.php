@@ -7,24 +7,9 @@
 
 defined('_JEXEC') or die();
 
-$ajaxUrl    = addslashes(JUri::base() . 'index.php?option=com_akeeba&view=MultipleDatabases&task=ajax');
-$loadingUrl = addslashes($this->container->template->parsePath('media://com_akeeba/icons/loading.gif'));
-$this->json = addcslashes($this->json, "'\\");
-$js         = <<< JS
-
-;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
-// due to missing trailing semicolon and/or newline in their code.
-akeeba.System.documentReady(function(){
-    akeeba.System.params.AjaxURL = '$ajaxUrl';
-	akeeba.Multidb.loadingGif = '$loadingUrl';
-	var data = JSON.parse('{$this->json}');
-    akeeba.Multidb.render(data);
-});
-
-JS;
+/** @var \Akeeba\Backup\Admin\View\MultipleDatabases\Html $this */
 
 ?>
-@inlineJs($js)
 <div id="akEditorDialog" tabindex="-1" role="dialog" aria-labelledby="akEditorDialogLabel" aria-hidden="true"
      style="display:none;">
     <div class="akeeba-renderer-fef">

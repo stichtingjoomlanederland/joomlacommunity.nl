@@ -128,6 +128,11 @@
 				<option value="2">COM_RSEVENTSPRO_CALENDAR_VIEW_DISPLAY_STARTENDDAY</option>
 			</field>
 			
+			<field name="canceled" type="list" default="1" label="COM_RSEVENTSPRO_SHOW_CANCELED_EVENTS" description="COM_RSEVENTSPRO_SHOW_CANCELED_EVENTS_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
 			<field name="from" type="rscalendar" default="" label="COM_RSEVENTSPRO_CALENDAR_VIEW_FROM" description="COM_RSEVENTSPRO_CALENDAR_VIEW_FROM_DESC" />
 			<field name="to" type="rscalendar" default="" label="COM_RSEVENTSPRO_CALENDAR_VIEW_TO" description="COM_RSEVENTSPRO_CALENDAR_VIEW_TO_DESC" filter="SERVER_UTC" />
 			

@@ -37,7 +37,7 @@ defined('_JEXEC') or die('Restricted access');
 </div>
 
 <div class="grid-x grid-margin-x">
-	<div id="acym__wysid" class="grid-x margin-0 grid-margin-x acym__content cell" style="display: none;">
+	<div id="acym__wysid" class="grid-x margin-0 grid-margin-x cell" style="display: none;">
 		<!--Template & top toolbar-->
 		<div id="acym__wysid__wrap" class="grid-y auto cell grid-padding-x grid-padding-y">
 			<!--Top toolbar-->
@@ -93,20 +93,6 @@ defined('_JEXEC') or die('Restricted access');
 			</div>
 		</div>
 
-		<div id="acym__wysid__fullscreen__modal" class="grid-x align-center">
-			<div class="acym__imac cell medium-8 acym__wysid__fullscreen__modal__content__container" style="display: none">
-				<div id="acym__wysid__fullscreen__modal__content__desktop" class=acym__imac__screen></div>
-				<div class="acym__imac__stand"></div>
-			</div>
-			<div class="cell medium-4 acym__iphone acym__wysid__fullscreen__modal__content__container" style="display: none">
-				<div id="acym__wysid__fullscreen__modal__content__smartphone" class="acym__iphone__screen"></div>
-			</div>
-			<div class="grid-x cell small-12"></div>
-			<button id="acym__wysid__fullscreen__modal__close" class="close-button padding-1" aria-label="Dismiss alert" type="button" data-close="">
-				<span aria-hidden="true">×</span>
-			</button>
-		</div>
-
         <?php if ('joomla' === ACYM_CMS) { ?>
 			<div id="acym__wysid__modal__joomla-image">
 				<div id="acym__wysid__modal__joomla-image__bg" class="acym__wysid__modal__joomla-image--close"></div>
@@ -116,6 +102,19 @@ defined('_JEXEC') or die('Restricted access');
 			</div>
         <?php } ?>
 	</div>
+</div>
+<div id="acym__wysid__fullscreen__modal" class="grid-x align-center">
+	<div class="acym__imac cell medium-8 acym__wysid__fullscreen__modal__content__container" style="display: none">
+		<div id="acym__wysid__fullscreen__modal__content__desktop" class=acym__imac__screen></div>
+		<div class="acym__imac__stand"></div>
+	</div>
+	<div class="cell medium-4 acym__iphone acym__wysid__fullscreen__modal__content__container" style="display: none">
+		<div id="acym__wysid__fullscreen__modal__content__smartphone" class="acym__iphone__screen"></div>
+	</div>
+	<div class="grid-x cell small-12"></div>
+	<button id="acym__wysid__fullscreen__modal__close" class="close-button padding-1" aria-label="Dismiss alert" type="button" data-close="">
+		<span aria-hidden="true">×</span>
+	</button>
 </div>
 <div id="acym__wysid__modal__dynamic-text">
 	<div id="acym__wysid__modal__dynamic-text__bg" class="acym__wysid__modal__dynamic-text--close"></div>

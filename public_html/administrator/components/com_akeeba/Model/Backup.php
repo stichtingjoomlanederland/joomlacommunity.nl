@@ -15,13 +15,17 @@ use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
 use Akeeba\Engine\Util\PushMessages;
 use Closure;
+use DateTimeZone;
+use DirectoryIterator;
 use Exception;
 use FOF30\Date\Date;
 use FOF30\Model\Model;
+use FOF30\Timer\Timer;
 use JDatabaseDriver;
 use JLoader;
 use JText;
 use Psr\Log\LogLevel;
+use RuntimeException;
 
 /**
  * Backup model. Handles the server-side logic of interfacing with the backup engine (Akeeba Engine)
@@ -112,7 +116,7 @@ class Backup extends Model
 				}
 			}
 
-			$tz = new \DateTimeZone($timezone);
+			$tz = new DateTimeZone($timezone);
 			$dateNow->setTimezone($tz);
 			$description =
 				JText::_('COM_AKEEBA_BACKUP_DEFAULT_DESCRIPTION') . ' ' .
@@ -120,9 +124,16 @@ class Backup extends Model
 		}
 
 		// Try resetting the engine
-		Factory::resetState([
-			'maxrun' => 0,
-		]);
+		try
+		{
+			Factory::resetState([
+				'maxrun' => 0,
+			]);
+		}
+		catch (Exception $e)
+		{
+			// This will die if the output directory is invalid. Let it die, then.
+		}
 
 		// Remove any stale memory files left over from the previous step
 		if (empty($tag))
@@ -202,6 +213,18 @@ class Backup extends Model
 		$this->setState('backupid', $backupId);
 
 		/**
+		 * Convert log files in the backup output directory
+		 *
+		 * This removes the obsolete, default log files (akeeba.(backend|frontend|cli|json).log and converts the old .log
+		 * files into their .php counterparts.
+		 *
+		 * We are doing this when loading the the Control Panel page but ALSO when taking a new backup because some
+		 * people might be installing updates and taking backups automatically, without visiting the Control Panel
+		 * except in rare cases.
+		 */
+		$this->convertLogFiles(3);
+
+		/**
 		 * We need to run tick() twice in the first backup step.
 		 *
 		 * The first tick() will reset the backup engine and start a new backup. However, no backup record is created
@@ -244,7 +267,7 @@ class Backup extends Model
 		{
 			Factory::saveState($tag, $backupId);
 		}
-		catch (\RuntimeException $e)
+		catch (RuntimeException $e)
 		{
 			$ret_array['Error'] = $e->getMessage();
 		}
@@ -337,7 +360,7 @@ class Backup extends Model
 			$kettenrad->tick();
 			$ret_array = $kettenrad->getStatusArray();
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			$ret_array['Error'] = $e->getMessage();
 		}
@@ -349,7 +372,7 @@ class Backup extends Model
 				Factory::saveState($tag, $backupId);
 			}
 		}
-		catch (\RuntimeException $e)
+		catch (RuntimeException $e)
 		{
 			$ret_array['Error'] = $e->getMessage();
 		}
@@ -420,6 +443,91 @@ class Backup extends Model
 	}
 
 	/**
+	 * Convert the old, plaintext log files (.log) into their .log.php counterparts.
+	 *
+	 * @param   int  $timeOut  Maximum time, in seconds, to spend doing this conversion.
+	 *
+	 * @return  void
+	 *
+	 * @since   7.0.3
+	 */
+	public function convertLogFiles($timeOut = 10)
+	{
+		$registry = Factory::getConfiguration();
+		$logDir   = $registry->get('akeeba.basic.output_directory', '[DEFAULT_OUTPUT]', true);
+
+		$timer = new Timer($timeOut, 75);
+
+		// Part I. Remove these obsolete files first
+		$killFiles = [
+			'akeeba.log',
+			'akeeba.backend.log',
+			'akeeba.frontend.log',
+			'akeeba.cli.log',
+			'akeeba.json.log',
+		];
+
+		foreach ($killFiles as $fileName)
+		{
+			$path = $logDir . '/' . $fileName;
+
+			if (@is_file($path))
+			{
+				@unlink($path);
+			}
+		}
+
+		if ($timer->getTimeLeft() <= 0.01)
+		{
+			return;
+		}
+
+		// Part II. Convert .log files.
+		try
+		{
+			$di = new DirectoryIterator($logDir);
+		}
+		catch (Exception $e)
+		{
+			return;
+		}
+
+		foreach ($di as $file)
+		{
+
+			try
+			{
+				if (!$file->isFile())
+				{
+					continue;
+				}
+				$baseName = $file->getFilename();
+				if (substr($baseName, 0, 7) !== 'akeeba.')
+				{
+					continue;
+				}
+				if (substr($baseName, -4) !== '.log')
+				{
+					continue;
+				}
+				$this->convertLogFile($file->getPathname());
+				if ($timer->getTimeLeft() <= 0.01)
+				{
+					return;
+				}
+			}
+			catch (Exception $e)
+			{
+				/**
+				 * Someone did something stupid, like using the site's root as the backup output directory while having
+				 * an open_basedir restriction. Sorry, mate, you get insecure junk. We had warned you. You didn't heed
+				 * the warning. That's your problem now.
+				 */
+			}
+		}
+	}
+
+	/**
 	 * Get the profile used to take the last backup for the specified tag
 	 *
 	 * @param   string  $tag       The backup tag a.k.a. backup origin (backend, frontend, json, ...)
@@ -461,6 +569,73 @@ class Backup extends Model
 
 		// Else, return the default backup profile
 		return 1;
+	}
+
+	/**
+	 * Converts a log file from .log to .log.php
+	 *
+	 * @param   string  $filePath
+	 *
+	 * @return  void
+	 *
+	 * @since   7.0.3
+	 */
+	protected function convertLogFile($filePath)
+	{
+		// The name of the converted log file is the same with the extension .php appended to it.
+		$newFile = $filePath . '.php';
+
+		// If the new log file exists I should return immediately
+		if (@file_exists($newFile))
+		{
+			return;
+		}
+
+		// Try to open the converted log file (.log.php)
+		$fp = @fopen($newFile, 'wb');
+
+		if ($fp === false)
+		{
+			return;
+		}
+
+		// Try to open the source log file (.log)
+		$sourceFP = @fopen($filePath, 'rb');
+
+		if ($sourceFP === false)
+		{
+			@fclose($fp);
+
+			return;
+		}
+
+		// Write the die statement to the source log file
+		fwrite($fp, '<' . '?' . 'php die(); ' . '?' . ">\n");
+
+		// Copy data, 512KB at a time
+		while (!feof($sourceFP))
+		{
+			$chunk = @fread($sourceFP, 524288);
+
+			if ($chunk === false)
+			{
+				break;
+			}
+
+			$result = fwrite($fp, $chunk);
+
+			if ($result === false)
+			{
+				break;
+			}
+		}
+
+		// Close both files
+		@fclose($sourceFP);
+		@fclose($fp);
+
+		// Delete the original (.log) file
+		@unlink($filePath);
 	}
 
 	/**
@@ -529,4 +704,5 @@ class Backup extends Model
 
 		return $backupId;
 	}
+
 }

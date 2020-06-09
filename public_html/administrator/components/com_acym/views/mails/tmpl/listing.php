@@ -3,169 +3,25 @@ defined('_JEXEC') or die('Restricted access');
 ?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" enctype="multipart/form-data">
 	<input type="hidden" id="acym_create_template_type_editor" name="type_editor">
 	<div id="acym__templates" class="acym__content">
-        <?php
-
-        $postMaxSize = ini_get('post_max_size');
-        $uploadMaxSize = ini_get('upload_max_filesize');
-        $maxSize = acym_translation_sprintf(
-            'ACYM_MAX_UPLOAD',
-            acym_bytes($uploadMaxSize) > acym_bytes($postMaxSize) ? $postMaxSize : $uploadMaxSize
-        );
-        $templateTips = '<div class="text-center padding-0 cell grid-x text-center align-center">
-							<input type="file" style="width:auto" name="uploadedfile" class="cell"/>
-							<div class="cell">'.$maxSize.'</div>
-						</div>
-						<div class="cell margin-top-2 margin-bottom-2">
-							'.acym_translation('ACYM_IMPORT_INFO').'
-							<ul>
-								<li>'.acym_translation('ACYM_TEMLPATE_ZIP_IMPORT').'</li>
-								<ul>
-									<li>/template.html -> '.acym_translation('ACYM_TEMPLATE_HTML_IMPORT').'</li>
-									<li>/css -> '.acym_translation('ACYM_TEMPLATE_CSS_IMPORT').'</li>
-									<li>/images -> '.acym_translation('ACYM_TEMPLATE_IMAGES_IMPORT').'</li>
-									<li>/thumbnail.png -> '.acym_translation('ACYM_TEMPLATE_THUMBNAIL_IMPORT').'</li>
-								</ul>
-							</ul>
-						</div>
-					   <div class="cell grid-x align-center">
-							<button type="button" data-task="doUploadTemplate" class="acy_button_submit button cell shrink margin-1">'.acym_translation('ACYM_IMPORT').'</button>
-					   </div>';
-
-        if (empty($data['allMails']) && empty($data['search']) && empty($data['tag']) && empty($data['status'])) {
-            ?>
+        <?php if (empty($data['allMails']) && empty($data['search']) && empty($data['tag']) && empty($data['status'])) { ?>
 			<div class="grid-x text-center">
 				<h1 class="acym__listing__empty__title cell"><?php echo acym_translation('ACYM_YOU_DONT_HAVE_ANY_TEMPLATE'); ?></h1>
 				<h1 class="acym__listing__empty__subtitle cell"><?php echo acym_translation('ACYM_CREATE_AN_AMAZING_TEMPLATE_WITH_OUR_AMAZING_EDITOR'); ?></h1>
 				<div class="medium-3"></div>
 				<div class="medium-6 small-12 cell">
-					<div class="xlarge-4 medium-auto cell text-center cell grid-x grid-margin-x text-right">
-                        <?php echo acym_modal(
-                            acym_translation('ACYM_CREATE_TEMPLATE'),
-                            '<div class="cell grid-x grid-margin-x">
-								<button type="button" data-task="edit" data-editor="acyEditor" class="acym__create__template button cell medium-auto margin-top-1">'.acym_translation('ACYM_DD_EDITOR').'</button>
-								<button type="button" data-task="edit" data-editor="html" class="acym__create__template button cell large-auto small-6 margin-top-1 button-secondary">'.acym_translation('ACYM_HTML_EDITOR').'</button>
-							</div>',
-                            '',
-                            '',
-                            'class="button cell auto"',
-                            true,
-                            false
-                        ); ?>
-
-                        <?php
-                        echo acym_modal(
-                            acym_translation('ACYM_IMPORT'),
-                            $templateTips,
-                            null,
-                            '',
-                            'class="button cell medium-auto button-secondary" data-reload="true" data-ajax="false"'
-                        );
-                        ?>
-					</div>
+                    <?php include acym_getView('mails', 'listing_actions'); ?>
 				</div>
 				<div class="medium-3"></div>
 			</div>
         <?php } else { ?>
 			<div class="grid-x grid-margin-x">
-				<div class="large-3 medium-8 cell">
-                    <?php echo acym_filterSearch($data['search'], 'mails_search', 'ACYM_SEARCH'); ?>
-				</div>
-				<div class="large-3 medium-4 cell">
-                    <?php
-                    $allTags = new stdClass();
-                    $allTags->name = acym_translation('ACYM_ALL_TAGS');
-                    $allTags->value = '';
-                    array_unshift($data["allTags"], $allTags);
-
-                    echo acym_select(
-                        $data["allTags"],
-                        'mails_tag',
-                        acym_escape($data["tag"]),
-                        'class="acym__templates__filter__tags"',
-                        'value',
-                        'name'
-                    ); ?>
-				</div>
+                <?php include acym_getView('mails', 'listing_filters'); ?>
 				<div class="xlarge-1 medium-shrink"></div>
-				<div class="xlarge-4 medium-auto cell text-center cell grid-x grid-margin-x text-right">
-                    <?php echo acym_modal(
-                        acym_translation('ACYM_CREATE_TEMPLATE'),
-                        '<div class="cell grid-x grid-margin-x"><button type="button" data-task="edit" data-editor="acyEditor" class="acym__create__template button cell medium-auto margin-top-1">'.acym_translation('ACYM_DD_EDITOR').'</button><button type="button" data-task="edit" data-editor="html" class="acym__create__template button cell large-auto small-6 margin-top-1 button-secondary">HTML</button></div>',
-                        '',
-                        '',
-                        'class="button cell auto"',
-                        true,
-                        false
-                    ); ?>
-
-                    <?php
-                    echo acym_modal(
-                        acym_translation('ACYM_IMPORT'),
-                        $templateTips,
-                        null,
-                        '',
-                        'class="button acym__mails__listing__import-button cell medium-auto  button-secondary" data-reload="true" data-ajax="false"'
-                    );
-                    ?>
-				</div>
-                <?php if (empty($data['allMails'])) { ?>
-					<h1 class="cell acym__listing__empty__search__title text-center"><?php echo acym_translation('ACYM_NO_RESULTS_FOUND'); ?></h1>
-                <?php } else { ?>
-					<div class="cell grid-x margin-top-1">
-						<div class="grid-x cell auto">
-							<div class="cell  acym_listing_sort-by">
-                                <?php
-                                echo acym_sortBy(
-                                    [
-                                        'id' => strtolower(acym_translation('ACYM_ID')),
-                                        'creation_date' => acym_translation('ACYM_DATE_CREATED'),
-                                        'name' => acym_translation('ACYM_NAME'),
-                                        'type' => acym_translation('ACYM_TYPE'),
-                                    ],
-                                    'mails'
-                                );
-                                ?>
-							</div>
-						</div>
-					</div>
-					<div class="grid-x grid-padding-x grid-padding-y grid-margin-x grid-margin-y xxlarge-up-6 large-up-4 medium-up-3 small-up-1 cell">
-                        <?php
-                        foreach ($data['allMails'] as $oneTemplate) {
-                            ?>
-							<div class="cell grid-x acym__templates__oneTpl acym__listing__block text-center" data-acy-elementid="<?php echo acym_escape($oneTemplate->id); ?>">
-								<a href="<?php echo acym_completeLink('mails&task=edit&id='.acym_escape($oneTemplate->id)); ?>" class="cell grid-x text-center">
-									<div class="cell acym__templates__pic">
-                                        <?php echo '<img src="'.acym_escape(acym_getMailThumbnail($oneTemplate->thumbnail)).'" alt="'.acym_escape($oneTemplate->name).'"/>'; ?>
-									</div>
-									<div class="cell grid-x acym__templates__footer text-center">
-										<div class="cell acym__templates__footer__title" title="<?php echo acym_escape($oneTemplate->name); ?>">
-                                            <?php
-                                            if (strlen($oneTemplate->name) > 55) {
-                                                $oneTemplate->name = substr($oneTemplate->name, 0, 50).'...';
-                                            }
-                                            echo acym_escape($oneTemplate->name);
-                                            ?>
-										</div>
-										<div class="cell"><?php echo acym_date($oneTemplate->creation_date, 'M. j, Y'); ?></div>
-									</div>
-								</a>
-								<div class="text-center cell acym__listing__block__delete acym__background-color__red">
-									<div>
-										<i class='acymicon-trash-o acym__listing__block__delete__trash acym__color__white'></i>
-										<p class="acym__listing__block__delete__cancel acym__background-color__very-dark-gray acym__color__white">
-                                            <?php echo acym_translation('ACYM_CANCEL'); ?>
-										</p>
-										<p class="acym__listing__block__delete__submit acym_toggle_delete acym__color__white" data-acy-table="mail" data-acy-elementid="<?php echo acym_escape($oneTemplate->id); ?>"><?php echo acym_translation('ACYM_DELETE'); ?></p>
-									</div>
-								</div>
-							</div>
-                        <?php } ?>
-					</div>
-                    <?php echo $data['pagination']->display('mails'); ?>
-                <?php } ?>
+                <?php include acym_getView('mails', 'listing_actions'); ?>
+                <?php include acym_getView('mails', 'listing_listing'); ?>
 			</div>
         <?php } ?>
 	</div>
-    <?php acym_formOptions(false); ?>
+    <?php acym_formOptions(); ?>
 </form>
 

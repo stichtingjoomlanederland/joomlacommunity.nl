@@ -165,6 +165,7 @@ class RSEventsProQuery
 		$repeat		= (int) $this->params->get('repeat',1);
 		$counter	= (int) $this->params->get('repeatcounter',1);
 		$days		= (int) $this->params->get('days',0);
+		$canceled	= (int) $this->params->get('canceled',1);
 		
 		if ($select = $this->select) {
 			$select = is_array($select) ? $this->implodeSql($select) : $db->qn($select);
@@ -198,6 +199,11 @@ class RSEventsProQuery
 			} else { 
 				$state = '1';
 			}
+		}
+		
+		// Show canceled events
+		if ($canceled) {
+			$state .= ',3';
 		}
 		
 		$query .= ' AND '.$db->qn('e.published').' IN ('.$state.')';
@@ -488,6 +494,11 @@ class RSEventsProQuery
 			$subquery = ' OR (';
 			
 			$eventState = $listType == 'archived' ? '2' : '0,1';
+			
+			if ($canceled) {
+				$eventState .= ',3';
+			}
+			
 			if ($user->get('id') > 0) {
 				$subquery .= $db->qn('e.owner').' = '.(int) $user->get('id').' AND '.$db->qn('e.published').' IN ('.$eventState.') AND '.$db->qn('e.completed').' IN (0,1)';
 			} else {

@@ -29,8 +29,7 @@ defined('_JEXEC') or die();
                     <input type="text" id="akeeba-transfer-url" placeholder="http://www.example.com"
                            value="{{{ $this->newSiteUrl }}}">
                     <span class="akeeba-input-group-btn">
-                        <button onclick="akeeba.Transfer.onUrlChange(true); return false;" class="akeeba-btn--inverse"
-                                id="akeeba-transfer-btn-url">
+                        <button class="akeeba-btn--inverse" id="akeeba-transfer-btn-url">
 		                    @lang('COM_AKEEBA_TRANSFER_ERR_NEWURL_BTN')
                         </button>
                     </span>
@@ -38,9 +37,9 @@ defined('_JEXEC') or die();
             </div>
 
             <div id="akeeba-transfer-row-url" class="akeeba-form-group--pull-right">
-                <img src="{{{ JUri::base() }}}../media/com_akeeba/icons/loading.gif" id="akeeba-transfer-loading"
+                <img src="@media('media://com_akeeba/icons/loading.gif')" alt="Loading. Please wait..."
+                     id="akeeba-transfer-loading"
                      style="display: none;" />
-
                 <br />
 
                 <div id="akeeba-transfer-lbl-url" class="akeeba-help-text">
@@ -51,7 +50,7 @@ defined('_JEXEC') or die();
                 <div id="akeeba-transfer-err-url-same" class="akeeba-block--failure" style="display: none;">
                     @lang('COM_AKEEBA_TRANSFER_ERR_NEWURL_SAME')
                     <p style="text-align: center">
-                        <iframe width="560" height="315" src="https://www.youtube.com/embed/vo_r0r6cZNQ" frameborder="0"
+                        <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/vo_r0r6cZNQ" frameborder="0"
                                 allowfullscreen></iframe>
                     </p>
                 </div>
@@ -145,12 +144,14 @@ defined('_JEXEC') or die();
                 </label>
                 <input type="text" value="{{{ $this->ftpDirectory }}}" id="akeeba-transfer-ftp-directory"
                        placeholder="public_html" />
-					<button class="akeeba-btn" type="button" id="akeeba-transfer-ftp-directory-browse" style="display: none">
-						@lang('COM_AKEEBA_CONFIG_UI_BROWSE')
-                    </button>
-                    <button class="akeeba-btn" type="button" id="akeeba-transfer-ftp-directory-detect" style="display: none">
-                        @lang('COM_AKEEBA_TRANSFER_BTN_FTP_DETECT')
-                    </button>
+                <button class="akeeba-btn" type="button" id="akeeba-transfer-ftp-directory-browse"
+                        style="display: none">
+                    @lang('COM_AKEEBA_CONFIG_UI_BROWSE')
+                </button>
+                <button class="akeeba-btn" type="button" id="akeeba-transfer-ftp-directory-detect"
+                        style="display: none">
+                    @lang('COM_AKEEBA_TRANSFER_BTN_FTP_DETECT')
+                </button>
             </div>
 
             <!-- Chunk method -->
@@ -218,7 +219,8 @@ defined('_JEXEC') or die();
                     @lang('COM_AKEEBA_TRANSFER_LBL_VALIDATING')
                 </h4>
                 <p style="text-align: center;">
-                    <img src="{{{ JUri::base() }}}../media/com_akeeba/icons/loading.gif" />
+                    <img src="@media('media://com_akeeba/icons/loading.gif')"
+                         alt="@lang('COM_AKEEBA_TRANSFER_LBL_VALIDATING')" />
                 </p>
             </div>
         </div>

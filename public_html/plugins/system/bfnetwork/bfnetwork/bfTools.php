@@ -465,7 +465,7 @@ final class bfTools
         }
 
         if (!in_array($sort, array('filewithpath', 'filemtime'))) {
-            die('Invalid Sort');
+            exit('Invalid Sort');
         }
 
         if ('filemtime' == $sort) {
@@ -1302,7 +1302,7 @@ final class bfTools
         }
 
         if (!in_array($sort, array('filewithpath', 'filemtime'))) {
-            die('Invalid Sort');
+            exit('Invalid Sort');
         }
 
         if ('filemtime' == $sort) {
@@ -1359,7 +1359,7 @@ final class bfTools
         }
 
         if (!in_array($sort, array('filewithpath', 'filemtime'))) {
-            die('Invalid Sort');
+            exit('Invalid Sort');
         }
 
         if ('filemtime' == $sort) {
@@ -1418,7 +1418,7 @@ final class bfTools
         }
 
         if (!in_array($sort, array('filewithpath', 'filemtime'))) {
-            die('Invalid Sort');
+            exit('Invalid Sort');
         }
 
         if ('filemtime' == $sort) {
@@ -1475,7 +1475,7 @@ final class bfTools
         }
 
         if (!in_array($sort, array('filewithpath', 'filemtime'))) {
-            die('Invalid Sort');
+            exit('Invalid Sort');
         }
 
         if ('filemtime' == $sort) {
@@ -1543,7 +1543,7 @@ final class bfTools
         }
 
         if (!in_array($sort, array('filewithpath', 'filemtime'))) {
-            die('Invalid Sort');
+            exit('Invalid Sort');
         }
 
         if ('filemtime' == $sort) {
@@ -3692,7 +3692,6 @@ final class bfTools
     {
         switch ($this->_dataObj->action) {
             case 'enable':
-
                 if (version_compare(JVERSION, '3.9.0', '>=')) {
                     $this->_db->setQuery("UPDATE `#__extensions` set enabled = 1 WHERE `name` = 'PLG_ACTIONLOG_JOOMLA'");
                     $this->_db->query();
@@ -3987,7 +3986,7 @@ final class bfTools
         }
 
         if (!in_array($sort, array('filewithpath', 'filemtime'))) {
-            die('Invalid Sort');
+            exit('Invalid Sort');
         }
 
         if ('filemtime' === $sort) {

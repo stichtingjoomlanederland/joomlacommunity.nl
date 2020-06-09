@@ -51,17 +51,19 @@ define('ACYM_J40', version_compare($jversion, '4.0.0', '>='));
 define('ACYM_ALLOWRAW', defined('JREQUEST_ALLOWRAW') ? JREQUEST_ALLOWRAW : 2);
 define('ACYM_ALLOWHTML', defined('JREQUEST_ALLOWHTML') ? JREQUEST_ALLOWHTML : 4);
 
-function acym_getTime($date)
+function acym_getTimeOffsetCMS()
 {
     static $timeoffset = null;
     if ($timeoffset === null) {
-        $timeoffset = acym_getCMSConfig('offset');
 
-        $dateC = JFactory::getDate($date, $timeoffset);
-        $timeoffset = $dateC->getOffsetFromGMT(true);
+        $dateC = JFactory::getDate(
+            'now',
+            acym_getCMSConfig('offset')
+        );
+        $timeoffset = $dateC->getOffsetFromGMT(true) * 3600;
     }
 
-    return strtotime($date) - $timeoffset * 60 * 60 + date('Z');
+    return $timeoffset;
 }
 
 function acym_fileGetContent($url, $timeout = 10)
@@ -236,7 +238,7 @@ function acym_getGroups()
     return $groups;
 }
 
-function acym_getLanguages($installed = false)
+function acym_getLanguages($installed = false, $uppercase = false)
 {
     $result = [];
 
@@ -267,7 +269,7 @@ function acym_getLanguages($installed = false)
 
         $lang = new stdClass();
         $lang->sef = empty($languages[$dir]) ? null : $languages[$dir]->sef;
-        $lang->language = strtolower($dir);
+        $lang->language = $uppercase ? $dir : strtolower($dir);
         $lang->name = empty($data['name']) ? (empty($languages[$dir]) ? $dir : $languages[$dir]->title_native) : $data['name'];
         $lang->exists = file_exists(ACYM_LANGUAGE.$dir.DS.$dir.'.'.ACYM_COMPONENT.'.ini');
         $lang->content = empty($languages[$dir]) ? false : $languages[$dir]->published == 1;
@@ -618,6 +620,15 @@ function acym_enqueueMessage($message, $type = 'success')
 
     if (in_array($type, $handledTypes)) {
         $acyapp = acym_getGlobal('app');
+
+        if (ACYM_J30) {
+            $type = str_replace(
+                ['info', 'success'],
+                ['notice', 'message'],
+                $type
+            );
+        }
+
         $acyapp->enqueueMessage($message, $type);
     }
 
@@ -981,6 +992,42 @@ function acym_getCmsUserEdit($userId)
 
 function acym_disableCmsEditor()
 {
+}
+
+function acym_cmsPermission()
+{
+    $user = JFactory::getUser();
+    if (!$user->authorise('core.admin', ACYM_COMPONENT)) return '';
+
+    $url = 'index.php?option=com_config&view=component&component='.ACYM_COMPONENT.'&return='.urlencode(base64_encode((string)JUri::getInstance()));
+
+    return '
+		<div class="cell medium-6 grid-x">
+			<label class="cell medium-6 small-9">'.acym_translation('ACYM_JOOMLA_PERMISSIONS').'</label>
+			<div class="cell auto">
+				<a class="button button-secondary" href="'.$url.'">'.acym_translation('JTOOLBAR_OPTIONS').'</a>
+			</div>
+		</div>';
+}
+
+function acym_languageOption($emailLanguage, $name)
+{
+    $languages = acym_getLanguages(true, true);
+    if (count($languages) < 2) return '';
+
+    $default = new stdClass();
+    $default->language = '';
+    $default->name = acym_translation('ACYM_DEFAULT');
+    array_unshift($languages, $default);
+
+    return acym_select(
+        $languages,
+        $name,
+        $emailLanguage,
+        'class="acym__select"',
+        'language',
+        'name'
+    );
 }
 
 global $acymCmsUserVars;

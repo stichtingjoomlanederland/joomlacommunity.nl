@@ -8,100 +8,59 @@
 // Protect from unauthorized access
 defined('_JEXEC') or die();
 
-/** @var  $this  \Akeeba\Backup\Admin\View\Backup\Html */
-$escapedDefaultDescription = addslashes($this->defaultDescription);
-$escapedDescription        = addslashes(empty($this->description) ? $this->defaultDescription : $this->description);
-$escapedComment            = addslashes($this->comment);
-$escapedAngiePassword      = addslashes($this->ANGIEPassword);
-$escapedJpsKey             = $this->showJPSPassword ? addslashes($this->jpsPassword) : '';
-$autoResume                = (int) $this->autoResume;
-$autoResumeTimeout         = (int) $this->autoResumeTimeout;
-$autoResumeRetries         = (int) $this->autoResumeRetries;
-$maxExecTime               = (int) $this->maxExecutionTime;
-$runtimeBias               = (int) $this->runtimeBias;
-$escapedJuriBase           = addslashes(JUri::base());
-$escapedDomains            = addcslashes($this->domains, "'\\");
-$escapedReturnURL          = addcslashes($this->returnURL, "'\\");
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Uri\Uri;
 
-$innerJS = <<< JS
-	// Initialization
-	akeeba.Backup.defaultDescription = "$escapedDefaultDescription";
-	akeeba.Backup.currentDescription = "$escapedDescription";
-	akeeba.Backup.currentComment     = "$escapedComment";
-	akeeba.Backup.config_angiekey    = "$escapedAngiePassword";
-	akeeba.Backup.jpsKey             = "$escapedJpsKey";
+/**
+ * This file passes parameters to the Backup.js script using Joomla's script options API
+ *
+ * @var  $this  \Akeeba\Backup\Admin\View\Backup\Html
+ */
 
-	// Auto-resume setup
-	akeeba.Backup.resume.enabled = $autoResume;
-	akeeba.Backup.resume.timeout = $autoResumeTimeout;
-	akeeba.Backup.resume.maxRetries = $autoResumeRetries;
+$escapedBaseURL = addslashes(Uri::base());
+$platform       = $this->container->platform;
 
-	// The return URL
-	akeeba.Backup.returnUrl = '{$escapedReturnURL}';
+// Initialization
+$platform->addScriptOptions('akeeba.Backup.defaultDescription', addslashes($this->defaultDescription));
+$platform->addScriptOptions('akeeba.Backup.currentDescription', addslashes(empty($this->description) ? $this->defaultDescription : $this->description));
+$platform->addScriptOptions('akeeba.Backup.currentComment', addslashes($this->comment));
+$platform->addScriptOptions('akeeba.Backup.config_angiekey', addslashes($this->ANGIEPassword));
+$platform->addScriptOptions('akeeba.Backup.jpsKey', $this->showJPSPassword ? addslashes($this->jpsPassword) : '');
 
-	// Used as parameters to start_timeout_bar()
-	akeeba.Backup.maxExecutionTime = $maxExecTime;
-	akeeba.Backup.runtimeBias = $runtimeBias;
+// Auto-resume setup
+$platform->addScriptOptions('akeeba.Backup.resume.enabled', (bool) $this->autoResume);
+$platform->addScriptOptions('akeeba.Backup.resume.timeout', (int) $this->autoResumeTimeout);
+$platform->addScriptOptions('akeeba.Backup.resume.maxRetries', (int) $this->autoResumeRetries);
 
-	// Create a function for saving the editor's contents
-	akeeba.Backup.commentEditorSave = function() {
-	};
+// The return URL
+$platform->addScriptOptions('akeeba.Backup.returnUrl', addcslashes($this->returnURL, "'\\"));
 
-	akeeba.System.notification.iconURL = '{$escapedJuriBase}../media/com_akeeba/icons/logo-48.png';
+// Used as parameters to start_timeout_bar()
+$platform->addScriptOptions('akeeba.Backup.maxExecutionTime', (int) $this->maxExecutionTime);
+$platform->addScriptOptions('akeeba.Backup.runtimeBias', (int) $this->runtimeBias);
 
-	//Parse the domain keys
-	akeeba.Backup.domains = JSON.parse('$escapedDomains');
+// Notifications
+$platform->addScriptOptions('akeeba.System.notification.iconURL', sprintf("%s../media/com_akeeba/icons/logo-48.png", $escapedBaseURL));
+$platform->addScriptOptions('akeeba.System.notification.hasDesktopNotification', (bool) $this->desktopNotifications);
 
-	// Setup AJAX proxy URL
-	akeeba.System.params.AjaxURL = 'index.php?option=com_akeeba&view=Backup&task=ajax';
+// Domain keys
+$platform->addScriptOptions('akeeba.Backup.domains', $this->domains);
 
-	// Setup base View Log URL
-	akeeba.Backup.URLs.LogURL = '{$escapedJuriBase}index.php?option=com_akeeba&view=Log';
-	akeeba.Backup.URLs.AliceURL = '{$escapedJuriBase}index.php?option=com_akeeba&view=Alice';
+// AJAX proxy, View Log and ALICE URLs
+$platform->addScriptOptions('akeeba.System.params.AjaxURL', 'index.php?option=com_akeeba&view=Backup&task=ajax');
+$platform->addScriptOptions('akeeba.Backup.URLs.LogURL', sprintf("%sindex.php?option=com_akeeba&view=Log", $escapedBaseURL));
+$platform->addScriptOptions('akeeba.Backup.URLs.AliceURL', sprintf("%sindex.php?option=com_akeeba&view=Alice", $escapedBaseURL));
 
-JS;
+// Behavior triggers
+$platform->addScriptOptions('akeeba.Backup.autostart', (!$this->unwriteableOutput && $this->autoStart) ? 1 : 0);
 
-if ($this->desktopNotifications)
-{
-	$innerJS .= <<< JS
-	akeeba.System.notification.askPermission();
-
-JS;
-}
-
-if (!$this->unwriteableOutput && $this->autoStart)
-{
-	$innerJS .= <<< JS
-	akeeba.Backup.start();
-
-JS;
-}
-else
-{
-	$innerJS .= <<< JS
-	
-	// Bind start button's click event
-	akeeba.System.addEventListener(document.getElementById('backup-start'), 'click', function(e){
-		akeeba.Backup.start();
-	});
-
-	akeeba.System.addEventListener(document.getElementById('backup-default'), 'click', akeeba.Backup.restoreDefaultOptions);
-
-	// Work around Safari which ignores autocomplete=off (FOR CRYING OUT LOUD!)
-	setTimeout(akeeba.Backup.restoreCurrentOptions, 500);
-
-JS;
-}
-
-$js = <<< JS
-
-;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
-// due to missing trailing semicolon and/or newline in their code.
-akeeba.System.documentReady(function(){
-	$innerJS
-});
-
-JS;
-
-?>
-@inlineJs($js)
+// Push language strings to Javascript
+Text::script('COM_AKEEBA_BACKUP_TEXT_LASTRESPONSE');
+Text::script('COM_AKEEBA_BACKUP_TEXT_BACKUPSTARTED');
+Text::script('COM_AKEEBA_BACKUP_TEXT_BACKUPFINISHED');
+Text::script('COM_AKEEBA_BACKUP_TEXT_BACKUPHALT');
+Text::script('COM_AKEEBA_BACKUP_TEXT_BACKUPRESUME');
+Text::script('COM_AKEEBA_BACKUP_TEXT_BACKUPHALT_DESC');
+Text::script('COM_AKEEBA_BACKUP_TEXT_BACKUPFAILED');
+Text::script('COM_AKEEBA_BACKUP_TEXT_BACKUPWARNING');
+Text::script('COM_AKEEBA_BACKUP_TEXT_AVGWARNING');

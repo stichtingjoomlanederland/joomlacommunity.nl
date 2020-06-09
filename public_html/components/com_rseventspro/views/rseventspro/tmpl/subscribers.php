@@ -17,23 +17,55 @@ function rs_clear() {
 </script>
 
 <form method="post" action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribers&id='.rseventsproHelper::sef($this->row->id,$this->row->name)); ?>" name="adminForm" id="adminForm">
-	<div class="input-append">
-		<input type="text" name="search" id="searchstring" onchange="adminForm.submit();" value="<?php echo $this->filter_word; ?>" size="35" /> 
-		<button type="button" class="button btn" onclick="adminForm.submit();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SEARCH'); ?></button> 
-		<button type="button" class="button btn" onclick="rs_clear();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CLEAR'); ?></button>
+	<div class="row-fluid">
+		<div class="input-append">
+			<input type="text" name="search" id="searchstring" onchange="adminForm.submit();" value="<?php echo $this->filter_word; ?>" size="35" /> 
+			<button type="button" class="button btn hasTooltip" title="<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SEARCH'); ?>" onclick="adminForm.submit();"><i class="fa fa-search"></i></button> 
+			<button type="button" class="button btn hasTooltip" title="<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CLEAR'); ?>" onclick="rs_clear();"><i class="fa fa-times"></i></button>
+		</div>
 	</div>
-
-	
-	<?php echo $this->lists['tickets']; ?>
-	<?php echo $this->lists['state']; ?>
-	
-
-	<div class="rs_clear"></div>
+	<div class="row-fluid">
+		<div class="span4">
+			<?php echo $this->lists['tickets']; ?>
+		</div>
+		
+		<div class="span4">
+			<?php echo $this->lists['state']; ?>
+		</div>
+		
+		<div class="span4">
+			<a class="btn" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->row->id,$this->row->name),false,rseventsproHelper::itemid($this->row->id)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_BACK'); ?></a>
+			<a class="btn" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.exportguests&id='.rseventsproHelper::sef($this->row->id,$this->row->name)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBERS_EXPORT_SUBSCRIBERS'); ?></a>
+		</div>
+	</div>
 	
 	<br /><br />
 	
-	<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->row->id,$this->row->name),false,rseventsproHelper::itemid($this->row->id)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_BACK'); ?></a> <?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_OR'); ?> <a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.exportguests&id='.rseventsproHelper::sef($this->row->id,$this->row->name)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBERS_EXPORT_SUBSCRIBERS'); ?></a> <br />
-	<div class="rs_clear"></div>
+	<div class="well well-small">
+		<table class="table table-striped">
+			<thead>
+				<th><?php echo JText::_('COM_RSEVENTSPRO_EVENT_DASH_TICKET'); ?></th>
+				<th class="center"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_DASH_TICKET_PRICE'); ?></th>
+				<th class="center"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_DASH_TICKET_SOLD'); ?></th>
+			</thead>
+			
+			<?php if ($this->tickets) { ?>
+			<?php foreach ($this->tickets as $ticket) {  ?>
+			<tr>
+				<td><?php echo $ticket->name; ?></td>
+				<td class="center"><?php echo $ticket->price > 0 ? rseventsproHelper::currency($ticket->price) : JText::_('COM_RSEVENTSPRO_GLOBAL_FREE'); ?></td>
+				<td class="center"><?php echo rseventsproHelper::getTicketCount($ticket); ?></td>
+			</tr>
+			<?php } ?>
+			<?php } else { ?>
+			<tr>
+				<td><?php echo JText::_('COM_RSEVENTSPRO_FREE_ENTRANCE'); ?></td>
+				<td class="center">-</td>
+				<td class="center"><?php echo rseventsproHelper::getTicketCountNoEntrance($this->row->id); ?></td>
+			</tr>
+			<?php } ?>
+		</table>
+	</div>
 	
 	<?php $count = count($this->data); ?>
 	<?php if (!empty($this->data)) { ?>

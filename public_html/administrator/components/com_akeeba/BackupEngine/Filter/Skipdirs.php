@@ -18,7 +18,7 @@ use Akeeba\Engine\Factory;
  */
 class Skipdirs extends Base
 {
-	function __construct()
+	public function __construct()
 	{
 		$this->object  = 'dir';
 		$this->subtype = 'children';
@@ -27,11 +27,6 @@ class Skipdirs extends Base
 		if (empty($this->filter_name))
 		{
 			$this->filter_name = strtolower(basename(__FILE__, '.php'));
-		}
-
-		if (Factory::getKettenrad()->getTag() == 'restorepoint')
-		{
-			$this->enabled = false;
 		}
 
 		parent::__construct();

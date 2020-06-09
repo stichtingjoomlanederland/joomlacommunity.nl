@@ -159,7 +159,7 @@ class acymcampaignClass extends acymClass
 
     public function getOneByIdWithMail($id)
     {
-        $query = 'SELECT campaign.*, mail.name, mail.subject, mail.body, mail.from_name, mail.from_email, mail.reply_to_name, mail.reply_to_email, mail.bcc 
+        $query = 'SELECT campaign.*, mail.name, mail.subject, mail.body, mail.from_name, mail.from_email, mail.reply_to_name, mail.reply_to_email, mail.bcc, mail.links_language 
                 FROM #__acym_campaign AS campaign
                 JOIN #__acym_mail AS mail ON campaign.mail_id = mail.id
                 WHERE campaign.id = '.intval($id);
@@ -345,10 +345,12 @@ class acymcampaignClass extends acymClass
         $mailStatClass->save($mailStat);
 
         if ($result === 0) {
-            acym_enqueueMessage(acym_translation('ACYM_NO_USERS_FOUND'), 'warning');
-        } else {
-            acym_query('UPDATE `#__acym_campaign` SET `sent` = 1, `active` = 1 WHERE `mail_id` = '.intval($campaign->mail_id));
+            $this->errors[] = acym_translation('ACYM_NO_USERS_FOUND');
+
+            return false;
         }
+
+        acym_query('UPDATE `#__acym_campaign` SET `sent` = 1, `active` = 1 WHERE `mail_id` = '.intval($campaign->mail_id));
 
         return $result;
     }
@@ -395,8 +397,9 @@ class acymcampaignClass extends acymClass
     {
         $query = 'SELECT COUNT(user_id) as open, DATE_FORMAT(open_date, \'%Y-%m\') as open_date FROM #__acym_user_stat WHERE open > 0';
         $query .= empty($mail_id) ? '' : ' AND  `mail_id`='.intval($mail_id);
+        $query .= ' AND `open_date` > "0000-00-00"';
         $query .= empty($start) ? '' : ' AND `open_date` >= '.acym_escapeDB($start);
-        $query .= empty($start) ? '' : ' AND `open_date` <= '.acym_escapeDB($end);
+        $query .= empty($end) ? '' : ' AND `open_date` <= '.acym_escapeDB($end);
         $query .= ' GROUP BY MONTH(open_date), YEAR(open_date) ORDER BY open_date';
 
         return acym_loadObjectList($query);
@@ -406,8 +409,9 @@ class acymcampaignClass extends acymClass
     {
         $query = 'SELECT COUNT(user_id) as open, DATE_FORMAT(open_date, \'%Y-%m-%d\') as open_date FROM #__acym_user_stat WHERE open > 0';
         $query .= empty($mail_id) ? '' : ' AND  `mail_id`='.intval($mail_id);
+        $query .= ' AND `open_date` > "0000-00-00"';
         $query .= empty($start) ? '' : ' AND `open_date` >= '.acym_escapeDB($start);
-        $query .= empty($start) ? '' : ' AND `open_date` <= '.acym_escapeDB($end);
+        $query .= empty($end) ? '' : ' AND `open_date` <= '.acym_escapeDB($end);
         $query .= ' GROUP BY WEEK(open_date), YEAR(open_date) ORDER BY open_date';
 
         return acym_loadObjectList($query);
@@ -417,8 +421,9 @@ class acymcampaignClass extends acymClass
     {
         $query = 'SELECT COUNT(user_id) as open, DATE_FORMAT(open_date, \'%Y-%m-%d\') as open_date FROM #__acym_user_stat WHERE open > 0';
         $query .= empty($mail_id) ? '' : ' AND  `mail_id`='.intval($mail_id);
+        $query .= ' AND `open_date` > "0000-00-00"';
         $query .= empty($start) ? '' : ' AND `open_date` >= '.acym_escapeDB($start);
-        $query .= empty($start) ? '' : ' AND `open_date` <= '.acym_escapeDB($end);
+        $query .= empty($end) ? '' : ' AND `open_date` <= '.acym_escapeDB($end);
         $query .= ' GROUP BY DAYOFYEAR(open_date), YEAR(open_date) ORDER BY open_date';
 
         return acym_loadObjectList($query);
@@ -428,8 +433,9 @@ class acymcampaignClass extends acymClass
     {
         $query = 'SELECT COUNT(user_id) as open, DATE_FORMAT(open_date, \'%Y-%m-%d %H:00:00\') as open_date FROM #__acym_user_stat WHERE open > 0';
         $query .= empty($mail_id) ? '' : ' AND  `mail_id`='.intval($mail_id);
+        $query .= ' AND `open_date` > "0000-00-00 00:00:00"';
         $query .= empty($start) ? '' : ' AND `open_date` >= '.acym_escapeDB($start);
-        $query .= empty($start) ? '' : ' AND `open_date` <= '.acym_escapeDB($end);
+        $query .= empty($end) ? '' : ' AND `open_date` <= '.acym_escapeDB($end);
         $query .= ' GROUP BY HOUR(open_date), DAYOFYEAR(open_date), YEAR(open_date) ORDER BY open_date';
 
         return acym_loadObjectList($query);
@@ -437,7 +443,7 @@ class acymcampaignClass extends acymClass
 
     public function getLastNewsletters($params)
     {
-        $querySelect = 'SELECT mail.name, mail.id, mail.body, mail.subject, campaign.sending_date ';
+        $querySelect = 'SELECT mail.*, campaign.sending_date ';
         $queryCountSelect = 'SELECT COUNT(*) FROM (SELECT DISTINCT mail.id ';
 
         $query = 'FROM #__acym_campaign AS campaign
@@ -634,6 +640,13 @@ class acymcampaignClass extends acymClass
             FROM #__acym_campaign 
             WHERE `mail_id` = '.intval($mailId)
         );
+    }
+
+    public function getAllCampaignsGenerated()
+    {
+        $query = 'SELECT id FROM #__acym_campaign WHERE parent_id IS NOT NULL AND sending_type = '.acym_escapeDB(self::SENDING_TYPE_NOW).' AND draft = 1 AND active = 1 AND sent = 0';
+
+        return acym_loadObjectList($query);
     }
 }
 

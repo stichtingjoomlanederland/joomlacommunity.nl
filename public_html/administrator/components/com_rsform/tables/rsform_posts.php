@@ -18,10 +18,11 @@ class TableRSForm_Posts extends JTable
 	public $enabled 	= 0;
 	public $method	 	= 1;
 	public $fields		= null;
+	public $headers		= null;
 	public $silent	 	= 1;
 	public $url	 		= 'http://';
 
-	protected $_jsonEncode = array('fields');
+	protected $_jsonEncode = array('fields', 'headers');
 		
 	/**
 	 * Constructor
@@ -65,6 +66,16 @@ class TableRSForm_Posts extends JTable
 			if (!is_array($this->fields))
 			{
 				$this->fields = array();
+			}
+		}
+
+		if (!empty($this->headers))
+		{
+			$this->headers = json_decode($this->headers);
+
+			if (!is_array($this->headers))
+			{
+				$this->headers = array();
 			}
 		}
 

@@ -95,23 +95,6 @@ class RseventsproControllerSettings extends JControllerLegacy
 	}
 	
 	/**
-	 * Method to import Facebook events.
-	 *
-	 * @return	void
-	 * @since	1.6
-	 */
-	public function facebook() {
-		$model	= $this->getModel();
-		
-		if (!$model->facebook()) {
-			$this->setMessage($model->getError(), 'error');
-			$this->setRedirect('index.php?option=com_rseventspro&view=settings');
-		} else {
-			$this->setRedirect('index.php?option=com_rseventspro&view=events');
-		}
-	}
-	
-	/**
 	 * Method to auth Google events.
 	 *
 	 * @return	void
@@ -162,5 +145,13 @@ class RseventsproControllerSettings extends JControllerLegacy
 		
 		$db->setQuery($query)->execute();
 		JFactory::getDocument()->addScriptDeclaration('window.parent.jQuery("#rseproGoogleLog").modal("hide");');
+	}
+	
+	public function importFacebookEvents() {
+		$model	= $this->getModel();
+		
+		header('Content-Type: application/json');
+		echo $model->importFacebookEvents();
+		die;
 	}
 }

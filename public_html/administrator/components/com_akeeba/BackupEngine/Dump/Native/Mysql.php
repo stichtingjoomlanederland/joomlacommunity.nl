@@ -1465,6 +1465,10 @@ class Mysql extends Base
 				// Remove table options {DATA|INDEX} DIRECTORY
 				$regex     = "#(DATA|INDEX)\s{1,}DIRECTORY\s*=?\s*'.*'#i";
 				$table_sql = preg_replace($regex, '', $table_sql);
+
+				// Abstract the names of table constraints and indices
+				$regex = "#(CONSTRAINT|KEY|INDEX)\s{1,}`{$this->prefix}#i";
+				$table_sql = preg_replace($regex, '$1 `#__', $table_sql);
 			}
 
 			// Is it a VIEW but we don't have SHOW VIEW privileges?

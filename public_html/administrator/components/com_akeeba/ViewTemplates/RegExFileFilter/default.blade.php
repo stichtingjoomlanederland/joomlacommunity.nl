@@ -7,23 +7,7 @@
 
 defined('_JEXEC') or die();
 
-$ajaxUrl    = addslashes(JUri::base() . 'index.php?option=com_akeeba&view=RegExFileFilters&task=ajax');
-$loadingUrl = addslashes($this->container->template->parsePath('media://com_akeeba/icons/loading.gif'));
-$this->json = addcslashes($this->json, "'\\");
-$js         = <<< JS
-
-;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
-// due to missing trailing semicolon and/or newline in their code.
-akeeba.System.documentReady(function(){
-    akeeba.System.params.AjaxURL = '$ajaxUrl';
-	var data = JSON.parse('{$this->json}');
-    akeeba.Regexfsfilters.render(data);
-});
-
-JS;
-
 ?>
-@inlineJs($js)
 @include('admin:com_akeeba/CommonTemplates/ErrorModal')
 @include('admin:com_akeeba/CommonTemplates/ProfileName')
 

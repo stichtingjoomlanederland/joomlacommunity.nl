@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -28,9 +28,25 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<input type="hidden" name="option" value="com_easydiscuss" />
 	<input type="hidden" name="view" value="users" />
 </form>
+
 <div class="ed-list">
-	<?php foreach ($users as $user) { ?>
-		<?php echo $this->output('site/users/item', array('user' => $user)); ?>
+	<?php if ($users) { ?>
+		<?php foreach ($users as $user) { ?>
+			<?php echo $this->output('site/users/item', array('user' => $user)); ?>
+		<?php } ?>
+	<?php } ?>
+
+	<?php if (!$users && $search) { ?> 
+	<div class="is-empty">
+		<div class="o-empty">
+			<div class="o-empty__content">
+				<i class="o-empty__icon fa fa-search"></i>
+				<div class="o-empty__text t-lg-mt--xl">
+					<?php echo JText::sprintf('COM_ED_NO_USERS_FOUND_BASED_ON_SEARCH', $search);?>
+				</div>
+			</div>
+		</div>
+	</div>
 	<?php } ?>
 </div>
 

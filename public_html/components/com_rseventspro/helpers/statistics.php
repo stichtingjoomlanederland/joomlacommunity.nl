@@ -154,10 +154,13 @@ class RSEventsProStatistics
 		if ($subscriptions = $db->loadObjectList()) {
 			foreach ($subscriptions as $subscription) {
 				if (isset($subscription->total)) {
-					$total += $subscription->total;
+					$sTotal = $subscription->total > 0 ? $subscription->total : 0;
 				} else {
-					$total += rseventsproHelper::total($subscription->id);
+					$sTotal = rseventsproHelper::total($subscription->id);
+					$sTotal = $sTotal > 0 ? $sTotal : 0;
 				}
+				
+				$total += $sTotal;
 			}
 			
 			$data->count = count($subscriptions);

@@ -76,6 +76,8 @@ class Html extends BaseView
 	 */
 	public function onBeforeListactions()
 	{
+		$this->container->template->addJS('media://com_akeeba/js/RemoteFiles.min.js');
+
 		/** @var RemoteFiles $model */
 		$model              = $this->getModel();
 		$this->id           = $model->getState('id', -1);
@@ -93,6 +95,8 @@ CSS;
 
 	public function onBeforeDltoserver()
 	{
+		$this->container->template->addJS('media://com_akeeba/js/RemoteFiles.min.js');
+
 		/** @var RemoteFiles $model */
 		$model = $this->getModel();
 
@@ -107,18 +111,6 @@ CSS;
 		$this->frag    = $model->getState('frag', 0, 'int');
 
 		// Render the progress bar
-		$script = <<<JS
-
-
-;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
-// due to missing trailing semicolon and/or newline in their code.
-akeeba.System.documentReady(function(){
-	document.forms.adminForm.submit();
-});
-
-JS;
-		$this->addJavascriptInline($script);
-
 		$css = <<< CSS
 dl { display: none; }
 

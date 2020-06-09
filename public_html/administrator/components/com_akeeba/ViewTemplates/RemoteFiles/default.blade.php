@@ -21,15 +21,6 @@ $downloadToFileNotAvailable = !$this->actions['downloadToFile'] && $this->capabi
 $deleteNotAvailable = !$this->actions['delete'] && $this->capabilities['delete'];
 $allRemoteFilesGone = $downloadToFileNotAvailable && $deleteNotAvailable;
 ?>
-
-<script type="text/javascript">
-    function akeebaBackupRemoteFilesShowWait()
-    {
-        document.getElementById("akeebaBackupRemoteFilesWorkInProgress").style.display = "block";
-        document.getElementById("akeebaBackupRemoteFilesMainInterface").style.display  = "none";
-    }
-</script>
-
 <div class="akeeba-panel--info" id="akeebaBackupRemoteFilesWorkInProgress" style="text-align: center; display: none">
     <header class="akeeba-block-header">
         <h3>@lang('COM_AKEEBA_REMOTEFILES_INPROGRESS_HEADER')</h3>
@@ -73,15 +64,14 @@ $allRemoteFilesGone = $downloadToFileNotAvailable && $deleteNotAvailable;
             </div>
         @else
             @if($this->actions['downloadToFile'])
-                <a class="akeeba-btn--teal"
+                <a class="akeeba-btn--teal akeebaRemoteFilesShowWait"
                    href="index.php?option=com_akeeba&view=RemoteFiles&task=dltoserver&tmpl=component&id=<?= $this->id ?>&part=-1"
-                   onclick="akeebaBackupRemoteFilesShowWait();"
                 >
                     <span class="akion-android-download"></span>
                     <span>@lang('COM_AKEEBA_REMOTEFILES_FETCH')</span>
                 </a>
             @else
-                <button class="akeeba-btn--teal" disabled onclick="return false;"
+                <button class="akeeba-btn--teal" disabled="disabled"
                         title="@lang($this->capabilities['downloadToFile'] ? 'COM_AKEEBA_REMOTEFILES_ERR_DOWNLOADEDTOFILE_ALREADY' : 'COM_AKEEBA_REMOTEFILES_ERR_UNSUPPORTED')">
                     <span class="akion-android-download"></span>
                     <span>@lang('COM_AKEEBA_REMOTEFILES_FETCH')</span>
@@ -89,15 +79,14 @@ $allRemoteFilesGone = $downloadToFileNotAvailable && $deleteNotAvailable;
             @endif
 
             @if($this->actions['delete'])
-                <a class="akeeba-btn--red"
+                <a class="akeeba-btn--red akeebaRemoteFilesShowWait"
                    href="index.php?option=com_akeeba&view=RemoteFiles&task=delete&tmpl=component&id=<?= $this->id ?>&part=-1"
-                   onclick="akeebaBackupRemoteFilesShowWait();"
                 >
                     <span class="akion-trash-a"></span>
                     <span>@lang('COM_AKEEBA_REMOTEFILES_DELETE')</span>
                 </a>
             @else
-                <button class="akeeba-btn--teal" disabled onclick="return false;"
+                <button class="akeeba-btn--teal" disabled="disabled"
                         title="@lang($this->capabilities['delete'] ? 'COM_AKEEBA_REMOTEFILES_ERR_DELETE_ALREADY' : 'COM_AKEEBA_REMOTEFILES_ERR_UNSUPPORTED')">
                     <span class="akion-trash-a"></span>
                     <span>@lang('COM_AKEEBA_REMOTEFILES_DELETE')</span>

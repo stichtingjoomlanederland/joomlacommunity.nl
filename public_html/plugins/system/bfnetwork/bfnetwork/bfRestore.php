@@ -26,7 +26,7 @@
  * If you have any questions regarding this code, please contact phil@phil-taylor.com
  */
 
-/**
+/*
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library.
  *
@@ -966,9 +966,9 @@ if (!function_exists('json_decode')) {
  */
 abstract class AKAbstractObject
 {
-    /** @var array The queue size of the $_errors array. Set to 0 for infinite size. */
+    /** @var array The queue size of the array. Set to 0 for infinite size. */
     protected $_errors_queue_size = 0;
-    /** @var array The queue size of the $_warnings array. Set to 0 for infinite size. */
+    /** @var array The queue size of the array. Set to 0 for infinite size. */
     protected $_warnings_queue_size = 0;
     /** @var array An array of errors */
     private $_errors = array();
@@ -1901,7 +1901,7 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
                         $this->notify($message);
                     }
                     $this->runState = AK_STATE_NOFILE;
-                    continue;
+                    break;
             }
         }
 
@@ -6309,7 +6309,7 @@ class AKFactory
                         break;
 
                     default:
-                        die('Invalid archive type or extension in file '.$filename);
+                        exit('Invalid archive type or extension in file '.$filename);
                         break;
                 }
             }
@@ -7304,7 +7304,7 @@ function masterSetup()
             $json = AKEncryptionAES::AESDecryptCtr($json, $password, 128);
 
             if (empty($json)) {
-                die('###{"status":false,"message":"Invalid login"}###');
+                exit('###{"status":false,"message":"Invalid login"}###');
             }
         }
 
@@ -7312,7 +7312,7 @@ function masterSetup()
         $raw = json_decode($json, true);
 
         if (!empty($password) && (empty($raw))) {
-            die('###{"status":false,"message":"Invalid login"}###');
+            exit('###{"status":false,"message":"Invalid login"}###');
         }
 
         // Pass all JSON data to the request array
@@ -7322,7 +7322,7 @@ function masterSetup()
             }
         }
     } elseif (!empty($password)) {
-        die('###{"status":false,"message":"Invalid login"}###');
+        exit('###{"status":false,"message":"Invalid login"}###');
     }
 
     // ------------------------------------------------------------

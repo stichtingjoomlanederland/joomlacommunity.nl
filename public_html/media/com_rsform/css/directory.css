@@ -157,3 +157,66 @@ textarea.rsform-error:focus {
 	font-weight:bold;
 	font-size:10px;
 }
+
+.rsform-dir-tooltip {
+	position: relative;
+	display: inline-block;
+	border-bottom: 1px dotted black;
+}
+
+.rsform-dir-tooltip .rsform-dir-tooltiptext {
+	visibility: hidden;
+	width: 360px;
+	background-color: #555;
+	color: #fff;
+	text-align: center;
+	border-radius: 6px;
+	padding: 6px;
+	position: absolute;
+	z-index: 1;
+	bottom: 125%;
+	left: 50%;
+	margin-left: -60px;
+	opacity: 0;
+	transition: opacity 0.3s;
+}
+
+.rsform-dir-tooltip .rsform-dir-tooltiptext::after {
+	content: "";
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	margin-left: -5px;
+	border-width: 5px;
+	border-style: solid;
+	border-color: #555 transparent transparent transparent;
+}
+
+.rsform-dir-tooltip:hover .rsform-dir-tooltiptext {
+	visibility: visible;
+	opacity: 1;
+}
+
+@media (max-width: 767px) {
+	.rsform-dir-tooltip {
+		border-bottom: 0;
+	}
+	.rsform-dir-tooltip .rsform-dir-tooltiptext {
+		position: relative;
+		width: auto;
+		visibility: visible;
+		background-color: unset;
+		color: initial;
+		text-align: initial;
+		border-radius: 0;
+		margin-left: 0;
+		padding: 0;
+		opacity: 1;
+		display: block;
+		left: 0;
+		bottom: 0;
+	}
+	.rsform-dir-tooltip .rsform-dir-tooltiptext::after {
+		display: none;
+	}
+}

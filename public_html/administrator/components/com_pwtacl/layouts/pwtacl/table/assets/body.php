@@ -3,7 +3,7 @@
  * @package    PwtAcl
  *
  * @author     Sander Potjer - Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2011 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2011 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
@@ -13,7 +13,6 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Router\Route;
 
-// No direct access.
 defined('_JEXEC') or die;
 
 $odd    = false;
@@ -25,7 +24,7 @@ $group  = $displayData['group'];
 <?php foreach ($assets as $asset) : ?>
 	<?php $oddclass = false; ?>
 	<tr<?php if ($odd = !$odd): ?> class="odd"<?php $oddclass = true; ?><?php endif; ?>>
-		<td class="title <?php if ($asset->state == -2 || $asset->state == 0): ?>trashed<?php endif; ?>" colspan="<?php if ($asset->level == 0): ?>1<?php else: ?>4<?php endif; ?>">
+		<td class="title <?php if ((int) $asset->state === -2 || (int) $asset->state === 0): ?>trashed<?php endif; ?>" colspan="<?php if ((int) $asset->level === 0): ?>1<?php else: ?>4<?php endif; ?>">
 			<div class="icons">
 				<?php echo str_repeat('<span class="gi">|&mdash;</span>', $asset->level); ?>
 				<span class="type icon-<?php echo $asset->icon; ?>"></span>
@@ -42,15 +41,19 @@ $group  = $displayData['group'];
 			<?php endif; ?>
 			<a href="<?php echo Route::_($asset->link); ?>">
 				<?php echo $asset->title; ?>
-				<?php if ($asset->state == -2): ?>
+				<?php if ((int) $asset->state === -2): ?>
 					<em><?php echo '[' . Text::_('JTRASHED') . ']'; ?></em>
-				<?php elseif ($asset->state == 0): ?>
+				<?php elseif ((int) $asset->state === 0): ?>
 					<em><?php echo '[' . Text::_('JUNPUBLISHED') . ']'; ?></em>
 				<?php endif; ?>
 			</a>
 		</td>
 		<?php foreach ($asset->actions->core as $actionname => $action): ?>
-			<?php echo LayoutHelper::render('pwtacl.action', array('group' => $group, 'asset' => $asset, 'action' => $action)); ?>
+			<?php echo LayoutHelper::render('pwtacl.action', [
+				'group'  => $group,
+				'asset'  => $asset,
+				'action' => $action
+			]); ?>
 		<?php endforeach; ?>
 		<td class="center border-left padding-small">
 			<?php if ($asset->additional): ?>
@@ -72,7 +75,11 @@ $group  = $displayData['group'];
 					<?php foreach ($asset->actions->additional as $actionname => $action): ?>
 						<tr>
 							<td width="75%" class="border-right"><?php echo Text::_($action->title); ?></td>
-							<?php echo LayoutHelper::render('pwtacl.action', array('group' => $group, 'asset' => $asset, 'action' => $action)); ?>
+							<?php echo LayoutHelper::render('pwtacl.action', [
+								'group'  => $group,
+								'asset'  => $asset,
+								'action' => $action
+							]); ?>
 						</tr>
 					<?php endforeach; ?>
 				</table>

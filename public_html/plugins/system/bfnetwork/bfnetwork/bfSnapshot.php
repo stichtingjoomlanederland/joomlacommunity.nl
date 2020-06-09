@@ -502,7 +502,6 @@ require 'bfnetwork/bfPlugin.php';";
             switch ($this->config->getCfg('dbtype')) {
                 default:
                 case 'mysqli':
-
                     $link = mysqli_connect($this->config->getCfg('host'), $this->config->getCfg('user'), $this->config->getCfg('password'));
                     if (!$link) {
                         return null;
@@ -559,7 +558,7 @@ require 'bfnetwork/bfPlugin.php';";
             // return number seen
             return $count;
         } catch (Exception $e) {
-            die($e->getMessage());
+            exit($e->getMessage());
         }
     }
 

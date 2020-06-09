@@ -153,7 +153,7 @@ class plgAcymSubscriber extends acymPlugin
 
             $replaceme = empty($value) ? $mytag->default : $value[$fieldId.'-'.$user->id];
         }
-        $replaceme = nl2br($replaceme);
+        $replaceme = acym_translation(nl2br($replaceme));
 
         $this->pluginHelper->formatString($replaceme, $mytag);
 
@@ -365,6 +365,7 @@ class plgAcymSubscriber extends acymPlugin
         $actions['acy_add_queue']->option .= '<div class="shrink acym__automation__action__mail__name"></div>';
         $actions['acy_add_queue']->option .= '<div class="shrink margin-left-1 margin-right-1">'.strtolower(acym_translation('ACYM_OR')).' </div>';
         $actions['acy_add_queue']->option .= '<button type="button" data-modal-name="acym__template__choose__modal__and__" data-open="acym__template__choose__modal" aria-controls="acym__template__choose__modal" tabindex="0" aria-haspopup="true" class="cell medium-shrink button-secondary auto button ">'.acym_translation('ACYM_CHOOSE_EXISTING').'</button>';
+        $actions['acy_add_queue']->option .= acym_info('ACYM_CHOOSE_EXISTING_DESC', '', 'margin-left-0');
         $actions['acy_add_queue']->option .= '<div class="medium-4 grid-x cell">';
         $actions['acy_add_queue']->option .= acym_dateField('acym_action[actions][__and__][acy_add_queue][time]', '[time]');
         $actions['acy_add_queue']->option .= '</div>';
@@ -472,7 +473,11 @@ class plgAcymSubscriber extends acymPlugin
         }
 
         $userIds = acym_loadResultArray($query->getQuery(['user.id']));
-        $result = $mailClass->sendAutomation($mail->id, $userIds, $sendDate, $automationAdmin);
+        if (empty($userIds)) {
+            $result = 0;
+        } else {
+            $result = $mailClass->sendAutomation($mail->id, $userIds, $sendDate, $automationAdmin);
+        }
 
         if (is_numeric($result)) {
             return acym_translation_sprintf('ACYM_EMAILS_ADDED_QUEUE', $result);

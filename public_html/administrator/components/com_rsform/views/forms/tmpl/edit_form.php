@@ -110,7 +110,7 @@ defined('_JEXEC') or die('Restricted access');
 						<td><?php echo $this->lists['ShowSystemMessage']; ?></td>
 					</tr>
 					<tr>
-						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_RETURN_URL'); ?></td>
+						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo RSFormProHelper::translateIcon(); ?> <?php echo JText::_('RSFP_RETURN_URL'); ?></td>
 						<td><input name="ReturnUrl" class="rs_inp rs_80" value="<?php echo $this->escape($this->form->ReturnUrl); ?>" size="105" id="ReturnUrl" type="text" /></td>
 					</tr>
 					<tr>
@@ -148,6 +148,14 @@ defined('_JEXEC') or die('Restricted access');
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_DISABLE_SUBMIT_BUTTON'); ?></td>
 						<td><?php echo $this->lists['DisableSubmitButton']; ?></td>
+					</tr>
+					<tr>
+						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('COM_RSFORM_LIMIT_SUBMISSIONS'); ?></td>
+						<td><input name="LimitSubmissions" class="rs_inp rs_10" value="<?php echo $this->escape($this->form->LimitSubmissions); ?>" min="0" step="1" size="15" id="LimitSubmissions" type="number" /></td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td><?php echo JText::_('COM_RSFORM_LIMIT_SUBMISSIONS_DESC'); ?></td>
 					</tr>
 				</table>
 			</fieldset>

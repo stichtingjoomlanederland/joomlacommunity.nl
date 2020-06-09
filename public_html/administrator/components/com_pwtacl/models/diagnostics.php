@@ -3,7 +3,7 @@
  * @package    PwtAcl
  *
  * @author     Sander Potjer - Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2011 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2011 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
@@ -11,6 +11,7 @@
 use Joomla\CMS\Access\Access;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Helper\UserGroupsHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
@@ -20,7 +21,6 @@ use Joomla\CMS\Table\Category;
 use Joomla\CMS\Table\Table;
 use Joomla\Registry\Registry;
 
-// No direct access.
 defined('_JEXEC') or die;
 
 /**
@@ -28,7 +28,7 @@ defined('_JEXEC') or die;
  *
  * @since   3.0
  */
-class PwtaclModelDiagnostics extends ListModel
+class PwtAclModelDiagnostics extends ListModel
 {
 	/**
 	 * Asset Root ID.
@@ -44,7 +44,7 @@ class PwtaclModelDiagnostics extends ListModel
 	 * @var    array
 	 * @since  3.0
 	 */
-	protected $changes = array();
+	protected $changes = [];
 
 	/**
 	 * Constructor
@@ -53,9 +53,9 @@ class PwtaclModelDiagnostics extends ListModel
 	 *
 	 * @since   3.0
 	 */
-	public function __construct(array $config = array())
+	public function __construct(array $config = [])
 	{
-		Log::addLogger(array('text_file' => 'com_pwtacl.diagnostics.php'), Log::ALL, array('com_pwtacl'));
+		Log::addLogger(['text_file' => 'com_pwtacl.diagnostics.php'], Log::ALL, ['com_pwtacl']);
 		parent::__construct($config);
 	}
 
@@ -67,7 +67,7 @@ class PwtaclModelDiagnostics extends ListModel
 	 */
 	public function getDiagnosticsSteps()
 	{
-		return array(
+		return [
 			1  => 'CLEANUP',
 			2  => 'LEGACY',
 			3  => 'ROOT',
@@ -82,7 +82,7 @@ class PwtaclModelDiagnostics extends ListModel
 			12 => 'GENERAL_LANGUAGES',
 			13 => 'ADMINCONFLICTS',
 			14 => 'REBUILD'
-		);
+		];
 	}
 
 	/**
@@ -281,6 +281,7 @@ class PwtaclModelDiagnostics extends ListModel
 	 * Run the diagnostics tool to check the #__assets table
 	 *
 	 * @param   integer  $step  Step to run
+	 * @param   boolean  $cli   Run from CLI
 	 *
 	 * @return  array Asset changes
 	 * @since   3.0
@@ -293,7 +294,7 @@ class PwtaclModelDiagnostics extends ListModel
 		$backendCheck = $params->get('diagnostics_backendcheck', 1);
 
 		// Log changes made
-		if ($step == 1)
+		if ((int) $step === 1)
 		{
 			if ($cli)
 			{
@@ -499,8 +500,8 @@ class PwtaclModelDiagnostics extends ListModel
 		$db = $this->getDbo();
 
 		// Get assets with name starting with #__
-		/** @var PwtaclModelAssets $assetsModel */
-		$assetsModel = BaseDatabaseModel::getInstance('Assets', 'PwtaclModel');
+		/** @var PwtAclModelAssets $assetsModel */
+		$assetsModel = BaseDatabaseModel::getInstance('Assets', 'PwtAclModel');
 		$assets      = $assetsModel->getAssets(
 			'(' . $db->quoteName('name') . ' LIKE CONCAT("#", "__%") AND ' . $db->quoteName('name') . ' NOT LIKE "%__ucm_content.%")'
 		);
@@ -528,16 +529,16 @@ class PwtaclModelDiagnostics extends ListModel
 		// Check for old com_contact_details category type
 		$db               = $this->getDbo();
 		$query            = $db->getQuery(true);
-		$incorrectObjects = array();
+		$incorrectObjects = [];
 
 		$query
 			->select(
-				array(
+				[
 					'id',
 					'title',
 					'"com_contact" AS extension',
 					'extension AS old_extension'
-				)
+				]
 			)
 			->from($db->quoteName('#__categories'))
 			->where($db->quoteName('extension') . ' = "com_contact_details"');
@@ -557,8 +558,8 @@ class PwtaclModelDiagnostics extends ListModel
 		}
 
 		// Get assets with rules set
-		/** @var PwtaclModelAssets $assetsModel */
-		$assetsModel = BaseDatabaseModel::getInstance('Assets', 'PwtaclModel');
+		/** @var PwtAclModelAssets $assetsModel */
+		$assetsModel = BaseDatabaseModel::getInstance('Assets', 'PwtAclModel');
 		$assets      = $assetsModel->getAssets($db->quoteName('rules') . ' != ' . $db->quote('{}'));
 
 		// Check if rules need cleanup
@@ -568,39 +569,41 @@ class PwtaclModelDiagnostics extends ListModel
 			$asset->old_rules = $asset->rules;
 
 			// Convert to array
-			$oldAssetrules = json_decode($asset->rules);
+			$oldAssetRules = json_decode($asset->rules);
 
 			// Get actions for asset
-			/** @var PwtaclModelAssets $assetsModel */
-			$assetsModel = BaseDatabaseModel::getInstance('Assets', 'PwtaclModel');
+			/** @var PwtAclModelAssets $assetsModel */
+			$assetsModel = BaseDatabaseModel::getInstance('Assets', 'PwtAclModel');
 			$actions     = $assetsModel->getActions($asset->name, true);
 
 			// Filter out actions not available for asset
-			if ($oldAssetrules)
+			if ($oldAssetRules)
 			{
-				foreach ($oldAssetrules as $action => $settings)
+				foreach ($oldAssetRules as $action => $settings)
 				{
 					// Only remove if no actions are set, mainly for extensions abusing the Joomla core...
 					if (!in_array($action, $actions->items) && (count((array) $settings) === 0))
 					{
-						unset($oldAssetrules->{$action});
+						unset($oldAssetRules->{$action});
 					}
 				}
 			}
 
 			// Filter actions without settings
-			$asset->rules = json_encode((object) array_filter((array) $oldAssetrules));
+			$asset->rules = json_encode((object) array_filter((array) $oldAssetRules));
 
 			// Unset action if rules are not changed
-			if ($asset->rules == $asset->old_rules)
+			if ($asset->rules === $asset->old_rules)
 			{
 				unset($assets[$id]);
 			}
 
-			unset($asset->component);
-			unset($asset->objectid);
-			unset($asset->additional);
-			unset($asset->type);
+			unset(
+				$asset->component,
+				$asset->objectid,
+				$asset->additional,
+				$asset->type
+			);
 		}
 
 		// Update assets
@@ -622,8 +625,8 @@ class PwtaclModelDiagnostics extends ListModel
 	 */
 	public function checkRoot($fix = false)
 	{
-		$wrongAssets = array();
-		$assets      = array();
+		$wrongAssets = [];
+		$assets      = [];
 
 		// Asset Table
 		/** @var Asset $asset */
@@ -657,7 +660,7 @@ class PwtaclModelDiagnostics extends ListModel
 		// Add the root Asset if missing
 		if ($this->rootId === false)
 		{
-			$assets[] = array(
+			$assets[] = [
 				'parent_id' => 0,
 				'lft'       => 0,
 				'level'     => 0,
@@ -666,7 +669,7 @@ class PwtaclModelDiagnostics extends ListModel
 				'rules'     => '{"core.login.site":{"6":1,"2":1},"core.login.admin":{"6":1},"core.admin":{"8":1},"core.manage":{"7":1},
 					"core.create":{"6":1,"3":1},"core.delete":{"6":1},"core.edit":{"6":1,"4":1},"core.edit.state":{"6":1,"5":1},
 					"core.edit.own":{"6":1,"3":1}}'
-			);
+			];
 
 			if ($fix)
 			{
@@ -734,7 +737,7 @@ class PwtaclModelDiagnostics extends ListModel
 	public function checkAssets($fix = false, $table = '', $extension = '', $view = '', $parentjoin = '')
 	{
 		// Check the categories table
-		if ($table == 'categories')
+		if ($table === 'categories')
 		{
 			$this->fixCategoriesRoot();
 			$this->fixCategories();
@@ -746,7 +749,7 @@ class PwtaclModelDiagnostics extends ListModel
 		}
 
 		// Check the content table
-		if ($table == 'content')
+		if ($table === 'content')
 		{
 			$this->fixContent();
 		}
@@ -826,8 +829,6 @@ class PwtaclModelDiagnostics extends ListModel
 		{
 			throw new Exception($e->getMessage(), 500, $e);
 		}
-
-		return;
 	}
 
 	/**
@@ -855,8 +856,6 @@ class PwtaclModelDiagnostics extends ListModel
 			// Log changes
 			$this->log('add', 'assets', $asset);
 		}
-
-		return;
 	}
 
 	/**
@@ -894,20 +893,20 @@ class PwtaclModelDiagnostics extends ListModel
 		// Fix the assets
 		foreach ($objects as $object)
 		{
-			$changes  = array();
-			$tempid   = '';
-			$ucmtitle = '';
+			$changes  = [];
+			$tempId   = '';
+			$ucmTitle = '';
 
 			if ($key !== 'id')
 			{
-				$tempid         = $object->{'id'};
+				$tempId         = $object->{'id'};
 				$object->{$key} = $object->{'id'};
 				unset($object->{'id'});
 			}
 
-			if ($table == 'ucm_content')
+			if ($table === 'ucm_content')
 			{
-				$ucmtitle = $object->{'title'};
+				$ucmTitle = $object->{'title'};
 				unset($object->{'title'});
 			}
 
@@ -915,7 +914,7 @@ class PwtaclModelDiagnostics extends ListModel
 			foreach ($object as $field => $value)
 			{
 				// Track category changes
-				if (isset($object->{'old_' . $field}) && ($object->{$field} != $object->{'old_' . $field}))
+				if (isset($object->{'old_' . $field}) && ($object->{$field} !== $object->{'old_' . $field}))
 				{
 					$changes[$field]['old'] = $object->{'old_' . $field};
 					$changes[$field]['new'] = $object->{$field};
@@ -926,16 +925,16 @@ class PwtaclModelDiagnostics extends ListModel
 			}
 
 			// Store asset changes
-			$this->getDbo()->updateObject('#__' . $table, $object, array($key));
+			$this->getDbo()->updateObject('#__' . $table, $object, [$key]);
 
 			if ($key !== 'id')
 			{
-				$object->{'id'} = $tempid;
+				$object->{'id'} = $tempId;
 			}
 
-			if ($table == 'ucm_content')
+			if ($table === 'ucm_content')
 			{
-				$object->{'title'} = $ucmtitle;
+				$object->{'title'} = $ucmTitle;
 			}
 
 			// Log changes
@@ -979,14 +978,14 @@ class PwtaclModelDiagnostics extends ListModel
 
 		$query
 			->select(
-				array(
+				[
 					'assets.id AS id',
 					'assets.parent_id AS parent_id',
 					'assets.level AS level',
 					'assets.name AS name',
 					'assets.title AS title',
 					'assets.rules AS rules'
-				)
+				]
 			)
 			->from($db->quoteName('#__assets', 'assets'))
 			->leftJoin($db->quoteName('#__' . $table, $table) . ' ON ' . $id . ' = SUBSTRING_INDEX(assets.name, ".", -1)')
@@ -1027,7 +1026,7 @@ class PwtaclModelDiagnostics extends ListModel
 			Log::add('Failed to retrieve orphaned assets with: ' . $e->getMessage());
 		}
 
-		return array();
+		return [];
 	}
 
 	/**
@@ -1043,13 +1042,13 @@ class PwtaclModelDiagnostics extends ListModel
 
 		$query
 			->select(
-				array(
+				[
 					$this->rootId . ' AS parent_id',
 					'"1" AS level',
 					'ext.element AS name',
 					'ext.element AS title',
 					'"{}" AS rules'
-				)
+				]
 			)
 			->from($db->quoteName('#__extensions', 'ext'))
 			->leftJoin($db->quoteName('#__assets', 'assets') . ' ON assets.name = ext.element')
@@ -1066,7 +1065,7 @@ class PwtaclModelDiagnostics extends ListModel
 			Log::add('Failed to retrieve missing components with: ' . $e->getMessage());
 		}
 
-		return array();
+		return [];
 	}
 
 	/**
@@ -1109,8 +1108,8 @@ class PwtaclModelDiagnostics extends ListModel
 
 			case 'ucm_content':
 				$name      = 'CONCAT("#", "__ucm_content.",' . $table . '.core_content_id)';
-				$level     = "1";
-				$parent_id = "1";
+				$level     = '1';
+				$parent_id = '1';
 				$title     = $name;
 				break;
 
@@ -1127,13 +1126,13 @@ class PwtaclModelDiagnostics extends ListModel
 
 		$query
 			->select(
-				array(
+				[
 					$parent_id . ' AS parent_id',
 					$level . ' AS level',
 					$name . ' AS name',
 					$title . ' AS title',
 					'"{}" AS rules'
-				)
+				]
 			)
 			->from($db->quoteName('#__' . $table, $table))
 			->leftJoin($db->quoteName('#__assets', 'assets') . ' ON assets.name = ' . $name)
@@ -1165,7 +1164,7 @@ class PwtaclModelDiagnostics extends ListModel
 			Log::add('Failed to retrieve orphaned content with: ' . $e->getMessage());
 		}
 
-		return array();
+		return [];
 	}
 
 	/**
@@ -1200,12 +1199,12 @@ class PwtaclModelDiagnostics extends ListModel
 
 		$query
 			->select(
-				array(
+				[
 					$id . ' AS id',
 					'assets.id AS asset_id',
 					$table . '.asset_id AS old_asset_id',
 					$title . ' AS title'
-				)
+				]
 			);
 
 		$query
@@ -1255,7 +1254,7 @@ class PwtaclModelDiagnostics extends ListModel
 			Log::add('Failed to retrieve incorrect articles with: ' . $e->getMessage());
 		}
 
-		return array();
+		return [];
 	}
 
 	/**
@@ -1273,7 +1272,7 @@ class PwtaclModelDiagnostics extends ListModel
 
 		$query
 			->select(
-				array(
+				[
 					'assets.id AS id',
 					'"0" AS parent_id',
 					'"0" AS level',
@@ -1284,7 +1283,7 @@ class PwtaclModelDiagnostics extends ListModel
 					'assets.title AS old_title',
 					'assets.parent_id AS old_parent_id',
 					'assets.level AS old_level'
-				)
+				]
 			)
 			->from($db->quoteName('#__assets', 'assets'))
 			->where($db->quoteName('assets.id') . ' = ' . $id)
@@ -1305,7 +1304,7 @@ class PwtaclModelDiagnostics extends ListModel
 			Log::add('Failed to retrieve wrong components with: ' . $e->getMessage());
 		}
 
-		return array();
+		return [];
 	}
 
 	/**
@@ -1321,7 +1320,7 @@ class PwtaclModelDiagnostics extends ListModel
 
 		$query
 			->select(
-				array(
+				[
 					'assets.id AS id',
 					$this->rootId . ' AS parent_id',
 					'"1" AS level',
@@ -1330,7 +1329,7 @@ class PwtaclModelDiagnostics extends ListModel
 					'assets.rules AS rules',
 					'assets.parent_id AS old_parent_id',
 					'assets.level AS old_level'
-				)
+				]
 			)
 			->from($db->quoteName('#__assets', 'assets'))
 			->where($db->quoteName('assets.name') . ' NOT LIKE  ' . $db->quote('%.%'))
@@ -1349,7 +1348,7 @@ class PwtaclModelDiagnostics extends ListModel
 			Log::add('Failed to retrieve wrong components with: ' . $e->getMessage());
 		}
 
-		return array();
+		return [];
 	}
 
 	/**
@@ -1384,8 +1383,8 @@ class PwtaclModelDiagnostics extends ListModel
 				break;
 
 			case 'ucm_content':
-				$parent_id = "1";
-				$level     = "1";
+				$parent_id = '1';
+				$level     = '1';
 				$id        = $table . '.core_content_id';
 				$title     = 'CONCAT("#", "__ucm_content.",' . $table . '.core_content_id)';
 				break;
@@ -1404,7 +1403,7 @@ class PwtaclModelDiagnostics extends ListModel
 
 		$query
 			->select(
-				array(
+				[
 					'assets.id AS id',
 					$parent_id . ' AS parent_id',
 					$level . ' AS level',
@@ -1414,7 +1413,7 @@ class PwtaclModelDiagnostics extends ListModel
 					'assets.parent_id AS old_parent_id',
 					'assets.level AS old_level',
 					'assets.title AS old_title'
-				)
+				]
 			)
 			->from($db->quoteName('#__assets', 'assets'))
 			->leftJoin($db->quoteName('#__' . $table, $table) . ' ON ' . $id . ' = SUBSTRING_INDEX(assets.name, ".", -1)')
@@ -1469,11 +1468,11 @@ class PwtaclModelDiagnostics extends ListModel
 			Log::add('Failed to retrieve wrong menus with: ' . $e->getMessage());
 		}
 
-		return array();
+		return [];
 	}
 
 	/**
-	 * Gets a comma seperated list or query of available components.
+	 * Gets a comma separated list or query of available components.
 	 *
 	 * @param   boolean  $returnquery  Should we return the query or the list.
 	 * @param   string   $table        Name of the table.
@@ -1486,12 +1485,12 @@ class PwtaclModelDiagnostics extends ListModel
 	{
 		$db         = $this->getDbo();
 		$query      = $db->getQuery(true);
-		$components = array();
+		$components = [];
 
 		$query
 			->from($db->quoteName('#__' . $table));
 
-		if ($table == 'categories')
+		if ($table === 'categories')
 		{
 			$query
 				->select('DISTINCT extension')
@@ -1520,7 +1519,7 @@ class PwtaclModelDiagnostics extends ListModel
 
 		if ($components)
 		{
-			$where = array();
+			$where = [];
 
 			foreach ($components as $component)
 			{
@@ -1529,10 +1528,8 @@ class PwtaclModelDiagnostics extends ListModel
 
 			return '(' . implode(' OR ', $where) . ')';
 		}
-		else
-		{
-			return $db->quoteName('assets.name') . ' LIKE NULL';
-		}
+
+		return $db->quoteName('assets.name') . ' LIKE NULL';
 	}
 
 	/**
@@ -1581,7 +1578,7 @@ class PwtaclModelDiagnostics extends ListModel
 
 		try
 		{
-			$viewlevels = $db->setQuery($query)->loadObjectList();
+			$viewLevels = $db->setQuery($query)->loadObjectList();
 		}
 		catch (RuntimeException $e)
 		{
@@ -1589,12 +1586,12 @@ class PwtaclModelDiagnostics extends ListModel
 		}
 
 		// Get all user groups
-		$groups = JHelperUsergroups::getInstance()->getAll();
+		$groups = UserGroupsHelper::getInstance()->getAll();
 
 		// Collect all groups with backend access
-		$groupsWithBackend = array();
+		$groupsWithBackend = [];
 
-		foreach ($viewlevels as $viewlevel)
+		foreach ($viewLevels as $viewlevel)
 		{
 			$rules = json_decode($viewlevel->rules);
 
@@ -1607,19 +1604,22 @@ class PwtaclModelDiagnostics extends ListModel
 		$groupsWithBackend = array_unique($groupsWithBackend);
 
 		// Get the old groups of first viewlevel, we will use this one to add the missing groups
-		$viewgroups = array();
-		$oldrules   = json_decode($viewlevels[0]->rules);
+		$viewGroups = [];
+		$oldRules   = json_decode($viewLevels[0]->rules);
 
-		foreach ($oldrules as $groupid)
+		foreach ($oldRules as $groupId)
 		{
-			$viewgroups[] = $groups[$groupid]->title;
+			if (isset($groups[$groupId]))
+			{
+				$viewGroups[] = $groups[$groupId]->title;
+			}
 		}
 
 		// Track old rules
-		$changes['rules']['old'] = implode(', ', $viewgroups);
+		$changes['rules']['old'] = implode(', ', $viewGroups);
 
 		// Detect which groups should be part of at least one backend access level
-		$missingGroups = array();
+		$missingGroups = [];
 
 		foreach ($groups as $group)
 		{
@@ -1632,10 +1632,10 @@ class PwtaclModelDiagnostics extends ListModel
 		}
 
 		// Add missing groups to current rules
-		$newrules = array_merge($oldrules, $missingGroups);
+		$newRules = array_merge($oldRules, $missingGroups);
 
 		// Generate new array of groups that should be in the access rules
-		$newAccessLevelRules = json_encode($newrules);
+		$newAccessLevelRules = json_encode($newRules);
 
 		// Update rules if changed
 		if ($fix && $missingGroups)
@@ -1645,7 +1645,7 @@ class PwtaclModelDiagnostics extends ListModel
 			$query
 				->update($db->quoteName('#__viewlevels'))
 				->set($db->quoteName('rules') . ' = ' . $db->quote($newAccessLevelRules))
-				->where($db->quoteName('id') . ' = ' . $db->quote($viewlevels[0]->id));
+				->where($db->quoteName('id') . ' = ' . $db->quote($viewLevels[0]->id));
 
 			try
 			{
@@ -1657,17 +1657,17 @@ class PwtaclModelDiagnostics extends ListModel
 			}
 
 			// New Groups in viewlevel
-			$viewgroups = array();
+			$viewGroups = [];
 
-			foreach ($newrules as $groupid)
+			foreach ($newRules as $groupId)
 			{
-				$viewgroups[] = $groups[$groupid]->title;
+				$viewGroups[] = $groups[$groupId]->title;
 			}
 
-			$changes['rules']['new'] = implode(', ', $viewgroups);
+			$changes['rules']['new'] = implode(', ', $viewGroups);
 
 			// Log changes
-			$this->log('fix', 'viewlevels', $viewlevels[0], $changes);
+			$this->log('fix', 'viewlevels', $viewLevels[0], $changes);
 		}
 
 		return ($missingGroups) ? 1 : 0;
@@ -1684,7 +1684,7 @@ class PwtaclModelDiagnostics extends ListModel
 		// Start timer
 		$startTime = microtime(true);
 
-		/** @var JTableAsset $asset */
+		/** @var Asset $asset */
 		$asset = Table::getInstance('Asset');
 		$asset->rebuild();
 
@@ -1710,7 +1710,7 @@ class PwtaclModelDiagnostics extends ListModel
 	 * @return  void
 	 * @since   3.0
 	 */
-	private function log($action, $type, $object, $changes = array())
+	private function log($action, $type, $object, $changes = [])
 	{
 		// Calculate total changes
 		$this->changes['total'] = (isset($this->changes['total'])) ? $this->changes['total'] + 1 : 1;
@@ -1727,7 +1727,7 @@ class PwtaclModelDiagnostics extends ListModel
 		// Try to Text component title
 		if (strpos($object->title, 'com_') !== false)
 		{
-			$lang = JFactory::getLanguage();
+			$lang = Factory::getLanguage();
 			$lang->load($object->title . '.sys', JPATH_BASE, null, false, true)
 			|| $lang->load($object->title . '.sys', JPATH_ADMINISTRATOR . '/components/' . $object->title, null, false, true);
 
@@ -1783,16 +1783,16 @@ class PwtaclModelDiagnostics extends ListModel
 		}
 
 		// Collect changes
-		$this->changes['items'][$action][$type][$object->id] = array(
+		$this->changes['items'][$action][$type][$object->id] = [
 			'id'      => (int) $object->id,
-			'name'    => ($type == 'assets') ? $object->name : '',
+			'name'    => ($type === 'assets') ? $object->name : '',
 			'title'   => $object->title,
 			'changes' => $changes,
 			'label'   => $label,
 			'action'  => Text::_('COM_PWTACL_DIAGNOSTICS_ACTION_' . $action),
 			'icon'    => $icon,
 			'object'  => ucfirst(str_replace('_', ' ', $type))
-		);
+		];
 
 		// Log asset changes, only if less then 1000 changes to prevent delays
 		if ($this->changes['total'] < 1000)
@@ -1823,7 +1823,7 @@ class PwtaclModelDiagnostics extends ListModel
 
 		try
 		{
-			$root = $db->setQuery($query)->loadResult();
+			$root = (int) $db->setQuery($query)->loadResult();
 		}
 		catch (Exception $e)
 		{
@@ -1831,13 +1831,13 @@ class PwtaclModelDiagnostics extends ListModel
 		}
 
 		// If root is ID 1, all is fine
-		if ($root == 1)
+		if ($root === 1)
 		{
 			return;
 		}
 
 		// We need to add a root entry
-		$root = (object) array(
+		$root = (object) [
 			'id'        => 1,
 			'asset_id'  => 0,
 			'parent_id' => 0,
@@ -1846,7 +1846,7 @@ class PwtaclModelDiagnostics extends ListModel
 			'title'     => 'ROOT',
 			'alias'     => 'root',
 			'access'    => 1
-		);
+		];
 
 		// Do we need to update or insert?
 		$query = $db->getQuery(true);
@@ -1863,8 +1863,6 @@ class PwtaclModelDiagnostics extends ListModel
 		{
 			$this->getDbo()->insertObject('#__categories', $root);
 		}
-
-		return;
 	}
 
 	/**

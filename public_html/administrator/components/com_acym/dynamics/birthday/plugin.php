@@ -124,7 +124,7 @@ class plgAcymBirthday extends acymPlugin
 
         $triggerDate->setTime($hour, $minutes);
 
-        if ($now < $triggerDate) {
+        if (!empty($now->date) && !empty($triggerDate->date) && $now->date < $triggerDate->date) {
             $step->next_execution = acym_getTime('today '.$hour.':'.$minutes);
 
             return;

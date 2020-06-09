@@ -62,6 +62,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 						<?php if ($row->parent) { ?><i class="fa fa-child" title="<?php echo ucfirst(JText::_('COM_RSEVENTSPRO_CHILD_EVENT_INFO')); ?>"></i><?php } ?>
 						<b><a href="<?php echo JRoute::_('index.php?option=com_rseventspro&task=event.edit&id='.$row->id); ?>"><?php echo $row->name; ?></a></b>
 						<?php if (empty($row->completed)) echo '<small class="muted">'.JText::_('COM_RSEVENTSPRO_GLOBAL_INCOMPLETE_EVENT').'</small>'; ?>
+						<?php if ($row->published == 3) echo '<small class="muted text-error">'.JText::_('COM_RSEVENTSPRO_GLOBAL_CANCELED_EVENT').'</small>'; ?>
 						<?php echo rseventsproHelper::report($row->id); ?>
 					</p>
 					
@@ -74,6 +75,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 					<?php $availabletickets = $row->registration ? $this->getTickets($row->id) : false; ?>
 					<?php $subscriptions = $row->registration ? $this->getSubscribers($row->id) : false; ?>
 					<?php $waitinglist = $row->registration ? $this->getWaitingList($row->id) : false; ?>
+					<?php $unsubscribers = $row->registration ? $this->getUnsubscribers($row->id) : false; ?>
 					
 					<?php if ($availabletickets) { ?><p><small class="muted"><?php echo $availabletickets; ?></small></p><?php } ?>
 					
@@ -88,7 +90,11 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 						
 						<?php if ($row->rsvp) { ?>
 						<a class="btn btn-small" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=rsvp&id='.$row->id); ?>"><?php echo JText::_('COM_RSEVENTSPRO_RSVP_GUESTS'); ?></a>
-						<?php } ?>						
+						<?php } ?>
+						
+						<?php if ($unsubscribers) { ?>
+						<a class="btn btn-small" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=unsubscribers&id='.$row->id); ?>"><?php echo JText::_('COM_RSEVENTSPRO_UNSUBSCRIBERS'); ?></a>
+						<?php } ?>
 					</p>
 				</div>
 			</td>
@@ -161,6 +167,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 						<?php if ($row->parent) { ?><i class="fa fa-child" title="<?php echo ucfirst(JText::_('COM_RSEVENTSPRO_CHILD_EVENT_INFO')); ?>"></i><?php } ?>
 						<b><a href="<?php echo JRoute::_('index.php?option=com_rseventspro&task=event.edit&id='.$row->id); ?>"><?php echo $row->name; ?></a></b>
 						<?php if (empty($row->completed)) echo '<small class="muted">'.JText::_('COM_RSEVENTSPRO_GLOBAL_INCOMPLETE_EVENT').'</small>'; ?>
+						<?php if ($row->published == 3) echo '<small class="muted text-error">'.JText::_('COM_RSEVENTSPRO_GLOBAL_CANCELED_EVENT').'</small>'; ?>
 						<?php echo rseventsproHelper::report($row->id); ?>
 					</p>
 					
@@ -173,6 +180,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 					<?php $availabletickets = $row->registration ? $this->getTickets($row->id) : false; ?>
 					<?php $subscriptions = $row->registration ? $this->getSubscribers($row->id) : false; ?>
 					<?php $waitinglist = $row->registration ? $this->getWaitingList($row->id) : false; ?>
+					<?php $unsubscribers = $row->registration ? $this->getUnsubscribers($row->id) : false; ?>
 					
 					<?php if ($availabletickets) { ?><p><small class="muted"><?php echo $availabletickets; ?></small></p><?php } ?>
 					
@@ -187,7 +195,11 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 						
 						<?php if ($row->rsvp) { ?>
 						<a class="btn btn-small" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=rsvp&id='.$row->id); ?>"><?php echo JText::_('COM_RSEVENTSPRO_RSVP_GUESTS'); ?></a>
-						<?php } ?>						
+						<?php } ?>
+						
+						<?php if ($unsubscribers) { ?>
+						<a class="btn btn-small" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=unsubscribers&id='.$row->id); ?>"><?php echo JText::_('COM_RSEVENTSPRO_UNSUBSCRIBERS'); ?></a>
+						<?php } ?>
 					</p>
 				</div>
 			</td>
@@ -260,6 +272,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 						<?php if ($row->parent) { ?><i class="fa fa-child" title="<?php echo ucfirst(JText::_('COM_RSEVENTSPRO_CHILD_EVENT_INFO')); ?>"></i><?php } ?>
 						<b><a href="<?php echo JRoute::_('index.php?option=com_rseventspro&task=event.edit&id='.$row->id); ?>"><?php echo $row->name; ?></a></b>
 						<?php if (empty($row->completed)) echo '<small class="muted">'.JText::_('COM_RSEVENTSPRO_GLOBAL_INCOMPLETE_EVENT').'</small>'; ?>
+						<?php if ($row->published == 3) echo '<small class="muted text-error">'.JText::_('COM_RSEVENTSPRO_GLOBAL_CANCELED_EVENT').'</small>'; ?>
 						<?php echo rseventsproHelper::report($row->id); ?>
 					</p>
 					
@@ -272,6 +285,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 					<?php $availabletickets = $row->registration ? $this->getTickets($row->id) : false; ?>
 					<?php $subscriptions = $row->registration ? $this->getSubscribers($row->id) : false; ?>
 					<?php $waitinglist = $row->registration ? $this->getWaitingList($row->id) : false; ?>
+					<?php $unsubscribers = $row->registration ? $this->getUnsubscribers($row->id) : false; ?>
 					
 					<?php if ($availabletickets) { ?><p><small class="muted"><?php echo $availabletickets; ?></small></p><?php } ?>
 					
@@ -286,7 +300,11 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 						
 						<?php if ($row->rsvp) { ?>
 						<a class="btn btn-small" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=rsvp&id='.$row->id); ?>"><?php echo JText::_('COM_RSEVENTSPRO_RSVP_GUESTS'); ?></a>
-						<?php } ?>						
+						<?php } ?>
+						
+						<?php if ($unsubscribers) { ?>
+						<a class="btn btn-small" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=unsubscribers&id='.$row->id); ?>"><?php echo JText::_('COM_RSEVENTSPRO_UNSUBSCRIBERS'); ?></a>
+						<?php } ?>
 					</p>
 				</div>
 			</td>
@@ -359,6 +377,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 						<?php if ($row->parent) { ?><i class="fa fa-child" title="<?php echo ucfirst(JText::_('COM_RSEVENTSPRO_CHILD_EVENT_INFO')); ?>"></i><?php } ?>
 						<b><a href="<?php echo JRoute::_('index.php?option=com_rseventspro&task=event.edit&id='.$row->id); ?>"><?php echo $row->name; ?></a></b>
 						<?php if (empty($row->completed)) echo '<small class="muted">'.JText::_('COM_RSEVENTSPRO_GLOBAL_INCOMPLETE_EVENT').'</small>'; ?>
+						<?php if ($row->published == 3) echo '<small class="muted text-error">'.JText::_('COM_RSEVENTSPRO_GLOBAL_CANCELED_EVENT').'</small>'; ?>
 						<?php echo rseventsproHelper::report($row->id); ?>
 					</p>
 					
@@ -371,6 +390,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 					<?php $availabletickets = $row->registration ? $this->getTickets($row->id) : false; ?>
 					<?php $subscriptions = $row->registration ? $this->getSubscribers($row->id) : false; ?>
 					<?php $waitinglist = $row->registration ? $this->getWaitingList($row->id) : false; ?>
+					<?php $unsubscribers = $row->registration ? $this->getUnsubscribers($row->id) : false; ?>
 					
 					<?php if ($availabletickets) { ?><p><small class="muted"><?php echo $availabletickets; ?></small></p><?php } ?>
 					
@@ -385,7 +405,11 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 						
 						<?php if ($row->rsvp) { ?>
 						<a class="btn btn-small" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=rsvp&id='.$row->id); ?>"><?php echo JText::_('COM_RSEVENTSPRO_RSVP_GUESTS'); ?></a>
-						<?php } ?>						
+						<?php } ?>
+						
+						<?php if ($unsubscribers) { ?>
+						<a class="btn btn-small" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=unsubscribers&id='.$row->id); ?>"><?php echo JText::_('COM_RSEVENTSPRO_UNSUBSCRIBERS'); ?></a>
+						<?php } ?>
 					</p>
 				</div>
 			</td>
@@ -458,6 +482,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 						<?php if ($row->parent) { ?><i class="fa fa-child" title="<?php echo ucfirst(JText::_('COM_RSEVENTSPRO_CHILD_EVENT_INFO')); ?>"></i><?php } ?>
 						<b><a href="<?php echo JRoute::_('index.php?option=com_rseventspro&task=event.edit&id='.$row->id); ?>"><?php echo $row->name; ?></a></b>
 						<?php if (empty($row->completed)) echo '<small class="muted">'.JText::_('COM_RSEVENTSPRO_GLOBAL_INCOMPLETE_EVENT').'</small>'; ?>
+						<?php if ($row->published == 3) echo '<small class="muted text-error">'.JText::_('COM_RSEVENTSPRO_GLOBAL_CANCELED_EVENT').'</small>'; ?>
 						<?php echo rseventsproHelper::report($row->id); ?>
 					</p>
 					
@@ -470,6 +495,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 					<?php $availabletickets = $row->registration ? $this->getTickets($row->id) : false; ?>
 					<?php $subscriptions = $row->registration ? $this->getSubscribers($row->id) : false; ?>
 					<?php $waitinglist = $row->registration ? $this->getWaitingList($row->id) : false; ?>
+					<?php $unsubscribers = $row->registration ? $this->getUnsubscribers($row->id) : false; ?>
 					
 					<?php if ($availabletickets) { ?><p><small class="muted"><?php echo $availabletickets; ?></small></p><?php } ?>
 					
@@ -484,7 +510,11 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 						
 						<?php if ($row->rsvp) { ?>
 						<a class="btn btn-small" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=rsvp&id='.$row->id); ?>"><?php echo JText::_('COM_RSEVENTSPRO_RSVP_GUESTS'); ?></a>
-						<?php } ?>						
+						<?php } ?>
+						
+						<?php if ($unsubscribers) { ?>
+						<a class="btn btn-small" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=unsubscribers&id='.$row->id); ?>"><?php echo JText::_('COM_RSEVENTSPRO_UNSUBSCRIBERS'); ?></a>
+						<?php } ?>
 					</p>
 				</div>
 			</td>
@@ -557,6 +587,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 						<?php if ($row->parent) { ?><i class="fa fa-child" title="<?php echo ucfirst(JText::_('COM_RSEVENTSPRO_CHILD_EVENT_INFO')); ?>"></i><?php } ?>
 						<b><a href="<?php echo JRoute::_('index.php?option=com_rseventspro&task=event.edit&id='.$row->id); ?>"><?php echo $row->name; ?></a></b>
 						<?php if (empty($row->completed)) echo '<small class="muted">'.JText::_('COM_RSEVENTSPRO_GLOBAL_INCOMPLETE_EVENT').'</small>'; ?>
+						<?php if ($row->published == 3) echo '<small class="muted text-error">'.JText::_('COM_RSEVENTSPRO_GLOBAL_CANCELED_EVENT').'</small>'; ?>
 						<?php echo rseventsproHelper::report($row->id); ?>
 					</p>
 					
@@ -569,6 +600,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 					<?php $availabletickets = $row->registration ? $this->getTickets($row->id) : false; ?>
 					<?php $subscriptions = $row->registration ? $this->getSubscribers($row->id) : false; ?>
 					<?php $waitinglist = $row->registration ? $this->getWaitingList($row->id) : false; ?>
+					<?php $unsubscribers = $row->registration ? $this->getUnsubscribers($row->id) : false; ?>
 					
 					<?php if ($availabletickets) { ?><p><small class="muted"><?php echo $availabletickets; ?></small></p><?php } ?>
 					
@@ -583,7 +615,11 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 						
 						<?php if ($row->rsvp) { ?>
 						<a class="btn btn-small" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=rsvp&id='.$row->id); ?>"><?php echo JText::_('COM_RSEVENTSPRO_RSVP_GUESTS'); ?></a>
-						<?php } ?>						
+						<?php } ?>
+						
+						<?php if ($unsubscribers) { ?>
+						<a class="btn btn-small" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=unsubscribers&id='.$row->id); ?>"><?php echo JText::_('COM_RSEVENTSPRO_UNSUBSCRIBERS'); ?></a>
+						<?php } ?>
 					</p>
 				</div>
 			</td>

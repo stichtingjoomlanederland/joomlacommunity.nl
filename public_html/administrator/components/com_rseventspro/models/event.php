@@ -176,15 +176,16 @@ class RseventsproModelEvent extends JModelAdmin
 	 * @since   1.6
 	 */
 	public function save($data) {
-		// Initialise variables;
-		$table = $this->getTable();
-		$pk = (!empty($data['id'])) ? $data['id'] : (int) $this->getState($this->getName() . '.id');
-		$isNew = true;
+		$table		= $this->getTable();
+		$pk 		= (!empty($data['id'])) ? $data['id'] : (int) $this->getState($this->getName() . '.id');
+		$isNew 		= true;
+		$status		= false;
 		
 		// Load the row if saving an existing tag.
 		if ($pk > 0) {
 			$table->load($pk);
-			$isNew = false;
+			$isNew  = false;
+			$status = $table->published;
 		}
 		
 		// Verify data
@@ -222,6 +223,13 @@ class RseventsproModelEvent extends JModelAdmin
 		$event->save($table, $isNew);
 		
 		JFactory::getApplication()->triggerEvent('rsepro_afterEventStore',array(array('data'=>&$table, 'event' => $event)));
+		
+		// Check for cancel event, and send emails
+		if ($status !== false) {
+			if ($status != $data['published'] && $data['published'] == 3) {
+				rseventsproEmails::cancel($table->id);
+			}
+		}
 		
 		$this->setState($this->getName() . '.id', $table->id);
 		$this->setState($this->getName() . '.name', $table->name);
@@ -1235,5 +1243,34 @@ class RseventsproModelEvent extends JModelAdmin
 		$response->html = $view->loadTemplate('tickets');
 		
 		return $response;
+	}
+	
+	public function save2copy($id) {
+		return rseventsproHelper::copy($id,0);
+	}
+	
+	public function cancelevent($pks) {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		
+		// Sanitize the ids.
+		$pks = (array) $pks;
+		$pks = array_map('intval',$pks);
+		
+		if ($pks) {
+			$query->clear()
+				->update($db->qn('#__rseventspro_events'))
+				->set($db->qn('published').' = '.$db->q(3))
+				->where($db->qn('id').' IN ('.implode(',',$pks).')');
+			$db->setQuery($query);
+			$db->execute();
+			
+			// Send emails
+			foreach ($pks as $id) {
+				rseventsproEmails::cancel($id);
+			}
+		}
+		
+		return true;
 	}
 }

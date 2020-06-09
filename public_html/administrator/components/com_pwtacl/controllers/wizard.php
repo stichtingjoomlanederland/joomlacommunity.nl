@@ -3,7 +3,7 @@
  * @package    PwtAcl
  *
  * @author     Sander Potjer - Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2011 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2011 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
@@ -14,7 +14,6 @@ use Joomla\CMS\MVC\Controller\BaseController;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Session\Session;
 
-// No direct access.
 defined('_JEXEC') or die;
 
 /**
@@ -22,7 +21,7 @@ defined('_JEXEC') or die;
  *
  * @since   3.0
  */
-class PwtaclControllerWizard extends BaseController
+class PwtAclControllerWizard extends BaseController
 {
 	/**
 	 * Setup the group
@@ -36,7 +35,7 @@ class PwtaclControllerWizard extends BaseController
 		Session::checkToken() or jexit(Text::_('JINVALID_TOKEN'));
 
 		// Get wizard step 1 data
-		$data = $this->input->post->get('jform', array(), 'array');
+		$data = $this->input->post->get('jform', [], 'array');
 
 		// Save data in state
 		Factory::getApplication()->setUserState('com_pwtacl.wizard', $data);
@@ -51,13 +50,13 @@ class PwtaclControllerWizard extends BaseController
 		}
 
 		// Check if title is set for new group
-		if ($data['new'] == 0 && empty($data['groupid']))
+		if ((int) $data['new'] === 0 && empty($data['groupid']))
 		{
 			$error = 'COM_PWTACL_WIZARD_ERROR_GROUPSELECT';
 		}
 
 		// Check if title is set for new group
-		if ($data['new'] == 1 && empty($data['grouptitle']))
+		if ((int) $data['new'] === 1 && empty($data['grouptitle']))
 		{
 			$error = 'COM_PWTACL_WIZARD_ERROR_GROUPTITLE';
 		}
@@ -78,12 +77,12 @@ class PwtaclControllerWizard extends BaseController
 		}
 
 		// Setup the group
-		/** @var PwtaclModelWizard $wizardModel */
+		/** @var PwtAclModelWizard $wizardModel */
 		$wizardModel = $this->getModel('wizard');
 		$groupId     = $wizardModel->groupSetup($data);
 
 		// Fix the admin access conflicts
-		/** @var PwtaclModelDiagnostics $diagnosticModel */
+		/** @var PwtAclModelDiagnostics $diagnosticModel */
 		$diagnosticModel = $this->getModel('diagnostics');
 		$diagnosticModel->fixAdminConflicts(true);
 

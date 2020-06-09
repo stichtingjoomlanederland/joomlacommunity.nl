@@ -260,9 +260,10 @@ $showColors		= $this->params->get('colors', 0);
 										}
 										
 										$full = rseventsproHelper::eventisfull($event);
+										$canceled = $this->calendar->events[$event]->published == 3;
 								?>
 									<li class="event" <?php echo $style; ?>>
-										<a <?php echo $nofollow; ?> href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event,$this->calendar->events[$event]->name),false,rseventsproHelper::itemid($event)); ?>" class="rsttip rse_event_link <?php echo $full ? ' rs_event_full' : ''; ?>" data-content="<?php echo rseventsproHelper::calendarTooltip($event); ?>" title="<?php echo $this->escape($this->calendar->events[$event]->name); ?>">
+										<a <?php echo $nofollow; ?> href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event,$this->calendar->events[$event]->name),false,rseventsproHelper::itemid($event)); ?>" class="rsttip rse_event_link <?php echo $full ? 'rs_event_full' : ''; ?> <?php echo $canceled ? 'rsepro_canceled_event_cal' : ''; ?>" data-content="<?php echo rseventsproHelper::calendarTooltip($event); ?>" title="<?php echo $this->escape($this->calendar->events[$event]->name.($canceled ? ' <small class="text-error">('.JText::_('COM_RSEVENTSPRO_EVENT_CANCELED_TEXT').')</small>' : '')); ?>">
 											<i class="fa fa-calendar"></i>
 											<span class="event-name"><?php echo $this->escape($this->calendar->events[$event]->name); ?></span>
 										</a>

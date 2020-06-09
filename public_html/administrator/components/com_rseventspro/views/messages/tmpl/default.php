@@ -59,6 +59,9 @@ JHtml::_('behavior.keepalive'); ?>
 					<tr>
 						<td><a class="<?php echo rseventsproHelper::tooltipClass(); ?>" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_CONF_EMAIL_APPROVAL_INFO')); ?>" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=message&type=approval'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_CONF_EMAIL_APPROVAL_EMAIL'); ?></a></td>
 					</tr>
+					<tr>
+						<td><a class="<?php echo rseventsproHelper::tooltipClass(); ?>" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_CONF_EMAIL_CANCEL_INFO')); ?>" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=message&type=cancel'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_CONF_EMAIL_CANCEL'); ?></a></td>
+					</tr>
 				</tbody>
 			</table>
 			
@@ -84,6 +87,12 @@ JHtml::_('behavior.keepalive'); ?>
 					<th><?php echo JText::_('COM_RSEVENTSPRO_CONF_EMAIL_WAITINGLIST'); ?></th>
 				</thead>
 				<tbody>
+					<tr>
+						<td><a class="<?php echo rseventsproHelper::tooltipClass(); ?>" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_MESSAGE_WAITINGLIST_USER_INFO')); ?>" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=message&type=waitinglistuser'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_MESSAGE_WAITINGLIST_USER'); ?></a></td>
+					</tr>
+					<tr>
+						<td><a class="<?php echo rseventsproHelper::tooltipClass(); ?>" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_MESSAGE_WAITINGLIST_ADMIN_INFO')); ?>" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=message&type=waitinglistadmin'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_MESSAGE_WAITINGLIST_ADMIN'); ?></a></td>
+					</tr>
 					<tr>
 						<td><a href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=message&type=waitinglist'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_MESSAGE_WAITINGLIST'); ?></a></td>
 					</tr>

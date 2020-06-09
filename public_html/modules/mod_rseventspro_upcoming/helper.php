@@ -23,7 +23,9 @@ abstract class modRseventsProUpcoming {
 		$events		= (int) $params->get('events',0);
 		$archived	= (int) $params->get('archived',0);
 		$repeating	= (int) $params->get('repeating',0);
+		$canceled	= (int) $params->get('canceled',1);
 		$limit		= (int) $params->get('limit',4);
+		$state		= $canceled ? ',3' : '';
 		
 		$todayDate = JFactory::getDate();
 		$todayDate->setTimezone(new DateTimeZone(rseventsproHelper::getTimezone()));
@@ -38,9 +40,9 @@ abstract class modRseventsProUpcoming {
 			->where($db->qn('e.completed').' = 1');
 		
 		if ($archived)
-			$query->where($db->qn('e.published').' IN (1,2)');
+			$query->where($db->qn('e.published').' IN (1,2'.$state.')');
 		else 
-			$query->where($db->qn('e.published').' = 1');
+			$query->where($db->qn('e.published').' IN (1'.$state.')');
 		
 		if (!$repeating)
 			$query->where($db->qn('e.parent').' = 0');

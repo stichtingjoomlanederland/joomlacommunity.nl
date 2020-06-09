@@ -197,14 +197,35 @@ class com_rscommentsInstallerScript
 				}
 			}
 			
+			// Do we have mb4 utf8 support?
+			$hasUTF8mb4Support = $db->hasUTF8mb4Support();
+			
 			// Set default values on database fields
 			if ($tables = $db->getTableList()) {
 				foreach ($tables as $table) {
 					if (strpos($table, $db->getPrefix().'rscomments') !== false) {
+						
+						// Change table collation
+						if ($hasUTF8mb4Support) {
+							$db->setQuery('SHOW TABLE STATUS WHERE name like '.$db->q($table));
+							if ($tableDetails = $db->loadObject()) {
+								if (strpos(strtolower($tableDetails->Collation), 'utf8_general') !== false) {
+									$db->setQuery('ALTER TABLE '.$db->qn($table).' DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;');
+									$db->execute();
+								}
+							}
+						}
+						
 						if ($fields = $db->getTableColumns($table, false)) {
 							foreach ($fields as $field) {
 								$fieldType = strtolower($field->Type);
 								$fieldKey = strtolower($field->Key);
+								$collation = strtolower($field->Collation);
+								
+								if ($hasUTF8mb4Support && strpos($collation, 'utf8_general') !== false && (strpos($fieldType, 'varchar') !== false || strpos($fieldType, 'text') !== false)) {
+									$db->setQuery('ALTER TABLE '.$db->qn($table).' CHANGE '.$db->qn($field->Field).' '.$db->qn($field->Field).' '.$field->Type.' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
+									$db->execute();
+								}
 								
 								if (strpos($fieldType, 'int') !== false || strpos($fieldType, 'float') !== false|| strpos($fieldType, 'decimal') !== false) {
 									if ($fieldKey != 'pri') {
@@ -635,11 +656,10 @@ class com_rscommentsInstallerScript
 	</div>
 	<?php } ?>
 	
-	<h2>Changelog v1.13.18</h2>
+	<h2>Changelog v1.13.19</h2>
 	<ul class="version-history">
-		<li><span class="version-new">Add</span> Preview comment before submitting the form.</li>
-		<li><span class="version-new">Add</span> Added a new placeholder to the notification email: {author}.</li>
-		<li><span class="version-upgraded">Upg</span> Activation of the moderated comment.</li>
+		<li><span class="version-fixed">Fix</span> The comment vote was not visible for users who haven't voted yet.</li>
+		<li><span class="version-upgraded">Upg</span> All RSComments! tabels are utf8mb4.</li>
 	</ul>
 	<a class="com-rscomments-button" href="index.php?option=com_rscomments">Start using RSComments!</a>
 	<a class="com-rscomments-button" href="http://www.rsjoomla.com/support/documentation/view-knowledgebase/95-rscomments.html" target="_blank">Read the RSComments! User Guide</a>
