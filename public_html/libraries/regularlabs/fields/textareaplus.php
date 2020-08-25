@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.2.16442
+ * @version         20.7.20564
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -31,6 +31,7 @@ class JFormFieldRL_TextAreaPlus extends \RegularLabs\Library\Field
 	{
 		$resize                = $this->get('resize', 0);
 		$show_insert_date_name = $this->get('show_insert_date_name', 0);
+		$add_separator         = $this->get('add_separator', 1);
 
 		$label = RL_String::html_entity_decoder(JText::_($this->get('label')));
 
@@ -47,7 +48,8 @@ class JFormFieldRL_TextAreaPlus extends \RegularLabs\Library\Field
 		if ($show_insert_date_name)
 		{
 			$date_name = JDate::getInstance()->format('[Y-m-d]') . ' ' . JFactory::getUser()->name . ' : ';
-			$onclick   = "RegularLabsForm.prependTextarea('" . $this->id . "', '" . addslashes($date_name) . "', '---');";
+			$separator = $add_separator ? '---' : 'none';
+			$onclick   = "RegularLabsForm.prependTextarea('" . $this->id . "', '" . addslashes($date_name) . "', '" . $separator . "');";
 
 			$html .= '<br><span role="button" class="btn btn-mini rl_insert_date" onclick="' . $onclick . '">'
 				. JText::_('RL_INSERT_DATE_NAME')

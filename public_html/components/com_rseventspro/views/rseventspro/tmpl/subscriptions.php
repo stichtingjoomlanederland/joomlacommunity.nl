@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );?>
@@ -30,7 +30,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );?>
 			<th width="20%"><?php echo JText::_('COM_RSEVENTSPRO_MY_SUBSCRIPTION_EVENT'); ?></th>
 			<th width="10%" class="center"><?php echo JText::_('COM_RSEVENTSPRO_MY_SUBSCRIPTION_STATUS'); ?></th>
 			<?php if ($this->pdf) { ?><th width="20%"><?php echo JText::_('COM_RSEVENTSPRO_MY_SUBSCRIPTION_TICKET'); ?></th><?php } ?>
-			<th width="8%">&nbsp;</th>
+			<th width="10%">&nbsp;</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -79,6 +79,11 @@ defined( '_JEXEC' ) or die( 'Restricted access' );?>
 				<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=editsubscriber&id='.rseventsproHelper::sef($subscription->ids,$subscription->iname).'&ide='.rseventsproHelper::sef($subscription->id,$subscription->name).$this->code.'&return='.$this->return,false); ?>" class="btn btn-mini">
 					<i class="fa fa-pencil"></i>
 				</a>
+				<?php if ($subscription->state == 1 && rseventsproHelper::hasInvoice($subscription->ids)) { ?>
+				<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.invoice&id='.rseventsproHelper::sef($subscription->ids,$subscription->iname).'&ide='.rseventsproHelper::sef($subscription->id,$subscription->name),false); ?>" title="<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_INVOICE'); ?>" class="btn btn-mini">
+					<i class="fa fa-file-pdf-o fa-fw"></i>
+				</a>
+				<?php } ?>
 				<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.deletesubscriber&id='.$subscription->ids.$this->code, false); ?>" onclick="return confirm('<?php echo JText::_('COM_RSEVENTSPRO_MY_SUBSCRIPTION_DELETE',true); ?>');" class="btn btn-mini btn-danger">
 					<i class="fa fa-trash"></i>
 				</a>

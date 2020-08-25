@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
@@ -215,7 +215,7 @@ class RSEvent
 			->order($db->qn('name').' ASC');
 		$db->setQuery($query);
 		return $db->loadObjectList();
-	 }
+	}
 	 
 	/**
 	 * Method to get Event speakers
@@ -235,7 +235,46 @@ class RSEvent
 		
 		$db->setQuery($query);
 		return $db->loadColumn();
-	 }
+	}
+	
+	/**
+	 * Method to get Event sponsors
+	 *
+	 * @return   array  List of sponsors
+	 *
+	 */
+	 public function sponsors() {
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true);
+		
+		$query->clear()
+			->select($db->qn('id', 'value'))->select($db->qn('name', 'text'))
+			->from($db->qn('#__rseventspro_sponsors'))
+			->where($db->qn('published').' = 1')
+			->order($db->qn('name').' ASC');
+		$db->setQuery($query);
+		return $db->loadObjectList();
+	}
+	 
+	/**
+	 * Method to get Event sponsors
+	 *
+	 * @return   array  List of sponsors
+	 *
+	 */
+	 public function getSponsors() {
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true);
+		
+		$query->clear()
+			->select($db->qn('id'))
+			->from($db->qn('#__rseventspro_taxonomy'))
+			->where($db->qn('type').' = '.$db->q('sponsor'))
+			->where($db->qn('ide').' = '.$this->id);
+		
+		$db->setQuery($query);
+		return $db->loadColumn();
+	}
 	
 	/**
 	 * Method to get Event meta keywords
@@ -774,6 +813,8 @@ class RSEvent
 		self::savetags($table->id);
 		// Save speakers
 		self::savespeakers($table->id);
+		// Save sponsors
+		self::savesponsors($table->id);
 		// Save categories
 		self::savecategories($table->id);
 		// Save files
@@ -950,6 +991,39 @@ class RSEvent
 					->set($db->qn('type').' = '.$db->q('speaker'))
 					->set($db->qn('ide').' = '.(int) $id)
 					->set($db->qn('id').' = '.(int) $speaker);
+				
+				$db->setQuery($query);
+				$db->execute();
+			}
+		}
+	}
+	
+	/**
+	 * Method to save event sponsors.
+	 *
+	 * @return   void
+	 *
+	 */
+	protected function savesponsors($id) {
+		$db			= JFactory::getDbo();
+		$query		= $db->getQuery(true);
+		$sponsors	= JFactory::getApplication()->input->get('sponsors',array(),'array');
+		
+		$query->clear()
+			->delete($db->qn('#__rseventspro_taxonomy'))
+			->where($db->qn('type').' = '.$db->q('sponsor'))
+			->where($db->qn('ide').' = '.(int) $id);
+		
+		$db->setQuery($query);
+		$db->execute();
+		
+		if (!empty($sponsors)) {
+			foreach($sponsors as $sponsor) {
+				$query->clear()
+					->insert($db->qn('#__rseventspro_taxonomy'))
+					->set($db->qn('type').' = '.$db->q('sponsor'))
+					->set($db->qn('ide').' = '.(int) $id)
+					->set($db->qn('id').' = '.(int) $sponsor);
 				
 				$db->setQuery($query);
 				$db->execute();

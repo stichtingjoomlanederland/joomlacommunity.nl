@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fieldset name="buckaroo">
+
+        <field name="psp-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_PSP"/>
+
+        <field name="testmode"
+               type="radio"
+               label="COM_ROPAYMENTS_TEST_MODE_LABEL"
+               description="COM_ROPAYMENTS_TEST_MODE_DESC"
+               required="true"
+               default="1"
+               class="btn-group btn-group-yesno"
+               labelclass="config">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+
+        <field name="secret_key"
+               type="text"
+               label="COM_ROPAYMENTS_BUCKAROO_SECRET_KEY_LABEL"
+               description="COM_ROPAYMENTS_BUCKAROO_SECRET_KEY_DESC"
+               required="true"
+               class="input-xlarge"
+               labelclass="config"/>
+
+        <field name="merchant_key"
+               type="text"
+               label="COM_ROPAYMENTS_BUCKAROO_MERCHANT_KEY_LABEL"
+               description="COM_ROPAYMENTS_BUCKAROO_MERCHANT_KEY_DESC"
+               required="true"
+               class="input-xlarge"
+               labelclass="config"/>
+
+        <field name="hash"
+               type="list"
+               label="COM_ROPAYMENTS_ABN_INTERNETKASSA_HASH_LABEL"
+               description="COM_ROPAYMENTS_ABN_INTERNETKASSA_HASH_DESC"
+               required="true"
+               size="1"
+               labelclass="config"
+               class="advancedSelect"
+               default="sha512"
+        >
+            <option value="sha1">SHA-1</option>
+            <option value="sha256">SHA-256</option>
+            <option value="sha512">SHA-512</option>
+        </field>
+
+        <field name="description"
+               type="text"
+               label="COM_ROPAYMENTS_BUCKAROO_DESCRIPTION_LABEL"
+               description="COM_ROPAYMENTS_BUCKAROO_DESCRIPTION_DESC"
+               class="input-xxlarge"
+               required="true"
+               size="40"
+               labelclass="config"/>
+
+        <field name="payment"
+               type="list"
+               label="COM_ROPAYMENTS_BUCKAROO_PAYMENT_LABEL"
+               description="COM_ROPAYMENTS_BUCKAROO_PAYMENT_DESC"
+               required="true"
+               default=""
+               multiple="true"
+               size="9"
+               class="advancedSelect"
+               labelclass="config">
+            <option value="ideal">COM_JDIDEALGATWAY_PAYMENT_METHOD_IDEAL</option>
+            <option value="bancontactmrcash">COM_JDIDEALGATWAY_PAYMENT_METHOD_BANCONTACT</option>
+            <option value="mastercard">COM_JDIDEALGATWAY_PAYMENT_METHOD_MASTERCARD</option>
+            <option value="visa">COM_JDIDEALGATWAY_PAYMENT_METHOD_VISA</option>
+            <option value="amex">COM_JDIDEALGATWAY_PAYMENT_METHOD_AMEX</option>
+            <option value="sofortueberweisung">COM_JDIDEALGATWAY_PAYMENT_METHOD_SOFORT</option>
+            <option value="paypal">COM_JDIDEALGATWAY_PAYMENT_METHOD_PAYPAL</option>
+            <option value="giropay">COM_JDIDEALGATWAY_PAYMENT_METHOD_GIROPAY</option>
+            <option value="sepadirectdebit">COM_JDIDEALGATWAY_PAYMENT_METHOD_SEPADIRECTDEBIT</option>
+        </field>
+
+        <field name="status-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_STATUS"/>
+
+        <field name="pendingStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_PENDING_LABEL"
+               description="COM_ROPAYMENTS_STATUS_PENDING_DESC"
+               required="false"
+               size="1"
+               default="P"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="verifiedStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_SUCCESS_LABEL"
+               description="COM_ROPAYMENTS_STATUS_SUCCESS_DESC"
+               required="false"
+               size="1"
+               default="C"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="cancelledStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_CANCELLED_LABEL"
+               description="COM_ROPAYMENTS_STATUS_CANCELLED_DESC"
+               required="false"
+               size="1"
+               default="X"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="failedStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_FAILED_LABEL"
+               description="COM_ROPAYMENTS_STATUS_FAILED_DESC"
+               required="false"
+               size="1"
+               default="F"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="openStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_OPEN_LABEL"
+               description="COM_ROPAYMENTS_STATUS_OPEN_DESC"
+               required="false"
+               size="1"
+               default="P"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="ordernumber-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_ORDERNUMBERS"/>
+
+        <field name="invoiceNumber"
+               type="jdideal.ordernumber"
+               label="COM_ROPAYMENTS_INVOICENUMBER_LABEL"
+               description="COM_ROPAYMENTS_INVOICENUMBER_DESC"
+               required="false"
+               size="1"
+               default="order_number"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="orderNumber"
+               type="jdideal.ordernumber"
+               label="COM_ROPAYMENTS_ORDERNUMBER_LABEL"
+               description="COM_ROPAYMENTS_ORDERNUMBER_DESC"
+               required="false"
+               size="1"
+               default="order_number"
+               class="advancedSelect"
+               labelclass="config"/>
+    </fieldset>
+</form>

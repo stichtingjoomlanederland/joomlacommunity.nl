@@ -12,7 +12,7 @@ defined('JPATH_PLATFORM') or die;
 
 class WFImgManagerPlugin extends WFMediaManager
 {
-    public $_filetypes = 'jpg,jpeg,png,apng,gif,webp';
+    public $_filetypes = 'jpg,jpeg,png,apng,gif,webp,avif';
 
     protected $name = 'imgmanager';
 
@@ -42,13 +42,25 @@ class WFImgManagerPlugin extends WFMediaManager
         // Add tabs
         $tabs->addTab('image', 1, array('plugin' => $this));
 
-        $tabs->addTab('rollover', $this->getParam('tabs_rollover', 1));
+        if ($this->allowEvents()) {
+            $tabs->addTab('rollover', $this->getParam('tabs_rollover', 1));
+        }
+
         $tabs->addTab('advanced', $this->getParam('tabs_advanced', 1));
 
         $document->addScript(array('imgmanager'), 'plugins');
         $document->addStyleSheet(array('imgmanager'), 'plugins');
 
         $document->addScriptDeclaration('ImageManagerDialog.settings=' . json_encode($this->getSettings()) . ';');
+    }
+
+    public function getDefaultAttributes()
+    {
+        $attribs = parent::getDefaultAttributes();
+
+        unset($attribs['always_include_dimensions']);
+
+        return $attribs;
     }
 
     public function onUpload($file, $relative = '')
@@ -59,7 +71,7 @@ class WFImgManagerPlugin extends WFMediaManager
         if ($app->input->getInt('inline', 0) === 1) {
             $result = array(
                 'file' => $relative,
-                'name' => basename($relative),
+                'name' => WFUtility::mb_basename($relative),
             );
 
             if ($this->getParam('always_include_dimensions', 1)) {
@@ -71,85 +83,7 @@ class WFImgManagerPlugin extends WFMediaManager
                 }
             }
 
-            $defaults = $this->getDefaults();
-
-            unset($defaults['always_include_dimensions']);
-
-            $styles = array();
-
-            foreach ($defaults as $k => $v) {
-                switch ($k) {
-                    case 'align':
-                        // convert to float
-                        if ($v == 'left' || $v == 'right') {
-                            $k = 'float';
-                        } else {
-                            $k = 'vertical-align';
-                        }
-
-                        // check for value and exclude border state parameter
-                        if ($v != '') {
-                            $styles[str_replace('_', '-', $k)] = $v;
-                        }
-                        break;
-                    case 'border_width':
-                    case 'border_style':
-                    case 'border_color':
-                        // only if border state set
-                        $v = $defaults['border'] ? $v : '';
-
-                        // add px unit to border-width
-                        if ($v && $k == 'border_width' && is_numeric($v)) {
-                            $v .= 'px';
-                        }
-
-                        // check for value and exclude border state parameter
-                        if ($v != '') {
-                            $styles[str_replace('_', '-', $k)] = $v;
-                        }
-
-                        break;
-                    case 'margin_left':
-                    case 'margin_right':
-                    case 'margin_top':
-                    case 'margin_bottom':
-                        // add px unit to border-width
-                        if ($v && is_numeric($v)) {
-                            $v .= 'px';
-                        }
-
-                        // check for value and exclude border state parameter
-                        if ($v != '') {
-                            $styles[str_replace('_', '-', $k)] = $v;
-                        }
-                        break;
-                    case 'classes':
-                    case 'title':
-                    case 'id':
-                    case 'direction':
-                    case 'usemap':
-                    case 'longdesc':
-                    case 'style':
-                    case 'alt':
-                        if ($k == 'direction') {
-                            $k = 'dir';
-                        }
-
-                        if ($k == 'classes') {
-                            $k = 'class';
-                        }
-
-                        if ($v != '') {
-                            $result[$k] = $v;
-                        }
-
-                        break;
-                }
-            }
-
-            if (!empty($styles)) {
-                $result['styles'] = $styles;
-            }
+            $result = array_merge($result, array('attributes' => $this->getDefaultAttributes()));
 
             return $result;
         }

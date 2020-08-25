@@ -48,13 +48,7 @@ $server_limit = ComFilesModelEntityContainer::getServerUploadLimit();
 
 <ktml:style src="assets://files/css/uploader.css" />
 
-<!--<ktml:script src="assets://files/js/uploader/moxie.js" />
-<ktml:script src="assets://files/js/uploader/plupload.dev.js" />-->
-<ktml:script src="assets://files/js/uploader/plupload.full.min.js" />
-<ktml:script src="assets://files/js/uploader/jquery-ui.js" />
-<ktml:script src="assets://files/js/uploader/dot.js" />
-<ktml:script src="assets://files/js/uploader/koowa.uploader.js" />
-<ktml:script src="assets://files/js/uploader/koowa.uploader.overwritable.js" />
+<ktml:script src="assets://files/js/uploader<?= !empty($debug) ? '' : '.min' ?>.js" />
 
 <script>
 kQuery.koowa.uploader.server_limit = <?= json_encode($server_limit) ?>;

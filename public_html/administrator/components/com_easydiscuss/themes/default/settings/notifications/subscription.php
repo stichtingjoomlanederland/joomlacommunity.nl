@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -14,7 +14,7 @@ defined('_JEXEC') or die('Restricted access');
 <div class="row">
 	<div class="col-md-6">
 		<div class="panel">
-			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SUBSCRIPTION'); ?>
+			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_SUBSCRIPTIONS'); ?>
 
 			<div class="panel-body">
 				<div class="form-horizontal">
@@ -24,6 +24,8 @@ defined('_JEXEC') or die('Restricted access');
 					<?php echo $this->html('settings.toggle', 'main_subscription_include_comments', 'COM_EASYDISCUSS_SUBSCRIPTION_INCLUDE_COMMENTS'); ?>
 					<?php echo $this->html('settings.toggle', 'main_postsubscription', 'COM_EASYDISCUSS_ENABLE_POST_SUBSCRIPTION'); ?>
 					<?php echo $this->html('settings.toggle', 'main_autopostsubscription', 'COM_EASYDISCUSS_ENABLE_AUTO_POST_SUBSCRIPTION'); ?>
+					<?php echo $this->html('settings.toggle', 'notification_autosubscribe', 'COM_EASYDISCUSS_ENABLE_AUTO_SITEWIDE_SUBSCRIPTION'); ?>
+					<?php echo $this->html('settings.toggle', 'notification_autosubscribe_author', 'COM_EASYDISCUSS_ENABLE_AUTO_AUTHOR_SUBSCRIPTION'); ?>
 					<?php echo $this->html('settings.toggle', 'main_automodpostsubscription', 'COM_EASYDISCUSS_ENABLE_AUTO_MOD_POST_SUBSCRIPTION'); ?>
 					<?php echo $this->html('settings.toggle', 'main_allowguestsubscribe', 'COM_EASYDISCUSS_ENABLE_GUEST_SUBSCRIPTION'); ?>
 				</div>
@@ -61,7 +63,3 @@ defined('_JEXEC') or die('Restricted access');
 		</div>
 	</div>
 </div>
-
-
-
-

@@ -53,6 +53,13 @@ class ConfigurationController extends acymController
 
             $data['languages'][] = $oneLanguage;
         }
+
+        usort(
+            $data['languages'],
+            function ($a, $b) {
+                return strtolower($a->name) > strtolower($b->name);
+            }
+        );
     }
 
     private function prepareLists(&$data)
@@ -315,18 +322,49 @@ class ConfigurationController extends acymController
             'acy_notification_profile',
             'acy_notification_confirm',
             'wp_access',
+            'multilingual_languages',
         ];
+
         foreach ($select2Fields as $oneField) {
             $formData[$oneField] = !empty($formData[$oneField]) ? $formData[$oneField] : [];
         }
+
+        $licenseKeyBeforeSave = $this->config->get('license_key');
+        $isLicenseKeyUpdated = isset($formData['license_key']) && $licenseKeyBeforeSave !== $formData['license_key'];
+
         acym_trigger('onBeforeSaveConfigFields', [&$formData]);
 
         $status = $this->config->save($formData);
 
         if ($status) {
             acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success');
+
+            if ($isLicenseKeyUpdated) {
+                if (!empty($formData['license_key'])) {
+                    $resultAttachLicenseOnUpdateMe = $this->attachLicenseOnUpdateMe($formData['license_key']);
+
+                    if (!empty($resultAttachLicenseOnUpdateMe['message'])) {
+                        $this->displayMessage($resultAttachLicenseOnUpdateMe['message']);
+                    }
+                } else {
+                    $resultUnlinkLicenseOnUpdateMe = $this->unlinkLicenseOnUpdateMe($licenseKeyBeforeSave);
+
+                    if (!empty($resultUnlinkLicenseOnUpdateMe['message'])) {
+                        $this->displayMessage($resultUnlinkLicenseOnUpdateMe['message']);
+                    }
+                }
+            }
         } else {
             acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING'), 'error');
+        }
+
+        $removed = array_diff(
+            explode(',', acym_getVar('string', 'previous_multilingual_languages', '')),
+            $formData['multilingual_languages']
+        );
+        if (!empty($removed)) {
+            $mailClass = acym_get('class.mail');
+            $mailClass->deleteByTranslationLang($removed);
         }
 
         $this->config->load();
@@ -601,29 +639,17 @@ class ConfigurationController extends acymController
 
     public function unlinkLicense()
     {
-        $this->deactivateCron(false);
+        $config = acym_getVar('array', 'config', []);
+        $licenseKey = empty($config['license_key']) ? $this->config->get('license_key') : $config['license_key'];
 
-        $url = ACYM_UPDATEMEURL.'license&task=unlinkWebsiteFromLicense';
-        $fields = [
-            'domain' => ACYM_LIVE,
-            'license_key' => $this->config->get('license_key', ''),
-            'level' => $this->config->get('level', ''),
-            'component' => ACYM_COMPONENT_NAME_API,
-        ];
+        $resultUnlinkLicenseOnUpdateMe = $this->unlinkLicenseOnUpdateMe($licenseKey);
 
-        $result = acym_makeCurlCall($url, $fields);
-
-        if (empty($result)) {
-            $this->displayMessage('');
-            $this->listing();
-
-            return true;
+        if ($resultUnlinkLicenseOnUpdateMe['success'] === true) {
+            $this->config->save(['license_key' => '']);
         }
 
-        $messageOK = $this->displayMessage($result['message']);
-
-        if ($result['type'] == 'info' && $messageOK) {
-            $this->config->save(['license_key' => '']);
+        if (!empty($resultUnlinkLicenseOnUpdateMe['message'])) {
+            $this->displayMessage($resultUnlinkLicenseOnUpdateMe['message']);
         }
 
         $this->listing();
@@ -633,14 +659,48 @@ class ConfigurationController extends acymController
 
     public function attachLicense()
     {
-        $this->store();
+        $config = acym_getVar('array', 'config', []);
+        $licenseKey = $config['license_key'];
 
-        $licenseKey = $this->config->get('license_key', '');
         if (empty($licenseKey)) {
-            $this->displayMessage('LICENSE_NOT_FOUND');
+            $this->displayMessage(acym_translation('ACYM_PLEASE_SET_A_LICENSE_KEY'));
             $this->listing();
 
             return true;
+        }
+
+        $this->config->save(['license_key' => $licenseKey]);
+
+        $resultAttachLicenseOnUpdateMe = $this->attachLicenseOnUpdateMe();
+
+        if ($resultAttachLicenseOnUpdateMe['success'] === false) {
+            $this->config->save(['license_key' => '']);
+        }
+
+        if (!empty($resultAttachLicenseOnUpdateMe['message'])) {
+            $this->displayMessage($resultAttachLicenseOnUpdateMe['message']);
+        }
+
+        $this->listing();
+
+        return true;
+    }
+
+    private function attachLicenseOnUpdateMe($licenseKey = null)
+    {
+        if (is_null($licenseKey)) {
+            $licenseKey = $this->config->get('license_key', '');
+        }
+
+        $return = [
+            'message' => '',
+            'success' => false,
+        ];
+
+        if (empty($licenseKey)) {
+            $return['message'] = 'LICENSE_NOT_FOUND';
+
+            return $return;
         }
 
         $url = ACYM_UPDATEMEURL.'license&task=attachWebsiteKey';
@@ -650,55 +710,117 @@ class ConfigurationController extends acymController
             'license_key' => $licenseKey,
         ];
 
-        $result = acym_makeCurlCall($url, $fields);
+        $resultAttach = acym_makeCurlCall($url, $fields);
 
+        acym_checkVersion();
 
-        if (empty($result)) {
-            $this->config->save(['license_key' => '']);
+        if (empty($resultAttach) || !empty($resultAttach['error'])) {
+            $return['message'] = empty($resultAttach['error']) ? '' : $resultAttach['error'];
 
-            $this->displayMessage('');
-            $this->listing();
-
-            return true;
+            return $return;
         }
 
-        if ($result['type'] == 'error' || !$this->displayMessage($result['message'])) {
-            $this->config->save(['license_key' => '']);
+        $return['message'] = $resultAttach['message'];
+        if ($resultAttach['type'] == 'error') {
+
+            return $return;
         }
 
-        $this->listing();
+        $return['success'] = true;
 
-        return true;
+        return $return;
     }
 
-    public function activateCron()
+    private function unlinkLicenseOnUpdateMe($licenseKey = null)
     {
-        $result = $this->modifyCron('activateCron');
+        if (is_null($licenseKey)) {
+            $licenseKey = $this->config->get('license_key', '');
+        }
+
+        $level = $this->config->get('level', '');
+
+        $return = [
+            'message' => '',
+            'success' => false,
+        ];
+
+        if (empty($licenseKey)) {
+            $return['message'] = 'LICENSE_NOT_FOUND';
+
+            return $return;
+        }
+
+        $this->deactivateCron(false, $licenseKey);
+
+        $url = ACYM_UPDATEMEURL.'license&task=unlinkWebsiteFromLicense';
+
+        $fields = [
+            'domain' => ACYM_LIVE,
+            'license_key' => $licenseKey,
+            'level' => $level,
+            'component' => ACYM_COMPONENT_NAME_API,
+        ];
+
+        $resultUnlink = acym_makeCurlCall($url, $fields);
+
+        acym_checkVersion();
+
+        if (empty($resultUnlink) || !empty($resultUnlink['error'])) {
+            $return['message'] = empty($resultUnlink['error']) ? '' : $resultUnlink['error'];
+
+            return $return;
+        }
+
+        if ($resultUnlink['type'] == 'error') {
+            if ($resultUnlink['message'] == 'LICENSE_NOT_FOUND' || $resultUnlink['message'] == 'LICENSES_DONT_MATCH') {
+                $return['message'] = 'UNLINK_SUCCESSFUL';
+                $return['success'] = true;
+
+                return $return;
+            }
+        }
+
+        if ($resultUnlink['type'] == 'info') {
+            $return['success'] = true;
+        }
+
+        $return['message'] = $resultUnlink['message'];
+
+        return $return;
+    }
+
+    public function activateCron($licenseKey = null)
+    {
+        $result = $this->modifyCron('activateCron', $licenseKey);
         if ($result !== false && $this->displayMessage($result['message'])) $this->config->save(['active_cron' => 1]);
         $this->listing();
 
         return true;
     }
 
-    public function deactivateCron($listing = true)
+    public function deactivateCron($listing = true, $licenseKey = null)
     {
-        $result = $this->modifyCron('deactivateCron');
+        $result = $this->modifyCron('deactivateCron', $licenseKey);
         if ($result !== false && $this->displayMessage($result['message'])) $this->config->save(['active_cron' => 0]);
         if ($listing) $this->listing();
 
         return true;
     }
 
-    private function modifyCron($functionToCall)
+    private function modifyCron($functionToCall, $licenseKey = null)
     {
-        $this->store();
+        if (is_null($licenseKey)) {
+            $config = acym_getVar('array', 'config', []);
+            $licenseKey = empty($config['license_key']) ? '' : $config['license_key'];
+        }
 
-        $licenseKey = $this->config->get('license_key', '');
         if (empty($licenseKey)) {
             $this->displayMessage('LICENSE_NOT_FOUND');
 
             return false;
         }
+
+        $frequency = empty($config['cron_updateme_frequency']) ? 900 : $config['cron_updateme_frequency'];
 
         $url = ACYM_UPDATEMEURL.'launcher&task='.$functionToCall;
 
@@ -706,15 +828,15 @@ class ConfigurationController extends acymController
             'domain' => ACYM_LIVE,
             'license_key' => $licenseKey,
             'cms' => ACYM_CMS,
-            'frequency' => $this->config->get('cron_updateme_frequency', 900),
+            'frequency' => $frequency,
             'level' => $this->config->get('level', ''),
         ];
 
         $result = acym_makeCurlCall($url, $fields);
 
 
-        if (empty($result)) {
-            $this->displayMessage('');
+        if (empty($result) || !empty($result['error'])) {
+            $this->displayMessage(empty($result['error']) ? '' : $result['error']);
 
             return false;
         }
@@ -724,6 +846,8 @@ class ConfigurationController extends acymController
 
             return false;
         }
+
+        $this->config->save(['cron_updateme_frequency' => $frequency]);
 
         return $result;
     }
@@ -749,12 +873,23 @@ class ConfigurationController extends acymController
         if (empty($message) || empty($correspondences[$message])) {
             acym_enqueueMessage(acym_translation('ACYM_ERROR_ON_CALL_ACYBA_WEBSITE'), 'error');
 
+            if (!empty($message)) acym_enqueueMessage(acym_translation_sprintf('ACYM_CURL_ERROR_MESSAGE', $message), 'error');
+
             return false;
         }
 
         acym_enqueueMessage(acym_translation($correspondences[$message]['message']), $correspondences[$message]['type']);
 
         return $correspondences[$message]['type'] == 'info';
+    }
+
+    public function multilingual()
+    {
+        $remindme = json_decode($this->config->get('remindme', '[]'), true);
+        $remindme[] = 'multilingual';
+        $this->config->save(['remindme' => json_encode($remindme)]);
+
+        $this->listing();
     }
 }
 

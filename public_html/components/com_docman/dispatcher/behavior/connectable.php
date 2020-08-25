@@ -11,6 +11,15 @@ class ComDocmanDispatcherBehaviorConnectable extends KControllerBehaviorAbstract
     private static $_editable_image_containers = ['docman-files', 'docman-images', 'docman-icons'];
     private static $_editable_image_extensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
 
+    protected function _initialize(KObjectConfig $config)
+    {
+        $config->append(array(
+            'priority' => self::PRIORITY_HIGH,
+        ));
+
+        parent::_initialize($config);
+    }
+
     public function isSupported()
     {
         return $this->getObject('com://admin/docman.model.entity.config')->connectAvailable();

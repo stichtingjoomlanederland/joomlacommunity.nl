@@ -5,6 +5,8 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Uri\Uri;
+
 defined('_JEXEC') or die;
 
 class AtsystemFeatureSecretword extends AtsystemFeatureAbstract
@@ -51,14 +53,14 @@ class AtsystemFeatureSecretword extends AtsystemFeatureAbstract
 
 		if (!empty($password))
 		{
-			$task   = $input->getCmd('task', '');
-			$uid    = $input->getInt('uid', 0);
+			$task = $input->getCmd('task', '');
+			$uid  = $input->getInt('uid', 0);
 
 			$loggingMeOut = true;
 
 			if (!empty($uid))
 			{
-				$myUID = $this->container->platform->getUser()->id;
+				$myUID        = $this->container->platform->getUser()->id;
 				$loggingMeOut = ($myUID == $uid);
 			}
 
@@ -72,7 +74,7 @@ class AtsystemFeatureSecretword extends AtsystemFeatureAbstract
 				 * Since Joomla! 3.8.9 the per-method input is case sensitive. We will try using both lower and upper
 				 * case (e.g. post and POST) to ensure backwards and forwards compatibility.
 				 */
-				foreach (array(strtolower($method), strtoupper($method)) as $m)
+				foreach ([strtolower($method), strtoupper($method)] as $m)
 				{
 					$input->$m->set('return', $return_encoded);
 				}
@@ -88,7 +90,7 @@ class AtsystemFeatureSecretword extends AtsystemFeatureAbstract
 	{
 		$password = $this->cparams->getValue('adminpw', '');
 
-		$myURI = JUri::getInstance();
+		$myURI = Uri::getInstance();
 
 		// If the "password" query param is not defined, the default value
 		// "thisisnotgood" is returned. If it is defined, it will return null or

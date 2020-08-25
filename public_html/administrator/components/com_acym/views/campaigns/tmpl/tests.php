@@ -22,7 +22,8 @@ defined('_JEXEC') or die('Restricted access');
                             ?>
 						</div>
                         <?php
-                        $icon = empty($data['upgrade']) ? '<i></i>' : acym_tooltip('<i class="acymicon-question-circle-o"></i>', acym_translation('ACYM_ONLY_PRO_VERSION'));
+                        $icon = empty($data['upgrade']) ? '<i></i>' : acym_tooltip('<i class="acymicon-question-circle-o"></i>', acym_translation('ACYM_NEED_PRO_VERSION'));
+                        $iconSpamTest = acym_level(2) ? '<i></i>' : acym_tooltip('<i class="acymicon-question-circle-o"></i>', acym_translation('ACYM_NEED_ENTERPRISE_VERSION'));
                         ?>
 						<div class="cell grid-x <?php echo !empty($data['upgrade']) ? 'acym__campaigns__tests__starter' : 'is-hidden'; ?>" id="safe_check_results">
 							<div class="cell grid-x acym_vcenter" id="check_words">
@@ -40,7 +41,7 @@ defined('_JEXEC') or die('Restricted access');
                             <?php
                             $spamtestRow = '<div class="cell grid-x acym_vcenter" id="check_spam" data-iframe="spamtestpopup">
 													<div class="cell small-10">'.acym_translation('ACYM_TESTS_SPAM').'</div>
-													<div class="cell small-2 text-center acym_icon_container">'.$icon.'</div>
+													<div class="cell small-2 text-center acym_icon_container">'.$iconSpamTest.'</div>
 												</div>';
 
                             echo acym_modal(
@@ -57,12 +58,18 @@ defined('_JEXEC') or die('Restricted access');
 								<button type="button" class="button button-secondary"><?php echo acym_translation('ACYM_DETAILS'); ?></button>
 							</div>
 						</div>
-                        <?php if (!empty($data['upgrade'])) {
-                            echo '<div class="cell grid-x grid-margin-x margin-top-2 align-center">';
-                            echo '<a href="https://docs.acymailing.com/main-pages/campaigns/tests" target="_blank" class="button button-secondary cell shrink">'.acym_translation('ACYM_SEE_MORE').'</a>';
-                            echo acym_buttonGetProVersion();
-                            echo '</div>';
-                        } ?>
+                        <?php
+                        $blocDisplay = '';
+                        $getProBtn = acym_buttonGetProVersion();
+                        if (acym_level(1)) {
+                            $blocDisplay = 'style="display:none;"';
+                            $getProBtn = acym_buttonGetProVersion('cell shrink', 'ACYM_GET_ENTERPRISE_VERSION');
+                        }
+                        echo '<div class="cell grid-x grid-margin-x margin-top-2 align-center acym__campaigns__test__pro" '.$blocDisplay.'>';
+                        echo '<a href="https://docs.acymailing.com/main-pages/campaigns/tests" target="_blank" class="button button-secondary cell shrink">'.acym_translation('ACYM_SEE_MORE').'</a>';
+                        echo $getProBtn;
+                        echo '</div>';
+                        ?>
 					</div>
 				</div>
 				<div class="cell large-1 margin-top-2 acym_zone_separator"></div>
@@ -81,6 +88,10 @@ defined('_JEXEC') or die('Restricted access');
                     );
 
                     ?>
+					<label class="margin-top-1">
+                        <?php echo acym_translation('ACYM_TEST_NOTE'); ?>
+						<textarea class="acym__blue" id="acym__wysid__send__test__note" name="test_note" type="text" placeholder="<?php echo acym_translation('ACYM_TEST_NOTE_PLACEHOLDER', true); ?>"></textarea>
+					</label>
 					<button id="acym__campaign__send-test" type="button" class="button hollow">
                         <?php echo acym_translation('ACYM_SEND_TEST'); ?>
 					</button>

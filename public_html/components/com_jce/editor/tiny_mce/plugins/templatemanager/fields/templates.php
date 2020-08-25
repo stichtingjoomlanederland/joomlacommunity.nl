@@ -73,14 +73,14 @@ class JFormFieldTemplates extends JFormField
         // And finaly build a main container
         $str = array();
 
+        $n = 0;
+
         foreach ($values as $value) {
 
             $fields = $subForm->getFieldset();
             
             $str[] = '<div class="form-field-repeatable-item wf-templatemanager-templates">';
             $str[] = '  <div class="form-field-repeatable-item-group well well-small p-2 bg-light">';
-
-            $n = 0;
 
             foreach ($fields as $field) {
                 $field->element['multiple'] = true;
@@ -96,6 +96,10 @@ class JFormFieldTemplates extends JFormField
                 if ($name === "html") {
                     $val = htmlspecialchars_decode($val);
                 }
+
+                if ($name === "thumbnail") {
+                    $val = htmlspecialchars($val, ENT_COMPAT, 'UTF-8');
+                }
  
                 // escape value
                 $field->value = $val;
@@ -109,9 +113,9 @@ class JFormFieldTemplates extends JFormField
                 $field->name = $name;
 
                 $str[] = $field->renderField();
-                
-                $n++;
             }
+
+            $n++;
 
             $str[] = '  </div>';
 

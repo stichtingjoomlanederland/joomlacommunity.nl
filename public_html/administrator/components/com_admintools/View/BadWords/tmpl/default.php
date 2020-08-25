@@ -8,6 +8,8 @@
 /** @var $this \Akeeba\AdminTools\Admin\View\BadWords\Html */
 
 use FOF30\Utils\FEFHelper\Html as FEFHtml;
+use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Language\Text;
 
 defined('_JEXEC') or die;
 
@@ -23,10 +25,10 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
 	<section class="akeeba-panel--33-66 akeeba-filter-bar-container">
 		<div class="akeeba-filter-bar akeeba-filter-bar--left akeeba-form-section akeeba-form--inline">
 			<div class="akeeba-filter-element akeeba-form-group">
-				<input type="text" name="word" placeholder="<?php echo \JText::_('COM_ADMINTOOLS_LBL_BADWORD_WORD'); ?>"
+				<input type="text" name="word" placeholder="<?php echo Text::_('COM_ADMINTOOLS_LBL_BADWORD_WORD'); ?>"
 					   id="filter_word" onchange="document.adminForm.submit();"
 					   value="<?php echo $this->escape($this->filters['word']); ?>"
-					   title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_BADWORD_WORD'); ?>"/>
+					   title="<?php echo Text::_('COM_ADMINTOOLS_LBL_BADWORD_WORD'); ?>"/>
 			</div>
 		</div>
 
@@ -41,7 +43,7 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
 				<input type="checkbox" name="toggle" value="" onclick="Joomla.checkAll(this);"/>
 			</th>
 			<th>
-				<?php echo \JHtml::_('grid.sort', 'COM_ADMINTOOLS_LBL_BADWORD_WORD', 'word', $this->order_Dir, $this->order, 'browse'); ?>
+				<?php echo HTMLHelper::_('grid.sort', 'COM_ADMINTOOLS_LBL_BADWORD_WORD', 'word', $this->order_Dir, $this->order, 'browse'); ?>
 			</th>
 		</tr>
 		</thead>
@@ -56,7 +58,7 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
 		<?php if (!count($this->items)):?>
 			<tr>
 				<td colspan="6">
-					<?php echo JText::_('COM_ADMINTOOLS_ERR_BADWORD_NOITEMS')?>
+					<?php echo Text::_('COM_ADMINTOOLS_ERR_BADWORD_NOITEMS')?>
 				</td>
 			</tr>
 		<?php endif;?>
@@ -67,7 +69,7 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
 				$edit = 'index.php?option=com_admintools&view=BadWords&task=edit&id='.$row->id;
 				?>
 				<tr>
-					<td><?php echo \JHtml::_('grid.id', ++$i, $row->id); ?></td>
+					<td><?php echo HTMLHelper::_('grid.id', ++$i, $row->id); ?></td>
 					<td>
 						<a href="<?php echo $edit?>">
 							<?php echo $this->escape($row->word) ?>

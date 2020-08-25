@@ -36,22 +36,23 @@ if ($post->isQuestion() && !$this->config->get('main_location_discussion')) {
     
     <div class="ed-location" data-ed-location-map-wrapper>
 	    <?php if ($this->config->get('main_location_static')) { ?>
-            <div class="ed-location__map-static" style="background-image:url('<?php echo ED::getMapRequestURL($post); ?>');">
-            </div>
+            <div class="ed-location__map-static" style="background-image:url('<?php echo ED::getMapRequestURL($post); ?>');"></div>
             <style>
             @media print {
                 .ed-location__map-static:before {
                     content: url('<?php echo ED::getMapRequestURL($post, true); ?>');
                 }
-            }</style>
+            }
+            </style>
 	    <?php } else { ?>
-            <div class="ed-location__map" data-ed-location-map
-            	data-type="<?php echo $this->config->get('main_location_static') ? 'static' : 'dynamic';?>"
-            	data-latitude="<?php echo $post->latitude;?>" 
-            	data-longitude="<?php echo $post->longitude;?>"
-            	data-address="<?php echo $post->address;?>"
-            >
-            </div>
+            <iframe 
+                width="100%" 
+                height="200px" 
+                frameborder="0" 
+                style="border:0" 
+                src="<?php echo ED::getMapRequestURL($post); ?>" 
+                allowfullscreen
+            ></iframe>
 	    <?php } ?>
     </div>
 

@@ -7,7 +7,7 @@
 	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license> 
 	<authorEmail>support@rsjoomla.com</authorEmail>
 	<authorUrl>www.rsjoomla.com</authorUrl>
-	<version>1.13.19</version>
+	<version>1.13.20</version>
 	<description>With RSComments! you can add commenting to articles, blogs and other Joomla! extensions on your website.</description>
 	<scriptfile>script.rscomments.php</scriptfile>
 

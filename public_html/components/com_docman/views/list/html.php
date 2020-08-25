@@ -84,7 +84,7 @@ class ComDocmanViewListHtml extends ComDocmanViewHtml
             // Needs to come from request as category model does not have a status state
             $query  = $this->getObject('request')->query;
             $status = $query->status;
-            $offset = $state->offset ? $state->offset : ($query->offset ? $query->offset : $query->limitstart);
+            $offset = ($query->offset ? $query->offset : $query->limitstart);
 
             $state->offset = $offset;
 

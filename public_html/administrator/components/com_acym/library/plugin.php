@@ -16,6 +16,8 @@ class acymPlugin extends acymObject
     var $catvalues = [];
     var $cats = [];
 
+    var $tagvalues = [];
+
     var $tags = [];
     var $pageInfo;
     var $searchFields = [];
@@ -30,6 +32,16 @@ class acymPlugin extends acymObject
 
     var $defaultValues;
     var $emailLanguage = '';
+    var $campaignId = 0;
+    var $campaignType = '';
+
+    var $settings;
+    var $savedSettings;
+
+    var $displayOptions = [];
+    var $replaceOptions = [];
+    var $elementOptions = [];
+    var $customOptions = [];
 
     public function __construct()
     {
@@ -47,6 +59,12 @@ class acymPlugin extends acymObject
         $this->generateCampaignResult = new stdClass();
         $this->generateCampaignResult->status = true;
         $this->generateCampaignResult->message = '';
+
+        $this->campaignId = acym_getVar('int', 'campaignId', 0);
+        $this->campaignType = acym_getVar('string', 'campaign_type', '');
+
+        $pluginClass = acym_get('class.plugin');
+        $this->savedSettings = $pluginClass->getSettings($this->name);
     }
 
     protected function displaySelectionZone($zoneContent)
@@ -66,12 +84,13 @@ class acymPlugin extends acymObject
 
     public function prepareListing()
     {
-        $this->pageInfo->limit = 5;
+        $this->pageInfo->limit = 10;
         $this->pageInfo->page = acym_getVar('int', 'pagination_page_ajax', 1);
         $this->pageInfo->start = ($this->pageInfo->page - 1) * $this->pageInfo->limit;
         $this->pageInfo->search = acym_getVar('string', 'plugin_search', '');
         $this->pageInfo->filter_cat = acym_getVar('int', 'plugin_category', 0);
         $this->pageInfo->orderdir = 'DESC';
+        $this->pageInfo->loadMore = acym_getVar('boolean', 'loadMore', false);
 
         if (!empty($this->pageInfo->search) && !empty($this->searchFields)) {
             $searchVal = '%'.acym_getEscaped($this->pageInfo->search, true).'%';
@@ -91,7 +110,7 @@ class acymPlugin extends acymObject
         $rows = acym_loadObjectList($this->querySelect.$this->query.$conditions.$ordering, '', $this->pageInfo->start, $this->pageInfo->limit);
         $this->pageInfo->total = acym_loadResult('SELECT COUNT(*) '.$this->query.$conditions.$ordering);
 
-        if (!empty($this->defaultValues->id)) {
+        if (!empty($this->defaultValues->id) && $this->defaultValues->defaultPluginTab === $this->name) {
             $found = false;
             foreach ($rows as $oneRow) {
                 if ($oneRow->{$this->elementIdColumn} === $this->defaultValues->id) $found = true;
@@ -155,6 +174,23 @@ class acymPlugin extends acymObject
 
     protected function autoCampaignOptions(&$options)
     {
+        if (empty($this->campaignId) && empty($this->campaignType)) {
+            return;
+        } elseif (!empty($this->campaignId) && (empty($this->campaignType) || $this->campaignType != 'auto')) {
+            $campaignClass = acym_get('class.campaign');
+            $campaign = $campaignClass->getOneById($this->campaignId);
+            if ($campaign->sending_type !== 'auto') return;
+        } elseif (empty($this->campaignId) && !empty($this->campaignType) && $this->campaignType != 'auto') return;
+
+        $options[] = [
+            'title' => 'ACYM_DOCUMENTATION',
+            'type' => 'custom',
+            'name' => 'documentation',
+            'output' => '<a target="_blank" href="https://docs.acymailing.com/main-pages/campaigns/automatic-campaigns#dont-send-twice-the-same-content"><i class="acymicon-book"></i></a>',
+            'js' => '',
+            'section' => 'ACYM_AUTO_CAMPAIGNS_OPTIONS',
+        ];
+
         $options[] = [
             'title' => 'ACYM_ONLY_NEWLY_CREATED',
             'type' => 'boolean',
@@ -163,6 +199,7 @@ class acymPlugin extends acymObject
             'tooltip' => 'ACYM_ONLY_NEWLY_CREATED_DESC',
             'section' => 'ACYM_AUTO_CAMPAIGNS_OPTIONS',
         ];
+
         $options[] = [
             'title' => 'ACYM_MIN_NB_ELEMENTS',
             'type' => 'number',
@@ -175,17 +212,33 @@ class acymPlugin extends acymObject
 
     protected function getElementsListing($options)
     {
+        if ($this->pageInfo->loadMore) {
+            return $this->getInnerListing($options);
+        }
         $listing = '<div id="plugin_listing" class="acym__popup__listing">';
         $listing .= '<input type="hidden" name="plugin" value="'.acym_escape(get_class($this)).'" />';
 
         $listing .= '<div class="cell grid-x hide-for-small-only plugin_listing_headers">';
         foreach ($options['header'] as $oneColumn) {
             $class = empty($oneColumn['class']) ? '' : ' '.$oneColumn['class'];
-            $listing .= '<div class="cell medium-'.$oneColumn['size'].$class.'">'.acym_translation($oneColumn['label']).'</div>';
+            $listing .= '<div class="cell plugin_listing_headers__title medium-'.$oneColumn['size'].$class.'">'.acym_translation($oneColumn['label']).'</div>';
         }
         $listing .= '</div>';
 
-        if (empty($options['rows'])) {
+        $listing .= $this->getInnerListing($options);
+
+        $listing .= '<input type="hidden" value="1" id="acym_pagination__ajax__load-more" name="acym_pagination__ajax__load-more">';
+        $listing .= '</div>';
+
+        return $listing;
+    }
+
+    private function getInnerListing($options)
+    {
+        $listing = '';
+        if (empty($options['rows']) && $this->pageInfo->loadMore) {
+            return '<h3 class="cell acym__listing__empty__load-more text-center">'.acym_translation('ACYM_NO_MORE_RESULTS').'</h3>';
+        } elseif (empty($options['rows'])) {
             $listing .= '<h1 class="cell acym__listing__empty__search__modal text-center">'.acym_translation('ACYM_NO_RESULTS_FOUND').'</h1>';
         } else {
             $selected = explode(',', acym_getVar('string', 'selected', ''));
@@ -214,18 +267,17 @@ class acymPlugin extends acymObject
             }
         }
 
-        $pagination = acym_get('helper.pagination');
-        $pagination->setStatus($this->pageInfo->total, $this->pageInfo->page, $this->pageInfo->limit);
-        $listing .= $pagination->displayAjax(true);
-        $listing .= '</div>';
-
         return $listing;
     }
 
     protected function getCategoryListing()
     {
         $listing = '';
-        if (empty($this->catvalues)) return $listing;
+        if (empty($this->catvalues)) {
+            $listing .= '<h1 class="cell acym__listing__empty__search__modal text-center">'.acym_translation('ACYM_NO_RESULTS_FOUND').'</h1>';
+
+            return $listing;
+        }
 
         $listing .= '<div class="acym__popup__listing padding-0">';
         $selected = [];
@@ -239,6 +291,34 @@ class acymPlugin extends acymObject
             if (in_array($oneCat->value, $selected)) $class .= ' selected_row';
             $listing .= '<div class="'.$class.'" data-id="'.intval($oneCat->value).'" onclick="applyContentauto'.acym_escape($this->name).'('.intval($oneCat->value).', this);">
                         <div class="cell medium-5">'.acym_escape($oneCat->text).'</div>
+                    </div>';
+        }
+        $listing .= '</div>';
+
+        return $listing;
+    }
+
+    protected function getTagListing()
+    {
+        $listing = '';
+        if (empty($this->tagvalues)) {
+            $listing .= '<h1 class="cell acym__listing__empty__search__modal text-center">'.acym_translation('ACYM_NO_RESULTS_FOUND').'</h1>';
+
+            return $listing;
+        }
+
+        $listing .= '<div class="acym__popup__listing padding-0">';
+        $selected = [];
+        if (!empty($this->defaultValues->id) && strpos($this->defaultValues->id, '-')) {
+            $selected = explode('-', $this->defaultValues->id);
+        }
+        foreach ($this->tagvalues as $oneTag) {
+            if (empty($oneTag->term_id)) continue;
+
+            $class = 'cell grid-x acym__row__no-listing acym__listing__row__popup';
+            if (in_array($oneTag->term_id, $selected)) $class .= ' selected_row';
+            $listing .= '<div class="'.$class.'" data-id="'.intval($oneTag->term_id).'" onclick="applyContent'.acym_escape($this->name).'_tags('.intval($oneTag->term_id).', this);">
+                        <div class="cell medium-5">'.acym_escape($oneTag->name).'</div>
                     </div>';
         }
         $listing .= '</div>';
@@ -390,12 +470,11 @@ class acymPlugin extends acymObject
 
     protected function finalizeElementFormat($result, $options, $data)
     {
-        $customLayoutPath = ACYM_CUSTOM_PLUGIN_LAYOUT.$this->name.'.php';
+        $customLayoutPath = ACYM_CUSTOM_PLUGIN_LAYOUT.$this->name.'.html';
         if (file_exists($customLayoutPath)) {
-            ob_start();
-            require $customLayoutPath;
-            $result = ob_get_clean();
-            $result = str_replace(array_keys($data), $data, $result);
+            $viewContent = acym_fileGetContent($customLayoutPath);
+            $viewContentReplace = str_replace(array_keys($data), $data, $viewContent);
+            if ($viewContent !== $viewContentReplace) $result = $viewContentReplace;
         }
 
         return $this->pluginHelper->managePicts($options, $result);
@@ -584,6 +663,213 @@ class acymPlugin extends acymObject
         }
 
         return acym_frontendLink($link, false);
+    }
+
+    protected function handleCustomFields($tag, &$customFields)
+    {
+        if (empty($tag->custom)) return;
+
+        $tag->custom = explode(',', $tag->custom);
+        acym_arrayToInteger($tag->custom);
+
+        $rawfields = acym_loadObjectList(
+            'SELECT `field`.*, `values`.`value` 
+                FROM #__fields_values AS `values` 
+                JOIN #__fields AS `field` ON `values`.`field_id` = `field`.`id` 
+                WHERE `values`.`item_id` = '.intval($tag->id).' AND `field`.`id` IN ('.implode(', ', $tag->custom).')'
+        );
+
+        $fields = [];
+        foreach ($rawfields as $field) {
+            $fields[$field->id][] = $field;
+        }
+
+        foreach ($fields as $fieldValues) {
+            $value = $this->getFormattedValue($fieldValues);
+
+            if (empty($value)) continue;
+
+            $customFields[] = [
+                $value,
+                $fieldValues[0]->title,
+            ];
+        }
+    }
+
+    protected function getIntro($text)
+    {
+        $pageBreak = null;
+        $possibleBreaks = [
+            '<!--more-->',
+            '<hr id="system-readmore" />',
+            '<!--nextpage-->',
+        ];
+
+        foreach ($possibleBreaks as $oneBreak) {
+            if (strpos($text, $oneBreak) !== false) {
+                $pageBreak = $oneBreak;
+                break;
+            }
+        }
+
+        if (empty($pageBreak)) return $text;
+
+        $split = explode($pageBreak, $text, 2);
+
+        return array_shift($split);
+    }
+
+    public function generateSettings(&$plugin)
+    {
+        if (empty($plugin->settings)) return false;
+
+        foreach ($plugin->settings as $key => $field) {
+            $text = '';
+            if (empty($field['type'])) {
+                $plugin->settings[$key] = $text;
+                continue;
+            }
+
+            $id = $plugin->folder_name.'_'.$key;
+            $name = $plugin->folder_name.'['.$key.']';
+            if (!empty($field['label'])) $field['label'] = acym_translation($field['label']);
+
+            if ($field['type'] == 'checkbox') {
+                $classLabel = 'shrink';
+                $text .= '<label for="'.$id.'" class="cell '.$classLabel.'">'.$field['label'].'</label>';
+                $text .= '<input id="'.$id.'" class="cell shrink" type="checkbox" name="'.$name.'" '.(empty($field['value']) ? '' : 'checked').'>';
+            } elseif ($field['type'] == 'switch') {
+                $text .= acym_switch(
+                    $name,
+                    $field['value'],
+                    $field['label'],
+                    [],
+                    'shrink'
+                );
+            } elseif ($field['type'] == 'select') {
+                $text .= '<label class="cell shrink">'.$field['label'].'</label>';
+                $text .= acym_select(
+                    $field['data'],
+                    $name,
+                    $field['value'],
+                    ['class' => 'acym__select'],
+                    'value',
+                    'text',
+                    false,
+                    true
+                );
+            } elseif ($field['type'] == 'multiple_select') {
+                $text .= '<label class="cell shrink">'.$field['label'].'</label>';
+                $text .= acym_selectMultiple(
+                    $field['data'],
+                    $name,
+                    empty($field['value']) ? [] : $field['value'],
+                    ['class' => 'acym__select']
+                );
+            } elseif ($field['type'] == 'text') {
+                $text .= '<label class="cell shrink">'.$field['label'].'</label>';
+                $text .= '<input type="text" name="'.$name.'" value="'.acym_escape($field['value']).'" class="cell shrink">';
+            } elseif ($field['type'] == 'radio') {
+                $text .= '<p class="cell">'.$field['label'].'</p>';
+                $text .= acym_radio(
+                    $field['data'],
+                    $name,
+                    $field['value']
+                );
+            } elseif ($field['type'] == 'date') {
+                $text .= '<label class="cell shrink">'.$field['label'].'</label>';
+                $text .= acym_dateField(
+                    $name,
+                    $field['value'],
+                    'cell shrink'
+                );
+            } elseif ($field['type'] == 'custom_view') {
+                $idCustomView = 'acym__plugins__installed__custom-view__'.$this->name;
+                $text .= '<label class="cell">'.acym_translation('ACYM_CUSTOM_VIEW').acym_info(acym_translation('ACYM_CUSTOM_VIEW_DESC'), '', '', 'wysid_tooltip').'</label>';
+                if (empty($field['tags'])) $field['tags'] = [];
+                $modalContent = '<div id="'.$idCustomView.'" class="cell grid-x acym__plugins__installed__custom-view" acym-data-tags="'.acym_escape(json_encode($field['tags'])).'">
+                                    <h2 class="cell text-center acym__title__primary__color">'.acym_translation_sprintf('ACYM_CUSTOM_VIEW_FOR_X', $this->pluginDescription->name).'</h2>
+                                    <div class="cell grid-x acym__plugins__installed__custom-view__edit-container">
+                                        <div class="acym__plugins__installed__custom-view__editor-loader grid-x cell align-center acym_vcenter" v-if="loading">'.acym_loaderLogo().'</div>
+                                        <vue-prism-editor :emitEvents="true" class="cell acym__plugins__installed__custom-view__code cell auto" v-model="code" :language="language" lineNumbers="true"></vue-prism-editor>
+                                        <div class="cell grid-x medium-3 margin-left-1 acym__plugins__installed__custom-view__tags">
+                                            <h3 class="acym__title__primary__color cell text-center">'.acym_translation('ACYM_DYNAMIC_CONTENT').acym_info(acym_translation('ACYM_DYNAMIC_CONTENT_DESC')).'</h3>
+                                            <div class="cell acym__plugins__installed__custom-view__tag" v-for="(trad, tag) in tags" :key="tag" @click.prevent="insertTag(tag)">{{ trad }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="cell grid-x acym__plugins__installed__custom-view__actions acym_vcenter">
+                                        <div class="cell auto grid-x">
+                                            <button type="button" class="cell shrink button-secondary button" @click="resetView">'.acym_translation('ACYM_RESET_VIEW').'</button>
+                                            <div class="cell shrink margin-right-2 acym_vcenter margin-left-1">
+                                                <i v-if="deleting" class="acymicon-spin acymicon-circle-o-notch"></i>
+                                                <span v-if="deleted">{{ messageDeleted }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="cell auto align-right grid-x">
+                                            <div class="cell shrink margin-right-2 acym_vcenter">
+                                                <i v-if="saving" class="acymicon-spin acymicon-circle-o-notch"></i>
+                                                <span v-if="saved">{{ messageSaved }}</span>
+                                            </div>
+                                            <button @click="save()" class="cell shrink button" type="button">'.acym_translation('ACYM_SAVE').'</button>
+                                        </div>
+                                    </div>
+                                </div>';
+                $text .= acym_modal(acym_translation('ACYM_EDIT_CUSTOM_VIEW'), $modalContent, null, 'acym-data-plugins-id="'.$idCustomView.'" acym-data-plugin-class="'.get_class($this).'" acym-data-plugin-folder="'.$this->name.'"', 'class="cell button"');
+            } elseif ($field['type'] == 'custom') {
+                $text .= $field['content'];
+            }
+            $plugin->settings[$key] = $text;
+        }
+
+        return true;
+    }
+
+    public function loadCSS($css, $raw = false)
+    {
+        if (!$raw) $css = ACYM_DYNAMICS_URL.$this->name.DS.'css'.DS.$css.'.css';
+        acym_addStyle($raw, $css);
+    }
+
+    public function loadJavascript($js, $raw = false)
+    {
+        if (!$raw) $js = ACYM_DYNAMICS_URL.$this->name.DS.'js'.DS.$js.'.js';
+        acym_addScript($raw, $js);
+    }
+
+    public function includeView($view, $data = [])
+    {
+        $path = ACYM_ADDONS_FOLDER_PATH.$this->name.DS.'views'.DS.$view.'.php';
+
+        if (!file_exists($path)) return false;
+
+        ob_start();
+        include $path;
+
+        return ob_get_clean();
+    }
+
+    public function onAcymAddSettings(&$plugins)
+    {
+        foreach ($plugins as $key => $plugin) {
+            if ($plugin->folder_name === $this->name) {
+                if (!empty($plugin->settings)) {
+                    foreach ($plugin->settings as $keySettings => $value) {
+                        $this->settings[$keySettings]['value'] = $plugin->settings[$keySettings]['value'];
+                    }
+                }
+                $plugins[$key]->settings = $this->settings;
+
+                $this->generateSettings($plugins[$key]);
+                break;
+            }
+        }
+    }
+
+    protected function getParam($name, $default = '')
+    {
+        if (empty($this->savedSettings) || !isset($this->savedSettings[$name]['value'])) return $default;
+
+        return $this->savedSettings[$name]['value'];
     }
 }
 

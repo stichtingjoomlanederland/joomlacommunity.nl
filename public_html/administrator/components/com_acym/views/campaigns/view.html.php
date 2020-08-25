@@ -16,6 +16,17 @@ class CampaignsViewCampaigns extends acymView
             'tests' => 'ACYM_TEST',
             'summary' => 'ACYM_SUMMARY',
         ];
+
+        $this->tabs = [
+            'campaigns' => 'ACYM_CAMPAIGNS',
+        ];
+
+        if (acym_level(2)) {
+            $this->tabs['campaigns_auto'] = 'ACYM_AUTOMATICS_CAMPAIGNS';
+        }
+
+        $this->tabs['welcome'] = 'ACYM_WELCOME_EMAILS';
+        $this->tabs['unsubscribe'] = 'ACYM_UNSUBSCRIBE_EMAILS';
     }
 }
 

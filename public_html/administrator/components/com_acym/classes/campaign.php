@@ -54,6 +54,8 @@ class acymcampaignClass extends acymClass
 
         $query = 'SELECT campaign.*, mail.name, mail_stat.sent AS subscribers, mail_stat.open_unique FROM #__acym_campaign AS campaign';
         $queryCount = 'SELECT campaign.* FROM #__acym_campaign AS campaign';
+
+
         $filters = [];
         $mailIds = [];
 
@@ -77,7 +79,9 @@ class acymcampaignClass extends acymClass
             $filters[] = 'mail.name LIKE '.acym_escapeDB('%'.$settings['search'].'%');
         }
 
-        if (!empty($filters)) {
+        if ($settings['status'] != 'generated') {
+            $operator = $settings['element_tab'] == 'campaigns_auto' ? '=' : '!=';
+            $filters[] = 'campaign.sending_type '.$operator.' '.acym_escapeDB(self::SENDING_TYPE_AUTO);
             $query .= ' WHERE ('.implode(') AND (', $filters).')';
             $queryCount .= ' WHERE ('.implode(') AND (', $filters).')';
         }
@@ -87,9 +91,11 @@ class acymcampaignClass extends acymClass
             'scheduled' => 'campaign.sending_type = '.acym_escapeDB(self::SENDING_TYPE_SCHEDULED).' AND (campaign.parent_id IS NULL OR campaign.parent_id = 0)',
             'sent' => 'campaign.sent = 1 AND (campaign.parent_id IS NULL OR campaign.parent_id = 0)',
             'draft' => 'campaign.draft = 1 AND (campaign.parent_id IS NULL OR campaign.parent_id = 0)',
-            'auto' => 'campaign.sending_type = '.acym_escapeDB(self::SENDING_TYPE_AUTO).' AND (campaign.parent_id IS NULL OR campaign.parent_id = 0)',
-            'generated' => 'campaign.sending_type = '.acym_escapeDB(self::SENDING_TYPE_NOW).' AND campaign.parent_id  > 0',
         ];
+
+        if ($settings['element_tab'] == 'campaigns_auto') {
+            $statusRequests['generated'] = 'campaign.sending_type = '.acym_escapeDB(self::SENDING_TYPE_NOW).' AND campaign.parent_id  > 0';
+        }
 
         if (empty($settings['status'])) $settings['status'] = 'all';
         $query .= empty($filters) ? ' WHERE ' : ' AND ';
@@ -110,6 +116,7 @@ class acymcampaignClass extends acymClass
             $settings['elementsPerPage'] = $pagination->getListLimit();
         }
 
+
         $results['elements'] = $this->decode(acym_loadObjectList($query, '', $settings['offset'], $settings['elementsPerPage']));
 
         foreach ($results['elements'] as $oneCampaign) {
@@ -119,6 +126,8 @@ class acymcampaignClass extends acymClass
 
         $tags = $tagClass->getAllTagsByTypeAndElementIds('mail', $mailIds);
         $lists = $mailClass->getAllListsWithCountSubscribersByMailIds($mailIds);
+
+        $isMultilingual = acym_isMultilingual();
 
         $urlClickClass = acym_get('class.urlclick');
         foreach ($results['elements'] as $i => $oneCampaign) {
@@ -138,18 +147,59 @@ class acymcampaignClass extends acymClass
                 }
             }
 
-            $results['elements'][$i]->open = 0;
-            if (!empty($results['elements'][$i]->subscribers)) {
-                $results['elements'][$i]->open = number_format($results['elements'][$i]->open_unique / $results['elements'][$i]->subscribers * 100, 2);
-
-                $clicksNb = $urlClickClass->getNumberUsersClicked($results['elements'][$i]->mail_id);
-                $results['elements'][$i]->click = number_format($clicksNb / $results['elements'][$i]->subscribers * 100, 2);
+            if ($settings['element_tab'] == 'campaigns_auto' && $settings['status'] != 'generated') {
+                $this->getStatsCampaignAuto($results['elements'][$i], $urlClickClass);
+            } else {
+                if ($isMultilingual) {
+                    $this->prepareStatsCampaign($results['elements'][$i]);
+                }
+                $this->getStatsCampaign($results['elements'][$i], $urlClickClass);
             }
         }
 
         $results['total'] = acym_loadObjectList($queryCount);
 
         return $results;
+    }
+
+    private function prepareStatsCampaign(&$element)
+    {
+        $query = 'SELECT SUM(mailstat.sent) AS subscribers, SUM(mailstat.open_unique) AS open_unique FROM #__acym_mail_stat AS mailstat
+                  LEFT JOIN #__acym_mail AS mail ON mail.id = mailstat.mail_id WHERE mail.parent_id = '.intval($element->mail_id);
+        $stats = acym_loadObject($query);
+        $element->subscribers += $stats->subscribers;
+        $element->open_unique += $stats->open_unique;
+    }
+
+    private function getStatsCampaign(&$element, $urlClickClass)
+    {
+        $element->open = 0;
+        if (!empty($element->subscribers)) {
+            $element->open = number_format($element->open_unique / $element->subscribers * 100, 2);
+
+            $clicksNb = $urlClickClass->getNumberUsersClicked($element->mail_id);
+            $element->click = number_format($clicksNb / $element->subscribers * 100, 2);
+        }
+    }
+
+    private function getStatsCampaignAuto(&$element, $urlClickClass)
+    {
+        $generatedMailsStats = acym_loadObjectList('SELECT mail_stat.* FROM #__acym_mail AS mail JOIN #__acym_mail_stat AS mail_stat ON mail.id = mail_stat.mail_id WHERE mail.id IN (SELECT mail_id FROM #__acym_campaign WHERE parent_id = '.intval($element->id).')');
+        $element->open = 0;
+        $element->click = 0;
+        $element->subscribers = 0;
+        if (empty($generatedMailsStats)) return;
+
+        foreach ($generatedMailsStats as $key => $mailsStat) {
+            $element->open += $mailsStat->open_unique;
+            $element->click += $urlClickClass->getNumberUsersClicked($element->id);
+            $element->subscribers += $mailsStat->sent;
+        }
+
+        if (!empty($element->subscribers)) {
+            $element->open = number_format($element->open / $element->subscribers * 100, 2);
+            $element->click = number_format($element->click / $element->subscribers * 100, 2);
+        }
     }
 
     public function getOneById($id)
@@ -159,7 +209,7 @@ class acymcampaignClass extends acymClass
 
     public function getOneByIdWithMail($id)
     {
-        $query = 'SELECT campaign.*, mail.name, mail.subject, mail.body, mail.from_name, mail.from_email, mail.reply_to_name, mail.reply_to_email, mail.bcc, mail.links_language 
+        $query = 'SELECT campaign.*, mail.name, mail.subject, mail.body, mail.from_name, mail.from_email, mail.reply_to_name, mail.reply_to_email, mail.bcc, mail.links_language, mail.tracking
                 FROM #__acym_campaign AS campaign
                 JOIN #__acym_mail AS mail ON campaign.mail_id = mail.id
                 WHERE campaign.id = '.intval($id);
@@ -306,11 +356,18 @@ class acymcampaignClass extends acymClass
             ];
             if ($this->config->get('require_confirmation', 1) == 1) $conditions[] = '`user`.`confirmed` = 1';
 
-            $insertQuery = 'INSERT IGNORE INTO `#__acym_queue` (`mail_id`, `user_id`, `sending_date`) 
+            if (acym_isMultilingual()) {
+                $insertQuery = 'INSERT IGNORE INTO `#__acym_queue` (`mail_id`, `user_id`, `sending_date`) 
+                        SELECT DISTINCT IF(mail.id IS NULL, '.intval($campaign->mail_id).', `mail`.`id`), ul.`user_id`, '.acym_escapeDB($date).' 
+                        FROM `#__acym_user_has_list` AS `ul` 
+                        JOIN `#__acym_user` AS `user` ON `user`.`id` = `ul`.`user_id` 
+                        LEFT JOIN `#__acym_mail` AS mail ON `mail`.`language` = `user`.language AND `mail`.`parent_id` = '.intval($campaign->mail_id);
+            } else {
+                $insertQuery = 'INSERT IGNORE INTO `#__acym_queue` (`mail_id`, `user_id`, `sending_date`) 
                         SELECT '.intval($campaign->mail_id).', ul.`user_id`, '.acym_escapeDB($date).' 
                         FROM `#__acym_user_has_list` AS `ul` 
                         JOIN `#__acym_user` AS `user` ON `user`.`id` = `ul`.`user_id` ';
-
+            }
             if (!empty($campaign->sending_params['resendTarget']) && 'new' === $campaign->sending_params['resendTarget']) {
                 $insertQuery .= ' LEFT JOIN `#__acym_user_stat` AS `us` ON `us`.`user_id` = `user`.`id` AND `us`.`mail_id` = '.intval($campaign->mail_id);
                 $conditions[] = '`us`.`user_id` IS NULL';
@@ -365,7 +422,7 @@ class acymcampaignClass extends acymClass
     public function getOpenRateOneCampaign($mail_id)
     {
         $query = 'SELECT sent, open_unique FROM #__acym_mail_stat 
-                    WHERE mail_id = '.intval($mail_id).' LIMIT 1';
+                    WHERE mail_id = '.intval($mail_id);
 
         return acym_loadObject($query);
     }
@@ -388,7 +445,7 @@ class acymcampaignClass extends acymClass
     public function getBounceRateOneCampaign($mail_id)
     {
         $query = 'SELECT sent, bounce_unique FROM #__acym_mail_stat 
-                    WHERE mail_id = '.intval($mail_id).' LIMIT 1';
+                    WHERE mail_id = '.intval($mail_id);
 
         return acym_loadObject($query);
     }
@@ -618,7 +675,23 @@ class acymcampaignClass extends acymClass
         $newMail->id = $mailClass->save($newMail);
         $this->_setListToGeneratedCampaign($mailId, $newMail->id);
 
+        if (acym_isMultilingual()) $this->generateMailAutoCampaignMultilingual($mailId, $generatedMail, $newMail->id);
+
         return $newMail;
+    }
+
+    private function generateMailAutoCampaignMultilingual($mailId, $generatedMail, $newParentId)
+    {
+        $mailClass = acym_get('class.mail');
+        $mails = $mailClass->getTranslationsById($mailId, true);
+
+        foreach ($mails as $mail) {
+            unset($mail->id);
+            $mail->name .= ' #'.$generatedMail;
+            $mail->parent_id = $newParentId;
+
+            $mailClass->save($mail);
+        }
     }
 
     private function _setListToGeneratedCampaign($parentMailId, $newMailId)

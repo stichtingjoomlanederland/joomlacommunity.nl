@@ -1,0 +1,51 @@
+/* Change width, because quantities usually won't exceed 2 or 3 characters */
+.formResponsive input.jdideal-quantityBox, .formResponsive select.jdideal-quantityBox, .col-sm-6 input.jdideal-quantityBox {
+	width: 2rem;
+	float: left;
+	margin-right: 0.5rem;
+	height: 28px;
+	text-align: center;
+}
+
+/* Align the labels vertically */
+.formResponsive label, .formResponsive .rsfpradio, .col-sm-6 label {
+	height: 28px;
+	padding-top: 5px;
+}
+
+/* Used to hide checkboxes */
+.rsfpjdhidden {
+	display: none !important;
+}
+
+/* Make shure the dropdown is on the same row as the quantity selector */
+select.jdideal-quantityBox {
+	display: inline;
+	width: auto !important;
+}
+
+input[type="text"].jdideal-quantityBox {
+	width: 2rem !important;
+}
+
+/* Fix width on small screens */
+select.rsfpdropdown {
+	width: auto !important;
+}
+
+/* Bootstrap 3 specific */
+.col-sm-6 input.jdideal-quantityBox {
+	width: 5rem;
+	height: 34px;
+}
+
+.col-sm-6 input[type="text"].jdideal-quantityBox {
+	width: 5rem !important;
+}
+.col-sm-6 select {
+	width: 80%;
+}
+.col-sm-6 label {
+	height: 34px;
+}
+/* End Bootstrap 3 specific */

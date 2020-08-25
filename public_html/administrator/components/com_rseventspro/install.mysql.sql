@@ -175,6 +175,17 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_events` (
   `waitinglist_time` varchar(50) NOT NULL DEFAULT '',
   `waitinglist_user` tinyint(2) NOT NULL DEFAULT '0',
   `waitinglist_admin` tinyint(2) NOT NULL DEFAULT '0',
+  `notify_me_paid` tinyint(2) NOT NULL DEFAULT '0',
+  `tickets_amount` int(5) NOT NULL DEFAULT '0',
+  `invoice` tinyint(2) NOT NULL DEFAULT '0',
+  `invoice_attach` tinyint(2) NOT NULL DEFAULT '0',
+  `invoice_type` tinyint(2) NOT NULL DEFAULT '1',
+  `invoice_font` varchar(50) NOT NULL DEFAULT '',
+  `invoice_orientation` varchar(50) NOT NULL DEFAULT '',
+  `invoice_padding` int(5) NOT NULL DEFAULT '7',
+  `invoice_prefix` varchar(50) NOT NULL DEFAULT '',
+  `invoice_title` varchar(255) NOT NULL DEFAULT '',
+  `invoice_layout` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `location` (`location`),
   KEY `owner` (`owner`),
@@ -217,6 +228,8 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_groups` (
   `restricted_categories` text NOT NULL,
   `can_select_speakers` tinyint(2) NOT NULL DEFAULT '1',
   `can_add_speaker` tinyint(2) NOT NULL DEFAULT '0',
+  `can_select_sponsors` tinyint(2) NOT NULL DEFAULT '1',
+  `can_add_sponsor` tinyint(2) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
@@ -305,6 +318,15 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_speakers` (
   `twitter` varchar(255) NOT NULL DEFAULT '',
   `linkedin` varchar(255) NOT NULL DEFAULT '',
   `phone` varchar(255) NOT NULL DEFAULT '',
+  `published` tinyint(2) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `#__rseventspro_sponsors` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL DEFAULT '',
+  `url` varchar(255) NOT NULL DEFAULT '',
+  `image` varchar(255) NOT NULL DEFAULT '',
   `published` tinyint(2) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -626,6 +648,19 @@ INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('show_og', 
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('modaltype', '1');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('facebook_groups', '');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('cancel_to', '0,1');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('captcha_use', '1,2');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('sponsor_icon_width', '250');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('invoice_font', 'times');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('invoice_orientation', 'portrait');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('invoice_padding', '7');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('invoice_prefix', '');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('invoice_title', 'Invoice {invoice_id}');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('invoice_layout', '<p style=\"text-align: left;\">Invoice No: <strong>{invoice_id}</strong></p>\r\n<p style=\"text-align: left;\">Date: <strong>{date}</strong></p>\r\n<hr />\r\n<table width=\"100%\">\r\n<tbody>\r\n<tr>\r\n<td>\r\n<h3>Provided to:</h3>\r\n<p>{name}</p>\r\n<p>{email}</p>\r\n</td>\r\n<td>\r\n<h3 style=\"text-align: right;\">Provided by:</h3>\r\n<p style=\"text-align: right;\">{site_name}</p>\r\n<p style=\"text-align: right;\">{site_url}</p>\r\n</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n<hr />\r\n<p><strong>Invoice details</strong></p>\r\n<p>{invoice_table}</p>\r\n<p><strong>Payment details</strong></p>\r\n<p>Payment method used: <strong>{payment}</strong></p>');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('hcaptcha_site_key', '');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('hcaptcha_secret_key', '');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('hcaptcha_lang', 'auto');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('hcaptcha_theme', 'light');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('hcaptcha_size', 'NORMAL');
 
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Afghanistan');
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Akrotiri');

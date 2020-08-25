@@ -6,6 +6,8 @@
  */
 
 use FOF30\Date\Date;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
 
 defined('_JEXEC') or die;
 
@@ -25,15 +27,15 @@ class AtsystemFeatureCriticalfilesglobal extends AtsystemFeatureAbstract
 
 	public function onAfterRender()
 	{
-		$mustSaveData    = false;
+		$mustSaveData = false;
 
 		$criticalFiles = $this->cparams->getValue('criticalfiles_global', '');
 		$criticalFiles = str_replace("\r", '', $criticalFiles);
 		$criticalFiles = explode("\n", $criticalFiles);
 
-		$loadedFiles   = $this->load();
-		$alteredFiles  = [];
-		$filesToSave   = [];
+		$loadedFiles  = $this->load();
+		$alteredFiles = [];
+		$filesToSave  = [];
 
 		foreach ($criticalFiles as $relPath)
 		{
@@ -75,7 +77,7 @@ class AtsystemFeatureCriticalfilesglobal extends AtsystemFeatureAbstract
 
 		if ($mustSaveData)
 		{
-			 $this->save($filesToSave);
+			$this->save($filesToSave);
 		}
 
 		if (!empty($alteredFiles))
@@ -121,15 +123,15 @@ class AtsystemFeatureCriticalfilesglobal extends AtsystemFeatureAbstract
 		$data = json_encode($fileList);
 
 		$query = $db->getQuery(true)
-		            ->delete($db->quoteName('#__admintools_storage'))
-		            ->where($db->quoteName('key') . ' = ' . $db->quote('criticalfiles_global'));
+			->delete($db->quoteName('#__admintools_storage'))
+			->where($db->quoteName('key') . ' = ' . $db->quote('criticalfiles_global'));
 		$db->setQuery($query);
 		$db->execute();
 
-		$object = (object) array(
+		$object = (object) [
 			'key'   => 'criticalfiles_global',
-			'value' => $data
-		);
+			'value' => $data,
+		];
 
 		$db->insertObject('#__admintools_storage', $object);
 	}
@@ -143,9 +145,9 @@ class AtsystemFeatureCriticalfilesglobal extends AtsystemFeatureAbstract
 	{
 		$db    = $this->container->db;
 		$query = $db->getQuery(true)
-		            ->select($db->quoteName('value'))
-		            ->from($db->quoteName('#__admintools_storage'))
-		            ->where($db->quoteName('key') . ' = ' . $db->quote('criticalfiles_global'));
+			->select($db->quoteName('value'))
+			->from($db->quoteName('#__admintools_storage'))
+			->where($db->quoteName('key') . ' = ' . $db->quote('criticalfiles_global'));
 		$db->setQuery($query);
 
 		$error = 0;
@@ -180,7 +182,7 @@ class AtsystemFeatureCriticalfilesglobal extends AtsystemFeatureAbstract
 	/**
 	 * Sends a warning email to the addresses set up to receive security exception emails
 	 *
-	 * @param   array $alteredFiles The files which were modified
+	 * @param   array  $alteredFiles  The files which were modified
 	 *
 	 * @return  void
 	 */
@@ -193,7 +195,7 @@ class AtsystemFeatureCriticalfilesglobal extends AtsystemFeatureAbstract
 		}
 
 		// Load the component's administrator translation files
-		$jlang = JFactory::getLanguage();
+		$jlang = Factory::getLanguage();
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, 'en-GB', true);
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, null, true);
@@ -205,12 +207,12 @@ HTML;
 
 		foreach ($alteredFiles as $fileName => $fileSet)
 		{
-			list($oldInfo, $curInfo) = $fileSet;
+			[$oldInfo, $curInfo] = $fileSet;
 
-			$oldTime = Date::getInstance($oldInfo['timestamp']);
-			$curTime = Date::getInstance($curInfo['timestamp']);
-			$oldInfo['timestamp'] = $oldTime->format(JText::_('DATE_FORMAT_LC2'));
-			$curInfo['timestamp'] = $curTime->format(JText::_('DATE_FORMAT_LC2'));
+			$oldTime              = Date::getInstance($oldInfo['timestamp']);
+			$curTime              = Date::getInstance($curInfo['timestamp']);
+			$oldInfo['timestamp'] = $oldTime->format(Text::_('DATE_FORMAT_LC2'));
+			$curInfo['timestamp'] = $curTime->format(Text::_('DATE_FORMAT_LC2'));
 
 			$htmlAlteredFiles .= <<< HTML
 	<li>
@@ -227,7 +229,7 @@ HTML;
 
 		// Construct the replacement table
 		$substitutions = $this->exceptionsHandler->getEmailVariables('', [
-			'[INFO]'      => $htmlAlteredFiles,
+			'[INFO]' => $htmlAlteredFiles,
 		]);
 
 		// Let's get the most suitable email template
@@ -241,7 +243,7 @@ HTML;
 		}
 
 		$subject = $template[0];
-		$body 	 = $template[1];
+		$body    = $template[1];
 
 		foreach ($substitutions as $k => $v)
 		{
@@ -252,7 +254,7 @@ HTML;
 		try
 		{
 			$config = $this->container->platform->getConfig();
-			$mailer = JFactory::getMailer();
+			$mailer = Factory::getMailer();
 
 			$mailfrom = $config->get('mailfrom');
 			$fromname = $config->get('fromname');
@@ -271,7 +273,7 @@ HTML;
 				$mailer->Priority = 3;
 
 				$mailer->isHtml(true);
-				$mailer->setSender(array($mailfrom, $fromname));
+				$mailer->setSender([$mailfrom, $fromname]);
 
 				// Resets the recipients, otherwise they will pile up
 				$mailer->clearAllRecipients();
@@ -287,10 +289,10 @@ HTML;
 				$mailer->Send();
 			}
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			// Joomla! 3.5 and later throw an exception when crap happens instead of suppressing it and returning false
 		}
 	}
 
-} 
+}

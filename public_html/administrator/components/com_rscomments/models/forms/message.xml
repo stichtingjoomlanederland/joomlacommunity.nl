@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form>
 	<fieldset name="comment_messages" label="COM_RSCOMMENTS_MESSAGES_SLIDER_COMMENTS" addfieldpath="/administrator/components/com_rscomments/models/fields">
-		<field name="tag" type="languagetag" description="COM_RSCOMMENTS_COMMENTS_TERMS_MESSAGE_LANG_DESC" label="COM_RSCOMMENTS_COMMENTS_TERMS_MESSAGE_LANG"/>
+		<field name="tag" type="languagetag" label="COM_RSCOMMENTS_COMMENTS_TERMS_MESSAGE_LANG"/>
 		<field name="global" type="editor" class="input-xxlarge" description="COM_RSCOMMENTS_COMMENTS_GLOBAL_DESC" label="COM_RSCOMMENTS_COMMENTS_GLOBAL" rows="7" />
 		<field name="comments_closed" type="editor" class="input-xxlarge" description="COM_RSCOMMENTS_COMMENTS_CLOSED_DESC" label="COM_RSCOMMENTS_COMMENTS_CLOSED" rows="7" />
 		<field name="comments_denied" type="editor" class="input-xxlarge" description="COM_RSCOMMENTS_COMMENTS_DENIED_DESC" label="COM_RSCOMMENTS_COMMENTS_DENIED" rows="7" />

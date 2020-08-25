@@ -8,7 +8,7 @@
     <license>GNU GPLv3 - http://www.gnu.org/licenses/gpl.html</license>
 	<authorEmail>support@joomlatools.com</authorEmail>
 	<authorUrl>www.joomlatools.com</authorUrl>
-	<version>3.4.1</version>
+	<version>3.5.1</version>
 	<description>MOD_DOCMAN_DOCUMENTS_XML_DESCRIPTION</description>
 	<files>
 		<filename module="mod_docman_documents">mod_docman_documents.php</filename>
@@ -134,13 +134,6 @@
                 <field name="hits_for_popular" type="text" default="100" label="HITS_FOR_POPULAR" description="HITS_FOR_POPULAR_DESCRIPTION" />
 
 				<field
-					name="layout"
-					type="modulelayout"
-                    default="_:default.html"
-					label="JFIELD_ALT_LAYOUT_LABEL"
-					description="JFIELD_ALT_MODULE_LAYOUT_DESC" />
-
-				<field
 					name="moduleclass_sfx"
 					type="text"
 					label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
@@ -173,6 +166,110 @@
 					<option value="itemid" />
 				</field>
 
+			</fieldset>
+            
+			<fieldset
+                name="layout">
+                <field
+					name="layout"
+					type="modulelayout"
+                    default="_:default.html"
+					label="JFIELD_ALT_LAYOUT_LABEL"
+					description="JFIELD_ALT_MODULE_LAYOUT_DESC" />
+
+                <field
+                    name="slider_autoplay"
+                    type="radio"
+                    default="1"
+                    class="btn-group btn-group-yesno"
+                    label="MOD_DOCMAN_SLIDER_FIELD_AUTOPLAY_LABEL"
+                    description="MOD_DOCMAN_SLIDER_FIELD_AUTOPLAY_DESC"
+                    showon="layout:_:slider.html">
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+
+                <field name="slider_speed" type="text" default="300"
+                    label="MOD_DOCMAN_SLIDER_FIELD_SPEED_LABEL"
+                    description="MOD_DOCMAN_SLIDER_FIELD_SPEED_DESC"
+                    showon="layout:_:slider.html"
+                />
+
+                <field
+                    name="slider_arrows"
+                    type="radio"
+                    default="1"
+                    class="btn-group btn-group-yesno"
+                    label="MOD_DOCMAN_SLIDER_FIELD_ARROWS_LABEL"
+                    description="MOD_DOCMAN_SLIDER_FIELD_ARROWS_DESC"
+                    showon="layout:_:slider.html">
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+                
+                <field
+                    name="slider_pagination"
+                    type="radio"
+                    default="1"
+                    class="btn-group btn-group-yesno"
+                    label="MOD_DOCMAN_SLIDER_FIELD_PAGINATION_LABEL"
+                    description="MOD_DOCMAN_SLIDER_FIELD_PAGINATION_DESC"
+                    showon="layout:_:slider.html">
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+
+                <field name="slider_interval" type="text" default="5000"
+                    label="MOD_DOCMAN_SLIDER_FIELD_INTERVAL_LABEL"
+                    description="MOD_DOCMAN_SLIDER_FIELD_INTERVAL_DESC"
+                    showon="layout:_:slider.html"
+                />
+
+                <field
+                    name="slider_pauseOnHover"
+                    type="radio"
+                    default="1"
+                    class="btn-group btn-group-yesno"
+                    label="MOD_DOCMAN_SLIDER_FIELD_PAUSEHOVER_LABEL"
+                    description="MOD_DOCMAN_SLIDER_FIELD_PAUSEHOVER_DESC"
+                    showon="layout:_:slider.html">
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+                
+                <field
+                    name="slider_pauseOnFocus"
+                    type="radio"
+                    default="1"
+                    class="btn-group btn-group-yesno"
+                    label="MOD_DOCMAN_SLIDER_FIELD_PAUSEFOCUS_LABEL"
+                    description="MOD_DOCMAN_SLIDER_FIELD_PAUSEFOCUS_DESC"
+                    showon="layout:_:slider.html">
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+                
+                <field
+                    name="slider_keyboard"
+                    type="radio"
+                    default="1"
+                    class="btn-group btn-group-yesno"
+                    label="MOD_DOCMAN_SLIDER_FIELD_KEYBOARD_LABEL"
+                    description="MOD_DOCMAN_SLIDER_FIELD_KEYBOARD_DESC"
+                    showon="layout:_:slider.html">
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+
+                <field name="slider_lazyLoad" type="list"
+                       default="0"
+                       label="MOD_DOCMAN_SLIDER_FIELD_LAZYLOAD_LABEL"
+                       description="MOD_DOCMAN_SLIDER_FIELD_LAZYLOAD_DESC"
+                       showon="layout:_:slider.html">
+                    <option value="0">No lazy loading</option>
+                    <option value="nearby">Nearby</option>
+					<option value="sequential">Sequential</option>
+                </field>
 			</fieldset>
 		</fields>
 	</config>

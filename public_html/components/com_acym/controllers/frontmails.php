@@ -7,10 +7,9 @@ class FrontmailsController extends MailsController
 {
     public function __construct()
     {
-        $this->authorizedFrontTasks = ['autoSave', 'setNewIconShare', 'edit', 'setNewThumbnail', 'getTemplateAjax', 'apply', 'saveAjax', 'save'];
+        $this->authorizedFrontTasks = ['autoSave', 'setNewIconShare', 'edit', 'setNewThumbnail', 'getTemplateAjax', 'apply', 'saveAjax', 'save', 'sendTest'];
         $this->loadScripts = [
-            'edit' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'introjs', 'parse-css', 'vue-applications' => ['code_editor'], 'vue-prism-editor', 'editor-wysid'],
-            'apply' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'introjs', 'parse-css', 'vue-applications' => ['code_editor'], 'vue-prism-editor', 'editor-wysid'],
+            'edit' => ['editor-wysid'],
         ];
         parent::__construct();
     }
@@ -19,4 +18,13 @@ class FrontmailsController extends MailsController
     {
         return acym_currentUserId();
     }
+
+    public function setNewIconShare()
+    {
+        $menuFront = acym_loadObject('SELECT * FROM #__menu WHERE link LIKE "%index.php?option=com_acym&view=frontcampaigns%"');
+        if (empty($menuFront)) return;
+
+        parent::setNewIconShare();
+    }
 }
+

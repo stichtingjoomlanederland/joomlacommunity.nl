@@ -6,6 +6,7 @@
  */
 
 use FOF30\Date\Date;
+use Joomla\CMS\User\User;
 
 defined('_JEXEC') or die;
 
@@ -44,24 +45,12 @@ class AtsystemFeatureTempsuperuser extends AtsystemFeatureDisableobsoleteadmins
 	}
 
 	/**
-	 * This feature always runs at most once an hour
-	 *
-	 * @return  int
-	 *
-	 * @since   5.3.0
-	 */
-	protected function getRunFrequency()
-	{
-		return 60;
-	}
-
-	/**
 	 * Unlike prevent login of forgotten Super Users, this feature does not require handling of changing the user status
 	 * through Joomla's com_users.
 	 *
-	 * @param   JUser|array $oldUser The existing user record
-	 * @param   bool        $isNew   Is this a new user?
-	 * @param   array       $data    The data to be saved
+	 * @param   User|array  $oldUser  The existing user record
+	 * @param   bool        $isNew    Is this a new user?
+	 * @param   array       $data     The data to be saved
 	 */
 	public function onUserBeforeSave($oldUser, $isNew, $data)
 	{
@@ -72,10 +61,10 @@ class AtsystemFeatureTempsuperuser extends AtsystemFeatureDisableobsoleteadmins
 	 * Unlike prevent login of forgotten Super Users, this feature does not require handling of changing the user status
 	 * through Joomla's com_users.
 	 *
-	 * @param   array  $data         The user data saved to the database
-	 * @param   bool   $isNew        Was that a new user?
-	 * @param   bool   $result       Did the save succeed?
-	 * @param   string $errorMessage The last error message while saving the user.
+	 * @param   array   $data          The user data saved to the database
+	 * @param   bool    $isNew         Was that a new user?
+	 * @param   bool    $result        Did the save succeed?
+	 * @param   string  $errorMessage  The last error message while saving the user.
 	 *
 	 *
 	 * @since   5.3.0
@@ -83,6 +72,18 @@ class AtsystemFeatureTempsuperuser extends AtsystemFeatureDisableobsoleteadmins
 	public function onUserAfterSave($data, $isNew, $result, $errorMessage)
 	{
 		return;
+	}
+
+	/**
+	 * This feature always runs at most once an hour
+	 *
+	 * @return  int
+	 *
+	 * @since   5.3.0
+	 */
+	protected function getRunFrequency()
+	{
+		return 60;
 	}
 
 	/**
@@ -143,7 +144,6 @@ class AtsystemFeatureTempsuperuser extends AtsystemFeatureDisableobsoleteadmins
 		// Make sure there will be at least one remaining Super User after I am done
 		// $userIDs = $this->filterActionableUsersToEnsureRemainingSuperUser($userIDs);
 		// ======
-
 		// No actionable Super Users? Bail out.
 		if (empty($userIDs))
 		{
@@ -153,7 +153,7 @@ class AtsystemFeatureTempsuperuser extends AtsystemFeatureDisableobsoleteadmins
 		$userIDListForDatabase = implode(', ', array_map([$db, 'q'], $userIDs));
 
 		// Block the users
-		$query   = $db->getQuery(true)
+		$query = $db->getQuery(true)
 			->update($db->qn('#__users'))
 			->where($db->qn('id') . ' IN (' . $userIDListForDatabase . ')')
 			->set($db->qn('block') . ' = ' . $db->q(1));
@@ -161,7 +161,7 @@ class AtsystemFeatureTempsuperuser extends AtsystemFeatureDisableobsoleteadmins
 		$db->setQuery($query)->execute();
 
 		// Remove the users from the #__admintools_tempsupers table as well
-		$query  = $db->getQuery(true)
+		$query = $db->getQuery(true)
 			->delete($db->qn('#__admintools_tempsupers'))
 			->where($db->qn('user_id') . ' IN (' . $userIDListForDatabase . ')');
 

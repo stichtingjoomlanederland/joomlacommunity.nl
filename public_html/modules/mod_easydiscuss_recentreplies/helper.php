@@ -16,6 +16,8 @@ class modRecentRepliesHelper
 	public static function getData($params)
 	{
 		$db = ED::db();
+		$config = ED::config();
+
 		$limit = (int) $params->get('count', 10);
 		$catid = $params->get('category', array(), 'array');
 
@@ -24,7 +26,9 @@ class modRecentRepliesHelper
 		$query .= ' INNER JOIN ' . $db->nameQuote('#__discuss_posts') . ' AS b';
 		$query .= '	ON a.' . $db->nameQuote('post_id') . '= b.' . $db->nameQuote('id');
 
-		$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+		if (!$config->get('main_posts_from_blockuser', false)) {
+			$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+		}
 
 		$query .= ' WHERE a.' . $db->nameQuote('published') . '=' . $db->Quote(1);
 		$query .= '	AND a.' . $db->nameQuote('num_replies') . ' > 0';
@@ -34,7 +38,9 @@ class modRecentRepliesHelper
 			$query .= ' AND a.' . $db->nameQuote('category_id') . ' IN (' . $catid . ')';
 		}
 
-		$query .= " AND (uu.`block` = 0 OR uu.`id` IS NULL)";
+		if (!$config->get('main_posts_from_blockuser', false)) {
+			$query .= " AND (uu.`block` = 0 OR uu.`id` IS NULL)";
+		}
 
 		$query .= ' ORDER BY a.' . $db->nameQuote('replied') . ' DESC';
 
@@ -77,13 +83,17 @@ class modRecentRepliesHelper
 			$query = 'SELECT a.`id` as replyId, a.`user_id`, a.`content` ';
 			$query .= ' FROM `#__discuss_posts` as a';
 
-			$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+			if (!$config->get('main_posts_from_blockuser', false)) {
+				$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+			}
 
 			$query .= ' WHERE a.' . $db->nameQuote('parent_id') . ' = ' . $db->Quote($row->post_id);
 
 			$query .= ' AND a.' . $db->nameQuote('published') . ' = ' . $db->Quote('1');
 
-			$query .= " AND (uu.`block` = 0 OR uu.`id` IS NULL)";
+			if (!$config->get('main_posts_from_blockuser', false)) {
+				$query .= " AND (uu.`block` = 0 OR uu.`id` IS NULL)";
+			}
 
 			$query .= ' ORDER BY a.'  . $db->nameQuote('created') . ' DESC LIMIT 1';
 
@@ -111,8 +121,9 @@ class modRecentRepliesHelper
 			$profile = ED::user($post->user_id);
 
 			$post->user = $profile;
+
 			$post->content = ED::parser()->bbcode($content);
-			$post->content = ED::parser()->filter($content);
+			$post->content = ED::parser()->filter($post->content);
 
 			$posts[] = $post;
 		}

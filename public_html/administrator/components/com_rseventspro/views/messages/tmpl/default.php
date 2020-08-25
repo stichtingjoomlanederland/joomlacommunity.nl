@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
@@ -49,6 +49,9 @@ JHtml::_('behavior.keepalive'); ?>
 					</tr>
 					<tr>
 						<td><a class="<?php echo rseventsproHelper::tooltipClass(); ?>" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_CONF_EMAIL_NOTIFICATION_INFO')); ?>" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=message&type=notify_me'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_CONF_EMAIL_NOTIFICATION_EMAIL'); ?></a></td>
+					</tr>
+					<tr>
+						<td><a class="<?php echo rseventsproHelper::tooltipClass(); ?>" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_CONF_EMAIL_NOTIFICATION_PAID_INFO')); ?>" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=message&type=notify_me_paid'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_CONF_EMAIL_NOTIFICATION_PAID_EMAIL'); ?></a></td>
 					</tr>
 					<tr>
 						<td><a class="<?php echo rseventsproHelper::tooltipClass(); ?>" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_CONF_UNSUBSCRIBE_NOTIFICATION_INFO')); ?>" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=message&type=notify_me_unsubscribe'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_CONF_UNSUBSCRIBE_NOTIFICATION_EMAIL'); ?></a></td>

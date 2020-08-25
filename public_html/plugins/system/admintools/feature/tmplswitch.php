@@ -5,6 +5,8 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Factory;
+
 defined('_JEXEC') or die;
 
 class AtsystemFeatureTmplswitch extends AtsystemFeatureAbstract
@@ -36,7 +38,7 @@ class AtsystemFeatureTmplswitch extends AtsystemFeatureAbstract
 	 */
 	public function onAfterInitialise()
 	{
-		$tmpl = JFactory::getApplication()->input->getCmd('tmpl', null);
+		$tmpl = Factory::getApplication()->input->getCmd('tmpl', null);
 
 		if (empty($tmpl))
 		{
@@ -50,22 +52,19 @@ class AtsystemFeatureTmplswitch extends AtsystemFeatureAbstract
 			$whitelist = 'component,system';
 		}
 
-		$temp = explode(',', $whitelist);
-		$whitelist = array();
+		$temp      = explode(',', $whitelist);
+		$whitelist = [];
 
 		foreach ($temp as $item)
 		{
 			$whitelist[] = trim($item);
 		}
 
-		$whitelist = array_merge(array('component', 'system'), $whitelist);
+		$whitelist = array_merge(['component', 'system'], $whitelist);
 
 		if (!is_null($tmpl) && !in_array($tmpl, $whitelist))
 		{
-			if (!$this->exceptionsHandler->blockRequest('tmpl'))
-			{
-				return;
-			}
+			$this->exceptionsHandler->blockRequest('tmpl');
 		}
 	}
-} 
+}

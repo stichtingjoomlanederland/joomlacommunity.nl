@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+	<fieldset name="update" label="COM_ROPAYMENTS_UPDATE_LABEL">
+		<field name="downloadid"
+			   type="password"
+			   default=""
+			   size="100"
+			   class="input-xxlarge"
+			   label="COM_ROPAYMENTS_DOWNLOAD_LABEL" description="COM_ROPAYMENTS_DOWNLOAD_DESC"/>
+	</fieldset>
+	<fieldset name="permissions" label="JCONFIG_PERMISSIONS_LABEL" description="JCONFIG_PERMISSIONS_DESC">
+		<field name="rules"
+			   type="rules"
+			   label="JCONFIG_PERMISSIONS_LABEL"
+			   validate="rules"
+			   filter="rules"
+			   component="com_jdidealgateway"
+			   section="component">
+		</field>
+	</fieldset>
+</config>

@@ -5,58 +5,60 @@ ed.require(['site/vendors/prism'], function() {
 });
 <?php } ?>
 
-<?php if ($this->config->get('main_location_discussion') || $this->config->get('main_location_reply')) { ?>
-// Location support
-ed.require(['edq', 'site/vendors/gmaps', self.getGmapsUrl()], function($, GMaps) {
+// <?php if ($this->config->get('main_location_discussion') || $this->config->get('main_location_reply')) { ?>
 
-	var wrapper = $('[data-ed-location]');
+// // For now I will temporary comment out this, because we can just pass the embed map URL from the output file #873	
+// // Location support
+// ed.require(['edq', 'site/vendors/gmaps', self.getGmapsUrl()], function($, GMaps) {
 
-	if (wrapper.length <= 0) {
-		return;
-	}
+// 	var wrapper = $('[data-ed-location]');
 
-	var map = wrapper.find('[data-ed-location-map]');
+// 	if (wrapper.length <= 0) {
+// 		return;
+// 	}
 
-	$.each(map, function(i, item) {
+// 	var map = wrapper.find('[data-ed-location-map]');
 
-		var iMap = $(item);
+// 	$.each(map, function(i, item) {
 
-		var latitude = iMap.data('latitude');
-		var longitude = iMap.data('longitude');
+// 		var iMap = $(item);
 
-		var gmap = new GMaps({
-								el: item,
-								lat: latitude,
-								lng: longitude,
-								zoom: <?php echo $this->config->get('main_location_default_zoom');?>,
-								mapType: '<?php echo $this->config->get('main_location_map_type');?>',
-								width: '100%',
-								height: '200px'
-					});
+// 		var latitude = iMap.data('latitude');
+// 		var longitude = iMap.data('longitude');
 
-		// Add the marker on the map
-		gmap.addMarker({
-		  lat: latitude,
-		  lng: longitude,
-		  title: 'Lima'
-		});
+// 		var gmap = new GMaps({
+// 								el: item,
+// 								lat: latitude,
+// 								lng: longitude,
+// 								zoom: <?php echo $this->config->get('main_location_default_zoom');?>,
+// 								mapType: '<?php echo $this->config->get('main_location_map_type');?>',
+// 								width: '100%',
+// 								height: '200px'
+// 					});
 
-	});
+// 		// Add the marker on the map
+// 		gmap.addMarker({
+// 		  lat: latitude,
+// 		  lng: longitude,
+// 		  title: 'Lima'
+// 		});
 
-});
+// 	});
 
-function getGmapsUrl() {
-	var gmapsApiKey = "<?php echo $this->config->get('main_location_gmaps_key'); ?>";
+// });
 
-	var gmapsUrl = 'https://maps.google.com/maps/api/js?language=<?php echo $this->config->get("main_location_language");?>';
+// function getGmapsUrl() {
+// 	var gmapsApiKey = "<?php echo $this->config->get('main_location_gmaps_key'); ?>";
 
-	if (gmapsApiKey) {
-		var gmapsUrl = 'https://maps.google.com/maps/api/js?key='+ gmapsApiKey +'&language=<?php echo $this->config->get("main_location_language");?>';
-	}
+// 	var gmapsUrl = 'https://maps.google.com/maps/api/js?language=<?php echo $this->config->get("main_location_language");?>';
 
-	return gmapsUrl;
-}
-<?php } ?>
+// 	if (gmapsApiKey) {
+// 		var gmapsUrl = 'https://maps.google.com/maps/api/js?key='+ gmapsApiKey +'&language=<?php echo $this->config->get("main_location_language");?>';
+// 	}
+
+// 	return gmapsUrl;
+// }
+// <?php } ?>
 
 
 <?php if ($this->config->get('main_likes_discussions') || $this->config->get('main_likes_replies')) { ?>
@@ -402,9 +404,60 @@ ed.require(['edq', 'chosen'], function($) {
 					var suggest = $('[data-field-suggest]');
 
 					suggest.chosen({
-						width: "95%"
-					});
+						width: "95%",
+						enable_split_word_search: true,
+						search_contains: true
+					})
 
+					$(suggest).on('chosen:no_results', $.debounce(function(event, data) {
+
+						var searchText = data.chosen.get_search_text();
+
+						if (searchText == '') {
+							return;
+						}
+
+						// min 2 characters
+						if (searchText.length <= 2) {
+							return;
+						}
+
+						EasyDiscuss.ajax('site/views/post/mergePostSuggest', {
+							"id": id,
+							"text": searchText
+						}).done(function(items) {
+
+							if (items === '') {
+								return;
+							}
+
+							var needUpdate = false;
+							$.each(items,function(idx, ele) { 
+
+								var exists = false;
+
+								//loop to check if the value exists inside the list
+								$(suggest).find('option').each(function(){
+									if (this.value == ele.id) {
+										exists = true;
+									}
+								});
+
+								if (!exists) {
+									// if the value does not exists, added it to the list
+									$(suggest).append("<option value=" + ele.id + ">" + ele.id + ' - ' + ele.title + "</option>");
+									$(suggest).trigger("chosen:updated");
+									needUpdate = true;
+								}
+							});
+
+							if (needUpdate) {
+								//since the update method reset the input fill the input with the value already typed
+								data.chosen.search_field.val(searchText);
+								data.chosen.winnow_results();
+							}
+						});
+					}, 350));
 				}, timeout);
 			})
 		})

@@ -22,9 +22,9 @@ class Json extends BaseView
 		$model = $this->getModel();
 
 		$this->limitStart = $model->getState('limitstart', 0);
-		$this->limit = $model->getState('limit', 0);
-		$this->items = $model->getRawDataArray($this->limitStart, $this->limit, true);
-		$this->total = count($this->items);
+		$this->limit      = $model->getState('limit', 0);
+		$this->items      = $model->getRawDataArray($this->limitStart, $this->limit, true);
+		$this->total      = count($this->items);
 
 		parent::onBeforeBrowse();
 	}

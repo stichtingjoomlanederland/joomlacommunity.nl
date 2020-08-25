@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -38,10 +38,11 @@ class EasyDiscussParser extends EasyDiscuss
 
 		// BBCode to find...
 		$bbcodeSearch = array(
+						 '/\[color=(.*?)\](.*?)\[\/color\]/ims',
 						 '/\[b\](.*?)\[\/b\]/ims',
 						 '/\[i\](.*?)\[\/i\]/ims',
 						 '/\[u\](.*?)\[\/u\]/ims',
-						 '/\[img\]((http|https):\/\/([a-z0-9\%._\s\*_\/+-]+)\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF).*?)\[\/img]/ims',
+						 '/\[img\]((http|https):\/\/([a-zA-Z0-9\%\._\s\*_\/\+\-\=\?\&]+)\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF)?.*?)\[\/img]/ims',
 						 '/\[quote\]([^\[\/quote\]].*?)\[\/quote\]/ims',
 						 '/\[quote\](.*?)\[\/quote\]/ims',
 						 '/\[left\](.*?)\[\/left\]/ims',
@@ -55,6 +56,7 @@ class EasyDiscussParser extends EasyDiscuss
 
 		// And replace them by...
 		$bbcodeReplace = array(
+						 '<strong>\2</strong>',
 						 '<strong>\1</strong>',
 						 '<em>\1</em>',
 						 '<u>\1</u>',
@@ -108,6 +110,11 @@ class EasyDiscussParser extends EasyDiscuss
 
 		// Replace smileys before anything else
 		$text = $this->replaceSmileys($text);
+
+		// Replace article tags
+		if ($this->config->get('layout_bbcode_article')) {
+			$text = $this->replaceArticles($text);
+		}
 
 		return $text;
 	}
@@ -382,6 +389,65 @@ class EasyDiscussParser extends EasyDiscuss
 		$text = preg_replace_callback($codesPattern, array('EasyDiscussParser', 'processGistBlocks'), $text);
 
 		return $text;
+	}
+
+	/**
+	 * Replace article tags
+	 *
+	 * @since	4.1.18
+	 * @access	public
+	 */
+	public function replaceArticles($text)
+	{
+		$pattern = '/\[article(=)?(.*?)\](.*?)\[\/article\]/ims';
+
+		preg_match($pattern, $text, $matches);
+
+		if (empty($matches) || !isset($matches[0]) || empty($matches[0]) || empty($matches[3])) {
+			return $text;
+		}
+
+		$articleId = (int) $matches[3];
+		$type = isset($matches[2]) && $matches[2] ? $matches[2] : 'intro';
+
+		if (!$articleId) {
+			return $text;
+		}
+
+		$article = JTable::getInstance('Content');
+		$article->load($articleId);
+
+		$article->params = new JRegistry($article->attribs);
+		$article->metadata = new JRegistry($article->metadata);
+		$article->text = $article->introtext;
+
+		if ($type == 'full') {
+			$article->text = $article->introtext . ' ' . $article->fulltext;
+		}
+
+		$dispatcher = JEventDispatcher::getInstance();
+		JPluginHelper::importPlugin('content');
+		$dispatcher->trigger('onContentPrepare', array ('com_content.article', &$article, &$article->params, 0));
+
+		// Get the permalink
+		$alias = $article->alias ? ($article->id . ':' . $article->alias) : $article->id;
+		$link = ContentHelperRoute::getArticleRoute($alias, $article->catid, $article->language);
+		$permalink = EDR::siteLink($link, true, null, false);
+
+		JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
+
+		$theme = ED::themes();
+		$theme->set('text', $article->text);
+		$theme->set('permalink', $permalink);
+		$articleText = $theme->output('site/parser/article');
+
+		// Remove all newlines from the article text to avoid the parser in ED to replace to br
+		$articleText = JString::str_ireplace("\r\n", "", $articleText);
+		
+		$contents = JString::str_ireplace($matches[0], $articleText, $text);
+
+
+		return $contents;
 	}
 
 	/**

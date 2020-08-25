@@ -10,23 +10,23 @@ namespace Akeeba\AdminTools\Admin\Model;
 defined('_JEXEC') or die;
 
 use FOF30\Container\Container;
-use FOF30\Model\DataModel;
 use FOF30\Date\Date;
-use JLoader;
+use FOF30\Model\DataModel;
+use JDatabaseQuery;
 
 /**
  * Class SecurityExceptions
  *
  * @package Akeeba\AdminTools\Admin\Model
  *
- * @property   int     $id
- * @property   string  $logdate
- * @property   string  $ip
- * @property   string  $url
- * @property   string  $reason
- * @property   string  $extradata
+ * @property   int      $id
+ * @property   string   $logdate
+ * @property   string   $ip
+ * @property   string   $url
+ * @property   string   $reason
+ * @property   string   $extradata
  *
- * @property-read   int     $block
+ * @property-read   int $block
  *
  * @method  $this   datefrom() datefrom(string $v)
  * @method  $this   dateto() dateto(string $v)
@@ -49,38 +49,38 @@ class SecurityExceptions extends DataModel
 	{
 		$db    = $this->getDbo();
 		$query = $db->getQuery(true)
-		            ->from($db->qn('#__admintools_log') . ' AS ' . $db->qn('l'));
+			->from($db->qn('#__admintools_log') . ' AS ' . $db->qn('l'));
 
 		if ($this->getState('groupbydate', 0) == 1)
 		{
 			$this->addKnownField('date');
 			$this->addKnownField('exceptions');
 
-			$query->select(array(
+			$query->select([
 				'DATE(' . $db->qn('l') . '.' . $db->qn('logdate') . ') AS ' . $db->qn('date'),
-				'COUNT(' . $db->qn('l') . '.' . $db->qn('id') . ') AS ' . $db->qn('exceptions')
-			));
+				'COUNT(' . $db->qn('l') . '.' . $db->qn('id') . ') AS ' . $db->qn('exceptions'),
+			]);
 		}
 		elseif ($this->getState('groupbytype', 0) == 1)
 		{
 			$this->addKnownField('reason');
 			$this->addKnownField('exceptions');
 
-			$query->select(array(
+			$query->select([
 				$db->qn('l') . '.' . $db->qn('reason'),
-				'COUNT(' . $db->qn('l') . '.' . $db->qn('id') . ') AS ' . $db->qn('exceptions')
-			));
+				'COUNT(' . $db->qn('l') . '.' . $db->qn('id') . ') AS ' . $db->qn('exceptions'),
+			]);
 		}
 		else
 		{
 			$this->addKnownField('block');
 
 			$query
-				->select(array(
+				->select([
 					$db->qn('l') . '.*',
 					'CASE COALESCE(' . $db->qn('b') . '.' . $db->qn('ip') . ', ' . $db->q(0) . ') WHEN ' . $db->q(0)
-					. ' THEN ' . $db->q('0') . ' ELSE ' . $db->q('1') . ' END AS ' . $db->qn('block')
-				))
+					. ' THEN ' . $db->q('0') . ' ELSE ' . $db->q('1') . ' END AS ' . $db->qn('block'),
+				])
 				->join('LEFT OUTER',
 					$db->qn('#__admintools_ipblock') . ' AS ' . $db->qn('b') .
 					'ON (' . $db->qn('b') . '.' . $db->qn('ip') . ' = ' .
@@ -88,23 +88,21 @@ class SecurityExceptions extends DataModel
 				);
 		}
 
-		JLoader::import('joomla.utilities.date');
-
-		$userTZ = $this->container->platform->getUser()->getParam('timezone', $this->container->platform->getConfig()->get('offset', 'UTC'));
+		$userTZ      = $this->container->platform->getUser()->getParam('timezone', $this->container->platform->getConfig()->get('offset', 'UTC'));
 		$fltDateFrom = $this->getState('datefrom', null, 'string');
 
 		if ($fltDateFrom)
 		{
 			$regex = '/^\d{1,4}(\/|-)\d{1,2}(\/|-)\d{2,4}[[:space:]]{0,}(\d{1,2}:\d{1,2}(:\d{1,2}){0,1}){0,1}$/';
 
-			if (!preg_match($regex, $fltDateFrom))
+			if (!preg_match($regex, $fltDateFrom) || (substr($fltDateFrom, 0, 1) == '-') || (substr($fltDateFrom, 0, 2) == '00'))
 			{
 				$fltDateFrom = '2000-01-01 00:00:00';
 				$this->setState('datefrom', '');
 			}
 
 			$date = new Date($fltDateFrom, $userTZ);
-			$date->setTime(0,0,0);
+			$date->setTime(0, 0, 0);
 			$query->where($db->qn('logdate') . ' >= ' . $db->q($date->toSql()));
 		}
 
@@ -114,14 +112,14 @@ class SecurityExceptions extends DataModel
 		{
 			$regex = '/^\d{1,4}(\/|-)\d{1,2}(\/|-)\d{2,4}[[:space:]]{0,}(\d{1,2}:\d{1,2}(:\d{1,2}){0,1}){0,1}$/';
 
-			if (!preg_match($regex, $fltDateTo))
+			if (!preg_match($regex, $fltDateTo) || (substr($fltDateTo, 0, 1) == '-') || (substr($fltDateTo, 0, 2) == '00'))
 			{
 				$fltDateTo = '2037-01-01 00:00:00';
 				$this->setState('dateto', '');
 			}
 
 			$date = new Date($fltDateTo, $userTZ);
-			$date->setTime(23,59,59);
+			$date->setTime(23, 59, 59);
 			$query->where($db->qn('logdate') . ' <= ' . $db->q($date->toSql()));
 		}
 
@@ -176,7 +174,7 @@ class SecurityExceptions extends DataModel
 	}
 
 	/**
-	 * @param \JDatabaseQuery $query
+	 * @param   JDatabaseQuery  $query
 	 */
 	protected function _buildQueryGroup($query)
 	{
@@ -184,15 +182,15 @@ class SecurityExceptions extends DataModel
 
 		if ($this->getState('groupbydate', 0) == 1)
 		{
-			$query->group(array(
-				'DATE(' . $db->qn('l') . '.' . $db->qn('logdate') . ')'
-			));
+			$query->group([
+				'DATE(' . $db->qn('l') . '.' . $db->qn('logdate') . ')',
+			]);
 		}
 		elseif ($this->getState('groupbytype', 0) == 1)
 		{
-			$query->group(array(
-				$db->qn('l') . '.' . $db->qn('reason')
-			));
+			$query->group([
+				$db->qn('l') . '.' . $db->qn('reason'),
+			]);
 		}
 	}
 }

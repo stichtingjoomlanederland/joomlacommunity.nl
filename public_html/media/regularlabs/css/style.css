@@ -1,6 +1,6 @@
 /**
  * @package         Regular Labs Library
- * @version         20.2.16442
+ * @version         20.7.20564
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -448,7 +448,7 @@ div.rl_well .controls .btn-group > .btn {
   opacity: 0.6;
   filter: alpha(opacity=60);
 }
-.rl_licence {
+.rl_license {
   margin-top: 30px;
   text-align: center;
 }

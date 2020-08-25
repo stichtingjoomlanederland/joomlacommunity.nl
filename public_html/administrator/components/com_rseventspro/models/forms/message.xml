@@ -23,6 +23,7 @@
 	<field name="waitinglistuser_subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
 	<field name="waitinglistadmin_subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
 	<field name="cancel_subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
+	<field name="notify_me_paid_subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
 	
 	<field name="registration_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
 	<field name="activation_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
@@ -44,6 +45,7 @@
 	<field name="waitinglistuser_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
 	<field name="waitinglistadmin_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
 	<field name="cancel_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
+	<field name="notify_me_paid_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
 	
 	<field name="registration_mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_MODE" description="COM_RSEVENTSPRO_MESSAGES_MODE_DESC" default="1">
 		<option value="0">TEXT</option>
@@ -122,6 +124,10 @@
 		<option value="1">HTML</option>
 	</field>
 	<field name="cancel_mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_MODE" description="COM_RSEVENTSPRO_MESSAGES_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+	<field name="notify_me_paid_mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_MODE" description="COM_RSEVENTSPRO_MESSAGES_MODE_DESC" default="1">
 		<option value="0">TEXT</option>
 		<option value="1">HTML</option>
 	</field>

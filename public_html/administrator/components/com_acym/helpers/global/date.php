@@ -174,7 +174,7 @@ function acym_secondsToTime($seconds)
 
 function acym_displayDateFormat($format, $name = 'date', $default = '', $attributes = '')
 {
-    $attributes = empty($attributes) ? 'class="acym__custom__fields__select__form "' : $attributes;
+    $attributes = empty($attributes) ? 'class="acym__custom__fields__select__form acym__select"' : $attributes;
     $return = '<div class="cell grid-x grid-margin-x">';
     $days = ['' => acym_translation('ACYM_DAY')];
     for ($i = 1 ; $i <= 31 ; $i++) {

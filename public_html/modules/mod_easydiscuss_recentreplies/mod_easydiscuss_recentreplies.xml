@@ -2,12 +2,12 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Recent Replies</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>27th May 2020</creationDate>
+	<creationDate>6th August 2020</creationDate>
 	<copyright>Copyright 2009 - 2016 StackIdeas. All rights reserved.</copyright>
 	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>4.1.16</version>
+	<version>4.1.19</version>
 	<description><![CDATA[This module is almost identical to the recent discussions module but it is simplified and it displays the ordering of the items by the last replied discussion.]]></description>
 	<languages>
 		<language tag="en-GB">en-GB.mod_easydiscuss_recentreplies.ini</language>

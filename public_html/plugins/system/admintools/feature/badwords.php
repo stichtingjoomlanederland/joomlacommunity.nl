@@ -36,7 +36,7 @@ class AtsystemFeatureBadwords extends AtsystemFeatureAbstract
 	 */
 	public function onAfterInitialise()
 	{
-		$db = $this->db;
+		$db  = $this->db;
 		$sql = $db->getQuery(true)
 			->select($db->qn('word'))
 			->from($db->qn('#__admintools_badwords'))
@@ -58,12 +58,12 @@ class AtsystemFeatureBadwords extends AtsystemFeatureAbstract
 			return;
 		}
 
-		$hashes = array('get', 'post');
+		$hashes = ['get', 'post'];
 
 		foreach ($hashes as $hash)
 		{
 			$input = $this->input->$hash;
-			$ref = new ReflectionProperty($input, 'data');
+			$ref   = new ReflectionProperty($input, 'data');
 			$ref->setAccessible(true);
 			$allVars = $ref->getValue($input);
 
@@ -87,4 +87,4 @@ class AtsystemFeatureBadwords extends AtsystemFeatureAbstract
 			}
 		}
 	}
-} 
+}

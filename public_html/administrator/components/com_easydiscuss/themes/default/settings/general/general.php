@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -61,6 +61,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo $this->html('settings.textbox', 'main_reportthreshold', 'COM_EASYDISCUSS_REPORT_THRESHOLD', '', array('size' => 7, 'postfix' => 'Reports'), '', 'form-control-sm text-center'); ?>
 
 					<?php echo $this->html('settings.toggle', 'main_ban', 'COM_EASYDISCUSS_ENABLE_BAN'); ?>
+
+					<?php echo $this->html('settings.toggle', 'main_posts_from_blockuser', 'COM_ED_SHOW_POSTS_FROM_BLOCKED_USERS'); ?>
 				</div>
 			</div>
 		</div>

@@ -6,10 +6,11 @@
  */
 
 use FOF30\Container\Container;
+use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Uri\Uri;
 
 defined('_JEXEC') or die;
-
-JLoader::import('joomla.application.plugin');
 
 /**
  * Admin Tools installer helper
@@ -21,7 +22,7 @@ JLoader::import('joomla.application.plugin');
  *
  * @since  5.3.4
  */
-class plgInstallerAdmintools extends JPlugin
+class plgInstallerAdmintools extends CMSPlugin
 {
 	/**
 	 * The name of the package in the download URL we should match in this plugin
@@ -38,7 +39,7 @@ class plgInstallerAdmintools extends JPlugin
 	 * @since 5.3.4
 	 */
 	private $allowedURLPrefixes = [
-		'https://www.akeebabackup.com',
+		'https://www.akeeba.com',
 		'https://www.akeeba.com',
 	];
 
@@ -65,7 +66,7 @@ class plgInstallerAdmintools extends JPlugin
 	private $possibleDownloadIDKeys = [
 		'downloadid',
 		'update_dlid',
-		'dlid'
+		'dlid',
 	];
 
 	/**
@@ -113,7 +114,7 @@ class plgInstallerAdmintools extends JPlugin
 		}
 
 		// Apply the download ID to the download URL
-		$uri = JUri::getInstance($url);
+		$uri = Uri::getInstance($url);
 
 		$path     = $uri->getPath();
 		$baseName = basename($path);
@@ -160,7 +161,7 @@ class plgInstallerAdmintools extends JPlugin
 	 */
 	private function hasDownloadID($url)
 	{
-		$uri  = JUri::getInstance($url);
+		$uri  = Uri::getInstance($url);
 		$dlid = $uri->getVar('dlid', null);
 
 		return !empty($dlid);
@@ -191,7 +192,7 @@ class plgInstallerAdmintools extends JPlugin
 		foreach ($this->akeebaExtensions as $extension)
 		{
 			// Make sure the extension is actually installed
-			if (!JComponentHelper::isInstalled($extension))
+			if (!ComponentHelper::isInstalled($extension))
 			{
 				continue;
 			}

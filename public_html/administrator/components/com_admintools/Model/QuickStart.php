@@ -13,9 +13,9 @@ use Akeeba\AdminTools\Admin\Helper\Storage;
 use FOF30\Container\Container;
 use FOF30\Model\Model;
 use FOF30\Utils\Ip;
-use JFactory;
-use JText;
-use JUri;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Uri\Uri;
 
 class QuickStart extends Model
 {
@@ -29,14 +29,14 @@ class QuickStart extends Model
 	/**
 	 * Administrator password protection model
 	 *
-	 * @var   \Akeeba\AdminTools\Admin\Model\AdminPassword
+	 * @var   AdminPassword
 	 */
 	private $adminPasswordModel;
 
 	/**
 	 * WAF Config model
 	 *
-	 * @var   \Akeeba\AdminTools\Admin\Model\ConfigureWAF
+	 * @var   ConfigureWAF
 	 */
 	private $wafModel;
 
@@ -47,14 +47,14 @@ class QuickStart extends Model
 	 */
 	private $config;
 
-	public function  __construct(Container $container, $config = array())
+	public function __construct(Container $container, $config = [])
 	{
 		parent::__construct($container, $config);
 
-		$this->storageModel = Storage::getInstance();
+		$this->storageModel       = Storage::getInstance();
 		$this->adminPasswordModel = $this->container->factory->model('AdminPassword')->tmpInstance();
-		$this->wafModel = $this->container->factory->model('ConfigureWAF')->tmpInstance();
-		$this->config = $this->wafModel->getConfig();
+		$this->wafModel           = $this->container->factory->model('ConfigureWAF')->tmpInstance();
+		$this->config             = $this->wafModel->getConfig();
 	}
 
 	/**
@@ -74,7 +74,7 @@ class QuickStart extends Model
 		$this->applyAdministratorPassword();
 
 		// Apply email on admin login
-		$this->config['emailonadminlogin'] = $this->getState('emailonadminlogin', '');
+		$this->config['emailonadminlogin']       = $this->getState('emailonadminlogin', '');
 		$this->config['emailonfailedadminlogin'] = $this->getState('emailonadminlogin', '');
 
 		// Apply IP whitelist
@@ -99,7 +99,7 @@ class QuickStart extends Model
 		$this->applyBlacklist($this->getState('autoblacklist', 0));
 
 		// Apply email address to report WAF exceptions and blocks
-		$this->config['emailbreaches'] = $this->getState('emailbreaches', '');
+		$this->config['emailbreaches']       = $this->getState('emailbreaches', '');
 		$this->config['emailafteripautoban'] = $this->getState('emailbreaches', '');
 
 		// Project Honeypot HTTP:BL
@@ -115,13 +115,23 @@ class QuickStart extends Model
 
 			if (!$written)
 			{
-				JFactory::getApplication()->enqueueMessage(JText::_('COM_ADMINTOOLS_QUICKSTART_MSG_HTMAKERNOTAPPLIED'), 'error');
+				Factory::getApplication()->enqueueMessage(Text::_('COM_ADMINTOOLS_QUICKSTART_MSG_HTMAKERNOTAPPLIED'), 'error');
 			}
 		}
 
 		// Save a flag indicating we no longer need to run the Quick Start
 		$this->storageModel->load();
 		$this->storageModel->setValue('quickstart', 1, 1);
+	}
+
+	/**
+	 * Is it the Quick Setup Wizard's first run?
+	 *
+	 * @return  bool
+	 */
+	public function isFirstRun()
+	{
+		return $this->storageModel->getValue('quickstart', 0) == 0;
 	}
 
 	/**
@@ -167,17 +177,17 @@ class QuickStart extends Model
 
 			if (!empty($detectedIp) && ($detectedIp != Ip::getIp()))
 			{
-				$ipwlModel->save(array(
+				$ipwlModel->save([
 					'ip'          => $this->getState('detectedip', ''),
-					'description' => JText::_('COM_ADMINTOOLS_QUICKSTART_MSG_IPADDEDBYWIZARD')
-				));
+					'description' => Text::_('COM_ADMINTOOLS_QUICKSTART_MSG_IPADDEDBYWIZARD'),
+				]);
 			}
 			else
 			{
-				$ipwlModel->save(array(
+				$ipwlModel->save([
 					'ip'          => Ip::getIp(),
-					'description' => JText::_('COM_ADMINTOOLS_QUICKSTART_MSG_IPADDEDBYWIZARD')
-				));
+					'description' => Text::_('COM_ADMINTOOLS_QUICKSTART_MSG_IPADDEDBYWIZARD'),
+				]);
 			}
 		}
 	}
@@ -196,38 +206,37 @@ class QuickStart extends Model
 		// UploadShield is disabled on Joomla! 3.4.1 and later (it's included in Joomla! itself)
 		$uploadShieldState = version_compare(JVERSION, '3.4.1', 'ge') ? 0 : $state;
 
-		$newValues = array(
-			'ipbl'                    => $state,
-			'sqlishield'              => $state,
-			'antispam'                => 0,
-			'custgenerator'           => $state,
-			'generator'               => 'MYOB',
-			'tpone'                   => $state,
-			'tmpl'                    => $state,
-			'template'                => $state,
-			'logbreaches'             => 1,
-			'muashield'               => $state,
-			'csrfshield'              => 0,
-			'rfishield'               => $state,
-			'dfishield'               => $state,
-			'uploadshield'            => $uploadShieldState,
-			'sessionshield'           => $state,
-			'tmplwhitelist'           => 'component,system,raw,koowa,cartupdate',
-			'allowsitetemplate'       => 0,
-			'trackfailedlogins'       => $state,
-			'use403view'              => 0,
-			'iplookup'                => 'ip-lookup.net/index.php?ip={ip}',
-			'iplookupscheme'          => 'http',
-			'saveusersignupip'        => $state,
-			'whitelist_domains'       => '.googlebot.com,.search.msn.com',
-			'reasons_nolog'           => '',
-			'reasons_noemail'         => '',
-			'resetjoomlatfa'          => 0,
-			'email_throttle'          => 1,
-		    'selfprotect'             => 1,
-		    'criticalfiles'           => 1,
-		    'superuserslist'          => 0,
-		);
+		$newValues = [
+			'ipbl'              => $state,
+			'sqlishield'        => $state,
+			'antispam'          => 0,
+			'custgenerator'     => $state,
+			'generator'         => 'MYOB',
+			'tpone'             => $state,
+			'tmpl'              => $state,
+			'template'          => $state,
+			'logbreaches'       => 1,
+			'muashield'         => $state,
+			'rfishield'         => $state,
+			'dfishield'         => $state,
+			'uploadshield'      => $uploadShieldState,
+			'sessionshield'     => $state,
+			'tmplwhitelist'     => 'component,system,raw,koowa,cartupdate',
+			'allowsitetemplate' => 0,
+			'trackfailedlogins' => $state,
+			'use403view'        => 0,
+			'iplookup'          => 'ip-lookup.net/index.php?ip={ip}',
+			'iplookupscheme'    => 'http',
+			'saveusersignupip'  => $state,
+			'whitelist_domains' => '.googlebot.com,.search.msn.com',
+			'reasons_nolog'     => '',
+			'reasons_noemail'   => '',
+			'resetjoomlatfa'    => 0,
+			'email_throttle'    => 1,
+			'selfprotect'       => 1,
+			'criticalfiles'     => 1,
+			'superuserslist'    => 0,
+		];
 
 		$this->config = array_merge($this->config, $newValues);
 	}
@@ -243,14 +252,14 @@ class QuickStart extends Model
 	{
 		$state = $enabled ? 1 : 0;
 
-		$newValues = array(
-			'tsrenable'               => $state,
-			'tsrstrikes'              => 3,
-			'tsrnumfreq'              => 1,
-			'tsrfrequency'            => 'minute',
-			'tsrbannum'               => 15,
-			'tsrbanfrequency'         => 'minute',
-		);
+		$newValues = [
+			'tsrenable'       => $state,
+			'tsrstrikes'      => 3,
+			'tsrnumfreq'      => 1,
+			'tsrfrequency'    => 'minute',
+			'tsrbannum'       => 15,
+			'tsrbanfrequency' => 'minute',
+		];
 
 		$this->config = array_merge($this->config, $newValues);
 	}
@@ -266,10 +275,10 @@ class QuickStart extends Model
 	{
 		$state = $enabled ? 1 : 0;
 
-		$newValues = array(
-			'permaban'                => $state,
-			'permabannum'             => 3,
-		);
+		$newValues = [
+			'permaban'    => $state,
+			'permabannum' => 3,
+		];
 
 		$this->config = array_merge($this->config, $newValues);
 	}
@@ -285,13 +294,13 @@ class QuickStart extends Model
 	{
 		$state = empty($key) ? 0 : 1;
 
-		$newValues = array(
-			'bbhttpblkey'             => $key,
-			'httpblenable'            => $state,
-			'httpblthreshold'         => 25,
-			'httpblmaxage'            => 30,
-			'httpblblocksuspicious'   => 0,
-		);
+		$newValues = [
+			'bbhttpblkey'           => $key,
+			'httpblenable'          => $state,
+			'httpblthreshold'       => 25,
+			'httpblmaxage'          => 30,
+			'httpblblocksuspicious' => 0,
+		];
 
 		$this->config = array_merge($this->config, $newValues);
 	}
@@ -302,7 +311,7 @@ class QuickStart extends Model
 		$htMakerModel = $this->container->factory->model('HtaccessMaker')->tmpInstance();
 
 		// Get the base bath to the site's root
-		$basePath = JUri::base(true);
+		$basePath = Uri::base(true);
 
 		if (substr($basePath, -14) == '/administrator')
 		{
@@ -314,73 +323,73 @@ class QuickStart extends Model
 		$basePath = empty($basePath) ? '/' : '';
 
 		// Get the site's hostname
-		$hostname = JUri::getInstance()->getHost();
+		$hostname = Uri::getInstance()->getHost();
 
 		// Should I redirect non-www to www or vice versa?
 		$wwwRedir = substr($hostname, 0, 4) == 'www.' ? 1 : 2;
 
 		// Is it an HTTPS site?
-		$isHttps = JUri::getInstance()->getScheme() == 'https';
+		$isHttps = Uri::getInstance()->getScheme() == 'https';
 
 		// Get the new .htaccess Maker configuration values
-		$newConfig = array(
+		$newConfig = [
 			// == System configuration ==
 			// Host name for HTTPS requests (without https://)
-			'httpshost'      => $hostname,
+			'httpshost'           => $hostname,
 			// Host name for HTTP requests (without http://)
-			'httphost'       => $hostname,
+			'httphost'            => $hostname,
 			// Follow symlinks (may cause a blank page or 500 Internal Server Error)
-			'symlinks'       => -1,
+			'symlinks'            => -1,
 			// Base directory of your site (/ for domain's root)
-			'rewritebase'    => $basePath,
+			'rewritebase'         => $basePath,
 
 			// == Optimization and utility ==
 			// Force index.php parsing before index.html
-			'fileorder'      => 1,
+			'fileorder'           => 1,
 			// Set default expiration time to 1 hour
-			'exptime'        => 1,
+			'exptime'             => 1,
 			// Automatically compress static resources
-			'autocompress'   => 1,
+			'autocompress'        => 1,
 			// Force GZip compression for mangled Accept-Encoding headers
-			'forcegzip'      => 1,
+			'forcegzip'           => 1,
 			// Redirect index.php to root
-			'autoroot'       => 0,
+			'autoroot'            => 0,
 			// Redirect www and non-www addresses
-			'wwwredir'       => $wwwRedir,
+			'wwwredir'            => $wwwRedir,
 			// HSTS Header (for HTTPS-only sites)
-			'hstsheader'     => $isHttps ? 1 : 0,
+			'hstsheader'          => $isHttps ? 1 : 0,
 			// Disable HTTP methods TRACE and TRACK (protect against XST)
-			'notracetrack'   => 0,
+			'notracetrack'        => 0,
 			// Cross-Origin Resource Sharing (CORS)
-			'cors'     => 0,
+			'cors'                => 0,
 			// Set UTF-8 charset as default
-			'utf8charset'     => 0,
+			'utf8charset'         => 0,
 			// Send ETag
-			'etagtype' => 'default',
+			'etagtype'            => 'default',
 
 			// == Basic security ==
 			// Disable directory listings
-			'nodirlists'     => 0,
+			'nodirlists'          => 0,
 			// Protect against common file injection attacks
-			'fileinj'        => 1,
+			'fileinj'             => 1,
 			// Disable PHP Easter Eggs
-			'phpeaster'      => 1,
+			'phpeaster'           => 1,
 			// Block access from specific user agents
-			'nohoggers'      => 1,
+			'nohoggers'           => 1,
 			// Block access to configuration.php-dist and htaccess.txt
-			'leftovers'      => 1,
+			'leftovers'           => 1,
 			// Protect against clickjacking
-			'clickjacking'   => 0,
+			'clickjacking'        => 0,
 			// Reduce MIME type security risks
 			'reducemimetyperisks' => 0,
 			// Reflected XSS prevention
-			'reflectedxss' => 0,
+			'reflectedxss'        => 0,
 			// Remove Apache and PHP version signature
-			'noserversignature' => 1,
+			'noserversignature'   => 1,
 			// Prevent content transformation
-			'notransform' => 0,
+			'notransform'         => 0,
 			// User agents to block (one per line)
-			'hoggeragents'   => array(
+			'hoggeragents'        => [
 				'WebBandit',
 				'webbandit',
 				'Acunetix',
@@ -544,58 +553,50 @@ class QuickStart extends Model
 				'libwww-perl',
 				'Go!Zilla',
 				'TurnitinBot',
-			),
+			],
 
 			// == Server protection ==
 			// -- Toggle protection
 			// Back-end protection
-			'backendprot'    => 1,
+			'backendprot'         => 1,
 			// Back-end protection
-			'frontendprot'   => 1,
+			'frontendprot'        => 1,
 			// -- Fine-tuning
 			// Back-end directories where file type exceptions are allowed
-			'bepexdirs'      => array('components', 'modules', 'templates', 'images', 'plugins'),
+			'bepexdirs'           => ['components', 'modules', 'templates', 'images', 'plugins'],
 			// Back-end file types allowed in selected directories
-			'bepextypes'     => array(
+			'bepextypes'          => [
 				'jpe', 'jpg', 'jpeg', 'jp2', 'jpe2', 'png', 'gif', 'bmp', 'css', 'js',
 				'swf', 'html', 'mpg', 'mp3', 'mpeg', 'mp4', 'avi', 'wav', 'ogg', 'ogv',
 				'xls', 'xlsx', 'doc', 'docx', 'ppt', 'pptx', 'zip', 'rar', 'pdf', 'xps',
 				'txt', '7z', 'svg', 'odt', 'ods', 'odp', 'flv', 'mov', 'htm', 'ttf',
 				'woff', 'woff2', 'eot',
-				'JPG', 'JPEG', 'PNG', 'GIF', 'CSS', 'JS', 'TTF', 'WOFF', 'WOFF2', 'EOT'
-			),
+				'JPG', 'JPEG', 'PNG', 'GIF', 'CSS', 'JS', 'TTF', 'WOFF', 'WOFF2', 'EOT',
+			],
 			// Front-end directories where file type exceptions are allowed
-			'fepexdirs'      => array('components', 'modules', 'templates', 'images', 'plugins', 'media', 'libraries', 'media/jui/fonts'),
+			'fepexdirs'           => [
+				'components', 'modules', 'templates', 'images', 'plugins', 'media', 'libraries', 'media/jui/fonts',
+			],
 			// Front-end file types allowed in selected directories
-			'fepextypes'     => array(
+			'fepextypes'          => [
 				'jpe', 'jpg', 'jpeg', 'jp2', 'jpe2', 'png', 'gif', 'bmp', 'css', 'js',
 				'swf', 'html', 'mpg', 'mp3', 'mpeg', 'mp4', 'avi', 'wav', 'ogg', 'ogv',
 				'xls', 'xlsx', 'doc', 'docx', 'ppt', 'pptx', 'zip', 'rar', 'pdf', 'xps',
 				'txt', '7z', 'svg', 'odt', 'ods', 'odp', 'flv', 'mov', 'ico', 'htm',
 				'ttf', 'woff', 'woff2', 'eot',
-				'JPG', 'JPEG', 'PNG', 'GIF', 'CSS', 'JS', 'TTF', 'WOFF', 'WOFF2', 'EOT'
-			),
+				'JPG', 'JPEG', 'PNG', 'GIF', 'CSS', 'JS', 'TTF', 'WOFF', 'WOFF2', 'EOT',
+			],
 			// Allow direct access, including .php files, to these directories
-			'fullaccessdirs' => array(
-			),
+			'fullaccessdirs'      => [
+			],
 			// Allow direct access, except .php files, to these directories
-			'exceptiondirs'       => array(
-				'.well-known'
-			),
-		);
+			'exceptiondirs'       => [
+				'.well-known',
+			],
+		];
 
 		$htMakerModel->saveConfiguration($newConfig, true);
 
 		return $htMakerModel->writeConfigFile();
-	}
-
-	/**
-	 * Is it the Quick Setup Wizard's first run?
-	 *
-	 * @return  bool
-	 */
-	public function isFirstRun()
-	{
-		return $this->storageModel->getValue('quickstart', 0) == 0;
 	}
 }

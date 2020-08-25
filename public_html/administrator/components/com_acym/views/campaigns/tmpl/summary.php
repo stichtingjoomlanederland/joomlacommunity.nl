@@ -36,14 +36,19 @@ $campaignController = acym_isAdmin() ? 'campaigns' : 'frontcampaigns';
                             <?php echo acym_translation('ACYM_REPLYTO_EMAIL'); ?>: <span class="acym__color__blue"><?php echo acym_escape($data['mailInformation']->reply_to_email); ?></span>
 						</p>
 						<p class="cell medium-6 margin-top-1 acym__campaign__summary__email__information">
-                            <?php echo acym_translation('ACYM_EMAIL_SUBJECT'); ?>: <span class="acym__color__blue"><?php echo acym_escape($data['mailInformation']->subject); ?></span>
+                            <?php echo acym_translation('ACYM_EMAIL_SUBJECT'); ?>: <span class="acym__color__blue acym__campaign__summary__email__information-subject"><?php echo acym_escape($data['mailInformation']->subject); ?></span>
 						</p>
 					</div>
 					<!-- We add the email content in a hidden div to load it into the iframe preview -->
+                    <?php
+                    if ($data['multilingual']) {
+                        include acym_getView('campaigns', 'summary_languages', true);
+                    }
+                    ?>
 					<input type="hidden" class="acym__hidden__mail__content" value="<?php echo acym_escape(acym_absoluteURL($data['mailInformation']->body)); ?>">
 					<div style="display: none" class="acym__hidden__mail__stylesheet"><?php echo $data['mailInformation']->stylesheet; ?></div>
 					<div class="cell grid-x">
-						<div id="acym__wysid__email__preview" class="acym__email__preview grid-x cell margin-top-1"></div>
+						<div id="acym__wysid__email__preview" class="acym__email__preview grid-x cell"></div>
 					</div>
 				</div>
                 <?php if (!empty($data['mailInformation']->attachments)) { ?>
@@ -95,9 +100,7 @@ $campaignController = acym_isAdmin() ? 'campaigns' : 'frontcampaigns';
 						<a href="<?php echo acym_completeLink($campaignController.'&task=edit&step=sendSettings&edition=1&id='.intval($data['campaignInformation']->id)); ?>"><i class="acymicon-pencil"></i><span> <?php echo acym_translation('ACYM_EDIT'); ?></span></a>
 					</div>
 					<div class="cell grid-x grid-margin-x">
-						<div class="acym__tag__full cell shrink">
-							<div><?php echo acym_translation('ACYM_'.strtoupper($data['campaignInformation']->sending_type)); ?></div>
-						</div>
+						<p class="cell large-2 medium-3"><b><?php echo acym_translation('ACYM_SENDING_TYPE'); ?>:</b></p>
 						<p class="cell auto">
                             <?php
                             $sendingTimeText = '';
@@ -123,6 +126,10 @@ $campaignController = acym_isAdmin() ? 'campaigns' : 'frontcampaigns';
                             echo $sendingTimeText;
                             ?>
 						</p>
+					</div>
+					<div class="cell grid-x grid-margin-x">
+						<p class="cell large-2 medium-3"><b><?php echo acym_translation('ACYM_TRACKING'); ?>:</b></p>
+						<p class="cell auto"><?php echo acym_translation($data['campaignInformation']->tracking ? 'ACYM_THIS_CAMPAIGN_BEING_TRACKED' : 'ACYM_THIS_CAMPAIGN_NOT_BEING_TRACKED') ?></p>
 					</div>
 				</div>
 				<div class="cell grid-x acym__campaign__summary__bottom-controls acym__campaign__summary__section">

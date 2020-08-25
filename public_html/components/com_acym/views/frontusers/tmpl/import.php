@@ -16,9 +16,19 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
     <?php
     $entityHelper = acym_get('helper.entitySelect');
+    $importHelper = acym_get('helper.import');
+    $modalData = $entityHelper->entitySelect(
+        'list',
+        ['join' => ''],
+        $entityHelper->getColumnsForList(),
+        ['text' => acym_translation('ACYM_IMPORT_USERS'), 'class' => 'acym__users__import__button'],
+        true,
+        $importHelper->additionalDataUsersImport(true)
+    );
+
     echo acym_modal(
         acym_translation('ACYM_IMPORT_USERS'),
-        $entityHelper->entitySelect('list', ['join' => ''], ['name', 'id'], ['text' => acym_translation('ACYM_IMPORT_USERS'), 'class' => 'acym__users__import__button']),
+        $modalData,
         'acym__user__import__add-subscription__modal',
         '',
         'style="display: none"'

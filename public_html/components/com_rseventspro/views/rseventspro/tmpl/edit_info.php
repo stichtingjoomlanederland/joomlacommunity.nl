@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
@@ -158,6 +158,22 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 		</select>
 		<?php if (!empty($this->permissions['can_add_speaker']) || $this->admin) { ?>
 		<a rel="rs_speaker" <?php if ($this->config->modaltype == 1) { ?>href="#rsepro-add-new-speaker" data-toggle="modal"<?php } else { ?>href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&view=rseventspro&layout=edit&id='.$this->item->id.'&tpl=modal_speaker', false); ?>"<?php } ?> class="btn" type="button"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_ADD_SPEAKER'); ?></a>
+		<?php } ?>
+	</div>
+</div>
+<?php } ?>
+
+<?php if (!empty($this->permissions['can_select_sponsors']) || $this->admin) { ?>
+<div class="control-group">
+	<div class="control-label">
+		<label for="sponsors"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_SPONSORS'); ?></label>
+	</div>
+	<div class="controls">
+		<select name="sponsors[]" id="sponsors" multiple="multiple" class="rsepro-chosen">
+			<?php echo JHtml::_('select.options', $this->eventClass->sponsors(),'value','text',$this->eventClass->getSponsors()); ?>
+		</select>
+		<?php if (!empty($this->permissions['can_add_sponsor']) || $this->admin) { ?>
+		<a rel="rs_sponsor" <?php if ($this->config->modaltype == 1) { ?>href="#rsepro-add-new-sponsor" data-toggle="modal"<?php } else { ?>href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&view=rseventspro&layout=edit&id='.$this->item->id.'&tpl=modal_sponsor', false); ?>"<?php } ?> class="btn" type="button"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_ADD_SPONSOR'); ?></a>
 		<?php } ?>
 	</div>
 </div>

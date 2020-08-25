@@ -1,8 +1,14 @@
 <?php
 defined('_JEXEC') or die('Restricted access');
 ?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
+    <?php
+    $isEmpty = empty($data['allAutomations']) && empty($data['search']) && empty($data['tag']) && empty($data['status']);
+    if (!$isEmpty) {
+        $data['toolbar']->displayToolbar($data);
+    }
+    ?>
 	<div id="acym__automation" class="acym__content">
-        <?php if (empty($data['allAutomations']) && empty($data['search']) && empty($data['tag']) && empty($data['status'])) { ?>
+        <?php if ($isEmpty) { ?>
 			<div class="grid-x text-center">
 				<h1 class="cell acym__listing__empty__title"><?php echo acym_translation('ACYM_YOU_DONT_HAVE_ANY_AUTOMATION'); ?></h1>
 				<h1 class="cell acym__listing__empty__subtitle"><?php echo acym_translation('ACYM_CREATE_ONE_AND_LET_ACYAMAILING_DO_IT'); ?></h1>
@@ -17,23 +23,11 @@ defined('_JEXEC') or die('Restricted access');
 				</div>
 			</div>
         <?php } else { ?>
-			<div class="grid-x grid-margin-x">
-				<div class="large-auto cell">
-                    <?php echo acym_filterSearch($data['search'], 'automation_search', 'ACYM_SEARCH'); ?>
-				</div>
-				<div class="xlarge-auto hide-for-large-only hide-for-medium-only hide-for-small-only cell"></div>
-				<div class="large-shrink medium-6 cell">
-					<button data-task="edit" data-step="action" class="button expanded button-secondary acy_button_submit"><?php echo acym_translation('ACYM_NEW_MASS_ACTION'); ?></button>
-				</div>
-				<div class="large-shrink medium-6 cell">
-					<button data-task="edit" data-step="info" class="button expanded acy_button_submit"><?php echo acym_translation('ACYM_NEW_AUTOMATION'); ?></button>
-				</div>
-			</div>
             <?php if (empty($data['allAutomations'])) { ?>
 				<h1 class="cell acym__listing__empty__search__title text-center"><?php echo acym_translation('ACYM_NO_RESULTS_FOUND'); ?></h1>
             <?php } else { ?>
 				<div class="cell grid-x margin-top-1">
-					<div class="grid-x acym__listing__actions auto cell">
+					<div class="grid-x acym__listing__actions cell margin-bottom-1">
                         <?php
                         $actions = [
                             'delete' => acym_translation('ACYM_DELETE'),
@@ -42,6 +36,8 @@ defined('_JEXEC') or die('Restricted access');
                         ];
                         echo acym_listingActions($actions, acym_translation('ACYM_BE_CAREFUL_THIS_DELETE_ELEMENTS_LINKED_AUTOMATION'));
                         ?>
+					</div>
+					<div class="grid-x cell">
 						<div class="auto cell">
                             <?php
                             $options = [
@@ -52,9 +48,7 @@ defined('_JEXEC') or die('Restricted access');
                             echo acym_filterStatus($options, $data["status"], 'automation_status');
                             ?>
 						</div>
-					</div>
-					<div class="grid-x auto cell">
-						<div class="cell acym_listing_sort-by">
+						<div class="cell acym_listing_sort-by auto">
                             <?php echo acym_sortBy(
                                 [
                                     'id' => strtolower(acym_translation('ACYM_ID')),

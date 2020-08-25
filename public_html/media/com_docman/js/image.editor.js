@@ -15,7 +15,7 @@ kQuery(function($) {
             return {
                 site: null,
                 baseurl: null,
-                editorUrl: 'https://static.api.joomlatools.com/editor/',
+                editorUrl: 'https://connect.joomlatools.com/image-editor/',
                 fileUrl: '?option=com_docman&view=documents&connect=1&image=1',
                 connectToken: null,
 
@@ -66,9 +66,7 @@ kQuery(function($) {
             });
         },
         checkOrigin: function(origin) {
-            var parser = document.createElement('a');
-            parser.href = this.options.editorUrl;
-            return origin.indexOf(parser.origin) === 0;
+            return origin.match(/^https:\/\/(.*?)\.joomlatools.(?:com|xyz)$/);
         },
         saveImage: function(data) {
             var self = this;

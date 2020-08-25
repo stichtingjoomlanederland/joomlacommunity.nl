@@ -1,14 +1,16 @@
 <?php
 defined('_JEXEC') or die('Restricted access');
 ?><div class="grid-x grid-margin-x margin-top-3">
-    <?php if (empty($data['allMails']) && empty($data['search']) && empty($data['tag']) && empty($data['status'])) { ?>
+    <?php
+    $campaignType = empty($data['campaign_type']) ? '' : $data['campaign_type'];
+    if (empty($data['allMails']) && empty($data['search']) && empty($data['tag']) && empty($data['status'])) { ?>
 		<div class="grid-x cell text-center">
 			<h1 class="acym__listing__empty__title cell"><?php echo acym_translation('ACYM_YOU_DONT_HAVE_ANY_TEMPLATE'); ?></h1>
 			<h1 class="acym__listing__empty__subtitle cell"><?php echo acym_translation('ACYM_CREATE_CAMPAIGN_EMPTY_TEMPLATE'); ?></h1>
 			<div class="medium-4"></div>
 			<div class="medium-4 small-12 cell">
 				<a
-						href="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl').'&task=edit&step=editEmail&from=-1&type_editor=acyEditor&id='.acym_escape($data['campaignID'])); ?>"
+						href="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl').'&task=edit&step=editEmail&from=-1&type_editor=acyEditor&id='.acym_escape($data['campaignID']).'&campaign_type='.$campaignType); ?>"
 						class="button expanded"
 						id="acym__templates__choose__create__empty">
                     <?php echo acym_translation('ACYM_CREATE_EMPTY_TEMPLATE'); ?>
@@ -23,7 +25,7 @@ defined('_JEXEC') or die('Restricted access');
 			</div>
 			<div class="grid-x medium-shrink text-center cell acym__templates__choose__type-templates">
 				<a
-						href="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl').'&task=edit&step=editEmail&from=-1&type_editor=acyEditor&id='.intval($data['campaignID'])); ?>"
+						href="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl').'&task=edit&step=editEmail&from=-1&type_editor=acyEditor&id='.intval($data['campaignID']).'&campaign_type='.$campaignType); ?>"
 						class="button"
 						id="acym__templates__choose__create__empty">
                     <?php echo acym_translation('ACYM_START_FROM_EMPTY_TEMPLATE'); ?>
@@ -38,7 +40,7 @@ defined('_JEXEC') or die('Restricted access');
                 foreach ($data['allMails'] as $oneTemplate) {
                     ?>
 					<div class="cell grid-x acym__templates__oneTpl acym__listing__block">
-						<input type="hidden" class="acym__templates__oneTpl__choose" value="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl').'&task=edit&step=editEmail&from='.$oneTemplate->id.'&id='.intval($data['campaignID'])); ?>" />
+						<input type="hidden" class="acym__templates__oneTpl__choose" value="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl').'&task=edit&step=editEmail&from='.$oneTemplate->id.'&id='.intval($data['campaignID']).'&campaign_type='.$campaignType); ?>" />
 						<div class="cell acym__templates__pic text-center">
 							<img src="<?php echo acym_getMailThumbnail($oneTemplate->thumbnail); ?>" alt="<?php echo acym_escape($oneTemplate->name); ?>" />
                             <?php

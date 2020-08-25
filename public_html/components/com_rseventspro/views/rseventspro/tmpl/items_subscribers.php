@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -25,6 +25,11 @@ defined('_JEXEC') or die('Restricted access');?>
 		<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.denied&id='.rseventsproHelper::sef($row->id,$row->name).'&ide='.rseventsproHelper::sef($this->row->id,$this->row->name),false); ?>" title="<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_DENIED'); ?>">
 			<i class="fa fa-minus-circle"></i>
 		</a>
+		<?php if ($row->state == 1 && rseventsproHelper::hasInvoice($row->id)) { ?>
+		<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.invoice&id='.rseventsproHelper::sef($row->id,$row->name).'&ide='.rseventsproHelper::sef($this->row->id,$this->row->name),false); ?>" title="<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_INVOICE'); ?>">
+			<i class="fa fa-file-pdf-o fa-fw"></i>
+		</a>
+		<?php } ?>
 	</div>
 	<div class="rs_event_details rs_inline">
 		<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=editsubscriber&id='.rseventsproHelper::sef($row->id,$row->name).'&ide='.rseventsproHelper::sef($this->event->id,$this->event->name),false); ?>"><?php echo $row->name; ?></a> 

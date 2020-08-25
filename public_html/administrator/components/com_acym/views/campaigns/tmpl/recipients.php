@@ -17,7 +17,7 @@ defined('_JEXEC') or die('Restricted access');
                 <?php }
                 $entityHelper = acym_get('helper.entitySelect');
 
-                echo $entityHelper->entitySelect('list', ['join' => 'join_mail-'.$data['currentCampaign']->mail_id], [0 => 'name', 1 => 'id', 'join' => 'maillist.mail_id']);
+                echo $entityHelper->entitySelect('list', ['join' => 'join_mail-'.$data['currentCampaign']->mail_id], $entityHelper->getColumnsForList('maillist.mail_id'));
                 ?>
 				<div class="cell grid-x acym__campaign__recipients__total-recipients acym__content acym_vcenter">
 					<p class="cell medium-8"><?php echo acym_translation('ACYM_CAMPAIGN_SENT_TO'); ?></p>

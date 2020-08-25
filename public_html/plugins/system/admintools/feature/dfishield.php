@@ -5,6 +5,8 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Factory;
+
 defined('_JEXEC') or die;
 
 class AtsystemFeatureDfishield extends AtsystemFeatureAbstract
@@ -36,7 +38,7 @@ class AtsystemFeatureDfishield extends AtsystemFeatureAbstract
 	 */
 	public function onAfterInitialise()
 	{
-		$input  = JFactory::getApplication()->input;
+		$input  = Factory::getApplication()->input;
 		$option = $input->getCmd('option', '');
 		$view   = $input->getCmd('view', '');
 		$layout = $input->getCmd('layout', '');
@@ -47,12 +49,12 @@ class AtsystemFeatureDfishield extends AtsystemFeatureAbstract
 			return;
 		}
 
-		$hashes = array('get', 'post');
+		$hashes = ['get', 'post'];
 
 		foreach ($hashes as $hash)
 		{
 			$input = $this->input->$hash;
-			$ref = new ReflectionProperty($input, 'data');
+			$ref   = new ReflectionProperty($input, 'data');
 			$ref->setAccessible(true);
 			$allVars = $ref->getValue($input);
 
@@ -122,7 +124,7 @@ class AtsystemFeatureDfishield extends AtsystemFeatureAbstract
 						if (!$result)
 						{
 							$sillyParts = explode('../', $value);
-							$realParts = array();
+							$realParts  = [];
 
 							foreach ($sillyParts as $p)
 							{
@@ -132,7 +134,7 @@ class AtsystemFeatureDfishield extends AtsystemFeatureAbstract
 								}
 							}
 
-							$path = implode('/', $realParts);
+							$path   = implode('/', $realParts);
 							$result = @file_exists($path);
 						}
 						break;
@@ -148,4 +150,4 @@ class AtsystemFeatureDfishield extends AtsystemFeatureAbstract
 
 		return $result;
 	}
-} 
+}

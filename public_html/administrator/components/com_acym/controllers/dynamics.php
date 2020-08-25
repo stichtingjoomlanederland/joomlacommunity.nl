@@ -83,7 +83,7 @@ class DynamicsController extends acymController
             $user->name = acym_currentUserName();
             $user->cms_id = acym_currentUserId();
             $user->confirmed = 0;
-            $user->source = 'backend_management';
+            $user->source = 'Back-end';
 
             $userClass->checkVisitor = false;
             $user->id = $userClass->save($user);

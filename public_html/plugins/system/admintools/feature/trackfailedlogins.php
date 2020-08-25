@@ -6,6 +6,14 @@
  */
 
 use FOF30\Date\Date;
+use Joomla\CMS\Application\ApplicationHelper;
+use Joomla\CMS\Authentication\AuthenticationResponse;
+use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\CMS\Router\Route;
+use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\User\UserHelper;
 
 defined('_JEXEC') or die;
 
@@ -26,7 +34,7 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 	/**
 	 * Treat failed logins as security exceptions
 	 *
-	 * @param JAuthenticationResponse $response
+	 * @param   AuthenticationResponse  $response
 	 */
 	public function onUserLoginFailure($response)
 	{
@@ -52,7 +60,7 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 
 	private function deactivateUser($username)
 	{
-		$userParams = JComponentHelper::getParams('com_users');
+		$userParams = ComponentHelper::getParams('com_users');
 
 		// User registration disabled or no user activation - Let's stop here
 		if (!$userParams->get('allowUserRegistration') || ($userParams->get('useractivation') == 0))
@@ -78,7 +86,7 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 			return;
 		}
 
-		$userid = JUserHelper::getUserId($username);
+		$userid = UserHelper::getUserId($username);
 
 		// The user doesn't exists, let's stop here
 		if (!$userid)
@@ -95,10 +103,10 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 		}
 
 		// If I'm here, it means that this is a valid user, let's see if I have to deactivate him
-		$where = array(
+		$where = [
 			'ip'     => $ip,
 			'reason' => 'loginfailure',
-		);
+		];
 
 		$deactivate = $this->checkLogFrequency($limit, $numfreq, $frequency, $where);
 
@@ -107,11 +115,11 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 			return;
 		}
 
-		JPluginHelper::importPlugin('user');
+		PluginHelper::importPlugin('user');
 		$db = $this->db;
 
-		$randomPassword        = class_exists('Joomla\\CMS\\User\\UserHelper') ? \Joomla\CMS\User\UserHelper::genRandomPassword() : \JUserHelper::genRandomPassword();
-		$data['activation']    = class_exists('Joomla\\CMS\\Application\\ApplicationHelper') ? \Joomla\CMS\Application\ApplicationHelper::getHash($randomPassword) : JApplication::getHash($randomPassword);
+		$randomPassword        = class_exists('Joomla\\CMS\\User\\UserHelper') ? UserHelper::genRandomPassword() : UserHelper::genRandomPassword();
+		$data['activation']    = class_exists('Joomla\\CMS\\Application\\ApplicationHelper') ? ApplicationHelper::getHash($randomPassword) : JApplication::getHash($randomPassword);
 		$data['block']         = 1;
 		$data['lastvisitDate'] = $db->getNullDate();
 
@@ -147,14 +155,14 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 
 		try
 		{
-			$mailer = JFactory::getMailer();
+			$mailer = Factory::getMailer();
 
 			$mailfrom = $config->get('mailfrom');
 			$fromname = $config->get('fromname');
 
-			$uri      = JUri::getInstance();
-			$base     = $uri->toString(array('scheme', 'user', 'pass', 'host', 'port'));
-			$activate = $base . JRoute::_('index.php?option=com_users&task=registration.activate&token=' . $data['activation'], false);
+			$uri      = Uri::getInstance();
+			$base     = $uri->toString(['scheme', 'user', 'pass', 'host', 'port']);
+			$activate = $base . Route::_('index.php?option=com_users&task=registration.activate&token=' . $data['activation'], false);
 
 			// Send e-mail to the user
 			if ($userParams->get('useractivation') == 1)
@@ -166,7 +174,7 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 			{
 				// get all admin users
 				$query = $db->getQuery(true)
-					->select($db->qn(array('name', 'email', 'sendEmail', 'id')))
+					->select($db->qn(['name', 'email', 'sendEmail', 'id']))
 					->from($db->qn('#__users'))
 					->where($db->qn('sendEmail') . ' = ' . 1);
 
@@ -201,28 +209,27 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 			$mailer->Priority = 3;
 
 			$mailer->isHtml(true);
-			$mailer->setSender(array($mailfrom, $fromname));
+			$mailer->setSender([$mailfrom, $fromname]);
 			$mailer->setSubject($subject);
 			$mailer->setBody($body);
 			$mailer->Send();
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			// Joomla! 3.5 and later throw an exception when crap happens instead of suppressing it and returning false
 		}
 	}
 
 	/**
-	 * @param       $limit
-	 * @param       $numfreq
-	 * @param       $frequency
-	 * @param array $extraWhere
+	 * @param          $limit
+	 * @param          $numfreq
+	 * @param          $frequency
+	 * @param   array  $extraWhere
 	 *
 	 * @return bool
 	 */
 	private function checkLogFrequency($limit, $numfreq, $frequency, array $extraWhere)
 	{
-		JLoader::import('joomla.utilities.date');
 		$db = $this->db;
 
 		$mindatestamp = 0;
@@ -257,7 +264,7 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 		}
 
 		$jMinDate = new Date($mindatestamp);
-		$minDate = $jMinDate->toSql();
+		$minDate  = $jMinDate->toSql();
 
 		$sql = $db->getQuery(true)
 			->select('COUNT(*)')

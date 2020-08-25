@@ -6,6 +6,8 @@
  */
 
 use FOF30\Date\Date;
+use Joomla\CMS\Application\ApplicationHelper;
+use Joomla\CMS\Factory;
 
 defined('_JEXEC') or die;
 
@@ -25,7 +27,7 @@ class AtsystemFeatureCachecleaner extends AtsystemFeatureAbstract
 
 	public function onAfterInitialise()
 	{
-		$minutes = (int)$this->params->get('cache_freq', 0);
+		$minutes = (int) $this->params->get('cache_freq', 0);
 
 		if ($minutes <= 0)
 		{
@@ -35,7 +37,6 @@ class AtsystemFeatureCachecleaner extends AtsystemFeatureAbstract
 		$lastJob = $this->getTimestamp('cache_clean');
 		$nextJob = $lastJob + $minutes * 60;
 
-		JLoader::import('joomla.utilities.date');
 		$now = new Date();
 
 		if ($now->toUnix() >= $nextJob)
@@ -50,14 +51,11 @@ class AtsystemFeatureCachecleaner extends AtsystemFeatureAbstract
 	 */
 	private function purgeCache()
 	{
-		JLoader::import('joomla.application.helper');
-		JLoader::import('joomla.cms.application.helper');
-
 		// Site client
-		$client = class_exists('Joomla\\CMS\\Application\\ApplicationHelper') ? \Joomla\CMS\Application\ApplicationHelper::getClientInfo(0) : JApplicationHelper::getClientInfo(0);
+		$client = class_exists('Joomla\\CMS\\Application\\ApplicationHelper') ? ApplicationHelper::getClientInfo(0) : ApplicationHelper::getClientInfo(0);
 
-		$er = @error_reporting(0);
-		$cache = JFactory::getCache('');
+		$er    = @error_reporting(0);
+		$cache = Factory::getCache('');
 		$cache->clean('sillylongnamewhichcantexistunlessyouareacompletelyparanoiddeveloperinwhichcaseyoushouldnotbewritingsoftwareokay', 'notgroup');
 		@error_reporting($er);
 	}

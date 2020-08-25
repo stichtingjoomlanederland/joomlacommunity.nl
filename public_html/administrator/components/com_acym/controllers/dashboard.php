@@ -9,7 +9,7 @@ class DashboardController extends acymController
         parent::__construct();
 
         $this->loadScripts = [
-            'all' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'introjs', 'parse-css', 'vue-applications' => ['code_editor'], 'vue-prism-editor', 'editor-wysid'],
+            'walk_through' => ['editor-wysid'],
         ];
     }
 

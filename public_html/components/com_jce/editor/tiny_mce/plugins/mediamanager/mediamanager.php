@@ -23,7 +23,7 @@ class WFMediaManagerPlugin extends WFMediaManager
     public $_filetypes = 'windowsmedia=avi,wmv,wm,asf,asx,wmx,wvx;quicktime=mov,qt,mpg,mpeg;flash=swf;shockwave=dcr;real=rm,ra,ram;divx=divx;video=mp4,ogv,ogg,webm,flv,f4v;audio=mp3,ogg,wav,m4a;silverlight=xap';
 
     protected $name = 'mediamanager';
-    
+
     public function __construct($config = array())
     {
         parent::__construct($config);
@@ -66,6 +66,47 @@ class WFMediaManagerPlugin extends WFMediaManager
         $this->loadAggregators();
     }
 
+    public function getDefaultAttributes()
+    {
+        $attribs = parent::getDefaultAttributes();
+
+        $video = $this->getDefaults('aggregator.video', array(
+            'manifest' => WF_EDITOR_EXTENSIONS . '/aggregator/video.xml',
+            'group' => 'aggregator.video',
+        ));
+
+        $audio = $this->getDefaults('aggregator.audio', array(
+            'manifest' => WF_EDITOR_EXTENSIONS . '/aggregator/audio.xml',
+            'group' => 'aggregator.audio',
+        ));
+
+        if (!empty($video)) {
+            $video = array_filter($video, function (&$value) {
+                if (is_numeric($value)) {
+                    return (int) $value === 1;
+                }
+
+                return true;
+            });
+
+            $attribs['video'] = $video;
+        }
+
+        if (!empty($audio)) {
+            $audio = array_filter($video, function (&$value) {
+                if (is_numeric($value)) {
+                    return (int) $value === 1;
+                }
+
+                return true;
+            });
+
+            $attribs['audio'] = $audio;
+        }
+
+        return $attribs;
+    }
+
     public function onUpload($file, $relative = '')
     {
         parent::onUpload($file, $relative);
@@ -73,20 +114,22 @@ class WFMediaManagerPlugin extends WFMediaManager
         $app = JFactory::getApplication();
 
         if ($app->input->getInt('inline', 0) === 1) {
-            
+
             // get the list of filetypes supported
             $filetypes = array_values($this->getFileTypes());
-            
+
             // only allow a limited set that are support by the <video> and <audio> tags
-            $filetypes = array_intersect($filetypes, array('mp3','oga', 'm4a', 'mp4','m4v','ogg','webm','ogv'));
-            
+            $filetypes = array_intersect($filetypes, array('mp3', 'oga', 'm4a', 'mp4', 'm4v', 'ogg', 'webm', 'ogv'));
+
             // check for support
             if (preg_match('#\.(' . implode($filetypes, '|') . ')$#', $relative)) {
                 $result = array(
                     'file' => $relative,
-                    'name' => basename($file),
+                    'name' => WFUtility::mb_basename($file),
                 );
-    
+
+                $result = array_merge($result, array('attributes' => $this->getDefaultAttributes()));
+
                 return $result;
             }
         }
@@ -118,7 +161,7 @@ class WFMediaManagerPlugin extends WFMediaManager
         if ($name === 'video' || $name === 'audio') {
             return;
         }
-        
+
         $options = $this->get('_media_options');
 
         $options[$name] = $value;
@@ -176,11 +219,11 @@ class WFMediaManagerPlugin extends WFMediaManager
         $extension = WFAggregatorExtension::getInstance();
 
         foreach ($extension->getAggregators() as $aggregator) {
-            
+
             if ($aggregator->getName() === 'audio' || $aggregator->getName() === 'video') {
                 continue;
             }
-            
+
             $tpl .= '<div class="media_option ' . $aggregator->getName() . '" id="' . $aggregator->getName() . '_options" style="display:none;"><h4>' . JText::_($aggregator->getTitle()) . '</h4>';
             $tpl .= $extension->loadTemplate($aggregator->getName());
             $tpl .= '</div>';
@@ -221,6 +264,23 @@ class WFMediaManagerPlugin extends WFMediaManager
             'twitter' => 'https://publish.twitter.com/oembed',
         );
 
+        // custom
+        if (!array_key_exists($provider, $providers)) {
+            $data = JFactory::getApplication()->triggerEvent('onWfGetCustomEmbedData', array(&$url));
+
+            if (empty($data)) {
+                return false;
+            }
+
+            foreach ($data as $item) {
+                if (isset($item[$provider]) && is_array($item[$provider])) {
+                    return $item[$provider];
+                }
+            }
+
+            return false;
+        }
+
         // decode url
         $url = rawurldecode($url);
 
@@ -250,8 +310,8 @@ class WFMediaManagerPlugin extends WFMediaManager
             'http' => array(
                 'method' => "GET",
                 'header' => "Accept-language: en\r\n" .
-                            "Cookie: foo=bar\r\n" .
-                            "User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.14) Gecko/20110105 Firefox/3.6.14\r\n", // i.e. An iPad
+                "Cookie: foo=bar\r\n" .
+                "User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.14) Gecko/20110105 Firefox/3.6.14\r\n", // i.e. An iPad
             ),
         );
 

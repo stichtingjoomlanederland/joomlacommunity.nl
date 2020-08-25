@@ -57,6 +57,7 @@
 
 .rsc_pagination {
 	text-align: center;
+	margin: 18px 0;
 }
 
 .rsc_line {
@@ -427,4 +428,30 @@ textarea.invalid {
 
 .rscomment-comment-area-actions {
 	padding: 5px; 
+}
+
+.rscomments-report-layout .row + .row,
+.rscomments-subscribe-layout .row + .row,
+.rscomments-comment-form .row + .row,
+.rscomment .row + .row {
+	margin-top: 1rem;
+}
+
+.rscomments-comment-form .row .btn-toolbar + .btn-toolbar,
+.rscomment .row .btn-toolbar + .btn-toolbar {
+    margin-top: 5px;
+}
+
+.rscomment {
+	flex-direction: column;
+}
+
+.rscomments-comment-form .rscomments-action-btns .btn-group {
+	margin-right: 5px;
+	margin-bottom: 5px;
+	margin-left: 0;
+}
+
+.rscomments-hidden {
+	display: none;
 }

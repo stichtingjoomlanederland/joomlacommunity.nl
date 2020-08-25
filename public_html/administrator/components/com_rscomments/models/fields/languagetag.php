@@ -50,7 +50,7 @@ class JFormFieldLanguagetag extends JFormField {
 				foreach($languages as $language)
 					$language_list[] = JHtml::_('select.option', $language['tag'], '('.$language['tag'].') '.$language['name']);
 
-				$html = JHtml::_('select.genericlist', $language_list, $this->name , '', 'value', 'text', '');
+				$html = JHtml::_('select.genericlist', $language_list, $this->name , 'class="custom-select"', 'value', 'text', '');
 			}
 		}
 

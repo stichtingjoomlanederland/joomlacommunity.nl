@@ -20,51 +20,71 @@ class EasyDiscussControllerRoles extends EasyDiscussController
 		$this->checkAccess('discuss.manage.roles');
 
 		$this->registerTask('add', 'edit');
-		$this->registerTask('savePublishNew', 'save');
+		$this->registerTask('save', 'save');
+		$this->registerTask('apply', 'save');
 	}
 
 	public function save()
 	{
-		$message = '';
-		$type = 'success';
 		$task = $this->getTask();
 
-		if (JRequest::getMethod() == 'POST') {
-			$post = JRequest::get('post');
+		$post = $this->input->getArray('post');
+		$roleId = $this->input->get('role_id', 0, 'int');
+		$isNew = $roleId ? false : true;
+		$url = 'index.php?option=com_easydiscuss&view=roles';
+		$formUrl = '&layout=form';
 
-			if (empty($post['title'])) {
-				$this->app->enqueueMessage(JText::_('COM_EASYDISCUSS_INVALID_ROLES'), 'error');
+		$role = ED::table('Role');
+		$role->load($roleId);
 
-				$url = 'index.php?option=com_easydiscuss&view=roles';
-				return $this->app->redirect(JRoute::_($url, false));
-			}
+		if (empty($post['title'])) {
+			ED::setMessage('COM_ED_ROLE_EMPTY_TITLE_MESSAGE', 'error');
+			$url .= $isNew ? $formUrl : $formUrl .'&id=' . $role->id;
 
-			$post['created_user_id'] = $this->my->id;
-			$roleId = $this->input->get('role_id', '', 'var');
-			$role = ED::table('Role');
-
-			$role->load($roleId);
-			$role->bind($post);
-
-			$role->title = JString::trim($role->title);
-
-			if (!$role->store()) {
-				JError::raiseError(500, $role->getError());
-			} else {
-				$message = JText::_('COM_EASYDISCUSS_ROLE_SAVED');
-			}
-		} else {
-			$message = JText::_('COM_EASYDISCUSS_INVALID_FORM_METHOD');
-			$type = 'error';
+			return $this->app->redirect($url);
 		}
 
-		ED::setMessage($message, $type);
+		$excludeId = null;
+		$skip = false;
+		$model = ED::model('Roles');
 
-		if ($task == 'savePublishNew') {
-			return $this->app->redirect('index.php?option=com_easydiscuss&view=roles&task=roles.edit');
+		// If user never change user group during editing and the user group does not have any other role as well
+		// then we do not need to show the error
+		if ($role->id && $post['usergroup_id'] == $role->usergroup_id) {
+
+			$ids = $model->getSelectedUserGroupIds(array('id' => $role->id));
+
+			if (!in_array($post['usergroup_id'], $ids)) {
+				$excludeId = $role->usergroup_id;
+				$skip = true;
+			}
 		}
 
-		$this->app->redirect('index.php?option=com_easydiscuss&view=roles');
+		$ids = $model->getSelectedUserGroupIds(array('usergroup_id' => $excludeId));
+
+		if (!$skip && in_array($post['usergroup_id'], $ids)) {
+			ED::setMessage('COM_ED_ROLE_ONE_ROLE_MESSAGE', 'error');
+			$url .= $isNew ? $formUrl : $formUrl .'&id=' . $role->id;
+
+			return $this->app->redirect($url);
+		}
+
+		$post['created_user_id'] = $this->my->id;
+		$role->bind($post);
+
+		$role->title = JString::trim($role->title);
+
+		if (!$role->store()) {
+			return JError::raiseError(500, $role->getError());
+		}
+
+		ED::setMessage('COM_EASYDISCUSS_ROLE_SAVED', 'success');
+
+		if ($task == 'apply') {
+			$url .= $formUrl .'&id=' . $role->id;
+		}
+
+		$this->app->redirect($url);
 	}
 
 	public function cancel()

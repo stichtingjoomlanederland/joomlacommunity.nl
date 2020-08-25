@@ -13,6 +13,12 @@ defined('_JEXEC') or die('Restricted access');
 	<div class="cell grid-x">
         <?php echo acym_switch('user[confirmed]', $data['user-information']->confirmed, acym_translation('ACYM_CONFIRMED'), []); ?>
 	</div>
+	<div class="cell grid-x">
+        <?php
+        $label = acym_translation('ACYM_TRACK_THIS_USER');
+        $label .= acym_info(acym_translation('ACYM_TRACK_THIS_USER_DESC'));
+        echo acym_switch('user[tracking]', $data['user-information']->tracking, $label, []); ?>
+	</div>
     <?php if (!empty($data['user-information']->source)) { ?>
 		<div class="cell grid-x margin-top-1">
 			<div class="cell medium-6 small-12">

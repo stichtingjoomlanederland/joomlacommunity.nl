@@ -5,6 +5,8 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Factory;
+
 defined('_JEXEC') or die;
 
 class AtsystemFeatureMuashield extends AtsystemFeatureAbstract
@@ -69,24 +71,24 @@ class AtsystemFeatureMuashield extends AtsystemFeatureAbstract
 		}
 
 		// Serialised data in the MUA string?
-		$patterns = array(
+		$patterns = [
 			'@"feed_url@', // feed_url isn't your typical UA but it sure as hell is part of an exploit
 			'@}__(.*)|O:@', // Typical start of serialised data
 			'@J?Simple(p|P)ie(Factory)?@', // If SimplePie or JSimplepieFactory is referenced
-		);
+		];
 
 		foreach ($patterns as $pattern)
 		{
 			if (preg_match($pattern, $mua) == 1)
 			{
 				// Neuter the attack
-				$neuterMUA                  = 'HACKING ATTEMPT DETECTED';
+				$neuterMUA = 'HACKING ATTEMPT DETECTED';
 				// 1. Reset the User Agent string reported by the server
 				$_SERVER['HTTP_USER_AGENT'] = $neuterMUA;
 				// 2. Replace the saved User Agent in the session storage to something non-malicious
-				JFactory::getSession()->set('session.client.browser', $neuterMUA);
+				Factory::getSession()->set('session.client.browser', $neuterMUA);
 				// 3. KILL THE SESSION (may not work, depends on the session handler)
-				JFactory::getSession()->destroy();
+				Factory::getSession()->destroy();
 
 				// Immediately block the scumbag
 				$this->exceptionsHandler->blockRequest('muashield');
@@ -124,16 +126,16 @@ class AtsystemFeatureMuashield extends AtsystemFeatureAbstract
 	 * @param $header
 	 *
 	 *
-	 * @since version
 	 * @throws Exception
+	 * @since version
 	 */
 	private function neuterMUA($header, $headerName)
 	{
-		$patterns = array(
+		$patterns = [
 			'@"feed_url@', // feed_url isn't your typical UA but it sure as hell is part of an exploit
 			'@}__(.*)|O:@', // Typical start of serialised data
 			'@"J?Simple(p|P)ie(Factory)?"@', // If SimplePie or JSimplepieFactory is referenced
-		);
+		];
 
 		foreach ($patterns as $pattern)
 		{
@@ -144,9 +146,9 @@ class AtsystemFeatureMuashield extends AtsystemFeatureAbstract
 				// 1. Reset the Forwarded header reported by the server
 				$_SERVER[$headerName] = $neuterMUA;
 				// 2. Replace the saved Forwarded header in the session storage to something non-malicious
-				JFactory::getSession()->set('session.client.forwarded', $neuterMUA);
+				Factory::getSession()->set('session.client.forwarded', $neuterMUA);
 				// 3. KILL THE SESSION (may not work, depends on the session handler)
-				JFactory::getSession()->destroy();
+				Factory::getSession()->destroy();
 
 				// Immediately block the scumbag
 				$this->exceptionsHandler->blockRequest('muashield');

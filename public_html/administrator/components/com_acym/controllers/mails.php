@@ -10,9 +10,7 @@ class MailsController extends acymController
         $type = acym_getVar('string', 'type');
         $this->breadcrumb[acym_translation('automation' != $type ? 'ACYM_TEMPLATES' : 'ACYM_AUTOMATION')] = acym_completeLink('automation' != $type ? 'mails' : 'automation');
         $this->loadScripts = [
-            'edit' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'introjs', 'parse-css', 'vue-applications' => ['code_editor'], 'vue-prism-editor', 'editor-wysid'],
-            'apply' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'introjs', 'parse-css', 'vue-applications' => ['code_editor'], 'vue-prism-editor', 'editor-wysid'],
-            'test' => ['colorpicker', 'datepicker', 'editor', 'thumbnail', 'foundation-email', 'introjs', 'parse-css', 'vue-applications' => ['code_editor'], 'vue-prism-editor', 'editor-wysid'],
+            'edit' => ['editor-wysid'],
         ];
         acym_header('X-XSS-Protection:0');
     }
@@ -23,9 +21,9 @@ class MailsController extends acymController
 
         $searchFilter = acym_getVar('string', 'mails_search', '');
         $tagFilter = acym_getVar('string', 'mails_tag', '');
-        $ordering = acym_getVar('string', 'mails_ordering', 'name');
+        $ordering = acym_getVar('string', 'mails_ordering', 'creation_date');
         $status = 'standard';
-        $orderingSortOrder = acym_getVar('string', 'mails_ordering_sort_order', 'asc');
+        $orderingSortOrder = acym_getVar('cmd', 'mails_ordering_sort_order', 'desc');
 
         $pagination = acym_get('helper.pagination');
         $mailsPerPage = $pagination->getListLimit();
@@ -39,6 +37,7 @@ class MailsController extends acymController
             'tag' => $tagFilter,
             'status' => $status,
             'ordering_sort_order' => $orderingSortOrder,
+            'onlyStandard' => true,
         ];
         $matchingMails = $this->getMatchingElementsFromData($requestData, $status, $page);
 
@@ -54,6 +53,10 @@ class MailsController extends acymController
 
         $pagination->setStatus($matchingMails['total'], $page, $mailsPerPage);
 
+        ob_start();
+        require acym_getView('mails', 'listing_import');
+        $templateImportView = ob_get_clean();
+
         $mailsData = [
             'allMails' => $matchingMails['elements'],
             'allTags' => acym_get('class.tag')->getAllTagsByType('mail'),
@@ -64,10 +67,50 @@ class MailsController extends acymController
             'status' => $status,
             'mailNumberPerStatus' => $matchingMails['status'],
             'orderingSortOrder' => $orderingSortOrder,
+            'templateImportView' => $templateImportView,
         ];
+
+        if (!empty($mailsData['tag'])) {
+            $mailsData['status_toolbar'] = [
+                'mails_tag' => $mailsData['tag'],
+            ];
+        }
+
+        $this->prepareToolbar($mailsData);
         parent::display($mailsData);
 
         return;
+    }
+
+    public function prepareToolbar(&$data)
+    {
+        $toolbarHelper = acym_get('helper.toolbar');
+        $toolbarHelper->addSearchBar($data['search'], 'mails_search', 'ACYM_SEARCH');
+        $toolbarHelper->addFilterByTag($data, 'mails_tag', 'acym__templates__filter__tags acym__select');
+        $toolbarHelper->addButton(acym_translation('ACYM_ADD_DEFAULT_TMPL'), ['data-task' => 'installDefaultTmpl', 'id' => 'acym__mail__install-default'], 'content_copy');
+        $otherContent = acym_modal(
+            '<i class="acymicon-download"></i>'.acym_translation('ACYM_IMPORT'),
+            $data['templateImportView'],
+            null,
+            '',
+            'class="acym__toolbar__button acym__toolbar__button-secondary cell medium-6 large-shrink" data-reload="true" data-ajax="false"'
+        );
+
+        $otherContent .= acym_modal(
+            '<i class="acymicon-add"></i>'.acym_translation('ACYM_CREATE'),
+            '<div class="cell grid-x grid-margin-x">
+								<button type="button" data-task="edit" data-editor="acyEditor" class="acym__create__template button cell medium-auto margin-top-1">'.acym_translation('ACYM_DD_EDITOR').'</button>
+								<button type="button" data-task="edit" data-editor="html" class="acym__create__template button cell large-auto small-6 margin-top-1 button-secondary">'.acym_translation('ACYM_HTML_EDITOR').'</button>
+							</div>',
+            '',
+            '',
+            'class="acym_vcenter acym__toolbar__button acym__toolbar__button-primary cell medium-6 large-shrink"',
+            true,
+            false
+        );
+        $toolbarHelper->addOtherContent($otherContent);
+
+        $data['toolbar'] = $toolbarHelper;
     }
 
     public function choose()
@@ -120,9 +163,27 @@ class MailsController extends acymController
         $typeEditor = acym_getVar('string', 'type_editor');
         $notification = acym_getVar('cmd', 'notification');
         $return = acym_getVar('string', 'return', '');
-        $return = empty($return) ? '' : urldecode($return);
+
+        if (base64_decode($return, true) === false) {
+            $return = empty($return) ? '' : $return;
+        } else {
+            $return = empty($return) ? '' : urldecode(base64_decode($return));
+        }
+
         $type = acym_getVar('string', 'type');
         $fromId = acym_getVar('int', 'from');
+        $listIds = acym_getVar('int', 'list_id', []);
+
+        if (in_array($type, ['welcome', 'unsubscribe'])) {
+            array_pop($this->breadcrumb);
+            $this->breadcrumb[acym_translation('ACYM_LISTS')] = acym_completeLink('lists');
+
+            if (!empty($listIds)) {
+                $campaignController = acym_get('controller.campaigns');
+                $campaignController->setTaskListing($type);
+                $listIds = [$listIds];
+            }
+        }
 
         if (!empty($notification)) {
             $mail = $mailClass->getOneByName($notification);
@@ -132,7 +193,6 @@ class MailsController extends acymController
         }
 
         $isAutomationAdmin = false;
-
         $fromMail = '';
 
         if (!empty($fromId)) $fromMail = $mailClass->getOneById($fromId);
@@ -168,7 +228,23 @@ class MailsController extends acymController
             if (!empty($type)) $mail->type = $type;
 
             if ('automation' != $type || empty($fromId)) $mail->id = 0;
-            $this->breadcrumb[acym_translation('automation' != $type ? 'ACYM_CREATE_TEMPLATE' : 'ACYM_NEW_EMAIL')] = acym_completeLink('mails&task=edit&type_editor='.$typeEditor.(!empty($fromId) ? '&from='.$fromId : '').'&type='.$type.(!empty($return) ? '&return='.urlencode($return) : ''));
+
+            switch ($type) {
+                case 'welcome':
+                    $breadcrumbTitle = 'ACYM_CREATE_WELCOME_MAIL';
+                    break;
+                case 'unsubscribe':
+                    $breadcrumbTitle = 'ACYM_CREATE_UNSUBSCRIBE_MAIL';
+                    break;
+                case 'automation':
+                    $breadcrumbTitle = 'ACYM_NEW_EMAIL';
+                    break;
+                default:
+                    $breadcrumbTitle = 'ACYM_CREATE_TEMPLATE';
+            }
+
+            $breadcrumbTitle = acym_translation($breadcrumbTitle);
+            $breadcrumbUrl = 'mails&task=edit&type_editor='.$typeEditor.(!empty($fromId) ? '&from='.$fromId : '').'&type='.$type;
         } else {
             $mail = $mailClass->getOneById($tempId);
             if (!empty($fromMail)) {
@@ -181,7 +257,13 @@ class MailsController extends acymController
             if (!empty($typeEditor)) $mail->editor = $typeEditor;
 
             if (empty($notification)) {
-                $this->breadcrumb[acym_escape($mail->name)] = acym_completeLink('mails&task=edit&id='.$mail->id);
+                if (in_array($mail->type, ['welcome', 'unsubscribe'])) {
+                    array_pop($this->breadcrumb);
+                    $this->breadcrumb[acym_translation('ACYM_LISTS')] = acym_completeLink('lists');
+                }
+
+                $breadcrumbTitle = $mail->name;
+                $breadcrumbUrl = 'mails&task=edit&id='.$mail->id;
             } else {
                 if (empty($return)) {
                     $return = empty($_SERVER['HTTP_REFERER']) ? '' : $_SERVER['HTTP_REFERER'];
@@ -191,13 +273,26 @@ class MailsController extends acymController
                 if (strpos($notifName, 'ACYM_NOTIFICATIION_') !== false) {
                     $notifName = $mail->name;
                 }
-                $this->breadcrumb[acym_escape($notifName)] = acym_completeLink('mails&task=edit&notification='.$mail->name.'&return='.urlencode($return));
-            }
 
+                $breadcrumbTitle = $notifName;
+                $breadcrumbUrl = 'mails&task=edit&notification='.$mail->name;
+            }
 
             if (strpos($mail->stylesheet, '[class="') !== false) {
                 acym_enqueueMessage(acym_translation('ACYM_WARNING_STYLESHEET_NOT_CORRECT'), 'warning');
             }
+        }
+
+        if (!empty($return)) $breadcrumbUrl .= '&return='.urlencode(base64_encode($return));
+        $this->breadcrumb[acym_escape($breadcrumbTitle)] = acym_completeLink($breadcrumbUrl);
+
+        $lists = [];
+
+        if (in_array($mail->type, ['welcome', 'unsubscribe'])) {
+            $listClass = acym_get('class.list');
+            $lists = $listClass->getAllWithIdName();
+
+            if (empty($listIds) && !empty($mail->id)) $listIds = $listClass->getListIdsByWelcomeUnsub($mail->id, $mail->type == 'welcome');
         }
 
         $data = [
@@ -207,6 +302,8 @@ class MailsController extends acymController
             'social_icons' => $this->config->get('social_icons', '{}'),
             'fromId' => $fromId,
             'langChoice' => acym_languageOption($mail->links_language, 'mail[links_language]'),
+            'list_id' => $listIds,
+            'lists' => $lists,
         ];
 
         if (!empty($return)) $data['return'] = $return;
@@ -278,6 +375,13 @@ class MailsController extends acymController
 
         $mailID = $mailClass->save($mail);
         if (!empty($mailID)) {
+
+            if (!empty($mail->type) && in_array($mail->type, ['welcome', 'unsubscribe'])) {
+                $listIds = acym_getVar('array', 'list_ids', []);
+                $listClass = acym_get('class.list');
+                $listClass->setWelcomeUnsubEmail($listIds, $mailID, $mail->type);
+            }
+
             if (!$ajax) acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success');
             if ($fromAutomation) {
                 acym_setVar('from', $mailID);
@@ -346,10 +450,11 @@ class MailsController extends acymController
         $mailClass = acym_get('class.mail');
         $mail = new stdClass();
 
+        $language = acym_getVar('string', 'language', 'main');
         $mail->id = acym_getVar('int', 'mailId', 0);
         $mail->autosave = acym_getVar('string', 'autoSave', '', 'REQUEST', ACYM_ALLOWRAW);
 
-        if (empty($mail->id) || !$mailClass->autoSave($mail)) {
+        if (empty($mail->id) || !$mailClass->autoSave($mail, $language)) {
             echo 'error';
         } else {
             echo 'saved';
@@ -371,7 +476,7 @@ class MailsController extends acymController
         $editor = acym_getVar('string', 'editor');
         $automation = acym_getVar('boolean', 'automation', false);
         $returnUrl = acym_getVar('string', 'return');
-        $returnUrl = empty($returnUrl) || 'undefined' == $returnUrl ? '' : '&return='.urlencode($returnUrl);
+        $returnUrl = empty($returnUrl) || 'undefined' == $returnUrl ? '' : '&return='.urlencode(base64_encode($returnUrl));
 
         $mailsPerPage = $pagination->getListLimit();
         $page = acym_getVar('int', 'pagination_page_ajax', 1);
@@ -496,7 +601,7 @@ class MailsController extends acymController
         $result->level = 'info';
         $result->message = '';
 
-        $mailId = 0;
+        $testNote = acym_getVar('string', 'test_note', '');
 
         if ($controller == 'mails') {
             $mailId = acym_getVar('int', 'id', 0);
@@ -509,7 +614,14 @@ class MailsController extends acymController
 
                 exit;
             }
+
             $mailId = $campaign->mail_id;
+
+            $languageVersion = acym_getVar('string', 'lang_version', 'main');
+            if (!empty($languageVersion) && $languageVersion !== 'main') {
+                $translationId = $this->currentClass->getTranslationId($mailId, $languageVersion);
+                if (!empty($translationId)) $mailId = $translationId;
+            }
         }
 
         $mailClass = acym_get('class.mail');
@@ -531,7 +643,7 @@ class MailsController extends acymController
 
         $testEmails = explode(',', acym_getVar('string', 'test_emails'));
         foreach ($testEmails as $oneAddress) {
-            if (!$mailerHelper->sendOne($mail->id, $oneAddress, true)) {
+            if (!$mailerHelper->sendOne($mail->id, $oneAddress, true, $testNote)) {
                 $result->level = 'error';
                 $result->timer = '';
             }
@@ -708,7 +820,7 @@ class MailsController extends acymController
     public function installDefaultTmpl()
     {
         $updateHelper = acym_get('helper.update');
-        $updateHelper->installTemplates();
+        $updateHelper->installTemplates(true);
 
         $this->listing();
     }
@@ -728,5 +840,46 @@ class MailsController extends acymController
 
         exit;
     }
+
+    public function duplicate()
+    {
+        $templateId = acym_getVar('int', 'templateId', 0);
+
+        if (empty($templateId)) {
+            acym_enqueueMessage(acym_translation('ACYM_TEMPLATE_DUPLICATE_ERROR'), 'error');
+            $this->listing();
+
+            return;
+        }
+
+        $mailClass = acym_get('class.mail');
+        $oldTemplate = $mailClass->getOneById($templateId);
+
+        if (empty($oldTemplate)) {
+            acym_enqueueMessage(acym_translation('ACYM_TEMPLATE_DUPLICATE_ERROR'), 'error');
+            $this->listing();
+
+            return;
+        }
+
+        $newTemplate = $oldTemplate;
+        $newTemplate->id = 0;
+        $newTemplate->name = $oldTemplate->name.'_copy';
+
+        $mailClass->save($newTemplate);
+
+        $this->listing();
+    }
+
+    public function delete()
+    {
+        $returnListing = acym_getVar('string', 'return_listing', '');
+        parent::delete();
+        if (!empty($returnListing)) {
+            $link = acym_isAdmin() ? acym_completeLink($returnListing, false, true) : acym_frontendLink($returnListing);
+            acym_redirect($link);
+        }
+    }
 }
+
 

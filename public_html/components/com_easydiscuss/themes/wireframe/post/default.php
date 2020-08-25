@@ -54,7 +54,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 			<div class="o-grid-sm o-grid-sm--center">
 				<div class="o-grid-sm__cell">
-					<h2 class="ed-post-item__title t-lg-mb--md">
+					<h1 class="ed-post-item__title t-lg-mb--md">
 
 						<?php if ($this->config->get('post_priority') && $post->getPriority()) { ?>
 						<i class="fa fa-file t-lg-mr--sm"
@@ -81,7 +81,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 							<?php echo $post->getTitle();?>
 						</a>
-					</h2>
+					</h1>
 
 					<?php if ($post->hasStatus() || $post->getPostType() || $post->isStillNew()) { ?>
 
@@ -289,6 +289,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<?php if ($replies) { ?>
 			<?php foreach ($replies as $reply) { ?>
 				<?php echo $this->output('site/post/default.reply.item', array('post' => $reply, 'poll' => $reply->getPoll())); ?>
+
+				<?php echo ED::renderModule('easydiscuss-between-replies'); ?>
 			<?php } ?>
 		<?php } ?>
 		</div>

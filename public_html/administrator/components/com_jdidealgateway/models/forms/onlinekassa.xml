@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fieldset name="onlinekassa">
+
+        <field name="psp-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_PSP"/>
+
+        <field name="testmode"
+               type="radio"
+               label="COM_ROPAYMENTS_TEST_MODE_LABEL"
+               description="COM_ROPAYMENTS_TEST_MODE_DESC"
+               required="true"
+               default="1"
+               class="btn-group btn-group-yesno"
+               labelclass="config">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+
+        <field name="signingKey"
+               type="text"
+               label="COM_ROPAYMENTS_ONLINEKASSA_SIGNINGKEY_LABEL"
+               description="COM_ROPAYMENTS_ONLINEKASSA_SIGNINGKEY_DESC"
+               required="true"
+               size="50"
+               class="input-xxlarge"
+               labelclass="config"/>
+
+        <field name="apiKey"
+               type="textarea"
+               label="COM_ROPAYMENTS_ONLINEKASSA_APIKEY_LABEL"
+               description="COM_ROPAYMENTS_ONLINEKASSA_APIKEY_DESC"
+               required="true"
+               size="50"
+               rows="10"
+               default=""
+               class="input-xxlarge"
+               labelclass="config"/>
+
+        <field name="description"
+               type="text"
+               label="COM_ROPAYMENTS_ONLINEKASSA_DESCRIPTION_LABEL"
+               description="COM_ROPAYMENTS_ONLINEKASSA_DESCRIPTION_DESC"
+               class="input-xxlarge"
+               required="true"
+               size="30"
+               labelclass="config"/>
+
+        <field name="redirect"
+               type="jdideal.waitoptions"
+               label="COM_ROPAYMENTS_WAIT_TIME_LABEL"
+               description="COM_ROPAYMENTS_WAIT_TIME_DESC"
+               required="true"
+               size="1"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="customerLanguage"
+               type="list"
+               label="COM_ROPAYMENTS_ONLINEKASSA_CUSTOMERLANGUAGE_LABEL"
+               description="COM_ROPAYMENTS_ONLINEKASSA_CUSTOMERLANGUAGE_DESC"
+               required="false"
+               default="NL"
+               multiple="false"
+               size="1"
+               class="advancedSelect"
+               labelclass="config">
+            <option value="NL">COM_ROPAYMENTS_DUTCH</option>
+            <option value="EN">COM_ROPAYMENTS_ENGLISH</option>
+            <option value="FR">COM_ROPAYMENTS_FRENCH</option>
+            <option value="DE">COM_ROPAYMENTS_GERMAN</option>
+        </field>
+
+        <field name="currency"
+               type="list"
+               label="COM_ROPAYMENTS_ONLINEKASSA_CURRENCY_LABEL"
+               description="COM_ROPAYMENTS_ONLINEKASSA_CURRENCY_DESC"
+               required="false"
+               default="EUR"
+               multiple="false"
+               size="1"
+               class="advancedSelect"
+               labelclass="config">
+            <option value="EUR">COM_ROPAYMENTS_CURRENCY_EUR</option>
+            <option value="USD">COM_ROPAYMENTS_CURRENCY_USD</option>
+            <option value="CHF">COM_ROPAYMENTS_CURRENCY_CHF</option>
+            <option value="GBP">COM_ROPAYMENTS_CURRENCY_GBP</option>
+            <option value="CAD">COM_ROPAYMENTS_CURRENCY_CAD</option>
+            <option value="JPY">COM_ROPAYMENTS_CURRENCY_JPY</option>
+            <option value="AUD">COM_ROPAYMENTS_CURRENCY_AUD</option>
+            <option value="NOK">COM_ROPAYMENTS_CURRENCY_NOK</option>
+            <option value="SEK">COM_ROPAYMENTS_CURRENCY_SEK</option>
+            <option value="DKK">COM_ROPAYMENTS_CURRENCY_DKK</option>
+        </field>
+
+        <field name="paymentMeanBrandList"
+               type="list"
+               label="COM_ROPAYMENTS_ONLINEKASSA_BRANDLIST_LABEL"
+               description="COM_ROPAYMENTS_ONLINEKASSA_BRANDLIST_DESC"
+               required="true"
+               default="all"
+               multiple="true"
+               size="9"
+               class="advancedSelect"
+               labelclass="config">
+            <option value="all">COM_ROPAYMENTS_ALL</option>
+            <option value="IDEAL">COM_JDIDEALGATWAY_PAYMENT_METHOD_IDEAL</option>
+            <option value="VISA">COM_JDIDEALGATWAY_PAYMENT_METHOD_VISA</option>
+            <option value="MASTERCARD">COM_JDIDEALGATWAY_PAYMENT_METHOD_MASTERCARD</option>
+            <option value="MAESTRO">COM_JDIDEALGATWAY_PAYMENT_METHOD_MAESTRO</option>
+            <option value="BANCONTACT">COM_JDIDEALGATWAY_PAYMENT_METHOD_BANCONTACT</option>
+            <option value="V_PAY">COM_JDIDEALGATWAY_PAYMENT_METHOD_VPAY</option>
+            <option value="PAYPAL">COM_JDIDEALGATWAY_PAYMENT_METHOD_PAYPAL</option>
+        </field>
+
+        <field name="status-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_STATUS"/>
+
+        <field name="pendingStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_PENDING_LABEL"
+               description="COM_ROPAYMENTS_STATUS_PENDING_DESC"
+               required="false"
+               size="1"
+               default="P"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="verifiedStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_SUCCESS_LABEL"
+               description="COM_ROPAYMENTS_STATUS_SUCCESS_DESC"
+               required="false"
+               size="1"
+               default="C"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="cancelledStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_CANCELLED_LABEL"
+               description="COM_ROPAYMENTS_STATUS_CANCELLED_DESC"
+               required="false"
+               size="1"
+               default="X"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="failedStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_FAILED_LABEL"
+               description="COM_ROPAYMENTS_STATUS_FAILED_DESC"
+               required="false"
+               size="1"
+               default="F"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="openStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_OPEN_LABEL"
+               description="COM_ROPAYMENTS_STATUS_OPEN_DESC"
+               required="false"
+               size="1"
+               default="P"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="ordernumber-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_ORDERNUMBERS"/>
+
+        <field name="orderNumber"
+               type="jdideal.ordernumber"
+               label="COM_ROPAYMENTS_ORDERNUMBER_LABEL"
+               description="COM_ROPAYMENTS_ORDERNUMBER_DESC"
+               required="false"
+               size="1"
+               default="order_number"
+               class="advancedSelect"
+               labelclass="config"/>
+    </fieldset>
+</form>

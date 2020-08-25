@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -39,7 +39,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		$id = $this->input->get('id', 0, 'int');
 
 		// Get the date POST
-		$data = JRequest::get('post');
+		$data = $this->input->getArray('post');
 
 		// Load the post library
 		$post = ED::post($id);
@@ -82,6 +82,9 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 				$data['cluster_type'] = '';
 			}
 		}
+
+		// normalize the post form password prevent for the browser auto-fill issue. 
+		$data['password'] = $this->input->get('protection-password', '', 'default');
 
 		// Bind the posted data
 		// we need to indicate this bind is for creation / update

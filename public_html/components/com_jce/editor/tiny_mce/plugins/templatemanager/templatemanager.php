@@ -41,6 +41,14 @@ final class WFTemplateManagerPlugin extends WFMediaManager
     {
         parent::display();
 
+        // create new tabs instance
+        $tabs = WFTabs::getInstance(array(
+            'base_path' => WF_EDITOR_PLUGINS . '/templatemanager',
+        ));
+
+        // Add tabs
+        $tabs->addPanel('default', 1);
+
         $document = WFDocument::getInstance();
 
         $document->addScript(array('templatemanager'), 'plugins');
@@ -48,6 +56,7 @@ final class WFTemplateManagerPlugin extends WFMediaManager
 
         $document->addScriptDeclaration('TemplateManager.settings=' . json_encode($this->getSettings()) . ';');
     }
+
 
     public function onUpload($file, $relative = '')
     {
@@ -199,7 +208,7 @@ final class WFTemplateManagerPlugin extends WFMediaManager
     public function loadTemplate($file)
     {
         $content = $this->processTemplate($file);
-        
+
         $ext = WFUtility::getExtension($file);
 
         // process markdown
@@ -239,7 +248,10 @@ final class WFTemplateManagerPlugin extends WFMediaManager
             $name = WFUtility::getFilename($item['name']);
             $value = $item['properties']['preview'];
 
-            $list[$name] = $value;
+            $list[$name] = array(
+                'value' => $value,
+                'image' => '',
+            );
         }
 
         return $list;

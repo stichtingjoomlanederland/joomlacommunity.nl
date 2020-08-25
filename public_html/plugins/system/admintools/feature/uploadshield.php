@@ -68,19 +68,19 @@ class AtsystemFeatureUploadshield extends AtsystemFeatureAbstract
 
 			foreach ($descriptors as $descriptor)
 			{
-				$files = array();
+				$files = [];
 
 				if (is_array($descriptor['tmp_name']))
 				{
 					foreach ($descriptor['tmp_name'] as $key => $value)
 					{
-						$files[] = array(
+						$files[] = [
 							'name'     => $descriptor['name'][$key],
 							'type'     => $descriptor['type'][$key],
 							'tmp_name' => $descriptor['tmp_name'][$key],
 							'error'    => $descriptor['error'][$key],
 							'size'     => $descriptor['size'][$key],
-						);
+						];
 					}
 				}
 				else
@@ -90,24 +90,24 @@ class AtsystemFeatureUploadshield extends AtsystemFeatureAbstract
 
 				foreach ($files as $fileDescriptor)
 				{
-					$tempNames = $fileDescriptor['tmp_name'];
+					$tempNames     = $fileDescriptor['tmp_name'];
 					$intendedNames = $fileDescriptor['name'];
 
 					if (!is_array($tempNames))
 					{
-						$tempNames = array($tempNames);
+						$tempNames = [$tempNames];
 					}
 
 					if (!is_array($intendedNames))
 					{
-						$intendedNames = array($intendedNames);
+						$intendedNames = [$intendedNames];
 					}
 
 					$len = count($tempNames);
 
 					for ($i = 0; $i < $len; $i++)
 					{
-						$tempName = array_shift($tempNames);
+						$tempName     = array_shift($tempNames);
 						$intendedName = array_shift($intendedNames);
 
 						$extraInfo = "File descriptor :\n";
@@ -164,18 +164,18 @@ class AtsystemFeatureUploadshield extends AtsystemFeatureAbstract
 						if ($fp !== false)
 						{
 							// Initialise
-							$data = '';
-							$extension = strtolower($explodedName[0]);
-							$possibleFileForShortTagSyntax = in_array($extension, array(
-								'inc', 'phps', 'class', 'php3', 'php4', 'txt', 'dat',  'tpl', 'tmpl'
-							));
+							$data                          = '';
+							$extension                     = strtolower($explodedName[0]);
+							$possibleFileForShortTagSyntax = in_array($extension, [
+								'inc', 'phps', 'class', 'php3', 'php4', 'txt', 'dat', 'tpl', 'tmpl',
+							]);
 
 							// Process the file in 128Kb chunks
 							while (!feof($fp))
 							{
 								// Read 128Kb and add it to the existing data (the last 4 bytes of the previous scan)
 								$buffer = @fread($fp, 131072);
-								$data .= $buffer;
+								$data   .= $buffer;
 
 								// Do we have a regular PHP tag?
 								if (stristr($buffer, '<?php'))

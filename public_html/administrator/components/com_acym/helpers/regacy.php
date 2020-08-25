@@ -88,7 +88,7 @@ class acymregacyHelper extends acymObject
         }
         $result .= '</table>';
         $result .= '<input type="hidden" value="'.implode(',', array_keys($this->lists)).'" name="regacy_visible_lists" />';
-        $result .= '<input type="hidden" value="'.ACYM_CMS.'_frontregister" name="acy_source" />';
+        $result .= '<input type="hidden" value="'.ACYM_CMS.' registration form" name="acy_source" />';
         $this->lists = $result;
     }
 }

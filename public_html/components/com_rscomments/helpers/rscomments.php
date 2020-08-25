@@ -53,6 +53,10 @@ abstract class RSCommentsHelper
 		return version_compare(JVERSION, '3.0', '>=');
 	}
 	
+	public static function isJ4() {
+		return version_compare(JVERSION, '4.0', '>=');
+	}
+	
 	// Show date based on the specific date mask
 	public static function showDate($date, $format = null) {
 		$date_format = is_null($format) ? RSCommentsHelper::getConfig('date_format') : $format;
@@ -194,8 +198,8 @@ abstract class RSCommentsHelper
 		$patterns[] = '/\[url\]([ a-zA-Z0-9\:\/\-\?\&\.\=\_\~\#\']*)\[\/url\]/i';
 		$replacements[] = '\\1';
 
-		$patterns[] = '#\[img\](http:\/\/)?([^\s\<\>\(\)\"\']*?)\[\/img\]#i';
-		$replacements[] = '\\2';
+		$patterns[] = '#\[img\]((http|https):\/\/)?([^\s\<\>\(\)\"\']*?)\[\/img\]#i';
+		$replacements[] = '\\1\\3';
 
 		$patterns[] = '#\[code\](.*?)\[\/code\]#ism';
 		$replacements[] = '\\1';
@@ -260,8 +264,8 @@ abstract class RSCommentsHelper
 		$replacements[] = (isset($permissions['bb_url']) && $permissions['bb_url']) ? '<a href="\\1" '.$nofollow.'>\\1</a>' : '\\1';
 		
 		// IMG
-		$patterns[] = '#\[img\](http:\/\/)?([^\s\<\>\(\)\"\']*?)\[\/img\]#i';
-		$replacements[] = (isset($permissions['bb_image']) && $permissions['bb_image']) ? '<img src="http://\\2" alt="" border="0" />' : '\\2';
+		$patterns[] = '#\[img\]((http|https):\/\/)?([^\s\<\>\(\)\"\']*?)\[\/img\]#i';
+		$replacements[] = (isset($permissions['bb_image']) && $permissions['bb_image']) ? '<img src="\\1\\3" alt="" border="0" />' : '\\1\\3';
 		$patterns[] = '#\[img\](.*?)([^\s<>()\"\']*?)(.*?)\[\/img\]#i';
 		$replacements[] = '[img:error]';
 
@@ -431,6 +435,7 @@ abstract class RSCommentsHelper
 	public static function showIcons($permissions) {
 		$config	= RSCommentsHelper::getConfig();
 		$icons	= array();
+		$btnClass = RSCommentsHelper::isJ4() ? 'btn btn-secondary' : 'btn btn-small';
 		
 		if ($config->enable_bbcode == 1 && (isset($permissions['bbcode']) && $permissions['bbcode'])) {
 			$bbcode = RSCommentsHelper::createBBs($permissions);
@@ -438,12 +443,12 @@ abstract class RSCommentsHelper
 		}
 		
 		if ($config->enable_smiles == 1) {
-			$smileys = array('<a href="javascript:void(0);" data-rsc-task="emoticons" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_EMOTICONS')).'"><i class="fa fa-smile-o"></i></a>');
+			$smileys = array('<a href="javascript:void(0);" data-rsc-task="emoticons" class="'.$btnClass.' '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_EMOTICONS')).'"><i class="fa fa-smile-o"></i></a>');
 			$icons = array_merge($icons, $smileys);
 		}
 		
 		if (isset($permissions['enable_preview']) && $permissions['enable_preview']) {
-			$icons[] = '<a href="javascript:void(0);" data-rsc-task="preview" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_PREVIEW')).'"><i class="fa fa-search"></i></a>';
+			$icons[] = '<a href="javascript:void(0);" data-rsc-task="preview" class="'.$btnClass.' '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_PREVIEW')).'"><i class="fa fa-search"></i></a>';
 		}
 		
 		return $icons;
@@ -453,46 +458,48 @@ abstract class RSCommentsHelper
 	public static function createBBs($permissions) {
 		$bbcode = array();
 		
+		$btnClass = RSCommentsHelper::isJ4() ? 'btn btn-secondary' : 'btn btn-small';
+		
 		if (isset($permissions['bb_bold']) && $permissions['bb_bold']) {
-			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="bold" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_BOLD')).'"><i class="fa fa-bold"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="bold" class="'.$btnClass.' '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_BOLD')).'"><i class="fa fa-bold"></i></a>';
 		}
 		
 		if (isset($permissions['bb_italic']) && $permissions['bb_italic']) {
-			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="italic" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ITALIC')).'"><i class="fa fa-italic"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="italic" class="'.$btnClass.' '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ITALIC')).'"><i class="fa fa-italic"></i></a>';
 		}
 		
 		if (isset($permissions['bb_underline']) && $permissions['bb_underline']) {
-			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="underline" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_UNDERLINE')).'"><i class="fa fa-underline"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="underline" class="'.$btnClass.' '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_UNDERLINE')).'"><i class="fa fa-underline"></i></a>';
 		}
 		
 		if (isset($permissions['bb_stroke']) && $permissions['bb_stroke']) {
-			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="stroke" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_STROKE')).'"><i class="fa fa-strikethrough"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="stroke" class="'.$btnClass.' '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_STROKE')).'"><i class="fa fa-strikethrough"></i></a>';
 		}
 		
 		if (isset($permissions['bb_quote']) && $permissions['bb_quote']) {
-			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="quote" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_QUOTE')).'"><i class="fa fa-quote-right"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="quote" class="'.$btnClass.' '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_QUOTE')).'"><i class="fa fa-quote-right"></i></a>';
 		}
 		
 		if (isset($permissions['bb_lists']) && $permissions['bb_lists']) {
-			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="list" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_UNORDERED')).'"><i class="fa fa-list-ul"></i></a>';
-			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="olist" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ORDERED')).'"><i class="fa fa-list-ol"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="list" class="'.$btnClass.' '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_UNORDERED')).'"><i class="fa fa-list-ul"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="olist" class="'.$btnClass.' '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ORDERED')).'"><i class="fa fa-list-ol"></i></a>';
 		}
 		
 		if (isset($permissions['bb_image']) && $permissions['bb_image']) {
-			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="image" data-rsc-text="'.htmlentities(JText::_('COM_RSCOMMENTS_ADD_IMAGE'), ENT_COMPAT, 'UTF-8').'" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ADD_IMAGE')).'"><i class="fa fa-picture-o"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="image" data-rsc-text="'.htmlentities(JText::_('COM_RSCOMMENTS_ADD_IMAGE'), ENT_COMPAT, 'UTF-8').'" class="'.$btnClass.' '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ADD_IMAGE')).'"><i class="fa fa-picture-o"></i></a>';
 		}
 		
 		if (isset($permissions['bb_url']) && $permissions['bb_url']) {
-			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="url" data-rsc-text="'.htmlentities(JText::_('COM_RSCOMMENTS_ADD_URL'), ENT_COMPAT, 'UTF-8').'" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ADD_URL')).'"><i class="fa fa-link"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="url" data-rsc-text="'.htmlentities(JText::_('COM_RSCOMMENTS_ADD_URL'), ENT_COMPAT, 'UTF-8').'" class="'.$btnClass.' '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ADD_URL')).'"><i class="fa fa-link"></i></a>';
 		}
 		
 		if (isset($permissions['bb_code']) && $permissions['bb_code']) {
-			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="code" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ADD_CODE')).'"><i class="fa fa-code"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="code" class="'.$btnClass.' '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ADD_CODE')).'"><i class="fa fa-code"></i></a>';
 		}
 		
 		if (isset($permissions['bb_videos']) && $permissions['bb_videos']) {
-			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="youtube" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ADD_YOUTUBE')).'"><i class="fa fa-youtube"></i></a>';
-			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="vimeo" class="btn btn-small '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ADD_VIMEO')).'"><i class="fa fa-vimeo"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="youtube" class="'.$btnClass.' '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ADD_YOUTUBE')).'"><i class="fa fa-youtube"></i></a>';
+			$bbcode[] = '<a href="javascript:void(0);" data-rsc-task="bbcode" data-rsc-code="vimeo" class="'.$btnClass.' '.RSTooltip::tooltipClass().'" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_ADD_VIMEO')).'"><i class="fa fa-vimeo"></i></a>';
 		}
 		
 		return $bbcode;
@@ -973,8 +980,10 @@ abstract class RSCommentsHelper
 		}
 		
 		if ($config->form_accordion) {
-			JText::script('COM_RSCOMMENTS_HIDE_FORM');
-			JText::script('COM_RSCOMMENTS_SHOW_FORM');
+			try {
+				JText::script('COM_RSCOMMENTS_HIDE_FORM');
+				JText::script('COM_RSCOMMENTS_SHOW_FORM');
+			} catch (Exception $e) {}
 		}
 		
 		require_once JPATH_SITE.'/components/com_rscomments/helpers/tooltip.php';
@@ -1007,6 +1016,8 @@ abstract class RSCommentsHelper
 	
 	// Show RSComments! layout
 	public static function showRSComments($option, $id, $template = null, $container = null, $override = false) {
+		require_once JPATH_SITE.'/components/com_rscomments/helpers/adapter/adapter.php';
+		
 		// Check the category of the article
 		if ($option == 'com_content') {
 			$db			= JFactory::getDbo();
@@ -1317,31 +1328,53 @@ abstract class RSCommentsHelper
 		$doc = JFactory::getDocument();
 		
 		if ($config->captcha == 2 && isset($permissions['captcha']) && $permissions['captcha']) {
-			$doc->addScript('https://www.google.com/recaptcha/api.js?render=explicit&amp;hl='.JFactory::getLanguage()->getTag());
-			$doc->addScriptDeclaration("RSCommentsReCAPTCHAv2.loaders.push(function(){
-	var id = grecaptcha.render('rsc-g-recaptcha-".$hash."', {
-		'sitekey': '".htmlentities($config->recaptcha_new_site_key, ENT_QUOTES, 'UTF-8')."',
-		'theme': '".htmlentities($config->recaptcha_new_theme, ENT_QUOTES, 'UTF-8')."',
-		'type': '".htmlentities($config->recaptcha_new_type, ENT_QUOTES, 'UTF-8')."'
-	});
-	RSCommentsReCAPTCHAv2.ids['$hash'] = id;
-});
-");
+			$script	 = array();
+			$file	 = 'https://www.google.com/recaptcha/api.js?render=explicit&hl='.JFactory::getLanguage()->getTag();
+			$attribs = $config->recaptcha_new_size == 'invisible' ? array('async' => 'async', 'defer' => 'defer') : array();
+			
+			$doc->addScript($file, array(), $attribs);
+			
+			$script[] = "RSCommentsReCAPTCHAv2.loaders.push(function(){";
+			$script[] = "\tvar id = grecaptcha.render('rsc-g-recaptcha-".$hash."', {";
+			$script[] = "\t\t'sitekey': '".htmlentities($config->recaptcha_new_site_key, ENT_QUOTES, 'UTF-8')."',";
+			$script[] = "\t\t'theme': '".htmlentities($config->recaptcha_new_theme, ENT_QUOTES, 'UTF-8')."',";
+			$script[] = "\t\t'type': '".htmlentities($config->recaptcha_new_type, ENT_QUOTES, 'UTF-8')."',";
+			
+			if ($config->recaptcha_new_size == 'invisible') {
+				$script[] = "\t\t'badge': '".htmlentities($config->recaptcha_new_badge, ENT_QUOTES, 'UTF-8')."',";
+			}
+			
+			$script[] = "\t\t'size': '".htmlentities($config->recaptcha_new_size, ENT_QUOTES, 'UTF-8')."'";
+			$script[] = "\t});";
+			$script[] = "\tRSCommentsReCAPTCHAv2.ids['$hash'] = id;";
+			$script[] = "\tRSCommentsReCAPTCHAv2.type['$hash'] = '".htmlentities($config->recaptcha_new_size, ENT_QUOTES, 'UTF-8')."';";
+			
+			if ($config->recaptcha_new_size == 'invisible') {
+				$script[] = "\tgrecaptcha.execute(id);";
+			}
+			
+			$script[] = "});";
+			
+			$doc->addScriptDeclaration(implode("\n", $script));
 		}
 	}
 	
 	// Load jQuery
 	public static function loadjQuery($noconflict = true) {
 		if (RSCommentsHelper::getConfig('frontend_jquery')) {
-			JHtml::_('jquery.framework', $noconflict);
+			try {
+				JHtml::_('jquery.framework', $noconflict);
+			} catch(Exception $e) {}
 		}
 	}
 	
 	// Load Bootstrap
 	public static function loadBootstrap($force = false) {
 		if (RSCommentsHelper::getConfig('load_bootstrap') || $force) {
-			JHtml::_('bootstrap.framework');
-			JHtmlBootstrap::loadCss(true);
+			try {
+				JHtml::_('bootstrap.framework');
+				JHtmlBootstrap::loadCss(true);
+			} catch (Exception $e) {}
 		}
 	}
 	
@@ -1475,7 +1508,7 @@ abstract class RSCommentsHelper
 			'storage'      => $config->get('cache_handler', ''),
 			'lifetime'     => 900,
 			'caching'      => true,
-			'cachebase'    => $config->get('cache_path', JPATH_SITE . '/cache')
+			'cachebase'    => $config->get('cache_path', JPATH_CACHE)
 		);
 		
 		$cache	= JCache::getInstance('callback', $options);

@@ -76,11 +76,6 @@ class RscommentsModelComment extends JModelAdmin
 		return $data;
 	}
 	
-	public function getRSFieldset() {
-		$fieldset = new RSFieldset();
-		return $fieldset;
-	}
-	
 	public function votes($pks) {
 		if ($pks) {
 			$db		= JFactory::getDbo();

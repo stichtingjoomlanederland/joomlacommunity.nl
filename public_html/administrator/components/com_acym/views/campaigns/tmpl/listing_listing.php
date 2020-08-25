@@ -3,22 +3,33 @@ defined('_JEXEC') or die('Restricted access');
 ?><?php if (empty($data['allCampaigns'])) { ?>
 	<h1 class="cell acym__listing__empty__search__title text-center"><?php echo acym_translation('ACYM_NO_RESULTS_FOUND'); ?></h1>
 <?php } else { ?>
+	<div class="cell margin-bottom-1 acym__listing__actions grid-x">
+        <?php
+        $actions = ['delete' => acym_translation('ACYM_DELETE'), 'duplicate' => acym_translation('ACYM_DUPLICATE')];
+        echo acym_listingActions($actions);
+        ?>
+	</div>
 	<div class="cell grid-x">
 		<div class="grid-x acym__listing__actions cell auto">
-            <?php
-            $actions = ['delete' => acym_translation('ACYM_DELETE'), 'duplicate' => acym_translation('ACYM_DUPLICATE')];
-            echo acym_listingActions($actions);
-            ?>
 			<div class="medium-auto cell">
                 <?php
-                $options = [
-                    '' => ['ACYM_ALL', $data['allStatusFilter']->all],
-                    'scheduled' => ['ACYM_SCHEDULED', $data['allStatusFilter']->scheduled],
-                    'sent' => ['ACYM_SENT', $data['allStatusFilter']->sent],
-                    'draft' => ['ACYM_DRAFT', $data['allStatusFilter']->draft],
-                    'auto' => ['ACYM_AUTO', $data['allStatusFilter']->auto],
-                    'generated' => ['ACYM_GENERATED', $data['allStatusFilter']->generated, $data['generatedPending'] ? 'pending' : ''],
-                ];
+                if ($data['campaign_type'] == 'campaigns_auto') {
+                    $options = [
+                        '' => ['ACYM_ALL', $data['allStatusFilter']->all],
+                        'generated' => [
+                            'ACYM_GENERATED',
+                            $data['allStatusFilter']->generated,
+                            $data['generatedPending'] ? 'pending' : '',
+                        ],
+                    ];
+                } else {
+                    $options = [
+                        '' => ['ACYM_ALL', $data['allStatusFilter']->all],
+                        'scheduled' => ['ACYM_SCHEDULED', $data['allStatusFilter']->scheduled],
+                        'sent' => ['ACYM_SENT', $data['allStatusFilter']->sent],
+                        'draft' => ['ACYM_DRAFT', $data['allStatusFilter']->draft],
+                    ];
+                }
                 echo acym_filterStatus($options, $data['status'], 'campaigns_status');
                 ?>
 			</div>
@@ -49,12 +60,20 @@ defined('_JEXEC') or die('Restricted access');
 				<div class="medium-auto small-11 cell acym__listing__header__title">
                     <?php echo acym_translation('ACYM_CAMPAIGNS'); ?>
 				</div>
-				<div class="large-3 medium-3 hide-for-small-only cell acym__listing__header__title">
+				<div class="large-2 medium-3 hide-for-small-only cell acym__listing__header__title">
                     <?php echo acym_translation('ACYM_LISTS'); ?>
 				</div>
 				<div class="large-2 medium-4 hide-for-small-only cell acym__listing__header__title text-center">
-                    <?php echo acym_translation('ACYM_STATUS'); ?>
+                    <?php echo acym_translation($data['campaign_type'] == 'campaigns_auto' ? 'ACYM_FREQUENCY' : 'ACYM_STATUS'); ?>
 				</div>
+                <?php if ($data['campaign_type'] == 'campaigns_auto') { ?>
+					<div class="large-1 hide-for-small-only hide-for-medium-only text-center cell acym__listing__header__title acym__campaign__auto__generation">
+                        <?php echo acym_translation('ACYM_LAST_GENERATION'); ?>
+					</div>
+					<div class="large-1 hide-for-small-only hide-for-medium-only text-center cell acym__listing__header__title acym__campaign__auto__generation">
+                        <?php echo acym_translation('ACYM_NEXT_TRIGGER'); ?>
+					</div>
+                <?php } ?>
 				<div class="large-1 hide-for-small-only hide-for-medium-only text-center cell acym__listing__header__title">
                     <?php echo acym_translation('ACYM_OPEN'); ?>
 				</div>
@@ -93,7 +112,7 @@ defined('_JEXEC') or die('Restricted access');
                             ?>
 						</p>
 					</div>
-					<div class="large-3 medium-3 small-5 cell">
+					<div class="large-2 medium-3 small-5 cell">
                         <?php
                         if (!empty($campaign->lists)) {
                             echo '<div class="grid-x cell text-center">';
@@ -124,7 +143,7 @@ defined('_JEXEC') or die('Restricted access');
 
                                 echo acym_tooltip(
                                     '<div class="cell acym__campaign__status__status acym__background-color__purple">
-																<span class="acym__color__white">'.acym_translation('ACYM_AUTO').'</span>
+																<span class="acym__color__white">'.$campaign->sending_params.'</span>
 															</div>',
                                     $tooltip,
                                     'cell'
@@ -148,9 +167,29 @@ defined('_JEXEC') or die('Restricted access');
                             ?>
 						</div>
 					</div>
+                    <?php if ($data['campaign_type'] == 'campaigns_auto') { ?>
+						<div class="large-1 hide-for-small-only hide-for-medium-only cell text-center acym__campaign__auto__generation">
+                            <?php
+                            if (empty($campaign->last_generated)) {
+                                echo '-';
+                            } else {
+                                echo acym_date($campaign->last_generated, acym_translation('ACYM_DATE_FORMAT_LC2'));
+                            }
+                            ?>
+						</div>
+						<div class="large-1 hide-for-small-only hide-for-medium-only cell text-center acym__campaign__auto__generation">
+                            <?php
+                            if (empty($campaign->next_trigger)) {
+                                echo '-';
+                            } else {
+                                echo acym_date($campaign->next_trigger, acym_translation('ACYM_DATE_FORMAT_LC2'));
+                            }
+                            ?>
+						</div>
+                    <?php } ?>
 					<div class="large-1 hide-for-small-only hide-for-medium-only cell text-center">
                         <?php
-                        if ($campaign->sent && !empty($campaign->subscribers) && isset($campaign->open)) {
+                        if (($campaign->sent || $data['campaign_type'] == 'campaigns_auto') && !empty($campaign->subscribers) && isset($campaign->open)) {
                             echo $campaign->open.'%';
                         } else {
                             echo '-';
@@ -159,7 +198,7 @@ defined('_JEXEC') or die('Restricted access');
 					</div>
 					<div class="large-1 hide-for-small-only hide-for-medium-only cell text-center">
                         <?php
-                        if ($campaign->sent && !empty($campaign->subscribers) && isset($campaign->click)) {
+                        if (($campaign->sent || $data['campaign_type'] == 'campaigns_auto') && !empty($campaign->subscribers) && isset($campaign->click)) {
                             echo $campaign->click.'%';
                         } else {
                             echo '-';

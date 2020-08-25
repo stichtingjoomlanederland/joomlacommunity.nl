@@ -103,7 +103,7 @@ class EasyDiscussViewCategories extends EasyDiscussView
 		$limit = ($limit == '-1') ? $this->jconfig->get('list_limit') : $limit;
 
 		// Set the meta for the page
-		ED::setMeta();
+		ED::setMeta($categoryId, ED_META_TYPE_CATEGORY);
 
 		// Add view to this page.
 		$this->logView();

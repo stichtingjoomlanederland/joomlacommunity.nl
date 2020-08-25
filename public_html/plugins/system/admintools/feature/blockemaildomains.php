@@ -5,6 +5,9 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
+
 defined('_JEXEC') or die;
 
 class AtsystemFeatureBlockemaildomains extends AtsystemFeatureAbstract
@@ -49,12 +52,12 @@ class AtsystemFeatureBlockemaildomains extends AtsystemFeatureAbstract
 			if ($block && (stripos($user['email'], trim($domain)) !== false))
 			{
 				// Load the component's administrator translation files
-				$jlang = JFactory::getLanguage();
+				$jlang = Factory::getLanguage();
 				$jlang->load('com_admintools', JPATH_ADMINISTRATOR, 'en-GB', true);
 				$jlang->load('com_admintools', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
 				$jlang->load('com_admintools', JPATH_ADMINISTRATOR, null, true);
 
-				throw new Exception(JText::sprintf('COM_ADMINTOOLS_ERR_BLOCKEDEMAILDOMAINS', $domain));
+				throw new Exception(Text::sprintf('COM_ADMINTOOLS_ERR_BLOCKEDEMAILDOMAINS', $domain));
 			}
 
 			// Allow only specific domains and the user is using a domain that is NOT in the list
@@ -68,12 +71,12 @@ class AtsystemFeatureBlockemaildomains extends AtsystemFeatureAbstract
 		// If I have to allow only specific email domains and we didn't have a match, let's block the registration
 		if (!$block && !$allowed)
 		{
-			$jlang = JFactory::getLanguage();
+			$jlang = Factory::getLanguage();
 			$jlang->load('com_admintools', JPATH_ADMINISTRATOR, 'en-GB', true);
 			$jlang->load('com_admintools', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
 			$jlang->load('com_admintools', JPATH_ADMINISTRATOR, null, true);
 
-			throw new Exception(JText::sprintf('COM_ADMINTOOLS_ERR_BLOCKEDEMAILDOMAINS', $user['email']));
+			throw new Exception(Text::sprintf('COM_ADMINTOOLS_ERR_BLOCKEDEMAILDOMAINS', $user['email']));
 		}
 
 		return true;

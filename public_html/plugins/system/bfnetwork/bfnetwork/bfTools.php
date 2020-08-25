@@ -159,7 +159,14 @@ final class bfTools
         113 => 'getUserRegistration',
         114 => 'setUserRegistration',
         115 => 'getPostInstallMessages',
+        116 => 'getUserFilterFixed',
+        117 => 'setUserFilterFixed',
+        118 => 'getHasrootuser',
+        119 => 'setHasrootuser',
+        120 => 'getDebuglanguage',
+        121 => 'setDebuglanguage',
         999 => 'getDebugLog',
+        998 => 'setRealtimeActivate',
     );
 
     private $fluffFiles = array(
@@ -1196,6 +1203,34 @@ final class bfTools
             'tables' => $tables,
             'total'  => $count,
         ));
+    }
+
+    private function getDebuglanguage()
+    {
+        bfEncrypt::reply('success', array('debug_lang'=>JFactory::getApplication()->getCfg('debug_lang', '')));
+    }
+
+    private function setDebuglanguage()
+    {
+        $this->_setConfigParam('debug_lang', ('true' == $this->_dataObj->s ? 0 : 1), 'int', true);
+        bfEncrypt::reply('success', array('debug_lang'=>''));
+    }
+
+    /**
+     * get $root_user from the configuration.php.
+     */
+    private function getHasrootuser()
+    {
+        bfEncrypt::reply('success', array('root_user'=>JFactory::getApplication()->getCfg('root_user', '')));
+    }
+
+    /**
+     * remove $root_user from the configuration.php.
+     */
+    private function setHasrootuser()
+    {
+        $this->_setConfigParam('root_user', '', 'string', true);
+        bfEncrypt::reply('success', array('root_user'=>''));
     }
 
     /**
@@ -3820,6 +3855,47 @@ final class bfTools
     /**
      * set params from com_config without using a helper.
      */
+    private function setUserFilterFixed()
+    {
+        $this->_db->setQuery("SELECT `params` from #__extensions WHERE `element` = 'com_config'");
+        $params = json_decode($this->_db->LoadResult());
+
+        $params->filters->{1}->filter_type = 'NH';
+        $params->filters->{2}->filter_type = 'NH';
+        $params->filters->{9}->filter_type = 'NH';
+
+        $this->_db->setQuery(sprintf("UPDATE #__extensions set `params` = '%s' WHERE `element` = 'com_config'", json_encode($params)));
+        $this->_db->query();
+
+        return $this->getUserFilterFixed();
+    }
+
+    /**
+     * Load params from com_config without using a helper.
+     */
+    private function getUserFilterFixed()
+    {
+        $this->_db->setQuery("SELECT `params` from #__extensions WHERE element = 'com_config'");
+        $params = json_decode($this->_db->LoadResult());
+
+        $ret = 1;
+
+        if ('NH' != $params->filters->{1}->filter_type) {
+            $ret = 0;
+        }
+        if ('NH' != $params->filters->{2}->filter_type) {
+            $ret = 0;
+        }
+        if ('NH' != $params->filters->{9}->filter_type) {
+            $ret = 0;
+        }
+
+        bfEncrypt::reply('success', $ret);
+    }
+
+    /**
+     * set params from com_config without using a helper.
+     */
     private function setPlaintextpasswords()
     {
         $this->_db->setQuery("SELECT `params` from #__extensions WHERE `element` = 'com_users'");
@@ -3955,6 +4031,21 @@ final class bfTools
 
         bfEncrypt::reply('success', array(
             'groups' => $this->_db->loadObjectList(),
+        ));
+    }
+
+    /**
+     * Activate realtime alerting.
+     */
+    private function setRealtimeActivate()
+    {
+        $data = array(
+            'until'   => $this->_dataObj->until,
+            'endpoint'=> $this->_dataObj->endpoint
+        );
+
+        bfEncrypt::reply('success', array(
+            'file_exists' => file_put_contents(dirname(__FILE__).'/tmp/realtime.php', json_encode($data))
         ));
     }
 

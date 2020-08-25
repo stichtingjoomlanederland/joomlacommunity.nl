@@ -62,7 +62,7 @@ class FrontusersController extends UsersController
     protected function prepareFieldsEdit(&$data, $fieldVisibility = 'frontend_edition')
     {
         if (!acym_level(2) && acym_isAdmin()) {
-            acym_redirect(acym_rootURI(), 'ACYM_UNAUTHORIZED_ACCESS', 'warning');
+            acym_redirect(acym_rootURI(), 'ACYM_ONLY_AVAILABLE_ENTERPRISE_VERSION', 'warning');
         }
 
         parent::prepareFieldsEdit($data, $fieldVisibility);
@@ -71,7 +71,7 @@ class FrontusersController extends UsersController
     protected function prepareUsersListing(&$data)
     {
         if (!acym_level(2)) {
-            acym_redirect(acym_rootURI(), 'ACYM_UNAUTHORIZED_ACCESS', 'warning');
+            acym_redirect(acym_rootURI(), 'ACYM_ONLY_AVAILABLE_ENTERPRISE_VERSION', 'warning');
         }
 
         $usersPerPage = $data['pagination']->getListLimit();
@@ -98,6 +98,33 @@ class FrontusersController extends UsersController
 
         $data['allUsers'] = $matchingUsers['elements'];
         $data['userNumberPerStatus'] = $matchingUsers['status'];
+    }
+
+    protected function prepareToolbar(&$data)
+    {
+        $toolbarHelper = acym_get('helper.toolbar');
+        $toolbarHelper->addSearchBar($data['search'], 'users_search', 'ACYM_SEARCH');
+        $toolbarHelper->addButton(acym_translation('ACYM_IMPORT'), ['data-task' => 'import'], 'download');
+        $entityHelper = acym_get('helper.entitySelect');
+        $otherContent = acym_modal(
+            '<i class="acymicon-bell1"></i>'.acym_translation('ACYM_SUBSCRIBE').' (<span id="acym__users__listing__number_to_add_to_list">0</span>)',
+            $entityHelper->entitySelect(
+                'list',
+                ['join' => ''],
+                $entityHelper->getColumnsForList(),
+                [
+                    'text' => acym_translation('ACYM_SUBSCRIBE_USERS_TO_THESE_LISTS'),
+                    'action' => 'addToList',
+                ]
+            ),
+            null,
+            '',
+            'class="acym__toolbar__button acym__toolbar__button-secondary disabled cell medium-6 large-shrink" id="acym__users__listing__button--add-to-list"'
+        );
+        $toolbarHelper->addOtherContent($otherContent);
+        $toolbarHelper->addButton(acym_translation('ACYM_CREATE'), ['data-task' => 'edit'], 'user-plus', true);
+
+        $data['toolbar'] = $toolbarHelper;
     }
 
     private function displayMessage($message, $ajax, $type = 'error')
@@ -343,7 +370,7 @@ class FrontusersController extends UsersController
         }
 
         $fromModuleOrWidget = acym_getVar('string', 'acysubmode', '');
-        if (!empty($fromModuleOrWidget) && ($fromModuleOrWidget == 'mod_acym' || $fromModuleOrWidget == 'widget_acym')) {
+        if (!empty($fromModuleOrWidget) && in_array($fromModuleOrWidget, ['form_acym', 'mod_acym', 'widget_acym'])) {
             $this->unsubscribeDirectly($alreadyExists, $ajax);
         } elseif ($redirectToUnsubPage && !$ajax) {
             $this->unsubscribePage($alreadyExists);
@@ -501,7 +528,7 @@ class FrontusersController extends UsersController
         $params = new stdClass();
         $menu = acym_getMenu();
         if (is_object($menu)) {
-            $params->source = 'menu_'.$menu->id;
+            $params->source = 'Menu n°'.$menu->id;
             $menuparams = new acymParameter($menu->params);
 
             if (!empty($menuparams)) {

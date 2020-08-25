@@ -5,12 +5,12 @@
 * @license GPL, http://www.gnu.org/licenses/gpl-2.0.html
 */
 
-defined('_JEXEC') or die('Restricted access'); ?>
+defined('_JEXEC') or die('Restricted access'); 
+JText::script('COM_RSCOMMENTS_CHART_COMMENTS');
+?>
 
 <?php if (!empty($this->stats)) { ?>
 <script type="text/javascript">
-	google.load('visualization', '1', {packages: ['corechart']});
-	google.setOnLoadCallback(drawChart);
 	function drawChart() {
 		var data = google.visualization.arrayToDataTable(
 			<?php echo json_encode($this->stats); ?>
@@ -20,26 +20,11 @@ defined('_JEXEC') or die('Restricted access'); ?>
 		var chart = new google.visualization.ColumnChart(document.getElementById('rscomments-chart'));
 		chart.draw(data, options);
 	}
-	
-	function rscomments_chart(value) {
-		jQuery.ajax({
-			url: 'index.php?option=com_rscomments',
-			type: 'post',
-			dataType : 'html',
-			data: 'task=stats&type=' + value,
-			success: function(response) {
-				var data = google.visualization.arrayToDataTable(jQuery.parseJSON(response));
-				var options = { vAxis: {title: '<?php echo JText::_('COM_RSCOMMENTS_CHART_COMMENTS',true); ?>', 'format' : '0'}, legend: { position: 'none' } };
-				var chart = new google.visualization.ColumnChart(document.getElementById('rscomments-chart'));
-				chart.draw(data, options);
-			}
-		});
-	}
 </script>
 <?php } ?>
 
-<div class="row-fluid">
-	<div class="span5">
+<div class="<?php echo RSCommentsAdapterGrid::row(); ?>">
+	<div class="<?php echo RSCommentsAdapterGrid::column(5); ?>">
 		<div class="dashboard-block">
 			<div class="dashboard-block-head">
 				<h5><?php echo JText::_('COM_RSCOMMENTS_LATEST_COMMENTS'); ?></h5>
@@ -59,16 +44,16 @@ defined('_JEXEC') or die('Restricted access'); ?>
 									<?php $name = $comment->anonymous ? ($comment->name ? $comment->name : JText::_('COM_RSCOMMENTS_ANONYMOUS')) : $comment->name; ?>
 									<?php echo JText::sprintf('COM_RSCOMMENTS_POSTED_A_COMMENT', $name); ?>
 									<br>
-									<span class="muted"><a href="<?php echo JRoute::_('index.php?option=com_rscomments&task=comment.edit&IdComment='.$comment->IdComment); ?>"><i class="fa fa-pencil"></i> <?php echo JText::_('COM_RSCOMMENTS_POSTED_A_COMMENT_EDIT'); ?></a></span>
-									<span class="muted"><a href="<?php echo JURI::root().base64_decode($comment->url);?>#rscomment<?php echo $comment->IdComment; ?>" target="_blank"><i class="fa fa-eye"></i> <?php echo JText::_('COM_RSCOMMENTS_POSTED_A_COMMENT_VIEW'); ?></a></span>
-									<span class="muted"><i class="fa fa-joomla"></i> <?php echo RSCommentsHelperAdmin::component($comment->option); ?></span>
-									<span class="muted"><i class="fa fa-calendar"></i> <?php echo RSCommentsHelperAdmin::showDate($comment->date); ?></span>
+									<span class="muted text-muted"><a href="<?php echo JRoute::_('index.php?option=com_rscomments&task=comment.edit&IdComment='.$comment->IdComment); ?>"><i class="fa fa-pencil"></i> <?php echo JText::_('COM_RSCOMMENTS_POSTED_A_COMMENT_EDIT'); ?></a></span>
+									<span class="muted text-muted"><a href="<?php echo JURI::root().base64_decode($comment->url);?>#rscomment<?php echo $comment->IdComment; ?>" target="_blank"><i class="fa fa-eye"></i> <?php echo JText::_('COM_RSCOMMENTS_POSTED_A_COMMENT_VIEW'); ?></a></span>
+									<span class="muted text-muted"><i class="fa fa-joomla"></i> <?php echo RSCommentsHelperAdmin::component($comment->option); ?></span>
+									<span class="muted text-muted"><i class="fa fa-calendar"></i> <?php echo RSCommentsHelperAdmin::showDate($comment->date); ?></span>
 								
 								</td>
 							</tr>
 							<?php } ?>
 							<tr>
-								<td class="center" colspan="3"><a href="index.php?option=com_rscomments&amp;view=comments" class="btn btn-info btn-small"><?php echo JText::_('COM_RSCOMMENTS_VIEW_ALL_COMMENTS');?></a></td>
+								<td class="center text-center" colspan="3"><a href="index.php?option=com_rscomments&amp;view=comments" class="btn btn-info btn-small"><?php echo JText::_('COM_RSCOMMENTS_VIEW_ALL_COMMENTS');?></a></td>
 							</tr>
 							<?php } ?>
 						</tbody>
@@ -78,12 +63,12 @@ defined('_JEXEC') or die('Restricted access'); ?>
 		</div>
 	</div>
 	
-	<div class="span4">
+	<div class="<?php echo RSCommentsAdapterGrid::column(4); ?>">
 		<?php if (!empty($this->stats)) { ?>
 		<div class="dashboard-block">
 			<div class="dashboard-block-head">
 				<div class="rscomments-chart-type">
-					<select name="stats_type" id="stats_type" onchange="rscomments_chart(this.value);">
+					<select name="stats_type" id="stats_type" onchange="rscomments_chart(this.value);" class="form-control form-control-sm">
 						<?php echo JHtml::_('select.options', $this->types); ?>
 					</select>
 				</div>
@@ -99,8 +84,8 @@ defined('_JEXEC') or die('Restricted access'); ?>
 		<?php } ?>
 	</div>
 	
-	<div class="span3">
-		<ul class="nav nav-tabs nav-stacked">
+	<div class="<?php echo RSCommentsAdapterGrid::column(3); ?>">
+		<ul class="<?php echo RSCommentsAdapterGrid::nav(); ?>">
 			<li class="center active">
 				<div class="dashboard-container">
 					<div class="dashboard-info">
@@ -139,32 +124,32 @@ defined('_JEXEC') or die('Restricted access'); ?>
 				</div>
 			</li>
 			<li>
-				<a href="<?php echo JRoute::_('index.php?option=com_rscomments&view=comments'); ?>">
+				<a class="nav-link" href="<?php echo JRoute::_('index.php?option=com_rscomments&view=comments'); ?>">
 					<i class="fa fa-comments"></i> <?php echo JText::_('COM_RSCOMMENTS_COMMENTS'); ?>
 				</a>
 			</li>
 			<li>
-				<a href="<?php echo JRoute::_('index.php?option=com_rscomments&view=emoticons'); ?>">
+				<a class="nav-link" href="<?php echo JRoute::_('index.php?option=com_rscomments&view=emoticons'); ?>">
 					<i class="fa fa-smile-o"></i> <?php echo JText::_('COM_RSCOMMENTS_EMOTICONS'); ?>
 				</a>
 			</li>
 			<li>
-				<a href="<?php echo JRoute::_('index.php?option=com_rscomments&view=subscriptions'); ?>">
+				<a class="nav-link" href="<?php echo JRoute::_('index.php?option=com_rscomments&view=subscriptions'); ?>">
 					<i class="fa fa-user"></i> <?php echo JText::_('COM_RSCOMMENTS_SUBSCRIPTIONS'); ?>
 				</a>
 			</li>
 			<li>
-				<a href="<?php echo JRoute::_('index.php?option=com_rscomments&view=groups'); ?>">
+				<a class="nav-link" href="<?php echo JRoute::_('index.php?option=com_rscomments&view=groups'); ?>">
 					<i class="fa fa-users"></i> <?php echo JText::_('COM_RSCOMMENTS_GROUP_PERMISSIONS'); ?>
 				</a>
 			</li>
 			<li>
-				<a href="<?php echo JRoute::_('index.php?option=com_rscomments&view=import'); ?>">
+				<a class="nav-link" href="<?php echo JRoute::_('index.php?option=com_rscomments&view=import'); ?>">
 					<i class="fa fa-upload"></i> <?php echo JText::_('COM_RSCOMMENTS_IMPORT'); ?>
 				</a>
 			</li>
 			<li>
-				<a href="<?php echo JRoute::_('index.php?option=com_rscomments&view=messages'); ?>">
+				<a class="nav-link" href="<?php echo JRoute::_('index.php?option=com_rscomments&view=messages'); ?>">
 					<i class="fa fa-envelope"></i> <?php echo JText::_('COM_RSCOMMENTS_MESSAGES'); ?>
 				</a>
 			</li>

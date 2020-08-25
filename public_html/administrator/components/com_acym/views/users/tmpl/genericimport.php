@@ -5,21 +5,6 @@ defined('_JEXEC') or die('Restricted access');
 	<input type="hidden" name="import_columns" id="import_columns" value="" />
 	<input type="hidden" name="new_list" id="acym__import__new-list" value="" />
 	<div id="acym__users__import__generic" class="acym__content">
-		<div class="grid-x">
-			<div class="cell medium-auto hide-for-small-only"></div>
-			<div class="cell medium-shrink">
-                <?php
-                $entityHelper = acym_get('helper.entitySelect');
-                echo acym_modal(
-                    acym_translation('ACYM_IMPORT_USERS'),
-                    $entityHelper->entitySelect('list', ['join' => ''], ['name', 'id'], ['text' => acym_translation('ACYM_IMPORT_USERS'), 'class' => 'acym__users__import__generic__import__button', 'action' => 'listing']),
-                    'acym__user__import__add-subscription__modal',
-                    '',
-                    'class="button"'
-                );
-                ?>
-			</div>
-		</div>
 		<div class="grid-x grid-margin-y acym_area">
 			<div class="">
 				<div class="acym_area_title"><?php echo acym_translation('ACYM_FIELD_MATCHING'); ?></div>
@@ -45,7 +30,10 @@ defined('_JEXEC') or die('Restricted access');
                         $encodingHelper = acym_get('helper.encoding');
                         $default = $encodingHelper->detectEncoding($this->content);
                         $urlEncodedFilename = urlencode($filename);
-                        $attribs = 'data-filename="'.$urlEncodedFilename.'"';
+                        $attribs = [
+                            'data-filename' => $urlEncodedFilename,
+                            'class' => 'acym__select',
+                        ];
                         echo $encodingHelper->charsetField('acyencoding', $default, $attribs);
                         ?>
 					</div>
@@ -82,6 +70,37 @@ defined('_JEXEC') or die('Restricted access');
                     ?>
 				</div>
 			</div>
+		</div>
+
+		<div class="cell grid-x grid-margin-x margin-top-1">
+			<div class="cell hide-for-small-only medium-auto"></div>
+            <?php
+            echo acym_cancelButton(
+                'ACYM_CANCEL',
+                '',
+                'button medium-6 large-shrink margin-bottom-0'
+            );
+
+            $entityHelper = acym_get('helper.entitySelect');
+            $importHelper = acym_get('helper.import');
+
+            $modalData = $entityHelper->entitySelect(
+                'list',
+                ['join' => ''],
+                $entityHelper->getColumnsForList(),
+                [],
+                true,
+                $importHelper->additionalDataUsersImport(true)
+            );
+            echo acym_modal(
+                acym_translation('ACYM_IMPORT_USERS'),
+                $modalData,
+                'acym__user__import__add-subscription__modal',
+                '',
+                'class="button margin-bottom-0"'
+            );
+            ?>
+			<div class="cell hide-for-small-only medium-auto"></div>
 		</div>
 	</div>
     <?php acym_formOptions(true, 'finalizeImport'); ?>

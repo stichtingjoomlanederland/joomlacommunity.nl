@@ -59,7 +59,7 @@ class EasyDiscussViewForums extends EasyDiscussView
 		ED::setPageTitle('COM_EASYDISCUSS_TITLE_FORUMS');
 
 		// Set the meta of the page.
-		ED::setMeta();
+		ED::setMeta($categoryId, ED_META_TYPE_FORUM_CATEGORY);
 
 		// Add rss feed into headers
 		ED::feeds()->addHeaders('index.php?option=com_easydiscuss&view=forums');

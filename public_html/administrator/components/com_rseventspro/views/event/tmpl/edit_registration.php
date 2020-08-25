@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
@@ -42,6 +42,15 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 		<select class="rsepro-chosen" name="jform[payments][]" id="jform_payments" multiple="multiple">
 			<?php echo JHtml::_('select.options', rseventsproHelper::getPayments(),'value','text',$this->eventClass->getPayments()); ?>
 		</select>
+	</div>
+</div>
+
+<div class="control-group">
+	<div class="control-label">
+		<label for="jform_tickets_amount" class="hasTooltip" title="<?php echo JText::_('COM_RSEVENTSPRO_EVENT_TICKETS_AMOUNT_DESC'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TICKETS_AMOUNT'); ?></label>
+	</div>
+	<div class="controls">
+		<input type="text" name="jform[tickets_amount]" id="jform_tickets_amount" class="span1" value="<?php echo $this->escape($this->item->tickets_amount); ?>" />
 	</div>
 </div>
 
@@ -121,6 +130,11 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	<label class="checkbox">
 		<input id="jform_notify_me" name="jform[notify_me]" type="checkbox" value="1" <?php echo $this->item->notify_me ? 'checked="checked"' : ''; ?> />
 		<?php echo JText::_('COM_RSEVENTSPRO_EVENT_SUBSCRIPTION_NOTIFICATION'); ?>
+	</label>
+	
+	<label class="checkbox">
+		<input id="jform_notify_me_paid" name="jform[notify_me_paid]" type="checkbox" value="1" <?php echo $this->item->notify_me_paid ? 'checked="checked"' : ''; ?> />
+		<?php echo JText::_('COM_RSEVENTSPRO_EVENT_SUBSCRIPTION_PAID_NOTIFICATION'); ?>
 	</label>
 	
 	<label class="checkbox">

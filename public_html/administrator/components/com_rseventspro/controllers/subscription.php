@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/licenses/gpl-2.0.html
 */
 
@@ -58,5 +58,15 @@ class RseventsproControllerSubscription extends JControllerForm
 		echo $model->confirm($id, $code);
 		
 		JFactory::getApplication()->close();
+	}
+	
+	public function invoice() {
+		require_once JPATH_SITE.'/components/com_rseventspro/helpers/invoice.php';
+		
+		$id = JFactory::getApplication()->input->getInt('id',0);
+		
+		$invoice = RSEventsProInvoice::getInstance($id);
+		
+		$invoice->output();
 	}
 }

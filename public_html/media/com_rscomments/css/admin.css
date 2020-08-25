@@ -250,13 +250,6 @@
     width: 30% !important;
 }
 
-
-.btnarticle {
-	overflow: hidden;
-    text-overflow: ellipsis;
-    width: 130px;
-}
-
 .rsc_error {
 	border:1px solid red;
 	background:#FFDFDF;
@@ -265,10 +258,6 @@
 .rscomments-chart-type {
 	float: right;
 	margin-top: 7px;
-}
-
-.rsc_emoticon_image {
-	vertical-align: inherit;
 }
 
 #rsc_comments_tbl tr td{
@@ -295,4 +284,17 @@
 .rsc_comment_details > span > a:hover {
 	text-decoration: none;
 	color: #999;
+}
+
+a[target="_blank"]::before {
+	content: '';
+}
+
+table > caption#captionTable {
+    display: none;
+}
+
+.rscomments-form-text {
+	display: block;
+	margin-top: .25rem;	
 }

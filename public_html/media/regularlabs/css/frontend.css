@@ -1,6 +1,6 @@
 /**
  * @package         Regular Labs Library
- * @version         20.2.16442
+ * @version         20.7.20564
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -3532,7 +3532,7 @@ th .tooltip-inner {
 }
 /**
  * @package         Regular Labs Library
- * @version         20.2.16442
+ * @version         20.7.20564
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -3541,6 +3541,9 @@ th .tooltip-inner {
  */
 div.rl_multiselect {
   margin-bottom: 0;
+}
+div.rl_multiselect .rl_multiselect-controls {
+  clear: both;
 }
 div.rl_multiselect ul.rl_multiselect-ul {
   margin: 0;

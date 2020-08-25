@@ -7,6 +7,8 @@
 
 /** @var $this \Akeeba\AdminTools\Admin\View\BlacklistedAddresses\Html */
 use FOF30\Utils\FEFHelper\Html as FEFHtml;
+use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Language\Text;
 
 defined('_JEXEC') or die;
 
@@ -24,17 +26,17 @@ echo $this->loadAnyTemplate('admin:com_admintools/BlacklistedAddresses/toomanyip
 	<section class="akeeba-panel--33-66 akeeba-filter-bar-container">
 		<div class="akeeba-filter-bar akeeba-filter-bar--left akeeba-form-section akeeba-form--inline">
 			<div class="akeeba-filter-element akeeba-form-group">
-				<input type="text" name="ip" placeholder="<?php echo \JText::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_IP'); ?>"
+				<input type="text" name="ip" placeholder="<?php echo Text::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_IP'); ?>"
 					   id="filter_ip" onchange="document.adminForm.submit();"
 					   value="<?php echo $this->escape($this->filters['ip']); ?>"
-					   title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_IP'); ?>"/>
+					   title="<?php echo Text::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_IP'); ?>"/>
 			</div>
 
 			<div class="akeeba-filter-element akeeba-form-group">
-				<input type="text" name="description" placeholder="<?php echo \JText::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_DESCRIPTION'); ?>"
+				<input type="text" name="description" placeholder="<?php echo Text::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_DESCRIPTION'); ?>"
 					   id="filter_description" onchange="document.adminForm.submit();"
 					   value="<?php echo $this->escape($this->filters['description']); ?>"
-					   title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_DESCRIPTION'); ?>"/>
+					   title="<?php echo Text::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_DESCRIPTION'); ?>"/>
 			</div>
 		</div>
 
@@ -49,10 +51,10 @@ echo $this->loadAnyTemplate('admin:com_admintools/BlacklistedAddresses/toomanyip
 				<input type="checkbox" name="toggle" value="" onclick="Joomla.checkAll(this);"/>
 			</th>
 			<th>
-				<?php echo \JHtml::_('grid.sort', 'COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_IP', 'ip', $this->order_Dir, $this->order, 'browse'); ?>
+				<?php echo HTMLHelper::_('grid.sort', 'COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_IP', 'ip', $this->order_Dir, $this->order, 'browse'); ?>
 			</th>
 			<th>
-				<?php echo \JHtml::_('grid.sort', 'COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_DESCRIPTION', 'description', $this->order_Dir, $this->order, 'browse'); ?>
+				<?php echo HTMLHelper::_('grid.sort', 'COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_DESCRIPTION', 'description', $this->order_Dir, $this->order, 'browse'); ?>
 			</th>
 		</tr>
 		</thead>
@@ -67,7 +69,7 @@ echo $this->loadAnyTemplate('admin:com_admintools/BlacklistedAddresses/toomanyip
 		<?php if (!count($this->items)):?>
 			<tr>
 				<td colspan="6">
-					<?php echo JText::_('COM_ADMINTOOLS_ERR_BLACKLISTEDADDRESS_NOITEMS')?>
+					<?php echo Text::_('COM_ADMINTOOLS_ERR_BLACKLISTEDADDRESS_NOITEMS')?>
 				</td>
 			</tr>
 		<?php endif;?>
@@ -78,7 +80,7 @@ echo $this->loadAnyTemplate('admin:com_admintools/BlacklistedAddresses/toomanyip
 				$edit = 'index.php?option=com_admintools&view=BlacklistedAddresses&task=edit&id='.$row->id;
 				?>
 				<tr>
-					<td><?php echo \JHtml::_('grid.id', ++$i, $row->id); ?></td>
+					<td><?php echo HTMLHelper::_('grid.id', ++$i, $row->id); ?></td>
 					<td>
 						<a href="<?php echo $edit?>">
 							<?php echo $this->escape($row->ip) ?>

@@ -30,7 +30,10 @@ if (acym_level(2)) {
                         $connectionMethods,
                         'config[bounce_connection]',
                         $this->config->get('bounce_connection', 'imap'),
-                        null,
+                        [
+                            'class' => 'acym__select',
+                            'acym-data-infinite' => '',
+                        ],
                         '',
                         '',
                         'acym__config__bounce__connection'
@@ -52,7 +55,10 @@ if (acym_level(2)) {
                         $secureMethods,
                         'config[bounce_secured]',
                         $this->config->get('bounce_secured', 'ssl'),
-                        null,
+                        [
+                            'class' => 'acym__select',
+                            'acym-data-infinite' => '',
+                        ],
                         "",
                         "",
                         'acym__config__bounce__secure_method'

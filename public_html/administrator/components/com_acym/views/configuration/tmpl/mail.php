@@ -109,7 +109,18 @@ defined('_JEXEC') or die('Restricted access');
                             'ssl' => 'SSL',
                             'tls' => 'TLS',
                         ];
-                        echo acym_select($secureMethods, 'config[smtp_secured]', $this->config->get('smtp_secured', ''), null, '', '', 'smtp_secured');
+                        echo acym_select(
+                            $secureMethods,
+                            'config[smtp_secured]',
+                            $this->config->get('smtp_secured', ''),
+                            [
+                                'class' => 'acym__select',
+                                'acym-data-infinite' => '',
+                            ],
+                            '',
+                            '',
+                            'smtp_secured'
+                        );
                         ?>
 					</div>
 				</label>
@@ -187,7 +198,11 @@ defined('_JEXEC') or die('Restricted access');
 			</div>
 			<div class="cell large-6">
                 <?php
-                echo $encodingHelper->charsetField('config[charset]', $this->config->get('charset'));
+                echo $encodingHelper->charsetField(
+                    'config[charset]',
+                    $this->config->get('charset'),
+                    'class="acym__select"'
+                );
                 ?>
 			</div>
 		</div>
@@ -269,7 +284,7 @@ defined('_JEXEC') or die('Restricted access');
                     <?php echo acym_translation('ACYM_DKIM_PRIVATE'); ?>
 				</label>
 				<div class="cell large-10 medium-9">
-					<textarea id="dkim_private" name="config[dkim_private]"><?php echo $this->config->get('dkim_private', ''); ?></textarea>
+					<textarea class="acym__blue" id="dkim_private" name="config[dkim_private]"><?php echo $this->config->get('dkim_private', ''); ?></textarea>
 				</div>
 			</div>
 
@@ -292,7 +307,7 @@ defined('_JEXEC') or die('Restricted access');
                     <?php echo acym_translation('ACYM_DKIM_PUBLIC'); ?>
 				</label>
 				<div class="cell large-10 medium-9">
-					<textarea id="dkim_public" name="config[dkim_public]"><?php echo $this->config->get('dkim_public', ''); ?></textarea>
+					<textarea class="acym__blue" id="dkim_public" name="config[dkim_public]"><?php echo $this->config->get('dkim_public', ''); ?></textarea>
 				</div>
 			</div>
 		</div>

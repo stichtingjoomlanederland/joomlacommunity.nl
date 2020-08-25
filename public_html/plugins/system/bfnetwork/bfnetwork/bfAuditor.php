@@ -1160,7 +1160,12 @@ final class bfAudit
             $mailer->addRecipient('AuditMailerTest@myjoomla.io'); // This is not a real mailbox, its a service that reads the body of the email, and lets the mysites.guru service know the domain name.
             $mailer->setSubject('Audit Mailer Test');
 
-            $s        = empty($_SERVER['HTTPS']) ? '' : ('on' == $_SERVER['HTTPS']) ? 's' : '';
+            // We do it this way for a reason, catching badly configured proxies and servers
+            $s = '';
+            if (!empty($_SERVER['HTTPS']) && 'on' == $_SERVER['HTTPS']) {
+                $s = 's';
+            }
+
             $protocol = substr(strtolower($_SERVER['SERVER_PROTOCOL']), 0, strpos(strtolower($_SERVER['SERVER_PROTOCOL']), '/')).$s;
             $port     = ('80' == $_SERVER['SERVER_PORT']) ? '' : (':'.$_SERVER['SERVER_PORT']);
             $uri      = $protocol.'://'.$_SERVER['SERVER_NAME'].$port.$_SERVER['REQUEST_URI'];

@@ -24,7 +24,14 @@ defined('_JEXEC') or die('Restricted access');
                     $allTags->value = '';
                     array_unshift($data["tags"], $allTags);
 
-                    echo acym_select($data["tags"], 'cqueue_tag', $data["tag"], 'class="acym__queue__filter__tags"', 'value', 'name');
+                    echo acym_select(
+                        $data["tags"],
+                        'cqueue_tag',
+                        $data["tag"],
+                        'class="acym__queue__filter__tags acym__select"',
+                        'value',
+                        'name'
+                    );
                     ?>
 				</div>
 				<div class="xxlarge-4 xlarge-3 large-2 hide-for-large-only medium-auto hide-for-small-only cell"></div>
@@ -80,7 +87,10 @@ defined('_JEXEC') or die('Restricted access');
 						<div data-acy-elementid="<?php echo acym_escape($row->id); ?>" class="cell grid-x acym__listing__row">
 							<div class="cell medium-auto acym_vcenter">
 								<div class="acym__listing__title">
-									<h6 class="acym__listing__title__primary acym_text_ellipsis"><?php echo $row->name; ?></h6>
+                                    <?php
+                                    $row->language = empty($data['languages'][$row->language]) ? $row->language : $data['languages'][$row->language]->name;
+                                    ?>
+									<h6 class="acym__listing__title__primary acym_text_ellipsis"><?php echo $row->name.(empty($row->language) ? '' : ' - '.$row->language); ?></h6>
 									<p class="acym__listing__title__secondary">
                                         <?php echo acym_date($row->sending_date, 'ACYM_DATE_FORMAT_LC2'); ?>
 									</p>
@@ -96,7 +106,7 @@ defined('_JEXEC') or die('Restricted access');
                                         $class = 'acym_subscription acymicon-circle';
                                         foreach ($row->lists as $oneList) {
                                             if ($i == 6) {
-                                                echo acym_tooltip('<i data-campaign="'.$row->id.'" class="acym_subscription acymicon-plus-circle"></i>', acym_translation('ACYM_SHOW_ALL_LISTS'));
+                                                echo acym_tooltip('<i data-campaign="'.$row->id.'" class="acym_subscription acymicon-add"></i>', acym_translation('ACYM_SHOW_ALL_LISTS'));
                                                 $class .= ' is-hidden';
                                             }
                                             echo acym_tooltip('<i class="'.$class.'" style="color:'.$oneList->color.'"></i>', $oneList->name);

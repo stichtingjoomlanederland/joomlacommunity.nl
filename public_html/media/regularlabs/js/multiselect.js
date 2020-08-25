@@ -1,6 +1,6 @@
 /**
  * @package         Regular Labs Library
- * @version         20.2.16442
+ * @version         20.7.20564
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -12,7 +12,7 @@
 
 if (typeof window.RegularLabsMultiSelect === 'undefined'
 	|| typeof RegulaRegularLabsMultiSelectrLabsForm.version === 'undefined'
-	|| RegularLabsMultiSelect.version < '20.2.16442') {
+	|| RegularLabsMultiSelect.version < '20.7.20564') {
 
 	(function($) {
 		$(document).ready(function() {
@@ -22,9 +22,10 @@ if (typeof window.RegularLabsMultiSelect === 'undefined'
 		});
 
 		window.RegularLabsMultiSelect = {
-			version: '20.2.16442',
+			version: '20.7.20564',
 
 			init: function(element) {
+				const self      = this;
 				const controls  = element.find('div.rl_multiselect-controls');
 				const list      = element.find('ul.rl_multiselect-ul');
 				const menu      = element.find('div.rl_multiselect-menu-block').html();
@@ -91,13 +92,20 @@ if (typeof window.RegularLabsMultiSelect === 'undefined'
 				});
 
 				// Checks all checkboxes in the list
+				list.find('input').on('change', function() {
+					self.updateCounts(this.closest('.rl_multiselect'));
+				});
+
+				// Checks all checkboxes in the list
 				controls.find('a.rl_multiselect-checkall').click(function() {
 					list.find('input').prop('checked', true);
+					self.updateCounts(this.closest('.rl_multiselect'));
 				});
 
 				// Unchecks all checkboxes in the list
 				controls.find('a.rl_multiselect-uncheckall').click(function() {
 					list.find('input').prop('checked', false);
+					self.updateCounts(this.closest('.rl_multiselect'));
 				});
 
 				// Toggles all checkboxes in the list
@@ -107,6 +115,7 @@ if (typeof window.RegularLabsMultiSelect === 'undefined'
 
 						$input.prop('checked', !$input.prop('checked'));
 					});
+					self.updateCounts(this.closest('.rl_multiselect'));
 				});
 
 				// Expands all sub-items in the list
@@ -212,6 +221,12 @@ if (typeof window.RegularLabsMultiSelect === 'undefined'
 						}
 					});
 				});
+			},
+
+			updateCounts: function(container) {
+				$(container).find('.rl_multiselect-count-selected').html(
+					$(container).find('ul.rl_multiselect-ul input:checked').length
+				);
 			}
 		};
 	})(jQuery);

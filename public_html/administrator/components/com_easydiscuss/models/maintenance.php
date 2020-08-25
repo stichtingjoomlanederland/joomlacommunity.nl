@@ -1,7 +1,7 @@
-    <?php
+	<?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyBlog is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -15,254 +15,311 @@ require_once dirname( __FILE__ ) . '/model.php';
 
 class EasyDiscussModelMaintenance extends EasyDiscussAdminModel
 {
-    public $_pagination = null;
-    public $_total;
+	public $_pagination = null;
+	public $_total;
 
-    /**
-     * Caches the scripts path and filename.
-     * @var array
-     */
-    private static $scripts = array();
+	/**
+	 * Caches the scripts path and filename.
+	 * @var array
+	 */
+	private static $scripts = array();
 
-    /**
-     * Caches the available versions.
-     * @var array
-     */
-    private static $versions = array();
+	/**
+	 * Caches the available versions.
+	 * @var array
+	 */
+	private static $versions = array();
 
-    public function __construct()
-    {
-        parent::__construct();
+	public function __construct()
+	{
+		parent::__construct();
 
-        $limit = ($this->app->getCfg('list_limit') == 0) ? 5 : $this->app->getCfg('list_limit');
-        $limitstart = $this->input->get('limitstart', 0, 'int');
+		$limit = ($this->app->getCfg('list_limit') == 0) ? 5 : $this->app->getCfg('list_limit');
+		$limitstart = $this->input->get('limitstart', 0, 'int');
 
-        // In case limit has been changed, adjust it
-        $limitstart = (int) ($limit != 0 ? (floor($limitstart / $limit) * $limit) : 0);
+		// In case limit has been changed, adjust it
+		$limitstart = (int) ($limit != 0 ? (floor($limitstart / $limit) * $limit) : 0);
 
-        $this->setState('limit', $limit);
-        $this->setState('limitstart', $limitstart);
-    }
+		$this->setState('limit', $limit);
+		$this->setState('limitstart', $limitstart);
+	}
 
 
-    private function initScripts()
-    {
-        if (empty(self::$scripts)) {
-            $lib = ED::maintenance();
+	private function initScripts()
+	{
+		if (empty(self::$scripts)) {
+			$lib = ED::maintenance();
 
-            $scripts = $lib->getScriptFiles('all');
+			$scripts = $lib->getScriptFiles('all');
 
-            foreach ($scripts as $script) {
-                $item = new EasyDiscussModelMaintenanceScriptItem;
+			foreach ($scripts as $script) {
+				$item = new EasyDiscussModelMaintenanceScriptItem;
 
-                if ($item->load($script)) {
-                    self::$scripts[$item->key] = $item;
+				if ($item->load($script)) {
+					self::$scripts[$item->key] = $item;
 
-                    self::$versions[] = $item->version;
-                }
-            }
+					self::$versions[] = $item->version;
+				}
+			}
 
-            self::$versions = array_unique(self::$versions);
-        }
+			self::$versions = array_unique(self::$versions);
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    private function getScripts()
-    {
-        $this->initScripts();
+	private function getScripts()
+	{
+		$this->initScripts();
 
-        return self::$scripts;
-    }
+		return self::$scripts;
+	}
 
-    public function getVersions()
-    {
-        $this->initScripts();
+	public function getVersions()
+	{
+		$this->initScripts();
 
-        return self::$versions;
-    }
+		return self::$versions;
+	}
 
-    public function getItems()
-    {
-        $scripts = $this->getScripts();
+	public function getItems()
+	{
+		$scripts = $this->getScripts();
 
-        $total = 0;
+		$total = 0;
 
-        $results = array();
+		$results = array();
 
-        $version = $this->getState('version');
+		$version = $this->getState('version');
 
-        // Allowed filter
-        // version
-        // search
-        foreach ($scripts as $script) {
+		// Allowed filter
+		// version
+		// search
+		foreach ($scripts as $script) {
 
-            if (!empty($version) && $version !== 'all' && $script->version != $version) {
-                continue;
-            }
+			if (!empty($version) && $version !== 'all' && $script->version != $version) {
+				continue;
+			}
 
-            $results[] = $script;
+			$results[] = $script;
 
-            $total++;
-        }
+			$total++;
+		}
 
-        $this->_total = $total;
-        $this->setState('total', $total);
+		$this->_total = $total;
+		$this->setState('total', $total);
 
-        // Ordering
-        usort($results, array($this, 'sortItems'));
+		// Ordering
+		usort($results, array($this, 'sortItems'));
 
-        $limit = (int) $this->getState('limit');
+		$limit = (int) $this->getState('limit');
 
-        if ($limit > 0)
-        {
-            $this->setState('limit', $limit);
+		if ($limit > 0)
+		{
+			$this->setState('limit', $limit);
 
-            $limitstart = $this->app->getUserStateFromRequest('limitstart', 0);
-            $limitstart = (int) ($limit > 0 ? (floor($limitstart / $limit) * $limit ) : 0);
+			$limitstart = $this->app->getUserStateFromRequest('limitstart', 0);
+			$limitstart = (int) ($limit > 0 ? (floor($limitstart / $limit) * $limit ) : 0);
 
-            $this->setState('limitstart', $limitstart);
+			$this->setState('limitstart', $limitstart);
 
-            $results = array_slice($results, $limitstart, $limit);
-        }
+			$results = array_slice($results, $limitstart, $limit);
+		}
 
-        return $results;
-    }
+		return $results;
+	}
 
-    /**
-     * Method to get a pagination object for the events
-     *
-     * @access public
-     * @return integer
-     */
-    public function getPagination()
-    {
-        $this->_pagination  = ED::getPagination(  $this->_total, $this->getState('limitstart'), $this->getState('limit') );
+	/**
+	 * Method to get a pagination object for the events
+	 *
+	 * @access public
+	 * @return integer
+	 */
+	public function getPagination()
+	{
+		$this->_pagination  = ED::getPagination(  $this->_total, $this->getState('limitstart'), $this->getState('limit') );
 
-        return $this->_pagination;
-    }
+		return $this->_pagination;
+	}
 
-    private function sortItems($a, $b)
-    {
-        $ordering = $this->getState('ordering');
-        $direction = $this->getState('direction');
+	private function sortItems($a, $b)
+	{
+		$ordering = $this->getState('ordering');
+		$direction = $this->getState('direction');
 
-        if (empty($ordering) || !isset($a->$ordering) || !isset($b->$ordering) || $a->$ordering == $b->$ordering) {
-            return 0;
-        }
+		if (empty($ordering) || !isset($a->$ordering) || !isset($b->$ordering) || $a->$ordering == $b->$ordering) {
+			return 0;
+		}
 
-        $marker = $direction === 'desc' ? -1 : 1;
+		$marker = $direction === 'desc' ? -1 : 1;
 
-        $result = $a->$ordering < $b->$ordering ? -$marker : $marker;
+		$result = $a->$ordering < $b->$ordering ? -$marker : $marker;
 
-        return $result;
-    }
+		return $result;
+	}
 
-    public function getItemByKeys($keys)
-    {
-        $scripts = $this->getScripts();
+	public function getItemByKeys($keys)
+	{
+		$scripts = $this->getScripts();
 
-        $results = array();
+		$results = array();
 
-        foreach ($keys as $key) {
-            if (isset($scripts[$key])) {
-                $results[] = $scripts[$key];
-            }
-        }
+		foreach ($keys as $key) {
+			if (isset($scripts[$key])) {
+				$results[] = $scripts[$key];
+			}
+		}
 
-        return $results;
-    }
+		return $results;
+	}
 
-    public function getItemByKey($key)
-    {
-        // If we are getting by a single key, then we see if cache is loaded
-        // If cache is not loaded, we don't initiate it because it is unnecessary for cases of ajax loading 1 single script
-        if (!empty(self::$scripts)) {
-            $scripts = $this->getItemByKeys(array($key));
+	public function getItemByKey($key)
+	{
+		// If we are getting by a single key, then we see if cache is loaded
+		// If cache is not loaded, we don't initiate it because it is unnecessary for cases of ajax loading 1 single script
+		if (!empty(self::$scripts)) {
+			$scripts = $this->getItemByKeys(array($key));
 
-            if (count($scripts) < 1) {
-                return false;
-            }
+			if (count($scripts) < 1) {
+				return false;
+			}
 
-            return $scripts[0];
-        }
+			return $scripts[0];
+		}
 
-        $file = DISCUSS_ADMIN_UPDATES . '/' . $key;
+		$file = DISCUSS_ADMIN_UPDATES . '/' . $key;
 
-        if (!JFile::exists($file)) {
-            return false;
-        }
+		if (!JFile::exists($file)) {
+			return false;
+		}
 
-        $script = new EasyDiscussModelMaintenanceScriptItem($file);
+		$script = new EasyDiscussModelMaintenanceScriptItem($file);
 
-        return $script;
-    }
+		return $script;
+	}
+
+
+	/**
+	 * Get sync request
+	 *
+	 * @since	4.1
+	 * @access	public
+	 */
+	public function getTotalSyncRequest()
+	{
+		$db = ED::db();
+
+		$query = "SELECT sum(`total`) FROM `#__discuss_sync_request`";
+		$db->setQuery($query);
+
+		$count = $db->loadResult();
+		return $count;
+	}
+
+
+	/**
+	 * Retrieve sync requests
+	 *
+	 * @since	4.1
+	 * @access	public
+	 */
+	public function getSyncRequests($limit = 1)
+	{
+		$db = ED::db();
+
+		// ensure limit are in integer.
+		$limit = (int) $limit;
+		$limit = $limit ? $limit : 1;
+
+		$query = "SELECT * FROM `#__discuss_sync_request`";
+		$query .= " LIMIT $limit";
+
+		$db->setQuery($query);
+
+		$results = $db->loadObjectList();
+
+		$items = array();
+
+		if ($results) {
+			foreach ($results as $raw) {
+
+				$table = ED::table('SyncRequest');
+				$table->bind($raw);
+
+				$items[] = $table;
+			}
+		}
+
+		return $items;
+	}
+
+
 }
 
 class EasyDiscussModelMaintenanceScriptItem
 {
-    public $file;
+	public $file;
 
-    public $key;
-    public $filename;
-    public $version;
-    public $classname;
-    public $title;
-    public $description;
+	public $key;
+	public $filename;
+	public $version;
+	public $classname;
+	public $title;
+	public $description;
 
-    CONST PREFIX = 'EasyDiscussMaintenanceScript';
-    CONST BASE = DISCUSS_ADMIN_UPDATES;
+	CONST PREFIX = 'EasyDiscussMaintenanceScript';
+	CONST BASE = DISCUSS_ADMIN_UPDATES;
 
-    public function __construct($file = null)
-    {
-        if (!empty($file)) {
-            $this->load($file);
-        }
-    }
+	public function __construct($file = null)
+	{
+		if (!empty($file)) {
+			$this->load($file);
+		}
+	}
 
-    public function load($file)
-    {
-        $this->file = $file;
+	public function load($file)
+	{
+		$this->file = $file;
 
-        if (!JFile::exists($file)) {
-            return false;
-        }
+		if (!JFile::exists($file)) {
+			return false;
+		}
 
-        require_once($file);
+		require_once($file);
 
-        // below is to make compatible with window platform the directory separator
-        $ds = (defined('DS')) ? DS : '/';
-        $tmpFileArr = explode($ds, $file);
-        $tmpKey = $tmpFileArr[count($tmpFileArr) - 2] . '/' . $tmpFileArr[count($tmpFileArr) - 1];
-        $this->key = $tmpKey;
+		// below is to make compatible with window platform the directory separator
+		$ds = (defined('DS')) ? DS : '/';
+		$tmpFileArr = explode($ds, $file);
+		$tmpKey = $tmpFileArr[count($tmpFileArr) - 2] . '/' . $tmpFileArr[count($tmpFileArr) - 1];
+		$this->key = $tmpKey;
 
-        list($this->version, $this->filename) = explode('/', $this->key);
+		list($this->version, $this->filename) = explode('/', $this->key);
 
-        $classname = self::PREFIX . str_ireplace('.php', '', $this->filename);
+		$classname = self::PREFIX . str_ireplace('.php', '', $this->filename);
 
-        if (!class_exists($classname)) {
-            return false;
-        }
+		if (!class_exists($classname)) {
+			return false;
+		}
 
-        $this->classname = $classname;
+		$this->classname = $classname;
 
-        // PHP 5.2 compatibility
-        $vars = get_class_vars($classname);
+		// PHP 5.2 compatibility
+		$vars = get_class_vars($classname);
 
-        $this->title = $vars['title'];
+		$this->title = $vars['title'];
 
-        $this->description = $vars['description'];
+		$this->description = $vars['description'];
 
-        return true;
-    }
+		return true;
+	}
 
-    public function toString()
-    {
-        return $this->file;
-    }
+	public function toString()
+	{
+		return $this->file;
+	}
 
-    public function __toString()
-    {
-        return $this->toString();
-    }
+	public function __toString()
+	{
+		return $this->toString();
+	}
 }

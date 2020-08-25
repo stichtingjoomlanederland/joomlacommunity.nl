@@ -21,6 +21,6 @@ defined('_JEXEC') or die('Restricted access');
 </div>
 <div class="cell grid-x align-center margin-top-3">
 	<input type="hidden" value="" name="result">
-	<button disabled type="button" class="acy_button_submit button cell shrink" data-task="saveStepResult">Next Step</button>
+	<button disabled type="button" class="acy_button_submit button cell shrink" data-task="saveStepResult"><?php echo acym_translation('ACYM_CONTINUE'); ?></button>
 </div>
 

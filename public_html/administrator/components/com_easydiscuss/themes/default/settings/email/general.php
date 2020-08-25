@@ -74,7 +74,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo $this->html('settings.toggle', 'main_email_parser_receipt', 'COM_EASYDISCUSS_EMAIL_PARSER_SEND_RECEIPT'); ?>
 					<?php echo $this->html('settings.toggle', 'main_email_parser_replies', 'COM_EASYDISCUSS_EMAIL_PARSER_ALLOW_REPLIES'); ?>
 
-					<?php echo $this->html('settings.toggle', 'mail_reply_breaker_intelligent', 'COM_ED_INTELLIGENTLY_DETECT_REPLY_BREAKS'); ?>
+					<?php // echo $this->html('settings.toggle', 'mail_reply_breaker_intelligent', 'COM_ED_INTELLIGENTLY_DETECT_REPLY_BREAKS'); ?>
 					<?php echo $this->html('settings.textbox', 'mail_reply_breaker', 'COM_EASYDISCUSS_SETTINGS_REPLYBREAK'); ?>
 					<?php echo $this->html('settings.toggle', 'main_email_parser_moderation', 'COM_EASYDISCUSS_EMAIL_PARSER_MODERATE_POSTS'); ?>
 

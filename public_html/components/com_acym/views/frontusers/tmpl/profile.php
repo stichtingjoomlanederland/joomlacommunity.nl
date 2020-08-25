@@ -158,14 +158,14 @@ defined('_JEXEC') or die('Restricted access');
         }
 
         if (!empty($data['source'])) {
-            echo '<input type="hidden" name="acy_source" value="'.$data['source'].'" />';
+            echo '<input type="hidden" name="acy_source" value="'.acym_escape($data['source']).'" />';
         }
 
         if (!empty($data['Itemid'])) {
-            echo '<input type="hidden" name="Itemid" value="'.$data['Itemid'].'" />';
+            echo '<input type="hidden" name="Itemid" value="'.acym_escape($data['Itemid']).'" />';
         }
 
-        if (acym_getVar('cmd', 'tmpl') == 'component') {
+        if (acym_isNoTemplate()) {
             echo '<input type="hidden" name="tmpl" value="component"/>';
         }
 

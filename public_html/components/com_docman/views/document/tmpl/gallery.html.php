@@ -43,14 +43,18 @@ $multi_download = object('com://site/docman.controller.behavior.compressible')->
    data-width="<?= $document->storage->width; ?>"
    data-height="<?= $document->storage->height; ?>"
    href="<?= $document->title_link ?>"
-   title="<?= escape($document->title) ?>">
+   title="<?= escape($document->title) ?>"
+    <?= $params->document_title_link === 'download'  ? 'type="'.$document->mimetype.'"' : ''; ?>
+>
 <? else: ?>
 <a class="koowa_media__item__link <?= $params->document_title_link === 'download' ? 'docman_track_download' : ''; ?>"
     <?= $params->download_in_blank_page ? 'target="_blank"' : ''; ?>
     data-title="<?= escape($document->title); ?>"
     data-id="<?= $document->id; ?>"
     href="<?= $document->title_link ?>"
-    title="<?= escape($document->title) ?>">
+    title="<?= escape($document->title) ?>"
+    <?= $params->document_title_link === 'download'  ? 'type="'.$document->mimetype.'"' : ''; ?>
+>
 <? endif; ?>
     <div class="koowa_media__item__content-holder">
         <? if( $document->image_path ): ?>

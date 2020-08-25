@@ -5,6 +5,9 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
+
 defined('_JEXEC') or die;
 
 /**
@@ -88,22 +91,22 @@ class AtsystemFeatureConfigmonitor extends AtsystemFeatureAbstract
 		$componentName = $this->getComponentName($id, $component);
 
 		// Default reason for blocking / reporting: Global Configuration
-		$jlang = JFactory::getLanguage();
+		$jlang = Factory::getLanguage();
 		$jlang->load('com_cpanel', JPATH_ADMINISTRATOR, 'en-GB', true);
 		$jlang->load('com_cpanel', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
 		$jlang->load('com_cpanel', JPATH_ADMINISTRATOR, null, true);
-		$extraInfo = JText::_('COM_CPANEL_LINK_GLOBAL_CONFIG');
+		$extraInfo = Text::_('COM_CPANEL_LINK_GLOBAL_CONFIG');
 
 		// If, however, there is a component we need to report extension configuration monitor as the reason
 		if (!empty($componentName))
 		{
-			$jlang = JFactory::getLanguage();
+			$jlang = Factory::getLanguage();
 			$jlang->load($componentName . '.sys', JPATH_ADMINISTRATOR, 'en-GB', true);
 			$jlang->load($componentName . '.sys', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
 			$jlang->load($componentName . '.sys', JPATH_ADMINISTRATOR, null, true);
 
 			// Now set the extra information
-			$extraInfo = JText::_($componentName);
+			$extraInfo = Text::_($componentName);
 		}
 
 		// If we are set to block requests hook into Admin Tools' log and block system
@@ -143,8 +146,8 @@ class AtsystemFeatureConfigmonitor extends AtsystemFeatureAbstract
 		}
 
 		// We have an ID. Try to get the component name from the #__extensions table.
-		$db = $this->container->db;
-		$query = $db->getQuery(true)
+		$db            = $this->container->db;
+		$query         = $db->getQuery(true)
 			->select($db->qn('element'))
 			->from($db->qn('#__extensions'))
 			->where($db->qn('extension_id') . ' = ' . $db->q((int) $id))
@@ -167,14 +170,14 @@ class AtsystemFeatureConfigmonitor extends AtsystemFeatureAbstract
 	private function sendEmail($configArea)
 	{
 		// Load the component's administrator translation files
-		$jlang = JFactory::getLanguage();
+		$jlang = Factory::getLanguage();
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, 'en-GB', true);
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, null, true);
 
 		// Construct the replacement table
-		$substitutions = $this->exceptionsHandler->getEmailVariables(JText::_('COM_ADMINTOOLS_WAFEMAILTEMPLATE_REASON_ADMINLOGINFAIL'), [
-			'[AREA]'      => $configArea,
+		$substitutions = $this->exceptionsHandler->getEmailVariables(Text::_('COM_ADMINTOOLS_WAFEMAILTEMPLATE_REASON_ADMINLOGINFAIL'), [
+			'[AREA]' => $configArea,
 		]);
 
 		// Let's get the most suitable email template
@@ -189,7 +192,7 @@ class AtsystemFeatureConfigmonitor extends AtsystemFeatureAbstract
 		else
 		{
 			$subject = $template[0];
-			$body = $template[1];
+			$body    = $template[1];
 		}
 
 		foreach ($substitutions as $k => $v)
@@ -201,7 +204,7 @@ class AtsystemFeatureConfigmonitor extends AtsystemFeatureAbstract
 		try
 		{
 			$config = $this->container->platform->getConfig();
-			$mailer = JFactory::getMailer();
+			$mailer = Factory::getMailer();
 
 			$mailfrom = $config->get('mailfrom');
 			$fromname = $config->get('fromname');
@@ -220,7 +223,7 @@ class AtsystemFeatureConfigmonitor extends AtsystemFeatureAbstract
 				$mailer->Priority = 3;
 
 				$mailer->isHtml(true);
-				$mailer->setSender(array($mailfrom, $fromname));
+				$mailer->setSender([$mailfrom, $fromname]);
 
 				// Resets the recipients, otherwise they will pile up
 				$mailer->clearAllRecipients();
@@ -236,7 +239,7 @@ class AtsystemFeatureConfigmonitor extends AtsystemFeatureAbstract
 				$mailer->Send();
 			}
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			// Joomla! 3.5 and later throw an exception when crap happens instead of suppressing it and returning false
 		}

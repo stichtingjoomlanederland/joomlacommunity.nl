@@ -64,9 +64,9 @@ class AtsystemFeatureAutoipfiltering extends AtsystemFeatureAbstract
 		// Let's get a list of blocked IP ranges
 		$db  = $this->db;
 		$sql = $db->getQuery(true)
-		          ->select('*')
-		          ->from($db->qn('#__admintools_ipautoban'))
-		          ->where($db->qn('ip') . ' = ' . $db->q($ip));
+			->select('*')
+			->from($db->qn('#__admintools_ipautoban'))
+			->where($db->qn('ip') . ' = ' . $db->q($ip));
 		$db->setQuery($sql);
 
 		try
@@ -84,8 +84,6 @@ class AtsystemFeatureAutoipfiltering extends AtsystemFeatureAbstract
 		}
 
 		// Is this record expired?
-		JLoader::import('joomla.utilities.date');
-
 		$jNow   = new Date();
 		$jUntil = new Date($record->until);
 		$now    = $jNow->toUnix();
@@ -107,8 +105,8 @@ class AtsystemFeatureAutoipfiltering extends AtsystemFeatureAbstract
 			}
 
 			$sql = $db->getQuery(true)
-			          ->delete($db->qn('#__admintools_ipautoban'))
-			          ->where($db->qn('ip') . ' = ' . $db->q($ip));
+				->delete($db->qn('#__admintools_ipautoban'))
+				->where($db->qn('ip') . ' = ' . $db->q($ip));
 			$db->setQuery($sql);
 
 			try
@@ -139,8 +137,8 @@ class AtsystemFeatureAutoipfiltering extends AtsystemFeatureAbstract
 		}
 
 		$sql = $db->getQuery(true)
-		          ->delete($db->qn('#__admintools_ipautoban'))
-		          ->where($db->qn('until') . ' < ' . $db->q($jNow->toSql()));
+			->delete($db->qn('#__admintools_ipautoban'))
+			->where($db->qn('until') . ' < ' . $db->q($jNow->toSql()));
 		$db->setQuery($sql);
 
 		try
@@ -154,4 +152,4 @@ class AtsystemFeatureAutoipfiltering extends AtsystemFeatureAbstract
 
 		return true;
 	}
-} 
+}

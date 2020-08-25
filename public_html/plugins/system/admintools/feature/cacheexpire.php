@@ -6,6 +6,7 @@
  */
 
 use FOF30\Date\Date;
+use Joomla\CMS\Factory;
 
 defined('_JEXEC') or die;
 
@@ -25,7 +26,7 @@ class AtsystemFeatureCacheexpire extends AtsystemFeatureAbstract
 
 	public function onAfterInitialise()
 	{
-		$minutes = (int)$this->params->get('cacheexp_freq', 0);
+		$minutes = (int) $this->params->get('cacheexp_freq', 0);
 
 		if ($minutes <= 0)
 		{
@@ -35,7 +36,6 @@ class AtsystemFeatureCacheexpire extends AtsystemFeatureAbstract
 		$lastJob = $this->getTimestamp('cache_expire');
 		$nextJob = $lastJob + $minutes * 60;
 
-		JLoader::import('joomla.utilities.date');
 		$now = new Date();
 
 		if ($now->toUnix() >= $nextJob)
@@ -50,8 +50,8 @@ class AtsystemFeatureCacheexpire extends AtsystemFeatureAbstract
 	 */
 	private function expireCache()
 	{
-		$er = @error_reporting(0);
-		$cache = JFactory::getCache('');
+		$er    = @error_reporting(0);
+		$cache = Factory::getCache('');
 		$cache->gc();
 		@error_reporting($er);
 	}

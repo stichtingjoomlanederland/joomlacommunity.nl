@@ -22,10 +22,15 @@ defined('_JEXEC') or die;
 abstract class Part
 {
 	const STATE_INIT = 0;
+
 	const STATE_PREPARED = 1;
+
 	const STATE_RUNNING = 2;
+
 	const STATE_POSTRUN = 3;
+
 	const STATE_FINISHED = 4;
+
 	const STATE_ERROR = 99;
 
 	/**
@@ -94,6 +99,7 @@ abstract class Part
 	 * @var null|Exception
 	 */
 	protected $lastException = null;
+
 	/**
 	 * The timer which controls the execution of this part
 	 *
@@ -102,7 +108,9 @@ abstract class Part
 	protected $timer;
 
 	protected $configuration;
+
 	protected $session;
+
 	protected $logger;
 
 	public function __construct(Configuration $configuration, Session $session, Logger $logger, Timer $timer)

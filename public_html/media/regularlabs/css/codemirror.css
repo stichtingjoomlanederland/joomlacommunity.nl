@@ -1,17 +1,11 @@
 /**
  * @package         Regular Labs Library
- * @version         20.2.16442
+ * @version         20.7.20564
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
  * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
- */
-/**
- * LOOSELY BASED ON:
- * Very simple jQuery Color Picker
- * Copyright (C) 2012 Tanguy Krotoff
- * Licensed under the MIT license
  */
 .rl_codemirror .CodeMirror {
   height: 100px;

@@ -39,7 +39,7 @@ class AtsystemFeatureRfishield extends AtsystemFeatureAbstract
 		/**
 		 * Automatically disabled when we detect this feature is not required
 		 *
-		 * See See https://www.akeebabackup.com/home/news/1674-not-a-vulnerability-in-admin-tools.html
+		 * See See https://www.akeeba.com/home/news/1674-not-a-vulnerability-in-admin-tools.html
 		 */
 
 		// Conditional activation during integration testing
@@ -67,18 +67,18 @@ class AtsystemFeatureRfishield extends AtsystemFeatureAbstract
 	}
 
 	/**
-	 * Simple Remote Files Inclusion block. If any query string parameter contains a reference to an http[s]:// or ftp[s]://
-	 * address it will be scanned. If the remote file looks like a PHP script, we block access.
+	 * Simple Remote Files Inclusion block. If any query string parameter contains a reference to an http[s]:// or
+	 * ftp[s]:// address it will be scanned. If the remote file looks like a PHP script, we block access.
 	 */
 	public function onAfterInitialise()
 	{
-		$hashes = array('get', 'post');
-		$regex = '#(http|ftp){1,1}(s){0,1}://.*#i';
+		$hashes = ['get', 'post'];
+		$regex  = '#(http|ftp){1,1}(s){0,1}://.*#i';
 
 		foreach ($hashes as $hash)
 		{
 			$input = $this->input->$hash;
-			$ref = new ReflectionProperty($input, 'data');
+			$ref   = new ReflectionProperty($input, 'data');
 			$ref->setAccessible(true);
 			$allVars = $ref->getValue($input);
 
@@ -168,4 +168,4 @@ class AtsystemFeatureRfishield extends AtsystemFeatureAbstract
 
 		return $result;
 	}
-} 
+}

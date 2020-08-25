@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.2.16442
+ * @version         20.7.20564
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -13,9 +13,11 @@ namespace RegularLabs\Library\Condition;
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\Filesystem\File as JFile;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel as JModel;
+use Joomla\CMS\Version;
 use RegularLabs\Library\RegEx;
 
 /**
@@ -114,7 +116,8 @@ class Php
 			return $function_name;
 		}
 
-		$this->createFunctionInMemory($function_name, $string);
+		$contents = $this->generateFileContents($function_name, $string);
+		self::createFunctionInMemory($contents);
 
 		if ( ! function_exists($function_name))
 		{
@@ -125,15 +128,18 @@ class Php
 		return $function_name;
 	}
 
-	private function createFunctionInMemory($function_name = 'rl_function', $string = '')
+	public static function createFunctionInMemory($string = '')
 	{
-		$contents = $this->generateFileContents($function_name, $string);
+		$file_name = getmypid() . '_' . md5($string);
 
-		$folder    = JFactory::getConfig()->get('tmp_path', JPATH_ROOT . '/tmp');
-		$temp_file = $folder . '/' . $function_name;
+		$tmp_path  = JFactory::getConfig()->get('tmp_path', JPATH_ROOT . '/tmp');
+		$temp_file = $tmp_path . '/regularlabs' . '/' . $file_name;
 
 		// Write file
-		JFile::write($temp_file, $contents);
+		if ( ! file_exists($temp_file) || is_writable($temp_file))
+		{
+			JFile::write($temp_file, $string);
+		}
 
 		// Include file
 		include_once $temp_file;
@@ -148,7 +154,7 @@ class Php
 
 	private function generateFileContents($function_name = 'rl_function', $string = '')
 	{
-		$init_variables = $this->getVarInits();
+		$init_variables = self::getVarInits();
 
 		$contents = [
 			'<?php',
@@ -176,14 +182,46 @@ class Php
 		return $contents;
 	}
 
-	private function getVarInits()
+	public static function getVarInits()
 	{
 		return [
-			'$app = $mainframe = JFactory::getApplication();',
-			'$document = $doc = JFactory::getDocument();',
+			'$app = $mainframe = RegularLabs\Library\Condition\Php::getApplication();',
+			'$document = $doc = RegularLabs\Library\Condition\Php::getDocument();',
 			'$database = $db = JFactory::getDbo();',
 			'$user = JFactory::getUser();',
 			'$Itemid = $app->input->getInt(\'Itemid\');',
 		];
+	}
+
+	public static function getApplication()
+	{
+		if (JFactory::getApplication()->input->get('option') != 'com_finder')
+		{
+			return JFactory::getApplication();
+		}
+
+		return CMSApplication::getInstance('site');
+	}
+
+	public static function getDocument()
+	{
+		if (JFactory::getApplication()->input->get('option') != 'com_finder')
+		{
+			return JFactory::getDocument();
+		}
+
+		$lang    = JFactory::getLanguage();
+		$version = new Version;
+
+		$attributes = [
+			'charset'      => 'utf-8',
+			'lineend'      => 'unix',
+			'tab'          => "\t",
+			'language'     => $lang->getTag(),
+			'direction'    => $lang->isRtl() ? 'rtl' : 'ltr',
+			'mediaversion' => $version->getMediaVersion(),
+		];
+
+		return \JDocument::getInstance('html', $attributes);
 	}
 }

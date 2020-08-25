@@ -47,8 +47,8 @@ class AtsystemFeatureSqlishield extends AtsystemFeatureAbstract
 		// malicious POST payload makes it through to the component. When you are
 		// talking about security you can leave NOTHING in the hands of Fate, or
 		// it will come back to bite your sorry ass.
-		$hashes = array('get', 'post');
-		$regex = '#(union([\s]{1,}|/\*(.*)\*/){1,}(all([\s]{1,}|/\*(.*)\*/){1,})?select|select(([\s]{1,}|/\*(.*)\*/|`){1,}([\w]|_|-|\.|\*){1,}([\s]{1,}|/\*(.*)\*/|`){1,}(,){0,})*from([\s]{1,}|/\*(.*)\//){1,}[a-z0-9]{1,}_|select([\s]{1,}|/\*(.*)\*/|\(){1,}(COUNT|MID|FLOOR|LIMIT|RAND|SLEEP|ELT)|select([\s]{1,}|/\*(.*)\*/|`){1,}.*from([\s]{1,}|/\*(.*)\//){1,}INFORMATION_SCHEMA\.|EXTRACTVALUE([\s]{1,}|\(){1,}|(insert|replace)(([\s]{1,}|/\*(.*)\*/){1,})((low_priority|delayed|high_priority|ignore)([\s]{1,}|/\*(.*)\*/){1,}){0,}into|drop([\s]{1,}|/\*(.*)\*/){1,}(database|schema|event|procedure|function|trigger|view|index|server|(temporary([\s]{1,}|/\*(.*)\*/){1,}){0,1}table){1,1}([\s]{1,}|/\*(.*)\*/){1,}|update([\s]{1,}|/\*[^\w]*\/){1,}(low_priority([\s]{1,}|/\*[^\w]*\/){1,}|ignore([\s]{1,}|/\*[^\w]*\/){1,})?`?[\w]*_.*set|delete([\s]{1,}|/\*(.*)\*/){1,}((low_priority|quick|ignore)([\s]{1,}|/\*(.*)\*/){1,}){0,}from|benchmark([\s]{1,}|/\*(.*)\*/){0,}\(([\s]{1,}|/\*(.*)\*/){0,}[0-9]{1,}){1,}#i';
+		$hashes = ['get', 'post'];
+		$regex  = '#(union([\s]{1,}|/\*(.*)\*/){1,}(all([\s]{1,}|/\*(.*)\*/){1,})?select|select(([\s]{1,}|/\*(.*)\*/|`){1,}([\w]|_|-|\.|\*){1,}([\s]{1,}|/\*(.*)\*/|`){1,}(,){0,})*from([\s]{1,}|/\*(.*)\//){1,}[a-z0-9]{1,}_|select([\s]{1,}|/\*(.*)\*/|\(){1,}(COUNT|MID|FLOOR|LIMIT|RAND|SLEEP|ELT)|select([\s]{1,}|/\*(.*)\*/|`){1,}.*from([\s]{1,}|/\*(.*)\//){1,}INFORMATION_SCHEMA\.|EXTRACTVALUE([\s]{1,}|\(){1,}|(insert|replace)(([\s]{1,}|/\*(.*)\*/){1,})((low_priority|delayed|high_priority|ignore)([\s]{1,}|/\*(.*)\*/){1,}){0,}into|drop([\s]{1,}|/\*(.*)\*/){1,}(database|schema|event|procedure|function|trigger|view|index|server|(temporary([\s]{1,}|/\*(.*)\*/){1,}){0,1}table){1,1}([\s]{1,}|/\*(.*)\*/){1,}|update([\s]{1,}|/\*[^\w]*\/){1,}(low_priority([\s]{1,}|/\*[^\w]*\/){1,}|ignore([\s]{1,}|/\*[^\w]*\/){1,})?`?[\w]*_.*set|delete([\s]{1,}|/\*(.*)\*/){1,}((low_priority|quick|ignore)([\s]{1,}|/\*(.*)\*/){1,}){0,}from|benchmark([\s]{1,}|/\*(.*)\*/){0,}\(([\s]{1,}|/\*(.*)\*/){0,}[0-9]{1,}){1,}#i';
 
 		foreach ($hashes as $hash)
 		{
@@ -63,7 +63,7 @@ class AtsystemFeatureSqlishield extends AtsystemFeatureAbstract
 				continue;
 			}
 
-			if ($this->match_array($regex, $allVars, false, function($v) {
+			if ($this->match_array($regex, $allVars, false, function ($v) {
 				// Empty values are processed as-is
 				if (empty($v))
 				{
@@ -77,12 +77,12 @@ class AtsystemFeatureSqlishield extends AtsystemFeatureAbstract
 				}
 
 				// Strip SQL comments (inline OR rest of the line) and convert them to the semantically equivalent space character
-				$regex = '@(--|#).+\n@iu';
+				$regex  = '@(--|#).+\n@iu';
 				$regex2 = '#\/\*(.*?)\*\/#iu';
-				$v = preg_replace($regex2, ' ', $v);
-				$v = preg_replace($regex, ' ', $v);
+				$v      = preg_replace($regex2, ' ', $v);
+				$v      = preg_replace($regex, ' ', $v);
 				// Convert stray newlines to the semantically equivalent space character
-				$v = str_replace(array("\n", "\r"), ' ', $v);
+				$v = str_replace(["\n", "\r"], ' ', $v);
 
 				return $v;
 			}))
@@ -95,4 +95,4 @@ class AtsystemFeatureSqlishield extends AtsystemFeatureAbstract
 			}
 		}
 	}
-} 
+}

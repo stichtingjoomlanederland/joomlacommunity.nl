@@ -37,7 +37,7 @@ class acymView extends acymObject
         acym_setVar('layout', $value);
     }
 
-    public function display($data = [])
+    public function display($controller, $data = [])
     {
         $name = $this->getName();
         $view = $this->getLayout();
@@ -47,11 +47,15 @@ class acymView extends acymObject
         if (!file_exists($viewFolder.$name.DS.'tmpl'.DS.$view.'.php')) $view = 'listing';
         if (ACYM_CMS === 'wordpress') echo ob_get_clean();
 
+        if (ACYM_CMS !== 'wordpress' || ($name === 'frontusers' && ($view === 'unsubscribe' || $view === 'unsubscribepage')) || !defined('DOING_AJAX') || !DOING_AJAX) {
+            acym_loadAssets($name, $view);
+            $controller->loadScripts($view);
+        }
+
         if (!empty($_SESSION['acynotif'])) {
             echo implode('', $_SESSION['acynotif']);
             $_SESSION['acynotif'] = [];
         }
-
 
         $outsideForm = (strpos($name, 'mails') !== false && $view == 'edit') || (strpos($name, 'campaigns') !== false && $view == 'edit_email');
         if ($outsideForm) echo '<form id="acym_form" action="'.acym_completeLink(acym_getVar('cmd', 'ctrl')).'" class="acym__form__mail__edit" method="post" name="acyForm" data-abide novalidate>';
@@ -61,6 +65,19 @@ class acymView extends acymObject
         if (acym_isLeftMenuNecessary()) echo acym_getLeftMenu($name).'<div id="acym_content">';
 
         if (!empty($data['header'])) echo $data['header'];
+
+        $remindme = json_decode($this->config->get('remindme', '[]'), true);
+        if (acym_isAdmin() && !in_array('multilingual', $remindme) && acym_level(1) && $this->config->get('multilingual', '0') === '0') {
+            if (count(acym_getLanguages(true)) > 1) {
+                $message = acym_translation('ACYM_MULTILINGUAL_OPTIONS_PROMPT');
+                $message .= ' <a id="acym__multilingual__reminder" href="'.acym_completeLink('configuration&task=multilingual').'">'.acym_translation('ACYM_YES').'</a>';
+                $message .= ' / <a href="#" class="acym__do__not__remindme" title="multilingual">'.acym_translation('ACYM_NO').'</a>';
+                acym_display($message, 'info', false);
+            } else {
+                $remindme[] = 'multilingual';
+                $this->config->save(['remindme' => json_encode($remindme)]);
+            }
+        }
 
         if (acym_isAdmin()) acym_displayMessages();
 

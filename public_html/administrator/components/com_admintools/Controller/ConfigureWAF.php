@@ -14,7 +14,7 @@ use Akeeba\AdminTools\Admin\Controller\Mixin\PredefinedTaskList;
 use Akeeba\AdminTools\Admin\Controller\Mixin\SendTroubleshootingEmail;
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
-use JText;
+use Joomla\CMS\Language\Text;
 
 class ConfigureWAF extends Controller
 {
@@ -45,7 +45,7 @@ class ConfigureWAF extends Controller
 
 		$model->saveConfig($data);
 
-		$this->setRedirect('index.php?option=com_admintools&view=ConfigureWAF', JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_CONFIGSAVED'));
+		$this->setRedirect('index.php?option=com_admintools&view=ConfigureWAF', Text::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_CONFIGSAVED'));
 	}
 
 	public function save()
@@ -72,6 +72,6 @@ class ConfigureWAF extends Controller
 
 		$model->saveConfig($data);
 
-		$this->setRedirect('index.php?option=com_admintools&view=WebApplicationFirewall', JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_CONFIGSAVED'));
+		$this->setRedirect('index.php?option=com_admintools&view=WebApplicationFirewall', Text::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_CONFIGSAVED'));
 	}
 }

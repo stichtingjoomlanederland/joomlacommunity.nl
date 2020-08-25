@@ -20,7 +20,7 @@ require_once WF_EDITOR_LIBRARIES . '/classes/extensions/popups.php';
 
 class WFImgManager_ExtPlugin extends WFMediaManager
 {
-    public $_filetypes = 'jpg,jpeg,png,apng,gif,webp';
+    public $_filetypes = 'jpg,jpeg,png,apng,gif,webp,avif';
 
     protected $name = 'imgmanager_ext';
 
@@ -84,7 +84,9 @@ class WFImgManager_ExtPlugin extends WFMediaManager
         // Add tabs
         $tabs->addTab('image', 1, array('plugin' => $this));
 
-        $tabs->addTab('rollover', $this->getParam('tabs_rollover', 1));
+        if ($this->allowEvents()) {
+            $tabs->addTab('rollover', $this->getParam('tabs_rollover', 1));
+        }
         $tabs->addTab('advanced', $this->getParam('tabs_advanced', 1));
 
         // load editing scripts
@@ -151,7 +153,7 @@ class WFImgManager_ExtPlugin extends WFMediaManager
         if ($app->input->getInt('inline', 0) === 1) {
             $result = array(
                 'file' => $relative,
-                'name' => basename($file),
+                'name' => WFUtility::mb_basename($file),
             );
 
             if ($this->getParam('imgmanager_ext.always_include_dimensions', 1)) {
@@ -162,16 +164,15 @@ class WFImgManager_ExtPlugin extends WFMediaManager
                     $result['height'] = $dim[1];
                 }
             }
-
-            $defaults = $this->getDefaultAttributes();
-
+            
+            // exif description
             $description = $this->getImageDescription($file);
 
             if ($description) {
                 $result['alt'] = $description;
             }
 
-            return array_merge($result, $defaults);
+            return array_merge($result, array('attributes' => $this->getDefaultAttributes()));
         }
 
         return array();
@@ -379,95 +380,11 @@ class WFImgManager_ExtPlugin extends WFMediaManager
         return $options;
     }
 
-    protected function getDefaultAttributes()
+    public function getDefaultAttributes()
     {
-        $attribs = array();
-        $defaults = $this->getDefaults();
+        $attribs = parent::getDefaultAttributes();
 
-        unset($defaults['always_include_dimensions']);
-
-        if (!empty($defaults)) {
-            $styles = array();
-        }
-
-        foreach ($defaults as $k => $v) {
-            switch ($k) {
-                case 'align':
-                    // convert to float
-                    if ($v == 'left' || $v == 'right') {
-                        $k = 'float';
-                    } else {
-                        $k = 'vertical-align';
-                    }
-
-                    $styles[$k] = $v;
-
-                    break;
-                case 'border_width':
-                case 'border_style':
-                case 'border_color':
-                    // only if border state set
-                    $v = $defaults['border'] ? $v : '';
-
-                    // add px unit to border-width
-                    if ($v && $k == 'border_width' && is_numeric($v)) {
-                        $v .= 'px';
-                    }
-
-                    // check for value and exclude border state parameter
-                    if ($v != '') {
-                        $styles[str_replace('_', '-', $k)] = $v;
-                    }
-
-                    break;
-                case 'margin_left':
-                case 'margin_right':
-                case 'margin_top':
-                case 'margin_bottom':
-                    // add px unit to border-width
-                    if ($v && is_numeric($v)) {
-                        $v .= 'px';
-                    }
-
-                    // check for value and exclude border state parameter
-                    if ($v != '') {
-                        $styles[str_replace('_', '-', $k)] = $v;
-                    }
-                    break;
-                case 'classes':
-                case 'title':
-                case 'id':
-                case 'direction':
-                case 'usemap':
-                case 'longdesc':
-                case 'style':
-                case 'alt':
-                    if ($k == 'direction') {
-                        $k = 'dir';
-                    }
-
-                    if ($k == 'classes') {
-                        $k = 'class';
-                    }
-
-                    if ($v != '') {
-                        $attribs[$k] = $v;
-                    }
-
-                    break;
-            }
-        }
-
-        if (!empty($styles)) {
-            if (!empty($attribs['style'])) {
-                // explode passed in style value to array
-                $attribs['style'] = explode(';', $attribs['style']);
-                // merge with specific styles array
-                $styles = array_merge($attribs['style'], $styles);
-            }
-
-            $attribs['style'] = $styles;
-        }
+        unset($attribs['always_include_dimensions']);
 
         return $attribs;
     }

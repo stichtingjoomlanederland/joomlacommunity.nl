@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fields name="filter">
+		<field
+				name="search"
+				type="text"
+				hint="JSEARCH_FILTER"
+		/>
+
+		<field
+				name="origin"
+				type="jdideal.origin"
+				onchange="this.form.submit();"
+		>
+			<option value=""></option>
+		</field>
+
+		<field
+				name="psp"
+				type="jdideal.psp"
+				onchange="this.form.submit();"
+		>
+			<option value=""></option>
+		</field>
+
+		<field
+				name="card"
+				type="jdideal.card"
+				class="advancedSelect"
+				onchange="this.form.submit();"
+		>
+			<option value=""></option>
+		</field>
+
+		<field
+				name="currency"
+				type="jdideal.currency"
+				class="advancedSelect"
+				onchange="this.form.submit();"
+		>
+			<option value=""></option>
+		</field>
+
+		<field
+				name="result"
+				type="jdideal.result"
+				class="advancedSelect"
+				onchange="this.form.submit();"
+		>
+			<option value=""></option>
+		</field>
+
+	</fields>
+
+	<fields name="list">
+		<field
+				name="limit"
+				type="limitbox"
+				class="input-mini advancedSelect"
+				default="25"
+				onchange="this.form.submit();"
+		/>
+
+		<field
+				name="fullordering"
+				type="hidden"
+		/>
+	</fields>
+</form>

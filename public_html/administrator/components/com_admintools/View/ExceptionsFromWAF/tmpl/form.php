@@ -5,7 +5,10 @@
  * @license   GNU General Public License version 3, or later
  */
 
-/** @var $this \Akeeba\AdminTools\Admin\View\ExceptionsFromWAF\Html */
+use Akeeba\AdminTools\Admin\View\ExceptionsFromWAF\Html;
+use Joomla\CMS\Language\Text;
+
+/** @var $this Html */
 
 defined('_JEXEC') or die;
 ?>
@@ -14,38 +17,39 @@ defined('_JEXEC') or die;
 		<div>
 			<div class="akeeba-form-group">
 				<label for="foption">
-					<?php echo JText::_('COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_OPTION'); ?>
+					<?php echo Text::_('COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_OPTION'); ?>
 				</label>
 
-                <input type="text" name="foption" id="foption" value="<?php echo $this->escape($this->item->option); ?>" />
-                <p>
-					<?php echo JText::_('COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_OPTION_TIP')?>
-                </p>
+				<input type="text" name="foption" id="foption"
+					   value="<?php echo $this->escape($this->item->option); ?>" />
+				<p>
+					<?php echo Text::_('COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_OPTION_TIP') ?>
+				</p>
 			</div>
 
 			<div class="akeeba-form-group">
 				<label for="fview">
-					<?php echo JText::_('COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_VIEW'); ?>
+					<?php echo Text::_('COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_VIEW'); ?>
 				</label>
 
-                <input type="text" name="fview" id="fview" value="<?php echo $this->escape($this->item->view); ?>" />
+				<input type="text" name="fview" id="fview" value="<?php echo $this->escape($this->item->view); ?>" />
 
 				<p>
-					<?php echo JText::_('COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_VIEW_TIP')?>
+					<?php echo Text::_('COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_VIEW_TIP') ?>
 				</p>
 			</div>
 
-            <div class="akeeba-form-group">
-                <label for="fquery">
-					<?php echo JText::_('COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_QUERY'); ?>
-                </label>
+			<div class="akeeba-form-group">
+				<label for="fquery">
+					<?php echo Text::_('COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_QUERY'); ?>
+				</label>
 
-                <input type="text" name="fquery" id="fquery" value="<?php echo $this->escape($this->item->query); ?>" />
+				<input type="text" name="fquery" id="fquery" value="<?php echo $this->escape($this->item->query); ?>" />
 
-                <p>
-					<?php echo JText::_('COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_QUERY_TIP')?>
-                </p>
-            </div>
+				<p>
+					<?php echo Text::_('COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_QUERY_TIP') ?>
+				</p>
+			</div>
 		</div>
 	</div>
 
@@ -53,7 +57,7 @@ defined('_JEXEC') or die;
 		<input type="hidden" name="option" value="com_admintools" />
 		<input type="hidden" name="view" value="ExceptionsFromWAF" />
 		<input type="hidden" name="task" value="" />
-		<input type="hidden" name="id" id="id" value="<?php echo (int)$this->item->id; ?>" />
+		<input type="hidden" name="id" id="id" value="<?php echo (int) $this->item->id; ?>" />
 		<input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1" />
 	</div>
 </form>

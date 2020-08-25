@@ -5,9 +5,14 @@
 * @license GPL, http://www.gnu.org/licenses/gpl-2.0.html
 */
 
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Restricted access'); ?>
 
-echo JHtml::_('rsfieldset.start', 'adminform', '');
-foreach ($this->form->getFieldset('bbcode') as $field) 
-	echo JHtml::_('rsfieldset.element', $field->label, $field->input);
-echo JHtml::_('rsfieldset.end');
+<div class="<?php echo RSCommentsAdapterGrid::row(); ?>">
+	<div class="<?php echo RSCommentsAdapterGrid::column(12); ?>">
+		<fieldset class="options-form">
+			<?php foreach ($this->form->getFieldset('bbcode') as $field) { ?>
+			<?php echo $field->renderField(); ?>
+			<?php } ?>
+		</fieldset>
+	</div>
+</div>

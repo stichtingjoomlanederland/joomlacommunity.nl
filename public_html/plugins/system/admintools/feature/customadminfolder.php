@@ -5,6 +5,10 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Session\Session;
+use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\User\UserHelper;
+
 defined('_JEXEC') or die;
 
 /**
@@ -78,8 +82,8 @@ class AtsystemFeatureCustomadminfolder extends AtsystemFeatureAbstract
 
 		$uaShort = str_replace($browserVersion, 'abcd', $uaString);
 
-		$uri = JUri::getInstance();
-		$db = $this->db;
+		$uri = Uri::getInstance();
+		$db  = $this->db;
 
 		// We're not trying to access to the custom folder
 		$folder = $this->cparams->getValue('adminlogindir');
@@ -89,22 +93,20 @@ class AtsystemFeatureCustomadminfolder extends AtsystemFeatureAbstract
 			return;
 		}
 
-		JLoader::import('joomla.user.helper');
+		$hash = UserHelper::hashPassword($ip . $uaShort);
 
-		$hash = JUserHelper::hashPassword($ip . $uaShort);
-
-		$data = (object)array(
-			'series'      => JUserHelper::genRandomPassword(64),
+		$data = (object) [
+			'series'      => UserHelper::genRandomPassword(64),
 			'client_hash' => $hash,
-			'valid_to'    => date('Y-m-d H:i:s', time() + 180)
-		);
+			'valid_to'    => date('Y-m-d H:i:s', time() + 180),
+		];
 
 		$db->insertObject('#__admintools_cookies', $data);
 
-		$config = $this->container->platform->getConfig();
+		$config        = $this->container->platform->getConfig();
 		$cookie_domain = $config->get('cookie_domain', '');
-		$cookie_path = $config->get('cookie_path', '/');
-		$isSecure = $config->get('force_ssl', 0) ? true : false;
+		$cookie_path   = $config->get('cookie_path', '/');
+		$isSecure      = $config->get('force_ssl', 0) ? true : false;
 
 		setcookie('admintools', $data->series, time() + 180, $cookie_path, $cookie_domain, $isSecure, true);
 		setcookie('admintools_logout', null, 1, $cookie_path, $cookie_domain, $isSecure, true);
@@ -123,7 +125,7 @@ class AtsystemFeatureCustomadminfolder extends AtsystemFeatureAbstract
 	{
 		// Initialise
 		$seriesFound = false;
-		$db = $this->db;
+		$db          = $this->db;
 
 		// Get the series number from the cookie
 		$series = $this->input->cookie->get('admintools', null);
@@ -133,10 +135,10 @@ class AtsystemFeatureCustomadminfolder extends AtsystemFeatureAbstract
 		$logout = $this->input->cookie->get('admintools_logout', null, 'string');
 		if ($logout == '!!!LOGOUT!!!')
 		{
-			$config = $this->container->platform->getConfig();
+			$config        = $this->container->platform->getConfig();
 			$cookie_domain = $config->get('cookie_domain', '');
-			$cookie_path = $config->get('cookie_path', '/');
-			$isSecure = $config->get('force_ssl', 0) ? true : false;
+			$cookie_path   = $config->get('cookie_path', '/');
+			$isSecure      = $config->get('force_ssl', 0) ? true : false;
 			setcookie('admintools_logout', null, 1, $cookie_path, $cookie_domain, $isSecure, true);
 
 			$this->redirectAdminToHome();
@@ -161,7 +163,7 @@ class AtsystemFeatureCustomadminfolder extends AtsystemFeatureAbstract
 
 			if (!is_object($storedData))
 			{
-				$isValid = false;
+				$isValid     = false;
 				$seriesFound = false;
 			}
 		}
@@ -182,17 +184,15 @@ class AtsystemFeatureCustomadminfolder extends AtsystemFeatureAbstract
 		{
 			$ip = AtsystemUtilFilter::getIp();
 
-			$ua = $this->app->client;
-			$uaString = $ua->userAgent;
+			$ua             = $this->app->client;
+			$uaString       = $ua->userAgent;
 			$browserVersion = $ua->browserVersion;
 
 			$uaShort = str_replace($browserVersion, 'abcd', $uaString);
 
 			$notSoSecret = $ip . $uaShort;
 
-			JLoader::import('joomla.user.helper');
-
-			$isValid = JUserHelper::verifyPassword($notSoSecret, $storedData->client_hash);
+			$isValid = UserHelper::verifyPassword($notSoSecret, $storedData->client_hash);
 		}
 
 		// Last check: session state variable
@@ -230,10 +230,10 @@ class AtsystemFeatureCustomadminfolder extends AtsystemFeatureAbstract
 
 	protected function setLogoutCookie()
 	{
-		$config = $this->container->platform->getConfig();
+		$config        = $this->container->platform->getConfig();
 		$cookie_domain = $config->get('cookie_domain', '');
-		$cookie_path = $config->get('cookie_path', '/');
-		$isSecure = $config->get('force_ssl', 0) ? true : false;
+		$cookie_path   = $config->get('cookie_path', '/');
+		$isSecure      = $config->get('force_ssl', 0) ? true : false;
 
 		setcookie('admintools_logout', '!!!LOGOUT!!!', time() + 180, $cookie_path, $cookie_domain, $isSecure, true);
 	}
@@ -259,9 +259,9 @@ class AtsystemFeatureCustomadminfolder extends AtsystemFeatureAbstract
 			return false;
 		}
 
-		$input = $this->input;
+		$input  = $this->input;
 		$option = $input->getCmd('option', null);
-		$task = $input->getCmd('task', null);
+		$task   = $input->getCmd('task', null);
 
 		if (($option == 'com_login') && ($task == 'logout'))
 		{
@@ -269,27 +269,12 @@ class AtsystemFeatureCustomadminfolder extends AtsystemFeatureAbstract
 		}
 
 		// Check for malicious direct post without a valid token. In this case it's not a logout.
-		JLoader::import('joomla.utiltiites.utility');
-		$token = null;
-
-		if (class_exists('JUtility'))
-		{
-			if (method_exists('JUtility', 'getToken'))
-			{
-				$token = JUtility::getToken();
-			}
-		}
-
-		if (is_null($token))
-		{
-			$token = $this->container->platform->getToken(true);
-		}
-
+		$token = $this->container->platform->getToken(true);
 		$token = $this->input->get($token, false, 'raw');
 
 		if (($token === false) && method_exists('JSession', 'checkToken'))
 		{
-			return JSession::checkToken('request');
+			return Session::checkToken('request');
 		}
 
 		return false;

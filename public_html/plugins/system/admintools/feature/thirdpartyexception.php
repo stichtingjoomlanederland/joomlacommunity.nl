@@ -14,14 +14,14 @@ class AtsystemFeatureThirdpartyexception extends AtsystemFeatureAbstract
 	 * supposed to be used by 3PD to log security exceptions in Admin Tools'
 	 * log.
 	 *
-	 * @param   string  $reason    The blocking reason to show to the administrator. MANDATORY.
-	 * @param   string  $message   The message to show to the user being blocked. MANDATORY.
-	 * @param   array   $extraInfo Any extra information to record to the log file (hash array).
-	 * @param   boolean $autoban   OBSOLETE. No longer used.
+	 * @param   string   $reason     The blocking reason to show to the administrator. MANDATORY.
+	 * @param   string   $message    The message to show to the user being blocked. MANDATORY.
+	 * @param   array    $extraInfo  Any extra information to record to the log file (hash array).
+	 * @param   boolean  $autoban    OBSOLETE. No longer used.
 	 *
 	 * @return  void
 	 */
-	public function onAdminToolsThirdpartyException($reason, $message, $extraInfo = array(), $autoban = false)
+	public function onAdminToolsThirdpartyException($reason, $message, $extraInfo = [], $autoban = false)
 	{
 		if (empty($message))
 		{
@@ -31,4 +31,4 @@ class AtsystemFeatureThirdpartyexception extends AtsystemFeatureAbstract
 		// Block the request
 		$this->exceptionsHandler->blockRequest('external', $message, $extraInfo, $reason);
 	}
-} 
+}

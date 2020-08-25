@@ -45,8 +45,5 @@ if (file_exists(ACYM_BACK.'extensions')) {
     $updateHelper->installExtensions(false);
 }
 
-acym_loadAssets('back', $ctrl, $task);
-
-$controller->loadScripts($task);
 $controller->$task();
 

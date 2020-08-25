@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
@@ -57,6 +57,10 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	
 	<?php if (rseventsproHelper::isGallery()) { ?>
 	<li><a href="javascript:void(0);" data-target="#rsepro-edit-tab13" data-toggle="tab"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TAB_GALLERY'); ?> <span class="fa fa-picture-o"></span></a></li>
+	<?php } ?>
+	
+	<?php if (rseventsproHelper::pdf('1.18')) { ?>
+	<li class="rsepro-hide"<?php echo $this->item->registration ? ' style="display:block;"' : ''; ?>><a href="javascript:void(0);" data-target="#rsepro-edit-invoice" data-toggle="tab"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TAB_INVOICE'); ?> <span class="fa fa-file-pdf-o"></span></a></li>
 	<?php } ?>
 	
 	<?php JFactory::getApplication()->triggerEvent('rsepro_addMenuOption'); ?>

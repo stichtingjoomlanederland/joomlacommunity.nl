@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset name="settings">
+		<field name="id" type="hidden" class="readonly" readonly="true"  />
+
+		<field name="psp"
+			label="COM_ROPAYMENTS_PROFILE_PSP_LABEL"
+			description="COM_ROPAYMENTS_PROFILE_PSP_DESC"
+			type="list"
+			required="false"
+			default=""
+			size="1"
+			class="input-xlarge advancedSelect"
+			onchange="document.adminForm.task.value='profile.change'; document.adminForm.submit();">
+			<option value="">COM_ROPAYMENTS_NO_IDEAL_ACTIVE</option>
+			<option value="advanced">COM_ROPAYMENTS_IDEAL_ADVANCED</option>
+			<option value="ing-lite">COM_ROPAYMENTS_IDEAL_ING_LITE</option>
+			<option value="abn-internetkassa">COM_ROPAYMENTS_IDEAL_INTERNETKASSA_ABN</option>
+			<option value="onlinekassa">COM_ROPAYMENTS_IDEAL_ONLINEKASSA</option>
+			<option value="kassacompleet">COM_ROPAYMENTS_IDEAL_KASSACOMPLEET</option>
+			<option value="mollie">COM_ROPAYMENTS_IDEAL_MOLLIE</option>
+			<option value="targetpay">COM_ROPAYMENTS_IDEAL_TARGETPAY</option>
+			<option value="sisow">COM_ROPAYMENTS_IDEAL_SISOW</option>
+			<option value="ogone">COM_ROPAYMENTS_IDEAL_OGONE</option>
+			<option value="buckaroo">COM_ROPAYMENTS_IDEAL_BUCKAROO</option>
+			<option value="ems">COM_ROPAYMENTS_IDEAL_EMS</option>
+		</field>
+
+		<field name="name"
+			   type="text"
+			   label="COM_ROPAYMENTS_PROFILE_NAME_LABEL"
+			   description="COM_ROPAYMENTS_PROFILE_NAME_DESC"
+			   class="input-xlarge"
+			   required="true"
+			   default=""/>
+
+		<field name="alias"
+			   type="text"
+			   label="COM_ROPAYMENTS_PROFILE_ALIAS_LABEL"
+			   description="COM_ROPAYMENTS_PROFILE_ALIAS_DESC"
+			   required="true"
+			   default=""/>
+	</fieldset>
+	<fieldset name="emails"
+			  label="COM_ROPAYMENTS_MAILS_LABEL"
+			  description="COM_ROPAYMENTS_MAILS_DESC">
+		<field name="status_mismatch"
+			   type="radio"
+			   default="0"
+			   class="btn-group"
+			   label="COM_ROPAYMENTS_MAIL_STATUS_MISMATCH_LABEL"
+			   description="COM_ROPAYMENTS_MAIL_STATUS_MISMATCH_DESC">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		<field name="admin_order_payment"
+			   type="radio"
+			   default="0"
+			   class="btn-group"
+			   label="COM_ROPAYMENTS_MAIL_ADMIN_ORDER_PAYMENT_LABEL"
+			   description="COM_ROPAYMENTS_MAIL_ADMIN_ORDER_PAYMENT_DESC">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		<field name="admin_status_failed"
+			   type="radio"
+			   default="0"
+			   class="btn-group"
+			   label="COM_ROPAYMENTS_MAIL_ADMIN_PAYMENT_FAILED_LABEL"
+			   description="COM_ROPAYMENTS_MAIL_ADMIN_PAYMENT_FAILED_DESC">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		<field name="inform_email"
+			   type="radio"
+			   default="0"
+			   class="btn-group"
+			   label="COM_ROPAYMENTS_MAIL_INFORM_EMAIL_STATUS_LABEL"
+			   description="COM_ROPAYMENTS_MAIL_INFORM_EMAIL_STATUS_DESC">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		<field name="jdidealgateway_emailto"
+			   type="text"
+			   label="COM_ROPAYMENTS_JDIDEAL_EMAILTO_LABEL"
+			   description="COM_ROPAYMENTS_JDIDEAL_EMAILTO_DESC"
+			   class="input-xxlarge"/>
+		<field name="customer_change_status"
+			   type="radio"
+			   default="0"
+			   class="btn-group"
+			   label="COM_ROPAYMENTS_MAIL_CUSTOMER_CHANGE_STATUS_LABEL"
+			   description="COM_ROPAYMENTS_MAIL_CUSTOMER_CHANGE_STATUS_DESC">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+	</fieldset>
+</form>

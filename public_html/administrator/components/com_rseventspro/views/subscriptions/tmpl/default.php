@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
@@ -40,6 +40,7 @@ $listDirn	= $this->escape($this->state->get('list.direction','desc')); ?>
 				<th width="15%" class="nowrap center hidden-phone"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBERS_HEAD_TICKETS'); ?></th>
 				<th width="15%" class="nowrap center hidden-phone"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBERS_HEAD_TOTAL'); ?></th>
 				<th width="10%" class="nowrap center hidden-phone"><?php echo JHtml::_('searchtools.sort', 'COM_RSEVENTSPRO_SUBSCRIBERS_HEAD_PAYMENT', 'u.gateway', $listDirn, $listOrder); ?></th>
+				<th width="5%" class="nowrap center hidden-phone"></th>
 				<th width="5%" class="nowrap center hidden-phone"><?php echo JHtml::_('searchtools.sort', 'COM_RSEVENTSPRO_SUBSCRIBERS_HEAD_STATUS', 'u.state', $listDirn, $listOrder); ?></th>
 				<th width="1%" class="nowrap center hidden-phone"><?php echo JHtml::_('searchtools.sort', 'JGRID_HEADING_ID', 'u.id', $listDirn, $listOrder); ?></th>
 			</thead>
@@ -63,7 +64,7 @@ $listDirn	= $this->escape($this->state->get('list.direction','desc')); ?>
 							<?php } ?>
 						</td>
 						<td class="center hidden-phone">
-							<?php echo rseventsproHelper::getUserTickets($item->id, true); ?>
+							<span class="hasTooltip" style="border-bottom: 1px dotted black;cursor: pointer;" title="<?php echo htmlentities(rseventsproHelper::getUserTickets($item->id, true), ENT_COMPAT, 'UTF-8'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIPTIONS_VIEW_TICKETS'); ?></span>
 						</td>
 						<td class="center hidden-phone">
 							<?php $total = rseventsproHelper::total($item->id); ?>
@@ -73,6 +74,11 @@ $listDirn	= $this->escape($this->state->get('list.direction','desc')); ?>
 						<td class="center hidden-phone">
 							<?php $payment = rseventsproHelper::getPayment($item->gateway); ?>
 							<?php echo $payment ? $payment : '-'; ?>
+						</td>
+						<td class="center hidden-phone">
+							<?php if ($item->state == 1 && rseventsproHelper::hasInvoice($item->id)) { ?>
+							<a href="<?php echo JRoute::_('index.php?option=com_rseventspro&task=subscription.invoice&id='.$item->id); ?>" class="btn btn-small"><?php echo JText::_('COM_RSEVENTSPRO_INVOICE'); ?></a>
+							<?php } ?>
 						</td>
 						<td class="center hidden-phone">
 							<?php echo $this->getStatus($item->state); ?>
@@ -85,7 +91,7 @@ $listDirn	= $this->escape($this->state->get('list.direction','desc')); ?>
 			</tbody>
 			<tfoot>
 			<tr>
-				<td colspan="8" style="text-align: center;">
+				<td colspan="9" style="text-align: center;">
 					<?php echo $this->pagination->getListFooter(); ?>
 				</td>
 			</tr>

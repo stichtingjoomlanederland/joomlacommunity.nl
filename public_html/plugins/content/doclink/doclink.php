@@ -79,6 +79,7 @@ class PlgContentDoclink extends JPlugin
 
                 $link->attributes['data-title'] = $title;
                 $link->attributes['data-id']    = $document->id;
+                $link->attributes['type']       = $document->mimetype;
                 $link->attributes['class']     .= ' docman_track_download';
             }
 

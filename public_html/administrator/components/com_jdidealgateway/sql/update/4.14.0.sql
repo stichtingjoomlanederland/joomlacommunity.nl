@@ -1,0 +1,1 @@
+ALTER TABLE #__jdidealgateway_logs ADD `language` CHAR(7) NOT NULL;

@@ -6,6 +6,8 @@
  */
 
 // Boilerplate -- START
+use Joomla\CMS\Factory;
+
 define('_JEXEC', 1);
 
 foreach ([__DIR__, getcwd()] as $curdir)
@@ -47,7 +49,7 @@ class AdmintoolsDbrepair extends FOFApplicationCLI
 	{
 		// Load the language files
 		$paths	 = array(JPATH_ADMINISTRATOR, JPATH_ROOT);
-		$jlang	 = JFactory::getLanguage();
+		$jlang	 = Factory::getLanguage();
 		$jlang->load('com_admintools', $paths[0], 'en-GB', true);
 		$jlang->load('com_admintools', $paths[1], 'en-GB', true);
 		$jlang->load('com_admintools' . '.override', $paths[0], 'en-GB', true);
@@ -89,6 +91,19 @@ $debugmessage
 
 
 ENDBLOCK;
+		}
+
+		if (version_compare(JVERSION, '3.999.999', 'gt'))
+		{
+			$this->out('You cannot run this script on Joomla 4.');
+			$this->out('');
+			$this->out('Joomla 4 currently does not support executing table maintenance commands through');
+			$this->out('its database interface. As a result Admin Tools cannot support this feature on');
+			$this->out('sites using Joomla 4.');
+			$this->out('');
+			$this->out('This feature will completely go away when we remove Joomla 3 support.');
+
+			$this->close(127);
 		}
 
 		// Attempt to use an infinite time limit, in case you are using the PHP CGI binary instead
@@ -154,7 +169,7 @@ ENDBLOCK;
 
 		$dbType = $container->db->name;
 		$isMySQL = strpos($dbType, 'mysql') !== false;
-		
+
 		if (!$isMySQL)
 		{
 			$this->out("You are not using a MySQL database, there's nothing to do here.");

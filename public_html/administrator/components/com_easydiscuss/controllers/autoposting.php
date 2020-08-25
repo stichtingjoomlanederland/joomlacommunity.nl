@@ -249,7 +249,7 @@ class EasyDiscussControllerAutoposting extends EasyDiscussController
 		ED::setMessage('COM_EASYDISCUSS_AUTOPOST_ACCOUNT_ASSOCIATED_SUCCESSFULLY', DISCUSS_QUEUE_SUCCESS);
 
 		// We need to close the popup now.
-		echo '<script type="text/javascript">';
+		echo '<script>';
 		echo "window.opener.doneLogin();";
 		echo "window.close();";
 		echo '</script>';

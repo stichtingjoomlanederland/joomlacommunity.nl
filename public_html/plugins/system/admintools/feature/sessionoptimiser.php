@@ -25,7 +25,7 @@ class AtsystemFeatureSessionoptimiser extends AtsystemFeatureAbstract
 
 	public function onAfterInitialise()
 	{
-		$minutes = (int)$this->params->get('sesopt_freq', 0);
+		$minutes = (int) $this->params->get('sesopt_freq', 0);
 
 		if ($minutes <= 0)
 		{
@@ -35,7 +35,6 @@ class AtsystemFeatureSessionoptimiser extends AtsystemFeatureAbstract
 		$lastJob = $this->getTimestamp('session_optimize');
 		$nextJob = $lastJob + $minutes * 60;
 
-		JLoader::import('joomla.utilities.date');
 		$now = new Date();
 
 		if ($now->toUnix() >= $nextJob)
@@ -60,11 +59,11 @@ class AtsystemFeatureSessionoptimiser extends AtsystemFeatureAbstract
 	 */
 	private function sessionOptimize()
 	{
-		$db = $this->db;
+		$db     = $this->db;
 		$dbName = $db->getName();
 
 		// Make sure this is MySQL
-		if (!in_array(strtolower($dbName), array('mysql', 'mysqli')))
+		if (!in_array(strtolower($dbName), ['mysql', 'mysqli']))
 		{
 			return;
 		}

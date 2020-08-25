@@ -2,8 +2,8 @@
 <extension version="3.9" type="plugin" group="actionlog" method="upgrade">
 	<name>plg_actionlog_regularlabsmanager</name>
 	<description>PLG_ACTIONLOG_REGULARLABSMANAGER_DESC</description>
-	<version>7.4.4</version>
-	<creationDate>February 2020</creationDate>
+	<version>7.4.5</version>
+	<creationDate>August 2020</creationDate>
 	<author>Regular Labs (Peter van Westen)</author>
 	<authorEmail>info@regularlabs.com</authorEmail>
 	<authorUrl>https://www.regularlabs.com</authorUrl>
@@ -29,14 +29,14 @@
 			<fieldset name="basic">
 				<field name="@loadlanguage_regularlabs" type="rl_loadlanguage" extension="plg_system_regularlabs" />
 				<field name="@loadlanguage" type="rl_loadlanguage" extension="plg_actionlog_regularlabsmanager" />
-				<field name="@license" type="rl_license" extension="REGULAR_LABS_EXTENSION_MANAGER" />
-				<field name="@version" type="rl_version" extension="REGULAR_LABS_EXTENSION_MANAGER" />
+				<field name="@license" type="rl_license" extension="REGULARLABSEXTENSIONMANAGER" />
+				<field name="@version" type="rl_version" extension="REGULARLABSEXTENSIONMANAGER" />
 				<field name="@dependency" type="rl_dependency"
 					   label="RR_THE_COMPONENT"
 					   file="/administrator/components/com_regularlabsmanager/regularlabsmanager.php" />
 				<field name="@header" type="rl_header"
-					   label="REGULAR_LABS_EXTENSION_MANAGER"
-					   description="REGULAR_LABS_EXTENSION_MANAGER_DESC"
+					   label="REGULARLABSEXTENSIONMANAGER"
+					   description="REGULARLABSEXTENSIONMANAGER_DESC"
 					   url="https://www.regularlabs.com/extensionmanager" />
 
 				<field name="@notice_settings" type="note" class="alert alert-info"

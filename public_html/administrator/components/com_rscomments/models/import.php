@@ -68,7 +68,7 @@ class RscommentsModelImport extends JModelAdmin {
 		if (!empty($plugin_class)) {
 			JPluginHelper::importPlugin('rscomments');
 			
-			JFactory::getApplication()->triggerEvent('rscommentsImport', array(array('plugin' => $plugin_class, 'return' => &$return)));
+			JFactory::getApplication()->triggerEvent('onrscommentsImport', array(array('plugin' => $plugin_class, 'return' => &$return)));
 			
 			$msg = JText::_('COM_RSCOMMENTS_IMPORT_PLUGIN_NO_OK');
 			
@@ -80,53 +80,59 @@ class RscommentsModelImport extends JModelAdmin {
 		} else {
 			$rscTable = $mappedTable = array();
 			
-			foreach($data as $col => $val) {
-				if(empty($val)) continue;
-				$rscTable[] = $db->qn($col);
-				// avoiding conflicts when the user selects to import duplicate values
-				$mappedTable[] = $db->qn($val,$col);
+			foreach ($data as $col => $val) {
+				if (empty($val)) {
+					continue;
+				}
+				
+				$rscTable[]		= $db->qn($col);
+				$mappedTable[]	= $db->qn($val,$col);
 			}
 
-			if(!empty($rscTable) && !empty($mappedTable)) {
+			if (!empty($rscTable) && !empty($mappedTable)) {
 				$rscTable 		= implode(',',$rscTable);
 				$mappedTable 	= implode(',',$mappedTable);
 
-				// get the data to import
 				$subquery = $db->getQuery(true);
 				$subquery->select($mappedTable)->from($table);
 				$db->setQuery($subquery);
 				$db->execute();
 				$imported_data = $db->loadAssocList();
+				
+				if ($imported_data) {
+					$query->clear();
+					$query->insert('#__rscomments_comments');
+					$query->columns($rscTable);
 
-				// import data to RSComments! comments_table
-				$query->clear();
-				$query->insert('#__rscomments_comments');
-				$query->columns($rscTable);
+					foreach ($imported_data as $arrays => $columns) {
+						$values = '';
+						
+						foreach ($columns as $column => $value) {
+							$values .= $db->q($value).', ';
+						}
 
-				// create the set of values
-				foreach($imported_data as $arrays => $columns) {
-					$values = '';
-					foreach($columns as $column => $value)
-						$values .= $db->q($value).', ';
+						$query->values(rtrim($values, ', '));
+					}
 
-					$query->values(rtrim($values, ', '));
+					$db->setQuery($query);
+					$db->execute();
+					
+					$affected = $db->getAffectedRows();
+					$msg = JText::sprintf('COM_RSCOMMENTS_IMPORT_OK',$affected);
+				} else {
+					$msg = JText::_('COM_RSCOMMENTS_IMPORT_PLUGIN_NO_OK');
 				}
-
-				$db->setQuery($query);
-				$db->execute();
-				$affected 	= $db->getAffectedRows();
-				$msg 		= JText::sprintf('COM_RSCOMMENTS_IMPORT_OK',$affected);
 			} else {
-				$msg 		= JText::_('COM_RSCOMMENTS_IMPORT_PLUGIN_NO_OK');
+				$msg = JText::_('COM_RSCOMMENTS_IMPORT_PLUGIN_NO_OK');
 			}
 		}
-		$app->redirect('index.php?option=com_rscomments&view=import', $msg);
-
-		return $affected;
+		
+		$app->enqueueMessage($msg);
+		$app->redirect('index.php?option=com_rscomments&view=import');
 	}
 
 	public function getRSTabs() {
-		$tabs = new RSTabs('com-rscomments-group');
+		$tabs = new RSCommentsAdapterTabs('com-rscomments-group');
 		return $tabs;
 	}
 }

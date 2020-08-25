@@ -5,12 +5,17 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\User\User;
+use Joomla\CMS\User\UserHelper;
 
 defined('_JEXEC') or die;
 
 class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 {
+	use AtsystemUtilTempdisable;
+
 	protected $loadOrder = 210;
 
 	/**
@@ -20,10 +25,10 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 	 */
 	public function isEnabled()
 	{
-		$fromBackend = $this->cparams->getValue('nonewadmins', 0) == 1;
+		$fromBackend  = $this->cparams->getValue('nonewadmins', 0) == 1;
 		$fromFrontend = $this->cparams->getValue('nonewfrontendadmins', 1) == 1;
 
-		$enabled  = $fromBackend && $this->container->platform->isBackend();
+		$enabled = $fromBackend && $this->container->platform->isBackend();
 		$enabled |= $fromFrontend && $this->container->platform->isFrontend();
 
 		return $enabled;
@@ -43,9 +48,9 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 			return;
 		}
 
-		$jform = $this->input->get('jform', array(), 'array');
+		$jform = $this->input->get('jform', [], 'array');
 
-		$filteredTasks = array(
+		$filteredTasks = [
 			'save',
 			'apply',
 			'user.apply',
@@ -53,7 +58,7 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 			'user.save2new',
 			'profile.apply',
 			'profile.save',
-		);
+		];
 
 		if (!in_array($task, $filteredTasks))
 		{
@@ -66,7 +71,7 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 			return;
 		}
 
-		$groups = array();
+		$groups = [];
 
 		if (isset($jform['groups']))
 		{
@@ -78,7 +83,7 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 		// Sometimes $user->groups is null... let's be 100% sure that we loaded all the groups of the user
 		if (empty($user->groups))
 		{
-			$user->groups = JUserHelper::getUserGroups($user->id);
+			$user->groups = UserHelper::getUserGroups($user->id);
 		}
 
 		$makingNewAdmin = $this->hasAdminGroup($groups);
@@ -124,12 +129,12 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 		if ($this->exceptionsHandler->logAndAutoban($reason, $extraInfo))
 		{
 			// Throw an exception to prevent Joomla! processing this form
-			$jlang = JFactory::getLanguage();
+			$jlang = Factory::getLanguage();
 			$jlang->load('joomla', JPATH_ROOT, 'en-GB', true);
 			$jlang->load('joomla', JPATH_ROOT, $jlang->getDefault(), true);
 			$jlang->load('joomla', JPATH_ROOT, null, true);
 
-			throw new Exception(JText::_('JGLOBAL_AUTH_ACCESS_DENIED'), '403');
+			throw new Exception(Text::_('JGLOBAL_AUTH_ACCESS_DENIED'), '403');
 		}
 	}
 
@@ -137,14 +142,20 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 	 * Hooks into the Joomla! models before a user is saved. This catches the case where a 3PD extension tries to create
 	 * a new user instead of going through com_users.
 	 *
-	 * @param   JUser|array     $oldUser  The existing user record
-	 * @param   bool            $isNew    Is this a new user?
-	 * @param   array           $data     The data to be saved
+	 * @param   User|array  $oldUser  The existing user record
+	 * @param   bool        $isNew    Is this a new user?
+	 * @param   array       $data     The data to be saved
 	 *
 	 * @throws  Exception  When we catch a security exception
 	 */
 	public function onUserBeforeSave($oldUser, $isNew, $data)
 	{
+		// Are we temporarily disabled?
+		if (self::getTempDisableFlag())
+		{
+			return;
+		}
+
 		// Only applies to admin users.
 		$isAdmin = $this->hasAdminGroup($data['groups']);
 
@@ -179,19 +190,19 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 		if ($this->exceptionsHandler->logAndAutoban($reason, $extraInfo))
 		{
 			// Throw an exception to prevent Joomla! processing this form
-			$jlang = JFactory::getLanguage();
+			$jlang = Factory::getLanguage();
 			$jlang->load('joomla', JPATH_ROOT, 'en-GB', true);
 			$jlang->load('joomla', JPATH_ROOT, $jlang->getDefault(), true);
 			$jlang->load('joomla', JPATH_ROOT, null, true);
 
-			throw new Exception(JText::_('JGLOBAL_AUTH_ACCESS_DENIED'), '403');
+			throw new Exception(Text::_('JGLOBAL_AUTH_ACCESS_DENIED'), '403');
 		}
 	}
 
 	/**
 	 * Is this a user who has not yet consented to the privacy policy?
 	 *
-	 * @param   JUser|User $user
+	 * @param   User|User  $user
 	 *
 	 * @return  bool    Am I allowed to edit this user?
 	 */

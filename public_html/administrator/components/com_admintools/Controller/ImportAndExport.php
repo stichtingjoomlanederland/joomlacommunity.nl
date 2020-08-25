@@ -11,7 +11,9 @@ defined('_JEXEC') or die;
 
 use Akeeba\AdminTools\Admin\Controller\Mixin\CustomACL;
 use Akeeba\AdminTools\Admin\Helper\Storage;
+use Exception;
 use FOF30\Controller\Controller;
+use Joomla\CMS\Language\Text;
 
 class ImportAndExport extends Controller
 {
@@ -37,14 +39,13 @@ class ImportAndExport extends Controller
 		$model = $this->getModel();
 		$data  = $model->exportData();
 
-		if($data)
+		if ($data)
 		{
 			$json = json_encode($data);
 
 			// Clear cache
 			while (@ob_end_clean())
 			{
-				;
 			}
 
 			header("Pragma: public");
@@ -67,7 +68,7 @@ class ImportAndExport extends Controller
 		}
 		else
 		{
-			$this->setRedirect('index.php?option=com_admintools&view=ImportAndExport&task=export', \JText::_('COM_ADMINTOOLS_IMPORTANDEXPORT_SELECT_DATA_WARN'), 'warning');
+			$this->setRedirect('index.php?option=com_admintools&view=ImportAndExport&task=export', Text::_('COM_ADMINTOOLS_IMPORTANDEXPORT_SELECT_DATA_WARN'), 'warning');
 		}
 	}
 
@@ -77,16 +78,16 @@ class ImportAndExport extends Controller
 		$params->setValue('quickstart', 1, true);
 
 		/** @var \Akeeba\AdminTools\Admin\Model\ImportAndExport $model */
-		$model  = $this->getModel();
+		$model = $this->getModel();
 
 		try
 		{
 			$model->importDataFromRequest();
 
 			$type = null;
-			$msg  = \JText::_('COM_ADMINTOOLS_IMPORTANDEXPORT_IMPORT_OK');
+			$msg  = Text::_('COM_ADMINTOOLS_IMPORTANDEXPORT_IMPORT_OK');
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			$type = 'error';
 			$msg  = $e->getMessage();

@@ -560,6 +560,20 @@ function rsepro_delete_speaker_image(id) {
 	});
 }
 
+function rsepro_delete_sponsor_image(id) {
+	jQuery('#rse_loader').css({'display' : '' });
+	
+	jQuery.ajax({
+		url: 'index.php?option=com_rseventspro&task=sponsors.deleteimage',
+		type: 'post',
+		data: {	'id': id }
+	}).done(function( response ) {
+		if (response == 1) {
+			jQuery('#userImage').remove();
+		}
+	});
+}
+
 function rsepro_import_facebook(pages, owners, step, names, types, total) {
 	var init	= typeof pages == 'undefined' && typeof owners == 'undefined' && typeof names == 'undefined' ? 1 : 0;
 	var step 	= step || 0;

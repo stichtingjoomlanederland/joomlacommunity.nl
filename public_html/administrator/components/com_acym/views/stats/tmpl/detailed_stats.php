@@ -5,6 +5,8 @@ defined('_JEXEC') or die('Restricted access');
 		<h1 class="acym__listing__empty__title text-center cell"><?php echo acym_translation('ACYM_DONT_HAVE_STATS_CAMPAIGN'); ?> <a href="<?php echo acym_completeLink('campaigns&task=edit&step=chooseTemplate'); ?>"><?php echo acym_translation('ACYM_CREATE_ONE'); ?></a></h1>
     <?php } elseif (!empty($data['emptyDetailed']) && $data['emptyDetailed'] == 'stats') { ?>
 		<h1 class="acym__listing__empty__title text-center cell"><?php echo acym_translation('ACYM_DONT_HAVE_STATS_THIS_CAMPAIGN'); ?></a></h1>
+    <?php } elseif (empty($data['detailed_stats'])) { ?>
+		<h1 class="acym__listing__empty__title text-center cell"><?php echo acym_translation('ACYM_NO_DETAILED_STATS'); ?></a></h1>
     <?php } else { ?>
 		<div class="cell grid-x">
 			<div class="cell grid-x">
@@ -125,5 +127,6 @@ defined('_JEXEC') or die('Restricted access');
         echo $data['pagination']->display('detailed_stats');
     } ?>
 </div>
-<?php acym_formOptions(); ?>
+<?php
+acym_formOptions();
 

@@ -11,5 +11,5 @@ defined('_JEXEC') or die;
 
 class SecurityException extends SecurityExceptions
 {
-	
+
 }

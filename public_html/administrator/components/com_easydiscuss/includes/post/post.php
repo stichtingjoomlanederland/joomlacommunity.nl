@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -470,6 +470,11 @@ class EasyDiscussPost extends EasyDiscuss
 		// If not new, means this is editing post
 		if (!$this->isNew() && $this->isQuestion()) {
 
+			// If user can no longer edit the post
+			if ($this->hasExceededTimeToEdit()) {
+				return false;
+			}
+
 			//check if admin or is owner before allowing edit question.
 			$isAllowEditQuestion = $this->acl->allowed('edit_question');
 			$isAllowEditOwnQuestion = $this->acl->allowed('edit_own_question');
@@ -487,6 +492,11 @@ class EasyDiscussPost extends EasyDiscuss
 
 		if ($this->isReply()) {
 
+			// If user can no longer edit the post
+			if ($this->hasExceededTimeToEdit()) {
+				return false;
+			}
+			
 			// Check user's acl
 			$isAllowEditReply = $this->acl->allowed('edit_reply');
 			$isAllowEditOwnReply = $this->acl->allowed('edit_own_reply');
@@ -1031,6 +1041,14 @@ class EasyDiscussPost extends EasyDiscuss
 
 		$options = array('ignorePreSave' => true);
 
+		// Get the last reply id of the thread before save
+		if ($this->isReply()) {
+			$model = ED::model('Posts');
+			
+			$lastReply = $model->getLastReply($this->post->parent_id, false);
+			$lastReplyId = $lastReply ? $lastReply->id : 0;
+		}
+
 		$state = $this->save($options);
 
 		// Do not update counter and publish state of thread table if reply is being rejected. #117
@@ -1043,8 +1061,22 @@ class EasyDiscussPost extends EasyDiscuss
 		// If this is a reply, we need to update the num_replies for that thread
 		if ($this->isReply()) {
 			$updateThreadOptions['num_replies'] = $publish ? '+1' : '-1';
-		} else {
 
+			// Update the thread's last_user_id if the approved reply is the latest for it
+			if ($publish && $this->post->id > $lastReplyId) {
+
+				$updateThreadOptions['last_user_id'] = $this->post->user_id;
+				$updateThreadOptions['last_poster_name'] = '';
+				$updateThreadOptions['last_poster_email'] = '';
+
+				if (!$this->post->user_id) {
+					$updateThreadOptions['last_poster_name'] = $this->post->poster_name;
+					$updateThreadOptions['last_poster_email'] = $this->post->poster_email;
+				}
+				
+				$updateThreadOptions['replied'] = $this->post->created;
+			}
+		} else {
 			// Only update publish state for discussion post
 			$updateThreadOptions['published'] = $publish;
 		}
@@ -2903,13 +2935,13 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function getLastReplier()
+	public function getLastReplier($useCache = true)
 	{
 		static $_cache = array();
 
 		$key = $this->post->id;
 
-		if (!isset($_cache[$key])) {
+		if (!isset($_cache[$key]) || !$useCache) {
 
 			$user = null;
 
@@ -2946,7 +2978,7 @@ class EasyDiscussPost extends EasyDiscuss
 			} else {
 				// Get the last reply item
 				$model = ED::model('Posts');
-				$reply = $model->getLastReply($this->post->id);
+				$reply = $model->getLastReply($this->post->id, $useCache);
 
 				if (!$reply) {
 					$_cache[$key] = '0';
@@ -3005,6 +3037,46 @@ class EasyDiscussPost extends EasyDiscuss
 			}
 
 			$_cache[$key] = $reply->anonymous;
+		}
+
+		return $_cache[$key];
+	}
+
+	/**
+	 * Method to retrieve the last reply user data
+	 *
+	 * @since   4.1.17
+	 * @access  public
+	 */
+	public function getLastReplyUser($debug = false)
+	{
+		static $_cache = array();
+
+		$key = $this->post->id;
+
+		if (!isset($_cache[$key])) {
+
+			// Get the last reply item
+			$model = ED::model('Posts');
+			$reply = $model->getLastReply($this->post->id);
+
+			if (!$reply->user_id) {
+				$userData = ED::user('0');
+
+				if (!isset($userData->user)) {
+					$userData->user = new stdClass();
+				}
+
+				$userData->user->name = $reply->poster_name;
+				$userData->user->email = $reply->poster_email;
+
+				$_cache[$key] = $userData;
+
+			} else {
+				$userData = ED::user($reply->user_id);
+
+				$_cache[$key] = $userData;
+			}
 		}
 
 		return $_cache[$key];
@@ -3793,16 +3865,24 @@ class EasyDiscussPost extends EasyDiscuss
 	 */
 	public function isUserBanned()
 	{
-		// Check if the user is banned from the site
-		$model = ED::model('bans');
-		$options = array('ip' => $this->input->server->get('REMOTE_ADDR'), 'userId' => $this->my->id);
+		static $_cache = array();
 
-		// if the current user do not get banned return false
-		if (!$model->isBanned($options)) {
-			return false;
+		$ip = $this->input->server->get('REMOTE_ADDR');
+		$userId = $this->my->id;
+		$key = $userId ? $userId : 'ip-' . $ip;
+
+		if (!isset($_cache[$key])) {
+
+			// Check if the user is banned from the site
+			$model = ED::model('bans');
+			$options = array('ip' => $ip, 'userId' => $userId);
+
+			// if the current user do not get banned return false
+			$isBanned = $model->isBanned($options);
+			$_cache[$key] = $isBanned ? true : false;
 		}
 
-		return true;
+		return $_cache[$key];
 	}
 
 	/**
@@ -3981,6 +4061,7 @@ class EasyDiscussPost extends EasyDiscuss
 
 			if (!$isModerationThreshold && !$isAdmin && !$isModerator) {
 				$this->post->published = DISCUSS_ID_PUBLISHED;
+				$this->isModerate = false;
 			}
 		}
 
@@ -4216,7 +4297,7 @@ class EasyDiscussPost extends EasyDiscuss
 				$thread->load(array('post_id' => $this->post->parent_id));
 
 				// We only want to update the rest of this section if this reply is not pending moderation
-				if ($this->isPublished()) {
+				if ($this->isPublished() && $this->prevPostStatus != DISCUSS_ID_PENDING) {
 					// Editing a reply doesn't count as latest replier #757
 					// $thread->last_user_id = $this->post->user_id;
 					$thread->last_poster_name = $this->post->poster_name;
@@ -4266,10 +4347,16 @@ class EasyDiscussPost extends EasyDiscuss
 
 				// We only want to update the rest of this section if this reply is not pending moderation
 				if ($this->isPublished()) {
+
 					$thread->last_user_id = $this->post->user_id;
-					$thread->last_poster_name = $this->post->poster_name;
-					$thread->last_poster_email = $this->post->poster_email;
 					$thread->replied = $this->post->created;
+					$thread->last_poster_name = '';
+					$thread->last_poster_email = '';
+
+					if (!$this->post->user_id) {
+						$thread->last_poster_name = $this->post->poster_name;
+						$thread->last_poster_email = $this->post->poster_email;
+					}
 
 					$thread->num_replies = $thread->num_replies + 1;
 				}
@@ -4584,7 +4671,8 @@ class EasyDiscussPost extends EasyDiscuss
 		$owner = $this->getOwner(true);
 
 		// Retrieve poster email
-		$posterEmail = $owner->user->email;
+		// If the reply posted by anonymous, the email have to get it differently.
+		$posterEmail = isset($owner->user->email) && $owner->user->email ? $owner->user->email : $reply->user->email;
 
 		// Retrieve the reply owner name
 		if (isset($owner->name) && $owner->name) {
@@ -4972,12 +5060,15 @@ class EasyDiscussPost extends EasyDiscuss
 	public function getLastReplyPermalink($replyId)
 	{
 		$replyLink = 'view=post&id=' . $this->id;
+
 		if ($this->config->get('layout_replies_sorting') != 'latest') {
 			$replyLink .= '&page=last';
 		}
+
 		$replyLink .= '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK'). '-' . $replyId;
 
 		$url = EDR::_($replyLink);
+
 		return $url;
 	}
 
@@ -5273,6 +5364,9 @@ class EasyDiscussPost extends EasyDiscuss
 			if (!isset($this->saveOptions['saveFromEasysocialStory']) && !$this->isReply() && !$this->isAnonymous()) {
 				ED::easysocial()->createDiscussionStream($this);
 			}
+
+			// auto subscribe author to their own new discussion posts. #887
+			$this->subscribeAuthor();
 
 			// Action rule types
 			$actionType = $this->isReply() ? 'reply' : 'discussion';
@@ -5690,6 +5784,13 @@ class EasyDiscussPost extends EasyDiscuss
 		// Trigger the onFinderAfterDelete event.
 		$dispatcher->trigger('onFinderAfterDelete', array('com_easydiscuss.post', $this));
 
+		$model = ED::model('Posts');
+
+		// Determine if this is the last reply of the thread before being deleted
+		if ($this->isReply()) {
+			$isLastReply =  $this->post->id == $model->getLastReply($this->post->parent_id, false)->id;
+		}
+
 		$state = $this->post->delete();
 
 		// If this is a reply, we need to update reply count from thread table
@@ -5719,7 +5820,8 @@ class EasyDiscussPost extends EasyDiscuss
 		if ($this->isReply()) {
 			$parent = $this->getParent();
 
-			$lastReplier = $parent->getLastReplier();
+			// Do not use cache in order to get the updated last replier
+			$lastReplier = $parent->getLastReplier(false);
 
 			// No last replier
 			if ($lastReplier == '0') {
@@ -5730,7 +5832,23 @@ class EasyDiscussPost extends EasyDiscuss
 					)
 				);
 			} else {
-				$this->updateThread(array('last_user_id' => $lastReplier->id));
+				$columns = array();
+				$columns['last_user_id'] = $lastReplier->id;
+				$columns['last_poster_name'] = '';
+				$columns['last_poster_email'] = '';
+
+				// Update the reply column of the thread if the latest reply has been deleted
+				if ($isLastReply) {
+					$columns['replied'] = $model->getLastReply($parent->id, false)->created;
+				}
+
+				// If the last replier is a guest
+				if (!$lastReplier->id) {
+					$columns['last_poster_name'] = $lastReplier->user->name;
+					$columns['last_poster_email'] = $lastReplier->user->email;
+				}
+
+				$this->updateThread($columns);
 			}
 		}
 
@@ -5858,6 +5976,31 @@ class EasyDiscussPost extends EasyDiscuss
 		// Try to subscribe now
 		$model = ED::model('Subscribe');
 		$model->addSubscriber($data);
+	}
+
+	/**
+	 * Subscribes to notifications for activities from this post's parent
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function subscribeAuthor()
+	{
+		if ($this->isQuestion() && $this->config->get('main_postsubscription') && $this->config->get('notification_autosubscribe_author')) {
+
+			$data = array();
+			$data['type'] = 'post';
+			$data['userid'] = $this->post->user_id ? $this->post->user_id : 0;
+			$data['email'] = $this->post->user_id ? $this->my->email : $this->post->poster_email;
+			$data['cid'] = $this->post->id;
+			$data['member'] = $this->post->user_id ? true : false;
+			$data['name'] = $this->post->user_id ? $this->my->name : $this->post->poster_name;
+			$data['interval'] = 'instant';
+
+			// Try to subscribe now
+			$model = ED::model('Subscribe');
+			$model->addSubscriber($data);
+		}
 	}
 
 	/**
@@ -6816,6 +6959,33 @@ class EasyDiscussPost extends EasyDiscuss
 
 	}
 
+	/**
+	 * Determines if a post has exceeded edit timeframe
+	 *
+	 * @since	4.1.18
+	 * @access	public
+	 */
+	public function hasExceededTimeToEdit()
+	{
+		// Feature has been disabled
+		if (!$this->config->get('antispam_disallow_editing')) {
+			return false;
+		}
+
+
+		$days = $this->config->get('antispam_disallow_editing_days');
+		$date = ED::date($this->created . ' + ' . $days . ' days');
+		$time = $date->toUnix();
+		$current = ED::date()->toUnix();
+
+		// The period to edit the post has expired
+		if ($current > $time) {
+			return true;
+		}
+
+		return false;
+	}
+
 	public function hasRated($userId = null)
 	{
 		if (is_null($userId)) {
@@ -7136,8 +7306,22 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since	4.1.12
 	 * @access	public
 	 */
-	public function canAccessAnonymousPost()
+	public function canAccessAnonymousPost($replyId = null)
 	{
+		// Whoever call this most likely pass in reply id from the module
+		// Because the module have to check for the reply owner user id whether match with the current logged in user id
+		// If matched, then allow them to see the anonymous reply owner name
+		if ($replyId) {
+
+			$reply = ED::post($replyId);
+			
+			if ($reply->user_id == $this->my->id) {
+				return true;
+			}
+
+			return false;
+		}
+
 		if ($this->isSiteAdmin || ($this->post->user_id == $this->my->id)) {
 			return true;
 		}

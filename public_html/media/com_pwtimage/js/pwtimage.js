@@ -6732,11 +6732,12 @@ var pwtImage = function () {
   var imageLimit = 100;
   var showImageDirect = 0;
   var rootPath = '';
+  var imagePrefix = '';
+  var imageSuffix = '';
   var viewMode = 1;
-  var sessionValue;
   /**
-     * Initialise PWT Image
-     */
+   * Initialise PWT Image
+   */
 
   pwtImage.initialise = function () {
     jQuery('.js-edit-image-button').on('click', function () {
@@ -6749,12 +6750,10 @@ var pwtImage = function () {
     jQuery('.js-upload-new').on('click', function () {
       jQuery('[href=#upload]').trigger('click');
     });
-    var options = Joomla.getOptions('PWTImageConfig');
-    sessionValue = options.sessionToken;
   };
   /**
-     * Initialise the drag and drop area
-     */
+   * Initialise the drag and drop area
+   */
 
 
   pwtImage.initialiseDragnDrop = function () {
@@ -6800,9 +6799,9 @@ var pwtImage = function () {
     });
   };
   /**
-     * Creates another image selector instance.
-     * @param element The Add another image button
-     */
+   * Creates another image selector instance.
+   * @param element The Add another image button
+   */
 
 
   pwtImage.addRepeatImage = function (element) {
@@ -6834,9 +6833,9 @@ var pwtImage = function () {
     imageField.first().parent().append(imageBlock);
   };
   /**
-     * Prepare everything to allow a new image upload
-     * @param id
-     */
+   * Prepare everything to allow a new image upload
+   * @param id
+   */
 
 
   pwtImage.prepareUpload = function (id) {
@@ -6846,73 +6845,88 @@ var pwtImage = function () {
     jQuery("#".concat(id, " .pwt-message")).removeClass('is-visible');
   };
   /**
-     * Set the ID of the image controls to use
-     *
-     * @param id The unique ID of the image controls to use.
-     */
+   * Set the ID of the image controls to use
+   *
+   * @param id The unique ID of the image controls to use.
+   */
 
 
   pwtImage.setTargetId = function (id) {
     targetId = id;
   };
   /**
-     * Set the iFrame link to empty out the iFrame
-     */
+   * Set the iFrame link to empty out the iFrame
+   */
 
 
   pwtImage.setIframeLink = function (link) {
     iFrameLink = link;
   };
   /**
-     * Set the root path of the installation
-     */
+   * Set the root path of the installation
+   */
 
 
   pwtImage.setRootPath = function (root) {
     rootPath = root;
   };
   /**
-     * Set if we are called from a WYSIWYG editor
-     */
+   * Set the prefix of an image
+   */
+
+
+  pwtImage.setImagePrefix = function (prefix) {
+    imagePrefix = prefix;
+  };
+  /**
+   * Set the suffix of an image
+   */
+
+
+  pwtImage.setImageSuffix = function (suffix) {
+    imageSuffix = suffix;
+  };
+  /**
+   * Set if we are called from a WYSIWYG editor
+   */
 
 
   pwtImage.setWysiwyg = function (value) {
     wysiwyg = value;
   };
   /**
-     * Set if we are called from a WYSIWYG editor
-     */
+   * Set if we are called from a WYSIWYG editor
+   */
 
 
   pwtImage.setViewMode = function (value) {
     viewMode = value;
   };
   /**
-     * Set if the image should be opened in the canvas instead of preview mode
-     */
+   * Set if the image should be opened in the canvas instead of preview mode
+   */
 
 
   pwtImage.showImageDirect = function (value) {
     showImageDirect = value;
   };
   /**
-     * Return the ID of the image controls to use
-     */
+   * Return the ID of the image controls to use
+   */
 
 
   pwtImage.getTargetId = function () {
     return targetId;
   };
   /**
-     * Store the image on the server.
-     *
-     * @param id
-     * @param tokenValue
-     * @param createNew
-     */
+   * Store the image on the server.
+   *
+   * @param id
+   * @param createNew
+   */
 
 
-  pwtImage.saveImage = function (id, tokenValue, createNew) {
+  pwtImage.saveImage = function (id, createNew) {
     var cropper = false; // Check if we have an existing cropper
 
     if (croppers[id] !== undefined) {
@@ -7005,7 +7019,7 @@ var pwtImage = function () {
         processData: false,
         async: false,
         headers: {
-          'X-CSRF-TOKEN': tokenValue
+          'X-CSRF-TOKEN': Joomla.getOptions('csrf.token')
         },
         success: function success(response) {
           if (response instanceof Object === false) {
@@ -7042,7 +7056,13 @@ var pwtImage = function () {
               resultFile = resultFile[0];
             }
 
-            window.parent.jQuery("#".concat(targetId, "_value")).val(resultFile).trigger('change');
+            var value = window.parent.jQuery("#".concat(targetId, "_preview+input"));
+
+            if (value.length === 0) {
+              value = window.parent.jQuery("#".concat(targetId, "_value"));
+            }
+
+            value.val(resultFile).trigger('change');
             window.parent.jQuery("#".concat(targetId, "_preview")).html("<img src=\"".concat(rootPath).concat(resultFile, "\" />"));
             window.parent.jQuery("#".concat(targetId, "_clear")).removeClass('hidden');
           }
@@ -7088,7 +7108,7 @@ var pwtImage = function () {
           subPath = sourcePath.substring(0, sourcePath.length - 1);
         }
 
-        pwtImage.loadFolder("#".concat(id), subPath, 'select', tokenValue); // Reset the Edit page
+        pwtImage.loadFolder("#".concat(id), subPath, 'select'); // Reset the Edit page
 
         var fulltab = jQuery('.pwt-fulltab-message');
         fulltab.removeClass('is-hidden');
@@ -7103,9 +7123,9 @@ var pwtImage = function () {
     return true;
   };
   /**
-     * Clears the current image and preview.
-     * @param id  The ID of the image
-     */
+   * Clears the current image and preview.
+   * @param id  The ID of the image
+   */
 
 
   pwtImage.clearImage = function (id) {
@@ -7115,10 +7135,10 @@ var pwtImage = function () {
     jQuery("#".concat(id, "_js-pwtimage-image")).prop('src', '');
   };
   /**
-     * Control the toolbar actions
-     *
-     * @param element  The element that has been clicked.
-     */
+   * Control the toolbar actions
+   *
+   * @param element  The element that has been clicked.
+   */
 
 
   pwtImage.imageToolbar = function (element) {
@@ -7163,10 +7183,10 @@ var pwtImage = function () {
     }
   };
   /**
-     * Open the server image selection page
-     *
-     * @param element  The element that has been clicked.
-     */
+   * Open the server image selection page
+   *
+   * @param element  The element that has been clicked.
+   */
 
 
   pwtImage.openImage = function (element) {
@@ -7177,13 +7197,13 @@ var pwtImage = function () {
     jQuery('form.js-image-form > div.pull-right').hide();
   };
   /**
-     * Get the parent ID of a given element
-     *
-     * @param element
-     * @returns string|boolean
-     *
-     * @todo Check with multiple blocks
-     */
+   * Get the parent ID of a given element
+   *
+   * @param element
+   * @returns string|boolean
+   *
+   * @todo Check with multiple blocks
+   */
 
 
   function getParentId(element) {
@@ -7198,20 +7218,20 @@ var pwtImage = function () {
     return identifier;
   }
   /**
-     * Load subfolders for a selected folder
-     *
-     * @param element
-     * @param folder
-     * @param target
-     * @param tokenValue
-     * @returns {boolean}
-     */
+   * Load subfolders for a selected folder
+   *
+   * @param element
+   * @param folder
+   * @param target
+   * @returns {boolean}
+   */
 
 
-  pwtImage.loadFolder = function (element, folder, target, tokenValue) {
+  pwtImage.loadFolder = function (element, folder, target) {
     var id = getParentId(element);
     var data = new FormData();
-    var postUrl = jQuery('#post-url').val(); // Add the form data
+    var postUrl = jQuery('#post-url').val();
+    jQuery('#' + id + ' #selectFilter').val(''); // Add the form data
 
     data.append('option', 'com_pwtimage');
     data.append('task', 'image.loadFolder');
@@ -7226,7 +7246,7 @@ var pwtImage = function () {
       cache: false,
       processData: false,
       headers: {
-        'X-CSRF-TOKEN': tokenValue
+        'X-CSRF-TOKEN': Joomla.getOptions('csrf.token')
       },
       success: function success(response) {
         try {
@@ -7259,14 +7279,16 @@ var pwtImage = function () {
 
           if (folder.indexOf('/') > 0 || folder.length > 1) {
             folderItems = folder.split('/');
-          } // Construct the breadcrumb path
+          } // Store folders to localStorage
 
+
+          addToLocalStorage(id, 'folders', response.data.folders); // Construct the breadcrumb path
 
           jQuery(folderItems).each(function (index, folderItem) {
             structure += folderItem;
 
             if (structure.length > 0) {
-              folderPath[index + 1] = "<a onclick=\"pwtImage.loadFolder('.pwt-gallery__items--folders', '/".concat(structure, "', '").concat(target, "', '").concat(tokenValue, "'); return false;\"><span class=\"icon-folder-2\"></span>").concat(folderItem, "</a>");
+              folderPath[index + 1] = "<a onclick=\"pwtImage.loadFolder('.pwt-gallery__items--folders', '/".concat(structure, "', '").concat(target, "'); return false;\"><span class=\"icon-folder-2\"></span>").concat(folderItem, "</a>");
               structure += '/';
             }
           });
@@ -7279,7 +7301,7 @@ var pwtImage = function () {
               itemPath = "".concat(folder, "/").concat(item);
             }
 
-            link.push("<div class=\"pwt-gallery__item\"><a onclick=\"pwtImage.loadFolder('.pwt-gallery__items--folders', '".concat(itemPath, "', '").concat(target, "', '").concat(tokenValue, "'); return false;\">") + '<div class="pwt-gallery__item__content">' + '<span class="pwt-gallery__item__icon icon-folder-2"></span>' + "<span class=\"pwt-gallery__item__title\">".concat(item, "</span>") + '</div>' + '</a></div>');
+            link.push("<div class=\"pwt-gallery__item\"><a onclick=\"pwtImage.loadFolder('.pwt-gallery__items--folders', '".concat(itemPath, "', '").concat(target, "'); return false;\">") + '<div class="pwt-gallery__item__content">' + '<span class="pwt-gallery__item__icon icon-folder-2"></span>' + "<span class=\"pwt-gallery__item__title\">".concat(item, "</span>") + '</div>' + '</a></div>');
           }); // Add the folders
 
           var itemFolders = jQuery("#".concat(id, " #").concat(target, " .pwt-gallery__items--folders"));
@@ -7336,15 +7358,14 @@ var pwtImage = function () {
     return false;
   };
   /**
-     * Load the folders for the select picker
-     *
-     * @param folder
-     * @param tokenValue
-     * @returns {boolean}
-     */
+   * Load the folders for the select picker
+   *
+   * @param folder
+   * @returns {boolean}
+   */
 
 
-  pwtImage.loadSelectFolders = function (folder, tokenValue) {
+  pwtImage.loadSelectFolders = function (folder) {
     var data = new FormData();
     var postUrl = jQuery('#post-url').val(); // Add the form data
 
@@ -7361,7 +7382,7 @@ var pwtImage = function () {
       cache: false,
       processData: false,
       headers: {
-        'X-CSRF-TOKEN': tokenValue
+        'X-CSRF-TOKEN': Joomla.getOptions('csrf.token')
       },
       success: function success(response) {
         // Empty the list
@@ -7384,12 +7405,12 @@ var pwtImage = function () {
     return false;
   };
   /**
-     * Pagination class
-     *
-     * @param element
-     * @param page
-     * @param target
-     */
+   * Pagination class
+   *
+   * @param element
+   * @param page
+   * @param target
+   */
 
 
   pwtImage.showMoreImages = function (element, page, target) {
@@ -7413,8 +7434,8 @@ var pwtImage = function () {
     pwtImage.selectFilter(jQuery('#selectFilter').val(), page);
   };
   /**
-     * Prepare a list of images for display
-     */
+   * Prepare a list of images for display
+   */
 
 
   function prepareImages(files, folder, target) {
@@ -7431,29 +7452,33 @@ var pwtImage = function () {
     return link;
   }
   /**
-     * Construct an image element
-     */
+   * Construct an image element
+   */
 
 
   function getImageElement(item, itemPath, target) {
     var imageElement = '';
-    var imageName = itemPath.substring(itemPath.lastIndexOf('/') + 1);
+    var imageUrl = itemPath;
+
+    if (imagePrefix !== '') {
+      imageUrl = imagePrefix + imageUrl.replace(rootPath, '') + imageSuffix;
+    }
 
     switch (target) {
       case 'select':
-        imageElement = "".concat('<div class="pwt-gallery__item">' + '<a onclick="return pwtImage.previewImage(\'.pwt-gallery__items--images\', \'').concat(itemPath, "');\" ") + "title=\"".concat(imageName, "\">") + '<div class="pwt-gallery__item__image">' + '<div class="pwt-gallery__item__center">' + "<img src=\"".concat(itemPath, "\" alt=\"").concat(baseName(item), "\" />") + '</div>' + "<div class=\"pwt-gallery__item__imagename\">".concat(imageName, "</div>") + '</div>' + '</a>' + '</div>';
+        imageElement = "".concat('<div class="pwt-gallery__item">' + '<a onclick="return pwtImage.previewImage(\'.pwt-gallery__items--images\', \'').concat(itemPath, "');\" ") + "title=\"".concat(item, "\">") + '<div class="pwt-gallery__item__image">' + '<div class="pwt-gallery__item__center">' + "<img src=\"".concat(imageUrl, "\" alt=\"").concat(item, "\" />") + '</div>' + "<div class=\"pwt-gallery__item__imagename\">".concat(item, "</div>") + '</div>' + '</a>' + '</div>';
         break;
     }
 
     return imageElement;
   }
   /**
-     * Find a known error message
-     *
-     * @param response  The response message to analyze
-     *
-     * @returns {string}
-     */
+   * Find a known error message
+   *
+   * @param response  The response message to analyze
+   *
+   * @returns {string}
+   */
 
 
   function findErrorMessage(response) {
@@ -7467,15 +7492,15 @@ var pwtImage = function () {
     return '';
   }
   /**
-     * This adds a file on the server to the canvas for cropping
-     *
-     * @param element  The page element to find the ID for.
-     * @param file     The selected image on the server
-     * @param image
-     * @param upload
-     *
-     * @returns {boolean}
-     */
+   * This adds a file on the server to the canvas for cropping
+   *
+   * @param element  The page element to find the ID for.
+   * @param file     The selected image on the server
+   * @param image
+   * @param upload
+   *
+   * @returns {boolean}
+   */
 
 
   pwtImage.addImageToCanvas = function (element, file, image, upload) {
@@ -7534,11 +7559,11 @@ var pwtImage = function () {
     return false;
   };
   /**
-     * Get the basename of a filename with path
-     *
-     * @param str
-     * @returns {string}
-     */
+   * Get the basename of a filename with path
+   *
+   * @param str
+   * @returns {string}
+   */
 
 
   function baseName(str) {
@@ -7551,8 +7576,8 @@ var pwtImage = function () {
     return base;
   }
   /**
-     * Close the modal window
-     */
+   * Close the modal window
+   */
 
 
   pwtImage.closeModal = function () {
@@ -7577,8 +7602,8 @@ var pwtImage = function () {
     }
   };
   /**
-     * Show the applicable destination option
-     */
+   * Show the applicable destination option
+   */
 
 
   pwtImage.setDestination = function (element) {
@@ -7595,6 +7620,7 @@ var pwtImage = function () {
         case 'select':
           jQuery("#".concat(id, "_enterFolder")).addClass('is-hidden').removeClass('is-visible');
           jQuery("#".concat(id, "_selectFolder")).addClass('is-visible').removeClass('is-hidden');
+          jQuery("#".concat(id, "_selectFolder")).trigger('change');
           break;
 
         case 'custom':
@@ -7603,15 +7629,13 @@ var pwtImage = function () {
           jQuery("#".concat(id, "_selectFolder")).addClass('is-hidden').removeClass('is-visible');
           break;
       }
-
-      jQuery("#".concat(id, "_selectFolder")).trigger('change');
     }
   };
   /**
-     * Shows the alt and caption input fields for a selected gallery image
-     *
-     * @param element
-     */
+   * Shows the alt and caption input fields for a selected gallery image
+   *
+   * @param element
+   */
 
 
   pwtImage.imageInfo = function (element) {
@@ -7673,10 +7697,10 @@ var pwtImage = function () {
     jQuery("#gallery-image-info input[name=\"input_".concat(imageName, "_alt\"]")).focus();
   };
   /**
-     * Clean up after uploading an image
-     *
-     * @param element
-     */
+   * Clean up after uploading an image
+   *
+   * @param element
+   */
 
 
   pwtImage.cleanUpAfterUpload = function (element) {
@@ -7693,11 +7717,11 @@ var pwtImage = function () {
     jQuery('.js-pwt-image-localfile').val('');
   };
   /**
-     * Create a preview of the manual uploaded image
-     *
-     * @param element
-     * @returns {boolean}
-     */
+   * Create a preview of the manual uploaded image
+   *
+   * @param element
+   * @returns {boolean}
+   */
 
 
   pwtImage.uploadImagePreview = function (element) {
@@ -7740,10 +7764,10 @@ var pwtImage = function () {
     return false;
   };
   /**
-     * Shortcut for adding image to canvas from preview window
-     *
-     * @param element
-     */
+   * Shortcut for adding image to canvas from preview window
+   *
+   * @param element
+   */
 
 
   pwtImage.directToCanvas = function (element) {
@@ -7759,12 +7783,12 @@ var pwtImage = function () {
     pwtImage.addImageToCanvas(element, file);
   };
   /**
-     * Create an image preview for a manual or drag and drop uploaded image
-     *
-     * @param element
-     * @param files
-     * @returns {boolean}
-     */
+   * Create an image preview for a manual or drag and drop uploaded image
+   *
+   * @param element
+   * @param files
+   * @returns {boolean}
+   */
 
 
   pwtImage.createPreview = function (element, files) {
@@ -7826,11 +7850,11 @@ var pwtImage = function () {
     });
   };
   /**
-     * Add an image selected from server to the edit tab. Not in the cropper but in a div.
-     *
-     * @param element
-     * @param file
-     */
+   * Add an image selected from server to the edit tab. Not in the cropper but in a div.
+   *
+   * @param element
+   * @param file
+   */
 
 
   pwtImage.previewImage = function (element, file) {
@@ -7908,7 +7932,7 @@ var pwtImage = function () {
       },
       url: jQuery('#post-url').val(),
       headers: {
-        'X-CSRF-TOKEN': sessionValue
+        'X-CSRF-TOKEN': Joomla.getOptions('csrf.token')
       },
       success: function success(response) {
         if (response && response.success === true) {
@@ -7926,8 +7950,8 @@ var pwtImage = function () {
     });
   };
   /**
-     * Cancel the editing of the current image
-     */
+   * Cancel the editing of the current image
+   */
 
 
   pwtImage.cancelImage = function (id) {
@@ -7937,11 +7961,11 @@ var pwtImage = function () {
     jQuery("#".concat(id, " .js-image-preview")).removeClass('is-hidden');
   };
   /**
-     * Filter the select list of images
-     *
-     * @param search The search value to filter on
-     * @param page   The page that is active
-     */
+   * Filter the select list of images
+   *
+   * @param search The search value to filter on
+   * @param page   The page that is active
+   */
 
 
   pwtImage.selectFilter = function (search, page) {
@@ -7955,8 +7979,10 @@ var pwtImage = function () {
 
     var id = getParentId('#selectFilter');
     var storedFiles = getFromLocalStorage(id, 'files');
+    var storedFolders = getFromLocalStorage(id, 'folders');
     var basePath = getFromLocalStorage(id, 'basePath');
     var filteredItems = storedFiles;
+    var filteredFolders = storedFolders;
     var target = 'select';
     var start = page === 1 ? 0 : (page - 1) * imageLimit;
     var end = page * imageLimit;
@@ -7964,6 +7990,7 @@ var pwtImage = function () {
 
     if (search) {
       filteredItems = filterItems(storedFiles, search);
+      filteredFolders = filterFolders(storedFolders, search);
     } // Get the final list of items
 
 
@@ -7992,10 +8019,41 @@ var pwtImage = function () {
     if (pagination.length) {
       paginationBar.html("<div class=\"pwt-pagination__pages\">".concat(pagination.join(' '), "</div>"));
     }
+
+    pushFolders(id, filteredFolders, target);
   };
   /**
-     * Restore canvas as user wants to keep the original image
-     */
+   * Push the filtered (or not) folders
+   *
+   * @param id
+   * @param folders
+   * @param target
+   */
+
+
+  function pushFolders(id, folders, target) {
+    var link = [];
+    var folder = getFromLocalStorage(id, 'basePath');
+    jQuery(folders).each(function (index, item) {
+      var itemPath = item;
+
+      if (folder !== '/') {
+        itemPath = "".concat(folder, "/").concat(item);
+      }
+
+      link.push("<div class=\"pwt-gallery__item\"><a onclick=\"pwtImage.loadFolder('.pwt-gallery__items--folders', '".concat(itemPath, "', '").concat(target, "'); return false;\">") + '<div class="pwt-gallery__item__content">' + '<span class="pwt-gallery__item__icon icon-folder-2"></span>' + "<span class=\"pwt-gallery__item__title\">".concat(item, "</span>") + '</div>' + '</a></div>');
+    }); // Add the folders
+
+    var itemFolders = jQuery('#' + id + ' #select .pwt-gallery__items--folders');
+    itemFolders.html('');
+
+    if (link.length) {
+      itemFolders.html(link.join(' '));
+    }
+  }
+  /**
+   * Restore canvas as user wants to keep the original image
+   */
 
 
   pwtImage.useOriginal = function (id, element) {
@@ -8013,8 +8071,8 @@ var pwtImage = function () {
     }
   };
   /**
-     * Restore canvas as user wants to keep the original image
-     */
+   * Restore canvas as user wants to keep the original image
+   */
 
 
   pwtImage.keepOriginal = function (id, element) {
@@ -8023,11 +8081,11 @@ var pwtImage = function () {
     }
   };
   /**
-     * Array filters items based on search criteria (query)
-     *
-     * @param items
-     * @param query
-     */
+   * Array filters items based on search criteria (query)
+   *
+   * @param items
+   * @param query
+   */
 
 
   function filterItems(items, query) {
@@ -8036,12 +8094,25 @@ var pwtImage = function () {
     });
   }
   /**
-     * Get the filesize in a human readable string
-     *
-     * @param size The size in bits
-     *
-     * @return string Human readable string
-     */
+   * Array filters items based on search criteria (query)
+   *
+   * @param folders
+   * @param query
+   */
+
+
+  function filterFolders(folders, query) {
+    return folders.filter(function (el) {
+      return el.toLowerCase().indexOf(query.toLowerCase()) > -1;
+    });
+  }
+  /**
+   * Get the filesize in a human readable string
+   *
+   * @param size The size in bits
+   *
+   * @return string Human readable string
+   */
 
 
   function filesize(size) {
@@ -8050,12 +8121,12 @@ var pwtImage = function () {
     return mb >= 1 ? "".concat(mb, " MB") : "".concat(kb, " KB");
   }
   /**
-     * Add the data from the localStorage
-     *
-     * @param id The unique session ID
-     * @param type The type of data to be stored
-     * @param payload The data to be stored
-     */
+   * Add the data from the localStorage
+   *
+   * @param id The unique session ID
+   * @param type The type of data to be stored
+   * @param payload The data to be stored
+   */
 
 
   function addToLocalStorage(id, type, payload) {
@@ -8081,8 +8152,8 @@ var pwtImage = function () {
     localStorage.setItem('pwtImage', JSON.stringify(container));
   }
   /**
-     * Get the data from the localStorage
-     */
+   * Get the data from the localStorage
+   */
 
 
   function getFromLocalStorage(id, type) {
@@ -8101,8 +8172,8 @@ var pwtImage = function () {
     }
   }
   /**
-     * Render a Joomla system message
-     */
+   * Render a Joomla system message
+   */
 
 
   function renderMessage(message, local) {

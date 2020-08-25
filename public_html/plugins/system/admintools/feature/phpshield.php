@@ -48,15 +48,17 @@ class AtsystemFeaturePhpshield extends AtsystemFeatureAbstract
 	 */
 	public function onAfterInitialise()
 	{
-		$hashes = array('get', 'post');
+		$hashes = ['get', 'post'];
 		// Block every request that contain a potentially malicious stream wrapper, except the "standard" ones
 		// (file, ftp, http, data) For example http://localhost/ex1.php?page=php://filter/convert.base64-encode/resource=PAGE
-		$patterns = array('php://', 'zlib://', 'bzip2://', 'zip://', 'glob://', 'phar://', 'ssh2://', 'rar://', 'ogg://', 'expect://');
+		$patterns = [
+			'php://', 'zlib://', 'bzip2://', 'zip://', 'glob://', 'phar://', 'ssh2://', 'rar://', 'ogg://', 'expect://',
+		];
 
 		foreach ($hashes as $hash)
 		{
 			$input = $this->input->$hash;
-			$ref = new ReflectionProperty($input, 'data');
+			$ref   = new ReflectionProperty($input, 'data');
 			$ref->setAccessible(true);
 			$allVars = $ref->getValue($input);
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.2.16442
+ * @version         20.7.20564
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -14,8 +14,8 @@ namespace RegularLabs\Library;
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Filesystem\Folder as JFolder;
-use Joomla\Image\Image as JImage;
 use Joomla\CMS\Uri\Uri as JUri;
+use Joomla\Image\Image as JImage;
 
 class Image
 {
@@ -190,7 +190,7 @@ class Image
 			return $source;
 		}
 
-		$clean_source = ltrim(str_replace(JUri::root(), '', $source), '/');
+		$clean_source = self::cleanPath($source);
 		$source_path  = JPATH_SITE . '/' . $clean_source;
 
 		$destination_folder = ltrim($destination_folder ?: File::getDirName($clean_source));
@@ -210,10 +210,16 @@ class Image
 			return $source;
 		}
 
-		try {
+		if ( ! getimagesize($source_path))
+		{
+			return $source;
+		}
+
+		try
+		{
 			$image = new JImage($source_path);
 		}
-		catch(\InvalidArgumentException $e)
+		catch (\InvalidArgumentException $e)
 		{
 			return $source;
 		}
@@ -252,7 +258,7 @@ class Image
 			return false;
 		}
 
-		$clean_source = ltrim(str_replace(JUri::root(), '', $source), '/');
+		$clean_source = self::cleanPath($source);
 		$source_path  = JPATH_SITE . '/' . $clean_source;
 
 		if ( ! file_exists($source_path))
@@ -260,10 +266,16 @@ class Image
 			return false;
 		}
 
-		try {
+		if ( ! getimagesize($source_path))
+		{
+			return false;
+		}
+
+		try
+		{
 			$image = new JImage($source_path);
 		}
-		catch(\InvalidArgumentException $e)
+		catch (\InvalidArgumentException $e)
 		{
 			return false;
 		}
@@ -300,7 +312,10 @@ class Image
 
 	public static function cleanPath($source)
 	{
-		return ltrim(str_replace(JUri::root(), '', $source), '/');
+		$source = ltrim(str_replace(JUri::root(), '', $source), '/');
+		$source = strtok($source, '?');
+
+		return $source;
 	}
 
 	public static function getWidth($source)
@@ -319,23 +334,28 @@ class Image
 
 	public static function getDimensions($source)
 	{
+		$empty = (object) [
+			'width'  => 0,
+			'height' => 0,
+		];
+
 		if (File::isExternal($source))
 		{
-			return (object) [
-				'width'  => 0,
-				'height' => 0,
-			];
+			return $empty;
 		}
 
-		try {
+		if ( ! getimagesize($source))
+		{
+			return $empty;
+		}
+
+		try
+		{
 			$image = new JImage(JPATH_SITE . '/' . $source);
 		}
-		catch(\InvalidArgumentException $e)
+		catch (\InvalidArgumentException $e)
 		{
-			return (object) [
-				'width'  => 0,
-				'height' => 0,
-			];
+			return $empty;
 		}
 
 		return (object) [

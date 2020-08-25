@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="2.5" type="plugin" group="installer" method="upgrade">
 	<name>plg_installer_rseventspro</name>
-	<creationDate>July 2015</creationDate>
+	<creationDate>May 2020</creationDate>
 	<author>RSJoomla!</author>
 	<authorEmail>support@rsjoomla.com</authorEmail>
 	<authorUrl>https://www.rsjoomla.com</authorUrl>

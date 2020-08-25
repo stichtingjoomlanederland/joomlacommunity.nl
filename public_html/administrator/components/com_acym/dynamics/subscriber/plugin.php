@@ -296,6 +296,47 @@ class plgAcymSubscriber extends acymPlugin
         return acym_translation_sprintf('ACYM_SELECTED_USERS', $query->count());
     }
 
+    public function searchEmails()
+    {
+        $id = acym_getVar('int', 'id');
+        if (!empty($id)) {
+            if ($id == -1) {
+                $subject = acym_translation('ACYM_ALL_MAILS');
+            } else {
+                $subject = acym_loadResult(
+                    'SELECT subject 
+					FROM #__acym_mail 
+					WHERE id = '.intval($id)
+                );
+                if (empty($subject)) $subject = '';
+            }
+            echo json_encode(['value' => $subject]);
+            exit;
+        }
+
+        $return = [];
+        $return[] = [-1, acym_translation('ACYM_ALL_MAILS')];
+        $search = acym_getVar('string', 'search', '');
+        $elements = acym_loadObjectList(
+            'SELECT `id`, `subject`, `name` 
+				FROM #__acym_mail 
+				WHERE (`subject` LIKE '.acym_escapeDB('%'.$search.'%').' 
+					OR `name` LIKE '.acym_escapeDB('%'.$search.'%').') 
+					AND `template` IN(0, 2) 
+					AND `name` != "acy_report" 
+				ORDER BY `subject` ASC 
+				LIMIT 20'
+        );
+
+        foreach ($elements as $oneElement) {
+            if (empty($oneElement->subject)) $oneElement->subject = $oneElement->name;
+            $return[] = [$oneElement->id, $oneElement->subject];
+        }
+
+        echo json_encode($return);
+        exit;
+    }
+
     public function onAcymDeclareActions(&$actions)
     {
         $userActions = [
@@ -370,11 +411,22 @@ class plgAcymSubscriber extends acymPlugin
         $actions['acy_add_queue']->option .= acym_dateField('acym_action[actions][__and__][acy_add_queue][time]', '[time]');
         $actions['acy_add_queue']->option .= '</div>';
 
-        $mailClass = acym_get('class.mail');
-        $mailRemove = $mailClass->getAllTemplatesForSelect();
         $actions['acy_remove_queue'] = new stdClass();
         $actions['acy_remove_queue']->name = acym_translation('ACYM_REMOVE_EMAIL_QUEUE');
-        $actions['acy_remove_queue']->option = '<div class="intext_select_automation">'.acym_select($mailRemove, 'acym_action[actions][__and__][acy_remove_queue][mail_id]', null, 'class="acym__select"').'</div>';
+        $actions['acy_remove_queue']->option = '<div class="intext_select_automation">';
+        $ajaxParams = json_encode(
+            [
+                'plugin' => __CLASS__,
+                'trigger' => 'searchEmails',
+            ]
+        );
+        $actions['acy_remove_queue']->option .= acym_select(
+            [],
+            'acym_action[actions][__and__][acy_remove_queue][mail_id]',
+            null,
+            'class="acym_select2_ajax" data-min="0" data-placeholder="'.acym_translation('ACYM_SELECT_AN_EMAIL', true).'" data-params="'.acym_escape($ajaxParams).'"'
+        );
+        $actions['acy_remove_queue']->option .= '</div>';
     }
 
     public function onAcymProcessAction_acy_user(&$query, $action)
@@ -569,7 +621,7 @@ class plgAcymSubscriber extends acymPlugin
             $mailClass = acym_get('class.mail');
             $mail = $mailClass->getOneById($automationAction['acy_add_queue']['mail_id']);
             if (empty($mail)) {
-                $automationAction = '<span class="acym__color__red">'.acym_translation('ACYM_SELECT_A_MAIL').'</span>';
+                $automationAction = '<span class="acym__color__red">'.acym_translation('ACYM_SELECT_AN_EMAIL').'</span>';
             } else {
                 $automationAction = acym_translation_sprintf('ACYM_ACTION_ADD_QUEUE_SUMMARY', $mail->name, acym_date(acym_replaceDate($automationAction['acy_add_queue']['time']), 'd M Y H:i'));
             }
@@ -582,7 +634,7 @@ class plgAcymSubscriber extends acymPlugin
                 if ($automationAction['acy_remove_queue']['mail_id'] == -1) {
                     $automationAction = acym_translation('ACYM_EMPTY_QUEUE_USER');
                 } else {
-                    $automationAction = '<span class="acym__color__red">'.acym_translation('ACYM_SELECT_A_MAIL').'</span>';
+                    $automationAction = '<span class="acym__color__red">'.acym_translation('ACYM_SELECT_AN_EMAIL').'</span>';
                 }
             } else {
                 $automationAction = acym_translation_sprintf('ACYM_ACTION_REMOVE_QUEUE_SUMMARY', $mail->name);

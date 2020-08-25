@@ -36,7 +36,7 @@ class DiscussVideoNicoVideo
 
 		if( $code )
 		{
-			return '<script src="http://ext.nicovideo.jp/thumb_watch/' . $code . '?w=' . $width . '&h=' . $height . '&n=1" type="text/javascript"></script><noscript>Javascript is required to load the player</noscript>';
+			return '<script src="http://ext.nicovideo.jp/thumb_watch/' . $code . '?w=' . $width . '&h=' . $height . '&n=1"></script><noscript>Javascript is required to load the player</noscript>';
 		}
 		return false;
 	}

@@ -5,6 +5,8 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Language\Text;
+
 defined('_JEXEC') or die;
 
 /**
@@ -54,13 +56,13 @@ class AtsystemFeatureSelfprotect extends AtsystemFeatureAbstract
 	 */
 	protected function getPluginId()
 	{
-		$db = $this->container->db;
+		$db    = $this->container->db;
 		$query = $db->getQuery(true)
-					->select($db->qn('extension_id'))
-					->from($db->qn('#__extensions'))
-					->where($db->qn('type') . ' = ' . $db->q('plugin'))
-					->where($db->qn('element') . ' = ' . $db->q('admintools'))
-					->where($db->qn('folder') . ' = ' . $db->q('system'));
+			->select($db->qn('extension_id'))
+			->from($db->qn('#__extensions'))
+			->where($db->qn('type') . ' = ' . $db->q('plugin'))
+			->where($db->qn('element') . ' = ' . $db->q('admintools'))
+			->where($db->qn('folder') . ' = ' . $db->q('system'));
 
 		try
 		{
@@ -79,7 +81,7 @@ class AtsystemFeatureSelfprotect extends AtsystemFeatureAbstract
 	 */
 	private function onDirectUnpublish($task)
 	{
-		$allowedTasks = array('unpublish', 'plugins.unpublish');
+		$allowedTasks = ['unpublish', 'plugins.unpublish'];
 
 		if (!in_array($task, $allowedTasks))
 		{
@@ -87,7 +89,7 @@ class AtsystemFeatureSelfprotect extends AtsystemFeatureAbstract
 		}
 
 		// Get a list of all IDs in the request
-		$ids   = $this->input->get('cid', array(), 'array');
+		$ids   = $this->input->get('cid', [], 'array');
 		$ids[] = $this->input->getInt('id', null);
 
 		// Get the plugin ID for System - Admin Tools
@@ -101,11 +103,11 @@ class AtsystemFeatureSelfprotect extends AtsystemFeatureAbstract
 		// Does the ID exist in the array? We need to be thorough, we can't do a simple in_array.
 		foreach ($ids as $id)
 		{
-			$id = (int)trim($id);
+			$id = (int) trim($id);
 
 			if ($id == $ourId)
 			{
-				throw new RuntimeException(JText::_('JGLOBAL_AUTH_ACCESS_DENIED'), 403);
+				throw new RuntimeException(Text::_('JGLOBAL_AUTH_ACCESS_DENIED'), 403);
 			}
 		}
 	}
@@ -117,7 +119,7 @@ class AtsystemFeatureSelfprotect extends AtsystemFeatureAbstract
 	 */
 	private function onApplyOrSave($task)
 	{
-		$allowedTasks = array('apply', 'save', 'plugins.apply', 'plugins.save', 'plugin.apply', 'plugin.save');
+		$allowedTasks = ['apply', 'save', 'plugins.apply', 'plugins.save', 'plugin.apply', 'plugin.save'];
 
 		if (!in_array($task, $allowedTasks))
 		{
@@ -125,7 +127,7 @@ class AtsystemFeatureSelfprotect extends AtsystemFeatureAbstract
 		}
 
 		// Get a list of all IDs in the request
-		$ids   = $this->input->get('cid', array(), 'array');
+		$ids   = $this->input->get('cid', [], 'array');
 		$ids[] = $this->input->getInt('id', null);
 		$ids[] = $this->input->getInt('extension_id', null);
 
@@ -142,7 +144,7 @@ class AtsystemFeatureSelfprotect extends AtsystemFeatureAbstract
 
 		foreach ($ids as $id)
 		{
-			$id = (int)trim($id);
+			$id = (int) trim($id);
 
 			if ($id == $ourId)
 			{
@@ -158,7 +160,7 @@ class AtsystemFeatureSelfprotect extends AtsystemFeatureAbstract
 		}
 
 		// Get the form data and look for the enabled field
-		$jform = $this->input->get('jform', array(), 'array');
+		$jform = $this->input->get('jform', [], 'array');
 
 		if (!isset($jform['enabled']))
 		{
@@ -173,6 +175,6 @@ class AtsystemFeatureSelfprotect extends AtsystemFeatureAbstract
 		}
 
 		// Apparently someone tries to activate the plugin. NOPE.
-		throw new RuntimeException(JText::_('JGLOBAL_AUTH_ACCESS_DENIED'), 403);
+		throw new RuntimeException(Text::_('JGLOBAL_AUTH_ACCESS_DENIED'), 403);
 	}
 }

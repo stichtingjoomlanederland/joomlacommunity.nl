@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -20,7 +20,12 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="o-flag">
 			<?php if ($params->get('show_replies_avatar')) { ?>
 				<div class="o-flag__img t-lg-mr--md">
-                    <?php echo ED::themes()->html('user.avatar', $reply->profile, array('rank' => true, 'status' => true, 'size' => 'md')); ?>
+
+					<?php if ($reply->isAnonymous()) { ?>
+						<?php echo ED::themes()->html('user.anonymous', $reply->profile, $reply->isAnonymous(), array('size' => 'md')); ?>
+					<?php } else { ?>
+	                    <?php echo ED::themes()->html('user.avatar', $reply->profile, array('rank' => true, 'status' => true, 'size' => 'md')); ?>
+					<?php } ?>
 				</div>
 			<?php } ?>
 				<div class="o-flag__body">
@@ -29,8 +34,19 @@ defined('_JEXEC') or die('Restricted access');
 					</a>
 					<div class="m-list--inline t-lg-mb-sm">
 						<div class="m-list__item">
-							 <div class="m-post-meta t-fs--sm"> <?php echo JText::sprintf( 'MOD_LATESTREPLIES_REPLIED_BY' , '<a href="' . $reply->profile->getLink() . '">' . $reply->profile->getName() . '</a>' );?></div>
-						</div>                        
+							<div class="m-post-meta t-fs--sm"> 
+								<?php if ($reply->isAnonymous()) { ?>
+									<?php if ($reply->canAccessAnonymousPost()) { ?>
+										<?php echo JText::sprintf('MOD_LATESTREPLIES_REPLIED_BY', ED::themes()->html('user.username', $reply->getOwner(), array('isAnonymous' => true, 'canViewAnonymousUsername' => $reply->canAccessAnonymousPost(), 'posterName' => $reply->poster_name)));?>
+									<?php } else { ?>
+										<?php echo JText::sprintf('MOD_LATESTREPLIES_REPLIED_BY', '<a href="javascript:void(0);">' . JText::_('COM_EASYDISCUSS_ANONYMOUS_USER') . '</a>');?>
+									<?php } ?>
+									
+								<?php } else { ?>
+									 <?php echo JText::sprintf('MOD_LATESTREPLIES_REPLIED_BY', '<a href="' . $reply->profile->getLink() . '">' . $reply->profile->getName() . '</a>');?>
+								<?php } ?>
+							</div>	
+						</div>
 					</div>   
 				</div>
 			</div>

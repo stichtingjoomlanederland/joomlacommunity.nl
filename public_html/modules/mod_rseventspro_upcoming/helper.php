@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -17,6 +17,7 @@ abstract class modRseventsProUpcoming {
 		$categories	= $params->get('categories','');
 		$locations	= $params->get('locations','');
 		$speakers	= $params->get('speakers','');
+		$sponsors	= $params->get('sponsors','');
 		$tags		= $params->get('tags','');
 		$order		= $params->get('ordering','start');
 		$direction	= $params->get('order','DESC');
@@ -25,6 +26,7 @@ abstract class modRseventsProUpcoming {
 		$repeating	= (int) $params->get('repeating',0);
 		$canceled	= (int) $params->get('canceled',1);
 		$limit		= (int) $params->get('limit',4);
+		$full		= (int) $params->get('full',1);
 		$state		= $canceled ? ',3' : '';
 		
 		$todayDate = JFactory::getDate();
@@ -111,9 +113,22 @@ abstract class modRseventsProUpcoming {
 			$subquery->clear()
 				->select($db->qn('tx.ide'))
 				->from($db->qn('#__rseventspro_taxonomy','tx'))
-				->join('left', $db->qn('#__rseventspro_tags','t').' ON '.$db->qn('t.id').' = '.$db->qn('tx.id'))
-				->where($db->qn('t.id').' IN ('.implode(',',$speakers).')')
+				->join('left', $db->qn('#__rseventspro_speakers','s').' ON '.$db->qn('s.id').' = '.$db->qn('tx.id'))
+				->where($db->qn('s.id').' IN ('.implode(',',$speakers).')')
 				->where($db->qn('tx.type').' = '.$db->q('speaker'));
+			
+			$query->where($db->qn('e.id').' IN ('.$subquery.')');
+		}
+		
+		if (!empty($sponsors)) {
+			$sponsors = array_map('intval',$sponsors);
+			
+			$subquery->clear()
+				->select($db->qn('tx.ide'))
+				->from($db->qn('#__rseventspro_taxonomy','tx'))
+				->join('left', $db->qn('#__rseventspro_sponsors','s').' ON '.$db->qn('s.id').' = '.$db->qn('tx.id'))
+				->where($db->qn('s.id').' IN ('.implode(',',$sponsors).')')
+				->where($db->qn('tx.type').' = '.$db->q('sponsor'));
 			
 			$query->where($db->qn('e.id').' IN ('.$subquery.')');
 		}
@@ -125,11 +140,22 @@ abstract class modRseventsProUpcoming {
 		
 		$query->order($db->qn('e.'.$order).' '.$db->escape($direction));
 		
-		if ($limit)
-			$db->setQuery($query,0,$limit);
-		else $db->setQuery($query);
 		
-		return $db->loadColumn();
+		if (!$full) {
+			$db->setQuery($query);
+			$events = $db->loadColumn();
+			
+			foreach ($events as $i => $event) {
+				if (rseventsproHelper::eventisfull($event)) unset($events[$i]);
+			}
+			
+			$events = array_slice($events, 0, $limit);
+		} else {
+			$db->setQuery($query,0,$limit);
+			$events = $db->loadColumn();
+		}
+		
+		return $events;
 	}
 	
 	protected static function excludeEvents() {

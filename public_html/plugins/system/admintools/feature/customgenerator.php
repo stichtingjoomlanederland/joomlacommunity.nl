@@ -5,6 +5,8 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Factory;
+
 defined('_JEXEC') or die;
 
 class AtsystemFeatureCustomgenerator extends AtsystemFeatureAbstract
@@ -44,25 +46,11 @@ class AtsystemFeatureCustomgenerator extends AtsystemFeatureAbstract
 			$generator = 'MYOB';
 		}
 
-		if (method_exists($this->app, 'getBody'))
-		{
-			$buffer = $this->app->getBody();
-		}
-		else
-		{
-			$buffer = JResponse::getBody();
-		}
+		$buffer = $this->app->getBody();
 
 		$buffer = preg_replace('#<generator uri(.*)/generator>#iU', '<generator>' . $generator . '</generator>', $buffer);
 
-		if (method_exists($this->app, 'setBody'))
-		{
-			$this->app->setBody($buffer);
-		}
-		else
-		{
-			JResponse::setBody($buffer);
-		}
+		$this->app->setBody($buffer);
 	}
 
 	/**
@@ -78,7 +66,7 @@ class AtsystemFeatureCustomgenerator extends AtsystemFeatureAbstract
 			$generator = 'MYOB';
 		}
 
-		$document = JFactory::getDocument();
+		$document = Factory::getDocument();
 
 		if (!method_exists($document, 'setGenerator'))
 		{

@@ -271,9 +271,9 @@ class EasyDiscussThemes extends EasyDiscuss
 				ob_start();
 
 					if ($this->config->get('system_environment') == 'development') {
-						echo '<script type="text/javascript" data-src="' . $scriptFile . '">';
+						echo '<script data-src="' . $scriptFile . '">';
 					} else {
-						echo '<script type="text/javascript">';
+						echo '<script>';
 					}
 
 					include($scriptFile);

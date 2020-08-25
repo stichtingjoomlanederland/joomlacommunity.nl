@@ -36,7 +36,7 @@ $defaultName = isset($user->name) ? $user->name : '';
 			<?php if (!$popbox && !$easysocialPopbox) { ?>
 			data-ed-provide="tooltip"
 			data-placement="top"
-			title="<?php echo $user->getName($defaultName);?>"
+			title="<?php echo $this->escape($user->getName($defaultName));?>"
 			<?php } ?>
 
 			<?php if ($popbox) { ?>

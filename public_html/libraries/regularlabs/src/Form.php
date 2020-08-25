@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.2.16442
+ * @version         20.7.20564
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -187,40 +187,47 @@ class Form
 		Document::script('regularlabs/multiselect.min.js');
 		Document::stylesheet('regularlabs/multiselect.min.css');
 
+		$count_total    = self::getOptionsCount($options);
+		$count_selected = count($value);
+		$has_nested     = $count_total > count($options);
+
 		$html = [];
 
 		$html[] = '<div class="well well-small rl_multiselect" id="' . $id . '">';
-		$html[] = '
-			<div class="form-inline rl_multiselect-controls">
-				<span class="small">' . JText::_('JSELECT') . ':
-					<a class="rl_multiselect-checkall" href="javascript:;">' . JText::_('JALL') . '</a>,
+		$html[] = '<div class="form-inline rl_multiselect-controls">';
+		$html[] = '<span class="small">' . JText::_('JSELECT') . ':
+					<a class="rl_multiselect-checkall" href="javascript:;">' . JText::_('JALL') . '</a>
+					<span class="ghosted">[' . $count_total . ']</span>,
 					<a class="rl_multiselect-uncheckall" href="javascript:;">' . JText::_('JNONE') . '</a>,
 					<a class="rl_multiselect-toggleall" href="javascript:;">' . JText::_('RL_TOGGLE') . '</a>
-				</span>
-				<span class="width-20">|</span>
-				<span class="small">' . JText::_('RL_EXPAND') . ':
+				</span>';
+		$html[] = '<span> | </span>';
+		if ($has_nested)
+		{
+			$html[] = '<span class="small">' . JText::_('RL_EXPAND') . ':
 					<a class="rl_multiselect-expandall" href="javascript:;">' . JText::_('JALL') . '</a>,
 					<a class="rl_multiselect-collapseall" href="javascript:;">' . JText::_('JNONE') . '</a>
-				</span>
-				<span class="width-20">|</span>
-				<span class="small">' . JText::_('JSHOW') . ':
-					<a class="rl_multiselect-showall" href="javascript:;">' . JText::_('JALL') . '</a>,
-					<a class="rl_multiselect-showselected" href="javascript:;">' . JText::_('RL_SELECTED') . '</a>
-				</span>
-				<span class="rl_multiselect-maxmin">
-				<span class="width-20">|</span>
-				<span class="small">
-					<a class="rl_multiselect-maximize" href="javascript:;">' . JText::_('RL_MAXIMIZE') . '</a>
-					<a class="rl_multiselect-minimize" style="display:none;" href="javascript:;">' . JText::_('RL_MINIMIZE') . '</a>
-				</span>
-				</span>
-				<input type="text" name="rl_multiselect-filter" class="rl_multiselect-filter input-medium search-query pull-right" size="16"
-					autocomplete="off" placeholder="' . JText::_('JSEARCH_FILTER') . '" aria-invalid="false" tabindex="-1">
-			</div>
+				</span>';
+			$html[] = '<span> | </span>';
+		}
+		$html[] = '<span class="small">' . JText::_('JSHOW') . ':
+					<a class="rl_multiselect-showall" href="javascript:;">' . JText::_('JALL') . '</a>
+					<span class="ghosted">[' . $count_total . ']</span>,
+						<a class="rl_multiselect-showselected" href="javascript:;">' . JText::_('RL_SELECTED') . '</a>
+					<span class="ghosted">[<span class="rl_multiselect-count-selected">' . $count_selected . '</span>]</span>
+				</span>';
+		$html[] = '<span class="rl_multiselect-maxmin">
+					<span> | </span>
+					<span class="small">
+						<a class="rl_multiselect-maximize" href="javascript:;">' . JText::_('RL_MAXIMIZE') . '</a>
+						<a class="rl_multiselect-minimize" style="display:none;" href="javascript:;">' . JText::_('RL_MINIMIZE') . '</a>
+					</span>
+				</span>';
+		$html[] = '<input type="text" name="rl_multiselect-filter" class="rl_multiselect-filter input-medium search-query pull-right" size="16"
+					autocomplete="off" placeholder="' . JText::_('JSEARCH_FILTER') . '" aria-invalid="false" tabindex="-1">';
+		$html[] = '</div>';
 
-			<div class="clearfix"></div>
-
-			<hr class="hr-condensed">';
+		$html[] = '<hr class="hr-condensed">';
 
 		$o = [];
 		foreach ($options as $option)
@@ -277,8 +284,12 @@ class Form
 				$selected = in_array($option->value, $value) ? ' checked="checked"' : '';
 				$disabled = (isset($option->disable) && $option->disable) ? ' disabled="disabled"' : '';
 
-				$item .= '<input type="checkbox" class="pull-left" name="' . $name . '" id="' . $id . $option->value . '" value="' . $option->value . '"' . $selected . $disabled . '>
-					<label for="' . $id . $option->value . '" class="' . $labelclass . '">' . $option->text . '</label>';
+				if (empty($option->hide_select))
+				{
+					$item .= '<input type="checkbox" class="pull-left" name="' . $name . '" id="' . $id . $option->value . '" value="' . $option->value . '"' . $selected . $disabled . '>';
+				}
+
+				$item .= '<label for="' . $id . $option->value . '" class="' . $labelclass . '">' . $option->text . '</label>';
 			}
 			$item   .= '</div>';
 			$html[] = $item;
@@ -318,6 +329,22 @@ class Form
 		$html = implode('', $html);
 
 		return self::handlePreparedStyles($html);
+	}
+
+	public static function getOptionsCount($options)
+	{
+		$count = 0;
+
+		foreach ($options as $option)
+		{
+			$count++;
+			if ( ! empty($option->links))
+			{
+				$count += self::getOptionsCount($option->links);
+			}
+		}
+
+		return $count;
 	}
 
 	/**
@@ -381,24 +408,27 @@ class Form
 
 		$remove_spinner = "$('#" . $id . "_spinner').remove();";
 		$replace_field  = "$('#" . $id . "').replaceWith(data);";
+		$init_chosen    = 'document.getElementById("' . $id . '") && document.getElementById("' . $id . '").nodeName == "SELECT" && $("#' . $id . '").chosen();';
 
-		$error   = $remove_spinner;
-		$success = "if(data)\{" . $replace_field . "\}" . $remove_spinner;
-
-//			$success .= "console.log('#" . $id . "');";
-//			$success .= "console.log(data);";
+		$success = $replace_field;
 
 		if ($simple)
 		{
-			$success .= "if(data.indexOf('</select>') > -1)\{$('#" . $id . "').chosen();\}";
+			$success .= $init_chosen;
 		}
 		else
 		{
 			Document::script('regularlabs/multiselect.min.js');
 			Document::stylesheet('regularlabs/multiselect.min.css');
 
-			$success .= "if(data.indexOf('rl_multiselect') > -1)\{RegularLabsMultiSelect.init($('#" . $id . "'));\}";
+			$success .= "if(data.indexOf('rl_multiselect') > -1)\{RegularLabsMultiSelect.init($('#" . $id . "'));\} else { " . $init_chosen . "}";
 		}
+
+//		$success .= "console.log('#" . $id . "');";
+//		$success .= "console.log(data);";
+
+		$error   = $remove_spinner;
+		$success = "if(data)\{" . $success . "\}" . $remove_spinner;
 
 		$script = "jQuery(document).ready(function() {"
 			. "RegularLabsScripts.addToLoadAjaxList("

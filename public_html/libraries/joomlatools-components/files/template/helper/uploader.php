@@ -55,6 +55,11 @@ class ComFilesTemplateHelperUploader extends KTemplateHelperAbstract
 
     public function scripts($config = array())
     {
+        $config = new KObjectConfigJson($config);
+        $config->append([
+            'debug' => JFactory::getApplication()->getCfg('debug')
+        ]);
+
         $html = '';
 
         if(!isset(static::$_loaded['uploader']))
@@ -70,7 +75,7 @@ class ComFilesTemplateHelperUploader extends KTemplateHelperAbstract
                 $filter->setWrapper(null);
             }
 
-            $html .= $template->loadFile('com:files.files.uploader_scripts.html')->render();
+            $html .= $template->loadFile('com:files.files.uploader_scripts.html')->render($config->toArray());
 
             if ($template->hasFilter('wrapper')) {
                 $filter->setWrapper($wrapper);

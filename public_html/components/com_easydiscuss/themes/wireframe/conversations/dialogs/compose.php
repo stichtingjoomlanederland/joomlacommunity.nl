@@ -50,7 +50,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	</bindings>
 	<title><?php echo JText::sprintf('COM_EASYDISCUSS_CONVERSATION_COMPOSE_DIALOG_TITLE', $recipient->getName()); ?></title>
 	<content>
-		<script type="text/javascript">
+		<script>
 		ed.require(['edq', 'easydiscuss', 'markitup', 'jquery.expanding'], function($, EasyDiscuss) {
 			var textarea = $('[data-ed-conversation-api-message]');
 

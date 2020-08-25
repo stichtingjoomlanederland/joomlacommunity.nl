@@ -1,0 +1,662 @@
+RO Payments
+Author: RolandD Cyber Produksi (contact@rolandd.com)
+Website: https://rolandd.com/
+Version: 6.0.2
+Date: 20 July 2020
+
+Legenda:
++ Added
+- Removed
+* Fixed
+/ Changed
+
+Changelog
+Version 6.0.2 [ 2020-07-18 ]
+* Fixed error in Internetkassa placeholder replacements
+* Fixed RSForm! Pro fatal error when using the System - RSForm! Pro Payment plugin
+* Fixed Sisow not handling iDEAL without a bank choice
+/ Revert back to OnlineKassa 1.7.0
+
+Version 6.0.1 [ 2020-07-04 ]
+* Fixed listing iDEAL banks from Sisow
+* Fixed prices being rounded down in RSForm! Pro
+/ Handle missing addons gracefully
+
+Version 6.0.0 [ 2020-06-21 ]
+* Fixed error on creating a new event in RSEvents! Pro
+* Fixed incorrect value stored on a submission in RSForm! Pro
+* Fixed callback handling of Rabobank Onlinekassa
+* Fixed creating duplicate subscriptions in RSMembership Pro
+* Fixed undefined notice if no date was set on starting payment
++ Added use RO Payments messages instead of the RSForm! Pro Thank You message
+/ Changed the global settings of RSForm! Pro are now moved to the form
+/ Update Mollie API to version 2.18.0
+/ Changed to use the Sisow API version 1.0.0
+/ Updated EMS integration with changed payment methods
+/ Changed to prevent uninstallation of single extensions that are part of the RO Payments package
+/ RO Payments is now shown as RO Payments - J2Store on Payment Methods page in J2Store
+/ Changed to use the KassaCompleet API version 2.1.0
+/ Changed to set a default profile is now much more prominent
++ Added the event name in RSEvents! Pro can now be used in the payment description using the placeholder {eventName}
+/ Changed the profiles listing now shows the real payment provider names instead of the internal name
++ Added new Ingenico dynamic parameter PAYSUBID
++ Added the option to select which profile to use for the RO Payments payment page
++ Added language mapping for Mollie
+- Removed Event Registration
+- Removed K2Store
++ Added support for scripted products in RSForm! Pro RO Payment fields
+* Fixed to also send out an email even if the status is not confirmed if set in the RSForm! Pro form options
++ Added RSForm! Pro placeholders to the confirmation email message
++ Added RSForm! Pro placeholders to the RO Payments messages
+/ Changed moved the global email settings of RO Payments to the profiles
+
+Version 5.2.0 [ 2019-12-23 ]
+* Fixed recurring start date Mollie recurring payments
+/ Cleaned-up RSEvents!Pro installation routine
+/ Changed handling of VirtueMart payment restrictions
+* Fixed handling return value for ING iDEAL Lite
+- Removed ABN AMRO as it no longer a payment provider
+- Removed Deutsche Bank as it no a payment provider
+- Removed Rabobank Omnikassa 1.0 as it no longer exists
+/ Do not set the name of the plugin on Event Booking on update
+* Fixed currency not being stored
+
+Version 5.1.0 [ 2019-10-31 ]
+* Update script to check the correct requirements for RO Payments
+/ Updated the update servers
+/ Updated plugin names to be clearer
++ Added column sorting on messages
++ Added template override path for custom addons
+* Fixed messages not being deleted
+* Fixed several views not operations
+* Fixed use correct table name for storing profile in RSEvents!Pro
++ Added pid parameter as unique reference in case there is no transaction ID
+
+Version 5.0.0 [ 2019-09-06 ]
+/ Rename JD iDEAL Gateway to RO Payments
+/ Refactor to use Joomla namespaces
++ Recurring payments with Mollie
++ Do not show price if it is empty in RSForm!Pro
+* Fixed language filter should not be used if it is not enabled
+/ Bootstrapping Joomla in notify script
+/ Update Mollie API to version 2.10.0
+- Remove Akeeba Subscriptions
+
+Versie 4.16.0 [ 2019-06-16 ]
+* Test modus in Sisow
++ Betaalstatus in inzendinglijst in RSForms!Pro in front-end
++ Betaalstatus in directory overzicht in RSForms!Pro in front-end
++ Betaalmethode Przelewy24 toegevoegd aan Mollie
++ Betaalmethode ApplePay toegevoegd aan Mollie
+/ Betere check of er JD iDEAL velden in het RSForms!Pro formulier gebruikt worden
+
+Versie 4.15.0 [ 2019-04-23 ]
+/ Mollie API bijgewerkt naar versie 2.8.3
+/ JD iDEAL CSS wordt niet geladen als dit uitstaat in RSForms!Pro formulier
++ KBC toegevoegd aan Sisow
++ CBC toegevoegd aan Sisow
++ iDEAL QR toegevoegd aan Sisow
+* Bankoverschrijving van Sisow in combinatie met RSForms!Pro
+- Bitcoin verwijdert bij Mollie
+* Annuleringen bij Sisow werden niet altijd goed afgehandeld
+/ Status update script verwerkt nu alleen betalingen tot een half uur geleden
++ Wachttijd toegevoegd aan Sisow
++ Tonen van betaalopties toegevoegd aan Sisow
+
+Versie 4.14.2 [ 2019-03-25 ]
+/ Afhandeling antwoord Rabobank Onlinekassa
+/ Toon Status ophalen icoon niet als er geen payment ID is
+* Toon negatieve bedragen in RSForms!Pro
+* Totaal bedrag is incorrect wanneer een komma wordt gebruikt
+* Gebruik juiste transactie ID bij melding vanuit Rabobank Onlinekassa
+
+Versie 4.14.1 [ 2019-02-23 ]
+* Doorsturen werkt niet als taalfilter ingesteld staat om taalcode te verwijderen
+* Foutmelding error payment brand was supplied, but the payment brand force option was missing by Rabobank Onlinekassa
+* Ontbrekende taalstrings RSForms!Pro
+
+Versie 4.14.0 [ 2019-02-18 ]
+* Geen bericht tonen als gebruiker gaat betalen in RSEvents!Pro
+* Evenement kan niet gevonden worden bij gast checkout in RSEvents!Pro
+* Geen unknown status gebruiken bij bankoverschrijvingen
+* Check of er transactielogs zijn
+- Verwijderd dubbel ID op enkel product veld in RSForm!Pro
+* Ontbrekende router file in installatie script
+/ Rabobank Onlinekassa API bijgewerkt naar versie 1.7.0
++ Betaalstatus kolom in RSForms!Pro inzendingen
+/ Betere controle of betaalstatus bekend is
+* E-mail voor admin status wordt niet verzonden
++ Bevestigings e-mail vanuit RSForms!Pro verzenden
+* Doorsturen naar status pagina in een meertalige site
++ Filter opties op de Berichten pagina
+- Betaallink knop in front-end editing
++ Mollie transactie IDs openen in Mollie portaal
+/ Betaallink URL nu omgezet door router bestand
+* Melding van stristr() expects parameter 1 to be string, array given door payment link plugin
++ Bericht dat de pagina wordt geladen na insturen formulier in RSForms!Pro
+
+Versie 4.13.0 [ 2019-01-03 ]
+* Foutmelding vanwege ontbrekende parameter in onContentPrepare
++ Nieuwe status voor onbekende eindstatus
+/ Rabobank Onlinekassa API bijgewerkt naar versie 1.6.0
+* Foutmelding op Yootheme paginas
+* JD iDEAL plugin stopt verwerking betalingen andere plugins in RSForm! Pro
++ Laat klant 3 seconden wachten indien er nog geen terugkoppeling is van betaalprovider
+/ Tags kunnen zowel met hoofd- als kleine letters worden gebruikt
+/ Regeleindes toegevoegd in waardes bij RSForm! Pro
+* Doorsturen bepaalde bedragen geeft foutmelding bij Rabobank Onlinekassa
+/ Betaalstatus mislukt aangepast voor Mollie
++ Meer logging voor VirtueMart betalingen
+/ Meer opties voor RSForm! Pro Payment Package
+- Logging van IP adressen verwijdert
+* Doorsturen Gast checkout in HikaShop
+
+Versie 4.12.0 [ 2018-10-14 ]
+* Standaard munteenheid niet altijd meegenomen bij Mollie
+* Standaard munteenheid niet altijd meegenomen bij Sisow
+* Bestelnummer werd niet altijd overgenomen in Rabobank Omnikassa
+* Bestelnummer werd niet altijd overgenomen in ABN AMRO Easy
+* Menu-redirect niet correct bij meerdere opties in HikaShop
+* Totaalberekening in RSForms! Pro nu formulier specifiek
+/ Laden van addons is niet meer afhankelijk van installatie volgorde
+/ Mollie API bijgewerkt naar versie 2.1.2
+/ OnlineKassa API Guzzle bijgewerkt
+* Munteenheid werd niet altijd getoond in de log
+
+Versie 4.11.1 [ 2018-10-03 ]
+* Zet een standaard valuta
+
+Versie 4.11.0 [ 2018-10-02 ]
+* Ontbrekende taalstrings J2Store
+/ PHP versie check aangepast naar 5.6.0
+/ Verbeterde foutmelding bij niet aanmaken betaling Onlinekassa
+/ Nieuwe naam Mollie betaalmethodes
+* Geannuleerde status komt niet goed door bij Mollie
+/ Datum en tijd toegevoegd aan menu
+* Bedragen van 1000 euro en meer geven error bij Mollie
+/ Mollie API bijgewerkt naar versie 2.0.13
++ Optie om bestelnummer of bestel ID door te sturen
+* Versienummer alleen meesturen met iDEAL bij Target Pay
+* iDEAL wacht niet op bankkeuze bij ING Kassacompleet
++ Meerdere valuta ondersteuning bij Mollie
++ Meerdere valuta ondersteuning bij OnlineKassa
++ Meerdere valuta ondersteuning bij Sisow
++ Meerdere valuta ondersteuning bij Ingenico
++ Meerdere valuta ondersteuning bij EMS
++ Meerdere valuta ondersteuning bij Buckaroo
++ Meerdere valuta ondersteuning bij iDEAL Easy
++ Meerdere valuta ondersteuning bij ING KassaCompleet
++ HikaShop meerdere valuta ondersteuning
++ VirtueMart meerdere valuta ondersteuning
++ RSForm! Pro meerdere valuta ondersteuning
+* Betere afhandeling van foutmelding vanuit EMS
+
+Versie 4.10.0 [ 2018-08-16 ]
+* Betalingen in RSForms!Pro komen door als centen
+* Gekozen enkele betaalmethode werd niet doorgezet naar Ogone
+/ OnlineKassa API bijgewerkt naar versie 1.2.0
+* Orderstatus ophalen bij JD iDEAL
+/ Verbeterde foutafhandeling Kassacompleet
++ Optie om extensies op te geven wanneer JD iDEAL RSForms! Pro Javascript geladen moet worden
+/ HikaShop controleer of er data is
++ Doorstuur optie toegevoegd aan iDEAL Advanced
+/ Eshop order statussen moeten uit het Engels komen
++ Make description required for Kassacompleet
+/ Mollie API bijgewerkt naar versie 2.0.12
++ EPS en Giropay toegevoegd aan Mollie
+/ Compabiliteit met PHP 7.2
+/ Stuur order nummer of ID door in plaats van JD iDEAL ID naar Onlinekassa
+* JTicketing integratie aangepast, notificatie werd niet afgehandeld
+* Links naar Ingenico bij profiel goed gezet
+
+Versie 4.9.1 [ 2018-03-24 ]
+* Hash validatie EMS gebruikte verkeerde tijd
+/ Response hash controle toegevoegd aan EMS
+
+Versie 4.9.0 [ 2018-03-17 ]
+* Betaalmethode wordt niet doorgestuurd als het op direct doorsturen staat
++ PayPal toegevoegd aan ING Kassacompleet
+/ Update van HikaShop plugin geeft fatale fout tijdens Joomla update
+* Fatal error bij gebruik Joomla 3.8.5 of hoger in notify script
+* Meerdere producten dropdown geeft geen totaal aan in RSForm! Pro
+/ Download ID wordt nu via een Joomla plugin afgehandeld
+* Statusupdate script gebruikt niet de juiste payment provider als er meerdere in gebruik zijn
+/ Mollie betaalmethodes bijgewerkt
+/ Mollie API bijgewerkt naar versie 1.9.6
++ Order statusses kunnen nu zelf worden ingesteld
+/ Controle of order wel bijgewerkt mag worden in VirtueMart
+
+Versie 4.8.0 [ 2017-11-28 ]
+* Doorsturen met vooraf ingestelde bankkeuze
++ SEF URL voor de afrekenpagina
+* Versturen van dubbele e-mails in K2Cart
+/ Stop met de verwerking als de order status niet overeenkomt in K2Cart
+/ Melding na update dat ook de plugin bijgewerkt moet worden
+* Juiste updateserver instellen
+* Melding COM_ROPAYMENTS_NO_ALIAS_FOUND bij RSForm! Pro formulier in Joomla artikel
++ Instellingen worden overgenomen als een formulier wordt gekopieerd in RSForm! Pro
+* Berekening seal bij Rabobank OmniKassa in geval van credit-card
++ Ondersteuning voor Rabobank OnlineKassa
++ Trim witruimte bij opslaan profiel
++ Omschrijving en bestelnummer worden nu doorgestuurd naar ING Kassacompleet
++ Sisow Belfius toegevoegd
+
+Versie 4.7.0 [ 2017-09-12 ]
+* Lege bank selectie keuze bij afrekenen
+* Niet doorgaan met verzoek als er geen log ID is
+* JD iDEAL Gateway Betaallink plugin geeft PHP Fatal error: Call to undefined method JDocumentJson::addCustomTag()
+* Betaling werd niet doorgestuurd bij Target Pay
++ Cadeaukaarten ondersteund voor Mollie
+* JD iDEAL script wordt niet geladen als RSForm! Pro formulier via artikel wordt getoond.
+* Bedragen in het formaat 1,234.56 werden verwerkt als 1.00
+/ Transacties pagina filters logischer
++ Controle of JD iDEAL Gateway is geïnstalleerd
+/ Verwerken resultaat stopt als er geen betaalstatus is ontvangen
++ Datum tijdstempel aan logregels toegevoegd
+
+Versie 4.6.0 [ 2017-07-24 ]
+* Laatste datum dat status update script heeft gelopen
+* Verwerkte betalingen werden niet gecontroleerd door status update script
+/ Mollie API bijgewerkt naar versie 1.9.1
+/ Foutmeldingen bij ongeldige data verbeterd
+* RSForm! Pro condities werkend maken in een meertalig formulier
+* RSForm! Pro geselecteerde opties verdwenen als formulier validatie mislukte
+/ PHP 7.1 compabiliteit
++ ABN Amro nieuw certificaat voor iDEAL Advanced
+/ Verbeterde foutrapportage door indien nodig extra informatie weg te schrijven naar logs/com_jdidealgateway.errors.php
+* Referentie van EMS werd niet altijd uitgelezen
+
+Versie 4.5.4 [ 2017-06-06 ]
+* iDEAL Advanced certificaat goed instellen
+* RSForm! Pro Order nummer werd niet overgenomen
++ Controle toegevoegd of RSForm! Pro is geïnstalleerd
+/ Foutafhandeling wanneer gecontroleerd wordt of het notify script bereikbaar is
+
+Versie 4.5.3 [ 2017-06-03 ]
+/ Rabobank heeft een nieuw certificaat voor iDEAL Advanced
+* Bedragen boven de 1.000 euro werden 1 euro in RSForm! Pro
+/ Weergave bedragen in Transactielijst
+
+Versie 4.5.2 [ 2017-05-30 ]
+* iDEAL Lite berekent verkeerde hash
+
+Versie 4.5.1 [ 2017-05-26 ]
++ Nieuw certificaat voor ING Advanced
+/ Robuuster omgaan met Voorwaardelijke velden in RSForm! Pro
+* Niet mogelijk om een veld in RSForm! Pro te bewerken
+
+Versie 4.5.0 [ 2017-05-22 ]
++ Profiel kiezen per evenement bij RSEvents! Pro
++ Opslaan als kopie bij profiel bewerken
++ Opslaan als kopie bij bericht bewerken
+* Verwijderen van /cli in de URL van administrator e-mails
+/ De check voor het notify.php script aangepast
++ Keuze voor munteenheid bij Rabobank Omnikassa
++ Plugin om automatisch betaallinks te maken
++ Editor knop om betaallinks in te voeren
+
+Versie 4.4.0 [ 2017-04-23 ]
++ Optie om bedankpagina van RSForm! Pro te tonen in plaats van JD iDEAL bericht
+/ Verwerken van multiple dropdown in RSForm! Pro
++ Toon JD iDEAL logo bij totaal veld in RSForm! Pro
+* Niet JD iDEAL velden werden aangepast bij opslaan in RSForm! Pro
+/ Controle of Enkel product veld wel een prijs heeft in RSForm! Pro
+/ De URL van de bankenlijst bij Target Pay is aangepast
+* De bank selectie werd niet juist doorgegeven bij Target Pay
+* Artikelen met een ID hoger dan 255 werden niet opgeslagen
+/ Naam van licentie bestand
+* Ontbreken statussen kop in EMS configuratie
+/ Logische standaardwaardes voor statussen
+/ Status is altijd hoofdletters in admin e-mail
+* Update via Joomla updater geeft een foutmelding
+/ Doorsturen vanuit RSForm! Pro naar JD iDEAL Gateway
+/ Hernoem Ogone naar Ingenico
+* Meerdere bevestigings e-mails werden verstuurd bij RSEvents! Pro
++ Optie om geen RSForm! Pro e-mails te versturen als betaling geannuleerd of mislukt is
++ Betaalmethode bunq toegevoegd aan Sisow
++ JD iDEAL logo toegevoegd aan invoervelden RSForm! Pro
+/ Verwijder overbodige spaties bij artikelen in RSForm! Pro
++ Nieuw certificaat voor Rabobank Advanced
++ Optie om in RSForm! Pro ook berekeningen uit te voeren met [p]
++ Controle of notify.php bereikbaar is
+
+Versie 4.3.1
+* Doorsturen na mislukte betaling bij HikaShop werkte niet
+* Link naar bestelling in backend niet aanwezig bij HikaShop e-mail
+* Notice bij RSForm! Pro plugin voor HIDE_DESCRIPTION optie
+* De onPaymentComplete callback bevatte te weinig informatie
++ SEF URLs voor betaalpagina met dank aan Sander Potjer van Perfect Web Team
+* Alle betaalmethodes bij Mollie forceert iDEAL, nu niet meer
+/ Toestaan van negatieve bedragen in opties in RSForm! Pro
+/ Maak het mogelijk om de conditionele velden in RSForm! Pro te gebruiken
+
+Versie 4.3.0
+* Order status in Eshop is altijd Succes
+* Doorstuur optie bij EMS was niet beschikbaar
++ Afbeelding bij afrekenen is configureerbaar bij RD-Subscriptions
++ Betaalstatus tag {STATUS_NAME} in beheerder e-mail is nu te vertalen met een taal override
+* Extra kosten calculatie VirtueMart gebruikte progressieve optie als standaard, omgezet naar simpel
++ PayPal betaalmethode bij Sisow
++ Credit-card betaalmethodes bij Sisow
+* URL naar EMS betaalpagina aangepast
+* Overboeking via Mollie initiële status aangepast
+/ Hernoem Bancontact/Mister Cash naar Bancontact
+/ Verberg het download ID
+* Doorsturen bij ABN Internetkassa werkt niet
++ Ondersteuning voor RSForms!Pro module weergave
+* Bericht wordt niet getoond bij VirtueMart betalingsannulering
+/ Foutmelding als in RSForm! Pro meerdere producten veld geen items zijn ingevoerd
++ KBC/CBC betaalmethode bij Mollie
++ Belfius Direct Net bij Mollie
++ Podiumkaart bij Mollie
++ Menu item doorsturen voor HikaShop
++ Versturen van order status e-mails in HikaShop
++ Optie om 0 bedragen af te rekenen in RSForm! Pro
+
+Versie 4.2.1
+* Test e-mail versturen werkt niet
+* Foutmelding bij VP One Page Checkout in VirtueMart plugin
+
+Versie 4.2.0
+* Het moet niet mogelijk zijn dat profielen dezelfde naam hebben
+* Waarschuwing over niet bestaande variabele bij een mislukte transactie
+* Het bestelnummer werd niet meegenomen bij een VirtueMart betaling als dit stond ingesteld
+* Itemid stond niet in de retour URLs bij HikaShop
+* Versturen van dubbele e-mails bij RSForm! Pro vanwege Payment plugin
+* RSForm! Pro formulieren werkend maken in artikelen en modules. RSForms heeft zelf nog wel problemen !!
++ Meerdere RSForm! Pro formulieren op één pagina mogelijk maken
+* Mislukte status heeft verkeerde waarde
+* Berichten worden niet opgeslagen met created/modified informatie
+* Profielen worden niet getoond bij een nieuwe installatie
+/ Eigen annulering afhandeling voor HikaShop
++ Support voor EMS card (emscard.com) toegevoegd
+
+Versie 4.1.0
+/ Betaalmethodes van Mollie, Buckaroo, Target Pay, Sisow, Kassacompleet zijn te wijzigen met een taal override
+* Aantallen van een RSForm! Pro formulier werden opgeslagen als Array
++ Aantal conditionele velden voor RSForm! Pro uitgebreid
+* Orders worden niet bijgewerkt met in het profiel gekozen status
+* HikaShop bewerken betaalmethode geeft foutmelding getFieldAttribute
+/ RSForm! Pro plugin kan alleen geïnstalleerd worden, eerst deïnstalleren
+* RSForm! Pro uitstellen van e-mails werkte niet
+/ Ondersteuning voor HikaShop bericht bij succesvolle betaling
+* Sommige instellingen voor Rabobank Omnikassa werden niet omgezet
+* Overboeking van Sisow werkte niet goed
++ RSMembership! mogelijkheid om naam van betaalmethode aan te passen
++ Bank selectie voor iDEAL op VirtueMart afrekenpagina
+* VirtueMart profiel keuze wordt niet doorgegeven
+/ Ondersteuning RD-Subscriptions voor versie 2.12
+/ Plaatjes en links in berichten werden eruit gefiltered
+* CLI status update script werkte niet
+/ CLI status update script uitgebreid naar ondersteunde betaalproviders
+/ Ogone taal instelling uitgebreid met keuze om taal van gebruiker te gebruiken
+
+Versie 4.0.0
+- Ondersteuning Joomla 2.5 verwijderd
+- Ondersteuning Rabobank iDEAL Lite verwijderd
+- Ondersteuning Rabobank Internetkassa verwijderd
++ Profielen toegevoegd
++ Meertalige berichten toegevoegd
++ Aantallen optie toegevoegd in RSForm! Pro
+/ RSForm! Pro plugin opgeschoond
++ Ondersteuning voor Kassa Compleet toegevoegd
+/ Formulieren gebruiken JLayouts voor betere Joomla ondersteuning
++ Optie om betaalstatus te controleren voor betaalproviders die het ondersteunen
++ ACL toegevoegd
++ Ondersteuning voor RD-Subscription toegevoegd
+- Ondersteuning voor Ads Factory verwijderd
+- Ondersteuning voor Akeeba Subscriptions verwijderd
+- Ondersteuning voor Document Seller verwijderd
+- Ondersteuning voor JE GroupBuy verwijderd
+- Ondersteuning voor JoomBri Freelance verwijderd
+- Ondersteuning voor JoomISP verwijderd
+- Ondersteuning voor PaidSystem verwijderd
+- Ondersteuning voor redSHOP verwijderd
+
+Versie 3.3.2
+/ Zijbalk overlapt in Joomla 3
++ Maak de betaalopties te vertalen in Akeeba Subscriptions betaalplugin
++ Notify URL toegevoegd aan HikaShop betaalplugin
+/ Bijgewerkt JoomDonation betaalplugin
+/ redSHOP betaalplugin voor de nieuwe statussen
+/ Bijgewerkt RSForm!Pro betaalplugin
++ Toegevoegd Buckaroo afbeelding
++ iDEAL plaatje voor VirtueMart
+* Callback aangepast voor RSMembership
++ Toegevoegd e-mail als add-on mist
+* Enkel product toont geen totaal in RSForm!Pro
+/ Eventbooking return url
+
+Versie 3.3.1
++ Controle of JD iDEAL configuratie is ingesteld
+* Waarde per invoerveld werd niet weergegeven in RSForm! Pro
++ Optie om totaal veld te gebruiken in JavaScript calculatie
+
+Versie 3.3
++ Toegevoegd Ticketmaster
+/ JD iDEAL Gateway Update opties aangepast
+/ Eshop bedragen van boven de duizendtallen
+/ Membership Pro notify url
+/ Artio Booking support aangepast naar 2.3.1
+/ Mollie opgenomen in Akeeba Subscriptions plugin
+* Probleem met gratis abonnementen met RSMembership! Pro
+/ Mollie betaalopties Sofort en Bitcoin toegevoegd
++ Melding bij lokaal gebruik van betaalproviders die dat niet ondersteunen
+/ HikaShop plugin naam hard erin gezet
++ Optie toegevoegd aan statusupdate script om resultaten als optie mee te geven
+/ Alle plugin installaties nu via Joomla Extensiebeheer
+/ Bijgewerkt Akeeba Subscription landen
++ Toegevoegd Services Booking
+/ Bijgewerkt plugin voor MijoShop 3
+- Ads Factory wordt niet langer ondersteund
+/ Bijgewerkt RSForms!Pro invoerveld om PHP code toe te staan
+/ VirtueMart naam hard erin gezet
+- Friesland Bank verwijdert
+
+Versie 3.2
++ Sisow Shop ID is nu te gebruiken
+/ Terugkoppeling voor Membership Pro
+/ RSEvents! Pro stuurt nu ook de bevestiging mails
++ Mogelijkheid om RSForms!Pro waarden te vervangen in e-mails
+* Waarschuwing bij Akeeba Subscriptions
+
+Versie 3.1.2
+* Mollie Sofort en Bitcoin werden getoond als iDEAL
+
+Versie 3.1.1
+* HikaShop afrekenproces stopt met land restrictie
+* JoomDonation installeert niet
+/ Taalbestanden aangepast
+
+Versie 3.1
+* Order ID voor RSForm! Pro werd niet goed weergegeven
+/ Begrijpbare order status voor RSEvents! Pro
++ Sofort en Bitcoin toegevoegd voor Mollie
+* Paginering werkte niet voor betaalpagina transacties
+* Zoeken op ordernummer nu ook met letters
++ Betaalformulier kan een ordernummer aan meegegeven worden
++ Betaalformulier kan automatisch door gestuurd worden
+/ RSDirectory BTW
+/ Mollie status terug melding
++ Cron update script voor iDEAL Advanced
+* HikaShop plugin stopt afrekenproces
+* Meerdere radio button velden in RSForm! Pro formulier tellen totaal niet
+
+Versie 3.0.5
+/ Rabobank Omnikassa return URL aangepast zodat transactie ID altijd meekomt
+/ Taalbestanden bijgewerkt
+
+Versie 3.0.4
+* PSP namen hoofdletter gevoelig
+
+Versie 3.0.3
+* RSForm! Pro order status niet gelezen
+* HikaShop samen met ABN AMRO iDEAL Easy fout
+* HikaShop plugin installeerde configuratie bestand niet
+
+Versie 3.0.2
+/ Taalbestanden worden niet gelezen
+
+Versie 3.0.1
+* Fout bij oproepen betaalopties in Hikashop plugin
+* Gebruik Joomla! artikel alleen als er een artikel ID is
+
+Versie 3.0
+* Foutief status bij Sisow en Buckaroo gaf verkeerde status weer
+* Document Seller plugin aangepast voor Joomla 3
+* jGive plugin aangepast naar versie 1.6.3
+* Adsmanager plugin aangepast naar versie 2.9.6
+* Waarschuwing bij opslaan gegevens in Joomla 3
+- iDEAL versie 2 verwijderd, alleen nog maar SEPA ondersteuning
++ Kies Joomla artikel als status bericht
+/ Nieuwe Mollie API
+/ Bijgewerkt Eshop plugin
+/ Bijgewerkt Akeeba Subscriptions plugin
+/ Updates nu met de Joomla! updater
+/ HikaShop plugin ondersteund nu alle betaalmethoden
+/ VirtueMart plugin geschikt gemaakt voor VirtueMart op Joomla! 3
++ Betaling vanaf externe link mogelijk
+/ Mogelijkheid tot override van betaal formulier
+* RSForm! Pro plugin aangepast zodat betaalstatus ook wordt aangepast bij eigen veld
+
+Versie 2.13.1
+/ Aangepast de paden van de SEPA bestanden
+* Fout in het laden van de Sisow betaalmethode
+/ Aangepast RSMembership! plugin voor versie 1.0.2 rev 19
+
+Versie 2.13
+/ Aangepast VISA logo in Akeeba Subscriptions
++ Toegevoegd RSDirectory! plugin
++ Toegevoegd MijoShop plugin
+/ Aangepast taalbestand RSForm!Pro
+/ Aangepast taalbestand RSEvents!Pro
+/ Order nummer aangepast zodat het goed mee komt bij sommige extensies
+/ Bedrag wordt nu met Nederlandse opmaak in email berichten getoond
+/ Undefined notice verholpen
++ Toegevoegd {ORDERID} aan email templates
+* Fout in totaal veld bij RSForm!Pro bij getallen boven de 1000
++ Toegevoegd knop om order resultaat te controleren voor iDEAL Advanced
+/ Code opgeschoond
+* Donaties boven de 1000 euro kwamen door als 1 euro in JoomDonation
++ Toegevoegd Buckaroo
+
+Versie 2.12.1
+* Fout in het Internetkassa formulier
+* Fout in Akeeba Subscriptions plugin bij terugkomst
+/ Aangepast Sisow check voor VirtueMart
+/ Aangepast route helper in RSEventsPro
+
+Versie 2.12
+* Fout na terugkomst van Mollie
++ Toegevoegd K2Store plugin
+/ Doorsturen naar fout pagina als er geen order ID is gevonden in Hikashop
+/ Aangepast RSForm! Pro gebruikt nu het ID van de inzending als order ID
++ Toegevoegd Membership Pro plugin
++ Toegevoegd radio button option to RSForm!Pro meerdere produkten
++ Toegevoegd Itemid to RSForm! Pro redirect
++ Gebruikte order nummer kan nu ingesteld worden in VirtueMart
+/ Aangepast RSForm!Pro voorwaardelijke velden hebben geen core wijziging meer nodig
+/ Aangepast in Joomla 3 werd order ID niet getoond als er geen link naar component is
+/ Aangepast Ogone controle betaalmethoden
++ Toegevoegd aan transactie scherm de kolom order nummer
++ Toegevoegd order nummer veld keuze in RSForm! Pro
++ Toegevoegd e-mail veld keuze in RSForm! Pro
++ BTW keuze toegevoegd aan VirtueMart betaalmethode
++ Toegevoegd Eshop plugin
++ Toegevoegd doorstuur optie voor Target Pay
+
+Versie 2.11
+/ Aangepast toon de component naam en order ID ook als er geen component link/order link is
+/ Aangepast meer logging bij een foutmelding van iDEAL Advanced
++ Toegevoegd RSMembership! plugin
+/ Controleer gebruik van & in omschrijving bij iDEAL Advanced
+* Foutmelding bij een nieuwe installatie
+/ Aangepast redirect URL controle op aansluitteken
++ Toegevoegd controle op geldige purchaseID voor iDEAL Advanced
+
+Versie 2.10
+/ Aangepast veld voor sturen test e-mail
+* Verholpen foutief ID in RSForm!Pro plugin
+* Verholpen waarschuwing in RSForm!Pro plugin
++ Toegevoegd JoomISP plugin
+/ Aangepast Akeeba Subscription plugin ondersteunt nu meerdere opties in 1 plugin
++ Toegevoegd Quick2Cart, SocialAds, JTicketing en JGive plugin
+* Verholpen Target Pay Premium SMS betalingen
+* Verholpen Transactie log werkte niet in Joomla 3
+
+Versie 2.9.5
+* Verholpen https links niet correct
+* Verholpen Sisow toont altijd iDEAL banken
+* Verholpen Event Booking toont verkeerd bericht bij annulering
++ Toegevoegd individuele opties voor Sisow in VirtueMart
++ Toegevoegd individuele opties voor Target Pay in VirtueMart
+- Verwijderd ePahali
++ Toegevoegd Sisow overboeking voor VirtueMart
++ Toegevoegd Sisow overboeking voor Akeeba Subscriptions
+/ Aangepast Sisow iDEAL banken worden verborgen bij een andere betaaloptie
++ Toegevoegd Joom Donation
+/ Nieuw JD iDEAL logo
+* Het woord CARD niet vervangen bij een geannuleerde betaling
+
+Versie 2.9
+/ Aangepast e-mail onderwerp vergroot naar 150 tekens
++ Toegevoegd optie om test e-mails te sturen
+* Verholpen Ads Factory plugin status altijd ok
+* Verholpen ontbrekende tekst strings
+* Verholpen RSForm!Pro dubbele BTW berekening
+* Verholpen onderwerp niet altijd vervangen
+* Verholpen VirtueMart waarschuwingen op afreken pagina
+- Verwijderd Joomla update
++ Toegevoegd Document Seller
+
+Versie 2.8.1
++ Toegevoegd Event Booking
+/ Aangepast notify_url
+/ Aangepast RSForm!Pro plugin
+* Verholpen e-mails niet in HTML formaat gestuurd
+/ Aangepast JoomShopping plugin
+/ Aangepast Sisow omschrijving verplicht
+/ Aangepast meer log informatie
+* Verholpen mogelijke waarschuwingen
+
+Versie 2.8
++ Toegevoegd Ads Factory
++ Toegevoegd RSEvents!Pro
+/ Bijgewerkt RSForms!Pro
++ Toegevoegd ePahali
+/ Bijgewerkt SEPA banken
++ Toegevoegd optie om HTML van betaal plugins te tonen
++ Toegevoegd optie om zelf e-mails op te maken
+
+Versie 2.7.1
+* De informeer e-mail werd aan meerdere adressen tegelijk gestuurd
+* Automatisch doorsturen werkte niet overal meer
++ Taalkeuze bij Rabobank OmniKassa toegevoegd
+/ JoomShopping plugin bijgewerkt voor versie 4
+* Database niet correct bij schone installatie
+
+Versie 2.7
++ Toegevoegd Live Update
++ Toegevoegd Kaart in bevestigings e-mail voor Rabobank Omnikassa en Ogone
++ Toegevoegd kaart selectie voor VirtueMart 2
++ Toegevoegd kaart selectie voor Akeeba Subscriptions
++ Toegevoegd kaart opties voor Rabobank Omnikassa
++ Toegevoegd kaart opties voor Ogone
+
+Version 2.2
+* Fixed Paysafecard/Mister Cash for Target Pay
++ Added image option for Akeeba Subscription plugin
+* Fixed language loading for J2Store plugin
++ Added RS Form! Pro support
+
+Version 2.1.1
+* Fixed saving options in the backend
+* Fixed Target Pay not working when iDEAL is not selected
+
+Version 2.1
++ Added experimental Joomla 3.0 support
++ Added extra charges to VirtueMart 2 plugin
+/ Changed Target Pay selector to hide banks when choice is not iDEAL
+
+Version 2.0
+Initial release Joomla 2.5 only

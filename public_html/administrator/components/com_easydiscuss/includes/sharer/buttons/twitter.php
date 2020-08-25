@@ -44,7 +44,7 @@ class EasyDiscussSharerButtonTwitter extends EasyDiscuss
 			$width = '80px';
 		}
 
-		$html = '<div class="social-button retweet"><a href="http://twitter.com/share" class="twitter-share-button" data-url="' . $dataURL . '" data-counturl="'.$dataURL.'" data-count="' . $style .'">Tweet</a><script type="text/javascript" src="https://platform.twitter.com/widgets.js"></script></div>';
+		$html = '<div class="social-button retweet"><a href="http://twitter.com/share" class="twitter-share-button" data-url="' . $dataURL . '" data-counturl="'.$dataURL.'" data-count="' . $style .'">Tweet</a><script src="https://platform.twitter.com/widgets.js"></script></div>';
 
 		return $html;
 	}

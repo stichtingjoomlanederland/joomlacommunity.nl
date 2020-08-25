@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="COM_ROPAYMENTS_CHECKOUT">
+		<message>
+			<![CDATA[COM_ROPAYMENTS_CHECKOUT_DESC_MENU]]>
+		</message>
+	</layout>
+	<state>
+		<name>COM_ROPAYMENTS_CHECKOUT</name>
+		<description>COM_ROPAYMENTS_CHECKOUT_DESC_MENU</description>
+		<params>
+		</params>
+	</state>
+</metadata>

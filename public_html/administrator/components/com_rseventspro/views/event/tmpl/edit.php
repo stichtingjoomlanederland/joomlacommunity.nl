@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
@@ -185,6 +185,14 @@ JText::script('COM_RSEVENTSPRO_END_REG_BIGGER_THAN_END_ERROR'); ?>
 				<?php echo $this->loadTemplate('rsmail'); ?>
 			</div>
 			<!-- End RSMail tab -->
+			<?php } ?>
+			
+			<?php if (rseventsproHelper::pdf()) { ?>
+			<!-- Start Invoice tab -->
+			<div class="tab-pane" id="rsepro-edit-invoice">
+				<?php echo $this->loadTemplate('invoice'); ?>
+			</div>
+			<!-- End Invoice tab -->
 			<?php } ?>
 			
 		</div>

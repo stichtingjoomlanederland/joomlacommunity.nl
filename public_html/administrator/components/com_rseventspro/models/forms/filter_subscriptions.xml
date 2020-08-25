@@ -17,6 +17,9 @@
 		<field name="ticket" type="filtertickets" onchange="this.form.submit();">
 			<option value="">COM_RSEVENTSPRO_SELECT_TICKET</option>
 		</field>
+		
+		<field name="from" type="calendar" onchange="setTimeout('document.adminForm.submit()', 2000);" hint="COM_RSEVENTSPRO_EVENT_FROM" />
+		<field name="to" type="calendar" onchange="setTimeout('document.adminForm.submit()', 2000);" hint="COM_RSEVENTSPRO_EVENT_TO" />
 	</fields>
 
 	<fields name="list">

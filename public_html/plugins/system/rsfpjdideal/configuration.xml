@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fieldset name="roPaymentsConfig" addfieldpath="/administrator/components/com_jdidealgateway/models/fields">
+        <fields name="roPaymentsParams">
+            <field name="profileAlias"
+                   type="jdideal.profile"
+                   description="PLG_RSFP_JDIDEAL_PAYMENT_PROVIDER_ALIAS_DESCRIPTION"
+                   label="PLG_RSFP_JDIDEAL_PAYMENT_PROVIDER_ALIAS_LABEL"
+                   class="advancedSelect"
+                   default=""/>
+
+            <field name="allowEmpty"
+                   type="radio"
+                   class="btn-group btn-group-yesno"
+                   description="PLG_RSFP_JDIDEAL_ALLOWEMPTY_DESCRIPTION"
+                   label="PLG_RSFP_JDIDEAL_ALLOWEMPTY_LABEL"
+                   default="0"
+            >
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+
+            <field name="redirectRsforms"
+                   type="radio"
+                   class="btn-group btn-group-yesno"
+                   description="PLG_RSFP_JDIDEAL_REDIRECTRSFORMS_DESCRIPTION"
+                   label="PLG_RSFP_JDIDEAL_REDIRECTRSFORMS_LABEL"
+                   default="0"
+            >
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+
+            <field name="currency"
+                   type="text"
+                   description="PLG_RSFP_JDIDEAL_CURRENCY_DESCRIPTION"
+                   label="PLG_RSFP_JDIDEAL_CURRENCY_LABEL"
+                   class="input-mini"
+                   maxlength="3"
+                   default=""/>
+
+            <field name="thousands"
+                   type="text"
+                   class="input-mini"
+                   description="PLG_RSFP_JDIDEAL_THOUSANDS_DESCRIPTION"
+                   label="PLG_RSFP_JDIDEAL_THOUSANDS_LABEL"
+                   size="4"
+                   default="."/>
+
+            <field name="decimal"
+                   type="text"
+                   class="input-mini"
+                   description="PLG_RSFP_JDIDEAL_DECIMAL_SEPARATOR_DESCRIPTION"
+                   label="PLG_RSFP_JDIDEAL_DECIMAL_SEPARATOR_LABEL"
+                   size="4"
+                   default=","/>
+
+            <field name="numberDecimals"
+                   type="text"
+                   class="input-mini"
+                   description="PLG_RSFP_JDIDEAL_NR_DECIMALS_DESCRIPTION"
+                   label="PLG_RSFP_JDIDEAL_NR_DECIMALS_LABEL"
+                   size="4"
+                   default="2"/>
+
+            <field name="taxType"
+                   type="list"
+                   description="PLG_RSFP_JDIDEAL_TAX_TYPE_DESCRIPTION"
+                   label="PLG_RSFP_JDIDEAL_TAX_TYPE_LABEL"
+                   class="advancedSelect"
+                   size="1"
+                   default="0">
+                <option value="1">PLG_RSFP_JDIDEAL_TAX_TYPE_FIXED</option>
+                <option value="0">PLG_RSFP_JDIDEAL_TAX_TYPE_PERCENT</option>
+            </field>
+
+            <field name="taxValue"
+                   type="text"
+                   description="PLG_RSFP_JDIDEAL_TAX_VALUE_DESCRIPTION"
+                   label="PLG_RSFP_JDIDEAL_TAX_VALUE_LABEL"
+                   default=""/>
+
+            <field name="fieldOrderNumber"
+                   type="text"
+                   description="PLG_RSFP_JDIDEAL_ORDER_NR_DESCRIPTION"
+                   label="PLG_RSFP_JDIDEAL_ORDER_NR_LABEL"
+                   default=""/>
+
+            <field name="fieldEmail"
+                   type="text"
+                   description="PLG_RSFP_JDIDEAL_EMAIL_DESCRIPTION"
+                   label="PLG_RSFP_JDIDEAL_EMAIL_LABEL"
+                   default=""/>
+
+            <field name="userEmail"
+                   type="radio"
+                   class="btn-group btn-group-yesno"
+                   description="PLG_RSFP_JDIDEAL_USEREMAIL_DESCRIPTION"
+                   label="PLG_RSFP_JDIDEAL_USEREMAIL_LABEL"
+                   default="0"
+            >
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+
+            <field name="adminEmail"
+                   type="radio"
+                   class="btn-group btn-group-yesno"
+                   description="PLG_RSFP_JDIDEAL_ADMINEMAIL_DESCRIPTION"
+                   label="PLG_RSFP_JDIDEAL_ADMINEMAIL_LABEL"
+                   default="0"
+            >
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+
+            <field name="additionalEmails"
+                   type="radio"
+                   class="btn-group btn-group-yesno"
+                   description="PLG_RSFP_JDIDEAL_ADDITIONALEMAIL_DESCRIPTION"
+                   label="PLG_RSFP_JDIDEAL_ADDITIONALEMAIL_LABEL"
+                   default="0"
+            >
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+
+            <field name="sendEmailOnFailedPayment"
+                   type="radio"
+                   class="btn-group btn-group-yesno"
+                   description="PLG_RSFP_JDIDEAL_EMAILONFAILEDPAYMENT_DESCRIPTION"
+                   label="PLG_RSFP_JDIDEAL_EMAILONFAILEDPAYMENT_LABEL"
+                   default="1"
+            >
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+
+            <field name="confirmationEmail"
+                   type="radio"
+                   class="btn-group btn-group-yesno"
+                   description="PLG_RSFP_JDIDEAL_CONFIRMATIONEMAIL_DESCRIPTION"
+                   label="PLG_RSFP_JDIDEAL_CONFIRMATIONEMAIL_LABEL"
+                   default="0"
+            >
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+
+            <field name="confirmationRecipient"
+                   type="text"
+                   description="PLG_RSFP_JDIDEAL_CONFIRMATIONRECIPIENT_DESCRIPTION"
+                   label="PLG_RSFP_JDIDEAL_CONFIRMATIONRECIPIENT_LABEL"
+                   class="input-xxlarge"
+                   showon="confirmationEmail:1"/>
+
+            <field name="confirmationSubject"
+                   type="text"
+                   description="PLG_RSFP_JDIDEAL_CONFIRMATIONSUBJECT_DESCRIPTION"
+                   label="PLG_RSFP_JDIDEAL_CONFIRMATIONSUBJECT_LABEL"
+                   class="input-xxlarge"
+                   showon="confirmationEmail:1"/>
+
+            <field name="confirmationMessage"
+                   type="editor"
+                   description="PLG_RSFP_JDIDEAL_CONFIRMATIONMESSAGE_DESCRIPTION"
+                   label="PLG_RSFP_JDIDEAL_CONFIRMATIONMESSAGE_LABEL"
+                   showon="confirmationEmail:1"/>
+        </fields>
+    </fieldset>
+</form>

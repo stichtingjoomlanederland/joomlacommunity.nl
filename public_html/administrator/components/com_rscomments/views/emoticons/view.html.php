@@ -22,5 +22,13 @@ class RscommentsViewEmoticons extends JViewLegacy
 		JToolbarHelper::preferences('com_rscomments');
 		
 		JHtml::script('com_rscomments/admin.js', array('relative' => true, 'version' => 'auto'));
+		
+		$this->document->addScriptDeclaration("Joomla.submitbutton = function(task) {
+			if (task == 'emoticons.add') {
+				rsc_add_emoticon('".JURI::root()."');
+				return false;
+			}
+			Joomla.submitform(task, document.getElementById('adminForm'));
+		}");
 	}
 }

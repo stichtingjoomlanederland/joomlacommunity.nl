@@ -1,8 +1,8 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -47,7 +47,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 								<?php if (!empty($socialUrls)) { ?>
 									<?php foreach ($socialUrls as $key => $url) { ?>
 									<li>
-										<a href="<?php echo $url; ?>" class="ed-profile__bio-social-link" target="_blank" rel="nofollow">
+										<a href="<?php echo $this->html('string.escape', $url); ?>" class="ed-profile__bio-social-link" target="_blank" rel="nofollow">
 											<i class="fa fa-<?php echo $key; ?>"></i>
 											<span class="ed-profile__bio-social-txt"><?php echo ucfirst($key); ?></span>
 										</a>

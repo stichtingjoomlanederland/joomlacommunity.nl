@@ -7,12 +7,14 @@
  */
 defined('KOOWA') or die; ?>
 
-<?= helper('player.load'); ?>
+<?= helper('player.load', [
+    'download' => $document->canPerform('download')
+]); ?>
 
 <div class="docman_player">
     <div
-        data-type="<?= $service ?>"
-        data-video-id="<?= $id ?>"
+        data-plyr-provider="<?= $service ?>"
+        data-plyr-embed-id="<?= $id ?>"
         data-media-id="<?= $document->id ?>"
         data-title="<?= escape($document->title) ?>"
         data-category="docman"

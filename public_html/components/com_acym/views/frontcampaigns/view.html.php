@@ -17,6 +17,12 @@ class FrontcampaignsViewFrontcampaigns extends acymView
             'summary' => 'ACYM_SUMMARY',
         ];
 
+        $this->tabs = [
+            'campaigns' => 'ACYM_CAMPAIGNS',
+            'welcome' => 'ACYM_WELCOME_EMAILS',
+            'unsubscribe' => 'ACYM_UNSUBSCRIBE_EMAILS',
+        ];
+
         parent::__construct();
     }
 }

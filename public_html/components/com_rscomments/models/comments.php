@@ -57,20 +57,20 @@ class RscommentsModelComments extends JModelLegacy
 		$state		= (isset($permissions['publish_comments']) && $permissions['publish_comments']) || RSCommentsHelper::admin() ? '0,1' : '1';
 		$hash		= md5($this->_id.$this->_option.$state.$order);
 		
-		if (empty($levels)) {
+		if (empty($levels[$hash])) {
 			$options = array(
 				'defaultgroup' => 'com_rscomments',
 				'storage'      => $jconfig->get('cache_handler', ''),
 				'lifetime'     => 900,
 				'caching'      => true,
-				'cachebase'    => $jconfig->get('cache_path', JPATH_SITE . '/cache')
+				'cachebase'    => $jconfig->get('cache_path', JPATH_CACHE)
 			);
 
 			$cache	= JCache::getInstance('callback', $options);
-			$levels = $cache->get(array('RscommentsModelComments', 'getLevels'), array($this->_id, $this->_option, $state, $order), $hash);
+			$levels[$hash] = $cache->get(array('RscommentsModelComments', 'getLevels'), array($this->_id, $this->_option, $state, $order), $hash);
 		}
 		
-		return $levels;
+		return isset($levels[$hash]) ? $levels[$hash] : array();
 	}
 	
 	public static function getLevels($id, $option, $state, $order) {

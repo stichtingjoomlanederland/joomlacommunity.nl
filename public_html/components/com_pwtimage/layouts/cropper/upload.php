@@ -3,7 +3,7 @@
  * @package    Pwtimage
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
@@ -14,7 +14,7 @@ use Joomla\CMS\Uri\Uri;
 
 defined('_JEXEC') or die;
 
-extract($displayData);
+extract($displayData, EXTR_OVERWRITE);
 
 // Set if the image should be shown on canvas
 $direct = !isset($showTools) || (isset($showTools) && $showTools === false) ? 0 : 1;
@@ -24,7 +24,6 @@ if ($toCanvas)
 {
 	$direct = 1;
 }
-
 
 Factory::getDocument()->addScriptDeclaration(
 	<<<JS

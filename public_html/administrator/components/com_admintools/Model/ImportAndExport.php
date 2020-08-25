@@ -9,10 +9,10 @@ namespace Akeeba\AdminTools\Admin\Model;
 
 defined('_JEXEC') or die;
 
+use Exception;
 use FOF30\Input\Input;
-use FOF30\Model\DataModel;
 use FOF30\Model\Model;
-use JText;
+use Joomla\CMS\Language\Text;
 
 class ImportAndExport extends Model
 {
@@ -83,24 +83,24 @@ class ImportAndExport extends Model
 	/**
 	 * Handles settings data coming from a file upload
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function importDataFromRequest()
 	{
-		$input  = new Input('files');
-		$file   = $input->get('importfile', null, 'file', 2);
+		$input = new Input('files');
+		$file  = $input->get('importfile', null, 'file', 2);
 
 		// Sanity checks
 		if (!$file)
 		{
-			throw new \Exception(JText::_('COM_ADMINTOOLS_IMPORTANDEXPORT_NOFILE'));
+			throw new Exception(Text::_('COM_ADMINTOOLS_IMPORTANDEXPORT_NOFILE'));
 		}
 
 		$data = file_get_contents($file['tmp_name']);
 
 		if ($data === false)
 		{
-			throw new \Exception(JText::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_READING_FILE'));
+			throw new Exception(Text::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_READING_FILE'));
 		}
 
 		$this->importData($data);
@@ -109,9 +109,9 @@ class ImportAndExport extends Model
 	/**
 	 * Imports passed data inside Admin Tools
 	 *
-	 * @param string $new_settings  String in JSON format containing the new settings
+	 * @param   string  $new_settings  String in JSON format containing the new settings
 	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function importData($new_settings)
 	{
@@ -122,7 +122,7 @@ class ImportAndExport extends Model
 
 		if (!$data)
 		{
-			throw new \Exception(JText::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_READING_FILE'));
+			throw new Exception(Text::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_READING_FILE'));
 		}
 
 		// Everything seems ok, let's start importing data
@@ -142,16 +142,16 @@ class ImportAndExport extends Model
 				if ($data['wafblacklist'])
 				{
 					$insert = $db->getQuery(true)
-					             ->insert($db->qn('#__admintools_wafblacklists'))
-					             ->columns([
-						             $db->qn('option'),
-						             $db->qn('view'),
-						             $db->qn('task'),
-						             $db->qn('query'),
-						             $db->qn('query_type'),
-						             $db->qn('query_content'),
-						             $db->qn('verb')
-					             ]);
+						->insert($db->qn('#__admintools_wafblacklists'))
+						->columns([
+							$db->qn('option'),
+							$db->qn('view'),
+							$db->qn('task'),
+							$db->qn('query'),
+							$db->qn('query_type'),
+							$db->qn('query_content'),
+							$db->qn('verb'),
+						]);
 
 					// I could have several records, let's create a single big query
 					foreach ($data['wafblacklist'] as $row)
@@ -166,9 +166,9 @@ class ImportAndExport extends Model
 					$db->setQuery($insert)->execute();
 				}
 			}
-			catch (\Exception $e)
+			catch (Exception $e)
 			{
-				$errors[] = JText::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_WAFBLACKLIST');
+				$errors[] = Text::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_WAFBLACKLIST');
 			}
 		}
 
@@ -181,25 +181,25 @@ class ImportAndExport extends Model
 				if ($data['wafexceptions'])
 				{
 					$insert = $db->getQuery(true)
-					             ->insert($db->qn('#__admintools_wafexceptions'))
-					             ->columns([
-						             $db->qn('option'), $db->qn('view'), $db->qn('query')
-					             ]);
+						->insert($db->qn('#__admintools_wafexceptions'))
+						->columns([
+							$db->qn('option'), $db->qn('view'), $db->qn('query'),
+						]);
 
 					// I could have several records, let's create a single big query
 					foreach ($data['wafexceptions'] as $row)
 					{
 						$insert->values(
-							$db->q($row['option']).', '.$db->q($row['view']).', '.$db->q($row['query'])
+							$db->q($row['option']) . ', ' . $db->q($row['view']) . ', ' . $db->q($row['query'])
 						);
 					}
 
 					$db->setQuery($insert)->execute();
 				}
 			}
-			catch (\Exception $e)
+			catch (Exception $e)
 			{
-				$errors[] = JText::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_WAFEXCEPTIONS');
+				$errors[] = Text::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_WAFEXCEPTIONS');
 			}
 		}
 
@@ -220,9 +220,9 @@ class ImportAndExport extends Model
 					$this->importBlackListRows();
 				}
 			}
-			catch (\Exception $e)
+			catch (Exception $e)
 			{
-				$errors[] = JText::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_BLACKLIST');
+				$errors[] = Text::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_BLACKLIST');
 			}
 		}
 
@@ -236,8 +236,8 @@ class ImportAndExport extends Model
 				{
 					// I could have several records, let's create a single big query
 					$insert = $db->getQuery(true)
-					             ->insert($db->qn('#__admintools_adminiplist'))
-					             ->columns([$db->qn('ip'), $db->qn('description')]);
+						->insert($db->qn('#__admintools_adminiplist'))
+						->columns([$db->qn('ip'), $db->qn('description')]);
 
 					foreach ($data['ipwhitelist'] as $row)
 					{
@@ -247,9 +247,9 @@ class ImportAndExport extends Model
 					$db->setQuery($insert)->execute();
 				}
 			}
-			catch (\Exception $e)
+			catch (Exception $e)
 			{
-				$errors[] = JText::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_WHITELIST');
+				$errors[] = Text::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_WHITELIST');
 			}
 		}
 
@@ -263,8 +263,8 @@ class ImportAndExport extends Model
 				{
 					// I could have several records, let's create a single big query
 					$insert = $db->getQuery(true)
-					             ->insert($db->qn('#__admintools_badwords'))
-					             ->columns([$db->qn('word')]);
+						->insert($db->qn('#__admintools_badwords'))
+						->columns([$db->qn('word')]);
 
 					foreach ($data['badwords'] as $row)
 					{
@@ -274,9 +274,9 @@ class ImportAndExport extends Model
 					$db->setQuery($insert)->execute();
 				}
 			}
-			catch (\Exception $e)
+			catch (Exception $e)
 			{
-				$errors[] = JText::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_BADWORDS');
+				$errors[] = Text::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_BADWORDS');
 			}
 		}
 
@@ -286,9 +286,9 @@ class ImportAndExport extends Model
 			{
 				$db->truncateTable('#__admintools_waftemplates');
 			}
-			catch (\Exception $e)
+			catch (Exception $e)
 			{
-				$errors[] = JText::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_EMAILTEMPLATES');
+				$errors[] = Text::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_EMAILTEMPLATES');
 			}
 
 			/** @var WAFEmailTemplates $wafTemplate */
@@ -312,10 +312,10 @@ class ImportAndExport extends Model
 				{
 					$wafTemplate->save($row);
 				}
-				catch (\Exception $e)
+				catch (Exception $e)
 				{
 					// There was an error, better stop here
-					$errors[] = JText::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_EMAILTEMPLATES');
+					$errors[] = Text::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_EMAILTEMPLATES');
 					break;
 				}
 			}
@@ -323,38 +323,38 @@ class ImportAndExport extends Model
 
 		if ($errors)
 		{
-			throw new \Exception(implode('<br/>', $errors));
+			throw new Exception(implode('<br/>', $errors));
 		}
 	}
 
 	/**
 	 * Since we could have several thousands of records to import, we will perform a batch import
 	 *
-	 * @param null|array $data
+	 * @param   null|array  $data
 	 */
 	protected function importBlackListRows($data = null)
 	{
 		static $cache = [];
 
 		// Let's enqueue the data
-		if($data)
+		if ($data)
 		{
 			$cache[] = $data;
 		}
 
 		// Did we grow over the limit or are forced to flush it? If so let's build the actual query
 		// and execute it
-		if(count($cache) >= 100 || !$data)
+		if (count($cache) >= 100 || !$data)
 		{
 			$db = $this->container->db;
 
 			$query = $db->getQuery(true)
-						->insert($db->qn('#__admintools_ipblock'))
-						->columns([$db->qn('ip'), $db->qn('description')]);
+				->insert($db->qn('#__admintools_ipblock'))
+				->columns([$db->qn('ip'), $db->qn('description')]);
 
 			foreach ($cache as $row)
 			{
-				$query->values($db->q($row['ip']).', '.$db->q($row['description']));
+				$query->values($db->q($row['ip']) . ', ' . $db->q($row['description']));
 			}
 
 			$db->setQuery($query)->execute();

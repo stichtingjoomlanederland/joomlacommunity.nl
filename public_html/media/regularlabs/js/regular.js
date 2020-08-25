@@ -12,7 +12,7 @@
 
 if (typeof window.Regular === 'undefined'
 	|| typeof Regular.version === 'undefined'
-	|| Regular.version < 1.2) {
+	|| Regular.version < 1.3) {
 
 	window.Regular = new function() {
 		/**
@@ -21,7 +21,7 @@ if (typeof window.Regular === 'undefined'
 		 *
 		 */
 
-		this.version = 1.2;
+		this.version = 1.3;
 
 		/**
 		 *
@@ -139,17 +139,17 @@ if (typeof window.Regular === 'undefined'
 			let computedDisplay = getComputedStyle(element, 'display');
 
 			if (!('origDisplay' in element)) {
-				element.origDisplay = computedDisplay == 'none'
+				element.origDisplay = computedDisplay === 'none'
 					? getDefaultComputedStyle(element, 'display')
 					: computedDisplay;
 			}
 
-			if (computedDisplay == 'none') {
+			if (computedDisplay === 'none') {
 				element.style.display = ('origDisplay' in element) ? element.origDisplay : '';
 			}
 
 			computedDisplay = getComputedStyle(element, 'display');
-			if (computedDisplay == 'none') {
+			if (computedDisplay === 'none') {
 				element.style.display = 'block';
 			}
 
@@ -178,7 +178,7 @@ if (typeof window.Regular === 'undefined'
 
 			const computedDisplay = getComputedStyle(element, 'display');
 
-			if (computedDisplay != 'none' && !('origDisplay' in element)) {
+			if (computedDisplay !== 'none' && !('origDisplay' in element)) {
 				element.origDisplay = computedDisplay;
 			}
 
@@ -214,19 +214,26 @@ if (typeof window.Regular === 'undefined'
 			const nr_of_steps = duration / wait;
 			const change      = 1 / nr_of_steps; // time to wait before next step
 
-			if (!element.style.opacity || element.style.opacity == 1) {
+			element.style.opacity = getComputedStyle(element, 'opacity');
+
+			if (!element.style.opacity) {
 				element.style.opacity = 0;
 			}
-			if (element.style.display == 'none') {
+
+			if (element.style.display === 'none') {
 				element.style.display = 'block';
 			}
 
+			element.style.visibility = 'visible';
+
 			(function fade() {
-				if (element.getAttribute('data-fading') == 'out') {
+				if (element.getAttribute('data-fading') === 'out') {
 					return;
 				}
-				element.style.opacity = parseFloat(element.style.opacity) + change;
-				if (element.style.opacity >= 1) {
+
+				const new_opacity = parseFloat(element.style.opacity) + change;
+
+				if (new_opacity >= 1) {
 					$.show(element);
 					element.setAttribute('data-fading', '');
 					if (oncomplete) {
@@ -234,6 +241,9 @@ if (typeof window.Regular === 'undefined'
 					}
 					return;
 				}
+
+				element.style.opacity = new_opacity;
+
 				setTimeout(function() {
 					fade.call();
 				}, wait);
@@ -248,7 +258,7 @@ if (typeof window.Regular === 'undefined'
 		 * @param oncomplete  Optional callback function to execute when effect is completed.
 		 */
 		this.fadeOut = function(selector, duration = 250, oncomplete) {
-			if (!selector()) {
+			if (!selector) {
 				return;
 			}
 
@@ -267,15 +277,15 @@ if (typeof window.Regular === 'undefined'
 			const nr_of_steps = duration / wait;
 			const change      = 1 / nr_of_steps; // time to wait before next step
 
-			if (!element.style.opacity || element.style.opacity == 0) {
-				element.style.opacity = 1;
-			}
+			element.style.opacity = getComputedStyle(element, 'opacity');
 
 			(function fade() {
-				if (element.getAttribute('data-fading') == 'in') {
+				if (element.getAttribute('data-fading') === 'in') {
 					return;
 				}
-				element.style.opacity = parseFloat(element.style.opacity) - change;
+
+				const new_opacity = parseFloat(element.style.opacity) - change;
+
 				if (element.style.opacity <= 0) {
 					$.hide(element);
 					element.setAttribute('data-fading', '');
@@ -284,6 +294,9 @@ if (typeof window.Regular === 'undefined'
 					}
 					return;
 				}
+
+				element.style.opacity = new_opacity;
+
 				setTimeout(function() {
 					fade.call();
 				}, wait);
@@ -296,11 +309,7 @@ if (typeof window.Regular === 'undefined'
 		 * @param func  Callback function to execute when document is ready.
 		 */
 		this.onReady = function(func) {
-			/in/.test(document.readyState)
-				? setTimeout(() => {
-					Regular.onReady(func);
-				}, 9)
-				: func.call();
+			document.addEventListener('DOMContentLoaded', func);
 		};
 
 		/**
@@ -330,11 +339,11 @@ if (typeof window.Regular === 'undefined'
 			request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
 			request.onreadystatechange = function() {
-				if (this.readyState != 4) {
+				if (this.readyState !== 4) {
 					return;
 				}
 
-				if (this.status == 200) {
+				if (this.status === 200) {
 					success && success.call(null, this.responseText, this.status, this);
 					return;
 				}

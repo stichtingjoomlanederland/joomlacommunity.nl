@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<form>
+	<field name="user_email"
+		type="email"
+		label="COM_ROPAYMENTS_USER_EMAIL"
+		required="true" />
+
+	<field name="amount"
+		type="text"
+		label="COM_ROPAYMENTS_AMOUNT"
+		required="true" />
+
+	<field name="remark"
+		type="textarea"
+		label="COM_ROPAYMENTS_REMARK"
+		required="true"
+		cols="10"
+		rows="5" />
+
+	<field name="order_number"
+		   type="text"
+			readonly="true"
+			label="COM_ROPAYMENTS_PAY_ORDER_NUMBER"/>
+</form>

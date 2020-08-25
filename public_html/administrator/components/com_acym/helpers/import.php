@@ -121,9 +121,24 @@ class acymimportHelper extends acymObject
             acym_enqueueMessage(acym_translation_sprintf('ACYM_IMPORT_DELETE', $deletedUsers), 'success');
         }
 
-
         $time = time();
-        $query = 'INSERT IGNORE INTO #__acym_user (`name`,`email`,`creation_date`,`active`,`cms_id`, `source`) SELECT `'.$this->cmsUserVars->name.'`,`'.$this->cmsUserVars->email.'`,`'.$this->cmsUserVars->registered.'`,1 - '.$this->cmsUserVars->blocked.',`'.$this->cmsUserVars->id.'`,\'import_'.$time.'\' FROM '.$this->cmsUserVars->table;
+        $formattedTime = acym_date($time, 'Y-m-d H:i:s');
+        $query = 'INSERT IGNORE INTO #__acym_user (`name`,`email`,`creation_date`,`active`,`cms_id`, `source`) SELECT `user`.`'.$this->cmsUserVars->name.'`,`user`.`'.$this->cmsUserVars->email.'`,`user`.`'.$this->cmsUserVars->registered.'`,1 - `user`.'.$this->cmsUserVars->blocked.',`user`.`'.$this->cmsUserVars->id.'`,\'Import on '.$formattedTime.'\' FROM '.$this->cmsUserVars->table.' AS `user` ';
+        $groups = acym_getVar('array', 'groups', []);
+        $this->config->save(['import_groups' => implode(',', $groups)]);
+        if (!empty($groups)) {
+            if (ACYM_CMS === 'joomla') {
+                acym_arrayToInteger($groups);
+                $query .= ' JOIN #__user_usergroup_map AS `map` ON map.user_id = `user`.`'.$this->cmsUserVars->id.'` WHERE `map`.`group_id` IN ('.implode(', ', $groups).')';
+            } else {
+                $query .= ' JOIN #__usermeta AS `meta` ON meta.user_id = `user`.`'.$this->cmsUserVars->id.'` AND `meta`.`meta_key` = "#__capabilities"';
+                foreach ($groups as $i => $oneGroup) {
+                    $groups[$i] = acym_escapeDB('%'.strlen($oneGroup).':"'.$oneGroup.'"%');
+                }
+                $query .= ' WHERE `meta`.`meta_value` LIKE ('.implode(' OR `meta`.`meta_value` LIKE ', $groups).')';
+            }
+        }
+
         $insertedUsers = acym_query($query);
 
         acym_query('UPDATE #__acym_configuration SET `value` = '.intval($time).' WHERE `name` = \'last_import\'');
@@ -145,10 +160,25 @@ class acymimportHelper extends acymObject
         }
 
         $query = 'INSERT IGNORE INTO #__acym_user_has_list (`user_id`,`list_id`,`status`,`subscription_date`) ';
-        $query .= 'SELECT user.`id`, list.`id`, 1, '.acym_escapeDB(date('Y-m-d H:i:s', time())).' FROM #__acym_list AS list, #__acym_user AS user WHERE list.`id` IN ('.implode(',', $listsSubscribe).') AND user.`cms_id` > 0';
+        $query .= 'SELECT user.`id`, list.`id`, 1, '.acym_escapeDB(date('Y-m-d H:i:s', time())).' 
+                    FROM #__acym_list AS list, #__acym_user AS user ';
+        $conditions = [];
+        $conditions[] = 'list.`id` IN ('.implode(',', $listsSubscribe).')';
+        $conditions[] = 'user.`cms_id` > 0';
+
+        if (!empty($groups)) {
+            if (ACYM_CMS === 'joomla') {
+                $query .= ' JOIN #__user_usergroup_map AS `map` ON map.user_id = `user`.`cms_id`';
+                $conditions[] = '`map`.`group_id` IN ('.implode(', ', $groups).')';
+            } else {
+                $query .= ' JOIN #__usermeta AS `meta` ON meta.user_id = `user`.`cms_id` AND `meta`.`meta_key` = "#__capabilities"';
+                $conditions[] = '`meta`.`meta_value` LIKE ('.implode(' OR `meta`.`meta_value` LIKE ', $groups).')';
+            }
+        }
+
+        $query .= ' WHERE '.implode(' AND ', $conditions);
         $nbsubscribed = acym_query($query);
         acym_enqueueMessage(acym_translation_sprintf('ACYM_IMPORT_SUBSCRIPTION', $nbsubscribed));
-
 
         return true;
     }
@@ -159,6 +189,7 @@ class acymimportHelper extends acymObject
 
         $table = trim(acym_getVar('string', 'tablename'));
         $time = time();
+        $formattedTime = acym_date($time, 'Y-m-d H:i:s');
 
         if (empty($table)) {
             acym_enqueueMessage(acym_translation('ACYM_SPECIFYTABLE'), 'warning');
@@ -203,7 +234,7 @@ class acymimportHelper extends acymObject
             $select['`confirmed`'] = 1;
         }
 
-        $select['`source`'] = acym_escapeDB("import_".$time);
+        $select['`source`'] = acym_escapeDB('Import on '.$formattedTime);
 
         $query = 'INSERT IGNORE INTO #__acym_user ('.implode(' , ', array_keys($select)).') SELECT '.implode(' , ', $select).' FROM '.acym_secureDBColumn($table).' WHERE '.acym_secureDBColumn($select['`email`']).' LIKE "%@%"';
         if (!empty($this->dbwhere)) {
@@ -231,7 +262,7 @@ class acymimportHelper extends acymObject
         }
 
         $query = 'INSERT IGNORE INTO #__acym_user_has_list (`user_id`,`list_id`,`status`,`subscription_date`) ';
-        $query .= 'SELECT user.`id`, list.`id`, 1, '.acym_escapeDB(date('Y-m-d H:i:s', time())).' FROM #__acym_list AS list, #__acym_user AS user WHERE list.`id` IN ('.implode(',', $listsSubscribe).') AND user.`source` LIKE "%'.$time.'%"';
+        $query .= 'SELECT user.`id`, list.`id`, 1, '.acym_escapeDB(date('Y-m-d H:i:s', time())).' FROM #__acym_list AS list, #__acym_user AS user WHERE list.`id` IN ('.implode(',', $listsSubscribe).') AND user.`source` LIKE "%'.$formattedTime.'%"';
         $nbsubscribed = acym_query($query);
         acym_enqueueMessage(acym_translation_sprintf('ACYM_IMPORT_SUBSCRIPTION', $nbsubscribed));
 
@@ -712,7 +743,7 @@ class acymimportHelper extends acymObject
         }
 
         if (empty($user->source)) {
-            $user->source = 'import_'.$timestamp;
+            $user->source = 'Import on '.acym_date($timestamp, 'Y-m-d H:i:s');
         }
 
         if (empty($user->name) && $this->generatename) {
@@ -924,6 +955,29 @@ class acymimportHelper extends acymObject
         }
 
         return true;
+    }
+
+    public function additionalDataUsersImport($isGeneric)
+    {
+        $buttonAddListId = $isGeneric ? 'acym__users__generic__import__create-list__button' : 'acym__users__import__create-list__button';
+        $buttonImportClass = $isGeneric ? 'acym__users__import__generic__import__button' : 'acym__users__import__button';
+        $buttonSkipId = $isGeneric ? 'acym__users__generic__import__skip__button' : 'acym__users__import__skip__button';
+        $buttonImportDataTask = $isGeneric ? 'listing' : '';
+
+        return '<div class="cell align-right grid-x margin-bottom-2">
+                    <div id="acym__users__import__create-list" class="grid-x" style="display: none;">
+                        <label for="acym__users__import__create-list__field" class="margin-right-1 acym_vcenter">'.acym_translation('ACYM_LIST_NAME').' : </label>
+                        <div>
+                            <input id="acym__users__import__create-list__field" type="text" class="acym__light__input">
+                        </div>
+                    </div>
+                    <button type="button" class="button button-secondary margin-left-1 acym_vcenter margin-right-2" id="'.$buttonAddListId.'">'.acym_translation('ACYM_CREATE_NEW_LIST').'</button>
+                    <i style="display: none;" class="acym_vcenter acymicon-circle-o-notch acymicon-spin" id="acym__users__import__create-list__loading-logo"></i>
+                </div>
+                <div class="cell align-right grid-x">
+                    <button type="button" class="button-secondary button cell shrink margin-right-1" id="'.$buttonSkipId.'">'.acym_translation('ACYM_SKIP').'</button>
+                    <button type="button" class="button-primary button acy_button_submit cell shrink '.$buttonImportClass.'" id="acym__entity_select__button__submit" data-task="'.$buttonImportDataTask.'">'.acym_translation('ACYM_SUBSCRIBE_USERS_TO_THESE_LISTS').'</button>
+                </div>';
     }
 }
 

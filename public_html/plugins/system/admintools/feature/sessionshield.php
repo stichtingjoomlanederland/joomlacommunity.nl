@@ -36,19 +36,19 @@ class AtsystemFeatureSessionshield extends AtsystemFeatureAbstract
 	 */
 	public function onAfterInitialise()
 	{
-		$patterns = array(
+		$patterns = [
 			// pipe or :, O, :	integer : " identifier " : integer : {
 			'@[\|:]O:\d{1,}:"[\w_][\w\d_]{0,}":\d{1,}:{@i',
 			// pipe or :, a, :	integer :{
 			'@[\|:]a:\d{1,}:{@i',
-		);
+		];
 
-		$hashes = array('get', 'post');
+		$hashes = ['get', 'post'];
 
 		foreach ($hashes as $hash)
 		{
 			$input = $this->input->$hash;
-			$ref = new ReflectionProperty($input, 'data');
+			$ref   = new ReflectionProperty($input, 'data');
 			$ref->setAccessible(true);
 			$allVars = $ref->getValue($input);
 
@@ -70,4 +70,4 @@ class AtsystemFeatureSessionshield extends AtsystemFeatureAbstract
 			}
 		}
 	}
-} 
+}

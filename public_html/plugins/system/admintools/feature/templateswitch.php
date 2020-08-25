@@ -5,13 +5,16 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Factory;
+use Joomla\CMS\Filesystem\Folder;
+
 defined('_JEXEC') or die;
 
 class AtsystemFeatureTemplateswitch extends AtsystemFeatureAbstract
 {
-	protected $loadOrder = 400;
-
 	private static $siteTemplates = null;
+
+	protected $loadOrder = 400;
 
 	/**
 	 * Is this feature enabled?
@@ -35,8 +38,7 @@ class AtsystemFeatureTemplateswitch extends AtsystemFeatureAbstract
 			return false;
 		}
 
-		JLoader::import('joomla.filesystem.folder');
-		self::$siteTemplates = JFolder::folders(JPATH_SITE . '/templates');
+		self::$siteTemplates = Folder::folders(JPATH_SITE . '/templates');
 
 		return true;
 	}
@@ -46,8 +48,8 @@ class AtsystemFeatureTemplateswitch extends AtsystemFeatureAbstract
 	 */
 	public function onAfterInitialise()
 	{
-		$template = JFactory::getApplication()->input->getCmd('template', null);
-		$block = true;
+		$template = Factory::getApplication()->input->getCmd('template', null);
+		$block    = true;
 
 		if (!empty($template))
 		{
@@ -74,4 +76,4 @@ class AtsystemFeatureTemplateswitch extends AtsystemFeatureAbstract
 			}
 		}
 	}
-} 
+}

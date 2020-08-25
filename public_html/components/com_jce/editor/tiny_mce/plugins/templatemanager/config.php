@@ -40,21 +40,39 @@ class WFTemplateManagerPluginConfig
 
             if (!empty($templates)) {
                 foreach ($templates as $template) {
-                    extract($template);
+                    $value      = "";
+                    $thumbnail  = "";
 
-                    $value = "";
+                    extract($template);
 
                     if (!empty($url)) {
                         if (preg_match("#\.(htm|html|txt)$#", $url) && strpos('://', $url) === false) {
-                            if (is_file(JPATH_SITE . '/' . trim($url, '/'))) {
-                                $value = JURI::root() . '/' . trim($url, '/');
+                            $url = trim($url, '/');
+                            
+                            $file = JPATH_SITE . '/' . $url;
+                            
+                            if (is_file($file)) {
+                                $value = JURI::root() . $url;
+
+                                $filename = WFUtility::stripExtension($url);
+
+                                if (!$thumbnail && is_file(JPATH_SITE . '/' . $filename . '.jpg')) {
+                                    $thumbnail = $filename . '.jpg';
+                                }
                             }
                         }
                     } else if (!empty($html)) {
                         $value = htmlspecialchars_decode($html);
                     }
 
-                    $list[$name] = $value;
+                    if ($thumbnail) {
+                        $thumbnail = JURI::root(true) . '/' . $thumbnail;
+                    }
+
+                    $list[$name] = array(
+                        'data'  => $value,
+                        'image' => $thumbnail
+                    );
                 }
             } else {
                 $list = $plugin->getTemplateList();

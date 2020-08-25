@@ -12,9 +12,8 @@ use Akeeba\AdminTools\Admin\Helper\ServerTechnology;
 use Akeeba\AdminTools\Admin\Helper\Storage;
 use FOF30\Container\Container;
 use FOF30\Model\Model;
-use JFile;
-use JLoader;
-use JUri;
+use Joomla\CMS\Filesystem\File;
+use Joomla\CMS\Uri\Uri;
 
 defined('_JEXEC') or die();
 
@@ -92,7 +91,7 @@ abstract class ServerConfigMaker extends Model
 	{
 		parent::__construct($container, $config);
 
-		$myURI = JUri::getInstance();
+		$myURI = Uri::getInstance();
 		$path  = $myURI->getPath();
 
 		$path_parts = explode('/', $path);
@@ -118,7 +117,7 @@ abstract class ServerConfigMaker extends Model
 			$this->defaultConfig['rewritebase'] = $path;
 		}
 
-		$this->defaultConfig = (object)$this->defaultConfig;
+		$this->defaultConfig = (object) $this->defaultConfig;
 	}
 
 	public function getConfigFileName()
@@ -135,7 +134,7 @@ abstract class ServerConfigMaker extends Model
 	{
 		if (is_null($this->config))
 		{
-			$params = Storage::getInstance();
+			$params      = Storage::getInstance();
 			$savedConfig = $params->getValue($this->configKey, '');
 
 			if (!empty($savedConfig))
@@ -149,7 +148,7 @@ abstract class ServerConfigMaker extends Model
 			}
 			else
 			{
-				$savedConfig = array();
+				$savedConfig = [];
 			}
 
 			$config = $this->defaultConfig;
@@ -197,17 +196,17 @@ abstract class ServerConfigMaker extends Model
 					if (in_array($key, $okeys))
 					{
 						// Clean up array types coming from textareas
-						if (in_array($key, array(
+						if (in_array($key, [
 							'hoggeragents', 'bepexdirs',
 							'bepextypes', 'fepexdirs', 'fepextypes',
 							'exceptionfiles', 'exceptionfolders', 'exceptiondirs', 'fullaccessdirs',
-							'httpsurls'
-						))
+							'httpsurls',
+						])
 						)
 						{
 							if (empty($value))
 							{
-								$value = array();
+								$value = [];
 							}
 							else
 							{
@@ -216,7 +215,7 @@ abstract class ServerConfigMaker extends Model
 
 								if (!empty($value))
 								{
-									$ret = array();
+									$ret = [];
 
 									foreach ($value as $v)
 									{
@@ -234,7 +233,7 @@ abstract class ServerConfigMaker extends Model
 									}
 									else
 									{
-										$value = array();
+										$value = [];
 									}
 								}
 							}
@@ -247,7 +246,7 @@ abstract class ServerConfigMaker extends Model
 		}
 
 		// Make sure nobody tried to add the php extension to the list of allowed extension
-		$disallowedExtensions = array('php', 'phP', 'pHp', 'pHP', 'Php', 'PhP', 'PHp', 'PHP');
+		$disallowedExtensions = ['php', 'phP', 'pHp', 'pHP', 'Php', 'PhP', 'PHp', 'PHP'];
 
 		foreach ($disallowedExtensions as $ext)
 		{
@@ -255,14 +254,14 @@ abstract class ServerConfigMaker extends Model
 
 			if ($pos !== false)
 			{
-				unset($config->bepextypes[ $pos ]);
+				unset($config->bepextypes[$pos]);
 			}
 
 			$pos = array_search($ext, $config->fepextypes);
 
 			if ($pos !== false)
 			{
-				unset($config->fepextypes[ $pos ]);
+				unset($config->fepextypes[$pos]);
 			}
 		}
 
@@ -300,8 +299,6 @@ abstract class ServerConfigMaker extends Model
 		// Make sure we are called by an expected caller
 		ServerTechnology::checkCaller($this->allowedCallersForWrite);
 
-		JLoader::import('joomla.filesystem.file');
-
 		$htaccessPath = JPATH_ROOT . '/' . $this->configFileName;
 		$backupPath   = JPATH_ROOT . '/' . $this->configFileName . '.admintools';
 
@@ -309,7 +306,7 @@ abstract class ServerConfigMaker extends Model
 		{
 			if (!@copy($htaccessPath, $backupPath))
 			{
-				JFile::copy(basename($htaccessPath), basename($backupPath), JPATH_ROOT);
+				File::copy(basename($htaccessPath), basename($backupPath), JPATH_ROOT);
 			}
 		}
 
@@ -329,14 +326,14 @@ abstract class ServerConfigMaker extends Model
 
 		$info = [
 			'technology' => $this->getName(),
-			'contents'   => md5($configFileContents)
+			'contents'   => md5($configFileContents),
 		];
 
 		$storage->setValue('configInfo', $info, true);
 
 		if (!@file_put_contents($htaccessPath, $configFileContents))
 		{
-			return JFile::write($htaccessPath, $configFileContents);
+			return File::write($htaccessPath, $configFileContents);
 		}
 
 		return true;
@@ -374,13 +371,13 @@ abstract class ServerConfigMaker extends Model
 		}
 
 		// Got www site and a redirect from www to non-www, that's wrong
-		if ((stripos($live_site, 'www.') === 0) && ($config->wwwredir === 2) )
+		if ((stripos($live_site, 'www.') === 0) && ($config->wwwredir === 2))
 		{
 			return false;
 		}
 
 		// Got non-www site and a redirect from non-www to www, that's wrong
-		if ((stripos($live_site, 'www.') === false) && ($config->wwwredir === 1) )
+		if ((stripos($live_site, 'www.') === false) && ($config->wwwredir === 1))
 		{
 			return false;
 		}
@@ -402,16 +399,16 @@ abstract class ServerConfigMaker extends Model
 		// \ ^ . $ | ( ) [ ]
 		// * + ? { } , -
 
-		$patterns = array(
+		$patterns = [
 			'/\//', '/\^/', '/\./', '/\$/', '/\|/',
 			'/\(/', '/\)/', '/\[/', '/\]/', '/\*/', '/\+/',
-			'/\?/', '/\{/', '/\}/', '/\,/', '/\-/'
-		);
+			'/\?/', '/\{/', '/\}/', '/\,/', '/\-/',
+		];
 
-		$replace = array(
+		$replace = [
 			'\/', '\^', '\.', '\$', '\|', '\(', '\)',
-			'\[', '\]', '\*', '\+', '\?', '\{', '\}', '\,', '\-'
-		);
+			'\[', '\]', '\*', '\+', '\?', '\{', '\}', '\,', '\-',
+		];
 
 		return preg_replace($patterns, $replace, $str);
 	}

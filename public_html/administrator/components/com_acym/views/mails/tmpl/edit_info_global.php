@@ -20,20 +20,59 @@ defined('_JEXEC') or die('Restricted access');
             $data['allTags'],
             'template_tags',
             $data['mail']->tags,
-            ['id' => 'acym__tags__field', 'placeholder' => acym_translation('ACYM_ADD_TAGS')],
+            [
+                'id' => 'acym__tags__field',
+                'placeholder' => acym_translation('ACYM_ADD_TAGS'),
+            ],
             'name',
             'name'
         );
         ?>
 	</label>
 </div>
-<?php if ($data['mail']->type !== 'standard' && !empty($data['langChoice'])) { ?>
+<div class="cell shrink"></div>
+
+<?php
+if ($data['mail']->type === 'standard') {
+    if (acym_level(2) && ACYM_CMS === 'joomla') {
+        ?>
+		<div class="cell xlarge-3 medium-6">
+			<label class="cell">
+                <?php
+                echo acym_translation('ACYM_TEMPLATE_ACCESS');
+                echo acym_info('ACYM_TEMPLATE_ACCESS_DESC');
+                echo acym_selectMultiple(
+                    acym_getGroups(),
+                    'mail[access]',
+                    $data['mail']->access,
+                    [
+                        'class' => 'acym__select',
+                    ]
+                );
+                ?>
+			</label>
+		</div>
+        <?php
+    }
+} elseif (!empty($data['langChoice'])) {
+    ?>
 	<div class="cell xlarge-3 medium-6">
 		<label class="cell">
             <?php
             echo acym_translation('ACYM_EMAIL_LANGUAGE');
             echo acym_info('ACYM_EMAIL_LANGUAGE_DESC');
             echo $data['langChoice'];
+            ?>
+		</label>
+	</div>
+<?php } ?>
+
+<?php if (!empty($data['lists'])) { ?>
+	<div class="cell xlarge-3 medium-6">
+		<label>
+            <?php
+            echo acym_translation('ACYM_SELECT_ONE_OR_MORE_LIST');
+            echo acym_selectMultiple($data['lists'], 'list_ids', $data['list_id'], ['class' => 'acym__select']);
             ?>
 		</label>
 	</div>
@@ -67,12 +106,16 @@ defined('_JEXEC') or die('Restricted access');
                         ?>
 					</label>
 				</div>
-				<textarea name="editor_stylesheet" id="acym__mail__edit__html__stylesheet" cols="30" rows="15" type="text"><?php echo $stylesheet; ?></textarea>
+				<textarea class="acym__blue" name="editor_stylesheet" id="acym__mail__edit__html__stylesheet" cols="30" rows="15" type="text"><?php echo $stylesheet; ?></textarea>
 			</div>
 
 			<div class="cell medium-auto">
-				<label for="acym__mail__edit__custom__header"><?php echo acym_translation('ACYM_CUSTOM_HEADERS'); ?></label>
-				<textarea id="acym__mail__edit__custom__header" name="editor_headers" cols="30" rows="15" type="text"><?php echo acym_escape($data['mail']->headers); ?></textarea>
+				<label for="acym__mail__edit__custom__header"><?php
+                    echo acym_translation('ACYM_CUSTOM_HEADERS');
+                    echo acym_info(acym_translation('ACYM_EMAIL_CUSTOM_HEADERS_DESC'));
+                    ?>
+				</label>
+				<textarea class="acym__blue" id="acym__mail__edit__custom__header" name="editor_headers" cols="30" rows="15" type="text"><?php echo acym_escape($data['mail']->headers); ?></textarea>
 			</div>
 		</div>
 	</div>

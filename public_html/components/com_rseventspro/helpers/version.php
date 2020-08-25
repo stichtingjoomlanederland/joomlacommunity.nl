@@ -1,14 +1,14 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
 defined('_JEXEC') or die('Restricted access');
 
 class RSEventsProVersion {
-	public $version  = '1.12.15';
+	public $version  = '1.13.1';
 	public $key		 = 'EV8PR413H1';
 	// Unused
 	public $revision = null;

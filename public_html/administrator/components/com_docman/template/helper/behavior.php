@@ -394,7 +394,7 @@ class ComDocmanTemplateHelperBehavior extends ComKoowaTemplateHelperBehavior
                 'image_container'      => 'docman-images',
                 'image_folder'         => 'root://joomlatools-files/docman-images/',
                 'links' => [
-                    'web'    => 'https://static.api.joomlatools.com/image/',
+                    'web'    => 'https://connect.joomlatools.com/image-picker/',
                     'custom' => (string)$this->getTemplate()->route('option=com_docman&view=files&layout=select&types[]=image', false, false),
                     'save_web_image' => (string)$this->getTemplate()->route('option=com_docman&view=file&format=json&routed=1', false, false),
                     'preview_automatic_image' => (string)$this->getTemplate()->route('option=com_docman&view=file&container=docman-files&routed=1', false, false)

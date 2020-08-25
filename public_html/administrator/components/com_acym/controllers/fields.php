@@ -12,20 +12,31 @@ class FieldsController extends acymController
 
     public function listing()
     {
+        $data = [];
         if (acym_level(2)) {
             acym_setVar('layout', 'listing');
-            $data = [];
             $fieldClass = acym_get('class.field');
             $fieldsElements = $fieldClass->getMatchingElements();
 
             $data['allFields'] = $fieldsElements['elements'];
+            $this->prepareToolbar($data);
 
             return parent::display($data);
         }
 
         if (!acym_level(2)) {
-            acym_redirect(acym_completeLink('dashboard&task=upgrade&version=enterprise', false, true));
+            acym_setVar('layout', 'splashscreen');
         }
+
+        return parent::display($data);
+    }
+
+    protected function prepareToolbar(&$data)
+    {
+        $toolbarHelper = acym_get('helper.toolbar');
+        $toolbarHelper->addButton(acym_translation('ACYM_CREATE'), ['data-task' => 'edit'], 'add', true);
+
+        $data['toolbar'] = $toolbarHelper;
     }
 
     public function edit()
@@ -47,7 +58,7 @@ class FieldsController extends acymController
             $field->backend_edition = 1;
             $field->backend_listing = 0;
             $field->frontend_edition = 1;
-            $field->frontend_listing = 1;
+            $field->frontend_listing = 0;
             $field->access = 1;
             $field->fieldDB = new stdClass();
         } else {
@@ -182,6 +193,7 @@ class FieldsController extends acymController
                 $i++;
             }
         }
+        $field['name'] = strip_tags($field['name'], '<i><b><strong>');
 
         $field['namekey'] = empty($field['namekey']) ? $fieldClass->generateNamekey($field['name']) : $field['namekey'];
         $field['option']['format'] = ($field['type'] == 'date' && empty($field['option']['format'])) ? '%d%m%y' : strtolower($field['option']['format']);
@@ -208,7 +220,7 @@ class FieldsController extends acymController
         $newField->backend_listing = $field['backend_listing'];
         $newField->access = 'all';
         if (empty($id)) {
-            $newField->ordering = $fieldClass->getOrdering()->ordering_number + 1;
+            $newField->ordering = $fieldClass->getOrdering() + 1;
         } else {
             $newField->id = $id;
         }

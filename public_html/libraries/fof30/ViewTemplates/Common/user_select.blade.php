@@ -5,6 +5,8 @@
  * @license     GNU GPL version 3 or later
  */
 
+defined('_JEXEC') || die;
+
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Uri\Uri;
 

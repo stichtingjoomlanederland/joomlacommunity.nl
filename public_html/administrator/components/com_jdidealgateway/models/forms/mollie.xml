@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fieldset name="mollie">
+
+        <field name="psp-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_PSP"/>
+
+        <field name="partner_id"
+               type="text"
+               label="COM_ROPAYMENTS_MOLLIE_PARTNER_ID_LABEL"
+               description="COM_ROPAYMENTS_MOLLIE_PARTNER_ID_DESC"
+               required="true"
+               size="25"
+               labelclass="config"/>
+
+        <field name="profile_key"
+               type="text"
+               label="COM_ROPAYMENTS_MOLLIE_PROFILE_KEY_LABEL"
+               description="COM_ROPAYMENTS_MOLLIE_PROFILE_KEY_DESC"
+               required="true"
+               class="input-xxlarge"
+               labelclass="config"/>
+
+        <field name="description"
+               type="text"
+               label="COM_ROPAYMENTS_MOLLIE_DESCRIPTION_LABEL"
+               description="COM_ROPAYMENTS_MOLLIE_DESCRIPTION_DESC"
+               class="input-xxlarge"
+               required="true"
+               size="30"
+               labelclass="config"/>
+
+        <field name="redirect"
+               type="jdideal.waitoptions"
+               label="COM_ROPAYMENTS_WAIT_TIME_MOLLIE_LABEL"
+               description="COM_ROPAYMENTS_WAIT_TIME_MOLLIE_DESC"
+               required="true"
+               size="1"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="payment"
+               type="list"
+               label="COM_ROPAYMENTS_MOLLIE_PAYMENT_LABEL"
+               description="COM_ROPAYMENTS_MOLLIE_PAYMENT_DESC"
+               required="true"
+               default="all"
+               multiple="true"
+               labelclass="config"
+               class="advancedSelect"
+               size="7">
+            <option value="all">COM_ROPAYMENTS_ALL</option>
+            <option value="ideal">COM_JDIDEALGATWAY_PAYMENT_METHOD_IDEAL</option>
+            <option value="creditcard">COM_JDIDEALGATWAY_PAYMENT_METHOD_CREDITCARD</option>
+            <option value="bancontact">COM_JDIDEALGATWAY_PAYMENT_METHOD_BANCONTACT</option>
+            <option value="sofort">COM_JDIDEALGATWAY_PAYMENT_METHOD_SOFORT</option>
+            <option value="paypal">COM_JDIDEALGATWAY_PAYMENT_METHOD_PAYPAL</option>
+            <option value="paysafecard">COM_JDIDEALGATWAY_PAYMENT_METHOD_PAYSAFECARD</option>
+            <option value="banktransfer">COM_JDIDEALGATWAY_PAYMENT_METHOD_BANKTRANSFER</option>
+            <option value="kbc">COM_JDIDEALGATWAY_PAYMENT_METHOD_KBCCBC</option>
+            <option value="belfius">COM_JDIDEALGATWAY_PAYMENT_METHOD_BELFIUS</option>
+            <option value="giftcard">COM_JDIDEALGATWAY_PAYMENT_METHOD_GIFTCARD</option>
+            <option value="inghomepay">COM_JDIDEALGATWAY_PAYMENT_METHOD_INGHOMEPAY</option>
+            <option value="eps">COM_JDIDEALGATWAY_PAYMENT_METHOD_EPS</option>
+            <option value="giropay">COM_JDIDEALGATWAY_PAYMENT_METHOD_GIROPAY</option>
+            <option value="przelewy24">COM_JDIDEALGATWAY_PAYMENT_METHOD_PRZELEWY24</option>
+            <option value="applepay">COM_JDIDEALGATWAY_PAYMENT_METHOD_APPLEPAY</option>
+        </field>
+
+        <field name="subpayment"
+               type="radio"
+               label="COM_ROPAYMENTS_MOLLIE_SUBPAYMENT_LABEL"
+               description="COM_ROPAYMENTS_MOLLIE_SUBPAYMENT_DESC"
+               required="true"
+               default="1"
+               class="btn-group btn-group-yesno"
+               labelclass="config">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+
+        <field name="languageMap"
+               type="subform"
+               label="COM_ROPAYMENTS_MOLLIE_LANGUAGEMAP_LABEL"
+               description="COM_ROPAYMENTS_MOLLIE_LANGUAGEMAP_DESC"
+               labelclass="config"
+                multiple="true"
+               layout="joomla.form.field.subform.repeatable-table">
+            <form>
+                <field
+                        name="joomlaLanguage"
+                        type="language"
+                        label="COM_ROPAYMENTS_MOLLIE_JOOMLALANGUAGE_LABEL"
+                        class="advancedSelect"
+                />
+                <field
+                        name="mollieLanguage"
+                        type="list"
+                        label="COM_ROPAYMENTS_MOLLIE_MOLLIELANGUAGE_LABEL"
+                        class="advancedSelect"
+                >
+                    <option value="en_US">en_US</option>
+                    <option value="nl_NL">nl_NL</option>
+                    <option value="nl_BE">nl_BE</option>
+                    <option value="fr_FR">fr_FR</option>
+                    <option value="fr_BE">fr_BE</option>
+                    <option value="de_DE">de_DE</option>
+                    <option value="de_AT">de_AT</option>
+                    <option value="de_CH">de_CH</option>
+                    <option value="es_ES">es_ES</option>
+                    <option value="ca_ES">ca_ES</option>
+                    <option value="pt_PT">pt_PT</option>
+                    <option value="it_IT">it_IT</option>
+                    <option value="nb_NO">nb_NO</option>
+                    <option value="sv_SE">sv_SE</option>
+                    <option value="fi_FI">fi_FI</option>
+                    <option value="da_DK">da_DK</option>
+                    <option value="is_IS">is_IS</option>
+                    <option value="hu_HU">hu_HU</option>
+                    <option value="pl_PL">pl_PL</option>
+                    <option value="lv_LV">lv_LV</option>
+                    <option value="lt_LT">lt_LT</option>
+                </field>
+            </form>
+        </field>
+
+
+        <field name="status-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_STATUS"/>
+
+        <field name="pendingStatus"
+               type="jdideal.extensionstatus"
+               label="COM_ROPAYMENTS_STATUS_PENDING_LABEL"
+               description="COM_ROPAYMENTS_STATUS_PENDING_DESC"
+               required="false"
+               size="1"
+               default="P"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="verifiedStatus"
+               type="jdideal.extensionstatus"
+               label="COM_ROPAYMENTS_STATUS_SUCCESS_LABEL"
+               description="COM_ROPAYMENTS_STATUS_SUCCESS_DESC"
+               required="false"
+               size="1"
+               default="C"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="cancelledStatus"
+               type="jdideal.extensionstatus"
+               label="COM_ROPAYMENTS_STATUS_CANCELLED_LABEL"
+               description="COM_ROPAYMENTS_STATUS_CANCELLED_DESC"
+               required="false"
+               size="1"
+               default="X"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="failureStatus"
+               type="jdideal.extensionstatus"
+               label="COM_ROPAYMENTS_STATUS_FAILED_LABEL"
+               description="COM_ROPAYMENTS_STATUS_FAILED_DESC"
+               required="false"
+               size="1"
+               default="F"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="expiredStatus"
+               type="jdideal.extensionstatus"
+               label="COM_ROPAYMENTS_STATUS_EXPIRED_LABEL"
+               description="COM_ROPAYMENTS_STATUS_EXPIRED_DESC"
+               required="false"
+               size="1"
+               default="E"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="refundStatus"
+               type="jdideal.extensionstatus"
+               label="COM_ROPAYMENTS_STATUS_REFUND_LABEL"
+               description="COM_ROPAYMENTS_STATUS_REFUND_DESC"
+               required="false"
+               size="1"
+               default="R"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="chargebackStatus"
+               type="jdideal.extensionstatus"
+               label="COM_ROPAYMENTS_STATUS_CHARGEBACK_LABEL"
+               description="COM_ROPAYMENTS_STATUS_CHARGEBACK_DESC"
+               required="false"
+               size="1"
+               default="B"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="openStatus"
+               type="jdideal.extensionstatus"
+               label="COM_ROPAYMENTS_STATUS_OPEN_LABEL"
+               description="COM_ROPAYMENTS_STATUS_OPEN_DESC"
+               required="false"
+               size="1"
+               default="P"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="transferStatus"
+               type="jdideal.extensionstatus"
+               label="COM_ROPAYMENTS_STATUS_TRANSFER_LABEL"
+               description="COM_ROPAYMENTS_STATUS_TRANSFER_DESC"
+               required="false"
+               size="1"
+               default="P"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="ordernumber-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_ORDERNUMBERS" />
+
+        <field name="orderNumber"
+               type="jdideal.ordernumber"
+               label="COM_ROPAYMENTS_ORDERNUMBER_LABEL"
+               description="COM_ROPAYMENTS_ORDERNUMBER_DESC"
+               required="false"
+               size="1"
+               default="order_number"
+               class="advancedSelect"
+               labelclass="config" />
+
+        <field name="recurring-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_RECURRING"/>
+
+        <field name="recurring"
+               type="radio"
+               label="COM_ROPAYMENTS_MOLLIE_RECURRING_LABEL"
+               description="COM_ROPAYMENTS_MOLLIE_RECURRING_DESC"
+               required="false"
+               default="0"
+               class="btn-group btn-group-yesno"
+               labelclass="config">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+
+        <field name="recurringDescription"
+               type="text"
+               label="COM_ROPAYMENTS_MOLLIE_RECURRING_DESCRIPTION_LABEL"
+               description="COM_ROPAYMENTS_MOLLIE_RECURRING_DESCRIPTION_DESC"
+               required="false"
+               size="30"
+               labelclass="config"
+               showon="recurring:1"/>
+
+        <field name="times"
+               type="number"
+               label="COM_ROPAYMENTS_MOLLIE_RECURRING_TIMES_LABEL"
+               description="COM_ROPAYMENTS_MOLLIE_RECURRING_TIMES_DESC"
+               required="false"
+               size="1"
+               min="0"
+               labelclass="config"
+               showon="recurring:1"/>
+
+        <field name="interval"
+               type="text"
+               label="COM_ROPAYMENTS_MOLLIE_RECURRING_INTERVAL_LABEL"
+               description="COM_ROPAYMENTS_MOLLIE_RECURRING_INTERVAL_DESC"
+               required="false"
+               size="30"
+               labelclass="config"
+               showon="recurring:1"/>
+    </fieldset>
+</form>

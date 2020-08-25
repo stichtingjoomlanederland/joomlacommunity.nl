@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Extension Manager
- * @version         7.4.4
+ * @version         7.4.5
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -52,8 +52,8 @@ JText::script('RLEM_ALERT_NO_ITEMS_SELECTED');
 JText::script('RLEM_ALERT_FAIL');
 JText::script('RLEM_ALERT_NO_DATA');
 
-RL_Document::script('regularlabsmanager/script.min.js', '7.4.4');
-RL_Document::style('regularlabsmanager/style.min.css', '7.4.4');
+RL_Document::script('regularlabsmanager/script.min.js', '7.4.5');
+RL_Document::style('regularlabsmanager/style.min.css', '7.4.5');
 
 $script = "
 	jQuery(document).ready(function() {
@@ -333,12 +333,12 @@ $loading = '<div class="progress progress-striped active" style="min-width: 60px
 									<span class="pro_available data hide">
 										<span class="pro_no_access data hide">
 											<a style="margin-bottom:4px;" class="btn btn-small btn-info hidden-tablet"
-											   href="https://www.regularlabs.com/purchase?ext=<?php echo $item->id; ?>" target="_blank">
+											   href="https://www.regularlabs.com/purchase/cart/add/<?php echo $item->id; ?>" target="_blank">
 												<span class="icon-basket"></span> <?php echo JText::_('RLEM_BUY_PRO_VERSION'); ?>
 											</a>
 											<a style="margin-bottom:4px;" class="btn btn-small btn-info hidden-desktop"
 											   rel="tooltip" title="<?php echo JText::_('RLEM_BUY_PRO_VERSION'); ?>"
-											   href="https://www.regularlabs.com/purchase?ext=<?php echo $item->id; ?>" target="_blank">
+											   href="https://www.regularlabs.com/purchase/cart/add/<?php echo $item->id; ?>" target="_blank">
 												<span class="icon-basket"></span>
 											</a>
 										</span>
@@ -347,12 +347,12 @@ $loading = '<div class="progress progress-striped active" style="min-width: 60px
 								<span class="pro_installed data hide">
 									<span class="pro_key_invalid data hide">
 										<a style="margin-bottom:4px;" class="btn btn-small btn-warning hidden-tablet"
-										   href="https://www.regularlabs.com/purchase?ext=<?php echo $item->id; ?>" target="_blank">
+										   href="https://www.regularlabs.com/purchase/cart/add/<?php echo $item->id; ?>" target="_blank">
 											<span class="icon-basket"></span> <?php echo JText::_('RLEM_RENEW_SUBSCRIPTION'); ?>
 										</a>
 										<a style="margin-bottom:4px;" class="btn btn-small btn-warning hidden-desktop"
 										   rel="tooltip" title="<?php echo JText::_('RLEM_RENEW_SUBSCRIPTION'); ?>"
-										   href="https://www.regularlabs.com/purchase?ext=<?php echo $item->id; ?>" target="_blank">
+										   href="https://www.regularlabs.com/purchase/cart/add/<?php echo $item->id; ?>" target="_blank">
 											<span class="icon-basket"></span>
 										</a>
 									</span>
@@ -392,7 +392,7 @@ $loading = '<div class="progress progress-striped active" style="min-width: 60px
 <?php
 // Copyright
 
-echo RL_Version::getFooter('REGULAR_LABS_EXTENSION_MANAGER', $config->show_copyright);
+echo RL_Version::getFooter('REGULARLABSEXTENSIONMANAGER', $config->show_copyright);
 
 function makeSafe($str)
 {

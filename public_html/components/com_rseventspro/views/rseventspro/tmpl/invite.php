@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
@@ -29,7 +29,7 @@ function rs_google_auth() {
 <?php } ?>
 </script>
 
-<form method="post" action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro'); ?>" name="rseInviteForm" id="rseInviteForm" onsubmit="rs_invite();">
+<form method="post" action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro'); ?>" name="rseInviteForm" id="rseInviteForm">
 	<h3><?php echo JText::sprintf('COM_RSEVENTSPRO_INVITE_FRIENDS',$this->event->name); ?></h3>
 
 	<?php if (!empty($this->config->google_client_id)) { ?><a class="rs_invite_btn" href="javascript:void(0)" onclick="rs_google_auth();"><?php echo JText::_('COM_RSEVENTSPRO_INVITE_FROM_GMAIL'); ?></a><?php } ?> 
@@ -78,13 +78,12 @@ function rs_google_auth() {
 		<?php } ?>
 	</div>
 	
+	<?php if (in_array(1,$this->captcha_use)) { ?>
 	<div class="form-horizontal">
 		<div class="control-group">
-			<?php if ($this->config->captcha == 2) { ?>
-			<div id="rse-g-recaptcha"></div>
-			<?php } else { ?>
+			<?php if ($this->config->captcha == 1) { ?>
 			<div class="control-label">
-				<img id="captcha" src="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=captcha&tmpl=component'); ?>" onclick="javascript:reloadCaptcha()" />
+				<img id="captcha" src="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=captcha&tmpl=component&rand='.rand(),false); ?>" onclick="javascript:reloadCaptcha()" />
 			</div>
 			<div class="controls">
 				<span class="explain">
@@ -92,12 +91,17 @@ function rs_google_auth() {
 				</span>
 				<input type="text" id="secret" name="secret" value="" class="input-small" />
 			</div>
+			<?php } elseif ($this->config->captcha == 2) { ?>
+			<div id="rse-g-recaptcha"></div>
+			<?php } elseif ($this->config->captcha == 3) { ?>
+			<div id="h-captcha-rseInvite"></div>
 			<?php } ?>
 		</div>
 	</div>
+	<?php } ?>
 	
 	<div class="form-actions">
-		<button type="button" class="button btn btn-primary" onclick="rs_invite();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SEND'); ?></button> <?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_OR'); ?> 
+		<button id="rseInviteBtn" type="submit" class="button btn btn-primary" onclick="return rs_invite();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SEND'); ?></button> <?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_OR'); ?> 
 		<?php echo rseventsproHelper::redirect(false,JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'),rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id))); ?>
 	</div>
 	

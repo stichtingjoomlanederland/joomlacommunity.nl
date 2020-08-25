@@ -7,6 +7,8 @@
 
 use Akeeba\AdminTools\Admin\Helper\Html;
 use FOF30\Utils\FEFHelper\Html as FEFHtml;
+use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Language\Text;
 
 /** @var $this Akeeba\AdminTools\Admin\View\AutoBannedAddresses\Html */
 
@@ -23,10 +25,10 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
 	<section class="akeeba-panel--33-66 akeeba-filter-bar-container">
 		<div class="akeeba-filter-bar akeeba-filter-bar--left akeeba-form-section akeeba-form--inline">
 			<div class="akeeba-filter-element akeeba-form-group">
-				<input type="text" name="ip" placeholder="<?php echo \JText::_('COM_ADMINTOOLS_LBL_AUTOBANNEDADDRESS_IP'); ?>"
+				<input type="text" name="ip" placeholder="<?php echo Text::_('COM_ADMINTOOLS_LBL_AUTOBANNEDADDRESS_IP'); ?>"
 					   id="filter_ip" onchange="document.adminForm.submit();"
 					   value="<?php echo $this->escape($this->filters['ip']); ?>"
-					   title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_AUTOBANNEDADDRESS_IP'); ?>"/>
+					   title="<?php echo Text::_('COM_ADMINTOOLS_LBL_AUTOBANNEDADDRESS_IP'); ?>"/>
 			</div>
 		</div>
 
@@ -41,13 +43,13 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
 				<input type="checkbox" name="toggle" value="" onclick="Joomla.checkAll(this);"/>
 			</th>
 			<th>
-				<?php echo \JHtml::_('grid.sort', 'COM_ADMINTOOLS_LBL_AUTOBANNEDADDRESS_IP', 'ip', $this->order_Dir, $this->order, 'browse'); ?>
+				<?php echo HTMLHelper::_('grid.sort', 'COM_ADMINTOOLS_LBL_AUTOBANNEDADDRESS_IP', 'ip', $this->order_Dir, $this->order, 'browse'); ?>
 			</th>
 			<th>
-				<?php echo \JHtml::_('grid.sort', 'COM_ADMINTOOLS_LBL_AUTOBANNEDADDRESS_REASON', 'reason', $this->order_Dir, $this->order, 'browse'); ?>
+				<?php echo HTMLHelper::_('grid.sort', 'COM_ADMINTOOLS_LBL_AUTOBANNEDADDRESS_REASON', 'reason', $this->order_Dir, $this->order, 'browse'); ?>
 			</th>
 			<th>
-				<?php echo \JHtml::_('grid.sort', 'COM_ADMINTOOLS_LBL_AUTOBANNEDADDRESS_UNTIL', 'until', $this->order_Dir, $this->order, 'browse'); ?>
+				<?php echo HTMLHelper::_('grid.sort', 'COM_ADMINTOOLS_LBL_AUTOBANNEDADDRESS_UNTIL', 'until', $this->order_Dir, $this->order, 'browse'); ?>
 			</th>
 		</tr>
 		</thead>
@@ -62,7 +64,7 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
 		<?php if (!count($this->items)):?>
 			<tr>
 				<td colspan="6">
-					<?php echo JText::_('COM_ADMINTOOLS_ERR_AUTOBANNEDADDRESS_NOITEMS')?>
+					<?php echo Text::_('COM_ADMINTOOLS_ERR_AUTOBANNEDADDRESS_NOITEMS')?>
 				</td>
 			</tr>
 		<?php endif;?>
@@ -71,11 +73,11 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
 			$i = 0;
 			foreach($this->items as $row):
 				$ip 	= Html::IpLookup($row->ip);
-				$reason = JText::_('COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_REASON_' . strtoupper($row->reason));
+				$reason = Text::_('COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_REASON_' . strtoupper($row->reason));
 				$until  = Html::localisedDate($row->until, 'Y-m-d H:i:s T', false)
 			?>
 				<tr>
-					<td><?php echo \JHtml::_('grid.id', ++$i, $row->ip); ?></td>
+					<td><?php echo HTMLHelper::_('grid.id', ++$i, $row->ip); ?></td>
 					<td>
 						<?php echo $ip ?>
 					</td>

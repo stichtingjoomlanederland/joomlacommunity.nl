@@ -3,14 +3,17 @@
  * @package    Pwtimage
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
 
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Helper\ContentHelper;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\Object\CMSObject;
 use Joomla\CMS\Uri\Uri;
 
 defined('_JEXEC') or die;
@@ -35,32 +38,46 @@ $class        = '';
 
 // Get the override values
 /**
- * @param   int    $modalId           The unique identifier for the image block
- * @param   string $ratio             The image ratio to use
- * @param   int    $width             The fixed with for an image
- * @param   bool   $useOriginal       Use the original image
- * @param   bool   $keepOriginal      Keep the image size of the original image
- * @param   string $sourcePath        The main image path
- * @param   string $subPath           The image sub-folder
- * @param   bool   $showUpload        Set if the upload page should be shown
- * @param   bool   $showFolder        Set if the image selection from server should be shown
- * @param   bool   $toCanvas          Set if the image is shown directly on the canvas for editing
- * @param   bool   $showRotationTools Set if the rotation tools needs to be shown
- * @param   bool   $showFlippingTools Set if the flipping tools needs to be shown
- * @param   bool   $showZoomTools     Set if the zoom tools needs to be shown
- * @param   string $activePage        Set which tab should be shown by default this is the upload tab
- * @param   string $imagePreview      A given image to show in preview
- * @param   bool   $multiple          Set if multiple images should be allowed
- * @param   bool   $modal             Set if the canvas should be shown in a modal popup
- * @param   bool   $showHelp          Set if the help tab should be shown
- * @param   string $target            The name of the original form field
- * @param   string $value             The value of the original form field
- * @param   string $origin            The breadcrumb path to load the profile for
- * @param   string $class             Extra class(es) to add to the container div
- * @param   string $repeatable        Set if the image is inside a repeatable subform
+ * @param   int        $modalId            The unique identifier for the image block
+ * @param   string     $ratio              The image ratio to use
+ * @param   int        $width              The fixed with for an image
+ * @param   bool       $useOriginal        Use the original image
+ * @param   bool       $keepOriginal       Keep the image size of the original image
+ * @param   string     $sourcePath         The main image path
+ * @param   string     $subPath            The image sub-folder
+ * @param   bool       $showUpload         Set if the upload page should be shown
+ * @param   bool       $showFolder         Set if the image selection from server should be shown
+ * @param   bool       $toCanvas           Set if the image is shown directly on the canvas for editing
+ * @param   bool       $showRotationTools  Set if the rotation tools needs to be shown
+ * @param   bool       $showFlippingTools  Set if the flipping tools needs to be shown
+ * @param   bool       $showZoomTools      Set if the zoom tools needs to be shown
+ * @param   string     $activePage         Set which tab should be shown by default this is the upload tab
+ * @param   string     $imagePreview       A given image to show in preview
+ * @param   bool       $multiple           Set if multiple images should be allowed
+ * @param   bool       $modal              Set if the canvas should be shown in a modal popup
+ * @param   bool       $showHelp           Set if the help tab should be shown
+ * @param   string     $target             The name of the original form field
+ * @param   string     $value              The value of the original form field
+ * @param   string     $origin             The breadcrumb path to load the profile for
+ * @param   string     $class              Extra class(es) to add to the container div
+ * @param   string     $repeatable         Set if the image is inside a repeatable subform
+ * @param   CMSObject  $canDo              ACL Settings for the user
  */
 /** @var array $displayData */
-extract($displayData);
+extract($displayData, EXTR_OVERWRITE);
+
+if (!isset($canDo))
+{
+	$canDo = ContentHelper::getActions('com_pwtimage');
+}
+
+// Check if user has access to PWT Image
+if (!$canDo->get('pwtimage.accessupload') && !$canDo->get('pwtimage.accessfolder'))
+{
+	echo Text::_('COM_PWTIMAGE_NO_ACCESS');
+
+	return;
+}
 
 // The link to PWT Image
 $root   = Uri::root();
@@ -75,10 +92,14 @@ if ($isAdmin)
 	$prefix = '../';
 }
 
+$params = ComponentHelper::getParams('com_pwtimage');
+$prefix = $params->get('prefix', null) ?? $prefix;
+$suffix = $params->get('suffix', '');
+
 $modal  = '';
 $modals = 1;
 
-if ((bool) $multiple && is_array($imagePreview))
+if ($multiple && is_array($imagePreview))
 {
 	$modals = count($imagePreview);
 }
@@ -87,21 +108,21 @@ for ($i = 0; $i < $modals; $i++)
 {
 	if (!isset($modalId) || $i > 0)
 	{
-		$modalId = uniqid();
+		$modalId                = uniqid();
 		$displayData['modalId'] = $modalId;
 	}
 
 	$frameId = isset($repeatable) && $repeatable === '1' ? '#js-modal-content iframe' : 'iframe#pwtImageFrame-' . $modalId;
 
-	$preview                = is_array($imagePreview) ? isset($imagePreview[$i]) ? $imagePreview[$i] : '' : $imagePreview;
-	$originalValue          = is_array($value) ? isset($value[$i]) ? $value[$i] : '' : $value;
-	$link                   = $root . 'index.php?option=com_pwtimage&amp;view=image&amp;tmpl=component&modalId=' . $modalId
+	$preview       = is_array($imagePreview) ? isset($imagePreview[$i]) ? $imagePreview[$i] : '' : $imagePreview;
+	$originalValue = is_array($value) ? isset($value[$i]) ? $value[$i] : '' : $value;
+	$link          = $root . 'index.php?option=com_pwtimage&amp;view=image&amp;tmpl=component&modalId=' . $modalId
 		. '&settings=' . base64_encode(json_encode($displayData));
 
 	$modal .= '<div class="js-image-controls ' . $class . '">
 				<!-- Render the image preview -->
 				<div id="' . $modalId . '_preview" class="pwt-image-preview">
-					<img ' . ($preview ? 'src="' . $prefix . $preview . '"' : "") . '/>
+					<img ' . ($preview ? 'src="' . $prefix . $preview . $suffix . '"' : "") . '/>
 				</div>
 				
 				<!-- Render the original input field -->
@@ -132,7 +153,7 @@ for ($i = 0; $i < $modals; $i++)
 	}
 
 	$modal .= '<div id="' . $modalId . '_modal" class="pwt-component is-hidden">
-					' . HTMLHelper::_('iframe', Uri::root() . 'index.php?option=com_pwtimage&amp;view=image&layout=iframe&amp;tmpl=component', 'pwtmodel', 'id="pwtImageFrame-' . $modalId . '"') . '
+					' . HTMLHelper::_('iframe', 'about:blank', 'pwtmodel', 'id="pwtImageFrame-' . $modalId . '"') . '
 				</div>';
 
 	$modal .= '</div>';

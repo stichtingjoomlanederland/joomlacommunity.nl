@@ -12,6 +12,7 @@ RSComments = {
 		jQuery('[data-rsc-task="close"]').on('click', RSComments.close);
 		jQuery('[data-rsc-task="bbcode"]').on('click', RSComments.addBBCode);
 		jQuery('[data-rsc-task="emoticons"]').on('click', RSComments.showEmoticons);
+		jQuery('[data-rsc-task="form"]').find('.rscomments-accordion-title').unbind('click');
 		jQuery('[data-rsc-task="form"]').find('.rscomments-accordion-title').on('click', RSComments.accordion);
 		jQuery('[data-rsc-task="commentform"]').on('keyup keydown', RSComments.countChars);
 		jQuery('[data-rsc-task="publish"], [data-rsc-task="unpublish"]').on('click', RSComments.changeState);
@@ -236,6 +237,7 @@ RSComments = {
 	reset: function() {
 		RSComments.resetForm(jQuery(this).parents('.rscomments'));
 		jQuery(this).parents('.rscomments').find('[data-rsc-task="closepreview"]').click();
+		jQuery(this).parents('form').find('.comment_length').html(parseInt(jQuery(this).parents('.rscomments').find('[data-rsc-task="commentform"]').prop('maxlength')));
 	},
 	
 	addBBCode: function() {
@@ -344,7 +346,10 @@ RSComments = {
 	
 	initTooltips: function() {
 		jQuery('.tooltip').hide(); 
-		jQuery('.hasTooltip').tooltip('destroy');
+		try {
+			jQuery('.hasTooltip').tooltip('destroy');
+			jQuery('.hasTooltip').tooltip('dispose');
+		} catch (err) {}
 		jQuery('.hasTooltip').tooltip({"html": true,"container": "body"});
 	},
 	
@@ -549,6 +554,9 @@ RSComments = {
 					if (jQuery(object).parents('[data-rsc-task="form"]').find('.g-recaptcha-response').length) {
 						var cid = jQuery(object).parents('[data-rsc-task="form"]').find('.g-recaptcha-response').parents('div[id^="rsc-g-recaptcha-"]').prop('id').replace('rsc-g-recaptcha-', '');
 						grecaptcha.reset(RSCommentsReCAPTCHAv2.ids[cid]);
+						if (RSCommentsReCAPTCHAv2.type[cid] == 'invisible') {
+							grecaptcha.execute(RSCommentsReCAPTCHAv2.ids[cid]);
+						}
 					}
 					
 					jQuery(object).parents('[data-rsc-task="form"]').find('[data-rsc-task="closepreview"]').click();
@@ -634,6 +642,9 @@ RSComments = {
 					if (jQuery(object).parents('[data-rsc-task="form"]').find('.g-recaptcha-response').length) {
 						var cid = jQuery(object).parents('[data-rsc-task="form"]').find('.g-recaptcha-response').parents('div[id^="rsc-g-recaptcha-"]').prop('id').replace('rsc-g-recaptcha-', '');
 						grecaptcha.reset(RSCommentsReCAPTCHAv2.ids[cid]);
+						if (RSCommentsReCAPTCHAv2.type[cid] == 'invisible') {
+							grecaptcha.execute(RSCommentsReCAPTCHAv2.ids[cid]);
+						}
 					}
 					
 					jQuery(object).parents('[data-rsc-task="form"]').find('[data-rsc-task="closepreview"]').click();
@@ -835,6 +846,9 @@ RSComments = {
 					
 					if (jQuery('.g-recaptcha-response').length) {
 						grecaptcha.reset(RSCommentsReCAPTCHAv2.ids['report']);
+						if (RSCommentsReCAPTCHAv2.type['report'] == 'invisible') {
+							grecaptcha.execute(RSCommentsReCAPTCHAv2.ids['report']);
+						}
 					}
 				}
 				
@@ -954,7 +968,7 @@ RSComments = {
 				if (response.status) {
 					jQuery('#subscriber-message').removeClass('alert-danger');
 					setTimeout(function() {
-						if (jQuery('#rscomments-subscribe').length) {
+						if (window.parent.jQuery('#rscomments-subscribe').length) {
 							window.parent.jQuery('#rscomments-subscribe').modal('hide');
 							window.parent.jQuery('#rscomments-subscribe').find('.modal-body').empty();
 						} else {
@@ -1132,6 +1146,7 @@ jQuery(document).ajaxSuccess(function() {
 
 var RSCommentsReCAPTCHAv2 = {
 	ids: {},
+	type: {},
 	loaders: [],
 	onLoad: function() {
 		window.setTimeout(function(){
@@ -1145,19 +1160,9 @@ var RSCommentsReCAPTCHAv2 = {
 	}
 };
 
-if (typeof jQuery !== 'undefined') {
-	jQuery(document).ready(function($) {
-		$(window).load(RSCommentsReCAPTCHAv2.onLoad);
-	});
-} else if (typeof MooTools !== 'undefined') {
-	window.addEvent('domready', function(){
-		window.addEvent('load', RSCommentsReCAPTCHAv2.onLoad);
-	});
-} else {
-	rscAddEvent(window, 'load', function() {
-		RSCommentsReCAPTCHAv2.onLoad();
-	});
-}
+window.addEventListener('DOMContentLoaded', function() {
+	RSCommentsReCAPTCHAv2.onLoad();
+});
 
 function rscAddEvent(obj, evType, fn) {
 	if (obj.addEventListener) {

@@ -28,7 +28,7 @@
         </tr>
         <tr>
             <td style="font-family:Verdana, Arial, sans serif; font-size: 12px; color: #888; line-height:16px;">
-                <?php echo JText::_('COM_EASYDISCUSS_DIGEST_BY'); ?> <?php echo ($post->user_id) ? $post->getOwner()->getName() : $post->poster_name; ?> (<?php echo ($post->user_id) ? $post->getOwner()->getEmail() : $post->poster_email; ?>)
+                <?php echo JText::_('COM_EASYDISCUSS_DIGEST_BY'); ?> <?php echo ($post->user_id) ? $post->getOwner()->getName() : $post->poster_name; ?>
             </td>
         </tr>
         <tr>

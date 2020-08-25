@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Extension Manager
- * @version         7.4.4
+ * @version         7.4.5
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -79,9 +79,9 @@ class RegularLabsManagerViewDefault extends JView
 	{
 		$canDo = $this->getActions();
 
-		JFactory::getDocument()->setTitle(JText::_('REGULAR_LABS_EXTENSION_MANAGER'));
+		JFactory::getDocument()->setTitle(JText::_('REGULARLABSEXTENSIONMANAGER'));
 
-		JToolbarHelper::title(JText::_('REGULAR_LABS_EXTENSION_MANAGER'), 'regularlabsmanager icon-reglab');
+		JToolbarHelper::title(JText::_('REGULARLABSEXTENSIONMANAGER'), 'regularlabsmanager icon-reglab');
 
 		$config = $this->getConfig();
 		RegularLabsManagerToolbarHelper::addButtons($config);

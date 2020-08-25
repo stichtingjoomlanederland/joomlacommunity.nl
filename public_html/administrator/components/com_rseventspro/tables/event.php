@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -388,6 +388,7 @@ class RseventsproTableEvent extends JTable
 		if (!isset($array['rsvp_notgoing']))			$array['rsvp_notgoing'] = 0;
 		if (!isset($array['comments']))					$array['comments'] = 0;
 		if (!isset($array['notify_me']))				$array['notify_me'] = 0;
+		if (!isset($array['notify_me_paid']))			$array['notify_me_paid'] = 0;
 		if (!isset($array['waitinglist_user']))			$array['waitinglist_user'] = 0;
 		if (!isset($array['waitinglist_admin']))		$array['waitinglist_admin'] = 0;
 		if (!isset($array['notify_me_unsubscribe']))	$array['notify_me_unsubscribe'] = 0;
@@ -396,6 +397,8 @@ class RseventsproTableEvent extends JTable
 		if (!isset($array['waitinglist']))				$array['waitinglist'] = 0;
 		if (!isset($array['show_registered']))			$array['show_registered']= 0;
 		if (!isset($array['automatically_approve']))	$array['automatically_approve'] = 0;
+		if (!isset($array['invoice']))					$array['invoice'] = 0;
+		if (!isset($array['invoice_attach']))			$array['invoice_attach'] = 0;
 		
 		if (isset($array['options'])) {
 			$defaults = rseventsproHelper::getDefaultOptions();

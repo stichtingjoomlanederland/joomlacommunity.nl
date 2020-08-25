@@ -148,7 +148,7 @@ $originalOrders	= array();
 		</table>
 	</div>
 
-	<input type="hidden" name="original_order_values" value="<?php echo implode($originalOrders, ','); ?>" />
+	<input type="hidden" name="original_order_values" value="<?php echo implode(',', $originalOrders); ?>" />
 	<input type="hidden" name="filter_order" value="<?php echo $order; ?>" />
 	<input type="hidden" name="filter_order_Dir" value="" />
 

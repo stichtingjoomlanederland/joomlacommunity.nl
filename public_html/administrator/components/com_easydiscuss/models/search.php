@@ -133,14 +133,18 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 		}
 
 		// exclude blocked user posts.
-		$pquery .= " left join `#__users` as uu on a.`user_id` = uu.`id`";
+		if (!$config->get('main_posts_from_blockuser', false)) {
+			$pquery .= " left join `#__users` as uu on a.`user_id` = uu.`id`";
+		}
 
 		$pquery	.= $this->_buildQueryWhere('posts', 'a', $category, $postType);
 		if ($tags) {
 			$pquery .= ' AND ptg.tag_id IN (' . $db->implode($tags) . ')';
 		}
 
-		$pquery .= " and (uu.`block` = 0 OR uu.`id` IS NULL)";
+		if (!$config->get('main_posts_from_blockuser', false)) {
+			$pquery .= " and (uu.`block` = 0 OR uu.`id` IS NULL)";
+		}
 
 		// Categories
 		$cquery	= 'SELECT 0 as `noofdays`, ';

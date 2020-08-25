@@ -15,27 +15,27 @@ class SchedulingInformation extends Model
 {
 	public function getPaths()
 	{
-		$ret = (object) array(
-			'cli'      => (object) array(
-				'supported' => false,
-				'path'      => false
-			),
-			'altcli'   => (object) array(
-				'supported' => false,
-				'path'      => false
-			),
-			'frontend' => (object) array(
+		$ret = (object) [
+			'cli'      => (object) [
 				'supported' => false,
 				'path'      => false,
-			),
-			'info'     => (object) array(
+			],
+			'altcli'   => (object) [
+				'supported' => false,
+				'path'      => false,
+			],
+			'frontend' => (object) [
+				'supported' => false,
+				'path'      => false,
+			],
+			'info'     => (object) [
 				'windows'   => false,
 				'php_path'  => false,
 				'root_url'  => false,
 				'secret'    => '',
 				'feenabled' => false,
-			)
-		);
+			],
+		];
 
 		// Get the absolute path to the site's root
 		$absolute_root = rtrim(realpath(JPATH_ROOT), '/\\');

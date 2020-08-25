@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.5" type="plugin" group="editors-xtd" method="upgrade">
+	<name>PLG_EDITORS_XTD_JDIDEALPAYMENTBUTTON</name>
+	<creationDate>20 July 2020</creationDate>
+	<author>RolandD Cyber Produksi</author>
+	<authorEmail>contact@rolandd.com</authorEmail>
+	<authorUrl>https://rolandd.com</authorUrl>
+	<copyright>Copyright (C) 2017 - 2020 RolandD Cyber Produksi. All rights reserved.</copyright>
+	<license>GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html</license>
+	<version>6.0.2</version>
+	<description>PLG_EDITORS_XTD_JDIDEALPAYMENTBUTTON_XML_DESCRIPTION</description>
+
+	<files>
+		<filename plugin="jdidealpaymentbutton">jdidealpaymentbutton.php</filename>
+		<folder>language</folder>
+	</files>
+</extension>

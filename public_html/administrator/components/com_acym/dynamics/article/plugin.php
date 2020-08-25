@@ -12,10 +12,78 @@ class plgAcymArticle extends acymPlugin
         $this->pluginDescription->name = acym_translation('ACYM_ARTICLE');
         $this->pluginDescription->icon = '<i class="cell acymicon-joomla"></i>';
         $this->pluginDescription->icontype = 'raw';
+
+        if ($this->installed && ACYM_CMS == 'joomla') {
+            $this->displayOptions = [
+                'title' => ['ACYM_TITLE', true],
+                'intro' => ['ACYM_INTRO_TEXT', true],
+                'full' => ['ACYM_FULL_TEXT', false],
+                'cat' => ['ACYM_CATEGORY', false],
+                'publishing' => ['ACYM_PUBLISHING_DATE', false],
+                'readmore' => ['ACYM_READ_MORE', false],
+            ];
+
+            $this->initElementOptionsCustomView();
+            $this->initReplaceOptionsCustomView();
+
+            $this->settings = [
+                'custom_view' => [
+                    'type' => 'custom_view',
+                    'tags' => array_merge($this->displayOptions, $this->replaceOptions, $this->elementOptions),
+                ],
+                'front' => [
+                    'type' => 'select',
+                    'label' => 'ACYM_FRONT_ACCESS',
+                    'value' => 'all',
+                    'data' => [
+                        'all' => 'ACYM_ALL_ELEMENTS',
+                        'author' => 'ACYM_ONLY_AUTHORS_ELEMENTS',
+                        'hide' => 'ACYM_DONT_SHOW',
+                    ],
+                ],
+            ];
+        }
+    }
+
+    public function getStandardStructure(&$customView)
+    {
+        $tag = new stdClass();
+        $tag->id = 0;
+
+        $format = new stdClass();
+        $format->tag = $tag;
+        $format->title = '{title}';
+        $format->afterTitle = '{picthtml}';
+        $format->afterArticle = '';
+        $format->imagePath = '';
+        $format->description = '{intro}';
+        $format->link = '{link}';
+        $format->customFields = [];
+        $customView = '<div class="acymailing_content">'.$this->pluginHelper->getStandardDisplay($format).'</div>';
+    }
+
+    public function initReplaceOptionsCustomView()
+    {
+        $this->replaceOptions = [
+            'link' => ['ACYM_LINK'],
+            'picthtml' => ['ACYM_IMAGE'],
+            'readmore' => ['ACYM_READ_MORE'],
+        ];
+    }
+
+    public function initElementOptionsCustomView()
+    {
+        $element = acym_getColumns('content', false);
+        if (empty($element)) return;
+        foreach ($element as $key => $value) {
+            $this->elementOptions[$value] = [$value];
+        }
     }
 
     public function getPossibleIntegrations()
     {
+        if (!acym_isAdmin() && $this->getParam('front', 'all') === 'hide') return null;
+
         return $this->pluginDescription;
     }
 
@@ -38,33 +106,59 @@ class plgAcymArticle extends acymPlugin
                 'title' => 'ACYM_DISPLAY',
                 'type' => 'checkbox',
                 'name' => 'display',
-                'options' => [
-                    'title' => ['ACYM_TITLE', true],
-                    'content' => ['ACYM_CONTENT', true],
-                    'cat' => ['ACYM_CATEGORY', false],
-                    'readmore' => ['ACYM_READ_MORE', false],
-                ],
-            ],
-            [
-                'title' => 'ACYM_CLICKABLE_TITLE',
-                'type' => 'boolean',
-                'name' => 'clickable',
-                'default' => true,
-            ],
-            [
-                'title' => 'ACYM_TRUNCATE',
-                'type' => 'intextfield',
-                'isNumber' => 1,
-                'name' => 'wrap',
-                'text' => 'ACYM_TRUNCATE_AFTER',
-                'default' => 0,
-            ],
-            [
-                'title' => 'ACYM_DISPLAY_PICTURES',
-                'type' => 'pictures',
-                'name' => 'pictures',
+                'options' => $this->displayOptions,
             ],
         ];
+
+        if (ACYM_J37) {
+            $customFields = acym_loadObjectList(
+                'SELECT id, title 
+                FROM #__fields 
+                WHERE context = "com_content.article" 
+                    AND state = 1 
+                ORDER BY title ASC'
+            );
+
+            if (!empty($customFields)) {
+                $customFieldsOption = [
+                    'title' => 'ACYM_FIELDS_TO_DISPLAY',
+                    'type' => 'checkbox',
+                    'name' => 'custom',
+                    'separator' => ', ',
+                    'options' => [],
+                ];
+                foreach ($customFields as $oneCustomField) {
+                    $customFieldsOption['options'][$oneCustomField->id] = [$oneCustomField->title, false];
+                }
+
+                $displayOptions[] = $customFieldsOption;
+            }
+        }
+
+        $displayOptions = array_merge(
+            $displayOptions,
+            [
+                [
+                    'title' => 'ACYM_CLICKABLE_TITLE',
+                    'type' => 'boolean',
+                    'name' => 'clickable',
+                    'default' => true,
+                ],
+                [
+                    'title' => 'ACYM_TRUNCATE',
+                    'type' => 'intextfield',
+                    'isNumber' => 1,
+                    'name' => 'wrap',
+                    'text' => 'ACYM_TRUNCATE_AFTER',
+                    'default' => 0,
+                ],
+                [
+                    'title' => 'ACYM_DISPLAY_PICTURES',
+                    'type' => 'pictures',
+                    'name' => 'pictures',
+                ],
+            ]
+        );
 
         $zoneContent = $this->getFilteringZone().$this->prepareListing();
         echo $this->displaySelectionZone($zoneContent);
@@ -125,6 +219,10 @@ class plgAcymArticle extends acymPlugin
         $this->pageInfo->order = 'element.id';
         $this->elementIdTable = 'element';
         $this->elementIdColumn = 'id';
+
+        if (!acym_isAdmin() && $this->getParam('front', 'all') === 'author') {
+            $this->filters[] = 'element.created_by = '.intval(acym_currentUserId());
+        }
 
         parent::prepareListing();
 
@@ -216,7 +314,6 @@ class plgAcymArticle extends acymPlugin
                         AND element.id = '.intval($tag->id);
 
         $element = $this->initIndividualContent($tag, $query);
-
         if (empty($element)) return '';
 
         $varFields = $this->getCustomLayoutVars($element);
@@ -229,32 +326,55 @@ class plgAcymArticle extends acymPlugin
         $varFields['{link}'] = $link;
 
         $title = '';
-        if (in_array('title', $tag->display)) $title = $element->title;
-
         $afterTitle = '';
         $afterArticle = '';
-
         $imagePath = '';
-        if (!empty($tag->pict) && !empty($element->images)) {
-            $images = json_decode($element->images);
-            $pictVar = empty($images->image_fulltext) ? 'image_intro' : 'image_fulltext';
+        $contentText = '';
+        $customFields = [];
+
+        $varFields['{title}'] = $element->title;
+        if (in_array('title', $tag->display)) $title = $varFields['{title}'];
+
+        $images = json_decode($element->images);
+
+        $varFields['{picthtml}'] = '';
+        if (!empty($element->images)) {
+            $pictVar = in_array('intro', $tag->display) || empty($images->image_fulltext) ? 'image_intro' : 'image_fulltext';
             if (!empty($images->$pictVar)) {
                 $imagePath = acym_rootURI().$images->$pictVar;
                 $varFields['{picthtml}'] = '<img alt="" src="'.acym_escape($imagePath).'" />';
             }
         }
 
-        $contentText = '';
-        if (in_array('content', $tag->display)) $contentText .= $element->introtext.$element->fulltext;
+        if (empty($tag->pict)) $imagePath = '';
 
-        $customFields = [];
-        if (in_array('cat', $tag->display)) {
-            $category = acym_loadResult('SELECT title FROM #__categories WHERE id = '.intval($element->catid));
+        $varFields['{content}'] = $element->introtext.$element->fulltext;
+        if (in_array('content', $tag->display)) $contentText .= $$varFields['{content}'];
+
+        $varFields['{intro}'] = $element->introtext;
+        if (in_array('intro', $tag->display)) $contentText .= $varFields['{intro}'];
+
+        $varFields['{full}'] = $element->fulltext;
+        if (in_array('full', $tag->display)) $contentText .= $varFields['{full}'];
+
+        $varFields['{publishing}'] = acym_date($element->publish_up);
+        if (in_array('publishing', $tag->display)) {
             $customFields[] = [
-                '<a href="'.$this->finalizeLink('index.php?option=com_content&view=category&id='.$element->catid).'" target="_blank">'.acym_escape($category).'</a>',
+                $varFields['{publishing}'],
+                acym_translation('ACYM_PUBLISHING_DATE'),
+            ];
+        }
+
+        $category = acym_loadResult('SELECT title FROM #__categories WHERE id = '.intval($element->catid));
+        $varFields['{cat}'] = '<a href="'.$this->finalizeLink('index.php?option=com_content&view=category&id='.$element->catid).'" target="_blank">'.acym_escape($category).'</a>';
+        if (in_array('cat', $tag->display)) {
+            $customFields[] = [
+                $varFields['{cat}'],
                 acym_translation('ACYM_CATEGORY'),
             ];
         }
+
+        $this->handleCustomFields($tag, $customFields);
 
         $readMoreText = empty($tag->readmore) ? acym_translation('ACYM_READ_MORE') : $tag->readmore;
         $varFields['{readmore}'] = '<a class="acymailing_readmore_link" style="text-decoration:none;" target="_blank" href="'.$link.'"><span class="acymailing_readmore">'.acym_escape($readMoreText).'</span></a>';

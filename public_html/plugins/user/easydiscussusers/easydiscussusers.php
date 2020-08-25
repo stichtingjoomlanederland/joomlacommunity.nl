@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * Komento is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -23,18 +23,18 @@ class plgUserEasyDiscussUsers extends JPlugin
 	}
 
 	/**
-     * Performs existance of Easydiscuss
-     *
-     * @since   4.0
-     * @access  public
-     */
+	 * Performs existance of Easydiscuss
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function exists()
 	{
 		$path = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/easydiscuss.xml';
 		$engine = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php';
 
 		if (!JFile::exists($engine) || !JFile::exists($path)) {
-		    return false;
+			return false;
 		}
 
 		require_once($engine);		
@@ -42,42 +42,101 @@ class plgUserEasyDiscussUsers extends JPlugin
 		jimport('joomla.filesystem.file');
 
 		return true;
-	}	
+	}
 
 	/**
-     * onUserAfterSave
-     *
-     * @since   4.0
-     * @access  public
-     */
-	public function onUserAfterSave($data, $isNew, $result)
+	 * onUserBeforeSave
+	 *
+	 * @since   4.1
+	 * @access  public
+	 */
+	public function onUserBeforeSave($user, $isnew, $data)
+	{
+		if (!$this->exists()) {
+			return true;
+		}
+
+		if ($isnew) {
+			return true;
+		}
+
+		// check if system allow blocked users posts to be displayed or not.
+		// if yes, ignore.
+		$config = ED::config();
+
+		if (!$config->get('main_posts_from_blockuser', false) && ($user['block'] != $data['block'])) {
+
+			$db = ED::db();
+			$userId = $user['id'];
+
+			// lets check if this user has any posts created or not.
+			$query = "select count(distinct `thread_id`) from `#__discuss_posts` where `user_id` = " . $db->Quote($userId);
+
+			$db->setQuery($query);
+			$count = $db->loadResult();
+
+			if (!$count) {
+				// no posts from this users. lets skip
+				return true;
+			}
+
+			ED::addSyncRequest(DISCUSS_SYNC_THREAD_REPLY, $userId, $count);
+		}
+
+	}
+
+	/**
+	 * onUserAfterSave
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function onUserAfterSave($user, $isNew, $result)
 	{
 		if ($result) {
 			if ($this->exists()) {
+
+				$config = ED::config();
+
 				// Get backend subscribe model file
 				$model = ED::model('Subscribe', true);
-				$model->updateSubscriberEmail($data, $isNew);
+				$model->updateSubscriberEmail($user, $isNew);
+
+				if ($isNew && $config->get('main_sitesubscription') && $config->get('notification_autosubscribe')) {
+					// new user. lets subscribe this user to site wide subscription.
+					$data = array();
+					$data['type'] = 'site';
+					$data['userid'] = $user['id'];
+					$data['email'] = $user['email'];
+					$data['cid'] = '';
+					$data['member'] = true;
+					$data['name'] = $user['name'];
+					$data['interval'] = $config->get('main_email_digest_interval', 'weekly');
+
+					$model = ED::model('Subscribe');
+					$model->addSubscription($data);
+				}
 			}
 		}
 	}
 
 	/**
-     * onUserBeforeDelete
-     *
-     * @since   4.0
-     * @access  public
-     */
+	 * onUserBeforeDelete
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function onUserBeforeDelete($user)
 	{
 		$this->onBeforeDeleteUser($user);
 	}
 
 	/**
-     * onBeforeDeleteUser
-     *
-     * @since   4.0
-     * @access  public
-     */
+	 * onBeforeDeleteUser
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function onBeforeDeleteUser($user)
 	{
 		if ($this->exists()) {
@@ -104,11 +163,11 @@ class plgUserEasyDiscussUsers extends JPlugin
 	}
 
 	/**
-     * Retrieve new ownership id
-     *
-     * @since   4.0
-     * @access  public
-     */
+	 * Retrieve new ownership id
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function _getnewOwnerShip($curUserId)
 	{
 		$econfig = ED::config();
@@ -180,11 +239,11 @@ class plgUserEasyDiscussUsers extends JPlugin
 	}
 
 	/**
-     * Verify Ownership
-     *
-     * @since   4.0
-     * @access  public
-     */
+	 * Verify Ownership
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function _verifyOnwerShip($id)
 	{
 		$db = ED::db();
@@ -228,11 +287,11 @@ class plgUserEasyDiscussUsers extends JPlugin
 	}
 
 	/**
-     * Transer tags to the new owner
-     *
-     * @since   4.0
-     * @access  public
-     */
+	 * Transer tags to the new owner
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function ownerTransferTags($userId, $newOwnerShip)
 	{
 		$db = ED::db();
@@ -250,11 +309,11 @@ class plgUserEasyDiscussUsers extends JPlugin
 	}
 
 	/**
-     * Transfer Posts to the new owner
-     *
-     * @since   4.0
-     * @access  public
-     */
+	 * Transfer Posts to the new owner
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function ownerTransferPosts($userId, $newOwnerShip)
 	{
 		$db = ED::db();
@@ -272,11 +331,11 @@ class plgUserEasyDiscussUsers extends JPlugin
 	}
 
 	/**
-     * Transfer Posts to the new owner
-     *
-     * @since   4.1.13
-     * @access  public
-     */
+	 * Transfer Posts to the new owner
+	 *
+	 * @since   4.1.13
+	 * @access  public
+	 */
 	public function ownerTransferThread($userId, $newOwnerShip)
 	{
 		$db = ED::db();
@@ -305,11 +364,11 @@ class plgUserEasyDiscussUsers extends JPlugin
 	}
 
 	/**
-     * Transfer comments to the new owner
-     *
-     * @since   4.0
-     * @access  public
-     */
+	 * Transfer comments to the new owner
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function onwerTransferComments($userId, $newOwnerShip)
 	{
 		$db = ED::db();
@@ -394,11 +453,11 @@ class plgUserEasyDiscussUsers extends JPlugin
 	}
 
 	/**
-     * Remove all like records for this user
-     *
-     * @since   4.0
-     * @access  public
-     */
+	 * Remove all like records for this user
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function removeLikes($userId)
 	{
 		$db = ED::db();
@@ -432,11 +491,11 @@ class plgUserEasyDiscussUsers extends JPlugin
 	}
 
 	/**
-     * Remove all subscriptions for that particular user
-     *
-     * @since   4.0
-     * @access  public
-     */
+	 * Remove all subscriptions for that particular user
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function removeSubscription($userId)
 	{
 		$db = ED::db();
@@ -453,11 +512,11 @@ class plgUserEasyDiscussUsers extends JPlugin
 	}
 
 	/**
-     * Remove all Votes for this user
-     *
-     * @since   4.0
-     * @access  public
-     */
+	 * Remove all Votes for this user
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function removeVotes($userId)
 	{
 		$db = ED::db();
@@ -498,11 +557,11 @@ class plgUserEasyDiscussUsers extends JPlugin
 	}
 
 	/**
-     * Remove user from Easydiscuss table
-     *
-     * @since   4.0
-     * @access  public
-     */
+	 * Remove user from Easydiscuss table
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function removeEasyDiscussUser($userId)
 	{
 		$db = ED::db();
@@ -535,11 +594,11 @@ class plgUserEasyDiscussUsers extends JPlugin
 	}
 
 	/**
-     * Remove badges for this user
-     *
-     * @since   4.0
-     * @access  public
-     */
+	 * Remove badges for this user
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function removeBadges($userId)
 	{
 		$model = ED::model('Badges');
@@ -551,11 +610,11 @@ class plgUserEasyDiscussUsers extends JPlugin
 	}
 
 	/**
-     * Remove category moderator
-     *
-     * @since   4.0
-     * @access  public
-     */
+	 * Remove category moderator
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function removeModerator($userId)
 	{
 		$db = ED::db();

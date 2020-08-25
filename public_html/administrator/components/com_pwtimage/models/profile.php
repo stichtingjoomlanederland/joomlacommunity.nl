@@ -3,7 +3,7 @@
  * @package    Pwtimage
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
@@ -14,6 +14,7 @@ use Joomla\CMS\Language\Language;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\Registry\Registry;
+use Pwtimage\Pwtimage;
 
 defined('_JEXEC') or die;
 
@@ -92,7 +93,7 @@ class PwtimageModelProfile extends AdminModel
 	/**
 	 * Constructor.
 	 *
-	 * @param   array $config An optional associative array of configuration settings.
+	 * @param   array  $config  An optional associative array of configuration settings.
 	 *
 	 * @since   1.1.0
 	 */
@@ -107,8 +108,8 @@ class PwtimageModelProfile extends AdminModel
 	/**
 	 * Get the form.
 	 *
-	 * @param   array   $data     Data for the form.
-	 * @param   boolean $loadData True if the form is to load its own data (default case), false if not.
+	 * @param   array    $data      Data for the form.
+	 * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
 	 *
 	 * @return  mixed  A Form object on success | False on failure.
 	 *
@@ -130,14 +131,14 @@ class PwtimageModelProfile extends AdminModel
 	/**
 	 * Save the configuration.
 	 *
-	 * @param   array $data The form data.
+	 * @param   array  $data  The form data.
 	 *
 	 * @return  boolean  True on success or false on failure.
 	 *
-	 * @since   1.1.0
-	 *
 	 * @throws  Exception
 	 * @throws  RuntimeException
+	 * @since   1.1.0
+	 *
 	 */
 	public function save($data)
 	{
@@ -221,8 +222,8 @@ class PwtimageModelProfile extends AdminModel
 	/**
 	 * Save the extensions for a given profile.
 	 *
-	 * @param   array $extensions The list of extensions to save
-	 * @param   int   $profileId  The ID of the profile the extensions are linked to
+	 * @param   array  $extensions  The list of extensions to save
+	 * @param   int    $profileId   The ID of the profile the extensions are linked to
 	 *
 	 * @return  void
 	 *
@@ -377,8 +378,8 @@ class PwtimageModelProfile extends AdminModel
 	/**
 	 * Parse an XML node to find the path to the media element.
 	 *
-	 * @param   SimpleXMLElement $xml   The XML node to parse
-	 * @param   int              $level Keep track of the level we are at
+	 * @param   SimpleXMLElement  $xml    The XML node to parse
+	 * @param   int               $level  Keep track of the level we are at
 	 *
 	 * @return  boolean  True if found | False otherwise
 	 *
@@ -492,7 +493,8 @@ class PwtimageModelProfile extends AdminModel
 
 			$extension             = new stdClass;
 			$extension->path       = $extensionPath;
-			$extension->identifier = PwtimageHelper::getSysonymForOrigin($extensionName . '.' . implode('.', $this->identifier));
+			$pwtImage              = new Pwtimage;
+			$extension->identifier = $pwtImage->getSysonymForOrigin($extensionName . '.' . implode('.', $this->identifier));
 			$extension->breadcrumb = implode('.', $translation);
 
 			if (stripos($name, 'config.xml'))
@@ -507,8 +509,8 @@ class PwtimageModelProfile extends AdminModel
 	/**
 	 * Get the extension type.
 	 *
-	 * @param   string  $extension The name of the extension to get the type for
-	 * @param   boolean $translate If the type should be translated
+	 * @param   string   $extension  The name of the extension to get the type for
+	 * @param   boolean  $translate  If the type should be translated
 	 *
 	 * @return  string  The extension type
 	 *
@@ -554,7 +556,7 @@ class PwtimageModelProfile extends AdminModel
 	/**
 	 * Get the extension translated name.
 	 *
-	 * @param   array $breadcrumb The breadcrumb to translate
+	 * @param   array  $breadcrumb  The breadcrumb to translate
 	 *
 	 * @return  array  The translated breadcrumb
 	 *
@@ -627,8 +629,8 @@ class PwtimageModelProfile extends AdminModel
 	/**
 	 * Load the language file for a given extensions.
 	 *
-	 * @param   string $name The name of the extension to translate
-	 * @param   string $type The type of extension
+	 * @param   string  $name  The name of the extension to translate
+	 * @param   string  $type  The type of extension
 	 *
 	 * @return  Language  The language class
 	 *
@@ -665,7 +667,7 @@ class PwtimageModelProfile extends AdminModel
 	/**
 	 * List of language exceptions to deal with.
 	 *
-	 * @param   string $string The string to change
+	 * @param   string  $string  The string to change
 	 *
 	 * @return  string  The string to translate
 	 *
@@ -690,9 +692,9 @@ class PwtimageModelProfile extends AdminModel
 	 *
 	 * @return  array  The data for the form..
 	 *
+	 * @throws  Exception
 	 * @since   1.1.0
 	 *
-	 * @throws  Exception
 	 */
 	protected function loadFormData()
 	{
@@ -721,13 +723,13 @@ class PwtimageModelProfile extends AdminModel
 	/**
 	 * Method to get a single record.
 	 *
-	 * @param   integer $pk The id of the primary key.
+	 * @param   integer  $pk  The id of the primary key.
 	 *
 	 * @return  mixed    Object on success, false on failure.
 	 *
+	 * @throws  Exception
 	 * @since   1.1.0
 	 *
-	 * @throws  Exception
 	 */
 	public function getItem($pk = null)
 	{

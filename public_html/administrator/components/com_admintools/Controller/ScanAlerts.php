@@ -11,64 +11,23 @@ defined('_JEXEC') or die;
 
 use Akeeba\AdminTools\Admin\Controller\Mixin\CustomACL;
 use Akeeba\AdminTools\Admin\Model\Scans;
+use Akeeba\AdminTools\Admin\View\ScanAlerts\Html;
+use Exception;
 use FOF30\Controller\DataController;
-use JText;
+use Joomla\CMS\Language\Text;
 
 class ScanAlerts extends DataController
 {
 	use CustomACL;
 
-	protected function onBeforeBrowse()
-	{
-		if (
-			($this->input->getCmd('format', 'html') == 'csv') ||
-			($this->input->getCmd('layout', 'default') == 'print')
-		)
-		{
-			/** @var \Akeeba\AdminTools\Admin\Model\ScanAlerts $model */
-			$model = $this->getModel();
-			/** @var \Akeeba\AdminTools\Admin\View\ScanAlerts\Html $view */
-			$view  = $this->getView();
-
-			/** @var Scans $scansModel */
-			$scansModel = $this->container->factory->model('Scans')->tmpInstance();
-
-			$model->savestate(0)
-				  ->limit(0)
-				  ->limitstart(0);
-
-			$view->scan = $scansModel->find($this->input->getInt('scan_id', 0));
-		}
-	}
-
-	protected function onAfterCancel()
-	{
-		/** @var \Akeeba\AdminTools\Admin\Model\ScanAlerts $item */
-		$item = $this->getModel()->savestate(false);
-
-		$this->getIDsFromRequest($item, true);
-		$this->redirect .= '&scan_id=' . (int)$item->scan_id;
-
-		return true;
-	}
-
-	protected function onAfterSave()
-	{
-		/** @var \Akeeba\AdminTools\Admin\Model\ScanAlerts $item */
-		$item = $this->getModel()->find();
-		$this->redirect .= '&scan_id=' . (int)$item->scan_id;
-
-		return true;
-	}
-
 	public function add()
 	{
-		throw new \Exception(JText::_('JLIB_APPLICATION_ERROR_ACCESS_FORBIDDEN'), 403);
+		throw new Exception(Text::_('JLIB_APPLICATION_ERROR_ACCESS_FORBIDDEN'), 403);
 	}
 
 	public function delete()
 	{
-		throw new \Exception(JText::_('JLIB_APPLICATION_ERROR_ACCESS_FORBIDDEN'), 403);
+		throw new Exception(Text::_('JLIB_APPLICATION_ERROR_ACCESS_FORBIDDEN'), 403);
 	}
 
 	public function markallsafe()
@@ -90,6 +49,49 @@ class ScanAlerts extends DataController
 		}
 
 		$this->setRedirect(base64_decode($url));
+	}
+
+	protected function onBeforeBrowse()
+	{
+		if (
+			($this->input->getCmd('format', 'html') == 'csv') ||
+			($this->input->getCmd('layout', 'default') == 'print')
+		)
+		{
+			/** @var \Akeeba\AdminTools\Admin\Model\ScanAlerts $model */
+			$model = $this->getModel();
+			/** @var Html $view */
+			$view = $this->getView();
+
+			/** @var Scans $scansModel */
+			$scansModel = $this->container->factory->model('Scans')->tmpInstance();
+
+			$model->savestate(0)
+				->limit(0)
+				->limitstart(0);
+
+			$view->scan = $scansModel->find($this->input->getInt('scan_id', 0));
+		}
+	}
+
+	protected function onAfterCancel()
+	{
+		/** @var \Akeeba\AdminTools\Admin\Model\ScanAlerts $item */
+		$item = $this->getModel()->savestate(false);
+
+		$this->getIDsFromRequest($item, true);
+		$this->redirect .= '&scan_id=' . (int) $item->scan_id;
+
+		return true;
+	}
+
+	protected function onAfterSave()
+	{
+		/** @var \Akeeba\AdminTools\Admin\Model\ScanAlerts $item */
+		$item           = $this->getModel()->find();
+		$this->redirect .= '&scan_id=' . (int) $item->scan_id;
+
+		return true;
 	}
 
 	protected function onBeforePublish()

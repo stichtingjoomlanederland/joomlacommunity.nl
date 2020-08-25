@@ -5,11 +5,11 @@
   ~ @license   GNU General Public License version 3, or later
   -->
 
-<extension version="3.8.0" type="plugin" group="installer" method="upgrade">
+<extension version="3.9.0" type="plugin" group="installer" method="upgrade">
     <name>PLG_INSTALLER_ADMINTOOLS</name>
     <author>Nicholas K. Dionysopoulos</author>
-    <authorEmail>nicholas@akeebabackup.com</authorEmail>
-    <authorUrl>http://www.akeebabackup.com</authorUrl>
+    <authorEmail>nicholas@akeeba.com</authorEmail>
+    <authorUrl>https://www.akeeba.com</authorUrl>
     <copyright>Copyright (c)2006-2019 Nicholas K. Dionysopoulos</copyright>
     <license>GNU General Public License version 3, or later</license>
     <creationDate>2019-07-19</creationDate>

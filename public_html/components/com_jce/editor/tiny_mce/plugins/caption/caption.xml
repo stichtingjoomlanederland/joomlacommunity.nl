@@ -1,8 +1,8 @@
 <?xml version="1.0" ?>
 <extension version="3.4" type="plugin" group="jce" method="upgrade">
     <name>WF_CAPTION_TITLE</name>
-    <version>2.8.12</version>
-    <creationDate>12-05-2020</creationDate>
+    <version>2.8.15</version>
+    <creationDate>22-07-2020</creationDate>
     <author>Ryan Demmer</author>
     <authorEmail>info@joomlacontenteditor.net</authorEmail>
     <authorUrl>https://www.joomlacontenteditor.net</authorUrl>
@@ -23,8 +23,8 @@
         <fieldset name="config">
             <fieldset name="defaults">
 
-                <field name="text_color" class="color" size="10" type="text" default="" label="WF_CAPTION_TEXT_COLOR" description="WF_CAPTION_TEXT_COLOR_DESC" />
-                <field name="text_bgcolor" class="color" size="10" type="text" default="" label="WF_CAPTION_TEXT_BGCOLOR" description="WF_CAPTION_TEXT_BGCOLOR_DESC" />
+                <field name="text_color" class="color" size="10" type="color" default="" label="WF_CAPTION_TEXT_COLOR" description="WF_CAPTION_TEXT_COLOR_DESC" />
+                <field name="text_bgcolor" class="color" size="10" type="color" default="" label="WF_CAPTION_TEXT_BGCOLOR" description="WF_CAPTION_TEXT_BGCOLOR_DESC" />
                 <field name="text_align" type="list" default="" label="WF_CAPTION_TEXT_ALIGN" description="WF_CAPTION_TEXT_ALIGN_DESC">
                     <option value="">WF_OPTION_NOT_SET</option>
                     <option value="left">WF_OPTION_ALIGN_LEFT</option>
@@ -88,7 +88,7 @@
                     <option value="9">9</option>
                     <option value="10">10</option>
                 </field>
-                <field name="bgcolor" type="text" size="10" class="color" default="" label="WF_CAPTION_BGCOLOR" description="WF_CAPTION_BGCOLOR_DESC"/>
+                <field name="bgcolor" type="color" size="10" class="color" default="" label="WF_CAPTION_BGCOLOR" description="WF_CAPTION_BGCOLOR_DESC"/>
                 <field name="border" type="list" default="0" label="WF_PARAM_BORDER_ENABLE" description="WF_CAPTION_BORDER_ENABLE_DESC">
                     <option value="1">JYES</option>
                     <option value="0">JNO</option>
@@ -121,7 +121,7 @@
                     <option value="outset">WF_OPTION_BORDER_OUTSET</option>
                     <option value="ridge">WF_OPTION_BORDER_RIDGE</option>
                 </field>
-                <field name="border_color" type="text" size="10" class="color" default="#000000" label="WF_PARAM_BORDER_COLOR" description="WF_CAPTION_BORDER_COLOR_DESC"/>
+                <field name="border_color" type="color" size="10" class="color" default="#000000" label="WF_PARAM_BORDER_COLOR" description="WF_CAPTION_BORDER_COLOR_DESC"/>
                 <field name="align" type="list" default="" label="WF_PARAM_ALIGN_DEFAULT" description="WF_CAPTION_ALIGN_DESC">
                     <option value="">WF_OPTION_NOT_SET</option>
                     <option value="top">WF_OPTION_ALIGN_TOP</option>

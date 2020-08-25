@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -65,12 +65,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<?php echo JText::_('COM_EASYDISCUSS_SUBSCRIBE_CATEGORY_DESCRIPTION');?>
 		</p>
 
-		<div class="o-alert o-alert--warning hide" role="alert" data-subscribe-message><?php echo JText::_('COM_EASYDISCUSS_SUBSCRIBE_PLEASE_ENTER_NAME_EMAIL'); ?></div>
+		<div class="o-alert o-alert--warning t-hidden" role="alert" data-subscribe-message><?php echo JText::_('COM_EASYDISCUSS_SUBSCRIBE_PLEASE_ENTER_NAME_EMAIL'); ?></div>
 
 		<form data-form-response method="post" action="<?php echo JRoute::_('index.php');?>">
 
 			<?php if ($this->my->id) { ?>
-			<div class="form-inline">
+			<div class="form-horizontal">
 				<label><?php echo JText::_('COM_EASYDISCUSS_SUBSCRIBE_YOUR_EMAIL');?> : </label>
 				<span class="dc_ico email"><b><?php echo $this->my->email; ?></b></span>
 				<input type="hidden" id="subscribe_email" name="subscribe_email" value="<?php echo $this->my->email; ?>">

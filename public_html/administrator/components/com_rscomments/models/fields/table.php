@@ -34,7 +34,7 @@ class JFormFieldTable extends JFormField {
 		foreach($tables as $field)
 			$tables_list[] = JHtml::_('select.option', $field, $field);
 
-		$html = JHtml::_('select.genericlist', $tables_list, 'table', ' class="" onchange="rsc_update_cols(this.value);"', 'value', 'text', '');
+		$html = JHtml::_('select.genericlist', $tables_list, 'table', ' class="form-control" onchange="rsc_update_cols(this.value);"', 'value', 'text', '');
 		return $html;
 	}
 }

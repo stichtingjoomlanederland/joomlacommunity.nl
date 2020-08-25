@@ -11,17 +11,18 @@ defined('_JEXEC') or die;
 
 use FOF30\Container\Container;
 use FOF30\Model\DataModel;
+use Joomla\CMS\Language\Text;
 
 /**
- * @property   int     admintools_scanalert_id
- * @property   string  path
- * @property   int     scan_id
- * @property   string  diff
- * @property   string  threat_score
+ * @property   int    admintools_scanalert_id
+ * @property   string path
+ * @property   int    scan_id
+ * @property   string diff
+ * @property   string threat_score
  *
- * @property   int     newfile
- * @property   int     suspicious
- * @property   int     acknowledged
+ * @property   int    newfile
+ * @property   int    suspicious
+ * @property   int    acknowledged
  *
  * @method  $this   scan_id() scan_id(int $v)
  * @method  $this   acknowledged() acknowledged(bool $v)
@@ -42,7 +43,7 @@ class ScanAlerts extends DataModel
 	{
 		$config['tableName']   = '#__admintools_scanalerts';
 		$config['idFieldName'] = 'admintools_scanalert_id';
-		$config['aliasFields'] = array('enabled' => 'acknowledged');
+		$config['aliasFields'] = ['enabled' => 'acknowledged'];
 		$config['autoChecks']  = false;
 
 		parent::__construct($container, $config);
@@ -59,21 +60,21 @@ class ScanAlerts extends DataModel
 		$db = $this->getDbo();
 
 		$query = parent::buildQuery($overrideLimits)
-		               ->clear('select')
-		               ->clear('order')
-		               ->select(array(
-			               $db->qn('admintools_scanalert_id'),
-			               'IF(' . $db->qn('diff') . ' != "",0,1) AS ' . $db->qn('newfile'),
-			               'IF(' . $db->qn('diff') . ' LIKE "###SUSPICIOUS FILE###%",1,0) AS ' . $db->qn('suspicious'),
-			               'IF(' . $db->qn('diff') . ' != "",' .
-			               'IF(' . $db->qn('diff') . ' LIKE "###SUSPICIOUS FILE###%",' .
-			               $db->q('0-suspicious') . ',' . $db->q('2-modified') . ')'
-			               . ',' . $db->q('1-new') . ') AS ' . $db->qn('filestatus'),
-			               $db->qn('path'),
-			               $db->qn('threat_score'),
-			               $db->qn('acknowledged'),
-			               $db->qn('scan_id'),
-		               ));
+			->clear('select')
+			->clear('order')
+			->select([
+				$db->qn('admintools_scanalert_id'),
+				'IF(' . $db->qn('diff') . ' != "",0,1) AS ' . $db->qn('newfile'),
+				'IF(' . $db->qn('diff') . ' LIKE "###SUSPICIOUS FILE###%",1,0) AS ' . $db->qn('suspicious'),
+				'IF(' . $db->qn('diff') . ' != "",' .
+				'IF(' . $db->qn('diff') . ' LIKE "###SUSPICIOUS FILE###%",' .
+				$db->q('0-suspicious') . ',' . $db->q('2-modified') . ')'
+				. ',' . $db->q('1-new') . ') AS ' . $db->qn('filestatus'),
+				$db->qn('path'),
+				$db->qn('threat_score'),
+				$db->qn('acknowledged'),
+				$db->qn('scan_id'),
+			]);
 
 		$search = $this->getState('search', '');
 
@@ -112,7 +113,7 @@ class ScanAlerts extends DataModel
 			$order = $this->getState('filter_order', null, 'cmd');
 			$dir   = $this->getState('filter_order_Dir', 'ASC', 'cmd');
 
-			if (!in_array($order, array('path', 'threat_score', 'acknowledged', 'filestatus', 'newfile', 'suspcious')))
+			if (!in_array($order, ['path', 'threat_score', 'acknowledged', 'filestatus', 'newfile', 'suspcious']))
 			{
 				$order = 'threat_score';
 				$dir   = 'DESC';
@@ -124,22 +125,6 @@ class ScanAlerts extends DataModel
 		return $query;
 	}
 
-	protected function onBeforeSave(&$data)
-	{
-		// Let's remove all the fields created by the `AS xxx` SQL syntax
-		$fakeFields = array('newfile', 'suspicious', 'filestatus');
-
-		foreach ($fakeFields as $field)
-		{
-			// I can't use `isset` since if we have a null key the check will return false, but that
-			// would cause an error during the update
-			if (array_key_exists($field, $this->recordData))
-			{
-				unset($this->recordData[ $field ]);
-			}
-		}
-	}
-
 	public function getFileSourceForDisplay($highlight = false)
 	{
 		$filepath = JPATH_ROOT . '/' . $this->path;
@@ -148,7 +133,7 @@ class ScanAlerts extends DataModel
 		// With very large files do not display the whole contents, but instead show a placeholder
 		if ($filesize > $this->filesizeThreshold)
 		{
-			return \JText::sprintf('COM_ADMINTOOLS_SCANS_FILE_TOO_LARGE', round($filesize / 1024 / 1024, 2));
+			return Text::sprintf('COM_ADMINTOOLS_SCANS_FILE_TOO_LARGE', round($filesize / 1024 / 1024, 2));
 		}
 
 		$filedata = @file_get_contents($filepath);
@@ -160,8 +145,8 @@ class ScanAlerts extends DataModel
 
 		$highlightPrefixSuspicious = "%*!*[[###  ";
 		$highlightSuffixSuspicious = "  ###]]*!*%";
-		$highlightPrefixKnownHack = "%*{{!}}*[[###  ";
-		$highlightSuffixKnownHack = "  ###]]*{{!}}*%";
+		$highlightPrefixKnownHack  = "%*{{!}}*[[###  ";
+		$highlightSuffixKnownHack  = "  ###]]*{{!}}*%";
 
 		/** @var string $encodedConfig Defined in the included file */
 		require_once $this->container->backEndPath . '/Model/Scanner/encodedconfig.php';
@@ -177,9 +162,9 @@ class ScanAlerts extends DataModel
 
 		unset($new_list);
 
-		/** @var array $suspiciousWords  Simple array of words that are suspicious */
-		/** @var array $knownHackSignatures  Known hack signatures, $signature => $weight */
-		/** @var array $suspiciousRegEx  Suspicious constructs' RegEx, $regex => $weight */
+		/** @var array $suspiciousWords Simple array of words that are suspicious */
+		/** @var array $knownHackSignatures Known hack signatures, $signature => $weight */
+		/** @var array $suspiciousRegEx Suspicious constructs' RegEx, $regex => $weight */
 
 
 		foreach ($suspiciousWords as $word)
@@ -201,9 +186,12 @@ class ScanAlerts extends DataModel
 			$i++;
 			$count = preg_match_all($pattern, $filedata, $matches);
 
-			if (!$count) continue;
+			if (!$count)
+			{
+				continue;
+			}
 
-			$filedata = preg_replace_callback($pattern, function($m) use ($highlightPrefixSuspicious, $highlightSuffixSuspicious, $i) {
+			$filedata = preg_replace_callback($pattern, function ($m) use ($highlightPrefixSuspicious, $highlightSuffixSuspicious, $i) {
 				return $highlightPrefixSuspicious . $m[0] . $highlightSuffixSuspicious;
 				// DEBUG
 				// return $highlightPrefixSuspicious . "[[[ $i ]]]" . $m[0] . $highlightSuffixSuspicious;
@@ -214,18 +202,18 @@ class ScanAlerts extends DataModel
 
 		$filedata = str_replace([
 			$highlightPrefixSuspicious,
-			$highlightSuffixSuspicious
+			$highlightSuffixSuspicious,
 		], [
 			'<span style="background: yellow; font-weight: bold; color: red; padding: 2px 4px">',
-			'</span>'
+			'</span>',
 		], $filedata);
 
 		$filedata = str_replace([
 			$highlightPrefixKnownHack,
-			$highlightSuffixKnownHack
+			$highlightSuffixKnownHack,
 		], [
 			'<span style="background: red; font-weight: bold; color: white; padding: 2px 4px">',
-			'</span>'
+			'</span>',
 		], $filedata);
 
 		return $filedata;
@@ -256,5 +244,21 @@ class ScanAlerts extends DataModel
 			->where($db->qn('scan_id') . ' = ' . $db->q($scan_id))
 			->where($db->qn('threat_score') . ' > ' . $db->q(0));
 		$db->setQuery($query)->execute();
+	}
+
+	protected function onBeforeSave(&$data)
+	{
+		// Let's remove all the fields created by the `AS xxx` SQL syntax
+		$fakeFields = ['newfile', 'suspicious', 'filestatus'];
+
+		foreach ($fakeFields as $field)
+		{
+			// I can't use `isset` since if we have a null key the check will return false, but that
+			// would cause an error during the update
+			if (array_key_exists($field, $this->recordData))
+			{
+				unset($this->recordData[$field]);
+			}
+		}
 	}
 }

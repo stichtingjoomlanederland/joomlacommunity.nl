@@ -1,86 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form>
-	<field name="id" type="hidden" />
-	<field name="name" type="hidden" />
-	<field name="start" type="hidden" />
-	<field name="end" type="hidden" />
-	<field name="description" type="editor" filter="JComponentHelper::filterText" buttons="true" />
-	<field name="small_description" type="hidden" />
-	<field name="location" type="hidden" />
-	<field name="owner" type="user" />
-	<field name="URL" type="hidden" />
-	<field name="email" type="hidden" />
-	<field name="phone" type="hidden" />
-	<field name="metaname" type="hidden" />
-	<field name="metakeywords" type="hidden" />
-	<field name="metadescription" type="hidden" />
-	<field name="recurring" type="hidden" />
-	<field name="registration" type="hidden" />
-	<field name="comments" type="hidden" />
-	<field name="repeat_interval" type="hidden" />
-	<field name="repeat_type" type="hidden" />
-	<field name="repeat_end" type="hidden" />
-	<field name="repeat_also" type="hidden" />
-	<field name="repeat_on_type" type="hidden" />
-	<field name="repeat_on_day" type="hidden" />
-	<field name="repeat_on_day_order" type="hidden" />
-	<field name="repeat_on_day_type" type="hidden" />
-	<field name="exclude_dates" type="hidden" />
-	<field name="start_registration" type="hidden" />
-	<field name="end_registration" type="hidden" />
-	<field name="unsubscribe_date" type="hidden" />
-	<field name="payments" type="hidden" />
-	<field name="max_tickets" type="hidden" />
-	<field name="max_tickets_amount" type="hidden" />
-	<field name="notify_me" type="hidden" />
-	<field name="notify_me_unsubscribe" type="hidden" />
-	<field name="overbooking" type="hidden" />
-	<field name="overbooking_amount" type="hidden" />
-	<field name="show_registered" type="hidden" />
-	<field name="automatically_approve" type="hidden" />
-	<field name="paypal_email" type="hidden" />
-	<field name="discounts" type="hidden" />
-	<field name="form" type="hidden" />
-	<field name="early_fee" type="hidden" />
-	<field name="early_fee_type" type="hidden" />
-	<field name="early_fee_end" type="hidden" />
-	<field name="late_fee" type="hidden" />
-	<field name="late_fee_type" type="hidden" />
-	<field name="late_fee_start" type="hidden" />
-	<field name="options" type="hidden" />
-	<field name="published" type="hidden" />
-	<field name="ticket_pdf" type="hidden" />
-	<field name="ticket_pdf_layout" type="editor" filter="JComponentHelper::filterText" buttons="true" />
-	<field name="gallery_tags" type="hidden" />
-	<field name="sync" type="hidden" />
-	<field name="allday" type="hidden" />
-	<field name="ticketsconfig" type="hidden" />
-	<field name="featured" type="hidden" />
-	<field name="itemid" type="hidden" />
-	<field name="rsvp" type="hidden" />
-	<field name="rsvp_quota" type="hidden" />
-	<field name="rsvp_guests" type="hidden" />
-	<field name="rsvp_start" type="hidden" />
-	<field name="rsvp_end" type="hidden" />
-	<field name="rsvp_going" type="hidden" />
-	<field name="rsvp_interested" type="hidden" />
-	<field name="rsvp_notgoing" type="hidden" />
-	<field name="event_ended" type="hidden" />
-	<field name="event_full" type="hidden" />
-	<field name="rsm_enable" type="hidden" />
-	<field name="rsm_when" type="hidden" />
-	<field name="rsm_lists" type="hidden" />
-	<field name="waitinglist" type="hidden" />
-	<field name="waitinglist_limit" type="hidden" />
-	<field name="waitinglist_time" type="hidden" />
-	<field name="waitinglist_user" type="hidden" />
-	<field name="waitinglist_admin" type="hidden" />
-	
-	<field name="created" type="hidden" filter="unset" />
-	<field name="icon" type="hidden" filter="unset" />
-	<field name="archived" type="hidden" filter="unset" />
-	<field name="completed" type="hidden" filter="unset" />
-	<field name="approved" type="hidden" filter="unset" />
-	<field name="properties" type="hidden" filter="unset" />
-	<field name="sid" type="hidden" filter="unset" />
+	<fieldset addfieldpath="/administrator/components/com_rseventspro/models/fields">
+		<field name="id" type="hidden" />
+		<field name="name" type="hidden" />
+		<field name="start" type="hidden" />
+		<field name="end" type="hidden" />
+		<field name="description" type="editor" filter="JComponentHelper::filterText" buttons="true" />
+		<field name="small_description" type="hidden" />
+		<field name="location" type="hidden" />
+		<field name="owner" type="user" />
+		<field name="URL" type="hidden" />
+		<field name="email" type="hidden" />
+		<field name="phone" type="hidden" />
+		<field name="metaname" type="hidden" />
+		<field name="metakeywords" type="hidden" />
+		<field name="metadescription" type="hidden" />
+		<field name="recurring" type="hidden" />
+		<field name="registration" type="hidden" />
+		<field name="comments" type="hidden" />
+		<field name="repeat_interval" type="hidden" />
+		<field name="repeat_type" type="hidden" />
+		<field name="repeat_end" type="hidden" />
+		<field name="repeat_also" type="hidden" />
+		<field name="repeat_on_type" type="hidden" />
+		<field name="repeat_on_day" type="hidden" />
+		<field name="repeat_on_day_order" type="hidden" />
+		<field name="repeat_on_day_type" type="hidden" />
+		<field name="exclude_dates" type="hidden" />
+		<field name="start_registration" type="hidden" />
+		<field name="end_registration" type="hidden" />
+		<field name="unsubscribe_date" type="hidden" />
+		<field name="payments" type="hidden" />
+		<field name="max_tickets" type="hidden" />
+		<field name="max_tickets_amount" type="hidden" />
+		<field name="notify_me" type="hidden" />
+		<field name="notify_me_paid" type="hidden" />
+		<field name="notify_me_unsubscribe" type="hidden" />
+		<field name="overbooking" type="hidden" />
+		<field name="overbooking_amount" type="hidden" />
+		<field name="show_registered" type="hidden" />
+		<field name="automatically_approve" type="hidden" />
+		<field name="paypal_email" type="hidden" />
+		<field name="discounts" type="hidden" />
+		<field name="form" type="hidden" />
+		<field name="early_fee" type="hidden" />
+		<field name="early_fee_type" type="hidden" />
+		<field name="early_fee_end" type="hidden" />
+		<field name="late_fee" type="hidden" />
+		<field name="late_fee_type" type="hidden" />
+		<field name="late_fee_start" type="hidden" />
+		<field name="options" type="hidden" />
+		<field name="published" type="hidden" />
+		<field name="ticket_pdf" type="hidden" />
+		<field name="ticket_pdf_layout" type="editor" filter="JComponentHelper::filterText" buttons="true" />
+		<field name="gallery_tags" type="hidden" />
+		<field name="sync" type="hidden" />
+		<field name="allday" type="hidden" />
+		<field name="ticketsconfig" type="hidden" />
+		<field name="featured" type="hidden" />
+		<field name="itemid" type="hidden" />
+		<field name="rsvp" type="hidden" />
+		<field name="rsvp_quota" type="hidden" />
+		<field name="rsvp_guests" type="hidden" />
+		<field name="rsvp_start" type="hidden" />
+		<field name="rsvp_end" type="hidden" />
+		<field name="rsvp_going" type="hidden" />
+		<field name="rsvp_interested" type="hidden" />
+		<field name="rsvp_notgoing" type="hidden" />
+		<field name="event_ended" type="hidden" />
+		<field name="event_full" type="hidden" />
+		<field name="rsm_enable" type="hidden" />
+		<field name="rsm_when" type="hidden" />
+		<field name="rsm_lists" type="hidden" />
+		<field name="waitinglist" type="hidden" />
+		<field name="waitinglist_limit" type="hidden" />
+		<field name="waitinglist_time" type="hidden" />
+		<field name="waitinglist_user" type="hidden" />
+		<field name="waitinglist_admin" type="hidden" />
+		<field name="tickets_amount" type="hidden" />
+		<field name="invoice" type="hidden" />
+		<field name="invoice_attach" type="hidden" />
+		<field name="invoice_type" type="hidden" />
+		
+		<field name="invoice_font" type="font" default="times" label="COM_RSEVENTSPRO_CONF_INVOICE_FONT" description="COM_RSEVENTSPRO_CONF_INVOICE_FONT_DESC" />
+		<field name="invoice_orientation" type="list" default="portrait" label="COM_RSEVENTSPRO_CONF_INVOICE_ORIENTATION" description="COM_RSEVENTSPRO_CONF_INVOICE_ORIENTATION_DESC">
+			<option value="portrait">COM_RSEVENTSPRO_CONF_INVOICE_ORIENTATION_PORTRAIT</option>
+			<option value="landscape">COM_RSEVENTSPRO_CONF_INVOICE_ORIENTATION_LANDSCAPE</option>
+		</field>
+		<field name="invoice_padding" type="text" default="7" label="COM_RSEVENTSPRO_CONF_INVOICE_PADDING" description="COM_RSEVENTSPRO_CONF_INVOICE_PADDING_DESC" size="10" filter="integer" />
+		<field name="invoice_prefix" type="text" default="" label="COM_RSEVENTSPRO_CONF_INVOICE_PREFIX" description="COM_RSEVENTSPRO_CONF_INVOICE_PREFIX_DESC" size="10" />
+		<field name="invoice_title" type="text" default="" label="COM_RSEVENTSPRO_CONF_INVOICE_TITLE" description="COM_RSEVENTSPRO_CONF_INVOICE_TITLE_DESC" size="70" />
+		<field name="invoice_layout" type="editor" label="COM_RSEVENTSPRO_CONF_INVOICE_LAYOUT" description="COM_RSEVENTSPRO_CONF_INVOICE_LAYOUT_DESC" width="300" filter="safehtml" />
+		
+		<field name="created" type="hidden" filter="unset" />
+		<field name="icon" type="hidden" filter="unset" />
+		<field name="archived" type="hidden" filter="unset" />
+		<field name="completed" type="hidden" filter="unset" />
+		<field name="approved" type="hidden" filter="unset" />
+		<field name="properties" type="hidden" filter="unset" />
+		<field name="sid" type="hidden" filter="unset" />
+	</fieldset>
 </form>

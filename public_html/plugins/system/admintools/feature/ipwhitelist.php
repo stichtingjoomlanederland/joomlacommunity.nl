@@ -33,7 +33,7 @@ class AtsystemFeatureIpwhitelist extends AtsystemFeatureAbstract
 	public function onAfterInitialise()
 	{
 		// Let's get a list of allowed IP ranges
-		$db = $this->db;
+		$db  = $this->db;
 		$sql = $db->getQuery(true)
 			->select($db->qn('ip'))
 			->from($db->qn('#__admintools_adminiplist'));

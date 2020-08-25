@@ -20,23 +20,121 @@ class UsersController extends acymController
         acym_setVar('layout', 'listing');
 
         $data = [];
-        $data['search'] = acym_getVar('string', 'users_search', '');
         $data['ordering'] = acym_getVar('string', 'users_ordering', 'id');
         $data['orderingSortOrder'] = acym_getVar('string', 'users_ordering_sort_order', 'desc');
-        $data['status'] = acym_getVar('string', 'users_status', '');
         $data['pagination'] = acym_get('helper.pagination');
 
+        $this->prepareListingFilters($data);
         $this->prepareUsersListing($data);
         $this->prepareUsersSubscriptions($data);
         $this->prepareUsersFields($data);
+        $this->prepareToolbar($data);
 
         parent::display($data);
+    }
+
+    protected function prepareToolbar(&$data)
+    {
+        $toolbarHelper = acym_get('helper.toolbar');
+        $toolbarHelper->addSearchBar($data['search'], 'users_search', 'ACYM_SEARCH');
+        $toolbarHelper->addOptionSelect(
+            acym_translation('ACYM_LIST'),
+            acym_select(
+                $data['lists'],
+                'users_list',
+                $data['list'],
+                ['class' => 'acym__select'],
+                'id',
+                'name'
+            )
+        );
+        $toolbarHelper->addOptionSelect(
+            acym_translation('ACYM_SUBSCRIPTION_STATUS'),
+            acym_select(
+                $data['list_statuses'],
+                'list_status',
+                $data['list_status'],
+                ['class' => 'acym__select']
+            )
+        );
+
+        $toolbarHelper->addButton(
+            acym_translation('ACYM_EXPORT').' (<span id="acym__users__listing__number_to_export" data-default="'.strtolower(acym_translation('ACYM_ALL')).'">'.strtolower(acym_translation('ACYM_ALL')).'</span>)',
+            ['data-task' => 'export', 'type' => 'submit'],
+            'upload'
+        );
+        $toolbarHelper->addButton(acym_translation('ACYM_IMPORT'), ['data-task' => 'import'], 'download');
+        $entityHelper = acym_get('helper.entitySelect');
+        $otherContent = acym_modal(
+            '<i class="acymicon-bell1"></i>'.acym_translation('ACYM_SUBSCRIBE').' (<span id="acym__users__listing__number_to_add_to_list">0</span>)',
+            $entityHelper->entitySelect(
+                'list',
+                ['join' => ''],
+                $entityHelper->getColumnsForList(),
+                ['text' => acym_translation('ACYM_SUBSCRIBE_USERS_TO_THESE_LISTS'), 'action' => 'addToList']
+            ),
+            null,
+            '',
+            'class="acym__toolbar__button acym__toolbar__button-secondary disabled cell medium-6 large-shrink" id="acym__users__listing__button--add-to-list"'
+        );
+        $toolbarHelper->addOtherContent($otherContent);
+        $toolbarHelper->addButton(acym_translation('ACYM_CREATE'), ['data-task' => 'edit'], 'user-plus', true);
+
+        $data['toolbar'] = $toolbarHelper;
+    }
+
+    protected function prepareListingFilters(&$data)
+    {
+        $data['status'] = acym_getVar('string', 'users_status', '');
+        $data['search'] = acym_getVar('string', 'users_search', '');
+        $data['list'] = acym_getVar('int', 'users_list', 0);
+
+        $listClass = acym_get('class.list');
+        $data['lists'] = $listClass->getAll('name');
+        $defaultList = new stdClass();
+        $defaultList->id = 0;
+        $defaultList->name = acym_translation('ACYM_SELECT_A_LIST');
+        array_unshift($data['lists'], $defaultList);
+
+        $data['list_statuses'] = [
+            'sub' => acym_translation('ACYM_SUBSCRIBED'),
+            'unsub' => acym_translation('ACYM_UNSUBSCRIBED'),
+            'none' => acym_translation('ACYM_NO_SUBSCRIPTION_STATUS'),
+        ];
+        $data['list_status'] = acym_getVar('string', 'list_status', 'sub');
+
+        if (!empty($data['list'])) {
+            $data['status_toolbar'] = [
+                'users_list' => $data['list'],
+                'list_status' => $data['list_status'],
+            ];
+        }
     }
 
     protected function prepareUsersListing(&$data)
     {
         $usersPerPage = $data['pagination']->getListLimit();
         $page = acym_getVar('int', 'users_pagination_page', 1);
+
+        $joins = [];
+        $conditions = [];
+        if (!empty($data['list'])) {
+            $listJoin = 'JOIN #__acym_user_has_list AS list ON user.id = list.user_id AND list.list_id = '.intval($data['list']);
+
+            if ($data['list_status'] === 'none') {
+                $joins[] = 'LEFT '.$listJoin;
+                $conditions[] = 'list.user_id IS NULL';
+            } else {
+                $joins[] = $listJoin;
+                if ($data['list_status'] === 'sub') {
+                    $conditions[] = 'list.status = 1';
+                } else {
+                    $conditions[] = 'list.status = 0';
+                }
+            }
+        }
+
+        $joins[] = 'LEFT JOIN '.$this->cmsUserVars->table.' AS cmsuser ON cmsuser.'.$this->cmsUserVars->id.' = `user`.cms_id ';
 
         $matchingUsers = $this->getMatchingElementsFromData(
             [
@@ -46,6 +144,12 @@ class UsersController extends acymController
                 'status' => $data['status'],
                 'ordering' => $data['ordering'],
                 'ordering_sort_order' => $data['orderingSortOrder'],
+                'columns' => [
+                    '*',
+                    'join' => '`cmsuser`.'.$this->cmsUserVars->username.' AS `cms_username`',
+                ],
+                'joins' => $joins,
+                'conditions' => $conditions,
             ],
             $data['status'],
             $page
@@ -132,6 +236,7 @@ class UsersController extends acymController
             $data['user-information']->active = '1';
             $data['user-information']->confirmed = '1';
             $data['user-information']->cms_id = null;
+            $data['user-information']->tracking = 1;
 
             $this->breadcrumb[acym_escape(acym_translation('ACYM_NEW_USER'))] = acym_completeLink('users&task=edit');
         } else {
@@ -156,17 +261,15 @@ class UsersController extends acymController
 
         $entityHelper = acym_get('helper.entitySelect');
 
-        $columnsToDisplay = [0 => 'name', 1 => 'id'];
-        $columnsToDisplay['join'] = 'userlist.list_id';
+        $columnsToDisplay = $entityHelper->getColumnsForList('userlist.list_id');
 
         $data['entityselect'] = acym_modal(
-            acym_translation('ACYM_ADD_SUBSCRIPTION'),
+            acym_translation('ACYM_MANAGE_SUBSCRIPTION'),
             $entityHelper->entitySelect(
                 'list',
                 ['join' => 'join_user-'.$userId],
                 $columnsToDisplay,
-                ['text' => acym_translation('ACYM_CONFIRM'), 'action' => 'apply'],
-                false
+                ['text' => acym_translation('ACYM_CONFIRM'), 'action' => 'apply']
             ),
             null,
             '',
@@ -339,10 +442,10 @@ class UsersController extends acymController
             $one->display = empty($one->option->display) ? '' : json_decode($one->option->display);
             $data['allFields'][$one->id] = $one;
             if ($one->id == 1) {
-                $defaultValue = acym_escape(empty($data['user-information']->id) ? '' : $data['user-information']->name);
+                $defaultValue = empty($data['user-information']->id) ? '' : $data['user-information']->name;
             } elseif ($one->id == 2) {
-                $defaultValue = acym_escape(empty($data['user-information']->id) ? '' : $data['user-information']->email);
-            } elseif (isset($data['fieldsValues'][$one->id]) && ((is_countable($data['fieldsValues'][$one->id]) && count($data['fieldsValues'][$one->id]) > 0) || (is_string($data['fieldsValues'][$one->id]) && strlen($data['fieldsValues'][$one->id]) > 0))) {
+                $defaultValue = empty($data['user-information']->id) ? '' : $data['user-information']->email;
+            } elseif (isset($data['fieldsValues'][$one->id]) && (((is_array($data['fieldsValues'][$one->id]) || $data['fieldsValues'][$one->id] instanceof Countable) && count($data['fieldsValues'][$one->id]) > 0) || (is_string($data['fieldsValues'][$one->id]) && strlen($data['fieldsValues'][$one->id]) > 0))) {
                 $decoded = json_decode($data['fieldsValues'][$one->id]);
                 $defaultValue = is_null($decoded) ? $data['fieldsValues'][$one->id] : $decoded;
             } else {
@@ -456,18 +559,36 @@ class UsersController extends acymController
         $listClass = acym_get('class.list');
         $lists = $listClass->getAll();
 
-        $checkedUsers = acym_getVar('array', 'elements_checked', []);
+        $preselectList = acym_getVar('boolean', 'preselectList', false);
+        $checkedElements = acym_getVar('array', 'elements_checked', []);
+
+        $list = acym_getVar('int', 'users_list', 0);
+        if (!empty($list)) {
+            $preselectList = true;
+            $checkedElements = [$list];
+        }
 
         $fields = acym_getColumns('user');
 
         $fieldClass = acym_get('class.field');
         $customFields = $fieldClass->getAllfields();
 
+        $entityHelper = acym_get('helper.entitySelect');
+
+        if ($preselectList) {
+            $entitySelect = $entityHelper->entitySelect('list', ['join' => 'join_lists-'.implode(',', $checkedElements)], $entityHelper->getColumnsForList('lists.list_id', true));
+        } else {
+            $entitySelect = $entityHelper->entitySelect('list', ['join' => ''], $entityHelper->getColumnsForList('', true));
+        }
+
         $data = [
             'lists' => $lists,
-            'checkedUsers' => $checkedUsers,
+            'checkedElements' => $checkedElements,
             'fields' => $fields,
             'customfields' => $customFields,
+            'isPreselectedList' => $preselectList,
+            'entitySelect' => $entitySelect,
+            'exportListStatus' => acym_getVar('string', 'list_status', 'all'),
         ];
 
         parent::display($data);
@@ -602,13 +723,61 @@ class UsersController extends acymController
         $this->edit();
     }
 
-    public function subscribeUser($listing = false)
+    public function unsubscribeUserFromAll()
+    {
+        $userId = acym_getVar('int', 'id');
+
+        if (empty($userId)) {
+            $this->listing();
+
+            return;
+        }
+
+        $lists = [];
+        $subscriptions = $this->currentClass->getSubscriptionStatus($userId);
+        foreach ($subscriptions as $i => $oneList) {
+            if ($oneList->status == 1) {
+                $lists[] = $oneList->list_id;
+            }
+        }
+
+        $this->currentClass->unsubscribe($userId, $lists);
+
+        $this->edit();
+    }
+
+    public function resubscribeUserToAll()
+    {
+        $userId = acym_getVar('int', 'id');
+
+        if (empty($userId)) {
+            $this->listing();
+
+            return;
+        }
+
+        $lists = [];
+        $subscriptions = $this->currentClass->getSubscriptionStatus($userId);
+        foreach ($subscriptions as $i => $oneList) {
+            if ($oneList->status == 0) {
+                $lists[] = $oneList->list_id;
+            }
+        }
+
+        $this->currentClass->subscribe($userId, $lists);
+
+        $this->edit();
+    }
+
+    public function subscribeUser($returnOnEdit = true)
     {
         $userId = acym_getVar('int', 'id');
         $lists = json_decode(acym_getVar('string', 'acym__entity_select__selected'));
 
         if (empty($userId)) {
-            $userId = $this->currentClass->save();
+            $this->listing();
+
+            return;
         }
 
         if (!is_array($lists)) {
@@ -617,11 +786,7 @@ class UsersController extends acymController
 
         $this->currentClass->subscribe($userId, $lists);
 
-        if (!$listing) {
-            $this->edit();
-        } else {
-            $this->listing();
-        }
+        if ($returnOnEdit) $this->edit();
     }
 
     public function save()
@@ -634,11 +799,13 @@ class UsersController extends acymController
         $userInformation = acym_getVar('array', 'user');
         $userId = acym_getVar('int', 'id');
         $listsToAdd = json_decode(acym_getVar('string', 'acym__entity_select__selected'));
+        $listsToUnsub = json_decode(acym_getVar('string', 'acym__entity_select__unselected'));
         $user = new stdClass();
         $user->name = $userInformation['name'];
         $user->email = $userInformation['email'];
         $user->active = $userInformation['active'];
         $user->confirmed = $userInformation['confirmed'];
+        $user->tracking = $userInformation['tracking'];
         $customFields = acym_getVar('array', 'customField');
 
         preg_match('/'.acym_getEmailRegex().'/i', $user->email, $matches);
@@ -666,22 +833,27 @@ class UsersController extends acymController
             }
             acym_setVar('id', $userId);
         } else {
+            $existingUser = $this->currentClass->getOneByEmail($user->email);
+            if (!empty($existingUser) && $existingUser->id != $userId) {
+                acym_enqueueMessage(acym_translation_sprintf('ACYM_X_ALREADY_EXIST', $user->email), 'error');
+                $this->edit();
+
+                return;
+            }
             $user->id = $userId;
             $this->currentClass->save($user, $customFields);
         }
 
-        if (!empty($listsToAdd)) {
-            $this->subscribeUser($listing);
-
-            return;
-        }
-
+        if (!empty($listsToAdd)) $this->subscribeUser(false);
+        if (!empty($listsToUnsub)) $this->currentClass->unsubscribeOnSubscriptions($userId, $listsToUnsub);
 
         if ($listing) {
             $this->listing();
         } else {
             $this->edit();
         }
+
+        return;
     }
 
     public function getColumnsFromTable()

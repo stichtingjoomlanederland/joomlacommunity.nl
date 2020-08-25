@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -315,5 +315,9 @@ class RSEventsProPlaceholders {
 		);
 		
 		return array_merge(self::$globals, $cancel);
+	}
+	
+	public static function notify_me_paid() {
+		return self::notify_me();
 	}
 }

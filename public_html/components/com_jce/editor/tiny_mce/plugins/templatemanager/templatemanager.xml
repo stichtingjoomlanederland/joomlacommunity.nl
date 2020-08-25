@@ -1,8 +1,8 @@
 <?xml version="1.0" ?>
 <extension version="3.4" type="plugin" group="jce" method="upgrade">
 	<name>WF_TEMPLATEMANAGER_TITLE</name>
-	<version>2.8.12</version>
-	<creationDate>12-05-2020</creationDate>
+	<version>2.8.15</version>
+	<creationDate>22-07-2020</creationDate>
 	<author>Ryan Demmer</author>
 	<authorEmail>info@joomlacontenteditor.net</authorEmail>
 	<authorUrl>https://www.joomlacontenteditor.net/</authorUrl>
@@ -37,7 +37,14 @@
 			
 			<field name="templates" type="templates" default="" label="WF_TEMPLATEMANAGER_TEMPLATES" description="WF_TEMPLATEMANAGER_TEMPLATES_DESC" showon="template_list:1">
 				<field type="text" name="name" size="30" default="" label="WF_TEMPLATEMANAGER_TEMPLATES_NAME" description="WF_TEMPLATEMANAGER_TEMPLATES_NAME_DESC" />
-				<field type="mediajce" name="url" size="30" mediatype="html,htm,txt" default="" label="WF_TEMPLATEMANAGER_TEMPLATES_URL" description="WF_TEMPLATEMANAGER_TEMPLATES_URL_DESC" />
+				<field type="mediajce" name="thumbnail" size="30" mediatype="images" default="" label="WF_TEMPLATEMANAGER_TEMPLATES_THUMBNAIL" description="WF_TEMPLATEMANAGER_TEMPLATES_THUMBNAIL_DESC" />
+				
+				<field type="spacer" />
+				
+				<field type="mediajce" name="url" size="30" mediatype="html,htm,txt" default="" label="WF_TEMPLATEMANAGER_TEMPLATES_FILE" description="WF_TEMPLATEMANAGER_TEMPLATES_FILE_DESC" />
+
+				<field type="spacer" label="or" />
+
 				<field type="textarea" name="html" filter="html" rows="2" cols="3" class="input-xlarge" default="" label="WF_TEMPLATEMANAGER_TEMPLATES_HTML" spellcheck="false" description="WF_TEMPLATEMANAGER_TEMPLATES_HTML_DESC" />
             </field>
 			

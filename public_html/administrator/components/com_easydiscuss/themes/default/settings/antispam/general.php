@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -19,6 +19,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="panel-body">
 				<div class="form-horizontal">
 					<?php echo $this->html('settings.toggle', 'main_filterbadword', 'COM_EASYDISCUSS_ENABLE_BAD_WORDS_FILTER'); ?>
+					<?php echo $this->html('settings.toggle', 'antispam_disallow_editing', 'COM_ED_ANTISPAM_DISALLOW_EDITING'); ?>
+					<?php echo $this->html('settings.textbox', 'antispam_disallow_editing_days', 'COM_ED_ANTISPAM_DISALLOW_EDITING_DAYS', '', array('size' => 4, 'postfix' => 'Days'), '', 'form-control-sm text-center'); ?>
 					<div class="form-group">
 						<div class="col-md-5 control-label">
 							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_BAD_WORDS'); ?>

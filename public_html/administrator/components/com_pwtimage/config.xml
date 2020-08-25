@@ -1,24 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
-    <fieldset
-            name="safety"
-            label="COM_PWTIMAGE_CONFIG_SAFETY"
-    >
+    <fieldset name="image">
         <field
-                name="guestupload"
-                type="radio"
-                label="COM_PWTIMAGE_ALLOW_GUEST_IMAGE_UPLOAD"
-                description="COM_PWTIMAGE_ALLOW_GUEST_IMAGE_UPLOAD_DESC"
-                class="btn-group btn-group-yesno"
-                default="0"
-        >
-            <option value="1">JYES</option>
-            <option value="0">JNO</option>
-        </field>
+                name="prefix"
+                type="text"
+                label="COM_PWTIMAGE_PREFIX_LABEL"
+                description="COM_PWTIMAGE_PREFIX_DESC"
+                default=""
+                size="50"
+                class="input-xxlarge"
+        />
+        <field
+                name="suffix"
+                type="text"
+                label="COM_PWTIMAGE_SUFFIX_LABEL"
+                description="COM_PWTIMAGE_SUFFIX_DESC"
+                default=""
+                size="50"
+                class="input-xxlarge"
+        />
     </fieldset>
 
     <fieldset name="update">
-        <field name="downloadid" type="text" default="" size="50" label="COM_PWTIMAGE_DOWNLOAD_LABEL" description ="COM_PWTIMAGE_DOWNLOAD_DESC" />
+        <field
+                name="downloadid"
+                type="text"
+                label="COM_PWTIMAGE_DOWNLOAD_LABEL"
+                description="COM_PWTIMAGE_DOWNLOAD_DESC"
+                default=""
+                size="50"
+        />
     </fieldset>
 
     <fieldset

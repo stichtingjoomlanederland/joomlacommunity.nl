@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fieldset name="advanced">
+
+        <field name="psp-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_PSP"/>
+
+        <field name="IDEAL_Bank"
+               type="jdideal.banks"
+               label="COM_ROPAYMENTS_BANK_LABEL"
+               description="COM_ROPAYMENTS_ADVANCED_BANK_DESC"
+               required="true"
+               size="1"
+               labelclass="config"
+               class="advancedSelect">
+        </field>
+
+        <field name="IDEAL_PrivatekeyPass"
+               type="text"
+               label="COM_ROPAYMENTS_ADVANCED_PRIV_PASS_LABEL"
+               description="COM_ROPAYMENTS_ADVANCED_PRIV_PASS_DESC"
+               required="true"
+               size="25"
+               labelclass="config"/>
+
+        <field name="IDEAL_MerchantID"
+               type="text"
+               label="COM_ROPAYMENTS_ADVANCED_MERCHANT_ID_LABEL"
+               description="COM_ROPAYMENTS_ADVANCED_MERCHANT_ID_DESC"
+               required="true"
+               size="25"
+               labelclass="config"/>
+
+        <field name="IDEAL_SubID"
+               type="text"
+               label="COM_ROPAYMENTS_ADVANCED_SUBID_LABEL"
+               description="COM_ROPAYMENTS_ADVANCED_SUBID_DESC"
+               required="true"
+               size="25"
+               default="0"
+               labelclass="config"/>
+
+        <field name="certificateID"
+               type="list"
+               label="COM_ROPAYMENTS_ADVANCED_CERTIFICATEID_LABEL"
+               description="COM_ROPAYMENTS_ADVANCED_CERTIFICATEID_DESC"
+               required="false"
+               size="1"
+               default="1"
+               labelclass="config"
+               class="advancedSelect"
+               showon="IDEAL_Bank:RABOBANKSEPA,RABOBANKSEPATEST,INGSEPA,INGSEPATEST">
+            <option value="1">COM_ROPAYMENTS_ADVANCED_NEW_CERTIFICATE</option>
+        </field>
+
+        <field name="IDEAL_DESCRIPTION"
+               type="text"
+               label="COM_ROPAYMENTS_ADVANCED_DESCRIPTION_LABEL"
+               description="COM_ROPAYMENTS_ADVANCED_DESCRIPTION_DESC"
+               class="input-xxlarge"
+               required="true"
+               size="50"
+               labelclass="config"/>
+
+        <field name="redirect"
+               type="jdideal.waitoptions"
+               label="COM_ROPAYMENTS_WAIT_TIME_ADVANCED_LABEL"
+               description="COM_ROPAYMENTS_WAIT_TIME_ADVANCED_DESC"
+               required="true"
+               size="1"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="status-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_STATUS"/>
+
+        <field name="pendingStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_PENDING_LABEL"
+               description="COM_ROPAYMENTS_STATUS_PENDING_DESC"
+               required="false"
+               size="1"
+               default="P"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="verifiedStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_SUCCESS_LABEL"
+               description="COM_ROPAYMENTS_STATUS_SUCCESS_DESC"
+               required="false"
+               size="1"
+               default="C"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="cancelledStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_CANCELLED_LABEL"
+               description="COM_ROPAYMENTS_STATUS_CANCELLED_DESC"
+               required="false"
+               size="1"
+               default="X"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="failedStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_FAILED_LABEL"
+               description="COM_ROPAYMENTS_STATUS_FAILED_DESC"
+               required="false"
+               size="1"
+               default="F"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="openStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_OPEN_LABEL"
+               description="COM_ROPAYMENTS_STATUS_OPEN_DESC"
+               required="false"
+               size="1"
+               default="P"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="ordernumber-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_ORDERNUMBERS"/>
+
+        <field name="orderNumber"
+               type="jdideal.ordernumber"
+               label="COM_ROPAYMENTS_ORDERNUMBER_LABEL"
+               description="COM_ROPAYMENTS_ORDERNUMBER_DESC"
+               required="false"
+               size="1"
+               default="order_number"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="IDEAL_Privatekey" type="hidden" default="priv.pem"/>
+        <field name="IDEAL_Privatecert" type="hidden" default="cert.cer"/>
+        <field name="IDEAL_AuthenticationType" type="hidden" default="SHA1_RSA"/>
+        <field name="IDEAL_AcquirerTimeout" type="hidden" default="10"/>
+        <field name="IDEAL_Currency" type="hidden" default="EUR"/>
+        <field name="IDEAL_ExpirationPeriod" type="hidden" default="PT10M"/>
+        <field name="IDEAL_Language" type="hidden" default="nl"/>
+    </fieldset>
+
+    <fields name="certificate">
+        <field name="cert_upload"
+               type="file"
+               size="80"/>
+
+        <field name="priv_upload"
+               type="file"
+               size="80"/>
+    </fields>
+</form>

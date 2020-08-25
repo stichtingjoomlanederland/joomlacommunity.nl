@@ -212,7 +212,6 @@ class EasyDiscussModelRoles extends EasyDiscussAdminModel
 	 * Total roles
 	 *
 	 * @access public
-	 * @return array
 	 */
 	public function getTotalRoles()
 	{
@@ -225,5 +224,43 @@ class EasyDiscussModelRoles extends EasyDiscussAdminModel
 		$result = $db->loadResult();
 
 		return $result;		
-	}	
+	}
+
+	/**
+	 * Retrieve the Joomla User Group Ids which have its role already
+	 *
+	 * @since	4.1.8
+	 * @access public
+	 */
+	public function getSelectedUserGroupIds($exclude = array())
+	{
+		$db = ED::db();
+
+		$query = 'SELECT `usergroup_id` FROM ' . $db->nameQuote('#__discuss_roles');
+		$where = array();
+
+		if (!empty($exclude['id']) && $exclude['id']) {
+			$where[] = ' `id` != ' . $db->quote($exclude['id']);
+		}
+
+		if (!empty($exclude['usergroup_id']) && $exclude['usergroup_id']) {
+			$where[] = ' `usergroup_id` != ' . $db->quote($exclude['usergroup_id']);
+		}
+
+		if (!empty($where)) {
+			$query .= ' WHERE ' . implode(' ', $where);
+		}
+
+		$db->setQuery($query);
+
+		$result = $db->loadColumn();
+
+		if (!$result) {
+			return array();
+		}
+
+		$result = array_unique($result);
+
+		return $result;
+	}
 }

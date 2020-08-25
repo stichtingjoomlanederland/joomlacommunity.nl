@@ -130,28 +130,51 @@ class plgSystemRSComments extends JPlugin
 			if (RSCommentsHelper::getConfig('frontend_jquery')) {
 				$loadJquery		= true;
 				
-				if (strpos($string, 'media/jui/js/jquery.min.js') !== false) {
+				if (RSCommentsHelper::isJ4()) {
+					$wa = JFactory::getApplication()->getDocument()->getWebAssetManager();
+					$jQueryScript = $wa->getAsset('script','jquery')->getUri();
+					$jQueryNoCScript = $wa->getAsset('script','jquery-noconflict')->getUri();
+				} else {
+					$jQueryScript = JURI::root(true).'/media/jui/js/jquery.min.js';
+					$jQueryNoCScript = JURI::root(true).'/media/jui/js/jquery-noconflict.js';
+				}
+				
+				if (strpos($string, $jQueryScript) !== false) {
 					$loadJquery = false;
 				}
 				
 				if ($loadJquery) {
-					$scripts[] = '<script src="'.JURI::root(true).'/media/jui/js/jquery.min.js" type="text/javascript"></script>';
-					$scripts[] = '<script src="'.JURI::root(true).'/media/jui/js/jquery-noconflict.js" type="text/javascript"></script>';
+					$scripts[] = '<script src="'.$jQueryScript.'" type="text/javascript"></script>';
+					$scripts[] = '<script src="'.$jQueryNoCScript.'" type="text/javascript"></script>';
 				}
 			}
 			
 			if (RSCommentsHelper::getConfig('load_bootstrap')) {
 				$loadBootstrap	= true;
 				
-				if (strpos($string, 'media/jui/js/bootstrap.min.js') !== false) {
+				if (RSCommentsHelper::isJ4()) {
+					$wa = JFactory::getApplication()->getDocument()->getWebAssetManager();
+					$bootstrapScript = $wa->getAsset('script','bootstrap.init.legacy')->getUri();
+				} else {
+					$bootstrapScript = JURI::root(true).'/media/jui/js/bootstrap.min.js';
+				}
+				
+				if (strpos($string, $bootstrapScript) !== false) {
 					$loadBootstrap = false;
 				}
 				
 				if ($loadBootstrap) {
-					$scripts[] = '<script src="'.JURI::root(true).'/media/jui/js/bootstrap.min.js" type="text/javascript"></script>';
-					$css[] = '<link rel="stylesheet" href="'.JURI::root(true).'/media/jui/bootstrap.min.css" type="text/css" />';
-					$css[] = '<link rel="stylesheet" href="'.JURI::root(true).'/media/jui/bootstrap-responsive.min.css" type="text/css" />';
-					$css[] = '<link rel="stylesheet" href="'.JURI::root(true).'/media/jui/bootstrap-extended.css" type="text/css" />';
+					$scripts[] = '<script src="'.$bootstrapScript.'" type="text/javascript"></script>';
+					
+					if (RSCommentsHelper::isJ4()) {
+						$wa = JFactory::getApplication()->getDocument()->getWebAssetManager();
+						$bootstrapCSS = $wa->getAsset('style','bootstrap.css')->getUri();
+						$css[] = '<link rel="stylesheet" href="'.$bootstrapCSS.'" type="text/css" />';
+					} else {					
+						$css[] = '<link rel="stylesheet" href="'.JURI::root(true).'/media/jui/bootstrap.min.css" type="text/css" />';
+						$css[] = '<link rel="stylesheet" href="'.JURI::root(true).'/media/jui/bootstrap-responsive.min.css" type="text/css" />';
+						$css[] = '<link rel="stylesheet" href="'.JURI::root(true).'/media/jui/bootstrap-extended.css" type="text/css" />';
+					}
 				}
 			}
 		}
@@ -213,7 +236,7 @@ class plgSystemRSComments extends JPlugin
 			$recaptchaAPI = 'https://www.google.com/recaptcha/api.js?render=explicit&amp;hl='.JFactory::getLanguage()->getTag();
 			
 			if (strpos($body, $recaptchaAPI) === false) {
-				$html .= "\n".'<script src="'.$recaptchaAPI.'" type="text/javascript"></script>';
+				$html .= "\n".'<script src="'.$recaptchaAPI.'" '.($config->recaptcha_new_size == 'invisible' ? 'async defer' : '').'></script>';
 			}
 			
 			$html .= "\n".$additional;
@@ -227,16 +250,28 @@ class plgSystemRSComments extends JPlugin
 		$permissions = RSCommentsHelper::getPermissions();
 		$scripts = array();
 		
-		if ($config->captcha == 2) {
+		if ($config->captcha == 2 && isset($permissions['captcha']) && $permissions['captcha']) {
 			$scripts[] = '<script type="text/javascript">';
-			$scripts[] = "\t".'RSCommentsReCAPTCHAv2.loaders.push(function() {';
-			$scripts[] = "\t\t".'var id = grecaptcha.render(\'rsc-g-recaptcha-'.$hash.'\', {';
-			$scripts[] = "\t\t\t".'\'sitekey\': \''.htmlentities($config->recaptcha_new_site_key, ENT_QUOTES, 'UTF-8').'\',';
-			$scripts[] = "\t\t\t".'\'theme\': \''.htmlentities($config->recaptcha_new_theme, ENT_QUOTES, 'UTF-8').'\',';
-			$scripts[] = "\t\t\t".'\'type\': \''.htmlentities($config->recaptcha_new_type, ENT_QUOTES, 'UTF-8').'\'';
-			$scripts[] = "\t\t".'});';
-			$scripts[] = "\t\t".'RSCommentsReCAPTCHAv2.ids[\''.$hash.'\'] = id;';
-			$scripts[] = "\t".'});';
+			$scripts[] = "RSCommentsReCAPTCHAv2.loaders.push(function(){";
+			$scripts[] = "\tvar id = grecaptcha.render('rsc-g-recaptcha-".$hash."', {";
+			$scripts[] = "\t\t'sitekey': '".htmlentities($config->recaptcha_new_site_key, ENT_QUOTES, 'UTF-8')."',";
+			$scripts[] = "\t\t'theme': '".htmlentities($config->recaptcha_new_theme, ENT_QUOTES, 'UTF-8')."',";
+			$scripts[] = "\t\t'type': '".htmlentities($config->recaptcha_new_type, ENT_QUOTES, 'UTF-8')."',";
+			
+			if ($config->recaptcha_new_size == 'invisible') {
+				$scripts[] = "\t\t'badge': '".htmlentities($config->recaptcha_new_badge, ENT_QUOTES, 'UTF-8')."',";
+			}
+			
+			$scripts[] = "\t\t'size': '".htmlentities($config->recaptcha_new_size, ENT_QUOTES, 'UTF-8')."'";
+			$scripts[] = "\t});";
+			$scripts[] = "\tRSCommentsReCAPTCHAv2.ids['$hash'] = id;";
+			$scripts[] = "\tRSCommentsReCAPTCHAv2.type['$hash'] = '".htmlentities($config->recaptcha_new_size, ENT_QUOTES, 'UTF-8')."';";
+			
+			if ($config->recaptcha_new_size == 'invisible') {
+				$scripts[] = "\tgrecaptcha.execute(id);";
+			}
+			
+			$scripts[] = "});";
 			$scripts[] = '</script>';
 			
 			return implode("\n",$scripts)."\n";

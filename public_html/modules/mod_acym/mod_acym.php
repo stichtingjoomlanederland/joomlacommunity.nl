@@ -181,7 +181,7 @@ echo "<script type=\"text/javascript\">
                 ?>
 
 				<input type="hidden" name="ajax" value="<?php echo acym_escape($ajax); ?>" />
-				<input type="hidden" name="acy_source" value="<?php echo acym_escape($params->get('source', 'mod_'.$module->id)); ?>" />
+				<input type="hidden" name="acy_source" value="<?php echo acym_escape($params->get('source', 'Module n°'.$module->id)); ?>" />
 				<input type="hidden" name="hiddenlists" value="<?php echo implode(',', $hiddenLists); ?>" />
 				<input type="hidden" name="fields" value="<?php echo 'name,email'; ?>" />
 				<input type="hidden" name="acyformname" value="<?php echo acym_escape($formName); ?>" />

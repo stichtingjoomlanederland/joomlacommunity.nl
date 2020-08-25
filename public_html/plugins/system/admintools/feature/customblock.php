@@ -5,6 +5,8 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Factory;
+
 defined('_JEXEC') or die;
 
 class AtsystemFeatureCustomblock extends AtsystemFeatureAbstract
@@ -20,7 +22,7 @@ class AtsystemFeatureCustomblock extends AtsystemFeatureAbstract
 		}
 
 		// This is an underhanded way to short-circuit Joomla!'s internal router.
-		$input = JFactory::getApplication()->input;
+		$input = Factory::getApplication()->input;
 		$input->set('option', 'com_admintools');
 		$input->set('view', 'Blocks');
 		$input->set('task', 'browse');

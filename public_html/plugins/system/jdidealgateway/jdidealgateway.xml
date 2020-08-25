@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.5" type="plugin" group="system" method="upgrade">
+	<name>PLG_SYSTEM_JDIDEALGATEWAY_TITLE</name>
+	<creationDate>20 July 2020</creationDate>
+	<author>RolandD Cyber Produksi</author>
+	<authorEmail>contact@rolandd.com</authorEmail>
+	<authorUrl>https://rolandd.com</authorUrl>
+	<copyright>Copyright (C) 2017 - 2020 RolandD Cyber Produksi. All rights reserved.</copyright>
+	<license>GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html</license>
+	<version>6.0.2</version>
+	<description>PLG_SYSTEM_JDIDEALGATEWAY_DESCRIPTION</description>
+
+	<scriptfile>script.php</scriptfile>
+
+	<files>
+		<filename plugin="jdidealgateway">jdidealgateway.php</filename>
+		<folder>language</folder>
+	</files>
+</extension>

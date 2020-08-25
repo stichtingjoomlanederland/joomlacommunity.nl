@@ -1,0 +1,98 @@
+#dopay {
+	background: white;
+	padding: 5px;
+	border: 1px solid #777;
+	-webkit-border-radius: 15px;
+	-moz-border-radius: 15px;
+	border-radius: 15px;
+}
+
+#paybox {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+	position: relative;
+}
+
+#paybox_banks {
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	margin-bottom: 10px;
+}
+
+#paybox_button {
+	background-color: #DDD;
+	border: none;
+	color: white;
+	padding: 10px 28px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 14px;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+}
+
+#paybox_button a:link, #paybox_button a:visited {
+	text-align: center;
+	text-decoration: none;
+	color: black;
+}
+
+#showtimer {
+	text-align: center;
+	padding-top: 15px;
+	margin: 5px;
+}
+
+#payment, #banks {
+	display: block;
+	width: 100%;
+}
+
+#paybox_button {
+	background: none !important;
+}
+
+#paybox_button a {
+	display: inline-block;
+	outline: none;
+	cursor: pointer;
+	text-align: center;
+	text-decoration: none;
+	font: 14px/100% Arial, Helvetica, sans-serif;
+	padding: .5em 2em .55em;
+	text-shadow: 0 1px 1px rgba(0,0,0,.3);
+	-webkit-border-radius: .5em;
+	-moz-border-radius: .5em;
+	border-radius: .5em;
+	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	color: #fef4e9 !important;
+	border: solid 1px #da7c0c !important;
+	background: #f78d1d !important;
+	background: -webkit-gradient(linear, left top, left bottom, from(#faa51a), to(#f47a20)) !important;
+	background: -moz-linear-gradient(top,  #faa51a,  #f47a20) !important;
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#faa51a', endColorstr='#f47a20') !important;
+}
+
+#paybox_button a:before {
+	content: '\e286';
+	font-family: icomoon, sans-serif;
+	speak: none;
+	margin-right: 5px;
+	display: inline-block;
+}
+
+#paybox_button a:hover {
+	color: #fef4e9 !important;
+	border: solid 1px #d0710c !important;
+	background: #ed821d !important;
+	background: -webkit-gradient(linear, left top, left bottom, from(#f09b1a), to(#ea7620)) !important;
+	background: -moz-linear-gradient(top, #f09a1a, #ea7521) !important;
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#faa51a', endColorstr='#f47a20') !important;
+}

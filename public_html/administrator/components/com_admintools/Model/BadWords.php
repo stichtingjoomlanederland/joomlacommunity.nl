@@ -11,12 +11,12 @@ defined('_JEXEC') or die;
 
 use FOF30\Container\Container;
 use FOF30\Model\DataModel;
-use JText;
+use Joomla\CMS\Language\Text;
 use RuntimeException;
 
 /**
- * @property   int		$id
- * @property   string	$word
+ * @property   int    $id
+ * @property   string $word
  *
  * @method  $this  word()  word(string|array $v)
  */
@@ -43,7 +43,7 @@ class BadWords extends DataModel
 	{
 		if (!$this->word)
 		{
-			throw new RuntimeException(JText::_('COM_ADMINTOOLS_ERR_BADWORD_NEEDS_WORD'));
+			throw new RuntimeException(Text::_('COM_ADMINTOOLS_ERR_BADWORD_NEEDS_WORD'));
 		}
 
 		return parent::check();

@@ -27,7 +27,6 @@ $phpVersion = phpversion();
 $uploadLimit = ini_get('upload_max_filesize');
 $memoryLimit = ini_get('memory_limit');
 $postSize = ini_get('post_max_size');
-$magicQuotes = get_magic_quotes_gpc() && JVERSION > 3;
 
 if (stripos($memoryLimit, 'G') !== false) {
 
@@ -40,7 +39,7 @@ if (stripos($memoryLimit, 'G') !== false) {
 $postSize = 4;
 $hasErrors = false;
 
-if (!$gd || !$curl || $memoryLimit < 64 || $magicQuotes) {
+if (!$gd || !$curl || $memoryLimit < 64) {
 	$hasErrors 	= true;
 }
 
@@ -110,7 +109,7 @@ foreach ($files as $file) {
 }
 
 ?>
-<script type="text/javascript">
+<script>
 jQuery(document).ready(function(){
 
 	$ = jQuery;
@@ -249,27 +248,6 @@ jQuery(document).ready(function(){
 					<i class="icon-cancel-2"></i>
 				</td>
 				<?php } ?>
-			</tr>
-			<tr class="<?php echo $magicQuotes ? 'error' : '';?>">
-				<td>
-					<div class="clearfix">
-						<span class="label label-info"><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_PHP');?></span> Magic Quotes GPC
-
-						<?php if ($magicQuotes) { ?>
-						<a href="https://stackideas.com/docs/easydiscuss/administrators/setup/magic_quotes" target="_blank" class="btn btn-primary btn-xs"><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_FIX_THIS');?></a>
-						<?php } ?>
-					</div>
-				</td>
-				<td class="text-center text-success">
-					<?php echo JText::_('Disabled');?>
-				</td>
-				<td class="text-center text-<?php echo $magicQuotes ? 'error' : 'success';?>">
-					<?php if (!$magicQuotes) { ?>
-						<?php echo JText::_('COM_EASYDISCUSS_SETUP_DISABLED');?>
-					<?php } else { ?>
-						<?php echo JText::_('COM_EASYDISCUSS_SETUP_ENABLED');?>
-					<?php } ?>
-				</td>
 			</tr>
 			<tr class="<?php echo $memoryLimit < 64 ? 'error' : '';?>">
 				<td>

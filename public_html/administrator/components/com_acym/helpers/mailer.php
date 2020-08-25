@@ -306,7 +306,7 @@ class acymmailerHelper extends acyPHPMailer
             $finalContent .= '<meta name="viewport" content="width=device-width, initial-scale=1.0" />'."\n";
             $finalContent .= '<title>'.$this->Subject.'</title>'."\n";
             $finalContent .= '<style type="text/css">'.implode('</style><style type="text/css">', $style).'</style>';
-            if (!empty($this->headers)) $finalContent .= $this->headers;
+            if (!empty($this->mailHeader)) $finalContent .= $this->mailHeader;
             $finalContent .= '</head>'.$this->Body.'</html>';
 
             $this->Body = $finalContent;
@@ -319,6 +319,8 @@ class acymmailerHelper extends acyPHPMailer
         if (!empty($warnings) && strpos($warnings, 'bloque')) {
             $result = false;
         }
+
+        $this->mailHeader = '';
 
         $receivers = [];
         foreach ($this->to as $oneReceiver) {
@@ -334,7 +336,11 @@ class acymmailerHelper extends acyPHPMailer
             }
             $this->errorNumber = 1;
             if ($this->report) {
-                $this->reportMessage = str_replace('Could not instantiate mail function', '<a target="_blank" href="'.ACYM_REDIRECT.'could-not-instantiate-mail-function">Could not instantiate mail function</a>', $this->reportMessage);
+                $this->reportMessage = str_replace(
+                    'Could not instantiate mail function',
+                    '<a target="_blank" href="'.ACYM_REDIRECT.'could-not-instantiate-mail-function">'.acym_translation('ACYM_COUND_NOT_INSTANCIATE_MAIL_FUCNTION').'</a>',
+                    $this->reportMessage
+                );
                 acym_enqueueMessage(nl2br($this->reportMessage), 'error');
             }
         } else {
@@ -405,7 +411,25 @@ class acymmailerHelper extends acyPHPMailer
         return $this->defaultMail[$mailId];
     }
 
-    public function sendOne($mailId, $user, $isTest = false)
+    private function canTrack($mailId, $user)
+    {
+        if (empty($mailId) || empty($user) || $user->tracking != 1) return false;
+
+        $mailClass = acym_get('class.mail');
+
+        $mail = $mailClass->getOneById($mailId);
+        if (!empty($mail) && $mail->tracking != 1) return false;
+
+        $lists = $mailClass->getAllListsByMailIdAndUserId($mailId, $user->id);
+
+        foreach ($lists as $list) {
+            if ($list->tracking != 1) return false;
+        }
+
+        return true;
+    }
+
+    public function sendOne($mailId, $user, $isTest = false, $testNote = '')
     {
         $this->clearAll();
 
@@ -427,7 +451,7 @@ class acymmailerHelper extends acyPHPMailer
                 $newUser->email = $user;
                 $this->userClass->checkVisitor = false;
                 $this->userClass->sendConf = false;
-                acym_setVar('acy_source', 'auto_on_sending');
+                acym_setVar('acy_source', 'When sending a test');
                 $userId = $this->userClass->save($newUser);
                 $receiver = $this->userClass->getOneById($userId);
             }
@@ -462,6 +486,9 @@ class acymmailerHelper extends acyPHPMailer
 
         $this->Subject = $this->defaultMail[$mailId]->subject;
         $this->Body = $this->defaultMail[$mailId]->body;
+        if ($isTest && $testNote != '') {
+            $this->Body = '<div style="text-align: center; padding: 25px; font-family: Poppins; font-size: 20px">'.$testNote.'</div>'.$this->Body;
+        }
         $this->Preheader = $this->defaultMail[$mailId]->preheader;
 
         if ($this->config->get('multiple_part', false)) {
@@ -474,7 +501,7 @@ class acymmailerHelper extends acyPHPMailer
         $this->settings = json_decode($this->defaultMail[$mailId]->settings, true);
 
         if (!empty($this->defaultMail[$mailId]->headers)) {
-            $this->headers = $this->defaultMail[$mailId]->headers;
+            $this->mailHeader = $this->defaultMail[$mailId]->headers;
         }
 
         $this->setFrom($this->defaultMail[$mailId]->from_email, $this->defaultMail[$mailId]->from_name);
@@ -547,7 +574,7 @@ class acymmailerHelper extends acyPHPMailer
         $this->stylesheet = &$this->stylesheet;
         $this->links_language = $this->defaultMail[$mailId]->links_language;
 
-        if (!$isTest) {
+        if (!$isTest && $this->canTrack($mailId, $receiver)) {
             $this->statPicture($this->id, $receiver->id);
             $this->body = acym_absoluteURL($this->body);
             $this->statClick($this->id, $receiver->id);
@@ -586,7 +613,7 @@ class acymmailerHelper extends acyPHPMailer
         $width = empty($widthsize) ? '' : ' width="'.$widthsize.'" ';
         $height = empty($heightsize) ? '' : ' height="'.$heightsize.'" ';
 
-        $statPicture = '<img class="spict" alt="" src="'.$pictureLink.'"  border="0" '.$height.$width.'/>';
+        $statPicture = '<img class="spict" alt="Statistics image" src="'.$pictureLink.'"  border="0" '.$height.$width.'/>';
 
         if (strpos($this->body, '</body>')) {
             $this->body = str_replace('</body>', $statPicture.'</body>', $this->body);

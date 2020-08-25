@@ -25,6 +25,15 @@ class FronttoggleController extends ToggleController
         $this->icons['user']['active'][0] = 'acymicon-times-circle acym__color__red';
         $this->icons['user']['confirmed'][1] = 'acymicon-check-circle acym__color__green';
         $this->icons['user']['confirmed'][0] = 'acymicon-times-circle acym__color__red';
+
+        $this->tooltips['user']['active'][1] = 'ACYM_ACTIVATED';
+        $this->tooltips['user']['active'][0] = 'ACYM_DEACTIVATED';
+        $this->tooltips['user']['confirmed'][1] = 'ACYM_CONFIRMED';
+        $this->tooltips['user']['confirmed'][0] = 'ACYM_NOT_CONFIRMED';
+        $this->tooltips['list']['active'][1] = 'ACYM_ACTIVATED';
+        $this->tooltips['list']['active'][0] = 'ACYM_DEACTIVATED';
+        $this->tooltips['list']['visible'][1] = 'ACYM_VISIBLE';
+        $this->tooltips['list']['visible'][0] = 'ACYM_INVISIBLE';
     }
 
     protected function listGlobal($id, $table, $field, $newValue)

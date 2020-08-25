@@ -2,7 +2,7 @@
 <form>
 	<fields name="filter">
 		<field name="search" type="text" label="JSEARCH_FILTER" hint="JSEARCH_FILTER" />
-		<field name="component" type="components" onchange="document.getElementById('rsc_filter_component_id').value='';this.form.submit();" class="input-large" default="">
+		<field name="component" type="components" onchange="rsc_change_filter();this.form.submit();" class="input-large" default="">
 			<option value="">COM_RSCOMMENTS_SELECT_COMPONENT_LIST_ITEM</option>
 		</field>
 	</fields>

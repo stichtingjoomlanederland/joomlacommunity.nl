@@ -3,13 +3,14 @@
  * @package    Pwtimage
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
 
 use Joomla\CMS\Helper\ContentHelper;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\View\HtmlView;
 
 defined('_JEXEC') or die;
@@ -22,6 +23,21 @@ defined('_JEXEC') or die;
  */
 class PwtimageViewDashboard extends HtmlView
 {
+	/**
+	 * Array with profiles
+	 *
+	 * @var    array
+	 * @since  1.5.0
+	 */
+	protected $items;
+	/**
+	 * Access rights of a user
+	 *
+	 * @var    Joomla\CMS\Object\CMSObject
+	 * @since  1.5.0
+	 */
+	protected $canDo;
+
 	/**
 	 * The sidebar to show
 	 *
@@ -44,6 +60,11 @@ class PwtimageViewDashboard extends HtmlView
 	 */
 	public function display($tpl = null)
 	{
+		/** @var PwtImageModelProfiles $profiles */
+		$profiles       = BaseDatabaseModel::getInstance('Profiles', 'PwtImageModel', ['ignore_request' => true]);
+		$this->profiles = $profiles->getItems();
+		$this->canDo    = ContentHelper::getActions('com_pwtimage');
+
 		// Render the sidebar
 		$pwtimageHelper = new PwtimageHelper;
 		$pwtimageHelper->addSubmenu('dashboard');

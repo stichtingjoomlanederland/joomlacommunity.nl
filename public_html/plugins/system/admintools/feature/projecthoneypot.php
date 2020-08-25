@@ -130,7 +130,7 @@ class AtsystemFeatureProjecthoneypot extends AtsystemFeatureAbstract
 			return false;
 		}
 
-		$classes = array();
+		$classes = [];
 
 		if ($ip[3] & 1)
 		{
@@ -147,7 +147,7 @@ class AtsystemFeatureProjecthoneypot extends AtsystemFeatureAbstract
 			$classes[] = 'Comment Spammer';
 		}
 
-		$class = implode(', ', $classes);
+		$class           = implode(', ', $classes);
 		$this->extraInfo = <<<ENDINFO
 HTTP:BL analysis for blocked spammer's IP address $ip
 	Attacker class		: $class

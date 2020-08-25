@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -15,166 +15,214 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussControllerMaintenance extends EasyDiscussController
 {
-    public function __construct()
-    {
-        parent::__construct();
+	public function __construct()
+	{
+		parent::__construct();
 
-        $this->checkAccess('discuss.manage.maintenance');
-    }
+		$this->checkAccess('discuss.manage.maintenance');
+	}
 
-    public function runscript()
-    {
-        // Check for request forgeries
-        ED::checkToken();
+	public function runscript()
+	{
+		// Check for request forgeries
+		ED::checkToken();
 
-        // Get the key
-        $key = $this->input->get('key', '', 'default');
+		// Get the key
+		$key = $this->input->get('key', '', 'default');
 
-        // Get the model
-        $model = ED::model('Maintenance');
-        $script = $model->getItemByKey($key);
+		// Get the model
+		$model = ED::model('Maintenance');
+		$script = $model->getItemByKey($key);
 
-        if (!$script) {
-            return $this->ajax->reject(JText::_('COM_EASYDISCUSS_MAINTENANCE_SCRIPT_NOT_FOUND'));
-        }
+		if (!$script) {
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_MAINTENANCE_SCRIPT_NOT_FOUND'));
+		}
 
-        $classname = $script->classname;
+		$classname = $script->classname;
 
-        if (!class_exists($classname)) {
-            return $this->ajax->reject(JText::_('COM_EASYDISCUSS_MAINTENANCE_CLASS_NOT_FOUND'));
-        }
+		if (!class_exists($classname)) {
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_MAINTENANCE_CLASS_NOT_FOUND'));
+		}
 
-        $class = new $classname;
+		$class = new $classname;
 
-        try {
-            $class->main();
-        } catch (Exception $e) {
-            return $this->ajax->reject($e->getMessage());
-        }
+		try {
+			$class->main();
+		} catch (Exception $e) {
+			return $this->ajax->reject($e->getMessage());
+		}
 
-        return $this->ajax->resolve();
-    }
+		return $this->ajax->resolve();
+	}
 
-    public function getDatabaseStats()
-    {
-        $path = DISCUSS_ADMIN_UPDATES;
+	public function getDatabaseStats()
+	{
+		$path = DISCUSS_ADMIN_UPDATES;
 
-        jimport('joomla.filesystem.file');
+		jimport('joomla.filesystem.file');
 
-        $files = JFolder::files($path, '.json$', true, true);
+		$files = JFolder::files($path, '.json$', true, true);
 
-        $versions = array();
+		$versions = array();
 
-        foreach ($files as $file) {
-            $segments = explode('/', $file);
+		foreach ($files as $file) {
+			$segments = explode('/', $file);
 
-            $version = $segments[count($segments) - 2];
+			$version = $segments[count($segments) - 2];
 
-            // we do not want to execute db scripts prior to 3.2.0
-            if (!in_array($version, $versions) && version_compare($version, '3.3.0') > 0) {
-                $versions[] = $version;
-            }
-        }
+			// we do not want to execute db scripts prior to 3.2.0
+			if (!in_array($version, $versions) && version_compare($version, '3.3.0') > 0) {
+				$versions[] = $version;
+			}
+		}
 
-        return $this->ajax->resolve($versions);
-    }
+		return $this->ajax->resolve($versions);
+	}
 
-    public function synchronizeDatabase()
-    {
-        $version = $this->input->getString('version');
+	public function synchronizeDatabase()
+	{
+		$version = $this->input->getString('version');
 
-        jimport('joomla.filesystem.file');
-        jimport('joomla.filesystem.folder');
+		jimport('joomla.filesystem.file');
+		jimport('joomla.filesystem.folder');
 
-        // Explicitly check for 1.0.0 since it is a flag to execute table creation
-        if ($version === '1.0.0') {
-            $path = DISCUSS_ADMIN_ROOT . '/queries';
+		// Explicitly check for 1.0.0 since it is a flag to execute table creation
+		if ($version === '1.0.0') {
+			$path = DISCUSS_ADMIN_ROOT . '/queries';
 
-            if (!JFolder::exists($path)) {
-                return $this->ajax->resolve();;
-            }
+			if (!JFolder::exists($path)) {
+				return $this->ajax->resolve();;
+			}
 
-            $files = JFolder::files($path, '.sql$', true, true);
+			$files = JFolder::files($path, '.sql$', true, true);
 
-            $result = array();
+			$result = array();
 
-            $db = EB::db();
+			$db = EB::db();
 
-            foreach ($files as $file) {
-                $contents = JFile::read($file);
+			foreach ($files as $file) {
+				$contents = JFile::read($file);
 
-                $queries = JInstallerHelper::splitSql($contents);
+				$queries = JInstallerHelper::splitSql($contents);
 
-                foreach ($queries as $query) {
-                    $query = trim($query);
+				foreach ($queries as $query) {
+					$query = trim($query);
 
-                    if (!empty($query)) {
-                        $db->setQuery($query);
-                        $db->execute();
-                    }
-                }
-            }
+					if (!empty($query)) {
+						$db->setQuery($query);
+						$db->execute();
+					}
+				}
+			}
 
-            return $this->ajax->resolve();
-        }
+			return $this->ajax->resolve();
+		}
 
-        $path = DISCUSS_ADMIN_UPDATES . '/' . $version;
+		$path = DISCUSS_ADMIN_UPDATES . '/' . $version;
 
-        $files = JFolder::files($path, '.json$', true, true);
+		$files = JFolder::files($path, '.json$', true, true);
 
-        $result = array();
+		$result = array();
 
-        foreach ($files as $file) {
-            $contents = json_decode(JFile::read($file));
+		foreach ($files as $file) {
+			$contents = json_decode(JFile::read($file));
 
-            if (!is_array($contents)) {
-                // @TODO: Error handling
-                return;
-            }
+			if (!is_array($contents)) {
+				// @TODO: Error handling
+				return;
+			}
 
-            $result = array_merge($result, $contents);
-        }
+			$result = array_merge($result, $contents);
+		}
 
-        $tables = array();
-        $indexes = array();
-        $affected = 0;
+		$tables = array();
+		$indexes = array();
+		$affected = 0;
 
-        $db = ED::db();
+		$db = ED::db();
 
-        foreach ($result as $row) {
-            $columnExist = true;
-            $indexExist = true;
+		foreach ($result as $row) {
+			$columnExist = true;
+			$indexExist = true;
 
-            if (isset($row->column)) {
-                // Store the list of tables that needs to be queried
-                if (!isset($tables[$row->table])) {
-                    $tables[$row->table] = $db->getTableColumns($row->table);
-                }
+			if (isset($row->column)) {
+				// Store the list of tables that needs to be queried
+				if (!isset($tables[$row->table])) {
+					$tables[$row->table] = $db->getTableColumns($row->table);
+				}
 
-                // Check if the column is in the fields or not
-                $columnExist = in_array($row->column , $tables[$row->table]);
-            }
+				// Check if the column is in the fields or not
+				$columnExist = in_array($row->column , $tables[$row->table]);
+			}
 
-            if (isset($row->index)) {
-                if (!isset($indexes[$row->table])) {
-                    $indexes[$row->table] = $db->getTableIndexes($row->table);
-                }
+			if (isset($row->index)) {
+				if (!isset($indexes[$row->table])) {
+					$indexes[$row->table] = $db->getTableIndexes($row->table);
+				}
 
-                $indexExist = in_array($row->index, $indexes[$row->table]);
-            }
+				$indexExist = in_array($row->index, $indexes[$row->table]);
+			}
 
-            if (!$columnExist || !$indexExist) {
-                $db->setQuery($row->query);
-                try {
-                    $db->query();
-                } catch (Exception $e) {
-                    $this->ajax->reject($e->getMessage());
-                }
+			if (!$columnExist || !$indexExist) {
+				$db->setQuery($row->query);
+				try {
+					$db->query();
+				} catch (Exception $e) {
+					$this->ajax->reject($e->getMessage());
+				}
 
-                $affected += 1;
-            }
-        }
+				$affected += 1;
+			}
+		}
 
-        return $this->ajax->resolve();
-    }
+		return $this->ajax->resolve();
+	}
+
+
+	/**
+	 * Get sync request total
+	 *
+	 * @since	4.1
+	 * @access	public
+	 */
+	public function getSyncStats()
+	{
+		$model = ED::model('Maintenance');
+		$total = $model->getTotalSyncRequest();
+
+		return $this->ajax->resolve($total);
+	}
+
+	/**
+	 * Process sync request.
+	 *
+	 * @since	4.1
+	 * @access	public
+	 */
+	public function processSyncRequest($limit = 1)
+	{
+		$model = ED::model('Maintenance');
+
+		$items = $model->getSyncRequests($limit);
+
+		try {
+
+			if ($items) {
+				foreach ($items as $item) {
+					$state = $item->process();
+
+					if ($state && $item->total == 0) {
+						// if done, then lets delete this item from db.
+						$item->delete();
+					}
+				}
+			}
+
+		} catch (Error $err) {
+			return $this->ajax->reject('Error occurred! Process aborted. Error: <br>' .  $err->getMessage());
+		}
+
+		$remaining = $model->getTotalSyncRequest();
+		return $this->ajax->resolve($remaining);
+	}
 }

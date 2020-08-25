@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fieldset name="ems">
+
+        <field name="psp-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_PSP"/>
+
+        <field name="testmode"
+               type="radio"
+               label="COM_ROPAYMENTS_TEST_MODE_LABEL"
+               description="COM_ROPAYMENTS_TEST_MODE_DESC"
+               required="true"
+               default="1"
+               class="btn-group btn-group-yesno"
+               labelclass="config">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+
+        <field name="storeName"
+               type="text"
+               label="COM_ROPAYMENTS_EMS_STORENAME_LABEL"
+               description="COM_ROPAYMENTS_EMS_STORENAME_DESC"
+               required="true"
+               size="25"
+               labelclass="config"/>
+
+        <field name="sharedSecret"
+               type="text"
+               label="COM_ROPAYMENTS_EMS_SHAREDSECRET_LABEL"
+               description="COM_ROPAYMENTS_EMS_SHAREDSECRET_DESC"
+               required="true"
+               size="30"
+               labelclass="config"/>
+
+        <field name="redirect"
+               type="jdideal.waitoptions"
+               label="COM_ROPAYMENTS_WAIT_TIME_LABEL"
+               description="COM_ROPAYMENTS_WAIT_TIME_DESC"
+               required="true"
+               size="1"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="payment"
+               type="list"
+               label="COM_ROPAYMENTS_EMS_PAYMENT_LABEL"
+               description="COM_ROPAYMENTS_EMS_PAYMENT_DESC"
+               required="true"
+               default="all"
+               multiple="false"
+               size="1"
+               class="advancedSelect"
+               labelclass="config">
+            <option value="all">COM_ROPAYMENTS_ALL</option>
+            <option value="M">COM_JDIDEALGATWAY_PAYMENT_METHOD_MASTERCARD</option>
+            <option value="V">COM_JDIDEALGATWAY_PAYMENT_METHOD_VISA</option>
+            <option value="C">COM_JDIDEALGATWAY_PAYMENT_METHOD_DINERSCLUB</option>
+            <option value="ideal">COM_JDIDEALGATWAY_PAYMENT_METHOD_IDEAL</option>
+            <option value="klarna">COM_JDIDEALGATWAY_PAYMENT_METHOD_KLARNA</option>
+            <option value="MA">COM_JDIDEALGATWAY_PAYMENT_METHOD_MAESTRO</option>
+            <option value="maestroUK">COM_JDIDEALGATWAY_PAYMENT_METHOD_MAESTROUK</option>
+            <option value="masterpass">COM_JDIDEALGATWAY_PAYMENT_METHOD_MASTERPASS</option>
+            <option value="paypal">COM_JDIDEALGATWAY_PAYMENT_METHOD_PAYPAL</option>
+            <option value="sofort">COM_JDIDEALGATWAY_PAYMENT_METHOD_SOFORT</option>
+            <option value="BCMC">COM_JDIDEALGATWAY_PAYMENT_METHOD_BANCONTACT</option>
+        </field>
+
+        <field name="timezone"
+               type="list"
+               label="COM_ROPAYMENTS_EMS_TIMEZONE_LABEL"
+               description="COM_ROPAYMENTS_EMS_TIMEZONE_DESC"
+               required="true"
+               default="Europe/Amsterdam"
+               multiple="false"
+               size="1"
+               class="advancedSelect"
+               labelclass="config">
+            <option value="Africa/Johannesburg">COM_ROPAYMENTS_TIMEZONE_JOHANNESBURG</option>
+            <option value="America/New_York">COM_ROPAYMENTS_TIMEZONE_NEWYORK</option>
+            <option value="America/Sao_Paulo">COM_ROPAYMENTS_TIMEZONE_SAOPAULO</option>
+            <option value="Asia/Calcutta">COM_ROPAYMENTS_TIMEZONE_CALCUTTA</option>
+            <option value="Australia/Sydney">COM_ROPAYMENTS_TIMEZONE_SYDNEY</option>
+            <option value="Europe/Amsterdam">COM_ROPAYMENTS_TIMEZONE_AMSTERDAM</option>
+            <option value="Europe/Berlin">COM_ROPAYMENTS_TIMEZONE_BERLIN</option>
+            <option value="Europe/Dublin">COM_ROPAYMENTS_TIMEZONE_DUBLIN</option>
+            <option value="Europe/London">COM_ROPAYMENTS_TIMEZONE_LONDON</option>
+            <option value="Europe/Rome">COM_ROPAYMENTS_TIMEZONE_ROME</option>
+        </field>
+
+        <field name="currency"
+               type="list"
+               label="COM_ROPAYMENTS_EMS_CURRENCY_LABEL"
+               description="COM_ROPAYMENTS_EMS_CURRENCY_DESC"
+               required="true"
+               default="978"
+               multiple="false"
+               size="1"
+               class="advancedSelect"
+               labelclass="config">
+            <option value="AUD">COM_ROPAYMENTS_CURRENCY_AUD</option>
+            <option value="BRL">COM_ROPAYMENTS_CURRENCY_BRL</option>
+            <option value="EUR">COM_ROPAYMENTS_CURRENCY_EUR</option>
+            <option value="INR">COM_ROPAYMENTS_CURRENCY_INR</option>
+            <option value="GBP">COM_ROPAYMENTS_CURRENCY_GBP</option>
+            <option value="USD">COM_ROPAYMENTS_CURRENCY_USD</option>
+            <option value="ZAR">COM_ROPAYMENTS_CURRENCY_ZAR</option>
+            <option value="CHF">COM_ROPAYMENTS_CURRENCY_CHF</option>
+            <option value="BHD">COM_ROPAYMENTS_CURRENCY_BHD</option>
+            <option value="CAD">COM_ROPAYMENTS_CURRENCY_CAD</option>
+            <option value="CNY">COM_ROPAYMENTS_CURRENCY_CNY</option>
+            <option value="HRK">COM_ROPAYMENTS_CURRENCY_HRK</option>
+            <option value="CZK">COM_ROPAYMENTS_CURRENCY_CZK</option>
+            <option value="DKK">COM_ROPAYMENTS_CURRENCY_DKK</option>
+            <option value="HKD">COM_ROPAYMENTS_CURRENCY_HKD</option>
+            <option value="HUF">COM_ROPAYMENTS_CURRENCY_HUF</option>
+            <option value="ISL">COM_ROPAYMENTS_CURRENCY_ISL</option>
+            <option value="JPY">COM_ROPAYMENTS_CURRENCY_JPY</option>
+            <option value="KWD">COM_ROPAYMENTS_CURRENCY_KWD</option>
+            <option value="LTL">COM_ROPAYMENTS_CURRENCY_LTL</option>
+            <option value="MXN">COM_ROPAYMENTS_CURRENCY_MXN</option>
+            <option value="NZD">COM_ROPAYMENTS_CURRENCY_NZD</option>
+            <option value="NOK">COM_ROPAYMENTS_CURRENCY_NOK</option>
+            <option value="OMR">COM_ROPAYMENTS_CURRENCY_OMR</option>
+            <option value="PLN">COM_ROPAYMENTS_CURRENCY_PLN</option>
+            <option value="RON">COM_ROPAYMENTS_CURRENCY_RON</option>
+            <option value="SAR">COM_ROPAYMENTS_CURRENCY_SAR</option>
+            <option value="SGD">COM_ROPAYMENTS_CURRENCY_SGD</option>
+            <option value="KRW">COM_ROPAYMENTS_CURRENCY_KRW</option>
+            <option value="SEK">COM_ROPAYMENTS_CURRENCY_SEK</option>
+            <option value="TRY">COM_ROPAYMENTS_CURRENCY_TRY</option>
+            <option value="AED">COM_ROPAYMENTS_CURRENCY_AED</option>
+        </field>
+
+        <field name="customerLanguage"
+               type="list"
+               label="COM_ROPAYMENTS_EMS_CUSTOMERLANGUAGE_LABEL"
+               description="COM_ROPAYMENTS_EMS_CUSTOMERLANGUAGE_DESC"
+               required="false"
+               default=""
+               multiple="false"
+               size="1"
+               class="advancedSelect"
+               labelclass="config">
+            <option value="">COM_ROPAYMENTS_BROWSER</option>
+            <option value="zh_CN">COM_ROPAYMENTS_LANG_CHINESE_CN</option>
+            <option value="zh_TW">COM_ROPAYMENTS_LANG_CHINESE_TW</option>
+            <option value="nl_NL">COM_ROPAYMENTS_LANG_DUTCH</option>
+            <option value="en_GB">COM_ROPAYMENTS_LANG_ENGLISH_GB</option>
+            <option value="en_US">COM_ROPAYMENTS_LANG_ENGLISH_US</option>
+            <option value="fi_FI">COM_ROPAYMENTS_LANG_FINNISH</option>
+            <option value="fr_FR">COM_ROPAYMENTS_LANG_FRENCH</option>
+            <option value="de_DE">COM_ROPAYMENTS_LANG_GERMAN</option>
+            <option value="it_IT">COM_ROPAYMENTS_LANG_ITALIAN</option>
+            <option value="pt_BR">COM_ROPAYMENTS_LANG_BRAZIL</option>
+            <option value="sk_SK">COM_ROPAYMENTS_LANG_SLOVAK</option>
+            <option value="es_ES">COM_ROPAYMENTS_LANG_SPANISH</option>
+        </field>
+
+        <field name="status-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_STATUS"/>
+
+        <field name="pendingStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_PENDING_LABEL"
+               description="COM_ROPAYMENTS_STATUS_PENDING_DESC"
+               required="false"
+               size="1"
+               default="P"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="verifiedStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_SUCCESS_LABEL"
+               description="COM_ROPAYMENTS_STATUS_SUCCESS_DESC"
+               required="false"
+               size="1"
+               default="C"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="cancelledStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_CANCELLED_LABEL"
+               description="COM_ROPAYMENTS_STATUS_CANCELLED_DESC"
+               required="false"
+               size="1"
+               default="X"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="openStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_OPEN_LABEL"
+               description="COM_ROPAYMENTS_STATUS_OPEN_DESC"
+               required="false"
+               size="1"
+               default="P"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="ordernumber-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_ORDERNUMBERS"/>
+
+        <field name="invoiceNumber"
+               type="jdideal.ordernumber"
+               label="COM_ROPAYMENTS_INVOICENUMBER_LABEL"
+               description="COM_ROPAYMENTS_INVOICENUMBER_DESC"
+               required="false"
+               size="1"
+               default="order_number"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="orderNumber"
+               type="jdideal.ordernumber"
+               label="COM_ROPAYMENTS_ORDERNUMBER_LABEL"
+               description="COM_ROPAYMENTS_ORDERNUMBER_DESC"
+               required="false"
+               size="1"
+               default="order_number"
+               class="advancedSelect"
+               labelclass="config"/>
+    </fieldset>
+</form>

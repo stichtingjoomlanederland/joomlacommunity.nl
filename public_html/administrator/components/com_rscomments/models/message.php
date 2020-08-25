@@ -142,7 +142,7 @@ class RscommentsModelMessage extends JModelAdmin
 	}
 
 	public function getRSTabs() {
-		$tabs = new RSTabs('com-rscomments-group');
+		$tabs = new RSCommentsAdapterTabs('com-rscomments-group');
 		return $tabs;
 	}
 }

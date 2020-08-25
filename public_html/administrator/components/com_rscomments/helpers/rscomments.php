@@ -89,8 +89,6 @@ abstract class RSCommentsHelperAdmin {
 	//set scripts
 	public static function setScripts() {
 		RSCommentsHelperAdmin::loadjQuery();
-			
-		JHtml::_('formbehavior.chosen', 'select');
 		
 		JHtml::stylesheet('com_rscomments/admin.css', array('relative' => true, 'version' => 'auto'));
 		

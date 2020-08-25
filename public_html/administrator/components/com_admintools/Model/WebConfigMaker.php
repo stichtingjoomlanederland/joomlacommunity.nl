@@ -12,9 +12,6 @@ defined('_JEXEC') or die;
 use Akeeba\AdminTools\Admin\Helper\ServerTechnology;
 use DateTimeZone;
 use FOF30\Date\Date;
-use FOF30\Model\Model;
-use JFactory;
-use JLoader;
 
 class WebConfigMaker extends ServerConfigMaker
 {
@@ -30,63 +27,63 @@ class WebConfigMaker extends ServerConfigMaker
 	public $defaultConfig = [
 		// == System configuration ==
 		// Host name for HTTPS requests (without https://)
-		'httpshost'      => '',
+		'httpshost'           => '',
 		// Host name for HTTP requests (without http://)
-		'httphost'       => '',
+		'httphost'            => '',
 		// Base directory of your site (/ for domain's root)
-		'rewritebase'    => '',
+		'rewritebase'         => '',
 
 		// == Optimization and utility ==
 		// Force index.php parsing before index.html
-		'fileorder'      => 1,
+		'fileorder'           => 1,
 		// Set default expiration time to 1 hour
-		'exptime'        => 0,
+		'exptime'             => 0,
 		// Automatically compress static resources
-		'autocompress'   => 0,
+		'autocompress'        => 0,
 		// Redirect index.php to root
-		'autoroot'       => 1,
+		'autoroot'            => 1,
 		// Redirect www and non-www addresses
-		'wwwredir'       => 0,
+		'wwwredir'            => 0,
 		// Redirect old to new domain
-		'olddomain'      => '',
+		'olddomain'           => '',
 		// Force HTTPS for these URLs
-		'httpsurls'      => array(),
+		'httpsurls'           => [],
 		// HSTS Header (for HTTPS-only sites)
-		'hstsheader'     => 0,
+		'hstsheader'          => 0,
 		// Disable HTTP methods TRACE and TRACK (protect against XST)
-		'notracetrack'   => 0,
+		'notracetrack'        => 0,
 		// Cross-Origin Resource Sharing (CORS)
-		'cors'     => 0,
+		'cors'                => 0,
 		// Set UTF-8 charset as default
-		'utf8charset'     => 1,
+		'utf8charset'         => 1,
 		// Send ETag
-		'etagtype' => 'default',
+		'etagtype'            => 'default',
 		// Referrer policy
-		'referrerpolicy'  => 'unsafe-url',
+		'referrerpolicy'      => 'unsafe-url',
 
 		// == Basic security ==
 		// Disable directory listings
-		'nodirlists'     => 1,
+		'nodirlists'          => 1,
 		// Protect against common file injection attacks
-		'fileinj'        => 1,
+		'fileinj'             => 1,
 		// Disable PHP Easter Eggs
-		'phpeaster'      => 1,
+		'phpeaster'           => 1,
 		// Block access from specific user agents
-		'nohoggers'      => 0,
+		'nohoggers'           => 0,
 		// Block access to configuration.php-dist and web.config.txt
-		'leftovers'      => 1,
+		'leftovers'           => 1,
 		// Protect against clickjacking
-		'clickjacking'   => 1,
+		'clickjacking'        => 1,
 		// Reduce MIME type security risks
 		'reducemimetyperisks' => 1,
 		// Reflected XSS prevention
-		'reflectedxss' => 1,
+		'reflectedxss'        => 1,
 		// Remove Apache and PHP version signature
-		'noserversignature' => 1,
+		'noserversignature'   => 1,
 		// Prevent content transformation
-		'notransform' => 1,
+		'notransform'         => 1,
 		// User agents to block (one per line)
-		'hoggeragents'   => array(
+		'hoggeragents'        => [
 			'WebBandit',
 			'webbandit',
 			'Acunetix',
@@ -252,52 +249,54 @@ class WebConfigMaker extends ServerConfigMaker
 			'Go!Zilla',
 			'TurnitinBot',
 			'sqlmap',
-		),
+		],
 
 		// == Server protection ==
 		// -- Toggle protection
 		// Back-end protection
-		'backendprot'    => 1,
+		'backendprot'         => 1,
 		// Back-end protection
-		'frontendprot'   => 1,
+		'frontendprot'        => 1,
 		// -- Fine-tuning
 		// Back-end directories where file type exceptions are allowed
-		'bepexdirs'      => array('components', 'modules', 'templates', 'images', 'plugins'),
+		'bepexdirs'           => ['components', 'modules', 'templates', 'images', 'plugins'],
 		// Back-end file types allowed in selected directories
-		'bepextypes'     => array(
+		'bepextypes'          => [
 			'jpe', 'jpg', 'jpeg', 'jp2', 'jpe2', 'png', 'gif', 'bmp', 'css', 'js',
 			'swf', 'html', 'mpg', 'mp3', 'mpeg', 'mp4', 'avi', 'wav', 'ogg', 'ogv',
 			'xls', 'xlsx', 'doc', 'docx', 'ppt', 'pptx', 'zip', 'rar', 'pdf', 'xps',
 			'txt', '7z', 'svg', 'odt', 'ods', 'odp', 'flv', 'mov', 'htm', 'ttf',
 			'woff', 'woff2', 'eot', 'webp',
-			'JPG', 'JPEG', 'PNG', 'GIF', 'CSS', 'JS', 'TTF', 'WOFF', 'WOFF2', 'EOT', 'WEBP'
-		),
+			'JPG', 'JPEG', 'PNG', 'GIF', 'CSS', 'JS', 'TTF', 'WOFF', 'WOFF2', 'EOT', 'WEBP',
+		],
 		// Front-end directories where file type exceptions are allowed
-		'fepexdirs'      => array('components', 'modules', 'templates', 'images', 'plugins', 'media', 'libraries', 'media/jui/fonts'),
+		'fepexdirs'           => [
+			'components', 'modules', 'templates', 'images', 'plugins', 'media', 'libraries', 'media/jui/fonts',
+		],
 		// Front-end file types allowed in selected directories
-		'fepextypes'     => array(
+		'fepextypes'          => [
 			'jpe', 'jpg', 'jpeg', 'jp2', 'jpe2', 'png', 'gif', 'bmp', 'css', 'js',
 			'swf', 'html', 'mpg', 'mp3', 'mpeg', 'mp4', 'avi', 'wav', 'ogg', 'ogv',
 			'xls', 'xlsx', 'doc', 'docx', 'ppt', 'pptx', 'zip', 'rar', 'pdf', 'xps',
 			'txt', '7z', 'svg', 'odt', 'ods', 'odp', 'flv', 'mov', 'ico', 'htm',
 			'ttf', 'woff', 'woff2', 'eot', 'webp',
-			'JPG', 'JPEG', 'PNG', 'GIF', 'CSS', 'JS', 'TTF', 'WOFF', 'WOFF2', 'EOT', 'WEBP'
-		),
+			'JPG', 'JPEG', 'PNG', 'GIF', 'CSS', 'JS', 'TTF', 'WOFF', 'WOFF2', 'EOT', 'WEBP',
+		],
 		// -- Exceptions
 		// Allow direct access to these files
-		'exceptionfiles' => array(
+		'exceptionfiles'      => [
 			"administrator/components/com_akeeba/restore.php",
 			"administrator/components/com_admintools/restore.php",
-			"administrator/components/com_joomlaupdate/restore.php"
-		),
+			"administrator/components/com_joomlaupdate/restore.php",
+		],
 		// Allow direct access, except .php files, to these directories
-		'exceptiondirs'       => array(
-			'.well-known'
-		),
+		'exceptiondirs'       => [
+			'.well-known',
+		],
 		// Allow direct access, including .php files, to these directories
-		'fullaccessdirs' => array(
-			"templates/your_template_name_here"
-		),
+		'fullaccessdirs'      => [
+			"templates/your_template_name_here",
+		],
 	];
 
 	/**
@@ -332,7 +331,7 @@ class WebConfigMaker extends ServerConfigMaker
 		'Akeeba\AdminTools\Admin\Controller\ServerConfigMaker::apply',
 		'Akeeba\AdminTools\Admin\Controller\WebConfigMaker::apply',
 		'Akeeba\AdminTools\Admin\Controller\ControlPanel::regenerateServerConfig',
-		'Akeeba\AdminTools\Admin\Model\QuickStart::applyWcmaker'
+		'Akeeba\AdminTools\Admin\Model\QuickStart::applyWcmaker',
 	];
 
 	/**
@@ -347,7 +346,7 @@ class WebConfigMaker extends ServerConfigMaker
 		'Akeeba\AdminTools\Admin\Model\ServerConfigMaker::writeConfigFile',
 		'Akeeba\AdminTools\Admin\Model\WebConfigMaker::writeWebConfig',
 		'Akeeba\AdminTools\Admin\View\WebConfigMaker\Html::onBeforeMain',
-		'Akeeba\AdminTools\Admin\View\WebConfigMaker\Html::onBeforePreview'
+		'Akeeba\AdminTools\Admin\View\WebConfigMaker\Html::onBeforePreview',
 	];
 
 	/**
@@ -368,9 +367,9 @@ class WebConfigMaker extends ServerConfigMaker
 		// Make sure we are called by an expected caller
 		ServerTechnology::checkCaller($this->allowedCallersForMake);
 
-		JLoader::import('joomla.utilities.date');
-		
-		$date    = new Date();
+		$isJoomla4 = version_compare(JVERSION, '3.999.999', 'gt');
+
+		$date = new Date();
 		$tz   = new DateTimeZone($this->container->platform->getUser()->getParam('timezone', $this->container->platform->getConfig()->get('offset', 'UTC')));
 		$date->setTimezone($tz);
 		$d       = $date->format('Y-m-d H:i:s T', true);
@@ -426,11 +425,15 @@ XML;
 XML;
 		}
 
-		if ($config->exptime == 1)
+		if ($config->exptime != 0)
 		{
-			$setEtag = ($config->etagtype == 'none') ? 'setEtag="false"' : '';
+			$setEtag  = ($config->etagtype == 'none') ? 'setEtag="false"' : '';
 			$eTagInfo = ($config->etagtype == 'none') ? '// Send ETag: false (IIS only supports true/false for ETags)' : '';
 
+			// Expiration time of 1 week or 1 year (based on selection)
+			$expTime = ($config->exptime == 1) ? 604800 : 31708800;
+
+			// TODO Or 31708800 (367 days)
 			$webConfig .= <<< XML
 		<!-- Optimal default expiration time $eTagInfo -->
 		<staticContent>
@@ -473,7 +476,7 @@ XML;
 		if (!empty($config->hoggeragents) && ($config->nohoggers == 1))
 		{
 			$conditions   = '';
-			$patternCache = array();
+			$patternCache = [];
 
 			foreach ($config->hoggeragents as $agent)
 			{
@@ -484,12 +487,12 @@ XML;
 					continue;
 				}
 
-				$newPattern = implode('|', $patternCache);
-				$conditions .= <<< XML
+				$newPattern   = implode('|', $patternCache);
+				$conditions   .= <<< XML
 <add input="{HTTP_USER_AGENT}" pattern="$newPattern" />
 
 XML;
-				$patternCache = array();
+				$patternCache = [];
 			}
 
 			if (count($patternCache))
@@ -533,7 +536,7 @@ XML;
 		{
 			case 1:
 				// If I have a rewriteBase condition, I have to append it here
-				$subfolder = trim($config->rewritebase, '/') ? trim($config->rewritebase, '/').'/' : '';
+				$subfolder = trim($config->rewritebase, '/') ? trim($config->rewritebase, '/') . '/' : '';
 
 				// non-www to www
 				$webConfig .= <<<END
@@ -565,13 +568,13 @@ END;
 
 		if (!empty($config->olddomain))
 		{
-			$domains = trim($config->olddomain);
-			$domains = explode(',', $domains);
+			$domains   = trim($config->olddomain);
+			$domains   = explode(',', $domains);
 			$newdomain = $config->httphost;
 
 			foreach ($domains as $olddomain)
 			{
-				$olddomain = trim($olddomain);
+				$olddomain         = trim($olddomain);
 				$originalOldDomain = $olddomain;
 
 				if (empty($olddomain))
@@ -599,7 +602,7 @@ END;
 			$webConfig .= "<!-- Force HTTPS for certain pages -->\n";
 			foreach ($config->httpsurls as $url)
 			{
-				$urlesc = '^' . $this->escape_string_for_regex($url) . '$';
+				$urlesc    = '^' . $this->escape_string_for_regex($url) . '$';
 				$webConfig .= <<<END
 				<rule name="Force HTTPS for $url" stopProcessing="true">
 					<match url="^$urlesc$" ignoreCase="false" />
@@ -654,7 +657,7 @@ END;
 			foreach ($config->exceptionfiles as $file)
 			{
 				$ruleCounter++;
-				$file = '^' . $this->escape_string_for_regex($file) . '$';
+				$file      = '^' . $this->escape_string_for_regex($file) . '$';
 				$webConfig .= <<<END
 				<rule name="Advanced server protection rules exception #$ruleCounter" stopProcessing="true">
 					<match url="$file" ignoreCase="false" />
@@ -673,8 +676,8 @@ END;
 			foreach ($config->exceptiondirs as $dir)
 			{
 				$ruleCounter++;
-				$dir = trim($dir, '/');
-				$dir = $this->escape_string_for_regex($dir);
+				$dir       = trim($dir, '/');
+				$dir       = $this->escape_string_for_regex($dir);
 				$webConfig .= <<<END
 				<rule name="Allow access to folders except .php files #$ruleCounter" stopProcessing="true">
 					<match url="^$dir/" ignoreCase="false" />
@@ -696,8 +699,8 @@ END;
 			foreach ($config->fullaccessdirs as $dir)
 			{
 				$ruleCounter++;
-				$dir = trim($dir, '/');
-				$dir = $this->escape_string_for_regex($dir);
+				$dir       = trim($dir, '/');
+				$dir       = $this->escape_string_for_regex($dir);
 				$webConfig .= <<<END
 				<rule name="Allow access to folders, including .php files #$ruleCounter" stopProcessing="true">
 					<match url="^$dir/" ignoreCase="false" />
@@ -724,8 +727,8 @@ END;
 
 		if ($config->backendprot == 1)
 		{
-			$bedirs = implode('|', $config->bepexdirs);
-			$betypes = implode('|', $config->bepextypes);
+			$bedirs    = implode('|', $config->bepexdirs);
+			$betypes   = implode('|', $config->bepextypes);
 			$webConfig .= <<<END
 				<rule name="Back-end protection - allow administrator login" stopProcessing="true">
 					<match url="^administrator/?$" ignoreCase="false" />
@@ -753,8 +756,8 @@ END;
 
 		if ($config->frontendprot == 1)
 		{
-			$fedirs = implode('|', $config->fepexdirs);
-			$fetypes = implode('|', $config->fepextypes);
+			$fedirs    = implode('|', $config->fepexdirs);
+			$fetypes   = implode('|', $config->fepextypes);
 			$webConfig .= <<<END
 				<rule name="Front-end protection - allow access to static media files" stopProcessing="true">
 					<match url="^($fedirs)/.*\.($fetypes)$" ignoreCase="false" />
@@ -807,7 +810,7 @@ END;
 		}
 
 		$webConfig .= <<< XML
-				<rule name="Joomla! SEF Rule 1" stopProcessing="true">
+				<rule name="Joomla! Common Exploits Prevention" stopProcessing="true">
 					<match url="^(.*)$" ignoreCase="false" />
 					<conditions logicalGrouping="MatchAny" trackAllCaptures="false">
 						<add input="{QUERY_STRING}" pattern="base64_encode[^(]*\([^)]*\)" ignoreCase="false" />
@@ -817,6 +820,26 @@ END;
 					</conditions>
 					<action type="CustomResponse" url="index.php" statusCode="403" statusReason="Forbidden" statusDescription="Forbidden" />
 				</rule>
+
+XML;
+
+		if ($isJoomla4)
+		{
+			$webConfig .= <<< XML
+				<rule name="Joomla! API Application SEF URLs">
+                   <match url="^api/(.*)" ignoreCase="false" />
+                   <conditions logicalGrouping="MatchAll">
+                     <add input="{URL}" pattern="^/api/index.php" ignoreCase="true" negate="true" />
+                     <add input="{REQUEST_FILENAME}" matchType="IsFile" ignoreCase="false" negate="true" />
+                     <add input="{REQUEST_FILENAME}" matchType="IsDirectory" ignoreCase="false" negate="true" />
+                   </conditions>
+                   <action type="Rewrite" url="api/index.php" />
+               </rule>
+
+XML;
+		}
+
+		$webConfig .= <<< XML
 				<rule name="Joomla! SEF Rule 2">
 					<match url="(.*)" ignoreCase="false" />
 					<conditions logicalGrouping="MatchAll" trackAllCaptures="false">
@@ -885,6 +908,8 @@ XML;
 				<!-- Remove IIS and PHP version signature -->
 				<remove name="X-Powered-By" />
 				<add name="X-Powered-By" value="MYOB" />
+				<remove name="X-Content-Powered-By" />
+				<add name="X-Content-Powered-By" value="MYOB" />
 
 XML;
 
@@ -911,9 +936,17 @@ XML;
 		if ($config->cors == 1)
 		{
 			$webConfig .= <<<XML
-				<!-- Cross-Origin Resource Sharing (CORS) - See http://enable-cors.org/ -->
+				<!-- Explicitly enable Cross-Origin Resource Sharing (CORS) - See http://enable-cors.org/ -->
 				<add name="Access-Control-Allow-Origin" value="*" />
 				<add name="Timing-Allow-Origin" value="*" />
+
+XML;
+		}
+		elseif ($config->cors == -1)
+		{
+			$webConfig .= <<<XML
+				<!-- Explicitly disable Cross-Origin Resource Sharing (CORS) - See http://enable-cors.org/ -->
+				<add name="Cross-Origin-Resource-Policy" value="same-origin" />
 
 XML;
 		}

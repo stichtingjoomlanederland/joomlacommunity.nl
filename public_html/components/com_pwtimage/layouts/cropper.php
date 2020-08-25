@@ -3,17 +3,21 @@
  * @package    Pwtimage
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
 
+defined('_JEXEC') or die;
+
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\Object\CMSObject;
 use Joomla\CMS\Uri\Uri;
-
-defined('_JEXEC') or die;
+use Pwtimage\Filesystem\Folder;
+use Pwtimage\Pwtimage;
 
 /**
  * This is the entry point for the modal to show PWT Image
@@ -24,8 +28,8 @@ $language = Factory::getLanguage();
 $language->load('com_pwtimage', JPATH_ADMINISTRATOR . '/components/com_pwtimage');
 
 // Load the JavaScript and CSS files
-HTMLHelper::_('script', 'com_pwtimage/pwtimage.min.js', array('relative' => true, 'version' => 'auto'));
-HTMLHelper::_('stylesheet', 'com_pwtimage/pwtimage.min.css', array('relative' => true, 'version' => 'auto'));
+HTMLHelper::_('script', 'com_pwtimage/pwtimage.min.js', ['relative' => true, 'version' => 'auto']);
+HTMLHelper::_('stylesheet', 'com_pwtimage/pwtimage.min.css', ['relative' => true, 'version' => 'auto']);
 
 // Set the JavaScript language strings
 Text::script('COM_PWTIMAGE_IMAGE_LOADING', true);
@@ -39,46 +43,45 @@ if (!class_exists('PwtImageHelper'))
 	require_once JPATH_ADMINISTRATOR . '/components/com_pwtimage/helpers/pwtimage.php';
 }
 
-$helper = new PwtimageHelper;
-$input  = Factory::getApplication()->input;
-
-// Get the token to validate we are true heroes
-list($tokenName, $tokenValue) = explode(':', $helper->getToken());
-$tokenValue = Factory::getSession()->getId();
+$pwtImage    = new Pwtimage;
+$folderClass = new Folder;
+$input       = Factory::getApplication()->input;
 
 // Set the default values
-$modalId            = $input->getCmd('modalId', uniqid());
-$ratio              = array();
-$freeRatio          = true;
-$useOriginal        = true;
-$keepOriginal       = true;
-$width              = null;
-$sourcePath         = '/images';
-$subPath            = '{year}/{month}';
-$showUpload         = true;
-$showFolder         = true;
-$showSavePath       = true;
-$showSavePathSelect = true;
-$toCanvas           = false;
-$showRotationTools  = true;
-$showFlippingTools  = true;
-$showZoomTools      = true;
-$activePage         = 'upload';
-$imagePreview       = '';
-$multiple           = false;
-$repeatable         = false;
-$showHelp           = true;
-$baseFolder         = $helper->getImageFolder(true);
-$imageFolder        = $helper->getImageFolder();
-$maxSize            = (string) $helper->fileUploadMaxSize();
-$maxSizeMessage     = Text::_('COM_PWTIMAGE_MAX_SIZE_MESSAGE');
-$maxDimension       = 15000;
-$buttonText         = 'JSELECT';
-$wysiwyg            = $input->getBool('wysiwyg', false);
-$siteUrl            = Uri::current();
-$origin             = isset($displayData['origin']) ? $displayData['origin'] : '';
-$viewMode           = 1;
-$backgroundColor    = $helper->getSetting('backgroundColor', '#000000');
+$modalId              = $input->getCmd('modalId', uniqid());
+$ratio                = [];
+$freeRatio            = true;
+$useOriginal          = true;
+$keepOriginal         = true;
+$width                = null;
+$sourcePath           = '/images';
+$subPath              = '{year}/{month}';
+$showUpload           = true;
+$showFolder           = true;
+$showSavePath         = true;
+$showSavePathSelect   = true;
+$toCanvas             = false;
+$showRotationTools    = true;
+$showFlippingTools    = true;
+$showImageInfo        = true;
+$showZoomTools        = true;
+$activePage           = 'upload';
+$imagePreview         = '';
+$multiple             = false;
+$repeatable           = false;
+$showHelp             = true;
+$baseFolder           = $folderClass->getImageFolder(true);
+$imageFolder          = $folderClass->getImageFolder();
+$maxSize              = (string) $pwtImage->fileUploadMaxSize();
+$maxSizeMessage       = Text::_('COM_PWTIMAGE_MAX_SIZE_MESSAGE');
+$maxDimension         = 15000;
+$buttonText           = 'JSELECT';
+$wysiwyg              = $input->getBool('wysiwyg', false);
+$siteUrl              = Uri::current();
+$origin               = isset($displayData['origin']) ? $displayData['origin'] : '';
+$viewMode             = 1;
+$backgroundColor      = $pwtImage->getSetting('backgroundColor', '#000000');
+$disableDefaultFolder = $pwtImage->getSetting('disableDefaultFolder', 0);
 
 // Get the settings passed from the button
 $settings = json_decode(base64_decode($input->getBase64('settings')), true);
@@ -94,37 +97,39 @@ if (!class_exists('PwtimageHelper'))
 	require_once JPATH_ADMINISTRATOR . '/components/com_pwtimage/helpers/pwtimage.php';
 }
 
-$helper  = new PwtimageHelper($origin);
-extract($helper->getSettings());
+$pwtImage = new Pwtimage($origin);
+extract($pwtImage->getSettings(), EXTR_OVERWRITE);
 
 // Get the settings from the XML file
 /**
- * @param   int    $modalId            The unique ID for the modal
- * @param   string $ratio              The image ratio to use
- * @param   bool   $freeRatio          Set if the free ratio should be shown
- * @param   bool   $useOriginal        Use the original image
- * @param   bool   $keepOriginal       Set if the user should get the option to keep the original image size
- * @param   int    $width              The fixed with for an image
- * @param   string $sourcePath         The main image path
- * @param   string $subPath            The image sub-folder
- * @param   bool   $showUpload         Set if the image upload should be shown
- * @param   bool   $showFolder         Set if the image selection from server should be shown
- * @param   bool   $showSavePath       Set if the save path needs to be shown
- * @param   bool   $showSavePathSelect Set if the select option of the save path needs to be shown
- * @param   bool   $toCanvas           Set if the image is shown directly on the canvas for editing
- * @param   bool   $showRotationTools  Set if the rotation tools needs to be shown
- * @param   bool   $showFlippingTools  Set if the flipping tools needs to be shown
- * @param   bool   $showZoomTools      Set if the zoom tools needs to be shown
- * @param   string $activePage         Set which tab should be shown by default this is the upload tab
- * @param   string $imagePreview       A given image to show in preview
- * @param   bool   $multiple           Set if multiple images should be allowed
- * @param   bool   $repeatable         Set if images are in a subform
- * @param   bool   $showHelp           Set if the help option should be shown
- * @param   int    $viewMode           Set the cropping mode
- * @param   string $backgroundColor    Set the background color to use for cropping
+ * @param   int     $modalId               The unique ID for the modal
+ * @param   string  $ratio                 The image ratio to use
+ * @param   bool    $freeRatio             Set if the free ratio should be shown
+ * @param   bool    $useOriginal           Use the original image
+ * @param   bool    $keepOriginal          Set if the user should get the option to keep the original image size
+ * @param   int     $width                 The fixed with for an image
+ * @param   string  $sourcePath            The main image path
+ * @param   string  $subPath               The image sub-folder
+ * @param   bool    $showUpload            Set if the image upload should be shown
+ * @param   bool    $showFolder            Set if the image selection from server should be shown
+ * @param   bool    $showSavePath          Set if the save path needs to be shown
+ * @param   bool    $showSavePathSelect    Set if the select option of the save path needs to be shown
+ * @param   bool    $toCanvas              Set if the image is shown directly on the canvas for editing
+ * @param   bool    $showRotationTools     Set if the rotation tools needs to be shown
+ * @param   bool    $showFlippingTools     Set if the flipping tools needs to be shown
+ * @param   bool    $showImageInfo         Set if the image info must be hidden
+ * @param   bool    $showZoomTools         Set if the zoom tools needs to be shown
+ * @param   string  $activePage            Set which tab should be shown by default this is the upload tab
+ * @param   string  $imagePreview          A given image to show in preview
+ * @param   bool    $multiple              Set if multiple images should be allowed
+ * @param   bool    $repeatable            Set if images are in a subform
+ * @param   bool    $showHelp              Set if the help option should be shown
+ * @param   int     $viewMode              Set the cropping mode
+ * @param   string  $backgroundColor       Set the background color to use for cropping
+ * @param   string  $disableDefaultFolder  Hide default option
  */
 /** @var array $displayData */
-extract($displayData);
+extract($displayData, EXTR_OVERWRITE);
 
 // Extract the settings passed to the iFrame, overriding the profile settings
 if (is_array($settings))
@@ -153,16 +158,16 @@ if (!$sourcePath)
 // Transform fields that accept multiple values
 if ($ratio && is_string($ratio))
 {
-	$ratios       = array();
+	$ratios       = [];
 	$stringRatios = explode('|', $ratio);
 
 	foreach ($stringRatios as $index => $stringRatio)
 	{
-		$ratio           = array();
+		$ratio           = [];
 		$ratio['width']  = 'NaN';
 		$ratio['height'] = 'NaN';
 
-		if (stristr($stringRatio, '/'))
+		if (strpos($stringRatio, '/') !== false)
 		{
 			list($ratio['width'], $ratio['height']) = explode('/', $stringRatio);
 		}
@@ -176,12 +181,12 @@ if ($ratio && is_string($ratio))
 
 if ($width && is_string($width))
 {
-	$widths       = array();
+	$widths       = [];
 	$stringWidths = explode('|', $width);
 
 	foreach ($stringWidths as $index => $stringWidth)
 	{
-		$widths[] = array('width' => $stringWidth);
+		$widths[] = ['width' => $stringWidth];
 	}
 
 	// Set the new values
@@ -195,32 +200,38 @@ if ($multiple || $repeatable)
 }
 
 // Enrich the displayData for the sublayouts
-$displayData['modalId']            = $modalId;
-$displayData['ratio']              = $ratio;
-$displayData['freeRatio']          = $freeRatio;
-$displayData['useOriginal']        = filter_var($useOriginal, FILTER_VALIDATE_BOOLEAN);
-$displayData['keepOriginal']       = filter_var($keepOriginal, FILTER_VALIDATE_BOOLEAN);
-$displayData['width']              = $width;
-$displayData['sourcePath']         = $sourcePath;
-$displayData['subPath']            = $subPath;
-$displayData['showUpload']         = filter_var($showUpload, FILTER_VALIDATE_BOOLEAN);
-$displayData['showFolder']         = filter_var($showFolder, FILTER_VALIDATE_BOOLEAN);
-$displayData['showSavePath']       = filter_var($showSavePath, FILTER_VALIDATE_BOOLEAN);
-$displayData['showSavePathSelect'] = filter_var($showSavePathSelect, FILTER_VALIDATE_BOOLEAN);
-$displayData['toCanvas']           = filter_var($toCanvas, FILTER_VALIDATE_BOOLEAN);
-$displayData['showRotationTools']  = filter_var($showRotationTools, FILTER_VALIDATE_BOOLEAN);
-$displayData['showFlippingTools']  = filter_var($showFlippingTools, FILTER_VALIDATE_BOOLEAN);
-$displayData['showZoomTools']      = filter_var($showZoomTools, FILTER_VALIDATE_BOOLEAN);
-$displayData['maxSize']            = $maxSize;
-$displayData['maxSizeMessage']     = $maxSizeMessage;
-$displayData['maxDimension']       = $maxDimension;
-$displayData['tokenName']          = $tokenName;
-$displayData['tokenValue']         = $tokenValue;
-$displayData['wysiwyg']            = filter_var($wysiwyg, FILTER_VALIDATE_BOOLEAN);
-$displayData['canDo']              = $canDo;
+$displayData['modalId']              = $modalId;
+$displayData['ratio']                = $ratio;
+$displayData['freeRatio']            = $freeRatio;
+$displayData['useOriginal']          = filter_var($useOriginal, FILTER_VALIDATE_BOOLEAN);
+$displayData['keepOriginal']         = filter_var($keepOriginal, FILTER_VALIDATE_BOOLEAN);
+$displayData['width']                = $width;
+$displayData['sourcePath']           = $sourcePath;
+$displayData['subPath']              = $subPath;
+$displayData['showUpload']           = filter_var($showUpload, FILTER_VALIDATE_BOOLEAN);
+$displayData['showFolder']           = filter_var($showFolder, FILTER_VALIDATE_BOOLEAN);
+$displayData['showSavePath']         = filter_var($showSavePath, FILTER_VALIDATE_BOOLEAN);
+$displayData['showSavePathSelect']   = filter_var($showSavePathSelect, FILTER_VALIDATE_BOOLEAN);
+$displayData['toCanvas']             = filter_var($toCanvas, FILTER_VALIDATE_BOOLEAN);
+$displayData['showRotationTools']    = filter_var($showRotationTools, FILTER_VALIDATE_BOOLEAN);
+$displayData['showFlippingTools']    = filter_var($showFlippingTools, FILTER_VALIDATE_BOOLEAN);
+$displayData['showImageInfo']        = filter_var($showImageInfo, FILTER_VALIDATE_BOOLEAN);
+$displayData['showZoomTools']        = filter_var($showZoomTools, FILTER_VALIDATE_BOOLEAN);
+$displayData['maxSize']              = $maxSize;
+$displayData['maxSizeMessage']       = $maxSizeMessage;
+$displayData['maxDimension']         = $maxDimension;
+$displayData['wysiwyg']              = filter_var($wysiwyg, FILTER_VALIDATE_BOOLEAN);
+$displayData['canDo']                = $canDo;
+$displayData['disableDefaultFolder'] = $disableDefaultFolder;
 
 // Get the first ratio
 $setRatio = '1/1';
+
+// Fix the canDo to be a CMSObject again
+if ($canDo instanceof CMSObject === false)
+{
+	$canDo = new CMSObject($canDo);
+}
 
 if ($displayData['ratio'])
 {
@@ -239,14 +250,17 @@ if ($displayData['ratio'])
 $uploadActive = 'is-active';
 $folderActive = '';
 
-if (!$showUpload || ($showFolder && $activePage === 'folder'))
+if ((!$showUpload || !$canDo->get('pwtimage.accessupload')) || (($showFolder && !$canDo->get('pwtimage.accessfolder')) && $activePage === 'folder'))
 {
 	$uploadActive = '';
 	$folderActive = 'is-active';
 }
 
-$iFrameLink = Uri::root() . 'index.php?option=com_pwtimage&amp;view=image&layout=iframe&amp;tmpl=component';
-$rootPath   = Uri::root();
+$iFrameLink  = Uri::root() . 'index.php?option=com_pwtimage&amp;view=image&layout=iframe&amp;tmpl=component';
+$rootPath    = Uri::root();
+$params      = ComponentHelper::getParams('com_pwtimage');
+$imagePrefix = $params->get('prefix', '');
+$imageSuffix = $params->get('suffix', '');
 
 // Do some sanity checks
 $user = Factory::getUser();
@@ -263,6 +277,8 @@ Factory::getDocument()->addScriptDeclaration(<<<JS
 		pwtImage.setWysiwyg('{$wysiwyg}');
 		pwtImage.setTargetId('{$modalId}');
 		pwtImage.setRootPath('{$rootPath}');
+		pwtImage.setImagePrefix('{$imagePrefix}');
+		pwtImage.setImageSuffix('{$imageSuffix}');
 		pwtImage.setViewMode('{$viewMode}');
 		
 		// New tabs
@@ -300,116 +316,121 @@ JS
 <!-- ID field is required here so the script knows which block it must target -->
 <div class="pwt-component" id="<?php echo $modalId; ?>_modal">
 
-	<!-- PWT Id container -->
-	<div class="pwt-id js-pwtimage-id" id="<?php echo $modalId; ?>">
+    <!-- PWT Id container -->
+    <div class="pwt-id js-pwtimage-id" id="<?php echo $modalId; ?>">
 
-		<!-- Header -->
-		<div class="pwt-header">
+        <!-- Header -->
+        <div class="pwt-header">
 
-			<!-- Tabs -->
-			<div class="pwt-tabs-wrapper" data-tabs-wrapper-<?php echo $modalId; ?>>
-				<div class="pwt-tabs-scroller" data-tabs-scroller>
-					<ul class="pwt-tabs" data-tabs>
-						<?php if ($showUpload)
-						:
+            <!-- Tabs -->
+            <div class="pwt-tabs-wrapper" data-tabs-wrapper-<?php echo $modalId; ?>>
+                <div class="pwt-tabs-scroller" data-tabs-scroller>
+                    <ul class="pwt-tabs" data-tabs>
+						<?php if ($showUpload && $canDo->get('pwtimage.accessupload'))
+							:
 							?>
-							<li class="<?php echo $uploadActive; ?>">
-								<a data-tab href="#upload"><?php echo Text::_('COM_PWTIMAGE_TAB_UPLOAD'); ?></a>
-							</li>
+                            <li class="<?php echo $uploadActive; ?>">
+                                <a data-tab href="#upload"><?php echo Text::_('COM_PWTIMAGE_TAB_UPLOAD'); ?></a>
+                            </li>
 						<?php endif; ?>
 						<?php
-						if ($showFolder)
-						:
+						if ($showFolder && $canDo->get('pwtimage.accessfolder'))
+							:
 							?>
-						<li class="<?php echo $folderActive; ?>">
-							<a data-tab href="#select"><?php echo Text::_('COM_PWTIMAGE_TAB_SELECT'); ?></a>
-						</li>
+                            <li class="<?php echo $folderActive; ?>">
+                                <a data-tab href="#select"><?php echo Text::_('COM_PWTIMAGE_TAB_SELECT'); ?></a>
+                            </li>
 						<?php endif; ?>
 						<?php
 						if ($showUpload || $showFolder)
-						:
+							:
 							?>
-						<li>
-							<a data-tab href="#edit"><?php echo Text::_('COM_PWTIMAGE_TAB_EDIT'); ?></a>
-						</li>
+                            <li>
+                                <a data-tab href="#edit"><?php echo Text::_('COM_PWTIMAGE_TAB_EDIT'); ?></a>
+                            </li>
 						<?php endif; ?>
 						<?php
 						if ($showHelp)
-						:
+							:
 							?>
-						<li>
-							<a data-tab href="#help"><?php echo Text::_('COM_PWTIMAGE_TAB_HELP'); ?></a>
-						</li>
+                            <li>
+                                <a data-tab href="#help"><?php echo Text::_('COM_PWTIMAGE_TAB_HELP'); ?></a>
+                            </li>
 						<?php endif; ?>
-					</ul>
-				</div>
-			</div><!-- .pwt-tabs-wrapper -->
+                    </ul>
+                </div>
+            </div><!-- .pwt-tabs-wrapper -->
 
-		</div><!-- .pwt-header -->
+        </div><!-- .pwt-header -->
 
-		<!-- Body -->
-		<div class="pwt-body">
+        <!-- Body -->
+        <div class="pwt-body">
 
-			<!-- Tabs panes -->
-			<div class="pwt-tabs-panes" data-tabs-content>
-				<?php if ($showUpload)
-				:
+            <!-- Tabs panes -->
+            <div class="pwt-tabs-panes" data-tabs-content>
+				<?php if ($showUpload && $canDo->get('pwtimage.accessupload'))
+					:
 					?>
-					<div class="pwt-tabs-pane <?php echo $uploadActive; ?>" data-tabs-pane id="upload">
+                    <div class="pwt-tabs-pane <?php echo $uploadActive; ?>" data-tabs-pane id="upload">
 						<?php echo $this->sublayout('upload', $displayData); ?>
-					</div>
+                    </div>
 				<?php endif; ?>
 				<?php
-				if ($showFolder)
-				:
+				if ($showFolder && $canDo->get('pwtimage.accessfolder'))
+					:
 					?>
-					<div class="pwt-tabs-pane <?php echo $folderActive; ?>" data-tabs-pane id="select">
-						<?php echo $this->sublayout('select', array('baseFolder' => $baseFolder, 'sourcePath' => $sourcePath, 'tokenName' => $tokenName, 'tokenValue' => $tokenValue, 'wysiwyg' => $wysiwyg)); ?>
-					</div>
+                    <div class="pwt-tabs-pane <?php echo $folderActive; ?>" data-tabs-pane id="select">
+						<?php echo $this->sublayout('select', ['baseFolder' => $baseFolder, 'sourcePath' => $sourcePath, 'wysiwyg' => $wysiwyg]); ?>
+                    </div>
 				<?php endif; ?>
 				<?php
-				if ($showUpload || $showFolder)
-				:
+				if (($showUpload && $canDo->get('pwtimage.accessupload')) || ($showFolder && $canDo->get('pwtimage.accessfolder')))
+					:
 					?>
-					<div class="pwt-tabs-pane" data-tabs-pane id="edit">
+                    <div class="pwt-tabs-pane" data-tabs-pane id="edit">
 						<?php echo $this->sublayout('edit', $displayData); ?>
-					</div>
+                    </div>
 				<?php endif; ?>
 				<?php
 				if ($showHelp)
-				:
+					:
 					?>
-				<div class="pwt-tabs-pane" data-tabs-pane id="help">
-					<?php echo $this->sublayout('help', array()); ?>
-				</div>
+                    <div class="pwt-tabs-pane" data-tabs-pane id="help">
+						<?php echo $this->sublayout('help', []); ?>
+                    </div>
 				<?php endif; ?>
-			</div><!-- .pwt-tabs-panes -->
+            </div><!-- .pwt-tabs-panes -->
 
-		</div><!-- .pwt-body -->
+        </div><!-- .pwt-body -->
 
-		<!-- Footer -->
-		<div class="pwt-footer">
-			<button class="pwt-button pwt-button--success process-image js-button-image" onclick="return pwtImage.saveImage('<?php echo $modalId; ?>','<?php echo $tokenValue; ?>');">
+        <!-- Footer -->
+        <div class="pwt-footer">
+            <button class="pwt-button pwt-button--success process-image js-button-image"
+                    onclick="return pwtImage.saveImage('<?php echo $modalId; ?>');">
 				<?php echo Text::_('COM_PWTIMAGE_INSERT_IMAGE'); ?>
-			</button>
-			<button class="pwt-button" type="button" onclick="pwtImage.closeModal();">
+            </button>
+            <button class="pwt-button" type="button" onclick="pwtImage.closeModal();">
 				<?php echo Text::_('COM_PWTIMAGE_CLOSE_MODAL') ?>
-			</button>
-		</div><!-- .pwt-footer -->
+            </button>
+        </div><!-- .pwt-footer -->
 
-		<!-- Input fields -->
-		<input type="hidden" id="post-url" value="//<?php echo Uri::getInstance()->toString(array('host', 'path')); ?>" />
-		<input type="hidden" class="js-pwt-image-data" name="pwt-image-data">
-		<input type="hidden" class="js-pwt-image-ratio" name="pwt-image-ratio" value="<?php echo $setRatio; ?>">
-		<input type="hidden" class="js-pwt-image-sourcePath" name="pwt-image-sourcePath" value="<?php echo $sourcePath; ?>">
-		<input type="hidden" class="js-pwt-image-maxsize" name="pwt-image-maxsize" value="<?php echo $maxSize; ?>">
-		<input type="hidden" class="js-pwt-image-maxsize-message" name="pwt-image-maxsize-message" value="<?php echo $maxSizeMessage; ?>">
-		<input type="hidden" class="js-pwt-image-dimensionsize" name="pwt-image-dimensionsize" value="<?php echo $maxDimension; ?>">
-		<input type="hidden" class="js-pwt-image-localfile" name="pwt-image-localFile" value="">
-		<input type="hidden" class="js-pwt-image-origin" name="pwt-image-origin" value="<?php echo $origin; ?>">
-		<input type="hidden" class="js-pwt-image-backgroundColor" name="pwt-image-backgroundColor" value="<?php echo $backgroundColor; ?>">
-		<input type="hidden" name="<?php echo $tokenName; ?>" value="<?php echo $tokenValue; ?>" />
+        <!-- Input fields -->
+        <input type="hidden" id="post-url"
+               value="//<?php echo Uri::getInstance()->toString(['host', 'path']); ?>"/>
+        <input type="hidden" class="js-pwt-image-data" name="pwt-image-data">
+        <input type="hidden" class="js-pwt-image-ratio" name="pwt-image-ratio" value="<?php echo $setRatio; ?>">
+        <input type="hidden" class="js-pwt-image-sourcePath" name="pwt-image-sourcePath"
+               value="<?php echo $sourcePath; ?>">
+        <input type="hidden" class="js-pwt-image-maxsize" name="pwt-image-maxsize" value="<?php echo $maxSize; ?>">
+        <input type="hidden" class="js-pwt-image-maxsize-message" name="pwt-image-maxsize-message"
+               value="<?php echo $maxSizeMessage; ?>">
+        <input type="hidden" class="js-pwt-image-dimensionsize" name="pwt-image-dimensionsize"
+               value="<?php echo $maxDimension; ?>">
+        <input type="hidden" class="js-pwt-image-localfile" name="pwt-image-localFile" value="">
+        <input type="hidden" class="js-pwt-image-origin" name="pwt-image-origin" value="<?php echo $origin; ?>">
+        <input type="hidden" class="js-pwt-image-backgroundColor" name="pwt-image-backgroundColor"
+               value="<?php echo $backgroundColor; ?>">
 
-	</div><!-- .pwt-id -->
+    </div><!-- .pwt-id -->
 
 </div><!-- .pwt-component -->

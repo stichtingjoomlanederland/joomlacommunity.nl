@@ -51,9 +51,7 @@ class acymfieldClass extends acymClass
 
     public function getOrdering()
     {
-        $query = 'SELECT COUNT(id) AS ordering_number FROM #__acym_field';
-
-        return acym_loadObject($query);
+        return acym_loadResult('SELECT COUNT(id) FROM #__acym_field');
     }
 
     public function getAllfields()
@@ -171,10 +169,15 @@ class acymfieldClass extends acymClass
 
         foreach ($fields as $id => $value) {
             $query = 'INSERT INTO #__acym_user_has_field (`user_id`, `field_id`, `value`) VALUES ';
+            $field = $this->getOneFieldByID($id);
+            $fieldOptions = json_decode($field->option);
 
             if (is_array($value)) {
-                $field = $this->getOneFieldByID($id);
                 if (in_array($field->type, ['multiple_dropdown', 'radio', 'phone'])) {
+                    if ($field->type === 'phone' && !empty($fieldOptions->max_characters) && !empty($value['phone'])) {
+                        $value['phone'] = substr($value['phone'], 0, $fieldOptions->max_characters);
+                    }
+
                     $value = implode(',', $value);
                     if ($value === ',') $value = '';
                 } elseif ($field->type == 'checkbox') {
@@ -184,6 +187,10 @@ class acymfieldClass extends acymClass
                 } else {
                     $value = json_encode($value);
                 }
+            }
+
+            if (in_array($field->type, ['text', 'textarea']) && !empty($fieldOptions->max_characters)) {
+                $value = substr($value, 0, $fieldOptions->max_characters);
             }
 
             if (strlen($value) === 0) {
@@ -239,8 +246,12 @@ class acymfieldClass extends acymClass
             if ($one->active === '0') continue;
 
             if (!in_array($one->type, $fieldsTypeWithInField)) {
-                $decoded = json_decode($one->field_value);
-                $fieldValues[$one->field_id.'-'.$one->user_id] = is_array($decoded) ? implode(', ', $decoded) : $one->field_value;
+                if ($one->type === 'phone') {
+                    $fieldValues[$one->field_id.'-'.$one->user_id] = empty($one->field_value) ? '' : '+'.preg_replace('/,/', ' ', $one->field_value, 1);
+                } else {
+                    $decoded = json_decode($one->field_value);
+                    $fieldValues[$one->field_id.'-'.$one->user_id] = is_array($decoded) ? implode(', ', $decoded) : $one->field_value;
+                }
             } else {
                 $defaultValues = json_decode($one->value, true);
                 foreach ($defaultValues as $oneValue) {
@@ -258,7 +269,7 @@ class acymfieldClass extends acymClass
 
     public function getAllFieldsBackendListing()
     {
-        $query = 'SELECT id, name FROM #__acym_field WHERE backend_listing = 1 AND active = 1 AND id NOT IN (1, 2)';
+        $query = 'SELECT id, name FROM #__acym_field WHERE backend_listing = 1 AND active = 1 AND id NOT IN (1, 2) ORDER BY ordering';
 
         $return = [
             'names' => [],
@@ -386,11 +397,13 @@ class acymfieldClass extends acymClass
             $nameAttribute = ' name="user[email]"';
             $return .= '<input '.$nameAttribute.$placeholder.$value.' required type="email" class="cell" id="acym__user__edit__email" '.($displayFront && $cmsUser ? 'disabled' : '').'>';
         } elseif ($field->type == 'text') {
+            $maxCharacters = empty($field->option->max_characters) ? '' : ' maxlength="'.$field->option->max_characters.'"';
             $field->option->authorized_content->message = $field->option->error_message_invalid;
             $authorizedContent = ' data-authorized-content="'.acym_escape(json_encode($field->option->authorized_content)).'"';
-            $return .= '<input '.$nameAttribute.$placeholder.$required.$value.$authorizedContent.$style.' type="text">';
+            $return .= '<input '.$nameAttribute.$placeholder.$required.$value.$authorizedContent.$style.$maxCharacters.' type="text">';
         } elseif ($field->type == 'textarea') {
-            $return .= '<textarea '.$nameAttribute.$required.' rows="'.intval($field->option->rows).'" cols="'.intval($field->option->columns).'">'.(empty($defaultValue) ? '' : $defaultValue).'</textarea>';
+            $maxCharacters = empty($field->option->max_characters) ? '' : ' maxlength="'.$field->option->max_characters.'"';
+            $return .= '<textarea '.$nameAttribute.$required.$maxCharacters.' rows="'.intval($field->option->rows).'" cols="'.intval($field->option->columns).'">'.(empty($defaultValue) ? '' : $defaultValue).'</textarea>';
         } elseif ($field->type == 'radio') {
             $defaultValue = strlen($defaultValue) === 0 ? null : $defaultValue;
             if ($displayFront) {
@@ -436,12 +449,12 @@ class acymfieldClass extends acymClass
                 }
             }
         } elseif ($field->type == 'single_dropdown') {
-            $return .= acym_select($valuesArray, $name, empty($defaultValue) ? '' : $defaultValue, 'class="acym__custom__fields__select__form"'.$style.$required);
+            $return .= acym_select($valuesArray, $name, empty($defaultValue) ? '' : $defaultValue, 'class="acym__custom__fields__select__form acym__select"'.$style.$required);
         } elseif ($field->type == 'multiple_dropdown') {
             $defaultValue = is_array($defaultValue) ? $defaultValue : explode(',', $defaultValue);
 
             $attributes = [
-                'class' => 'acym__custom__fields__select__multiple__form',
+                'class' => 'acym__custom__fields__select__multiple__form acym__select',
                 'style' => $size,
             ];
             if ($field->required) $attributes['data-required'] = $displayFront ? acym_escape($requiredJson) : $requiredJson;
@@ -449,7 +462,7 @@ class acymfieldClass extends acymClass
             $return .= acym_selectMultiple($valuesArray, $name, empty($defaultValue) ? [] : $defaultValue, $attributes);
         } elseif ($field->type == 'date') {
             $defaultValue = is_array($defaultValue) ? implode('/', $defaultValue) : $defaultValue;
-            $attributes = 'class="acym__custom__fields__select__form " acym-field-type="date" ';
+            $attributes = 'class="acym__custom__fields__select__form acym__select" acym-field-type="date" ';
             if ($field->required) $attributes .= $required;
             $return .= acym_displayDateFormat($field->option->format, $name.'[]', $defaultValue, $attributes);
         } elseif ($field->type == 'file') {
@@ -461,12 +474,16 @@ class acymfieldClass extends acymClass
             }
         } elseif ($field->type == 'phone') {
             $defaultValue = !empty($defaultValue) ? explode(',', $defaultValue) : '';
+            $maxCharacters = empty($field->option->max_characters) ? '' : ' maxlength="'.$field->option->max_characters.'"';
 
-            if ($displayOutside) $return .= '<div '.$displayIf.' class="cell margin-top-1 grid-x grid-margin-x"><div class="acym__users__creation__fields__title cell">'.$field->name.'</div>';
-            $return .= '<div class="medium-3">';
-            $return .= acym_generateCountryNumber($name.'[code]', empty($defaultValue) ? '' : $defaultValue[0]);
+            $indicator = !empty($defaultValue[0]) ? $defaultValue[0] : '';
+            $number = !empty($defaultValue[1]) ? $defaultValue[1] : '';
+
+            if ($displayOutside) $return .= '<div '.$displayIf.' class="cell margin-top-1 grid-x"><div class="acym__users__creation__fields__title cell">'.$field->name.'</div>';
+            $return .= '<div class="cell large-5 medium-4 padding-right-1">';
+            $return .= acym_generateCountryNumber($name.'[code]', $indicator);
             $return .= '</div>';
-            $return .= '<input '.$placeholder.$required.$style.' class="medium-9 cell" type="tel" name="'.$name.'[phone]" value="'.acym_escape(empty($defaultValue) ? '' : $defaultValue[1]).'">';
+            $return .= '<input '.$placeholder.$required.$style.$maxCharacters.' class="cell large-7 medium-8" type="tel" name="'.$name.'[phone]" value="'.acym_escape($number).'">';
             if ($displayOutside) $return .= '</div>';
         } elseif ($field->type == 'custom_text') {
             $return .= $field->option->custom_text;

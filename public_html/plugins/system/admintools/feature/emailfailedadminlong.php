@@ -5,6 +5,10 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Authentication\AuthenticationResponse;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
+
 defined('_JEXEC') or die;
 
 class AtsystemFeatureEmailfailedadminlong extends AtsystemFeatureAbstract
@@ -42,7 +46,7 @@ class AtsystemFeatureEmailfailedadminlong extends AtsystemFeatureAbstract
 	/**
 	 * Sends an email upon a failed administrator login
 	 *
-	 * @param JAuthenticationResponse $response
+	 * @param   AuthenticationResponse  $response
 	 *
 	 * @return  void
 	 */
@@ -79,7 +83,7 @@ class AtsystemFeatureEmailfailedadminlong extends AtsystemFeatureAbstract
 		// If we are STILL in the login task WITHOUT a valid user, we had a login failure.
 
 		// Load the component's administrator translation files
-		$jlang = JFactory::getLanguage();
+		$jlang = Factory::getLanguage();
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, 'en-GB', true);
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, null, true);
@@ -88,7 +92,7 @@ class AtsystemFeatureEmailfailedadminlong extends AtsystemFeatureAbstract
 		$config = $this->container->platform->getConfig();
 
 		// Construct the replacement table
-		$substitutions = $this->exceptionsHandler->getEmailVariables(JText::_('COM_ADMINTOOLS_WAFEMAILTEMPLATE_REASON_ADMINLOGINFAIL'));
+		$substitutions = $this->exceptionsHandler->getEmailVariables(Text::_('COM_ADMINTOOLS_WAFEMAILTEMPLATE_REASON_ADMINLOGINFAIL'));
 		/**
 		 * The code above primes the [USER] variable from the current Joomla user object. However, this user object is
 		 * ALWAYS the Guest user since we're not logged in yet. We need to replace it with $response['username'] whcih
@@ -103,13 +107,11 @@ class AtsystemFeatureEmailfailedadminlong extends AtsystemFeatureAbstract
 		// send a notification email. Anyway, let's stop here.
 		if (!$template)
 		{
-			return true;
+			return;
 		}
-		else
-		{
-			$subject = $template[0];
-			$body = $template[1];
-		}
+
+		$subject = $template[0];
+		$body    = $template[1];
 
 		foreach ($substitutions as $k => $v)
 		{
@@ -120,7 +122,7 @@ class AtsystemFeatureEmailfailedadminlong extends AtsystemFeatureAbstract
 		// Send the email
 		try
 		{
-			$mailer = JFactory::getMailer();
+			$mailer = Factory::getMailer();
 
 			$mailfrom = $config->get('mailfrom');
 			$fromname = $config->get('fromname');
@@ -139,7 +141,7 @@ class AtsystemFeatureEmailfailedadminlong extends AtsystemFeatureAbstract
 				$mailer->Priority = 3;
 
 				$mailer->isHtml(true);
-				$mailer->setSender(array($mailfrom, $fromname));
+				$mailer->setSender([$mailfrom, $fromname]);
 
 				// Resets the recipients, otherwise they will pile up
 				$mailer->clearAllRecipients();
@@ -155,7 +157,7 @@ class AtsystemFeatureEmailfailedadminlong extends AtsystemFeatureAbstract
 				$mailer->Send();
 			}
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			// Joomla! 3.5 and later throw an exception when crap happens instead of suppressing it and returning false
 		}

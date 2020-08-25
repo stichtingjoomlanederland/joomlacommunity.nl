@@ -17,5 +17,17 @@ class acympluginClass extends acymClass
 
         return acym_loadResult($query);
     }
+
+    public function getOneByFolderName($folderName)
+    {
+        return acym_loadObject('SELECT * FROM #__acym_plugin WHERE folder_name = '.acym_escapeDB($folderName));
+    }
+
+    public function getSettings($addon)
+    {
+        $settings = acym_loadResult('SELECT settings FROM #__acym_plugin WHERE folder_name = '.acym_escapeDB($addon));
+
+        return empty($settings) ? [] : json_decode($settings, true);
+    }
 }
 

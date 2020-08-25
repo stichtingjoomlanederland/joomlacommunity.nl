@@ -185,7 +185,7 @@ class RscommentsControllerComments extends JControllerLegacy
 			$override	= $jform['override'];
 			$class 		= new RSCommentsModelComments($comment->id, $comment->option, $config->nr_comments, $template, $override);
 			$pagination = $class->getPagination();
-			$last_page 	= $pagination->get('pages.stop');
+			$last_page 	= $pagination->pagesStop;
 			$limitstart = $last_page > 0 ? ($last_page -1) * $pagination->limit : 0;
 			
 			$jinput->set('limitstart',$limitstart);

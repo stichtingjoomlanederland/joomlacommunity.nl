@@ -14,5 +14,5 @@ use FOF30\Controller\DataController;
 
 class AutoBannedAddresses extends DataController
 {
-    use CustomACL;
+	use CustomACL;
 }

@@ -28,7 +28,7 @@ abstract class Nl_NLLocalise
 	{
 		if ($count == 0)
 		{
-			return array('0');
+			return array('OTHER', 'MORE');
 		}
 		elseif ($count == 1)
 		{

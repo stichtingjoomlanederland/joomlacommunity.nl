@@ -74,7 +74,7 @@ $canEdit	= ((isset($this->permissions['edit_own_comment']) && $this->permissions
 			<span id="comment-hidden-<?php echo $this->comment->IdComment; ?>"><?php echo JText::_('COM_RSCOMMENTS_COMMENT_HIDDEN'); ?> <a href="javascript:void(0);" data-rsc-task="showcomment"><?php echo JText::_('COM_RSCOMMENTS_COMMENT_HIDDEN_LINK'); ?></a></span>
 			<?php } ?>
 			
-			<span id="c<?php echo $this->comment->IdComment; ?>" class="rscomm-content<?php if ($badComment) { ?> muted hidden<?php } ?>" itemprop="commentText">
+			<span id="c<?php echo $this->comment->IdComment; ?>" class="rscomm-content<?php if ($badComment) { ?> muted rscomments-hidden<?php } ?>" itemprop="commentText">
 				<?php echo RSCommentsHelper::parseComment($this->comment->comment, $this->permissions, true); ?>
 			</span>
 			
@@ -167,12 +167,13 @@ $canEdit	= ((isset($this->permissions['edit_own_comment']) && $this->permissions
 				
 				<?php if ($this->comment->published && ($canReply || $canQuote)) { ?>
 				<span class="rscomm-meta-item rscomm-actions">
+					<?php $btnClass = RSCommentsHelper::isJ4() ? 'btn btn-sm' : 'btn btn-mini'; ?>
 					<?php if ($canReply) { ?>
-					<button class="btn btn-mini btn-primary" type="button" data-rsc-commentid="<?php echo $this->comment->IdComment; ?>" data-rsc-task="reply"><?php echo JText::_('COM_RSCOMMENTS_REPLY'); ?></button>
+					<button class="<?php echo $btnClass; ?> btn-primary" type="button" data-rsc-commentid="<?php echo $this->comment->IdComment; ?>" data-rsc-task="reply"><?php echo JText::_('COM_RSCOMMENTS_REPLY'); ?></button>
 					<?php } ?>
 					
 					<?php if ($canQuote) { ?>
-					<button class="btn btn-mini" type="button" data-rsc-commentid="<?php echo $this->comment->IdComment; ?>" data-rsc-task="quote" data-rsc-name="<?php echo $this->escape($name['cleanname']); ?>"><?php echo JText::_('COM_RSCOMMENTS_COMMENT_QUOTE'); ?></button>
+					<button class="<?php echo $btnClass; ?> btn-secondary" type="button" data-rsc-commentid="<?php echo $this->comment->IdComment; ?>" data-rsc-task="quote" data-rsc-name="<?php echo $this->escape($name['cleanname']); ?>"><?php echo JText::_('COM_RSCOMMENTS_COMMENT_QUOTE'); ?></button>
 					<?php } ?>
 				</span>
 				<?php } ?>

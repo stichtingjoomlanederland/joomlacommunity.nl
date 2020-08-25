@@ -98,22 +98,37 @@ class acymencodingHelper extends acymObject
         return '';
     }
 
-    public function encodingField($name, $selected, $attribs = 'style="max-width:200px;"')
+    public function encodingField($name, $selected, $attribs = null)
     {
-        $encodings = [
-            'binary' => 'Binary',
-            'quoted' => 'Quoted-printable',
-            '7bit' => '7 Bit',
-            '8bit' => '8 Bit',
-            'base64' => 'Base 64',
-        ];
-        $attribs .= 'style="max-width:200px;"';
-        echo acym_select($encodings, $name, $selected, $attribs, '', '', 'config_encoding');
+        if ($attribs === null) {
+            $attribs = [
+                'class' => 'acym__select',
+                'acym-data-infinite' => '',
+            ];
+        }
+        $attribs['style'] = empty($attribs['style']) ? 'max-width:200px;' : 'max-width:200px;'.$attribs['style'];
+
+        echo acym_select(
+            [
+                'binary' => 'Binary',
+                'quoted' => 'Quoted-printable',
+                '7bit' => '7 Bit',
+                '8bit' => '8 Bit',
+                'base64' => 'Base 64',
+            ],
+            $name,
+            $selected,
+            $attribs,
+            '',
+            '',
+            'config_encoding'
+        );
     }
 
     public function charsetField($name, $selected, $attribs = null)
     {
         $charsetType = acym_get('type.charset');
+
         return acym_select($charsetType->charsets, $name, $selected, $attribs, '', '');
     }
 }

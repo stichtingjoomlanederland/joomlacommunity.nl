@@ -4,16 +4,24 @@ defined('_JEXEC') or die('Restricted access');
 
 class acymcaptchaHelper extends acymObject
 {
-    public function display($formName = '')
+    public function display($formName = '', $loadJsModule = false)
     {
         $pubkey = $this->config->get('recaptcha_sitekey', '');
         if ($this->config->get('captcha', '') != 1 || empty($pubkey)) return '';
 
-        acym_addScript(false, 'https://www.google.com/recaptcha/api.js?render=explicit&hl='.acym_getLanguageTag(), 'text/javascript', true, true);
+        $return = '';
+
+        if ($loadJsModule) {
+            $return .= '<script src="https://www.google.com/recaptcha/api.js?render=explicit&hl='.acym_getLanguageTag(true).'" type="text/javascript" defer async></script>';
+        } else {
+            acym_addScript(false, 'https://www.google.com/recaptcha/api.js?render=explicit&hl='.acym_getLanguageTag(true), 'text/javascript', true, true);
+        }
 
         $id = empty($formName) ? 'acym-captcha' : $formName.'-captcha';
 
-        return '<div id="'.acym_escape($id).'" data-size="invisible" class="g-recaptcha" data-sitekey="'.acym_escape($pubkey).'"></div>';
+        $return .= '<div id="'.acym_escape($id).'" data-size="invisible" class="acyg-recaptcha" data-sitekey="'.acym_escape($pubkey).'"></div>';
+
+        return $return;
     }
 
     public function check()

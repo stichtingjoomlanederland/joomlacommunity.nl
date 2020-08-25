@@ -253,57 +253,6 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 	}
 
 	/**
-	 * Renders the wunderlist auto posting settings form
-	 *
-	 * @since	4.0
-	 * @access	public
-	 */
-	public function wunderlist($tpl = null)
-	{
-		// Set page attributes
-		$this->title('COM_EASYDISCUSS_AUTOPOST_WUNDERLIST');
-
-		// Register buttons here
-		JToolBarHelper::apply();
-
-		// Get the oauth library
-		$client = ED::oauth()->getClient('Wunderlist');
-
-		// Load the oauth table
-		$table = ED::table('OAuth');
-		$table->loadByType('wunderlist');
-
-		// Determines if twitter has already been associated
-		$associated = (bool) $table->id && $table->access_token;
-
-		$authorizationURL = 'index.php?option=com_easydiscuss&controller=autoposting&task=request&type=wunderlist';
-
-		// Get linkedin companies
-		$lists = array();
-		$storedLists = array();
-
-		if ($associated) {
-			$client->setAccess($table->access_token);
-			$lists = $client->getLists();
-
-			// Get a list of stored lists
-			$storedLists = $this->config->get('main_autopost_wunderlist_list_id', array());
-
-			if ($storedLists) {
-				$storedLists = explode(',', $storedLists);
-			}
-		}
-
-		$this->set('lists', $lists);
-		$this->set('storedLists', $storedLists);
-		$this->set('authorizationURL', $authorizationURL);
-		$this->set('associated', $associated);
-
-		parent::display('autoposting/wunderlist');
-	}
-
-
-	/**
 	 * Fetch Facebook groups
 	 *
 	 * @since	4.0

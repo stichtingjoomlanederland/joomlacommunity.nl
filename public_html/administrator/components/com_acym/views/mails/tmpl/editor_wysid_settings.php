@@ -29,8 +29,10 @@ defined('_JEXEC') or die('Restricted access');
 		<div class="grid-x margin-bottom-1 small-12 cell">
 			<label class="middle large-6 cell" for="acym__wysid__right__toolbar__settings__font--select"><?php echo acym_translation('ACYM_HTML_TAG'); ?></label>
 			<div class="cell large-6">
-				<select id="acym__wysid__right__toolbar__settings__font--select" class="small-8 large-4 cell">
+				<select id="acym__wysid__right__toolbar__settings__font--select" class="small-8 large-4 cell acym__select">
 					<option>p</option>
+					<option>a</option>
+					<option>li</option>
 					<option>h1</option>
 					<option>h2</option>
 					<option>h3</option>
@@ -43,7 +45,7 @@ defined('_JEXEC') or die('Restricted access');
 		<div class="grid-x margin-bottom-1 small-12 cell">
 			<label class="middle large-6 cell" for="acym__wysid__right__toolbar__settings__font-family"><?php echo acym_translation('ACYM_FAMILY'); ?></label>
 			<div class="cell large-6">
-				<select id="acym__wysid__right__toolbar__settings__font-family" class="auto cell">
+				<select id="acym__wysid__right__toolbar__settings__font-family" class="auto cell acym__select">
 					<option style="font-family: 'Andale Mono'">Andale Mono</option>
 					<option style="font-family: 'Arial'">Arial</option>
 					<option style="font-family: 'Book Antiqua'">Book Antiqua</option>
@@ -61,16 +63,19 @@ defined('_JEXEC') or die('Restricted access');
 		<div class="grid-x margin-bottom-1 small-12 cell">
 			<label class="middle large-6 cell" for="acym__wysid__right__toolbar__settings__font-size"><?php echo acym_translation('ACYM_SIZE'); ?></label>
 			<div class="cell large-6">
-				<select id="acym__wysid__right__toolbar__settings__font-size" class="auto cell">
+				<select id="acym__wysid__right__toolbar__settings__font-size" class="auto cell acym__select">
 					<option>10px</option>
 					<option>12px</option>
 					<option>14px</option>
 					<option>16px</option>
 					<option>18px</option>
 					<option>20px</option>
+					<option>22px</option>
 					<option>24px</option>
+					<option>26px</option>
 					<option>28px</option>
 					<option>30px</option>
+					<option>32px</option>
 					<option>34px</option>
 					<option>36px</option>
 				</select>
@@ -87,7 +92,7 @@ defined('_JEXEC') or die('Restricted access');
             <?php
             $dataStyleSheet = '<div class="grid-x acym__wysid__right__toolbar__settings__stylesheet">
                                                     <h6 class="acym__wysid__right__toolbar__settings__stylesheet__title cell text-center margin-top-1">'.acym_translation('ACYM_HERE_PASTE_YOUR_STYLESHEET').'</h6>
-                                                    <textarea id="acym__wysid__right__toolbar__settings__stylesheet__textarea" class="margin-top-1" rows="15"></textarea>
+                                                    <textarea id="acym__wysid__right__toolbar__settings__stylesheet__textarea" class="margin-top-1 acym__blue" rows="15"></textarea>
                                                     <button type="button" id="acym__wysid__right__toolbar__settings__stylesheet__cancel" class="button cell medium-4">'.acym_translation('ACYM_CANCEL').'</button>
                                                     <div class="medium-4 cell"></div>
                                                     <button type="button" id="acym__wysid__right__toolbar__settings__stylesheet__apply" class="button cell medium-4">'.acym_translation('ACYM_LOAD_STYLESHEET').'</button>
@@ -111,3 +116,4 @@ defined('_JEXEC') or die('Restricted access');
         ?>
 	</div>
 </div>
+

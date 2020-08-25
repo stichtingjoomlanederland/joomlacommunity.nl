@@ -22,6 +22,7 @@ defined('_JEXEC') or die('Restricted access');
 		</div>
 		<div class="cell medium-auto"></div>
 	</div>
+	<input type="hidden" name="campaign_type" value="<?php echo $data['campaign_type']; ?>">
     <?php acym_formOptions(true, 'edit', 'editEmail'); ?>
 </div>
 <?php

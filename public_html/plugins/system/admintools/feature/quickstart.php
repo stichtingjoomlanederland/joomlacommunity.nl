@@ -6,6 +6,8 @@
  */
 
 use Akeeba\AdminTools\Admin\Helper\Storage;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
 
 defined('_JEXEC') or die;
 
@@ -48,11 +50,11 @@ class AtsystemFeatureQuickstart extends AtsystemFeatureAbstract
 			return;
 		}
 
-		$jlang = JFactory::getLanguage();
+		$jlang = Factory::getLanguage();
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, 'en-GB');
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, null, true);
 
-		$msg = JText::sprintf('COM_ADMINTOOLS_QUICKSTART_MSG_PLEASERUNWIZARD', 'index.php?option=com_admintools&view=QuickStart');
-		JFactory::getApplication()->enqueueMessage($msg, 'error');
+		$msg = Text::sprintf('COM_ADMINTOOLS_QUICKSTART_MSG_PLEASERUNWIZARD', 'index.php?option=com_admintools&view=QuickStart');
+		Factory::getApplication()->enqueueMessage($msg, 'error');
 	}
-} 
+}

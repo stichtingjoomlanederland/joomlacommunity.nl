@@ -432,8 +432,24 @@ class DiscussProfile extends EasyDiscussTable
 	 */
 	public function getName($default = '')
 	{
-		if ($this->id == 0) {
-			return $default ? $default : JText::_('COM_EASYDISCUSS_GUEST');
+		// render the guest poster name if there has store any name for this.
+		if (!$this->id) {
+
+			if ($default) {
+				return $default;
+			}
+
+			if (isset($this->user->name) && $this->user->name) {
+				return $this->user->name;
+			}
+
+			if (isset($this->name) && $this->name) {
+				return $this->name;
+			}			
+
+			$name = JText::_('COM_EASYDISCUSS_GUEST'); 
+
+			return $name;
 		}
 
 		$config = ED::config();
@@ -766,23 +782,17 @@ class DiscussProfile extends EasyDiscussTable
 		if (!isset($cache[$index])) {
 			$db = ED::db();
 
-			$query	= 'SELECT count(1) AS CNT FROM ' . $db->nameQuote('#__discuss_posts')
-					.' WHERE ' . $db->nameQuote('user_id') . '=' . $db->Quote($this->id)
-					.' AND ' . $db->nameQuote('parent_id') . '=' . $db->Quote('0')
-					.' AND ' . $db->nameQuote('published') . '=' . $db->Quote('1');
+			$query	= 'SELECT count(1) AS CNT FROM ' . $db->nameQuote('#__discuss_thread') . ' AS a'
+					. ' INNER JOIN ' . $db->nameQuote('#__discuss_posts') . ' AS b ON a.`post_id` = b.`id`'
+					.' WHERE ' . $db->nameQuote('a.user_id') . '=' . $db->Quote($this->id)
+					.' AND ' . $db->nameQuote('a.published') . '=' . $db->Quote('1');
+
+			if ($my->id != $this->id) {
+				$query .=' AND ' . $db->nameQuote('a.private') . '=' . $db->Quote('0');
+			}
 
 			// Do not include anything from cluster.
-			$query .= ' AND '. $db->nameQuote('cluster_id') . '=' . $db->Quote('0');
-
-			// If the post is anonymous we shouldn't show to public.
-			if (ED::user()->id != $this->id) {
-				$query .=' AND ' . $db->nameQuote('anonymous') . '=' . $db->Quote('0');
-			}
-
-			if (ED::user()->id != $this->id) {
-				$query .=' AND ' . $db->nameQuote('private') . '=' . $db->Quote('0');
-			}
-
+			$query .= ' AND '. $db->nameQuote('a.cluster_id') . '=' . $db->Quote('0');
 
 			if ($respectPrivacy) {
 
@@ -800,8 +810,13 @@ class DiscussProfile extends EasyDiscussTable
 					return array();
 				}
 
-				$query .= " and `category_id` IN (" . implode(',', $catIds) . ")";
+				$query .= " and a.`category_id` IN (" . implode(',', $catIds) . ")";
 
+			}
+
+			// If the post is anonymous we shouldn't show to public.
+			if ($my->id != $this->id) {
+				$query .=' AND ' . $db->nameQuote('b.anonymous') . '=' . $db->Quote('0');
 			}
 
 			$db->setQuery($query);
@@ -1043,13 +1058,13 @@ class DiscussProfile extends EasyDiscussTable
 	 * @param	string
 	 * @return
 	 */
-	public function getTotalReplies()
+	public function getTotalReplies($options = array())
 	{
 		static $cache = array();
 
 		if (!isset($cache[$this->id])) {
 			$model = ED::model('Users');
-			$cache[$this->id] = $model->getTotalReplies($this->id);
+			$cache[$this->id] = $model->getTotalReplies($this->id, $options);
 		}
 
 		return $cache[$this->id];

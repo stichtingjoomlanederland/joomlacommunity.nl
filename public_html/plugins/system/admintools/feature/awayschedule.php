@@ -40,14 +40,14 @@ class AtsystemFeatureAwayschedule extends AtsystemFeatureAbstract
 	public function onAfterInitialise()
 	{
 		$timezone = $this->container->platform->getConfig()->get('offset', 'UTC');
-		
+
 		$now  = new Date('now', $timezone);
 		$from = new Date($this->cparams->getValue('awayschedule_from'), $timezone);
 		$to   = new Date($this->cparams->getValue('awayschedule_to'), $timezone);
 
 		// Wait, FROM is later than TO? This means that the user set an interval like this: 17:30 - 11:00
 		// Let's move the FROM constrain one day back
-		if($from > $to)
+		if ($from > $to)
 		{
 			$from = $from->modify('-1 day');
 		}

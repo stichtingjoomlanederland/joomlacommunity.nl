@@ -90,13 +90,16 @@ class EasyDiscussViewRoles extends EasyDiscussAdminView
 			$role->created_time = ED::date()->toSql($role->created_time);
 		}
 
-		JToolbarHelper::apply('save');
+		JToolbarHelper::apply();
 		JToolbarHelper::save();
 		JToolBarHelper::divider();
 		JToolBarHelper::cancel();
 
+		$model = ED::model('Roles');
+		$excludeIds = $model->getSelectedUserGroupIds(array('usergroup_id' => $role->usergroup_id));
+
 		// Get a list of user groups
-		$userGroups = ED::getJoomlaUserGroups();
+		$userGroups = ED::getJoomlaUserGroups('', $excludeIds);
 
 		// Use a simple hashmap for groups
 		$groups = array();

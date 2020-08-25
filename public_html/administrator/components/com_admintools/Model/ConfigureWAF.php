@@ -38,7 +38,6 @@ class ConfigureWAF extends Model
 		'emailonfailedadminlogin'         => '',
 		'emailbreaches'                   => '',
 		'muashield'                       => 1,
-		'csrfshield'                      => 0,
 		'rfishield'                       => 1,
 		'phpshield'                       => 1,
 		'dfishield'                       => 1,
@@ -139,7 +138,7 @@ class ConfigureWAF extends Model
 	/**
 	 * Merge and save $newParams into the WAF configuration
 	 *
-	 * @param   array $newParams New parameters to save
+	 * @param   array  $newParams  New parameters to save
 	 *
 	 * @return  void
 	 */
@@ -220,7 +219,7 @@ class ConfigureWAF extends Model
 	/**
 	 * Used to transparently set the IP lookup service to a sane default when none is specified
 	 *
-	 * @param   array $data The configuration data we'll modify
+	 * @param   array  $data  The configuration data we'll modify
 	 *
 	 * @return  void
 	 */
@@ -255,7 +254,7 @@ class ConfigureWAF extends Model
 	/**
 	 * If empty, fills the groups where we should check for leaked passwords
 	 *
-	 * @param    array $data The configuration data we'll modify
+	 * @param   array  $data  The configuration data we'll modify
 	 */
 	private function fillLeakedPwdGroups(&$data)
 	{
@@ -267,7 +266,12 @@ class ConfigureWAF extends Model
 
 		// Let's see if we already calculated them previously
 		$params            = $this->container->params;
-		$super_user_groups = $params->get('default_super_user_groups', []);
+		$super_user_groups = $params->get('default_super_user_groups', '');
+
+		if (!empty($super_user_groups) && !is_array($super_user_groups))
+		{
+			$super_user_groups = explode(',', $super_user_groups);
+		}
 
 		if ($super_user_groups)
 		{
@@ -298,7 +302,7 @@ class ConfigureWAF extends Model
 
 		$data['leakedpwd_groups'] = $groups;
 
-		$params->set('default_super_user_groups', $groups);
+		$params->set('default_super_user_groups', implode(',', $groups));
 		$params->save();
 	}
 }
