@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); 
@@ -24,6 +24,7 @@ JText::script('ERROR'); ?>
 		});
 	});
 	
+	<?php if ($this->event->tickets_amount) { ?>var ticketsamount = parseInt(<?php echo $this->event->tickets_amount; ?>);<?php echo "\n"; } ?>
 	<?php if ($this->event->max_tickets) { ?>var maxtickets = parseInt(<?php echo $this->event->max_tickets_amount; ?>);<?php echo "\n"; } ?>
 	<?php if ($this->event->max_tickets) { ?>var usedtickets = parseInt(<?php echo rseventsproHelper::getUsedTickets($this->event->id); ?>);<?php echo "\n"; } ?>
 	var multitickets = <?php echo rseventsproHelper::getConfig('multi_tickets','int').";\n"; ?>
@@ -37,6 +38,8 @@ JText::script('ERROR'); ?>
 	smessage[6] = '<?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_NO_MORE_TICKETS_ALLOWED',true); ?>';
 	smessage[7] = '<?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_SINGLE_TICKET',true); ?>';
 	smessage[8] = '<?php echo JText::_('COM_RSEVENTSPRO_CONSENT_INFO',true); ?>';
+	smessage[9] = '<?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_MAX_TICKETS',true); ?>';
+	smessage[10] = '<?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_CAPTCHA_ERROR',true); ?>';
 	
 	function RSopenModal() {
 		var dialogHeight = <?php echo rseventsproHelper::getConfig('seats_height','int','800'); ?>;
@@ -74,7 +77,7 @@ JText::script('ERROR'); ?>
 	<?php if (!empty($this->tickets) && !$this->thankyou) { ?><script type="text/javascript"><?php if ($this->event->ticketsconfig) { ?>rsepro_update_total();<?php } else { ?>rs_get_ticket(jQuery('#RSEProTickets').val());<?php } ?></script><?php } ?>
 </div>
 <?php } else { ?>
-<form action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe'); ?>" method="post" name="adminForm" id="adminForm" class="form-horizontal" autocomplete="off">
+<form action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe'); ?>" method="post" name="subscribeForm" id="subscribeForm" class="form-horizontal" autocomplete="off">
 <div class="rs_subscribe">
 	<h1><?php echo JText::sprintf('COM_RSEVENTSPRO_SUBSCRIBER_JOIN',$this->event->name); ?></h1>
 	
@@ -160,6 +163,29 @@ JText::script('ERROR'); ?>
 	
 	<?php } ?>
 	
+	<?php if (in_array(2,$this->captcha_use)) { ?>
+	<div class="control-group" id="rsepro_subscribe_captcha_block">
+		<div class="control-label">&nbsp;</div>
+		<?php if ($this->config->captcha == 1) { ?>
+		<div class="controls">
+			<img id="rsepro_subscribe_captcha" src="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=captcha&tmpl=component&rand='.rand(),false); ?>" onclick="reloadSubscribeCaptcha()" />
+			<span class="explain">
+				<?php echo JText::_('COM_RSEVENTSPRO_CAPTCHA_TEXT'); ?> <?php echo JText::_('COM_RSEVENTSPRO_CAPTCHA_RELOAD'); ?>
+			</span>
+			<input type="text" id="rsepro_subscribe_secret" name="secret" value="" class="input-large" />
+		</div>
+		<?php } elseif ($this->config->captcha == 2) { ?>
+		<div class="controls">
+			<div id="rse-g-recaptcha"></div>
+		</div>
+		<?php } elseif ($this->config->captcha == 3) { ?>
+		<div class="controls">
+			<div id="h-captcha-subscribe"></div>
+		</div>
+		<?php } ?>
+	</div>
+	<?php } ?>
+	
 	<table class="table table-striped table-condensed" id="rsepro-cart-details">
 		
 		<tr class="rsepro-cart-options" id="rsepro-cart-discount" style="display: none;">
@@ -200,6 +226,29 @@ JText::script('ERROR'); ?>
 		</tr>
 	</table>
 	
+	<?php } else { ?>
+	<?php if (in_array(2,$this->captcha_use)) { ?>
+	<div class="control-group" id="rsepro_subscribe_captcha_block">
+		<div class="control-label">&nbsp;</div>
+		<?php if ($this->config->captcha == 1) { ?>
+		<div class="controls">
+			<img id="rsepro_subscribe_captcha" src="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=captcha&tmpl=component&rand='.rand(),false); ?>" onclick="reloadSubscribeCaptcha()" />
+			<span class="explain">
+				<?php echo JText::_('COM_RSEVENTSPRO_CAPTCHA_TEXT'); ?> <?php echo JText::_('COM_RSEVENTSPRO_CAPTCHA_RELOAD'); ?>
+			</span>
+			<input type="text" id="rsepro_subscribe_secret" name="secret" value="" class="input-large" />
+		</div>
+		<?php } elseif ($this->config->captcha == 2) { ?>
+		<div class="controls">
+			<div id="rse-g-recaptcha"></div>
+		</div>
+		<?php } elseif ($this->config->captcha == 3) { ?>
+		<div class="controls">
+			<div id="h-captcha-subscribe"></div>
+		</div>
+		<?php } ?>
+	</div>
+	<?php } ?>
 	<?php } ?>	
 	
 	<?php if (rseventsproHelper::getConfig('consent','int','1')) { ?>
@@ -216,7 +265,7 @@ JText::script('ERROR'); ?>
 	
 	<div class="control-group">
 		<div class="controls">
-			<button type="submit" class="button btn btn-primary" onclick="return rsepro_validate_subscription();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button> <?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_OR'); ?> 
+			<button id="subscribeBtn" type="submit" class="button btn btn-primary" onclick="return rsepro_validate_subscription();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button> <?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_OR'); ?> 
 			<?php echo rseventsproHelper::redirect(false,JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'),rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id))); ?>
 		</div>
 	</div>

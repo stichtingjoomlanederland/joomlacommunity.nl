@@ -11,5 +11,5 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<a href="<?php echo $permalink;?>" class="ed-user-name t-fs--<?php echo $fontsize;?> <?php echo $lgMarginTop;?> <?php echo $lgMarginBottom;?>"><?php echo $username;?></a>
+<a href="<?php echo $permalink;?>" class="ed-user-name t-fs--<?php echo $fontsize;?> <?php echo $lgMarginTop;?> <?php echo $lgMarginBottom;?>"><?php echo $this->html('string.escape', $username);?></a>
 <?php if ($isESVerified) { ?><i class="es-verified" data-es-provide="tooltip" data-original-title="<?php echo JText::_('COM_ES_VERIFIED_USER');?>"></i><?php } ?>

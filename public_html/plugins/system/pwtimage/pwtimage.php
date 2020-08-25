@@ -3,7 +3,7 @@
  * @package    Pwtimage
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
@@ -16,7 +16,6 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\FileLayout;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Uri\Uri;
-use Joomla\Registry\Registry;
 
 defined('_JEXEC') or die;
 
@@ -308,6 +307,8 @@ class PlgSystemPwtimage extends CMSPlugin
 
 				// Clean the identifier list back to component
 				$identifier = array(reset($identifier));
+
+				$this->fieldGroup = '';
 			}
 		}
 
@@ -414,6 +415,7 @@ class PlgSystemPwtimage extends CMSPlugin
 		if ($this->app->input->get('format') === 'json'
 			|| ($this->app->input->get('layout') === 'edit')
 			|| in_array($this->app->input->get('option'), $excludedExtensions)
+			|| $this->app->isClient('administrator')
 		)
 		{
 			return;
@@ -509,15 +511,15 @@ class PlgSystemPwtimage extends CMSPlugin
 						}
 
 						// Using absolute path makes certain we can use it anywhere
-						$image = Uri::root(false, '/' . $image);
+						$domain = Uri::root(false);
 
-						$data = array(
-							'image'   => rtrim($image, '/'),
+						$data = [
+							'image'   => $domain . rtrim($image, '/'),
 							'alt'     => $alt,
 							'caption' => $caption
-						);
+						];
 
-						$layout = new FileLayout('image', null, array('debug' => JDEBUG, 'component' => 'com_pwtimage'));
+						$layout = new FileLayout('image', null, ['debug' => JDEBUG, 'component' => 'com_pwtimage']);
 						$embed  = $layout->render($data);
 
 						$text = str_replace($matches[0][$i], $embed, $text);

@@ -11,5 +11,5 @@ defined('_JEXEC') or die;
 
 class WAFBlacklistedRequest extends WAFBlacklistedRequests
 {
-	
+
 }

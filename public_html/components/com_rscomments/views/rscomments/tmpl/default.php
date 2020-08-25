@@ -83,9 +83,9 @@ defined('_JEXEC') or die('Restricted access'); ?>
 	<?php echo $this->loadTemplate('items'); ?>
 </div>
 
-<?php if ($this->pagination->get('pagesTotal') > 1) { ?>
-<div class="rsc_pagination pagination">
-	<?php if ($this->pagination->get('pagesCurrent') != $this->pagination->get('pagesTotal')) { ?>
+<?php if ($this->pagination->pagesTotal > 1) { ?>
+<div class="rsc_pagination">
+	<?php if ($this->pagination->pagesCurrent != $this->pagination->pagesTotal) { ?>
 		<a class="rsc_button btn btn-info" href="javascript:void(0);" data-rsc-task="pagination" data-task-override="<?php echo $this->override; ?>">
 			<?php echo JText::_('COM_RSCOMMENTS_LOAD_MORE_COMMENTS'); ?>
 		</a>

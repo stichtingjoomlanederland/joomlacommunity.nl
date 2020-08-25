@@ -1,0 +1,34 @@
+{
+    "name": "gingerpayments/ginger-php",
+    "description": "The official Ginger Payments PHP SDK",
+    "keywords": ["payment", "pay", "merchant", "e-commerce"],
+    "license": "MIT",
+    "homepage": "https://github.com/gingerpayments/ginger-php",
+    "authors": [
+        {
+            "name": "Ginger Payments",
+            "email": "dev@gingerpayments.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.6.0",
+        "ext-curl": "*",
+        "ext-json": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.5",
+        "doctrine/instantiator": "~1.0.0",
+        "phpdocumentor/reflection-common": "~1.0",
+        "phpdocumentor/reflection-docblock": "~3.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ginger\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Ginger\\Tests\\": "tests"
+        }
+    }
+}

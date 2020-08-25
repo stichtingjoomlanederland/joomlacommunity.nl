@@ -234,6 +234,11 @@ RSEventsPro.Event = {
 			RSEventsPro.Event.generateCoupons(jQuery(this).data('id'));
 		});
 		
+		// Invoice
+		jQuery('#jform_invoice_type').on('change', function() {
+			RSEventsPro.Event.invoiceType();
+		});
+		
 		// Initialize functions
 		RSEventsPro.Event.allDay();
 		RSEventsPro.Event.overbooking();
@@ -244,6 +249,7 @@ RSEventsPro.Event = {
 		RSEventsPro.Event.repeatOnType();
 		RSEventsPro.Event.applyToAll();
 		RSEventsPro.Event.orderTickets();
+		RSEventsPro.Event.invoiceType();
 	},
 	
 	// All day event
@@ -421,6 +427,7 @@ RSEventsPro.Event = {
 		jQuery('ul li a[data-target="#rsepro-edit-tab4"]').parent().slideToggle();
 		jQuery('ul li a[data-target="#rsepro-edit-tab5"]').parent().slideToggle();
 		jQuery('ul li a[data-target^="#rsepro-edit-ticket"]').parent().slideToggle();
+		jQuery('ul li a[data-target="#rsepro-edit-invoice"]').parent().slideToggle();
 		
 		if (jQuery('#jform_registration').is(':checked')) {
 			jQuery('#jform_rsvp').prop('checked', false);
@@ -1609,6 +1616,14 @@ RSEventsPro.Event = {
 			}
 		} else {
 			alert(Joomla.JText._('COM_RSEVENTSPRO_RSMAIL_NO_LIST_SELECTED'));
+		}
+	},
+	
+	invoiceType: function() {
+		if (jQuery('#jform_invoice_type').val() == 2) {
+			jQuery('#rsepro-invoice-custom').css('display','');
+		} else {
+			jQuery('#rsepro-invoice-custom').css('display','none');
 		}
 	}
 }

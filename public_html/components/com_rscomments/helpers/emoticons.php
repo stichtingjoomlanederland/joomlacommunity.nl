@@ -12,9 +12,10 @@ abstract class RSCommentsEmoticons {
 	public static function createEmoticons() {
 		$return		= array();
 		$emoticons	= self::setEmoticons();
+		$btnClass	= RSCommentsHelper::isJ4() ? 'btn btn-sm btn-secondary' : 'btn btn-mini';
 		
 		foreach($emoticons as $tag => $img) {
-			$return[] = '<a href="javascript:void(0);" class="btn btn-mini" data-rsc-task="bbcode" data-rsc-code="'.htmlspecialchars(addslashes($tag),ENT_COMPAT,'UTF-8').'"><img src="'.$img.'" alt="'.htmlspecialchars($tag,ENT_COMPAT,'UTF-8').'" /></a>';
+			$return[] = '<a href="javascript:void(0);" class="'.$btnClass.'" data-rsc-task="bbcode" data-rsc-code="'.htmlspecialchars(addslashes($tag),ENT_COMPAT,'UTF-8').'"><img src="'.$img.'" alt="'.htmlspecialchars($tag,ENT_COMPAT,'UTF-8').'" /></a>';
 		}
 		
 		return $return;

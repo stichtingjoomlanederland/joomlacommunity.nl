@@ -12,8 +12,6 @@ defined('_JEXEC') or die;
 use Akeeba\AdminTools\Admin\Helper\ServerTechnology;
 use DateTimeZone;
 use FOF30\Date\Date;
-use JFactory;
-use JLoader;
 
 class NginXConfMaker extends ServerConfigMaker
 {
@@ -77,7 +75,7 @@ class NginXConfMaker extends ServerConfigMaker
 		// Prevent content transformation
 		'notransform'         => 1,
 		// User agents to block (one per line)
-		'hoggeragents'        => array(
+		'hoggeragents'        => [
 			'WebBandit',
 			'webbandit',
 			'Acunetix',
@@ -243,7 +241,7 @@ class NginXConfMaker extends ServerConfigMaker
 			'Go!Zilla',
 			'TurnitinBot',
 			'sqlmap',
-		),
+		],
 		// Block common exploits
 		'blockcommon'         => 1,
 		// Enable SEF URLs
@@ -257,43 +255,45 @@ class NginXConfMaker extends ServerConfigMaker
 		'frontendprot'        => 1,
 		// -- Fine-tuning
 		// Back-end directories where file type exceptions are allowed
-		'bepexdirs'           => array('components', 'modules', 'templates', 'images', 'plugins'),
+		'bepexdirs'           => ['components', 'modules', 'templates', 'images', 'plugins'],
 		// Back-end file types allowed in selected directories
-		'bepextypes'          => array(
+		'bepextypes'          => [
 			'jpe', 'jpg', 'jpeg', 'jp2', 'jpe2', 'png', 'gif', 'bmp', 'css', 'js',
 			'swf', 'html', 'mpg', 'mp3', 'mpeg', 'mp4', 'avi', 'wav', 'ogg', 'ogv',
 			'xls', 'xlsx', 'doc', 'docx', 'ppt', 'pptx', 'zip', 'rar', 'pdf', 'xps',
 			'txt', '7z', 'svg', 'odt', 'ods', 'odp', 'flv', 'mov', 'htm', 'ttf',
 			'woff', 'woff2', 'eot', 'webp',
-			'JPG', 'JPEG', 'PNG', 'GIF', 'CSS', 'JS', 'TTF', 'WOFF', 'WOFF2', 'EOT', 'WEBP'
-		),
+			'JPG', 'JPEG', 'PNG', 'GIF', 'CSS', 'JS', 'TTF', 'WOFF', 'WOFF2', 'EOT', 'WEBP',
+		],
 		// Front-end directories where file type exceptions are allowed
-		'fepexdirs'           => array('components', 'modules', 'templates', 'images', 'plugins', 'media', 'libraries',
-			'media/jui/fonts'),
+		'fepexdirs'           => [
+			'components', 'modules', 'templates', 'images', 'plugins', 'media', 'libraries',
+			'media/jui/fonts',
+		],
 		// Front-end file types allowed in selected directories
-		'fepextypes'          => array(
+		'fepextypes'          => [
 			'jpe', 'jpg', 'jpeg', 'jp2', 'jpe2', 'png', 'gif', 'bmp', 'css', 'js',
 			'swf', 'html', 'mpg', 'mp3', 'mpeg', 'mp4', 'avi', 'wav', 'ogg', 'ogv',
 			'xls', 'xlsx', 'doc', 'docx', 'ppt', 'pptx', 'zip', 'rar', 'pdf', 'xps',
 			'txt', '7z', 'svg', 'odt', 'ods', 'odp', 'flv', 'mov', 'ico', 'htm',
 			'ttf', 'woff', 'woff2', 'eot', 'webp',
-			'JPG', 'JPEG', 'PNG', 'GIF', 'CSS', 'JS', 'TTF', 'WOFF', 'WOFF2', 'EOT', 'WEBP'
-		),
+			'JPG', 'JPEG', 'PNG', 'GIF', 'CSS', 'JS', 'TTF', 'WOFF', 'WOFF2', 'EOT', 'WEBP',
+		],
 		// -- Exceptions
 		// Allow direct access to these files
-		'exceptionfiles'      => array(
+		'exceptionfiles'      => [
 			"administrator/components/com_akeeba/restore.php",
 			"administrator/components/com_admintools/restore.php",
-			"administrator/components/com_joomlaupdate/restore.php"
-		),
+			"administrator/components/com_joomlaupdate/restore.php",
+		],
 		// Allow direct access, except .php files, to these directories
-		'exceptiondirs'       => array(
-			'.well-known'
-		),
+		'exceptiondirs'       => [
+			'.well-known',
+		],
 		// Allow direct access, including .php files, to these directories
-		'fullaccessdirs'      => array(
-			"templates/your_template_name_here"
-		),
+		'fullaccessdirs'      => [
+			"templates/your_template_name_here",
+		],
 
 		// == The Kitchen Sink ==
 		// Cloudflare IP forwarding
@@ -313,7 +313,7 @@ class NginXConfMaker extends ServerConfigMaker
 		// Send ETag
 		'etagtype'            => -1,
 		// Referrer policy
-		'referrerpolicy'	  => 'unsafe-url',
+		'referrerpolicy'      => 'unsafe-url',
 		// Tighten NginX security settings
 		'nginxsecurity'       => 1,
 		// Set maximum client body size to 1G
@@ -364,7 +364,7 @@ class NginXConfMaker extends ServerConfigMaker
 		'Akeeba\AdminTools\Admin\Model\ServerConfigMaker::writeConfigFile',
 		'Akeeba\AdminTools\Admin\Model\NginXConfMaker::writeNginXConf',
 		'Akeeba\AdminTools\Admin\View\NginXConfMaker\Html::onBeforeMain',
-		'Akeeba\AdminTools\Admin\View\NginXConfMaker\Html::onBeforePreview'
+		'Akeeba\AdminTools\Admin\View\NginXConfMaker\Html::onBeforePreview',
 	];
 
 	/**
@@ -384,8 +384,6 @@ class NginXConfMaker extends ServerConfigMaker
 	{
 		// Make sure we are called by an expected caller
 		ServerTechnology::checkCaller($this->allowedCallersForMake);
-
-		JLoader::import('joomla.utilities.date');
 
 		$date = new Date();
 		$tz   = new DateTimeZone($this->container->platform->getUser()->getParam('timezone', $this->container->platform->getConfig()->get('offset', 'UTC')));
@@ -639,46 +637,59 @@ ENDCONF;
 			}
 		}
 
-		if ($config->exptime == 1)
+		if ($config->exptime != 0)
 		{
+			$expWeek = '1w';
+			$expWeekText = '1 week';
+			$expMonth = '1M';
+			$expMonthText = '1 month';
+
+			if ($config->exptime == 2)
+			{
+				$expWeek = '1y';
+				$expWeekText = '1 year';
+				$expMonth = '1y';
+				$expMonthText = '1 year';
+			}
+
 			$nginxConf .= <<<ENDCONF
 ######################################################################
 ## Set default expiration time
 ######################################################################
- # CSS and JavaScript : 1 week
+ # CSS and JavaScript : $expWeekText
 location ~* \.(css|js)$ {
 		access_log off; log_not_found off;
-		expires 1w;
+		expires $expWeek;
 }
 
-# Image files : 1 month
+# Image files : $expMonthText
 location ~* \.(bmp|gif|jpg|jpeg|jp2|png|svg|tif|tiff|ico|wbmp|wbxml|smil|webp)$ {
 		access_log off; log_not_found off;
-		expires 1M;
+		expires $expMonth;
 }
 
-# Font files : 1 week
+# Font files : $expMonthText
 location ~* \.(woff|woff2|ttf|otf|eot)$ {
 		access_log off; log_not_found off;
-		expires 1M;
+		expires $expMonth;
 }
 
-# Document files : 1 month
+# Document files : $expMonthText
 location ~* \.(pdf|txt|xml)$ {
 		access_log off; log_not_found off;
-		expires 1M;
+		expires $expMonth;
 }
 
-# Audio files : 1 month
+# Audio files : $expMonthText
 location ~* \.(mid|midi|mp3|m4a|m4r|aif|aiff|ra|wav|voc|ogg)$ {
 		access_log off; log_not_found off;
-		expires 1M;
+		expires $expMonth;
 }
 
-# Video files : 1 month
+# Video files : $expMonthText
 location ~* \.(swf|vrml|avi|mkv|mpg|mpeg|mp4|m4v|mov|asf)$ {
 		access_log off; log_not_found off;
-		expires 1M;
+		expires $expMonth;
 }
 
 ENDCONF;
@@ -721,16 +732,16 @@ CONF;
 
 		if (substr($host, 0, 4) == 'www.')
 		{
-			$wwwHost = $host;
+			$wwwHost   = $host;
 			$noWwwHost = substr($host, 4);
 		}
 		else
 		{
 			$noWwwHost = $host;
-			$wwwHost = 'www.' . $host;
+			$wwwHost   = 'www.' . $host;
 		}
 
-		$subfolder = trim($config->rewritebase, '/') ? trim($config->rewritebase, '/').'/' : '';
+		$subfolder = trim($config->rewritebase, '/') ? trim($config->rewritebase, '/') . '/' : '';
 
 		switch ($config->wwwredir)
 		{
@@ -769,8 +780,8 @@ END;
 ######################################################################
 
 END;
-			$domains = trim($config->olddomain);
-			$domains = explode(',', $domains);
+			$domains   = trim($config->olddomain);
+			$domains   = explode(',', $domains);
 			$newdomain = $config->httphost;
 
 			foreach ($domains as $olddomain)
@@ -805,9 +816,17 @@ END;
 		if ($config->cors == 1)
 		{
 			$nginxConf .= <<<END
-## Cross-Origin Resource Sharing (CORS)
+## Explicitly enable Cross-Origin Resource Sharing (CORS)
 add_header Access-Control-Allow-Origin "*";
 add_header Timing-Allow-Origin "*";
+
+END;
+		}
+		elseif ($config->cors == -1)
+		{
+			$nginxConf .= <<<END
+## Explicitly disable Cross-Origin Resource Sharing (CORS)
+add_header Cross-Origin-Resource-Policy "same-origin";
 
 END;
 		}
@@ -846,6 +865,16 @@ ENDCONF;
 			$nginxConf .= <<< ENDCONF
 ## Reflected XSS prevention
 add_header X-XSS-Protection "1; mode=block";
+
+ENDCONF;
+		}
+
+		if ($config->noserversignature == 1)
+		{
+			$nginxConf .= <<< ENDCONF
+## Remove NginX and PHP version signature
+add_header X-Powered-By "";
+add_header X-Content-Powered-By "";
 
 ENDCONF;
 		}
@@ -1008,17 +1037,29 @@ END;
 
 		if ($config->enablesef == 1)
 		{
-			$nginxConf .= <<<END
+			$nginxConf .= <<<NGINX
 ## Enable SEF URLs
-location / {
-	try_files \$uri \$uri/ /index.php?\$args;
+
+NGINX;
+			$nginxConf .= <<<NGINX
+# Joomla API application
+location $rewritebaseSlash/api/ {
+	try_files \$uri \$uri/ $rewritebaseSlash/api/index.php?\$args;
 }
-location ~* /index.php$ {
+# Joomla public frontend application
+
+NGINX;
+			$nginxConf .= <<<NGINX
+location $rewritebaseSlash/ {
+	try_files \$uri \$uri/ $rewritebaseSlash/index.php?\$args;
+}
+# Parse index.php as a PHP executable file
+location ~* $rewritebaseSlash/index.php$ {
 	$fastcgi_pass_block
 	break;
 }
 
-END;
+NGINX;
 		}
 
 		$nginxConf .= <<< END
@@ -1058,8 +1099,8 @@ END;
 		{
 			foreach ($config->exceptiondirs as $dir)
 			{
-				$dir = trim($dir, '/');
-				$dir = $this->escape_string_for_regex($dir);
+				$dir       = trim($dir, '/');
+				$dir       = $this->escape_string_for_regex($dir);
 				$nginxConf .= <<<END
 location ~* ^$rewritebaseSlash/$dir/.*\.php$
 {
@@ -1078,8 +1119,8 @@ END;
 		{
 			foreach ($config->fullaccessdirs as $dir)
 			{
-				$dir = trim($dir, '/');
-				$dir = $this->escape_string_for_regex($dir);
+				$dir       = trim($dir, '/');
+				$dir       = $this->escape_string_for_regex($dir);
 				$nginxConf .= <<<END
 location ~* ^$rewritebaseSlash/$dir/.*$
 {
@@ -1099,8 +1140,8 @@ END;
 
 		if ($config->backendprot == 1)
 		{
-			$bedirs = implode('|', $config->bepexdirs);
-			$betypes = implode('|', $config->bepextypes);
+			$bedirs    = implode('|', $config->bepexdirs);
+			$betypes   = implode('|', $config->bepextypes);
 			$nginxConf .= <<<END
 # Allow media files in select back-end directories
 location ~* ^$rewritebaseSlash/administrator/($bedirs)/.*.($betypes)$ {
@@ -1127,7 +1168,7 @@ location ~* $rewritebaseSlash/administrator.*$ {
 		return 403;
 	}
 	# In any other case, just treat as a SEF URL
-	try_files \$uri \$uri/ /administrator/index.php?\$args;
+	try_files \$uri \$uri/ $rewritebaseSlash/administrator/index.php?\$args;
 }
 
 END;
@@ -1135,8 +1176,8 @@ END;
 
 		if ($config->frontendprot == 1)
 		{
-			$fedirs = implode('|', $config->fepexdirs);
-			$fetypes = implode('|', $config->fepextypes);
+			$fedirs    = implode('|', $config->fepexdirs);
+			$fetypes   = implode('|', $config->fepextypes);
 			$nginxConf .= <<<END
 # Allow media files in select front-end directories
 location ~* ^$rewritebaseSlash/($fedirs)/.*.($fetypes)$ {
@@ -1181,7 +1222,7 @@ location ~* ^$rewritebaseSlash/.*$ {
 		return 403;
 	}
 	# In any other case, just treat as a SEF URL
-	try_files \$uri \$uri/ /index.php?\$args;
+	try_files \$uri \$uri/ $rewritebaseSlash/index.php?\$args;
 }
 
 END;

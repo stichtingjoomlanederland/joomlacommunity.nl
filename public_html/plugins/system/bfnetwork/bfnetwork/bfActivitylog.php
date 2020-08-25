@@ -189,8 +189,32 @@ class bfActivitylog
                 $this->db->query();
             }
 
+            $host_id = $this->getHostID();
+
+            if (!$host_id) {
+                return;
+            }
+
+            $data = array(
+                'HOST_ID'    => $host_id,
+                'who'        => $who,
+                'who_id'     => $who_id,
+                'what'       => $what,
+                'when'       => $when,
+                'where'      => $where,
+                'where_id'   => $where_id,
+                'ip'         => $ip,
+                'userAgent'  => $userAgent,
+                'meta'       => $meta,
+                'action'     => $action,
+                'alert_name' => $alertName,
+            );
+
+            // Always attempt
+            $this->sendToSpy($data);
+
             if (property_exists($this->prefs, $alertName) && $this->prefs->$alertName == 1) {
-                $this->sendLogAlert($who, $who_id, $what, $when, $where, $where_id, $ip, $userAgent, $meta, $action, $alertName);
+                $this->sendLogAlert($data);
             }
         } catch (Exception $exception) {
             //ignore failure as not to output anything to the public website
@@ -212,39 +236,16 @@ class bfActivitylog
      *
      * @return string|void
      */
-    public function sendLogAlert($who = 'not me!', $who_id = 0, $what = 'dunno', $when, $where = 'er?', $where_id = 0, $ip = null, $userAgent = null, $meta = '{}', $action = '', $alertName = '')
+    public function sendLogAlert($data)
     {
         try {
-            $host_id = $this->getHostID();
-
-            if (!$host_id) {
-                return;
-            }
-
-            $postdata = http_build_query(
-                array(
-                    'HOST_ID'    => $host_id,
-                    'who'        => $who,
-                    'who_id'     => $who_id,
-                    'what'       => $what,
-                    'when'       => $when,
-                    'where'      => $where,
-                    'where_id'   => $where_id,
-                    'ip'         => $ip,
-                    'userAgent'  => $userAgent,
-                    'meta'       => $meta,
-                    'action'     => $action,
-                    'alert_name' => $alertName,
-                )
-            );
-
             $opts = array('http' => array(
-                'content'       => $postdata,
+                'content'       => http_build_query($data),
                 'method'        => 'POST',
                 'user_agent'    => JURI::base(),
                 'max_redirects' => 1,
                 'header'        => 'Content-type: application/x-www-form-urlencoded',
-                'proxy'         => ('local' == getenv('APPLICATION_ENV') ? 'tcp://127.0.0.1:8888' : ''),
+                'proxy'         => ('local' == getenv('APPLICATION_ENV') ? 'tcp://host.docker.internal:8888' : ''),
                 'timeout'       => 5, //so we don't destroy live sites if the service is offline
             ),
             );
@@ -257,6 +258,7 @@ class bfActivitylog
                         ), )
                 );
 
+                // Using @ so we don't destroy live sites if the service is offline
                 return @file_get_contents('https://dev.mysites.guru/api/log', false, stream_context_create($opts));
             } else {
                 // Using @ so we don't destroy live sites if the service is offline
@@ -281,6 +283,51 @@ class bfActivitylog
             if (file_exists($file)) {
                 return file_get_contents($file);
             }
+        }
+    }
+
+    /**
+     * Realtime Log Viewer Integration.
+     */
+    private function sendToSpy($data)
+    {
+        if (!file_exists(dirname(__FILE__).'/tmp/realtime.php')) {
+            return;
+        }
+
+        // decode configuration
+        $realTimeConfig = json_decode(file_get_contents(dirname(__FILE__).'/tmp/realtime.php'));
+
+        // check if realtime is still active
+        if (time() < $realTimeConfig->until) {
+            $opts = array('http' => array(
+                'content'       => json_encode($data),
+                'method'        => 'POST',
+                'user_agent'    => JURI::base(),
+                'max_redirects' => 1,
+                'header'        => 'Content-type: application/x-www-form-urlencoded',
+                'proxy'         => ('local' == getenv('APPLICATION_ENV') ? 'tcp://host.docker.internal:8888' : ''),
+                'timeout'       => 5, //so we don't destroy live sites if the service is offline
+            ),
+            );
+
+            // dev mode ignore SSL unsigned
+            if (strpos($realTimeConfig->endpoint, 'dev')) {
+                $opts = array_merge($opts, array(
+                        'ssl' => array(
+                            'verify_peer'      => false,
+                            'verify_peer_name' => false,
+                        ), )
+                );
+            }
+
+            /*
+             * Push data to tmp endpoint for this site
+             * Using @ so we don't destroy live sites if the service is offline
+             */
+            @file_get_contents($realTimeConfig->endpoint, false, stream_context_create($opts));
+        } else {
+            @unlink(dirname(__FILE__).'/tmp/realtime.php');
         }
     }
 }

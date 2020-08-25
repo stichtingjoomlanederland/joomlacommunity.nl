@@ -6,59 +6,54 @@
 */
 
 defined('_JEXEC') or die('Restricted access');
-JHtml::_('behavior.formvalidation');
+JHtml::_('behavior.formvalidator');
 JHtml::_('behavior.keepalive'); ?>
 
 <script type="text/javascript">
-Joomla.submitbutton = function(task) {
-	var form = document.getElementById('adminForm');
+function rsc_import_table() {
 	var text = '';
+	var ret = true;
 
-	if(task == 'import.save') {
-		ret = true;
+	if (jQuery('#jform_rsc_col_option').val()=='') {
+		jQuery('#jform_rsc_col_option').toggleClass('rs_sel rsc_error', true); 
+		ret=false; 
+		text += "<?php echo JText::_('COM_RSCOMMENTS_IMPORT_NO_OPTION',true); ?> \n";
+	} else jQuery('#jform_rsc_col_option').toggleClass('rs_sel rsc_error', false); 
 
-		if (jQuery('#jform_rsc_col_option').val()=='') {
-			jQuery('#jform_rsc_col_option').toggleClass('rs_sel rsc_error', true); 
-			ret=false; 
-			text += "<?php echo JText::_('COM_RSCOMMENTS_IMPORT_NO_OPTION',true); ?> \n";
-		} else jQuery('#jform_rsc_col_option').toggleClass('rs_sel rsc_error', false); 
+	if (jQuery('#jform_rsc_col_id').val()=='') {	
+		jQuery('#jform_rsc_col_id').toggleClass('rs_sel rsc_error', true);
+		ret=false; 
+		text += "<?php echo JText::_('COM_RSCOMMENTS_IMPORT_NO_OPTIONID',true); ?> \n";
+	} else jQuery('#jform_rsc_col_id').toggleClass('rs_sel rsc_error', false); 
 
-		if (jQuery('#jform_rsc_col_id').val()=='') {	
-			jQuery('#jform_rsc_col_id').toggleClass('rs_sel rsc_error', true);
-			ret=false; 
-			text += "<?php echo JText::_('COM_RSCOMMENTS_IMPORT_NO_OPTIONID',true); ?> \n";
-		} else jQuery('#jform_rsc_col_id').toggleClass('rs_sel rsc_error', false); 
+	if (jQuery('#jform_rsc_col_name').val()=='') {
+		jQuery('#jform_rsc_col_name').toggleClass('rs_sel rsc_error', true);
+		ret=false; 
+		text += "<?php echo JText::_('COM_RSCOMMENTS_IMPORT_NO_NAME',true); ?> \n";
+	} else jQuery('#jform_rsc_col_name').toggleClass('rs_sel rsc_error', false); 
 
-		if (jQuery('#jform_rsc_col_name').val()=='') {
-			jQuery('#jform_rsc_col_name').toggleClass('rs_sel rsc_error', true);
-			ret=false; 
-			text += "<?php echo JText::_('COM_RSCOMMENTS_IMPORT_NO_NAME',true); ?> \n";
-		} else jQuery('#jform_rsc_col_name').toggleClass('rs_sel rsc_error', false); 
+	if (jQuery('#jform_rsc_col_email').val()=='') {
+		jQuery('#jform_rsc_col_email').toggleClass('rs_sel rsc_error', true);
+		ret=false; 
+		text += "<?php echo JText::_('COM_RSCOMMENTS_IMPORT_NO_EMAIL',true); ?> \n";
+	} else jQuery('#jform_rsc_col_email').toggleClass('rs_sel rsc_error', false); 
 
-		if (jQuery('#jform_rsc_col_email').val()=='') {
-			jQuery('#jform_rsc_col_email').toggleClass('rs_sel rsc_error', true);
-			ret=false; 
-			text += "<?php echo JText::_('COM_RSCOMMENTS_IMPORT_NO_EMAIL',true); ?> \n";
-		} else jQuery('#jform_rsc_col_email').toggleClass('rs_sel rsc_error', false); 
+	if (jQuery('#jform_rsc_col_comment').val()=='') {
+		jQuery('#jform_rsc_col_comment').toggleClass('rs_sel rsc_error', true); 
+		ret=false; 
+		text += "<?php echo JText::_('COM_RSCOMMENTS_IMPORT_NO_COMMENT',true); ?> \n";
+	} else jQuery('#jform_rsc_col_comment').toggleClass('rs_sel rsc_error', false); 
 
-		if (jQuery('#jform_rsc_col_comment').val()=='') {
-			jQuery('#jform_rsc_col_comment').toggleClass('rs_sel rsc_error', true); 
-			ret=false; 
-			text += "<?php echo JText::_('COM_RSCOMMENTS_IMPORT_NO_COMMENT',true); ?> \n";
-		} else jQuery('#jform_rsc_col_comment').toggleClass('rs_sel rsc_error', false); 
-
-		if(ret) 
-			submitform(task);
-		else { alert(text); return false; }
-			
-		submitform(task);
+	if (ret) {
+		Joomla.submitform('import.save');
+	} else { 
+		alert(text);
 	}
-	return false;
 }
 
 function rsc_import(classname) {
 	jQuery('#class').val(classname);
-	submitform('import.save');
+	Joomla.submitform('import.save');
 }
 
 function rsc_update_cols(value) {
@@ -81,36 +76,18 @@ function rsc_update_cols(value) {
 		}
 	});
 }
-
-jQuery(document).ready(function(){
-	jQuery('dt.advanced').click(function(){jQuery('#method_advanced').val(1);});
-	jQuery('dt.simple').click(function(){jQuery('#method_advanced').val(0);});
-});
 </script>
 
 <form action="<?php echo JRoute::_('index.php?option=com_rscomments&controller=import&view=import'); ?>" method="post" name="adminForm" id="adminForm" class="form-validate form-horizontal">
-	<div class="row-fluid">
-		<div id="j-sidebar-container" class="span2">
-			<?php echo JHtmlSidebar::render(); ?>
-		</div>
-		<div id="j-main-container" class="span10 j-main-container">
-			<?php $this->tabs->title(JText::_('COM_RSCOMMENTS_IMPORT_SIMPLE'), 'simple'); ?>
-			<?php $this->tabs->title(JText::_('COM_RSCOMMENTS_IMPORT_ADVANCED'), 'advanced'); ?>
-			<?php $this->tabs->content((!empty($this->html)) ? '<table class="table table-striped adminform">'.implode('',$this->html).'</table>' : '<div class="alert alert-warning">'.JText::_('COM_RSCOMMENTS_IMPORT_PLUGINS_PLEASE').'</div>'); ?>
-			<?php $content = $this->loadTemplate('advanced'); ?>
-			<?php $this->tabs->content($content); ?>
-			<?php echo $this->tabs->render();?>
-		</div>
+	<?php echo RSCommentsAdapterGrid::sidebar(); ?>
+		<?php $this->tabs->addTitle(JText::_('COM_RSCOMMENTS_IMPORT_SIMPLE'), 'simple'); ?>
+		<?php $this->tabs->addTitle(JText::_('COM_RSCOMMENTS_IMPORT_ADVANCED'), 'advanced'); ?>
+		<?php $this->tabs->addContent((!empty($this->html)) ? '<table class="table table-striped adminform">'.implode('',$this->html).'</table>' : '<div class="alert alert-warning">'.JText::_('COM_RSCOMMENTS_IMPORT_PLUGINS_PLEASE').'</div>'); ?>
+		<?php $this->tabs->addContent($this->loadTemplate('advanced')); ?>
+		<?php echo $this->tabs->render();?>
 	</div>
 	
 	<?php echo JHtml::_('form.token'); ?>
 	<input type="hidden" name="task" value="" />
 	<input type="hidden" name="class" id="class" value="" />
 </form>
-
-<?php if(!empty($this->table)) { ?> 
-<script type="text/javascript">
-jQuery('#toolbar-save').css('display','block');
-var isadvanced =  true;
-</script>
-<?php } ?>

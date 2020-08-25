@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.2.16442
+ * @version         20.7.20564
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -178,6 +178,7 @@ trait ConditionContent
 		if (in_array('current', $this->params->authors) && JFactory::getUser()->id)
 		{
 			$this->params->authors[] = JFactory::getUser()->id;
+			$this->params->authors   = array_diff($this->params->authors, ['current']);
 		}
 
 		return in_array($author, $this->params->authors);

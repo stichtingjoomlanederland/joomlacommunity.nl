@@ -5,6 +5,8 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Language\Text;
+
 /** @var \Akeeba\AdminTools\Admin\View\BadWords\Html $this */
 
 defined('_JEXEC') or die;
@@ -16,7 +18,7 @@ defined('_JEXEC') or die;
             <div>
                 <div class="akeeba-form-group">
                     <label for="word">
-                        <?php echo JText::_('COM_ADMINTOOLS_LBL_BADWORD_WORD'); ?>
+                        <?php echo Text::_('COM_ADMINTOOLS_LBL_BADWORD_WORD'); ?>
                     </label>
 
                     <input type="text" name="word" id="word" value="<?php echo $this->escape($this->item->word); ?>" />

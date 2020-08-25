@@ -19,8 +19,9 @@ function acym_radio($options, $name, $selected = null, $attributes = [], $params
 
     $attributes['type'] = 'radio';
     $attributes['name'] = $name;
+    if (empty($params['containerClass'])) $params['containerClass'] = '';
 
-    $return = '<div class="acym_radio_group">';
+    $return = '<div class="acym_radio_group '.$params['containerClass'].'">';
     $k = 0;
     foreach ($options as $value => $label) {
         if (is_object($label)) {
@@ -190,7 +191,7 @@ function acym_selectOption($value, $text = '', $optKey = 'value', $optText = 'te
     return $option;
 }
 
-function acym_switch($name, $value, $label = null, $attrInput = [], $labelClass = 'medium-6 small-9', $switchContainerClass = 'auto', $switchClass = 'tiny', $toggle = null, $toggleOpen = true)
+function acym_switch($name, $value, $label = null, $attrInput = [], $labelClass = 'medium-6 small-9', $switchContainerClass = 'auto', $switchClass = 'tiny', $toggle = null, $toggleOpen = true, $vModel = '')
 {
     static $occurrence = 100;
     $occurrence++;
@@ -200,7 +201,7 @@ function acym_switch($name, $value, $label = null, $attrInput = [], $labelClass 
 
     $switch = '
     <div class="switch '.acym_escape($switchClass).'">
-        <input type="hidden" name="'.acym_escape($name).'" data-switch="'.$id.'" value="'.acym_escape($value).'"';
+        <input type="hidden" name="'.acym_escape($name).'" data-switch="'.$id.'" value="'.acym_escape($value).'" '.$vModel;
 
     if (!empty($toggle)) {
         $switch .= ' data-toggle-switch="'.acym_escape($toggle).'" data-toggle-switch-open="'.($toggleOpen ? 'show' : 'hide').'"';
@@ -697,10 +698,10 @@ function acym_generateCountryNumber($name, $defaultvalue = '')
     $countryCodeForSelect = [];
 
     foreach ($country as $key => $one) {
-        $countryCodeForSelect[$key] = $one.' +'.$key;
+        $countryCodeForSelect[$key] = '+'.$key.' ('.$one.')';
     }
 
-    return acym_select($countryCodeForSelect, $name, empty($defaultvalue) ? '' : $defaultvalue, 'class="acym__select__country"', 'value', 'text');
+    return acym_select($countryCodeForSelect, $name, empty($defaultvalue) ? '' : $defaultvalue, 'class="acym__select__country acym__select"', 'value', 'text');
 }
 
 function acym_cancelButton($text = 'ACYM_CANCEL', $url = '', $class = 'button medium-6 large-shrink')
@@ -710,7 +711,7 @@ function acym_cancelButton($text = 'ACYM_CANCEL', $url = '', $class = 'button me
     return '<a href="'.$url.'" class="cell '.$class.' acym__button__cancel">'.acym_translation($text).'</a>';
 }
 
-function acym_tooltip($hoveredText, $textShownInTooltip, $classContainer = '', $titleShownInTooltip = '', $link = '')
+function acym_tooltip($hoveredText, $textShownInTooltip, $classContainer = '', $titleShownInTooltip = '', $link = '', $classText = '')
 {
     if (!empty($link)) {
         $hoveredText = '<a href="'.$link.'" title="'.acym_escape($titleShownInTooltip).'">'.$hoveredText.'</a>';
@@ -720,15 +721,18 @@ function acym_tooltip($hoveredText, $textShownInTooltip, $classContainer = '', $
         $titleShownInTooltip = '<span class="acym__tooltip__title">'.$titleShownInTooltip.'</span>';
     }
 
-    return '<span class="acym__tooltip '.$classContainer.'"><span class="acym__tooltip__text">'.$titleShownInTooltip.$textShownInTooltip.'</span>'.$hoveredText.'</span>';
+    return '<span class="acym__tooltip '.$classContainer.'"><span class="acym__tooltip__text '.$classText.'">'.$titleShownInTooltip.$textShownInTooltip.'</span>'.$hoveredText.'</span>';
 }
 
-function acym_info($tooltipText, $class = '', $containerClass = '')
+function acym_info($tooltipText, $class = '', $containerClass = '', $classText = '')
 {
     return acym_tooltip(
         '<span class="acym__tooltip__info__container '.$class.'"><i class="acym__tooltip__info__icon acymicon-info-circle"></i></span>',
         acym_translation($tooltipText),
-        'acym__tooltip__info '.$containerClass
+        'acym__tooltip__info '.$containerClass,
+        '',
+        '',
+        $classText
     );
 }
 
@@ -761,11 +765,13 @@ function acym_sortBy($options, $listing, $default = '', $defaultSortOrdering = '
     return $display;
 }
 
-function acym_checkbox($values, $name, $selected = [], $label = '', $parentClass = '', $labelClass = '')
+function acym_checkbox($values, $name, $selected = [], $label = '', $parentClass = '', $labelClass = '', $dataAttr = '')
 {
     echo '<div class="'.$parentClass.'"><div class="cell acym__label '.$labelClass.'">'.$label.'</div><div class="cell auto grid-x">';
     foreach ($values as $key => $value) {
-        echo '<label class="cell grid-x margin-top-1"><input type="checkbox" name="'.$name.'" value="'.$key.'" '.(in_array($key, $selected) ? 'checked' : '').' >'.$value.'</label>';
+        $dtAttr = '';
+        if (!empty($dataAttr[$key])) $dtAttr = 'data-attr="'.$dataAttr[$key].'"';
+        echo '<label class="cell grid-x margin-top-1"><input type="checkbox" name="'.$name.'" value="'.$key.'" '.(in_array($key, $selected) ? 'checked' : '').' '.$dtAttr.'>'.$value.'</label>';
     }
     echo '</div></div>';
 }
@@ -790,7 +796,6 @@ function acym_filterStatus($options, $selected, $name)
     $filterStatus = '<input type="hidden" id="acym_filter_status" name="'.acym_escape($name).'" value="'.acym_escape($selected).'"/>';
 
     foreach ($options as $value => $text) {
-        if (empty($text[1])) continue;
         $class = 'acym__filter__status clear button secondary';
         if ($value == $selected) {
             $class .= ' font-bold acym__status__select';
@@ -806,15 +811,15 @@ function acym_filterStatus($options, $selected, $name)
     return $filterStatus;
 }
 
-function acym_filterSearch($search, $name, $placeholder = 'ACYM_SEARCH', $showClearBtn = true)
+function acym_filterSearch($search, $name, $placeholder = 'ACYM_SEARCH', $showClearBtn = true, $additionnalClasses = '')
 {
-    $searchField = '<div class="input-group acym__search-area">
+    $searchField = '<div class="input-group acym__search-area '.$additionnalClasses.'">
+        <input class="input-group-field acym__search-field" type="text" name="'.acym_escape($name).'" placeholder="'.acym_escape(acym_translation($placeholder)).'" value="'.acym_escape($search).'">
         <div class="input-group-button">
             <button class="button acym__search__button hide-for-small-only"><i class="acymicon-search"></i></button>
-        </div>
-        <input class="input-group-field acym__search-field" type="text" name="'.acym_escape($name).'" placeholder="'.acym_escape(acym_translation($placeholder)).'" value="'.acym_escape($search).'">';
+        </div>';
     if ($showClearBtn) {
-        $searchField .= '<span class="acym__search-clear"><i class="acymicon-remove"></i></span>';
+        $searchField .= '<span class="acym__search-clear"><i class="acymicon-close"></i></span>';
     }
     $searchField .= '</div>';
 

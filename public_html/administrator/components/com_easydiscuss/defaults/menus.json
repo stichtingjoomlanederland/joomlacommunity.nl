@@ -160,12 +160,6 @@
 				}
 			},
 			{
-				"title": "COM_EASYDISCUSS_SIDEBAR_AUTO_POSTING_WUNDERLIST",
-				"url": {
-					"layout": "wunderlist"
-				}
-			},
-			{
 				"title": "COM_EASYDISCUSS_SIDEBAR_AUTO_POSTING_SLACK",
 				"url": {
 					"layout": "slack"

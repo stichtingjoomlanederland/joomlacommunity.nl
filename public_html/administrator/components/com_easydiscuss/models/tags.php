@@ -290,6 +290,7 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 	public function getTagCloud($limit='', $order='title', $sort='asc' , $userId = '', $usePagination = false)
 	{
 		$db = ED::db();
+		$config = $this->config;
 
 		$limitstart = (int) $this->getState('limitstart', 0);
 
@@ -311,8 +312,9 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 		}
 
 		// exclude blocked users posts.
-		$query .= " left join " . $db->nameQuote('#__users') . " as uu on c.`user_id` = uu.`id`";
-
+		if (!$config->get('main_posts_from_blockuser', false)) {
+			$query .= " left join " . $db->nameQuote('#__users') . " as uu on c.`user_id` = uu.`id`";
+		}
 
 		$query .= ' where a.`published` = ' . $db->Quote('1');
 
@@ -321,7 +323,9 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 		}
 
 		// exlude block users. #788
-		$query .= " AND (uu.`block` = 0 or uu.`id` is null)";
+		if (!$config->get('main_posts_from_blockuser', false)) {
+			$query .= " AND (uu.`block` = 0 or uu.`id` is null)";
+		}
 
 
 		$query .= ' group by (a.`id`)';

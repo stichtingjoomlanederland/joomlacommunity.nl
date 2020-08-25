@@ -11,7 +11,7 @@ defined('_JEXEC') or die;
 
 use Akeeba\AdminTools\Admin\View\Mixin\SystemPluginExists;
 use FOF30\View\DataView\Html as BaseView;
-use JText;
+use Joomla\CMS\Language\Text;
 
 class Html extends BaseView
 {
@@ -47,9 +47,9 @@ class Html extends BaseView
 
 		// Construct the array of sorting fields
 		$this->sortFields = array(
-			'ip' 	 	=> JText::_('COM_ADMINTOOLS_LBL_AUTOBANNEDADDRESS_IP'),
-			'reason'	=> JText::_('COM_ADMINTOOLS_LBL_AUTOBANNEDADDRESS_REASON'),
-			'until' 	=> JText::_('COM_ADMINTOOLS_LBL_AUTOBANNEDADDRESS_UNTIL'),
+			'ip' 	 	=> Text::_('COM_ADMINTOOLS_LBL_AUTOBANNEDADDRESS_IP'),
+			'reason'	=> Text::_('COM_ADMINTOOLS_LBL_AUTOBANNEDADDRESS_REASON'),
+			'until' 	=> Text::_('COM_ADMINTOOLS_LBL_AUTOBANNEDADDRESS_UNTIL'),
 		);
 	}
 }

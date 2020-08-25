@@ -109,6 +109,8 @@ class acymimageHelper extends acymObject
 
     public function generateThumbnail($picturePath)
     {
+        $paramsPos = strpos($picturePath, '?');
+        if ($paramsPos !== false) $picturePath = substr($picturePath, 0, $paramsPos);
 
         list($currentwidth, $currentheight) = getimagesize($picturePath);
         if (empty($currentwidth) || empty($currentheight)) {

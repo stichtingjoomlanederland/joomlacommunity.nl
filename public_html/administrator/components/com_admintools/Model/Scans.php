@@ -15,6 +15,7 @@ use Akeeba\AdminTools\Admin\Model\Scanner\Logger\Logger;
 use Akeeba\AdminTools\Admin\Model\Scanner\Part;
 use Akeeba\AdminTools\Admin\Model\Scanner\Util\Configuration;
 use Akeeba\AdminTools\Admin\Model\Scanner\Util\Session;
+use Exception;
 use FOF30\Container\Container;
 use FOF30\Date\Date;
 use FOF30\Model\DataModel;
@@ -95,7 +96,7 @@ class Scans extends DataModel
 		{
 			$result = $db->setQuery($query)->execute();
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			$result = false;
 		}

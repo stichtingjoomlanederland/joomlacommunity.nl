@@ -34,7 +34,6 @@ class acymheaderHelper extends acymObject
         $news = @simplexml_load_file(ACYM_ACYMAILLING_WEBSITE.'acymnews.xml');
         if (empty($news->news)) return '';
 
-
         $currentLanguage = acym_getLanguageTag();
         $latestNews = null;
         $doNotRemind = json_decode($this->config->get('remindme', '[]'));
@@ -155,6 +154,7 @@ class acymheaderHelper extends acymObject
 
     private function getCheckVersionButton()
     {
+        if (ACYM_CMS == 'wordpress' && !acym_level(1)) return '';
         $lastLicenseCheck = $this->config->get('lastlicensecheck', 0);
         $time = time();
         $checking = ($time > $lastLicenseCheck + 604800) ? $checking = '1' : '0';
@@ -265,6 +265,9 @@ class acymheaderHelper extends acymObject
         }
 
         $notifications = json_decode($this->config->get('notifications', '[]'), true);
+        if (!is_array($notifications)) {
+            $notifications = [];
+        }
 
         $notif->message = strip_tags($notif->message);
 

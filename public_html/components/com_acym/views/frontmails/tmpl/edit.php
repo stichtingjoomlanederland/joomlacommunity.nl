@@ -1,46 +1,43 @@
 <?php
 defined('_JEXEC') or die('Restricted access');
 ?><div id="acym__editor__content" class="grid-x acym__content acym__editor__area">
-	<div class="cell grid-x align-right">
+	<div class="cell grid-x grid-margin-x align-right">
 		<input type="hidden" id="acym__mail__edit__editor" value="<?php echo acym_escape($data['mail']->editor); ?>">
 		<input type="hidden" class="acym__wysid__hidden__save__thumbnail" id="editor_thumbnail" name="editor_thumbnail" value="<?php echo acym_escape($data['mail']->thumbnail); ?>" />
 		<input type="hidden" id="acym__mail__edit__editor__social__icons" value="<?php echo empty($data['social_icons']) ? '{}' : acym_escape($data['social_icons']); ?>">
 		<input type="hidden" id="acym__mail__type" name="mail[type]" value="<?php echo empty($data['mail']->type) ? 'standard' : $data['mail']->type; ?>">
+		<input type="hidden" name="list_ids" value="<?php echo empty($data['list_id'][0]) ? 0 : $data['list_id'][0]; ?>">
         <?php
-        echo acym_modal_include(
-            '<button type="button" id="acym__template__start-from" class="cell medium-shrink button-secondary auto button">'.acym_translation('ACYM_START_FROM').'</button>',
-            dirname(__FILE__).DS.'choose_template_ajax.php',
-            'acym__template__choose__modal',
-            $data
-        );
-
+        include acym_getView('mails', 'edit_actions', true);
         ?>
-		<button id="apply" type="button" data-task="apply" class="cell medium-shrink button-secondary auto button acym__template__save margin-left-1 acy_button_submit">
-            <?php echo acym_translation('ACYM_SAVE'); ?>
-		</button>
-		<button style="display: none;" data-task="apply" class="acy_button_submit" id="data_apply"></button>
-		<button id="save" type="button" data-task="save" class="cell medium-shrink auto button margin-left-1 acy_button_submit">
-            <?php echo acym_translation('ACYM_SAVE_EXIT'); ?>
-		</button>
-		<button style="display: none;" data-task="save" class="acy_button_submit" id="data_save"></button>
 	</div>
 	<div class="cell grid-x grid-padding-x acym__editor__content__options">
         <?php
         echo !empty($data['return']) ? '<input type="hidden" name="return" value="'.acym_escape($data['return']).'"/>' : '';
         echo !empty($data['fromId']) ? '<input type="hidden" name="fromId" value="'.acym_escape($data['fromId']).'"/>' : '';
         ?>
-		<div class="cell auto">
+		<div class="cell medium-auto">
 			<label>
                 <?php echo acym_translation($data['mail']->type == 'automation' ? 'ACYM_NAME' : 'ACYM_TEMPLATE_NAME'); ?>
 				<input name="mail[name]" type="text" class="acy_required_field" value="<?php echo acym_escape($data['mail']->name); ?>" required>
 			</label>
 		</div>
-		<div class="cell auto">
+		<div class="cell medium-auto">
 			<label>
                 <?php echo acym_translation('ACYM_EMAIL_SUBJECT'); ?>
 				<input name="mail[subject]" type="text" value="<?php echo acym_escape($data['mail']->subject); ?>" <?php echo in_array($data['mail']->type, ['welcome', 'unsubscribe', 'automation']) ? 'required' : ''; ?>>
 			</label>
 		</div>
+        <?php if (!empty($data['lists'])) { ?>
+			<div class="cell medium-auto">
+				<label>
+                    <?php
+                    echo acym_translation('ACYM_SELECT_ONE_OR_MORE_LIST');
+                    echo acym_selectMultiple($data['lists'], 'list_ids', $data['list_id'], ['class' => 'acym__select']);
+                    ?>
+				</label>
+			</div>
+        <?php } ?>
 		<div class="cell grid-x acym__toggle__arrow">
 			<p class="cell medium-shrink acym__toggle__arrow__trigger"><?php echo acym_translation('ACYM_ADVANCED_OPTIONS'); ?> <i class="acymicon-keyboard_arrow_down"></i></p>
 			<div class="cell acym__toggle__arrow__contain">
@@ -57,11 +54,11 @@ defined('_JEXEC') or die('Restricted access');
                                 ?>
 							</label>
 						</div>
-						<textarea name="editor_stylesheet" id="acym__mail__edit__html__stylesheet" cols="30" rows="15" type="text"><?php echo $stylesheet; ?></textarea>
+						<textarea class="acym__blue" name="editor_stylesheet" id="acym__mail__edit__html__stylesheet" cols="30" rows="15" type="text"><?php echo $stylesheet; ?></textarea>
 					</div>
 					<div class="cell medium-auto">
 						<label for="acym__mail__edit__custom__header"><?php echo acym_translation('ACYM_CUSTOM_HEADERS'); ?></label>
-						<textarea id="acym__mail__edit__custom__header" name="editor_headers" cols="30" rows="15" type="text"><?php echo acym_escape($data['mail']->headers); ?></textarea>
+						<textarea class="acym__blue" id="acym__mail__edit__custom__header" name="editor_headers" cols="30" rows="15" type="text"><?php echo acym_escape($data['mail']->headers); ?></textarea>
 					</div>
 
 					<div class="cell grid-x">

@@ -133,7 +133,7 @@ defined('JPATH_PLATFORM') or die;
     <div class="uk-form-control uk-width-1-1 uk-width-small-4-5 uk-form-constrain uk-flex">
 
       <div class="uk-form-controls">
-        <input type="text" id="embed_width" value="" />
+        <input type="text" id="embed_width" value="" class="uk-text-muted uk-text-center" />
       </div>
 
       <div class="uk-form-controls">
@@ -141,7 +141,7 @@ defined('JPATH_PLATFORM') or die;
       </div>
 
       <div class="uk-form-controls">
-        <input type="text" id="embed_height" value="" />
+        <input type="text" id="embed_height" value="" class="uk-text-muted uk-text-center" />
       </div>
 
       <label class="uk-form-label">

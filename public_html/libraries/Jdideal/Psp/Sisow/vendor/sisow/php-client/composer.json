@@ -1,0 +1,35 @@
+{
+  "name": "sisow/php-client",
+  "type": "library",
+  "description": "PHP client to integrate Sisow payment methods",
+  "keywords": ["sisow","payment","iDEAL", "Bancontact", "Mastercard", "VISA","Creditcard", "PayPal", "EPS", "Giropay", "Sofort", "Klarna", "Afterpay"],
+  "homepage": "https://www.sisow.nl",
+  "license": "MIT",
+  "version": "1.0.0",
+  "require": {
+    "php": ">=7.0.7",
+    "ext-curl": "*",
+    "ext-simplexml": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^7"
+  },
+  "authors": [
+    {
+      "name": "Mark van Haaren (Sisow B.V.)",
+      "email": "support@sisow.nl",
+      "homepage": "https://www.sisow.nl",
+      "role": "Developer"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Sisow\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests"
+    }
+  }
+}

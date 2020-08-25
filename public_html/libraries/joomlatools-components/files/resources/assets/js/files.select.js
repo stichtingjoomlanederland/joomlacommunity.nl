@@ -1,3 +1,4 @@
+//files.select.js
 /*
  * Used in view=files&layout=select to provide an Insert button
  *
@@ -91,3 +92,4 @@ var fileSelected = function(selected) {
         kQuery.magnificPopup.close();
     }
 };
+

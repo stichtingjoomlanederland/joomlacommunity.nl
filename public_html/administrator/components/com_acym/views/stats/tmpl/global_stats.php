@@ -9,5 +9,4 @@ defined('_JEXEC') or die('Restricted access');
     }
     ?>
 </div>
-<?php acym_formOptions(); ?>
 

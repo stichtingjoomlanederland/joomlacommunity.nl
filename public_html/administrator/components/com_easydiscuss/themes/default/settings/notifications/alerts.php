@@ -14,7 +14,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 <div class="row">
 	<div class="col-md-6">
 		<div class="panel">
-			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_NOTIFICATIONS'); ?>
+			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_NOTIFICATIONS_SYSTEM'); ?>
 
 			<div class="panel-body">
 				<div class="form-horizontal">

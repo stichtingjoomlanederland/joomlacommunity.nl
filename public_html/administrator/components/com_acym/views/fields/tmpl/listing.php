@@ -1,13 +1,9 @@
 <?php
 defined('_JEXEC') or die('Restricted access');
 ?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
+    <?php $data['toolbar']->displayToolbar($data); ?>
 	<div id="acym__fields" class="acym__content">
-		<div class="cell grid-x margin-bottom-2">
-			<h1 class="shrink acym__title__listing margin-right-1"><?php echo acym_translation('ACYM_CUSTOM_FIELDS'); ?></h1>
-			<div class="medium-auto"></div>
-			<button data-task="edit" class="button cell medium-shrink acy_button_submit"><?php echo acym_translation('ACYM_CREATE'); ?></button>
-		</div>
-		<div class="grid-x acym__listing__actions">
+		<div class="cell acym__listing__actions margin-bottom-1 grid-x">
             <?php
             $actions = [
                 'delete' => acym_translation('ACYM_DELETE'),
@@ -17,6 +13,7 @@ defined('_JEXEC') or die('Restricted access');
             echo acym_listingActions($actions);
             ?>
 		</div>
+
 		<div class="grid-x acym__listing">
 			<div class="grid-x cell acym__listing__header">
 				<div class="medium-shrink small-1 cell">

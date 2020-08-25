@@ -28,8 +28,8 @@ class AtsystemFeatureRemoveoldlog extends AtsystemFeatureAbstract
 	{
 		// Delete up to 100 old entries
 		$maxEntries = $this->params->get('maxlogentries', 0);
-		$db = $this->db;
-		$query = $db->getQuery(true)
+		$db         = $this->db;
+		$query      = $db->getQuery(true)
 			->select($db->qn('id'))
 			->from($db->qn('#__admintools_log'))
 			->order($db->qn('id') . ' DESC');
@@ -41,7 +41,7 @@ class AtsystemFeatureRemoveoldlog extends AtsystemFeatureAbstract
 			return;
 		}
 
-		$temp = array();
+		$temp = [];
 
 		foreach ($ids as $id)
 		{
@@ -64,4 +64,4 @@ class AtsystemFeatureRemoveoldlog extends AtsystemFeatureAbstract
 			// Do nothing on DB exception
 		}
 	}
-} 
+}

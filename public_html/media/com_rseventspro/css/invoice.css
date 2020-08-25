@@ -1,0 +1,17 @@
+.invoice_table {
+	border-collapse: collapse; 
+	border: 1px solid black;
+}
+
+.invoice_table td {
+	border: 1px solid black;
+}
+
+.invoice_table th {
+    background-color: #f7f7f7;
+	border: 1px solid black;
+}
+
+.invoice_table .quantity {
+    width: 15%;
+}

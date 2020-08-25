@@ -10,8 +10,6 @@ class ListsController extends acymController
         $this->breadcrumb[acym_translation('ACYM_LISTS')] = acym_completeLink('lists');
         $this->loadScripts = [
             'settings' => ['colorpicker', 'vue-applications' => ['list_subscribers', 'entity_select']],
-            'saveSubscribers' => ['colorpicker', 'vue-applications' => ['list_subscribers', 'entity_select']],
-            'apply' => ['colorpicker', 'vue-applications' => ['list_subscribers', 'entity_select']],
         ];
     }
 
@@ -25,12 +23,36 @@ class ListsController extends acymController
         $data['ordering'] = acym_getVar('string', 'lists_ordering', 'id');
         $data['orderingSortOrder'] = acym_getVar('string', 'lists_ordering_sort_order', 'desc');
         $data['status'] = acym_getVar('string', 'lists_status', '');
-        $data['tags'] = acym_get('class.tag')->getAllTagsByType('list');
+        $data['allTags'] = acym_get('class.tag')->getAllTagsByType('list');
         $data['pagination'] = acym_get('helper.pagination');
 
+        if (!empty($data['tag'])) {
+            $data['status_toolbar'] = [
+                'lists_tag' => $data['tag'],
+            ];
+        }
+
         $this->prepareListsListing($data);
+        $this->prepareToolbar($data);
 
         parent::display($data);
+    }
+
+    protected function prepareToolbar(&$data)
+    {
+        $toolbarHelper = acym_get('helper.toolbar');
+        $toolbarHelper->addSearchBar($data['search'], 'lists_search', 'ACYM_SEARCH');
+        $toolbarHelper->addFilterByTag($data, 'lists_tag', 'acym__lists__filter__tags acym__select');
+
+        $toolbarHelper->addButton(
+            acym_translation('ACYM_EXPORT').' (<span id="acym__lists__listing__number_to_export" data-default="0"></span>)',
+            ['data-task' => 'export', 'type' => 'submit', 'data-ctrl' => 'users', 'id' => 'acym__list__export'],
+            'upload'
+        );
+        $toolbarHelper->addOtherContent('<input type="hidden" name="preselectList" value="1" />');
+        $toolbarHelper->addButton(acym_translation('ACYM_CREATE'), ['data-task' => 'settings'], 'playlist_add', true);
+
+        $data['toolbar'] = $toolbarHelper;
     }
 
     public function settings()
@@ -82,13 +104,15 @@ class ListsController extends acymController
             $listInformation = new stdClass();
             $listInformation->id = '';
             $listInformation->name = '';
+            $listInformation->description = '';
             $listInformation->active = 1;
             $listInformation->visible = 1;
             $randColor = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
             $listInformation->color = '#'.$randColor[rand(0, 15)].$randColor[rand(0, 15)].$randColor[rand(0, 15)].$randColor[rand(0, 15)].$randColor[rand(0, 15)].$randColor[rand(0, 15)];
-            $listInformation->subscribers = ['nbSubscribers' => 0, 'sendable' => 0];
             $listInformation->welcome_id = '';
             $listInformation->unsubscribe_id = '';
+            $listInformation->access = [];
+            $listInformation->tracking = 1;
 
             $this->breadcrumb[acym_translation('ACYM_NEW_LIST')] = acym_completeLink('lists&task=settings');
         } else {
@@ -100,16 +124,46 @@ class ListsController extends acymController
                 return false;
             }
 
-            $listInformation->subscribers = ['nbSubscribers' => 0, 'sendable' => 0];
             $subscribersCount = $this->currentClass->getSubscribersCountPerStatusByListId([$listId]);
-            if (!empty($subscribersCount)) {
-                $listInformation->subscribers = [
-                    'nbSubscribers' => $subscribersCount[0]->users,
-                    'sendable' => $subscribersCount[0]->sendable,
-                ];
-            }
 
             $this->breadcrumb[acym_escape($listInformation->name)] = acym_completeLink('lists&task=settings&id='.$listId);
+
+            $listInformation->access = empty($listInformation->access) ? [] : explode(',', $listInformation->access);
+
+            $currentUser = acym_currentUserId();
+            if (!acym_isAdmin() && ($listInformation->cms_user_id != $currentUser)) {
+                $userGroups = acym_getGroupsByUser($currentUser);
+
+                $canAccess = false;
+
+                foreach ($userGroups as $group) {
+                    if (in_array($group, $listInformation->access)) $canAccess = true;
+                }
+
+                if (!$canAccess) {
+                    acym_enqueueMessage(acym_translation('ACYM_YOU_DONT_HAVE_ACCESS_TO_THIS_LIST'), 'error');
+
+                    $this->listing();
+
+                    return false;
+                }
+            }
+        }
+
+        $listInformation->subscribers = [
+            'unsubscribed_users' => 0,
+            'sendable_users' => 0,
+            'unconfirmed_users' => 0,
+            'inactive_users' => 0,
+        ];
+        if (!empty($subscribersCount)) {
+            $listStats = array_shift($subscribersCount);
+            $listInformation->subscribers = [
+                'unsubscribed_users' => $listStats->unsubscribed_users,
+                'sendable_users' => $listStats->sendable_users,
+                'unconfirmed_users' => $listStats->unconfirmed_users,
+                'inactive_users' => $listStats->inactive_users,
+            ];
         }
 
         $data['listInformation'] = $listInformation;
@@ -147,15 +201,11 @@ class ListsController extends acymController
         $entityHelper = acym_get('helper.entitySelect');
 
         $data['subscribersEntitySelect'] = acym_modal(
-            acym_translation('ACYM_ADD_SUBSCRIPTION'),
+            acym_translation('ACYM_MANAGE_SUBSCRIBERS'),
             $entityHelper->entitySelect(
                 'user',
                 ['join' => 'join_list-'.$listId],
-                [
-                    0 => 'email',
-                    1 => 'id',
-                    'join' => 'userlist.user_id',
-                ],
+                $entityHelper->getColumnsForUser('userlist.user_id'),
                 ['text' => acym_translation('ACYM_CONFIRM'), 'action' => 'saveSubscribers']
             ),
             null,
@@ -209,9 +259,9 @@ class ListsController extends acymController
 
             $returnLink = acym_completeLink('lists&task=settings&id='.$data['listInformation']->id.'&edition=1&'.$short.'mailid={mailid}');
             if (empty($data['listInformation']->{$full.'_id'})) {
-                $data['tmpls'][$short.'TmplUrl'] = acym_completeLink('mails&task=edit&step=editEmail&type='.$full.'&type_editor=acyEditor&return='.urlencode($returnLink));
+                $data['tmpls'][$short.'TmplUrl'] = acym_completeLink('mails&task=edit&step=editEmail&type='.$full.'&type_editor=acyEditor&return='.urlencode(base64_encode($returnLink)));
             } else {
-                $data['tmpls'][$short.'TmplUrl'] = acym_completeLink('mails&task=edit&id='.$data['listInformation']->{$full.'_id'}.'&return='.urlencode($returnLink));
+                $data['tmpls'][$short.'TmplUrl'] = acym_completeLink('mails&task=edit&id='.$data['listInformation']->{$full.'_id'}.'&type='.$full.'&return='.urlencode(base64_encode($returnLink)));
             }
 
             $data['tmpls'][$full] = !empty($data['listInformation']->{$full.'_id'}) ? $mailClass->getOneById($data['listInformation']->{$full.'_id'}) : '';
@@ -283,6 +333,8 @@ class ListsController extends acymController
         }
 
         $listInformation->tags = acym_getVar('array', 'list_tags', []);
+
+        if (acym_isAdmin()) $listInformation->access = empty($listInformation->access) ? '' : ','.implode(',', $listInformation->access).',';
 
         $listId = $this->currentClass->save($listInformation);
 
@@ -465,6 +517,37 @@ class ListsController extends acymController
         $return['html'] = $echo;
         $return['notif'] = acym_translation_sprintf('ACYM_X_CONFIRMATION_SUBSCRIPTION_ADDED_AND_CLICK_TO_SAVE', count($allLists));
         $return = json_encode($return);
+        echo $return;
+        exit;
+    }
+
+    public function ajaxCreateNewList()
+    {
+        $genericImport = acym_getVar('boolean', 'generic', false);
+        $selectedListsIds = json_decode(acym_getVar('string', 'selected', '[]'));
+
+        $listClass = acym_get('class.list');
+        $listToAdd = new stdClass();
+        $listToAdd->name = acym_getVar('string', 'list_name', '');
+        $listToAdd->color = '#'.substr(str_shuffle('ABCDEF0123456789'), 0, 6);
+        $listToAdd->visible = 1;
+        $listToAdd->active = 1;
+
+        $selectedListsIds[] = $listClass->save($listToAdd);
+
+        $entityHelper = acym_get('helper.entitySelect');
+        $importHelper = acym_get('helper.import');
+
+
+        $return = $entityHelper->entitySelect(
+            'list',
+            ['join' => 'join_lists-'.implode(',', $selectedListsIds)],
+            $entityHelper->getColumnsForList('lists.list_id', true),
+            [],
+            true,
+            $importHelper->additionalDataUsersImport($genericImport)
+        );
+
         echo $return;
         exit;
     }

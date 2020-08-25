@@ -45,5 +45,30 @@ class acymworkflowHelper extends acymObject
 
         return $result;
     }
+
+    public function displayTabs($steps, $currentStep)
+    {
+        $ctrl = acym_getVar('cmd', 'ctrl');
+
+        $workflow = [];
+        foreach ($steps as $task => $title) {
+            $title = acym_translation($title);
+
+            $linkAttribute = $currentStep == $task ? 'aria-selected="true"' : '';
+
+            $link = $ctrl.'&task='.$task;
+
+            $title = '<a class="acym_tab acym__color__medium-gray" '.$linkAttribute.' href="'.acym_completeLink($link).'">'.$title.'</a>';
+
+
+            $workflow[] = '<li class="tabs-title">'.$title.'</li>';
+        }
+
+        $result = '<ul class="tabs" id="workflow">';
+        $result .= implode('', $workflow);
+        $result .= '</ul>';
+
+        return $result;
+    }
 }
 

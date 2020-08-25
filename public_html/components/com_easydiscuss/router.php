@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * Komento is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -483,11 +483,9 @@ class EasyDiscussRouter extends EasyDiscuss
 		// We know that the view=categories&layout=listings&id=xxx because there's only 1 segment
 		// and the active menu is view=categories
 
-
 		if (isset($item->query['view']) && $item->query['view'] == 'categories' && count($segments) >= 1 && !in_array($segments[0], $views) ) {
 
-			$catId = EDR::decodeAlias($segments[0], 'Category');
-
+			$catId = EDR::decodeAlias($segments[0], 'Category', true);
 			$category = ED::table('Category');
 			$category->load($catId);
 

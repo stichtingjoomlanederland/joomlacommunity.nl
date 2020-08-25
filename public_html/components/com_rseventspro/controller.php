@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); 
@@ -226,25 +226,30 @@ class RseventsproController extends JControllerLegacy
 		$response	= $input->getString('recaptcha');
 		$ip		  	= $input->server->get('REMOTE_ADDR');
 		$config		= rseventsproHelper::getConfig();
+		$captcha_use= $config->captcha_use ? explode(',',$config->captcha_use) : array();
 		$key		= $config->recaptcha_secret_key;
 		
 		echo 'RS_DELIMITER0';
 		
-		if ($config->captcha == 1) {
-			echo ($session->get('security_number') == $secret) ? 1 : 0;
-		} else {
-			try {
-				jimport('joomla.http.factory');
-				$http = JHttpFactory::getHttp();
-				if ($request = $http->get('https://www.google.com/recaptcha/api/siteverify?secret='.urlencode($key).'&response='.urlencode($response).'&remoteip='.urlencode($ip))) {
-					$json = json_decode($request->body);
-					$captcha_response = $json->success;
+		if (in_array(1,$captcha_use)) {
+			if ($config->captcha == 1) {
+				echo ($session->get('security_number') == $secret) ? 1 : 0;
+			} else {
+				try {
+					jimport('joomla.http.factory');
+					$http = JHttpFactory::getHttp();
+					if ($request = $http->get('https://www.google.com/recaptcha/api/siteverify?secret='.urlencode($key).'&response='.urlencode($response).'&remoteip='.urlencode($ip))) {
+						$json = json_decode($request->body);
+						$captcha_response = $json->success;
+					}
+				} catch (Exception $e) {
+					$captcha_response = false;
 				}
-			} catch (Exception $e) {
-				$captcha_response = false;
+				
+				echo (int) $captcha_response;
 			}
-			
-			echo (int) $captcha_response;
+		} else {
+			echo 1;
 		}
 		
 		echo 'RS_DELIMITER1';

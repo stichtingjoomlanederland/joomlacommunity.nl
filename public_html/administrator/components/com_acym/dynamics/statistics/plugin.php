@@ -71,7 +71,7 @@ class plgAcymStatistics extends acymPlugin
             [],
             'acym_action[filters][__numor__][__numand__][statistics][mail]',
             null,
-            'class="acym__select acym_select2_ajax" data-placeholder="'.acym_translation('ACYM_SELECT_A_MAIL', true).'" data-params="'.acym_escape($ajaxParams).'"'
+            'class="acym__select acym_select2_ajax" data-placeholder="'.acym_translation('ACYM_SELECT_AN_EMAIL', true).'" data-params="'.acym_escape($ajaxParams).'"'
         );
         $filters['statistics']->option .= '</div>';
     }

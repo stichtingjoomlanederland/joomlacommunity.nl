@@ -5,6 +5,8 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Akeeba\AdminTools\Admin\Model\DatabaseTools;
+use FOF30\Container\Container;
 use FOF30\Date\Date;
 
 defined('_JEXEC') or die;
@@ -28,7 +30,7 @@ class AtsystemFeatureSessioncleaner extends AtsystemFeatureAbstract
 	 */
 	public function onAfterInitialise()
 	{
-		$minutes = (int)$this->params->get('ses_freq', 0);
+		$minutes = (int) $this->params->get('ses_freq', 0);
 
 		if ($minutes <= 0)
 		{
@@ -38,7 +40,6 @@ class AtsystemFeatureSessioncleaner extends AtsystemFeatureAbstract
 		$lastJob = $this->getTimestamp('session_clean');
 		$nextJob = $lastJob + $minutes * 60;
 
-		JLoader::import('joomla.utilities.date');
 		$now = new Date();
 
 		if ($now->toUnix() >= $nextJob)
@@ -53,18 +54,25 @@ class AtsystemFeatureSessioncleaner extends AtsystemFeatureAbstract
 	 */
 	private function purgeSession()
 	{
-		JLoader::import('joomla.session.session');
+		if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
+		{
+			// FOF 3.0 is not installed
+			return;
+		}
 
-		$options = array();
+		$container = Container::getInstance('com_admintools');
 
-		$conf = $this->container->platform->getConfig();
+		try
+		{
+			/** @var DatabaseTools $model */
+			$model = $container->factory->model('DatabaseTools')->tmpInstance();
 
-		$handler = $conf->get('session_handler', 'none');
-
-		// config time is in minutes
-		$options['expire'] = ($conf->get('lifetime')) ? $conf->get('lifetime') * 60 : 900;
-
-		$storage = JSessionStorage::getInstance($handler, $options);
-		$storage->gc($options['expire']);
+			// This also runs the first batch of deletions
+			$model->garbageCollectSessions();
+		}
+		catch (Throwable $e)
+		{
+			// Avoid any blank page on error
+		}
 	}
 }

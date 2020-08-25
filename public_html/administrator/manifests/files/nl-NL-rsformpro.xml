@@ -2,23 +2,31 @@
 <extension version="3.8" type="file" method="upgrade">
 <name>nl-NL-rsformpro</name>
 <tag>nl-NL</tag>
-<version>2.0.15.2</version>
-<creationDate>2018-10-14</creationDate>
+<version>2.3.16.2</version>
+<creationDate>2020-06-28</creationDate>
 <author>Connecting Connections</author>
 <authorEmail>info@con-con.nl</authorEmail>
 <authorUrl>https://con-con.nl</authorUrl>
-<copyright>Copyright (C) 2007 - 2018. All rights reserved.</copyright>
+<copyright>Copyright (C) 2007 - 2020. All rights reserved.</copyright>
 <license>GNU/GPL http://www.gnu.org/licenses/gpl-3.0.html</license>
 <description><![CDATA[
-  <div align="center">
+	<div align="center">
     <table border="0" width="90%">
 	    <tr>
 		    <td width="100%" colspan="2">
-		      <div align="center"> <a href="https://con-con.nl" target="_blank"><img border="0" src="https://con-con.nl/images/conban.jpg" alt="Connecting Connections" /></a>
-				<h3>RSForm! Pro Taalpakket:</h3>
-		      </div>
-		      <hr />
+		      <div align="center"> <h1>RSForm! Pro Taalpakket:</h1></div>
+			  <hr />
+			  <div align="center"> <h2>Let op: de vertalingen zijn nooit 100% compleet</h1></div>
 		    </td>
+	    </tr>
+	    <tr>
+		    <td width="100%" colspan="2">
+			  <p align="center"><b><u><font color="#008000">
+			  Deze vertalingen worden alleen nog bijgewerkt indien ik tijd heb of wanneer andere Nederlanders helpen <br />
+			  Het update systeem deel zal ook op een gegeven moment verwijdert worden, tenzij ik iemand vindt die alles overneemt <br />
+			  Aangezien RSJoomla! zelf ook geen vertaalsysteem meer heeft en na ruim 2 jaar ook nog niet met iets nieuws is gekomen, is het bijna niet te doen.</br >
+			  Indien je wilt helpen, tips, opmerkingen en/of verbeteringen hebt kun je een mail sturen naar <a href="mailto:info@con-con.nl">info@con-con.nl</a> en zal deze zo snel mogelijk beantwoord worden.</br >
+			  </font></u></b><hr /></td>
 	    </tr>
 	    <tr>
 		    <td width="18%"><u><b>Taal:</b></u></td>
@@ -38,19 +46,7 @@
 	    </tr>
 	    <tr>
 		    <td width="18%"><u><b>Vertaling voor versie:</b></u></td>
-		    <td width="80%">2.0.15.2</td>
-	    </tr>
-	    <tr>
-		    <td width="100%" colspan="2">
-		      <p align="center"><b><u><font color="#008000">Indien je tips, opmerkingen, verbeteringen en dergelijk hebt kun je een mail sturen naar <a href="mailto:vertaling@con-con.nl">vertaling@con-con.nl</a> en zal deze zo snel mogelijk verwerkt en beantwoord worden.</font></u></b></td>
-	    </tr>
-		<tr>
-		    <td width="100%" colspan="2">
-		      <p align="center"><b><u><font color="#008000">Volg Connecting Connections op <a href="https://twitter.com/conconnl" target="_blank">Twitter</a> en blijf op de hoogte van alle updates.</font></u></b></td>
-	    </tr>
-	    <tr>
-		    <td width="100%" colspan="2">
-		      <p align="center"><b><font color="#008000">Controleer regelmatig de <a href="//www.rsjoomla.com" target="_blank">RSJoomla! downloadsite</a> voor een nieuwe versie van de vertaling voor deze extensie.<br /> Of kijk op onze <a href="https://con-con.nl/downloads" target="_blank">Download site</a>.</font></b></td>
+		    <td width="80%">2.3.16.2 </br ></td>
 	    </tr>
     </table>
   </div>]]></description>
@@ -65,14 +61,21 @@
 <filename>nl-NL.plg_installer_rsform.sys.ini</filename>
 <filename>nl-NL.plg_system_rsform.ini</filename>
 <filename>nl-NL.plg_system_rsform.sys.ini</filename>
+<filename>nl-NL.plg_system_rsformdeletesubmissions.ini</filename>
+<filename>nl-NL.plg_system_rsformdeletesubmissions.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfp2checkout.ini</filename>
+<filename>nl-NL.plg_system_rsfp2checkout.sys.ini</filename>
 <filename>nl-NL.plg_system_rsfpakismet.ini</filename>
 <filename>nl-NL.plg_system_rsfpakismet.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfparticles.sys.ini</filename>
 <filename>nl-NL.plg_system_rsfpauthorizenet.ini</filename>
 <filename>nl-NL.plg_system_rsfpauthorizenet.sys.ini</filename>
 <filename>nl-NL.plg_system_rsfpbfforms.ini</filename>
 <filename>nl-NL.plg_system_rsfpbfforms.sys.ini</filename>
 <filename>nl-NL.plg_system_rsfpcampaignmonitor.ini</filename>
 <filename>nl-NL.plg_system_rsfpcampaignmonitor.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpcleantalk.ini</filename>
+<filename>nl-NL.plg_system_rsfpcleantalk.sys.ini</filename>
 <filename>nl-NL.plg_system_rsfpconstantcontact.ini</filename>
 <filename>nl-NL.plg_system_rsfpconstantcontact.sys.ini</filename>
 <filename>nl-NL.plg_system_rsfpdotmailer.ini</filename>
@@ -83,96 +86,65 @@
 <filename>nl-NL.plg_system_rsfpgetresponse.sys.ini</filename>
 <filename>nl-NL.plg_system_rsfpgoogle.ini</filename>
 <filename>nl-NL.plg_system_rsfpgoogle.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpgooglecalendar.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpgooglesheets.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfphcaptcha.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpiyzico.sys.ini</filename>
 <filename>nl-NL.plg_system_rsfpjoomlacaptcha.ini</filename>
 <filename>nl-NL.plg_system_rsfpjoomlacaptcha.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfplegacylayouts.ini</filename>
+<filename>nl-NL.plg_system_rsfplegacylayouts.sys.ini</filename>
 <filename>nl-NL.plg_system_rsfpmailchimp.ini</filename>
 <filename>nl-NL.plg_system_rsfpmailchimp.sys.ini</filename>
 <filename>nl-NL.plg_system_rsfpmailer.ini</filename>
 <filename>nl-NL.plg_system_rsfpmailer.sys.ini</filename>
-<filename>nl-NL.plg_system_rsfpofflinepayment 2.ini</filename>
 <filename>nl-NL.plg_system_rsfpofflinepayment.ini</filename>
-<filename>nl-NL.plg_system_rsfpofflinepayment.sys 2.ini</filename>
 <filename>nl-NL.plg_system_rsfpofflinepayment.sys.ini</filename>
-<filename>nl-NL.plg_system_rsfppagseguropayment 2.ini</filename>
 <filename>nl-NL.plg_system_rsfppagseguropayment.ini</filename>
-<filename>nl-NL.plg_system_rsfppagseguropayment.sys 2.ini</filename>
 <filename>nl-NL.plg_system_rsfppagseguropayment.sys.ini</filename>
-<filename>nl-NL.plg_system_rsfppayfast 2.ini</filename>
 <filename>nl-NL.plg_system_rsfppayfast.ini</filename>
-<filename>nl-NL.plg_system_rsfppayfast.sys 2.ini</filename>
 <filename>nl-NL.plg_system_rsfppayfast.sys.ini</filename>
-<filename>nl-NL.plg_system_rsfppayment 2.ini</filename>
 <filename>nl-NL.plg_system_rsfppayment.ini</filename>
-<filename>nl-NL.plg_system_rsfppayment.sys 2.ini</filename>
 <filename>nl-NL.plg_system_rsfppayment.sys.ini</filename>
-<filename>nl-NL.plg_system_rsfppaypal 2.ini</filename>
 <filename>nl-NL.plg_system_rsfppaypal.ini</filename>
-<filename>nl-NL.plg_system_rsfppaypal.sys 2.ini</filename>
 <filename>nl-NL.plg_system_rsfppaypal.sys.ini</filename>
-<filename>nl-NL.plg_system_rsfppdf 2.ini</filename>
 <filename>nl-NL.plg_system_rsfppdf.ini</filename>
-<filename>nl-NL.plg_system_rsfppdf.sys 2.ini</filename>
 <filename>nl-NL.plg_system_rsfppdf.sys.ini</filename>
-<filename>nl-NL.plg_system_rsfprecaptcha 2.ini</filename>
 <filename>nl-NL.plg_system_rsfprecaptcha.ini</filename>
-<filename>nl-NL.plg_system_rsfprecaptcha.sys 2.ini</filename>
 <filename>nl-NL.plg_system_rsfprecaptcha.sys.ini</filename>
-<filename>nl-NL.plg_system_rsfprecaptchav2 2.ini</filename>
 <filename>nl-NL.plg_system_rsfprecaptchav2.ini</filename>
-<filename>nl-NL.plg_system_rsfprecaptchav2.sys 2.ini</filename>
 <filename>nl-NL.plg_system_rsfprecaptchav2.sys.ini</filename>
-<filename>nl-NL.plg_system_rsfpregistration 2.ini</filename>
+<filename>nl-NL.plg_system_rsfprecaptchav3.sys.ini</filename>
 <filename>nl-NL.plg_system_rsfpregistration.ini</filename>
-<filename>nl-NL.plg_system_rsfpregistration.sys 2.ini</filename>
 <filename>nl-NL.plg_system_rsfpregistration.sys.ini</filename>
-<filename>nl-NL.plg_system_rsfprseventspro 2.ini</filename>
 <filename>nl-NL.plg_system_rsfprseventspro.ini</filename>
-<filename>nl-NL.plg_system_rsfprseventspro.sys 2.ini</filename>
 <filename>nl-NL.plg_system_rsfprseventspro.sys.ini</filename>
-<filename>nl-NL.plg_system_rsfprsmail 2.ini</filename>
 <filename>nl-NL.plg_system_rsfprsmail.ini</filename>
-<filename>nl-NL.plg_system_rsfprsmail.sys 2.ini</filename>
 <filename>nl-NL.plg_system_rsfprsmail.sys.ini</filename>
-<filename>nl-NL.plg_system_rsfpsalesforce 2.ini</filename>
+<filename>nl-NL.plg_system_rsfprsticketspro.sys.ini</filename>
 <filename>nl-NL.plg_system_rsfpsalesforce.ini</filename>
-<filename>nl-NL.plg_system_rsfpsalesforce.sys 2.ini</filename>
 <filename>nl-NL.plg_system_rsfpsalesforce.sys.ini</filename>
-<filename>nl-NL.plg_system_rsfpsignature 2.ini</filename>
+<filename>nl-NL.plg_system_rsfpsalesforcecase.sys.ini</filename>
 <filename>nl-NL.plg_system_rsfpsignature.ini</filename>
-<filename>nl-NL.plg_system_rsfpsignature.sys 2.ini</filename>
 <filename>nl-NL.plg_system_rsfpsignature.sys.ini</filename>
-<filename>nl-NL.plg_system_rsfpsmsnotification 2.ini</filename>
 <filename>nl-NL.plg_system_rsfpsmsnotification.ini</filename>
-<filename>nl-NL.plg_system_rsfpsmsnotification.sys 2.ini</filename>
 <filename>nl-NL.plg_system_rsfpsmsnotification.sys.ini</filename>
-<filename>nl-NL.plg_system_rsfpverticalresponse 2.ini</filename>
 <filename>nl-NL.plg_system_rsfpverticalresponse.ini</filename>
-<filename>nl-NL.plg_system_rsfpverticalresponse.sys 2.ini</filename>
 <filename>nl-NL.plg_system_rsfpverticalresponse.sys.ini</filename>
-<filename>nl-NL.plg_system_rsfpvtiger 2.ini</filename>
 <filename>nl-NL.plg_system_rsfpvtiger.ini</filename>
-<filename>nl-NL.plg_system_rsfpvtiger.sys 2.ini</filename>
 <filename>nl-NL.plg_system_rsfpvtiger.sys.ini</filename>
-<filename>nl-NL.plg_system_rsfpzohocrm 2.ini</filename>
 <filename>nl-NL.plg_system_rsfpzohocrm.ini</filename>
-<filename>nl-NL.plg_system_rsfpzohocrm.sys 2.ini</filename>
 <filename>nl-NL.plg_system_rsfpzohocrm.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpzoom.sys.ini</filename>
 </files>
 		<!-- Frontend Lang pack languages -->
 		<files folder="site/nl-NL" target="language/nl-NL">
-<filename>nl-NL.com_rsform 2.ini</filename>
 <filename>nl-NL.com_rsform.ini</filename>
-<filename>nl-NL.mod_rsform 2.ini</filename>
-<filename>nl-NL.mod_rsform_feedback 2.ini</filename>
 <filename>nl-NL.mod_rsform_feedback.ini</filename>
-<filename>nl-NL.mod_rsform_feedback.sys 2.ini</filename>
 <filename>nl-NL.mod_rsform_feedback.sys.ini</filename>
-<filename>nl-NL.mod_rsform_list 2.ini</filename>
 <filename>nl-NL.mod_rsform_list.ini</filename>
-<filename>nl-NL.mod_rsform_list.sys 2.ini</filename>
 <filename>nl-NL.mod_rsform_list.sys.ini</filename>
 <filename>nl-NL.mod_rsform.ini</filename>
-<filename>nl-NL.mod_rsform.sys 2.ini</filename>
 <filename>nl-NL.mod_rsform.sys.ini</filename>
         </files>
       </fileset>

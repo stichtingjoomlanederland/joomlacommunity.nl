@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="COM_ROPAYMENTS_STATUS">
+		<message>
+			<![CDATA[COM_ROPAYMENTS_STATUS_DESC_MENU]]>
+		</message>
+	</layout>
+	<fields name="params" addfieldpath="administrator/components/com_jdidealgateway/models/fields">
+		<fieldset name="settings">
+			<field name="profile_id"
+				   type="jdideal.psp"
+				   label="COM_ROPAYMENTS_MESSAGE_PSP_LABEL"
+				   description="COM_ROPAYMENTS_MESSAGE_PSP_DESC"
+				   required="true"
+				   size="1"
+				   class="advancedSelect">
+			</field>
+
+			<field
+					name="message"
+					type="jdideal.messageresult"
+					label="COM_ROPAYMENTS_STATUS_LABEL"
+					description="COM_ROPAYMENTS_STATUS_DESC"
+					default="UNKNOWN"
+			/>
+		</fieldset>
+	</fields>
+</metadata>

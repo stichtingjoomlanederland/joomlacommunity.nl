@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -35,6 +35,7 @@ class RseventsproViewRseventspro extends JViewLegacy
 		$this->root			= JUri::getInstance()->toString(array('scheme','host','port'));
 		$this->modal_width 	= !empty($this->config->modal_width) ? (int) $this->config->modal_width : 800;
 		$this->modal_height = !empty($this->config->modal_height) ? (int) $this->config->modal_height : 600;
+		$this->captcha_use	= $this->config->captcha_use ? explode(',',$this->config->captcha_use) : array();
 		
 		$this->timezoneReturn	= base64_encode(JUri::getInstance());
 		$this->timezone			= JFactory::getConfig()->get('offset');
@@ -252,6 +253,9 @@ class RseventsproViewRseventspro extends JViewLegacy
 			$this->files		= $this->eventClass->getFiles();
 			$this->repeats		= $this->eventClass->getRepeats();
 			$this->categories	= $this->eventClass->getCategoriesOptions();
+			$this->form			= JForm::getInstance('event', JPATH_ADMINISTRATOR.'/components/com_rseventspro/models/forms/event.xml', array('control' => 'jform'));
+			
+			$this->form->bind($this->item);
 			
 			//set the pathway
 			$theview = isset($menu->query['layout']) ? $menu->query['layout'] : 'rseventspro';
@@ -502,6 +506,12 @@ class RseventsproViewRseventspro extends JViewLegacy
 			if ($layout == 'show') {
 				// Set hits
 				rseventsproHelper::hits($this->event->id);
+				
+				// Set canonical URL if itemid is set
+				if ($this->event->itemid) {
+					$canonical = rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id));
+					$this->document->addHeadLink($canonical, 'canonical', 'rel');
+				}
 			}
 			
 			$this->options		= rseventsproHelper::options($this->event->id);
@@ -644,6 +654,14 @@ class RseventsproViewRseventspro extends JViewLegacy
 			$this->tickets		= $tickets;
 			$this->payment		= $this->get('ticketpayment');
 			$this->payments		= !empty($payments);
+			
+			if (in_array(2,$this->captcha_use) && empty($this->event->form) && !rseventsproHelper::isCart()) {
+				if ($this->config->captcha == 2) {
+					rseventsproHelper::gRecaptcha('rse-g-recaptcha');
+				} elseif ($this->config->captcha == 3) {
+					rseventsproHelper::hCaptcha('subscribe');
+				}
+			}
 			
 			//set the pathway
 			$theview = isset($menu->query['layout']) ? $menu->query['layout'] : 'rseventspro';
@@ -811,33 +829,12 @@ class RseventsproViewRseventspro extends JViewLegacy
 				$this->document->addScript('https://apis.google.com/js/client.js');
 			}
 			
-			if ($this->config->captcha == 2) {
-				$this->document->addScript('https://www.google.com/recaptcha/api.js?render=explicit&amp;hl='.JFactory::getLanguage()->getTag());
-				$this->document->addScriptDeclaration("
-		var RSEventsProReCAPTCHAv2 = function(){
-			setTimeout(function() {
-				grecaptcha.render('rse-g-recaptcha', {
-					'sitekey': '".$this->escape($this->config->recaptcha_site_key)."',
-					'theme': '".$this->escape($this->config->recaptcha_theme)."',
-					'type': '".$this->escape($this->config->recaptcha_type)."'
-				});
-			},1000);
-		}
-		
-		if (typeof jQuery !== 'undefined') {
-			jQuery(document).ready(function($) {
-				$(window).load(RSEventsProReCAPTCHAv2());
-			});
-		} else if (typeof MooTools !== 'undefined') {
-			window.addEvent('domready', function(){
-				window.addEvent('load', RSEventsProReCAPTCHAv2());
-			});
-		} else {
-			rseAddEvent(window, 'load', function() {
-				RSEventsProReCAPTCHAv2();
-			});
-		}
-				");
+			if (in_array(1,$this->captcha_use)) {
+				if ($this->config->captcha == 2) {
+					rseventsproHelper::gRecaptcha('rse-g-recaptcha');
+				} elseif ($this->config->captcha == 3) {
+					rseventsproHelper::hCaptcha('rseInvite');
+				}
 			}
 			
 			//set the pathway

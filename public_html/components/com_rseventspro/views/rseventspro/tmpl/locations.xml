@@ -18,6 +18,16 @@
 				<option value="0">COM_RSEVENTSPRO_HTML</option>
 			</field>
 			
+			<field name="address" type="list" default="1" label="COM_RSEVENTSPRO_LOCATIONS_VIEW_SHOW_ADDRESS" description="COM_RSEVENTSPRO_LOCATIONS_VIEW_SHOW_ADDRESS_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="url" type="list" default="1" label="COM_RSEVENTSPRO_LOCATIONS_VIEW_SHOW_URL" description="COM_RSEVENTSPRO_LOCATIONS_VIEW_SHOW_URL_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
 			<field name="events" type="list" default="0" label="COM_RSEVENTSPRO_LOCATIONS_VIEW_NUMBER_OF_EVENTS" description="COM_RSEVENTSPRO_LOCATIONS_VIEW_NUMBER_OF_EVENTS_DESC">
 				<option value="1">JYES</option>
 				<option value="0">JNO</option>

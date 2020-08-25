@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 $source = $input->get('source', '', 'default');
 ?>
-<script type="text/javascript">
+<script>
 $(document).ready(function(){
 	ed.ajaxUrl	= "<?php echo JURI::root();?>administrator/index.php?option=<?php echo ED_IDENTIFIER;?>&ajax=1";
 

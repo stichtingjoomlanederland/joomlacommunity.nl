@@ -52,6 +52,6 @@ class JFormFieldAvatarsList extends JFormField {
 				$avatar_options[] = JHtml::_('select.option', $component, JText::_('COM_RSCOMMENTS_'.strtoupper($component)),'value', 'text');
 		}
 
-		return JHtml::_('select.genericlist', $avatar_options, $this->name, '', 'value', 'text', $this->value);
+		return JHtml::_('select.genericlist', $avatar_options, $this->name, 'class="custom-select"', 'value', 'text', $this->value);
 	}
 }

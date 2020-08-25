@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fieldset name="targetpay">
+
+        <field name="psp-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_PSP"/>
+
+        <field name="testmode"
+               type="radio"
+               default="0"
+               label="COM_ROPAYMENTS_TEST_MODE_LABEL"
+               description="COM_ROPAYMENTS_TEST_MODE_DESC"
+               class="btn-group btn-group-yesno"
+               labelclass="config">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+
+        <field name="rtlo"
+               type="text"
+               label="COM_ROPAYMENTS_LAYOUTCODE_LABEL"
+               description="COM_ROPAYMENTS_LAYOUTCODE_DESC"
+               size="5"
+               required="true"
+               labelclass="config"/>
+
+        <field name="description"
+               type="text"
+               label="COM_ROPAYMENTS_SISOW_DESCRIPTION_LABEL"
+               description="COM_ROPAYMENTS_SISOW_DESCRIPTION_DESC"
+               class="input-xxlarge"
+               required="false"
+               size="40"
+               labelclass="config"/>
+
+        <field name="redirect"
+               type="jdideal.waitoptions"
+               label="COM_ROPAYMENTS_WAIT_TIME_TARGETPAY_LABEL"
+               description="COM_ROPAYMENTS_WAIT_TIME_TARGETPAY_DESC"
+               required="true"
+               size="1"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="payment"
+               type="list"
+               label="COM_ROPAYMENTS_SISOW_PAYMENT_LABEL"
+               description="COM_ROPAYMENTS_SISOW_PAYMENT_DESC"
+               required="true"
+               default=""
+               multiple="true"
+               class="advancedSelect"
+               labelclass="config">
+            <option value="ideal">COM_JDIDEALGATWAY_PAYMENT_METHOD_IDEAL</option>
+            <option value="mistercash">COM_JDIDEALGATWAY_PAYMENT_METHOD_BANCONTACT</option>
+            <option value="sofort">COM_JDIDEALGATWAY_PAYMENT_METHOD_SOFORT</option>
+            <option value="paysafecard">COM_JDIDEALGATWAY_PAYMENT_METHOD_PAYSAFECARD</option>
+            <option value="premiumsms">COM_JDIDEALGATWAY_PAYMENT_METHOD_PREMIUMSMS</option>
+        </field>
+
+        <field name="pendingStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_PENDING_LABEL"
+               description="COM_ROPAYMENTS_STATUS_PENDING_DESC"
+               required="false"
+               size="1"
+               default="P"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="verifiedStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_SUCCESS_LABEL"
+               description="COM_ROPAYMENTS_STATUS_SUCCESS_DESC"
+               required="false"
+               size="1"
+               default="C"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="cancelledStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_CANCELLED_LABEL"
+               description="COM_ROPAYMENTS_STATUS_CANCELLED_DESC"
+               required="false"
+               size="1"
+               default="X"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="expiredStatus"
+               type="jdideal.extensionstatus"
+               label="COM_ROPAYMENTS_STATUS_EXPIRED_LABEL"
+               description="COM_ROPAYMENTS_STATUS_EXPIRED_DESC"
+               required="false"
+               size="1"
+               default="E"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="openStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_OPEN_LABEL"
+               description="COM_ROPAYMENTS_STATUS_OPEN_DESC"
+               required="false"
+               size="1"
+               default="P"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="sofort-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_SOFORT"/>
+
+        <!-- Sofort special options -->
+        <field name="country"
+               type="list"
+               label="COM_ROPAYMENTS_TARGETPAY_COUNTRY_LABEL"
+               description="COM_ROPAYMENTS_TARGETPAY_COUNTRY_DESC"
+               required="false"
+               default="49"
+               class="advancedSelect"
+               size="1">
+            <option value="49">COM_ROPAYMENTS_COUNTRY_GERMAN</option>
+            <option value="43">COM_ROPAYMENTS_COUNTRY_AUSTRIA</option>
+            <option value="41">COM_ROPAYMENTS_COUNTRY_SWITZERLAND</option>
+            <option value="32">COM_ROPAYMENTS_COUNTRY_BELGIUM</option>
+        </field>
+
+        <field name="lang"
+               type="list"
+               label="COM_ROPAYMENTS_TARGETPAY_LANG_LABEL"
+               description="COM_ROPAYMENTS_TARGETPAY_LANG_DESC"
+               required="false"
+               default="NL"
+               class="advancedSelect"
+               size="1">
+            <option value="NL">COM_ROPAYMENTS_LANG_DUTCH</option>
+            <option value="EN">COM_ROPAYMENTS_LANG_ENGLISH</option>
+            <option value="DE">COM_ROPAYMENTS_LANG_GERMAN</option>
+        </field>
+
+        <field name="type"
+               type="list"
+               label="COM_ROPAYMENTS_TARGETPAY_TYPE_LABEL"
+               description="COM_ROPAYMENTS_TARGETPAY_TYPE_DESC"
+               required="false"
+               default="1"
+               class="input-xxlarge advancedSelect"
+               size="1">
+            <option value="1">COM_ROPAYMENTS_TARGETPAY_TYPE1</option>
+            <option value="2">COM_ROPAYMENTS_TARGETPAY_TYPE2</option>
+            <option value="3">COM_ROPAYMENTS_TARGETPAY_TYPE3</option>
+        </field>
+
+        <field name="sms-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_SMS"/>
+
+        <!-- Premium SMS special options -->
+        <field name="sms_country"
+               type="list"
+               label="COM_ROPAYMENTS_TARGETPAY_SMSCOUNTRY_LABEL"
+               description="COM_ROPAYMENTS_TARGETPAY_SMSCOUNTRY_DESC"
+               required="false"
+               default="31"
+               class="advancedSelect"
+               size="1">
+            <option value="31">COM_ROPAYMENTS_COUNTRY_NETHERLANDS</option>
+            <option value="32">COM_ROPAYMENTS_COUNTRY_BELGIUM</option>
+        </field>
+
+        <field name="newstyle" type="hidden" default="1"/>
+    </fieldset>
+</form>

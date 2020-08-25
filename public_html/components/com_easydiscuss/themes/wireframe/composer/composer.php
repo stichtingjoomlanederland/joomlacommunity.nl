@@ -1,8 +1,8 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -27,7 +27,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="ed-reply-form__title">
 				<?php if ($this->config->get('layout_avatar')) { ?>
 					<div class="o-avatar o-avatar--sm t-lg-mr--sm">
-						 <img alt="<?php echo $my->getName(); ?>" src="<?php echo $my->getAvatar(); ?>">
+						 <img alt="<?php echo $this->html('string.escape', $my->getName()); ?>" src="<?php echo $my->getAvatar(); ?>">
 					</div>
 				<?php } ?>
 				<?php echo ($operation == 'replying') ? JText::_('COM_EASYDISCUSS_ENTRY_YOUR_RESPONSE') : JText::_('COM_EASYDISCUSS_EDIT_YOUR_RESPONSE'); ?>

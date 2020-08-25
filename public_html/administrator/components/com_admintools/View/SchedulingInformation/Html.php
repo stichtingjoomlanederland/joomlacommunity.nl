@@ -27,7 +27,7 @@ class Html extends BaseView
 		$model = $this->getModel();
 
 		// Get the CRON paths
-		$this->croninfo  = $model->getPaths();
+		$this->croninfo = $model->getPaths();
 
 		$js = <<<JS
 

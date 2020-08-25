@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset name="status">
+		<field name="id" type="hidden" class="readonly" readonly="true"  />
+
+		<field name="name"
+			   type="text"
+			   label="COM_ROPAYMENTS_STATUS_NAME_LABEL"
+			   description="COM_ROPAYMENTS_STATUS_NAME_DESC"
+			   class="input-xlarge"
+			   required="true"
+			   default=""/>
+
+		<field name="jdideal"
+			   type="jdideal.status"
+			   label="COM_ROPAYMENTS_STATUS_JDIDEAL_LABEL"
+			   description="COM_ROPAYMENTS_STATUS_JDIDEAL_DESC"
+			   class="advancedSelect"
+			   required="true"
+			   default=""/>
+
+		<field name="extension"
+			   type="text"
+			   label="COM_ROPAYMENTS_STATUS_EXTENSION_LABEL"
+			   description="COM_ROPAYMENTS_STATUS_EXTENSION_DESC"
+			   class="input-mini"
+			   required="true"
+			   default=""/>
+	</fieldset>
+</form>

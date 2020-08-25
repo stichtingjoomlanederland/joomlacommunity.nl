@@ -1216,3 +1216,7 @@ textarea.invalid {
 	text-align: center;
 	padding-bottom: 15px;
 }
+
+.rs_location_info {
+	margin-top: 5px;
+}

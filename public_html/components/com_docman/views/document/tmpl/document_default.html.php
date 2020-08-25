@@ -28,6 +28,7 @@ defined('KOOWA') or die; ?>
                href="<?= ($document->title_link) ?>"
                data-title="<?= escape($document->title); ?>"
                data-id="<?= $document->id; ?>"
+                <?= $params->document_title_link === 'download'  ? 'type="'.$document->mimetype.'"' : ''; ?>
                 <?= $params->download_in_blank_page && $params->document_title_link === 'download' ? 'target="_blank"' : ''; ?>><!--
                 -->
                 <?= import('com://site/docman.document.icon.html', array(
@@ -54,6 +55,7 @@ defined('KOOWA') or die; ?>
                            href="<?= ($document->title_link) ?>"
                            data-title="<?= escape($document->title); ?>"
                            data-id="<?= $document->id; ?>"
+                           <?= $params->document_title_link === 'download'  ? 'type="'.$document->mimetype.'"' : ''; ?>
                            <?= $params->download_in_blank_page && $params->document_title_link === 'download' ? 'target="_blank"' : ''; ?>><!--
                             --><span itemprop="name"><?= escape($document->title); ?></span></a>
                         <? else: ?>
@@ -180,6 +182,7 @@ defined('KOOWA') or die; ?>
            href="<?= $document->download_link; ?>"
            data-title="<?= escape($document->title); ?>"
            data-id="<?= $document->id; ?>"
+           type="<?= $document->mimetype ?>"
            <? if(!$params->force_download): ?>
            data-mimetype="<?= $document->mimetype ?>"
            data-extension="<?= $document->extension ?>"

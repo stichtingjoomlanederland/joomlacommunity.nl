@@ -50,40 +50,40 @@ if (isset($post) && is_object($post)) {
 	<div class="ed-form-panel__bd"> 
 		<div class="form-group">
 			<label for="params_siteurl"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_SITE_URL'); ?></label>
-			<input type="text" class="form-control" id="siteurl" name="params_siteurl" value="<?php echo $url; ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_SITE_URL_DESC'); ?>">
+			<input type="text" class="form-control" id="siteurl" name="params_siteurl" value="<?php echo $this->html('string.escape', $url); ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_SITE_URL_DESC'); ?>">
 		</div>
 
 		<div class="o-row">
 			<div class="o-col t-lg-pr--md t-xs-pr--no">
 				<div class="form-group">
 					<label for="params_siteusername"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_SITE_USERNAME'); ?></label>
-					<input type="text" class="form-control" id="siteusername" name="params_siteusername" value="<?php echo $siteusername; ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_SITE_USERNAME_DESC'); ?>">
+					<input type="text" class="form-control" id="siteusername" name="params_siteusername" value="<?php echo $this->html('string.escape', $siteusername); ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_SITE_USERNAME_DESC'); ?>">
 				</div>
 			</div>
 			<div class="o-col t-lg-pr--md t-xs-pr--no">
 				<div class="form-group">
 					<label for="params_sitepassword"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_SITE_PASSWORD'); ?></label>
-					<input type="text" class="form-control" id="sitepassword" name="params_sitepassword" value="<?php echo $password; ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_SITE_PASSWORD_DESC'); ?>">
+					<input type="text" class="form-control" id="sitepassword" name="params_sitepassword" value="<?php echo $this->html('string.escape',$password); ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_SITE_PASSWORD_DESC'); ?>">
 				</div>
 			</div>
 		</div>
 
 		<div class="form-group">
 			<label for="params_ftpurl"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_FTP_URL'); ?></label>
-			<input type="text" class="form-control" id="ftpurl" name="params_ftpurl" value="<?php echo $ftpurl; ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_FTP_URL_DESC'); ?>">
+			<input type="text" class="form-control" id="ftpurl" name="params_ftpurl" value="<?php echo $this->html('string.escape',$ftpurl); ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_FTP_URL_DESC'); ?>">
 		</div>
 
 		<div class="o-row">
 			<div class="o-col t-lg-pr--md t-xs-pr--no">
 				<div class="form-group">
 					<label for="params_ftpusername"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_FTP_USERNAME'); ?></label>
-					<input type="text" class="form-control" id="ftpusername" name="params_ftpusername" value="<?php echo $ftpusername; ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_FTP_USERNAME_DESC'); ?>">
+					<input type="text" class="form-control" id="ftpusername" name="params_ftpusername" value="<?php echo $this->html('string.escape', $ftpusername); ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_FTP_USERNAME_DESC'); ?>">
 				</div>
 			</div>
 			<div class="o-col t-lg-pr--md t-xs-pr--no">
 				<div class="form-group">
 					<label for="params_ftppassword"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_FTP_PASSWORD'); ?></label>
-					<input type="text" class="form-control" id="ftppassword" name="params_ftppassword" value="<?php echo $ftppassword; ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_FTP_PASSWORD_DESC'); ?>">
+					<input type="text" class="form-control" id="ftppassword" name="params_ftppassword" value="<?php echo $this->html('string.escape', $ftppassword); ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_FTP_PASSWORD_DESC'); ?>">
 				</div>
 			</div>
 		</div>
@@ -91,6 +91,6 @@ if (isset($post) && is_object($post)) {
 		<div class="form-group">
 			<label for="params_siteinfo"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_OPTIONAL'); ?></label>
 			<textarea name="params_siteinfo" id="optional" class="form-control" cols="30" rows="10" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_OPTIONAL_DESC'); ?>"><?php echo $siteinfo ?></textarea>
-		</div>      
+		</div>
 	</div>
 </div>

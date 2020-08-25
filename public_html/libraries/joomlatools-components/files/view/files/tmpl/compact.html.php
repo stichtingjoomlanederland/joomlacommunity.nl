@@ -12,7 +12,6 @@ $can_upload = isset(parameters()->config['can_upload']) ? parameters()->config['
 ?>
 
 <?= import('com:files.files.scripts.html'); ?>
-<ktml:script src="assets://files/js/files.compact.js" />
 <?= import('templates_compact.html');?>
 
 

@@ -36,8 +36,8 @@ class AtsystemFeatureApache401 extends AtsystemFeatureAbstract
 			return;
 		}
 
-			header('HTTP/1.0 401');
-			echo <<< HTML
+		header('HTTP/1.0 401');
+		echo <<< HTML
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
 <html><head>
 <title>401 Authorization Required</title>
@@ -54,4 +54,4 @@ HTML;
 
 		$this->app->close();
 	}
-} 
+}

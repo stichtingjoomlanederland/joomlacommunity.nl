@@ -16,6 +16,7 @@ class AtsystemFeatureImportsettings extends AtsystemFeatureAbstract
 	protected $loadOrder = 660;
 
 	private $remote_url = '';
+
 	private $freq = 0;
 
 	/**

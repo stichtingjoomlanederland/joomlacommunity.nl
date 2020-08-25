@@ -12,14 +12,14 @@ defined('_JEXEC') or die;
 use FOF30\Container\Container;
 use FOF30\Model\DataModel;
 use JDatabaseQuery;
-use JText;
+use Joomla\CMS\Language\Text;
 use RuntimeException;
 
 /**
- * @property   int	   $id
- * @property   string  $option
- * @property   string  $view
- * @property   string  $query
+ * @property   int    $id
+ * @property   string $option
+ * @property   string $view
+ * @property   string $query
  *
  * @method  $this  foption()  foption(string $v)
  * @method  $this  fview()  fview(string $v)
@@ -46,7 +46,7 @@ class ExceptionsFromWAF extends DataModel
 	{
 		if (!$this->option && !$this->view && !$this->query)
 		{
-			throw new RuntimeException(JText::_('COM_ADMINTOOLS_ERR_EXCEPTIONSFROMWAF_ALLNULL'));
+			throw new RuntimeException(Text::_('COM_ADMINTOOLS_ERR_EXCEPTIONSFROMWAF_ALLNULL'));
 		}
 
 		return parent::check();
@@ -55,7 +55,7 @@ class ExceptionsFromWAF extends DataModel
 	/**
 	 * Build the query to fetch data from the database
 	 *
-	 * @param   boolean $overrideLimits Should I override limits
+	 * @param   boolean  $overrideLimits  Should I override limits
 	 *
 	 * @return  JDatabaseQuery  The database query to use
 	 */

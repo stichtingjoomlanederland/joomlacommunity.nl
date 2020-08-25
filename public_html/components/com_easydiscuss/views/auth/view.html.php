@@ -63,7 +63,7 @@ class EasyDiscussViewAuth extends EasyDiscussView
 			// ED::info()->set(JText::_('COM_ED_AUTOPOSTING_LINKEDIN_AUTHORIZED_FAILED'), 'success');
 		}
 
-		echo '<script type="text/javascript">window.opener.doneLogin();window.close();</script>';
+		echo '<script>window.opener.doneLogin();window.close();</script>';
 	}
 
 	/**
@@ -107,7 +107,7 @@ class EasyDiscussViewAuth extends EasyDiscussView
 
 		}
 
-		echo '<script type="text/javascript">window.opener.doneLogin();window.close();</script>';
+		echo '<script>window.opener.doneLogin();window.close();</script>';
 
 	}
 }

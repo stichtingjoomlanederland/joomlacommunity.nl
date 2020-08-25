@@ -81,6 +81,25 @@ class EasyDiscussViewMaintenance extends EasyDiscussAdminView
 	 * @param	string
 	 * @return
 	 */
+	public function sync($tpl = null)
+	{
+		// Check for access
+		$this->checkAccess('discuss.manage.maintenance');
+
+		$this->title('COM_ED_MAINTENANCE_TITLE_SYNC');
+		$this->desc('COM_ED_MAINTENANCE_TITLE_SYNC_DESC');
+
+		parent::display('maintenance/sync');
+	}
+
+	/**
+	 * Displays the theme installer form
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function database($tpl = null)
 	{
 		// Check for access

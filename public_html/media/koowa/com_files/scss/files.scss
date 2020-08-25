@@ -1,8 +1,8 @@
 // Core variables and mixins
 // Core variables and mixins without output available outside .k-ui-namespace scope
 
-@import "../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/scss/bootstrap/variables";
-@import "../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/scss/bootstrap/mixins";
+@import "../../../../kodekit-ui/src/scss/sass-twitter-bootstrap/variables";
+@import "../../../../kodekit-ui/src/scss/sass-twitter-bootstrap/mixins";
 
 // Path variable
 $koowaPath: '../../../koowa/framework';

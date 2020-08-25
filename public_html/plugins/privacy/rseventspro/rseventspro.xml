@@ -2,7 +2,7 @@
 <extension version="3.9" type="plugin" group="privacy" method="upgrade">
 	<name>plg_privacy_rseventspro</name>
 	<author>RSJoomla!</author>
-	<creationDate>November 2018</creationDate>
+	<creationDate>May 2020</creationDate>
 	<copyright>(C) 2013-2018 www.rsjoomla.com</copyright>
 	<license>GPLv2.0</license>
 	<authorEmail>support@rsjoomla.com</authorEmail>

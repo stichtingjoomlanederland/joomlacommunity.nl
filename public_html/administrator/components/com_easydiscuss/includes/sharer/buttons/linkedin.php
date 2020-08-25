@@ -45,7 +45,7 @@ class EasyDiscussSharerButtonLinkedin extends EasyDiscuss
 
 		$html = '';
 		$html = '<div class="social-button linkedin-share">';
-		$html .= '<script type="text/javascript" src="https://platform.linkedin.com/in.js"></script>';
+		$html .= '<script src="https://platform.linkedin.com/in.js"></script>';
 		$html .= '<script type="in/share" data-url="' . $dataURL . '"' . $counter . '></script>';
 		$html .= '</div>';
 

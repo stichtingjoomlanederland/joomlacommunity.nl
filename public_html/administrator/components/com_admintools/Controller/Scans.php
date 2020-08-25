@@ -10,12 +10,73 @@ namespace Akeeba\AdminTools\Admin\Controller;
 defined('_JEXEC') or die;
 
 use Akeeba\AdminTools\Admin\Controller\Mixin\CustomACL;
+use Akeeba\AdminTools\Admin\View\ScanAlerts\Html;
+use Exception;
 use FOF30\Controller\DataController;
-use JText;
+use Joomla\CMS\Language\Text;
 
 class Scans extends DataController
 {
 	use CustomACL;
+
+	public function add()
+	{
+		throw new Exception(Text::_('JLIB_APPLICATION_ERROR_ACCESS_FORBIDDEN'), 403);
+	}
+
+	public function startscan()
+	{
+		$this->input->set('layout', 'scan');
+
+		/** @var Html $view */
+		$view = $this->getView();
+		/** @var \Akeeba\AdminTools\Admin\Model\Scans $model */
+		$model = $this->getModel();
+
+		$view->retarray = $model->startScan();
+		$view->setLayout('scan');
+
+		$this->layout = 'scan';
+
+		parent::display(false);
+	}
+
+	public function stepscan()
+	{
+		$this->input->set('layout', 'scan');
+
+		/** @var Html $view */
+		$view = $this->getView();
+		/** @var \Akeeba\AdminTools\Admin\Model\Scans $model */
+		$model = $this->getModel();
+
+		$view->retarray = $model->stepScan();
+		$view->setLayout('scan');
+
+		$this->layout = 'scan';
+
+		parent::display(false);
+	}
+
+	public function purge()
+	{
+		/** @var \Akeeba\AdminTools\Admin\Model\Scans $model */
+		$model = $this->getModel();
+
+		$type = null;
+
+		if ($model->purgeFilesCache())
+		{
+			$msg = Text::_('COM_ADMINTOOLS_MSG_SCAN_PURGE_COMPLETED');
+		}
+		else
+		{
+			$msg  = Text::_('COM_ADMINTOOLS_MSG_SCAN_PURGE_ERROR');
+			$type = 'error';
+		}
+
+		$this->setRedirect('index.php?option=com_admintools&view=Scans', $msg, $type);
+	}
 
 	/**
 	 * Apply hard-coded filters before rendering the Browse page
@@ -29,7 +90,7 @@ class Scans extends DataController
 
 		if (is_null($limitstart))
 		{
-			$total = $model->count();
+			$total      = $model->count();
 			$limitstart = $model->getState('limitstart', 0);
 
 			if ($limitstart > $total)
@@ -63,64 +124,5 @@ class Scans extends DataController
 		{
 			$data['comment'] = $comment;
 		}
-	}
-
-	public function add()
-	{
-		throw new \Exception(JText::_('JLIB_APPLICATION_ERROR_ACCESS_FORBIDDEN'), 403);
-	}
-
-	public function startscan()
-	{
-		$this->input->set('layout', 'scan');
-
-		/** @var \Akeeba\AdminTools\Admin\View\ScanAlerts\Html $view */
-		$view = $this->getView();
-		/** @var \Akeeba\AdminTools\Admin\Model\Scans $model */
-		$model = $this->getModel();
-
-		$view->retarray = $model->startScan();
-		$view->setLayout('scan');
-
-		$this->layout = 'scan';
-
-		parent::display(false);
-	}
-
-	public function stepscan()
-	{
-		$this->input->set('layout', 'scan');
-
-		/** @var \Akeeba\AdminTools\Admin\View\ScanAlerts\Html $view */
-		$view = $this->getView();
-		/** @var \Akeeba\AdminTools\Admin\Model\Scans $model */
-		$model = $this->getModel();
-
-		$view->retarray = $model->stepScan();
-		$view->setLayout('scan');
-
-		$this->layout = 'scan';
-
-		parent::display(false);
-	}
-
-	public function purge()
-	{
-		/** @var \Akeeba\AdminTools\Admin\Model\Scans $model */
-		$model = $this->getModel();
-
-		$type = null;
-
-		if($model->purgeFilesCache())
-		{
-			$msg = JText::_('COM_ADMINTOOLS_MSG_SCAN_PURGE_COMPLETED');
-		}
-		else
-		{
-			$msg = JText::_('COM_ADMINTOOLS_MSG_SCAN_PURGE_ERROR');
-			$type = 'error';
-		}
-
-		$this->setRedirect('index.php?option=com_admintools&view=Scans', $msg, $type);
 	}
 }

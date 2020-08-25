@@ -34,7 +34,7 @@ defined('_JEXEC') or die('Restricted access');
                 $delayTypeAuto->display('config[queue_pause]', $this->config->get('queue_pause'), 0)
             ); ?>
 		</div>
-		<div class="cell medium-3 margin-top-1"><?php echo acym_tooltip('<span>'.acym_translation('ACYM_MAX_NB_TRY').'</span>', acym_translation('ACYM_MAX_NB_TRY_DESC')); ?></div>
+		<div class="cell medium-3 margin-top-1"><?php echo '<span>'.acym_translation('ACYM_MAX_NB_TRY').'</span>'.acym_info(acym_translation('ACYM_MAX_NB_TRY_DESC')); ?></div>
 		<div class="cell medium-9 margin-top-1">
             <?php echo acym_translation_sprintf('ACYM_CONFIG_TRY', '<input class="intext_input" type="text" name="config[queue_try]" value="'.intval($this->config->get('queue_try')).'">');
 
@@ -85,7 +85,7 @@ defined('_JEXEC') or die('Restricted access');
 
                 if ($expirationDate > time()) {
                     ?>
-					<div class="cell medium-3 margin-top-1"><?php echo acym_tooltip(acym_translation('ACYM_CRON_URL'), acym_translation('ACYM_CRON_URL_DESC')); ?></div>
+					<div class="cell medium-3 margin-top-1"><?php echo acym_translation('ACYM_CRON_URL').acym_info(acym_translation('ACYM_CRON_URL_DESC')); ?></div>
 					<div class="cell medium-9 margin-top-1">
 						<a class="acym__color__blue" href="<?php echo acym_escape($cronUrl, true); ?>" target="_blank"><?php echo $cronUrl; ?></a>
 					</div>
@@ -101,7 +101,7 @@ defined('_JEXEC') or die('Restricted access');
 	<div class="acym__content acym_area padding-vertical-1 padding-horizontal-2 margin-bottom-2">
 		<div class="acym_area_title"><?php echo acym_translation('ACYM_REPORT'); ?></div>
 		<div class="grid-x grid-margin-x">
-			<div class="cell large-2 medium-3"><label for="cronsendreport"><?php echo acym_tooltip(acym_translation('ACYM_REPORT_SEND'), acym_translation('ACYM_REPORT_SEND_DESC')); ?></label></div>
+			<div class="cell large-2 medium-3"><label for="cronsendreport"><?php echo acym_translation('ACYM_REPORT_SEND').acym_info(acym_translation('ACYM_REPORT_SEND_DESC')); ?></label></div>
 			<div class="cell large-4 medium-9">
                 <?php
                 $cronreportval = [
@@ -115,7 +115,10 @@ defined('_JEXEC') or die('Restricted access');
                     $cronreportval,
                     'config[cron_sendreport]',
                     $this->config->get('cron_sendreport', 0),
-                    'class="acym__select"',
+                    [
+                        'class' => 'acym__select',
+                        'acym-data-infinite' => '',
+                    ],
                     'value',
                     'text',
                     'cronsendreport',
@@ -123,7 +126,7 @@ defined('_JEXEC') or die('Restricted access');
                 );
                 ?>
 			</div>
-			<div class="cell large-2 medium-3"><label for="cron_sendto"><?php echo acym_tooltip(acym_translation('ACYM_REPORT_SEND_TO'), acym_translation('ACYM_REPORT_SEND_TO_DESC')); ?></label></div>
+			<div class="cell large-2 medium-3"><label for="cron_sendto"><?php echo acym_translation('ACYM_REPORT_SEND_TO').acym_info(acym_translation('ACYM_REPORT_SEND_TO_DESC')); ?></label></div>
 			<div class="cell large-4 medium-9">
                 <?php
                 $emails = [];
@@ -136,7 +139,7 @@ defined('_JEXEC') or die('Restricted access');
                 }
                 echo acym_selectMultiple($emails, "config[cron_sendto]", $emails, ['id' => 'acym__configuration__cron__report--send-to', 'placeholder' => acym_translation('ACYM_MAILS')]); ?>
 			</div>
-			<div class="cell large-2 medium-3"><label for="cronsavereport"><?php echo acym_tooltip(acym_translation('ACYM_REPORT_SAVE'), acym_translation('ACYM_REPORT_SAVE_DESC')); ?></label></div>
+			<div class="cell large-2 medium-3"><label for="cronsavereport"><?php echo acym_translation('ACYM_REPORT_SAVE').acym_info(acym_translation('ACYM_REPORT_SAVE_DESC')); ?></label></div>
 			<div class="cell large-4 medium-9">
                 <?php
                 $cronsave = [];
@@ -148,7 +151,10 @@ defined('_JEXEC') or die('Restricted access');
                     $cronreportval,
                     'config[cron_savereport]',
                     (int)$this->config->get('cron_savereport', 2),
-                    'class="acym__select"',
+                    [
+                        'class' => 'acym__select',
+                        'acym-data-infinite' => '',
+                    ],
                     'value',
                     'text',
                     'cronsavereport',
@@ -156,7 +162,7 @@ defined('_JEXEC') or die('Restricted access');
                 );
                 ?>
 			</div>
-			<div class="cell large-2 medium-3"><label for="cron_savepath"><?php echo acym_tooltip(acym_translation('ACYM_REPORT_SAVE_TO'), acym_translation('ACYM_REPORT_SAVE_TO_DESC')); ?></label></div>
+			<div class="cell large-2 medium-3"><label for="cron_savepath"><?php echo acym_translation('ACYM_REPORT_SAVE_TO').acym_info(acym_translation('ACYM_REPORT_SAVE_TO_DESC')); ?></label></div>
 			<div class="cell large-4 medium-9">
 				<input id="cron_savepath" type="text" name="config[cron_savepath]" value="<?php echo acym_escape($this->config->get('cron_savepath')); ?>">
 			</div>
@@ -180,7 +186,7 @@ defined('_JEXEC') or die('Restricted access');
 	<div class="acym__content acym_area padding-vertical-1 padding-horizontal-2">
 		<div class="acym_area_title"><?php echo acym_translation('ACYM_LAST_CRON'); ?></div>
 		<div class="grid-x grid-margin-x">
-			<div class="cell medium-3"><?php echo acym_tooltip(acym_translation('ACYM_LAST_RUN'), acym_translation('ACYM_LAST_RUN_DESC')); ?></div>
+			<div class="cell medium-3"><?php echo acym_translation('ACYM_LAST_RUN').acym_info(acym_translation('ACYM_LAST_RUN_DESC')); ?></div>
 			<div class="cell medium-9">
                 <?php
                 $cronLast = $this->config->get('cron_last', 0);
@@ -197,11 +203,11 @@ defined('_JEXEC') or die('Restricted access');
                 }
                 ?>
 			</div>
-			<div class="cell medium-3"><?php echo acym_tooltip(null, acym_translation('ACYM_CRON_TRIGGERED_IP'), acym_translation('ACYM_CRON_TRIGGERED_IP_DESC')); ?></div>
+			<div class="cell medium-3"><?php echo acym_translation('ACYM_CRON_TRIGGERED_IP').acym_info(acym_translation('ACYM_CRON_TRIGGERED_IP_DESC')); ?></div>
 			<div class="cell medium-9">
                 <?php echo $this->config->get('cron_fromip'); ?>
 			</div>
-			<div class="cell medium-3"><?php echo acym_tooltip(null, acym_translation('ACYM_REPORT'), acym_translation('ACYM_REPORT_DESC')); ?></div>
+			<div class="cell medium-3"><?php echo acym_translation('ACYM_REPORT').acym_info(acym_translation('ACYM_REPORT_DESC')); ?></div>
 			<div class="cell medium-9">
                 <?php echo nl2br($this->config->get('cron_report')); ?>
 			</div>

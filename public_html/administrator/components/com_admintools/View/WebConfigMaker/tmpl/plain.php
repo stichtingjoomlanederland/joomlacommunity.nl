@@ -10,4 +10,4 @@
 defined('_JEXEC') or die;
 
 ?>
-<pre><?php echo $this->escape($this->webConfig);?></pre>
+<pre><?php echo $this->escape($this->webConfig); ?></pre>

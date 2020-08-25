@@ -31,10 +31,10 @@ class AtsystemFeatureWafblacklist extends AtsystemFeatureAbstract
 	{
 		$db = $this->db;
 
-		$method    = array($db->q(''), $db->q(strtoupper($_SERVER['REQUEST_METHOD'])));
-		$option    = array($db->q(''));
-		$view      = array($db->q(''));
-		$task      = array($db->q(''));
+		$method    = [$db->q(''), $db->q(strtoupper($_SERVER['REQUEST_METHOD']))];
+		$option    = [$db->q('')];
+		$view      = [$db->q('')];
+		$task      = [$db->q('')];
 		$rawView   = $this->input->getCmd('view', '');
 		$rawTask   = $this->input->getCmd('task', '');
 		$rawOption = $this->input->getCmd('option', '');
@@ -57,7 +57,7 @@ class AtsystemFeatureWafblacklist extends AtsystemFeatureAbstract
 		// Parse task=viewName.taskName
 		if (empty($rawView) && (strpos($rawTask, '.') !== false))
 		{
-			list($viewExplode, $taskExplode) = explode('.', $rawTask, 2);
+			[$viewExplode, $taskExplode] = explode('.', $rawTask, 2);
 			$view[] = $db->q($viewExplode);
 			$task[] = $db->q($taskExplode);
 		}
@@ -107,7 +107,7 @@ class AtsystemFeatureWafblacklist extends AtsystemFeatureAbstract
 		$isBackend = Container::getInstance('com_admintools')->platform->isBackend();
 
 		// I can't use JInput since it will fetch data from cookies, too.
-		$inputSources = array('get', 'post');
+		$inputSources = ['get', 'post'];
 
 		// Ok, let's analyze all the matching rules
 		$block = false;
@@ -147,8 +147,8 @@ class AtsystemFeatureWafblacklist extends AtsystemFeatureAbstract
 			 * This is a bit complicated since we have to take into account that EITHER OF the request AND the rule may
 			 * be using the task=viewName.taskName notation. Moreover, empty views and tasks in rules act as wildcards.
 			 */
-			$view = isset($viewExplode) ? $viewExplode : $rawView;
-			$task = isset($taskExplode) ? $taskExplode : $rawTask;
+			$view     = isset($viewExplode) ? $viewExplode : $rawView;
+			$task     = isset($taskExplode) ? $taskExplode : $rawTask;
 			$hasMatch = false;
 			// -- Empty view and task: rule applies to entire component
 			$hasMatch = $hasMatch || (($rule->view == '') && ($rule->task == ''));

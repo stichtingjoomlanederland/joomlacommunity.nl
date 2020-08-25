@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.2.16442
+ * @version         20.7.20564
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -60,7 +60,10 @@ class PluginTag
 		}
 
 		// Replace html entity quotes to normal quotes
-		$string = str_replace('&quot;', '"', $string);
+		if (strpos($string, '"') === false)
+		{
+			$string = str_replace('&quot;', '"', $string);
+		}
 
 		self::protectSpecialChars($string);
 

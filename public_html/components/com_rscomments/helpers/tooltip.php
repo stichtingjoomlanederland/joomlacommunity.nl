@@ -25,8 +25,10 @@ abstract class RSTooltip {
 
 	// Load tooltip
 	public static function tooltipLoad() {	
-		JHtml::_('behavior.core');
-		JHtml::_('bootstrap.tooltip');
+		try {
+			JHtml::_('behavior.core');
+			JHtml::_('bootstrap.tooltip');
+		} catch (Exception $e) {}
 	}
 }
 

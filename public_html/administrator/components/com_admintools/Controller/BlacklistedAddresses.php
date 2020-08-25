@@ -12,7 +12,9 @@ defined('_JEXEC') or die;
 use Akeeba\AdminTools\Admin\Controller\Mixin\CustomACL;
 use FOF30\Controller\DataController;
 use FOF30\View\Exception\AccessForbidden;
-use JText;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
+use RuntimeException;
 
 class BlacklistedAddresses extends DataController
 {
@@ -33,14 +35,14 @@ class BlacklistedAddresses extends DataController
 		}
 		catch (AccessForbidden $e)
 		{
-			$msg = JText::_('COM_ADMINTOOLS_BLACKLISTEDADDRESSES_EXPORT_EMPTY');
+			$msg = Text::_('COM_ADMINTOOLS_BLACKLISTEDADDRESSES_EXPORT_EMPTY');
 			$this->setRedirect('index.php?option=com_admintools&view=BlacklistedAddresses', $msg);
 		}
 	}
 
 	public function doimport()
 	{
-		$app       = \JFactory::getApplication();
+		$app = Factory::getApplication();
 		/** @var \Akeeba\AdminTools\Admin\Model\BlacklistedAddresses $model */
 		$model     = $this->getModel();
 		$file      = $this->input->files->get('csvfile', null, 'raw');
@@ -50,14 +52,14 @@ class BlacklistedAddresses extends DataController
 
 		if ($file['error'])
 		{
-			$this->setRedirect('index.php?option=com_admintools&view=BlacklistedAddresses&task=import', JText::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_UPLOAD'), 'error');
+			$this->setRedirect('index.php?option=com_admintools&view=BlacklistedAddresses&task=import', Text::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_UPLOAD'), 'error');
 
 			return;
 		}
 
-		if ($delimiter != - 99)
+		if ($delimiter != -99)
 		{
-			list($field, $enclosure) = $model->decodeDelimiterOptions($delimiter);
+			[$field, $enclosure] = $model->decodeDelimiterOptions($delimiter);
 		}
 
 		// Import ok, but maybe I have warnings (ie skipped lines)
@@ -65,10 +67,10 @@ class BlacklistedAddresses extends DataController
 		{
 			$model->import($file['tmp_name'], $field, $enclosure);
 		}
-		catch (\RuntimeException $e)
+		catch (RuntimeException $e)
 		{
 			//Uh oh... import failed, let's inform the user why it happened
-			$app->enqueueMessage(JText::sprintf('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_FAILURE', $e->getMessage()), 'error');
+			$app->enqueueMessage(Text::sprintf('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_FAILURE', $e->getMessage()), 'error');
 		}
 
 		$this->setRedirect('index.php?option=com_admintools&view=BlacklistedAddresses');

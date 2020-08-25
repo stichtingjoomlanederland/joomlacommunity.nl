@@ -78,6 +78,14 @@
 		<option value="1">JYES</option>
 		<option value="0">JNO</option>
 	</field>
+	<field name="can_select_sponsors" type="radio" class="btn-group" label="COM_RSEVENTSPRO_GROUP_CAN_SELECT_SPONSORS" default="1">
+		<option value="1">JYES</option>
+		<option value="0">JNO</option>
+	</field>
+	<field name="can_add_sponsor" type="radio" class="btn-group" label="COM_RSEVENTSPRO_GROUP_CAN_ADD_SPONSOR" default="0">
+		<option value="1">JYES</option>
+		<option value="0">JNO</option>
+	</field>
 	
 	<fields name="event">
 		<field name="enable_rating" type="radio" class="btn-group" label="COM_RSEVENTSPRO_ENABLE_EVENT_RATING" description="" default="1">

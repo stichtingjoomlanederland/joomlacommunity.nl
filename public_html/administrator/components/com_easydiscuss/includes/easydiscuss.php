@@ -442,7 +442,7 @@ class ED
 			}
 		}
 
-		$title = implode($items, ' ');
+		$title = implode(' ', $items);
 
 		$alias	= ED::permalinkSlug($title);
 
@@ -1538,8 +1538,6 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function formatPost($rows, $isSearch = false , $isFrontpage = false)
 	{
@@ -1554,7 +1552,7 @@ class ED
 
 			// Load it into our post library
 			$post = ED::post($row);
-
+			
 			if ($isFrontpage) {
 				$model = ED::model('Posts');
 				$post->lastReply = $model->getLastReply($post->id);
@@ -2078,7 +2076,9 @@ class ED
 
 			for ($j = 0; $j < count($childs); $j++) {
 				$child = $childs[$j];
-				$child->count = $catModel->getTotalPostCount($child->id);
+
+				$postCount = $aclType == DISCUSS_CATEGORY_ACL_ACTION_SELECT ? 0 : $catModel->getTotalPostCount($child->id);
+				$child->count = $postCount;
 				$child->childs = null;
 
 				if (!$ignorePrivate) {
@@ -3040,19 +3040,16 @@ class ED
 		return $ids;
 	}
 
-	public static function getJoomlaUserGroups( $cid = '' )
+	public static function getJoomlaUserGroups($cid = '', $excludeIds = array())
 	{
-		$db = ED::getDBO();
+		$db = ED::db();
 
-		if(ED::getJoomlaVersion() >= '1.6')
-		{
+		if (ED::getJoomlaVersion() >= '1.6') {
 			$query = 'SELECT a.id, a.title AS `name`, COUNT(DISTINCT b.id) AS level';
 			$query .= ' , GROUP_CONCAT(b.id SEPARATOR \',\') AS parents';
 			$query .= ' FROM #__usergroups AS a';
 			$query .= ' LEFT JOIN `#__usergroups` AS b ON a.lft > b.lft AND a.rgt < b.rgt';
-		}
-		else
-		{
+		} else {
 			$query	= 'SELECT `id`, `name`, 0 as `level` FROM ' . $db->nameQuote('#__core_acl_aro_groups') . ' a ';
 		}
 
@@ -3060,39 +3057,39 @@ class ED
 		$where  = array();
 
 		// We need to filter out the ROOT and USER dummy records.
-		if(ED::getJoomlaVersion() < '1.6')
-		{
+		if (ED::getJoomlaVersion() < '1.6') {
 			$where[] = '(a.`id` > 17 AND a.`id` < 26)';
 		}
 
-		if( !empty( $cid ) )
-		{
+		if (!empty($cid)) {
 			$where[] = ' a.`id` = ' . $db->quote($cid);
 		}
-		$where = ( count( $where ) ? ' WHERE ' .implode( ' AND ', $where ) : '' );
+
+		if (!empty($excludeIds)) {
+			$where[] = 'a.`id` NOT IN (' .implode(',', $db->quote($excludeIds)) . ')';
+		}
+
+		$where = (count($where) ? ' WHERE ' .implode(' AND ', $where) : '' );
 
 		$query  .= $where;
 
 		// Grouping and ordering
-		if( ED::getJoomlaVersion() >= '1.6' )
-		{
-			$query	.= ' GROUP BY a.id';
-			$query	.= ' ORDER BY a.lft ASC';
-		}
-		else
-		{
-			$query 	.= ' ORDER BY a.id';
+		if (ED::getJoomlaVersion() >= '1.6') {
+			$query .= ' GROUP BY a.id';
+			$query .= ' ORDER BY a.lft ASC';
+		} else {
+			$query .= ' ORDER BY a.id';
 		}
 
-		$db->setQuery( $query );
+		$db->setQuery($query);
 		$result = $db->loadObjectList();
 
-		if( ED::getJoomlaVersion() < '1.6' )
-		{
+		if (ED::getJoomlaVersion() < '1.6') {
 			$guest = new stdClass();
-			$guest->id		= '0';
-			$guest->name	= 'Public';
-			$guest->level	= '0';
+			$guest->id = '0';
+			$guest->name = 'Public';
+			$guest->level = '0';
+
 			array_unshift( $result, $guest );
 		}
 
@@ -3613,21 +3610,54 @@ class ED
 	}
 
 
-	public static function setMeta()
+	public static function setMeta($id = null, $type = null)
 	{
-		$config	= ED::getConfig();
+		$config	= ED::config();
+		$jConfig = ED::jconfig();
+		$document = JFactory::getDocument();		
 		$db	= ED::db();
 
 		$menu = JFactory::getApplication()->getMenu();
 		$item = $menu->getActive();
 
 		$result	= new stdClass();
-		$result->description = $config->get('main_description');
+		$result->description = '';
 		$result->keywords = '';
 
+		$metaDesc = $config->get('main_description');
+		$joomlaDesc	= $jConfig->get('MetaDesc');
+		$joomlaRobots = $jConfig->get('robots');
 		$description = '';
 
-		if (is_object($item)) {
+		// check for the forum category
+		if ($type == ED_META_TYPE_FORUM_CATEGORY && $id) {
+
+			$activeCategory = ED::category($id);
+
+			if (!$result->keywords && $activeCategory->title) {
+				$result->keywords = $activeCategory->title;
+			}
+
+			if (!$result->description && $activeCategory->description) {
+				$result->description =  strip_tags($activeCategory->description);
+			}
+		}
+
+		// check for the category
+		if ($type == ED_META_TYPE_CATEGORY && $id) {
+
+			$activeCategory = ED::category($id);
+
+			if (!$result->keywords && $activeCategory->title) {
+				$result->keywords = $activeCategory->title;
+			}
+
+			if (!$result->description && $activeCategory->description) {
+				$result->description =  strip_tags($activeCategory->description);
+			}
+		}
+
+		if (is_object($item) && !$result->keywords && !$result->description) {
 			$params	= $item->params;
 
 			if (!$params instanceof JRegistry) {
@@ -3651,30 +3681,28 @@ class ED
 			}
 		}
 
-		$document = JFactory::getDocument();
+		// if still dont have that meta description content then get it from the toolbar header description
+		if (empty($result->description)) {
 
-		// Get joomla default description.
-		$jConfig = ED::jconfig();
-		$metaRobots = $jConfig->get('robots');
+			$result->description = $joomlaDesc;
 
-		if (empty($result->keywords) && empty($result->description)) {
-			$joomlaDesc	= $jConfig->get('MetaDesc');
-			$metaDesc = $description . ' - ' . $joomlaDesc;
-			$document->setMetadata('description', $metaDesc);
-		} else {
-			if (!empty($result->keywords)) {
-				$document->setMetadata('keywords', $result->keywords);
+			if ($metaDesc) {
+				$result->description = $metaDesc;
 			}
+		}
 
-			if (!empty($result->description)) {
-				$document->setMetadata('description', $result->description);
-			}
+		if (!empty($result->keywords)) {
+			$document->setMetadata('keywords', $result->keywords);
+		}
+
+		if (!empty($result->description)) {
+			$document->setMetadata('description', $result->description);
 		}
 
 		if (!empty($result->robots)) {
 			$document->setMetadata('robots', $result->robots);
 		} else {
-			$document->setMetadata('robots', $metaRobots);
+			$document->setMetadata('robots', $joomlaRobots);
 		}
 	}
 
@@ -4836,15 +4864,32 @@ class ED
 		$config = ED::config();
 
 		$scaleParameter = '';
-
-		$mapType = strtolower($config->get('main_location_map_type'));
-
+		$mapType = $config->get('main_location_map_type');
 		$zoom = $config->get('main_location_default_zoom', 15);
-
 		$gMapKey = $config->get('main_location_gmaps_key');
-
 		$mapLanguage = $config->get('main_location_language');
+		$useStaticMap = $config->get('main_location_static');
 
+		if (!$useStaticMap) {
+
+			$mapUrl = "https://www.google.com/maps/embed/v1/place?key=" . $gMapKey . "&q=" . str_replace(' ', '%20', $post->address);
+			$mapUrl .= '&center=' . $post->latitude . "," . $post->longitude;
+			$mapUrl .= '&zoom=' . $zoom;
+			$mapUrl .= '&language=' . $mapLanguage;
+
+			// only two kind of map type is supported, roadmap and satellite.
+			$nonStaticMapType = 'ROADMAP';
+
+			if ($mapType == 'SATELLITE') {
+				$nonStaticMapType = $mapType;
+			}
+
+			$mapUrl .= "&maptype=" . strtolower($nonStaticMapType);
+
+			return $mapUrl;
+		}
+
+		// Render static map
 		$requestURL = "https://maps.googleapis.com/maps/api/staticmap?center=";
 
 		if ($scale) {
@@ -4853,14 +4898,71 @@ class ED
 
 		$additionalParams = "&size=800x200" . $scaleParameter . "&sensor=true&markers=color:red|label:S|";
 
-		$mapUrl = $requestURL . $post->latitude . "," . $post->longitude . "&maptype=" . $mapType . "&zoom=" . $zoom . $additionalParams . $post->latitude . "," . $post->longitude . "&key=" . $gMapKey;
+		$mapUrl = $requestURL . $post->latitude . "," . $post->longitude . "&maptype=" . strtolower($mapType) . "&zoom=" . $zoom . $additionalParams . $post->latitude . "," . $post->longitude . "&key=" . $gMapKey;
 
 		if ($mapLanguage) {
 			$mapUrl .= "&language=" . $mapLanguage;
 		}
 
 		return $mapUrl;
-	}	
+	}
+
+	/**
+	 * Add sync request.
+	 *
+	 * @since	4.1.18
+	 * @access	public
+	 */
+	public static function addSyncRequest($command, $userId = 0, $total = 0)
+	{
+		$supportedCommands = array(DISCUSS_SYNC_THREAD_REPLY);
+
+		if (!in_array($command, $supportedCommands)) {
+			// not supported
+			return false;
+		}
+
+		$config = ED::config();
+		$now = ED::date();
+		$userIds = array();
+		$params = new JRegistry();
+
+		// lets add into sync request table.
+		$table = ED::table('SyncRequest');
+		$table->load(array('command' => $command));
+
+		if ($table && $table->id) {
+			$params->loadString($table->params);
+		}
+
+		if ($userId) {
+			// if user id is supplied, lets add into params.
+			$userIds = $params->get('user_id', array());
+			$userIds = ED::makeArray($userIds);
+
+			$exists = false;
+			if ($userIds && array_key_exists($userId, $userIds)) {
+				$exists = true;
+			}
+
+			if (!$exists) {
+				// add new user id.
+				$obj = array('id' => $userId, 'total' => $total, 'current' => 0);
+				$userIds[$userId] = $obj;
+			}
+
+			// now set the params
+			$params->set('user_id', $userIds);
+		}
+
+		$table->params = $params->toString();
+		$table->command = $command;
+		$table->created = $table->id ? $table->created : $now->toSql();
+		$table->total = count($userIds);
+		$state = $table->store();
+
+		return $state;
+	}
 }
 
 // Backwards compatibility

@@ -4,21 +4,26 @@ defined('_JEXEC') or die('Restricted access');
 	<div class="cell grid-y medium-4 medium-margin-right-1 text-center acym__list__settings__subscriber__nb">
 		<div class="cell small-2 acym__list__settings__tmpls__title grid-x align-center acym_vcenter"><label><?php echo acym_translation('ACYM_SUBSCRIBERS'); ?></label><i class="acymicon-group margin-left-1"></i></div>
 		<div class="cell small-10 align-center acym_vcenter acym__list__settings__subscriber__nb__display grid-x">
-            <?php
-            if ($this->config->get('require_confirmation', 1) == 1 && $data['listInformation']->subscribers['nbSubscribers'] != $data['listInformation']->subscribers['sendable']) {
+			<div class="cell grid-x">
+                <?php $url = acym_completeLink('users&users_list='.intval($data['listInformation']->id).'&list_status=sub'); ?>
+				<div class="cell small-4 text-right"><a href="<?php echo $url; ?>" class="acym__color__blue"><?php echo $data['listInformation']->subscribers['sendable_users']; ?>&nbsp;</a></div>
+				<div class="cell small-8 text-left"><a href="<?php echo $url; ?>"><?php echo acym_translation('ACYM_SUBSCRIBED'); ?></a></div>
+                <?php
+                if ($this->config->get('require_confirmation', 1) == 1) {
+                    $url = acym_completeLink('users&users_list='.intval($data['listInformation']->id).'&list_status=sub&users_status=unconfirmed');
+                    ?>
+					<div class="cell small-4 text-right"><a href="<?php echo $url; ?>" class="acym__color__blue"><?php echo $data['listInformation']->subscribers['unconfirmed_users']; ?>&nbsp;</a></div>
+					<div class="cell small-8 text-left"><a href="<?php echo $url; ?>"><?php echo acym_translation('ACYM_NOT_CONFIRMED'); ?></a></div>
+                    <?php
+                }
+                $url = acym_completeLink('users&users_list='.intval($data['listInformation']->id).'&list_status=sub&users_status=inactive');
                 ?>
-				<div class="cell grid-x">
-					<div class="cell small-4 text-right"><a href="#subscribers" class="acym__color__blue"><?php echo $data['listInformation']->subscribers['sendable']; ?>&nbsp;</a></div>
-					<div class="cell small-8 text-left"><a href="#subscribers"><?php echo acym_translation('ACYM_CONFIRMED'); ?></a></div>
-					<div class="cell small-4 text-right"><a href="#subscribers" class="acym__color__blue"><?php echo($data['listInformation']->subscribers['nbSubscribers'] - $data['listInformation']->subscribers['sendable']); ?>&nbsp;</a></div>
-					<div class="cell small-8 text-left"><a href="#subscribers"><?php echo acym_translation('ACYM_PENDING'); ?></a></div>
-				</div>
-            <?php } else { ?>
-				<div class="cell grid-x">
-					<div class="cell small-4 text-right"><a href="#subscribers" class="acym__color__blue"><?php echo $data['listInformation']->subscribers['nbSubscribers']; ?>&nbsp;</a></div>
-					<div class="cell small-8 text-left"><a href="#subscribers"><?php echo acym_translation('ACYM_USERS'); ?></a></div>
-				</div>
-            <?php } ?>
+				<div class="cell small-4 text-right"><a href="<?php echo $url; ?>" class="acym__color__blue"><?php echo $data['listInformation']->subscribers['inactive_users']; ?>&nbsp;</a></div>
+				<div class="cell small-8 text-left"><a href="<?php echo $url; ?>"><?php echo acym_translation('ACYM_INACTIVE'); ?></a></div>
+                <?php $url = acym_completeLink('users&users_list='.intval($data['listInformation']->id).'&list_status=unsub'); ?>
+				<div class="cell small-4 text-right"><a href="<?php echo $url; ?>" class="acym__color__blue"><?php echo $data['listInformation']->subscribers['unsubscribed_users']; ?>&nbsp;</a></div>
+				<div class="cell small-8 text-left"><a href="<?php echo $url; ?>"><?php echo acym_translation('ACYM_UNSUBSCRIBED'); ?></a></div>
+			</div>
 		</div>
 	</div>
 	<div class="cell grid-y medium-4 medium-margin-right-1 acym__list__settings__tmpls__welcome">

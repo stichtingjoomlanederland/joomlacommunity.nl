@@ -30,13 +30,19 @@ class EasyDiscussModules extends EasyDiscuss
 		foreach ($posts as $post) {
 			$result = ED::post($post->id);
 
+			// Retrieve the last reply data
+			$model = ED::model('Posts');
+			$lastReply = $model->getLastReply($result->id);
+			
+			$result->lastReply = $lastReply;
+
 			// Assign author info
 			$result->user = $result->getOwner();
 
 			// Get the post created date
 			$date = ED::date($result->created);
 
-			$result->date = $date->display(JText::_('DATE_FORMAT_LC1'));			
+			$result->date = $date->display(JText::_('DATE_FORMAT_LC1'));
 
 			$results[] = $result;
 		}

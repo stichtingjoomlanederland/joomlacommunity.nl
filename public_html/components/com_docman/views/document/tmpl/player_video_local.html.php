@@ -7,7 +7,9 @@
  */
 defined('KOOWA') or die; ?>
 
-<?= helper('player.load'); ?>
+<?= helper('player.load', [
+    'download' => $document->canPerform('download')
+]); ?>
 
 <div class="docman_player">
     <video

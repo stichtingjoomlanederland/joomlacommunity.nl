@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS `#__rscomments_comments` (
   `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `option` varchar(100) NOT NULL DEFAULT '',
   `id` int(5) NOT NULL DEFAULT '0',
-  `url` text NOT NULL,
+  `url` text NULL,
   `file` varchar(255) NOT NULL DEFAULT '',
   `location` varchar(255) NOT NULL DEFAULT '',
   `coordinates` varchar(255) NOT NULL DEFAULT '',

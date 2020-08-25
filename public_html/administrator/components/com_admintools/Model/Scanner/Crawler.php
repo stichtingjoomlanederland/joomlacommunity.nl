@@ -281,7 +281,7 @@ class Crawler extends Part
 			$scannedFiles = $this->session->get('scannedFiles', 0);
 			$this->session->set('scannedFiles', ++$scannedFiles);
 			// ...and actually scan the file
-			 $this->fileScanner->processFile($file);
+			$this->fileScanner->processFile($file);
 		}
 
 		// True if we have more files, false if we're done packing

@@ -15,7 +15,10 @@ defined('_JEXEC') or die;
 abstract class LogLevel
 {
 	const ERROR = 1;
+
 	const WARNING = 2;
+
 	const INFO = 3;
+
 	const DEBUG = 4;
 }

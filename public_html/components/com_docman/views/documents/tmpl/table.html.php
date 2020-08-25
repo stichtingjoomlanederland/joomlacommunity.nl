@@ -156,6 +156,7 @@ kQuery(function($) {
                                        class="<?= $params->document_title_link === 'download' ? 'docman_track_download' : ''; ?>"
                                        data-title="<?= escape($document->title); ?>"
                                        data-id="<?= $document->id; ?>"
+                                        <?= $params->document_title_link === 'download'  ? 'type="'.$document->mimetype.'"' : ''; ?>
                                         <?= $params->download_in_blank_page && $params->document_title_link === 'download'  ? 'target="_blank"' : ''; ?>
                                     ><span itemprop="name"><?= escape($document->title);?></span><!--
                                         --><? if ($document->title_link === $document->download_link): ?>
@@ -243,6 +244,7 @@ kQuery(function($) {
                     <?= $params->download_in_blank_page ? 'target="_blank"' : ''; ?>
                     data-title="<?= escape($document->title); ?>"
                     data-id="<?= $document->id; ?>"
+                    type="<?= $document->mimetype ?>"
                     <? if(!$params->force_download): ?>
                     data-mimetype="<?= $document->mimetype ?>"
                     data-extension="<?= $document->extension ?>"

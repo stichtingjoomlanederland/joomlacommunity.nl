@@ -5,6 +5,8 @@
  * @license     GNU GPL version 3 or later
  */
 
+defined('_JEXEC') || die;
+
 /**
  * User information display field
  *
@@ -32,11 +34,7 @@
  * @var \FOF30\View\DataView\Raw $this
  */
 
-use FOF30\Html\FEFHelper\BrowseView;
-
-defined('_JEXEC') or die;
-
-global $akeebaSubsShowUserCache;
+use FOF30\Html\FEFHelper\BrowseView;global $akeebaSubsShowUserCache;
 
 if (!isset($akeebaSubsShowUserCache))
 {

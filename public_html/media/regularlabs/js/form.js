@@ -1,6 +1,6 @@
 /**
  * @package         Regular Labs Library
- * @version         20.2.16442
+ * @version         20.7.20564
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -12,11 +12,11 @@
 
 if (typeof window.RegularLabsForm === 'undefined'
 	|| typeof RegularLabsForm.version === 'undefined'
-	|| RegularLabsForm.version < '20.2.16442') {
+	|| RegularLabsForm.version < '20.7.20564') {
 
 	(function($) {
 		window.RegularLabsForm = {
-			version: '20.2.16442',
+			version: '20.7.20564',
 
 			getValue: function(name, escape) {
 				let $field = $(`[name="${name}"]`);
@@ -171,10 +171,30 @@ if (typeof window.RegularLabsForm === 'undefined'
 				let originalContent = textarea.val().trim();
 
 				if (originalContent && separator) {
-					originalContent = `\n\n${separator}\n\n${originalContent}`;
+					separator       = separator == 'none' ? '' : `\n\n${separator}`;
+					originalContent = `${separator}\n\n${originalContent}`;
 				}
 
 				textarea.val(`${content}${originalContent}`);
+				this.moveCursorInTextareaTo(id, content.length);
+			},
+
+			moveCursorInTextareaTo: function(id, position) {
+				const textarea = document.getElementById(id);
+
+				if (textarea.setSelectionRange) {
+					textarea.focus();
+					textarea.setSelectionRange(position, position);
+					textarea.scrollTop = 0;
+					return;
+				}
+
+				if (textarea.createTextRange) {
+					var range = textarea.createTextRange();
+					range.moveStart('character', position);
+					range.select();
+					textarea.scrollTop = 0;
+				}
 			},
 
 			setToggleTitleClass: function(input, value) {

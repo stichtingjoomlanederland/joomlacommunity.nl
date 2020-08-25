@@ -617,7 +617,7 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 	 * @param	string
 	 * @return
 	 */
-	public function getTotalReplies($userId = null)
+	public function getTotalReplies($userId = null, $options = array())
 	{
 		// If user id is not provided, we just try to get it from the current logged in user.
 		$userId = JFactory::getUser($userId)->id;
@@ -626,6 +626,7 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 			return 0;
 		}
 
+		$ignoreCategoryACL = isset($options['ignoreCategoryACL']) ? $options['ignoreCategoryACL'] : false;
 		$respectAnonymous = ($this->my->id && $this->my->id == $userId) ? false : true;
 		$respectPrivacy = ($this->my->id == $userId) ? false : true;
 
@@ -634,24 +635,27 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 		$db = $this->db;
 		$query 	= 'SELECT COUNT(a.`id`) ';
 		$query	.= ' FROM ' . $db->nameQuote( '#__discuss_posts' ) . ' AS a ';
-		$query	.= ' INNER JOIN ' . $db->nameQuote( '#__discuss_posts' ) . ' AS b ';
-		$query	.= ' ON a.' . $db->nameQuote( 'parent_id' ) . ' = b.' . $db->nameQuote( 'id' );
+		$query	.= ' INNER JOIN ' . $db->nameQuote( '#__discuss_thread' ) . ' AS b ';
+		$query	.= ' ON a.' . $db->nameQuote( 'thread_id' ) . ' = b.' . $db->nameQuote( 'id' );
+		$query	.= '     AND a.' . $db->nameQuote( 'id' ) . ' != b.' . $db->nameQuote( 'post_id' );
 
 		$query 	.= ' WHERE a.`user_id` = ' . $db->Quote($userId);
-		$query	.= ' AND a.`parent_id` != ' . $db->Quote('0');
 
 		if ($respectAnonymous) {
 			$query 	.= ' AND a.`anonymous` = 0';
+		}
+
+		$query	.= ' AND b.' . $db->nameQuote( 'published' ) . ' = ' . $db->Quote( 1 );
+
+		if ($this->my->id != $userId) {
+			$query	.= ' AND b.' . $db->nameQuote('private') . ' = ' . $db->Quote(0);
 		}
 
 		if (!$includeCluster) {
 			$query .= ' AND b.`cluster_id` = 0';
 		}
 
-		$query	.= ' AND b.' . $db->nameQuote( 'published' ) . ' = ' . $db->Quote( 1 );
-		$query	.= ' AND b.`parent_id` = ' . $db->Quote('0');
-
-		if ($respectPrivacy) {
+		if (!$ignoreCategoryACL && $respectPrivacy) {
 
 			// category ACL:
 			$catOptions = array();
@@ -671,8 +675,7 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 
 		}
 
-
-		// $query	.= ' GROUP BY b.`id`';
+		// echo $query;exit;
 
 		$db->setQuery($query);
 

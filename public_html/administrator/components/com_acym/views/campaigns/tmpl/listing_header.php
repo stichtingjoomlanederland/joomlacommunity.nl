@@ -9,13 +9,23 @@ defined('_JEXEC') or die('Restricted access');
         $allTags = new stdClass();
         $allTags->name = acym_translation('ACYM_ALL_TAGS');
         $allTags->value = '';
-        array_unshift($data["allTags"], $allTags);
+        array_unshift($data['allTags'], $allTags);
 
-        echo acym_select($data["allTags"], 'campaigns_tag', acym_escape($data["tag"]), 'class="acym__campaigns__filter__tags"', 'value', 'name');
+        echo acym_select(
+            $data['allTags'],
+            'campaigns_tag',
+            acym_escape($data['tag']),
+            [
+                'class' => 'acym__campaigns__filter__tags acym__select',
+            ],
+            'value',
+            'name'
+        );
         ?>
 	</div>
 	<div class="large-auto hide-for-large-only hide-for-medium-only hide-for-small-only cell"></div>
 	<div class="large-shrink medium-6 cell">
-		<button data-task="edit" data-step="chooseTemplate" class="button expanded acy_button_submit"><?php echo acym_translation('ACYM_CREATE_NEW_CAMPAIGN'); ?></button>
+		<button data-task="newEmail" class="button expanded acy_button_submit"><?php echo acym_translation('ACYM_CREATE_NEW_EMAIL'); ?></button>
 	</div>
 </div>
+

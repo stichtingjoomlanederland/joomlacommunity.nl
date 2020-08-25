@@ -120,6 +120,13 @@ class EasyDiscussAdminView extends EasyDiscussViewParent
 
 			$message = ED::getMessageQueue();
 			$version = ED::getLocalVersion();
+
+			$postOutOfSync = false;
+
+			if (!$browse && $view != 'maintenance') {
+				$model = ED::model('Maintenance');
+				$postOutOfSync = $model->getTotalSyncRequest();
+			}
 			
 			$theme->set('version', $version);
 			$theme->set('title', $this->panelTitle);
@@ -131,6 +138,7 @@ class EasyDiscussAdminView extends EasyDiscussViewParent
 			$theme->set('layout', $layout);
 			$theme->set('view', $view);
 			$theme->set('ajaxUrl', $ajaxUrl);
+			$theme->set('postOutOfSync', $postOutOfSync);
 
 			$output = $theme->output('admin/structure/default');
 

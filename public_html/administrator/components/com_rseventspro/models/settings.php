@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
@@ -45,6 +45,10 @@ class RseventsproModelSettings extends JModelAdmin
 		
 		if (isset($data['cancel_to'])) {
 			$data['cancel_to'] = explode(',',$data['cancel_to']);
+		}
+		
+		if (isset($data['captcha_use'])) {
+			$data['captcha_use'] = explode(',',$data['captcha_use']);
 		}
 		
 		if (isset($data['gallery_params'])) {
@@ -92,6 +96,9 @@ class RseventsproModelSettings extends JModelAdmin
 		
 		if (file_exists(JPATH_ADMINISTRATOR.'/components/com_rsmediagallery/helpers/integration.php'))
 			$fields[] = 'gallery';
+		
+		if (rseventsproHelper::pdf('1.18'))
+			$fields[] = 'invoice';
 		
 		return $fields;
 	}
@@ -199,6 +206,13 @@ class RseventsproModelSettings extends JModelAdmin
 			$data['cancel_to'] = is_array($data['cancel_to']) ? implode(',', $data['cancel_to']) : $data['cancel_to'];
 		} else {
 			$data['cancel_to'] = '';
+		}
+		
+		// Save captcha use
+		if (isset($data['captcha_use'])) {
+			$data['captcha_use'] = is_array($data['captcha_use']) ? implode(',', $data['captcha_use']) : $data['captcha_use'];
+		} else {
+			$data['captcha_use'] = '';
 		}
 		
 		// Save gallery params

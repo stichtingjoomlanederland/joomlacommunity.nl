@@ -15,6 +15,7 @@ use Akeeba\AdminTools\Admin\Controller\Mixin\SendTroubleshootingEmail;
 use Akeeba\AdminTools\Admin\Model\ConfigureWAF;
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
+use Joomla\CMS\Language\Text;
 
 class QuickStart extends Controller
 {
@@ -37,11 +38,11 @@ class QuickStart extends Controller
 		/** @var \Akeeba\AdminTools\Admin\Model\QuickStart $model */
 		$model = $this->getModel();
 
-		$stateVariables = array(
+		$stateVariables = [
 			'adminpw', 'admin_username', 'admin_password', 'emailonadminlogin', 'ipwl', 'detectedip', 'nonewadmins',
 			'nofesalogin', 'enablewaf', 'ipworkarounds', 'autoban', 'autoblacklist', 'emailbreaches', 'bbhttpblkey',
-			'htmaker'
-		);
+			'htmaker',
+		];
 
 		foreach ($stateVariables as $k)
 		{
@@ -51,7 +52,7 @@ class QuickStart extends Controller
 
 		$model->applyPreferences();
 
-		$message = \JText::_('COM_ADMINTOOLS_QUICKSTART_MSG_DONE');
+		$message = Text::_('COM_ADMINTOOLS_QUICKSTART_MSG_DONE');
 		$this->setRedirect('index.php?option=com_admintools&view=ControlPanel', $message);
 	}
 

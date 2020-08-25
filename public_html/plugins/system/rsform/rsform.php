@@ -63,7 +63,7 @@ class plgSystemRSForm extends JPlugin
         }
 
         // expression to search for
-        $pattern = '#\{rsform ([0-9]+)\}#i';
+        $pattern = '#\{rsform ([0-9]+)(.*?)?\}#i';
         if (preg_match_all($pattern, $content, $matches))
         {
             if (file_exists(JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/rsform.php'))
@@ -78,11 +78,43 @@ class plgSystemRSForm extends JPlugin
 
             RSFormProAssets::$replace = true;
 
-            $lang = JFactory::getLanguage();
-            $lang->load('com_rsform', JPATH_SITE);
+	        JFactory::getLanguage()->load('com_rsform', JPATH_SITE);
 
-            foreach ($matches[0] as $j => $match)
+            foreach ($matches[0] as $i => $match)
             {
+	            $attributes = trim($matches[2][$i]);
+	            if (strlen($attributes) && preg_match_all('#[a-z0-9_\-]+=".*?"#i', $attributes, $attributesMatches))
+	            {
+		            $data = array();
+
+		            foreach ($attributesMatches[0] as $pair)
+		            {
+			            list($attribute, $value) = explode('=', $pair, 2);
+
+			            $attribute  = trim(html_entity_decode($attribute));
+			            $value 		= html_entity_decode(trim($value, '"'));
+
+			            if (isset($data[$attribute]))
+			            {
+				            if (!is_array($data[$attribute]))
+				            {
+					            $data[$attribute] = (array) $data[$attribute];
+				            }
+
+				            $data[$attribute][] = $value;
+			            }
+			            else
+			            {
+				            $data[$attribute] = $value;
+			            }
+		            }
+
+		            if ($data)
+		            {
+			            JFactory::getApplication()->input->get->set('form', $data);
+		            }
+	            }
+
                 // within <textarea>
                 $tmp = explode($match, $content, 2);
                 $before = strtolower(reset($tmp));
@@ -99,8 +131,8 @@ class plgSystemRSForm extends JPlugin
                         continue;
                 }
 
-                $formId = $matches[1][$j];
-                $content = str_replace($matches[0][$j], RSFormProHelper::displayForm($formId,true), $content);
+                $formId = $matches[1][$i];
+                $content = str_replace($matches[0][$i], RSFormProHelper::displayForm($formId,true), $content);
             }
 
             $html = isset($head) ? ($head . '</head>' . $content) : $content;

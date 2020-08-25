@@ -31,7 +31,7 @@ class Csv extends BaseView
 	public function __construct(Container $container, array $config)
 	{
 		$config['csv_filename'] = 'ip_blacklist.csv';
-		$config['csv_fields']   = array('ip', 'description');
+		$config['csv_fields']   = ['ip', 'description'];
 
 		parent::__construct($container, $config);
 	}

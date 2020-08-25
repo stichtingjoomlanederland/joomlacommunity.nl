@@ -15,14 +15,14 @@ use FOF30\Model\DataModel;
 /**
  * Class WAFEmailTemplates
  *
- * @property  int     $admintools_waftemplate_id
- * @property  string  $reason
- * @property  string  $language
- * @property  string  $subject
- * @property  string  $template
- * @property  int     $email_num
- * @property  int     $email_numfreq
- * @property  string  $email_freq
+ * @property  int    $admintools_waftemplate_id
+ * @property  string $reason
+ * @property  string $language
+ * @property  string $subject
+ * @property  string $template
+ * @property  int    $email_num
+ * @property  int    $email_numfreq
+ * @property  string $email_freq
  *
  *
  * @method  $this  reason()  reason(string $v)

@@ -11,17 +11,17 @@ defined('_JEXEC') or die;
 
 use FOF30\Model\DataModel;
 use FOF30\View\DataView\Html as BaseView;
-use JText;
+use Joomla\CMS\Language\Text;
 
 class Html extends BaseView
 {
-	/** @var  string	Order column */
+	/** @var  string    Order column */
 	public $order = 'id';
 
 	/** @var  string Order direction, ASC/DESC */
 	public $order_Dir = 'DESC';
 
-	/** @var  array	Sorting order options */
+	/** @var  array    Sorting order options */
 	public $sortFields = [];
 
 	public $filters = [];
@@ -49,17 +49,17 @@ class Html extends BaseView
 		$this->order_Dir = strtolower($dir);
 
 		// ...filter state
-		$this->filters['from'] 	 	  = $platform->getUserStateFromRequest($hash . 'filter_from', 'datefrom', $input);
-		$this->filters['to'] 	 	  = $platform->getUserStateFromRequest($hash . 'filter_to', 'dateto', $input);
-		$this->filters['ip'] 	 	  = $platform->getUserStateFromRequest($hash . 'filter_ip', 'ip', $input);
-		$this->filters['reason']	  = $platform->getUserStateFromRequest($hash . 'filter_reason', 'reason', $input);
+		$this->filters['from']   = $platform->getUserStateFromRequest($hash . 'filter_from', 'datefrom', $input);
+		$this->filters['to']     = $platform->getUserStateFromRequest($hash . 'filter_to', 'dateto', $input);
+		$this->filters['ip']     = $platform->getUserStateFromRequest($hash . 'filter_ip', 'ip', $input);
+		$this->filters['reason'] = $platform->getUserStateFromRequest($hash . 'filter_reason', 'reason', $input);
 
 		// Construct the array of sorting fields
-		$this->sortFields = array(
-			'logdate' 		=> JText::_('COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_LOGDATE'),
-			'ip' 	 		=> JText::_('COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_IP'),
-			'reason'	 	=> JText::_('COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_REASON'),
-			'url'	 		=> JText::_('COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_URL')
-		);
+		$this->sortFields = [
+			'logdate' => Text::_('COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_LOGDATE'),
+			'ip'      => Text::_('COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_IP'),
+			'reason'  => Text::_('COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_REASON'),
+			'url'     => Text::_('COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_URL'),
+		];
 	}
 }

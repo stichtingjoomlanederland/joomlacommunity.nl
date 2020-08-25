@@ -2,7 +2,7 @@
 defined('_JEXEC') or die('Restricted access');
 ?><div id="acym__wysid__send__test" class="cell grid-y" style="display: flex">
 	<div class="cell text-center margin-bottom-3 margin-top-1">
-		<i class="acymicon-send-o acym__wysid__send__test__icon"></i>
+		<i class="acymicon-paper-plane-o acym__wysid__send__test__icon"></i>
 		<div class="acym__wysid__send__test__icon__loader"><?php echo acym_loaderLogo(); ?></div>
 	</div>
 	<i class="acymicon-close acym__wysid__send__test-close"></i>
@@ -17,6 +17,10 @@ defined('_JEXEC') or die('Restricted access');
             'placeholder' => acym_translation('ACYM_TEST_ADDRESS'),
         ]
     ); ?>
+	<label class="margin-top-1">
+        <?php echo acym_translation('ACYM_TEST_NOTE'); ?>
+		<textarea class="acym__blue" id="acym__wysid__send__test__note" name="test_note" type="text" placeholder="<?php echo acym_translation('ACYM_TEST_NOTE_PLACEHOLDER'); ?>"></textarea>
+	</label>
 	<div class="cell grid-x align-center acym__wysid__send__test__container__button">
 		<button type="button" class="cell shrink button" id="acym__wysid__send__test__button"><?php echo acym_translation('ACYM_SAVE_AND_SEND_TEST'); ?></button>
 	</div>

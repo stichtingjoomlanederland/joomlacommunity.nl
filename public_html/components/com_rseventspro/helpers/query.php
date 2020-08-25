@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
@@ -160,6 +160,7 @@ class RSEventsProQuery
 		$locations	= $this->params->get('locations','');
 		$tags		= $this->params->get('tags','');
 		$speakers	= $this->params->get('speakers','');
+		$sponsors	= $this->params->get('sponsors','');
 		$from		= $this->params->get('from','');
 		$to			= $this->params->get('to','');
 		$repeat		= (int) $this->params->get('repeat',1);
@@ -222,6 +223,13 @@ class RSEventsProQuery
 			$speakers = array_map('intval',$speakers);
 			
 			$where[] = ' AND '.$db->qn('e.id').' IN (SELECT '.$db->qn('tx.ide').' FROM '.$db->qn('#__rseventspro_taxonomy','tx').' WHERE '.$db->qn('tx.id').' IN ('.implode(',',$speakers).') AND '.$db->qn('tx.type').' = '.$db->q('speaker').')';
+		}
+		
+		// Filter events with the menu item sponsors filter
+		if (!empty($sponsors)) {
+			$sponsors = array_map('intval',$sponsors);
+			
+			$where[] = ' AND '.$db->qn('e.id').' IN (SELECT '.$db->qn('tx.ide').' FROM '.$db->qn('#__rseventspro_taxonomy','tx').' WHERE '.$db->qn('tx.id').' IN ('.implode(',',$sponsors).') AND '.$db->qn('tx.type').' = '.$db->q('sponsor').')';
 		}
 		
 		// Filter events with the menu item categories filter

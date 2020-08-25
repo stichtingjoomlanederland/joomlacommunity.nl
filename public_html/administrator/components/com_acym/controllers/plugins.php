@@ -11,7 +11,8 @@ class PluginsController extends acymController
         parent::__construct();
         $this->breadcrumb[acym_translation('ACYM_ADD_ONS')] = acym_completeLink('plugins');
         $this->loadScripts = [
-            'all' => ['vue-applications' => ['available_plugins', 'installed_plugins']],
+            'available' => ['vue-applications' => ['available_plugins']],
+            'installed' => ['datepicker', 'vue-prism-editor', 'vue-applications' => ['custom_view', 'installed_plugins']],
         ];
 
         $this->setDefaultTask('installed');
@@ -215,6 +216,13 @@ class PluginsController extends acymController
         $pluginClass = acym_get('class.plugin');
         $plugins = $pluginClass->getMatchingElements(['ordering' => 'title']);
 
+
+        foreach ($plugins['elements'] as $key => $plugin) {
+            if (!empty($plugin->settings)) $plugins['elements'][$key]->settings = json_decode($plugin->settings, true);
+        }
+
+        acym_trigger('onAcymAddSettings', [&$plugins['elements']]);
+
         return json_encode($plugins);
     }
 
@@ -282,6 +290,118 @@ class PluginsController extends acymController
         $this->installed();
 
         return true;
+    }
+
+    public function saveSettings()
+    {
+        $pluginFolderName = acym_getVar('string', 'plugin__folder_name', '');
+
+        if (empty($pluginFolderName)) {
+            acym_enqueueMessage(acym_translation('ACYM_COULD_NOT_SAVE_SETTINGS'));
+            $this->installed();
+
+            return;
+        }
+
+        $pluginClass = acym_get('class.plugin');
+        $plugin = $pluginClass->getOneByFolderName($pluginFolderName);
+
+        if (empty($plugin)) {
+            acym_enqueueMessage(acym_translation('ACYM_COULD_NOT_SAVE_SETTINGS'));
+            $this->installed();
+
+            return;
+        }
+        $plugin->settings = empty($plugin->settings) ? [] : json_decode($plugin->settings, true);
+
+        $pluginSettings = acym_getVar('array', $pluginFolderName, []);
+
+        if (empty($pluginSettings)) {
+            acym_enqueueMessage(acym_translation('ACYM_COULD_NOT_SAVE_SETTINGS'));
+            $this->installed();
+
+            return;
+        }
+
+        foreach ($pluginSettings as $key => $value) {
+            if ($value == 'on') $value = 1;
+            $plugin->settings[$key] = ['value' => $value];
+        }
+
+        foreach ($plugin->settings as $key => $value) {
+            if (!array_key_exists($key, $pluginSettings)) $plugin->settings[$key] = ['value' => ''];
+        }
+
+        $plugin->settings = json_encode($plugin->settings);
+        $pluginClass->save($plugin);
+
+        $this->installed();
+    }
+
+    private function getPluginClassAjaxCustomView()
+    {
+        $return = [];
+        $return['folderName'] = acym_getVar('string', 'plugin');
+        $return['className'] = acym_getVar('string', 'plugin_class');
+
+        if (empty($return['folderName'] || $return['className'])) {
+            echo json_encode(['error' => acym_translation('ACYM_CUSTOM_VIEW_NOT_FOUND')]);
+            exit;
+        }
+
+        return $return;
+    }
+
+    public function getCustomViewPlugin()
+    {
+        $plugin = $this->getPluginClassAjaxCustomView();
+
+        $customLayoutPath = ACYM_CUSTOM_PLUGIN_LAYOUT.$plugin['folderName'].'.html';
+
+        $customView = '';
+
+        if (file_exists($customLayoutPath)) $customView = acym_fileGetContent($customLayoutPath);
+        if (empty($customView)) acym_trigger('getStandardStructure', [&$customView], $plugin['className']);
+
+        echo json_encode(['content' => $customView]);
+        exit;
+    }
+
+    public function saveCustomViewPlugin()
+    {
+        $plugin = $this->getPluginClassAjaxCustomView();
+        $pluginCustomView = acym_getVar('string', 'custom_view', '');
+        $pluginCustomView = urldecode($pluginCustomView);
+
+        $customLayoutPath = ACYM_CUSTOM_PLUGIN_LAYOUT.$plugin['folderName'].'.html';
+
+        $result = acym_writeFile($customLayoutPath, $pluginCustomView);
+
+        echo json_encode(['message' => acym_translation($result ? 'ACYM_CUSTOM_VIEW_WELL_SAVED' : 'ACYM_CUSTOM_VIEW_SAVED_FAILED')]);
+        exit;
+    }
+
+    public function deleteCustomViewPlugin()
+    {
+        $plugin = $this->getPluginClassAjaxCustomView();
+
+        $customLayoutPath = ACYM_CUSTOM_PLUGIN_LAYOUT.$plugin['folderName'].'.html';
+
+        if (file_exists($customLayoutPath) && !acym_deleteFile($customLayoutPath)) {
+            echo json_encode(['error' => acym_translation('ACYM_COULD_NOT_DELETE_CUSTOM_VIEW')]);
+            exit;
+        }
+
+        $customView = '';
+        acym_trigger('getStandardStructure', [&$customView], $plugin['className']);
+
+        echo json_encode(
+            [
+                'content' => $customView,
+                'message' => acym_translation('ACYM_CUSTOM_VIEW_WELL_DELETED'),
+            ]
+        );
+        exit;
     }
 }
 

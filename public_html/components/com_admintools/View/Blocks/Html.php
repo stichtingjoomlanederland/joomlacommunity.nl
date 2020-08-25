@@ -11,8 +11,8 @@ defined('_JEXEC') or die;
 
 use Akeeba\AdminTools\Admin\Helper\Storage;
 use FOF30\View\DataView\Html as BaseView;
-use JFactory;
-use JText;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
 
 class Html extends BaseView
 {
@@ -40,20 +40,20 @@ class Html extends BaseView
 		}
 
 		// Merge the default translation with the current translation
-		$jlang = JFactory::getLanguage();
+		$jlang = Factory::getLanguage();
 
 		// Front-end translation
 		$jlang->load('plg_system_admintools', JPATH_ADMINISTRATOR, 'en-GB', true);
 		$jlang->load('plg_system_admintools', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
 		$jlang->load('plg_system_admintools', JPATH_ADMINISTRATOR, null, true);
 
-		if ((JText::_('ADMINTOOLS_BLOCKED_MESSAGE') == 'ADMINTOOLS_BLOCKED_MESSAGE') && ($message == 'ADMINTOOLS_BLOCKED_MESSAGE'))
+		if ((Text::_('ADMINTOOLS_BLOCKED_MESSAGE') == 'ADMINTOOLS_BLOCKED_MESSAGE') && ($message == 'ADMINTOOLS_BLOCKED_MESSAGE'))
 		{
 			$message = "Access Denied";
 		}
 		else
 		{
-			$message = JText::_($message);
+			$message = Text::_($message);
 		}
 
 		$this->message = $message;

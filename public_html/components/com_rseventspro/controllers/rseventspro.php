@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/licenses/gpl-2.0.html
 */
 
@@ -176,12 +176,14 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		if ($nowunix > $endunix)
 			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)), JText::_('COM_RSEVENTSPRO_ERROR_INVITE_1'));
 		
-		$model->invite();
-		
 		JFactory::getApplication()->input->set('tmpl', 'component');
 		
-		$url = rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id));
-		echo rseventsproHelper::redirect(true,JText::_('COM_RSEVENTSPRO_INVITATIONS_SENT'),$url,true);
+		if ($model->invite()) {
+			$url = rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id));
+			echo rseventsproHelper::redirect(true,JText::_('COM_RSEVENTSPRO_INVITATIONS_SENT'),$url,true);
+		} else {
+			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=invite&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)), JText::_('COM_RSEVENTSPRO_SUBSCRIBER_CAPTCHA_ERROR'));
+		}
 	}
 	
 	// Event - export event
@@ -898,6 +900,25 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		JFactory::getApplication()->close();
 	}
 	
+	public function savesponsor() {
+		// Get the model
+		$model = $this->getModel('rseventspro');
+		$admin = rseventsproHelper::admin();
+		
+		if (!$admin && empty($this->permissions['can_add_sponsor']))
+			throw new Exception(JText::_('COM_RSEVENTSPRO_ERROR_ADD_SPONSOR'), 500);
+		
+		$sponsors = $model->savesponsor();
+		
+		echo '<script type="text/javascript">'."\n";
+		echo 'var data = '.json_encode($sponsors).';'."\n";
+		echo 'window.parent.rsepro_update_sponsors(data);'."\n";
+		echo rseventsproHelper::modalClose(false, true)."\n";
+		echo '</script>';
+		
+		JFactory::getApplication()->close();
+	}
+	
 	public function duplicateticket() {
 		// Get the model
 		$model = $this->getModel();
@@ -1069,6 +1090,33 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		} else {
 			$msg = JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED');
 			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false),$msg);
+		}
+	}
+	
+	// Subscribers - Invoice
+	public function invoice() {
+		// Get the model
+		$model = $this->getModel('rseventspro');
+		
+		// Get event details
+		$event = $model->getEvent();
+		
+		$id		= JFactory::getApplication()->input->getInt('id');
+		$admin	= rseventsproHelper::admin();
+		$user	= $model->getUser();
+		$table	= JTable::getInstance('Subscription','RseventsproTable');
+		
+		$table->load($id);
+		
+		if ($admin || $event->owner == $user || $event->sid == $user || $user == $table->idu) {
+			require_once JPATH_SITE.'/components/com_rseventspro/helpers/invoice.php';
+			
+			$invoice = RSEventsProInvoice::getInstance($id);
+		
+			$invoice->output();
+		} else {
+			JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_ERROR_INVOICE'), 'error');
+			$this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro',false));
 		}
 	}
 }

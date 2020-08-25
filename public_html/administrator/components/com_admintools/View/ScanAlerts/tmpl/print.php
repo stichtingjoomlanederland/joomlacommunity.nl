@@ -8,21 +8,20 @@
 defined('_JEXEC') or die;
 
 use FOF30\Date\Date;
-
-JLoader::import('joomla.utilities.date');
+use Joomla\CMS\Language\Text;
 
 $scan_id  = $this->input->getInt('scan_id', 0);
 $date     = new Date($this->scan->backupstart);
 $timezone = $this->container->platform->getUser()->getParam('timezone', $this->container->platform->getConfig()->get('offset', 'GMT'));
-$tz       = new \DateTimeZone($timezone);
+$tz       = new DateTimeZone($timezone);
 $date->setTimezone($tz);
 
 ?>
 <h1>
-	<?php echo JText::sprintf('COM_ADMINTOOLS_TITLE_SCANALERTS', $scan_id) ?>
+	<?php echo Text::sprintf('COM_ADMINTOOLS_TITLE_SCANALERTS', $scan_id) ?>
 </h1>
 <h2>
-	<?php echo $date->format(JText::_('DATE_FORMAT_LC2') . ' T', true) ?>
+	<?php echo $date->format(Text::_('DATE_FORMAT_LC2') . ' T', true) ?>
 </h2>
 
 <table class="table">
@@ -30,16 +29,16 @@ $date->setTimezone($tz);
 	<tr>
 		<th width="20"></th>
 		<th>
-			<?php echo JText::_('COM_ADMINTOOLS_LBL_SCANALERTS_PATH') ?>
+			<?php echo Text::_('COM_ADMINTOOLS_LBL_SCANALERTS_PATH') ?>
 		</th>
 		<th width="80">
-			<?php echo JText::_('COM_ADMINTOOLS_LBL_SCANALERTS_STATUS') ?>
+			<?php echo Text::_('COM_ADMINTOOLS_LBL_SCANALERTS_STATUS') ?>
 		</th>
 		<th width="40">
-			<?php echo JText::_('COM_ADMINTOOLS_LBL_SCANALERTS_THREAT_SCORE') ?>
+			<?php echo Text::_('COM_ADMINTOOLS_LBL_SCANALERTS_THREAT_SCORE') ?>
 		</th>
 		<th width="40">
-			<?php echo JText::_('COM_ADMINTOOLS_LBL_SCANALERTS_ACKNOWLEDGED') ?>
+			<?php echo Text::_('COM_ADMINTOOLS_LBL_SCANALERTS_ACKNOWLEDGED') ?>
 		</th>
 	</tr>
 	</thead>
@@ -81,14 +80,14 @@ $date->setTimezone($tz);
 			if (strlen($item->path) > 100)
 			{
 				$truncatedPath = true;
-				$path = $this->escape(substr($item->path, -100));
-				$alt = 'title="' . $this->escape($item->path) . '"';
+				$path          = $this->escape(substr($item->path, -100));
+				$alt           = 'title="' . $this->escape($item->path) . '"';
 			}
 			else
 			{
 				$truncatedPath = false;
-				$path = $this->escape($item->path);
-				$alt = '';
+				$path          = $this->escape($item->path);
+				$alt           = '';
 			}
 			?>
 			<tr>
@@ -100,7 +99,7 @@ $date->setTimezone($tz);
 					</a>
 				</td>
 				<td class="admintools-scanfile-<?php echo $fstatus ?> <?php if (!$item->threat_score): ?>admintools-scanfile-nothreat<?php endif ?>">
-					<?php echo JText::_('COM_ADMINTOOLS_LBL_SCANALERTS_STATUS_' . $fstatus) ?>
+					<?php echo Text::_('COM_ADMINTOOLS_LBL_SCANALERTS_STATUS_' . $fstatus) ?>
 				</td>
 				<td class="admintools-scanfile-threat-<?php echo $threatindex ?>">
 					<?php echo $item->threat_score ?>
@@ -108,10 +107,10 @@ $date->setTimezone($tz);
 				<td>
 					<?php if ($item->acknowledged): ?>
 						<span class="admintools-scanfile-markedsafe">
-				<?php echo JText::_('JYES') ?>
+				<?php echo Text::_('JYES') ?>
 				</span>
 					<?php else: ?>
-						<?php echo JText::_('JNO') ?>
+						<?php echo Text::_('JNO') ?>
 					<?php endif; ?>
 				</td>
 			</tr>
@@ -121,7 +120,8 @@ $date->setTimezone($tz);
 		?>
 	<?php else: ?>
 		<tr>
-			<td colspan="20" align="center"><?php echo JText::_('COM_ADMINTOOLS_MSG_COMMON_NOITEMS') ?></td>
+			<td colspan="20"
+				align="center"><?php echo Text::_('COM_ADMINTOOLS_MSG_COMMON_NOITEMS') ?></td>
 		</tr>
 	<?php endif; ?>
 	</tbody>

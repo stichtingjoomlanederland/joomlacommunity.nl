@@ -46,10 +46,18 @@ class acymuserClass extends acymClass
 
         $query = 'SELECT DISTINCT '.$columns.' FROM #__acym_user AS user';
         $queryCount = 'SELECT COUNT(DISTINCT user.id) FROM #__acym_user AS user';
-        $queryStatus = 'SELECT COUNT(DISTINCT user.id) AS number, user.active FROM #__acym_user AS user';
+        $queryStatus = 'SELECT COUNT(DISTINCT user.id) AS number, user.confirmed + user.active*2 AS score FROM #__acym_user AS user';
         $filters = [];
 
         if (!empty($settings['join'])) $query .= $this->getJoinForQuery($settings['join']);
+
+        if (!empty($settings['joins'])) {
+            foreach ($settings['joins'] as $oneJoin) {
+                $query .= ' '.$oneJoin.' ';
+                $queryCount .= ' '.$oneJoin.' ';
+                $queryStatus .= ' '.$oneJoin.' ';
+            }
+        }
 
         if (!acym_isAdmin()) {
             $settings['creator_id'] = acym_currentUserId();
@@ -64,7 +72,7 @@ class acymuserClass extends acymClass
 
         if (!empty($settings['search'])) {
             $searchValue = acym_escapeDB('%'.$settings['search'].'%');
-            $searchFilter = 'user.email LIKE '.$searchValue.' OR user.name LIKE '.$searchValue;
+            $searchFilter = 'user.email LIKE '.$searchValue.' OR user.name LIKE '.$searchValue.' OR user.id = '.intval($settings['search']);
 
             $listingFields = acym_loadResultArray('SELECT `id` FROM #__acym_field WHERE `'.(acym_isAdmin() ? 'back' : 'front').'end_listing` = 1');
 
@@ -96,6 +104,10 @@ class acymuserClass extends acymClass
             $filters[] = $searchFilter;
         }
 
+        if (!empty($settings['conditions'])) {
+            $filters = array_merge($filters, $settings['conditions']);
+        }
+
         if (!empty($filters)) {
             $queryStatus .= ' WHERE ('.implode(') AND (', $filters).')';
         }
@@ -104,6 +116,8 @@ class acymuserClass extends acymClass
             $allowedStatus = [
                 'active' => 'active = 1',
                 'inactive' => 'active = 0',
+                'confirmed' => 'confirmed = 1',
+                'unconfirmed' => 'confirmed = 0',
             ];
             if (empty($allowedStatus[$settings['status']])) {
                 die('Injection denied');
@@ -182,19 +196,24 @@ class acymuserClass extends acymClass
             $pagination = acym_get('helper.pagination');
             $settings['elementsPerPage'] = $pagination->getListLimit();
         }
+
+        acym_query('SET SQL_BIG_SELECTS=1');
+
         $results['elements'] = acym_loadObjectList($query, '', $settings['offset'], $settings['elementsPerPage']);
         $results['total'] = acym_loadResult($queryCount);
 
-        $usersPerStatus = acym_loadObjectList($queryStatus.' GROUP BY active', 'active');
+        $usersPerStatus = acym_loadObjectList($queryStatus.' GROUP BY score', 'score');
 
-        for ($i = 0 ; $i < 2 ; $i++) {
+        for ($i = 0 ; $i < 4 ; $i++) {
             $usersPerStatus[$i] = empty($usersPerStatus[$i]) ? 0 : $usersPerStatus[$i]->number;
         }
 
         $results['status'] = [
             'all' => array_sum($usersPerStatus),
-            'active' => $usersPerStatus[1],
-            'inactive' => $usersPerStatus[0],
+            'active' => $usersPerStatus[2] + $usersPerStatus[3],
+            'inactive' => $usersPerStatus[0] + $usersPerStatus[1],
+            'confirmed' => $usersPerStatus[1] + $usersPerStatus[3],
+            'unconfirmed' => $usersPerStatus[0] + $usersPerStatus[2],
         ];
 
         return $results;
@@ -205,7 +224,7 @@ class acymuserClass extends acymClass
         if (strpos($joinType, 'join_list') !== false) {
             $listId = explode('-', $joinType);
 
-            return ' LEFT JOIN #__acym_user_has_list as userlist ON user.id = userlist.user_id AND userlist.status = 1 AND userlist.list_id = '.intval($listId[1]);
+            return ' LEFT JOIN #__acym_user_has_list AS userlist ON user.id = userlist.user_id AND userlist.status = 1 AND userlist.list_id = '.intval($listId[1]);
         }
 
         return '';
@@ -451,6 +470,20 @@ class acymuserClass extends acymClass
         return $unsubscribedFromLists;
     }
 
+    public function unsubscribeOnSubscriptions($userId, $listIds)
+    {
+        if (empty($listIds)) return false;
+
+        if (!is_array($listIds)) $listIds = [$listIds];
+        acym_arrayToInteger($listIds);
+
+        $subscribedLists = acym_loadResultArray('SELECT list_id FROM #__acym_user_has_list WHERE user_id = '.intval($userId).' AND list_id IN ('.implode(',', $listIds).')');
+
+        if (!empty($subscribedLists)) $this->unsubscribe($userId, $subscribedLists);
+
+        return true;
+    }
+
     public function removeSubscription($userIds, $listIds = null)
     {
         if (!is_array($userIds)) $userIds = [$userIds];
@@ -579,6 +612,7 @@ class acymuserClass extends acymClass
             }
         }
 
+        $userCmsID = 0;
         if (empty($user->id)) {
             if (empty($user->cms_id) && !empty($user->email)) {
                 $userCmsID = acym_loadResult('SELECT '.acym_secureDBColumn($this->cmsUserVars->id).' FROM '.$this->cmsUserVars->table.' WHERE '.acym_secureDBColumn($this->cmsUserVars->email).' = '.acym_escapeDB($user->email));
@@ -586,8 +620,13 @@ class acymuserClass extends acymClass
             }
             acym_trigger('onAcymBeforeUserCreate', [&$user]);
         } else {
+            $currentUser = $this->getOneById($user->id);
+            $userCmsID = $currentUser->cms_id;
+
             acym_trigger('onAcymBeforeUserModify', [&$user]);
         }
+
+        $user->language = acym_getCmsUserLanguage($userCmsID);
 
         $userID = parent::save($user);
 

@@ -3,35 +3,35 @@
 	<fieldset name="general_conf" label="COM_RSCOMMENTS_GENERAL_CONFIG" addfieldpath="/administrator/components/com_rscomments/models/fields">
 		<field name="global_register_code" type="text" class="input-xxlarge" description="COM_RSCOMMENTS_LICENSE_CODE_DESC" label="COM_RSCOMMENTS_LICENSE_CODE" size="70" />
 		<field name="date_format" type="text" default="d.m.Y H:i" class="input-xlarge" description="COM_RSCOMMENTS_DATE_TIME_DESC" label="COM_RSCOMMENTS_DATE_TIME" size="70" />
-		<field name="enable_rss" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_RSS" description="COM_RSCOMMENTS_ENABLE_RSS_DESC">
+		<field name="enable_rss" type="radio" class="btn-group btn-group-yesno" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_RSS" description="COM_RSCOMMENTS_ENABLE_RSS_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="load_bootstrap" type="radio" class="btn-group" default="0" size="1" label="COM_RSCOMMENTS_LOAD_BOOTSTRAP" description="COM_RSCOMMENTS_LOAD_BOOTSTRAP_DESC">
+		<field name="load_bootstrap" type="radio" class="btn-group btn-group-yesno" default="0" size="1" label="COM_RSCOMMENTS_LOAD_BOOTSTRAP" description="COM_RSCOMMENTS_LOAD_BOOTSTRAP_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="backend_jquery" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_BACKEND_JQUERY" description="COM_RSCOMMENTS_ENABLE_BACKEND_JQUERY_DESC">
+		<field name="backend_jquery" type="radio" class="btn-group btn-group-yesno" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_BACKEND_JQUERY" description="COM_RSCOMMENTS_ENABLE_BACKEND_JQUERY_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="frontend_jquery" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_FRONTEND_JQUERY" description="COM_RSCOMMENTS_ENABLE_FRONTEND_JQUERY_DESC">
+		<field name="frontend_jquery" type="radio" class="btn-group btn-group-yesno" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_FRONTEND_JQUERY" description="COM_RSCOMMENTS_ENABLE_FRONTEND_JQUERY_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="fontawesome" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_FONT_AWESOME_SITE" description="COM_RSCOMMENTS_ENABLE_FONT_AWESOME_SITE_DESC">
+		<field name="fontawesome" type="radio" class="btn-group btn-group-yesno" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_FONT_AWESOME_SITE" description="COM_RSCOMMENTS_ENABLE_FONT_AWESOME_SITE_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="fontawesome_admin" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_FONT_AWESOME_ADMIN" description="COM_RSCOMMENTS_ENABLE_FONT_AWESOME_ADMIN_DESC">
+		<field name="fontawesome_admin" type="radio" class="btn-group btn-group-yesno" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_FONT_AWESOME_ADMIN" description="COM_RSCOMMENTS_ENABLE_FONT_AWESOME_ADMIN_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="store_ip" type="radio" class="btn-group" label="COM_RSCOMMENTS_STORE_IP" description="COM_RSCOMMENTS_STORE_IP_DESC" default="1">
+		<field name="store_ip" type="radio" class="btn-group btn-group-yesno" label="COM_RSCOMMENTS_STORE_IP" description="COM_RSCOMMENTS_STORE_IP_DESC" default="1">
 			<option value="0">JNO</option>
 			<option value="1">JYES</option>
 		</field>
-		<field name="consent" type="radio" class="btn-group" label="COM_RSCOMMENTS_SHOW_CONSENT" description="COM_RSCOMMENTS_SHOW_CONSENT_DESC" default="1">
+		<field name="consent" type="radio" class="btn-group btn-group-yesno" label="COM_RSCOMMENTS_SHOW_CONSENT" description="COM_RSCOMMENTS_SHOW_CONSENT_DESC" default="1">
 			<option value="0">JNO</option>
 			<option value="1">JYES</option>
 		</field>
@@ -39,7 +39,7 @@
 			<option value="1">COM_RSCOMMENTS_MODAL_JOOMLA</option>
 			<option value="2">COM_RSCOMMENTS_MODAL_MAGNIFIC_POPUP</option>
 		</field>
-		<field name="cache" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_CACHE" description="COM_RSCOMMENTS_ENABLE_CACHE_DESC">
+		<field name="cache" type="radio" class="btn-group btn-group-yesno" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_CACHE" description="COM_RSCOMMENTS_ENABLE_CACHE_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
@@ -51,68 +51,68 @@
 			<option	value="0">COM_RSCOMMENTS_COMMENT_FORM_POSITION_BELOW</option>
 		</field>
 		<field name="authorname" type="authorname" default="name" label="COM_RSCOMMENTS_AUTHOR_NAME" description="COM_RSCOMMENTS_AUTHOR_NAME_DESC" />
-		<field name="show_labels" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_SHOW_LABELS" description="COM_RSCOMMENTS_SHOW_LABELS_DESC">
+		<field name="show_labels" type="radio" class="btn-group btn-group-yesno" default="1" size="1" label="COM_RSCOMMENTS_SHOW_LABELS" description="COM_RSCOMMENTS_SHOW_LABELS_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="enable_location" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_LOCATION" description="COM_RSCOMMENTS_ENABLE_LOCATION_DESC">
+		<field name="enable_location" type="radio" class="btn-group btn-group-yesno" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_LOCATION" description="COM_RSCOMMENTS_ENABLE_LOCATION_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
 		<field name="map_key" type="text" default="" label="COM_RSCOMMENTS_MAP_KEY" description="COM_RSCOMMENTS_MAP_KEY_DESC" showon="enable_location:1" />
-		<field name="anonymous" type="radio" class="btn-group" label="COM_RSCOMMENTS_ANONYMOUS_COMMENTS" description="COM_RSCOMMENTS_ANONYMOUS_COMMENTS_DESC" default="0">
+		<field name="anonymous" type="radio" class="btn-group btn-group-yesno" label="COM_RSCOMMENTS_ANONYMOUS_COMMENTS" description="COM_RSCOMMENTS_ANONYMOUS_COMMENTS_DESC" default="0">
 			<option value="0">JNO</option>
 			<option value="1">JYES</option>
 		</field>
-		<field name="enable_name_field" showon="anonymous:1" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_NAME_FIELD" description="COM_RSCOMMENTS_NAME_FIELD_DESC">
+		<field name="enable_name_field" showon="anonymous:1" type="radio" class="btn-group btn-group-yesno" default="1" size="1" label="COM_RSCOMMENTS_NAME_FIELD" description="COM_RSCOMMENTS_NAME_FIELD_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="enable_email_field" showon="anonymous:1" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_EMAIL_FIELD" description="COM_RSCOMMENTS_EMAIL_FIELD_DESC">
+		<field name="enable_email_field" showon="anonymous:1" type="radio" class="btn-group btn-group-yesno" default="1" size="1" label="COM_RSCOMMENTS_EMAIL_FIELD" description="COM_RSCOMMENTS_EMAIL_FIELD_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="enable_title_field" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_SUBJECT_FIELD" description="COM_RSCOMMENTS_SUBJECT_FIELD_DESC">
+		<field name="enable_title_field" type="radio" class="btn-group btn-group-yesno" default="1" size="1" label="COM_RSCOMMENTS_SUBJECT_FIELD" description="COM_RSCOMMENTS_SUBJECT_FIELD_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="enable_website_field" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_WEBSITE_FIELD" description="COM_RSCOMMENTS_WEBSITE_FIELD_DESC">
+		<field name="enable_website_field" type="radio" class="btn-group btn-group-yesno" default="1" size="1" label="COM_RSCOMMENTS_WEBSITE_FIELD" description="COM_RSCOMMENTS_WEBSITE_FIELD_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="nofollow_rel" type="radio" class="btn-group" default="0" size="1" label="COM_RSCOMMENTS_WEBSITE_NOFOLLOW_REL" description="COM_RSCOMMENTS_WEBSITE_NOFOLLOW_REL_DESC">
+		<field name="nofollow_rel" type="radio" class="btn-group btn-group-yesno" default="0" size="1" label="COM_RSCOMMENTS_WEBSITE_NOFOLLOW_REL" description="COM_RSCOMMENTS_WEBSITE_NOFOLLOW_REL_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="enable_smiles" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_SMILES" description="COM_RSCOMMENTS_ENABLE_SMILES_DESC">
+		<field name="enable_smiles" type="radio" class="btn-group btn-group-yesno" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_SMILES" description="COM_RSCOMMENTS_ENABLE_SMILES_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="enable_bbcode" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_BBCODE" description="COM_RSCOMMENTS_ENABLE_BBCODE_DESC">
+		<field name="enable_bbcode" type="radio" class="btn-group btn-group-yesno" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_BBCODE" description="COM_RSCOMMENTS_ENABLE_BBCODE_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="enable_votes" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_VOTES" description="COM_RSCOMMENTS_ENABLE_VOTES_DESC">
+		<field name="enable_votes" type="radio" class="btn-group btn-group-yesno" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_VOTES" description="COM_RSCOMMENTS_ENABLE_VOTES_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="enable_usercomments" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_USER_COMMENTS">
+		<field name="enable_usercomments" type="radio" class="btn-group btn-group-yesno" default="1" size="1" label="COM_RSCOMMENTS_USER_COMMENTS">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="enable_subscription" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_ENABLESUBSCRIPTION" description="COM_RSCOMMENTS_ENABLESUBSCRIPTION_DESC">
+		<field name="enable_subscription" type="radio" class="btn-group btn-group-yesno" default="1" size="1" label="COM_RSCOMMENTS_ENABLESUBSCRIPTION" description="COM_RSCOMMENTS_ENABLESUBSCRIPTION_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="show_subcription_checkbox" type="radio" class="btn-group" default="0" size="1" label="COM_RSCOMMENTS_SHOW_SUBSCRIBE_CHECKBOX" description="COM_RSCOMMENTS_SHOW_SUBSCRIBE_CHECKBOX_DESC">
+		<field name="show_subcription_checkbox" type="radio" class="btn-group btn-group-yesno" default="0" size="1" label="COM_RSCOMMENTS_SHOW_SUBSCRIBE_CHECKBOX" description="COM_RSCOMMENTS_SHOW_SUBSCRIBE_CHECKBOX_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="terms" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_COMMENTS_TERMS" description="COM_RSCOMMENTS_COMMENTS_TERMS_DESC">
+		<field name="terms" type="radio" class="btn-group btn-group-yesno" default="1" size="1" label="COM_RSCOMMENTS_COMMENTS_TERMS" description="COM_RSCOMMENTS_COMMENTS_TERMS_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="enable_upload" type="radio" class="btn-group" default="0" size="1" label="COM_RSCOMMENTS_ENABLE_UPLOAD" description="COM_RSCOMMENTS_ENABLE_UPLOAD_DESC">
+		<field name="enable_upload" type="radio" class="btn-group btn-group-yesno" default="0" size="1" label="COM_RSCOMMENTS_ENABLE_UPLOAD" description="COM_RSCOMMENTS_ENABLE_UPLOAD_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
@@ -120,11 +120,11 @@
 		<field name="allowed_extensions" type="textarea" class="input-xlarge" description="COM_RSCOMMENTS_ALLOWED_EXTENSIONS_DESC" label="COM_RSCOMMENTS_ALLOWED_EXTENSIONS" rows="8" default="COM_RSCOMMENTS_ALLOWED_EXTENSIONS_DEFAULT_VALUES" translate_default="true" showon="enable_upload:1" />
 		<field name="min_comm_len" type="text" class="input-small" description="COM_RSCOMMENTS_MIN_COMMENT_LENGTH_DESC" label="COM_RSCOMMENTS_MIN_COMMENT_LENGTH" size="70" filter="integer" default="10" />
 		<field name="max_comm_len" type="text" class="input-small" description="COM_RSCOMMENTS_MAX_COMMENT_LENGTH_DESC" label="COM_RSCOMMENTS_MAX_COMMENT_LENGTH" size="70" filter="integer" default="1000" />
-		<field name="show_counter" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_SHOW_COUNTER" description="COM_RSCOMMENTS_SHOW_COUNTER_DESC">
+		<field name="show_counter" type="radio" class="btn-group btn-group-yesno" default="1" size="1" label="COM_RSCOMMENTS_SHOW_COUNTER" description="COM_RSCOMMENTS_SHOW_COUNTER_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="form_accordion" type="radio" class="btn-group" default="0" size="1" label="COM_RSCOMMENTS_ENABLE_FORM_ACCORDION" description="COM_RSCOMMENTS_ENABLE_FORM_ACCORDION_DESC">
+		<field name="form_accordion" type="radio" class="btn-group btn-group-yesno" default="0" size="1" label="COM_RSCOMMENTS_ENABLE_FORM_ACCORDION" description="COM_RSCOMMENTS_ENABLE_FORM_ACCORDION_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
@@ -144,28 +144,28 @@
 			<option value="DESC">COM_RSCOMMENTS_ORDER_NEWEST</option>
 			<option	value="ASC">COM_RSCOMMENTS_ORDER_OLDEST</option>
 		</field>
-		<field name="show_no_comments" type="radio" class="btn-group" default="1" label="COM_RSCOMMENTS_SHOW_NO_COMMENTS" description="COM_RSCOMMENTS_SHOW_NO_COMMENTS_DESC">
+		<field name="show_no_comments" type="radio" class="btn-group btn-group-yesno" default="1" label="COM_RSCOMMENTS_SHOW_NO_COMMENTS" description="COM_RSCOMMENTS_SHOW_NO_COMMENTS_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="enable_modified" type="radio" class="btn-group" default="1" label="COM_RSCOMMENTS_ENABLE_MODIFIED" description="COM_RSCOMMENTS_ENABLE_MODIFIED_DESC">
+		<field name="enable_modified" type="radio" class="btn-group btn-group-yesno" default="1" label="COM_RSCOMMENTS_ENABLE_MODIFIED" description="COM_RSCOMMENTS_ENABLE_MODIFIED_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="enable_reports" type="radio" class="btn-group" default="1" label="COM_RSCOMMENTS_ENABLE_REPORTS" description="COM_RSCOMMENTS_ENABLE_REPORTS_DESC">
+		<field name="enable_reports" type="radio" class="btn-group btn-group-yesno" default="1" label="COM_RSCOMMENTS_ENABLE_REPORTS" description="COM_RSCOMMENTS_ENABLE_REPORTS_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="enable_captcha_reports" type="radio" class="btn-group" default="1" label="COM_RSCOMMENTS_ENABLE_CAPTCHA_REPORTS" description="COM_RSCOMMENTS_ENABLE_CAPTCHA_REPORTS_DESC">
+		<field name="enable_captcha_reports" type="radio" class="btn-group btn-group-yesno" default="1" label="COM_RSCOMMENTS_ENABLE_CAPTCHA_REPORTS" description="COM_RSCOMMENTS_ENABLE_CAPTCHA_REPORTS_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="enable_email_reports" type="radio" class="btn-group" default="0" label="COM_RSCOMMENTS_ENABLE_EMAIL_REPORTS" description="COM_RSCOMMENTS_ENABLE_EMAIL_REPORTS_DESC">
+		<field name="enable_email_reports" type="radio" class="btn-group btn-group-yesno" default="0" label="COM_RSCOMMENTS_ENABLE_EMAIL_REPORTS" description="COM_RSCOMMENTS_ENABLE_EMAIL_REPORTS_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
 		<field name="report_emails" type="text" class="input-xxlarge" description="COM_RSCOMMENTS_REPORT_EMAILS_DESC" label="COM_RSCOMMENTS_REPORT_EMAILS" size="70" showon="enable_email_reports:1" />
-		<field name="email_notification" type="radio" class="btn-group" default="0" label="COM_RSCOMMENTS_EMAIL_NOTIFICATION" description="COM_RSCOMMENTS_EMAIL_NOTIFICATION_DESC">
+		<field name="email_notification" type="radio" class="btn-group btn-group-yesno" default="0" label="COM_RSCOMMENTS_EMAIL_NOTIFICATION" description="COM_RSCOMMENTS_EMAIL_NOTIFICATION_DESC">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
@@ -181,11 +181,11 @@
 		<field name="spacer1" type="spacer" label="COM_RSCOMMENTS_BUILT_IN_CAPTCHA_SETTINGS" showon="captcha:0" />
 		
 		<field name="captcha_chars" type="text" class="input-small" description="COM_RSCOMMENTS_CAPTCHA_CHARS_DESC" label="COM_RSCOMMENTS_CAPTCHA_CHARS" size="70" filter="integer" default="5" showon="captcha:0" />
-		<field name="captcha_lines" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_CAPTCHA_LINES" description="COM_RSCOMMENTS_CAPTCHA_LINES_DESC" showon="captcha:0">
+		<field name="captcha_lines" type="radio" class="btn-group btn-group-yesno" default="1" size="1" label="COM_RSCOMMENTS_CAPTCHA_LINES" description="COM_RSCOMMENTS_CAPTCHA_LINES_DESC" showon="captcha:0">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
-		<field name="captcha_cases" type="radio" class="btn-group" default="0" size="1" label="COM_RSCOMMENTS_CAPTCHA_CASES" description="COM_RSCOMMENTS_CAPTCHA_CASES_DESC" showon="captcha:0">
+		<field name="captcha_cases" type="radio" class="btn-group btn-group-yesno" default="0" size="1" label="COM_RSCOMMENTS_CAPTCHA_CASES" description="COM_RSCOMMENTS_CAPTCHA_CASES_DESC" showon="captcha:0">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
@@ -194,6 +194,16 @@
 		
 		<field name="recaptcha_new_site_key" class="input-xlarge" type="text" label="COM_RSCOMMENTS_NEW_RECAPTCHA_SITE_KEY" description="COM_RSCOMMENTS_NEW_RECAPTCHA_SITE_KEY_DESC" size="70" showon="captcha:2" />
 		<field name="recaptcha_new_secret_key" class="input-xlarge" type="text" label="COM_RSCOMMENTS_NEW_RECAPTCHA_SECRET_KEY" description="COM_RSCOMMENTS_NEW_RECAPTCHA_SECRET_KEY_DESC" size="70" showon="captcha:2" />
+		<field name="recaptcha_new_size" type="list" default="normal" label="COM_RSCOMMENTS_NEW_RECAPTCHA_SIZE" description="COM_RSCOMMENTS_NEW_RECAPTCHA_SIZE_DESC" showon="captcha:2">
+			<option value="normal">COM_RSCOMMENTS_NEW_RECAPTCHA_SIZE_NORMAL</option>
+			<option value="compact">COM_RSCOMMENTS_NEW_RECAPTCHA_SIZE_COMPACT</option>
+			<option value="invisible">COM_RSCOMMENTS_NEW_RECAPTCHA_SIZE_INVISIBLE</option>
+		</field>
+		<field name="recaptcha_new_badge" type="list" default="inline" label="COM_RSCOMMENTS_NEW_RECAPTCHA_BADGE" description="COM_RSCOMMENTS_NEW_RECAPTCHA_BADGE_DESC" showon="recaptcha_new_size:invisible">
+			<option value="inline">COM_RSCOMMENTS_NEW_RECAPTCHA_BADGE_INLINE</option>
+			<option value="bottomright">COM_RSCOMMENTS_NEW_RECAPTCHA_BADGE_BOTTOMRIGHT</option>
+			<option value="bottomleft">COM_RSCOMMENTS_NEW_RECAPTCHA_BADGE_BOTTOMLEFT</option>
+		</field>
 		<field name="recaptcha_new_theme" type="list" default="light" label="COM_RSCOMMENTS_NEW_RECAPTCHA_THEME" description="COM_RSCOMMENTS_NEW_RECAPTCHA_THEME_DESC" showon="captcha:2">
 			<option value="light">COM_RSCOMMENTS_NEW_RECAPTCHA_THEME_LIGHT</option>
 			<option value="dark">COM_RSCOMMENTS_NEW_RECAPTCHA_THEME_DARK</option>
@@ -210,7 +220,7 @@
 		<field name="flood_interval" type="text" class="input-small" description="COM_RSCOMMENTS_FLOOD_INTERVAL_DESC" label="COM_RSCOMMENTS_FLOOD_INTERVAL" size="70" default="30" />
 		<field name="word_length" type="text" class="input-small" description="COM_RSCOMMENTS_WORD_LENGTH_DESC" label="COM_RSCOMMENTS_WORD_LENGTH" size="70" default="15"/>
 		<field name="negative_count" type="text" class="input-small" description="COM_RSCOMMENTS_NEGATIVE_COUNT_DESC" label="COM_RSCOMMENTS_NEGATIVE_COUNT" size="70" default="10"/>
-		<field name="no_follow" type="radio" class="btn-group" default="0" size="1" description="COM_RSCOMMENTS_NOFOLLOW_LINKS_DESC" label="COM_RSCOMMENTS_NOFOLLOW_LINKS">
+		<field name="no_follow" type="radio" class="btn-group btn-group-yesno" default="0" size="1" description="COM_RSCOMMENTS_NOFOLLOW_LINKS_DESC" label="COM_RSCOMMENTS_NOFOLLOW_LINKS">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>

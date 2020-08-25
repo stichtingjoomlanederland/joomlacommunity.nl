@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -327,6 +327,7 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 		if (! isset($_cache[$categoryId])) {
 
 			$db = $this->db;
+			$config = $this->config;
 
 			$model = ED::model('Categories');
 			$children = $model->getCategoriesTree($categoryId, $options);
@@ -335,7 +336,9 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 				$query = "select count(1) from `#__discuss_thread` as a";
 
 				// exclude blocked users posts
-				$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+				if (!$config->get('main_posts_from_blockuser', false)) {
+					$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+				}
 
 				$query .= " where a.`published` = " . $db->Quote('1');
 
@@ -347,7 +350,9 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 				$query .= " and a.`cluster_id` = " . $db->Quote(0);
 				$query .= " and a.`category_id` in (" . implode(',', $children) . ")";
 
-				$query .= " and (uu.`block` = 0 OR uu.`id` IS NULL)";
+				if (!$config->get('main_posts_from_blockuser', false)) {
+					$query .= " and (uu.`block` = 0 OR uu.`id` IS NULL)";
+				}
 
 				$db->setQuery($query);
 				$_cache[$categoryId] = $db->loadResult();
@@ -362,7 +367,7 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 
 	public function getTotalPostCount($catIds)
 	{
-		$db	= DiscussHelper::getDBO();
+		$db	= ED::db();
 
 		//blog privacy setting
 		$my = JFactory::getUser();
@@ -370,37 +375,20 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 		$categoryId = '';
 		$isIdArray  = false;
 
-		if(is_array($catIds))
-		{
-			if(count($catIds) > 1)
-			{
+		if (is_array($catIds)) {
+			if (count($catIds) > 1) {
 				$categoryId	= implode(',', $catIds);
 				$isIdArray  = true;
-			}
-			else
-			{
+			} else {
 				$categoryId	= $catIds[0];
 			}
-		}
-		else
-		{
+		} else {
 			$categoryId  = $catIds;
 		}
 
-
-		// $query	= 'SELECT COUNT(b.`id`) AS `cnt`';
-		// $query	.= ' FROM ' . $db->nameQuote( '#__discuss_category' ) . ' AS `a`';
-		// $query	.= ' LEFT JOIN '. $db->nameQuote( '#__discuss_posts' ) . ' AS b';
-		// $query	.= ' ON a.`id` = b.`category_id`';
-		// $query	.= ' AND b.`published` = ' . $db->Quote('1');
-		// $query	.= ' WHERE a.`published` = 1';
-		// $query	.= ($isIdArray) ? ' AND a.`id` IN (' . $categoryId. ')' :  ' AND a.`id` = ' . $db->Quote($categoryId);
-		// $query	.= ' GROUP BY a.`id` HAVING (COUNT(b.`id`) > 0)';
-		//
-
-		$query = 'select count(1) from `#__discuss_posts` as a';
+		$query = 'select count(1) from `#__discuss_thread` as a';
 		$query .= ($isIdArray) ? ' WHERE a.`category_id` IN (' . $categoryId. ')' : ' where a.`category_id` = ' . $db->Quote($categoryId);
-		$query .= ' and a.published = 1';
+		$query .= ' and a.`published` = 1';
 
 		$db->setQuery($query);
 		$result = $db->loadResult();

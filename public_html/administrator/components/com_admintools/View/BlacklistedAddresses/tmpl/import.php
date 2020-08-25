@@ -7,6 +7,7 @@
 
 /** @var $this \FOF30\View\DataView\Html */
 use Akeeba\AdminTools\Admin\Helper\Select;
+use Joomla\CMS\Language\Text;
 
 defined('_JEXEC') or die;
 ?>
@@ -14,43 +15,43 @@ defined('_JEXEC') or die;
 
     <div class="akeeba-panel--primary">
         <header class="akeeba-block-header">
-            <h3><?php echo \JText::_('COM_ADMINTOOLS_IMPORTANDEXPORT_DETAILS'); ?></h3>
+            <h3><?php echo Text::_('COM_ADMINTOOLS_IMPORTANDEXPORT_DETAILS'); ?></h3>
         </header>
 
         <div class="akeeba-form-group">
-            <label><?php echo \JText::_('COM_ADMINTOOLS_IMPORTANDEXPORT_DELIMITERS'); ?></label>
+            <label><?php echo Text::_('COM_ADMINTOOLS_IMPORTANDEXPORT_DELIMITERS'); ?></label>
 
             <?php echo Select::csvdelimiters('csvdelimiters', 1, array('class'=>'minwidth')); ?>
 
             <p>
-                <?php echo \JText::_('COM_ADMINTOOLS_IMPORTANDEXPORT_DELIMITERS_DESC'); ?>
+                <?php echo Text::_('COM_ADMINTOOLS_IMPORTANDEXPORT_DELIMITERS_DESC'); ?>
             </p>
         </div>
 
         <div class="akeeba-form-group" id="field_delimiter" style="display:none;">
-            <label><?php echo \JText::_('COM_ADMINTOOLS_IMPORTANDEXPORT_FIELD_DELIMITERS'); ?></label>
+            <label><?php echo Text::_('COM_ADMINTOOLS_IMPORTANDEXPORT_FIELD_DELIMITERS'); ?></label>
 
             <input type="text" name="field_delimiter" value="">
             <p>
-                <?php echo \JText::_('COM_ADMINTOOLS_IMPORTANDEXPORT_FIELD_DELIMITERS_DESC'); ?>
+                <?php echo Text::_('COM_ADMINTOOLS_IMPORTANDEXPORT_FIELD_DELIMITERS_DESC'); ?>
             </p>
         </div>
 
         <div class="akeeba-form-group" id="field_enclosure" style="display:none">
-            <label><?php echo \JText::_('COM_ADMINTOOLS_IMPORTANDEXPORT_FIELD_ENCLOSURE'); ?></label>
+            <label><?php echo Text::_('COM_ADMINTOOLS_IMPORTANDEXPORT_FIELD_ENCLOSURE'); ?></label>
 
             <input type="text" name="field_enclosure" value="">
             <p>
-                <?php echo \JText::_('COM_ADMINTOOLS_IMPORTANDEXPORT_FIELD_ENCLOSURE_DESC'); ?>
+                <?php echo Text::_('COM_ADMINTOOLS_IMPORTANDEXPORT_FIELD_ENCLOSURE_DESC'); ?>
             </p>
         </div>
 
         <div class="akeeba-form-group">
-            <label><?php echo \JText::_('COM_ADMINTOOLS_IMPORTANDEXPORT_FILE'); ?></label>
+            <label><?php echo Text::_('COM_ADMINTOOLS_IMPORTANDEXPORT_FILE'); ?></label>
 
             <input type="file" name="csvfile"/>
             <p>
-                <?php echo \JText::_('COM_ADMINTOOLS_IMPORTANDEXPORT_FILE_DESC'); ?>
+                <?php echo Text::_('COM_ADMINTOOLS_IMPORTANDEXPORT_FILE_DESC'); ?>
             </p>
         </div>
     </div>

@@ -657,27 +657,40 @@ class EDR
 		return str_replace($a, $b, $string);
 	}
 
-	public static function decodeAlias($alias, $tablename)
+	public static function decodeAlias($alias, $tablename, $forceAlias = false)
 	{
 		$config = ED::config();
-
 		$id = $alias;
 
-		if ($config->get('main_sef_unicode')) {
-
+		if ($config->get('main_sef_unicode') && !$forceAlias) {
 			$permalinkSegment = $alias;
-			$permalinkArr = explode('-', $permalinkSegment);
+			$permalinkArr = explode(':', $permalinkSegment);
+
+			if (count($permalinkArr) <= 1) {
+				// look like string do not has the : value. lets try to explode with -
+				$permalinkArr = explode('-', $permalinkSegment);
+			}
 
 			$id = $permalinkArr[0];
-
-		} else {
-
-			$table = ED::table($tablename);
-			$table->load( $alias, true );
-
-			$id = $table->id;
+			return $id;
 		}
 
+		if ($config->get('main_sef_unicode') && $forceAlias) {
+			// if the forceAlias is true, means irregardless the sef setting, we would like to
+			// load with alias only. #910
+			$permalinkArr = explode(':', $alias);
+			if (count($permalinkArr) <= 1) {
+				// look like string do not has the : value. lets try to explode with -
+				$permalinkArr = explode('-', $alias);
+			}
+
+			$alias = isset($permalinkArr[1]) ? $permalinkArr[1] : $permalinkArr[0];
+		}
+
+		$table = ED::table($tablename);
+		$table->load($alias, true);
+
+		$id = $table->id;
 		return $id;
 	}
 
@@ -834,7 +847,7 @@ class EDR
 	 * @since	4.1
 	 * @access	public
 	 */
-	public static function siteLink($url, $xhtml = true, $ssl = null)
+	public static function siteLink($url, $xhtml = true, $ssl = null, $findItemId = true)
 	{
 		static $_router = null;
 
@@ -843,7 +856,10 @@ class EDR
 		if (method_exists('JRoute', 'link')) {
 
 			// to have ItemId in the url before we call JRoute::link
-			$url = self::_($url, $xhtml, $ssl, false, false, false);
+			if ($findItemId) {
+				$url = self::_($url, $xhtml, $ssl, false, false, false);
+			}
+			
 			$sef = JRoute::link('site', $url, $xhtml, $ssl);
 			return $sef;
 		}

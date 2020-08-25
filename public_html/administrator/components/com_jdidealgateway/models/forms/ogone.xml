@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fieldset name="ogone">
+
+        <field name="psp-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_PSP"/>
+
+        <field name="testmode"
+               type="radio"
+               label="COM_ROPAYMENTS_TEST_MODE_LABEL"
+               description="COM_ROPAYMENTS_TEST_MODE_DESC"
+               required="true"
+               default="1"
+               class="btn-group btn-group-yesno"
+               labelclass="config">
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+
+        <field name="merchant_id"
+               type="text"
+               label="COM_ROPAYMENTS_ABN_INTERNETKASSA_MERCHANT_ID_LABEL"
+               description="COM_ROPAYMENTS_ABN_INTERNETKASSA_MERCHANT_ID_DESC"
+               required="true"
+               size="25"
+               labelclass="config"/>
+
+        <field name="description"
+               type="text"
+               label="COM_ROPAYMENTS_ABN_INTERNETKASSA_DESCRIPTION_LABEL"
+               description="COM_ROPAYMENTS_ABN_INTERNETKASSA_DESCRIPTION_DESC"
+               class="input-xxlarge"
+               required="true"
+               size="50"
+               labelclass="config"/>
+
+        <field name="language"
+               type="jdideal.language"
+               label="COM_ROPAYMENTS_ABN_INTERNETKASSA_LANGUAGE_LABEL"
+               description="COM_ROPAYMENTS_ABN_INTERNETKASSA_LANGUAGE_DESC"
+               required="true"
+               size="1"
+               multiple="false"
+               default="nl_NL"
+               labelclass="config"
+               class="advancedSelect"
+               provider="ogone">
+            <option value="*">COM_ROPAYMENTS_USER_LANGUAGE</option>
+        </field>
+
+        <field name="currency"
+               type="text"
+               label="COM_ROPAYMENTS_ABN_INTERNETKASSA_CURRENCY_LABEL"
+               description="COM_ROPAYMENTS_ABN_INTERNETKASSA_CURRENCY_DESC"
+               required="true"
+               size="25"
+               default="EUR"
+               labelclass="config"/>
+
+        <field name="shainkey"
+               type="text"
+               label="COM_ROPAYMENTS_ABN_INTERNETKASSA_SHA_IN_LABEL"
+               description="COM_ROPAYMENTS_ABN_INTERNETKASSA_SHA_IN_DESC"
+               required="true"
+               size="25"
+               labelclass="config"/>
+
+        <field name="shaoutkey"
+               type="text"
+               label="COM_ROPAYMENTS_ABN_INTERNETKASSA_SHA_OUT_LABEL"
+               description="COM_ROPAYMENTS_ABN_INTERNETKASSA_SHA_OUT_DESC"
+               required="true"
+               size="25"
+               labelclass="config"/>
+
+        <field name="hash"
+               type="list"
+               label="COM_ROPAYMENTS_ABN_INTERNETKASSA_HASH_LABEL"
+               description="COM_ROPAYMENTS_ABN_INTERNETKASSA_HASH_DESC"
+               required="true"
+               size="1"
+               labelclass="config"
+               class="advancedSelect"
+               default="sha512"
+        >
+            <option value="sha1">SHA-1</option>
+            <option value="sha256">SHA-256</option>
+            <option value="sha512">SHA-512</option>
+        </field>
+
+        <field name="redirect"
+               type="jdideal.waitoptions"
+               label="COM_ROPAYMENTS_WAIT_TIME_LABEL"
+               description="COM_ROPAYMENTS_WAIT_TIME_DESC"
+               required="true"
+               size="1"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="payment"
+               type="list"
+               label="COM_ROPAYMENTS_OGONE_BRANDLIST_LABEL"
+               description="COM_ROPAYMENTS_OGONE_BRANDLIST_DESC"
+               required="true"
+               default="all"
+               multiple="true"
+               size="9"
+               class="advancedSelect"
+               labelclass="config">
+            <option value="all">COM_ROPAYMENTS_ALL</option>
+            <option value="iDEAL">COM_JDIDEALGATWAY_PAYMENT_METHOD_IDEAL</option>
+            <option value="VISA">COM_JDIDEALGATWAY_PAYMENT_METHOD_VISA</option>
+            <option value="Mastercard">COM_JDIDEALGATWAY_PAYMENT_METHOD_MASTERCARD</option>
+            <option value="Maestro">COM_JDIDEALGATWAY_PAYMENT_METHOD_MAESTRO</option>
+            <option value="American Express">COM_JDIDEALGATWAY_PAYMENT_METHOD_AMEX</option>
+            <option value="Diners Club">COM_JDIDEALGATWAY_PAYMENT_METHOD_DINERSCLUB</option>
+            <option value="JCB">COM_JDIDEALGATWAY_PAYMENT_METHOD_JCB</option>
+            <option value="PAYPAL">COM_JDIDEALGATWAY_PAYMENT_METHOD_PAYPAL</option>
+            <option value="Installments NL">COM_JDIDEALGATWAY_PAYMENT_METHOD_INSTALLMENTSNL</option>
+        </field>
+
+        <field name="status-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_STATUS"/>
+
+        <field name="pendingStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_PENDING_LABEL"
+               description="COM_ROPAYMENTS_STATUS_PENDING_DESC"
+               required="false"
+               size="1"
+               default="P"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="verifiedStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_SUCCESS_LABEL"
+               description="COM_ROPAYMENTS_STATUS_SUCCESS_DESC"
+               required="false"
+               size="1"
+               default="C"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="cancelledStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_CANCELLED_LABEL"
+               description="COM_ROPAYMENTS_STATUS_CANCELLED_DESC"
+               required="false"
+               size="1"
+               default="X"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="openStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_OPEN_LABEL"
+               description="COM_ROPAYMENTS_STATUS_OPEN_DESC"
+               required="false"
+               size="1"
+               default="P"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="ordernumber-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_ORDERNUMBERS"/>
+
+        <field name="orderNumber"
+               type="jdideal.ordernumber"
+               label="COM_ROPAYMENTS_ORDERNUMBER_LABEL"
+               description="COM_ROPAYMENTS_ORDERNUMBER_DESC"
+               required="false"
+               size="1"
+               default="order_number"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="parameters-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_PARAMETERS"/>
+
+        <field name="dynamic_parameters"
+               type="list"
+               label="COM_ROPAYMENTS_ABN_INTERNETKASSA_DYNAMIC_PARAMETERS_LABEL"
+               description="COM_ROPAYMENTS_ABN_INTERNETKASSA_DYNAMIC_PARAMETERS_DESC"
+               required="true"
+               size="15"
+               multiple="multiple"
+               class="advancedSelect"
+               labelclass="config">
+            <option value="AAVADDRESS">AAVADDRESS</option>
+            <option value="AAVCHECK">AAVCHECK</option>
+            <option value="AAVZIP">AAVZIP</option>
+            <option value="ACCEPTANCE">ACCEPTANCE</option>
+            <option value="ALIAS">ALIAS</option>
+            <option value="AMOUNT">AMOUNT</option>
+            <option value="BIN">BIN</option>
+            <option value="BRAND">BRAND</option>
+            <option value="CARDNO">CARDNO</option>
+            <option value="CCCTY">CCCTY</option>
+            <option value="CN">CN</option>
+            <option value="COMPLUS">COMPLUS</option>
+            <option value="CREATION_STATUS">CREATION_STATUS</option>
+            <option value="CURRENCY">CURRENCY</option>
+            <option value="CVCCHECK">CVCCHECK</option>
+            <option value="DCC_COMMPERCENTAGE">DCC_COMMPERCENTAGE</option>
+            <option value="DCC_CONVAMOUNT">DCC_CONVAMOUNT</option>
+            <option value="DCC_CONVCCY">DCC_CONVCCY</option>
+            <option value="DCC_EXCHRATE">DCC_EXCHRATE</option>
+            <option value="DCC_EXCHRATESOURCE">DCC_EXCHRATESOURCE</option>
+            <option value="DCC_EXCHRATETS">DCC_EXCHRATETS</option>
+            <option value="DCC_INDICATOR">DCC_INDICATOR</option>
+            <option value="DCC_MARGINPERCENTAGE">DCC_MARGINPERCENTAGE</option>
+            <option value="DCC_VALIDHOUS">DCC_VALIDHOUS</option>
+            <option value="DIGESTCARDNO">DIGESTCARDNO</option>
+            <option value="ECI">ECI</option>
+            <option value="ED">ED</option>
+            <option value="ENCCARDNO">ENCCARDNO</option>
+            <option value="IP">IP</option>
+            <option value="IPCTY">IPCTY</option>
+            <option value="NBREMAILUSAGE">NBREMAILUSAGE</option>
+            <option value="NBRIPUSAGE">NBRIPUSAGE</option>
+            <option value="NBRIPUSAGE_ALLTX">NBRIPUSAGE_ALLTX</option>
+            <option value="NBRUSAGE">NBRUSAGE</option>
+            <option value="NCERROR">NCERROR</option>
+            <option value="ORDERID">ORDERID</option>
+            <option value="PAYID">PAYID</option>
+            <option value="PAYIDSUB">PAYIDSUB</option>
+            <option value="PM">PM</option>
+            <option value="SCO_CATEGORY">SCO_CATEGORY</option>
+            <option value="SCORING">SCORING</option>
+            <option value="STATUS">STATUS</option>
+            <option value="SUBSCRIPTION_ID">SUBSCRIPTION_ID</option>
+            <option value="TRXDATE">TRXDATE</option>
+            <option value="VC">VC</option>
+        </field>
+
+        <field name="look_title"
+               type="text"
+               label="COM_ROPAYMENTS_ABN_INTERNETKASSA_LOOK_TITLE_LABEL"
+               description="COM_ROPAYMENTS_ABN_INTERNETKASSA_LOOK_TITLE_DESC"
+               required="false"
+               size="25"
+               labelclass="config"/>
+
+        <field name="look_bgcolor"
+               type="text"
+               label="COM_ROPAYMENTS_ABN_INTERNETKASSA_LOOK_BGCOLOR_LABEL"
+               description="COM_ROPAYMENTS_ABN_INTERNETKASSA_LOOK_BGCOLOR_DESC"
+               required="false"
+               size="25"
+               labelclass="config"/>
+
+        <field name="look_txtcolor"
+               type="text"
+               label="COM_ROPAYMENTS_ABN_INTERNETKASSA_LOOK_TXTCOLOR_LABEL"
+               description="COM_ROPAYMENTS_ABN_INTERNETKASSA_LOOK_TXTCOLOR_DESC"
+               required="false"
+               size="25"
+               labelclass="config"/>
+
+        <field name="look_tblbgcolor"
+               type="text"
+               label="COM_ROPAYMENTS_ABN_INTERNETKASSA_LOOK_TBLBGCOLOR_LABEL"
+               description="COM_ROPAYMENTS_ABN_INTERNETKASSA_LOOK_TBLBGCOLOR_DESC"
+               required="false"
+               size="25"
+               labelclass="config"/>
+
+        <field name="look_tbltxtcolor"
+               type="text"
+               label="COM_ROPAYMENTS_ABN_INTERNETKASSA_LOOK_TBLTXTCOLOR_LABEL"
+               description="COM_ROPAYMENTS_ABN_INTERNETKASSA_LOOK_TBLTXTCOLOR_DESC"
+               required="false"
+               size="25"
+               labelclass="config"/>
+
+        <field name="look_buttonbgcolor"
+               type="text"
+               label="COM_ROPAYMENTS_ABN_INTERNETKASSA_LOOK_BUTTONBGCOLOR_LABEL"
+               description="COM_ROPAYMENTS_ABN_INTERNETKASSA_LOOK_BUTTONBGCOLOR_DESC"
+               required="false"
+               size="25"
+               labelclass="config"/>
+
+        <field name="look_buttontxtcolor"
+               type="text"
+               label="COM_ROPAYMENTS_ABN_INTERNETKASSA_LOOK_BUTTONTXTCOLOR_LABEL"
+               description="COM_ROPAYMENTS_ABN_INTERNETKASSA_LOOK_BUTTONTXTCOLOR_DESC"
+               required="false"
+               size="25"
+               labelclass="config"/>
+
+        <field name="look_logo"
+               type="text"
+               label="COM_ROPAYMENTS_ABN_INTERNETKASSA_LOOK_LOGO_LABEL"
+               description="COM_ROPAYMENTS_ABN_INTERNETKASSA_LOOK_LOGO_DESC"
+               required="false"
+               size="25"
+               labelclass="config"/>
+
+        <field name="look_fonttype"
+               type="text"
+               label="COM_ROPAYMENTS_ABN_INTERNETKASSA_LOOK_FONTTYPE_LABEL"
+               description="COM_ROPAYMENTS_ABN_INTERNETKASSA_LOOK_FONTTYPE_DESC"
+               required="false"
+               size="25"
+               labelclass="config"/>
+
+    </fieldset>
+</form>

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
@@ -161,6 +161,17 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	<div class="controls">
 		<select name="speakers[]" id="speakers" multiple="multiple" class="rsepro-chosen">
 			<?php echo JHtml::_('select.options', $this->eventClass->speakers(),'value','text',$this->eventClass->getSpeakers()); ?>
+		</select>
+	</div>
+</div>
+
+<div class="control-group">
+	<div class="control-label">
+		<label for="sponsors"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_SPONSORS'); ?></label>
+	</div>
+	<div class="controls">
+		<select name="sponsors[]" id="sponsors" multiple="multiple" class="rsepro-chosen">
+			<?php echo JHtml::_('select.options', $this->eventClass->sponsors(),'value','text',$this->eventClass->getSponsors()); ?>
 		</select>
 	</div>
 </div>

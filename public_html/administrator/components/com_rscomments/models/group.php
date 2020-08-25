@@ -68,7 +68,9 @@ class RscommentsModelGroup extends JModelAdmin
 		if (empty($data))
 			$data = $this->getItem();
 
-		$data->permissions = unserialize($data->permissions);
+		if (isset($data->permissions)) {
+			$data->permissions = unserialize($data->permissions);
+		}
 
 		return $data;
 	}
@@ -142,7 +144,7 @@ class RscommentsModelGroup extends JModelAdmin
 	}
 
 	public function getTabs() {
-		$tabs = new RSTabs('com-rscomments-group');
+		$tabs = new RSCommentsAdapterTabs('com-rscomments-group');
 		return $tabs;
 	}
 }

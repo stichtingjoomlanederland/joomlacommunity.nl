@@ -720,7 +720,7 @@ class EasyDiscussMailer extends EasyDiscuss
 		static $link = null;
 
 		if (!$link) {
-			$link = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=profile#Subscriptions', false, true);
+			$link = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=subscription', false, true);
 		}
 
 		return $link;

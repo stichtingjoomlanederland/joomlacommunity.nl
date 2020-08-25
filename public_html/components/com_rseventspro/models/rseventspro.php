@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
@@ -123,7 +123,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$order	= $params->get('order','ASC');
 		
 		$query->clear()
-			->select($this->_db->qn('l.id'))->select($this->_db->qn('l.name'))->select($this->_db->qn('l.description'))
+			->select('l.*')
 			->from($this->_db->qn('#__rseventspro_locations','l'))
 			->where($this->_db->qn('l.published').' = 1')
 			->order($this->_db->qn('l.name').' '.$this->_db->escape($order));
@@ -1094,7 +1094,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$task	= $this->_app->input->get('task');
 		$layout	= $this->_app->input->get('layout');
 		$query	= $this->_db->getQuery(true);
-		$tasks	= array('approve','pending','denied','removesubscriber','savesubscriber', 'removersvp', 'removeunsubscriber');
+		$tasks	= array('approve','pending','denied','removesubscriber','savesubscriber', 'removersvp', 'removeunsubscriber', 'invoice');
 		
 		if (in_array($task,$tasks)) {
 			$id = $this->_app->input->getInt('ide',0);
@@ -1645,15 +1645,55 @@ class RseventsproModelRseventspro extends JModelLegacy
 	public function invite() {
 		jimport('joomla.mail.helper');
 		
-		$lang		= JFactory::getLanguage();
-		$jform		= $this->_app->input->get('jform',array(),'array');
-		$from		= $jform['from'];
-		$fromname	= $jform['from_name'];
-		$emails		= $jform['emails'];
-		$ide		= $this->_app->input->getInt('id');
+		$lang			= JFactory::getLanguage();
+		$session		= JFactory::getSession();
+		$jinput			= $this->_app->input;
+		$jform			= $jinput->get('jform',array(),'array');
+		$from			= $jform['from'];
+		$fromname		= $jform['from_name'];
+		$emails			= $jform['emails'];
+		$ide			= $jinput->getInt('id');
+		$secret			= $jinput->getString('secret');
+		$response		= $jinput->getString('g-recaptcha-response');
+		$hresponse		= $jinput->getString('h-captcha-response');
+		$config		 	= rseventsproHelper::getConfig();
+		$ip				= rseventsproHelper::getIP();
+		$captcha_use	= $config->captcha_use ? explode(',',$config->captcha_use) : array();
+		$from			= !empty($from) ? $from : rseventsproHelper::getConfig('email_from');
+		$fromname		= !empty($fromname) ? $fromname : rseventsproHelper::getConfig('email_fromname');
 		
-		$from		= !empty($from) ? $from : rseventsproHelper::getConfig('email_from');
-		$fromname	= !empty($fromname) ? $fromname : rseventsproHelper::getConfig('email_fromname');
+		if (in_array(1,$captcha_use)) {
+			$captcha_response = false;
+			
+			if ($config->captcha == 1) {
+				$captcha_response = $session->get('security_number') == $secret;
+			} elseif ($config->captcha == 2) {
+				try {
+					jimport('joomla.http.factory');
+					$http = JHttpFactory::getHttp();
+					if ($request = $http->get('https://www.google.com/recaptcha/api/siteverify?secret='.urlencode($config->recaptcha_secret_key).'&response='.urlencode($response).'&remoteip='.urlencode($ip))) {
+						$json = json_decode($request->body);
+						$captcha_response = $json->success;
+					}
+				} catch (Exception $e) {}
+			} elseif ($config->captcha == 3) {
+				try {
+					jimport('joomla.http.factory');
+					$http = JHttpFactory::getHttp();
+				
+					if ($request = $http->post('https://hcaptcha.com/siteverify', array('secret' => $config->hcaptcha_secret_key, 'response' => $hresponse, 'remoteip' => $ip))) {
+						$json = json_decode($request->body);
+						$captcha_response = @$json->success;
+					}
+				} catch (Exception $e) {
+					JFactory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+				}
+			}
+			
+			if (!$captcha_response) {
+				return false;
+			}
+		}
 		
 		if (!empty($emails)) {
 			$emails = str_replace("\r",'',$emails);
@@ -1822,6 +1862,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$now			= JFactory::getDate();
 		$query			= $this->_db->getQuery(true);
 		$lang			= JFactory::getLanguage();
+		$session		= JFactory::getSession();
 		$nowunix		= $now->toUnix();
 		$jinput			= $this->_app->input;
 		$id				= $jinput->getInt('id');
@@ -1830,6 +1871,12 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$payment		= $jinput->getString('payment');
 		$form			= $jinput->get('form',array(),'array');
 		$from			= $jinput->getInt('from');
+		$secret			= $jinput->getString('secret');
+		$response		= $jinput->getString('g-recaptcha-response');
+		$hresponse		= $jinput->getString('h-captcha-response');
+		$config		 	= rseventsproHelper::getConfig();
+		$ip				= rseventsproHelper::getIP();
+		$captcha_use	= $config->captcha_use ? explode(',',$config->captcha_use) : array();
 		$total			= 0;
 		$discount		= 0;
 		$info			= '';
@@ -1855,7 +1902,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		
 		// Get event name
 		$query->clear()
-			->select($this->_db->qn('name'))->select($this->_db->qn('discounts'))->select($this->_db->qn('early_fee'))->select($this->_db->qn('early_fee_type'))
+			->select($this->_db->qn('name'))->select($this->_db->qn('discounts'))->select($this->_db->qn('early_fee'))->select($this->_db->qn('early_fee_type'))->select($this->_db->qn('tickets_amount'))
 			->select($this->_db->qn('early_fee_end'))->select($this->_db->qn('late_fee'))->select($this->_db->qn('late_fee_type'))->select($this->_db->qn('late_fee_start'))
 			->select($this->_db->qn('automatically_approve'))->select($this->_db->qn('notify_me'))->select($this->_db->qn('owner'))->select($this->_db->qn('ticketsconfig'))
 			->from($this->_db->qn('#__rseventspro_events'))
@@ -1870,6 +1917,42 @@ class RseventsproModelRseventspro extends JModelLegacy
 				$consent = $jinput->getInt('consent',0);
 				if (!$consent) {
 					return array('status' => false, 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe&id='.rseventsproHelper::sef($id,$event->name),false) , 'message' => JText::_('COM_RSEVENTSPRO_CONSENT_INFO'));
+				}
+			}
+		}
+		
+		// Check for captcha
+		if (!isset($form['RSEProName'])) {
+			if (in_array(2,$captcha_use)) {
+				$captcha_response = false;
+				
+				if ($config->captcha == 1) {
+					$captcha_response = $session->get('security_number') == $secret;
+				} elseif ($config->captcha == 2) {
+					try {
+						jimport('joomla.http.factory');
+						$http = JHttpFactory::getHttp();
+						if ($request = $http->get('https://www.google.com/recaptcha/api/siteverify?secret='.urlencode($config->recaptcha_secret_key).'&response='.urlencode($response).'&remoteip='.urlencode($ip))) {
+							$json = json_decode($request->body);
+							$captcha_response = $json->success;
+						}
+					} catch (Exception $e) {}
+				} elseif ($config->captcha == 3) {
+					try {
+						jimport('joomla.http.factory');
+						$http = JHttpFactory::getHttp();
+					
+						if ($request = $http->post('https://hcaptcha.com/siteverify', array('secret' => $config->hcaptcha_secret_key, 'response' => $hresponse, 'remoteip' => $ip))) {
+							$json = json_decode($request->body);
+							$captcha_response = @$json->success;
+						}
+					} catch (Exception $e) {
+						JFactory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+					}
+				}
+				
+				if (!$captcha_response) {
+					return array('status' => false, 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe&id='.rseventsproHelper::sef($id,$event->name),false) , 'message' => JText::_('COM_RSEVENTSPRO_SUBSCRIBER_CAPTCHA_ERROR'));
 				}
 			}
 		}
@@ -1976,6 +2059,17 @@ class RseventsproModelRseventspro extends JModelLegacy
 			return array('status' => false, 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe&id='.rseventsproHelper::sef($id,$event->name),false) , 'message' => JText::_('COM_RSEVENTSPRO_INVALID_QUANTITY'));
 		}
 		
+		if (!empty($tickets) && $event->tickets_amount) {
+			$totalQuantity = 0;
+			foreach($tickets as $ticket => $quantity) {
+				$totalQuantity += $quantity;
+			}
+			
+			if ($totalQuantity > $event->tickets_amount) {
+				return array('status' => false, 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe&id='.rseventsproHelper::sef($id,$event->name),false) , 'message' => JText::sprintf('COM_RSEVENTSPRO_SUBSCRIBER_MAX_TICKETS_ERROR', $event->tickets_amount));
+			}
+		}
+		
 		// Set the verification string
 		$verification = md5(time().$id.$name);
 		
@@ -2010,7 +2104,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 			->set($this->_db->qn('SubmissionId').' = '.(int) $idsubmission)
 			->set($this->_db->qn('verification').' = '.$this->_db->q($verification))
 			->set($this->_db->qn('gateway').' = '.$this->_db->q($payment))
-			->set($this->_db->qn('ip').' = '.$this->_db->q(rseventsproHelper::getIP()))
+			->set($this->_db->qn('ip').' = '.$this->_db->q($ip))
 			->set($this->_db->qn('params').' = '.$this->_db->q(''))
 			->set($this->_db->qn('log').' = '.$this->_db->q(''))
 			->set($this->_db->qn('hash').' = '.$this->_db->q($hash))
@@ -3980,6 +4074,20 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$event = RSEvent::getInstance(0);
 		
 		return $event->speakers();
+	}
+	
+	public function savesponsor() {
+		$table	= JTable::getInstance('Sponsor','RseventsproTable');
+		$data	= $this->_app->input->get('jform',array(),'array');
+		$data['published'] = 1;
+		
+		$table->save($data);
+		$table->uploadImage();
+		
+		require_once JPATH_SITE.'/components/com_rseventspro/helpers/events.php';
+		$event = RSEvent::getInstance(0);
+		
+		return $event->sponsors();
 	}
 	
 	public function getRSVPstatuses() {

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<form>
+    <fieldset name="message">
+        <field
+                name="id"
+                type="hidden"
+                class="readonly"
+                readonly="true"/>
+
+        <field name="profile_id"
+               type="jdideal.psp"
+               label="COM_ROPAYMENTS_MESSAGE_PSP_LABEL"
+               description="COM_ROPAYMENTS_MESSAGE_PSP_DESC"
+               required="true"
+               size="1"
+               class="advancedSelect">
+        </field>
+
+        <field name="orderstatus"
+               type="jdideal.messageresult"
+               label="COM_ROPAYMENTS_STATUS_LABEL"
+               description="COM_ROPAYMENTS_STATUS_DESC"
+               required="true"
+               size="1"
+               default="OPEN"
+               class="advancedSelect">
+        </field>
+
+        <field
+                name="subject"
+                type="text"
+                label="COM_ROPAYMENTS_MESSAGE_SUBJECT_LABEL"
+                description="COM_ROPAYMENTS_MESSAGE_SUBJECT_DESC"
+                class="input-large"
+                size="60"
+                required="true"/>
+
+        <field
+                name="language"
+                type="contentlanguage"
+                label="JFIELD_LANGUAGE_LABEL"
+                description="COM_CONTENT_FIELD_LANGUAGE_DESC"
+                class="advancedSelect"
+                default="*"
+        >
+            <option value="*">JALL</option>
+        </field>
+
+        <field name="message_type"
+               type="list"
+               default="0"
+               label="COM_ROPAYMENTS_MESSAGE_TYPE_LABEL"
+               description="COM_ROPAYMENTS_MESSAGE_TYPE_DESC"
+               class="advancedSelect">
+            <option value="0">COM_ROPAYMENTS_STATUS_TEXT</option>
+            <option value="1">COM_ROPAYMENTS_STATUS_ARTICLE</option>
+        </field>
+
+        <field name="message_text_id"
+               addfieldpath="/administrator/components/com_content/models/fields"
+               type="modal_article"
+               label="COM_ROPAYMENTS_MESSAGE_TEXT_ID_LABEL"
+               description="COM_ROPAYMENTS_MESSAGE_TEXT_ID_DESC"
+               showon="message_type:1"
+        />
+
+        <field name="message_text"
+               type="editor"
+               label="COM_ROPAYMENTS_MESSAGE_TEXT_LABEL"
+               description="COM_ROPAYMENTS_MESSAGE_TEXT_DESC"
+               required="false"
+               width="100%"
+               height="250px"
+               buttons="true"
+               filter="JComponentHelper::filterText"
+               hide="article,image,pagebreak,readmore"
+               showon="message_type:0"
+        />
+    </fieldset>
+</form>

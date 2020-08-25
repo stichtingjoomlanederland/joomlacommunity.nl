@@ -31,12 +31,29 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 							<div class="o-col-sm">
 								<div class="o-flag">
+
+								<?php if ($post->isAnonymous()) { ?>
+
 									<div class="o-flag__image o-flag--top">
+										<?php echo ED::themes()->html('user.anonymous', $post->getOwner(), true, array('size' => 'md')); ?>
+									</div>
+									
+									<div class="o-flag__body">
+										<?php echo ED::themes()->html('user.username', $post->getOwner(), array('posterName' => $post->user->getName(), 'isAnonymous' => true, 'canViewAnonymousUsername' => $post->canAccessAnonymousPost())); ?>
+									</div>
+
+								<?php } else { ?>
+
+									<div class="o-flag__image">
 										<?php echo ED::themes()->html('user.avatar', $post->getOwner(), array('rank' => true, 'status' => true, 'size' => 'md')); ?>
 									</div>
+
 									<div class="o-flag__body">
-										<?php echo ED::themes()->html('user.username', $post->getOwner()); ?>
+										<?php echo ED::themes()->html('user.username', $post->getOwner(), array('posterName' => $post->poster_name)); ?>
+										<div class="ed-user-rank t-lg-mb--sm"><?php echo ED::getUserRanks($post->user->id); ?></div>
 									</div>
+								<?php } ?>
+
 								</div>
 							</div>
 						</div>

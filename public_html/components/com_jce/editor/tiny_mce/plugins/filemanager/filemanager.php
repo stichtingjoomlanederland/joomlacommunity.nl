@@ -21,7 +21,7 @@ class WFFileManagerPlugin extends WFMediaManager
      */
     protected $name = 'filemanager';
 
-    public $_filetypes = 'acrobat=pdf;office=doc,docx,dot,dotx,ppt,pps,pptx,ppsx,xls,xlsx;image=gif,jpeg,jpg,png,apng,webp;archive=zip,tar,gz;video=swf,mov,wmv,avi,flv,mp4,ogv,ogg,webm,mpeg,mpg;audio=wav,mp3,ogg,webm,aiff;openoffice=odt,odg,odp,ods,odf;text=txt,rtf,md';
+    public $_filetypes = 'acrobat=pdf;office=doc,docx,dot,dotx,ppt,pps,pptx,ppsx,xls,xlsx;image=gif,jpeg,jpg,png,apng,webp,avif;archive=zip,tar,gz;video=swf,mov,wmv,avi,flv,mp4,ogv,ogg,webm,mpeg,mpg;audio=wav,mp3,ogg,webm,aiff;openoffice=odt,odg,odp,ods,odf;text=txt,rtf,md';
 
     public function __construct()
     {
@@ -71,7 +71,7 @@ class WFFileManagerPlugin extends WFMediaManager
         $document->addScript(array('filemanager'), 'plugins');
         $document->addStyleSheet(array('filemanager'), 'plugins');
 
-        $document->addScriptDeclaration('FileManager.settings='.json_encode($this->getSettings()).';');
+        $document->addScriptDeclaration('FileManager.settings=' . json_encode($this->getSettings()) . ';');
     }
 
     protected function getIconMap()
@@ -89,17 +89,17 @@ class WFFileManagerPlugin extends WFMediaManager
         // get extension from format
         $ext = JFile::getExt($format);
         // get all matched icons
-        $icons = JFolder::files(JPATH_SITE.'/'.$path, '\.'.$ext);
+        $icons = JFolder::files(JPATH_SITE . '/' . $path, '\.' . $ext);
 
         if ($icons) {
             for ($i = 0; $i < count($icons); ++$i) {
                 // convert format to regex equivalent
                 $format = str_replace('{$name}', '([a-z0-9]+)', $format);
                 // get icon name
-                preg_match('#'.$format.'#i', $icons[$i], $matches);
+                preg_match('#' . $format . '#i', $icons[$i], $matches);
 
                 if ($matches) {
-                    $icons[$i] = basename($matches[0], '.'.$ext);
+                    $icons[$i] = basename($matches[0], '.' . $ext);
                 }
             }
         } else {
@@ -144,7 +144,7 @@ class WFFileManagerPlugin extends WFMediaManager
         if ($app->input->getInt('inline', 0) === 1) {
             $result = array(
                 'file' => $relative,
-                'name' => basename($file),
+                'name' => WFUtility::mb_basename($file),
             );
 
             $result['method'] = $this->getParam('filemanager.format', 'link');
@@ -152,8 +152,8 @@ class WFFileManagerPlugin extends WFMediaManager
             if ($result['method'] === 'embed') {
                 $result['openwith'] = $this->getParam('filemanager.method_openwith', '');
 
-                $result['width']    = $this->getParam('filemanager.embed_width', 640);
-                $result['height']   = $this->getParam('filemanager.embed_height', 480);
+                $result['width'] = $this->getParam('filemanager.embed_width', 640);
+                $result['height'] = $this->getParam('filemanager.embed_height', 480);
 
                 // remove px if present
                 $result['width'] = str_replace('px', '', $result['width']);
@@ -162,8 +162,9 @@ class WFFileManagerPlugin extends WFMediaManager
                 return $result;
             }
 
-            $defaults = $this->getDefaults();
+            $defaults = $this->getDefaultAttributes();
             $features = array();
+            $attribs = array();
 
             // add icon first
             if ($defaults['option_icon_check']) {
@@ -172,51 +173,41 @@ class WFFileManagerPlugin extends WFMediaManager
                 $map = $this->getIconMap();
 
                 $icon = str_replace('{$name}', $map[$ext], $this->getParam('filemanager.icon_format', '{$name}.png'));
-                $icon = $this->getParam('filemanager.icon_path', 'media/jce/icons').'/'.$icon;
+                $icon = $this->getParam('filemanager.icon_path', 'media/jce/icons') . '/' . $icon;
 
                 $features[] = array('node' => 'img', 'attribs' => array('src' => $icon, 'alt' => basename($icon), 'class' => 'wf_file_icon'));
             }
+
             // add text
             $features[] = array('node' => 'span', 'attribs' => array('class' => 'wf_file_text'), 'html' => basename($file));
 
-            foreach ($defaults as $k => $v) {
-                switch ($k) {
-                    case 'classes':
-                    case 'title':
-                    case 'id':
-                    case 'direction':
-                    case 'hreflang':
-                    case 'lang':
-                    case 'style':
-                    case 'charset':
-                    case 'rel':
-                    case 'rev':
-                    case 'tabindex':
-                    case 'accesskey':
-                    case 'target':
-                        if ($k == 'direction') {
-                            $k = 'dir';
-                        }
-
-                        if ($k == 'classes') {
-                            $k = 'class';
-                        }
-
-                        if ($v != '') {
-                            $result[$k] = $v;
+            foreach ($defaults as $key => $value) {
+                switch ($key) {
+                    default:
+                        if ($value !== '') {
+                            $attribs[$key] = $value;
                         }
                         break;
+                    case 'method':
+                    case 'width':
+                    case 'height':
+                    case 'option_date_check':
+                        break;
                     case 'option_size_check':
-                        if ($v) {
+                        if ($value) {
                             $features[] = array('node' => 'span', 'attribs' => array('class' => 'wf_file_size', 'style' => 'margin-left:5px;'), 'html' => WFUtility::formatSize(filesize($file)));
                         }
                         break;
                     case 'option_date_check':
-                        if ($v) {
+                        if ($value) {
                             $features[] = array('node' => 'span', 'attribs' => array('class' => 'wf_file_date', 'style' => 'margin-left:5px;'), 'html' => WFUtility::formatDate(filemtime($file), $this->getParam('filemanager.date_format', '%d/%m/%Y, %H:%M')));
                         }
                         break;
                 }
+            }
+
+            if (!empty($attribs)) {
+                $result['attributes'] = $attribs;
             }
 
             if (!empty($features)) {

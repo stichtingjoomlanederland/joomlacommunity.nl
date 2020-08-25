@@ -5,6 +5,9 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
+
 defined('_JEXEC') or die;
 
 class AtsystemFeatureEmailonlogin extends AtsystemFeatureAbstract
@@ -50,14 +53,14 @@ class AtsystemFeatureEmailonlogin extends AtsystemFeatureAbstract
 
 		if ($flag == 1)
 		{
-			return;
+			return true;
 		}
 
 		// Set the flag to prevent sending more emails
 		$this->container->platform->setSessionVar('waf.loggedin', 1, 'plg_admintools');
 
 		// Load the component's administrator translation files
-		$jlang = JFactory::getLanguage();
+		$jlang = Factory::getLanguage();
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, 'en-GB', true);
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, null, true);
@@ -66,7 +69,7 @@ class AtsystemFeatureEmailonlogin extends AtsystemFeatureAbstract
 		$config = $this->container->platform->getConfig();
 
 		// Construct the replacement table
-		$substitutions = $this->exceptionsHandler->getEmailVariables(JText::_('COM_ADMINTOOLS_WAFEMAILTEMPLATE_REASON_ADMINLOGINSUCCESS'));
+		$substitutions = $this->exceptionsHandler->getEmailVariables(Text::_('COM_ADMINTOOLS_WAFEMAILTEMPLATE_REASON_ADMINLOGINSUCCESS'));
 
 		// Let's get the most suitable email template
 		$template = $this->exceptionsHandler->getEmailTemplate('adminloginsuccess', true);
@@ -80,19 +83,19 @@ class AtsystemFeatureEmailonlogin extends AtsystemFeatureAbstract
 		else
 		{
 			$subject = $template[0];
-			$body = $template[1];
+			$body    = $template[1];
 		}
 
 		foreach ($substitutions as $k => $v)
 		{
 			$subject = str_replace($k, $v, $subject);
-			$body = str_replace($k, $v, $body);
+			$body    = str_replace($k, $v, $body);
 		}
 
 		// Send the email
 		try
 		{
-			$mailer = JFactory::getMailer();
+			$mailer = Factory::getMailer();
 
 			$mailfrom = $config->get('mailfrom');
 			$fromname = $config->get('fromname');
@@ -111,7 +114,7 @@ class AtsystemFeatureEmailonlogin extends AtsystemFeatureAbstract
 				$mailer->Priority = 3;
 
 				$mailer->isHtml(true);
-				$mailer->setSender(array($mailfrom, $fromname));
+				$mailer->setSender([$mailfrom, $fromname]);
 
 				// Resets the recipients, otherwise they will pile up
 				$mailer->clearAllRecipients();
@@ -127,9 +130,11 @@ class AtsystemFeatureEmailonlogin extends AtsystemFeatureAbstract
 				$mailer->Send();
 			}
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			// Joomla! 3.5 and later throw an exception when crap happens instead of suppressing it and returning false
 		}
+
+		return true;
 	}
-} 
+}

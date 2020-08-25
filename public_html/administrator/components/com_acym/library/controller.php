@@ -41,6 +41,19 @@ class acymController extends acymObject
 
         if (empty($scripts)) return;
 
+        if (in_array('editor-wysid', $scripts)) {
+            acym_addStyle(false, ACYM_CSS.'editorWYSID.min.css?v='.filemtime(ACYM_MEDIA.'css'.DS.'editorWYSID.min.css'));
+            acym_addScript(false, ACYM_JS.'editor_wysid_utils.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'editor_wysid_utils.min.js'));
+
+            $scripts = array_merge($scripts, ['colorpicker', 'datepicker', 'thumbnail', 'foundation-email', 'introjs', 'parse-css', 'vue-prism-editor', 'masonry']);
+
+            if (empty($scripts['vue-applications'])) {
+                $scripts['vue-applications'] = ['code_editor'];
+            } else {
+                $scripts['vue-applications'][] = 'code_editor';
+            }
+        }
+
         if (in_array('colorpicker', $scripts)) {
             acym_addScript(false, ACYM_JS.'libraries/spectrum.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'spectrum.min.js'));
             acym_addStyle(false, ACYM_CSS.'libraries/spectrum.min.css?v='.filemtime(ACYM_MEDIA.'css'.DS.'libraries'.DS.'spectrum.min.css'));
@@ -54,7 +67,7 @@ class acymController extends acymObject
         }
 
         if (in_array('thumbnail', $scripts)) {
-            acym_addScript(false, ACYM_JS.'libraries/dom-to-image.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'dom-to-image.min.js'));
+            acym_addScript(false, ACYM_JS.'libraries/html2canvas.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'html2canvas.min.js'));
         }
 
         if (in_array('foundation-email', $scripts)) {
@@ -71,9 +84,8 @@ class acymController extends acymObject
             acym_addScript(false, ACYM_JS.'libraries/parse-css.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'parse-css.min.js'));
         }
 
-        if (in_array('editor-wysid', $scripts)) {
-            acym_addStyle(false, ACYM_CSS.'editorWYSID.min.css?v='.filemtime(ACYM_MEDIA.'css'.DS.'editorWYSID.min.css'));
-            acym_addScript(false, ACYM_JS.'editor_wysid_utils.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'editor_wysid_utils.min.js'));
+        if (in_array('masonry', $scripts)) {
+            acym_addScript(false, ACYM_JS.'libraries/masonry.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'masonry.min.js'));
         }
 
         if (!empty($scripts['vue-applications'])) {
@@ -118,7 +130,7 @@ class acymController extends acymObject
         acym_prepareFrontViewDisplay($this->name);
 
         $view = acym_get($viewFolder.'.'.$this->getName());
-        $view->display($data);
+        $view->display($this, $data);
     }
 
     public function cancel()
@@ -228,9 +240,10 @@ class acymController extends acymObject
         $this->listing();
     }
 
-    protected function getMatchingElementsFromData($requestData, &$status, &$page)
+    protected function getMatchingElementsFromData($requestData, &$status, &$page, $class = '')
     {
-        $matchingElement = $this->currentClass->getMatchingElements($requestData);
+        $classElement = empty($class) ? $this->currentClass : acym_get('class.'.$class);
+        $matchingElement = $classElement->getMatchingElements($requestData);
 
         if (empty($matchingElement['elements'])) {
             if (!empty($status) && empty($requestData['search']) && empty($requestData['tag'])) {
@@ -240,7 +253,7 @@ class acymController extends acymObject
                 $page = 1;
                 $requestData['offset'] = 0;
             }
-            $matchingElement = $this->currentClass->getMatchingElements($requestData);
+            $matchingElement = $classElement->getMatchingElements($requestData);
         }
 
         return $matchingElement;

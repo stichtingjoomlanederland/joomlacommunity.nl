@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -982,6 +982,19 @@ class com_rseventsproInstallerScript
 			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'waitinglist_time', 'type' => 'VARCHAR(50)', 'default' => '', 'after' => 'waitinglist_limit');
 			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'waitinglist_user', 'type' => 'TINYINT(2)', 'default' => '0');
 			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'waitinglist_admin', 'type' => 'TINYINT(2)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'notify_me_paid', 'type' => 'TINYINT(2)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'tickets_amount', 'type' => 'INT(5)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_groups', 'field' => 'can_select_sponsors', 'type' => 'TINYINT(2)', 'default' => '1');
+			$updateData[] = array('table' => '#__rseventspro_groups', 'field' => 'can_add_sponsor', 'type' => 'TINYINT(2)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'invoice', 'type' => 'TINYINT(2)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'invoice_attach', 'type' => 'TINYINT(2)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'invoice_type', 'type' => 'TINYINT(2)', 'default' => '1');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'invoice_font', 'type' => 'VARCHAR(50)', 'default' => '');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'invoice_orientation', 'type' => 'VARCHAR(50)', 'default' => '');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'invoice_padding', 'type' => 'INT(5)', 'default' => '7');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'invoice_prefix', 'type' => 'VARCHAR(50)', 'default' => '');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'invoice_title', 'type' => 'VARCHAR(50)', 'default' => '');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'invoice_layout', 'type' => 'TEXT');
 			
 			foreach ($updateData as $data) {
 				$checkQuery = 'SHOW COLUMNS FROM '.$db->qn($data['table']).' WHERE '.$db->qn('Field').' = '.$db->q($data['field']);
@@ -1078,6 +1091,12 @@ class com_rseventsproInstallerScript
 			$db->setQuery("SELECT `id` FROM `#__rseventspro_emails` WHERE `lang` = 'en-GB' AND `type` = 'cancel'");
 			if (!$db->loadResult()) {
 				$db->setQuery("INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES ('', 'en-GB', 'cancel', 1, 1, 0, 'Event {EventName} has been canceled.', '<p>Hello {user},</p>\r\n<p>We are sorry to say, that <strong>{EventName}</strong> has been canceled.</p>');");
+				$db->execute();
+			}
+			
+			$db->setQuery("SELECT `id` FROM `#__rseventspro_emails` WHERE `lang` = 'en-GB' AND `type` = 'notify_me_paid'");
+			if (!$db->loadResult()) {
+				$db->setQuery("INSERT IGNORE INTO `#__rseventspro_emails` (`id`, `lang`, `type`, `enable`, `mode`, `parent`, `subject`, `message`) VALUES ('', 'en-GB', 'notify_me_paid', 1, 1, 0, 'You have a new paid subscription for {EventName} from {SubscriberName}!', '<p>Hello <strong>{OwnerName}</strong>,</p>\r\n<p>The status of <em><strong>{SubscriberName}</strong></em>\'s subscription from the <em><strong>{EventName}</strong></em> event was completed and paid.</p>\r\n<p><strong>Subscriber info:</strong></p>\r\n<ul>\r\n<li>Date: {SubscribeDate}</li>\r\n<li>Username: {SubscriberUsername}</li>\r\n<li>Name: {SubscriberName}</li>\r\n<li>Email: {SubscriberEmail}</li>\r\n<li>IP: {SubscriberIP}</li>\r\n</ul>\r\n<p><strong>Payment related info (if available):</strong></p>\r\n<ul>\r\n<li>Gateway: {PaymentGateway}</li>\r\n<li>Tickets: {TicketInfo}</li>\r\n<li>Total: {TicketsTotal}</li>\r\n<li>Discount: {TicketsDiscount}</li>\r\n</ul>');");
 				$db->execute();
 			}
 			
@@ -1212,9 +1231,9 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.12.15</h2>
+	<h2>Changelog v1.13.1</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> Mapbox Tile type was not working correctly.</li>
+		<li><span class="version-upgraded">Upg</span> Upgraded the export of subscribers that have RSForm!Pro fields.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>
@@ -1269,7 +1288,7 @@ class com_rseventsproInstallerScript
 				'rseventspro' => '1.3'
 			),
 			'system' => array(
-				'rsepropdf' => '1.17',
+				'rsepropdf' => '1.18',
 				'rsfprseventspro' => '1.51.17',
 				'rsepro2co' => '1.1',
 				'rseproanzegate' => '1.2',
@@ -1281,7 +1300,7 @@ class com_rseventsproInstallerScript
 				'rseprovmerchant' => '1.2',
 				'rseprostripe' => '1.2',
 				'rseprooffline' => '1.3',
-				'rseprocart' => '1.1.20'
+				'rseprocart' => '1.2.0'
 			)
 		);
 		
@@ -1303,20 +1322,20 @@ class com_rseventsproInstallerScript
 		}
 		
 		$modules = array(
-			'mod_rseventspro_archived' => '1.4',
+			'mod_rseventspro_archived' => '1.5',
 			'mod_rseventspro_attendees' => '1.3',
-			'mod_rseventspro_calendar' => '1.9',
+			'mod_rseventspro_calendar' => '1.10',
 			'mod_rseventspro_categories' => '1.4',
-			'mod_rseventspro_events' => '1.8',
-			'mod_rseventspro_featured' => '1.6',
+			'mod_rseventspro_events' => '1.9',
+			'mod_rseventspro_featured' => '1.7',
 			'mod_rseventspro_location' => '1.5',
 			'mod_rseventspro_locations' => '1.3',
-			'mod_rseventspro_map' => '1.10',
-			'mod_rseventspro_popular' => '1.6',
+			'mod_rseventspro_map' => '1.11',
+			'mod_rseventspro_popular' => '1.7',
 			'mod_rseventspro_search' => '1.6',
-			'mod_rseventspro_slider' => '1.7.4',
+			'mod_rseventspro_slider' => '1.7.5',
 			'mod_rseventspro_tags' => '1.1',
-			'mod_rseventspro_upcoming' => '1.6'
+			'mod_rseventspro_upcoming' => '1.7'
 		);
 		
 		// Check modules version

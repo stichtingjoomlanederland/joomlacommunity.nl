@@ -12,7 +12,6 @@ defined('_JEXEC') or die;
 use Akeeba\AdminTools\Admin\Helper\ServerTechnology;
 use DateTimeZone;
 use FOF30\Date\Date;
-use JFactory;
 
 class HtaccessMaker extends ServerConfigMaker
 {
@@ -52,7 +51,7 @@ class HtaccessMaker extends ServerConfigMaker
 		// Redirect old to new domain
 		'olddomain'           => '',
 		// Force HTTPS for these URLs
-		'httpsurls'           => array(),
+		'httpsurls'           => [],
 		// HSTS Header (for HTTPS-only sites)
 		'hstsheader'          => 0,
 		// Disable HTTP methods TRACE and TRACK (protect against XST)
@@ -64,7 +63,7 @@ class HtaccessMaker extends ServerConfigMaker
 		// Send ETag
 		'etagtype'            => 'default',
 		// Referrer policy
-		'referrerpolicy'	  => 'unsafe-url',
+		'referrerpolicy'      => 'unsafe-url',
 
 		// == Basic security ==
 		// Disable directory listings
@@ -88,7 +87,7 @@ class HtaccessMaker extends ServerConfigMaker
 		// Prevent content transformation
 		'notransform'         => 1,
 		// User agents to block (one per line)
-		'hoggeragents'        => array(
+		'hoggeragents'        => [
 			'WebBandit',
 			'webbandit',
 			'Acunetix',
@@ -254,7 +253,7 @@ class HtaccessMaker extends ServerConfigMaker
 			'Go!Zilla',
 			'TurnitinBot',
 			'sqlmap',
-		),
+		],
 
 		// == Server protection ==
 		// -- Toggle protection
@@ -264,48 +263,50 @@ class HtaccessMaker extends ServerConfigMaker
 		'frontendprot'        => 1,
 		// -- Fine-tuning
 		// Back-end directories where file type exceptions are allowed
-		'bepexdirs'           => array('components', 'modules', 'templates', 'images', 'plugins'),
+		'bepexdirs'           => ['components', 'modules', 'templates', 'images', 'plugins'],
 		// Back-end file types allowed in selected directories
-		'bepextypes'          => array(
+		'bepextypes'          => [
 			'jpe', 'jpg', 'jpeg', 'jp2', 'jpe2', 'png', 'gif', 'bmp', 'css', 'js',
 			'swf', 'html', 'mpg', 'mp3', 'mpeg', 'mp4', 'avi', 'wav', 'ogg', 'ogv',
 			'xls', 'xlsx', 'doc', 'docx', 'ppt', 'pptx', 'zip', 'rar', 'pdf', 'xps',
 			'txt', '7z', 'svg', 'odt', 'ods', 'odp', 'flv', 'mov', 'htm', 'ttf',
 			'woff', 'woff2', 'eot', 'webp',
-			'JPG', 'JPEG', 'PNG', 'GIF', 'CSS', 'JS', 'TTF', 'WOFF', 'WOFF2', 'EOT', 'WEBP'
-		),
+			'JPG', 'JPEG', 'PNG', 'GIF', 'CSS', 'JS', 'TTF', 'WOFF', 'WOFF2', 'EOT', 'WEBP',
+		],
 		// Front-end directories where file type exceptions are allowed
-		'fepexdirs'           => array('components', 'modules', 'templates', 'images', 'plugins', 'media', 'libraries',
-			'media/jui/fonts'),
+		'fepexdirs'           => [
+			'components', 'modules', 'templates', 'images', 'plugins', 'media', 'libraries',
+			'media/jui/fonts',
+		],
 		// Front-end file types allowed in selected directories
-		'fepextypes'          => array(
+		'fepextypes'          => [
 			'jpe', 'jpg', 'jpeg', 'jp2', 'jpe2', 'png', 'gif', 'bmp', 'css', 'js',
 			'swf', 'html', 'mpg', 'mp3', 'mpeg', 'mp4', 'avi', 'wav', 'ogg', 'ogv',
 			'xls', 'xlsx', 'doc', 'docx', 'ppt', 'pptx', 'zip', 'rar', 'pdf', 'xps',
 			'txt', '7z', 'svg', 'odt', 'ods', 'odp', 'flv', 'mov', 'ico', 'htm',
 			'ttf', 'woff', 'woff2', 'eot', 'webp',
-			'JPG', 'JPEG', 'PNG', 'GIF', 'CSS', 'JS', 'TTF', 'WOFF', 'WOFF2', 'EOT', 'WEBP'
-		),
+			'JPG', 'JPEG', 'PNG', 'GIF', 'CSS', 'JS', 'TTF', 'WOFF', 'WOFF2', 'EOT', 'WEBP',
+		],
 		// -- Exceptions
 		// Allow direct access to these files
-		'exceptionfiles'      => array(
+		'exceptionfiles'      => [
 			"administrator/components/com_akeeba/restore.php",
-			"administrator/components/com_joomlaupdate/restore.php"
-		),
+			"administrator/components/com_joomlaupdate/restore.php",
+		],
 		// Allow direct access, except .php files, to these directories
-		'exceptiondirs'       => array(
-			'.well-known'
-		),
+		'exceptiondirs'       => [
+			'.well-known',
+		],
 		// Allow direct access, including .php files, to these directories
-		'fullaccessdirs'      => array(
-			"templates/your_template_name_here"
-		),
+		'fullaccessdirs'      => [
+			"templates/your_template_name_here",
+		],
 
 		// == Custom .htaccess rules ==
 		// At the top of the file
 		'custhead'            => '',
 		// At the bottom of the file
-		'custfoot'            => ''
+		'custfoot'            => '',
 	];
 
 	/**
@@ -339,7 +340,7 @@ class HtaccessMaker extends ServerConfigMaker
 		'Akeeba\AdminTools\Admin\Controller\ServerConfigMaker::apply',
 		'Akeeba\AdminTools\Admin\Controller\HtaccessMaker::apply',
 		'Akeeba\AdminTools\Admin\Controller\ControlPanel::regenerateServerConfig',
-		'Akeeba\AdminTools\Admin\Model\QuickStart::applyHtmaker'
+		'Akeeba\AdminTools\Admin\Model\QuickStart::applyHtmaker',
 	];
 
 	/**
@@ -353,7 +354,7 @@ class HtaccessMaker extends ServerConfigMaker
 		'Akeeba\AdminTools\Admin\Controller\HtaccessMaker::apply',
 		'Akeeba\AdminTools\Admin\Model\ServerConfigMaker::writeConfigFile',
 		'Akeeba\AdminTools\Admin\Model\HtaccessMaker::writeHtaccess',
-		'Akeeba\AdminTools\Admin\View\HtaccessMaker\Html::onBeforePreview'
+		'Akeeba\AdminTools\Admin\View\HtaccessMaker\Html::onBeforePreview',
 	];
 
 	/**
@@ -376,11 +377,12 @@ class HtaccessMaker extends ServerConfigMaker
 
 		// Guess Apache features
 		$apacheVersion = $this->apacheVersion();
-		$serverCaps    = (object)array(
+		$serverCaps    = (object) [
 			'customCodes' => version_compare($apacheVersion, '2.2', 'ge'), // Custom redirections, e.g. R=301
 			'deflate'     => version_compare($apacheVersion, '2.0', 'ge') // mod_deflate support
-		);
+		];
 		$redirCode     = $serverCaps->customCodes ? '[R=301,L]' : '[R,L]';
+		$isJoomla4     = version_compare(JVERSION, '3.999.999', 'gt');
 
 		$date = new Date();
 		$tz   = new DateTimeZone($this->container->platform->getUser()->getParam('timezone', $this->container->platform->getConfig()->get('offset', 'UTC')));
@@ -426,16 +428,16 @@ END;
 
 		if (!empty($rewritebase))
 		{
-			$htaccess .= "##### RewriteBase set - BEGIN\n";
+			$htaccess    .= "##### RewriteBase set - BEGIN\n";
 			$rewritebase = trim($rewritebase, '/');
-			$htaccess .= "RewriteBase /$rewritebase\n";
-			$htaccess .= "##### RewriteBase set - END\n\n";
+			$htaccess    .= "RewriteBase /$rewritebase\n";
+			$htaccess    .= "##### RewriteBase set - END\n\n";
 		}
 
 		if ($hasHSTS)
 		{
 			$httpsHost = $config->httpshost;
-			$htaccess .= <<< END
+			$htaccess  .= <<< END
 ##### HTTP to HTTPS redirection
 ## Since you have enabled HSTS the first redirection rule will instruct the browser to visit the HTTPS version of your
 ## site. This prevents unsafe redirections through HTTP.
@@ -501,69 +503,79 @@ END;
 			$htaccess .= "##### Follow symlinks -- END\n\n";
 		}
 
-		if ($config->exptime == 1)
+		if ($config->exptime != 0)
 		{
+			$expWeek = '1 week';
+			$expMonth = '1 month';
+
+			if ($config->exptime == 2)
+			{
+				$expWeek = '1 year';
+				$expMonth = '1 year';
+			}
+
 			$htaccess .= <<<END
 ##### Optimal default expiration time - BEGIN
 <IfModule mod_expires.c>
 	# Enable expiration control
 	ExpiresActive On
 
-	# CSS and JS expiration: 1 week after request
-	ExpiresByType text/css "now plus 1 week"
-	ExpiresByType application/javascript "now plus 1 week"
-	ExpiresByType application/x-javascript "now plus 1 week"
+	# CSS and JS expiration: $expWeek after request
+	ExpiresByType text/css "now plus $expWeek"
+	ExpiresByType application/javascript "now plus $expWeek"
+	ExpiresByType application/x-javascript "now plus $expWeek"
 
-	# Image files expiration: 1 month after request
-	ExpiresByType image/bmp "now plus 1 month"
-	ExpiresByType image/gif "now plus 1 month"
-	ExpiresByType image/jpeg "now plus 1 month"
-	ExpiresByType image/jp2 "now plus 1 month"
-	ExpiresByType image/pipeg "now plus 1 month"
-	ExpiresByType image/png "now plus 1 month"
-	ExpiresByType image/svg+xml "now plus 1 month"
-	ExpiresByType image/tiff "now plus 1 month"
-	ExpiresByType image/vnd.microsoft.icon "now plus 1 month"
-	ExpiresByType image/x-icon "now plus 1 month"
-	ExpiresByType image/ico "now plus 1 month"
-	ExpiresByType image/icon "now plus 1 month"
-	ExpiresByType text/ico "now plus 1 month"
-	ExpiresByType application/ico "now plus 1 month"
-	ExpiresByType image/vnd.wap.wbmp "now plus 1 month"
-	ExpiresByType application/vnd.wap.wbxml "now plus 1 month"
-	ExpiresByType application/smil "now plus 1 month"
-	ExpiresByType image/web "now plus 1 month"
+	# Image files expiration: $expMonth after request
+	ExpiresByType image/bmp "now plus $expMonth"
+	ExpiresByType image/gif "now plus $expMonth"
+	ExpiresByType image/jpeg "now plus $expMonth"
+	ExpiresByType image/jp2 "now plus $expMonth"
+	ExpiresByType image/pipeg "now plus $expMonth"
+	ExpiresByType image/png "now plus $expMonth"
+	ExpiresByType image/svg+xml "now plus $expMonth"
+	ExpiresByType image/tiff "now plus $expMonth"
+	ExpiresByType image/vnd.microsoft.icon "now plus $expMonth"
+	ExpiresByType image/x-icon "now plus $expMonth"
+	ExpiresByType image/ico "now plus $expMonth"
+	ExpiresByType image/icon "now plus $expMonth"
+	ExpiresByType text/ico "now plus $expMonth"
+	ExpiresByType application/ico "now plus $expMonth"
+	ExpiresByType image/vnd.wap.wbmp "now plus $expMonth"
+	ExpiresByType application/vnd.wap.wbxml "now plus $expMonth"
+	ExpiresByType application/smil "now plus $expMonth"
+	ExpiresByType image/webp "now plus $expMonth"
 	
-	# Font files expiration: 1 week after request
-	ExpiresByType application/vnd.ms-fontobject "now plus 1 week"
-	ExpiresByType application/x-font-ttf "now plus 1 week"
-	ExpiresByType application/x-font-opentype "now plus 1 week"
-	ExpiresByType application/x-font-woff "now plus 1 week"
-	ExpiresByType font/woff2 "now plus 1 week"
-	ExpiresByType image/svg+xml "now plus 1 week"
+	# Font files expiration: $expWeek after request
+	ExpiresByType application/vnd.ms-fontobject "now plus $expWeek"
+	ExpiresByType application/x-font-ttf "now plus $expWeek"
+	ExpiresByType application/x-font-opentype "now plus $expWeek"
+	ExpiresByType application/x-font-woff "now plus $expWeek"
+	ExpiresByType font/woff "now plus $expWeek"
+	ExpiresByType font/woff2 "now plus $expWeek"
+	ExpiresByType image/svg+xml "now plus $expWeek"
 
-	# Audio files expiration: 1 month after request
-	ExpiresByType audio/ogg "now plus 1 month"
-	ExpiresByType application/ogg "now plus 1 month"
-	ExpiresByType audio/basic "now plus 1 month"
-	ExpiresByType audio/mid "now plus 1 month"
-	ExpiresByType audio/midi "now plus 1 month"
-	ExpiresByType audio/mpeg "now plus 1 month"
-	ExpiresByType audio/mp3 "now plus 1 month"
-	ExpiresByType audio/x-aiff "now plus 1 month"
-	ExpiresByType audio/x-mpegurl "now plus 1 month"
-	ExpiresByType audio/x-pn-realaudio "now plus 1 month"
-	ExpiresByType audio/x-wav "now plus 1 month"
+	# Audio files expiration: $expMonth after request
+	ExpiresByType audio/ogg "now plus $expMonth"
+	ExpiresByType application/ogg "now plus $expMonth"
+	ExpiresByType audio/basic "now plus $expMonth"
+	ExpiresByType audio/mid "now plus $expMonth"
+	ExpiresByType audio/midi "now plus $expMonth"
+	ExpiresByType audio/mpeg "now plus $expMonth"
+	ExpiresByType audio/mp3 "now plus $expMonth"
+	ExpiresByType audio/x-aiff "now plus $expMonth"
+	ExpiresByType audio/x-mpegurl "now plus $expMonth"
+	ExpiresByType audio/x-pn-realaudio "now plus $expMonth"
+	ExpiresByType audio/x-wav "now plus $expMonth"
 
-	# Movie files expiration: 1 month after request
-	ExpiresByType application/x-shockwave-flash "now plus 1 month"
-	ExpiresByType x-world/x-vrml "now plus 1 month"
-	ExpiresByType video/x-msvideo "now plus 1 month"
-	ExpiresByType video/mpeg "now plus 1 month"
-	ExpiresByType video/mp4 "now plus 1 month"
-	ExpiresByType video/quicktime "now plus 1 month"
-	ExpiresByType video/x-la-asf "now plus 1 month"
-	ExpiresByType video/x-ms-asf "now plus 1 month"
+	# Movie files expiration: $expMonth after request
+	ExpiresByType application/x-shockwave-flash "now plus $expMonth"
+	ExpiresByType x-world/x-vrml "now plus $expMonth"
+	ExpiresByType video/x-msvideo "now plus $expMonth"
+	ExpiresByType video/mpeg "now plus $expMonth"
+	ExpiresByType video/mp4 "now plus $expMonth"
+	ExpiresByType video/quicktime "now plus $expMonth"
+	ExpiresByType video/x-la-asf "now plus $expMonth"
+	ExpiresByType video/x-ms-asf "now plus $expMonth"
 </IfModule>
 
 # Disable caching of administrator/index.php
@@ -614,12 +626,40 @@ HTACCESS;
 		{
 			// See https://stackoverflow.com/questions/5230202/apache-addoutputfilterbytype-is-deprecated-how-to-rewrite-using-mod-filter
 			$apacheModuleForDeflate = version_compare($apacheVersion, '2.4', 'ge') ? 'mod_filter' : 'mod_deflate';
-			$htaccess .= <<<ENDHTCODE
+			$htaccess               .= <<<HTACCESS
 ##### Automatic compression of resources -- BEGIN
+# Automatically serve .css.gz / .js.gz instead of the original file
+<IfModule mod_headers.c>
+    # Serve gzip compressed CSS files if they exist and the client accepts gzip.
+    RewriteCond "%{HTTP:Accept-encoding}" "gzip"
+    RewriteCond "%{REQUEST_FILENAME}\.gz" -s
+    RewriteRule "^(.*)\.css" "$1\.css\.gz" [QSA]
+
+    # Serve gzip compressed JS files if they exist and the client accepts gzip.
+    RewriteCond "%{HTTP:Accept-encoding}" "gzip"
+    RewriteCond "%{REQUEST_FILENAME}\.gz" -s
+    RewriteRule "^(.*)\.js" "$1\.js\.gz" [QSA]
+
+    # Serve correct content types, and prevent $apacheModuleForDeflate double gzip.
+    # Also set it as the last rule to prevent the Front- or Backend protection from preventing access to the .gz file.
+    RewriteRule "\.css\.gz$" "-" [T=text/css,E=no-gzip:1,L]
+    RewriteRule "\.js\.gz$" "-" [T=text/javascript,E=no-gzip:1,L]
+
+    <FilesMatch "(\.js\.gz|\.css\.gz)$">
+      # Serve correct encoding type.
+      Header append Content-Encoding gzip
+
+      # Force proxies to cache gzipped & non-gzipped css/js files separately.
+      Header append Vary Accept-Encoding
+    </FilesMatch>
+</IfModule>
+
+## Automatically compress by MIME type using $apacheModuleForDeflate
 <IfModule {$apacheModuleForDeflate}.c>
 	AddOutputFilterByType DEFLATE text/plain text/xml text/css application/xml application/xhtml+xml application/rss+xml application/javascript application/x-javascript image/svg+xml
 </IfModule>
 
+## Fallback to mod_gzip when $apacheModuleForDeflate is not available
 <IfModule mod_gzip.c>
 	mod_gzip_on Yes
 	mod_gzip_dechunk Yes
@@ -651,7 +691,7 @@ HTACCESS;
 </ifmodule>
 ##### Automatic compression of resources -- END
 
-ENDHTCODE;
+HTACCESS;
 
 			if ($config->forcegzip == 1)
 			{
@@ -857,7 +897,7 @@ END;
 
 			foreach ($config->httpsurls as $url)
 			{
-				$urlesc = '^' . $this->escape_string_for_regex($url) . '$';
+				$urlesc   = '^' . $this->escape_string_for_regex($url) . '$';
 				$htaccess .= <<<END
 RewriteCond %{HTTPS} ^off$ [NC,OR]
 RewriteCond %{HTTP:X-Forwarded-Proto} =http
@@ -902,7 +942,7 @@ END;
 		{
 			foreach ($config->exceptionfiles as $file)
 			{
-				$file = '^' . $this->escape_string_for_regex($file) . '$';
+				$file     = '^' . $this->escape_string_for_regex($file) . '$';
 				$htaccess .= <<<END
 RewriteRule $file - [L]
 
@@ -914,8 +954,8 @@ END;
 		{
 			foreach ($config->exceptiondirs as $dir)
 			{
-				$dir = trim($dir, '/');
-				$dir = $this->escape_string_for_regex($dir);
+				$dir      = trim($dir, '/');
+				$dir      = $this->escape_string_for_regex($dir);
 				$htaccess .= <<<END
 RewriteCond %{REQUEST_FILENAME} !(\.php)$
 RewriteCond %{REQUEST_FILENAME} -f
@@ -929,8 +969,8 @@ END;
 		{
 			foreach ($config->fullaccessdirs as $dir)
 			{
-				$dir = trim($dir, '/');
-				$dir = $this->escape_string_for_regex($dir);
+				$dir      = trim($dir, '/');
+				$dir      = $this->escape_string_for_regex($dir);
 				$htaccess .= <<<END
 RewriteRule ^$dir/ - [L]
 
@@ -954,8 +994,8 @@ END;
 
 		if ($config->backendprot == 1)
 		{
-			$bedirs  = implode('|', $config->bepexdirs);
-			$betypes = implode('|', $config->bepextypes);
+			$bedirs   = implode('|', $config->bepexdirs);
+			$betypes  = implode('|', $config->bepextypes);
 			$htaccess .= <<<END
 #### Back-end protection
 RewriteRule ^administrator/?$ - [L]
@@ -968,8 +1008,8 @@ END;
 
 		if ($config->frontendprot == 1)
 		{
-			$fedirs  = implode('|', $config->fepexdirs);
-			$fetypes = implode('|', $config->fepextypes);
+			$fedirs   = implode('|', $config->fepexdirs);
+			$fetypes  = implode('|', $config->fepextypes);
 			$htaccess .= <<<END
 #### Front-end protection
 
@@ -1042,7 +1082,7 @@ END;
 
 		if ($config->clickjacking == 1)
 		{
-			$action = version_compare($apacheVersion, '2.0', 'ge') ? 'always append' : 'append';
+			$action   = version_compare($apacheVersion, '2.0', 'ge') ? 'always append' : 'append';
 			$htaccess .= <<< ENDCONF
 ## Protect against clickjacking
 <IfModule mod_headers.c>
@@ -1098,7 +1138,8 @@ HTACCESS;
 			$htaccess .= <<< HTACCESS
 ## Remove Apache and PHP version signature
 <IfModule mod_headers.c>
-	Header unset X-Powered-By
+	Header always unset X-Powered-By
+	Header always unset X-Content-Powered-By
 </IfModule>
 
 ServerSignature Off
@@ -1121,7 +1162,7 @@ HTACCESS;
 
 		if ($hasHSTS)
 		{
-			$action = version_compare($apacheVersion, '2.0', 'ge') ? 'always set' : 'set';
+			$action   = version_compare($apacheVersion, '2.0', 'ge') ? 'always set' : 'set';
 			$htaccess .= <<<END
 ## HSTS Header - See http://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security
 <IfModule mod_headers.c>
@@ -1140,7 +1181,7 @@ END;
 			 */
 
 			$tmpRedirCode = $serverCaps->customCodes ? '[R=405,L]' : '[F,L]';
-			$htaccess .= <<<END
+			$htaccess     .= <<<END
 ## Disable HTTP methods TRACE and TRACK (protect against XST)
 RewriteCond %{REQUEST_METHOD} ^TRACE
 RewriteRule ^ - $tmpRedirCode
@@ -1150,9 +1191,9 @@ END;
 
 		if ($config->cors == 1)
 		{
-			$action = version_compare($apacheVersion, '2.0', 'ge') ? 'always set' : 'set';
+			$action   = version_compare($apacheVersion, '2.0', 'ge') ? 'always set' : 'set';
 			$htaccess .= <<<END
-## Cross-Origin Resource Sharing (CORS) -- See http://enable-cors.org/
+## Explicitly enable Cross-Origin Resource Sharing (CORS) -- See http://enable-cors.org/
 <IfModule mod_headers.c>
 	Header $action Access-Control-Allow-Origin "*"
 	Header $action Timing-Allow-Origin "*"
@@ -1160,10 +1201,22 @@ END;
 
 END;
 		}
+		elseif ($config->cors == -1)
+		{
+			$action   = version_compare($apacheVersion, '2.0', 'ge') ? 'always set' : 'set';
+			$htaccess .= <<<END
+## Explicitly disable Cross-Origin Resource Sharing (CORS) -- See http://enable-cors.org/
+<IfModule mod_headers.c>
+	Header $action Cross-Origin-Resource-Policy "same-origin"
+</IfModule>
+
+END;
+
+		}
 
 		if ($config->referrerpolicy !== '-1')
 		{
-			$action = version_compare($apacheVersion, '2.0', 'ge') ? 'always set' : 'set';
+			$action   = version_compare($apacheVersion, '2.0', 'ge') ? 'always set' : 'set';
 			$htaccess .= <<<END
 ## Referrer-policy
 <IfModule mod_headers.c>
@@ -1209,7 +1262,28 @@ END;
 
 		$htaccess .= <<<END
 ##### Joomla! core SEF Section -- BEGIN
+# PHP FastCGI fix for HTTP Authorization
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+END;
+
+		if ($isJoomla4)
+		{
+			$htaccess .= <<< APACHE
+# -- SEF URLs for the API application
+RewriteCond %{REQUEST_URI} ^/api/
+RewriteCond %{REQUEST_URI} !^/api/index\.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule .* api/index.php [L]
+
+# -- SEF URLs for the public frontend application
+
+APACHE;
+		}
+
+		$htaccess .= <<<END
+##### Joomla! core SEF Section -- BEGIN
 RewriteCond %{REQUEST_URI} !^/index\.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

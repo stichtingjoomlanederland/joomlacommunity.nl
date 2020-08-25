@@ -8,8 +8,8 @@
 defined('_JEXEC') or die('Restricted access'); ?>
 
 <form action="<?php echo JRoute::_('index.php?option=com_rscomments&view=components&component='.JFactory::getApplication()->input->get('component').'&tmpl=component'); ?>" method="post" name="adminForm" id="adminForm">
-	<div class="row-fluid">
-		<div class="span12">
+	<div class="<?php echo RSCommentsAdapterGrid::row(); ?>">
+		<div class="<?php echo RSCommentsAdapterGrid::column(12); ?>">
 			
 			<?php echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this)); ?>
 			
@@ -43,7 +43,7 @@ defined('_JEXEC') or die('Restricted access'); ?>
 <script type="text/javascript">
 jQuery(document).ready(function() {
 	jQuery('.rsc_filter_option').click(function(){
-		jQuery('#rsc_filter_component_id',window.parent.document).val(jQuery(this).attr('rel'));
+		jQuery('#filter_component_id',window.parent.document).val(jQuery(this).attr('rel'));
 		jQuery('#adminForm',window.parent.document).submit();
 	});
 });

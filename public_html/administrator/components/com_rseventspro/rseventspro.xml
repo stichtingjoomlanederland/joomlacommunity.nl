@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="component" version="3.2.7" method="upgrade">
 	<name>com_rseventspro</name>
-	<creationDate>March 2015</creationDate>
+	<creationDate>May 2020</creationDate>
 	<author>RSJoomla!</author>
 	<copyright>(C) 2009-2018 www.rsjoomla.com</copyright>
 	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license> 
 	<authorEmail>support@rsjoomla.com</authorEmail>
 	<authorUrl>www.rsjoomla.com</authorUrl>
-	<version>1.12.15</version>
+	<version>1.13.1</version>
 	<description>RSEvents!Pro is the ideal extension that you can use to organize events, invite people or sell tickets directly on your website.</description>
 	<scriptfile>script.rseventspro.php</scriptfile>
 
@@ -61,6 +61,7 @@
 			  <menu link="option=com_rseventspro&amp;view=categories">COM_RSEVENTSPRO_MAIN_MENU_CATEGORIES</menu>
 			  <menu link="option=com_rseventspro&amp;view=tags">COM_RSEVENTSPRO_MAIN_MENU_TAGS</menu>
 			  <menu link="option=com_rseventspro&amp;view=speakers">COM_RSEVENTSPRO_MAIN_MENU_SPEAKERS</menu>
+			  <menu link="option=com_rseventspro&amp;view=sponsors">COM_RSEVENTSPRO_MAIN_MENU_SPONSORS</menu>
 			  <menu link="option=com_rseventspro&amp;view=subscriptions">COM_RSEVENTSPRO_MAIN_MENU_SUBSCRIPTIONS</menu>
 			  <menu link="option=com_rseventspro&amp;view=discounts">COM_RSEVENTSPRO_MAIN_MENU_DISCOUNTS</menu>
 			  <menu link="option=com_rseventspro&amp;view=payments">COM_RSEVENTSPRO_MAIN_MENU_PAYMENTS</menu>

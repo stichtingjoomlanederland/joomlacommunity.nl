@@ -25,7 +25,11 @@ class RscommentsViewRscomments extends JViewLegacy
 		JToolbarHelper::preferences('com_rscomments');
 		
 		if ($this->stats) {
-			JFactory::getDocument()->addScript('https://www.google.com/jsapi');
+			JHtml::script('com_rscomments/admin.js', array('relative' => true, 'version' => 'auto'));
+			
+			$this->document->addScript('https://www.google.com/jsapi');
+			$this->document->addScriptDeclaration("jQuery(document).ready(function() { google.load('visualization', '1', {packages: ['corechart']}); });");
+			$this->document->addScriptDeclaration("jQuery(document).ready(function() { google.setOnLoadCallback(drawChart); });");
 		}
 	}
 }

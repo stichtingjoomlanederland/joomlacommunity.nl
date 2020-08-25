@@ -5,6 +5,9 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
+
 defined('_JEXEC') or die;
 
 class AtsystemFeatureConsolewarn extends AtsystemFeatureAbstract
@@ -25,17 +28,18 @@ class AtsystemFeatureConsolewarn extends AtsystemFeatureAbstract
 	 * Inject some Javascript to display a warning inside browser console
 	 *
 	 * Please note: Since we're injecting javascript, we have to do that as late as possible, otherwise the document
-	 * is not yet created and Joomla will create a new one for us, resulting in a vast collection of possible side-effects
+	 * is not yet created and Joomla will create a new one for us, resulting in a vast collection of possible
+	 * side-effects
 	 */
 	public function onBeforeRender()
 	{
 		// There's nothing to steal if you're a guest
-		if (JFactory::getUser()->guest)
+		if (Factory::getUser()->guest)
 		{
 			return;
 		}
 
-		$document = JFactory::getDocument();
+		$document = Factory::getDocument();
 
 		// Only work with HTML documents
 		if ($document->getType() != 'html')
@@ -53,9 +57,9 @@ class AtsystemFeatureConsolewarn extends AtsystemFeatureAbstract
 
 		$this->parentPlugin->loadLanguage('com_admintools');
 
-		$warn_title = JText::_('COM_ADMINTOOLS_CONSOLEWARN_TITLE', true);
-		$body1 = JText::_('COM_ADMINTOOLS_CONSOLEWARN_BODY1', true);
-		$body2 = JText::_('COM_ADMINTOOLS_CONSOLEWARN_BODY2', true);
+		$warn_title = Text::_('COM_ADMINTOOLS_CONSOLEWARN_TITLE', true);
+		$body1      = Text::_('COM_ADMINTOOLS_CONSOLEWARN_BODY1', true);
+		$body2      = Text::_('COM_ADMINTOOLS_CONSOLEWARN_BODY2', true);
 
 		// Guess what? Coloured background works everywhere EXCEPT IE
 		$js = <<<JS
@@ -74,4 +78,4 @@ JS;
 
 		$document->addScriptDeclaration($js);
 	}
-} 
+}

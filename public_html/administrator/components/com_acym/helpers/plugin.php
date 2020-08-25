@@ -652,12 +652,17 @@ class acympluginHelper extends acymObject
 
         if (!empty($format->title)) {
             if (!empty($format->link)) {
-                $format->title = '<a'.(!empty($format->tag->type) && $format->tag->type == 'title' ? ' class="acym_title"' : '').' href="'.$format->link.'" target="_blank" name="'.$this->name.'-'.$format->tag->id.'">'.$format->title.'</a>';
+                if (empty($format->tag->type) || $format->tag->type != 'title') {
+                    $format->title = '<a'.(!empty($format->tag->type) && $format->tag->type == 'title' ? ' class="acym_title"' : '').' href="'.$format->link.'" target="_blank" name="'.$this->name.'-'.$format->tag->id.'"><h2 class=""acym_title">'.$format->title.'</h2></a>';
+                } else {
+                    $format->title = '<a'.(!empty($format->tag->type) && $format->tag->type == 'title' ? ' class="acym_title"' : '').' href="'.$format->link.'" target="_blank" name="'.$this->name.'-'.$format->tag->id.'">'.$format->title.'</a>';
+                }
+            } else {
+                if (empty($format->tag->type) || $format->tag->type != 'title') {
+                    $format->title = '<h2 class="acym_title">'.$format->title.'</h2>';
+                }
             }
 
-            if (empty($format->tag->type) || $format->tag->type != 'title') {
-                $format->title = '<h2 class="acym_title">'.$format->title.'</h2>';
-            }
             $result .= $format->title;
         }
 
@@ -869,17 +874,20 @@ class acympluginHelper extends acymObject
                 $valImages[] = acym_selectOption('1', 'ACYM_YES');
                 $valImages[] = acym_selectOption('resized', 'ACYM_RESIZED');
                 $valImages[] = acym_selectOption('0', 'ACYM_NO');
-                $currentOption .= acym_radio(
+                $currentOption .= '<div class="cell large-5 acym_plugin_field">'.acym_translation('ACYM_DISPLAY').'</div>';
+                $currentOption .= '<div class="cell large-7">'.acym_radio(
                         $valImages,
                         'pict'.$suffix,
                         $displayedPictures,
                         ['onclick' => $updateFunction.'();'],
-                        [],
+                        ['containerClass' => 'dcontent_pictures'],
                         !acym_isAdmin()
-                    ).'<br/>
-                            <span id="pictsize'.$suffix.'" '.$resizeDisplay.'>
-                                '.acym_translation('ACYM_WIDTH').' <input class="intext_input" name="pictwidth'.$suffix.'" type="number" onchange="'.$updateFunction.'();" value="'.intval($maxWidth).'"/>
+                    ).'</div>';
+                $currentOption .= '<span id="pictsize'.$suffix.'" class="cell grid-x" '.$resizeDisplay.'>
+                                <div class="cell large-5 acym_plugin_field">'.acym_translation('ACYM_DIMENSIONS').'</div>
+                                <div class="cell large-7">'.acym_translation('ACYM_WIDTH').' <input class="intext_input" name="pictwidth'.$suffix.'" type="number" onchange="'.$updateFunction.'();" value="'.intval($maxWidth).'"/>
                                 x '.acym_translation('ACYM_HEIGHT').' <input class="intext_input" name="pictheight'.$suffix.'" type="number" onchange="'.$updateFunction.'();" value="'.intval($maxHeight).'"/>
+                            	</div>
                             </span>';
                 $jsOptionsMerge[] = '
                     var _pictVal'.$suffix.' = jQuery(\'input[name="pict'.$suffix.'"]:checked\').val();
@@ -971,7 +979,7 @@ class acympluginHelper extends acymObject
                             $dirs,
                             'orderdir',
                             $defaultOrder,
-                            'onchange="'.$updateFunction.'();" style="width: 120px;"'
+                            'onchange="'.$updateFunction.'();" style="width: 115px;"'
                         );
 
                     $jsOptionsMerge[] = 'otherinfo += "| '.$option['name'].':" + jQuery(\'[name="'.$option['name'].$suffix.'"]\').val() + "," + jQuery(\'[name="orderdir"]\').val();';
@@ -1063,7 +1071,7 @@ class acympluginHelper extends acymObject
         if (!empty($outputStructure['topOptions'])) {
             foreach ($outputStructure['topOptions'] as $label => $oneOption) {
                 $output .= '<p class="acym__wysid__right__toolbar__p acym__wysid__right__toolbar__p__open">'.acym_translation($label).'<i class="acymicon-keyboard_arrow_up"></i></p>';
-                $output .= '<div class="acym__wysid__right__toolbar__design--show acym__wysid__right__toolbar__design acym__wysid__context__modal__container">';
+                $output .= '<div class="acym__wysid__right__toolbar__design--show acym__wysid__right__toolbar__design acym__wysid__context__modal__container grid-x">';
                 $output .= $oneOption;
                 $output .= '</div>';
             }
@@ -1073,6 +1081,7 @@ class acympluginHelper extends acymObject
             <script language="javascript" type="text/javascript">
                 <!--
                 var _selectedRows'.$suffix.' = [];
+                var _selectedRows = [];
                 ';
         if (!empty($defaultValues->id) && (empty($defaultValues->defaultPluginTab) || $dynamicIdentifier === $defaultValues->defaultPluginTab)) {
             $delimiter = strpos($defaultValues->id, '-') ? '-' : ',';

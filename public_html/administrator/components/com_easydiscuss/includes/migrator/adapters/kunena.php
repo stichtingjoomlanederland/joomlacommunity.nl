@@ -21,9 +21,10 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 	{
 		$db	= $this->db;
 
-		$query = 'SELECT c.`last_post_time`, c.`first_post_id`, a.* FROM `#__kunena_messages` AS a';
+		$query = 'SELECT c.`last_post_time`, c.`first_post_id`, u.`id` as `juser_id`, a.* FROM `#__kunena_messages` AS a';
 		$query .= ' LEFT JOIN `#__discuss_migrators` AS b ON b.`external_id` = a.`id` and b.`component` = ' . $this->db->Quote('com_kunena') . ' and b.`type` = ' . $db->Quote('reply');
 		$query .= ' INNER JOIN `#__kunena_topics` as c on c.`id` = a.`thread` and c.`moved_id` = 0';
+		$query .= ' LEFT JOIN `#__users` as u on a.`userid` = u.`id`';
 		$query .= ' WHERE ' . $db->nameQuote('a.id') . ' != ' . $db->nameQuote('c.first_post_id');
 		$query .= ' and b.`id` is null';
 
@@ -191,20 +192,25 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 			$alias = ED::permalinkSlug($data['title']) . '-' . $item->id;
 			$data['alias'] = $alias;
 
+			$userId = $item->userid;
+			$userType = DISCUSS_POSTER_MEMBER;
+
+			// verify if this user has joomla user records or not.
+			if (!$item->juser_id) {
+				$userId = 0;
+				$userType = DISCUSS_POSTER_GUEST;
+			}
+
 			$data['parent_id'] = $post->id;
 			$data['thread_id'] = $post->thread_id;
 			$data['content_type'] = 'bbcode';
 			$data['category_id'] = $post->category_id;
-			$data['user_id'] = $item->userid;
-			$data['user_type'] = DISCUSS_POSTER_MEMBER;
+			$data['user_id'] = $userId;
+			$data['user_type'] = $userType;
 			$data['poster_name'] = $item->name;
 			$data['created'] = ED::date($item->time)->toMySQL();
 			$data['modified'] = ED::date($item->time)->toMySQL();
 
-
-			if (!$item->userid) {
-				$data['user_type'] = DISCUSS_POSTER_GUEST;
-			}
 
 			// some joomla editor htmlentity the content before it send to server. so we need
 			// to do the god job to fix the content.
@@ -647,18 +653,27 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 			$subject = $item->threadsubject;
 		}
 
+		$userId = $item->userid;
+		$userType = DISCUSS_POSTER_MEMBER;
+
+		// verify if this user has joomla user records or not.
+		if (!$item->juser_id) {
+			$userId = 0;
+			$userType = DISCUSS_POSTER_GUEST;
+		}
+
 		// Create category if this item's category does not exist on the site
 		$categoryId = $this->migrateCategory($item);
 		$data['content'] = $content;
 		$data['title'] = $subject;
 		$data['category_id'] = $categoryId;
-		$data['user_id'] = $item->userid;
-		$data['user_type'] = DISCUSS_POSTER_MEMBER;
+		$data['user_id'] = $userId;
+		$data['user_type'] = $userType;
+		$data['poster_name'] = $item->name;
 		$data['hits'] = $item->hits;
 		$data['created'] = ED::date($item->time)->toMySQL();
 		$data['modified'] = ED::date($item->time)->toMySQL();
 		$data['replied'] = ED::date($lastreplied)->toMySQL();
-		$data['poster_name'] = $item->name;
 		$data['ip'] = $item->ip;
 		$data['content_type'] = 'bbcode';
 		$data['parent_id'] = 0;
@@ -667,10 +682,6 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 
 		$state = ($item->hold == 0)? DISCUSS_ID_PUBLISHED : DISCUSS_ID_UNPUBLISHED;
 		$data['published'] = $state;
-
-		if (!$item->userid) {
-			$data['user_type'] = DISCUSS_POSTER_GUEST;
-		}
 
 		// process confidential tag
 		$data = $this->processConfidentialTag($data);
@@ -892,8 +903,10 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 	{
 		$db	= $this->db;
 
-		$query = 'SELECT c.`last_post_time`, a.* FROM `#__kunena_messages` AS a';
+		$query = 'SELECT c.`last_post_time`, u.`id` as `juser_id`, a.*';
+		$query .= ' FROM `#__kunena_messages` AS a';
 		$query .= ' INNER JOIN `#__kunena_topics` as c on c.`id` = a.`thread`';
+		$query .= ' LEFT JOIN `#__users` as u on a.`userid` = u.`id`';
 		$query .= ' WHERE NOT EXISTS (';
 		$query .= ' SELECT external_id FROM `#__discuss_migrators` AS b WHERE b.`external_id` = a.`id` and `component` = ' . $this->db->Quote('com_kunena');
 		$query .= ' )';
@@ -930,8 +943,9 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 	{
 		$db	= $this->db;
 
-		$query = 'SELECT c.`last_post_time`, a.* FROM `#__kunena_messages` AS a';
+		$query = 'SELECT c.`last_post_time`, u.`id` as `juser_id`, a.* FROM `#__kunena_messages` AS a';
 		$query .= ' INNER JOIN `#__kunena_topics` as c on c.`id` = a.`thread`';
+		$query .= ' LEFT JOIN `#__users` as u on a.`userid` = u.`id`';
 		$query .= ' WHERE a.' . $db->nameQuote('id') . '=' . $db->Quote($itemId);
 
 		$db->setQuery($query);

@@ -5,6 +5,10 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Access\Access;
+use Joomla\CMS\Application\CMSApplication;
+use Joomla\CMS\Factory;
+
 defined('_JEXEC') or die;
 
 /**
@@ -14,6 +18,14 @@ defined('_JEXEC') or die;
 class AtsystemFeatureSuperuserslist extends AtsystemFeatureAbstract
 {
 	protected $loadOrder = 998;
+
+	/**
+	 * Cache of user group IDs with Super User privileges
+	 *
+	 * @var   array
+	 * @since 5.6.1
+	 */
+	protected $superUserGroups = [];
 
 	/**
 	 * Is this feature enabled?
@@ -76,7 +88,7 @@ class AtsystemFeatureSuperuserslist extends AtsystemFeatureAbstract
 		$safeIDs = $this->getSafeIDs();
 
 		// Get the option and task parameters
-		$app               = JFactory::getApplication();
+		$app               = Factory::getApplication();
 		$option            = $app->input->getCmd('option', 'com_foobar');
 		$task              = $app->input->getCmd('task');
 		$isUserSaveOrApply = false;
@@ -218,7 +230,7 @@ class AtsystemFeatureSuperuserslist extends AtsystemFeatureAbstract
 		// Is the current user one of the new, bad admins? If so, try to log the out
 		if ($flag === false)
 		{
-			$app = JFactory::getApplication();
+			$app = Factory::getApplication();
 
 			// Try being nice about it
 			if (!$app->logout())
@@ -231,281 +243,6 @@ class AtsystemFeatureSuperuserslist extends AtsystemFeatureAbstract
 	}
 
 	/**
-	 * Save the list of users to the database
-	 *
-	 * @param   array $userList The list of User IDs
-	 *
-	 * @return  void
-	 */
-	private function save(array $userList)
-	{
-		$db   = $this->container->db;
-		$data = json_encode($userList);
-
-		$query = $db->getQuery(true)
-		            ->delete($db->quoteName('#__admintools_storage'))
-		            ->where($db->quoteName('key') . ' = ' . $db->quote('superuserslist'));
-		$db->setQuery($query);
-		$db->execute();
-
-		$object = (object) array(
-			'key'   => 'superuserslist',
-			'value' => $data
-		);
-
-		$db->insertObject('#__admintools_storage', $object);
-	}
-
-	/**
-	 * Load the saved list of Super User IDs from the database
-	 *
-	 * @return  array
-	 */
-	private function load()
-	{
-		$db    = $this->container->db;
-		$query = $db->getQuery(true)
-		            ->select($db->quoteName('value'))
-		            ->from($db->quoteName('#__admintools_storage'))
-		            ->where($db->quoteName('key') . ' = ' . $db->quote('superuserslist'));
-		$db->setQuery($query);
-
-		$error = 0;
-
-		try
-		{
-			$jsonData = $db->loadResult();
-		}
-		catch (Exception $e)
-		{
-			$error = $e->getCode();
-		}
-
-		if (method_exists($db, 'getErrorNum') && $db->getErrorNum())
-		{
-			$error = $db->getErrorNum();
-		}
-
-		if ($error)
-		{
-			$jsonData = null;
-		}
-
-		if (empty($jsonData))
-		{
-			return [];
-		}
-
-		return json_decode($jsonData, true);
-	}
-
-	/**
-	 * Sends a warning email to the addresses set up to receive security exception emails
-	 *
-	 * @param   array  $superUsers  The IDs of Super Users added
-	 *
-	 * @return  void
-	 */
-	private function sendEmail(array $superUsers)
-	{
-		if (empty($superUsers))
-		{
-			// What are you doing here?
-			return;
-		}
-
-		// Load the component's administrator translation files
-		$jlang = JFactory::getLanguage();
-		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, 'en-GB', true);
-		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
-		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, null, true);
-
-		// Convert the list of added Super Users
-		$htmlUsersList = <<< HTML
-<ul>
-HTML;
-
-		foreach ($superUsers as $id)
-		{
-			$user = $this->container->platform->getUser($id);
-
-			$htmlUsersList .= <<< HTML
-	<li>
-		#$id &ndash; <b>{$user->username}</b> &ndash; {$user->name} &lt;{$user->email}&gt;
-	</li>
-HTML;
-
-		}
-
-		$htmlUsersList .= <<< HTML
-</ul>
-
-HTML;
-
-		// Construct the replacement table
-		$substitutions = $this->exceptionsHandler->getEmailVariables('', [
-			'[INFO]'      => $htmlUsersList
-		]);
-
-		// Let's get the most suitable email template
-		$template = $this->exceptionsHandler->getEmailTemplate('superuserslist', true);
-
-		// Got no template, the user didn't published any email template, or the template doesn't want us to
-		// send a notification email. Anyway, let's stop here.
-		if (!$template)
-		{
-			return;
-		}
-
-		$subject = $template[0];
-		$body = $template[1];
-
-		foreach ($substitutions as $k => $v)
-		{
-			$subject = str_replace($k, $v, $subject);
-			$body    = str_replace($k, $v, $body);
-		}
-
-		try
-		{
-			$config = $this->container->platform->getConfig();
-			$mailer = JFactory::getMailer();
-
-			$mailfrom = $config->get('mailfrom');
-			$fromname = $config->get('fromname');
-
-			$recipients = explode(',', $this->cparams->getValue('emailbreaches', ''));
-			$recipients = array_map('trim', $recipients);
-
-			foreach ($recipients as $recipient)
-			{
-				if (empty($recipient))
-				{
-					continue;
-				}
-
-				// This line is required because SpamAssassin is BROKEN
-				$mailer->Priority = 3;
-
-				$mailer->isHtml(true);
-				$mailer->setSender(array($mailfrom, $fromname));
-
-				// Resets the recipients, otherwise they will pile up
-				$mailer->clearAllRecipients();
-
-				if ($mailer->addRecipient($recipient) === false)
-				{
-					// Failed to add a recipient?
-					continue;
-				}
-
-				$mailer->setSubject($subject);
-				$mailer->setBody($body);
-				$mailer->Send();
-			}
-		}
-		catch (\Exception $e)
-		{
-			// Joomla! 3.5 and later throw an exception when crap happens instead of suppressing it and returning false
-		}
-	}
-
-	/**
-	 * Get the user groups with Super User privileges
-	 *
-	 * @return  array
-	 */
-	private function getSuperUserGroups()
-	{
-		static $ret = null;
-
-		if (!is_array($ret))
-		{
-			$db  = $this->container->db;
-			$ret = [];
-
-			try
-			{
-				$query = $db->getQuery(true)
-				            ->select($db->qn('rules'))
-				            ->from($db->qn('#__assets'))
-				            ->where($db->qn('parent_id') . ' = ' . $db->q(0));
-				$db->setQuery($query, 0, 1);
-				$rulesJSON = $db->loadResult();
-			}
-			catch (Exception $exc)
-			{
-				return $ret;
-			}
-
-			$rules     = json_decode($rulesJSON, true);
-			$rawGroups = $rules['core.admin'];
-
-			if (empty($rawGroups))
-			{
-				return $ret;
-			}
-
-			foreach ($rawGroups as $g => $enabled)
-			{
-				if (!$enabled)
-				{
-					continue;
-				}
-
-				$ret[] = $g;
-			}
-		}
-
-		return $ret;
-	}
-
-	/**
-	 * Get the IDs of users who are members of one or more groups in the $groups list
-	 *
-	 * @param   array  $groups  The users must be a member of at least one of these groups
-	 *
-	 * @return  array
-	 */
-	private function getUsersInGroups(array $groups)
-	{
-		$db  = $this->container->db;
-		$ret = [];
-		$groups = array_map(array($db, 'q'), $groups);
-
-		try
-		{
-			$query = $db->getQuery(true)
-			            ->select($db->qn('user_id'))
-			            ->from($db->qn('#__user_usergroup_map') . ' AS ' . $db->qn('m'))
-			            ->innerJoin($db->qn('#__users') . ' AS ' . $db->qn('u') . 'ON(' .
-				            $db->qn('u.id') . ' = ' . $db->qn('m.user_id')
-			            . ')')
-			            ->where($db->qn('group_id') . ' IN(' . implode(',', $groups) . ')' )
-			            ->where($db->qn('block') . ' = ' . $db->q('0') )
-						// Don't look only for empty string. Joomla! considers '' and '0' identical and will let you log in!
-			            ->where('(' .
-							'(' . $db->qn('activation') . ' = ' . $db->q('0') . ') OR ' .
-							'(' . $db->qn('activation') . ' = ' . $db->q('') . ')' .
-						')')
-			;
-			$db->setQuery($query);
-			$rawUserIDs = $db->loadColumn(0);
-		}
-		catch (Exception $exc)
-		{
-			return $ret;
-		}
-
-		if (empty($rawUserIDs))
-		{
-			return $ret;
-		}
-
-		return array_unique($rawUserIDs);
-	}
-
-	/**
 	 * Returns a list of safe Super User IDs. These are the IDs of the Super Users being saved by another Super User in
 	 * the backend of the site through com_users.
 	 *
@@ -513,7 +250,7 @@ HTML;
 	 */
 	public function getSafeIDs()
 	{
-		$app = JFactory::getApplication();
+		$app = Factory::getApplication();
 
 		if (!$this->isBackendSuperUser())
 		{
@@ -605,13 +342,270 @@ HTML;
 	}
 
 	/**
+	 * Returns all Joomla! user groups
+	 *
+	 * @return  array
+	 *
+	 * @since   5.3.0
+	 */
+	protected function getSuperUserGroups()
+	{
+		if (empty($this->superUserGroups))
+		{
+			// Get all groups
+			$db    = $this->container->db;
+			$query = $db->getQuery(true)
+				->select([$db->qn('id')])
+				->from($db->qn('#__usergroups'));
+
+			$this->superUserGroups = $db->setQuery($query)->loadColumn(0);
+
+			// This should never happen (unless your site is very dead, in which case I feel terribly sorry for you...)
+			if (empty($this->superUserGroups))
+			{
+				$this->superUserGroups = [];
+			}
+
+			$this->superUserGroups = array_filter($this->superUserGroups, function ($group) {
+				return Access::checkGroup($group, 'core.admin');
+			});
+		}
+
+		return $this->superUserGroups;
+	}
+
+	/**
+	 * Save the list of users to the database
+	 *
+	 * @param   array  $userList  The list of User IDs
+	 *
+	 * @return  void
+	 */
+	private function save(array $userList)
+	{
+		$db   = $this->container->db;
+		$data = json_encode($userList);
+
+		$query = $db->getQuery(true)
+			->delete($db->quoteName('#__admintools_storage'))
+			->where($db->quoteName('key') . ' = ' . $db->quote('superuserslist'));
+		$db->setQuery($query);
+		$db->execute();
+
+		$object = (object) [
+			'key'   => 'superuserslist',
+			'value' => $data,
+		];
+
+		$db->insertObject('#__admintools_storage', $object);
+	}
+
+	/**
+	 * Load the saved list of Super User IDs from the database
+	 *
+	 * @return  array
+	 */
+	private function load()
+	{
+		$db    = $this->container->db;
+		$query = $db->getQuery(true)
+			->select($db->quoteName('value'))
+			->from($db->quoteName('#__admintools_storage'))
+			->where($db->quoteName('key') . ' = ' . $db->quote('superuserslist'));
+		$db->setQuery($query);
+
+		$error = 0;
+
+		try
+		{
+			$jsonData = $db->loadResult();
+		}
+		catch (Exception $e)
+		{
+			$error = $e->getCode();
+		}
+
+		if (method_exists($db, 'getErrorNum') && $db->getErrorNum())
+		{
+			$error = $db->getErrorNum();
+		}
+
+		if ($error)
+		{
+			$jsonData = null;
+		}
+
+		if (empty($jsonData))
+		{
+			return [];
+		}
+
+		return json_decode($jsonData, true);
+	}
+
+	/**
+	 * Sends a warning email to the addresses set up to receive security exception emails
+	 *
+	 * @param   array  $superUsers  The IDs of Super Users added
+	 *
+	 * @return  void
+	 */
+	private function sendEmail(array $superUsers)
+	{
+		if (empty($superUsers))
+		{
+			// What are you doing here?
+			return;
+		}
+
+		// Load the component's administrator translation files
+		$jlang = Factory::getLanguage();
+		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, 'en-GB', true);
+		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
+		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, null, true);
+
+		// Convert the list of added Super Users
+		$htmlUsersList = <<< HTML
+<ul>
+HTML;
+
+		foreach ($superUsers as $id)
+		{
+			$user = $this->container->platform->getUser($id);
+
+			$htmlUsersList .= <<< HTML
+	<li>
+		#$id &ndash; <b>{$user->username}</b> &ndash; {$user->name} &lt;{$user->email}&gt;
+	</li>
+HTML;
+
+		}
+
+		$htmlUsersList .= <<< HTML
+</ul>
+
+HTML;
+
+		// Construct the replacement table
+		$substitutions = $this->exceptionsHandler->getEmailVariables('', [
+			'[INFO]' => $htmlUsersList,
+		]);
+
+		// Let's get the most suitable email template
+		$template = $this->exceptionsHandler->getEmailTemplate('superuserslist', true);
+
+		// Got no template, the user didn't published any email template, or the template doesn't want us to
+		// send a notification email. Anyway, let's stop here.
+		if (!$template)
+		{
+			return;
+		}
+
+		$subject = $template[0];
+		$body    = $template[1];
+
+		foreach ($substitutions as $k => $v)
+		{
+			$subject = str_replace($k, $v, $subject);
+			$body    = str_replace($k, $v, $body);
+		}
+
+		try
+		{
+			$config = $this->container->platform->getConfig();
+			$mailer = Factory::getMailer();
+
+			$mailfrom = $config->get('mailfrom');
+			$fromname = $config->get('fromname');
+
+			$recipients = explode(',', $this->cparams->getValue('emailbreaches', ''));
+			$recipients = array_map('trim', $recipients);
+
+			foreach ($recipients as $recipient)
+			{
+				if (empty($recipient))
+				{
+					continue;
+				}
+
+				// This line is required because SpamAssassin is BROKEN
+				$mailer->Priority = 3;
+
+				$mailer->isHtml(true);
+				$mailer->setSender([$mailfrom, $fromname]);
+
+				// Resets the recipients, otherwise they will pile up
+				$mailer->clearAllRecipients();
+
+				if ($mailer->addRecipient($recipient) === false)
+				{
+					// Failed to add a recipient?
+					continue;
+				}
+
+				$mailer->setSubject($subject);
+				$mailer->setBody($body);
+				$mailer->Send();
+			}
+		}
+		catch (Exception $e)
+		{
+			// Joomla! 3.5 and later throw an exception when crap happens instead of suppressing it and returning false
+		}
+	}
+
+	/**
+	 * Get the IDs of users who are members of one or more groups in the $groups list
+	 *
+	 * @param   array  $groups  The users must be a member of at least one of these groups
+	 *
+	 * @return  array
+	 */
+	private function getUsersInGroups(array $groups)
+	{
+		$db     = $this->container->db;
+		$ret    = [];
+		$groups = array_map([$db, 'q'], $groups);
+
+		try
+		{
+			$query = $db->getQuery(true)
+				->select($db->qn('user_id'))
+				->from($db->qn('#__user_usergroup_map') . ' AS ' . $db->qn('m'))
+				->innerJoin($db->qn('#__users') . ' AS ' . $db->qn('u') . 'ON(' .
+					$db->qn('u.id') . ' = ' . $db->qn('m.user_id')
+					. ')')
+				->where($db->qn('group_id') . ' IN(' . implode(',', $groups) . ')')
+				->where($db->qn('block') . ' = ' . $db->q('0'))
+				// Don't look only for empty string. Joomla! considers '' and '0' identical and will let you log in!
+				->where('(' .
+					'(' . $db->qn('activation') . ' = ' . $db->q('0') . ') OR ' .
+					'(' . $db->qn('activation') . ' = ' . $db->q('') . ')' .
+					')');
+			$db->setQuery($query);
+			$rawUserIDs = $db->loadColumn(0);
+		}
+		catch (Exception $exc)
+		{
+			return $ret;
+		}
+
+		if (empty($rawUserIDs))
+		{
+			return $ret;
+		}
+
+		return array_unique($rawUserIDs);
+	}
+
+	/**
 	 * Are we currently in the backend, with a logged in Super User?
 	 *
 	 * @return  bool
 	 */
 	private function isBackendSuperUser()
 	{
-		$app = JFactory::getApplication();
+		$app = Factory::getApplication();
 
 		// Not a valid application object?
 		if (!is_object($app))
@@ -619,7 +613,7 @@ HTML;
 			return false;
 		}
 
-		$isCMSApp = version_compare(JVERSION, '3.99999.99999', 'gt') ? ($app instanceof \Joomla\CMS\Application\CMSApplication) : $app instanceof JApplicationCms;
+		$isCMSApp = version_compare(JVERSION, '3.99999.99999', 'gt') ? ($app instanceof CMSApplication) : $app instanceof CMSApplication;
 
 		if (!$isCMSApp)
 		{
@@ -642,4 +636,4 @@ HTML;
 
 		return true;
 	}
-} 
+}

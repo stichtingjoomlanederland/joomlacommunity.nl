@@ -2,8 +2,8 @@
 <extension version="3.9" type="component" method="upgrade">
 	<name>com_regularlabsmanager</name>
 	<description>COM_REGULARLABSMANAGER_DESC</description>
-	<version>7.4.4</version>
-	<creationDate>February 2020</creationDate>
+	<version>7.4.5</version>
+	<creationDate>August 2020</creationDate>
 	<author>Regular Labs (Peter van Westen)</author>
 	<authorEmail>info@regularlabs.com</authorEmail>
 	<authorUrl>https://www.regularlabs.com</authorUrl>

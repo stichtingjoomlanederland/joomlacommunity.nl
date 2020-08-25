@@ -14,7 +14,7 @@ use Akeeba\AdminTools\Admin\Controller\Mixin\PredefinedTaskList;
 use Akeeba\AdminTools\Admin\Controller\Mixin\SendTroubleshootingEmail;
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
-use JText;
+use Joomla\CMS\Language\Text;
 
 class ServerConfigMaker extends Controller
 {
@@ -57,7 +57,7 @@ class ServerConfigMaker extends Controller
 
 		$model->saveConfiguration($data);
 
-		$this->setRedirect('index.php?option=com_admintools&view=' . $this->view, JText::_($this->langKeyPrefix . 'SAVED'));
+		$this->setRedirect('index.php?option=com_admintools&view=' . $this->view, Text::_($this->langKeyPrefix . 'SAVED'));
 	}
 
 	public function apply()
@@ -80,11 +80,11 @@ class ServerConfigMaker extends Controller
 
 		if (!$status)
 		{
-			$this->setRedirect('index.php?option=com_admintools&view=' . $this->view, JText::_($this->langKeyPrefix . 'NOTAPPLIED'), 'error');
+			$this->setRedirect('index.php?option=com_admintools&view=' . $this->view, Text::_($this->langKeyPrefix . 'NOTAPPLIED'), 'error');
 
 			return;
 		}
 
-		$this->setRedirect('index.php?option=com_admintools&view=' . $this->view, JText::_($this->langKeyPrefix . 'APPLIED'));
+		$this->setRedirect('index.php?option=com_admintools&view=' . $this->view, Text::_($this->langKeyPrefix . 'APPLIED'));
 	}
 }

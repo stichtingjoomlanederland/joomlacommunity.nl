@@ -38,7 +38,7 @@ class acympaginationHelper extends acymObject
         $pagination .= '"><i class="acymicon-play_arrow rotate180deg pagination__i"></i></div>';
 
         $pagination .= '<div class="cell shrink pagination_border_left"></div>';
-        $pagination .= '<input type="number" name="'.$name.'" min="1" max="'.$nbPages.'" value="'.$this->page.'" class="cell shrink pagination_input" id="acym_pagination'.$suffix.'">';
+        $pagination .= '<input type="number" name="'.$name.'" min="1" max="'.(empty($nbPages) ? 1 : $nbPages).'" value="'.$this->page.'" class="cell shrink pagination_input" id="acym_pagination'.$suffix.'">';
         $pagination .= '<p class="cell shrink pagination_text">'.acym_translation('ACYM_OUT_OF').' '.$nbPages.'</p>';
         $pagination .= '<div class="cell shrink pagination_border_right"></div>';
 

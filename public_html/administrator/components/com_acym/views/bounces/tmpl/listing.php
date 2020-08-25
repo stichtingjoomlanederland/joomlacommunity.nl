@@ -1,31 +1,15 @@
 <?php
 defined('_JEXEC') or die('Restricted access');
 ?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
+    <?php $data['toolbar']->displayToolbar($data); ?>
 	<div id="acym__bounces" class="acym__content">
-		<div class="grid-x grid-margin-x">
-			<div class="cell medium-shrink">
-				<h1 class="acym__title__listing"><?php echo acym_translation('ACYM_BOUNCES_RULES'); ?></h1>
-			</div>
-			<div class="medium-auto hide-for-small-only cell"></div>
-			<div class="medium-shrink cell">
-				<button type="button" data-task="config" id="acym__bounce__button__config" class="button button-secondary acy_button_submit"><?php echo acym_translation('ACYM_CONFIGURE'); ?></button>
-			</div>
-			<div class="medium-shrink cell">
-				<button type="button" data-task="reinstall" class="button button-secondary acy_button_submit"><?php echo acym_translation('ACYM_RESET_DEFAULT_RULES'); ?></button>
-			</div>
-			<div class="medium-shrink cell">
-				<button class="button button-secondary acy_button_submit" data-task="test"><?php echo acym_translation('ACYM_RUN_BOUNCE_HANDLING'); ?></button>
-			</div>
-			<div class="medium-shrink cell">
-				<button type="submit" data-task="edit" class="button expanded acy_button_submit"><?php echo acym_translation('ACYM_NEW'); ?></button>
-			</div>
-		</div>
 		<div class="cell grid-x acym__listing__actions">
             <?php
             $actions = ['delete' => acym_translation('ACYM_DELETE')];
             echo acym_listingActions($actions);
             ?>
 		</div>
+
 		<div class="grid-x margin-top-1 acym__listing">
 			<div class="cell grid-x acym__listing__header">
 				<div class="medium-shrink small-1 cell">
@@ -80,7 +64,7 @@ defined('_JEXEC') or die('Restricted access');
                                         echo acym_translation('ACYM_BLOCK_USER').'<br />';
                                     }
                                     if (in_array('delete_user', $oneRule->action_user)) {
-                                        echo acym_translation('ACYM_DELETE_USER');
+                                        echo acym_translation('ACYM_DELETE_USER').'<br />';
                                     }
                                     if (in_array('empty_queue_user', $oneRule->action_user)) {
                                         echo acym_translation('ACYM_EMPTY_QUEUE_USER');

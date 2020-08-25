@@ -30,7 +30,7 @@ function installAcym()
     $updateHelper->installList();
     $updateHelper->installNotifications();
     if (!$installClass->update) {
-        $updateHelper->installTemplates();
+        $updateHelper->installTemplates(true);
     }
     $updateHelper->installFields();
     $updateHelper->installLanguages();
@@ -38,6 +38,7 @@ function installAcym()
     $updateHelper->addUpdateSite();
     $updateHelper->installBounceRules();
     $updateHelper->installAdminNotif();
+    $updateHelper->installAddons();
 
     $newConfig = new stdClass();
     $newConfig->installcomplete = 1;

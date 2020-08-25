@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -41,7 +41,7 @@ class EasyDiscussViewPost extends EasyDiscussView
 		}
 
 		// Get list of categories.
-		$categories = ED::populateCategories('', '', 'select', 'category_id', $post->category_id, true, true, true, true, '', array($category->id));
+		$categories = ED::populateCategories('', '', 'select', 'category_id', $post->category_id, true, true, true, true, '', array($post->category_id));
 
 		$theme = ED::themes();
 		$theme->set('categories', $categories);
@@ -466,8 +466,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function lock()
 	{
@@ -501,8 +499,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function unlock()
 	{
@@ -534,8 +530,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function resolve()
 	{
@@ -569,8 +563,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function unresolve()
 	{
@@ -625,8 +617,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function update()
 	{
@@ -709,8 +699,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function reply()
 	{
@@ -825,8 +813,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	private function showJsonContents($output = null)
 	{
@@ -839,8 +825,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function feature()
 	{
@@ -858,8 +842,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function unfeature()
 	{
@@ -957,8 +939,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function showVideoDialog()
 	{
@@ -983,8 +963,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function showPhotoDialog()
 	{
@@ -1009,8 +987,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function showLinkDialog()
 	{
@@ -1026,6 +1002,31 @@ class EasyDiscussViewPost extends EasyDiscussView
 		$theme->set('dialogRecipient', $dialogRecipient);
 
 		$output = $theme->output('site/composer/dialogs/link');
+
+		return $this->ajax->resolve($output);
+	}
+
+
+	/**
+	 * Renders the insert link url dialog form
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function showArticleDialog()
+	{
+		$element = $this->input->get('editorName', '', 'word');
+		$caretPosition = $this->input->get('caretPosition', '', 'int');
+		$contents = $this->input->get('contents', '', 'raw');
+		$dialogRecipient = $this->input->get('dialogRecipient', 0, 'int');
+
+		$theme = ED::themes();
+		$theme->set('element', $element);
+		$theme->set('caretPosition', $caretPosition);
+		$theme->set('contents', $contents);
+		$theme->set('dialogRecipient', $dialogRecipient);
+
+		$output = $theme->output('site/composer/dialogs/article');
 
 		return $this->ajax->resolve($output);
 	}
@@ -1205,8 +1206,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getComments()
 	{
@@ -1321,8 +1320,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function editReply()
 	{
@@ -1366,8 +1363,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   1.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function checkCaptcha($post)
 	{
@@ -1412,8 +1407,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   1.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function processPolls($post)
 	{
@@ -1696,8 +1689,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function branchForm()
 	{
@@ -1718,15 +1709,15 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   1.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function mergeForm()
 	{
 		$id = $this->input->get('id', 0, 'int');
 
 		$model = ED::model('Posts');
-		$posts = $model->getDiscussions(array('limit' => DISCUSS_NO_LIMIT, 'exclude' => array($id)));
+		// $posts = $model->getDiscussions(array('limit' => 10, 'exclude' => array($id)));
+
+		$posts = $model->suggestTopics('', array($id));
 
 		$theme  = ED::themes();
 		$theme->set('posts', $posts);
@@ -1739,12 +1730,45 @@ class EasyDiscussViewPost extends EasyDiscussView
 	}
 
 	/**
+	 * Search for post topics used in post merge
+	 *
+	 * @since   4.1.18
+	 * @access  public
+	 */
+	public function mergePostSuggest()
+	{
+		$id = $this->input->get('id', 0, 'int');
+		$text = $this->input->get('text', '', 'string');
+
+		if (!$text) {
+			return $this->ajax->resolve('');
+		}
+
+		$posts = array();
+
+		// $obj = new stdClass();
+		// $obj->id = 111101;
+		// $obj->title = 'ABC One Two Three';
+
+		// $data[] = $obj;
+
+		// $obj = new stdClass();
+		// $obj->id = 111102;
+		// $obj->title = 'One Two Three ABC';
+
+		// $data[] = $obj;
+
+		$model = ED::model('Posts');
+		$posts = $model->suggestTopics($text, array($id));
+
+		return $this->ajax->resolve($posts);
+	}
+
+	/**
 	 * Renders the ban user form
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function banForm()
 	{

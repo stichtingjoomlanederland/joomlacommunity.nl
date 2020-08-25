@@ -1,5 +1,23 @@
 ed.require(['edq'], function($){
 
+	EasyDiscuss.renderDialogForBBcode = function(namespace, bbcodeItem) {
+		var editorName = $(bbcodeItem.textarea).attr('name');
+		var caretPosition = bbcodeItem.caretPosition.toString();
+		var contents = $(bbcodeItem.textarea).val();
+
+		// check if the composer is a dialog
+		var dialogRecipient = $(bbcodeItem.textarea).data('dialog-recipient');
+
+		EasyDiscuss.dialog({
+			'content': EasyDiscuss.ajax(namespace, {
+				'editorName': editorName, 
+				'caretPosition': caretPosition, 
+				'contents': contents, 
+				'dialogRecipient': dialogRecipient
+			})
+		});
+	};
+
 	EasyDiscuss.bbcode = [
 			<?php if ($this->config->get('layout_bbcode_bold')) { ?>
 			{
@@ -39,16 +57,7 @@ ed.require(['edq'], function($){
 			{
 				name: "<?php echo JText::_('COM_EASYDISCUSS_BBCODE_URL');?>",
 				replaceWith: function(h) {
-					var editorName = $(h.textarea).attr('name');
-					var caretPosition = h.caretPosition.toString();
-					var contents = $(h.textarea).val();
-
-					// check if the composer is a dialog
-					var dialogRecipient = $(h.textarea).data('dialog-recipient');
-
-					EasyDiscuss.dialog({
-						'content': EasyDiscuss.ajax('site/views/post/showLinkDialog', {'editorName': editorName, 'caretPosition': caretPosition, 'contents': contents, 'dialogRecipient': dialogRecipient})
-					});
+					EasyDiscuss.renderDialogForBBcode('site/views/post/showLinkDialog', h);
 				},
 				beforeInsert: function(h) {},
 				afterInsert: function(h) {},
@@ -61,18 +70,7 @@ ed.require(['edq'], function($){
 				name: "<?php echo JText::_('COM_EASYDISCUSS_BBCODE_PICTURE');?>",
 
 				replaceWith: function(h) {
-
-					// Get the editor's name
-					var editorName = $(h.textarea).attr('name');
-					var caretPosition = h.caretPosition.toString();
-					var contents = $(h.textarea).val();
-
-					// check if the composer is a dialog
-					var dialogRecipient = $(h.textarea).data('dialog-recipient');
-
-					EasyDiscuss.dialog({
-						content: EasyDiscuss.ajax('site/views/post/showPhotoDialog', {'editorName': editorName, 'caretPosition': caretPosition, 'contents': contents, 'dialogRecipient': dialogRecipient})
-					});
+					EasyDiscuss.renderDialogForBBcode('site/views/post/showPhotoDialog', h);
 				},
 				beforeInsert: function(h) {
 				},
@@ -85,20 +83,8 @@ ed.require(['edq'], function($){
 			<?php if ($this->config->get('layout_bbcode_video')) { ?>
 			{
 				name: "<?php echo JText::_('COM_EASYDISCUSS_BBCODE_VIDEO');?>",
-
 				replaceWith: function(h) {
-
-					// Get the editor's name
-					var editorName = $(h.textarea).attr('name');
-					var caretPosition = h.caretPosition.toString();
-					var contents = $(h.textarea).val();
-
-					// check if the composer is a dialog
-					var dialogRecipient = $(h.textarea).data('dialog-recipient');
-
-					EasyDiscuss.dialog({
-						content: EasyDiscuss.ajax('site/views/post/showVideoDialog', {'editorName': editorName, 'caretPosition': caretPosition, 'contents': contents, 'dialogRecipient': dialogRecipient})
-					});
+					EasyDiscuss.renderDialogForBBcode('site/views/post/showVideoDialog', h);
 				},
 				beforeInsert: function(h) {
 				},
@@ -163,6 +149,16 @@ ed.require(['edq'], function($){
 				openWith: '[gist type="php"]\n',
 				closeWith: '\n[/gist]',
 				className: 'markitup-gist'
+			},
+			<?php } ?>
+
+			<?php if ($this->config->get('layout_bbcode_article')) { ?>
+			{
+				name: "<?php echo JText::_('COM_ED_EMBED_ARTICLE');?>",
+				replaceWith: function(h) {
+					EasyDiscuss.renderDialogForBBcode('site/views/post/showArticleDialog', h);
+				},
+				className: 'markitup-article'
 			},
 			<?php } ?>
 

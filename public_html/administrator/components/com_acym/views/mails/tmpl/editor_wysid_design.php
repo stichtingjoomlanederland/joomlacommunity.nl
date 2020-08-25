@@ -69,6 +69,10 @@ defined('_JEXEC') or die('Restricted access');
 			<i class="cell acymicon-play_circle_filled"></i>
 			<div class="cell"><?php echo acym_translation('ACYM_VIDEO'); ?></div>
 		</div>
+		<div class="grid-x cell acym__wysid__column__element--new acym__wysid__column__element--new--giphy ui-draggable ui-draggable-handle">
+			<i class="cell acymicon-gif"></i>
+			<div class="cell"><?php echo acym_translation('ACYM_GIPHY'); ?></div>
+		</div>
         <?php
         $plugins = acym_trigger('getPossibleIntegrations');
 
@@ -87,10 +91,6 @@ defined('_JEXEC') or die('Restricted access');
             echo '</div>';
         }
         ?>
-		<!--<div class="grid-x cell acym__wysid__column__element--new acym__wysid__column__element--new--gif">-->
-		<!--    <i class="cell acymicon-gif"></i>-->
-		<!--    <div class="cell">Giphy</div>-->
-		<!--</div>-->
 		<div class="grid-x cell acym__wysid__column__element--new acym__wysid__column__element--new--follow ui-draggable ui-draggable-handle">
 			<i class="cell acymicon-facebook"></i>
 			<div class="cell"><?php echo acym_translation('ACYM_FOLLOW'); ?></div>
@@ -99,13 +99,11 @@ defined('_JEXEC') or die('Restricted access');
 			<i class="cell acymicon-more_horiz"></i>
 			<div class="cell"><?php echo acym_translation('ACYM_SEPARATOR'); ?></div>
 		</div>
-        <?php
-        echo acym_tooltip(
-            '<div class="grid-x cell acym__wysid__column__element--coming-soon"><i class="cell acymicon-share"></i><div class="cell">'.acym_translation('ACYM_SHARE').'</div></div>',
-            '<span class="acy_coming_soon"><i class="acymicon-new_releases acy_coming_soon_icon"></i>'.acym_translation('ACYM_COMING_SOON').'</span>',
-            'grid-x cell'
-        );
-        ?>
+
+		<!--<div class="grid-x cell acym__wysid__column__element--coming-soon">
+			<i class="cell acymicon-share"></i>
+			<div class="cell"><?php echo acym_translation('ACYM_SHARE'); ?></div>
+		</div>-->
 	</div>
 
 	<!--Todo custom zones created by users-->
@@ -113,3 +111,4 @@ defined('_JEXEC') or die('Restricted access');
 	<!--<div class="cell grid-x grid-margin-x grid-margin-y grid-padding-y large-up-2 medium-up-1 acym__wysid__right__toolbar__design--show" style="display: none;">-->
 	<!--</div>-->
 </div>
+

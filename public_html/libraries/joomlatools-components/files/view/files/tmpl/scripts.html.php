@@ -35,8 +35,7 @@ defined('KOOWA') or die( 'Restricted access' );
     'Insert'
 ))); ?>
 
-<ktml:script src="assets://files/js/ejs/ejs.js" />
-<ktml:script src="assets://files/js/<?= !empty($debug) ? 'build' : 'min' ?>/files.js" />
+<ktml:script src="assets://files/js/files<?= !empty($debug) ? '' : '.min' ?>.js" />
 
 <script>
     // Bootstrap tooltips emit a "hide" event on tooltip trigger element and MooTools runs hide() on it

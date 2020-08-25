@@ -13,10 +13,10 @@ use FOF30\Container\Container;
 use FOF30\Model\DataModel;
 
 /**
- * @property   int	   $id
- * @property   string  $ip
- * @property   string  $reason
- * @property   string  $until
+ * @property   int    $id
+ * @property   string $ip
+ * @property   string $reason
+ * @property   string $until
  *
  * @method  $this  ip()  ip(string $v)
  * @method  $this  reason()  reason(string $v)

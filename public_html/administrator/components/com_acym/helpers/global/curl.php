@@ -20,6 +20,14 @@ function acym_makeCurlCall($url, $fields)
 
     $result = curl_exec($ch);
 
+    if (curl_errno($ch)) {
+        $error = curl_error($ch);
+
+        curl_close($ch);
+
+        return ['error' => $error];
+    }
+
     curl_close($ch);
 
     return json_decode($result, true);

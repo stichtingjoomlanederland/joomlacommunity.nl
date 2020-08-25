@@ -21,22 +21,22 @@ defined('_JEXEC') or die('Unauthorized Access');
             <a href="<?php echo $post->getSiteDetails()->siteUrl; ?>" target="_blank" class="ed-post-site-info__link"><?php echo $post->getSiteDetails()->siteUrl; ?></a>
 
             <div class="ed-post-site-info__title"><?php echo JText::_('COM_EASYDISCUSS_TAB_SITE_FORM_USERNAME'); ?></div>
-            	<input class="ed-post-site-info__field" type="text" value="<?php echo $post->getSiteDetails()->siteUsername; ?>" readonly="">
+            	<input class="ed-post-site-info__field" type="text" value="<?php echo $this->html('string.escape', $post->getSiteDetails()->siteUsername); ?>" readonly="" />
 
             <div class="ed-post-site-info__title"><?php echo JText::_('COM_EASYDISCUSS_TAB_SITE_FORM_PASSWORD');?></div>
-            	<input class="ed-post-site-info__field" type="text" value="<?php echo $post->getSiteDetails()->sitePassword; ?>" readonly="">
+            	<input class="ed-post-site-info__field" type="text" value="<?php echo $this->html('string.escape', $post->getSiteDetails()->sitePassword); ?>" readonly="">
 
             <div class="ed-post-site-info__title"><?php echo JText::_('COM_EASYDISCUSS_TAB_SITE_FORM_FTP_URL'); ?></div>
-            	<input class="ed-post-site-info__field" type="text" value="<?php echo $post->getSiteDetails()->ftpUrl; ?>" readonly="">
+            	<input class="ed-post-site-info__field" type="text" value="<?php echo $this->html('string.escape', $post->getSiteDetails()->ftpUrl); ?>" readonly="">
 
             <div class="ed-post-site-info__title"><?php echo JText::_('COM_EASYDISCUSS_TAB_SITE_FORM_FTP_USERNAME');?></div>
-            	<input class="ed-post-site-info__field" type="text" value="<?php echo $post->getSiteDetails()->ftpUsername; ?>" readonly="">
+            	<input class="ed-post-site-info__field" type="text" value="<?php echo $this->html('string.escape', $post->getSiteDetails()->ftpUsername); ?>" readonly="">
 
             <div class="ed-post-site-info__title"><?php echo JText::_('COM_EASYDISCUSS_TAB_SITE_FORM_FTP_PASSWORD');?></div>
-            	<input class="ed-post-site-info__field" type="text" value="<?php echo $post->getSiteDetails()->ftpPassword; ?>" readonly="">
+            	<input class="ed-post-site-info__field" type="text" value="<?php echo $this->html('string.escape', $post->getSiteDetails()->ftpPassword); ?>" readonly="">
 
             <div class="ed-post-site-info__title"><?php echo JText::_('COM_EASYDISCUSS_TAB_SITE_FORM_OPTIONAL');?></div>
-            	<div class="ed-post-site-info__note"><?php echo $post->getSiteDetails()->siteInfo; ?></div>
+            	<div class="ed-post-site-info__note"><?php echo $this->html('string.escape', $post->getSiteDetails()->siteInfo); ?></div>
         </div>
     </div>
 </div>

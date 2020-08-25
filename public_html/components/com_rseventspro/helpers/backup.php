@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -28,6 +28,7 @@ class RSEBackup {
 		'#__rseventspro_coupons',
 		'#__rseventspro_coupon_codes',
 		'#__rseventspro_speakers',
+		'#__rseventspro_sponsors',
 		'#__rseventspro_tickets',
 		'#__rseventspro_users',
 		'#__rseventspro_user_seats',
@@ -189,7 +190,7 @@ class RSEBackup {
 	// Extract files from the archive
 	public function extract() {
 		$app	= JFactory::getApplication();
-		$file	= $app->input->files->get('restore');
+		$file	= $app->input->files->get('restore', null, 'raw');
 		$local	= $app->input->getString('local','');
 		$ovrw	= $app->input->getInt('overwrite',0);
 		
@@ -204,7 +205,7 @@ class RSEBackup {
 			}
 			
 			$this->restore = JPATH_SITE.'/components/com_rseventspro/assets/restore/'.md5($file['name']).'.zip';
-			JFile::upload($file['tmp_name'], $this->restore);
+			JFile::upload($file['tmp_name'], $this->restore, false, true);
 		} else {
 			if (JFile::getExt($local) != 'zip') {
 				throw new Exception(JText::_('COM_RSEVENTSPRO_RESTORE_INVALID_EXTENSION'));
@@ -663,6 +664,9 @@ class RSEBackup {
 		} elseif ($type == 'speaker') {
 			$tmp['ide'] = $this->getId($hash, '#__rseventspro_events', $tmp['ide']);
 			$tmp['id'] 	= $this->getId($hash, '#__rseventspro_speakers', $tmp['id']);
+		} elseif ($type == 'sponsor') {
+			$tmp['ide'] = $this->getId($hash, '#__rseventspro_events', $tmp['ide']);
+			$tmp['id'] 	= $this->getId($hash, '#__rseventspro_sponsors', $tmp['id']);
 		}
 		
 		foreach ($tmp as $col => $val) {

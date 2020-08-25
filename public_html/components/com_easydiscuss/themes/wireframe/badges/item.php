@@ -38,12 +38,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<div class="ed-achiever">
 						<div class="o-flag">
 							<div class="o-flag__image">
-								<div class="o-avatar-status is-online">
-									<div class="o-avatar-status__indicator"></div>
-									<a href="<?php echo $user->getLink(); ?>">
-										<?php echo $this->html('user.avatar', $user, array('size' => 'md'), false, true); ?>
-									</a>
-								</div>
+								<?php echo $this->html('user.avatar', $user, array('status' => true, 'size'=>'md')); ?>
 							</div>
 							<div class="o-flag__body">
 								<?php echo $this->html('user.username', $user, array('lgMarginTop' => true, 'lgMarginBottom' => true)); ?>

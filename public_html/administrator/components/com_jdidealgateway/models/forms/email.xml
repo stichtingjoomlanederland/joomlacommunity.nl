@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<form>
+	<field
+			name="id"
+			type="text"
+			class="readonly"
+			label="JGLOBAL_FIELD_ID_LABEL"
+			description="JGLOBAL_FIELD_ID_DESC"
+			size="10"
+			default="0"
+			readonly="true"/>
+
+	<field
+			name="trigger"
+			type="list"
+			label="COM_ROPAYMENTS_EMAIL_TRIGGER_LABEL"
+			description="COM_ROPAYMENTS_EMAIL_TRIGGER_DESC"
+			class="input-xxlarge advancedSelect"
+			size="1"
+			default=""
+	>
+		<option value="admin_status_mismatch">
+			COM_ROPAYMENTS_ADMIN_STATUS_MISMATCH
+		</option>
+		<option value="admin_payment_failed">
+			COM_ROPAYMENTS_ADMIN_PAYMENT_FAILED
+		</option>
+		<option value="admin_order_payment">
+			COM_ROPAYMENTS_ADMIN_ORDER_PAYMENT
+		</option>
+		<option value="admin_inform_email">
+			COM_ROPAYMENTS_ADMIN_INFORM_EMAIL
+		</option>
+		<option value="customer_change_status">
+			COM_ROPAYMENTS_CUSTOMER_CHANGE_STATUS
+		</option>
+	</field>
+
+	<field
+			name="subject"
+			type="text"
+			label="COM_ROPAYMENTS_EMAIL_SUBJECT_LABEL"
+			description="COM_ROPAYMENTS_EMAIL_SUBJECT_DESC"
+			class="input-xxlarge"
+			size="60"
+			required="true"/>
+
+	<field
+			name="body"
+			type="editor"
+			label="COM_ROPAYMENTS_EMAIL_BODY_LABEL"
+			description="COM_ROPAYMENTS_EMAIL_BODY_DESC"
+			filter="JComponentHelper::filterText"
+			buttons="true"/>
+</form>

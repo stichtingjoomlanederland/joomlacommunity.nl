@@ -40,8 +40,9 @@
 				<option value="unresolved">Unresolved</option>
 			</field>
 			<field name="sort" type="list" default="latest" description="Sort by type" label="Sorting">
-				<option value="latest">Latest</option>
-				<option value="popular">Popular</option>
+				<option value="latest">Replied Date</option>
+				<option value="replylatest">Creation Date</option>
+				<option value="popular">Most Replies</option>
 			</field>
 			<field name="limit" type="list" default="-2" label="Pagination" description="Set how many items to be displayed per page">
 				<option value="-1">Use Joomla Settings</option>

@@ -5,6 +5,12 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\User\User;
+use Joomla\CMS\User\UserHelper;
+
 defined('_JEXEC') or die;
 
 class AtsystemFeatureNofesalogin extends AtsystemFeatureAbstract
@@ -45,8 +51,8 @@ class AtsystemFeatureNofesalogin extends AtsystemFeatureAbstract
 		// Is this a Joomla! 3.9+ installation with a user who's not yet provided consent?
 		if ($this->isJoomlaPrivacyEnabled())
 		{
-			$userID     = JUserHelper::getUserId($user['username']);
-			$userObject = JFactory::getUser($userID);
+			$userID     = UserHelper::getUserId($user['username']);
+			$userObject = Factory::getUser($userID);
 
 			if (!$this->hasUserConsented($userObject))
 			{
@@ -54,32 +60,30 @@ class AtsystemFeatureNofesalogin extends AtsystemFeatureAbstract
 			}
 		}
 
-		$newopts = array();
+		$newopts = [];
 		$this->app->logout($instance->id, $newopts);
 
 		// Since Joomla! 2.5.5 you have to close the session before throwing an error, otherwise the user isn't
 		// logged out.
-		$session = JFactory::getSession();
+		$session = Factory::getSession();
 		$session->close();
 
 		// Throw error
-		throw new Exception(JText::_('JGLOBAL_AUTH_ACCESS_DENIED'), 403);
+		throw new Exception(Text::_('JGLOBAL_AUTH_ACCESS_DENIED'), 403);
 	}
 
-	function &getUserObject($user, $options = array())
+	function &getUserObject($user, $options = [])
 	{
-		JLoader::import('joomla.user.helper');
-		$instance = new JUser();
+		$instance = new User();
 
-		if ($id = intval(JUserHelper::getUserId($user['username'])))
+		if ($id = intval(UserHelper::getUserId($user['username'])))
 		{
 			$instance->load($id);
 
 			return $instance;
 		}
 
-		JLoader::import('joomla.application.component.helper');
-		$config = JComponentHelper::getParams('com_users');
+		$config           = ComponentHelper::getParams('com_users');
 		$defaultUserGroup = $config->get('new_usertype', 2);
 
 		$instance->set('id', 0);
@@ -87,7 +91,7 @@ class AtsystemFeatureNofesalogin extends AtsystemFeatureAbstract
 		$instance->set('username', $user['username']);
 		$instance->set('email', $user['email']); // Result should contain an email (check)
 		$instance->set('usertype', 'deprecated');
-		$instance->set('groups', array($defaultUserGroup));
+		$instance->set('groups', [$defaultUserGroup]);
 
 		return $instance;
 	}

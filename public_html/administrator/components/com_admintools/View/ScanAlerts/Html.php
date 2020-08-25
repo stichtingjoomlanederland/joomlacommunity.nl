@@ -11,10 +11,10 @@ defined('_JEXEC') or die;
 
 use Akeeba\AdminTools\Admin\Model\ScanAlerts;
 use Akeeba\AdminTools\Admin\Model\Scans;
-use FOF30\View\DataView\Html as BaseView;
+use DateTimeZone;
 use FOF30\Date\Date;
-use JLoader;
-use JText;
+use FOF30\View\DataView\Html as BaseView;
+use Joomla\CMS\Language\Text;
 
 class Html extends BaseView
 {
@@ -67,29 +67,44 @@ class Html extends BaseView
 	 */
 	public $retarray;
 
-	/** @var  string	Order column */
+	/** @var  string    Order column */
 	public $order;
 
 	/** @var  string Order direction, ASC/DESC */
 	public $order_Dir;
 
-	/** @var  array	Sorting order options */
+	/** @var  array    Sorting order options */
 	public $sortFields = [];
 
 	public $filters = [];
 
+	public function onBeforePrint()
+	{
+		$script = <<<JS
+
+;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
+// due to missing trailing semicolon and/or newline in their code.
+(function($){
+	$(document).ready(function(){
+		if (window.print) {
+			window.print();
+		}
+	});
+})(akeeba.jQuery);
+
+JS;
+		$this->addJavascriptInline($script);
+	}
+
 	protected function onBeforeEdit()
 	{
-		JLoader::import('joomla.utilities.date');
-		JLoader::import('joomla.filesystem.file');
-
 		// Load highlight.js
 		$this->addJavascriptFile('//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js');
 		$this->addCssFile('//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/default.min.css');
 
 		$js = <<< JS
 
-;;
+
 
 akeeba.jQuery(document).ready(function($){
 	hljs.initHighlightingOnLoad();
@@ -109,7 +124,7 @@ JS;
 
 		$this->scanDate = new Date($scanModel->backupstart);
 		$timezone       = $this->container->platform->getUser()->getParam('timezone', $this->container->platform->getConfig()->get('offset', 'GMT'));
-		$tz             = new \DateTimeZone($timezone);
+		$tz             = new DateTimeZone($timezone);
 		$this->scanDate->setTimezone($tz);
 
 		$this->item->newfile    = empty($this->item->diff);
@@ -175,7 +190,7 @@ JS;
 
 			$script = <<< JS
 
-; // Working around broken 3PD plugins
+ // Working around broken 3PD plugins
 akeeba.jQuery(document).ready(function($){
 	akeeba.fef.tabs();
 });
@@ -188,7 +203,7 @@ JS;
 	{
 		parent::onBeforeBrowse();
 
-		$hash = 'admintools'.$this->getName();
+		$hash = 'admintools' . $this->getName();
 
 		// ...ordering
 		$platform        = $this->container->platform;
@@ -197,40 +212,22 @@ JS;
 		$this->order_Dir = $platform->getUserStateFromRequest($hash . 'filter_order_Dir', 'filter_order_Dir', $input, 'DESC');
 
 		// ...filter state
-		$this->filters['status'] 	   = $platform->getUserStateFromRequest($hash . 'filter_status', 'status', $input);
-		$this->filters['path'] 	 	   = $platform->getUserStateFromRequest($hash . 'filter_path', 'path', $input);
+		$this->filters['status']       = $platform->getUserStateFromRequest($hash . 'filter_status', 'status', $input);
+		$this->filters['path']         = $platform->getUserStateFromRequest($hash . 'filter_path', 'path', $input);
 		$this->filters['acknowledged'] = $platform->getUserStateFromRequest($hash . 'filter_acknowledged', 'acknowledged', $input);
 
 		// Construct the array of sorting fields
-		$this->sortFields = array(
+		$this->sortFields = [
 			'admintools_scanalert_id' => 'ID',
-			'path' 					  => JText::_('COM_ADMINTOOLS_LBL_SCANALERTS_PATH'),
-			'filestatus' 			  => JText::_('COM_ADMINTOOLS_LBL_SCANALERTS_STATUS'),
-			'threat_score' 			  => JText::_('COM_ADMINTOOLS_LBL_SCANALERTS_THREAT_SCORE'),
-			'acknowledged'			  => JText::_('COM_ADMINTOOLS_LBL_SCANALERTS_ACKNOWLEDGED'),
-		);
+			'path'                    => Text::_('COM_ADMINTOOLS_LBL_SCANALERTS_PATH'),
+			'filestatus'              => Text::_('COM_ADMINTOOLS_LBL_SCANALERTS_STATUS'),
+			'threat_score'            => Text::_('COM_ADMINTOOLS_LBL_SCANALERTS_THREAT_SCORE'),
+			'acknowledged'            => Text::_('COM_ADMINTOOLS_LBL_SCANALERTS_ACKNOWLEDGED'),
+		];
 
 		if ($this->getLayout() == 'print')
 		{
 			$this->onBeforePrint();
 		}
-	}
-
-	public function onBeforePrint()
-	{
-		$script = <<<JS
-
-;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
-// due to missing trailing semicolon and/or newline in their code.
-(function($){
-	$(document).ready(function(){
-		if (window.print) {
-			window.print();
-		}
-	});
-})(akeeba.jQuery);
-
-JS;
-		$this->addJavascriptInline($script);
 	}
 }

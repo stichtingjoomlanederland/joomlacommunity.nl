@@ -45,10 +45,10 @@ class AtsystemFeatureResetjoomlatfa extends AtsystemFeatureAbstract
 
 		$query = $db->getQuery(true)
 			->update($db->qn('#__users'))
-			->set(array(
+			->set([
 				$db->qn('otpKey') . ' = ' . $db->q(''),
 				$db->qn('otep') . ' = ' . $db->q(''),
-			))
+			])
 			->where($db->qn('id') . ' = ' . $db->q($user['id']));
 
 		$db->setQuery($query);

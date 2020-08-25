@@ -7,14 +7,6 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-echo JHtml::_('rsfieldset.start', 'adminform', '');
-echo JHtml::_('rsfieldset.element', $this->form->getLabel('notification_message'), $this->form->getInput('notification_message'));
-echo JHtml::_('rsfieldset.end');
-
-echo JHtml::_('rsfieldset.start', 'adminform', '');
-echo JHtml::_('rsfieldset.element', $this->form->getLabel('subscription_message'), $this->form->getInput('subscription_message'));
-echo JHtml::_('rsfieldset.end');
-
-echo JHtml::_('rsfieldset.start', 'adminform', '');
-echo JHtml::_('rsfieldset.element', $this->form->getLabel('report_message'), $this->form->getInput('report_message'));
-echo JHtml::_('rsfieldset.end');
+echo $this->form->renderField('notification_message');
+echo $this->form->renderField('subscription_message');
+echo $this->form->renderField('report_message');

@@ -246,10 +246,12 @@ class EasyDiscussMailQueue extends EasyDiscuss
 			// Get the html output
 			$html = $message->getHTML();
 
-			// Intelligently detect content
-			if ($intelligentReplyDetection) {
-				$html = $this->detectEmailContent($html);
-			}
+			// // Intelligently detect content (Not reliable, see #899)
+			$intelligentReplyDetection = false;
+
+			// if ($intelligentReplyDetection) {
+			// 	$html = $this->detectEmailContent($html);
+			// }
 
 			// Default allowed html codes
 			$allowed = '<img>,<a>,<br>,<table>,<tbody>,<th>,<tr>,<td>,<div>,<span>,<p>,<h1>,<h2>,<h3>,<h4>,<h5>,<h6>,<b>,<i>,<u>';

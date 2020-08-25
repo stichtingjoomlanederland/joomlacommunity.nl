@@ -24,7 +24,7 @@ $callback  = isset($query['callback']) ? $query['callback'] : null;
 
 <?= import('com:files.files.scripts.html'); ?>
 
-<ktml:script src="media://koowa/com_files/js/files.attachments.js"/>
+<ktml:script src="media://koowa/com_files/js/attachments.js"/>
 <ktml:style src="media://koowa/com_files/css/files.css"/>
 
 

@@ -36,13 +36,28 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<?php } ?>
 				<?php if ($params->get('showauthor', 1)) { ?>
 					<div class="o-flag t-lg-mb--md">
-						<div class="o-flag__image">
-							<?php echo ED::themes()->html('user.avatar', $post->user, array('rank' => true, 'status' => true, 'size' => 'md')); ?>
-						</div>
-						<div class="o-flag__body">
-							<?php echo ED::themes()->html('user.username', $post->user, array('posterName' => $post->poster_name)); ?>
-							<div class="ed-user-rank t-lg-mb--sm"><?php echo ED::getUserRanks($post->user->id); ?></div>
-						</div>
+
+						<?php if ($post->isLastReplyAnonymous()) { ?>
+
+							<div class="o-flag__image">
+								<?php echo ED::themes()->html('user.anonymous', $post->user, true, array('size' => 'md')); ?>
+							</div>
+							
+							<div class="o-flag__body">
+								<?php echo ED::themes()->html('user.username', $post->user, array('posterName' => $post->user->getName(), 'isAnonymous' => true, 'canViewAnonymousUsername' => $post->canAccessAnonymousPost($post->last_reply_id))); ?>
+							</div>
+
+						<?php } else { ?>
+
+							<div class="o-flag__image">
+								<?php echo ED::themes()->html('user.avatar', $post->user, array('rank' => true, 'status' => true, 'size' => 'md')); ?>
+							</div>
+
+							<div class="o-flag__body">
+								<?php echo ED::themes()->html('user.username', $post->user, array('posterName' => $post->poster_name)); ?>
+								<div class="ed-user-rank t-lg-mb--sm"><?php echo ED::getUserRanks($post->user->id); ?></div>
+							</div>
+						<?php } ?>
 					</div>
 				<?php } ?>
 				<div class="">

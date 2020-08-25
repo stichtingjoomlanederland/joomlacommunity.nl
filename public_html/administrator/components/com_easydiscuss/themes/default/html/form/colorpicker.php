@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -28,7 +28,7 @@ body .minicolors-swatch.minicolors-sprite.minicolors-input-swatch {
 </div>
 
 <?php if ($loadScript) { ?>
-<script type="text/javascript">
+<script>
 ed.require(['edq'], function($) {
 	$('[data-colorpicker-revert]').on('click', function() {
 		var button = $(this);

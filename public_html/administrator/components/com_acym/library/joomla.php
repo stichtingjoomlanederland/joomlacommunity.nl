@@ -12,6 +12,7 @@ define('ACYM_ROOT', rtrim(JPATH_ROOT, DS).DS);
 define('ACYM_FRONT', rtrim(JPATH_SITE, DS).DS.'components'.DS.ACYM_COMPONENT.DS);
 define('ACYM_BACK', rtrim(JPATH_ADMINISTRATOR, DS).DS.'components'.DS.ACYM_COMPONENT.DS);
 define('ACYM_VIEW', ACYM_BACK.'views'.DS);
+define('ACYM_PARTIAL', ACYM_BACK.'partial'.DS);
 define('ACYM_VIEW_FRONT', ACYM_FRONT.'views'.DS);
 define('ACYM_HELPER', ACYM_BACK.'helpers'.DS);
 define('ACYM_CLASS', ACYM_BACK.'classes'.DS);
@@ -31,14 +32,15 @@ define('ACYM_JS', ACYM_MEDIA_URL.'js/');
 define('ACYM_TEMPLATE', ACYM_MEDIA.'templates'.DS);
 define('ACYM_TEMPLATE_URL', ACYM_MEDIA_URL.'templates'.DS);
 define('ACYM_TEMPLATE_THUMBNAILS', ACYM_IMAGES.'thumbnails/');
-define('ACYM_DYNAMICS_URL', acym_rootURI().'administrator/components/'.ACYM_COMPONENT.'/dynamics/');
+define('ACYM_CORE_DYNAMICS_URL', acym_rootURI().'administrator/components/'.ACYM_COMPONENT.'/dynamics/');
+define('ACYM_DYNAMICS_URL', ACYM_CORE_DYNAMICS_URL);
 define('ACYM_ADDONS_FOLDER_PATH', ACYM_BACK.'dynamics'.DS);
 
 define('ACYM_MEDIA_FOLDER', 'media/'.ACYM_COMPONENT);
 define('ACYM_UPLOAD_FOLDER', ACYM_MEDIA_FOLDER.DS.'upload'.DS);
 define('ACYM_UPLOAD_FOLDER_THUMBNAIL', ACYM_MEDIA.'images'.DS.'thumbnails'.DS);
 
-define('ACYM_CUSTOM_PLUGIN_LAYOUT', ACYM_MEDIA_FOLDER.DS.'plugins'.DS);
+define('ACYM_CUSTOM_PLUGIN_LAYOUT', ACYM_MEDIA.'plugins'.DS);
 define('ACYM_LOGS_FOLDER', ACYM_MEDIA_FOLDER.DS.'logs'.DS);
 
 $jversion = preg_replace('#[^0-9\.]#i', '', JVERSION);
@@ -50,6 +52,9 @@ define('ACYM_J40', version_compare($jversion, '4.0.0', '>='));
 
 define('ACYM_ALLOWRAW', defined('JREQUEST_ALLOWRAW') ? JREQUEST_ALLOWRAW : 2);
 define('ACYM_ALLOWHTML', defined('JREQUEST_ALLOWHTML') ? JREQUEST_ALLOWHTML : 4);
+
+use Joomla\CMS\Language\LanguageHelper;
+use Joomla\Archive\Archive;
 
 function acym_getTimeOffsetCMS()
 {
@@ -292,7 +297,13 @@ function acym_punycode($email, $method = 'emailToPunycode')
 
 function acym_extractArchive($archive, $destination)
 {
-    return JArchive::extract($archive, $destination);
+    if (ACYM_J40) {
+        $archiveManager = new Archive();
+
+        return $archiveManager->extract($archive, $destination);
+    } else {
+        return JArchive::extract($archive, $destination);
+    }
 }
 
 function acym_addScript($raw, $script, $type = 'text/javascript', $defer = true, $async = false, $needTagScript = false, $deps = ['jquery'])
@@ -302,7 +313,11 @@ function acym_addScript($raw, $script, $type = 'text/javascript', $defer = true,
     if ($raw) {
         $acyDocument->addScriptDeclaration($script, $type);
     } else {
-        $acyDocument->addScript($script, $type, $defer, $async);
+        if (ACYM_J40) {
+            $acyDocument->addScript($script, [], ['defer' => $defer, 'async' => $async, 'type' => $type]);
+        } else {
+            $acyDocument->addScript($script, $type, $defer, $async);
+        }
     }
 
     return 'acym_script';
@@ -330,7 +345,11 @@ function acym_isAdmin()
 {
     $acyapp = acym_getGlobal('app');
 
-    return $acyapp->isAdmin();
+    if (ACYM_J40) {
+        return $acyapp->isClient('administrator');
+    } else {
+        return $acyapp->isAdmin();
+    }
 }
 
 function acym_getCMSConfig($varname, $default = null)
@@ -363,11 +382,12 @@ function acym_redirect($url, $msg = '', $msgType = 'message')
     }
 }
 
-function acym_getLanguageTag()
+function acym_getLanguageTag($simple = false)
 {
     $acylanguage = JFactory::getLanguage();
+    $langCode = $acylanguage->getTag();
 
-    return $acylanguage->getTag();
+    return $simple ? substr($langCode, 0, 2) : $langCode;
 }
 
 function acym_baseURI($pathonly = false)
@@ -470,8 +490,9 @@ function acym_loadObjectList($query, $key = '', $offset = null, $limit = null)
 
 function acym_loadObject($query)
 {
-    $acydb = acym_getGlobal('db');
+    acym_addLimit($query);
 
+    $acydb = acym_getGlobal('db');
     $acydb->setQuery($query);
 
     return $acydb->loadObject();
@@ -665,7 +686,11 @@ function acym_isDebug()
 
 function acym_getLanguagePath($basePath = ACYM_BASE, $language = null)
 {
-    return JLanguage::getLanguagePath(rtrim($basePath, DS), $language);
+    if (ACYM_J40) {
+        return LanguageHelper::getLanguagePath(rtrim($basePath, DS), $language);
+    } else {
+        return JLanguage::getLanguagePath(rtrim($basePath, DS), $language);
+    }
 }
 
 function acym_askLog($current = true, $message = 'ACYM_NOTALLOWED', $type = 'error')
@@ -706,6 +731,11 @@ function acym_date($input = 'now', $format = null, $useTz = true, $gregorian = f
     } else {
         $tz = null;
     }
+
+    if (!$format || (strpos($format, 'ACYM_DATE_FORMAT') !== false && acym_translation($format) == $format)) {
+        $format = 'ACYM_DATE_FORMAT_LC1';
+    }
+    $format = acym_translation($format);
 
     return JHTML::_('date', $input, $format, $tz, $gregorian);
 }
@@ -873,13 +903,14 @@ function acym_getLeftMenu($name)
         'users' => ['title' => 'ACYM_USERS', 'class-i' => 'acymicon-group', 'span-class' => ''],
         'fields' => ['title' => 'ACYM_CUSTOM_FIELDS', 'class-i' => 'acymicon-text_fields', 'span-class' => ''],
         'lists' => ['title' => 'ACYM_LISTS', 'class-i' => 'acymicon-address-book-o', 'span-class' => 'acym__joomla__left-menu__fa'],
-        'campaigns' => ['title' => 'ACYM_CAMPAIGNS', 'class-i' => 'acymicon-email', 'span-class' => ''],
-        'mails' => ['title' => 'ACYM_TEMPLATES', 'class-i' => 'acymicon-pencil-square-o', 'span-class' => 'acym__joomla__left-menu__fa'],
-        'automation' => ['title' => 'ACYM_AUTOMATION', 'class-i' => 'acymicon-gears', 'span-class' => 'acym__joomla__left-menu__fa'],
-        'queue' => ['title' => 'ACYM_QUEUE', 'class-i' => 'acymicon-hourglass-half', 'span-class' => 'acym__joomla__left-menu__fa'],
+        'campaigns' => ['title' => 'ACYM_EMAILS', 'class-i' => 'acymicon-email', 'span-class' => ''],
+        'mails' => ['title' => 'ACYM_TEMPLATES', 'class-i' => 'acymicon-pencil', 'span-class' => 'acym__joomla__left-menu__fa'],
+        'automation' => ['title' => 'ACYM_AUTOMATION', 'class-i' => 'acymicon-cog', 'span-class' => 'acym__joomla__left-menu__fa'],
+        'queue' => ['title' => 'ACYM_QUEUE', 'class-i' => 'acymicon-hourglass-2', 'span-class' => 'acym__joomla__left-menu__fa'],
         'stats' => ['title' => 'ACYM_STATISTICS', 'class-i' => 'acymicon-bar-chart', 'span-class' => 'acym__joomla__left-menu__fa'],
         'bounces' => ['title' => 'ACYM_BOUNCE_HANDLING', 'class-i' => 'acymicon-random', 'span-class' => 'acym__joomla__left-menu__fa'],
         'plugins' => ['title' => $addOnsTitle, 'class-i' => 'acymicon-plug', 'span-class' => 'acym__joomla__left-menu__fa'],
+        'forms' => ['title' => 'ACYM_SUBSCRIPTION_FORMS', 'class-i' => 'acymicon-edit', 'span-class' => 'acym__joomla__left-menu__fa'],
         'configuration' => ['title' => 'ACYM_CONFIGURATION', 'class-i' => 'acymicon-settings', 'span-class' => ''],
     ];
 
@@ -1028,6 +1059,98 @@ function acym_languageOption($emailLanguage, $name)
         'language',
         'name'
     );
+}
+
+function acym_coreAddons()
+{
+    return [
+        (object)[
+            'title' => acym_translation('ACYM_ARTICLE'),
+            'folder_name' => 'article',
+            'version' => '6.14.1',
+            'active' => '1',
+            'category' => 'Content management',
+            'level' => 'starter',
+            'uptodate' => '1',
+            'features' => '["content"]',
+            'description' => '- Insert Joomla articles in your emails<br/>- Insert the latest articles of a category in an automatic email',
+            'latest_version' => '6.14.1',
+            'core' => '1',
+        ],
+    ];
+}
+
+function acym_getCmsUserLanguage($userId = null)
+{
+    if ($userId === null) $userId = acym_currentUserId();
+    if (empty($userId)) return '';
+
+    $user = JFactory::getUser($userId);
+
+    return $user->getParam('language', $user->getParam('admin_language', ''));
+}
+
+function acym_getAllPages()
+{
+    $menuType = acym_loadResultArray('SELECT menutype FROM #__menu_types');
+    if (empty($menuType)) $menuType = [];
+    $menuItems = acym_loadObjectList('SELECT id, title FROM #__menu WHERE menutype IN ("'.implode('","', $menuType).'")');
+    $pages = [];
+    foreach ($menuItems as $item) {
+        $pages[$item->id] = $item->title;
+    }
+
+    return $pages;
+}
+
+function acym_checkVersion($ajax = false)
+{
+    ob_start();
+    $config = acym_config();
+    $url = ACYM_UPDATEURL.'loadUserInformation';
+
+    $paramsForLicenseCheck = [
+        'component' => 'acymailing', // Know which product to look at
+        'level' => strtolower($config->get('level', 'starter')), // Know which version to look at
+        'domain' => rtrim(ACYM_LIVE, '/'), // Tell the user if the automatic features are available for the current installation
+        'version' => $config->get('version'), // Tell the user if a newer version is available
+        'cms' => ACYM_CMS, // We may delay some new Acy versions depending on the CMS
+        'cmsv' => ACYM_CMSV, // Acy isn't available for some versions
+    ];
+
+    if (acym_level(1)) {
+        $paramsForLicenseCheck['php'] = PHP_VERSION; // Return a warning if Acy cannot be installed with this version
+    }
+
+    foreach ($paramsForLicenseCheck as $param => $value) {
+        $url .= '&'.$param.'='.urlencode($value);
+    }
+
+    $userInformation = acym_fileGetContent($url, 30);
+    $warnings = ob_get_clean();
+    $result = (!empty($warnings) && acym_isDebug()) ? $warnings : '';
+
+    if (empty($userInformation) || $userInformation === false) {
+        if ($ajax) {
+            echo json_encode(['content' => '<br/><span style="color:#C10000;">'.acym_translation('ACYM_ERROR_LOAD_FROM_ACYBA').'</span><br/>'.$result]);
+            exit;
+        } else {
+            return '';
+        }
+    }
+
+    $decodedInformation = json_decode($userInformation, true);
+
+    $newConfig = new stdClass();
+
+    $newConfig->latestversion = $decodedInformation['latestversion'];
+    $newConfig->expirationdate = $decodedInformation['expiration'];
+    $newConfig->lastlicensecheck = time();
+    $config->save($newConfig);
+
+    acym_checkPluginsVersion();
+
+    return $newConfig->lastlicensecheck;
 }
 
 global $acymCmsUserVars;

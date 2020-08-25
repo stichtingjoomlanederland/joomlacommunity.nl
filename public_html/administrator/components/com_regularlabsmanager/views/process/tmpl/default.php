@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Extension Manager
- * @version         7.4.4
+ * @version         7.4.5
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -35,8 +35,8 @@ $options = [
 RL_Document::scriptOptions($options, 'Extension Manager');
 JText::script('RLEM_INSTALLATION_FAILED');
 
-RL_Document::script('regularlabsmanager/process.min.js', '7.4.4');
-RL_Document::style('regularlabsmanager/process.min.css', '7.4.4');
+RL_Document::script('regularlabsmanager/process.min.js', '7.4.5');
+RL_Document::style('regularlabsmanager/process.min.css', '7.4.5');
 ?>
 
 <div id="rlem">

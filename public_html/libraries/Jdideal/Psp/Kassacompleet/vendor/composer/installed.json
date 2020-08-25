@@ -1,0 +1,55 @@
+[
+    {
+        "name": "gingerpayments/ginger-php",
+        "version": "2.1.0",
+        "version_normalized": "2.1.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/gingerpayments/ginger-php.git",
+            "reference": "584f062b81ee462cd30a04addc58767320f1f66b"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/gingerpayments/ginger-php/zipball/584f062b81ee462cd30a04addc58767320f1f66b",
+            "reference": "584f062b81ee462cd30a04addc58767320f1f66b",
+            "shasum": ""
+        },
+        "require": {
+            "ext-curl": "*",
+            "ext-json": "*",
+            "php": ">=5.6.0"
+        },
+        "require-dev": {
+            "doctrine/instantiator": "~1.0.0",
+            "phpdocumentor/reflection-common": "~1.0",
+            "phpdocumentor/reflection-docblock": "~3.3",
+            "phpunit/phpunit": "~4.5"
+        },
+        "time": "2019-09-25T10:13:45+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Ginger\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Ginger Payments",
+                "email": "dev@gingerpayments.com"
+            }
+        ],
+        "description": "The official Ginger Payments PHP SDK",
+        "homepage": "https://github.com/gingerpayments/ginger-php",
+        "keywords": [
+            "e-commerce",
+            "merchant",
+            "pay",
+            "payment"
+        ]
+    }
+]

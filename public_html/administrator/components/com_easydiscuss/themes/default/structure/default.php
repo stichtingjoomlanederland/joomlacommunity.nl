@@ -26,6 +26,25 @@ defined('_JEXEC') or die('Unauthorized Access');
 				</div>
 			</div>
 		</div>
+
+		<?php if ($postOutOfSync) { ?>
+		<div class="app-alert o-alert o-alert--warning">
+			<div class="row-table">
+				<div class="col-cell cell-tight">
+					<i class="app-alert__icon fa fa-bolt"></i>
+				</div>
+				<div class="col-cell alert-message">
+					<?php echo JText::_('COM_ED_MAINTENANCE_DATA_OUTOFSYNC');?>
+				</div>
+				<div class="col-cell cell-tight">
+					<a href="<?php echo JRoute::_('index.php?option=com_easydiscuss&view=maintenance&layout=sync');?>" class="btn btn-warning">
+						<?php echo JText::_('COM_ED_MAINTENANCE_FIX_NOW');?>
+					</a>
+				</div>
+			</div>
+		</div>
+		<?php } ?>
+
 	<?php } ?>
 
 	<div class="app-master">

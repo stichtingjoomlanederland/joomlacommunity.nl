@@ -13,17 +13,17 @@ $rURL = JRoute::_('index.php?option=com_rscomments&task=report&tmpl=component', 
 $cURL = JRoute::_('index.php?option=com_rscomments&task=mycomments&tmpl=component', false);
 
 if ($this->config->terms && $this->config->modal == 1) {
-	$footer = '<a href="javascript:void(0)" class="btn btn-primary" onclick="RSComments.agree();">'.JText::_('COM_RSCOMMENTS_I_AGREE').'</a><a href="javascript:void(0)" data-dismiss="modal" class="btn">'.JText::_('COM_RSCOMMENTS_CLOSE').'</a>';
+	$footer = '<a href="javascript:void(0)" class="btn btn-primary" onclick="RSComments.agree();">'.JText::_('COM_RSCOMMENTS_I_AGREE').'</a><a href="javascript:void(0)" data-dismiss="modal" class="btn btn-secondary">'.JText::_('COM_RSCOMMENTS_CLOSE').'</a>';
 	echo JHtml::_('bootstrap.renderModal', 'rscomments-terms', array('title' => JText::_('COM_RSCOMMENTS_TERMS_AND_CONDITIONS'), 'url' => $tURL, 'footer' => $footer, 'bodyHeight' => '70'));
 }
 
 if ($this->config->enable_subscription && $this->config->modal == 1) {
-	$footer = '<button class="btn btn-primary" type="button" onclick="jQuery(\'#rscomments-subscribe iframe\').contents().find(\'#rscomm_subscribe\').click();">'.JText::_('COM_RSCOMMENTS_SUBSCRIBE').'</button><button type="button" data-dismiss="modal" class="btn">'.JText::_('COM_RSCOMMENTS_CLOSE').'</button>';
+	$footer = '<button class="btn btn-primary" type="button" onclick="jQuery(\'#rscomments-subscribe iframe\').contents().find(\'#rscomm_subscribe\').click();">'.JText::_('COM_RSCOMMENTS_SUBSCRIBE').'</button><button type="button" data-dismiss="modal" class="btn btn-secondary">'.JText::_('COM_RSCOMMENTS_CLOSE').'</button>';
 	echo JHtml::_('bootstrap.renderModal', 'rscomments-subscribe', array('title' => JText::_('COM_RSCOMMENTS_SUBSCRIBE'), 'url' => $sURL, 'footer' => $footer, 'bodyHeight' => '70'));
 }
 
 if ($this->config->enable_reports && $this->config->modal == 1) {
-	$footer = '<button class="btn btn-primary" type="button" onclick="jQuery(\'#rscomments-report iframe\').contents().find(\'#rscomm_report\').click();">'.JText::_('COM_RSCOMMENTS_REPORT').'</button><button type="button" data-dismiss="modal" class="btn">'.JText::_('COM_RSCOMMENTS_CLOSE').'</button>';
+	$footer = '<button class="btn btn-primary" type="button" onclick="jQuery(\'#rscomments-report iframe\').contents().find(\'#rscomm_report\').click();">'.JText::_('COM_RSCOMMENTS_REPORT').'</button><button type="button" data-dismiss="modal" class="btn btn-secondary">'.JText::_('COM_RSCOMMENTS_CLOSE').'</button>';
 	echo JHtml::_('bootstrap.renderModal', 'rscomments-report', array('title' => JText::_('COM_RSCOMMENTS_REPORT'), 'url' => $rURL, 'footer' => $footer, 'bodyHeight' => '70'));
 }
 

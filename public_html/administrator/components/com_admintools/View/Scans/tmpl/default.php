@@ -5,9 +5,12 @@
  * @license   GNU General Public License version 3, or later
  */
 
-/** @var \Akeeba\AdminTools\Admin\View\Scans\Html $this */
+/** @var Html $this */
 
+use Akeeba\AdminTools\Admin\View\Scans\Html;
 use FOF30\Utils\FEFHelper\Html as FEFHtml;
+use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Language\Text;
 
 defined('_JEXEC') or die;
 
@@ -17,7 +20,7 @@ $this->getContainer()->template->addJSInline($js);
 
 <div class="akeeba-block--info">
 	<p>
-		<?php echo JText::_('COM_ADMINTOOLS_MSG_SCAN_CONFIGUREHELP'); ?>
+		<?php echo Text::_('COM_ADMINTOOLS_MSG_SCAN_CONFIGUREHELP'); ?>
 	</p>
 </div>
 
@@ -36,25 +39,25 @@ $this->getContainer()->template->addJSInline($js);
 				<input type="checkbox" name="toggle" value="" onclick="Joomla.checkAll(this);" />
 			</th>
 			<th>
-				<?php echo \JHtml::_('grid.sort', '#', 'id', $this->order_Dir, $this->order, 'browse'); ?>
+				<?php echo HTMLHelper::_('grid.sort', '#', 'id', $this->order_Dir, $this->order, 'browse'); ?>
 			</th>
 			<th>
-				<?php echo \JHtml::_('grid.sort', 'COM_ADMINTOOLS_LBL_SCAN_START', 'scanstart', $this->order_Dir, $this->order, 'browse'); ?>
+				<?php echo HTMLHelper::_('grid.sort', 'COM_ADMINTOOLS_LBL_SCAN_START', 'scanstart', $this->order_Dir, $this->order, 'browse'); ?>
 			</th>
 			<th>
-				<?php echo JText::_('COM_ADMINTOOLS_LBL_SCAN_TOTAL'); ?>
+				<?php echo Text::_('COM_ADMINTOOLS_LBL_SCAN_TOTAL'); ?>
 			</th>
 			<th>
-				<?php echo JText::_('COM_ADMINTOOLS_LBL_SCAN_MODIFIED'); ?>
+				<?php echo Text::_('COM_ADMINTOOLS_LBL_SCAN_MODIFIED'); ?>
 			</th>
 			<th>
-				<?php echo JText::_('COM_ADMINTOOLS_LBL_SCAN_THREATNONZERO'); ?>
+				<?php echo Text::_('COM_ADMINTOOLS_LBL_SCAN_THREATNONZERO'); ?>
 			</th>
 			<th>
-				<?php echo JText::_('COM_ADMINTOOLS_LBL_SCAN_ADDED'); ?>
+				<?php echo Text::_('COM_ADMINTOOLS_LBL_SCAN_ADDED'); ?>
 			</th>
 			<th>
-				<?php echo JText::_('COM_ADMINTOOLS_LBL_SCAN_ACTIONS'); ?>
+				<?php echo Text::_('COM_ADMINTOOLS_LBL_SCAN_ACTIONS'); ?>
 			</th>
 		</tr>
 		</thead>
@@ -69,7 +72,7 @@ $this->getContainer()->template->addJSInline($js);
 		<?php if (!count($this->items)): ?>
 			<tr>
 				<td colspan="10">
-					<?php echo JText::_('COM_ADMINTOOLS_MSG_COMMON_NOITEMS') ?>
+					<?php echo Text::_('COM_ADMINTOOLS_MSG_COMMON_NOITEMS') ?>
 				</td>
 			</tr>
 		<?php endif; ?>
@@ -82,11 +85,11 @@ $this->getContainer()->template->addJSInline($js);
 				if ($row->files_modified + $row->files_new + $row->files_suspicious)
 				{
 					$actions = '<a class="akeeba-btn--primary--small" href="index.php?option=com_admintools&view=ScanAlerts&scan_id=' . $row->id . '">';
-					$actions .= JText::_('COM_ADMINTOOLS_LBL_SCAN_ACTIONS_VIEW') . '</a>';
+					$actions .= Text::_('COM_ADMINTOOLS_LBL_SCAN_ACTIONS_VIEW') . '</a>';
 				}
 				?>
 				<tr>
-					<td><?php echo \JHtml::_('grid.id', ++$i, $row->id); ?></td>
+					<td><?php echo HTMLHelper::_('grid.id', ++$i, $row->id); ?></td>
 					<td>
 						<?php echo $row->id; ?>
 					</td>
@@ -138,10 +141,10 @@ $this->getContainer()->template->addJSInline($js);
 	<div id="admintools-scan-container" class="akeeba-renderer-fef">
 		<div class="akeeba-block--info large">
 			<h4>
-				<?php echo JText::_('COM_ADMINTOOLS_MSG_SCAN_PLEASEWAIT') ?>
+				<?php echo Text::_('COM_ADMINTOOLS_MSG_SCAN_PLEASEWAIT') ?>
 			</h4>
 			<p>
-				<?php echo JText::_('COM_ADMINTOOLS_MSG_SCAN_SCANINPROGRESS') ?>
+				<?php echo Text::_('COM_ADMINTOOLS_MSG_SCAN_SCANINPROGRESS') ?>
 			</p>
 		</div>
 		<p>

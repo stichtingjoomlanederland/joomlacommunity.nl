@@ -7,11 +7,9 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-echo JHtml::_('rsfieldset.start', 'adminform', '');
 foreach ($this->fieldsets as $name => $fieldset) {
 	if($name == 'columns') echo '<div id="rsc_columns">';
 	foreach ($this->form->getFieldset($name) as $field) 
-		echo JHtml::_('rsfieldset.element', $field->label, $field->input);
-	if($name == 'columns') echo '<div id="rsc_columns">';
+		echo $field->renderField();
+	if($name == 'columns') echo '</div>';
 }
-echo JHtml::_('rsfieldset.end');

@@ -12,10 +12,10 @@ use Akeeba\AdminTools\Admin\Model\Scanner\Logger\Logger;
 use Akeeba\AdminTools\Admin\Model\Scanner\Util\Configuration;
 use Akeeba\AdminTools\Admin\Model\Scanner\Util\Session;
 use Akeeba\AdminTools\Admin\Model\Scans;
+use Exception;
 use FOF30\Container\Container;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text as JText;
-use PHPMailer\PHPMailer\Exception;
 
 defined('_JEXEC') or die;
 

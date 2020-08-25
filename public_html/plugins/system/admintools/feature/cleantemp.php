@@ -5,6 +5,8 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Akeeba\AdminTools\Admin\Model\CleanTempDirectory;
+use FOF30\Container\Container;
 use FOF30\Date\Date;
 
 defined('_JEXEC') or die;
@@ -25,7 +27,7 @@ class AtsystemFeatureCleantemp extends AtsystemFeatureAbstract
 
 	public function onAfterInitialise()
 	{
-		$minutes = (int)$this->params->get('cleantemp_freq', 0);
+		$minutes = (int) $this->params->get('cleantemp_freq', 0);
 
 		if ($minutes <= 0)
 		{
@@ -35,7 +37,6 @@ class AtsystemFeatureCleantemp extends AtsystemFeatureAbstract
 		$lastJob = $this->getTimestamp('clean_temp');
 		$nextJob = $lastJob + $minutes * 60;
 
-		JLoader::import('joomla.utilities.date');
 		$now = new Date();
 
 		if ($now->toUnix() >= $nextJob)
@@ -56,13 +57,13 @@ class AtsystemFeatureCleantemp extends AtsystemFeatureAbstract
 			return;
 		}
 
-		$container = \FOF30\Container\Container::getInstance('com_admintools');
-		
+		$container = Container::getInstance('com_admintools');
+
 		try
 		{
-			/** @var \Akeeba\AdminTools\Admin\Model\CleanTempDirectory $model */
+			/** @var CleanTempDirectory $model */
 			$model = $container->factory->model('CleanTempDirectory')->tmpInstance();
-			
+
 			// This also runs the first batch of deletions
 			$model->startScanning();
 

@@ -172,7 +172,7 @@ class EasyDiscussModelPoints extends EasyDiscussAdminModel
 		}
 
 		if ($viewableCats) {
-			$query[] = 'AND b.' . $db->nameQuote('category_id') . ' IN (' . implode($viewableCats, ',') . ')';
+			$query[] = 'AND b.' . $db->nameQuote('category_id') . ' IN (' . implode(',', $viewableCats) . ')';
 		}
 
 		$query[] = 'UNION';

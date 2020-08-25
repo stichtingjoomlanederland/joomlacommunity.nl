@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Extension Manager
- * @version         7.4.4
+ * @version         7.4.5
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -15,7 +15,7 @@ require_once __DIR__ . '/script.install.helper.php';
 
 class PlgActionlogRegularLabsManagerInstallerScript extends PlgActionlogRegularLabsManagerInstallerScriptHelper
 {
-	public $name           = 'REGULAR_LABS_EXTENSION_MANAGER';
+	public $name           = 'REGULARLABSEXTENSIONMANAGER';
 	public $alias          = 'regularlabsmanager';
 	public $extension_type = 'plugin';
 	public $plugin_folder  = 'actionlog';

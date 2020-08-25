@@ -4,7 +4,7 @@ defined('_JEXEC') or die('Restricted access');
 $cancelUrl = empty($data['return']) ? '' : $data['return'];
 echo acym_cancelButton('ACYM_CANCEL', $cancelUrl);
 
-if ($data['mail']->editor != 'acyEditor') {
+if (acym_isAdmin() && $data['mail']->editor != 'acyEditor') {
     ?>
 	<button type="submit" data-task="test" class="cell large-shrink button-secondary medium-6 button acy_button_submit acym__template__save acy_button_submit">
         <?php echo acym_translation('ACYM_SEND_TEST'); ?>

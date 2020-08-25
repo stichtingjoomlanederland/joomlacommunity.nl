@@ -5,6 +5,10 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\Uri\Uri;
+
 defined('_JEXEC') or die;
 
 class AtsystemFeatureIpblacklist extends AtsystemFeatureAbstract
@@ -43,7 +47,7 @@ class AtsystemFeatureIpblacklist extends AtsystemFeatureAbstract
 		}
 
 		// Merge the default translation with the current translation
-		$jlang = JFactory::getLanguage();
+		$jlang = Factory::getLanguage();
 
 		// Front-end translation
 		$jlang->load('plg_system_admintools', JPATH_ADMINISTRATOR, 'en-GB', true);
@@ -58,7 +62,7 @@ class AtsystemFeatureIpblacklist extends AtsystemFeatureAbstract
 			$jlang->load('plg_system_admintools', JPATH_ADMINISTRATOR, $langOverride, true);
 		}
 
-		$message = JText::_($message);
+		$message = Text::_($message);
 
 		if ($message == 'ADMINTOOLS_BLOCKED_MESSAGE')
 		{
@@ -79,9 +83,9 @@ class AtsystemFeatureIpblacklist extends AtsystemFeatureAbstract
 				$this->container->platform->setSessionVar('message', $message, 'com_admintools');
 
 				// Close the session (logs out the user)
-				JFactory::getSession()->close();
+				Factory::getSession()->close();
 
-				$base = JUri::base();
+				$base = Uri::base();
 
 				if ($this->container->platform->isBackend())
 				{
@@ -128,10 +132,10 @@ class AtsystemFeatureIpblacklist extends AtsystemFeatureAbstract
 		}
 
 		// Let's get a list of blocked IP ranges
-		$db = $this->db;
+		$db  = $this->db;
 		$sql = $db->getQuery(true)
-		          ->select($db->qn('ip'))
-		          ->from($db->qn('#__admintools_ipblock'));
+			->select($db->qn('ip'))
+			->from($db->qn('#__admintools_ipblock'));
 		$db->setQuery($sql);
 
 		try

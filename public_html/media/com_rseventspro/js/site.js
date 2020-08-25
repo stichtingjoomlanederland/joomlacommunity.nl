@@ -454,6 +454,19 @@ function rsepro_validate_subscription() {
 		jQuery('#email').removeClass('invalid');
 	}
 	
+	if (jQuery('#rsepro_subscribe_secret').length && jQuery('#rsepro_subscribe_secret').val() == '') {
+		ret = false; 
+		jQuery('#rsepro_subscribe_secret').addClass('invalid'); 
+		msg.push(smessage[10]); 
+	} else {
+		jQuery('#rsepro_subscribe_secret').removeClass('invalid');
+	}
+	
+	if (jQuery('#rsepro_subscribe_captcha_block #g-recaptcha-response').length && jQuery('#rsepro_subscribe_captcha_block #g-recaptcha-response').val() == '') {
+		ret = false; 
+		msg.push(smessage[10]); 
+	}
+	
 	if (jQuery('#rsepro-cart-details').length && jQuery('.rsepro-cart-ticket').length == 0) {
 		ret = false; 
 		msg.push(smessage[3]); 
@@ -619,12 +632,17 @@ function rs_invite() {
 		} else {
 			jQuery('#rseInviteForm #secret').removeClass('invalid');
 		}
+	} else if (jQuery('#rseInviteForm textarea[name="h-captcha-response"]').length) {
+		if (jQuery('#rseInviteForm textarea[name="h-captcha-response"]').val() == '') {
+			errors.push(Joomla.JText._('COM_RSEVENTSPRO_INVITE_CAPTCHA_ERROR'));
+		}
 	}
 	
 	if (errors.length) {
 		Joomla.renderMessages({'error': errors});
+		return false;
 	} else {
-		checkcaptcha();
+		return true;
 	}
 }
 
@@ -693,6 +711,13 @@ function checkcaptcha() {
  */	
 function reloadCaptcha() {
 	jQuery('#rseInviteForm #captcha').prop('src', jQuery('#captcha').prop('src') + '?' + Math.random());
+}
+
+/**
+ *	Reload captcha
+ */	
+function reloadSubscribeCaptcha() {
+	jQuery('#rsepro_subscribe_captcha').prop('src', jQuery('#rsepro_subscribe_captcha').prop('src') + '?' + Math.random());
 }
 
 /**
@@ -1164,6 +1189,20 @@ function rsepro_add_single_ticket(what) {
 		}
 		
 		var quantity = parseInt(jQuery('#from').val()) == 0 ? parseInt(jQuery('#numberinp').val()) : parseInt(jQuery('#number').val());
+		
+		if (typeof ticketsamount != 'undefined') {
+			if (quantity > ticketsamount) {
+				quantity = ticketsamount;
+				
+				if (parseInt(jQuery('#from').val()) == 0) { 
+					jQuery('#numberinp').val(quantity);
+				} else {
+					jQuery('#number').val(quantity);
+				}
+				alert(smessage[9]);
+			}
+		}
+		
 		var total	 = quantity * response.tprice;
 		total = number_format(total, response.payment_decimals, response.payment_decimal, response.payment_thousands);
 		
@@ -1190,6 +1229,18 @@ function rsepro_add_multiple_tickets() {
 	
 	if (quantity == 0) {
 		quantity = 1;
+	}
+	
+	if (typeof ticketsamount != 'undefined') {
+		var selectedTickets = quantity;
+		jQuery('input[name^="tickets["]').each(function() {
+			selectedTickets += parseInt(jQuery(this).val());
+		});
+		
+		if (selectedTickets > ticketsamount) {
+			alert(smessage[9]);
+			return;
+		}
 	}
 	
 	if (parseInt(jQuery('#from').val()) == 1) {
@@ -1316,6 +1367,7 @@ function rsepro_add_ticket_seats(id, place) {
 				});
 			}
 			
+			jQuery('#rsepro_unlimited_' + id).val('');
 			alert(thedocument.smessage[7]);
 			return;
 		}
@@ -1356,6 +1408,23 @@ function rsepro_add_ticket_seats(id, place) {
 						return;
 					}
 					
+					if (typeof thedocument.ticketsamount != 'undefined') {
+						var oldvalue = parseInt(thedocument.jQuery('#rsepro-cart-details input[name="unlimited['+id+']"]').val());
+						var totalSelectedTickets = parseInt(thedocument.jQuery('#rsepro-cart-details input[name^="tickets["]').length);
+						thedocument.jQuery('#rsepro-cart-details input[name^="unlimited["]').each(function() {
+							if (jQuery(this).prop('name') != 'unlimited['+id+']') {
+								totalSelectedTickets += parseInt(jQuery(this).val());
+							}
+						});
+						totalSelectedTickets += parseInt(jQuery('#rsepro_unlimited_'+id).val());
+						
+						if (totalSelectedTickets > thedocument.ticketsamount) {
+							jQuery('#rsepro_unlimited_'+id).val(oldvalue);
+							alert(thedocument.smessage[9]);
+							return;
+						}
+					}
+					
 					thedocument.jQuery('#ticket'+id+place).val(jQuery('#rsepro_unlimited_'+id).val());
 					thedocument.jQuery('#ticket'+id+place).parent().find('span').text(jQuery('#rsepro_unlimited_'+id).val());
 					
@@ -1387,6 +1456,20 @@ function rsepro_add_ticket_seats(id, place) {
 						jQuery('#rsepro_unlimited_'+id).val(available_per_user);
 						rsepro_add_ticket_seats(id, place);
 						return;
+					}
+					
+					if (typeof thedocument.ticketsamount != 'undefined') {
+						var totalSelectedTickets = parseInt(thedocument.jQuery('#rsepro-cart-details input[name^="tickets["]').length);
+						thedocument.jQuery('#rsepro-cart-details input[name^="unlimited["]').each(function() {
+							totalSelectedTickets += parseInt(jQuery(this).val());
+						});
+						totalSelectedTickets += parseInt(jQuery('#rsepro_unlimited_'+id).val());
+						
+						if (totalSelectedTickets > thedocument.ticketsamount) {
+							jQuery('#rsepro_unlimited_'+id).val('');
+							alert(thedocument.smessage[9]);
+							return;
+						}
 					}
 					
 					if (jQuery('#rsepro_unlimited_'+id).val() > 0) {
@@ -1464,10 +1547,22 @@ function rsepro_add_ticket_seats(id, place) {
 					return;
 				}
 				
-				seat_container.addClass('rsepro_selected');
-				
 				if (thedocument.jQuery('#rsepro-seat-'+id).length) {
 					var quantity = parseInt(thedocument.jQuery('#rsepro-seat-'+id+' td:nth-child(1)').find('span').text()) + 1;
+					
+					if (typeof thedocument.ticketsamount != 'undefined') {
+						var totalSelectedTickets = parseInt(thedocument.jQuery('#rsepro-cart-details input[name^="tickets["]').length);
+						thedocument.jQuery('#rsepro-cart-details input[name^="unlimited["]').each(function() {
+							totalSelectedTickets += parseInt(jQuery(this).val());
+						});
+						totalSelectedTickets += 1;
+						
+						if (totalSelectedTickets > thedocument.ticketsamount) {
+							alert(thedocument.smessage[9]);
+							return;
+						}
+					}
+					
 					var total = quantity * response.tprice;
 					total = number_format(total, response.payment_decimals, response.payment_decimal, response.payment_thousands);
 					thedocument.jQuery('#rsepro-seat-'+id+' td:nth-child(1)').find('span').text(quantity);
@@ -1481,6 +1576,20 @@ function rsepro_add_ticket_seats(id, place) {
 					thedocument.jQuery('#rsepro-seat-'+id+' td:nth-child(1)').append(input);
 					
 				} else {
+					
+					if (typeof thedocument.ticketsamount != 'undefined') {
+						var totalSelectedTickets = parseInt(thedocument.jQuery('#rsepro-cart-details input[name^="tickets["]').length);
+						thedocument.jQuery('#rsepro-cart-details input[name^="unlimited["]').each(function() {
+							totalSelectedTickets += parseInt(jQuery(this).val());
+						});
+						totalSelectedTickets += 1;
+						
+						if (totalSelectedTickets > thedocument.ticketsamount) {
+							alert(thedocument.smessage[9]);
+							return;
+						}
+					}
+					
 					var total	 = 1 * response.tprice;
 					total = number_format(total, response.payment_decimals, response.payment_decimal, response.payment_thousands);
 					
@@ -1509,6 +1618,8 @@ function rsepro_add_ticket_seats(id, place) {
 					tr.append(td3);
 					tr.insertBefore(thedocument.jQuery('#rsepro-cart-discount'));
 				}
+				
+				seat_container.addClass('rsepro_selected');
 			}
 			
 			if (thedocument.jQuery('#rsepro-seats-'+id).length) {
@@ -1687,6 +1798,21 @@ function rsepro_update_speakers(data) {
 	}
 	
 	window.parent.jQuery('#speakers').trigger('liszt:updated');
+}
+
+function rsepro_update_sponsors(data) {
+	var selected = window.parent.jQuery('#sponsors').val();
+	window.parent.document.getElementById('sponsors').options.length = 0;
+	
+	jQuery(data).each(function (i,el){
+		window.parent.jQuery('#sponsors').append(jQuery('<option>', { 'text': el.text, 'value': el.value }));
+	});
+	
+	if (selected && selected.length) {
+		window.parent.jQuery('#sponsors').val(selected);
+	}
+	
+	window.parent.jQuery('#sponsors').trigger('liszt:updated');
 }
 
 function rsepro_validate_waitinglist() {
@@ -1943,7 +2069,53 @@ var rs_tooltip = function(){
 	};
 }();
 
-function rsmAddEvent(obj, evType, fn) {
+
+var RSEventsProhCaptcha = {
+	containers: {},
+	loaders: [],
+	onLoad: function() {
+		window.setTimeout(function(){
+			for (var i = 0; i < RSEventsProhCaptcha.loaders.length; i++) {
+				var func = RSEventsProhCaptcha.loaders[i];
+				if (typeof func === 'function') {
+					try {
+						func();
+					} catch (err) {
+						if (console && typeof console.log === 'function') {
+							console.log(err);
+						}
+					}
+				}
+			}
+		}, 500);
+	}
+};
+
+var RSEventsProReCAPTCHAv2 = {
+	containers: {},
+	loaders: [],
+	onLoad: function() {
+		window.setTimeout(function(){
+			for (var i = 0; i < RSEventsProReCAPTCHAv2.loaders.length; i++) {
+				var func = RSEventsProReCAPTCHAv2.loaders[i];
+				if (typeof func === 'function') {
+					try {
+						func();
+					} catch (err) {
+						if (console && typeof console.log === 'function') {
+							console.log(err);
+						}
+					}
+				}
+			}
+		}, 500);
+	}
+};
+
+rseAddEvent(window, 'load', RSEventsProReCAPTCHAv2.onLoad);
+rseAddEvent(window, 'load', RSEventsProhCaptcha.onLoad);
+
+function rseAddEvent(obj, evType, fn) {
 	if (obj.addEventListener) {
 		obj.addEventListener(evType, fn, false);
 		return true;

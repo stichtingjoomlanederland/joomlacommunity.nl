@@ -13,8 +13,16 @@ defined('_JEXEC') or die('Restricted access');
             $allTags = new stdClass();
             $allTags->name = acym_translation('ACYM_ALL_TAGS');
             $allTags->value = '';
-            array_unshift($data["allTags"], $allTags);
-            echo acym_select($data["allTags"], 'mailchoose_tag__ajax', null, 'class="acym__templates__filter__tags__ajax"', 'value', 'name'); ?>
+            array_unshift($data['allTags'], $allTags);
+            echo acym_select(
+                $data['allTags'],
+                'mailchoose_tag__ajax',
+                null,
+                'class="acym__templates__filter__tags__ajax acym__select"',
+                'value',
+                'name'
+            );
+            ?>
 		</div>
 	</div>
 	<div class="grid-x cell">

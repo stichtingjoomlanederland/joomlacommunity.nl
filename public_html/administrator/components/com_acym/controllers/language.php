@@ -11,14 +11,14 @@ class LanguageController extends acymController
         $code = acym_getVar('cmd', 'code');
         acym_setVar('code', $code);
 
-        $content = acym_getVar('string', 'content', '', '', ACYM_ALLOWHTML);
+        $content = acym_getVar('string', 'content', '', '', ACYM_ALLOWRAW);
         $content = str_replace('</textarea>', '', $content);
 
         if (empty($code) || empty($content)) {
             return $this->displayLanguage();
         }
 
-        $customcontent = acym_getVar('string', 'customcontent', '', '', ACYM_ALLOWHTML);
+        $customcontent = acym_getVar('string', 'customcontent', '', '', ACYM_ALLOWRAW);
         $customcontent = str_replace('</textarea>', '', $customcontent);
 
         $path = acym_getLanguagePath(ACYM_ROOT, $code).DS.$code.'.com_acym.ini';
@@ -185,7 +185,7 @@ class LanguageController extends acymController
 
         if ($loadLatest || acym_getVar('cmd', 'task') == 'latest') {
             if (file_exists(acym_getLanguagePath(ACYM_ROOT, $code))) {
-                acym_addScript(false, ACYM_UPDATEMEURL.'update&component=acym&task=languageload&code='.acym_getVar('cmd', 'code'));
+                acym_addScript(false, ACYM_UPDATEURL.'languageload&component=acym&code='.acym_getVar('cmd', 'code'));
             } else {
                 acym_enqueueMessage('The specified language "'.acym_escape($code).'" is not installed on your site', 'warning');
             }

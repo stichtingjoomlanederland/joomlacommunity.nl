@@ -15,7 +15,8 @@ defined('JPATH_PLATFORM') or die;
 // Link Plugin Controller
 class WFMicrodataPlugin extends WFEditorPlugin
 {
-    protected static $_url = 'https://schema.org/docs/schema_org_rdfa.html';
+    protected static $_url = 'https://schema.org/version/latest/schema.jsonld';
+    //protected static $_url = 'https://schema.org/docs/schema_org_rdfa.html';
     protected static $_schema = null;
 
     /**
@@ -112,9 +113,185 @@ class WFMicrodataPlugin extends WFEditorPlugin
         return $merged;
     }
 
-    private static function buildList($nodes)
+    private static function findClassPositionByType($needle, $array)
+    {
+        foreach ($array as $pos => $item) {
+            if ($needle == $item['resource']) {
+                return $pos;
+            }
+        }
+
+        return false;
+    }
+
+    private static function buildListFromJson($nodes)
     {
         $data = array();
+        $nodes = isset($nodes['@graph']) ? $nodes['@graph'] : array();
+
+        foreach ($nodes as $node) {
+            $id = str_replace('http://schema.org/', '', $node['@id']);
+
+            if ($node['@type'] != 'rdfs:Class') {
+                continue;
+            }
+
+            if (isset($node['rdfs:subClassOf'])) {
+                continue;
+            }
+
+            $comment = '';
+
+            if (isset($node['rdfs:comment'])) {
+                $comment = str_replace('http://schema.org/', '', $node['rdfs:comment']);
+            }
+
+            $values = array(
+                'resource' => $id,
+                'comment' => $comment,
+                'domainIncludes' => array(),
+                'rangeIncludes' => array(),
+            );
+
+            $data[] = $values;
+        }
+
+        $count = count($nodes);
+
+        do {
+            foreach ($nodes as $node) {
+                $id = str_replace('http://schema.org/', '', $node['@id']);
+
+                if ($node['@type'] != 'rdfs:Class') {
+                    $count--;
+                    continue;
+                }
+
+                if (!isset($node['rdfs:subClassOf'])) {
+                    $count--;
+                    continue;
+                }
+
+                if (self::findClassPositionByType($id, $data)) {
+                    $count--;
+                    continue;
+                }
+
+                $comment = '';
+
+                if (isset($node['rdfs:comment'])) {
+                    $comment = str_replace('http://schema.org/', '', $node['rdfs:comment']);
+                }
+
+                $values = array(
+                    'resource' => $id,
+                    'comment' => $comment,
+                    'subClassOf' => array(),
+                    'domainIncludes' => array(),
+                    'rangeIncludes' => array(),
+                );
+
+                $items = (array) $node['rdfs:subClassOf'];
+
+                foreach ($items as $item) {
+                    if (is_string($item)) {
+                        $values['subClassOf'][] = str_replace('http://schema.org/', '', $item);
+                    } else {
+                        $values['subClassOf'][] = str_replace('http://schema.org/', '', $item['@id']);
+                    }
+                }
+
+                $pos = false;
+
+                foreach ($values['subClassOf'] as $cls) {
+                    $pos = self::findClassPositionByType($cls, $data);
+
+                    if ($pos !== false) {
+                        array_splice($data, $pos + 1, 0, array($values));
+                    }
+                }
+
+                if ($pos) {
+                    $count--;
+                }
+            }
+        } while ($count > 0);
+
+        foreach ($nodes as $node) {
+            if ($node['@type'] != 'rdf:Property') {
+                continue;
+            }
+
+            $id = str_replace('http://schema.org/', '', $node['@id']);
+
+            $comment = '';
+
+            if (isset($node['rdfs:comment'])) {
+                $comment = str_replace('http://schema.org/', '', $node['rdfs:comment']);
+            }
+
+            $entry = array(
+                'label' => $id,
+                'comment' => $comment,
+            );
+
+            foreach (['domainIncludes', 'rangeIncludes'] as $prop) {
+                $key = 'http://schema.org/' . $prop;
+
+                if (!isset($node[$key])) {
+                    continue;
+                }
+
+                $val = $node[$key];
+
+                if (!is_array($val)) {
+                    $subclass = str_replace('http://schema.org/', '', $val['@id']);
+
+                    array_walk($data, function (&$item) use ($subclass, $prop, $entry) {
+                        if ($item['resource'] == $subclass) {
+                            $item[$prop] = array_merge($item[$prop], array($entry));
+                        }
+                    });
+
+                } else {
+                    foreach ($val as $subclass) {
+                        if (!is_string($subclass)) {
+                            $subclass = $subclass['@id'];
+                        }
+
+                        $subclass = str_replace('http://schema.org/', '', $subclass);
+
+                        array_walk($data, function (&$item) use ($subclass, $prop, $entry) {
+                            if ($item['resource'] == $subclass) {
+                                $item[$prop] = array_merge($item[$prop], array($entry));
+                            }
+                        });
+                    }
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    private static function buildListFromDom($html)
+    {
+        $dom = new \DOMDocument();
+        $dom->loadHTML($html);
+
+        $data = array();
+
+        // dom is empty, return cache
+        if (empty($dom)) {
+            return $data;
+        }
+
+        $nodes = $dom->getElementsByTagName('div');
+
+        // no div nodes, return cache
+        if ($nodes->length === 0) {
+            return $data;
+        }
 
         foreach ($nodes as $node) {
             $value = str_replace('http://schema.org/', '', $node->getAttribute('resource'));
@@ -186,8 +363,8 @@ class WFMicrodataPlugin extends WFEditorPlugin
             return array('error' => JText::_('Unable to load schema - Invalid response from ' . self::$_url));
         }
 
-        if (!empty($response->headers['Content-Encoding']) && $response->headers['Content-Encoding'] === 'gzip') {
-            return gzdecode($response->body);
+        if ($data = gzdecode($response->body)) {
+            return $data;
         }
 
         return $response->body;
@@ -210,36 +387,39 @@ class WFMicrodataPlugin extends WFEditorPlugin
                 self::$_schema = json_decode($data);
             }
 
-            // cehck for valid, existing file
             if (empty(self::$_schema) || !$ttl || (JFile::exists($cache) && filemtime($cache) >= strtotime($ttl . ' days ago'))) {
-                $html = $this->getData();
 
-                // result should be string, otherwise an error
-                if (is_array($html)) {
-                    return $html;
+                if (pathinfo(self::$_url, PATHINFO_EXTENSION) === 'jsonld') {
+                    $jsonld = @file_get_contents(self::$_url);
+
+                    if (!is_string($jsonld)) {
+                        return self::$_schema;
+                    }
+
+                    $json = json_decode($jsonld, true);
+
+                    if (empty($json)) {
+                        return self::$_schema;
+                    }
+
+                    $data = self::buildListFromJson($json);
+
+                } else {
+                    //$html = $this->getData();
+                    $html = @file_get_contents(self::$_url);
+
+                    // result should be string, otherwise an error
+                    if (!is_string($html)) {
+                        return $html;
+                    }
+
+                    // error getting data, return cache
+                    if (empty($html)) {
+                        return self::$_schema;
+                    }
+
+                    $data = self::buildListFromDom($html);
                 }
-
-                // error getting data, return cache
-                if (empty($html)) {
-                    return self::$_schema;
-                }
-
-                $dom = new \DOMDocument();
-                $dom->loadHTML($html);
-
-                // dom is empty, return cache
-                if (empty($dom)) {
-                    return empty(self::$_schema) ? 'Schema data is empty' : self::$_schema;
-                }
-
-                $nodes = $dom->getElementsByTagName('div');
-
-                // no div nodes, return cache
-                if ($nodes->length === 0) {
-                    return empty(self::$_schema) ? 'Invalid Schema data' : self::$_schema;
-                }
-
-                $data = self::buildList($nodes);
 
                 // no new list created, return cache
                 if (empty($data)) {

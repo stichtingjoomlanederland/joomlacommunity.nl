@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
@@ -164,6 +164,14 @@ JText::script('COM_RSEVENTSPRO_CONSENT_INFO'); ?>
 			<!-- End Dashboard tab -->
 			<?php } ?>
 			
+			<?php if (rseventsproHelper::pdf()) { ?>
+			<!-- Start invoice tab -->
+			<div class="tab-pane" id="rsepro-edit-invoice">
+				<?php echo $this->loadTemplate('invoice'); ?>
+			</div>
+			<!-- End invoice tab -->
+			<?php } ?>
+			
 		</div>
 		
 		<div>
@@ -185,6 +193,10 @@ JText::script('COM_RSEVENTSPRO_CONSENT_INFO'); ?>
 			
 			if (!empty($this->permissions['can_add_speaker']) || $this->admin) {
 				echo JHtml::_('bootstrap.renderModal', 'rsepro-add-new-speaker', array('title' => JText::_('COM_RSEVENTSPRO_EVENT_ADD_SPEAKER'), 'footer' => $this->loadTemplate('modal_speaker_footer'), 'bodyHeight' => 70, 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&view=rseventspro&layout=edit&id='.$this->item->id.'&tpl=modal_speaker', false)),'');
+			}
+			
+			if (!empty($this->permissions['can_add_sponsor']) || $this->admin) {
+				echo JHtml::_('bootstrap.renderModal', 'rsepro-add-new-sponsor', array('title' => JText::_('COM_RSEVENTSPRO_EVENT_ADD_SPONSOR'), 'footer' => $this->loadTemplate('modal_sponsor_footer'), 'bodyHeight' => 70, 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&view=rseventspro&layout=edit&id='.$this->item->id.'&tpl=modal_sponsor', false)),'');
 			}
 			
 			if (!empty($this->permissions['can_create_categories']) || $this->admin) {
@@ -214,6 +226,10 @@ JText::script('COM_RSEVENTSPRO_CONSENT_INFO'); ?>
 		
 		<?php if (!empty($this->permissions['can_add_speaker']) || $this->admin) { ?>
 		jQuery("a[rel='rs_speaker']").colorbox({iframe:true, maxWidth:'95%', maxHeight:'95%', innerWidth: '<?php echo $this->modal_width; ?>', innerHeight: '<?php echo $this->modal_height; ?>', title:'<?php echo JText::_('COM_RSEVENTSPRO_EVENT_ADD_SPEAKER',true); ?>'});
+		<?php } ?>
+		
+		<?php if (!empty($this->permissions['can_add_sponsor']) || $this->admin) { ?>
+		jQuery("a[rel='rs_sponsor']").colorbox({iframe:true, maxWidth:'95%', maxHeight:'95%', innerWidth: '<?php echo $this->modal_width; ?>', innerHeight: '<?php echo $this->modal_height; ?>', title:'<?php echo JText::_('COM_RSEVENTSPRO_EVENT_ADD_SPONSOR',true); ?>'});
 		<?php } ?>
 		
 		jQuery(".rsepro-edit-file").colorbox({inline:true, href:'#rsFileFrame', innerWidth: '<?php echo $this->modal_width; ?>', innerHeight: '<?php echo $this->modal_height; ?>', maxWidth:'95%', maxHeight:'95%', title:'<?php echo JText::_('COM_RSEVENTSPRO_EVENT_EDIT_FILE'); ?>'});

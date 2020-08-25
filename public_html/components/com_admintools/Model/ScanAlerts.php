@@ -11,7 +11,7 @@ defined('_JEXEC') or die;
 
 use Akeeba\AdminTools\Admin\Model\ScanAlerts as AdminModel;
 
-class Scanalerts extends AdminModel
+class ScanAlerts extends AdminModel
 {
 
 }

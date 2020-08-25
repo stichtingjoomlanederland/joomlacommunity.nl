@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.2.16442
+ * @version         20.7.20564
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -377,16 +377,17 @@ class Extension
 			if ( ! empty($folder))
 			{
 				$files[] = JPATH_PLUGINS . '/' . $folder . '/' . $element . '/' . $element . '.xml';
-				$files[] = JPATH_PLUGINS . '/' . $folder . '/' . $element . '.xml';
 			}
 
 			// System Plugins
 			$files[] = JPATH_PLUGINS . '/system/' . $element . '/' . $element . '.xml';
-			$files[] = JPATH_PLUGINS . '/system/' . $element . '.xml';
 
 			// Editor Button Plugins
 			$files[] = JPATH_PLUGINS . '/editors-xtd/' . $element . '/' . $element . '.xml';
-			$files[] = JPATH_PLUGINS . '/editors-xtd/' . $element . '.xml';
+
+			// Editor Button Plugins
+			$field_name = RegEx::replace('field$', '', $element);
+			$files[]    = JPATH_PLUGINS . '/fields/' . $field_name . '/' . $field_name . '.xml';
 		}
 
 		// Modules

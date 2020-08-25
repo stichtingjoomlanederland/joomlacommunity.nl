@@ -114,11 +114,25 @@ final class bfExtensions
      *
      * Parts of this code are from Joomla CMS, Modified under license.
      *
-     * @license GNU General Public License version 2 or later; see https://github.com/joomla/joomla-cms/blob/staging/LICENSE.txt
+     * @license   GNU General Public License version 2 or later; see https://github.com/joomla/joomla-cms/blob/staging/LICENSE.txt
      * @copyright Copyright (C) 2005 - 2018 Open Source Matters, Inc. All rights reserved.
      */
     public function installExtensionFromUrl()
     {
+        // Manipulate the base Uri in the Joomla Stack to provide compatibility with some 3pd extensions like ACL Manager & ACYMailing!
+        try {
+            $uri = \Joomla\CMS\Uri\Uri::getInstance();
+
+            $reflection   = new \ReflectionClass($uri);
+            $baseProperty = $reflection->getProperty('base');
+            $baseProperty->setAccessible(true);
+            $base           = $baseProperty->getValue();
+            $base['prefix'] = $uri->toString(array('scheme', 'host'));
+            $base['path']   = '/';
+            $baseProperty->setValue($base);
+        } catch (ReflectionException $e) {
+        }
+
         // Get an installer instance.
         $installer = JInstaller::getInstance();
 

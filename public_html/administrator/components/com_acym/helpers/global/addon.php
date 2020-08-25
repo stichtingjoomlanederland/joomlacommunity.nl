@@ -39,6 +39,8 @@ function acym_loadPlugins()
 
 function acym_trigger($method, $args = [], $plugin = null)
 {
+    if (!in_array(acym_getPrefix().'acym_configuration', acym_getTableList())) return null;
+
     global $acymPlugins;
     if (empty($acymPlugins)) acym_loadPlugins();
 

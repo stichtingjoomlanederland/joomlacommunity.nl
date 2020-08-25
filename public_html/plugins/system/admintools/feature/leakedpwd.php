@@ -5,6 +5,11 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Factory;
+use Joomla\CMS\Http\HttpFactory;
+use Joomla\CMS\Language\Text;
+use Joomla\CMS\User\User;
+
 defined('_JEXEC') or die;
 
 class AtsystemFeatureLeakedpwd extends AtsystemFeatureAbstract
@@ -25,9 +30,9 @@ class AtsystemFeatureLeakedpwd extends AtsystemFeatureAbstract
 	/**
 	 * Hooks into the Joomla! models before a user is saved.
 	 *
-	 * @param   JUser|array     $oldUser  The existing user record
-	 * @param   bool            $isNew    Is this a new user?
-	 * @param   array           $data     The data to be saved
+	 * @param   User|array  $oldUser  The existing user record
+	 * @param   bool        $isNew    Is this a new user?
+	 * @param   array       $data     The data to be saved
 	 *
 	 * @throws  Exception  When we catch a security exception
 	 */
@@ -48,14 +53,14 @@ class AtsystemFeatureLeakedpwd extends AtsystemFeatureAbstract
 		// is included in a leaked database
 		$hashed = strtoupper(sha1($data['password_clear']));
 		$search = substr($hashed, 0, 5);
-		$body	= substr($hashed, 5);
+		$body   = substr($hashed, 5);
 
-		$http = JHttpFactory::getHttp();
+		$http = HttpFactory::getHttp();
 		$http->setOption('user-agent', 'admin-tools-pwd-checker');
 
 		try
 		{
-			$response = $http->get('https://api.pwnedpasswords.com/range/'.$search);
+			$response = $http->get('https://api.pwnedpasswords.com/range/' . $search);
 		}
 		catch (Exception $e)
 		{
@@ -74,22 +79,22 @@ class AtsystemFeatureLeakedpwd extends AtsystemFeatureAbstract
 		if (strpos($response->body, $body) !== false)
 		{
 			// Load the component's administrator translation files
-			$jlang = JFactory::getLanguage();
+			$jlang = Factory::getLanguage();
 			$jlang->load('com_admintools', JPATH_ADMINISTRATOR, 'en-GB', true);
 			$jlang->load('com_admintools', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
 			$jlang->load('com_admintools', JPATH_ADMINISTRATOR, null, true);
 
-			throw new Exception(JText::sprintf('COM_ADMINTOOLS_LEAKEDPWD_ERR', $data['password_clear']), '403');
+			throw new Exception(Text::sprintf('COM_ADMINTOOLS_LEAKEDPWD_ERR', $data['password_clear']), '403');
 		}
 	}
 
 	/**
 	 * Given a user group, should we allow insecure passwords?
 	 *
-	 * @param	JUser|array	$oldUser
-	 * @param	array		$data
+	 * @param   User|array  $oldUser
+	 * @param   array       $data
 	 *
-	 * @return bool		Should we continue with the check or no?
+	 * @return bool        Should we continue with the check or no?
 	 */
 	private function checkByGroup($oldUser, $data)
 	{
@@ -108,13 +113,13 @@ class AtsystemFeatureLeakedpwd extends AtsystemFeatureAbstract
 		}
 		else
 		{
-			$user_groups = array();
+			$user_groups = [];
 
-			if(is_array($oldUser))
+			if (is_array($oldUser))
 			{
 				$user_groups = $oldUser['groups'];
 			}
-			elseif($oldUser instanceof JUser)
+			elseif ($oldUser instanceof User)
 			{
 				$user_groups = $oldUser->groups;
 			}

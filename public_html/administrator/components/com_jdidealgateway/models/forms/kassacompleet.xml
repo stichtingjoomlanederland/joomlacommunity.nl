@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fieldset name="kassacompleet">
+
+        <field name="psp-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_PSP"/>
+
+        <field name="apiKey"
+               type="text"
+               label="COM_ROPAYMENTS_KASSACOMPLEET_APIKEY_LABEL"
+               description="COM_ROPAYMENTS_KASSACOMPLEET_APIKEY_DESC"
+               required="true"
+               class="input-xlarge"
+               labelclass="config"/>
+
+        <field name="description"
+               type="text"
+               label="COM_ROPAYMENTS_KASSACOMPLEET_DESCRIPTION_LABEL"
+               description="COM_ROPAYMENTS_KASSACOMPLEET_DESCRIPTION_DESC"
+               class="input-xxlarge"
+               required="true"
+               size="30"
+               labelclass="config"/>
+
+        <field name="redirect"
+               type="jdideal.waitoptions"
+               label="COM_ROPAYMENTS_WAIT_TIME_LABEL"
+               description="COM_ROPAYMENTS_WAIT_TIME_DESC"
+               required="true"
+               size="1"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="payment"
+               type="list"
+               label="COM_ROPAYMENTS_KASSACOMPLEET_BRANDLIST_LABEL"
+               description="COM_ROPAYMENTS_KASSACOMPLEET_BRANDLIST_DESC"
+               required="true"
+               default="all"
+               multiple="true"
+               size="9"
+               class="advancedSelect"
+               labelclass="config">
+            <option value="all">COM_ROPAYMENTS_ALL</option>
+            <option value="ideal">COM_JDIDEALGATWAY_PAYMENT_METHOD_IDEAL</option>
+            <option value="credit-card">COM_JDIDEALGATWAY_PAYMENT_METHOD_CREDITCARD</option>
+            <option value="paypal">COM_JDIDEALGATWAY_PAYMENT_METHOD_PAYPAL</option>
+            <option value="bank-transfer">COM_JDIDEALGATWAY_PAYMENT_METHOD_BANKTRANSFER</option>
+            <option value="rembours">COM_JDIDEALGATWAY_PAYMENT_METHOD_CASHONDELIVERY</option>
+        </field>
+
+        <field name="status-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_STATUS"/>
+
+        <field name="pendingStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_PENDING_LABEL"
+               description="COM_ROPAYMENTS_STATUS_PENDING_DESC"
+               required="false"
+               size="1"
+               default="P"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="verifiedStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_SUCCESS_LABEL"
+               description="COM_ROPAYMENTS_STATUS_SUCCESS_DESC"
+               required="false"
+               size="1"
+               default="C"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="cancelledStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_CANCELLED_LABEL"
+               description="COM_ROPAYMENTS_STATUS_CANCELLED_DESC"
+               required="false"
+               size="1"
+               default="X"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="failedStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_FAILED_LABEL"
+               description="COM_ROPAYMENTS_STATUS_FAILED_DESC"
+               required="false"
+               size="1"
+               default="F"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="openStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_OPEN_LABEL"
+               description="COM_ROPAYMENTS_STATUS_OPEN_DESC"
+               required="false"
+               size="1"
+               default="P"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="transferStatus"
+               type="jdideal.status"
+               label="COM_ROPAYMENTS_STATUS_TRANSFER_LABEL"
+               description="COM_ROPAYMENTS_STATUS_TRANSFER_DESC"
+               required="false"
+               size="1"
+               default="P"
+               class="advancedSelect"
+               labelclass="config"/>
+
+        <field name="ordernumber-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_ORDERNUMBERS"/>
+
+        <field name="orderNumber"
+               type="jdideal.ordernumber"
+               label="COM_ROPAYMENTS_ORDERNUMBER_LABEL"
+               description="COM_ROPAYMENTS_ORDERNUMBER_DESC"
+               required="false"
+               size="1"
+               default="order_number"
+               class="advancedSelect"
+               labelclass="config"/>
+    </fieldset>
+</form>

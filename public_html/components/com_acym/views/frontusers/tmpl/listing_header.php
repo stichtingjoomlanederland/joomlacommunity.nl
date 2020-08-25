@@ -15,7 +15,7 @@ defined('_JEXEC') or die('Restricted access');
 
         echo acym_modal(
             acym_translation('ACYM_ADD_TO_LIST').' (<span id="acym__users__listing__number_to_add_to_list">0</span>)',
-            $entityHelper->entitySelect('list', ['join' => ''], ['name', 'id'], ['text' => acym_translation('ACYM_SUBSCRIBE_USERS_TO_THESE_LISTS'), 'action' => 'addToList']),
+            $entityHelper->entitySelect('list', ['join' => ''], $entityHelper->getColumnsForList(), ['text' => acym_translation('ACYM_SUBSCRIBE_USERS_TO_THESE_LISTS'), 'action' => 'addToList']),
             null,
             '',
             'class="button button-secondary disabled " id="acym__users__listing__button--add-to-list"'

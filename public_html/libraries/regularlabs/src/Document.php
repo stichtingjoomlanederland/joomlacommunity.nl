@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.2.16442
+ * @version         20.7.20564
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -118,7 +118,7 @@ class Document
 				in_array($option, ['com_contentsubmit', 'com_cckjseblod'])
 				|| ($option == 'com_comprofiler' && in_array($task, ['', 'userdetails']))
 				|| in_array($task, ['edit', 'form', 'submission'])
-				|| in_array($view, ['edit', 'editor', 'form', 'gridbox'])
+				|| in_array($view, ['edit', 'form'])
 				|| in_array($input->get('do'), ['edit', 'form'])
 				|| in_array($input->get('layout'), ['edit', 'form', 'write'])
 				|| self::isAdmin()
@@ -283,7 +283,7 @@ class Document
 		{
 			JHtml::_('behavior.core');
 			JHtml::_('script', 'jui/cms.js', ['version' => 'auto', 'relative' => true]);
-			$version = '20.2.16442';
+			$version = '20.7.20564';
 		}
 
 		if ( ! empty($version))
@@ -304,7 +304,7 @@ class Document
 	{
 		if (strpos($file, 'regularlabs/') === 0)
 		{
-			$version = '20.2.16442';
+			$version = '20.7.20564';
 		}
 
 		if ( ! $file = File::getMediaFile('css', $file))

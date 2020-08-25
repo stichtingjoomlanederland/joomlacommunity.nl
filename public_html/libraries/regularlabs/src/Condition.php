@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.2.16442
+ * @version         20.7.20564
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -23,6 +23,7 @@ use Joomla\CMS\Factory as JFactory;
 abstract class Condition
 	implements \RegularLabs\Library\Api\ConditionInterface
 {
+	static  $_request     = null;
 	public  $request      = null;
 	public  $date         = null;
 	public  $db           = null;
@@ -65,12 +66,18 @@ abstract class Condition
 
 	private function getRequest()
 	{
+		$return_early = ! is_null(self::$_request);
+
 		$app   = JFactory::getApplication();
 		$input = $app->input;
 
-		$id = $input->get('id', $input->get('a_id', [0], 'array'), 'array');
+		$attributes = $input->getArray();
 
-		$request = (object) [
+		$id = isset($attributes['a_id'])
+			? $input->get('a_id', [0], 'array')
+			: $input->get('id', [0], 'array');
+
+		self::$_request = (object) [
 			'idname' => 'id',
 			'option' => $input->get('option'),
 			'view'   => $input->get('view'),
@@ -80,59 +87,64 @@ abstract class Condition
 			'id'     => (int) $id[0],
 		];
 
-		switch ($request->option)
+		switch (self::$_request->option)
 		{
 			case 'com_categories':
-				$extension       = $input->getCmd('extension');
-				$request->option = $extension ? $extension : 'com_content';
-				$request->view   = 'category';
+				$extension              = $input->getCmd('extension');
+				self::$_request->option = $extension ? $extension : 'com_content';
+				self::$_request->view   = 'category';
 				break;
 
 			case 'com_breezingforms':
-				if ($request->view == 'article')
+				if (self::$_request->view == 'article')
 				{
-					$request->option = 'com_content';
+					self::$_request->option = 'com_content';
 				}
 				break;
 		}
 
-		$this->initRequest($request);
+		$this->initRequest(self::$_request);
 
-		if ( ! $request->id)
+		if ( ! self::$_request->id)
 		{
-			$cid         = $input->get('cid', [0], 'array');
-			$request->id = (int) $cid[0];
+			$cid                = $input->get('cid', [0], 'array');
+			self::$_request->id = (int) $cid[0];
+		}
+
+		if ($return_early)
+		{
+			return self::$_request;
 		}
 
 		// if no id is found, check if menuitem exists to get view and id
 		if (Document::isClient('site')
-			&& ( ! $request->option || ! $request->id)
+			&& ( ! self::$_request->option || ! self::$_request->id)
 		)
 		{
-			$menuItem = empty($request->Itemid)
+			$menuItem = empty(self::$_request->Itemid)
 				? $app->getMenu('site')->getActive()
-				: $app->getMenu('site')->getItem($request->Itemid);
+				: $app->getMenu('site')->getItem(self::$_request->Itemid);
 
 			if ($menuItem)
 			{
-				if ( ! $request->option)
+				if ( ! self::$_request->option)
 				{
-					$request->option = (empty($menuItem->query['option'])) ? null : $menuItem->query['option'];
+					self::$_request->option = (empty($menuItem->query['option'])) ? null : $menuItem->query['option'];
 				}
 
-				$request->view = (empty($menuItem->query['view'])) ? null : $menuItem->query['view'];
-				$request->task = (empty($menuItem->query['task'])) ? null : $menuItem->query['task'];
+				self::$_request->view = (empty($menuItem->query['view'])) ? null : $menuItem->query['view'];
+				self::$_request->task = (empty($menuItem->query['task'])) ? null : $menuItem->query['task'];
 
-				if ( ! $request->id)
+				if ( ! self::$_request->id)
 				{
-					$request->id = (empty($menuItem->query[$request->idname])) ? $menuItem->params->get($request->idname) : $menuItem->query[$request->idname];
+					self::$_request->id = (empty($menuItem->query[self::$_request->idname])) ? $menuItem->params->get(self::$_request->idname) : $menuItem->query[self::$_request->idname];
 				}
 			}
 
 			unset($menuItem);
 		}
 
-		return $request;
+		return self::$_request;
 	}
 
 	public function _($pass = true, $include_type = null)

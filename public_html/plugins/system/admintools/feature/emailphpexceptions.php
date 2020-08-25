@@ -5,39 +5,18 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Exception\ExceptionHandler;
+use Joomla\CMS\Factory;
+
 defined('_JEXEC') or die;
 
 class AtsystemFeatureEmailphpexceptions extends AtsystemFeatureAbstract
 {
-	protected $loadOrder = 3;
-
 	private static $previousExceptionHandler;
 
 	private static $emailAddress;
 
-	/**
-	 * Is this feature enabled?
-	 *
-	 * @return bool
-	 */
-	public function isEnabled()
-	{
-		static::$emailAddress = $this->cparams->getValue('emailphpexceptions', '');
-
-		return (static::$emailAddress != '');
-	}
-
-	public function onAfterInitialise()
-	{
-		// Joomla 3: Set the JError handler for E_ERROR to be the class' handleError method.
-		if (class_exists('JError'))
-		{
-			JError::setErrorHandling(E_ERROR, 'callback', array('AtsystemFeatureEmailphpexceptions', 'handleError'));
-		}
-
-		// Register the previously defined exception handler so we can forward errors to it
-		self::$previousExceptionHandler = set_exception_handler(array('AtsystemFeatureEmailphpexceptions', 'handleException'));
-	}
+	protected $loadOrder = 3;
 
 	public static function handleError($error)
 	{
@@ -58,7 +37,7 @@ class AtsystemFeatureEmailphpexceptions extends AtsystemFeatureAbstract
 	}
 
 	/**
-	 * @param	\Exception	$error
+	 * @param   Exception  $error
 	 */
 	private static function doErrorHandling($error)
 	{
@@ -70,22 +49,22 @@ class AtsystemFeatureEmailphpexceptions extends AtsystemFeatureAbstract
 			// Proxy to the previous exception handler if available, otherwise just render the error page
 			if (self::$previousExceptionHandler)
 			{
-				call_user_func_array(self::$previousExceptionHandler, array($error));
+				call_user_func_array(self::$previousExceptionHandler, [$error]);
 			}
 			else
 			{
-				JErrorPage::render($error);
+				ExceptionHandler::render($error);
 			}
 
 			return;
 		}
 
-		$type = get_class($error);
-		$subject = 'Unhandled exception - '.$type;
+		$type    = get_class($error);
+		$subject = 'Unhandled exception - ' . $type;
 
 		// Now let's htmlencode the dump of all superglobals
-		$get 	 = htmlentities(print_r($_GET, true));
-		$post 	 = htmlentities(print_r($_POST, true));
+		$get     = htmlentities(print_r($_GET, true));
+		$post    = htmlentities(print_r($_POST, true));
 		$cookie  = htmlentities(print_r($_COOKIE, true));
 		$request = htmlentities(print_r($_REQUEST, true));
 		$server  = htmlentities(print_r($_SERVER, true));
@@ -113,8 +92,8 @@ class AtsystemFeatureEmailphpexceptions extends AtsystemFeatureAbstract
 <pre>$server</pre>
 HTML;
 
-		$config = JFactory::getConfig();
-		$mailer = JFactory::getMailer();
+		$config = Factory::getConfig();
+		$mailer = Factory::getMailer();
 
 		$mailer->sendMail(
 			$config->get('mailfrom'),
@@ -124,6 +103,32 @@ HTML;
 			$body,
 			true);
 
-		JErrorPage::render($error);
+		ExceptionHandler::render($error);
+	}
+
+	/**
+	 * Is this feature enabled?
+	 *
+	 * @return bool
+	 */
+	public function isEnabled()
+	{
+		static::$emailAddress = $this->cparams->getValue('emailphpexceptions', '');
+
+		return (static::$emailAddress != '');
+	}
+
+	public function onAfterInitialise()
+	{
+		// Joomla 3: Set the JError handler for E_ERROR to be the class' handleError method.
+		if (class_exists('JError'))
+		{
+			JError::setErrorHandling(E_ERROR, 'callback', ['AtsystemFeatureEmailphpexceptions', 'handleError']);
+		}
+
+		// Register the previously defined exception handler so we can forward errors to it
+		self::$previousExceptionHandler = set_exception_handler([
+			'AtsystemFeatureEmailphpexceptions', 'handleException',
+		]);
 	}
 }

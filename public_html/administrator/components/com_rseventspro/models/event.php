@@ -115,8 +115,14 @@ class RseventsproModelEvent extends JModelAdmin
 				
 			if (empty($item->owner)) 
 				$item->owner = JFactory::getUser()->get('id');
+				
+			if (empty($item->invoice_padding)) 
+				$item->invoice_padding = '';
 			
 			$item->waitinglist_time = rseventsproHelper::secondsToTime($item->waitinglist_time);
+			
+			if (empty($item->tickets_amount))
+				$item->tickets_amount = '';
 			
 			if (!empty($item->rsm_lists)) {
 				try {

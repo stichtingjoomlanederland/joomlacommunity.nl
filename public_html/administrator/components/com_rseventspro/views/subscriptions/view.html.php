@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
@@ -45,14 +45,15 @@ class RseventsproViewSubscriptions extends JViewLegacy
 		JToolBarHelper::custom('subscriptions.incomplete','pending','pending',JText::_('COM_RSEVENTSPRO_GLOBAL_STATUS_PENDING'));
 		JToolBarHelper::custom('subscriptions.denied','cancel-circle','cancel-circle',JText::_('COM_RSEVENTSPRO_GLOBAL_STATUS_DENY'));
 		
+		$bar = JToolBar::getInstance('toolbar');
+		
 		if ($event = $this->state->get('filter.event')) {
 			if (rseventsproHelper::pdf())
-				JToolBar::getInstance('toolbar')->appendButton( 'Link', 'list', JText::_('COM_RSEVENTSPRO_SUBSCRIBERS_LIST'), JRoute::_('index.php?option=com_rseventspro&view=pdf&eid='.$event));
-			
-			JToolBar::getInstance('toolbar')->appendButton( 'Link', 'arrow-down', JText::_('COM_RSEVENTSPRO_EXPORT_SUBSCRIBERS'), JRoute::_('index.php?option=com_rseventspro&task=subscriptions.export&id='.$event));
+				$bar->appendButton( 'Link', 'list', JText::_('COM_RSEVENTSPRO_SUBSCRIBERS_LIST'), JRoute::_('index.php?option=com_rseventspro&view=pdf&eid='.$event));
 		}
 		
-		JToolBar::getInstance('toolbar')->appendButton( 'Link', 'lamp', JText::_('COM_RSEVENTSPRO_EVENT_SCAN_TICKET'), JRoute::_('index.php?option=com_rseventspro&view=subscriptions&layout=scan'));
+		$bar->appendButton( 'Link', 'arrow-down', JText::_('COM_RSEVENTSPRO_EXPORT_SUBSCRIBERS'), JRoute::_('index.php?option=com_rseventspro&task=subscriptions.export'));
+		$bar->appendButton( 'Link', 'lamp', JText::_('COM_RSEVENTSPRO_EVENT_SCAN_TICKET'), JRoute::_('index.php?option=com_rseventspro&view=subscriptions&layout=scan'));
 		
 		JHtml::_('rseventspro.chosen','select');
 	}

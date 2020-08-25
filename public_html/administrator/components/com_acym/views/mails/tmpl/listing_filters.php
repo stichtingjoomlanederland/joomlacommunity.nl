@@ -14,7 +14,7 @@ defined('_JEXEC') or die('Restricted access');
         $data['allTags'],
         'mails_tag',
         acym_escape($data['tag']),
-        'class="acym__templates__filter__tags"',
+        'class="acym__templates__filter__tags acym__select"',
         'value',
         'name'
     );

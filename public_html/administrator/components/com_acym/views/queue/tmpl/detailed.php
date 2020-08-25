@@ -25,7 +25,14 @@ defined('_JEXEC') or die('Restricted access');
                     $allTags->value = '';
                     array_unshift($data["tags"], $allTags);
 
-                    echo acym_select($data["tags"], 'dqueue_tag', $data["tag"], 'class="acym__queue__filter__tags"', 'value', 'name');
+                    echo acym_select(
+                        $data["tags"],
+                        'dqueue_tag',
+                        $data["tag"],
+                        'class="acym__queue__filter__tags acym__select"',
+                        'value',
+                        'name'
+                    );
                     ?>
 				</div>
 				<div class="xxlarge-4 xlarge-3 large-2 hide-for-medium-only hide-for-small-only cell"></div>

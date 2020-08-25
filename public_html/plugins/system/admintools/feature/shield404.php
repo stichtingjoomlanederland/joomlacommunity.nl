@@ -5,12 +5,15 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Application\SiteApplication;
+use Joomla\CMS\Exception\ExceptionHandler;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Uri\Uri;
+
 defined('_JEXEC') or die;
 
 class AtsystemFeatureShield404 extends AtsystemFeatureAbstract
 {
-	protected $loadOrder = 2;
-
 	private static $previousExceptionHandler;
 
 	private static $blockedUrls;
@@ -18,31 +21,7 @@ class AtsystemFeatureShield404 extends AtsystemFeatureAbstract
 	/** @var  AtsystemUtilExceptionshandler */
 	private static $exceptionHandler;
 
-	/**
-	 * Is this feature enabled?
-	 *
-	 * @return bool
-	 */
-	public function isEnabled()
-	{
-		// Assign those values to our static variables so we can reference to them in the static context
-		static::$blockedUrls = $this->cparams->getValue('404shield', "wp-admin.php\nwp-login.php\nwp-content/*\nwp-admin/*");
-		static::$exceptionHandler = $this->exceptionsHandler;
-
-		return ($this->cparams->getValue('404shield_enable', 1));
-	}
-
-	public function onAfterInitialise()
-	{
-		// Joomla 3: Set the JError handler for E_ERROR to be the class' handleError method.
-		if (class_exists('JError'))
-		{
-			JError::setErrorHandling(E_ERROR, 'callback', array('AtsystemFeatureShield404', 'handleError'));
-		}
-
-		// Register the previously defined exception handler so we can forward errors to it
-		self::$previousExceptionHandler = set_exception_handler(array('AtsystemFeatureShield404', 'handleException'));
-	}
+	protected $loadOrder = 2;
 
 	public static function handleError($error)
 	{
@@ -64,14 +43,14 @@ class AtsystemFeatureShield404 extends AtsystemFeatureAbstract
 
 	private static function doErrorHandling($error)
 	{
-		$app = JFactory::getApplication();
+		$app     = Factory::getApplication();
 		$isAdmin = false;
 
 		if (method_exists($app, 'isClient'))
 		{
 			$isAdmin = $app->isClient('administrator');
 		}
-		elseif(method_exists($app, 'isAdmin'))
+		elseif (method_exists($app, 'isAdmin'))
 		{
 			$isAdmin = $app->isAdmin();
 		}
@@ -81,19 +60,19 @@ class AtsystemFeatureShield404 extends AtsystemFeatureAbstract
 			// Proxy to the previous exception handler if available, otherwise just render the error page
 			if (self::$previousExceptionHandler)
 			{
-				call_user_func_array(self::$previousExceptionHandler, array($error));
+				call_user_func_array(self::$previousExceptionHandler, [$error]);
 			}
 			else
 			{
-				JErrorPage::render($error);
+				ExceptionHandler::render($error);
 			}
 		}
 
-		$rows 		 = explode("\n", static::$blockedUrls);
+		$rows        = explode("\n", static::$blockedUrls);
 		$blockedURLs = array_map('trim', $rows);
-		$root 		 = JUri::root();
-		$currentURL	 = JUri::getInstance();
-		$currentPath = $currentURL->toString(array('scheme', 'host', 'port', 'path'));
+		$root        = Uri::root();
+		$currentURL  = Uri::getInstance();
+		$currentPath = $currentURL->toString(['scheme', 'host', 'port', 'path']);
 
 		// Remove the root from the current path so we can work with relative URLs
 		$currentPath = str_replace($root, '', $currentPath);
@@ -140,11 +119,11 @@ class AtsystemFeatureShield404 extends AtsystemFeatureAbstract
 		// Proxy to the previous exception handler if available, otherwise just render the error page
 		if (self::$previousExceptionHandler)
 		{
-			call_user_func_array(self::$previousExceptionHandler, array($error));
+			call_user_func_array(self::$previousExceptionHandler, [$error]);
 		}
 		else
 		{
-			JErrorPage::render($error);
+			ExceptionHandler::render($error);
 		}
 	}
 
@@ -157,8 +136,8 @@ class AtsystemFeatureShield404 extends AtsystemFeatureAbstract
 	 */
 	private static function removeLanguageTag($pathURL)
 	{
-		/** @var \Joomla\CMS\Application\SiteApplication $app */
-		$app               = \JFactory::getApplication();
+		/** @var SiteApplication $app */
+		$app               = Factory::getApplication();
 		$hasLanguageFilter = false;
 
 		if (method_exists($app, 'getLanguageFilter'))
@@ -171,13 +150,13 @@ class AtsystemFeatureShield404 extends AtsystemFeatureAbstract
 			return $pathURL;
 		}
 
-		$db = JFactory::getDbo();
+		$db = Factory::getDbo();
 
 		// Let's get the list of SEF code used in the URLs of the published languages
-		$query = $db->getQuery(true)
-					->select($db->qn('sef'))
-					->from($db->qn('#__languages'))
-					->where($db->qn('published').' = '.$db->q('1'));
+		$query     = $db->getQuery(true)
+			->select($db->qn('sef'))
+			->from($db->qn('#__languages'))
+			->where($db->qn('published') . ' = ' . $db->q('1'));
 		$languages = $db->setQuery($query)->loadColumn();
 
 		foreach ($languages as $lang)
@@ -197,5 +176,31 @@ class AtsystemFeatureShield404 extends AtsystemFeatureAbstract
 		}
 
 		return $pathURL;
+	}
+
+	/**
+	 * Is this feature enabled?
+	 *
+	 * @return bool
+	 */
+	public function isEnabled()
+	{
+		// Assign those values to our static variables so we can reference to them in the static context
+		static::$blockedUrls      = $this->cparams->getValue('404shield', "wp-admin.php\nwp-login.php\nwp-content/*\nwp-admin/*");
+		static::$exceptionHandler = $this->exceptionsHandler;
+
+		return ($this->cparams->getValue('404shield_enable', 1));
+	}
+
+	public function onAfterInitialise()
+	{
+		// Joomla 3: Set the JError handler for E_ERROR to be the class' handleError method.
+		if (class_exists('JError'))
+		{
+			JError::setErrorHandling(E_ERROR, 'callback', ['AtsystemFeatureShield404', 'handleError']);
+		}
+
+		// Register the previously defined exception handler so we can forward errors to it
+		self::$previousExceptionHandler = set_exception_handler(['AtsystemFeatureShield404', 'handleException']);
 	}
 }

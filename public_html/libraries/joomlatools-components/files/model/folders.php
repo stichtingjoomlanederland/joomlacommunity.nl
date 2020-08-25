@@ -64,11 +64,18 @@ class ComFilesModelFolders extends ComFilesModelNodes
             $base = \Koowa\basename($folder);
             $name = strpos($folder, '/') !== false ? substr($folder, strrpos($folder, '/')+1) : $base;
 
+            // Number of files for each folder
+            $file_count = $this->getObject('com:files.model.files')
+                ->container($state->container)
+                ->folder($folder)
+                ->count();
+
             $properties = array(
-                'container' => $state->container,
-                'folder' 	=> $hierarchy ? implode('/', $hierarchy) : $state->folder,
-                'name' 		=> $name,
-                'hierarchy' => $hierarchy
+                'container'   => $state->container,
+                'folder'      => $hierarchy ? implode('/', $hierarchy) : $state->folder,
+                'name'        => $name,
+                'hierarchy'   => $hierarchy,
+                'file_count' => $file_count
             );
 
             $collection->create($properties);

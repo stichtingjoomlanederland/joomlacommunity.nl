@@ -10,12 +10,12 @@ namespace Akeeba\AdminTools\Admin\View\QuickStart;
 defined('_JEXEC') or die;
 
 use Akeeba\AdminTools\Admin\Helper\ServerTechnology;
+use Akeeba\AdminTools\Admin\Model\ConfigureWAF;
 use Akeeba\AdminTools\Admin\Model\ControlPanel;
 use Akeeba\AdminTools\Admin\Model\QuickStart;
-use Akeeba\AdminTools\Admin\Model\ConfigureWAF;
-use FOF30\Utils\Ip;
 use FOF30\View\DataView\Html as BaseView;
-use JFactory;
+use Joomla\CMS\Crypt\Crypt;
+use Joomla\CMS\Language\Text;
 
 class Html extends BaseView
 {
@@ -62,11 +62,11 @@ class Html extends BaseView
 		// Get the reported IP
 		/** @var ControlPanel $cpanelModel */
 		$cpanelModel = $this->container->factory->model('ControlPanel')->tmpInstance();
-		$this->myIp = $cpanelModel->getVisitorIP();
+		$this->myIp  = $cpanelModel->getVisitorIP();
 
 		// Get the WAF configuration
 		/** @var ConfigureWAF $wafConfigModel */
-		$wafConfigModel = $this->getModel('ConfigureWAF');
+		$wafConfigModel  = $this->getModel('ConfigureWAF');
 		$this->wafconfig = $wafConfigModel->getConfig();
 
 		// Create an admin password if necessary
@@ -91,7 +91,7 @@ class Html extends BaseView
 		$this->admin_password = '';
 
 		/** @var QuickStart $model */
-		$model = $this->getModel();
+		$model            = $this->getModel();
 		$this->isFirstRun = $model->isFirstRun();
 
 		$this->hasHtaccess = ServerTechnology::isHtaccessSupported();
@@ -99,12 +99,12 @@ class Html extends BaseView
 		$this->addJavascriptFile('admin://components/com_admintools/media/js/Tooltip.min.js');
 		$this->addJavascriptFile('admin://components/com_admintools/media/js/QuickStart.min.js');
 
-		\JText::script('JNO', true);
-		\JText::script('JYES', true);
+		Text::script('JNO', true);
+		Text::script('JYES', true);
 
 		$js = <<< JS
 
-;;
+
 
 akeeba.jQuery(document).ready(function ($){
 	admintools.QuickStart.myIP = '{$this->myIp}';
@@ -124,7 +124,7 @@ JS;
 	 */
 	protected function genRandomPassword($length = 8, $salt = 'abcdefghijklmnopqrstuvwxyz0123456789')
 	{
-		$base = strlen($salt);
+		$base     = strlen($salt);
 		$makepass = '';
 
 		/*
@@ -134,13 +134,13 @@ JS;
 		 * distribution is even, and randomize the start shift so it's not
 		 * predictable.
 		 */
-		$random = \JCrypt::genRandomBytes($length + 1);
-		$shift = ord($random[0]);
+		$random = Crypt::genRandomBytes($length + 1);
+		$shift  = ord($random[0]);
 
 		for ($i = 1; $i <= $length; ++$i)
 		{
 			$makepass .= $salt[($shift + ord($random[$i])) % $base];
-			$shift += ord($random[$i]);
+			$shift    += ord($random[$i]);
 		}
 
 		return $makepass;

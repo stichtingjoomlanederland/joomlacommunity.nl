@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
@@ -20,7 +20,7 @@ class RseventsproModelSubscriptions extends JModelList
 			$config['filter_fields'] = array(
 				'u.name', 'e.name', 'u.id', 'u.date',
 				'u.gateway', 'u.state', 'u.confirmed', 
-				'state', 'event', 'ticket'
+				'state', 'event', 'ticket', 'from', 'to'
 			);
 		}
 		
@@ -62,6 +62,10 @@ class RseventsproModelSubscriptions extends JModelList
 	protected function getListQuery() {
 		$db 	= JFactory::getDBO();
 		$query 	= $db->getQuery(true);
+		$tz		= rseventsproHelper::getTimezone();
+		$cart	= false;
+		
+		JFactory::getApplication()->triggerEvent('rsepro_isCart',array(array('cart'=>&$cart)));
 		
 		// Select fields
 		$query->select($db->qn('e.name','event'))->select($db->qn('e.start'))->select($db->qn('e.end'))->select($db->qn('u.id'))->select($db->qn('u.ide'));
@@ -97,11 +101,34 @@ class RseventsproModelSubscriptions extends JModelList
 			$query->where($db->qn('e.id').' = '. (int) $event);
 		}
 		
+		if (!$cart) {
+			$query->where($db->qn('e.id').' <> 0');
+		}
+		
 		// Filter by ticket
 		$ticket = $this->getState('filter.ticket');
 		if (is_numeric($ticket)) {
 			$query->join('left', $db->qn('#__rseventspro_user_tickets','ut').' ON '.$db->qn('ut.ids').' = '.$db->qn('u.id'));
 			$query->where($db->qn('ut.idt').' = '. (int) $ticket);
+		}
+		
+		$from	= $this->getState('filter.from');
+		$to		= $this->getState('filter.to');
+		$from	= $from ? JFactory::getDate($from, $tz)->toSql() : '';
+		
+		if ($to) {
+			$to = JFactory::getDate($to,$tz);
+			$to->setTime(23,59,59);
+			$to = $to->toSql();
+		}
+		
+		if (empty($from) && !empty($to)) {
+			$query->where($db->qn('u.date').' <= '.$db->q($to));
+		} elseif (!empty($from) && empty($to)) {
+			$query->where($db->qn('u.date').' >= '.$db->q($from));
+		} elseif (!empty($from) && !empty($to)) {
+			$query->where($db->qn('u.date').' >= '.$db->q($from));
+			$query->where($db->qn('u.date').' <= '.$db->q($to));
 		}
 		
 		// Add the list ordering clause

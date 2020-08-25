@@ -10,4 +10,4 @@
 defined('_JEXEC') or die;
 
 ?>
-<pre><?php echo $this->escape($this->nginxconf);?></pre>
+<pre><?php echo $this->escape($this->nginxconf); ?></pre>

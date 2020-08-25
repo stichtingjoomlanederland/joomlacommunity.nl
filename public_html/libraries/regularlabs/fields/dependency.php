@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.2.16442
+ * @version         20.7.20564
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -90,7 +90,7 @@ class RLFieldDependency
 
 		$file_alt = RL_RegEx::replace('(com|mod)_([a-z-_]+\.)', '\2', $file);
 
-		if ( ! JFile::exists($file) && ! JFile::exists($file_alt))
+		if ( ! file_exists($file) && ! file_exists($file_alt))
 		{
 			$msg          = JText::sprintf('RL_THIS_EXTENSION_NEEDS_THE_MAIN_EXTENSION_TO_FUNCTION', JText::_($name));
 			$message_set  = 0;

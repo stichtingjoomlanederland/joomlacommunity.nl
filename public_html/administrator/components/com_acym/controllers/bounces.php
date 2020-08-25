@@ -12,26 +12,48 @@ class BouncesController extends acymController
 
     public function listing()
     {
+        $splashscreenHelper = acym_get('helper.splashscreen');
+        $data = [];
+
         if (acym_level(2)) {
-            acym_setVar("layout", "listing");
-            $bounceClass = acym_get('class.rule');
-            $listsClass = acym_get('class.list');
+            if ($splashscreenHelper->getDisplaySplashscreenForViewName('bounces')) {
+                acym_setVar('layout', 'splashscreen');
 
-            $bounceRules = $bounceClass->getAll();
+                $data['isEnterprise'] = true;
+            } else {
+                acym_setVar('layout', 'listing');
+                $bounceClass = acym_get('class.rule');
+                $listsClass = acym_get('class.list');
 
-            $data = [
-                "allRules" => $bounceRules,
-                "lists" => $listsClass->getAllWithIdName(),
-            ];
+                $bounceRules = $bounceClass->getAll();
 
-            parent::display($data);
+                $data = [
+                    'allRules' => $bounceRules,
+                    'lists' => $listsClass->getAllWithIdName(),
+                ];
+            }
         }
 
         if (!acym_level(2)) {
-            acym_redirect(acym_completeLink('dashboard&task=upgrade&version=enterprise', false, true));
+            acym_setVar('layout', 'splashscreen');
+            $data['isEnterprise'] = false;
         }
+
+        $this->prepareToolbar($data);
+
+        parent::display($data);
     }
 
+    public function prepareToolbar(&$data)
+    {
+        $toolbarHelper = acym_get('helper.toolbar');
+        $toolbarHelper->addButton(acym_translation('ACYM_CONFIGURE'), ['data-task' => 'config', 'id' => 'acym__bounce__button__config', 'type' => 'button'], 'settings');
+        $toolbarHelper->addButton(acym_translation('ACYM_RESET_DEFAULT_RULES'), ['data-task' => 'reinstall', 'type' => 'button'], 'repeat');
+        $toolbarHelper->addButton(acym_translation('ACYM_RUN_BOUNCE_HANDLING'), ['data-task' => 'test'], 'play_arrow');
+        $toolbarHelper->addButton(acym_translation('ACYM_CREATE'), ['data-task' => 'edit', 'type' => 'submit'], 'add', true);
+
+        $data['toolbar'] = $toolbarHelper;
+    }
 
     public function edit()
     {
@@ -47,6 +69,15 @@ class BouncesController extends acymController
             $this->breadcrumb[acym_translation($rule->name)] = acym_completeLink('bounces&task=edit&id='.$ruleId);
         } else {
             $this->breadcrumb[acym_translation('ACYM_NEW')] = acym_completeLink('bounces&task=edit');
+            $rule = new stdClass();
+            $rule->name = '';
+            $rule->active = 1;
+            $rule->regex = '';
+            $rule->executed_on = [];
+            $rule->action_message = [];
+            $rule->action_user = [];
+            $rule->increment_stats = 0;
+            $rule->execute_action_after = 0;
         }
 
         $data = [
@@ -304,6 +335,14 @@ class BouncesController extends acymController
 
         $ruleClass = acym_get('class.rule');
         $ruleClass->delete($rulesSelected);
+
+        $this->listing();
+    }
+
+    public function passSplash()
+    {
+        $splashscreenHelper = acym_get('helper.splashscreen');
+        $splashscreenHelper->setDisplaySplashscreenForViewName('bounces', 0);
 
         $this->listing();
     }

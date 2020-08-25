@@ -410,7 +410,7 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 					});
 
 					// Create the iframe's document
-					var html = '<h' + 'tml>' + '<' + 'b' + 'ody onload="parent.' + callback + '(document.body.scrollHeight);"><scr' + 'ipt type="text/javascript" src="' + url + '"></sc'+'ript></'+'b' + 'ody>' + '<' + '/h' + 'tml>';
+					var html = '<h' + 'tml>' + '<' + 'b' + 'ody onload="parent.' + callback + '(document.body.scrollHeight);"><scr' + 'ipt src="' + url + '"></sc'+'ript></'+'b' + 'ody>' + '<' + '/h' + 'tml>';
 
 					// Set iframe's document with a trigger for this document to adjust the height
 					var doc = iframe.document;

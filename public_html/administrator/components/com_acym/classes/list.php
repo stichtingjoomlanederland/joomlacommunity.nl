@@ -12,6 +12,10 @@ class acymlistClass extends acymClass
         $columns = 'list.*';
         if (!empty($settings['columns'])) {
             foreach ($settings['columns'] as $key => $value) {
+                if ($value == 'lists.list_id') {
+                    unset($settings['columns'][$key]);
+                    continue;
+                }
                 $settings['columns'][$key] = $key === 'join' ? $value : 'list.'.$value;
             }
             $columns = implode(', ', $settings['columns']);
@@ -24,10 +28,6 @@ class acymlistClass extends acymClass
         $filters = [];
         $listsId = [];
 
-        if (!acym_isAdmin()) {
-            $filters[] = 'list.cms_user_id = '.intval(acym_currentUserId());
-        }
-
         if (!empty($settings['tag'])) {
             $tagJoin = ' JOIN #__acym_tag AS tag ON list.id = tag.id_element';
             $query .= $tagJoin;
@@ -39,6 +39,14 @@ class acymlistClass extends acymClass
 
         if (!empty($settings['search'])) {
             $filters[] = 'list.name LIKE '.acym_escapeDB('%'.$settings['search'].'%');
+        }
+
+
+        if (!empty($settings['creator_id']) && !acym_isAdmin()) {
+            $userGroups = acym_getGroupsByUser($settings['creator_id']);
+            $groupCondition = '(list.access LIKE "%,'.implode(',%" OR list.access LIKE "%,', $userGroups).',%")';
+
+            $filters[] = 'list.cms_user_id = '.intval($settings['creator_id']).' OR '.$groupCondition.'';
         }
 
         $filters[] = 'front_management IS NULL';
@@ -83,11 +91,17 @@ class acymlistClass extends acymClass
             $settings['elementsPerPage'] = $pagination->getListLimit();
         }
 
+
         $results['elements'] = acym_loadObjectList($query, '', $settings['offset'], $settings['elementsPerPage']);
+        if (!empty($settings['join'])) {
+            $this->setSelectedList($results['elements'], $settings['join']);
+        }
         foreach ($results['elements'] as $i => $oneList) {
             array_push($listsId, $oneList->id);
-            $results['elements'][$i]->subscribers = 0;
-            $results['elements'][$i]->sendable = 0;
+            $results['elements'][$i]->sendable_users = 0;
+            $results['elements'][$i]->unconfirmed_users = 0;
+            $results['elements'][$i]->unsubscribed_users = 0;
+            $results['elements'][$i]->inactive_users = 0;
         }
 
         if (empty($listsId)) {
@@ -100,8 +114,10 @@ class acymlistClass extends acymClass
             $results['elements'][$i]->tags = [];
             foreach ($countUserByList as $userList) {
                 if ($list->id == $userList->list_id) {
-                    $results['elements'][$i]->subscribers = $userList->users;
-                    $results['elements'][$i]->sendable = $userList->sendable;
+                    $results['elements'][$i]->sendable_users = $userList->sendable_users;
+                    $results['elements'][$i]->unconfirmed_users = $userList->unconfirmed_users;
+                    $results['elements'][$i]->unsubscribed_users = $userList->unsubscribed_users;
+                    $results['elements'][$i]->inactive_users = $userList->inactive_users;
                 }
             }
         }
@@ -124,6 +140,18 @@ class acymlistClass extends acymClass
         return $results;
     }
 
+    private function setSelectedList(&$elements, $join)
+    {
+        if (strpos($join, 'join_list') !== false) {
+            $listsIds = explode('-', $join);
+            $listsIds = $listsIds[1];
+            $listsIds = explode(',', $listsIds);
+            foreach ($elements as $key => $element) {
+                $elements[$key]->list_id = in_array($element->id, $listsIds) ? $element->id : null;
+            }
+        }
+    }
+
     public function getJoinForQuery($joinType)
     {
         if (strpos($joinType, 'join_mail') !== false) {
@@ -134,7 +162,7 @@ class acymlistClass extends acymClass
         if (strpos($joinType, 'join_user') !== false) {
             $userId = explode('-', $joinType);
 
-            return ' LEFT JOIN #__acym_user_has_list as userlist ON list.id = userlist.list_id AND userlist.user_id = '.intval($userId[1]);
+            return ' LEFT JOIN #__acym_user_has_list as userlist ON list.id = userlist.list_id AND userlist.status = 1 AND userlist.user_id = '.intval($userId[1]);
         }
 
         return '';
@@ -190,7 +218,7 @@ class acymlistClass extends acymClass
 
     public function getOneByName($name)
     {
-        return acym_loadObject('SELECT * FROM #__acym_list WHERE name='.acym_escapeDB($name));
+        return acym_loadObject('SELECT * FROM #__acym_list WHERE `name` = '.acym_escapeDB($name));
     }
 
     public function getListsByIds($ids)
@@ -357,7 +385,7 @@ class acymlistClass extends acymClass
 
     public function synchDeleteCmsList($userId)
     {
-        $query = 'SELECT * FROM #__acym_list WHERE front_management =  1 AND cms_user_id = '.intval($userId);
+        $query = 'SELECT * FROM #__acym_list WHERE front_management = 1 AND cms_user_id = '.intval($userId);
         $listFrontManagement = acym_loadObject($query);
         if (!empty($listFrontManagement)) $this->delete([$listFrontManagement->id]);
     }
@@ -381,6 +409,8 @@ class acymlistClass extends acymClass
             $list->$oneAttribute = strip_tags($value);
         }
 
+        if (empty($list->description)) $list->description = '';
+
         $listID = parent::save($list);
 
         if (!empty($listID) && isset($tags)) {
@@ -393,7 +423,16 @@ class acymlistClass extends acymClass
 
     public function getAllWithIdName()
     {
-        $lists = acym_loadObjectList('SELECT id, name FROM #__acym_list WHERE front_management IS NULL', 'id');
+        $endQuery = '';
+        if (!acym_isAdmin()) {
+            $creatorId = acym_currentUserId();
+
+            $userGroups = acym_getGroupsByUser($creatorId);
+            $groupCondition = '(access LIKE "%,'.implode(',%" OR access LIKE "%,', $userGroups).',%")';
+
+            $endQuery = ' AND (cms_user_id = '.intval($creatorId).' OR '.$groupCondition.')';
+        }
+        $lists = acym_loadObjectList('SELECT id, name FROM #__acym_list WHERE front_management IS NULL'.$endQuery, 'id');
 
         $listsToReturn = [];
 
@@ -404,13 +443,13 @@ class acymlistClass extends acymClass
         return $listsToReturn;
     }
 
-    public function getAllForSelect()
+    public function getAllForSelect($emptyFirst = true)
     {
         $lists = acym_loadObjectList('SELECT * FROM #__acym_list WHERE front_management IS NULL', 'id');
 
         $return = [];
 
-        $return[] = acym_translation('ACYM_SELECT_A_LIST');
+        if ($emptyFirst) $return[''] = acym_translation('ACYM_SELECT_A_LIST');
 
         foreach ($lists as $key => $list) {
             $return[$key] = $list->name;
@@ -515,6 +554,7 @@ class acymlistClass extends acymClass
             $defaultList = new stdClass();
             $defaultList->name = 'Newsletters';
             $defaultList->color = '#3366ff';
+            $defaultList->description = '';
 
             $this->save($defaultList);
         }
@@ -556,16 +596,62 @@ class acymlistClass extends acymClass
             $condList = 'AND userList.list_id IN ('.implode(',', $listIds).')';
         }
 
-        $query = 'SELECT userList.list_id, COUNT(userList.user_id) AS users, SUM(acyuser.confirmed) AS sendable 
+        $query = 'SELECT userList.list_id, COUNT(userList.user_id) AS users, acyuser.confirmed + acyuser.active*2 AS score 
                     FROM #__acym_user_has_list AS userList 
                     JOIN #__acym_user AS acyuser 
                         ON acyuser.id = userList.user_id 
                     WHERE userList.status = 1 
-                        AND acyuser.active = 1
                         '.$condList.' 
-                    GROUP BY userList.list_id';
+                    GROUP BY score, userList.list_id';
+        $results = acym_loadObjectList($query);
 
-        return acym_loadObjectList($query);
+        $confirmationRequired = $this->config->get('require_confirmation', 1);
+        $listsUserStats = [];
+        foreach ($results as $oneResult) {
+            if (!isset($listsUserStats[$oneResult->list_id])) {
+                $listsUserStats[$oneResult->list_id] = $this->initList($oneResult->list_id);
+            }
+
+            if (in_array($oneResult->score, ['0', '1'])) {
+                $listsUserStats[$oneResult->list_id]->inactive_users += $oneResult->users;
+            }
+
+            if (in_array($oneResult->score, ['0', '2'])) {
+                $listsUserStats[$oneResult->list_id]->unconfirmed_users += $oneResult->users;
+            }
+
+            if ($oneResult->score === '3' || ($confirmationRequired != 1 && $oneResult->score == '2')) {
+                $listsUserStats[$oneResult->list_id]->sendable_users += $oneResult->users;
+            }
+        }
+
+        $query = 'SELECT userList.list_id, COUNT(userList.user_id) AS users
+                    FROM #__acym_user_has_list AS userList
+                    WHERE userList.status = 0
+                        '.$condList.'
+                    GROUP BY userList.list_id';
+        $unsubscribed = acym_loadObjectList($query);
+
+        foreach ($unsubscribed as $oneList) {
+            if (!isset($listsUserStats[$oneList->list_id])) {
+                $listsUserStats[$oneList->list_id] = $this->initList($oneList->list_id);
+            }
+            $listsUserStats[$oneList->list_id]->unsubscribed_users = $oneList->users;
+        }
+
+        return $listsUserStats;
+    }
+
+    private function initList($listId)
+    {
+        $list = new stdClass();
+        $list->list_id = $listId;
+        $list->sendable_users = 0;
+        $list->unconfirmed_users = 0;
+        $list->inactive_users = 0;
+        $list->unsubscribed_users = 0;
+
+        return $list;
     }
 
     public function getManageableLists()
@@ -601,6 +687,61 @@ class acymlistClass extends acymClass
         $frontList->front_management = 1;
 
         return $this->save($frontList);
+    }
+
+    public function setWelcomeUnsubEmail($listIds, $mailId, $type)
+    {
+        if (!in_array($type, ['welcome', 'unsubscribe']) || empty($mailId)) return false;
+
+        $column = acym_escape($type).'_id';
+        $columnsList = acym_getColumns('list');
+        if (!in_array($column, $columnsList)) return false;
+
+        if (!is_array($listIds)) {
+            if (!empty($listIds)) $listIds = [$listIds];
+        }
+
+        if (!$this->removeWelcomeUnsubByMailId($mailId, $listIds, $column)) return false;
+
+        foreach ($listIds as $listId) {
+
+            $list = $this->getOneById($listId);
+            if (empty($list)) return false;
+
+            $list->{$column} = $mailId;
+
+            if (!$this->save($list)) return false;
+        }
+
+        return true;
+    }
+
+    private function removeWelcomeUnsubByMailId($mailId, $listIds, $column)
+    {
+        if (empty($mailId)) return false;
+
+        $where = $column.' = '.intval($mailId);
+        if (!empty($listIds)) $where .= ' AND id NOT IN ('.implode(',', $listIds).')';
+
+        $lists = acym_loadObjectList('SELECT * FROM #__acym_list WHERE '.$where);
+        if (empty($lists)) return true;
+
+        foreach ($lists as $list) {
+            $list->{$column} = null;
+
+            if (!$this->save($list)) return false;
+        }
+
+        return true;
+    }
+
+    public function getListIdsByWelcomeUnsub($mailId, $welcome = true)
+    {
+        $type = $welcome ? 'welcome_id' : 'unsubscribe_id';
+
+        $return = acym_loadResultArray('SELECT id FROM #__acym_list WHERE '.$type.' = '.intval($mailId));
+
+        return empty($return) ? [] : $return;
     }
 }
 

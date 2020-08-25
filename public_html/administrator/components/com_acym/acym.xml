@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="component" version="2.5" method="upgrade">
 	<name>Acym</name>
-	<creationDate>May 2020</creationDate>
-	<version>6.10.4</version>
+	<creationDate>August 2020</creationDate>
+	<version>6.14.1</version>
 	<level>enterprise</level>
 	<author>Acyba</author>
 	<authorEmail>dev@acyba.com</authorEmail>
@@ -44,6 +44,7 @@
 			<folder>extensions</folder>
 			<folder>helpers</folder>
 			<folder>library</folder>
+			<folder>partial</folder>
 			<folder>types</folder>
 			<folder>views</folder>
 			<folder>templates</folder>
@@ -54,16 +55,18 @@
 		</files>
 		<menu img="../media/com_acym/images/icons/logo_acym.png" link="option=com_acym">COM_ACYM</menu>
 		<submenu>
+			<menu link="option=com_acym&amp;ctrl=dashboard">ACYM_DASHBOARD</menu>
 			<menu link="option=com_acym&amp;ctrl=users">ACYM_USERS</menu>
 			<menu link="option=com_acym&amp;ctrl=fields">ACYM_CUSTOM_FIELDS</menu>
 			<menu link="option=com_acym&amp;ctrl=lists">ACYM_LISTS</menu>
-			<menu link="option=com_acym&amp;ctrl=campaigns">ACYM_CAMPAIGNS</menu>
+			<menu link="option=com_acym&amp;ctrl=campaigns">ACYM_EMAILS</menu>
 			<menu link="option=com_acym&amp;ctrl=mails">ACYM_TEMPLATES</menu>
 			<menu link="option=com_acym&amp;ctrl=automation">ACYM_AUTOMATION</menu>
 			<menu link="option=com_acym&amp;ctrl=queue">ACYM_QUEUE</menu>
 			<menu link="option=com_acym&amp;ctrl=stats">ACYM_STATISTICS</menu>
 			<menu link="option=com_acym&amp;ctrl=bounces">ACYM_BOUNCE_HANDLING</menu>
 			<menu link="option=com_acym&amp;ctrl=plugins">ACYM_ADD_ONS</menu>
+			<menu link="option=com_acym&amp;ctrl=forms">ACYM_SUBSCRIPTION_FORMS</menu>
 			<menu link="option=com_acym&amp;ctrl=configuration">ACYM_CONFIGURATION</menu>
 		</submenu>
 	</administration>

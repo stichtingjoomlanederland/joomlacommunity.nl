@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -42,7 +42,9 @@ class EasyDiscussStylesheet extends EasyDiscuss
 				$filename .= '.min';
 			}
 
-			$uri = DISCUSS_MEDIA_URI . '/themes/' . $themeName . '/css/' . $filename . '.css';
+			$base = JURI::root(true);
+			$uri = $base . '/media/com_easydiscuss/themes/' . $themeName . '/css/' . $filename . '.css';
+
 			$this->doc->addStyleSheet($uri);
 
 			$this->attachCustomCss();
@@ -124,8 +126,8 @@ class EasyDiscussStylesheet extends EasyDiscuss
 			if ($rtl) {
 				$url = $options['compressed_rtl'];
 			}
-
-			$url = str_ireplace(DISCUSS_MEDIA, rtrim(JURI::root(), '/') . '/media/com_easydiscuss', $url);
+			
+			$url = str_ireplace(DISCUSS_MEDIA, rtrim(JURI::root(true), '/') . '/media/com_easydiscuss', $url);
 
 			// Hash version to avoid cache
 			$hash = md5(ED::getLocalVersion());
@@ -164,8 +166,12 @@ class EasyDiscussStylesheet extends EasyDiscuss
 			return false;
 		}
 
+
+		// Use relative paths
+		$url = str_ireplace(rtrim(JURI::root(), '/'), JURI::root(true), $result->out_uri);
+
 		// Here we assume that the process was successful
-		return $result->out_uri;
+		return $url;
 	}
 
 	/**

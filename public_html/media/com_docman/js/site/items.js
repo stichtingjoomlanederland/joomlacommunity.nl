@@ -37,6 +37,26 @@ kQuery(function($) {
         return containers;
     };
 
+    var getTableDeletableContainers = function(elem)
+    {
+        var containers = [];
+
+        if (elem.data('document'))
+        {
+            var uuid = elem.data('document');
+
+            if ($('tr.docman_item[data-document="' + uuid + '"]').next().hasClass('footable-row-detail')) {
+                containers.push($('tr.docman_item[data-document="' + uuid + '"]').next());
+            }
+
+            if ($('tr.docman_item').find('[data-document="' + uuid + '"]').length) {
+                containers.push($('tr.docman_item').filter('[data-document="' + uuid + '"]'));
+            }
+        }
+
+        return containers;
+    }
+
     //gallery view
     if($('.k-ui-namespace.com_docman .koowa_media--gallery').length) {
         deletable = '.koowa_media__item__content';
@@ -48,7 +68,7 @@ kQuery(function($) {
         // table layout
     } else if ($('.k-ui-namespace.com_docman .docman_table_layout').length) {
         deletable = delete_item_btn;
-        deletable_container = 'tr.docman_item';
+        deletable_container = getTableDeletableContainers;
     } else {
         deletable = delete_item_btn;
         deletable_container = null;
@@ -59,7 +79,7 @@ kQuery(function($) {
     var deleteItem = function(element) {
 
         var elem   = $(element),
-            path   = elem.data('url')    || elem.find(item_checkbox).data('url'),
+            path   = elem.data('url')    || elem.find(item_checkbox).data('url') || elem.next().find(item_checkbox).data('url'),
             data   = elem.data('params') || request_params;
 
         if (path) {
@@ -146,11 +166,15 @@ kQuery(function($) {
               var elem;
               if (deletable_container)
               {
-                  if (typeof deletable_container === 'function') {
+                  if (typeof deletable_container === 'function')
+                  {
                       elem = $(checkbox).closest('tr');
-                  } else {
-                      elem = $(checkbox).parents(deletable_container).find(deletable);
+
+                      if (!elem.hasClass('docman_item')) {
+                          elem = elem.prev();
+                      }
                   }
+                  else elem = $(checkbox).parents(deletable_container).find(deletable);
               }
               else elem = $(checkbox).closest(deletable);
 

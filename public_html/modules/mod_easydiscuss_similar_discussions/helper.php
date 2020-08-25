@@ -76,7 +76,9 @@ class EDSimilarDiscussions
 			$query .= " inner join " . $db->qn('#__discuss_posts') . " as c on a.post_id = c.id";
 
 			// exclude blocked users #788
-			$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+			if (!$config->get('main_posts_from_blockuser', false)) {
+				$query .= " left join " . $db->nameQuote('#__users') . " as uu on a.`user_id` = uu.`id`";
+			}
 
 			$query .= ' WHERE MATCH(a.`title`,a.`content`) AGAINST (' . $db->Quote($search) . $fulltextType . ')';
 			$query .= ' AND a.`published` = ' . $db->Quote('1');
@@ -89,7 +91,9 @@ class EDSimilarDiscussions
 			$query .= ' and c.`parent_id` != ' . $db->Quote($postId);
 
 			// exclude blocked users #788
-			$query .= " AND (uu.`block` = 0 OR uu.`id` is null)";
+			if (!$config->get('main_posts_from_blockuser', false)) {
+				$query .= " AND (uu.`block` = 0 OR uu.`id` is null)";
+			}
 
 			$query .= ' ORDER BY score DESC';
 			$query .= ' LIMIT ' . $limit;

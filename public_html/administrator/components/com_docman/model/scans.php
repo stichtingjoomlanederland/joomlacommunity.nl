@@ -13,8 +13,6 @@ class ComDocmanModelScans extends KModelDatabase
         parent::__construct($config);
 
         $this->getState()
-            ->remove('sort')
-            ->insert('sort', 'string')
             ->insert('status', 'int')
             ->insert('identifier', 'identifier');
     }

@@ -5,6 +5,8 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Language\Text;
+
 defined('_JEXEC') or die;
 
 /** @var  \Akeeba\AdminTools\Admin\View\BlacklistedAddresses\Html $this */
@@ -19,8 +21,8 @@ if ($totalBlockedIPs < 50) return;
 
 ?>
 <div class="alert alert-warning">
-	<h3><?php echo \JText::_('COM_ADMINTOOLS_BLACKLISTEDADDRESSES_ERR_TOOMANY_TITLE'); ?></h3>
+	<h3><?php echo Text::_('COM_ADMINTOOLS_BLACKLISTEDADDRESSES_ERR_TOOMANY_TITLE'); ?></h3>
 	<p>
-		<?php echo \JText::sprintf('COM_ADMINTOOLS_BLACKLISTEDADDRESSES_ERR_TOOMANY_BODY', 'https://www.akeebabackup.com/documentation/admin-tools/waf-ip-blacklist.html#do-not-overdo-it-with-ip-blacklisting'); ?>
+		<?php echo Text::sprintf('COM_ADMINTOOLS_BLACKLISTEDADDRESSES_ERR_TOOMANY_BODY', 'https://www.akeeba.com/documentation/admin-tools/waf-ip-blacklist.html#do-not-overdo-it-with-ip-blacklisting'); ?>
 	</p>
 </div>

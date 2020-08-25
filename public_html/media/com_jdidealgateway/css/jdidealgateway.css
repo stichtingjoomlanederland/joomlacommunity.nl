@@ -1,0 +1,57 @@
+.icon-48-jd-ideal-logo48 { background-image: url(../images/jd-ideal-logo48x48.png); }
+.icon-32-jd-ideal-logo32 { background-image: url(../images/jd-ideal-logo32x32.png); }
+.icon-16-jd-ideal-logo16 { background-image: url(../images/jd-ideal-logo16x16.png); }
+.amount { text-align: right; }
+.img-middle { padding-top: 6px; }
+
+fieldset.adminform label.config, fieldset.adminform span.faux-label .config, div.control-label label.config { min-width: 285px; }
+.resulttext { float: left; width: 50%; }
+.certificate_warning { font-weight: bold; font-size: 18px; color: #FF0000; }
+#jform_extra_params { width: 50%; }
+.tag_title { background-color: #D5EEFF; font-size: 16px }
+
+@font-face {
+	font-family: 'jdideal';
+	src:    url('fonts/jdideal.eot?o71up1');
+	src:    url('fonts/jdideal.eot?o71up1#iefix') format('embedded-opentype'),
+	url('fonts/jdideal.ttf?o71up1') format('truetype'),
+	url('fonts/jdideal.woff?o71up1') format('woff'),
+	url('fonts/jdideal.svg?o71up1#jdideal') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+[class^="jdicon-"], [class*=" jdicon-"] {
+	/* use !important to prevent issues with browser extensions that change fonts */
+	font-family: 'jdideal' !important;
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.jdicon-jdideal:before {
+	content: "\e900";
+}
+
+#ropayments-configTabs {
+	height: 36px;
+}
+
+#ropayments .control-group {
+	height: 28px;
+}
+
+#ropayments .ro-confirmation-info {
+	height: 150px;
+}
+
+#ropayments div:last-child {
+	height: inherit;
+}

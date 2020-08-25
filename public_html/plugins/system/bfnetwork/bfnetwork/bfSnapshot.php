@@ -97,7 +97,7 @@ final class bfSnapshot
             'defaulttemplateused'        => (int) $this->hasUsedDefaultTemplate(),
             'tpequalsone'                => $this->hastpequalsone(),
             'configsymlinked'            => (is_link(JPATH_BASE.'/configuration.php') ? 1 : 0),
-            'kickstartseen'              => (file_exists(JPATH_BASE.'/kickstart.php') ? 1 : 0),
+            'kickstartseen'              => (int) $this->kickstartexists(),
             'fpaseen'                    => (int) $this->fpaexists(),
             'userregistrationenabled'    => (int) JComponentHelper::getParams('com_users')->get('allowUserRegistration'),
             'has_root_htaccess'          => (int) (file_exists(JPATH_BASE.'/.htaccess') ? 1 : 0),
@@ -126,6 +126,7 @@ final class bfSnapshot
             'sessiongcpublished'         => $this->getSessionGCStatus(),
             'twofactorenabled'           => $this->getTwoFactorPluginsEnabled(),
             'adminfilterfixed'           => $this->getAdminFilterFixed(),
+            'userfilterfixed'            => $this->getUserFilterFixed(),
             'plaintextpasswordsfixed'    => $this->getPlaintextpasswordsFixed(),
             'uploadsettingsfixed'        => $this->getUploadsettingsfixed(),
             'mailtofrienddisabled'       => $this->getMailtofrienddisabled(),
@@ -144,6 +145,8 @@ final class bfSnapshot
             'privacyconfirmedexport'     => (int) $this->getPrivacyconfirmedexport(),
             'enablepurge30days'          => (int) $this->getPurge30Days(),
             'extensionsjson'             => $this->getExtensions(),
+            'hasrootuser'             	  => $this->config->getCfg('root_user') ? 1 : 0,
+            'debuglanguage'              => $this->config->getCfg('debug_lang') ? 1 : 0,
         );
     }
 
@@ -718,7 +721,7 @@ require 'bfnetwork/bfPlugin.php';";
 
     private function hastmplogfolderswritable()
     {
-        return is_writeable($this->config->getCfg('tmp_path')) && $this->config->getCfg('log_path');
+        return is_writeable($this->config->getCfg('tmp_path')) && is_writeable($this->config->getCfg('log_path'));
     }
 
     /**
@@ -761,11 +764,23 @@ require 'bfnetwork/bfPlugin.php';";
         return $tpequalsone;
     }
 
+    private function kickstartexists()
+    {
+        $files = scandir(JPATH_BASE);
+        foreach ($files as $file) {
+            if (preg_match('/.*kickstart.*\.php/i', $file)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private function fpaexists()
     {
         $files = scandir(JPATH_BASE);
         foreach ($files as $file) {
-            if (preg_match('/fpa.*\.php/i', $file)) {
+            if (preg_match('/.*fpa.*\.php/i', $file)) {
                 return true;
             }
         }
@@ -1213,6 +1228,27 @@ require 'bfnetwork/bfPlugin.php';";
         } else {
             return 2;
         }
+    }
+
+    /**
+     * Load filters from com_config without using a helper.
+     */
+    public function getUserFilterFixed()
+    {
+        $this->db->setQuery("select params from #__extensions where element = 'com_config'");
+        $params = json_decode($this->db->LoadResult());
+
+        if ('NH' != $params->filters->{1}->filter_type) {
+            return 0;
+        }
+        if ('NH' != $params->filters->{2}->filter_type) {
+            return 0;
+        }
+        if ('NH' != $params->filters->{9}->filter_type) {
+            return 0;
+        }
+
+        return 1;
     }
 
     /**

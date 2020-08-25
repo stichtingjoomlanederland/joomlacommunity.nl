@@ -92,8 +92,7 @@
 
             if (vm.hasConnectSupport) {
                 window.addEventListener('message', function(event) {
-                    if (event.origin.indexOf('https://static.api.joomlatools') === 0) {
-
+                    if (event.origin.match(/^https:\/\/(.*?)\.joomlatools.(?:com|xyz)$/)) {
                         if (!event.data.urls) {
                             return;
                         }

@@ -48,6 +48,6 @@ class JFormFieldVotes extends JFormField {
 		$db->setQuery($query);
 		$negative_votes = $db->loadResult();
 		
-		return '<div class="btn-group fltlft"><span class="btn btn-success icon-thumbs-up"> '.$positive_votes.' </span> <span class="btn btn-danger icon-thumbs-down"> '.$negative_votes.' </span></div>';
+		return '<div class="btn-group"><button type="button" class="btn btn-success btn-sm"><i class="icon-thumbs-up"></i> '.$positive_votes.' </button> <button type="button" class="btn btn-danger btn-sm"><i class="icon-thumbs-down"></i> '.$negative_votes.' </button></div>';
 	}
 }

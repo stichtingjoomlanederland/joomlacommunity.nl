@@ -29,7 +29,7 @@ defined('_JEXEC') or die('Restricted access');
 				<label class="cell">
 					<h6 id="acym__automation__info__desc__button" class="cursor-pointer"><?php echo acym_translation('ACYM_DESCRIPTION'); ?><i class="acymicon-keyboard_arrow_down"></i></h6>
                     <?php if (!empty($data['automation']->admin)) $data['automation']->description = acym_escape(acym_translation($data['automation']->description)); ?>
-					<textarea style="display: none" name="automation[description]" <?php echo empty($data['automation']->admin) ? '' : 'disabled'; ?>  rows="6" class="margin-top-1"><?php echo !empty($data['automation']->description) ? acym_escape($data['automation']->description) : ''; ?></textarea>
+					<textarea style="display: none" name="automation[description]" <?php echo empty($data['automation']->admin) ? '' : 'disabled'; ?>  rows="6" class="margin-top-1 acym__blue"><?php echo !empty($data['automation']->description) ? acym_escape($data['automation']->description) : ''; ?></textarea>
 				</label>
 			</div>
 			<div class="medium-12 cell grid-x acym__content acym__automation__info__trigger margin-top-2">

@@ -1,8 +1,8 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -30,6 +30,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo $this->html('settings.toggle', 'layout_bbcode_code', 'COM_EASYDISCUSS_BBCODE_SHOW_CODE'); ?>
 					<?php echo $this->html('settings.toggle', 'layout_bbcode_emoji', 'COM_EASYDISCUSS_BBCODE_SHOW_EMOJI'); ?>
 					<?php echo $this->html('settings.toggle', 'integrations_github', 'COM_EASYDISCUSS_BBCODE_SHOW_GIST', '', array(), 'COM_ED_BBCODE_SHOW_GIST_NOTE'); ?>					
+					<?php echo $this->html('settings.toggle', 'layout_bbcode_article', 'COM_ED_BBCODE_ARTICLE'); ?>					
 				</div>
 			</div>
 		</div>

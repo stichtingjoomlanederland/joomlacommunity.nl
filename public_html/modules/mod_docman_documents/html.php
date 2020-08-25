@@ -124,6 +124,20 @@ class ModDocman_documentsHtml extends ModKoowaHtml
             $this->setLayout($params->layout);
             $context->layout = $this->getLayout();
         }
+
+        // Set slider-specific options
+        $options = [];
+
+        foreach($params->toArray() as $param => $value)
+        {
+            if (substr($param, 0, 7) == 'slider_')
+            {
+                $value = in_array($value, ["1", "0"]) ? boolval($value) : $value;
+                $options[str_replace('slider_', '', $param)] = $value;
+            }
+        }
+
+        $params->slider_options = $options;
     }
 
     /**
@@ -142,6 +156,14 @@ class ModDocman_documentsHtml extends ModKoowaHtml
             $document->download_link = $helper->document(array('entity'=> $document, 'Itemid' => $document->itemid, 'view'   => 'download'));
 
             $document->title_link = $params->link_to_download ? $document->download_link : $document->document_link;
+
+            if ($document->image) {
+                $document->image_download_path = $document->image_path;
+            }
+
+            if ($document->isImage() && $document->canPerform('download')) {
+                $document->image_download_path = $document->download_link;
+            }
 
             if ($params->show_category)
             {

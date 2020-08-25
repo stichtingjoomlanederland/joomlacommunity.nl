@@ -32,8 +32,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<link type="text/css" href="<?php echo ED_SETUP_URL;?>/assets/styles/theme.css?<?php echo ED_HASH; ?>" rel="stylesheet" />
 
 	<?php if (JVERSION < 4.0 ) { ?>
-			<script src="<?php echo JURI::root(true);?>/media/jui/js/jquery.min.js" type="text/javascript"></script>
-			<script src="<?php echo JURI::root(true);?>/media/jui/js/bootstrap.min.js" type="text/javascript"></script>
+			<script src="<?php echo JURI::root(true);?>/media/jui/js/jquery.min.js"></script>
+			<script src="<?php echo JURI::root(true);?>/media/jui/js/bootstrap.min.js"></script>
 	<?php } else { ?>
 			<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.6/umd/popper.min.js"></script>
 			<script src="<?php echo JURI::root(true);?>/media/vendor/jquery/js/jquery.min.js"></script>
@@ -41,7 +41,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<script src="<?php echo JURI::root(true);?>/media/system/js/toolbar.min.js"></script>
 	<?php } ?>
 
-	<script type="text/javascript">
+	<script>
 		<?php require(JPATH_ROOT . '/administrator/components/' . ED_IDENTIFIER . '/setup/assets/scripts/script.js'); ?>
 	</script>
 </head>

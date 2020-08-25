@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
@@ -13,6 +13,7 @@ $tags		= $details['tags'];
 $files		= $details['files'];
 $repeats	= $details['repeats'];
 $speakers	= $details['speakers'];
+$sponsors	= $details['sponsors'];
 $full		= rseventsproHelper::eventisfull($this->event->id);
 $ongoing	= rseventsproHelper::ongoing($this->event->id); 
 $featured 	= $event->featured ? ' rs_featured_event' : ''; 
@@ -478,6 +479,28 @@ rseventsproMapHelper::loadMap($mapParams);
 		<div class="rs_clear"></div>
 	<?php } ?>
 	<!--//end Description -->
+	
+	<?php if ($sponsors) { ?>
+	<h3><?php echo JText::_('COM_RSEVENTSPRO_EVENT_LIST_SPONSORS'); ?></h3>
+	<?php $schunks = array_chunk($sponsors, 4); ?>
+	<?php foreach ($schunks as $sponsors) { ?>
+	<ul class="thumbnails rsepro-sponsors">
+	<?php foreach($sponsors as $sponsor) { ?>
+		<li class="span3">
+			<div class="thumbnail center">
+				<?php if ($sponsor->url) { ?><a href="<?php echo $sponsor->url; ?>" target="_blank"><?php } ?>
+				<?php if ($sponsor->image) { ?>
+				<img class="rsepro-sponsor-image" src="<?php echo JUri::root(); ?>components/com_rseventspro/assets/images/sponsors/<?php echo $sponsor->image; ?>" alt="<?php echo $sponsor->name; ?>" />
+				<?php } else { ?>
+				<?php echo $sponsor->name; ?>
+				<?php } ?>
+				<?php if ($sponsor->url) { ?></a><?php } ?>
+			</div>
+		</li>
+	<?php } ?>
+	</ul>
+	<?php } ?>
+	<?php } ?>
 	
 	<?php if ($speakers) { ?>
 	<?php $chunks = array_chunk($speakers, 4); ?>

@@ -41,8 +41,5 @@ if (empty($task)) {
 }
 acym_setVar('task', $task);
 
-acym_loadAssets('front', $ctrl, $task);
-
-$controller->loadScripts($task);
 $controller->checkTaskFront($task);
 

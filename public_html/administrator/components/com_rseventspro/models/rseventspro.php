@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
@@ -153,6 +153,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$buttons[] = array('icon' => 'fa fa-book', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_CATEGORIES'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=categories'));
 		$buttons[] = array('icon' => 'fa fa-tag', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_TAGS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=tags'));
 		$buttons[] = array('icon' => 'fa fa-user-circle-o', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_SPEAKERS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=speakers'));
+		$buttons[] = array('icon' => 'fa fa-dollar', 'name' => JText::_('COM_RSEVENTSPRO_SUBMENU_SPONSORS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=sponsors'));
 		$buttons[] = array('icon' => 'fa fa-user', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_SUBSCRIPTIONS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=subscriptions'));
 		$buttons[] = array('icon' => 'fa fa-scissors', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_DISCOUNTS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=discounts'));
 		$buttons[] = array('icon' => 'fa fa-credit-card', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_PAYMENTS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=payments'));

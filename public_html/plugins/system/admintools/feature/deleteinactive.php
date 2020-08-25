@@ -27,8 +27,8 @@ class AtsystemFeatureDeleteinactive extends AtsystemFeatureAbstract
 	public function onAfterInitialise()
 	{
 		// If the days are not at least 1, bail out
-		$filtertype = (int)$this->params->get('deleteinactive', 1);
-		$days       = (int)$this->params->get('deleteinactive_days', 0);
+		$filtertype = (int) $this->params->get('deleteinactive', 1);
+		$days       = (int) $this->params->get('deleteinactive_days', 0);
 
 		if ($days <= 0)
 		{
@@ -76,4 +76,4 @@ class AtsystemFeatureDeleteinactive extends AtsystemFeatureAbstract
 			}
 		}
 	}
-} 
+}

@@ -5,22 +5,24 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Language\Text;
+
 /** @var \Akeeba\AdminTools\Admin\View\BlacklistedAddresses\Html $this */
 
 defined('_JEXEC') or die;
 
 ?>
 <div class="akeeba-block--info">
-	<p><?php echo JText::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_IP_INTRO') ?></p>
+	<p><?php echo Text::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_IP_INTRO') ?></p>
 	<ol>
-		<li><?php echo JText::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_IP_OPT1') ?></li>
-		<li><?php echo JText::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_IP_OPT2') ?></li>
-		<li><?php echo JText::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_IP_OPT3') ?></li>
-		<li><?php echo JText::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_IP_OPT4') ?></li>
+		<li><?php echo Text::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_IP_OPT1') ?></li>
+		<li><?php echo Text::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_IP_OPT2') ?></li>
+		<li><?php echo Text::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_IP_OPT3') ?></li>
+		<li><?php echo Text::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_IP_OPT4') ?></li>
 	</ol>
 
 	<p>
-		<?php echo JText::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_YOURIP') ?>
+		<?php echo Text::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_YOURIP') ?>
 		<code><?php echo $this->myIP ?></code>
 	</p>
 
@@ -31,7 +33,7 @@ defined('_JEXEC') or die;
         <div>
             <div class="akeeba-form-group">
                 <label for="ip">
-					<?php echo JText::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_IP'); ?>
+					<?php echo Text::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_IP'); ?>
                 </label>
 
                 <input type="text" name="ip" id="ip" value="<?php echo $this->escape($this->item->ip); ?>" />
@@ -39,7 +41,7 @@ defined('_JEXEC') or die;
 
             <div class="akeeba-form-group">
                 <label for="description">
-					<?php echo JText::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_DESCRIPTION'); ?>
+					<?php echo Text::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_DESCRIPTION'); ?>
                 </label>
 
                 <input type="text" name="description" id="description" value="<?php echo $this->escape($this->item->description); ?>" />

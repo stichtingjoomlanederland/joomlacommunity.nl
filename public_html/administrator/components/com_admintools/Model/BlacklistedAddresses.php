@@ -9,15 +9,18 @@ namespace Akeeba\AdminTools\Admin\Model;
 
 defined('_JEXEC') or die;
 
+use Exception;
 use FOF30\Container\Container;
 use FOF30\Model\DataModel;
+use Joomla\CMS\Language\Text;
+use RuntimeException;
 
 /**
  * Class BlacklistedAddresses
  *
- * @property   int	   $id
- * @property   string  $ip
- * @property   string  $description
+ * @property   int    $id
+ * @property   string $ip
+ * @property   string $description
  *
  * @method  $this  ip()  ip(string $v)
  * @method  $this  description()  description(string|array $v)
@@ -38,7 +41,7 @@ class BlacklistedAddresses extends DataModel
 	{
 		if (!$this->ip)
 		{
-			throw new \Exception(\JText::_('COM_ADMINTOOLS_ERR_BLACKLISTEDADDRESS_NEEDS_IP'));
+			throw new Exception(Text::_('COM_ADMINTOOLS_ERR_BLACKLISTEDADDRESS_NEEDS_IP'));
 		}
 
 		return parent::check();
@@ -47,7 +50,7 @@ class BlacklistedAddresses extends DataModel
 	/**
 	 * Decodes a single value (1,2,3) to an array containing the field delimiter and enclosure
 	 *
-	 * @param   int     $delimiter
+	 * @param   int  $delimiter
 	 *
 	 * @return  array   [0] => field delimiter, [1] => enclosure char
 	 */
@@ -56,15 +59,15 @@ class BlacklistedAddresses extends DataModel
 		switch ($delimiter)
 		{
 			case 1:
-				return array(',', '');
+				return [',', ''];
 				break;
 
 			case 2:
-				return array(';', '');
+				return [';', ''];
 				break;
 
 			default:
-				return array(';', '"');
+				return [';', '"'];
 				break;
 		}
 	}
@@ -80,13 +83,13 @@ class BlacklistedAddresses extends DataModel
 	 */
 	public function import($file, $fieldDelimiter, $fieldQuotes)
 	{
-		$result     = 0;
-		$i          = 0;
-		$errors     = array();
+		$result = 0;
+		$i      = 0;
+		$errors = [];
 
 		if (!$file)
 		{
-			throw new \RuntimeException(\JText::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_FILE'));
+			throw new RuntimeException(Text::_('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_FILE'));
 		}
 
 		$handle = fopen($file, 'r');
@@ -108,7 +111,7 @@ class BlacklistedAddresses extends DataModel
 			}
 
 			// Did we read more than one line?
-			if (!in_array(substr($line, -1), array("\r", "\n")))
+			if (!in_array(substr($line, -1), ["\r", "\n"]))
 			{
 				// Get the position of linefeed and carriage return characters in the line read
 				$posLF = strpos($line, "\n");
@@ -154,7 +157,7 @@ class BlacklistedAddresses extends DataModel
 				// Roll back the file
 				if (!is_null($searchCharacter))
 				{
-					$pos = strpos($line, $searchCharacter);
+					$pos      = strpos($line, $searchCharacter);
 					$rollback = strlen($line) - strpos($line, $searchCharacter);
 					fseek($handle, -$rollback + strlen($searchCharacter), SEEK_CUR);
 					// And chop the line
@@ -174,7 +177,7 @@ class BlacklistedAddresses extends DataModel
 
 			// I have to use this weird structure because if an user passes an empty char as field enclosure
 			// str_getcsv will return false, so I have to omit it, forcing PHP to use the function default one
-			if($fieldQuotes)
+			if ($fieldQuotes)
 			{
 				$data = str_getcsv($line, $fieldDelimiter, $fieldQuotes);
 			}
@@ -183,7 +186,7 @@ class BlacklistedAddresses extends DataModel
 				$data = str_getcsv($line, $fieldDelimiter);
 			}
 
-			if($data === false)
+			if ($data === false)
 			{
 				break;
 			}
@@ -191,21 +194,21 @@ class BlacklistedAddresses extends DataModel
 			$i++;
 
 			// Skip first line, there are headers in the file, so let's map them and then continue
-			if($i == 1)
+			if ($i == 1)
 			{
 				continue;
 			}
 
 			if (!count($data))
 			{
-				$errors[] = \JText::sprintf('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_LINE', $i);
+				$errors[] = Text::sprintf('COM_ADMINTOOLS_ERR_IMPORTANDEXPORT_LINE', $i);
 
 				continue;
 			}
 
-			if(!isset($data[1]))
+			if (!isset($data[1]))
 			{
-				$data[1] = 'Imported IP on '.date('Y-m-d');
+				$data[1] = 'Imported IP on ' . date('Y-m-d');
 			}
 
 			$this->importRows($data);
@@ -218,9 +221,9 @@ class BlacklistedAddresses extends DataModel
 		$this->importRows();
 
 		// Did I had any errors?
-		if($errors)
+		if ($errors)
 		{
-			throw new \RuntimeException(implode("<br/>", $errors));
+			throw new RuntimeException(implode("<br/>", $errors));
 		}
 
 		return $result;
@@ -228,32 +231,32 @@ class BlacklistedAddresses extends DataModel
 
 	protected function importRows($data = null)
 	{
-		static $cache = array();
+		static $cache = [];
 
 		// Let's enqueue the data
-		if($data)
+		if ($data)
 		{
 			$cache[] = $data;
 		}
 
 		// Did we grow over the limit or are forced to flush it? If so let's build the actual query
 		// and execute it
-		if(count($cache) >= 100 || !$data)
+		if (count($cache) >= 100 || !$data)
 		{
 			$db = $this->getDbo();
 
 			$query = $db->getQuery(true)
 				->insert($db->qn('#__admintools_ipblock'))
-				->columns(array($db->qn('ip'), $db->qn('description')));
+				->columns([$db->qn('ip'), $db->qn('description')]);
 
 			foreach ($cache as $row)
 			{
-				$query->values($db->q($row[0]).', '.$db->q($row[1]));
+				$query->values($db->q($row[0]) . ', ' . $db->q($row[1]));
 			}
 
 			$db->setQuery($query)->execute();
 
-			$cache = array();
+			$cache = [];
 		}
 	}
 }

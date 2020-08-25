@@ -308,6 +308,7 @@
 		<field name="user_icon_width" type="text" label="COM_RSEVENTSPRO_CONF_USER_ICON_WIDTH" description="COM_RSEVENTSPRO_CONF_USER_ICON_WIDTH_DESC" size="5" default="100" />
 		<field name="speaker_icon_width" type="text" label="COM_RSEVENTSPRO_CONF_SPEAKER_ICON_WIDTH" description="COM_RSEVENTSPRO_CONF_SPEAKER_ICON_WIDTH_DESC" size="5" default="100" />
 		<field name="speaker_icon_height" type="text" label="COM_RSEVENTSPRO_CONF_SPEAKER_ICON_HEIGHT" description="COM_RSEVENTSPRO_CONF_SPEAKER_ICON_HEIGHT_DESC" size="5" default="150" />
+		<field name="sponsor_icon_width" type="text" label="COM_RSEVENTSPRO_CONF_SPONSOR_ICON_WIDTH" description="COM_RSEVENTSPRO_CONF_SPONSOR_ICON_WIDTH_DESC" size="5" default="250" />
 		<field name="extensions" type="text" label="COM_RSEVENTSPRO_CONF_EXTENSIONS" description="COM_RSEVENTSPRO_CONF_EXTENSIONS_DESC" default="zip,gif,jpg,txt" class="input-large" size="40" />
 	</fieldset>
 	
@@ -369,15 +370,33 @@
 	</fieldset>
 	
 	<fieldset name="captcha" label="COM_RSEVENTSPRO_CONF_CAPTCHA">
-		<field name="recaptcha_site_key" class="input-xlarge" type="text" label="COM_RSEVENTSPRO_CONF_CAPTCHA_SITE_KEY" description="COM_RSEVENTSPRO_CONF_CAPTCHA_SITE_KEY_DESC" size="70" />
-		<field name="recaptcha_secret_key" class="input-xlarge" type="text" label="COM_RSEVENTSPRO_CONF_CAPTCHA_SECRET_KEY" description="COM_RSEVENTSPRO_CONF_CAPTCHA_SECRET_KEY_DESC" size="70" />
-		<field name="recaptcha_theme" type="list" default="light" label="COM_RSEVENTSPRO_CONF_CAPTCHA_THEME" description="COM_RSEVENTSPRO_CONF_CAPTCHA_THEME_DESC">
+		<field name="recaptcha_site_key" showon="captcha:2" class="input-xlarge" type="text" label="COM_RSEVENTSPRO_CONF_CAPTCHA_SITE_KEY" description="COM_RSEVENTSPRO_CONF_CAPTCHA_SITE_KEY_DESC" size="70" />
+		<field name="recaptcha_secret_key" showon="captcha:2" class="input-xlarge" type="text" label="COM_RSEVENTSPRO_CONF_CAPTCHA_SECRET_KEY" description="COM_RSEVENTSPRO_CONF_CAPTCHA_SECRET_KEY_DESC" size="70" />
+		<field name="recaptcha_theme" showon="captcha:2" type="list" default="light" label="COM_RSEVENTSPRO_CONF_CAPTCHA_THEME" description="COM_RSEVENTSPRO_CONF_CAPTCHA_THEME_DESC">
 			<option value="light">COM_RSEVENTSPRO_CONF_CAPTCHA_THEME_LIGHT</option>
 			<option value="dark">COM_RSEVENTSPRO_CONF_CAPTCHA_THEME_DARK</option>
 		</field>
-		<field name="recaptcha_type" type="list" default="image" label="COM_RSEVENTSPRO_CONF_CAPTCHA_TYPE" description="COM_RSEVENTSPRO_CONF_CAPTCHA_TYPE_DESC">
+		<field name="recaptcha_type" showon="captcha:2" type="list" default="image" label="COM_RSEVENTSPRO_CONF_CAPTCHA_TYPE" description="COM_RSEVENTSPRO_CONF_CAPTCHA_TYPE_DESC">
 			<option value="image">COM_RSEVENTSPRO_CONF_CAPTCHA_TYPE_IMAGE</option>
 			<option value="audio">COM_RSEVENTSPRO_CONF_CAPTCHA_TYPE_AUDIO</option>
+		</field>
+	</fieldset>
+	
+	<fieldset name="hcaptcha" label="COM_RSEVENTSPRO_CONF_HCAPTCHA" showon="captcha:3">
+		<field name="hcaptcha_site_key" showon="captcha:3" class="input-xlarge" type="text" label="COM_RSEVENTSPRO_CONF_HCAPTCHA_SITE_KEY" size="70" />
+		<field name="hcaptcha_secret_key" showon="captcha:3" class="input-xlarge" type="text" label="COM_RSEVENTSPRO_CONF_HCAPTCHA_SECRET_KEY" size="70" />
+		<field name="hcaptcha_lang" showon="captcha:3" type="list" default="auto" label="COM_RSEVENTSPRO_CONF_HCAPTCHA_LANG">
+			<option value="auto">COM_RSEVENTSPRO_CONF_HCAPTCHA_LANG_AUTO</option>
+			<option value="site">COM_RSEVENTSPRO_CONF_HCAPTCHA_LANG_SITE</option>
+		</field>
+		<field name="hcaptcha_theme" showon="captcha:3" type="list" default="light" label="COM_RSEVENTSPRO_CONF_HCAPTCHA_THEME">
+			<option value="light">COM_RSEVENTSPRO_CONF_HCAPTCHA_THEME_LIGHT</option>
+			<option value="dark">COM_RSEVENTSPRO_CONF_HCAPTCHA_THEME_DARK</option>
+		</field>
+		<field name="hcaptcha_size" showon="captcha:3" type="list" default="NORMAL" label="COM_RSEVENTSPRO_CONF_HCAPTCHA_SIZE">
+			<option value="NORMAL">COM_RSEVENTSPRO_CONF_HCAPTCHA_SIZE_NORMAL</option>
+			<option value="COMPACT">COM_RSEVENTSPRO_CONF_HCAPTCHA_SIZE_COMPACT</option>
+			<option value="INVISIBLE">COM_RSEVENTSPRO_CONF_HCAPTCHA_SIZE_INVISIBLE</option>
 		</field>
 	</fieldset>
 	
@@ -487,6 +506,18 @@
 		<field name="yahoo_secret" type="text" label="COM_RSEVENTSPRO_CONF_YAHOO_SECRET" description="COM_RSEVENTSPRO_CONF_YAHOO_SECRET_DESC" size="30" default="" />
 	</fieldset>
 	
+	<fieldset name="invoice">
+		<field name="invoice_font" type="font" default="times" label="COM_RSEVENTSPRO_CONF_INVOICE_FONT" description="COM_RSEVENTSPRO_CONF_INVOICE_FONT_DESC" />
+		<field name="invoice_orientation" type="list" default="portrait" label="COM_RSEVENTSPRO_CONF_INVOICE_ORIENTATION" description="COM_RSEVENTSPRO_CONF_INVOICE_ORIENTATION_DESC">
+			<option value="portrait">COM_RSEVENTSPRO_CONF_INVOICE_ORIENTATION_PORTRAIT</option>
+			<option value="landscape">COM_RSEVENTSPRO_CONF_INVOICE_ORIENTATION_LANDSCAPE</option>
+		</field>
+		<field name="invoice_padding" type="text" default="7" label="COM_RSEVENTSPRO_CONF_INVOICE_PADDING" description="COM_RSEVENTSPRO_CONF_INVOICE_PADDING_DESC" size="10" filter="integer" />
+		<field name="invoice_prefix" type="text" default="" label="COM_RSEVENTSPRO_CONF_INVOICE_PREFIX" description="COM_RSEVENTSPRO_CONF_INVOICE_PREFIX_DESC" size="10" />
+		<field name="invoice_title" type="text" default="" label="COM_RSEVENTSPRO_CONF_INVOICE_TITLE" description="COM_RSEVENTSPRO_CONF_INVOICE_TITLE_DESC" size="70" />
+		<field name="invoice_layout" type="editor" label="COM_RSEVENTSPRO_CONF_INVOICE_LAYOUT" description="COM_RSEVENTSPRO_CONF_INVOICE_LAYOUT_DESC" width="300" filter="safehtml" />
+	</fieldset>
+	
 	<field name="incomplete_minutes_check" type="hidden" filter="unset" />
 	<field name="archive_check" type="hidden" filter="unset" />
 	<field name="rules_check" type="hidden" filter="unset" />
@@ -494,6 +525,12 @@
 	<field name="captcha" type="list" label="COM_RSEVENTSPRO_CONF_SELECT_CAPTCHA" description="COM_RSEVENTSPRO_CONF_SELECT_CAPTCHA_DESC" default="1" size="1">
 		<option value="1">COM_RSEVENTSPRO_CONF_SELECT_CAPTCHA_1</option>
 		<option value="2">COM_RSEVENTSPRO_CONF_SELECT_CAPTCHA_2</option>
+		<option value="3">COM_RSEVENTSPRO_CONF_SELECT_CAPTCHA_3</option>
+	</field>
+	
+	<field name="captcha_use" type="list" label="COM_RSEVENTSPRO_CONF_CAPTCHA_USE" description="COM_RSEVENTSPRO_CONF_CAPTCHA_USE_DESC" default="[1,2]" size="1" multiple="multiple">
+		<option value="1">COM_RSEVENTSPRO_CONF_CAPTCHA_USE_1</option>
+		<option value="2">COM_RSEVENTSPRO_CONF_CAPTCHA_USE_2</option>
 	</field>
 	
 	<field name="enable_gallery" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_ENABLE_GALLERY" description="COM_RSEVENTSPRO_CONF_ENABLE_GALLERY_DESC" default="0">

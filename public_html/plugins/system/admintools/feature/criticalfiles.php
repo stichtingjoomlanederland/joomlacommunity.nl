@@ -5,7 +5,8 @@
  * @license   GNU General Public License version 3, or later
  */
 
-use FOF30\Date\Date;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Filesystem\Folder;
 
 defined('_JEXEC') or die;
 
@@ -25,7 +26,7 @@ class AtsystemFeatureCriticalfiles extends AtsystemFeatureAbstract
 
 	public function onAfterRender()
 	{
-		$mustSaveData    = false;
+		$mustSaveData = false;
 
 		$criticalFiles = $this->getCriticalFiles();
 		$loadedFiles   = $this->load();
@@ -67,7 +68,7 @@ class AtsystemFeatureCriticalfiles extends AtsystemFeatureAbstract
 
 		if ($mustSaveData)
 		{
-			 $this->save($filesToSave);
+			$this->save($filesToSave);
 		}
 
 		// Send out the email only if we have some altered files AND we have some previous data (otherwise we will scary
@@ -86,9 +87,6 @@ class AtsystemFeatureCriticalfiles extends AtsystemFeatureAbstract
 	 */
 	protected function getCriticalFiles()
 	{
-		// Yes, JLoader::import is required. JFolder does not follow the autoloader conventions.
-		JLoader::import('joomla.filesystem.folder');
-
 		$criticalFiles = [
 			'configuration.php',
 			'index.php',
@@ -96,7 +94,7 @@ class AtsystemFeatureCriticalfiles extends AtsystemFeatureAbstract
 		];
 
 		$templateFiles = ['index.php', 'error.php', 'component.php'];
-		$templates = JFolder::folders(JPATH_SITE . '/templates');
+		$templates     = Folder::folders(JPATH_SITE . '/templates');
 
 		if (is_array($templates) && !empty($templates))
 		{
@@ -106,7 +104,7 @@ class AtsystemFeatureCriticalfiles extends AtsystemFeatureAbstract
 				{
 					$relPath = 'templates/' . $template . '/' . $templateFile;
 
-					if (file_exists(JPATH_SITE . '/' .$relPath))
+					if (file_exists(JPATH_SITE . '/' . $relPath))
 					{
 						$criticalFiles[] = $relPath;
 					}
@@ -114,7 +112,7 @@ class AtsystemFeatureCriticalfiles extends AtsystemFeatureAbstract
 			}
 		}
 
-		$templates = JFolder::folders(JPATH_ADMINISTRATOR . '/templates');
+		$templates = Folder::folders(JPATH_ADMINISTRATOR . '/templates');
 
 		if (is_array($templates) && !empty($templates))
 		{
@@ -124,7 +122,7 @@ class AtsystemFeatureCriticalfiles extends AtsystemFeatureAbstract
 				{
 					$relPath = 'templates/' . $template . '/' . $templateFile;
 
-					if (file_exists(JPATH_ADMINISTRATOR . '/' .$relPath))
+					if (file_exists(JPATH_ADMINISTRATOR . '/' . $relPath))
 					{
 						$criticalFiles[] = $relPath;
 					}
@@ -172,15 +170,15 @@ class AtsystemFeatureCriticalfiles extends AtsystemFeatureAbstract
 		$data = json_encode($fileList);
 
 		$query = $db->getQuery(true)
-		            ->delete($db->quoteName('#__admintools_storage'))
-		            ->where($db->quoteName('key') . ' = ' . $db->quote('criticalfiles'));
+			->delete($db->quoteName('#__admintools_storage'))
+			->where($db->quoteName('key') . ' = ' . $db->quote('criticalfiles'));
 		$db->setQuery($query);
 		$db->execute();
 
-		$object = (object) array(
+		$object = (object) [
 			'key'   => 'criticalfiles',
-			'value' => $data
-		);
+			'value' => $data,
+		];
 
 		$db->insertObject('#__admintools_storage', $object);
 	}
@@ -194,9 +192,9 @@ class AtsystemFeatureCriticalfiles extends AtsystemFeatureAbstract
 	{
 		$db    = $this->container->db;
 		$query = $db->getQuery(true)
-		            ->select($db->quoteName('value'))
-		            ->from($db->quoteName('#__admintools_storage'))
-		            ->where($db->quoteName('key') . ' = ' . $db->quote('criticalfiles'));
+			->select($db->quoteName('value'))
+			->from($db->quoteName('#__admintools_storage'))
+			->where($db->quoteName('key') . ' = ' . $db->quote('criticalfiles'));
 		$db->setQuery($query);
 
 		$error = 0;
@@ -231,7 +229,7 @@ class AtsystemFeatureCriticalfiles extends AtsystemFeatureAbstract
 	/**
 	 * Sends a warning email to the addresses set up to receive security exception emails
 	 *
-	 * @param   array $alteredFiles The files which were modified
+	 * @param   array  $alteredFiles  The files which were modified
 	 *
 	 * @return  void
 	 */
@@ -244,7 +242,7 @@ class AtsystemFeatureCriticalfiles extends AtsystemFeatureAbstract
 		}
 
 		// Load the component's administrator translation files
-		$jlang = JFactory::getLanguage();
+		$jlang = Factory::getLanguage();
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, 'en-GB', true);
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, null, true);
@@ -276,7 +274,7 @@ HTML;
 
 		// Construct the replacement table
 		$substitutions = $this->exceptionsHandler->getEmailVariables('', [
-			'[INFO]'      => $htmlAlteredFiles,
+			'[INFO]' => $htmlAlteredFiles,
 		]);
 
 		// Let's get the most suitable email template
@@ -290,7 +288,7 @@ HTML;
 		}
 
 		$subject = $template[0];
-		$body = $template[1];
+		$body    = $template[1];
 
 		foreach ($substitutions as $k => $v)
 		{
@@ -301,7 +299,7 @@ HTML;
 		try
 		{
 			$config = $this->container->platform->getConfig();
-			$mailer = JFactory::getMailer();
+			$mailer = Factory::getMailer();
 
 			$mailfrom = $config->get('mailfrom');
 			$fromname = $config->get('fromname');
@@ -320,7 +318,7 @@ HTML;
 				$mailer->Priority = 3;
 
 				$mailer->isHtml(true);
-				$mailer->setSender(array($mailfrom, $fromname));
+				$mailer->setSender([$mailfrom, $fromname]);
 
 				// Resets the recipients, otherwise they will pile up
 				$mailer->clearAllRecipients();
@@ -336,10 +334,10 @@ HTML;
 				$mailer->Send();
 			}
 		}
-		catch (\Exception $e)
+		catch (Exception $e)
 		{
 			// Joomla! 3.5 and later throw an exception when crap happens instead of suppressing it and returning false
 		}
 	}
 
-} 
+}

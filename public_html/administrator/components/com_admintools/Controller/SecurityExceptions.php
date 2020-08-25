@@ -11,8 +11,9 @@ defined('_JEXEC') or die;
 
 use Akeeba\AdminTools\Admin\Controller\Mixin\CustomACL;
 use Akeeba\AdminTools\Admin\Model\BlacklistedAddresses;
+use Exception;
 use FOF30\Controller\DataController;
-use JText;
+use Joomla\CMS\Language\Text;
 
 class SecurityExceptions extends DataController
 {
@@ -26,7 +27,7 @@ class SecurityExceptions extends DataController
 
 		if (empty($id))
 		{
-			throw new \Exception(JText::_('COM_ADMINTOOLS_ERR_SECURITYEXCEPTION_BAN_NOID'), 500);
+			throw new Exception(Text::_('COM_ADMINTOOLS_ERR_SECURITYEXCEPTION_BAN_NOID'), 500);
 		}
 
 		/** @var \Akeeba\AdminTools\Admin\Model\SecurityExceptions $model */
@@ -36,14 +37,14 @@ class SecurityExceptions extends DataController
 
 		/** @var BlacklistedAddresses $banModel */
 		$banModel = $this->container->factory->model('BlacklistedAddresses')->tmpInstance();
-		$data     = array(
+		$data     = [
 			'id'          => 0,
 			'ip'          => $item->ip,
-			'description' => JText::_('COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_REASON_' . strtoupper($item->reason))
-		);
+			'description' => Text::_('COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_REASON_' . strtoupper($item->reason)),
+		];
 		$banModel->save($data);
 
-		$this->setRedirect('index.php?option=com_admintools&view=SecurityExceptions', JText::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_SAVED'));
+		$this->setRedirect('index.php?option=com_admintools&view=SecurityExceptions', Text::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_SAVED'));
 	}
 
 	public function unban()
@@ -53,7 +54,7 @@ class SecurityExceptions extends DataController
 		$id = $this->input->getString('id', '');
 		if (empty($id))
 		{
-			throw new \Exception(JText::_('COM_ADMINTOOLS_ERR_SECURITYEXCEPTION_BAN_NOID'), 500);
+			throw new Exception(Text::_('COM_ADMINTOOLS_ERR_SECURITYEXCEPTION_BAN_NOID'), 500);
 		}
 
 		/** @var \Akeeba\AdminTools\Admin\Model\SecurityExceptions $model */
@@ -72,6 +73,6 @@ class SecurityExceptions extends DataController
 			$banModel->delete($banItem->id);
 		}
 
-		$this->setRedirect('index.php?option=com_admintools&view=SecurityExceptions', JText::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_DELETED'));
+		$this->setRedirect('index.php?option=com_admintools&view=SecurityExceptions', Text::_('COM_ADMINTOOLS_LBL_BLACKLISTEDADDRESS_DELETED'));
 	}
 }

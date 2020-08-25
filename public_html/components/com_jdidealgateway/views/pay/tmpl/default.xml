@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="COM_ROPAYMENTS_PAY">
+		<message>
+			<![CDATA[COM_ROPAYMENTS_PAY_DESC_MENU]]>
+		</message>
+	</layout>
+	<fields name="request" addfieldpath="administrator/components/com_jdidealgateway/models/fields">
+		<fieldset name="request">
+			<field name="profile_id"
+				   type="jdideal.psp"
+				   label="COM_ROPAYMENTS_MESSAGE_PSP_LABEL"
+				   description="COM_ROPAYMENTS_MESSAGE_PSP_DESC"
+				   required="true"
+				   size="1"
+				   class="advancedSelect">
+			</field>
+		</fieldset>
+	</fields>
+</metadata>

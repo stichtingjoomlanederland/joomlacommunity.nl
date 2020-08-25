@@ -5,6 +5,8 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use Joomla\CMS\Language\Text;
+
 /** @var $this Akeeba\AdminTools\Site\View\Blocks\Html */
 
 defined('_JEXEC') or die();
@@ -15,7 +17,7 @@ header('HTTP/1.1 403 Forbidden', true, 403);
 <head>
 	<title>
 		<?php echo $this->container->platform->getConfig()->get('sitename', 'Nondescript Site') ?>
-		:: <?php echo JText::_('JGLOBAL_AUTH_ACCESS_DENIED'); ?>
+		:: <?php echo Text::_('JGLOBAL_AUTH_ACCESS_DENIED'); ?>
 	</title>
 	<style>
 		body {
@@ -58,7 +60,7 @@ header('HTTP/1.1 403 Forbidden', true, 403);
 </head>
 <body>
 <div id="blocked">
-	<h1><?php echo JText::_('JGLOBAL_AUTH_ACCESS_DENIED'); ?></h1>
+	<h1><?php echo Text::_('JGLOBAL_AUTH_ACCESS_DENIED'); ?></h1>
 
 	<p><?php echo $this->message; ?></p>
 </div>

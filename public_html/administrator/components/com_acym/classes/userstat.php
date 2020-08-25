@@ -66,12 +66,11 @@ class acymuserStatClass extends acymClass
     {
         $mailClass = acym_get('class.mail');
 
-        $query = 'SELECT us.*, m.name, m.subject, u.email, c.id as campaign_id, c.parent_id, SUM(urlclick.click) as total_click
+        $query = 'SELECT us.*, m.name, m.subject, u.email, c.id as campaign_id, c.parent_id, 0 AS total_click 
                     FROM #__acym_user_stat AS us
                     LEFT JOIN #__acym_user AS u ON us.user_id = u.id
                     INNER JOIN #__acym_mail AS m ON us.mail_id = m.id
-                    LEFT JOIN #__acym_campaign AS c ON m.id = c.mail_id
-                    LEFT JOIN #__acym_url_click AS urlclick ON urlclick.user_id = us.user_id AND us.mail_id = urlclick.mail_id ';
+                    LEFT JOIN #__acym_campaign AS c ON m.id = c.mail_id';
         $queryCount = 'SELECT COUNT(*) FROM #__acym_user_stat as us
                         LEFT JOIN #__acym_user AS u ON us.user_id = u.id
                         INNER JOIN #__acym_mail AS m ON us.mail_id = m.id';
@@ -100,10 +99,30 @@ class acymuserStatClass extends acymClass
             } else {
                 $table = 'us';
             }
-            $query .= ' ORDER BY '.$table.'.'.acym_secureDBColumn($settings['ordering']).' '.acym_secureDBColumn(strtoupper($settings['ordering_sort_order'])).', u.email ASC';
+            $query .= ' ORDER BY '.$table.'.'.acym_secureDBColumn($settings['ordering']).' '.acym_secureDBColumn(strtoupper($settings['ordering_sort_order'])).', us.user_id ASC';
         }
 
         $mails = acym_loadObjectList($query, '', $settings['offset'], $settings['detailedStatsPerPage']);
+
+        if (!empty($mails)) {
+            $mailIds = [];
+            foreach ($mails as $mail) {
+                if (!in_array($mail->mail_id, $mailIds)) $mailIds[] = $mail->mail_id;
+            }
+            $userClick = acym_loadObjectList('SELECT user_id, mail_id, SUM(click) as total_click FROM #__acym_url_click WHERE mail_id IN ('.implode(',', $mailIds).') GROUP BY user_id, mail_id ');
+
+            if (!empty($userClick)) {
+                $newUserClick = [];
+                foreach ($userClick as $value) {
+                    $newUserClick[$value->user_id.'-'.$value->mail_id] = $value;
+                }
+                foreach ($mails as $key => $mail) {
+                    if (empty($newUserClick[$mail->user_id.'-'.$mail->mail_id])) continue;
+                    $mails[$key]->total_click = $newUserClick[$mail->user_id.'-'.$mail->mail_id]->total_click;
+                }
+            }
+        }
+
         $results['detailed_stats'] = $mailClass->decode($mails);
         $results['total'] = acym_loadResult($queryCount);
 

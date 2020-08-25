@@ -166,7 +166,7 @@
             <field name="watermark_font_color" type="color" size="10" default="#FFFFFF" label="WF_MANAGER_WATERMARK_FONTCOLOR" description="WF_MANAGER_WATERMARK_FONTCOLOR_DESC" showon="watermark_type:text" />
 
             <!-- Image -->
-            <field name="watermark_image" type="media" size="30" mediatype="images" default="" placeholder="eg: images/logo.png" label="WF_MANAGER_WATERMARK_IMAGE" description="WF_MANAGER_WATERMARK_IMAGE_DESC" showon="watermark_type:image" />
+            <field name="watermark_image" type="mediajce" size="30" mediatype="images" default="" placeholder="eg: images/logo.png" label="WF_MANAGER_WATERMARK_IMAGE" description="WF_MANAGER_WATERMARK_IMAGE_DESC" showon="watermark_type:image" />
 
             <field name="watermark_position" type="list" default="center" label="WF_MANAGER_WATERMARK_POSITION" description="WF_MANAGER_WATERMARK_POSITION_DESC">
                 <option value="top-left">WF_OPTION_TOP_LEFT</option>

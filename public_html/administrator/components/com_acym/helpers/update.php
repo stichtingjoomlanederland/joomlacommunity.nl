@@ -140,10 +140,11 @@ class acymupdateHelper extends acymObject
         if (ACYM_CMS != 'joomla') return;
 
         $menuStrings = [
+            'ACYM_DASHBOARD',
             'ACYM_USERS',
             'ACYM_CUSTOM_FIELDS',
             'ACYM_LISTS',
-            'ACYM_CAMPAIGNS',
+            'ACYM_EMAILS',
             'ACYM_TEMPLATES',
             'ACYM_AUTOMATION',
             'ACYM_QUEUE',
@@ -161,6 +162,7 @@ class acymupdateHelper extends acymObject
             'ACYM_MENU_USERS_DESC',
             'ACYM_MENU_CAMPAIGNS',
             'ACYM_MENU_CAMPAIGNS_DESC',
+            'ACYM_SUBSCRIPTION_FORMS',
         ];
 
         $siteLanguages = empty($onlyCode) ? array_keys(acym_getLanguages()) : [$onlyCode];
@@ -209,6 +211,7 @@ class acymupdateHelper extends acymObject
 
         $creationDate = acym_escapeDB(acym_date('now', 'Y-m-d H:i:s', false));
         $currentUserId = acym_currentUserId();
+        $installedTemplates = 0;
         foreach ($names as $name) {
             $templatePath = $defaultTemplatesFolder.$name.DS;
             $mailName = str_replace('_', ' ', $name);
@@ -237,6 +240,10 @@ class acymupdateHelper extends acymObject
             $query = 'INSERT INTO `#__acym_mail` (`name`, `creation_date`, `thumbnail`, `drag_editor`, `library`, `type`, `body`, `subject`, `template`, `from_name`, `from_email`, `reply_to_name`, `reply_to_email`, `bcc`, `settings`, `stylesheet`, `attachments`, `creator_id`) VALUES
                      ('.$tmplName.', '.$creationDate.', '.$thumbnail.', 1, 1, "standard", '.acym_escapeDB($template->body).', "", 1, NULL, NULL, NULL, NULL, NULL, '.$settings.', '.$stylesheet.', NULL, '.$currentUserId.');';
             acym_query($query);
+            $installedTemplates++;
+        }
+        if ($installedTemplates == 0) {
+            acym_enqueueMessage(acym_translation('ACYM_DEFAULT_TEMPLATES_ALREADY_INSTALL'), 'info');
         }
     }
 
@@ -547,7 +554,7 @@ class acymupdateHelper extends acymObject
 
     private function getFormatedNotification($content)
     {
-        $begining = '<div id="acym__wysid__template" class="cell"><table class="body"><tbody><tr><td align="center" class="center acym__wysid__template__content" valign="top" style="background-color: rgb(239, 239, 239); padding: 40px 0 120px 0;"><center><table align="center" border="0" cellpadding="0" cellspacing="0"><tbody><tr><td class="acym__wysid__row ui-droppable ui-sortable" style="min-height: 0px; display: table-cell;"><table class="row acym__wysid__row__element" bgcolor="#dadada" border="0" cellpadding="0" cellspacing="0"><tbody style="background-color: rgb(218, 218, 218);" bgcolor="#ffffff"><tr><th class="small-12 medium-12 large-12 columns acym__wysid__row__element__th"><table class="acym__wysid__column" style="min-height: 0px; display: table;" border="0" cellpadding="0" cellspacing="0"><tbody class="ui-sortable" style="min-height: 0px; display: table-row-group;"><tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;"><td class="large-12 acym__wysid__column__element__td" style="outline: rgb(0, 163, 254) dashed 0px; outline-offset: -1px;"><span class="acy-editor__space acy-editor__space--focus" style="display: block; padding: 0px; margin: 0px; height: 10px;"></span></td></tr></tbody></table></th></tr></tbody></table><table class="row acym__wysid__row__element" bgcolor="#ffffff" border="0" cellpadding="0" cellspacing="0"><tbody style="background-color: rgb(255, 255, 255);" bgcolor="#ffffff"><tr><th class="small-12 medium-12 large-12 columns"><table class="acym__wysid__column" style="min-height: 0px; display: table;" border="0" cellpadding="0" cellspacing="0"><tbody class="ui-sortable" style="min-height: 0px; display: table-row-group;"><tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;"><td class="large-12 acym__wysid__column__element__td" style="outline: rgb(0, 163, 254) dashed 0px; outline-offset: -1px;"><div class="acym__wysid__tinymce--text mce-content-body" style="position: relative;" spellcheck="false">';
+        $begining = '<div id="acym__wysid__template" class="cell"><table class="body"><tbody><tr><td align="center" class="center acym__wysid__template__content" valign="top" style="background-color: rgb(239, 239, 239); padding: 40px 0 120px 0;"><center><table align="center" border="0" cellpadding="0" cellspacing="0"><tbody><tr><td class="acym__wysid__row ui-droppable ui-sortable" style="min-height: 0px; display: table-cell;"><table class="row acym__wysid__row__element" bgcolor="#dadada" border="0" cellpadding="0" cellspacing="0"><tbody style="background-color: rgb(218,218,218);" bgcolor="#ffffff"><tr><th class="small-12 medium-12 large-12 columns acym__wysid__row__element__th"><table class="acym__wysid__column" style="min-height: 0px; display: table;" border="0" cellpadding="0" cellspacing="0"><tbody class="ui-sortable" style="min-height: 0px; display: table-row-group;"><tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;"><td class="large-12 acym__wysid__column__element__td" style="outline: rgb(0,163,254) dashed 0px; outline-offset: -1px;"><span class="acy-editor__space acy-editor__space--focus" style="display: block; padding: 0px; margin: 0px; height: 10px;"></span></td></tr></tbody></table></th></tr></tbody></table><table class="row acym__wysid__row__element" bgcolor="#ffffff" border="0" cellpadding="0" cellspacing="0"><tbody style="background-color: rgb(255, 255, 255);" bgcolor="#ffffff"><tr><th class="small-12 medium-12 large-12 columns"><table class="acym__wysid__column" style="min-height: 0px; display: table;" border="0" cellpadding="0" cellspacing="0"><tbody class="ui-sortable" style="min-height: 0px; display: table-row-group;"><tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;"><td class="large-12 acym__wysid__column__element__td" style="outline: rgb(0, 163, 254) dashed 0px; outline-offset: -1px;"><div class="acym__wysid__tinymce--text mce-content-body" style="position: relative;" spellcheck="false">';
         $ending = '</div></td></tr></tbody></table></th></tr></tbody></table><table class="row acym__wysid__row__element" bgcolor="#dadada" style="position: relative; z-index: 100; top: 0; left: 0;" border="0" cellpadding="0" cellspacing="0"><tbody style="background-color: rgb(218, 218, 218);" bgcolor="#ffffff"><tr><th class="small-12 medium-12 large-12 columns acym__wysid__row__element__th"><table class="acym__wysid__column" style="min-height: 0px; display: table;" border="0" cellpadding="0" cellspacing="0"><tbody class="ui-sortable" style="min-height: 0px; display: table-row-group;"><tr class="acym__wysid__column__element ui-draggable" style="position: relative; top: inherit; left: inherit; right: inherit; bottom: inherit; height: auto;"><td class="large-12 acym__wysid__column__element__td" style="outline: rgb(0, 163, 254) dashed 0px; outline-offset: -1px;"><span class="acy-editor__space acy-editor__space--focus" style="display: block; padding: 0px; margin: 0px; height: 10px;"></span></td></tr></tbody></table></th></tr></tbody></table></td></tr></tbody></table></center></td></tr></tbody></table></div>';
 
         return $begining.$content.$ending;
@@ -562,7 +569,13 @@ class acymupdateHelper extends acymObject
             'acymtriggers',
             'jceacym',
         ];
-        $existingExtensions = acym_loadResultArray('SELECT `element` FROM #__extensions WHERE `type` = "plugin" AND `folder` = "system" AND `element` IN ("'.implode('", "', $extensionsToPublish).'")');
+        $existingExtensions = acym_loadResultArray(
+            'SELECT `element` 
+            FROM #__extensions 
+            WHERE `type` = "plugin" 
+                AND `folder` = "system" 
+                AND `element` IN ("'.implode('", "', $extensionsToPublish).'")'
+        );
 
         if (!empty($existingExtensions)) {
             $extensionsToPublish = array_diff($extensionsToPublish, $existingExtensions);
@@ -570,12 +583,36 @@ class acymupdateHelper extends acymObject
 
         $installer = JInstaller::getInstance();
         foreach ($dirs as $oneExtension) {
-            $installer->install(ACYM_BACK.'extensions'.DS.$oneExtension);
+            $extension = ACYM_BACK.'extensions'.DS.$oneExtension;
+            if (file_exists($extension)) {
+                $installer->install($extension);
+            }
         }
 
-        acym_query('UPDATE #__extensions SET `enabled` = 1 WHERE `type` = "plugin" AND `folder` = "system" AND `element` IN ("'.implode('", "', $extensionsToPublish).'")');
+        if (!empty($extensionsToPublish)) {
+            acym_query(
+                'UPDATE #__extensions 
+                SET `enabled` = 1 
+                WHERE `type` = "plugin" 
+                    AND `folder` = "system" 
+                    AND `element` IN ("'.implode('", "', $extensionsToPublish).'")'
+            );
+        }
 
         acym_deleteFolder(ACYM_BACK.'extensions', $report);
+    }
+
+    public function installAddons()
+    {
+        $pluginClass = acym_get('class.plugin');
+        $installedAddons = array_keys($pluginClass->getAll('folder_name'));
+        $coreAddons = acym_coreAddons();
+
+        foreach ($coreAddons as $oneAddon) {
+            if (in_array($oneAddon->folder_name, $installedAddons)) continue;
+
+            $pluginClass->save($oneAddon);
+        }
     }
 }
 

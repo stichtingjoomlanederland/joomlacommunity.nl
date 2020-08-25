@@ -49,7 +49,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<input type="hidden" name="update" value="<?php echo $update;?>" />
 </form>
 
-<script type="text/javascript">
+<script>
 $(document).ready(function() {
 
 	<?php if (ED_INSTALLER == 'full') { ?>

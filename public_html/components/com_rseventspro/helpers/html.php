@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); 
@@ -145,13 +145,15 @@ abstract class JHTMLRSEventsPro
 					$thevalue = rseventsproHelper::showdate($value,'Y-m-d');
 				} else {
 					if (($option == 'com_menus' || $option == 'com_modules') && $id == 'jform_params_from') {
-						$value = JFactory::getDate($value, $offset)->toSql();
+						$thevalue = JFactory::getDate($value, $offset)->toSql();
+					} else {
+						$thevalue = $value;
 					}
 					
 					if ($h12) {
-						$thevalue = rseventsproHelper::showdate($value,'Y-m-d h:i'.($sec ? '' : ':s').' A');
+						$thevalue = rseventsproHelper::showdate($thevalue,'Y-m-d h:i'.($sec ? '' : ':s').' A');
 					} else {
-						$thevalue = rseventsproHelper::showdate($value,'Y-m-d H:i'.($sec ? '' : ':s'));
+						$thevalue = rseventsproHelper::showdate($thevalue,'Y-m-d H:i'.($sec ? '' : ':s'));
 					}
 				}
 			}
@@ -176,7 +178,7 @@ abstract class JHTMLRSEventsPro
 		if ($dummy) {
 			if ($value) {
 				if ($value != 'today') {
-					if ($option == 'com_menus' && $id == 'jform_params_from') {
+					if (($option == 'com_menus' || $option == 'com_modules') && $id == 'jform_params_from') {
 						$value = JFactory::getDate($value, $offset)->toSql();
 					}
 					

@@ -18,12 +18,9 @@ function rsc_add_emoticon(root) {
 				tr.id = 'row'+rand;
 				tr.className = 'row'+(rows % 2);
 				
-				td2.className = 'center';
-				td2.align = 'center';
-				td3.className = 'center';
-				td3.align = 'center';
-				td4.className = 'center';
-				td4.align = 'center';
+				td2.className = 'center text-center';
+				td3.className = 'center text-center';
+				td4.className = 'center text-center';
 				
 				container.appendChild(tr);
 				tr.appendChild(td1);
@@ -34,7 +31,7 @@ function rsc_add_emoticon(root) {
 				var input1 = document.createElement('input');
 				input1.type = 'text';
 				input1.id = 'symbol'+rand;
-				input1.className = 'input-small';
+				input1.className = 'input-small form-control';
 				input1.size = '10';
 				input1.name = 'symbol['+rand+']';
 				input1.style.textAlign = 'center';
@@ -42,7 +39,7 @@ function rsc_add_emoticon(root) {
 				var input2 = document.createElement('input');
 				input2.type = 'text';
 				input2.id = 'image'+rand;
-				input2.className = 'input-xxlarge';
+				input2.className = 'input-xxlarge form-control';
 				input2.size = '50';
 				input2.name = 'image['+rand+']';
 				
@@ -69,10 +66,10 @@ function rsc_add_emoticon(root) {
 				button4.type = 'button';
 				
 				// Set buttons class name
-				button1.className = 'btn button';
-				button2.className = 'btn button';
-				button3.className = 'btn button';
-				button4.className = 'btn button';
+				button1.className = 'btn btn-secondary';
+				button2.className = 'btn btn-secondary';
+				button3.className = 'btn btn-secondary';
+				button4.className = 'btn btn-secondary';
 				
 				// Set buttons id
 				button1.id = 'edit'+rand;
@@ -208,4 +205,19 @@ function rsc_cancel_emoticon(id) {
 	
 	jQuery('#save'+id).css('display','none');
 	jQuery('#cancel'+id).css('display','none');
+}
+
+function rscomments_chart(value) {
+	jQuery.ajax({
+		url: 'index.php?option=com_rscomments',
+		type: 'post',
+		dataType : 'html',
+		data: 'task=stats&type=' + value,
+		success: function(response) {
+			var data = google.visualization.arrayToDataTable(jQuery.parseJSON(response));
+			var options = { vAxis: {title: Joomla.JText._('COM_RSCOMMENTS_CHART_COMMENTS'), 'format' : '0'}, legend: { position: 'none' } };
+			var chart = new google.visualization.ColumnChart(document.getElementById('rscomments-chart'));
+			chart.draw(data, options);
+		}
+	});
 }

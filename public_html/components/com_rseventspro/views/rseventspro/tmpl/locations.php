@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
@@ -39,6 +39,14 @@ $count = count($this->locations); ?>
 					<?php } ?>
 				</a>
 			</div>
+			
+			<?php if ($this->params->get('address', 1) || $this->params->get('url', 1)) { ?>
+			<div class="rs_location_info">
+				<?php if ($this->params->get('address', 1) && !empty($location->address)) { ?><i class="fa fa-map-marker fa-fw"></i> <?php echo $location->address; ?><br><?php } ?>
+				<?php if ($this->params->get('url', 1) && !empty($location->url)) { ?><i class="fa fa-globe fa-fw"></i> <a href="<?php echo $location->url; ?>" target="_blank"><?php echo $location->url; ?></a><?php } ?>
+			</div>
+			<?php } ?>
+			
 			<div class="rs_description">
 				<?php echo rseventsproHelper::shortenjs($location->description,$location->id,255,$this->params->get('type', 1)); ?>
 			</div>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<extension type="component" version="3.5" method="upgrade">
+	<name>COM_JDIDEALGATEWAY</name>
+	<creationDate>20 July 2020</creationDate>
+	<author>RolandD Cyber Produksi</author>
+	<authorEmail>contact@rolandd.com</authorEmail>
+	<authorUrl>https://rolandd.com/</authorUrl>
+	<copyright>Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.</copyright>
+	<license>GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html</license>
+	<version>6.0.2</version>
+	<description>COM_ROPAYMENTS_XML_DESCRIPTION</description>
+
+	<!-- Scripts to run on installation -->
+	<scriptfile>script.php</scriptfile>
+
+	<!-- Runs on install -->
+	<install>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/install/install.sql</file>
+		</sql>
+	</install>
+
+	<!-- Runs on update -->
+	<update>
+		<schemas>
+			<schemapath type="mysql">sql/update</schemapath>
+		</schemas>
+	</update>
+
+	<!-- Core files site -->
+	<files folder="components/com_jdidealgateway">
+		<filename>controller.php</filename>
+		<filename>jdidealgateway.php</filename>
+		<filename>router.php</filename>
+		<folder>controllers</folder>
+		<folder>language</folder>
+		<folder>layouts</folder>
+		<folder>models</folder>
+		<folder>views</folder>
+	</files>
+
+	<!-- Copy media files -->
+	<media folder="media/com_jdidealgateway" destination="com_jdidealgateway">
+		<folder>css</folder>
+		<folder>images</folder>
+		<folder>js</folder>
+	</media>
+
+	<administration>
+		<!-- Menu entries -->
+		<menu view="jdidealgateway">COM_JDIDEALGATEWAY</menu>
+		<submenu>
+			<menu view="jdidealgateway">COM_ROPAYMENTS_DASHBOARD</menu>
+			<menu view="logs">COM_ROPAYMENTS_LOGS</menu>
+			<menu view="profiles">COM_ROPAYMENTS_PROFILES</menu>
+			<menu view="statuses">COM_ROPAYMENTS_STATUSES</menu>
+			<menu view="messages">COM_ROPAYMENTS_MESSAGES</menu>
+			<menu view="emails">COM_ROPAYMENTS_EMAILS</menu>
+			<menu view="pays">COM_ROPAYMENTS_PAYMENTS</menu>
+		</submenu>
+
+		<!-- Core files admin -->
+		<files folder="administrator/components/com_jdidealgateway">
+			<filename>access.xml</filename>
+			<filename>changelog.txt</filename>
+			<filename>config.xml</filename>
+			<filename>controller.php</filename>
+			<filename>jdidealgateway.php</filename>
+			<filename>LICENSE.txt</filename>
+			<folder>controllers</folder>
+			<folder>helpers</folder>
+			<folder>language</folder>
+			<folder>layouts</folder>
+			<folder>models</folder>
+			<folder>sql</folder>
+			<folder>tables</folder>
+			<folder>views</folder>
+		</files>
+	</administration>
+</extension>

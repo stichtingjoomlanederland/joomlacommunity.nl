@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); 
@@ -264,22 +264,11 @@ class rseventsproEmails
 		$text['bcc']	 	= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
 		$text['replyto']	= isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
 		$text['replyname']	= isset($text['replyname']) && !empty($text['replyname']) ? explode(',',$text['replyname']) : null;
-		$data		 		= rseventsproEmails::pdfAttachement($to,$ide,$name,$optionals,$ids);
-		$attachments 		= !is_null($data) ? $data['attachments'] : null;
-		$files		 		= !is_null($data) ? $data['files'] : array();
+		$attachments 		= rseventsproEmails::pdfAttachement($to,$ide,$name,$optionals,$ids);
 		
 		$mailer	= JFactory::getMailer();
 		if ($mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , $attachments , $text['replyto'], $text['replyname'])) {
 			JFactory::getApplication()->triggerEvent('rsepro_activationEmailCleanup',array(array('id'=>&$ide)));
-			
-			if ($files) {
-				jimport('joomla.filesystem.file');
-				foreach ($files as $file) {
-					if (file_exists($file)) {
-						JFile::delete($file);
-					}
-				}
-			}
 		}
 		
 		return true;
@@ -729,6 +718,59 @@ class rseventsproEmails
 		return true;
 	}
 	
+	/*
+	*	New paid subscription notification email
+	*/
+	
+	public static function notify_me_paid($to, $ide, $additional_data = array(), $lang = 'en-GB', $optionals = null, $ids = null) {
+		$config		= rseventsproHelper::getConfig();
+		$email		= rseventsproEmails::email('notify_me_paid', null, null, $lang);
+		
+		if (empty($email))
+			return false;
+		
+		$from		= $config->email_from;
+		$fromName	= $config->email_fromname;
+		$mode		= $email->mode;
+		$replyto	= $config->email_replyto;
+		$replyname	= $config->email_replytoname;
+		$cc			= $config->email_cc;
+		$bcc		= $config->email_bcc;
+		$cc			= !empty($cc) ? $cc : null;
+		$bcc		= !empty($bcc) ? $bcc : null;
+		$subject	= $email->subject;
+		$body		= $email->message;
+		
+		$replacer	= array(
+			'from'		=> $from,
+			'fromName'	=> $fromName,
+			'replyto'	=> $replyto,
+			'replyname' => $replyname,
+			'cc'		=> $cc,
+			'bcc'		=> $bcc,
+			'subject'	=> $subject,
+			'body'		=> $body
+		);
+		
+		JFactory::getApplication()->triggerEvent('rseproNotifyPaidEmail', array(array('ids' => $ids, 'ide' => $ide, 'data' => &$replacer)));
+		
+		$text				= rseventsproEmails::placeholders($replacer,$ide,'',$optionals, $ids);
+		$text['cc']			= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
+		$text['bcc']		= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text['replyto']	= isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
+		$text['replyname']	= isset($text['replyname']) && !empty($text['replyname']) ? explode(',',$text['replyname']) : null;
+		
+		if ($additional_data) {
+			$text['body']		= str_replace(array_keys($additional_data), array_values($additional_data), $text['body']);
+			$text['subject']	= str_replace(array_keys($additional_data), array_values($additional_data), $text['subject']);
+		}
+		
+		$mailer	= JFactory::getMailer();
+		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		
+		return true;
+	}
+	
 	
 	/*
 	*	Event owner unsubscribe notification
@@ -950,6 +992,8 @@ class rseventsproEmails
 	*	Attach the pdf to the activation email
 	*/
 	public static function pdfAttachement($to, $ide, $name, $optionals, $ids) {
+		$attachments = null;
+		
 		if (rseventsproHelper::pdf()) {
 			$app	= JFactory::getApplication();
 			$db		= JFactory::getDBO();
@@ -965,9 +1009,6 @@ class rseventsproEmails
 				->where($db->qn('ut.ids').' = '.$db->q($ids));
 			$db->setQuery($query);
 			if ($tickets = $db->loadObjectList()) {
-				$files		= array();
-				$attachments= null;
-				
 				foreach ($tickets as $ticket) {
 					for ($i = 1; $i <= $ticket->quantity; $i++) {
 						$code		= md5($ids.$ticket->id.$i);
@@ -1028,12 +1069,35 @@ class rseventsproEmails
 						$app->triggerEvent('rsepro_activationEmail', array(array('id' => &$ide, 'name' => $ticket->name.' '.$i, 'attachment' => &$attachments, 'layout' => &$layout)));
 					}
 				}
-				
-				return array('attachments' => $attachments, 'files' => $files);
+			}
+			
+			$query->clear()
+				->select($db->qn('invoice'))->select($db->qn('invoice_attach'))
+				->from($db->qn('#__rseventspro_events'))
+				->where($db->qn('id').' = '.$db->q($ide));
+			$db->setQuery($query);
+			$invoiceDetails = $db->loadObject();
+			
+			if ($invoiceDetails->invoice && $invoiceDetails->invoice_attach) {
+				try {
+					require_once JPATH_SITE.'/components/com_rseventspro/helpers/invoice.php';
+					
+					$tmp	 	= JFactory::getConfig()->get('tmp_path');
+					$folder		= md5(JFactory::getSession()->getId()).'_activation';
+					$invoice 	= RSEventsProInvoice::getInstance($ids);
+					$output  	= $invoice->output(false);
+					$path	 	= $tmp.'/'.$folder.'/'.$output['title'];
+					
+					if (JFile::write($path, $output['buffer'])) {
+						$attachments[] = $path;
+					}
+				} catch (Exception $e) {
+					$app->enqueueMessage($e->getMessage(),'info');
+				}
 			}
 		}
 		
-		return null;
+		return $attachments;
 	}
 	
 	/*

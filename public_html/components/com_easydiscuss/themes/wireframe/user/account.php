@@ -23,14 +23,14 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="o-col t-lg-pr--md t-xs-pr--no">
 				<div class="form-group">
 				    <label for="fullname"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_FULLNAME'); ?></label>
-				    <input type="text" class="form-control" name="fullname" id="fullname" value="<?php echo $profile->user->name; ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_FULLNAME_PLACEHOLDER'); ?>">
+				    <input type="text" class="form-control" name="fullname" id="fullname" value="<?php echo $this->html('string.escape', $profile->user->name); ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_FULLNAME_PLACEHOLDER'); ?>">
 				</div>
 			</div>
 
 			<div class="o-col t-lg-pr--md t-xs-pr--no">
 				<div class="form-group">
 				    <label for="nickname"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_NICKNAME'); ?></label>
-				    <input type="text" class="form-control" name="nickname" id="nickname" value="<?php echo $profile->getNickname(); ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_NICKNAME_PLACEHOLDER'); ?>">
+				    <input type="text" class="form-control" name="nickname" id="nickname" value="<?php echo $this->html('string.escape', $profile->getNickname()); ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_NICKNAME_PLACEHOLDER'); ?>">
 				</div>
 			</div>
 		</div>
@@ -39,14 +39,14 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="o-col t-lg-pr--md t-xs-pr--no">
 				<div class="form-group">
 				    <label for="username"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_USERNAME'); ?></label>
-				    <input <?php echo $changeUsername; ?> type="text" class="form-control" name="username" id="username" value="<?php echo $profile->getUsername(); ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_USERNAME_PLACEHOLDER'); ?>">
+				    <input <?php echo $changeUsername; ?> type="text" class="form-control" name="username" id="username" value="<?php echo $this->html('string.escape', $profile->getUsername()); ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_USERNAME_PLACEHOLDER'); ?>">
 				</div>
 			</div>
 
 			<div class="o-col t-lg-pr--md t-xs-pr--no">
 				<div class="form-group">
 				    <label for="email"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_EMAIL'); ?></label>
-				    <input type="text" class="form-control" name="email" id="email" value="<?php echo $profile->getEmail(); ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_EMAIL_PLACEHOLDER'); ?>">
+				    <input type="text" class="form-control" name="email" id="email" value="<?php echo $this->html('string.escape', $profile->getEmail()); ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_EMAIL_PLACEHOLDER'); ?>">
 				</div>
 			</div>
 		</div>

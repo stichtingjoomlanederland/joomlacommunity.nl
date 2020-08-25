@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="module" version="2.5" method="upgrade" client="site">
 	<name>MOD_RSEVENTSPRO_UPCOMING</name>
-	<creationDate>September 2014</creationDate>
+	<creationDate>May 2020</creationDate>
 	<author>RSJoomla!</author>
 	<authorEmail>support@rsjoomla.com</authorEmail>
 	<authorUrl>www.rsjoomla.com</authorUrl>
 	<copyright>(C) 2009-2014 www.rsjoomla.com</copyright>
 	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license> 
-	<version>1.6</version>
+	<version>1.7</version>
 	<description>MOD_RSEVENTSPRO_UPCOMING_DESCRIPTION</description>
 	<scriptfile>script.php</scriptfile>
 	
@@ -82,12 +82,18 @@
 					<option value="0">JNO</option>
 				</field>
 				
+				<field name="full" type="list" default="1" label="MOD_RSEVENTSPRO_UPCOMING_FULL" description="MOD_RSEVENTSPRO_UPCOMING_FULL_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				
 				<field name="limit" type="text" default="4" label="MOD_RSEVENTSPRO_UPCOMING_LIMIT" description="MOD_RSEVENTSPRO_UPCOMING_LIMIT_DESC" />
 				
 				<field name="categories" type="category" extension="com_rseventspro" default="" label="MOD_RSEVENTSPRO_UPCOMING_EVENTS_CATEGORIES" description="MOD_RSEVENTSPRO_UPCOMING_EVENTS_CATEGORIES_DESC" multiple="multiple" class="rs200 rschosen" />
 				<field name="locations" type="rslocations" default="" label="MOD_RSEVENTSPRO_UPCOMING_EVENTS_LOCATIONS" description="MOD_RSEVENTSPRO_UPCOMING_EVENTS_LOCATIONS_DESC" multiple="multiple" class="rs200 rschosen" show_root="false" />
 				<field name="tags" type="rstags" default="" label="MOD_RSEVENTSPRO_UPCOMING_EVENTS_TAGS" description="MOD_RSEVENTSPRO_UPCOMING_EVENTS_TAGS_DESC" multiple="multiple" class="rs200 rschosen" />
 				<field name="speakers" type="sql" label="MOD_RSEVENTSPRO_UPCOMING_SPEAKERS" multiple="multiple" sql_select="id,name" sql_from="#__rseventspro_speakers" sql_where="published=1" key_field="id" value_field="name" />
+				<field name="sponsors" type="sql" label="MOD_RSEVENTSPRO_UPCOMING_SPONSORS" multiple="multiple" sql_select="id,name" sql_from="#__rseventspro_sponsors" sql_where="published=1" key_field="id" value_field="name" />
 				<field name="choosen" type="rschosen" />
 			</fieldset>
 		</fields>

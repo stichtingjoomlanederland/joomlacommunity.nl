@@ -39,6 +39,7 @@ defined('KOOWA') or die; ?>
                            class="koowa_header__image_link <?= $params->link_to_download ? 'docman_track_download' : ''; ?>"
                            data-title="<?= escape($document->title); ?>"
                            data-id="<?= $document->id; ?>"
+                            <?= $params->link_to_download ? 'type="'.$document->mimetype.'"' : ''; ?>
                             <?= $params->download_in_blank_page ? 'target="_blank"' : ''; ?>
                             >
                             <? // Icon ?>
@@ -55,6 +56,7 @@ defined('KOOWA') or die; ?>
                                    class="koowa_header__title_link <?= $params->link_to_download ? 'docman_track_download' : ''; ?>"
                                    data-title="<?= escape($document->title); ?>"
                                    data-id="<?= $document->id; ?>"
+                                    <?= $params->link_to_download ? 'type="'.$document->mimetype.'"' : ''; ?>
                                     <?= $params->download_in_blank_page ? 'target="_blank"' : ''; ?>
                                     >
                                     <?= escape($document->title);?></a>

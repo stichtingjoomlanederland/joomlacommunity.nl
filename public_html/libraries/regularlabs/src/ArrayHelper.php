@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.2.16442
+ * @version         20.7.20564
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -40,12 +40,12 @@ class ArrayHelper
 			return (array) $data;
 		}
 
-		if ($data == '')
+		if ($data === '' || is_null($data))
 		{
 			return [];
 		}
 
-		if ($separator == '')
+		if ($separator === '')
 		{
 			return [$data];
 		}

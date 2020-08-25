@@ -115,8 +115,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php } ?>
 					</ul>
 				<?php } ?>
-				<?php if ($params->get('showlastreply') && $post->getLastReplier()) { ?>
-					<?php $lastReply = ED::model('Posts')->getLastReply($post->id);  ?>
+				<?php if ($params->get('showlastreply') && $post->lastReply) { ?>
 					<div class="ed-mod__section">
 						<?php if ($post->getLastReplier()->id) { ?>
 							<?php if ($config->get('layout_avatar')) { ?>
@@ -125,9 +124,22 @@ defined('_JEXEC') or die('Unauthorized Access');
 								</a>
 							<?php } ?>
 						<?php } else { ?>
-							<?php echo $post->getLastReplier()->user->name; ?>
+
+							<?php if ($post->isLastReplyAnonymous()) { ?>
+								<?php if ($post->canAccessAnonymousPost($post->lastReply->id)) { ?>
+									
+									<?php echo ED::themes()->html('user.username', $post->getLastReplyUser(), array('isAnonymous' => true, 'canViewAnonymousUsername' => $post->canAccessAnonymousPost($post->lastReply->id), 'posterName' => $post->getLastReplyUser()->getName())); ?>
+
+								<?php } else { ?>
+									<?php echo JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');?>
+								<?php } ?>
+
+							<?php } else { ?>
+			                    <?php echo $post->getLastReplyUser()->getName(); ?>
+							<?php } ?>
+							
 						<?php } ?>
-						<a class="ml-5" href="<?php echo EDR::getPostRoute($post->id) . '#' . JText::_('MOD_EASYDISCUSS_REPLY_PERMALINK') . '-' . $lastReply->id;?>" title="<?php echo JText::_('MOD_EASYDISCUSS_VIEW_LAST_REPLY'); ?>"><?php echo JText::_('MOD_EASYDISCUSS_VIEW_LAST_REPLY');?></a>
+						<a class="ml-5" href="<?php echo $post->getLastReplyPermalink($post->lastReply->id);?>" title="<?php echo JText::_('MOD_EASYDISCUSS_VIEW_LAST_REPLY'); ?>"><?php echo JText::_('MOD_EASYDISCUSS_VIEW_LAST_REPLY');?></a>
 					</div>
 				<?php } ?>
 			</div>

@@ -4,12 +4,17 @@ defined('_JEXEC') or die('Restricted access');
 
 class AutomationController extends acymController
 {
+    var $regexSwitches = '#(switch_[0-9]*".*)(data\-switch=")(switch_.+id=")(switch_.+for=")(switch_)#Uis';
+
     public function __construct()
     {
         parent::__construct();
         $this->breadcrumb[acym_translation('ACYM_AUTOMATION')] = acym_completeLink('automation');
         $this->loadScripts = [
-            'all' => ['datepicker'],
+            'info' => ['datepicker'],
+            'condition' => ['datepicker'],
+            'action' => ['datepicker'],
+            'filter' => ['datepicker'],
         ];
         acym_setVar('edition', '1');
     }
@@ -69,8 +74,20 @@ class AutomationController extends acymController
                 'automationNumberPerStatus' => $filters,
             ];
 
+            $this->prepareToolbar($data);
+
             parent::display($data);
         }
+    }
+
+    public function prepareToolbar(&$data)
+    {
+        $toolbarHelper = acym_get('helper.toolbar');
+        $toolbarHelper->addSearchBar($data['search'], 'automation_search', 'ACYM_SEARCH');
+        $toolbarHelper->addButton(acym_translation('ACYM_NEW_MASS_ACTION'), ['data-task' => 'edit', 'data-step' => 'action'], 'cog');
+        $toolbarHelper->addButton(acym_translation('ACYM_CREATE'), ['data-task' => 'edit', 'data-step' => 'info'], 'add', true);
+
+        $data['toolbar'] = $toolbarHelper;
     }
 
     public function info()
@@ -202,9 +219,9 @@ class AutomationController extends acymController
             'id' => $id,
             'step_automation_id' => empty($step->id) ? 0 : $step->id,
             'user_name' => $conditionsUser['name'],
-            'user_option' => json_encode(preg_replace_callback('#(data\-switch=")(switch_.+id=")(switch_.+for=")(switch_)#Uis', [$this, 'switches'], $conditionsUser['option'])),
+            'user_option' => json_encode(preg_replace_callback($this->regexSwitches, [$this, 'switches'], $conditionsUser['option'])),
             'classic_name' => $conditionsClassic['name'],
-            'classic_option' => json_encode(preg_replace_callback('#(data\-switch=")(switch_.+id=")(switch_.+for=")(switch_)#Uis', [$this, 'switches'], $conditionsClassic['option'])),
+            'classic_option' => json_encode(preg_replace_callback($this->regexSwitches, [$this, 'switches'], $conditionsClassic['option'])),
             'type_trigger' => empty($step->triggers) ? 'classic' : json_decode($step->triggers, true)['type_trigger'],
             'type_condition' => $typeCondition,
         ];
@@ -298,7 +315,7 @@ class AutomationController extends acymController
             'condition' => $condition,
             'step_automation_id' => empty($step->id) ? 0 : $step->id,
             'classic_name' => $filtersClassic['name'],
-            'classic_option' => json_encode(preg_replace_callback('#(data\-switch=")(switch_.+id=")(switch_.+for=")(switch_)#Uis', [$this, 'switches'], $filtersClassic['option'])),
+            'classic_option' => json_encode(preg_replace_callback($this->regexSwitches, [$this, 'switches'], $filtersClassic['option'])),
             'type_trigger' => empty($step->triggers) ? 'classic' : json_decode($step->triggers, true)['type_trigger'],
             'type_filter' => $typeFilter,
         ];
@@ -312,7 +329,7 @@ class AutomationController extends acymController
 
     public function switches($matches)
     {
-        return $matches[1].'__numand__'.$matches[2].'__numand__'.$matches[3].'__numand__'.$matches[4];
+        return '__numand__'.$matches[1].$matches[2].'__numand__'.$matches[3].'__numand__'.$matches[4].'__numand__'.$matches[5];
     }
 
     public function action()

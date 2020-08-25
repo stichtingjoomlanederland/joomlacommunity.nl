@@ -3,7 +3,7 @@
  * @package    Pwtimage
  *
  * @author     Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2016 - 2019 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2016 - 2020 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com
  */
@@ -63,11 +63,11 @@ class PwtimageFormFieldCanvas extends FormField
 			$canDo = ContentHelper::getActions('com_pwtimage');
 
 			// Set the PWT Image basic data
-			$data = array(
-				'id'           => (string) $modalId,
+			$data = [
+				'id'           => $modalId,
 				'imagePreview' => $value,
 				'canDo'        => $canDo
-			);
+			];
 
 			// Add the options
 			if (isset($this->element['ratio']))

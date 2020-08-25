@@ -13,14 +13,14 @@ use FOF30\Container\Container;
 use FOF30\Model\DataModel;
 
 /**
- * @property   string  $ip      Blocked IP
- * @property   string  $reason  Block reason
- * @property   string  $until   Block until this date and time
- *                              
+ * @property   string $ip      Blocked IP
+ * @property   string $reason  Block reason
+ * @property   string $until   Block until this date and time
+ *
  * @method  $this  ip() ip(string $v)
  * @method  $this  reason() reason(string|array $v)
  * @method  $this  until() until(string|array $v)
-*/
+ */
 class AutoBannedAddresses extends DataModel
 {
 	public function __construct(Container $container, array $config)

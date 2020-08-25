@@ -6,6 +6,8 @@
  */
 
 use FOF30\Date\Date;
+use Joomla\CMS\Access\Access;
+use Joomla\CMS\User\User;
 
 defined('_JEXEC') or die;
 
@@ -135,9 +137,9 @@ class AtsystemFeatureDisableobsoleteadmins extends AtsystemFeatureAbstract
 	 * onUserBeforeSave event to find out which user accounts are being saved and which need fiddling with per above.
 	 * Then I used onUserAfterSave to update their lastVisitDate.
 	 *
-	 * @param   JUser|array $oldUser The existing user record
-	 * @param   bool        $isNew   Is this a new user?
-	 * @param   array       $data    The data to be saved
+	 * @param   User|array  $oldUser  The existing user record
+	 * @param   bool        $isNew    Is this a new user?
+	 * @param   array       $data     The data to be saved
 	 *
 	 * @throws  Exception  When we catch a security exception
 	 */
@@ -228,10 +230,10 @@ class AtsystemFeatureDisableobsoleteadmins extends AtsystemFeatureAbstract
 	/**
 	 * Part of the automatic update of manually unblocked users, as explained onUserBeforeSave.
 	 *
-	 * @param   array  $data         The user data saved to the database
-	 * @param   bool   $isNew        Was that a new user?
-	 * @param   bool   $result       Did the save succeed?
-	 * @param   string $errorMessage The last error message while saving the user.
+	 * @param   array   $data          The user data saved to the database
+	 * @param   bool    $isNew         Was that a new user?
+	 * @param   bool    $result        Did the save succeed?
+	 * @param   string  $errorMessage  The last error message while saving the user.
 	 *
 	 *
 	 * @since   5.3.0
@@ -278,8 +280,8 @@ class AtsystemFeatureDisableobsoleteadmins extends AtsystemFeatureAbstract
 	 * Find users who belong in the configured backend user groups and who have not logged in for at least the
 	 * configured number of days. Then take the configured action against them (force password reset or block them).
 	 *
-	 * @since   5.3.0
 	 * @throws  Exception
+	 * @since   5.3.0
 	 */
 	protected function disableObsoleteAdmins()
 	{
@@ -333,7 +335,7 @@ class AtsystemFeatureDisableobsoleteadmins extends AtsystemFeatureAbstract
 		}
 		catch (Exception $e)
 		{
-			// Database error. ail out.
+			// Database error. Bail out.
 		}
 
 		asort($actionUsers);
@@ -442,7 +444,7 @@ class AtsystemFeatureDisableobsoleteadmins extends AtsystemFeatureAbstract
 	/**
 	 * Remove the protected users from the given $users list and return the remaining users
 	 *
-	 * @param   array $users The users list to filter
+	 * @param   array  $users  The users list to filter
 	 *
 	 * @return  array  The filtered list
 	 *
@@ -463,7 +465,7 @@ class AtsystemFeatureDisableobsoleteadmins extends AtsystemFeatureAbstract
 	/**
 	 * Filter the list of actionable users in a way that ensures at least one Super User will remain active on the site
 	 *
-	 * @param   array $actionableUsers The list of actionable users to filter
+	 * @param   array  $actionableUsers  The list of actionable users to filter
 	 *
 	 * @return  array  The filtered list
 	 *
@@ -498,7 +500,7 @@ class AtsystemFeatureDisableobsoleteadmins extends AtsystemFeatureAbstract
 		// Get the Super User groups
 		$groups          = $this->getAllJoomlaUserGroups();
 		$superUserGroups = array_filter($groups, function ($group) {
-			return JAccess::checkGroup($group, 'core.admin', 1);
+			return Access::checkGroup($group, 'core.admin', 1);
 		});
 
 		// Get all Super Users
@@ -532,7 +534,7 @@ class AtsystemFeatureDisableobsoleteadmins extends AtsystemFeatureAbstract
 	/**
 	 * Returns all user IDs belonging to any of the group IDs specified.
 	 *
-	 * @param   array $groups List of all user group IDs we are interested in
+	 * @param   array  $groups  List of all user group IDs we are interested in
 	 *
 	 * @return  array
 	 *

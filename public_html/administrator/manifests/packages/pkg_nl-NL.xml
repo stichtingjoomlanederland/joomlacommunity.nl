@@ -2,8 +2,8 @@
 <extension type="package" version="3.9" method="upgrade">
 	<name>Nederlands (nl-NL) taalpakket</name>
 	<packagename>nl-NL</packagename>
-	<version>3.9.19.2</version>
-	<creationDate>Juni 2020</creationDate>
+	<version>3.9.21.1</version>
+	<creationDate>Augustus 2020</creationDate>
 	<author>Dutch Translation Team</author>
 	<authorEmail>taal@joomlacommunity.nl</authorEmail>
 	<authorUrl>https://joomlacommunity.nl</authorUrl>

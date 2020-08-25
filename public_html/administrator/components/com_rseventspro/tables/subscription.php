@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -115,13 +115,58 @@ class RseventsproTableSubscription extends JTable
 		$db->execute();
 		
 		$query->clear()
-			->select($db->qn('e.id'))->select($db->qn('e.sync'))->select($db->qn('u.SubmissionId'))
+			->select($db->qn('e.id'))->select($db->qn('e.sync'))
+			->select($db->qn('u.SubmissionId'))->select($db->qn('u.coupon'))
 			->from($db->qn('#__rseventspro_users','u'))
 			->join('left', $db->qn('#__rseventspro_events','e').' ON '.$db->qn('e.id').' = '.$db->qn('u.ide'))
 			->where($db->qn('u.id').' = '.(int) $pk);
 		
 		$db->setQuery($query);
 		$subscription = $db->loadObject();
+		
+		// Remove coupon usage
+		if ($subscription->coupon) {
+			$found = false;
+			$query->clear()
+				->select($db->qn('cc.id'))->select($db->qn('cc.used'))
+				->from($db->qn('#__rseventspro_coupon_codes', 'cc'))
+				->join('LEFT', $db->qn('#__rseventspro_coupons', 'c').' ON '.$db->qn('c.id').' = '.$db->qn('cc.idc'))
+				->where($db->qn('c.ide').' = '.$db->q($subscription->id))
+				->where($db->qn('cc.code').' = '.$db->q($subscription->coupon));
+			$db->setQuery($query);
+			if ($couponInfo = $db->loadObject()) {
+				if ($couponInfo->used > 0) {
+					$newUsed = (int) $couponInfo->used - 1;
+					$query->clear()
+						->update($db->qn('#__rseventspro_coupon_codes'))
+						->set($db->qn('used').' = '.$db->q($newUsed))
+						->where($db->qn('id').' = '.$db->q($couponInfo->id));
+					$db->setQuery($query);
+					$db->execute();
+					$found = true;
+				}
+			}
+			
+			if (!$found) {
+				$query->clear()
+					->select($db->qn('id'))->select($db->qn('used'))
+					->from($db->qn('#__rseventspro_discounts'))
+					->where($db->qn('code').' = '.$db->q($subscription->coupon));
+				$db->setQuery($query);
+				if ($couponInfo = $db->loadObject()) {
+					if ($couponInfo->used > 0) {
+						$newUsed = (int) $couponInfo->used - 1;
+						$query->clear()
+							->update($db->qn('#__rseventspro_discounts'))
+							->set($db->qn('used').' = '.$db->q($newUsed))
+							->where($db->qn('id').' = '.$db->q($couponInfo->id));
+						$db->setQuery($query);
+						$db->execute();
+						$found = true;
+					}
+				}
+			}
+		}
 		
 		// Delete RSForm!Pro submission
 		if (file_exists(JPATH_SITE.'/components/com_rsform/rsform.php') && $subscription->sync) {

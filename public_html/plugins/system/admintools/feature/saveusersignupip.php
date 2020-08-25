@@ -6,6 +6,8 @@
  */
 
 use FOF30\Date\Date;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
 
 defined('_JEXEC') or die;
 
@@ -63,7 +65,7 @@ class AtsystemFeatureSaveusersignupip extends AtsystemFeatureAbstract
 		// Create a new user note
 
 		// Get the user's ID
-		$user_id = (int)$user['id'];
+		$user_id = (int) $user['id'];
 
 		// Get the IP address
 		$ip = AtsystemUtilFilter::getIp();
@@ -77,26 +79,25 @@ class AtsystemFeatureSaveusersignupip extends AtsystemFeatureAbstract
 		$user_agent = $_SERVER['HTTP_USER_AGENT'];
 
 		// Get current date and time in database format
-		JLoader::import('joomla.utilities.date');
 		$now = new Date();
 		$now = $now->toSql();
 
 		// Load the component's administrator translation files
-		$jlang = JFactory::getLanguage();
+		$jlang = Factory::getLanguage();
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, 'en-GB', true);
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, null, true);
 
 		// Create and save the user note
-		$userNote = (object)array(
+		$userNote = (object) [
 			'user_id'         => $user_id,
 			'catid'           => 0,
-			'subject'         => JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_SIGNUPIP_SUBJECT'),
-			'body'            => JText::sprintf('COM_ADMINTOOLS_LBL_CONFIGUREWAF_SIGNUPIP_BODY', $ip, $user_agent),
+			'subject'         => Text::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_SIGNUPIP_SUBJECT'),
+			'body'            => Text::sprintf('COM_ADMINTOOLS_LBL_CONFIGUREWAF_SIGNUPIP_BODY', $ip, $user_agent),
 			'state'           => 1,
 			'created_user_id' => 42,
-			'created_time'    => $now
-		);
+			'created_time'    => $now,
+		];
 
 		try
 		{

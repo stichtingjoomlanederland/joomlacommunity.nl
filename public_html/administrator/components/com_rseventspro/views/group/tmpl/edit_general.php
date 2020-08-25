@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSEvents!Pro
-* @copyright (C) 2015 www.rsjoomla.com
+* @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
@@ -19,6 +19,8 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('can_change_options'), $this->form->getInput('can_change_options')); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('can_select_speakers'), $this->form->getInput('can_select_speakers')); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('can_add_speaker'), $this->form->getInput('can_add_speaker')); ?>
+	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('can_select_sponsors'), $this->form->getInput('can_select_sponsors')); ?>
+	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('can_add_sponsor'), $this->form->getInput('can_add_sponsor')); ?>
 	<?php echo JHtml::_('rsfieldset.end'); ?>
 </div>
 <div class="span6 rswidth-50 rsfltlft">

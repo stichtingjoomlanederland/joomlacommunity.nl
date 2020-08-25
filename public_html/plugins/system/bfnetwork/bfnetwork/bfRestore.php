@@ -4721,6 +4721,7 @@ class AKUnarchiverZIP extends AKUnarchiverJPA
                 while ($this->nextFile()) {
                 }
                 @fseek($this->fp, 0, SEEK_END); // Go to EOF
+
                 return false;
             } else {
                 debugMsg('Invalid signature '.dechex($headerData['sig']).' at '.ftell($this->fp));
@@ -6938,6 +6939,7 @@ class AKEncryptionAES
                 $s[$r][$c] = $t[$c];
             }         // and copy back
         }          // note that this will work for Nb=4,5,6, but not 7,8 (always 4 for AES):
+
         return $s;  // see fp.gladman.plus.com/cryptography_technology/rijndael/aes.spec.311.pdf
     }
 

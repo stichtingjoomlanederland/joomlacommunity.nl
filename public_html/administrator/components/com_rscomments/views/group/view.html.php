@@ -25,5 +25,31 @@ class RscommentsViewGroup extends JViewLegacy
 		JToolbarHelper::apply('group.apply');
 		JToolbarHelper::save('group.save');
 		JToolbarHelper::cancel('group.cancel');
+		
+		$script = array();
+		$script[] = "jQuery(document).ready(function() {";
+		
+		 if ($this->used) {
+			$script[] = "var used = new String('".implode(',',$this->used)."');";
+			$script[] = "var array = used.split(',');";
+			$script[] = "jQuery('#jform_gid option').each(function(){";
+			$script[] = "if (array.includes(jQuery(this).val())) {";
+			$script[] = "jQuery(this).prop('disabled', true);";
+			$script[] = "}";
+			$script[] = "});";
+		 }
+		 
+		 if (empty($this->item->IdGroup)) {
+			$script[] = "jQuery('#jform_gid option').each(function(){";
+			$script[] = "if (jQuery(this).is(':disabled') != true) {";
+			$script[] = "jQuery(this).prop('selected', true);";
+			$script[] = "}";
+			$script[] = "});";
+		 }
+		
+		$script[] = "jQuery('#jform_gid').trigger('liszt:updated');";
+		$script[] = '});';
+		
+		$this->document->addScriptDeclaration(implode("\n", $script));
 	}
 }

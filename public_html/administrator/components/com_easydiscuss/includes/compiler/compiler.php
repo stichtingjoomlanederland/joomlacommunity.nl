@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -240,7 +240,7 @@ class EasyDiscussCompiler extends EasyDiscuss
 		// 2. Load without jquery
 		// 3.
 
-		$url = JURI::root();
+		$url = JURI::root(true);
 		$cdnUrl = ED::getCdnUrl();
 
 		// If system is configured to use cdn, we should use the cdn url
@@ -324,7 +324,7 @@ class EasyDiscussCompiler extends EasyDiscuss
 		ob_start();
 ?>
 <!--googleoff: index-->
-<script type="text/javascript">
+<script>
 <?php echo $contents;?>
 </script>
 <!--googleon: index-->

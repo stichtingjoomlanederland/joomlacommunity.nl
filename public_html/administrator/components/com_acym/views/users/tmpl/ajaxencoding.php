@@ -197,7 +197,14 @@ $nbLines = count($this->lines);
 
             $alreadyFound[] = $selectedField;
 
-            echo '<td valign="top">'.acym_select($fieldAssignment, 'fieldAssignment'.$key, $selectedField, 'class="fieldAssignment"', 'value', 'text').'<br />';
+            echo '<td valign="top">'.acym_select(
+                    $fieldAssignment,
+                    'fieldAssignment'.$key,
+                    $selectedField,
+                    'class="fieldAssignment"',
+                    'value',
+                    'text'
+                ).'<br />';
         }
         echo '</tr>';
 
