@@ -25,6 +25,10 @@ class EasyDiscussViewPost extends EasyDiscussView
 	{
 		// Sorting and filters.
 		$sort = $this->input->get('sort', ED::getDefaultRepliesSorting(), 'word');
+
+		// to ensure the sort has the correct value as sometime sort might be empty string.
+		$sort = $sort ? $sort : ED::getDefaultRepliesSorting();
+
 		$filteractive = $this->input->get('filter', 'allposts', 'string');
 		$pagination = $this->config->get('layout_replies_pagination');
 

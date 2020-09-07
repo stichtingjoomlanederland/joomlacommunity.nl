@@ -47,6 +47,10 @@ class EasyDiscussViewProfile extends EasyDiscussView
 			$item->description = $row->getContent();
 			$item->date = ED::date($row->created)->toSql();
 
+			if (!isset($row->tags)) {
+				$row->tags = $row->getTags();
+			}
+
 			if (!empty($row->tags)) {
 				$tagData = array();
 				foreach ($row->tags as $tag) {

@@ -287,7 +287,7 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 	 * @access private
 	 * @return string
 	 */
-	public function _buildQuery($isTotalCnt = false, $name = '')
+	public function _buildQuery($isTotalCnt = false, $name = '', $usePagination = true)
 	{
 		// Get the WHERE and ORDER BY clauses for the query
 		$where = $this->_buildQueryWhere($name);
@@ -301,15 +301,33 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 		} 
 
 		if (!$isTotalCnt) {
-			$query = 'SELECT u.`id`, u.`name`, u.`username`, u.`email`, u.`registerDate`, u.`lastvisitDate`, u.`params`, u.`block` '
-					. ', d.`nickname`, d.`avatar`, d.`description`, d.`url`, d.`alias` '
-					. 'FROM ' . $db->nameQuote( '#__users' ) . ' AS u '
-					. 'LEFT JOIN ' . $db->nameQuote( '#__discuss_users' ) . ' AS d ON d.`id` = u.`id` '
-					. $where
-					. $orderby;
-		}
 
-		// echo $query;exit;
+			$query = "SELECT u.`id`, u.`name`, u.`username`, u.`email`, u.`registerDate`, u.`lastvisitDate`, u.`params`, u.`block`,";
+			$query .= " d.`nickname`, d.`avatar`, d.`description`, d.`url`, d.`alias`";
+			$query .= " FROM (";
+
+			// wrap the main query as subquery:
+			$query .= "		select u.id from #__users as u";
+			$query .= "			LEFT JOIN `#__discuss_users` AS d ON d.`id` = u.`id`";
+			$query .= $where;
+			$query .= $orderby;
+
+			// set limit inside wrapper
+			$limit = (int) $this->getState('limit');
+			$limitstart = (int) $this->getState('limitstart');
+
+			if ($usePagination) {
+				$query .= " LIMIT $limitstart, $limit";
+			} else {
+				$query .= " LIMIT $limit";
+			}
+			// end
+
+			$query .= ") as x";
+			$query .= " inner join `#__users` as u on u.`id` = x.`id`";
+			$query .= " LEFT JOIN `#__discuss_users` AS d ON d.`id` = u.`id`";
+			$query .= $orderby;
+		}
 
 		return $query;
 	}
@@ -328,10 +346,10 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 
 		$where = array();
 
-		$where[] = 'u.`block`=' . $db->Quote( 0 );
+		$where[] = 'u.`block` = ' . $db->Quote(0);
 
 		// Backend user searching
-		if ($app->isAdmin()) {
+		if ($app->isAdmin() && $search) {
 			$where[] = ' (LOWER(`name`) LIKE ' . $db->Quote('%' . $search . '%') . ') OR (LOWER(`username`) LIKE ' . $db->Quote('%' . $search . '%') . ')';
 		} 
 
@@ -340,7 +358,7 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 			$displayname = $config->get('layout_nameformat');
 
 			if ($displayname == 'name') {
-				$where[] = ' LOWER( name ) LIKE \'%' . $name . '%\' ';
+				$where[] = ' LOWER(`name`) LIKE \'%' . $name . '%\' ';
 			}
 
 			if ($displayname == 'username') {
@@ -348,11 +366,9 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 			}
 
 			if ($displayname == 'nickname') {
-				$where[] = ' LOWER( d.nickname ) LIKE \'%' . $name . '%\' ';
+				$where[] = ' LOWER(d.`nickname`) LIKE \'%' . $name . '%\' ';
 			}
 		}
-
-		$where[] = 'u.`id` != ' . $db->Quote( 0 );
 
 		$where = ( count( $where ) ? ' WHERE ' . implode( ' AND ', $where ) : '' );
 
@@ -384,10 +400,9 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 
 		// Lets load the content if it doesn't already exist
 		if (empty($this->_data)) {
-
 			$query = $this->_buildQuery(false, $name);
-
-			$result = $this->_getList($query, $this->getState('limitstart'), $this->getState('limit'));
+			$db->setQuery($query);
+			$result = $db->loadObjectlist();
 
 			$this->_data = $result;
 		}
@@ -403,15 +418,13 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 	 */
 	public function getUsers($usePagination = true)
 	{
+		$db = ED::db();
+
 		// Lets load the content if it doesn't already exist
 		if (empty($this->_data)) {
-			$query = $this->_buildQuery();
-
-			if ($usePagination) {
-				$this->_data = $this->_getList($query, $this->getState('limitstart'), $this->getState('limit'));
-			} else {
-				$this->_data = $this->_getList($query);
-			}
+			$query = $this->_buildQuery(false, '', $usePagination);
+			$db->setQuery($query);
+			$this->_data = $db->loadObjectlist();
 		}
 
 		return $this->_data;
@@ -453,6 +466,7 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 
 			$query .= ')';
 		}
+
 		$db->setQuery($query);
 
 		$result = $db->loadObjectList();

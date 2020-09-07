@@ -37,7 +37,7 @@ $hiddenLists = array_intersect($hiddenLists, array_keys($allLists));
 $allfields = $fieldClass->getFieldsByID($allfields);
 $fields = [];
 foreach ($allfields as $field) {
-    if($field->active === '0') continue;
+    if ($field->active === '0') continue;
     $fields[$field->id] = $field;
 }
 

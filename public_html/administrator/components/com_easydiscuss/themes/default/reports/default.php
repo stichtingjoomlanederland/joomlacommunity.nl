@@ -73,7 +73,7 @@ defined('_JEXEC') or die('Restricted access');
 
 						<td align="left">
 							<?php echo $this->escape($report->reason);?>
-							<a href="<?php echo $report->viewLink;?>" target="_blank">
+							<a href="index.php?option=com_easydiscuss&view=reports&layout=redirectPost&id=<?php echo $report->id; ?>" target="_blank">
 								<?php echo JText::_('COM_EASYDISCUSS_VIEW_POST'); ?>
 							</a>
 						</td>
@@ -87,7 +87,7 @@ defined('_JEXEC') or die('Restricted access');
 						</td>
 
 						<td class="center">
-							<?php if ($report->reportCnt > 1) { ?>
+							<?php if ($report->reportCnt > 0) { ?>
 								<a href="javascript:void(0);" data-reports-preview data-id="<?php echo $report->id;?>"><?php echo $report->reportCnt;?></a>
 							<?php } else { ?>
 								<?php echo $report->reportCnt; ?>

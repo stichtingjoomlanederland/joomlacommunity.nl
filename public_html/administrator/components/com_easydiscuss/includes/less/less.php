@@ -66,8 +66,14 @@ class EasyDiscussLess extends EasyDiscuss
 			$this->force = true;
 		}
 
-		// Perform the compiling now
-		$this->compile($options);
+		// Perform the compiling now if running on development.
+		$isDevelopment = true;
+		if (!defined('ED_CLI')) {
+			$isDevelopment = $this->config->get('system_environment') == 'development';
+		}
+		if ($isDevelopment) {
+			$this->compile($options);
+		}
 
 		return $result;
 	}

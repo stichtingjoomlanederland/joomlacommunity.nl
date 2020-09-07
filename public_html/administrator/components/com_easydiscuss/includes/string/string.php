@@ -280,7 +280,7 @@ class EasyDiscussString extends EasyDiscuss
 		$config = ED::config();
 
 		// Pattern to skip the url that are within the specific html tag. eg: <img src="www.url.com">.
-		$skipPattern = '<img[^>]*>(*SKIP)(*FAIL)|<script[^>]*>(*SKIP)(*FAIL)|<iframe[^>]*>(*SKIP)(*FAIL)';
+		$skipPattern = '<img[^>]*>(*SKIP)(*FAIL)|<script[^>]*>(*SKIP)(*FAIL)|<iframe[^>]*>(*SKIP)(*FAIL)|<a.*?<\/a>(*SKIP)(*FAIL)';
 
 		// $pattern = '@' . $skipPattern . '|(?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’])@i';
 		$pattern = '@' . $skipPattern . '|(?:https?:\/\/|www\d{0,3}[.])(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’])@i';
@@ -375,7 +375,7 @@ class EasyDiscussString extends EasyDiscuss
 		// Let's replace back the link now with the proper format based on the index given.
 
 		// here we need to update the skip pattern to ignore links inside <a> so that the regex will not re-process the 'already-processed' links.
-		$skipPattern = '<img[^>]*>(*SKIP)(*FAIL)|<script[^>]*>(*SKIP)(*FAIL)|<iframe[^>]*>(*SKIP)(*FAIL)|<a[^>]*>(*SKIP)(*FAIL)';
+		$skipPattern = '<img[^>]*>(*SKIP)(*FAIL)|<script[^>]*>(*SKIP)(*FAIL)|<iframe[^>]*>(*SKIP)(*FAIL)|<a.*?<\/a>(*SKIP)(*FAIL)';
 
 		foreach ($linkArrays as $link) {
 			$text = str_ireplace($link->customcode, $link->newlink, $text);

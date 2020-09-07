@@ -41,7 +41,7 @@ class Html extends BaseView
 	 */
 	public function onBeforeMain()
 	{
-		$this->container->template->addJS('media://com_akeeba/js/FileFilters.min.js');
+		$this->container->template->addJS('media://com_akeeba/js/FileFilters.min.js', true);
 
 		/** @var FileFilters $model */
 		$model = $this->getModel();

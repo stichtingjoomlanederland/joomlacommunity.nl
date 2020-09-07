@@ -249,7 +249,7 @@ final class WFTemplateManagerPlugin extends WFMediaManager
             $value = $item['properties']['preview'];
 
             $list[$name] = array(
-                'value' => $value,
+                'data' => $value,
                 'image' => '',
             );
         }

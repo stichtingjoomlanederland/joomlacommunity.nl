@@ -2,7 +2,7 @@
 <extension type="module" version="2.5" client="site" method="upgrade">
 	<name>AcyMailing subscription form</name>
 	<creationDate>August 2018</creationDate>
-	<version>6.13.3</version>
+	<version>6.14.1</version>
 	<author>Acyba</author>
 	<authorEmail>dev@acyba.com</authorEmail>
 	<authorUrl>https://www.acyba.com</authorUrl>
@@ -26,7 +26,7 @@
 				</field>
 				<field name="hiddenlists" type="lists" default="None" label="ACYM_AUTO_SUBSCRIBE_TO" description="ACYM_AUTO_SUBSCRIBE_TO_DESC"/>
 				<field name="displists" type="lists" default="None" label="ACYM_DISPLAYED_LISTS" description="ACYM_DISPLAYED_LISTS_DESC"/>
-				<field name="listschecked" type="lists" default="None" label="ACYM_CHECKED_LISTS" description="ACYM_CHECKED_LISTS_DESC"/>
+				<field name="listschecked" type="lists" default="None" label="ACYM_LISTS_CHECKED_DEFAULT" description="ACYM_LISTS_CHECKED_DEFAULT_DESC"/>
 
 				<field name="listposition" type="list" default="before" label="ACYM_LIST_POSITION">
 					<option value="before">ACYM_BEFORE_FIELDS</option>

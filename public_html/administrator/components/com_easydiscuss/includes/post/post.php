@@ -7339,4 +7339,18 @@ class EasyDiscussPost extends EasyDiscuss
 	{
 		return $this->post->getData($key);
 	}
+
+	/**
+	 * Determine for the current reply under which pagination
+	 *
+	 * @since   4.1.20
+	 * @access  public
+	 */
+	public function getReplyPosition($isModeration = false)
+	{
+		$model = ED::model('posts');
+		$results = $model->getReplyPosition($this->post->id, $this->post->thread_id, $isModeration);
+
+		return $results;
+	}	
 }

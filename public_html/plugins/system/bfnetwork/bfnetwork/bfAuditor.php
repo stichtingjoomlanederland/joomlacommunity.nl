@@ -755,7 +755,8 @@ final class bfAudit
         // legacy
         $obj->filestoscan = $obj->queuecount;
 
-        $obj->logtail = bfLog::getTail();
+        // Log tail for debugging online
+        // $obj->logtail = bfLog::getTail();
 
         // close db
         unset($this->db);
@@ -790,6 +791,8 @@ final class bfAudit
             if (method_exists($this->db, 'getConnection')) {
                 switch (get_class($this->db->getConnection())) {
                     case 'mysql':
+                        // PHP < 7.x
+                        /* @noinspection PhpElementIsNotAvailableInCurrentPhpVersionInspection */
                         @mysql_ping($this->db->getConnection());
                         break;
                     case 'mysqli':
@@ -800,6 +803,8 @@ final class bfAudit
                 // Joomla 1.freaking.5
                 switch (get_class($this->db->name)) {
                     case 'mysql':
+                        // PHP < 7.x
+                        /* @noinspection PhpElementIsNotAvailableInCurrentPhpVersionInspection */
                         @mysql_ping($this->db->_resource);
                         break;
                     case 'mysqli':

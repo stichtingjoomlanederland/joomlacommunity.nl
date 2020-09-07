@@ -2102,13 +2102,28 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		if (count($ids) > 0) {
 			$db	= ED::db();
 
-			$query = 'SELECT * FROM `#__discuss_posts` as a';
+			// $query = 'SELECT * FROM `#__discuss_posts` as a';
+			// if (count($ids) == 1) {
+			// 	$query .= ' WHERE a.`parent_id` = ' . $db->Quote($ids[0]);
+			// } else {
+			// 	$query .= ' WHERE a.`parent_id` IN (' . implode(',', $ids) . ')';
+			// }
+			// $query .= ' and a.`id` = (select b.`id` from `#__discuss_posts` as b where a.`parent_id` = b.`parent_id` order by id desc limit 1)';
+
+
+			$query = "select a.* from `#__discuss_posts` as a";
+			$query .= "		inner join `#__discuss_thread` as t on a.`thread_id` = t.`id`";
 			if (count($ids) == 1) {
-				$query .= ' WHERE a.`parent_id` = ' . $db->Quote($ids[0]);
+				$query .= " WHERE t.`post_id` = " . $db->Quote($ids[0]);
 			} else {
-				$query .= ' WHERE a.`parent_id` IN (' . implode(',', $ids) . ')';
-			}
-			$query .= ' and a.`id` = (select max(b.`id`) from `#__discuss_posts` as b where a.`parent_id` = b.`parent_id`)';
+				$query .= ' WHERE t.`post_id` IN (' . implode(',', $ids) . ')';
+
+			} 
+			$query .= " and a.`id` = (select b1.`id` from `#__discuss_posts` b1 where b1.`thread_id` = t.`id` and b1.`id` != t.`post_id` order by b1.`id` desc limit 1)";
+
+
+			// echo $query;
+			// echo '<br>';
 
 			$db->setQuery($query);
 			$result = $db->loadObjectList();
@@ -3725,15 +3740,27 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 	 * @since	4.1
 	 * @access	public
 	 */
-	public function suggestTopics($text = '', $excludeIds = array(), $limit = 10)
+	public function suggestTopics($text = '', $excludeIds = array(), $limit = 20)
 	{
 		$db = ED::db();
+
+		$text = trim($text);
+
+		// check if user seach using id or not.
+		$searchWithId = false;
+		if (preg_match('/^[0-9]+$/', $text)) {
+			$searchWithId = true;
+		}
 
 		$query = "select a.`post_id` as `id`, a.`title`";
 		$query .= " from " . $db->nameQuote('#__discuss_thread') . " as a";
 		$query .= " where a.`published` = " . $db->Quote(DISCUSS_ID_PUBLISHED);
 		if ($text) {
-			$query .= " AND LOWER(a.`title`) LIKE " . $db->Quote('%' . $text . '%');
+			if ($searchWithId) {
+				$query .= " AND a.`post_id` = " . $db->Quote($text);
+			} else {
+				$query .= " AND LOWER(a.`title`) LIKE " . $db->Quote('%' . $text . '%');
+			}
 		}
 
 		if ($excludeIds) {
@@ -3745,13 +3772,69 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		// make sure limit is in int
 		$limit = (int) $limit;
-		$limit = $limit ? $limit : 10;
+		$limit = $limit ? $limit : 20;
 
 		$query .= " LIMIT $limit";
+
+		// echo $query;
 
 		$db->setQuery($query);
 		$results = $db->loadObjectList();
 
 		return $results;
 	}
+
+	/**
+	 * Determine for the current reply under which pagination
+	 *
+	 * @since	4.1.20
+	 * @access	public
+	 */
+	public function getReplyPosition($replyId, $threadId, $isModeration = false)
+	{
+		$db = ED::db();
+		$config = ED::config();
+
+		$replySorting = $config->get('layout_replies_sorting');
+
+		// Currently only support sorting for the oldest and latest
+		// oldest -  the oldest reply show at the top first at the first page
+		// latest - the latest reply show at the top first at first page
+		$comparisonOperator = $replySorting == 'latest' ? '>=' : '<=';
+
+		// Use the count for determine reply under which position now.
+		// Imagine if count the reply lower than that id, so we can know how many reply from the latest reply until that reply id we check.
+		$query[] = "SELECT COUNT(*) FROM `#__discuss_posts` AS a";
+		$query[] = "INNER JOIN `#__discuss_thread` AS t ON a.`thread_id` = t.`id`";
+		$query[] = "WHERE a.`thread_id` = " . $db->Quote($threadId);
+		$query[] = "AND a.`parent_id` != " . $db->Quote(0);
+
+		// Need to include the moderation reply
+		if ($isModeration) {
+			$publishStateIds = array(DISCUSS_ID_PUBLISHED, DISCUSS_ID_PENDING);
+			$publishStateIds = implode(',', $publishStateIds);
+
+			$query[] = "AND a.`published` IN (" . $publishStateIds . ")";
+
+		} else {
+			$query[] = "AND a.`published` = " . $db->Quote(DISCUSS_ID_PUBLISHED);
+		}
+		
+		$query[] = "AND a.`id` " . $comparisonOperator . ' ' . $replyId;
+
+		$query = implode(' ', $query);
+
+		$db->setQuery($query);
+		$results = $db->loadResult();
+
+		// Always deduct 1 from the result
+		// for example if the result total is 10 and my reply pagination set to show 5 reply per page
+		// it will become 3rd page if 10 / 5 = limitstart at 10
+		// by right the reply should appear on the second page.
+		if ($results > 1) {
+			$results = $results - 1;
+		}
+
+		return $results;
+	}	
 }

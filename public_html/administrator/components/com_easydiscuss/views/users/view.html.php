@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -129,7 +129,7 @@ class EasyDiscussViewUsers extends EasyDiscussAdminView
 		$active = $this->input->get('active', 'account', 'word');
 
 		if ($this->config->get('layout_avatar')) {
-			$maxSizeInMB = (int) $this->config->get( 'main_upload_maxsize', 0 );
+			$maxSizeInMB = (int) $this->config->get('main_upload_maxsize', 0);
 		}
 
 		// Get editor for signature.
@@ -202,7 +202,7 @@ class EasyDiscussViewUsers extends EasyDiscussAdminView
 
 		$sql = "SELECT title FROM `#__usergroups` AS ug";
 		$sql .= " left join  `#__user_usergroup_map` as map on (ug.id = map.group_id)";
-		$sql .= " WHERE map.user_id=". $db->Quote( $user_id );
+		$sql .= " WHERE map.user_id=". $db->Quote($user_id);
 
 		$db->setQuery($sql);
 		$result = $db->loadResultArray();
@@ -230,39 +230,39 @@ class EasyDiscussViewUsers extends EasyDiscussAdminView
 
 	public function browse()
 	{
-		$app			= JFactory::getApplication();
+		$app = JFactory::getApplication();
 
-		$filter_state	= $app->getUserStateFromRequest( 'com_easydiscuss.users.filter_state',		'filter_state',		'*',	'word' );
-		$search			= $app->getUserStateFromRequest( 'com_easydiscuss.users.search',			'search',			'',		'string' );
+		$filter_state = $app->getUserStateFromRequest('com_easydiscuss.users.filter_state', 'filter_state', '*', 'word');
+		$search = $app->getUserStateFromRequest('com_easydiscuss.users.search', 'search', '', 'string');
 
-		$search			= trim(JString::strtolower( $search ) );
-		$order			= $app->getUserStateFromRequest( 'com_easydiscuss.users.filter_order',		'filter_order',		'id',	'cmd' );
-		$orderDirection	= $app->getUserStateFromRequest( 'com_easydiscuss.users.filter_order_Dir',	'filter_order_Dir',	'',		'word' );
+		$search = trim(JString::strtolower($search));
+		$order = $app->getUserStateFromRequest('com_easydiscuss.users.filter_order', 'filter_order', 'id', 'cmd');
+		$orderDirection = $app->getUserStateFromRequest('com_easydiscuss.users.filter_order_Dir', 'filter_order_Dir', '', 'word');
 
-		$userModel		= ED::model( 'Users' );
-		$users			= $userModel->getUsers();
+		$userModel = ED::model('Users');
+		$users = $userModel->getUsers();
 
 		if (count($users) > 0) {
 			for ($i = 0; $i < count($users); $i++) {
 
-				$joomlaUser				= JFactory::getUser($users[$i]->id);
-				$userGroupsKeys			= array_keys($joomlaUser->groups);
-				$userGroups				= implode(', ', $userGroupsKeys);
-				$users[$i]->usergroups	= $userGroups;
+				$joomlaUser = JFactory::getUser($users[$i]->id);
+				$userGroupsKeys = array_keys($joomlaUser->groups);
+				$userGroups = implode(', ', $userGroupsKeys);
+				$users[$i]->usergroups = $userGroups;
 			}
 		}
 
-		$pagination	= $userModel->getPagination();
+		$pagination = $userModel->getPagination();
 
-		$state	= JHTML::_('grid.state', $filter_state );
+		$state = JHTML::_('grid.state', $filter_state);
 
-		$this->assign( 'users'			, $users );
-		$this->assign( 'pagination'		, $pagination );
-		$this->assign( 'search'			, $search );
-		$this->assign( 'state'			, $state );
-		$this->assign( 'orderDirection'	, $orderDirection );
-		$this->assign( 'order'			, $order );
-		$this->assign( 'pagination'		, $pagination );
+		$this->assign('users' , $users);
+		$this->assign('pagination' , $pagination);
+		$this->assign('search' , $search);
+		$this->assign('state' , $state);
+		$this->assign('orderDirection' , $orderDirection);
+		$this->assign('order' , $order);
+		$this->assign('pagination' , $pagination);
 
 		parent::display('users');
 	}

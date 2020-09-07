@@ -45,6 +45,10 @@ class WFTemplateManagerPluginConfig
 
                     extract($template);
 
+                    if (empty($url) && empty($html)) {
+                        continue;
+                    }
+
                     if (!empty($url)) {
                         if (preg_match("#\.(htm|html|txt)$#", $url) && strpos('://', $url) === false) {
                             $url = trim($url, '/');
@@ -74,7 +78,10 @@ class WFTemplateManagerPluginConfig
                         'image' => $thumbnail
                     );
                 }
-            } else {
+            }
+
+            // a default list of template files
+            if (empty($list)) {
                 $list = $plugin->getTemplateList();
             }
         }

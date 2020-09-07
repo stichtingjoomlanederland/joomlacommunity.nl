@@ -14,7 +14,7 @@ if (!class_exists('Less_Parser')) {
 	Less_Autoloader::register();
 }
 
-if (!class_exists('lessc')) {
+// if (!class_exists('lessc')) {
 
 class lessc{
 
@@ -275,4 +275,4 @@ class lessc{
 }
 
 
-}
+// }

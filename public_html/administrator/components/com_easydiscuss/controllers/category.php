@@ -150,9 +150,15 @@ class EasyDiscussControllerCategory extends EasyDiscussController
 		$params->set('cat_email_parser', $post['cat_email_parser']);
 		$params->set('cat_email_parser_password', $post['cat_email_parser_password']);
 		$params->set('cat_email_parser_switch', $post['cat_email_parser_switch']);
-		$params->set('cat_default_private', $post['cat_default_private']);
-		$params->set('cat_enforce_private', $post['cat_enforce_private']);
 
+		if (isset($post['cat_default_private'])) {
+			$params->set('cat_default_private', $post['cat_default_private']);
+		}
+
+		if (isset($post['cat_enforce_private'])) {
+			$params->set('cat_enforce_private', $post['cat_enforce_private']);
+		}
+		
 		// Set the params to category
 		$category->set('params', $params->toString());
 

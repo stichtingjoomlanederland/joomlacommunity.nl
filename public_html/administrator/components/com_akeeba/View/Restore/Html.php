@@ -102,8 +102,8 @@ class Html extends BaseView
 
 	private function loadCommonJavascript()
 	{
-		$this->container->template->addJS('media://com_akeeba/js/Configuration.min.js');
-		$this->container->template->addJS('media://com_akeeba/js/Restore.min.js');
+		$this->container->template->addJS('media://com_akeeba/js/Configuration.min.js', true);
+		$this->container->template->addJS('media://com_akeeba/js/Restore.min.js', true);
 
 		// Push translations
 		JText::script('COM_AKEEBA_CONFIG_UI_BROWSE');

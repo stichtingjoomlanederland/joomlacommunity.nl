@@ -41,8 +41,8 @@ class Html extends \FOF30\View\DataView\Html
 	public function onBeforeMain()
 	{
 		// Load Javascript files
-		$this->container->template->addJS('media://com_akeeba/js/FileFilters.min.js');
-		$this->container->template->addJS('media://com_akeeba/js/RegExDatabaseFilters.min.js');
+		$this->container->template->addJS('media://com_akeeba/js/FileFilters.min.js', true);
+		$this->container->template->addJS('media://com_akeeba/js/RegExDatabaseFilters.min.js', true);
 
 		/** @var RegExDatabaseFilters $model */
 		$model = $this->getModel();

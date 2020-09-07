@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -86,7 +86,7 @@ class EasyDiscussViewReports extends EasyDiscussAdminView
 	public function preview()
 	{
 		// Check for acl rules.
-		$this->checkAccess('discuss.manage.spools');
+		$this->checkAccess('discuss.manage.reports');
 
 		// Get the mail id
 		$id = $this->input->get('id', 0, 'int');
@@ -110,5 +110,56 @@ class EasyDiscussViewReports extends EasyDiscussAdminView
 		echo $theme->output('admin/reports/reasons');
 
 		exit;
+	}
+
+	/**
+	 * Redirect the post or reply to the frontend
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function redirectPost()
+	{
+		$id = $this->input->get('id', 0, 'int');
+		$post = ED::post($id);	
+
+		// If this report someone reported from the question then we can just redirect to that question page without go through any process
+		if ($post->isQuestion()) {
+			$url = 'index.php?option=com_easydiscuss&view=post&id=' . $post->id;
+			$redirection = EDR::getRoutedURL($url, false, true);
+			return $this->app->redirect($redirection);
+		}
+
+		// Load front end language file.
+		JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
+		$config = ED::config();
+
+		$hasEnabledReplyPagination = $config->get('layout_replies_pagination');
+		$replyPaginationLimit = $config->get('layout_replies_list_limit');
+
+		$url = 'index.php?option=com_easydiscuss&view=post&id=' . $post->parent_id . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+
+		// Redirect to the reply directly if the site doesn't enable to show reply pagination
+		if (!$hasEnabledReplyPagination) {
+			$redirection = EDR::getRoutedURL($url, false, true);
+			return $this->app->redirect($redirection);
+		}
+
+		// Retrieve a list of reply use to determine that where is this reply position on the page
+		$results = $post->getReplyPosition();
+
+		// Process this if the reply located at the first page
+		if ($results < $replyPaginationLimit) {
+			$redirection = EDR::getRoutedURL($url, false, true);
+			return $this->app->redirect($redirection);
+		}
+
+		$replyPositionNum = (int) ($results / $replyPaginationLimit);
+		$limitstart = $replyPositionNum * $replyPaginationLimit;
+	
+		$url = 'index.php?option=com_easydiscuss&view=post&id=' . $post->parent_id . '&limitstart=' . $limitstart . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+		$redirection = EDR::getRoutedURL($url, false, true);
+
+		return $this->app->redirect($redirection);
 	}
 }

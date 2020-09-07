@@ -41,7 +41,7 @@ class EasyDiscussViewPost extends EasyDiscussView
 		}
 
 		// Get list of categories.
-		$categories = ED::populateCategories('', '', 'select', 'category_id', $post->category_id, true, true, true, true, '', array($post->category_id));
+		$categories = ED::populateCategories('', '', 'select', 'category_id', false, true, true, true, true, '');
 
 		$theme = ED::themes();
 		$theme->set('categories', $categories);
@@ -1739,24 +1739,11 @@ class EasyDiscussViewPost extends EasyDiscussView
 	{
 		$id = $this->input->get('id', 0, 'int');
 		$text = $this->input->get('text', '', 'string');
+		$text = trim($text);
 
 		if (!$text) {
 			return $this->ajax->resolve('');
 		}
-
-		$posts = array();
-
-		// $obj = new stdClass();
-		// $obj->id = 111101;
-		// $obj->title = 'ABC One Two Three';
-
-		// $data[] = $obj;
-
-		// $obj = new stdClass();
-		// $obj->id = 111102;
-		// $obj->title = 'One Two Three ABC';
-
-		// $data[] = $obj;
 
 		$model = ED::model('Posts');
 		$posts = $model->suggestTopics($text, array($id));
@@ -1821,8 +1808,12 @@ class EasyDiscussViewPost extends EasyDiscussView
 		$model = ED::model('PostTypes');
 		$postTypes = $model->getPostTypes($categoryId);
 
+		// This fix for elements with non-unique id. #818
+		$uid = uniqid();
+
 		$theme = ED::themes();
 		$theme->set('postTypes', $postTypes);
+		$theme->set('uid', $uid);
 		$output = $theme->output('site/ask/post.types');
 
 		return $this->ajax->resolve($output);
